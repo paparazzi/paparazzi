@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -17,11 +17,25 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
+/** @file modules/digital_cam/dc.c
+ * Standard Digital Camera Control Interface.
+ *
+ * -Standard IO
+ * -I2C Control
+ *
+ * Usage: (from the flight plan, the settings or any airborne code):
+ * - dc_send_command(  )
+ * - set the appropriate autoshoot mode (off/time/distance/trigger)
+ * - use the module periodic function to set the autorepeat interval
+ * - define SENSOR_SYNC_SEND to get the DC_SHOT_MESSAGE on every SHOOT command
+ */
 
 #include "dc.h"
+
+// for waypoints, but still only fixedwing
+#include "subsystems/navigation/common_nav.h"
 
 // Variables with boot defaults
 uint8_t dc_autoshoot_meter_grid = 100;
@@ -54,6 +68,17 @@ uint16_t dc_buffer = 0;
 #include "subsystems/datalink/downlink.h"
 #include "state.h"
 #include "subsystems/gps.h"
+
+
+void dc_init(void)
+{
+#ifdef DC_AUTOSHOOT_QUARTERSEC_PERIOD
+  dc_autoshoot_quartersec_period = DC_AUTOSHOOT_QUARTERSEC_PERIOD;
+#endif
+#ifdef DC_AUTOSHOOT_METER_GRID
+  dc_autoshoot_meter_grid = DC_AUTOSHOOT_METER_GRID;
+#endif
+}
 
 void dc_send_shot_position(void)
 {
@@ -153,36 +178,79 @@ uint8_t dc_stop(void) {
   return 0;
 }
 
+static float dim_mod(float a, float b, float m) {
+  if (a < b) {
+    float tmp = a;
+    a = b;
+    b = tmp;
+  }
+  return fminf(a-b, b+m-a);
+}
 
-/*
-#ifndef DC_GPS_TRIGGER_START
-#define DC_GPS_TRIGGER_START 1
-#endif
-#ifndef DC_GPS_TRIGGER_STOP
-#define DC_GPS_TRIGGER_STOP 3
-#endif
+void dc_periodic_4Hz(void)
+{
+  static uint8_t dc_shutter_timer = 0;
 
+  switch (dc_autoshoot) {
 
-static inline void dc_shoot_on_gps( void ) {
-  static uint8_t gps_msg_counter = 0;
+    case DC_AUTOSHOOT_PERIODIC:
+      if (dc_shutter_timer) {
+        dc_shutter_timer--;
+      } else {
+        dc_shutter_timer = dc_autoshoot_quartersec_period;
+        dc_send_command(DC_SHOOT);
+      }
+      break;
 
-  if (dc_shoot > 0)
-  {
+    case DC_AUTOSHOOT_DISTANCE:
+      {
+        uint32_t dist_to_100m_grid = (gps.utm_pos.north / 100) % 100;
+        if (dist_to_100m_grid < dc_autoshoot_meter_grid || 100 - dist_to_100m_grid < dc_autoshoot_meter_grid)
+        {
+          dc_send_command(DC_SHOOT);
+        }
+      }
+      break;
 
-    if (gps_msg_counter == 0)
-    {
-      DC_PUSH(DC_SHUTTER_LED);
+    case DC_AUTOSHOOT_CIRCLE: {
+      float course = DegOfRad(stateGetNedToBodyEulers_f()->psi) - dc_circle_start_angle;
+      if (course < 0.)
+        course += 360.;
+      float current_block = floorf(course/dc_circle_interval);
 
-      dc_send_shot_position();
+      if (dc_probing) {
+        if (current_block == dc_circle_last_block) {
+          dc_probing = FALSE;
+        }
+      }
+
+      if (dim_mod(current_block, dc_circle_last_block, dc_circle_max_blocks) == 1) {
+        dc_gps_count++;
+        dc_circle_last_block = current_block;
+        dc_send_command(DC_SHOOT);
+      }
     }
-    else if (gps_msg_counter == DC_GPS_TRIGGER_START)
-    {
-      DC_RELEASE(DC_SHUTTER_LED);
-    }
+      break;
 
-    gps_msg_counter++;
-    if (gps_msg_counter >= DC_GPS_TRIGGER_STOP)
-      gps_msg_counter = 0;
+    case DC_AUTOSHOOT_SURVEY : {
+      float dist_x = dc_gps_x - stateGetPositionEnu_f()->x;
+      float dist_y = dc_gps_y - stateGetPositionEnu_f()->y;
+
+      if (dc_probing) {
+        if (dist_x*dist_x + dist_y*dist_y < dc_gps_dist*dc_gps_dist) {
+          dc_probing = FALSE;
+        }
+      }
+
+      if (dist_x*dist_x + dist_y*dist_y >= dc_gps_next_dist*dc_gps_next_dist) {
+        dc_gps_next_dist += dc_gps_dist;
+        dc_gps_count++;
+        dc_send_command(DC_SHOOT);
+      }
+    }
+      break;
+
+    default :
+      dc_autoshoot = DC_AUTOSHOOT_STOP;
   }
 }
-*/
