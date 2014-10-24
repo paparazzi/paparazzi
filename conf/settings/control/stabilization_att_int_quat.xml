@@ -6,7 +6,7 @@
     <dl_settings NAME="Att Loop">
       <dl_setting var="stabilization_gains.p.x" min="1" step="1" max="8000"   module="stabilization/stabilization_attitude_common_int" shortname="pgain phi" param="STABILIZATION_ATTITUDE_PHI_PGAIN"/>
       <dl_setting var="stabilization_gains.d.x" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude_common_int" shortname="dgain p" param="STABILIZATION_ATTITUDE_PHI_DGAIN"/>
-      <dl_setting var="stabilization_gains.i.x" min="0" step="1" max="800"    module="stabilization/stabilization_attitude_common_int" shortname="igain phi" handler="SetKiPhi"param="STABILIZATION_ATTITUDE_PHI_IGAIN" />
+      <dl_setting var="stabilization_gains.i.x" min="0" step="1" max="800"    module="stabilization/stabilization_attitude_common_int" shortname="igain phi" param="STABILIZATION_ATTITUDE_PHI_IGAIN"/>
       <dl_setting var="stabilization_gains.dd.x" min="0" step="1" max="1000" module="stabilization/stabilization_attitude_common_int" shortname="ddgain p" param="STABILIZATION_ATTITUDE_PHI_DDGAIN"/>
       <dl_setting var="stabilization_gains.p.y" min="1" step="1" max="8000"   module="stabilization/stabilization_attitude_common_int" shortname="pgain theta" param="STABILIZATION_ATTITUDE_THETA_PGAIN"/>
       <dl_setting var="stabilization_gains.d.y" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude_common_int" shortname="dgain q" param="STABILIZATION_ATTITUDE_THETA_DGAIN"/>

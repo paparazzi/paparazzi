@@ -33,5 +33,6 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_euler_float.h"
 
 extern struct FloatAttitudeGains stabilization_gains;
+extern struct FloatEulers stabilization_att_sum_err;
 
 #endif /* STABILIZATION_ATTITUDE_EULER_FLOAT_H */
