@@ -45,6 +45,9 @@
 /** number of images taken since the last change of dc_mode */
 extern uint16_t dc_gps_count;
 
+/** export the number of the last photo */
+extern uint16_t dc_photo_nr;
+
 /** distance between dc shots in meters */
 extern float dc_gps_dist;
 

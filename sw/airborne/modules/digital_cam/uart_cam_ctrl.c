@@ -25,7 +25,7 @@
  * Retrieve thumbnails
  */
 
-#include "digital_cam_uart.h"
+#include "uart_cam_ctrl.h"
 #include "generated/airframe.h"
 
 // Include Standard Camera Control Interface
@@ -39,10 +39,10 @@
 #include BOARD_CONFIG
 
 // Communication
-#include "modules/digital_cam/candy/protocol.h"
+#include "modules/digital_cam/catia/protocol.h"
 
 #ifdef SITL
-#include "modules/digital_cam/candy/serial.h"
+#include "modules/digital_cam/catia/serial.h"
 #endif
 
 #include "state.h"
@@ -166,7 +166,7 @@ void dc_send_command(uint8_t cmd)
       dc_shot_msg.data.psi = stateGetNedToBodyEulers_i()->psi;
       dc_shot_msg.data.vground = *stateGetHorizontalSpeedNorm_i();
       dc_shot_msg.data.course = *stateGetHorizontalSpeedDir_i();
-      dc_shot_msg.data.groundalt = POS_BFP_OF_REAL(ground_alt);
+      dc_shot_msg.data.groundalt = POS_BFP_OF_REAL(state.alt_agl_f);
 
       MoraHeader(MORA_SHOOT,MORA_SHOOT_MSG_SIZE);
       for (int i=0; i< (MORA_SHOOT_MSG_SIZE); i++)
