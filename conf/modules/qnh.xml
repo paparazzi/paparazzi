@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="altitude">
+  <doc>
+    <description>
+      QNH Altitude.
+      Barometric pressure adjusted to sea level, when set on an aircraft's altimeter, will cause the altimeter to read altitude above mean sea level within a certain defined region.
+    </description>
+    <define name="QNH_BARO_ID" value="id" description="ABI sender ID of the baro sensor, default is any baro (ABI_BROADCAST)"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="qnh">
+        <dl_setting min="800" max="1200" step="1" module="altitude/qnh" var="qnh.qnh" shortname="QNH"/>
+        <dl_setting min="0" max="1" step="1" var="qnh.qnh" module="altitude/qnh" handler="ComputeQNH"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="qnh.h"/>
+  </header>
+  <init fun="init_qnh()"/>
+  <periodic fun="periodic_qnh()" freq="4." autorun="TRUE"/>
+  <makefile>
+    <file name="qnh.c"/>
+  </makefile>
+</module>
