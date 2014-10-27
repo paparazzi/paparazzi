@@ -152,6 +152,14 @@ static void send_air_data(void)
                          &air_data.amsl_baro, &air_data.airspeed,
                          &air_data.tas_factor);
 }
+
+static void send_amsl(void)
+{
+  const float MeterPerFeet = 0.3048;
+  float amsl_baro_ft = air_data.amsl_baro / MeterPerFeet;
+  float amsl_gps_ft = stateGetPositionLla_f()->alt / MeterPerFeet;
+  DOWNLINK_SEND_AMSL(DefaultChannel, DefaultDevice, &amsl_baro_ft, &amsl_gps_ft);
+}
 #endif
 
 /** AirData initialization. Called at startup.
@@ -191,6 +199,7 @@ void air_data_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "BARO_RAW", send_baro_raw);
   register_periodic_telemetry(DefaultPeriodic, "AIR_DATA", send_air_data);
+  register_periodic_telemetry(DefaultPeriodic, "AMSL", send_amsl);
 #endif
 }
 

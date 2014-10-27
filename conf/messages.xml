@@ -1954,7 +1954,11 @@
     <field name="tas_factor" type="float"/>
   </message>
 
- <!--223 is free -->
+  <message name="AMSL" id="223">
+    <field name="AMSL_BARO" type="float" unit="ft" alt_unit="m"/>
+    <field name="AMSL_GPS" type="float" unit="ft" alt_unit="m"/>
+  </message>
+
  <!--224 is free -->
 
   <message name="VIDEO_SYNC" id="225">
