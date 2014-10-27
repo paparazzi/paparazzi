@@ -25,7 +25,7 @@
 
 #include "generated/airframe.h"
 
-#include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_transformations.h"
 
@@ -126,7 +126,7 @@ void stabilization_attitude_init(void) {
 
   stabilization_attitude_ref_init();
 
-  INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
+  int32_quat_identity(&stabilization_att_sum_err_quat);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
@@ -142,7 +142,7 @@ void stabilization_attitude_enter(void) {
 
   stabilization_attitude_ref_enter();
 
-  INT32_QUAT_ZERO(stabilization_att_sum_err_quat);
+  int32_quat_identity(&stabilization_att_sum_err_quat);
 
 }
 
@@ -227,8 +227,8 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   struct Int32Quat* att_quat = stateGetNedToBodyQuat_i();
   INT32_QUAT_INV_COMP(att_err, *att_quat, stab_att_ref_quat);
   /* wrap it in the shortest direction       */
-  INT32_QUAT_WRAP_SHORTEST(att_err);
-  INT32_QUAT_NORMALIZE(att_err);
+  int32_quat_wrap_shortest(&att_err);
+  int32_quat_normalize(&att_err);
 
   /*  rate error                */
   const struct Int32Rates rate_ref_scaled = {
@@ -250,7 +250,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     Bound(stabilization_att_sum_err_quat.qz,-INTEGRATOR_BOUND,INTEGRATOR_BOUND);
   } else {
     /* reset accumulator */
-    INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
+    int32_quat_identity(&stabilization_att_sum_err_quat);
   }
 
   /* compute the feed forward command */

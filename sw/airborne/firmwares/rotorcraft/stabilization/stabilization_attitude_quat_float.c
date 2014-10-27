@@ -25,7 +25,7 @@
 
 #include "generated/airframe.h"
 
-#include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_transformations.h"
 
@@ -154,7 +154,7 @@ void stabilization_attitude_init(void) {
 #endif
   }
 
-  FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
+  float_quat_identity(&stabilization_att_sum_err_quat);
   FLOAT_RATES_ZERO( last_body_rate );
   FLOAT_RATES_ZERO( body_rate_d );
 
@@ -181,7 +181,7 @@ void stabilization_attitude_enter(void) {
 
   stabilization_attitude_ref_enter();
 
-  FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
+  float_quat_identity(&stabilization_att_sum_err_quat);
 }
 
 void stabilization_attitude_set_failsafe_setpoint(void) {
@@ -290,9 +290,9 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   /* attitude error                          */
   struct FloatQuat att_err;
   struct FloatQuat* att_quat = stateGetNedToBodyQuat_f();
-  FLOAT_QUAT_INV_COMP(att_err, *att_quat, stab_att_ref_quat);
+  float_quat_inv_comp(&att_err, att_quat, &stab_att_ref_quat);
   /* wrap it in the shortest direction       */
-  FLOAT_QUAT_WRAP_SHORTEST(att_err);
+  float_quat_wrap_shortest(&att_err);
 
   /*  rate error                */
   struct FloatRates rate_err;
@@ -313,7 +313,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     Bound(stabilization_att_sum_err_quat.qz,-INTEGRATOR_BOUND,INTEGRATOR_BOUND);
   } else {
     /* reset accumulator */
-    FLOAT_QUAT_ZERO(stabilization_att_sum_err_quat);
+    float_quat_identity(&stabilization_att_sum_err_quat);
   }
 
   attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains[gain_idx], &stab_att_ref_accel);
@@ -339,5 +339,5 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 void stabilization_attitude_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn) {
 
   stabilization_attitude_read_rc_setpoint_quat_f(&stab_att_sp_quat, in_flight, in_carefree, coordinated_turn);
-  //FLOAT_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
+  //float_quat_wrap_shortest(&stab_att_sp_quat);
 }
