@@ -38,7 +38,7 @@ bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float S
   float dy = waypoints[SecondWP].y - waypoints[FirstWP].y;
   if (dx == 0.0f) dx = 0.000000001;
   float ang = atan(dy/dx);
-  return nav_survey_poly_osam_setup_towards(FirstWP, Size, Sweep, DegOfRad(ang));
+  return nav_survey_poly_osam_setup(FirstWP, Size, Sweep, DegOfRad(ang));
 }
 
 
