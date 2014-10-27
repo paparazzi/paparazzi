@@ -49,10 +49,8 @@
 // 7 * 4 bytes int32_t
 // nr, lat, lon, h, phi, theta, psi
 
-union dc_shot_union
-{
-  struct
-  {
+union dc_shot_union {
+  struct {
     int32_t nr;
     int32_t lat;
     int32_t lon;
@@ -82,10 +80,8 @@ union dc_shot_union
 #define MORA_STATUS_MSG_SIZE    (4*2)
 
 // 4*2 bytes
-union mora_status_union
-{
-  struct mora_status_struct
-  {
+union mora_status_union {
+  struct mora_status_struct {
     uint16_t cpu;
     uint16_t threads;
     uint16_t shots;
@@ -104,28 +100,28 @@ extern uint8_t mora_ck_a, mora_ck_b;
 #define MoraSizeOf(_payload) (_payload+5)
 
 #define MoraPutUint8( _byte) {     \
-  mora_ck_a += _byte;              \
-  mora_ck_b += mora_ck_a;          \
-  CameraLink(Transmit(_byte));     \
-}
+    mora_ck_a += _byte;              \
+    mora_ck_b += mora_ck_a;          \
+    CameraLink(Transmit(_byte));     \
+  }
 
 #define MoraHeader(msg_id, payload_len) {           \
-  CameraLink(Transmit(STX));                        \
-  uint8_t msg_len = MoraSizeOf( payload_len);       \
-  CameraLink(Transmit(msg_len));                    \
-  mora_ck_a = msg_len; mora_ck_b = msg_len;         \
-  MoraPutUint8(msg_id);                             \
-}
+    CameraLink(Transmit(STX));                        \
+    uint8_t msg_len = MoraSizeOf( payload_len);       \
+    CameraLink(Transmit(msg_len));                    \
+    mora_ck_a = msg_len; mora_ck_b = msg_len;         \
+    MoraPutUint8(msg_id);                             \
+  }
 
 #define MoraTrailer() {               \
-  CameraLink(Transmit(mora_ck_a));    \
-  CameraLink(Transmit(mora_ck_b));    \
-}
+    CameraLink(Transmit(mora_ck_a));    \
+    CameraLink(Transmit(mora_ck_b));    \
+  }
 
 #define MoraPut1ByteByAddr( _byte) {  \
-  uint8_t _x = *(_byte);              \
-  MoraPutUint8( _x);                  \
-}
+    uint8_t _x = *(_byte);              \
+    MoraPutUint8( _x);                  \
+  }
 
 /////////////////////////////////////////////////////////////////////
 // PARSING
@@ -145,29 +141,8 @@ struct mora_transport {
 
 extern struct mora_transport mora_protocol;
 
-void parse_mora(struct mora_transport * t, uint8_t c );
+void parse_mora(struct mora_transport* t, uint8_t c);
 
-/*
-static inline void pprz_parse_payload(struct pprz_transport * t) {
-  uint8_t i;
-  for(i = 0; i < t->trans.payload_len; i++)
-    dl_buffer[i] = t->trans.payload[i];
-  dl_msg_available = TRUE;
-}
-
-
-#define PprzBuffer(_dev) TransportLink(_dev,ChAvailable())
-#define ReadPprzBuffer(_dev,_trans) { while (TransportLink(_dev,ChAvailable())&&!(_trans.trans.msg_received)) parse_pprz(&(_trans),TransportLink(_dev,Getch())); }
-#define PprzCheckAndParse(_dev,_trans) {  \
-  if (PprzBuffer(_dev)) {                 \
-    ReadPprzBuffer(_dev,_trans);          \
-    if (_trans.trans.msg_received) {      \
-      pprz_parse_payload(&(_trans));      \
-      _trans.trans.msg_received = FALSE;  \
-    }                                     \
-  }                                       \
-}
-*/
 
 #endif
 

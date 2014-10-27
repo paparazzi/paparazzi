@@ -12,9 +12,9 @@ static inline int ttyUSB0ChAvailable(void)
 }
 
 #define ttyUSB0Transmit(_char)     \
-{                                  \
-  char c = _char;                  \
-  int __attribute__((unused)) ret = write(fd,&c,1);        \
-}
+  {                                  \
+    char c = _char;                  \
+    int __attribute__((unused)) ret = write(fd,&c,1);        \
+  }
 
 #define ttyUSB0Getch() ({char c;int ret=read(fd, &c,1);c;})

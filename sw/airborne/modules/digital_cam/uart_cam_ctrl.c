@@ -72,24 +72,23 @@ static uint8_t thumb_pointer = 0;
 
 void digital_cam_uart_event(void)
 {
-  while (CameraLink(ChAvailable()))
-  {
+  while (CameraLink(ChAvailable())) {
     parse_mora(&mora_protocol, CameraLink(Getch()));
-    if (mora_protocol.msg_received)
-    {
-      switch (mora_protocol.msg_id)
-      {
-      case MORA_STATUS:
-        for (int i=0; i< MORA_STATUS_MSG_SIZE;i++)
-          mora_status_msg.bin[i] = mora_protocol.payload[i];
-        digital_cam_uart_status = mora_status_msg.data.shots;
-        break;
-      case MORA_PAYLOAD:
-        for (int i=0; i< MORA_PAYLOAD_MSG_SIZE;i++)
-          thumbs[thumb_pointer][i] = mora_protocol.payload[i];
-        break;
-      default:
-        break;
+    if (mora_protocol.msg_received) {
+      switch (mora_protocol.msg_id) {
+        case MORA_STATUS:
+          for (int i = 0; i < MORA_STATUS_MSG_SIZE; i++) {
+            mora_status_msg.bin[i] = mora_protocol.payload[i];
+          }
+          digital_cam_uart_status = mora_status_msg.data.shots;
+          break;
+        case MORA_PAYLOAD:
+          for (int i = 0; i < MORA_PAYLOAD_MSG_SIZE; i++) {
+            thumbs[thumb_pointer][i] = mora_protocol.payload[i];
+          }
+          break;
+        default:
+          break;
       }
       mora_protocol.msg_received = 0;
     }
@@ -100,13 +99,10 @@ void digital_cam_uart_event(void)
 static void send_thumbnails(void)
 {
   static int cnt = 0;
-  if (digital_cam_uart_thumbnails > 0)
-  {
-    if (digital_cam_uart_thumbnails == 1)
-    {
+  if (digital_cam_uart_thumbnails > 0) {
+    if (digital_cam_uart_thumbnails == 1) {
       cnt++;
-      if (cnt>1)
-      {
+      if (cnt > 1) {
         cnt = 0;
         return;
       }
@@ -115,10 +111,11 @@ static void send_thumbnails(void)
 
     // Update the write/read pointer: if we receive a new thumb part, that will be sent, otherwise the oldest infor is repeated
     thumb_pointer++;
-    if (thumb_pointer>=THUMB_COUNT)
+    if (thumb_pointer >= THUMB_COUNT) {
       thumb_pointer = 0;
+    }
 
-    MoraHeader(MORA_BUFFER_EMPTY,0);
+    MoraHeader(MORA_BUFFER_EMPTY, 0);
     MoraTrailer();
   }
 }
@@ -129,10 +126,10 @@ void digital_cam_uart_init(void)
   // Call common DC init
   dc_init();
   digital_cam_uart_thumbnails = 0;
-  for (int t=0;t<THUMB_COUNT;t++)
-  {
-    for (int i=0;i<THUMB_MSG_SIZE;i++)
+  for (int t = 0; t < THUMB_COUNT; t++) {
+    for (int i = 0; i < THUMB_MSG_SIZE; i++) {
       thumbs[t][i] = 0;
+    }
   }
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(&telemetry_Ap, "PAYLOAD", send_thumbnails);
@@ -143,7 +140,7 @@ void digital_cam_uart_init(void)
 #endif
 }
 
-void digital_cam_uart_periodic( void )
+void digital_cam_uart_periodic(void)
 {
   // Common DC Periodic task
   dc_periodic_4Hz();
@@ -153,8 +150,7 @@ void digital_cam_uart_periodic( void )
 /* Command The Camera */
 void dc_send_command(uint8_t cmd)
 {
-  switch (cmd)
-  {
+  switch (cmd) {
     case DC_SHOOT:
       // Send Photo Position To Camera
       dc_shot_msg.data.nr = dc_photo_nr + 1;
@@ -168,9 +164,10 @@ void dc_send_command(uint8_t cmd)
       dc_shot_msg.data.course = *stateGetHorizontalSpeedDir_i();
       dc_shot_msg.data.groundalt = POS_BFP_OF_REAL(state.alt_agl_f);
 
-      MoraHeader(MORA_SHOOT,MORA_SHOOT_MSG_SIZE);
-      for (int i=0; i< (MORA_SHOOT_MSG_SIZE); i++)
+      MoraHeader(MORA_SHOOT, MORA_SHOOT_MSG_SIZE);
+      for (int i = 0; i < (MORA_SHOOT_MSG_SIZE); i++) {
         MoraPutUint8(dc_shot_msg.bin[i]);
+      }
       MoraTrailer();
       dc_send_shot_position();
       break;

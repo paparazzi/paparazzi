@@ -5,9 +5,9 @@
 #define FALSE (1==0)
 
 #define Transmit(_x) {       \
-  uint8_t _tmp = _x;         \
-  write(fd,&_tmp,1);         \
-}
+    uint8_t _tmp = _x;         \
+    write(fd,&_tmp,1);         \
+  }
 
 #define CameraLink(_x) _x
 
