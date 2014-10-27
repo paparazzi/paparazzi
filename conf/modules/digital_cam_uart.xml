@@ -1,7 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 <module name="uart_cam_ctrl" dir="digital_cam">
   <doc>
-    <description>Send attitude and other relevant data to a computer based photocamera after a shootphoto command is given. And in return get certain value back from the computerbased photocamera to be able to intercat with the flightplan.</description>
+    <description>
+      Digital Camera Triggering over UART link.
+      Send attitude and other relevant data to a computer based photocamera after a shootphoto command is given. And in return get certain value back from the computerbased photocamera to be able to intercat with the flightplan.</description>
     <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
     <define name="DC_AUTOSHOOT_METER_GRID" value="50" description="grid in meters"/>
   </doc>
