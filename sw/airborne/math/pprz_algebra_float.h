@@ -165,7 +165,7 @@ static inline void float_vect3_normalize(struct FloatVect3* v)
   }
 }
 
-#define FLOAT_VECT3_NORMALIZE(_v) float_vect3_norm(&(_v))
+#define FLOAT_VECT3_NORMALIZE(_v) float_vect3_normalize(&(_v))
 
 
 
