@@ -91,9 +91,6 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_AIR_DATA automatically set to TRUE")
  * Internal variable to keep track of validity.
  */
 
-/** TRUE if QNH has been set */
-static bool_t qnh_set;
-
 /** counter to check baro health */
 static uint8_t baro_health_counter;
 
@@ -107,10 +104,9 @@ static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, const flo
     float h = stateGetPositionLla_f()->alt;
     air_data.qnh = pprz_isa_ref_pressure_of_height_full(air_data.pressure, h) / 100.f;
     air_data.calc_qnh_once = FALSE;
-    qnh_set = TRUE;
   }
 
-  if (air_data.calc_amsl_baro && qnh_set) {
+  if (air_data.calc_amsl_baro && air_data.qnh > 0) {
     air_data.amsl_baro = pprz_isa_height_of_pressure_full(air_data.pressure,
                                                           air_data.qnh * 100.f);
     air_data.amsl_baro_valid = TRUE;
@@ -134,7 +130,7 @@ static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, const fl
 static void temperature_cb(uint8_t __attribute__((unused)) sender_id, const float *temp)
 {
   air_data.temperature = *temp;
-  if (air_data.calc_tas_factor && baro_health_counter > 0) {
+  if (air_data.calc_tas_factor && baro_health_counter > 0 && air_data.pressure > 0) {
     air_data.tas_factor = get_tas_factor(air_data.pressure, air_data.temperature);
   }
 }
@@ -171,13 +167,14 @@ void air_data_init(void)
   air_data.amsl_baro_valid = FALSE;
 
   /* initialize the output variables
-   * pressure and qnh to sea level conditions, rest to zero
+   * pressure, qnh, temperature and airspeed to invalid values,
+   * rest to zero
    */
-  air_data.pressure = PPRZ_ISA_SEA_LEVEL_PRESSURE;
-  air_data.qnh = PPRZ_ISA_SEA_LEVEL_PRESSURE / 100.0f;
+  air_data.pressure = -1.0f;
+  air_data.qnh = -1.0f;
+  air_data.airspeed = -1.0f;
+  air_data.temperature = -1000.0f;
   air_data.differential = 0.0f;
-  air_data.temperature = 0.0f;
-  air_data.airspeed = 0.0f;
   air_data.amsl_baro = 0.0f;
   air_data.aoa = 0.0f;
   air_data.sideslip = 0.0f;
@@ -185,7 +182,6 @@ void air_data_init(void)
   air_data.wind_dir = 0.0f;
 
   /* internal variables */
-  qnh_set = FALSE;
   baro_health_counter = 0;
 
   AbiBindMsgBARO_ABS(AIR_DATA_BARO_ABS_ID, &pressure_abs_ev, pressure_abs_cb);
@@ -217,12 +213,6 @@ void air_data_periodic(void)
   else {
     air_data.amsl_baro_valid = FALSE;
   }
-}
-
-void air_data_SetQNH(float qnh)
-{
-  air_data.qnh = qnh;
-  qnh_set = TRUE;
 }
 
 

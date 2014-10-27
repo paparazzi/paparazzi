@@ -35,13 +35,13 @@
 
 /** Air Data strucute */
 struct AirData {
-  float pressure;     ///< Static atmospheric pressure (Pa)
+  float pressure;     ///< Static atmospheric pressure (Pa), -1 if unknown
   float differential; ///< Differential pressure (total - static pressure) (Pa)
-  float temperature;  ///< temperature in degrees Celcius
+  float temperature;  ///< temperature in degrees Celcius, -1000 if unknown
 
-  float airspeed;     ///< Conventional Air Speed (m/s)
+  float airspeed;     ///< Conventional Air Speed in m/s, -1 if unknown
   float tas_factor;   ///< factor to convert equivalent airspeed (EAS) to true airspeed (TAS)
-  float qnh;              ///< Barometric pressure adjusted to sea level in hPa
+  float qnh;              ///< Barometric pressure adjusted to sea level in hPa, -1 if unknown
   float amsl_baro;        ///< altitude above sea level in m from pressure and QNH
   bool_t amsl_baro_valid; ///< TRUE if #amsl_baro is currently valid
   bool_t calc_airspeed;   ///< if TRUE, calculate airspeed from differential pressure
@@ -71,12 +71,6 @@ extern void air_data_periodic(void);
  * If AMSL from baro is valid, return that, otherwise from gps.
  */
 extern float air_data_get_amsl(void);
-
-/**
- * Handler to set QNH manually.
- * @param qnh QNH in hPa
- */
-extern void air_data_SetQNH(float qnh);
 
 /**
  * Calculate equivalent airspeed from dynamic pressure.
