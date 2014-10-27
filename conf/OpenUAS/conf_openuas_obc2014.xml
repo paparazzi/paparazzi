@@ -1,0 +1,43 @@
+<conf>
+  <aircraft
+   name="Tester"
+   ac_id="1"
+   airframe="airframes/examples/microjet.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings="settings/fixedwing_basic.xml"
+   settings_modules=""
+   gui_color="blue"
+  />
+  <aircraft
+   name="VivifyMK1"
+   ac_id="217"
+   airframe="airframes/OpenUAS/openuas_vivify_mk1.xml"
+   radio="radios/spektrum.xml"
+   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
+   flight_plan="flight_plans/OpenUAS/openuas_obc2014_kingaroy.xml"
+   settings=" settings/control/ctl_energy.xml settings/estimation/ins_neutrals.xml settings/estimation/ac_char.xml settings/fixedwing_basic.xml"
+   gui_color="#fffffac7c07a"
+  />
+  <aircraft
+   name="VivifyMK2"
+   ac_id="218"
+   airframe="airframes/OpenUAS/openuas_vivify_mk1.xml"
+   radio="radios/spektrum_intermcu.xml"
+   telemetry="telemetry/xtend9k6.xml"
+   flight_plan="flight_plans/OpenUAS/openuas_obc2014_kingaroy.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_energy.xml settings/estimation/ins_neutrals.xml settings/estimation/ac_char.xml settings/modules/dc.xml settings/modules/ticket.xml settings/modules/landing.xml settings/modules/qnh.xml"
+   gui_color="#ffffe5ec67d1"
+  />
+  <aircraft
+   name="VivifyMK3"
+   ac_id="219"
+   airframe="airframes/OpenUAS/openuas_vivify_mk1.xml"
+   radio="radios/spektrum.xml"
+   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
+   flight_plan="flight_plans/OpenUAS/openuas_simplesquare_airspeed_mbg.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_energy.xml settings/estimation/ins_neutrals.xml settings/estimation/ac_char.xml"
+   gui_color="#ffffe5ec67d1"
+  />
+</conf>
