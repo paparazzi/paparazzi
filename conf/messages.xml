@@ -1944,8 +1944,21 @@
     <field name="diff"         type="float"/>
   </message>
 
- <!--222 is free -->
- <!--223 is free -->
+  <message name="AIR_DATA" id="222">
+    <field name="pressure" type="float" unit="Pa"/>
+    <field name="diff_p" type="float" unit="Pa"/>
+    <field name="temp" type="float" unit="deg celcius"/>
+    <field name="qnh" type="float" unit="hPa"/>
+    <field name="amsl_baro" type="float" unit="m"/>
+    <field name="airspeed" type="float" unit="m/s"/>
+    <field name="tas_factor" type="float"/>
+  </message>
+
+  <message name="AMSL" id="223">
+    <field name="AMSL_BARO" type="float" unit="ft" alt_unit="m"/>
+    <field name="AMSL_GPS" type="float" unit="ft" alt_unit="m"/>
+  </message>
+
  <!--224 is free -->
 
   <message name="VIDEO_SYNC" id="225">

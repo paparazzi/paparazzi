@@ -1,0 +1,41 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="air_data">
+  <doc>
+    <description>
+    AirData interface.
+    Provides an interface for baro absolute and differential pressure as well as airspeed.
+    Subscribes to BARO_ABS, BARO_DIFF and TEMPERATURE ABI messages and calculates QNH and true airspeed from it.
+    Also enables you to fly on "flight levels" using AMSL (AltitudeAboveSeaLevel) calculated from current pressure and QNH.
+
+    When using this module to provide airspeed you need a differential pressure sensor module publishing the BARO_DIFF ABI message. Make sure to disable other modules which otherwise directly set the airspeed in the state interface. E.g. when using the airspeed_ms45xx.xml module, define USE_AIRSPEED_MS45XX to FALSE.
+    </description>
+    <define name="AIR_DATA_BARO_ABS_ID" value="ABI_SENDER_ID" description="ABI sender id for absolute baro measurement (default: ABI_BROADCAST)"/>
+    <define name="AIR_DATA_BARO_DIFF_ID" value="ABI_SENDER_ID" description="ABI sender id for differential baro measurement (default: ABI_BROADCAST)"/>
+    <define name="AIR_DATA_TEMPERATURE_ID" value="ABI_SENDER_ID" description="ABI sender id for temperature measurement (default: ABI_BROADCAST)"/>
+    <define name="AIR_DATA_CALC_AIRSPEED" value="FALSE|TRUE" description="Calculate Airspeed from differential pressure (default: TRUE)"/>
+    <define name="AIR_DATA_CALC_TAS_FACTOR" value="FALSE|TRUE" description="Calculate TAS factor from temp and pressure (default: TRUE)"/>
+    <define name="AIR_DATA_CALC_AMSL_BARO" value="FALSE|TRUE" description="Calculate AMS from baro and QNH (default: FALSE)"/>
+    <define name="USE_AIRSPEED_AIR_DATA" value="TRUE|FALSE" description="set airspeed in state interface (defaults to TRUE if USE_AIRSPEED)"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="air_data">
+        <dl_setting min="800" max="1200" step="1" module="air_data/air_data" var="air_data.qnh" shortname="QNH"/>
+        <dl_setting min="0.8" max="1.3" step="0.01" module="air_data/air_data" var="air_data.tas_factor" shortname="TASfactor" param="AIR_DATA_TAS_FACTOR"/>
+        <dl_setting min="0" max="1" step="1" var="air_data.calc_qnh_once" module="air_data/air_data" shortname="calcQNH"/>
+        <dl_setting min="0" max="1" step="1" var="air_data.calc_airspeed" module="air_data/air_data" shortname="calcAirspeed" param="AIR_DATA_CALC_AIRSPEED"/>
+        <dl_setting min="0" max="1" step="1" var="air_data.calc_tas_factor" module="air_data/air_data" shortname="calcTASfactor" param="AIR_DATA_CALC_TAS_FACTOR"/>
+        <dl_setting min="0" max="1" step="1" var="air_data.calc_amsl_baro" module="air_data/air_data" shortname="calcAMSL" param="AIR_DATA_CALC_AMSL_BARO"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="air_data.h"/>
+  </header>
+  <init fun="air_data_init()"/>
+  <periodic fun="air_data_periodic()" freq="10"/>
+  <makefile>
+    <file name="air_data.c"/>
+  </makefile>
+</module>

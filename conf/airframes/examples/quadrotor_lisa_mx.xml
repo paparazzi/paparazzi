@@ -63,6 +63,7 @@
     </load>
     <load name="gps_ubx_ucenter.xml"/>
     <load name="geo_mag.xml"/>
+    <load name="air_data.xml"/>
   </modules>
 
   <servos driver="Pwm">

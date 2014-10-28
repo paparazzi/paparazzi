@@ -58,6 +58,7 @@ twog_1.0 + aspirin + ETS baro + ETS speed
       <define name="BARO_ETS_SYNC_SEND"/>
     </load>
     <load name="baro_sim.xml"/>
+    <load name="air_data.xml"/>
     <load name="digital_cam.xml">
       <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO22"/><!-- 18:aux 22:camsw-->
     </load>

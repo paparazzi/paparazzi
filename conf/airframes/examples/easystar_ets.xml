@@ -36,6 +36,7 @@
   <modules>
     <load name="airspeed_ets.xml"/>
     <load name="baro_ets.xml"/>
+    <load name="air_data.xml"/>
     <load name="infrared_adc.xml"/>
   </modules>
 
