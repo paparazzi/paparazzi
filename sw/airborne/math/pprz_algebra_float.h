@@ -285,6 +285,18 @@ extern void float_rmat_transp_ratemult(struct FloatRates* rb, struct FloatRMat* 
 /** initialises a rotation matrix from unit vector axis and angle */
 extern void float_rmat_of_axis_angle(struct FloatRMat* rm, struct FloatVect3* uv, float angle);
 
+/** Rotation matrix from 321 Euler angles (float).
+ * The Euler angles are interpreted as zy'x'' (intrinsic) rotation.
+ * First rotate around z with psi, then around the new y' with theta,
+ * then around new x'' with phi.
+ * This is the same as a xyz (extrinsic) rotation,
+ * rotating around the fixed x, then y then z axis.
+ * - psi range: -pi < psi <= pi
+ * - theta range: -pi/2 <= theta <= pi/2
+ * - phi range: -pi < phi <= pi
+ * @param[out] rm pointer to rotation matrix
+ * @param[in]  e pointer to Euler angles
+ */
 extern void float_rmat_of_eulers_321(struct FloatRMat* rm, struct FloatEulers* e);
 extern void float_rmat_of_eulers_312(struct FloatRMat* rm, struct FloatEulers* e);
 #define float_rmat_of_eulers float_rmat_of_eulers_321
