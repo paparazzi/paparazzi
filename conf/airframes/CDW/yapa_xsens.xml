@@ -46,6 +46,7 @@
       <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO16"/>
     </load>
     <load name="nav_line.xml"/>
+    <load name="auto1_commands.xml"/>
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->
@@ -63,7 +64,7 @@
     <axis name="ROLL" failsafe_value="0"/>
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="0"/>
-    <axis name="BRAKE" failsafe_value="9600"/>
+    <axis name="FLAPS" failsafe_value="9600"/>
     <!-- both elerons up as butterfly brake -->
   </commands>
 
@@ -72,7 +73,7 @@
     <set command="ROLL" value="@ROLL"/>
     <set command="YAW" value="@YAW"/>
     <set command="PITCH" value="@PITCH"/>
-    <set command="BRAKE" value="@FLAPS"/>
+    <set command="FLAPS" value="@FLAPS"/>
   </rc_commands>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -95,7 +96,7 @@
 
   <command_laws>
     <!-- Brake Rate Limiter -->
-    <let var="brake_value_nofilt" value="Chop(-@BRAKE, 0, MAX_PPRZ)"/>
+    <let var="brake_value_nofilt" value="Chop(-@FLAPS, 0, MAX_PPRZ)"/>
     <ratelimit var="brake_value" value="$brake_value_nofilt" rate_min="-MAX_BRAKE_RATE" rate_max="MAX_BRAKE_RATE"/>
     <!-- Differential Aileron Depending on Brake Value -->
     <let var="aileron_up_rate" value="(AILERON_RATE_UP   * (MAX_PPRZ - $brake_value)) + (AILERON_RATE_UP_BRAKE   * $brake_value)"/>
