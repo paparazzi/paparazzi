@@ -1,10 +1,12 @@
+# Datalink library
+
 Datalink (uplink and downlink) lib using PPRZ protocol
 ======================================================
 
 HOWTO export
 ------------
 
-- Export library: in this folder, type
+- Export library: in this folder (`sw/airborne/subsystems/datalink`), type
   ~~~
   make export_lib
   ~~~

@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file modules/digital_cam/digital_cam_uart.h
+/** @file modules/digital_cam/uart_cam_ctrl.h
  *  @brief Digital Camera Control Over UART with download of thumbnails over the PAYLOAD message
  *
  * Provides the control of a camera over serial, typically connected to a computer which has

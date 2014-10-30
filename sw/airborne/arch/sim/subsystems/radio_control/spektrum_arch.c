@@ -20,7 +20,7 @@
  */
 
 /**
- * @file arch/sim/spektrum_arch.c
+ * @file arch/sim/subsystems/radio_control/spektrum_arch.c
  *
  * Simulator implementation for spektrum radio control.
  *

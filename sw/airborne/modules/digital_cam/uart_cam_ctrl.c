@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/digital_cam/digital_cam_uart.c
+ * @file modules/digital_cam/uart_cam_ctrl.c
  * Control the camera via uart to chdk-ptp.
  * Retrieve thumbnails
  */
