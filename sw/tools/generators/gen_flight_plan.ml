@@ -494,16 +494,38 @@ let rec print_stage = fun index_of_waypoints x ->
       | "call" ->
         stage ();
         let statement = ExtXml.attrib  x "fun" in
-        lprintf "if (! (%s))\n" statement;
-        lprintf "  NextStageAndBreak();\n";
-        begin
-          try
-            let c = parsed_attrib x "until" in
-            lprintf "if (%s) NextStageAndBreak();\n" c
-          with
-              ExtXml.Error _ -> ()
-        end;
-        lprintf "break;\n"
+        (* by default, function is called while returning TRUE *)
+        (* otherwise, function is called once and returned value is ignored *)
+        let loop = String.uppercase (ExtXml.attrib_or_default x "loop" "TRUE") in
+        (* be default, go to next stage immediately *)
+        let break = String.uppercase (ExtXml.attrib_or_default x "break" "FALSE") in
+        begin match loop with
+        | "TRUE" ->
+            lprintf "if (! (%s)) {\n" statement;
+            begin match break with
+            | "TRUE" -> lprintf "  NextStageAndBreak();\n";
+            | "FALSE" -> lprintf "  NextStage();\n";
+            | _ -> failwith "FP: 'call' break attribute must be TRUE or FALSE";
+            end;
+            lprintf "} else {\n";
+            begin
+              try
+                let c = parsed_attrib x "until" in
+                lprintf "  if (%s) NextStageAndBreak();\n" c
+              with
+                  ExtXml.Error _ -> ()
+            end;
+            lprintf "  break;\n";
+            lprintf "}\n"
+        | "FALSE" ->
+            lprintf "%s\n" statement;
+            begin match break with
+            | "TRUE" -> lprintf "NextStageAndBreak();\n";
+            | "FALSE" -> lprintf "NextStage();\n";
+            | _ -> failwith "FP: 'call' break attribute must be TRUE or FALSE";
+            end;
+        | _ -> failwith "FP: 'call' loop attribute must be TRUE or FALSE"
+        end
       | "survey_rectangle" ->
         let grid = parsed_attrib x "grid"
         and wp1 = get_index_waypoint (ExtXml.attrib x "wp1") index_of_waypoints
