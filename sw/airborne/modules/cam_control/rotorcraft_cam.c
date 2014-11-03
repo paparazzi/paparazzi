@@ -156,7 +156,7 @@ void rotorcraft_cam_periodic(void) {
         nav_heading = rotorcraft_cam_pan;
 #if ROTORCRAFT_CAM_USE_TILT_ANGLES
         int32_t dist, height;
-        INT32_VECT2_NORM(dist, diff);
+        dist = INT32_VECT2_NORM(diff);
         height = (waypoints[ROTORCRAFT_CAM_TRACK_WP].z - stateGetPositionEnu_i()->z) >> INT32_POS_FRAC;
         rotorcraft_cam_tilt = int32_atan2(height, dist);
         Bound(rotorcraft_cam_tilt, CAM_TA_MIN, CAM_TA_MAX);
