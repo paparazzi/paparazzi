@@ -18,10 +18,10 @@
     <define name="LOITER_TRIM"/>
 
     <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="joystick"/>
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent"/>
+    <define name="USE_JOYSTICK" value="TRUE"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
