@@ -84,8 +84,14 @@ void dc_send_shot_position(void)
 {
   int16_t phi = DegOfRad(stateGetNedToBodyEulers_f()->phi*10.0f);
   int16_t theta = DegOfRad(stateGetNedToBodyEulers_f()->theta*10.0f);
-  float gps_z = ((float)gps.hmsl) / 1000.0f;
-  int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
+  struct UtmCoor_f * utm = stateGetPositionUtm_f();
+  // east and north UTM position in cm
+  int32_t east = utm->east * 100;
+  int32_t north = utm->north * 100;
+  // course in decideg
+  int16_t course = DegOfRad(*stateGetHorizontalSpeedDir_f()) * 10;
+  // ground speed in cm/s
+  uint16_t speed = (*stateGetHorizontalSpeedNorm_f()) * 10;
   int16_t photo_nr = -1;
 
   if (dc_buffer < DC_IMAGE_BUFFER) {
@@ -96,14 +102,14 @@ void dc_send_shot_position(void)
 
   DOWNLINK_SEND_DC_SHOT(DefaultChannel, DefaultDevice,
                         &photo_nr,
-                        &gps.utm_pos.east,
-                        &gps.utm_pos.north,
-                        &gps_z,
-                        &gps.utm_pos.zone,
+                        &east,
+                        &north,
+                        &utm->alt,
+                        &utm->zone,
                         &phi,
                         &theta,
                         &course,
-                        &gps.gspeed,
+                        &speed,
                         &gps.tow);
 }
 #endif /* SENSOR_SYNC_SEND */
@@ -204,7 +210,7 @@ void dc_periodic_4Hz(void)
 
     case DC_AUTOSHOOT_DISTANCE:
       {
-        uint32_t dist_to_100m_grid = (gps.utm_pos.north / 100) % 100;
+        uint32_t dist_to_100m_grid = (int32_t)stateGetPositionUtm_f()->north % 100;
         if (dist_to_100m_grid < dc_autoshoot_meter_grid || 100 - dist_to_100m_grid < dc_autoshoot_meter_grid)
         {
           dc_send_command(DC_SHOOT);
