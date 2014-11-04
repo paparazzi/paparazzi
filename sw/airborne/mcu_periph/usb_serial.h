@@ -30,7 +30,15 @@
 
 #include <inttypes.h>
 #include "std.h"
+#include "mcu_periph/device.h"
 //#include "usb_serial_hw.h"
+
+struct usb_serial_periph {
+  /** Generic device interface */
+  struct device device;
+};
+
+extern struct usb_serial_periph usb_serial;
 
 void VCOM_init(void);
 int  VCOM_putchar(int c);
