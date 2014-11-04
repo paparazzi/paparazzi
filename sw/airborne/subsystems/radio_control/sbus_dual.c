@@ -45,7 +45,7 @@ struct Sbus sbus1, sbus2;
 
 #include "subsystems/datalink/telemetry.h"
 
-static void send_sbus(void)
+static void send_sbus(struct transport_tx *trans, struct device *dev)
 {
   // Using PPM message
   DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,

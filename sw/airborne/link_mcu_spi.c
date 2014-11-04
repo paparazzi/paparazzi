@@ -106,7 +106,7 @@ uint8_t link_mcu_fbw_nb_err;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_debug_link(void) {
+static void send_debug_link(struct transport_tx *trans, struct device *dev) {
   uint8_t mcu1_ppm_cpt_foo = 0; //FIXME
   DOWNLINK_SEND_DEBUG_MCU_LINK(DefaultChannel, DefaultDevice,
       &link_mcu_nb_err, &link_mcu_fbw_nb_err, &mcu1_ppm_cpt_foo);

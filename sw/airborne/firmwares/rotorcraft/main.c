@@ -228,7 +228,7 @@ STATIC_INLINE void main_periodic( void ) {
 }
 
 STATIC_INLINE void telemetry_periodic(void) {
-  periodic_telemetry_send_Main();
+  periodic_telemetry_send_Main((void*)(DefaultChannel), (void*)(DefaultDevice));
 }
 
 /** mode to enter when RC is lost while using a mode with RC input (not AP_MODE_NAV) */

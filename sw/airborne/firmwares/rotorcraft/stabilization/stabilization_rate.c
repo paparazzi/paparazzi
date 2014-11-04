@@ -118,7 +118,7 @@ struct Int32Rates stabilization_rate_ff_cmd;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_rate(void) {
+static void send_rate(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_RATE_LOOP(DefaultChannel, DefaultDevice,
       &stabilization_rate_sp.p,
       &stabilization_rate_sp.q,

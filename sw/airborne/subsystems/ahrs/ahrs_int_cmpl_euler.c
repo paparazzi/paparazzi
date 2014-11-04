@@ -64,7 +64,7 @@ static inline void set_body_state_from_euler(void);
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_filter(void) {
+static void send_filter(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_FILTER(DefaultChannel, DefaultDevice,
       &ahrs_impl.ltp_to_imu_euler.phi,
       &ahrs_impl.ltp_to_imu_euler.theta,
@@ -83,7 +83,7 @@ static void send_filter(void) {
       &ahrs_impl.gyro_bias.r);
 }
 
-static void send_euler(void) {
+static void send_euler(struct transport_tx *trans, struct device *dev) {
   struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
   DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
       &ahrs_impl.ltp_to_imu_euler.phi,
@@ -94,7 +94,7 @@ static void send_euler(void) {
       &(eulers->psi));
 }
 
-static void send_bias(void) {
+static void send_bias(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
       &ahrs_impl.gyro_bias.p, &ahrs_impl.gyro_bias.q, &ahrs_impl.gyro_bias.r);
 }

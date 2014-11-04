@@ -58,20 +58,20 @@ struct InsGpsPassthrough ins_impl;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_ins(void) {
+static void send_ins(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_INS(DefaultChannel, DefaultDevice,
       &ins_impl.ltp_pos.x, &ins_impl.ltp_pos.y, &ins_impl.ltp_pos.z,
       &ins_impl.ltp_speed.x, &ins_impl.ltp_speed.y, &ins_impl.ltp_speed.z,
       &ins_impl.ltp_accel.x, &ins_impl.ltp_accel.y, &ins_impl.ltp_accel.z);
 }
 
-static void send_ins_z(void) {
+static void send_ins_z(struct transport_tx *trans, struct device *dev) {
   static const float fake_baro_z = 0.0;
   DOWNLINK_SEND_INS_Z(DefaultChannel, DefaultDevice,
       &fake_baro_z, &ins_impl.ltp_pos.z, &ins_impl.ltp_speed.z, &ins_impl.ltp_accel.z);
 }
 
-static void send_ins_ref(void) {
+static void send_ins_ref(struct transport_tx *trans, struct device *dev) {
   static const float fake_qfe = 0.0;
   if (ins_impl.ltp_initialized) {
     DOWNLINK_SEND_INS_REF(DefaultChannel, DefaultDevice,

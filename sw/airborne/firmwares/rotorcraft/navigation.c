@@ -106,7 +106,7 @@ static inline void nav_set_altitude( void );
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_nav_status(void) {
+static void send_nav_status(struct transport_tx *trans, struct device *dev) {
   float dist_home = sqrtf(dist2_to_home);
   float dist_wp = sqrtf(dist2_to_wp);
   DOWNLINK_SEND_ROTORCRAFT_NAV_STATUS(DefaultChannel, DefaultDevice,
@@ -129,7 +129,7 @@ static void send_nav_status(void) {
   }
 }
 
-static void send_wp_moved(void) {
+static void send_wp_moved(struct transport_tx *trans, struct device *dev) {
   static uint8_t i;
   i++; if (i >= nb_waypoint) i = 0;
   DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice,

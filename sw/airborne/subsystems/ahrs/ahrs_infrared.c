@@ -42,12 +42,12 @@ float heading;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_infrared(void) {
+static void send_infrared(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_IR_SENSORS(DefaultChannel, DefaultDevice,
       &infrared.value.ir1, &infrared.value.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
 }
 
-static void send_status(void) {
+static void send_status(struct transport_tx *trans, struct device *dev) {
   uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top);
   uint8_t mde = 3;
   if (contrast < 50) mde = 7;

@@ -62,7 +62,7 @@ struct Vff vff;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_vff(void) {
+static void send_vff(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_VFF(DefaultChannel, DefaultDevice,
       &vff.z_meas, &vff.z, &vff.zdot, &vff.bias,
       &vff.P[0][0], &vff.P[1][1], &vff.P[2][2]);

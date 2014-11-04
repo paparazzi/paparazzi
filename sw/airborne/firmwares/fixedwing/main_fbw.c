@@ -76,22 +76,22 @@ tid_t electrical_tid;   ///< id for electrical_periodic() timer
 
 /********** PERIODIC MESSAGES ************************************************/
 #if PERIODIC_TELEMETRY
-static void send_commands(void) {
+static void send_commands(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, commands);
 }
 
 #ifdef RADIO_CONTROL
-static void send_fbw_status(void) {
+static void send_fbw_status(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_FBW_STATUS(DefaultChannel, DefaultDevice,
       &(radio_control.status), &(radio_control.frame_rate), &fbw_mode, &electrical.vsupply, &electrical.current);
 }
 
-static void send_rc(void) {
+static void send_rc(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_RC(DefaultChannel, DefaultDevice, RADIO_CONTROL_NB_CHANNEL, radio_control.values);
 }
 
 #else
-static void send_fbw_status(void) {
+static void send_fbw_status(struct transport_tx *trans, struct device *dev) {
   uint8_t dummy = 0;
   DOWNLINK_SEND_FBW_STATUS(DefaultChannel, DefaultDevice,
       &dummy, &dummy, &fbw_mode, &electrical.vsupply, &electrical.current);
@@ -99,7 +99,7 @@ static void send_fbw_status(void) {
 #endif
 
 #ifdef ACTUATORS
-static void send_actuators(void) {
+static void send_actuators(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice , ACTUATORS_NB, actuators);
 }
 #endif
@@ -335,7 +335,7 @@ void periodic_task_fbw( void ) {
 #endif
 
 #if PERIODIC_TELEMETRY
-  periodic_telemetry_send_Fbw();
+  periodic_telemetry_send_Fbw((void*)(DefaultChannel), (void*)(DefaultDevice));
 #endif
 
 }

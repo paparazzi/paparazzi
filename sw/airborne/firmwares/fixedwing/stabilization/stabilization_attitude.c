@@ -115,7 +115,7 @@ static float nav_ratio;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_calibration(void) {
+static void send_calibration(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_CALIBRATION(DefaultChannel, DefaultDevice,  &v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode);
 }
 #endif

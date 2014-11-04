@@ -65,7 +65,7 @@ static inline void reset_psi_ref_from_body(void) {
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_att(void) {
+static void send_att(struct transport_tx *trans, struct device *dev) {
   struct Int32Rates* body_rate = stateGetBodyRates_i();
   struct Int32Eulers* att = stateGetNedToBodyEulers_i();
   DOWNLINK_SEND_STAB_ATTITUDE_INT(DefaultChannel, DefaultDevice,
@@ -88,7 +88,7 @@ static void send_att(void) {
       &stabilization_cmd[COMMAND_YAW]);
 }
 
-static void send_att_ref(void) {
+static void send_att_ref(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_STAB_ATTITUDE_REF_INT(DefaultChannel, DefaultDevice,
       &stab_att_sp_euler.phi,
       &stab_att_sp_euler.theta,

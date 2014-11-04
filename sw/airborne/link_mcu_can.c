@@ -184,12 +184,12 @@ struct link_mcu_msg link_mcu_from_fbw_msg;
 #define RC_REALLY_LOST 2
 
 
-static void send_commands(void)
+static void send_commands(struct transport_tx *trans, struct device *dev)
 {
   DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, ap_state->commands);
 }
 
-static void send_fbw_status(void)
+static void send_fbw_status(struct transport_tx *trans, struct device *dev)
 {
   uint8_t rc_status = 0;
   uint8_t fbw_status = 0;

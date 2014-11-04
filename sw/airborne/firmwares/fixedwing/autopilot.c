@@ -56,13 +56,13 @@ bool_t gps_lost;
 
 bool_t power_switch;
 
-static void send_alive(void) {
+static void send_alive(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
 }
 
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
 #include "rc_settings.h"
-static void send_rc_settings(void) {
+static void send_rc_settings(struct transport_tx *trans, struct device *dev) {
   if (!RcSettingsOff())
     DOWNLINK_SEND_SETTINGS(DefaultChannel, DefaultDevice, &slider_1_val, &slider_2_val);
 }
@@ -75,18 +75,18 @@ void autopilot_send_mode(void) {
       &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 }
 
-static void send_attitude(void) {
+static void send_attitude(struct transport_tx *trans, struct device *dev) {
   struct FloatEulers* att = stateGetNedToBodyEulers_f();
   DOWNLINK_SEND_ATTITUDE(DefaultChannel, DefaultDevice,
       &(att->phi), &(att->psi), &(att->theta));
 };
 
-static void send_estimator(void) {
+static void send_estimator(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_ESTIMATOR(DefaultChannel, DefaultDevice,
       &(stateGetPositionUtm_f()->alt), &(stateGetSpeedEnu_f()->z));
 }
 
-static void send_bat(void) {
+static void send_bat(struct transport_tx *trans, struct device *dev) {
   int16_t amps = (int16_t) (current/10);
   int16_t e = energy;
   DOWNLINK_SEND_BAT(DefaultChannel, DefaultDevice,
@@ -95,7 +95,7 @@ static void send_bat(void) {
       &block_time, &stage_time, &e);
 }
 
-static void send_energy(void) {
+static void send_energy(struct transport_tx *trans, struct device *dev) {
   uint16_t e = energy;
   float vsup = ((float)vsupply) / 10.0f;
   float curs = ((float)current) / 1000.0f;
@@ -103,14 +103,14 @@ static void send_energy(void) {
   DOWNLINK_SEND_ENERGY(DefaultChannel, DefaultDevice, &vsup, &curs, &e, &power);
 }
 
-static void send_dl_value(void) {
+static void send_dl_value(struct transport_tx *trans, struct device *dev) {
   PeriodicSendDlValue(DefaultChannel, DefaultDevice);
 }
 
 // FIXME not the best place
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include CTRL_TYPE_H
-static void send_desired(void) {
+static void send_desired(struct transport_tx *trans, struct device *dev) {
 #ifndef USE_AIRSPEED
   float v_ctl_auto_airspeed_setpoint = NOMINAL_AIRSPEED;
 #endif
@@ -120,7 +120,7 @@ static void send_desired(void) {
       &v_ctl_auto_airspeed_setpoint);
 }
 
-static void send_airspeed(void) {
+static void send_airspeed(struct transport_tx *trans, struct device *dev) {
 #ifdef MEASURE_AIRSPEED
   float* airspeed = stateGetAirspeed_f();
   DOWNLINK_SEND_AIRSPEED(DefaultChannel, DefaultDevice, airspeed, airspeed, airspeed, airspeed);
@@ -131,7 +131,7 @@ static void send_airspeed(void) {
 #endif
 }
 
-static void send_downlink(void) {
+static void send_downlink(struct transport_tx *trans, struct device *dev) {
   static uint16_t last;
   uint16_t rate = (downlink_nb_bytes - last) / PERIOD_DOWNLINK_Ap_0;
   last = downlink_nb_bytes;

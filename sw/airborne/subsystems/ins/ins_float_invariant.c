@@ -62,7 +62,7 @@
 
 #if !INS_UPDATE_FW_ESTIMATOR && PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
-static void send_ins_ref(void) {
+static void send_ins_ref(struct transport_tx *trans, struct device *dev) {
   float foo = 0.;
   if (state.ned_initialized_i) {
     DOWNLINK_SEND_INS_REF(DefaultChannel, DefaultDevice,

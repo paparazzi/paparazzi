@@ -45,7 +45,7 @@ struct GpsTimeSync gps_time_sync;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_gps(void) {
+static void send_gps(struct transport_tx *trans, struct device *dev) {
   static uint8_t i;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
@@ -64,7 +64,7 @@ static void send_gps(void) {
   i++;
 }
 
-static void send_gps_int(void) {
+static void send_gps_int(struct transport_tx *trans, struct device *dev) {
   static uint8_t i;
   static uint8_t last_cnos[GPS_NB_CHANNELS];
   DOWNLINK_SEND_GPS_INT(DefaultChannel, DefaultDevice,
@@ -88,7 +88,7 @@ static void send_gps_int(void) {
   i++;
 }
 
-static void send_gps_lla(void) {
+static void send_gps_lla(struct transport_tx *trans, struct device *dev) {
   uint8_t err = 0;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
@@ -99,7 +99,7 @@ static void send_gps_lla(void) {
       &gps.fix, &err);
 }
 
-static void send_gps_sol(void) {
+static void send_gps_sol(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_GPS_SOL(DefaultChannel, DefaultDevice, &gps.pacc, &gps.sacc, &gps.pdop, &gps.num_sv);
 }
 #endif

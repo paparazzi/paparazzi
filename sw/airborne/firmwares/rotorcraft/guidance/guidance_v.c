@@ -142,7 +142,7 @@ static void run_hover_loop(bool_t in_flight);
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_vert_loop(void) {
+static void send_vert_loop(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_VERT_LOOP(DefaultChannel, DefaultDevice,
       &guidance_v_z_sp, &guidance_v_zd_sp,
       &(stateGetPositionNed_i()->z),
@@ -159,7 +159,7 @@ static void send_vert_loop(void) {
       &guidance_v_delta_t);
 }
 
-static void send_tune_vert(void) {
+static void send_tune_vert(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_TUNE_VERT(DefaultChannel, DefaultDevice,
       &guidance_v_z_sp,
       &(stateGetPositionNed_i()->z),

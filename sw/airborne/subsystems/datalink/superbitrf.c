@@ -178,7 +178,7 @@ static const uint8_t pn_bind[] = { 0x98, 0x88, 0x1B, 0xE4, 0x30, 0x79, 0x03, 0x8
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_superbit(void) {
+static void send_superbit(struct transport_tx *trans, struct device *dev) {
   uint8_t status = superbitrf.status;
   uint8_t cyrf6936_status = superbitrf.cyrf6936.status;
   DOWNLINK_SEND_SUPERBITRF(DefaultChannel, DefaultDevice,

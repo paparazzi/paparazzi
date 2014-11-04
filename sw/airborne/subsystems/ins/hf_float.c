@@ -229,7 +229,7 @@ static void b2_hff_update_ydot(struct HfilterFloat* hff_work, float vel, float R
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_hff(void) {
+static void send_hff(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_HFF(DefaultChannel, DefaultDevice,
                     &b2_hff_state.x,
                     &b2_hff_state.y,
@@ -239,7 +239,7 @@ static void send_hff(void) {
                     &b2_hff_state.ydotdot);
 }
 
-static void send_hff_debug(void) {
+static void send_hff_debug(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_HFF_DBG(DefaultChannel, DefaultDevice,
                         &b2_hff_x_meas,
                         &b2_hff_y_meas,
@@ -252,7 +252,7 @@ static void send_hff_debug(void) {
 }
 
 #ifdef GPS_LAG
-static void send_hff_gps(void) {
+static void send_hff_gps(struct transport_tx *trans, struct device *dev) {
   DOWNLINK_SEND_HFF_GPS(DefaultChannel, DefaultDevice,
                         &(b2_hff_rb_last->lag_counter),
                         &lag_counter_err,
