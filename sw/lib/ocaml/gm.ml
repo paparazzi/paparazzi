@@ -236,7 +236,7 @@ let url_of_tile_key = fun maps_source s ->
 
 
 let get_cache_dir = function
-    Google -> !cache_path (* Historic ! Should be // Google *)
+    Google -> !cache_path // "Google"
   | OSM -> !cache_path // "OSM"
   | MQ -> !cache_path // "MapQuest"
   | MQ_Aerial -> !cache_path // "MapQuestAerial"
