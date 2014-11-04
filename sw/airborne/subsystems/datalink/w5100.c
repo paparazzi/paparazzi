@@ -28,7 +28,7 @@
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/w5100.h"
 #include "mcu_periph/spi.h"
-#inculde "mcu_periph/gpio.h"
+#include "mcu_periph/gpio.h"
 
 #define TXBUF_BASE 0x4000
 #define RXBUF_BASE 0x6000
@@ -106,7 +106,6 @@ uint16_t RBASE[SOCKETS]; // Rx buffer base address
 static const uint16_t SSIZE = 2048; // Max Tx buffer size
 static const uint16_t RSIZE = 2048; // Max Rx buffer size
 
-struct w5100_transport w5100_tp;
 struct spi_transaction w5100_spi;
 
 static void w5100_close_socket( uint8_t _s );
@@ -165,6 +164,11 @@ static inline uint16_t w5100_sock_get16( uint8_t _sock, uint16_t _reg) {
     res = res | res2;
     return res;
 }
+
+// Functions for the generic device API
+static int true_function(struct w5100_periph* p __attribute__((unused)), uint8_t len __attribute__((unused))) { return TRUE; }
+static void dev_transmit(struct w5100_periph* p __attribute__((unused)), uint8_t byte) {  w5100_transmit(byte); }
+static void dev_send(struct w5100_periph* p __attribute__((unused))) { w5100_send(); }
 
 void w5100_init( void ) {
 
@@ -232,6 +236,12 @@ void w5100_init( void ) {
   // make dest zero and configure socket to receive data
   dest[ 0 ] = 0x00;
   configure_socket( CMD_SOCKET, 0, dport, dport, dest );
+
+  // Configure generic device
+  chip0.device.periph = (void *)(&chip0);
+  chip0.device.check_free_space = (check_free_space_t) true_function;
+  chip0.device.transmit = (transmit_t) dev_transmit;
+  chip0.device.send_message = (send_message_t) dev_send;
 }
 
 void w5100_transmit( uint8_t data ) {
@@ -341,7 +351,7 @@ bool_t w5100_ch_available() {
   return FALSE;
 }
 
-uint16_t w5100_receive( uint8_t *buf, uint16_t len ) {
+uint16_t w5100_receive( uint8_t *buf, uint16_t len __attribute__((unused))) {
   uint8_t head[8];
   uint16_t data_len=0;
   uint16_t ptr=0;
@@ -366,7 +376,7 @@ uint16_t w5100_receive( uint8_t *buf, uint16_t len ) {
   return data_len;
 }
 
-static void w5100_read_data( uint8_t s, volatile uint8_t *src, volatile uint8_t *dst, uint16_t len ) {
+static void w5100_read_data( uint8_t s __attribute__((unused)), volatile uint8_t *src, volatile uint8_t *dst, uint16_t len ) {
   uint16_t size;
   uint16_t src_mask;
   uint16_t src_ptr;
