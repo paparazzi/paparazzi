@@ -40,11 +40,11 @@ It has 8 buttons.
     <button index="3" name="b_yellow"/>
     <button index="4" name="b_ltb"/>
     <button index="5" name="b_rtb"/>
-    <button index="6" name="b_start"/>
-    <button index="7" name="b7"/>
+    <button index="6" name="b_back"/>
+    <button index="7" name="b_start"/>
     <button index="8" name="b8"/>
     <button index="9" name="b9"/>
-    <button index="10" name="b_back"/>
+    <button index="10" name="b10"/>
   </input>
 
   <variables>
@@ -107,6 +107,17 @@ It has 8 buttons.
       <field name="value" value="0"/>
     </message>
     -->
+
+    <!-- resurrect throttle on start button -->
+    <message class="ground" name="DL_SETTING" on_event="b_start">
+      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="value" value="0"/>
+    </message>
+    <!-- kill throttle when pressing both back and blue buttons at the same time -->
+    <message class="ground" name="DL_SETTING" on_event="b_back && b_blue">
+      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="value" value="1"/>
+    </message>
 
   </messages>
 

@@ -120,41 +120,47 @@ settings.cmo : ../cockpit/page_settings.cmi
 
 
 CC = gcc
-GLIB_CFLAGS  = -Wall $(shell pkg-config glib-2.0 --cflags) -fPIC
-GLIB_LDFLAGS =  $(shell pkg-config glib-2.0 --libs) -lglibivy $(shell pcre-config --libs) -fPIC
-GTK_CFLAGS  = -Wall $(shell pkg-config gtk+-2.0 --cflags) -fPIC
-GTK_LDFLAGS =  $(shell pkg-config gtk+-2.0 --libs) -lglibivy $(shell pcre-config --libs) -fPIC
 
+GTK_CFLAGS  = $(shell pkg-config gtk+-2.0 --cflags)
+GTK_LDFLAGS =  $(shell pkg-config gtk+-2.0 --libs) $(shell pcre-config --libs)
+
+GLIBIVY_CFLAGS = -Wall -fPIC $(shell pkg-config --cflags ivy-glib)
+GLIBIVY_LDFLAGS = $(shell pkg-config --libs ivy-glib) $(shell pcre-config --libs)
+
+#
+# try to find include locations on OSX
+#
 UNAME = $(shell uname -s)
-
 ifeq ("$(UNAME)","Darwin")
-  C_LIBRARYS = $(shell if test -d /opt/paparazzi/lib; then echo "-L/opt/paparazzi/lib"; elif test -d /opt/local/lib; then echo "-L/opt/local/lib"; fi)
-  C_INCLUDES = $(shell if test -d /opt/paparazzi/include; then echo "-I/opt/paparazzi/include"; elif test -d /opt/local/include; then echo "-I/opt/local/include"; fi)
+  IVY_C_LIB_INC = $(shell if test -d /opt/paparazzi/lib; then echo "-L/opt/paparazzi/lib"; elif test -d /opt/local/lib; then echo "-L/opt/local/lib"; fi)
+  IVY_C_INCLUDES = $(shell if test -d /opt/paparazzi/include; then echo "-I/opt/paparazzi/include"; elif test -d /opt/local/include; then echo "-I/opt/local/include"; fi)
+  GLIBIVY_CFLAGS += $(IVY_C_LIB_INC) $(IVY_C_INCLUDES)
 endif
+
 
 app_server: app_server.c
 	@echo OL $@
-	$(Q)$(CC) $(GLIB_CFLAGS) $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib --cflags) -o $@ $^ -lm -lz $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib libpcre --libs)
+	$(Q)$(CC) $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib --cflags) -o $@ $^ -lm -lz $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib libpcre --libs)
 
 gpsd2ivy: gpsd2ivy.c
-	$(CC) $(GLIB_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GLIB_LDFLAGS) -lgps
+	$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) -lgps
 
 ivy2nmea: ivy2nmea.c
 	@echo OL $@
-	$(Q)$(CC) $(GLIB_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GLIB_LDFLAGS)
+	$(Q)$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS)
 
 c_ivy_client_example_1: c_ivy_client_example_1.c
-	$(CC) $(GLIB_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GLIB_LDFLAGS)
+	$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS)
 
 c_ivy_client_example_2: c_ivy_client_example_2.c
-	$(CC) $(GLIB_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GLIB_LDFLAGS)
+	$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS)
 
 c_ivy_client_example_3: c_ivy_client_example_3.c
-	$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
+	$(CC) $(GLIBIVY_CFLAGS) $(GTK_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) $(GTK_LDFLAGS)
 
 ivy_serial_bridge: ivy_serial_bridge.c
 	@echo OL $@
-	$(Q)$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
+	$(Q)$(CC) $(GLIBIVY_CFLAGS) $(GTK_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) $(GTK_LDFLAGS)
 
 
 .PHONY: all opt clean

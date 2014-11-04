@@ -2,13 +2,23 @@
 
 <module name="airspeed_adc" dir="sensors">
   <doc>
-    <description>Airspeed sensor (ADC). Using the internal ADC.</description>
+    <description>Airspeed sensor (ADC).
+    Using the internal ADC.
+    </description>
     <configure name="ADC_AIRSPEED" value="ADCX" description="ADC on which sensor is connected"/>
-    <define name="AIRSPEED_SCALE" value="scale factor" description="linear scale factor (used if AIRSPEED_QUADRATIC_SCALE is not defined"/>
-    <define name="AIRSPEED_QUADRATIC_SCALE" value="quadratic scale factor" description="it is recommended to use quadratic scale"/>
-    <define name="AIRSPEED_BIAS" value="sensor bias" description="offset on ADC"/>
+    <define name="AIRSPEED_ADC_SCALE" value="scale factor" description="linear scale factor (used if AIRSPEED_QUADRATIC_SCALE is not defined"/>
+    <define name="AIRSPEED_ADC_QUADRATIC_SCALE" value="quadratic scale factor" description="it is recommended to use quadratic scale"/>
+    <define name="AIRSPEED_ADC_BIAS" value="sensor bias" description="offset on ADC"/>
+    <define name="USE_AIRSPEED_ADC" value="TRUE|FALSE" description="set airspeed in state interface (default:TRUE)"/>
   </doc>
-
+  <settings>
+    <dl_settings>
+      <dl_settings name="airsp">
+        <dl_setting max="4095" min="0" step="1" module="sensors/airspeed_adc" var="airspeed_adc.offset" shortname="air_bias"/>
+        <dl_setting max="3" min="0" step="0.001" module="sensors/airspeed_adc" var="airspeed_adc.scale" shortname="air_scale"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="airspeed_adc.h"/>
   </header>

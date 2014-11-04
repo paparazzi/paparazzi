@@ -17,7 +17,10 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
+ */
+
+/** @file modules/sensors/airspeed_adc.h
+ * Read an airspeed or differential pressure sensor via onboard ADC.
  */
 
 #ifndef AIRSPEED_ADC_H
@@ -25,9 +28,16 @@
 
 #include <inttypes.h>
 
-extern uint16_t adc_airspeed_val;
+struct AirspeedAdc {
+  uint16_t val;
+  uint16_t offset;
+  float scale;    ///< used as quadratic scale if AIRSPEED_ADC_QUADRATIC_SCALE, otherwise linear
+  float airspeed;
+};
 
-void airspeed_adc_init( void );
-void airspeed_adc_update( void );
+extern struct AirspeedAdc airspeed_adc;
+
+void airspeed_adc_init(void);
+void airspeed_adc_update(void);
 
 #endif /* AIRSPEED_ADC_H */

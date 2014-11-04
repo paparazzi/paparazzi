@@ -167,11 +167,22 @@ let rec string_of_value = function
 
 let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
 
-
-let formatted_string_of_value = fun format v ->
+(* FIXME temporary solution, the complete formatted_string_of_value function
+   causes a segfault in server and GCS *)
+let string_of_value_format = fun format v ->
   match v with
-      Float x -> sprintf (magic format) x
-    | v -> string_of_value v
+    Float x -> sprintf (magic format) x
+  | v -> string_of_value v
+
+let rec formatted_string_of_value = fun format v ->
+  match v with
+    | Int x -> sprintf (magic format) x
+    | Float x -> sprintf (magic format) x
+    | Int32 x -> sprintf (magic format) x
+    | Int64 x -> sprintf (magic format) x
+    | Char x -> sprintf (magic format) x
+    | String x -> sprintf (magic format) x
+    | Array a -> "|"^(String.concat separator (Array.to_list (Array.map (formatted_string_of_value format) a)))^"|"
 
 
 let sizeof = fun f ->
@@ -712,7 +723,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
          try List.assoc field_name values with
              Not_found ->
                default_value field._type in
-       formatted_string_of_value field.fformat v)
+       string_of_value_format field.fformat v)
      msg.fields)
 
   let message_send = fun ?timestamp ?link_id sender msg_name values ->

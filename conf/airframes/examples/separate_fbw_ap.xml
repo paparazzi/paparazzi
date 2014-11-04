@@ -223,7 +223,7 @@
 
     <load name="nav_catapult.xml"/>
     <load name="nav_line.xml"/>
-
+    <load name="air_data.xml"/>
   </modules>
 
   <firmware name="fixedwing">
@@ -253,14 +253,14 @@
     </target>
 
     <target name="fbw" board="lisa_m_2.0">
+      <configure name="SEPARATE_FBW" value="1"/>
+
       <configure name="SYS_TIME_LED" value="2"/>
       <define name="RADIO_CONTROL_LED" value="4"/>
       <define name="LINK_MCU_LED" value="3"/>
 
       <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="1"/>
       <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE" value="1"/>
-
-      <subsystem name="radio_control" type="ppm"/>
 
       <!-- split of ap/fbw specific subsystems for fbw -->
       <subsystem name="actuators" type="pwm"/>
@@ -270,7 +270,6 @@
     </target>
 
     <target name="sim" board="pc">
-      <subsystem name="radio_control" type="ppm"/>
       <subsystem name="control"/>
       <subsystem name="navigation"/>
     </target>
@@ -284,6 +283,10 @@
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
     <define name="RADIO_CONTROL_AUTO1"/>
+
+    <subsystem name="radio_control" type="spektrum">
+      <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
+    </subsystem>
 
     <!-- Communication -->
     <subsystem name="telemetry" type="transparent">

@@ -23,14 +23,14 @@
 #ifndef RADIO_CONTROL_H
 #define RADIO_CONTROL_H
 
-#if defined RADIO_CONTROL
-
 #include "led.h"
 #include "generated/airframe.h"
 #include "paparazzi.h"
 
-/* underlying hardware */
+/* underlying hardware, also include if RADIO_CONTROL is not defined for ap in dual mcu case */
 #include RADIO_CONTROL_TYPE_H
+
+#if defined RADIO_CONTROL
 /* must be defined by underlying hardware */
 extern void radio_control_impl_init(void);
 /* RADIO_CONTROL_NB_CHANNEL has to be defined by the implementation */

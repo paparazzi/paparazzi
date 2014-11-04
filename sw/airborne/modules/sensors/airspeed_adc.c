@@ -17,7 +17,10 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
+ */
+
+/** @file modules/sensors/airspeed_adc.c
+ * Read an airspeed or differential pressure sensor via onboard ADC.
  */
 
 #include "modules/sensors/airspeed_adc.h"
@@ -26,7 +29,16 @@
 #include "generated/airframe.h"
 #include "state.h"
 
-uint16_t adc_airspeed_val;
+#ifndef USE_AIRSPEED_ADC
+#define USE_AIRSPEED_ADC TRUE
+#endif
+PRINT_CONFIG_VAR(USE_AIRSPEED_ADC)
+
+#if !defined AIRSPEED_ADC_QUADRATIC_SCALE && !defined AIRSPEED_ADC_SCALE
+#error "You need to define either AIRSPEED_ADC_QUADRATIC_SCALE or AIRSPEED_ADC_SCALE (linear)."
+#endif
+
+struct AirspeedAdc airspeed_adc;
 
 #ifndef SITL // Use ADC if not in simulation
 
@@ -38,31 +50,42 @@ uint16_t adc_airspeed_val;
 #define ADC_CHANNEL_AIRSPEED_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
 #endif
 
-struct adc_buf buf_airspeed;
+static struct adc_buf buf_airspeed;
 
 #endif
 
-void airspeed_adc_init( void ) {
+void airspeed_adc_init(void)
+{
+  airspeed_adc.airspeed = 0.0f;
+  airspeed_adc.offset = AIRSPEED_ADC_BIAS;
+#ifdef AIRSPEED_ADC_QUADRATIC_SCALE
+  airspeed_adc.scale = AIRSPEED_ADC_QUADRATIC_SCALE;
+#else
+  airspeed_adc.scale = AIRSPEED_ADC_SCALE;
+#endif
+
 #ifndef SITL
   adc_buf_channel(ADC_CHANNEL_AIRSPEED, &buf_airspeed, ADC_CHANNEL_AIRSPEED_NB_SAMPLES);
 #endif
 }
 
-void airspeed_adc_update( void ) {
+void airspeed_adc_update(void)
+{
 #ifndef SITL
-  adc_airspeed_val = buf_airspeed.sum / buf_airspeed.av_nb_sample;
-#ifdef AIRSPEED_QUADRATIC_SCALE
-  float airspeed = (adc_airspeed_val - AIRSPEED_BIAS);
-  if (airspeed <= 0.0f)
-    airspeed = 0.0f;
-  airspeed = sqrtf(airspeed) * AIRSPEED_QUADRATIC_SCALE;
+  airspeed_adc.val = buf_airspeed.sum / buf_airspeed.av_nb_sample;
+  float airspeed_unscaled = Max(airspeed_adc.val - airspeed_adc.offset, 0);
+#ifdef AIRSPEED_ADC_QUADRATIC_SCALE
+  airspeed_adc.airspeed = airspeed_adc.scale * sqrtf(airspeed_unscaled);
 #else
-  float airspeed = AIRSPEED_SCALE * (adc_airspeed_val - AIRSPEED_BIAS);
+  airspeed_adc.airspeed = airspeed_adc.scale * airspeed_unscaled;
 #endif
-  stateSetAirspeed_f(&airspeed);
+
 #elif !defined USE_NPS
   extern float sim_air_speed;
-  stateSetAirspeed_f(&sim_air_speed);
-  adc_airspeed_val = 0;
+  airspeed_adc.airspeed = sim_air_speed;
 #endif //SITL
+
+#if USE_AIRSPEED_ADC
+  stateSetAirspeed_f(&airspeed_adc.airspeed);
+#endif
 }

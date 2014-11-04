@@ -55,6 +55,15 @@ extern void airspeed_ets_init( void );
 extern void airspeed_ets_read_periodic( void );
 extern void airspeed_ets_read_event( void );
 
-#define AirspeedEtsEvent() { if (airspeed_ets_i2c_trans.status == I2CTransSuccess) airspeed_ets_read_event(); }
+static inline void AirspeedEtsEvent(void)
+{
+  if (airspeed_ets_i2c_trans.status == I2CTransSuccess) {
+    airspeed_ets_read_event();
+  }
+  else if (airspeed_ets_i2c_trans.status == I2CTransFailed) {
+    // if transaction failed, mark as done so can be retried
+    airspeed_ets_i2c_trans.status = I2CTransDone;
+  }
+}
 
 #endif // AIRSPEED_ETS_H

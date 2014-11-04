@@ -20,7 +20,7 @@
  */
 
 /**
- * @file arch/sim/spektrum_arch.c
+ * @file arch/sim/subsystems/radio_control/spektrum_arch.c
  *
  * Simulator implementation for spektrum radio control.
  *
@@ -28,7 +28,7 @@
 
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/spektrum.h"
-
+#include "std.h"
 #include <inttypes.h>
 
 #if USE_NPS

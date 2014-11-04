@@ -11,11 +11,15 @@
       controlled by a dspic
       return scaled values over I2C
     </description>
+    <define name="PBN_AIRSPEED_SCALE" value="(1./0.54)" description="quadratic scale factor to convert differential pressure to airspeed"/>
+    <define name="PBN_ALTITUDE_SCALE" value="0.32" description="linear scale factor for altitude"/>
+    <define name="PBN_PRESSURE_OFFSET" value="101325.0" description="pressure offset"/>
+    <define name="USE_AIRSPEED_PBN" value="TRUE|FALSE" description="set airspeed in state interface"/>
   </doc>
   <settings>
     <dl_settings>
       <dl_settings NAME="pbn">
-        <dl_setting MAX="30" MIN="0" STEP="1" module="sensors/pressure_board_navarro" VAR="airspeed_filter"/>
+        <dl_setting MAX="30" MIN="0" STEP="1" module="sensors/pressure_board_navarro" VAR="pbn.airspeed_filter"/>
       </dl_settings>
     </dl_settings>
   </settings>

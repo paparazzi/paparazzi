@@ -109,9 +109,13 @@ struct InsFloatInv {
   struct inv_gains gains;             ///< tuning gains
 
   bool_t reset;                       ///< flag to request reset/reinit the filter
+
+  struct FloatVect3 mag_h;
 };
 
 extern struct InsFloatInv ins_impl;
+
+#define ahrs_impl ins_impl
 
 #endif /* INS_FLOAT_INVARIANT_H */
 

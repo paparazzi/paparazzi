@@ -82,7 +82,9 @@ void nps_flightgear_send() {
 
 
   if (sendto(flightgear.socket, (char*)(&gui), sizeof(gui), 0,
-             (struct sockaddr*)&flightgear.addr, sizeof(flightgear.addr)) == -1)
-    printf("error sending\n");
+             (struct sockaddr*)&flightgear.addr, sizeof(flightgear.addr)) == -1) {
+    fprintf(stderr, "error sending to FlightGear\n");
+    fflush(stderr);
+  }
 
 }

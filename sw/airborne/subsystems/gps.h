@@ -118,6 +118,15 @@ static inline bool_t GpsIsLost(void) {
   return TRUE;
 }
 
+static inline bool_t gps_has_been_good(void) {
+  static bool_t gps_had_valid_fix = FALSE;
+  if (GpsFixValid()) {
+    gps_had_valid_fix = TRUE;
+  }
+  return gps_had_valid_fix;
+}
+
+
 /** Periodic GPS check.
  * Marks GPS as lost when no GPS message was received for GPS_TIMEOUT seconds
  */

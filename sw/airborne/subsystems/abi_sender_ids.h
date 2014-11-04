@@ -81,6 +81,14 @@
 #endif
 
 /*
+ * IDs of differential pressure sensors
+ * can usually also publish temperature like baro sensors
+ */
+#ifndef MS45XX_SENDER_ID
+#define MS45XX_SENDER_ID 40
+#endif
+
+/*
  * IDs of AGL measurment modules that can be loaded (sonars,...)
  */
 #ifndef AGL_SONAR_ADC_ID

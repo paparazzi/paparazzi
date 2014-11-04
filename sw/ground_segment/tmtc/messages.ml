@@ -57,6 +57,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
           let field_name =  Xml.attrib f "name" in
           let type_ = ExtXml.attrib f "type" in
           let name = Printf.sprintf "%s %s %s: " type_ field_name unit in
+          let format_ = try Some (Xml.attrib f "format") with _ -> None in
           let h = GPack.hbox ~packing:v#pack () in
           let field_label = GButton.button ~label:name ~packing:h#pack () in
 
@@ -76,7 +77,9 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
                 let i = Pprz.int_of_value x in
                 sprintf "%s (%d)" literal_values.(i) i
               with _ ->
-                alt_value (Pprz.string_of_value x)
+                match format_ with
+                | Some f -> alt_value (Pprz.formatted_string_of_value f x)
+                | _ -> alt_value (Pprz.string_of_value x)
           and display_value = fun () ->
             if notebook#page_num v#coerce = notebook#current_page then
               if l#label <> !value then l#set_text !value in

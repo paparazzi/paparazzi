@@ -20,7 +20,8 @@
  *
  */
 
-/*
+/** @file modules/sensors/pressure_board_navarro.h
+ *
  * Pressure Board Navarro (2010)
  *
  * by Matthieu Navarro
@@ -31,29 +32,31 @@
  *
  */
 
-
 #ifndef PRESSURE_BOARD_NAVARRO_H
 #define PRESSURE_BOARD_NAVARRO_H
 
 #include "std.h"
 #include "mcu_periph/i2c.h"
 
-extern uint16_t altitude_adc;
-extern uint16_t airspeed_adc;
-extern uint16_t altitude_offset;
-extern uint16_t airspeed_offset;
-extern float pbn_altitude, pbn_airspeed;
-extern float airspeed_filter;
+struct PBNState {
+  uint16_t altitude_adc;
+  uint16_t airspeed_adc;
+  uint16_t altitude_offset;
+  uint16_t airspeed_offset;
+  float altitude;
+  float airspeed;
+  float airspeed_filter;
+  bool_t data_valid;
+};
 
-extern bool_t data_valid;
+extern struct PBNState pbn;
+
 extern struct i2c_transaction pbn_trans;
 
-extern void pbn_init( void );
-extern void pbn_periodic( void );
-extern void pbn_read_event( void );
+extern void pbn_init(void);
+extern void pbn_periodic(void);
+extern void pbn_read_event(void);
 
 #define PbnEvent() { if (pbn_trans.status == I2CTransSuccess) pbn_read_event(); }
-
-#define PERIODIC_SEND_PBN(_chan) DOWNLINK_SEND_PBN(DefaultChannel, DefaultDevice,&airspeed_adc,&altitude_adc,&pbn_airspeed,&pbn_altitude,&airspeed_offset,&altitude_offset);
 
 #endif // PRESSURE_BOARD_NAVARRO_H

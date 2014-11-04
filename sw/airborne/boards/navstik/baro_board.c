@@ -59,6 +59,8 @@ void baro_event(void) {
   if (baro_bmp085.data_available) {
     float pressure = (float)baro_bmp085.pressure;
     AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
+    float temp = baro_bmp085.temperature / 10.0f;
+    AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, &temp);
     baro_bmp085.data_available = FALSE;
 #ifdef BARO_LED
     RunOnceEvery(10,LED_TOGGLE(BARO_LED));

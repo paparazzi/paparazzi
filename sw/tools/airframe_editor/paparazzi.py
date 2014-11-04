@@ -80,16 +80,27 @@ def search(string):
 
 
 if __name__ == '__main__':
-    print("====HOME==== ", home_dir)
-    print("----MODULES---- ", modules_dir)
-    print(get_list_of_modules())
-    for mod in get_list_of_modules():
-        print(mod, " ---> ", get_module_information(mod))
-    print("----FIRMWARES---- ", firmwares_dir)
-    print(get_list_of_firmwares())
-    for firm in get_list_of_firmwares():
-        print(firm, " ---> ", get_list_of_subsystems(firm))
-    print("shared", " ---> ", get_list_of_subsystems("shared"))
-    print("----BOARDS---- ", firmwares_dir)
-    print(get_list_of_boards())
+    print("\nPAPARAZZI\n=========\n\nContent listing of current branch\n")
+    print("\nBOARDS\n------\n")
+    boards = get_list_of_boards()
+    for b in boards:
+      print(" - ```" + b + "```" )
+    print("\nFIRMWARES - SUBSYSTEMS\n---------\n")
+    firmwares = get_list_of_firmwares()
+    firmwares.append("shared")
+    for f in firmwares:
+        print(" - " + f)
+        subsystems = get_list_of_subsystems(f)
+        for s in subsystems:
+            print("   - ```", s, "```")
+    print("\nMODULES\n-------\n")
+    modules  = get_list_of_modules()
+    for m in modules:
+        info = get_module_information(m)
+        d = info.description
+        if ((d is None) or (len(d) == 0)):
+            d = " "
+        print(" - ```" + m + "``` " + d.split('\n', 1)[0])
+#    for mod in get_list_of_modules():
+#        print(mod, " ---> ", get_module_information(mod))
 

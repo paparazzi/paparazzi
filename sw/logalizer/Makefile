@@ -52,13 +52,6 @@ sd2log : sd2log.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
-CC = gcc
-CFLAGS=-g -O2 -Wall
-LDFLAGS=
-
-openlog2tlm: openlog2tlm.c
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -g -o $@ $^
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
@@ -93,107 +86,58 @@ gtk_export.ml : export.glade
 	$(Q)rm -f $($@_TMP)
 
 
-pt : ahrsview imuview ahrs2fg
 
 CC = gcc
-CFLAGS=-g -O2 -Wall $(shell pkg-config gtk+-2.0 --cflags)
-LDFLAGS=$(shell pkg-config gtk+-2.0 --libs) -s -lgtkdatabox -lglibivy
+CFLAGS=-g -O2 -Wall
 
-motor_bench : motor_bench.c sliding_plot.c
-	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
+openlog2tlm: openlog2tlm.c
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -o $@ $^
 
-ahrsview : ahrsview.c sliding_plot.c
-	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
-
-imuview : imuview.c sliding_plot.c
-	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
-
-plot_roll_loop : plot_roll_loop.c sliding_plot.c
-	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
-
-test_sliding_plot: test_sliding_plot.c sliding_plot.c
-	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
-
-
-UNAME = $(shell uname -s)
-
-ifeq ("$(UNAME)","Darwin")
-  IVY_C_LIBRARYS = $(shell if test -d /opt/paparazzi/lib; then echo "-L/opt/paparazzi/lib"; elif test -d /opt/local/lib; then echo "-L/opt/local/lib"; fi)
-  IVY_C_INCLUDES = $(shell if test -d /opt/paparazzi/include; then echo "-I/opt/paparazzi/include"; elif test -d /opt/local/include; then echo "-I/opt/local/include"; fi)
-endif
-
-MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -rdynamic  /usr/lib/libgtkgl.so -L/usr/lib -L/usr/X11R6/lib /usr/lib/libgtk.so /usr/lib/libgdk.so /usr/lib/libgmodule.so /usr/lib/libglib.so -ldl -lXi -lXext -lX11 -lm -lGLU -lGL  -Wl,--rpath -Wl,/usr/local/lib -lglibivy $(shell pcre-config --libs)
-
-MORE_CFLAGS = -DHAVE_DLFCN_H=1 -DSTDC_HEADERS=1  -I. -I.  -I..    -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
+DISP3D_CFLAGS = $(shell pkg-config --cflags ivy-glib gtk+-2.0 gtkgl-2.0)
+DISP3D_LDFLAGS = $(shell pkg-config --libs ivy-glib gtk+-2.0 gtkgl-2.0) $(shell pcre-config --libs)
 
 disp3d: disp3d.c
 	@echo CC $@
-	$(Q)$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS)
+	$(Q)$(CC)  $(CFLAGS) $(DISP3D_CFLAGS) -o $@ $^ $(DISP3D_LDFLAGS)
+
+
+IVY_C_LIBS = $(shell pkg-config --libs ivy-glib) $(shell pcre-config --libs)
+GLIBIVY_CFLAGS = $(shell pkg-config --cflags ivy-glib)
+
+#
+# try to find include locations on OSX
+#
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+  IVY_C_LIB_INC = $(shell if test -d /opt/paparazzi/lib; then echo "-L/opt/paparazzi/lib"; elif test -d /opt/local/lib; then echo "-L/opt/local/lib"; fi)
+  IVY_C_INCLUDES = $(shell if test -d /opt/paparazzi/include; then echo "-I/opt/paparazzi/include"; elif test -d /opt/local/include; then echo "-I/opt/local/include"; fi)
+  GLIBIVY_CFLAGS += $(IVY_C_LIB_INC) $(IVY_C_INCLUDES)
+endif
+
 
 plotprofile: plotprofile.c
 	@echo CC $@
-	$(Q)$(CC) $(IVY_C_LIBRARYS) $(IVY_C_INCLUDES) -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy $(shell pcre-config --libs)
-
-test1: test1.c
-	@echo CC $@
-	$(Q)$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS) -lglut
-
-test3: test3.c sliding_plot.c
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
-
-
-#FGFS_PREFIX=/home/poine/local
-FGFS_PREFIX=/home/poine/flightgear
-#FGFS_PREFIX=/usr/local
-
-#FGFS_ROOT = /home/poine/local
-FGFS_ROOT = /home/poine/flightgear
-FGFS = $(FGFS_PREFIX)/bin/fgfs
-#FGFS = /usr/games/fgfs
-#FGFS_ENV = LD_LIBRARY_PATH=/usr/local/lib:$(FGFS_ROOT)/lib
-FGFS_ENV = LD_LIBRARY_PATH=$(FGFS_ROOT)/lib
-FGFS_COMMON_ARGS = --fg-root=$(FGFS_ROOT)  --aircraft=A320 --timeofday=noon
-#FGFS_COMMON_ARGS = --aircraft=737-300 --timeofday=noon
-FGFS_IN_FDM_ARGS = $(FGFS_COMMON_ARGS) --fdm=null --native-fdm=socket,in,30,,5501,udp
-FGFS_OUT_FDM_ARGS = $(FGFS_COMMON_ARGS) --native-fdm=socket,out,30,,5500,udp
-FGFS_IN_GUI_ARGS = $(FGFS_COMMON_ARGS) --fdm=null --native-gui=socket,in,30,,5501,udp
-FGFS_OUT_GUI_ARGS = $(FGFS_COMMON_ARGS) --native-gui=socket,out,30,,5500,udp
-FGFS_IN_CTRLS_ARGS = $(FGFS_COMMON_ARGS) --native-ctrls=socket,in,30,,5501,udp
-FGFS_OUT_CTRLS_ARGS = $(FGFS_COMMON_ARGS) --native-ctrls=socket,out,30,,5500,udp
-FGFS_OUT_MULTIPLAY_ARGS = $(FGFS_COMMON_ARGS) --multiplay=out,10,127.0.0.1,5500 --callsign=F-POINE
-FGFS_IN_MULTIPLAY_ARGS = $(FGFS_COMMON_ARGS) --multiplay=in,10,127.0.0.1,5501 --callsign=F-POINE
-FGFS_RCAM_ARGS =  $(FGFS_COMMON_ARGS) --fdm=null --native-ctrls=socket,out,30,,5500,udp --native-fdm=socket,in,30,,5501,udp
-FGFS_GAME_ARGS = $(FGFS_COMMON_ARGS) --control=joystick
-
-FGFS_ARGS = $(FGFS_COMMON_ARGS) $(FGFS_IN_GUI_ARGS)
-#FGFS_GAME_ARGS)
-
-run_fg:
-	$(FGFS_ENV) $(FGFS) $(FGFS_ARGS)
+	$(Q)$(CC) $(CFLAGS) $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS)
 
 ahrs2fg: ahrs2fg.c network.c flight_gear.c utils.c
-	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS) -lm
 
-test_samere: test_samere.c network.c flight_gear.c utils.c
-	$(CC) $(CFLAGS) -I../airborne -I../airborne/test -I../include -g -o $@ $^ $(LDFLAGS)
-
-ivy_example: ivy_example.c
-	$(CC) $(IVY_C_LIBRARYS) $(IVY_C_INCLUDES) -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy
 
 tmclient: tmclient.c
-	$(CC) $(IVY_C_LIBRARYS) $(IVY_C_INCLUDES) -g -O1 -Wall $(shell pkg-config glib-2.0 --cflags) -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy
+	$(CC) -g -O1 -Wall $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS)
 
 ffjoystick: ffjoystick.c
-	$(CC) -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy -lm
+	$(CC) -g -O2 -Wall $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS) -lm
 
 ctrlstick: ctrlstick.c
-	$(CC) -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy
+	$(CC) -g -O2 -Wall $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS)
+
 
 clean:
-	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml openlog2tlm disp3d plotprofile test1 test3 test_samere ivy_example tmclient ffjoystick ctrlstick sd2log motor_bench
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrs2fg plot plotter gtk_export.ml openlog2tlm disp3d plotprofile tmclient ffjoystick ctrlstick sd2log
 
-.PHONY: all clean pt run_fg
+.PHONY: all clean
 
 #
 # Dependencies

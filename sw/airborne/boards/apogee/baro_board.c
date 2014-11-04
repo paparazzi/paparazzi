@@ -99,6 +99,8 @@ void apogee_baro_event(void) {
   if (apogee_baro.data_available && startup_cnt == 0) {
     float pressure = ((float)apogee_baro.pressure/(1<<2));
     AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
+    float temp = apogee_baro.temperature / 16.0f;
+    AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, &temp);
     apogee_baro.data_available = FALSE;
   }
 }

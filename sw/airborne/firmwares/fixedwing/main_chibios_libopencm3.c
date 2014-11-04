@@ -20,7 +20,7 @@
  */
 
 /**
- * @file firmwares/fixedwing/main_chibios.c
+ * @file firmwares/fixedwing/main_chibios_libopencm3.c
  */
 
 #include "firmwares/fixedwing/chibios-libopencm3/chibios_init.h"

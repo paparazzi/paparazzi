@@ -136,6 +136,18 @@ static inline void double_quat_normalize(struct DoubleQuat* q)
   }
 }
 
+/** Rotation matrix from 321 Euler angles (double).
+ * The Euler angles are interpreted as zy'x'' (intrinsic) rotation.
+ * First rotate around z with psi, then around the new y' with theta,
+ * then around new x'' with phi.
+ * This is the same as a xyz (extrinsic) rotation,
+ * rotating around the fixed x, then y then z axis.
+ * - psi range: -pi < psi <= pi
+ * - theta range: -pi/2 <= theta <= pi/2
+ * - phi range: -pi < phi <= pi
+ * @param[out] rm pointer to rotation matrix
+ * @param[in]  e pointer to Euler angles
+ */
 extern void double_rmat_of_eulers_321(struct DoubleRMat* rm, struct DoubleEulers* e);
 extern void double_quat_of_eulers(struct DoubleQuat* q, struct DoubleEulers* e);
 extern void double_eulers_of_quat(struct DoubleEulers* e, struct DoubleQuat* q);

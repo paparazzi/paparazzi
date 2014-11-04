@@ -1,0 +1,30 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="takeoff_detect" dir="nav">
+  <doc>
+    <description>
+      Fixed-wing automatic launch detection
+
+      When loaded, the pitch angle of plane is monitored, and will trigger the launch variable
+      if the angle goes over a specified value (nose up) for 2 seconds.
+      The launch variable can be reset to FALSE by pointing the nose to the ground.
+      The module disables itself within a few seconds (4s)  after detecting the launch.
+      It can be re-actiaved by hand from the GCS.
+    </description>
+    <section name="TO_DETECT">
+      <define name="TAKEOFF_DETECT_LAUNCH_PITCH" value="30." unit="deg" description="Picth angle for takeoff detection (set 'launch' to TRUE)"/>
+      <define name="TAKEOFF_DETECT_ABORT_PITCH" value="-20." unit="deg" description="Pitch angle to abort takeoff (set 'launch' to FALSE)"/>
+      <define name="TAKEOFF_DETECT_TIMER" value="2." description="Timer for takeoff detection in seconds (default 2s above pitch angle threshold)"/>
+      <define name="TAKEOFF_DETECT_DISABLE_TIMER" value="4." description="Timer for module de-activation (default 4s after the launch detection)"/>
+    </section>
+  </doc>
+  <header>
+    <file name="takeoff_detect.h"/>
+  </header>
+  <init fun="takeoff_detect_init()"/>
+  <periodic fun="takeoff_detect_periodic()" freq="20" autorun="TRUE" start="takeoff_detect_start()"/>
+  <makefile>
+    <file name="takeoff_detect.c"/>
+  </makefile>
+</module>
+

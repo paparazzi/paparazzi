@@ -45,6 +45,22 @@ struct GpsTimeSync gps_time_sync;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
+static void send_svinfo(uint8_t svid) {
+  if (svid < GPS_NB_CHANNELS) {
+    DOWNLINK_SEND_SVINFO(DefaultChannel, DefaultDevice, &svid,
+                         &gps.svinfos[svid].svid, &gps.svinfos[svid].flags,
+                         &gps.svinfos[svid].qi, &gps.svinfos[svid].cno,
+                         &gps.svinfos[svid].elev, &gps.svinfos[svid].azim);
+  }
+}
+
+/** send SVINFO message if there is information for satellite with svid */
+static inline void send_svinfo_available(uint8_t svid) {
+  if (gps.svinfos[svid].cno > 0) {
+    send_svinfo(svid);
+  }
+}
+
 static void send_gps(void) {
   static uint8_t i;
   int16_t climb = -gps.ned_vel.z;
@@ -53,13 +69,13 @@ static void send_gps(void) {
       &gps.utm_pos.east, &gps.utm_pos.north,
       &course, &gps.hmsl, &gps.gspeed, &climb,
       &gps.week, &gps.tow, &gps.utm_pos.zone, &i);
+
+  // send SVINFO for all satellites while no GPS fix,
+  // after 3D fix, send avialable sats with lower rate
   if ((gps.fix != GPS_FIX_3D) && (i >= gps.nb_channels)) i = 0;
   if (i >= gps.nb_channels * 2) i = 0;
   if (i < gps.nb_channels && ((gps.fix != GPS_FIX_3D) || (gps.svinfos[i].cno > 0))) {
-    DOWNLINK_SEND_SVINFO(DefaultChannel, DefaultDevice, &i,
-        &gps.svinfos[i].svid, &gps.svinfos[i].flags,
-        &gps.svinfos[i].qi, &gps.svinfos[i].cno,
-        &gps.svinfos[i].elev, &gps.svinfos[i].azim);
+    send_svinfo(i);
   }
   i++;
 }
@@ -77,12 +93,10 @@ static void send_gps_int(void) {
       &gps.pdop,
       &gps.num_sv,
       &gps.fix);
+  // send SVINFO for available satellites that have new data
   if (i == gps.nb_channels) i = 0;
-  if (i < gps.nb_channels && gps.svinfos[i].cno > 0 && gps.svinfos[i].cno != last_cnos[i]) {
-    DOWNLINK_SEND_SVINFO(DefaultChannel, DefaultDevice, &i,
-        &gps.svinfos[i].svid, &gps.svinfos[i].flags,
-        &gps.svinfos[i].qi, &gps.svinfos[i].cno,
-        &gps.svinfos[i].elev, &gps.svinfos[i].azim);
+  if (i < gps.nb_channels && gps.svinfos[i].cno != last_cnos[i]) {
+    send_svinfo_available(i);
     last_cnos[i] = gps.svinfos[i].cno;
   }
   i++;

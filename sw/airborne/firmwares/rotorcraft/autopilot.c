@@ -290,7 +290,7 @@ void autopilot_periodic(void) {
 
   RunOnceEvery(NAV_PRESCALER, compute_dist2_to_home());
 
-  if (autopilot_in_flight) {
+  if (autopilot_in_flight && autopilot_mode == AP_MODE_NAV) {
     if (too_far_from_home) {
       if (dist2_to_home > failsafe_mode_dist2)
         autopilot_set_mode(FAILSAFE_MODE_TOO_FAR_FROM_HOME);

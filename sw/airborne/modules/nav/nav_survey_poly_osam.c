@@ -32,6 +32,16 @@
 #include "generated/flight_plan.h"
 
 
+bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
+{
+  float dx = waypoints[SecondWP].x - waypoints[FirstWP].x;
+  float dy = waypoints[SecondWP].y - waypoints[FirstWP].y;
+  if (dx == 0.0f) dx = 0.000000001;
+  float ang = atan(dy/dx);
+  return nav_survey_poly_osam_setup(FirstWP, Size, Sweep, DegOfRad(ang));
+}
+
+
 struct Point2D {float x; float y;};
 struct Line {float m;float b;float x;};
 

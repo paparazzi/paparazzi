@@ -2,8 +2,32 @@
 
 <module name="flight_benchmark" dir="benchmark">
   <doc>
-    <description>Flight benchmark</description>
+    <description>
+Flight benchmark.
+This module allows a quantitative assessment of the flight. It calculates the sum of squared error of the two-dimensional course (x / y), the altitude and true airspeed. The sum of squared error of the course and altitude were separated, because they are regulated separately, and so they dependent on various parameters. The module was written to optimize the control parameters and has already been used successfully.
+
+The measurement is not started until about the variable benchm_go is set to 1.
+
+The sum of squared error can by reseted by changing the boolean variable benchm_reset to zero (will turn back to 1 automatically after it has done the reset). This can also be used in a flight plan, which allows a flight plan with auto-reset. So it is possible to fly an oval or a eight figure with a sum of squared error that will be reseted at the very same point of the figure.
+    </description>
+    <define name="BENCHMARK_AIRSPEED" description="enable airspeed benchmarking (only with airspeed module)"/>
+    <define name="BENCHMARK_ALTITUDE" description="enable altitude benchmarking"/>
+    <define name="BENCHMARK_POSITION" description="enable position (x/y) benchmarking. (shortest error to the path)"/>
+    <define name="BENCHMARK_TOLERANCE_AIRSPEED" value="0." description="define the tolerated value where the sum of squared error won't change. Set to zero to have no tolerance."/>
+    <define name="BENCHMARK_TOLERANCE_ALTITUDE" value="0." description="define the tolerated value where the sum of squared error won't change. Set to zero to have no tolerance."/>
+    <define name="BENCHMARK_TOLERANCE_POSITION" value="0." description="define the tolerated value where the sum of squared error won't change. Set to zero to have no tolerance."/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Benchmark">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="benchm_reset" shortname="bench_reset" module="modules/benchmark/flight_benchmark"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="benchm_go" shortname="bench_go" />
+        <dl_setting MAX="20" MIN="0" STEP="0.1" VAR="ToleranceAispeed" shortname="AS_Tolerance" param="BENCHMARK_TOLERANCE_AIRSPEED"/>
+        <dl_setting MAX="20" MIN="0" STEP="0.1" VAR="ToleranceAltitude" shortname="Alt_Tolerance" param="BENCHMARK_TOLERANCE_ALTITUDE"/>
+        <dl_setting MAX="20" MIN="0" STEP="0.1" VAR="TolerancePosition" shortname="Pos_Tolerance" param="BENCHMARK_TOLERANCE_POSITION"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="flight_benchmark.h"/>
   </header>
@@ -14,4 +38,3 @@
     <file name="flight_benchmark.c"/>
   </makefile>
 </module>
-

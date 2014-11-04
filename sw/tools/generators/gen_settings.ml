@@ -290,8 +290,11 @@ let join_xml_files = fun xml_files ->
           then begin
             (* test if the module is loaded or not *)
             if List.exists (fun n ->
-              let t = ExtXml.attrib_or_default n "target" "" in
-              Str.string_match (Str.regexp (".*"^target^".*")) t 0
+              if Xml.tag n = "makefile" then begin
+                let t = ExtXml.attrib_or_default n "target" Gen_common.default_module_targets in
+                Str.string_match (Str.regexp (".*"^target^".*")) t 0
+              end
+              else false
               ) (Xml.children xml)
             then List.filter (fun t -> Xml.tag t = "settings") (Xml.children xml)
             else []

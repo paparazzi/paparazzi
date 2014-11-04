@@ -56,7 +56,6 @@ struct Int32AttitudeGains stabilization_gains = {
 #endif
 
 struct Int32Quat stabilization_att_sum_err_quat;
-struct Int32Eulers stabilization_att_sum_err;
 
 int32_t stabilization_att_fb_cmd[COMMANDS_NB];
 int32_t stabilization_att_ff_cmd[COMMANDS_NB];
@@ -79,9 +78,9 @@ static void send_att(void) { //FIXME really use this message here ?
       &stab_att_sp_euler.phi,
       &stab_att_sp_euler.theta,
       &stab_att_sp_euler.psi,
-      &stabilization_att_sum_err.phi,
-      &stabilization_att_sum_err.theta,
-      &stabilization_att_sum_err.psi,
+      &stabilization_att_sum_err_quat.qx,
+      &stabilization_att_sum_err_quat.qy,
+      &stabilization_att_sum_err_quat.qz,
       &stabilization_att_fb_cmd[COMMAND_ROLL],
       &stabilization_att_fb_cmd[COMMAND_PITCH],
       &stabilization_att_fb_cmd[COMMAND_YAW],
@@ -128,7 +127,6 @@ void stabilization_attitude_init(void) {
   stabilization_attitude_ref_init();
 
   int32_quat_identity(&stabilization_att_sum_err_quat);
-  INT_EULERS_ZERO( stabilization_att_sum_err );
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
@@ -145,7 +143,6 @@ void stabilization_attitude_enter(void) {
   stabilization_attitude_ref_enter();
 
   int32_quat_identity(&stabilization_att_sum_err_quat);
-  INT_EULERS_ZERO(stabilization_att_sum_err);
 
 }
 
@@ -242,22 +239,18 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   struct Int32Rates* body_rate = stateGetBodyRates_i();
   RATES_DIFF(rate_err, rate_ref_scaled, (*body_rate));
 
+#define INTEGRATOR_BOUND 100000
   /* integrated error */
   if (enable_integrator) {
-    struct Int32Quat new_sum_err, scaled_att_err;
-    /* update accumulator */
-    scaled_att_err.qi = att_err.qi;
-    scaled_att_err.qx = att_err.qx / IERROR_SCALE;
-    scaled_att_err.qy = att_err.qy / IERROR_SCALE;
-    scaled_att_err.qz = att_err.qz / IERROR_SCALE;
-    int32_quat_comp(&new_sum_err, &stabilization_att_sum_err_quat, &scaled_att_err);
-    int32_quat_normalize(&new_sum_err);
-    QUAT_COPY(stabilization_att_sum_err_quat, new_sum_err);
-    int32_eulers_of_quat(&stabilization_att_sum_err, &stabilization_att_sum_err_quat);
+    stabilization_att_sum_err_quat.qx += att_err.qx /IERROR_SCALE;
+    stabilization_att_sum_err_quat.qy += att_err.qy /IERROR_SCALE;
+    stabilization_att_sum_err_quat.qz += att_err.qz /IERROR_SCALE;
+    Bound(stabilization_att_sum_err_quat.qx,-INTEGRATOR_BOUND,INTEGRATOR_BOUND);
+    Bound(stabilization_att_sum_err_quat.qy,-INTEGRATOR_BOUND,INTEGRATOR_BOUND);
+    Bound(stabilization_att_sum_err_quat.qz,-INTEGRATOR_BOUND,INTEGRATOR_BOUND);
   } else {
     /* reset accumulator */
     int32_quat_identity(&stabilization_att_sum_err_quat);
-    INT_EULERS_ZERO( stabilization_att_sum_err );
   }
 
   /* compute the feed forward command */

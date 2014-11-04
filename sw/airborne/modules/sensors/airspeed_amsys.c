@@ -57,6 +57,14 @@
 #define TEMPERATURE_AMSYS_MIN -25
 #endif
 
+#ifndef USE_AIRSPEED_AMSYS
+#if USE_AIRSPEED
+#define USE_AIRSPEED_AMSYS TRUE
+PRINT_CONFIG_MSG("USE_AIRSPEED_AMSYS automatically set to TRUE")
+#endif
+#endif
+
+
 
 // Global variables
 uint16_t airspeed_amsys_raw;
@@ -106,7 +114,7 @@ void airspeed_amsys_read_periodic( void ) {
 #endif
   }
 
-#if USE_AIRSPEED
+#if USE_AIRSPEED_AMSYS
     stateSetAirspeed_f(&airspeed_amsys);
 #endif
 
