@@ -64,7 +64,7 @@ static void send_ppm(struct transport_tx *trans, struct device *dev)
   for (int i = 0; i < RADIO_CONTROL_NB_CHANNEL; i++) {
     ppm_pulses_usec[i] = USEC_OF_RC_PPM_TICKS(ppm_pulses[i]);
   }
-  DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,
+  pprz_msg_send_PPM(trans, dev, AC_ID,
                     &radio_control.frame_rate, PPM_NB_CHANNEL, ppm_pulses_usec);
 }
 #endif

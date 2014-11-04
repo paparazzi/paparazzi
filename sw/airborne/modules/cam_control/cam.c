@@ -106,7 +106,7 @@ static void send_cam(struct transport_tx *trans, struct device *dev) {
 
 #ifdef SHOW_CAM_COORDINATES
 static void send_cam_point(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_CAM_POINT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_CAM_POINT(trans, dev, AC_ID,
       &cam_point_distance_from_home, &cam_point_lat, &cam_point_lon);
 }
 #endif

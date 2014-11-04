@@ -72,7 +72,7 @@ int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 static void send_att(struct transport_tx *trans, struct device *dev) { //FIXME really use this message here ?
   struct Int32Rates* body_rate = stateGetBodyRates_i();
   struct Int32Eulers* att = stateGetNedToBodyEulers_i();
-  DOWNLINK_SEND_STAB_ATTITUDE_INT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_STAB_ATTITUDE_INT(trans, dev, AC_ID,
       &(body_rate->p), &(body_rate->q), &(body_rate->r),
       &(att->phi), &(att->theta), &(att->psi),
       &stab_att_sp_euler.phi,
@@ -93,7 +93,7 @@ static void send_att(struct transport_tx *trans, struct device *dev) { //FIXME r
 }
 
 static void send_att_ref(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_STAB_ATTITUDE_REF_INT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_STAB_ATTITUDE_REF_INT(trans, dev, AC_ID,
                                       &stab_att_sp_euler.phi,
                                       &stab_att_sp_euler.theta,
                                       &stab_att_sp_euler.psi,
@@ -110,7 +110,7 @@ static void send_att_ref(struct transport_tx *trans, struct device *dev) {
 
 static void send_ahrs_ref_quat(struct transport_tx *trans, struct device *dev) {
   struct Int32Quat* quat = stateGetNedToBodyQuat_i();
-  DOWNLINK_SEND_AHRS_REF_QUAT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_AHRS_REF_QUAT(trans, dev, AC_ID,
       &stab_att_ref_quat.qi,
       &stab_att_ref_quat.qx,
       &stab_att_ref_quat.qy,

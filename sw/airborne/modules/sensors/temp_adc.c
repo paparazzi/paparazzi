@@ -100,7 +100,7 @@ float calc_lm35(int16_t raw_temp)
 
 static void temp_adc_downlink(void)
 {
-  DOWNLINK_SEND_TEMP_ADC(DefaultChannel, DefaultDevice, &temp_c1, &temp_c2, &temp_c3);
+  pprz_msg_send_TEMP_ADC(trans, dev, AC_ID, &temp_c1, &temp_c2, &temp_c3);
 }
 
 void temp_adc_init(void)

@@ -116,7 +116,7 @@ static inline void ahrs_update_mag_2d(float dt);
 
 static void send_quat(struct transport_tx *trans, struct device *dev) {
   struct Int32Quat* quat = stateGetNedToBodyQuat_i();
-  DOWNLINK_SEND_AHRS_QUAT_INT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_AHRS_QUAT_INT(trans, dev, AC_ID,
       &ahrs_impl.weight,
       &ahrs_impl.ltp_to_imu_quat.qi,
       &ahrs_impl.ltp_to_imu_quat.qx,
@@ -132,7 +132,7 @@ static void send_euler(struct transport_tx *trans, struct device *dev) {
   struct Int32Eulers ltp_to_imu_euler;
   int32_eulers_of_quat(&ltp_to_imu_euler, &ahrs_impl.ltp_to_imu_quat);
   struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
-  DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
       &ltp_to_imu_euler.phi,
       &ltp_to_imu_euler.theta,
       &ltp_to_imu_euler.psi,
@@ -142,7 +142,7 @@ static void send_euler(struct transport_tx *trans, struct device *dev) {
 }
 
 static void send_bias(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_AHRS_GYRO_BIAS_INT(trans, dev, AC_ID,
       &ahrs_impl.gyro_bias.p, &ahrs_impl.gyro_bias.q, &ahrs_impl.gyro_bias.r);
 }
 
@@ -151,7 +151,7 @@ static void send_geo_mag(struct transport_tx *trans, struct device *dev) {
   h_float.x = MAG_FLOAT_OF_BFP(ahrs_impl.mag_h.x);
   h_float.y = MAG_FLOAT_OF_BFP(ahrs_impl.mag_h.y);
   h_float.z = MAG_FLOAT_OF_BFP(ahrs_impl.mag_h.z);
-  DOWNLINK_SEND_GEO_MAG(DefaultChannel, DefaultDevice,
+  pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
                         &h_float.x, &h_float.y, &h_float.z);
 }
 #endif

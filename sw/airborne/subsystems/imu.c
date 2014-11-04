@@ -45,65 +45,65 @@
 #if USE_IMU_FLOAT
 
 static void send_accel(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, DefaultDevice,
+  pprz_msg_send_IMU_ACCEL(trans, dev, AC_ID,
       &imuf.accel.x, &imuf.accel.y, &imuf.accel.z);
 }
 
 static void send_gyro(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_IMU_GYRO(DefaultChannel, DefaultDevice,
+  pprz_msg_send_IMU_GYRO(trans, dev, AC_ID,
       &imuf.gyro.p, &imuf.gyro.q, &imuf.gyro.r);
 }
 
 #else // !USE_IMU_FLOAT
 
 static void send_accel_raw(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
+  pprz_msg_send_IMU_ACCEL_RAW(trans, dev, AC_ID,
       &imu.accel_unscaled.x, &imu.accel_unscaled.y, &imu.accel_unscaled.z);
 }
 
 static void send_accel_scaled(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
+  pprz_msg_send_IMU_ACCEL_SCALED(trans, dev, AC_ID,
       &imu.accel.x, &imu.accel.y, &imu.accel.z);
 }
 
 static void send_accel(struct transport_tx *trans, struct device *dev) {
   struct FloatVect3 accel_float;
   ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
-  DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, DefaultDevice,
+  pprz_msg_send_IMU_ACCEL(trans, dev, AC_ID,
       &accel_float.x, &accel_float.y, &accel_float.z);
 }
 
 static void send_gyro_raw(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
+  pprz_msg_send_IMU_GYRO_RAW(trans, dev, AC_ID,
       &imu.gyro_unscaled.p, &imu.gyro_unscaled.q, &imu.gyro_unscaled.r);
 }
 
 static void send_gyro_scaled(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
+  pprz_msg_send_IMU_GYRO_SCALED(trans, dev, AC_ID,
       &imu.gyro.p, &imu.gyro.q, &imu.gyro.r);
 }
 
 static void send_gyro(struct transport_tx *trans, struct device *dev) {
   struct FloatRates gyro_float;
   RATES_FLOAT_OF_BFP(gyro_float, imu.gyro);
-  DOWNLINK_SEND_IMU_GYRO(DefaultChannel, DefaultDevice,
+  pprz_msg_send_IMU_GYRO(trans, dev, AC_ID,
       &gyro_float.p, &gyro_float.q, &gyro_float.r);
 }
 
 static void send_mag_raw(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
+  pprz_msg_send_IMU_MAG_RAW(trans, dev, AC_ID,
       &imu.mag_unscaled.x, &imu.mag_unscaled.y, &imu.mag_unscaled.z);
 }
 
 static void send_mag_scaled(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
+  pprz_msg_send_IMU_MAG_SCALED(trans, dev, AC_ID,
       &imu.mag.x, &imu.mag.y, &imu.mag.z);
 }
 
 static void send_mag(struct transport_tx *trans, struct device *dev) {
   struct FloatVect3 mag_float;
   MAGS_FLOAT_OF_BFP(mag_float, imu.mag);
-  DOWNLINK_SEND_IMU_MAG(DefaultChannel, DefaultDevice,
+  pprz_msg_send_IMU_MAG(trans, dev, AC_ID,
       &mag_float.x, &mag_float.y, &mag_float.z);
 }
 #endif // !USE_IMU_FLOAT

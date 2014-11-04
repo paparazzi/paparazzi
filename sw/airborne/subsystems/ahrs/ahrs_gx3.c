@@ -83,8 +83,8 @@ void ahrs_align(void) {
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static send_gx3(void) {
-  DOWNLINK_SEND_GX3_INFO(DefaultChannel, DefaultDevice,
+static send_gx3(struct transport_tx *trans, struct device *dev) {
+  pprz_msg_send_GX3_INFO(trans, dev, AC_ID,
       &ahrs_impl.gx3_freq,
       &ahrs_impl.gx3_packet.chksm_error,
       &ahrs_impl.gx3_packet.hdr_error,

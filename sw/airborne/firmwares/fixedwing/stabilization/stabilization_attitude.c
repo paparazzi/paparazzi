@@ -116,7 +116,7 @@ static float nav_ratio;
 #include "subsystems/datalink/telemetry.h"
 
 static void send_calibration(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_CALIBRATION(DefaultChannel, DefaultDevice,  &v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode);
+  pprz_msg_send_CALIBRATION(trans, dev, AC_ID,  &v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode);
 }
 #endif
 

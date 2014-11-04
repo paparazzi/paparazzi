@@ -107,7 +107,7 @@ static void send_thumbnails(struct transport_tx *trans, struct device *dev)
         return;
       }
     }
-    DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, THUMB_MSG_SIZE, thumbs[thumb_pointer]);
+    pprz_msg_send_PAYLOAD(trans, dev, AC_ID, THUMB_MSG_SIZE, thumbs[thumb_pointer]);
 
     // Update the write/read pointer: if we receive a new thumb part, that will be sent, otherwise the oldest infor is repeated
     thumb_pointer++;

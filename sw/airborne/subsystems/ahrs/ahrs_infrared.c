@@ -43,7 +43,7 @@ float heading;
 #include "subsystems/datalink/telemetry.h"
 
 static void send_infrared(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_IR_SENSORS(DefaultChannel, DefaultDevice,
+  pprz_msg_send_IR_SENSORS(trans, dev, AC_ID,
       &infrared.value.ir1, &infrared.value.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
 }
 
@@ -51,7 +51,7 @@ static void send_status(struct transport_tx *trans, struct device *dev) {
   uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top);
   uint8_t mde = 3;
   if (contrast < 50) mde = 7;
-  DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &contrast);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &contrast);
 }
 #endif
 

@@ -148,7 +148,7 @@ static void send_filter_status(struct transport_tx *trans, struct device *dev) {
   if (ahrs.status == AHRS_UNINIT) mde = 2;
   if (ahrs_timeout_counter > 10) mde = 5;
   uint16_t val = 0;
-  DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &val);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &val);
 }
 
 #endif // USE_AHRS && USE_IMU
@@ -460,7 +460,7 @@ void reporting_task( void ) {
   /** then report periodicly */
   else {
     //PeriodicSendAp(DefaultChannel, DefaultDevice);
-    periodic_telemetry_send_Ap((void*)(DefaultChannel), (void*)(DefaultDevice));
+    periodic_telemetry_send_Ap(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
   }
 }
 

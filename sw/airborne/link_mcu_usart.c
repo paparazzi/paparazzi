@@ -255,7 +255,7 @@ inline void parse_mavpilot_msg( void );
 
 
 static void send_commands(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, ap_state->commands);
+  pprz_msg_send_COMMANDS(trans, dev, AC_ID, COMMANDS_NB, ap_state->commands);
 }
 
 
@@ -272,7 +272,7 @@ static void send_fbw_status(struct transport_tx *trans, struct device *dev) {
     rc_status = RC_OK;
   else
     rc_status = RC_LOST;
-  DOWNLINK_SEND_FBW_STATUS(DefaultChannel, DefaultDevice,
+  pprz_msg_send_FBW_STATUS(trans, dev, AC_ID,
       &(rc_status), &(fbw_state->ppm_cpt), &(fbw_status), &(fbw_state->vsupply), &(fbw_state->current));
 }
 #endif

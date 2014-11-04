@@ -45,7 +45,7 @@ struct Sbus sbus;
 static void send_sbus(struct transport_tx *trans, struct device *dev)
 {
   // Using PPM message
-  DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,
+  pprz_msg_send_PPM(trans, dev, AC_ID,
                     &radio_control.frame_rate, SBUS_NB_CHANNEL, sbus.ppm);
 }
 #endif

@@ -108,7 +108,7 @@ uint8_t link_mcu_fbw_nb_err;
 
 static void send_debug_link(struct transport_tx *trans, struct device *dev) {
   uint8_t mcu1_ppm_cpt_foo = 0; //FIXME
-  DOWNLINK_SEND_DEBUG_MCU_LINK(DefaultChannel, DefaultDevice,
+  pprz_msg_send_DEBUG_MCU_LINK(trans, dev, AC_ID,
       &link_mcu_nb_err, &link_mcu_fbw_nb_err, &mcu1_ppm_cpt_foo);
 }
 #endif

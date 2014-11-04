@@ -49,14 +49,14 @@ static void send_gps(struct transport_tx *trans, struct device *dev) {
   static uint8_t i;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
-  DOWNLINK_SEND_GPS(DefaultChannel, DefaultDevice, &gps.fix,
+  pprz_msg_send_GPS(trans, dev, AC_ID, &gps.fix,
       &gps.utm_pos.east, &gps.utm_pos.north,
       &course, &gps.hmsl, &gps.gspeed, &climb,
       &gps.week, &gps.tow, &gps.utm_pos.zone, &i);
   if ((gps.fix != GPS_FIX_3D) && (i >= gps.nb_channels)) i = 0;
   if (i >= gps.nb_channels * 2) i = 0;
   if (i < gps.nb_channels && ((gps.fix != GPS_FIX_3D) || (gps.svinfos[i].cno > 0))) {
-    DOWNLINK_SEND_SVINFO(DefaultChannel, DefaultDevice, &i,
+    pprz_msg_send_SVINFO(trans, dev, AC_ID, &i,
         &gps.svinfos[i].svid, &gps.svinfos[i].flags,
         &gps.svinfos[i].qi, &gps.svinfos[i].cno,
         &gps.svinfos[i].elev, &gps.svinfos[i].azim);
@@ -67,7 +67,7 @@ static void send_gps(struct transport_tx *trans, struct device *dev) {
 static void send_gps_int(struct transport_tx *trans, struct device *dev) {
   static uint8_t i;
   static uint8_t last_cnos[GPS_NB_CHANNELS];
-  DOWNLINK_SEND_GPS_INT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_GPS_INT(trans, dev, AC_ID,
       &gps.ecef_pos.x, &gps.ecef_pos.y, &gps.ecef_pos.z,
       &gps.lla_pos.lat, &gps.lla_pos.lon, &gps.lla_pos.alt,
       &gps.hmsl,
@@ -79,7 +79,7 @@ static void send_gps_int(struct transport_tx *trans, struct device *dev) {
       &gps.fix);
   if (i == gps.nb_channels) i = 0;
   if (i < gps.nb_channels && gps.svinfos[i].cno > 0 && gps.svinfos[i].cno != last_cnos[i]) {
-    DOWNLINK_SEND_SVINFO(DefaultChannel, DefaultDevice, &i,
+    pprz_msg_send_SVINFO(trans, dev, AC_ID, &i,
         &gps.svinfos[i].svid, &gps.svinfos[i].flags,
         &gps.svinfos[i].qi, &gps.svinfos[i].cno,
         &gps.svinfos[i].elev, &gps.svinfos[i].azim);
@@ -92,7 +92,7 @@ static void send_gps_lla(struct transport_tx *trans, struct device *dev) {
   uint8_t err = 0;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
-  DOWNLINK_SEND_GPS_LLA(DefaultChannel, DefaultDevice,
+  pprz_msg_send_GPS_LLA(trans, dev, AC_ID,
       &gps.lla_pos.lat, &gps.lla_pos.lon, &gps.lla_pos.alt,
       &course, &gps.gspeed, &climb,
       &gps.week, &gps.tow,
@@ -100,7 +100,7 @@ static void send_gps_lla(struct transport_tx *trans, struct device *dev) {
 }
 
 static void send_gps_sol(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_GPS_SOL(DefaultChannel, DefaultDevice, &gps.pacc, &gps.sacc, &gps.pdop, &gps.num_sv);
+  pprz_msg_send_GPS_SOL(trans, dev, AC_ID, &gps.pacc, &gps.sacc, &gps.pdop, &gps.num_sv);
 }
 #endif
 

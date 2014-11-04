@@ -64,7 +64,7 @@ struct AhrsMlkf ahrs_impl;
 #include "subsystems/datalink/telemetry.h"
 
 static void send_geo_mag(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_GEO_MAG(DefaultChannel, DefaultDevice,
+  pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
                         &ahrs_impl.mag_h.x, &ahrs_impl.mag_h.y, &ahrs_impl.mag_h.z);
 }
 #endif

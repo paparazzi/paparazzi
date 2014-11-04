@@ -99,7 +99,7 @@ static void send_att(struct transport_tx *trans, struct device *dev) {
   struct Int32Eulers euler_i;
   EULERS_BFP_OF_REAL(euler_i, ltp_to_imu_euler);
   struct Int32Eulers* eulers_body = stateGetNedToBodyEulers_i();
-  DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
       &euler_i.phi,
       &euler_i.theta,
       &euler_i.psi,
@@ -109,7 +109,7 @@ static void send_att(struct transport_tx *trans, struct device *dev) {
 }
 
 static void send_geo_mag(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_GEO_MAG(DefaultChannel, DefaultDevice,
+  pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
                         &ahrs_impl.mag_h.x, &ahrs_impl.mag_h.y, &ahrs_impl.mag_h.z);
 }
 
@@ -117,7 +117,7 @@ static void send_geo_mag(struct transport_tx *trans, struct device *dev) {
 /*
 static void send_rmat(struct transport_tx *trans, struct device *dev) {
   struct Int32RMat* att_rmat = stateGetNedToBodyRMat_i();
-  DOWNLINK_SEND_AHRS_RMAT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_AHRS_RMAT(trans, dev, AC_ID,
       &ahrs_impl.ltp_to_imu_rmat.m[0],
       &ahrs_impl.ltp_to_imu_rmat.m[1],
       &ahrs_impl.ltp_to_imu_rmat.m[2],

@@ -139,7 +139,7 @@ PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO2 is AP_MODE_HOME")
 #endif
 
 static void send_alive(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
+  pprz_msg_send_ALIVE(trans, dev, AC_ID, 16, MD5SUM);
 }
 
 #if USE_MOTOR_MIXING
@@ -159,7 +159,7 @@ static void send_status(struct transport_tx *trans, struct device *dev) {
   uint8_t fix = GPS_FIX_NONE;
 #endif
   uint16_t time_sec = sys_time.nb_sec;
-  DOWNLINK_SEND_ROTORCRAFT_STATUS(DefaultChannel, DefaultDevice,
+  pprz_msg_send_ROTORCRAFT_STATUS(trans, dev, AC_ID,
       &imu_nb_err, &_motor_nb_err,
       &radio_control.status, &radio_control.frame_rate,
       &fix, &autopilot_mode,
@@ -173,12 +173,12 @@ static void send_energy(struct transport_tx *trans, struct device *dev) {
   float vsup = ((float)electrical.vsupply) / 10.0f;
   float curs = ((float)electrical.current) / 1000.0f;
   float power = vsup * curs;
-  DOWNLINK_SEND_ENERGY(DefaultChannel, DefaultDevice, &vsup, &curs, &e, &power);
+  pprz_msg_send_ENERGY(trans, dev, AC_ID, &vsup, &curs, &e, &power);
 }
 
 static void send_fp(struct transport_tx *trans, struct device *dev) {
   int32_t carrot_up = -guidance_v_z_sp;
-  DOWNLINK_SEND_ROTORCRAFT_FP(DefaultChannel, DefaultDevice,
+  pprz_msg_send_ROTORCRAFT_FP(trans, dev, AC_ID,
       &(stateGetPositionEnu_i()->x),
       &(stateGetPositionEnu_i()->y),
       &(stateGetPositionEnu_i()->z),
@@ -198,7 +198,7 @@ static void send_fp(struct transport_tx *trans, struct device *dev) {
 
 #ifdef RADIO_CONTROL
 static void send_rc(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_RC(DefaultChannel, DefaultDevice, RADIO_CONTROL_NB_CHANNEL, radio_control.values);
+  pprz_msg_send_RC(trans, dev, AC_ID, RADIO_CONTROL_NB_CHANNEL, radio_control.values);
 }
 
 static void send_rotorcraft_rc(struct transport_tx *trans, struct device *dev) {
@@ -207,7 +207,7 @@ static void send_rotorcraft_rc(struct transport_tx *trans, struct device *dev) {
 #else
   int16_t _kill_switch = 42;
 #endif
-  DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel, DefaultDevice,
+  pprz_msg_send_ROTORCRAFT_RADIO_CONTROL(trans, dev, AC_ID,
       &radio_control.values[RADIO_ROLL],
       &radio_control.values[RADIO_PITCH],
       &radio_control.values[RADIO_YAW],
@@ -220,16 +220,16 @@ static void send_rotorcraft_rc(struct transport_tx *trans, struct device *dev) {
 
 #ifdef ACTUATORS
 static void send_actuators(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice , ACTUATORS_NB, actuators);
+  pprz_msg_send_ACTUATORS(trans, dev, AC_ID , ACTUATORS_NB, actuators);
 }
 #endif
 
 static void send_dl_value(struct transport_tx *trans, struct device *dev) {
-  PeriodicSendDlValue(DefaultChannel, DefaultDevice);
+  PeriodicSendDlValue(trans, dev);
 }
 
 static void send_rotorcraft_cmd(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_ROTORCRAFT_CMD(DefaultChannel, DefaultDevice,
+  pprz_msg_send_ROTORCRAFT_CMD(trans, dev, AC_ID,
       &stabilization_cmd[COMMAND_ROLL],
       &stabilization_cmd[COMMAND_PITCH],
       &stabilization_cmd[COMMAND_YAW],

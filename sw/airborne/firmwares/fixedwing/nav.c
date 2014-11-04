@@ -452,7 +452,7 @@ void nav_periodic_task(void) {
 #include "subsystems/datalink/telemetry.h"
 
 static void send_nav_ref(struct transport_tx *trans, struct device *dev) {
-  DOWNLINK_SEND_NAVIGATION_REF(DefaultChannel, DefaultDevice,
+  pprz_msg_send_NAVIGATION_REF(trans, dev, AC_ID,
       &nav_utm_east0, &nav_utm_north0, &nav_utm_zone0, &ground_alt);
 }
 
@@ -475,21 +475,21 @@ bool_t DownlinkSendWpNr(uint8_t _wp)
 
 static void send_circle(struct transport_tx *trans, struct device *dev) {
   if (nav_in_circle) {
-    DOWNLINK_SEND_CIRCLE(DefaultChannel, DefaultDevice,
+    pprz_msg_send_CIRCLE(trans, dev, AC_ID,
         &nav_circle_x, &nav_circle_y, &nav_circle_radius);
   }
 }
 
 static void send_segment(struct transport_tx *trans, struct device *dev) {
   if (nav_in_segment) {
-    DOWNLINK_SEND_SEGMENT(DefaultChannel, DefaultDevice,
+    pprz_msg_send_SEGMENT(trans, dev, AC_ID,
         &nav_segment_x_1, &nav_segment_y_1, &nav_segment_x_2, &nav_segment_y_2);
   }
 }
 
 static void send_survey(struct transport_tx *trans, struct device *dev) {
   if (nav_survey_active) {
-    DOWNLINK_SEND_SURVEY(DefaultChannel, DefaultDevice,
+    pprz_msg_send_SURVEY(trans, dev, AC_ID,
         &nav_survey_east, &nav_survey_north, &nav_survey_west, &nav_survey_south);
   }
 }
