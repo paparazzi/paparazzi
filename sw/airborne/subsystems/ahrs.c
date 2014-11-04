@@ -32,11 +32,9 @@
 
 struct Ahrs ahrs;
 
-void ahrs_register_impl(AhrsInit init, AhrsAlign align,
-                        AhrsUpdateGps update_gps)
+void ahrs_register_impl(AhrsInit init, AhrsUpdateGps update_gps)
 {
   ahrs.init = init;
-  ahrs.align = align;
   ahrs.update_gps = update_gps;
 
   // TODO: remove hacks
@@ -57,20 +55,8 @@ void ahrs_init(void)
 {
   ahrs.status = AHRS_UNINIT;
   ahrs.init = NULL;
-  ahrs.align = NULL;
   ahrs.update_gps = NULL;
 }
-
-bool_t ahrs_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
-                struct Int32Vect3* lp_mag)
-{
-  if (ahrs.align != NULL) {
-    return ahrs.align(lp_gyro, lp_accel, lp_mag);
-  }
-  return FALSE;
-}
-
-
 
 void ahrs_update_gps(void)
 {

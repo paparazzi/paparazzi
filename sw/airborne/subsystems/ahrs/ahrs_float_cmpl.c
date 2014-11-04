@@ -101,6 +101,8 @@ static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event mag_ev;
 
+static abi_event aligner_ev;
+
 static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
                     const struct Int32Rates* gyro)
 {
@@ -132,6 +134,17 @@ static void mag_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* st
     ahrs_fc_update_mag((struct Int32Vect3*)mag, dt);
   }
   last_stamp = *stamp;
+}
+
+static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
+                       const uint32_t* stamp __attribute__((unused)),
+                       const struct Int32Rates* lp_gyro, const struct Int32Vect3* lp_accel,
+                       const struct Int32Vect3* lp_mag)
+{
+  if (ahrs_fc.status != AHRS_FC_RUNNING) {
+    ahrs_fc_align((struct Int32Rates*)lp_gyro, (struct Int32Vect3*)lp_accel,
+                  (struct Int32Vect3*)lp_mag);
+  }
 }
 
 #if PERIODIC_TELEMETRY
@@ -186,7 +199,7 @@ static void send_rmat(void) {
 
 void ahrs_fc_register(void)
 {
-  ahrs_register_impl(ahrs_fc_init, ahrs_fc_align, ahrs_fc_update_gps);
+  ahrs_register_impl(ahrs_fc_init, ahrs_fc_update_gps);
 }
 
 void ahrs_fc_init(struct OrientationReps* body_to_imu)
@@ -232,6 +245,7 @@ void ahrs_fc_init(struct OrientationReps* body_to_imu)
   AbiBindMsgIMU_GYRO_INT32(AHRS_FC_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL_INT32(AHRS_FC_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_MAG_INT32(AHRS_FC_IMU_ID, &mag_ev, mag_cb);
+  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_att);

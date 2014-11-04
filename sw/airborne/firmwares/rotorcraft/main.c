@@ -348,9 +348,7 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
   if (ahrs.status != AHRS_RUNNING) {
     ahrs_aligner_run();
     if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED) {
-      if (ahrs_align(&ahrs_aligner.lp_gyro, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag)) {
-        ahrs.status = AHRS_RUNNING;
-      }
+      ahrs.status = AHRS_RUNNING;
     }
     return;
   }

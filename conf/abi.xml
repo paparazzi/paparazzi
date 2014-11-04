@@ -35,6 +35,13 @@
       <field name="mag" type="struct Int32Vect3"/>
     </message>
 
+    <message name="IMU_LOWPASSED" id="7">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="gyro" type="struct Int32Rates"/>
+      <field name="accel" type="struct Int32Vect3"/>
+      <field name="mag" type="struct Int32Vect3"/>
+    </message>
+
   </msg_class>
 
 

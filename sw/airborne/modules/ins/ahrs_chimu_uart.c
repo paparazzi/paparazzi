@@ -32,7 +32,7 @@ INS_FORMAT ins_pitch_neutral;
 
 void ahrs_chimu_register(void)
 {
-  ahrs_register_impl(ahrs_chimu_init, NULL, NULL);
+  ahrs_register_impl(ahrs_chimu_init, NULL);
 }
 
 void ahrs_chimu_init(struct OrientationReps* body_to_imu __attribute__((unused)))

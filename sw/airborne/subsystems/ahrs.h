@@ -42,13 +42,7 @@
 #endif
 
 typedef void (*AhrsInit)(struct OrientationReps* body_to_imu);
-typedef bool_t (*AhrsAlign)(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
-                            struct Int32Vect3* lp_mag);
-//typedef void (*AhrsPropagate)(struct Int32Rates* gyro, float dt);
-//typedef void (*AhrsUpdateAccel)(struct Int32Vect3* accel, float dt);
-//typedef void (*AhrsUpdateMag)(struct Int32Vect3* mag, float dt);
 typedef void (*AhrsUpdateGps)(void);
-//typedef void (*AhrsUpdateGps)(struct Gps* gps);
 
 /** Attitude and Heading Reference System state */
 struct Ahrs {
@@ -56,48 +50,18 @@ struct Ahrs {
 
   /* function pointers to actual implementation, set by ahrs_register_impl */
   AhrsInit init;
-  AhrsAlign align;
-  //AhrsPropagate propagate;
-  //AhrsUpdateAccel update_accel;
-  //AhrsUpdateMag update_mag;
   AhrsUpdateGps update_gps;
 };
 
 /** global AHRS state */
 extern struct Ahrs ahrs;
 
-extern void ahrs_register_impl(AhrsInit init, AhrsAlign align,
-                               AhrsUpdateGps update_gps);
+extern void ahrs_register_impl(AhrsInit init, AhrsUpdateGps update_gps);
 
 /** AHRS initialization. Called at startup.
  * Initialized the global AHRS struct.
  */
 extern void ahrs_init(void);
-
-/** Aligns the AHRS. Called after ahrs_aligner has run to set initial attitude and biases.
- * Calls implementation if registered.
- * @return TRUE if ahrs is aligned
- */
-extern bool_t ahrs_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
-                         struct Int32Vect3* lp_mag);
-
-/** Propagation. Usually integrates the gyro rates to angles.
- * Calls implementation if registered.
- * @param gyro pointer to gyro measurement
- */
-extern void ahrs_propagate(struct Int32Rates* gyro);
-
-/** Update AHRS state with accerleration measurements.
- * Calls implementation if registered.
- * @param accel pointer to accelerometer measurement
- */
-extern void ahrs_update_accel(struct Int32Vect3* accel);
-
-/** Update AHRS state with magnetometer measurements.
- * Calls implementation if registered.
- * @param mag pointer to magnetometer measurement
- */
-extern void ahrs_update_mag(struct Int32Vect3* mag);
 
 /** Update AHRS state with GPS measurements.
  *  Calls implementation if registered.

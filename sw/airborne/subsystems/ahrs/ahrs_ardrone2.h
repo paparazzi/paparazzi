@@ -31,7 +31,6 @@
 #define AHRS_ARDRONE2_H
 
 #include "subsystems/ahrs.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_geodetic_float.h"

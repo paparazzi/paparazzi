@@ -103,6 +103,8 @@ static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event mag_ev;
 
+static abi_event aligner_ev;
+
 static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
                     const struct Int32Rates* gyro)
 {
@@ -132,6 +134,17 @@ static void mag_cb(uint8_t sender_id __attribute__((unused)),
   }
 }
 
+static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
+                       const uint32_t* stamp __attribute__((unused)),
+                       const struct Int32Rates* lp_gyro, const struct Int32Vect3* lp_accel,
+                       const struct Int32Vect3* lp_mag)
+{
+  if (ahrs_dcm.status != AHRS_DCM_RUNNING) {
+    ahrs_dcm_align((struct Int32Rates*)lp_gyro, (struct Int32Vect3*)lp_accel,
+                   (struct Int32Vect3*)lp_mag);
+  }
+}
+
 
 static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat)
 {
@@ -144,7 +157,7 @@ static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat)
 
 void ahrs_dcm_register(void)
 {
-  ahrs_register_impl(ahrs_dcm_init, ahrs_dcm_align, ahrs_dcm_update_gps);
+  ahrs_register_impl(ahrs_dcm_init, ahrs_dcm_update_gps);
 }
 
 void ahrs_dcm_init(struct OrientationReps* body_to_imu)
@@ -175,6 +188,7 @@ void ahrs_dcm_init(struct OrientationReps* body_to_imu)
   AbiBindMsgIMU_GYRO_INT32(AHRS_DCM_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL_INT32(AHRS_DCM_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_MAG_INT32(AHRS_DCM_IMU_ID, &mag_ev, mag_cb);
+  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
 }
 
 bool_t ahrs_dcm_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,

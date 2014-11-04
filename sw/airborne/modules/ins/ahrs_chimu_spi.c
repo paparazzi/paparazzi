@@ -39,7 +39,7 @@ void ahrs_chimu_update_gps(void);
 
 void ahrs_chimu_register(void)
 {
-  ahrs_register_impl(ahrs_chimu_init, NULL, ahrs_chimu_update_gps);
+  ahrs_register_impl(ahrs_chimu_init, ahrs_chimu_update_gps);
 }
 
 void ahrs_chimu_init(struct OrientationReps* body_to_imu __attribute__((unused)))

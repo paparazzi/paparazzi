@@ -43,7 +43,6 @@
 #endif
 
 struct AhrsARDrone ahrs_ardrone2;
-struct AhrsAligner ahrs_aligner;
 unsigned char buffer[4096]; //Packet buffer
 
 #if PERIODIC_TELEMETRY
@@ -69,7 +68,7 @@ static void send_ahrs_ad2(void) {
 
 void ahrs_ardrone2_register(void)
 {
-  ahrs_register_impl(ahrs_ardrone2_init, NULL, NULL);
+  ahrs_register_impl(ahrs_ardrone2_init, NULL);
 }
 
 void ahrs_ardrone2_init(struct OrientationReps* body_to_imu __attribute__((unused))) {

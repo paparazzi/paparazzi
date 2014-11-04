@@ -74,7 +74,7 @@ static void send_status(void) {
 
 void ahrs_infrared_register(void)
 {
-  ahrs_register_impl(ahrs_infrared_init, NULL, ahrs_infrared_update_gps);
+  ahrs_register_impl(ahrs_infrared_init, ahrs_infrared_update_gps);
 }
 
 void ahrs_infrared_init(struct OrientationReps* body_to_imu __attribute__((unused))) {
