@@ -49,6 +49,6 @@ Note: a command may be reversed by exchanging min and max values
  <channel ctl="A" function="YAW"       min="1200" neutral="1510" max="1800" average="0"/>
  <channel ctl="E" function="MODE"      min="1140" neutral="1470" max="1840" average="1"/>
  <channel ctl="G" function="CALIB"     min="1890" neutral="1500" max="1100" average="0"/>
- <channel ctl="f" function="GAINI"     min="1100" neutral="1490" max="1880" average="0"/>  
+ <channel ctl="f" function="GAINI"     min="1100" neutral="1490" max="1880" average="0"/>
  <!-- channel 9 is transmitted but cannot be controlled -->
 </radio>

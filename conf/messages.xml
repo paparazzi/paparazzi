@@ -1320,7 +1320,7 @@
     <field name="temp2"   type="float" unit="deg_celsius" format="%.2f"/>
     <field name="temp3"   type="float" unit="deg_celsius" format="%.2f"/>
   </message>
-  
+
   <message name="GUIDANCE_H_REF_INT" id="149">
     <field name="sp_x"    type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
     <field name="ref_x"   type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
