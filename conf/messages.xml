@@ -1923,10 +1923,14 @@
     <field name="wn"          type="float"/>
   </message>
 
- <!--215 is free -->
- <!--216 is free -->
- <!--217 is free -->
- <!--218 is free -->
+  <message name="INFO_MSG" id="215">
+    <field name="msg" type="char[]"/>
+  </message>
+
+  <!--216 is free -->
+  <!--217 is free -->
+  <!--218 is free -->
+
   <message name="WEATHER" id="219">
     <field name="p_amb" type="float" unit="Pa" alt_unit="mBar" alt_unit_coef="0.01"/>
     <field name="t_amb" type="float" unit="deg C"/>

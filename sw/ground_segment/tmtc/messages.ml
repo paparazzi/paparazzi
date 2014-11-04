@@ -79,7 +79,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
               with _ ->
                 match format_ with
                 | Some f -> alt_value (Pprz.formatted_string_of_value f x)
-                | _ -> alt_value (Pprz.string_of_value x)
+                | _ -> alt_value (Pprz.string_of_chars x)
           and display_value = fun () ->
             if notebook#page_num v#coerce = notebook#current_page then
               if l#label <> !value then l#set_text !value in
