@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2014  Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -134,7 +134,13 @@ static inline void pprz_parse_payload(struct pprz_transport * t) {
 
 
 #define PprzBuffer(_dev) TransportLink(_dev,ChAvailable())
-#define ReadPprzBuffer(_dev,_trans) { while (TransportLink(_dev,ChAvailable())&&!(_trans.trans_rx.msg_received)) parse_pprz(&(_trans),TransportLink(_dev,Getch())); }
+
+#define ReadPprzBuffer(_dev,_trans) { \
+  while (TransportLink(_dev,ChAvailable()) && !(_trans.trans_rx.msg_received)) { \
+    parse_pprz(&(_trans),TransportLink(_dev,Getch()));  \
+  } \
+}
+
 #define PprzCheckAndParse(_dev,_trans) {  \
   if (PprzBuffer(_dev)) {                 \
     ReadPprzBuffer(_dev,_trans);          \
