@@ -34,7 +34,7 @@ static void send_uart0_err(void) {
   uint16_t ore    = uart0.ore;
   uint16_t ne_err = uart0.ne_err;
   uint16_t fe_err = uart0.fe_err;
-  const uint8_t _bus0 = 0;
+  uint8_t _bus0 = 0;
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus0);
 }
@@ -50,7 +50,7 @@ static void send_uart1_err(void) {
   uint16_t ore    = uart1.ore;
   uint16_t ne_err = uart1.ne_err;
   uint16_t fe_err = uart1.fe_err;
-  const uint8_t _bus1 = 1;
+  uint8_t _bus1 = 1;
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus1);
 }
@@ -66,7 +66,7 @@ static void send_uart2_err(void) {
   uint16_t ore    = uart2.ore;
   uint16_t ne_err = uart2.ne_err;
   uint16_t fe_err = uart2.fe_err;
-  const uint8_t _bus2 = 2;
+  uint8_t _bus2 = 2;
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus2);
 }
@@ -82,7 +82,7 @@ static void send_uart3_err(void) {
   uint16_t ore    = uart3.ore;
   uint16_t ne_err = uart3.ne_err;
   uint16_t fe_err = uart3.fe_err;
-  const uint8_t _bus3 = 3;
+  uint8_t _bus3 = 3;
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus3);
 }
@@ -98,7 +98,7 @@ static void send_uart4_err(void) {
   uint16_t ore    = uart4.ore;
   uint16_t ne_err = uart4.ne_err;
   uint16_t fe_err = uart4.fe_err;
-  const uint8_t _bus4 = 4;
+  uint8_t _bus4 = 4;
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus4);
 }
@@ -114,7 +114,7 @@ static void send_uart5_err(void) {
   uint16_t ore    = uart5.ore;
   uint16_t ne_err = uart5.ne_err;
   uint16_t fe_err = uart5.fe_err;
-  const uint8_t _bus5 = 5;
+  uint8_t _bus5 = 5;
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus5);
 }
@@ -127,10 +127,10 @@ struct uart_periph uart6;
 
 #if PERIODIC_TELEMETRY
 static void send_uart6_err(void) {
-  const uint8_t _bus6 = 6;
   uint16_t ore    = uart6.ore;
   uint16_t ne_err = uart6.ne_err;
   uint16_t fe_err = uart6.fe_err;
+  uint8_t _bus6 = 6;
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus6);
 }
@@ -178,6 +178,8 @@ static void send_uart_err(void) {
 }
 #endif
 
+static void null_function(struct uart_periph* p __attribute__((unused))) {}
+
 void uart_periph_init(struct uart_periph* p) {
   p->rx_insert_idx = 0;
   p->rx_extract_idx = 0;
@@ -187,6 +189,10 @@ void uart_periph_init(struct uart_periph* p) {
   p->ore = 0;
   p->ne_err = 0;
   p->fe_err = 0;
+  p->device.periph = (void *)p;
+  p->device.check_free_space = (check_free_space_t)uart_check_free_space;
+  p->device.transmit = (transmit_t)uart_transmit;
+  p->device.send_message = (send_message_t)null_function;
 
 #if PERIODIC_TELEMETRY
   // the first to register do it for the others

@@ -42,6 +42,7 @@
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
+#include "subsystems/datalink/pprz_transport.h"
 #include "subsystems/datalink/xbee.h"
 
 #include "subsystems/commands.h"
@@ -171,6 +172,9 @@ STATIC_INLINE void main_init( void ) {
 
   mcu_int_enable();
 
+#if DATALINK == PPRZ
+  pprz_transport_init();
+#endif
 #if DATALINK == XBEE
   xbee_init();
 #endif

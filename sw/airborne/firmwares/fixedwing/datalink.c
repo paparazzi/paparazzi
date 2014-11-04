@@ -103,7 +103,7 @@ void dl_parse_msg(void) {
 #endif
 
   if (msg_id == DL_PING) {
-    DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice)
+    DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
   } else
 #ifdef TRAFFIC_INFO
   if (msg_id == DL_ACINFO && DL_ACINFO_ac_id(dl_buffer) != AC_ID) {

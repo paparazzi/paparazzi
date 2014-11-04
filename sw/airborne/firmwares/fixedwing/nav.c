@@ -466,7 +466,7 @@ static void send_wp_moved(void) {
   DownlinkSendWp(DefaultChannel, DefaultDevice, i);
 }
 
-bool_t DownlinkSendWpNr(int _wp)
+bool_t DownlinkSendWpNr(uint8_t _wp)
 {
   DownlinkSendWp(DefaultChannel, DefaultDevice, _wp);
   return FALSE;

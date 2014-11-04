@@ -232,7 +232,7 @@ bool_t w5100_ch_available( void );
 
 struct w5100_transport {
   // generic interface
-  struct transport trans;
+  struct transport_rx trans;
   // specific pprz transport variables
   uint8_t status;
   uint8_t payload_idx;

@@ -169,10 +169,10 @@ static void send_status(void) {
 }
 
 static void send_energy(void) {
-  const int16_t e = electrical.energy;
-  const float vsup = ((float)electrical.vsupply) / 10.0f;
-  const float curs = ((float)electrical.current) / 1000.0f;
-  const float power = vsup * curs;
+  uint16_t e = electrical.energy;
+  float vsup = ((float)electrical.vsupply) / 10.0f;
+  float curs = ((float)electrical.current) / 1000.0f;
+  float power = vsup * curs;
   DOWNLINK_SEND_ENERGY(DefaultChannel, DefaultDevice, &vsup, &curs, &e, &power);
 }
 

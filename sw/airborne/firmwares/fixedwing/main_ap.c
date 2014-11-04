@@ -75,6 +75,7 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/settings.h"
+#include "subsystems/datalink/pprz_transport.h"
 #include "subsystems/datalink/xbee.h"
 #include "subsystems/datalink/w5100.h"
 
@@ -243,6 +244,9 @@ void init_ap( void ) {
   mcu_int_enable();
 
 #if defined DATALINK
+#if DATALINK == PPRZ
+  pprz_transport_init();
+#endif
 #if DATALINK == XBEE
   xbee_init();
 #endif
@@ -450,7 +454,7 @@ void reporting_task( void ) {
 
   /** initialisation phase during boot */
   if (boot) {
-    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &version);
+    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, (uint16_t*)(&version));
     boot = FALSE;
   }
   /** then report periodicly */

@@ -31,6 +31,19 @@ type _type =
   | Array of string * string
   | FixedArray of string * string * int
 
+let c_type = fun format ->
+  match format with
+      "Float" -> "float"
+    | "Double" -> "double"
+    | "Int32" -> "int32_t"
+    | "Int16" -> "int16_t"
+    | "Int8" -> "int8_t"
+    | "Uint32" -> "uint32_t"
+    | "Uint16" -> "uint16_t"
+    | "Uint8" -> "uint8_t"
+    | _ -> failwith (sprintf "gen_messages.c_type: unknown format '%s'" format)
+
+
 type field = _type  * string * format option
 
 type fields = field list
@@ -119,24 +132,38 @@ module Gen_onboard = struct
   let print_field = fun h (t, name, (_f: format option)) ->
     match t with
         Basic _ ->
-          fprintf h "\t  DownlinkPut%sByAddr(_trans, _dev, (%s)); \\\n" (Syntax.nameof t) name
+          fprintf h "\t  trans->put_bytes(trans->impl, dev, %s, (void *) _%s);\n" (Syntax.sizeof t) name
       | Array (t, varname) ->
-        let _s = Syntax.sizeof (Basic t) in
-        fprintf h "\t  DownlinkPut%sArray(_trans, _dev, %s, %s); \\\n" (Syntax.nameof (Basic t)) (Syntax.length_name varname) name
+          let _s = Syntax.sizeof (Basic t) in
+          fprintf h "\t  trans->put_bytes(trans->impl, dev, 1, (void *) &%s);\n" (Syntax.length_name varname);
+          fprintf h "\t  trans->put_bytes(trans->impl, dev, %s * %s, (void *) _%s);\n" (Syntax.sizeof (Basic t)) (Syntax.length_name varname) name
       | FixedArray (t, varname, len) ->
-        let _s = Syntax.sizeof (Basic t) in
-        fprintf h "\t  DownlinkPut%sFixedArray(_trans, _dev, %d, %s); \\\n" (Syntax.nameof (Basic t)) len name
+          let _s = Syntax.sizeof (Basic t) in
+          fprintf h "\t  trans->put_bytes(trans->impl, dev, %s * %d, (void *) _%s);\n" (Syntax.sizeof (Basic t)) len name
 
-  let print_parameter h = function
+  let print_macro_param h = function
       (Array _, s, _) -> fprintf h "%s, %s" (Syntax.length_name s) s
     | (FixedArray _, s, _) -> fprintf h "%s" s
     | (_, s, _) -> fprintf h "%s" s
 
   let print_macro_parameters h = function
-  [] -> ()
+      [] -> ()
     | f::fields ->
-      print_parameter h f;
-      List.iter (fun f -> fprintf h ", "; print_parameter h f) fields
+      fprintf h ", ";
+      print_macro_param h f;
+      List.iter (fun f -> fprintf h ", "; print_macro_param h f) fields
+
+  let print_fun_param h = function
+      (Array (t, _), s, _) -> fprintf h "uint8_t %s, %s *_%s" (Syntax.length_name s) (c_type (Syntax.nameof (Basic t))) s
+    | (FixedArray (t, _, _), s, _) -> fprintf h "%s *_%s" (c_type (Syntax.nameof (Basic t))) s
+    | (t, s, _) -> fprintf h "%s *_%s" (c_type (Syntax.nameof t)) s
+
+  let print_function_parameters h = function
+      [] -> ()
+    | f::fields ->
+      fprintf h ", ";
+      print_fun_param h f;
+      List.iter (fun f -> fprintf h ", "; print_fun_param h f) fields
 
   let rec size_fields = fun fields size ->
     match fields with
@@ -155,28 +182,35 @@ module Gen_onboard = struct
         Failure "int_of_string" -> 0
 
   let print_downlink_macro = fun h {name=s; fields = fields} ->
-    if List.length fields > 0 then begin
-      fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev, " s;
-    end else
-      fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev " s;
+    (* Macros for backward compatibility *)
+    fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev" s;
     print_macro_parameters h fields;
-    fprintf h "){ \\\n";
+    fprintf h ") ";
+    fprintf h "pprz_msg_send_%s(&((_trans).trans_tx), &((_dev).device), AC_ID" s;
+    print_macro_parameters h fields;
+    fprintf h ")\n";
+    (* Print message_send functions *)
+    fprintf h "static inline void pprz_msg_send_%s(struct transport_tx *trans, struct device *dev, uint8_t ac_id" s;
+    print_function_parameters h fields;
+    fprintf h ") {\n";
     let size = (size_fields fields "0") in
-    fprintf h "\tif (DownlinkCheckFreeSpace(_trans, _dev, DownlinkSizeOf(_trans, _dev, %s))) {\\\n" size;
-    fprintf h "\t  DownlinkCountBytes(_trans, _dev, DownlinkSizeOf(_trans, _dev, %s)); \\\n" size;
-    fprintf h "\t  DownlinkStartMessage(_trans, _dev, \"%s\", DL_%s, %s) \\\n" s s size;
+    fprintf h "\tif (trans->check_available_space(trans->impl, dev, trans->size_of(trans->impl, %s +2 /* msg header overhead */))) {\n" size;
+    fprintf h "\t  trans->count_bytes(trans->impl, dev, trans->size_of(trans->impl, %s +2 /* msg header overhead */));\n" size;
+    fprintf h "\t  trans->start_message(trans->impl, dev, %s +2 /* msg header overhead */);\n" size;
+    fprintf h "\t  uint8_t msg_header[] = { ac_id, DL_%s };\n" s;
+    fprintf h "\t  trans->put_bytes(trans->impl, dev, 2, (void *) msg_header);\n";
     List.iter (print_field h) fields;
-    fprintf h "\t  DownlinkEndMessage(_trans, _dev ) \\\n";
-    fprintf h "\t} else \\\n";
-    fprintf h "\t  DownlinkOverrun(_trans, _dev ); \\\n";
+    fprintf h "\t  trans->end_message(trans->impl, dev);\n";
+    fprintf h "\t} else\n";
+    fprintf h "\t  trans->overrun(trans->impl, dev);\n";
     fprintf h "}\n\n"
 
   let print_null_downlink_macro = fun h {name=s; fields = fields} ->
-    if List.length fields > 0 then begin
-      fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev, " s;
-    end else
-      fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev " s;
+    fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev" s;
     print_macro_parameters h fields;
+    fprintf h ") {}\n";
+    fprintf h "void pprz_msg_send_%s(struct transport_tx *trans, struct device *dev, uint8_t ac_id" s;
+    print_function_parameters h fields;
     fprintf h ") {}\n"
 
   (** Prints the messages ids *)
@@ -217,7 +251,7 @@ module Gen_onboard = struct
   (** Prints the macros required to send a message *)
   let print_downlink_macros = fun h class_ messages ->
     print_enum h class_ messages;
-    print_lengths_array h class_ messages;
+    (*print_lengths_array h class_ messages;*)
     List.iter (print_downlink_macro h) messages
 
   let print_null_downlink_macros = fun h messages ->
@@ -316,6 +350,10 @@ let () =
     Printf.fprintf h "/* Please DO NOT EDIT */\n";
 
     Printf.fprintf h "/* Macros to send and receive messages of class %s */\n" class_name;
+    Printf.fprintf h "#ifndef _VAR_MESSAGES_%s_H_\n" class_name;
+    Printf.fprintf h "#define _VAR_MESSAGES_%s_H_\n" class_name;
+    Printf.fprintf h "#include \"subsystems/datalink/transport.h\"\n";
+    Printf.fprintf h "#include \"mcu_periph/device.h\"\n";
 
     (** Macros for airborne downlink (sending) *)
     if class_name = "telemetry" then begin (** FIXME *)
@@ -330,7 +368,9 @@ let () =
 
     (** Macros for airborne datalink (receiving) *)
     let check_alignment = class_name <> "telemetry" in
-    List.iter (Gen_onboard.print_get_macros h check_alignment) messages
+    List.iter (Gen_onboard.print_get_macros h check_alignment) messages;
+
+    Printf.fprintf h "#endif // _VAR_MESSAGES_%s_H_\n" class_name
 
   with
       Xml.Error (msg, pos) -> failwith (sprintf "%s:%d : %s\n" filename (Xml.line pos) (Xml.error_msg msg))

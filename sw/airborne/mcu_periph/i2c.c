@@ -47,7 +47,7 @@ static void send_i2c0_err(void) {
   uint16_t i2c0_smbus_alert_cnt       = i2c0.errors->smbus_alert_cnt;
   uint16_t i2c0_unexpected_event_cnt  = i2c0.errors->unexpected_event_cnt;
   uint32_t i2c0_last_unexpected_event = i2c0.errors->last_unexpected_event;
-  const uint8_t _bus0 = 0;
+  uint8_t _bus0 = 0;
   DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
       &i2c0_queue_full_cnt,
       &i2c0_ack_fail_cnt,
@@ -87,7 +87,7 @@ static void send_i2c1_err(void) {
   uint16_t i2c1_smbus_alert_cnt       = i2c1.errors->smbus_alert_cnt;
   uint16_t i2c1_unexpected_event_cnt  = i2c1.errors->unexpected_event_cnt;
   uint32_t i2c1_last_unexpected_event = i2c1.errors->last_unexpected_event;
-  const uint8_t _bus1 = 1;
+  uint8_t _bus1 = 1;
   DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
       &i2c1_queue_full_cnt,
       &i2c1_ack_fail_cnt,
@@ -127,7 +127,7 @@ static void send_i2c2_err(void) {
   uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt;
   uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt;
   uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event;
-  const uint8_t _bus2 = 2;
+  uint8_t _bus2 = 2;
   DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
       &i2c2_queue_full_cnt,
       &i2c2_ack_fail_cnt,
@@ -171,7 +171,7 @@ static void send_i2c3_err(void) {
   uint16_t i2c3_smbus_alert_cnt       = i2c3.errors->smbus_alert_cnt;
   uint16_t i2c3_unexpected_event_cnt  = i2c3.errors->unexpected_event_cnt;
   uint32_t i2c3_last_unexpected_event = i2c3.errors->last_unexpected_event;
-  const uint8_t _bus3 = 3;
+  uint8_t _bus3 = 3;
   DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
       &i2c3_queue_full_cnt,
       &i2c3_ack_fail_cnt,

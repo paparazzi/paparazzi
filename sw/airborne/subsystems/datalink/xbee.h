@@ -201,7 +201,7 @@ void xbee_init( void );
 
 struct xbee_transport {
   // generic interface
-  struct transport trans;
+  struct transport_rx trans;
   // specific pprz transport variables
   uint8_t status;
   uint8_t payload_idx;

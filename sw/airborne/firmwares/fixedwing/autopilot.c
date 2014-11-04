@@ -91,15 +91,15 @@ static void send_bat(void) {
   int16_t e = energy;
   DOWNLINK_SEND_BAT(DefaultChannel, DefaultDevice,
       &v_ctl_throttle_slewed, &vsupply, &amps,
-      &autopilot_flight_time, &kill_throttle,
+      &autopilot_flight_time, (uint8_t*)(&kill_throttle),
       &block_time, &stage_time, &e);
 }
 
 static void send_energy(void) {
-  const int16_t e = energy;
-  const float vsup = ((float)vsupply) / 10.0f;
-  const float curs = ((float)current) / 1000.0f;
-  const float power = vsup * curs;
+  uint16_t e = energy;
+  float vsup = ((float)vsupply) / 10.0f;
+  float curs = ((float)current) / 1000.0f;
+  float power = vsup * curs;
   DOWNLINK_SEND_ENERGY(DefaultChannel, DefaultDevice, &vsup, &curs, &e, &power);
 }
 
