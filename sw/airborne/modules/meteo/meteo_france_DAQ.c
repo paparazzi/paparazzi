@@ -66,7 +66,7 @@ void init_mf_daq(void) {
 
 void mf_daq_send_state(void) {
   // Send aircraft state to DAQ board
-  DOWNLINK_SEND_MF_DAQ_STATE(PprzTransport, EXTRA_PPRZ_UART,
+  DOWNLINK_SEND_MF_DAQ_STATE(pprz_tp, EXTRA_PPRZ_UART,
       &autopilot_flight_time,
       &stateGetBodyRates_f()->p,
       &stateGetBodyRates_f()->q,
@@ -96,14 +96,14 @@ void mf_daq_send_report(void) {
   if (pprzLogFile.fs != NULL) {
     if (log_started == FALSE) {
       // Log MD5SUM once
-      DOWNLINK_SEND_ALIVE(PprzLogTransport, SDLOG, 16, MD5SUM);
+      DOWNLINK_SEND_ALIVE(pprzlog_tp, chibios_sdlog, 16, MD5SUM);
       log_started = TRUE;
     }
     // Log GPS for time reference
     uint8_t foo = 0;
     int16_t climb = -gps.ned_vel.z;
     int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
-    DOWNLINK_SEND_GPS(PprzLogTransport, SDLOG, &gps.fix,
+    DOWNLINK_SEND_GPS(pprzlog_tp, chibios_sdlog, &gps.fix,
         &gps.utm_pos.east, &gps.utm_pos.north,
         &course, &gps.hmsl, &gps.gspeed, &climb,
         &gps.week, &gps.tow, &gps.utm_pos.zone, &foo);
@@ -118,8 +118,8 @@ void parse_mf_daq_msg(void) {
     memcpy(mf_daq.values, DL_PAYLOAD_FLOAT_values(dl_buffer), mf_daq.nb * sizeof(float));
     // Log on SD card
     if (log_started) {
-      DOWNLINK_SEND_PAYLOAD_FLOAT(PprzLogTransport, SDLOG, mf_daq.nb, mf_daq.values);
-      DOWNLINK_SEND_MF_DAQ_STATE(PprzLogTransport, SDLOG,
+      DOWNLINK_SEND_PAYLOAD_FLOAT(pprzlog_tp, chibios_sdlog, mf_daq.nb, mf_daq.values);
+      DOWNLINK_SEND_MF_DAQ_STATE(pprzlog_tp, chibios_sdlog,
           &autopilot_flight_time,
           &stateGetBodyRates_f()->p,
           &stateGetBodyRates_f()->q,

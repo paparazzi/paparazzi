@@ -75,7 +75,7 @@ static void start_message(struct pprzlog_transport *trans, struct device *dev, u
   trans->ck = 0;
   put_1byte(trans, dev, msg_len);
   uint32_t ts = get_sys_time_usec()/100;
-  put_bytes(trans, dev, 4, ts);
+  put_bytes(trans, dev, 4, (uint8_t*)(&ts));
 }
 
 static void end_message(struct pprzlog_transport *trans, struct device *dev)
@@ -88,7 +88,7 @@ static void overrun(struct pprzlog_transport *trans __attribute__((unused)), str
 {
 }
 
-static void count_bytes(struct pprzlog_transport *trans __attribute__((unused)), struct device *dev __attribute__((unused)), uint8_t bytes)
+static void count_bytes(struct pprzlog_transport *trans __attribute__((unused)), struct device *dev __attribute__((unused)), uint8_t bytes __attribute__((unused)))
 {
 }
 

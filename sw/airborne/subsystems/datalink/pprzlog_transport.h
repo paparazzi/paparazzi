@@ -30,6 +30,7 @@
 #define PPRZLOG_TRANSPORT_H
 
 #include "mcu_periph/sys_time.h"
+#include "subsystems/datalink/transport.h"
 
 struct pprzlog_transport {
   // generic transmission interface
