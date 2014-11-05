@@ -110,7 +110,7 @@ value update_bat(value bat) {
 }
 
 value update_dl_status(value dl_enabled) {
-  ivy_dl_enabled = Int_val(dl_enabled);
+  ivy_tp.ivy_dl_enabled = Int_val(dl_enabled);
   return Val_unit;
 }
 

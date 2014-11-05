@@ -54,13 +54,18 @@ static void put_1byte(struct pprzlog_transport *trans, struct device *dev, const
   dev->transmit(dev->periph, byte);
 }
 
-static void put_bytes(struct pprzlog_transport *trans, struct device *dev, uint8_t len, const void *bytes)
+static void put_bytes(struct pprzlog_transport *trans, enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), struct device *dev, uint8_t len, const void *bytes)
 {
   const uint8_t *b = (const uint8_t *) bytes;
   int i;
   for (i = 0; i < len; i++) {
     put_1byte(trans, dev, b[i]);
   }
+}
+
+static void put_named_byte(struct pprzlog_transport *trans, struct device *dev, enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t byte, const char * name __attribute__((unused)))
+{
+  put_1byte(trans, dev, byte);
 }
 
 static uint8_t size_of(struct pprzlog_transport *trans __attribute__((unused)), uint8_t len)
@@ -75,7 +80,7 @@ static void start_message(struct pprzlog_transport *trans, struct device *dev, u
   trans->ck = 0;
   put_1byte(trans, dev, msg_len);
   uint32_t ts = get_sys_time_usec()/100;
-  put_bytes(trans, dev, 4, (uint8_t*)(&ts));
+  put_bytes(trans, dev, DL_TYPE_TIMESTAMP, DL_FORMAT_SCALAR, 4, (uint8_t*)(&ts));
 }
 
 static void end_message(struct pprzlog_transport *trans, struct device *dev)
@@ -102,6 +107,7 @@ void pprzlog_transport_init(void)
   pprzlog_tp.trans_tx.size_of = (size_of_t) size_of;
   pprzlog_tp.trans_tx.check_available_space = (check_available_space_t) check_available_space;
   pprzlog_tp.trans_tx.put_bytes = (put_bytes_t) put_bytes;
+  pprzlog_tp.trans_tx.put_named_byte = (put_named_byte_t) put_named_byte;
   pprzlog_tp.trans_tx.start_message = (start_message_t) start_message;
   pprzlog_tp.trans_tx.end_message = (end_message_t) end_message;
   pprzlog_tp.trans_tx.overrun = (overrun_t) overrun;

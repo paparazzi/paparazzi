@@ -44,6 +44,7 @@
 #include "subsystems/settings.h"
 #include "subsystems/datalink/pprz_transport.h"
 #include "subsystems/datalink/xbee.h"
+#include "subsystems/datalink/ivy_transport.h"
 
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
@@ -177,6 +178,9 @@ STATIC_INLINE void main_init( void ) {
 #endif
 #if DATALINK == XBEE
   xbee_init();
+#endif
+#if SITL
+  ivy_transport_init();
 #endif
 
   // register the timers for the periodic functions

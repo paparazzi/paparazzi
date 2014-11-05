@@ -41,8 +41,21 @@ let c_type = fun format ->
     | "Uint32" -> "uint32_t"
     | "Uint16" -> "uint16_t"
     | "Uint8" -> "uint8_t"
+    | "Char" -> "char"
     | _ -> failwith (sprintf "gen_messages.c_type: unknown format '%s'" format)
 
+let dl_type = fun format ->
+  match format with
+      "Float" -> "DL_TYPE_FLOAT"
+    | "Double" -> "DL_TYPE_DOUBLE"
+    | "Int32" -> "DL_TYPE_INT32"
+    | "Int16" -> "DL_TYPE_INT16"
+    | "Int8" -> "DL_TYPE_INT8"
+    | "Uint32" -> "DL_TYPE_UINT32"
+    | "Uint16" -> "DL_TYPE_UINT16"
+    | "Uint8" -> "DL_TYPE_UINT8"
+    | "Char" -> "DL_TYPE_CHAR"
+    | _ -> failwith (sprintf "gen_messages.dl_type: unknown format '%s'" format)
 
 type field = _type  * string * format option
 
@@ -132,14 +145,14 @@ module Gen_onboard = struct
   let print_field = fun h (t, name, (_f: format option)) ->
     match t with
         Basic _ ->
-          fprintf h "\t  trans->put_bytes(trans->impl, dev, %s, (void *) _%s);\n" (Syntax.sizeof t) name
+          fprintf h "\t  trans->put_bytes(trans->impl, dev, %s, DL_FORMAT_SCALAR, %s, (void *) _%s);\n" (dl_type (Syntax.nameof t)) (Syntax.sizeof t) name
       | Array (t, varname) ->
           let _s = Syntax.sizeof (Basic t) in
-          fprintf h "\t  trans->put_bytes(trans->impl, dev, 1, (void *) &%s);\n" (Syntax.length_name varname);
-          fprintf h "\t  trans->put_bytes(trans->impl, dev, %s * %s, (void *) _%s);\n" (Syntax.sizeof (Basic t)) (Syntax.length_name varname) name
+          fprintf h "\t  trans->put_bytes(trans->impl, dev, DL_TYPE_ARRAY_LENGTH, DL_FORMAT_SCALAR, 1, (void *) &%s);\n" (Syntax.length_name varname);
+          fprintf h "\t  trans->put_bytes(trans->impl, dev, %s, DL_FORMAT_ARRAY, %s * %s, (void *) _%s);\n" (dl_type (Syntax.nameof (Basic t))) (Syntax.sizeof (Basic t)) (Syntax.length_name varname) name
       | FixedArray (t, varname, len) ->
           let _s = Syntax.sizeof (Basic t) in
-          fprintf h "\t  trans->put_bytes(trans->impl, dev, %s * %d, (void *) _%s);\n" (Syntax.sizeof (Basic t)) len name
+          fprintf h "\t  trans->put_bytes(trans->impl, dev, %s, DL_FORMAT_ARRAY, %s * %d, (void *) _%s);\n" (dl_type (Syntax.nameof (Basic t))) (Syntax.sizeof (Basic t)) len name
 
   let print_macro_param h = function
       (Array _, s, _) -> fprintf h "%s, %s" (Syntax.length_name s) s
@@ -197,8 +210,8 @@ module Gen_onboard = struct
     fprintf h "\tif (trans->check_available_space(trans->impl, dev, trans->size_of(trans->impl, %s +2 /* msg header overhead */))) {\n" size;
     fprintf h "\t  trans->count_bytes(trans->impl, dev, trans->size_of(trans->impl, %s +2 /* msg header overhead */));\n" size;
     fprintf h "\t  trans->start_message(trans->impl, dev, %s +2 /* msg header overhead */);\n" size;
-    fprintf h "\t  uint8_t msg_header[] = { ac_id, DL_%s };\n" s;
-    fprintf h "\t  trans->put_bytes(trans->impl, dev, 2, (void *) msg_header);\n";
+    fprintf h "\t  trans->put_bytes(trans->impl, dev, DL_TYPE_UINT8, DL_FORMAT_SCALAR, 1, &ac_id);\n";
+    fprintf h "\t  trans->put_named_byte(trans->impl, dev, DL_TYPE_UINT8, DL_FORMAT_SCALAR, DL_%s, \"%s\");\n" s s;
     List.iter (print_field h) fields;
     fprintf h "\t  trans->end_message(trans->impl, dev);\n";
     fprintf h "\t} else\n";

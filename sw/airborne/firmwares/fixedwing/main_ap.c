@@ -78,6 +78,7 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "subsystems/datalink/pprz_transport.h"
 #include "subsystems/datalink/xbee.h"
 #include "subsystems/datalink/w5100.h"
+#include "subsystems/datalink/ivy_transport.h"
 
 // modules & settings
 #include "generated/modules.h"
@@ -254,6 +255,9 @@ void init_ap( void ) {
   w5100_init();
 #endif
 #endif /* DATALINK */
+#if SITL
+  ivy_transport_init();
+#endif
 
 #if defined AEROCOMM_DATA_PIN
   IO0DIR |= _BV(AEROCOMM_DATA_PIN);
