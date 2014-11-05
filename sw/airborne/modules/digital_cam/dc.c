@@ -34,8 +34,14 @@
 
 #include "dc.h"
 
+
 // for waypoints, but still only fixedwing
 #include "subsystems/navigation/common_nav.h"
+
+#ifdef DC_RADIO_SHOOT
+// to use radio channels
+#include "inter_mcu.h"
+#endif
 
 // Variables with boot defaults
 uint8_t dc_autoshoot_meter_grid = 100;
@@ -57,6 +63,9 @@ float dc_gps_y = 0;
 
 bool_t dc_probing = FALSE;
 
+#ifdef DC_RADIO_SHOOT
+  PRINT_CONFIG_MSG("Using RADIO SHOOT"); 
+#endif
 
 #ifdef SENSOR_SYNC_SEND
 
@@ -196,7 +205,25 @@ static float dim_mod(float a, float b, float m) {
 void dc_periodic_4Hz(void)
 {
   static uint8_t dc_shutter_timer = 0;
-
+  
+  #ifdef DC_RADIO_SHOOT
+  static uint8_t rd_shoot = 0;
+  static uint8_t rd_num = 0;
+  
+  if ( (rd_shoot == 0) && (((float)(*fbw_state).channels[RADIO_SHOOT])  > 3000) )
+    {
+      dc_send_command(DC_SHOOT);
+      rd_shoot=1;
+    }
+  if ((rd_shoot == 1) && (rd_num < 4))  //FIX-IT using timer 
+    {rd_num = rd_num +1;}
+    else
+    {
+      rd_num =0;
+      rd_shoot =0;
+    }
+  #endif 
+  
   switch (dc_autoshoot) {
 
     case DC_AUTOSHOOT_PERIODIC:
