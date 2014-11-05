@@ -35,10 +35,10 @@ extern uint8_t udpt_ck_a, udpt_ck_b;
     if (udpt_tx_buf_idx) {					\
       int len;	  						\
       len = network_write(network, updt_tx_buf, udpt_tx_buf_idx);	\
-      downlink_nb_bytes += udpt_tx_buf_idx;			\
-      downlink_nb_msgs++;					\
+      downlink.nb_bytes += udpt_tx_buf_idx;			\
+      downlink.nb_msgs++;					\
       if (len != udpt_tx_buf_idx)				\
-  downlink_nb_ovrn++;					\
+  downlink.nb_ovrn++;					\
       udpt_tx_buf_idx = 0;					\
     }								\
   }

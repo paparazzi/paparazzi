@@ -457,18 +457,18 @@ static void send_nav_ref(struct transport_tx *trans, struct device *dev) {
 }
 
 static void send_nav(struct transport_tx *trans, struct device *dev) {
-  SEND_NAVIGATION(DefaultChannel, DefaultDevice);
+  SEND_NAVIGATION(trans, dev);
 }
 
 static void send_wp_moved(struct transport_tx *trans, struct device *dev) {
   static uint8_t i;
   i++; if (i >= nb_waypoint) i = 0;
-  DownlinkSendWp(DefaultChannel, DefaultDevice, i);
+  DownlinkSendWp(trans, dev, i);
 }
 
 bool_t DownlinkSendWpNr(uint8_t _wp)
 {
-  DownlinkSendWp(DefaultChannel, DefaultDevice, _wp);
+  DownlinkSendWp(&(DefaultChannel).trans_tx, &(DefaultDevice).device, _wp);
   return FALSE;
 }
 

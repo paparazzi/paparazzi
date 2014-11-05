@@ -26,8 +26,31 @@
  */
 
 
-#include "std.h"
+#include "subsystems/datalink/downlink.h"
 
-uint8_t downlink_nb_ovrn;
-uint16_t downlink_nb_bytes;
-uint16_t downlink_nb_msgs;
+struct downlink downlink;
+
+void downlink_init(void)
+{
+  downlink.nb_ovrn = 0;
+  downlink.nb_bytes = 0;
+  downlink.nb_msgs = 0;
+
+#if defined DATALINK
+#if DATALINK == PPRZ
+  pprz_transport_init();
+#endif
+#if DATALINK == XBEE
+  xbee_init();
+#endif
+#if DATALINK == W5100
+  w5100_init();
+#endif
+#endif
+
+#if SITL
+  ivy_transport_init();
+#endif
+
+}
+

@@ -73,12 +73,9 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 
 // datalink & telemetry
 #include "subsystems/datalink/datalink.h"
+#include "subsystems/datalink/downlink.h"
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/settings.h"
-#include "subsystems/datalink/pprz_transport.h"
-#include "subsystems/datalink/xbee.h"
-#include "subsystems/datalink/w5100.h"
-#include "subsystems/datalink/ivy_transport.h"
 
 // modules & settings
 #include "generated/modules.h"
@@ -244,20 +241,7 @@ void init_ap( void ) {
   /** - start interrupt task */
   mcu_int_enable();
 
-#if defined DATALINK
-#if DATALINK == PPRZ
-  pprz_transport_init();
-#endif
-#if DATALINK == XBEE
-  xbee_init();
-#endif
-#if DATALINK == W5100
-  w5100_init();
-#endif
-#endif /* DATALINK */
-#if SITL
-  ivy_transport_init();
-#endif
+  downlink_init();
 
 #if defined AEROCOMM_DATA_PIN
   IO0DIR |= _BV(AEROCOMM_DATA_PIN);
@@ -513,7 +497,7 @@ void navigation_task( void ) {
 #endif
 
 #ifndef PERIOD_NAVIGATION_Ap_0 // If not sent periodically (in default 0 mode)
-  SEND_NAVIGATION(DefaultChannel, DefaultDevice);
+  SEND_NAVIGATION(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
 
   /* The nav task computes only nav_altitude. However, we are interested

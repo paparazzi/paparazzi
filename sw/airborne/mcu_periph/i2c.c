@@ -190,7 +190,7 @@ static void send_i2c3_err(struct transport_tx *trans, struct device *dev) {
 #endif /* USE_I2C3 */
 
 #if PERIODIC_TELEMETRY
-static void send_i2c_err(struct transport_tx *trans, struct device *dev) {
+static void send_i2c_err(struct transport_tx *trans __attribute__((unused)), struct device *dev __attribute__((unused))) {
   static uint8_t _i2c_nb_cnt = 0;
   switch (_i2c_nb_cnt) {
     case 0:

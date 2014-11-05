@@ -140,12 +140,12 @@ static void end_message(struct ivy_transport *trans, struct device *dev __attrib
 
 static void overrun(struct ivy_transport *trans __attribute__((unused)), struct device *dev __attribute__((unused)))
 {
-  downlink_nb_ovrn++;
+  downlink.nb_ovrn++;
 }
 
 static void count_bytes(struct ivy_transport *trans __attribute__((unused)), struct device *dev __attribute__((unused)), uint8_t bytes)
 {
-  downlink_nb_bytes += bytes;
+  downlink.nb_bytes += bytes;
 }
 
 static int check_available_space(struct ivy_transport *trans __attribute__((unused)), struct device *dev __attribute__((unused)), uint8_t bytes __attribute__((unused)))

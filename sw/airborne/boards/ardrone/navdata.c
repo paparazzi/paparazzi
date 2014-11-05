@@ -154,7 +154,7 @@ static void send_navdata(struct transport_tx *trans, struct device *dev) {
       &nav_port.checksum_errors);
 }
 
-static void send_fliter_status(void) {
+static void send_filter_status(struct transport_tx *trans, struct device *dev) {
   uint8_t mde = 3;
   if (ahrs.status == AHRS_UNINIT) mde = 2;
   if (imu_lost) mde = 5;
@@ -231,7 +231,7 @@ bool_t navdata_init()
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "ARDRONE_NAVDATA", send_navdata);
-  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_fliter_status);
+  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
 #endif
 
   return TRUE;
@@ -324,7 +324,7 @@ static void mag_freeze_check(void) {
 
         uint8_t mde = 5;
         uint16_t val = 0;
-        pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &val);
+        DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &val);
 
         // stop acquisition
         uint8_t cmd=0x02;

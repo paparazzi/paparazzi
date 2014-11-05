@@ -138,10 +138,10 @@ static void send_airspeed(struct transport_tx *trans __attribute__((unused)), st
 
 static void send_downlink(struct transport_tx *trans, struct device *dev) {
   static uint16_t last;
-  uint16_t rate = (downlink_nb_bytes - last) / PERIOD_DOWNLINK_Ap_0;
-  last = downlink_nb_bytes;
+  uint16_t rate = (downlink.nb_bytes - last) / PERIOD_DOWNLINK_Ap_0;
+  last = downlink.nb_bytes;
   pprz_msg_send_DOWNLINK(trans, dev, AC_ID,
-      &downlink_nb_ovrn, &rate, &downlink_nb_msgs);
+      &downlink.nb_ovrn, &rate, &downlink.nb_msgs);
 }
 
 void autopilot_init(void) {

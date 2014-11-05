@@ -75,6 +75,7 @@ static uint8_t size_of(struct pprzlog_transport *trans __attribute__((unused)), 
 
 static void start_message(struct pprzlog_transport *trans, struct device *dev, uint8_t payload_len)
 {
+  downlink.nb_msgs++;
   dev->transmit(dev->periph, STX_LOG);
   const uint8_t msg_len = size_of(trans, payload_len);
   trans->ck = 0;
