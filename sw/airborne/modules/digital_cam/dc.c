@@ -111,8 +111,9 @@ void dc_send_shot_position(void)
 uint8_t dc_info(void) {
 #ifdef DOWNLINK_SEND_DC_INFO
   float course = DegOfRad(stateGetNedToBodyEulers_f()->psi);
+  int16_t mode = dc_autoshoot;
   DOWNLINK_SEND_DC_INFO(DefaultChannel, DefaultDevice,
-                        &dc_autoshoot,
+                        &mode,
                         &stateGetPositionEnu_f()->x,
                         &stateGetPositionEnu_f()->y,
                         &course,

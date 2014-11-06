@@ -551,7 +551,7 @@
     <field name="start_angle" type="float" unit="deg"/>
     <field name="angle" type="float" unit="deg"/>
     <field name="last_block" type="float"/>
-    <field name="count" type="int16" unit=""/>
+    <field name="count" type="uint16" unit=""/>
     <field name="shutter" type="uint8" unit="s"/>
   </message>
 

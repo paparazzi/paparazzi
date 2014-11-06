@@ -68,7 +68,11 @@ static void put_bytes(struct ivy_transport *trans, struct device *dev __attribut
         i += 4;
         break;
       case DL_TYPE_UINT64:
+#if __WORDSIZE == 64
+        trans->ivy_p += sprintf(trans->ivy_p, "%lu", (uint64_t)(*((uint64_t*)(b+i))));
+#else
         trans->ivy_p += sprintf(trans->ivy_p, "%llu", (uint64_t)(*((uint64_t*)(b+i))));
+#endif
         i += 8;
         break;
       case DL_TYPE_INT8:
@@ -84,7 +88,11 @@ static void put_bytes(struct ivy_transport *trans, struct device *dev __attribut
         i += 4;
         break;
       case DL_TYPE_INT64:
-        trans->ivy_p += sprintf(trans->ivy_p, "%lld", (int64_t)(*((int64_t*)(b+i))));
+#if __WORDSIZE == 64
+        trans->ivy_p += sprintf(trans->ivy_p, "%ld", (uint64_t)(*((uint64_t*)(b+i))));
+#else
+        trans->ivy_p += sprintf(trans->ivy_p, "%lld", (uint64_t)(*((uint64_t*)(b+i))));
+#endif
         i += 8;
         break;
       case DL_TYPE_FLOAT:
