@@ -54,7 +54,7 @@ static void put_1byte(struct pprzlog_transport *trans, struct device *dev, const
   dev->transmit(dev->periph, byte);
 }
 
-static void put_bytes(struct pprzlog_transport *trans, enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), struct device *dev, uint8_t len, const void *bytes)
+static void put_bytes(struct pprzlog_transport *trans, struct device *dev, enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t len, const void *bytes)
 {
   const uint8_t *b = (const uint8_t *) bytes;
   int i;
@@ -75,7 +75,6 @@ static uint8_t size_of(struct pprzlog_transport *trans __attribute__((unused)), 
 
 static void start_message(struct pprzlog_transport *trans, struct device *dev, uint8_t payload_len)
 {
-  downlink.nb_msgs++;
   dev->transmit(dev->periph, STX_LOG);
   const uint8_t msg_len = size_of(trans, payload_len);
   trans->ck = 0;
