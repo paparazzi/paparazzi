@@ -68,7 +68,7 @@ static inline void main_periodic( void ) {
 
   RunOnceEvery(100, {
       DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
-      PeriodicSendDlValue(DefaultChannel, DefaultDevice);
+      PeriodicSendDlValue(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
     });
 
 }
