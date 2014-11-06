@@ -212,7 +212,7 @@ let _ =
       fprintf out_h "extern struct pprz_telemetry telemetry_%s;\n" process_name;
       fprintf out_h "#endif /* PERIODIC_C_%s */\n" (String.uppercase process_name);
 
-      lprintf out_h "static inline void periodic_telemetry_send_%s(struct transport_tx *trans __attribute__((unused), struct device *dev __attribute__((unused)) {  /* %dHz */\n" process_name freq; (*TODO pass transport+device with correct types *)
+      lprintf out_h "static inline void periodic_telemetry_send_%s(struct transport_tx *trans __attribute__((unused)), struct device *dev __attribute__((unused))) {  /* %dHz */\n" process_name freq; (*TODO pass transport+device with correct types *)
       right ();
       output_modes out_h process_name modes freq modules_name;
       left ();
