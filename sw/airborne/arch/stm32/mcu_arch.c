@@ -39,23 +39,6 @@
 
 #include "std.h"
 
-#if defined(STM32F4)
-/** 25MHz external clock to PLL it to 168MHz */
-const clock_scale_t hse_25mhz_3v3_168mhz = { /* 168MHz */
-  .pllm = 25,
-  .plln = 336,
-  .pllp = 2,
-  .pllq = 7,
-  .hpre = RCC_CFGR_HPRE_DIV_NONE,
-  .ppre1 = RCC_CFGR_PPRE_DIV_4,
-  .ppre2 = RCC_CFGR_PPRE_DIV_2,
-  .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
-                 FLASH_ACR_LATENCY_5WS,
-  .apb1_frequency = 42000000,
-  .apb2_frequency = 84000000,
-};
-#endif
-
 void mcu_arch_init(void) {
 #if LUFTBOOT
 PRINT_CONFIG_MSG("We are running luftboot, the interrupt vector is being relocated.")
@@ -85,7 +68,7 @@ PRINT_CONFIG_MSG("Using 16MHz external clock to PLL it to 168MHz.")
 #elif EXT_CLK == 25000000
 #if defined(STM32F4)
 PRINT_CONFIG_MSG("Using 25MHz external clock to PLL it to 168MHz.")
-  rcc_clock_setup_hse_3v3(&hse_25mhz_3v3_168mhz);
+  rcc_clock_setup_hse_3v3(&hse_25mhz_3v3[CLOCK_3V3_168MHZ]);
 #endif
 #else
 #error EXT_CLK is either set to an unsupported frequency or not defined at all. Please check!

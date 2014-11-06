@@ -31,7 +31,6 @@
 #define STM32_MCU_ARCH_H
 
 #include "std.h"
-#include <libopencm3/stm32/timer.h>
 
 extern void mcu_arch_init(void);
 
@@ -49,14 +48,6 @@ extern void mcu_arch_init(void);
 
 #define mcu_int_enable()  {}
 #define mcu_int_disable() {}
-
-/** @todo: these should go into libopencm3 */
-#ifdef TIM9_BASE
-#define TIM9				TIM9_BASE
-#endif
-#ifdef TIM12_BASE
-#define TIM12				TIM12_BASE
-#endif
 
 uint32_t timer_get_frequency(uint32_t timer_peripheral);
 
