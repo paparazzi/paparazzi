@@ -265,7 +265,7 @@ let rec index_stage = fun x ->
         incr stage; (* To count the loop stage *)
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
       | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "home"
-      | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" ->
+      | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "call_once" | "circle" ->
         incr stage;
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
       | "survey_rectangle" | "eight" | "oval"->
@@ -490,6 +490,11 @@ let rec print_stage = fun index_of_waypoints x ->
         let var = ExtXml.attrib  x "var"
         and value = parsed_attrib  x "value" in
         lprintf "%s = %s;\n" var value;
+        lprintf "NextStage();\n"
+      | "call_once" ->
+        stage ();
+        let func = ExtXml.attrib  x "fun" in
+        lprintf "%s;\n" func;
         lprintf "NextStage();\n"
       | "call" ->
         stage ();
