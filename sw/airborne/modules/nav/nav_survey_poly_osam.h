@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 The Paparazzi Team
+ * Copyright (C) 2008-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -29,6 +29,8 @@
 
 #include "std.h"
 
+extern uint8_t Poly_Size;
+extern float Poly_Sweep;
 extern bool_t nav_survey_poly_osam_setup(uint8_t FirstWP, uint8_t Size, float Sweep, float Orientation);
 /** start a polygonsurvey and compute the orientation angle from the line FirstWP-SecondWP */
 extern bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP);
