@@ -227,7 +227,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       Aircraft.attitude_and_rates phi theta psi p q r in
 
     (** Sending to Flight Gear *)
-    let fg_task = fun socket buffer () ->
+    let fg_task = fun socket buffer sockaddr () ->
       match !last_gps_state with
           None -> ()
         | Some s ->
@@ -239,9 +239,9 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
           fg_msg buffer lat lon alt phi theta psi;
       (**       for i = 0 to String.length buffer - 1 do fprintf stderr "%x " (Char.code buffer.[i]) done; fprintf stderr "\n"; **)
           try
-            ignore (Unix.send socket buffer 0 (String.length buffer) [])
+            ignore (Unix.sendto socket buffer 0 (String.length buffer) [] sockaddr)
           with
-              Unix.Unix_error (e,f,a) -> Printf.fprintf stderr "Error fg: %s (%s(%s))\n" (Unix.error_message e) f a
+              Unix.Unix_error (e,f,a) -> Printf.fprintf stderr "Error sending to FlightGear: %s (%s(%s))\n" (Unix.error_message e) f a; flush stderr
     in
 
     let set_pos = fun _ ->
@@ -271,11 +271,13 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
         try
           let inet_addr = Unix.inet_addr_of_string !fg_client in
           let socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
-          Unix.connect socket (Unix.ADDR_INET (inet_addr, 5501));
+          (* Unix.connect socket (Unix.ADDR_INET (inet_addr, 5501)); *)
           let buffer = String.create (fg_sizeof ()) in
-          Stdlib.timer ~scale:time_scale fg_period (fg_task socket buffer)
+          let sockaddr = (Unix.ADDR_INET (inet_addr, 5501)) in
+          Stdlib.timer ~scale:time_scale fg_period (fg_task socket buffer sockaddr);
+          fprintf stdout "Sending to FlightGear at %s\n" !fg_client; flush stdout
         with
-            e -> fprintf stderr "Error while connecting to fg: %s" (Printexc.to_string e)
+            e -> fprintf stderr "Error setting up FlightGear viz: %s\n" (Printexc.to_string e); flush stderr
     in
 
     let take_off = fun () -> FlightModel.set_air_speed !state FM.nominal_airspeed in

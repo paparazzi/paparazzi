@@ -393,7 +393,7 @@ void nav_init_stage( void ) {
 
 #include <stdio.h>
 void nav_periodic_task(void) {
-  RunOnceEvery(16, { stage_time++;  block_time++; });
+  RunOnceEvery(NAV_FREQ, { stage_time++;  block_time++; });
 
   dist2_to_wp = 0;
 
