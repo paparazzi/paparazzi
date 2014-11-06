@@ -149,21 +149,27 @@ let index_of_time = fun log t ->
 let run = fun serial_port log adj i0 speed no_gui ->
   let rec loop = fun i ->
     let (t, ac, m) = log.(i) in
-    Ivy.send (Printf.sprintf "replay%s %s" ac m);
-    Ivy.send (Printf.sprintf "time%s %f" ac t);
-    begin
-      match serial_port with
-	None -> ()
-      | Some channel ->
-	  try
-	  let msg_id, vs = Tm_Pprz.values_of_string m in
-	  let payload = Tm_Pprz.payload_of_values msg_id (int_of_string ac) vs in
-	  let buf = Pprz.Transport.packet payload in
-	  Debug.call 'o' (fun f -> fprintf f "%s\n" (Debug.xprint buf));
-	  fprintf channel "%s%!" buf
-	  with
-	    _ -> ()
-    end;
+    (* extract message name *)
+    let name = Str.string_before m (Str.search_forward (Str.regexp " ") m 0) in
+    (* continue if message is in telemetry class *)
+    begin try
+      let _ = Tm_Pprz.message_of_name name in
+      Ivy.send (Printf.sprintf "replay%s %s" ac m);
+      Ivy.send (Printf.sprintf "time%s %f" ac t);
+      begin
+        match serial_port with
+          None -> ()
+        | Some channel ->
+            try
+              let msg_id, vs = Tm_Pprz.values_of_string m in
+              let payload = Tm_Pprz.payload_of_values msg_id (int_of_string ac) vs in
+              let buf = Pprz.Transport.packet payload in
+              Debug.call 'o' (fun f -> fprintf f "%s\n" (Debug.xprint buf));
+              fprintf channel "%s%!" buf
+            with
+              _ -> ()
+      end;
+    with _ -> (); end;
     adj#set_value t;
     if i + 1 < Array.length log then begin
       let dt = time_of log.(i+1) -. t in
