@@ -23,10 +23,11 @@
  *  STM32 PWM and dualPWM servos shared functions.
  */
 
-#include "subsystems/actuators/actuators_shared_arch.h"
+#include "arch/stm32/subsystems/actuators/actuators_shared_arch.h"
 
+#include <libopencm3/stm32/timer.h>
 // for timer_get_frequency
-#include "mcu_arch.h"
+#include "arch/stm32/mcu_arch.h"
 
 
 /** Set PWM channel configuration
