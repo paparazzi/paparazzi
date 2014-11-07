@@ -207,7 +207,7 @@ let () =
   let errors = "red", ["error"; "no such file"; "undefined reference"; "failure"; "multiple definition"]
   and warnings = "orange", ["warning"]
   and info = "green", ["pragma message"]
-  and version = "cyan", ["paparazzi version"] in
+  and version = "cyan", ["paparazzi version"; "build aircraft"] in
 
   let color_regexps =
     List.map (fun (color, strings) ->

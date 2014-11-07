@@ -797,7 +797,7 @@ let () =
       end;
 
       let name = ExtXml.attrib xml "name" in
-      Xml2h.warning ("FLIGHT PLAN: "^name);
+      (* Xml2h.warning ("FLIGHT PLAN: "^name); *)
       Xml2h.define_string "FLIGHT_PLAN_NAME" name;
 
       let get_float = fun x -> float_attrib xml x in
