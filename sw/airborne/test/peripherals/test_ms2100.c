@@ -57,7 +57,8 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
   RunOnceEvery(10,
                {
-                 DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &sys_time.nb_sec);
+                 uint16_t foo = sys_time.nb_sec;
+                 DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &foo);
                  LED_TOGGLE(2);
                  LED_PERIODIC();
                });
@@ -70,10 +71,11 @@ static inline void main_event_task( void ) {
   ms2100_event(&ms2100);
   if (ms2100.status == MS2100_DATA_AVAILABLE) {
     RunOnceEvery(10, {
+        int32_t mag_x = ms2100.data.vect.x;
+        int32_t mag_y = ms2100.data.vect.y;
+        int32_t mag_z = ms2100.data.vect.z;
         DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
-                                  &ms2100.data.vect.x,
-                                  &ms2100.data.vect.y,
-                                  &ms2100.data.vect.z);
+                                  &mag_x, &mag_y, &mag_z);
       });
     ms2100.status = MS2100_IDLE;
   }

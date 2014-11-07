@@ -76,8 +76,9 @@ int main(void) {
 }
 
 static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, const float * pressure) {
+  float p = *pressure;
   float foo = 42.;
-  DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice, pressure, &foo);
+  DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice, &p, &foo);
 }
 
 static inline void main_init( void ) {

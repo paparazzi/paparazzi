@@ -442,7 +442,8 @@ void reporting_task( void ) {
 
   /** initialisation phase during boot */
   if (boot) {
-    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, (uint16_t*)(&version));
+    uint16_t non_const_version = version;
+    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &non_const_version);
     boot = FALSE;
   }
   /** then report periodicly */
