@@ -41,9 +41,9 @@ static void put_bytes(struct ivy_transport *trans, struct link_device *dev __att
 {
   const uint8_t *b = (const uint8_t *) bytes;
 
-  // Start delimiter for arrays
-  if (format == DL_FORMAT_ARRAY) {
-    trans->ivy_p += sprintf(trans->ivy_p, "|");
+  // Start delimiter "quote" for char arrays (strings)
+  if (format == DL_FORMAT_ARRAY && type == DL_TYPE_CHAR) {
+    trans->ivy_p += sprintf(trans->ivy_p, "\"");
   }
 
   int i = 0;
@@ -109,17 +109,24 @@ static void put_bytes(struct ivy_transport *trans, struct link_device *dev __att
         i++;
         break;
     }
-    // Coma delimiter for array, space otherwise
+    // Coma delimiter for array, no delimiter for char array (string), space otherwise
     if (format == DL_FORMAT_ARRAY) {
-      trans->ivy_p += sprintf(trans->ivy_p, ",");
+      if (type != DL_TYPE_CHAR) {
+        trans->ivy_p += sprintf(trans->ivy_p, ",");
+      }
     } else {
       trans->ivy_p += sprintf(trans->ivy_p, " ");
     }
   }
 
-  // End delimiter for arrays
+  // space end delimiter for arrays, additionally un-quote char arrays (strings)
   if (format == DL_FORMAT_ARRAY) {
-    trans->ivy_p += sprintf(trans->ivy_p, "| ");
+    if (type == DL_TYPE_CHAR) {
+      trans->ivy_p += sprintf(trans->ivy_p, "\" ");
+    }
+    else {
+      trans->ivy_p += sprintf(trans->ivy_p, " ");
+    }
   }
 }
 

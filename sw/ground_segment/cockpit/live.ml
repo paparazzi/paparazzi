@@ -1386,7 +1386,7 @@ let listen_info_msg = fun a ->
   let get_msg = fun a _sender vs ->
     let ac = find_ac _sender in
     let msg_array = Pprz.assoc "msg" vs in
-    log_and_say a ac.ac_name (Pprz.string_of_chars msg_array) in
+    log_and_say a ac.ac_name (Pprz.string_of_value msg_array) in
   tele_bind "INFO_MSG" (get_msg a)
 
 let listen_tcas = fun a ->
