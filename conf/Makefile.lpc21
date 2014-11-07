@@ -96,7 +96,7 @@ CFLAGS += -Wshadow
 CFLAGS += -Wnested-externs
 
 CFLAGS += $(CSTANDARD)
-CFLAGS += $($(TARGET).CFLAGS) $(LOCAL_CFLAGS)
+CFLAGS += $($(TARGET).CFLAGS) $(USER_CFLAGS)
 
 # Assembler flags.
 ASFLAGS = -Wa,-adhlns=$(OBJDIR)/$(notdir $(<:.S=.lst))
