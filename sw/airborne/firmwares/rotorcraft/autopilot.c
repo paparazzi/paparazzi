@@ -138,7 +138,7 @@ PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO2 is AP_MODE_HOME")
 #endif
 #endif
 
-static void send_alive(struct transport_tx *trans, struct device *dev) {
+static void send_alive(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_ALIVE(trans, dev, AC_ID, 16, MD5SUM);
 }
 
@@ -146,7 +146,7 @@ static void send_alive(struct transport_tx *trans, struct device *dev) {
 #include "subsystems/actuators/motor_mixing.h"
 #endif
 
-static void send_status(struct transport_tx *trans, struct device *dev) {
+static void send_status(struct transport_tx *trans, struct link_device *dev) {
   uint32_t imu_nb_err = 0;
 #if USE_MOTOR_MIXING
   uint8_t _motor_nb_err = motor_mixing.nb_saturation + motor_mixing.nb_failure * 10;
@@ -168,7 +168,7 @@ static void send_status(struct transport_tx *trans, struct device *dev) {
       &electrical.vsupply, &time_sec);
 }
 
-static void send_energy(struct transport_tx *trans, struct device *dev) {
+static void send_energy(struct transport_tx *trans, struct link_device *dev) {
   uint16_t e = electrical.energy;
   float vsup = ((float)electrical.vsupply) / 10.0f;
   float curs = ((float)electrical.current) / 1000.0f;
@@ -176,7 +176,7 @@ static void send_energy(struct transport_tx *trans, struct device *dev) {
   pprz_msg_send_ENERGY(trans, dev, AC_ID, &vsup, &curs, &e, &power);
 }
 
-static void send_fp(struct transport_tx *trans, struct device *dev) {
+static void send_fp(struct transport_tx *trans, struct link_device *dev) {
   int32_t carrot_up = -guidance_v_z_sp;
   pprz_msg_send_ROTORCRAFT_FP(trans, dev, AC_ID,
       &(stateGetPositionEnu_i()->x),
@@ -197,11 +197,11 @@ static void send_fp(struct transport_tx *trans, struct device *dev) {
 }
 
 #ifdef RADIO_CONTROL
-static void send_rc(struct transport_tx *trans, struct device *dev) {
+static void send_rc(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_RC(trans, dev, AC_ID, RADIO_CONTROL_NB_CHANNEL, radio_control.values);
 }
 
-static void send_rotorcraft_rc(struct transport_tx *trans, struct device *dev) {
+static void send_rotorcraft_rc(struct transport_tx *trans, struct link_device *dev) {
 #ifdef RADIO_KILL_SWITCH
   int16_t _kill_switch = radio_control.values[RADIO_KILL_SWITCH];
 #else
@@ -219,16 +219,16 @@ static void send_rotorcraft_rc(struct transport_tx *trans, struct device *dev) {
 #endif
 
 #ifdef ACTUATORS
-static void send_actuators(struct transport_tx *trans, struct device *dev) {
+static void send_actuators(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_ACTUATORS(trans, dev, AC_ID , ACTUATORS_NB, actuators);
 }
 #endif
 
-static void send_dl_value(struct transport_tx *trans, struct device *dev) {
+static void send_dl_value(struct transport_tx *trans, struct link_device *dev) {
   PeriodicSendDlValue(trans, dev);
 }
 
-static void send_rotorcraft_cmd(struct transport_tx *trans, struct device *dev) {
+static void send_rotorcraft_cmd(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_ROTORCRAFT_CMD(trans, dev, AC_ID,
       &stabilization_cmd[COMMAND_ROLL],
       &stabilization_cmd[COMMAND_PITCH],

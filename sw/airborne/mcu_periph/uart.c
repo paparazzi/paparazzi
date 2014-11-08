@@ -30,7 +30,7 @@
 struct uart_periph uart0;
 
 #if PERIODIC_TELEMETRY
-static void send_uart0_err(struct transport_tx *trans, struct device *dev) {
+static void send_uart0_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t ore    = uart0.ore;
   uint16_t ne_err = uart0.ne_err;
   uint16_t fe_err = uart0.fe_err;
@@ -46,7 +46,7 @@ static void send_uart0_err(struct transport_tx *trans, struct device *dev) {
 struct uart_periph uart1;
 
 #if PERIODIC_TELEMETRY
-static void send_uart1_err(struct transport_tx *trans, struct device *dev) {
+static void send_uart1_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t ore    = uart1.ore;
   uint16_t ne_err = uart1.ne_err;
   uint16_t fe_err = uart1.fe_err;
@@ -62,7 +62,7 @@ static void send_uart1_err(struct transport_tx *trans, struct device *dev) {
 struct uart_periph uart2;
 
 #if PERIODIC_TELEMETRY
-static void send_uart2_err(struct transport_tx *trans, struct device *dev) {
+static void send_uart2_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t ore    = uart2.ore;
   uint16_t ne_err = uart2.ne_err;
   uint16_t fe_err = uart2.fe_err;
@@ -78,7 +78,7 @@ static void send_uart2_err(struct transport_tx *trans, struct device *dev) {
 struct uart_periph uart3;
 
 #if PERIODIC_TELEMETRY
-static void send_uart3_err(struct transport_tx *trans, struct device *dev) {
+static void send_uart3_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t ore    = uart3.ore;
   uint16_t ne_err = uart3.ne_err;
   uint16_t fe_err = uart3.fe_err;
@@ -94,7 +94,7 @@ static void send_uart3_err(struct transport_tx *trans, struct device *dev) {
 struct uart_periph uart4;
 
 #if PERIODIC_TELEMETRY
-static void send_uart4_err(struct transport_tx *trans, struct device *dev) {
+static void send_uart4_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t ore    = uart4.ore;
   uint16_t ne_err = uart4.ne_err;
   uint16_t fe_err = uart4.fe_err;
@@ -110,7 +110,7 @@ static void send_uart4_err(struct transport_tx *trans, struct device *dev) {
 struct uart_periph uart5;
 
 #if PERIODIC_TELEMETRY
-static void send_uart5_err(struct transport_tx *trans, struct device *dev) {
+static void send_uart5_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t ore    = uart5.ore;
   uint16_t ne_err = uart5.ne_err;
   uint16_t fe_err = uart5.fe_err;
@@ -126,7 +126,7 @@ static void send_uart5_err(struct transport_tx *trans, struct device *dev) {
 struct uart_periph uart6;
 
 #if PERIODIC_TELEMETRY
-static void send_uart6_err(struct transport_tx *trans, struct device *dev) {
+static void send_uart6_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t ore    = uart6.ore;
   uint16_t ne_err = uart6.ne_err;
   uint16_t fe_err = uart6.fe_err;
@@ -139,7 +139,7 @@ static void send_uart6_err(struct transport_tx *trans, struct device *dev) {
 #endif
 
 #if PERIODIC_TELEMETRY
-static void send_uart_err(struct transport_tx *trans, struct device *dev) {
+static void send_uart_err(struct transport_tx *trans, struct link_device *dev) {
   static uint8_t uart_nb_cnt = 0;
   switch (uart_nb_cnt) {
 #if USE_UART0

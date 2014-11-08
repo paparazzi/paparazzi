@@ -46,7 +46,7 @@ struct udp_periph {
   /** UDP network */
   void* network;
   /** Generic device interface */
-  struct device device;
+  struct link_device device;
 };
 
 extern void     udp_periph_init(struct udp_periph* p, char* host, int port_out, int port_in, bool_t broadcast);

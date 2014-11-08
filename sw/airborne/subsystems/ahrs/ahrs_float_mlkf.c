@@ -63,7 +63,7 @@ struct AhrsMlkf ahrs_impl;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_geo_mag(struct transport_tx *trans, struct device *dev) {
+static void send_geo_mag(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
                         &ahrs_impl.mag_h.x, &ahrs_impl.mag_h.y, &ahrs_impl.mag_h.z);
 }

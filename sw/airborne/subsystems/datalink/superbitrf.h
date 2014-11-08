@@ -113,7 +113,7 @@ struct SuperbitRF {
   uint8_t tx_extract_idx;                   /**< The transmit buffer extract index */
 
   /** Generic device interface */
-  struct device device;
+  struct link_device device;
 };
 
 /* The superbitrf functions and structures */

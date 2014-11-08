@@ -69,7 +69,7 @@ int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_att(struct transport_tx *trans, struct device *dev) { //FIXME really use this message here ?
+static void send_att(struct transport_tx *trans, struct link_device *dev) { //FIXME really use this message here ?
   struct Int32Rates* body_rate = stateGetBodyRates_i();
   struct Int32Eulers* att = stateGetNedToBodyEulers_i();
   pprz_msg_send_STAB_ATTITUDE_INT(trans, dev, AC_ID,
@@ -92,7 +92,7 @@ static void send_att(struct transport_tx *trans, struct device *dev) { //FIXME r
       &stabilization_cmd[COMMAND_YAW]);
 }
 
-static void send_att_ref(struct transport_tx *trans, struct device *dev) {
+static void send_att_ref(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_STAB_ATTITUDE_REF_INT(trans, dev, AC_ID,
                                       &stab_att_sp_euler.phi,
                                       &stab_att_sp_euler.theta,
@@ -108,7 +108,7 @@ static void send_att_ref(struct transport_tx *trans, struct device *dev) {
                                       &stab_att_ref_accel.r);
 }
 
-static void send_ahrs_ref_quat(struct transport_tx *trans, struct device *dev) {
+static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *dev) {
   struct Int32Quat* quat = stateGetNedToBodyQuat_i();
   pprz_msg_send_AHRS_REF_QUAT(trans, dev, AC_ID,
       &stab_att_ref_quat.qi,

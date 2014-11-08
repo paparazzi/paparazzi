@@ -50,7 +50,7 @@ extern void chibios_logFinish(void);
 
 struct chibios_sdlog {
   /** Generic device interface */
-  struct device device;
+  struct link_device device;
 };
 
 extern struct chibios_sdlog chibios_sdlog;

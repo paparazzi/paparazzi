@@ -42,7 +42,7 @@ struct Sbus sbus;
 
 #include "subsystems/datalink/telemetry.h"
 
-static void send_sbus(struct transport_tx *trans, struct device *dev)
+static void send_sbus(struct transport_tx *trans, struct link_device *dev)
 {
   // Using PPM message
   pprz_msg_send_PPM(trans, dev, AC_ID,

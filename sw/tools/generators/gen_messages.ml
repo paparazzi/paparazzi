@@ -203,7 +203,7 @@ module Gen_onboard = struct
     print_macro_parameters h fields;
     fprintf h ")\n";
     (* Print message_send functions *)
-    fprintf h "static inline void pprz_msg_send_%s(struct transport_tx *trans, struct device *dev, uint8_t ac_id" s;
+    fprintf h "static inline void pprz_msg_send_%s(struct transport_tx *trans, struct link_device *dev, uint8_t ac_id" s;
     print_function_parameters h fields;
     fprintf h ") {\n";
     let size = (size_fields fields "0") in
@@ -222,7 +222,7 @@ module Gen_onboard = struct
     fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev" s;
     print_macro_parameters h fields;
     fprintf h ") {}\n";
-    fprintf h "void pprz_msg_send_%s(struct transport_tx *trans, struct device *dev, uint8_t ac_id" s;
+    fprintf h "void pprz_msg_send_%s(struct transport_tx *trans, struct link_device *dev, uint8_t ac_id" s;
     print_function_parameters h fields;
     fprintf h ") {}\n"
 

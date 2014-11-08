@@ -53,13 +53,13 @@ struct xbee_transport xbee_tp;
 
 /** Xbee protocol implementation */
 
-static void put_1byte(struct xbee_transport *trans, struct device *dev, const uint8_t byte)
+static void put_1byte(struct xbee_transport *trans, struct link_device *dev, const uint8_t byte)
 {
   trans->cs_tx += byte;
   dev->transmit(dev->periph, byte);
 }
 
-static void put_bytes(struct xbee_transport *trans, struct device *dev, enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t len, const void *bytes)
+static void put_bytes(struct xbee_transport *trans, struct link_device *dev, enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t len, const void *bytes)
 {
   const uint8_t *b = (const uint8_t *) bytes;
   int i;
@@ -68,7 +68,7 @@ static void put_bytes(struct xbee_transport *trans, struct device *dev, enum Tra
   }
 }
 
-static void put_named_byte(struct xbee_transport *trans, struct device *dev, enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t byte, const char * name __attribute__((unused)))
+static void put_named_byte(struct xbee_transport *trans, struct link_device *dev, enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t byte, const char * name __attribute__((unused)))
 {
   put_1byte(trans, dev, byte);
 }
@@ -79,7 +79,7 @@ static uint8_t size_of(struct xbee_transport *trans __attribute__((unused)), uin
   return len + XBEE_API_OVERHEAD + XBEE_TX_OVERHEAD;
 }
 
-static void start_message(struct xbee_transport *trans, struct device *dev, uint8_t payload_len)
+static void start_message(struct xbee_transport *trans, struct link_device *dev, uint8_t payload_len)
 {
   downlink.nb_msgs++;
   dev->transmit(dev->periph, XBEE_START);
@@ -91,24 +91,24 @@ static void start_message(struct xbee_transport *trans, struct device *dev, uint
   put_bytes(trans, dev, DL_TYPE_UINT8, DL_FORMAT_SCALAR, XBEE_TX_OVERHEAD + 1, header);
 }
 
-static void end_message(struct xbee_transport *trans, struct device *dev)
+static void end_message(struct xbee_transport *trans, struct link_device *dev)
 {
   trans->cs_tx = 0xff - trans->cs_tx;
   dev->transmit(dev->periph, trans->cs_tx);
   dev->send_message(dev);
 }
 
-static void overrun(struct xbee_transport *trans __attribute__((unused)), struct device *dev __attribute__((unused)))
+static void overrun(struct xbee_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)))
 {
   downlink.nb_ovrn++;
 }
 
-static void count_bytes(struct xbee_transport *trans __attribute__((unused)), struct device *dev __attribute__((unused)), uint8_t bytes)
+static void count_bytes(struct xbee_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)), uint8_t bytes)
 {
   downlink.nb_bytes += bytes;
 }
 
-static int check_available_space(struct xbee_transport *trans __attribute__((unused)), struct device *dev, uint8_t bytes)
+static int check_available_space(struct xbee_transport *trans __attribute__((unused)), struct link_device *dev, uint8_t bytes)
 {
   return dev->check_free_space(dev, bytes);
 }

@@ -39,7 +39,7 @@ typedef void (*send_message_t)(void *);
 
 /** Device structure
  */
-struct device {
+struct link_device {
   check_free_space_t check_free_space;  ///< check if transmit buffer is not full
   transmit_t transmit;                  ///< transmit one byte
   send_message_t send_message;          ///< send completed buffer

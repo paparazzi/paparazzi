@@ -93,7 +93,7 @@ struct AhrsFloatCmpl ahrs_impl;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_att(struct transport_tx *trans, struct device *dev) {
+static void send_att(struct transport_tx *trans, struct link_device *dev) {
   struct FloatEulers ltp_to_imu_euler;
   float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_impl.ltp_to_imu_quat);
   struct Int32Eulers euler_i;
@@ -108,14 +108,14 @@ static void send_att(struct transport_tx *trans, struct device *dev) {
       &(eulers_body->psi));
 }
 
-static void send_geo_mag(struct transport_tx *trans, struct device *dev) {
+static void send_geo_mag(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
                         &ahrs_impl.mag_h.x, &ahrs_impl.mag_h.y, &ahrs_impl.mag_h.z);
 }
 
 // TODO convert from float to int if we really need this one
 /*
-static void send_rmat(struct transport_tx *trans, struct device *dev) {
+static void send_rmat(struct transport_tx *trans, struct link_device *dev) {
   struct Int32RMat* att_rmat = stateGetNedToBodyRMat_i();
   pprz_msg_send_AHRS_RMAT(trans, dev, AC_ID,
       &ahrs_impl.ltp_to_imu_rmat.m[0],

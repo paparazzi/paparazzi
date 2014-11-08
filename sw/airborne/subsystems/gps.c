@@ -45,7 +45,7 @@ struct GpsTimeSync gps_time_sync;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_svinfo(struct transport_tx *trans, struct device *dev, uint8_t svid) {
+static void send_svinfo(struct transport_tx *trans, struct link_device *dev, uint8_t svid) {
   if (svid < GPS_NB_CHANNELS) {
     pprz_msg_send_SVINFO(trans, dev, AC_ID, &svid,
                          &gps.svinfos[svid].svid, &gps.svinfos[svid].flags,
@@ -55,13 +55,13 @@ static void send_svinfo(struct transport_tx *trans, struct device *dev, uint8_t 
 }
 
 /** send SVINFO message if there is information for satellite with svid */
-static inline void send_svinfo_available(struct transport_tx *trans, struct device *dev, uint8_t svid) {
+static inline void send_svinfo_available(struct transport_tx *trans, struct link_device *dev, uint8_t svid) {
   if (gps.svinfos[svid].cno > 0) {
     send_svinfo(trans, dev, svid);
   }
 }
 
-static void send_gps(struct transport_tx *trans, struct device *dev) {
+static void send_gps(struct transport_tx *trans, struct link_device *dev) {
   static uint8_t i;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
@@ -80,7 +80,7 @@ static void send_gps(struct transport_tx *trans, struct device *dev) {
   i++;
 }
 
-static void send_gps_int(struct transport_tx *trans, struct device *dev) {
+static void send_gps_int(struct transport_tx *trans, struct link_device *dev) {
   static uint8_t i;
   static uint8_t last_cnos[GPS_NB_CHANNELS];
   pprz_msg_send_GPS_INT(trans, dev, AC_ID,
@@ -102,7 +102,7 @@ static void send_gps_int(struct transport_tx *trans, struct device *dev) {
   i++;
 }
 
-static void send_gps_lla(struct transport_tx *trans, struct device *dev) {
+static void send_gps_lla(struct transport_tx *trans, struct link_device *dev) {
   uint8_t err = 0;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
@@ -113,7 +113,7 @@ static void send_gps_lla(struct transport_tx *trans, struct device *dev) {
       &gps.fix, &err);
 }
 
-static void send_gps_sol(struct transport_tx *trans, struct device *dev) {
+static void send_gps_sol(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_GPS_SOL(trans, dev, AC_ID, &gps.pacc, &gps.sacc, &gps.pdop, &gps.num_sv);
 }
 #endif

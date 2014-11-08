@@ -84,13 +84,13 @@ enum TransportDataFormat {
  * to store in the transport structure
  */
 typedef uint8_t (*size_of_t)(void *, uint8_t);
-typedef int (*check_available_space_t)(void *, struct device *, uint8_t);
-typedef void (*put_bytes_t)(void *, struct device *, enum TransportDataType, enum TransportDataFormat, uint8_t, const void *);
-typedef void (*put_named_byte_t)(void *, struct device *, enum TransportDataType, enum TransportDataFormat, uint8_t, const char *);
-typedef void (*start_message_t)(void *, struct device *, uint8_t);
-typedef void (*end_message_t)(void *, struct device *);
-typedef void (*overrun_t)(void *, struct device *);
-typedef void (*count_bytes_t)(void *, struct device *, uint8_t);
+typedef int (*check_available_space_t)(void *, struct link_device *, uint8_t);
+typedef void (*put_bytes_t)(void *, struct link_device *, enum TransportDataType, enum TransportDataFormat, uint8_t, const void *);
+typedef void (*put_named_byte_t)(void *, struct link_device *, enum TransportDataType, enum TransportDataFormat, uint8_t, const char *);
+typedef void (*start_message_t)(void *, struct link_device *, uint8_t);
+typedef void (*end_message_t)(void *, struct link_device *);
+typedef void (*overrun_t)(void *, struct link_device *);
+typedef void (*count_bytes_t)(void *, struct link_device *, uint8_t);
 
 /** Generic transmission transport header
  */

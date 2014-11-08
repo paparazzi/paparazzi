@@ -121,19 +121,19 @@ struct InsInt ins_impl;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_ins(struct transport_tx *trans, struct device *dev) {
+static void send_ins(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_INS(trans, dev, AC_ID,
       &ins_impl.ltp_pos.x, &ins_impl.ltp_pos.y, &ins_impl.ltp_pos.z,
       &ins_impl.ltp_speed.x, &ins_impl.ltp_speed.y, &ins_impl.ltp_speed.z,
       &ins_impl.ltp_accel.x, &ins_impl.ltp_accel.y, &ins_impl.ltp_accel.z);
 }
 
-static void send_ins_z(struct transport_tx *trans, struct device *dev) {
+static void send_ins_z(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_INS_Z(trans, dev, AC_ID,
       &ins_impl.baro_z, &ins_impl.ltp_pos.z, &ins_impl.ltp_speed.z, &ins_impl.ltp_accel.z);
 }
 
-static void send_ins_ref(struct transport_tx *trans, struct device *dev) {
+static void send_ins_ref(struct transport_tx *trans, struct link_device *dev) {
   if (ins_impl.ltp_initialized) {
     pprz_msg_send_INS_REF(trans, dev, AC_ID,
         &ins_impl.ltp_def.ecef.x, &ins_impl.ltp_def.ecef.y, &ins_impl.ltp_def.ecef.z,

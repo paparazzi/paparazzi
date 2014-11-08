@@ -88,7 +88,7 @@ int16_t rotorcraft_cam_pan;
 #define ROTORCRAFT_CAM_PAN_MIN 0
 #define ROTORCRAFT_CAM_PAN_MAX INT32_ANGLE_2_PI
 
-static void send_cam(struct transport_tx *trans, struct device *dev) {
+static void send_cam(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_ROTORCRAFT_CAM(trans, dev, AC_ID,
       &rotorcraft_cam_tilt,&rotorcraft_cam_pan);
 }

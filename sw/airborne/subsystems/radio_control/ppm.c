@@ -58,7 +58,7 @@ static bool_t   ppm_data_valid;
 
 #include "subsystems/datalink/telemetry.h"
 
-static void send_ppm(struct transport_tx *trans, struct device *dev)
+static void send_ppm(struct transport_tx *trans, struct link_device *dev)
 {
   uint16_t ppm_pulses_usec[RADIO_CONTROL_NB_CHANNEL];
   for (int i = 0; i < RADIO_CONTROL_NB_CHANNEL; i++) {

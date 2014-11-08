@@ -36,7 +36,7 @@
 
 /** Telemetry callback definition
  */
-typedef void (*telemetry_cb)(struct transport_tx *trans, struct device *dev);
+typedef void (*telemetry_cb)(struct transport_tx *trans, struct link_device *dev);
 
 /** Telemetry header
  */

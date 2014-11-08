@@ -141,7 +141,7 @@ static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
 
 //FIXME not the correct place
-static void send_filter_status(struct transport_tx *trans, struct device *dev) {
+static void send_filter_status(struct transport_tx *trans, struct link_device *dev) {
   uint8_t mde = 3;
   if (ahrs.status == AHRS_UNINIT) mde = 2;
   if (ahrs_timeout_counter > 10) mde = 5;

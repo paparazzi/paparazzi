@@ -96,7 +96,7 @@ void digital_cam_uart_event(void)
 }
 
 #if PERIODIC_TELEMETRY
-static void send_thumbnails(struct transport_tx *trans, struct device *dev)
+static void send_thumbnails(struct transport_tx *trans, struct link_device *dev)
 {
   static int cnt = 0;
   if (digital_cam_uart_thumbnails > 0) {

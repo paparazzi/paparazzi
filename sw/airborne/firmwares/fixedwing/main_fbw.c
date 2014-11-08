@@ -76,22 +76,22 @@ tid_t electrical_tid;   ///< id for electrical_periodic() timer
 
 /********** PERIODIC MESSAGES ************************************************/
 #if PERIODIC_TELEMETRY
-static void send_commands(struct transport_tx *trans, struct device *dev) {
+static void send_commands(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_COMMANDS(trans, dev, AC_ID, COMMANDS_NB, commands);
 }
 
 #ifdef RADIO_CONTROL
-static void send_fbw_status(struct transport_tx *trans, struct device *dev) {
+static void send_fbw_status(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_FBW_STATUS(trans, dev, AC_ID,
       &(radio_control.status), &(radio_control.frame_rate), &fbw_mode, &electrical.vsupply, &electrical.current);
 }
 
-static void send_rc(struct transport_tx *trans, struct device *dev) {
+static void send_rc(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_RC(trans, dev, AC_ID, RADIO_CONTROL_NB_CHANNEL, radio_control.values);
 }
 
 #else
-static void send_fbw_status(struct transport_tx *trans, struct device *dev) {
+static void send_fbw_status(struct transport_tx *trans, struct link_device *dev) {
   uint8_t dummy = 0;
   pprz_msg_send_FBW_STATUS(trans, dev, AC_ID,
       &dummy, &dummy, &fbw_mode, &electrical.vsupply, &electrical.current);
@@ -99,7 +99,7 @@ static void send_fbw_status(struct transport_tx *trans, struct device *dev) {
 #endif
 
 #ifdef ACTUATORS
-static void send_actuators(struct transport_tx *trans, struct device *dev) {
+static void send_actuators(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_ACTUATORS(trans, dev, AC_ID , ACTUATORS_NB, actuators);
 }
 #endif

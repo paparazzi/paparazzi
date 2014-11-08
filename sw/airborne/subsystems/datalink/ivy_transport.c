@@ -37,7 +37,7 @@
 
 struct ivy_transport ivy_tp;
 
-static void put_bytes(struct ivy_transport *trans, struct device *dev __attribute__((unused)), enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t len, const void *bytes)
+static void put_bytes(struct ivy_transport *trans, struct link_device *dev __attribute__((unused)), enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t len, const void *bytes)
 {
   const uint8_t *b = (const uint8_t *) bytes;
 
@@ -123,7 +123,7 @@ static void put_bytes(struct ivy_transport *trans, struct device *dev __attribut
   }
 }
 
-static void put_named_byte(struct ivy_transport *trans, struct device *dev __attribute__((unused)), enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t byte __attribute__((unused)), const char * name __attribute__((unused)))
+static void put_named_byte(struct ivy_transport *trans, struct link_device *dev __attribute__((unused)), enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t byte __attribute__((unused)), const char * name __attribute__((unused)))
 {
   trans->ivy_p += sprintf(trans->ivy_p, "%s ", name);
 }
@@ -133,12 +133,12 @@ static uint8_t size_of(struct ivy_transport *trans __attribute__((unused)), uint
   return len;
 }
 
-static void start_message(struct ivy_transport *trans, struct device *dev __attribute__((unused)), uint8_t payload_len __attribute__((unused)))
+static void start_message(struct ivy_transport *trans, struct link_device *dev __attribute__((unused)), uint8_t payload_len __attribute__((unused)))
 {
   trans->ivy_p = trans->ivy_buf;
 }
 
-static void end_message(struct ivy_transport *trans, struct device *dev __attribute__((unused)))
+static void end_message(struct ivy_transport *trans, struct link_device *dev __attribute__((unused)))
 {
   *(--trans->ivy_p) = '\0';
   if (trans->ivy_dl_enabled) {
@@ -146,17 +146,17 @@ static void end_message(struct ivy_transport *trans, struct device *dev __attrib
   }
 }
 
-static void overrun(struct ivy_transport *trans __attribute__((unused)), struct device *dev __attribute__((unused)))
+static void overrun(struct ivy_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)))
 {
   downlink.nb_ovrn++;
 }
 
-static void count_bytes(struct ivy_transport *trans __attribute__((unused)), struct device *dev __attribute__((unused)), uint8_t bytes)
+static void count_bytes(struct ivy_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)), uint8_t bytes)
 {
   downlink.nb_bytes += bytes;
 }
 
-static int check_available_space(struct ivy_transport *trans __attribute__((unused)), struct device *dev __attribute__((unused)), uint8_t bytes __attribute__((unused)))
+static int check_available_space(struct ivy_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)), uint8_t bytes __attribute__((unused)))
 {
   return TRUE;
 }

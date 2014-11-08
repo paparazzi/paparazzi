@@ -36,7 +36,7 @@
 struct i2c_periph i2c0;
 
 #if PERIODIC_TELEMETRY
-static void send_i2c0_err(struct transport_tx *trans, struct device *dev) {
+static void send_i2c0_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t i2c0_queue_full_cnt        = i2c0.errors->queue_full_cnt;
   uint16_t i2c0_ack_fail_cnt          = i2c0.errors->ack_fail_cnt;
   uint16_t i2c0_miss_start_stop_cnt   = i2c0.errors->miss_start_stop_cnt;
@@ -76,7 +76,7 @@ void i2c0_init(void) {
 struct i2c_periph i2c1;
 
 #if PERIODIC_TELEMETRY
-static void send_i2c1_err(struct transport_tx *trans, struct device *dev) {
+static void send_i2c1_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t i2c1_queue_full_cnt        = i2c1.errors->queue_full_cnt;
   uint16_t i2c1_ack_fail_cnt          = i2c1.errors->ack_fail_cnt;
   uint16_t i2c1_miss_start_stop_cnt   = i2c1.errors->miss_start_stop_cnt;
@@ -116,7 +116,7 @@ void i2c1_init(void) {
 struct i2c_periph i2c2;
 
 #if PERIODIC_TELEMETRY
-static void send_i2c2_err(struct transport_tx *trans, struct device *dev) {
+static void send_i2c2_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t i2c2_queue_full_cnt        = i2c2.errors->queue_full_cnt;
   uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
   uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;
@@ -160,7 +160,7 @@ void i2c3_init(void) {
 }
 
 #if PERIODIC_TELEMETRY
-static void send_i2c3_err(struct transport_tx *trans, struct device *dev) {
+static void send_i2c3_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t i2c3_queue_full_cnt        = i2c3.errors->queue_full_cnt;
   uint16_t i2c3_ack_fail_cnt          = i2c3.errors->ack_fail_cnt;
   uint16_t i2c3_miss_start_stop_cnt   = i2c3.errors->miss_start_stop_cnt;
@@ -190,7 +190,7 @@ static void send_i2c3_err(struct transport_tx *trans, struct device *dev) {
 #endif /* USE_I2C3 */
 
 #if PERIODIC_TELEMETRY
-static void send_i2c_err(struct transport_tx *trans __attribute__((unused)), struct device *dev __attribute__((unused))) {
+static void send_i2c_err(struct transport_tx *trans __attribute__((unused)), struct link_device *dev __attribute__((unused))) {
   static uint8_t _i2c_nb_cnt = 0;
   switch (_i2c_nb_cnt) {
     case 0:

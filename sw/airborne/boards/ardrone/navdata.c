@@ -121,7 +121,7 @@ static void navdata_write(const uint8_t *buf, size_t count)
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_navdata(struct transport_tx *trans, struct device *dev) {
+static void send_navdata(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_ARDRONE_NAVDATA(trans, dev, AC_ID,
       &navdata.taille,
       &navdata.nu_trame,
@@ -154,7 +154,7 @@ static void send_navdata(struct transport_tx *trans, struct device *dev) {
       &nav_port.checksum_errors);
 }
 
-static void send_filter_status(struct transport_tx *trans, struct device *dev) {
+static void send_filter_status(struct transport_tx *trans, struct link_device *dev) {
   uint8_t mde = 3;
   if (ahrs.status == AHRS_UNINIT) mde = 2;
   if (imu_lost) mde = 5;

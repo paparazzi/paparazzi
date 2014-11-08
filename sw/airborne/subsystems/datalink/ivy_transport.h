@@ -41,7 +41,7 @@ struct ivy_transport {
   // generic transmission interface
   struct transport_tx trans_tx;
   // generic (dummy) device
-  struct device device;
+  struct link_device device;
 };
 
 extern struct ivy_transport ivy_tp;

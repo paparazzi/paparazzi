@@ -100,12 +100,12 @@ void cam_target(void);
 void cam_waypoint_target(void);
 void cam_ac_target(void);
 
-static void send_cam(struct transport_tx *trans, struct device *dev) {
+static void send_cam(struct transport_tx *trans, struct link_device *dev) {
   SEND_CAM(DefaultChannel, DefaultDevice);
 }
 
 #ifdef SHOW_CAM_COORDINATES
-static void send_cam_point(struct transport_tx *trans, struct device *dev) {
+static void send_cam_point(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_CAM_POINT(trans, dev, AC_ID,
       &cam_point_distance_from_home, &cam_point_lat, &cam_point_lon);
 }

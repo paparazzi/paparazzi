@@ -114,7 +114,7 @@ static inline void ahrs_update_mag_2d(float dt);
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_quat(struct transport_tx *trans, struct device *dev) {
+static void send_quat(struct transport_tx *trans, struct link_device *dev) {
   struct Int32Quat* quat = stateGetNedToBodyQuat_i();
   pprz_msg_send_AHRS_QUAT_INT(trans, dev, AC_ID,
       &ahrs_impl.weight,
@@ -128,7 +128,7 @@ static void send_quat(struct transport_tx *trans, struct device *dev) {
       &(quat->qz));
 }
 
-static void send_euler(struct transport_tx *trans, struct device *dev) {
+static void send_euler(struct transport_tx *trans, struct link_device *dev) {
   struct Int32Eulers ltp_to_imu_euler;
   int32_eulers_of_quat(&ltp_to_imu_euler, &ahrs_impl.ltp_to_imu_quat);
   struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
@@ -141,12 +141,12 @@ static void send_euler(struct transport_tx *trans, struct device *dev) {
       &(eulers->psi));
 }
 
-static void send_bias(struct transport_tx *trans, struct device *dev) {
+static void send_bias(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_AHRS_GYRO_BIAS_INT(trans, dev, AC_ID,
       &ahrs_impl.gyro_bias.p, &ahrs_impl.gyro_bias.q, &ahrs_impl.gyro_bias.r);
 }
 
-static void send_geo_mag(struct transport_tx *trans, struct device *dev) {
+static void send_geo_mag(struct transport_tx *trans, struct link_device *dev) {
   struct FloatVect3 h_float;
   h_float.x = MAG_FLOAT_OF_BFP(ahrs_impl.mag_h.x);
   h_float.y = MAG_FLOAT_OF_BFP(ahrs_impl.mag_h.y);

@@ -71,7 +71,7 @@ struct uart_periph {
   volatile uint16_t ne_err; ///< noise error counter
   volatile uint16_t fe_err; ///< framing error counter
   /** Generic device interface */
-  struct device device;
+  struct link_device device;
 };
 
 
