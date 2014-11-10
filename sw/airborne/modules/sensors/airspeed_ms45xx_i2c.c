@@ -139,7 +139,7 @@ static Butterworth2LowPass ms45xx_filter;
 
 static void ms45xx_downlink(void)
 {
-  DOWNLINK_SEND_AIRSPEED_MS45XX(DefaultChannel, DefaultDevice,
+  pprz_msg_send_AIRSPEED_MS45XX(trans, dev, AC_ID,
                                 &ms45xx.diff_pressure,
                                 &ms45xx.temperature, &ms45xx.airspeed);
 }

@@ -121,8 +121,8 @@ static void navdata_write(const uint8_t *buf, size_t count)
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_navdata(void) {
-  DOWNLINK_SEND_ARDRONE_NAVDATA(DefaultChannel, DefaultDevice,
+static void send_navdata(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_ARDRONE_NAVDATA(trans, dev, AC_ID,
       &navdata.taille,
       &navdata.nu_trame,
       &navdata.ax,
@@ -154,12 +154,12 @@ static void send_navdata(void) {
       &nav_port.checksum_errors);
 }
 
-static void send_fliter_status(void) {
+static void send_filter_status(struct transport_tx *trans, struct link_device *dev) {
   uint8_t mde = 3;
   if (ahrs.status == AHRS_UNINIT) mde = 2;
   if (imu_lost) mde = 5;
   uint16_t val = 0;
-  DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &val);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &val);
 }
 
 #endif
@@ -231,7 +231,7 @@ bool_t navdata_init()
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "ARDRONE_NAVDATA", send_navdata);
-  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_fliter_status);
+  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
 #endif
 
   return TRUE;

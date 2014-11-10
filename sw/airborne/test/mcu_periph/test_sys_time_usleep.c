@@ -67,7 +67,7 @@ static inline void main_periodic_15(void) {
 /*
  * Called from the systime interrupt handler
  */
-static inline void main_periodic_05(uint8_t id) {
+static inline void main_periodic_05(uint8_t id __attribute__((unused))) {
 #ifdef LED_RED
       LED_TOGGLE(LED_RED);
 #endif

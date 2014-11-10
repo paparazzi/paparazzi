@@ -137,15 +137,15 @@ float v_ctl_pitch_setpoint;
 ///////////// DEFAULT SETTINGS ////////////////
 #ifndef V_CTL_ALTITUDE_MAX_CLIMB
 #define V_CTL_ALTITUDE_MAX_CLIMB 2;
-#warning "V_CTL_ALTITUDE_MAX_CLIMB not defined - default is 2m/s"
+INFO("V_CTL_ALTITUDE_MAX_CLIMB not defined - default is 2m/s")
 #endif
 #ifndef STALL_AIRSPEED
-#warning "No STALL_AIRSPEED defined. Using NOMINAL_AIRSPEED"
+INFO("No STALL_AIRSPEED defined. Using NOMINAL_AIRSPEED")
 #define STALL_AIRSPEED NOMINAL_AIRSPEED
 #endif
 #ifndef V_CTL_GLIDE_RATIO
 #define V_CTL_GLIDE_RATIO 8.
-#warning "V_CTL_GLIDE_RATIO not defined - default is 8."
+INFO("V_CTL_GLIDE_RATIO not defined - default is 8.")
 #endif
 #ifndef AIRSPEED_SETPOINT_SLEW
 #define AIRSPEED_SETPOINT_SLEW 1

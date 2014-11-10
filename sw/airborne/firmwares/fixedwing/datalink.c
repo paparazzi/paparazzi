@@ -103,7 +103,7 @@ void dl_parse_msg(void) {
 #endif
 
   if (msg_id == DL_PING) {
-    DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice)
+    DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
   } else
 #ifdef TRAFFIC_INFO
   if (msg_id == DL_ACINFO && DL_ACINFO_ac_id(dl_buffer) != AC_ID) {
@@ -139,7 +139,7 @@ void dl_parse_msg(void) {
     DOWNLINK_SEND_WP_MOVED(DefaultChannel, DefaultDevice, &wp_id, &utm.east, &utm.north, &a, &nav_utm_zone0);
   } else if (msg_id == DL_BLOCK && DL_BLOCK_ac_id(dl_buffer) == AC_ID) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
-    SEND_NAVIGATION(DefaultChannel, DefaultDevice);
+    SEND_NAVIGATION(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
   } else
 #endif /** NAV */
 #ifdef WIND_INFO

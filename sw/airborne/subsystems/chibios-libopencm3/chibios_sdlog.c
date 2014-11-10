@@ -51,6 +51,8 @@ static const char PROCESS_LOG_NAME[] = "processLog_";
 FIL processLogFile = {0};
 #endif
 
+struct chibios_sdlog chibios_sdlog;
+
 static WORKING_AREA(waThdBatterySurvey, 4096);
 static void launchBatterySurveyThread (void)
 {
@@ -60,11 +62,30 @@ static void launchBatterySurveyThread (void)
 
 }
 
+// Functions for the generic device API
+static int sdlog_check_free_space(struct chibios_sdlog* p __attribute__((unused)), uint8_t len __attribute__((unused)))
+{
+  return TRUE;
+}
+
+static void sdlog_transmit(struct chibios_sdlog* p __attribute__((unused)), uint8_t byte)
+{
+  sdLogWriteByte(&pprzLogFile, byte);
+}
+
+static void sdlog_send(struct chibios_sdlog* p __attribute__((unused))) { }
+
 
 bool_t chibios_logInit(const bool_t binaryFile)
 {
   nvicSetSystemHandlerPriority(HANDLER_PENDSV,
              CORTEX_PRIORITY_MASK(15));
+
+  // Configure generic device
+  chibios_sdlog.device.periph = (void *)(&chibios_sdlog);
+  chibios_sdlog.device.check_free_space = (check_free_space_t) sdlog_check_free_space;
+  chibios_sdlog.device.transmit = (transmit_t) sdlog_transmit;
+  chibios_sdlog.device.send_message = (send_message_t) sdlog_send;
 
   if (sdLogInit (NULL) != SDLOG_OK)
     goto error;

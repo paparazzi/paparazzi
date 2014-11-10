@@ -88,8 +88,8 @@ int16_t rotorcraft_cam_pan;
 #define ROTORCRAFT_CAM_PAN_MIN 0
 #define ROTORCRAFT_CAM_PAN_MAX INT32_ANGLE_2_PI
 
-static void send_cam(void) {
-  DOWNLINK_SEND_ROTORCRAFT_CAM(DefaultChannel, DefaultDevice,
+static void send_cam(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_ROTORCRAFT_CAM(trans, dev, AC_ID,
       &rotorcraft_cam_tilt,&rotorcraft_cam_pan);
 }
 
@@ -156,7 +156,7 @@ void rotorcraft_cam_periodic(void) {
         nav_heading = rotorcraft_cam_pan;
 #if ROTORCRAFT_CAM_USE_TILT_ANGLES
         int32_t dist, height;
-        INT32_VECT2_NORM(dist, diff);
+        dist = INT32_VECT2_NORM(diff);
         height = (waypoints[ROTORCRAFT_CAM_TRACK_WP].z - stateGetPositionEnu_i()->z) >> INT32_POS_FRAC;
         rotorcraft_cam_tilt = int32_atan2(height, dist);
         Bound(rotorcraft_cam_tilt, CAM_TA_MIN, CAM_TA_MAX);

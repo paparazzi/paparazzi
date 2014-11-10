@@ -146,9 +146,9 @@ static void main_periodic(int my_sig_num) {
 
 #include "subsystems/datalink/downlink.h"
 #if 0
-uint8_t downlink_nb_ovrn;
-uint16_t downlink_nb_bytes;
-uint16_t downlink_nb_msgs;
+uint8_t downlink.nb_ovrn;
+uint16_t downlink.nb_bytes;
+uint16_t downlink.nb_msgs;
 
 #define __Transport(dev, _x) dev##_x
 #define _Transport(dev, _x) __Transport(dev, _x)
@@ -161,11 +161,11 @@ uint16_t downlink_nb_msgs;
 #define DownlinkPutUint8ByAddr(_chan, _x) Transport(_chan, PutUint8ByAddr(_x))
 #define DownlinkPutUint8Array(_chan, _n, _x) Transport(_chan, PutUint8Array(_n, _x))
 
-#define DownlinkOverrun(_chan) downlink_nb_ovrn++;
-#define DownlinkCountBytes(_chan, _n) downlink_nb_bytes += _n;
+#define DownlinkOverrun(_chan) downlink.nb_ovrn++;
+#define DownlinkCountBytes(_chan, _n) downlink.nb_bytes += _n;
 
 #define DownlinkStartMessage(_chan, _name, msg_id, payload_len) { \
-  downlink_nb_msgs++; \
+  downlink.nb_msgs++; \
   Transport(_chan, Header(DownlinkIDsSize(_chan, payload_len))); \
   Transport(_chan, PutUint8(AC_ID)); \
   Transport(_chan, PutNamedUint8(_name, msg_id)); \

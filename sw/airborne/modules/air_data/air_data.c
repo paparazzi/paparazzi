@@ -138,27 +138,27 @@ static void temperature_cb(uint8_t __attribute__((unused)) sender_id, const floa
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_baro_raw(void)
+static void send_baro_raw(struct transport_tx *trans, struct link_device *dev)
 {
-  DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice,
+  pprz_msg_send_BARO_RAW(trans, dev, AC_ID,
                          &air_data.pressure, &air_data.differential);
 }
 
-static void send_air_data(void)
+static void send_air_data(struct transport_tx *trans, struct link_device *dev)
 {
-  DOWNLINK_SEND_AIR_DATA(DefaultChannel, DefaultDevice,
+  pprz_msg_send_AIR_DATA(trans, dev, AC_ID,
                          &air_data.pressure, &air_data.differential,
                          &air_data.temperature, &air_data.qnh,
                          &air_data.amsl_baro, &air_data.airspeed,
                          &air_data.tas_factor);
 }
 
-static void send_amsl(void)
+static void send_amsl(struct transport_tx *trans, struct link_device *dev)
 {
   const float MeterPerFeet = 0.3048;
   float amsl_baro_ft = air_data.amsl_baro / MeterPerFeet;
   float amsl_gps_ft = stateGetPositionLla_f()->alt / MeterPerFeet;
-  DOWNLINK_SEND_AMSL(DefaultChannel, DefaultDevice, &amsl_baro_ft, &amsl_gps_ft);
+  pprz_msg_send_AMSL(trans, dev, AC_ID, &amsl_baro_ft, &amsl_gps_ft);
 }
 #endif
 

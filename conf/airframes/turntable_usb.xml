@@ -27,7 +27,7 @@ main.CFLAGS += -DUSE_USB_SERIAL
 main.srcs += $(SRC_ARCH)/usb_ser_hw.c
 main.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
 main.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
-main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UsbS
+main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=usb_serial
 
 main.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 

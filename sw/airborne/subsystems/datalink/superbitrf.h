@@ -29,6 +29,7 @@
 
 #include "mcu_periph/gpio.h"
 #include "peripherals/cyrf6936.h"
+#include "mcu_periph/link_device.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/pprz_transport.h"
 
@@ -110,6 +111,9 @@ struct SuperbitRF {
   uint8_t tx_buffer[128];                   /**< The transmit buffer */
   uint8_t tx_insert_idx;                    /**< The transmit buffer insert index */
   uint8_t tx_extract_idx;                   /**< The transmit buffer extract index */
+
+  /** Generic device interface */
+  struct link_device device;
 };
 
 /* The superbitrf functions and structures */

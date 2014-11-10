@@ -45,9 +45,9 @@ struct GpsTimeSync gps_time_sync;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_svinfo(uint8_t svid) {
+static void send_svinfo(struct transport_tx *trans, struct link_device *dev, uint8_t svid) {
   if (svid < GPS_NB_CHANNELS) {
-    DOWNLINK_SEND_SVINFO(DefaultChannel, DefaultDevice, &svid,
+    pprz_msg_send_SVINFO(trans, dev, AC_ID, &svid,
                          &gps.svinfos[svid].svid, &gps.svinfos[svid].flags,
                          &gps.svinfos[svid].qi, &gps.svinfos[svid].cno,
                          &gps.svinfos[svid].elev, &gps.svinfos[svid].azim);
@@ -55,17 +55,17 @@ static void send_svinfo(uint8_t svid) {
 }
 
 /** send SVINFO message if there is information for satellite with svid */
-static inline void send_svinfo_available(uint8_t svid) {
+static inline void send_svinfo_available(struct transport_tx *trans, struct link_device *dev, uint8_t svid) {
   if (gps.svinfos[svid].cno > 0) {
-    send_svinfo(svid);
+    send_svinfo(trans, dev, svid);
   }
 }
 
-static void send_gps(void) {
+static void send_gps(struct transport_tx *trans, struct link_device *dev) {
   static uint8_t i;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
-  DOWNLINK_SEND_GPS(DefaultChannel, DefaultDevice, &gps.fix,
+  pprz_msg_send_GPS(trans, dev, AC_ID, &gps.fix,
       &gps.utm_pos.east, &gps.utm_pos.north,
       &course, &gps.hmsl, &gps.gspeed, &climb,
       &gps.week, &gps.tow, &gps.utm_pos.zone, &i);
@@ -75,15 +75,15 @@ static void send_gps(void) {
   if ((gps.fix != GPS_FIX_3D) && (i >= gps.nb_channels)) i = 0;
   if (i >= gps.nb_channels * 2) i = 0;
   if (i < gps.nb_channels && ((gps.fix != GPS_FIX_3D) || (gps.svinfos[i].cno > 0))) {
-    send_svinfo(i);
+    send_svinfo(trans, dev, i);
   }
   i++;
 }
 
-static void send_gps_int(void) {
+static void send_gps_int(struct transport_tx *trans, struct link_device *dev) {
   static uint8_t i;
   static uint8_t last_cnos[GPS_NB_CHANNELS];
-  DOWNLINK_SEND_GPS_INT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_GPS_INT(trans, dev, AC_ID,
       &gps.ecef_pos.x, &gps.ecef_pos.y, &gps.ecef_pos.z,
       &gps.lla_pos.lat, &gps.lla_pos.lon, &gps.lla_pos.alt,
       &gps.hmsl,
@@ -96,25 +96,25 @@ static void send_gps_int(void) {
   // send SVINFO for available satellites that have new data
   if (i == gps.nb_channels) i = 0;
   if (i < gps.nb_channels && gps.svinfos[i].cno != last_cnos[i]) {
-    send_svinfo_available(i);
+    send_svinfo_available(trans, dev, i);
     last_cnos[i] = gps.svinfos[i].cno;
   }
   i++;
 }
 
-static void send_gps_lla(void) {
+static void send_gps_lla(struct transport_tx *trans, struct link_device *dev) {
   uint8_t err = 0;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
-  DOWNLINK_SEND_GPS_LLA(DefaultChannel, DefaultDevice,
+  pprz_msg_send_GPS_LLA(trans, dev, AC_ID,
       &gps.lla_pos.lat, &gps.lla_pos.lon, &gps.lla_pos.alt,
       &course, &gps.gspeed, &climb,
       &gps.week, &gps.tow,
       &gps.fix, &err);
 }
 
-static void send_gps_sol(void) {
-  DOWNLINK_SEND_GPS_SOL(DefaultChannel, DefaultDevice, &gps.pacc, &gps.sacc, &gps.pdop, &gps.num_sv);
+static void send_gps_sol(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_GPS_SOL(trans, dev, AC_ID, &gps.pacc, &gps.sacc, &gps.pdop, &gps.num_sv);
 }
 #endif
 

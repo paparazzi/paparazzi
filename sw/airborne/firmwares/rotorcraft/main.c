@@ -41,8 +41,8 @@
 
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/datalink/datalink.h"
+#include "subsystems/datalink/downlink.h"
 #include "subsystems/settings.h"
-#include "subsystems/datalink/xbee.h"
 
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
@@ -171,9 +171,7 @@ STATIC_INLINE void main_init( void ) {
 
   mcu_int_enable();
 
-#if DATALINK == XBEE
-  xbee_init();
-#endif
+  downlink_init();
 
   // register the timers for the periodic functions
   main_periodic_tid = sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
@@ -224,7 +222,7 @@ STATIC_INLINE void main_periodic( void ) {
 }
 
 STATIC_INLINE void telemetry_periodic(void) {
-  periodic_telemetry_send_Main();
+  periodic_telemetry_send_Main(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 }
 
 /** mode to enter when RC is lost while using a mode with RC input (not AP_MODE_NAV) */

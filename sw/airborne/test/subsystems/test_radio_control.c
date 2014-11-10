@@ -57,8 +57,9 @@ extern uint32_t debug_len;
 static inline void main_periodic_task( void ) {
 
   RunOnceEvery(51, {
-    /*LED_TOGGLE(2);*/
-    DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &sys_time.nb_sec);
+      /*LED_TOGGLE(2);*/
+      uint32_t sec = sys_time.nb_sec;
+      DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &sec);
   });
 
   RunOnceEvery(10, {radio_control_periodic_task();});

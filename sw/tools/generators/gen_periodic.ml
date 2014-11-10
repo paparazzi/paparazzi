@@ -84,7 +84,7 @@ let output_modes = fun out_h process_name modes freq modules ->
           right ();
           lprintf out_h "if (telemetry_%s.msgs[TELEMETRY_%s_MSG_%s_ID].cb != NULL)\n" process_name (String.uppercase process_name) message_name;
           right ();
-          lprintf out_h "telemetry_%s.msgs[TELEMETRY_%s_MSG_%s_ID].cb();\n" process_name (String.uppercase process_name) message_name;
+          lprintf out_h "telemetry_%s.msgs[TELEMETRY_%s_MSG_%s_ID].cb(trans, dev);\n" process_name (String.uppercase process_name) message_name;
           left ();
           fprintf out_h "#if USE_PERIODIC_TELEMETRY_REPORT\n";
           lprintf out_h "else periodic_telemetry_err_report(TELEMETRY_PROCESS_%s, telemetry_mode_%s, TELEMETRY_%s_MSG_%s_ID);\n" process_name process_name (String.uppercase process_name) message_name;
@@ -212,7 +212,7 @@ let _ =
       fprintf out_h "extern struct pprz_telemetry telemetry_%s;\n" process_name;
       fprintf out_h "#endif /* PERIODIC_C_%s */\n" (String.uppercase process_name);
 
-      lprintf out_h "static inline void periodic_telemetry_send_%s(void) {  /* %dHz */\n" process_name freq; (*TODO pass transport+device *)
+      lprintf out_h "static inline void periodic_telemetry_send_%s(struct transport_tx *trans __attribute__((unused)), struct link_device *dev __attribute__((unused))) {  /* %dHz */\n" process_name freq; (*TODO pass transport+device with correct types *)
       right ();
       output_modes out_h process_name modes freq modules_name;
       left ();

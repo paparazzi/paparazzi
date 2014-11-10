@@ -138,15 +138,15 @@ PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO2 is AP_MODE_HOME")
 #endif
 #endif
 
-static void send_alive(void) {
-  DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
+static void send_alive(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_ALIVE(trans, dev, AC_ID, 16, MD5SUM);
 }
 
 #if USE_MOTOR_MIXING
 #include "subsystems/actuators/motor_mixing.h"
 #endif
 
-static void send_status(void) {
+static void send_status(struct transport_tx *trans, struct link_device *dev) {
   uint32_t imu_nb_err = 0;
 #if USE_MOTOR_MIXING
   uint8_t _motor_nb_err = motor_mixing.nb_saturation + motor_mixing.nb_failure * 10;
@@ -159,7 +159,7 @@ static void send_status(void) {
   uint8_t fix = GPS_FIX_NONE;
 #endif
   uint16_t time_sec = sys_time.nb_sec;
-  DOWNLINK_SEND_ROTORCRAFT_STATUS(DefaultChannel, DefaultDevice,
+  pprz_msg_send_ROTORCRAFT_STATUS(trans, dev, AC_ID,
       &imu_nb_err, &_motor_nb_err,
       &radio_control.status, &radio_control.frame_rate,
       &fix, &autopilot_mode,
@@ -168,17 +168,17 @@ static void send_status(void) {
       &electrical.vsupply, &time_sec);
 }
 
-static void send_energy(void) {
-  const int16_t e = electrical.energy;
-  const float vsup = ((float)electrical.vsupply) / 10.0f;
-  const float curs = ((float)electrical.current) / 1000.0f;
-  const float power = vsup * curs;
-  DOWNLINK_SEND_ENERGY(DefaultChannel, DefaultDevice, &vsup, &curs, &e, &power);
+static void send_energy(struct transport_tx *trans, struct link_device *dev) {
+  uint16_t e = electrical.energy;
+  float vsup = ((float)electrical.vsupply) / 10.0f;
+  float curs = ((float)electrical.current) / 1000.0f;
+  float power = vsup * curs;
+  pprz_msg_send_ENERGY(trans, dev, AC_ID, &vsup, &curs, &e, &power);
 }
 
-static void send_fp(void) {
+static void send_fp(struct transport_tx *trans, struct link_device *dev) {
   int32_t carrot_up = -guidance_v_z_sp;
-  DOWNLINK_SEND_ROTORCRAFT_FP(DefaultChannel, DefaultDevice,
+  pprz_msg_send_ROTORCRAFT_FP(trans, dev, AC_ID,
       &(stateGetPositionEnu_i()->x),
       &(stateGetPositionEnu_i()->y),
       &(stateGetPositionEnu_i()->z),
@@ -197,17 +197,17 @@ static void send_fp(void) {
 }
 
 #ifdef RADIO_CONTROL
-static void send_rc(void) {
-  DOWNLINK_SEND_RC(DefaultChannel, DefaultDevice, RADIO_CONTROL_NB_CHANNEL, radio_control.values);
+static void send_rc(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_RC(trans, dev, AC_ID, RADIO_CONTROL_NB_CHANNEL, radio_control.values);
 }
 
-static void send_rotorcraft_rc(void) {
+static void send_rotorcraft_rc(struct transport_tx *trans, struct link_device *dev) {
 #ifdef RADIO_KILL_SWITCH
   int16_t _kill_switch = radio_control.values[RADIO_KILL_SWITCH];
 #else
   int16_t _kill_switch = 42;
 #endif
-  DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel, DefaultDevice,
+  pprz_msg_send_ROTORCRAFT_RADIO_CONTROL(trans, dev, AC_ID,
       &radio_control.values[RADIO_ROLL],
       &radio_control.values[RADIO_PITCH],
       &radio_control.values[RADIO_YAW],
@@ -219,17 +219,17 @@ static void send_rotorcraft_rc(void) {
 #endif
 
 #ifdef ACTUATORS
-static void send_actuators(void) {
-  DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice , ACTUATORS_NB, actuators);
+static void send_actuators(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_ACTUATORS(trans, dev, AC_ID , ACTUATORS_NB, actuators);
 }
 #endif
 
-static void send_dl_value(void) {
-  PeriodicSendDlValue(DefaultChannel, DefaultDevice);
+static void send_dl_value(struct transport_tx *trans, struct link_device *dev) {
+  PeriodicSendDlValue(trans, dev);
 }
 
-static void send_rotorcraft_cmd(void) {
-  DOWNLINK_SEND_ROTORCRAFT_CMD(DefaultChannel, DefaultDevice,
+static void send_rotorcraft_cmd(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_ROTORCRAFT_CMD(trans, dev, AC_ID,
       &stabilization_cmd[COMMAND_ROLL],
       &stabilization_cmd[COMMAND_PITCH],
       &stabilization_cmd[COMMAND_YAW],

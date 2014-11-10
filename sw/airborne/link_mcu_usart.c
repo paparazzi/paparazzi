@@ -254,12 +254,12 @@ inline void parse_mavpilot_msg( void );
 #define RC_REALLY_LOST 2
 
 
-static void send_commands(void) {
-  DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, ap_state->commands);
+static void send_commands(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_COMMANDS(trans, dev, AC_ID, COMMANDS_NB, ap_state->commands);
 }
 
 
-static void send_fbw_status(void) {
+static void send_fbw_status(struct transport_tx *trans, struct link_device *dev) {
   uint8_t rc_status = 0;
   uint8_t fbw_status = 0;
   if (bit_is_set(fbw_state->status, STATUS_MODE_AUTO))
@@ -272,7 +272,7 @@ static void send_fbw_status(void) {
     rc_status = RC_OK;
   else
     rc_status = RC_LOST;
-  DOWNLINK_SEND_FBW_STATUS(DefaultChannel, DefaultDevice,
+  pprz_msg_send_FBW_STATUS(trans, dev, AC_ID,
       &(rc_status), &(fbw_state->ppm_cpt), &(fbw_status), &(fbw_state->vsupply), &(fbw_state->current));
 }
 #endif

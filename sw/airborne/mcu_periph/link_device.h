@@ -19,27 +19,32 @@
  *
  */
 
-/**
- * @file subsystems/datalink/pprzlog_transport.h
- *
- * Protocol for on-board data logger with timestamp
- *
+/** \file mcu_periph/link_device.h
+ *  generic device header
  */
 
-#ifndef PPRZLOG_TRANSPORT_H
-#define PPRZLOG_TRANSPORT_H
+#ifndef LINK_DEVICE_H
+#define LINK_DEVICE_H
 
-#include "mcu_periph/sys_time.h"
-#include "subsystems/datalink/transport.h"
+#include <inttypes.h>
 
-struct pprzlog_transport {
-  // generic transmission interface
-  struct transport_tx trans_tx;
-  // specific pprz transport_tx variables
-  uint8_t ck;
+/** Function pointers definition
+ *
+ * they are used to cast the real functions with the correct type
+ * to store in the device structure
+ */
+typedef int (*check_free_space_t)(void *, uint8_t);
+typedef void (*transmit_t)(void *, uint8_t);
+typedef void (*send_message_t)(void *);
+
+/** Device structure
+ */
+struct link_device {
+  check_free_space_t check_free_space;  ///< check if transmit buffer is not full
+  transmit_t transmit;                  ///< transmit one byte
+  send_message_t send_message;          ///< send completed buffer
+  void *periph;                         ///< pointer to parent implementation
 };
 
-extern struct pprzlog_transport pprzlog_tp;
-
-#endif
+#endif // LINK_DEVICE_H
 

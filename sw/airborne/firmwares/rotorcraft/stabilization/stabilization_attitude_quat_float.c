@@ -95,10 +95,10 @@ static const float psi_ddgain_surface[] = STABILIZATION_ATTITUDE_PSI_DDGAIN_SURF
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_att(void) {
+static void send_att(struct transport_tx *trans, struct link_device *dev) {
   struct FloatRates* body_rate = stateGetBodyRates_f();
   struct FloatEulers* att = stateGetNedToBodyEulers_f();
-  DOWNLINK_SEND_STAB_ATTITUDE_FLOAT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_STAB_ATTITUDE_FLOAT(trans, dev, AC_ID,
                                     &(body_rate->p), &(body_rate->q), &(body_rate->r),
                                     &(att->phi), &(att->theta), &(att->psi),
                                     &stab_att_sp_euler.phi,
@@ -119,8 +119,8 @@ static void send_att(void) {
                                     &body_rate_d.p, &body_rate_d.q, &body_rate_d.r);
 }
 
-static void send_att_ref(void) {
-  DOWNLINK_SEND_STAB_ATTITUDE_REF_FLOAT(DefaultChannel, DefaultDevice,
+static void send_att_ref(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_STAB_ATTITUDE_REF_FLOAT(trans, dev, AC_ID,
                                         &stab_att_sp_euler.phi,
                                         &stab_att_sp_euler.theta,
                                         &stab_att_sp_euler.psi,

@@ -124,7 +124,7 @@ let print_dl_settings = fun settings ->
     lprintf "default: var = 0.; break;\\\n";
     left ();
     lprintf "}\\\n";
-    lprintf "DOWNLINK_SEND_DL_VALUE(_trans, _dev, &i, &var);\\\n";
+    lprintf "pprz_msg_send_DL_VALUE(_trans, _dev, AC_ID, &i, &var);\\\n";
     lprintf "i++;\\\n";
     left ()
   end;

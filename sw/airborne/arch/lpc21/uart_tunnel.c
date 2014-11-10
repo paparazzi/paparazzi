@@ -11,7 +11,7 @@
 #define TXD1_PIN 8
 #define RXD1_PIN 9
 
-int main (int argc, char** argv) {
+int main(int argc __attribute__((unused)), char** argv __attribute__((unused))) {
   int tx=0, rx=0;
   int tx_shadow=1, rx_shadow=1;
   mcu_init();

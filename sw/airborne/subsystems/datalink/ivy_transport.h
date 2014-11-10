@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009  ENAC, Pascal Brisset
+ * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
  * Copyright (C) 2014  Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
@@ -21,26 +21,33 @@
  */
 
 /**
- * @file subsystems/datalink/xbee24.h
- * Configuration for 2.4GHz "series 1" and 900MHz modules
+ * @file subsystems/datalink/ivy_transport.h
+ *
+ * Building Paparazzi frames over IVY.
+ *
  */
 
-#ifndef XBEE24_H
-#define XBEE24_H
+#ifndef IVY_TRANSPORT_H
+#define IVY_TRANSPORT_H
 
-#define XBEE_TX_ID 0x01 /* 16 bits address */
-#define XBEE_RX_ID 0x81 /* 16 bits address */
-#define XBEE_RFDATA_OFFSET 5
+#include "subsystems/datalink/transport.h"
+#include "mcu_periph/link_device.h"
 
-#define XBEE_TX_OVERHEAD 4
-#define XBEE_TX_HEADER { \
-  XBEE_TX_ID, \
-  NO_FRAME_ID, \
-  (GROUND_STATION_ADDR >> 8), \
-  (GROUND_STATION_ADDR & 0xff), \
-  TX_OPTIONS \
-}
+// IVY transport
+struct ivy_transport {
+  char ivy_buf[256];
+  char* ivy_p;
+  int ivy_dl_enabled;
+  // generic transmission interface
+  struct transport_tx trans_tx;
+  // generic (dummy) device
+  struct link_device device;
+};
 
-#define XbeeGetRSSI(_payload) { xbee_tp.rssi = _payload[3]; }
+extern struct ivy_transport ivy_tp;
 
-#endif // XBEE24_H
+// Init function
+extern void ivy_transport_init(void);
+
+#endif // IVY_TRANSPORT_H
+

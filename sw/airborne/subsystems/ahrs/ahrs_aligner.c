@@ -45,8 +45,8 @@ static uint32_t samples_idx;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_aligner(void) {
-  DOWNLINK_SEND_FILTER_ALIGNER(DefaultChannel, DefaultDevice,
+static void send_aligner(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_FILTER_ALIGNER(trans, dev, AC_ID,
       &ahrs_aligner.lp_gyro.p,
       &ahrs_aligner.lp_gyro.q,
       &ahrs_aligner.lp_gyro.r,

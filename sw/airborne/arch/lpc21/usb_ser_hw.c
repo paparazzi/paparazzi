@@ -434,7 +434,7 @@ int VCOM_check_available(void)
 	@param [in] bEP
 	@param [in] bEPStatus
  */
-static void BulkOut(U8 bEP, U8 bEPStatus)
+static void BulkOut(U8 bEP, U8 bEPStatus __attribute__((unused)))
 {
 	int i, iLen;
 
@@ -463,7 +463,7 @@ static void BulkOut(U8 bEP, U8 bEPStatus)
 	@param [in] bEP
 	@param [in] bEPStatus
  */
-static void BulkIn(U8 bEP, U8 bEPStatus)
+static void BulkIn(U8 bEP, U8 bEPStatus __attribute__((unused)))
 {
 	int i, iLen;
 
@@ -541,7 +541,7 @@ static void USBIntHandler(void)
 }
 
 
-static void USBFrameHandler(U16 wFrame)
+static void USBFrameHandler(U16 wFrame __attribute__((unused)))
 {
 	if (fifo_avail(&txfifo) > 0) {
 		// data available, enable NAK interrupt on bulk in
@@ -549,6 +549,21 @@ static void USBFrameHandler(U16 wFrame)
 	}
 }
 
+// Periph with generic device API
+struct usb_serial_periph usb_serial;
+
+// Functions for the generic device API
+static int usb_serial_check_free_space(struct usb_serial_periph* p __attribute__((unused)), uint8_t len)
+{
+  return (int)VCOM_check_free_space(len);
+}
+
+static void usb_serial_transmit(struct usb_serial_periph* p __attribute__((unused)), uint8_t byte)
+{
+  VCOM_putchar(byte);
+}
+
+static void usb_serial_send(struct usb_serial_periph* p __attribute__((unused))) { }
 
 void VCOM_init(void) {
 	// initialise stack
@@ -588,6 +603,12 @@ void VCOM_init(void) {
 
 	// connect to bus
 	USBHwConnect(TRUE);
+
+  // Configure generic device
+  usb_serial.device.periph = (void *)(&usb_serial);
+  usb_serial.device.check_free_space = (check_free_space_t) usb_serial_check_free_space;
+  usb_serial.device.transmit = (transmit_t) usb_serial_transmit;
+  usb_serial.device.send_message = (send_message_t) usb_serial_send;
 }
 
 

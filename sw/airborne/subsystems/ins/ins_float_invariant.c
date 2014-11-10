@@ -62,10 +62,10 @@
 
 #if !INS_UPDATE_FW_ESTIMATOR && PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
-static void send_ins_ref(void) {
+static void send_ins_ref(struct transport_tx *trans, struct link_device *dev) {
   float foo = 0.;
   if (state.ned_initialized_i) {
-    DOWNLINK_SEND_INS_REF(DefaultChannel, DefaultDevice,
+    pprz_msg_send_INS_REF(trans, dev, AC_ID,
         &state.ned_origin_i.ecef.x, &state.ned_origin_i.ecef.y, &state.ned_origin_i.ecef.z,
         &state.ned_origin_i.lla.lat, &state.ned_origin_i.lla.lon, &state.ned_origin_i.lla.alt,
         &state.ned_origin_i.hmsl, &foo);
@@ -396,7 +396,7 @@ void ahrs_propagate(float dt) {
   struct FloatEulers eulers;
   FLOAT_EULERS_OF_QUAT(eulers, ins_impl.state.quat);
   RunOnceEvery(3,{
-      DOWNLINK_SEND_INV_FILTER(DefaultChannel, DefaultDevice,
+      pprz_msg_send_INV_FILTER(trans, dev, AC_ID,
         &ins_impl.state.quat.qi,
         &eulers.phi,
         &eulers.theta,
