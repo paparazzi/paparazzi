@@ -374,11 +374,8 @@ static inline void on_gyro_event( void ) {
   AbiSendMsgIMU_GYRO_INT32(1, &now_ts, &imu.gyro_prev);
 
 #if USE_AHRS_ALIGNER
-  if (ahrs.status != AHRS_RUNNING) {
+  if (ahrs_aligner.status != AHRS_ALIGNER_LOCKED) {
     ahrs_aligner_run();
-    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED) {
-      ahrs.status = AHRS_RUNNING;
-    }
     return;
   }
 #endif

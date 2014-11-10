@@ -28,13 +28,6 @@
 #define AHRS_H
 
 #include "std.h"
-#include "math/pprz_algebra_int.h"
-#include "math/pprz_algebra_float.h"
-#include "math/pprz_orientation_conversion.h"
-
-#define AHRS_UNINIT     0
-#define AHRS_REGISTERED 1
-#define AHRS_RUNNING    2
 
 /* underlying includes (needed for parameters) */
 #ifdef AHRS_TYPE_H
@@ -46,8 +39,6 @@ typedef void (*AhrsUpdateGps)(void);
 
 /** Attitude and Heading Reference System state */
 struct Ahrs {
-  uint8_t status; ///< status of the AHRS, AHRS_UNINIT or AHRS_RUNNING
-
   /* function pointers to actual implementation, set by ahrs_register_impl */
   AhrsInit init;
   AhrsUpdateGps update_gps;

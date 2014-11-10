@@ -26,7 +26,6 @@
 
 
 #include "subsystems/ahrs.h"
-#include "subsystems/imu.h"
 
 struct Ahrs ahrs;
 
@@ -36,20 +35,17 @@ void ahrs_register_impl(AhrsInit init, AhrsUpdateGps update_gps)
   ahrs.update_gps = update_gps;
 
   ahrs.init();
-
-  ahrs.status = AHRS_REGISTERED;
 }
 
 void ahrs_init(void)
 {
-  ahrs.status = AHRS_UNINIT;
   ahrs.init = NULL;
   ahrs.update_gps = NULL;
 }
 
 void ahrs_update_gps(void)
 {
-  if (ahrs.update_gps != NULL && ahrs.status == AHRS_RUNNING) {
+  if (ahrs.update_gps != NULL) {
     ahrs.update_gps();
   }
 }
