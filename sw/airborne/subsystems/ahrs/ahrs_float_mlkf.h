@@ -34,7 +34,6 @@
 #include "std.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_orientation_conversion.h"
-#include "subsystems/ahrs.h"
 
 enum AhrsMlkfStatus {
   AHRS_MLKF_UNINIT,
@@ -63,9 +62,6 @@ struct AhrsMlkf {
 
 extern struct AhrsMlkf ahrs_mlkf;
 
-#define DefaultAhrsImpl ahrs_mlkf
-
-extern void ahrs_mlkf_register(void);
 extern void ahrs_mlkf_init(struct OrientationReps* body_to_imu);
 extern bool_t ahrs_mlkf_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
                               struct Int32Vect3* lp_mag);
