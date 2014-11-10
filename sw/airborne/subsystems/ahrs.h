@@ -41,7 +41,7 @@
 #include AHRS_TYPE_H
 #endif
 
-typedef void (*AhrsInit)(struct OrientationReps* body_to_imu);
+typedef void (*AhrsInit)(void);
 typedef void (*AhrsUpdateGps)(void);
 
 /** Attitude and Heading Reference System state */

@@ -62,8 +62,9 @@ struct AhrsMlkf {
 
 extern struct AhrsMlkf ahrs_mlkf;
 
-extern void ahrs_mlkf_init(struct OrientationReps* body_to_imu);
+extern void ahrs_mlkf_init(void);
 extern void ahrs_mlkf_set_body_to_imu(struct OrientationReps* body_to_imu);
+extern void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat* q_b2i);
 extern bool_t ahrs_mlkf_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
                               struct Int32Vect3* lp_mag);
 extern void ahrs_mlkf_propagate(struct Int32Rates* gyro, float dt);

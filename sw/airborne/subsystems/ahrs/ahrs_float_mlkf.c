@@ -57,17 +57,12 @@ static inline void set_body_state_from_quat(void);
 struct AhrsMlkf ahrs_mlkf;
 
 
-void ahrs_mlkf_init(struct OrientationReps* body_to_imu) {
-
-  /* save body_to_imu */
-  ahrs_mlkf_set_body_to_imu(body_to_imu);
+void ahrs_mlkf_init(void) {
 
   ahrs_mlkf.status = AHRS_MLKF_UNINIT;
 
-  /* Set ltp_to_imu so that body is zero */
-  memcpy(&ahrs_mlkf.ltp_to_imu_quat, orientationGetQuat_f(&ahrs_mlkf.body_to_imu),
-         sizeof(struct FloatQuat));
-
+  /* init ltp_to_imu quaternion as zero/identity rotation */
+  float_quat_identity(&ahrs_mlkf.ltp_to_imu_quat);
   FLOAT_RATES_ZERO(ahrs_mlkf.imu_rate);
 
   VECT3_ASSIGN(ahrs_mlkf.mag_h, AHRS_H_X, AHRS_H_Y, AHRS_H_Z);
@@ -91,8 +86,20 @@ void ahrs_mlkf_init(struct OrientationReps* body_to_imu) {
 
 void ahrs_mlkf_set_body_to_imu(struct OrientationReps* body_to_imu)
 {
-  orientationSetQuat_f(&ahrs_mlkf.body_to_imu, orientationGetQuat_f(body_to_imu));
+  ahrs_mlkf_set_body_to_imu_quat(orientationGetQuat_f(body_to_imu));
 }
+
+void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat* q_b2i)
+{
+  orientationSetQuat_f(&ahrs_mlkf.body_to_imu, q_b2i);
+
+  if (ahrs_mlkf.status == AHRS_MLKF_UNINIT) {
+    /* Set ltp_to_imu so that body is zero */
+    memcpy(&ahrs_mlkf.ltp_to_imu_quat, orientationGetQuat_f(&ahrs_mlkf.body_to_imu),
+           sizeof(struct FloatQuat));
+  }
+}
+
 
 bool_t ahrs_mlkf_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
                        struct Int32Vect3* lp_mag)

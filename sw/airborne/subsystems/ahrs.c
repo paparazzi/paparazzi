@@ -27,8 +27,6 @@
 
 #include "subsystems/ahrs.h"
 #include "subsystems/imu.h"
-#include "subsystems/abi.h"
-#include "mcu_periph/sys_time.h"
 
 struct Ahrs ahrs;
 
@@ -37,16 +35,7 @@ void ahrs_register_impl(AhrsInit init, AhrsUpdateGps update_gps)
   ahrs.init = init;
   ahrs.update_gps = update_gps;
 
-  // TODO: remove hacks
-#if !USE_IMU
-  struct OrientationReps body_to_imu;
-  struct FloatEulers eulers_zero = {0., 0., 0.};
-  orientationSetEulers_f(&body_to_imu, &eulers_zero);
-  ahrs.init(&body_to_imu);
-#elif !defined SITL || USE_NPS
-  /* call init function of implementation */
-  ahrs.init(&imu.body_to_imu);
-#endif
+  ahrs.init();
 
   ahrs.status = AHRS_REGISTERED;
 }

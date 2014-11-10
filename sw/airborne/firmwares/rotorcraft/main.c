@@ -174,6 +174,9 @@ STATIC_INLINE void main_init(void)
 
   DefaultAhrsRegister();
 
+  // send body_to_imu from here for now
+  AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
+
 #if USE_GPS
   gps_init();
 #endif
