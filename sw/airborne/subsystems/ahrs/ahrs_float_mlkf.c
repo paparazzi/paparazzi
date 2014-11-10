@@ -59,13 +59,13 @@ struct AhrsMlkf ahrs_mlkf;
 
 void ahrs_mlkf_init(struct OrientationReps* body_to_imu) {
 
-  /* save body_to_imu pointer */
-  ahrs_mlkf.body_to_imu = body_to_imu;
+  /* save body_to_imu */
+  ahrs_mlkf_set_body_to_imu(body_to_imu);
 
   ahrs_mlkf.status = AHRS_MLKF_UNINIT;
 
   /* Set ltp_to_imu so that body is zero */
-  memcpy(&ahrs_mlkf.ltp_to_imu_quat, orientationGetQuat_f(ahrs_mlkf.body_to_imu),
+  memcpy(&ahrs_mlkf.ltp_to_imu_quat, orientationGetQuat_f(&ahrs_mlkf.body_to_imu),
          sizeof(struct FloatQuat));
 
   FLOAT_RATES_ZERO(ahrs_mlkf.imu_rate);
@@ -87,6 +87,11 @@ void ahrs_mlkf_init(struct OrientationReps* body_to_imu) {
   memcpy(ahrs_mlkf.P, P0, sizeof(P0));
 
   VECT3_ASSIGN(ahrs_mlkf.mag_noise, AHRS_MAG_NOISE_X, AHRS_MAG_NOISE_Y, AHRS_MAG_NOISE_Z);
+}
+
+void ahrs_mlkf_set_body_to_imu(struct OrientationReps* body_to_imu)
+{
+  orientationSetQuat_f(&ahrs_mlkf.body_to_imu, orientationGetQuat_f(body_to_imu));
 }
 
 bool_t ahrs_mlkf_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
@@ -266,8 +271,8 @@ static inline void reset_state(void) {
  * Compute body orientation and rates from imu orientation and rates
  */
 static inline void set_body_state_from_quat(void) {
-  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(ahrs_mlkf.body_to_imu);
-  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(ahrs_mlkf.body_to_imu);
+  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_mlkf.body_to_imu);
+  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_mlkf.body_to_imu);
 
   /* Compute LTP to BODY quaternion */
   struct FloatQuat ltp_to_body_quat;

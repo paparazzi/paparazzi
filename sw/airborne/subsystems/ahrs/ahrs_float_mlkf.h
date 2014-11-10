@@ -54,8 +54,8 @@ struct AhrsMlkf {
   float P[6][6];
   float lp_accel;
 
-  /** pointer to body_to_imu rotation */
-  struct OrientationReps* body_to_imu;
+  /** body_to_imu rotation */
+  struct OrientationReps body_to_imu;
 
   enum AhrsMlkfStatus status;
 };
@@ -63,6 +63,7 @@ struct AhrsMlkf {
 extern struct AhrsMlkf ahrs_mlkf;
 
 extern void ahrs_mlkf_init(struct OrientationReps* body_to_imu);
+extern void ahrs_mlkf_set_body_to_imu(struct OrientationReps* body_to_imu);
 extern bool_t ahrs_mlkf_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
                               struct Int32Vect3* lp_mag);
 extern void ahrs_mlkf_propagate(struct Int32Rates* gyro, float dt);
