@@ -325,19 +325,6 @@ static inline void on_gyro_event( void ) {
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
 
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for INS propagation.")
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
-  // dt between this and last callback in seconds
-  float dt = (float)(now_ts - last_ts) / 1e6;
-  last_ts = now_ts;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for INS propagation.")
-PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
-  const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-#endif
-
   imu_scale_gyro(&imu);
 
   AbiSendMsgIMU_GYRO_INT32(1, &now_ts, &imu.gyro_prev);
@@ -356,6 +343,18 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
   if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif
 
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
+PRINT_CONFIG_MSG("Calculating dt for INS propagation.")
+  // timestamp in usec when last callback was received
+  static uint32_t last_ts = 0;
+  // dt between this and last callback in seconds
+  float dt = (float)(now_ts - last_ts) / 1e6;
+  last_ts = now_ts;
+#else
+PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for INS propagation.")
+PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
+  const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
+#endif
   ins_propagate(dt);
 
 #ifdef USE_VEHICLE_INTERFACE

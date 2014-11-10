@@ -106,34 +106,66 @@ static abi_event aligner_ev;
 static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
                     const struct Int32Rates* gyro)
 {
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
+PRINT_CONFIG_MSG("Calculating dt for AHRS float_cmpl propagation.")
+  /* timestamp in usec when last callback was received */
   static uint32_t last_stamp = 0;
+
   if (last_stamp > 0 && ahrs_fc.status == AHRS_FC_RUNNING) {
     float dt = (float)(*stamp - last_stamp) * 1e-6;
     ahrs_fc_propagate((struct Int32Rates*)gyro, dt);
   }
   last_stamp = *stamp;
+#else
+PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for AHRS float_cmpl propagation.")
+PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
+  if (ahrs_fc.status == AHRS_FC_RUNNING) {
+    const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
+    ahrs_fc_propagate((struct Int32Rates*)gyro, dt);
+  }
+#endif
 }
 
 static void accel_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
                      const struct Int32Vect3* accel)
 {
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_CORRECT_FREQUENCY)
+PRINT_CONFIG_MSG("Calculating dt for AHRS float_cmpl accel update.")
   static uint32_t last_stamp = 0;
   if (last_stamp > 0 && ahrs_fc.status == AHRS_FC_RUNNING) {
     float dt = (float)(*stamp - last_stamp) * 1e-6;
     ahrs_fc_update_accel((struct Int32Vect3*)accel, dt);
   }
   last_stamp = *stamp;
+#else
+PRINT_CONFIG_MSG("Using fixed AHRS_CORRECT_FREQUENCY for AHRS float_cmpl accel update.")
+PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
+  if (ahrs_fc.status == AHRS_FC_RUNNING) {
+    const float dt = 1. / (AHRS_CORRECT_FREQUENCY);
+    ahrs_fc_update_accel((struct Int32Vect3*)accel, dt);
+  }
+#endif
 }
 
 static void mag_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
                    const struct Int32Vect3* mag)
 {
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
+PRINT_CONFIG_MSG("Calculating dt for AHRS float_cmpl mag update.")
   static uint32_t last_stamp = 0;
   if (last_stamp > 0 && ahrs_fc.status == AHRS_FC_RUNNING) {
     float dt = (float)(*stamp - last_stamp) * 1e-6;
     ahrs_fc_update_mag((struct Int32Vect3*)mag, dt);
   }
   last_stamp = *stamp;
+#else
+PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS float_cmpl mag update.")
+PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
+  if (ahrs_fc.status == AHRS_FC_RUNNING) {
+    const float dt = 1. / (AHRS_MAG_CORRECT_FREQUENCY);
+    ahrs_fc_update_mag((struct Int32Vect3*)mag, dt);
+  }
+#endif
 }
 
 static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
