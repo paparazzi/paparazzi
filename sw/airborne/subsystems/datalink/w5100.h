@@ -28,7 +28,7 @@
 #ifndef W5100_H
 #define W5100_H
 
-#include "mcu_periph/device.h"
+#include "mcu_periph/link_device.h"
 #include "generated/airframe.h"
 
 #define W5100_RX_BUFFER_SIZE 80

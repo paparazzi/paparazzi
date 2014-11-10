@@ -30,7 +30,7 @@
 
 #include <inttypes.h>
 #include "std.h"
-#include "mcu_periph/device.h"
+#include "mcu_periph/link_device.h"
 //#include "usb_serial_hw.h"
 
 struct usb_serial_periph {

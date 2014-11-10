@@ -29,7 +29,7 @@
 
 #include "mcu_periph/gpio.h"
 #include "peripherals/cyrf6936.h"
-#include "mcu_periph/device.h"
+#include "mcu_periph/link_device.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/pprz_transport.h"
 

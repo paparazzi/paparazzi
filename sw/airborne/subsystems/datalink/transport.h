@@ -27,7 +27,7 @@
 #define TRANSPORT_H
 
 #include <inttypes.h>
-#include "mcu_periph/device.h"
+#include "mcu_periph/link_device.h"
 #include "std.h"
 
 #ifndef TRANSPORT_PAYLOAD_LEN

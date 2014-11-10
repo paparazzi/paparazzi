@@ -19,12 +19,12 @@
  *
  */
 
-/** \file mcu_periph/device.h
+/** \file mcu_periph/link_device.h
  *  generic device header
  */
 
-#ifndef DEVICE_H
-#define DEVICE_H
+#ifndef LINK_DEVICE_H
+#define LINK_DEVICE_H
 
 #include <inttypes.h>
 
@@ -46,5 +46,5 @@ struct link_device {
   void *periph;                         ///< pointer to parent implementation
 };
 
-#endif // DEVICES_H
+#endif // LINK_DEVICE_H
 

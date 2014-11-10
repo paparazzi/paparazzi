@@ -29,7 +29,7 @@
 #define MCU_PERIPH_UART_H
 
 #include "mcu_periph/uart_arch.h"
-#include "mcu_periph/device.h"
+#include "mcu_periph/link_device.h"
 #include "std.h"
 
 #define UART_RX_BUFFER_SIZE 128

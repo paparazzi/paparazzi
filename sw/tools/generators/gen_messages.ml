@@ -366,7 +366,7 @@ let () =
     Printf.fprintf h "#ifndef _VAR_MESSAGES_%s_H_\n" class_name;
     Printf.fprintf h "#define _VAR_MESSAGES_%s_H_\n" class_name;
     Printf.fprintf h "#include \"subsystems/datalink/transport.h\"\n";
-    Printf.fprintf h "#include \"mcu_periph/device.h\"\n";
+    Printf.fprintf h "#include \"mcu_periph/link_device.h\"\n";
 
     (** Macros for airborne downlink (sending) *)
     if class_name = "telemetry" then begin (** FIXME *)

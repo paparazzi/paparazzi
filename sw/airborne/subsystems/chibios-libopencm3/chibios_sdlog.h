@@ -29,7 +29,7 @@
 #define CHIBIOS_SDLOG_H
 
 #include "ff.h"
-#include "mcu_periph/device.h"
+#include "mcu_periph/link_device.h"
 
 /*
  what to be done  :

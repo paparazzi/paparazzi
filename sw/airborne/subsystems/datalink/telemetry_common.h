@@ -31,7 +31,7 @@
 
 #include <inttypes.h>
 #include "std.h"
-#include "mcu_periph/device.h"
+#include "mcu_periph/link_device.h"
 #include "subsystems/datalink/transport.h"
 
 /** Telemetry callback definition

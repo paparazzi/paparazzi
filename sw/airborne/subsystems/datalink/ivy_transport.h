@@ -31,7 +31,7 @@
 #define IVY_TRANSPORT_H
 
 #include "subsystems/datalink/transport.h"
-#include "mcu_periph/device.h"
+#include "mcu_periph/link_device.h"
 
 // IVY transport
 struct ivy_transport {
