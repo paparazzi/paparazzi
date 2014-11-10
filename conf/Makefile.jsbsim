@@ -38,7 +38,7 @@ Q=@
 # Compilation flags
 #
 
-CFLAGS	= -W -Wall $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/airborne/$(SRC_ARCH) $($(TARGET).CFLAGS) $(LOCAL_CFLAGS) -O$(OPT)
+CFLAGS	= -W -Wall $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/airborne/$(SRC_ARCH) $($(TARGET).CFLAGS) $(USER_CFLAGS) -O$(OPT)
 
 LDFLAGS		=	-lm $($(TARGET).LDFLAGS)
 

@@ -67,8 +67,8 @@ struct GpsState {
   int32_t hmsl;                  ///< height above mean sea level in mm
   struct EcefCoor_i ecef_vel;    ///< speed ECEF in cm/s
   struct NedCoor_i ned_vel;      ///< speed NED in cm/s
-  int16_t gspeed;                ///< norm of 2d ground speed in cm/s
-  int16_t speed_3d;              ///< norm of 3d speed in cm/s
+  uint16_t gspeed;               ///< norm of 2d ground speed in cm/s
+  uint16_t speed_3d;             ///< norm of 3d speed in cm/s
   int32_t course;                ///< GPS course over ground in rad*1e7, [0, 2*Pi]*1e7 (CW/north)
   uint32_t pacc;                 ///< position accuracy in cm
   uint32_t sacc;                 ///< speed accuracy in cm/s
@@ -76,7 +76,7 @@ struct GpsState {
   uint16_t pdop;                 ///< position dilution of precision scaled by 100
   uint8_t num_sv;                ///< number of sat in fix
   uint8_t fix;                   ///< status of fix
-  int16_t week;                  ///< GPS week
+  uint16_t week;                 ///< GPS week
   uint32_t tow;                  ///< GPS time of week in ms
 
   uint8_t nb_channels;           ///< Number of scanned satellites

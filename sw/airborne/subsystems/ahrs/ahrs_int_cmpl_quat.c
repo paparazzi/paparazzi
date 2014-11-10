@@ -170,9 +170,9 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_quat(void) {
+static void send_quat(struct transport_tx *trans, struct link_device *dev) {
   struct Int32Quat* quat = stateGetNedToBodyQuat_i();
-  DOWNLINK_SEND_AHRS_QUAT_INT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_AHRS_QUAT_INT(trans, dev, AC_ID,
       &ahrs_icq.weight,
       &ahrs_icq.ltp_to_imu_quat.qi,
       &ahrs_icq.ltp_to_imu_quat.qx,
@@ -184,11 +184,11 @@ static void send_quat(void) {
       &(quat->qz));
 }
 
-static void send_euler(void) {
+static void send_euler(struct transport_tx *trans, struct link_device *dev) {
   struct Int32Eulers ltp_to_imu_euler;
   int32_eulers_of_quat(&ltp_to_imu_euler, &ahrs_icq.ltp_to_imu_quat);
   struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
-  DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
       &ltp_to_imu_euler.phi,
       &ltp_to_imu_euler.theta,
       &ltp_to_imu_euler.psi,
@@ -197,17 +197,17 @@ static void send_euler(void) {
       &(eulers->psi));
 }
 
-static void send_bias(void) {
-  DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
+static void send_bias(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_AHRS_GYRO_BIAS_INT(trans, dev, AC_ID,
       &ahrs_icq.gyro_bias.p, &ahrs_icq.gyro_bias.q, &ahrs_icq.gyro_bias.r);
 }
 
-static void send_geo_mag(void) {
+static void send_geo_mag(struct transport_tx *trans, struct link_device *dev) {
   struct FloatVect3 h_float;
   h_float.x = MAG_FLOAT_OF_BFP(ahrs_icq.mag_h.x);
   h_float.y = MAG_FLOAT_OF_BFP(ahrs_icq.mag_h.y);
   h_float.z = MAG_FLOAT_OF_BFP(ahrs_icq.mag_h.z);
-  DOWNLINK_SEND_GEO_MAG(DefaultChannel, DefaultDevice,
+  pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
                         &h_float.x, &h_float.y, &h_float.z);
 }
 #endif

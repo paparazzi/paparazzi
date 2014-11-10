@@ -192,17 +192,17 @@ inline static void h_ctl_pitch_loop( void );
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_calibration(void) {
-  DOWNLINK_SEND_CALIBRATION(DefaultChannel, DefaultDevice,  &v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode);
+static void send_calibration(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_CALIBRATION(trans, dev, AC_ID,  &v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode);
 }
 
-static void send_tune_roll(void) {
-  DOWNLINK_SEND_TUNE_ROLL(DefaultChannel, DefaultDevice,
+static void send_tune_roll(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_TUNE_ROLL(trans, dev, AC_ID,
       &(stateGetBodyRates_f()->p), &(stateGetNedToBodyEulers_f()->phi), &h_ctl_roll_setpoint);
 }
 
-static void send_ctl_a(void) {
-  DOWNLINK_SEND_H_CTL_A(DefaultChannel, DefaultDevice,
+static void send_ctl_a(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_H_CTL_A(trans, dev, AC_ID,
       &h_ctl_roll_sum_err,
       &h_ctl_roll_setpoint,
       &h_ctl_ref.roll_angle,

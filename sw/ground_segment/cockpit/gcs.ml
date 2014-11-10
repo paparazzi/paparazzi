@@ -171,9 +171,9 @@ module TodoList = struct
 end
 
 
-(************ Google, OSM Maps handling *****************************************)
+(************ Maps handling (Google, OSM, MS, etc.) ***********************************)
 module GM = struct
-  (** Fill the visible background with Google, OSM tiles *)
+  (** Fill the visible background with map tiles *)
   let zoomlevel = ref 20
   let fill_tiles = fun geomap ->
     match geomap#georef with
@@ -187,7 +187,7 @@ module GM = struct
     auto := x;
     update geomap
 
-  (** Creates a calibrated map from the Google, OSM tiles (selected region) *)
+  (** Creates a calibrated map from the map tiles (selected region) *)
   let map_from_tiles = fun (geomap:G.widget) () ->
     match geomap#region with
         None -> GToolbox.message_box "Error" "Select a region (shift-left drag)"
@@ -267,7 +267,7 @@ let any_event = fun (_geomap:G.widget) _ev -> false
 let button_press = fun (geomap:G.widget) ev ->
   let state = GdkEvent.Button.state ev in
   if GdkEvent.Button.button ev = 3 then begin
-    (** Display a tile from Google Maps or IGN *)
+    (** Display a map tile from map provider (Google, OSC, ..) or IGN *)
     let xc = GdkEvent.Button.x ev
     and yc = GdkEvent.Button.y ev in
     let (xw,yw) = geomap#window_to_world xc yc in
@@ -354,7 +354,7 @@ let options =
     "-layout", Arg.Set_string layout_file, (sprintf "<XML layout specification> GUI layout. Default: %s" !layout_file);
     "-m", Arg.String (fun x -> map_files := x :: !map_files), "Map XML description file";
     "-maximize", Arg.Set maximize, "Maximize window";
-    "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to (Google Maps) Mercator projection, default";
+    "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to Mercator projection, default";
     "-mplayer", Arg.Set_string mplayer, "Launch mplayer with the given argument as X plugin";
     "-no_alarm", Arg.Set no_alarm, "Disables alarm page";
     "-maps_no_http", Arg.Unit (fun () -> Gm.set_policy Gm.NoHttp), "Switch off downloading of maps, always use cached maps";
@@ -433,7 +433,7 @@ let create_geomap = fun switch_fullscreen editor_frame ->
       group := menu_item#group)
     Gm.policies;
 
-  (* Google fill menu entry and toolbar button *)
+  (* Map tiles fill menu entry and toolbar button *)
   let callback = fun _ -> GM.fill_tiles geomap in
   ignore (map_menu_fact#add_item "Maps Fill" ~key:GdkKeysyms._G ~callback);
   let b = GButton.button ~packing:geomap#toolbar#add () in
@@ -441,14 +441,14 @@ let create_geomap = fun switch_fullscreen editor_frame ->
   let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // "googleearth.png") in
   ignore (GMisc.image ~pixbuf ~packing:b#add ());
   let tooltips = GData.tooltips () in
-  tooltips#set_tip b#coerce ~text:"Google maps fill";
+  tooltips#set_tip b#coerce ~text:"Fill current view with background map tiles";
 
   ignore (map_menu_fact#add_check_item "Maps Auto" ~active:!GM.auto ~callback:(GM.active_auto geomap));
   ignore (map_menu_fact#add_item "Map of Region" ~key:GdkKeysyms._R ~callback:(map_from_region geomap));
   ignore (map_menu_fact#add_item "Dump map of Tiles" ~key:GdkKeysyms._T ~callback:(GM.map_from_tiles geomap));
   ignore (map_menu_fact#add_item "Load sector" ~callback:(Sectors.load geomap));
 
-  (** Connect Google Maps display to view change *)
+  (** Connect Maps display to view change *)
   geomap#connect_view (fun () -> GM.update geomap);
   if !auto_ortho then
     geomap#connect_view (fun () -> fill_ortho geomap);

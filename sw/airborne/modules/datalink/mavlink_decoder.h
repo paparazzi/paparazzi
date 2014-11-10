@@ -139,7 +139,7 @@ struct mavlink_msg_req {
  */
 struct mavlink_transport {
   // generic interface
-  struct transport trans;
+  struct transport_rx trans;
   // specific mavlink transport variables
   mavlink_parse_state status;
   uint8_t payload_idx;

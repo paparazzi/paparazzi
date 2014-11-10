@@ -24,7 +24,7 @@ if [ $(bc <<< "$ASTYLE_VERSION >= 2.03") -eq 1 ]; then
         --unpad-paren   \
         --keep-one-line-blocks  \
         --keep-one-line-statements  \
-        --align-pointer=type  \
+        --align-pointer=name  \
         --suffix=none   \
         --lineend=linux   \
         --add-brackets \
@@ -42,7 +42,7 @@ else
         --unpad-paren   \
         --keep-one-line-blocks  \
         --keep-one-line-statements  \
-        --align-pointer=type  \
+        --align-pointer=name  \
         --suffix=none   \
         --lineend=linux   \
         --add-brackets \

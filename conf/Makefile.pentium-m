@@ -55,7 +55,7 @@ CFLAGS += -m32
 CFLAGS += -Wstrict-prototypes -Wmissing-declarations
 CFLAGS += -Wmissing-prototypes -Wnested-externs
 CFLAGS += $(CSTANDARD)
-CFLAGS += $($(TARGET).CFLAGS) $(LOCAL_CFLAGS)
+CFLAGS += $($(TARGET).CFLAGS) $(USER_CFLAGS)
 
 #Additional libraries.
 MATH_LIB = -lm

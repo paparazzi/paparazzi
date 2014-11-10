@@ -187,7 +187,7 @@ extern uint8_t dc_circle(float interval, float start);
  * If both 'x' and 'y' are DC_IGNORE the current position
  * will be used as reference point.
  *
- * @param interval minimum angle between shots in deg
+ * @param interval distance between shots in meters
  * @param x x coordinate of reference point (or special DC_IGNORE)
  * @param y y coordinate of reference point (or special DC_IGNORE)
  * @return zero

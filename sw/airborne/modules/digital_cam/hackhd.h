@@ -58,7 +58,7 @@ enum hackhd_status {
 struct HackHD {
   enum hackhd_status status;
   uint32_t timer;
-  uint32_t photo_nr;
+  int16_t photo_nr;
   uint32_t autoshoot;
   struct EnuCoor_f last_shot_pos;
   uint32_t log_delay;

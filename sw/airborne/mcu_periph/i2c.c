@@ -36,7 +36,7 @@
 struct i2c_periph i2c0;
 
 #if PERIODIC_TELEMETRY
-static void send_i2c0_err(void) {
+static void send_i2c0_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t i2c0_queue_full_cnt        = i2c0.errors->queue_full_cnt;
   uint16_t i2c0_ack_fail_cnt          = i2c0.errors->ack_fail_cnt;
   uint16_t i2c0_miss_start_stop_cnt   = i2c0.errors->miss_start_stop_cnt;
@@ -47,8 +47,8 @@ static void send_i2c0_err(void) {
   uint16_t i2c0_smbus_alert_cnt       = i2c0.errors->smbus_alert_cnt;
   uint16_t i2c0_unexpected_event_cnt  = i2c0.errors->unexpected_event_cnt;
   uint32_t i2c0_last_unexpected_event = i2c0.errors->last_unexpected_event;
-  const uint8_t _bus0 = 0;
-  DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
+  uint8_t _bus0 = 0;
+  pprz_msg_send_I2C_ERRORS(trans, dev, AC_ID,
       &i2c0_queue_full_cnt,
       &i2c0_ack_fail_cnt,
       &i2c0_miss_start_stop_cnt,
@@ -76,7 +76,7 @@ void i2c0_init(void) {
 struct i2c_periph i2c1;
 
 #if PERIODIC_TELEMETRY
-static void send_i2c1_err(void) {
+static void send_i2c1_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t i2c1_queue_full_cnt        = i2c1.errors->queue_full_cnt;
   uint16_t i2c1_ack_fail_cnt          = i2c1.errors->ack_fail_cnt;
   uint16_t i2c1_miss_start_stop_cnt   = i2c1.errors->miss_start_stop_cnt;
@@ -87,8 +87,8 @@ static void send_i2c1_err(void) {
   uint16_t i2c1_smbus_alert_cnt       = i2c1.errors->smbus_alert_cnt;
   uint16_t i2c1_unexpected_event_cnt  = i2c1.errors->unexpected_event_cnt;
   uint32_t i2c1_last_unexpected_event = i2c1.errors->last_unexpected_event;
-  const uint8_t _bus1 = 1;
-  DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
+  uint8_t _bus1 = 1;
+  pprz_msg_send_I2C_ERRORS(trans, dev, AC_ID,
       &i2c1_queue_full_cnt,
       &i2c1_ack_fail_cnt,
       &i2c1_miss_start_stop_cnt,
@@ -116,7 +116,7 @@ void i2c1_init(void) {
 struct i2c_periph i2c2;
 
 #if PERIODIC_TELEMETRY
-static void send_i2c2_err(void) {
+static void send_i2c2_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t i2c2_queue_full_cnt        = i2c2.errors->queue_full_cnt;
   uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
   uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;
@@ -127,8 +127,8 @@ static void send_i2c2_err(void) {
   uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt;
   uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt;
   uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event;
-  const uint8_t _bus2 = 2;
-  DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
+  uint8_t _bus2 = 2;
+  pprz_msg_send_I2C_ERRORS(trans, dev, AC_ID,
       &i2c2_queue_full_cnt,
       &i2c2_ack_fail_cnt,
       &i2c2_miss_start_stop_cnt,
@@ -160,7 +160,7 @@ void i2c3_init(void) {
 }
 
 #if PERIODIC_TELEMETRY
-static void send_i2c3_err(void) {
+static void send_i2c3_err(struct transport_tx *trans, struct link_device *dev) {
   uint16_t i2c3_queue_full_cnt        = i2c3.errors->queue_full_cnt;
   uint16_t i2c3_ack_fail_cnt          = i2c3.errors->ack_fail_cnt;
   uint16_t i2c3_miss_start_stop_cnt   = i2c3.errors->miss_start_stop_cnt;
@@ -171,8 +171,8 @@ static void send_i2c3_err(void) {
   uint16_t i2c3_smbus_alert_cnt       = i2c3.errors->smbus_alert_cnt;
   uint16_t i2c3_unexpected_event_cnt  = i2c3.errors->unexpected_event_cnt;
   uint32_t i2c3_last_unexpected_event = i2c3.errors->last_unexpected_event;
-  const uint8_t _bus3 = 3;
-  DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
+  uint8_t _bus3 = 3;
+  pprz_msg_send_I2C_ERRORS(trans, dev, AC_ID,
       &i2c3_queue_full_cnt,
       &i2c3_ack_fail_cnt,
       &i2c3_miss_start_stop_cnt,
@@ -190,27 +190,27 @@ static void send_i2c3_err(void) {
 #endif /* USE_I2C3 */
 
 #if PERIODIC_TELEMETRY
-static void send_i2c_err(void) {
+static void send_i2c_err(struct transport_tx *trans __attribute__((unused)), struct link_device *dev __attribute__((unused))) {
   static uint8_t _i2c_nb_cnt = 0;
   switch (_i2c_nb_cnt) {
     case 0:
 #if USE_I2C0
-      send_i2c0_err();
+      send_i2c0_err(trans, dev);
 #endif
       break;
     case 1:
 #if USE_I2C1
-      send_i2c1_err();
+      send_i2c1_err(trans, dev);
 #endif
       break;
     case 2:
 #if USE_I2C2
-      send_i2c2_err();
+      send_i2c2_err(trans, dev);
 #endif
       break;
     case 3:
 #if USE_I2C3
-      send_i2c3_err();
+      send_i2c3_err(trans, dev);
 #endif
       break;
     default:

@@ -92,8 +92,12 @@ void ins_reset_altitude_ref( void ) {
 
 void ins_propagate(float __attribute__((unused)) dt) {
   /* untilt accels and speeds */
-  float_rmat_transp_vmult(&ins_impl.ltp_accel, stateGetNedToBodyRMat_f(), &ahrs_ardrone2.accel);
-  float_rmat_transp_vmult(&ins_impl.ltp_speed, stateGetNedToBodyRMat_f(), &ahrs_ardrone2.speed);
+  float_rmat_transp_vmult((struct FloatVect3*)&ins_impl.ltp_accel,
+                          stateGetNedToBodyRMat_f(),
+                          (struct FloatVect3*)&ahrs_ardrone2.accel);
+  float_rmat_transp_vmult((struct FloatVect3*)&ins_impl.ltp_speed,
+                          stateGetNedToBodyRMat_f(),
+                          (struct FloatVect3*)&ahrs_ardrone2.speed);
 
   //Add g to the accelerations
   ins_impl.ltp_accel.z += 9.81;

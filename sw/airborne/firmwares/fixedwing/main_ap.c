@@ -73,10 +73,9 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 
 // datalink & telemetry
 #include "subsystems/datalink/datalink.h"
+#include "subsystems/datalink/downlink.h"
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/settings.h"
-#include "subsystems/datalink/xbee.h"
-#include "subsystems/datalink/w5100.h"
 
 // modules & settings
 #include "generated/modules.h"
@@ -147,12 +146,12 @@ static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
 
 //FIXME not the correct place
-static void send_filter_status(void) {
+static void send_filter_status(struct transport_tx *trans, struct link_device *dev) {
   uint8_t mde = 3;
   if (ahrs.status == AHRS_UNINIT) mde = 2;
   if (ahrs_timeout_counter > 10) mde = 5;
   uint16_t val = 0;
-  DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &val);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &val);
 }
 
 #endif // USE_AHRS && USE_IMU
@@ -252,14 +251,7 @@ void init_ap( void ) {
   /** - start interrupt task */
   mcu_int_enable();
 
-#if defined DATALINK
-#if DATALINK == XBEE
-  xbee_init();
-#endif
-#if DATALINK == W5100
-  w5100_init();
-#endif
-#endif /* DATALINK */
+  downlink_init();
 
 #if defined AEROCOMM_DATA_PIN
   IO0DIR |= _BV(AEROCOMM_DATA_PIN);
@@ -460,13 +452,14 @@ void reporting_task( void ) {
 
   /** initialisation phase during boot */
   if (boot) {
-    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &version);
+    uint16_t non_const_version = version;
+    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &non_const_version);
     boot = FALSE;
   }
   /** then report periodicly */
   else {
     //PeriodicSendAp(DefaultChannel, DefaultDevice);
-    periodic_telemetry_send_Ap();
+    periodic_telemetry_send_Ap(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
   }
 }
 
@@ -515,7 +508,7 @@ void navigation_task( void ) {
 #endif
 
 #ifndef PERIOD_NAVIGATION_Ap_0 // If not sent periodically (in default 0 mode)
-  SEND_NAVIGATION(DefaultChannel, DefaultDevice);
+  SEND_NAVIGATION(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
 
   /* The nav task computes only nav_altitude. However, we are interested

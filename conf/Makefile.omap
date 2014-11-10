@@ -54,6 +54,7 @@ CFLAGS += -Wstrict-prototypes -Wmissing-declarations
 CFLAGS += -Wmissing-prototypes -Wnested-externs
 CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)
+CFLAGS += $(USER_CFLAGS)
 
 LDFLAGS += -lm
 
@@ -62,6 +63,7 @@ CXXFLAGS += -g -ffunction-sections -fdata-sections
 CXXFLAGS += -mfloat-abi=softfp -mtune=cortex-a8 -mfpu=vfp -march=armv7-a
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += $($(TARGET).CXXFLAGS)
+CXXFLAGS += $(USER_CFLAGS)
 
 SRC_C_OMAP  = $($(TARGET).srcs)
 OBJ_C_OMAP = $(SRC_C_OMAP:%.c=$(OBJDIR)/%.o)

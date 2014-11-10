@@ -109,19 +109,19 @@ static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool_t in_flig
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_gh(void) {
+static void send_gh(struct transport_tx *trans, struct link_device *dev) {
   struct NedCoor_i* pos = stateGetPositionNed_i();
-  DOWNLINK_SEND_GUIDANCE_H_INT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_GUIDANCE_H_INT(trans, dev, AC_ID,
       &guidance_h_pos_sp.x, &guidance_h_pos_sp.y,
       &guidance_h_pos_ref.x, &guidance_h_pos_ref.y,
       &(pos->x), &(pos->y));
 }
 
-static void send_hover_loop(void) {
+static void send_hover_loop(struct transport_tx *trans, struct link_device *dev) {
   struct NedCoor_i* pos = stateGetPositionNed_i();
   struct NedCoor_i* speed = stateGetSpeedNed_i();
   struct NedCoor_i* accel = stateGetAccelNed_i();
-  DOWNLINK_SEND_HOVER_LOOP(DefaultChannel, DefaultDevice,
+  pprz_msg_send_HOVER_LOOP(trans, dev, AC_ID,
                            &guidance_h_pos_sp.x,
                            &guidance_h_pos_sp.y,
                            &(pos->x), &(pos->y),
@@ -138,8 +138,8 @@ static void send_hover_loop(void) {
                            &guidance_h_heading_sp);
 }
 
-static void send_href(void) {
-  DOWNLINK_SEND_GUIDANCE_H_REF_INT(DefaultChannel, DefaultDevice,
+static void send_href(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_GUIDANCE_H_REF_INT(trans, dev, AC_ID,
       &guidance_h_pos_sp.x, &guidance_h_pos_ref.x,
       &guidance_h_speed_sp.x, &guidance_h_speed_ref.x,
       &guidance_h_accel_ref.x,
@@ -148,8 +148,8 @@ static void send_href(void) {
       &guidance_h_accel_ref.y);
 }
 
-static void send_tune_hover(void) {
-  DOWNLINK_SEND_ROTORCRAFT_TUNE_HOVER(DefaultChannel, DefaultDevice,
+static void send_tune_hover(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_ROTORCRAFT_TUNE_HOVER(trans, dev, AC_ID,
       &radio_control.values[RADIO_ROLL],
       &radio_control.values[RADIO_PITCH],
       &radio_control.values[RADIO_YAW],

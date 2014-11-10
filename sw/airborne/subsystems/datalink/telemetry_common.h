@@ -31,10 +31,12 @@
 
 #include <inttypes.h>
 #include "std.h"
+#include "mcu_periph/link_device.h"
+#include "subsystems/datalink/transport.h"
 
 /** Telemetry callback definition
  */
-typedef void (*telemetry_cb)(void);
+typedef void (*telemetry_cb)(struct transport_tx *trans, struct link_device *dev);
 
 /** Telemetry header
  */

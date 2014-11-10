@@ -69,7 +69,7 @@ void ms2100_reset_cb( struct spi_transaction * t __attribute__ ((unused)) ) {
   int32_t end_cpu_ticks = systick_get_value() - dt_ticks;
   if (end_cpu_ticks < 0)
     end_cpu_ticks += systick_get_reload();
-  while (systick_get_value() > end_cpu_ticks)
+  while (systick_get_value() > (uint32_t)end_cpu_ticks)
     ;
 
   Ms2100Reset();

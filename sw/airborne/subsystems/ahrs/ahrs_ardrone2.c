@@ -48,8 +48,8 @@ unsigned char buffer[4096]; //Packet buffer
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_ahrs_ad2(void) {
-  DOWNLINK_SEND_AHRS_ARDRONE2(DefaultChannel, DefaultDevice,
+static void send_ahrs_ad2(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_AHRS_ARDRONE2(trans, dev, AC_ID,
       &ahrs_ardrone2.state,
       &ahrs_ardrone2.control_state,
       &ahrs_ardrone2.eulers.phi,

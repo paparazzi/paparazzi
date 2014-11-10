@@ -526,7 +526,7 @@ module PprzTransportBase(SubType:TRANSPORT_TYPE) = struct
   let checksum = fun msg ->
     let l = String.length msg in
     let ck_a, ck_b = compute_checksum msg in
-    Debug.call 'T' (fun f -> fprintf f "Pprz cs: %d %d\n" ck_a (Char.code msg.[l-2]));
+    Debug.call 'T' (fun f -> fprintf f "Pprz cs: %d %d | %d %d\n" ck_a (Char.code msg.[l-2]) ck_b (Char.code msg.[l-1]));
     ck_a = Char.code msg.[l-2] && ck_b = Char.code msg.[l-1]
 
   let payload = fun msg ->

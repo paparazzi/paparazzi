@@ -102,6 +102,8 @@ CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
 CFLAGS += -Wshadow
 CFLAGS += -Wnested-externs
 
+CFLAGS += $(USER_CFLAGS)
+
 #CFLAGS += -fno-diagnostics-show-caret
 
 ifneq ($(ARCH_L), )

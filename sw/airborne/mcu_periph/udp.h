@@ -30,6 +30,7 @@
 
 #include "std.h"
 #include "mcu_periph/udp_arch.h"
+#include "mcu_periph/link_device.h"
 
 #define UDP_RX_BUFFER_SIZE 256
 #define UDP_TX_BUFFER_SIZE 256
@@ -44,6 +45,8 @@ struct udp_periph {
   uint16_t tx_insert_idx;
   /** UDP network */
   void* network;
+  /** Generic device interface */
+  struct link_device device;
 };
 
 extern void     udp_periph_init(struct udp_periph* p, char* host, int port_out, int port_in, bool_t broadcast);

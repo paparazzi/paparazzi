@@ -29,6 +29,7 @@
 #define MCU_PERIPH_UART_H
 
 #include "mcu_periph/uart_arch.h"
+#include "mcu_periph/link_device.h"
 #include "std.h"
 
 #define UART_RX_BUFFER_SIZE 128
@@ -69,6 +70,8 @@ struct uart_periph {
   volatile uint16_t ore;    ///< overrun error counter
   volatile uint16_t ne_err; ///< noise error counter
   volatile uint16_t fe_err; ///< framing error counter
+  /** Generic device interface */
+  struct link_device device;
 };
 
 

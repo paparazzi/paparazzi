@@ -145,7 +145,7 @@ let _ =
   nl ();
   let channels = Xml.children xml in
   let n = ExtXml.attrib xml "name" in
-  Xml2h.warning ("RADIO MODEL: "^n);
+  (* Xml2h.warning ("RADIO MODEL: "^n); *)
   define_string "RADIO_NAME" n;
   nl ();
   (*define "RADIO_CONTROL_NB_CHANNEL" (string_of_int (List.length channels));*)

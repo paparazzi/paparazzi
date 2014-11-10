@@ -124,7 +124,7 @@ makefile_ac: $(MAKEFILE_AC)
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE $@
+	@echo GENERATE $@ from $(AIRFRAME_XML)
 	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)$(GENERATORS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $(MD5SUM) $< > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
@@ -133,7 +133,7 @@ $(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
 
 $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(GENERATORS)/gen_radio.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE $@
+	@echo GENERATE $@ from $(RADIO)
 	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)$(GENERATORS)/gen_radio.out $< > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
@@ -142,7 +142,7 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(GENERATORS)/gen_radio.out
 
 $(PERIODIC_H) : $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE $@
+	@echo GENERATE $@ from $(TELEMETRY)
 	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)$(GENERATORS)/gen_periodic.out $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(TELEMETRY_FREQUENCY) $(SETTINGS_TELEMETRY) > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
@@ -151,7 +151,7 @@ $(PERIODIC_H) : $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TE
 
 $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(GENERATORS)/gen_flight_plan.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE $@
+	@echo GENERATE $@ from $(FLIGHT_PLAN)
 	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)$(GENERATORS)/gen_flight_plan.out $< > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
@@ -159,7 +159,7 @@ $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(GENERATORS)/gen_flight_p
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/flight_plans
 
 $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(GENERATORS)/gen_flight_plan.out
-	@echo GENERATE $@
+	@echo GENERATE $@ from $(FLIGHT_PLAN)
 	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)$(GENERATORS)/gen_flight_plan.out -dump $< > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
@@ -191,8 +191,10 @@ $(SETTINGS_MODULES) : $(MODULES_H)
 $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 
 %.ac_h : $(GENERATORS)/gen_aircraft.out
-	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
-	@echo BUILD $(AIRCRAFT), TARGET $*
+	$(Q)if (expr "$(AIRCRAFT)") > /dev/null; then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
+	@echo "#######################################"
+	@echo "# BUILD AIRCRAFT=$(AIRCRAFT), TARGET $*"
+	@echo "#######################################"
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(GENERATORS)/gen_aircraft.out $(AIRCRAFT)
 
 %.compile: %.ac_h | print_version

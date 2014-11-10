@@ -32,6 +32,10 @@ void udp_periph_init(struct udp_periph* p, char* host, int port_out, int port_in
   p->rx_insert_idx = 0;
   p->rx_extract_idx = 0;
   p->tx_insert_idx = 0;
+  p->device.periph = (void *)p;
+  p->device.check_free_space = (check_free_space_t) udp_check_free_space;
+  p->device.transmit = (transmit_t) udp_transmit;
+  p->device.send_message = (send_message_t) udp_send_message;
 
 // Arch dependent initialization
   udp_arch_periph_init(p, host, port_out, port_in, broadcast);

@@ -319,7 +319,7 @@ let _ =
   and md5sum = Sys.argv.(3) in
   try
     let xml = start_and_begin xml_file h_name in
-    Xml2h.warning ("AIRFRAME MODEL: "^ ac_name);
+    (* Xml2h.warning ("AIRFRAME MODEL: "^ ac_name); *)
     define_string "AIRFRAME_NAME" ac_name;
     define "AC_ID" ac_id;
     define "MD5SUM" (sprintf "((uint8_t*)\"%s\")" (hex_to_bin md5sum));

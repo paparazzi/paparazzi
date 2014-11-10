@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2014  Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -14,22 +15,34 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  *
+ */
+
+/**
+ * @file subsystems/datalink/xbee.c
+ * Maxstream XBee serial input and output
  */
 
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/uart_print.h"
 #include "subsystems/datalink/xbee.h"
+#include "subsystems/datalink/downlink.h"
 
 #ifdef SIM_UART
 #include "sim_uart.h"
 #endif
 
-uint8_t xbee_cs;
-uint8_t xbee_rssi;
+/** Ground station address */
+#define GROUND_STATION_ADDR 0x100
+/** Aircraft address */
+#define XBEE_MY_ADDR AC_ID
+
+/** Constants for the API protocol */
+#define TX_OPTIONS 0x00
+#define NO_FRAME_ID 0
+#define XBEE_API_OVERHEAD 5 /* start + len_msb + len_lsb + API_id + checksum */
 
 struct xbee_transport xbee_tp;
 
@@ -37,6 +50,68 @@ struct xbee_transport xbee_tp;
 #define AT_SET_MY "ATMY"
 #define AT_AP_MODE "ATAP1\r"
 #define AT_EXIT "ATCN\r"
+
+/** Xbee protocol implementation */
+
+static void put_1byte(struct xbee_transport *trans, struct link_device *dev, const uint8_t byte)
+{
+  trans->cs_tx += byte;
+  dev->transmit(dev->periph, byte);
+}
+
+static void put_bytes(struct xbee_transport *trans, struct link_device *dev, enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t len, const void *bytes)
+{
+  const uint8_t *b = (const uint8_t *) bytes;
+  int i;
+  for (i = 0; i < len; i++) {
+    put_1byte(trans, dev, b[i]);
+  }
+}
+
+static void put_named_byte(struct xbee_transport *trans, struct link_device *dev, enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t byte, const char * name __attribute__((unused)))
+{
+  put_1byte(trans, dev, byte);
+}
+
+static uint8_t size_of(struct xbee_transport *trans __attribute__((unused)), uint8_t len)
+{
+  // message length: payload + API overhead + XBEE TX overhead (868 or 2.4)
+  return len + XBEE_API_OVERHEAD + XBEE_TX_OVERHEAD;
+}
+
+static void start_message(struct xbee_transport *trans, struct link_device *dev, uint8_t payload_len)
+{
+  downlink.nb_msgs++;
+  dev->transmit(dev->periph, XBEE_START);
+  const uint16_t len = payload_len + XBEE_API_OVERHEAD;
+  dev->transmit(dev->periph, (len >> 8));
+  dev->transmit(dev->periph, (len & 0xff));
+  trans->cs_tx = 0;
+  const uint8_t header[] = XBEE_TX_HEADER;
+  put_bytes(trans, dev, DL_TYPE_UINT8, DL_FORMAT_SCALAR, XBEE_TX_OVERHEAD + 1, header);
+}
+
+static void end_message(struct xbee_transport *trans, struct link_device *dev)
+{
+  trans->cs_tx = 0xff - trans->cs_tx;
+  dev->transmit(dev->periph, trans->cs_tx);
+  dev->send_message(dev);
+}
+
+static void overrun(struct xbee_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)))
+{
+  downlink.nb_ovrn++;
+}
+
+static void count_bytes(struct xbee_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)), uint8_t bytes)
+{
+  downlink.nb_bytes += bytes;
+}
+
+static int check_available_space(struct xbee_transport *trans __attribute__((unused)), struct link_device *dev, uint8_t bytes)
+{
+  return dev->check_free_space(dev, bytes);
+}
 
 static uint8_t xbee_text_reply_is_ok(void)
 {
@@ -86,7 +161,16 @@ static uint8_t xbee_try_to_enter_api(void) {
 
 void xbee_init( void ) {
   xbee_tp.status = XBEE_UNINIT;
-  xbee_tp.trans.msg_received = FALSE;
+  xbee_tp.trans_rx.msg_received = FALSE;
+  xbee_tp.trans_tx.size_of = (size_of_t) size_of;
+  xbee_tp.trans_tx.check_available_space = (check_available_space_t) check_available_space;
+  xbee_tp.trans_tx.put_bytes = (put_bytes_t) put_bytes;
+  xbee_tp.trans_tx.put_named_byte = (put_named_byte_t) put_named_byte;
+  xbee_tp.trans_tx.start_message = (start_message_t) start_message;
+  xbee_tp.trans_tx.end_message = (end_message_t) end_message;
+  xbee_tp.trans_tx.overrun = (overrun_t) overrun;
+  xbee_tp.trans_tx.count_bytes = (count_bytes_t) count_bytes;
+  xbee_tp.trans_tx.impl = (void *)(&xbee_tp);
 
   // Empty buffer before init process
   while (TransportLink(XBEE_UART,ChAvailable()))

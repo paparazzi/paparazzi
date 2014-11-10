@@ -1003,12 +1003,7 @@ void i2c1_hw_init(void) {
   // enable peripheral
   i2c_peripheral_enable(I2C1);
 
-  /*
-   * XXX: there is a function to do that already in libopencm3 but I am not
-   * sure if it is correct, using direct register instead (esden)
-   */
-  //i2c_set_own_7bit_slave_address(I2C1, 0);
-  I2C_OAR1(I2C1) = 0 | 0x4000;
+  i2c_set_own_7bit_slave_address(I2C1, 0);
 
   // enable error interrupts
   i2c_enable_interrupt(I2C1, I2C_CR2_ITERREN);
@@ -1078,12 +1073,7 @@ void i2c2_hw_init(void) {
   // enable peripheral
   i2c_peripheral_enable(I2C2);
 
-  /*
-   * XXX: there is a function to do that already in libopencm3 but I am not
-   * sure if it is correct, using direct register instead (esden)
-   */
-  //i2c_set_own_7bit_slave_address(I2C2, 0);
-  I2C_OAR1(I2C2) = 0 | 0x4000;
+  i2c_set_own_7bit_slave_address(I2C2, 0);
 
   // enable error interrupts
   i2c_enable_interrupt(I2C2, I2C_CR2_ITERREN);
@@ -1153,12 +1143,7 @@ void i2c3_hw_init(void) {
   // enable peripheral
   i2c_peripheral_enable(I2C3);
 
-  /*
-   * XXX: there is a function to do that already in libopencm3 but I am not
-   * sure if it is correct, using direct register instead (esden)
-   */
-  //i2c_set_own_7bit_slave_address(I2C3, 0);
-  I2C_OAR1(I2C3) = 0 | 0x4000;
+  i2c_set_own_7bit_slave_address(I2C3, 0);
 
   // enable error interrupts
   i2c_enable_interrupt(I2C3, I2C_CR2_ITERREN);

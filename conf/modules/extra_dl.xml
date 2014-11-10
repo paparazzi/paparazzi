@@ -11,11 +11,15 @@
   </header>
   <event fun="ExtraDatalinkEvent()"/>
   <makefile target="ap">
-    <define name="EXTRA_DOWNLINK_DEVICE" value="$(EXTRA_DL_PORT)"/>
+    <raw>
+EXTRA_DL_PORT_LOWER = $(shell echo $(EXTRA_DL_PORT) | tr A-Z a-z)
+    </raw>
+    <define name="EXTRA_DOWNLINK_DEVICE" value="$(EXTRA_DL_PORT_LOWER)"/>
     <define name="EXTRA_PPRZ_UART" value="$(EXTRA_DL_PORT)"/>
     <define name="USE_$(EXTRA_DL_PORT)"/>
     <define name="$(EXTRA_DL_PORT)_BAUD" value="$(EXTRA_DL_BAUD)"/>
     <file name="extra_pprz_dl.c"/>
+    <file name="pprz_transport.c" dir="subsystems/datalink"/>
   </makefile>
 </module>
 

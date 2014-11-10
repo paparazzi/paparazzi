@@ -35,7 +35,7 @@ Q=@
 CFLAGS  = -W -Wall
 CFLAGS += $(INCLUDES)
 CFLAGS += $($(TARGET).CFLAGS)
-CFLAGS += $(LOCAL_CFLAGS)
+CFLAGS += $(USER_CFLAGS)
 CFLAGS += -O$(OPT)
 CFLAGS += -g
 CFLAGS += -std=gnu99
@@ -44,7 +44,7 @@ CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 CXXFLAGS  = -W -Wall
 CXXFLAGS += $(INCLUDES)
 CXXFLAGS += $($(TARGET).CFLAGS)
-CXXFLAGS += $(LOCAL_CFLAGS)
+CXXFLAGS += $(USER_CFLAGS)
 CXXFLAGS += -O$(OPT)
 CXXFLAGS += -g
 CXXFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)

@@ -106,10 +106,10 @@ static inline void nav_set_altitude( void );
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_nav_status(void) {
+static void send_nav_status(struct transport_tx *trans, struct link_device *dev) {
   float dist_home = sqrtf(dist2_to_home);
   float dist_wp = sqrtf(dist2_to_wp);
-  DOWNLINK_SEND_ROTORCRAFT_NAV_STATUS(DefaultChannel, DefaultDevice,
+  pprz_msg_send_ROTORCRAFT_NAV_STATUS(trans, dev, AC_ID,
       &block_time, &stage_time,
       &dist_home, &dist_wp,
       &nav_block, &nav_stage,
@@ -119,20 +119,20 @@ static void send_nav_status(void) {
     float sy = POS_FLOAT_OF_BFP(nav_segment_start.y);
     float ex = POS_FLOAT_OF_BFP(nav_segment_end.x);
     float ey = POS_FLOAT_OF_BFP(nav_segment_end.y);
-    DOWNLINK_SEND_SEGMENT(DefaultChannel, DefaultDevice, &sx, &sy, &ex, &ey);
+    pprz_msg_send_SEGMENT(trans, dev, AC_ID, &sx, &sy, &ex, &ey);
   }
   else if (horizontal_mode == HORIZONTAL_MODE_CIRCLE) {
     float cx = POS_FLOAT_OF_BFP(nav_circle_center.x);
     float cy = POS_FLOAT_OF_BFP(nav_circle_center.y);
     float r = POS_FLOAT_OF_BFP(nav_circle_radius);
-    DOWNLINK_SEND_CIRCLE(DefaultChannel, DefaultDevice, &cx, &cy, &r);
+    pprz_msg_send_CIRCLE(trans, dev, AC_ID, &cx, &cy, &r);
   }
 }
 
-static void send_wp_moved(void) {
+static void send_wp_moved(struct transport_tx *trans, struct link_device *dev) {
   static uint8_t i;
   i++; if (i >= nb_waypoint) i = 0;
-  DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice,
+  pprz_msg_send_WP_MOVED_ENU(trans, dev, AC_ID,
       &i,
       &(waypoints[i].x),
       &(waypoints[i].y),

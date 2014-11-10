@@ -69,8 +69,8 @@ struct VffExtended vff;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_vffe(void) {
-  DOWNLINK_SEND_VFF_EXTENDED(DefaultChannel, DefaultDevice,
+static void send_vffe(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_VFF_EXTENDED(trans, dev, AC_ID,
       &vff.z_meas, &vff.z_meas_baro,
       &vff.z, &vff.zdot, &vff.zdotdot,
       &vff.bias, &vff.offset);
@@ -150,7 +150,7 @@ void vff_propagate(float accel, float dt) {
   vff.P[3][3] = FPF33 + Qoffoff;
 
 #if DEBUG_VFF_EXTENDED
-  RunOnceEvery(10, send_vffe());
+  RunOnceEvery(10, send_vffe(&(DefaultChannel).trans_tx, &(DefaultDevice).device));
 #endif
 }
 

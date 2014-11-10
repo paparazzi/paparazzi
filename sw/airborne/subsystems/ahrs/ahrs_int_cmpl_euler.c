@@ -120,8 +120,8 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_filter(void) {
-  DOWNLINK_SEND_FILTER(DefaultChannel, DefaultDevice,
+static void send_filter(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_FILTER(trans, dev, AC_ID,
       &ahrs_ice.ltp_to_imu_euler.phi,
       &ahrs_ice.ltp_to_imu_euler.theta,
       &ahrs_ice.ltp_to_imu_euler.psi,
@@ -139,9 +139,9 @@ static void send_filter(void) {
       &ahrs_ice.gyro_bias.r);
 }
 
-static void send_euler(void) {
+static void send_euler(struct transport_tx *trans, struct link_device *dev) {
   struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
-  DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
+  pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
       &ahrs_ice.ltp_to_imu_euler.phi,
       &ahrs_ice.ltp_to_imu_euler.theta,
       &ahrs_ice.ltp_to_imu_euler.psi,
@@ -150,8 +150,8 @@ static void send_euler(void) {
       &(eulers->psi));
 }
 
-static void send_bias(void) {
-  DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
+static void send_bias(struct transport_tx *trans, struct link_device *dev) {
+  pprz_msg_send_AHRS_GYRO_BIAS_INT(trans, dev, AC_ID,
       &ahrs_ice.gyro_bias.p, &ahrs_ice.gyro_bias.q, &ahrs_ice.gyro_bias.r);
 }
 #endif

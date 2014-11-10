@@ -178,10 +178,12 @@ static const uint8_t pn_bind[] = { 0x98, 0x88, 0x1B, 0xE4, 0x30, 0x79, 0x03, 0x8
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_superbit(void) {
-  DOWNLINK_SEND_SUPERBITRF(DefaultChannel, DefaultDevice,
-      &superbitrf.status,
-      &superbitrf.cyrf6936.status,
+static void send_superbit(struct transport_tx *trans, struct link_device *dev) {
+  uint8_t status = superbitrf.status;
+  uint8_t cyrf6936_status = superbitrf.cyrf6936.status;
+  pprz_msg_send_SUPERBITRF(trans, dev, AC_ID,
+      &status,
+      &cyrf6936_status,
       &superbitrf.irq_count,
       &superbitrf.rx_packet_count,
       &superbitrf.tx_packet_count,
@@ -196,6 +198,20 @@ static void send_superbit(void) {
       superbitrf.cyrf6936.mfg_id);
 }
 #endif
+
+// Functions for the generic device API
+static int superbitrf_check_free_space(struct SuperbitRF* p __attribute__((unused)), uint8_t len __attribute__((unused)))
+{
+  return (((superbitrf.tx_insert_idx+1) %128) != superbitrf.tx_extract_idx);
+}
+
+static void superbitrf_transmit(struct SuperbitRF* p __attribute__((unused)), uint8_t byte)
+{
+  superbitrf.tx_buffer[superbitrf.tx_insert_idx] = byte;
+  superbitrf.tx_insert_idx = (superbitrf.tx_insert_idx+1) %128;
+}
+
+static void superbitrf_send(struct SuperbitRF* p __attribute__((unused))) { }
 
 /**
  * Initialize the superbitrf
@@ -215,6 +231,12 @@ void superbitrf_init(void) {
   superbitrf.bind_mfg_id32 = 0;
   superbitrf.num_channels = 0;
   superbitrf.protocol = 0;
+
+  // Configure generic device
+  superbitrf.device.periph = (void *)(&superbitrf);
+  superbitrf.device.check_free_space = (check_free_space_t) superbitrf_check_free_space;
+  superbitrf.device.transmit = (transmit_t) superbitrf_transmit;
+  superbitrf.device.send_message = (send_message_t) superbitrf_send;
 
   // Initialize the binding pin
   gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
@@ -794,9 +816,9 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
           parse_pprz(&superbitrf.rx_transport, packet[i]);
 
           // When we have a full message
-          if (superbitrf.rx_transport.trans.msg_received) {
+          if (superbitrf.rx_transport.trans_rx.msg_received) {
             pprz_parse_payload(&superbitrf.rx_transport);
-            superbitrf.rx_transport.trans.msg_received = FALSE;
+            superbitrf.rx_transport.trans_rx.msg_received = FALSE;
           }
         }
       }
@@ -853,9 +875,9 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
           parse_pprz(&superbitrf.rx_transport, packet[i]);
 
           // When we have a full message
-          if (superbitrf.rx_transport.trans.msg_received) {
+          if (superbitrf.rx_transport.trans_rx.msg_received) {
             pprz_parse_payload(&superbitrf.rx_transport);
-            superbitrf.rx_transport.trans.msg_received = FALSE;
+            superbitrf.rx_transport.trans_rx.msg_received = FALSE;
           }
         }
       }
@@ -937,9 +959,9 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
           parse_pprz(&superbitrf.rx_transport, packet[i]);
 
           // When we have a full message
-          if (superbitrf.rx_transport.trans.msg_received) {
+          if (superbitrf.rx_transport.trans_rx.msg_received) {
             pprz_parse_payload(&superbitrf.rx_transport);
-            superbitrf.rx_transport.trans.msg_received = FALSE;
+            superbitrf.rx_transport.trans_rx.msg_received = FALSE;
           }
         }
       }
