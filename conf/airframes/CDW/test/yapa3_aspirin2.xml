@@ -195,7 +195,7 @@
 
   <section name="DIGITAL_CAMERA" prefix="DC_">
     <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_second"/>
-    <define name="AUTOSHOOT_METER_GRID" value="50" unit="meter"/>
+    <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="50" unit="meter"/>
   </section>
 
 

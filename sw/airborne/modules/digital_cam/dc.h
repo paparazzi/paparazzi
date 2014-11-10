@@ -66,8 +66,6 @@ extern float dc_gps_x, dc_gps_y;
 
 extern float dc_circle_last_block;
 
-extern bool_t dc_probing;
-
 extern uint8_t dc_buffer_timer;
 
 /** camera angle */
@@ -116,8 +114,8 @@ extern dc_autoshoot_type dc_autoshoot;
 /** AutoShoot photos every X quarter_second */
 extern uint8_t dc_autoshoot_quartersec_period;
 
-/** AutoShoot photos on a X meter Local Tangent Plane Grid */
-extern uint8_t dc_autoshoot_meter_grid;
+/** AutoShoot photos on distance to last shot in meters */
+extern uint8_t dc_autoshoot_distance_interval;
 
 /* Send Down the coordinates of where the photo was taken */
 #ifdef SENSOR_SYNC_SEND
@@ -134,10 +132,6 @@ void dc_send_shot_position(void);
 /* Default values for buffer control */
 #ifndef DC_IMAGE_BUFFER
 #define DC_IMAGE_BUFFER 65535
-#endif
-
-#ifndef DC_IMAGE_BUFFER_TPI
-#define DC_IMAGE_BUFFER_TPI 0
 #endif
 
 /******************************************************************

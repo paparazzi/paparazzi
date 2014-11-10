@@ -37,9 +37,17 @@
 // for waypoints, but still only fixedwing
 #include "subsystems/navigation/common_nav.h"
 
+/** default quartersec perioid = 0.5s */
+#ifndef DC_AUTOSHOOT_QUARTERSEC_PERIOD
+#define DC_AUTOSHOOT_QUARTERSEC_PERIOD 2
+#endif
+
+/** default distance interval 50m */
+#ifndef DC_AUTOSHOOT_DISTANCE_INTERVAL
+#define DC_AUTOSHOOT_DISTANCE_INTERVAL 50
+#endif
+
 // Variables with boot defaults
-uint8_t dc_autoshoot_meter_grid = 100;
-uint8_t dc_autoshoot_quartersec_period = 2;
 dc_autoshoot_type dc_autoshoot = DC_AUTOSHOOT_STOP;
 uint16_t dc_gps_count = 0;
 uint8_t dc_cam_tracing = 1;
@@ -55,8 +63,8 @@ float dc_gps_next_dist = 0;
 float dc_gps_x = 0;
 float dc_gps_y = 0;
 
-bool_t dc_probing = FALSE;
-
+uint8_t dc_autoshoot_distance_interval;
+uint8_t dc_autoshoot_quartersec_period;
 
 #ifdef SENSOR_SYNC_SEND
 
@@ -72,12 +80,9 @@ uint16_t dc_buffer = 0;
 
 void dc_init(void)
 {
-#ifdef DC_AUTOSHOOT_QUARTERSEC_PERIOD
+  dc_autoshoot = DC_AUTOSHOOT_STOP;
   dc_autoshoot_quartersec_period = DC_AUTOSHOOT_QUARTERSEC_PERIOD;
-#endif
-#ifdef DC_AUTOSHOOT_METER_GRID
-  dc_autoshoot_meter_grid = DC_AUTOSHOOT_METER_GRID;
-#endif
+  dc_autoshoot_distance_interval = DC_AUTOSHOOT_DISTANCE_INTERVAL;
 }
 
 void dc_send_shot_position(void)
@@ -153,7 +158,6 @@ uint8_t dc_circle(float interval, float start) {
   //dc_circle_last_block = floorf(dc_circle_start_angle/dc_circle_interval);
   dc_circle_last_block = 0;
   dc_circle_max_blocks = floorf(360./dc_circle_interval);
-  dc_probing = TRUE;
   dc_info();
   return 0;
 }
@@ -211,53 +215,49 @@ void dc_periodic_4Hz(void)
 
     case DC_AUTOSHOOT_DISTANCE:
       {
-        uint32_t dist_to_100m_grid = (int32_t)stateGetPositionUtm_f()->north % 100;
-        if (dist_to_100m_grid < dc_autoshoot_meter_grid || 100 - dist_to_100m_grid < dc_autoshoot_meter_grid)
-        {
+        static struct FloatVect2 last_shot_pos = {0.0, 0.0};
+        struct FloatVect2 cur_pos;
+        cur_pos.x = stateGetPositionEnu_f()->x;
+        cur_pos.y = stateGetPositionEnu_f()->y;
+        struct FloatVect2 delta_pos;
+        VECT2_DIFF(delta_pos, cur_pos, last_shot_pos);
+        float dist_to_last_shot = float_vect2_norm(&delta_pos);
+        if (dist_to_last_shot > dc_autoshoot_distance_interval) {
+          dc_send_command(DC_SHOOT);
+          VECT2_COPY(last_shot_pos, cur_pos);
+        }
+      }
+      break;
+
+    case DC_AUTOSHOOT_CIRCLE:
+      {
+        float course = DegOfRad(stateGetNedToBodyEulers_f()->psi) - dc_circle_start_angle;
+        if (course < 0.)
+          course += 360.;
+        float current_block = floorf(course/dc_circle_interval);
+
+        if (dim_mod(current_block, dc_circle_last_block, dc_circle_max_blocks) == 1) {
+          dc_gps_count++;
+          dc_circle_last_block = current_block;
           dc_send_command(DC_SHOOT);
         }
       }
       break;
 
-    case DC_AUTOSHOOT_CIRCLE: {
-      float course = DegOfRad(stateGetNedToBodyEulers_f()->psi) - dc_circle_start_angle;
-      if (course < 0.)
-        course += 360.;
-      float current_block = floorf(course/dc_circle_interval);
+    case DC_AUTOSHOOT_SURVEY:
+      {
+        float dist_x = dc_gps_x - stateGetPositionEnu_f()->x;
+        float dist_y = dc_gps_y - stateGetPositionEnu_f()->y;
 
-      if (dc_probing) {
-        if (current_block == dc_circle_last_block) {
-          dc_probing = FALSE;
+        if (dist_x*dist_x + dist_y*dist_y >= dc_gps_next_dist*dc_gps_next_dist) {
+          dc_gps_next_dist += dc_gps_dist;
+          dc_gps_count++;
+          dc_send_command(DC_SHOOT);
         }
       }
-
-      if (dim_mod(current_block, dc_circle_last_block, dc_circle_max_blocks) == 1) {
-        dc_gps_count++;
-        dc_circle_last_block = current_block;
-        dc_send_command(DC_SHOOT);
-      }
-    }
       break;
 
-    case DC_AUTOSHOOT_SURVEY : {
-      float dist_x = dc_gps_x - stateGetPositionEnu_f()->x;
-      float dist_y = dc_gps_y - stateGetPositionEnu_f()->y;
-
-      if (dc_probing) {
-        if (dist_x*dist_x + dist_y*dist_y < dc_gps_dist*dc_gps_dist) {
-          dc_probing = FALSE;
-        }
-      }
-
-      if (dist_x*dist_x + dist_y*dist_y >= dc_gps_next_dist*dc_gps_next_dist) {
-        dc_gps_next_dist += dc_gps_dist;
-        dc_gps_count++;
-        dc_send_command(DC_SHOOT);
-      }
-    }
-      break;
-
-    default :
+    default:
       dc_autoshoot = DC_AUTOSHOOT_STOP;
   }
 }
