@@ -39,7 +39,7 @@ void dc_shoot_rc_periodic(void)
   static uint8_t rd_shoot = 0;
   static uint8_t rd_num = 0;
 
-  if ((rd_shoot == 0) && (((float)(*fbw_state).channels[DC_RADIO_SHOOT])  > 3000)) {
+  if ((rd_shoot == 0) && (fbw_state->channels[DC_RADIO_SHOOT] > 3000)) {
     dc_send_command(DC_SHOOT);
     rd_shoot = 1;
   }
