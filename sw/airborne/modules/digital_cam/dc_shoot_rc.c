@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Paparazzi Team
+ * Copyright (C) 2014 Eduardo Lavratti <agressiva@hotmail.com>
  *
  * This file is part of paparazzi.
  *
