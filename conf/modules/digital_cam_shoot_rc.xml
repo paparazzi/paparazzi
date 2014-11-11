@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "./module.dtd">
+
+<module name="digital_cam_shoot_rc"  dir="digital_cam">
+  <doc>
+    <description>
+      Digital camera control using radio channel.
+      With this module you can take pictures using a radio channel.
+      When you put the channel to max the picture are taken.
+      If the channel goes high for more than 0.75s a picture is taken every 1sec.
+      Only usable for fixedwing firmware.
+    </description>
+    <define name="DC_RADIO_SHOOT" value="RADIO_xxx" description="specifies the channel to be used to trigger the camera by radio transmiter"/>
+  </doc>
+  <depend require="digital_cam"/>
+  <header>
+    <file name="dc_shoot_rc.h"/>
+  </header>
+
+  <periodic fun="dc_shoot_rc_periodic()" freq="4" autorun="TRUE"/>
+
+  <makefile>
+    <define name="DIGITAL_CAM_SHOOT_RC"/>
+    <file name="dc_shoot_rc.c"/>
+  </makefile>
+
+</module>
