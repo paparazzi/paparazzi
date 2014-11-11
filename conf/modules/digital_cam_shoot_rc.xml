@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "./module.dtd">
+
+<module name="digital_cam_shoot_rc"  dir="digital_cam">
+  <doc>
+    <description>Digital camera control using radio channel</description>
+    <define name="DC_RADIO_SHOOT" value="RADIO_CHx" description="specifies the channel to be used to trigger the camera by radio transmiter"/>
+  </doc>
+
+  <header>
+    <file name="dc_shoot_rc.h"/>
+  </header>
+
+  <init fun="dc_shoot_rc_init()"/>
+
+  <periodic fun="dc_shoot_rc_periodic()" freq="4" autorun="TRUE"/>
+
+  <makefile >
+    <define name="DIGITAL_CAM_SHOOT_RC" />
+    <file name="dc_shoot_rc.c"/>
+  </makefile>
+
+</module>
