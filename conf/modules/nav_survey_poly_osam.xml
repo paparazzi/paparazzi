@@ -7,6 +7,11 @@
     </description>       
     <define name="POLYGONSIZE" value="20" description="max waypoints usable in polygon survey"/>
     <define name="POLY_OSAM_ENTRY_RADIUS" value="80" description="entry circle radius in meters"/>      
+    <define name="POLY_OSAM_DEFAULT_SIZE" value="5" description="default number of waypoint used in poligon survey"/>
+    <define name="POLY_OSAM_DEFAULT_SWEEP" value="xx" description="default distance between lines"/>
+    <define name="POLY_OSAM_ENTRY_RADIUS" value="xx" description="entry circle radius. If 0 the radius will be equal to sweep distance"/>
+    <define name="POLY_OSAM_MIN_RADIUS" value="xx" description="min radius used in U-turns"/>
+    <define name="POLY_OSAM_FIRST_SWEEP_DISTANCE" value="xx" description="distante between the poligon border and first line.If 0 the distance well be equal to half sweep"/>
   </doc>
 
   <settings>

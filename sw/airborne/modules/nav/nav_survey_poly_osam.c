@@ -32,11 +32,27 @@
 #include "generated/flight_plan.h"
 
 #ifndef POLY_OSAM_DEFAULT_SIZE
-#define POLY_OSAM_DEFAULT_SIZE 5
+#define POLY_OSAM_DEFAULT_SIZE 4
 #endif
 
 #ifndef POLY_OSAM_DEFAULT_SWEEP
-#define POLY_OSAM_DEFAULT_SWEEP 100
+#define POLY_OSAM_DEFAULT_SWEEP 120
+#endif
+
+#ifndef POLY_OSAM_ENTRY_RADIUS
+#define POLY_OSAM_ENTRY_RADIUS 0
+#endif
+
+#ifndef POLY_OSAM_MIN_RADIUS
+#define POLY_OSAM_MIN_RADIUS 30
+#endif
+
+#ifndef POLY_OSAM_FIRST_SWEEP_DISTANCE
+#define POLY_OSAM_FIRST_SWEEP_DISTANCE 4
+#endif
+
+#ifndef POLY_OSAM_POLYGONSIZE
+#define POLY_OSAM_POLYGONSIZE 10
 #endif
 
 uint8_t Poly_Size = POLY_OSAM_DEFAULT_SIZE;
@@ -54,7 +70,6 @@ bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float S
   return nav_survey_poly_osam_setup(FirstWP, Size, Sweep, DegOfRad(ang));
 }
 
-
 struct Point2D {float x; float y;};
 struct Line {float m;float b;float x;};
 
@@ -63,15 +78,7 @@ static void RotateAndTranslateToWorld(struct Point2D *p, float Zrot, float trans
 static void FindInterceptOfTwoLines(float *x, float *y, struct Line L1, struct Line L2);
 static float EvaluateLineForX(float y, struct Line L);
 
-#ifndef POLY_OSAM_ENTRY_RADIUS
-#define POLY_OSAM_ENTRY_RADIUS 80
-#endif
-
-#ifndef POLYGONSIZE
-#define POLYGONSIZE 10
-#endif
-
-#define PolygonSize POLYGONSIZE
+#define PolygonSize POLY_OSAM_POLYGONSIZE
 #define MaxFloat   1000000000
 #define MinFloat   -1000000000
 
@@ -120,6 +127,10 @@ bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float
   float temp;
   float XIntercept1 = 0;
   float XIntercept2 = 0;
+  float entry_sweep = POLY_OSAM_FIRST_SWEEP_DISTANCE;
+  
+  if (entry_sweep == 0) entry_sweep = sw/2;
+  if (PolySurveyEntryRadius ==0) PolySurveyEntryRadius = sw/2;
 
   SurveyTheta = RadOfDeg(Orientation);
   PolySurveySweepNum = 0;
@@ -240,10 +251,11 @@ bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float
       EdgeMaxY[Size-1] = RightYInt;
       EdgeMinY[Size-1] = LeftYInt;
     }
-
+    
     //Find amount to increment by every sweep
     if(EntryPoint.y >= MaxY/2)
     {
+      entry_sweep = -entry_sweep;
       EntryRadius = -PolySurveyEntryRadius;
       dSweep = -sw;
     }
@@ -260,7 +272,7 @@ bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float
       SurveyCircleQdr = 180-DegOfRad(SurveyTheta);
 
     //Find y value of the first sweep
-    ys = EntryPoint.y+(dSweep/32);
+    ys = EntryPoint.y+entry_sweep;
 
     //Find the edges which intercet the sweep line first
     for(i = 0; i < SurveySize; i++)
@@ -300,7 +312,7 @@ bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float
 
     //Find the entry circle
     SurveyCircle.x = SurveyFromWP.x;
-    SurveyCircle.y = EntryPoint.y - EntryRadius;
+    SurveyCircle.y = EntryPoint.y + entry_sweep - EntryRadius;
 
     //Go into entry circle state
     CSurveyStatus = Entry;
@@ -324,6 +336,8 @@ bool_t nav_survey_poly_osam_run(void)
   float XIntercept2 = 0;
   float DInt1 = 0;
   float DInt2 = 0;
+  float temp;
+  float min_radius = POLY_OSAM_MIN_RADIUS;
 
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(waypoints[SurveyEntryWP].a, 0.);
@@ -372,17 +386,17 @@ bool_t nav_survey_poly_osam_run(void)
       {
          if(LastPoint.y+(dSweep/2) >= MaxY || LastPoint.y+(dSweep/2) <= 0) //Sweep back
          {
-	  dSweep = -dSweep;
-	  if (LastHalfSweep)
-	  {
-	    HalfSweep = FALSE;
-	    ys = LastPoint.y+(dSweep);
-	  }
-	  else
-	  {
-	    HalfSweep = TRUE;
-	    ys = LastPoint.y+(dSweep/2);
-	  }
+          dSweep = -dSweep;
+          if (LastHalfSweep)
+          {
+            HalfSweep = FALSE;
+            ys = LastPoint.y+(dSweep);
+          }
+          else
+          {
+            HalfSweep = TRUE;
+            ys = LastPoint.y+(dSweep/2);
+          }
 
           if(dSweep >= 0)
             SurveyCircleQdr = -DegOfRad(SurveyTheta);
@@ -390,7 +404,7 @@ bool_t nav_survey_poly_osam_run(void)
             SurveyCircleQdr = 180-DegOfRad(SurveyTheta);
           PolySurveySweepBackNum++;
          }
-         else //se tiver + metade do sweep
+         else // Half Sweep forward
          {
           ys = LastPoint.y+(dSweep/2);
 
@@ -403,7 +417,7 @@ bool_t nav_survey_poly_osam_run(void)
        
        
       }
-      else
+      else // Normal sweep
       {
         //Find y value of the first sweep
 	HalfSweep = FALSE;
@@ -471,34 +485,31 @@ bool_t nav_survey_poly_osam_run(void)
         }
       }
 
-
+      //Find the radius and direction to circle
+      if (!HalfSweep) 
+        temp = dSweep/2;
+      else
+        temp = dSweep/4;
+      
+      if (fabs(temp) < min_radius)
+        {
+          if (temp < 0) temp = -min_radius; else temp = min_radius;
+        }
+      
+      if(ys > 0 && SurveyToWP.x > SurveyFromWP.x)
+        SurveyRadius = temp;
+      else if(ys < 0 && SurveyToWP.x < SurveyFromWP.x)
+        SurveyRadius = temp; 
+      else
+        SurveyRadius = -temp;
 
       if(fabs(LastPoint.x-SurveyToWP.x) > fabs(SurveyFromWP.x-SurveyToWP.x))
         SurveyCircle.x = LastPoint.x;
       else
         SurveyCircle.x = SurveyFromWP.x;
 
-      if(!HalfSweep) {
-        SurveyCircle.y = LastPoint.y+(dSweep/2);
-	}
-      else {
-	SurveyCircle.y = LastPoint.y + (dSweep/4);
-	}
-
-      //Find the direction to circle
-      if(ys > 0 && SurveyToWP.x > SurveyFromWP.x)
-        if(!HalfSweep) SurveyRadius = dSweep/2;
-	else SurveyRadius = dSweep/4 ;
-    
-      else if(ys < 0 && SurveyToWP.x < SurveyFromWP.x)
-         if(!HalfSweep) SurveyRadius = dSweep/2;
-	 else
-	 SurveyRadius = dSweep/4;
-      else
-        if(!HalfSweep) SurveyRadius = -dSweep/2;
-	else
-	SurveyRadius = -dSweep/4;
-
+      SurveyCircle.y = ys - temp;
+      
       //Go into circle state
       CSurveyStatus = SweepCircle;
       nav_init_stage();
