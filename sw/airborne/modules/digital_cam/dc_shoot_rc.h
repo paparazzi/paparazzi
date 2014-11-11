@@ -29,9 +29,6 @@
 #ifndef DC_SHOOT_RC_H
 #define DC_SHOOT_RC_H
 
-/** initialize settings */
-extern void dc_shoot_rc_init(void);
-
 /** periodic 4Hz function */
 extern void dc_shoot_rc_periodic(void);
 

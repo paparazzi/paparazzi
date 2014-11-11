@@ -15,8 +15,6 @@
     <file name="dc_shoot_rc.h"/>
   </header>
 
-  <init fun="dc_shoot_rc_init()"/>
-
   <periodic fun="dc_shoot_rc_periodic()" freq="4" autorun="TRUE"/>
 
   <makefile >
