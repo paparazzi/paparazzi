@@ -76,6 +76,8 @@ def main():
                         help="Spektrum device to use (e.g. /dev/ttyUSB0)")
     nps_opts.add_option("--rc_script", type="int", action="store", metavar="NO",
                         help="Number of RC script to use")
+    nps_opts.add_option("--time_factor", type="float", action="store", metavar="factor",
+                        help="Time factor (default 1.0)")
 
     # special options for the JSBSim sim (without sensor models)
     #jsbsim_opts = OptionGroup(parser, "JSBSim options",
@@ -138,6 +140,9 @@ def main():
         if options.ivy_bus:
             simargs.append("--ivy_bus")
             simargs.append(options.ivy_bus)
+        if options.time_factor:
+            simargs.append("--time_factor")
+            simargs.append(str(options.time_factor))
     else:
         parser.error("Please specify a valid sim type.")
 
