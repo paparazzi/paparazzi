@@ -11,7 +11,7 @@
     <define name="DC_POWER_OFF_GPIO" value="GPIOC,GPIO1" description="optional, gpio to turn power off"/>
     <define name="DC_PUSH" value="gpio_set|gpio_clear" description="specifies whether to set or clear gpio to push the shutter (default: gpio_set)"/>
     <define name="DC_RELEASE" value="gpio_clear|gpio_set" description="specifies whether to set or clear gpio to release the shutter (default: gpio_clear)"/>
-
+    
     <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
     <define name="DC_AUTOSHOOT_METER_GRID" value="50" description="grid in meters"/>
   </doc>

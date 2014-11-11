@@ -34,6 +34,7 @@
 
 #include "dc.h"
 
+
 // for waypoints, but still only fixedwing
 #include "subsystems/navigation/common_nav.h"
 
@@ -56,7 +57,6 @@ float dc_gps_x = 0;
 float dc_gps_y = 0;
 
 bool_t dc_probing = FALSE;
-
 
 #ifdef SENSOR_SYNC_SEND
 
@@ -197,7 +197,7 @@ static float dim_mod(float a, float b, float m) {
 void dc_periodic_4Hz(void)
 {
   static uint8_t dc_shutter_timer = 0;
-
+  
   switch (dc_autoshoot) {
 
     case DC_AUTOSHOOT_PERIODIC:
