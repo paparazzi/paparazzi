@@ -18,8 +18,6 @@
       <dl_settings NAME="P_Survey">  
         <dl_setting min="0" max="20" step="1" var="Poly_Size" type="uint8_t" shortname="Size" module="modules/nav/nav_survey_poly_osam"/>
         <dl_setting min="0" max="500" step="1" var="Poly_Sweep" type="float" shortname="Sweep" module="modules/nav/nav_survey_poly_osam"/>
-
-	<dl_setting min="25" max="250" step="1" var="dc_gps_dist" type="float" shortname="Shot-Interval" module="digital_cam/dc"/>
       </dl_settings>
     </dl_settings>
   </settings>
