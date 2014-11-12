@@ -689,15 +689,15 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 
 
   let space = Str.regexp "[ \t]+"
-  let array_sep = Str.regexp "\""
+  let array_sep = Str.regexp "[\"|]" (* also search for old separator '|' for backward compatibility *)
   let values_of_string = fun s ->
     (* split arguments and arrays *)
     let array_split = Str.full_split array_sep s in
     let rec loop = fun fields ->
       match fields with
       | [] -> []
-      | (Str.Delim "\"")::((Str.Text l)::[Str.Delim "\""]) -> [l]
-      | (Str.Delim "\"")::((Str.Text l)::((Str.Delim "\"")::xs)) -> [l] @ (loop xs)
+      | (Str.Delim "\"")::((Str.Text l)::[Str.Delim "\""]) | (Str.Delim "|")::((Str.Text l)::[Str.Delim "|"]) -> [l]
+      | (Str.Delim "\"")::((Str.Text l)::((Str.Delim "\"")::xs)) | (Str.Delim "|")::((Str.Text l)::((Str.Delim "|")::xs)) -> [l] @ (loop xs)
       | [Str.Text x] -> Str.split space x
       | (Str.Text x)::xs -> (Str.split space x) @ (loop xs)
       | (Str.Delim _)::_ -> failwith "Pprz.values_of_string: incorrect array delimiter"
