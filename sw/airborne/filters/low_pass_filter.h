@@ -28,6 +28,7 @@
 #define LOW_PASS_FILTER_H
 
 #include "std.h"
+#include "math/pprz_algebra_int.h"
 
 #define INT32_FILT_FRAC  8
 
