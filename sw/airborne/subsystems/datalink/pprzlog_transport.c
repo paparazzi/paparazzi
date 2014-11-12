@@ -86,7 +86,7 @@ static void start_message(struct pprzlog_transport *trans, struct link_device *d
 static void end_message(struct pprzlog_transport *trans, struct link_device *dev)
 {
   dev->transmit(dev->periph, trans->ck);
-  dev->send_message(dev);
+  dev->send_message(dev->periph);
 }
 
 static void overrun(struct pprzlog_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)))
