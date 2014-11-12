@@ -44,7 +44,10 @@
 
   <modules>
     <load name="gps_ubx_ucenter.xml"/>
-    <!-- load name="airspeed_ms45xx.xml"/ -->
+    <load name="airspeed_ms45xx_i2c.xml">
+      <define name="MS45XX_I2C_DEV" value="i2c3"/>
+      <define name="USE_I2C3"/>
+    </load>
     <load name="direct_memory_logger.xml"/>
   </modules>
 
