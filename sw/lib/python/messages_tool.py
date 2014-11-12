@@ -5,6 +5,7 @@ from ivy.std_api import *
 import logging
 import time
 import os
+import re
 
 class Message:
     def __init__(self, class_name, name):
@@ -49,7 +50,21 @@ class IvyMessagesInterface():
         self.ivy_id = IvyBindMsg(self.OnIvyMsg, "(.*)")
 
     def OnIvyMsg(self, agent, *larg):
-        data = larg[0].split(' ')
+        """ Split ivy message up into the separate parts
+        Basically parts/args in string are separated by space, but char array can also contain a space:
+        |f,o,o, ,b,a,r| in old format or "foo bar" in new format
+        """
+        # first split on array delimiters
+        l = re.split('([|\"][^|]*[|\"])', larg[0])
+        # strip spaces and filter out emtpy strings
+        l = [str.strip(s) for s in l if str.strip(s) is not '']
+        data = []
+        for s in l:
+            # split non-array strings further up
+            if '|' not in s and '"' not in s:
+                data += s.split(' ')
+            else:
+                data.append(s)
         try:
             ac_id = int(data[0])
             name = data[1]
