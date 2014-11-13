@@ -11,7 +11,7 @@ install:
 before_script: cd conf && ln -s conf_tests.xml conf.xml && cd ..
 script:
   - make
-  - PAPARAZZI_SRC=$PWD PAPARAZZI_HOME=$PWD J=AUTO prove tests/examples/
+  - PAPARAZZI_SRC=$PWD PAPARAZZI_HOME=$PWD SHOW_WARNINGS_ONLY=1 J=AUTO prove tests/examples/
 
 notifications:
   webhooks:
