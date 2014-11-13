@@ -63,7 +63,6 @@ val is_fixed_array_type : string -> bool
 
 val size_of_field : field -> int
 val string_of_value : value -> string
-val string_of_chars : value -> string
 val formatted_string_of_value : 'a -> value -> string
 val int_of_value : value -> int (* May raise Invalid_argument *)
 type type_descr = {

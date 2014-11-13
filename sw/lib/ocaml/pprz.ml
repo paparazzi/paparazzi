@@ -146,7 +146,7 @@ let rec value = fun t v ->
     | Scalar "uint32" -> Int64 (Int64.of_string v)
     | Scalar ("uint64" | "int64") -> Int64 (Int64.of_string v)
     | Scalar ("float" | "double") -> Float (float_of_string v)
-    | Scalar "string" -> String v
+    | ArrayType "char" | FixedArrayType ("char", _) | Scalar "string" -> String v
     | Scalar "char" -> Char v.[0]
     | ArrayType t' ->
         Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
@@ -162,19 +162,11 @@ let rec string_of_value = function
   | Int64 x -> Int64.to_string x
   | Char c -> String.make 1 c
   | String s -> s
-  | Array a -> "|"^(String.concat separator (Array.to_list (Array.map string_of_value a)))^"|"
-
-let rec string_of_chars = function
-    Int x -> string_of_int x
-  | Float x -> string_of_float x
-  | Int32 x -> Int32.to_string x
-  | Int64 x -> Int64.to_string x
-  | Char c -> String.make 1 c
-  | String s -> s
-  | Array a -> let vl = Array.to_list (Array.map string_of_chars a) in
-               match a.(0) with
-                   Char x -> String.concat "" vl
-                 | _ -> "|"^(String.concat separator vl)^"|"
+  | Array a ->
+      let l = (Array.to_list (Array.map string_of_value a)) in
+      match a.(0) with
+      | Char _ -> "\""^(String.concat "" l)^"\""
+      | _ -> String.concat separator l
 
 
 let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
@@ -194,7 +186,11 @@ let rec formatted_string_of_value = fun format v ->
     | Int64 x -> sprintf (magic format) x
     | Char x -> sprintf (magic format) x
     | String x -> sprintf (magic format) x
-    | Array a -> "|"^(String.concat separator (Array.to_list (Array.map (formatted_string_of_value format) a)))^"|"
+    | Array a ->
+        let l = (Array.to_list (Array.map (formatted_string_of_value format) a)) in
+        match a.(0) with
+        | Char _ -> "\""^(String.concat "" l)^"\""
+        | _ -> String.concat separator l
 
 
 let sizeof = fun f ->
@@ -693,15 +689,15 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 
 
   let space = Str.regexp "[ \t]+"
-  let array_sep = Str.regexp "|"
+  let array_sep = Str.regexp "[\"|]" (* also search for old separator '|' for backward compatibility *)
   let values_of_string = fun s ->
     (* split arguments and arrays *)
     let array_split = Str.full_split array_sep s in
     let rec loop = fun fields ->
       match fields with
       | [] -> []
-      | (Str.Delim "|")::((Str.Text l)::[Str.Delim "|"]) -> [l]
-      | (Str.Delim "|")::((Str.Text l)::((Str.Delim "|")::xs)) -> [l] @ (loop xs)
+      | (Str.Delim "\"")::((Str.Text l)::[Str.Delim "\""]) | (Str.Delim "|")::((Str.Text l)::[Str.Delim "|"]) -> [l]
+      | (Str.Delim "\"")::((Str.Text l)::((Str.Delim "\"")::xs)) | (Str.Delim "|")::((Str.Text l)::((Str.Delim "|")::xs)) -> [l] @ (loop xs)
       | [Str.Text x] -> Str.split space x
       | (Str.Text x)::xs -> (Str.split space x) @ (loop xs)
       | (Str.Delim _)::_ -> failwith "Pprz.values_of_string: incorrect array delimiter"
