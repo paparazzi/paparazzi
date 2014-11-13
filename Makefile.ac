@@ -214,7 +214,8 @@ fbw : fbw.compile
 ap: ap.compile
 
 clean_ac :
-	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
-	rm -fr $(AIRCRAFT_BUILD_DIR)
+	$(Q)if (expr "$(AIRCRAFT)") > /dev/null; then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
+	@echo "CLEANING $(AIRCRAFT)"
+	$(Q)rm -fr $(AIRCRAFT_BUILD_DIR)
 
 .PHONY: init all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version
