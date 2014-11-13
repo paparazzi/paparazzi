@@ -114,8 +114,15 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
         mpu->data_rates.rates.r = Int16FromBuf(mpu->rx_buf, 14);
 
         // if we are reading slaves, copy the ext_sens_data
-        if (mpu->config.nb_slaves > 0)
-          memcpy(mpu->data_ext, (void *) &(mpu->rx_buf[16]), mpu->config.nb_bytes - 15);
+        if (mpu->config.nb_slaves > 0) {
+          /* the buffer is volatile, since filled from ISR
+           * but we know it's ok to use it here so we silence the warning
+           */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+          memcpy(mpu->data_ext, (uint8_t*)&(mpu->rx_buf[16]), mpu->config.nb_bytes - 15);
+#pragma GCC diagnostic pop
+        }
 
         mpu->data_available = TRUE;
       }
