@@ -10,11 +10,17 @@
 #
 # optional environment variables:
 #  TEST_VERBOSE : set to 1 to print the compile output even if there was no error
+#  SHOW_WARNINGS : set to 1 to print the complete compile output if there were warnings
+#  SHOW_WARNINGS_ONLY : set to 1 to print only the warnings
 #
 # environment variables passed on to make:
 #  J=AUTO : detect number of CPUs to set jobs for parallel compilation
 #
-# Example on how to test compile all aircrafts/targets in your current conf.xml
+# Examples on how to test compile all aircrafts/targets in your current conf.xml:
+# with parallel compilation and showing full output during compilation
+#  J=AUTO prove tests/examples -v
+# only showing full compile output if there has been an error, if there were warnings only print those
+#  SHOW_WARNINGS_ONLY=1 prove test/examples
 # with parallel compilation and treating all warnings as errors:
 #  J=AUTO USER_CFLAGS=-Werror prove tests/examples
 #
@@ -22,9 +28,10 @@
 use Test::More;
 use lib "$ENV{'PAPARAZZI_SRC'}/tests/lib";
 use XML::Simple;
-use Program;
 use Data::Dumper;
 use Config;
+use IPC::Run qw( run );
+use Cwd;
 
 $|++;
 my $xmlSimple = XML::Simple->new(ForceArray => 1);
@@ -42,13 +49,32 @@ foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
         {
             #warn "AIRCRAFT: [$aircraft] TARGET: [$target]\n";
             my $make_options = "AIRCRAFT=$aircraft clean_ac $target.compile";
-            my ($exit_status, $output) = run_program(
+            my ($exit_status, $warnings, $output) = run_program(
                 "Attempting to build the firmware $target for the aircraft $aircraft.",
                 $ENV{'PAPARAZZI_SRC'},
                 "make $make_options",
-                $ENV{'TEST_VERBOSE'},1);
-            # print output if it failed and we didn't already print it in verbose mode
-            warn "$output\n" if $exit_status && !$ENV{'TEST_VERBOSE'};
+                $ENV{'TEST_VERBOSE'});
+
+            # if we didn't already print output in verbose mode,
+            # print if it failed
+            if ($exit_status && !$ENV{'TEST_VERBOSE'}) {
+                warn "$output\n";
+            }
+            # if successful, still print warnings if requested
+            elsif ($warnings && ($ENV{'SHOW_WARNINGS'} || $ENV{'SHOW_WARNINGS_ONLY'})) {
+                if (!$ENV{'TEST_VERBOSE'}) {
+                    warn "\nWarning: AIRCRAFT=$aircraft target=$target compiled sucessfully but had warnings:\n";
+                    if ($ENV{'SHOW_WARNINGS_ONLY'}) {
+                        warn "$warnings\n";
+                    }
+                    else {
+                        warn "$output\n";
+                    }
+                }
+                if (!$ENV{'SHOW_WARNINGS_ONLY'}) {
+                    warn "\nAIRCRAFT=$aircraft target=$target compiled sucessfully but had warnings.\n\n";
+                }
+            }
             ok($exit_status == 0, "Compile aircraft: $aircraft, target: $target");
         }
 	}
@@ -58,46 +84,51 @@ done_testing();
 
 ################################################################################
 # functions used by this test script.
+
 sub run_program
 {
-        my $message = shift;
-        my $dir = shift;
-        my $command = shift;
-        my $verbose = shift;
-        my $dont_fail_on_error = shift;
+    my $message = shift;
+    my $dir = shift;
+    my $command = shift;
+    my $verbose = shift;
 
-        warn "\n$message\n" if $verbose;
-        if (defined $dir)
-        {
-                $command = "cd $dir;" . $command;
+    warn "\n$message\n" if $verbose;
+    warn "Running command: \"". $command ."\"\n" if $verbose;
+
+    # change into specified dir and remember current working dir
+    my $working_dir = cwd;
+    if (defined $dir) {
+        chdir $dir;
+    }
+
+    my $warnings = '';
+    my $stderr_and_out = '';
+
+    my $stdout_handler = sub {
+        print @_ if $verbose;
+        $stderr_and_out .= $_[0];
+    };
+    my $stderr_handler = sub {
+        print @_ if $verbose;
+        # check if output on stderr contains warnings, but ignoring "Warning: low altitude"
+        if ($_[0] =~ /warning/i && $_[0] !~ /Warning: low altitude/) {
+            $warnings .= $_[0]."\n";
+            #warn "\ndetected warning in $_[0]\n";
         }
-        my $prog = new Program("bash");
-        #$prog->redirect('none');
-        my $fh = $prog->open("-c \"$command\"");
-        warn "Running command: \"". $prog->last_command() ."\"\n" if $verbose;
-        $fh->autoflush(1);
-        my @output;
-        while (<$fh>)
-        {
-                warn $_ if $verbose;
-                chomp $_;
-                push @output, $_;
-        }
-        $fh->close;
-        my $exit_status = $?/256;
-        unless ($exit_status == 0)
-        {
-                my $err_msg = "\nError: The command \"". $prog->last_command() ."\" failed to complete successfully. Exit status: $exit_status\n";
-                if ($dont_fail_on_error)
-                {
-                        warn $err_msg;
-                }
-                else
-                {
-                        die $err_msg;
-                }
-        }
-        my $output_string = join "\n", @output;
-        return ($exit_status, $output_string);
+        $stderr_and_out .= $_[0];
+    };
+    my $dummy_in;
+    my $run = run([split ' ', $command], \$dummy_in, $stdout_handler, $stderr_handler);
+    my $exit_status = $?/256;
+
+    # change back to original dir
+    chdir $working_dir;
+
+    unless ($exit_status == 0)
+    {
+        warn "\nError: The command \"". $command ."\" failed to complete successfully. Exit status: $exit_status\n";
+    }
+
+    return ($exit_status, $warnings, $stderr_and_out);
 }
 
