@@ -23,9 +23,13 @@
 #ifndef SIM_AC_JSBSIM_H
 #define SIM_AC_JSBSIM_H
 
+// ignore stupid warnings in JSBSim
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <FGFDMExec.h>
 #include <FGJSBBase.h>
 #include <models/FGPropulsion.h>
+#pragma GCC diagnostic pop
 
 #include "std.h"
 #include "generated/airframe.h"

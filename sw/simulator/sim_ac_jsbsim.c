@@ -29,9 +29,14 @@
 
 #include <iostream>
 
+// ignore stupid warnings in JSBSim
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <FGFDMExec.h>
 //#include <SGGeod.hxx>
 #include <math/FGLocation.h>
+#pragma GCC diagnostic pop
+
 #include "sim_ac_flightgear.h"
 
 using namespace std;
