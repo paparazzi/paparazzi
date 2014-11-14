@@ -76,7 +76,7 @@ $(OBJDIR):
 elf: $(OBJDIR)/$(TARGET).elf
 
 # Program the device.
-load upload program: $(OBJDIR)/$(TARGET).elf
+upload program: $(OBJDIR)/$(TARGET).elf
 ifdef USER
 	ssh $(USER)@$(HOST) "sudo mount -o remount,rw /"
 	scp $(OBJDIR)/$(TARGET).elf $(USER)@$(HOST):$(TARGET_DIR)
