@@ -33,8 +33,6 @@ type module_conf = { xml : Xml.xml; file : string; vpath : string option; param 
 
 (* Modules directory *)
 val modules_dir : string
-(* Default targets for modules *)
-val default_module_targets : string
 
 (** remove all duplicated elements of a list *)
 val singletonize : 'a list -> 'a list

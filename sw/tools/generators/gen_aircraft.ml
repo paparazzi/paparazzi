@@ -116,7 +116,7 @@ let dump_module_section = fun xml f ->
         (* add extra targets only if default is used *)
         let et = try ignore(Xml.attrib l "target"); [] with _ -> m.extra_targets in
         let targets = Gen_common.singletonize (
-          Gen_common.targets_of_field l Gen_common.default_module_targets @ et) in
+          Gen_common.targets_of_field l Env.default_module_targets @ et) in
         (* Look for defines, flags, files, ... *)
         List.iter (fun field ->
           match String.lowercase (Xml.tag field) with

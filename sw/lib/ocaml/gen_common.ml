@@ -32,8 +32,6 @@ let paparazzi_conf = Env.paparazzi_home // "conf"
 let modules_dir = paparazzi_conf // "modules"
 let autopilot_dir = paparazzi_conf // "autopilot"
 
-let default_module_targets = "ap|sim|nps"
-
 (** remove all duplicated elements of a list *)
 let singletonize = fun l ->
   let rec loop = fun l ->
@@ -120,7 +118,7 @@ let rec get_modules_of_airframe = fun xml ->
 let get_targets_of_module = fun conf ->
   let targets = List.map (fun x ->
     match String.lowercase (Xml.tag x) with
-        "makefile" -> targets_of_field x default_module_targets
+        "makefile" -> targets_of_field x Env.default_module_targets
       | _ -> []
   ) (Xml.children conf.xml) in
   let targets = (List.flatten targets) @ conf.extra_targets in
