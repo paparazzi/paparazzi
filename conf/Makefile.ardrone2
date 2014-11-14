@@ -39,7 +39,7 @@ upload program: upload_extra $(OBJDIR)/$(TARGET).elf
 
 
 # Program the device and start it.
-load2 upload2 program2: $(OBJDIR)/$(TARGET).elf
+upload2 program2: $(OBJDIR)/$(TARGET).elf
 
 	# Kill the application
 	-echo "killall -9 $(TARGET).elf" | telnet $(HOST)
@@ -82,4 +82,4 @@ ifeq ($(ARDRONE2_REBOOT),1)
 endif
 
 # Listing of phony targets.
-.PHONY : upload_extra load upload program load2 upload2 program2
+.PHONY : upload_extra upload program upload2 program2

@@ -267,7 +267,7 @@ $(AOBJARM) : $(OBJDIR)/%.o : $(SRC_ARCH)/%.S
 
 
 # Listing of phony targets.
-.PHONY : all build elf hex lss sym load upload program
+.PHONY : all build elf hex lss sym upload program
 
 
 #
