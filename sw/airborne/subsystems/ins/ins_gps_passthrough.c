@@ -68,7 +68,8 @@ static void send_ins(struct transport_tx *trans, struct link_device *dev) {
 static void send_ins_z(struct transport_tx *trans, struct link_device *dev) {
   static const float fake_baro_z = 0.0;
   pprz_msg_send_INS_Z(trans, dev, AC_ID,
-      &fake_baro_z, &ins_impl.ltp_pos.z, &ins_impl.ltp_speed.z, &ins_impl.ltp_accel.z);
+                      (float*)&fake_baro_z, &ins_impl.ltp_pos.z,
+                      &ins_impl.ltp_speed.z, &ins_impl.ltp_accel.z);
 }
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev) {
@@ -77,7 +78,7 @@ static void send_ins_ref(struct transport_tx *trans, struct link_device *dev) {
     pprz_msg_send_INS_REF(trans, dev, AC_ID,
         &ins_impl.ltp_def.ecef.x, &ins_impl.ltp_def.ecef.y, &ins_impl.ltp_def.ecef.z,
         &ins_impl.ltp_def.lla.lat, &ins_impl.ltp_def.lla.lon, &ins_impl.ltp_def.lla.alt,
-        &ins_impl.ltp_def.hmsl, &fake_qfe);
+        &ins_impl.ltp_def.hmsl, (float*)&fake_qfe);
   }
 }
 #endif

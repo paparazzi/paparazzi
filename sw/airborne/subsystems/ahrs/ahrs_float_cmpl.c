@@ -391,7 +391,7 @@ void ahrs_update_mag_2d(float dt) {
   // normalize measured ltp in 2D (x,y)
   float_vect2_normalize(&measured_ltp_2d);
 
-  const struct FloatVect3 residual_ltp =
+  struct FloatVect3 residual_ltp =
     { 0,
       0,
       measured_ltp_2d.x * expected_ltp.y - measured_ltp_2d.y * expected_ltp.x };
