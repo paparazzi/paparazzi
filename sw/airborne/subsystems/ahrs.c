@@ -29,7 +29,6 @@
 
 struct Ahrs ahrs;
 
-#define WEAK __attribute__((weak))
 // weak functions, used if not explicitly provided by implementation
 
 void WEAK ahrs_propagate(float dt __attribute__((unused))) {}

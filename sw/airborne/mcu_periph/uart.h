@@ -82,6 +82,7 @@ extern void uart_periph_set_mode(struct uart_periph* p, bool_t tx_enabled, bool_
 extern void uart_transmit(struct uart_periph* p, uint8_t data);
 extern bool_t uart_check_free_space(struct uart_periph* p, uint8_t len);
 extern uint8_t uart_getch(struct uart_periph* p);
+extern void WEAK uart_event(void);
 
 /**
  * Check UART for available chars in receive buffer.
@@ -98,6 +99,7 @@ static inline uint16_t uart_char_available(struct uart_periph* p) {
 #if USE_UART0
 extern struct uart_periph uart0;
 extern void uart0_init(void);
+extern void WEAK uart0_handler(void);
 
 #define UART0Init() uart_periph_init(&uart0)
 #define UART0CheckFreeSpace(_x) uart_check_free_space(&uart0, _x)
@@ -114,6 +116,7 @@ extern void uart0_init(void);
 #if USE_UART1
 extern struct uart_periph uart1;
 extern void uart1_init(void);
+extern void WEAK uart1_handler(void);
 
 #define UART1Init() uart_periph_init(&uart1)
 #define UART1CheckFreeSpace(_x) uart_check_free_space(&uart1, _x)
@@ -130,6 +133,7 @@ extern void uart1_init(void);
 #if USE_UART2
 extern struct uart_periph uart2;
 extern void uart2_init(void);
+extern void WEAK uart2_handler(void);
 
 #define UART2Init() uart_periph_init(&uart2)
 #define UART2CheckFreeSpace(_x) uart_check_free_space(&uart2, _x)
@@ -146,6 +150,7 @@ extern void uart2_init(void);
 #if USE_UART3
 extern struct uart_periph uart3;
 extern void uart3_init(void);
+extern void WEAK uart3_handler(void);
 
 #define UART3Init() uart_periph_init(&uart3)
 #define UART3CheckFreeSpace(_x) uart_check_free_space(&uart3, _x)
@@ -162,6 +167,7 @@ extern void uart3_init(void);
 #if USE_UART4
 extern struct uart_periph uart4;
 extern void uart4_init(void);
+extern void WEAK uart4_handler(void);
 
 #define UART4Init() uart_periph_init(&uart4)
 #define UART4CheckFreeSpace(_x) uart_check_free_space(&uart4, _x)
@@ -178,6 +184,7 @@ extern void uart4_init(void);
 #if USE_UART5
 extern struct uart_periph uart5;
 extern void uart5_init(void);
+extern void WEAK uart5_handler(void);
 
 #define UART5Init() uart_periph_init(&uart5)
 #define UART5CheckFreeSpace(_x) uart_check_free_space(&uart5, _x)
@@ -194,6 +201,7 @@ extern void uart5_init(void);
 #if USE_UART6
 extern struct uart_periph uart6;
 extern void uart6_init(void);
+extern void WEAK uart6_handler(void);
 
 #define UART6Init() uart_periph_init(&uart6)
 #define UART6CheckFreeSpace(_x) uart_check_free_space(&uart6, _x)

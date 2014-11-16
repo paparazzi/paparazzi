@@ -652,6 +652,8 @@ void event_task_ap( void ) {
 #if USE_I2C0 || USE_I2C1 || USE_I2C2 || USE_I2C3
   i2c_event();
 #endif
+
+  uart_event();
 #endif
 
 #if USE_AHRS && USE_IMU

@@ -43,6 +43,7 @@
 #include "firmwares/fixedwing/autopilot.h"
 #include "paparazzi.h"
 #include "mcu_periph/i2c.h"
+#include "mcu_periph/uart.h"
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -187,6 +188,8 @@ void event_task_fbw( void) {
 #if USE_I2C0 || USE_I2C1 || USE_I2C2 || USE_I2C3
   i2c_event();
 #endif
+
+  uart_event();
 
 #ifdef INTER_MCU
 #if defined MCU_SPI_LINK | defined MCU_UART_LINK

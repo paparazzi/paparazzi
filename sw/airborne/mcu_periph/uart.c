@@ -212,3 +212,27 @@ uint8_t uart_getch(struct uart_periph* p) {
   p->rx_extract_idx = (p->rx_extract_idx + 1) % UART_RX_BUFFER_SIZE;
   return ret;
 }
+
+void WEAK uart_event(void) {
+#if USE_UART0
+  uart0_handler();
+#endif
+#if USE_UART1
+  uart1_handler();
+#endif
+#if USE_UART2
+  uart2_handler();
+#endif
+#if USE_UART3
+  uart3_handler();
+#endif
+#if USE_UART4
+  uart4_handler();
+#endif
+#if USE_UART5
+  uart5_handler();
+#endif
+#if USE_UART6
+  uart6_handler();
+#endif
+}

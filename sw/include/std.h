@@ -228,8 +228,10 @@ static inline bool_t str_equal(const char * a, const char * b) {
 
 #ifdef __GNUC__
 #  define UNUSED __attribute__((__unused__))
+#  define WEAK __attribute__((weak))
 #else
 #  define UNUSED
+#  define WEAK
 #endif
 
 #endif /* STD_H */

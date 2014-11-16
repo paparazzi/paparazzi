@@ -84,8 +84,6 @@
  */
 #include "subsystems/imu.h"
 
-void navdata_event(void);
-
 static inline void imu_ardrone2_event ( void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
 {
   navdata_update();
@@ -100,7 +98,6 @@ static inline void imu_ardrone2_event ( void (* _gyro_handler)(void), void (* _a
     _accel_handler();
     _mag_handler();
   }
-  navdata_event();
 }
 
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {  \

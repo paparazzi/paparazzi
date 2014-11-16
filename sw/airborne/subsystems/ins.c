@@ -36,7 +36,6 @@
 struct Ins ins;
 
 
-#define WEAK __attribute__((weak))
 // weak functions, used if not explicitly provided by implementation
 
 void WEAK ins_periodic(void) {}

@@ -49,17 +49,4 @@ static inline int uart_speed(int def) {
 }
 #define UART_SPEED(_def) uart_speed(_def)
 
-#define UART1_irq_handler usart1_irq_handler
-#define UART2_irq_handler usart2_irq_handler
-#define UART3_irq_handler usart3_irq_handler
-#define UART5_irq_handler usart5_irq_handler
-
-#if USE_UART0
-extern void uart0_handler(void);
-#endif
-
-#if USE_UART1
-extern void uart1_handler(void);
-#endif
-
 #endif /* UART_ARCH_H */

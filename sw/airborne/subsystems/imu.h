@@ -34,7 +34,7 @@
 
 /* must be defined by underlying hardware */
 extern void imu_impl_init(void);
-extern void imu_periodic(void);
+extern void WEAK imu_periodic(void); //Optional
 
 /** abstract IMU interface providing fixed point interface  */
 struct Imu {
