@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Gautier Hattenberger
+ * Copyright (C) 2014 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -44,6 +43,14 @@ void mpu9250_i2c_init(struct Mpu9250_I2c *mpu, struct i2c_periph *i2c_p, uint8_t
   mpu->data_available = FALSE;
   mpu->config.initialized = FALSE;
   mpu->config.init_status = MPU9250_CONF_UNINIT;
+
+  /* mag is declared as slave to call the configure function,
+   * regardless if it is an actual MPU slave or passthrough
+   */
+  //mpu->config.nb_slaves = 1;
+  /* set callback function to configure mag */
+  //mpu->config.slaves[0].configure = &imu_mpu9250_configure_mag_slave;
+
 
   mpu->slave_init_status = MPU9250_I2C_CONF_UNINIT;
 }
@@ -119,6 +126,18 @@ void mpu9250_i2c_event(struct Mpu9250_I2c *mpu)
     }
   }
 }
+
+/** callback function to configure ak8963 mag
+ * @return TRUE if mag configuration finished
+ */
+//bool_t imu_mpu9250_configure_mag_slave(Mpu60x0ConfigSet mpu_set __attribute__ ((unused)), void* mpu __attribute__ ((unused)))
+//{
+//  ak8963_start_configure(&imu_mpu9250.akm);
+//  if (imu_mpu9250.akm.initialized)
+//    return TRUE;
+//  else
+//    return FALSE;
+//}
 
 /** @todo: only one slave so far. */
 bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void* mpu)
