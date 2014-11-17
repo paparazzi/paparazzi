@@ -67,5 +67,12 @@ void imu_mpu9250_report(void)
     (int32_t)(mpu9250.data_rates.rates.r)
   };
   DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice, &rates.p, &rates.q, &rates.r);
+
+  struct Int32Vect3 mag = {
+    (int32_t)(mpu9250.akm.data.vect.x),
+    (int32_t)(mpu9250.akm.data.vect.y),
+    (int32_t)(mpu9250.akm.data.vect.z)
+  };
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
 }
 

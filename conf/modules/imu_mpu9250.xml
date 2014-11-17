@@ -20,6 +20,7 @@
     <file name="imu_mpu9250.c"/>
     <file name="mpu9250.c" dir="peripherals"/>
     <file name="mpu9250_i2c.c" dir="peripherals"/>
+    <file name="ak8963.c" dir="peripherals"/>
     <define name="USE_I2C"/>
     <define name="IMU_MPU9250_I2C_DEV" value="$(IMU_MPU9250_I2C_DEV)"/>
   </makefile>

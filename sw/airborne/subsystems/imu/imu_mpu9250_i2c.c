@@ -19,7 +19,7 @@
  */
 
 /**
- * @file subsystems/imu/imu_mpu9250.c
+ * @file subsystems/imu/imu_mpu9250_i2c.c
  *
  * IMU driver for the MPU9250 using I2C
  *
@@ -31,21 +31,29 @@
 
 #if !defined IMU_MPU9250_GYRO_LOWPASS_FILTER && !defined IMU_MPU9250_ACCEL_LOWPASS_FILTER && !defined  IMU_MPU9250_SMPLRT_DIV
 #if (PERIODIC_FREQUENCY == 60) || (PERIODIC_FREQUENCY == 120)
-/* Accelerometer: Bandwidth 44Hz, Delay 4.9ms
- * Gyroscope: Bandwidth 42Hz, Delay 4.8ms sampling 1kHz
+/* Accelerometer: Bandwidth 41Hz, Delay 5.9ms
+ * Gyroscope: Bandwidth 41Hz, Delay 5.9ms sampling 1kHz
+ * Output rate: 100Hz
  */
 #define IMU_MPU9250_GYRO_LOWPASS_FILTER MPU9250_DLPF_GYRO_41HZ
 #define IMU_MPU9250_ACCEL_LOWPASS_FILTER MPU9250_DLPF_ACCEL_41HZ
 #define IMU_MPU9250_SMPLRT_DIV 9
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
 #elif PERIODIC_FREQUENCY == 512
-/* Accelerometer: Bandwidth 260Hz, Delay 0ms
- * Gyroscope: Bandwidth 256Hz, Delay 0.98ms sampling 8kHz
+/* Accelerometer: Bandwidth 184Hz, Delay 5.8ms
+ * Gyroscope: Bandwidth 250Hz, Delay 0.97ms sampling 8kHz
+ * Output rate: 2kHz
  */
-#define IMU_MPU9250_GYRO_LOWPASS_FILTER MPU9250_DLPF_GYRO_41HZ
-#define IMU_MPU9250_ACCEL_LOWPASS_FILTER MPU9250_DLPF_ACCEL_41HZ
+#define IMU_MPU9250_GYRO_LOWPASS_FILTER MPU9250_DLPF_GYRO_250HZ
+#define IMU_MPU9250_ACCEL_LOWPASS_FILTER MPU9250_DLPF_ACCEL_184HZ
 #define IMU_MPU9250_SMPLRT_DIV 3
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 2kHz at 8kHz internal sampling")
+#else
+/* By default, don't go too fast */
+#define IMU_MPU9250_SMPLRT_DIV 9
+#define IMU_MPU9250_GYRO_LOWPASS_FILTER MPU9250_DLPF_GYRO_41HZ
+#define IMU_MPU9250_ACCEL_LOWPASS_FILTER MPU9250_DLPF_ACCEL_41HZ
+PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
 #endif
 #endif
 PRINT_CONFIG_VAR(IMU_MPU9250_SMPLRT_DIV)
@@ -122,20 +130,24 @@ void imu_mpu9250_event(void)
       (int32_t)(imu_mpu9250.mpu.data_rates.value[IMU_MPU9250_CHAN_Y]),
       (int32_t)(imu_mpu9250.mpu.data_rates.value[IMU_MPU9250_CHAN_Z])
     };
-    //struct Int32Vect3 mag = {
-    //  (int32_t)(imu_mpu9250.mpu.data_mag.value[IMU_MPU9250_CHAN_X]),
-    //  (int32_t)(imu_mpu9250.mpu.data_mag.value[IMU_MPU9250_CHAN_Y]),
-    //  (int32_t)(imu_mpu9250.mpu.data_mag.value[IMU_MPU9250_CHAN_Z])
-    //};
     // unscaled vector
     VECT3_COPY(imu.accel_unscaled, accel);
     RATES_COPY(imu.gyro_unscaled, rates);
-    //VECT3_COPY(imu.mag_unscaled, mag);
 
     imu_mpu9250.mpu.data_available = FALSE;
     imu_mpu9250.gyro_valid = TRUE;
     imu_mpu9250.accel_valid = TRUE;
-    //imu_mpu9250.mag_valid = TRUE;
+  }
+  // Test if mag data are updated
+  if (imu_mpu9250.mpu.akm.data_available) {
+    struct Int32Vect3 mag = {
+      (int32_t)(imu_mpu9250.mpu.akm.data.value[IMU_MPU9250_CHAN_X]),
+      (int32_t)(imu_mpu9250.mpu.akm.data.value[IMU_MPU9250_CHAN_Y]),
+      (int32_t)(imu_mpu9250.mpu.akm.data.value[IMU_MPU9250_CHAN_Z])
+    };
+    VECT3_COPY(imu.mag_unscaled, mag);
+    imu_mpu9250.mag_valid = TRUE;
+    imu_mpu9250.mpu.akm.data_available = FALSE;
   }
 
 }

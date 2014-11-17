@@ -19,14 +19,14 @@
  */
 
 /**
- * @file subsystems/imu/imu_mpu9250.h
+ * @file subsystems/imu/imu_mpu9250_i2c.h
  *
  * IMU driver for the MPU9250 using I2C
  *
  */
 
-#ifndef IMU_MPU9250_H
-#define IMU_MPU9250_H
+#ifndef IMU_MPU9250_I2C_H
+#define IMU_MPU9250_I2C_H
 
 #include "std.h"
 #include "generated/airframe.h"
@@ -98,4 +98,4 @@ static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler
   }
 }
 
-#endif /* IMU_MPU9250_H */
+#endif /* IMU_MPU9250_I2C_H */

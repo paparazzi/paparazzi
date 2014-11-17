@@ -8,14 +8,14 @@ ifeq ($(TARGET), ap)
   IMU_MPU9250_CFLAGS  = -DUSE_IMU
 endif
 
-IMU_MPU9250_CFLAGS += -DIMU_TYPE_H=\"imu/imu_mpu9250.h\"
+IMU_MPU9250_CFLAGS += -DIMU_TYPE_H=\"imu/imu_mpu9250_i2c.h\"
 IMU_MPU9250_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
-IMU_MPU9250_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_mpu9250.c
+IMU_MPU9250_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_mpu9250_i2c.c
 IMU_MPU9250_SRCS   += peripherals/mpu9250.c
 IMU_MPU9250_SRCS   += peripherals/mpu9250_i2c.c
 
 # Magnetometer
-#IMU_MPU9250_SRCS   += peripherals/ak8963.c
+IMU_MPU9250_SRCS   += peripherals/ak8963.c
 
 
 # set default i2c bus

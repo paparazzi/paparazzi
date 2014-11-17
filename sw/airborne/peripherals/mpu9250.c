@@ -81,7 +81,7 @@ void mpu9250_send_config(Mpu9250ConfigSet mpu_set, void* mpu, struct Mpu9250Conf
       break;
     case MPU9250_CONF_DLPF_ACCEL:
       /* configure digital low pass filter fir accelerometer */
-      mpu_set(mpu, MPU9250_REG_CONFIG, config->dlpf_accel_cfg);
+      mpu_set(mpu, MPU9250_REG_ACCEL_CONFIG_2, config->dlpf_accel_cfg);
       config->init_status++;
       break;
     case MPU9250_CONF_GYRO:

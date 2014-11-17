@@ -27,6 +27,8 @@
 
 #include "peripherals/mpu9250_i2c.h"
 
+bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set __attribute__ ((unused)), void* mpu __attribute__ ((unused)));
+
 void mpu9250_i2c_init(struct Mpu9250_I2c *mpu, struct i2c_periph *i2c_p, uint8_t addr)
 {
   /* set i2c_peripheral */
@@ -44,13 +46,16 @@ void mpu9250_i2c_init(struct Mpu9250_I2c *mpu, struct i2c_periph *i2c_p, uint8_t
   mpu->config.initialized = FALSE;
   mpu->config.init_status = MPU9250_CONF_UNINIT;
 
+  /* "internal" ak8963 magnetometer */
+  ak8963_init(&mpu->akm, i2c_p, MPU9250_MAG_ADDR);
   /* mag is declared as slave to call the configure function,
    * regardless if it is an actual MPU slave or passthrough
    */
-  //mpu->config.nb_slaves = 1;
+  mpu->config.nb_slaves = 1;
   /* set callback function to configure mag */
-  //mpu->config.slaves[0].configure = &imu_mpu9250_configure_mag_slave;
-
+  mpu->config.slaves[0].configure = &imu_mpu9250_configure_mag_slave;
+  /* read the mag directly for now */
+  mpu->config.i2c_bypass = TRUE;
 
   mpu->slave_init_status = MPU9250_I2C_CONF_UNINIT;
 }
@@ -80,6 +85,12 @@ void mpu9250_i2c_read(struct Mpu9250_I2c *mpu)
     /* set read bit and multiple byte bit, then address */
     mpu->i2c_trans.buf[0] = MPU9250_REG_INT_STATUS;
     i2c_transceive(mpu->i2c_p, &(mpu->i2c_trans), mpu->i2c_trans.slave_addr, 1, mpu->config.nb_bytes);
+    /* read mag */
+#ifdef MPU9250_MAG_PRESCALER
+    RunOnceEvery(MPU9250_MAG_PRESCALER, ak8963_read(&mpu->akm));
+#else
+    ak8963_read(&mpu->akm);
+#endif
   }
 }
 
@@ -125,19 +136,23 @@ void mpu9250_i2c_event(struct Mpu9250_I2c *mpu)
         break;
     }
   }
+  // Ak8963 event function
+  ak8963_event(&mpu->akm);
 }
 
 /** callback function to configure ak8963 mag
  * @return TRUE if mag configuration finished
  */
-//bool_t imu_mpu9250_configure_mag_slave(Mpu60x0ConfigSet mpu_set __attribute__ ((unused)), void* mpu __attribute__ ((unused)))
-//{
-//  ak8963_start_configure(&imu_mpu9250.akm);
-//  if (imu_mpu9250.akm.initialized)
-//    return TRUE;
-//  else
-//    return FALSE;
-//}
+bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set __attribute__ ((unused)), void* mpu)
+{
+  struct Mpu9250_I2c* mpu_i2c = (struct Mpu9250_I2c*)(mpu);
+
+  ak8963_configure(&mpu_i2c->akm);
+  if (mpu_i2c->akm.initialized)
+    return TRUE;
+  else
+    return FALSE;
+}
 
 /** @todo: only one slave so far. */
 bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void* mpu)
