@@ -40,17 +40,13 @@ void ak8963_init(struct Ak8963 *ak, struct i2c_periph *i2c_p, uint8_t addr)
   ak->i2c_trans.status = I2CTransDone;
   ak->initialized = FALSE;
   ak->init_status = AK_CONF_UNINIT;
-
-  // Soft reset the device
-  ak->i2c_trans.buf[0] = AK8963_REG_CNTL2;
-  ak->i2c_trans.buf[1] = 1;
-  i2c_transmit(ak->i2c_p, &(ak->i2c_trans), ak->i2c_trans.slave_addr, 2);
+  ak->data_available = FALSE;
 }
 
 void ak8963_configure(struct Ak8963 *ak)
 {
   // Only configure when not busy
-  if (ak->i2c_trans.status != I2CTransSuccess && ak->i2c_trans.status != I2CTransFailed) {
+  if (ak->i2c_trans.status != I2CTransSuccess && ak->i2c_trans.status != I2CTransFailed && ak->i2c_trans.status != I2CTransDone) {
     return;
   }
 
@@ -117,6 +113,7 @@ void ak8963_event(struct Ak8963 *ak)
         ak->data.vect.x = Int16FromBuf(ak->i2c_trans.buf, 0);
         ak->data.vect.y = Int16FromBuf(ak->i2c_trans.buf, 2);
         ak->data.vect.z = Int16FromBuf(ak->i2c_trans.buf, 4);
+        ak->data_available = TRUE;
 
         // Read second status register to be ready for reading again
         ak->i2c_trans.buf[0] = AK8963_REG_ST2;
@@ -125,15 +122,21 @@ void ak8963_event(struct Ak8963 *ak)
         break;
       }
 
-      ak->i2c_trans.buf[0] = AK8963_REG_HXL;
-      i2c_transceive(ak->i2c_p, &(ak->i2c_trans), ak->i2c_trans.slave_addr, 1, 6);
       break;
 
     default:
-      // Goto idle
-      ak->data_available = TRUE;
-      ak->i2c_trans.status = I2CTransDone;
-      ak->status = AK_STATUS_IDLE;
+      if (ak->i2c_trans.status == I2CTransSuccess || ak->i2c_trans.status == I2CTransFailed) {
+        // Goto idle
+        ak->i2c_trans.status = I2CTransDone;
+        ak->status = AK_STATUS_IDLE;
+        // check overrun
+        //if (bit_is_set(ak->i2c_trans.buf[0], 3)) {
+        //  ak->data_available = FALSE;
+        //} else {
+        //  ak->data_available = TRUE;
+        //}
+      }
       break;
   }
 }
+
