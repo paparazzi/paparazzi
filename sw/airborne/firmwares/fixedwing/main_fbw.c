@@ -189,7 +189,9 @@ void event_task_fbw( void) {
   i2c_event();
 #endif
 
+#ifndef SITL
   uart_event();
+#endif
 
 #ifdef INTER_MCU
 #if defined MCU_SPI_LINK | defined MCU_UART_LINK

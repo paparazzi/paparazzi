@@ -275,7 +275,9 @@ STATIC_INLINE void main_event( void ) {
 
   i2c_event();
 
+#ifndef SITL
   uart_event();
+#endif
 
 #if USE_UDP
   udp_event();
