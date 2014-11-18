@@ -249,11 +249,11 @@ static inline uint32_t int32_vect2_norm(struct Int32Vect2* v)
 /** normalize 2D vector inplace */
 static inline void int32_vect2_normalize(struct Int32Vect2* v, uint8_t frac)
 {
-  const uint32_t f = BFP_OF_REAL((1.), frac);
   const uint32_t n = int32_vect2_norm(v);
   if (n > 0) {
-    v->x = v->x * f / n;
-    v->y = v->y * f / n;
+    const int32_t f = BFP_OF_REAL((1.), frac);
+    v->x = v->x * f / (int32_t)n;
+    v->y = v->y * f / (int32_t)n;
   }
 }
 
