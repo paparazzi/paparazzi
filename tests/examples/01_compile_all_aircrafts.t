@@ -37,6 +37,26 @@ $|++;
 my $xmlSimple = XML::Simple->new(ForceArray => 1);
 my $conf = $xmlSimple->XMLin("$ENV{'PAPARAZZI_HOME'}/conf/conf.xml");
 
+
+sub get_num_targets
+{
+    my $num_targets = 0;
+    foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
+    {
+        my $airframe = $conf->{'aircraft'}->{$aircraft}->{'airframe'};
+        my $airframe_config = $xmlSimple->XMLin("$ENV{'PAPARAZZI_HOME'}/conf/$airframe");
+        foreach my $process (sort keys %{$airframe_config->{'firmware'}})
+        {
+            foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}->{'target'}})
+            {
+                $num_targets++;
+            }
+        }
+    }
+    return $num_targets;
+}
+plan tests => get_num_targets()+1;
+
 ok(1, "Parsed the configuration file");
 foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
 {
