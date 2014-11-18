@@ -15,7 +15,7 @@ else
 	TEST_DIRECTORIES = $(NON_HARDWARE_TEST_DIRS) $(HARDWARE_TEST_DIRS)
 endif
 endif
-TEST_FILES ?= $(shell ls $(TEST_DIRECTORIES:%=%/*.t))
+TEST_FILES ?= $(shell ls $(TEST_DIRECTORIES:%=%/*.t) 2> /dev/null)
 
 ifneq ($(JUNIT),)
 	PERLENV=PERL_TEST_HARNESS_DUMP_TAP=$(PAPARAZZI_SRC)/tests/results
@@ -26,6 +26,7 @@ else
 endif
 
 test:
+	$(Q)make -C math test
 	$(Q)$(PERLENV) $(PERL) "-e" "$(RUNTESTS)"
 
 clean:
