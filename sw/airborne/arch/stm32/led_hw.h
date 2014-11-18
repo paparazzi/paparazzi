@@ -71,9 +71,8 @@ extern uint8_t led_status[NB_LED];
 /* PC15 led_data */
 
 #define LED_INIT(_i) {                                  \
-    rcc_peripheral_enable_clock(&RCC_APB2ENR,           \
-                                RCC_APB2ENR_IOPAEN |    \
-                                RCC_APB2ENR_IOPCEN);    \
+    rcc_periph_clock_enable(RCC_GPIOA);                 \
+    rcc_periph_clock_enable(RCC_GPIOC);                 \
     gpio_set_mode(GPIOA,                                \
                   GPIO_MODE_OUTPUT_50_MHZ,              \
                   GPIO_CNF_OUTPUT_PUSHPULL,             \

@@ -28,7 +28,6 @@
 #include "led.h"
 
 /* UART1 */
-#define A_PERIPH   RCC_APB2ENR_IOPAEN
 #define A_PORT     GPIOA
 #define A_RX_PIN   GPIO10
 #define A_RX_PORT  A_PORT
@@ -36,7 +35,6 @@
 #define A_TX_PORT  A_PORT
 
 /* UART2 */
-#define B_PERIPH   RCC_APB2ENR_IOPAEN
 #define B_PORT     GPIOA
 #define B_RX_PIN   GPIO3
 #define B_RX_PORT  B_PORT
@@ -57,8 +55,7 @@ int main(void) {
   sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
 
   /* init RCC */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, A_PERIPH);
-  // rccp_perihperal_enable_clock(&RCC_APB2ENR, B_PERIPH);
+  rcc_periph_clock_enable(RCC_GPIOA);
 
   /* Init GPIO for rx pins */
   gpio_set(A_RX_PORT, A_RX_PIN);
