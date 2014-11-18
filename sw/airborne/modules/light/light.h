@@ -30,10 +30,6 @@
 
 #include <inttypes.h>
 
-#ifndef LIGHT_LED_STROBE
-#define LIGHT_LED_STROBE 2
-#endif
-
 extern uint8_t strobe_light_mode;
 extern uint8_t nav_light_mode;
 
