@@ -44,6 +44,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let nav_period = 1./.4. (* s *)
   let monitor_period = 1. (* s *)
   let rc_period = 1./.40. (* s *)
+  let sys_time_period = 1./.120. (* s *)
 
   let msg = fun name ->
     ExtXml.child Data.messages_ap ~select:(fun x -> ExtXml.attrib x "name" = name) "message"
@@ -125,6 +126,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     Stdlib.timer rc_period send_ppm; (** FIXME: should use time_scale *)
     window#show ()
 
+  external sys_time_task : unit -> unit = "sim_sys_time_task"
   external periodic_task : unit -> unit = "sim_periodic_task"
   external nav_task : unit -> unit = "sim_nav_task"
   external monitor_task : unit -> unit = "sim_monitor_task"
@@ -195,6 +197,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     Stdlib.timer ~scale:time_scale periodic_period periodic_task;
     Stdlib.timer ~scale:time_scale nav_period nav_task;
     Stdlib.timer ~scale:time_scale monitor_period monitor_task;
+    Stdlib.timer ~scale:time_scale sys_time_period sys_time_task;
 
     (* Forward or broacast messages according to "link" mode *)
     Hashtbl.iter

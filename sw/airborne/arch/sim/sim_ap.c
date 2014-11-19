@@ -47,6 +47,20 @@ uint16_t datalink_time = 0;
 
 uint8_t ac_id;
 
+#if PERIODIC_FREQUENCY != 60
+#warning "Simple OCaml sim can currently only handle a PERIODIC_FREQUENCY of 60Hz"
+#endif
+
+#if SYS_TIME_FREQUENCY != 120
+#warning "Simple OCaml sim can currently only handle a SYS_TIME_FREQUENCY of 120Hz"
+#endif
+
+/** needs to be called at SYS_TIME_FREQUENCY */
+value sim_sys_time_task(value unit) {
+  sys_tick_handler();
+  return unit;
+}
+
 value sim_periodic_task(value unit) {
   sensors_task();
   attitude_loop();
