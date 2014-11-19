@@ -1,3 +1,34 @@
+Paparazzi 5.2.1_stable
+======================
+
+Maintenance release
+
+- build system: remove 'load' target as it is a builtin directive in Make 4.0
+- fix FlightGear visualization on 32bit systems
+- flight plans: set primitive should not delay next stage
+  [#824] (https://github.com/paparazzi/paparazzi/pull/824)
+- flight plans: fix return primitive
+- generators: gen_airframe: don't force float if unit = code_unit
+- sys_time: up to 16 sys_time timers by default (was 8)
+- OCaml: fix Pprz.sprint_value for uint32, e.g. for NatNet
+  [#831] (https://github.com/paparazzi/paparazzi/issues/831)
+- Rotorcraft: auto-enable UNLOCKED_HOME_MODE if HOME mode is used on RC
+  [#823] (https://github.com/paparazzi/paparazzi/issues/823)
+- Rotorcraft: only go to HOME mode if in NAV
+  [#850] (https://github.com/paparazzi/paparazzi/issues/850)
+- Fixedwing: If USE_BARO_BOARD: separate baro timer
+  Before baro_periodic was running at PERIODIC_FREQUENCY in sensors_task,
+  which is too fast for ms5611 if periodic freq is > 100Hz.
+- INS alt_float: if USE_BARO_BOARD, dt is 1/BARO_PERIODIC_FREQUENCY
+  [#848] (https://github.com/paparazzi/paparazzi/pull/848)
+- STM32: backport fix for using multiple ADs
+  [#822] (https://github.com/paparazzi/paparazzi/pull/822)
+- LPC21: don't override T0CCR values when setting ppm and trig_ext
+- IMU driver for Lisa/M/MX 2.1
+  [#817] (https://github.com/paparazzi/paparazzi/pull/817)
+- support for HBmini board
+  [#864] (https://github.com/paparazzi/paparazzi/pull/864)
+
 Paparazzi 5.2.0_stable
 =======================
 
