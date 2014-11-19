@@ -10,17 +10,17 @@
 #
 # optional environment variables:
 #  TEST_VERBOSE : set to 1 to print the compile output even if there was no error
-#  SHOW_WARNINGS : set to 1 to print the complete compile output if there were warnings
-#  SHOW_WARNINGS_ONLY : set to 1 to print only the warnings
+#  SHOW_WARNINGS_FULL : set to 1 to print the complete compile output if there were warnings
+#  HIDE_WARNINGS : set to 1 to disable printing of warnings
 #
 # environment variables passed on to make:
 #  J=AUTO : detect number of CPUs to set jobs for parallel compilation
 #
 # Examples on how to test compile all aircrafts/targets in your current conf.xml:
+# only showing full compile output if there has been an error, if there were warnings only print those
+#  prove test/examples
 # with parallel compilation and showing full output during compilation
 #  J=AUTO prove tests/examples -v
-# only showing full compile output if there has been an error, if there were warnings only print those
-#  SHOW_WARNINGS_ONLY=1 prove test/examples
 # with parallel compilation and treating all warnings as errors:
 #  J=AUTO USER_CFLAGS=-Werror prove tests/examples
 #
@@ -81,17 +81,17 @@ foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
                 warn "$output\n";
             }
             # if successful, still print warnings if requested
-            elsif ($warnings && ($ENV{'SHOW_WARNINGS'} || $ENV{'SHOW_WARNINGS_ONLY'})) {
+            elsif ($warnings && !$ENV{'HIDE_WARNINGS'}) {
                 if (!$ENV{'TEST_VERBOSE'}) {
                     warn "\nWarning: AIRCRAFT=$aircraft target=$target compiled sucessfully but had warnings:\n";
-                    if ($ENV{'SHOW_WARNINGS_ONLY'}) {
-                        warn "$warnings\n";
-                    }
-                    else {
+                    if ($ENV{'SHOW_WARNINGS_FULL'}) {
                         warn "$output\n";
                     }
+                    else {
+                        warn "$warnings\n";
+                    }
                 }
-                if (!$ENV{'SHOW_WARNINGS_ONLY'}) {
+                if ($ENV{'SHOW_WARNINGS_FULL'}) {
                     warn "\nAIRCRAFT=$aircraft target=$target compiled sucessfully but had warnings.\n\n";
                 }
             }
