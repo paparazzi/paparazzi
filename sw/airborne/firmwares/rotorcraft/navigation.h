@@ -60,7 +60,7 @@ extern int32_t nav_heading; ///< with #INT32_ANGLE_FRAC
 extern float nav_radius;
 
 extern int32_t nav_leg_progress;
-extern int32_t nav_leg_length;
+extern uint32_t nav_leg_length;
 
 extern uint8_t vertical_mode;
 extern uint32_t nav_throttle;  ///< direct throttle from 0:MAX_PPRZ, used in VERTICAL_MODE_MANUAL

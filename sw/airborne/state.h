@@ -277,7 +277,7 @@ struct State {
    * Norm of horizontal ground speed.
    * Unit: m/s in BFP with #INT32_SPEED_FRAC
    */
-  int32_t h_speed_norm_i;
+  uint32_t h_speed_norm_i;
 
   /**
    * Direction of horizontal ground speed.
@@ -816,7 +816,7 @@ static inline struct EcefCoor_i* stateGetSpeedEcef_i(void) {
 }
 
 /// Get norm of horizontal ground speed (int).
-static inline int32_t* stateGetHorizontalSpeedNorm_i(void) {
+static inline uint32_t* stateGetHorizontalSpeedNorm_i(void) {
   if (!bit_is_set(state.speed_status, SPEED_HNORM_I))
     stateCalcHorizontalSpeedNorm_i();
   return &state.h_speed_norm_i;
