@@ -78,6 +78,7 @@ void ms5611_i2c_periodic_check(struct Ms5611_I2c *ms)
   switch (ms->status) {
     case MS5611_STATUS_RESET:
       ms->status = MS5611_STATUS_RESET_OK;
+      ms->i2c_trans.status = I2CTransDone;
       break;
     case MS5611_STATUS_RESET_OK:
       if (ms->i2c_trans.status == I2CTransDone) {
@@ -129,6 +130,7 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms) {
           ms->data.d1 = (ms->i2c_trans.buf[0] << 16) |
                         (ms->i2c_trans.buf[1] << 8) |
                          ms->i2c_trans.buf[2];
+          ms->i2c_trans.status = I2CTransDone;
           if (ms->data.d1 == 0) {
             /* if value is zero, it was read to soon and is invalid, back to idle */
             ms->status = MS5611_STATUS_IDLE;
@@ -146,6 +148,7 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms) {
           ms->data.d2 = (ms->i2c_trans.buf[0] << 16) |
                         (ms->i2c_trans.buf[1] << 8) |
                          ms->i2c_trans.buf[2];
+          ms->i2c_trans.status = I2CTransDone;
           if (ms->data.d2 == 0) {
             /* if value is zero, it was read to soon and is invalid, back to idle */
             ms->status = MS5611_STATUS_IDLE;
@@ -159,9 +162,9 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms) {
           break;
 
         default:
+          ms->i2c_trans.status = I2CTransDone;
           break;
       }
-      ms->i2c_trans.status = I2CTransDone;
     }
   }
   else if (ms->status != MS5611_STATUS_UNINIT) { // Configuring but not yet initialized
@@ -178,6 +181,7 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms) {
           /* read prom data */
           ms->data.c[ms->prom_cnt++] = (ms->i2c_trans.buf[0] << 8) |
                                         ms->i2c_trans.buf[1];
+          ms->i2c_trans.status = I2CTransDone;
           if (ms->prom_cnt < PROM_NB) {
             /* get next prom data */
             ms->i2c_trans.buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
@@ -195,10 +199,10 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms) {
             }
           }
         }
-        ms->i2c_trans.status = I2CTransDone;
         break;
 
       default:
+        ms->i2c_trans.status = I2CTransDone;
         break;
     }
   }
