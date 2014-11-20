@@ -226,7 +226,7 @@ void imu_SetBodyToImuCurrent(float set) {
 
 // weak functions, used if not explicitly provided by implementation
 
-void WEAK imu_scale_gyro(void)
+void WEAK imu_periodic(void)
 {
 }
 
