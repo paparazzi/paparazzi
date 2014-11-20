@@ -37,6 +37,7 @@
       </subsystem>
     </target>
     <target name="fbw" board="lisa_m_2.0">
+      <configure name="SEPARATE_FBW" value="1"/>
       <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="1"/>
       <define name="LINK_MCU_LED" value="1"/>
       <configure name="HAS_LUFTBOOT" value="0"/>

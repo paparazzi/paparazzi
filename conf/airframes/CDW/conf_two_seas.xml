@@ -6,7 +6,8 @@
    radio="radios/T8FG_SBUS.xml"
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/versatile.xml"
-   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
+   settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
+   settings_modules="modules/light.xml"
    gui_color="blue"
   />
 </conf>
