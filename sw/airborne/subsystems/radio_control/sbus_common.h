@@ -68,6 +68,10 @@
 #define RADIO_CONTROL_NB_CHANNEL SBUS_NB_CHANNEL
 #endif
 
+#if RADIO_CONTROL_NB_CHANNEL > SBUS_NB_CHANNEL
+#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 16."
+#endif
+
 /**
  * SBUS structure
  */

@@ -34,6 +34,10 @@
 #define RADIO_CONTROL_NB_CHANNEL 12
 #endif
 
+#if RADIO_CONTROL_NB_CHANNEL > 12
+#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 12."
+#endif
+
 /* default channel assignments */
 #ifndef RADIO_THROTTLE
 #define RADIO_THROTTLE   0
