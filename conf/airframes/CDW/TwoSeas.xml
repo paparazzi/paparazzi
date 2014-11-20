@@ -23,6 +23,10 @@
       <subsystem name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART2"/>
       </subsystem>
+      <subsystem name="radio_control" type="sbus_dual">
+        <configure name="SBUS1_PORT" value="UART3"/>
+        <configure name="SBUS2_PORT" value="UART5"/>
+      </subsystem>
       <!-- AP -->
       <subsystem name="control"/>
       <subsystem name="navigation"/>
