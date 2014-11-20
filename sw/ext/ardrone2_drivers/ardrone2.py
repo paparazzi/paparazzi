@@ -6,8 +6,10 @@ import argparse
 import socket
 import telnetlib
 import os
+import sys
 from time import sleep
 from ftplib import FTP
+import ftplib
 
 
 # Check if IP is valid
@@ -102,7 +104,7 @@ def ardrone2_reboot():
 # Install the vision framework
 def ardrone2_install_vision():
     print('Uploading GST')
-    ftp.storbinary("STOR arm_light.tgz", file("bin/arm_light.tgz", "rb"))
+    uploadfile(ftp, "arm_light.tgz", file("bin/arm_light.tgz", "rb"))
     print(execute_command("cd /data/video && tar -xzf arm_light.tgz"))
     print(execute_command("rm -rf /data/video/arm_light.tgz"))
     print('Now Starting Vision')
@@ -134,14 +136,14 @@ def ardrone2_start_vision():
 # Install autoboot script
 def ardrone2_install_autoboot():
     print('Uploading autoboot script')
-    ftp.storbinary("STOR check_update.sh", file("check_update.sh", "rb"))
+    uploadfile(ftp, "check_update.sh", file("check_update.sh", "rb"))
     print(execute_command("mv /data/video/check_update.sh /bin/check_update.sh"))
     print(execute_command("chmod 777 /bin/check_update.sh"))
 
 # Install network script
 def ardrone2_install_network_script():
     print('Uploading Wifi script')
-    ftp.storbinary("STOR wifi_setup.sh", file("wifi_setup.sh", "rb"))
+    uploadfile(ftp, "wifi_setup.sh", file("wifi_setup.sh", "rb"))
     print(execute_command("mv /data/video/wifi_setup.sh /bin/wifi_setup.sh"))
     print(execute_command("chmod 777 /bin/wifi_setup.sh"))
 
@@ -202,6 +204,17 @@ def ardrone2_status():
     # Request the filesystem status
     print('\n======================== Filesystem Status ========================')
     print(check_filesystem())
+
+# Upload ftp and catch memory-full error
+def uploadfile(ftp, filename, content):
+    try:
+        ftp.storbinary("STOR " + filename, content)
+    except ftplib.error_temp:
+        print("FTP UPLOAD ERROR: Uploading FAILED: Probably your ARDrone memory is full.")
+        sys.exit()
+    except:
+        print("FTP UPLOAD ERROR: Maybe your ARDrone memory is full?", sys.exc_info()[0])
+        sys.exit()
 
 
 # Parse the arguments
@@ -387,7 +400,7 @@ elif args.command == 'startvision':
 
 elif args.command == 'upload_gst_module':
     print('Uploading ...' + args.file)
-    ftp.storbinary("STOR " + args.file, file(args.file, "rb"))
+    uploadfile(ftp, args.file, file(args.file, "rb"))
     execute_command("chmod 777 /data/video/" + args.file)
     execute_command("mv /data/video/" + args.file + " /data/video/opt/arm/gst/lib/gstreamer-0.10")
     if check_vision_running():
@@ -407,7 +420,7 @@ elif args.command == 'upload_gst_module':
 elif args.command == 'insmod':
     modfile = split_into_path_and_file(args.file)
     print('Uploading \'' + modfile[1])
-    ftp.storbinary("STOR " + modfile[1], file(args.file, "rb"))
+    uploadfile(ftp, modfile[1], file(args.file, "rb"))
     print(execute_command("insmod /data/video/" + modfile[1]))
 
 elif args.command == 'upload_file_and_run':
@@ -419,7 +432,7 @@ elif args.command == 'upload_file_and_run':
     sleep(1)
     execute_command("mkdir -p /data/video/" + args.folder)
     print('Uploading \'' + f[1] + "\' from " + f[0] + " to " + args.folder)
-    ftp.storbinary("STOR " + args.folder + "/" + f[1], file(args.file, "rb"))
+    uploadfile(ftp, args.folder + "/" + f[1], file(args.file, "rb"))
     sleep(0.5)
     execute_command("chmod 777 /data/video/" + args.folder + "/" + f[1])
     execute_command("/data/video/" + args.folder + "/" + f[1] + " > /dev/null 2>&1 &")
@@ -431,7 +444,7 @@ elif args.command == 'upload_file':
 
     execute_command("mkdir -p /data/video/" + args.folder)
     print('Uploading \'' + f[1] + "\' from " + f[0] + " to /data/video/" + args.folder)
-    ftp.storbinary("STOR " + args.folder + "/" + f[1], file(args.file, "rb"))
+    uploadfile(ftp, args.folder + "/" + f[1], file(args.file, "rb"))
     print("#pragma message: Upload of " + f[1] + " to ARDrone2 Succes!")
 
 elif args.command == 'download_file':
