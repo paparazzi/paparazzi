@@ -39,8 +39,6 @@
 #define RC_PPM_SIGNED_TICKS_OF_USEC(_x) (_x)
 #define USEC_OF_RC_PPM_TICKS(_x) (_x)
 
-#define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
-
 #if USE_NPS
 extern void radio_control_feed(void);
 #endif

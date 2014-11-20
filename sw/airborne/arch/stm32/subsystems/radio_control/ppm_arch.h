@@ -46,6 +46,4 @@
 #define RC_PPM_SIGNED_TICKS_OF_USEC(_v) (int32_t)((_v)*RC_PPM_TICKS_PER_USEC)
 #define USEC_OF_RC_PPM_TICKS(_v)        ((_v)/RC_PPM_TICKS_PER_USEC)
 
-#define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
-
 #endif /* PPM_ARCH_H */
