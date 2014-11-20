@@ -314,8 +314,11 @@ void periodic_task_fbw( void ) {
 #if OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP
 #warning WARNING DANGER: OUTBACK_CHALLENGE RULE RC_LOST_NO_AP defined. If you loose RC you will NOT go to automatically go to AUTO2 Anymore!!
     set_failsafe_mode();
+#if OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP_IRREVERSIBLE
+#warning WARNING DANGER: OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP_IRREVERSIBLE defined. If you ever temporarly lost RC while in manual, you will failsafe forever even if RC is restored
     commands[COMMAND_FORCECRASH] = 9600;
-#else
+#endif
+    #else
     fbw_mode = FBW_MODE_AUTO;
 #endif
   }
