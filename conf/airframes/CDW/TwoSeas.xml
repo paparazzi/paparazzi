@@ -13,6 +13,7 @@
   <!-- ************************* FIRMWARE ************************* -->
 
   <firmware name="fixedwing">
+    <define name="RADIO_CONTROL_NB_CHANNEL" value="8" />
     <target name="ap" board="lisa_l_1.0">
       <configure name="SEPARATE_FBW" value="1"/>
       <configure name="AHRS_ALIGNER_LED" value="1"/>
