@@ -111,15 +111,20 @@
         <configure name="AUTOPILOT_PORT" value="UART2"/>
         <configure name="MODEM_PORT" value="UART3"/>
         <configure name="MODEM_BAUD" value="B9600"/>
-        </subsystem>
-      <subsystem name="radio_control" type="spektrum">
-      <!-- note that the radio xml is needed for intermcu but MUST contain the same channels as the spektrum defines in the code:
-The spektrum models have fixed names for the channels/functions: https://github.com/paparazzi/paparazzi/blob/v4.0/sw/airborne/arch/stm32/subsystems/radio_control/spektrum_arch.h
--->
+      </subsystem>
+
+      <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="TRUE"/>
+      <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE" value="TRUE"/>
+      <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_NO_AP_MUST_FAILSAFE" value="TRUE"/>
+
+      <subsystem name="actuators" type="pwm"/>
+      <subsystem name="intermcu" type="can"/>
+    </target>
+
+    <subsystem name="radio_control" type="spektrum">
+    <!-- spektrum models have fixed names for the channels/functions: https://github.com/paparazzi/paparazzi/blob/v4.0/sw/airborne/arch/stm32/subsystems/radio_control/spektrum_arch.h -->
 
 <!--
-Also fixed index values by default
-
 RADIO_THROTTLE   0
 RADIO_ROLL       1
 RADIO_PITCH      2
@@ -157,19 +162,8 @@ I am as of yet not sure if the weird info byte is because of a failed bind proce
   (I don't know how old my transmitter is (DX6i) bc I got it from my lab, but the receivers I just ordered from HobbyKing)-->
       <!-- If you want to reverse a channel change the sign of the channel you want to reverse -->
       <!--<define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,-1,-1,-1,1,-1,1,1,1,1,1,1\}"/>-->
-      </subsystem>
+    </subsystem>
 
-      <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="TRUE"/>
-      <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE" value="TRUE"/>
-      <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_NO_AP_MUST_FAILSAFE" value="TRUE"/>
-
-      <subsystem name="actuators" type="pwm"/>
-      <subsystem name="intermcu" type="can"/>
-      <!--subsystem name="intermcu" type="uart">
-        <configure name="INTERMCU_PORT" value="UART2" />
-        <configure name="INTERMCU_BAUD" value="B57600"/>
-      </subsystem-->
-    </target>
 
     <!-- ****************************** SIM *********************************-->
     <target name="sim" board="pc">
