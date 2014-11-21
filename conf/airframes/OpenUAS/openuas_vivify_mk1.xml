@@ -40,7 +40,8 @@
       <define name="RADIO_BRAKE" value="RADIO_AUX1"/>
       <define name="RADIO_HATCH" value="RADIO_AUX2"/>
       <configure name="SEPARATE_FBW" value="1"/>
-      <define name="autopilot_motors_on" value="FALSE"/> <!-- temp fix for geomag, normally only used for rotorcraft -->
+      <define name="autopilot_motors_on" value="FALSE"/>
+      <!-- temp fix for geomag, normally only used for rotorcraft -->
       <define name="SENSOR_SYNC_SEND"/>
       <!-- PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY -->
       <configure name="PERIODIC_FREQUENCY" value="120"/>
@@ -49,7 +50,9 @@
       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
       <define name="USE_AHRS_GPS_ACCELERATIONS"/>
       <configure name="USE_BARO_BOARD" value="FALSE"/>
-      <define name="BAT_CHECKER_DELAY" value="80"/><!-- amount of time it take for the bat to check --><!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
+      <define name="BAT_CHECKER_DELAY" value="80"/>
+      <!-- amount of time it take for the bat to check -->
+      <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
       <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80"/><!-- in seconds-->
       <!--  <subsystem name="current_sensor">-->
       <!-- <define name="USE_ADC_1"/>??-->
@@ -78,7 +81,7 @@
       <subsystem name="telemetry" type="transparent">
         <!-- or use type="xbee_api"> -->
         <configure name="MODEM_BAUD" value="B9600"/>
-        <!--  <configure name="MODEM_BAUD" value="B57600"/>--> <!-- Good to switch on high baud while raw sensor calibaration and testing -->
+        <!--  <configure name="MODEM_BAUD" value="B57600"/>-->
         <configure name="MODEM_PORT" value="UART2"/>
       </subsystem>
 
@@ -114,31 +117,30 @@
       </subsystem>
 
       <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="TRUE"/>
-      <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE" value="TRUE"/>
-      <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_NO_AP_MUST_FAILSAFE" value="TRUE"/>
+      <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE" value="FALSE"/>
+      <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_NO_AP_MUST_FAILSAFE" value="FALSE"/>
 
       <subsystem name="actuators" type="pwm"/>
       <subsystem name="intermcu" type="can"/>
     </target>
 
     <subsystem name="radio_control" type="spektrum">
-    <!-- spektrum models have fixed names for the channels/functions: https://github.com/paparazzi/paparazzi/blob/v4.0/sw/airborne/arch/stm32/subsystems/radio_control/spektrum_arch.h -->
-
-<!--
-RADIO_THROTTLE   0
-RADIO_ROLL       1
-RADIO_PITCH      2
-RADIO_YAW        3
-RADIO_GEAR       4
-RADIO_FLAP       5
-RADIO_AUX1       5
-RADIO_AUX2       6
-RADIO_AUX3       7
-RADIO_AUX4       8
-RADIO_AUX5       9
-RADIO_AUX6     jtag  10
-RADIO_AUX7       11
--->
+      <!-- spektrum models have fixed names for the channels/functions: https://github.com/paparazzi/paparazzi/blob/v4.0/sw/airborne/arch/stm32/subsystems/radio_control/spektrum_arch.h -->
+      <!--
+        RADIO_THROTTLE   0
+        RADIO_ROLL       1
+        RADIO_PITCH      2
+        RADIO_YAW        3
+        RADIO_GEAR       4
+        RADIO_FLAP       5
+        RADIO_AUX1       5
+        RADIO_AUX2       6
+        RADIO_AUX3       7
+        RADIO_AUX4       8
+        RADIO_AUX5       9
+        RADIO_AUX6     jtag  10
+        RADIO_AUX7       11
+      -->
       <!-- ... but if you want to make an "alias" for one of the names, e.g. use AUX2 as a kill switch, define it-->
       <!-- a three way switch -->
       <define name="RADIO_MODE" value="RADIO_GEAR"/>
@@ -146,40 +148,15 @@ RADIO_AUX7       11
       <define name="RADIO_HATCH" value="RADIO_AUX2"/>
       <!-- TODO: diable the kill switch value altogether, a kill switch is surely not wanted on a electric RC plane -->
       <!-- <define name="RADIO_KILL_SWITCH" value="RADIO_FLAP"/> -->
-      <!-- <define name=<define name="RADIO_BRAKE" value="RADIO_AUX2"/>"RADIO_CONTROL_NB_CHANNEL" value="7"/> -->
-      <!--  <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER"/> -->
-      <!--
-Marek wrote:
-I had the same thing and while I haven't fixed it,
-I identified the issue in my case as the satellite sending a transmitter info byte of 0xA2.
-This is DSMX even though my transmitter is set to DSM2.
-
-Since the decoder code treats the 2 to extect two frames, but receives only one,
- the second one is initialize<define name="RADIO_MODE" value="RADIO_GEAR"/>d to all 0s and so the 0 channel is overwritten
-
-I am as of yet not sure if the weird info byte is because of a failed bind procedure
- or something changed in the actuall hardware
-  (I don't know how old my transmitter is (DX6i) bc I got it from my lab, but the receivers I just ordered from HobbyKing)-->
+      <!-- <define name="RADIO_BRAKE" value="RADIO_AUX2"/> -->
+      <!-- <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER"/> -->
       <!-- If you want to reverse a channel change the sign of the channel you want to reverse -->
-      <!--<define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,-1,-1,-1,1,-1,1,1,1,1,1,1\}"/>-->
+      <!-- <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,-1,-1,-1,1,-1,1,1,1,1,1,1\}"/> -->
     </subsystem>
 
 
     <!-- ****************************** SIM *********************************-->
     <target name="sim" board="pc">
-
-      <!--  * To be able to compile make sure to set to PPM even in real life a spektrum receiver is used * -->
-      <subsystem name="radio_control" type="ppm">
-        <define name="RADIO_KILL" value="0"/>
-        <define name="RADIO_AUX4" value="0"/>
-        <define name="RADIO_MODE" value="0"/>
-        <define name="RADIO_BRAKE" value="0"/>
-        <define name="RADIO_HATCH" value="0"/>
-        <define name="BAT_CHECKER_DELAY" value="900"/>
-        <!-- -->
-        <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="900"/>
-        <!-- -->
-      </subsystem>
       <define name="INS_BARO_ID" value="BARO_SIM_SENDER_ID"/>
     </target>
 
@@ -190,6 +167,10 @@ I am as of yet not sure if the weird info byte is because of a failed bind proce
 
   <firmware name="test_progs">
     <target name="test_can" board="lisa_m_2.0"/>
+  </firmware>
+
+  <firmware name="setup">
+    <target name="tunnel" board="lisa_m_2.0"/>
   </firmware>
 
   <!-- ************************* MODULES ************************* -->
@@ -206,12 +187,12 @@ I am as of yet not sure if the weird info byte is because of a failed bind proce
     <!-- to test, analyze performance etc.-->
     <!-- load name="sys_mon.xml"/> -->
     <!--
-   <load name="flight_benchmark.xml">
-     <define name="BENCHMARK_TOLERANCE_AIRSPEED" value="2" unit="m/s"/>
-     <define name="BENCHMARK_TOLERANCE_ALTITUDE" value="4" unit="m"/>
-     <define name="BENCHMARK_TOLERANCE_POSITION" value="6" unit="m"/>
-   </load>
-   -->
+    <load name="flight_benchmark.xml">
+      <define name="BENCHMARK_TOLERANCE_AIRSPEED" value="2" unit="m/s"/>
+      <define name="BENCHMARK_TOLERANCE_ALTITUDE" value="4" unit="m"/>
+      <define name="BENCHMARK_TOLERANCE_POSITION" value="6" unit="m"/>
+    </load>
+    -->
     <!-- ADD module to test the IMU health -->
 
     <!-- Airspeed sensor -->
@@ -223,22 +204,22 @@ I am as of yet not sure if the weird info byte is because of a failed bind proce
     </load>
 
     <load name="adc_generic.xml">
-    <!-- If we want to read the voltage of battery voltage main engine over AP board via V_BATT -->
-    <!-- To display the value,e.g. make a papget scale to 0.0048? and set 8.7 min 12.6max for a 3cell -->
-    <configure name="ADC_CHANNEL_GENERIC1" value="ADC_5"/><!-- Airspeed -->
-    <!-- Or if you like test. -->
-    <!-- <configure name="ADC_CHANNEL_GENERIC1" value="BOARD_ADC_CHANNEL_4" /> -->
-    <!-- On V_BAT_MEAS  on STM  Pin 24 PC4 adc14-->
-    <!--
-      <configure name="ADC_CHANNEL_GENERIC1" value="BOARD_ADC_CHANNEL_4"/>
-      <configure name="ADC_CHANNEL_GENERIC2" value="13"/>
--->
-    <!-- If an External analog Voltage and Amps sensor is connected use this -->
-    <!--  <configure name="ADC_CHANNEL_GENERIC1" value="ADC_3"/>-->
-    <!--   <configure name="ADC_CHANNEL_GENERIC2" value="ADC_4"/>-->
+      <!-- If we want to read the voltage of battery voltage main engine over AP board via V_BATT -->
+      <!-- To display the value,e.g. make a papget scale to 0.0048? and set 8.7 min 12.6max for a 3cell -->
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_5"/><!-- Airspeed -->
+      <!-- Or if you like test. -->
+      <!-- <configure name="ADC_CHANNEL_GENERIC1" value="BOARD_ADC_CHANNEL_4" /> -->
+      <!-- On V_BAT_MEAS  on STM  Pin 24 PC4 adc14-->
+      <!--
+        <configure name="ADC_CHANNEL_GENERIC1" value="BOARD_ADC_CHANNEL_4"/>
+        <configure name="ADC_CHANNEL_GENERIC2" value="13"/>
+      -->
+      <!-- If an External analog Voltage and Amps sensor is connected use this -->
+      <!--  <configure name="ADC_CHANNEL_GENERIC1" value="ADC_3"/>-->
+      <!--   <configure name="ADC_CHANNEL_GENERIC2" value="ADC_4"/>-->
     </load>
     <load name="photogrammetry_calculator.xml"/>
-    <!--  <load name="nav_catapult.xml"/> -->
+    <!-- <load name="nav_catapult.xml"/> -->
     <!-- <load name="geo_mag.xml"/> --> <!-- simplify the setup of magneto in various part of the world TODO needs fixing now aircarft in flight (strange)rule-->
 
     <!-- CDW: load name="TICKET.xml">
@@ -251,33 +232,31 @@ I am as of yet not sure if the weird info byte is because of a failed bind proce
     <load name="nav_line.xml"/>
 
     <!-- **************************** DROP STORE ******************************* -->
-    <!-- TODO set fastest possible loop rate-->
     <load name="nav_drop.xml">
       <define name="TRIGGER_DELAY" value="3.0" unit="s"/> <!--TODO get correct value;  time it take from shoot command till actual release of payload -->
       <define name="VELOCITY_AT_RELEASE" value="14" unit="m/s"/><!-- TODO not implemented - to set to min airspeed-->
-      <!-- TODO: These values are for a OBJEXT X not the real on yet  -->
       <define name="ALPHA" value="44.18e-4"/><!-- TODO: adjust it for the 500ML bottle -->
-      <define name="MASS" value="5.00e-3" unit="KG"/><!-- TODO: -->
-      <define name="SAFE_CLIMB" value="10" unit="m"/><!-- TODO: define  what?-->
-      <define name="CLIMB_TIME" value="3" unit="s"/><!-- TODO: define what?-->
+      <define name="MASS" value="5.00e-3" unit="KG"/>
+      <define name="SAFE_CLIMB" value="10" unit="m"/>
+      <define name="CLIMB_TIME" value="3" unit="s"/>
     </load>
 
-<!-- needed to be able to survey an aerea -->
-     <load name="nav_survey_polygon.xml"/>
-     <load name="nav_survey_poly_osam.xml"/>
+    <!-- needed to be able to survey an aerea -->
+    <load name="nav_survey_polygon.xml"/>
+    <load name="nav_survey_poly_osam.xml"/>
 
-<!-- addedto test various nav routines-->
-      <load name="nav_smooth.xml"/>
-      <load name="nav_vertical_raster.xml"/>
-      <load name="nav_line_border.xml"/>
-      <load name="nav_line_osam.xml"/>
-      <load name="nav_line_border.xml"/>
-      <load name="nav_flower.xml"/>
-      <load name="nav_bungee_takeoff.xml"/>
+    <!-- addedto test various nav routines-->
+    <load name="nav_smooth.xml"/>
+    <load name="nav_vertical_raster.xml"/>
+    <load name="nav_line_border.xml"/>
+    <load name="nav_line_osam.xml"/>
+    <load name="nav_line_border.xml"/>
+    <load name="nav_flower.xml"/>
+    <load name="nav_bungee_takeoff.xml"/>
   </modules>
 
-  <servos>
   <!-- ***************************** ACTUATORS ***************************** -->
+  <servos>
     <servo name="MOTOR" no="0" min="1100" neutral="1110" max="1900"/>
     <servo name="ELEVON_LEFT" no="1" min="1100" neutral="1475" max="1900"/>
     <servo name="ELEVON_RIGHT" no="2" min="1100" neutral="1450" max="1900"/>
@@ -297,39 +276,37 @@ I am as of yet not sure if the weird info byte is because of a failed bind proce
     <define name="AirbrakesOn()" value="(ap_state->commands[COMMAND_BRAKE]=SERVO_BRAKE_FULL)" />
     <define name="Fly()" value="(ap_state->commands[COMMAND_FORCECRASH]=0)" />
     <define name="ForceCrash()" value="(ap_state->commands[COMMAND_FORCECRASH]=9600)" />
-    </section>
+  </section>
 
   <commands>
+    <!-- OBC2014 Rules for FTD
 
-<!-- OBC2014 Rules for FTD
+    The flight termination rules for contol flap positions for fixed-wing aircraft are:
+    # Throttle closed
+    # Full up elevator
+    # Full right rudder
+    # Full down on the right aileron
+    # Full up on the left aileron
+    # Full flaps down
 
-The flight termination rules for contol flap positions for fixed-wing aircraft are:
-# Throttle closed
-# Full up elevator
-# Full right rudder
-# Full down on the right aileron
-# Full up on the left aileron
-# Full flaps down
+    For a blended wing this will translate best to
+    # Throttle closed
+    # Full up in inner elevons
+    # Full down on the right aileron
+    # Full up on the left aileron -->
 
-For a blended wing this will translate best to
-# Throttle closed
-# Full up in inner elevons
-# Full down on the right aileron
-# Full up on the left aileron -->
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="9600"/>
     <axis name="PITCH" failsafe_value="9600"/>
-    <!-- * Yaw, since we have and option via ELEVON UP FLAPPERON DOWN MIX * -->
+    <!-- * Yaw, since we have an option via ELEVON UP FLAPPERON DOWN MIX * -->
     <axis name="YAW" failsafe_value="9600"/>
-    <!-- * Maybe set to open position, to be able to simply insert the payload * -->
     <axis name="HATCH" failsafe_value="-9600"/>
     <axis name="BRAKE" failsafe_value="0"/>
     <axis name="FORCECRASH" failsafe_value="0"/>
-    <!-- maybe set to 9600 -->
   </commands>
 
+  <!-- ************************** RC COMMANDS ****************************** -->
   <rc_commands>
-<!-- ************************** RC COMMANDS ****************************** -->
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
@@ -337,10 +314,6 @@ For a blended wing this will translate best to
     <set command="BRAKE" value="@BRAKE"/>
     <set command="HATCH" value="@HATCH"/>
     <!-- <set command="LIGHT" value="@AUX4"/> -->
-    <!--@AUX4 -->
-    <!-- DANGER -->
-    <!-- <set command="FORCECRASH" value="@MANUALRELEASE"/> -->
-    <!-- DANGER DISABLE THIS before flight, ONLY for BENCH TEST not flyng, DANGER! -->
   </rc_commands>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -348,8 +321,8 @@ For a blended wing this will translate best to
     <define name="MAX_PITCH" value="60." unit="deg"/>
   </section>
 
+  <!-- ********************** SERVO MIXER GAINS **************************** -->
   <section name="MIXER">
-<!-- ********************** SERVO MIXER GAINS **************************** -->
     <define name="ELEVON_ROLL_FACTOR" value="0.7f"/>
     <define name="ELEVON_PITCH_FACTOR" value="0.6f"/>
     <define name="ELEVON_YAW_FACTOR" value="0.9f"/>
@@ -357,7 +330,6 @@ For a blended wing this will translate best to
     <!-- not used yet, same for elevon as flaperon at the moment-->
     <!-- If brakes extended could change pitch, compensate here, Future separate flaperon elevon brake scaling, needs testing -->
     <define name="BRAKE_PITCH_COMPENSATION" value="0.1f"/>
-    <!-- not used yet -->
     <!-- Full speed brake extending could overload servos and unfavorable sudden pitch change possible, so a slowed extending of brake is performed-->
     <define name="BRAKE_ENABLED_SLOWDOWN_FACTOR_EXTEND" value="80"/>
     <!-- no unit yet, be warned test with var frequencies -->
@@ -368,12 +340,11 @@ For a blended wing this will translate best to
     <define name="BRAKE_PITCH_COMPENSATION" value="0.1f"/>
     <!-- Set up/down deflection differences, needs many in flight tests to find acceptable values-->
     <define name="AILERON_DIFF" value="0.3f"/>
-    <!-- not used yet-->
   </section>
 
 
+  <!-- ************************** COMMAND-LAWS ******************************* -->
   <command_laws>
-<!-- ************************** COMMAND-LAWS ******************************* -->
     <!-- Brake Slowdown -->
     <let var="brake_value_nofilt" value="Chop(-@BRAKE, 0, MAX_PPRZ)"/>
     <ratelimit var="brake_value" value="$brake_value_nofilt" rate_min="-BRAKE_ENABLED_SLOWDOWN_FACTOR_RETRACT" rate_max="BRAKE_ENABLED_SLOWDOWN_FACTOR_EXTEND"/>
@@ -393,14 +364,14 @@ For a blended wing this will translate best to
     <set servo="HATCH" value="@HATCH"/>
   </command_laws>
 
+  <!-- ******************************* TRIM ********************************** -->
   <section name="TRIM" prefix="COMMAND_">
-<!-- ******************************* TRIM ********************************** -->
     <define name="ROLL_TRIM" value="0"/>
     <define name="PITCH_TRIM" value="0"/>
   </section>
 
+  <!-- ***************************** FAILSAFE ******************************** -->
   <section name="FAILSAFE" prefix="FAILSAFE_">
-<!-- ***************************** FAILSAFE ******************************** -->
     <define name="DEFAULT_THROTTLE" value="0.0" unit="%"/>
     <define name="DEFAULT_ROLL" value="0.2" unit="rad"/>
     <define name="DEFAULT_PITCH" value="0.05" unit="rad"/>
@@ -410,43 +381,8 @@ For a blended wing this will translate best to
   </section>
 
 
+  <!-- ****************************IMU SENSOR ******************************** -->
   <section name="IMU" prefix="IMU_">
-<!-- ****************************IMU SENSOR ******************************** -->
-    <!-- Calibration Neutral -->
-    <!-- ***************** ACCELO *****************-->
-    <!--
-    <define name="ACCEL_X_NEUTRAL" value="0"/>
-    <define name="ACCEL_Y_NEUTRAL" value="0"/>
-    <define name="ACCEL_Z_NEUTRAL" value="0"/>
--->
-    <!-- SENS = 2048 LSB/g / 9.81 ms2/g = 208.766564729 LSB/ms2 / 10bit FRAC: 1024 / 208.7665 -->
-    <!-- For newer MPU6000 set to 9.81 -->
-    <!--    <define name="ACCEL_X_SENS" value="4.905" integer="16"/> -->
-    <!-- For newer MPU6000 set to 9.81 -->
-    <!--    <define name="ACCEL_Y_SENS" value="4.905" integer="16"/> -->
-    <!-- For newer MPU6000 set to 9.81 -->
-    <!--    <define name="ACCEL_Z_SENS" value="4.905" integer="16"/> -->
-    <!--
-<define name="ACCEL_X_SENS" value="4.905" integer="16"/>
-<define name="ACCEL_Y_SENS" value="4.905" integer="16"/>
-<define name="ACCEL_Z_SENS" value="4.905" integer="16"/>-->
-    <define name="ACCEL_X_SIGN" value="1"/>
-    <define name="ACCEL_Y_SIGN" value="1"/>
-    <define name="ACCEL_Z_SIGN" value="1"/>
-    <!-- ***************** GYRO *****************-->
-    <!--
-    <define name="GYRO_P_NEUTRAL" value="0"/>
-    <define name="GYRO_Q_NEUTRAL" value="0"/>
-    <define name="GYRO_R_NEUTRAL" value="0"/>-->
-    <!-- SENS = 16.4 LSB/(deg/sec) * 57.6 deg/rad = 939.650 LSB/rad/sec / 12bit FRAC: 4096 / 939.65 -->
-    <!--
-      <define name="GYRO_P_SENS" value="4.359" integer="16"/>
-      <define name="GYRO_Q_SENS" value="4.359" integer="16"/>
-      <define name="GYRO_R_SENS" value="4.359" integer="16"/>
--->
-    <define name="GYRO_P_SIGN" value="1"/>
-    <define name="GYRO_Q_SIGN" value="1"/>
-    <define name="GYRO_R_SIGN" value="1"/>
     <!-- ***************** MAGNETO *****************-->
     <!-- TODO: Calibrate, AND RE-CALIBRATE after aircraft changes !-->
     <define name="MAG_X_NEUTRAL" value="-136"/>
@@ -455,15 +391,7 @@ For a blended wing this will translate best to
     <define name="MAG_X_SENS" value="3.51854936936" integer="16"/>
     <define name="MAG_Y_SENS" value="3.48065294671" integer="16"/>
     <define name="MAG_Z_SENS" value="4.08548845489" integer="16"/>
-    <define name="MAG_X_SIGN" value="1"/>
-    <define name="MAG_Y_SIGN" value="1"/>
-    <define name="MAG_Z_SIGN" value="1"/>
     <!-- Set body to IMU here -->
-    <!--
-Phi -1.6
-Theta -2.2
-Psi -109
--->
     <!--Switched -90deg axis, thus ** set Phi = Theta!! and Theta = Phi!! **-->
     <define name="BODY_TO_IMU_PHI" value="-0.0" unit="rad"/>
     <!-- e.g. -0.085 rad from messages -->
@@ -495,17 +423,15 @@ Psi -109
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-0.300000701874" unit="deg"/>
-    <!-- from messages, PFD and graphs -->
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0." unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0." unit="deg"/>
-    <!-- from messages, PFD and graphs -->
   </section>
 
 
-<!-- ******************************** GAINS ******************************** -->
+  <!-- ******************************** GAINS ******************************** -->
 
+  <!-- ******************* HORIZONTAL CONTROL ******************************** -->
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-<!-- ******************* HORIZONTAL CONTROL ******************************** -->
     <define name="COURSE_PGAIN" value="0.8"/>
     <define name="COURSE_DGAIN" value="0.08"/>
     <!-- The prebank is an adjustment to the roll setting which is done when the aircraft is trying to do a circle and when it is close to the circumference of the circle. This way it does not fly straight into the circumference but instead it starts to make a roll as the one needed to fly in circles.
@@ -537,8 +463,8 @@ https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/subsystems/nav.c#
     <!--TODO: Describe why we would need it-->
   </section>
 
+  <!-- ******************* VERTICAL CONTROL ********************************** -->
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
-<!-- ******************* VERTICAL CONTROL ********************************** -->
     <define name="POWER_CTL_BAT_NOMINAL" value="11.2" unit="volt"/>
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="0.15"/>
@@ -567,12 +493,12 @@ https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/subsystems/nav.c#
     <define name="AUTO_PITCH_OF_AIRSPEED_IGAIN" value="0.0"/>
     <define name="AUTO_PITCH_OF_AIRSPEED_DGAIN" value="0.0"/>
     <!--
-    <define name="AUTO_GROUNDSPEED_SETPOINT" value="16." unit="m/s"/>
-    <define name="AUTO_GROUNDSPEED_PGAIN" value="0.7"/>
-    <define name="AUTO_GROUNDSPEED_IGAIN" value="0."/>
--->
+      <define name="AUTO_GROUNDSPEED_SETPOINT" value="16." unit="m/s"/>
+      <define name="AUTO_GROUNDSPEED_PGAIN" value="0.7"/>
+      <define name="AUTO_GROUNDSPEED_IGAIN" value="0."/>
+    -->
 
-  <!-- Never set THROTTLE_SLEW_LIMITER to 0 (Zero) ! -->
+    <!-- Never set THROTTLE_SLEW_LIMITER to 0 (Zero) ! -->
     <define name="THROTTLE_SLEW_LIMITER" value="0.4" unit="m/s/s"/>
 
     <define name="GLIDE_RATIO" value="15."/>
@@ -584,63 +510,24 @@ https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/subsystems/nav.c#
     <define name="ENERGY_DIFF_IGAIN" value="0.35"/>
   </section>
 
-<!-- ************************ AUTO RC COMMANDS ***************************** -->
+  <!-- ************************ AUTO RC COMMANDS ***************************** -->
   <auto_rc_commands>
     <!-- To still be able to use virtual rudder, which is handy with sidewind landing in auto1 stabilization mode only YAW
-     Handy if in auto1 for sidewind stabilized crabbing landing, also for steering if someting not OK with course gains in Autonomous flight-->
+      Handy if in auto1 for sidewind stabilized crabbing landing, also for steering if someting not OK with course gains in Autonomous flight
+    -->
     <set command="YAW" value="@YAW"/>
   </auto_rc_commands>
 
-<!-- ************************* MISC ************************* -->
-<!-- ******************************* MODULES ******************************* -->
-
-
-<!-- ******************************* IMU *********************************** -->
-  <!-- nice n dirty for initial tuning test flights -->
-
-<!-- ****************************** BAT ************************************ -->
-  <!-- Is the BAT of FTD connected to separate battery  -->
-
-  <!-- Lisa/M 2.0 powering issue. Exactly following the wiring schema in http://paparazzi.enac.fr/wiki/File:LisaM_v2_0_wiring_quadrocopter_spektrum_pwmesc.png
- * set JP1.
- * connected the BEC power out of ESC to the Servo bus, the voltage level is 5V on the servo bus
- * Connected the battery plus one red wire output directly to V_BAT in (the CANSPI bus molex) and measured ~12.2V on V_BAT using an almost full 3 cell LiPo
-  ISSUE The GCS (and messages) show a battery level of 0V.
-  Forcing a value, just to check it, via  <define name="VoltageOfAdc(adc)"      value="12.2"/> in BAT section of airframe, works
-  Measuring the voltage at V_BAT_MEAS results in x V which should be OK.
-   What did I do wrong, which define to use (BOARD_ADC_CHANNEL_4 ?) ... in the end my board just seemed broken-->
-
   <section name="BAT">
-    <!--  If we still measure the bat level of the engine to and for AP react, it sometimes sags to < LOW_BAT_LEVEL, but this is normal if stron acceleration is made, should react less panicy-->
-    <!-- if separate A nV sensor is used then this line belo also -->
-    <!--  <define name="MilliAmpereOfAdc(adc)" value="((adc) - 505) * 124.0f"/>-->
-    <!--and use-->
-    <!-- If an External analog Voltage and Amps sensor is connected use this -->
-    <!--  <configure name="ADC_CHANNEL_GENERIC1" value="ADC_3"/>-->
-    <!--   <configure name="ADC_CHANNEL_GENERIC2" value="ADC_4"/>-->
-    <!-- Make a wire from V+ straight from AC batt to the voltage read pin (2) on 7 pin molex CANSPI -->
-    <!-- <define name="MilliAmpereOfAdc(adc)" value="((adc) - 205) * 124.0f"/>-->
-    <!--     <define name="VoltageOfAdc(adc)"      value="(adc*0.004545)"/>-->
-    <!-- resistors 10k/2.2k i 10240/2252.8 ~ -->
-    <!-- V value forced, if there is no solution today with a broken board -->
-    <!--  <define name="VoltageOfAdc(adc)"      value="11.5"/> -->
-    <!-- <define name="VoltageOfAdc(adc)" value="(ADC13"/>-->
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000" unit="mA"/>
-    <!-- <define name="VoltageOfAdc(adc)"      value="(adc)"/>-->
-    <!--    <define name="MilliAmpereOfAdc(adc)" value="((adc) - 505) * 124.0f"/>-->
-    <!--
-   <define name="VOLTAGE_ADC_A" value="0.004469"/>
-   <define name="VOLTAGE_ADC_B" value="0.1"/>
-   <define name="VoltageOfAdc(adc)" value ="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
--->
     <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="10.0" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="9.0" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="7.0" unit="V"/>
   </section>
 
+  <!-- ****************************** MISC *********************************** -->
   <section name="MISC">
-<!-- ****************************** MISC *********************************** -->
     <!-- Values here are only referred to by the flightplan m*_s*_airspeed.xml -->
     <define name="TRACKING_AIRSPEED" value="20." unit="m/s"/>
     <define name="NOMINAL_AIRSPEED" value="20." unit="m/s"/>
@@ -668,7 +555,7 @@ If not set before when you would enter home mode you had to flip a bit via the G
     <define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/>
   </section>
 
-<!-- ********************* HAND AND CATAPULT LAUNCH ************************ -->
+  <!-- ********************* HAND AND CATAPULT LAUNCH ************************ -->
 
 <!-- value setup according to values derived from a manual flight and it belonig log with values -->
 <!-- the "CATAPULT" in some cases is a Human throwing the plane, and to protect the hands agains a prop strike
@@ -689,44 +576,20 @@ we had an option to use glovs, or start up spinning the prop after a throw. If t
   <!--   <define name="INITIAL_THROTTLE" value=".99"/>-->
   <!-- PCT from 0 to 1, where 1 is 100% -->
 
-   <!-- <define name="HEADING_DELAY" value="3.0" unit="seconds"/>--> <!--TODO why n how much -->
+  <!-- <define name="HEADING_DELAY" value="3.0" unit="seconds"/>--> <!--TODO why n how much -->
 
-   <!--</section>-->
+  <!--</section>-->
 
-<!-- ************************ GCS SPECIFICS ******************************** -->
+  <!-- ************************ GCS SPECIFICS ******************************** -->
   <section name="GCS">
     <define name="SPEECH_NAME" value="Vivify"/>
     <!--TODO:  rather see this in <airframe name="Vivify" spokenname="sayitnow"> as optional parameter-->
     <define name="AC_ICON" value="flyingwing"/>
   </section>
 
-<!-- ****************** FAKE MORA DIGITAL_CAMERA *************************** -->
-  <!-- Temporary solution if you have no complete MORA -->
-  <!-- <section name="DIGITAL_CAMERA" prefix="DC_">
-    <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="12" unit="quarter_second"/>
-    <define name="AUTOSHOOT_METER_GRID" value="100" unit="meter"/>-->
-
-  <!-- LISAM ON / OFF should be swapped if using a TWOG board -->
-  <!-- <define name="PUSH" value="LED_ON"/> -->
-  <!--  <define name="RELEASE" value="LED_OFF"/> -->
-  <!--Set the maximum image number to expect, otherwise only the first 255 images get a number on the mapdot -->
-  <!-- </section> -->
-
-<!-- ********* NEW AP_COMPUTERPHOTOCAM(MORA)_INTERFACE TRIGGER ************* -->
-  <!-- TODO: CREATE MODULE See -->
-  <!-- <section name="TICKET" prefix="TICKET_">
-    <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="12" unit="quarter_second"/>
-    <define name="AUTOSHOOT_METER_GRID" value="100" unit="meter"/>-->
-  <!-- LISAM ON / OFF should be swapped if using a TWOG board -->
-  <!-- <define name="PUSH" value="LED_ON"/> -->
-  <!-- <define name="RELEASE" value="LED_OFF"/> -->
-  <!--Set the maximum image number to expect, otherwise only the first 255 images get a number on the map dots -->
-  <!-- </section> -->
-
-<!-- ************************* PHOTOGRAMMETRY ****************************** -->
+  <!-- ************************* PHOTOGRAMMETRY ****************************** -->
   <section name="PHOTOGRAMMETRY" prefix="PHOTOGRAMMETRY_">
   <!-- Camera Parameters -->
-  <!-- TODO: Feature get them from the MORA device at init or polling if not yet available -->
      <define name="FOCAL_LENGTH" value="24.0" unit="mm"/>
      <define name="SENSOR_WIDTH" value="6.66" unit="mm"/>
   <!-- In direction of the plane's wings -->
@@ -743,25 +606,11 @@ we had an option to use glovs, or start up spinning the prop after a throw. If t
      <define name="RADIUS_MIN" value="80" unit="m"/>
   </section>
 
-<!-- ************************** GLS LANDING ******************************** -->
+  <!-- ************************** GLS LANDING ******************************** -->
   <section name="GLS_APPROACH" prefix="APP_">
     <define name="ANGLE" value="7" unit="deg"/><!-- TODO: test and determine best value -->
     <define name="INTERCEPT_AF_SD" value="80" unit="m"/><!--watch it after landing airspeed = 0 thus aircraft throttles up again, not good!-->
     <define name="TARGET_SPEED" value="13" unit="m/s"/>
   </section>
 
-<!-- *
-To be able to Flash e.g. the u-Blox gps with the using u-center
-You can use the jtag serial port to directly connect to the GPS device,
-or if you don't want to make cables connect to the uart on lisa/m
-while having the GPS on the other uart.
-Then you can flash the tunnel to the lisa (bridges uart1 and uart2).
-Handy for in the filed if you do not want to change Airframe cables, but still
-need to set somting manually in the uBlox GPS device
-* -->
-<!--
-  <firmware name="Tunnel">
-    <target name="Serial_tunnel" board="lisa_m_2.0"/>
-  </firmware>
--->
 </airframe>
