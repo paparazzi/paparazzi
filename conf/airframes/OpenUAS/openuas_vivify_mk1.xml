@@ -8,53 +8,29 @@
      + XBee XSC 900Mhz or XBP868 depending on location flown
      + uBlox LEA5H and Sarantel helix GPS antenna
      + Spektrum RX DSMX clone - optional mission demanding a R16Scan40MHZ RX
-     + Eagletree Airspeed sensor via I2C
+     + Analog Airspeed sensor
+     + MK2 Second LisaM as FTD, plus additional power measurement for this board
 
      NOTES:
      + Using Total Energy control as control loop
-     + LisaM with servo pins to the front of plane !
-     + AP battery voltage measurement via pin o I2C1CAN V_BAT
-        (Will maybe be change measuring the Main Power Battery)
+     + LisaM with servo pins to the back of plane !
+     + Engine battery voltage level separate sensor
+     + FTD voltage level separate sensor
      + Flat yawing possible via Elevon UP Flapperon DOWN Mixing
-     + Make sure v5.1x master or higher of PPRZ sourcecode is used
-     + Used mac06a.xml airframe as starting point for payload release settings
 
      + OBC2014: Make sure that in link.ml
-
      link.ml - Paparazzi/sw/ground_segment/tmtc
-
      let ping_msg_period = 750 (** ms  CHANGED FOR OUTBACK CHALLENGE *)
-
-     + OBC2014 TELEMETRY
-     Add to "Link" the param  "-hfc" for hardware handshaking
 
     Modules to activate:
      + Current sensor on battery wires going to motor
      + geo_mag module if fixed for fixedwing
-     + Catapult launch
-     + GLS landing
-
-     Near Future
-     + MK2 Second LisaM as FTD, plus additional power measurement for this board
-     ++ Lisa M v2.0 board ID: ? (http://paparazzi.enac.fr/wiki/index.php/)
-     ++ Modified power routing by closing Jumper J1
-     ++ No IMU response action
-     + MBP085 baro on board the AP
-     + Separate Baro(Height) sensor via I2C
-     + MS4525DO Airspeed sensor via I2C to replace ETS airspeed
-
-     + Engine battery voltage level separate sensor
-     + FTD voltage level separate sensor
-
-     + RPM sensor for brushless
-     + ACL lights
-     + A new scanline command, on straight scanning line no roll and direction ony by yawing (maybe via thrustvector)
-     + APPD Accidental Power-on Prevention Device
 -->
 
 <airframe name="Vivify">
   <!-- ************************* FIRMWARE ************************* -->
   <firmware name="fixedwing">
+    <define name="RADIO_CONTROL_NB_CHANNEL" value="8" />
     <target name="ap" board="lisa_m_2.0">
       <define name="LINK_MCU_LED" value="5"/>
       <configure name="AHRS_ALIGNER_LED" value="2"/>
@@ -64,93 +40,65 @@
       <define name="RADIO_BRAKE" value="RADIO_AUX1"/>
       <define name="RADIO_HATCH" value="RADIO_AUX2"/>
       <configure name="SEPARATE_FBW" value="1"/>
-      <!-- <define name="ADC_CHANNEL_VSUPPLY" value="4"/> -->
       <define name="autopilot_motors_on" value="FALSE"/> <!-- temp fix for geomag, normally only used for rotorcraft -->
       <define name="SENSOR_SYNC_SEND"/>
       <!-- PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY -->
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
-      <!--
-      <define name="ASPIRIN_2_LOWPASS_FILTER"/>
-      define name="ASPIRIN_2_SMPLRT_DIV"/>-->
-      <!--
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="256"/>
-      <configure name="AHRS_CORRECT_FREQUENCY" value="256"/>
-      -->
       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
-      <!--define name="USE_I2C2"/-->
       <define name="USE_AHRS_GPS_ACCELERATIONS"/>
-      <!--<define name="USE_BARO_ETS"/>-->
-      <!-- obsolete with ABI ?-->
       <configure name="USE_BARO_BOARD" value="FALSE"/>
       <define name="BAT_CHECKER_DELAY" value="80"/><!-- amount of time it take for the bat to check --><!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
-      <!-- <define name="LOW_BATTERY_KILL_DELAY" value="80"/>-->
       <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80"/><!-- in seconds-->
       <!--  <subsystem name="current_sensor">-->
       <!-- <define name="USE_ADC_1"/>??-->
       <!--  <configure name="ADC_CURRENT_SENSOR" value="ADC_1"/>-->
       <!--</subsystem>-->
 
-    <!--   <define name="DC_IMAGE_BUFFER" value="65000"/> -->
-    <!-- set USE_AIRSPEED to use ets_airspeed in control loop -->
-    <define name="USE_AIRSPEED"/>
-    <!-- To get raw data for calibration of sensor -->
-    <!-- define name="AIRSPEED_ETS_SYNC_SEND"/-->
-    <define name="AGR_CLIMB"/>
-    <!-- <define name="ALT_KALMAN"/>-->
-    <define name="TUNE_AGRESSIVE_CLIMB"/>
-    <define name="STRONG_WIND"/>
-    <define name="WIND_INFO"/>
-    <define name="WIND_INFO_RET"/>
-    <!-- * For MK2 with FTD, risk during if need a switch form auto0 to auto2, auto1 not allowed THIS -->
-    <subsystem name="imu" type="aspirin_v2.2"/>
-    <subsystem name="ahrs" type="int_cmpl_quat">
-    <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
-    <!-- * no need? since already set by default * -->
-    <define name="USE_MAGNETOMETER" value="FALSE"/>
-    <!-- TRUE by default but better set it to be sure if you want to use it -->
-    <!-- * Apply a low pass filter on rotational velocity * -->
-    <!-- <define name="AHRS_PROPAGATE_LOW_PASS_RATES"/> -->
-    <!-- * not used, determin benefit and test *-->
-    <!-- * Use mag to also update roll/pitch and not only yaw (not recommended in most cases?) * -->
-    <!-- <define name="AHRS_MAG_UPDATE_ALL_AXES"/>-->
-    <!-- not used, determin benefit and test -->
-    </subsystem>
+      <define name="USE_AIRSPEED"/>
+      <define name="AGR_CLIMB"/>
+      <!-- <define name="ALT_KALMAN"/>-->
+      <define name="TUNE_AGRESSIVE_CLIMB"/>
+      <define name="STRONG_WIND"/>
+      <define name="WIND_INFO"/>
+      <define name="WIND_INFO_RET"/>
+      <subsystem name="imu" type="aspirin_v2.2"/>
+      <subsystem name="ahrs" type="int_cmpl_quat">
+        <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
+        <!-- * no need? since already set by default * -->
+        <define name="USE_MAGNETOMETER" value="FALSE"/>
+        <!-- TRUE by default but better set it to be sure if you want to use it -->
+      </subsystem>
 
-    <subsystem name="actuators" type="dummy"/>
-    <subsystem name="intermcu" type="can"/>
+      <subsystem name="actuators" type="dummy"/>
+      <subsystem name="intermcu" type="can"/>
 
-    <!-- * Communication * -->
-    <subsystem name="telemetry" type="transparent">
-      <!-- or use type="xbee_api"> -->
-      <configure name="MODEM_BAUD" value="B9600"/>
-      <!--  <configure name="MODEM_BAUD" value="B57600"/>--> <!-- Good to switch on high baud while raw sensor calibaration and testing -->
-      <configure name="MODEM_PORT" value="UART2"/>
-    </subsystem>
+      <!-- * Communication * -->
+      <subsystem name="telemetry" type="transparent">
+        <!-- or use type="xbee_api"> -->
+        <configure name="MODEM_BAUD" value="B9600"/>
+        <!--  <configure name="MODEM_BAUD" value="B57600"/>--> <!-- Good to switch on high baud while raw sensor calibaration and testing -->
+        <configure name="MODEM_PORT" value="UART2"/>
+      </subsystem>
 
-    <!-- If an Digi Xtend is connected and we also want to use it  than enable this
-    <subsystem name="telemetry" type="xbee_api">
-      <configure name="MODEM_PORT" value="UART0"/>
-      <configure name="MODEM_BAUD" value="B9600"/>
-    </subsystem>
--->
+      <subsystem name="control" type="energy"/>
 
-    <subsystem name="control" type="energy"/>
+      <!-- * Sensors * -->
+      <subsystem name="gps" type="ublox">
+        <configure name="GPS_PORT" value="UART3"/>
+        <configure name="GPS_BAUD" value="B38400"/>
+      </subsystem>
 
-    <!-- * Sensors * -->
-    <subsystem name="gps" type="ublox">
-      <configure name="GPS_PORT" value="UART3"/>
-      <configure name="GPS_BAUD" value="B38400"/>
-    </subsystem>
-
-    <!-- * Add Navigation routines -->
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float"/>
+      <!-- * Add Navigation routines -->
+      <subsystem name="navigation"/>
+      <subsystem name="ins" type="alt_float"/>
 
     </target>
 
     <target name="fbw" board="lisa_m_2.0">
+      <configure name="SEPARATE_FBW" value="1"/>
+
       <configure name="FLASH_MODE" value="SWD"/>
 
       <configure name="SYS_TIME_LED" value="2"/>
@@ -256,8 +204,8 @@ I am as of yet not sure if the weird info byte is because of a failed bind proce
       <define name="MS5611_SPI_DEV" value="spi2"/>
       <define name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
     </load>
-    <load name="qnh.xml"/>
-    <load name="obc2014.xml"/>
+    <!-- CDW: load name="qnh.xml"/-->
+    <!-- CDW: load name="obc2014.xml"/-->
 
     <!-- Disable uCenter in the future, setup the hardware itself -->
     <load name="gps_ubx_ucenter.xml"/><!-- TODO: add parameter to disable SBAS CAREFUL about SBAS, disable it for Australia -->
@@ -299,10 +247,10 @@ I am as of yet not sure if the weird info byte is because of a failed bind proce
     <!--  <load name="nav_catapult.xml"/> -->
     <!-- <load name="geo_mag.xml"/> --> <!-- simplify the setup of magneto in various part of the world TODO needs fixing now aircarft in flight (strange)rule-->
 
-    <load name="TICKET.xml">
+    <!-- CDW: load name="TICKET.xml">
       <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="22" unit="quarter_second"/>
       <configure name="CAMERA_PORT" value="UART5"/>
-    </load>
+    </load -->
 
     <load name="baro_sim.xml"/>
     <!-- Navigation modules-->
