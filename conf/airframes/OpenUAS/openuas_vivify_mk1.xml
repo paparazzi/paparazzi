@@ -589,21 +589,21 @@ we had an option to use glovs, or start up spinning the prop after a throw. If t
 
   <!-- ************************* PHOTOGRAMMETRY ****************************** -->
   <section name="PHOTOGRAMMETRY" prefix="PHOTOGRAMMETRY_">
-  <!-- Camera Parameters -->
-     <define name="FOCAL_LENGTH" value="24.0" unit="mm"/>
-     <define name="SENSOR_WIDTH" value="6.66" unit="mm"/>
-  <!-- In direction of the plane's wings -->
-     <define name="SENSOR_HEIGHT" value="5.32" unit="mm"/>
-  <!-- In direction of the plane's nose -->
-      <define name="PIXELS_WIDTH" value="4000"/>
-  <!-- Photogrammetry Parameters. Can also be defined in a flightplan instead
-     <define name="OVERLAP" value="0.3" unit="%"/>
-     <define name="SIDELAP" value="0.2" unit="%"/>
-     <define name="RESOLUTION" value="50" unit="mm pixel projection"/>-->
-  <!-- Flight Safety Parameters -->
-     <define name="HEIGHT_MIN" value="50" unit="m"/>
-     <define name="HEIGHT_MAX" value="220" unit="m"/>
-     <define name="RADIUS_MIN" value="80" unit="m"/>
+    <!-- Camera Parameters -->
+    <define name="FOCAL_LENGTH" value="24.0" unit="mm"/>
+    <define name="SENSOR_WIDTH" value="6.66" unit="mm"/>
+    <!-- In direction of the plane's wings -->
+    <define name="SENSOR_HEIGHT" value="5.32" unit="mm"/>
+    <!-- In direction of the plane's nose -->
+    <define name="PIXELS_WIDTH" value="4000"/>
+    <!-- Photogrammetry Parameters. Can also be defined in a flightplan instead
+      <define name="OVERLAP" value="0.3" unit="%"/>
+      <define name="SIDELAP" value="0.2" unit="%"/>
+      <define name="RESOLUTION" value="50" unit="mm pixel projection"/>-->
+    <!-- Flight Safety Parameters -->
+    <define name="HEIGHT_MIN" value="50" unit="m"/>
+    <define name="HEIGHT_MAX" value="220" unit="m"/>
+    <define name="RADIUS_MIN" value="80" unit="m"/>
   </section>
 
   <!-- ************************** GLS LANDING ******************************** -->
