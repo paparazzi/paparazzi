@@ -78,6 +78,7 @@ void ms5611_i2c_periodic_check(struct Ms5611_I2c *ms)
   switch (ms->status) {
     case MS5611_STATUS_RESET:
       ms->status = MS5611_STATUS_RESET_OK;
+      ms->i2c_trans.status = I2CTransDone;
       break;
     case MS5611_STATUS_RESET_OK:
       if (ms->i2c_trans.status == I2CTransDone) {
