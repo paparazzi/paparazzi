@@ -182,7 +182,7 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
   <blocks>
     <block name="WaitForGPS" pre_call="NavKillThrottle()" >
       <!-- Do Not Kill -->
-      <handler fun="Fly()"/>
+      <call fun="Fly()"/>
       <!-- IDEA Close the hatch so not able to insert payload before there is a 3D fix , however maybe not so handy anyhow since we need to wat be fre we can insert-->
       <!--  <set value="NavDropCloseHatch" var="unit"/> -->
       <!-- if no valid fix or gps accuracy> 15m or no AHRS , it a no-go wait-->
@@ -201,7 +201,7 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
 -->
       <!--  TODO Set QNH here based on GPS height if allowed from commitee -->
       <call fun="NavSetAltitudeReferenceHere()" />
-      <handler fun="compute_qnh()"/>
+      <call fun="compute_qnh()"/>
     </block>
 
     <!-- *********** Set the ground reference height and the home position *********** -->
@@ -519,7 +519,7 @@ extern bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t start, uint8_t e
     </block>
 
     <block name="Flare">
-      <handler fun="NavKillThrottle()" />
+      <call fun="NavKillThrottle()" />
       <set value="set_airspeed_glide*0.8" var="v_ctl_auto_airspeed_setpoint"/>
       <go approaching_time="0" from="TD" hmode="route" wp="FLARE"/>
       <attitude roll="0.0" pitch="DegOfRad(set_flare_pitch)" throttle="0.0" until="FALSE" vmode="throttle"/>

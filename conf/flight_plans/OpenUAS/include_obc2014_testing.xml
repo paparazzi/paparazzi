@@ -9,7 +9,7 @@
 
   <blocks>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
-      <handler fun="Fly()"/>
+      <call fun="Fly()"/>
         <!--   <set value="0" var="ap_state->commands[COMMAND_BRAKE]"/> -->
       <circle alt="WaypointAlt(WP_STDBY)" radius="nav_radius" wp="STDBY"/>
     </block>
