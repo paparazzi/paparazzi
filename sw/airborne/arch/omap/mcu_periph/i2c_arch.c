@@ -21,7 +21,7 @@
  *
  */
 
-/** @file arch/omap/mcu_periph/i2c_arch.h
+/** @file arch/omap/mcu_periph/i2c_arch.c
  * I2C functionality
  */
 
@@ -53,6 +53,9 @@ bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
   // Set the slave address
   ioctl(file, I2C_SLAVE, t->slave_addr);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+
   // Switch the different transaction types
   switch (t->type) {
       // Just transmitting
@@ -71,7 +74,8 @@ bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
       break;
       // First Transmit and then read
     case I2CTransTxRx:
-      if (write(file, (uint8_t *)t->buf, t->len_w) < 0 || read(file, (uint8_t *)t->buf, t->len_r) < 0) {
+      if (write(file, (uint8_t *)t->buf, t->len_w) < 0 ||
+          read(file, (uint8_t *)t->buf, t->len_r) < 0) {
         t->status = I2CTransFailed;
         return TRUE;
       }
@@ -79,6 +83,8 @@ bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
     default:
       break;
   }
+
+#pragma GCC diagnostic pop
 
   // Successfull transfer
   t->status = I2CTransSuccess;
