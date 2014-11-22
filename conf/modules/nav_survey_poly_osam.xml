@@ -4,6 +4,9 @@
   <doc>
     <description>
        Polygon survey from OSAM
+       You can use:
+       nav_survey_poly_osam_setup for static definitions or
+       nav_survey_poly_osam_setup_towards if you need dinamyc definitions
     </description>       
     <define name="POLY_OSAM_POLYGONSIZE" value="xx" description="max waypoints usable in polygon survey"/>
     <define name="POLY_OSAM_ENTRY_RADIUS" value="80" description="entry circle radius in meters. If 0 radius equal to half sweep"/>      

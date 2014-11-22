@@ -31,8 +31,15 @@
 
 extern uint8_t Poly_Size;
 extern float Poly_Sweep;
+/** Setup polygonsurvey */
+/** Size is the number of waypoints used in poligon */
+/** Sweep is the distance between scan lines */
+/** Orientation is the angle of scan lines in relations to north. */
 extern bool_t nav_survey_poly_osam_setup(uint8_t FirstWP, uint8_t Size, float Sweep, float Orientation);
 /** start a polygonsurvey and compute the orientation angle from the line FirstWP-SecondWP */
+/** if Size or Sweep = 0 you need to set it using telemetry settings */
+/** if Size or Sweep != 0 it will be used in calculations */
+/** To use the polysurvey dynamically you need to pass Size and Sweep as 0 and set it via telemetry. */
 extern bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP);
 extern bool_t nav_survey_poly_osam_run(void);
 extern uint16_t PolySurveySweepNum;
