@@ -32,7 +32,7 @@
 #include "generated/flight_plan.h"
 
 #ifndef POLY_OSAM_DEFAULT_SIZE
-#define POLY_OSAM_DEFAULT_SIZE 4
+#define POLY_OSAM_DEFAULT_SIZE 5
 #endif
 
 #ifndef POLY_OSAM_DEFAULT_SWEEP
