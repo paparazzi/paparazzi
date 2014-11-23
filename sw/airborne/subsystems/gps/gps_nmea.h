@@ -88,13 +88,13 @@ extern struct GpsNmea gps_nmea;
 extern void nmea_parse_char(uint8_t c);
 extern void nmea_parse_msg(void);
 extern uint8_t nmea_calc_crc(const char *buff, int buff_sz);
-void nmea_parse_prop_init(void);
-void nmea_parse_prop_msg(void);
+extern void nmea_parse_prop_init(void);
+extern void nmea_parse_prop_msg(void);
 
 /** Read until a certain character, placed here for proprietary includes */
 static inline void nmea_read_until(int *i)
 {
-  while (gps_nmea.msg_buf[*i++] != ',') {
+  while (gps_nmea.msg_buf[(*i)++] != ',') {
     if (*i >= gps_nmea.msg_len) {
       return;
     }
