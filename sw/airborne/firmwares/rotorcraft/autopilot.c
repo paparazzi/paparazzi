@@ -347,9 +347,9 @@ INFO("Using FAILSAFE_GROUND_DETECT: KILL")
 
 void autopilot_set_mode(uint8_t new_autopilot_mode) {
 
-  /* force kill mode as long as AHRS is not aligned */
+  /* force startup mode (default is kill) as long as AHRS is not aligned */
   if (!ahrs_is_aligned())
-    new_autopilot_mode = AP_MODE_KILL;
+    new_autopilot_mode = MODE_STARTUP;
 
   if (new_autopilot_mode != autopilot_mode) {
     /* horizontal mode */

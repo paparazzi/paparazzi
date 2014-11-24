@@ -215,7 +215,6 @@
       </subsystem>
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
-      <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
     </target>
 
     <target name="nps" board="pc">
