@@ -11,6 +11,7 @@ install:
 before_script: cd conf && ln -s conf_tests.xml conf.xml && cd ..
 script:
   - make
+  - make -C tests/math test
   - PAPARAZZI_SRC=$PWD PAPARAZZI_HOME=$PWD J=AUTO prove tests/examples/
 
 notifications:
