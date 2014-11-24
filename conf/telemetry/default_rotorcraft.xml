@@ -29,6 +29,7 @@
       <message name="RC"                       period="0.5"/>
       <message name="ROTORCRAFT_RADIO_CONTROL" period="0.5"/>
       <message name="ROTORCRAFT_STATUS"        period="1"/>
+      <message name="ACTUATORS_BEBOP"          period="0.2"/>
     </mode>
 
     <mode name="raw_sensors">

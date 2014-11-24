@@ -1907,7 +1907,21 @@
 
   <!--216 is free -->
   <!--217 is free -->
-  <!--218 is free -->
+
+  <message name="BEBOP_ACTUATORS" id="218">
+    <field name="cmd_thrust" type="int32"/>
+    <field name="cmd_roll" type="int32"/>
+    <field name="cmd_pitch" type="int32"/>
+    <field name="cmd_yaw" type="int32"/>
+    <field name="rpm_ref_lf" type="uint16" unit="rpm"/>
+    <field name="rpm_ref_rf" type="uint16" unit="rpm"/>
+    <field name="rpm_ref_rb" type="uint16" unit="rpm"/>
+    <field name="rpm_ref_lb" type="uint16" unit="rpm"/>
+    <field name="rpm_obs_lf" type="uint16" unit="rpm"/>
+    <field name="rpm_obs_rf" type="uint16" unit="rpm"/>
+    <field name="rpm_obs_rb" type="uint16" unit="rpm"/>
+    <field name="rpm_obs_lb" type="uint16" unit="rpm"/>
+  </message>
 
   <message name="WEATHER" id="219">
     <field name="p_amb" type="float" unit="Pa" alt_unit="mBar" alt_unit_coef="0.01"/>

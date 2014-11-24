@@ -124,6 +124,8 @@ else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
 ns_srcs   += $(SRC_BOARD)/electrical_dummy.c
 else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
 ns_srcs   += $(SRC_BOARD)/electrical_raw.c
+else ifeq ($(BOARD), bebop)
+ns_srcs   += $(SRC_BOARD)/electrical.c
 endif
 
 #
