@@ -89,10 +89,6 @@ void dc_send_shot_position(void)
 {
   int16_t phi = DegOfRad(stateGetNedToBodyEulers_f()->phi*10.0f);
   int16_t theta = DegOfRad(stateGetNedToBodyEulers_f()->theta*10.0f);
-  struct UtmCoor_f * utm = stateGetPositionUtm_f();
-  // east and north UTM position in cm
-  int32_t east = utm->east * 100;
-  int32_t north = utm->north * 100;
   // course in decideg
   int16_t course = DegOfRad(*stateGetHorizontalSpeedDir_f()) * 10;
   // ground speed in cm/s
@@ -107,10 +103,9 @@ void dc_send_shot_position(void)
 
   DOWNLINK_SEND_DC_SHOT(DefaultChannel, DefaultDevice,
                         &photo_nr,
-                        &east,
-                        &north,
-                        &utm->alt,
-                        &utm->zone,
+                        &stateGetPositionLla_i()->lat,
+                        &stateGetPositionLla_i()->lon,
+                        &stateGetPositionLla_i()->alt,
                         &phi,
                         &theta,
                         &course,
@@ -125,8 +120,9 @@ uint8_t dc_info(void) {
   int16_t mode = dc_autoshoot;
   DOWNLINK_SEND_DC_INFO(DefaultChannel, DefaultDevice,
                         &mode,
-                        &stateGetPositionEnu_f()->x,
-                        &stateGetPositionEnu_f()->y,
+                        &stateGetPositionLla_i()->lat,
+                        &stateGetPositionLla_i()->lon,
+                        &stateGetPositionLla_i()->alt,
                         &course,
                         &dc_buffer,
                         &dc_gps_dist,

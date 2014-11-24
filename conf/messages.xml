@@ -528,8 +528,9 @@
 
   <message name="DC_INFO" id="64">
     <field name="mode" type="int16" unit=""/>
-    <field name="utm_east" type="float" unit="m"/>
-    <field name="utm_north" type="float" unit="m"/>
+    <field name="lat" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="alt" type="int32" unit="mm" alt_unit="m"/>
     <field name="course" type="float" unit="deg"/>
     <field name="buffer" type="uint16"/>
     <field name="dist" type="float" unit="m"/>
@@ -881,10 +882,9 @@
 
   <message name="DC_SHOT" id="110">
     <field name="photo_nr" type="int16"/>
-    <field name="utm_east"  type="int32" unit="cm"/>
-    <field name="utm_north" type="int32" unit="cm"/>
-    <field name="z" type="float" unit="m"/>
-    <field name="utm_zone"  type="uint8"/>
+    <field name="lat" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="alt" type="int32" unit="mm" alt_unit="m"/>
     <field name="phi" type="int16" unit="decideg"/>
     <field name="theta" type="int16" unit="decideg"/>
     <field name="course" type="int16" unit="decideg"/>
