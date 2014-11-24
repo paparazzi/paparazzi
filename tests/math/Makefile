@@ -50,7 +50,7 @@ build_tests: math_shlib $(TESTS)
 
 test: build_tests
 	$(Q)for i in $(TESTS); do \
-	./$$i;	\
+	LD_LIBRARY_PATH=$(MATHLIB_PATH):$LD_LIBRARY_PATH ./$$i;	\
 	done
 
 %.run: %.c
