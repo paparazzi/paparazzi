@@ -34,8 +34,12 @@
 
 #include "dc.h"
 
-// for waypoints, but still only fixedwing
+// for waypoints, include correct header until we have unified API
+#ifdef AP
 #include "subsystems/navigation/common_nav.h"
+#else
+#include "firmwares/rotorcraft/navigation.h"
+#endif
 
 /** default quartersec perioid = 0.5s */
 #ifndef DC_AUTOSHOOT_QUARTERSEC_PERIOD
@@ -168,8 +172,9 @@ uint8_t dc_survey(float interval, float x, float y) {
     dc_gps_x = stateGetPositionEnu_f()->x;
     dc_gps_y = stateGetPositionEnu_f()->y;
   } else if (y == DC_IGNORE) {
-    dc_gps_x = waypoints[(uint8_t)x].x;
-    dc_gps_y = waypoints[(uint8_t)x].y;
+    uint8_t wp = (uint8_t)x;
+    dc_gps_x = WaypointX(wp);
+    dc_gps_y = WaypointY(wp);
   } else {
     dc_gps_x = x;
     dc_gps_y = y;
