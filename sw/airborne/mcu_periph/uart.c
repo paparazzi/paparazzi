@@ -214,25 +214,5 @@ uint8_t uart_getch(struct uart_periph* p) {
 }
 
 void WEAK uart_event(void) {
-#if USE_UART0
-  uart0_handler();
-#endif
-#if USE_UART1
-  uart1_handler();
-#endif
-#if USE_UART2
-  uart2_handler();
-#endif
-#if USE_UART3
-  uart3_handler();
-#endif
-#if USE_UART4
-  uart4_handler();
-#endif
-#if USE_UART5
-  uart5_handler();
-#endif
-#if USE_UART6
-  uart6_handler();
-#endif
+
 }
