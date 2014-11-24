@@ -18,25 +18,42 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
+
+/** @file arch/linux/mcu_periph/sys_time_arch.h
+ * linux timing functions
+ */
+
+#ifndef SYS_TIME_ARCH_H
+#define SYS_TIME_ARCH_H
+
+#include "std.h"
+#include <unistd.h>
+
+extern void sys_tick_handler(int signum);
 
 /**
- * @file arch/omap/led_hw.h
- * omap arch dependant LED macros.
+ * Get the time in microseconds since startup.
+ * WARNING: overflows after 71min34seconds!
+ * @return current system time as uint32_t
  */
+static inline uint32_t get_sys_time_usec(void) {
+  return sys_time.nb_sec * 1000000 +
+    usec_of_cpu_ticks(sys_time.nb_sec_rem);
+}
 
-#ifndef LED_HW_H_
-#define LED_HW_H_
+/**
+ * Get the time in milliseconds since startup.
+ * @return milliseconds since startup as uint32_t
+ */
+static inline uint32_t get_sys_time_msec(void) {
+  return sys_time.nb_sec * 1000 +
+    msec_of_cpu_ticks(sys_time.nb_sec_rem);
+}
 
-#include <stdint.h>
+static inline void sys_time_usleep(uint32_t us) {
+  usleep(us);
+}
 
-extern uint32_t led_hw_values;
-
-#define LED_INIT(i) { led_hw_values &= ~(1<<i); }
-#define LED_ON(i) { led_hw_values |= (1<<i); }
-#define LED_OFF(i) { led_hw_values &= ~(1<<i); }
-#define LED_TOGGLE(i) { led_hw_values ^= (1<<i); }
-
-#define LED_PERIODIC() {}
-
-#endif /* LED_HW_H_ */
+#endif /* SYS_TIME_ARCH_H */

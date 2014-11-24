@@ -20,6 +20,9 @@
 # Boston, MA 02111-1307, USA.
 #
 
+#
+# Makefile for linux targets (e.g. OMAP, BBB, ARDrone)
+#
 
 #
 # find compiler toolchain
@@ -65,11 +68,11 @@ CXXFLAGS += -Wall -Wextra
 CXXFLAGS += $($(TARGET).CXXFLAGS)
 CXXFLAGS += $(USER_CFLAGS)
 
-SRC_C_OMAP  = $($(TARGET).srcs)
-OBJ_C_OMAP = $(SRC_C_OMAP:%.c=$(OBJDIR)/%.o)
+SRC_C_LINUX  = $($(TARGET).srcs)
+OBJ_C_LINUX = $(SRC_C_LINUX:%.c=$(OBJDIR)/%.o)
 
-SRC_CPP_OMAP  = $($(TARGET).cpp_srcs)
-OBJ_CPP_OMAP = $(SRC_CPP_OMAP:%.cpp=$(OBJDIR)/%.o)
+SRC_CPP_LINUX  = $($(TARGET).cpp_srcs)
+OBJ_CPP_LINUX = $(SRC_CPP_LINUX:%.cpp=$(OBJDIR)/%.o)
 
 printcommands:
 	@echo ""
@@ -94,12 +97,12 @@ elf: $(OBJDIR)/$(TARGET).elf
 
 # Link: create ELF output file from object files.
 .SECONDARY : $(OBJDIR)/$(TARGET).elf
-.PRECIOUS :   $(OBJ_C_OMAP) $(OBJ_CPP_OMAP)
-%.elf:   $(OBJ_C_OMAP) $(OBJ_CPP_OMAP)
+.PRECIOUS :   $(OBJ_C_LINUX) $(OBJ_CPP_LINUX)
+%.elf:   $(OBJ_C_LINUX) $(OBJ_CPP_LINUX)
 	@echo LD $@
 	$(Q)if (expr "$($(TARGET).cpp_srcs)"); \
-		  then $(CXX) $(CXXFLAGS) $(OBJ_CPP_OMAP) $(OBJ_C_OMAP) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS); \
-		  else $(CC) $(CFLAGS) $(OBJ_C_OMAP) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS); fi
+		  then $(CXX) $(CXXFLAGS) $(OBJ_CPP_LINUX) $(OBJ_C_LINUX) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS); \
+		  else $(CC) $(CFLAGS) $(OBJ_C_LINUX) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS); fi
 
 # Compile: create object files from C source files
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac

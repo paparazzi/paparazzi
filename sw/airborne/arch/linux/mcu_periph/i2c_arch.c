@@ -21,7 +21,7 @@
  *
  */
 
-/** @file arch/omap/mcu_periph/i2c_arch.c
+/** @file arch/linux/mcu_periph/i2c_arch.c
  * I2C functionality
  */
 

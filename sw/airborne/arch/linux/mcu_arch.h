@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014 Felix Ruess <felix.ruess@gmail.com>
+ *
+ * Copyright (C) 2009-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -14,17 +15,24 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, see
- * <http://www.gnu.org/licenses/>.
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
  */
 
 /**
- * @file arch/omap/mcu_periph/spi_arch.h
- * Handling of SPI hardware for Linux/OMAP.
+ * @file arch/linux/mcu_arch.c
+ * linux arch dependant microcontroller initialisation functions.
+ *
+ * Because Linux runs on omap, we don't have to initialize the MCU ourselves.
  */
 
-#ifndef SPI_ARCH_H
-#define SPI_ARCH_H
+#ifndef MCU_ARCH_H_
+#define MCU_ARCH_H_
 
+extern void mcu_arch_init(void);
 
-#endif // SPI_ARCH_H
+#define mcu_int_enable() {}
+#define mcu_int_disable() {}
+
+#endif /* MCU_ARCH_H_ */

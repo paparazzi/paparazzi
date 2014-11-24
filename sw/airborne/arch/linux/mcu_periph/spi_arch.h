@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013 The Paparazzi Team
+ * Copyright (C) 2014 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -14,28 +14,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
- * @file arch/omap/subsystems/settings_arch.c
- * OMAP arch Persistent settings.
- *
- * Unimplemented.
+ * @file arch/linux/mcu_periph/spi_arch.h
+ * Handling of SPI hardware for Linux.
  */
 
-#include "subsystems/settings.h"
+#ifndef SPI_ARCH_H
+#define SPI_ARCH_H
 
-int32_t persistent_write(uint32_t ptr, uint32_t size) {
-  ptr=ptr;
-  size=size;
-  return -1;
-}
 
-int32_t persistent_read(uint32_t ptr, uint32_t size) {
-  ptr=ptr;
-  size=size;
-  return -1;
-}
+#endif // SPI_ARCH_H

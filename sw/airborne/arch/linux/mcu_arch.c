@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2014 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2009-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -18,31 +18,15 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file arch/linux/mcu_arch.h
+ * linux arch dependant microcontroller initialisation functions.
  *
+ * Because Linux runs on omap, we don't have to initialize the MCU ourselves.
  */
 
-/** @file arch/omap/mcu_periph/i2c_arch.h
- * I2C functionality
- */
+#include "mcu_arch.h"
 
-#ifndef OMAP_MCU_PERIPH_I2C_ARCH_H
-#define OMAP_MCU_PERIPH_I2C_ARCH_H
-
-#include "mcu_periph/i2c.h"
-
-#if USE_I2C0
-extern void i2c0_hw_init(void);
-#endif /* USE_I2C0 */
-
-
-#if USE_I2C1
-extern void i2c1_hw_init(void);
-#endif /* USE_I2C1 */
-
-
-#if USE_I2C2
-extern void i2c2_hw_init(void);
-#endif /* USE_I2C2 */
-
-
-#endif /* OMAP_MCU_PERIPH_I2C_ARCH_H */
+void mcu_arch_init(void) { }

@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (C) 2009-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -18,42 +17,25 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file arch/linux/subsystems/settings_arch.c
+ * linux arch Persistent settings.
  *
+ * Unimplemented.
  */
 
-/** @file arch/omap/mcu_periph/sys_time_arch.h
- * omap timing functions
- */
+#include "subsystems/settings.h"
 
-#ifndef SYS_TIME_ARCH_H
-#define SYS_TIME_ARCH_H
-
-#include "std.h"
-#include <unistd.h>
-
-extern void sys_tick_handler(int signum);
-
-/**
- * Get the time in microseconds since startup.
- * WARNING: overflows after 71min34seconds!
- * @return current system time as uint32_t
- */
-static inline uint32_t get_sys_time_usec(void) {
-  return sys_time.nb_sec * 1000000 +
-    usec_of_cpu_ticks(sys_time.nb_sec_rem);
+int32_t persistent_write(uint32_t ptr, uint32_t size) {
+  ptr=ptr;
+  size=size;
+  return -1;
 }
 
-/**
- * Get the time in milliseconds since startup.
- * @return milliseconds since startup as uint32_t
- */
-static inline uint32_t get_sys_time_msec(void) {
-  return sys_time.nb_sec * 1000 +
-    msec_of_cpu_ticks(sys_time.nb_sec_rem);
+int32_t persistent_read(uint32_t ptr, uint32_t size) {
+  ptr=ptr;
+  size=size;
+  return -1;
 }
-
-static inline void sys_time_usleep(uint32_t us) {
-  usleep(us);
-}
-
-#endif /* SYS_TIME_ARCH_H */

@@ -19,8 +19,8 @@
  */
 
 /**
- * @file arch/omap/mcu_periph/spi_arch.c
- *
+ * @file arch/linux/mcu_periph/spi_arch.c
+ * Handling of SPI hardware for Linux.
  */
 
 #include <stdio.h>

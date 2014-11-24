@@ -23,7 +23,7 @@
 /* $Id: i2c-dev.h 5361 2008-10-19 09:47:02Z khali $ */
 
 /**
- * @file arch/omap/mcu_periph/i2c_smbus.h
+ * @file arch/linux/mcu_periph/i2c_smbus.h
  * I2C-bus driver
  */
 

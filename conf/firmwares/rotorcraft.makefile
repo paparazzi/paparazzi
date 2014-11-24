@@ -105,7 +105,7 @@ $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 #
 # Electrical subsystem / Analog Backend
 #
-ifneq ($(ARCH), omap)
+ifneq ($(ARCH), linux)
 $(TARGET).CFLAGS += -DUSE_ADC
 $(TARGET).srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 $(TARGET).srcs   += subsystems/electrical.c
@@ -158,7 +158,7 @@ endif
 
 ns_srcs += mcu_periph/uart.c
 ns_srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-ifeq ($(ARCH), omap)
+ifeq ($(ARCH), linux)
 ns_srcs += $(SRC_ARCH)/serial_port.c
 endif
 

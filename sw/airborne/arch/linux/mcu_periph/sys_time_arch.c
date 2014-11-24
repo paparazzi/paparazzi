@@ -20,8 +20,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/omap/mcu_periph/sys_time_arch.h
- * omap timing functions
+/** @file arch/linux/mcu_periph/sys_time_arch.h
+ * linux timing functions
  */
 
 #include "mcu_periph/sys_time.h"

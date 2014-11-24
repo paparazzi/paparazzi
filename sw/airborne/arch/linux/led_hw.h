@@ -21,18 +21,22 @@
  */
 
 /**
- * @file arch/omap/mcu_arch.c
- * omap arch dependant microcontroller initialisation functions.
- *
- * Because Linux runs on omap, we don't have to initialize the MCU ourselves.
+ * @file arch/linux/led_hw.h
+ * linux arch dependant LED macros.
  */
 
-#ifndef MCU_ARCH_H_
-#define MCU_ARCH_H_
+#ifndef LED_HW_H_
+#define LED_HW_H_
 
-extern void mcu_arch_init(void);
+#include <stdint.h>
 
-#define mcu_int_enable() {}
-#define mcu_int_disable() {}
+extern uint32_t led_hw_values;
 
-#endif /* MCU_ARCH_H_ */
+#define LED_INIT(i) { led_hw_values &= ~(1<<i); }
+#define LED_ON(i) { led_hw_values |= (1<<i); }
+#define LED_OFF(i) { led_hw_values &= ~(1<<i); }
+#define LED_TOGGLE(i) { led_hw_values ^= (1<<i); }
+
+#define LED_PERIODIC() {}
+
+#endif /* LED_HW_H_ */

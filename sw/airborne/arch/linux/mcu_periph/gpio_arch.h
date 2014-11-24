@@ -20,7 +20,7 @@
  */
 
 /**
- * @file arch/omap/mcu_periph/gpio_arch.h
+ * @file arch/linux/mcu_periph/gpio_arch.h
  *
  * GPIO helper functions for linux/omap.
  * @todo implement gpio_set|clear

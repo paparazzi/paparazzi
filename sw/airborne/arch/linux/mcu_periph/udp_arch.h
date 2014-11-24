@@ -19,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/omap/mcu_periph/udp_arch.h
- * omap UDP handling
+/** @file arch/linux/mcu_periph/udp_arch.h
+ * linux UDP handling
  */
 
 #ifndef UDP_ARCH_H
