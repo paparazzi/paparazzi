@@ -196,46 +196,46 @@
 
   <section name="GUIDANCE_V"   prefix="GUIDANCE_V_">
 
-   <define name="REF_MIN_ZDD"  value="-0.5*9.81"/>
-   <define name="REF_MAX_ZDD"  value=" 0.5*9.81"/>
-   <define name="REF_MIN_ZD"   value="-1.5"/>
-   <define name="REF_MAX_ZD"   value=" 1.5"/>
-   <define name="HOVER_KP"     value="130"/>
-   <define name="HOVER_KD"     value="80"/>
-   <define name="HOVER_KI"     value="0"/>
-   <!-- SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
-   <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
-   <define name="ADAPT_NOISE_FACTOR" value="1.5"/>
+    <define name="REF_MIN_ZDD"  value="-0.5*9.81"/>
+    <define name="REF_MAX_ZDD"  value=" 0.5*9.81"/>
+    <define name="REF_MIN_ZD"   value="-1.5"/>
+    <define name="REF_MAX_ZD"   value=" 1.5"/>
+    <define name="HOVER_KP"     value="130"/>
+    <define name="HOVER_KD"     value="80"/>
+    <define name="HOVER_KI"     value="0"/>
+    <!-- SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
+    <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
+    <define name="ADAPT_NOISE_FACTOR" value="1.5"/>
   </section>
 
- <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="MAX_BANK" value="30" unit="deg"/>
-   <define name="PGAIN" value="50"/>
-   <define name="DGAIN" value="80"/>
-   <define name="IGAIN" value="20"/>
-   <define name="NGAIN" value="0"/>
-   <!-- feedforward -->
-   <define name="AGAIN" value="0"/>
- </section>
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="30" unit="deg"/>
+    <define name="PGAIN" value="50"/>
+    <define name="DGAIN" value="80"/>
+    <define name="IGAIN" value="20"/>
+    <define name="NGAIN" value="0"/>
+    <!-- feedforward -->
+    <define name="AGAIN" value="0"/>
+  </section>
 
- <section name="BAT">
-   <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
- </section>
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+  </section>
 
- <section name="AUTOPILOT">
-   <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
-   <!--define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_Z_HOLD"/-->
-   <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
- </section>
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <!--define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_Z_HOLD"/-->
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+  </section>
 
- <section name="FMS">
-   <define name="BOOZ_FMS_TIMEOUT" value="0"/>
- </section>
+  <section name="FMS">
+    <define name="BOOZ_FMS_TIMEOUT" value="0"/>
+  </section>
 
- <section name="CAM" prefix="ROTORCRAFT_CAM_">
-    <define name="DEFAULT_MODE" value="MODE_MANUAL"/>
- </section>
+  <section name="CAM" prefix="ROTORCRAFT_CAM_">
+    <define name="DEFAULT_MODE" value="ROTORCRAFT_CAM_MODE_MANUAL"/>
+  </section>
 
   <section name="SERVO_SWITCH">
     <define name="SERVO_SWITCH_SERVO" value="DROP"/>
@@ -245,9 +245,9 @@
     <define name="DropClose()" value="ServoSwitchOff()"/>
   </section>
 
- <section name="MISC">
-   <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
- </section>
+  <section name="MISC">
+    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
+  </section>
 
   <section name="GCS">
     <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>

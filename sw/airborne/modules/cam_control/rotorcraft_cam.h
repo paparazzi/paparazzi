@@ -42,7 +42,6 @@
 
 #include "std.h"
 #include "generated/airframe.h"
-#include "generated/flight_plan.h"
 #include "math/pprz_algebra_int.h"
 #include "mcu_periph/gpio.h"
 
