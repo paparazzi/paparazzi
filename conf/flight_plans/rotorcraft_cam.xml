@@ -1,0 +1,90 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="152" ground_alt="147" lat0="43 33 50.83" lon0="1 28 52.61" max_dist_from_home="150" name="Rotorcraft Cam test (Enac)" security_height="2">
+  <header>
+#include "autopilot.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="CLIMB" x="0.0" y="5.0"/>
+    <waypoint name="STDBY" x="-2.0" y="-5.0"/>
+    <waypoint name="p1" x="22.4" y="-15.9"/>
+    <waypoint name="p2" x="60.5" y="-71.6"/>
+    <waypoint name="p3" x="43.1" y="-83.1"/>
+    <waypoint name="p4" x="2.7" y="-26.7"/>
+    <waypoint height="2." name="CAM" x="-20" y="-50"/>
+    <waypoint name="TD" x="5.6" y="-10.9"/>
+  </waypoints>
+  <blocks>
+    <block name="Wait GPS">
+      <call fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="0.5" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="stay_p1">
+      <stay wp="p1"/>
+    </block>
+    <block name="go_p2">
+      <call fun="nav_set_heading_deg(90)"/>
+      <go wp="p2"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="line_p1_p2">
+      <go from="p1" hmode="route" wp="p2"/>
+      <stay until="stage_time>10" wp="p2"/>
+      <go from="p2" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="route dc shoot">
+      <go wp="p1"/>
+      <set value="DC_AUTOSHOOT_DISTANCE" var="dc_autoshoot"/>
+      <go from="p1" hmode="route" wp="p2"/>
+      <go from="p2" hmode="route" wp="p3"/>
+      <go from="p3" hmode="route" wp="p4"/>
+      <go from="p4" hmode="route" wp="p1"/>
+      <set value="DC_AUTOSHOOT_STOP" var="dc_autoshoot"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
+      <set value="25" var="nav_radius"/>
+      <call fun="dc_Circle(30)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 1.0" wp="CAM"/>
+      <call fun="dc_stop()"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="land">
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="-0.8" vmode="climb" wp="TD"/>
+    </block>
+    <block name="landed">
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>
