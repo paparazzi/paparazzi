@@ -135,7 +135,7 @@ extern void nav_circle(struct EnuCoor_i * wp_center, int32_t radius);
   nav_circle(&waypoints[_center], POS_BFP_OF_REAL(_radius)); \
 }
 
-#define NavCircleCount() (abs(nav_circle_radians) / INT32_ANGLE_2_PI)
+#define NavCircleCount() ((float)abs(nav_circle_radians) / INT32_ANGLE_2_PI)
 #define NavCircleQdr() ({ int32_t qdr = INT32_DEG_OF_RAD(INT32_ANGLE_2_PI_2 - nav_circle_qdr) >> INT32_ANGLE_FRAC; NormCourse(qdr); qdr; })
 
 /** True if x (in degrees) is close to the current QDR (less than 10 degrees)*/
