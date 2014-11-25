@@ -14,6 +14,7 @@
 
   <header>
     <file name="servo_cam_ctrl.h"/>
+    <file name="dc.h"/>
   </header>
 
   <init fun="servo_cam_ctrl_init()"/>

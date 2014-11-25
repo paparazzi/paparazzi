@@ -12,6 +12,7 @@
 
   <header>
     <file name="atmega_i2c_cam_ctrl.h"/>
+    <file name="dc.h"/
   </header>
 
   <init 	fun="atmega_i2c_cam_ctrl_init()"/>
