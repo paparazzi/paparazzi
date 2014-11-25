@@ -7,7 +7,7 @@
       Using I2C connected remote microcontroller
     </description>
     <define name="DC_SHOOT_ON_BUTTON_RELEASE" />
-    <define name="SENSOR_SYNC_SEND" value="1" />
+    <define name="DC_SHOT_SYNC_SEND" value="TRUE|FALSE" description="send DC_SHOT message when photo was taken (default: TRUE)"/>
   </doc>
 
   <header>
@@ -26,13 +26,11 @@
     <file name="dc.c"/>
       <define name="ATMEGA_I2C_DEV" value="i2c0"/>
       <define name="USE_I2C0" value="1"/>
-      <define name="SENSOR_SYNC_SEND" value="1" />
   </makefile>
 
   <makefile target="sim">
     <file name="sim_i2c_cam_ctrl.c"/>
     <file name="dc.c"/>
-      <define name="SENSOR_SYNC_SEND" value="1" />
   </makefile>
 
 </module>

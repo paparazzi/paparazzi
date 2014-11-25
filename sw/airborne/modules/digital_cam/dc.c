@@ -46,9 +46,14 @@
 #define DC_AUTOSHOOT_QUARTERSEC_PERIOD 2
 #endif
 
-/** default distance interval 50m */
+/** default distance interval for distance mode: 50m */
 #ifndef DC_AUTOSHOOT_DISTANCE_INTERVAL
 #define DC_AUTOSHOOT_DISTANCE_INTERVAL 50
+#endif
+
+/** default distance interval for survey mode: 50m */
+#ifndef DC_AUTOSHOOT_SURVEY_INTERVAL
+#define DC_AUTOSHOOT_SURVEY_INTERVAL 50
 #endif
 
 // Variables with boot defaults
@@ -62,32 +67,30 @@ float dc_circle_start_angle = 0;
 float dc_circle_last_block = 0;
 float dc_circle_max_blocks = 0;
 
-float dc_gps_dist = 50;
+float dc_survey_interval = DC_AUTOSHOOT_SURVEY_INTERVAL;
 float dc_gps_next_dist = 0;
 float dc_gps_x = 0;
 float dc_gps_y = 0;
 
-uint8_t dc_autoshoot_distance_interval;
+static struct FloatVect2 last_shot_pos = {0.0, 0.0};
+float dc_distance_interval;
+
 uint8_t dc_autoshoot_quartersec_period;
 
-#ifdef SENSOR_SYNC_SEND
+/** by default send DC_SHOT message when photo was taken */
+#ifndef DC_SHOT_SYNC_SEND
+#define DC_SHOT_SYNC_SEND 1
+#endif
+
+#if DC_SHOT_SYNC_SEND
 
 uint16_t dc_photo_nr = 0;
-uint16_t dc_buffer = 0;
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "state.h"
 #include "subsystems/gps.h"
-
-
-void dc_init(void)
-{
-  dc_autoshoot = DC_AUTOSHOOT_STOP;
-  dc_autoshoot_quartersec_period = DC_AUTOSHOOT_QUARTERSEC_PERIOD;
-  dc_autoshoot_distance_interval = DC_AUTOSHOOT_DISTANCE_INTERVAL;
-}
 
 void dc_send_shot_position(void)
 {
@@ -99,8 +102,7 @@ void dc_send_shot_position(void)
   uint16_t speed = (*stateGetHorizontalSpeedNorm_f()) * 10;
   int16_t photo_nr = -1;
 
-  if (dc_buffer < DC_IMAGE_BUFFER) {
-    dc_buffer++;
+  if (dc_photo_nr < DC_IMAGE_BUFFER) {
     dc_photo_nr++;
     photo_nr = dc_photo_nr;
   }
@@ -116,7 +118,18 @@ void dc_send_shot_position(void)
                         &speed,
                         &gps.tow);
 }
-#endif /* SENSOR_SYNC_SEND */
+#else
+void dc_send_shot_position(void)
+{
+}
+#endif /* DC_SHOT_SYNC_SEND */
+
+void dc_init(void)
+{
+  dc_autoshoot = DC_AUTOSHOOT_STOP;
+  dc_autoshoot_quartersec_period = DC_AUTOSHOOT_QUARTERSEC_PERIOD;
+  dc_distance_interval = DC_AUTOSHOOT_DISTANCE_INTERVAL;
+}
 
 uint8_t dc_info(void) {
 #ifdef DOWNLINK_SEND_DC_INFO
@@ -128,8 +141,8 @@ uint8_t dc_info(void) {
                         &stateGetPositionLla_i()->lon,
                         &stateGetPositionLla_i()->alt,
                         &course,
-                        &dc_buffer,
-                        &dc_gps_dist,
+                        &dc_photo_nr,
+                        &dc_survey_interval,
                         &dc_gps_next_dist,
                         &dc_gps_x,
                         &dc_gps_y,
@@ -139,6 +152,18 @@ uint8_t dc_info(void) {
                         &dc_gps_count,
                         &dc_autoshoot_quartersec_period);
 #endif
+  return 0;
+}
+
+/* shoot on distance */
+uint8_t dc_distance(float interval) {
+  dc_autoshoot = DC_AUTOSHOOT_DISTANCE;
+  dc_gps_count = 0;
+  dc_distance_interval = interval;
+  last_shot_pos.x = 0;
+  last_shot_pos.y = 0;
+
+  dc_info();
   return 0;
 }
 
@@ -166,7 +191,7 @@ uint8_t dc_circle(float interval, float start) {
 uint8_t dc_survey(float interval, float x, float y) {
   dc_autoshoot = DC_AUTOSHOOT_SURVEY;
   dc_gps_count = 0;
-  dc_gps_dist = interval;
+  dc_survey_interval = interval;
 
   if (x == DC_IGNORE && y == DC_IGNORE) {
     dc_gps_x = stateGetPositionEnu_f()->x;
@@ -216,14 +241,14 @@ void dc_periodic_4Hz(void)
 
     case DC_AUTOSHOOT_DISTANCE:
       {
-        static struct FloatVect2 last_shot_pos = {0.0, 0.0};
         struct FloatVect2 cur_pos;
         cur_pos.x = stateGetPositionEnu_f()->x;
         cur_pos.y = stateGetPositionEnu_f()->y;
         struct FloatVect2 delta_pos;
         VECT2_DIFF(delta_pos, cur_pos, last_shot_pos);
         float dist_to_last_shot = float_vect2_norm(&delta_pos);
-        if (dist_to_last_shot > dc_autoshoot_distance_interval) {
+        if (dist_to_last_shot > dc_distance_interval) {
+          dc_gps_count++;
           dc_send_command(DC_SHOOT);
           VECT2_COPY(last_shot_pos, cur_pos);
         }
@@ -251,7 +276,7 @@ void dc_periodic_4Hz(void)
         float dist_y = dc_gps_y - stateGetPositionEnu_f()->y;
 
         if (dist_x*dist_x + dist_y*dist_y >= dc_gps_next_dist*dc_gps_next_dist) {
-          dc_gps_next_dist += dc_gps_dist;
+          dc_gps_next_dist += dc_survey_interval;
           dc_gps_count++;
           dc_send_command(DC_SHOOT);
         }

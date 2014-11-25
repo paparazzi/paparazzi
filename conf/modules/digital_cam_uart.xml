@@ -6,6 +6,7 @@
       Send attitude and other relevant data to a computer based photocamera after a shootphoto command is given. And in return get certain value back from the computerbased photocamera to be able to intercat with the flightplan.</description>
     <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
     <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="grid in meters"/>
+    <define name="DC_SHOT_SYNC_SEND" value="TRUE|FALSE" description="send DC_SHOT message when photo was taken (default: TRUE)"/>
   </doc>
   <settings>
     <dl_settings name="control">
@@ -34,7 +35,6 @@
     <file name="uart_cam_ctrl.c"/>
     <file name="catia/protocol.c"/>
     <file name="dc.c"/>
-    <define name="SENSOR_SYNC_SEND" value="1"/>
     <raw>
 $(TARGET).CFLAGS += -DCAMERA_LINK=$(CAMERA_PORT)
 $(TARGET).CFLAGS += -DUSE_$(CAMERA_PORT)
