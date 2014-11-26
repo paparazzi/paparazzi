@@ -33,7 +33,7 @@
 
   <modules main_freq="512">
     <load name="gps_ubx_ucenter.xml"/>
-    <load name="flight_time.xml"/>
+    <load name="time_countdown.xml"/>
     <load name="TUDelft/imav2013.xml"/>
   </modules>
 
