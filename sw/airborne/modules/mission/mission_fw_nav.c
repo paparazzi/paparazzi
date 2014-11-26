@@ -34,12 +34,16 @@
 #include "subsystems/navigation/common_nav.h"
 #include "generated/flight_plan.h"
 
-// Utility function: converts lla to local point
-bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla) {
+/// Utility function: converts lla (int) to local point (float)
+bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla) {
+  /// TODO: don't convert to float, either use double or do completely in fixed point
+  struct LlaCoor_f lla_f;
+  LLA_FLOAT_OF_BFP(lla_f, *lla);
+
   /* Computes from (lat, long) in the referenced UTM zone */
   struct UtmCoor_f utm;
   utm.zone = nav_utm_zone0;
-  utm_of_lla_f(&utm, lla);
+  utm_of_lla_f(&utm, &lla_f);
 
   /* Computes relative position to HOME waypoint
    * and bound the distance to max_dist_from_home
