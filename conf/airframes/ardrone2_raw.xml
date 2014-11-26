@@ -4,7 +4,6 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2_raw">
-      <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
       <subsystem name="telemetry" type="transparent_udp"/>
       <subsystem name="radio_control" type="datalink"/>
     </target>

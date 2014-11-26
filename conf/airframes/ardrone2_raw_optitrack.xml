@@ -4,7 +4,6 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2_raw">
-      <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
       <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
       <configure name="USE_MAGNETOMETER" value="0"/>
 

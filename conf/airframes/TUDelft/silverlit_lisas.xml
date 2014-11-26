@@ -29,7 +29,6 @@ Lisa/S v1.0 board (http://wiki.paparazziuav.org/wiki/Lisa/S)
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="120"/>
       <configure name="PERIODIC_FREQUENCY" value="120"/>  <!-- 120 seams to be the max of the barometer -->
 
-      <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>  <!-- NEW -->
     </target>
     <target name="sim" board="pc"/>
     <target name="nps" board="pc">
