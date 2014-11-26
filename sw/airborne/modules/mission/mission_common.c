@@ -137,9 +137,9 @@ int mission_parse_GOTO_WP(void) {
 int mission_parse_GOTO_WP_LLA(void) {
   if (DL_MISSION_GOTO_WP_LLA_ac_id(dl_buffer) != AC_ID) return FALSE; // not for this aircraft
 
-  struct LlaCoor_f lla;
-  lla.lat = RadOfDeg(DL_MISSION_GOTO_WP_LLA_wp_lat(dl_buffer));
-  lla.lon = RadOfDeg(DL_MISSION_GOTO_WP_LLA_wp_lon(dl_buffer));
+  struct LlaCoor_i lla;
+  lla.lat = DL_MISSION_GOTO_WP_LLA_wp_lat(dl_buffer);
+  lla.lon = DL_MISSION_GOTO_WP_LLA_wp_lon(dl_buffer);
   lla.alt = DL_MISSION_GOTO_WP_LLA_wp_alt(dl_buffer);
 
   struct _mission_element me;
@@ -172,9 +172,9 @@ int mission_parse_CIRCLE(void) {
 int mission_parse_CIRCLE_LLA(void) {
   if (DL_MISSION_CIRCLE_LLA_ac_id(dl_buffer) != AC_ID) return FALSE; // not for this aircraft
 
-  struct LlaCoor_f lla;
-  lla.lat = RadOfDeg(DL_MISSION_CIRCLE_LLA_center_lat(dl_buffer));
-  lla.lon = RadOfDeg(DL_MISSION_CIRCLE_LLA_center_lon(dl_buffer));
+  struct LlaCoor_i lla;
+  lla.lat = DL_MISSION_CIRCLE_LLA_center_lat(dl_buffer);
+  lla.lon = DL_MISSION_CIRCLE_LLA_center_lon(dl_buffer);
   lla.alt = DL_MISSION_CIRCLE_LLA_center_alt(dl_buffer);
 
   struct _mission_element me;
@@ -210,12 +210,12 @@ int mission_parse_SEGMENT(void) {
 int mission_parse_SEGMENT_LLA(void) {
   if (DL_MISSION_SEGMENT_LLA_ac_id(dl_buffer) != AC_ID) return FALSE; // not for this aircraft
 
-  struct LlaCoor_f from_lla, to_lla;
-  from_lla.lat = RadOfDeg(DL_MISSION_SEGMENT_LLA_segment_lat_1(dl_buffer));
-  from_lla.lon = RadOfDeg(DL_MISSION_SEGMENT_LLA_segment_lon_1(dl_buffer));
+  struct LlaCoor_i from_lla, to_lla;
+  from_lla.lat = DL_MISSION_SEGMENT_LLA_segment_lat_1(dl_buffer);
+  from_lla.lon = DL_MISSION_SEGMENT_LLA_segment_lon_1(dl_buffer);
   from_lla.alt = DL_MISSION_SEGMENT_LLA_segment_alt(dl_buffer);
-  to_lla.lat = RadOfDeg(DL_MISSION_SEGMENT_LLA_segment_lat_2(dl_buffer));
-  to_lla.lon = RadOfDeg(DL_MISSION_SEGMENT_LLA_segment_lon_2(dl_buffer));
+  to_lla.lat = DL_MISSION_SEGMENT_LLA_segment_lat_2(dl_buffer);
+  to_lla.lon = DL_MISSION_SEGMENT_LLA_segment_lon_2(dl_buffer);
   to_lla.alt = DL_MISSION_SEGMENT_LLA_segment_alt(dl_buffer);
 
   struct _mission_element me;
@@ -263,21 +263,21 @@ int mission_parse_PATH(void) {
 int mission_parse_PATH_LLA(void) {
   if (DL_MISSION_PATH_LLA_ac_id(dl_buffer) != AC_ID) return FALSE; // not for this aircraft
 
-  struct LlaCoor_f lla[MISSION_PATH_NB];
-  lla[0].lat = RadOfDeg(DL_MISSION_PATH_LLA_point_lat_1(dl_buffer));
-  lla[0].lon = RadOfDeg(DL_MISSION_PATH_LLA_point_lon_1(dl_buffer));
+  struct LlaCoor_i lla[MISSION_PATH_NB];
+  lla[0].lat = DL_MISSION_PATH_LLA_point_lat_1(dl_buffer);
+  lla[0].lon = DL_MISSION_PATH_LLA_point_lon_1(dl_buffer);
   lla[0].alt = DL_MISSION_PATH_LLA_path_alt(dl_buffer);
-  lla[1].lat = RadOfDeg(DL_MISSION_PATH_LLA_point_lat_2(dl_buffer));
-  lla[1].lon = RadOfDeg(DL_MISSION_PATH_LLA_point_lon_2(dl_buffer));
+  lla[1].lat = DL_MISSION_PATH_LLA_point_lat_2(dl_buffer);
+  lla[1].lon = DL_MISSION_PATH_LLA_point_lon_2(dl_buffer);
   lla[1].alt = DL_MISSION_PATH_LLA_path_alt(dl_buffer);
-  lla[2].lat = RadOfDeg(DL_MISSION_PATH_LLA_point_lat_3(dl_buffer));
-  lla[2].lon = RadOfDeg(DL_MISSION_PATH_LLA_point_lon_3(dl_buffer));
+  lla[2].lat = DL_MISSION_PATH_LLA_point_lat_3(dl_buffer);
+  lla[2].lon = DL_MISSION_PATH_LLA_point_lon_3(dl_buffer);
   lla[2].alt = DL_MISSION_PATH_LLA_path_alt(dl_buffer);
-  lla[3].lat = RadOfDeg(DL_MISSION_PATH_LLA_point_lat_4(dl_buffer));
-  lla[3].lon = RadOfDeg(DL_MISSION_PATH_LLA_point_lon_4(dl_buffer));
+  lla[3].lat = DL_MISSION_PATH_LLA_point_lat_4(dl_buffer);
+  lla[3].lon = DL_MISSION_PATH_LLA_point_lon_4(dl_buffer);
   lla[3].alt = DL_MISSION_PATH_LLA_path_alt(dl_buffer);
-  lla[4].lat = RadOfDeg(DL_MISSION_PATH_LLA_point_lat_5(dl_buffer));
-  lla[4].lon = RadOfDeg(DL_MISSION_PATH_LLA_point_lon_5(dl_buffer));
+  lla[4].lat = DL_MISSION_PATH_LLA_point_lat_5(dl_buffer);
+  lla[4].lon = DL_MISSION_PATH_LLA_point_lon_5(dl_buffer);
   lla[4].alt = DL_MISSION_PATH_LLA_path_alt(dl_buffer);
 
   struct _mission_element me;

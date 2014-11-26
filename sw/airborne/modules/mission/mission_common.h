@@ -142,11 +142,11 @@ extern struct _mission_element * mission_get(void);
 
 /** Get the ENU component of LLA mission point
  * This function is firmware specific.
- * @param point pointer to the output ENU point
- * @param lla pointer to the input LLA coordinate
+ * @param point pointer to the output ENU point (float)
+ * @param lla pointer to the input LLA coordinates (int)
  * @return TRUE if conversion is succesful, FALSE otherwise
  */
-extern bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla);
+extern bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla);
 
 /** Run mission
  *
