@@ -39,9 +39,9 @@
 
 /// Utility function: converts lla (int) to local point (float)
 bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla) {
-  // return FALSE if there is no valid local coordinate
-  // FIXME we should only test if local frame is initialized, not valid
-  if (!stateIsLocalCoordinateValid()) return FALSE;
+  // return FALSE if there is no valid local coordinate system
+  if (!state.ned_initialized_i)
+    return FALSE;
 
   // change geoid alt to ellipsoid alt
   lla->alt = lla->alt - state.ned_origin_i.hmsl + state.ned_origin_i.lla.alt;
