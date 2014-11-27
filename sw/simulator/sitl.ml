@@ -46,11 +46,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let rc_period = 1./.40. (* s *)
   let sys_time_period = 1./.120. (* s *)
 
-  let msg = fun name ->
-    ExtXml.child Data.messages_ap ~select:(fun x -> ExtXml.attrib x "name" = name) "message"
-
-
-(* Commands handling (rcommands is the intermediate storage) *)
+  (* Commands handling (rcommands is the intermediate storage) *)
   let rc_channels = Array.of_list (Xml.children A.ac.Data.radio)
   let nb_channels = Array.length rc_channels
   let rc_channel_no = fun x ->
