@@ -75,7 +75,8 @@ static inline void main_periodic_task(void)
     imu_periodic();
   }
   RunOnceEvery(10, { LED_PERIODIC();});
-  main_report();
+
+  RunOnceEvery(20, main_report());
 }
 
 static inline void main_event_task(void)
