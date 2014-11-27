@@ -21,13 +21,6 @@
 
 #include <inttypes.h>
 
-/* PERIODIC_C_MAIN is defined before generated/periodic_telemetry.h
- * in order to implement telemetry_mode_Main_*
- */
-#define PERIODIC_C_MAIN
-
-#include "generated/periodic_telemetry.h"
-
 #include "std.h"
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
@@ -71,6 +64,7 @@ static inline void main_init(void)
   imu_init();
   ahrs_aligner_init();
   ahrs_init();
+  downlink_init();
 
   mcu_int_enable();
 }
@@ -145,7 +139,101 @@ static inline void on_mag_event(void)
 
 static inline void main_report(void)
 {
-  RunOnceEvery(512, DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM));
 
-  periodic_telemetry_send_Main(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+  PeriodicPrescaleBy10( {
+    DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
+                                &imu.accel_unscaled.x,
+                                &imu.accel_unscaled.y,
+                                &imu.accel_unscaled.z);
+  }, {
+    DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
+                               &imu.gyro_unscaled.p,
+                               &imu.gyro_unscaled.q,
+                               &imu.gyro_unscaled.r);
+  }, {
+    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
+                              &imu.mag_unscaled.x,
+                              &imu.mag_unscaled.y,
+                              &imu.mag_unscaled.z);
+  }, {
+    DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
+                                   &imu.accel.x,
+                                   &imu.accel.y,
+                                   &imu.accel.z);
+  }, {
+    DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
+                                  &imu.gyro.p,
+                                  &imu.gyro.q,
+                                  &imu.gyro.r);
+  },
+
+  {
+    DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
+                                 &imu.mag.x,
+                                 &imu.mag.y,
+                                 &imu.mag.z);
+  },
+
+  {
+    DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
+  }, {
+#if USE_I2C2
+    uint16_t i2c2_queue_full_cnt        = i2c2.errors->queue_full_cnt;
+    uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
+    uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;
+    uint16_t i2c2_arb_lost_cnt          = i2c2.errors->arb_lost_cnt;
+    uint16_t i2c2_over_under_cnt        = i2c2.errors->over_under_cnt;
+    uint16_t i2c2_pec_recep_cnt         = i2c2.errors->pec_recep_cnt;
+    uint16_t i2c2_timeout_tlow_cnt      = i2c2.errors->timeout_tlow_cnt;
+    uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt;
+    uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt;
+    uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event;
+    const uint8_t _bus2 = 2;
+    DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
+                             &i2c2_queue_full_cnt,
+                             &i2c2_ack_fail_cnt,
+                             &i2c2_miss_start_stop_cnt,
+                             &i2c2_arb_lost_cnt,
+                             &i2c2_over_under_cnt,
+                             &i2c2_pec_recep_cnt,
+                             &i2c2_timeout_tlow_cnt,
+                             &i2c2_smbus_alert_cnt,
+                             &i2c2_unexpected_event_cnt,
+                             &i2c2_last_unexpected_event,
+                             &_bus2);
+#endif
+  }, {
+#ifdef AHRS_FLOAT
+    struct FloatEulers ltp_to_imu_euler;
+    float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_impl.ltp_to_imu_quat);
+    struct Int32Eulers euler_i;
+    EULERS_BFP_OF_REAL(euler_i, ltp_to_imu_euler);
+    struct Int32Eulers* eulers_body = stateGetNedToBodyEulers_i();
+    DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
+                                 &euler_i.phi,
+                                 &euler_i.theta,
+                                 &euler_i.psi,
+                                 &(eulers_body->phi),
+                                 &(eulers_body->theta),
+                                 &(eulers_body->psi));
+#else
+    struct Int32Eulers ltp_to_imu_euler;
+    int32_eulers_of_quat(&ltp_to_imu_euler, &ahrs_impl.ltp_to_imu_quat);
+    struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
+    DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
+                                 &ltp_to_imu_euler.phi,
+                                 &ltp_to_imu_euler.theta,
+                                 &ltp_to_imu_euler.psi,
+                                 &(eulers->phi),
+                                 &(eulers->theta),
+                                 &(eulers->psi));
+#endif
+  }, {
+#ifndef AHRS_FLOAT
+    DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
+                                     &ahrs_impl.gyro_bias.p,
+                                     &ahrs_impl.gyro_bias.q,
+                                     &ahrs_impl.gyro_bias.r);
+#endif
+  });
 }

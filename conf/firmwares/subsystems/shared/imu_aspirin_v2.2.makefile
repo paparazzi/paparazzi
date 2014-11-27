@@ -55,3 +55,9 @@ endif
 
 ap.CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
 ap.srcs   += $(IMU_ASPIRIN_2_SRCS)
+
+test_imu.CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
+test_imu.srcs   += $(IMU_ASPIRIN_2_SRCS)
+
+test_ahrs.CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
+test_ahrs.srcs   += $(IMU_ASPIRIN_2_SRCS)
