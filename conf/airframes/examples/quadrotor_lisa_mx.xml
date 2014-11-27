@@ -52,6 +52,13 @@
         <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="0"/>
       </subsystem>
     </target>
+    <target name="test_imu" board="lisa_mx_2.1">
+      <subsystem name="imu" type="lisa_mx_v2.1"/>
+    </target>
+    <target name="test_ahrs" board="lisa_mx_2.1">
+      <subsystem name="imu" type="lisa_mx_v2.1"/>
+      <subsystem name="ahrs" type="float_mlkf"/>
+    </target>
   </firmware>
 
   <autopilot name="rotorcraft_autopilot.xml" freq="512"/>
