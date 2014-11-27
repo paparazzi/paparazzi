@@ -109,7 +109,7 @@ void rotorcraft_cam_init(void) {
 #ifdef ROTORCRAFT_CAM_SWITCH_GPIO
   gpio_setup_output(ROTORCRAFT_CAM_SWITCH_GPIO);
 #endif
-  rotorcraft_cam_SetCamMode(ROTORCRAFT_CAM_DEFAULT_MODE);
+  rotorcraft_cam_set_mode(ROTORCRAFT_CAM_DEFAULT_MODE);
 #if ROTORCRAFT_CAM_USE_TILT
   rotorcraft_cam_tilt_pwm = ROTORCRAFT_CAM_TILT_NEUTRAL;
   ActuatorSet(ROTORCRAFT_CAM_TILT_SERVO, rotorcraft_cam_tilt_pwm);

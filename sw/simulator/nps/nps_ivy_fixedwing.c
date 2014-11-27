@@ -1,6 +1,7 @@
 #include "nps_ivy.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <Ivy/ivy.h>
 
 #include "generated/airframe.h"

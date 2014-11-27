@@ -38,3 +38,6 @@ ap.srcs += $(AHRS_SRCS)
 
 nps.CFLAGS += $(AHRS_CFLAGS)
 nps.srcs += $(AHRS_SRCS)
+
+test_ahrs.CFLAGS += $(AHRS_CFLAGS)
+test_ahrs.srcs += $(AHRS_SRCS)

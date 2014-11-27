@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2009-2013 The Paparazzi Team
+ * Copyright (C) 2014 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -22,7 +22,7 @@
  */
 
 /** @file arch/omap/mcu_periph/i2c_arch.h
- * I2C functionality (unimplemented)
+ * I2C functionality
  */
 
 #ifndef OMAP_MCU_PERIPH_I2C_ARCH_H
@@ -30,27 +30,18 @@
 
 #include "mcu_periph/i2c.h"
 
-#define I2cSendStart() {}
-
-
 #if USE_I2C0
-
 extern void i2c0_hw_init(void);
-
 #endif /* USE_I2C0 */
 
 
 #if USE_I2C1
-
 extern void i2c1_hw_init(void);
-
 #endif /* USE_I2C1 */
 
 
 #if USE_I2C2
-
 extern void i2c2_hw_init(void);
-
 #endif /* USE_I2C2 */
 
 

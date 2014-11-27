@@ -95,7 +95,7 @@ static void end_message(struct xbee_transport *trans, struct link_device *dev)
 {
   trans->cs_tx = 0xff - trans->cs_tx;
   dev->transmit(dev->periph, trans->cs_tx);
-  dev->send_message(dev);
+  dev->send_message(dev->periph);
 }
 
 static void overrun(struct xbee_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)))

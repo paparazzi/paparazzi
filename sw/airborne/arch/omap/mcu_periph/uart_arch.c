@@ -36,6 +36,27 @@
 // #define TRACE(fmt,args...)    fprintf(stderr, fmt, args)
 #define TRACE(fmt,args...)
 
+#if USE_UART0
+static inline void uart0_handler(void);
+#endif
+#if USE_UART1
+static inline void uart1_handler(void);
+#endif
+#if USE_UART2
+static inline void uart2_handler(void);
+#endif
+#if USE_UART3
+static inline void uart3_handler(void);
+#endif
+#if USE_UART4
+static inline void uart4_handler(void);
+#endif
+#if USE_UART5
+static inline void uart5_handler(void);
+#endif
+#if USE_UART6
+static inline void uart6_handler(void);
+#endif
 
 void uart_periph_set_baudrate(struct uart_periph* periph, uint32_t baud) {
   struct SerialPort* port;
@@ -52,7 +73,7 @@ void uart_periph_set_baudrate(struct uart_periph* periph, uint32_t baud) {
 
   //TODO: set device name in application and pass as argument
   // FIXME: paparazzi baud is 9600 for B9600 while open_raw needs 12 for B9600
-  printf("opening %s on uart0 at termios.h baud value=%d\n", periph->dev, baud);
+  // /printf("opening %s on uart0 at termios.h baud value=%d\n", periph->dev, baud);
   int ret = serial_port_open_raw(port,periph->dev, baud);
   if (ret != 0)
   {
@@ -117,32 +138,110 @@ static inline void uart_handler(struct uart_periph* periph) {
 
 }
 
+void uart_event(void) {
 #if USE_UART0
+  uart0_handler();
+#endif
+#if USE_UART1
+  uart1_handler();
+#endif
+#if USE_UART2
+  uart2_handler();
+#endif
+#if USE_UART3
+  uart3_handler();
+#endif
+#if USE_UART4
+  uart4_handler();
+#endif
+#if USE_UART5
+  uart5_handler();
+#endif
+#if USE_UART6
+  uart6_handler();
+#endif
+}
 
+#if USE_UART0
 void uart0_init( void ) {
   uart_periph_init(&uart0);
   strcpy(uart0.dev, UART0_DEV);
   uart_periph_set_baudrate(&uart0, UART0_BAUD);
 }
 
-
-void uart0_handler(void) {
+static inline void uart0_handler(void) {
   uart_handler(&uart0);
 }
-
 #endif /* USE_UART0 */
 
 #if USE_UART1
-
 void uart1_init( void ) {
   uart_periph_init(&uart1);
   strcpy(uart1.dev, UART1_DEV);
   uart_periph_set_baudrate(&uart1, UART1_BAUD);
 }
 
-void uart1_handler(void) {
+static inline void uart1_handler(void) {
   uart_handler(&uart1);
 }
-
 #endif /* USE_UART1 */
 
+#if USE_UART2
+void uart2_init(void) {
+  uart_periph_init(&uart2);
+  strcpy(uart2.dev, UART2_DEV);
+  uart_periph_set_baudrate(&uart2, UART2_BAUD);
+}
+
+static inline void uart2_handler(void) {
+  uart_handler(&uart2);
+}
+#endif /* USE_UART2 */
+
+#if USE_UART3
+void uart3_init(void) {
+  uart_periph_init(&uart3);
+  strcpy(uart3.dev, UART3_DEV);
+  uart_periph_set_baudrate(&uart3, UART3_BAUD);
+}
+
+static inline void uart3_handler(void) {
+  uart_handler(&uart3);
+}
+#endif /* USE_UART3 */
+
+#if USE_UART4
+void uart4_init(void) {
+  uart_periph_init(&uart4);
+  strcpy(uart4.dev, UART4_DEV);
+  uart_periph_set_baudrate(&uart4, UART4_BAUD);
+}
+
+static inline void uart4_handler(void) {
+  uart_handler(&uart4);
+}
+#endif /* USE_UART4 */
+
+#if USE_UART5
+void uart5_init(void) {
+  uart_periph_init(&uart5);
+  strcpy(uart5.dev, UART5_DEV);
+  uart_periph_set_baudrate(&uart5, UART5_BAUD);
+}
+
+static inline void uart5_handler(void) {
+  uart_handler(&uart5);
+}
+#endif /* USE_UART5 */
+
+#if USE_UART6
+void uart6_init(void) {
+  uart_periph_init(&uart6);
+  strcpy(uart6.dev, UART6_DEV);
+  uart_periph_set_baudrate(&uart6, UART6_BAUD);
+}
+
+static inline void uart6_handler(void) {
+  uart_handler(&uart6);
+}
+#endif /* USE_UART6 */

@@ -224,8 +224,11 @@ void imu_SetBodyToImuCurrent(float set) {
 }
 
 
-#define WEAK __attribute__((weak))
 // weak functions, used if not explicitly provided by implementation
+
+void WEAK imu_periodic(void)
+{
+}
 
 void WEAK imu_scale_gyro(struct Imu* _imu)
 {

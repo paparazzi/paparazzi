@@ -31,7 +31,7 @@ all:
 	@cat README
 
 shared_lib: $(OBJ)
-	$(CC) -shared -o $(BUILDDIR)/$(LIBNAME).so $(OBJ)
+	$(CC) -shared -o $(BUILDDIR)/$(LIBNAME).so $(OBJ) -lm
 
 install_shared_lib: shared_lib
 	test -d $(LIB_INSTALLDIR) || mkdir -p $(LIB_INSTALLDIR)

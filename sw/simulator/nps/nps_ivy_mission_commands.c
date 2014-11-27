@@ -1,3 +1,5 @@
+#if USE_MISSION_COMMANDS_IN_NPS
+
 #include "nps_ivy.h"
 
 #include <stdlib.h>
@@ -245,3 +247,6 @@ static void on_DL_END_MISSION(IvyClientPtr app __attribute__ ((unused)),
 
   mission_parse_END_MISSION();
 }
+
+
+#endif /* USE_MISSION_COMMANDS_IN_NPS */

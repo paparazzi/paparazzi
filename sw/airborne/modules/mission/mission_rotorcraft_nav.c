@@ -37,23 +37,26 @@
 //Buffer zone in [m] before MAX_DIST_FROM_HOME
 #define BUFFER_ZONE_DIST 10
 
-// Utility function: converts lla to local point
-bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla) {
-  // return FALSE if there is no valid local coordinate
-  // FIXME we should only test if local frame is initialized, not valid
-  if (!stateIsLocalCoordinateValid()) return FALSE;
+/// Utility function: converts lla (int) to local point (float)
+bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla) {
+  // return FALSE if there is no valid local coordinate system
+  if (!state.ned_initialized_i)
+    return FALSE;
 
   // change geoid alt to ellipsoid alt
-  lla->alt = lla->alt - state.ned_origin_f.hmsl + state.ned_origin_f.lla.alt;
+  lla->alt = lla->alt - state.ned_origin_i.hmsl + state.ned_origin_i.lla.alt;
+
   //Compute ENU components from LLA with respect to ltp origin
-  struct EnuCoor_f tmp_enu_point;
-  enu_of_lla_point_f(&tmp_enu_point, &state.ned_origin_f, lla);
+  struct EnuCoor_i tmp_enu_point_i;
+  enu_of_lla_point_i(&tmp_enu_point_i, &state.ned_origin_i, lla);
+  struct EnuCoor_f tmp_enu_point_f;
+  ENU_FLOAT_OF_BFP(tmp_enu_point_f, tmp_enu_point_i);
 
   //Bound the new waypoint with max distance from home
   struct EnuCoor_f home;
   ENU_FLOAT_OF_BFP(home, waypoints[WP_HOME]);
   struct FloatVect2 vect_from_home;
-  VECT2_DIFF(vect_from_home, tmp_enu_point, home);
+  VECT2_DIFF(vect_from_home, tmp_enu_point_f, home);
   //Saturate the mission wp not to overflow max_dist_from_home
   //including a buffer zone before limits
   float dist_to_home = float_vect2_norm(&vect_from_home);
@@ -63,7 +66,7 @@ bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla) {
   }
   // set new point
   VECT2_SUM(*point, home, vect_from_home);
-  point->z = tmp_enu_point.z;
+  point->z = tmp_enu_point_f.z;
 
   return TRUE;
 }

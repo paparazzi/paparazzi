@@ -4,12 +4,12 @@
 [submodule "sw/ext/luftboot"]
 	path = sw/ext/luftboot
 	url = https://github.com/paparazzi/luftboot.git
-[submodule "sw/ext/chibios"]
-	path = sw/ext/chibios
-	url = https://github.com/ChibiOS/ChibiOS-RT.git
 [submodule "sw/ext/fatfs"]
 	path = sw/ext/fatfs
 	url = https://github.com/enacuavlab/fatfs.git
 [submodule "sw/ext/ardrone2_vision"]
 	path = sw/ext/ardrone2_vision
 	url = https://github.com/tudelft/ardrone2_vision.git
+[submodule "sw/ext/chibios"]
+	path = sw/ext/chibios
+	url = https://github.com/mabl/ChibiOS.git

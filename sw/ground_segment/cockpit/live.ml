@@ -1382,6 +1382,13 @@ let listen_error = fun a ->
     log_and_say a "gcs" msg in
   safe_bind "TELEMETRY_ERROR" get_error
 
+let listen_info_msg = fun a ->
+  let get_msg = fun a _sender vs ->
+    let ac = find_ac _sender in
+    let msg_array = Pprz.assoc "msg" vs in
+    log_and_say a ac.ac_name (Pprz.string_of_value msg_array) in
+  tele_bind "INFO_MSG" (get_msg a)
+
 let listen_tcas = fun a ->
   let get_alarm_tcas = fun a txt _sender vs ->
     let ac = find_ac _sender in
@@ -1419,6 +1426,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
   listen_telemetry_status ();
   listen_alert my_alert;
   listen_error my_alert;
+  listen_info_msg my_alert;
   listen_tcas my_alert;
   listen_dcshot geomap;
 

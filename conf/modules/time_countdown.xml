@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="time_countdown" dir="time">
+  <doc>
+    <description>
+      Count down time.
+      Set an initial countdown value in seconds (re-settable via settings/GCS) and countdown @a time_until_end variable to zero.
+      E.g. allows to check how much time is left before the end of the competition.
+    </description>
+    <define name="TIME_COUNTDOWN_START_VALUE" value="10000" description="initial countdown value in seconds"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="time">
+        <dl_setting var="time_until_end" module="modules/time/time_countdown" min="0" step="1" max="1800" param="TIME_COUNTDOWN_START_VALUE"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="time_countdown.h"/>
+  </header>
+  <init fun="time_countdown_init()"/>
+  <periodic fun="time_countdown_periodic_1hz()" freq="1"/>
+  <makefile>
+    <file name="time_countdown.c"/>
+  </makefile>
+</module>

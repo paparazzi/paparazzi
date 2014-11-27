@@ -2,30 +2,17 @@
 
 <!-- Twinjet Multiplex (http://www.multiplex-rc.de/)
      Tiny 2.12 board (http://wiki.paparazziuav.org/wiki/index.php/Tiny_v2)
-     Tilted infrared sensor
+     MPU9250 Drotek Breakout Board
 -->
 
-<airframe name="Twinjet 2 Tiny 2.12">
+<airframe name="Black Cat">
 
   <modules>
-    <!--load name="adp_roll.xml"/-->
-    <!--load name="ins_vn100.xml"/-->
-    <!--load name="ets_module_sensors.xml"/-->
-    <!--load name="infrared_i2c.xml"/-->
-    <!--load name="max3100.xml"/>
-    <load name="gsm.xml"/-->
-    <!--load name="demo_module.xml">
-      <define name="TEST" value="1"/>
-      <define name="TEST_FLAG"/>
-    </load-->
-    <!--load name="enose.xml"/-->
     <load name="light.xml"/>
-    <load name="infrared_adc.xml"/>
   </modules>
 
   <firmware name="fixedwing">
     <define name="PITCH_TRIM"/>
-    <define name="USE_I2C0"/>
 
     <target name="ap" 			board="tiny_2.11"/>
     <target name="sim" 			board="pc"/>
@@ -33,7 +20,8 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="xbee_api"/>
     <subsystem name="control"       type="adaptive"/>
-    <subsystem name="ahrs"          type="infrared"/>
+    <subsystem name="imu"           type="mpu9250_i2c"/>
+    <subsystem name="ahrs"          type="float_dcm"/>
     <subsystem name="ins"           type="alt_float"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="navigation"/>
@@ -41,7 +29,6 @@
 
   <firmware name="setup">
     <target name="tunnel" 		      board="tiny_2.11" />
-    <target name="setup_actuators" 	board="tiny_2.11" />
   </firmware>
 
   <!-- commands section -->
@@ -78,8 +65,8 @@
     <let var="yaw" value="@YAW   * MOTOR_YAW_RATE"/>
     <set servo="MOTOR_LEFT" value="@THROTTLE - $yaw"/>
     <set servo="MOTOR_RIGHT" value="@THROTTLE + $yaw"/>
-    <set servo="AILEVON_LEFT" value="$elevator + $aileron"/>
-    <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
+    <set servo="AILEVON_LEFT" value="$elevator - $aileron"/>
+    <set servo="AILEVON_RIGHT" value="$elevator + $aileron"/>
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -87,7 +74,31 @@
     <define name="MAX_PITCH" value="0.6"/>
   </section>
 
-  <section name="INFRARED" prefix="IR_">
+  <section name="IMU" prefix="IMU_">
+    <!-- Calibration Neutral -->
+    <define name="GYRO_P_SIGN" value="1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
+    <define name="GYRO_R_SIGN" value="-1"/>
+    <define name="GYRO_P_NEUTRAL" value="0"/>
+    <define name="GYRO_Q_NEUTRAL" value="0"/>
+    <define name="GYRO_R_NEUTRAL" value="0"/>
+
+    <define name="ACCEL_X_SIGN" value="1"/>
+    <define name="ACCEL_Y_SIGN" value="-1"/>
+    <define name="ACCEL_Z_SIGN" value="-1"/>
+    <define name="ACCEL_X_NEUTRAL" value="109"/>
+    <define name="ACCEL_Y_NEUTRAL" value="13"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-404"/>
+    <define name="ACCEL_X_SENS" value="2.45045342816" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.44747844234" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.42689216106" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI" value="0" unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0" unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="0" unit="deg"/>
+  </section>
+
+  <!--section name="INFRARED" prefix="IR_">
     <define name="ADC_IR1_NEUTRAL" value="512"/>
     <define name="ADC_IR2_NEUTRAL" value="512"/>
     <define name="ADC_TOP_NEUTRAL" value="512"/>
@@ -105,7 +116,7 @@
     <define name="PITCH_NEUTRAL_DEFAULT" value="0.15" unit="deg"/>
 
     <define name="I2C_DEFAULT_CONF" value="1"/>
-  </section>
+  </section-->
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8600"/>
@@ -121,8 +132,11 @@
 <!--    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN1\rATTT80\r&quot;"/> -->
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
-    <define name="LIGHT_LED_1" value="3"/>
-    <define name="LIGHT_LED_2" value="5"/>
+    <define name="LIGHT_LED_NAV" value="3"/>
+    <define name="LIGHT_LED_STROBE" value="4"/>
+    <define name="USE_LED_4" value="1"/> <!-- CAM_SWITCH is a gpio not a led -->
+    <define name="LED_4_BANK" value="1"/>
+    <define name="LED_4_PIN" value="22"/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">

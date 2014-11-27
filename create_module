@@ -50,9 +50,13 @@ let add_to_list = fun l a ->
   l := !l @ [a];;
 
 let ask_init = fun () ->
-  printf "Initialization function to call, eg \"foo_init()\":\n";
-  let name = ask " - function (mandatory)" in
-  add_to_list init_list name;
+  if (List.length !init_list) > 0 then
+    printf "You already added an init function.\n"
+  else begin
+    printf "Initialization function to call, eg \"foo_init()\":\n";
+    let name = ask_param "function" Mandatory in
+    add_to_list init_list name
+  end;
   true;;
 
 let ask_periodic = fun () ->

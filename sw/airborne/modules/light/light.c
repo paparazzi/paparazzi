@@ -20,11 +20,16 @@
  *
  */
 
-#include "light.h"
+#include "modules/light/light.h"
 #include "led.h"
+#include "generated/airframe.h"
 
 uint8_t strobe_light_mode;
 uint8_t nav_light_mode;
+
+#ifndef LIGHT_LED_STROBE
+#define LIGHT_LED_STROBE 2
+#endif
 
 #ifndef STROBE_LIGHT_MODE_DEFAULT
 #define STROBE_LIGHT_MODE_DEFAULT 6
@@ -57,92 +62,92 @@ void periodic_light(void)
   switch (strobe_light_mode)
   {
     default:	// Always off
-  LED_OFF(LIGHT_LED_STROBE);
-  break;
+      LED_OFF(LIGHT_LED_STROBE);
+      break;
     case 1:	// Always on
-  LED_ON(LIGHT_LED_STROBE);
-  break;
+      LED_ON(LIGHT_LED_STROBE);
+      break;
     case 2:	// Blink
     case 3:
     case 4:
-  if (counter == (strobe_light_mode*5 - 4))
-  {
-    LED_OFF(LIGHT_LED_STROBE);
-  }
-  else if (counter >= 20)
-  {
-    LED_ON(LIGHT_LED_STROBE);
-    counter = 0;
-  }
-  break;
-     case 5:	// Complex Blinking
-  if (counter == 3)
-  {
-    LED_OFF(LIGHT_LED_STROBE);
-  }
-  else if (counter == 4)
-  {
-    LED_ON(LIGHT_LED_STROBE);
-  }
-  else if (counter == 6)
-  {
-    LED_OFF(LIGHT_LED_STROBE);
-  }
-  else if (counter == 7)
-  {
-    LED_ON(LIGHT_LED_STROBE);
-  }
-  else if (counter == 8)
-  {
-    LED_OFF(LIGHT_LED_STROBE);
-  }
-  else if (counter >= 25)
-  {
-    LED_ON(LIGHT_LED_STROBE);
-    counter = 0;
-  }
-  break;
-     case 6:
-  if (counter <= 18)
-  {
-    if ((counter % 2) == 0)
-    {
-      LED_ON(LIGHT_LED_STROBE);
-    }
-                else
-    {
-      LED_OFF(LIGHT_LED_STROBE);
-    }
-  }
-  else if (counter == 35)
-  {
-    counter = 0;
-  }
-       break;
+      if (counter == (strobe_light_mode*5 - 4))
+      {
+        LED_OFF(LIGHT_LED_STROBE);
+      }
+      else if (counter >= 20)
+      {
+        LED_ON(LIGHT_LED_STROBE);
+        counter = 0;
+      }
+      break;
+    case 5:	// Complex Blinking
+      if (counter == 3)
+      {
+        LED_OFF(LIGHT_LED_STROBE);
+      }
+      else if (counter == 4)
+      {
+        LED_ON(LIGHT_LED_STROBE);
+      }
+      else if (counter == 6)
+      {
+        LED_OFF(LIGHT_LED_STROBE);
+      }
+      else if (counter == 7)
+      {
+        LED_ON(LIGHT_LED_STROBE);
+      }
+      else if (counter == 8)
+      {
+        LED_OFF(LIGHT_LED_STROBE);
+      }
+      else if (counter >= 25)
+      {
+        LED_ON(LIGHT_LED_STROBE);
+        counter = 0;
+      }
+      break;
+    case 6:
+      if (counter <= 18)
+      {
+        if ((counter % 2) == 0)
+        {
+          LED_ON(LIGHT_LED_STROBE);
+        }
+        else
+        {
+          LED_OFF(LIGHT_LED_STROBE);
+        }
+      }
+      else if (counter == 35)
+      {
+        counter = 0;
+      }
+      break;
   }
 
 #ifdef LIGHT_LED_NAV
   switch (nav_light_mode)
   {
     default:	// Always off
-  LED_OFF(LIGHT_LED_NAV);
-  break;
+      LED_OFF(LIGHT_LED_NAV);
+      break;
     case 1:	// Always on
-  LED_ON(LIGHT_LED_NAV);
-  break;
+      LED_ON(LIGHT_LED_NAV);
+      break;
     case 2:	// Blink
     case 3:
     case 4:
-  if (counter_nav == (nav_light_mode*5 - 4))
-  {
-    LED_OFF(LIGHT_LED_NAV);
-  }
-  else if (counter_nav >= 20)
-  {
-    LED_ON(LIGHT_LED_NAV);
-    counter_nav = 0;
-  }
-  break;
+      if (counter_nav == (nav_light_mode*5 - 4))
+      {
+        LED_OFF(LIGHT_LED_NAV);
+      }
+      else if (counter_nav >= 20)
+      {
+        LED_ON(LIGHT_LED_NAV);
+        counter_nav = 0;
+      }
+      break;
   }
   counter_nav++;
 #endif

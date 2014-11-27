@@ -192,7 +192,7 @@ sym: $(OBJDIR)/$(TARGET).sym
 
 
 # Program the device.
-load upload program: $(OBJDIR)/$(TARGET).hex
+upload program: $(OBJDIR)/$(TARGET).hex
 ifeq ($(FLASH_MODE),IAP)
 	$(SUDO) $(LPC21IAP)  $(OBJDIR)/$(TARGET).elf
 else ifeq ($(FLASH_MODE),JTAG)
@@ -267,7 +267,7 @@ $(AOBJARM) : $(OBJDIR)/%.o : $(SRC_ARCH)/%.S
 
 
 # Listing of phony targets.
-.PHONY : all build elf hex lss sym load upload program
+.PHONY : all build elf hex lss sym upload program
 
 
 #

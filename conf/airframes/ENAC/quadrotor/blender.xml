@@ -236,7 +236,7 @@
  </section>
 
  <section name="CAM" prefix="ROTORCRAFT_CAM_">
-    <define name="DEFAULT_MODE" value="MODE_MANUAL"/>
+    <define name="DEFAULT_MODE" value="ROTORCRAFT_CAM_MODE_MANUAL"/>
  </section>
 
   <section name="SERVO_SWITCH">

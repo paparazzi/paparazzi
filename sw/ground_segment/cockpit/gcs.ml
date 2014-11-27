@@ -547,6 +547,28 @@ let rec replace_widget_children = fun name children xml ->
                   loop xmls)
     | _ -> xml
 
+let rec update_widget_size = fun orientation widgets xml ->
+  let get_size = fun (widget:GObj.widget) orientation ->
+    let rect = widget#misc#allocation in
+    if orientation = `HORIZONTAL then rect.Gtk.width else rect.Gtk.height
+  in
+  let xmls = Xml.children xml
+  and tag = String.lowercase (Xml.tag xml) in
+  match tag with
+      "widget" ->
+        let name = ExtXml.attrib xml "name" in
+        let widget =
+          try List.assoc name widgets with
+              Not_found -> failwith (sprintf "Unknown widget: '%s'" name)
+        in
+        let size = get_size widget orientation in
+        let xml = ExtXml.subst_attrib "size" (string_of_int size) xml in
+        Xml.Element("widget", Xml.attribs xml, xmls)
+    | "rows" ->
+        Xml.Element("rows", Xml.attribs xml, List.map (update_widget_size `VERTICAL widgets) xmls)
+    | "columns" ->
+        Xml.Element("columns", Xml.attribs xml, List.map (update_widget_size `HORIZONTAL widgets) xmls)
+    | x -> failwith (sprintf "update_widget_size: %s" x)
 
 
 
@@ -673,6 +695,7 @@ let () =
   let save_layout = fun () ->
     let the_new_layout = replace_widget_children "map2d" (Papgets.dump_store ()) the_layout in
     let width, height = Gdk.Drawable.get_size window#misc#window in
+    let the_new_layout = update_widget_size `HORIZONTAL widgets the_new_layout in
     let new_layout = Xml.Element ("layout", ["width", soi width; "height", soi height], [the_new_layout]) in
     save_layout layout_file (Xml.to_string_fmt new_layout)
   in

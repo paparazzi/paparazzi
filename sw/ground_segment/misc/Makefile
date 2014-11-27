@@ -61,13 +61,22 @@ kestrel2ivy: kestrel2ivy.o
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -o kestrel2ivy kestrel2ivy.o $(LIBRARYS) $(IVY_LDFLAGS)
 
-natnet2ivy: natnet2ivy.o $(PAPARAZZI_SRC)/sw/airborne/math/pprz_geodetic_double.o $(PAPARAZZI_SRC)/sw/airborne/math/pprz_algebra_double.o $(PAPARAZZI_SRC)/sw/airborne/fms/fms_network.o
+natnet2ivy: natnet2ivy.o pprz_geodetic_double.o pprz_algebra_double.o fms_network.o
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -o natnet2ivy natnet2ivy.o pprz_geodetic_double.o pprz_algebra_double.o fms_network.o $(LIBRARYS) $(NATNET_LIBRARYS) $(IVY_LDFLAGS)
 
 video_synchronizer: video_synchronizer.c
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) $(GTK_CFLAGS) $(LIBRARYS) $(INCLUDES) -o $@ $< $(GTK_LDFLAGS)
+
+pprz_algebra_double.o : $(PAPARAZZI_SRC)/sw/airborne/math/pprz_algebra_double.c
+	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
+
+pprz_geodetic_double.o : $(PAPARAZZI_SRC)/sw/airborne/math/pprz_geodetic_double.c
+	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
+
+fms_network.o : $(PAPARAZZI_SRC)/sw/airborne/fms/fms_network.c
+	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
 
 %.o : %.c
 	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<

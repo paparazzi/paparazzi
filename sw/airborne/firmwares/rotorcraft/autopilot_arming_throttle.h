@@ -69,14 +69,10 @@ static inline void autopilot_arming_set(bool_t motors_on) {
  * - if throttle was not down at startup, you need to put throttle down again first
  * - other sticks need to be centered to start motors
  * - need to be in manual mode to start the motors
- * - AHRS needs to be aligned
  */
 static inline void autopilot_arming_check_motors_on( void ) {
 
-  /* only allow switching motor if not in FAILSAFE or KILL mode */
-  if (autopilot_mode != AP_MODE_KILL && autopilot_mode != AP_MODE_FAILSAFE) {
-
-    switch(autopilot_arming_state) {
+  switch(autopilot_arming_state) {
     case STATE_UNINIT:
       autopilot_motors_on = FALSE;
       autopilot_arming_delay_counter = 0;
@@ -140,7 +136,6 @@ static inline void autopilot_arming_check_motors_on( void ) {
       break;
     default:
       break;
-    }
   }
 
 }

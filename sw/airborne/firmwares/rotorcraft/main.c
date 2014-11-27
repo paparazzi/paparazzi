@@ -34,6 +34,7 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/i2c.h"
+#include "mcu_periph/uart.h"
 #if USE_UDP
 #include "mcu_periph/udp.h"
 #endif
@@ -283,6 +284,10 @@ STATIC_INLINE void failsafe_check( void ) {
 STATIC_INLINE void main_event( void ) {
 
   i2c_event();
+
+#ifndef SITL
+  uart_event();
+#endif
 
 #if USE_UDP
   udp_event();

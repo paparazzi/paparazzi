@@ -23,6 +23,10 @@
       <subsystem name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART2"/>
       </subsystem>
+      <subsystem name="radio_control" type="sbus_dual">
+        <configure name="SBUS1_PORT" value="UART3"/>
+        <configure name="SBUS2_PORT" value="UART5"/>
+      </subsystem>
       <!-- AP -->
       <subsystem name="control"/>
       <subsystem name="navigation"/>
@@ -37,6 +41,7 @@
       </subsystem>
     </target>
     <target name="fbw" board="lisa_m_2.0">
+      <configure name="SEPARATE_FBW" value="1"/>
       <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="1"/>
       <define name="LINK_MCU_LED" value="1"/>
       <configure name="HAS_LUFTBOOT" value="0"/>

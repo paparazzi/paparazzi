@@ -128,15 +128,16 @@ void dl_parse_msg(void) {
         DL_RC_3CH_pitch(dl_buffer));
     break;
   case DL_RC_4CH :
+    if (DL_RC_4CH_ac_id(dl_buffer) == AC_ID) {
 #ifdef RADIO_CONTROL_DATALINK_LED
-    LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
+      LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
 #endif
-    parse_rc_4ch_datalink(
-        DL_RC_4CH_mode(dl_buffer),
-        DL_RC_4CH_throttle(dl_buffer),
-        DL_RC_4CH_roll(dl_buffer),
-        DL_RC_4CH_pitch(dl_buffer),
-        DL_RC_4CH_yaw(dl_buffer));
+      parse_rc_4ch_datalink(DL_RC_4CH_mode(dl_buffer),
+                            DL_RC_4CH_throttle(dl_buffer),
+                            DL_RC_4CH_roll(dl_buffer),
+                            DL_RC_4CH_pitch(dl_buffer),
+                            DL_RC_4CH_yaw(dl_buffer));
+    }
     break;
 #endif // RADIO_CONTROL_TYPE_DATALINK
 #if defined GPS_DATALINK

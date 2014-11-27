@@ -39,7 +39,6 @@
 #define SIM_DT     (1./SYS_TIME_FREQUENCY)
 #define DISPLAY_DT (1./30.)
 #define HOST_TIMEOUT_MS 40
-#define HOST_TIME_FACTOR 1.
 
 static struct {
   double real_initial_time;
@@ -117,7 +116,6 @@ static void nps_main_init(void) {
   gettimeofday (&t, NULL);
   nps_main.real_initial_time = time_to_double(&t);
   nps_main.scaled_initial_time = time_to_double(&t);
-  nps_main.host_time_factor = HOST_TIME_FACTOR;
 
   nps_ivy_init(nps_main.ivy_bus);
   nps_fdm_init(SIM_DT);
@@ -257,6 +255,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
   nps_main.spektrum_dev = NULL;
   nps_main.rc_script = 0;
   nps_main.ivy_bus = NULL;
+  nps_main.host_time_factor = 1.0;
 
   static const char* usage =
 "Usage: %s [options]\n"
@@ -268,7 +267,8 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
 "   -j --js_dev <optional joystick index>  e.g. 1 (default 0)\n"
 "   --spektrum_dev <spektrum device>       e.g. /dev/ttyUSB0\n"
 "   --rc_script <number>                   e.g. 0\n"
-"   --ivy_bus <ivy bus>                    e.g. 127.255.255.255\n";
+"   --ivy_bus <ivy bus>                    e.g. 127.255.255.255\n"
+"   --time_factor <factor>                 e.g. 2.5\n";
 
 
   while (1) {
@@ -281,6 +281,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       {"spektrum_dev", 1, NULL, 0},
       {"rc_script", 1, NULL, 0},
       {"ivy_bus", 1, NULL, 0},
+      {"time_factor", 1, NULL, 0},
       {0, 0, 0, 0}
     };
     int option_index = 0;
@@ -308,6 +309,8 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
             nps_main.rc_script = atoi(optarg); break;
           case 6:
             nps_main.ivy_bus = strdup(optarg); break;
+          case 7:
+            nps_main.host_time_factor = atof(optarg); break;
         }
         break;
 

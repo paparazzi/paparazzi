@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013  Elisabeth van der Sman, 2013 Freek van Tienen
+ * Copyright (C) 2014 Eduardo Lavratti <agressiva@hotmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -17,30 +17,19 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/**
- * @file modules/time/flight_time.c
+/** @file modules/digital_cam/dc_shoot_rc.h
+ * Digital Camera remote shoot using radio channel.
  *
- * Flight time counter that can be set from the gcs
+ * Use radio channel to take a picture.
+ * Only works with fixedwing firmware.
  */
 
-#include "flight_time.h"
-#include "generated/airframe.h"
+#ifndef DC_SHOOT_RC_H
+#define DC_SHOOT_RC_H
 
-uint16_t time_until_land;
+/** periodic 4Hz function */
+extern void dc_shoot_rc_periodic(void);
 
-#ifndef FLIGHT_TIME_LEFT
-#define FLIGHT_TIME_LEFT 10000
-#endif
-
-void flight_time_init(void) {
-  time_until_land = FLIGHT_TIME_LEFT;
-}
-
-void flight_time_periodic( void ) {
-  // Count downwards
-  if(time_until_land > 0)
-    time_until_land--;
-}
+#endif // DC_SHOOT_RC_H

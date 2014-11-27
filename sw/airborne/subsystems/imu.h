@@ -32,8 +32,9 @@
 #include "math/pprz_orientation_conversion.h"
 #include "generated/airframe.h"
 
-/* must be defined by underlying hardware */
+/** must be defined by underlying hardware */
 extern void imu_impl_init(void);
+/** optional. If not provided by implementation, empty function is used */
 extern void imu_periodic(void);
 
 /** abstract IMU interface providing fixed point interface  */

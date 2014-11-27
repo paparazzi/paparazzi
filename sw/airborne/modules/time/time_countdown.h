@@ -21,19 +21,22 @@
  */
 
 /**
- * @file modules/time/flight_time.h
+ * @file modules/time/time_countdown.h
  *
- * Flight time counter that can be set from the gcs
+ * Count down remaining time.
+ * Set an initial countdown value in seconds (re-settable via settings/GCS)
+ * and countdown @a time_until_end variable to zero.
+ * E.g. allows to check how much time is left before the end of the competition.
  */
 
-#ifndef FLIGHT_TIME_H
-#define FLIGHT_TIME_H
+#ifndef TIME_COUNTDOWN_H
+#define TIME_COUNTDOWN_H
 
 #include "std.h"
 
-extern uint16_t time_until_land;
+extern uint16_t time_until_end;
 
-void flight_time_init(void);
-void flight_time_periodic(void);
+void time_countdown_init(void);
+void time_countdown_periodic_1hz(void);
 
-#endif /* FLIGHT_TIME_H */
+#endif /* TIME_COUNTDOWN_H */

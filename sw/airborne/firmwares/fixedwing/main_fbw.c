@@ -43,6 +43,7 @@
 #include "firmwares/fixedwing/autopilot.h"
 #include "paparazzi.h"
 #include "mcu_periph/i2c.h"
+#include "mcu_periph/uart.h"
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -188,6 +189,10 @@ void event_task_fbw( void) {
   i2c_event();
 #endif
 
+#ifndef SITL
+  uart_event();
+#endif
+
 #ifdef INTER_MCU
 #if defined MCU_SPI_LINK | defined MCU_UART_LINK
   link_mcu_event_task();
@@ -309,8 +314,11 @@ void periodic_task_fbw( void ) {
 #if OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP
 #warning WARNING DANGER: OUTBACK_CHALLENGE RULE RC_LOST_NO_AP defined. If you loose RC you will NOT go to automatically go to AUTO2 Anymore!!
     set_failsafe_mode();
+#if OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP_IRREVERSIBLE
+#warning WARNING DANGER: OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP_IRREVERSIBLE defined. If you ever temporarly lost RC while in manual, you will failsafe forever even if RC is restored
     commands[COMMAND_FORCECRASH] = 9600;
-#else
+#endif
+    #else
     fbw_mode = FBW_MODE_AUTO;
 #endif
   }

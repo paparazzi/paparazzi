@@ -6,7 +6,8 @@
    radio="radios/R6107SP_7ch.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings=" settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/modules/config_asctec_v2.xml settings/modules/imu_quality_assessment.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/modules/config_asctec_v2.xml"
+   settings_modules="modules/imu_quality_assessment.xml modules/gps_ubx_ucenter.xml"
    gui_color="white"
   />
   <aircraft
@@ -16,7 +17,8 @@
    radio="radios/R6107SP_7ch.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings=" settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/modules/config_mkk_v2.xml settings/modules/imu_quality_assessment.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/configure_actuators_mkk_v2.xml modules/imu_quality_assessment.xml"
    gui_color="blue"
   />
 </conf>

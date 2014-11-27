@@ -75,10 +75,8 @@ static inline void autopilot_arming_set(bool_t motors_on) {
  * The stick must return to a neutral position before starting/stoping again.
  */
 static inline void autopilot_arming_check_motors_on( void ) {
-  /* only allow switching motor if not in FAILSAFE or KILL mode */
-  if (autopilot_mode != AP_MODE_KILL && autopilot_mode != AP_MODE_FAILSAFE) {
 
-    switch(autopilot_check_motor_status) {
+  switch(autopilot_check_motor_status) {
     case STATUS_MOTORS_OFF:
       autopilot_motors_on = FALSE;
       autopilot_motors_on_counter = 0;
@@ -121,7 +119,6 @@ static inline void autopilot_arming_check_motors_on( void ) {
       break;
     default:
       break;
-    };
   }
 }
 

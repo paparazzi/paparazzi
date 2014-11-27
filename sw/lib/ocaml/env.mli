@@ -48,6 +48,9 @@ val gconf_file : string
 
 val gcs_icons_path : string
 
+(* Default targets for modules *)
+val default_module_targets : string
+
 val filter_absolute_path : string -> string
 (** remove absolute path paparazzi_home/conf if it exists
  *  returns a relative path *)

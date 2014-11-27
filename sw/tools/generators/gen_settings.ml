@@ -291,7 +291,7 @@ let join_xml_files = fun xml_files ->
             (* test if the module is loaded or not *)
             if List.exists (fun n ->
               if Xml.tag n = "makefile" then begin
-                let t = ExtXml.attrib_or_default n "target" Gen_common.default_module_targets in
+                let t = ExtXml.attrib_or_default n "target" Env.default_module_targets in
                 Str.string_match (Str.regexp (".*"^target^".*")) t 0
               end
               else false

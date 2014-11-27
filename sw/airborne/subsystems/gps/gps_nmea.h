@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2004-2011 The Paparazzi Team
+ *               2014 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -31,11 +32,7 @@
 
 #include "mcu_periph/uart.h"
 
-#define GPS_NB_CHANNELS 16
-
-#ifdef DEBUG_NMEA
-#define NMEA_PRINT(...) {  UsbSPrintString( __VA_ARGS__);};
-#else
+#ifndef DEBUG_NMEA
 #define NMEA_PRINT(...) {};
 #endif
 
@@ -62,6 +59,7 @@ extern struct GpsNmea gps_nmea;
 #define GpsBuffer() GpsLink(ChAvailable())
 
 #define GpsEvent(_sol_available_callback) {             \
+    nmea_parse_prop_init();                             \
     if (GpsBuffer()) {                                  \
       ReadGpsBuffer();                                  \
     }                                                   \
@@ -80,19 +78,27 @@ extern struct GpsNmea gps_nmea;
     }                                                   \
   }
 
-#define ReadGpsBuffer() {					\
-    while (GpsLink(ChAvailable())&&!gps_nmea.msg_available)	\
-      nmea_parse_char(GpsLink(Getch()));			\
+#define ReadGpsBuffer() {         \
+    while (GpsLink(ChAvailable())&&!gps_nmea.msg_available) \
+      nmea_parse_char(GpsLink(Getch()));      \
   }
-
 
 
 /** The function to be called when a characted friom the device is available */
 extern void nmea_parse_char(uint8_t c);
-
 extern void nmea_parse_msg(void);
+extern uint8_t nmea_calc_crc(const char *buff, int buff_sz);
+extern void nmea_parse_prop_init(void);
+extern void nmea_parse_prop_msg(void);
 
-
-#define gps_nmea_Reset(_val) { }
+/** Read until a certain character, placed here for proprietary includes */
+static inline void nmea_read_until(int *i)
+{
+  while (gps_nmea.msg_buf[(*i)++] != ',') {
+    if (*i >= gps_nmea.msg_len) {
+      return;
+    }
+  }
+}
 
 #endif /* GPS_NMEA_H */

@@ -77,7 +77,7 @@ struct EnuCoor_i nav_circle_center;
 int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
 
 int32_t nav_leg_progress;
-int32_t nav_leg_length;
+uint32_t nav_leg_length;
 
 int32_t nav_roll, nav_pitch;
 int32_t nav_heading;
@@ -269,8 +269,8 @@ void nav_route(struct EnuCoor_i * wp_start, struct EnuCoor_i * wp_end) {
   VECT2_COPY(wp_diff_prec, wp_diff);
   INT32_VECT2_RSHIFT(wp_diff,wp_diff,INT32_POS_FRAC);
   INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC);
-  int32_t leg_length2 = Max((wp_diff.x * wp_diff.x + wp_diff.y * wp_diff.y),1);
-  INT32_SQRT(nav_leg_length,leg_length2);
+  uint32_t leg_length2 = Max((wp_diff.x * wp_diff.x + wp_diff.y * wp_diff.y),1);
+  nav_leg_length = int32_sqrt(leg_length2);
   nav_leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / nav_leg_length;
   int32_t progress = Max((CARROT_DIST >> INT32_POS_FRAC), 0);
   nav_leg_progress += progress;

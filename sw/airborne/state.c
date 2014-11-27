@@ -762,8 +762,8 @@ void stateCalcHorizontalSpeedNorm_i(void) {
     state.h_speed_norm_i = SPEED_BFP_OF_REAL(state.h_speed_norm_f);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
-    int32_t n2 = (state.ned_speed_i.x*state.ned_speed_i.x +
-                  state.ned_speed_i.y*state.ned_speed_i.y) >> INT32_SPEED_FRAC;
+    uint32_t n2 = (state.ned_speed_i.x*state.ned_speed_i.x +
+                   state.ned_speed_i.y*state.ned_speed_i.y) >> INT32_SPEED_FRAC;
     INT32_SQRT(state.h_speed_norm_i, n2);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
@@ -772,8 +772,8 @@ void stateCalcHorizontalSpeedNorm_i(void) {
     state.h_speed_norm_i = SPEED_BFP_OF_REAL(state.h_speed_norm_f);
   }
   else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
-    int32_t n2 = (state.enu_speed_i.x*state.enu_speed_i.x +
-                  state.enu_speed_i.y*state.enu_speed_i.y) >> INT32_SPEED_FRAC;
+    uint32_t n2 = (state.enu_speed_i.x*state.enu_speed_i.x +
+                   state.enu_speed_i.y*state.enu_speed_i.y) >> INT32_SPEED_FRAC;
     INT32_SQRT(state.h_speed_norm_i, n2);
   }
   else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
@@ -785,8 +785,8 @@ void stateCalcHorizontalSpeedNorm_i(void) {
     /* transform ecef speed to ned, set status bit, then compute norm */
     ned_of_ecef_vect_i(&state.ned_speed_i, &state.ned_origin_i, &state.ecef_speed_i);
     SetBit(state.speed_status, SPEED_NED_I);
-    int32_t n2 = (state.ned_speed_i.x*state.ned_speed_i.x +
-                  state.ned_speed_i.y*state.ned_speed_i.y) >> INT32_SPEED_FRAC;
+    uint32_t n2 = (state.ned_speed_i.x*state.ned_speed_i.x +
+                   state.ned_speed_i.y*state.ned_speed_i.y) >> INT32_SPEED_FRAC;
     INT32_SQRT(state.h_speed_norm_i, n2);
   }
   else if (bit_is_set(state.speed_status, SPEED_ECEF_F)) {

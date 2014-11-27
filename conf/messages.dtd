@@ -6,14 +6,16 @@
   name CDATA #REQUIRED
 >
 
-<!ELEMENT message (field*)>
+<!ELEMENT message (description?,field*)>
 <!ATTLIST message
   name CDATA #REQUIRED
   id   CDATA #REQUIRED
   link CDATA #IMPLIED
 >
 
-<!ELEMENT field EMPTY>
+<!ELEMENT description (#PCDATA)>
+
+<!ELEMENT field (#PCDATA)>
 <!ATTLIST field
   name CDATA #REQUIRED
   type CDATA #REQUIRED

@@ -1,3 +1,99 @@
+Paparazzi 5.3_devel
+===================
+
+currently ongoing development, changes so far (no particular order, nor complete)
+
+General
+-------
+
+- Flight plans: option to `call` functions once without checking return value
+  [830] (https://github.com/paparazzi/paparazzi/pull/830)
+- Paparazzi Center settings improvements
+  [#834] (https://github.com/paparazzi/paparazzi/pull/834)
+- replay: ignore non-telemetry messages to remove warnings
+  [#894] (https://github.com/paparazzi/paparazzi/issues/894)
+- maps: put google tiles in var/maps/Google instead of var/maps
+  [#902] (https://github.com/paparazzi/paparazzi/issues/902)
+- Paparazzi Center: improve warning coloring
+  [#910] (https://github.com/paparazzi/paparazzi/issues/910)
+- add INFO_MSG with printing to GCS console
+  [#929] (https://github.com/paparazzi/paparazzi/pull/929)
+- Remove array delimiters on Ivy messages
+  [#942] (https://github.com/paparazzi/paparazzi/pull/942)
+- improve test framework
+  [#933] (https://github.com/paparazzi/paparazzi/pull/933)
+  [#945] (https://github.com/paparazzi/paparazzi/pull/945)
+- GCS: save size in layout
+  [#968] (https://github.com/paparazzi/paparazzi/issues/968)
+
+Simulation
+----------
+
+- OCaml sim: simulate sys_time
+  [#962] (https://github.com/paparazzi/paparazzi/issues/962)
+- OCaml sim: use unconnected socket for flightgear viz
+  [#915] (https://github.com/paparazzi/paparazzi/issues/915)
+- NPS: add commandline option to set time_factor
+- radio_conrol spektrum for sim target
+  [#851] (https://github.com/paparazzi/paparazzi/pull/851)
+
+Airborne
+--------
+
+- cleanup math lib and convert lots of macros to functions
+  [#819] (https://github.com/paparazzi/paparazzi/pull/819)
+- radio_control spektrum also usable for intermcu
+  [#847] (https://github.com/paparazzi/paparazzi/pull/847)
+- Convert air_data subsystem to module with QNH and true airspeed support
+  [#853] (https://github.com/paparazzi/paparazzi/pull/853)
+- add airspeed_ms45xx_i2c module
+  [#852] (https://github.com/paparazzi/paparazzi/pull/852)
+- Replace telemetry macros with functions
+  [#931] (https://github.com/paparazzi/paparazzi/pull/931)
+- Add Furuno NMEA based GPS
+  [#959] (https://github.com/paparazzi/paparazzi/pull/959)
+- Driver for MPU9250
+  [#953] (https://github.com/paparazzi/paparazzi/pull/953)
+- Driver for AKM8963 magnetometer
+  [#947] (https://github.com/paparazzi/paparazzi/pull/947)
+- Basic linux I2C driver
+  [#961] (https://github.com/paparazzi/paparazzi/pull/961)
+- ARDrone2: Handle memory full FTP upload error
+  [#967] (https://github.com/paparazzi/paparazzi/issues/967)
+
+
+Paparazzi 5.2.1_stable
+======================
+
+Maintenance release
+
+- build system: remove 'load' target as it is a builtin directive in Make 4.0
+- fix FlightGear visualization on 32bit systems
+- flight plans: set primitive should not delay next stage
+  [#824] (https://github.com/paparazzi/paparazzi/pull/824)
+- flight plans: fix return primitive
+- generators: gen_airframe: don't force float if unit = code_unit
+- sys_time: up to 16 sys_time timers by default (was 8)
+- OCaml: fix Pprz.sprint_value for uint32, e.g. for NatNet
+  [#831] (https://github.com/paparazzi/paparazzi/issues/831)
+- Rotorcraft: auto-enable UNLOCKED_HOME_MODE if HOME mode is used on RC
+  [#823] (https://github.com/paparazzi/paparazzi/issues/823)
+- Rotorcraft: only go to HOME mode if in NAV
+  [#850] (https://github.com/paparazzi/paparazzi/issues/850)
+- Fixedwing: If USE_BARO_BOARD: separate baro timer
+  Before baro_periodic was running at PERIODIC_FREQUENCY in sensors_task,
+  which is too fast for ms5611 if periodic freq is > 100Hz.
+- INS alt_float: if USE_BARO_BOARD, dt is 1/BARO_PERIODIC_FREQUENCY
+  [#848] (https://github.com/paparazzi/paparazzi/pull/848)
+- STM32: backport fix for using multiple ADs
+  [#822] (https://github.com/paparazzi/paparazzi/pull/822)
+- LPC21: don't override T0CCR values when setting ppm and trig_ext
+- IMU driver for Lisa/M/MX 2.1
+  [#817] (https://github.com/paparazzi/paparazzi/pull/817)
+- support for HBmini board
+  [#864] (https://github.com/paparazzi/paparazzi/pull/864)
+
+
 Paparazzi 5.2.0_stable
 =======================
 

@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2009-2013 The Paparazzi Team
+ * Copyright (C) 2014 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -21,59 +21,111 @@
  *
  */
 
-/** @file arch/omap/mcu_periph/i2c_arch.h
- * I2C functionality (unimplemented)
+/** @file arch/omap/mcu_periph/i2c_arch.c
+ * I2C functionality
  */
 
 #include "mcu_periph/i2c.h"
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <linux/i2c-dev.h>
+#include <errno.h>
 
+void i2c_event(void)
+{
+}
 
-bool_t i2c_idle(struct i2c_periph *p __attribute__ ((unused))) { return TRUE; }
-bool_t i2c_submit(struct i2c_periph* p __attribute__ ((unused)), struct i2c_transaction* t __attribute__ ((unused))) { return TRUE;}
-void i2c_event(void) { }
-void i2c_setbitrate(struct i2c_periph* p, int bitrate __attribute__ ((unused))) { }
+void i2c_setbitrate(struct i2c_periph *p  __attribute__((unused)), int bitrate __attribute__((unused)))
+{
+}
+
+bool_t i2c_idle(struct i2c_periph *p __attribute__((unused)))
+{
+  return TRUE;
+}
+
+bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
+{
+  int file = (int)p->reg_addr;
+
+  // Set the slave address
+  ioctl(file, I2C_SLAVE, t->slave_addr);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+
+  // Switch the different transaction types
+  switch (t->type) {
+      // Just transmitting
+    case I2CTransTx:
+      if (write(file, (uint8_t *)t->buf, t->len_w) < 0) {
+        t->status = I2CTransFailed;
+        return TRUE;
+      }
+      break;
+      // Just reading
+    case I2CTransRx:
+      if (read(file, (uint8_t *)t->buf, t->len_r) < 0) {
+        t->status = I2CTransFailed;
+        return TRUE;
+      }
+      break;
+      // First Transmit and then read
+    case I2CTransTxRx:
+      if (write(file, (uint8_t *)t->buf, t->len_w) < 0 ||
+          read(file, (uint8_t *)t->buf, t->len_r) < 0) {
+        t->status = I2CTransFailed;
+        return TRUE;
+      }
+      break;
+    default:
+      break;
+  }
+
+#pragma GCC diagnostic pop
+
+  // Successfull transfer
+  t->status = I2CTransSuccess;
+  return TRUE;
+}
 
 #if USE_I2C0
 struct i2c_errors i2c0_errors;
 
-void i2c0_hw_init(void) {
+void i2c0_hw_init(void)
+{
+  i2c1.reg_addr = (void *)open("/dev/i2c-0", O_RDWR);
   i2c0.errors = &i2c0_errors;
+
+  /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c0_errors);
-}
-
-void i2c0_ev_isr(void) {
-}
-
-void i2c0_er_isr(void) {
 }
 #endif
 
 #if USE_I2C1
 struct i2c_errors i2c1_errors;
 
-void i2c1_hw_init(void) {
+void i2c1_hw_init(void)
+{
+  i2c1.reg_addr = (void *)open("/dev/i2c-1", O_RDWR);
   i2c1.errors = &i2c1_errors;
+
+  /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c1_errors);
-}
-
-void i2c1_ev_isr(void) {
-}
-
-void i2c1_er_isr(void) {
 }
 #endif
 
 #if USE_I2C2
 struct i2c_errors i2c2_errors;
 
-void i2c2_hw_init(void) {
+void i2c2_hw_init(void)
+{
+  i2c2.reg_addr = (void *)open("/dev/i2c-2", O_RDWR);
   i2c2.errors = &i2c2_errors;
+
+  /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c2_errors);
-}
-
-void i2c2_ev_isr(void) {
-}
-
-void i2c2_er_isr(void) {
 }
 #endif

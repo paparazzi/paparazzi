@@ -15,7 +15,7 @@
 #
 # make clean = Clean out built project files.
 #
-# make load = Download the hex file to the device, using lpc21isp
+# make upload = Download the hex file to the device, using lpc21isp
 #
 # (TODO: make filename.s = Just compile filename.c into the assembler code only)
 #
@@ -297,7 +297,7 @@ gccversion :
 
 
 # Program the device.
-load upload program: $(TARGET).hex
+upload program: $(TARGET).hex
 ifeq ($(FLASH_MODE),IAP)
 	$(LPC21IAP)  $(TARGET).elf
 else
@@ -423,4 +423,4 @@ clean_list :
 
 # Listing of phony targets.
 .PHONY : all begin finish end sizebefore sizeafter gccversion \
-build elf hex lss sym clean clean_list load
+build elf hex lss sym clean clean_list

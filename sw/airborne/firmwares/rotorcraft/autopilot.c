@@ -347,9 +347,9 @@ INFO("Using FAILSAFE_GROUND_DETECT: KILL")
 
 void autopilot_set_mode(uint8_t new_autopilot_mode) {
 
-  /* force kill mode as long as AHRS is not aligned */
+  /* force startup mode (default is kill) as long as AHRS is not aligned */
   if (!ahrs_is_aligned())
-    new_autopilot_mode = AP_MODE_KILL;
+    new_autopilot_mode = MODE_STARTUP;
 
   if (new_autopilot_mode != autopilot_mode) {
     /* horizontal mode */
@@ -527,9 +527,14 @@ void autopilot_on_rc_frame(void) {
     }
 #endif
 
-    /* an arming sequence is used to start/stop motors */
-    autopilot_arming_check_motors_on();
-    kill_throttle = ! autopilot_motors_on;
+    /* an arming sequence is used to start/stop motors.
+     * only allow switching motor if not in FAILSAFE or KILL mode and ahrs is aligned
+     */
+    if (autopilot_mode != AP_MODE_KILL && autopilot_mode != AP_MODE_FAILSAFE &&
+        ahrs_is_aligned()) {
+      autopilot_arming_check_motors_on();
+      kill_throttle = ! autopilot_motors_on;
+    }
 
     guidance_v_read_rc();
     guidance_h_read_rc(autopilot_in_flight);

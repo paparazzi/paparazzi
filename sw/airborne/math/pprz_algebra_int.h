@@ -221,7 +221,7 @@ struct Int64Vect3 {
 #define INT_MULT_RSHIFT(_a, _b, _r) (((_a)*(_b))>>(_r))
 
 
-extern int32_t int32_sqrt(int32_t in);
+extern uint32_t int32_sqrt(uint32_t in);
 #define INT32_SQRT(_out,_in) { _out = int32_sqrt(_in); }
 
 
@@ -249,11 +249,11 @@ static inline uint32_t int32_vect2_norm(struct Int32Vect2* v)
 /** normalize 2D vector inplace */
 static inline void int32_vect2_normalize(struct Int32Vect2* v, uint8_t frac)
 {
-  const uint32_t f = BFP_OF_REAL((1.), frac);
   const uint32_t n = int32_vect2_norm(v);
   if (n > 0) {
-    v->x = v->x * f / n;
-    v->y = v->y * f / n;
+    const int32_t f = BFP_OF_REAL((1.), frac);
+    v->x = v->x * f / (int32_t)n;
+    v->y = v->y * f / (int32_t)n;
   }
 }
 
@@ -433,9 +433,9 @@ static inline void int32_quat_identity(struct Int32Quat* q)
 
 /** Norm of a quaternion.
  */
-static inline int32_t int32_quat_norm(struct Int32Quat* q)
+static inline uint32_t int32_quat_norm(struct Int32Quat* q)
 {
-  int32_t n2 = q->qi * q->qi + q->qx * q->qx + q->qy * q->qy + q->qz * q->qz;
+  uint32_t n2 = q->qi * q->qi + q->qx * q->qx + q->qy * q->qy + q->qz * q->qz;
   return int32_sqrt(n2);
 }
 

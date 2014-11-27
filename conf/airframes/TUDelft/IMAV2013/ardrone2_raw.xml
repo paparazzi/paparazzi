@@ -7,7 +7,6 @@
     <target name="ap" board="ardrone2_raw">
       <define name="USE_INS_NAV_INIT"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="200"/>
-      <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
 
       <define name="LINK_HOST" value="\\\"192.168.2.255\\\""/>
       <configure name="HOST" value="192.168.2.$(AC_ID)"/>
@@ -33,7 +32,7 @@
 
   <modules main_freq="512">
     <load name="gps_ubx_ucenter.xml"/>
-    <load name="flight_time.xml"/>
+    <load name="time_countdown.xml"/>
     <load name="TUDelft/imav2013.xml"/>
   </modules>
 

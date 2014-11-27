@@ -27,7 +27,7 @@
 #include "pprz_algebra_int.h"
 
 #define INT32_SQRT_MAX_ITER 40
-int32_t int32_sqrt(int32_t in)
+uint32_t int32_sqrt(uint32_t in)
 {
   if (in == 0) {
     return 0;
@@ -407,7 +407,7 @@ void int32_quat_of_rmat(struct Int32Quat* q, struct Int32RMat* r)
   const int32_t tr = RMAT_TRACE(*r);
   if (tr > 0) {
     const int32_t two_qi_two = TRIG_BFP_OF_REAL(1.) + tr;
-    int32_t two_qi = int32_sqrt(two_qi_two << INT32_TRIG_FRAC);
+    uint32_t two_qi = int32_sqrt(two_qi_two << INT32_TRIG_FRAC);
     two_qi = two_qi << (INT32_QUAT_FRAC - INT32_TRIG_FRAC);
     q->qi = two_qi / 2;
     q->qx = ((RMAT_ELMT(*r, 1, 2) - RMAT_ELMT(*r, 2, 1)) <<
@@ -424,7 +424,7 @@ void int32_quat_of_rmat(struct Int32Quat* q, struct Int32RMat* r)
         RMAT_ELMT(*r, 0, 0) > RMAT_ELMT(*r, 2, 2)) {
       const int32_t two_qx_two = RMAT_ELMT(*r, 0, 0) - RMAT_ELMT(*r, 1, 1)
                                  - RMAT_ELMT(*r, 2, 2) + TRIG_BFP_OF_REAL(1.);
-      int32_t two_qx = int32_sqrt(two_qx_two << INT32_TRIG_FRAC);
+      uint32_t two_qx = int32_sqrt(two_qx_two << INT32_TRIG_FRAC);
       two_qx = two_qx << (INT32_QUAT_FRAC - INT32_TRIG_FRAC);
       q->qi = ((RMAT_ELMT(*r, 1, 2) - RMAT_ELMT(*r, 2, 1)) <<
                (INT32_QUAT_FRAC - INT32_TRIG_FRAC + INT32_QUAT_FRAC - 1))
@@ -439,7 +439,7 @@ void int32_quat_of_rmat(struct Int32Quat* q, struct Int32RMat* r)
     } else if (RMAT_ELMT(*r, 1, 1) > RMAT_ELMT(*r, 2, 2)) {
       const int32_t two_qy_two = RMAT_ELMT(*r, 1, 1) - RMAT_ELMT(*r, 0, 0)
                                  - RMAT_ELMT(*r, 2, 2) + TRIG_BFP_OF_REAL(1.);
-      int32_t two_qy = int32_sqrt(two_qy_two << INT32_TRIG_FRAC);
+      uint32_t two_qy = int32_sqrt(two_qy_two << INT32_TRIG_FRAC);
       two_qy = two_qy << (INT32_QUAT_FRAC - INT32_TRIG_FRAC);
       q->qi = ((RMAT_ELMT(*r, 2, 0) - RMAT_ELMT(*r, 0, 2)) <<
                (INT32_QUAT_FRAC - INT32_TRIG_FRAC + INT32_QUAT_FRAC - 1))
@@ -454,7 +454,7 @@ void int32_quat_of_rmat(struct Int32Quat* q, struct Int32RMat* r)
     } else {
       const int32_t two_qz_two = RMAT_ELMT(*r, 2, 2) - RMAT_ELMT(*r, 0, 0)
                                  - RMAT_ELMT(*r, 1, 1) + TRIG_BFP_OF_REAL(1.);
-      int32_t two_qz = int32_sqrt(two_qz_two << INT32_TRIG_FRAC);
+      uint32_t two_qz = int32_sqrt(two_qz_two << INT32_TRIG_FRAC);
       two_qz = two_qz << (INT32_QUAT_FRAC - INT32_TRIG_FRAC);
       q->qi = ((RMAT_ELMT(*r, 0, 1) - RMAT_ELMT(*r, 1, 0)) <<
                (INT32_QUAT_FRAC - INT32_TRIG_FRAC + INT32_QUAT_FRAC - 1))

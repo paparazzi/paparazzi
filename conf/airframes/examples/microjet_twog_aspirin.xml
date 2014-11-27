@@ -10,7 +10,11 @@
 
   <firmware name="fixedwing">
     <target name="sim" 	board="pc"/>
-    <target name="ap"   board="twog_1.0"/>
+    <target name="ap"   board="twog_1.0">
+      <configure name="PERIODIC_FREQUENCY" value="120"/>
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
+      <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
+    </target>
 
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
@@ -19,10 +23,6 @@
     <define name="ASPIRIN_ACCEL_RATE" value="ADXL345_RATE_100HZ"/>
     <define name="ASPIRIN_GYRO_LOWPASS" value="ITG3200_DLPF_42HZ"/>
     <define name="ASPIRIN_GYRO_SMPLRT_DIV" value="9"/>
-
-    <configure name="PERIODIC_FREQUENCY" value="120"/>
-    <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
-    <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
 
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
 
