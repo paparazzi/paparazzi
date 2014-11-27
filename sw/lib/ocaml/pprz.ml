@@ -353,9 +353,11 @@ let parse_class = fun xml_class ->
         with
             Xml.No_attribute("link") -> None
       in
+      (* only keep a "field" nodes *)
+      let xml_children = List.filter (fun f -> Xml.tag f = "field") (Xml.children xml_msg) in
       let msg = {
         name = name;
-        fields = List.map field_of_xml (Xml.children xml_msg);
+        fields = List.map field_of_xml xml_children;
         link = link
       } in
       let id = int_of_string (ExtXml.attrib xml_msg "id") in

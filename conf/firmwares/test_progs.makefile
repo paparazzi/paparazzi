@@ -333,7 +333,28 @@ test_imu.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_imu.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_imu.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 test_imu.srcs   += test/subsystems/test_imu.c
-test_imu.srcs   += math/pprz_trig_int.c
+test_imu.srcs   += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c math/pprz_algebra_int.c math/pprz_algebra_float.c math/pprz_algebra_double.c
+
+
+#
+# test_ahrs
+#
+# add imu and ahrs subsystems to test_ahrs target!
+#
+# configuration
+#   SYS_TIME_LED
+#   MODEM_PORT
+#   MODEM_BAUD
+#
+test_ahrs.ARCHDIR = $(ARCH)
+test_ahrs.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_ahrs.srcs   += $(COMMON_TEST_SRCS)
+test_ahrs.CFLAGS += $(COMMON_TELEMETRY_CFLAGS) -DPERIODIC_TELEMETRY
+test_ahrs.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_ahrs.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_ahrs.srcs   += test/subsystems/test_ahrs.c
+test_ahrs.srcs   += state.c
+test_ahrs.srcs   += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c math/pprz_algebra_int.c math/pprz_algebra_float.c math/pprz_algebra_double.c
 
 
 #

@@ -9,10 +9,12 @@
    </message>
 
    <message name="ALIVE" id="2">
+     <description>alive/heartbeat message containing the MD5sum of the aircraft configuration</description>
      <field name="md5sum" type="uint8[]"/>
    </message>
 
    <message name="PONG" id="3">
+     <description>Answer to PING datalink message, to measure latencies</description>
    </message>
 
    <message name="TAKEOFF" id="4">
