@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ahrs_infrared" dir="ahrs">
+  <doc>
+    <description>
+    AHRS infrared.
+    Attitude estimation using infrared sensors detecting the horizon.
+    For fixedwings only:
+    - GPS course is used as heading.
+    - ADC channels can be used for gyros.
+    </description>
+  </doc>
+  <depends>infrared_adc</depends>
+  <header>
+    <file name="ahrs_infrared.h"/>
+  </header>
+  <init fun="ahrs_infrared_init()"/>
+  <periodic fun="ahrs_infrared_periodic()" freq="60"/>
+  <makefile>
+    <file name="ahrs_infrared.c"/>
+  </makefile>
+</module>
