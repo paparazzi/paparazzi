@@ -6,7 +6,7 @@
 	url = https://github.com/paparazzi/luftboot.git
 [submodule "sw/ext/chibios"]
 	path = sw/ext/chibios
-	url = https://github.com/ChibiOS/ChibiOS-RT.git
+	url = https://github.com/mabl/ChibiOS.git
 [submodule "sw/ext/fatfs"]
 	path = sw/ext/fatfs
 	url = https://github.com/enacuavlab/fatfs.git
