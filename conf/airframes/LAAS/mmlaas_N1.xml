@@ -21,7 +21,6 @@
 
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
     <subsystem name="ins" type="alt_float"/>
@@ -34,15 +33,16 @@
 
   <modules>
     <load name="formation_flight.xml"/>
-   <!-- <load name="tcas.xml"/> -->
+    <!-- <load name="tcas.xml"/> -->
     <!--load name="potential.xml"/-->
-  <load name="cartography.xml"/>
-  <load name="infrared_adc.xml">
-    <configure name="ADC_IR1" value="ADC_1"/>
-    <configure name="ADC_IR2" value="ADC_0"/>
-    <configure name="ADC_IR_TOP" value="ADC_2"/>
-  </load>
-</modules>
+    <load name="cartography.xml"/>
+    <load name="infrared_adc.xml">
+      <configure name="ADC_IR1" value="ADC_1"/>
+      <configure name="ADC_IR2" value="ADC_0"/>
+      <configure name="ADC_IR_TOP" value="ADC_2"/>
+    </load>
+    <load name="ahrs_infrared.xml"/>
+  </modules>
 
 
 

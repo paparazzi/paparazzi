@@ -23,7 +23,6 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="control"/>
-    <subsystem name="ahrs"      type="infrared"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="navigation"/>
     <subsystem name="ins" type="alt_float"/>
@@ -38,6 +37,7 @@
     <load name="baro_ets.xml"/>
     <load name="air_data.xml"/>
     <load name="infrared_adc.xml"/>
+    <load name="ahrs_infrared.xml"/>
   </modules>
 
 <!-- commands section -->
