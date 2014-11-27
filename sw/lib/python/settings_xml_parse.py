@@ -31,8 +31,8 @@ class PaparazziACSettings:
         # save AC name for reference
         self.name = ac_node[0].attrib['name']
 
-        # get settings.xml file path from var/<ac_name> directory
-        settings_xml_path = os.path.join(paparazzi_home, 'var/' + self.name + '/settings.xml')
+        # get settings.xml file path from var/aircrafts/<ac_name> directory
+        settings_xml_path = os.path.join(paparazzi_home, 'var/aircrafts/' + self.name + '/settings.xml')
 
         if not os.path.isfile(settings_xml_path):
             print("Could not find %s, did you build it?" % settings_xml_path)
