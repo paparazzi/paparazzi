@@ -20,7 +20,10 @@
  *
  */
 
-/* USB_SERIAL_STM32 example 2 - sends lot of data through serial port. User can control
+/**
+ * @file modules/com/usb_serial_stm32_example2.c
+ *
+ * USB_SERIAL_STM32 example 2 - sends lot of data through serial port. User can control
  * the flow by pressing "S" for stop and "R" for run.
  */
 
@@ -37,7 +40,8 @@ uint8_t big_buffer[] = " ASCII stands for American Standard Code for Information
 /**
  * Init module, call VCOM_init() from here
  */
-void init_usb_serial(void) {
+void init_usb_serial(void)
+{
   VCOM_init();
   run = FALSE;
 }
@@ -47,9 +51,10 @@ void init_usb_serial(void) {
  * like telemetry
  * Note that the data are sent once the buffer is full, not immediately
  */
-void periodic_usb_serial(void) {
+void periodic_usb_serial(void)
+{
   if (run) {
-    for (uint16_t i =0; i<sizeof(big_buffer); i++){
+    for (uint16_t i = 0; i < sizeof(big_buffer); i++) {
       VCOM_putchar(big_buffer[i]);
     }
   }
@@ -61,8 +66,9 @@ void periodic_usb_serial(void) {
  * Because we want to be able to catch -1 in case no
  * more data were available
  */
-void usb_serial_parse_packet(int data){
-  if (data == -1) return;
+void usb_serial_parse_packet(int data)
+{
+  if (data == -1) { return; }
   uint8_t c = (uint8_t)data;
   VCOM_putchar(prompt);
   VCOM_putchar(data);
@@ -72,8 +78,8 @@ void usb_serial_parse_packet(int data){
   if (c == 'S') {
     run = FALSE;
   }
-  if (c =='R') {
-	run = TRUE;
+  if (c == 'R') {
+    run = TRUE;
   }
   VCOM_transmit_message();
 }
@@ -81,7 +87,8 @@ void usb_serial_parse_packet(int data){
 /**
  * Call VCOM_poll() from module event function
  */
-void event_usb_serial(void) {
+void event_usb_serial(void)
+{
   VCOM_poll();
   if (UsbSChAvailable()) {
     usb_serial_parse_packet(UsbSGetch());

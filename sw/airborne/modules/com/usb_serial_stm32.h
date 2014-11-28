@@ -20,16 +20,19 @@
  *
  */
 
-/* USB_SERIAL_STM32 example */
+/**
+ * @file modules/com/usb_serial_stm32.h
+ * header for serial over USB modules
+ */
 
 #ifndef USB_SERIAL_STM32_H
 #define USB_SERIAL_STM32_H
 
 #include "mcu_periph/usb_serial.h"
 
-void init_usb_serial( void );
-void periodic_usb_serial( void );
-void event_usb_serial( void );
+void init_usb_serial(void);
+void periodic_usb_serial(void);
+void event_usb_serial(void);
 
 void usb_serial_parse_packet(int c);
 
