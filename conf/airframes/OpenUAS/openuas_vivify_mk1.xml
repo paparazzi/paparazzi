@@ -180,6 +180,7 @@
       <define name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
     </load>
     <!-- CDW: load name="qnh.xml"/-->
+    <load name="air_data.xml"/>
     <!-- CDW: load name="obc2014.xml"/-->
 
     <!-- Disable uCenter in the future, setup the hardware itself -->
