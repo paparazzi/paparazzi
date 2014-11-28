@@ -355,31 +355,6 @@ int fifo_free(fifo_t *fifo)
 }
 
 
-
-void VCOM_init(void)
-{
-  // initialise fifos
-  fifo_init(&txfifo, txdata);
-  fifo_init(&rxfifo, rxdata);
-
-  /* set up GPIO pins */
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,
-                  GPIO9 | GPIO11 | GPIO12);
-  gpio_set_af(GPIOA, GPIO_AF10, GPIO9 | GPIO11 | GPIO12);
-
-  /* USB clock */
-  rcc_periph_clock_enable(RCC_OTGFS);
-
-  /* usb driver init*/
-  my_usbd_dev = usbd_init(&otgfs_usb_driver, &dev, &config,
-                          usb_strings, 3,
-                          usbd_control_buffer, sizeof(usbd_control_buffer));
-
-  usbd_register_set_config_callback(my_usbd_dev, cdcacm_set_config);
-
-
-}
-
 /**
  * Writes one character to VCOM port
  * @param [in] c character to write
@@ -394,18 +369,6 @@ int VCOM_putchar(int c)
     // if yes, add char
     fifo_put(&txfifo, c);
   } else {
-    //if not, copy fifo into buffer and add last byte at the end
-    /*
-    uint8_t buf[MAX_PACKET_SIZE];
-    uint8_t data;
-    for(int i = 0; i < MAX_PACKET_SIZE-1; i++){
-      fifo_get(&txfifo, &data);
-      buf[i] = data;
-    }
-    buf[MAX_PACKET_SIZE-1] = c;
-    // request driver to send packet
-    usbd_ep_write_packet(my_usbd_dev, 0x82, buf, MAX_PACKET_SIZE);
-    */
     // less than 2 bytes available, add byte and send data now
     fifo_put(&txfifo, c);
     VCOM_transmit_message();
@@ -481,5 +444,52 @@ void VCOM_transmit_message()
 void VCOM_allow_linecoding(uint8_t mode) {}
 void VCOM_set_linecoding(uint8_t mode) {}
 #endif
+
+/*
+ * For USB telemetry & generic device API
+ */
+// Periph with generic device API
+struct usb_serial_periph usb_serial;
+
+// Functions for the generic device API
+static int usb_serial_check_free_space(struct usb_serial_periph *p __attribute__((unused)), uint8_t len)
+{
+  return (int)VCOM_check_free_space(len);
+}
+
+static void usb_serial_transmit(struct usb_serial_periph *p __attribute__((unused)), uint8_t byte)
+{
+  VCOM_putchar(byte);
+}
+
+static void usb_serial_send(struct usb_serial_periph *p __attribute__((unused))) {}
+
+void VCOM_init(void)
+{
+  // initialise fifos
+  fifo_init(&txfifo, txdata);
+  fifo_init(&rxfifo, rxdata);
+
+  /* set up GPIO pins */
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,
+                  GPIO9 | GPIO11 | GPIO12);
+  gpio_set_af(GPIOA, GPIO_AF10, GPIO9 | GPIO11 | GPIO12);
+
+  /* USB clock */
+  rcc_periph_clock_enable(RCC_OTGFS);
+
+  /* usb driver init*/
+  my_usbd_dev = usbd_init(&otgfs_usb_driver, &dev, &config,
+                          usb_strings, 3,
+                          usbd_control_buffer, sizeof(usbd_control_buffer));
+
+  usbd_register_set_config_callback(my_usbd_dev, cdcacm_set_config);
+
+  // Configure generic device
+  usb_serial.device.periph = (void *)(&usb_serial);
+  usb_serial.device.check_free_space = (check_free_space_t) usb_serial_check_free_space;
+  usb_serial.device.transmit = (transmit_t) usb_serial_transmit;
+  usb_serial.device.send_message = (send_message_t) usb_serial_send;
+}
 
 #endif /* USE_USB_SERIAL */
