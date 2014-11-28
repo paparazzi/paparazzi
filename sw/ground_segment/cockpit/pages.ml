@@ -43,13 +43,15 @@ object
   val mutable last = ""
   method add text =
     if text <> last then begin
-      let l = Unix.localtime (Unix.gettimeofday ()) in
-      view#buffer#insert (sprintf "%02d:%02d:%02d " l.Unix.tm_hour l.Unix.tm_min l.Unix.tm_sec);
-      view#buffer#insert text;
-      view#buffer#insert "\n";
-
-    (* Scroll to the bottom line *)
+      (* end of the buffer, so we don't insert in the middle if cursor was placed there *)
       let end_iter = view#buffer#end_iter in
+
+      let l = Unix.localtime (Unix.gettimeofday ()) in
+      view#buffer#insert ~iter:end_iter (sprintf "%02d:%02d:%02d " l.Unix.tm_hour l.Unix.tm_min l.Unix.tm_sec);
+      view#buffer#insert ~iter:end_iter text;
+      view#buffer#insert ~iter:end_iter "\n";
+
+      (* Scroll to the bottom line *)
       let end_mark = view#buffer#create_mark end_iter in
       view#scroll_mark_onscreen (`MARK end_mark);
 
