@@ -201,7 +201,7 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
 -->
       <!--  TODO Set QNH here based on GPS height if allowed from commitee -->
       <call fun="NavSetAltitudeReferenceHere()" />
-      <call fun="compute_qnh()"/>
+      <!-- CDW call fun="compute_qnh()"/-->
     </block>
 
     <!-- *********** Set the ground reference height and the home position *********** -->
@@ -222,9 +222,9 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
     <block name="Landing Position Stored" pre_call="NavKillThrottle()" strip_button="Store" strip_icon="recenter.png">
       <call fun="NavSetWaypointPosAndAltHere(WP_TD)"/>
       <set value="DownlinkSendWpNr(WP_TD)" var="unit"/>
-      <set value="SetAltitudeForFinalFromTo(WP_TD,WP_AF)" var="unit"/>
+      <!-- CDW set value="SetAltitudeForFinalFromTo(WP_TD,WP_AF)" var="unit"/-->
       <call fun="nav_compute_final_from_glide(WP_AF, WP_TD, V_CTL_GLIDE_RATIO)"/>
-      <call fun="nav_compute_flare_from_aftd(WP_AF, WP_TD, WP_FLARE)"/>
+      <!-- CDW call fun="nav_compute_flare_from_aftd(WP_AF, WP_TD, WP_FLARE)"/-->
       <set value="DownlinkSendWpNr(WP_AF)" var="unit"/>
       <set value="DownlinkSendWpNr(WP_FLARE)" var="unit"/>
       <deroute block="HoldingPoint"/>
@@ -245,17 +245,17 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
      *********** Search Area Entry Procedure Start ***********
      ***************************************************** -->
     <block name="Start Scruteneering Flight" strip_button="Scrut" group="TO">
-      <set value="SCRUTENEERING_FLIGHT" var="obc_flight_mode" />
+      <!-- CDW set value="SCRUTENEERING_FLIGHT" var="obc_flight_mode" /-->
       <deroute block="ReadyForDeparture"/>
     </block>
 
     <block name="Start Search Flight" strip_button="Search" group="TO">
-      <set value="SEARCH_FLIGHT" var="obc_flight_mode" />
+      <!-- CDW set value="SEARCH_FLIGHT" var="obc_flight_mode" /-->
       <deroute block="ReadyForDeparture"/>
     </block>
 
     <block name="Start Drop Flight" strip_button="Drop" group="TO">
-      <set value="DROP_FLIGHT" var="obc_flight_mode" />
+      <!-- CDW set value="DROP_FLIGHT" var="obc_flight_mode" /-->
       <deroute block="ReadyForDeparture"/>
     </block>
 
@@ -282,7 +282,7 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
     </block>
 
     <block name="determineflighttype">
-      <exception cond="(obc_flight_mode == SCRUTENEERING_FLIGHT)" deroute="ScrutineeringAutonomyTriangle"/>
+      <!-- CDW exception cond="(obc_flight_mode == SCRUTENEERING_FLIGHT)" deroute="ScrutineeringAutonomyTriangle"/-->
       <!-- otherwise goto search area via entry lane -->
       <deroute block="EntryLane1"/>
     </block>
@@ -333,7 +333,7 @@ to “Airfield Home” and orbit for either a landing or regain of Data Link.
     </block>
 
     <block name="determinerescuetype">
-      <exception cond="(obc_flight_mode == DROP_FLIGHT)" deroute="RescueJoe"/>
+      <!-- CDW exception cond="(obc_flight_mode == DROP_FLIGHT)" deroute="RescueJoe"/-->
       <deroute block="SearchForJoe" />
     </block>
 
@@ -360,7 +360,7 @@ best to perform many real life tests with the CAM
 *********** -->
 
     <block name="SearchForJoeLateral">
-      <call fun="nav_survey_poly_osam_setup(WP_SA1, 5, 158, CourseFromToEnuDeg(WP_SA1, WP_SA2))"/> <!-- TODO correct angle of how we want to search -->
+      <call fun="nav_survey_poly_osam_setup_towards(WP_SA1, 5, 158, WP_SA2)"/> <!-- TODO correct angle of how we want to search -->
       <deroute block="Searching" />
     </block>
 
@@ -384,7 +384,7 @@ best to perform many real life tests with the CAM
        call fun="InitializePolygonSurvey(WP_S1, NumOfCorners, SweepWidth, Orientation)"/> -->
 
        <!-- SweepWidth  max photo with at height - 20 pct overlap 180- etc-->
-      <call fun="nav_survey_poly_osam_setup(WP_SA1, 5, 158, CourseFromToEnuDeg(WP_SA1, WP_SA5))"/> <!-- TODO correct angle of how we want to search -->
+      <call fun="nav_survey_poly_osam_setup_towards(WP_SA1, 5, 158, WP_SA5)"/> <!-- TODO correct angle of how we want to search -->
     </block>
 
     <block name="Searching">
@@ -500,7 +500,7 @@ extern bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t start, uint8_t e
 
     <block name="ComputeLandingApproach" >
       <call fun="nav_compute_final_from_glide(WP_AF, WP_TD, V_CTL_GLIDE_RATIO)"/>
-      <call fun="nav_compute_flare_from_aftd(WP_AF, WP_TD, WP_FLARE)"/>
+      <!-- CDW call fun="nav_compute_flare_from_aftd(WP_AF, WP_TD, WP_FLARE)"/-->
       <set value="DownlinkSendWpNr(WP_AF)" var="unit"/>
       <set value="DownlinkSendWpNr(WP_FLARE)" var="unit"/>
       </block>
@@ -558,7 +558,7 @@ termination mode (Section 5.6).
 
     <block name="CommsHoldLoiter" strip_button="CommsHold" strip_icon="recenter.png" group="Link" >  <!-- TODO other ICON -->
       <!-- stop streaming thumbnails -->
-      <set value="0" var="ticket_thumbnails"/>
+      <!-- CDW set value="0" var="ticket_thumbnails"/ -->
       <!-- TODO: maybe set a little lower speed ? max endurence speed? -->
       <set value="set_airspeed_nominal" var="v_ctl_auto_airspeed_setpoint"/>
       <!-- Rules 2014 state a loiter of maximum 2 minutes = 120seconds is allowed -->

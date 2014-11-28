@@ -70,7 +70,7 @@
     <!-- FTD will failsafe if no heartbeat arrives from AP (with GPS) during 100ms -->
 
     <!-- Soft Altitude GeoFence 2800ft MSL-->
-    <exception cond="MoreThan(GetAmsl(), 2800) && gps_has_been_good()" deroute="AlmostHeightViolation" />
+    <!-- RE_ENABLE CDW <exception cond="MoreThan(GetAmsl(), 2800) && gps_has_been_good()" deroute="AlmostHeightViolation" />-->
 
     <!-- Hard Altitude GeoFence 3000ft MSL
     Removed: because: theoretically impossible to climb 200ft without engine.

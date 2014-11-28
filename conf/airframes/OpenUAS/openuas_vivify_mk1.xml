@@ -116,7 +116,7 @@
         <configure name="MODEM_BAUD" value="B9600"/>
       </subsystem>
 
-      <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="TRUE"/>
+      <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="FALSE"/>
       <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE" value="FALSE"/>
       <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_NO_AP_MUST_FAILSAFE" value="FALSE"/>
 
@@ -199,9 +199,11 @@
     <load name="airspeed_adc.xml">
       <configure name="ADC_AIRSPEED" value="ADC_1"/>
       <define name="ADC_CHANNEL_AIRSPEED_NB_SAMPLES" value="16"/>
-      <define name="AIRSPEED_QUADRATIC_SCALE" value="0.355"/>
-      <define name="AIRSPEED_BIAS" value="413"/>
+      <define name="AIRSPEED_ADC_QUADRATIC_SCALE" value="0.355"/>
+      <define name="AIRSPEED_ADC_BIAS" value="413"/>
     </load>
+
+    <load name="tune_airspeed.xml" />
 
     <load name="adc_generic.xml">
       <!-- If we want to read the voltage of battery voltage main engine over AP board via V_BATT -->
@@ -276,6 +278,7 @@
     <define name="AirbrakesOn()" value="(ap_state->commands[COMMAND_BRAKE]=SERVO_BRAKE_FULL)" />
     <define name="Fly()" value="(ap_state->commands[COMMAND_FORCECRASH]=0)" />
     <define name="ForceCrash()" value="(ap_state->commands[COMMAND_FORCECRASH]=9600)" />
+    <define name="ThrottleHigh()" value="(ap_state->commands[COMMAND_THROTTLE]>9600/2)" />
   </section>
 
   <commands>
