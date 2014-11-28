@@ -446,7 +446,7 @@ void RadioControlEventImp(void (*frame_handler)(void)) {
         case(0) : /* 10 bit */
           ChannelNum = (ChannelData >> 10) & 0x0f;
           /* don't bother decoding unused channels */
-          if (ChannelNum < RADIO_CONTROL_NB_CHANNEL) {
+          if (ChannelNum < SPEKTRUM_NB_CHANNEL) {
            SpektrumBuf[ChannelNum] = ChannelData & 0x3ff;
            SpektrumBuf[ChannelNum] -= 0x200;
            SpektrumBuf[ChannelNum] *= MAX_PPRZ/0x156;
@@ -457,7 +457,7 @@ void RadioControlEventImp(void (*frame_handler)(void)) {
         case(1) : /* 11 bit */
           ChannelNum = (ChannelData >> 11) & 0x0f;
           /* don't bother decoding unused channels */
-          if (ChannelNum < RADIO_CONTROL_NB_CHANNEL) {
+          if (ChannelNum < SPEKTRUM_NB_CHANNEL) {
             SpektrumBuf[ChannelNum] = ChannelData & 0x7ff;
             SpektrumBuf[ChannelNum] -= 0x400;
             SpektrumBuf[ChannelNum] *= MAX_PPRZ/0x2AC;

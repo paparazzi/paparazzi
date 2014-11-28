@@ -29,6 +29,7 @@
  * have the same channel assignments.
  */
 
+#define SPEKTRUM_NB_CHANNEL 12
 
 #ifndef RADIO_CONTROL_NB_CHANNEL
 #define RADIO_CONTROL_NB_CHANNEL 12
