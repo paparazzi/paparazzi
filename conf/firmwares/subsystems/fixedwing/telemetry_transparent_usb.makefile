@@ -11,8 +11,15 @@ ap.srcs += $(SRC_FIRMWARE)/datalink.c
 ap.srcs += $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
 ap.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 else
+ifeq ($(ARCH), stm32)
+ap.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_DEVICE=usb_serial -DPPRZ_UART=UsbS
+ap.CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ -DUSE_USB_SERIAL
+ap.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
+ap.srcs += $(SRC_FIRMWARE)/datalink.c
+ap.srcs += $(SRC_ARCH)/usb_ser_hw.c
+else
 ifneq ($(ARCH), sim)
-$(error telemetry_transparent_usb currently only implemented for the lpc21)
+$(error telemetry_transparent_usb currently only implemented for the lpc21 and stm32)
 endif
 endif
-
+endif

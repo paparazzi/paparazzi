@@ -656,6 +656,10 @@ void event_task_ap( void ) {
   uart_event();
 #endif
 
+#if USE_USB_SERIAL
+  VCOM_event();
+#endif
+
 #if USE_AHRS && USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 #endif

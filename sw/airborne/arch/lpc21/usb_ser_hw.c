@@ -565,6 +565,12 @@ static void usb_serial_transmit(struct usb_serial_periph* p __attribute__((unuse
 
 static void usb_serial_send(struct usb_serial_periph* p __attribute__((unused))) { }
 
+// Empty for lpc21
+void VCOM_event(void) {}
+
+// Empty for lpc21
+void VCOM_transmit_message(void) {}
+
 void VCOM_init(void) {
 	// initialise stack
 	USBInit();

@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="usb_serial_stm32_example1" dir="com">
+  <doc>
+    <description>
+      Serial-over-USB console on STM32.
+      Example of USB-serial module on STM32 architecture, using libopencm3 library.
+      This example emulates a console - i.e. user can send commands to Paparazzi and get response
+      To be used with Lisa M/MX 2.1
+    </description>
+  </doc>
+
+  <header>
+    <file name="usb_serial_stm32.h"/>
+  </header>
+
+  <init fun="init_usb_serial()"/>
+  <event fun="event_usb_serial()"/>
+
+  <makefile target="ap">
+    <raw>
+      ap.srcs += $(SRC_ARCH)/usb_ser_hw.c
+    </raw>
+    <define name="USE_USB_SERIAL"/>
+    <file name="usb_serial_stm32_example1.c"/>
+  </makefile>
+</module>
