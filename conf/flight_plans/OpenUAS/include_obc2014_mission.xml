@@ -201,7 +201,7 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
 -->
       <!--  TODO Set QNH here based on GPS height if allowed from commitee -->
       <call fun="NavSetAltitudeReferenceHere()" />
-      <!-- CDW call fun="compute_qnh()"/-->
+      <set var="air_data.calc_qnh_once" value="TRUE"/>
     </block>
 
     <!-- *********** Set the ground reference height and the home position *********** -->
