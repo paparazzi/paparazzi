@@ -35,6 +35,9 @@
 // for timer_get_frequency
 #include "mcu_arch.h"
 
+// for Min macro
+#include "std.h"
+
 #include BOARD_CONFIG
 
 #define SPEKTRUM_CHANNELS_PER_FRAME 7
@@ -443,7 +446,7 @@ void RadioControlEventImp(void (*frame_handler)(void)) {
         case(0) : /* 10 bit */
           ChannelNum = (ChannelData >> 10) & 0x0f;
           /* don't bother decoding unused channels */
-          if (ChannelNum < RADIO_CONTROL_NB_CHANNEL) {
+          if (ChannelNum < SPEKTRUM_NB_CHANNEL) {
            SpektrumBuf[ChannelNum] = ChannelData & 0x3ff;
            SpektrumBuf[ChannelNum] -= 0x200;
            SpektrumBuf[ChannelNum] *= MAX_PPRZ/0x156;
@@ -454,7 +457,7 @@ void RadioControlEventImp(void (*frame_handler)(void)) {
         case(1) : /* 11 bit */
           ChannelNum = (ChannelData >> 11) & 0x0f;
           /* don't bother decoding unused channels */
-          if (ChannelNum < RADIO_CONTROL_NB_CHANNEL) {
+          if (ChannelNum < SPEKTRUM_NB_CHANNEL) {
             SpektrumBuf[ChannelNum] = ChannelData & 0x7ff;
             SpektrumBuf[ChannelNum] -= 0x400;
             SpektrumBuf[ChannelNum] *= MAX_PPRZ/0x2AC;
@@ -475,7 +478,10 @@ void RadioControlEventImp(void (*frame_handler)(void)) {
       radio_control.frame_cpt++;
       radio_control.time_since_last_frame = 0;
       radio_control.status = RC_OK;
-      for (int i = 0; i < (MaxChannelNum + 1); i++) {
+      /* since it is possible for the user use less than the actually available channels,
+       * we only transfer only Min(RADIO_CONTROL_NB_CHANNEL, available_channels)
+       */
+      for (int i = 0; i < Min(RADIO_CONTROL_NB_CHANNEL, (MaxChannelNum + 1)); i++) {
         radio_control.values[i] = SpektrumBuf[i];
         if (i == RADIO_THROTTLE ) {
           radio_control.values[i] += MAX_PPRZ;

@@ -33,6 +33,10 @@
 #define RADIO_CONTROL_NB_CHANNEL 14
 #endif
 
+#if RADIO_CONTROL_NB_CHANNEL > 14
+#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 14."
+#endif
+
 /* The channel ordering is always the same for DSM2 and DSMX */
 #define RADIO_THROTTLE   0
 #define RADIO_ROLL       1

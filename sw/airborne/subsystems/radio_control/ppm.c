@@ -28,7 +28,7 @@
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/ppm.h"
 
-uint16_t ppm_pulses[ PPM_NB_CHANNEL ];
+uint16_t ppm_pulses[RADIO_CTL_NB];
 volatile bool_t ppm_frame_available;
 
 /*
@@ -60,12 +60,12 @@ static bool_t   ppm_data_valid;
 
 static void send_ppm(struct transport_tx *trans, struct link_device *dev)
 {
-  uint16_t ppm_pulses_usec[RADIO_CONTROL_NB_CHANNEL];
-  for (int i = 0; i < RADIO_CONTROL_NB_CHANNEL; i++) {
+  uint16_t ppm_pulses_usec[RADIO_CTL_NB];
+  for (int i = 0; i < RADIO_CTL_NB; i++) {
     ppm_pulses_usec[i] = USEC_OF_RC_PPM_TICKS(ppm_pulses[i]);
   }
   pprz_msg_send_PPM(trans, dev, AC_ID,
-                    &radio_control.frame_rate, PPM_NB_CHANNEL, ppm_pulses_usec);
+                    &radio_control.frame_rate, RADIO_CTL_NB, ppm_pulses_usec);
 }
 #endif
 
@@ -73,7 +73,7 @@ void radio_control_impl_init(void)
 {
   ppm_frame_available = FALSE;
   ppm_last_pulse_time = 0;
-  ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
+  ppm_cur_pulse = RADIO_CTL_NB;
   ppm_data_valid = FALSE;
 
   ppm_arch_init();
@@ -111,7 +111,7 @@ void ppm_decode_frame(uint32_t ppm_time)
   uint32_t length = ppm_time - ppm_last_pulse_time;
   ppm_last_pulse_time = ppm_time;
 
-  if (ppm_cur_pulse == PPM_NB_CHANNEL) {
+  if (ppm_cur_pulse == RADIO_CTL_NB) {
     if (length > RC_PPM_TICKS_OF_USEC(PPM_SYNC_MIN_LEN) &&
         length < RC_PPM_TICKS_OF_USEC(PPM_SYNC_MAX_LEN)) {
       if (ppm_data_valid && RssiValid()) {
@@ -127,11 +127,11 @@ void ppm_decode_frame(uint32_t ppm_time)
         length < RC_PPM_TICKS_OF_USEC(PPM_DATA_MAX_LEN)) {
       ppm_pulses[ppm_cur_pulse] = length;
       ppm_cur_pulse++;
-      if (ppm_cur_pulse == PPM_NB_CHANNEL) {
+      if (ppm_cur_pulse == RADIO_CTL_NB) {
         ppm_data_valid = TRUE;
       }
     } else {
-      ppm_cur_pulse = PPM_NB_CHANNEL;
+      ppm_cur_pulse = RADIO_CTL_NB;
       ppm_data_valid = FALSE;
     }
   }

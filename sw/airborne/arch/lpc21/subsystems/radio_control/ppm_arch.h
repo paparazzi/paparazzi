@@ -44,8 +44,6 @@
 #define RC_PPM_SIGNED_TICKS_OF_USEC(_v) signed_cpu_ticks_of_usec(_v)
 #define USEC_OF_RC_PPM_TICKS(_v)        usec_of_cpu_ticks(_v)
 
-#define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
-
 #define PPM_IT PPM_CRI
 
 #define PPM_ISR() {       \
