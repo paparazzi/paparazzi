@@ -114,7 +114,7 @@ class dfu_device(object):
     def get_status(self):
         buf = self.handle.controlMsg(usb.ENDPOINT_IN | usb.TYPE_CLASS |
                                      usb.RECIP_INTERFACE, DFU_GETSTATUS,
-                                     6, index=self.index)
+                                     6, index=self.index, timeout=2000)
         return dfu_status(buf)
 
     def clear_status(self):
