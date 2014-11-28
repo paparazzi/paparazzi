@@ -24,6 +24,9 @@
 
 #include "std.h"
 
+/* in case you want to override RADIO_CONTROL_NB_CHANNEL */
+#include "generated/airframe.h"
+
 /**
  * Architecture dependant code
  */
@@ -38,10 +41,15 @@ extern void ppm_arch_init(void);
 #include "generated/radio.h"
 
 /**
- * Define number of channels
- * Using generated code radio.h
+ * Default number of channels to actually use.
  */
+#ifndef RADIO_CONTROL_NB_CHANNEL
 #define RADIO_CONTROL_NB_CHANNEL RADIO_CTL_NB
+#endif
+
+#if RADIO_CONTROL_NB_CHANNEL > RADIO_CTL_NB
+#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than number of channels in radio file."
+#endif
 
 /**
  *  ppm pulse type : futaba is falling edge clocked whereas JR is rising edge
@@ -49,7 +57,7 @@ extern void ppm_arch_init(void);
 #define PPM_PULSE_TYPE_POSITIVE 0
 #define PPM_PULSE_TYPE_NEGATIVE 1
 
-extern uint16_t ppm_pulses[ RADIO_CONTROL_NB_CHANNEL ];
+extern uint16_t ppm_pulses[RADIO_CTL_NB];
 extern volatile bool_t ppm_frame_available;
 
 /**

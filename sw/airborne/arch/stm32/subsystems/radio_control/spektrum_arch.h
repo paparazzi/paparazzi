@@ -29,9 +29,14 @@
  * have the same channel assignments.
  */
 
+#define SPEKTRUM_NB_CHANNEL 12
 
 #ifndef RADIO_CONTROL_NB_CHANNEL
 #define RADIO_CONTROL_NB_CHANNEL 12
+#endif
+
+#if RADIO_CONTROL_NB_CHANNEL > 12
+#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 12."
 #endif
 
 /* default channel assignments */
