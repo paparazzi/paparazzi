@@ -79,6 +79,13 @@ let send_message_over_ivy = fun sender name vs ->
   else
     Tm_Pprz.message_send ?timestamp sender name vs
 
+let send_ground_over_ivy = fun sender name vs ->
+  let timestamp =
+    match !add_timestamp with
+        None -> None
+      | Some start_time -> Some (Unix.gettimeofday () -. start_time) in
+  Ground_Pprz.message_send ?timestamp sender name vs
+
 
 (*********** Monitoring *************************************************)
 type status = {
@@ -167,7 +174,7 @@ let send_status_msg =
                 "tx_msgs", Pprz.Int 0;
                 "ping_time", Pprz.Float (1000. *. (status.last_pong -. status.last_ping))
                ] in
-      send_message_over_ivy (string_of_int ac_id) "LINK_REPORT" vs)
+      send_ground_over_ivy "link" "LINK_REPORT" vs)
       statuss
 
 

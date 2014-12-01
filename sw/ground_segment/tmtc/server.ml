@@ -713,19 +713,16 @@ let link_report = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs
   and link_id = Pprz.int_assoc "link_id" vs in
   try
-    begin
-      let ac = Hashtbl.find aircrafts ac_id in
-      try
-        let link_status = Hashtbl.find ac.link_status link_id in
-        link_status.rx_lost_time <- Pprz.float_assoc "rx_lost_time" vs;
-        link_status.rx_bytes <- Pprz.int_assoc "rx_bytes" vs;
-        link_status.rx_msgs <- Pprz.int_assoc "rx_msgs" vs;
-        link_status.rx_bytes_rate <- Pprz.float_assoc "rx_bytes_rate" vs;
-        link_status.tx_msgs <- Pprz.int_assoc "tx_msgs" vs;
-        link_status.ping_time <- Pprz.float_assoc "ping_time" vs;
-        Hashtbl.replace ac.link_status link_id link_status
-      with Not_found -> Hashtbl.add ac.link_status link_id (Aircraft.link_status_init ())
-    end
+    let ac = Hashtbl.find aircrafts ac_id in
+    let link_status = {
+      Aircraft.rx_lost_time = Pprz.int_assoc "rx_lost_time" vs;
+      rx_bytes = Pprz.int_assoc "rx_bytes" vs;
+      rx_msgs = Pprz.int_assoc "rx_msgs" vs;
+      rx_bytes_rate = Pprz.float_assoc "rx_bytes_rate" vs;
+      tx_msgs = Pprz.int_assoc "tx_msgs" vs;
+      ping_time = Pprz.float_assoc "ping_time" vs;
+    } in
+    Hashtbl.replace ac.link_status link_id link_status;
   with _ -> ()
 
 

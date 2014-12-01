@@ -66,12 +66,12 @@ type datalink_status = {
     mutable downlink_rate : int;
  }
 type link_status = {
-    mutable rx_lost_time : float;
-    mutable rx_bytes : int;
-    mutable rx_msgs : int;
-    mutable rx_bytes_rate : float;
-    mutable tx_msgs : int;
-    mutable ping_time : float
+    rx_lost_time : int;
+    rx_bytes : int;
+    rx_msgs : int;
+    rx_bytes_rate : float;
+    tx_msgs : int;
+    ping_time : float
  }
 
 let datalink_status_init = fun () ->
@@ -83,7 +83,7 @@ let datalink_status_init = fun () ->
   }
 let link_status_init = fun () ->
   {
-    rx_lost_time = 9999.;
+    rx_lost_time = 9999;
     rx_bytes = 0;
     rx_msgs = 0;
     rx_bytes_rate = 0.;
