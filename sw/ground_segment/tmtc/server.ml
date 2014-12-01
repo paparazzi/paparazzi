@@ -279,7 +279,7 @@ let send_telemetry_status = fun a ->
   let id = a.id in
   let tl_payload = fun link_id datalink_status link_status ->
     [ "ac_id", Pprz.String id;
-      "link_id", Pprz.Int link_id; 
+      "link_id", Pprz.String link_id; 
       "time_since_last_msg", Pprz.Float (U.gettimeofday () -. a.last_msg_date); (* don't use rx_lost_time from LINK_REPORT so it also works in simulation *)
       "rx_bytes", Pprz.Int link_status.rx_bytes;
       "rx_msgs", Pprz.Int link_status.rx_msgs;
@@ -291,17 +291,17 @@ let send_telemetry_status = fun a ->
       "downlink_rate", Pprz.Int datalink_status.downlink_rate;
       "ping_time", Pprz.Float link_status.ping_time]
   in
-  (* if no link send anyway for rx_lost_time with default link id (0) *)
+  (* if no link send anyway for rx_lost_time with special link id *)
   if Hashtbl.length a.link_status = 0 then
     begin
-      let vs = tl_payload 0 a.datalink_status (Aircraft.link_status_init ()) in
+      let vs = tl_payload "no_id" a.datalink_status (Aircraft.link_status_init ()) in
       Ground_Pprz.message_send my_id "TELEMETRY_STATUS" vs
     end
   else
     (* send telemetry status for each link *)
     Hashtbl.iter (fun link_id link_status ->
       try
-        let vs = tl_payload link_id a.datalink_status link_status in
+        let vs = tl_payload (string_of_int link_id) a.datalink_status link_status in
         Ground_Pprz.message_send my_id "TELEMETRY_STATUS" vs
       with
           _exc -> ()

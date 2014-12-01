@@ -843,7 +843,7 @@ let get_fbw_msg = fun alarm _sender vs ->
 
 let get_telemetry_status = fun alarm _sender vs ->
   let ac = get_ac vs in
-  let link_id = Pprz.int_assoc "link_id" vs in
+  let link_id = Pprz.string_assoc "link_id" vs in
   (* Update color and lost time in the strip *)
   let time_lost = Pprz.float_assoc "time_since_last_msg" vs in
   let (links_up, total_links) = ac.link_page#links_ratio () in
@@ -858,15 +858,15 @@ let get_telemetry_status = fun alarm _sender vs ->
   let ping_time = Pprz.float_assoc "ping_time" vs in
   if (not (ac.link_page#link_exists link_id)) then begin
       ac.link_page#add_link link_id;
-      log_and_say alarm ac.ac_name (sprintf "%s, new link detected: %i" ac.ac_speech_name link_id)
+      log_and_say alarm ac.ac_name (sprintf "%s, new link detected: %s" ac.ac_speech_name link_id)
     end;
   let link_changed = ac.link_page#update_link link_id time_lost ping_time rx_msgs_rate downlink_bytes_rate uplink_lost_time in
   let (links_up, _) = ac.link_page#links_ratio () in
   match (link_changed, links_up) with
     (_, 0) -> log_and_say alarm ac.ac_name (sprintf "%s, all links lost" ac.ac_speech_name)
-  | (Pages.Linkup, _)-> log_and_say alarm ac.ac_name (sprintf "%s, link %i re-connected" ac.ac_speech_name link_id)
+  | (Pages.Linkup, _)-> log_and_say alarm ac.ac_name (sprintf "%s, link %s re-connected" ac.ac_speech_name link_id)
   | (Pages.Nochange, _) -> ()
-  | (Pages.Linkdown, _) -> log_and_say alarm ac.ac_name (sprintf "%s, link %i lost" ac.ac_speech_name link_id)
+  | (Pages.Linkdown, _) -> log_and_say alarm ac.ac_name (sprintf "%s, link %s lost" ac.ac_speech_name link_id)
   
 let get_engine_status_msg = fun _sender vs ->
   let ac = get_ac vs in

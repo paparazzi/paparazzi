@@ -321,26 +321,28 @@ class link ?(visible = fun _ -> true) (widget: GBin.frame) =
     val mutable links = []  (* Stores the GUI elements that need to be updated and whether the link is connected or not*)
     val mutable links_up = 0 (* Stores the number of links that are connected*)
 
-    method link_exists link_id = 
-      try
-        let link = List.assoc link_id links in
-        ignore link;
-        true
-      with
-        Not_found -> false
+    method link_exists link_id = List.mem_assoc link_id links
 
     method add_link link_id = 
-      let number_of_links = List.length links in
-      let _ = GMisc.label ~text: (sprintf "%i" link_id) ~packing: (table#attach ~top:0 ~left: (number_of_links+1) ) () in
-      let link_status_eventbox = GBin.event_box ~width: 50 ~packing: (table#attach ~top:1 ~left: (number_of_links+1) ) () in
-      let link_status_label = GMisc.label ~text: "   " ~packing: link_status_eventbox#add () in
-      let ping_time_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:2 ~left: (number_of_links+1) ) () in 
-      let rx_bytes_rate_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:3 ~left: (number_of_links+1) ) () in 
-      let downlink_bytes_rate_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:4 ~left: (number_of_links+1) ) () in 
-      let uplink_lost_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:5 ~left: (number_of_links+1) ) () in 
-      let up = true in
-      ignore (links <- (link_id, (up, link_status_eventbox, link_status_label, ping_time_label, rx_bytes_rate_label, downlink_bytes_rate_label, uplink_lost_label)) :: links);
-      links_up <- links_up + 1;
+      (* replace the no_id link if needed *)
+      if List.mem_assoc "no_id" links
+      then begin
+        let (_, dummy1, dummy2, dummy3, dummy4, dummy5, dummy6) = List.assoc "no_id" links in
+        links <- (link_id, (true, dummy1, dummy2, dummy3, dummy4, dummy5, dummy6)) :: (List.remove_assoc "no_id" links)
+      end
+      else begin
+        let number_of_links = List.length links in
+        let _ = GMisc.label ~text: (sprintf "%s" link_id) ~packing: (table#attach ~top:0 ~left: (number_of_links+1) ) () in
+        let link_status_eventbox = GBin.event_box ~width: 50 ~packing: (table#attach ~top:1 ~left: (number_of_links+1) ) () in
+        let link_status_label = GMisc.label ~text: "   " ~packing: link_status_eventbox#add () in
+        let ping_time_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:2 ~left: (number_of_links+1) ) () in 
+        let rx_bytes_rate_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:3 ~left: (number_of_links+1) ) () in 
+        let downlink_bytes_rate_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:4 ~left: (number_of_links+1) ) () in 
+        let uplink_lost_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:5 ~left: (number_of_links+1) ) () in 
+        let up = true in
+        ignore (links <- (link_id, (up, link_status_eventbox, link_status_label, ping_time_label, rx_bytes_rate_label, downlink_bytes_rate_label, uplink_lost_label)) :: links);
+        links_up <- links_up + 1;
+      end
 
 
     method update_link link_id time_since_last_msg ping_time rx_bytes_rate downlink_bytes_rate uplink_lost_time =
