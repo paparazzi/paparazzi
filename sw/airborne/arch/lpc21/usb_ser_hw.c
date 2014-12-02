@@ -143,8 +143,8 @@ static const uint8_t abDescriptors[] = {
 	LE_WORD(0x7070),			// idVendor
 	LE_WORD(0x1235),			// idProduct
 	LE_WORD(0x0100),			// bcdDevice
-	0x01,						// iManufacturer
-	0x02,						// iProduct
+	0x1d50,						// iManufacturer
+	0x603d,						// iProduct
 	0x03,						// iSerialNumber
 	0x01,						// bNumConfigurations
 
@@ -228,11 +228,11 @@ static const uint8_t abDescriptors[] = {
 
 	0x0E,
 	DESC_STRING,
-	'L', 0, 'P', 0, 'C', 0, 'U', 0, 'S', 0, 'B', 0,
+	'P', 0, 'a', 0, 'p', 0, 'a', 0, 'r', 0, 'a', 0,'z', 0, 'z', 0, 'i', 0, ' ',0 , 'U', 0, 'A', 0, 'V', 0,
 
 	0x14,
 	DESC_STRING,
-	'U', 0, 'S', 0, 'B', 0, 'S', 0, 'e', 0, 'r', 0, 'i', 0, 'a', 0, 'l', 0,
+	'C', 0, 'D', 0, 'C', 0, ' ', 0, 'S', 0, 'e', 0, 'r', 0, 'i', 0, 'a', 0, 'l', 0,' ', 0, 'L', 0, 'P', 0, 'C', 0,
 
 	0x12,
 	DESC_STRING,
@@ -564,6 +564,12 @@ static void usb_serial_transmit(struct usb_serial_periph* p __attribute__((unuse
 }
 
 static void usb_serial_send(struct usb_serial_periph* p __attribute__((unused))) { }
+
+// Empty for lpc21
+void VCOM_event(void) {}
+
+// Empty for lpc21
+void VCOM_transmit_message(void) {}
 
 void VCOM_init(void) {
 	// initialise stack
