@@ -125,7 +125,7 @@ void cmd_execute(void)
  */
 void event_usb_serial(void)
 {
-  VCOM_poll();
+  VCOM_event();
   if (UsbSChAvailable()) {
     ReadUsbBuffer();
   }

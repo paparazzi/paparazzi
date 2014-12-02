@@ -47,8 +47,12 @@ int VCOM_check_available(void);
 void VCOM_set_linecoding(uint8_t mode);
 void VCOM_allow_linecoding(uint8_t mode);
 void VCOM_transmit_message(void);
-void VCOM_poll(void);
+void VCOM_event(void);
 
+/*
+ * Macros can be used in subsystems that normally work with serial ports
+ * e.g. use UsbS instead of UART1
+ */
 #define UsbSInit() VCOM_init()
 #define UsbSCheckFreeSpace(_x) VCOM_check_free_space(_x)
 #define UsbSTransmit(_x) VCOM_putchar(_x)

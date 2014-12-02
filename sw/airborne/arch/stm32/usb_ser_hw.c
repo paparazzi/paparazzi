@@ -60,6 +60,8 @@ bool_t fifo_put(fifo_t *fifo, uint8_t c);
 bool_t fifo_get(fifo_t *fifo, uint8_t *pc);
 int  fifo_avail(fifo_t *fifo);
 int  fifo_free(fifo_t *fifo);
+inline char *get_dev_unique_id(char *serial_no);
+
 
 
 usbd_device *my_usbd_dev;
@@ -72,8 +74,8 @@ static const struct usb_device_descriptor dev = {
   .bDeviceSubClass = 0,
   .bDeviceProtocol = 0,
   .bMaxPacketSize0 = MAX_PACKET_SIZE,
-  .idVendor = 0x0483, // STMicroelectronics
-  .idProduct = 0x5740, // STM32F407
+  .idVendor = 0x1d50, // OpenMoko, Inc.
+  .idProduct = 0x603d, // Paparazzi LPC(STM32)USB Serial
   .bcdDevice = 0x0200,
   .iManufacturer = 1,
   .iProduct = 2,
@@ -203,12 +205,39 @@ static const struct usb_config_descriptor config = {
   .interface = ifaces,
 };
 
+static char serial_no[24];
+
 /* Description of the device as it appears after enumeration */
 static const char *usb_strings[] = {
-  "Transition Robotics",
-  "Lisa M 2.1",
-  "Paparazzi CDC device",
+  "Paparazzi UAV",
+  "CDC Serial STM32",
+  serial_no,
 };
+
+/**
+ * Serial is 96bit so 12bytes so 12 hexa numbers, or 24 decimal
+ */
+inline char *get_dev_unique_id(char *s)
+{
+#if defined STM32F4
+	volatile uint8_t *unique_id = (volatile uint8_t *)0x1FFF7A10;
+#else
+	volatile uint8_t *unique_id = (volatile uint8_t *)0x1FFFF7E8;
+#endif
+	int i;
+
+	// Fetch serial number from chip's unique ID
+	for(i = 0; i < 24; i+=2) {
+		s[i] = ((*unique_id >> 4) & 0xF) + '0';
+		s[i+1] = (*unique_id++ & 0xF) + '0';
+	}
+	for(i = 0; i < 24; i++)
+		if(s[i] > '9') {
+			s[i] += 'A' - '9' - 1;
+		}
+
+	return s;
+}
 
 /*
  *  Buffer to be used for control requests.
@@ -277,6 +306,14 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
   }
 }
 
+// store USB connection status
+static bool_t usb_connected;
+
+// use suspend callback to detect disconnect
+static void suspend_cb(void) {
+  usb_connected = FALSE;
+}
+
 /**
  * Set configuration and control callbacks for CDC device
  * (from libopencm3 examples)
@@ -294,9 +331,12 @@ static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
     USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
     USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
     cdcacm_control_request);
+
+  // use config and suspend callback to detect connect
+  usb_connected = TRUE;
+  usbd_register_suspend_callback(usbd_dev, suspend_cb);
 }
 
-#ifdef USE_USB_SERIAL
 
 void fifo_init(fifo_t *fifo, uint8_t *buf)
 {
@@ -410,7 +450,7 @@ int VCOM_check_available(void)
  * Poll usb (required by libopencm3)
  * VCOM_poll() should be called from module event function
  */
-void VCOM_poll(void)
+void VCOM_event(void)
 {
   usbd_poll(my_usbd_dev);
 }
@@ -457,12 +497,21 @@ static int usb_serial_check_free_space(struct usb_serial_periph *p __attribute__
   return (int)VCOM_check_free_space(len);
 }
 
+// Only transmit when USB is connected
 static void usb_serial_transmit(struct usb_serial_periph *p __attribute__((unused)), uint8_t byte)
 {
-  VCOM_putchar(byte);
+  if (usb_connected) {
+    VCOM_putchar(byte);
+  }
 }
 
-static void usb_serial_send(struct usb_serial_periph *p __attribute__((unused))) {}
+// Only send message when USB is connected
+static void usb_serial_send(struct usb_serial_periph *p __attribute__((unused)))
+{
+  if (usb_connected) {
+    VCOM_transmit_message();
+  }
+}
 
 void VCOM_init(void)
 {
@@ -471,12 +520,17 @@ void VCOM_init(void)
   fifo_init(&rxfifo, rxdata);
 
   /* set up GPIO pins */
+#if defined STM32F4
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,
-                  GPIO9 | GPIO11 | GPIO12);
-  gpio_set_af(GPIOA, GPIO_AF10, GPIO9 | GPIO11 | GPIO12);
+                  GPIO11 | GPIO12);
+  gpio_set_af(GPIOA, GPIO_AF10, GPIO11 | GPIO12);
+#endif
 
   /* USB clock */
   rcc_periph_clock_enable(RCC_OTGFS);
+
+  /* Get serial number */
+  get_dev_unique_id(serial_no);
 
   /* usb driver init*/
   my_usbd_dev = usbd_init(&otgfs_usb_driver, &dev, &config,
@@ -485,11 +539,12 @@ void VCOM_init(void)
 
   usbd_register_set_config_callback(my_usbd_dev, cdcacm_set_config);
 
+  // disconnected by default
+  usb_connected = FALSE;
+
   // Configure generic device
   usb_serial.device.periph = (void *)(&usb_serial);
   usb_serial.device.check_free_space = (check_free_space_t) usb_serial_check_free_space;
   usb_serial.device.transmit = (transmit_t) usb_serial_transmit;
   usb_serial.device.send_message = (send_message_t) usb_serial_send;
 }
-
-#endif /* USE_USB_SERIAL */
