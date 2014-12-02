@@ -60,12 +60,12 @@ else
 	MKTEMP = mktemp
 endif
 
-# detection of number of processors for parallel compilation
-# by passing J=AUTO from toplevel make.
+# By default, detect number of processors for parallel compilation
+# same as passing J=AUTO from toplevel make.
 # Number of processes can also be explicitly set with e.g. J=4
-# Calling make without a J variable is the same as J=1 (serial compilation)
+# For serial compilation, call make with J=1
 NPROCS := 1
-ifdef J
+J ?= AUTO
 ifeq ($J,AUTO)
 ifeq ($(UNAME),Linux)
   NPROCS := $(shell grep -c ^processor /proc/cpuinfo)
@@ -74,7 +74,6 @@ else ifeq ($(UNAME),Darwin)
 endif # $(UNAME)
 else # not auto, explicitly specified
   NPROCS := $J
-endif # $J
 endif
 
 
