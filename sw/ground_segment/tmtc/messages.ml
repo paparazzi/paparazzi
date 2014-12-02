@@ -204,6 +204,7 @@ let _ =
   (** Open the window container with its notebook*)
   let icon = GdkPixbuf.from_file Env.icon_mes_file in
   let window = GWindow.window ~type_hint:`DIALOG ~icon ~title:"Messages" () in
+  window#set_default_size ~width:200 ~height:50;
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 
