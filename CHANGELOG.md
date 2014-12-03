@@ -25,6 +25,21 @@ General
   [#945] (https://github.com/paparazzi/paparazzi/pull/945)
 - GCS: save size in layout
   [#968] (https://github.com/paparazzi/paparazzi/issues/968)
+- link/GCS: improve datalink/telemetry report and display link page in GCS for single link
+  [#999] (https://github.com/paparazzi/paparazzi/pull/999)
+- build: default to parallel make for aircrafts
+  [#1002] (https://github.com/paparazzi/paparazzi/pull/1002)
+- select_conf.py fixes and also selects control_panel.xml
+  [#1001] (https://github.com/paparazzi/paparazzi/pull/1001)
+- DFU flashing: CRC support and longer timeout for Krooz
+  [#997] (https://github.com/paparazzi/paparazzi/pull/997)
+  [#691] (https://github.com/paparazzi/paparazzi/pull/691)
+- messages: possibility to add descriptions
+  [#987] (https://github.com/paparazzi/paparazzi/pull/987)
+- messages: mission modules use LLA waypoints in 1e7deg instead of float
+  [#986] (https://github.com/paparazzi/paparazzi/pull/986)
+- GCS: alert/console window: always insert messages at the end
+  [#996] (https://github.com/paparazzi/paparazzi/issues/996)
 
 Simulation
 ----------
@@ -36,6 +51,8 @@ Simulation
 - NPS: add commandline option to set time_factor
 - radio_conrol spektrum for sim target
   [#851] (https://github.com/paparazzi/paparazzi/pull/851)
+- OCaml sim: sliders in simulated RC always sensitive
+  [#821] (https://github.com/paparazzi/paparazzi/issues/821)
 
 Airborne
 --------
@@ -60,6 +77,17 @@ Airborne
   [#961] (https://github.com/paparazzi/paparazzi/pull/961)
 - ARDrone2: Handle memory full FTP upload error
   [#967] (https://github.com/paparazzi/paparazzi/issues/967)
+- stm32: usb_serial (CDC) impelmentation for transparent_usb telemetry
+  [#998] (https://github.com/paparazzi/paparazzi/pull/998)
+- rotorcraft: force MODE_STARTUP instead of KILL until ahrs is aligned
+  [#983] (https://github.com/paparazzi/paparazzi/pull/983)
+- arch: rename arch/omap to arch/linux
+  [#982] (https://github.com/paparazzi/paparazzi/pull/982)
+- radio_control: cleanup channel defines and possibility to send less than available via intermcu
+  [#975] (https://github.com/paparazzi/paparazzi/pull/975)
+- linux: add basic I2C and SPI drivers
+  [#961] (https://github.com/paparazzi/paparazzi/pull/961)
+  [#979] (https://github.com/paparazzi/paparazzi/pull/979)
 
 
 Paparazzi 5.2.1_stable
