@@ -136,14 +136,6 @@ static void send_airspeed(struct transport_tx *trans __attribute__((unused)), st
 #endif
 }
 
-static void send_downlink(struct transport_tx *trans, struct link_device *dev) {
-  static uint16_t last;
-  uint16_t rate = (downlink.nb_bytes - last) / PERIOD_DOWNLINK_Ap_0;
-  last = downlink.nb_bytes;
-  pprz_msg_send_DOWNLINK(trans, dev, AC_ID,
-      &downlink.nb_ovrn, &rate, &downlink.nb_msgs);
-}
-
 void autopilot_init(void) {
   pprz_mode = PPRZ_MODE_AUTO2;
   kill_throttle = FALSE;
@@ -163,7 +155,6 @@ void autopilot_init(void) {
   /* register some periodic message */
   register_periodic_telemetry(DefaultPeriodic, "ALIVE", send_alive);
   register_periodic_telemetry(DefaultPeriodic, "PPRZ_MODE", send_mode);
-  register_periodic_telemetry(DefaultPeriodic, "DOWNLINK", send_downlink);
   register_periodic_telemetry(DefaultPeriodic, "ATTITUDE", send_attitude);
   register_periodic_telemetry(DefaultPeriodic, "ESTIMATOR", send_estimator);
   register_periodic_telemetry(DefaultPeriodic, "AIRSPEED", send_airspeed);

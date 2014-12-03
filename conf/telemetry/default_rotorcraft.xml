@@ -20,6 +20,7 @@
       <message name="UART_ERRORS"            period="3.1"/>
       <message name="SUPERBITRF"             period="3"/>
       <message name="ENERGY"                 period="2.5"/>
+      <message name="DATALINK_REPORT"        period="5.1"/>
     </mode>
 
     <mode name="ppm">

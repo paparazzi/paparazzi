@@ -312,57 +312,73 @@ class link ?(visible = fun _ -> true) (widget: GBin.frame) =
     ignore (GMisc.label ~text: "Link id:" ~justify: `RIGHT ~packing: (table#attach ~top:0 ~left: 0) ());
     ignore (GMisc.label ~text: "Status:" ~justify: `RIGHT ~packing: (table#attach ~top:1 ~left: 0) ());
     ignore (GMisc.label ~text: "Ping time [ms]:" ~justify: `RIGHT ~packing: (table#attach ~top:2 ~left: 0) ());
-    ignore (GMisc.label ~text: "Rx messages/s:" ~justify: `RIGHT ~packing: (table#attach ~top:3 ~left: 0) ());
+    ignore (GMisc.label ~text: "Link Rx [Byte/s]:" ~justify: `RIGHT ~packing: (table#attach ~top:3 ~left: 0) ());
+    ignore (GMisc.label ~text: "Downlink [Byte/s]:" ~justify: `RIGHT ~packing: (table#attach ~top:4 ~left: 0) ());
+    ignore (GMisc.label ~text: "Uplink lost [s]:" ~justify: `RIGHT ~packing: (table#attach ~top:5 ~left: 0) ());
   in
   object
     val table = table
     val mutable links = []  (* Stores the GUI elements that need to be updated and whether the link is connected or not*)
     val mutable links_up = 0 (* Stores the number of links that are connected*)
 
-    method link_exists link_id = 
-      try
-        let link = List.assoc link_id links in
-        ignore link;
-        true
-      with
-        Not_found -> false
+    method link_exists link_id = List.mem_assoc link_id links
 
     method add_link link_id = 
-      let number_of_links = List.length links in
-      let _ = GMisc.label ~text: (sprintf "%i" link_id) ~packing: (table#attach ~top:0 ~left: (number_of_links+1) ) () in
-      let link_status_eventbox = GBin.event_box ~width: 50 ~packing: (table#attach ~top:1 ~left: (number_of_links+1) ) () in
-      let link_status_label = GMisc.label ~text: "   " ~packing: link_status_eventbox#add () in
-      let rx_msgs_rate_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:2 ~left: (number_of_links+1) ) () in 
-      let ping_time_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:3 ~left: (number_of_links+1) ) () in 
-      let up = true in
-      ignore (links <- (link_id, (up, link_status_eventbox, link_status_label, rx_msgs_rate_label, ping_time_label)) :: links);
-      links_up <- links_up + 1;
+      (* replace the no_id link if needed *)
+      if List.mem_assoc "no_id" links
+      then begin
+        let (_, dummy1, dummy2, dummy3, dummy4, dummy5, dummy6) = List.assoc "no_id" links in
+        links <- (link_id, (true, dummy1, dummy2, dummy3, dummy4, dummy5, dummy6)) :: (List.remove_assoc "no_id" links)
+      end
+      else begin
+        let number_of_links = List.length links in
+        let _ = GMisc.label ~text: (sprintf "%s" link_id) ~packing: (table#attach ~top:0 ~left: (number_of_links+1) ) () in
+        let link_status_eventbox = GBin.event_box ~width: 50 ~packing: (table#attach ~top:1 ~left: (number_of_links+1) ) () in
+        let link_status_label = GMisc.label ~text: "   " ~packing: link_status_eventbox#add () in
+        let ping_time_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:2 ~left: (number_of_links+1) ) () in 
+        let rx_bytes_rate_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:3 ~left: (number_of_links+1) ) () in 
+        let downlink_bytes_rate_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:4 ~left: (number_of_links+1) ) () in 
+        let uplink_lost_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:5 ~left: (number_of_links+1) ) () in 
+        let up = true in
+        ignore (links <- (link_id, (up, link_status_eventbox, link_status_label, ping_time_label, rx_bytes_rate_label, downlink_bytes_rate_label, uplink_lost_label)) :: links);
+        links_up <- links_up + 1;
+      end
 
 
-    method update_link link_id time_since_last_msg rx_msgs_rate ping_time =
-      let (up, link_status_event_box, link_status_label, rx_msgs_rate_label, ping_time_label) = List.assoc link_id links in
+    method update_link link_id time_since_last_msg ping_time rx_bytes_rate downlink_bytes_rate uplink_lost_time =
+      let (up, link_status_event_box, link_status_label, ping_time_label, rx_bytes_rate_label, downlink_bytes_rate_label, uplink_lost_label) = List.assoc link_id links in
       begin
         if visible widget then begin (* display only if page is visible *)
           let link_status_string = sprintf "%.0f" time_since_last_msg in
           if link_status_label#text <> link_status_string then (* Updating the link status light*)
             begin
               link_status_label#set_label (if time_since_last_msg > 2. then link_status_string else "   ");
-              let color = (if time_since_last_msg > 5. then "red" else "green") in
+              let color = (if time_since_last_msg > 5. then "red" else if uplink_lost_time > 10 then "orange" else "green") in
               link_status_event_box#coerce#misc#modify_bg [`NORMAL, `NAME color];
             end;
-
-          let rx_msgs_rate_string = sprintf "%.1f" rx_msgs_rate in
-          if rx_msgs_rate_label#text <> rx_msgs_rate_string then (* Updating the rx_msgs_rate field*)
-            rx_msgs_rate_label#set_label rx_msgs_rate_string;
 
           let ping_time_string = sprintf "%.1f" ping_time in
           if ping_time_label#text <> ping_time_string then (* Updating the ping_time field*)
             ping_time_label#set_label ping_time_string;
+
+          let rx_bytes_rate_string = sprintf "%.1f" rx_bytes_rate in
+          if rx_bytes_rate_label#text <> rx_bytes_rate_string then (* Updating the rx_bytes_rate field*)
+            rx_bytes_rate_label#set_label rx_bytes_rate_string;
+
+          let downlink_bytes_rate_string = sprintf "%d" downlink_bytes_rate in
+          if downlink_bytes_rate_label#text <> downlink_bytes_rate_string then (* Updating the downlink_bytes_rate field*)
+            downlink_bytes_rate_label#set_label downlink_bytes_rate_string;
+
+          let uplink_lost_string = sprintf "%d" uplink_lost_time in
+          if uplink_lost_label#text <> uplink_lost_string then (* Updating the uplink_lost_time field*)
+            uplink_lost_label#set_label uplink_lost_string;
+
+          ()
         end;
 
         let update_list = fun list_to_update up ->
-          let (_, dummy1, dummy2, dummy3, dummy4) = List.assoc link_id list_to_update in
-          (link_id, (up, dummy1, dummy2, dummy3, dummy4)) :: List.remove_assoc link_id list_to_update in
+          let (_, dummy1, dummy2, dummy3, dummy4, dummy5, dummy6) = List.assoc link_id list_to_update in
+          (link_id, (up, dummy1, dummy2, dummy3, dummy4, dummy5, dummy6)) :: List.remove_assoc link_id list_to_update in
         if up then  (* Updating the stored value of whether this link is connected or not*)
           if time_since_last_msg > 5. then
             begin
@@ -387,6 +403,6 @@ class link ?(visible = fun _ -> true) (widget: GBin.frame) =
         (links_up, List.length links)
 
       method multiple_links () = 
-        if (List.length links) > 0 then true else false
+        (List.length links) > 1
 
   end;;

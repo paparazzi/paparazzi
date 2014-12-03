@@ -183,25 +183,8 @@
     <field name="segment_north_2" type="float" unit="m"/>
   </message>
 
-  <message name="DOWNLINK_STATUS" id="23">
-    <field name="link_id" type="int8"/>
-    <field name="run_time" type="uint32" unit="s"/>
-    <field name="rx_bytes" type="uint32"/>
-    <field name="rx_msgs" type="uint32"/>
-    <field name="rx_err" type="uint32"/>
-    <field name="rx_bytes_rate" type="float" format="%.1f"/>
-    <field name="rx_msgs_rate" type="float" format="%.1f"/>
-    <field name="ping_time" type="float" format="%.2f" unit="ms"/>
-  </message>
-
-  <message name="MODEM_STATUS" id="24">
-    <field name="detected" type="uint8"/>
-    <field name="valim" type="float" format="%.1f"/>
-    <field name="cd" type="uint8"/>
-    <field name="nb_byte" type="uint32"/>
-    <field name="nb_msg" type="uint32"/>
-    <field name="nb_err" type="uint32"/>
-  </message>
+  <!-- ID 23 is free -->
+  <!-- ID 24 is free -->
 
   <message name="SVINFO" id="25">
     <field name="chn" type="uint8"/>
@@ -238,10 +221,13 @@
     <field name="flying" type="uint8" unit="bool"/>
   </message>
 
-  <message name="DOWNLINK" id="30">
-    <field name="nb_ovrn" type="uint8"/>
-    <field name="rate" type="uint16" unit="bytes/s"/>
-    <field name="nb_msgs" type="uint16"/>
+  <message name="DATALINK_REPORT" id="30">
+    <description>Datalink status reported by an aircraft for the ground</description>
+    <field name="uplink_lost_time" type="uint16" unit="s"/>
+    <field name="uplink_nb_msgs" type="uint16"/>
+    <field name="downlink_nb_msgs" type="uint16"/>
+    <field name="downlink_rate" type="uint16" unit="bytes/s"/>
+    <field name="downlink_ovrn" type="uint8"/>
   </message>
 
 <!-- Current value of one variable from the dl_settings (airframe.xml) -->
@@ -600,18 +586,6 @@
     <field name="rssi_fade_margin" type="uint8" unit="dB"/>
     <field name="duty" type="uint8" unit="%"/>
   </message>
-
-  <message name="LINK_STATUS" id="71">
-      <field name="link_id" type="uint8"/>
-      <field name="time_since_last_msg" type="float" unit="s"/>
-      <field name="run_time" type="uint32" unit="s"/>
-      <field name="rx_bytes" type="uint32"/>
-      <field name="rx_msgs" type="uint32"/>
-      <field name="rx_err" type="uint32"/>
-      <field name="rx_bytes_rate" type="float" format="%.1f"/>
-      <field name="rx_msgs_rate" type="float" format="%.1f"/>
-      <field name="ping_time" type="float" format="%.2f" unit="ms"/>
-    </message>
 
   <message name="SUPERBITRF" id="72">
       <field name="status" type="uint8" values="UNINIT|INIT_BINDING|INIT_TRANSFER|BINDING|SYNCING_A|SYNCING_B|TRANSFER"/>
@@ -2768,25 +2742,57 @@
   </message>
 
   <message name="TELEMETRY_STATUS" id="32">
+    <description>
+      Datalink status reported by Server for the GCS
+      Combines DATLINK_REPORT (telemetry class) and LINK_REPORT (ground class)
+    </description>
     <field name="ac_id" type="string"/>
+    <field name="link_id" type="string"/>
     <field name="time_since_last_msg" type="float" unit="s"/>
+    <field name="rx_bytes" type="uint32"/>
+    <field name="rx_msgs" type="uint32"/>
+    <field name="rx_bytes_rate" type="float" format="%.1f" unit="bytes/s"/>
+    <field name="tx_msgs" type="uint32"/>
+    <field name="uplink_lost_time" type="uint32" unit="s"/>
+    <field name="uplink_msgs" type="uint16"/>
+    <field name="downlink_msgs" type="uint16"/>
+    <field name="downlink_rate" type="uint16" unit="bytes/s"/>
+    <field name="ping_time" type="float" format="%.2f" unit="ms"/>
   </message>
 
   <message name="TELEMETRY_ERROR" id="33">
+    <description>Report a telemetry error</description>
     <field name="ac_id" type="string"/>
     <field name="message" type="string"/>
   </message>
 
-   <message name="TELEMETRY_MESSAGE" id="34">
+  <message name="TELEMETRY_MESSAGE" id="34">
+    <description>Encapsulated a telemetry class message (when using redundant link)</description>
     <field name="ac_id" type="string"/>
     <field name="link_id" type="string" />
     <field name="message" type="string" format=";sv"/>
-   </message>
+  </message>
 
   <message name="DATALINK_MESSAGE" id="35">
+    <description>Encapsulated a datalink class message (when using redundant link)</description>
     <field name="ac_id" type="string"/>
     <field name="link_id" type="string"/>
     <field name="message" type="string" format=";sv"/>
+  </message>
+
+  <message name="LINK_REPORT" id="36">
+    <description>Datalink status reported by Link for the Server</description>
+    <field name="ac_id" type="string"/>
+    <field name="link_id" type="uint8"/>
+    <field name="run_time" type="uint32" unit="s"/>
+    <field name="rx_lost_time" type="uint32" unit="s"/>
+    <field name="rx_bytes" type="uint32"/>
+    <field name="rx_msgs" type="uint32"/>
+    <field name="rx_err" type="uint32"/>
+    <field name="rx_bytes_rate" type="float" format="%.1f" unit="bytes/s"/>
+    <field name="rx_msgs_rate" type="float" format="%.1f" unit="msgs/s"/>
+    <field name="tx_msgs" type="uint32"/>
+    <field name="ping_time" type="float" format="%.2f" unit="ms"/>
   </message>
 
   <message name="PLUMES" id="100">

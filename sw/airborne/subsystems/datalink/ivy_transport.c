@@ -150,6 +150,7 @@ static void end_message(struct ivy_transport *trans, struct link_device *dev __a
   *(--trans->ivy_p) = '\0';
   if (trans->ivy_dl_enabled) {
     IvySendMsg("%s", trans->ivy_buf);
+    downlink.nb_msgs++;
   }
 }
 

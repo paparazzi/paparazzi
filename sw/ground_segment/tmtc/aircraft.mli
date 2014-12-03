@@ -48,6 +48,24 @@ type svinfo = {
     mutable age : int
   }
 val svinfo_init : unit -> svinfo
+
+type datalink_status = {
+    mutable uplink_lost_time : int;
+    mutable uplink_msgs : int;
+    mutable downlink_msgs : int;
+    mutable downlink_rate : int;
+ }
+type link_status = {
+    rx_lost_time : int;
+    rx_bytes : int;
+    rx_msgs : int;
+    rx_bytes_rate : float;
+    tx_msgs : int;
+    ping_time : float
+ }
+val datalink_status_init : unit -> datalink_status
+val link_status_init : unit -> link_status
+
 type horiz_mode =
     Circle of Latlong.geographic * int
   | Segment of Latlong.geographic * Latlong.geographic
@@ -121,6 +139,8 @@ type aircraft = {
     dl_setting_values : float array;
     mutable nb_dl_setting_values : int;
     mutable survey : (Latlong.geographic * Latlong.geographic) option;
+    datalink_status : datalink_status;
+    link_status : (int, link_status) Hashtbl.t;
     mutable last_msg_date : float;
     mutable time_since_last_survey_msg : float;
     mutable dist_to_wp : float;

@@ -79,6 +79,13 @@ let send_message_over_ivy = fun sender name vs ->
   else
     Tm_Pprz.message_send ?timestamp sender name vs
 
+let send_ground_over_ivy = fun sender name vs ->
+  let timestamp =
+    match !add_timestamp with
+        None -> None
+      | Some start_time -> Some (Unix.gettimeofday () -. start_time) in
+  Ground_Pprz.message_send ?timestamp sender name vs
+
 
 (*********** Monitoring *************************************************)
 type status = {
@@ -87,6 +94,7 @@ type status = {
   mutable rx_byte : int;
   mutable rx_msg : int;
   mutable rx_err : int;
+  mutable tx_msg : int;
   mutable ms_since_last_msg : int;
   mutable last_ping : float; (* s *)
   mutable last_pong : float; (* s *)
@@ -99,6 +107,7 @@ let dead_aircraft_time_ms = 5000
 let initial_status = {
   last_rx_byte = 0; last_rx_msg = 0;
   rx_byte = 0; rx_msg = 0; rx_err = 0;
+  tx_msg = 0;
   ms_since_last_msg = dead_aircraft_time_ms;
   last_ping = 0.; last_pong = 0.;
   udp_peername = None
@@ -153,16 +162,19 @@ let send_status_msg =
       status.last_rx_msg <- status.rx_msg;
       status.last_rx_byte <- status.rx_byte;
       status.ms_since_last_msg <- status.ms_since_last_msg + status_msg_period;
-      let vs = ["link_id", Pprz.Int !link_id;
+      let vs = ["ac_id", Pprz.Int ac_id;
+                "link_id", Pprz.Int !link_id;
                 "run_time", Pprz.Int t;
-                "rx_bytes_rate", Pprz.Float byte_rate;
-                "rx_msgs_rate", Pprz.Float msg_rate;
-                "rx_err", Pprz.Int status.rx_err;
+                "rx_lost_time", Pprz.Int (1000 * status.ms_since_last_msg);
                 "rx_bytes", Pprz.Int status.rx_byte;
                 "rx_msgs", Pprz.Int status.rx_msg;
+                "rx_err", Pprz.Int status.rx_err;
+                "rx_bytes_rate", Pprz.Float byte_rate;
+                "rx_msgs_rate", Pprz.Float msg_rate;
+                "tx_msgs", Pprz.Int 0;
                 "ping_time", Pprz.Float (1000. *. (status.last_pong -. status.last_ping))
                ] in
-      send_message_over_ivy (string_of_int ac_id) "DOWNLINK_STATUS" vs)
+      send_ground_over_ivy "link" "LINK_REPORT" vs)
       statuss
 
 
@@ -304,6 +316,11 @@ let udp_send = fun fd payload peername ->
 let send = fun ac_id device payload _priority ->
   Debug.call 's' (fun f -> fprintf f "%d\n" ac_id);
   if live_aircraft ac_id then
+    let _ = try
+      let s = Hashtbl.find statuss ac_id in
+      s.tx_msg <- s.tx_msg + 1;
+      ()
+    with Not_found -> () in
     match udp_peername ac_id with
         Some (Unix.ADDR_INET (peername, _port)) ->
           udp_send device.fd payload peername
@@ -319,6 +336,7 @@ let send = fun ac_id device payload _priority ->
 
 
 let broadcast = fun device payload _priority ->
+  Hashtbl.iter (fun _ s -> s.tx_msg <- s.tx_msg + 1) statuss;
   if !udp then
     Hashtbl.iter (* Sending to all alive A/C *)
       (fun ac_id status ->

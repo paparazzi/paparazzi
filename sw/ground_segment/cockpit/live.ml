@@ -841,23 +841,32 @@ let get_fbw_msg = fun alarm _sender vs ->
     log_and_say alarm ac.ac_name (sprintf "%s, mayday, AP Failure. Switch to manual." ac.ac_speech_name)
   end
 
-let get_link_status_msg = fun alarm sender vs ->
-  let ac = find_ac sender in
-  let link_id = Pprz.int_assoc "link_id" vs in
-  let time_since_last_msg = Pprz.float_assoc "time_since_last_msg" vs in
-  let rx_msgs_rate = Pprz.float_assoc "rx_msgs_rate" vs in
+let get_telemetry_status = fun alarm _sender vs ->
+  let ac = get_ac vs in
+  let link_id = Pprz.string_assoc "link_id" vs in
+  (* Update color and lost time in the strip *)
+  let time_lost = Pprz.float_assoc "time_since_last_msg" vs in
+  let (links_up, total_links) = ac.link_page#links_ratio () in
+  let link_ratio_string =
+    if ac.link_page#multiple_links () then sprintf "%i/%i" links_up total_links else "" in
+  ac.strip#set_label "telemetry_status" (if time_lost > 2. then sprintf "%.0f" time_lost else link_ratio_string);
+  ac.strip#set_color "telemetry_status" (if time_lost > 5. then alert_color else if links_up < total_links then warning_color else ok_color);
+  (* Update link page *)
+  let rx_msgs_rate = Pprz.float_assoc "rx_bytes_rate" vs
+  and downlink_bytes_rate = Pprz.int_assoc "downlink_rate" vs
+  and uplink_lost_time = Pprz.int_assoc "uplink_lost_time" vs in
   let ping_time = Pprz.float_assoc "ping_time" vs in
   if (not (ac.link_page#link_exists link_id)) then begin
       ac.link_page#add_link link_id;
-      log_and_say alarm ac.ac_name (sprintf "%s, new link detected: %i" ac.ac_speech_name link_id)
+      log_and_say alarm ac.ac_name (sprintf "%s, new link detected: %s" ac.ac_speech_name link_id)
     end;
-  let link_changed = ac.link_page#update_link link_id time_since_last_msg rx_msgs_rate ping_time in
+  let link_changed = ac.link_page#update_link link_id time_lost ping_time rx_msgs_rate downlink_bytes_rate uplink_lost_time in
   let (links_up, _) = ac.link_page#links_ratio () in
   match (link_changed, links_up) with
     (_, 0) -> log_and_say alarm ac.ac_name (sprintf "%s, all links lost" ac.ac_speech_name)
-  | (Pages.Linkup, _)-> log_and_say alarm ac.ac_name (sprintf "%s, link %i re-connected" ac.ac_speech_name link_id)
+  | (Pages.Linkup, _)-> log_and_say alarm ac.ac_name (sprintf "%s, link %s re-connected" ac.ac_speech_name link_id)
   | (Pages.Nochange, _) -> ()
-  | (Pages.Linkdown, _) -> log_and_say alarm ac.ac_name (sprintf "%s, link %i lost" ac.ac_speech_name link_id)
+  | (Pages.Linkdown, _) -> log_and_say alarm ac.ac_name (sprintf "%s, link %s lost" ac.ac_speech_name link_id)
   
 let get_engine_status_msg = fun _sender vs ->
   let ac = get_ac vs in
@@ -884,8 +893,8 @@ let listen_engine_status_msg = fun () ->
 let listen_if_calib_msg = fun () ->
   safe_bind "INFLIGH_CALIB" get_if_calib_msg
 
-let listen_link_status_msg = fun a ->
-  tele_bind "LINK_STATUS" (get_link_status_msg a)
+let listen_telemetry_status = fun a ->
+  safe_bind "TELEMETRY_STATUS" (get_telemetry_status a)
 
 let list_separator = Str.regexp ","
 
@@ -1337,26 +1346,6 @@ let listen_svsinfo = fun a -> safe_bind "SVSINFO" (get_svsinfo a)
 
 let message_request = Ground_Pprz.message_req
 
-let get_ts = fun _sender vs ->
-  let ac = get_ac vs in
-  let t = Pprz.float_assoc "time_since_last_msg" vs in
-  if ac.link_page#multiple_links () then 
-    begin
-      let (links_up, total_links) = ac.link_page#links_ratio () in
-      let link_ratio_string = sprintf "%i/%i" links_up total_links in
-      ac.strip#set_label "telemetry_status" (if t > 2. then sprintf "%.0f" t else link_ratio_string);
-      ac.strip#set_color "telemetry_status" (if t > 5. then alert_color else if links_up < total_links then warning_color else ok_color)
-    end
-  else
-    begin
-      ac.strip#set_label "telemetry_status" (if t > 2. then sprintf "%.0f" t else "   ");
-      ac.strip#set_color "telemetry_status" (if t > 5. then alert_color else ok_color)
-    end
-
-let listen_telemetry_status = fun () ->
-  safe_bind "TELEMETRY_STATUS" get_ts
-
-
 let mark_dcshot = fun (geomap:G.widget) _sender vs ->
   let ac = find_ac !active_ac in
   let photonumber = Pprz.string_assoc "photo_nr" vs in
@@ -1419,11 +1408,10 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
   listen_wind_msg geomap;
   listen_fbw_msg my_alert;
   listen_engine_status_msg ();
-  listen_link_status_msg my_alert;
+  listen_telemetry_status my_alert;
   listen_if_calib_msg ();
   listen_waypoint_moved ();
   listen_svsinfo my_alert;
-  listen_telemetry_status ();
   listen_alert my_alert;
   listen_error my_alert;
   listen_info_msg my_alert;

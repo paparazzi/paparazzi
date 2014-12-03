@@ -59,6 +59,38 @@ let svinfo_init = fun () ->
     age = 0
   }
 
+type datalink_status = {
+    mutable uplink_lost_time : int;
+    mutable uplink_msgs : int;
+    mutable downlink_msgs : int;
+    mutable downlink_rate : int;
+ }
+type link_status = {
+    rx_lost_time : int;
+    rx_bytes : int;
+    rx_msgs : int;
+    rx_bytes_rate : float;
+    tx_msgs : int;
+    ping_time : float
+ }
+
+let datalink_status_init = fun () ->
+  {
+    uplink_lost_time = 9999;
+    uplink_msgs = 0;
+    downlink_msgs = 0;
+    downlink_rate = 0;
+  }
+let link_status_init = fun () ->
+  {
+    rx_lost_time = 9999;
+    rx_bytes = 0;
+    rx_msgs = 0;
+    rx_bytes_rate = 0.;
+    tx_msgs = 0;
+    ping_time = 9999.
+  }
+
 type inflight_calib = {
   mutable if_mode : int; (* DOWN|OFF|UP *)
   mutable if_val1 : float;
@@ -155,6 +187,8 @@ type aircraft = {
   dl_setting_values : float array;
   mutable nb_dl_setting_values : int;
   mutable survey : (Latlong.geographic * Latlong.geographic) option;
+  datalink_status : datalink_status;
+  link_status : (int, link_status) Hashtbl.t;
   mutable last_msg_date : float;
   mutable time_since_last_survey_msg : float;
   mutable dist_to_wp : float;
@@ -188,6 +222,7 @@ let new_aircraft = fun id name fp airframe ->
     horiz_mode = UnknownHorizMode;
     horizontal_mode = 0;
     waypoints = Hashtbl.create 3; survey = None; last_msg_date = 0.; dist_to_wp = 0.;
+    datalink_status = datalink_status_init (); link_status = Hashtbl.create 1;
     time_since_last_survey_msg = 1729.;
     inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.}
   }
