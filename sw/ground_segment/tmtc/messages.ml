@@ -98,6 +98,8 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
                 field_name in
             sel#return (sprintf "%s:%s:%s:%s:%s" sender class_name id field_descr scale) in
           ignore (field_label#drag#connect#data_get ~callback:data_get);
+          ignore (field_label#drag#connect#beginning ~callback:(fun _ -> notebook#coerce#misc#set_sensitive false));
+          ignore (field_label#drag#connect#ending ~callback:(fun _ -> notebook#coerce#misc#set_sensitive true));
 
           (update, display_value)::rest
         with
