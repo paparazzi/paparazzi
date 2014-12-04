@@ -133,6 +133,7 @@ class ConfChooser:
         self.find_controlpanel_files()
 
     def launch(self, widget):
+        self.accept(widget)
         os.system("./paparazzi &");
         gtk.main_quit()
 
