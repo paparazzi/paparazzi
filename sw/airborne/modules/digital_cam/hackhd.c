@@ -90,22 +90,27 @@ static inline uint16_t pin_of_gpio(uint32_t __attribute__((unused)) port, uint16
 
 static inline void hackhd_send_shot_position(void)
 {
+  // angles in decideg
   int16_t phi = DegOfRad(stateGetNedToBodyEulers_f()->phi*10.0f);
   int16_t theta = DegOfRad(stateGetNedToBodyEulers_f()->theta*10.0f);
-  float gps_z = ((float)gps.hmsl) / 1000.0f;
-  int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
+  int16_t psi = DegOfRad(stateGetNedToBodyEulers_f()->psi*10.0f);
+  // course in decideg
+  int16_t course = DegOfRad(*stateGetHorizontalSpeedDir_f()) * 10;
+  // ground speed in cm/s
+  uint16_t speed = (*stateGetHorizontalSpeedNorm_f()) * 10;
 
   DOWNLINK_SEND_DC_SHOT(DefaultChannel, DefaultDevice,
-      &hackhd.photo_nr,
-      &gps.utm_pos.east,
-      &gps.utm_pos.north,
-      &gps_z,
-      &gps.utm_pos.zone,
-      &phi,
-      &theta,
-      &course,
-      &gps.gspeed,
-      &gps.tow);
+                        &hackhd.photo_nr,
+                        &stateGetPositionLla_i()->lat,
+                        &stateGetPositionLla_i()->lon,
+                        &stateGetPositionLla_i()->alt,
+                        &gps.hmsl,
+                        &phi,
+                        &theta,
+                        &psi,
+                        &course,
+                        &speed,
+                        &gps.tow);
 }
 #endif
 

@@ -42,33 +42,51 @@
 #include "generated/airframe.h"
 #include "subsystems/gps.h"
 
-/** number of images taken since the last change of dc_mode */
-extern uint16_t dc_gps_count;
-
 /** export the number of the last photo */
 extern uint16_t dc_photo_nr;
 
+/** number of images taken since the last change of dc_mode */
+extern uint16_t dc_gps_count;
+
+
+/*
+ * Variables for PERIODIC mode.
+ */
+/** AutoShoot photos every X quarter_second */
+extern uint8_t dc_autoshoot_quartersec_period;
+
+
+/*
+ * Variables for DISTANCE mode.
+ */
+/** AutoShoot photos on distance to last shot in meters */
+extern float dc_distance_interval;
+
+
+/*
+ * Variables for SURVEY mode.
+ */
 /** distance between dc shots in meters */
-extern float dc_gps_dist;
+extern float dc_survey_interval;
+
+/** point of reference for the survey mode */
+extern float dc_gps_x, dc_gps_y;
 
 extern float dc_gps_next_dist;
 
+
+/*
+ * Variables for CIRCLE mode.
+ */
 /** angle a where first image will be taken at a + delta */
 extern float dc_circle_start_angle;
 
-/*' angle between dc shots in degree */
+/** angle between dc shots in degree */
 extern float dc_circle_interval;
 
 extern float dc_circle_max_blocks;
-
-/** point of reference for the distance based mode */
-extern float dc_gps_x, dc_gps_y;
-
 extern float dc_circle_last_block;
 
-extern bool_t dc_probing;
-
-extern uint8_t dc_buffer_timer;
 
 /** camera angle */
 extern float dc_cam_angle;
@@ -113,18 +131,8 @@ typedef enum {
 } dc_autoshoot_type;
 extern dc_autoshoot_type dc_autoshoot;
 
-/** AutoShoot photos every X quarter_second */
-extern uint8_t dc_autoshoot_quartersec_period;
-
-/** AutoShoot photos on a X meter Local Tangent Plane Grid */
-extern uint8_t dc_autoshoot_meter_grid;
-
-/* Send Down the coordinates of where the photo was taken */
-#ifdef SENSOR_SYNC_SEND
+/** Send Down the coordinates of where the photo was taken */
 void dc_send_shot_position(void);
-#else
-#define dc_send_shot_position() {}
-#endif
 
 /* Macro value used to indicate a discardable argument */
 #ifndef DC_IGNORE
@@ -136,10 +144,6 @@ void dc_send_shot_position(void);
 #define DC_IMAGE_BUFFER 65535
 #endif
 
-#ifndef DC_IMAGE_BUFFER_TPI
-#define DC_IMAGE_BUFFER_TPI 0
-#endif
-
 /******************************************************************
  * FUNCTIONS
  *****************************************************************/
@@ -149,6 +153,19 @@ extern void dc_init(void);
 
 /** periodic 4Hz function */
 extern void dc_periodic_4Hz(void);
+
+/**
+ * Sets the dc control in distance mode.
+ *
+ * Shoot the next pic if distance to last saved shot position
+ * is greater than @a interval.
+ *
+ * The first picture is taken at after @a interval.
+ *
+ * @param interval minimum distance between shots in m
+ * @return zero
+ */
+extern uint8_t dc_distance(float interval);
 
 /**
  * Sets the dc control in circle mode.

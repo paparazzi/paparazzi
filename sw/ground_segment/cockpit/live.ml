@@ -1349,15 +1349,22 @@ let message_request = Ground_Pprz.message_req
 let mark_dcshot = fun (geomap:G.widget) _sender vs ->
   let ac = find_ac !active_ac in
   let photonumber = Pprz.string_assoc "photo_nr" vs in
-    (*  let ac = get_ac vs in *)
-  match ac.track#last with
-      Some geo ->
-        begin
-          let group = geomap#background in
-          let point = geomap#photoprojection ~group ~fill_color:"yellow" ~number:photonumber geo 3. in
-          point#raise_to_top ()
-        end
-    | None -> ()
+  try
+    let lat = Pprz.int_assoc "lat" vs
+    and lon = Pprz.int_assoc "lon" vs in
+    let wgs84 = LL.make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
+    let group = geomap#background in
+    let point = geomap#photoprojection ~group ~fill_color:"yellow" ~number:photonumber wgs84 3. in
+    point#raise_to_top ()
+  with _ ->
+    match ac.track#last with
+        Some geo ->
+          begin
+            let group = geomap#background in
+            let point = geomap#photoprojection ~group ~fill_color:"yellow" ~number:photonumber geo 3. in
+            point#raise_to_top ()
+          end
+      | None -> ()
 
 (*  mark geomap ac.ac_name track !Plugin.frame *)
 

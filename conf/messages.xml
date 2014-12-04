@@ -528,10 +528,11 @@
 
   <message name="DC_INFO" id="64">
     <field name="mode" type="int16" unit=""/>
-    <field name="utm_east" type="float" unit="m"/>
-    <field name="utm_north" type="float" unit="m"/>
+    <field name="lat" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="alt" type="int32" unit="mm" alt_unit="m">altitude above WGS84 reference ellipsoid</field>
     <field name="course" type="float" unit="deg"/>
-    <field name="buffer" type="uint16"/>
+    <field name="photo_nr" type="uint16"/>
     <field name="dist" type="float" unit="m"/>
     <field name="next_dist" type="float" unit="m"/>
     <field name="start_x" type="float" unit="m"/>
@@ -881,15 +882,16 @@
 
   <message name="DC_SHOT" id="110">
     <field name="photo_nr" type="int16"/>
-    <field name="utm_east"  type="int32" unit="cm"/>
-    <field name="utm_north" type="int32" unit="cm"/>
-    <field name="z" type="float" unit="m"/>
-    <field name="utm_zone"  type="uint8"/>
-    <field name="phi" type="int16" unit="decideg"/>
-    <field name="theta" type="int16" unit="decideg"/>
-    <field name="course" type="int16" unit="decideg"/>
-    <field name="speed"  type="uint16" unit="cm/s"/>
-    <field name="itow"  type="uint32" unit="ms"/>
+    <field name="lat" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001">Gedetic latitude</field>
+    <field name="lon" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001">Longitude</field>
+    <field name="alt" type="int32" unit="mm" alt_unit="m">altitude above WGS84 reference ellipsoid</field>
+    <field name="hmsl" type="int32" unit="mm" alt_unit="m">Height above Mean Sea Level (geoid)</field>
+    <field name="phi" type="int16" unit="decideg">Euler angle around x-axis (roll)</field>
+    <field name="theta" type="int16" unit="decideg">Euler angle around y-axis (pitch)</field>
+    <field name="psi" type="int16" unit="decideg">Euler angle around z-axis (yaw)</field>
+    <field name="course" type="int16" unit="decideg">Course over ground (CW/north)</field>
+    <field name="speed" type="uint16" unit="cm/s">horizontal ground speed</field>
+    <field name="itow" type="uint32" unit="ms">GPS time of week</field>
   </message>
 
   <message name="TEST_BOARD_RESULTS" id="111">
