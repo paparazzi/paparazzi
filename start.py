@@ -133,6 +133,7 @@ class ConfChooser:
         self.find_controlpanel_files()
 
     def launch(self, widget):
+        self.accept(widget)
         os.system("./paparazzi &");
         gtk.main_quit()
 
@@ -382,11 +383,11 @@ class ConfChooser:
         self.my_vbox.pack_start(self.btnBackups, False)
 
         ##### Buttons
-        self.btnAccept = gtk.Button("Set Selected Files As Active")
-        self.btnAccept.connect("clicked", self.accept)
-        self.btnAccept.set_tooltip_text("Set Conf/Control_Panel as Active")
+        #self.btnAccept = gtk.Button("Set Selected Files As Active")
+        #self.btnAccept.connect("clicked", self.accept)
+        #self.btnAccept.set_tooltip_text("Set Conf/Control_Panel as Active")
 
-        self.btnLaunch = gtk.Button("Launch Paparazzi")
+        self.btnLaunch = gtk.Button("Launch Paparazzi with selected configuration")
         self.btnLaunch.connect("clicked", self.launch)
         self.btnLaunch.set_tooltip_text("Launch Paparazzi with current conf.xml")
 
@@ -397,7 +398,7 @@ class ConfChooser:
 
         self.toolbar = gtk.HBox()
         self.toolbar.set_size_request(0,60)
-        self.toolbar.pack_start(self.btnAccept)
+        #self.toolbar.pack_start(self.btnAccept)
         self.toolbar.pack_start(self.btnLaunch)
         self.toolbar.pack_start(self.btnExit)
 
