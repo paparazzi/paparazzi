@@ -132,20 +132,24 @@ for line in f:
                 theta = int(splitted[ 9 ])
                 course = int(splitted[ 10 ])
                 speed = int(splitted[ 11 ])
+                itow = int(splitted[ 12 ])
 
                 lon, lat = UTMtoLL( utm_north, utm_east, utm_zone )
 
-            # current DC_SHOT messages has 9 data fields with pos in LLA:
-            # photo_nr, latitude, longitude, altitude, phi, theta, course, speed, itow
-            else if len(splitted) == 12:
+            # current DC_SHOT messages has 11 data fields with pos in LLA:
+            # photo_nr, latitude, longitude, altitude, hmsl, phi, theta, psi, course, speed, itow
+            else if len(splitted) == 14:
                 photonr = int(splitted[ 3 ])
                 lat = RadOfDeg(int(splitted[ 4 ]) * 0.0000001) # to radians
                 lon = RadOfDeg(int(splitted[ 5 ]) * 0.0000001) # to radians
                 alt = int(splitted[ 6 ]) * 0.001 # to meters
-                phi = int(splitted[ 7 ])
-                theta = int(splitted[ 8 ])
-                course = int(splitted[ 9 ])
-                speed = int(splitted[ 10 ])
+                hmsl = int(splitted[ 7 ]) * 0.001
+                phi = int(splitted[ 8 ])
+                theta = int(splitted[ 9 ])
+                psi = int(splitted[ 10 ]))
+                course = int(splitted[ 11 ])
+                speed = int(splitted[ 12 ])
+                itow = int(splitted[ 13])
             else:
                 continue
 
