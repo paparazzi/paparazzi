@@ -39,7 +39,7 @@ let values_of_field = fun field ->
       _ -> [||]
 
 (** Display one page for a message *)
-let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
+let one_page = fun sender class_name (notebook:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) bind m ->
   let id = (Xml.attrib m "name") in
   let h = GPack.hbox () in
   h#misc#set_property "name" (`STRING (Some id));
@@ -98,8 +98,14 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
                 field_name in
             sel#return (sprintf "%s:%s:%s:%s:%s" sender class_name id field_descr scale) in
           ignore (field_label#drag#connect#data_get ~callback:data_get);
-          ignore (field_label#drag#connect#beginning ~callback:(fun _ -> notebook#coerce#misc#set_sensitive false));
-          ignore (field_label#drag#connect#ending ~callback:(fun _ -> notebook#coerce#misc#set_sensitive true));
+          (* hide notebook and display help during drag *)
+          let begin_drag = fun _ ->
+            notebook#coerce#misc#hide ();
+            help_label#misc#show ();
+            window#resize ~width:300 ~height:50
+          in
+          ignore (field_label#drag#connect#beginning ~callback:begin_drag);
+          ignore (field_label#drag#connect#ending ~callback:(fun _ -> notebook#coerce#misc#show (); help_label#misc#hide ()));
 
           (update, display_value)::rest
         with
@@ -157,7 +163,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
   in
   bind id display
 
-let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
+let rec one_class = fun (notebook:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) (ident, xml_class, sender) ->
   let class_name = (Xml.attrib xml_class "name") in
   let messages = Xml.children xml_class in
   let module P = Pprz.Messages (struct let name = class_name end) in
@@ -168,7 +174,7 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
       let get_one = fun sender _vs ->
         if not (Hashtbl.mem senders sender) then begin
           Hashtbl.add senders sender ();
-          one_class notebook (ident,  xml_class, Some sender)
+          one_class notebook help_label window (ident,  xml_class, Some sender)
         end in
       List.iter
         (fun m -> ignore (P.message_bind (Xml.attrib m "name") get_one))
@@ -184,7 +190,7 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
 
       (** Forall messages in the class *)
       let messages = list_sort (fun x -> Xml.attrib x "name") messages in
-      List.iter (fun m -> ignore (one_page sender_name class_name class_notebook bind m)) messages
+      List.iter (fun m -> ignore (one_page sender_name class_name class_notebook help_label window bind m)) messages
 
 
 
@@ -209,8 +215,10 @@ let _ =
   window#set_default_size ~width:200 ~height:50;
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
+  let vbox = GPack.vbox ~packing:window#add () in
 
-  let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in
+  let notebook = GPack.notebook ~packing:vbox#pack ~tab_pos:`TOP () in
+  let help_label = GMisc.label ~text:"Drag-and-drop field on:\n\t- Real-Time Plotter to plot a curve\n\t- GCS map to display as a papget" ~packing:vbox#pack ~show:false () in
 
   (** Get the XML description of the required classes *)
   let xml_classes =
@@ -228,7 +236,7 @@ let _ =
       !classes in
 
   (* Insert the message classes in the notebook *)
-  List.iter (one_class notebook) xml_classes;
+  List.iter (one_class notebook help_label#coerce window) xml_classes;
 
   (** Start the main loop *)
   window#show ();
