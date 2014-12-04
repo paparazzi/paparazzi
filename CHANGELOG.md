@@ -88,6 +88,17 @@ Airborne
 - linux: add basic I2C and SPI drivers
   [#961] (https://github.com/paparazzi/paparazzi/pull/961)
   [#979] (https://github.com/paparazzi/paparazzi/pull/979)
+- rotorcraft: fix NavCircleCount()
+- rotorcraft: datalink: check ac_id of RC_4CH message
+- modules: airspeed_ets, retry after failed transaction
+- modules: add temperature adc module
+  [#857] (https://github.com/paparazzi/paparazzi/pull/857)
+- modules: clean up digital_cam, usable for rotorcrafts, show real photo coordinates in GCS
+  [#936] (https://github.com/paparazzi/paparazzi/pull/936)
+- pass dt to ahrs/ins propagation
+  [#818] (https://github.com/paparazzi/paparazzi/pull/818)
+- actuators: basic esc32 motor controller implementation via CAN for STM32F1
+  [#1004] (https://github.com/paparazzi/paparazzi/pull/1004)
 
 
 Paparazzi 5.2.1_stable
