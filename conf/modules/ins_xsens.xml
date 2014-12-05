@@ -4,7 +4,6 @@
   <doc>
     <description>XSens</description>
   </doc>
-  <!-- <depend conflict="ins" -->
   <header>
     <file name="ins_module.h"/>
   </header>

@@ -31,7 +31,7 @@
 #include "dc.h"
 
 #ifndef DC_RADIO_SHOOT
-#error "You need to define DC_RADIO_SHOT to a RADIO_xxx channel to use this module"
+#error "You need to define DC_RADIO_SHOOT to a RADIO_xxx channel to use this module"
 #endif
 
 #define DC_RADIO_SHOOT_THRESHOLD 3000

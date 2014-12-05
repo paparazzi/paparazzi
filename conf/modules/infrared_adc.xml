@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ir_adc" dir="sensors">
+<module name="infrared_adc" dir="sensors">
   <doc>
     <description>Infrared sensor using ADC</description>
     <configure name="ADC_IR1" value="ADC_1" description="ADC for IR horizontal channel 1"/>

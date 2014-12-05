@@ -4,7 +4,7 @@
   <doc>
     <description>Camera control to point a segment</description>
   </doc>
-  <!--depend require="cam_point.xml"/-->
+  <depends>cam_point</depends>
   <header>
     <file name="cam_segment.h"/>
   </header>

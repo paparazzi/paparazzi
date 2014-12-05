@@ -290,28 +290,53 @@ let parse_modules modules =
 let test_section_modules = fun xml ->
   List.fold_right (fun x r -> ExtXml.tag_is x "modules" || r) (Xml.children xml) false
 
-(** Check dependencies *)
-let pipe_regexp = Str.regexp "|"
-let dep_of_field = fun field att ->
+(** create list of dependencies from string
+ * returns a nested list, where the second level consists of OR dependencies
+ *)
+let deps_of_string = fun s ->
+  let comma_regexp = Str.regexp "," in
+  let pipe_regexp = Str.regexp "|" in
   try
-    Str.split pipe_regexp (Xml.attrib field att)
+    (* first get the comma separated deps *)
+    let deps = Str.split comma_regexp s in
+    (* split up each dependency in a list of OR deps (separated by |) *)
+    List.map (fun dep ->
+      Str.split pipe_regexp dep)
+      deps;
   with
-      _ -> []
+      _ -> [[]]
 
+let get_pcdata = fun xml tag ->
+  try
+    Xml.pcdata (ExtXml.child (ExtXml.child xml tag) "0")
+  with
+      Not_found -> ""
+
+(** Check dependencies *)
 let check_dependencies = fun modules names ->
   List.iter (fun m ->
     try
-      let dep = ExtXml.child m "depend" in
-      let require = dep_of_field dep "require" in
-      List.iter (fun req ->
-        if not (List.exists (fun c -> String.compare c req == 0) names) then
-          fprintf stderr "\nWARNING: Dependency not satisfied: module %s requires %s\n" (Xml.attrib m "name") req)
+      let module_name = Xml.attrib m "name" in
+      let dep_string = get_pcdata m "depends" in
+      (*fprintf stderr "\n\nWARNING: parsing dep string: %s\n\n" dep_string;
+      fprintf stderr "\n\nWARNING: names: %s" (String.concat "," names);*)
+      let require = deps_of_string dep_string in
+      List.iter (fun deps ->
+        (* iterate over all dependencies, where the second level contains the OR dependencies *)
+        let find_common satisfied d = if List.mem d names then d::satisfied else satisfied in
+        let satisfied = List.fold_left find_common [] deps in
+        if List.length satisfied == 0 then
+          begin
+            fprintf stderr "\nDEPENDENCY WARNING: Module %s requires %s\n" module_name (String.concat " or " deps);
+            fprintf stderr "Available dependencies are:\n    %s\n\n" (String.concat "\n    " names)
+          end)
         require;
-      let conflict = dep_of_field dep "conflict" in
+      let conflict_string = get_pcdata m "conflicts" in
+      let conflict_l = List.flatten (deps_of_string conflict_string) in
       List.iter (fun con ->
         if List.exists (fun c -> String.compare c con == 0) names then
-          fprintf stderr "\nWARNING: Dependency not satisfied: module %s conflicts with %s\n" (Xml.attrib m "name") con)
-        conflict
+          fprintf stderr "\nDEPENDENCY WARNING: Module %s conflicts with %s\n" module_name con)
+        conflict_l
     with _ -> ()
   ) modules
 

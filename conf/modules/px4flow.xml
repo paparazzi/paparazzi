@@ -4,7 +4,7 @@
   <doc>
     <description>PX4FLOW optical flow sensor</description>
   </doc>
-  <depend require="mavlink_decoder"/>
+  <depends>mavlink_decoder</depends>
   <header>
     <file name="px4flow.h"/>
   </header>
