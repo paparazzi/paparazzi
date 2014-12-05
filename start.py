@@ -389,7 +389,7 @@ class ConfChooser:
 
         self.btnLaunch = gtk.Button("Launch Paparazzi with selected configuration")
         self.btnLaunch.connect("clicked", self.launch)
-        self.btnLaunch.set_tooltip_text("Launch Paparazzi with current conf.xml")
+        self.btnLaunch.set_tooltip_text("Launch Paparazzi with current conf.xml and control_panel.xml")
 
         self.btnExit = gtk.Button("Exit")
         self.btnExit.connect("clicked", self.destroy)
@@ -398,8 +398,8 @@ class ConfChooser:
 
         self.toolbar = gtk.HBox()
         self.toolbar.set_size_request(0,60)
-        self.toolbar.pack_start(self.btnAccept)
         self.toolbar.pack_start(self.btnLaunch)
+        self.toolbar.pack_start(self.btnAccept)
         self.toolbar.pack_start(self.btnExit)
 
         self.my_vbox.pack_start(self.toolbar, False)
