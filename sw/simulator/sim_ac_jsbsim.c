@@ -154,7 +154,8 @@ int main ( int argc, char** argv) {
 
 
 static void ivy_transport_init(void) {
-  IvyInit ("Paparazzi jsbsim " + AC_ID, "READY", NULL, NULL, NULL, NULL);
+  const char* agent_name = AIRFRAME_NAME"_JSBSIM";
+  IvyInit(agent_name, "READY", NULL, NULL, NULL, NULL);
   IvyStart(ivyBus.c_str());
 }
 
