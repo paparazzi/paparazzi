@@ -36,7 +36,7 @@ MATHLIB_PATH=$(PAPARAZZI_SRC)/var/build/math
 
 #####################################################
 # If you add more test files you add their names here
-TESTS = test_pprz_math.run
+TESTS = test_pprz_math.run test_pprz_geodetic.run
 
 ###################################################
 # You should not need to touch the rest of the file
@@ -54,7 +54,7 @@ test: build_tests
 	done
 
 %.run: %.c
-	$(CC) -L$(MATHLIB_PATH) -I$(PAPARAZZI_SRC)/sw/airborne -I$(PAPARAZZI_SRC)/sw/include tap.c $< -lpprzmath -o $@
+	$(CC) -L$(MATHLIB_PATH) -I$(PAPARAZZI_SRC)/sw/airborne -I$(PAPARAZZI_SRC)/sw/include $(USER_CFLAGS) tap.c $< -lpprzmath -o $@
 
 clean:
 	$(Q)rm -f $(MATHLIB_PATH)/*.o $(MATHLIB_PATH)/libpprzmath.so

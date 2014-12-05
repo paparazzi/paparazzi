@@ -32,6 +32,7 @@
 
 int main()
 {
+  note("running algebra math tests");
   plan(1);
 
   /* test int32_vect2_normalize */
