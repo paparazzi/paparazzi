@@ -215,7 +215,7 @@ class ConfChooser:
         else:
             self.backupcontrolpanel()
             link_source = self.controlpanel_file_combo.get_active_text()
-            if os.path.islink(self.controlpanel_xml) or os.path.exists(self.controlpanel_xml):            
+            if os.path.islink(self.controlpanel_xml) or os.path.exists(self.controlpanel_xml):
                 os.remove(self.controlpanel_xml)
             os.symlink(selected, self.controlpanel_xml)
             self.update_controlpanel_label()
@@ -383,9 +383,9 @@ class ConfChooser:
         self.my_vbox.pack_start(self.btnBackups, False)
 
         ##### Buttons
-        #self.btnAccept = gtk.Button("Set Selected Files As Active")
-        #self.btnAccept.connect("clicked", self.accept)
-        #self.btnAccept.set_tooltip_text("Set Conf/Control_Panel as Active")
+        self.btnAccept = gtk.Button("Set Active")
+        self.btnAccept.connect("clicked", self.accept)
+        self.btnAccept.set_tooltip_text("Set selected Conf/Control_Panel as Active")
 
         self.btnLaunch = gtk.Button("Launch Paparazzi with selected configuration")
         self.btnLaunch.connect("clicked", self.launch)
@@ -398,7 +398,7 @@ class ConfChooser:
 
         self.toolbar = gtk.HBox()
         self.toolbar.set_size_request(0,60)
-        #self.toolbar.pack_start(self.btnAccept)
+        self.toolbar.pack_start(self.btnAccept)
         self.toolbar.pack_start(self.btnLaunch)
         self.toolbar.pack_start(self.btnExit)
 
