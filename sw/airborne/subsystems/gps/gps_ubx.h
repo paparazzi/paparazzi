@@ -161,8 +161,8 @@ extern void ubxsend_cfg_rst(uint16_t, uint8_t);
 
 #define GpsUartSend1(c) GpsLink(Transmit(c))
 #define UbxInitCheksum() { gps_ubx.send_ck_a = gps_ubx.send_ck_b = 0; }
-#define UpdateChecksum(c) { gps_ubx.send_ck_a += c; gps_ubx.send_ck_b += gps_ubx.send_ck_a; }
-#define UbxSend1(c) { uint8_t i8=c; GpsUartSend1(i8); UpdateChecksum(i8); }
+#define UbxUpdateChecksum(c) { gps_ubx.send_ck_a += c; gps_ubx.send_ck_b += gps_ubx.send_ck_a; }
+#define UbxSend1(c) { uint8_t i8=c; GpsUartSend1(i8); UbxUpdateChecksum(i8); }
 #define UbxSend2(c) { uint16_t i16=c; UbxSend1(i16&0xff); UbxSend1(i16 >> 8); }
 #define UbxSend1ByAddr(x) { UbxSend1(*x); }
 #define UbxSend2ByAddr(x) { UbxSend1(*x); UbxSend1(*(x+1)); }

@@ -47,10 +47,10 @@
 #define INTERMCU_SYNC2 0x62
 
 #define InterMcuInitCheksum() { intermcu_data.send_ck_a = intermcu_data.send_ck_b = 0; }
-#define UpdateChecksum(c) { intermcu_data.send_ck_a += c; intermcu_data.send_ck_b += intermcu_data.send_ck_a; }
+#define InterMcuUpdateChecksum(c) { intermcu_data.send_ck_a += c; intermcu_data.send_ck_b += intermcu_data.send_ck_a; }
 #define InterMcuTrailer() { InterMcuUartSend1(intermcu_data.send_ck_a);  InterMcuUartSend1(intermcu_data.send_ck_b); InterMcuUartSendMessage(); }
 
-#define InterMcuSend1(c) { uint8_t i8=c; InterMcuUartSend1(i8); UpdateChecksum(i8); }
+#define InterMcuSend1(c) { uint8_t i8=c; InterMcuUartSend1(i8); InterMcuUpdateChecksum(i8); }
 #define InterMcuSend2(c) { uint16_t i16=c; InterMcuSend1(i16&0xff); InterMcuSend1(i16 >> 8); }
 #define InterMcuSend1ByAddr(x) { InterMcuSend1(*x); }
 #define InterMcuSend2ByAddr(x) { InterMcuSend1(*x); InterMcuSend1(*(x+1)); }
