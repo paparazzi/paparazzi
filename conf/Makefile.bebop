@@ -25,15 +25,11 @@
 
 include $(PAPARAZZI_SRC)/conf/Makefile.linux
 
-DRONE = $(PAPARAZZI_SRC)/sw/ext/bebop.py
-
-# Allow modules or other raw makefiles to add actions to the upload
-upload_extra:
-
+DRONE = $(PAPARAZZI_SRC)/sw/tools/parrot/bebop.py
 
 # Program the device and start it.
-upload program: upload_extra $(OBJDIR)/$(TARGET).elf
+upload program: $(OBJDIR)/$(TARGET).elf
 	$(Q)$(DRONE) --host=$(HOST) upload_file_and_run $(OBJDIR)/$(TARGET).elf $(SUB_DIR)
 
 # Listing of phony targets.
-.PHONY : upload_extra upload program
+.PHONY : upload program

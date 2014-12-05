@@ -1,4 +1,23 @@
 #!/usr/bin/env python
+#
+# Copyright (C) 2012-2014 The Paparazzi Team
+#
+# This file is part of Paparazzi.
+#
+# Paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# Paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
 
 from __future__ import print_function
 import re
@@ -11,31 +30,12 @@ from time import sleep
 from ftplib import FTP
 import ftplib
 
-
-# Check if IP is valid
-def is_ip(address):
-    try:
-        socket.inet_aton(address)
-        ip = True
-    except socket.error:
-        ip = False
-    return ip
-
-# Execute a command
-def execute_command(command):
-    tn.write(command + '\n')
-    return tn.read_until('# ')[len(command) + 2:-4]
-
-# Helper function
-def split_into_path_and_file(name):
-    if name.count('/') <= 0:
-        return ["./", name]
-    return name.rsplit('/', 1)
+import parrot_utils
 
 # Read from config.ini
 def read_from_config(name, config=''):
     if config == '':
-        config = execute_command('cat /data/config.ini')
+        config = parrot_utils.execute_command(tn, 'cat /data/config.ini')
     search = re.search(name + '[^=]+=[\r\n\t ]([^\r\n\t ]+)', config)
     if search is None:
         return ''
@@ -45,41 +45,24 @@ def read_from_config(name, config=''):
 # Write to config
 def write_to_config(name, value):
     if read_from_config(name) == '':
-        execute_command('echo "' + name + ' = ' + value + '\" >> /data/config.ini')
+        parrot_utils.execute_command(tn, 'echo "' + name + ' = ' + value + '\" >> /data/config.ini')
     else:
-        execute_command('sed -i "s/\(' + name + ' *= *\).*/\\1' + value + '/g" /data/config.ini')
-
-# Check the version
-def check_version():
-    return execute_command('cat /firmware/version.txt')
-
-# Check what currently is running on the drone
-def check_running():
-    ps_aux = execute_command('ps')
-    running = ""
-
-    if 'program.elf' in ps_aux:
-        running += ' Native (program.elf),'
-    if 'ap.elf' in ps_aux:
-        running += ' Paparazzi (ap.elf),'
-    if 'gst-launch' in ps_aux:
-        running += ' GStreamer (gst-launch)'
-    return running[1:]
+        parrot_utils.execute_command(tn, 'sed -i "s/\(' + name + ' *= *\).*/\\1' + value + '/g" /data/config.ini')
 
 # Check if vision framework is installed
 def check_vision_installed():
-    du_opt = execute_command('du -d 2 /data/video/opt')
+    du_opt = parrot_utils.execute_command(tn,'du -d 2 /data/video/opt')
     return '/data/video/opt/arm/gst' in du_opt or '/data/video/opt/arm/lib' in du_opt or '/data/video/opt/arm/tidsp-binaries-23.i3.8' in du_opt
 
 # Check if the vision framework is running
 def check_vision_running():
-    du_opt = execute_command('du -d 2 /opt')
+    du_opt = parrot_utils.execute_command(tn,'du -d 2 /opt')
     return '/opt/arm/gst' in du_opt and '/opt/arm/lib' in du_opt and '/opt/arm/tidsp-binaries-23.i3.8' in du_opt
 
 # Check if autoboot is installed
 def check_autoboot():
-    check_update = execute_command('grep "START_PAPARAZZI" /bin/check_update.sh')
-    wifi_setup = execute_command('grep "BASE_ADRESS" /bin/wifi_setup.sh')
+    check_update = parrot_utils.execute_command(tn,'grep "START_PAPARAZZI" /bin/check_update.sh')
+    wifi_setup = parrot_utils.execute_command(tn,'grep "BASE_ADRESS" /bin/wifi_setup.sh')
     if "START_PAPARAZZI" in check_update and "BASE_ADRESS" in wifi_setup:
         return True
     else:
@@ -87,65 +70,57 @@ def check_autoboot():
 
 # Check if custom wifi_setup script is installed
 def check_wifi_setup():
-    check_wifi = execute_command('grep "static_ip_address_base" /bin/wifi_setup.sh')
+    check_wifi = parrot_utils.execute_command(tn,'grep "static_ip_address_base" /bin/wifi_setup.sh')
     if "static_ip_address_base" in check_wifi:
         return True
     else:
         return False
 
-# Check the filesystem
-def check_filesystem():
-    return execute_command('df -h')
-
-# Reboot the drone
-def ardrone2_reboot():
-    execute_command('reboot')
-
 # Install the vision framework
 def ardrone2_install_vision():
     print('Uploading GST')
-    uploadfile(ftp, "arm_light.tgz", file("bin/arm_light.tgz", "rb"))
-    print(execute_command("cd /data/video && tar -xzf arm_light.tgz"))
-    print(execute_command("rm -rf /data/video/arm_light.tgz"))
+    parrot_utils.uploadfile(ftp, "arm_light.tgz", file("bin/arm_light.tgz", "rb"))
+    print(parrot_utils.execute_command(tn,"cd /data/video && tar -xzf arm_light.tgz"))
+    print(parrot_utils.execute_command(tn,"rm -rf /data/video/arm_light.tgz"))
     print('Now Starting Vision')
     ardrone2_start_vision()
 
 # Remove the vision framework
 def ardrone2_remove_vision():
-    execute_command("rm -rf /opt/arm")
-    execute_command("rm -rf /lib/dsp")
-    execute_command("rm -rf /data/video/opt")
+    parrot_utils.execute_command(tn,"rm -rf /opt/arm")
+    parrot_utils.execute_command(tn,"rm -rf /lib/dsp")
+    parrot_utils.execute_command(tn,"rm -rf /data/video/opt")
 
 # Start the vision framework
 def ardrone2_start_vision():
     # Mount the directories
-    execute_command("mkdir -p /opt/arm")
-    execute_command("mkdir -p /lib/dsp")
-    execute_command("mount --bind /data/video/opt/arm /opt/arm")
-    execute_command("mount --bind /data/video/opt/arm/lib/dsp /lib/dsp")
+    parrot_utils.execute_command(tn,"mkdir -p /opt/arm")
+    parrot_utils.execute_command(tn,"mkdir -p /lib/dsp")
+    parrot_utils.execute_command(tn,"mount --bind /data/video/opt/arm /opt/arm")
+    parrot_utils.execute_command(tn,"mount --bind /data/video/opt/arm/lib/dsp /lib/dsp")
     # Start The DSP programs
-    execute_command("kill -9 `pidof program.elf`")
-    execute_command("kill -9 `pidof gst-launch-0.10`")
-    execute_command("export PATH=/opt/arm/gst/bin:$PATH")
-    execute_command("export DSP_PATH=/opt/arm/tidsp-binaries-23.i3.8/")
-    execute_command("/bin/dspbridge/cexec.out -T /opt/arm/tidsp-binaries-23.i3.8/baseimage.dof -v")
-    execute_command("/bin/dspbridge/dynreg.out -r /opt/arm/tidsp-binaries-23.i3.8/m4venc_sn.dll64P -v")
+    parrot_utils.execute_command(tn,"kill -9 `pidof program.elf`")
+    parrot_utils.execute_command(tn,"kill -9 `pidof gst-launch-0.10`")
+    parrot_utils.execute_command(tn,"export PATH=/opt/arm/gst/bin:$PATH")
+    parrot_utils.execute_command(tn,"export DSP_PATH=/opt/arm/tidsp-binaries-23.i3.8/")
+    parrot_utils.execute_command(tn,"/bin/dspbridge/cexec.out -T /opt/arm/tidsp-binaries-23.i3.8/baseimage.dof -v")
+    parrot_utils.execute_command(tn,"/bin/dspbridge/dynreg.out -r /opt/arm/tidsp-binaries-23.i3.8/m4venc_sn.dll64P -v")
     # Show result
-    execute_command("ls -altr /opt/arm/gst/bin")
+    parrot_utils.execute_command(tn,"ls -altr /opt/arm/gst/bin")
 
 # Install autoboot script
 def ardrone2_install_autoboot():
     print('Uploading autoboot script')
-    uploadfile(ftp, "check_update.sh", file("check_update.sh", "rb"))
-    print(execute_command("mv /data/video/check_update.sh /bin/check_update.sh"))
-    print(execute_command("chmod 777 /bin/check_update.sh"))
+    parrot_utils.uploadfile(ftp, "check_update.sh", file("ardrone2/check_update.sh", "rb"))
+    print(parrot_utils.execute_command(tn,"mv /data/video/check_update.sh /bin/check_update.sh"))
+    print(parrot_utils.execute_command(tn,"chmod 777 /bin/check_update.sh"))
 
 # Install network script
 def ardrone2_install_network_script():
     print('Uploading Wifi script')
-    uploadfile(ftp, "wifi_setup.sh", file("wifi_setup.sh", "rb"))
-    print(execute_command("mv /data/video/wifi_setup.sh /bin/wifi_setup.sh"))
-    print(execute_command("chmod 777 /bin/wifi_setup.sh"))
+    parrot_utils.uploadfile(ftp, "wifi_setup.sh", file("ardrone2/wifi_setup.sh", "rb"))
+    print(parrot_utils.execute_command(tn,"mv /data/video/wifi_setup.sh /bin/wifi_setup.sh"))
+    print(parrot_utils.execute_command(tn,"chmod 777 /bin/wifi_setup.sh"))
 
 # Set network SSID
 def ardrone2_set_ssid(name):
@@ -171,13 +146,13 @@ def ardrone2_set_wifi_mode(mode):
     print('The Wifi mode of the ARDrone2 is changed to ' + mode + ' (' + val + ')')
 
 def ardrone2_status():
-    config_ini = execute_command('cat /data/config.ini')
+    config_ini = parrot_utils.execute_command(tn,'cat /data/config.ini')
 
     print('======================== ARDrone 2 Status ========================')
-    print('Version:\t\t' + check_version())
+    print('Version:\t\t' + parrot_utils.check_version(tn, '/firmware'))
     print('Host:\t\t\t' + args.host + ' (' + read_from_config('static_ip_address_base', config_ini) +
           read_from_config('static_ip_address_probe', config_ini) + ' after boot)')
-    print('Currently running:\t' + check_running())
+    print('Currently running:\t' + parrot_utils.check_running(tn))
     print('Serial number:\t\t' + read_from_config('drone_serial', config_ini))
     print('Network id:\t\t' + read_from_config('ssid_single_player', config_ini))
     print('Motor software:\t\t' +
@@ -203,18 +178,7 @@ def ardrone2_status():
 
     # Request the filesystem status
     print('\n======================== Filesystem Status ========================')
-    print(check_filesystem())
-
-# Upload ftp and catch memory-full error
-def uploadfile(ftp, filename, content):
-    try:
-        ftp.storbinary("STOR " + filename, content)
-    except ftplib.error_temp:
-        print("FTP UPLOAD ERROR: Uploading FAILED: Probably your ARDrone memory is full.")
-        sys.exit()
-    except:
-        print("FTP UPLOAD ERROR: Maybe your ARDrone memory is full?", sys.exc_info()[0])
-        sys.exit()
+    print(parrot_utils.check_filesystem(tn))
 
 
 # Parse the arguments
@@ -271,16 +235,7 @@ subparser_autostart.add_argument('type', choices=['native', 'paparazzi_raw', 'pa
 args = parser.parse_args()
 
 # Connect with telnet and ftp
-try:
-    tn = telnetlib.Telnet(args.host)
-    ftp = FTP(args.host)
-    ftp.login()
-except:
-    print('Could not connect to ARDrone 2 (host: ' + args.host + ')')
-    exit(2)
-
-# Read until after login
-tn.read_until('# ')
+tn, ftp = parrot_utils.connect(args.host)
 
 # Check the ARDrone 2 status
 if args.command == 'status':
@@ -288,17 +243,17 @@ if args.command == 'status':
 
 # Reboot the drone
 elif args.command == 'reboot':
-    ardrone2_reboot()
+    parrot_utils.reboot(tn)
     print('The ARDrone 2 is rebooting...')
 
 # Kill a program
 elif args.command == 'kill':
-    execute_command('killall -9 ' + args.program)
+    parrot_utils.execute_command(tn,'killall -9 ' + args.program)
     print('Program "' + args.program + '" is now killed')
 
 # Start a program
 elif args.command == 'start':
-    execute_command(args.start + ' &')
+    parrot_utils.execute_command(tn,args.start + ' &')
     print('Program "' + args.start + '" is now started')
 
 # Change the network ID
@@ -306,25 +261,25 @@ elif args.command == 'networkid':
     ardrone2_set_ssid(args.name)
 
     if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
-        ardrone2_reboot()
+        parrot_utils.reboot(tn)
 
 # Change the IP address
 elif args.command == 'ipaddress':
     ardrone2_set_ip_address(args.address)
 
     if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
-        ardrone2_reboot()
+        parrot_utils.reboot(tn)
 
 # Change the wifi mode
 elif args.command == 'wifimode':
     ardrone2_set_wifi_mode(args.mode)
     
     if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
-        ardrone2_reboot()
+        parrot_utils.reboot(tn)
 
 # Install and configure network
 elif args.command == 'configure_network':
-    config_ini = execute_command('cat /data/config.ini')
+    config_ini = parrot_utils.execute_command(tn,'cat /data/config.ini')
     print('=== Current network setup ===')
     print('Network id:\t' + read_from_config('ssid_single_player', config_ini))
     print('Host:\t\t' + args.host + ' (' + read_from_config('static_ip_address_base', config_ini) +
@@ -341,7 +296,7 @@ elif args.command == 'configure_network':
     ardrone2_set_ssid(args.name)
     ardrone2_set_ip_address(args.address)
     ardrone2_set_wifi_mode(args.mode)
-    config_ini = execute_command('cat /data/config.ini')
+    config_ini = parrot_utils.execute_command(tn,'cat /data/config.ini')
     print('== New network setup after boot ==')
     print('Network id:\t' + read_from_config('ssid_single_player', config_ini))
     print('Host:\t\t' + read_from_config('static_ip_address_base', config_ini) +
@@ -350,7 +305,7 @@ elif args.command == 'configure_network':
     print('==================================')
 
     if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
-        ardrone2_reboot()
+        parrot_utils.reboot(tn)
 
 # Install and configure autostart
 elif args.command == 'install_autostart':
@@ -365,7 +320,7 @@ elif args.command == 'install_autostart':
     print('The autostart on boot is changed to ' + args.type)
 
     if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
-        ardrone2_reboot()
+        parrot_utils.reboot(tn)
 
 # Change the autostart
 elif args.command == 'autostart':
@@ -400,9 +355,9 @@ elif args.command == 'startvision':
 
 elif args.command == 'upload_gst_module':
     print('Uploading ...' + args.file)
-    uploadfile(ftp, args.file, file(args.file, "rb"))
-    execute_command("chmod 777 /data/video/" + args.file)
-    execute_command("mv /data/video/" + args.file + " /data/video/opt/arm/gst/lib/gstreamer-0.10")
+    parrot_utils.uploadfile(ftp, args.file, file(args.file, "rb"))
+    parrot_utils.execute_command(tn,"chmod 777 /data/video/" + args.file)
+    parrot_utils.execute_command(tn,"mv /data/video/" + args.file + " /data/video/opt/arm/gst/lib/gstreamer-0.10")
     if check_vision_running():
         print('Info: Vision framework already started')
     else:
@@ -418,38 +373,38 @@ elif args.command == 'upload_gst_module':
 
 
 elif args.command == 'insmod':
-    modfile = split_into_path_and_file(args.file)
+    modfile = parrot_utils.split_into_path_and_file(args.file)
     print('Uploading \'' + modfile[1])
-    uploadfile(ftp, modfile[1], file(args.file, "rb"))
-    print(execute_command("insmod /data/video/" + modfile[1]))
+    parrot_utils.uploadfile(ftp, modfile[1], file(args.file, "rb"))
+    print(parrot_utils.execute_command(tn,"insmod /data/video/" + modfile[1]))
 
 elif args.command == 'upload_file_and_run':
     # Split filename and path
-    f = split_into_path_and_file(args.file)
+    f = parrot_utils.split_into_path_and_file(args.file)
 
     print("Kill running " + f[1] + " and make folder " + args.folder)
-    execute_command("killall -9 " + f[1])
+    parrot_utils.execute_command(tn,"killall -9 " + f[1])
     sleep(1)
-    execute_command("mkdir -p /data/video/" + args.folder)
+    parrot_utils.execute_command(tn, "mkdir -p /data/video/" + args.folder)
     print('Uploading \'' + f[1] + "\' from " + f[0] + " to " + args.folder)
-    uploadfile(ftp, args.folder + "/" + f[1], file(args.file, "rb"))
+    parrot_utils.uploadfile(ftp, args.folder + "/" + f[1], file(args.file, "rb"))
     sleep(0.5)
-    execute_command("chmod 777 /data/video/" + args.folder + "/" + f[1])
-    execute_command("/data/video/" + args.folder + "/" + f[1] + " > /dev/null 2>&1 &")
+    parrot_utils.execute_command(tn, "chmod 777 /data/video/" + args.folder + "/" + f[1])
+    parrot_utils.execute_command(tn, "/data/video/" + args.folder + "/" + f[1] + " > /dev/null 2>&1 &")
     print("#pragma message: Upload and Start of ap.elf to ARDrone2 Succes!")
 
 elif args.command == 'upload_file':
     # Split filename and path
-    f = split_into_path_and_file(args.file)
+    f = parrot_utils.split_into_path_and_file(args.file)
 
-    execute_command("mkdir -p /data/video/" + args.folder)
+    parrot_utils.execute_command(tn,"mkdir -p /data/video/" + args.folder)
     print('Uploading \'' + f[1] + "\' from " + f[0] + " to /data/video/" + args.folder)
-    uploadfile(ftp, args.folder + "/" + f[1], file(args.file, "rb"))
+    parrot_utils.uploadfile(ftp, args.folder + "/" + f[1], file(args.file, "rb"))
     print("#pragma message: Upload of " + f[1] + " to ARDrone2 Succes!")
 
 elif args.command == 'download_file':
     # Split filename and path
-    f = split_into_path_and_file(args.file)
+    f = parrot_utils.split_into_path_and_file(args.file)
     # Open file and download
     try:
         file = open(args.file, 'wb')
@@ -466,13 +421,13 @@ elif args.command == 'download_file':
 
 elif args.command == 'download_dir':
     # Split filename and path
-    files = execute_command('find /data/video/' + args.folder + ' -name \'*.*\'')
+    files = parrot_utils.execute_command(tn, 'find /data/video/' + args.folder + ' -name \'*.*\'')
     # Create dest dir if needed
     if not os.path.exists(args.dest):
         os.mkdir(args.dest)
     # Open file and download
     for f in files.split():
-        file_name = split_into_path_and_file(f)
+        file_name = parrot_utils.split_into_path_and_file(f)
         file_source = args.folder + '/' + file_name[1]
         file_dest = args.dest + '/' + file_name[1]
         try:
@@ -491,11 +446,10 @@ elif args.command == 'download_dir':
 elif args.command == 'rm_dir':
     # Split filename and path
     print("Deleting folder /data/video/" + args.folder + " from ARDrone2")
-    print(execute_command('rm -r /data/video/' + args.folder))
-
+    print(parrot_utils.execute_command(tn, 'rm -r /data/video/' + args.folder))
 
 
 # Close the telnet and python script
-tn.close()
-ftp.close()
+parrot_utils.disconnect(tn, ftp)
 exit(0)
+
