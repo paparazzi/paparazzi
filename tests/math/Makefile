@@ -36,10 +36,15 @@ MATHLIB_PATH=$(PAPARAZZI_SRC)/var/build/math
 
 #####################################################
 # If you add more test files you add their names here
-TESTS = test_pprz_math.run test_pprz_geodetic.run
+TESTS = test_pprz_math.run test_pprz_geodetic.run test_state_interface.run
 
 ###################################################
 # You should not need to touch the rest of the file
+
+TEST_VERBOSE ?= 0
+ifneq ($(TEST_VERBOSE), 0)
+VERBOSE = --verbose
+endif
 
 all: test
 
@@ -49,12 +54,14 @@ math_shlib:
 build_tests: math_shlib $(TESTS)
 
 test: build_tests
-	$(Q)for i in $(TESTS); do \
-	LD_LIBRARY_PATH=$(MATHLIB_PATH):$LD_LIBRARY_PATH ./$$i;	\
-	done
+	LD_LIBRARY_PATH=$(MATHLIB_PATH):$LD_LIBRARY_PATH prove $(VERBOSE) --exec '' ./*.run
 
-%.run: %.c
-	$(CC) -L$(MATHLIB_PATH) -I$(PAPARAZZI_SRC)/sw/airborne -I$(PAPARAZZI_SRC)/sw/include $(USER_CFLAGS) tap.c $< -lpprzmath -o $@
+# test_state_interface also depends on state.c
+test_state_interface.run: $(PAPARAZZI_SRC)/sw/airborne/state.c
+
+%.run: %.c | math_shlib
+	@echo BUILD $@
+	$(Q)$(CC) -L$(MATHLIB_PATH) -I$(PAPARAZZI_SRC)/sw/airborne -I$(PAPARAZZI_SRC)/sw/include $(USER_CFLAGS) tap.c $^ -lpprzmath -o $@
 
 clean:
 	$(Q)rm -f $(MATHLIB_PATH)/*.o $(MATHLIB_PATH)/libpprzmath.so
