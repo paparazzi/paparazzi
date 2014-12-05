@@ -279,35 +279,55 @@ void stateCalcPositionEnu_i(void) {
   SetBit(state.pos_status, POS_ENU_I);
 }
 
+/**
+ * Calculate LLA (int) from any other available representation.
+ * Note that since LLA in float has bad precision this is the last choice.
+ * So we mostly first convert to ECEF and then use lla_of_ecef_i
+ * which provides higher precision but is currently using the double function internally.
+ */
 void stateCalcPositionLla_i(void) {
   if (bit_is_set(state.pos_status, POS_LLA_I))
     return;
 
-  if (bit_is_set(state.pos_status, POS_LLA_F)) {
-    LLA_BFP_OF_REAL(state.lla_pos_i, state.lla_pos_f);
-  }
-  else if (bit_is_set(state.pos_status, POS_ECEF_I)) {
+  if (bit_is_set(state.pos_status, POS_ECEF_I)) {
     lla_of_ecef_i(&state.lla_pos_i, &state.ecef_pos_i);
   }
   else if (bit_is_set(state.pos_status, POS_ECEF_F)) {
-    /* transform ecef_f -> lla_f, set status bit, then convert to int */
-    lla_of_ecef_f(&state.lla_pos_f, &state.ecef_pos_f);
-    SetBit(state.pos_status, POS_LLA_F);
-    LLA_BFP_OF_REAL(state.lla_pos_i, state.lla_pos_f);
-  }
-  else if (bit_is_set(state.pos_status, POS_NED_F)) {
-    /* transform ned_f -> ecef_f -> lla_f -> lla_i, set status bits */
-    ecef_of_ned_point_f(&state.ecef_pos_f, &state.ned_origin_f, &state.ned_pos_f);
-    SetBit(state.pos_status, POS_ECEF_F);
-    lla_of_ecef_f(&state.lla_pos_f, &state.ecef_pos_f);
-    SetBit(state.pos_status, POS_LLA_F);
-    LLA_BFP_OF_REAL(state.lla_pos_i, state.lla_pos_f);
+    /* transform ecef_f -> ecef_i -> lla_i, set status bits */
+    ECEF_BFP_OF_REAL(state.ecef_pos_i, state.ecef_pos_f);
+    SetBit(state.pos_status, POS_ECEF_I);
+    lla_of_ecef_i(&state.lla_pos_i, &state.ecef_pos_i);
   }
   else if (bit_is_set(state.pos_status, POS_NED_I)) {
     /* transform ned_i -> ecef_i -> lla_i, set status bits */
     ecef_of_ned_pos_i(&state.ecef_pos_i, &state.ned_origin_i, &state.ned_pos_i);
     SetBit(state.pos_status, POS_ECEF_I);
-    lla_of_ecef_i(&state.lla_pos_i, &state.ecef_pos_i); /* uses double version internally */
+    lla_of_ecef_i(&state.lla_pos_i, &state.ecef_pos_i);
+  }
+  else if (bit_is_set(state.pos_status, POS_ENU_I)) {
+    /* transform enu_i -> ecef_i -> lla_i, set status bits */
+    ecef_of_enu_pos_i(&state.ecef_pos_i, &state.ned_origin_i, &state.enu_pos_i);
+    SetBit(state.pos_status, POS_ECEF_I);
+    lla_of_ecef_i(&state.lla_pos_i, &state.ecef_pos_i);
+  }
+  else if (bit_is_set(state.pos_status, POS_NED_F)) {
+    /* transform ned_f -> ned_i -> ecef_i -> lla_i, set status bits */
+    NED_BFP_OF_REAL(state.ned_pos_i, state.ned_pos_f);
+    SetBit(state.pos_status, POS_NED_I);
+    ecef_of_ned_pos_i(&state.ecef_pos_i, &state.ned_origin_i, &state.ned_pos_i);
+    SetBit(state.pos_status, POS_ECEF_I);
+    lla_of_ecef_i(&state.lla_pos_i, &state.ecef_pos_i);
+  }
+  else if (bit_is_set(state.pos_status, POS_ENU_F)) {
+    /* transform enu_f -> enu_i -> ecef_i -> lla_i, set status bits */
+    ENU_BFP_OF_REAL(state.enu_pos_i, state.enu_pos_f);
+    SetBit(state.pos_status, POS_ENU_I);
+    ecef_of_enu_pos_i(&state.ecef_pos_i, &state.ned_origin_i, &state.enu_pos_i);
+    SetBit(state.pos_status, POS_ECEF_I);
+    lla_of_ecef_i(&state.lla_pos_i, &state.ecef_pos_i);
+  }
+  else if (bit_is_set(state.pos_status, POS_LLA_F)) {
+    LLA_BFP_OF_REAL(state.lla_pos_i, state.lla_pos_f);
   }
   else if (bit_is_set(state.pos_status, POS_UTM_F)) {
     /* transform utm_f -> lla_f -> lla_i, set status bits */
