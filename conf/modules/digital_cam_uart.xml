@@ -22,7 +22,7 @@
   </settings>
   <header>
     <file name="uart_cam_ctrl.h"/>
-    <file name="dc.h"/
+    <file name="dc.h"/>
   </header>
   <init fun="digital_cam_uart_init()"/>
   <periodic fun="digital_cam_uart_periodic()" freq="4" autorun="TRUE"/>

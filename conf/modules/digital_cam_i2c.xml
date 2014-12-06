@@ -12,20 +12,20 @@
 
   <header>
     <file name="atmega_i2c_cam_ctrl.h"/>
-    <file name="dc.h"/
+    <file name="dc.h"/>
   </header>
 
-  <init 	fun="atmega_i2c_cam_ctrl_init()"/>
-  <periodic 	fun="atmega_i2c_cam_ctrl_periodic()"  autorun="TRUE" freq="4" />
-  <event 	fun="atmega_i2c_cam_ctrl_event()"/>
+  <init fun="atmega_i2c_cam_ctrl_init()"/>
+  <periodic fun="atmega_i2c_cam_ctrl_periodic()"  autorun="TRUE" freq="4"/>
+  <event fun="atmega_i2c_cam_ctrl_event()"/>
 
-  <datalink message="PAYLOAD_COMMAND" fun="ParseCameraCommand()" />
+  <datalink message="PAYLOAD_COMMAND" fun="ParseCameraCommand()"/>
 
   <makefile target="ap">
     <file name="atmega_i2c_cam_ctrl.c"/>
     <file name="dc.c"/>
-      <define name="ATMEGA_I2C_DEV" value="i2c0"/>
-      <define name="USE_I2C0" value="1"/>
+    <define name="ATMEGA_I2C_DEV" value="i2c0"/>
+    <define name="USE_I2C0" value="1"/>
   </makefile>
 
   <makefile target="sim">
