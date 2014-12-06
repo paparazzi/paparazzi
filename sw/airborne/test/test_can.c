@@ -1,6 +1,4 @@
 /*
- * $Id:$
- *
  * Copyright (C) 2012 Piotr Esden-Tempski <piotr@esden.net>
  *
  * This file is part of paparazzi.
@@ -21,6 +19,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file test_can.c
+ *
+ */
 
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
@@ -114,7 +116,7 @@ static inline void main_event_task( void ) {
 
 }
 
-void main_on_can_msg(uint32_t id, uint8_t *data, int len)
+void main_on_can_msg(uint32_t id __attribute__((unused)), uint8_t *data, int len __attribute__((unused)))
 {
   for (int i = 0; i<8; i++) {
     rx_data[i] = data[i];
