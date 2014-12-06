@@ -483,8 +483,8 @@ void VCOM_transmit_message()
  * USE_USB_LINE_CODING is not used in case of example1, example2 and telemetry
  */
 #ifdef USE_USB_LINE_CODING
-void VCOM_allow_linecoding(uint8_t mode) {}
-void VCOM_set_linecoding(uint8_t mode) {}
+void VCOM_allow_linecoding(uint8_t mode __attribute__((unused))) {}
+void VCOM_set_linecoding(uint8_t mode __attribute__((unused))) {}
 #endif
 
 /*

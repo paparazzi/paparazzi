@@ -216,11 +216,4 @@
     <load name="infrared_adc.xml"/>
   </modules>
 
-  <firmware name="setup">
-    <target name="tunnel"           board="tiny_2.1" />
-    <target name="usb_tunnel_0"     board="tiny_2.1" />
-    <target name="usb_tunnel_1"     board="tiny_2.1" />
-    <target name="setup_actuators"  board="tiny_2.1" />
-  </firmware>
-
 </airframe>

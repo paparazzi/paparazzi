@@ -31,8 +31,9 @@
 
   <firmware name="setup">
     <target name="tunnel"           board="twog_1.0" />
-    <target name="usb_tunnel_0"     board="twog_1.0" />
-    <target name="usb_tunnel_1"     board="twog_1.0" />
+    <target name="usb_tunnel"     board="twog_1.0">
+      <configure name="TUNNEL_PORT" value="UART0"/>
+    </target>
   </firmware>
 
   <modules>
