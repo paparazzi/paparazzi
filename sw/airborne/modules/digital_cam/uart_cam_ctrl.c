@@ -32,10 +32,8 @@
 #include "modules/digital_cam/dc.h"
 
 // Telemetry
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
+#include "subsystems/datalink/telemetry.h"
+
 #include BOARD_CONFIG
 
 // Communication

@@ -19,6 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file test_telemetry.c
+ *
+ * Periodically sends ALIVE telemetry messages.
+ */
+
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/uart.h"
@@ -26,9 +32,6 @@
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
 #include "led.h"
-
-#define PERIODIC_C_MAIN
-#include "generated/periodic_telemetry.h"
 
 static inline void main_init( void );
 static inline void main_periodic( void );
@@ -54,6 +57,3 @@ static inline void main_periodic( void ) {
   RunOnceEvery(10, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
   LED_PERIODIC();
 }
-
-
-

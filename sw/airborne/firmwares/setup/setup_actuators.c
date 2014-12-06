@@ -23,11 +23,9 @@
  */
 
 #define DATALINK_C
-#define PERIODIC_C_MAIN
 
 #include "generated/airframe.h"
 #include "generated/settings.h"
-#include "generated/periodic_telemetry.h"
 
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
