@@ -81,7 +81,7 @@ void usb_serial_parse_packet(int data)
   if (c == 'R') {
     run = TRUE;
   }
-  VCOM_transmit_message();
+  VCOM_send_message();
 }
 
 /**

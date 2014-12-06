@@ -49,10 +49,16 @@ static void tunnel_event(void)
   static unsigned char inc;
 
   if (uart_char_available(&USB_TUNNEL_UART) && VCOM_check_free_space(1)) {
+#if USE_LED_2
+    LED_TOGGLE(2);
+#endif
     inc = uart_getch(&USB_TUNNEL_UART);
     VCOM_putchar(inc);
   }
   if (VCOM_check_available() && uart_check_free_space(&USB_TUNNEL_UART, 1)) {
+#if USE_LED_3
+    LED_TOGGLE(3);
+#endif
     inc = VCOM_getchar();
     uart_transmit(&USB_TUNNEL_UART, inc);
   }

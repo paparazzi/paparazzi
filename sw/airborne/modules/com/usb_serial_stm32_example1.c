@@ -72,7 +72,7 @@ void usb_serial_parse_packet(int data)
     cmd_buf[cmd_idx++] = c;
     // echo char back and transmit immediately
     VCOM_putchar((uint8_t)c);
-    VCOM_transmit_message();
+    VCOM_send_message();
   }
 }
 
@@ -116,8 +116,8 @@ void cmd_execute(void)
 
   // reset counter
   cmd_idx = 0;
-  // transmit message
-  VCOM_transmit_message();
+  // send complete message
+  VCOM_send_message();
 }
 
 /**

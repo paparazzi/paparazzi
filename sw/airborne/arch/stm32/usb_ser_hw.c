@@ -398,24 +398,29 @@ int fifo_free(fifo_t *fifo)
 
 
 /**
- * Writes one character to VCOM port
+ * Writes one character to VCOM port fifo.
+ *
+ * Since we don't really have an instant feeedback from USB driver if
+ * the character was written, we always return c if we are connected.
+ *
  * @param [in] c character to write
- * @returns character to be written
- * Note we don't really have an instant feeedback from USB driver if
- * the character was written, so we always return c
+ * @returns character to be written, -1 if not usb is not connected
  */
 int VCOM_putchar(int c)
 {
-  // check if there are at least two more bytes left in queue
-  if (VCOM_check_free_space(2)) {
-    // if yes, add char
-    fifo_put(&txfifo, c);
-  } else {
-    // less than 2 bytes available, add byte and send data now
-    fifo_put(&txfifo, c);
-    VCOM_transmit_message();
+  if (usb_connected) {
+    // check if there are at least two more bytes left in queue
+    if (VCOM_check_free_space(2)) {
+      // if yes, add char
+      fifo_put(&txfifo, c);
+    } else {
+      // less than 2 bytes available, add byte and send data now
+      fifo_put(&txfifo, c);
+      VCOM_send_message();
+    }
+    return c;
   }
-  return c;
+  return -1;
 }
 
 /**
@@ -440,7 +445,7 @@ bool_t VCOM_check_free_space(uint8_t len)
 }
 
 /**
- * Checks if data available in VCOM buffer
+ * Checks if data available in VCOM buffer.
  * @returns nonzero if char is available in the queue, zero otherwise
  */
 int VCOM_check_available(void)
@@ -449,8 +454,8 @@ int VCOM_check_available(void)
 }
 
 /**
- * Poll usb (required by libopencm3)
- * VCOM_poll() should be called from module event function
+ * Poll usb (required by libopencm3).
+ * VCOM_event() should be called from main/module event function
  */
 void VCOM_event(void)
 {
@@ -458,24 +463,21 @@ void VCOM_event(void)
 }
 
 /**
- * Send data from fifo right now (up to MAX_PACKET_SIZE)
+ * Send data from fifo right now.
+ * Only if usb is connected.
  */
-void VCOM_transmit_message()
+void VCOM_send_message(void)
 {
-  /*
-  if (len > MAX_PACKET_SIZE) {
-    len = MAX_PACKET_SIZE;
+  if (usb_connected) {
+    uint8_t buf[MAX_PACKET_SIZE];
+    uint8_t i;
+    for (i = 0; i < MAX_PACKET_SIZE; i++) {
+      if (!fifo_get(&txfifo, &buf[i])) {
+        break;
+      }
+	}
+    usbd_ep_write_packet(my_usbd_dev, 0x82, buf, i);
   }
-  usbd_ep_write_packet(my_usbd_dev, 0x82, buf, len);
-  */
-  uint8_t buf[MAX_PACKET_SIZE];
-  uint8_t data;
-  uint16_t idx = 0;
-  while (fifo_get(&txfifo, &data) && (idx < MAX_PACKET_SIZE)) {
-    buf[idx] = data;
-    idx++;
-  }
-  usbd_ep_write_packet(my_usbd_dev, 0x82, buf, idx);
 }
 
 
@@ -500,20 +502,14 @@ static int usb_serial_check_free_space(struct usb_serial_periph *p __attribute__
   return (int)VCOM_check_free_space(len);
 }
 
-// Only transmit when USB is connected
 static void usb_serial_transmit(struct usb_serial_periph *p __attribute__((unused)), uint8_t byte)
 {
-  if (usb_connected) {
-    VCOM_putchar(byte);
-  }
+  VCOM_putchar(byte);
 }
 
-// Only send message when USB is connected
 static void usb_serial_send(struct usb_serial_periph *p __attribute__((unused)))
 {
-  if (usb_connected) {
-    VCOM_transmit_message();
-  }
+  VCOM_send_message();
 }
 
 void VCOM_init(void)

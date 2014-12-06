@@ -80,11 +80,6 @@ ifeq ($(ARCH), lpc21)
 usb_tunnel.CFLAGS += -DUSE_USB_HIGH_PCLK
 usb_tunnel.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
 usb_tunnel.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
-else ifeq($(ARCH), stm32)
-else
-ifeq ($(TARGET),usb_tunnel)
-$(error usb_tunnel is only implemented for lpc21 and stm32)
-endif
 endif
 
 
