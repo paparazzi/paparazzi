@@ -83,7 +83,7 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "generated/modules.h"
 #include "subsystems/abi.h"
 
-#ifdef USE_USB_SERIAL
+#if USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif
 
@@ -287,7 +287,7 @@ STATIC_INLINE void main_event( void ) {
   udp_event();
 #endif
 
-#ifdef USE_USB_SERIAL
+#if USE_USB_SERIAL
   VCOM_event();
 #endif
 

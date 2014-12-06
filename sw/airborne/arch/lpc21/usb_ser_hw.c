@@ -56,7 +56,7 @@
 
 #include "lpcusb/usbapi.h"
 
-#ifdef USE_USB_SERIAL
+#if USE_USB_SERIAL
 #if PCLK < 18000000
 #error PCLK needs to be higher than 18MHz for USB to work properly
 #endif
@@ -242,8 +242,6 @@ static const uint8_t abDescriptors[] = {
 	0
 };
 
-
-#ifdef USE_USB_SERIAL
 
 void fifo_init(fifo_t *fifo, U8 *buf)
 {
@@ -616,6 +614,3 @@ void VCOM_init(void) {
   usb_serial.device.transmit = (transmit_t) usb_serial_transmit;
   usb_serial.device.send_message = (send_message_t) usb_serial_send;
 }
-
-
-#endif /* USE_USB_SERIAL */

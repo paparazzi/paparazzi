@@ -55,9 +55,7 @@ int main( void ) {
   led_init();
   VCOM_allow_linecoding(1);
 
-#ifdef USE_USB_SERIAL
   VCOM_init();
-#endif
 
   mcu_int_enable();
 

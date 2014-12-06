@@ -23,10 +23,6 @@
 #include "core/sys_mon.h"
 #include "mcu_periph/sys_time.h"
 
-#ifdef USE_USB_SERIAL
-#include "mcu_periph/usb_serial.h"
-#endif
-
 /** Global system monitor data (averaged over 1 sec) */
 struct SysMon sys_mon;
 

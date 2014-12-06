@@ -104,4 +104,3 @@ setup_actuators.CFLAGS += -I$(ARCH)
 setup_actuators.srcs   += $(SRC_ARCH)/led_hw.c
 setup_actuators.srcs   += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif
-
