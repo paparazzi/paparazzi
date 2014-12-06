@@ -27,7 +27,6 @@ ifneq ($(SYS_TIME_LED),none)
 tunnel.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
 tunnel.CFLAGS += -DPERIODIC_FREQUENCY='512.'
-tunnel.CFLAGS += -DUSE_SYS_TIME
 tunnel.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 endif
 
@@ -75,7 +74,6 @@ endif
 setup_actuators.CFLAGS += -DUSE_LED -DPERIPHERALS_AUTO_INIT
 setup_actuators.srcs   += mcu.c $(SRC_ARCH)/mcu_arch.c
 
-setup_actuators.CFLAGS += -DUSE_SYS_TIME
 ifneq ($(SYS_TIME_LED),none)
 setup_actuators.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif

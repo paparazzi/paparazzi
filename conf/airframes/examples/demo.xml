@@ -23,7 +23,7 @@ demo2.ARCHDIR = $(ARCH)
 demo2.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo2.srcs = main_demo2.c
 
-demo2.CFLAGS += -DPERIODIC_FREQUENCY='100.' -DUSE_SYS_TIME
+demo2.CFLAGS += -DPERIODIC_FREQUENCY='100.'
 demo2.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 demo2.CFLAGS += -DUSE_LED
@@ -36,7 +36,7 @@ demo3.ARCHDIR = $(ARCH)
 demo3.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo3.srcs = main_demo3.c
 
-demo3.CFLAGS += -DPERIODIC_FREQUENCY='10.' -DUSE_SYS_TIME
+demo3.CFLAGS += -DPERIODIC_FREQUENCY='10.'
 demo3.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 demo3.CFLAGS += -DUSE_LED
@@ -55,7 +55,7 @@ demo4.ARCHDIR = $(ARCH)
 demo4.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo4.srcs = main_demo4.c
 
-demo4.CFLAGS += -DPERIODIC_FREQUENCY='100.' -DUSE_SYS_TIME
+demo4.CFLAGS += -DPERIODIC_FREQUENCY='100.'
 demo4.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 demo4.CFLAGS += -DUSE_LED
@@ -78,7 +78,7 @@ demo5.ARCHDIR = $(ARCH)
 demo5.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo5.srcs = main_demo5.c
 
-demo5.CFLAGS += -DPERIODIC_FREQUENCY='100.' -DUSE_SYS_TIME
+demo5.CFLAGS += -DPERIODIC_FREQUENCY='100.'
 demo5.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 demo5.CFLAGS += -DUSE_LED
