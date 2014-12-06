@@ -36,10 +36,14 @@ object
     let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
     (float_of_string current_value#text -. alt_b) /. alt_a
   method update = fun s ->
-    if current_value#text <> s then begin
-      current_value#set_text s;
-      try set_default (float_of_string s) with Failure "float_of_string" -> ()
-    end
+    (* value of infinity (string "inf") means it is not yet confirmed, so display "?" *)
+    if s = "inf" then
+      current_value#set_text "?"
+    else
+      if current_value#text <> s then begin
+        current_value#set_text s;
+        try set_default (float_of_string s) with Failure "float_of_string" -> ()
+      end
 end
 
 let pipe_regexp = Str.regexp "|"
@@ -199,7 +203,8 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
   let _icon = GMisc.image ~stock:`APPLY ~packing:commit_but#add () in
   let callback = fun x ->
     prev_value := (try Some ((float_of_string current_value#text-.alt_b)/.alt_a) with _ -> None);
-    commit x
+    commit x;
+    current_value#set_text "?"
   in
   ignore (commit_but#connect#clicked ~callback);
   tooltips#set_tip commit_but#coerce ~text:"Commit";

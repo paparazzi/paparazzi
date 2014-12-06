@@ -677,7 +677,11 @@ let setting = fun logging _sender vs ->
              "ac_id", Pprz.String ac_id;
              "value", List.assoc "value" vs] in
   Dl_Pprz.message_send dl_id "SETTING" vs;
-  log logging ac_id "SETTING" vs
+  log logging ac_id "SETTING" vs;
+  (* mark the setting as not yet confirmed *)
+  let ac = Hashtbl.find aircrafts ac_id in
+  let idx = Pprz.int_of_value (List.assoc "index" vs) in
+  ac.dl_setting_values.(idx) <- infinity
 
 
 (** Got a GET_DL_SETTING, and send an GET_SETTING *)

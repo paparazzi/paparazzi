@@ -217,7 +217,7 @@ let new_aircraft = fun id name fp airframe ->
     cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
     fbw = { rc_status = "???"; rc_mode = "???"; rc_rate=0; pprz_mode_msgs_since_last_fbw_status_msg=0 };
     svinfo = svsinfo_init;
-    dl_setting_values = Array.create max_nb_dl_setting_values 42.;
+    dl_setting_values = Array.create max_nb_dl_setting_values infinity;
     nb_dl_setting_values = 0;
     horiz_mode = UnknownHorizMode;
     horizontal_mode = 0;
