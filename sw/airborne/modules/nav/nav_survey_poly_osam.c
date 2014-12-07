@@ -36,27 +36,32 @@
 #endif
 
 #ifndef POLY_OSAM_DEFAULT_SWEEP
-#define POLY_OSAM_DEFAULT_SWEEP 120
+#define POLY_OSAM_DEFAULT_SWEEP 100
 #endif
 
+//if 0 default to half sweep
 #ifndef POLY_OSAM_ENTRY_RADIUS
 #define POLY_OSAM_ENTRY_RADIUS 0
 #endif
 
+//if 0 never check fir min radius
 #ifndef POLY_OSAM_MIN_RADIUS
-#define POLY_OSAM_MIN_RADIUS 30
+#define POLY_OSAM_MIN_RADIUS 0
 #endif
 
+//if 0 default to half sweep
 #ifndef POLY_OSAM_FIRST_SWEEP_DISTANCE
-#define POLY_OSAM_FIRST_SWEEP_DISTANCE 4
+#define POLY_OSAM_FIRST_SWEEP_DISTANCE 0
 #endif
 
+//default to max 10 waypoints
 #ifndef POLY_OSAM_POLYGONSIZE
 #define POLY_OSAM_POLYGONSIZE 10
 #endif
 
 uint8_t Poly_Size = POLY_OSAM_DEFAULT_SIZE;
 float Poly_Sweep = POLY_OSAM_DEFAULT_SWEEP;
+bool_t use_full_circle = true;
 
 bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
 {
@@ -337,7 +342,7 @@ bool_t nav_survey_poly_osam_run(void)
   float DInt1 = 0;
   float DInt2 = 0;
   float temp;
-  float min_radius = POLY_OSAM_MIN_RADIUS;
+  float min_radius= POLY_OSAM_MIN_RADIUS;
 
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(waypoints[SurveyEntryWP].a, 0.);
@@ -485,17 +490,19 @@ bool_t nav_survey_poly_osam_run(void)
         }
       }
 
-      //Find the radius and direction to circle
-      if (!HalfSweep) 
+      //Find the radius to circle
+      if (!HalfSweep || use_full_circle) 
         temp = dSweep/2;
       else
         temp = dSweep/4;
       
+      //if less than min radius
       if (fabs(temp) < min_radius)
         {
           if (temp < 0) temp = -min_radius; else temp = min_radius;
         }
       
+      //Find the direction to circle
       if(ys > 0 && SurveyToWP.x > SurveyFromWP.x)
         SurveyRadius = temp;
       else if(ys < 0 && SurveyToWP.x < SurveyFromWP.x)
@@ -503,11 +510,13 @@ bool_t nav_survey_poly_osam_run(void)
       else
         SurveyRadius = -temp;
 
+      //find x position to circle
       if(fabs(LastPoint.x-SurveyToWP.x) > fabs(SurveyFromWP.x-SurveyToWP.x))
         SurveyCircle.x = LastPoint.x;
       else
         SurveyCircle.x = SurveyFromWP.x;
 
+      //y position to circle
       SurveyCircle.y = ys - temp;
       
       //Go into circle state

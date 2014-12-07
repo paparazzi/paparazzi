@@ -13,7 +13,7 @@
     <waypoint name="1" x="10.1" y="189.9"/>
     <waypoint name="2" x="132.3" y="139.1"/>
     <waypoint name="MOB" x="137.0" y="-11.6"/>
-    <waypoint name="S1_angle" x="156.2" y="222.2"/>
+    <waypoint name="S1_angle" x="-227.7" y="75.1"/>
     <waypoint name="S1" x="-109.0" y="245.9"/>
     <waypoint name="S2" x="274.4" y="209.5"/>
     <waypoint name="S3" x="322.1" y="29.9"/>
@@ -101,7 +101,7 @@
       <call fun="nav_flower_run()"/>
     </block>
     <block name="Poly survey osam">
-      <call fun="nav_survey_poly_osam_setup(WP_S1, 5, 100, 45)"/>
+      <call fun="nav_survey_poly_osam_setup(WP_S1, 5, 100, 55)"/>
       <call fun="nav_survey_poly_osam_run()"/>
     </block>
     <block name="Poly survey osam dynamic">
