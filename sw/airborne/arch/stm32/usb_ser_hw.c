@@ -206,7 +206,7 @@ static const struct usb_config_descriptor config = {
   .interface = ifaces,
 };
 
-static char serial_no[24];
+static char serial_no[25];
 
 /* Description of the device as it appears after enumeration */
 static const char *usb_strings[] = {
@@ -216,7 +216,7 @@ static const char *usb_strings[] = {
 };
 
 /**
- * Serial is 96bit so 12bytes so 12 hexa numbers, or 24 decimal
+ * Serial is 96bit so 12bytes so 12 hexa numbers, or 24 decimal + termination character
  */
 inline char *get_dev_unique_id(char *s)
 {
@@ -236,7 +236,8 @@ inline char *get_dev_unique_id(char *s)
     if (s[i] > '9') {
       s[i] += 'A' - '9' - 1;
     }
-
+  // add termination character
+  s[24] = '\0';
   return s;
 }
 
