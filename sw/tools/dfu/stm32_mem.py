@@ -153,6 +153,7 @@ if __name__ == "__main__":
     valid_manufacturers.append("TUDelft MavLab. 2012->13")
     valid_manufacturers.append("1 BIT SQUARED")
     valid_manufacturers.append("S.Krukowski")
+    valid_manufacturers.append("Paparazzi UAV")
 
     # list of tuples with possible stm32 (autopilot) devices
     stm32devs = []

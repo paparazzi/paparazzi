@@ -44,6 +44,7 @@
     <boards>
       <board name="krooz_sd"/>
       <board name="li[s]?a_[m]?_.*"/>
+      <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
     </boards>
   </mode>
