@@ -73,7 +73,16 @@ TUNNEL_BAUD ?= B115200
 usb_tunnel.CFLAGS += -DUSE_$(TUNNEL_PORT_UPPER) -D$(TUNNEL_PORT_UPPER)_BAUD=$(TUNNEL_BAUD)
 usb_tunnel.CFLAGS += -DUSB_TUNNEL_UART=$(TUNNEL_PORT_LOWER)
 usb_tunnel.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL
-usb_tunnel.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c
+usb_tunnel.srcs += $(SRC_FIRMWARE)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c
+
+TUNNEL_RX_LED ?= 2
+TUNNEL_TX_LED ?= 3
+ifneq ($(TUNNEL_TX_LED),none)
+  usb_tunnel.CFLAGS += -DTUNNEL_TX_LED=$(TUNNEL_TX_LED)
+endif
+ifneq ($(TUNNEL_RX_LED),none)
+ usb_tunnel.CFLAGS += -DTUNNEL_RX_LED=$(TUNNEL_RX_LED)
+endif
 
 ifeq ($(ARCH), lpc21)
 # for the usb_tunnel we need to set PCLK higher with the flag USE_USB_HIGH_PCLK

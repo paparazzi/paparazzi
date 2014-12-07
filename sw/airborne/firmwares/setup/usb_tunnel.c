@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009  Martin Mueller
- *               2014  Felix Ruess <felix.ruess@gmail.com
+ *               2014  Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -41,23 +41,43 @@
 #error USB_TUNNEL_UART not defined. Add <configure name="TUNNEL_PORT" value="UARTx"/>
 #endif
 
-INFO_VAR(USB_TUNNEL_UART)
+PRINT_CONFIG_VAR(USB_TUNNEL_UART)
 
+PRINT_CONFIG_VAR(TUNNEL_RX_LED)
+PRINT_CONFIG_VAR(TUNNEL_TX_LED)
 
-static void tunnel_event(void)
+/** minimum LED blink on time in ms */
+#define BLINK_MIN 100
+
+static inline void tunnel_event(void)
 {
-  static unsigned char inc;
+  unsigned char inc;
+
+#ifdef TUNNEL_RX_LED
+  static uint32_t rx_time=0;
+  if (get_sys_time_msec() > rx_time + BLINK_MIN) {
+    LED_OFF(TUNNEL_RX_LED);
+  }
+#endif
+#ifdef TUNNEL_TX_LED
+  static uint32_t tx_time=0;
+  if (get_sys_time_msec() > tx_time + BLINK_MIN) {
+    LED_OFF(TUNNEL_TX_LED);
+  }
+#endif
 
   if (uart_char_available(&USB_TUNNEL_UART) && VCOM_check_free_space(1)) {
-#if USE_LED_2
-    LED_TOGGLE(2);
+#ifdef TUNNEL_RX_LED
+    LED_ON(TUNNEL_RX_LED);
+    rx_time = get_sys_time_msec();
 #endif
     inc = uart_getch(&USB_TUNNEL_UART);
     VCOM_putchar(inc);
   }
   if (VCOM_check_available() && uart_check_free_space(&USB_TUNNEL_UART, 1)) {
-#if USE_LED_3
-    LED_TOGGLE(3);
+#ifdef TUNNEL_TX_LED
+    LED_ON(TUNNEL_TX_LED);
+    tx_time = get_sys_time_msec();
 #endif
     inc = VCOM_getchar();
     uart_transmit(&USB_TUNNEL_UART, inc);
