@@ -29,10 +29,28 @@
 
 #include "std.h"
 
+/**
+ * Setup polygon survey.
+ * @param FirstWP      first waypoint/corner of the polygon
+ * @param Size         number of waypoints/corners used to define the polygon
+ * @param Sweep        distance between scan lines
+ * @param Orientation  angle of scan lines in degrees (CCW, east)
+ */
 extern bool_t nav_survey_poly_osam_setup(uint8_t FirstWP, uint8_t Size, float Sweep, float Orientation);
-/** start a polygonsurvey and compute the orientation angle from the line FirstWP-SecondWP */
+
+/**
+ * Setup polygon survey with sweep orientation towards a waypoint.
+ * Computes the sweep orientation angle from the line FirstWP-SecondWP.
+ * @param FirstWp   first waypoint/corner of the polygon
+ * @param Size      number of waypoints/corners used to define the polygon
+ * @param Sweep     distance between scan lines
+ * @param SecondWp  second waypoint towards which the sweep orientation is computed
+ */
 extern bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP);
+
+/** Run polygon survey */
 extern bool_t nav_survey_poly_osam_run(void);
+
 extern uint16_t PolySurveySweepNum;
 extern uint16_t PolySurveySweepBackNum;
 
