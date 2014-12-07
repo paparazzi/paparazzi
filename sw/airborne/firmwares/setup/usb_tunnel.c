@@ -53,13 +53,13 @@ static inline void tunnel_event(void)
 {
   unsigned char inc;
 
-#ifdef TUNNEL_RX_LED
+#if LED_AVAILABLE(TUNNEL_RX_LED)
   static uint32_t rx_time=0;
   if (get_sys_time_msec() > rx_time + BLINK_MIN) {
     LED_OFF(TUNNEL_RX_LED);
   }
 #endif
-#ifdef TUNNEL_TX_LED
+#if LED_AVAILABLE(TUNNEL_TX_LED)
   static uint32_t tx_time=0;
   if (get_sys_time_msec() > tx_time + BLINK_MIN) {
     LED_OFF(TUNNEL_TX_LED);
@@ -67,7 +67,7 @@ static inline void tunnel_event(void)
 #endif
 
   if (uart_char_available(&USB_TUNNEL_UART) && VCOM_check_free_space(1)) {
-#ifdef TUNNEL_RX_LED
+#if LED_AVAILABLE(TUNNEL_RX_LED)
     LED_ON(TUNNEL_RX_LED);
     rx_time = get_sys_time_msec();
 #endif
@@ -75,7 +75,7 @@ static inline void tunnel_event(void)
     VCOM_putchar(inc);
   }
   if (VCOM_check_available() && uart_check_free_space(&USB_TUNNEL_UART, 1)) {
-#ifdef TUNNEL_TX_LED
+#if LED_AVAILABLE(TUNNEL_TX_LED)
     LED_ON(TUNNEL_TX_LED);
     tx_time = get_sys_time_msec();
 #endif
