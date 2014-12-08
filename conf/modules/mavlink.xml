@@ -3,6 +3,8 @@
 <module name="datalink">
   <doc>
     <description>Basic MAVLink implementation</description>
+    <configure name="MAVLINK_PORT" value="UARTx|UDPx" description="The port device to use for mavlink"/>
+    <configure name="MAVLINK_BAUD" value="B57600" description="Baud rate if MAVLINK_PORT is a UART"/>
   </doc>
   <header>
     <file name="mavlink.h"/>
@@ -14,5 +16,14 @@
 
   <makefile>
     <file name="mavlink.c"/>
+    <raw>
+      MAVLINK_PORT ?= UART1
+      MAVLINK_BAUD ?= B57600
+      MAVLINK_PORT_LOWER=$(shell echo $(MAVLINK_PORT) | tr A-Z a-z)
+      MAVLINK_PORT_UPPER=$(shell echo $(MAVLINK_PORT) | tr a-z A-Z)
+    </raw>
+    <define name="MAVLINK_DEV" value="$(MAVLINK_PORT_UPPER)"/>
+    <define name="USE_$(MAVLINK_PORT_UPPER)"/>
+    <define name="$(MAVLINK_PORT_UPPER)_BAUD" value="$(MAVLINK_BAUD)"/>
   </makefile>
 </module>

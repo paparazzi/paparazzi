@@ -102,7 +102,7 @@ void mavlink_event(void)
         case MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE: {
           mavlink_rc_channels_override_t cmd;
           mavlink_msg_rc_channels_override_decode(&msg, &cmd);
-
+#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
           uint8_t thrust = (cmd.chan3_raw - 950) * 127 / 1100;
           int8_t roll = -(cmd.chan1_raw - 1500) * 255 / 1100 / 2;
           int8_t pitch = -(cmd.chan2_raw - 1500) * 255 / 1100 / 2;
@@ -110,6 +110,7 @@ void mavlink_event(void)
           parse_rc_4ch_datalink(0, thrust, roll, pitch, yaw);
           //printf("RECEIVED: RC Channel Override for: %d/%d: throttle: %d; roll: %d; pitch: %d; yaw: %d;\r\n",
           // cmd.target_system, cmd.target_component, thrust, roll, pitch, yaw);
+#endif
           break;
         }
 
@@ -159,7 +160,7 @@ void mavlink_event(void)
 
         default:
           //Do nothing
-          printf("Received message with id: %d\r\n", msg.msgid);
+          //printf("Received message with id: %d\r\n", msg.msgid);
           break;
       }
     }

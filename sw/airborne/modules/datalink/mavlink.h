@@ -42,7 +42,9 @@
  */
 extern mavlink_system_t mavlink_system;
 
+#ifndef MAVLINK_DEV
 #define MAVLINK_DEV UDP0
+#endif
 
 /*
  * The MAVLink link description
