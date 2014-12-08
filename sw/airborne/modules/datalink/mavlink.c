@@ -210,7 +210,7 @@ static inline void mavlink_send_sys_status(void)
 static inline void mavlink_send_attitude(void)
 {
   mavlink_msg_attitude_send(MAVLINK_COMM_0,
-                            sys_time.nb_sec * 100 + msec_of_sys_time_ticks(sys_time.nb_sec_rem),
+                            get_sys_time_msec(),
                             stateGetNedToBodyEulers_f()->phi,     // Phi
                             stateGetNedToBodyEulers_f()->theta,   // Theta
                             stateGetNedToBodyEulers_f()->psi,     // Psi
