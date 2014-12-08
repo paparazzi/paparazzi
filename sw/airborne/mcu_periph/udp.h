@@ -66,8 +66,8 @@ extern struct udp_periph udp0;
 #define UDP0_HOST "127.0.0.1"
 #endif
 
-#ifndef UDP0_PORT_OUT 4242
-#define UDP0_PORT_OUT
+#ifndef UDP0_PORT_OUT
+#define UDP0_PORT_OUT 4242
 #endif
 
 #ifndef UDP0_PORT_IN
@@ -93,12 +93,12 @@ extern struct udp_periph udp1;
 #define UDP1_HOST "127.0.0.1"
 #endif
 
-#ifndef UDP1_PORT_OUT 4242
-#define UDP1_PORT_OUT
+#ifndef UDP1_PORT_OUT
+#define UDP1_PORT_OUT 4244
 #endif
 
 #ifndef UDP1_PORT_IN
-#define UDP1_PORT_IN 4243
+#define UDP1_PORT_IN 4245
 #endif
 
 #ifndef UDP1_BROADCAST
@@ -120,12 +120,12 @@ extern struct udp_periph udp2;
 #define UDP2_HOST "127.0.0.1"
 #endif
 
-#ifndef UDP2_PORT_OUT 4242
-#define UDP2_PORT_OUT
+#ifndef UDP2_PORT_OUT
+#define UDP2_PORT_OUT 4246
 #endif
 
 #ifndef UDP2_PORT_IN
-#define UDP2_PORT_IN 4243
+#define UDP2_PORT_IN 4247
 #endif
 
 #ifndef UDP2_BROADCAST
