@@ -96,12 +96,4 @@ extern bool_t video_tx_state;
 
 #endif
 
-#define SEND_CAM(_trans, _dev) { \
-  int16_t x = cam_target_x; \
-  int16_t y = cam_target_y; \
-  int16_t phi = DegOfRad(cam_phi_c); \
-  int16_t theta = DegOfRad(cam_theta_c); \
-  DOWNLINK_SEND_CAM(_trans, _dev, &phi, &theta, &x, &y); \
-}
-
 #endif // CAM_H

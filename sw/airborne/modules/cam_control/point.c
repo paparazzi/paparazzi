@@ -97,7 +97,7 @@ float  memory_x, memory_y, memory_z;
 #if defined(SHOW_CAM_COORDINATES)
 float   cam_point_x;
 float   cam_point_y;
-unsigned int cam_point_distance_from_home;
+uint16_t cam_point_distance_from_home;
 float cam_point_lon,  cam_point_lat;
 float distance_correction = 1;
 #endif

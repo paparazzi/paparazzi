@@ -101,7 +101,11 @@ void cam_waypoint_target(void);
 void cam_ac_target(void);
 
 static void send_cam(struct transport_tx *trans, struct link_device *dev) {
-  SEND_CAM(DefaultChannel, DefaultDevice);
+  int16_t x = cam_target_x;
+  int16_t y = cam_target_y;
+  int16_t phi = DegOfRad(cam_phi_c);
+  int16_t theta = DegOfRad(cam_theta_c);
+  pprz_msg_send_CAM(trans, dev, AC_ID, &phi, &theta, &x, &y);
 }
 
 #ifdef SHOW_CAM_COORDINATES
