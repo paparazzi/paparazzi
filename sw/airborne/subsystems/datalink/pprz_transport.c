@@ -104,7 +104,7 @@ static void count_bytes(struct pprz_transport *trans __attribute__((unused)), st
 
 static int check_available_space(struct pprz_transport *trans __attribute__((unused)), struct link_device *dev, uint8_t bytes)
 {
-  return dev->check_free_space(dev, bytes);
+  return dev->check_free_space(dev->periph, bytes);
 }
 
 void pprz_transport_init(void)

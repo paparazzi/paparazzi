@@ -110,7 +110,7 @@ static void count_bytes(struct xbee_transport *trans __attribute__((unused)), st
 
 static int check_available_space(struct xbee_transport *trans __attribute__((unused)), struct link_device *dev, uint8_t bytes)
 {
-  return dev->check_free_space(dev, bytes);
+  return dev->check_free_space(dev->periph, bytes);
 }
 
 static uint8_t xbee_text_reply_is_ok(void)
