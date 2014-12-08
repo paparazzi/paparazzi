@@ -199,7 +199,9 @@ let send_dl_values = fun a ->
   if a.nb_dl_setting_values > 0 then
     let csv = ref "" in
     for i = 0 to a.nb_dl_setting_values - 1 do
-      csv := sprintf "%s%f," !csv a.dl_setting_values.(i)
+      match a.dl_setting_values.(i) with
+      | None -> csv := sprintf "%s?," !csv
+      | Some s -> csv := sprintf "%s%f," !csv s
     done;
     let vs = ["ac_id", Pprz.String a.id; "values", Pprz.String !csv] in
     Ground_Pprz.message_send my_id "DL_VALUES" vs
@@ -681,7 +683,7 @@ let setting = fun logging _sender vs ->
   (* mark the setting as not yet confirmed *)
   let ac = Hashtbl.find aircrafts ac_id in
   let idx = Pprz.int_of_value (List.assoc "index" vs) in
-  ac.dl_setting_values.(idx) <- infinity
+  ac.dl_setting_values.(idx) <- None
 
 
 (** Got a GET_DL_SETTING, and send an GET_SETTING *)
@@ -694,7 +696,7 @@ let get_setting = fun logging _sender vs ->
   (* mark the setting as not yet confirmed *)
   let ac = Hashtbl.find aircrafts ac_id in
   let idx = Pprz.int_of_value (List.assoc "index" vs) in
-  ac.dl_setting_values.(idx) <- infinity
+  ac.dl_setting_values.(idx) <- None
 
 
 (** Got a JUMP_TO_BLOCK, and send an BLOCK *)

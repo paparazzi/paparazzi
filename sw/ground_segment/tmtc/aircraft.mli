@@ -136,7 +136,7 @@ type aircraft = {
     mutable stage_time : int;
     mutable block_time : int;
     mutable horiz_mode : horiz_mode;
-    dl_setting_values : float array;
+    dl_setting_values : float option array;
     mutable nb_dl_setting_values : int;
     mutable survey : (Latlong.geographic * Latlong.geographic) option;
     datalink_status : datalink_status;

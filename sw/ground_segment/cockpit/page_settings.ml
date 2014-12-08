@@ -36,8 +36,8 @@ object
     let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
     (float_of_string current_value#text -. alt_b) /. alt_a
   method update = fun s ->
-    (* value of infinity (string "inf") means it is not yet confirmed, so display "?" *)
-    if s = "inf" then
+    (* if not yet confirmed, display "?" *)
+    if s = "?" then
       current_value#set_text "?"
     else
       if current_value#text <> s then begin
