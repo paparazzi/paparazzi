@@ -21,9 +21,15 @@
       MAVLINK_BAUD ?= B57600
       MAVLINK_PORT_LOWER=$(shell echo $(MAVLINK_PORT) | tr A-Z a-z)
       MAVLINK_PORT_UPPER=$(shell echo $(MAVLINK_PORT) | tr a-z A-Z)
+      ifeq ($(MAVLINK_PORT), UsbS)
+      ap.CFLAGS += -DUSE_USB_SERIAL
+      ap.srcs += $(SRC_ARCH)/usb_ser_hw.c
+      ap.CFLAGS += -DMAVLINK_DEV=UsbS
+      else
+      ap.CFLAGS += -DMAVLINK_DEV=$(MAVLINK_PORT_UPPER)
+      ap.CFLAGS += -DUSE_$(MAVLINK_PORT_UPPER)
+      ap.CFLAGS += -D$(MAVLINK_PORT_UPPER)_BAUD=$(MAVLINK_BAUD)
+      endif
     </raw>
-    <define name="MAVLINK_DEV" value="$(MAVLINK_PORT_UPPER)"/>
-    <define name="USE_$(MAVLINK_PORT_UPPER)"/>
-    <define name="$(MAVLINK_PORT_UPPER)_BAUD" value="$(MAVLINK_BAUD)"/>
   </makefile>
 </module>

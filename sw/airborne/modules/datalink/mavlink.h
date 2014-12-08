@@ -35,6 +35,9 @@
 #if USE_UDP
 #include "mcu_periph/udp.h"
 #endif
+#if USE_USB_SERIAL
+#include "mcu_periph/usb_serial.h"
+#endif
 #include "mcu_periph/uart.h"
 
 /*
