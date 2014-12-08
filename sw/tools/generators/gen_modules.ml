@@ -399,7 +399,7 @@ let () =
     (* Extract modules names (file name and module name) *)
     let modules_name =
       (List.map (fun m -> try Xml.attrib m.GC.xml "name" with _ -> "") modules) @
-        (List.map (fun m -> m.GC.file) modules) in
+        (List.map (fun m -> m.GC.filename) modules) in
     (* Extract xml modules nodes *)
     let modules_list = List.map (fun m -> m.GC.xml) modules in
     check_dependencies modules_list modules_name;
