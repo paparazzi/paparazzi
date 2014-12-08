@@ -690,7 +690,11 @@ let get_setting = fun logging _sender vs ->
   let vs = [ "index", List.assoc "index" vs;
              "ac_id", Pprz.String ac_id ] in
   Dl_Pprz.message_send dl_id "GET_SETTING" vs;
-  log logging ac_id "GET_SETTING" vs
+  log logging ac_id "GET_SETTING" vs;
+  (* mark the setting as not yet confirmed *)
+  let ac = Hashtbl.find aircrafts ac_id in
+  let idx = Pprz.int_of_value (List.assoc "index" vs) in
+  ac.dl_setting_values.(idx) <- infinity
 
 
 (** Got a JUMP_TO_BLOCK, and send an BLOCK *)

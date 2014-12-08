@@ -187,9 +187,11 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
   let set_default = fun x ->
     if not !modified then set_default x else () in
 
-  (* Update value *)
+  (* click current_value lable to request an update *)
   let callback = fun _ ->
-    do_change i infinity; true in
+    do_change i infinity;
+    current_value#set_text "?";
+    true in
   ignore (eb#event#connect#button_press ~callback);
 
   (* Auto check button *)
