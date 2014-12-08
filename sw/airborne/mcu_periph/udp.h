@@ -62,6 +62,18 @@ extern void     udp_receive(struct udp_periph* p);
 #if USE_UDP0
 extern struct udp_periph udp0;
 
+#ifndef UDP0_HOST
+#define UDP0_HOST "127.0.0.1"
+#endif
+
+#ifndef UDP0_PORT_OUT 4242
+#define UDP0_PORT_OUT
+#endif
+
+#ifndef UDP0_PORT_IN
+#define UDP0_PORT_IN 4243
+#endif
+
 #ifndef UDP0_BROADCAST
 #define UDP0_BROADCAST FALSE
 #endif
@@ -77,6 +89,18 @@ extern struct udp_periph udp0;
 #if USE_UDP1
 extern struct udp_periph udp1;
 
+#ifndef UDP1_HOST
+#define UDP1_HOST "127.0.0.1"
+#endif
+
+#ifndef UDP1_PORT_OUT 4242
+#define UDP1_PORT_OUT
+#endif
+
+#ifndef UDP1_PORT_IN
+#define UDP1_PORT_IN 4243
+#endif
+
 #ifndef UDP1_BROADCAST
 #define UDP1_BROADCAST FALSE
 #endif
@@ -91,6 +115,18 @@ extern struct udp_periph udp1;
 
 #if USE_UDP2
 extern struct udp_periph udp2;
+
+#ifndef UDP2_HOST
+#define UDP2_HOST "127.0.0.1"
+#endif
+
+#ifndef UDP2_PORT_OUT 4242
+#define UDP2_PORT_OUT
+#endif
+
+#ifndef UDP2_PORT_IN
+#define UDP2_PORT_IN 4243
+#endif
 
 #ifndef UDP2_BROADCAST
 #define UDP2_BROADCAST FALSE
