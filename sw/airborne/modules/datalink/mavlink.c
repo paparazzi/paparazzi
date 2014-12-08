@@ -135,13 +135,13 @@ void mavlink_event(void)
                   break;
                 }
 
-                if (mavlink_params[i][j] == NULL) {
+                if (mavlink_params[i][j] == '\0') {
                   cmd.param_index = i;
                   break;
                 }
               }
 
-              if (mavlink_params[i][j] == NULL) {
+              if (mavlink_params[i][j] == '\0') {
                 break;
               }
             }
