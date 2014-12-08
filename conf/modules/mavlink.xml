@@ -11,7 +11,7 @@
   </header>
 
   <init fun="mavlink_init()"/>
-  <periodic fun="mavlink_periodic()" autorun="TRUE"/>
+  <periodic fun="mavlink_periodic()" freq="10" autorun="TRUE"/>
   <event fun="mavlink_event()"/>
 
   <makefile>

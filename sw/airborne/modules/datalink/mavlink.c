@@ -44,6 +44,8 @@ static char mavlink_params[NB_SETTING][16] = SETTINGS; /**< Transmitting paramet
 static inline void mavlink_send_heartbeat(void);
 static inline void mavlink_send_sys_status(void);
 static inline void mavlink_send_attitude(void);
+static inline void mavlink_send_local_position_ned(void);
+static inline void mavlink_send_global_position_int(void);
 static inline void mavlink_send_params(void);
 
 //TODO FIXME
@@ -63,10 +65,12 @@ void mavlink_init(void)
  */
 void mavlink_periodic(void)
 {
-  RunOnceEvery(MODULES_FREQUENCY / 2, mavlink_send_heartbeat());
-  RunOnceEvery(MODULES_FREQUENCY / 10, mavlink_send_sys_status());
-  RunOnceEvery(MODULES_FREQUENCY / 10, mavlink_send_attitude());
-  RunOnceEvery(MODULES_FREQUENCY / 10, mavlink_send_params());
+  RunOnceEvery(2, mavlink_send_heartbeat());
+  RunOnceEvery(5, mavlink_send_sys_status());
+  RunOnceEvery(5, mavlink_send_attitude());
+  RunOnceEvery(5, mavlink_send_params());
+  RunOnceEvery(5, mavlink_send_local_position_ned());
+  RunOnceEvery(5, mavlink_send_global_position_int());
 }
 
 /**
@@ -217,6 +221,38 @@ static inline void mavlink_send_attitude(void)
                             stateGetBodyRates_f()->p,             // p
                             stateGetBodyRates_f()->q,             // q
                             stateGetBodyRates_f()->r);            // r
+  MAVLink(SendMessage());
+}
+
+static inline void mavlink_send_local_position_ned(void)
+{
+  mavlink_msg_local_position_ned_send(MAVLINK_COMM_0,
+                                      get_sys_time_msec(),
+                                      stateGetPositionNed_f()->x,
+                                      stateGetPositionNed_f()->y,
+                                      stateGetPositionNed_f()->z,
+                                      stateGetSpeedNed_f()->x,
+                                      stateGetSpeedNed_f()->y,
+                                      stateGetSpeedNed_f()->z);
+  MAVLink(SendMessage());
+}
+
+static inline void mavlink_send_global_position_int(void)
+{
+  float heading = DegOfRad(stateGetNedToBodyEulers_f()->psi);
+  if (heading < 0.) {
+    heading += 360;
+  }
+  uint16_t compass_heading = heading * 100;
+  int32_t relative_alt = stateGetPositionLla_i()->alt - state.ned_origin_f.hmsl;
+  mavlink_msg_global_position_int_send(MAVLINK_COMM_0,
+                                       get_sys_time_msec(),
+                                       stateGetPositionLla_i()->lat,
+                                       stateGetPositionLla_i()->lon,
+                                       stateGetPositionLla_i()->alt,
+                                       relative_alt,
+                                       0,0,0, // velocity in lla?
+                                       compass_heading);
   MAVLink(SendMessage());
 }
 
