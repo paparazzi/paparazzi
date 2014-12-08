@@ -40,6 +40,8 @@ General
   [#986] (https://github.com/paparazzi/paparazzi/pull/986)
 - GCS: alert/console window: always insert messages at the end
   [#996] (https://github.com/paparazzi/paparazzi/issues/996)
+- improve dependency handling for modules
+  [#1007] (https://github.com/paparazzi/paparazzi/pull/1007)
 
 Simulation
 ----------
@@ -97,8 +99,14 @@ Airborne
   [#936] (https://github.com/paparazzi/paparazzi/pull/936)
 - pass dt to ahrs/ins propagation
   [#818] (https://github.com/paparazzi/paparazzi/pull/818)
+- rotorcraft: allow to turn off motors in failsafe mode
+  [#989] (https://github.com/paparazzi/paparazzi/pull/989)
 - actuators: basic esc32 motor controller implementation via CAN for STM32F1
   [#1004] (https://github.com/paparazzi/paparazzi/pull/1004)
+- state interface: change computation order in stateCalcPositionLla_i
+  [#1013] (https://github.com/paparazzi/paparazzi/pull/1013)
+- stm32: add usb_tunnel
+  [#1014] (https://github.com/paparazzi/paparazzi/pull/1014)
 
 
 Paparazzi 5.2.1_stable
