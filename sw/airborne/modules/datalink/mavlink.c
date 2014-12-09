@@ -26,13 +26,17 @@
 
 #include "modules/datalink/mavlink.h"
 
+// include mavlink headers, but ignore some warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-default"
 #include "mavlink/paparazzi/mavlink.h"
-#include "mcu_periph/sys_time.h"
+#pragma GCC diagnostic pop
 
 #include "generated/airframe.h"
 #include "generated/modules.h"
 #include "generated/settings.h"
 
+#include "mcu_periph/sys_time.h"
 #include "subsystems/electrical.h"
 #include "state.h"
 
@@ -47,8 +51,14 @@ static inline void mavlink_send_attitude(void);
 static inline void mavlink_send_local_position_ned(void);
 static inline void mavlink_send_global_position_int(void);
 static inline void mavlink_send_params(void);
+static inline void mavlink_send_autopilot_version(void);
+static inline void mavlink_send_attitude_quaternion(void);
+static inline void mavlink_send_gps_raw_int(void);
+static inline void mavlink_send_rc_channels(void);
+static inline void mavlink_send_battery_status(void);
 
-//TODO FIXME
+
+/// TODO: FIXME
 #define UAV_SENSORS (MAV_SYS_STATUS_SENSOR_3D_GYRO|MAV_SYS_STATUS_SENSOR_3D_ACCEL|MAV_SYS_STATUS_SENSOR_3D_MAG|MAV_SYS_STATUS_SENSOR_ABSOLUTE_PRESSURE)
 
 /**
@@ -61,7 +71,8 @@ void mavlink_init(void)
 }
 
 /**
- * Periodic MAVLink calls
+ * Periodic MAVLink calls.
+ * Called at MAVLINK_PERIODIC_FREQUENCY (set in module xml to 10Hz)
  */
 void mavlink_periodic(void)
 {
@@ -69,8 +80,13 @@ void mavlink_periodic(void)
   RunOnceEvery(5, mavlink_send_sys_status());
   RunOnceEvery(5, mavlink_send_attitude());
   RunOnceEvery(5, mavlink_send_params());
-  RunOnceEvery(5, mavlink_send_local_position_ned());
+  RunOnceEvery(4, mavlink_send_local_position_ned());
   RunOnceEvery(5, mavlink_send_global_position_int());
+  RunOnceEvery(6, mavlink_send_gps_raw_int());
+  RunOnceEvery(5, mavlink_send_attitude_quaternion());
+  RunOnceEvery(5, mavlink_send_rc_channels());
+  RunOnceEvery(21, mavlink_send_battery_status());
+  RunOnceEvery(32, mavlink_send_autopilot_version());
 }
 
 /**
@@ -245,13 +261,16 @@ static inline void mavlink_send_global_position_int(void)
   }
   uint16_t compass_heading = heading * 100;
   int32_t relative_alt = stateGetPositionLla_i()->alt - state.ned_origin_f.hmsl;
+  /// TODO: check/ask what coordinate system vel is supposed to be in, not clear from docs
   mavlink_msg_global_position_int_send(MAVLINK_COMM_0,
                                        get_sys_time_msec(),
                                        stateGetPositionLla_i()->lat,
                                        stateGetPositionLla_i()->lon,
                                        stateGetPositionLla_i()->alt,
                                        relative_alt,
-                                       0,0,0, // velocity in lla?
+                                       stateGetSpeedNed_f()->x * 100,
+                                       stateGetSpeedNed_f()->y * 100,
+                                       stateGetSpeedNed_f()->z * 100,
                                        compass_heading);
   MAVLink(SendMessage());
 }
@@ -274,4 +293,112 @@ static inline void mavlink_send_params(void)
   MAVLink(SendMessage());
 
   mavlink_params_idx++;
+}
+
+static inline void mavlink_send_autopilot_version(void)
+{
+  /// TODO: fill in versions correctly, how should they be encoded?
+  static uint8_t custom_version[8];
+  mavlink_msg_autopilot_version_send(MAVLINK_COMM_0,
+                                     0,  // capabilities,
+                                     54, // version
+                                     custom_version);
+}
+
+static inline void mavlink_send_attitude_quaternion(void)
+{
+  /// TODO: check if same quaternion rotation or inverse
+  mavlink_msg_attitude_quaternion_send(MAVLINK_COMM_0,
+                                       get_sys_time_msec(),
+                                       stateGetNedToBodyQuat_f()->qi,
+                                       stateGetNedToBodyQuat_f()->qx,
+                                       stateGetNedToBodyQuat_f()->qy,
+                                       stateGetNedToBodyQuat_f()->qz,
+                                       stateGetBodyRates_f()->p,
+                                       stateGetBodyRates_f()->q,
+                                       stateGetBodyRates_f()->r);
+}
+
+#if USE_GPS
+#include "subsystems/gps.h"
+#endif
+
+static inline void mavlink_send_gps_raw_int(void)
+{
+#if USE_GPS
+  int32_t course = DegOfRad(gps.course) / 1e5;
+  if (course < 0) {
+    course += 36000;
+  }
+  mavlink_msg_gps_raw_int_send(MAVLINK_COMM_0,
+                               get_sys_time_usec(),
+                               gps.fix,
+                               gps.lla_pos.lat,
+                               gps.lla_pos.lon,
+                               gps.lla_pos.alt,
+                               gps.pdop,
+                               UINT16_MAX, // VDOP
+                               gps.gspeed,
+                               course,
+                               gps.num_sv);
+#endif
+}
+
+#if defined RADIO_CONTROL
+#include "subsystems/radio_control.h"
+// since they really want PPM values, use a hack to check if are using ppm subsystem
+#ifdef PPM_PULSE_TYPE_POSITIVE
+#define RC_CHANNELS RADIO_CTL_NB
+/// macro to get ppm_pulses or UINT16_MAX if channel not available
+#define PPM_PULSES(_i) ((_i) < RADIO_CTL_NB ? ppm_pulses[(_i)] : UINT16_MAX)
+#else
+// use radio_control.values for now...
+#define RC_CHANNELS RADIO_CONTROL_NB_CHANNEL
+#define PPM_OF_PPRZ(_v) ((_v) / 19.2 + 1500)
+#define PPM_PULSES(_i) ((_i) < RADIO_CONTROL_NB_CHANNEL ? PPM_OF_PPRZ(radio_control.values[(_i)]) + MAX_PPRZ : UINT16_MAX)
+#endif
+#endif
+
+static inline void mavlink_send_rc_channels(void)
+{
+#if defined RADIO_CONTROL
+  mavlink_msg_rc_channels_send(MAVLINK_COMM_0,
+                               get_sys_time_msec(),
+                               RC_CHANNELS,
+                               PPM_PULSES(0), PPM_PULSES(1), PPM_PULSES(2),
+                               PPM_PULSES(3), PPM_PULSES(4), PPM_PULSES(5),
+                               PPM_PULSES(6), PPM_PULSES(7), PPM_PULSES(8),
+                               PPM_PULSES(9), PPM_PULSES(10), PPM_PULSES(11),
+                               PPM_PULSES(12), PPM_PULSES(13), PPM_PULSES(14),
+                               PPM_PULSES(15), PPM_PULSES(16), PPM_PULSES(17),
+                               255); // rssi unknown
+#else
+  mavlink_msg_rc_channels_send(MAVLINK_COMM_0,
+                               get_sys_time_msec(),
+                               0, // zero channels available
+                               UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
+                               UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
+                               UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
+                               UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
+                               UINT16_MAX, UINT16_MAX, 255);
+#endif
+}
+
+#include "subsystems/electrical.h"
+static inline void mavlink_send_battery_status(void)
+{
+  static uint16_t voltages[10];
+  // we simply only set one cell for now
+  voltages[0] = electrical.vsupply * 10;
+  /// TODO: check what all these fields are supposed to represent
+  mavlink_msg_battery_status_send(MAVLINK_COMM_0,
+                                  0, // id
+                                  0, // battery_function
+                                  0, // type
+                                  INT16_MAX, // unknown temperature
+                                  voltages, // cell voltages
+                                  electrical.current / 10,
+                                  electrical.consumed,
+                                  electrical.energy, // check scaling
+                                  -1); // remaining percentage not estimated
 }

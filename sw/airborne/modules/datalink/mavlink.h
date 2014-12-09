@@ -69,7 +69,7 @@ void mavlink_event(void);
  * @param chan MAVLink channel to use, usually MAVLINK_COMM_0 = UART0
  * @param ch Character to send
  */
-static inline void comm_send_ch(mavlink_channel_t chan, uint8_t ch)
+static inline void comm_send_ch(mavlink_channel_t chan __attribute__((unused)), uint8_t ch)
 {
 	// Send bytes
 	MAVLink(Transmit(ch));
