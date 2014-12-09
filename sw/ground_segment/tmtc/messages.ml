@@ -31,6 +31,8 @@ let led_delay = 500 (* Time in milliseconds while the green led is displayed *)
 
 let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ]
 
+let help_text = "Drag-and-drop field on:\n\t- Real-Time Plotter to plot a curve\n\t- GCS map to display as a papget"
+
 let pipe_regexp = Str.regexp "|"
 let values_of_field = fun field ->
   try
@@ -61,6 +63,8 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (help_label:GObj.
           let format_ = try Some (Xml.attrib f "format") with _ -> None in
           let h = GPack.hbox ~packing:v#pack () in
           let field_label = GButton.button ~label:name ~packing:h#pack () in
+          let tips = GData.tooltips () in
+          tips#set_tip field_label#coerce ~text:help_text;
 
           let value = ref "XXXX" in
           let l = GMisc.label ~text: !value ~packing:h#pack () in
@@ -218,7 +222,7 @@ let _ =
   let vbox = GPack.vbox ~packing:window#add () in
 
   let notebook = GPack.notebook ~packing:vbox#pack ~tab_pos:`TOP () in
-  let help_label = GMisc.label ~text:"Drag-and-drop field on:\n\t- Real-Time Plotter to plot a curve\n\t- GCS map to display as a papget" ~packing:vbox#pack ~show:false () in
+  let help_label = GMisc.label ~text:help_text ~packing:vbox#pack ~show:false () in
 
   (** Get the XML description of the required classes *)
   let xml_classes =
