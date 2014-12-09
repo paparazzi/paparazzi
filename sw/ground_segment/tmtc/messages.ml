@@ -93,15 +93,18 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (help_label:GObj.
           field_label#drag#source_set dnd_targets ~modi:[`BUTTON1] ~actions:[`COPY];
           let data_get = fun _ (sel:GObj.selection_context) ~info ~time ->
             let scale = Pprz.alt_unit_coef_of_xml ~auto:"display" f in
-            let field_descr =
-              if Pprz.is_array_type type_ then
-                match GToolbox.input_string ~title:"Index of value to drag" ~text:"0" "Index in the array ?" with
-                    None -> field_name
-                  | Some i -> sprintf "%s[%s]" field_name i
+            let v = List.hd (Str.split (Str.regexp " ") l#text) in (* get value *)
+            let nb = List.length (Str.split (Str.regexp ",") v) in (* get number of values if array *)
+            let range = if nb > 1 then sprintf "0-%d" (nb-1) else "0" in
+            if Pprz.is_array_type type_ then
+              match GToolbox.input_string ~title:"Index of value to drag" ~text:range "Index or range in the array ?" with
+                None -> ()
+              | Some i -> sel#return (sprintf "%s:%s:%s:%s[%s]:%s" sender class_name id field_name i scale)
               else
-                field_name in
-            sel#return (sprintf "%s:%s:%s:%s:%s" sender class_name id field_descr scale) in
+                sel#return (sprintf "%s:%s:%s:%s:%s" sender class_name id field_name scale)
+          in
           ignore (field_label#drag#connect#data_get ~callback:data_get);
+
           (* hide notebook and display help during drag *)
           let begin_drag = fun _ ->
             notebook#coerce#misc#hide ();
