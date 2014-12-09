@@ -241,7 +241,9 @@ void init_ap( void ) {
   /** - start interrupt task */
   mcu_int_enable();
 
+#if DOWNLINK
   downlink_init();
+#endif
 
 #if defined AEROCOMM_DATA_PIN
   IO0DIR |= _BV(AEROCOMM_DATA_PIN);
@@ -449,7 +451,9 @@ void reporting_task( void ) {
   /** then report periodicly */
   else {
     //PeriodicSendAp(DefaultChannel, DefaultDevice);
+#if PERIODIC_TELEMETRY
     periodic_telemetry_send_Ap(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+#endif
   }
 }
 

@@ -34,6 +34,12 @@
 #include "mcu_periph/link_device.h"
 #include "subsystems/datalink/transport.h"
 
+/** Set default periodic telemetry to NULL
+ */
+#ifndef DefaultPeriodic
+#define DefaultPeriodic NULL
+#endif
+
 /** Telemetry callback definition
  */
 typedef void (*telemetry_cb)(struct transport_tx *trans, struct link_device *dev);
@@ -55,12 +61,17 @@ struct pprz_telemetry {
 };
 
 /** Register a telemetry callback function.
+ * empty implementation is provided if PERIODIC_TELEMETRY is not set or set to FALSE
  * @param _pt periodic telemetry structure to register
  * @param _msg message name (string) as defined in telemetry xml file
  * @param _cb callback function, called according to telemetry mode and specified period
  * @return TRUE if message registered with success, FALSE otherwise
  */
+#if PERIODIC_TELEMETRY
 extern bool_t register_periodic_telemetry(struct pprz_telemetry * _pt, const char * _msg, telemetry_cb _cb);
+#else
+static inline bool_t register_periodic_telemetry(struct pprz_telemetry * _pt __attribute__((unused)), const char * _msg __attribute__((unused)), telemetry_cb _cb __attribute__((unused))) { return FALSE; }
+#endif
 
 #if USE_PERIODIC_TELEMETRY_REPORT
 /** Send an error report when trying to send message that as not been register

@@ -176,7 +176,9 @@ STATIC_INLINE void main_init( void ) {
 
   mcu_int_enable();
 
+#if DOWNLINK
   downlink_init();
+#endif
 
   // register the timers for the periodic functions
   main_periodic_tid = sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
@@ -220,14 +222,20 @@ STATIC_INLINE void main_periodic( void ) {
   SetActuatorsFromCommands(commands, autopilot_mode);
 
   if (autopilot_in_flight) {
-    RunOnceEvery(PERIODIC_FREQUENCY, { autopilot_flight_time++; datalink_time++; });
+    RunOnceEvery(PERIODIC_FREQUENCY, { autopilot_flight_time++;
+#if defined DATALINK || defined SITL
+        datalink_time++;
+#endif
+        });
   }
 
   RunOnceEvery(10, LED_PERIODIC());
 }
 
 STATIC_INLINE void telemetry_periodic(void) {
+#if PERIODIC_TELEMETRY
   periodic_telemetry_send_Main(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+#endif
 }
 
 /** mode to enter when RC is lost while using a mode with RC input (not AP_MODE_NAV) */

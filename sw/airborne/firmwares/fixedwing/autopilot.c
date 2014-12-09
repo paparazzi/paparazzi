@@ -77,7 +77,9 @@ static void send_mode(struct transport_tx *trans, struct link_device *dev) {
 
 void autopilot_send_mode(void) {
   // use default telemetry here
+#if DOWNLINK
   send_mode(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+#endif
 }
 
 static void send_attitude(struct transport_tx *trans, struct link_device *dev) {

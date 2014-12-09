@@ -36,6 +36,8 @@
  * @return TRUE if message registered with success, FALSE otherwise
  */
 bool_t register_periodic_telemetry(struct pprz_telemetry * _pt, const char * _msg, telemetry_cb _cb) {
+  // return FALSE if NULL is passed as pprz_telemetry
+  if (_pt == NULL) return FALSE;
   // look for message name
   uint8_t i;
   for (i = 0; i < _pt->nb; i++) {
