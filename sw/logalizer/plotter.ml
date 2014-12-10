@@ -517,7 +517,28 @@ let rec plot_window = fun window ->
     let factor =  Ocaml_tools.affine_transform factor#text in
     try
       let name = data#data in
-      add_curve ~factor name
+      let (sender, class_name, msg_name, field_descr, (a',b')) = parse_dnd name in
+      (* test if several curves need to be added with x[min-max] format *)
+      if Str.string_match (Str.regexp "\\([^\\.]+\\)\\[\\([0-9]+\\)-\\([0-9]+\\)\\]") field_descr 0 then
+        begin
+          (* get name and range in correct order *)
+          let field_name = Str.matched_group 1 field_descr
+          and min_range = int_of_string (Str.matched_group 2 field_descr)
+          and max_range = int_of_string (Str.matched_group 3 field_descr) in
+          let min_range, max_range = if min_range > max_range then
+            max_range, min_range
+          else
+            min_range, max_range
+          in
+          (* add all curves *)
+          for i = min_range to max_range do
+            let offset = if a' <> 0. then sprintf "+%.2f" b' else "" in
+            let name = (sprintf "%s:%s:%s:%s[%d]:%f%s" sender class_name msg_name field_name i a' offset) in
+            add_curve ~factor name
+          done
+        end
+      else
+        add_curve ~factor name
     with
       exc -> prerr_endline (Printexc.to_string exc)
     in
