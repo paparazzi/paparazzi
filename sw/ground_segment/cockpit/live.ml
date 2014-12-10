@@ -102,7 +102,7 @@ type aircraft = {
   mutable ground_prox : bool;
   mutable got_track_status_timer : int;
   mutable last_dist_to_wp : float;
-  mutable dl_values : float array;
+  mutable dl_values : string option array;
   mutable last_unix_time : float;
   mutable airspeed : float
 }
@@ -739,8 +739,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
               let id = settings_tab#assoc "snav_desired_tow" in
               let set_appointment = fun _ ->
                 begin try
-                        let v = ac.dl_values.(id) in
-                        let t = Unix.gmtime (Latlong.unix_time_of_tow (truncate v)) in
+                        let v = match ac.dl_values.(id) with None -> raise Not_found | Some x -> int_of_string x in
+                        let t = Unix.gmtime (Latlong.unix_time_of_tow v) in
                         ac.strip#set_label "apt" (sprintf "%d:%02d:%02d" t.Unix.tm_hour t.Unix.tm_min t.Unix.tm_sec)
                   with _ -> () end;
                 true
@@ -910,10 +910,13 @@ let listen_dl_value = fun () ->
     match ac.dl_settings_page with
         Some settings ->
           let csv = Pprz.string_assoc "values" vs in
-          let values = Array.map float_of_string (Array.of_list (Str.split list_separator csv)) in
+          let string_value = fun v -> match v with "?" -> None | _ -> Some v in
+          let values = Array.map string_value (Array.of_list (Str.split list_separator csv)) in
           ac.dl_values <- values;
           for i = 0 to min (Array.length values) settings#length - 1 do
-            settings#set i (try values.(i) with _ -> failwith (sprintf "values.(%d)" i))
+            try
+              settings#set i values.(i)
+            with _ -> ()
           done
       | None -> () in
   safe_bind "DL_VALUES" get_dl_value

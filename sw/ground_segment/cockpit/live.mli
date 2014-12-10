@@ -59,7 +59,7 @@ type aircraft = private {
     mutable ground_prox : bool;
     mutable got_track_status_timer : int;
     mutable last_dist_to_wp : float;
-    mutable dl_values : float array;
+    mutable dl_values : string option array;
     mutable last_unix_time : float;
     mutable airspeed : float
   }

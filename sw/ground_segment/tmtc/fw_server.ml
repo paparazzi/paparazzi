@@ -298,7 +298,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
     | "DL_VALUE" ->
       let i = ivalue "index" in
       if i < max_nb_dl_setting_values then begin
-        a.dl_setting_values.(i) <- fvalue "value";
+        a.dl_setting_values.(i) <- Some (fvalue "value");
         a.nb_dl_setting_values <- max a.nb_dl_setting_values (i+1)
       end else
         failwith "Too much dl_setting values !!!"
