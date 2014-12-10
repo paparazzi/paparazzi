@@ -910,14 +910,12 @@ let listen_dl_value = fun () ->
     match ac.dl_settings_page with
         Some settings ->
           let csv = Pprz.string_assoc "values" vs in
-          let float_of_string_value = fun v -> match v with "?" -> None | _ -> Some v in
-          let values = Array.map float_of_string_value (Array.of_list (Str.split list_separator csv)) in
+          let string_value = fun v -> match v with "?" -> None | _ -> Some v in
+          let values = Array.map string_value (Array.of_list (Str.split list_separator csv)) in
           ac.dl_values <- values;
-          let float_of_value = fun v -> match v with None -> raise Not_found | Some x -> x in
           for i = 0 to min (Array.length values) settings#length - 1 do
             try
-              let v = float_of_value values.(i) in
-              settings#set i (try float_of_string v with _ -> failwith (sprintf "values.(%d)" i))
+              settings#set i values.(i)
             with _ -> ()
           done
       | None -> () in

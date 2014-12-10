@@ -26,7 +26,7 @@
 class settings : ?visible:(GObj.widget -> bool) -> Xml.xml list -> (int -> float -> unit) -> (string -> GObj.widget -> unit) ->
   object
     method length : int (** Total number of settings *)
-    method set : int -> float -> unit (** Set the current value *)
+    method set : int -> string option -> unit (** Set the current value *)
     method assoc : string -> int
     method widget : GObj.widget
     method save : string -> unit

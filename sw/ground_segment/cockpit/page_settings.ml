@@ -31,6 +31,9 @@ class setting = fun (i:int) (xml:Xml.xml) (current_value:GMisc.label) set_defaul
 object
   method index = i
   method xml = xml
+  val mutable last_known_value = None
+  method last_known_value =
+    match last_known_value with None -> raise Not_found | Some v -> v
   method current_value =
     let auc = Pprz.alt_unit_coef_of_xml xml in
     let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
@@ -42,7 +45,11 @@ object
     else
       if current_value#text <> s then begin
         current_value#set_text s;
-        try set_default (float_of_string s) with Failure "float_of_string" -> ()
+        try
+          let v = float_of_string s in
+          last_known_value <- Some v;
+          set_default v
+        with Failure "float_of_string" -> ()
       end
 end
 
@@ -317,26 +324,31 @@ object (self)
   method widget = sw#coerce
   method length = length
   method keys = !keys
-  method set = fun i v ->
+  method set = fun i value ->
     if visible self#widget then
       let setting = variables.(i) in
-      let auc = Pprz.alt_unit_coef_of_xml setting#xml in
-      let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
-      let v = alt_a *. v +. alt_b in
-      let s = string_of_float v in
+      let s, v = match value with
+        | None -> "?", -1
+        | Some x ->
+          let v = try float_of_string x with _ -> failwith (sprintf "Pages.settings#set:wrong values.(%d) = %s" i x) in
+          let auc = Pprz.alt_unit_coef_of_xml setting#xml in
+          let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
+          let v = alt_a *. v +. alt_b in
+          string_of_float v, truncate v
+      in
       if i < 0 || i >= Array.length variables then
         failwith (sprintf "Pages.settings#set: %d out of bounnds (length=%d)" i (Array.length variables));
       let s =
         let values = values_of_dl_setting setting#xml in
         try
           let lower = int_of_string (ExtXml.attrib setting#xml "min") in
-          values.(truncate v - lower)
+          values.(v - lower)
         with
             _ -> s in
       setting#update s
   method assoc var = List.assoc var assocs
   method save = fun airframe_filename ->
-    let settings = Array.fold_right (fun setting r -> try (setting#index, setting#xml, setting#current_value)::r with _ -> r) variables [] in
+    let settings = Array.fold_right (fun setting r -> try (setting#index, setting#xml, setting#last_known_value)::r with _ -> r) variables [] in
     SaveSettings.popup airframe_filename (Array.of_list settings) do_change
 end
 
