@@ -350,7 +350,7 @@ let rec plot_window = fun window ->
   Hashtbl.add windows oid [];
 
   ignore (plotter#parse_geometry window.geometry);
-  plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));
+  plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_rtp_file));
   let vbox = GPack.vbox ~packing:plotter#add () in
   let menubar = GMenu.menu_bar ~packing:vbox#pack () in
   let factory = new GMenu.factory menubar in

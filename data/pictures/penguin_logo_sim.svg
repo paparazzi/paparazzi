@@ -9,15 +9,15 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:export-ydpi="13.01829"
-   inkscape:export-xdpi="13.01829"
-   inkscape:export-filename="/home/gautier/dev/paparazzi/data/pictures/penguin_icon_rep.png"
+   inkscape:export-ydpi="12.59549"
+   inkscape:export-xdpi="12.59549"
+   inkscape:export-filename="/home/gautier/dev/paparazzi/data/pictures/penguin_icon_sim.png"
    width="360"
    height="330"
    id="svg2"
    sodipodi:version="0.32"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="penguin_logo_rep.svg"
+   sodipodi:docname="penguin_logo_sim.svg"
    version="1.1">
   <defs
      id="defs3" />
@@ -91,13 +91,13 @@
        xml:space="preserve"
        id="flowRoot2986"
        style="font-size:40px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.18876266;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
-       transform="matrix(2.4053169,0,0,3.0509988,-384.88826,-2.8065549)"><flowRegion
+       transform="matrix(2.4212772,0,0,2.9509006,-367.94998,13.447852)"><flowRegion
          id="flowRegion2988"><rect
            id="rect2990"
-           width="95.424126"
-           height="47.210255"
-           x="218.29184"
-           y="16.409105"
+           width="122.77421"
+           height="64.711922"
+           x="214.12987"
+           y="14.221399"
            style="font-weight:bold;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.18876266;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;-inkscape-font-specification:Sans Bold" /></flowRegion><flowPara
-         id="flowPara2992">REP</flowPara></flowRoot>  </g>
+         id="flowPara3760">SIM</flowPara></flowRoot>  </g>
 </svg>

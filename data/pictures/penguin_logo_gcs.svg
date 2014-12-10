@@ -9,14 +9,14 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:export-ydpi="12"
-   inkscape:export-xdpi="12"
-   inkscape:export-filename="/home/karlito/MAV/delfly_desperado/paparazzi/data/pictures/icon_mes.png"
+   inkscape:export-ydpi="12.845805"
+   inkscape:export-xdpi="12.845805"
+   inkscape:export-filename="/home/gautier/dev/paparazzi/data/pictures/penguin_icon_gcs.png"
    width="360"
    height="330"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.48.4 r9939"
+   inkscape:version="0.48.5 r10040"
    sodipodi:docname="penguin_logo_gcs.svg"
    version="1.1">
   <defs
@@ -29,14 +29,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.2277142"
-     inkscape:cx="242.70492"
+     inkscape:cx="94.054689"
      inkscape:cy="180.73241"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
-     inkscape:window-width="1366"
-     inkscape:window-height="744"
-     inkscape:window-x="0"
-     inkscape:window-y="24"
+     inkscape:window-width="1293"
+     inkscape:window-height="748"
+     inkscape:window-x="-2"
+     inkscape:window-y="-3"
      showgrid="false"
      fit-margin-top="10"
      fit-margin-left="10"
@@ -51,7 +51,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -90,13 +90,15 @@
     <flowRoot
        xml:space="preserve"
        id="flowRoot2986"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       transform="matrix(1.6708683,0,0,1.9988508,-168.28151,-2.1057021)"><flowRegion
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.18876266;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Sans"
+       transform="matrix(2.3973979,0,0,3.0095594,-385.11838,-14.797054)"><flowRegion
          id="flowRegion2988"><rect
            id="rect2990"
            width="95.424126"
            height="47.210255"
            x="218.29184"
-           y="16.409105" /></flowRegion><flowPara
-         id="flowPara2992">GCS</flowPara></flowRoot>  </g>
+           y="16.409105"
+           style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.18876266;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" /></flowRegion><flowPara
+         id="flowPara2992"
+         style="font-weight:bold;line-height:125%;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.18876266;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;-inkscape-font-specification:Sans Bold">GCS</flowPara></flowRoot>  </g>
 </svg>

@@ -35,13 +35,22 @@ val icon_file : string
 (** PNG paparazzi logo icon (48 x 48, 8-bit/color RGBA, non-interlaced) *)
 
 val icon_mes_file : string
-(** PNG paparazzi logo icon (48 x 48, 8-bit/color RGBA, non-interlaced) *)
+(** PNG paparazzi logo icon for messages (48 x 48, 8-bit/color RGBA, non-interlaced) *)
 
 val icon_gcs_file : string
-(** PNG paparazzi logo icon (48 x 48, 8-bit/color RGBA, non-interlaced) *)
+(** PNG paparazzi logo icon for GCS (48 x 48, 8-bit/color RGBA, non-interlaced) *)
 
 val icon_rep_file : string
-(** PNG paparazzi logo icon (48 x 48, 8-bit/color RGBA, non-interlaced) *)
+(** PNG paparazzi logo icon for replay (48 x 48, 8-bit/color RGBA, non-interlaced) *)
+
+val icon_rtp_file : string
+(** PNG paparazzi logo icon for RT plotter (48 x 48, 8-bit/color RGBA, non-interlaced) *)
+
+val icon_log_file : string
+(** PNG paparazzi logo icon for log plotter (48 x 48, 8-bit/color RGBA, non-interlaced) *)
+
+val icon_sim_file : string
+(** PNG paparazzi logo icon for simulator (48 x 48, 8-bit/color RGBA, non-interlaced) *)
 
 val gconf_file : string
 (** XML preferences file à la gconf *)

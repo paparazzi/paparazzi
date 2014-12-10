@@ -9,15 +9,15 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:export-ydpi="13.01829"
-   inkscape:export-xdpi="13.01829"
-   inkscape:export-filename="/home/gautier/dev/paparazzi/data/pictures/penguin_icon_rep.png"
+   inkscape:export-ydpi="13.132325"
+   inkscape:export-xdpi="13.132325"
+   inkscape:export-filename="/home/gautier/dev/paparazzi/data/pictures/penguin_icon_rtp.png"
    width="360"
    height="330"
    id="svg2"
    sodipodi:version="0.32"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="penguin_logo_rep.svg"
+   sodipodi:docname="penguin_logo_rtp.svg"
    version="1.1">
   <defs
      id="defs3" />
@@ -99,5 +99,5 @@
            x="218.29184"
            y="16.409105"
            style="font-weight:bold;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.18876266;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;-inkscape-font-specification:Sans Bold" /></flowRegion><flowPara
-         id="flowPara2992">REP</flowPara></flowRoot>  </g>
+         id="flowPara2992">RTP</flowPara></flowRoot>  </g>
 </svg>
