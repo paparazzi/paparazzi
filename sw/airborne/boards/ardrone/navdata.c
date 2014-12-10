@@ -332,6 +332,7 @@ static void mag_freeze_check(void) {
 
         // do the navboard reset via GPIOs
         gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
+        usleep(20000); //Otherwise set sometime does not work
         gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
 
         //// wait 20ms to retrieve data
@@ -339,7 +340,12 @@ static void mag_freeze_check(void) {
 
         //// restart acquisition
         cmd = 0x01;
-        navdata_write(&cmd, 1);
+        usleep(5000);
+        for (int i=0;i<10;i++)
+        {
+          usleep(1000);
+          navdata_write(&cmd, 1);
+        }
       }
 
       MagFreezeCounter = 0; // reset counter back to zero
@@ -499,6 +505,7 @@ void navdata_update()
   // Check if initialized
   if (!nav_port.isInitialized) {
     navdata_init();
+    mag_freeze_check();
     return;
   }
 
