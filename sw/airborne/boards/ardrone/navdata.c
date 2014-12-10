@@ -58,6 +58,7 @@ static int nav_fd = 0;
 measures_t navdata;
 
 static int imu_lost = 0;
+static int imu_lost_counter = 0;
 
 /** Sonar offset.
  *  Offset value in ADC
@@ -158,7 +159,7 @@ static void send_filter_status(struct transport_tx *trans, struct link_device *d
   uint8_t mde = 3;
   if (ahrs.status == AHRS_UNINIT) mde = 2;
   if (imu_lost) mde = 5;
-  uint16_t val = 0;
+  uint16_t val = imu_lost_counter;
   pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &val);
 }
 
@@ -317,6 +318,7 @@ static void mag_freeze_check(void) {
       printf("Mag needs resetting, Values are frozen!!! %d , %d \n", LastMagValue, navdata.mx);
       // set imu_lost flag
       imu_lost = 1;
+      imu_lost_counter++;
 
       if (mag_freeze_retry < MAG_FREEZE_MAX_RETRY) {
         printf("Setting GPIO 177 to reset PIC Navigation Board \n");
