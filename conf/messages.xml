@@ -233,7 +233,7 @@
 <!-- Current value of one variable from the dl_settings (airframe.xml) -->
   <message name="DL_VALUE" id="31">
     <field name="index" type="uint8"/>
-    <field name="value" type="float"/>
+    <field name="value" type="double"/>
   </message>
 
 
@@ -2722,7 +2722,7 @@
  <message name="DL_SETTING" id="26">
   <field name="ac_id" type="string"/>
   <field name="index" type="uint8"/>
-  <field name="value" type="float"/>
+  <field name="value" type="double"/>
  </message>
 
  <message name="JUMP_TO_BLOCK" id="27">

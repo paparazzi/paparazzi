@@ -89,7 +89,7 @@ static void dl_handle_msg(struct DownlinkTransport *tp) {
   case DL_SETTING :
     {
       uint8_t i = DL_SETTING_index(my_dl_buffer);
-      float var = DL_SETTING_value(my_dl_buffer);
+      double var = DL_SETTING_value(my_dl_buffer);
       // DlSetting(i, var);
       DOWNLINK_SEND_DL_VALUE(tp, &i, &var);
     }

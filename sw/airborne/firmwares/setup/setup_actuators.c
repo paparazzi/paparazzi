@@ -134,7 +134,7 @@ void dl_parse_msg( void ) {
 #ifdef DlSetting
   else if (msg_id == DL_SETTING && DL_SETTING_ac_id(dl_buffer) == AC_ID) {
     uint8_t i = DL_SETTING_index(dl_buffer);
-    float val = DL_SETTING_value(dl_buffer);
+    double val = DL_SETTING_value(dl_buffer);
     DlSetting(i, val);
     LED_TOGGLE(2);
 
@@ -169,7 +169,7 @@ void dl_parse_msg( void ) {
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
   } else if (msg_id == DL_GET_SETTING && DL_GET_SETTING_ac_id(dl_buffer) == AC_ID) {
     uint8_t i = DL_GET_SETTING_index(dl_buffer);
-    float val = settings_get_value(i);
+    double val = settings_get_value(i);
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
   }
 #endif

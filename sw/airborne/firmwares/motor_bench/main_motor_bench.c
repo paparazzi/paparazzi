@@ -118,7 +118,7 @@ static inline void main_dl_parse_msg(void) {
   if (msg_id == DL_SETTING) {
     LED_TOGGLE(1);
     uint8_t i = DL_SETTING_index(dl_buffer);
-    float var = DL_SETTING_value(dl_buffer);
+    double var = DL_SETTING_value(dl_buffer);
     DlSetting(i, var);
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &var);
   }

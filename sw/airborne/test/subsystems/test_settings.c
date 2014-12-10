@@ -91,7 +91,7 @@ void dl_parse_msg(void) {
   case DL_SETTING:
     if (DL_SETTING_ac_id(dl_buffer) == AC_ID) {
       uint8_t i = DL_SETTING_index(dl_buffer);
-      float val = DL_SETTING_value(dl_buffer);
+      double val = DL_SETTING_value(dl_buffer);
       DlSetting(i, val);
       DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
     }
