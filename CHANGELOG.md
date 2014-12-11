@@ -1,7 +1,7 @@
-Paparazzi 5.3_devel
-===================
+Paparazzi 5.3.0_testing
+=======================
 
-currently ongoing development, changes so far (no particular order, nor complete)
+First release candidate for v5.4 stable release.
 
 General
 -------
