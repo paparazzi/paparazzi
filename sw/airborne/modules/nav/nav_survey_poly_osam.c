@@ -23,7 +23,6 @@
  * @file modules/nav/nav_survey_poly_osam.c
  *
  */
-
 #include "modules/nav/nav_survey_poly_osam.h"
 
 #include "firmwares/fixedwing/nav.h"
@@ -59,9 +58,15 @@
 #define POLY_OSAM_POLYGONSIZE 10
 #endif
 
+#ifdef POLY_OSAM_USE_HALF_CIRCLE
+#define USE_FULL_CIRCLE 0
+#else
+#define USE_FULL_CIRCLE 1
+#endif
+
 uint8_t Poly_Size = POLY_OSAM_DEFAULT_SIZE;
 float Poly_Sweep = POLY_OSAM_DEFAULT_SWEEP;
-bool_t use_full_circle = true;
+bool_t use_full_circle = USE_FULL_CIRCLE;
 
 bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
 {
@@ -117,7 +122,6 @@ static float SurveyCircleQdr;
 static float MaxY;
 uint16_t PolySurveySweepNum;
 uint16_t PolySurveySweepBackNum;
-float PolySurveyEntryRadius = POLY_OSAM_ENTRY_RADIUS;
 float EntryRadius;
 
 bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
@@ -132,10 +136,13 @@ bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float
   float temp;
   float XIntercept1 = 0;
   float XIntercept2 = 0;
-  float entry_sweep = POLY_OSAM_FIRST_SWEEP_DISTANCE;
+  float entry_distance;
+
+  float PolySurveyEntryDistance = POLY_OSAM_FIRST_SWEEP_DISTANCE;
+  float PolySurveyEntryRadius = POLY_OSAM_ENTRY_RADIUS;
   
-  if (entry_sweep == 0) entry_sweep = sw/2;
-  if (PolySurveyEntryRadius ==0) PolySurveyEntryRadius = sw/2;
+  if (PolySurveyEntryDistance == 0) entry_distance = sw/2; else entry_distance = PolySurveyEntryDistance;
+  if (PolySurveyEntryRadius == 0) EntryRadius = sw/2; else EntryRadius = PolySurveyEntryRadius;
 
   SurveyTheta = RadOfDeg(Orientation);
   PolySurveySweepNum = 0;
@@ -260,13 +267,13 @@ bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float
     //Find amount to increment by every sweep
     if(EntryPoint.y >= MaxY/2)
     {
-      entry_sweep = -entry_sweep;
-      EntryRadius = -PolySurveyEntryRadius;
+      entry_distance = -entry_distance;
+      EntryRadius = -EntryRadius;
       dSweep = -sw;
     }
     else
     {
-      EntryRadius = PolySurveyEntryRadius;
+      EntryRadius = EntryRadius;
       dSweep = sw;
     }
 
@@ -277,7 +284,7 @@ bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float
       SurveyCircleQdr = 180-DegOfRad(SurveyTheta);
 
     //Find y value of the first sweep
-    ys = EntryPoint.y+entry_sweep;
+    ys = EntryPoint.y+entry_distance;
 
     //Find the edges which intercet the sweep line first
     for(i = 0; i < SurveySize; i++)
@@ -317,7 +324,7 @@ bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float
 
     //Find the entry circle
     SurveyCircle.x = SurveyFromWP.x;
-    SurveyCircle.y = EntryPoint.y + entry_sweep - EntryRadius;
+    SurveyCircle.y = EntryPoint.y + entry_distance - EntryRadius;
 
     //Go into entry circle state
     CSurveyStatus = Entry;
@@ -349,6 +356,7 @@ bool_t nav_survey_poly_osam_run(void)
 
   switch(CSurveyStatus)
   {
+    
   case Entry:
     //Rotate and translate circle point into real world
     C.x = SurveyCircle.x;
@@ -363,22 +371,42 @@ bool_t nav_survey_poly_osam_run(void)
     {
       CSurveyStatus = Sweep;
       nav_init_stage();
-      LINE_START_FUNCTION;
+      //LINE_START_FUNCTION;
     }
     break;
   case Sweep:
     LastHalfSweep = HalfSweep;
-    //Rotate and Translate Line points into real world
     ToP.x = SurveyToWP.x;
     ToP.y = SurveyToWP.y;
     FromP.x = SurveyFromWP.x;
     FromP.y = SurveyFromWP.y;
 
+    //Rotate and Translate de plane position to local world
+    C.x = stateGetPositionEnu_f()->x;
+    C.y = stateGetPositionEnu_f()->y;
+    TranslateAndRotateFromWorld(&C, SurveyTheta, 0, 0);
+    TranslateAndRotateFromWorld(&C, 0, SmallestCorner.x, SmallestCorner.y);
+
+    //calc distance from line start and plane position (use only X position because y can be far due to wind or other factor)
+    float dist = FromP.x - C.x;
+
+    //Rotate and Translate Line points into real world
     RotateAndTranslateToWorld(&ToP, 0, SmallestCorner.x, SmallestCorner.y);
     RotateAndTranslateToWorld(&ToP, SurveyTheta, 0, 0);
 
     RotateAndTranslateToWorld(&FromP, 0, SmallestCorner.x, SmallestCorner.y);
     RotateAndTranslateToWorld(&FromP, SurveyTheta, 0, 0);
+
+    //calc distance from line start and plane position
+    //float ph_x = FromP.x - stateGetPositionEnu_f()->x;
+    //float ph_y = FromP.y - stateGetPositionEnu_f()->y;
+    //float dist = sqrtf(ph_x*ph_x + ph_y*ph_y);
+
+    // verify if plane are less than 10 meter from line start 
+    if  ((dc_autoshoot == DC_AUTOSHOOT_STOP) &&  (fabs(dist) < 10))
+    {
+      LINE_START_FUNCTION;
+    }
 
     //follow the line
     nav_route_xy(FromP.x,FromP.y,ToP.x,ToP.y);
@@ -541,7 +569,7 @@ bool_t nav_survey_poly_osam_run(void)
     {
       CSurveyStatus = Sweep;
       nav_init_stage();
-      LINE_START_FUNCTION;
+      //LINE_START_FUNCTION;
     }
     break;
   case Init:

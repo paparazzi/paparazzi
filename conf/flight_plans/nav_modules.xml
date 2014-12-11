@@ -101,7 +101,7 @@
       <call fun="nav_flower_run()"/>
     </block>
     <block name="Poly survey osam">
-      <call fun="nav_survey_poly_osam_setup(WP_S1, 5, 100, 55)"/>
+      <call fun="nav_survey_poly_osam_setup(WP_S1, 5, 100, 90)"/>
       <call fun="nav_survey_poly_osam_run()"/>
     </block>
     <block name="Poly survey osam dynamic">
