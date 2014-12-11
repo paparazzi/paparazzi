@@ -67,12 +67,10 @@ endif
 COMMON_TELEMETRY_MODEM_PORT_LOWER=$(shell echo $(MODEM_PORT) | tr A-Z a-z)
 COMMON_TELEMETRY_CFLAGS  = -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 COMMON_TELEMETRY_CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=pprz_tp -DDOWNLINK_DEVICE=$(COMMON_TELEMETRY_MODEM_PORT_LOWER)
-COMMON_TELEMETRY_CFLAGS += -DDefaultPeriodic='&telemetry_Main'
 COMMON_TELEMETRY_CFLAGS += -DDATALINK=PPRZ  -DPPRZ_UART=$(MODEM_PORT)
 COMMON_TELEMETRY_SRCS    = mcu_periph/uart.c
 COMMON_TELEMETRY_SRCS   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 COMMON_TELEMETRY_SRCS   += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
-COMMON_TELEMETRY_SRCS   += subsystems/datalink/telemetry.c
 
 #COMMON_TEST_SRCS   += math/pprz_trig_int.c
 
