@@ -42,6 +42,10 @@ General
   [#996] (https://github.com/paparazzi/paparazzi/issues/996)
 - improve dependency handling for modules
   [#1007] (https://github.com/paparazzi/paparazzi/pull/1007)
+- Settings: display unconfirmed settins with "?" as current value
+  [#1013] (https://github.com/paparazzi/paparazzi/pull/1023)
+- messages/plotter: improve drag-and-drop of fields from messages to realtime plotter
+  [#1020] (https://github.com/paparazzi/paparazzi/pull/1020)
 
 Simulation
 ----------
@@ -59,54 +63,67 @@ Simulation
 Airborne
 --------
 
+- pass dt to ahrs/ins propagation
+  [#818] (https://github.com/paparazzi/paparazzi/pull/818)
 - cleanup math lib and convert lots of macros to functions
   [#819] (https://github.com/paparazzi/paparazzi/pull/819)
 - radio_control spektrum also usable for intermcu
   [#847] (https://github.com/paparazzi/paparazzi/pull/847)
+- Replace telemetry macros with functions
+  [#931] (https://github.com/paparazzi/paparazzi/pull/931)
+  [#1027] (https://github.com/paparazzi/paparazzi/pull/1027)
+- arch: rename arch/omap to arch/linux
+  [#982] (https://github.com/paparazzi/paparazzi/pull/982)
+- radio_control: cleanup channel defines and possibility to send less than available via intermcu
+  [#975] (https://github.com/paparazzi/paparazzi/pull/975)
+- state interface: change computation order in stateCalcPositionLla_i
+  [#1013] (https://github.com/paparazzi/paparazzi/pull/1013)
+- ARDrone2: Handle memory full FTP upload error
+  [#967] (https://github.com/paparazzi/paparazzi/issues/967)
+- rotorcraft: force MODE_STARTUP instead of KILL until ahrs is aligned
+  [#983] (https://github.com/paparazzi/paparazzi/pull/983)
+- rotorcraft: fix NavCircleCount()
+- rotorcraft: datalink: check ac_id of RC_4CH message
+- rotorcraft: allow to turn off motors in failsafe mode
+  [#989] (https://github.com/paparazzi/paparazzi/pull/989)
+
+Modules
+-------
+
 - Convert air_data subsystem to module with QNH and true airspeed support
   [#853] (https://github.com/paparazzi/paparazzi/pull/853)
 - add airspeed_ms45xx_i2c module
   [#852] (https://github.com/paparazzi/paparazzi/pull/852)
-- Replace telemetry macros with functions
-  [#931] (https://github.com/paparazzi/paparazzi/pull/931)
+- airspeed_ets, retry after failed transaction
+- add temperature adc module
+  [#857] (https://github.com/paparazzi/paparazzi/pull/857)
+- clean up digital_cam, usable for rotorcrafts, show real photo coordinates in GCS
+  [#936] (https://github.com/paparazzi/paparazzi/pull/936)
+- modules: add basic mavlink module
+  [#1028] (https://github.com/paparazzi/paparazzi/pull/1028)
+- modules: improved video/images sending for ARDrone2
+  [#1021]: (https://github.com/paparazzi/paparazzi/pull/1021)
+
+Drivers/HW support
+------------------
+
+- stm32: usb_serial (CDC) impelmentation for transparent_usb telemetry
+  [#998] (https://github.com/paparazzi/paparazzi/pull/998)
+- stm32: add usb_tunnel
+  [#1014] (https://github.com/paparazzi/paparazzi/pull/1014)
 - Add Furuno NMEA based GPS
   [#959] (https://github.com/paparazzi/paparazzi/pull/959)
 - Driver for MPU9250
   [#953] (https://github.com/paparazzi/paparazzi/pull/953)
 - Driver for AKM8963 magnetometer
   [#947] (https://github.com/paparazzi/paparazzi/pull/947)
-- Basic linux I2C driver
-  [#961] (https://github.com/paparazzi/paparazzi/pull/961)
-- ARDrone2: Handle memory full FTP upload error
-  [#967] (https://github.com/paparazzi/paparazzi/issues/967)
-- stm32: usb_serial (CDC) impelmentation for transparent_usb telemetry
-  [#998] (https://github.com/paparazzi/paparazzi/pull/998)
-- rotorcraft: force MODE_STARTUP instead of KILL until ahrs is aligned
-  [#983] (https://github.com/paparazzi/paparazzi/pull/983)
-- arch: rename arch/omap to arch/linux
-  [#982] (https://github.com/paparazzi/paparazzi/pull/982)
-- radio_control: cleanup channel defines and possibility to send less than available via intermcu
-  [#975] (https://github.com/paparazzi/paparazzi/pull/975)
 - linux: add basic I2C and SPI drivers
   [#961] (https://github.com/paparazzi/paparazzi/pull/961)
   [#979] (https://github.com/paparazzi/paparazzi/pull/979)
-- rotorcraft: fix NavCircleCount()
-- rotorcraft: datalink: check ac_id of RC_4CH message
-- modules: airspeed_ets, retry after failed transaction
-- modules: add temperature adc module
-  [#857] (https://github.com/paparazzi/paparazzi/pull/857)
-- modules: clean up digital_cam, usable for rotorcrafts, show real photo coordinates in GCS
-  [#936] (https://github.com/paparazzi/paparazzi/pull/936)
-- pass dt to ahrs/ins propagation
-  [#818] (https://github.com/paparazzi/paparazzi/pull/818)
-- rotorcraft: allow to turn off motors in failsafe mode
-  [#989] (https://github.com/paparazzi/paparazzi/pull/989)
 - actuators: basic esc32 motor controller implementation via CAN for STM32F1
   [#1004] (https://github.com/paparazzi/paparazzi/pull/1004)
-- state interface: change computation order in stateCalcPositionLla_i
-  [#1013] (https://github.com/paparazzi/paparazzi/pull/1013)
-- stm32: add usb_tunnel
-  [#1014] (https://github.com/paparazzi/paparazzi/pull/1014)
+- basic support for new Parrot Bebop
+  [#1003] (https://github.com/paparazzi/paparazzi/pull/1003)
 
 
 Paparazzi 5.2.1_stable
