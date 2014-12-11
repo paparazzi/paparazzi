@@ -63,7 +63,7 @@ void downlink_init(void)
   downlink.nb_msgs = 0;
 
 #if defined DATALINK
-#if DATALINK == PPRZ
+#if DATALINK == PPRZ || DATALINK == SUPERBITRF || DATALINK == W5100
   pprz_transport_init();
 #endif
 #if DATALINK == XBEE

@@ -46,6 +46,7 @@
 #define PPRZ 1
 #define XBEE 2
 #define SUPERBITRF 3
+#define W5100 4
 
 EXTERN bool_t dl_msg_available;
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/

@@ -70,6 +70,8 @@ enum dsm_protocol {
 #define IS_DSM2(x)          (x == DSM_DSM2P || x == DSM_DSM2_1 || x == DSM_DSM2_2)
 #define IS_DSMX(x)          (!IS_DSM2(x))
 
+#define SUPERBITRF_TX_BUFFER_SIZE 128
+
 /* The superbitrf structure */
 struct SuperbitRF {
   struct Cyrf6936 cyrf6936;                 /**< The cyrf chip used */
@@ -108,7 +110,7 @@ struct SuperbitRF {
 
   struct pprz_transport rx_transport;       /**< The receive transport */
 
-  uint8_t tx_buffer[128];                   /**< The transmit buffer */
+  uint8_t tx_buffer[SUPERBITRF_TX_BUFFER_SIZE]; /**< The transmit buffer */
   uint8_t tx_insert_idx;                    /**< The transmit buffer insert index */
   uint8_t tx_extract_idx;                   /**< The transmit buffer extract index */
 
@@ -125,10 +127,10 @@ extern void superbitrf_set_protocol(uint8_t protocol);
 
 /* The datalink defines */
 #define SuperbitRFInit() { }//superbitrf_init(); }
-#define SuperbitRFCheckFreeSpace(_x) (((superbitrf.tx_insert_idx+1) %128) != superbitrf.tx_extract_idx)
+#define SuperbitRFCheckFreeSpace(_x) (((superbitrf.tx_insert_idx+1) %SUPERBITRF_TX_BUFFER_SIZE) != superbitrf.tx_extract_idx)
 #define SuperbitRFTransmit(_x) {                                    \
     superbitrf.tx_buffer[superbitrf.tx_insert_idx] = _x;            \
-    superbitrf.tx_insert_idx = (superbitrf.tx_insert_idx+1) %128;   \
+    superbitrf.tx_insert_idx = (superbitrf.tx_insert_idx+1) %SUPERBITRF_TX_BUFFER_SIZE;   \
   }
 #define SuperbitRFSendMessage() { }
 #define SuperbitRFCheckAndParse() { }

@@ -200,15 +200,18 @@ static void send_superbit(struct transport_tx *trans, struct link_device *dev) {
 #endif
 
 // Functions for the generic device API
-static int superbitrf_check_free_space(struct SuperbitRF* p __attribute__((unused)), uint8_t len __attribute__((unused)))
+static bool_t superbitrf_check_free_space(struct SuperbitRF* p, uint8_t len)
 {
-  return (((superbitrf.tx_insert_idx+1) %128) != superbitrf.tx_extract_idx);
+  int16_t space = p->tx_extract_idx - p->tx_insert_idx;
+  if (space <= 0)
+    space += SUPERBITRF_TX_BUFFER_SIZE;
+  return (uint16_t)(space - 1) >= len;
 }
 
-static void superbitrf_transmit(struct SuperbitRF* p __attribute__((unused)), uint8_t byte)
+static void superbitrf_transmit(struct SuperbitRF* p, uint8_t byte)
 {
-  superbitrf.tx_buffer[superbitrf.tx_insert_idx] = byte;
-  superbitrf.tx_insert_idx = (superbitrf.tx_insert_idx+1) %128;
+  p->tx_buffer[p->tx_insert_idx] = byte;
+  p->tx_insert_idx = (p->tx_insert_idx+1) %SUPERBITRF_TX_BUFFER_SIZE;
 }
 
 static void superbitrf_send(struct SuperbitRF* p __attribute__((unused))) { }
@@ -506,12 +509,12 @@ void superbitrf_event(void) {
           tx_packet[1] = (superbitrf.bind_mfg_id[3])+1+superbitrf.packet_loss_bit;
         }
 
-        packet_size = (superbitrf.tx_insert_idx-superbitrf.tx_extract_idx+128 %128);
+        packet_size = (superbitrf.tx_insert_idx-superbitrf.tx_extract_idx+SUPERBITRF_TX_BUFFER_SIZE %SUPERBITRF_TX_BUFFER_SIZE);
         if(packet_size > 14)
           packet_size = 14;
 
         for(i = 0; i < packet_size; i++)
-          tx_packet[i+2] = superbitrf.tx_buffer[(superbitrf.tx_extract_idx+i) %128];
+          tx_packet[i+2] = superbitrf.tx_buffer[(superbitrf.tx_extract_idx+i) %SUPERBITRF_TX_BUFFER_SIZE];
       }
 
       // Send a packet
@@ -519,7 +522,7 @@ void superbitrf_event(void) {
 
       // Update the packet extraction
       if(!superbitrf.packet_loss)
-        superbitrf.tx_extract_idx = (superbitrf.tx_extract_idx+packet_size) %128;
+        superbitrf.tx_extract_idx = (superbitrf.tx_extract_idx+packet_size) %SUPERBITRF_TX_BUFFER_SIZE;
 
       superbitrf.state++;
       break;
@@ -632,12 +635,12 @@ void superbitrf_event(void) {
           tx_packet[1] = ((superbitrf.bind_mfg_id[3])+1+superbitrf.packet_loss_bit) % 0xFF;
         }
 
-        packet_size = (superbitrf.tx_insert_idx-superbitrf.tx_extract_idx+128 %128);
+        packet_size = (superbitrf.tx_insert_idx-superbitrf.tx_extract_idx+SUPERBITRF_TX_BUFFER_SIZE %SUPERBITRF_TX_BUFFER_SIZE);
         if(packet_size > 14)
           packet_size = 14;
 
         for(i = 0; i < packet_size; i++)
-          tx_packet[i+2] = superbitrf.tx_buffer[(superbitrf.tx_extract_idx+i) %128];
+          tx_packet[i+2] = superbitrf.tx_buffer[(superbitrf.tx_extract_idx+i) %SUPERBITRF_TX_BUFFER_SIZE];
       }
 
       // Send a packet
@@ -645,7 +648,7 @@ void superbitrf_event(void) {
 
       // Update the packet extraction
       if(!superbitrf.packet_loss)
-        superbitrf.tx_extract_idx = (superbitrf.tx_extract_idx+packet_size) %128;
+        superbitrf.tx_extract_idx = (superbitrf.tx_extract_idx+packet_size) %SUPERBITRF_TX_BUFFER_SIZE;
 
       superbitrf.state++;
       break;
