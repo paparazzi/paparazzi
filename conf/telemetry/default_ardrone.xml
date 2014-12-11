@@ -19,6 +19,7 @@
       <message name="I2C_ERRORS"             period="4.1"/>
       <message name="UART_ERRORS"            period="3.1"/>
       <message name="DATALINK_REPORT"        period="5.1"/>
+      <message name="STATE_FILTER_STATUS"    period="3.2"/>
     </mode>
 
     <mode name="ppm">
