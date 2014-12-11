@@ -46,7 +46,7 @@
 extern mavlink_system_t mavlink_system;
 
 #ifndef MAVLINK_DEV
-#define MAVLINK_DEV UDP0
+#define MAVLINK_DEV UART1
 #endif
 
 /*
