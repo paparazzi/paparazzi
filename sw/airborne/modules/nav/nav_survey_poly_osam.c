@@ -58,15 +58,13 @@
 #define POLY_OSAM_POLYGONSIZE 10
 #endif
 
-#ifdef POLY_OSAM_USE_HALF_CIRCLE
-#define USE_FULL_CIRCLE 0
-#else
-#define USE_FULL_CIRCLE 1
+#ifndef POLY_OSAM_USE_FULL_CIRCLE
+#define POLY_OSAM_USE_FULL_CIRCLE 0
 #endif
 
 uint8_t Poly_Size = POLY_OSAM_DEFAULT_SIZE;
 float Poly_Sweep = POLY_OSAM_DEFAULT_SWEEP;
-bool_t use_full_circle = USE_FULL_CIRCLE;
+bool_t use_full_circle = POLY_OSAM_USE_FULL_CIRCLE;
 
 bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
 {
@@ -396,11 +394,6 @@ bool_t nav_survey_poly_osam_run(void)
 
     RotateAndTranslateToWorld(&FromP, 0, SmallestCorner.x, SmallestCorner.y);
     RotateAndTranslateToWorld(&FromP, SurveyTheta, 0, 0);
-
-    //calc distance from line start and plane position
-    //float ph_x = FromP.x - stateGetPositionEnu_f()->x;
-    //float ph_y = FromP.y - stateGetPositionEnu_f()->y;
-    //float dist = sqrtf(ph_x*ph_x + ph_y*ph_y);
 
     // verify if plane are less than 10 meter from line start 
     if  ((dc_autoshoot == DC_AUTOSHOOT_STOP) &&  (fabs(dist) < 10))
