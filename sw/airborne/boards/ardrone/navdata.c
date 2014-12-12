@@ -298,58 +298,51 @@ void navdata_read()
   }
 }
 
-#define MAG_FREEZE_MAX_RETRY 10
 
 static void mag_freeze_check(void)
 {
   // Thanks to Daren.G.Lee for initial fix on 20140530
   static int16_t LastMagValue = 0;
   static int MagFreezeCounter = 0;
-  static int mag_freeze_retry = 0;
-
-  // printf("lm: %d, mx: %d, mfc: %d\n", LastMagValue, navdata.mx, MagFreezeCounter);
 
   if (LastMagValue == navdata.mx) {
     MagFreezeCounter++;
 
     // has to have at least 30 times the same value to consider it a frozen magnetometer value
     if (MagFreezeCounter > 30) {
-      printf("Mag needs resetting, Values are frozen!!! %d , %d \n", LastMagValue, navdata.mx);
+      //printf("Magetometer is frozen. Lastvalue X: %d , currentvalue X: %d resetting...", LastMagValue, navdata.mx);
       // set imu_lost flag
       imu_lost = 1;
       imu_lost_counter++;
 
-      if (mag_freeze_retry < MAG_FREEZE_MAX_RETRY) {
-        printf("Setting GPIO 177 to reset PIC Navigation Board \n");
-        mag_freeze_retry++;
+      // stop acquisition
+      uint8_t cmd = 0x02;
+      navdata_write(&cmd, 1);
+      // do the navboard reset via GPIOs
+      gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
+      // a delay added, otherwise gpio_set sometime does not work
+      usleep(20000);
+      gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
 
-        uint8_t mde = 5;
-        uint16_t val = 0;
-        DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &val);
+      //uint8_t mde = 5;
+      //uint16_t val = 0;
+      //DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &val);
 
-        // stop acquisition
-        uint8_t cmd=0x02;
+      // wait 40ms to retrieve data
+      usleep(40000);
+
+      // restart acquisition
+      cmd = 0x01;
+
+      // Weird, not having one more a delay and fix does not work... thus pragmatic fix
+      usleep(5000);
+
+      /* Due to the Ardrone2 NAVBoard design, one time restarting does not work
+       * in all cases, but multiple attempts do.
+       */
+      for (int i = 0; i < 10; i++) {
+        usleep(1000);
         navdata_write(&cmd, 1);
-
-        // do the navboard reset via GPIOs
-        gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
-        usleep(20000); //Otherwise set sometime does not work
-        gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
-
-        //// wait 20ms to retrieve data
-        usleep(20000);
-
-        //// restart acquisition
-        cmd = 0x01;
-        usleep(5000);
-
-        /* Due to the Ardrone2 NAVBoard design, one time restarting does not work
-         * in all cases, but multiple attempts do.
-         */
-        for (int i = 0; i < 10; i++) {
-          usleep(1000);
-          navdata_write(&cmd, 1);
-        }
       }
 
       MagFreezeCounter = 0; // reset counter back to zero
@@ -358,7 +351,6 @@ static void mag_freeze_check(void)
     imu_lost = 0;
     // Reset counter if value _does_ change
     MagFreezeCounter = 0;
-    mag_freeze_retry = 0;
   }
   // set last value
   LastMagValue = navdata.mx;
@@ -373,7 +365,6 @@ static void baro_update_logic(void)
   static uint8_t temp_or_press_was_updated_last = 0; // 0 = press, so we now wait for temp, 1 = temp so we now wait for press
 
   static int sync_errors = 0;
-  static int spikes = 0;
   static int spike_detected = 0;
 
   if (temp_or_press_was_updated_last == 0) { // Last update was press so we are now waiting for temp
