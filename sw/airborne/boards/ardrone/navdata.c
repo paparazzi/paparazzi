@@ -503,7 +503,6 @@ static void baro_update_logic(void)
 
 void navdata_update()
 {
-  static bool_t last_checksum_wrong = FALSE;
   // Check if initialized
   if (!nav_port.isInitialized) {
     navdata_init();
@@ -543,8 +542,8 @@ void navdata_update()
       nav_port.last_packet_number = navdata.nu_trame;
       //printf("%d\r",navdata.nu_trame);
 
-      // When we already dropped a packet or checksum is correct
-      if(last_checksum_wrong || navdata.chksum == checksum) {
+      // When checksum is correct
+      if(navdata.chksum == checksum) {
         // Invert byte order so that TELEMETRY works better
         uint8_t tmp;
         uint8_t* p = (uint8_t*) &(navdata.pressure);
@@ -574,7 +573,6 @@ void navdata_update()
 #endif
 
         navdata_imu_available = TRUE;
-        last_checksum_wrong = FALSE;
         nav_port.packetsRead++;
       }
 
