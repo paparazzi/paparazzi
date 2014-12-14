@@ -54,7 +54,7 @@
 
   <periodic fun="gpio_cam_ctrl_periodic()" freq="4" autorun="TRUE"/>
 
-  <makefile >
+  <makefile target="ap|sim|nps|jsbsim">
     <define name="DIGITAL_CAM" />
     <file name="gpio_cam_ctrl.c"/>
     <file name="dc.c"/>
