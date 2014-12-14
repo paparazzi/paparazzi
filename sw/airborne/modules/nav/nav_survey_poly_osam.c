@@ -392,21 +392,22 @@ bool_t nav_survey_poly_osam_run(void)
     TranslateAndRotateFromWorld(&C, SurveyTheta, 0, 0);
     TranslateAndRotateFromWorld(&C, 0, SmallestCorner.x, SmallestCorner.y);
 
-    //calc distance from line start and plane position (use only X position because y can be far due to wind or other factor)
-    float dist = FromP.x - C.x;
+    {
+      //calc distance from line start and plane position (use only X position because y can be far due to wind or other factor)
+      float dist = FromP.x - C.x;
 
+      // verify if plane are less than 10 meter from line start
+      if  ((dc_autoshoot == DC_AUTOSHOOT_STOP) &&  (fabs(dist) < 10))
+      {
+        LINE_START_FUNCTION;
+      }
+    }
     //Rotate and Translate Line points into real world
     RotateAndTranslateToWorld(&ToP, 0, SmallestCorner.x, SmallestCorner.y);
     RotateAndTranslateToWorld(&ToP, SurveyTheta, 0, 0);
 
     RotateAndTranslateToWorld(&FromP, 0, SmallestCorner.x, SmallestCorner.y);
     RotateAndTranslateToWorld(&FromP, SurveyTheta, 0, 0);
-
-    // verify if plane are less than 10 meter from line start
-    if  ((dc_autoshoot == DC_AUTOSHOOT_STOP) &&  (fabs(dist) < 10))
-    {
-      LINE_START_FUNCTION;
-    }
 
     //follow the line
     nav_route_xy(FromP.x,FromP.y,ToP.x,ToP.y);
