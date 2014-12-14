@@ -31,6 +31,10 @@
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 
+#ifdef DIGITAL_CAM
+#include "modules/digital_cam/dc.h"
+#endif
+
 #ifndef POLY_OSAM_DEFAULT_SIZE
 #define POLY_OSAM_DEFAULT_SIZE 5
 #endif
@@ -392,6 +396,7 @@ bool_t nav_survey_poly_osam_run(void)
     TranslateAndRotateFromWorld(&C, SurveyTheta, 0, 0);
     TranslateAndRotateFromWorld(&C, 0, SmallestCorner.x, SmallestCorner.y);
 
+#ifdef DIGITAL_CAM
     {
       //calc distance from line start and plane position (use only X position because y can be far due to wind or other factor)
       float dist = FromP.x - C.x;
@@ -402,6 +407,8 @@ bool_t nav_survey_poly_osam_run(void)
         LINE_START_FUNCTION;
       }
     }
+#endif
+
     //Rotate and Translate Line points into real world
     RotateAndTranslateToWorld(&ToP, 0, SmallestCorner.x, SmallestCorner.y);
     RotateAndTranslateToWorld(&ToP, SurveyTheta, 0, 0);
