@@ -72,70 +72,74 @@ static inline void autopilot_arming_set(bool_t motors_on) {
  */
 static inline void autopilot_arming_check_motors_on( void ) {
 
-  switch(autopilot_arming_state) {
-    case STATE_UNINIT:
-      autopilot_motors_on = FALSE;
-      autopilot_arming_delay_counter = 0;
-      if (THROTTLE_STICK_DOWN()) {
-        autopilot_arming_state = STATE_MOTORS_OFF_READY;
-      }
-      else {
-        autopilot_arming_state = STATE_WAITING;
-      }
-      break;
-    case STATE_WAITING:
-      autopilot_motors_on = FALSE;
-      autopilot_arming_delay_counter = 0;
-      if (THROTTLE_STICK_DOWN()) {
-        autopilot_arming_state = STATE_MOTORS_OFF_READY;
-      }
-      break;
-    case STATE_MOTORS_OFF_READY:
-      autopilot_motors_on = FALSE;
-      autopilot_arming_delay_counter = 0;
-      if (!THROTTLE_STICK_DOWN() &&
-          rc_attitude_sticks_centered() &&
-          (autopilot_mode == MODE_MANUAL || autopilot_unarmed_in_auto)) {
-        autopilot_arming_state = STATE_ARMING;
-      }
-      break;
-    case STATE_ARMING:
-      autopilot_motors_on = FALSE;
-      autopilot_arming_delay_counter++;
-      if (THROTTLE_STICK_DOWN() ||
-          !rc_attitude_sticks_centered() ||
-          (autopilot_mode != MODE_MANUAL && !autopilot_unarmed_in_auto)) {
-        autopilot_arming_state = STATE_MOTORS_OFF_READY;
-      }
-      else if (autopilot_arming_delay_counter >= AUTOPILOT_ARMING_DELAY) {
-        autopilot_arming_state = STATE_MOTORS_ON;
-      }
-      break;
-    case STATE_MOTORS_ON:
-      autopilot_motors_on = TRUE;
-      autopilot_arming_delay_counter = AUTOPILOT_ARMING_DELAY;
-      if (THROTTLE_STICK_DOWN()) {
-        autopilot_arming_state = STATE_UNARMING;
-      }
-      break;
-    case STATE_UNARMING:
-      autopilot_motors_on = TRUE;
-      autopilot_arming_delay_counter--;
-      if (!THROTTLE_STICK_DOWN()) {
-        autopilot_arming_state = STATE_MOTORS_ON;
-      }
-      else if (autopilot_arming_delay_counter == 0) {
-        autopilot_arming_state = STATE_MOTORS_OFF_READY;
-        if (autopilot_mode != MODE_MANUAL) {
-          autopilot_unarmed_in_auto = TRUE;
+  /* only allow switching motor if not in KILL mode */
+  if (autopilot_mode != AP_MODE_KILL) {
+
+    switch(autopilot_arming_state) {
+      case STATE_UNINIT:
+        autopilot_motors_on = FALSE;
+        autopilot_arming_delay_counter = 0;
+        if (THROTTLE_STICK_DOWN()) {
+          autopilot_arming_state = STATE_MOTORS_OFF_READY;
         }
         else {
-          autopilot_unarmed_in_auto = FALSE;
+          autopilot_arming_state = STATE_WAITING;
         }
-      }
-      break;
-    default:
-      break;
+        break;
+      case STATE_WAITING:
+        autopilot_motors_on = FALSE;
+        autopilot_arming_delay_counter = 0;
+        if (THROTTLE_STICK_DOWN()) {
+          autopilot_arming_state = STATE_MOTORS_OFF_READY;
+        }
+        break;
+      case STATE_MOTORS_OFF_READY:
+        autopilot_motors_on = FALSE;
+        autopilot_arming_delay_counter = 0;
+        if (!THROTTLE_STICK_DOWN() &&
+            rc_attitude_sticks_centered() &&
+            (autopilot_mode == MODE_MANUAL || autopilot_unarmed_in_auto)) {
+          autopilot_arming_state = STATE_ARMING;
+        }
+        break;
+      case STATE_ARMING:
+        autopilot_motors_on = FALSE;
+        autopilot_arming_delay_counter++;
+        if (THROTTLE_STICK_DOWN() ||
+            !rc_attitude_sticks_centered() ||
+            (autopilot_mode != MODE_MANUAL && !autopilot_unarmed_in_auto)) {
+          autopilot_arming_state = STATE_MOTORS_OFF_READY;
+        }
+        else if (autopilot_arming_delay_counter >= AUTOPILOT_ARMING_DELAY) {
+          autopilot_arming_state = STATE_MOTORS_ON;
+        }
+        break;
+      case STATE_MOTORS_ON:
+        autopilot_motors_on = TRUE;
+        autopilot_arming_delay_counter = AUTOPILOT_ARMING_DELAY;
+        if (THROTTLE_STICK_DOWN()) {
+          autopilot_arming_state = STATE_UNARMING;
+        }
+        break;
+      case STATE_UNARMING:
+        autopilot_motors_on = TRUE;
+        autopilot_arming_delay_counter--;
+        if (!THROTTLE_STICK_DOWN()) {
+          autopilot_arming_state = STATE_MOTORS_ON;
+        }
+        else if (autopilot_arming_delay_counter == 0) {
+          autopilot_arming_state = STATE_MOTORS_OFF_READY;
+          if (autopilot_mode != MODE_MANUAL) {
+            autopilot_unarmed_in_auto = TRUE;
+          }
+          else {
+            autopilot_unarmed_in_auto = FALSE;
+          }
+        }
+        break;
+      default:
+        break;
+    }
   }
 
 }
