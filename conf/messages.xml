@@ -268,9 +268,9 @@
   </message>
 
   <message name="MKK" id="36">
-    <field name="nr" type="int8" unit="mA"/>
+    <field name="nr" type="uint8"/>
     <field name="rpm" type="uint8" unit="Poles/s"/>
-    <field name="current" type="int8" unit="mA"/>
+    <field name="current" type="uint8" unit="mA"/>
     <field name="temp" type="int8" unit="deg"/>
   </message>
 
