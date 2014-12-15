@@ -1,3 +1,24 @@
+Paparazzi 5.3.1_testing
+=======================
+
+Second release candidate for v5.4 stable release.
+
+- modules: nav_survey_poly_osam improvements
+  [#938] (https://github.com/paparazzi/paparazzi/pull/938)
+- ARDrone2: mag freeze detection
+  [#1025] (https://github.com/paparazzi/paparazzi/pull/1025)
+  [#1026] (https://github.com/paparazzi/paparazzi/pull/1026)
+  [#1030] (https://github.com/paparazzi/paparazzi/pull/1030)
+- ARDrone2: remove unneeded last_checksum_wrong
+  [#1032] (https://github.com/paparazzi/paparazzi/pull/1032)
+- rotorcraft: fix USE_KILL_SWITCH_FOR_MOTOR_ARMING
+  [#1038] (https://github.com/paparazzi/paparazzi/pull/1038)
+- server: log LINK_REPORT message
+  [#1031] (https://github.com/paparazzi/paparazzi/issues/1031)
+- stm32: partial Lisa MX luftboot support
+  [#1017] (https://github.com/paparazzi/paparazzi/pull/1017)
+
+
 Paparazzi 5.3.0_testing
 =======================
 
