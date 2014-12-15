@@ -10,6 +10,7 @@
       	<define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1"/>
       </subsystem>
       <configure name="NO_LUFTBOOT" value="1"/>
+      <configure name="FLASH_MODE" value="SWD" />
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
     </target>
 
