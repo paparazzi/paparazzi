@@ -329,7 +329,11 @@ static void mag_freeze_check(void)
       //DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &val);
 
       // wait 40ms to retrieve data
-      usleep(40000);
+      // using 40 times a 1ms wait in case the usleep function
+      // is interupted by a signal
+      for (int i = 0; i < 40; i++) {
+        usleep(1000);
+      }
 
       // restart acquisition
       cmd = 0x01;
