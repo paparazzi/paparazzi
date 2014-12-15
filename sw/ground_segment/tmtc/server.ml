@@ -733,6 +733,7 @@ let link_report = fun logging _sender vs ->
       ping_time = Pprz.float_assoc "ping_time" vs;
     } in
     Hashtbl.replace ac.link_status link_id link_status;
+    log logging ac_id "LINK_REPORT" vs
   with _ -> ()
 
 
