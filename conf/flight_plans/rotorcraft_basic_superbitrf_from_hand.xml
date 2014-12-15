@@ -118,7 +118,7 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
       <go wp="TD"/>
       <exception cond="NavDetectGround()" deroute="landed"/>
       <exception cond="!nav_is_in_flight()" deroute="Holding point"/>
-      <stay climb="-0.8" vmode="climb" wp="TD"/>
+      <stay climb="-0.5" vmode="climb" wp="TD"/>
     </block>
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="landed"/>
