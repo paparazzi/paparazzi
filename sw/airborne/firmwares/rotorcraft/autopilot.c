@@ -515,8 +515,8 @@ void autopilot_on_rc_frame(void) {
   /* an arming sequence is used to start/stop motors.
    * only allow switching motor if not in KILL mode and ahrs is aligned
    */
+  autopilot_arming_check_motors_on();
   if (autopilot_mode != AP_MODE_KILL && ahrs_is_aligned()) {
-    autopilot_arming_check_motors_on();
     kill_throttle = ! autopilot_motors_on;
   }
 
