@@ -41,8 +41,8 @@
     <let var="elevator_feedback_right" value="+@PITCH"/>
 
  <!-- Here the gains are defined for the two feedback cases, hover and forward-->
-    <let var="hover_left"  value="5*$aileron_feedback_left"/>
-    <let var="hover_right" value="5*$aileron_feedback_right"/>
+    <let var="hover_left"  value="15*$aileron_feedback_left"/>
+    <let var="hover_right" value="15*$aileron_feedback_right"/>
 
 <!--     if using INDI -->
 <!--    <let var="forward_left"  value="aileron_gain*$aileron_feedback_left+elevator_gain*$elevator_feedback_left"/>
@@ -138,13 +138,13 @@
     <define name="SCHEDULING_POINTS" value="{4, 10}"/>
     <define name="SCHEDULING_VARIABLE_FRAC" value="8"/>
 
-    <define name="PHI_P" value="{230, 230}"/>
-    <define name="PHI_D" value="{170, 170}"/>
+    <define name="PHI_P" value="{150, 230}"/>
+    <define name="PHI_D" value="{150, 170}"/>
     <define name="PHI_I" value="{30, 30}"/>
     <define name="PHI_DD" value="{0, 0}"/>
 
-    <define name="THETA_P" value="{300, 180}"/>
-    <define name="THETA_D" value="{50, 110}"/>
+    <define name="THETA_P" value="{100, 80}"/>
+    <define name="THETA_D" value="{100, 90}"/>
     <define name="THETA_I" value="{40, 40}"/>
     <define name="THETA_DD" value="{0, 0}"/>
 
@@ -181,12 +181,12 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(7000.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="230"/>
-    <define name="PHI_DGAIN"  value="170"/>
+    <define name="PHI_PGAIN"  value="150"/>
+    <define name="PHI_DGAIN"  value="150"/>
     <define name="PHI_IGAIN"  value="30"/>
 
-    <define name="THETA_PGAIN"  value="300"/>
-    <define name="THETA_DGAIN"  value="50"/>
+    <define name="THETA_PGAIN"  value="100"/>
+    <define name="THETA_DGAIN"  value="100"/>
     <define name="THETA_IGAIN"  value="40"/>
 
     <define name="PSI_PGAIN"  value="300"/>
