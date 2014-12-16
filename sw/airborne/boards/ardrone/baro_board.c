@@ -49,6 +49,11 @@ void baro_init(void) {
 
 void baro_periodic(void) {}
 
+/**
+ * Apply temperature and sensor calibration to get pressure in Pa.
+ * @param raw uncompensated raw pressure reading
+ * @return compensated pressure in Pascal
+ */
 static inline int32_t baro_apply_calibration(int32_t raw)
 {
   int32_t b6 = ((int32_t)baro_calibration.b5) - 4000L;
@@ -70,6 +75,11 @@ static inline int32_t baro_apply_calibration(int32_t raw)
   return press;
 }
 
+/**
+ * Apply temperature calibration.
+ * @param tmp_raw uncompensated raw temperature reading
+ * @return compensated temperature in 0.1 deg Celcius
+ */
 static inline int32_t baro_apply_calibration_temp(int32_t tmp_raw)
 {
   int32_t x1 = ((tmp_raw - ((int32_t)baro_calibration.ac6)) * ((int32_t)baro_calibration.ac5)) >> 15;
@@ -83,13 +93,13 @@ void ardrone_baro_event(void)
   if (navdata_baro_available) {
     if (baro_calibrated) {
       // first read temperature because pressure calibration depends on temperature
-      // TODO send Temperature message
-      baro_apply_calibration_temp(navdata.temperature_pressure);
-      int32_t press_raw = baro_apply_calibration(navdata.pressure);
+      float temp_deg = 0.1 * baro_apply_calibration_temp(navdata.temperature_pressure);
+      AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, &temp_deg);
+      int32_t press_pascal = baro_apply_calibration(navdata.pressure);
 #if USE_BARO_MEDIAN_FILTER
-      press_raw = update_median_filter(&baro_median, press_raw);
+      press_pascal = update_median_filter(&baro_median, press_pascal);
 #endif
-      float pressure = (float)press_raw;
+      float pressure = (float)press_pascal;
       AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
     }
     navdata_baro_available = FALSE;
