@@ -28,24 +28,21 @@
 #endif
 
 #ifndef TRACKING_AIRSPEED
-#define TRACKING_AIRSPEED NOMINAL_AIRSPEED
+#define TRACKING_AIRSPEED (1.25f * NOMINAL_AIRSPEED)
 #endif
 
-#ifndef GLIDE_AIRSPEED
-#define GLIDE_AIRSPEED NOMINAL_AIRSPEED
+#ifndef LANDING_AIRSPEED
+#define LANDING_AIRSPEED  (0.8f * NOMINAL_AIRSPEED)
 #endif
 
 #ifndef TAKEOFF_PITCH_ANGLE
 #define TAKEOFF_PITCH_ANGLE 0
 #endif
 
-#ifndef FLARE_PITCH_ANGLE
-#define FLARE_PITCH_ANGLE 0
-#endif
 
-float set_airspeed_nominal = NOMINAL_AIRSPEED;
-float set_airspeed_tracking = TRACKING_AIRSPEED;
-float set_airspeed_glide = GLIDE_AIRSPEED;
-float set_takeoff_pitch = TAKEOFF_PITCH_ANGLE;
-float set_flare_pitch = FLARE_PITCH_ANGLE;
+float nav_airspeed_nominal_setting = NOMINAL_AIRSPEED;
+float nav_airspeed_tracking_setting = TRACKING_AIRSPEED;
+float nav_airspeed_landing_setting = LANDING_AIRSPEED;
+
+float nav_takeoff_pitch_setting = TAKEOFF_PITCH_ANGLE;
 

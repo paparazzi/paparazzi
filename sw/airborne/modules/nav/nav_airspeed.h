@@ -29,12 +29,9 @@
 #define NAV_AIRSPEED_H
 
 #include "std.h"
-#include "generated/airframe.h"
 
-extern float set_airspeed_nominal;
-extern float set_airspeed_tracking;
-extern float set_airspeed_glide;
-extern float set_takeoff_pitch;
-extern float set_flare_pitch;
-
+extern float nav_airspeed_nominal_setting;
+extern float nav_airspeed_tracking_setting;
+extern float nav_airspeed_landing_setting;
+extern float nav_takeoff_pitch_setting;
 #endif
