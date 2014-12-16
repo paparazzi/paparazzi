@@ -6,7 +6,8 @@
    radio="radios/spektrum.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/mavtec_outdoor_demo.xml"
-   settings=" settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
    gui_color="#00000000ffff"
   />
   <aircraft
