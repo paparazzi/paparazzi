@@ -29,7 +29,7 @@ if [ $(bc <<< "$ASTYLE_VERSION >= 2.03") -eq 1 ]; then
         --lineend=linux   \
         --add-brackets \
         --ignore-exclude-errors-x \
-        --max-code-length=100 \
+        --max-code-length=120 \
         $*
 else
     astyle --style=kr   \
