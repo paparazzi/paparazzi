@@ -31,6 +31,7 @@ style located in the repository (paparazzi_code_profile_eclipse.xml)
 - remove any trailing white space at the end of lines.
 - use 2 spaces for indentation; do NOT use tabs.
 - use Unix line endings ('\\n'); do NOT use DOS endings ('\\r\\n')
+- limit code length to 100 chars per line
 - limit adjacent empty lines to at most two (2).
 - remove any trailing empty lines at the end of source files
 - do not "comment out" code from the tree; instead, one should either:
