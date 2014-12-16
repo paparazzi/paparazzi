@@ -1,8 +1,8 @@
 <!-- Table of default units convertion -->
 <!-- used to convert from unit to alt_unit (messages) or code_unit (airframe) -->
 <units>
-  <unit from="m" to="ft" coef="0.3048"/>
-  <unit from="ft" to="m" coef="3.28084"/>
+  <unit from="m" to="ft" coef="3.28084"/>
+  <unit from="ft" to="m" coef="0.3048"/>
   <unit from="m" to="cm" coef="100."/>
   <unit from="cm" to="m" coef="0.01"/>
   <unit from="m/s" to="cm/s" coef="100."/>
