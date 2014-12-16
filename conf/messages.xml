@@ -1438,13 +1438,13 @@
   </message>
 
   <message name="VFF_EXTENDED" id="161">
-      <field name="measure1"        type="float"/>
-      <field name="measure2"        type="float"/>
+      <field name="meas_baro"      type="float"/>
+      <field name="meas_alt"       type="float"/>
       <field name="z"              type="float"/>
       <field name="zd"             type="float"/>
-      <field name="zdd"             type="float"/>
+      <field name="zdd"            type="float"/>
       <field name="bias"           type="float"/>
-      <field name="offset"           type="float"/>
+      <field name="offset"         type="float"/>
   </message>
 
   <message name="VFF" id="162">
