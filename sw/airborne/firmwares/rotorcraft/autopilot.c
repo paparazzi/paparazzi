@@ -138,6 +138,10 @@ PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO2 is AP_MODE_HOME")
 #endif
 #endif
 
+#if MODE_MANUAL == AP_MODE_NAV
+#error "MODE_MANUAL mustn't be AP_MODE_NAV"
+#endif
+
 static void send_alive(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_ALIVE(trans, dev, AC_ID, 16, MD5SUM);
 }
