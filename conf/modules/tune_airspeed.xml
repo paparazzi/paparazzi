@@ -1,0 +1,35 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav">
+  <doc>
+    <description>NAV AIRSPEED.
+      Navigation Airspeeds to be called from the flightplan.
+      The included settings allow tuning of your different airspeeds
+      In your flightplans you call the airspeeds with
+      set var=v_ctl_auto_airspeed_setpoint value=nav_airspeed_nominal_setting
+      set var=v_ctl_auto_airspeed_setpoint value=nav_airspeed_tracking_setting
+      set var=v_ctl_auto_airspeed_setpoint value=nav_airspeed_landing_setting
+      attitude pitch=DegOfRad(nav_takeoff_pitch_setting) ...
+    </description>
+    <define name="NOMINAL_AIRSPEED" value="15" description="m/s (required))"/>
+    <define name="TRACKING_AIRSPEED" value="20" description="m/s (default: (1.25f * NOMINAL_AIRSPEED))"/>
+    <define name="LANDING_AIRSPEED" value="12" description="m/s (default: (0.8f * NOMINAL_AIRSPEED)"/>
+    </doc>
+  <settings>
+    <dl_settings name="control">
+      <dl_settings name="airspeed">
+        <dl_setting max="50" min="5" step="0.5" var="nav_airspeed_nominal_setting" shortname="nominal"/>
+        <dl_setting max="50" min="5" step="0.5" var="nav_airspeed_tracking_setting" shortname="tracking"/>
+        <dl_setting max="50" min="5" step="0.5" var="nav_airspeed_landing_setting" shortname="landing"/>
+        <dl_setting max="80" min="-10" step="0.5" var="nav_takeoff_pitch_setting" shortname="takeoff_pitch" unit="rad" alt_unit="deg" />
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="nav_airspeed.h"/>
+  </header>
+  <makefile>
+    <file name="nav_airspeed.c"/>
+  </makefile>
+</module>
+
