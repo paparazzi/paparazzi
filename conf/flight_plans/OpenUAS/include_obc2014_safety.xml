@@ -1,0 +1,116 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<procedure>
+
+  <sectors>
+    <sector name="MissionBoundary" color="yellow">
+      <corner name="_MB1"/>
+      <corner name="_MB2"/>
+      <corner name="_MB7"/>
+      <corner name="_MB8"/>
+      <corner name="_MB9"/>
+      <corner name="_MB10"/>
+      <corner name="_MB11"/>
+      <corner name="_MB12"/>
+      <corner name="_MB13"/>
+    </sector>
+    <sector name="MissionBoundaryA" color="yellow">
+      <corner name="_MB1"/>
+      <corner name="_MB2"/>
+      <corner name="_MB7"/>
+      <corner name="_MB6"/>
+      <corner name="_MB13"/>
+    </sector>
+    <sector name="MissionBoundaryB" color="yellow">
+      <corner name="_MB6"/>
+      <corner name="_MB7"/>
+      <corner name="_MB8"/>
+      <corner name="_MB9"/>
+      <corner name="_MB10"/>
+      <corner name="_MB11"/>
+      <corner name="_MB12"/>
+      <corner name="_MB13"/>
+    </sector>
+    <sector name="AirportForbidden" color="red">
+      <corner name="_MB7"/>
+      <corner name="_MB6"/>
+      <corner name="_MB5"/>
+      <corner name="_MB4"/>
+      <corner name="_MB3"/>
+    </sector>
+    <sector name="AirportForbidden2" color="red">
+      <corner name="_MB3"/>
+      <corner name="_MB2"/>
+      <corner name="_MB7"/>
+    </sector>
+  </sectors>
+
+<!-- ****************************** EXCEPTIONS ***************************** -->
+  <exceptions>
+    <!-- RC-Loss -->
+    <!-- Handled by FTD-Radio-Control -->
+
+    <!-- Datalink-Loss: -->
+    <!-- Handled in Mission Navigation -->
+
+    <!-- GPS-Failure: -->
+    <!-- Handled in Mission Navigation -->
+
+    <!-- Baro-Failure: -->
+    <!-- Inform Operator, Fly lower, keep flying on GPS -->
+
+    <!-- Hard GeoFence -->
+    <!-- TODO Maybe ADD aditional exception with 2 sec timer here just to be sure to avoid position GPS spikes or some other jitter issues -->
+    <exception cond="((!InsideMissionBoundary(GetPosX(), GetPosY())) || (InsideAirportForbidden(GetPosX(), GetPosY())) || (InsideAirportForbidden2(GetPosX(), GetPosY()))) && gps_has_been_good()" deroute="GeoFence"/>
+
+    <!-- Failure of Autopilot -->
+    <!-- FTD will failsafe if no commands arrive during 100ms -->
+
+    <!-- Failure of Geofence detection processor -->
+    <!-- FTD will failsafe if no heartbeat arrives from AP (with GPS) during 100ms -->
+
+    <!-- Soft Altitude GeoFence 2800ft MSL-->
+    <!-- RE_ENABLE CDW <exception cond="MoreThan(GetAmsl(), 2800) && gps_has_been_good()" deroute="AlmostHeightViolation" />-->
+
+    <!-- Hard Altitude GeoFence 3000ft MSL
+    Removed: because: theoretically impossible to climb 200ft without engine.
+    - Kill is as safe as Forcecrash, but happens lower.
+    - Only option to reach hard geofence = sensor failure: then the plane IS NOT TOO high, but the engine will be killed.
+    <exception cond="MoreThan(GetAmsl(), 3000) && gps_has_been_good()" deroute="HeightViolation" />
+    -->
+
+    <!-- Case of loss of GPS AND loss of datalink -->
+    <exception cond="And(datalink_time > 10, !GpsFixValid())" deroute="DatalinkAndGpsFailure"/>
+  </exceptions>
+
+  <blocks>
+    <!-- ******* Activate the irreversible Forced Crash Command to the Flight Termination Device ******** -->
+
+    <block name="GeoFence">
+      <call fun="ForceCrash()"/>
+      <circle radius="nav_radius" wp="STDBY"/> <!-- todo add a dynamic TDFORCEDCRASH point so to notify and have it in the log  -->
+    </block>
+
+    <block name="AlmostHeightViolation">
+      <call fun="NavKillThrottle()"/>
+      <circle radius="nav_radius" wp="STDBY"/> <!-- todo add a dynamic TDFORCEDCRASH point so to notify and have it in the log  -->
+    </block>
+
+    <block name="HeightViolation">
+      <call fun="ForceCrash()"/>
+      <circle radius="nav_radius" wp="STDBY"/> <!-- todo add a dynamic TDFORCEDCRASH point so to notify and have it in the log  -->
+    </block>
+
+    <block name="DatalinkAndGpsFailure">
+      <call fun="ForceCrash()"/>
+      <circle radius="nav_radius" wp="STDBY"/> <!-- todo add a dynamic TDFORCEDCRASH point so to notify and have it in the log  -->
+    </block>
+
+    <block name="ManualTerminateRequest" strip_button="FlightTermination" strip_icon="downdownend.png">
+      <call fun="ForceCrash()"/>
+      <circle radius="nav_radius" wp="STDBY"/> <!-- todo add a dynamic TDFORCEDCRASH point so to notify and have it in the log  -->
+    </block>
+
+    </blocks>
+</procedure>
+

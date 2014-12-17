@@ -1,0 +1,33 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<procedure>
+
+  <waypoints>
+    <waypoint name="STDBY" x="0." y="-130." height="95."/>
+    <!-- DANGER, DEBUG ONLY Disable later on, used for FDT Debugging only -->
+    <waypoint name="TESTTOOFAR" x="800." y="-100." height="115."/><!-- DANGER, DEBUG ONLY Disable later on, used for FDT Debugging only -->
+  </waypoints>
+
+  <blocks>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <call fun="Fly()"/>
+        <!--   <set value="0" var="ap_state->commands[COMMAND_BRAKE]"/> -->
+      <circle alt="WaypointAlt(WP_STDBY)" radius="nav_radius" wp="STDBY"/>
+    </block>
+<!--Below routes that are handy for testing only when in the field and performing several tests -->
+<!--
+    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
+      <oval p1="1" p2="2" radius="60"/>
+    </block>
+-->
+
+<!-- WARNING: LOSS OF AIRFRAME if FTD is fully operational and tested in real life-->
+<!--
+    <block name="go too far">
+      <go wp="TOOFAR"/>
+      <circle wp="TOOFAR" radius="50"/>
+     TODO: extra comman in case exeption does not trigger? like  <GO STDBY>
+    </block>
+-->
+  </blocks>
+
+</procedure>
