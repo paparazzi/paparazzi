@@ -71,7 +71,10 @@ sbp_msg_callbacks_node_t baseline_ecef_node;
  * Every message ID has a callback associated with it to
  * receive and interpret the message payload.
  */
-static void sbp_pos_ecef_callback(uint16_t sender_id __attribute__((unused)), uint8_t len __attribute__((unused)), uint8_t msg[], void *context __attribute__((unused)))
+static void sbp_pos_ecef_callback(uint16_t sender_id __attribute__((unused)),
+                                  uint8_t len __attribute__((unused)),
+                                  uint8_t msg[],
+                                  void *context __attribute__((unused)))
 {
   sbp_pos_ecef_t pos_ecef = *(sbp_pos_ecef_t *)msg;
   gps.ecef_pos.x = (int32_t)(pos_ecef.x * 100.0);
@@ -84,7 +87,10 @@ static void sbp_pos_ecef_callback(uint16_t sender_id __attribute__((unused)), ui
 }
 
 #if USE_PIKSI_BASELINE_ECEF
-static void sbp_baseline_ecef_callback(uint16_t sender_id __attribute__((unused)), uint8_t len __attribute__((unused)), uint8_t msg[], void *context __attribute__((unused)))
+static void sbp_baseline_ecef_callback(uint16_t sender_id __attribute__((unused)),
+                                       uint8_t len __attribute__((unused)),
+                                       uint8_t msg[],
+                                       void *context __attribute__((unused)))
 {
   sbp_baseline_ecef_t baseline_ecef = *(sbp_baseline_ecef_t *)msg;
   gps.ecef_pos.x = (int32_t)(baseline_ecef.x / 10);
@@ -99,7 +105,10 @@ static void sbp_baseline_ecef_callback(uint16_t sender_id __attribute__((unused)
 }
 #endif
 
-static void sbp_vel_ecef_callback(uint16_t sender_id __attribute__((unused)), uint8_t len __attribute__((unused)), uint8_t msg[], void *context __attribute__((unused)))
+static void sbp_vel_ecef_callback(uint16_t sender_id __attribute__((unused)),
+                                  uint8_t len __attribute__((unused)),
+                                  uint8_t msg[],
+                                  void *context __attribute__((unused)))
 {
   sbp_vel_ecef_t vel_ecef = *(sbp_vel_ecef_t *)msg;
   gps.ecef_vel.x = (int32_t)(vel_ecef.x / 10);
@@ -111,7 +120,10 @@ static void sbp_vel_ecef_callback(uint16_t sender_id __attribute__((unused)), ui
   gps_piksi_available = TRUE;
 }
 
-static void sbp_pos_llh_callback(uint16_t sender_id __attribute__((unused)), uint8_t len __attribute__((unused)), uint8_t msg[], void *context __attribute__((unused)))
+static void sbp_pos_llh_callback(uint16_t sender_id __attribute__((unused)),
+                                 uint8_t len __attribute__((unused)),
+                                 uint8_t msg[],
+                                 void *context __attribute__((unused)))
 {
   sbp_pos_llh_t pos_llh = *(sbp_pos_llh_t *)msg;
   gps.lla_pos.lat = (int32_t)(pos_llh.lat * 1e7);
@@ -134,13 +146,19 @@ static void sbp_pos_llh_callback(uint16_t sender_id __attribute__((unused)), uin
 }
 
 //#if USE_PIKSI_BASELINE_NED
-//static void sbp_baseline_ned_callback(uint16_t sender_id __attribute__((unused)), uint8_t len __attribute__((unused)), uint8_t msg[], void *context __attribute__((unused)))
+//static void sbp_baseline_ned_callback(uint16_t sender_id __attribute__((unused)),
+//                                      uint8_t len __attribute__((unused)),
+//                                      uint8_t msg[],
+//                                      void *context __attribute__((unused)))
 //{
 //  sbp_baseline_ned_t baseline_ned = *(sbp_baseline_ned_t *)msg;
 //}
 //#endif
 
-static void sbp_vel_ned_callback(uint16_t sender_id __attribute__((unused)), uint8_t len __attribute__((unused)), uint8_t msg[], void *context __attribute__((unused)))
+static void sbp_vel_ned_callback(uint16_t sender_id __attribute__((unused)),
+                                 uint8_t len __attribute__((unused)),
+                                 uint8_t msg[],
+                                 void *context __attribute__((unused)))
 {
   sbp_vel_ned_t vel_ned = *(sbp_vel_ned_t *)msg;
   gps.ned_vel.x = (int32_t)(vel_ned.n / 10);
@@ -148,17 +166,23 @@ static void sbp_vel_ned_callback(uint16_t sender_id __attribute__((unused)), uin
   gps.ned_vel.z = (int32_t)(vel_ned.d / 10);
 #if GPS_USE_LATLONG
   gps.gspeed = int32_sqrt(gps.ned_vel.x * gps.ned_vel.x + gps.ned_vel.y * gps.ned_vel.y);
-  gps.course = (int32_t)(1e7*atan2(gps.ned_vel.y, gps.ned_vel.x));
+  gps.course = (int32_t)(1e7 * atan2(gps.ned_vel.y, gps.ned_vel.x));
 #endif
 }
 
-static void sbp_dops_callback(uint16_t sender_id __attribute__((unused)), uint8_t len __attribute__((unused)), uint8_t msg[], void *context __attribute__((unused)))
+static void sbp_dops_callback(uint16_t sender_id __attribute__((unused)),
+                              uint8_t len __attribute__((unused)),
+                              uint8_t msg[],
+                              void *context __attribute__((unused)))
 {
   sbp_dops_t dops = *(sbp_dops_t *)msg;
   gps.pdop = dops.pdop;
 }
 
-static void sbp_gps_time_callback(uint16_t sender_id __attribute__((unused)), uint8_t len __attribute__((unused)), uint8_t msg[], void *context __attribute__((unused)))
+static void sbp_gps_time_callback(uint16_t sender_id __attribute__((unused)),
+                                  uint8_t len __attribute__((unused)),
+                                  uint8_t msg[],
+                                  void *context __attribute__((unused)))
 {
   sbp_gps_time_t gps_time = *(sbp_gps_time_t *)msg;
   gps.week = gps_time.wn;
@@ -167,7 +191,8 @@ static void sbp_gps_time_callback(uint16_t sender_id __attribute__((unused)), ui
 
 bool_t gps_piksi_available;
 
-void gps_impl_init( void ) {
+void gps_impl_init(void)
+{
   gps_piksi_available = FALSE;
 
   /* Setup SBP nodes */
@@ -206,7 +231,8 @@ uint32_t fifo_read(uint8_t *buff, uint32_t n, void *context);
 /*
  * Event function
  */
-void gps_piksi_event(void) {
+void gps_piksi_event(void)
+{
   // fill fifo with new uart bytes
   while (uart_char_available(&(GPS_LINK))) {
     uint8_t c = uart_getch(&(GPS_LINK));
@@ -223,7 +249,8 @@ uint16_t head = 0;
 uint16_t tail = 0;
 
 /* Return 1 if true, 0 otherwise. */
-uint8_t fifo_empty(void){
+uint8_t fifo_empty(void)
+{
   if (head == tail) {
     return 1;
   }
@@ -235,12 +262,13 @@ uint8_t fifo_empty(void){
  * Returns 1 if char successfully appended to fifo.
  * Returns 0 if fifo is full.
  */
-uint8_t fifo_write(char c){
+uint8_t fifo_write(char c)
+{
   if (fifo_full()) {
     return 0;
   }
   sbp_msg_fifo[tail] = c;
-  tail = (tail+1) % FIFO_LEN;
+  tail = (tail + 1) % FIFO_LEN;
   return 1;
 }
 
@@ -248,12 +276,13 @@ uint8_t fifo_write(char c){
  * Read 1 char from fifo.
  * Returns 0 if fifo is empty, otherwise 1.
  */
-uint8_t fifo_read_char(char *c) {
+uint8_t fifo_read_char(char *c)
+{
   if (fifo_empty()) {
     return 0;
   }
   *c = sbp_msg_fifo[head];
-  head = (head+1) % FIFO_LEN;
+  head = (head + 1) % FIFO_LEN;
   return 1;
 }
 
@@ -263,7 +292,8 @@ uint8_t fifo_read_char(char *c) {
  * sbp_process().
  * Returns the number of characters successfully read.
  */
-uint32_t fifo_read(uint8_t *buff, uint32_t n, void *context __attribute__((unused))) {
+uint32_t fifo_read(uint8_t *buff, uint32_t n, void *context __attribute__((unused)))
+{
   uint32_t i;
   for (i = 0; i < n; i++) {
     if (!fifo_read_char((char *)(buff + i))) {
@@ -274,8 +304,9 @@ uint32_t fifo_read(uint8_t *buff, uint32_t n, void *context __attribute__((unuse
 }
 
 /* Return 1 if true, 0 otherwise. */
-uint8_t fifo_full(void){
-  if (((tail+1)%FIFO_LEN) == head) {
+uint8_t fifo_full(void)
+{
+  if (((tail + 1) % FIFO_LEN) == head) {
     return 1;
   }
   return 0;
