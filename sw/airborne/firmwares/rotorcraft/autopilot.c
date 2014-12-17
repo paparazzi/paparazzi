@@ -138,6 +138,10 @@ PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO2 is AP_MODE_HOME")
 #endif
 #endif
 
+#if MODE_MANUAL == AP_MODE_NAV
+#error "MODE_MANUAL mustn't be AP_MODE_NAV"
+#endif
+
 static void send_alive(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_ALIVE(trans, dev, AC_ID, 16, MD5SUM);
 }
@@ -495,21 +499,27 @@ void autopilot_on_rc_frame(void) {
 
   if (kill_switch_is_on()) {
     autopilot_set_mode(AP_MODE_KILL);
-  }
-  else if ((autopilot_mode != AP_MODE_HOME)
-#if UNLOCKED_HOME_MODE
-           || !too_far_from_home
-#endif
-           )
-  {
+  } else {
     uint8_t new_autopilot_mode = 0;
     AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
 
-#if USE_GPS
     /* don't enter NAV mode if GPS is lost (this also prevents mode oscillations) */
-    if (!(new_autopilot_mode == AP_MODE_NAV && GpsIsLost()))
+    if (!(new_autopilot_mode == AP_MODE_NAV && GpsIsLost())) {
+      /* always allow to switch to manual */
+      if (new_autopilot_mode == MODE_MANUAL) {
+        autopilot_set_mode(new_autopilot_mode);
+      }
+      /* if in HOME mode, don't allow switching to non-manual modes */
+      else if ((autopilot_mode != AP_MODE_HOME)
+#if UNLOCKED_HOME_MODE
+               /* Allowed to leave home mode when UNLOCKED_HOME_MODE */
+               || !too_far_from_home
 #endif
-      autopilot_set_mode(new_autopilot_mode);
+               )
+      {
+        autopilot_set_mode(new_autopilot_mode);
+      }
+    }
   }
 
   /* an arming sequence is used to start/stop motors.
