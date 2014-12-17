@@ -37,6 +37,7 @@
 #if GPS_USE_LATLONG
 #include "math/pprz_geodetic_float.h"
 #include "subsystems/navigation/common_nav.h"
+#include "generated/flight_plan.h"
 #endif
 
 #ifndef USE_PIKSI_ECEF
@@ -128,7 +129,7 @@ static void sbp_pos_llh_callback(uint16_t sender_id __attribute__((unused)),
   sbp_pos_llh_t pos_llh = *(sbp_pos_llh_t *)msg;
   gps.lla_pos.lat = (int32_t)(pos_llh.lat * 1e7);
   gps.lla_pos.lon = (int32_t)(pos_llh.lon * 1e7);
-  gps.lla_pos.alt = (int32_t)(pos_llh.height * 1000.);
+  int32_t alt = (int32_t)(pos_llh.height * 1000.);
 #if GPS_USE_LATLONG
   /* Computes from (lat, long) in the referenced UTM zone */
   struct LlaCoor_f lla_f;
@@ -142,6 +143,21 @@ static void sbp_pos_llh_callback(uint16_t sender_id __attribute__((unused)),
   gps.utm_pos.north = utm_f.north * 100;
   gps.utm_pos.alt = gps.lla_pos.alt;
   gps.utm_pos.zone = nav_utm_zone0;
+  // height is above ellipsoid or MSL according to bit flag (but not both are available)
+  // 0: above ellipsoid
+  // 1: above MSL
+  // we have to get the HMSL from the flight plan for now
+  if (bit_is_set(pos_llh.flags, 3)) {
+    gps.hmsl = alt;
+    gps.lla_pos.alt = alt + NAV_MSL0;
+  } else {
+    gps.lla_pos.alt = alt;
+    gps.hmsl = alt - NAV_MSL0;
+  }
+#else
+  // but here we fill the two alt with the same value since we don't know HMSL
+  gps.lla_pos.alt = alt;
+  gps.hmsl = alt;
 #endif
 }
 
