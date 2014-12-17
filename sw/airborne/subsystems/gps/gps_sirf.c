@@ -40,53 +40,56 @@ struct GpsSirf gps_sirf;
 void sirf_parse_2(void);
 void sirf_parse_41(void);
 
-void gps_impl_init( void ) {
+void gps_impl_init(void)
+{
   gps_sirf.msg_available = FALSE;
   gps_sirf.pos_available = FALSE;
   gps_sirf.msg_len = 0;
   gps_sirf.read_state = 0;
 }
 
-void sirf_parse_char(uint8_t c) {
-  switch(gps_sirf.read_state) {
-  case UNINIT:
-      if(c == 0xA0) {
+void sirf_parse_char(uint8_t c)
+{
+  switch (gps_sirf.read_state) {
+    case UNINIT:
+      if (c == 0xA0) {
         gps_sirf.msg_len = 0;
         gps_sirf.msg_buf[gps_sirf.msg_len] = c;
         gps_sirf.msg_len++;
         gps_sirf.read_state = GOT_A0;
       }
       break;
-  case GOT_A0:
-      if(c == 0xA2) {
+    case GOT_A0:
+      if (c == 0xA2) {
         gps_sirf.msg_buf[gps_sirf.msg_len] = c;
         gps_sirf.msg_len++;
         gps_sirf.read_state = GOT_A2;
-      }
-      else
+      } else {
         goto restart;
+      }
       break;
-  case GOT_A2:
+    case GOT_A2:
       gps_sirf.msg_buf[gps_sirf.msg_len] = c;
       gps_sirf.msg_len++;
-      if(c == 0xB0)
+      if (c == 0xB0) {
         gps_sirf.read_state = GOT_B0;
+      }
       break;
-  case GOT_B0:
-      if(c == 0xB3) {
+    case GOT_B0:
+      if (c == 0xB3) {
         gps_sirf.msg_buf[gps_sirf.msg_len] = c;
         gps_sirf.msg_len++;
         gps_sirf.msg_available = TRUE;
-      }
-      else
+      } else {
         goto restart;
+      }
       break;
     default:
       break;
   }
   return;
 
- restart:
+restart:
   gps_sirf.read_state = UNINIT;
 }
 
@@ -95,11 +98,12 @@ int ticks = 0;
 int start_time2 = 0;
 int ticks2 = 0;
 
-void sirf_parse_41(void) {
-  struct sirf_msg_41* p = (struct sirf_msg_41*)&gps_sirf.msg_buf[4];
+void sirf_parse_41(void)
+{
+  struct sirf_msg_41 *p = (struct sirf_msg_41 *)&gps_sirf.msg_buf[4];
 
   gps.tow = Invert4Bytes(p->tow);
-  gps.hmsl = Invert4Bytes(p->alt_msl)*10;
+  gps.hmsl = Invert4Bytes(p->alt_msl) * 10;
   gps.num_sv = p->num_sat;
   gps.nb_channels = p ->num_sat;
 
@@ -117,33 +121,35 @@ void sirf_parse_41(void) {
   utm_of_lla_f(&utm_f, &lla_f);
 
   /* copy results of utm conversion */
-  gps.utm_pos.east = utm_f.east*100;
-  gps.utm_pos.north = utm_f.north*100;
+  gps.utm_pos.east = utm_f.east * 100;
+  gps.utm_pos.north = utm_f.north * 100;
   gps.utm_pos.alt = gps.lla_pos.alt;
   gps.utm_pos.zone = nav_utm_zone0;
 #endif
 
-  gps.sacc = (Invert2Bytes(p->ehve)>>16);
-  gps.course = RadOfDeg(Invert2Bytes(p->cog))*pow(10, 5);
-  gps.gspeed = RadOfDeg(Invert2Bytes(p->sog))*pow(10, 5);
-  gps.cacc = RadOfDeg(Invert2Bytes(p->heading_err))*pow(10, 5);
+  gps.sacc = (Invert2Bytes(p->ehve) >> 16);
+  gps.course = RadOfDeg(Invert2Bytes(p->cog)) * pow(10, 5);
+  gps.gspeed = RadOfDeg(Invert2Bytes(p->sog)) * pow(10, 5);
+  gps.cacc = RadOfDeg(Invert2Bytes(p->heading_err)) * pow(10, 5);
   gps.pacc = Invert4Bytes(p->ehpe);
   gps.pdop = p->hdop * 20;
 
-  if ((p->nav_type >> 8 & 0x7) >= 0x4)
+  if ((p->nav_type >> 8 & 0x7) >= 0x4) {
     gps.fix = GPS_FIX_3D;
-  else if((p->nav_type >> 8 & 0x7) >= 0x1)
+  } else if ((p->nav_type >> 8 & 0x7) >= 0x1) {
     gps.fix = GPS_FIX_2D;
-  else
+  } else {
     gps.fix = GPS_FIX_NONE;
+  }
 
 
   //Let gps_sirf know we have a position update
   gps_sirf.pos_available = TRUE;
 }
 
-void sirf_parse_2(void) {
-  struct sirf_msg_2* p = (struct sirf_msg_2*)&gps_sirf.msg_buf[4];
+void sirf_parse_2(void)
+{
+  struct sirf_msg_2 *p = (struct sirf_msg_2 *)&gps_sirf.msg_buf[4];
 
   gps.week = Invert2Bytes(p->week);
 
@@ -151,40 +157,42 @@ void sirf_parse_2(void) {
   gps.ecef_pos.y = Invert4Bytes(p->y_pos) * 100;
   gps.ecef_pos.z = Invert4Bytes(p->z_pos) * 100;
 
-  gps.ecef_vel.x = (Invert2Bytes(p->vx)>>16)*100/8;
-  gps.ecef_vel.y = (Invert2Bytes(p->vy)>>16)*100/8;
-  gps.ecef_vel.z = (Invert2Bytes(p->vz)>>16)*100/8;
+  gps.ecef_vel.x = (Invert2Bytes(p->vx) >> 16) * 100 / 8;
+  gps.ecef_vel.y = (Invert2Bytes(p->vy) >> 16) * 100 / 8;
+  gps.ecef_vel.z = (Invert2Bytes(p->vz) >> 16) * 100 / 8;
 
-  if(gps.fix == GPS_FIX_3D) {
+  if (gps.fix == GPS_FIX_3D) {
     ticks++;
 #if DEBUG_SIRF
     printf("GPS %i %i %i %i\n", ticks, (sys_time.nb_sec - start_time), ticks2, (sys_time.nb_sec - start_time2));
 #endif
-  }
-  else if(sys_time.nb_sec - gps.last_3dfix_time > 10) {
+  } else if (sys_time.nb_sec - gps.last_3dfix_time > 10) {
     start_time = sys_time.nb_sec;
     ticks = 0;
   }
 
 }
 
-void sirf_parse_msg(void) {
+void sirf_parse_msg(void)
+{
   //Set position available to false and check if it is a valid message
   gps_sirf.pos_available = FALSE;
-  if(gps_sirf.msg_len < 8)
+  if (gps_sirf.msg_len < 8) {
     return;
+  }
 
-  if(start_time2 == 0)
+  if (start_time2 == 0) {
     start_time2 = sys_time.nb_sec;
+  }
   ticks2++;
 
   //Check the message id and parse the message
   uint8_t message_id = gps_sirf.msg_buf[4];
-  switch(message_id) {
-  case 0x29:
+  switch (message_id) {
+    case 0x29:
       sirf_parse_41();
       break;
-  case 0x02:
+    case 0x02:
       sirf_parse_2();
       break;
   }

@@ -4,7 +4,7 @@
 #include "LPC21xx.h"
 #include BOARD_CONFIG
 
-void TIMER1_ISR ( void ) __attribute__((naked));
+void TIMER1_ISR(void) __attribute__((naked));
 
 /* T1 prescaler, set T1_CLK to 5MHz, T1_CLK = PCLK / T1PCLK_DIV */
 
@@ -28,15 +28,16 @@ void TIMER1_ISR ( void ) __attribute__((naked));
 #define SAMPLES_PER_PERIOD 4
 #define SAMPLE_PERIOD (PCLK/4762/SAMPLES_PER_PERIOD/T1_PCLK_DIV)
 
-static inline void audio_telemetry_init ( void ) {
-    /* turn on DAC pins */
+static inline void audio_telemetry_init(void)
+{
+  /* turn on DAC pins */
   PINSEL1 &= 1 << 19;
   PINSEL1 |= ~(1 << 18);
   /* reset & disable timer 1   */
   T1TCR = TCR_RESET;
   /* set the prescale divider  */
   T1PR = T1_PCLK_DIV - 1;
- /* select TIMER1 as IRQ       */
+  /* select TIMER1 as IRQ       */
   VICIntSelect &= ~VIC_BIT(VIC_TIMER1);
   /* enable TIMER1 interrupt   */
   VICIntEnable = VIC_BIT(VIC_TIMER1);

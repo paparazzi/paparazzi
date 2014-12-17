@@ -69,10 +69,10 @@ PRINT_CONFIG_VAR(ASPIRIN_GYRO_LOWPASS)
 #ifndef ASPIRIN_GYRO_SMPLRT_DIV
 #  if PERIODIC_FREQUENCY <= 60
 #    define ASPIRIN_GYRO_SMPLRT_DIV 19
-     PRINT_CONFIG_MSG("Gyro output rate is 50Hz")
+PRINT_CONFIG_MSG("Gyro output rate is 50Hz")
 #  else
 #    define ASPIRIN_GYRO_SMPLRT_DIV 9
-     PRINT_CONFIG_MSG("Gyro output rate is 100Hz")
+PRINT_CONFIG_MSG("Gyro output rate is 100Hz")
 #  endif
 #endif
 PRINT_CONFIG_VAR(ASPIRIN_GYRO_SMPLRT_DIV)

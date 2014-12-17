@@ -41,18 +41,20 @@
 #define B_TX_PIN   GPIO2
 #define B_TX_PORT  B_PORT
 
-static inline void main_periodic( void );
-static inline void main_event( void );
+static inline void main_periodic(void);
+static inline void main_event(void);
 void Delay(volatile uint32_t nCount);
 
-void Delay(volatile uint32_t nCount) {
-  for(; nCount != 0; nCount--);
+void Delay(volatile uint32_t nCount)
+{
+  for (; nCount != 0; nCount--);
 }
 
-int main(void) {
+int main(void)
+{
 
   mcu_init();
-  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+  sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
 
   /* init RCC */
   rcc_periph_clock_enable(RCC_GPIOA);
@@ -60,23 +62,24 @@ int main(void) {
   /* Init GPIO for rx pins */
   gpio_set(A_RX_PORT, A_RX_PIN);
   gpio_set_mode(A_RX_PORT, GPIO_MODE_INPUT,
-          GPIO_CNF_INPUT_PULL_UPDOWN, A_RX_PIN);
+                GPIO_CNF_INPUT_PULL_UPDOWN, A_RX_PIN);
   gpio_set(B_RX_PORT, B_RX_PIN);
   gpio_set_mode(B_RX_PORT, GPIO_MODE_INPUT,
-          GPIO_CNF_INPUT_PULL_UPDOWN, B_RX_PIN);
+                GPIO_CNF_INPUT_PULL_UPDOWN, B_RX_PIN);
 
   /* Init GPIO for tx pins */
   gpio_set_mode(A_RX_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-          GPIO_CNF_OUTPUT_PUSHPULL, A_TX_PIN);
+                GPIO_CNF_OUTPUT_PUSHPULL, A_TX_PIN);
   gpio_set_mode(B_RX_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-          GPIO_CNF_OUTPUT_PUSHPULL, B_TX_PIN);
+                GPIO_CNF_OUTPUT_PUSHPULL, B_TX_PIN);
 
   gpio_clear(A_TX_PORT, A_TX_PIN);
 
   /* */
   while (1) {
-    if (sys_time_check_and_ack_timer(0))
+    if (sys_time_check_and_ack_timer(0)) {
       main_periodic();
+    }
     main_event();
   }
 
@@ -85,42 +88,46 @@ int main(void) {
 
 
 
-static inline void main_periodic( void ) {
+static inline void main_periodic(void)
+{
   LED_PERIODIC();
 }
 
-static inline void main_event( void ) {
+static inline void main_event(void)
+{
   //  Delay(2000);
   static uint8_t foo = 0;
   foo++;
 
 #if 0
-  if (!(foo%2))
+  if (!(foo % 2)) {
     gpio_set(B_TX_PORT, B_TX_PIN);
-  else
+  } else {
     gpio_clear(B_TX_PORT, B_TX_PIN);
+  }
 #endif
 
 #if 0
-  if (!(foo%2))
+  if (!(foo % 2)) {
     gpio_clear(A_TX_PORT, A_TX_PIN);
-  else
+  } else {
     gpio_set(A_TX_PORT, A_TX_PIN);
+  }
 #endif
 
 #if 1
   /* passthrough B_RX to A_TX */
-  if (GPIO_IDR(B_RX_PORT) & B_RX_PIN)
+  if (GPIO_IDR(B_RX_PORT) & B_RX_PIN) {
     gpio_set(A_TX_PORT, A_TX_PIN);
-  else
+  } else {
     gpio_clear(A_TX_PORT, A_TX_PIN);
+  }
 #endif
   /* passthrough A_RX to B_TX */
   if (gpio_get(A_RX_PORT, A_RX_PIN)) {
     gpio_set(B_TX_PORT, B_TX_PIN);
     LED_ON(2);
-  }
-  else {
+  } else {
     gpio_clear(B_TX_PORT, B_TX_PIN);
     LED_OFF(2);
   }

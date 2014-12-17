@@ -38,7 +38,8 @@ enum stats {
   FOUND_2,
   FOUND_3,
   FOUND_4,
-  FOUND_5 };
+  FOUND_5
+};
 
 int received data = 0;
 int stat = 0, received data = 0;
@@ -46,21 +47,23 @@ unsigned long count_geiger_1 = 0;
 unsigned long count_geiger_2 = 0;
 unsigned short volt_geiger = 0;
 
-void read_i2c() {
+void read_i2c()
+{
   unsigned char dat[10];
   digitalWrite(LED_GR_PIN, LOW);
   received_data = 0;
   memcpy(dat, count_geiger_1, 4);
-  memcpy(dat+4, count_geiger_2, 4);
-  memcpy(dat+8, volt_geiger, 2);
+  memcpy(dat + 4, count_geiger_2, 4);
+  memcpy(dat + 8, volt_geiger, 2);
   Wire.send(dat, 2);
 }
 
-void setup() {
+void setup()
+{
   /* serial port */
   Serial.begin(2400);
-  pinMode(2,OUTPUT);
-  digitalWrite(2,HIGH);
+  pinMode(2, OUTPUT);
+  digitalWrite(2, HIGH);
 #ifdef DEBUG
   Serial.println("geiger counter init");
 #endif
@@ -76,7 +79,8 @@ void setup() {
   stat = INIT;
 }
 
-void loop() {
+void loop()
+{
   unsigned char ser;
   int i;
 
@@ -96,74 +100,74 @@ void loop() {
         break;
       case FOUND_SYNC:
         if ((b <= '9') && (b >= '0')) {
-          count_geiger_1 = count_geiger_1 * 10 + (b-'0');
-          if (++i > 7) state = IDLE;
+          count_geiger_1 = count_geiger_1 * 10 + (b - '0');
+          if (++i > 7) { state = IDLE; }
         } else if (b == ',')) {
-      i = 0;
-      stat = FOUND_1;
-    } else stat = INIT;
-    break;
-    case FOUND_1:
-      /* read counter 1 */
-      if ((b <= '9') && (b >= '0')) {
-        count_geiger_2 = count_geiger_2 * 10 + (b-'0');
-        if (++i > 7) state = IDLE;
-      } else if (b == ',')) {
+          i = 0;
+          stat = FOUND_1;
+        } else { stat = INIT; }
+        break;
+      case FOUND_1:
+          /* read counter 1 */
+          if ((b <= '9') && (b >= '0')) {
+            count_geiger_2 = count_geiger_2 * 10 + (b - '0');
+            if (++i > 7) { state = IDLE; }
+          } else if (b == ',')) {
 #ifdef DEBUG
-    Serial.println(count_geiger_1, DEC);
+          Serial.println(count_geiger_1, DEC);
 #endif
-    i = 0;
-    stat = FOUND_2;
-  } else stat = INIT;
-  break;
-  case FOUND_2:
-    /* read counter 2 */
-    if ((b <= '9') && (b >= '0')) {
-      count_geiger_2 = count_geiger_2 * 10 + (b-'0');
-      if (++i > 7) state = IDLE;
-    } else if (b == ',')) {
+            i = 0;
+            stat = FOUND_2;
+          } else { stat = INIT; }
+        break;
+      case FOUND_2:
+          /* read counter 2 */
+          if ((b <= '9') && (b >= '0')) {
+          count_geiger_2 = count_geiger_2 * 10 + (b - '0');
+            if (++i > 7) { state = IDLE; }
+          } else if (b == ',')) {
 #ifdef DEBUG
-  Serial.println(count_geiger_2, DEC);
+          Serial.println(count_geiger_2, DEC);
 #endif
-  i = 0;
-  stat = FOUND_3;
-} else stat = INIT;
-break;
-  case FOUND_3:
-/* ignore 3 */
-if ((b <= '9') && (b >= '0')) {
-  if (++i > 7) state = IDLE;
- } else if (b == ',')) {
-   i = 0;
-   stat = FOUND_4;
-                       } else stat = INIT;
-break;
-  case FOUND_4:
-/* ignore 4 */
-if ((b <= '9') && (b >= '0')) {
-  if (++i > 7) state = IDLE;
- } else if (b == ',')) {
-   i = 0;
-   stat = FOUND_5;
-                       } else stat = INIT;
-break;
-  case FOUND_5:
-/* read voltage */
-if ((b <= '9') && (b >= '0')) {
-  volt_geiger = volt_geiger * 10 + (b-'0');
-  if (++i > 7) state = IDLE;
- } else if (b == 'V')) {
-   digitalWrite(LED_GR_PIN, HIGH);
+            i = 0;
+            stat = FOUND_3;
+          } else { stat = INIT; }
+        break;
+      case FOUND_3:
+          /* ignore 3 */
+          if ((b <= '9') && (b >= '0')) {
+          if (++i > 7) { state = IDLE; }
+          } else if (b == ',')) {
+          i = 0;
+          stat = FOUND_4;
+        } else { stat = INIT; }
+      break;
+    case FOUND_4:
+        /* ignore 4 */
+        if ((b <= '9') && (b >= '0')) {
+          if (++i > 7) { state = IDLE; }
+          } else if (b == ',')) {
+          i = 0;
+          stat = FOUND_5;
+        } else { stat = INIT; }
+      break;
+    case FOUND_5:
+        /* read voltage */
+        if ((b <= '9') && (b >= '0')) {
+          volt_geiger = volt_geiger * 10 + (b - '0');
+            if (++i > 7) { state = IDLE; }
+          } else if (b == 'V')) {
+          digitalWrite(LED_GR_PIN, HIGH);
 #ifdef DEBUG
-   Serial.println(volt_geiger, DEC);
+            Serial.println(volt_geiger, DEC);
 #endif
-   received_data = 0;
-   stat = INIT;
-                       } else stat = INIT;
-break;
-  default:
-stat = INIT;
-}
-}
+            received_data = 0;
+            stat = INIT;
+          } else { stat = INIT; }
+        break;
+      default:
+          stat = INIT;
+        }
+  }
 }
 

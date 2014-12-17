@@ -62,7 +62,8 @@ extern void ms2100_init(struct Ms2100 *ms, struct spi_periph *spi_p, uint8_t sla
 extern void ms2100_read(struct Ms2100 *ms);
 extern void ms2100_event(struct Ms2100 *ms);
 
-static inline void ms2100_periodic(struct Ms2100 *ms) {
+static inline void ms2100_periodic(struct Ms2100 *ms)
+{
   if (ms->status == MS2100_IDLE) {
     ms2100_read(ms);
   }
@@ -71,6 +72,6 @@ static inline void ms2100_periodic(struct Ms2100 *ms) {
 /* underlying architecture */
 #include "peripherals/ms2100_arch.h"
 /* must be implemented by underlying architecture */
-extern void ms2100_arch_init( void );
+extern void ms2100_arch_init(void);
 
 #endif /* MS2100_H */

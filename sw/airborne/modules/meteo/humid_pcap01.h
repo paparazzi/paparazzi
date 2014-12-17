@@ -45,13 +45,13 @@ typedef struct {
   uint32_t NV_temp;
   uint32_t V_rh;
   uint32_t status;
-}PCAP01VALUE;
+} PCAP01VALUE;
 
 #define PCAP01_ADDR 0xA0
 
-#define PCAP01_IDLE			0
-#define PCAP01_GET_HUMID	1
-#define PCAP01_GET_TEMP		2
+#define PCAP01_IDLE     0
+#define PCAP01_GET_HUMID  1
+#define PCAP01_GET_TEMP   2
 
 //OpCodes für PCap Programmierung
 #define PCAP01_PU_RESET 0x88
@@ -141,7 +141,7 @@ void writePCAP01_SRAM(uint8_t data, uint16_t s_add);
 uint8_t readPCAP01_SRAM(uint16_t s_add);
 void PCAP01_Control(uint8_t control);
 void pcap01readRegister(uint8_t reg);
-void pcap01writeRegister(uint8_t reg,uint32_t value);
+void pcap01writeRegister(uint8_t reg, uint32_t value);
 void writePCAP01_firmware(void);
 void pcap01_init(void);
 void pcap01_periodic(void);

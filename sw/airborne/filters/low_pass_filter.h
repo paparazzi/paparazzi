@@ -54,7 +54,9 @@ struct FirstOrderLowPass {
  * @param sample_time sampling period of the signal
  * @param value initial value of the filter
  */
-static inline void init_first_order_low_pass(struct FirstOrderLowPass * filter, float tau, float sample_time, float value) {
+static inline void init_first_order_low_pass(struct FirstOrderLowPass *filter, float tau, float sample_time,
+    float value)
+{
   filter->last_in = value;
   filter->last_out = value;
   filter->time_const = 2.0f * tau / sample_time;
@@ -66,7 +68,8 @@ static inline void init_first_order_low_pass(struct FirstOrderLowPass * filter, 
  * @param value new input value of the filter
  * @return new filtered value
  */
-static inline float update_first_order_low_pass(struct FirstOrderLowPass * filter, float value) {
+static inline float update_first_order_low_pass(struct FirstOrderLowPass *filter, float value)
+{
   float out = (value + filter->last_in + (filter->time_const - 1.0f) * filter->last_out) / (1.0f + filter->time_const);
   filter->last_in = value;
   filter->last_out = out;
@@ -78,7 +81,8 @@ static inline float update_first_order_low_pass(struct FirstOrderLowPass * filte
  * @param filter first order low pass filter structure
  * @return current value of the filter
  */
-static inline float get_first_order_low_pass(struct FirstOrderLowPass * filter) {
+static inline float get_first_order_low_pass(struct FirstOrderLowPass *filter)
+{
   return filter->last_out;
 }
 
@@ -131,12 +135,14 @@ struct SecondOrderLowPass {
  * @param sample_time sampling period of the signal
  * @param value initial value of the filter
  */
-static inline void init_second_order_low_pass(struct SecondOrderLowPass * filter, float tau, float Q, float sample_time, float value) {
+static inline void init_second_order_low_pass(struct SecondOrderLowPass *filter, float tau, float Q, float sample_time,
+    float value)
+{
   float K = sample_time / (2.0f * tau);
-  float poly = K*K + K/Q + 1.0f;
-  filter->a[0] = 2.0f * (K*K - 1.0f) / poly;
-  filter->a[1] = (K*K - K/Q + 1.0f) / poly;
-  filter->b[0] = K*K / poly;
+  float poly = K * K + K / Q + 1.0f;
+  filter->a[0] = 2.0f * (K * K - 1.0f) / poly;
+  filter->a[1] = (K * K - K / Q + 1.0f) / poly;
+  filter->b[0] = K * K / poly;
   filter->b[1] = 2.0f * filter->b[0];
   filter->i[0] = filter->i[1] = filter->o[0] = filter->o[1] = value;
 }
@@ -147,12 +153,13 @@ static inline void init_second_order_low_pass(struct SecondOrderLowPass * filter
  * @param value new input value of the filter
  * @return new filtered value
  */
-static inline float update_second_order_low_pass(struct SecondOrderLowPass * filter, float value) {
+static inline float update_second_order_low_pass(struct SecondOrderLowPass *filter, float value)
+{
   float out = filter->b[0] * value
-    + filter->b[1] * filter->i[0]
-    + filter->b[0] * filter->i[1]
-    - filter->a[0] * filter->o[0]
-    - filter->a[1] * filter->o[1];
+              + filter->b[1] * filter->i[0]
+              + filter->b[0] * filter->i[1]
+              - filter->a[0] * filter->o[0]
+              - filter->a[1] * filter->o[1];
   filter->i[1] = filter->i[0];
   filter->i[0] = value;
   filter->o[1] = filter->o[0];
@@ -165,7 +172,8 @@ static inline float update_second_order_low_pass(struct SecondOrderLowPass * fil
  * @param filter second order low pass filter structure
  * @return current value of the filter
  */
-static inline float get_second_order_low_pass(struct SecondOrderLowPass * filter) {
+static inline float get_second_order_low_pass(struct SecondOrderLowPass *filter)
+{
   return filter->o[0];
 }
 
@@ -185,16 +193,18 @@ struct SecondOrderLowPass_int {
  * @param sample_time sampling period of the signal
  * @param value initial value of the filter
  */
-static inline void init_second_order_low_pass_int(struct SecondOrderLowPass_int* filter, float cut_off, float Q, float sample_time, int32_t value) {
+static inline void init_second_order_low_pass_int(struct SecondOrderLowPass_int *filter, float cut_off, float Q,
+    float sample_time, int32_t value)
+{
   struct SecondOrderLowPass filter_temp;
   float tau = 7.0f / (44.0f * cut_off);
   float K = sample_time / (2.0f * tau);
-  float poly = K*K + K/Q + 1.0f;
+  float poly = K * K + K / Q + 1.0f;
   float loop_gain_f;
 
-  filter_temp.a[0] = 2.0f * (K*K - 1.0f) / poly;
-  filter_temp.a[1] = (K*K - K/Q + 1.0f) / poly;
-  filter_temp.b[0] = K*K / poly;
+  filter_temp.a[0] = 2.0f * (K * K - 1.0f) / poly;
+  filter_temp.a[1] = (K * K - K / Q + 1.0f) / poly;
+  filter_temp.b[0] = K * K / poly;
   filter_temp.b[1] = 2.0f * filter_temp.b[0];
   loop_gain_f = 1.0f / filter_temp.b[0];
 
@@ -212,12 +222,13 @@ static inline void init_second_order_low_pass_int(struct SecondOrderLowPass_int*
  * @param value new input value of the filter
  * @return new filtered value
  */
-static inline int32_t update_second_order_low_pass_int(struct SecondOrderLowPass_int* filter, int32_t value) {
+static inline int32_t update_second_order_low_pass_int(struct SecondOrderLowPass_int *filter, int32_t value)
+{
   int32_t out = filter->b[0] * value
-    + filter->b[1] * filter->i[0]
-    + filter->b[0] * filter->i[1]
-    - filter->a[0] * filter->o[0]
-    - filter->a[1] * filter->o[1];
+                + filter->b[1] * filter->i[0]
+                + filter->b[0] * filter->i[1]
+                - filter->a[0] * filter->o[0]
+                - filter->a[1] * filter->o[1];
 
   filter->i[1] = filter->i[0];
   filter->i[0] = value;
@@ -231,7 +242,8 @@ static inline int32_t update_second_order_low_pass_int(struct SecondOrderLowPass
  * @param filter second order low pass filter structure
  * @return current value of the filter
  */
-static inline int32_t get_second_order_low_pass_int(struct SecondOrderLowPass_int * filter) {
+static inline int32_t get_second_order_low_pass_int(struct SecondOrderLowPass_int *filter)
+{
   return filter->o[0];
 }
 
@@ -251,8 +263,9 @@ typedef struct SecondOrderLowPass Butterworth2LowPass;
  * @param sample_time sampling period of the signal
  * @param value initial value of the filter
  */
-static inline void init_butterworth_2_low_pass(Butterworth2LowPass * filter, float tau, float sample_time, float value) {
-  init_second_order_low_pass((struct SecondOrderLowPass*)filter, tau, 0.7071, sample_time, value);
+static inline void init_butterworth_2_low_pass(Butterworth2LowPass *filter, float tau, float sample_time, float value)
+{
+  init_second_order_low_pass((struct SecondOrderLowPass *)filter, tau, 0.7071, sample_time, value);
 }
 
 /** Update second order Butterworth low pass filter state with a new value.
@@ -261,8 +274,9 @@ static inline void init_butterworth_2_low_pass(Butterworth2LowPass * filter, flo
  * @param value new input value of the filter
  * @return new filtered value
  */
-static inline float update_butterworth_2_low_pass(Butterworth2LowPass * filter, float value) {
-  return update_second_order_low_pass((struct SecondOrderLowPass*)filter, value);
+static inline float update_butterworth_2_low_pass(Butterworth2LowPass *filter, float value)
+{
+  return update_second_order_low_pass((struct SecondOrderLowPass *)filter, value);
 }
 
 /** Get current value of the second order Butterworth low pass filter.
@@ -270,7 +284,8 @@ static inline float update_butterworth_2_low_pass(Butterworth2LowPass * filter, 
  * @param filter second order Butterworth low pass filter structure
  * @return current value of the filter
  */
-static inline float get_butterworth_2_low_pass(Butterworth2LowPass * filter) {
+static inline float get_butterworth_2_low_pass(Butterworth2LowPass *filter)
+{
   return filter->o[0];
 }
 
@@ -290,8 +305,10 @@ typedef struct SecondOrderLowPass_int Butterworth2LowPass_int;
  * @param sample_time sampling period of the signal
  * @param value initial value of the filter
  */
-static inline void init_butterworth_2_low_pass_int(Butterworth2LowPass_int* filter, float cut_off, float sample_time, int32_t value) {
-  init_second_order_low_pass_int((struct SecondOrderLowPass_int*)filter, cut_off, 0.7071, sample_time, value);
+static inline void init_butterworth_2_low_pass_int(Butterworth2LowPass_int *filter, float cut_off, float sample_time,
+    int32_t value)
+{
+  init_second_order_low_pass_int((struct SecondOrderLowPass_int *)filter, cut_off, 0.7071, sample_time, value);
 }
 
 /** Update second order Butterworth low pass filter state with a new value(fixed point version).
@@ -300,8 +317,9 @@ static inline void init_butterworth_2_low_pass_int(Butterworth2LowPass_int* filt
  * @param value new input value of the filter
  * @return new filtered value
  */
-static inline int32_t update_butterworth_2_low_pass_int(Butterworth2LowPass_int* filter, int32_t value) {
-  return update_second_order_low_pass_int((struct SecondOrderLowPass_int*)filter, value);
+static inline int32_t update_butterworth_2_low_pass_int(Butterworth2LowPass_int *filter, int32_t value)
+{
+  return update_second_order_low_pass_int((struct SecondOrderLowPass_int *)filter, value);
 }
 
 /** Get current value of the second order Butterworth low pass filter(fixed point version).
@@ -309,7 +327,8 @@ static inline int32_t update_butterworth_2_low_pass_int(Butterworth2LowPass_int*
  * @param filter second order Butterworth low pass filter structure
  * @return current value of the filter
  */
-static inline int32_t get_butterworth_2_low_pass_int(Butterworth2LowPass_int* filter) {
+static inline int32_t get_butterworth_2_low_pass_int(Butterworth2LowPass_int *filter)
+{
   return filter->o[0];
 }
 
@@ -335,7 +354,8 @@ typedef struct {
  * @param sample_time sampling period of the signal
  * @param value initial value of the filter
  */
-static inline void init_butterworth_4_low_pass(Butterworth4LowPass * filter, float tau, float sample_time, float value) {
+static inline void init_butterworth_4_low_pass(Butterworth4LowPass *filter, float tau, float sample_time, float value)
+{
   init_second_order_low_pass(&filter->lp1, tau, 1.30651, sample_time, value);
   init_second_order_low_pass(&filter->lp2, tau, 0.51184, sample_time, value);
 }
@@ -348,7 +368,8 @@ static inline void init_butterworth_4_low_pass(Butterworth4LowPass * filter, flo
  * @param value new input value of the filter
  * @return new filtered value
  */
-static inline float update_butterworth_4_low_pass(Butterworth4LowPass * filter, float value) {
+static inline float update_butterworth_4_low_pass(Butterworth4LowPass *filter, float value)
+{
   float tmp = update_second_order_low_pass(&filter->lp1, value);
   return update_second_order_low_pass(&filter->lp2, tmp);
 }
@@ -358,7 +379,8 @@ static inline float update_butterworth_4_low_pass(Butterworth4LowPass * filter, 
  * @param filter fourth order Butterworth low pass filter structure
  * @return current value of the filter
  */
-static inline float get_butterworth_4_low_pass(Butterworth4LowPass * filter) {
+static inline float get_butterworth_4_low_pass(Butterworth4LowPass *filter)
+{
   return filter->lp2.o[0];
 }
 
@@ -384,7 +406,9 @@ typedef struct {
  * @param sample_time sampling period of the signal
  * @param value initial value of the filter
  */
-static inline void init_butterworth_4_low_pass_int(Butterworth4LowPass_int * filter, float cut_off, float sample_time, int32_t value) {
+static inline void init_butterworth_4_low_pass_int(Butterworth4LowPass_int *filter, float cut_off, float sample_time,
+    int32_t value)
+{
   init_second_order_low_pass_int(&filter->lp1, cut_off, 1.30651, sample_time, value);
   init_second_order_low_pass_int(&filter->lp2, cut_off, 0.51184, sample_time, value);
 }
@@ -397,7 +421,8 @@ static inline void init_butterworth_4_low_pass_int(Butterworth4LowPass_int * fil
  * @param value new input value of the filter
  * @return new filtered value
  */
-static inline int32_t update_butterworth_4_low_pass_int(Butterworth4LowPass_int * filter, int32_t value) {
+static inline int32_t update_butterworth_4_low_pass_int(Butterworth4LowPass_int *filter, int32_t value)
+{
   int32_t tmp = update_second_order_low_pass_int(&filter->lp1, value);
   return update_second_order_low_pass_int(&filter->lp2, tmp);
 }
@@ -407,7 +432,8 @@ static inline int32_t update_butterworth_4_low_pass_int(Butterworth4LowPass_int 
  * @param filter fourth order Butterworth low pass filter structure
  * @return current value of the filter
  */
-static inline int32_t get_butterworth_4_low_pass_int(Butterworth4LowPass_int * filter) {
+static inline int32_t get_butterworth_4_low_pass_int(Butterworth4LowPass_int *filter)
+{
   return filter->lp2.o[0];
 }
 

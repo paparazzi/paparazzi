@@ -25,7 +25,7 @@
 #include "../../cv/image.h"
 
 struct buffer_struct {
-  void * buf;
+  void *buf;
   size_t length;
 };
 
@@ -39,7 +39,7 @@ struct vid_struct {
   //private members
   int trigger;
   struct img_struct *img;
-  struct buffer_struct * buffers;
+  struct buffer_struct *buffers;
   int fd;
 };
 

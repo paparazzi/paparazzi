@@ -31,7 +31,7 @@
 #include "std.h" /* for RadOfDeg */
 
 
-void ltp_def_from_ecef_d(struct LtpDef_d* def, struct EcefCoor_d* ecef)
+void ltp_def_from_ecef_d(struct LtpDef_d *def, struct EcefCoor_d *ecef)
 {
 
   /* store the origin of the tangeant plane       */
@@ -56,7 +56,7 @@ void ltp_def_from_ecef_d(struct LtpDef_d* def, struct EcefCoor_d* ecef)
 }
 
 /* http://en.wikipedia.org/wiki/Geodetic_system */
-void lla_of_ecef_d(struct LlaCoor_d* lla, struct EcefCoor_d* ecef)
+void lla_of_ecef_d(struct LlaCoor_d *lla, struct EcefCoor_d *ecef)
 {
 
   // FIXME : make an ellipsoid struct
@@ -93,7 +93,7 @@ void lla_of_ecef_d(struct LlaCoor_d* lla, struct EcefCoor_d* ecef)
 
 }
 
-void ecef_of_lla_d(struct EcefCoor_d* ecef, struct LlaCoor_d* lla)
+void ecef_of_lla_d(struct EcefCoor_d *ecef, struct LlaCoor_d *lla)
 {
 
   // FIXME : make an ellipsoid struct
@@ -113,26 +113,26 @@ void ecef_of_lla_d(struct EcefCoor_d* ecef, struct LlaCoor_d* lla)
   ecef->z = (a_chi * (1. - e2) + lla->alt) * sin_lat;
 }
 
-void enu_of_ecef_point_d(struct EnuCoor_d* enu, struct LtpDef_d* def, struct EcefCoor_d* ecef)
+void enu_of_ecef_point_d(struct EnuCoor_d *enu, struct LtpDef_d *def, struct EcefCoor_d *ecef)
 {
   struct EcefCoor_d delta;
   VECT3_DIFF(delta, *ecef, def->ecef);
   MAT33_VECT3_MUL(*enu, def->ltp_of_ecef, delta);
 }
 
-void ned_of_ecef_point_d(struct NedCoor_d* ned, struct LtpDef_d* def, struct EcefCoor_d* ecef)
+void ned_of_ecef_point_d(struct NedCoor_d *ned, struct LtpDef_d *def, struct EcefCoor_d *ecef)
 {
   struct EnuCoor_d enu;
   enu_of_ecef_point_d(&enu, def, ecef);
   ENU_OF_TO_NED(*ned, enu);
 }
 
-void enu_of_ecef_vect_d(struct EnuCoor_d* enu, struct LtpDef_d* def, struct EcefCoor_d* ecef)
+void enu_of_ecef_vect_d(struct EnuCoor_d *enu, struct LtpDef_d *def, struct EcefCoor_d *ecef)
 {
   MAT33_VECT3_MUL(*enu, def->ltp_of_ecef, *ecef);
 }
 
-void ned_of_ecef_vect_d(struct NedCoor_d* ned, struct LtpDef_d* def, struct EcefCoor_d* ecef)
+void ned_of_ecef_vect_d(struct NedCoor_d *ned, struct LtpDef_d *def, struct EcefCoor_d *ecef)
 {
   struct EnuCoor_d enu;
   enu_of_ecef_vect_d(&enu, def, ecef);
@@ -141,25 +141,25 @@ void ned_of_ecef_vect_d(struct NedCoor_d* ned, struct LtpDef_d* def, struct Ecef
 
 
 
-void ecef_of_enu_point_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct EnuCoor_d* enu)
+void ecef_of_enu_point_d(struct EcefCoor_d *ecef, struct LtpDef_d *def, struct EnuCoor_d *enu)
 {
   MAT33_VECT3_TRANSP_MUL(*ecef, def->ltp_of_ecef, *enu);
   VECT3_ADD(*ecef, def->ecef);
 }
 
-void ecef_of_ned_point_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct NedCoor_d* ned)
+void ecef_of_ned_point_d(struct EcefCoor_d *ecef, struct LtpDef_d *def, struct NedCoor_d *ned)
 {
   struct EnuCoor_d enu;
   ENU_OF_TO_NED(enu, *ned);
   ecef_of_enu_point_d(ecef, def, &enu);
 }
 
-void ecef_of_enu_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct EnuCoor_d* enu)
+void ecef_of_enu_vect_d(struct EcefCoor_d *ecef, struct LtpDef_d *def, struct EnuCoor_d *enu)
 {
   MAT33_VECT3_TRANSP_MUL(*ecef, def->ltp_of_ecef, *enu);
 }
 
-void ecef_of_ned_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct NedCoor_d* ned)
+void ecef_of_ned_vect_d(struct EcefCoor_d *ecef, struct LtpDef_d *def, struct NedCoor_d *ned)
 {
   struct EnuCoor_d enu;
   ENU_OF_TO_NED(enu, *ned);
@@ -167,14 +167,14 @@ void ecef_of_ned_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct Ne
 }
 
 
-void enu_of_lla_point_d(struct EnuCoor_d* enu, struct LtpDef_d* def, struct LlaCoor_d* lla)
+void enu_of_lla_point_d(struct EnuCoor_d *enu, struct LtpDef_d *def, struct LlaCoor_d *lla)
 {
   struct EcefCoor_d ecef;
   ecef_of_lla_d(&ecef, lla);
   enu_of_ecef_point_d(enu, def, &ecef);
 }
 
-void ned_of_lla_point_d(struct NedCoor_d* ned, struct LtpDef_d* def, struct LlaCoor_d* lla)
+void ned_of_lla_point_d(struct NedCoor_d *ned, struct LtpDef_d *def, struct LlaCoor_d *lla)
 {
   struct EcefCoor_d ecef;
   ecef_of_lla_d(&ecef, lla);
@@ -245,7 +245,7 @@ static inline double inverse_isometric_latitude_d(double lat, double e, double e
     CI(v);          \
   }
 
-void lla_of_utm_d(struct LlaCoor_d* lla, struct UtmCoor_d* utm)
+void lla_of_utm_d(struct LlaCoor_d *lla, struct UtmCoor_d *utm)
 {
 
   struct DoubleVect2 v = {utm->north - DELTA_NORTH, utm->east - DELTA_EAST};

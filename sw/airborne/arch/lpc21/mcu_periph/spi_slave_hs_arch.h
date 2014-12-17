@@ -34,12 +34,12 @@
 #include "std.h"
 
 
-#define SpiEnable() {		\
-    SetBit(SSPCR1, SSE);	\
+#define SpiEnable() {   \
+    SetBit(SSPCR1, SSE);  \
   }
 
-#define SpiDisable() {		\
-    ClearBit(SSPCR1, SSE);	\
+#define SpiDisable() {    \
+    ClearBit(SSPCR1, SSE);  \
   }
 
 
@@ -51,10 +51,10 @@ extern uint8_t spi_slave_hs_rx_buffer[SPI_SLAVE_HS_RX_BUFFER_SIZE];
 #define SpiSlaveChAvailable() (spi_slave_hs_rx_insert_idx != spi_slave_hs_rx_extract_idx)
 
 #define SpiSlaveGetch() ({\
-   uint8_t ret = spi_slave_hs_rx_buffer[spi_slave_hs_rx_extract_idx]; \
-   spi_slave_hs_rx_extract_idx = (spi_slave_hs_rx_extract_idx + 1)%SPI_SLAVE_HS_RX_BUFFER_SIZE;        \
-   ret;                                                 \
-})
+    uint8_t ret = spi_slave_hs_rx_buffer[spi_slave_hs_rx_extract_idx]; \
+    spi_slave_hs_rx_extract_idx = (spi_slave_hs_rx_extract_idx + 1)%SPI_SLAVE_HS_RX_BUFFER_SIZE;        \
+    ret;                                                 \
+  })
 
 #define SPI_SLAVE_HS_TX_BUFFER_SIZE 64
 
@@ -62,13 +62,13 @@ extern uint8_t spi_slave_hs_tx_insert_idx, spi_slave_hs_tx_extract_idx;
 extern uint8_t spi_slave_hs_tx_buffer[SPI_SLAVE_HS_TX_BUFFER_SIZE];
 
 #define SpiSlaveTransmit(data) {\
-  uint8_t temp = (spi_slave_hs_tx_insert_idx + 1) % SPI_SLAVE_HS_TX_BUFFER_SIZE; \
-  if (temp != spi_slave_hs_tx_extract_idx)	/* there is room left */	\
-  { \
-    spi_slave_hs_tx_buffer[spi_slave_hs_tx_insert_idx] = (uint8_t)data; \
-    spi_slave_hs_tx_insert_idx = temp; \
-  } \
-}
+    uint8_t temp = (spi_slave_hs_tx_insert_idx + 1) % SPI_SLAVE_HS_TX_BUFFER_SIZE; \
+    if (temp != spi_slave_hs_tx_extract_idx)  /* there is room left */  \
+    { \
+      spi_slave_hs_tx_buffer[spi_slave_hs_tx_insert_idx] = (uint8_t)data; \
+      spi_slave_hs_tx_insert_idx = temp; \
+    } \
+  }
 
 
 

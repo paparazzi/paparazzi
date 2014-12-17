@@ -35,7 +35,8 @@ int16_t actuators[ACTUATORS_NB];
 uint32_t actuators_delay_time;
 bool_t   actuators_delay_done;
 
-void actuators_init(void) {
+void actuators_init(void)
+{
 
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   actuators_delay_done = FALSE;

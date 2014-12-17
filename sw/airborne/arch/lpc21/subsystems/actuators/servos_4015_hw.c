@@ -43,7 +43,8 @@ uint16_t servos_values[_4015_NB_CHANNELS];
 #define PWM_VIC_SLOT 3
 #endif
 
-void actuators_4015_init ( void ) {
+void actuators_4015_init(void)
+{
   /* PWM selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_PWM);
   /* PWM interrupt enabled */
@@ -67,16 +68,17 @@ void actuators_4015_init ( void ) {
   PWMPCR = PWMPCR_ENA_SERV1;
 
   /* Prescaler */
-  PWMPR = PWM_PRESCALER-1;
+  PWMPR = PWM_PRESCALER - 1;
 
   /* enable PWM timer counter and PWM mode  */
   PWMTCR = PWMTCR_COUNTER_ENABLE | PWMTCR_PWM_ENABLE;
   /* Load failsafe values              */
-   /* Set all servos at their midpoints */
+  /* Set all servos at their midpoints */
   /* compulsory for unaffected servos  */
   uint8_t i;
-  for( i=0 ; i < _4015_NB_CHANNELS ; i++ )
+  for (i = 0 ; i < _4015_NB_CHANNELS ; i++) {
     servos_values[i] = SERVOS_TICS_OF_USEC(1500);
+  }
 #ifdef SERVO_MOTOR
   servos_values[SERVO_MOTOR] = SERVOS_TICS_OF_USEC(SERVO_MOTOR_NEUTRAL);
 #endif
@@ -99,7 +101,8 @@ void actuators_4015_init ( void ) {
 static uint8_t servos_idx = 0;
 static uint32_t servos_delay;
 
-void PWM_ISR ( void ) {
+void PWM_ISR(void)
+{
   ISR_ENTRY();
   //  LED_TOGGLE(2);
   if (servos_idx == 0) {
@@ -109,15 +112,13 @@ void PWM_ISR ( void ) {
     servos_delay = SERVO_REFRESH_TICS - servos_values[servos_idx];
     PWMLER = PWMLER_LATCH0;
     servos_idx++;
-  }
-  else if (servos_idx < _4015_NB_CHANNELS) {
+  } else if (servos_idx < _4015_NB_CHANNELS) {
     IO1CLR = _BV(SERV1_DATA_PIN);
     PWMMR0 = servos_values[servos_idx];
     servos_delay -= servos_values[servos_idx];
     PWMLER = PWMLER_LATCH0;
     servos_idx++;
-  }
-  else {
+  } else {
     IO1SET = _BV(SERV1_RESET_PIN);
     PWMMR0 = servos_delay;
     PWMLER = PWMLER_LATCH0;

@@ -51,7 +51,7 @@
 #include "fms_spistream.h"
 
 
-static void parse_command_line(int argc, char** argv);
+static void parse_command_line(int argc, char **argv);
 static void main_init(void);
 static void main_exit(void);
 static void main_periodic(int my_sig_num);
@@ -67,7 +67,8 @@ static char cfifo_files[4][40];
 
 
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
   parse_command_line(argc, argv);
 
@@ -76,7 +77,7 @@ int main(int argc, char *argv[]) {
 
   /* Enter our mainloop */
   event_dispatch();
-  while(1) {
+  while (1) {
     sleep(100);
   }
 
@@ -87,39 +88,38 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-static void main_periodic(int my_sig_num) {
+static void main_periodic(int my_sig_num)
+{
   uint8_t fifo_idx;
   uint8_t msg_id;
   uint16_t num_bytes;
   int16_t ret;
-  static uint8_t buf[SPISTREAM_MAX_MESSAGE_LENGTH*10];
+  static uint8_t buf[SPISTREAM_MAX_MESSAGE_LENGTH * 10];
 
-  for(fifo_idx = 0; fifo_idx < 4; fifo_idx++) {
+  for (fifo_idx = 0; fifo_idx < 4; fifo_idx++) {
     // The periodic is triggered before fifo
     // connections have been initialized, so
     // check for a valid fd first:
-    if(dfifo[fifo_idx] > 0) {
+    if (dfifo[fifo_idx] > 0) {
       ret = read(dfifo[fifo_idx], (uint8_t *)(&num_bytes), 2);
       ret = read(dfifo[fifo_idx], (uint8_t *)(&msg_id), 1);
 
       memset(&buf, 0, SPISTREAM_MAX_MESSAGE_LENGTH);
-      if(num_bytes > SPISTREAM_MAX_MESSAGE_LENGTH) {
+      if (num_bytes > SPISTREAM_MAX_MESSAGE_LENGTH) {
         fprintf(stderr, "Warning: Message has length %d, but limit "
-                        "is %d\n",
+                "is %d\n",
                 num_bytes, SPISTREAM_MAX_MESSAGE_LENGTH);
         num_bytes = SPISTREAM_MAX_MESSAGE_LENGTH;
       }
       ret = read(dfifo[fifo_idx], &buf, num_bytes);
-      if(ret > 0 && ret == num_bytes) {
+      if (ret > 0 && ret == num_bytes) {
         // Message received
         print_message(">> Client", msg_id, buf, num_bytes);
-      }
-      else if(ret > 0 && ret < num_bytes) {
+      } else if (ret > 0 && ret < num_bytes) {
         fprintf(stderr, "Tried to read %d bytes, but only got %d\n",
                 num_bytes, ret);
       }
-    }
-    else {
+    } else {
       // FIFO file descriptor is invalid,
       // retry to open it:
       dfifo[fifo_idx] = open(dfifo_files[fifo_idx], O_RDONLY | O_NONBLOCK);
@@ -128,7 +128,8 @@ static void main_periodic(int my_sig_num) {
 
 }
 
-static void main_init(void) {
+static void main_init(void)
+{
 
   TRACE(TRACE_DEBUG, "%s", "Starting initialization\n");
 
@@ -149,7 +150,7 @@ static void main_init(void) {
   signal(SIGTERM, on_kill);
   signal(SIGSEGV, on_kill);
 
-  if(!open_stream()) {
+  if (!open_stream()) {
     fprintf(stderr, "Could not open stream, sorry\n");
     exit(1);
   }
@@ -176,7 +177,8 @@ static void main_init(void) {
  * trigger on them, like select() or libevent.
  *
  */
-static int open_stream(void) {
+static int open_stream(void)
+{
   uint8_t fifo_idx;
 
   strcpy(dfifo_files[0], "/tmp/spistream_d0.fifo"); // FIFOs for data
@@ -188,7 +190,7 @@ static int open_stream(void) {
   strcpy(cfifo_files[2], "/tmp/spistream_c2.fifo");
   strcpy(cfifo_files[3], "/tmp/spistream_c3.fifo");
 
-  for(fifo_idx = 0; fifo_idx < 4; fifo_idx++) {
+  for (fifo_idx = 0; fifo_idx < 4; fifo_idx++) {
     fprintf(stderr, "Open data stream %s ... \n", dfifo_files[fifo_idx]);
     dfifo[fifo_idx] = open(dfifo_files[fifo_idx], O_RDONLY | O_NONBLOCK);
     fprintf(stderr, " ...\n");
@@ -196,10 +198,10 @@ static int open_stream(void) {
 
   return 1;
 
-  for(fifo_idx = 0; fifo_idx < 3; fifo_idx++) {
+  for (fifo_idx = 0; fifo_idx < 3; fifo_idx++) {
     fprintf(stderr, "Open command stream %s ... \n", cfifo_files[fifo_idx]);
     cfifo[fifo_idx] = open(cfifo_files[fifo_idx], O_WRONLY);
-    if(cfifo[fifo_idx] < 0) {
+    if (cfifo[fifo_idx] < 0) {
       fprintf(stderr, " failed\n");
       return 0;
     }
@@ -212,7 +214,8 @@ static void main_exit(void)
   fprintf(stderr, "Bye!\n");
 }
 
-static void parse_command_line(int argc, char** argv) {
+static void parse_command_line(int argc, char **argv)
+{
 }
 
 static void on_kill(int signum)

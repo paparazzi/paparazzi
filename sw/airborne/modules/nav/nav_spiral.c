@@ -54,8 +54,9 @@ bool_t nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, 
   nav_spiral.radius_start = radius_start;   // start radius of the helix
   nav_spiral.segments = segments;
   nav_spiral.radius_min = NAV_SPIRAL_MIN_CIRCLE_RADIUS;
-  if (nav_spiral.radius_start < nav_spiral.radius_min)
+  if (nav_spiral.radius_start < nav_spiral.radius_min) {
     nav_spiral.radius_start = nav_spiral.radius_min;
+  }
   nav_spiral.radius_increment = radius_inc;     // multiplier for increasing the spiral
 
   struct FloatVect2 edge;
@@ -73,13 +74,14 @@ bool_t nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, 
   nav_spiral.dist_from_center = FLOAT_VECT3_NORM(nav_spiral.trans_current);
 
   // nav_spiral.alpha_limit denotes angle, where the radius will be increased
-  nav_spiral.alpha_limit = 2*M_PI / nav_spiral.segments;
+  nav_spiral.alpha_limit = 2 * M_PI / nav_spiral.segments;
   //current position
   nav_spiral.fly_from.x = stateGetPositionEnu_f()->x;
   nav_spiral.fly_from.y = stateGetPositionEnu_f()->y;
 
-  if(nav_spiral.dist_from_center > nav_spiral.radius)
+  if (nav_spiral.dist_from_center > nav_spiral.radius) {
     nav_spiral.status = SpiralOutside;
+  }
   return FALSE;
 }
 
@@ -94,8 +96,7 @@ bool_t nav_spiral_run(void)
   float DistanceStartEstim;
   float CircleAlpha;
 
-  switch(nav_spiral.status)
-  {
+  switch (nav_spiral.status) {
     case SpiralOutside:
       //flys until center of the helix is reached an start helix
       nav_route_xy(nav_spiral.fly_from.x, nav_spiral.fly_from.y, nav_spiral.center.x, nav_spiral.center.y);
@@ -113,12 +114,12 @@ bool_t nav_spiral_run(void)
       // storage of current coordinates
       // calculation needed, State switch to SpiralCircle
       nav_circle_XY(nav_spiral.center.y, nav_spiral.center.y, nav_spiral.radius_start);
-      if(nav_spiral.dist_from_center >= nav_spiral.radius_start){
+      if (nav_spiral.dist_from_center >= nav_spiral.radius_start) {
         VECT2_COPY(nav_spiral.last_circle, pos_enu);
         nav_spiral.status = SpiralCircle;
         // Start helix
 #ifdef DIGITAL_CAM
-        dc_Circle(360/nav_spiral.segments);
+        dc_Circle(360 / nav_spiral.segments);
 #endif
       }
       break;
@@ -133,7 +134,7 @@ bool_t nav_spiral_run(void)
       struct FloatVect2 pos_diff;
       VECT2_DIFF(pos_diff, nav_spiral.last_circle, pos_enu);
       DistanceStartEstim = float_vect2_norm(&pos_diff);
-      CircleAlpha = (2.0 * asin (DistanceStartEstim / (2 * nav_spiral.radius_start)));
+      CircleAlpha = (2.0 * asin(DistanceStartEstim / (2 * nav_spiral.radius_start)));
       if (CircleAlpha >= nav_spiral.alpha_limit) {
         VECT2_COPY(nav_spiral.last_circle, pos_enu);
         nav_spiral.status = SpiralInc;
@@ -142,18 +143,16 @@ bool_t nav_spiral_run(void)
     }
     case SpiralInc:
       // increasing circle radius as long as it is smaller than max helix radius
-      if(nav_spiral.radius_start + nav_spiral.radius_increment < nav_spiral.radius)
-      {
+      if (nav_spiral.radius_start + nav_spiral.radius_increment < nav_spiral.radius) {
         nav_spiral.radius_start = nav_spiral.radius_start + nav_spiral.radius_increment;
 #ifdef DIGITAL_CAM
         if (dc_cam_tracing) {
           // calculating Cam angle for camera alignment
           nav_spiral.trans_current.z = stateGetPositionUtm_f()->alt - nav_spiral.center.z;
-          dc_cam_angle = atan(nav_spiral.radius_start/nav_spiral.trans_current.z) * 180  / M_PI;
+          dc_cam_angle = atan(nav_spiral.radius_start / nav_spiral.trans_current.z) * 180  / M_PI;
         }
 #endif
-      }
-      else {
+      } else {
         nav_spiral.radius_start = nav_spiral.radius;
 #ifdef DIGITAL_CAM
         // Stopps DC

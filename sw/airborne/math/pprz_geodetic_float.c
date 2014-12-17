@@ -33,7 +33,7 @@
 /* for ecef_of_XX functions the double versions are needed */
 #include "pprz_geodetic_double.h"
 
-void ltp_def_from_ecef_f(struct LtpDef_f* def, struct EcefCoor_f* ecef)
+void ltp_def_from_ecef_f(struct LtpDef_f *def, struct EcefCoor_f *ecef)
 {
 
   /* store the origin of the tangeant plane       */
@@ -58,7 +58,7 @@ void ltp_def_from_ecef_f(struct LtpDef_f* def, struct EcefCoor_f* ecef)
 
 }
 
-void ltp_def_from_lla_f(struct LtpDef_f* def, struct LlaCoor_f* lla)
+void ltp_def_from_lla_f(struct LtpDef_f *def, struct LlaCoor_f *lla)
 {
   /* store the origin of the tangeant plane */
   LLA_COPY(def->lla, *lla);
@@ -83,14 +83,14 @@ void ltp_def_from_lla_f(struct LtpDef_f* def, struct LlaCoor_f* lla)
   def->ltp_of_ecef.m[8] =  sin_lat;
 }
 
-void enu_of_ecef_point_f(struct EnuCoor_f* enu, struct LtpDef_f* def, struct EcefCoor_f* ecef)
+void enu_of_ecef_point_f(struct EnuCoor_f *enu, struct LtpDef_f *def, struct EcefCoor_f *ecef)
 {
   struct EcefCoor_f delta;
   VECT3_DIFF(delta, *ecef, def->ecef);
   MAT33_VECT3_MUL(*enu, def->ltp_of_ecef, delta);
 }
 
-void ned_of_ecef_point_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct EcefCoor_f* ecef)
+void ned_of_ecef_point_f(struct NedCoor_f *ned, struct LtpDef_f *def, struct EcefCoor_f *ecef)
 {
   struct EnuCoor_f enu;
   enu_of_ecef_point_f(&enu, def, ecef);
@@ -98,26 +98,26 @@ void ned_of_ecef_point_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct Ece
 }
 
 
-void enu_of_ecef_vect_f(struct EnuCoor_f* enu, struct LtpDef_f* def, struct EcefCoor_f* ecef)
+void enu_of_ecef_vect_f(struct EnuCoor_f *enu, struct LtpDef_f *def, struct EcefCoor_f *ecef)
 {
   MAT33_VECT3_MUL(*enu, def->ltp_of_ecef, *ecef);
 }
 
-void ned_of_ecef_vect_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct EcefCoor_f* ecef)
+void ned_of_ecef_vect_f(struct NedCoor_f *ned, struct LtpDef_f *def, struct EcefCoor_f *ecef)
 {
   struct EnuCoor_f enu;
   enu_of_ecef_vect_f(&enu, def, ecef);
   ENU_OF_TO_NED(*ned, enu);
 }
 
-void enu_of_lla_point_f(struct EnuCoor_f* enu, struct LtpDef_f* def, struct LlaCoor_f* lla)
+void enu_of_lla_point_f(struct EnuCoor_f *enu, struct LtpDef_f *def, struct LlaCoor_f *lla)
 {
   struct EcefCoor_f ecef;
   ecef_of_lla_f(&ecef, lla);
   enu_of_ecef_point_f(enu, def, &ecef);
 }
 
-void ned_of_lla_point_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct LlaCoor_f* lla)
+void ned_of_lla_point_f(struct NedCoor_f *ned, struct LtpDef_f *def, struct LlaCoor_f *lla)
 {
   struct EcefCoor_f ecef;
   ecef_of_lla_f(&ecef, lla);
@@ -127,7 +127,7 @@ void ned_of_lla_point_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct LlaC
 /*
  * not enought precision with float - use double
  */
-void ecef_of_enu_point_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct EnuCoor_f* enu)
+void ecef_of_enu_point_f(struct EcefCoor_f *ecef, struct LtpDef_f *def, struct EnuCoor_f *enu)
 {
   /* convert used floats to double */
   struct DoubleRMat ltp_of_ecef_d;
@@ -155,14 +155,14 @@ void ecef_of_enu_point_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct E
   ecef->z = (float) ecef_d.z + def->ecef.z;
 }
 
-void ecef_of_ned_point_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct NedCoor_f* ned)
+void ecef_of_ned_point_f(struct EcefCoor_f *ecef, struct LtpDef_f *def, struct NedCoor_f *ned)
 {
   struct EnuCoor_f enu;
   ENU_OF_TO_NED(enu, *ned);
   ecef_of_enu_point_f(ecef, def, &enu);
 }
 
-void ecef_of_enu_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct EnuCoor_f* enu)
+void ecef_of_enu_vect_f(struct EcefCoor_f *ecef, struct LtpDef_f *def, struct EnuCoor_f *enu)
 {
   /* convert used floats to double */
   struct DoubleRMat ltp_of_ecef_d;
@@ -190,7 +190,7 @@ void ecef_of_enu_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct En
   ecef->z = (float) ecef_d.z;
 }
 
-void ecef_of_ned_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct NedCoor_f* ned)
+void ecef_of_ned_vect_f(struct EcefCoor_f *ecef, struct LtpDef_f *def, struct NedCoor_f *ned)
 {
   struct EnuCoor_f enu;
   ENU_OF_TO_NED(enu, *ned);
@@ -202,7 +202,7 @@ void ecef_of_ned_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct Ne
 
 
 /* http://en.wikipedia.org/wiki/Geodetic_system */
-void lla_of_ecef_f(struct LlaCoor_f* out, struct EcefCoor_f* in)
+void lla_of_ecef_f(struct LlaCoor_f *out, struct EcefCoor_f *in)
 {
 
   // FIXME : make an ellipsoid struct
@@ -239,7 +239,7 @@ void lla_of_ecef_f(struct LlaCoor_f* out, struct EcefCoor_f* in)
 
 }
 
-void ecef_of_lla_f(struct EcefCoor_f* out, struct LlaCoor_f* in)
+void ecef_of_lla_f(struct EcefCoor_f *out, struct LlaCoor_f *in)
 {
 
   // FIXME : make an ellipsoid struct
@@ -301,7 +301,7 @@ static inline float inverse_isometric_latitude_f(float lat, float e, float epsil
   return phi0;
 }
 
-void utm_of_lla_f(struct UtmCoor_f* utm, struct LlaCoor_f* lla)
+void utm_of_lla_f(struct UtmCoor_f *utm, struct LlaCoor_f *lla)
 {
   float lambda_c = LambdaOfUtmZone(utm->zone);
   float ll = isometric_latitude_f(lla->lat , E);
@@ -327,7 +327,7 @@ void utm_of_lla_f(struct UtmCoor_f* utm, struct LlaCoor_f* lla)
   utm->alt = lla->alt;
 }
 
-void lla_of_utm_f(struct LlaCoor_f* lla, struct UtmCoor_f* utm)
+void lla_of_utm_f(struct LlaCoor_f *lla, struct UtmCoor_f *utm)
 {
   float scale = 1 / N / serie_coeff_proj_mercator[0];
   float real = (utm->north - DELTA_NORTH) * scale;

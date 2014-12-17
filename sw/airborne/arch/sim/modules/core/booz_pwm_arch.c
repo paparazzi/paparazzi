@@ -22,6 +22,6 @@
 
 #include "modules/core/booz_pwm_arch.h"
 
-void booz_pwm_init_arch( void ) {}
+void booz_pwm_init_arch(void) {}
 
 

@@ -128,13 +128,13 @@ void ms5611_spi_periodic_check(struct Ms5611_Spi *ms)
   }
 }
 
-void ms5611_spi_event(struct Ms5611_Spi *ms) {
+void ms5611_spi_event(struct Ms5611_Spi *ms)
+{
   if (ms->initialized) {
     if (ms->spi_trans.status == SPITransFailed) {
       ms->status = MS5611_STATUS_IDLE;
       ms->spi_trans.status = SPITransDone;
-    }
-    else if (ms->spi_trans.status == SPITransSuccess) {
+    } else if (ms->spi_trans.status == SPITransSuccess) {
       // Successfull reading
       switch (ms->status) {
 
@@ -142,12 +142,11 @@ void ms5611_spi_event(struct Ms5611_Spi *ms) {
           /* read D1 (pressure) */
           ms->data.d1 = (ms->rx_buf[1] << 16) |
                         (ms->rx_buf[2] << 8) |
-                         ms->rx_buf[3];
+                        ms->rx_buf[3];
           if (ms->data.d1 == 0) {
             /* if value is zero, it was read to soon and is invalid, back to idle */
             ms->status = MS5611_STATUS_IDLE;
-          }
-          else {
+          } else {
             /* start D2 conversion */
             ms->tx_buf[0] = MS5611_START_CONV_D2;
             spi_submit(ms->spi_p, &(ms->spi_trans));
@@ -159,15 +158,15 @@ void ms5611_spi_event(struct Ms5611_Spi *ms) {
           /* read D2 (temperature) */
           ms->data.d2 = (ms->rx_buf[1] << 16) |
                         (ms->rx_buf[2] << 8) |
-                         ms->rx_buf[3];
+                        ms->rx_buf[3];
           if (ms->data.d2 == 0) {
             /* if value is zero, it was read to soon and is invalid, back to idle */
             ms->status = MS5611_STATUS_IDLE;
-          }
-          else {
+          } else {
             /* calculate temp and pressure from measurements and set available if valid */
-            if (ms5611_calc(&(ms->data)))
+            if (ms5611_calc(&(ms->data))) {
               ms->data_available = TRUE;
+            }
             ms->status = MS5611_STATUS_IDLE;
           }
           break;
@@ -177,8 +176,7 @@ void ms5611_spi_event(struct Ms5611_Spi *ms) {
       }
       ms->spi_trans.status = SPITransDone;
     }
-  }
-  else if (ms->status != MS5611_STATUS_UNINIT) { // Configuring but not yet initialized
+  } else if (ms->status != MS5611_STATUS_UNINIT) { // Configuring but not yet initialized
     switch (ms->spi_trans.status) {
 
       case SPITransFailed:
@@ -191,19 +189,17 @@ void ms5611_spi_event(struct Ms5611_Spi *ms) {
         if (ms->status == MS5611_STATUS_PROM) {
           /* read prom data */
           ms->data.c[ms->prom_cnt++] = (ms->rx_buf[1] << 8) |
-                                        ms->rx_buf[2];
+                                       ms->rx_buf[2];
           if (ms->prom_cnt < PROM_NB) {
             /* get next prom data */
             ms->tx_buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
             spi_submit(ms->spi_p, &(ms->spi_trans));
-          }
-          else {
+          } else {
             /* done reading prom, check prom crc */
             if (ms5611_prom_crc_ok(ms->data.c)) {
               ms->initialized = TRUE;
               ms->status = MS5611_STATUS_IDLE;
-            }
-            else {
+            } else {
               /* checksum error, try again */
               ms->status = MS5611_STATUS_UNINIT;
             }

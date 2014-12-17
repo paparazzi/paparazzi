@@ -22,8 +22,8 @@
 #ifndef PPRZ_DEBUG_H
 #define PPRZ_DEBUG_H
 
-#define MY_ASSERT(cond) {			\
-    if (!(cond)) while(1);			\
+#define MY_ASSERT(cond) {     \
+    if (!(cond)) while(1);      \
   }
 
 #ifdef PPRZ_DEBUG
@@ -46,7 +46,7 @@ extern uint8_t pprz_debug_err;
     if (!(cond)) {                                                  \
       pprz_debug_mod = mod;                                         \
       pprz_debug_err = err;                                         \
-      DOWNLINK_SEND_PPRZ_DEBUG(DefaultChannel, DefaultDevice, &pprz_debug_mod, &pprz_debug_err);	\
+      DOWNLINK_SEND_PPRZ_DEBUG(DefaultChannel, DefaultDevice, &pprz_debug_mod, &pprz_debug_err);  \
     }                                                               \
   }
 #else

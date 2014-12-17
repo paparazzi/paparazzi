@@ -52,7 +52,7 @@ void writePCAP01_SRAM(uint8_t data, uint16_t s_add)
 {
   while (pcap01_trans.status == I2CTransPending);
 
-  pcap01_trans.buf[0] = 0x90+(unsigned char)(s_add>>8);
+  pcap01_trans.buf[0] = 0x90 + (unsigned char)(s_add >> 8);
   pcap01_trans.buf[1] = (unsigned char)(s_add);
   pcap01_trans.buf[2] = data;
   i2c_transmit(&PCAP01_I2C_DEV, &pcap01_trans, PCAP01_ADDR, 3);
@@ -62,7 +62,7 @@ uint8_t readPCAP01_SRAM(uint16_t s_add)
 {
   while (pcap01_trans.status == I2CTransPending);
 
-  pcap01_trans.buf[0] = 0x10+(unsigned char)(s_add>>8);
+  pcap01_trans.buf[0] = 0x10 + (unsigned char)(s_add >> 8);
   pcap01_trans.buf[1] = (unsigned char)(s_add);
   i2c_transceive(&PCAP01_I2C_DEV, &pcap01_trans, PCAP01_ADDR, 2, 1);
   while (pcap01_trans.status == I2CTransPending);
@@ -75,14 +75,14 @@ uint8_t readPCAP01_SRAM(uint16_t s_add)
 *         Function to send control commands to the PCAP01
 *
 * \param       control   Control command
-*						 possible commands:
-*						 PCAP01_PU_RESET : Hard reset of the device
-*						 PCAP01_IN_RESET : Software reset
-*						 PCAP01_START : Start measurement
-*						 PCAP01_START : Start measurement
-*						 PCAP01_TERM : Stop measurement
+*            possible commands:
+*            PCAP01_PU_RESET : Hard reset of the device
+*            PCAP01_IN_RESET : Software reset
+*            PCAP01_START : Start measurement
+*            PCAP01_START : Start measurement
+*            PCAP01_TERM : Stop measurement
 */
- void PCAP01_Control(uint8_t control)
+void PCAP01_Control(uint8_t control)
 {
   while (pcap01_trans.status == I2CTransPending);
 
@@ -93,16 +93,16 @@ uint8_t readPCAP01_SRAM(uint16_t s_add)
   i2c_transmit(&PCAP01_I2C_DEV, &pcap01_trans, PCAP01_ADDR, 4);
 }
 
- void pcap01writeRegister(uint8_t reg,uint32_t value)
- {
+void pcap01writeRegister(uint8_t reg, uint32_t value)
+{
   while (pcap01_trans.status == I2CTransPending);
 
   pcap01_trans.buf[0] = PCAP01_WRITE_REG + reg;
-  pcap01_trans.buf[1] = (unsigned char) (value>>16);
-  pcap01_trans.buf[2] = (unsigned char) (value>>8);
-  pcap01_trans.buf[3] = (unsigned char) (value);
+  pcap01_trans.buf[1] = (unsigned char)(value >> 16);
+  pcap01_trans.buf[2] = (unsigned char)(value >> 8);
+  pcap01_trans.buf[3] = (unsigned char)(value);
   i2c_transmit(&PCAP01_I2C_DEV, &pcap01_trans, PCAP01_ADDR, 4);
- }
+}
 
 #ifdef PCAP01_LOAD_FIRMWARE
 void writePCAP01_firmware(void)
@@ -117,41 +117,39 @@ void writePCAP01_firmware(void)
   writePCAP01_SRAM(testbyte, testaddress);
 
   //check testbyte
-  if (readPCAP01_SRAM(testaddress) != testbyte)
+  if (readPCAP01_SRAM(testaddress) != testbyte) {
     return;
-  else
-  {
-LED_ON(3);
+  } else {
+    LED_ON(3);
     //Hard reset
     PCAP01_Control(PCAP01_PU_RESET);
     //write firmware
-    for (i = 0;i< sizeof(firmware); i++)
-    {
-      writePCAP01_SRAM(firmware[i],i);
+    for (i = 0; i < sizeof(firmware); i++) {
+      writePCAP01_SRAM(firmware[i], i);
     }
     //fill with ffs
-    for (;i< 4029; i++)
-    {
-      writePCAP01_SRAM(0xff,i);
+    for (; i < 4029; i++) {
+      writePCAP01_SRAM(0xff, i);
     }
     i++;
 #ifdef PCAP01_200HZ
     //write end bytes of sram
-    writePCAP01_SRAM(0x04,i++);
-    writePCAP01_SRAM(0x01,i++);
-    writePCAP01_SRAM(0x01,i++);
+    writePCAP01_SRAM(0x04, i++);
+    writePCAP01_SRAM(0x01, i++);
+    writePCAP01_SRAM(0x01, i++);
 #endif
 #ifdef PCAP01_STANDARD
     //write end bytes of sram
-    writePCAP01_SRAM(0x02,i++);
-    writePCAP01_SRAM(0x01,i++);
-    writePCAP01_SRAM(0x03,i++);
+    writePCAP01_SRAM(0x02, i++);
+    writePCAP01_SRAM(0x01, i++);
+    writePCAP01_SRAM(0x03, i++);
 #endif
   }
 }
 #endif // PCAP01_LOAD_FIRMWARE
 
-void pcap01_init(void) {
+void pcap01_init(void)
+{
   pcap01_trans.status = I2CTransDone;
   pcap01Value.status = PCAP01_IDLE;
 #ifdef PCAP01_LOAD_FIRMWARE
@@ -184,11 +182,11 @@ void pcap01_init(void) {
 }
 
 void pcap01readRegister(uint8_t reg)
- {
+{
   uint16_t byte1 = 0x40 | reg;
   pcap01_trans.buf[0] = byte1;
   i2c_transceive(&PCAP01_I2C_DEV, &pcap01_trans, PCAP01_ADDR, 1, 3);
- }
+}
 
 /**
 * \brief  pcap01_readData
@@ -198,12 +196,12 @@ void pcap01readRegister(uint8_t reg)
 */
 void pcap01_periodic(void)
 {
-    pcap01Value.status = PCAP01_GET_HUMID;
+  pcap01Value.status = PCAP01_GET_HUMID;
 #ifdef PCAP01_STANDARD
-    pcap01readRegister(PCAP01_REG1);
+  pcap01readRegister(PCAP01_REG1);
 #endif
 #ifdef PCAP01_200HZ
-    pcap01readRegister(PCAP01_REG2);
+  pcap01readRegister(PCAP01_REG2);
 #endif
 }
 
@@ -215,37 +213,37 @@ void pcap01_event(void)
   if (pcap01_trans.status == I2CTransSuccess) {
     switch (pcap01Value.status) {
 
-  case PCAP01_GET_HUMID:
-    pcap01Value.C_ratio = pcap01_trans.buf[0] << 16;
-    pcap01Value.C_ratio |= (pcap01_trans.buf[1] << 8);
-    pcap01Value.C_ratio |= pcap01_trans.buf[2];
-    pcap01Value.status = PCAP01_GET_TEMP;
+      case PCAP01_GET_HUMID:
+        pcap01Value.C_ratio = pcap01_trans.buf[0] << 16;
+        pcap01Value.C_ratio |= (pcap01_trans.buf[1] << 8);
+        pcap01Value.C_ratio |= pcap01_trans.buf[2];
+        pcap01Value.status = PCAP01_GET_TEMP;
 #ifdef PCAP01_STANDARD
-    pcap01readRegister(PCAP01_REG13);
+        pcap01readRegister(PCAP01_REG13);
 #endif
 #ifdef PCAP01_200HZ
-    pcap01readRegister(PCAP01_REG3);
+        pcap01readRegister(PCAP01_REG3);
 #endif
-    break;
+        break;
 
-  case PCAP01_GET_TEMP:
-    pcap01Value.R_ratio = pcap01_trans.buf[0] << 16;
-    pcap01Value.R_ratio |= (pcap01_trans.buf[1] << 8);
-    pcap01Value.R_ratio |= pcap01_trans.buf[2];
-    humidity = pcap01Value.C_ratio * (-0.0023959245437) + 516.4124438673063;
-    temperature = pcap01Value.R_ratio * 61.927 - 259.74;
-    DOWNLINK_SEND_PCAP01_STATUS(DefaultChannel, DefaultDevice,
-        &pcap01Value.C_ratio,
-        &pcap01Value.R_ratio,
-        &humidity,
-        &temperature);
-    pcap01_trans.status = I2CTransDone;
-    pcap01Value.status = PCAP01_IDLE;
-    break;
+      case PCAP01_GET_TEMP:
+        pcap01Value.R_ratio = pcap01_trans.buf[0] << 16;
+        pcap01Value.R_ratio |= (pcap01_trans.buf[1] << 8);
+        pcap01Value.R_ratio |= pcap01_trans.buf[2];
+        humidity = pcap01Value.C_ratio * (-0.0023959245437) + 516.4124438673063;
+        temperature = pcap01Value.R_ratio * 61.927 - 259.74;
+        DOWNLINK_SEND_PCAP01_STATUS(DefaultChannel, DefaultDevice,
+                                    &pcap01Value.C_ratio,
+                                    &pcap01Value.R_ratio,
+                                    &humidity,
+                                    &temperature);
+        pcap01_trans.status = I2CTransDone;
+        pcap01Value.status = PCAP01_IDLE;
+        break;
 
-  default:
-    pcap01_trans.status = I2CTransDone;
-    break;
-  }
+      default:
+        pcap01_trans.status = I2CTransDone;
+        break;
+    }
   }
 }

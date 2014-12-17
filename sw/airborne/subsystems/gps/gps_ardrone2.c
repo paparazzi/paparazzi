@@ -35,11 +35,13 @@
 
 bool_t gps_ardrone2_available;
 
-void gps_impl_init( void ) {
+void gps_impl_init(void)
+{
   gps_ardrone2_available = FALSE;
 }
 
-void gps_ardrone2_parse(navdata_gps_t *navdata_gps) {
+void gps_ardrone2_parse(navdata_gps_t *navdata_gps)
+{
   int i;
 
 #ifdef ARDRONE2_DEBUG
@@ -62,16 +64,17 @@ void gps_ardrone2_parse(navdata_gps_t *navdata_gps) {
   // TODO: parse other stuff
   gps.nb_channels = GPS_NB_CHANNELS;
 
-  for(i = 0; i < GPS_NB_CHANNELS; i++) {
+  for (i = 0; i < GPS_NB_CHANNELS; i++) {
     gps.svinfos[i].svid = navdata_gps->channels[i].sat;
     gps.svinfos[i].cno = navdata_gps->channels[i].cn0;
   }
 
   // Check if we have a fix TODO: check if 2D or 3D fix?
-  if (navdata_gps->gps_state == 1)
+  if (navdata_gps->gps_state == 1) {
     gps.fix = GPS_FIX_3D;
-  else
+  } else {
     gps.fix = GPS_FIX_NONE;
+  }
 
   // Set that there is a packet
   gps_ardrone2_available = TRUE;

@@ -41,14 +41,14 @@ struct BoozFmsTestSignal {
 
 extern struct BoozFmsTestSignal fms_test_signal;
 
-#define booz_fms_test_signal_SetPeriod(_val) {		\
-    fms_test_signal.period = _val;			\
-    fms_test_signal.counter = 0;		        \
+#define booz_fms_test_signal_SetPeriod(_val) {    \
+    fms_test_signal.period = _val;      \
+    fms_test_signal.counter = 0;            \
   }
 
-#define booz_fms_test_signal_SetMode(_val) {		\
-    fms_test_signal.mode = (enum fms_ts_mode)(_val);	\
-    fms_test_signal.counter = 0;			\
+#define booz_fms_test_signal_SetMode(_val) {    \
+    fms_test_signal.mode = (enum fms_ts_mode)(_val);  \
+    fms_test_signal.counter = 0;      \
   }
 
 #endif /* BOOZ_FMS_TEST_SIGNAL_H */

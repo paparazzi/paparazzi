@@ -41,7 +41,7 @@ void atmega_i2c_cam_ctrl_init(void)
   dc_init();
 }
 
-void atmega_i2c_cam_ctrl_periodic (void)
+void atmega_i2c_cam_ctrl_periodic(void)
 {
   dc_periodic_4Hz();
 
@@ -57,31 +57,25 @@ void atmega_i2c_cam_ctrl_send(uint8_t cmd)
   static uint8_t mode = 0;
   unsigned char cam_ret[1];
 
-  if (cmd == DC_SHOOT)
-  {
+  if (cmd == DC_SHOOT) {
     dc_send_shot_position();
-  }
-  else if (cmd == DC_TALLER)
-  {
+  } else if (cmd == DC_TALLER) {
     zoom = 1;
-  }
-  else if (cmd == DC_WIDER)
-  {
+  } else if (cmd == DC_WIDER) {
     zoom = 0;
-  }
-  else if (cmd == DC_GET_STATUS)
-  {
+  } else if (cmd == DC_GET_STATUS) {
     mode++;
-    if (mode > 15)
+    if (mode > 15) {
       mode = 0;
+    }
   }
 
   cam_ret[0] = mode + zoom * 0x20;
-  RunOnceEvery(6,DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, 1, cam_ret ));
+  RunOnceEvery(6, DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, 1, cam_ret));
 
 }
 
-void atmega_i2c_cam_ctrl_event( void )
+void atmega_i2c_cam_ctrl_event(void)
 {
 }
 

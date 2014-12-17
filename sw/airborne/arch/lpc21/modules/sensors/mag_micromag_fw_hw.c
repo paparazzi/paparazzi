@@ -21,29 +21,32 @@ static void EXTINT_ISR(void) __attribute__((naked));
 #define SPI1_VIC_SLOT 7
 #endif
 
-static void SSP_ISR(void) {
- ISR_ENTRY();
+static void SSP_ISR(void)
+{
+  ISR_ENTRY();
 
- MmOnSpiIt();
+  MmOnSpiIt();
 
- VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
- ISR_EXIT();
+  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
+  ISR_EXIT();
 }
 
-void EXTINT_ISR(void) {
+void EXTINT_ISR(void)
+{
   ISR_ENTRY();
 //LED_TOGGLE(3);
 
   /* no, we won't do anything asynchronously, so just notify */
   micromag_status = MM_GOT_EOC;
   /* clear EINT */
-  SetBit(EXTINT,MM_DRDY_EINT);
+  SetBit(EXTINT, MM_DRDY_EINT);
 //  EXTINT = (1<<MM_DRDY_EINT);
   VICVectAddr = 0x00000000;    /* clear this interrupt from the VIC */
   ISR_EXIT();
 }
 
-void micromag_hw_init( void ) {
+void micromag_hw_init(void)
+{
   /* setup pins for SSP (SCK, MISO, MOSI, SSEL) */
   PINSEL1 |= SSP_PINSEL1_SCK  | SSP_PINSEL1_MISO | SSP_PINSEL1_MOSI;
 
@@ -53,8 +56,8 @@ void micromag_hw_init( void ) {
   SSPCPSR = 0x02;
 
   /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( VIC_SPI1 );  /* SPI1 selected as IRQ */
-  VICIntEnable = VIC_BIT( VIC_SPI1 );    /* enable it            */
+  VICIntSelect &= ~VIC_BIT(VIC_SPI1);    /* SPI1 selected as IRQ */
+  VICIntEnable = VIC_BIT(VIC_SPI1);      /* enable it            */
   _VIC_CNTL(SPI1_VIC_SLOT) = VIC_ENABLE | VIC_SPI1;
   _VIC_ADDR(SPI1_VIC_SLOT) = (uint32_t)SSP_ISR;      /* address of the ISR   */
 
@@ -70,12 +73,12 @@ void micromag_hw_init( void ) {
   /* connected pin to EXINT */
   MM_DRDY_PINSEL |= MM_DRDY_PINSEL_VAL << MM_DRDY_PINSEL_BIT;
   SetBit(EXTMODE, MM_DRDY_EINT); /* EINT is edge trigered */
-  SetBit(EXTPOLAR,MM_DRDY_EINT); /* EINT is trigered on rising edge */
-  SetBit(EXTINT,MM_DRDY_EINT);   /* clear pending EINT */
+  SetBit(EXTPOLAR, MM_DRDY_EINT); /* EINT is trigered on rising edge */
+  SetBit(EXTINT, MM_DRDY_EINT);  /* clear pending EINT */
 
   /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( MM_DRDY_VIC_IT );                       /* select EINT as IRQ source */
-  VICIntEnable = VIC_BIT( MM_DRDY_VIC_IT );                         /* enable it                 */
+  VICIntSelect &= ~VIC_BIT(MM_DRDY_VIC_IT);                         /* select EINT as IRQ source */
+  VICIntEnable = VIC_BIT(MM_DRDY_VIC_IT);                           /* enable it                 */
   _VIC_CNTL(MICROMAG_DRDY_VIC_SLOT) = VIC_ENABLE | MM_DRDY_VIC_IT;
   _VIC_ADDR(MICROMAG_DRDY_VIC_SLOT) = (uint32_t)EXTINT_ISR;         // address of the ISR
 }

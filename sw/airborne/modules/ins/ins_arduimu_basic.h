@@ -37,9 +37,9 @@ extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
 extern bool_t arduimu_calibrate_neutrals;
 
-void ArduIMU_init( void );
-void ArduIMU_periodic( void );
-void ArduIMU_periodicGPS( void );
-void ArduIMU_event( void );
+void ArduIMU_init(void);
+void ArduIMU_periodic(void);
+void ArduIMU_periodicGPS(void);
+void ArduIMU_event(void);
 
 #endif // ArduIMU_H

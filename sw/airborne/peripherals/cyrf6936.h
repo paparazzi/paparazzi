@@ -65,12 +65,14 @@ struct Cyrf6936 {
   uint8_t rx_packet[16];                    /**< The last received packet */
 };
 
-extern void cyrf6936_init(struct Cyrf6936 *cyrf, struct spi_periph *spi_p, const uint8_t slave_idx, const uint32_t rst_port, const uint16_t rst_pin);
+extern void cyrf6936_init(struct Cyrf6936 *cyrf, struct spi_periph *spi_p, const uint8_t slave_idx,
+                          const uint32_t rst_port, const uint16_t rst_pin);
 void cyrf6936_event(struct Cyrf6936 *cyrf);
 
 bool_t cyrf6936_write(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data);
 bool_t cyrf6936_multi_write(struct Cyrf6936 *cyrf, const uint8_t data[][2], const uint8_t length);
-bool_t cyrf6936_write_chan_sop_data_crc(struct Cyrf6936 *cyrf, const uint8_t chan, const uint8_t sop_code[], const uint8_t data_code[], const uint16_t crc_seed);
+bool_t cyrf6936_write_chan_sop_data_crc(struct Cyrf6936 *cyrf, const uint8_t chan, const uint8_t sop_code[],
+                                        const uint8_t data_code[], const uint16_t crc_seed);
 bool_t cyrf6936_read_rx_irq_status_packet(struct Cyrf6936 *cyrf);
 bool_t cyrf6936_send(struct Cyrf6936 *cyrf, const uint8_t data[], const uint8_t length);
 

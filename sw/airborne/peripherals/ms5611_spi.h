@@ -46,25 +46,28 @@ struct Ms5611_Spi {
 };
 
 // Functions
-extern void ms5611_spi_init(struct Ms5611_Spi* ms, struct spi_periph* spi_p, uint8_t addr);
-extern void ms5611_spi_start_configure(struct Ms5611_Spi* ms);
-extern void ms5611_spi_start_conversion(struct Ms5611_Spi* ms);
-extern void ms5611_spi_periodic_check(struct Ms5611_Spi* ms);
-extern void ms5611_spi_event(struct Ms5611_Spi* ms);
+extern void ms5611_spi_init(struct Ms5611_Spi *ms, struct spi_periph *spi_p, uint8_t addr);
+extern void ms5611_spi_start_configure(struct Ms5611_Spi *ms);
+extern void ms5611_spi_start_conversion(struct Ms5611_Spi *ms);
+extern void ms5611_spi_periodic_check(struct Ms5611_Spi *ms);
+extern void ms5611_spi_event(struct Ms5611_Spi *ms);
 
 /** convenience function to trigger new measurement.
  * (or start configuration if not already initialized)
  * Still need to regularly run ms5611_spi_periodic_check to complete the measurement.
  */
-static inline void ms5611_spi_read(struct Ms5611_Spi* ms) {
-  if (ms->initialized)
+static inline void ms5611_spi_read(struct Ms5611_Spi *ms)
+{
+  if (ms->initialized) {
     ms5611_spi_start_conversion(ms);
-  else
+  } else {
     ms5611_spi_start_configure(ms);
+  }
 }
 
 /// convenience function
-static inline void ms5611_spi_periodic(struct Ms5611_Spi* ms) {
+static inline void ms5611_spi_periodic(struct Ms5611_Spi *ms)
+{
   ms5611_spi_read(ms);
   ms5611_spi_periodic_check(ms);
 }

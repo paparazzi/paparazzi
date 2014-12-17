@@ -44,25 +44,28 @@ struct Ms5611_I2c {
 };
 
 // Functions
-extern void ms5611_i2c_init(struct Ms5611_I2c* ms, struct i2c_periph* i2c_p, uint8_t addr);
-extern void ms5611_i2c_start_configure(struct Ms5611_I2c* ms);
-extern void ms5611_i2c_start_conversion(struct Ms5611_I2c* ms);
-extern void ms5611_i2c_periodic_check(struct Ms5611_I2c* ms);
-extern void ms5611_i2c_event(struct Ms5611_I2c* ms);
+extern void ms5611_i2c_init(struct Ms5611_I2c *ms, struct i2c_periph *i2c_p, uint8_t addr);
+extern void ms5611_i2c_start_configure(struct Ms5611_I2c *ms);
+extern void ms5611_i2c_start_conversion(struct Ms5611_I2c *ms);
+extern void ms5611_i2c_periodic_check(struct Ms5611_I2c *ms);
+extern void ms5611_i2c_event(struct Ms5611_I2c *ms);
 
 /** convenience function to trigger new measurement.
  * (or start configuration if not already initialized)
  * Still need to regularly run ms5611_i2c_periodic_check to complete the measurement.
  */
-static inline void ms5611_i2c_read(struct Ms5611_I2c* ms) {
-  if (ms->initialized)
+static inline void ms5611_i2c_read(struct Ms5611_I2c *ms)
+{
+  if (ms->initialized) {
     ms5611_i2c_start_conversion(ms);
-  else
+  } else {
     ms5611_i2c_start_configure(ms);
+  }
 }
 
 /// convenience function
-static inline void ms5611_i2c_periodic(struct Ms5611_I2c* ms) {
+static inline void ms5611_i2c_periodic(struct Ms5611_I2c *ms)
+{
   ms5611_i2c_read(ms);
   ms5611_i2c_periodic_check(ms);
 }

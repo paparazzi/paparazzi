@@ -59,7 +59,7 @@ extern "C" {
 /** standard air density in kg/m^3 */
 #define PPRZ_ISA_AIR_DENSITY 1.225
 
-static const float PPRZ_ISA_M_OF_P_CONST = (PPRZ_ISA_AIR_GAS_CONSTANT * PPRZ_ISA_SEA_LEVEL_TEMP / PPRZ_ISA_GRAVITY);
+static const float PPRZ_ISA_M_OF_P_CONST = (PPRZ_ISA_AIR_GAS_CONSTANT *PPRZ_ISA_SEA_LEVEL_TEMP / PPRZ_ISA_GRAVITY);
 
 /**
  * Get absolute altitude from pressure (using simplified equation).
@@ -137,7 +137,7 @@ static inline float pprz_isa_height_of_pressure_full(float pressure, float ref_p
   if (ref_p > 0.) {
     const float prel = pressure / ref_p;
     const float inv_expo = PPRZ_ISA_GAS_CONSTANT * PPRZ_ISA_TEMP_LAPS_RATE /
-      PPRZ_ISA_GRAVITY / PPRZ_ISA_MOLAR_MASS;
+                           PPRZ_ISA_GRAVITY / PPRZ_ISA_MOLAR_MASS;
     return (1 - powf(prel, inv_expo)) * PPRZ_ISA_SEA_LEVEL_TEMP / PPRZ_ISA_TEMP_LAPS_RATE;
   } else {
     return 0.;
@@ -157,7 +157,7 @@ static inline float pprz_isa_ref_pressure_of_height_full(float pressure, float h
   //  Trel = 1 - L*h/T0;
   const float Trel = 1.0 - PPRZ_ISA_TEMP_LAPS_RATE * height / PPRZ_ISA_SEA_LEVEL_TEMP;
   const float expo = PPRZ_ISA_GRAVITY * PPRZ_ISA_MOLAR_MASS / PPRZ_ISA_GAS_CONSTANT /
-    PPRZ_ISA_TEMP_LAPS_RATE;
+                     PPRZ_ISA_TEMP_LAPS_RATE;
   return pressure / pow(Trel, expo);
 }
 

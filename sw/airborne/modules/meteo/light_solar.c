@@ -51,14 +51,16 @@ int32_t  light_cnt;
 static struct adc_buf buf_light_sol_up;
 static struct adc_buf buf_light_sol_dn;
 
-void light_solar_init( void ) {
+void light_solar_init(void)
+{
   adc_buf_channel(ADC_CHANNEL_LIGHT_SOLAR_UP, &buf_light_sol_up, ADC_CHANNEL_LIGHT_NB_SAMPLES);
   adc_buf_channel(ADC_CHANNEL_LIGHT_SOLAR_DN, &buf_light_sol_dn, ADC_CHANNEL_LIGHT_NB_SAMPLES);
 
   light_cnt = 0;
 }
 
-void light_solar_periodic( void ) {
+void light_solar_periodic(void)
+{
   up[light_cnt] = buf_light_sol_up.sum / buf_light_sol_up.av_nb_sample;
   dn[light_cnt] = buf_light_sol_dn.sum / buf_light_sol_dn.av_nb_sample;
 
@@ -66,9 +68,9 @@ void light_solar_periodic( void ) {
 
   if (++light_cnt >= LIGHT_NB) {
     DOWNLINK_SEND_SOLAR_RADIATION(DefaultChannel, DefaultDevice,
-          &up[0], &dn[0], &up[1], &dn[1], &up[2], &dn[2], &up[3], &dn[3],
-          &up[4], &dn[4], &up[5], &dn[5], &up[6], &dn[6], &up[7], &dn[7],
-          &up[8], &dn[8], &up[9], &dn[9]);
+                                  &up[0], &dn[0], &up[1], &dn[1], &up[2], &dn[2], &up[3], &dn[3],
+                                  &up[4], &dn[4], &up[5], &dn[5], &up[6], &dn[6], &up[7], &dn[7],
+                                  &up[8], &dn[8], &up[9], &dn[9]);
     light_cnt = 0;
   }
 }

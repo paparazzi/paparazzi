@@ -43,7 +43,7 @@
 #define ARDUIMU_I2C_DEV i2c0
 #endif
 
-// Adresse des I2C Slaves:  0001 0110	letztes Bit ist für Read/Write
+// Adresse des I2C Slaves:  0001 0110 letztes Bit ist für Read/Write
 // einzugebende Adresse im ArduIMU ist 0000 1011
 // da ArduIMU das Read/Write Bit selber anfügt.
 #define ArduIMU_SLAVE_ADDR 0x22
@@ -78,7 +78,8 @@ bool_t arduimu_calibrate_neutrals;
 bool_t high_accel_done;
 bool_t high_accel_flag;
 
-void ArduIMU_init( void ) {
+void ArduIMU_init(void)
+{
   FLOAT_EULERS_ZERO(arduimu_eulers);
   FLOAT_RATES_ZERO(arduimu_rates);
   FLOAT_VECT3_ZERO(arduimu_accel);
@@ -95,13 +96,14 @@ void ArduIMU_init( void ) {
 }
 
 #define FillBufWith32bit(_buf, _index, _value) {  \
-  _buf[_index] = (uint8_t) (_value);              \
-  _buf[_index+1] = (uint8_t) ((_value) >> 8);     \
-  _buf[_index+2] = (uint8_t) ((_value) >> 16);    \
-  _buf[_index+3] = (uint8_t) ((_value) >> 24);    \
-}
+    _buf[_index] = (uint8_t) (_value);              \
+    _buf[_index+1] = (uint8_t) ((_value) >> 8);     \
+    _buf[_index+2] = (uint8_t) ((_value) >> 16);    \
+    _buf[_index+3] = (uint8_t) ((_value) >> 24);    \
+  }
 
-void ArduIMU_periodicGPS( void ) {
+void ArduIMU_periodicGPS(void)
+{
 
   if (ardu_gps_trans.status != I2CTransDone) { return; }
 
@@ -128,48 +130,51 @@ void ArduIMU_periodicGPS( void ) {
   FillBufWith32bit(ardu_gps_trans.buf, 8, (int32_t)gps.course);   // course
   ardu_gps_trans.buf[12] = gps.fix;                               // status gps fix
   ardu_gps_trans.buf[13] = (uint8_t)arduimu_calibrate_neutrals;   // calibration flag
-  ardu_gps_trans.buf[14] = (uint8_t)high_accel_flag;              // high acceleration flag (disable accelerometers in the arduimu filter)
+  ardu_gps_trans.buf[14] = (uint8_t)
+                           high_accel_flag;              // high acceleration flag (disable accelerometers in the arduimu filter)
   i2c_transmit(&ARDUIMU_I2C_DEV, &ardu_gps_trans, ArduIMU_SLAVE_ADDR, 15);
 
   // Reset calibration flag
-  if (arduimu_calibrate_neutrals) arduimu_calibrate_neutrals = FALSE;
+  if (arduimu_calibrate_neutrals) { arduimu_calibrate_neutrals = FALSE; }
 }
 
-void ArduIMU_periodic( void ) {
+void ArduIMU_periodic(void)
+{
   //Frequence defined in conf/modules/ins_arduimu.xml
 
   if (ardu_ins_trans.status == I2CTransDone) {
-    i2c_receive(&ARDUIMU_I2C_DEV, &ardu_ins_trans, ArduIMU_SLAVE_ADDR, NB_DATA*2);
+    i2c_receive(&ARDUIMU_I2C_DEV, &ardu_ins_trans, ArduIMU_SLAVE_ADDR, NB_DATA * 2);
   }
 
 }
 
 #include "math/pprz_algebra_int.h"
 /*
-   Buffer O:	Roll
-   Buffer 1:	Pitch
-   Buffer 2:	Yaw
-   Buffer 3:	Gyro X
-   Buffer 4:	Gyro Y
-   Buffer 5:	Gyro Z
-   Buffer 6:	Accel X
-   Buffer 7:	Accel Y
-   Buffer 8:	Accel Z
+   Buffer O:  Roll
+   Buffer 1:  Pitch
+   Buffer 2:  Yaw
+   Buffer 3:  Gyro X
+   Buffer 4:  Gyro Y
+   Buffer 5:  Gyro Z
+   Buffer 6:  Accel X
+   Buffer 7:  Accel Y
+   Buffer 8:  Accel Z
    */
 
-void ArduIMU_event( void ) {
+void ArduIMU_event(void)
+{
   // Handle INS I2C event
   if (ardu_ins_trans.status == I2CTransSuccess) {
     // received data from I2C transaction
-    recievedData[0] = (ardu_ins_trans.buf[1]<<8) | ardu_ins_trans.buf[0];
-    recievedData[1] = (ardu_ins_trans.buf[3]<<8) | ardu_ins_trans.buf[2];
-    recievedData[2] = (ardu_ins_trans.buf[5]<<8) | ardu_ins_trans.buf[4];
-    recievedData[3] = (ardu_ins_trans.buf[7]<<8) | ardu_ins_trans.buf[6];
-    recievedData[4] = (ardu_ins_trans.buf[9]<<8) | ardu_ins_trans.buf[8];
-    recievedData[5] = (ardu_ins_trans.buf[11]<<8) | ardu_ins_trans.buf[10];
-    recievedData[6] = (ardu_ins_trans.buf[13]<<8) | ardu_ins_trans.buf[12];
-    recievedData[7] = (ardu_ins_trans.buf[15]<<8) | ardu_ins_trans.buf[14];
-    recievedData[8] = (ardu_ins_trans.buf[17]<<8) | ardu_ins_trans.buf[16];
+    recievedData[0] = (ardu_ins_trans.buf[1] << 8) | ardu_ins_trans.buf[0];
+    recievedData[1] = (ardu_ins_trans.buf[3] << 8) | ardu_ins_trans.buf[2];
+    recievedData[2] = (ardu_ins_trans.buf[5] << 8) | ardu_ins_trans.buf[4];
+    recievedData[3] = (ardu_ins_trans.buf[7] << 8) | ardu_ins_trans.buf[6];
+    recievedData[4] = (ardu_ins_trans.buf[9] << 8) | ardu_ins_trans.buf[8];
+    recievedData[5] = (ardu_ins_trans.buf[11] << 8) | ardu_ins_trans.buf[10];
+    recievedData[6] = (ardu_ins_trans.buf[13] << 8) | ardu_ins_trans.buf[12];
+    recievedData[7] = (ardu_ins_trans.buf[15] << 8) | ardu_ins_trans.buf[14];
+    recievedData[8] = (ardu_ins_trans.buf[17] << 8) | ardu_ins_trans.buf[16];
 
     // Update ArduIMU data
     arduimu_eulers.phi = ANGLE_FLOAT_OF_BFP(recievedData[0]) - ins_roll_neutral;
@@ -190,11 +195,12 @@ void ArduIMU_event( void ) {
 
 #ifdef ARDUIMU_SYNC_SEND
     //RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &arduimu_eulers.phi, &arduimu_eulers.theta, &arduimu_eulers.psi));
-    RunOnceEvery(15, DOWNLINK_SEND_IMU_GYRO(DefaultChannel, DefaultDevice, &arduimu_rates.p, &arduimu_rates.q, &arduimu_rates.r));
-    RunOnceEvery(15, DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, DefaultDevice, &arduimu_accel.x, &arduimu_accel.y, &arduimu_accel.z));
+    RunOnceEvery(15, DOWNLINK_SEND_IMU_GYRO(DefaultChannel, DefaultDevice, &arduimu_rates.p, &arduimu_rates.q,
+                                            &arduimu_rates.r));
+    RunOnceEvery(15, DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, DefaultDevice, &arduimu_accel.x, &arduimu_accel.y,
+                 &arduimu_accel.z));
 #endif
-  }
-  else if (ardu_ins_trans.status == I2CTransFailed) {
+  } else if (ardu_ins_trans.status == I2CTransFailed) {
     ardu_ins_trans.status = I2CTransDone;
   }
   // Handle GPS I2C event
@@ -203,7 +209,7 @@ void ArduIMU_event( void ) {
   }
 }
 
-void ahrs_update_gps( void )
+void ahrs_update_gps(void)
 {
 
 }

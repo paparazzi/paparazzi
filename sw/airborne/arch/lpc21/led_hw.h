@@ -27,11 +27,11 @@
 
 #define LED_ON(i) LED_CLR(i) = _BV(LED_PIN(i));
 #define LED_OFF(i) LED_SET(i) = _BV(LED_PIN(i));
-#define LED_TOGGLE(i) {				\
-    if (LED_PIN_REG(i) & _BV(LED_PIN(i)))	\
-      LED_ON(i)				        \
-    else					\
-      LED_OFF(i)				\
-}
+#define LED_TOGGLE(i) {       \
+    if (LED_PIN_REG(i) & _BV(LED_PIN(i))) \
+      LED_ON(i)               \
+      else          \
+        LED_OFF(i)        \
+      }
 
 #endif /* LED_HW_H */

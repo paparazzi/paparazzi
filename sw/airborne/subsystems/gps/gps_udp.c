@@ -42,9 +42,10 @@ bool_t gps_available;
 
 //Define the buffer, check bytes and FmsNetwork
 unsigned char gps_udp_read_buffer[256];
-struct FmsNetwork* gps_network = NULL;
+struct FmsNetwork *gps_network = NULL;
 
-void gps_impl_init(void) {
+void gps_impl_init(void)
+{
   gps.fix = GPS_FIX_NONE;
   gps_available = FALSE;
   gps_network = network_new(GPS_UDP_HOST, 6000 /*out*/, 7000 /*in*/, TRUE);
@@ -54,29 +55,28 @@ void gps_impl_init(void) {
 
 #define UDP_GPS_INT(_udp_gps_payload) (int32_t)(*((uint8_t*)_udp_gps_payload)|*((uint8_t*)_udp_gps_payload+1)<<8|((int32_t)*((uint8_t*)_udp_gps_payload+2))<<16|((int32_t)*((uint8_t*)_udp_gps_payload+3))<<24)
 
-void gps_parse(void) {
-  if (gps_network == NULL) return;
+void gps_parse(void)
+{
+  if (gps_network == NULL) { return; }
 
   //Read from the network
-  int size = network_read( gps_network, &gps_udp_read_buffer[0], 256);
+  int size = network_read(gps_network, &gps_udp_read_buffer[0], 256);
 
-  if(size > 0)
-  {
+  if (size > 0) {
     // Correct MSG
-    if ((size == GPS_UDP_MSG_LEN) && (gps_udp_read_buffer[0] == STX))
-    {
-      gps.lla_pos.lat = UDP_GPS_INT(gps_udp_read_buffer+4);
-      gps.lla_pos.lon = UDP_GPS_INT(gps_udp_read_buffer+8);
-      gps.lla_pos.alt = UDP_GPS_INT(gps_udp_read_buffer+12);
-      gps.hmsl        = UDP_GPS_INT(gps_udp_read_buffer+16);
+    if ((size == GPS_UDP_MSG_LEN) && (gps_udp_read_buffer[0] == STX)) {
+      gps.lla_pos.lat = UDP_GPS_INT(gps_udp_read_buffer + 4);
+      gps.lla_pos.lon = UDP_GPS_INT(gps_udp_read_buffer + 8);
+      gps.lla_pos.alt = UDP_GPS_INT(gps_udp_read_buffer + 12);
+      gps.hmsl        = UDP_GPS_INT(gps_udp_read_buffer + 16);
 
-      gps.ecef_pos.x = UDP_GPS_INT(gps_udp_read_buffer+20);
-      gps.ecef_pos.y = UDP_GPS_INT(gps_udp_read_buffer+24);
-      gps.ecef_pos.z = UDP_GPS_INT(gps_udp_read_buffer+28);
+      gps.ecef_pos.x = UDP_GPS_INT(gps_udp_read_buffer + 20);
+      gps.ecef_pos.y = UDP_GPS_INT(gps_udp_read_buffer + 24);
+      gps.ecef_pos.z = UDP_GPS_INT(gps_udp_read_buffer + 28);
 
-      gps.ecef_vel.x = UDP_GPS_INT(gps_udp_read_buffer+32);
-      gps.ecef_vel.y = UDP_GPS_INT(gps_udp_read_buffer+36);
-      gps.ecef_vel.z = UDP_GPS_INT(gps_udp_read_buffer+40);
+      gps.ecef_vel.x = UDP_GPS_INT(gps_udp_read_buffer + 32);
+      gps.ecef_vel.y = UDP_GPS_INT(gps_udp_read_buffer + 36);
+      gps.ecef_vel.z = UDP_GPS_INT(gps_udp_read_buffer + 40);
 
       gps.fix = GPS_FIX_3D;
       gps_available = TRUE;
@@ -90,16 +90,14 @@ void gps_parse(void) {
       // convert to utm
       utm_of_lla_f(&utm_f, &lla_f);
       // copy results of utm conversion
-      gps.utm_pos.east = utm_f.east*100;
-      gps.utm_pos.north = utm_f.north*100;
+      gps.utm_pos.east = utm_f.east * 100;
+      gps.utm_pos.north = utm_f.north * 100;
       gps.utm_pos.alt = gps.lla_pos.alt;
       gps.utm_pos.zone = nav_utm_zone0;
 #endif
 
-    }
-    else
-    {
-      printf("gps_udp error: msg len invalid %d bytes\n",size);
+    } else {
+      printf("gps_udp error: msg len invalid %d bytes\n", size);
     }
     memset(&gps_udp_read_buffer[0], 0, sizeof(gps_udp_read_buffer));
   }

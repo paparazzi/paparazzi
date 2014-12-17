@@ -33,9 +33,9 @@
 #include "mcu_periph/uart.h"
 #include "messages.h"
 
-static inline void main_init( void );
-static inline void main_periodic( void );
-static inline void main_event( void );
+static inline void main_init(void);
+static inline void main_periodic(void);
+static inline void main_event(void);
 
 
 float setting_a;
@@ -43,60 +43,66 @@ float setting_b;
 float setting_c;
 float setting_d;
 
-int main( void ) {
+int main(void)
+{
   main_init();
-  while(1) {
-    if (sys_time_check_and_ack_timer(0))
+  while (1) {
+    if (sys_time_check_and_ack_timer(0)) {
       main_periodic();
+    }
     main_event();
   }
   return 0;
 }
 
 
-static inline void main_init( void ) {
+static inline void main_init(void)
+{
 
   mcu_init();
-  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+  sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   settings_init();
 
   mcu_int_enable();
 
 }
 
-static inline void main_periodic( void ) {
+static inline void main_periodic(void)
+{
 
   RunOnceEvery(100, {
-      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
-      PeriodicSendDlValue(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
-    });
+    DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
+    PeriodicSendDlValue(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+  });
 
 }
 
-static inline void main_event( void ) {
+static inline void main_event(void)
+{
 
   DatalinkEvent();
 
 }
 
-void dl_parse_msg(void) {
+void dl_parse_msg(void)
+{
   datalink_time = 0;
   uint8_t msg_id = dl_buffer[1];
   switch (msg_id) {
 
-  case  DL_PING: {
-    DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
-  }
-    break;
-  case DL_SETTING:
-    if (DL_SETTING_ac_id(dl_buffer) == AC_ID) {
-      uint8_t i = DL_SETTING_index(dl_buffer);
-      float val = DL_SETTING_value(dl_buffer);
-      DlSetting(i, val);
-      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
+    case  DL_PING: {
+      DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
     }
     break;
-  default:
-    break;
+    case DL_SETTING:
+      if (DL_SETTING_ac_id(dl_buffer) == AC_ID) {
+        uint8_t i = DL_SETTING_index(dl_buffer);
+        float val = DL_SETTING_value(dl_buffer);
+        DlSetting(i, val);
+        DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
+      }
+      break;
+    default:
+      break;
   }
 }

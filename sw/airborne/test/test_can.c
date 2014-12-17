@@ -31,16 +31,17 @@
 #include "mcu_periph/uart.h"
 #include "mcu_periph/can.h"
 
-static inline void main_init( void );
-static inline void main_periodic_task( void );
-static inline void main_event_task( void );
+static inline void main_init(void);
+static inline void main_periodic_task(void);
+static inline void main_event_task(void);
 void main_on_can_msg(uint32_t id, uint8_t *data, int len);
 
 uint8_t tx_data[8];
 uint8_t rx_data[8];
 bool new_can_data = false;
 
-int main(void) {
+int main(void)
+{
   main_init();
 
   tx_data[0] = 0;
@@ -54,24 +55,27 @@ int main(void) {
 
   new_can_data = false;
 
-  while(1) {
-    if (sys_time_check_and_ack_timer(0))
+  while (1) {
+    if (sys_time_check_and_ack_timer(0)) {
       main_periodic_task();
+    }
     main_event_task();
   }
 
   return 0;
 }
 
-static inline void main_init( void ) {
+static inline void main_init(void)
+{
   mcu_init();
-  sys_time_register_timer((0.5/PERIODIC_FREQUENCY), NULL);
+  sys_time_register_timer((0.5 / PERIODIC_FREQUENCY), NULL);
   ppz_can_init(main_on_can_msg);
 }
 
-static inline void main_periodic_task( void ) {
+static inline void main_periodic_task(void)
+{
 
-  tx_data[0]+=1;
+  tx_data[0] += 1;
   ppz_can_transmit(0, tx_data, 8);
 
   LED_PERIODIC();
@@ -80,7 +84,8 @@ static inline void main_periodic_task( void ) {
 
 
 
-static inline void main_event_task( void ) {
+static inline void main_event_task(void)
+{
 
   if (new_can_data) {
     if (rx_data[0] & 0x10) {
@@ -118,7 +123,7 @@ static inline void main_event_task( void ) {
 
 void main_on_can_msg(uint32_t id __attribute__((unused)), uint8_t *data, int len __attribute__((unused)))
 {
-  for (int i = 0; i<8; i++) {
+  for (int i = 0; i < 8; i++) {
     rx_data[i] = data[i];
   }
 

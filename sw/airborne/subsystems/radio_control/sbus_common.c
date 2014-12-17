@@ -54,7 +54,7 @@
 #endif
 
 
-void sbus_common_init(struct Sbus* sbus_p, struct uart_periph* dev)
+void sbus_common_init(struct Sbus *sbus_p, struct uart_periph *dev)
 {
   sbus_p->frame_available = FALSE;
   sbus_p->status = SBUS_STATUS_UNINIT;
@@ -73,8 +73,8 @@ void sbus_common_init(struct Sbus* sbus_p, struct uart_periph* dev)
 
 
 /** Decode the raw buffer */
-static void decode_sbus_buffer(const uint8_t* src, uint16_t* dst, bool_t* available,
-                               uint16_t* dstppm)
+static void decode_sbus_buffer(const uint8_t *src, uint16_t *dst, bool_t *available,
+                               uint16_t *dstppm)
 {
   // reset counters
   uint8_t byteInRawBuf = 0;
@@ -112,7 +112,7 @@ static void decode_sbus_buffer(const uint8_t* src, uint16_t* dst, bool_t* availa
 
 // Decoding event function
 // Reading from UART
-void sbus_common_decode_event(struct Sbus* sbus_p, struct uart_periph* dev)
+void sbus_common_decode_event(struct Sbus *sbus_p, struct uart_periph *dev)
 {
   uint8_t rbyte;
   if (uart_char_available(dev)) {

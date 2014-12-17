@@ -41,7 +41,8 @@ int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
 /** PWM arch init called by generic pwm driver
  */
-void actuators_pwm_arch_init(void) {
+void actuators_pwm_arch_init(void)
+{
 
   /*-----------------------------------
    * Configure timer peripheral clocks
@@ -147,7 +148,8 @@ void actuators_pwm_arch_init(void) {
 
 /** Set pulse widths from actuator values, assumed to be in us
  */
-void actuators_pwm_commit(void) {
+void actuators_pwm_commit(void)
+{
 #ifdef PWM_SERVO_0
   timer_set_oc_value(PWM_SERVO_0_TIMER, PWM_SERVO_0_OC, actuators_pwm_values[PWM_SERVO_0]);
 #endif

@@ -62,14 +62,13 @@ void atmega_i2c_cam_ctrl_init(void)
   dc_init();
 }
 
-void atmega_i2c_cam_ctrl_periodic (void)
+void atmega_i2c_cam_ctrl_periodic(void)
 {
   atmega_i2c_cam_ctrl_just_sent_command = 0;
   dc_periodic_4Hz();
 
   // Request Status
-  if (atmega_i2c_cam_ctrl_just_sent_command == 0)
-  {
+  if (atmega_i2c_cam_ctrl_just_sent_command == 0) {
     atmega_i2c_cam_ctrl_send(DC_GET_STATUS);
   }
 }
@@ -84,19 +83,17 @@ void atmega_i2c_cam_ctrl_send(uint8_t cmd)
   atmega_i2c_cam_ctrl_trans.buf[0] = cmd;
   i2c_transceive(&ATMEGA_I2C_DEV, &atmega_i2c_cam_ctrl_trans, ATMEGA_SLAVE_ADDR, 1, 1);
 
-  if (cmd == DC_SHOOT)
-  {
+  if (cmd == DC_SHOOT) {
     dc_send_shot_position();
   }
 }
 
-void atmega_i2c_cam_ctrl_event( void )
+void atmega_i2c_cam_ctrl_event(void)
 {
-  if (atmega_i2c_cam_ctrl_trans.status == I2CTransSuccess)
-  {
+  if (atmega_i2c_cam_ctrl_trans.status == I2CTransSuccess) {
     unsigned char cam_ret[1];
     cam_ret[0] = atmega_i2c_cam_ctrl_trans.buf[0];
-    RunOnceEvery(6,DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, 1, cam_ret ));
+    RunOnceEvery(6, DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, 1, cam_ret));
     atmega_i2c_cam_ctrl_trans.status = I2CTransDone;
   }
 }

@@ -21,37 +21,38 @@ static struct event periodic_event;
 static struct event datalink_event;
 static struct timespec periodic_date;
 
-static struct FmsNetwork* network;
+static struct FmsNetwork *network;
 
-#define PERIODIC_START() {				\
-    clock_gettime(CLOCK_MONOTONIC, &periodic_date);	\
-    struct timeval tv;					\
-    evutil_timerclear(&tv);				\
-    tv.tv_sec  = PERIODIC_SEC;				\
-    tv.tv_usec = PERIODIC_USEC;				\
-    event_add(&periodic_event, &tv);			\
+#define PERIODIC_START() {        \
+    clock_gettime(CLOCK_MONOTONIC, &periodic_date); \
+    struct timeval tv;          \
+    evutil_timerclear(&tv);       \
+    tv.tv_sec  = PERIODIC_SEC;        \
+    tv.tv_usec = PERIODIC_USEC;       \
+    event_add(&periodic_event, &tv);      \
   }
 
-#define PERIODIC_RESCHEDULE() {						\
-    periodic_date.tv_nsec +=	PERIODIC_NSEC;				\
-    if (periodic_date.tv_nsec>= ONE_SEC_NS) {				\
-      periodic_date.tv_nsec -= ONE_SEC_NS;				\
-      periodic_date.tv_sec++;						\
-    }									\
-    struct timespec time_now;						\
-    clock_gettime(CLOCK_MONOTONIC, &time_now);				\
-    int32_t dt_ns = (int32_t)periodic_date.tv_nsec - (int32_t)time_now.tv_nsec;	\
-    if (time_now.tv_sec != periodic_date.tv_sec)			\
-      dt_ns += ONE_SEC_NS;						\
-    struct timeval tv;							\
-    evutil_timerclear(&tv);						\
-    tv.tv_sec  = PERIODIC_SEC;						\
-    tv.tv_usec = dt_ns / 1000;						\
-    event_add(&periodic_event, &tv);					\
+#define PERIODIC_RESCHEDULE() {           \
+    periodic_date.tv_nsec +=  PERIODIC_NSEC;        \
+    if (periodic_date.tv_nsec>= ONE_SEC_NS) {       \
+      periodic_date.tv_nsec -= ONE_SEC_NS;        \
+      periodic_date.tv_sec++;           \
+    }                 \
+    struct timespec time_now;           \
+    clock_gettime(CLOCK_MONOTONIC, &time_now);        \
+    int32_t dt_ns = (int32_t)periodic_date.tv_nsec - (int32_t)time_now.tv_nsec; \
+    if (time_now.tv_sec != periodic_date.tv_sec)      \
+      dt_ns += ONE_SEC_NS;            \
+    struct timeval tv;              \
+    evutil_timerclear(&tv);           \
+    tv.tv_sec  = PERIODIC_SEC;            \
+    tv.tv_usec = dt_ns / 1000;            \
+    event_add(&periodic_event, &tv);          \
   }
 
 
-static void periodic_task(int fd, short event, void *arg) {
+static void periodic_task(int fd, short event, void *arg)
+{
 
   DOWNLINK_SEND_ALIVE(16, MD5SUM);
 
@@ -64,7 +65,8 @@ static void periodic_task(int fd, short event, void *arg) {
 }
 
 
-static void on_datalink_event(int fd, short event, void *arg) {
+static void on_datalink_event(int fd, short event, void *arg)
+{
   char buf[255];
   int bytes_read;
   bytes_read = read(fd, buf, sizeof(buf) - 1);
@@ -82,7 +84,8 @@ static void on_datalink_event(int fd, short event, void *arg) {
 }
 
 
-int main(int argc , char** argv) {
+int main(int argc , char **argv)
+{
 
   /* Set real time priority */
   struct sched_param param;

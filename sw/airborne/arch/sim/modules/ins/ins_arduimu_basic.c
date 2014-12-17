@@ -24,8 +24,9 @@ extern float sim_p;
 extern float sim_q;
 extern float sim_r;
 
-void ArduIMU_init( void ) {}
-void ArduIMU_periodic( void ) {
+void ArduIMU_init(void) {}
+void ArduIMU_periodic(void)
+{
   // Feed directly the estimator
   struct FloatEulers att = {
     sim_phi - ins_roll_neutral,
@@ -36,5 +37,5 @@ void ArduIMU_periodic( void ) {
   struct FloatRates rates = { sim_p, sim_q, sim_r };
   stateSetBodyRates_f(&rates);
 }
-void ArduIMU_periodicGPS( void ) {}
-void ArduIMU_event( void ) {}
+void ArduIMU_periodicGPS(void) {}
+void ArduIMU_event(void) {}

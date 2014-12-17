@@ -97,7 +97,7 @@ void imu_impl_init(void)
 #endif
 
 #if ASPIRIN_ARCH_INDEP
-TODO("Arch dependent functions (accel and gyro eoc interrupt) not used for aspirin!")
+  TODO("Arch dependent functions (accel and gyro eoc interrupt) not used for aspirin!")
 #else
   imu_aspirin_arch_init();
 #endif

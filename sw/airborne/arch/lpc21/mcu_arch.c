@@ -37,7 +37,8 @@
 /* declare functions and values from crt0.S & the linker control file */
 extern void reset(void);
 
-void mcu_arch_init(void) {
+void mcu_arch_init(void)
+{
 
   /* set PLL multiplier & divisor. */
   /* values computed from config.h */
@@ -49,8 +50,9 @@ void mcu_arch_init(void) {
   PLLFEED = 0x55;
 
   /* wait for PLL lock */
-  while (!(PLLSTAT & PLLSTAT_LOCK))
+  while (!(PLLSTAT & PLLSTAT_LOCK)) {
     continue;
+  }
 
   /* enable & connect PLL */
   PLLCON = PLLCON_PLLE | PLLCON_PLLC;

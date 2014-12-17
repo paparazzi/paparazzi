@@ -48,16 +48,17 @@
 #define PWM_INPUT_IRQ_PRIO 2
 #endif
 
-static inline void pwm_input_set_timer(uint32_t tim) {
+static inline void pwm_input_set_timer(uint32_t tim)
+{
   timer_reset(tim);
   timer_set_mode(tim, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(tim, 0xFFFF);
   uint32_t timer_clk = timer_get_frequency(tim);
-  timer_set_prescaler(tim, (timer_clk / (PWM_INPUT_TICKS_PER_USEC*ONE_MHZ_CLK)) - 1);
+  timer_set_prescaler(tim, (timer_clk / (PWM_INPUT_TICKS_PER_USEC * ONE_MHZ_CLK)) - 1);
   timer_enable_counter(tim);
 }
 
-void pwm_input_init ( void )
+void pwm_input_init(void)
 {
   int i;
   // initialize the arrays to 0
@@ -167,23 +168,24 @@ void pwm_input_init ( void )
 #if USE_PWM_INPUT_TIM1
 
 #if defined(STM32F1)
-void tim1_up_isr(void) {
+void tim1_up_isr(void)
+{
 #elif defined(STM32F4)
 void tim1_up_tim10_isr(void) {
 #endif
-  if((TIM1_SR & TIM_SR_UIF) != 0) {
+  if ((TIM1_SR & TIM_SR_UIF) != 0) {
     timer_clear_flag(TIM1, TIM_SR_UIF);
     // FIXME clear overflow interrupt but what else ?
   }
 }
 
 void tim1_cc_isr(void) {
-  if((TIM1_SR & TIM1_CC_IF_PERIOD) != 0) {
+  if ((TIM1_SR & TIM1_CC_IF_PERIOD) != 0) {
     timer_clear_flag(TIM1, TIM1_CC_IF_PERIOD);
     pwm_input_period_tics[TIM1_PWM_INPUT_IDX] = TIM1_CCR_PERIOD;
     pwm_input_period_valid[TIM1_PWM_INPUT_IDX] = TRUE;
   }
-  if((TIM1_SR & TIM1_CC_IF_DUTY) != 0) {
+  if ((TIM1_SR & TIM1_CC_IF_DUTY) != 0) {
     timer_clear_flag(TIM1, TIM1_CC_IF_DUTY);
     pwm_input_duty_tics[TIM1_PWM_INPUT_IDX] = TIM1_CCR_DUTY;
     pwm_input_duty_valid[TIM1_PWM_INPUT_IDX] = TRUE;
@@ -195,17 +197,17 @@ void tim1_cc_isr(void) {
 #if USE_PWM_INPUT_TIM2
 
 void tim2_isr(void) {
-  if((TIM2_SR & TIM2_CC_IF_PERIOD) != 0) {
+  if ((TIM2_SR & TIM2_CC_IF_PERIOD) != 0) {
     timer_clear_flag(TIM2, TIM2_CC_IF_PERIOD);
     pwm_input_period_tics[TIM2_PWM_INPUT_IDX] = TIM2_CCR_PERIOD;
     pwm_input_period_valid[TIM2_PWM_INPUT_IDX] = TRUE;
   }
-  if((TIM2_SR & TIM2_CC_IF_DUTY) != 0) {
+  if ((TIM2_SR & TIM2_CC_IF_DUTY) != 0) {
     timer_clear_flag(TIM2, TIM2_CC_IF_DUTY);
     pwm_input_duty_tics[TIM2_PWM_INPUT_IDX] = TIM2_CCR_DUTY;
     pwm_input_duty_valid[TIM2_PWM_INPUT_IDX] = TRUE;
   }
-  if((TIM2_SR & TIM_SR_UIF) != 0) {
+  if ((TIM2_SR & TIM_SR_UIF) != 0) {
     timer_clear_flag(TIM2, TIM_SR_UIF);
     // FIXME clear overflow interrupt but what else ?
   }
@@ -216,17 +218,17 @@ void tim2_isr(void) {
 #if USE_PWM_INPUT_TIM3
 
 void tim3_isr(void) {
-  if((TIM3_SR & TIM3_CC_IF_PERIOD) != 0) {
+  if ((TIM3_SR & TIM3_CC_IF_PERIOD) != 0) {
     timer_clear_flag(TIM3, TIM3_CC_IF_PERIOD);
     pwm_input_period_tics[TIM3_PWM_INPUT_IDX] = TIM3_CCR_PERIOD;
     pwm_input_period_valid[TIM3_PWM_INPUT_IDX] = TRUE;
   }
-  if((TIM3_SR & TIM3_CC_IF_DUTY) != 0) {
+  if ((TIM3_SR & TIM3_CC_IF_DUTY) != 0) {
     timer_clear_flag(TIM3, TIM3_CC_IF_DUTY);
     pwm_input_duty_tics[TIM3_PWM_INPUT_IDX] = TIM3_CCR_DUTY;
     pwm_input_duty_valid[TIM3_PWM_INPUT_IDX] = TRUE;
   }
-  if((TIM3_SR & TIM_SR_UIF) != 0) {
+  if ((TIM3_SR & TIM_SR_UIF) != 0) {
     timer_clear_flag(TIM3, TIM_SR_UIF);
     // FIXME clear overflow interrupt but what else ?
   }

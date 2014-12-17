@@ -97,11 +97,13 @@ extern void lsm303dlhc_read(struct Lsm303dlhc *lsm);
 extern void lsm303dlhc_event(struct Lsm303dlhc *lsm);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void lsm303dlhc_periodic(struct Lsm303dlhc *lsm) {
-  if (lsm->initialized)
+static inline void lsm303dlhc_periodic(struct Lsm303dlhc *lsm)
+{
+  if (lsm->initialized) {
     lsm303dlhc_read(lsm);
-  else
+  } else {
     lsm303dlhc_start_configure(lsm);
+  }
 }
 
 #endif /* LSM303DLHC_H */

@@ -79,15 +79,16 @@ float sd_intercept;
 float sd_tod_x;
 float sd_tod_y;
 
-static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td) {
+static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
+{
 
-  if ((WaypointX(_af)==WaypointX(_td))&&(WaypointY(_af)==WaypointY(_td))){
-    WaypointX(_af)=WaypointX(_td)-1;
+  if ((WaypointX(_af) == WaypointX(_td)) && (WaypointY(_af) == WaypointY(_td))) {
+    WaypointX(_af) = WaypointX(_td) - 1;
   }
 
   float td_af_x = WaypointX(_af) - WaypointX(_td);
   float td_af_y = WaypointY(_af) - WaypointY(_td);
-  float td_af = sqrt( td_af_x*td_af_x + td_af_y*td_af_y);
+  float td_af = sqrt(td_af_x * td_af_x + td_af_y * td_af_y);
   float td_tod = (WaypointAlt(_af) - WaypointAlt(_td)) / (tanf(app_angle));
 
   // set wapoint TOD (top of decent)
@@ -96,11 +97,11 @@ static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uin
   WaypointAlt(_tod) = WaypointAlt(_af);
 
   // calculate ground speed on final (target_speed - head wind)
-  struct FloatVect2* wind = stateGetHorizontalWindspeed_f();
-  float wind_norm = sqrt(wind->x*wind->x + wind->y*wind->y);
-  float wind_on_final = wind_norm * (((td_af_x*wind->y)/(td_af*wind_norm)) +
-                                     ((td_af_y*wind->x)/(td_af*wind_norm)));
-  Bound(wind_on_final,-MAX_WIND_ON_FINAL,MAX_WIND_ON_FINAL);
+  struct FloatVect2 *wind = stateGetHorizontalWindspeed_f();
+  float wind_norm = sqrt(wind->x * wind->x + wind->y * wind->y);
+  float wind_on_final = wind_norm * (((td_af_x * wind->y) / (td_af * wind_norm)) +
+                                     ((td_af_y * wind->x) / (td_af * wind_norm)));
+  Bound(wind_on_final, -MAX_WIND_ON_FINAL, MAX_WIND_ON_FINAL);
   gs_on_final = target_speed - wind_on_final;
 
   // calculate position of SD (start decent)
@@ -116,7 +117,7 @@ static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uin
   // calculate td_sd
   float td_sd_x = WaypointX(_sd) - WaypointX(_td);
   float td_sd_y = WaypointY(_sd) - WaypointY(_td);
-  float td_sd = sqrt( td_sd_x*td_sd_x + td_sd_y*td_sd_y);
+  float td_sd = sqrt(td_sd_x * td_sd_x + td_sd_y * td_sd_y);
 
   // calculate sd_tod in x,y
   sd_tod_x = WaypointX(_tod) - WaypointX(_sd);
@@ -128,10 +129,11 @@ static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uin
     WaypointY(_af) = WaypointY(_sd) + td_af_y / td_af * app_distance_af_sd;
   }
   return FALSE;
-}	/* end of gls_copute_TOD */
+} /* end of gls_copute_TOD */
 
 
-bool_t gls_start(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
+bool_t gls_start(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
+{
 
   init = TRUE;
 
@@ -145,7 +147,7 @@ bool_t gls_start(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
   app_intercept_rate = APP_INTERCEPT_RATE;
   app_intercept_rate = ABS(app_intercept_rate);
   app_distance_af_sd = APP_DISTANCE_AF_SD;
-  Bound(app_distance_af_sd,0,200);
+  Bound(app_distance_af_sd, 0, 200);
 
   // calculate Top Of Decent
   gls_compute_TOD(_af, _sd, _tod, _td);
@@ -154,11 +156,12 @@ bool_t gls_start(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
 }  /* end of gls_init() */
 
 
-bool_t gls_run(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
+bool_t gls_run(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
+{
 
 
   // set target speed for approach on final
-  if (init){
+  if (init) {
 #if USE_AIRSPEED
     v_ctl_auto_airspeed_setpoint = target_speed;
 #endif
@@ -170,12 +173,12 @@ bool_t gls_run(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
   float final_y = WaypointY(_td) - WaypointY(_tod);
   float final2 = Max(final_x * final_x + final_y * final_y, 1.);
 
-  struct EnuCoor_f* pos_enu = stateGetPositionEnu_f();
+  struct EnuCoor_f *pos_enu = stateGetPositionEnu_f();
   float hspeed = *stateGetHorizontalSpeedNorm_f();
 
   float nav_final_progress = ((pos_enu->x - WaypointX(_tod)) * final_x +
                               (pos_enu->y - WaypointY(_tod)) * final_y) / final2;
-  Bound(nav_final_progress,-1,1);
+  Bound(nav_final_progress, -1, 1);
   //  float nav_final_length = sqrt(final2);
 
   // calculate requiered decent rate on glideslope
@@ -187,10 +190,10 @@ bool_t gls_run(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
   float alt_glideslope = start_alt + nav_final_progress * diff_alt;
 
   // calculate intercept
-  float nav_intercept_progress = ((pos_enu->x - WaypointX(_sd)) * 2*sd_tod_x +
-                                  (pos_enu->y - WaypointY(_sd)) * 2*sd_tod_y) /
-                                 Max((sd_intercept*sd_intercept),1.);
-  Bound(nav_intercept_progress,-1,1);
+  float nav_intercept_progress = ((pos_enu->x - WaypointX(_sd)) * 2 * sd_tod_x +
+                                  (pos_enu->y - WaypointY(_sd)) * 2 * sd_tod_y) /
+                                 Max((sd_intercept * sd_intercept), 1.);
+  Bound(nav_intercept_progress, -1, 1);
   float tmp = nav_intercept_progress * sd_intercept / gs_on_final;
   float alt_intercept = WaypointAlt(_tod) - (0.5 * app_intercept_rate * tmp * tmp);
   float pre_climb_intercept = -nav_intercept_progress * hspeed * (tanf(app_angle));
@@ -203,19 +206,17 @@ bool_t gls_run(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
   float alt = 0.;
 
   // distance
-  float f_af = sqrt((pos_enu->x - WaypointX(_af))*(pos_enu->x - WaypointX(_af))+
-                    (pos_enu->y - WaypointY(_af))*(pos_enu->y - WaypointY(_af)));
+  float f_af = sqrt((pos_enu->x - WaypointX(_af)) * (pos_enu->x - WaypointX(_af)) +
+                    (pos_enu->y - WaypointY(_af)) * (pos_enu->y - WaypointY(_af)));
 
-  if(f_af<app_distance_af_sd){ // approach fix (AF) to start descent (SD)
+  if (f_af < app_distance_af_sd) { // approach fix (AF) to start descent (SD)
     alt = WaypointAlt(_af);
     pre_climb = 0.;
-  }
-  else if((f_af>app_distance_af_sd) && (f_af<(app_distance_af_sd+sd_intercept))){
+  } else if ((f_af > app_distance_af_sd) && (f_af < (app_distance_af_sd + sd_intercept))) {
     // start descent (SD) to intercept
     alt = alt_intercept;
     pre_climb = pre_climb_intercept;
-  }
-  else{ //glideslope (intercept to touch down)
+  } else { //glideslope (intercept to touch down)
     alt = alt_glideslope;
     pre_climb = pre_climb_glideslope;
   }
@@ -224,9 +225,9 @@ bool_t gls_run(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
 
   //######################### autopilot modes
 
-  NavVerticalAltitudeMode(alt, pre_climb);	// vertical   mode (folow glideslope)
-  NavVerticalAutoThrottleMode(0);		// throttle   mode
-  NavSegment(_af, _td);			// horizontal mode (stay on localiser)
+  NavVerticalAltitudeMode(alt, pre_climb);  // vertical   mode (folow glideslope)
+  NavVerticalAutoThrottleMode(0);   // throttle   mode
+  NavSegment(_af, _td);     // horizontal mode (stay on localiser)
 
   return TRUE;
-}	// end of gls()
+} // end of gls()

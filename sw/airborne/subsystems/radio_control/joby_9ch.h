@@ -37,13 +37,13 @@
 #define RC_JOBY_SYNC_2 0x12
 
 #define RC_JOBY_SIGNS { 1, \
-                        1, \
-                        1, \
-                        1, \
-                        1, \
-                        1, \
-                        1, \
-                        1, \
-                        1 }
+    1, \
+    1, \
+    1, \
+    1, \
+    1, \
+    1, \
+    1, \
+    1 }
 
 #endif /* RADIO_CONTROL_JOBY_9CH_H */

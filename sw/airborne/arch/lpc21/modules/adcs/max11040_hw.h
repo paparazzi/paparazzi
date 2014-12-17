@@ -57,7 +57,7 @@
 #define MaxmUnselect() SetBit(MAXM_SS_IOSET, MAXM_SS_PIN)
 
 
-void max11040_hw_init( void );
+void max11040_hw_init(void);
 
 #endif /* MAX11040_HW_H */
 

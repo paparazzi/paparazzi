@@ -60,9 +60,9 @@
  * @param[in] p degree of the output polynomial
  * @param[out] c pointer to the output array of polynomial coefficients [p+1]
  */
-void pprz_polyfit_float(float* x, float* y, int n, int p, float* c)
+void pprz_polyfit_float(float *x, float *y, int n, int p, float *c)
 {
-  int i,j,k;
+  int i, j, k;
 
   // Instead of solving directly (X'X)^-1 X' y
   // let's build the matrices (X'X) and (X'y)
@@ -71,8 +71,8 @@ void pprz_polyfit_float(float* x, float* y, int n, int p, float* c)
   // Finally we can solve the linear system (X'X).c = (X'y) using SVD decomposition
 
   // First build a table of element S_i = sum_{k=0,n-1} x_k^i of dimension 2*p+1
-  float S[2*p + 1];
-  float_vect_zero(S, 2*p + 1);
+  float S[2 * p + 1];
+  float_vect_zero(S, 2 * p + 1);
   // and a table of element T_i = sum_{k=0,n-1} x_k^i*y_k of dimension p+1
   // make it a matrix for later use
   float _T[p + 1][1];
@@ -82,10 +82,11 @@ void pprz_polyfit_float(float* x, float* y, int n, int p, float* c)
   for (k = 0; k < n; k++) {
     float x_tmp = x[k];
     T[0][0] += y[k];
-    for (i = 1; i < 2*p + 1; i++) {
+    for (i = 1; i < 2 * p + 1; i++) {
       S[i] += x_tmp; // add element to S_i
-      if (i < p + 1)
-        T[i][0] += x_tmp*y[k]; // add element to T_i if i < p+1
+      if (i < p + 1) {
+        T[i][0] += x_tmp * y[k];  // add element to T_i if i < p+1
+      }
       x_tmp *= x[k]; // multiply x_tmp by current value of x
     }
   }
@@ -95,7 +96,7 @@ void pprz_polyfit_float(float* x, float* y, int n, int p, float* c)
   MAKE_MATRIX_PTR(XtX, _XtX, p + 1);
   for (i = 0; i < p + 1; i++) {
     for (j = 0; j < p + 1; j++) {
-      XtX[i][j] = S[i+j];
+      XtX[i][j] = S[i + j];
     }
   }
   // Solve linear system XtX.c = T after performing a SVD decomposition of XtX
@@ -107,8 +108,9 @@ void pprz_polyfit_float(float* x, float* y, int n, int p, float* c)
   MAKE_MATRIX_PTR(c_tmp, _c, p + 1);
   pprz_svd_solve_float(c_tmp, XtX, w, v, T, p + 1, p + 1, 1);
   // set output vector
-  for (i = 0; i < p + 1; i++)
+  for (i = 0; i < p + 1; i++) {
     c[i] = c_tmp[i][0];
+  }
 
 }
 

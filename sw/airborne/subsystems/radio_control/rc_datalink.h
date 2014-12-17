@@ -50,19 +50,19 @@ extern volatile bool_t rc_dl_frame_available;
  * Mode and throttle are merge in the same byte
  */
 extern void parse_rc_3ch_datalink(
-    uint8_t throttle_mode,
-    int8_t roll,
-    int8_t pitch);
+  uint8_t throttle_mode,
+  int8_t roll,
+  int8_t pitch);
 
 /**
  * Decode datalink message to get rc values with RC_4CH message
  */
 extern void parse_rc_4ch_datalink(
-    uint8_t mode,
-    uint8_t throttle,
-    int8_t roll,
-    int8_t pitch,
-    int8_t yaw);
+  uint8_t mode,
+  uint8_t throttle,
+  int8_t roll,
+  int8_t pitch,
+  int8_t yaw);
 
 /**
  * RC event function with handler callback.

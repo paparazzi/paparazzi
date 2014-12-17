@@ -4,7 +4,7 @@
 #include <std.h>
 
 extern uint16_t adc_light_temt;
-void light_temt_init( void );
-void light_temt_periodic( void );
+void light_temt_init(void);
+void light_temt_periodic(void);
 
 #endif

@@ -53,10 +53,10 @@ extern "C" {
  * @param dt integration step
  */
 static inline void runge_kutta_1_float(
-  float* xo,
-  const float* x, const int n,
-  const float* u, const int m,
-  void (*f)(float* o, const float* x, const int n, const float* u, const int m),
+  float *xo,
+  const float *x, const int n,
+  const float *u, const int m,
+  void (*f)(float *o, const float *x, const int n, const float *u, const int m),
   const float dt)
 {
   float dx[n];
@@ -87,10 +87,10 @@ static inline void runge_kutta_1_float(
  * @param dt integration step
  */
 static inline void runge_kutta_2_float(
-  float* xo,
-  const float* x, const int n,
-  const float* u, const int m,
-  void (*f)(float* o, const float* x, const int n, const float* u, const int m),
+  float *xo,
+  const float *x, const int n,
+  const float *u, const int m,
+  void (*f)(float *o, const float *x, const int n, const float *u, const int m),
   const float dt)
 {
   float mid_point[n];
@@ -130,10 +130,10 @@ static inline void runge_kutta_2_float(
  * @param dt integration step
  */
 static inline void runge_kutta_4_float(
-  float* xo,
-  const float* x, const int n,
-  const float* u, const int m,
-  void (*f)(float* o, const float* x, const int n, const float* u, const int m),
+  float *xo,
+  const float *x, const int n,
+  const float *u, const int m,
+  void (*f)(float *o, const float *x, const int n, const float *u, const int m),
   const float dt)
 {
   float k1[n], k2[n], k3[n], k4[n], ktmp[n];

@@ -89,43 +89,46 @@ bool_t nav_bungee_takeoff_setup(uint8_t BungeeWP)
   TDistance = fabs(Takeoff_Distance);
 
   //Translate initial position so that the position of the bungee is (0,0)
-  float Currentx = initialx-(WaypointX(BungeeWaypoint));
-  float Currenty = initialy-(WaypointY(BungeeWaypoint));
+  float Currentx = initialx - (WaypointX(BungeeWaypoint));
+  float Currenty = initialy - (WaypointY(BungeeWaypoint));
 
   //Record bungee alt (which should be the ground alt at that point)
   BungeeAlt = waypoints[BungeeWaypoint].a;
 
   //Find Launch line slope and Throttle line slope
-  float MLaunch = Currenty/Currentx;
+  float MLaunch = Currenty / Currentx;
 
   //Find Throttle Point (the point where the throttle line and launch line intersect)
-  if(Currentx < 0)
-    throttlePx = TDistance/sqrt(MLaunch*MLaunch+1);
-  else
-    throttlePx = -(TDistance/sqrt(MLaunch*MLaunch+1));
+  if (Currentx < 0) {
+    throttlePx = TDistance / sqrt(MLaunch * MLaunch + 1);
+  } else {
+    throttlePx = -(TDistance / sqrt(MLaunch * MLaunch + 1));
+  }
 
-  if(Currenty < 0)
-    throttlePy = sqrt((TDistance*TDistance)-(throttlePx*throttlePx));
-  else
-    throttlePy = -sqrt((TDistance*TDistance)-(throttlePx*throttlePx));
+  if (Currenty < 0) {
+    throttlePy = sqrt((TDistance * TDistance) - (throttlePx * throttlePx));
+  } else {
+    throttlePy = -sqrt((TDistance * TDistance) - (throttlePx * throttlePx));
+  }
 
   //Find ThrottleLine
-  ThrottleSlope = tan(atan2(Currenty,Currentx)+(3.14/2));
-  ThrottleB = (throttlePy - (ThrottleSlope*throttlePx));
+  ThrottleSlope = tan(atan2(Currenty, Currentx) + (3.14 / 2));
+  ThrottleB = (throttlePy - (ThrottleSlope * throttlePx));
 
   //Determine whether the UAV is below or above the throttle line
-  if(Currenty > ((ThrottleSlope*Currentx)+ThrottleB))
+  if (Currenty > ((ThrottleSlope * Currentx) + ThrottleB)) {
     AboveLine = TRUE;
-  else
+  } else {
     AboveLine = FALSE;
+  }
 
   //Enable Launch Status and turn kill throttle on
   CTakeoffStatus = Launch;
   kill_throttle = 1;
 
   //Translate the throttle point back
-  throttlePx = throttlePx+(WaypointX(BungeeWP));
-  throttlePy = throttlePy+(WaypointY(BungeeWP));
+  throttlePx = throttlePx + (WaypointX(BungeeWP));
+  throttlePy = throttlePy + (WaypointY(BungeeWP));
 
   return FALSE;
 }
@@ -133,93 +136,92 @@ bool_t nav_bungee_takeoff_setup(uint8_t BungeeWP)
 bool_t nav_bungee_takeoff_run(void)
 {
   //Translate current position so Throttle point is (0,0)
-  float Currentx = stateGetPositionEnu_f()->x-throttlePx;
-  float Currenty = stateGetPositionEnu_f()->y-throttlePy;
+  float Currentx = stateGetPositionEnu_f()->x - throttlePx;
+  float Currenty = stateGetPositionEnu_f()->y - throttlePy;
   bool_t CurrentAboveLine;
   float ThrottleB;
 
-  switch(CTakeoffStatus)
-  {
-  case Launch:
-    //Follow Launch Line
-    NavVerticalAutoThrottleMode(0);
-    NavVerticalAltitudeMode(BungeeAlt+Takeoff_Height, 0.);
-    nav_route_xy(initialx,initialy,throttlePx,throttlePy);
+  switch (CTakeoffStatus) {
+    case Launch:
+      //Follow Launch Line
+      NavVerticalAutoThrottleMode(0);
+      NavVerticalAltitudeMode(BungeeAlt + Takeoff_Height, 0.);
+      nav_route_xy(initialx, initialy, throttlePx, throttlePy);
 
-    kill_throttle = 1;
+      kill_throttle = 1;
 
-    //recalculate lines if below min speed
-    if((*stateGetHorizontalSpeedNorm_f()) < Takeoff_MinSpeed)
-    {
-      initialx = stateGetPositionEnu_f()->x;
-      initialy = stateGetPositionEnu_f()->y;
+      //recalculate lines if below min speed
+      if ((*stateGetHorizontalSpeedNorm_f()) < Takeoff_MinSpeed) {
+        initialx = stateGetPositionEnu_f()->x;
+        initialy = stateGetPositionEnu_f()->y;
 
-      //Translate initial position so that the position of the bungee is (0,0)
-      Currentx = initialx-(WaypointX(BungeeWaypoint));
-      Currenty = initialy-(WaypointY(BungeeWaypoint));
+        //Translate initial position so that the position of the bungee is (0,0)
+        Currentx = initialx - (WaypointX(BungeeWaypoint));
+        Currenty = initialy - (WaypointY(BungeeWaypoint));
 
-      //Find Launch line slope
-      float MLaunch = Currenty/Currentx;
+        //Find Launch line slope
+        float MLaunch = Currenty / Currentx;
 
-      //Find Throttle Point (the point where the throttle line and launch line intersect)
-      if(Currentx < 0)
-        throttlePx = TDistance/sqrt(MLaunch*MLaunch+1);
-      else
-        throttlePx = -(TDistance/sqrt(MLaunch*MLaunch+1));
+        //Find Throttle Point (the point where the throttle line and launch line intersect)
+        if (Currentx < 0) {
+          throttlePx = TDistance / sqrt(MLaunch * MLaunch + 1);
+        } else {
+          throttlePx = -(TDistance / sqrt(MLaunch * MLaunch + 1));
+        }
 
-      if(Currenty < 0)
-        throttlePy = sqrt((TDistance*TDistance)-(throttlePx*throttlePx));
-      else
-        throttlePy = -sqrt((TDistance*TDistance)-(throttlePx*throttlePx));
+        if (Currenty < 0) {
+          throttlePy = sqrt((TDistance * TDistance) - (throttlePx * throttlePx));
+        } else {
+          throttlePy = -sqrt((TDistance * TDistance) - (throttlePx * throttlePx));
+        }
 
-      //Find ThrottleLine
-      ThrottleSlope = tan(atan2(Currenty,Currentx)+(3.14/2));
-      ThrottleB = (throttlePy - (ThrottleSlope*throttlePx));
+        //Find ThrottleLine
+        ThrottleSlope = tan(atan2(Currenty, Currentx) + (3.14 / 2));
+        ThrottleB = (throttlePy - (ThrottleSlope * throttlePx));
 
-      //Determine whether the UAV is below or above the throttle line
-      if(Currenty > ((ThrottleSlope*Currentx)+ThrottleB))
-        AboveLine = TRUE;
-      else
-        AboveLine = FALSE;
+        //Determine whether the UAV is below or above the throttle line
+        if (Currenty > ((ThrottleSlope * Currentx) + ThrottleB)) {
+          AboveLine = TRUE;
+        } else {
+          AboveLine = FALSE;
+        }
 
-      //Translate the throttle point back
-      throttlePx = throttlePx+(WaypointX(BungeeWaypoint));
-      throttlePy = throttlePy+(WaypointY(BungeeWaypoint));
-    }
+        //Translate the throttle point back
+        throttlePx = throttlePx + (WaypointX(BungeeWaypoint));
+        throttlePy = throttlePy + (WaypointY(BungeeWaypoint));
+      }
 
-    //Find out if the UAV is currently above the line
-    if(Currenty > (ThrottleSlope*Currentx))
-      CurrentAboveLine = TRUE;
-    else
-      CurrentAboveLine = FALSE;
+      //Find out if the UAV is currently above the line
+      if (Currenty > (ThrottleSlope * Currentx)) {
+        CurrentAboveLine = TRUE;
+      } else {
+        CurrentAboveLine = FALSE;
+      }
 
-    //Find out if UAV has crossed the line
-    if(AboveLine != CurrentAboveLine && (*stateGetHorizontalSpeedNorm_f()) > Takeoff_MinSpeed)
-    {
-      CTakeoffStatus = Throttle;
+      //Find out if UAV has crossed the line
+      if (AboveLine != CurrentAboveLine && (*stateGetHorizontalSpeedNorm_f()) > Takeoff_MinSpeed) {
+        CTakeoffStatus = Throttle;
+        kill_throttle = 0;
+        nav_init_stage();
+      }
+      break;
+    case Throttle:
+      //Follow Launch Line
+      NavVerticalAutoThrottleMode(AGR_CLIMB_PITCH);
+      NavVerticalThrottleMode(9600 * (1));
+      nav_route_xy(initialx, initialy, throttlePx, throttlePy);
       kill_throttle = 0;
-      nav_init_stage();
-    }
-    break;
-  case Throttle:
-    //Follow Launch Line
-    NavVerticalAutoThrottleMode(AGR_CLIMB_PITCH);
-    NavVerticalThrottleMode(9600*(1));
-    nav_route_xy(initialx,initialy,throttlePx,throttlePy);
-    kill_throttle = 0;
 
-    if((stateGetPositionUtm_f()->alt > BungeeAlt+Takeoff_Height-10) && ((*stateGetHorizontalSpeedNorm_f()) > Takeoff_Speed))
-    {
-      CTakeoffStatus = Finished;
-      return FALSE;
-    }
-    else
-    {
-      return TRUE;
-    }
-    break;
-  default:
-    break;
+      if ((stateGetPositionUtm_f()->alt > BungeeAlt + Takeoff_Height - 10)
+          && ((*stateGetHorizontalSpeedNorm_f()) > Takeoff_Speed)) {
+        CTakeoffStatus = Finished;
+        return FALSE;
+      } else {
+        return TRUE;
+      }
+      break;
+    default:
+      break;
   }
   return TRUE;
 }

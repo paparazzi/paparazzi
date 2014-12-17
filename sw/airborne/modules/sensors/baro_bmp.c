@@ -56,7 +56,8 @@ float baro_bmp_r;
 float baro_bmp_sigma2;
 int32_t baro_bmp_alt;
 
-void baro_bmp_init(void) {
+void baro_bmp_init(void)
+{
 
   bmp085_init(&baro_bmp, &BMP_I2C_DEV, BMP085_SLAVE_ADDR);
 
@@ -66,16 +67,19 @@ void baro_bmp_init(void) {
 
 }
 
-void baro_bmp_periodic(void) {
+void baro_bmp_periodic(void)
+{
 
-  if (baro_bmp.initialized)
+  if (baro_bmp.initialized) {
     bmp085_periodic(&baro_bmp);
-  else
+  } else {
     bmp085_read_eeprom_calib(&baro_bmp);
+  }
 
 }
 
-void baro_bmp_event(void) {
+void baro_bmp_event(void)
+{
 
   bmp085_event(&baro_bmp);
 
@@ -97,9 +101,9 @@ void baro_bmp_event(void) {
                              &baro_bmp.temperature);
 #else
     RunOnceEvery(10, DOWNLINK_SEND_BMP_STATUS(DefaultChannel, DefaultDevice,
-                                              &baro_bmp.up, &baro_bmp.ut,
-                                              &baro_bmp.pressure,
-                                              &baro_bmp.temperature));
+                 &baro_bmp.up, &baro_bmp.ut,
+                 &baro_bmp.pressure,
+                 &baro_bmp.temperature));
 #endif
   }
 }

@@ -69,28 +69,29 @@ uint16_t adc2;
 37 ENERGY
 42 ESTIMATOR
 */
-void dl_parse_msg(void) {
+void dl_parse_msg(void)
+{
   datalink_time = 0;
   uint8_t msg_id = IdOfMsg(dl_buffer);
-  printf("Tiny rx id: %d\n",msg_id);
+  printf("Tiny rx id: %d\n", msg_id);
 
   if (msg_id == DL_ATTITUDE) {
-      phi = DL_ATTITUDE_phi(dl_buffer);
-      psi = DL_ATTITUDE_psi(dl_buffer);
-      theta = DL_ATTITUDE_theta(dl_buffer);
-      printf("Attitude: %f %f %f\n", phi, psi, theta);
+    phi = DL_ATTITUDE_phi(dl_buffer);
+    psi = DL_ATTITUDE_psi(dl_buffer);
+    theta = DL_ATTITUDE_theta(dl_buffer);
+    printf("Attitude: %f %f %f\n", phi, psi, theta);
   }
   if (msg_id == DL_BAT) {
-      throttle = DL_BAT_throttle(dl_buffer);
-      voltage = DL_BAT_voltage(dl_buffer);
-      amps = DL_BAT_amps(dl_buffer);
-      energy = DL_BAT_energy(dl_buffer);
-      printf("BAT: %d %d %d %d\n", throttle,voltage,amps,energy);
+    throttle = DL_BAT_throttle(dl_buffer);
+    voltage = DL_BAT_voltage(dl_buffer);
+    amps = DL_BAT_amps(dl_buffer);
+    energy = DL_BAT_energy(dl_buffer);
+    printf("BAT: %d %d %d %d\n", throttle, voltage, amps, energy);
   }
   if (msg_id == DL_ADC_GENERIC) {
-      adc1 = DL_ADC_GENERIC_val1(dl_buffer);
-      adc2 = DL_ADC_GENERIC_val2(dl_buffer);
-      printf("ADC: %d %d\n",adc1,adc2);
+    adc1 = DL_ADC_GENERIC_val1(dl_buffer);
+    adc2 = DL_ADC_GENERIC_val2(dl_buffer);
+    printf("ADC: %d %d\n", adc1, adc2);
   }
 
   else {

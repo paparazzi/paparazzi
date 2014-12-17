@@ -170,7 +170,8 @@ extern struct ImuBooz2 imu_b2;
 
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
 #include "peripherals/ms2100.h"
-static inline void ImuMagEvent(void (* _mag_handler)(void)) {
+static inline void ImuMagEvent(void (* _mag_handler)(void))
+{
   ms2100_event(&ms2100);
   if (ms2100.status == MS2100_DATA_AVAILABLE) {
     imu.mag_unscaled.x = ms2100.data.value[IMU_MAG_X_CHAN];
@@ -183,7 +184,8 @@ static inline void ImuMagEvent(void (* _mag_handler)(void)) {
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
 #include "peripherals/ami601.h"
 static inline void foo_handler(void) {}
-static inline void ImuMagEvent(void (* _mag_handler)(void)) {
+static inline void ImuMagEvent(void (* _mag_handler)(void))
+{
   AMI601Event(foo_handler);
   if (ami601_status == AMI601_DATA_AVAILABLE) {
     imu.mag_unscaled.x = ami601_values[IMU_MAG_X_CHAN];
@@ -196,7 +198,8 @@ static inline void ImuMagEvent(void (* _mag_handler)(void)) {
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
 #include "peripherals/hmc5843.h"
 static inline void foo_handler(void) {}
-static inline void ImuMagEvent(void (* _mag_handler)(void)) {
+static inline void ImuMagEvent(void (* _mag_handler)(void))
+{
   MagEvent(foo_handler);
   if (hmc5843.data_available) {
     imu.mag_unscaled.x = hmc5843.data.value[IMU_MAG_X_CHAN];
@@ -207,7 +210,8 @@ static inline void ImuMagEvent(void (* _mag_handler)(void)) {
   }
 }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
-static inline void ImuMagEvent(void (* _mag_handler)(void)) {
+static inline void ImuMagEvent(void (* _mag_handler)(void))
+{
   hmc58xx_event(&imu_b2.mag_hmc);
   if (imu_b2.mag_hmc.data_available) {
     imu.mag_unscaled.x = imu_b2.mag_hmc.data.value[IMU_MAG_X_CHAN];

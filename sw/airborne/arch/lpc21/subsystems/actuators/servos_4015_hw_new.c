@@ -43,7 +43,8 @@ uint16_t servos_values[_4015_NB_CHANNELS];
 #define PWM_VIC_SLOT 3
 #endif
 
-void actuators_4015_init ( void ) {
+void actuators_4015_init(void)
+{
   /* PWM selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_PWM);
   /* PWM interrupt enabled */
@@ -72,7 +73,7 @@ void actuators_4015_init ( void ) {
   PWMPCR = PWMPCR_ENA_SERV0 | PWMPCR_ENA_SERV1;
 
   /* Prescaler */
-  PWMPR = PWM_PRESCALER-1;
+  PWMPR = PWM_PRESCALER - 1;
 
   /* enable PWM timer counter and PWM mode  */
   PWMTCR = PWMTCR_COUNTER_ENABLE | PWMTCR_PWM_ENABLE;
@@ -80,8 +81,9 @@ void actuators_4015_init ( void ) {
   /* Set all servos at their midpoints */
   /* compulsory for unaffected servos  */
   uint8_t i;
-  for( i=0 ; i < _4015_NB_CHANNELS ; i++ )
+  for (i = 0 ; i < _4015_NB_CHANNELS ; i++) {
     servos_values[i] = SERVOS_TICS_OF_USEC(1500);
+  }
 #ifdef SERVO_MOTOR
   servos_values[SERVO_MOTOR] = SERVOS_TICS_OF_USEC(SERVO_MOTOR_NEUTRAL);
 #endif
@@ -95,7 +97,8 @@ void actuators_4015_init ( void ) {
 static uint8_t servos_idx = 0;
 static uint32_t servos_delay;
 
-void PWM_ISR ( void ) {
+void PWM_ISR(void)
+{
   ISR_ENTRY();
   if (servos_idx == 0) {
     /* lower serv0 reset */
@@ -112,16 +115,14 @@ void PWM_ISR ( void ) {
     /* enable serv0 match interrupt, disable serv1 match interrupt */
     PWMMCR = PWMMCR_MR0R | PWMMCR_MRI_SERV0;
     servos_idx++;
-  }
-  else if (servos_idx < 4) {
+  } else if (servos_idx < 4) {
     /* lower serv0 data */
     IO1CLR = _BV(SERV0_DATA_PIN);
     PWMMR0 = servos_values[servos_idx];
     servos_delay -= servos_values[servos_idx];
     PWMLER = PWMLER_LATCH0;
     servos_idx++;
-  }
-  else if (servos_idx == 4) {
+  } else if (servos_idx == 4) {
     /* raise serv0 reset */
     IO1SET = _BV(SERV1_RESET_PIN);
     /* lower serv1 reset */
@@ -140,16 +141,14 @@ void PWM_ISR ( void ) {
     /* latch PWM values */
     PWMLER = PWMLER_LATCH0 | PWMLER_LATCH_SERV0 | PWMLER_LATCH_SERV1;
     servos_idx++;
-  }
-  else if (servos_idx < _4015_NB_CHANNELS) {
+  } else if (servos_idx < _4015_NB_CHANNELS) {
     /* clear serv1 data */
     IO1CLR = _BV(SERV1_DATA_PIN);
     PWMMR0 = servos_values[servos_idx];
     servos_delay -= servos_values[servos_idx];
     PWMLER = PWMLER_LATCH0;
     servos_idx++;
-  }
-  else {
+  } else {
     /* raise serv1 reset */
     IO1SET = _BV(SERV1_RESET_PIN);
     /* command the delay */

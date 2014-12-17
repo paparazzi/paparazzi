@@ -45,8 +45,7 @@ enum DownlinkDataType {
   DL_TYPE_TIMESTAMP,
 };
 
-struct DownlinkTransport
-{
+struct DownlinkTransport {
   uint8_t (*SizeOf)(void *impl, uint8_t size);
   int (*CheckFreeSpace)(void *impl, uint8_t size);
 

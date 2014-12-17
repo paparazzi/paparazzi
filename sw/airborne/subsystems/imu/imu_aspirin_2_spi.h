@@ -52,7 +52,8 @@ extern struct ImuAspirin2Spi imu_aspirin2;
 extern void imu_aspirin2_event(void);
 
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+{
   imu_aspirin2_event();
   if (imu_aspirin2.gyro_valid) {
     imu_aspirin2.gyro_valid = FALSE;

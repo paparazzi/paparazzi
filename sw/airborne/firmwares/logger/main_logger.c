@@ -27,53 +27,53 @@
  * to a (micro) SD card through the efsl library
  */
 
-  /* XBee-message: ABCDxxxxxxxE
-     A XBEE_START (0x7E)
-     B LENGTH_MSB (D->D)
-     C LENGTH_LSB
-     D XBEE_PAYLOAD
-       0 XBEE_TX16 (0x01) / XBEE_RX16 (0x81)
-       1 FRAME_ID (0)     / SRC_ID_MSB
-       2 DEST_ID_MSB      / SRC_ID_LSB
-       3 DEST_ID_LSB      / XBEE_RSSI
-       4 TX16_OPTIONS (0) / RX16_OPTIONS
-       5 PPRZ_DATA
-         0 SENDER_ID
-         1 MSG_ID
-         2 MSG_PAYLOAD
-         . DATA (messages.xml)
-     E XBEE_CHECKSUM (sum[A->D])
-
-    ID is AC_ID for aircraft, 0x100 for ground station
-  */
-
-  /* PPRZ-message: ABCxxxxxxxDE
-     A PPRZ_STX (0x99)
-     B LENGTH (A->E)
-     C PPRZ_DATA
+/* XBee-message: ABCDxxxxxxxE
+   A XBEE_START (0x7E)
+   B LENGTH_MSB (D->D)
+   C LENGTH_LSB
+   D XBEE_PAYLOAD
+     0 XBEE_TX16 (0x01) / XBEE_RX16 (0x81)
+     1 FRAME_ID (0)     / SRC_ID_MSB
+     2 DEST_ID_MSB      / SRC_ID_LSB
+     3 DEST_ID_LSB      / XBEE_RSSI
+     4 TX16_OPTIONS (0) / RX16_OPTIONS
+     5 PPRZ_DATA
        0 SENDER_ID
        1 MSG_ID
        2 MSG_PAYLOAD
        . DATA (messages.xml)
-     D PPRZ_CHECKSUM_A (sum[B->C])
-     E PPRZ_CHECKSUM_B (sum[ck_a])
-  */
+   E XBEE_CHECKSUM (sum[A->D])
 
-  /* LOG-message: ABCDEFGHxxxxxxxI
-     A PPRZ_STX (0x99)
-     B LENGTH (H->H)
-     C SOURCE (0=uart0, 1=uart1, 2=i2c0, ...)
-     D TIMESTAMP_LSB (100 microsec raster)
-     E TIMESTAMP
-     F TIMESTAMP
-     G TIMESTAMP_MSB
-     H PPRZ_DATA
-       0 SENDER_ID
-       1 MSG_ID
-       2 MSG_PAYLOAD
-       . DATA (messages.xml)
-     I CHECKSUM (sum[B->H])
-  */
+  ID is AC_ID for aircraft, 0x100 for ground station
+*/
+
+/* PPRZ-message: ABCxxxxxxxDE
+   A PPRZ_STX (0x99)
+   B LENGTH (A->E)
+   C PPRZ_DATA
+     0 SENDER_ID
+     1 MSG_ID
+     2 MSG_PAYLOAD
+     . DATA (messages.xml)
+   D PPRZ_CHECKSUM_A (sum[B->C])
+   E PPRZ_CHECKSUM_B (sum[ck_a])
+*/
+
+/* LOG-message: ABCDEFGHxxxxxxxI
+   A PPRZ_STX (0x99)
+   B LENGTH (H->H)
+   C SOURCE (0=uart0, 1=uart1, 2=i2c0, ...)
+   D TIMESTAMP_LSB (100 microsec raster)
+   E TIMESTAMP
+   F TIMESTAMP
+   G TIMESTAMP_MSB
+   H PPRZ_DATA
+     0 SENDER_ID
+     1 MSG_ID
+     2 MSG_PAYLOAD
+     . DATA (messages.xml)
+   I CHECKSUM (sum[B->H])
+*/
 
 #include "std.h"
 #include "mcu.h"
@@ -118,15 +118,15 @@
 */
 
 #ifndef LED_GREEN
-#define LED_GREEN	3
+#define LED_GREEN 3
 #endif
 
 #ifndef LED_YELLOW
-#define LED_YELLOW	2
+#define LED_YELLOW  2
 #endif
 
 #ifndef LED_RED
-#define LED_RED		1
+#define LED_RED   1
 #endif
 
 
@@ -173,12 +173,12 @@
 #define LOG_SOURCE_I2C0     2
 #define LOG_SOURCE_I2C1     3
 
-static inline void main_init( void );
-static inline void main_periodic_task( void );
+static inline void main_init(void);
+static inline void main_periodic_task(void);
 int main_log(void);
 
-void set_filename(unsigned int local, char* name);
-unsigned char checksum(unsigned char start, unsigned char* data, int length);
+void set_filename(unsigned int local, char *name);
+unsigned char checksum(unsigned char start, unsigned char *data, int length);
 unsigned int getclock(void);
 void log_payload(int len, unsigned char source, unsigned int timestamp);
 void log_xbee(unsigned char c, unsigned char source);
@@ -196,7 +196,7 @@ volatile unsigned char xbeel_payload_len;
 volatile unsigned char pprzl_payload_len;
 unsigned char xbeel_error;
 unsigned char pprzl_error;
-unsigned char log_buffer[MSG_SIZE]  __attribute__ ((aligned));
+unsigned char log_buffer[MSG_SIZE]  __attribute__((aligned));
 static unsigned int xbeel_timestamp = 0;
 static unsigned int pprzl_timestamp = 0;
 unsigned int nb_messages = 0;
@@ -205,23 +205,23 @@ int bytes = 0;
 unsigned int clock_msb = 0;
 unsigned int clock_lsb_last = 0;
 
-void set_filename(unsigned int local, char* name)
+void set_filename(unsigned int local, char *name)
 {
   /* do not use sprintf or similar */
   int i;
 
-  for (i=7; i>=0; i--) {
+  for (i = 7; i >= 0; i--) {
     name[i] = (local % 10) + '0';
     local /= 10;
   }
-  name[8]='.';name[9]='t';name[10]='l';name[11]='m';name[12]=0;
+  name[8] = '.'; name[9] = 't'; name[10] = 'l'; name[11] = 'm'; name[12] = 0;
 }
 
-unsigned char checksum(unsigned char start, unsigned char* data, int length)
+unsigned char checksum(unsigned char start, unsigned char *data, int length)
 {
   int i;
   unsigned char retval = start;
-  for (i=0;i<length;i++) retval += data[i];
+  for (i = 0; i < length; i++) { retval += data[i]; }
 
   return retval;
 }
@@ -233,12 +233,12 @@ unsigned int getclock(void)
 
   clock_lsb = T0TC;
 
-  if (clock_lsb < clock_lsb_last) clock_msb++;
+  if (clock_lsb < clock_lsb_last) { clock_msb++; }
   clock_lsb_last = clock_lsb;
 
   clock = (((uint64_t)clock_msb << 32) | (uint64_t)clock_lsb) / LOG_DIV;
 
-  return(clock & 0xFFFFFFFF);
+  return (clock & 0xFFFFFFFF);
 }
 
 /** Parsing a frame data and copy the payload to the log buffer */
@@ -264,13 +264,12 @@ void log_payload(int len, unsigned char source, unsigned int timestamp)
   /* data is already written */
 
   /* calculate checksum over start+length+timestamp+data */
-  log_buffer[LOG_DATA_OFFSET+len] = checksum(0, &log_buffer[1], LOG_DATA_OFFSET+len-1);
+  log_buffer[LOG_DATA_OFFSET + len] = checksum(0, &log_buffer[1], LOG_DATA_OFFSET + len - 1);
 
   /* write data, start+length+timestamp+data+checksum */
-  chk = file_write(&filew, LOG_DATA_OFFSET+len+1, log_buffer);
+  chk = file_write(&filew, LOG_DATA_OFFSET + len + 1, log_buffer);
 
-  if (len != chk)
-  {
+  if (len != chk) {
     nb_fail_write++;
   }
 
@@ -287,8 +286,7 @@ void log_xbee(unsigned char c, unsigned char source)
 
   switch (xbeel_status) {
     case XBEE_UNINIT:
-      if (c == XBEE_START)
-      {
+      if (c == XBEE_START) {
         // serial receive broken with MAX
 #ifndef USE_MAX11040
         xbeel_timestamp = getclock();
@@ -297,43 +295,46 @@ void log_xbee(unsigned char c, unsigned char source)
       }
       break;
     case XBEE_GOT_START:
-      xbeel_payload_len = c<<8;
+      xbeel_payload_len = c << 8;
       xbeel_status++;
       break;
     case XBEE_GOT_LENGTH_MSB:
       xbeel_payload_len |= c;
       xbeel_status++;
       payload_idx = 0;
-      cs=0;
+      cs = 0;
       break;
     case XBEE_GOT_LENGTH_LSB:
       xbeel_payload[payload_idx] = c;
       cs += c;
       payload_idx++;
-      if (payload_idx == xbeel_payload_len)
+      if (payload_idx == xbeel_payload_len) {
         xbeel_status++;
+      }
       break;
     case XBEE_GOT_PAYLOAD:
-      if (c + cs != 0xff)
+      if (c + cs != 0xff) {
         goto error;
+      }
       if ((xbeel_payload[0] != XBEE_RX16_ID) &&
-          (xbeel_payload[0] != XBEE_TX16_ID))
+          (xbeel_payload[0] != XBEE_TX16_ID)) {
         goto error;
+      }
       /* copy the XBee message to the logger buffer */
-      for (i = 0; i < xbeel_payload_len-XBEE_RFDATA_OFFSET; i++) {
-        log_buffer[i+LOG_DATA_OFFSET] = xbeel_payload[i+XBEE_RFDATA_OFFSET];
+      for (i = 0; i < xbeel_payload_len - XBEE_RFDATA_OFFSET; i++) {
+        log_buffer[i + LOG_DATA_OFFSET] = xbeel_payload[i + XBEE_RFDATA_OFFSET];
       }
       // serial receive broken with MAX
 #ifndef USE_MAX11040
-      log_payload(xbeel_payload_len-XBEE_RFDATA_OFFSET, source, xbeel_timestamp);
+      log_payload(xbeel_payload_len - XBEE_RFDATA_OFFSET, source, xbeel_timestamp);
 #endif
       LED_TOGGLE(LED_GREEN);
       goto restart;
   }
   return;
- error:
+error:
   xbeel_error++;
- restart:
+restart:
   xbeel_status = XBEE_UNINIT;
   return;
 }
@@ -353,7 +354,7 @@ void log_pprz(unsigned char c, unsigned char source)
       pprzl_status++;
       break;
     case GOT_STX:
-      pprzl_payload_len = c-4; /* Counting STX, LENGTH and CRC1 and CRC2 */
+      pprzl_payload_len = c - 4; /* Counting STX, LENGTH and CRC1 and CRC2 */
       _ck_a = _ck_b = c;
       pprzl_status++;
       payload_idx = 0;
@@ -362,20 +363,23 @@ void log_pprz(unsigned char c, unsigned char source)
       pprzl_payload[payload_idx] = c;
       _ck_a += c; _ck_b += _ck_a;
       payload_idx++;
-      if (payload_idx == pprzl_payload_len)
+      if (payload_idx == pprzl_payload_len) {
         pprzl_status++;
+      }
       break;
     case GOT_PAYLOAD:
-      if (c != _ck_a)
+      if (c != _ck_a) {
         goto error;
+      }
       pprzl_status++;
       break;
     case GOT_CRC1:
-      if (c != _ck_b)
+      if (c != _ck_b) {
         goto error;
+      }
       /* copy the pprz message to the logger buffer */
       for (i = 0; i < pprzl_payload_len; i++) {
-        log_buffer[i+LOG_DATA_OFFSET] = pprzl_payload[i];
+        log_buffer[i + LOG_DATA_OFFSET] = pprzl_payload[i];
       }
       // serial receive broken with MAX
 #ifndef USE_MAX11040
@@ -385,9 +389,9 @@ void log_pprz(unsigned char c, unsigned char source)
       goto restart;
   }
   return;
- error:
+error:
   pprzl_error++;
- restart:
+restart:
   pprzl_status = UNINIT;
   return;
 }
@@ -399,26 +403,23 @@ int do_log(void)
   unsigned char inc;
   int temp;
 
-  if(efs_init(&efs, 0) != 0) {
-    return(-1);
+  if (efs_init(&efs, 0) != 0) {
+    return (-1);
   }
 
   /* find an unused file number the dumb way */
-  for (count = 1; count < 0xFFFFFFF; count++)
-  {
+  for (count = 1; count < 0xFFFFFFF; count++) {
     set_filename(count, name);
-    if(file_fopen(&filer, &efs.myFs, name,'r')!=0) break;
+    if (file_fopen(&filer, &efs.myFs, name, 'r') != 0) { break; }
     file_fclose(&filer);
   }
 
-  if (file_fopen(&filew, &efs.myFs, name, 'w' ) != 0)
-  {
-    return(-1);
+  if (file_fopen(&filew, &efs.myFs, name, 'w') != 0) {
+    return (-1);
   }
 
   /* write to SD until key is pressed */
-  while ((IO0PIN & (1<<LOG_STOP_KEY))>>LOG_STOP_KEY)
-  {
+  while ((IO0PIN & (1 << LOG_STOP_KEY)) >> LOG_STOP_KEY) {
 
 #ifdef USE_MAX11040
     if ((max11040_data == MAX11040_DATA_AVAILABLE) &&
@@ -428,20 +429,20 @@ int do_log(void)
 
       max11040_data = MAX11040_IDLE;
 
-      log_buffer[LOG_DATA_OFFSET+0] = AC_ID;  // sender_id
-      log_buffer[LOG_DATA_OFFSET+1] = 61;     // message_id (DL_TURB_PRESSURE_RAW)
+      log_buffer[LOG_DATA_OFFSET + 0] = AC_ID; // sender_id
+      log_buffer[LOG_DATA_OFFSET + 1] = 61;   // message_id (DL_TURB_PRESSURE_RAW)
 
-      while(max11040_buf_in != max11040_buf_out) {
-        for (i=0; i<16; i++) {
-          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 0] = (max11040_values[max11040_buf_out][i]      ) & 0xFF;
-          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 1] = (max11040_values[max11040_buf_out][i] >> 8 ) & 0xFF;
-          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 2] = (max11040_values[max11040_buf_out][i] >> 16) & 0xFF;
-          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 3] = (max11040_values[max11040_buf_out][i] >> 24) & 0xFF;
+      while (max11040_buf_in != max11040_buf_out) {
+        for (i = 0; i < 16; i++) {
+          log_buffer[LOG_DATA_OFFSET + 2 + i * 4 + 0] = (max11040_values[max11040_buf_out][i]) & 0xFF;
+          log_buffer[LOG_DATA_OFFSET + 2 + i * 4 + 1] = (max11040_values[max11040_buf_out][i] >> 8) & 0xFF;
+          log_buffer[LOG_DATA_OFFSET + 2 + i * 4 + 2] = (max11040_values[max11040_buf_out][i] >> 16) & 0xFF;
+          log_buffer[LOG_DATA_OFFSET + 2 + i * 4 + 3] = (max11040_values[max11040_buf_out][i] >> 24) & 0xFF;
 
         }
         log_payload(2 + 16 * 4, LOG_SOURCE_UART0, max11040_timestamp[max11040_buf_out]);
-        i = max11040_buf_out+1;
-        if (i >= MAX11040_BUF_SIZE) i=0;
+        i = max11040_buf_out + 1;
+        if (i >= MAX11040_BUF_SIZE) { i = 0; }
         max11040_buf_out = i;
       }
     }
@@ -449,9 +450,8 @@ int do_log(void)
 
 #if USE_UART0
     temp = 0;
-    while (uart_char_available(&uart0) && (temp++ < 128))
-    {
-      //			LED_TOGGLE(LED_GREEN);
+    while (uart_char_available(&uart0) && (temp++ < 128)) {
+      //      LED_TOGGLE(LED_GREEN);
       inc = uart_getch(&uart1);
 #ifdef LOG_XBEE
       log_xbee(inc, LOG_SOURCE_UART0);
@@ -466,9 +466,8 @@ int do_log(void)
 #endif
 #if USE_UART1
     temp = 0;
-    while (uart_char_available(&uart1) && (temp++ < 128))
-    {
-      //			LED_TOGGLE(LED_GREEN);
+    while (uart_char_available(&uart1) && (temp++ < 128)) {
+      //      LED_TOGGLE(LED_GREEN);
       inc = uart_getch(&uart1);
 #ifdef LOG_XBEE
       log_xbee(inc, LOG_SOURCE_UART1);
@@ -484,8 +483,8 @@ int do_log(void)
   }
   LED_OFF(LED_GREEN);
 
-  file_fclose( &filew );
-  fs_umount( &efs.myFs ) ;
+  file_fclose(&filew);
+  fs_umount(&efs.myFs) ;
 
   return 0;
 }
@@ -496,23 +495,16 @@ int main(void)
   main_init();
 
 #ifdef _DEBUG_BOARD_
-  while(1)
-  {
-    if (IO0PIN & (1 << LOG_STOP_KEY))
-    {
+  while (1) {
+    if (IO0PIN & (1 << LOG_STOP_KEY)) {
       LED_ON(LED_YELLOW);
-    }
-    else
-    {
+    } else {
       LED_OFF(LED_YELLOW);
     }
 
-    if (IO1PIN & (1 << CARD_DETECT_PIN))
-    {
+    if (IO1PIN & (1 << CARD_DETECT_PIN)) {
       LED_OFF(LED_GREEN);
-    }
-    else
-    {
+    } else {
       LED_ON(LED_GREEN);
     }
 
@@ -520,9 +512,7 @@ int main(void)
 //    if (IO0PIN & (1 << VBUS_PIN))
     {
       LED_ON(LED_RED);
-    }
-    else
-    {
+    } else {
       LED_OFF(LED_RED);
     }
   }
@@ -530,23 +520,16 @@ int main(void)
 
 
 #ifdef _DEBUG_BOARD_
-  while(1)
-  {
-    if (IO0PIN & (1 << LOG_STOP_KEY))
-    {
+  while (1) {
+    if (IO0PIN & (1 << LOG_STOP_KEY)) {
       LED_ON(LED_YELLOW);
-    }
-    else
-    {
+    } else {
       LED_OFF(LED_YELLOW);
     }
 
-    if (IO1PIN & (1 << CARD_DETECT_PIN))
-    {
+    if (IO1PIN & (1 << CARD_DETECT_PIN)) {
       LED_OFF(LED_GREEN);
-    }
-    else
-    {
+    } else {
       LED_ON(LED_GREEN);
     }
 
@@ -554,24 +537,20 @@ int main(void)
 //    if (IO0PIN & (1 << VBUS_PIN))
     {
       LED_ON(LED_RED);
-    }
-    else
-    {
+    } else {
       LED_OFF(LED_RED);
     }
   }
 #endif
 
   // Direct SD Reader Mode
-  if ((IO0PIN & _BV(VBUS_PIN))>>VBUS_PIN)
-  {
+  if ((IO0PIN & _BV(VBUS_PIN)) >> VBUS_PIN) {
     LED_OFF(LED_YELLOW);
     LED_ON(LED_RED);
     main_mass_storage();
   }
 
-  while(1)
-  {
+  while (1) {
     LED_ON(LED_YELLOW);
     do_log();
     LED_OFF(LED_YELLOW);
@@ -579,39 +558,38 @@ int main(void)
     waitloop = 0;
     ledcount = 0;
 
-    while (waitloop < 20)
-    {
+    while (waitloop < 20) {
       sys_time_usleep(100000);
 
       {
         if (ledcount++ > 9) {
-          ledcount=0;
+          ledcount = 0;
           LED_ON(LED_YELLOW);
         } else {
           LED_OFF(LED_YELLOW);
         }
-        if (((IO0PIN & _BV(LOG_STOP_KEY))>>LOG_STOP_KEY) == 1) {
-          waitloop=0;
+        if (((IO0PIN & _BV(LOG_STOP_KEY)) >> LOG_STOP_KEY) == 1) {
+          waitloop = 0;
         } else {
           waitloop++;
         }
       }
 
-      if ((IO0PIN & _BV(VBUS_PIN))>>VBUS_PIN)
-      {
+      if ((IO0PIN & _BV(VBUS_PIN)) >> VBUS_PIN) {
         LED_OFF(LED_YELLOW);
         LED_ON(LED_RED);
         main_mass_storage();
       }
     }
     LED_ON(LED_YELLOW);
-    while (((IO0PIN & _BV(LOG_STOP_KEY))>>LOG_STOP_KEY) == 0);
+    while (((IO0PIN & _BV(LOG_STOP_KEY)) >> LOG_STOP_KEY) == 0);
   }
 
   return 0;
 }
 
-static inline void main_init( void ) {
+static inline void main_init(void)
+{
   mcu_init();
   sys_time_init();
   led_init();
@@ -624,8 +602,9 @@ static inline void main_init( void ) {
 
   mcu_int_enable();
 
-  PINSEL2 = ~ (0x0c);
+  PINSEL2 = ~(0x0c);
 }
 
-static inline void main_periodic_task( void ) {
+static inline void main_periodic_task(void)
+{
 }

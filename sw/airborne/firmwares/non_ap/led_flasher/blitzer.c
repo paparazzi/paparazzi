@@ -38,31 +38,30 @@ void wait(int msec_time)
 
   /* roughly based on internal oscillator with divider by 8 enabled */
   for (cnta = 0; cnta < msec_time; cnta++) {
-    for (cntb = 0; cntb < 38;cntb++) cntb=cntb;
+    for (cntb = 0; cntb < 38; cntb++) { cntb = cntb; }
   }
 }
 
 int main(void)
 {
-  DDRB |=  (1 << PB2);  // PB2 output
-  DDRB |=  (1 << PB1);  // PB1 output
+  DDRB |= (1 << PB2);   // PB2 output
+  DDRB |= (1 << PB1);   // PB1 output
   DDRB &= ~(1 << PB0);  // PB0 input
 
-  while (1)
-  {
-    PORTB |=  (1 << PB2);
-    PORTB |=  (1 << PB1);
+  while (1) {
+    PORTB |= (1 << PB2);
+    PORTB |= (1 << PB1);
     wait(25);
     PORTB &= ~(1 << PB2);
     PORTB &= ~(1 << PB1);
     wait(110);
-    PORTB |=  (1 << PB2);
-    PORTB |=  (1 << PB1);
+    PORTB |= (1 << PB2);
+    PORTB |= (1 << PB1);
     wait(25);
     PORTB &= ~(1 << PB2);
     PORTB &= ~(1 << PB1);
     wait(780);
   }
 
-  return(0);
+  return (0);
 }

@@ -88,15 +88,15 @@ void parse_ins_buffer(uint8_t);
 
 #endif /** !SITL */
 
-#define InsEventCheckAndHandle(handler) {			\
-    if (InsBuffer()) {						\
-      ReadInsBuffer();						\
-    }						                \
-    if (ins_msg_received) {					\
-      parse_ins_msg();						\
-      handler;							\
-      ins_msg_received = FALSE;					\
-    }						                \
+#define InsEventCheckAndHandle(handler) {     \
+    if (InsBuffer()) {            \
+      ReadInsBuffer();            \
+    }                           \
+    if (ins_msg_received) {         \
+      parse_ins_msg();            \
+      handler;              \
+      ins_msg_received = FALSE;         \
+    }                           \
   }
 
 

@@ -49,11 +49,13 @@ uint16_t humidhtm, temphtm;
 float fhumidhtm, ftemphtm;
 
 
-void humid_htm_init(void) {
+void humid_htm_init(void)
+{
   htm_status = HTM_IDLE;
 }
 
-void humid_htm_start( void ) {
+void humid_htm_start(void)
+{
   if (sys_time.nb_sec > 1) {
     /* measurement request: wake up sensor, sample temperature/humidity */
     i2c_transmit(&HTM_I2C_DEV, &htm_trans, HTM_SLAVE_ADDR, 0);
@@ -62,7 +64,8 @@ void humid_htm_start( void ) {
 }
 
 /* needs 18.5ms delay from measurement request */
-void humid_htm_read( void ) {
+void humid_htm_read(void)
+{
   if (htm_status == HTM_MR_OK) {
     /* read humid and temp*/
     htm_status = HTM_READ_DATA;
@@ -70,32 +73,33 @@ void humid_htm_read( void ) {
   }
 }
 
-void humid_htm_event( void ) {
+void humid_htm_event(void)
+{
   if (htm_trans.status == I2CTransSuccess) {
     switch (htm_status) {
 
-    case HTM_MR:
-      htm_status = HTM_MR_OK;
-      htm_trans.status = I2CTransDone;
-      break;
+      case HTM_MR:
+        htm_status = HTM_MR_OK;
+        htm_trans.status = I2CTransDone;
+        break;
 
-    case HTM_READ_DATA:
-      /* check stale status */
-      if (((htm_trans.buf[0] >> 6) & 0x3) == 0) {
-        /* humidity */
-        humidhtm = ((htm_trans.buf[0] & 0x3F) << 8) | htm_trans.buf[1];
-        fhumidhtm = humidhtm / 163.83;
-        /* temperature */
-        temphtm = (htm_trans.buf[2] << 6) | (htm_trans.buf[3] >> 2);
-        ftemphtm = -40.00 + 0.01 * temphtm;
-        DOWNLINK_SEND_HTM_STATUS(DefaultChannel, DefaultDevice, &humidhtm, &temphtm, &fhumidhtm, &ftemphtm);
-      }
-      htm_trans.status = I2CTransDone;
-      break;
+      case HTM_READ_DATA:
+        /* check stale status */
+        if (((htm_trans.buf[0] >> 6) & 0x3) == 0) {
+          /* humidity */
+          humidhtm = ((htm_trans.buf[0] & 0x3F) << 8) | htm_trans.buf[1];
+          fhumidhtm = humidhtm / 163.83;
+          /* temperature */
+          temphtm = (htm_trans.buf[2] << 6) | (htm_trans.buf[3] >> 2);
+          ftemphtm = -40.00 + 0.01 * temphtm;
+          DOWNLINK_SEND_HTM_STATUS(DefaultChannel, DefaultDevice, &humidhtm, &temphtm, &fhumidhtm, &ftemphtm);
+        }
+        htm_trans.status = I2CTransDone;
+        break;
 
-    default:
-      htm_trans.status = I2CTransDone;
-      break;
+      default:
+        htm_trans.status = I2CTransDone;
+        break;
     }
   }
 }

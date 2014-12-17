@@ -80,16 +80,16 @@ extern uint8_t horizontal_mode;
 extern void fly_to_xy(float x, float y);
 
 #define NavGotoWaypoint(_wp) { \
-  horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
-  fly_to_xy(waypoints[_wp].x, waypoints[_wp].y); \
-}
+    horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
+    fly_to_xy(waypoints[_wp].x, waypoints[_wp].y); \
+  }
 
 
-extern void nav_eight_init( void );
+extern void nav_eight_init(void);
 extern void nav_eight(uint8_t, uint8_t, float);
 #define Eight(a, b, c) nav_eight((a), (b), (c))
 
-extern void nav_oval_init( void );
+extern void nav_oval_init(void);
 extern void nav_oval(uint8_t, uint8_t, float);
 extern uint8_t nav_oval_count;
 #define Oval(a, b, c) nav_oval((b), (a), (c))
@@ -119,10 +119,10 @@ extern void nav_circle_XY(float x, float y, float radius);
 
 /** Normalize a degree angle between 0 and 359 */
 #define NormCourse(x) { \
-  uint8_t dont_loop_forever = 0;  \
-  while (x < 0 && ++dont_loop_forever) x += 360; \
-  while (x >= 360 && ++dont_loop_forever) x -= 360; \
-}
+    uint8_t dont_loop_forever = 0;  \
+    while (x < 0 && ++dont_loop_forever) x += 360; \
+    while (x >= 360 && ++dont_loop_forever) x -= 360; \
+  }
 
 #define NavCircleCountNoRewind() (nav_circle_radians_no_rewind / (2*M_PI))
 #define NavCircleCount() (fabs(nav_circle_radians) / (2*M_PI))
@@ -148,47 +148,47 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
 /** Set the climb control to auto-throttle with the specified pitch
     pre-command */
 #define NavVerticalAutoThrottleMode(_pitch) { \
-  v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_THROTTLE; \
-  nav_pitch = _pitch; \
-}
+    v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_THROTTLE; \
+    nav_pitch = _pitch; \
+  }
 
 /** Set the climb control to auto-pitch with the specified throttle
     pre-command */
 #define NavVerticalAutoPitchMode(_throttle) { \
-  v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_PITCH; \
-  nav_throttle_setpoint = _throttle; \
-}
+    v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_PITCH; \
+    nav_throttle_setpoint = _throttle; \
+  }
 
 /** Set the vertical mode to altitude control with the specified altitude
  setpoint and climb pre-command. */
 #define NavVerticalAltitudeMode(_alt, _pre_climb) { \
-  v_ctl_mode = V_CTL_MODE_AUTO_ALT; \
-  nav_altitude = _alt; \
-  v_ctl_altitude_pre_climb = _pre_climb; \
-}
+    v_ctl_mode = V_CTL_MODE_AUTO_ALT; \
+    nav_altitude = _alt; \
+    v_ctl_altitude_pre_climb = _pre_climb; \
+  }
 
 /** Set the vertical mode to climb control with the specified climb setpoint */
 #define NavVerticalClimbMode(_climb) { \
-  v_ctl_mode = V_CTL_MODE_AUTO_CLIMB; \
-  v_ctl_climb_setpoint = _climb; \
-}
+    v_ctl_mode = V_CTL_MODE_AUTO_CLIMB; \
+    v_ctl_climb_setpoint = _climb; \
+  }
 
 /** Set the vertical mode to fixed throttle with the specified setpoint */
 #define NavVerticalThrottleMode(_throttle) { \
-  v_ctl_mode = V_CTL_MODE_AUTO_THROTTLE; \
-  nav_throttle_setpoint = _throttle; \
-}
+    v_ctl_mode = V_CTL_MODE_AUTO_THROTTLE; \
+    nav_throttle_setpoint = _throttle; \
+  }
 
 #define NavHeading(_course) { \
-  lateral_mode = LATERAL_MODE_COURSE; \
-  h_ctl_course_setpoint = _course; \
-}
+    lateral_mode = LATERAL_MODE_COURSE; \
+    h_ctl_course_setpoint = _course; \
+  }
 
 #define NavAttitude(_roll) { \
-  lateral_mode = LATERAL_MODE_ROLL; \
-  if(pprz_mode != PPRZ_MODE_AUTO1)  \
-   {h_ctl_roll_setpoint = _roll;} \
-}
+    lateral_mode = LATERAL_MODE_ROLL; \
+    if(pprz_mode != PPRZ_MODE_AUTO1)  \
+    {h_ctl_roll_setpoint = _roll;} \
+  }
 
 #define nav_IncreaseShift(x) { if (x==0) nav_shift = 0; else nav_shift += x; }
 
@@ -207,14 +207,14 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
     float dist_wp = sqrtf(dist2_to_wp); \
     float dist_home = sqrtf(dist2_to_home); \
     pprz_msg_send_NAVIGATION(_trans, _dev, AC_ID, &nav_block, &nav_stage, &(pos->x), &(pos->y), &dist_wp, &dist_home, &_circle_count, &nav_oval_count); \
-}
+  }
 
 extern bool_t DownlinkSendWpNr(uint8_t _wp);
 
-#define DownlinkSendWp(_trans, _dev, i) {	   \
-  float x = nav_utm_east0 +  waypoints[i].x; \
-  float y = nav_utm_north0 + waypoints[i].y; \
-  pprz_msg_send_WP_MOVED(_trans, _dev, AC_ID, &i, &x, &y, &(waypoints[i].a),&nav_utm_zone0); \
-}
+#define DownlinkSendWp(_trans, _dev, i) {    \
+    float x = nav_utm_east0 +  waypoints[i].x; \
+    float y = nav_utm_north0 + waypoints[i].y; \
+    pprz_msg_send_WP_MOVED(_trans, _dev, AC_ID, &i, &x, &y, &(waypoints[i].a),&nav_utm_zone0); \
+  }
 
 #endif /* NAV_H */

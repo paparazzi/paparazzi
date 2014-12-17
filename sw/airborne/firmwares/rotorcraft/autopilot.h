@@ -47,7 +47,7 @@
 #define AP_MODE_HOVER_CLIMB       11
 #define AP_MODE_HOVER_Z_HOLD      12
 #define AP_MODE_NAV               13
-#define AP_MODE_RC_DIRECT         14	// Safety Pilot Direct Commands for helicopter direct control
+#define AP_MODE_RC_DIRECT         14  // Safety Pilot Direct Commands for helicopter direct control
 #define AP_MODE_CARE_FREE_DIRECT  15
 #define AP_MODE_FORWARD           16
 
@@ -123,21 +123,21 @@ extern uint16_t autopilot_flight_time;
  */
 #ifndef ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED
 #define SetRotorcraftCommands(_cmd, _in_flight,  _motor_on) { \
-  if (!(_in_flight)) { _cmd[COMMAND_YAW] = 0; }               \
-  if (!(_motor_on)) { _cmd[COMMAND_THRUST] = 0; }             \
-  commands[COMMAND_ROLL] = _cmd[COMMAND_ROLL];                \
-  commands[COMMAND_PITCH] = _cmd[COMMAND_PITCH];              \
-  commands[COMMAND_YAW] = _cmd[COMMAND_YAW];                  \
-  commands[COMMAND_THRUST] = _cmd[COMMAND_THRUST];            \
-}
+    if (!(_in_flight)) { _cmd[COMMAND_YAW] = 0; }               \
+    if (!(_motor_on)) { _cmd[COMMAND_THRUST] = 0; }             \
+    commands[COMMAND_ROLL] = _cmd[COMMAND_ROLL];                \
+    commands[COMMAND_PITCH] = _cmd[COMMAND_PITCH];              \
+    commands[COMMAND_YAW] = _cmd[COMMAND_YAW];                  \
+    commands[COMMAND_THRUST] = _cmd[COMMAND_THRUST];            \
+  }
 #else
 #define SetRotorcraftCommands(_cmd, _in_flight,  _motor_on) { \
-  if (!(_motor_on)) { _cmd[COMMAND_THRUST] = 0; }             \
-  commands[COMMAND_ROLL] = _cmd[COMMAND_ROLL];                \
-  commands[COMMAND_PITCH] = _cmd[COMMAND_PITCH];              \
-  commands[COMMAND_YAW] = _cmd[COMMAND_YAW];                  \
-  commands[COMMAND_THRUST] = _cmd[COMMAND_THRUST];            \
-}
+    if (!(_motor_on)) { _cmd[COMMAND_THRUST] = 0; }             \
+    commands[COMMAND_ROLL] = _cmd[COMMAND_ROLL];                \
+    commands[COMMAND_PITCH] = _cmd[COMMAND_PITCH];              \
+    commands[COMMAND_YAW] = _cmd[COMMAND_YAW];                  \
+    commands[COMMAND_THRUST] = _cmd[COMMAND_THRUST];            \
+  }
 #endif
 
 /** Z-acceleration threshold to detect ground in m/s^2 */
@@ -146,9 +146,10 @@ extern uint16_t autopilot_flight_time;
 #endif
 /** Ground detection based on vertical acceleration.
  */
-static inline void DetectGroundEvent(void) {
+static inline void DetectGroundEvent(void)
+{
   if (autopilot_mode == AP_MODE_FAILSAFE || autopilot_detect_ground_once) {
-    struct NedCoor_f* accel = stateGetAccelNed_f();
+    struct NedCoor_f *accel = stateGetAccelNed_f();
     if (accel->z < -THRESHOLD_GROUND_DETECT ||
         accel->z > THRESHOLD_GROUND_DETECT) {
       autopilot_ground_detected = TRUE;

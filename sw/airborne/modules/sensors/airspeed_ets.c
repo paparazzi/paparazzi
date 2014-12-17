@@ -101,7 +101,8 @@ uint16_t airspeed_ets_cnt;
 uint32_t airspeed_ets_delay_time;
 bool_t   airspeed_ets_delay_done;
 
-void airspeed_ets_init( void ) {
+void airspeed_ets_init(void)
+{
   int n;
   airspeed_ets_raw = 0;
   airspeed_ets = 0.0;
@@ -113,8 +114,9 @@ void airspeed_ets_init( void ) {
   airspeed_ets_cnt = AIRSPEED_ETS_OFFSET_NBSAMPLES_INIT + AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG;
 
   airspeed_ets_buffer_idx = 0;
-  for (n=0; n < AIRSPEED_ETS_NBSAMPLES_AVRG; ++n)
+  for (n = 0; n < AIRSPEED_ETS_NBSAMPLES_AVRG; ++n) {
     airspeed_ets_buffer[n] = 0.0;
+  }
 
   airspeed_ets_i2c_trans.status = I2CTransDone;
 
@@ -122,31 +124,35 @@ void airspeed_ets_init( void ) {
   SysTimeTimerStart(airspeed_ets_delay_time);
 }
 
-void airspeed_ets_read_periodic( void ) {
+void airspeed_ets_read_periodic(void)
+{
 #ifndef SITL
   if (!airspeed_ets_delay_done) {
-    if (SysTimeTimer(airspeed_ets_delay_time) < USEC_OF_SEC(AIRSPEED_ETS_START_DELAY)) return;
-    else airspeed_ets_delay_done = TRUE;
+    if (SysTimeTimer(airspeed_ets_delay_time) < USEC_OF_SEC(AIRSPEED_ETS_START_DELAY)) { return; }
+    else { airspeed_ets_delay_done = TRUE; }
   }
-  if (airspeed_ets_i2c_trans.status == I2CTransDone)
+  if (airspeed_ets_i2c_trans.status == I2CTransDone) {
     i2c_receive(&AIRSPEED_ETS_I2C_DEV, &airspeed_ets_i2c_trans, AIRSPEED_ETS_ADDR, 2);
+  }
 #elif !defined USE_NPS
   extern float sim_air_speed;
   stateSetAirspeed_f(&sim_air_speed);
 #endif //SITL
 }
 
-void airspeed_ets_read_event( void ) {
+void airspeed_ets_read_event(void)
+{
   int n;
   float airspeed_tmp = 0.0;
 
   // Get raw airspeed from buffer
   airspeed_ets_raw = ((uint16_t)(airspeed_ets_i2c_trans.buf[1]) << 8) | (uint16_t)(airspeed_ets_i2c_trans.buf[0]);
   // Check if this is valid airspeed
-  if (airspeed_ets_raw == 0)
+  if (airspeed_ets_raw == 0) {
     airspeed_ets_valid = FALSE;
-  else
+  } else {
     airspeed_ets_valid = TRUE;
+  }
 
   // Continue only if a new airspeed value was received
   if (airspeed_ets_valid) {
@@ -158,36 +164,45 @@ void airspeed_ets_read_event( void ) {
         // Calculate average
         airspeed_ets_offset = (uint16_t)(airspeed_ets_offset_tmp / AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG);
         // Limit offset
-        if (airspeed_ets_offset < AIRSPEED_ETS_OFFSET_MIN)
+        if (airspeed_ets_offset < AIRSPEED_ETS_OFFSET_MIN) {
           airspeed_ets_offset = AIRSPEED_ETS_OFFSET_MIN;
-        if (airspeed_ets_offset > AIRSPEED_ETS_OFFSET_MAX)
+        }
+        if (airspeed_ets_offset > AIRSPEED_ETS_OFFSET_MAX) {
           airspeed_ets_offset = AIRSPEED_ETS_OFFSET_MAX;
+        }
         airspeed_ets_offset_init = TRUE;
       }
       // Check if averaging needs to continue
-      else if (airspeed_ets_cnt <= AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG)
+      else if (airspeed_ets_cnt <= AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG) {
         airspeed_ets_offset_tmp += airspeed_ets_raw;
+      }
     }
     // Convert raw to m/s
 #ifdef AIRSPEED_ETS_REVERSE
-    if (airspeed_ets_offset_init && airspeed_ets_raw < airspeed_ets_offset)
-      airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf( (float)(airspeed_ets_offset-airspeed_ets_raw) ) - AIRSPEED_ETS_OFFSET;
+    if (airspeed_ets_offset_init && airspeed_ets_raw < airspeed_ets_offset) {
+      airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf((float)(airspeed_ets_offset - airspeed_ets_raw)) - AIRSPEED_ETS_OFFSET;
+    }
 #else
-    if (airspeed_ets_offset_init && airspeed_ets_raw > airspeed_ets_offset)
-      airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf( (float)(airspeed_ets_raw-airspeed_ets_offset) ) - AIRSPEED_ETS_OFFSET;
+    if (airspeed_ets_offset_init && airspeed_ets_raw > airspeed_ets_offset) {
+      airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf((float)(airspeed_ets_raw - airspeed_ets_offset)) - AIRSPEED_ETS_OFFSET;
+    }
 #endif
-    else
+    else {
       airspeed_tmp = 0.0;
+    }
     // Airspeed should always be positive
-    if (airspeed_tmp < 0.0)
+    if (airspeed_tmp < 0.0) {
       airspeed_tmp = 0.0;
+    }
     // Moving average
     airspeed_ets_buffer[airspeed_ets_buffer_idx++] = airspeed_tmp;
-    if (airspeed_ets_buffer_idx >= AIRSPEED_ETS_NBSAMPLES_AVRG)
+    if (airspeed_ets_buffer_idx >= AIRSPEED_ETS_NBSAMPLES_AVRG) {
       airspeed_ets_buffer_idx = 0;
+    }
     airspeed_ets = 0.0;
-    for (n = 0; n < AIRSPEED_ETS_NBSAMPLES_AVRG; ++n)
+    for (n = 0; n < AIRSPEED_ETS_NBSAMPLES_AVRG; ++n) {
       airspeed_ets += airspeed_ets_buffer[n];
+    }
     airspeed_ets = airspeed_ets / (float)AIRSPEED_ETS_NBSAMPLES_AVRG;
 #if USE_AIRSPEED_ETS
     stateSetAirspeed_f(&airspeed_ets);

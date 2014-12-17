@@ -94,9 +94,9 @@ static void SSP_ISR(void) __attribute__((naked));
 #define SSP_PINSEL1_SSEL (2<<8)
 
 
-#define SSP_Write(X) 	SSPDR=(X)
-#define SSP_Read() 	SSPDR
-#define SSP_Status() 	SSPSR
+#define SSP_Write(X)  SSPDR=(X)
+#define SSP_Read()  SSPDR
+#define SSP_Status()  SSPSR
 
 /** default initial settings */
 #ifndef SPI1_VIC_SLOT
@@ -104,7 +104,8 @@ static void SSP_ISR(void) __attribute__((naked));
 #endif
 
 
-void spi_slave_hs_init(void) {
+void spi_slave_hs_init(void)
+{
 
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= SSP_PINSEL1_SCK  | SSP_PINSEL1_MISO | SSP_PINSEL1_MOSI | SSP_PINSEL1_SSEL;
@@ -117,8 +118,8 @@ void spi_slave_hs_init(void) {
   SSPCPSR = CPSDVSR;
 
   /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( VIC_SPI1 );             /* SPI1 selected as IRQ */
-  VICIntEnable = VIC_BIT( VIC_SPI1 );               /* enable it            */
+  VICIntSelect &= ~VIC_BIT(VIC_SPI1);               /* SPI1 selected as IRQ */
+  VICIntEnable = VIC_BIT(VIC_SPI1);                 /* enable it            */
   _VIC_CNTL(SPI1_VIC_SLOT) = VIC_ENABLE | VIC_SPI1;
   _VIC_ADDR(SPI1_VIC_SLOT) = (uint32_t)SSP_ISR;      /* address of the ISR   */
 
@@ -132,30 +133,28 @@ void spi_slave_hs_init(void) {
 }
 
 /*
- * 	SSP Status:
+ *  SSP Status:
  *
- * 	ROVR	Read Overrun
- * 	WCOL	Write Collision		(send new byte during a transfer in progress
- * 	ABRT	SSEL inactive before end of transfer
+ *  ROVR  Read Overrun
+ *  WCOL  Write Collision   (send new byte during a transfer in progress
+ *  ABRT  SSEL inactive before end of transfer
  *
  *
  */
 
 
-static void SSP_ISR(void) {
+static void SSP_ISR(void)
+{
   ISR_ENTRY();
 
   //LED_TOGGLE(3);
 
   // If any TX bytes are pending
-  if (spi_slave_hs_tx_insert_idx != spi_slave_hs_tx_extract_idx)
-  {
+  if (spi_slave_hs_tx_insert_idx != spi_slave_hs_tx_extract_idx) {
     uint8_t ret = spi_slave_hs_tx_buffer[spi_slave_hs_tx_extract_idx];
-    spi_slave_hs_tx_extract_idx = (spi_slave_hs_tx_extract_idx + 1)%SPI_SLAVE_HS_TX_BUFFER_SIZE;
+    spi_slave_hs_tx_extract_idx = (spi_slave_hs_tx_extract_idx + 1) % SPI_SLAVE_HS_TX_BUFFER_SIZE;
     SSP_Write(ret);
-  }
-  else
-  {
+  } else {
     SSP_Write(0x00);
   }
 
@@ -165,39 +164,40 @@ static void SSP_ISR(void) {
     uint16_t temp;
 
     // calc next insert index & store character
-    temp = ( spi_slave_hs_rx_insert_idx + 1) % SPI_SLAVE_HS_RX_BUFFER_SIZE;
+    temp = (spi_slave_hs_rx_insert_idx + 1) % SPI_SLAVE_HS_RX_BUFFER_SIZE;
     spi_slave_hs_rx_buffer[ spi_slave_hs_rx_insert_idx] = SSP_Read();
 
     // check for more room in queue
-    if (temp !=  spi_slave_hs_rx_extract_idx)
-       spi_slave_hs_rx_insert_idx = temp; // update insert index
+    if (temp !=  spi_slave_hs_rx_extract_idx) {
+      spi_slave_hs_rx_insert_idx = temp;  // update insert index
+    }
 
     // else overrun
   }
   // while FIFO not empty
   //while (SSPSR & RNE);
 
-/*
-  // loop until not more interrupt sources
-  while (((iid = U0IIR) & UIIR_NO_INT) == 0)
-        while (U0LSR & ULSR_THRE)
-          {
-          // check if more data to send
-          if (uart0_tx_insert_idx != uart0_tx_extract_idx)
+  /*
+    // loop until not more interrupt sources
+    while (((iid = U0IIR) & UIIR_NO_INT) == 0)
+          while (U0LSR & ULSR_THRE)
             {
-            U0THR = uart0_tx_buffer[uart0_tx_extract_idx];
-            uart0_tx_extract_idx++;
-            uart0_tx_extract_idx %= UART0_TX_BUFFER_SIZE;
+            // check if more data to send
+            if (uart0_tx_insert_idx != uart0_tx_extract_idx)
+              {
+              U0THR = uart0_tx_buffer[uart0_tx_extract_idx];
+              uart0_tx_extract_idx++;
+              uart0_tx_extract_idx %= UART0_TX_BUFFER_SIZE;
+              }
+            else
+              {
+              // no
+              uart0_tx_running = 0;       // clear running flag
+              break;
+              }
             }
-          else
-            {
-            // no
-            uart0_tx_running = 0;       // clear running flag
-            break;
-            }
-          }
 
-*/
+  */
   VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
   ISR_EXIT();
 }

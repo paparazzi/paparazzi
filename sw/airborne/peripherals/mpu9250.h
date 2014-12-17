@@ -63,10 +63,10 @@ enum Mpu9250ConfStatus {
 };
 
 /// Configuration function prototype
-typedef void (*Mpu9250ConfigSet)(void* mpu, uint8_t _reg, uint8_t _val);
+typedef void (*Mpu9250ConfigSet)(void *mpu, uint8_t _reg, uint8_t _val);
 
 /// function prototype for configuration of a single I2C slave
-typedef bool_t (*Mpu9250I2cSlaveConfigure)(Mpu9250ConfigSet mpu_set, void* mpu);
+typedef bool_t (*Mpu9250I2cSlaveConfigure)(Mpu9250ConfigSet mpu_set, void *mpu);
 
 struct Mpu9250I2cSlave {
   Mpu9250I2cSlaveConfigure configure;
@@ -98,7 +98,7 @@ struct Mpu9250Config {
 extern void mpu9250_set_default_config(struct Mpu9250Config *c);
 
 /// Configuration sequence called once before normal use
-extern void mpu9250_send_config(Mpu9250ConfigSet mpu_set, void* mpu, struct Mpu9250Config* config);
+extern void mpu9250_send_config(Mpu9250ConfigSet mpu_set, void *mpu, struct Mpu9250Config *config);
 
 /**
  * Configure I2C slaves of the MPU.
@@ -107,6 +107,6 @@ extern void mpu9250_send_config(Mpu9250ConfigSet mpu_set, void* mpu, struct Mpu9
  * @param mpu Mpu9250Spi or Mpu9250I2c peripheral
  * @return TRUE when all slaves are configured
  */
-extern bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void* mpu);
+extern bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu);
 
 #endif // MPU9250_H

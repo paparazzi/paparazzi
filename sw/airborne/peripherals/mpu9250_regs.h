@@ -37,7 +37,7 @@
 #define MPU9250_SPI_READ            0x80
 
 // Power and Interface
-#define MPU9250_REG_AUX_VDDIO       0x01	// Must be set to 0 on MPU6000
+#define MPU9250_REG_AUX_VDDIO       0x01  // Must be set to 0 on MPU6000
 #define MPU9250_REG_USER_CTRL       0x6A
 #define MPU9250_REG_PWR_MGMT_1      0x6B
 #define MPU9250_REG_PWR_MGMT_2      0x6C
@@ -45,8 +45,8 @@
 // FIFO
 #define MPU9250_REG_FIFO_EN         0x23
 #define MPU9250_REG_FIFO_COUNT_H    0x72
-#define MPU9250_REG_FIFO_COUNT_L	  0x73
-#define MPU9250_REG_FIFO_R_W		    0x74
+#define MPU9250_REG_FIFO_COUNT_L    0x73
+#define MPU9250_REG_FIFO_R_W        0x74
 
 // Measurement Settings
 #define MPU9250_REG_SMPLRT_DIV      0x19
@@ -61,31 +61,31 @@
 #define MPU9250_REG_I2C_MST_STATUS  0x36
 #define MPU9250_REG_I2C_MST_DELAY   0x67
 // Slave 0
-#define MPU9250_REG_I2C_SLV0_ADDR	  0X25	// i2c addr
-#define MPU9250_REG_I2C_SLV0_REG	  0X26	// slave reg
-#define MPU9250_REG_I2C_SLV0_CTRL	  0X27	// set-bits
-#define MPU9250_REG_I2C_SLV0_DO		  0X63	// DO
+#define MPU9250_REG_I2C_SLV0_ADDR   0X25  // i2c addr
+#define MPU9250_REG_I2C_SLV0_REG    0X26  // slave reg
+#define MPU9250_REG_I2C_SLV0_CTRL   0X27  // set-bits
+#define MPU9250_REG_I2C_SLV0_DO     0X63  // DO
 // Slave 1
-#define MPU9250_REG_I2C_SLV1_ADDR	  0X28	// i2c addr
-#define MPU9250_REG_I2C_SLV1_REG	  0X29	// slave reg
-#define MPU9250_REG_I2C_SLV1_CTRL	  0X2A	// set-bits
-#define MPU9250_REG_I2C_SLV1_DO		  0X64	// DO
+#define MPU9250_REG_I2C_SLV1_ADDR   0X28  // i2c addr
+#define MPU9250_REG_I2C_SLV1_REG    0X29  // slave reg
+#define MPU9250_REG_I2C_SLV1_CTRL   0X2A  // set-bits
+#define MPU9250_REG_I2C_SLV1_DO     0X64  // DO
 // Slave 2
-#define MPU9250_REG_I2C_SLV2_ADDR	  0X2B	// i2c addr
-#define MPU9250_REG_I2C_SLV2_REG	  0X2C	// slave reg
-#define MPU9250_REG_I2C_SLV2_CTRL	  0X2D	// set-bits
-#define MPU9250_REG_I2C_SLV2_DO		  0X65	// DO
+#define MPU9250_REG_I2C_SLV2_ADDR   0X2B  // i2c addr
+#define MPU9250_REG_I2C_SLV2_REG    0X2C  // slave reg
+#define MPU9250_REG_I2C_SLV2_CTRL   0X2D  // set-bits
+#define MPU9250_REG_I2C_SLV2_DO     0X65  // DO
 // Slave 3
-#define MPU9250_REG_I2C_SLV3_ADDR	  0X2E	// i2c addr
-#define MPU9250_REG_I2C_SLV3_REG	  0X2F	// slave reg
-#define MPU9250_REG_I2C_SLV3_CTRL	  0X30	// set-bits
-#define MPU9250_REG_I2C_SLV3_DO		  0X66	// DO
+#define MPU9250_REG_I2C_SLV3_ADDR   0X2E  // i2c addr
+#define MPU9250_REG_I2C_SLV3_REG    0X2F  // slave reg
+#define MPU9250_REG_I2C_SLV3_CTRL   0X30  // set-bits
+#define MPU9250_REG_I2C_SLV3_DO     0X66  // DO
 // Slave 4 - special
-#define MPU9250_REG_I2C_SLV4_ADDR	  0X31	// i2c addr
-#define MPU9250_REG_I2C_SLV4_REG	  0X32	// slave reg
-#define MPU9250_REG_I2C_SLV4_DO		  0X33	// DO
-#define MPU9250_REG_I2C_SLV4_CTRL	  0X34	// set-bits
-#define MPU9250_REG_I2C_SLV4_DI		  0X35	// DI
+#define MPU9250_REG_I2C_SLV4_ADDR   0X31  // i2c addr
+#define MPU9250_REG_I2C_SLV4_REG    0X32  // slave reg
+#define MPU9250_REG_I2C_SLV4_DO     0X33  // DO
+#define MPU9250_REG_I2C_SLV4_CTRL   0X34  // set-bits
+#define MPU9250_REG_I2C_SLV4_DI     0X35  // DI
 
 // Interrupt
 #define MPU9250_REG_INT_PIN_CFG     0x37
@@ -118,7 +118,7 @@
 
 
 #define MPU9250_REG_WHO_AM_I        0x75
-#define MPU9250_WHOAMI_REPLY	      0x68
+#define MPU9250_WHOAMI_REPLY        0x68
 
 // Bit positions
 #define MPU9250_I2C_BYPASS_EN       1
@@ -128,7 +128,7 @@
 #define MPU9250_I2C_MST_RESET       1
 #define MPU9250_FIFO_RESET          2
 #define MPU9250_I2C_IF_DIS          4
-#define MPU9250_I2C_MST_EN		      5
+#define MPU9250_I2C_MST_EN          5
 #define MPU9250_FIFO_EN             6
 
 // in MPU9250_REG_I2C_MST_STATUS

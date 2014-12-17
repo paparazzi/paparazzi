@@ -43,7 +43,8 @@ uint32_t actuators_dualpwm_values[ACTUATORS_PWM_NB];
 
 /** PWM arch init called by generic pwm driver
  */
-void actuators_dualpwm_arch_init(void) {
+void actuators_dualpwm_arch_init(void)
+{
 
   /*-----------------------------------
    * Configure timer peripheral clocks
@@ -92,8 +93,8 @@ void actuators_dualpwm_arch_init(void) {
 #endif
 
   //calculation the values to put into the timer registers to generate pulses every 4ms and 16ms.
-  ratio_4ms = (ONE_MHZ_CLK / 250)-1;
-  ratio_16ms = (ONE_MHZ_CLK / 62.5)-1;
+  ratio_4ms = (ONE_MHZ_CLK / 250) - 1;
+  ratio_16ms = (ONE_MHZ_CLK / 62.5) - 1;
 
 }
 
@@ -101,7 +102,8 @@ void actuators_dualpwm_arch_init(void) {
 /** Interuption called at the end of the timer. In our case alternatively very 4ms and 16ms (twice every 20ms)
  */
 #if DUAL_PWM_USE_TIM5
-void tim5_isr(void){
+void tim5_isr(void)
+{
 
   dual_pwm_isr();
 }
@@ -112,7 +114,8 @@ void tim5_isr(void){
 
 /** Fonction that clears the flag of interuption in order to reactivate the interuption
  */
-void clear_timer_flag(void){
+void clear_timer_flag(void)
+{
 
 #if DUAL_PWM_USE_TIM5
   timer_clear_flag(TIM5, TIM_SR_CC1IF);
@@ -120,7 +123,8 @@ void clear_timer_flag(void){
 }
 
 
-void set_dual_pwm_timer_s_period(uint32_t period){
+void set_dual_pwm_timer_s_period(uint32_t period)
+{
 
 #if DUAL_PWM_USE_TIM5
   timer_set_period(TIM5, period);
@@ -128,7 +132,8 @@ void set_dual_pwm_timer_s_period(uint32_t period){
 }
 
 
-void set_dual_pwm_timer_s_oc(uint32_t oc_value){
+void set_dual_pwm_timer_s_oc(uint32_t oc_value)
+{
 
 #if DUAL_PWM_USE_TIM5
   timer_set_oc_value(DUAL_PWM_SERVO_5_TIMER, DUAL_PWM_SERVO_5_OC, oc_value);
@@ -138,19 +143,20 @@ void set_dual_pwm_timer_s_oc(uint32_t oc_value){
 
 
 
-void dual_pwm_isr(void){
+void dual_pwm_isr(void)
+{
 
   static int num_pulse = 0;  //status of the timer. Are we controling the first or the second servo
 
   clear_timer_flag();
 
-  if(num_pulse == 1){
+  if (num_pulse == 1) {
 
     set_dual_pwm_timer_s_period(ratio_16ms);
     set_dual_pwm_timer_s_oc(actuators_dualpwm_values[FIRST_DUAL_PWM_SERVO]);
 
     num_pulse = 0;
-  }else{
+  } else {
 
     set_dual_pwm_timer_s_period(ratio_4ms);
     set_dual_pwm_timer_s_oc(actuators_dualpwm_values[SECOND_DUAL_PWM_SERVO]);
@@ -162,7 +168,8 @@ void dual_pwm_isr(void){
 
 /** Set pulse widths from actuator values, assumed to be in us
  */
-void actuators_dualpwm_commit(void) {
+void actuators_dualpwm_commit(void)
+{
 
   //we don't need to commit the values into this function as far as it's done in the interuption
   //(wich is called every 4ms and 16ms alternatively (twice every 20ms))

@@ -31,7 +31,7 @@
 /**
  * Initializing the sst25vfxxxx chip
  */
-void sst25vfxxxx_init(struct SST25VFxxxx* sst, struct spi_periph* spi_p, const uint8_t slave_idx, SPICallback spi_cb)
+void sst25vfxxxx_init(struct SST25VFxxxx *sst, struct spi_periph *spi_p, const uint8_t slave_idx, SPICallback spi_cb)
 {
   /* Set spi_peripheral and start flash address */
   sst->spi_p = spi_p;
@@ -61,7 +61,7 @@ void sst25vfxxxx_init(struct SST25VFxxxx* sst, struct spi_periph* spi_p, const u
 /**
  * Callback of the SPI after going one level higher for gathering the sst pointer
  */
-void sst25vfxxxx_after_cb(struct SST25VFxxxx* sst)
+void sst25vfxxxx_after_cb(struct SST25VFxxxx *sst)
 {
   switch (sst->status) {
       // Enabling writing to blocks
@@ -217,7 +217,7 @@ void sst25vfxxxx_after_cb(struct SST25VFxxxx* sst)
 /**
  * Read the chip identifier
  */
-void sst25vfxxxx_read_id(struct SST25VFxxxx* sst)
+void sst25vfxxxx_read_id(struct SST25VFxxxx *sst)
 {
   if (sst->status != SST25VFXXXX_IDLE) {
     return;
@@ -237,7 +237,7 @@ void sst25vfxxxx_read_id(struct SST25VFxxxx* sst)
 /**
  * Enable block writing
  */
-void sst25vfxxxx_block_write_en(struct SST25VFxxxx* sst)
+void sst25vfxxxx_block_write_en(struct SST25VFxxxx *sst)
 {
   if (sst->status != SST25VFXXXX_IDLE) {
     return;
@@ -255,7 +255,7 @@ void sst25vfxxxx_block_write_en(struct SST25VFxxxx* sst)
 /**
  * Full chip erase
  */
-void sst25vfxxxx_chip_erase(struct SST25VFxxxx* sst)
+void sst25vfxxxx_chip_erase(struct SST25VFxxxx *sst)
 {
   if (sst->status != SST25VFXXXX_IDLE) {
     return;
@@ -273,7 +273,7 @@ void sst25vfxxxx_chip_erase(struct SST25VFxxxx* sst)
 /**
  * Write bytes
  */
-void sst25vfxxxx_write(struct SST25VFxxxx* sst, uint8_t* transfer_buffer, uint8_t transfer_length)
+void sst25vfxxxx_write(struct SST25VFxxxx *sst, uint8_t *transfer_buffer, uint8_t transfer_length)
 {
   if (sst->status != SST25VFXXXX_IDLE) {
     return;
@@ -297,7 +297,7 @@ void sst25vfxxxx_write(struct SST25VFxxxx* sst, uint8_t* transfer_buffer, uint8_
  * Read bytes
  * Need 5 more extra bytes because of SPI overhead
  */
-void sst25vfxxxx_read(struct SST25VFxxxx* sst, uint8_t* transfer_buffer, uint8_t transfer_length)
+void sst25vfxxxx_read(struct SST25VFxxxx *sst, uint8_t *transfer_buffer, uint8_t transfer_length)
 {
   if (sst->status != SST25VFXXXX_IDLE) {
     return;

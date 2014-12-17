@@ -29,8 +29,7 @@ uint8_t dc_timer;
 void dc_send_command(uint8_t cmd)
 {
   dc_timer = DC_SHUTTER_DELAY;
-  switch (cmd)
-  {
+  switch (cmd) {
     case DC_SHOOT:
       DC_PUSH(DC_SHUTTER_SERVO);
 #ifndef DC_SHOOT_ON_BUTTON_RELEASE

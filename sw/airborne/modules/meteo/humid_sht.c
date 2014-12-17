@@ -90,26 +90,25 @@ uint8_t s_write_statusreg(uint8_t *p_value);
 uint8_t s_measure(uint16_t *p_value, uint8_t *p_checksum, uint8_t mode);
 uint8_t s_start_measure(uint8_t mode);
 uint8_t s_read_measure(uint16_t *p_value, uint8_t *p_checksum);
-void calc_sht(uint16_t hum, uint16_t tem, float *fhum ,float *ftem);
-uint8_t humid_sht_reset( void );
+void calc_sht(uint16_t hum, uint16_t tem, float *fhum , float *ftem);
+uint8_t humid_sht_reset(void);
 
 
 uint8_t s_write_byte(uint8_t value)
 {
-  uint8_t i, error=0;
+  uint8_t i, error = 0;
 
-  for (i=0x80;i>0;i/=2)                 //shift bit for masking
-  {
-    if (i & value) DATA_SET;            //masking value with i , write to SENSI-BUS
-    else DATA_CLR;
+  for (i = 0x80; i > 0; i /= 2) {       //shift bit for masking
+    if (i & value) { DATA_SET; }            //masking value with i , write to SENSI-BUS
+    else { DATA_CLR; }
     SCK_SET;                           //clk for SENSI-BUS
-    SCK_SET;SCK_SET;SCK_SET;           //pulswith approx. 5 us
+    SCK_SET; SCK_SET; SCK_SET;         //pulswith approx. 5 us
     //     _nop_();_nop_();_nop_();           //pulswith approx. 5 us
     SCK_CLR;
   }
   DATA_SET;                             //release DATA-line
   SCK_SET;                              //clk #9 for ack
-  error=DATA_IN;                        //check ack (DATA will be pulled down by SHT11)
+  error = DATA_IN;                      //check ack (DATA will be pulled down by SHT11)
   SCK_CLR;
 
   return error;                         //error=1 in case of no acknowledge
@@ -117,19 +116,18 @@ uint8_t s_write_byte(uint8_t value)
 
 uint8_t s_read_byte(uint8_t ack)
 {
-  uint8_t i,val=0;
+  uint8_t i, val = 0;
 
   DATA_SET;                             //release DATA-line
-  for (i=0x80;i>0;i/=2)                 //shift bit for masking
-  {
+  for (i = 0x80; i > 0; i /= 2) {       //shift bit for masking
     SCK_SET;                            //clk for SENSI-BUS
-    if (DATA_IN) val=(val | i);         //read bit
+    if (DATA_IN) { val = (val | i); }       //read bit
     SCK_CLR;
   }
 
-  if (ack) DATA_CLR;                    //in case of "ack==1" pull down DATA-Line
+  if (ack) { DATA_CLR; }                    //in case of "ack==1" pull down DATA-Line
   SCK_SET;                              //clk #9 for ack
-  SCK_SET;SCK_SET;SCK_SET;              //pulswith approx. 5 us
+  SCK_SET; SCK_SET; SCK_SET;            //pulswith approx. 5 us
   //  _nop_();_nop_();_nop_();              //pulswith approx. 5 us
   SCK_CLR;
   DATA_SET;                             //release DATA-line
@@ -151,7 +149,7 @@ void s_transstart(void)
   DATA_CLR;
   DATA_CLR;//  _nop_();
   SCK_CLR;
-  SCK_CLR;SCK_CLR;SCK_CLR;  //  _nop_();_nop_();_nop_();
+  SCK_CLR; SCK_CLR; SCK_CLR; //  _nop_();_nop_();_nop_();
   SCK_SET;
   SCK_SET;//  _nop_();
   DATA_SET;
@@ -170,8 +168,7 @@ void s_connectionreset(void)
   uint8_t i;
 
   DATA_SET; SCK_CLR;                    //Initial state
-  for(i=0;i<9;i++)                      //9 SCK cycles
-  {
+  for (i = 0; i < 9; i++) {             //9 SCK cycles
     SCK_SET;
     SCK_CLR;
   }
@@ -181,40 +178,40 @@ void s_connectionreset(void)
 uint8_t s_read_statusreg(uint8_t *p_value, uint8_t *p_checksum)
 {
   // reads the status register with checksum (8-bit)
-  uint8_t error=0;
+  uint8_t error = 0;
 
   s_transstart();                   //transmission start
-  error=s_write_byte(STATUS_REG_R); //send command to sensor
-  *p_value=s_read_byte(ACK);        //read status register (8-bit)
-  *p_checksum=s_read_byte(noACK);   //read checksum (8-bit)
+  error = s_write_byte(STATUS_REG_R); //send command to sensor
+  *p_value = s_read_byte(ACK);      //read status register (8-bit)
+  *p_checksum = s_read_byte(noACK); //read checksum (8-bit)
   return error;                     //error=1 in case of no response form the sensor
 }
 
 uint8_t s_write_statusreg(uint8_t *p_value)
 {
   // writes the status register with checksum (8-bit)
-  uint8_t error=0;
+  uint8_t error = 0;
 
   s_transstart();                   //transmission start
-  error+=s_write_byte(STATUS_REG_W);//send command to sensor
-  error+=s_write_byte(*p_value);    //send value of status register
+  error += s_write_byte(STATUS_REG_W); //send command to sensor
+  error += s_write_byte(*p_value);  //send value of status register
   return error;                     //error>=1 in case of no response form the sensor
 }
 
 uint8_t s_measure(uint16_t *p_value, uint8_t *p_checksum, uint8_t mode)
 {
   // makes a measurement (humidity/temperature) with checksum
-  uint8_t error=0;
+  uint8_t error = 0;
   uint32_t i;
 
   s_transstart();                   //transmission start
-  switch(mode){                     //send command to sensor
-    case TEMP : error+=s_write_byte(MEASURE_TEMP); break;
-    case HUMI : error+=s_write_byte(MEASURE_HUMI); break;
+  switch (mode) {                   //send command to sensor
+    case TEMP : error += s_write_byte(MEASURE_TEMP); break;
+    case HUMI : error += s_write_byte(MEASURE_HUMI); break;
     default      : break;
   }
-  for (i=0;i<6665535;i++) if(DATA_IN==0) break; //wait until sensor has finished the measurement
-  if(DATA_IN) error+=1;                       // or timeout (~2 sec.) is reached
+  for (i = 0; i < 6665535; i++) if (DATA_IN == 0) { break; } //wait until sensor has finished the measurement
+  if (DATA_IN) { error += 1; }                    // or timeout (~2 sec.) is reached
   *(p_value) = s_read_byte(ACK) << 8;         //read the first byte (MSB)
   *(p_value) |= s_read_byte(ACK);             //read the second byte (LSB)
   *p_checksum = s_read_byte(noACK);           //read checksum
@@ -225,12 +222,12 @@ uint8_t s_measure(uint16_t *p_value, uint8_t *p_checksum, uint8_t mode)
 uint8_t s_start_measure(uint8_t mode)
 {
   // makes a measurement (humidity/temperature) with checksum
-  uint8_t error=0;
+  uint8_t error = 0;
 
   s_transstart();                   //transmission start
-  switch(mode){                     //send command to sensor
-    case TEMP : error+=s_write_byte(MEASURE_TEMP); break;
-    case HUMI : error+=s_write_byte(MEASURE_HUMI); break;
+  switch (mode) {                   //send command to sensor
+    case TEMP : error += s_write_byte(MEASURE_TEMP); break;
+    case HUMI : error += s_write_byte(MEASURE_HUMI); break;
     default      : break;
   }
 
@@ -240,9 +237,9 @@ uint8_t s_start_measure(uint8_t mode)
 uint8_t s_read_measure(uint16_t *p_value, uint8_t *p_checksum)
 {
   // reads a measurement (humidity/temperature) with checksum
-  uint8_t error=0;
+  uint8_t error = 0;
 
-  if(DATA_IN) error+=1;                       //still busy?
+  if (DATA_IN) { error += 1; }                    //still busy?
   *(p_value) = s_read_byte(ACK) << 8;         //read the first byte (MSB)
   *(p_value) |= s_read_byte(ACK);             //read the second byte (LSB)
   *p_checksum = s_read_byte(noACK);           //read checksum
@@ -250,7 +247,7 @@ uint8_t s_read_measure(uint16_t *p_value, uint8_t *p_checksum)
   return error;
 }
 
-void calc_sht(uint16_t hum, uint16_t tem, float *fhum ,float *ftem)
+void calc_sht(uint16_t hum, uint16_t tem, float *fhum , float *ftem)
 {
   // calculates temperature [ C] and humidity [%RH]
   // input : humi [Ticks] (12 bit)
@@ -258,9 +255,9 @@ void calc_sht(uint16_t hum, uint16_t tem, float *fhum ,float *ftem)
   // output: humi [%RH]
   //             temp [ C]
 
-  const float C1 =-4.0;             // for 12 Bit
+  const float C1 = -4.0;            // for 12 Bit
   const float C2 = 0.0405;          // for 12 Bit
-  const float C3 =-0.0000028;       // for 12 Bit
+  const float C3 = -0.0000028;      // for 12 Bit
   const float T1 = 0.01;            // for 14 Bit @ 5V
   const float T2 = 0.00008;         // for 14 Bit @ 5V
   float rh;                         // rh:      Humidity [Ticks] 12 Bit
@@ -272,27 +269,27 @@ void calc_sht(uint16_t hum, uint16_t tem, float *fhum ,float *ftem)
   rh = (float)hum;                  //converts integer to float
   t = (float)tem;                   //converts integer to float
 
-  t_C=t*0.01 - 39.66;               //calc. Temperature from ticks to [°C] @ 3.5V
-  rh_lin=C3*rh*rh + C2*rh + C1;     //calc. Humidity from ticks to [%RH]
-  rh_true=(t_C-25)*(T1+T2*rh)+rh_lin;   //calc. Temperature compensated humidity [%RH]
-  if(rh_true>100)rh_true=100;       //cut if the value is outside of
-  if(rh_true<0.1)rh_true=0.1;       //the physical possible range
+  t_C = t * 0.01 - 39.66;           //calc. Temperature from ticks to [°C] @ 3.5V
+  rh_lin = C3 * rh * rh + C2 * rh + C1; //calc. Humidity from ticks to [%RH]
+  rh_true = (t_C - 25) * (T1 + T2 * rh) + rh_lin; //calc. Temperature compensated humidity [%RH]
+  if (rh_true > 100) { rh_true = 100; } //cut if the value is outside of
+  if (rh_true < 0.1) { rh_true = 0.1; } //the physical possible range
   *ftem = t_C;                      //return temperature [ C]
   *fhum = rh_true;                  //return humidity[%RH]
 }
 
-uint8_t humid_sht_reset( void )
+uint8_t humid_sht_reset(void)
 {
   // resets the sensor by a softreset
-  uint8_t error=0;
+  uint8_t error = 0;
 
   s_connectionreset();                  //reset communication
-  error+=s_write_byte(RESET);           //send RESET-command to sensor
+  error += s_write_byte(RESET);         //send RESET-command to sensor
 
   return error;                         //error=1 in case of no response form the sensor
 }
 
-void humid_sht_init( void )
+void humid_sht_init(void)
 {
   /* Configure DAT/SCL pin as GPIO */
   gpio_setup_input(SHT_DAT_GPIO);
@@ -304,16 +301,16 @@ void humid_sht_init( void )
   humid_sht_status = SHT_IDLE;
 }
 
-void humid_sht_periodic(void) {
-  uint8_t error=0, checksum;
+void humid_sht_periodic(void)
+{
+  uint8_t error = 0, checksum;
 
   if (humid_sht_status == SHT_IDLE) {
     /* init humidity read */
     s_connectionreset();
     s_start_measure(HUMI);
     humid_sht_status = SHT_MEASURING_HUMID;
-  }
-  else if (humid_sht_status == SHT_MEASURING_HUMID) {
+  } else if (humid_sht_status == SHT_MEASURING_HUMID) {
     /* get data */
     error += s_read_measure(&humidsht, &checksum);
 
@@ -321,13 +318,11 @@ void humid_sht_periodic(void) {
       s_connectionreset();
       s_start_measure(HUMI);    //restart
       //LED_TOGGLE(2);
-    }
-    else {
+    } else {
       error += s_start_measure(TEMP);
       humid_sht_status = SHT_MEASURING_TEMP;
     }
-  }
-  else if (humid_sht_status == SHT_MEASURING_TEMP) {
+  } else if (humid_sht_status == SHT_MEASURING_TEMP) {
     /* get data */
     error += s_read_measure(&tempsht, &checksum);
 
@@ -335,8 +330,7 @@ void humid_sht_periodic(void) {
       s_connectionreset();
       s_start_measure(TEMP);    //restart
       //LED_TOGGLE(2);
-    }
-    else {
+    } else {
       calc_sht(humidsht, tempsht, &fhumidsht, &ftempsht);
       humid_sht_available = TRUE;
       s_connectionreset();

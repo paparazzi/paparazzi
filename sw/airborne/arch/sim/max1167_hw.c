@@ -24,11 +24,12 @@
 
 #include "subsystems/imu.h"
 
-void max1167_hw_init( void ) {}
+void max1167_hw_init(void) {}
 
-void max1167_read( void ) {}
+void max1167_read(void) {}
 
-void max1167_hw_feed_value(VEC* gyro, VEC* accel) {
+void max1167_hw_feed_value(VEC *gyro, VEC *accel)
+{
 
   max1167_values[0] = gyro->ve[AXIS_P];
   max1167_values[1] = gyro->ve[AXIS_Q];

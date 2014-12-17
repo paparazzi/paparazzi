@@ -31,13 +31,13 @@ struct SerialPort {
   struct termios cur_termios;    /* tty state structure       */
 };
 
-extern struct SerialPort* serial_port_new(void);
-extern void serial_port_free(struct SerialPort* me);
-extern void serial_port_flush(struct SerialPort* me);
-extern void serial_port_flush_output(struct SerialPort* me);
-extern int  serial_port_open_raw(struct SerialPort* me, const char* device, speed_t speed);
-extern int  serial_port_open(struct SerialPort* me, const char* device,
-           void(*term_conf_callback)(struct termios*, speed_t*));
-extern void serial_port_close(struct SerialPort* me);
+extern struct SerialPort *serial_port_new(void);
+extern void serial_port_free(struct SerialPort *me);
+extern void serial_port_flush(struct SerialPort *me);
+extern void serial_port_flush_output(struct SerialPort *me);
+extern int  serial_port_open_raw(struct SerialPort *me, const char *device, speed_t speed);
+extern int  serial_port_open(struct SerialPort *me, const char *device,
+                             void(*term_conf_callback)(struct termios *, speed_t *));
+extern void serial_port_close(struct SerialPort *me);
 
 #endif /* SERIAL_PORT_H */

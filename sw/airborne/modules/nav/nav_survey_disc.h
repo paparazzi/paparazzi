@@ -29,7 +29,7 @@
 
 #include "std.h"
 
-extern bool_t nav_survey_disc_setup( float grid );
+extern bool_t nav_survey_disc_setup(float grid);
 extern bool_t nav_survey_disc_run(uint8_t c, float radius);
 
 #endif /* NAV_SURVEY_DISC_H */

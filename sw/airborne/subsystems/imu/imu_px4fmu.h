@@ -48,7 +48,8 @@ extern struct ImuPx4fmu imu_px4fmu;
 extern void imu_px4fmu_event(void);
 
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+{
   imu_px4fmu_event();
   if (imu_px4fmu.gyro_valid) {
     imu_px4fmu.gyro_valid = FALSE;

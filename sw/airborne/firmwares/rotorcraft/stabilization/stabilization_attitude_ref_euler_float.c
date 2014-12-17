@@ -34,7 +34,8 @@ struct FloatEulers stab_att_ref_euler;
 struct FloatRates  stab_att_ref_rate;
 struct FloatRates  stab_att_ref_accel;
 
-void stabilization_attitude_ref_init(void) {
+void stabilization_attitude_ref_init(void)
+{
 
   FLOAT_EULERS_ZERO(stab_att_sp_euler);
   FLOAT_EULERS_ZERO(stab_att_ref_euler);
@@ -68,7 +69,8 @@ void stabilization_attitude_ref_init(void) {
 
 #define USE_REF 1
 
-static inline void reset_psi_ref_from_body(void) {
+static inline void reset_psi_ref_from_body(void)
+{
   //sp has been set from body using stabilization_attitude_get_yaw_f, use that value
   stab_att_ref_euler.psi = stab_att_sp_euler.psi;
   stab_att_ref_rate.r = 0;
@@ -80,7 +82,8 @@ void stabilization_attitude_ref_enter()
   reset_psi_ref_from_body();
 }
 
-void stabilization_attitude_ref_update() {
+void stabilization_attitude_ref_update()
+{
 
 #if USE_REF
 
@@ -89,7 +92,7 @@ void stabilization_attitude_ref_update() {
   RATES_SMUL(delta_rate, stab_att_ref_rate, DT_UPDATE);
   struct FloatEulers delta_angle;
   EULERS_ASSIGN(delta_angle, delta_rate.p, delta_rate.q, delta_rate.r);
-  EULERS_ADD(stab_att_ref_euler, delta_angle );
+  EULERS_ADD(stab_att_ref_euler, delta_angle);
   FLOAT_ANGLE_NORMALIZE(stab_att_ref_euler.psi);
 
   /* integrate reference rotational speeds   */
@@ -104,11 +107,11 @@ void stabilization_attitude_ref_update() {
   FLOAT_ANGLE_NORMALIZE(ref_err.psi);
 
   /* compute reference angular accelerations */
-  stab_att_ref_accel.p = -2.*ZETA_P*OMEGA_P*stab_att_ref_rate.p - OMEGA_P*OMEGA_P*ref_err.phi;
-  stab_att_ref_accel.q = -2.*ZETA_Q*OMEGA_P*stab_att_ref_rate.q - OMEGA_Q*OMEGA_Q*ref_err.theta;
-  stab_att_ref_accel.r = -2.*ZETA_R*OMEGA_P*stab_att_ref_rate.r - OMEGA_R*OMEGA_R*ref_err.psi;
+  stab_att_ref_accel.p = -2.*ZETA_P * OMEGA_P * stab_att_ref_rate.p - OMEGA_P * OMEGA_P * ref_err.phi;
+  stab_att_ref_accel.q = -2.*ZETA_Q * OMEGA_P * stab_att_ref_rate.q - OMEGA_Q * OMEGA_Q * ref_err.theta;
+  stab_att_ref_accel.r = -2.*ZETA_R * OMEGA_P * stab_att_ref_rate.r - OMEGA_R * OMEGA_R * ref_err.psi;
 
-  /*	saturate acceleration */
+  /*  saturate acceleration */
   const struct FloatRates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
   const struct FloatRates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
   RATES_BOUND_BOX(stab_att_ref_accel, MIN_ACCEL, MAX_ACCEL);

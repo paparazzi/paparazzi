@@ -29,6 +29,7 @@
 #include "imu_ardrone2_raw.h"
 #include "mcu_periph/uart.h"
 
-void imu_impl_init(void) {
+void imu_impl_init(void)
+{
   navdata_init();
 }

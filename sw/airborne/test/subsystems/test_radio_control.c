@@ -30,65 +30,72 @@
 
 #include "subsystems/radio_control.h"
 
-static inline void main_init( void );
-static inline void main_periodic_task( void );
-static inline void main_event_task( void );
-static        void main_on_radio_control_frame( void );
+static inline void main_init(void);
+static inline void main_periodic_task(void);
+static inline void main_event_task(void);
+static        void main_on_radio_control_frame(void);
 
-int main( void ) {
+int main(void)
+{
   main_init();
-  while(1) {
-    if (sys_time_check_and_ack_timer(0))
+  while (1) {
+    if (sys_time_check_and_ack_timer(0)) {
       main_periodic_task();
+    }
     main_event_task();
   }
   return 0;
 }
 
-static inline void main_init( void ) {
+static inline void main_init(void)
+{
   mcu_init();
-  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+  sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   radio_control_init();
   mcu_int_enable();
 }
 
 extern uint32_t debug_len;
 
-static inline void main_periodic_task( void ) {
+static inline void main_periodic_task(void)
+{
 
   RunOnceEvery(51, {
-      /*LED_TOGGLE(2);*/
-      uint32_t sec = sys_time.nb_sec;
-      DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &sec);
+    /*LED_TOGGLE(2);*/
+    uint32_t sec = sys_time.nb_sec;
+    DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &sec);
   });
 
   RunOnceEvery(10, {radio_control_periodic_task();});
 
   int16_t foo = 0;
-  RunOnceEvery(10,
-    {DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel, DefaultDevice,	\
-               &radio_control.values[RADIO_ROLL], \
-               &radio_control.values[RADIO_PITCH], \
-               &radio_control.values[RADIO_YAW], \
-               &radio_control.values[RADIO_THROTTLE], \
-               &radio_control.values[RADIO_MODE], \
-               &foo,				\
-               &radio_control.status);});
+  RunOnceEvery(10, {
+    DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel, DefaultDevice,  \
+    &radio_control.values[RADIO_ROLL], \
+    &radio_control.values[RADIO_PITCH], \
+    &radio_control.values[RADIO_YAW], \
+    &radio_control.values[RADIO_THROTTLE], \
+    &radio_control.values[RADIO_MODE], \
+    &foo,        \
+    &radio_control.status);
+  });
 #ifdef RADIO_CONTROL_TYPE_PPM
   RunOnceEvery(10,
-         {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,&blaa, 8, ppm_pulses);});
+  {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice, &blaa, 8, ppm_pulses);});
 #endif
 
   LED_PERIODIC();
 }
 
-static inline void main_event_task( void ) {
+static inline void main_event_task(void)
+{
 
   RadioControlEvent(main_on_radio_control_frame);
 
 }
 
-static void main_on_radio_control_frame( void ) {
+static void main_on_radio_control_frame(void)
+{
 
   //  RunOnceEvery(10, {DOWNLINK_SEND_RC(RADIO_CONTROL_NB_CHANNEL, radio_control.values);});
 

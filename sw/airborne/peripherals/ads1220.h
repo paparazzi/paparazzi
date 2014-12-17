@@ -168,11 +168,13 @@ extern void ads1220_read(struct Ads1220 *ads);
 extern void ads1220_event(struct Ads1220 *ads);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void ads1220_periodic(struct Ads1220 *ads) {
-  if (ads->config.status == ADS1220_INITIALIZED)
+static inline void ads1220_periodic(struct Ads1220 *ads)
+{
+  if (ads->config.status == ADS1220_INITIALIZED) {
     ads1220_read(ads);
-  else
+  } else {
     ads1220_configure(ads);
+  }
 }
 
 #endif // ADS1220_H

@@ -38,7 +38,8 @@ uint32_t servos_delay;
 
 #define START_TIMEOUT 0xFFFF;
 
-void actuators_ppm_init ( void ) {
+void actuators_ppm_init(void)
+{
   /* select ppm output pin as MAT0.1 output */
   SERVO_CLOCK_PINSEL |= SERVO_CLOCK_PINSEL_VAL << SERVO_CLOCK_PINSEL_BIT;
 
@@ -56,8 +57,9 @@ void actuators_ppm_init ( void ) {
   /* Set all servos to their midpoints */
   /* compulsory for unused servos  */
   uint8_t i;
-  for( i=0 ; i < _PPM_NB_CHANNELS ; i++ )
+  for (i = 0 ; i < _PPM_NB_CHANNELS ; i++) {
     servos_values[i] = SERVOS_TICS_OF_USEC(1500);
+  }
 
   servos_delay = SERVO_REFRESH_TICS;
 }

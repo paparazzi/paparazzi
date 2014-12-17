@@ -74,7 +74,7 @@ static void adxl345_i2c_send_config(struct Adxl345_I2c *adxl)
       break;
     case ADXL_CONF_ENABLE:
       /* enable measurement, is in standby after power up */
-      adxl345_i2c_tx_reg(adxl, ADXL345_REG_POWER_CTL, (0x1<<3));
+      adxl345_i2c_tx_reg(adxl, ADXL345_REG_POWER_CTL, (0x1 << 3));
       adxl->init_status++;
       break;
     case ADXL_CONF_DONE:
@@ -116,17 +116,15 @@ void adxl345_i2c_event(struct Adxl345_I2c *adxl)
   if (adxl->initialized) {
     if (adxl->i2c_trans.status == I2CTransFailed) {
       adxl->i2c_trans.status = I2CTransDone;
-    }
-    else if (adxl->i2c_trans.status == I2CTransSuccess) {
-    // Successfull reading
-      adxl->data.vect.x = Int16FromBuf(adxl->i2c_trans.buf,0);
-      adxl->data.vect.y = Int16FromBuf(adxl->i2c_trans.buf,2);
-      adxl->data.vect.z = Int16FromBuf(adxl->i2c_trans.buf,4);
+    } else if (adxl->i2c_trans.status == I2CTransSuccess) {
+      // Successfull reading
+      adxl->data.vect.x = Int16FromBuf(adxl->i2c_trans.buf, 0);
+      adxl->data.vect.y = Int16FromBuf(adxl->i2c_trans.buf, 2);
+      adxl->data.vect.z = Int16FromBuf(adxl->i2c_trans.buf, 4);
       adxl->data_available = TRUE;
       adxl->i2c_trans.status = I2CTransDone;
     }
-  }
-  else if (adxl->init_status != ADXL_CONF_UNINIT) { // Configuring but not yet initialized
+  } else if (adxl->init_status != ADXL_CONF_UNINIT) { // Configuring but not yet initialized
     if (adxl->i2c_trans.status == I2CTransSuccess || adxl->i2c_trans.status == I2CTransDone) {
       adxl->i2c_trans.status = I2CTransDone;
       adxl345_i2c_send_config(adxl);

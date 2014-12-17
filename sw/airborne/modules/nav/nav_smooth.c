@@ -46,7 +46,8 @@ static float u_a_ca_x, u_a_ca_y;
 static uint8_t ground_speed_timer;
 
 /* D is the current position */
-bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
+bool_t snav_init(uint8_t a, float desired_course_rad, float radius)
+{
   wp_a = a;
   radius = fabs(radius);
 
@@ -56,7 +57,7 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
   /* D_CD orthogonal to current course, CD on the side of A */
   float u_x = cos(M_PI_2 - (*stateGetHorizontalSpeedDir_f()));
   float u_y = sin(M_PI_2 - (*stateGetHorizontalSpeedDir_f()));
-  d_radius = - Sign(u_x*da_y - u_y*da_x) * radius;
+  d_radius = - Sign(u_x * da_y - u_y * da_x) * radius;
   wp_cd.x = stateGetPositionEnu_f()->x + d_radius * u_y;
   wp_cd.y = stateGetPositionEnu_f()->y - d_radius * u_x;
   wp_cd.a = WaypointAlt(wp_a);
@@ -64,7 +65,7 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
   /* A_CA orthogonal to desired course, CA on the side of D */
   float desired_u_x = cos(M_PI_2 - desired_course_rad);
   float desired_u_y = sin(M_PI_2 - desired_course_rad);
-  a_radius = Sign(desired_u_x*da_y - desired_u_y*da_x) * radius;
+  a_radius = Sign(desired_u_x * da_y - desired_u_y * da_x) * radius;
   u_a_ca_x = desired_u_y;
   u_a_ca_y = - desired_u_x;
   wp_ca.x = WaypointX(wp_a) + a_radius * u_a_ca_x;
@@ -74,7 +75,7 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
   /* Unit vector along CD-CA */
   u_x = wp_ca.x - wp_cd.x;
   u_y = wp_ca.y - wp_cd.y;
-  float cd_ca = sqrt(u_x*u_x+u_y*u_y);
+  float cd_ca = sqrt(u_x * u_x + u_y * u_y);
 
   /* If it is too close in reverse direction, set CA on the other side */
   if (a_radius * d_radius < 0 && cd_ca < 2 * radius) {
@@ -83,7 +84,7 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
     wp_ca.y = WaypointY(wp_a) + a_radius * u_a_ca_y;
     u_x = wp_ca.x - wp_cd.x;
     u_y = wp_ca.y - wp_cd.y;
-    cd_ca = sqrt(u_x*u_x+u_y*u_y);
+    cd_ca = sqrt(u_x * u_x + u_y * u_y);
   }
 
   u_x /= cd_ca;
@@ -100,15 +101,15 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
     wp_ta.y = wp_ca.y + a_radius * u_x;
   } else {
     /* Arcs are in reverse directions: trigonemetric puzzle :-) */
-    float alpha = atan2(u_y, u_x) + acos(d_radius/(cd_ca/2));
+    float alpha = atan2(u_y, u_x) + acos(d_radius / (cd_ca / 2));
     wp_td.x = wp_cd.x + d_radius * cos(alpha);
     wp_td.y = wp_cd.y + d_radius * sin(alpha);
 
     wp_ta.x = wp_ca.x + a_radius * cos(alpha);
     wp_ta.y = wp_ca.y + a_radius * sin(alpha);
   }
-  qdr_td = M_PI_2 - atan2(wp_td.y-wp_cd.y, wp_td.x-wp_cd.x);
-  qdr_a = M_PI_2 - atan2(WaypointY(wp_a)-wp_ca.y, WaypointX(wp_a)-wp_ca.x);
+  qdr_td = M_PI_2 - atan2(wp_td.y - wp_cd.y, wp_td.x - wp_cd.x);
+  qdr_a = M_PI_2 - atan2(WaypointY(wp_a) - wp_ca.y, WaypointX(wp_a) - wp_ca.x);
   wp_td.a = wp_cd.a;
   wp_ta.a = wp_ca.a;
   ground_speed_timer = 0;
@@ -117,15 +118,17 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
 }
 
 
-bool_t snav_circle1(void) {
+bool_t snav_circle1(void)
+{
   /* circle around CD until QDR_TD */
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(wp_cd.a, 0.);
   nav_circle_XY(wp_cd.x, wp_cd.y, d_radius);
-  return(! NavQdrCloseTo(DegOfRad(qdr_td)));
+  return (! NavQdrCloseTo(DegOfRad(qdr_td)));
 }
 
-bool_t snav_route(void) {
+bool_t snav_route(void)
+{
   /* Straight route from TD to TA */
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(wp_cd.a, 0.);
@@ -134,59 +137,65 @@ bool_t snav_route(void) {
   return (! nav_approaching_xy(wp_ta.x, wp_ta.y, wp_td.x, wp_td.y, CARROT));
 }
 
-bool_t snav_circle2(void) {
+bool_t snav_circle2(void)
+{
   /* circle around CA until QDR_A */
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(wp_cd.a, 0.);
   nav_circle_XY(wp_ca.x, wp_ca.y, a_radius);
 
-  return(! NavQdrCloseTo(DegOfRad(qdr_a)));
+  return (! NavQdrCloseTo(DegOfRad(qdr_a)));
 }
 
 #define NB_ANGLES 24
 #define ANGLE_STEP (2.*M_PI/NB_ANGLES)
 static float ground_speeds[NB_ANGLES]; /* Indexed by trigo angles */
 
-static inline float ground_speed_of_course(float x) {
-  uint8_t i = Norm2Pi(M_PI_2-x)/ANGLE_STEP;
+static inline float ground_speed_of_course(float x)
+{
+  uint8_t i = Norm2Pi(M_PI_2 - x) / ANGLE_STEP;
   return ground_speeds[i];
 }
 
 /* Compute the ground speed for courses 0, 360/NB_ANGLES, ...
    (NB_ANGLES-1)360/NB_ANGLES */
 static void compute_ground_speed(float airspeed,
-         float wind_x,
-         float wind_y) {
+                                 float wind_x,
+                                 float wind_y)
+{
   uint8_t i;
   float alpha = 0;
-  float c = wind_x*wind_x+wind_y*wind_y-airspeed*airspeed;
-  for( i=0; i < NB_ANGLES; i++, alpha+=ANGLE_STEP) {
+  float c = wind_x * wind_x + wind_y * wind_y - airspeed * airspeed;
+  for (i = 0; i < NB_ANGLES; i++, alpha += ANGLE_STEP) {
     /* g^2 -2 scal g + c = 0 */
-    float scal = wind_x*cos(alpha) + wind_y*sin(alpha);
-    float delta = 4 * (scal*scal - c);
-    ground_speeds[i] = scal + sqrt(delta)/2.;
-    Bound(ground_speeds[i], NOMINAL_AIRSPEED/4, 2*NOMINAL_AIRSPEED);
+    float scal = wind_x * cos(alpha) + wind_y * sin(alpha);
+    float delta = 4 * (scal * scal - c);
+    ground_speeds[i] = scal + sqrt(delta) / 2.;
+    Bound(ground_speeds[i], NOMINAL_AIRSPEED / 4, 2 * NOMINAL_AIRSPEED);
   }
 }
 
 /* Adjusting a circle around CA, tangent in A, to end at snav_desired_tow */
-bool_t snav_on_time(float nominal_radius) {
+bool_t snav_on_time(float nominal_radius)
+{
   nominal_radius = fabs(nominal_radius);
 
-  float current_qdr = M_PI_2 - atan2(stateGetPositionEnu_f()->y-wp_ca.y, stateGetPositionEnu_f()->x-wp_ca.x);
-  float remaining_angle = Norm2Pi(Sign(a_radius)*(qdr_a - current_qdr));
+  float current_qdr = M_PI_2 - atan2(stateGetPositionEnu_f()->y - wp_ca.y, stateGetPositionEnu_f()->x - wp_ca.x);
+  float remaining_angle = Norm2Pi(Sign(a_radius) * (qdr_a - current_qdr));
   float remaining_time = snav_desired_tow - gps.tow / 1000.;
 
   /* Use the nominal airspeed if the estimated one is not realistic */
   float airspeed = *stateGetAirspeed_f();
   if (airspeed < NOMINAL_AIRSPEED / 2. ||
-      airspeed > 2.* NOMINAL_AIRSPEED)
+      airspeed > 2.* NOMINAL_AIRSPEED) {
     airspeed = NOMINAL_AIRSPEED;
+  }
 
   /* Recompute ground speeds every 10 s */
   if (ground_speed_timer == 0) {
     ground_speed_timer = 40; /* every 10s, called at 40Hz */
-    compute_ground_speed(airspeed, stateGetHorizontalWindspeed_f()->y, stateGetHorizontalWindspeed_f()->x); // Wind in NED frame
+    compute_ground_speed(airspeed, stateGetHorizontalWindspeed_f()->y,
+                         stateGetHorizontalWindspeed_f()->x); // Wind in NED frame
   }
   ground_speed_timer--;
 
@@ -196,18 +205,19 @@ bool_t snav_on_time(float nominal_radius) {
   float a;
   float ground_speed = NOMINAL_AIRSPEED; /* Init to avoid a warning */
   /* Going one step too far */
-  for(a = 0; a < remaining_angle + ANGLE_STEP; a += ANGLE_STEP) {
-    float qdr = current_qdr + Sign(a_radius)*a;
-    ground_speed = ground_speed_of_course(qdr+Sign(a_radius)*M_PI_2);
-    nominal_time += ANGLE_STEP*nominal_radius/ground_speed;
+  for (a = 0; a < remaining_angle + ANGLE_STEP; a += ANGLE_STEP) {
+    float qdr = current_qdr + Sign(a_radius) * a;
+    ground_speed = ground_speed_of_course(qdr + Sign(a_radius) * M_PI_2);
+    nominal_time += ANGLE_STEP * nominal_radius / ground_speed;
   }
   /* Removing what exceeds remaining_angle */
-  nominal_time -= (a-remaining_angle)*nominal_radius/ground_speed;
+  nominal_time -= (a - remaining_angle) * nominal_radius / ground_speed;
 
   /* Radius size to finish in one single circle */
   float radius = remaining_time / nominal_time * nominal_radius;
-  if (radius > 2. * nominal_radius)
+  if (radius > 2. * nominal_radius) {
     radius = nominal_radius;
+  }
 
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(wp_cd.a, 0.);
@@ -218,5 +228,5 @@ bool_t snav_on_time(float nominal_radius) {
   nav_circle_XY(wp_ca.x, wp_ca.y, radius);
 
   /* Stay in this mode until the end of time */
-  return(remaining_time > 0);
+  return (remaining_time > 0);
 }

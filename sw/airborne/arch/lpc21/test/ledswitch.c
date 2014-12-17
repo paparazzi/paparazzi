@@ -17,11 +17,11 @@
 
 #include "dev_board.h"
 
-static void delay(void )
+static void delay(void)
 {
-  volatile int i,j;
-  for (i=0;i<100;i++)
-    for (j=0;j<1000;j++);
+  volatile int i, j;
+  for (i = 0; i < 100; i++)
+    for (j = 0; j < 1000; j++);
 }
 
 int main(void)
@@ -29,14 +29,14 @@ int main(void)
 
   int i;
 
-  MAMCR = 2;	// MAM functions fully enabled
+  MAMCR = 2;  // MAM functions fully enabled
 
   LED_INIT();
   YELLOW_LED_OFF();
   GREEN_LED_OFF();
   BUTTON_INIT();
-  i=0;
-  while (i<10)	{
+  i = 0;
+  while (i < 10)  {
     YELLOW_LED_ON();
     GREEN_LED_OFF();
     delay();
@@ -46,19 +46,16 @@ int main(void)
     i++;
   }
 
-  while (1)
-  {
+  while (1) {
     if (BUTTTON1_OFF()) {
       YELLOW_LED_ON();
-    }
-    else {
+    } else {
       YELLOW_LED_OFF();
     }
 
-    if (BUTTTON2_OFF())	{
+    if (BUTTTON2_OFF()) {
       GREEN_LED_ON();
-    }
-    else {
+    } else {
       GREEN_LED_OFF();
     }
   }

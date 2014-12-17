@@ -102,7 +102,8 @@
                         AMI601_IT)
 
 
-void sys_time_arch_init( void ) {
+void sys_time_arch_init(void)
+{
   sys_time.cpu_ticks_per_sec = PCLK / T0_PCLK_DIV;
   /* cpu ticks per desired sys_time timer step */
   sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution * sys_time.cpu_ticks_per_sec + 0.5);
@@ -127,7 +128,7 @@ void sys_time_arch_init( void ) {
    * phase, if we miss the first one, the
    * sys_tick_handler is not called afterward
    */
-  T0MR0 = 4*sys_time.resolution_cpu_ticks;
+  T0MR0 = 4 * sys_time.resolution_cpu_ticks;
 
   /* enable timer 0                  */
   T0TCR = TCR_ENABLE;
@@ -148,7 +149,8 @@ void sys_time_arch_init( void ) {
 // 97 days at 512hz
 // 12 hours at 100khz
 //
-static inline void sys_tick_irq_handler(void) {
+static inline void sys_tick_irq_handler(void)
+{
 
   /* set match register for next interrupt */
   T0MR0 += sys_time.resolution_cpu_ticks - 1;
@@ -162,7 +164,7 @@ static inline void sys_tick_irq_handler(void) {
     LED_TOGGLE(SYS_TIME_LED);
 #endif
   }
-  for (unsigned int i=0; i<SYS_TIME_NB_TIMER; i++) {
+  for (unsigned int i = 0; i < SYS_TIME_NB_TIMER; i++) {
     if (sys_time.timer[i].in_use &&
         sys_time.nb_tick >= sys_time.timer[i].end_time) {
       sys_time.timer[i].end_time += sys_time.timer[i].duration;
@@ -174,18 +176,19 @@ static inline void sys_tick_irq_handler(void) {
   }
 }
 
-void TIMER0_ISR ( void ) {
+void TIMER0_ISR(void)
+{
   ISR_ENTRY();
 
   while (T0IR & TIMER0_IT_MASK) {
 
-    if (T0IR&SYS_TICK_IT) {
+    if (T0IR & SYS_TICK_IT) {
       sys_tick_irq_handler();
       T0IR = SYS_TICK_IT;
     }
 
 #if defined ACTUATORS && ( defined SERVOS_4017 || defined SERVOS_4015_MAT || defined SERVOS_PPM_MAT)
-    if (T0IR&ACTUATORS_IT) {
+    if (T0IR & ACTUATORS_IT) {
 #ifdef SERVOS_4017
       SERVOS_4017_ISR();
 #endif
@@ -200,44 +203,44 @@ void TIMER0_ISR ( void ) {
 #endif /* ACTUATORS && (SERVOS_4017 || SERVOS_4015_MAT || SERVOS_PPM_MAT) */
 
 #if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM
-    if (T0IR&PPM_IT) {
+    if (T0IR & PPM_IT) {
       PPM_ISR();
       T0IR = PPM_IT;
     }
 #endif
 #ifdef TRIGGER_EXT
-    if (T0IR&TRIGGER_IT) {
+    if (T0IR & TRIGGER_IT) {
       TRIG_ISR();
       T0IR = TRIGGER_IT;
       LED_TOGGLE(3);
     }
 #endif
 #ifdef MB_SCALE
-    if (T0IR&MB_SCALE_IT) {
+    if (T0IR & MB_SCALE_IT) {
       MB_SCALE_ICP_ISR();
       T0IR = MB_SCALE_IT;
     }
 #endif
 #ifdef MB_TACHO
-    if (T0IR&MB_TACHO_IT) {
+    if (T0IR & MB_TACHO_IT) {
       MB_TACHO_ISR();
       T0IR = MB_TACHO_IT;
     }
 #endif
 #ifdef USE_PWM_INPUT1
-    if (T0IR&PWM_INPUT_IT1) {
+    if (T0IR & PWM_INPUT_IT1) {
       PWM_INPUT_ISR_1();
       T0IR = PWM_INPUT_IT1;
     }
 #endif
 #ifdef USE_PWM_INPUT2
-    if (T0IR&PWM_INPUT_IT2) {
+    if (T0IR & PWM_INPUT_IT2) {
       PWM_INPUT_ISR_2();
       T0IR = PWM_INPUT_IT2;
     }
 #endif
 #ifdef USE_AMI601
-    if (T0IR&AMI601_IT) {
+    if (T0IR & AMI601_IT) {
       AMI601_ISR();
       T0IR = AMI601_IT;
     }

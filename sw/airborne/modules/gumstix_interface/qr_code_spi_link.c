@@ -34,12 +34,13 @@ struct spi_transaction qr_code_spi_link_transaction;
 
 static volatile bool_t qr_code_spi_data_available = FALSE;
 
-uint8_t testDataOut[3] = {1,2,3};
-uint8_t testDataIn[3] = {9,9,9};
+uint8_t testDataOut[3] = {1, 2, 3};
+uint8_t testDataIn[3] = {9, 9, 9};
 
-static void qr_code_spi_link_trans_cb( struct spi_transaction *trans );
+static void qr_code_spi_link_trans_cb(struct spi_transaction *trans);
 
-void qr_code_spi_link_init(void) {
+void qr_code_spi_link_init(void)
+{
   qr_code_spi_link_transaction.cpol          = SPICpolIdleHigh;
   qr_code_spi_link_transaction.cpha          = SPICphaEdge2;
   qr_code_spi_link_transaction.dss           = SPIDss8bit;
@@ -54,18 +55,20 @@ void qr_code_spi_link_init(void) {
 }
 
 
-void qr_code_spi_link_periodic(void) {
+void qr_code_spi_link_periodic(void)
+{
   if (qr_code_spi_data_available) {
-      qr_code_spi_data_available = FALSE;
-      uint16_t x,y;
-      memcpy(&x,qr_code_spi_link_transaction.input_buf,2);
-      memcpy(&y,qr_code_spi_link_transaction.input_buf+2,2);
-      DOWNLINK_SEND_VISUALTARGET(DefaultChannel, DefaultDevice, &x, &y);
-      spi_slave_register(&spi1, &qr_code_spi_link_transaction);
+    qr_code_spi_data_available = FALSE;
+    uint16_t x, y;
+    memcpy(&x, qr_code_spi_link_transaction.input_buf, 2);
+    memcpy(&y, qr_code_spi_link_transaction.input_buf + 2, 2);
+    DOWNLINK_SEND_VISUALTARGET(DefaultChannel, DefaultDevice, &x, &y);
+    spi_slave_register(&spi1, &qr_code_spi_link_transaction);
   }
 }
 
-static void qr_code_spi_link_trans_cb( struct spi_transaction *trans __attribute__ ((unused)) ) {
+static void qr_code_spi_link_trans_cb(struct spi_transaction *trans __attribute__((unused)))
+{
   qr_code_spi_data_available = TRUE;
 }
 

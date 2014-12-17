@@ -34,7 +34,8 @@ uint32_t servos_delay;
 
 #define START_TIMEOUT 0xFFFF;
 
-void actuators_4015_init ( void ) {
+void actuators_4015_init(void)
+{
   /* select clock pin as MAT0.1 output */
   IO0DIR |= _BV(SERVO_CLOCK_PIN);
   SERVO_CLOCK_PINSEL |= SERVO_CLOCK_PINSEL_VAL << SERVO_CLOCK_PINSEL_BIT;
@@ -62,8 +63,9 @@ void actuators_4015_init ( void ) {
   /* Set all servos at their midpoints */
   /* compulsory for unaffected servos  */
   uint8_t i;
-  for( i=0 ; i < _4015_NB_CHANNELS ; i++ )
+  for (i = 0 ; i < _4015_NB_CHANNELS ; i++) {
     servos_values[i] = SERVOS_TICS_OF_USEC(1500);
+  }
 
   servos_delay = SERVO_REFRESH_TICS;
 }

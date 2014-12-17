@@ -60,24 +60,28 @@ uint32_t ir_mlx_id_23;
 
 //    printf("Ta    = %2.2f°C (0x%04X)\n", (tp*0.02)-273.15, tp);
 
-void ir_mlx_crc(unsigned char addr, volatile unsigned char* data) {
+void ir_mlx_crc(unsigned char addr, volatile unsigned char *data)
+{
   unsigned char i, bit, crc = 0;
 
   for (i = 0; i < 4; i++) {
-    if (i != 0) crc ^= (data[i-1]);
-    else crc ^= addr;
+    if (i != 0) { crc ^= (data[i - 1]); }
+    else { crc ^= addr; }
     for (bit = 8; bit > 0; bit--) {
       if (crc & 0x80)
         /* SMBus x^8 + x^2 + x + 1 */
+      {
         crc = (crc << 1) ^ 0x107;
-      else
+      } else {
         crc = (crc << 1);
+      }
     }
   }
   data[3] = crc;
 }
 
-void ir_mlx_init( void ) {
+void ir_mlx_init(void)
+{
 #ifdef IR_MLX_ONE_TIME_CONFIG
 #warning Starting MLX90614 in CONFIGURATION MODE, do this only once for
 #warning setup, then turn this MODE off again and recompile/flash
@@ -87,7 +91,8 @@ void ir_mlx_init( void ) {
 #endif
 }
 
-void ir_mlx_periodic( void ) {
+void ir_mlx_periodic(void)
+{
 #ifdef IR_MLX_ONE_TIME_CONFIG
   if (sys_time.nb_sec > 4) {
 #else
@@ -99,7 +104,7 @@ void ir_mlx_periodic( void ) {
       i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
       ir_mlx_status = IR_MLX_RD_CASE_TEMP;
       /* send serial number every 30 seconds */
-      RunOnceEvery((8*30), DOWNLINK_SEND_MLX_SERIAL(DefaultChannel, DefaultDevice, &ir_mlx_id_01, &ir_mlx_id_23));
+      RunOnceEvery((8 * 30), DOWNLINK_SEND_MLX_SERIAL(DefaultChannel, DefaultDevice, &ir_mlx_id_01, &ir_mlx_id_23));
     } else if (ir_mlx_status == IR_MLX_UNINIT) {
       /* start two byte ID 0 */
       mlx_trans.buf[0] = MLX90614_ID_0;
@@ -116,8 +121,7 @@ void ir_mlx_periodic( void ) {
     mlx_trans.buf[2] = 0;
     ir_mlx_crc(MLX90614_GENERAL_ADDR, mlx_trans.buf);
     i2c_transmit(&MLX_I2C_DEV, &mlx_trans, MLX90614_GENERAL_ADDR, 4);
-  } else
-  if ((sys_time.nb_sec > 2) && (ir_mlx_status == IR_MLX_ADDR_ERASE)) {
+  } else if ((sys_time.nb_sec > 2) && (ir_mlx_status == IR_MLX_ADDR_ERASE)) {
     /* set address by writing it to AMBus address register */
     ir_mlx_status = IR_MLX_ADDR_SET;
     mlx_trans.buf[0] = MLX90614_SADR;
@@ -125,84 +129,84 @@ void ir_mlx_periodic( void ) {
     mlx_trans.buf[2] = 0;
     ir_mlx_crc(MLX90614_GENERAL_ADDR, mlx_trans.buf);
     i2c_transmit(&MLX_I2C_DEV, &mlx_trans, MLX90614_GENERAL_ADDR, 4);
-  } else
-  if ((sys_time.nb_sec > 3) && (ir_mlx_status == IR_MLX_ADDR_SET)) {
+  } else if ((sys_time.nb_sec > 3) && (ir_mlx_status == IR_MLX_ADDR_SET)) {
     ir_mlx_status = IR_MLX_UNINIT;
   }
 #endif
 }
 
-void ir_mlx_event( void ) {
+void ir_mlx_event(void)
+{
   if ((mlx_trans.status == I2CTransSuccess)) {
     switch (ir_mlx_status) {
 
-    case IR_MLX_RD_ID_0:
-      /* read two byte ID 0 */
-      ir_mlx_id_01  = mlx_trans.buf[0];
-      ir_mlx_id_01 |= mlx_trans.buf[1] << 8;
-      /* start two byte ID 1 */
-      mlx_trans.buf[0] = MLX90614_ID_1;
-      i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
-      ir_mlx_status = IR_MLX_RD_ID_1;
-      break;
+      case IR_MLX_RD_ID_0:
+        /* read two byte ID 0 */
+        ir_mlx_id_01  = mlx_trans.buf[0];
+        ir_mlx_id_01 |= mlx_trans.buf[1] << 8;
+        /* start two byte ID 1 */
+        mlx_trans.buf[0] = MLX90614_ID_1;
+        i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
+        ir_mlx_status = IR_MLX_RD_ID_1;
+        break;
 
-    case IR_MLX_RD_ID_1:
-      /* read two byte ID 1 */
-      ir_mlx_id_01 |= mlx_trans.buf[0] << 16;
-      ir_mlx_id_01 |= mlx_trans.buf[1] << 24;
-      /* start two byte ID 2 */
-      mlx_trans.buf[0] = MLX90614_ID_2;
-      i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
-      ir_mlx_status = IR_MLX_RD_ID_2;
-      break;
+      case IR_MLX_RD_ID_1:
+        /* read two byte ID 1 */
+        ir_mlx_id_01 |= mlx_trans.buf[0] << 16;
+        ir_mlx_id_01 |= mlx_trans.buf[1] << 24;
+        /* start two byte ID 2 */
+        mlx_trans.buf[0] = MLX90614_ID_2;
+        i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
+        ir_mlx_status = IR_MLX_RD_ID_2;
+        break;
 
-    case IR_MLX_RD_ID_2:
-      /* read two byte ID 2 */
-      ir_mlx_id_23  = mlx_trans.buf[0];
-      ir_mlx_id_23 |= mlx_trans.buf[1] << 8;
-      /* start two byte ID 3 */
-      mlx_trans.buf[0] = MLX90614_ID_3;
-      i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
-      ir_mlx_status = IR_MLX_RD_ID_3;
-      break;
+      case IR_MLX_RD_ID_2:
+        /* read two byte ID 2 */
+        ir_mlx_id_23  = mlx_trans.buf[0];
+        ir_mlx_id_23 |= mlx_trans.buf[1] << 8;
+        /* start two byte ID 3 */
+        mlx_trans.buf[0] = MLX90614_ID_3;
+        i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
+        ir_mlx_status = IR_MLX_RD_ID_3;
+        break;
 
-    case IR_MLX_RD_ID_3:
-      /* read two byte ID 3 */
-      ir_mlx_id_23 |= mlx_trans.buf[0] << 16;
-      ir_mlx_id_23 |= mlx_trans.buf[1] << 24;
-      ir_mlx_status = IR_MLX_IDLE;
-      mlx_trans.status = I2CTransDone;
-      DOWNLINK_SEND_MLX_SERIAL(DefaultChannel, DefaultDevice, &ir_mlx_id_01, &ir_mlx_id_23);
-      break;
+      case IR_MLX_RD_ID_3:
+        /* read two byte ID 3 */
+        ir_mlx_id_23 |= mlx_trans.buf[0] << 16;
+        ir_mlx_id_23 |= mlx_trans.buf[1] << 24;
+        ir_mlx_status = IR_MLX_IDLE;
+        mlx_trans.status = I2CTransDone;
+        DOWNLINK_SEND_MLX_SERIAL(DefaultChannel, DefaultDevice, &ir_mlx_id_01, &ir_mlx_id_23);
+        break;
 
-    case IR_MLX_RD_CASE_TEMP:
-      /* read two byte case temperature */
-      ir_mlx_itemp_case  = mlx_trans.buf[1] << 8;
-      ir_mlx_itemp_case |= mlx_trans.buf[0];
-      ir_mlx_temp_case = ir_mlx_itemp_case*0.02 - 273.15;
+      case IR_MLX_RD_CASE_TEMP:
+        /* read two byte case temperature */
+        ir_mlx_itemp_case  = mlx_trans.buf[1] << 8;
+        ir_mlx_itemp_case |= mlx_trans.buf[0];
+        ir_mlx_temp_case = ir_mlx_itemp_case * 0.02 - 273.15;
 
-      /* start two byte obj temperature */
-      mlx_trans.buf[0] = MLX90614_TOBJ;
-      i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
-      ir_mlx_status = IR_MLX_RD_OBJ_TEMP;
-      break;
+        /* start two byte obj temperature */
+        mlx_trans.buf[0] = MLX90614_TOBJ;
+        i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
+        ir_mlx_status = IR_MLX_RD_OBJ_TEMP;
+        break;
 
-    case IR_MLX_RD_OBJ_TEMP:
-      /* read two byte obj temperature */
-      ir_mlx_itemp_obj  = mlx_trans.buf[1] << 8;
-      ir_mlx_itemp_obj |= mlx_trans.buf[0];
-      ir_mlx_temp_obj = ir_mlx_itemp_obj*0.02 - 273.15;
-      mlx_trans.status = I2CTransDone;
+      case IR_MLX_RD_OBJ_TEMP:
+        /* read two byte obj temperature */
+        ir_mlx_itemp_obj  = mlx_trans.buf[1] << 8;
+        ir_mlx_itemp_obj |= mlx_trans.buf[0];
+        ir_mlx_temp_obj = ir_mlx_itemp_obj * 0.02 - 273.15;
+        mlx_trans.status = I2CTransDone;
 
-      DOWNLINK_SEND_MLX_STATUS(DefaultChannel, DefaultDevice,
-                              &ir_mlx_itemp_case,
-                              &ir_mlx_temp_case,
-                              &ir_mlx_itemp_obj,
-                              &ir_mlx_temp_obj);
-      break;
-    default:
-      mlx_trans.status = I2CTransDone;
-      break;
+        DOWNLINK_SEND_MLX_STATUS(DefaultChannel, DefaultDevice,
+                                 &ir_mlx_itemp_case,
+                                 &ir_mlx_temp_case,
+                                 &ir_mlx_itemp_obj,
+                                 &ir_mlx_temp_obj);
+        break;
+      default:
+        mlx_trans.status = I2CTransDone;
+        break;
     }
   }
 }

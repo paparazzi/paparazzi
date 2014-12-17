@@ -168,13 +168,13 @@ PRINT_CONFIG_MSG("Analog to Digital Coverter 3 active")
 /***   STATIC FUNCTION PROTOTYPES    ***/
 /***************************************/
 
-static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* channel_map);
+static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t *channel_map);
 
-static inline void adc_push_sample(struct adc_buf * buf,
+static inline void adc_push_sample(struct adc_buf *buf,
                                    uint16_t sample);
 
-static inline void adc_init_rcc( void );
-static inline void adc_init_irq( void );
+static inline void adc_init_rcc(void);
+static inline void adc_init_irq(void);
 
 
 /********************************/
@@ -195,15 +195,15 @@ static uint8_t nb_adc3_channels = 0;
 
 #if USE_AD1
 /// List of buffers, one for each active channel.
-static struct adc_buf * adc1_buffers[4];
+static struct adc_buf *adc1_buffers[4];
 #endif
 #if USE_AD2
 /// List of buffers, one for each active channel.
-static struct adc_buf * adc2_buffers[4];
+static struct adc_buf *adc2_buffers[4];
 #endif
 #if USE_AD3
 /// List of buffers, one for each active channel.
-static struct adc_buf * adc3_buffers[4];
+static struct adc_buf *adc3_buffers[4];
 #endif
 
 #if USE_ADC_WATCHDOG
@@ -220,9 +220,10 @@ static struct {
 /***   PUBLIC FUNCTION DEFINITIONS   ***/
 /***************************************/
 
-void adc_init( void ) {
+void adc_init(void)
+{
 
-  uint8_t x=0;
+  uint8_t x = 0;
 
   // ADC channel mapping
   uint8_t adc_channel_map[4];
@@ -361,27 +362,25 @@ void adc_init( void ) {
 
 #if USE_ADC_WATCHDOG
   adc_watchdog.cb = NULL;
-  adc_watchdog.timeStamp=0;
+  adc_watchdog.timeStamp = 0;
 #endif
 
 }
 
-void adc_buf_channel(uint8_t adc_channel, struct adc_buf * s, uint8_t av_nb_sample)
+void adc_buf_channel(uint8_t adc_channel, struct adc_buf *s, uint8_t av_nb_sample)
 {
 
   if (adc_channel < nb_adc1_channels) {
 #if USE_AD1
     adc1_buffers[adc_channel] = s;
 #endif
-  }
-  else if (adc_channel < (nb_adc1_channels+nb_adc2_channels)) {
+  } else if (adc_channel < (nb_adc1_channels + nb_adc2_channels)) {
 #if USE_AD2
-    adc2_buffers[adc_channel-nb_adc1_channels] = s;
+    adc2_buffers[adc_channel - nb_adc1_channels] = s;
 #endif
-  }
-  else if (adc_channel < (nb_adc1_channels+nb_adc2_channels+nb_adc3_channels)) {
+  } else if (adc_channel < (nb_adc1_channels + nb_adc2_channels + nb_adc3_channels)) {
 #if USE_AD3
-    adc3_buffers[adc_channel-(nb_adc1_channels+nb_adc2_channels)] = s;
+    adc3_buffers[adc_channel - (nb_adc1_channels + nb_adc2_channels)] = s;
 #endif
   }
 
@@ -390,7 +389,8 @@ void adc_buf_channel(uint8_t adc_channel, struct adc_buf * s, uint8_t av_nb_samp
 }
 
 #if USE_ADC_WATCHDOG
-void register_adc_watchdog(uint32_t adc, uint8_t chan, uint16_t low, uint16_t high, adc_watchdog_callback cb) {
+void register_adc_watchdog(uint32_t adc, uint8_t chan, uint16_t low, uint16_t high, adc_watchdog_callback cb)
+{
   adc_watchdog.adc = adc;
   adc_watchdog.cb = cb;
 
@@ -419,7 +419,7 @@ void register_adc_watchdog(uint32_t adc, uint8_t chan, uint16_t low, uint16_t hi
 #endif
 
 /** Configure and enable RCC for peripherals (ADC1, ADC2, Timer) */
-static inline void adc_init_rcc( void )
+static inline void adc_init_rcc(void)
 {
 #if USE_AD1 || USE_AD2 || USE_AD3
   /* Timer peripheral clock enable. */
@@ -456,7 +456,7 @@ static inline void adc_init_rcc( void )
 }
 
 /** Configure and enable ADC interrupt */
-static inline void adc_init_irq( void )
+static inline void adc_init_irq(void)
 {
 #if defined(STM32F1)
   nvic_set_priority(NVIC_ADC1_2_IRQ, NVIC_ADC_IRQ_PRIO);
@@ -468,7 +468,7 @@ static inline void adc_init_irq( void )
 }
 
 
-static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* channel_map)
+static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t *channel_map)
 {
   // Paranoia, must be down for 2+ ADC clock cycles before calibration
   adc_off(adc);
@@ -559,7 +559,8 @@ static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* c
 } // adc_init_single
 
 
-static inline void adc_push_sample(struct adc_buf * buf, uint16_t value) {
+static inline void adc_push_sample(struct adc_buf *buf, uint16_t value)
+{
   uint8_t new_head = buf->head + 1;
 
   if (new_head >= buf->av_nb_sample) {
@@ -583,7 +584,7 @@ void adc_isr(void)
 {
   uint8_t channel = 0;
   uint16_t value  = 0;
-  struct adc_buf * buf;
+  struct adc_buf *buf;
 
 #if USE_ADC_WATCHDOG
   /*
@@ -593,8 +594,9 @@ void adc_isr(void)
    */
   const uint32_t timeStampDiff = get_sys_time_msec() - adc_watchdog.timeStamp;
   const bool_t shouldAccumulateValue = timeStampDiff > 20;
-  if (shouldAccumulateValue)
+  if (shouldAccumulateValue) {
     adc_watchdog.timeStamp = get_sys_time_msec();
+  }
 
   if (adc_watchdog.cb != NULL) {
     if (adc_awd(adc_watchdog.adc)) {
@@ -606,58 +608,58 @@ void adc_isr(void)
 
 #if USE_AD1
   // Clear Injected End Of Conversion
-  if (adc_eoc_injected(ADC1)){
+  if (adc_eoc_injected(ADC1)) {
     ADC_SR(ADC1) &= ~ADC_SR_JEOC;
 #if USE_ADC_WATCHDOG
     if (shouldAccumulateValue) {
 #endif
-    for (channel = 0; channel < nb_adc1_channels; channel++) {
-      buf = adc1_buffers[channel];
-      if (buf) {
-        value = adc_read_injected(ADC1, channel+1);
-        adc_push_sample(buf, value);
+      for (channel = 0; channel < nb_adc1_channels; channel++) {
+        buf = adc1_buffers[channel];
+        if (buf) {
+          value = adc_read_injected(ADC1, channel + 1);
+          adc_push_sample(buf, value);
+        }
       }
-    }
 #if USE_ADC_WATCHDOG
-  }
+    }
 #endif
   }
 #endif // USE_AD1
 
 #if USE_AD2
-  if (adc_eoc_injected(ADC2)){
+  if (adc_eoc_injected(ADC2)) {
     ADC_SR(ADC2) &= ~ADC_SR_JEOC;
 #if USE_ADC_WATCHDOG
     if (shouldAccumulateValue) {
 #endif
-    for (channel = 0; channel < nb_adc2_channels; channel++) {
-      buf = adc2_buffers[channel];
-      if (buf) {
-        value = adc_read_injected(ADC2, channel+1);
-        adc_push_sample(buf, value);
+      for (channel = 0; channel < nb_adc2_channels; channel++) {
+        buf = adc2_buffers[channel];
+        if (buf) {
+          value = adc_read_injected(ADC2, channel + 1);
+          adc_push_sample(buf, value);
+        }
       }
-    }
 #if USE_ADC_WATCHDOG
-  }
+    }
 #endif
   }
 #endif // USE_AD2
 
 #if USE_AD3
-  if (adc_eoc_injected(ADC3)){
+  if (adc_eoc_injected(ADC3)) {
     ADC_SR(ADC3) &= ~ADC_SR_JEOC;
 #if USE_ADC_WATCHDOG
     if (shouldAccumulateValue) {
 #endif
-    for (channel = 0; channel < nb_adc3_channels; channel++) {
-      buf = adc3_buffers[channel];
-      if (buf) {
-        value = adc_read_injected(ADC3, channel+1);
-        adc_push_sample(buf, value);
+      for (channel = 0; channel < nb_adc3_channels; channel++) {
+        buf = adc3_buffers[channel];
+        if (buf) {
+          value = adc_read_injected(ADC3, channel + 1);
+          adc_push_sample(buf, value);
+        }
       }
-    }
 #if USE_ADC_WATCHDOG
-  }
+    }
 #endif
   }
 #endif // USE_AD3

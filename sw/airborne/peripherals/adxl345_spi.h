@@ -58,11 +58,13 @@ extern void adxl345_spi_read(struct Adxl345_Spi *adxl);
 extern void adxl345_spi_event(struct Adxl345_Spi *adxl);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void adxl345_spi_periodic(struct Adxl345_Spi *adxl) {
-  if (adxl->initialized)
+static inline void adxl345_spi_periodic(struct Adxl345_Spi *adxl)
+{
+  if (adxl->initialized) {
     adxl345_spi_read(adxl);
-  else
+  } else {
     adxl345_spi_start_configure(adxl);
+  }
 }
 
 #endif // ADXL345_SPI_H

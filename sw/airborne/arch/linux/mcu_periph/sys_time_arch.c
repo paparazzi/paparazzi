@@ -34,7 +34,8 @@
 #endif
 
 
-void sys_time_arch_init( void ) {
+void sys_time_arch_init(void)
+{
 
   sys_time.cpu_ticks_per_sec = 1e6;
   sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution * sys_time.cpu_ticks_per_sec + 0.5);
@@ -56,7 +57,8 @@ void sys_time_arch_init( void ) {
   setitimer(ITIMER_REAL, &timer, NULL);
 }
 
-void sys_tick_handler( int signum ) {
+void sys_tick_handler(int signum)
+{
 
   sys_time.nb_tick++;
   sys_time.nb_sec_rem += sys_time.resolution_cpu_ticks;;
@@ -68,7 +70,7 @@ void sys_tick_handler( int signum ) {
 #endif
 
   }
-  for (unsigned int i=0; i<SYS_TIME_NB_TIMER; i++) {
+  for (unsigned int i = 0; i < SYS_TIME_NB_TIMER; i++) {
     if (sys_time.timer[i].in_use &&
         sys_time.nb_tick >= sys_time.timer[i].end_time) {
       sys_time.timer[i].end_time += sys_time.timer[i].duration;

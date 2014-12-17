@@ -24,10 +24,11 @@
 
 bool_t   rc_spk_parser_status;
 uint8_t  rc_spk_parser_idx;
-uint8_t  rc_spk_parser_buf[RADIO_CONTROL_NB_CHANNEL*2];
+uint8_t  rc_spk_parser_buf[RADIO_CONTROL_NB_CHANNEL * 2];
 const int16_t rc_spk_throw[RADIO_CONTROL_NB_CHANNEL] = RC_SPK_THROWS;
 
-void radio_control_impl_init(void) {
+void radio_control_impl_init(void)
+{
   rc_spk_parser_status = RC_SPK_STA_UNINIT;
   rc_spk_parser_idx = 0;
 }

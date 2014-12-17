@@ -19,20 +19,21 @@
 #define TIMEOUT_DT_USEC 50000
 
 
-#define ADD_TIMEOUT() {				\
-    struct timeval tv;				\
-    evutil_timerclear(&tv);			\
-    tv.tv_sec  = TIMEOUT_DT_SEC;		\
-    tv.tv_usec = TIMEOUT_DT_USEC;		\
-    event_add(&timeout, &tv);			\
+#define ADD_TIMEOUT() {       \
+    struct timeval tv;        \
+    evutil_timerclear(&tv);     \
+    tv.tv_sec  = TIMEOUT_DT_SEC;    \
+    tv.tv_usec = TIMEOUT_DT_USEC;   \
+    event_add(&timeout, &tv);     \
   }
 
 static void timeout_cb(int fd, short event, void *arg);
 
 static struct event timeout;
-static struct FmsNetwork* network;
+static struct FmsNetwork *network;
 
-void timeout_cb(int fd, short event, void *arg) {
+void timeout_cb(int fd, short event, void *arg)
+{
 
   //  printf("in timeout_cb\n");
 
@@ -49,7 +50,8 @@ void timeout_cb(int fd, short event, void *arg) {
 }
 
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
   network = network_new(GCS_HOST, GCS_PORT, DATALINK_PORT, FALSE);
 

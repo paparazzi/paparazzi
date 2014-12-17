@@ -44,7 +44,8 @@
 struct Ms2100 ms2100;
 
 
-void ms2100_init(struct Ms2100 *ms, struct spi_periph *spi_p, uint8_t slave_idx) {
+void ms2100_init(struct Ms2100 *ms, struct spi_periph *spi_p, uint8_t slave_idx)
+{
 
   /* set spi_peripheral */
   ms->spi_p = spi_p;
@@ -92,15 +93,17 @@ void ms2100_init(struct Ms2100 *ms, struct spi_periph *spi_p, uint8_t slave_idx)
 }
 
 /// send request to read next axis
-void ms2100_read(struct Ms2100 *ms) {
-  ms->req_buf[0] = (ms->cur_axe+1) << 0 | MS2100_DIVISOR << 4;
+void ms2100_read(struct Ms2100 *ms)
+{
+  ms->req_buf[0] = (ms->cur_axe + 1) << 0 | MS2100_DIVISOR << 4;
   spi_submit(ms->spi_p, &(ms->req_trans));
   ms->status = MS2100_SENDING_REQ;
 }
 
 #define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx]<<8) | _buf[_idx+1]))
 
-void ms2100_event(struct Ms2100 *ms) {
+void ms2100_event(struct Ms2100 *ms)
+{
   // handle request transaction
   if (ms->req_trans.status == SPITransDone) {
     if (ms->status == MS2100_GOT_EOC) {
@@ -108,11 +111,9 @@ void ms2100_event(struct Ms2100 *ms) {
       spi_submit(ms->spi_p, &(ms->read_trans));
       ms->status = MS2100_READING_RES;
     }
-  }
-  else if (ms->req_trans.status == SPITransSuccess) {
+  } else if (ms->req_trans.status == SPITransSuccess) {
     ms->req_trans.status = SPITransDone;
-  }
-  else if (ms->req_trans.status == SPITransFailed) {
+  } else if (ms->req_trans.status == SPITransFailed) {
     ms->status = MS2100_IDLE;
     ms->cur_axe = 0;
     ms->req_trans.status = SPITransDone;
@@ -122,7 +123,7 @@ void ms2100_event(struct Ms2100 *ms) {
   if (ms->read_trans.status == SPITransSuccess) {
     if (ms->status == MS2100_READING_RES) {
       // store value
-      int16_t new_val = Int16FromBuf(ms->read_buf,0);
+      int16_t new_val = Int16FromBuf(ms->read_buf, 0);
       // what is this check about?
       if (abs(new_val) < 2000) {
         ms->data.value[ms->cur_axe] = new_val;
@@ -131,14 +132,12 @@ void ms2100_event(struct Ms2100 *ms) {
       if (ms->cur_axe > 2) {
         ms->cur_axe = 0;
         ms->status = MS2100_DATA_AVAILABLE;
-      }
-      else {
+      } else {
         ms->status = MS2100_IDLE;
       }
       ms->read_trans.status = SPITransDone;
     }
-  }
-  else if (ms->read_trans.status == SPITransFailed) {
+  } else if (ms->read_trans.status == SPITransFailed) {
     ms->status = MS2100_IDLE;
     ms->cur_axe = 0;
     ms->read_trans.status = SPITransDone;

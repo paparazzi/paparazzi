@@ -21,13 +21,16 @@
 
 #include "modules/vehicle_interface/vi_datalink.h"
 
-void vi_impl_init(void) {
+void vi_impl_init(void)
+{
 }
 
-void vi_impl_periodic(void) {
+void vi_impl_periodic(void)
+{
 }
 
-void vi_impl_set_enabled(bool_t enabled __attribute__ ((unused))) {
+void vi_impl_set_enabled(bool_t enabled __attribute__((unused)))
+{
 }
 
 #define ViMaxHSpeed ((int16_t)SPEED_BFP_OF_REAL(VI_MAX_H_SPEED))
@@ -36,7 +39,8 @@ void vi_impl_set_enabled(bool_t enabled __attribute__ ((unused))) {
 
 struct Int16Vect3 wp_speed_max = { ViMaxHSpeed, ViMaxHSpeed, ViMaxVSpeed };
 
-void vi_update_wp(uint8_t wp_id) {
+void vi_update_wp(uint8_t wp_id)
+{
   struct Int16Vect3 wp_speed;
   wp_speed.x = ViMaxHSpeed * vi.input.h_sp.speed.x / 128;
   wp_speed.y = ViMaxHSpeed * vi.input.h_sp.speed.y / 128;

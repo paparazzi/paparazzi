@@ -42,15 +42,16 @@ struct FmsPeriodic {
 };
 
 
-int fms_periodic_init(void(*periodic_handler)(int) ) {
+int fms_periodic_init(void(*periodic_handler)(int))
+{
 
   pid_t my_pid = fork();
   if (my_pid == -1) {
-    TRACE(TRACE_ERROR,"fms_periodic : unable to fork : %s (%d)\n", strerror(errno), errno);
+    TRACE(TRACE_ERROR, "fms_periodic : unable to fork : %s (%d)\n", strerror(errno), errno);
     return -1;
   }
   /* child process                 */
-  else if  (my_pid == 0) {
+  else if (my_pid == 0) {
     fms_periodic_run();
   }
   /* succesful fork parent process */
@@ -58,7 +59,7 @@ int fms_periodic_init(void(*periodic_handler)(int) ) {
   /* install signal handler */
   struct sigaction my_sigaction = {.sa_handler = periodic_handler };
   if (sigaction(SIGUSR1, &my_sigaction, NULL)) {
-    TRACE(TRACE_ERROR,"fms_periodic : unable to install signal handler : %s (%d)\n", strerror(errno), errno);
+    TRACE(TRACE_ERROR, "fms_periodic : unable to install signal handler : %s (%d)\n", strerror(errno), errno);
     return -1;
   }
 
@@ -66,7 +67,7 @@ int fms_periodic_init(void(*periodic_handler)(int) ) {
   struct sched_param param;
   param.sched_priority = 49;
   if (sched_setscheduler(0, SCHED_FIFO, &param) == -1) {
-    TRACE(TRACE_ERROR,"fms_periodic : hs sched_setscheduler failed : %s (%d)\n", strerror(errno), errno);
+    TRACE(TRACE_ERROR, "fms_periodic : hs sched_setscheduler failed : %s (%d)\n", strerror(errno), errno);
   }
 
   return 0;
@@ -80,12 +81,13 @@ int fms_periodic_init(void(*periodic_handler)(int) ) {
 #define NS_PER_SEC         1000000000
 #define PERIODIC_DT_NSEC  (NS_PER_SEC/(FMS_PERIODIC_FREQ))
 
-static void fms_periodic_run(void) {
+static void fms_periodic_run(void)
+{
 
   struct sched_param param;
   param.sched_priority = 95;
   if (sched_setscheduler(0, SCHED_FIFO, &param) == -1) {
-    TRACE(TRACE_ERROR,"fms_periodic : hs sched_setscheduler failed : %s (%d)\n", strerror(errno), errno);
+    TRACE(TRACE_ERROR, "fms_periodic : hs sched_setscheduler failed : %s (%d)\n", strerror(errno), errno);
   }
 
   pid_t father_pid = getppid();

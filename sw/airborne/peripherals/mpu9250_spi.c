@@ -63,8 +63,9 @@ void mpu9250_spi_init(struct Mpu9250_Spi *mpu, struct spi_periph *spi_p, uint8_t
 }
 
 
-static void mpu9250_spi_write_to_reg(void* mpu, uint8_t _reg, uint8_t _val) {
-  struct Mpu9250_Spi* mpu_spi = (struct Mpu9250_Spi*)(mpu);
+static void mpu9250_spi_write_to_reg(void *mpu, uint8_t _reg, uint8_t _val)
+{
+  struct Mpu9250_Spi *mpu_spi = (struct Mpu9250_Spi *)(mpu);
   mpu_spi->spi_trans.output_length = 2;
   mpu_spi->spi_trans.input_length = 0;
   mpu_spi->tx_buf[0] = _reg;
@@ -78,7 +79,7 @@ void mpu9250_spi_start_configure(struct Mpu9250_Spi *mpu)
   if (mpu->config.init_status == MPU9250_CONF_UNINIT) {
     mpu->config.init_status++;
     if (mpu->spi_trans.status == SPITransSuccess || mpu->spi_trans.status == SPITransDone) {
-      mpu9250_send_config(mpu9250_spi_write_to_reg, (void*)mpu, &(mpu->config));
+      mpu9250_send_config(mpu9250_spi_write_to_reg, (void *)mpu, &(mpu->config));
     }
   }
 }
@@ -101,8 +102,7 @@ void mpu9250_spi_event(struct Mpu9250_Spi *mpu)
   if (mpu->config.initialized) {
     if (mpu->spi_trans.status == SPITransFailed) {
       mpu->spi_trans.status = SPITransDone;
-    }
-    else if (mpu->spi_trans.status == SPITransSuccess) {
+    } else if (mpu->spi_trans.status == SPITransSuccess) {
       // Successfull reading
       if (bit_is_set(mpu->rx_buf[1], 0)) {
         // new data
@@ -120,7 +120,7 @@ void mpu9250_spi_event(struct Mpu9250_Spi *mpu)
            */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
-          memcpy(mpu->data_ext, (uint8_t *) &(mpu->rx_buf[16]), mpu->config.nb_bytes - 15);
+          memcpy(mpu->data_ext, (uint8_t *) & (mpu->rx_buf[16]), mpu->config.nb_bytes - 15);
 #pragma GCC diagnostic pop
         }
 
@@ -128,16 +128,16 @@ void mpu9250_spi_event(struct Mpu9250_Spi *mpu)
       }
       mpu->spi_trans.status = SPITransDone;
     }
-  }
-  else if (mpu->config.init_status != MPU9250_CONF_UNINIT) { // Configuring but not yet initialized
+  } else if (mpu->config.init_status != MPU9250_CONF_UNINIT) { // Configuring but not yet initialized
     switch (mpu->spi_trans.status) {
       case SPITransFailed:
         mpu->config.init_status--; // Retry config (TODO max retry)
       case SPITransSuccess:
       case SPITransDone:
-        mpu9250_send_config(mpu9250_spi_write_to_reg, (void*)mpu, &(mpu->config));
-        if (mpu->config.initialized)
+        mpu9250_send_config(mpu9250_spi_write_to_reg, (void *)mpu, &(mpu->config));
+        if (mpu->config.initialized) {
           mpu->spi_trans.status = SPITransDone;
+        }
         break;
       default:
         break;
@@ -146,17 +146,18 @@ void mpu9250_spi_event(struct Mpu9250_Spi *mpu)
 }
 
 /** @todo: only one slave so far. */
-bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void* mpu)
+bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
 {
-  struct Mpu9250_Spi* mpu_spi = (struct Mpu9250_Spi*)(mpu);
+  struct Mpu9250_Spi *mpu_spi = (struct Mpu9250_Spi *)(mpu);
 
-  if (mpu_spi->slave_init_status == MPU9250_SPI_CONF_UNINIT)
+  if (mpu_spi->slave_init_status == MPU9250_SPI_CONF_UNINIT) {
     mpu_spi->slave_init_status++;
+  }
 
   switch (mpu_spi->slave_init_status) {
     case MPU9250_SPI_CONF_I2C_MST_CLK:
       /* configure MPU I2C master clock and stop/start between slave reads */
-      mpu_set(mpu, MPU9250_REG_I2C_MST_CTRL, ((1<<4) | mpu_spi->config.i2c_mst_clk));
+      mpu_set(mpu, MPU9250_REG_I2C_MST_CTRL, ((1 << 4) | mpu_spi->config.i2c_mst_clk));
       mpu_spi->slave_init_status++;
       break;
     case MPU9250_SPI_CONF_I2C_MST_DELAY:
@@ -172,8 +173,9 @@ bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void* mpu)
       break;
     case MPU9250_SPI_CONF_SLAVES_CONFIGURE:
       /* configure first slave, only one slave supported so far */
-      if (mpu_spi->config.slaves[0].configure(mpu_set, mpu))
+      if (mpu_spi->config.slaves[0].configure(mpu_set, mpu)) {
         mpu_spi->slave_init_status++;
+      }
       break;
     case MPU9250_SPI_CONF_DONE:
       return TRUE;

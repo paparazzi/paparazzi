@@ -94,7 +94,7 @@ typedef struct _navdata_option_t {
   uint16_t  tag;
   uint16_t  size;
   uint8_t   data[1];
-} __attribute__ ((packed)) navdata_option_t;
+} __attribute__((packed)) navdata_option_t;
 
 //Main navdata packet
 typedef struct _navdata_t {
@@ -104,14 +104,14 @@ typedef struct _navdata_t {
   uint32_t    vision_defined;
 
   navdata_option_t  options[1];
-} __attribute__ ((packed)) navdata_t;
+} __attribute__((packed)) navdata_t;
 
 //Navdata checksum packet
 typedef struct _navdata_cks_t {
   uint16_t  tag;
   uint16_t  size;
   uint32_t  cks;
-} __attribute__ ((packed)) navdata_cks_t;
+} __attribute__((packed)) navdata_cks_t;
 
 //Navdata demo option
 typedef struct _navdata_demo_t {
@@ -135,7 +135,7 @@ typedef struct _navdata_demo_t {
   // Camera parameters compute by drone
   struct FloatMat33  drone_camera_rot;    /*!<  Deprecated ! Don't use ! */
   struct FloatVect3  drone_camera_trans;      /*!<  Deprecated ! Don't use ! */
-} __attribute__ ((packed)) navdata_demo_t;
+} __attribute__((packed)) navdata_demo_t;
 
 //Navdata physical measures option
 typedef struct _navdata_phys_measures_t {
@@ -149,7 +149,7 @@ typedef struct _navdata_phys_measures_t {
   uint32_t        alim3V3;              // 3.3volt alim [LSB]
   uint32_t        vrefEpson;            // ref volt Epson gyro [LSB]
   uint32_t        vrefIDG;              // ref volt IDG gyro [LSB]
-} __attribute__ ((packed)) navdata_phys_measures_t;
+} __attribute__((packed)) navdata_phys_measures_t;
 
 //Navdata gps packet
 typedef double float64_t;               //TODO: Fix this nicely, but this is only used here
@@ -176,10 +176,10 @@ typedef struct _navdata_gps_t {
   float32_t     degree;                 /*!< Degree */
   float32_t     degree_mag;             /*!< Degree of the magnetic */
   uint8_t       unk_2[16];
-  struct{
+  struct {
     uint8_t     sat;
     uint8_t     cn0;
-  }channels[12];
+  } channels[12];
   int32_t       gps_plugged;            /*!< When the gps is plugged */
   uint8_t       unk_3[108];
   float64_t     gps_time;               /*!< The gps time of week */
@@ -198,12 +198,12 @@ typedef struct _navdata_gps_t {
   uint8_t       unk_5[72];
   float32_t     temprature;
   float32_t     pressure;
-} __attribute__ ((packed)) navdata_gps_t;
+} __attribute__((packed)) navdata_gps_t;
 
 //External functions
 extern void init_at_com(void);
-extern int at_com_recieve_navdata(unsigned char* buffer);
-extern void at_com_send_config(char* key, char* value);
+extern int at_com_recieve_navdata(unsigned char *buffer);
+extern void at_com_send_config(char *key, char *value);
 extern void at_com_send_ftrim(void);
 extern void at_com_send_ref(int bits);
 extern void at_com_send_pcmd(int mode, float thrust, float roll, float pitch, float yaw);

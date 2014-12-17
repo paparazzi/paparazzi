@@ -25,20 +25,22 @@ bool_t gps_available;
 
 
 #if 0
-void  gps_feed_values(double utm_north, double utm_east, double utm_alt, double gspeed, double course, double climb) {
+void  gps_feed_values(double utm_north, double utm_east, double utm_alt, double gspeed, double course, double climb)
+{
   gps.utm_pos.north = CM_OF_M(utm_north);
   gps.utm_pos.east = CM_OF_M(utm_east);
   //TODO set height above ellipsoid properly
   gps.hmsl = utm_alt * 1000.;
   gps.gspeed = CM_OF_M(gspeed);
-  gps.course = EM7RAD_OF_RAD(RadOfDeg(course/10.));
-  gps.ned_vel.z = -climb*100.;
+  gps.course = EM7RAD_OF_RAD(RadOfDeg(course / 10.));
+  gps.ned_vel.z = -climb * 100.;
   gps.fix = GPS_FIX_3D;
   gps_available = TRUE;
 }
 #endif
 
-void gps_impl_init(void) {
+void gps_impl_init(void)
+{
   gps.fix = GPS_FIX_NONE;
   gps_available = FALSE;
 }

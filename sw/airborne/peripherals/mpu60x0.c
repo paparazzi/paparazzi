@@ -48,14 +48,14 @@ void mpu60x0_set_default_config(struct Mpu60x0Config *c)
   c->i2c_bypass = FALSE;
 }
 
-void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void* mpu, struct Mpu60x0Config* config)
+void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void *mpu, struct Mpu60x0Config *config)
 {
   switch (config->init_status) {
     case MPU60X0_CONF_RESET:
       /* device reset, set register values to defaults */
-      mpu_set(mpu, MPU60X0_REG_PWR_MGMT_1, (1<<6));
+      mpu_set(mpu, MPU60X0_REG_PWR_MGMT_1, (1 << 6));
       config->init_status++;
-    break;
+      break;
     case MPU60X0_CONF_USER_RESET:
       /* trigger FIFO, I2C_MST and SIG_COND resets */
       mpu_set(mpu, MPU60X0_REG_USER_CTRL, ((1 << MPU60X0_FIFO_RESET) |
@@ -65,7 +65,7 @@ void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void* mpu, struct Mpu60x0Conf
       break;
     case MPU60X0_CONF_PWR:
       /* switch to gyroX clock by default */
-      mpu_set(mpu, MPU60X0_REG_PWR_MGMT_1, ((config->clk_sel)|(0<<6)));
+      mpu_set(mpu, MPU60X0_REG_PWR_MGMT_1, ((config->clk_sel) | (0 << 6)));
       config->init_status++;
       break;
     case MPU60X0_CONF_SD:
@@ -80,27 +80,28 @@ void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void* mpu, struct Mpu60x0Conf
       break;
     case MPU60X0_CONF_GYRO:
       /* configure gyro range */
-      mpu_set(mpu, MPU60X0_REG_GYRO_CONFIG, (config->gyro_range<<3));
+      mpu_set(mpu, MPU60X0_REG_GYRO_CONFIG, (config->gyro_range << 3));
       config->init_status++;
       break;
     case MPU60X0_CONF_ACCEL:
       /* configure accelerometer range */
-      mpu_set(mpu, MPU60X0_REG_ACCEL_CONFIG, (config->accel_range<<3));
+      mpu_set(mpu, MPU60X0_REG_ACCEL_CONFIG, (config->accel_range << 3));
       config->init_status++;
       break;
     case MPU60X0_CONF_I2C_SLAVES:
       /* if any, set MPU for I2C slaves and configure them*/
       if (config->nb_slaves > 0) {
         /* returns TRUE when all slaves are configured */
-        if (mpu60x0_configure_i2c_slaves(mpu_set, mpu))
+        if (mpu60x0_configure_i2c_slaves(mpu_set, mpu)) {
           config->init_status++;
-      }
-      else
+        }
+      } else {
         config->init_status++;
+      }
       break;
     case MPU60X0_CONF_INT_ENABLE:
       /* configure data ready interrupt */
-      mpu_set(mpu, MPU60X0_REG_INT_ENABLE, (config->drdy_int_enable<<0));
+      mpu_set(mpu, MPU60X0_REG_INT_ENABLE, (config->drdy_int_enable << 0));
       config->init_status++;
       break;
     case MPU60X0_CONF_DONE:

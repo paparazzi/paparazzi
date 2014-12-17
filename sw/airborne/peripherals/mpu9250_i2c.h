@@ -77,11 +77,13 @@ extern void mpu9250_i2c_read(struct Mpu9250_I2c *mpu);
 extern void mpu9250_i2c_event(struct Mpu9250_I2c *mpu);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void mpu9250_i2c_periodic(struct Mpu9250_I2c *mpu) {
-  if (mpu->config.initialized)
+static inline void mpu9250_i2c_periodic(struct Mpu9250_I2c *mpu)
+{
+  if (mpu->config.initialized) {
     mpu9250_i2c_read(mpu);
-  else
+  } else {
     mpu9250_i2c_start_configure(mpu);
+  }
 }
 
 #endif // MPU9250_I2C_H

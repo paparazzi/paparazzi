@@ -62,7 +62,7 @@ static inline void actuators_esc32_start(uint32_t tt, uint8_t tid);
 static inline void actuators_esc32_duty(uint32_t tt, uint8_t tid, uint16_t *cmds);
 static inline void actuators_esc32_dir(uint32_t tt, uint8_t tid);
 static bool_t actuators_esc32_play_melody(uint32_t tt, uint8_t tid, uint32_t *status_sub,
-                                          uint16_t melody[][2], uint8_t length);
+    uint16_t melody[][2], uint8_t length);
 
 /** When receiving messages on the CAN bus */
 static void actuators_esc32_can_rx_cb(uint32_t id, uint8_t *data, int len);
@@ -273,7 +273,7 @@ static inline void actuators_esc32_dir(uint32_t tt, uint8_t tid)
 
 /** Plays a full melody */
 static bool_t actuators_esc32_play_melody(uint32_t tt, uint8_t tid, uint32_t *status_sub,
-                                          uint16_t melody[][2], uint8_t length)
+    uint16_t melody[][2], uint8_t length)
 {
   uint32_t timer = (*status_sub & 0x00FFFFFF) << 8;
   uint8_t counter = (*status_sub & 0xFF000000) >> 24;

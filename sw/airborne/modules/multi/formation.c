@@ -63,9 +63,10 @@ struct slot_ formation[NB_ACS];
 #define FORM_MODE 0
 #endif
 
-int formation_init(void) {
+int formation_init(void)
+{
   int i;
-  for (i = 0; i < NB_ACS; ++i) formation[i].status = UNSET;
+  for (i = 0; i < NB_ACS; ++i) { formation[i].status = UNSET; }
 
   leader_id = 0;
   form_carrot = FORM_CARROT;
@@ -80,9 +81,10 @@ int formation_init(void) {
   return FALSE;
 }
 
-int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a) {
-  if (_id != AC_ID && the_acs_id[_id] == 0) return FALSE; // no info for this AC
-  DOWNLINK_SEND_FORMATION_SLOT_TM(DefaultChannel, DefaultDevice,&_id, &form_mode, &slot_e, &slot_n, &slot_a);
+int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a)
+{
+  if (_id != AC_ID && the_acs_id[_id] == 0) { return FALSE; } // no info for this AC
+  DOWNLINK_SEND_FORMATION_SLOT_TM(DefaultChannel, DefaultDevice, &_id, &form_mode, &slot_e, &slot_n, &slot_a);
   formation[the_acs_id[_id]].status = IDLE;
   formation[the_acs_id[_id]].east = slot_e;
   formation[the_acs_id[_id]].north = slot_n;
@@ -90,28 +92,30 @@ int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a) {
   return FALSE;
 }
 
-int start_formation(void) {
+int start_formation(void)
+{
   uint8_t i;
   uint8_t ac_id = AC_ID;
   for (i = 0; i < NB_ACS; ++i) {
-    if (formation[i].status == IDLE) formation[i].status = ACTIVE;
+    if (formation[i].status == IDLE) { formation[i].status = ACTIVE; }
   }
   enum slot_status active = ACTIVE;
-  DOWNLINK_SEND_FORMATION_STATUS_TM(DefaultChannel, DefaultDevice,&ac_id,&leader_id,&active);
+  DOWNLINK_SEND_FORMATION_STATUS_TM(DefaultChannel, DefaultDevice, &ac_id, &leader_id, &active);
   // store current cruise and alt
   old_cruise = v_ctl_auto_throttle_cruise_throttle;
   old_alt = nav_altitude;
   return FALSE;
 }
 
-int stop_formation(void) {
+int stop_formation(void)
+{
   uint8_t i;
   uint8_t ac_id = AC_ID;
   for (i = 0; i < NB_ACS; ++i) {
-    if (formation[i].status == ACTIVE) formation[i].status = IDLE;
+    if (formation[i].status == ACTIVE) { formation[i].status = IDLE; }
   }
   enum slot_status idle = IDLE;
-  DOWNLINK_SEND_FORMATION_STATUS_TM(DefaultChannel, DefaultDevice,&ac_id,&leader_id,&idle);
+  DOWNLINK_SEND_FORMATION_STATUS_TM(DefaultChannel, DefaultDevice, &ac_id, &leader_id, &idle);
   // restore cruise and alt
   v_ctl_auto_throttle_cruise_throttle = old_cruise;
   old_cruise = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
@@ -121,7 +125,8 @@ int stop_formation(void) {
 }
 
 
-int formation_flight(void) {
+int formation_flight(void)
+{
 
   static uint8_t _1Hz   = 0;
   uint8_t nb = 0, i;
@@ -139,25 +144,26 @@ int formation_flight(void) {
     stateGetPositionEnu_f()->y += formation[the_acs_id[AC_ID]].north;
   }
   // set info for this AC
-  SetAcInfo(AC_ID, stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, (*stateGetHorizontalSpeedDir_f()), stateGetPositionUtm_f()->alt, (*stateGetHorizontalSpeedNorm_f()), stateGetSpeedEnu_f()->z, gps.tow);
+  SetAcInfo(AC_ID, stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, (*stateGetHorizontalSpeedDir_f()),
+            stateGetPositionUtm_f()->alt, (*stateGetHorizontalSpeedNorm_f()), stateGetSpeedEnu_f()->z, gps.tow);
 
   // broadcast info
   uint8_t ac_id = AC_ID;
   enum slot_status status = formation[the_acs_id[AC_ID]].status;
-  DOWNLINK_SEND_FORMATION_STATUS_TM(DefaultChannel, DefaultDevice,&ac_id,&leader_id,&status);
-  if (++_1Hz>=4) {
-    _1Hz=0;
-    DOWNLINK_SEND_FORMATION_SLOT_TM(DefaultChannel, DefaultDevice,&ac_id, &form_mode,
-        &formation[the_acs_id[AC_ID]].east,
-        &formation[the_acs_id[AC_ID]].north,
-        &formation[the_acs_id[AC_ID]].alt);
+  DOWNLINK_SEND_FORMATION_STATUS_TM(DefaultChannel, DefaultDevice, &ac_id, &leader_id, &status);
+  if (++_1Hz >= 4) {
+    _1Hz = 0;
+    DOWNLINK_SEND_FORMATION_SLOT_TM(DefaultChannel, DefaultDevice, &ac_id, &form_mode,
+                                    &formation[the_acs_id[AC_ID]].east,
+                                    &formation[the_acs_id[AC_ID]].north,
+                                    &formation[the_acs_id[AC_ID]].alt);
   }
-  if (formation[the_acs_id[AC_ID]].status != ACTIVE) return FALSE; // AC not ready
+  if (formation[the_acs_id[AC_ID]].status != ACTIVE) { return FALSE; } // AC not ready
 
   // get leader info
   struct ac_info_ * leader = get_ac_info(leader_id);
   if (formation[the_acs_id[leader_id]].status == UNSET ||
-      formation[the_acs_id[leader_id]].status == IDLE) return FALSE; // leader not ready or not in formation
+      formation[the_acs_id[leader_id]].status == IDLE) { return FALSE; } // leader not ready or not in formation
 
   // compute slots in the right reference frame
   struct slot_ form[NB_ACS];
@@ -167,29 +173,28 @@ int formation_flight(void) {
     sr = sinf(leader->course);
   }
   for (i = 0; i < NB_ACS; ++i) {
-    if (formation[i].status == UNSET) continue;
-    form[i].east  = formation[i].east*sr - formation[i].north*cr;
-    form[i].north = formation[i].east*cr + formation[i].north*sr;
+    if (formation[i].status == UNSET) { continue; }
+    form[i].east  = formation[i].east * sr - formation[i].north * cr;
+    form[i].north = formation[i].east * cr + formation[i].north * sr;
     form[i].alt = formation[i].alt;
   }
 
   // compute control forces
   for (i = 0; i < NB_ACS; ++i) {
-    if (the_acs[i].ac_id == AC_ID) continue;
+    if (the_acs[i].ac_id == AC_ID) { continue; }
     struct ac_info_ * ac = get_ac_info(the_acs[i].ac_id);
     float delta_t = Max((int)(gps.tow - ac->itow) / 1000., 0.);
     if (delta_t > FORM_CARROT) {
       // if AC not responding for too long
       formation[i].status = LOST;
       continue;
-    }
-    else formation[i].status = ACTIVE;
+    } else { formation[i].status = ACTIVE; }
     // compute control if AC is ACTIVE and around the same altitude (maybe not so usefull)
     if (formation[i].status == ACTIVE && fabs(stateGetPositionUtm_f()->alt - ac->alt) < form_prox && ac->alt > 0) {
-      form_e += (ac->east  + ac->gspeed*sinf(ac->course)*delta_t - stateGetPositionEnu_f()->x)
-        - (form[i].east - form[the_acs_id[AC_ID]].east);
-      form_n += (ac->north + ac->gspeed*cosf(ac->course)*delta_t - stateGetPositionEnu_f()->y)
-        - (form[i].north - form[the_acs_id[AC_ID]].north);
+      form_e += (ac->east  + ac->gspeed * sinf(ac->course) * delta_t - stateGetPositionEnu_f()->x)
+                - (form[i].east - form[the_acs_id[AC_ID]].east);
+      form_n += (ac->north + ac->gspeed * cosf(ac->course) * delta_t - stateGetPositionEnu_f()->y)
+                - (form[i].north - form[the_acs_id[AC_ID]].north);
       form_a += (ac->alt - stateGetPositionUtm_f()->alt) - (formation[i].alt - formation[the_acs_id[AC_ID]].alt);
       form_speed += ac->gspeed;
       //form_speed_e += ac->gspeed * sinf(ac->course);
@@ -197,11 +202,11 @@ int formation_flight(void) {
       ++nb;
     }
   }
-  uint8_t _nb = Max(1,nb);
+  uint8_t _nb = Max(1, nb);
   form_n /= _nb;
   form_e /= _nb;
   form_a /= _nb;
-  form_speed = form_speed / (nb+1) - (*stateGetHorizontalSpeedNorm_f());
+  form_speed = form_speed / (nb + 1) - (*stateGetHorizontalSpeedNorm_f());
   //form_speed_e = form_speed_e / (nb+1) - (*stateGetHorizontalSpeedNorm_f()) * sh;
   //form_speed_n = form_speed_n / (nb+1) - (*stateGetHorizontalSpeedNorm_f()) * ch;
 
@@ -210,10 +215,10 @@ int formation_flight(void) {
 
   // altitude loop
   float alt = 0.;
-  if (AC_ID == leader_id) alt = nav_altitude;
-  else alt = leader->alt - form[the_acs_id[leader_id]].alt;
+  if (AC_ID == leader_id) { alt = nav_altitude; }
+  else { alt = leader->alt - form[the_acs_id[leader_id]].alt; }
   alt += formation[the_acs_id[AC_ID]].alt + coef_form_alt * form_a;
-  flight_altitude = Max(alt, ground_alt+SECURITY_HEIGHT);
+  flight_altitude = Max(alt, ground_alt + SECURITY_HEIGHT);
 
   // carrot
   if (AC_ID != leader_id) {
@@ -244,7 +249,8 @@ int formation_flight(void) {
   return TRUE;
 }
 
-void formation_pre_call(void) {
+void formation_pre_call(void)
+{
   if (leader_id == AC_ID) {
     stateGetPositionEnu_f()->x -= formation[the_acs_id[AC_ID]].east;
     stateGetPositionEnu_f()->y -= formation[the_acs_id[AC_ID]].north;

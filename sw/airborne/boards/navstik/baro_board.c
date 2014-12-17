@@ -36,7 +36,8 @@
 
 struct Bmp085 baro_bmp085;
 
-void baro_init(void) {
+void baro_init(void)
+{
   bmp085_init(&baro_bmp085, &i2c3, BMP085_SLAVE_ADDR);
 
 #ifdef BARO_LED
@@ -44,16 +45,17 @@ void baro_init(void) {
 #endif
 }
 
-void baro_periodic(void) {
+void baro_periodic(void)
+{
   if (baro_bmp085.initialized) {
     bmp085_periodic(&baro_bmp085);
-  }
-  else {
+  } else {
     bmp085_read_eeprom_calib(&baro_bmp085);
   }
 }
 
-void baro_event(void) {
+void baro_event(void)
+{
   bmp085_event(&baro_bmp085);
 
   if (baro_bmp085.data_available) {
@@ -63,7 +65,7 @@ void baro_event(void) {
     AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, &temp);
     baro_bmp085.data_available = FALSE;
 #ifdef BARO_LED
-    RunOnceEvery(10,LED_TOGGLE(BARO_LED));
+    RunOnceEvery(10, LED_TOGGLE(BARO_LED));
 #endif
   }
 }

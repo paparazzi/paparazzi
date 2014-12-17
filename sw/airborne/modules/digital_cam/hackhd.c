@@ -91,9 +91,9 @@ static inline uint16_t pin_of_gpio(uint32_t __attribute__((unused)) port, uint16
 static inline void hackhd_send_shot_position(void)
 {
   // angles in decideg
-  int16_t phi = DegOfRad(stateGetNedToBodyEulers_f()->phi*10.0f);
-  int16_t theta = DegOfRad(stateGetNedToBodyEulers_f()->theta*10.0f);
-  int16_t psi = DegOfRad(stateGetNedToBodyEulers_f()->psi*10.0f);
+  int16_t phi = DegOfRad(stateGetNedToBodyEulers_f()->phi * 10.0f);
+  int16_t theta = DegOfRad(stateGetNedToBodyEulers_f()->theta * 10.0f);
+  int16_t psi = DegOfRad(stateGetNedToBodyEulers_f()->psi * 10.0f);
   // course in decideg
   int16_t course = DegOfRad(*stateGetHorizontalSpeedDir_f()) * 10;
   // ground speed in cm/s
@@ -129,21 +129,22 @@ static inline void hackhd_log_shot_position(void)
     struct EnuCoor_f pos = *stateGetPositionEnu_f();
     uint32_t time = get_sys_time_msec();
     sdLogWriteLog(&pprzLogFile, "%d %d %d %d %d %d %d %u\n",
-        hackhd.photo_nr,
-        (int32_t)(DegOfRad(att.phi*10.0f)),
-        (int32_t)(DegOfRad(att.theta*10.0f)),
-        (int32_t)(DegOfRad(att.psi*10.0f)),
-        (int32_t)(pos.x*100.0f),
-        (int32_t)(pos.y*100.0f),
-        (int32_t)(pos.z*100.0f),
-        time);
+                  hackhd.photo_nr,
+                  (int32_t)(DegOfRad(att.phi * 10.0f)),
+                  (int32_t)(DegOfRad(att.theta * 10.0f)),
+                  (int32_t)(DegOfRad(att.psi * 10.0f)),
+                  (int32_t)(pos.x * 100.0f),
+                  (int32_t)(pos.y * 100.0f),
+                  (int32_t)(pos.z * 100.0f),
+                  time);
   }
 }
 #endif
 
 struct HackHD hackhd;
 
-void hackhd_init(void) {
+void hackhd_init(void)
+{
   hackhd.status = HACKHD_NONE;
   hackhd.timer = 0;
   hackhd.photo_nr = 0;
@@ -154,15 +155,16 @@ void hackhd_init(void) {
   gpio_setup_output(HACKHD_GPIO);
   // set gpio as open-drain, only possible on stm32f4
   gpio_set_output_options(
-      port_of_gpio(HACKHD_GPIO),
-      GPIO_OTYPE_OD,
-      GPIO_OSPEED_25MHZ,
-      pin_of_gpio(HACKHD_GPIO));
+    port_of_gpio(HACKHD_GPIO),
+    GPIO_OTYPE_OD,
+    GPIO_OSPEED_25MHZ,
+    pin_of_gpio(HACKHD_GPIO));
   HACKHD_RELEASE(HACKHD_GPIO);
 #endif
 }
 
-void hackhd_periodic( void ) {
+void hackhd_periodic(void)
+{
   if (hackhd.timer) {
     hackhd.timer--;
   } else {
@@ -190,10 +192,10 @@ void hackhd_periodic( void ) {
 }
 
 /* Command the powering and recording */
-void hackhd_command(enum hackhd_status cmd) {
+void hackhd_command(enum hackhd_status cmd)
+{
   hackhd.status = cmd;
-  switch (cmd)
-  {
+  switch (cmd) {
     case HACKHD_POWER_ON:
     case HACKHD_POWER_OFF:
       hackhd.timer = HACKHD_TIMER_OF_DELAY(HACKHD_POWER_DELAY);
@@ -216,12 +218,12 @@ void hackhd_command(enum hackhd_status cmd) {
   }
 }
 
-void hackhd_autoshoot(void) {
- // at least wait a minimum time before two shoots
+void hackhd_autoshoot(void)
+{
+// at least wait a minimum time before two shoots
   if (hackhd.autoshoot) {
     hackhd.autoshoot--;
-  }
-  else {
+  } else {
     // test distance if needed
     // or take picture if first of the sequence
 #ifdef HACKHD_AUTOSHOOT_DIST
@@ -229,7 +231,7 @@ void hackhd_autoshoot(void) {
     struct FloatVect2 d_pos;
     d_pos.x = pos.x - hackhd.last_shot_pos.x;
     d_pos.y = pos.y - hackhd.last_shot_pos.y;
-    if (VECT2_NORM2(d_pos) > (HACKHD_AUTOSHOOT_DIST*HACKHD_AUTOSHOOT_DIST)
+    if (VECT2_NORM2(d_pos) > (HACKHD_AUTOSHOOT_DIST * HACKHD_AUTOSHOOT_DIST)
         || hackhd.status == HACKHD_AUTOSHOOT_START) {
 #endif
       // take a picture
@@ -242,7 +244,8 @@ void hackhd_autoshoot(void) {
   }
 }
 
-void hackhd_autoshoot_start(void) {
+void hackhd_autoshoot_start(void)
+{
   // start taking a picture immediately
   hackhd.autoshoot = 0;
   hackhd.status = HACKHD_AUTOSHOOT_START;

@@ -74,7 +74,8 @@ bool_t log_ptu_started;
 #include "subsystems/gps.h"
 #endif
 
-void mf_ptu_init(void) {
+void mf_ptu_init(void)
+{
   adc_buf_channel(ADC_CHANNEL_PRESSURE, &pressure_buf, ADC_CHANNEL_PTU_NB_SAMPLES);
   adc_buf_channel(ADC_CHANNEL_TEMPERATURE, &temp_buf, ADC_CHANNEL_PTU_NB_SAMPLES);
 
@@ -92,7 +93,8 @@ void mf_ptu_init(void) {
 #endif
 }
 
-void mf_ptu_periodic(void) {
+void mf_ptu_periodic(void)
+{
   // Read ADC
   pressure_adc = pressure_buf.sum / pressure_buf.av_nb_sample;
   temp_adc = temp_buf.sum / temp_buf.av_nb_sample;
@@ -103,15 +105,15 @@ void mf_ptu_periodic(void) {
 #if LOG_PTU
   if (pprzLogFile.fs != NULL) {
     if (!log_ptu_started) {
-      sdLogWriteLog(&pprzLogFile, "P(adc) T(adc) H(usec) GPS_fix TOW(ms) Week Lat(1e7rad) Lon(1e7rad) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
+      sdLogWriteLog(&pprzLogFile,
+                    "P(adc) T(adc) H(usec) GPS_fix TOW(ms) Week Lat(1e7rad) Lon(1e7rad) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
       log_ptu_started = TRUE;
-    }
-    else {
+    } else {
       sdLogWriteLog(&pprzLogFile, "%d %d %d %d %d %d %d %d %d %d %d %d\n",
-          pressure_adc, temp_adc, humid_period,
-          gps.fix, gps.tow, gps.week,
-          gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
-          gps.gspeed, gps.course, -gps.ned_vel.z);
+                    pressure_adc, temp_adc, humid_period,
+                    gps.fix, gps.tow, gps.week,
+                    gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
+                    gps.gspeed, gps.course, -gps.ned_vel.z);
     }
   }
 #endif

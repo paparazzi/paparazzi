@@ -60,7 +60,8 @@ struct i2c_transaction tmp_trans;
 #define TMP102_CONF2        0xF0
 
 
-void tmp102_init(void) {
+void tmp102_init(void)
+{
   tmp_meas_started = FALSE;
   /* configure 8Hz and enhanced mode */
   tmp_trans.buf[0] = TMP102_CONF_REG;
@@ -69,28 +70,31 @@ void tmp102_init(void) {
   i2c_transmit(&TMP_I2C_DEV, &tmp_trans, TMP102_SLAVE_ADDR, 3);
 }
 
-void tmp102_periodic( void ) {
-    tmp_trans.buf[0] = TMP102_TEMP_REG;
-    i2c_transceive(&TMP_I2C_DEV, &tmp_trans, TMP102_SLAVE_ADDR, 1, 2);
-    tmp_meas_started = TRUE;
+void tmp102_periodic(void)
+{
+  tmp_trans.buf[0] = TMP102_TEMP_REG;
+  i2c_transceive(&TMP_I2C_DEV, &tmp_trans, TMP102_SLAVE_ADDR, 1, 2);
+  tmp_meas_started = TRUE;
 }
 
-void tmp102_event( void ) {
+void tmp102_event(void)
+{
 
   if ((tmp_trans.status == I2CTransSuccess) && (tmp_meas_started == TRUE)) {
 
-      uint16_t tmp_temperature;
+    uint16_t tmp_temperature;
 
-      /* read two byte temperature */
-      tmp_temperature  = tmp_trans.buf[0] << 8;
-      tmp_temperature |= tmp_trans.buf[1];
-      tmp_temperature >>= 3;
-      if (tmp_temperature & 0x1000)
-        tmp_temperature |= 0xE000;
+    /* read two byte temperature */
+    tmp_temperature  = tmp_trans.buf[0] << 8;
+    tmp_temperature |= tmp_trans.buf[1];
+    tmp_temperature >>= 3;
+    if (tmp_temperature & 0x1000) {
+      tmp_temperature |= 0xE000;
+    }
 
-      ftmp_temperature = ((int16_t) tmp_temperature) / 16.;
+    ftmp_temperature = ((int16_t) tmp_temperature) / 16.;
 
-      DOWNLINK_SEND_TMP_STATUS(DefaultChannel, DefaultDevice, &tmp_temperature, &ftmp_temperature);
-      tmp_trans.status = I2CTransDone;
+    DOWNLINK_SEND_TMP_STATUS(DefaultChannel, DefaultDevice, &tmp_temperature, &ftmp_temperature);
+    tmp_trans.status = I2CTransDone;
   }
 }

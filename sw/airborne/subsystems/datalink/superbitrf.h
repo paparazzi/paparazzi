@@ -54,18 +54,18 @@ enum SuperbitRFStatus {
 
 /* The different resolutions a transmitter can be in */
 enum dsm_resolution {
-    SUPERBITRF_10_BIT_RESOLUTION           = 0x00,     /**< The transmitter has a 10 bit resolution */
-    SUPERBITRF_11_BIT_RESOLUTION           = 0x01,     /**< The transmitter has a 11 bit resolution */
+  SUPERBITRF_10_BIT_RESOLUTION           = 0x00,     /**< The transmitter has a 10 bit resolution */
+  SUPERBITRF_11_BIT_RESOLUTION           = 0x01,     /**< The transmitter has a 11 bit resolution */
 };
 
 /* The different protocols a transmitter can send */
 enum dsm_protocol {
-    DSM_DSM2_1          = 0x01,     /**< The original DSM2 protocol with 1 packet of data */
-    DSM_DSM2_2          = 0x02,     /**< The original DSM2 protocol with 2 packets of data */
-    DSM_DSM2P           = 0x10,     /**< Our own DSM2 Paparazzi protocol */
-    DSM_DSMXP           = 0x11,     /**< Our own DSMX Paparazzi protocol */
-    DSM_DSMX_1          = 0xA2,     /**< The original DSMX protocol with 1 packet of data */
-    DSM_DSMX_2          = 0xB2,     /**< The original DSMX protocol with 2 packets of data */
+  DSM_DSM2_1          = 0x01,     /**< The original DSM2 protocol with 1 packet of data */
+  DSM_DSM2_2          = 0x02,     /**< The original DSM2 protocol with 2 packets of data */
+  DSM_DSM2P           = 0x10,     /**< Our own DSM2 Paparazzi protocol */
+  DSM_DSMXP           = 0x11,     /**< Our own DSMX Paparazzi protocol */
+  DSM_DSMX_1          = 0xA2,     /**< The original DSMX protocol with 1 packet of data */
+  DSM_DSMX_2          = 0xB2,     /**< The original DSMX protocol with 2 packets of data */
 };
 #define IS_DSM2(x)          (x == DSM_DSM2P || x == DSM_DSM2_1 || x == DSM_DSM2_2)
 #define IS_DSMX(x)          (!IS_DSM2(x))

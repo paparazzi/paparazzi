@@ -28,7 +28,7 @@ void spi_ap_link_set_vane_callback(void (* vane_cb)(uint8_t vane_id, float alpha
 void spi_ap_link_set_pressure_absolute_callback(void (* pressure_cb)(uint8_t pressure_id, uint32_t pressure));
 void spi_ap_link_set_pressure_differential_callback(void (* pressure_cb)(uint8_t pressure_id, uint32_t pressure));
 void spi_ap_link_set_radio_control_callback(void (* radio_control_cb)(void));
-void spi_ap_link_set_adc_callback(void (* adc_callback_fun)(uint16_t * adc_channels));
+void spi_ap_link_set_adc_callback(void (* adc_callback_fun)(uint16_t *adc_channels));
 void spi_ap_link_periodic(void);
 void spi_ap_link_downlink_send(struct DownlinkTransport *tp);
 

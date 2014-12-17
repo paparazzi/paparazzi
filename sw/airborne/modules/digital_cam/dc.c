@@ -95,9 +95,9 @@ uint16_t dc_photo_nr = 0;
 void dc_send_shot_position(void)
 {
   // angles in decideg
-  int16_t phi = DegOfRad(stateGetNedToBodyEulers_f()->phi*10.0f);
-  int16_t theta = DegOfRad(stateGetNedToBodyEulers_f()->theta*10.0f);
-  int16_t psi = DegOfRad(stateGetNedToBodyEulers_f()->psi*10.0f);
+  int16_t phi = DegOfRad(stateGetNedToBodyEulers_f()->phi * 10.0f);
+  int16_t theta = DegOfRad(stateGetNedToBodyEulers_f()->theta * 10.0f);
+  int16_t psi = DegOfRad(stateGetNedToBodyEulers_f()->psi * 10.0f);
   // course in decideg
   int16_t course = DegOfRad(*stateGetHorizontalSpeedDir_f()) * 10;
   // ground speed in cm/s
@@ -135,7 +135,8 @@ void dc_init(void)
   dc_distance_interval = DC_AUTOSHOOT_DISTANCE_INTERVAL;
 }
 
-uint8_t dc_info(void) {
+uint8_t dc_info(void)
+{
 #ifdef DOWNLINK_SEND_DC_INFO
   float course = DegOfRad(stateGetNedToBodyEulers_f()->psi);
   int16_t mode = dc_autoshoot;
@@ -160,7 +161,8 @@ uint8_t dc_info(void) {
 }
 
 /* shoot on distance */
-uint8_t dc_distance(float interval) {
+uint8_t dc_distance(float interval)
+{
   dc_autoshoot = DC_AUTOSHOOT_DISTANCE;
   dc_gps_count = 0;
   dc_distance_interval = interval;
@@ -172,27 +174,30 @@ uint8_t dc_distance(float interval) {
 }
 
 /* shoot on circle */
-uint8_t dc_circle(float interval, float start) {
+uint8_t dc_circle(float interval, float start)
+{
   dc_autoshoot = DC_AUTOSHOOT_CIRCLE;
   dc_gps_count = 0;
   dc_circle_interval = fmodf(fmaxf(interval, 1.), 360.);
 
-  if(start == DC_IGNORE) {
+  if (start == DC_IGNORE) {
     start = DegOfRad(stateGetNedToBodyEulers_f()->psi);
   }
 
   dc_circle_start_angle = fmodf(start, 360.);
-  if (start < 0.)
+  if (start < 0.) {
     start += 360.;
+  }
   //dc_circle_last_block = floorf(dc_circle_start_angle/dc_circle_interval);
   dc_circle_last_block = 0;
-  dc_circle_max_blocks = floorf(360./dc_circle_interval);
+  dc_circle_max_blocks = floorf(360. / dc_circle_interval);
   dc_info();
   return 0;
 }
 
 /* shoot on survey */
-uint8_t dc_survey(float interval, float x, float y) {
+uint8_t dc_survey(float interval, float x, float y)
+{
   dc_autoshoot = DC_AUTOSHOOT_SURVEY;
   dc_gps_count = 0;
   dc_survey_interval = interval;
@@ -213,19 +218,21 @@ uint8_t dc_survey(float interval, float x, float y) {
   return 0;
 }
 
-uint8_t dc_stop(void) {
+uint8_t dc_stop(void)
+{
   dc_autoshoot = DC_AUTOSHOOT_STOP;
   dc_info();
   return 0;
 }
 
-static float dim_mod(float a, float b, float m) {
+static float dim_mod(float a, float b, float m)
+{
   if (a < b) {
     float tmp = a;
     a = b;
     b = tmp;
   }
-  return fminf(a-b, b+m-a);
+  return fminf(a - b, b + m - a);
 }
 
 void dc_periodic_4Hz(void)
@@ -243,49 +250,47 @@ void dc_periodic_4Hz(void)
       }
       break;
 
-    case DC_AUTOSHOOT_DISTANCE:
-      {
-        struct FloatVect2 cur_pos;
-        cur_pos.x = stateGetPositionEnu_f()->x;
-        cur_pos.y = stateGetPositionEnu_f()->y;
-        struct FloatVect2 delta_pos;
-        VECT2_DIFF(delta_pos, cur_pos, last_shot_pos);
-        float dist_to_last_shot = float_vect2_norm(&delta_pos);
-        if (dist_to_last_shot > dc_distance_interval) {
-          dc_gps_count++;
-          dc_send_command(DC_SHOOT);
-          VECT2_COPY(last_shot_pos, cur_pos);
-        }
+    case DC_AUTOSHOOT_DISTANCE: {
+      struct FloatVect2 cur_pos;
+      cur_pos.x = stateGetPositionEnu_f()->x;
+      cur_pos.y = stateGetPositionEnu_f()->y;
+      struct FloatVect2 delta_pos;
+      VECT2_DIFF(delta_pos, cur_pos, last_shot_pos);
+      float dist_to_last_shot = float_vect2_norm(&delta_pos);
+      if (dist_to_last_shot > dc_distance_interval) {
+        dc_gps_count++;
+        dc_send_command(DC_SHOOT);
+        VECT2_COPY(last_shot_pos, cur_pos);
       }
-      break;
+    }
+    break;
 
-    case DC_AUTOSHOOT_CIRCLE:
-      {
-        float course = DegOfRad(stateGetNedToBodyEulers_f()->psi) - dc_circle_start_angle;
-        if (course < 0.)
-          course += 360.;
-        float current_block = floorf(course/dc_circle_interval);
-
-        if (dim_mod(current_block, dc_circle_last_block, dc_circle_max_blocks) == 1) {
-          dc_gps_count++;
-          dc_circle_last_block = current_block;
-          dc_send_command(DC_SHOOT);
-        }
+    case DC_AUTOSHOOT_CIRCLE: {
+      float course = DegOfRad(stateGetNedToBodyEulers_f()->psi) - dc_circle_start_angle;
+      if (course < 0.) {
+        course += 360.;
       }
-      break;
+      float current_block = floorf(course / dc_circle_interval);
 
-    case DC_AUTOSHOOT_SURVEY:
-      {
-        float dist_x = dc_gps_x - stateGetPositionEnu_f()->x;
-        float dist_y = dc_gps_y - stateGetPositionEnu_f()->y;
-
-        if (dist_x*dist_x + dist_y*dist_y >= dc_gps_next_dist*dc_gps_next_dist) {
-          dc_gps_next_dist += dc_survey_interval;
-          dc_gps_count++;
-          dc_send_command(DC_SHOOT);
-        }
+      if (dim_mod(current_block, dc_circle_last_block, dc_circle_max_blocks) == 1) {
+        dc_gps_count++;
+        dc_circle_last_block = current_block;
+        dc_send_command(DC_SHOOT);
       }
-      break;
+    }
+    break;
+
+    case DC_AUTOSHOOT_SURVEY: {
+      float dist_x = dc_gps_x - stateGetPositionEnu_f()->x;
+      float dist_y = dc_gps_y - stateGetPositionEnu_f()->y;
+
+      if (dist_x * dist_x + dist_y * dist_y >= dc_gps_next_dist * dc_gps_next_dist) {
+        dc_gps_next_dist += dc_survey_interval;
+        dc_gps_count++;
+        dc_send_command(DC_SHOOT);
+      }
+    }
+    break;
 
     default:
       dc_autoshoot = DC_AUTOSHOOT_STOP;

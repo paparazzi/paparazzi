@@ -52,19 +52,23 @@
   (radio_control.values[RADIO_ROLL] < AUTOPILOT_STICK_CENTER_THRESHOLD && \
    radio_control.values[RADIO_ROLL] > -AUTOPILOT_STICK_CENTER_THRESHOLD)
 
-static inline bool_t rc_attitude_sticks_centered(void) {
+static inline bool_t rc_attitude_sticks_centered(void)
+{
   return ROLL_STICK_CENTERED() && PITCH_STICK_CENTERED() && YAW_STICK_CENTERED();
 }
 
 #ifdef RADIO_KILL_SWITCH
-static inline bool_t kill_switch_is_on(void) {
-  if (radio_control.values[RADIO_KILL_SWITCH] < 0)
+static inline bool_t kill_switch_is_on(void)
+{
+  if (radio_control.values[RADIO_KILL_SWITCH] < 0) {
     return TRUE;
-  else
+  } else {
     return FALSE;
+  }
 }
 #else
-static inline bool_t kill_switch_is_on(void) {
+static inline bool_t kill_switch_is_on(void)
+{
   return FALSE;
 }
 #endif
@@ -72,10 +76,11 @@ static inline bool_t kill_switch_is_on(void) {
 static inline uint8_t percent_from_rc(int channel)
 {
   int per = (MAX_PPRZ + (int32_t)radio_control.values[channel]) * 50 / MAX_PPRZ;
-  if (per < 0)
+  if (per < 0) {
     per = 0;
-  else if (per > 100)
+  } else if (per > 100) {
     per = 100;
+  }
   return per;
 }
 

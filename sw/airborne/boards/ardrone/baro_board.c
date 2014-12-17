@@ -41,7 +41,8 @@ struct MedianFilterInt baro_median;
 
 #define BMP180_OSS 0  // Parrot ARDrone uses no oversampling
 
-void baro_init(void) {
+void baro_init(void)
+{
 #if USE_BARO_MEDIAN_FILTER
   init_median_filter(&baro_median);
 #endif
@@ -60,11 +61,11 @@ static inline int32_t baro_apply_calibration(int32_t raw)
   int32_t x1 = (((int32_t)baro_calibration.b2) * (b6 * b6 >> 12)) >> 11;
   int32_t x2 = ((int32_t)baro_calibration.ac2) * b6 >> 11;
   int32_t x3 = x1 + x2;
-  int32_t b3 = (((((int32_t)baro_calibration.ac1) * 4 + x3) << BMP180_OSS) + 2)/4;
+  int32_t b3 = (((((int32_t)baro_calibration.ac1) * 4 + x3) << BMP180_OSS) + 2) / 4;
   x1 = ((int32_t)baro_calibration.ac3) * b6 >> 13;
   x2 = (((int32_t)baro_calibration.b1) * (b6 * b6 >> 12)) >> 16;
   x3 = ((x1 + x2) + 2) >> 2;
-  uint32_t b4 = (((int32_t)baro_calibration.ac4) * (uint32_t) (x3 + 32768L)) >> 15;
+  uint32_t b4 = (((int32_t)baro_calibration.ac4) * (uint32_t)(x3 + 32768L)) >> 15;
   uint32_t b7 = (raw - b3) * (50000L >> BMP180_OSS);
   int32_t p = b7 < 0x80000000L ? (b7 * 2) / b4 : (b7 / b4) * 2;
   x1 = (p >> 8) * (p >> 8);

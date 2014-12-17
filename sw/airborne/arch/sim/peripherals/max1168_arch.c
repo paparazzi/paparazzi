@@ -21,6 +21,6 @@
 
 #include "peripherals/max1168.h"
 
-void max1168_arch_init( void ) {}
+void max1168_arch_init(void) {}
 
-void max1168_read( void ) {}
+void max1168_read(void) {}

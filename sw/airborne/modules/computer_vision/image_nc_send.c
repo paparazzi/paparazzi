@@ -81,23 +81,23 @@ void image_nc_send_run(void) {}
 pthread_t computervision_thread;
 volatile uint8_t computervision_thread_status = 0;
 volatile uint8_t computer_vision_thread_command = 0;
-void *computervision_thread_main(void* data);
-void *computervision_thread_main(void* data)
+void *computervision_thread_main(void *data);
+void *computervision_thread_main(void *data)
 {
   // Video Input
   struct vid_struct vid;
-  vid.device = (char*)"/dev/video1";
-  vid.w=1280;
-  vid.h=720;
+  vid.device = (char *)"/dev/video1";
+  vid.w = 1280;
+  vid.h = 720;
   vid.n_buffers = 4;
-  if (video_init(&vid)<0) {
+  if (video_init(&vid) < 0) {
     printf("Error initialising video\n");
     computervision_thread_status = -1;
     return 0;
   }
 
   // Frame Grabbing
-  struct img_struct* img_new = video_create_image(&vid);
+  struct img_struct *img_new = video_create_image(&vid);
 
   // Frame Resizing
   uint8_t quality_factor = IMAGE_QUALITY_FACTOR;
@@ -106,18 +106,17 @@ void *computervision_thread_main(void* data)
   struct img_struct small;
   small.w = vid.w / IMAGE_DOWNSIZE_FACTOR;
   small.h = vid.h / IMAGE_DOWNSIZE_FACTOR;
-  small.buf = (uint8_t*)malloc(small.w*small.h*2);
+  small.buf = (uint8_t *)malloc(small.w * small.h * 2);
 
   // Commpressed image buffer
-  uint8_t* jpegbuf = (uint8_t*)malloc(vid.h*vid.w*2);
+  uint8_t *jpegbuf = (uint8_t *)malloc(vid.h * vid.w * 2);
 
   // file index (search from 0)
   int file_index = 0;
 
   int microsleep = (int)(1000000. / IMAGE_FPS);
 
-  while (computer_vision_thread_command > 0)
-  {
+  while (computer_vision_thread_command > 0) {
     usleep(microsleep);
     video_grab_image(&vid, img_new);
 
@@ -126,17 +125,17 @@ void *computervision_thread_main(void* data)
 
     // JPEG encode the image:
     uint32_t image_format = FOUR_TWO_TWO;  // format (in jpeg.h)
-    uint8_t* end = encode_image (small.buf, jpegbuf, quality_factor, image_format, small.w, small.h, dri_jpeg_header);
-    uint32_t size = end-(jpegbuf);
+    uint8_t *end = encode_image(small.buf, jpegbuf, quality_factor, image_format, small.w, small.h, dri_jpeg_header);
+    uint32_t size = end - (jpegbuf);
 
 #if IMAGE_SAVE
-    FILE* save;
+    FILE *save;
     char save_name[128];
     if (system("mkdir -p /data/video/images") == 0) {
       // search available index (max is 99)
-      for ( ; file_index < 99; file_index++) {
-        printf("search %d\n",file_index);
-        sprintf(save_name,"/data/video/images/img_%02d.jpg",file_index);
+      for (; file_index < 99; file_index++) {
+        printf("search %d\n", file_index);
+        sprintf(save_name, "/data/video/images/img_%02d.jpg", file_index);
         // test if file exists or not
         if (access(save_name, F_OK) == -1) {
           printf("access\n");
@@ -144,14 +143,12 @@ void *computervision_thread_main(void* data)
           if (save != NULL) {
             fwrite(jpegbuf, sizeof(uint8_t), size, save);
             fclose(save);
-          }
-          else {
+          } else {
             printf("Error when opening file %s\n", save_name);
           }
           // leave for loop
           break;
-        }
-        else {printf("file exists\n");}
+        } else {printf("file exists\n");}
       }
     }
 #endif
@@ -164,23 +161,20 @@ void *computervision_thread_main(void* data)
       // Open process to send using netcat in child process
       char nc_cmd[64];
       sprintf(nc_cmd, "nc %s %d", IMAGE_SERVER_IP, IMAGE_SERVER_PORT);
-      FILE* netcat;
+      FILE *netcat;
       netcat = popen(nc_cmd, "w");
       if (netcat != NULL) {
         fwrite(jpegbuf, sizeof(uint8_t), size, netcat);
         if (pclose(netcat) == 0) {
           printf("Sending image succesfully\n");
         }
-      }
-      else {
+      } else {
         printf("Fail sending image\n");
       }
       exit(0);
-    }
-    else if (pid < 0) {
+    } else if (pid < 0) {
       printf("Fork failed\n");
-    }
-    else {
+    } else {
       // Parent is waiting for child to terminate
       wait(&status);
     }
@@ -196,7 +190,7 @@ void image_nc_send_start(void)
 {
   computer_vision_thread_command = 1;
   int rc = pthread_create(&computervision_thread, NULL, computervision_thread_main, NULL);
-  if(rc) {
+  if (rc) {
     printf("ctl_Init: Return code from pthread_create(mot_thread) is %d\n", rc);
   }
 }

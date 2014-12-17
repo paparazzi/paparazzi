@@ -81,7 +81,7 @@ Receiving:
 
 #define GSMTransmit(_c) GSMLink(Transmit(_c))
 
-#define CTRLZ 		0x1A
+#define CTRLZ     0x1A
 #define GSM_ORIGIN_MAXLEN 32
 #define DATA_MAXLEN 128
 
@@ -97,7 +97,7 @@ static bool waiting_for_reply; /* An AT command has been sent and an answer is e
 // static char msg_date[32];
 
 static char expected_ack[10];
-static char gsm_buf[GSM_MAX_PAYLOAD] __attribute__ ((aligned));
+static char gsm_buf[GSM_MAX_PAYLOAD] __attribute__((aligned));
 static uint8_t gsm_buf_idx, gsm_buf_len;
 static char origin[GSM_ORIGIN_MAXLEN];
 static char data_to_send[DATA_MAXLEN];
@@ -105,7 +105,7 @@ static char data_to_send[DATA_MAXLEN];
 #define STATUS_NONE           0
 #define STATUS_CSQ            1
 #define STATUS_REQUESTING_MESSAGE 2
-#define STATUS_SEND_AT	      3
+#define STATUS_SEND_AT        3
 #define STATUS_SEND_CMGF      4
 #define STATUS_SEND_CNMI      5
 #define STATUS_SEND_CPMS      6
@@ -134,7 +134,7 @@ static void request_for_msg(void);
 static void Send_CSQ(void);
 static void Send(const char string[]);
 static void parse_msg_header(void);
-static char* indexn(char*, char, uint8_t);
+static char *indexn(char *, char, uint8_t);
 
 
 static uint8_t gcs_index;
@@ -142,17 +142,18 @@ static uint8_t gcs_index_max;
 
 
 /*****************************************************************************/
-void gsm_init(void) {
+void gsm_init(void)
+{
   if (gsm_status == STATUS_NONE) { /* First call */
     LED_ON(GSM_ONOFF_LED);
     gsm_status = STATUS_POWERON;
-  //} else { /* Second call */
-  //  gsm_buf_idx = 0;
-  //  gsm_line_received = false;
-  //
-  //  Send_AT();
-  //  gsm_status = STATUS_SEND_AT;
-  //  gsm_gsm_init_status = FALSE;
+    //} else { /* Second call */
+    //  gsm_buf_idx = 0;
+    //  gsm_line_received = false;
+    //
+    //  Send_AT();
+    //  gsm_status = STATUS_SEND_AT;
+    //  gsm_gsm_init_status = FALSE;
   }
   gcs_index = 0;
   gcs_index_max = 0;
@@ -164,7 +165,8 @@ void gsm_init(void) {
 #endif
 }
 
-void gsm_init_report(void) { /* Second call */
+void gsm_init_report(void)   /* Second call */
+{
   if (gsm_status != STATUS_NONE) {
     gsm_buf_idx = 0;
     gsm_line_received = false;
@@ -175,13 +177,14 @@ void gsm_init_report(void) { /* Second call */
   }
 }
 
-void gsm_event(void) {
+void gsm_event(void)
+{
   if (GSMBuffer()) {
     ReadGSMBuffer();
   }
 
   if (gsm_line_received) {
-    if (gsm_buf_len > 0) DOWNLINK_SEND_DEBUG_GSM_RECEIVE(DefaultChannel, DefaultDevice, gsm_buf_len, gsm_buf);
+    if (gsm_buf_len > 0) { DOWNLINK_SEND_DEBUG_GSM_RECEIVE(DefaultChannel, DefaultDevice, gsm_buf_len, gsm_buf); }
     gsm_got_line();
     gsm_line_received = false;
   } else if (prompt_received) {
@@ -200,12 +203,12 @@ static void gsm_got_line(void)
     Suppr_SMS(index_msg);
     gsm_status = STATUS_DELETE_SMS;
   } else if (gsm_status == STATUS_IDLE
-      && strncmp(CMTI, gsm_buf, strlen(CMTI)) == 0) {
+             && strncmp(CMTI, gsm_buf, strlen(CMTI)) == 0) {
     /* A SMS is available */
     /* Extracting the index of the message */
-    char * first_comma = indexn(gsm_buf, ',',MAXLEN_CMTI_ANSWER);
+    char *first_comma = indexn(gsm_buf, ',', MAXLEN_CMTI_ANSWER);
     if (first_comma) {
-      index_msg = atoi(first_comma+1);
+      index_msg = atoi(first_comma + 1);
       request_for_msg();
       gsm_status = STATUS_REQUESTING_MESSAGE;
     }
@@ -216,7 +219,7 @@ static void gsm_got_line(void)
     if (gsm_answer) {
       waiting_for_reply = false;
 
-      switch(gsm_status) {
+      switch (gsm_status) {
         case STATUS_CSQ :
           gsm_send_report_continue();
           gsm_status = STATUS_WAITING_PROMPT;
@@ -291,42 +294,41 @@ static void gsm_receive_content(void)
   // Checking the number of the sender
   if (
 //#if ! (defined GCS_NUMBER_1 || defined GCS_NUMBER_2 || defined SAFETY_NUMBER_1 || defined SAFETY_NUMBER_2)
-      true
+    true
 //#else
 //      false
 //#endif
 #ifdef GCS_NUMBER_1
-      || strncmp((char*)GCS_NUMBER_1, origin, strlen(GCS_NUMBER_1)) == 0
+    || strncmp((char *)GCS_NUMBER_1, origin, strlen(GCS_NUMBER_1)) == 0
 #endif
 #ifdef GCS_NUMBER_2
-      || strncmp((char*)GCS_NUMBER_2, origin, strlen(GCS_NUMBER_2)) == 0
+    || strncmp((char *)GCS_NUMBER_2, origin, strlen(GCS_NUMBER_2)) == 0
 #endif
 #ifdef SAFETY_NUMBER_1
-      || strncmp((char*)SAFETY_NUMBER_1, origin, strlen(SAFETY_NUMBER_1)) == 0
+    || strncmp((char *)SAFETY_NUMBER_1, origin, strlen(SAFETY_NUMBER_1)) == 0
 #endif
 #ifdef SAFETY_NUMBER_2
-      || strncmp((char*)SAFETY_NUMBER_2, origin, strlen(SAFETY_NUMBER_2)) == 0
+    || strncmp((char *)SAFETY_NUMBER_2, origin, strlen(SAFETY_NUMBER_2)) == 0
 #endif
-      ) {
+  ) {
     // Decoding the message ...
 
     // Search for the instruction
     switch (gsm_buf[0]) {
-      case 'B' :
-        {
-          uint8_t block_index = atoi(gsm_buf+1);
-          if (block_index > 0) /* Warning: no way to go to the first block */
-            nav_goto_block(block_index);
-          break;
+      case 'B' : {
+        uint8_t block_index = atoi(gsm_buf + 1);
+        if (block_index > 0) { /* Warning: no way to go to the first block */
+          nav_goto_block(block_index);
         }
-      case 'S' :
-        {
-          uint8_t var_index = atoi(gsm_buf+1);
-          if (var_index > 0) {
-            float value = atof(indexn(gsm_buf, ' ',MAXLEN_SMS_CONTENT)+1);
-            DlSetting(var_index, value);
-          }
+        break;
+      }
+      case 'S' : {
+        uint8_t var_index = atoi(gsm_buf + 1);
+        if (var_index > 0) {
+          float value = atof(indexn(gsm_buf, ' ', MAXLEN_SMS_CONTENT) + 1);
+          DlSetting(var_index, value);
         }
+      }
 
       default:
         // Report an error ???
@@ -352,7 +354,7 @@ void Suppr_SMS(int index_)
 static void gsm_got_prompt(void)
 {
   if (gsm_status == STATUS_WAITING_PROMPT) { // We were waiting for a prompt
-    char string[strlen(data_to_send) +3];
+    char string[strlen(data_to_send) + 3];
 
     sprintf(string, "%s%c", data_to_send, CTRLZ);
     Send(string);
@@ -384,7 +386,7 @@ static void parse_msg_header(void)
 void gsm_send_report()
 {
   gsm_status = STATUS_IDLE;
-  if(gsm_status == STATUS_IDLE) {
+  if (gsm_status == STATUS_IDLE) {
     // Checking the network coverage
     Send_CSQ();
     gsm_status = STATUS_CSQ;
@@ -402,7 +404,8 @@ void gsm_send_report_continue(void)
   // Donnee GPS :ne sont pas envoyes gps_mode, gps.tow, gps.utm_pos.zone, gps_nb_ovrn
   // Donnees batterie (seuls vsupply et autopilot_flight_time sont envoyes)
   // concatenation de toutes les infos en un seul message à transmettre
-  sprintf(data_to_send, "%ld %ld %d %ld %d %d %d %d %d", gps.utm_pos.east, gps.utm_pos.north, gps_course, gps.hmsl, gps.gspeed, -gps.ned_vel.z, vsupply, autopilot_flight_time, rssi);
+  sprintf(data_to_send, "%ld %ld %d %ld %d %d %d %d %d", gps.utm_pos.east, gps.utm_pos.north, gps_course, gps.hmsl,
+          gps.gspeed, -gps.ned_vel.z, vsupply, autopilot_flight_time, rssi);
 
   // send the number and wait for the prompt
   char buf[32];
@@ -424,7 +427,7 @@ void gsm_send_report_continue(void)
       break;
   }
   gcs_index++;
-  if (gcs_index == gcs_index_max) gcs_index = 0;
+  if (gcs_index == gcs_index_max) { gcs_index = 0; }
 }
 
 
@@ -468,8 +471,9 @@ static void Send_CPMS(void)
 }
 
 
-static void gsm_parse(uint8_t c) {
-  switch(c) {
+static void gsm_parse(uint8_t c)
+{
+  switch (c) {
     case GSM_CMD_LINE_TERMINATION:
       break;
     case '>':
@@ -479,7 +483,7 @@ static void gsm_parse(uint8_t c) {
       gsm_buf[gsm_buf_idx] = '\0';
       gsm_line_received = true;
       gsm_buf_len = gsm_buf_idx;
-      gsm_buf_idx=0;
+      gsm_buf_idx = 0;
       break;
     default:
       if (gsm_buf_idx < GSM_MAX_PAYLOAD) {
@@ -496,8 +500,9 @@ static void Send(const char string[])
 {
   int i = 0;
 
-  while(string[i])
+  while (string[i]) {
     GSMTransmit(string[i++]);
+  }
   GSMTransmit(GSM_CMD_LINE_TERMINATION);
 
   DOWNLINK_SEND_DEBUG_GSM_SEND(DefaultChannel, DefaultDevice, i, string);
@@ -505,8 +510,9 @@ static void Send(const char string[])
 
 /* Returns a pointer to the first occurrence of the character c in the firtn
    n chars of string s. Return NULL if not found */
-static char* indexn(char* s, char c, uint8_t n) {
-  while(n && (*s != c)) {
+static char *indexn(char *s, char c, uint8_t n)
+{
+  while (n && (*s != c)) {
     n--;
     s++;
   }

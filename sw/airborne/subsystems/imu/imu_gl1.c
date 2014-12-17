@@ -94,9 +94,9 @@ void imu_impl_init(void)
   l3g4200_init(&imu_gl1.gyro_l3g, &(GL1_I2C_DEV), L3G4200_ADDR_ALT);
   /* change the default config */
   // output data rate, bandwidth, enable axis  (0x1f = 100 ODR, 25hz) (0x5f = 200hz ODR, 25hz)
-  imu_gl1.gyro_l3g.config.ctrl_reg1 = ((GL1_GYRO_SMPLRT<<6) | (GL1_GYRO_LOWPASS<<4) | 0xf);
+  imu_gl1.gyro_l3g.config.ctrl_reg1 = ((GL1_GYRO_SMPLRT << 6) | (GL1_GYRO_LOWPASS << 4) | 0xf);
   // senstivity
-  imu_gl1.gyro_l3g.config.ctrl_reg4 = (L3G4200_SCALE<<4) | 0x00;
+  imu_gl1.gyro_l3g.config.ctrl_reg4 = (L3G4200_SCALE << 4) | 0x00;
   // filter config
   imu_gl1.gyro_l3g.config.ctrl_reg5 = 0x00;  //  only first LPF active
 

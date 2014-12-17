@@ -61,10 +61,10 @@ enum Mpu60x0ConfStatus {
 };
 
 /// Configuration function prototype
-typedef void (*Mpu60x0ConfigSet)(void* mpu, uint8_t _reg, uint8_t _val);
+typedef void (*Mpu60x0ConfigSet)(void *mpu, uint8_t _reg, uint8_t _val);
 
 /// function prototype for configuration of a single I2C slave
-typedef bool_t (*Mpu60x0I2cSlaveConfigure)(Mpu60x0ConfigSet mpu_set, void* mpu);
+typedef bool_t (*Mpu60x0I2cSlaveConfigure)(Mpu60x0ConfigSet mpu_set, void *mpu);
 
 struct Mpu60x0I2cSlave {
   Mpu60x0I2cSlaveConfigure configure;
@@ -95,7 +95,7 @@ struct Mpu60x0Config {
 extern void mpu60x0_set_default_config(struct Mpu60x0Config *c);
 
 /// Configuration sequence called once before normal use
-extern void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void* mpu, struct Mpu60x0Config* config);
+extern void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void *mpu, struct Mpu60x0Config *config);
 
 /**
  * Configure I2C slaves of the MPU.
@@ -104,6 +104,6 @@ extern void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void* mpu, struct Mpu6
  * @param mpu Mpu60x0Spi or Mpu60x0I2c peripheral
  * @return TRUE when all slaves are configured
  */
-extern bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void* mpu);
+extern bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu);
 
 #endif // MPU60X0_H

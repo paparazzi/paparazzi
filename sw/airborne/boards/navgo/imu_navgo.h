@@ -71,11 +71,12 @@ struct ImuNavgo {
 extern struct ImuNavgo imu_navgo;
 
 /* Own Extra Functions */
-extern void imu_navgo_event( void );
-extern void imu_navgo_downlink_raw( void );
+extern void imu_navgo_event(void);
+extern void imu_navgo_downlink_raw(void);
 
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+{
   imu_navgo_event();
   if (imu_navgo.gyr_valid) {
     imu_navgo.gyr_valid = FALSE;

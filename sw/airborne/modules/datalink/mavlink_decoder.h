@@ -50,7 +50,7 @@ struct mavlink_message {
   uint8_t sys_id;
   uint8_t comp_id;
   uint8_t msg_id;
-  uint8_t* payload;
+  uint8_t *payload;
 };
 
 #define MAVLINK_PAYLOAD_OFFSET 4
@@ -82,9 +82,9 @@ static inline void mavlink_crc_accumulate(uint8_t data, uint16_t *crcAccum)
   /*Accumulate one byte of data into the CRC*/
   uint8_t tmp;
 
-  tmp = data ^ (uint8_t)(*crcAccum &0xff);
-  tmp ^= (tmp<<4);
-  *crcAccum = (*crcAccum>>8) ^ (tmp<<8) ^ (tmp <<3) ^ (tmp>>4);
+  tmp = data ^ (uint8_t)(*crcAccum & 0xff);
+  tmp ^= (tmp << 4);
+  *crcAccum = (*crcAccum >> 8) ^ (tmp << 8) ^ (tmp << 3) ^ (tmp >> 4);
 }
 
 /**
@@ -92,7 +92,7 @@ static inline void mavlink_crc_accumulate(uint8_t data, uint16_t *crcAccum)
  *
  * @param crcAccum the 16 bit X.25 CRC
  */
-static inline void mavlink_crc_init(uint16_t* crcAccum)
+static inline void mavlink_crc_init(uint16_t *crcAccum)
 {
   *crcAccum = X25_INIT_CRC;
 }
@@ -104,7 +104,7 @@ static inline void mavlink_crc_init(uint16_t* crcAccum)
  * @param  length  length of the byte array
  * @return the checksum over the buffer bytes
  **/
-static inline uint16_t mavlink_crc_calculate(const uint8_t* pBuffer, uint16_t length)
+static inline uint16_t mavlink_crc_calculate(const uint8_t *pBuffer, uint16_t length)
 {
   uint16_t crcTmp;
   mavlink_crc_init(&crcTmp);
@@ -118,7 +118,7 @@ static inline uint16_t mavlink_crc_calculate(const uint8_t* pBuffer, uint16_t le
 
 // Mavlink parsing state machine
 typedef enum {
-  MAVLINK_PARSE_STATE_UNINIT=0,
+  MAVLINK_PARSE_STATE_UNINIT = 0,
   MAVLINK_PARSE_STATE_IDLE,
   MAVLINK_PARSE_STATE_GOT_STX,
   MAVLINK_PARSE_STATE_GOT_LENGTH,
@@ -131,8 +131,8 @@ typedef enum {
 struct mavlink_msg_req {
   uint8_t msg_id;                                 ///< Requested message ID
   struct mavlink_message msg;                     ///< Mavlink message
-  void (*callback)(struct mavlink_message * msg); ///< Callback function
-  struct mavlink_msg_req * next;
+  void (*callback)(struct mavlink_message *msg);  ///< Callback function
+  struct mavlink_msg_req *next;
 };
 
 /** Mavlink transport protocol
@@ -145,7 +145,7 @@ struct mavlink_transport {
   uint8_t payload_idx;
   uint16_t checksum;
   // linked list of callbacks
-  struct mavlink_msg_req * req;
+  struct mavlink_msg_req *req;
 };
 
 extern struct mavlink_transport mavlink_tp;
@@ -155,12 +155,13 @@ extern struct mavlink_transport mavlink_tp;
  *
  * Activated with MAVLINK_DECODER_DEBUG flag
  */
-extern void mavlink_send_debug(struct mavlink_transport * t);
+extern void mavlink_send_debug(struct mavlink_transport *t);
 #endif
 
 /** Register a callback for a mavlink message
  */
-static inline void mavlink_register_msg(struct mavlink_transport * t, struct mavlink_msg_req * req) {
+static inline void mavlink_register_msg(struct mavlink_transport *t, struct mavlink_msg_req *req)
+{
   // handle linked list of requests
   req->next = t->req;
   t->req = req;
@@ -168,7 +169,8 @@ static inline void mavlink_register_msg(struct mavlink_transport * t, struct mav
 
 /** Mavlink character parser
  */
-static inline void parse_mavlink(struct mavlink_transport * t, uint8_t c ) {
+static inline void parse_mavlink(struct mavlink_transport *t, uint8_t c)
+{
   switch (t->status) {
     case MAVLINK_PARSE_STATE_UNINIT:
       t->status = MAVLINK_PARSE_STATE_IDLE; // directly go to idle state (no break)
@@ -183,7 +185,8 @@ static inline void parse_mavlink(struct mavlink_transport * t, uint8_t c ) {
         t->trans.ovrn++;
         goto error;
       }
-      t->trans.payload_len = c + MAVLINK_PAYLOAD_OFFSET; /* Not Counting STX, CRC1 and CRC2, adding LENGTH, SEQ, SYSID, COMPID, MSGID  */
+      t->trans.payload_len = c +
+                             MAVLINK_PAYLOAD_OFFSET; /* Not Counting STX, CRC1 and CRC2, adding LENGTH, SEQ, SYSID, COMPID, MSGID  */
       mavlink_crc_accumulate(c, &(t->checksum));
       t->status = MAVLINK_PARSE_STATE_GOT_LENGTH;
       t->payload_idx = 0;
@@ -192,8 +195,9 @@ static inline void parse_mavlink(struct mavlink_transport * t, uint8_t c ) {
       t->trans.payload[t->payload_idx] = c;
       mavlink_crc_accumulate(c, &(t->checksum));
       t->payload_idx++;
-      if (t->payload_idx == t->trans.payload_len)
+      if (t->payload_idx == t->trans.payload_len) {
         t->status = MAVLINK_PARSE_STATE_GOT_PAYLOAD;
+      }
       break;
     case MAVLINK_PARSE_STATE_GOT_PAYLOAD:
 #if MAVLINK_DECODER_DEBUG
@@ -203,13 +207,15 @@ static inline void parse_mavlink(struct mavlink_transport * t, uint8_t c ) {
       // add extra CRC
       mavlink_crc_accumulate(mavlink_crc_extra[(t->trans.payload[MAVLINK_MSG_ID_IDX])], &(t->checksum));
 #endif
-      if (c != (t->checksum & 0xFF))
+      if (c != (t->checksum & 0xFF)) {
         goto error;
+      }
       t->status = MAVLINK_PARSE_STATE_GOT_CRC1;
       break;
     case MAVLINK_PARSE_STATE_GOT_CRC1:
-      if (c != (t->checksum >> 8))
+      if (c != (t->checksum >> 8)) {
         goto error;
+      }
       t->trans.msg_received = TRUE;
       goto restart;
     default:
@@ -223,9 +229,10 @@ restart:
   return;
 }
 
-static inline void mavlink_parse_payload(struct mavlink_transport * t) {
+static inline void mavlink_parse_payload(struct mavlink_transport *t)
+{
   uint8_t i;
-  struct mavlink_msg_req * el;
+  struct mavlink_msg_req *el;
   // test the linked list and call callback if needed
   for (el = t->req; el; el = el->next) {
     if (el->msg_id == t->trans.payload[MAVLINK_MSG_ID_IDX]) {
@@ -235,8 +242,9 @@ static inline void mavlink_parse_payload(struct mavlink_transport * t) {
       el->msg.comp_id = t->trans.payload[MAVLINK_COMP_ID_IDX];
       el->msg.msg_id  = t->trans.payload[MAVLINK_MSG_ID_IDX];
       // copy buffer
-      for(i = 0; i < t->trans.payload_len; i++)
-        el->msg.payload[i] = t->trans.payload[i+MAVLINK_PAYLOAD_OFFSET];
+      for (i = 0; i < t->trans.payload_len; i++) {
+        el->msg.payload[i] = t->trans.payload[i + MAVLINK_PAYLOAD_OFFSET];
+      }
       // callback
       el->callback(&(el->msg));
     }
@@ -248,14 +256,14 @@ static inline void mavlink_parse_payload(struct mavlink_transport * t) {
 #define ReadMavlinkBuffer(_dev,_trans) { while (TransportLink(_dev,ChAvailable())&&!(_trans.trans.msg_received)) parse_mavlink(&(_trans),TransportLink(_dev,Getch())); }
 
 #define MavlinkCheckAndParse(_dev,_trans) {  \
-  if (MavlinkBuffer(_dev)) {                 \
-    ReadMavlinkBuffer(_dev,_trans);          \
-    if (_trans.trans.msg_received) {         \
-      mavlink_parse_payload(&(_trans));      \
-      _trans.trans.msg_received = FALSE;     \
-    }                                        \
-  }                                          \
-}
+    if (MavlinkBuffer(_dev)) {                 \
+      ReadMavlinkBuffer(_dev,_trans);          \
+      if (_trans.trans.msg_received) {         \
+        mavlink_parse_payload(&(_trans));      \
+        _trans.trans.msg_received = FALSE;     \
+      }                                        \
+    }                                          \
+  }
 
 /* Datalink Event Macro */
 #define MavlinkDatalinkEvent() MavlinkCheckAndParse(MAVLINK_UART, mavlink_tp)

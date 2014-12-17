@@ -33,19 +33,22 @@
 enum actuators_asctec_cmd { NONE,
                             TEST,
                             REVERSE,
-                            SET_ADDR };
+                            SET_ADDR
+                          };
 
 enum actuators_asctec_addr { FRONT,
                              BACK,
                              LEFT,
-                             RIGHT };
+                             RIGHT
+                           };
 
 /* this is for the v1 protocol which does its own mixing */
 enum actuators_asctec_cmds { PITCH,
                              ROLL,
                              YAW,
                              THRUST,
-                             CMD_NB };
+                             CMD_NB
+                           };
 
 struct ActuatorsAsctec {
   enum actuators_asctec_cmd cmd;

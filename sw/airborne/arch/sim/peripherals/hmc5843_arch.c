@@ -21,6 +21,6 @@
 
 #include "peripherals/hmc5843.h"
 
-void hmc5843_arch_init( void ) {}
+void hmc5843_arch_init(void) {}
 
-void hmc5843_read( void ) {}
+void hmc5843_read(void) {}

@@ -53,7 +53,8 @@
 #define SPI_SELECT_SLAVE1_IOCLR SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE1_PORT, CLR)
 #define SPI_SELECT_SLAVE1_IOSET SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE1_PORT, SET)
 
-__attribute__ ((always_inline)) static inline void SpiSlaveSelect(uint8_t slave) {
+__attribute__((always_inline)) static inline void SpiSlaveSelect(uint8_t slave)
+{
   switch (slave) {
 #if USE_SPI_SLAVE0
     case SPI_SLAVE0:
@@ -70,7 +71,8 @@ __attribute__ ((always_inline)) static inline void SpiSlaveSelect(uint8_t slave)
   }
 }
 
-__attribute__ ((always_inline)) static inline void SpiSlaveUnselect(uint8_t slave) {
+__attribute__((always_inline)) static inline void SpiSlaveUnselect(uint8_t slave)
+{
   switch (slave) {
 #if USE_SPI_SLAVE0
     case SPI_SLAVE0:
@@ -92,19 +94,23 @@ __attribute__ ((always_inline)) static inline void SpiSlaveUnselect(uint8_t slav
  *  Spi clock polarity and phase functions.
  */
 ///@{
-__attribute__ ((always_inline)) static inline void SpiSetCPOL(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiSetCPOL(struct spi_periph *p)
+{
   SetBit(((sspRegs_t *)(p->reg_addr))->cr0, CPOL);
 }
 
-__attribute__ ((always_inline)) static inline void SpiClearCPOL(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiClearCPOL(struct spi_periph *p)
+{
   ClearBit(((sspRegs_t *)(p->reg_addr))->cr0, CPOL);
 }
 
-__attribute__ ((always_inline)) static inline void SpiSetCPHA(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiSetCPHA(struct spi_periph *p)
+{
   SetBit(((sspRegs_t *)(p->reg_addr))->cr0, CPHA);
 }
 
-__attribute__ ((always_inline)) static inline void SpiClearCPHA(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiClearCPHA(struct spi_periph *p)
+{
   ClearBit(((sspRegs_t *)(p->reg_addr))->cr0, CPHA);
 }
 ///@}
@@ -115,14 +121,15 @@ __attribute__ ((always_inline)) static inline void SpiClearCPHA(struct spi_perip
  * @param p SPI peripheral to set
  * @param dss data size
  */
-__attribute__ ((always_inline)) static inline void SpiSetDataSize(struct spi_periph* p, enum SPIDataSizeSelect dss) {
+__attribute__((always_inline)) static inline void SpiSetDataSize(struct spi_periph *p, enum SPIDataSizeSelect dss)
+{
   switch (dss) {
     default:
-    case SPIDss8bit:
-      ((sspRegs_t *)(p->reg_addr))->cr0 = (((sspRegs_t *)(p->reg_addr))->cr0 & ~(0xF<<DSS)) | (DSS_VAL8<<DSS);
+      case SPIDss8bit:
+          ((sspRegs_t *)(p->reg_addr))->cr0 = (((sspRegs_t *)(p->reg_addr))->cr0 & ~(0xF << DSS)) | (DSS_VAL8 << DSS);
       break;
     case SPIDss16bit:
-      ((sspRegs_t *)(p->reg_addr))->cr0 = (((sspRegs_t *)(p->reg_addr))->cr0 & ~(0xF<<DSS)) | (DSS_VAL16<<DSS);
+      ((sspRegs_t *)(p->reg_addr))->cr0 = (((sspRegs_t *)(p->reg_addr))->cr0 & ~(0xF << DSS)) | (DSS_VAL16 << DSS);
       break;
   }
 }
@@ -132,52 +139,64 @@ __attribute__ ((always_inline)) static inline void SpiSetDataSize(struct spi_per
  *  Spi control functions.
  */
 ///@{
-__attribute__ ((always_inline)) static inline void SpiEnable(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiEnable(struct spi_periph *p)
+{
   SetBit(((sspRegs_t *)(p->reg_addr))->cr1, SSE);
 }
 
-__attribute__ ((always_inline)) static inline void SpiDisable(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiDisable(struct spi_periph *p)
+{
   ClearBit(((sspRegs_t *)(p->reg_addr))->cr1, SSE);
 }
 
-__attribute__ ((always_inline)) static inline void SpiEnableRti(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiEnableRti(struct spi_periph *p)
+{
   SetBit(((sspRegs_t *)(p->reg_addr))->imsc, RTIM);
 }
 
-__attribute__ ((always_inline)) static inline void SpiDisableRti(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiDisableRti(struct spi_periph *p)
+{
   ClearBit(((sspRegs_t *)(p->reg_addr))->imsc, RTIM);
 }
 
-__attribute__ ((always_inline)) static inline void SpiClearRti(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiClearRti(struct spi_periph *p)
+{
   SetBit(((sspRegs_t *)(p->reg_addr))->icr, RTIC);
 }
 
-__attribute__ ((always_inline)) static inline void SpiEnableTxi(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiEnableTxi(struct spi_periph *p)
+{
   SetBit(((sspRegs_t *)(p->reg_addr))->imsc, TXIM);
 }
 
-__attribute__ ((always_inline)) static inline void SpiDisableTxi(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiDisableTxi(struct spi_periph *p)
+{
   ClearBit(((sspRegs_t *)(p->reg_addr))->imsc, TXIM);
 }
 
-__attribute__ ((always_inline)) static inline void SpiEnableRxi(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiEnableRxi(struct spi_periph *p)
+{
   SetBit(((sspRegs_t *)(p->reg_addr))->imsc, RXIM);
 }
 
-__attribute__ ((always_inline)) static inline void SpiDisableRxi(struct spi_periph* p) {
+__attribute__((always_inline)) static inline void SpiDisableRxi(struct spi_periph *p)
+{
   ClearBit(((sspRegs_t *)(p->reg_addr))->imsc, RXIM);
 }
 
-__attribute__ ((always_inline)) static inline void SpiSend(struct spi_periph* p, uint16_t c) {
+__attribute__((always_inline)) static inline void SpiSend(struct spi_periph *p, uint16_t c)
+{
   ((sspRegs_t *)(p->reg_addr))->dr = c;
 }
 
-__attribute__ ((always_inline)) static inline void SpiRead(struct spi_periph* p, uint16_t* c) {
+__attribute__((always_inline)) static inline void SpiRead(struct spi_periph *p, uint16_t *c)
+{
   *c = ((sspRegs_t *)(p->reg_addr))->dr;
 }
 
 
-__attribute__ ((always_inline)) static inline void SpiTransmit(struct spi_periph* p, struct spi_transaction* t) {
+__attribute__((always_inline)) static inline void SpiTransmit(struct spi_periph *p, struct spi_transaction *t)
+{
   // when all byte are sent, continue until tx_idx reach input_length
   // needed when input_length is bigger than output_length
   uint8_t max_idx = Max(t->output_length, t->input_length);
@@ -185,14 +204,12 @@ __attribute__ ((always_inline)) static inline void SpiTransmit(struct spi_periph
     if (p->tx_idx_buf < t->output_length) {
       if (t->dss == SPIDss8bit) {
         SpiSend(p, t->output_buf[p->tx_idx_buf]);
-      }
-      else if (t->dss == SPIDss16bit) {
-        uint16_t tmp1 = t->output_buf[2*p->tx_idx_buf]; // LSB
-        uint16_t tmp2 = t->output_buf[2*p->tx_idx_buf+1]<<8; // MSB
+      } else if (t->dss == SPIDss16bit) {
+        uint16_t tmp1 = t->output_buf[2 * p->tx_idx_buf]; // LSB
+        uint16_t tmp2 = t->output_buf[2 * p->tx_idx_buf + 1] << 8; // MSB
         SpiSend(p, tmp1 | tmp2);
       }
-    }
-    else {
+    } else {
       SpiSend(p, 0);
     }
     p->tx_idx_buf++;
@@ -202,44 +219,45 @@ __attribute__ ((always_inline)) static inline void SpiTransmit(struct spi_periph
   }
 }
 
-__attribute__ ((always_inline)) static inline void SpiReceive(struct spi_periph* p, struct spi_transaction* t) {
+__attribute__((always_inline)) static inline void SpiReceive(struct spi_periph *p, struct spi_transaction *t)
+{
   while (bit_is_set(((sspRegs_t *)(p->reg_addr))->sr, RNE)) {
     if (p->rx_idx_buf < t->input_length) {
       uint16_t r;
       SpiRead(p, &r);
       if (t->dss == SPIDss8bit) {
         t->input_buf[p->rx_idx_buf] = (uint8_t)r;
-      }
-      else if (t->dss == SPIDss16bit) {
-        t->input_buf[2*p->rx_idx_buf] = (uint8_t)r;
-        t->input_buf[2*p->rx_idx_buf+1] = (uint8_t)(r>>8);
+      } else if (t->dss == SPIDss16bit) {
+        t->input_buf[2 * p->rx_idx_buf] = (uint8_t)r;
+        t->input_buf[2 * p->rx_idx_buf + 1] = (uint8_t)(r >> 8);
       }
       p->rx_idx_buf++;
-    }
-    else {
+    } else {
       uint16_t foo;
       SpiRead(p, &foo);
     }
   }
 }
 
-__attribute__ ((always_inline)) static inline void SpiInitBuf(struct spi_periph* p, struct spi_transaction* t) {
+__attribute__((always_inline)) static inline void SpiInitBuf(struct spi_periph *p, struct spi_transaction *t)
+{
   p->rx_idx_buf = 0;
   p->tx_idx_buf = 0;
-  SpiTransmit(p,t); // fill fifo
+  SpiTransmit(p, t); // fill fifo
 }
 
 
-__attribute__ ((always_inline)) static inline void SpiStart(struct spi_periph* p, struct spi_transaction* t) {
+__attribute__((always_inline)) static inline void SpiStart(struct spi_periph *p, struct spi_transaction *t)
+{
   p->status = SPIRunning;
   t->status = SPITransRunning;
 
   // handle spi options (CPOL, CPHA, data size,...)
-  if (t->cpol == SPICpolIdleHigh) SpiSetCPOL(p);
-  else SpiClearCPOL(p);
+  if (t->cpol == SPICpolIdleHigh) { SpiSetCPOL(p); }
+  else { SpiClearCPOL(p); }
 
-  if (t->cpha == SPICphaEdge2) SpiSetCPHA(p);
-  else SpiClearCPHA(p);
+  if (t->cpha == SPICphaEdge2) { SpiSetCPHA(p); }
+  else { SpiClearCPHA(p); }
 
   SpiSetDataSize(p, t->dss);
 
@@ -249,18 +267,19 @@ __attribute__ ((always_inline)) static inline void SpiStart(struct spi_periph* p
   }
 
   // callback function before transaction
-  if (t->before_cb != 0) t->before_cb(t);
+  if (t->before_cb != 0) { t->before_cb(t); }
 
   // start spi transaction
   SpiEnable(p);
-  SpiInitBuf(p,t);
+  SpiInitBuf(p, t);
   SpiEnableTxi(p); // enable tx fifo half empty interrupt
   SpiEnableRti(p); // enable rx timeout interrupt
 }
 
-__attribute__ ((always_inline)) static inline void SpiEndOfTransaction(struct spi_periph* p, struct spi_transaction* t) {
+__attribute__((always_inline)) static inline void SpiEndOfTransaction(struct spi_periph *p, struct spi_transaction *t)
+{
   // callback function after transaction
-  if (t->after_cb != 0) t->after_cb(t);
+  if (t->after_cb != 0) { t->after_cb(t); }
 
   // handle slave unselect
   if (t->select == SPISelectUnselect || t->select == SPIUnselect) {
@@ -273,20 +292,21 @@ __attribute__ ((always_inline)) static inline void SpiEndOfTransaction(struct sp
 
   // handle transaction fifo here
   p->trans_extract_idx++;
-  if (p->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
+  if (p->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN) {
     p->trans_extract_idx = 0;
+  }
   // if no more transaction to process or locked, stop here, else start next transaction
   if (p->trans_extract_idx == p->trans_insert_idx || p->suspend) {
     p->status = SPIIdle;
-  }
-  else {
-    SpiStart(p,p->trans[p->trans_extract_idx]);
+  } else {
+    SpiStart(p, p->trans[p->trans_extract_idx]);
   }
 
 }
 
-__attribute__ ((always_inline)) static inline void SpiAutomaton(struct spi_periph* p) {
-  struct spi_transaction* trans = p->trans[p->trans_extract_idx];
+__attribute__((always_inline)) static inline void SpiAutomaton(struct spi_periph *p)
+{
+  struct spi_transaction *trans = p->trans[p->trans_extract_idx];
 
   /* Tx fifo is half empty */
   if (bit_is_set(((sspRegs_t *)(p->reg_addr))->mis, TXMIS)) {
@@ -296,8 +316,7 @@ __attribute__ ((always_inline)) static inline void SpiAutomaton(struct spi_perip
     if (p->tx_idx_buf >= trans->output_length && p->rx_idx_buf == trans->input_length) {
       if (bit_is_set(((sspRegs_t *)(p->reg_addr))->sr, BSY)) {
         SpiEnableTxi(p); // FIXME in case Rti is not called
-      }
-      else {
+      } else {
         SpiDisableRti(p);
         SpiClearRti(p);                /* clear interrupt */
         SpiEndOfTransaction(p, trans);
@@ -314,22 +333,24 @@ __attribute__ ((always_inline)) static inline void SpiAutomaton(struct spi_perip
   }
 }
 
-__attribute__ ((always_inline)) static inline void SpiSlaveStart(struct spi_periph* p, struct spi_transaction* t) {
+__attribute__((always_inline)) static inline void SpiSlaveStart(struct spi_periph *p, struct spi_transaction *t)
+{
   p->status = SPIRunning;
   t->status = SPITransRunning;
 
   // callback function before transaction
-  if (t->before_cb != 0) t->before_cb(t);
+  if (t->before_cb != 0) { t->before_cb(t); }
 
   // start spi transaction
   SpiEnable(p);
-  SpiInitBuf(p,t);
+  SpiInitBuf(p, t);
   SpiEnableTxi(p); // enable tx fifo half empty interrupt
   //SpiEnableRti(p); // enable rx timeout interrupt
 }
 
-__attribute__ ((always_inline)) static inline void SpiSlaveAutomaton(struct spi_periph* p) {
-  struct spi_transaction* trans = p->trans[p->trans_extract_idx];
+__attribute__((always_inline)) static inline void SpiSlaveAutomaton(struct spi_periph *p)
+{
+  struct spi_transaction *trans = p->trans[p->trans_extract_idx];
 
   /* Tx fifo is half empty */
   if (bit_is_set(((sspRegs_t *)(p->reg_addr))->mis, TXMIS)) {
@@ -345,7 +366,7 @@ __attribute__ ((always_inline)) static inline void SpiSlaveAutomaton(struct spi_
     SpiDisableRti(p);
 
     // callback function after transaction
-    if (trans->after_cb != 0) trans->after_cb(trans);
+    if (trans->after_cb != 0) { trans->after_cb(trans); }
 
     SpiDisable(p);
     // end transaction with success
@@ -394,11 +415,12 @@ __attribute__ ((always_inline)) static inline void SpiSlaveAutomaton(struct spi_
 
 uint8_t spi0_vic_slot;
 
-void spi0_arch_init(void) {
+void spi0_arch_init(void)
+{
 
   spi0.reg_addr = SPI0;
   spi0_vic_slot = VIC_SPI0;
-  spi0.init_struct = (void*)(&spi0_vic_slot);
+  spi0.init_struct = (void *)(&spi0_vic_slot);
 
   // TODO set spi0 and interrupt vector
 }
@@ -431,7 +453,8 @@ void spi0_arch_init(void) {
 
 void spi1_ISR(void) __attribute__((naked));
 
-void spi1_ISR(void) {
+void spi1_ISR(void)
+{
   ISR_ENTRY();
 
   SpiAutomaton(&spi1);
@@ -442,11 +465,12 @@ void spi1_ISR(void) {
 
 uint8_t spi1_vic_slot;
 
-void spi1_arch_init(void) {
+void spi1_arch_init(void)
+{
 
   spi1.reg_addr = SPI1;
   spi1_vic_slot = VIC_SPI1;
-  spi1.init_struct = (void*)(&spi1_vic_slot);
+  spi1.init_struct = (void *)(&spi1_vic_slot);
 
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= SSP_PINSEL1_SCK | SSP_PINSEL1_MISO | SSP_PINSEL1_MOSI;
@@ -467,12 +491,13 @@ void spi1_arch_init(void) {
 #endif
 
 
-bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
+bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
+{
   //unsigned cpsr;
 
   uint8_t idx;
   idx = p->trans_insert_idx + 1;
-  if (idx >= SPI_TRANSACTION_QUEUE_LEN) idx = 0;
+  if (idx >= SPI_TRANSACTION_QUEUE_LEN) { idx = 0; }
   if (idx == p->trans_extract_idx) {
     t->status = SPITransFailed;
     return FALSE; /* queue full */
@@ -490,7 +515,7 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
   p->trans_insert_idx = idx;
   /* if peripheral is idle and not locked, start the transaction */
   if (p->status == SPIIdle && !p->suspend) {
-    SpiStart(p,p->trans[p->trans_extract_idx]);
+    SpiStart(p, p->trans[p->trans_extract_idx]);
   }
 
   //cpsr = disableIRQ();                                // disable global interrupts
@@ -501,7 +526,8 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
 }
 
 
-void spi_init_slaves(void) {
+void spi_init_slaves(void)
+{
 #if USE_SPI_SLAVE0
   /* setup slave0_select pin
    * slave0_select is output
@@ -525,16 +551,19 @@ void spi_init_slaves(void) {
 #endif
 }
 
-void spi_slave_select(uint8_t slave) {
+void spi_slave_select(uint8_t slave)
+{
   SpiSlaveSelect(slave);
 }
 
-void spi_slave_unselect(uint8_t slave) {
+void spi_slave_unselect(uint8_t slave)
+{
   SpiSlaveUnselect(slave);
 }
 
-bool_t spi_lock(struct spi_periph* p, uint8_t slave) {
-  uint8_t* vic = (uint8_t*)(p->init_struct);
+bool_t spi_lock(struct spi_periph *p, uint8_t slave)
+{
+  uint8_t *vic = (uint8_t *)(p->init_struct);
   VICIntEnClear = VIC_BIT(*vic);
   if (slave < 254 && p->suspend == 0) {
     p->suspend = slave + 1; // 0 is reserved for unlock state
@@ -545,14 +574,15 @@ bool_t spi_lock(struct spi_periph* p, uint8_t slave) {
   return FALSE;
 }
 
-bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
-  uint8_t* vic = (uint8_t*)(p->init_struct);
+bool_t spi_resume(struct spi_periph *p, uint8_t slave)
+{
+  uint8_t *vic = (uint8_t *)(p->init_struct);
   VICIntEnClear = VIC_BIT(*vic);
   if (p->suspend == slave + 1) {
     // restart fifo
     p->suspend = 0;
     if (p->trans_extract_idx != p->trans_insert_idx && p->status == SPIIdle) {
-      SpiStart(p,p->trans[p->trans_extract_idx]);
+      SpiStart(p, p->trans[p->trans_extract_idx]);
     }
     VICIntEnable = VIC_BIT(*vic);
     return TRUE;
@@ -613,7 +643,8 @@ bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
 
 void spi1_slave_ISR(void) __attribute__((naked));
 
-void spi1_slave_ISR(void) {
+void spi1_slave_ISR(void)
+{
   ISR_ENTRY();
 
   SpiSlaveAutomaton(&spi1);
@@ -622,7 +653,8 @@ void spi1_slave_ISR(void) {
   ISR_EXIT();
 }
 
-void spi1_slave_arch_init(void) {
+void spi1_slave_arch_init(void)
+{
 
   spi1.reg_addr = SPI1;
 
@@ -645,7 +677,8 @@ void spi1_slave_arch_init(void) {
 #endif
 
 /** Register one (and only one) transaction to use spi as slave */
-bool_t spi_slave_register(struct spi_periph* p, struct spi_transaction* t) {
+bool_t spi_slave_register(struct spi_periph *p, struct spi_transaction *t)
+{
 
   if (p->trans_insert_idx >= 1) {
     t->status = SPITransFailed;
@@ -657,18 +690,19 @@ bool_t spi_slave_register(struct spi_periph* p, struct spi_transaction* t) {
   p->trans_insert_idx = 1;
 
   // handle spi options (CPOL, CPHA, data size,...)
-  if (t->cpol == SPICpolIdleHigh) SpiSetCPOL(p);
-  else SpiClearCPOL(p);
+  if (t->cpol == SPICpolIdleHigh) { SpiSetCPOL(p); }
+  else { SpiClearCPOL(p); }
 
-  if (t->cpha == SPICphaEdge2) SpiSetCPHA(p);
-  else SpiClearCPHA(p);
+  if (t->cpha == SPICphaEdge2) { SpiSetCPHA(p); }
+  else { SpiClearCPHA(p); }
 
   SpiSetDataSize(p, t->dss);
 
   return TRUE;
 }
 
-bool_t spi_slave_wait(struct spi_periph* p) {
+bool_t spi_slave_wait(struct spi_periph *p)
+{
   if (p->trans_insert_idx == 0) {
     // no transaction registered
     return FALSE;

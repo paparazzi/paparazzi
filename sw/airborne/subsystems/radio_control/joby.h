@@ -40,8 +40,7 @@ typedef enum {
   READING_INVERTED
 } parser_inverted_t;
 
-struct rc_joby_parser_state
-{
+struct rc_joby_parser_state {
   parser_byte_t current_byte;
   parser_inverted_t current_inverted;
   int current_channel;
@@ -65,7 +64,7 @@ void rc_joby_parse(int8_t c, void (* callback)(void));
 
 #define RadioControlEvent(_received_frame_handler) {                    \
     while (RcLinkChAvailable()) {                                       \
-      rc_joby_parse(RcLinkGetCh(), _received_frame_handler);		\
+      rc_joby_parse(RcLinkGetCh(), _received_frame_handler);    \
     }                                                                   \
   }
 

@@ -42,9 +42,9 @@ extern float baro_filter;
 
 extern struct i2c_transaction baro_amsys_i2c_trans;
 
-extern void baro_amsys_init( void );
-extern void baro_amsys_read_periodic( void );
-extern void baro_amsys_read_event( void );
+extern void baro_amsys_init(void);
+extern void baro_amsys_read_periodic(void);
+extern void baro_amsys_read_event(void);
 
 #define BaroAmsysEvent() { if (baro_amsys_i2c_trans.status == I2CTransSuccess) baro_amsys_read_event(); }
 

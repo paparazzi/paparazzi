@@ -35,7 +35,8 @@ PRINT_CONFIG_VAR(ACTUATORS_ASCTEC_V2_I2C_DEV)
 
 struct ActuatorsAsctecV2 actuators_asctec_v2;
 
-void actuators_asctec_v2_init(void) {
+void actuators_asctec_v2_init(void)
+{
   actuators_asctec_v2.cmd = NONE;
   actuators_asctec_v2.cur_addr = FRONT;
   actuators_asctec_v2.new_addr = FRONT;
@@ -47,7 +48,8 @@ void actuators_asctec_v2_init(void) {
 }
 
 
-void actuators_asctec_v2_set(void) {
+void actuators_asctec_v2_set(void)
+{
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
     if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) {
@@ -57,8 +59,7 @@ void actuators_asctec_v2_set(void) {
       i2c1_init();
 #endif
       return;
-    }
-    else actuators_delay_done = TRUE;
+    } else { actuators_delay_done = TRUE; }
   }
 #endif
 

@@ -50,7 +50,7 @@ struct OveroTwistController {
 
   int armed;
 
-/***Twisting stuff***/
+  /***Twisting stuff***/
 
   float  S[2];
   float S_dot;

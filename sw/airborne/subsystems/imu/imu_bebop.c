@@ -116,8 +116,10 @@ void imu_bebop_event(void)
 
   if (imu_bebop.mpu.data_available) {
     /* default orientation of the MPU is upside down sor corrigate this here */
-    RATES_ASSIGN(imu.gyro_unscaled, imu_bebop.mpu.data_rates.rates.p, -imu_bebop.mpu.data_rates.rates.q, -imu_bebop.mpu.data_rates.rates.r);
-    VECT3_ASSIGN(imu.accel_unscaled, imu_bebop.mpu.data_accel.vect.x, -imu_bebop.mpu.data_accel.vect.y, -imu_bebop.mpu.data_accel.vect.z);
+    RATES_ASSIGN(imu.gyro_unscaled, imu_bebop.mpu.data_rates.rates.p, -imu_bebop.mpu.data_rates.rates.q,
+                 -imu_bebop.mpu.data_rates.rates.r);
+    VECT3_ASSIGN(imu.accel_unscaled, imu_bebop.mpu.data_accel.vect.x, -imu_bebop.mpu.data_accel.vect.y,
+                 -imu_bebop.mpu.data_accel.vect.z);
 
     imu_bebop.mpu.data_available = FALSE;
     imu_bebop.gyro_valid = TRUE;

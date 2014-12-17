@@ -71,8 +71,8 @@ extern uint8_t cam_target_wp;
 extern uint8_t cam_target_ac;
 /** For CAM_MODE_AC_TARGET mode */
 
-void cam_periodic( void );
-void cam_init( void );
+void cam_periodic(void);
+void cam_init(void);
 
 extern int16_t cam_pan_command;
 #define cam_SetPanCommand(x) { ap_state->commands[COMMAND_CAM_PAN] = cam_pan_command = x;}

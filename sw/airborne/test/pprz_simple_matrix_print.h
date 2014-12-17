@@ -3,12 +3,12 @@
 
 #include <stdio.h>
 
-#define MAT_PRINT(_i, _j, A) {			\
-    for (int i=0; i<_i; i++) {			\
-      for (int j=0; j<_j; j++)			\
-  printf("%f ", A[i][j]);			\
-      printf("\n");				\
-    }						\
+#define MAT_PRINT(_i, _j, A) {      \
+    for (int i=0; i<_i; i++) {      \
+      for (int j=0; j<_j; j++)      \
+        printf("%f ", A[i][j]);     \
+      printf("\n");       \
+    }           \
   }
 
 

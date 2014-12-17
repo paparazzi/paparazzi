@@ -29,9 +29,9 @@
 #ifndef BARO_MPL3115_H
 #define BARO_MPL3115_H
 
-extern void baro_mpl3115_init( void );
-extern void baro_mpl3115_read_periodic( void );
-extern void baro_mpl3115_read_event( void );
+extern void baro_mpl3115_init(void);
+extern void baro_mpl3115_read_periodic(void);
+extern void baro_mpl3115_read_event(void);
 
 #define BaroMpl3115Update(_b, _h) { if (mpl3115_data_available) { _b = mpl3115_pressure; _h(); mpl3115_data_available = FALSE; } }
 

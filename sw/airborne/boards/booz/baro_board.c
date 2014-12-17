@@ -62,7 +62,8 @@
 
 struct BaroBoard baro_board;
 
-void baro_init( void ) {
+void baro_init(void)
+{
 
   adc_buf_channel(ADC_CHANNEL_BARO, &baro_board.buf, DEFAULT_AV_NB_SAMPLE);
 
@@ -76,32 +77,33 @@ void baro_init( void ) {
 #endif
 }
 
-void baro_periodic(void) {
+void baro_periodic(void)
+{
 
-  baro_board.absolute = baro_board.buf.sum/baro_board.buf.av_nb_sample;
-  baro_board.value_filtered = (3*baro_board.value_filtered + baro_board.absolute)/4;
+  baro_board.absolute = baro_board.buf.sum / baro_board.buf.av_nb_sample;
+  baro_board.value_filtered = (3 * baro_board.value_filtered + baro_board.absolute) / 4;
   if (baro_board.status == BB_UNINITIALIZED) {
     RunOnceEvery(10, { baro_board_calibrate();});
-  }
-  else {
-    float pressure = 101325.0 - BOOZ_BARO_SENS*(BOOZ_ANALOG_BARO_THRESHOLD - baro_board.absolute);
+  } else {
+    float pressure = 101325.0 - BOOZ_BARO_SENS * (BOOZ_ANALOG_BARO_THRESHOLD - baro_board.absolute);
     AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
   }
 }
 
 /* decrement offset until adc reading is over a threshold */
-void baro_board_calibrate(void) {
+void baro_board_calibrate(void)
+{
   if (baro_board.value_filtered < BOOZ_ANALOG_BARO_THRESHOLD && baro_board.offset >= 1) {
-    if (baro_board.value_filtered == 0 && baro_board.offset > 15)
+    if (baro_board.value_filtered == 0 && baro_board.offset > 15) {
       baro_board.offset -= 15;
-    else
+    } else {
       baro_board.offset--;
+    }
     DACSet(baro_board.offset);
 #ifdef BARO_LED
     LED_TOGGLE(BARO_LED);
 #endif
-  }
-  else {
+  } else {
     baro_board.status = BB_RUNNING;
 #ifdef BARO_LED
     LED_ON(BARO_LED);

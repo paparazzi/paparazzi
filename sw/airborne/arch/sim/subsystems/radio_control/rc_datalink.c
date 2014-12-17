@@ -24,10 +24,12 @@
 #include <inttypes.h>
 #include <caml/mlvalues.h>
 
-value update_rc_channel(value c __attribute__ ((unused)), value v __attribute__ ((unused))) {
+value update_rc_channel(value c __attribute__((unused)), value v __attribute__((unused)))
+{
   return Val_unit;
 }
 
-value send_ppm(value unit) {
+value send_ppm(value unit)
+{
   return unit;
 }

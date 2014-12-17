@@ -29,9 +29,9 @@ Paul : using channel 10 instead of 14
  */
 
 
-static inline void main_init( void );
-static inline void main_periodic( void );
-static inline void main_event( void );
+static inline void main_init(void);
+static inline void main_periodic(void);
+static inline void main_event(void);
 
 static inline void main_init_adc(void);
 //static inline void main_on_bench_sensors( void );
@@ -55,7 +55,8 @@ static uint16_t coder_values[3];
 
 uint16_t servos[4];
 
-int main(void) {
+int main(void)
+{
   main_init();
 
   servos[0] = 1;
@@ -64,23 +65,26 @@ int main(void) {
   servos[3] = 4;
 
   while (1) {
-    if (sys_time_check_and_ack_timer(0))
+    if (sys_time_check_and_ack_timer(0)) {
       main_periodic();
+    }
     main_event();
   }
   return 0;
 }
 
 
-static inline void main_init( void ) {
+static inline void main_init(void)
+{
   mcu_init();
-  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+  sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   main_init_adc();
   bench_sensors_init();
   mcu_int_enable();
 }
 
-static inline void main_periodic( void ) {
+static inline void main_periodic(void)
+{
 
   /*RunOnceEvery(10, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});*/
 
@@ -90,15 +94,16 @@ static inline void main_periodic( void ) {
   /*RunOnceEvery(5, {DOWNLINK_SEND_BETH(DefaultChannel, &bench_sensors.angle_1,
     &bench_sensors.angle_2,&bench_sensors.angle_3, &bench_sensors.current);});*/
 
-  servos[0]=coder_values[0];
-  servos[1]=coder_values[1];
+  servos[0] = coder_values[0];
+  servos[1] = coder_values[1];
   //use id=1 for azimuth board
   can_transmit(1, (uint8_t *)servos, 8);
   LED_TOGGLE(5);
 }
 
 
-static inline void main_event( void ) {
+static inline void main_event(void)
+{
   //BenchSensorsEvent(main_on_bench_sensors);
 }
 
@@ -114,7 +119,8 @@ static inline void main_event( void ) {
  *  I2C2 : autopilot link
  *
  */
-void i2c2_init(void) {
+void i2c2_init(void)
+{
 //  static inline void main_init_i2c2(void) {
 
   /* System clocks configuration ---------------------------------------------*/
@@ -165,35 +171,36 @@ void i2c2_init(void) {
 }
 
 
-void i2c2_ev_irq_handler(void) {
-  switch (I2C_GetLastEvent(I2C2))
-  {
-    /* Slave Transmitter ---------------------------------------------------*/
-  case I2C_EVENT_SLAVE_TRANSMITTER_ADDRESS_MATCHED:  /* EV1 */
-    memcpy(i2c2_buf, coder_values, MY_I2C2_BUF_LEN);
-    i2c2_idx = 0;
+void i2c2_ev_irq_handler(void)
+{
+  switch (I2C_GetLastEvent(I2C2)) {
+      /* Slave Transmitter ---------------------------------------------------*/
+    case I2C_EVENT_SLAVE_TRANSMITTER_ADDRESS_MATCHED:  /* EV1 */
+      memcpy(i2c2_buf, coder_values, MY_I2C2_BUF_LEN);
+      i2c2_idx = 0;
 
-  case I2C_EVENT_SLAVE_BYTE_TRANSMITTED:             /* EV3 */
-    /* Transmit I2C2 data */
-    if (i2c2_idx < MY_I2C2_BUF_LEN) {
-      I2C_SendData(I2C2, i2c2_buf[i2c2_idx]);
-      i2c2_idx++;
-    }
-    break;
+    case I2C_EVENT_SLAVE_BYTE_TRANSMITTED:             /* EV3 */
+      /* Transmit I2C2 data */
+      if (i2c2_idx < MY_I2C2_BUF_LEN) {
+        I2C_SendData(I2C2, i2c2_buf[i2c2_idx]);
+        i2c2_idx++;
+      }
+      break;
 
 
-  case I2C_EVENT_SLAVE_STOP_DETECTED:                /* EV4 */
-    LED_ON(1);
-    /* Clear I2C2 STOPF flag: read of I2C_SR1 followed by a write on I2C_CR1 */
-    (void)(I2C_GetITStatus(I2C2, I2C_IT_STOPF));
-    I2C_Cmd(I2C2, ENABLE);
-    break;
+    case I2C_EVENT_SLAVE_STOP_DETECTED:                /* EV4 */
+      LED_ON(1);
+      /* Clear I2C2 STOPF flag: read of I2C_SR1 followed by a write on I2C_CR1 */
+      (void)(I2C_GetITStatus(I2C2, I2C_IT_STOPF));
+      I2C_Cmd(I2C2, ENABLE);
+      break;
 
   }
 }
 
 
-void i2c2_er_irq_handler(void) {
+void i2c2_er_irq_handler(void)
+{
   /* Check on I2C2 AF flag and clear it */
   if (I2C_GetITStatus(I2C2, I2C_IT_AF))  {
     I2C_ClearITPendingBit(I2C2, I2C_IT_AF);
@@ -212,14 +219,15 @@ void i2c2_er_irq_handler(void) {
 
 
 
-static inline void main_init_adc(void) {
+static inline void main_init_adc(void)
+{
 
   /* Enable DMA1 clock */
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
   /* Enable ADC1 and GPIOC clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 |
-       RCC_APB2Periph_GPIOC, ENABLE);
+                         RCC_APB2Periph_GPIOC, ENABLE);
 
   /* Configure PC.01 (ADC Channel11) and PC.04 (ADC Channel14) as analog input-*/
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -227,7 +235,7 @@ static inline void main_init_adc(void) {
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
 
- /* DMA1 channel1 configuration ----------------------------------------------*/
+  /* DMA1 channel1 configuration ----------------------------------------------*/
   DMA_InitTypeDef DMA_InitStructure;
   DMA_DeInit(DMA1_Channel1);
   DMA_InitStructure.DMA_PeripheralBaseAddr = ADC1_DR_Address;
@@ -285,12 +293,12 @@ static inline void main_init_adc(void) {
   /* Enable ADC1 reset calibaration register */
   ADC_ResetCalibration(ADC1);
   /* Check the end of ADC1 reset calibration register */
-  while(ADC_GetResetCalibrationStatus(ADC1));
+  while (ADC_GetResetCalibrationStatus(ADC1));
 
   /* Start ADC1 calibaration */
   ADC_StartCalibration(ADC1);
   /* Check the end of ADC1 calibration */
-  while(ADC_GetCalibrationStatus(ADC1));
+  while (ADC_GetCalibrationStatus(ADC1));
 
   /* Enable ADC2 */
   ADC_Cmd(ADC2, ENABLE);
@@ -298,12 +306,12 @@ static inline void main_init_adc(void) {
   /* Enable ADC2 reset calibaration register */
   ADC_ResetCalibration(ADC2);
   /* Check the end of ADC2 reset calibration register */
-  while(ADC_GetResetCalibrationStatus(ADC2));
+  while (ADC_GetResetCalibrationStatus(ADC2));
 
   /* Start ADC2 calibaration */
   ADC_StartCalibration(ADC2);
   /* Check the end of ADC2 calibration */
-  while(ADC_GetCalibrationStatus(ADC2));
+  while (ADC_GetCalibrationStatus(ADC2));
 
 
   /* Start ADC1 Software Conversion */

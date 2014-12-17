@@ -63,7 +63,7 @@ static uint16_t nav_catapult_launch = 0;
 float nav_catapult_acceleration_threshold = NAV_CATAPULT_ACCELERATION_THRESHOLD;
 
 #ifndef NAV_CATAPULT_MOTOR_DELAY
-#define NAV_CATAPULT_MOTOR_DELAY  0.75		// seconds
+#define NAV_CATAPULT_MOTOR_DELAY  0.75    // seconds
 #endif
 
 float nav_catapult_motor_delay = NAV_CATAPULT_MOTOR_DELAY;
@@ -97,15 +97,13 @@ static float nav_catapult_y = 0;
 void nav_catapult_highrate_module(void)
 {
   // Only run when
-  if (nav_catapult_armed)
-  {
+  if (nav_catapult_armed) {
     if (nav_catapult_launch < nav_catapult_heading_delay * NAV_CATAPULT_HIGHRATE_MODULE_FREQ) {
       nav_catapult_launch++;
     }
 
     // Launch detection Filter
-    if (nav_catapult_launch < 5)
-    {
+    if (nav_catapult_launch < 5) {
       // Five consecutive measurements > 1.5
 #ifndef SITL
       struct Int32Vect3 accel_meas_body;
@@ -120,15 +118,12 @@ void nav_catapult_highrate_module(void)
       }
     }
     // Launch was detected: Motor Delay Counter
-    else if (nav_catapult_launch >= nav_catapult_motor_delay * NAV_CATAPULT_HIGHRATE_MODULE_FREQ)
-    {
+    else if (nav_catapult_launch >= nav_catapult_motor_delay * NAV_CATAPULT_HIGHRATE_MODULE_FREQ) {
       // Turn on Motor
-      NavVerticalThrottleMode(9600*(nav_catapult_initial_throttle));
+      NavVerticalThrottleMode(9600 * (nav_catapult_initial_throttle));
       launch = 1;
     }
-  }
-  else
-  {
+  } else {
     nav_catapult_launch = 0;
   }
 }
@@ -154,11 +149,10 @@ bool_t nav_catapult_run(uint8_t _to, uint8_t _climb)
   nav_catapult_armed = 1;
 
   // No Roll, Climb Pitch, No motor Phase
-  if (nav_catapult_launch <= nav_catapult_motor_delay * NAV_CATAPULT_HIGHRATE_MODULE_FREQ)
-  {
+  if (nav_catapult_launch <= nav_catapult_motor_delay * NAV_CATAPULT_HIGHRATE_MODULE_FREQ) {
     NavAttitude(RadOfDeg(0));
     NavVerticalAutoThrottleMode(nav_catapult_initial_pitch);
-    NavVerticalThrottleMode(9600*(0));
+    NavVerticalThrottleMode(9600 * (0));
 
 
     nav_catapult_x = stateGetPositionEnu_f()->x;
@@ -171,21 +165,17 @@ bool_t nav_catapult_run(uint8_t _to, uint8_t _climb)
 
   }
   // No Roll, Climb Pitch, Full Power
-  else if (nav_catapult_launch < nav_catapult_heading_delay * NAV_CATAPULT_HIGHRATE_MODULE_FREQ)
-  {
+  else if (nav_catapult_launch < nav_catapult_heading_delay * NAV_CATAPULT_HIGHRATE_MODULE_FREQ) {
     NavAttitude(RadOfDeg(0));
     NavVerticalAutoThrottleMode(nav_catapult_initial_pitch);
-    NavVerticalThrottleMode(9600*(nav_catapult_initial_throttle));
+    NavVerticalThrottleMode(9600 * (nav_catapult_initial_throttle));
   }
   // Normal Climb: Heading Locked by Waypoint Target
-  else if (nav_catapult_launch == 0xffff)
-  {
-    NavVerticalAltitudeMode(alt, 0);	// vertical mode (folow glideslope)
-    NavVerticalAutoThrottleMode(0);		// throttle mode
-    NavGotoWaypoint(_climb);				// horizontal mode (stay on localiser)
-  }
-  else
-  {
+  else if (nav_catapult_launch == 0xffff) {
+    NavVerticalAltitudeMode(alt, 0);  // vertical mode (folow glideslope)
+    NavVerticalAutoThrottleMode(0);   // throttle mode
+    NavGotoWaypoint(_climb);        // horizontal mode (stay on localiser)
+  } else {
     // Store Heading, move Climb
     nav_catapult_launch = 0xffff;
 
@@ -201,7 +191,7 @@ bool_t nav_catapult_run(uint8_t _to, uint8_t _climb)
   }
 
 
-return TRUE;
+  return TRUE;
 
 }
 

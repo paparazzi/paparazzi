@@ -4,7 +4,7 @@
 #include <std.h>
 
 extern uint16_t adc_humid_hih;
-void humid_hih_init( void );
-void humid_hih_periodic( void );
+void humid_hih_init(void);
+void humid_hih_periodic(void);
 
 #endif

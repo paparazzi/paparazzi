@@ -87,9 +87,9 @@ extern void imu_SetBodyToImuCurrent(float set);
 extern void imu_ResetBodyToImu(float reset);
 
 /* can be provided implementation */
-extern void imu_scale_gyro(struct Imu* _imu);
-extern void imu_scale_accel(struct Imu* _imu);
-extern void imu_scale_mag(struct Imu* _imu);
+extern void imu_scale_gyro(struct Imu *_imu);
+extern void imu_scale_accel(struct Imu *_imu);
+extern void imu_scale_mag(struct Imu *_imu);
 
 #if !defined IMU_BODY_TO_IMU_PHI && !defined IMU_BODY_TO_IMU_THETA && !defined IMU_BODY_TO_IMU_PSI
 #define IMU_BODY_TO_IMU_PHI   0

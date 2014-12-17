@@ -29,21 +29,21 @@ extern void imu_quality_assessment_init(void);
 extern void imu_quality_assessment_periodic(void);
 
 struct imu_quality_assessment_data_struct {
-    int q_ax;
-    int q_ay;
-    int q_az;
+  int q_ax;
+  int q_ay;
+  int q_az;
 
-    int q_m;
+  int q_m;
 
-    int q;
+  int q;
 };
 
 extern struct imu_quality_assessment_data_struct imu_quality_assessment_data;
 
 #define imu_quality_assessment_Reset(_v) {   \
-  imu_quality_assessment_data.q_ax = 0;      \
-  imu_quality_assessment_data.q_ay = 0;      \
-  imu_quality_assessment_data.q_az = 0;      \
-}
+    imu_quality_assessment_data.q_ax = 0;      \
+    imu_quality_assessment_data.q_ay = 0;      \
+    imu_quality_assessment_data.q_az = 0;      \
+  }
 
 #endif /* IMU_QUALITY_ASSESSMENT_H_ */

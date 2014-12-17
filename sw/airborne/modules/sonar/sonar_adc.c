@@ -53,7 +53,8 @@ struct SonarAdc sonar_adc;
 static struct adc_buf sonar_adc_buf;
 #endif
 
-void sonar_adc_init(void) {
+void sonar_adc_init(void)
+{
   sonar_adc.meas = 0;
   sonar_adc.offset = SONAR_OFFSET;
 
@@ -64,7 +65,8 @@ void sonar_adc_init(void) {
 
 /** Read ADC value to update sonar measurement
  */
-void sonar_adc_read(void) {
+void sonar_adc_read(void)
+{
 #ifndef SITL
   sonar_adc.meas = sonar_adc_buf.sum / sonar_adc_buf.av_nb_sample;
   sonar_adc.distance = (float)(sonar_adc.meas - sonar_adc.offset) * SONAR_SCALE;

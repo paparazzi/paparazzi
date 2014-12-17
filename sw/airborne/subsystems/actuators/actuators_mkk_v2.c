@@ -33,10 +33,11 @@ PRINT_CONFIG_VAR(ACTUATORS_MKK_V2_I2C_DEV)
 
 struct actuators_mkk_v2_struct actuators_mkk_v2;
 
-void actuators_mkk_v2_init(void) {
+void actuators_mkk_v2_init(void)
+{
 
   const uint8_t actuators_addr[ACTUATORS_MKK_V2_NB] = ACTUATORS_MKK_V2_ADDR;
-  for (uint8_t i=0; i<ACTUATORS_MKK_V2_NB; i++) {
+  for (uint8_t i = 0; i < ACTUATORS_MKK_V2_NB; i++) {
     actuators_mkk_v2.trans[i].type       = I2CTransTx;
     actuators_mkk_v2.trans[i].len_w      = 2;
     actuators_mkk_v2.trans[i].slave_addr = actuators_addr[i];
@@ -52,28 +53,29 @@ void actuators_mkk_v2_init(void) {
 
 }
 
-static inline void actuators_mkk_v2_read(void) {
+static inline void actuators_mkk_v2_read(void)
+{
   actuators_mkk_v2.read_number++;
-  if (actuators_mkk_v2.read_number >= ACTUATORS_MKK_V2_NB)
+  if (actuators_mkk_v2.read_number >= ACTUATORS_MKK_V2_NB) {
     actuators_mkk_v2.read_number = 0;
+  }
 
   actuators_mkk_v2.trans[actuators_mkk_v2.read_number].type = I2CTransTxRx;
   actuators_mkk_v2.trans[actuators_mkk_v2.read_number].len_r = 3;
 }
 
-void actuators_mkk_v2_set(void) {
+void actuators_mkk_v2_set(void)
+{
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
-    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
-    else actuators_delay_done = TRUE;
+    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) { return; }
+    else { actuators_delay_done = TRUE; }
   }
 #endif
 
   // Read result
-  for (uint8_t i=0; i<ACTUATORS_MKK_V2_NB; i++)
-  {
-    if (actuators_mkk_v2.trans[i].type != I2CTransTx)
-    {
+  for (uint8_t i = 0; i < ACTUATORS_MKK_V2_NB; i++) {
+    if (actuators_mkk_v2.trans[i].type != I2CTransTx) {
       actuators_mkk_v2.trans[i].type = I2CTransTx;
 
       actuators_mkk_v2.data[i].Current     = actuators_mkk_v2.trans[i].buf[0];
@@ -82,9 +84,9 @@ void actuators_mkk_v2_set(void) {
     }
   }
 
-  RunOnceEvery(10, actuators_mkk_v2_read() );
+  RunOnceEvery(10, actuators_mkk_v2_read());
 
-  for (uint8_t i=0; i<ACTUATORS_MKK_V2_NB; i++) {
+  for (uint8_t i = 0; i < ACTUATORS_MKK_V2_NB; i++) {
 
 #ifdef KILL_MOTORS
     actuators_mkk_v2.trans[i].buf[0] = 0;

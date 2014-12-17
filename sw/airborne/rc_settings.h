@@ -58,8 +58,8 @@ void rc_settings(bool_t mode_changed);
 #define RcSettingsOff() (rc_settings_mode==RC_SETTINGS_MODE_NONE)
 
 #define RC_SETTINGS_MODE_OF_PULSE(pprz) (pprz < THRESHOLD1 ? RC_SETTINGS_MODE_DOWN : \
-              (pprz < THRESHOLD2 ? RC_SETTINGS_MODE_NONE :  \
-                                   RC_SETTINGS_MODE_UP))
+    (pprz < THRESHOLD2 ? RC_SETTINGS_MODE_NONE :  \
+     RC_SETTINGS_MODE_UP))
 
 #define RcSettingsModeUpdate(_rc_channels) \
   ModeUpdate(rc_settings_mode, RC_SETTINGS_MODE_OF_PULSE(_rc_channels[RADIO_CALIB]))

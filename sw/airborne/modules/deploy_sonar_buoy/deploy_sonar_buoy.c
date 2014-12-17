@@ -33,25 +33,26 @@ bool_t buoy_1;
 bool_t buoy_2;
 
 /* initialises GPIO pins */
-void deploy_sonar_buoy_init(void) {
+void deploy_sonar_buoy_init(void)
+{
   /* initialise peripheral clock for port C */
-  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOC, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
   /* set port C pin 5 to be low */
-  GPIO_WriteBit(GPIOC, GPIO_Pin_5 , Bit_RESET );
+  GPIO_WriteBit(GPIOC, GPIO_Pin_5 , Bit_RESET);
 
   /* initialise peripheral clock for port B */
-  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOB, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
   /* set port B pin 0 to be low */
-  GPIO_WriteBit(GPIOB, GPIO_Pin_0 , Bit_RESET );
+  GPIO_WriteBit(GPIOB, GPIO_Pin_0 , Bit_RESET);
 
   /* set the variables of interest to be FALSE */
   buoy_1 = FALSE;
@@ -60,7 +61,8 @@ void deploy_sonar_buoy_init(void) {
 }
 
 /* sets GPIO pins */
-void deploy_sonar_buoy_periodic(void) {
-  GPIO_WriteBit(GPIOC, GPIO_Pin_5 , buoy_1 ? Bit_SET : Bit_RESET );
-  GPIO_WriteBit(GPIOB, GPIO_Pin_0 , buoy_2 ? Bit_SET : Bit_RESET );
+void deploy_sonar_buoy_periodic(void)
+{
+  GPIO_WriteBit(GPIOC, GPIO_Pin_5 , buoy_1 ? Bit_SET : Bit_RESET);
+  GPIO_WriteBit(GPIOB, GPIO_Pin_0 , buoy_2 ? Bit_SET : Bit_RESET);
 }

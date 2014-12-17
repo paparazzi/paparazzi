@@ -66,13 +66,13 @@ PRINT_CONFIG_VAR(IMU_PPZUAV_GYRO_LOWPASS)
 #ifndef IMU_PPZUAV_GYRO_SMPLRT_DIV
 #  if PERIODIC_FREQUENCY <= 60
 #    define IMU_PPZUAV_GYRO_SMPLRT_DIV 19
-     PRINT_CONFIG_MSG("Gyro output rate is 50Hz")
+PRINT_CONFIG_MSG("Gyro output rate is 50Hz")
 #  else
 #    define IMU_PPZUAV_GYRO_SMPLRT_DIV 9
-     PRINT_CONFIG_MSG("Gyro output rate is 100Hz")
+PRINT_CONFIG_MSG("Gyro output rate is 100Hz")
 #  endif
 #endif
-     PRINT_CONFIG_VAR(IMU_PPZUAV_GYRO_SMPLRT_DIV)
+PRINT_CONFIG_VAR(IMU_PPZUAV_GYRO_SMPLRT_DIV)
 
 
 struct ImuPpzuav imu_ppzuav;

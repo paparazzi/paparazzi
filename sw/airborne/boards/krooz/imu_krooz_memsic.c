@@ -65,7 +65,7 @@ static uint32_t ad7689_event_timer;
 static uint8_t axis_cnt;
 static uint8_t axis_nb;
 
-void imu_impl_init( void )
+void imu_impl_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // MPU-60X0
@@ -104,9 +104,9 @@ void imu_impl_init( void )
   imu_krooz.ad7689_trans.bitorder      = SPIMSBFirst;
   imu_krooz.ad7689_trans.cdiv          = SPIDiv16;
   imu_krooz.ad7689_trans.output_length = sizeof(imu_krooz.ad7689_spi_tx_buffer);
-  imu_krooz.ad7689_trans.output_buf    = (uint8_t*) imu_krooz.ad7689_spi_tx_buffer;
+  imu_krooz.ad7689_trans.output_buf    = (uint8_t *) imu_krooz.ad7689_spi_tx_buffer;
   imu_krooz.ad7689_trans.input_length  = sizeof(imu_krooz.ad7689_spi_rx_buffer);
-  imu_krooz.ad7689_trans.input_buf     = (uint8_t*) imu_krooz.ad7689_spi_rx_buffer;
+  imu_krooz.ad7689_trans.input_buf     = (uint8_t *) imu_krooz.ad7689_spi_rx_buffer;
   imu_krooz.ad7689_trans.before_cb     = NULL;
   imu_krooz.ad7689_trans.after_cb      = NULL;
   axis_cnt = 0;
@@ -115,19 +115,21 @@ void imu_impl_init( void )
   imu_krooz_sd_arch_init();
 }
 
-void imu_periodic( void )
+void imu_periodic(void)
 {
   // Start reading the latest gyroscope data
-  if (!imu_krooz.mpu.config.initialized)
+  if (!imu_krooz.mpu.config.initialized) {
     mpu60x0_i2c_start_configure(&imu_krooz.mpu);
+  }
 
-  if (!imu_krooz.hmc.initialized)
+  if (!imu_krooz.hmc.initialized) {
     hmc58xx_start_configure(&imu_krooz.hmc);
+  }
 
   if (imu_krooz.meas_nb) {
     RATES_ASSIGN(imu.gyro_unscaled, -imu_krooz.rates_sum.q / imu_krooz.meas_nb,
-                                     imu_krooz.rates_sum.p / imu_krooz.meas_nb,
-                                     imu_krooz.rates_sum.r / imu_krooz.meas_nb);
+                 imu_krooz.rates_sum.p / imu_krooz.meas_nb,
+                 imu_krooz.rates_sum.r / imu_krooz.meas_nb);
 
     RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
     imu_krooz.meas_nb = 0;
@@ -152,10 +154,10 @@ void imu_periodic( void )
     imu_krooz.acc_valid = TRUE;
   }
 
-  RunOnceEvery(128,{axis_nb = 5;});
+  RunOnceEvery(128, {axis_nb = 5;});
 }
 
-void imu_krooz_event( void )
+void imu_krooz_event(void)
 {
   if (imu_krooz.mpu_eoc) {
     mpu60x0_i2c_read(&imu_krooz.mpu);
@@ -172,10 +174,11 @@ void imu_krooz_event( void )
 
   if (SysTimeTimer(ad7689_event_timer) > 215) {
     SysTimeTimerStart(ad7689_event_timer);
-    if (axis_cnt < axis_nb)
+    if (axis_cnt < axis_nb) {
       axis_cnt++;
-    else
+    } else {
       axis_cnt = 0;
+    }
     imu_krooz.ad7689_trans.output_buf[0] =
       axis_cnt <= 2 ? 0xF0 | (axis_cnt << 1) : (axis_cnt >= 4 ? 0xF0 | ((axis_cnt - 3) << 1) : 0xB0);
     imu_krooz.ad7689_trans.output_buf[1] = 0x44;
@@ -184,7 +187,7 @@ void imu_krooz_event( void )
   if (imu_krooz.ad7689_trans.status == SPITransSuccess) {
     imu_krooz.ad7689_trans.status = SPITransDone;
     uint16_t buf = (imu_krooz.ad7689_trans.input_buf[0] << 8) | imu_krooz.ad7689_trans.input_buf[1];
-    switch(axis_cnt) {
+    switch (axis_cnt) {
       case 0:
       case 3:
         imu_krooz.accel_sum.x += (int32_t)buf;

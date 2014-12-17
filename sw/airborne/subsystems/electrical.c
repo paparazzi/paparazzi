@@ -87,7 +87,8 @@ static struct {
 #define CURRENT_ESTIMATION_NONLINEARITY 1.2
 #endif
 
-void electrical_init(void) {
+void electrical_init(void)
+{
   electrical.vsupply = 0;
   electrical.current = 0;
   electrical.energy = 0;
@@ -103,23 +104,25 @@ void electrical_init(void) {
 #if defined ADC_CHANNEL_CURRENT && !defined SITL
   adc_buf_channel(ADC_CHANNEL_CURRENT, &electrical_priv.current_adc_buf, DEFAULT_AV_NB_SAMPLE);
 #elif defined MILLIAMP_AT_FULL_THROTTLE
-PRINT_CONFIG_VAR(CURRENT_ESTIMATION_NONLINEARITY)
+  PRINT_CONFIG_VAR(CURRENT_ESTIMATION_NONLINEARITY)
   electrical_priv.nonlin_factor = CURRENT_ESTIMATION_NONLINEARITY;
 #endif
 }
 
-void electrical_periodic(void) {
+void electrical_periodic(void)
+{
   static uint32_t bat_low_counter = 0;
   static uint32_t bat_critical_counter = 0;
   static bool_t vsupply_check_started = FALSE;
 
 #if defined(ADC_CHANNEL_VSUPPLY) && !defined(SITL)
-  electrical.vsupply = 10 * VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum/electrical_priv.vsupply_adc_buf.av_nb_sample));
+  electrical.vsupply = 10 * VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum /
+                                          electrical_priv.vsupply_adc_buf.av_nb_sample));
 #endif
 
 #ifdef ADC_CHANNEL_CURRENT
 #ifndef SITL
-  int32_t current_adc = electrical_priv.current_adc_buf.sum/electrical_priv.current_adc_buf.av_nb_sample;
+  int32_t current_adc = electrical_priv.current_adc_buf.sum / electrical_priv.current_adc_buf.av_nb_sample;
   electrical.current = MilliAmpereOfAdc(current_adc);
   /* Prevent an overflow on high current spikes when using the motor brake */
   BoundAbs(electrical.current, 65000);
@@ -140,7 +143,8 @@ void electrical_periodic(void) {
   /* electrical.current y = ( b^n - (b* x/a)^n )^1/n
    * a=1, n = electrical_priv.nonlin_factor
    */
-  electrical.current = b - pow((pow(b,electrical_priv.nonlin_factor)-pow((b*x),electrical_priv.nonlin_factor)), (1./electrical_priv.nonlin_factor));
+  electrical.current = b - pow((pow(b, electrical_priv.nonlin_factor) - pow((b * x), electrical_priv.nonlin_factor)),
+                               (1. / electrical_priv.nonlin_factor));
 #endif /* ADC_CHANNEL_CURRENT */
 
   // mAh = mA * dt (10Hz -> hours)
@@ -153,24 +157,26 @@ void electrical_periodic(void) {
 
   if (vsupply_check_started) {
     if (electrical.vsupply < LOW_BAT_LEVEL * 10) {
-      if (bat_low_counter > 0)
+      if (bat_low_counter > 0) {
         bat_low_counter--;
-      if (bat_low_counter == 0)
+      }
+      if (bat_low_counter == 0) {
         electrical.bat_low = TRUE;
-    }
-    else {
+      }
+    } else {
       // reset battery low status and counter
       bat_low_counter = BAT_CHECKER_DELAY * ELECTRICAL_PERIODIC_FREQ;
       electrical.bat_low = FALSE;
     }
 
     if (electrical.vsupply < CRITIC_BAT_LEVEL * 10) {
-      if (bat_critical_counter > 0)
+      if (bat_critical_counter > 0) {
         bat_critical_counter--;
-      if (bat_critical_counter == 0)
+      }
+      if (bat_critical_counter == 0) {
         electrical.bat_critical = TRUE;
-    }
-    else {
+      }
+    } else {
       // reset battery critical status and counter
       bat_critical_counter = BAT_CHECKER_DELAY * ELECTRICAL_PERIODIC_FREQ;
       electrical.bat_critical = FALSE;

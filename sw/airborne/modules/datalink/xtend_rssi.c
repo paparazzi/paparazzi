@@ -41,25 +41,25 @@
 
 #define XTEND_RSSI_PWM_ARRAY_INDEX (XTEND_RSSI_PWM_INPUT_CHANNEL - 1)
 
-void xtend_rssi_periodic( void ) {
+void xtend_rssi_periodic(void)
+{
 
-/* get the last duty if valid then reset valid flag (this says if we got another pulse since the last one)
-   calculate the % and dB from the duty using datasheet specs
-   send the %, dB, datalink time
-*/
+  /* get the last duty if valid then reset valid flag (this says if we got another pulse since the last one)
+     calculate the % and dB from the duty using datasheet specs
+     send the %, dB, datalink time
+  */
 
   uint32_t duty_tics = pwm_input_duty_tics[XTEND_RSSI_PWM_ARRAY_INDEX];
   uint8_t duty_percent = 0;
   uint8_t rssi_dB_fade_margin = 0; //shows dB fade margin above rated minimum sensitivity
 
-  if (pwm_input_duty_valid[XTEND_RSSI_PWM_ARRAY_INDEX])
-  {
-      duty_percent = (duty_tics * 100) / cpu_ticks_of_usec(XTEND_RSSI_PWM_PERIOD_USEC);
-      rssi_dB_fade_margin = (2 * duty_percent + 10) / 3; //not sure if this is right, datasheet isn't very informative
-      pwm_input_duty_valid[XTEND_RSSI_PWM_ARRAY_INDEX] = FALSE;
+  if (pwm_input_duty_valid[XTEND_RSSI_PWM_ARRAY_INDEX]) {
+    duty_percent = (duty_tics * 100) / cpu_ticks_of_usec(XTEND_RSSI_PWM_PERIOD_USEC);
+    rssi_dB_fade_margin = (2 * duty_percent + 10) / 3; //not sure if this is right, datasheet isn't very informative
+    pwm_input_duty_valid[XTEND_RSSI_PWM_ARRAY_INDEX] = FALSE;
   }
   DOWNLINK_SEND_XTEND_RSSI(DefaultChannel, DefaultDevice,
-            &datalink_time,
-            &rssi_dB_fade_margin,
-            &duty_percent );
+                           &datalink_time,
+                           &rssi_dB_fade_margin,
+                           &duty_percent);
 }

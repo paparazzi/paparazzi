@@ -100,7 +100,8 @@ void cam_target(void);
 void cam_waypoint_target(void);
 void cam_ac_target(void);
 
-static void send_cam(struct transport_tx *trans, struct link_device *dev) {
+static void send_cam(struct transport_tx *trans, struct link_device *dev)
+{
   int16_t x = cam_target_x;
   int16_t y = cam_target_y;
   int16_t phi = DegOfRad(cam_phi_c);
@@ -109,13 +110,15 @@ static void send_cam(struct transport_tx *trans, struct link_device *dev) {
 }
 
 #ifdef SHOW_CAM_COORDINATES
-static void send_cam_point(struct transport_tx *trans, struct link_device *dev) {
+static void send_cam_point(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_CAM_POINT(trans, dev, AC_ID,
-      &cam_point_distance_from_home, &cam_point_lat, &cam_point_lon);
+                          &cam_point_distance_from_home, &cam_point_lat, &cam_point_lon);
 }
 #endif
 
-void cam_init( void ) {
+void cam_init(void)
+{
   cam_mode = CAM_MODE0;
 
   register_periodic_telemetry(DefaultPeriodic, "CAM", send_cam);
@@ -124,49 +127,50 @@ void cam_init( void ) {
 #endif
 }
 
-void cam_periodic( void ) {
+void cam_periodic(void)
+{
 #if defined(CAM_FIXED_FOR_FPV_IN_AUTO1) && CAM_FIXED_FOR_FPV_IN_AUTO1 == 1
   //Position the camera for straight view.
-  if (pprz_mode == PPRZ_MODE_AUTO2){
+  if (pprz_mode == PPRZ_MODE_AUTO2) {
 #endif
     switch (cam_mode) {
-    case CAM_MODE_OFF:
-      cam_pan_c = RadOfDeg(CAM_PAN0);
-      cam_tilt_c = RadOfDeg(CAM_TILT0);
-      cam_angles();
-      break;
-    case CAM_MODE_ANGLES:
-      cam_angles();
-      break;
-    case CAM_MODE_NADIR:
-      cam_nadir();
-      break;
-    case CAM_MODE_XY_TARGET:
-      cam_target();
-      break;
-    case CAM_MODE_WP_TARGET:
-      cam_waypoint_target();
-      break;
-    case CAM_MODE_AC_TARGET:
-      cam_ac_target();
-      break;
-      // In this mode the target coordinates are calculated continuously from the pan and tilt radio channels.
-      // The "TARGET" waypoint coordinates are not used.
-      // If the "-DSHOW_CAM_COORDINATES" is defined then the coordinates of where the camera is looking are calculated.
-    case CAM_MODE_STABILIZED:
-      cam_waypoint_target();
-      break;
-      // In this mode the angles come from the pan and tilt radio channels.
-      // The "TARGET" waypoint coordinates are not used but i need to call the "cam_waypoint_target()" function
-      // in order to calculate the coordinates of where the camera is looking.
-    case CAM_MODE_RC:
-      cam_waypoint_target();
-      break;
-    default:
-      break;
+      case CAM_MODE_OFF:
+        cam_pan_c = RadOfDeg(CAM_PAN0);
+        cam_tilt_c = RadOfDeg(CAM_TILT0);
+        cam_angles();
+        break;
+      case CAM_MODE_ANGLES:
+        cam_angles();
+        break;
+      case CAM_MODE_NADIR:
+        cam_nadir();
+        break;
+      case CAM_MODE_XY_TARGET:
+        cam_target();
+        break;
+      case CAM_MODE_WP_TARGET:
+        cam_waypoint_target();
+        break;
+      case CAM_MODE_AC_TARGET:
+        cam_ac_target();
+        break;
+        // In this mode the target coordinates are calculated continuously from the pan and tilt radio channels.
+        // The "TARGET" waypoint coordinates are not used.
+        // If the "-DSHOW_CAM_COORDINATES" is defined then the coordinates of where the camera is looking are calculated.
+      case CAM_MODE_STABILIZED:
+        cam_waypoint_target();
+        break;
+        // In this mode the angles come from the pan and tilt radio channels.
+        // The "TARGET" waypoint coordinates are not used but i need to call the "cam_waypoint_target()" function
+        // in order to calculate the coordinates of where the camera is looking.
+      case CAM_MODE_RC:
+        cam_waypoint_target();
+        break;
+      default:
+        break;
     }
 #if defined(CAM_FIXED_FOR_FPV_IN_AUTO1) && CAM_FIXED_FOR_FPV_IN_AUTO1 == 1
-  }else if (pprz_mode == PPRZ_MODE_AUTO1){
+  } else if (pprz_mode == PPRZ_MODE_AUTO1) {
     //Position the camera for straight view.
 
 #if defined(CAM_TILT_POSITION_FOR_FPV)
@@ -190,48 +194,54 @@ void cam_periodic( void ) {
 
 
 #if defined(COMMAND_CAM_PWR_SW)
-  if(video_tx_state){ ap_state->commands[COMMAND_CAM_PWR_SW] = MAX_PPRZ; }else{ ap_state->commands[COMMAND_CAM_PWR_SW] = MIN_PPRZ; }
+  if (video_tx_state) { ap_state->commands[COMMAND_CAM_PWR_SW] = MAX_PPRZ; } else { ap_state->commands[COMMAND_CAM_PWR_SW] = MIN_PPRZ; }
 #elif defined(VIDEO_TX_SWITCH)
-  if(video_tx_state){ LED_OFF(VIDEO_TX_SWITCH); }else{ LED_ON(VIDEO_TX_SWITCH); }
+  if (video_tx_state) { LED_OFF(VIDEO_TX_SWITCH); } else { LED_ON(VIDEO_TX_SWITCH); }
 #endif
 }
 
 /** Computes the servo values from cam_pan_c and cam_tilt_c */
-void cam_angles( void ) {
+void cam_angles(void)
+{
   float cam_pan = 0;
   float cam_tilt = 0;
   if (cam_pan_c > RadOfDeg(CAM_PAN_MAX)) {
     cam_pan_c = RadOfDeg(CAM_PAN_MAX);
   } else {
-    if (cam_pan_c < RadOfDeg(CAM_PAN_MIN))
+    if (cam_pan_c < RadOfDeg(CAM_PAN_MIN)) {
       cam_pan_c = RadOfDeg(CAM_PAN_MIN);
+    }
   }
 
-  if (cam_tilt_c > RadOfDeg(CAM_TILT_MAX)){
+  if (cam_tilt_c > RadOfDeg(CAM_TILT_MAX)) {
     cam_tilt_c = RadOfDeg(CAM_TILT_MAX);
   } else {
-    if (cam_tilt_c < RadOfDeg(CAM_TILT_MIN))
+    if (cam_tilt_c < RadOfDeg(CAM_TILT_MIN)) {
       cam_tilt_c = RadOfDeg(CAM_TILT_MIN);
+    }
   }
 
 #ifdef CAM_PAN_NEUTRAL
   float pan_diff = cam_pan_c - RadOfDeg(CAM_PAN_NEUTRAL);
-  if (pan_diff > 0)
+  if (pan_diff > 0) {
     cam_pan = MAX_PPRZ * (pan_diff / (RadOfDeg(CAM_PAN_MAX - CAM_PAN_NEUTRAL)));
-  else
+  } else {
     cam_pan = MIN_PPRZ * (pan_diff / (RadOfDeg(CAM_PAN_MIN - CAM_PAN_NEUTRAL)));
+  }
 #else
-  cam_pan = ((float)RadOfDeg(cam_pan_c - CAM_PAN_MIN)) * ((float)MAX_PPRZ / (float)RadOfDeg(CAM_PAN_MAX-CAM_PAN_MIN) );
+  cam_pan = ((float)RadOfDeg(cam_pan_c - CAM_PAN_MIN)) * ((float)MAX_PPRZ / (float)RadOfDeg(CAM_PAN_MAX - CAM_PAN_MIN));
 #endif
 
 #ifdef CAM_TILT_NEUTRAL
   float tilt_diff = cam_tilt_c - RadOfDeg(CAM_TILT_NEUTRAL);
-  if (tilt_diff > 0)
+  if (tilt_diff > 0) {
     cam_tilt = MAX_PPRZ * (tilt_diff / (RadOfDeg(CAM_TILT_MAX - CAM_TILT_NEUTRAL)));
-  else
+  } else {
     cam_tilt = MIN_PPRZ * (tilt_diff / (RadOfDeg(CAM_TILT_MIN - CAM_TILT_NEUTRAL)));
+  }
 #else
-  cam_tilt = ((float)RadOfDeg(cam_tilt_c - CAM_TILT_MIN))  * ((float)MAX_PPRZ / (float)RadOfDeg(CAM_TILT_MAX-CAM_TILT_MIN) );
+  cam_tilt = ((float)RadOfDeg(cam_tilt_c - CAM_TILT_MIN))  * ((float)MAX_PPRZ / (float)RadOfDeg(
+               CAM_TILT_MAX - CAM_TILT_MIN));
 #endif
 
   cam_pan = TRIM_PPRZ(cam_pan);
@@ -249,15 +259,16 @@ void cam_angles( void ) {
 }
 
 /** Computes the right angles from target_x, target_y, target_alt */
-void cam_target( void ) {
+void cam_target(void)
+{
 #ifdef TEST_CAM
   vPoint(test_cam_estimator_x, test_cam_estimator_y, test_cam_estimator_z,
          test_cam_estimator_phi, test_cam_estimator_theta, test_cam_estimator_hspeed_dir,
          cam_target_x, cam_target_y, cam_target_alt,
          &cam_pan_c, &cam_tilt_c);
 #else
-  struct EnuCoor_f* pos = stateGetPositionEnu_f();
-  struct FloatEulers* att = stateGetNedToBodyEulers_f();
+  struct EnuCoor_f *pos = stateGetPositionEnu_f();
+  struct FloatEulers *att = stateGetNedToBodyEulers_f();
   vPoint(pos->x, pos->y, stateGetPositionUtm_f()->alt,
          att->phi, att->theta, *stateGetHorizontalSpeedDir_f(),
          cam_target_x, cam_target_y, cam_target_alt,
@@ -267,8 +278,9 @@ void cam_target( void ) {
 }
 
 /** Point straight down */
-void cam_nadir( void ) {
-  struct EnuCoor_f* pos = stateGetPositionEnu_f();
+void cam_nadir(void)
+{
+  struct EnuCoor_f *pos = stateGetPositionEnu_f();
 #ifdef TEST_CAM
   cam_target_x = test_cam_estimator_x;
   cam_target_y = test_cam_estimator_y;
@@ -281,7 +293,8 @@ void cam_nadir( void ) {
 }
 
 
-void cam_waypoint_target( void ) {
+void cam_waypoint_target(void)
+{
   if (cam_target_wp < nb_waypoint) {
     cam_target_x = WaypointX(cam_target_wp);
     cam_target_y = WaypointY(cam_target_wp);
@@ -290,7 +303,8 @@ void cam_waypoint_target( void ) {
   cam_target();
 }
 
-void cam_ac_target( void ) {
+void cam_ac_target(void)
+{
 #ifdef TRAFFIC_INFO
   struct ac_info_ * ac = get_ac_info(cam_target_ac);
   cam_target_x = ac->east;

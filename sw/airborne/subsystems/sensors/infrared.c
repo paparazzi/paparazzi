@@ -35,7 +35,8 @@ struct Infrared infrared;
 
 /** \brief Initialisation of \a ir structure
  */
-void infrared_struct_init(void) {
+void infrared_struct_init(void)
+{
   infrared.roll_neutral = IR_ROLL_NEUTRAL_DEFAULT;
   infrared.pitch_neutral = IR_PITCH_NEUTRAL_DEFAULT;
 

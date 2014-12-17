@@ -81,7 +81,7 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
       radio_control.radio_ok_cpt--;
     } else {
       radio_control.status = RC_OK;
-      NormalizePpmIIR(sbus2.pulses,radio_control);
+      NormalizePpmIIR(sbus2.pulses, radio_control);
       _received_frame_handler();
     }
     sbus2.frame_available = FALSE;
@@ -93,7 +93,7 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
       radio_control.radio_ok_cpt--;
     } else {
       radio_control.status = RC_OK;
-      NormalizePpmIIR(sbus1.pulses,radio_control);
+      NormalizePpmIIR(sbus1.pulses, radio_control);
       _received_frame_handler();
     }
     sbus1.frame_available = FALSE;

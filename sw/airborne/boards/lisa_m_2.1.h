@@ -32,9 +32,9 @@
 #define LED_2_GPIO_ON gpio_clear
 #define LED_2_GPIO_OFF gpio_set
 #define LED_2_AFIO_REMAP {                            \
-  rcc_periph_clock_enable(RCC_AFIO);                  \
-  AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST;  \
-}
+    rcc_periph_clock_enable(RCC_AFIO);                  \
+    AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST;  \
+  }
 
 /* green, shared with ADC12 (ADC_6 on connector ANALOG2) */
 #ifndef USE_LED_3

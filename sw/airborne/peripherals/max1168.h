@@ -52,9 +52,9 @@
 
 #define MAX1168_CONF_CR ((MAX1168_CONF_CHANNEL<<5)|(MAX1168_CONF_SCAN<<3)|(MAX1168_CONF_REF<<1)|(MAX1168_CONF_CLOCK))
 
-extern void max1168_init( void );
-extern void max1168_read( void );
-extern void max1168_event( void );
+extern void max1168_init(void);
+extern void max1168_read(void);
+extern void max1168_event(void);
 
 #define MAX1168_IDLE            0
 #define MAX1168_SENDING_REQ     1
@@ -66,15 +66,15 @@ extern volatile uint8_t max1168_status;
 extern uint16_t max1168_values[MAX1168_NB_CHAN];
 
 #define Max1168Periodic() {             \
-  if (max1168_status == MAX1168_IDLE) { \
-    max1168_read();                     \
-  }                                     \
-}
+    if (max1168_status == MAX1168_IDLE) { \
+      max1168_read();                     \
+    }                                     \
+  }
 
 /* underlying architecture */
 #include "peripherals/max1168_arch.h"
 /* must be implemented by underlying architecture */
-extern void max1168_arch_init( void );
+extern void max1168_arch_init(void);
 
 
 #endif /* MAX1168_H */

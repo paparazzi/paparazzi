@@ -25,10 +25,10 @@
 #ifndef GENERIC_COM_H
 #define GENERIC_COM_H
 
-void generic_com_init( void );
-void generic_com_periodic( void );
-void generic_com_event( void );
-void start_com( void );
-void stop_com( void );
+void generic_com_init(void);
+void generic_com_periodic(void);
+void generic_com_event(void);
+void start_com(void);
+void stop_com(void);
 
 #endif // GENERIC_COM_H

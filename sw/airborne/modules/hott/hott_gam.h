@@ -36,49 +36,49 @@ struct HOTT_GAM_MSG {
   int8_t start_byte;          //#01 start int8_t constant value 0x7c
   int8_t gam_sensor_id;       //#02 EAM sensort id. constat value 0x8d
   int8_t warning_beeps;        //#03 1=A 2=B ... 0x1a=Z  0 = no alarm
-                              // Q  Min cell voltage sensor 1
-                              // R  Min Battery 1 voltage sensor 1
-                              // J  Max Battery 1 voltage sensor 1
-                              // F  Min temperature sensor 1
-                              // H  Max temperature sensor 1
-                              // S  Min Battery 2 voltage sensor 2
-                              // K  Max Battery 2 voltage sensor 2
-                              // G  Min temperature sensor 2
-                              // I  Max temperature sensor 2
-                              // W  Max current
-                              // V  Max capacity mAh
-                              // P  Min main power voltage
-                              // X  Max main power voltage
-                              // O  Min altitude
-                              // Z  Max altitude
-                              // C  negative difference m/s too high
-                              // A  negative difference m/3s too high
-                              // N  positive difference m/s too high
-                              // L  positive difference m/3s too high
-                              // T  Minimum RPM
-                              // Y  Maximum RPM
+  // Q  Min cell voltage sensor 1
+  // R  Min Battery 1 voltage sensor 1
+  // J  Max Battery 1 voltage sensor 1
+  // F  Min temperature sensor 1
+  // H  Max temperature sensor 1
+  // S  Min Battery 2 voltage sensor 2
+  // K  Max Battery 2 voltage sensor 2
+  // G  Min temperature sensor 2
+  // I  Max temperature sensor 2
+  // W  Max current
+  // V  Max capacity mAh
+  // P  Min main power voltage
+  // X  Max main power voltage
+  // O  Min altitude
+  // Z  Max altitude
+  // C  negative difference m/s too high
+  // A  negative difference m/3s too high
+  // N  positive difference m/s too high
+  // L  positive difference m/3s too high
+  // T  Minimum RPM
+  // Y  Maximum RPM
 
   int8_t sensor_id;            //#04 constant value 0xd0
   int8_t alarm_invers1;        //#05 alarm bitmask. Value is displayed inverted
-                              //Bit#  Alarm field
-                              // 0  all cell voltage
-                              // 1  Battery 1
-                              // 2  Battery 2
-                              // 3  Temperature 1
-                              // 4  Temperature 2
-                              // 5  Fuel
-                              // 6  mAh
-                              // 7  Altitude
+  //Bit#  Alarm field
+  // 0  all cell voltage
+  // 1  Battery 1
+  // 2  Battery 2
+  // 3  Temperature 1
+  // 4  Temperature 2
+  // 5  Fuel
+  // 6  mAh
+  // 7  Altitude
   int8_t alarm_invers2;        //#06 alarm bitmask. Value is displayed inverted
-                              //Bit#  Alarm Field
-                              // 0  main power current
-                              // 1  main power voltage
-                              // 2  Altitude
-                              // 3  m/s
-                              // 4  m/3s
-                              // 5  unknown
-                              // 6  unknown
-                              // 7  "ON" sign/text msg active
+  //Bit#  Alarm Field
+  // 0  main power current
+  // 1  main power voltage
+  // 2  Altitude
+  // 3  m/s
+  // 4  m/3s
+  // 5  unknown
+  // 6  unknown
+  // 7  "ON" sign/text msg active
 
   int8_t cell1;                //#07 cell 1 voltage lower value. 0.02V steps, 124=2.48V
   int8_t cell2;                //#08
@@ -93,7 +93,7 @@ struct HOTT_GAM_MSG {
   int8_t temperature1;        //#17 temperature 1. offset of 20. a value of 20 = 0°C
   int8_t temperature2;        //#18 temperature 2. offset of 20. a value of 20 = 0°C
   int8_t fuel_procent;        //#19 Fuel capacity in %. Values 0--100
-                              // graphical display ranges: 0-25% 50% 75% 100%
+  // graphical display ranges: 0-25% 50% 75% 100%
   int8_t fuel_ml_L;            //#20 Fuel in ml scale. Full = 65535!
   int8_t fuel_ml_H;            //#21
   int8_t rpm_L;                //#22 RPM in 10 RPM steps. 300 = 3000rpm
@@ -119,10 +119,11 @@ struct HOTT_GAM_MSG {
   int8_t pressure;            //#42 Pressure up to 16bar. 0,1bar scale. 20 = 2bar
   int8_t version;              //#43 version number TODO: more info?
   int8_t stop_byte;            //#44 stop int8_t
-                              //#45 CRC/Parity
+  //#45 CRC/Parity
 };
 
-static void hott_init_gam_msg(struct HOTT_GAM_MSG* hott_gam_msg) {
+static void hott_init_gam_msg(struct HOTT_GAM_MSG *hott_gam_msg)
+{
   memset(hott_gam_msg, 0, sizeof(struct HOTT_GAM_MSG));
   hott_gam_msg->start_byte = 0x7C;
   hott_gam_msg->gam_sensor_id = HOTT_TELEMETRY_GAM_SENSOR_ID;
@@ -130,7 +131,8 @@ static void hott_init_gam_msg(struct HOTT_GAM_MSG* hott_gam_msg) {
   hott_gam_msg->stop_byte = 0x7D;
 }
 
-static void hott_update_gam_msg(struct HOTT_GAM_MSG* hott_gam_msg) {
+static void hott_update_gam_msg(struct HOTT_GAM_MSG *hott_gam_msg)
+{
   hott_gam_msg->temperature1 = 1;
   hott_gam_msg->temperature2 = 2; // 0°C
   hott_gam_msg->altitude_L = 3;

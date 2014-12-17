@@ -7,7 +7,8 @@
 #define TIMER0_IT_MASK (SYS_TICK_IT  |  \
                         TIR_CR0I)
 
-void sys_time_arch_init( void ) {
+void sys_time_arch_init(void)
+{
   /* setup Timer 0 to count forever  */
   /* reset & disable timer 0         */
   T0TCR = TCR_RESET;
@@ -35,7 +36,8 @@ void sys_time_arch_init( void ) {
   _VIC_ADDR(TIMER0_VIC_SLOT) = (uint32_t)TIMER0_ISR;
 }
 
-static inline void sys_tick_irq_handler(void) {
+static inline void sys_tick_irq_handler(void)
+{
   /* set match register for next interrupt */
   T0MR0 += ticks_resolution - 1;
 
@@ -48,12 +50,12 @@ static inline void sys_tick_irq_handler(void) {
     LED_TOGGLE(SYS_TIME_LED);
 #endif
   }
-  for (unsigned int i=0; i<SYS_TIME_NB_TIMER; i++) {
+  for (unsigned int i = 0; i < SYS_TIME_NB_TIMER; i++) {
     if (sys_time.timer[i].in_use &&
         sys_time.nb_tick >= sys_time.timer[i].end_time) {
       sys_time.timer[i].end_time += sys_time.timer[i].duration;
       sys_time.timer[i].elapsed = TRUE;
-      if (sys_time.timer[i].cb) sys_time.timer[i].cb(i);
+      if (sys_time.timer[i].cb) { sys_time.timer[i].cb(i); }
     }
   }
 }
@@ -61,7 +63,8 @@ static inline void sys_tick_irq_handler(void) {
 extern uint32_t lp_pulse;
 extern uint32_t nb_pulse;
 
-void TIMER0_ISR ( void ) {
+void TIMER0_ISR(void)
+{
   ISR_ENTRY();
 
   while (T0IR & TIMER0_IT_MASK) {
@@ -75,7 +78,7 @@ void TIMER0_ISR ( void ) {
       static uint32_t pulse_last_t;
       uint32_t t_now = T0CR0;
       uint32_t diff = t_now - pulse_last_t;
-      lp_pulse = (lp_pulse + diff)/2;
+      lp_pulse = (lp_pulse + diff) / 2;
       pulse_last_t = t_now;
       nb_pulse++;
       //    got_one_pulse = TRUE;

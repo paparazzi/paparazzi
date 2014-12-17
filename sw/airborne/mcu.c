@@ -61,7 +61,8 @@
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */
 
-void mcu_init(void) {
+void mcu_init(void)
+{
 
   mcu_arch_init();
 
@@ -167,7 +168,7 @@ void mcu_init(void) {
 #endif
 
 #else
-INFO("PERIPHERALS_AUTO_INIT not enabled! Peripherals (including sys_time) need explicit initialization.")
+  INFO("PERIPHERALS_AUTO_INIT not enabled! Peripherals (including sys_time) need explicit initialization.")
 #endif /* PERIPHERALS_AUTO_INIT */
 
 }

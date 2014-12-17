@@ -8,17 +8,19 @@
 
 #define MOfCm(_x) (((float)(_x))/100.)
 
-void parse_dl_ping(char* argv[] __attribute__ ((unused))) {
+void parse_dl_ping(char *argv[] __attribute__((unused)))
+{
   DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
 }
 
-void parse_dl_acinfo(char* argv[] __attribute__ ((unused))) {
+void parse_dl_acinfo(char *argv[] __attribute__((unused)))
+{
 #ifdef TRAFFIC_INFO
   uint8_t id = atoi(argv[8]);
   float ux = MOfCm(atoi(argv[2]));
   float uy = MOfCm(atoi(argv[3]));
   float a = MOfCm(atoi(argv[4]));
-  float c = RadOfDeg(((float)atoi(argv[1]))/ 10.);
+  float c = RadOfDeg(((float)atoi(argv[1])) / 10.);
   float s = MOfCm(atoi(argv[6]));
   float cl = MOfCm(atoi(argv[7]));
   uint32_t t = atoi(argv[5]);
@@ -26,25 +28,29 @@ void parse_dl_acinfo(char* argv[] __attribute__ ((unused))) {
 #endif
 }
 
-void parse_dl_setting(char* argv[]) {
+void parse_dl_setting(char *argv[])
+{
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
   DlSetting(index, value);
-  DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice,&index, &value);
+  DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
 }
 
-void parse_dl_get_setting(char* argv[]) {
+void parse_dl_get_setting(char *argv[])
+{
   uint8_t index = atoi(argv[2]);
   float value = settings_get_value(index);
-  DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice,&index, &value);
+  DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
 }
 
-void parse_dl_block(char* argv[]) {
+void parse_dl_block(char *argv[])
+{
   int block = atoi(argv[1]);
   nav_goto_block(block);
 }
 
-void parse_dl_move_wp(char* argv[]) {
+void parse_dl_move_wp(char *argv[])
+{
   uint8_t wp_id = atoi(argv[1]);
   float a = MOfCm(atoi(argv[5]));
 

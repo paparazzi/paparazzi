@@ -44,13 +44,13 @@ void gps_i2c_periodic(void);
 #define gps_i2cChAvailable() (gps_i2c_rx_insert_idx != gps_i2c_rx_extract_idx)
 #define gps_i2cGetch() (gps_i2c_rx_buf[gps_i2c_rx_extract_idx++])
 #define gps_i2cTransmit(_char) {             \
-  if (! gps_i2c_data_ready_to_transmit)  /* Else transmitting, overrun*/     \
-    gps_i2c_tx_buf[gps_i2c_tx_insert_idx++] = _char; \
-}
+    if (! gps_i2c_data_ready_to_transmit)  /* Else transmitting, overrun*/     \
+      gps_i2c_tx_buf[gps_i2c_tx_insert_idx++] = _char; \
+  }
 #define gps_i2cSendMessage() {           \
-  gps_i2c_data_ready_to_transmit = TRUE; \
-  gps_i2c_tx_extract_idx = 0;            \
-}
+    gps_i2c_data_ready_to_transmit = TRUE; \
+    gps_i2c_tx_extract_idx = 0;            \
+  }
 // #define gps_i2cTxRunning (gps_i2c_data_ready_to_transmit)
 // #define gps_i2cInitParam(_baud, _uart_prm1, _uart_prm2) {}
 

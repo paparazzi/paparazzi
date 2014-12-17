@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-extern FILE* pipe_stream;
+extern FILE *pipe_stream;
 
 #define SimUartCheckFreeSpace(_) TRUE
 

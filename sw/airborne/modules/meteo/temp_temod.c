@@ -47,28 +47,31 @@ struct i2c_transaction tmd_trans;
 
 #define TEMOD_SLAVE_ADDR 0xF0
 
-void temod_init(void) {
-      tmd_trans.status = I2CTransDone;
+void temod_init(void)
+{
+  tmd_trans.status = I2CTransDone;
 }
 
-void temod_periodic( void ) {
-    i2c_receive(&TEMOD_I2C_DEV, &tmd_trans, TEMOD_SLAVE_ADDR, 2);
+void temod_periodic(void)
+{
+  i2c_receive(&TEMOD_I2C_DEV, &tmd_trans, TEMOD_SLAVE_ADDR, 2);
 }
 
-void temod_event( void ) {
+void temod_event(void)
+{
 
   if (tmd_trans.status == I2CTransSuccess) {
 
-      uint16_t tmd_temperature;
+    uint16_t tmd_temperature;
 
-      /* read two byte temperature */
-      tmd_temperature  = tmd_trans.buf[0] << 8;
-      tmd_temperature |= tmd_trans.buf[1];
+    /* read two byte temperature */
+    tmd_temperature  = tmd_trans.buf[0] << 8;
+    tmd_temperature |= tmd_trans.buf[1];
 
-      ftmd_temperature = (tmd_temperature / TEMOD_TYPE) - 32.;
+    ftmd_temperature = (tmd_temperature / TEMOD_TYPE) - 32.;
 
-      DOWNLINK_SEND_TMP_STATUS(DefaultChannel, DefaultDevice, &tmd_temperature, &ftmd_temperature);
-      tmd_trans.status = I2CTransDone;
+    DOWNLINK_SEND_TMP_STATUS(DefaultChannel, DefaultDevice, &tmd_temperature, &ftmd_temperature);
+    tmd_trans.status = I2CTransDone;
   }
 }
 

@@ -40,7 +40,8 @@ extern uint8_t stdinout_rx_extract_idx;
 
 #define UART_SPEED(_def) {}
 
-static inline bool StdInOutChAvailable(void) {
+static inline bool StdInOutChAvailable(void)
+{
   struct timeval tv;
   fd_set fds;
   tv.tv_sec = 0;
@@ -52,7 +53,7 @@ static inline bool StdInOutChAvailable(void) {
     char tmp_buf[STDINOUT_BUFFER_SIZE];
     uint8_t n = read(FD_STDIN, tmp_buf, STDINOUT_BUFFER_SIZE);
     unsigned int i;
-    for(i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
       stdinout_buffer[stdinout_rx_insert_idx] = tmp_buf[i];
       stdinout_rx_insert_idx++; /* Auto overflow */
     }
@@ -62,6 +63,6 @@ static inline bool StdInOutChAvailable(void) {
 
 #define StdInOutTransmit(_char) putchar(_char)
 #define StdInOutGetch() ({ \
-  assert(stdinout_rx_insert_idx != stdinout_rx_extract_idx); \
-  stdinout_buffer[stdinout_rx_extract_idx++]; \
-})
+    assert(stdinout_rx_insert_idx != stdinout_rx_extract_idx); \
+    stdinout_buffer[stdinout_rx_extract_idx++]; \
+  })

@@ -5,7 +5,7 @@
 
 extern void mb_twi_controller_init(void);
 
-extern void mb_twi_controller_set( float throttle );
+extern void mb_twi_controller_set(float throttle);
 
 #endif /* MB_TWI_CONTROLLER_MKK_H */
 

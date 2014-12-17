@@ -39,22 +39,22 @@ extern bool_t ir_i2c_conf_hor_done, ir_i2c_conf_ver_done;
 
 extern struct i2c_transaction irh_trans, irv_trans;
 
-extern void infrared_i2c_init( void );
-extern void infrared_i2c_update( void );
-extern void infrared_i2c_hor_event( void );
-extern void infrared_i2c_ver_event( void );
+extern void infrared_i2c_init(void);
+extern void infrared_i2c_update(void);
+extern void infrared_i2c_hor_event(void);
+extern void infrared_i2c_ver_event(void);
 
 #define infrared_i2cEvent() { \
-  if (irh_trans.status == I2CTransSuccess) infrared_i2c_hor_event(); \
-  if (irv_trans.status == I2CTransSuccess) infrared_i2c_ver_event(); \
-}
+    if (irh_trans.status == I2CTransSuccess) infrared_i2c_hor_event(); \
+    if (irv_trans.status == I2CTransSuccess) infrared_i2c_ver_event(); \
+  }
 
 #define infrared_i2cDownlink() DOWNLINK_SEND_DEBUG_IR_I2C(DefaultChannel, DefaultDevice, &ir_i2c.ir1, &ir_i2c.ir2, &ir_i2c.ir3)
 
 #define infrared_i2c_SetConfWord(_v) { \
-  ir_i2c_conf_hor_done = FALSE; \
-  ir_i2c_conf_ver_done = FALSE; \
-  ir_i2c_conf_word = _v; \
-}
+    ir_i2c_conf_hor_done = FALSE; \
+    ir_i2c_conf_ver_done = FALSE; \
+    ir_i2c_conf_word = _v; \
+  }
 
 #endif // SUBSYSTEMS_SENSORS_INFRARED_I2C_H

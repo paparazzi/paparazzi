@@ -58,11 +58,13 @@ extern void lis302dl_spi_read(struct Lis302dl_Spi *lis);
 extern void lis302dl_spi_event(struct Lis302dl_Spi *lis);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void lis302dl_spi_periodic(struct Lis302dl_Spi *lis) {
-  if (lis->initialized)
+static inline void lis302dl_spi_periodic(struct Lis302dl_Spi *lis)
+{
+  if (lis->initialized) {
     lis302dl_spi_read(lis);
-  else
+  } else {
     lis302dl_spi_start_configure(lis);
+  }
 }
 
 #endif // LIS302DL_SPI_H

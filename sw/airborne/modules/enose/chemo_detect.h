@@ -6,7 +6,7 @@
 extern uint16_t chemo_sensor;
 #define MAX_CHEMO 400
 
-void chemo_init( void );
-void chemo_periodic( void );
+void chemo_init(void);
+void chemo_periodic(void);
 
 #endif /*  CHEMO_DETECT_H */

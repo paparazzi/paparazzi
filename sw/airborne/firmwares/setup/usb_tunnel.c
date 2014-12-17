@@ -54,13 +54,13 @@ static inline void tunnel_event(void)
   unsigned char inc;
 
 #if LED_AVAILABLE(TUNNEL_RX_LED)
-  static uint32_t rx_time=0;
+  static uint32_t rx_time = 0;
   if (get_sys_time_msec() > rx_time + BLINK_MIN) {
     LED_OFF(TUNNEL_RX_LED);
   }
 #endif
 #if LED_AVAILABLE(TUNNEL_TX_LED)
-  static uint32_t tx_time=0;
+  static uint32_t tx_time = 0;
   if (get_sys_time_msec() > tx_time + BLINK_MIN) {
     LED_OFF(TUNNEL_TX_LED);
   }
@@ -96,7 +96,7 @@ int main(void)
 
   mcu_int_enable();
 
-  while(1) {
+  while (1) {
     VCOM_event();
     tunnel_event();
   }

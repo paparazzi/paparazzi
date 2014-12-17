@@ -92,23 +92,23 @@ int viewvideo_shot = 0;
 pthread_t computervision_thread;
 volatile uint8_t computervision_thread_status = 0;
 volatile uint8_t computer_vision_thread_command = 0;
-void *computervision_thread_main(void* data);
-void *computervision_thread_main(void* data)
+void *computervision_thread_main(void *data);
+void *computervision_thread_main(void *data)
 {
   // Video Input
   struct vid_struct vid;
-  vid.device = (char*)"/dev/video1";
-  vid.w=1280;
-  vid.h=720;
+  vid.device = (char *)"/dev/video1";
+  vid.w = 1280;
+  vid.h = 720;
   vid.n_buffers = 4;
-  if (video_init(&vid)<0) {
+  if (video_init(&vid) < 0) {
     printf("Error initialising video\n");
     computervision_thread_status = -1;
     return 0;
   }
 
   // Video Grabbing
-  struct img_struct* img_new = video_create_image(&vid);
+  struct img_struct *img_new = video_create_image(&vid);
 
   // Video Resizing
   uint8_t quality_factor = VIDEO_QUALITY_FACTOR;
@@ -118,19 +118,19 @@ void *computervision_thread_main(void* data)
   struct img_struct small;
   small.w = vid.w / VIDEO_DOWNSIZE_FACTOR;
   small.h = vid.h / VIDEO_DOWNSIZE_FACTOR;
-  small.buf = (uint8_t*)malloc(small.w*small.h*2);
+  small.buf = (uint8_t *)malloc(small.w * small.h * 2);
 
   // Video Compression
-  uint8_t* jpegbuf = (uint8_t*)malloc(vid.h*vid.w*2);
+  uint8_t *jpegbuf = (uint8_t *)malloc(vid.h * vid.w * 2);
 
   // Network Transmit
-  struct UdpSocket* vsock;
+  struct UdpSocket *vsock;
   vsock = udp_socket(VIDEO_SOCK_IP, VIDEO_SOCK_OUT, VIDEO_SOCK_IN, FMS_BROADCAST);
 
   // Create SPD file and make folder if necessary
-  FILE* sdp;
+  FILE *sdp;
   if (system("mkdir -p /data/video/sdp") == 0) {
-    sdp = fopen("/data/video/sdp/x86_config-mjpeg.sdp","w");
+    sdp = fopen("/data/video/sdp/x86_config-mjpeg.sdp", "w");
     if (sdp != NULL) {
       fprintf(sdp, "v=0\n");
       fprintf(sdp, "m=video %d RTP/AVP 26\n", (int)(VIDEO_SOCK_OUT));
@@ -146,30 +146,28 @@ void *computervision_thread_main(void* data)
   struct timeval last_time;
   gettimeofday(&last_time, NULL);
 
-  while (computer_vision_thread_command > 0)
-  {
+  while (computer_vision_thread_command > 0) {
     // compute usleep to have a more stable frame rate
     struct timeval time;
     gettimeofday(&time, NULL);
-    int dt = (int)(time.tv_sec - last_time.tv_sec)*1000000 + (int)(time.tv_usec - last_time.tv_usec);
-    if (dt < microsleep) usleep(microsleep - dt);
+    int dt = (int)(time.tv_sec - last_time.tv_sec) * 1000000 + (int)(time.tv_usec - last_time.tv_usec);
+    if (dt < microsleep) { usleep(microsleep - dt); }
     last_time = time;
 
     // Grab new frame
     video_grab_image(&vid, img_new);
 
     // Save picture on disk
-    if (computer_vision_thread_command == 2)
-    {
-      uint8_t* end = encode_image (img_new->buf, jpegbuf, 99, FOUR_TWO_TWO, vid.w, vid.h, 1);
-      uint32_t size = end-(jpegbuf);
-      FILE* save;
+    if (computer_vision_thread_command == 2) {
+      uint8_t *end = encode_image(img_new->buf, jpegbuf, 99, FOUR_TWO_TWO, vid.w, vid.h, 1);
+      uint32_t size = end - (jpegbuf);
+      FILE *save;
       char save_name[128];
       if (system("mkdir -p /data/video/images") == 0) {
         // search available index (max is 99)
-        for ( ; file_index < 99; file_index++) {
-          printf("search %d\n",file_index);
-          sprintf(save_name,"/data/video/images/img_%02d.jpg",file_index);
+        for (; file_index < 99; file_index++) {
+          printf("search %d\n", file_index);
+          sprintf(save_name, "/data/video/images/img_%02d.jpg", file_index);
           // test if file exists or not
           if (access(save_name, F_OK) == -1) {
             printf("access\n");
@@ -177,8 +175,7 @@ void *computervision_thread_main(void* data)
             if (save != NULL) {
               fwrite(jpegbuf, sizeof(uint8_t), size, save);
               fclose(save);
-            }
-            else {
+            } else {
               printf("Error when opening file %s\n", save_name);
             }
             // leave for loop
@@ -197,20 +194,20 @@ void *computervision_thread_main(void* data)
 
     // JPEG encode the image:
     uint32_t image_format = FOUR_TWO_TWO;  // format (in jpeg.h)
-    uint8_t* end = encode_image (small.buf, jpegbuf, quality_factor, image_format, small.w, small.h, dri_jpeg_header);
+    uint8_t *end = encode_image(small.buf, jpegbuf, quality_factor, image_format, small.w, small.h, dri_jpeg_header);
     uint32_t size = end - (jpegbuf);
 
     // Send image with RTP
-    printf("Sending an image ...%u\n",size);
+    printf("Sending an image ...%u\n", size);
     send_rtp_frame(
-        vsock,            // UDP
-        jpegbuf,size,     // JPEG
-        small.w, small.h, // Img Size
-        0,                // Format 422
-        quality_factor,   // Jpeg-Quality
-        dri_jpeg_header,  // DRI Header
-        1                 // 90kHz time increment
-        );
+      vsock,            // UDP
+      jpegbuf, size,    // JPEG
+      small.w, small.h, // Img Size
+      0,                // Format 422
+      quality_factor,   // Jpeg-Quality
+      dri_jpeg_header,  // DRI Header
+      1                 // 90kHz time increment
+    );
     // Extra note: when the time increment is set to 0,
     // it is automaticaly calculated by the send_rtp_frame function
     // based on gettimeofday value. This seems to introduce some lag or jitter.
@@ -230,7 +227,7 @@ void viewvideo_start(void)
 {
   computer_vision_thread_command = 1;
   int rc = pthread_create(&computervision_thread, NULL, computervision_thread_main, NULL);
-  if(rc) {
+  if (rc) {
     printf("ctl_Init: Return code from pthread_create(mot_thread) is %d\n", rc);
   }
 }

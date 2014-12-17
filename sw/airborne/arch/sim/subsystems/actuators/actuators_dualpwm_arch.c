@@ -25,7 +25,8 @@
 
 #include "subsystems/actuators/actuators_dualpwm_arch.h"
 
-void actuators_dualpwm_arch_init(void) {
+void actuators_dualpwm_arch_init(void)
+{
 
 }
 

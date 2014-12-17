@@ -41,7 +41,8 @@ static bool_t baro_eoc(void)
   return gpio_get(GPIOB, GPIO0);
 }
 
-void baro_init(void) {
+void baro_init(void)
+{
   bmp085_init(&baro_bmp085, &i2c2, BMP085_SLAVE_ADDR);
 
   /* setup eoc check function */
@@ -49,7 +50,7 @@ void baro_init(void) {
 
   gpio_clear(GPIOB, GPIO0);
   gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
-          GPIO_CNF_INPUT_PULL_UPDOWN, GPIO0);
+                GPIO_CNF_INPUT_PULL_UPDOWN, GPIO0);
 
 #ifdef BARO_LED
   LED_OFF(BARO_LED);
@@ -57,11 +58,11 @@ void baro_init(void) {
 }
 
 
-void baro_periodic(void) {
+void baro_periodic(void)
+{
   if (baro_bmp085.initialized) {
     bmp085_periodic(&baro_bmp085);
-  }
-  else {
+  } else {
     bmp085_read_eeprom_calib(&baro_bmp085);
   }
 }
@@ -79,7 +80,7 @@ void baro_event(void)
     AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, &temp);
     baro_bmp085.data_available = FALSE;
 #ifdef BARO_LED
-    RunOnceEvery(10,LED_TOGGLE(BARO_LED));
+    RunOnceEvery(10, LED_TOGGLE(BARO_LED));
 #endif
   }
 }

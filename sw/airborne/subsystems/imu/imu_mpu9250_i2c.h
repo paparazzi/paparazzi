@@ -82,7 +82,8 @@ extern struct ImuMpu9250 imu_mpu9250;
 
 extern void imu_mpu9250_event(void);
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+{
   imu_mpu9250_event();
   if (imu_mpu9250.accel_valid) {
     imu_mpu9250.accel_valid = FALSE;

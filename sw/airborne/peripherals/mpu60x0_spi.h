@@ -74,11 +74,13 @@ extern void mpu60x0_spi_read(struct Mpu60x0_Spi *mpu);
 extern void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void mpu60x0_spi_periodic(struct Mpu60x0_Spi *mpu) {
-  if (mpu->config.initialized)
+static inline void mpu60x0_spi_periodic(struct Mpu60x0_Spi *mpu)
+{
+  if (mpu->config.initialized) {
     mpu60x0_spi_read(mpu);
-  else
+  } else {
     mpu60x0_spi_start_configure(mpu);
+  }
 }
 
 #endif // MPU60X0_SPI_H

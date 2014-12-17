@@ -47,9 +47,9 @@
 #define PPM_IT PPM_CRI
 
 #define PPM_ISR() {       \
-  uint32_t now = PPM_CR;  \
-  ppm_decode_frame(now);  \
-}
+    uint32_t now = PPM_CR;  \
+    ppm_decode_frame(now);  \
+  }
 
 #ifdef USE_PPM_RSSI_GPIO
 #define RssiValid() (bit_is_set(PPM_RSSI_IOPIN, PPM_RSSI_PIN) == PPM_RSSI_VALID_LEVEL)

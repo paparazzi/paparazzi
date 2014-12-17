@@ -33,9 +33,9 @@ extern float airspeed_filter;
 
 extern struct i2c_transaction airspeed_amsys_i2c_trans;
 
-extern void airspeed_amsys_init( void );
-extern void airspeed_amsys_read_periodic( void );
-extern void airspeed_amsys_read_event( void );
+extern void airspeed_amsys_init(void);
+extern void airspeed_amsys_read_periodic(void);
+extern void airspeed_amsys_read_event(void);
 
 #define AirspeedAmsysEvent() { if (airspeed_amsys_i2c_trans.status == I2CTransSuccess) airspeed_amsys_read_event(); }
 

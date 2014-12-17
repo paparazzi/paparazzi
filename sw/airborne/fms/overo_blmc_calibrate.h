@@ -7,7 +7,7 @@
 struct OveroBLMCCalibrate {
   /* our actuators          */
   uint16_t servos_outputs_usecs[LISA_PWM_OUTPUT_NB]; /* FIXME */
-  };
+};
 
 extern struct OveroBLMCCalibrate blmc_calibrate;
 

@@ -55,7 +55,8 @@ struct Int32Eulers stabilization_att_sum_err;
 int32_t stabilization_att_fb_cmd[COMMANDS_NB];
 int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 
-static inline void reset_psi_ref_from_body(void) {
+static inline void reset_psi_ref_from_body(void)
+{
   //sp has been set from body using stabilization_attitude_get_yaw_i, use that value
   stab_att_ref_euler.psi = stab_att_sp_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
   stab_att_ref_rate.r = 0;
@@ -65,47 +66,50 @@ static inline void reset_psi_ref_from_body(void) {
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_att(struct transport_tx *trans, struct link_device *dev) {
-  struct Int32Rates* body_rate = stateGetBodyRates_i();
-  struct Int32Eulers* att = stateGetNedToBodyEulers_i();
+static void send_att(struct transport_tx *trans, struct link_device *dev)
+{
+  struct Int32Rates *body_rate = stateGetBodyRates_i();
+  struct Int32Eulers *att = stateGetNedToBodyEulers_i();
   pprz_msg_send_STAB_ATTITUDE_INT(trans, dev, AC_ID,
-      &(body_rate->p), &(body_rate->q), &(body_rate->r),
-      &(att->phi), &(att->theta), &(att->psi),
-      &stab_att_sp_euler.phi,
-      &stab_att_sp_euler.theta,
-      &stab_att_sp_euler.psi,
-      &stabilization_att_sum_err.phi,
-      &stabilization_att_sum_err.theta,
-      &stabilization_att_sum_err.psi,
-      &stabilization_att_fb_cmd[COMMAND_ROLL],
-      &stabilization_att_fb_cmd[COMMAND_PITCH],
-      &stabilization_att_fb_cmd[COMMAND_YAW],
-      &stabilization_att_ff_cmd[COMMAND_ROLL],
-      &stabilization_att_ff_cmd[COMMAND_PITCH],
-      &stabilization_att_ff_cmd[COMMAND_YAW],
-      &stabilization_cmd[COMMAND_ROLL],
-      &stabilization_cmd[COMMAND_PITCH],
-      &stabilization_cmd[COMMAND_YAW]);
+                                  &(body_rate->p), &(body_rate->q), &(body_rate->r),
+                                  &(att->phi), &(att->theta), &(att->psi),
+                                  &stab_att_sp_euler.phi,
+                                  &stab_att_sp_euler.theta,
+                                  &stab_att_sp_euler.psi,
+                                  &stabilization_att_sum_err.phi,
+                                  &stabilization_att_sum_err.theta,
+                                  &stabilization_att_sum_err.psi,
+                                  &stabilization_att_fb_cmd[COMMAND_ROLL],
+                                  &stabilization_att_fb_cmd[COMMAND_PITCH],
+                                  &stabilization_att_fb_cmd[COMMAND_YAW],
+                                  &stabilization_att_ff_cmd[COMMAND_ROLL],
+                                  &stabilization_att_ff_cmd[COMMAND_PITCH],
+                                  &stabilization_att_ff_cmd[COMMAND_YAW],
+                                  &stabilization_cmd[COMMAND_ROLL],
+                                  &stabilization_cmd[COMMAND_PITCH],
+                                  &stabilization_cmd[COMMAND_YAW]);
 }
 
-static void send_att_ref(struct transport_tx *trans, struct link_device *dev) {
+static void send_att_ref(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_STAB_ATTITUDE_REF_INT(trans, dev, AC_ID,
-      &stab_att_sp_euler.phi,
-      &stab_att_sp_euler.theta,
-      &stab_att_sp_euler.psi,
-      &stab_att_ref_euler.phi,
-      &stab_att_ref_euler.theta,
-      &stab_att_ref_euler.psi,
-      &stab_att_ref_rate.p,
-      &stab_att_ref_rate.q,
-      &stab_att_ref_rate.r,
-      &stab_att_ref_accel.p,
-      &stab_att_ref_accel.q,
-      &stab_att_ref_accel.r);
+                                      &stab_att_sp_euler.phi,
+                                      &stab_att_sp_euler.theta,
+                                      &stab_att_sp_euler.psi,
+                                      &stab_att_ref_euler.phi,
+                                      &stab_att_ref_euler.theta,
+                                      &stab_att_ref_euler.psi,
+                                      &stab_att_ref_rate.p,
+                                      &stab_att_ref_rate.q,
+                                      &stab_att_ref_rate.r,
+                                      &stab_att_ref_accel.p,
+                                      &stab_att_ref_accel.q,
+                                      &stab_att_ref_accel.r);
 }
 #endif
 
-void stabilization_attitude_init(void) {
+void stabilization_attitude_init(void)
+{
 
   stabilization_attitude_ref_init();
 
@@ -131,7 +135,7 @@ void stabilization_attitude_init(void) {
                STABILIZATION_ATTITUDE_PSI_DDGAIN);
 
 
-  INT_EULERS_ZERO( stabilization_att_sum_err );
+  INT_EULERS_ZERO(stabilization_att_sum_err);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
@@ -139,27 +143,32 @@ void stabilization_attitude_init(void) {
 #endif
 }
 
-void stabilization_attitude_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn) {
+void stabilization_attitude_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn)
+{
   stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight, in_carefree, coordinated_turn);
 }
 
-void stabilization_attitude_enter(void) {
+void stabilization_attitude_enter(void)
+{
   stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
   reset_psi_ref_from_body();
-  INT_EULERS_ZERO( stabilization_att_sum_err );
+  INT_EULERS_ZERO(stabilization_att_sum_err);
 }
 
-void stabilization_attitude_set_failsafe_setpoint(void) {
+void stabilization_attitude_set_failsafe_setpoint(void)
+{
   stab_att_sp_euler.phi = 0;
   stab_att_sp_euler.theta = 0;
   stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
 }
 
-void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy) {
+void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
+{
   memcpy(&stab_att_sp_euler, rpy, sizeof(struct Int32Eulers));
 }
 
-void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading) {
+void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
+{
   /* Rotate horizontal commands to body frame by psi */
   int32_t psi = stateGetNedToBodyEulers_i()->psi;
   int32_t s_psi, c_psi;
@@ -175,7 +184,8 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
 
 #define MAX_SUM_ERR 4000000
 
-void stabilization_attitude_run(bool_t  in_flight) {
+void stabilization_attitude_run(bool_t  in_flight)
+{
 
   /* update reference */
   stabilization_attitude_ref_update();
@@ -191,11 +201,12 @@ void stabilization_attitude_run(bool_t  in_flight) {
   /* compute feedback command */
   /* attitude error            */
   const struct Int32Eulers att_ref_scaled = {
-    OFFSET_AND_ROUND(stab_att_ref_euler.phi,   (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)),
+    OFFSET_AND_ROUND(stab_att_ref_euler.phi, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)),
     OFFSET_AND_ROUND(stab_att_ref_euler.theta, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)),
-    OFFSET_AND_ROUND(stab_att_ref_euler.psi,   (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)) };
+    OFFSET_AND_ROUND(stab_att_ref_euler.psi, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC))
+  };
   struct Int32Eulers att_err;
-  struct Int32Eulers* ltp_to_body_euler = stateGetNedToBodyEulers_i();
+  struct Int32Eulers *ltp_to_body_euler = stateGetNedToBodyEulers_i();
   EULERS_DIFF(att_err, att_ref_scaled, (*ltp_to_body_euler));
   INT32_ANGLE_NORMALIZE(att_err.psi);
 
@@ -203,8 +214,7 @@ void stabilization_attitude_run(bool_t  in_flight) {
     /* update integrator */
     EULERS_ADD(stabilization_att_sum_err, att_err);
     EULERS_BOUND_CUBE(stabilization_att_sum_err, -MAX_SUM_ERR, MAX_SUM_ERR);
-  }
-  else {
+  } else {
     INT_EULERS_ZERO(stabilization_att_sum_err);
   }
 
@@ -212,9 +222,10 @@ void stabilization_attitude_run(bool_t  in_flight) {
   const struct Int32Rates rate_ref_scaled = {
     OFFSET_AND_ROUND(stab_att_ref_rate.p, (REF_RATE_FRAC - INT32_RATE_FRAC)),
     OFFSET_AND_ROUND(stab_att_ref_rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
-    OFFSET_AND_ROUND(stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC)) };
+    OFFSET_AND_ROUND(stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC))
+  };
   struct Int32Rates rate_err;
-  struct Int32Rates* body_rate = stateGetBodyRates_i();
+  struct Int32Rates *body_rate = stateGetBodyRates_i();
   RATES_DIFF(rate_err, rate_ref_scaled, (*body_rate));
 
   /* PID                  */
@@ -242,13 +253,13 @@ void stabilization_attitude_run(bool_t  in_flight) {
 
   /* sum feedforward and feedback */
   stabilization_cmd[COMMAND_ROLL] =
-    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_ROLL]+stabilization_att_ff_cmd[COMMAND_ROLL]), CMD_SHIFT);
+    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_ROLL] + stabilization_att_ff_cmd[COMMAND_ROLL]), CMD_SHIFT);
 
   stabilization_cmd[COMMAND_PITCH] =
-    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_PITCH]+stabilization_att_ff_cmd[COMMAND_PITCH]), CMD_SHIFT);
+    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_PITCH] + stabilization_att_ff_cmd[COMMAND_PITCH]), CMD_SHIFT);
 
   stabilization_cmd[COMMAND_YAW] =
-    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_YAW]+stabilization_att_ff_cmd[COMMAND_YAW]), CMD_SHIFT);
+    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_YAW] + stabilization_att_ff_cmd[COMMAND_YAW]), CMD_SHIFT);
 
   /* bound the result */
   BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);

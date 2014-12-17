@@ -63,10 +63,10 @@ extern struct ac_info_ the_acs[NB_ACS];
       the_acs[the_acs_id[_id]].climb = _climb;                          \
       the_acs[the_acs_id[_id]].itow = (uint32_t)_itow;                  \
     }                                                                   \
-                  }
+  }
 
-extern void traffic_info_init( void );
+extern void traffic_info_init(void);
 
-struct ac_info_ * get_ac_info(uint8_t id);
+struct ac_info_ *get_ac_info(uint8_t id);
 
 #endif

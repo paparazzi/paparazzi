@@ -186,16 +186,15 @@ void lsm303dlhc_read(struct Lsm303dlhc *lsm)
 {
   if (lsm->i2c_trans.slave_addr == LSM303DLHC_ACC_ADDR) {
     //if ((lsm->init_status.acc == LSM_CONF_ACC_CLR_INT_READ) && (lsm->i2c_trans.status == I2CTransDone)){
-    if (!(lsm->initialized) || (lsm->initialized && lsm->i2c_trans.status == I2CTransDone)){
+    if (!(lsm->initialized) || (lsm->initialized && lsm->i2c_trans.status == I2CTransDone)) {
       lsm->i2c_trans.buf[0] = LSM303DLHC_REG_OUT_X_L_A | 0x80;
       lsm->i2c_trans.type = I2CTransTxRx;
       lsm->i2c_trans.len_r = 6;
       lsm->i2c_trans.len_w = 1;
       i2c_submit(lsm->i2c_p, &(lsm->i2c_trans));
     }
-  }
-  else {
-    if (lsm->initialized && lsm->i2c_trans.status == I2CTransDone){
+  } else {
+    if (lsm->initialized && lsm->i2c_trans.status == I2CTransDone) {
       lsm->i2c_trans.buf[0] = LSM303DLHC_REG_OUT_X_H_M;
       lsm->i2c_trans.type = I2CTransTxRx;
       lsm->i2c_trans.len_r = 6;
@@ -212,19 +211,15 @@ void lsm303dlhc_event(struct Lsm303dlhc *lsm)
   if (lsm->initialized) {
     if (lsm->i2c_trans.status == I2CTransFailed) {
       lsm->i2c_trans.status = I2CTransDone;
-    }
-    else if (lsm->i2c_trans.status == I2CTransSuccess) {
-      lsm->data.vect.x = Int16FromBuf(lsm->i2c_trans.buf,0);
-      lsm->data.vect.y = Int16FromBuf(lsm->i2c_trans.buf,2);
-      lsm->data.vect.z = Int16FromBuf(lsm->i2c_trans.buf,4);
+    } else if (lsm->i2c_trans.status == I2CTransSuccess) {
+      lsm->data.vect.x = Int16FromBuf(lsm->i2c_trans.buf, 0);
+      lsm->data.vect.y = Int16FromBuf(lsm->i2c_trans.buf, 2);
+      lsm->data.vect.z = Int16FromBuf(lsm->i2c_trans.buf, 4);
       lsm->data_available = TRUE;
       lsm->i2c_trans.status = I2CTransDone;
+    } else {
     }
-    else {
-    }
-  }
-  else
-  {
+  } else {
     if (lsm->i2c_trans.slave_addr == LSM303DLHC_ACC_ADDR) {
       if (lsm->init_status.acc != LSM_CONF_ACC_UNINIT) { // Configuring but not yet initialized
         if (lsm->i2c_trans.status == I2CTransSuccess || lsm->i2c_trans.status == I2CTransDone) {
@@ -237,8 +232,7 @@ void lsm303dlhc_event(struct Lsm303dlhc *lsm)
           lsm303dlhc_send_config(lsm); // Retry config (TODO max retry)
         }
       }
-    }
-    else {
+    } else {
       if (lsm->init_status.mag != LSM_CONF_MAG_UNINIT) { // Configuring but not yet initialized
         if (lsm->i2c_trans.status == I2CTransSuccess || lsm->i2c_trans.status == I2CTransDone) {
           lsm->i2c_trans.status = I2CTransDone;

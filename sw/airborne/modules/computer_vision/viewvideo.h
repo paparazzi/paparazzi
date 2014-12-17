@@ -42,9 +42,9 @@ extern int viewvideo_save_shot(void);
 
 extern int viewvideo_shot;
 #define viewvideo_SaveShot(_v) {  \
-  viewvideo_shot = 1;             \
-  viewvideo_save_shot();          \
-}
+    viewvideo_shot = 1;             \
+    viewvideo_save_shot();          \
+  }
 
 #endif /* VIEW_VIDEO_H */
 

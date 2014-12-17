@@ -93,13 +93,13 @@ struct DoubleRates {
     (_vout).z = rint((_vin).z);         \
   }
 
-static inline double double_vect3_norm(struct DoubleVect3* v)
+static inline double double_vect3_norm(struct DoubleVect3 *v)
 {
   return sqrt(VECT3_NORM2(*v));
 }
 
 /** normalize 3D vector in place */
-static inline void double_vect3_normalize(struct DoubleVect3* v)
+static inline void double_vect3_normalize(struct DoubleVect3 *v)
 {
   const double n = double_vect3_norm(v);
   if (n > 0) {
@@ -111,7 +111,7 @@ static inline void double_vect3_normalize(struct DoubleVect3* v)
 
 
 /** initialises a quaternion to identity */
-static inline void double_quat_identity(struct DoubleQuat* q)
+static inline void double_quat_identity(struct DoubleQuat *q)
 {
   q->qi = 1.0;
   q->qx = 0;
@@ -119,13 +119,13 @@ static inline void double_quat_identity(struct DoubleQuat* q)
   q->qz = 0;
 }
 
-static inline double double_quat_norm(struct DoubleQuat* q)
+static inline double double_quat_norm(struct DoubleQuat *q)
 {
   return sqrt(SQUARE(q->qi) + SQUARE(q->qx) +  SQUARE(q->qy) + SQUARE(q->qz));
 }
 
 
-static inline void double_quat_normalize(struct DoubleQuat* q)
+static inline void double_quat_normalize(struct DoubleQuat *q)
 {
   double qnorm = double_quat_norm(q);
   if (qnorm > FLT_MIN) {
@@ -148,12 +148,12 @@ static inline void double_quat_normalize(struct DoubleQuat* q)
  * @param[out] rm pointer to rotation matrix
  * @param[in]  e pointer to Euler angles
  */
-extern void double_rmat_of_eulers_321(struct DoubleRMat* rm, struct DoubleEulers* e);
-extern void double_quat_of_eulers(struct DoubleQuat* q, struct DoubleEulers* e);
-extern void double_eulers_of_quat(struct DoubleEulers* e, struct DoubleQuat* q);
-extern void double_quat_vmult(struct DoubleVect3* v_out, struct DoubleQuat* q, struct DoubleVect3* v_in);
+extern void double_rmat_of_eulers_321(struct DoubleRMat *rm, struct DoubleEulers *e);
+extern void double_quat_of_eulers(struct DoubleQuat *q, struct DoubleEulers *e);
+extern void double_eulers_of_quat(struct DoubleEulers *e, struct DoubleQuat *q);
+extern void double_quat_vmult(struct DoubleVect3 *v_out, struct DoubleQuat *q, struct DoubleVect3 *v_in);
 
-static inline void double_rmat_of_eulers(struct DoubleRMat* rm, struct DoubleEulers* e)
+static inline void double_rmat_of_eulers(struct DoubleRMat *rm, struct DoubleEulers *e)
 {
   double_rmat_of_eulers_321(rm, e);
 }

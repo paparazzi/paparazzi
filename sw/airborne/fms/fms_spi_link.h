@@ -28,7 +28,7 @@
 
 struct SpiLink {
   int      fd;
-  char*    device;
+  char    *device;
   uint8_t  mode;
   uint8_t  bits;
   uint32_t speed;
@@ -53,7 +53,7 @@ extern int spi_link_init(void);
  *  count is the size of buf_out and buf_in, that is
  *  the count of data to exchange+1
  */
-extern int spi_link_send(void *buf_out, size_t count, void* buf_in, uint8_t* crc_valid);
+extern int spi_link_send(void *buf_out, size_t count, void *buf_in, uint8_t *crc_valid);
 
 /*
  * just for debuging purposes

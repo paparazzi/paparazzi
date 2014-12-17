@@ -118,12 +118,12 @@ static struct spi_periph_dma spi2_dma;
 static struct spi_periph_dma spi3_dma;
 #endif
 
-static void spi_start_dma_transaction(struct spi_periph* periph, struct spi_transaction* _trans);
-static void spi_next_transaction(struct spi_periph* periph);
+static void spi_start_dma_transaction(struct spi_periph *periph, struct spi_transaction *_trans);
+static void spi_next_transaction(struct spi_periph *periph);
 static void spi_configure_dma(uint32_t dma, uint32_t rcc_dma, uint8_t chan, uint32_t periph_addr, uint32_t buf_addr,
                               uint16_t len, enum SPIDataSizeSelect dss, bool_t increment);
-static void process_rx_dma_interrupt(struct spi_periph* periph);
-static void process_tx_dma_interrupt(struct spi_periph* periph);
+static void process_rx_dma_interrupt(struct spi_periph *periph);
+static void process_tx_dma_interrupt(struct spi_periph *periph);
 static void spi_arch_int_enable(struct spi_periph *spi);
 static void spi_arch_int_disable(struct spi_periph *spi);
 
@@ -134,8 +134,9 @@ static void spi_arch_int_disable(struct spi_periph *spi);
  *
  *****************************************************************************/
 
-static inline void SpiSlaveUnselect(uint8_t slave) {
-  switch(slave) {
+static inline void SpiSlaveUnselect(uint8_t slave)
+{
+  switch (slave) {
 #if USE_SPI_SLAVE0
     case 0:
       gpio_set(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
@@ -171,8 +172,9 @@ static inline void SpiSlaveUnselect(uint8_t slave) {
   }
 }
 
-static inline void SpiSlaveSelect(uint8_t slave) {
-  switch(slave) {
+static inline void SpiSlaveSelect(uint8_t slave)
+{
+  switch (slave) {
 #if USE_SPI_SLAVE0
     case 0:
       gpio_clear(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
@@ -208,15 +210,18 @@ static inline void SpiSlaveSelect(uint8_t slave) {
   }
 }
 
-void spi_slave_select(uint8_t slave) {
+void spi_slave_select(uint8_t slave)
+{
   SpiSlaveSelect(slave);
 }
 
-void spi_slave_unselect(uint8_t slave) {
+void spi_slave_unselect(uint8_t slave)
+{
   SpiSlaveUnselect(slave);
 }
 
-void spi_init_slaves(void) {
+void spi_init_slaves(void)
+{
 
 #if USE_SPI_SLAVE0
   gpio_setup_output(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
@@ -255,11 +260,11 @@ void spi_init_slaves(void) {
  * Implementation of the generic SPI functions
  *
  *****************************************************************************/
-bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
+bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
 {
   uint8_t idx;
   idx = p->trans_insert_idx + 1;
-  if (idx >= SPI_TRANSACTION_QUEUE_LEN) idx = 0;
+  if (idx >= SPI_TRANSACTION_QUEUE_LEN) { idx = 0; }
   if ((idx == p->trans_extract_idx) || ((t->input_length == 0) && (t->output_length == 0))) {
     t->status = SPITransFailed;
     return FALSE; /* queue full or input_length and output_length both 0 */
@@ -285,7 +290,8 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
   return TRUE;
 }
 
-bool_t spi_lock(struct spi_periph* p, uint8_t slave) {
+bool_t spi_lock(struct spi_periph *p, uint8_t slave)
+{
   spi_arch_int_disable(p);
   if (slave < 254 && p->suspend == 0) {
     p->suspend = slave + 1; // 0 is reserved for unlock state
@@ -296,8 +302,9 @@ bool_t spi_lock(struct spi_periph* p, uint8_t slave) {
   return FALSE;
 }
 
-bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
-  spi_arch_int_disable( p );
+bool_t spi_resume(struct spi_periph *p, uint8_t slave)
+{
+  spi_arch_int_disable(p);
   if (p->suspend == slave + 1) {
     // restart fifo
     p->suspend = 0;
@@ -317,7 +324,8 @@ bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
  * Transaction configuration helper functions
  *
  *****************************************************************************/
-static void set_default_comm_config(struct locm3_spi_comm* c) {
+static void set_default_comm_config(struct locm3_spi_comm *c)
+{
   c->br = SPI_CR1_BAUDRATE_FPCLK_DIV_64;
   c->cpol = SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
   c->cpha = SPI_CR1_CPHA_CLK_TRANSITION_2;
@@ -325,12 +333,14 @@ static void set_default_comm_config(struct locm3_spi_comm* c) {
   c->lsbfirst = SPI_CR1_MSBFIRST;
 }
 
-static inline uint8_t get_transaction_signature(struct spi_transaction* t) {
+static inline uint8_t get_transaction_signature(struct spi_transaction *t)
+{
   return ((t->dss << 6) | (t->cdiv << 3) | (t->bitorder << 2) |
           (t->cpha << 1) | (t->cpol));
 }
 
-static uint8_t get_comm_signature(struct locm3_spi_comm* c) {
+static uint8_t get_comm_signature(struct locm3_spi_comm *c)
+{
   uint8_t sig = 0;
   if (c->cpol == SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE) {
     sig |= SPICpolIdleLow;
@@ -386,7 +396,8 @@ static uint8_t get_comm_signature(struct locm3_spi_comm* c) {
 }
 
 /** Update SPI communication conf from generic paparazzi SPI transaction */
-static void set_comm_from_transaction(struct locm3_spi_comm* c, struct spi_transaction* t) {
+static void set_comm_from_transaction(struct locm3_spi_comm *c, struct spi_transaction *t)
+{
   if (t->dss == SPIDss8bit) {
     c->dff = SPI_CR1_DFF_8BIT;
   } else {
@@ -476,50 +487,56 @@ static void spi_configure_dma(uint32_t dma, uint32_t rcc_dma, uint8_t chan, uint
   }
 #endif
 
-  if (increment)
+  if (increment) {
     dma_enable_memory_increment_mode(dma, chan);
-  else
+  } else {
     dma_disable_memory_increment_mode(dma, chan);
+  }
 }
 
 /// Enable DMA channel interrupts
-static void spi_arch_int_enable(struct spi_periph *spi) {
+static void spi_arch_int_enable(struct spi_periph *spi)
+{
   /// @todo fix priority levels if necessary
   // enable receive interrupt
-  nvic_set_priority( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq, NVIC_SPI_IRQ_PRIO);
-  nvic_enable_irq( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq );
+  nvic_set_priority(((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq, NVIC_SPI_IRQ_PRIO);
+  nvic_enable_irq(((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq);
   // enable transmit interrupt
-  nvic_set_priority( ((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq, NVIC_SPI_IRQ_PRIO);
-  nvic_enable_irq( ((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq );
+  nvic_set_priority(((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq, NVIC_SPI_IRQ_PRIO);
+  nvic_enable_irq(((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq);
 }
 
 /// Disable DMA channel interrupts
-static void spi_arch_int_disable(struct spi_periph *spi) {
-  nvic_disable_irq( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq );
-  nvic_disable_irq( ((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq );
+static void spi_arch_int_disable(struct spi_periph *spi)
+{
+  nvic_disable_irq(((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq);
+  nvic_disable_irq(((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq);
 }
 
 /// start next transaction if there is one in the queue
-static void spi_next_transaction(struct spi_periph* periph) {
+static void spi_next_transaction(struct spi_periph *periph)
+{
   /* Increment the transaction to handle */
   periph->trans_extract_idx++;
 
   /* wrap read index of circular buffer */
-  if (periph->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
+  if (periph->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN) {
     periph->trans_extract_idx = 0;
+  }
 
   /* Check if there is another pending SPI transaction */
-  if ((periph->trans_extract_idx == periph->trans_insert_idx) || periph->suspend)
+  if ((periph->trans_extract_idx == periph->trans_insert_idx) || periph->suspend) {
     periph->status = SPIIdle;
-  else
+  } else {
     spi_start_dma_transaction(periph, periph->trans[periph->trans_extract_idx]);
+  }
 }
 
 
 /**
  * Start a new transaction with DMA.
  */
-static void spi_start_dma_transaction(struct spi_periph* periph, struct spi_transaction* trans)
+static void spi_start_dma_transaction(struct spi_periph *periph, struct spi_transaction *trans)
 {
   struct spi_periph_dma *dma;
   uint8_t sig = 0x00;
@@ -578,7 +595,7 @@ static void spi_start_dma_transaction(struct spi_periph* periph, struct spi_tran
   if (trans->input_length == 0) {
     /* run the dummy rx dma for the complete transaction length */
     spi_configure_dma(dma->dma, dma->rcc_dma, dma->rx_chan, (uint32_t)dma->spidr,
-                      (uint32_t)&(dma->rx_dummy_buf), trans->output_length, trans->dss, FALSE);
+                      (uint32_t) & (dma->rx_dummy_buf), trans->output_length, trans->dss, FALSE);
   } else {
     /* run the real rx dma for input_length */
     spi_configure_dma(dma->dma, dma->rcc_dma, dma->rx_chan, (uint32_t)dma->spidr,
@@ -611,7 +628,7 @@ static void spi_start_dma_transaction(struct spi_periph* periph, struct spi_tran
    */
   if (trans->output_length == 0) {
     spi_configure_dma(dma->dma, dma->rcc_dma, dma->tx_chan, (uint32_t)dma->spidr,
-                      (uint32_t)&(dma->tx_dummy_buf), trans->input_length, trans->dss, FALSE);
+                      (uint32_t) & (dma->tx_dummy_buf), trans->input_length, trans->dss, FALSE);
   } else {
     spi_configure_dma(dma->dma, dma->rcc_dma, dma->tx_chan, (uint32_t)dma->spidr,
                       (uint32_t)trans->output_buf, trans->output_length, trans->dss, TRUE);
@@ -655,7 +672,8 @@ static void spi_start_dma_transaction(struct spi_periph* periph, struct spi_tran
  *
  *****************************************************************************/
 #if USE_SPI1
-void spi1_arch_init(void) {
+void spi1_arch_init(void)
+{
 
   // set dma options
   spi1_dma.spidr = (uint32_t)&SPI1_DR;
@@ -749,7 +767,8 @@ void spi1_arch_init(void) {
 #endif
 
 #if USE_SPI2
-void spi2_arch_init(void) {
+void spi2_arch_init(void)
+{
 
   // set dma options
   spi2_dma.spidr = (uint32_t)&SPI2_DR;
@@ -839,7 +858,8 @@ void spi2_arch_init(void) {
 #endif
 
 #if USE_SPI3
-void spi3_arch_init(void) {
+void spi3_arch_init(void)
+{
 
   // set the default configuration
   spi3_dma.spidr = (uint32_t)&SPI3_DR;
@@ -950,8 +970,7 @@ void dma1_channel2_isr(void)
     DMA1_IFCR |= DMA_IFCR_CTCIF2;
   }
 #elif defined STM32F4
-void dma2_stream0_isr(void)
-{
+void dma2_stream0_isr(void) {
   if ((DMA2_LISR & DMA_LISR_TCIF0) != 0) {
     // clear int pending bit
     DMA2_LIFCR |= DMA_LIFCR_CTCIF0;
@@ -962,15 +981,13 @@ void dma2_stream0_isr(void)
 
 /// transmit transferred over DMA
 #ifdef STM32F1
-void dma1_channel3_isr(void)
-{
+void dma1_channel3_isr(void) {
   if ((DMA1_ISR & DMA_ISR_TCIF3) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF3;
   }
 #elif defined STM32F4
-void dma2_stream5_isr(void)
-{
+void dma2_stream5_isr(void) {
   if ((DMA2_HISR & DMA_HISR_TCIF5) != 0) {
     // clear int pending bit
     DMA2_HIFCR |= DMA_HIFCR_CTCIF5;
@@ -984,15 +1001,13 @@ void dma2_stream5_isr(void)
 #ifdef USE_SPI2
 /// receive transferred over DMA
 #ifdef STM32F1
-void dma1_channel4_isr(void)
-{
+void dma1_channel4_isr(void) {
   if ((DMA1_ISR & DMA_ISR_TCIF4) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF4;
   }
 #elif defined STM32F4
-void dma1_stream3_isr(void)
-{
+void dma1_stream3_isr(void) {
   if ((DMA1_LISR & DMA_LISR_TCIF3) != 0) {
     // clear int pending bit
     DMA1_LIFCR |= DMA_LIFCR_CTCIF3;
@@ -1003,15 +1018,13 @@ void dma1_stream3_isr(void)
 
 /// transmit transferred over DMA
 #ifdef STM32F1
-void dma1_channel5_isr(void)
-{
+void dma1_channel5_isr(void) {
   if ((DMA1_ISR & DMA_ISR_TCIF5) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF5;
   }
 #elif defined STM32F4
-void dma1_stream4_isr(void)
-{
+void dma1_stream4_isr(void) {
   if ((DMA1_HISR & DMA_HISR_TCIF4) != 0) {
     // clear int pending bit
     DMA1_HIFCR |= DMA_HIFCR_CTCIF4;
@@ -1025,15 +1038,13 @@ void dma1_stream4_isr(void)
 #if USE_SPI3
 /// receive transferred over DMA
 #ifdef STM32F1
-void dma2_channel1_isr(void)
-{
+void dma2_channel1_isr(void) {
   if ((DMA2_ISR & DMA_ISR_TCIF1) != 0) {
     // clear int pending bit
     DMA2_IFCR |= DMA_IFCR_CTCIF1;
   }
 #elif defined STM32F4
-void dma1_stream0_isr(void)
-{
+void dma1_stream0_isr(void) {
   if ((DMA1_LISR & DMA_LISR_TCIF0) != 0) {
     // clear int pending bit
     DMA1_LIFCR |= DMA_LIFCR_CTCIF0;
@@ -1044,15 +1055,13 @@ void dma1_stream0_isr(void)
 
 /// transmit transferred over DMA
 #ifdef STM32F1
-void dma2_channel2_isr(void)
-{
+void dma2_channel2_isr(void) {
   if ((DMA2_ISR & DMA_ISR_TCIF2) != 0) {
     // clear int pending bit
     DMA2_IFCR |= DMA_IFCR_CTCIF2;
   }
 #elif defined STM32F4
-void dma1_stream5_isr(void)
-{
+void dma1_stream5_isr(void) {
   if ((DMA1_HISR & DMA_HISR_TCIF5) != 0) {
     // clear int pending bit
     DMA1_HIFCR |= DMA_HIFCR_CTCIF5;
@@ -1064,7 +1073,7 @@ void dma1_stream5_isr(void)
 #endif
 
 /// Processing done after rx completes.
-void process_rx_dma_interrupt(struct spi_periph *periph) {
+void process_rx_dma_interrupt(struct spi_periph * periph) {
   struct spi_periph_dma *dma = periph->init_struct;
   struct spi_transaction *trans = periph->trans[periph->trans_extract_idx];
 
@@ -1096,7 +1105,7 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
     uint16_t len_remaining = trans->output_length - trans->input_length;
 
     spi_configure_dma(dma->dma, dma->rcc_dma, dma->rx_chan, (uint32_t)dma->spidr,
-                      (uint32_t)&(dma->rx_dummy_buf), len_remaining, trans->dss, FALSE);
+                      (uint32_t) & (dma->rx_dummy_buf), len_remaining, trans->dss, FALSE);
 #ifdef STM32F1
     dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
     dma_set_priority(dma->dma, dma->rx_chan, DMA_CCR_PL_HIGH);
@@ -1116,8 +1125,7 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
 #endif
     /* Enable SPI transfers via DMA */
     spi_enable_rx_dma((uint32_t)periph->reg_addr);
-  }
-  else {
+  } else {
     /*
      * Since the receive DMA is always run until the very end
      * and this interrupt is triggered after the last data word was read,
@@ -1140,7 +1148,7 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
 }
 
 /// Processing done after tx completes
-void process_tx_dma_interrupt(struct spi_periph *periph) {
+void process_tx_dma_interrupt(struct spi_periph * periph) {
   struct spi_periph_dma *dma = periph->init_struct;
   struct spi_transaction *trans = periph->trans[periph->trans_extract_idx];
 
@@ -1171,7 +1179,7 @@ void process_tx_dma_interrupt(struct spi_periph *periph) {
     uint16_t len_remaining = trans->input_length - trans->output_length;
 
     spi_configure_dma(dma->dma, dma->rcc_dma, dma->tx_chan, (uint32_t)dma->spidr,
-                      (uint32_t)&(dma->tx_dummy_buf), len_remaining, trans->dss, FALSE);
+                      (uint32_t) & (dma->tx_dummy_buf), len_remaining, trans->dss, FALSE);
 #ifdef STM32F1
     dma_set_read_from_memory(dma->dma, dma->tx_chan);
     dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
@@ -1206,7 +1214,7 @@ void process_tx_dma_interrupt(struct spi_periph *periph) {
  */
 #ifdef SPI_SLAVE
 
-static void process_slave_rx_dma_interrupt(struct spi_periph* periph);
+static void process_slave_rx_dma_interrupt(struct spi_periph * periph);
 
 
 // SPI arch slave init
@@ -1262,8 +1270,8 @@ void spi1_slave_arch_init(void) {
                 GPIO_SPI1_MISO);
 
   gpio_set_mode(GPIO_BANK_SPI1_NSS, GPIO_MODE_INPUT,
-                  GPIO_CNF_INPUT_FLOAT,
-                  GPIO_SPI1_NSS);
+                GPIO_CNF_INPUT_FLOAT,
+                GPIO_SPI1_NSS);
 
   // reset SPI
   spi_reset(SPI1);
@@ -1292,8 +1300,7 @@ void spi1_slave_arch_init(void) {
 }
 
 /// receive transferred over DMA
-void dma1_channel2_isr(void)
-{
+void dma1_channel2_isr(void) {
   if ((DMA1_ISR & DMA_ISR_TCIF2) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF2;
@@ -1305,8 +1312,7 @@ void dma1_channel2_isr(void)
 #endif /* USE_SPI1_SLAVE */
 
 
-static void spi_slave_set_config(struct spi_periph* periph, struct spi_transaction* trans)
-{
+static void spi_slave_set_config(struct spi_periph * periph, struct spi_transaction * trans) {
   struct spi_periph_dma *dma;
 
   dma = periph->init_struct;
@@ -1328,8 +1334,7 @@ static void spi_slave_set_config(struct spi_periph* periph, struct spi_transacti
 
 
 //static void spi_start_slave_dma_transaction(struct spi_periph* periph, struct spi_transaction* trans)
-bool_t spi_slave_register(struct spi_periph* periph, struct spi_transaction* trans)
-{
+bool_t spi_slave_register(struct spi_periph * periph, struct spi_transaction * trans) {
   spi_slave_set_config(periph, trans);
 
   struct spi_periph_dma *dma;
@@ -1377,7 +1382,7 @@ bool_t spi_slave_register(struct spi_periph* periph, struct spi_transaction* tra
   return TRUE;
 }
 
-void process_slave_rx_dma_interrupt(struct spi_periph *periph) {
+void process_slave_rx_dma_interrupt(struct spi_periph * periph) {
   struct spi_periph_dma *dma = periph->init_struct;
   struct spi_transaction *trans = periph->trans[periph->trans_extract_idx];
 

@@ -41,7 +41,7 @@
 #define GPS_UBX_MAX_PAYLOAD 255
 struct GpsUbx {
   bool_t msg_available;
-  uint8_t msg_buf[GPS_UBX_MAX_PAYLOAD] __attribute__ ((aligned));
+  uint8_t msg_buf[GPS_UBX_MAX_PAYLOAD] __attribute__((aligned));
   uint8_t msg_id;
   uint8_t msg_class;
 
@@ -123,9 +123,9 @@ extern struct GpsUbxRaw gps_ubx_raw;
     }                                                   \
   }
 
-#define ReadGpsBuffer() {					\
-    while (GpsLink(ChAvailable())&&!gps_ubx.msg_available)	\
-      gps_ubx_parse(GpsLink(Getch()));			\
+#define ReadGpsBuffer() {         \
+    while (GpsLink(ChAvailable())&&!gps_ubx.msg_available)  \
+      gps_ubx_parse(GpsLink(Getch()));      \
   }
 
 

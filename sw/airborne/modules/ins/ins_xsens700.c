@@ -86,7 +86,7 @@ float ins_roll_neutral;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XSens Specific
+//  XSens Specific
 //
 
 volatile uint8_t ins_msg_received;
@@ -164,7 +164,8 @@ volatile int xsens_configured = 0;
 void xsens_init(void);
 void xsens_periodic(void);
 
-void xsens_init(void) {
+void xsens_init(void)
+{
 
   xsens_status = UNINIT;
   xsens_configured = 30;
@@ -175,7 +176,8 @@ void xsens_init(void) {
 }
 
 #if USE_INS_MODULE
-void ins_init(void) {
+void ins_init(void)
+{
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
   stateSetPositionUtm_f(&utm0);
@@ -186,11 +188,13 @@ void ins_init(void) {
   xsens_init();
 }
 
-void ins_periodic(void) {
+void ins_periodic(void)
+{
   xsens_periodic();
 }
 
-void ins_update_gps(void) {
+void ins_update_gps(void)
+{
   struct UtmCoor_f utm;
   utm.east = gps.utm_pos.east / 100.;
   utm.north = gps.utm_pos.north / 100.;
@@ -211,7 +215,8 @@ void ins_update_gps(void) {
 #endif
 
 #if USE_GPS_XSENS
-void gps_impl_init(void) {
+void gps_impl_init(void)
+{
   gps.nb_channels = 0;
   gps_xsens_msg_available = FALSE;
 }
@@ -226,11 +231,10 @@ static void xsens_ask_message_rate(uint8_t c1, uint8_t c2, uint8_t freq)
   XsensSend1ByAddr(&freq);
 }
 
-void xsens_periodic(void) {
-  if (xsens_configured > 0)
-  {
-    switch (xsens_configured)
-    {
+void xsens_periodic(void)
+{
+  if (xsens_configured > 0) {
+    switch (xsens_configured) {
       case 25:
         /* send mode and settings to MT */
         XSENS_GoToConfig();
@@ -244,17 +248,17 @@ void xsens_periodic(void) {
       case 17:
 
         XsensHeader(XSENS_SetOutputConfiguration_ID, 44);
-        xsens_ask_message_rate( 0x10, 0x10, 4);   // UTC
-        xsens_ask_message_rate( 0x20, 0x30, 100); // Attitude Euler
-        xsens_ask_message_rate( 0x40, 0x10, 100); // Delta-V
-        xsens_ask_message_rate( 0x80, 0x20, 100); // Rate of turn
-        xsens_ask_message_rate( 0xE0, 0x20, 50);  // Status
-        xsens_ask_message_rate( 0x30, 0x10, 50);  // Baro Pressure
-        xsens_ask_message_rate( 0x88, 0x40, 1);   // NavSol
-        xsens_ask_message_rate( 0x88, 0xA0, 1);   // SV Info
-        xsens_ask_message_rate( 0x50, 0x20, 50);  // GPS Altitude Ellipsiod
-        xsens_ask_message_rate( 0x50, 0x40, 50);  // GPS Position
-        xsens_ask_message_rate( 0xD0, 0x10, 50);  // GPS Speed
+        xsens_ask_message_rate(0x10, 0x10, 4);    // UTC
+        xsens_ask_message_rate(0x20, 0x30, 100);  // Attitude Euler
+        xsens_ask_message_rate(0x40, 0x10, 100);  // Delta-V
+        xsens_ask_message_rate(0x80, 0x20, 100);  // Rate of turn
+        xsens_ask_message_rate(0xE0, 0x20, 50);   // Status
+        xsens_ask_message_rate(0x30, 0x10, 50);   // Baro Pressure
+        xsens_ask_message_rate(0x88, 0x40, 1);    // NavSol
+        xsens_ask_message_rate(0x88, 0xA0, 1);    // SV Info
+        xsens_ask_message_rate(0x50, 0x20, 50);   // GPS Altitude Ellipsiod
+        xsens_ask_message_rate(0x50, 0x40, 50);   // GPS Position
+        xsens_ask_message_rate(0xD0, 0x10, 50);   // GPS Speed
         XsensTrailer();
         break;
       case 2:
@@ -275,15 +279,14 @@ void xsens_periodic(void) {
       case 12:
 #ifdef GPS_IMU_LEVER_ARM_X
 #pragma message "Sending XSens GPS Arm."
-        XSENS_SetLeverArmGps(GPS_IMU_LEVER_ARM_X,GPS_IMU_LEVER_ARM_Y,GPS_IMU_LEVER_ARM_Z);
+        XSENS_SetLeverArmGps(GPS_IMU_LEVER_ARM_X, GPS_IMU_LEVER_ARM_Y, GPS_IMU_LEVER_ARM_Z);
 #endif
         break;
-      case 10:
-        {
-          uint8_t baud = 1;
-          XSENS_SetBaudrate(baud);
-        }
-        break;
+      case 10: {
+        uint8_t baud = 1;
+        XSENS_SetBaudrate(baud);
+      }
+      break;
 
       case 1:
         XSENS_GoToMeasurment();
@@ -301,12 +304,13 @@ void xsens_periodic(void) {
 #if USE_INS_MODULE
 #include "state.h"
 
-static inline void update_fw_estimator(void) {
+static inline void update_fw_estimator(void)
+{
   // Send to Estimator (Control)
 #if XSENS_BACKWARDS
   struct FloatEulers att = {
-    ins_phi+ins_roll_neutral,
-    -ins_theta+ins_pitch_neutral,
+    ins_phi + ins_roll_neutral,
+    -ins_theta + ins_pitch_neutral,
     -ins_psi + RadOfDeg(180)
   };
   struct FloatRates rates = {
@@ -316,8 +320,8 @@ static inline void update_fw_estimator(void) {
   };
 #else
   struct FloatEulers att = {
-    -ins_phi+ins_roll_neutral,
-    ins_theta+ins_pitch_neutral,
+    -ins_phi + ins_roll_neutral,
+    ins_theta + ins_pitch_neutral,
     -ins_psi
   };
   struct FloatRates rates = {
@@ -331,7 +335,8 @@ static inline void update_fw_estimator(void) {
 }
 #endif /* USE_INS_MODULE */
 
-void handle_ins_msg( void) {
+void handle_ins_msg(void)
+{
 
 #if USE_INS_MODULE
   update_fw_estimator();
@@ -339,165 +344,132 @@ void handle_ins_msg( void) {
 
 #if USE_GPS_XSENS
   // Horizontal speed
-  float fspeed = sqrt(ins_vx*ins_vx + ins_vy*ins_vy);
+  float fspeed = sqrt(ins_vx * ins_vx + ins_vy * ins_vy);
   if (gps.fix != GPS_FIX_3D) {
     fspeed = 0;
   }
   gps.gspeed = fspeed * 100.;
-  gps.speed_3d = (uint16_t)(sqrt(ins_vx*ins_vx + ins_vy*ins_vy + ins_vz*ins_vz) * 100);
+  gps.speed_3d = (uint16_t)(sqrt(ins_vx * ins_vx + ins_vy * ins_vy + ins_vz * ins_vz) * 100);
 
   float fcourse = atan2f((float)ins_vy, (float)ins_vx);
   gps.course = fcourse * 1e7;
 #endif // USE_GPS_XSENS
 }
 
-void parse_ins_msg( void ) {
+void parse_ins_msg(void)
+{
   uint8_t offset = 0;
   if (xsens_id == XSENS_ReqLeverArmGpsAck_ID) {
     xsens_gps_arm_x = XSENS_ReqLeverArmGpsAck_x(xsens_msg_buf);
     xsens_gps_arm_y = XSENS_ReqLeverArmGpsAck_y(xsens_msg_buf);
     xsens_gps_arm_z = XSENS_ReqLeverArmGpsAck_z(xsens_msg_buf);
 
-    DOWNLINK_SEND_IMU_MAG_SETTINGS(DefaultChannel, DefaultDevice,&xsens_declination,&xsens_declination,&xsens_gps_arm_x,&xsens_gps_arm_y,&xsens_gps_arm_z);
-  }
-  else if (xsens_id == XSENS_Error_ID) {
+    DOWNLINK_SEND_IMU_MAG_SETTINGS(DefaultChannel, DefaultDevice, &xsens_declination, &xsens_declination, &xsens_gps_arm_x,
+                                   &xsens_gps_arm_y, &xsens_gps_arm_z);
+  } else if (xsens_id == XSENS_Error_ID) {
     xsens_errorcode = XSENS_Error_errorcode(xsens_msg_buf);
-  }
-  else if (xsens_id == XSENS_MTData2_ID) {
-    for (offset=0;offset<xsens_len;) {
+  } else if (xsens_id == XSENS_MTData2_ID) {
+    for (offset = 0; offset < xsens_len;) {
       uint8_t code1 = xsens_msg_buf[offset];
-      uint8_t code2 = xsens_msg_buf[offset+1];
-      int subpacklen = (int)xsens_msg_buf[offset+2];
+      uint8_t code2 = xsens_msg_buf[offset + 1];
+      int subpacklen = (int)xsens_msg_buf[offset + 2];
       offset += 3;
 
 
-      if (code1 == 0x10)
-      {
-        if (code2 == 0x10)
-        {
+      if (code1 == 0x10) {
+        if (code2 == 0x10) {
           // UTC
-        }
-        else if (code2 == 0x20)
-        {
+        } else if (code2 == 0x20) {
           // Packet Counter
         }
-        if (code2 == 0x30)
-        {
+        if (code2 == 0x30) {
           // ITOW
         }
-      }
-      else if (code1 == 0x20)
-      {
-        if (code2 == 0x30)
-        {
+      } else if (code1 == 0x20) {
+        if (code2 == 0x30) {
           // Attitude Euler
-          ins_phi   = XSENS_DATA_Euler_roll(xsens_msg_buf,offset) * M_PI / 180;
-          ins_theta = XSENS_DATA_Euler_pitch(xsens_msg_buf,offset) * M_PI / 180;
-          ins_psi   = XSENS_DATA_Euler_yaw(xsens_msg_buf,offset) * M_PI / 180;
+          ins_phi   = XSENS_DATA_Euler_roll(xsens_msg_buf, offset) * M_PI / 180;
+          ins_theta = XSENS_DATA_Euler_pitch(xsens_msg_buf, offset) * M_PI / 180;
+          ins_psi   = XSENS_DATA_Euler_yaw(xsens_msg_buf, offset) * M_PI / 180;
 
           new_ins_attitude = 1;
 
         }
-      }
-      else if (code1 == 0x40)
-      {
-        if (code2 == 0x10)
-        {
+      } else if (code1 == 0x40) {
+        if (code2 == 0x10) {
           // Delta-V
-          ins_ax = XSENS_DATA_Acceleration_x(xsens_msg_buf,offset)*100.0f;
-          ins_ay = XSENS_DATA_Acceleration_y(xsens_msg_buf,offset)*100.0f;
-          ins_az = XSENS_DATA_Acceleration_z(xsens_msg_buf,offset)*100.0f;
+          ins_ax = XSENS_DATA_Acceleration_x(xsens_msg_buf, offset) * 100.0f;
+          ins_ay = XSENS_DATA_Acceleration_y(xsens_msg_buf, offset) * 100.0f;
+          ins_az = XSENS_DATA_Acceleration_z(xsens_msg_buf, offset) * 100.0f;
         }
-      }
-      else if (code1 == 0x80)
-      {
-        if (code2 == 0x20)
-        {
+      } else if (code1 == 0x80) {
+        if (code2 == 0x20) {
           // Rate Of Turn
-          ins_p = XSENS_DATA_RateOfTurn_x(xsens_msg_buf,offset) * M_PI / 180;
-          ins_q = XSENS_DATA_RateOfTurn_y(xsens_msg_buf,offset) * M_PI / 180;
-          ins_r = XSENS_DATA_RateOfTurn_z(xsens_msg_buf,offset) * M_PI / 180;
+          ins_p = XSENS_DATA_RateOfTurn_x(xsens_msg_buf, offset) * M_PI / 180;
+          ins_q = XSENS_DATA_RateOfTurn_y(xsens_msg_buf, offset) * M_PI / 180;
+          ins_r = XSENS_DATA_RateOfTurn_z(xsens_msg_buf, offset) * M_PI / 180;
         }
-      }
-      else if (code1 == 0x30)
-      {
-        if (code2 == 0x10)
-        {
+      } else if (code1 == 0x30) {
+        if (code2 == 0x10) {
           // Baro Pressure
         }
-      }
-      else if (code1 == 0xE0)
-      {
-        if (code2 == 0x20)
-        {
+      } else if (code1 == 0xE0) {
+        if (code2 == 0x20) {
           // Status Word
-          xsens_msg_statusword = XSENS_DATA_StatusWord_status(xsens_msg_buf,offset);
+          xsens_msg_statusword = XSENS_DATA_StatusWord_status(xsens_msg_buf, offset);
           //gps.tow = xsens_msg_statusword;
 #if USE_GPS_XSENS
-          if (bit_is_set(xsens_msg_statusword,2) && bit_is_set(xsens_msg_statusword,1))
-          {
-            if (bit_is_set(xsens_msg_statusword,23) && bit_is_set(xsens_msg_statusword,24))
+          if (bit_is_set(xsens_msg_statusword, 2) && bit_is_set(xsens_msg_statusword, 1)) {
+            if (bit_is_set(xsens_msg_statusword, 23) && bit_is_set(xsens_msg_statusword, 24)) {
               gps.fix = GPS_FIX_3D;
-            else
+            } else {
               gps.fix = GPS_FIX_2D;
-          }
-          else gps.fix = GPS_FIX_NONE;
+            }
+          } else { gps.fix = GPS_FIX_NONE; }
 #endif
         }
-      }
-      else if (code1 == 0x88)
-      {
-        if (code2 == 0x40)
-        {
-          gps.week = XSENS_DATA_GpsSol_week(xsens_msg_buf,offset);
-          gps.num_sv = XSENS_DATA_GpsSol_numSv(xsens_msg_buf,offset);
-          gps.pacc = XSENS_DATA_GpsSol_pAcc(xsens_msg_buf,offset);
-          gps.sacc = XSENS_DATA_GpsSol_sAcc(xsens_msg_buf,offset);
-          gps.pdop = XSENS_DATA_GpsSol_pDop(xsens_msg_buf,offset);
-        }
-        else if (code2 == 0xA0)
-        {
+      } else if (code1 == 0x88) {
+        if (code2 == 0x40) {
+          gps.week = XSENS_DATA_GpsSol_week(xsens_msg_buf, offset);
+          gps.num_sv = XSENS_DATA_GpsSol_numSv(xsens_msg_buf, offset);
+          gps.pacc = XSENS_DATA_GpsSol_pAcc(xsens_msg_buf, offset);
+          gps.sacc = XSENS_DATA_GpsSol_sAcc(xsens_msg_buf, offset);
+          gps.pdop = XSENS_DATA_GpsSol_pDop(xsens_msg_buf, offset);
+        } else if (code2 == 0xA0) {
           // SVINFO
-          gps.tow = XSENS_XDI_GpsSvInfo_iTOW(xsens_msg_buf+offset);
+          gps.tow = XSENS_XDI_GpsSvInfo_iTOW(xsens_msg_buf + offset);
 
 #if USE_GPS_XSENS
-          gps.nb_channels = XSENS_XDI_GpsSvInfo_nch(xsens_msg_buf+offset);
+          gps.nb_channels = XSENS_XDI_GpsSvInfo_nch(xsens_msg_buf + offset);
 
           gps.last_3dfix_ticks = sys_time.nb_sec_rem;
           gps.last_3dfix_time = sys_time.nb_sec;
 
           uint8_t i;
           // Do not write outside buffer
-          for(i = 0; i < Min(gps.nb_channels, GPS_NB_CHANNELS); i++) {
-            uint8_t ch = XSENS_XDI_GpsSvInfo_chn(xsens_msg_buf+offset,i);
-            if (ch > gps.nb_channels) continue;
-            gps.svinfos[ch].svid = XSENS_XDI_GpsSvInfo_svid(xsens_msg_buf+offset, i);
-            gps.svinfos[ch].flags = XSENS_XDI_GpsSvInfo_bitmask(xsens_msg_buf+offset, i);
-            gps.svinfos[ch].qi = XSENS_XDI_GpsSvInfo_qi(xsens_msg_buf+offset, i);
-            gps.svinfos[ch].cno = XSENS_XDI_GpsSvInfo_cnr(xsens_msg_buf+offset, i);
+          for (i = 0; i < Min(gps.nb_channels, GPS_NB_CHANNELS); i++) {
+            uint8_t ch = XSENS_XDI_GpsSvInfo_chn(xsens_msg_buf + offset, i);
+            if (ch > gps.nb_channels) { continue; }
+            gps.svinfos[ch].svid = XSENS_XDI_GpsSvInfo_svid(xsens_msg_buf + offset, i);
+            gps.svinfos[ch].flags = XSENS_XDI_GpsSvInfo_bitmask(xsens_msg_buf + offset, i);
+            gps.svinfos[ch].qi = XSENS_XDI_GpsSvInfo_qi(xsens_msg_buf + offset, i);
+            gps.svinfos[ch].cno = XSENS_XDI_GpsSvInfo_cnr(xsens_msg_buf + offset, i);
           }
 #endif
         }
-      }
-      else if (code1 == 0x50)
-      {
-        if (code2 == 0x10)
-        {
+      } else if (code1 == 0x50) {
+        if (code2 == 0x10) {
           //gps.hmsl = XSENS_DATA_Altitude_h(xsens_msg_buf,offset)* 1000.0f;
-        }
-        else if (code2 == 0x20)
-        {
+        } else if (code2 == 0x20) {
           // Altitude Elipsoid
-          gps.utm_pos.alt = XSENS_DATA_Altitude_h(xsens_msg_buf,offset)* 1000.0f;
+          gps.utm_pos.alt = XSENS_DATA_Altitude_h(xsens_msg_buf, offset) * 1000.0f;
 
           // Compute geoid (MSL) height
           float geoid_h = wgs84_ellipsoid_to_geoid(lla_f.lat, lla_f.lon);
           gps.hmsl =  gps.utm_pos.alt - (geoid_h * 1000.0f);
 
           //gps.tow = geoid_h * 1000.0f; //gps.utm_pos.alt;
-        }
-        else if (code2 == 0x40)
-        {
+        } else if (code2 == 0x40) {
           // LatLong
 #ifdef GPS_LED
           LED_TOGGLE(GPS_LED);
@@ -505,38 +477,36 @@ void parse_ins_msg( void ) {
           gps.last_3dfix_ticks = sys_time.nb_sec_rem;
           gps.last_3dfix_time = sys_time.nb_sec;
           gps.week = 0; // FIXME
-          lla_f.lat = RadOfDeg(XSENS_DATA_LatLon_lat(xsens_msg_buf,offset));
-          lla_f.lon = RadOfDeg(XSENS_DATA_LatLon_lon(xsens_msg_buf,offset));
+          lla_f.lat = RadOfDeg(XSENS_DATA_LatLon_lat(xsens_msg_buf, offset));
+          lla_f.lon = RadOfDeg(XSENS_DATA_LatLon_lon(xsens_msg_buf, offset));
 
           // Set the real UTM zone
-          gps.utm_pos.zone = (DegOfRad(lla_f.lon)+180) / 6 + 1;
+          gps.utm_pos.zone = (DegOfRad(lla_f.lon) + 180) / 6 + 1;
 
           utm_f.zone = nav_utm_zone0;
           // convert to utm
           utm_of_lla_f(&utm_f, &lla_f);
           // copy results of utm conversion
-          gps.utm_pos.east = utm_f.east*100;
-          gps.utm_pos.north = utm_f.north*100;
+          gps.utm_pos.east = utm_f.east * 100;
+          gps.utm_pos.north = utm_f.north * 100;
 
           gps_xsens_msg_available = TRUE;
         }
-      }
-      else if (code1 == 0xD0)
-      {
-        if (code2 == 0x10)
-        {
+      } else if (code1 == 0xD0) {
+        if (code2 == 0x10) {
           // Velocity
-          ins_vx = ((INS_FORMAT)XSENS_DATA_VelocityXYZ_x(xsens_msg_buf,offset));
-          ins_vy = ((INS_FORMAT)XSENS_DATA_VelocityXYZ_y(xsens_msg_buf,offset));
-          ins_vz = ((INS_FORMAT)XSENS_DATA_VelocityXYZ_z(xsens_msg_buf,offset));
+          ins_vx = ((INS_FORMAT)XSENS_DATA_VelocityXYZ_x(xsens_msg_buf, offset));
+          ins_vy = ((INS_FORMAT)XSENS_DATA_VelocityXYZ_y(xsens_msg_buf, offset));
+          ins_vz = ((INS_FORMAT)XSENS_DATA_VelocityXYZ_z(xsens_msg_buf, offset));
           gps.ned_vel.x = ins_vx;
           gps.ned_vel.y = ins_vy;
           gps.ned_vel.z = ins_vx;
         }
       }
 
-      if (subpacklen < 0)
+      if (subpacklen < 0) {
         subpacklen = 0;
+      }
       offset += subpacklen;
     }
 
@@ -571,18 +541,21 @@ void parse_ins_msg( void ) {
 }
 
 
-void parse_ins_buffer( uint8_t c ) {
+void parse_ins_buffer(uint8_t c)
+{
   ck += c;
   switch (xsens_status) {
     case UNINIT:
-      if (c != XSENS_START)
+      if (c != XSENS_START) {
         goto error;
+      }
       xsens_status++;
       ck = 0;
       break;
     case GOT_START:
-      if (c != XSENS_BID)
+      if (c != XSENS_BID) {
         goto error;
+      }
       xsens_status++;
       break;
     case GOT_BID:
@@ -591,20 +564,23 @@ void parse_ins_buffer( uint8_t c ) {
       break;
     case GOT_MID:
       xsens_len = c;
-      if (xsens_len > XSENS_MAX_PAYLOAD)
+      if (xsens_len > XSENS_MAX_PAYLOAD) {
         goto error;
+      }
       xsens_msg_idx = 0;
       xsens_status++;
       break;
     case GOT_LEN:
       xsens_msg_buf[xsens_msg_idx] = c;
       xsens_msg_idx++;
-      if (xsens_msg_idx >= xsens_len)
+      if (xsens_msg_idx >= xsens_len) {
         xsens_status++;
+      }
       break;
     case GOT_DATA:
-      if (ck != 0)
+      if (ck != 0) {
         goto error;
+      }
       ins_msg_received = TRUE;
       goto restart;
       break;
@@ -612,8 +588,8 @@ void parse_ins_buffer( uint8_t c ) {
       break;
   }
   return;
- error:
- restart:
+error:
+restart:
   xsens_status = UNINIT;
   return;
 }

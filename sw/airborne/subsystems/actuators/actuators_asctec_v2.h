@@ -31,14 +31,16 @@
 #include "generated/airframe.h"
 
 enum actuators_asctec_v2_cmd { NONE,
-                            TEST,
-                            REVERSE,
-                            SET_ADDR };
+                               TEST,
+                               REVERSE,
+                               SET_ADDR
+                             };
 
 enum actuators_asctec_v2_addr { FRONT,
-                             BACK,
-                             LEFT,
-                             RIGHT };
+                                BACK,
+                                LEFT,
+                                RIGHT
+                              };
 
 struct ActuatorsAsctecV2 {
   enum actuators_asctec_v2_cmd cmd;

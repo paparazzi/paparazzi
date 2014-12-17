@@ -47,11 +47,11 @@ extern void imu_periodic(void);
       mag_valid = FALSE;                     \
       _mag_handler();                                 \
     }                                                   \
-}
+  }
 
 /* Own Extra Functions */
-extern void aspirin2_subsystem_event( void );
-extern void aspirin2_subsystem_downlink_raw( void );
+extern void aspirin2_subsystem_event(void);
+extern void aspirin2_subsystem_downlink_raw(void);
 
 
 #endif // PPZUAVIMU_H

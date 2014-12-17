@@ -119,8 +119,7 @@ void can_hw_init(void)
                CAN_BTR_TS2_7TQ,
                2,               /* BRP+1: Baud rate prescaler */
                false,           /* loopback mode */
-               false))          /* silent mode */
-  {
+               false)) {        /* silent mode */
     /* TODO we need something somewhere where we can leave a note
      * that CAN was unable to initialize. Just like any other
      * driver should...
@@ -153,7 +152,7 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
     return -2;
   }
 
-  if(len > 8){
+  if (len > 8) {
     return -1;
   }
 

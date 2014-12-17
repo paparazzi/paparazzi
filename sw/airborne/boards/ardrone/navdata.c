@@ -366,7 +366,8 @@ static void baro_update_logic(void)
   static uint16_t lasttempval = 0;
   static int32_t lastpressval_nospike = 0;
   static uint16_t lasttempval_nospike = 0;
-  static uint8_t temp_or_press_was_updated_last = 0; // 0 = press, so we now wait for temp, 1 = temp so we now wait for press
+  static uint8_t temp_or_press_was_updated_last =
+    0; // 0 = press, so we now wait for temp, 1 = temp so we now wait for press
 
   static int sync_errors = 0;
   static int spike_detected = 0;
@@ -406,12 +407,14 @@ static void baro_update_logic(void)
   }
 
   // Detected a pressure switch
-  if (lastpressval != 0 && lasttempval != 0 && ABS(lastpressval - navdata.pressure) > ABS(lasttempval - navdata.pressure)) {
+  if (lastpressval != 0 && lasttempval != 0
+      && ABS(lastpressval - navdata.pressure) > ABS(lasttempval - navdata.pressure)) {
     navdata_baro_available = FALSE;
   }
 
   // Detected a temprature switch
-  if (lastpressval != 0 && lasttempval != 0 && ABS(lasttempval - navdata.temperature_pressure) > ABS(lastpressval - navdata.temperature_pressure)) {
+  if (lastpressval != 0 && lasttempval != 0
+      && ABS(lasttempval - navdata.temperature_pressure) > ABS(lastpressval - navdata.temperature_pressure)) {
     navdata_baro_available = FALSE;
   }
 
@@ -458,7 +461,8 @@ static void baro_update_logic(void)
    */
 
   // if press and temp are same and temp has jump: neglect the next frame
-  if (navdata.temperature_pressure == navdata.pressure) { // && (abs((int32_t)navdata.temperature_pressure - (int32_t)lasttempval) > 40))
+  if (navdata.temperature_pressure ==
+      navdata.pressure) { // && (abs((int32_t)navdata.temperature_pressure - (int32_t)lasttempval) > 40))
     // dont use next 3 packets
     spike_detected = 3;
   }
@@ -508,7 +512,8 @@ void navdata_update()
 
       // When checksum is incorrect
       if (navdata.chksum != checksum) {
-        printf("Checksum error [calculated: %d] [packet: %d] [diff: %d]\n", checksum , navdata.chksum, checksum - navdata.chksum);
+        printf("Checksum error [calculated: %d] [packet: %d] [diff: %d]\n", checksum , navdata.chksum,
+               checksum - navdata.chksum);
         nav_port.checksum_errors++;
       }
 
@@ -521,7 +526,7 @@ void navdata_update()
       //printf("%d\r",navdata.nu_trame);
 
       // When checksum is correct
-      if(navdata.chksum == checksum) {
+      if (navdata.chksum == checksum) {
         // Invert byte order so that TELEMETRY works better
         uint8_t tmp;
         uint8_t *p = (uint8_t *) & (navdata.pressure);
@@ -575,7 +580,8 @@ static void navdata_cropbuffer(int cropsize)
 {
   if (nav_port.bytesRead - cropsize < 0) {
     // TODO think about why the amount of bytes read minus the cropsize gets below zero
-    printf("BytesRead(=%d) - Cropsize(=%d) may not be below zero. port->buffer=%p\n", nav_port.bytesRead, cropsize, nav_port.buffer);
+    printf("BytesRead(=%d) - Cropsize(=%d) may not be below zero. port->buffer=%p\n", nav_port.bytesRead, cropsize,
+           nav_port.buffer);
     return;
   }
 

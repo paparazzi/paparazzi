@@ -27,7 +27,8 @@
 
 #include "peripherals/mpu9250_i2c.h"
 
-bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set __attribute__ ((unused)), void* mpu __attribute__ ((unused)));
+bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set __attribute__((unused)),
+                                       void *mpu __attribute__((unused)));
 
 void mpu9250_i2c_init(struct Mpu9250_I2c *mpu, struct i2c_periph *i2c_p, uint8_t addr)
 {
@@ -61,8 +62,9 @@ void mpu9250_i2c_init(struct Mpu9250_I2c *mpu, struct i2c_periph *i2c_p, uint8_t
 }
 
 
-static void mpu9250_i2c_write_to_reg(void* mpu, uint8_t _reg, uint8_t _val) {
-  struct Mpu9250_I2c* mpu_i2c = (struct Mpu9250_I2c*)(mpu);
+static void mpu9250_i2c_write_to_reg(void *mpu, uint8_t _reg, uint8_t _val)
+{
+  struct Mpu9250_I2c *mpu_i2c = (struct Mpu9250_I2c *)(mpu);
   mpu_i2c->i2c_trans.buf[0] = _reg;
   mpu_i2c->i2c_trans.buf[1] = _val;
   i2c_transmit(mpu_i2c->i2c_p, &(mpu_i2c->i2c_trans), mpu_i2c->i2c_trans.slave_addr, 2);
@@ -74,7 +76,7 @@ void mpu9250_i2c_start_configure(struct Mpu9250_I2c *mpu)
   if (mpu->config.init_status == MPU9250_CONF_UNINIT) {
     mpu->config.init_status++;
     if (mpu->i2c_trans.status == I2CTransSuccess || mpu->i2c_trans.status == I2CTransDone) {
-      mpu9250_send_config(mpu9250_i2c_write_to_reg, (void*)mpu, &(mpu->config));
+      mpu9250_send_config(mpu9250_i2c_write_to_reg, (void *)mpu, &(mpu->config));
     }
   }
 }
@@ -101,8 +103,7 @@ void mpu9250_i2c_event(struct Mpu9250_I2c *mpu)
   if (mpu->config.initialized) {
     if (mpu->i2c_trans.status == I2CTransFailed) {
       mpu->i2c_trans.status = I2CTransDone;
-    }
-    else if (mpu->i2c_trans.status == I2CTransSuccess) {
+    } else if (mpu->i2c_trans.status == I2CTransSuccess) {
       // Successfull reading
       if (bit_is_set(mpu->i2c_trans.buf[0], 0)) {
         // new data
@@ -120,7 +121,7 @@ void mpu9250_i2c_event(struct Mpu9250_I2c *mpu)
            */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
-          memcpy(mpu->data_ext, (uint8_t *) &(mpu->i2c_trans.buf[15]), mpu->config.nb_bytes - 15);
+          memcpy(mpu->data_ext, (uint8_t *) & (mpu->i2c_trans.buf[15]), mpu->config.nb_bytes - 15);
 #pragma GCC diagnostic pop
         }
 
@@ -128,16 +129,16 @@ void mpu9250_i2c_event(struct Mpu9250_I2c *mpu)
       }
       mpu->i2c_trans.status = I2CTransDone;
     }
-  }
-  else if (mpu->config.init_status != MPU9250_CONF_UNINIT) { // Configuring but not yet initialized
+  } else if (mpu->config.init_status != MPU9250_CONF_UNINIT) { // Configuring but not yet initialized
     switch (mpu->i2c_trans.status) {
       case I2CTransFailed:
         mpu->config.init_status--; // Retry config (TODO max retry)
       case I2CTransSuccess:
       case I2CTransDone:
-        mpu9250_send_config(mpu9250_i2c_write_to_reg, (void*)mpu, &(mpu->config));
-        if (mpu->config.initialized)
+        mpu9250_send_config(mpu9250_i2c_write_to_reg, (void *)mpu, &(mpu->config));
+        if (mpu->config.initialized) {
           mpu->i2c_trans.status = I2CTransDone;
+        }
         break;
       default:
         break;
@@ -150,24 +151,26 @@ void mpu9250_i2c_event(struct Mpu9250_I2c *mpu)
 /** callback function to configure ak8963 mag
  * @return TRUE if mag configuration finished
  */
-bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set __attribute__ ((unused)), void* mpu)
+bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set __attribute__((unused)), void *mpu)
 {
-  struct Mpu9250_I2c* mpu_i2c = (struct Mpu9250_I2c*)(mpu);
+  struct Mpu9250_I2c *mpu_i2c = (struct Mpu9250_I2c *)(mpu);
 
   ak8963_configure(&mpu_i2c->akm);
-  if (mpu_i2c->akm.initialized)
+  if (mpu_i2c->akm.initialized) {
     return TRUE;
-  else
+  } else {
     return FALSE;
+  }
 }
 
 /** @todo: only one slave so far. */
-bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void* mpu)
+bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
 {
-  struct Mpu9250_I2c* mpu_i2c = (struct Mpu9250_I2c*)(mpu);
+  struct Mpu9250_I2c *mpu_i2c = (struct Mpu9250_I2c *)(mpu);
 
-  if (mpu_i2c->slave_init_status == MPU9250_I2C_CONF_UNINIT)
+  if (mpu_i2c->slave_init_status == MPU9250_I2C_CONF_UNINIT) {
     mpu_i2c->slave_init_status++;
+  }
 
   switch (mpu_i2c->slave_init_status) {
     case MPU9250_I2C_CONF_I2C_MST_DIS:
@@ -176,29 +179,29 @@ bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void* mpu)
       break;
     case MPU9250_I2C_CONF_I2C_BYPASS_EN:
       /* switch to I2C passthrough */
-      mpu_set(mpu, MPU9250_REG_INT_PIN_CFG, (1<<1));
+      mpu_set(mpu, MPU9250_REG_INT_PIN_CFG, (1 << 1));
       mpu_i2c->slave_init_status++;
       break;
     case MPU9250_I2C_CONF_SLAVES_CONFIGURE:
       /* configure each slave. TODO: currently only one */
-      if (mpu_i2c->config.slaves[0].configure(mpu_set, mpu))
+      if (mpu_i2c->config.slaves[0].configure(mpu_set, mpu)) {
         mpu_i2c->slave_init_status++;
+      }
       break;
     case MPU9250_I2C_CONF_I2C_BYPASS_DIS:
       if (mpu_i2c->config.i2c_bypass) {
         /* if bypassing I2C skip MPU I2C master setup */
         mpu_i2c->slave_init_status = MPU9250_I2C_CONF_DONE;
-      }
-      else {
+      } else {
         /* disable I2C passthrough again */
-        mpu_set(mpu, MPU9250_REG_INT_PIN_CFG, (0<<1));
+        mpu_set(mpu, MPU9250_REG_INT_PIN_CFG, (0 << 1));
         mpu_i2c->slave_init_status++;
       }
       break;
     case MPU9250_I2C_CONF_I2C_MST_CLK:
       /* configure MPU I2C master clock and stop/start between slave reads */
       mpu_set(mpu, MPU9250_REG_I2C_MST_CTRL,
-              ((1<<4) | mpu_i2c->config.i2c_mst_clk));
+              ((1 << 4) | mpu_i2c->config.i2c_mst_clk));
       mpu_i2c->slave_init_status++;
       break;
     case MPU9250_I2C_CONF_I2C_MST_DELAY:

@@ -1,6 +1,7 @@
 
 
-void imu_impl_init(void) {
+void imu_impl_init(void)
+{
 
 
 }

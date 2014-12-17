@@ -33,9 +33,9 @@
 #include "lisa/lisa_overo_link.h"
 #include "bench_sensors.h"
 
-static inline void main_init( void );
-static inline void main_periodic( void );
-static inline void main_event( void );
+static inline void main_init(void);
+static inline void main_periodic(void);
+static inline void main_event(void);
 
 static inline void on_gyro_accel_event(void);
 static inline void on_accel_event(void);
@@ -48,20 +48,23 @@ static inline void main_on_overo_link_error(void);
 static uint32_t spi_msg_cnt = 0;
 static uint16_t spi_errors = 0;
 
-int main(void) {
+int main(void)
+{
   main_init();
 
   while (1) {
-    if (sys_time_check_and_ack_timer(0))
+    if (sys_time_check_and_ack_timer(0)) {
       main_periodic();
+    }
     main_event();
   }
   return 0;
 }
 
-static inline void main_init( void ) {
+static inline void main_init(void)
+{
   mcu_init();
-  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+  sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   actuators_init();
   //radio_control_init();
   imu_init();
@@ -73,8 +76,9 @@ static inline void main_init( void ) {
 
 #define PITCH_MAGIC_NUMBER (121)
 
-static inline void main_periodic( void ) {
-  int8_t pitch_out,thrust_out;
+static inline void main_periodic(void)
+{
+  int8_t pitch_out, thrust_out;
   imu_periodic();
 
   OveroLinkPeriodic(main_on_overo_link_lost)
@@ -91,8 +95,8 @@ static inline void main_periodic( void ) {
   pitch_out = (int8_t)((0xFF) & overo_link.down.msg.pitch);
   thrust_out = (int8_t)((0xFF) & overo_link.down.msg.thrust);
 
-  Bound(pitch_out,-80,80);
-  Bound(thrust_out,0,100);
+  Bound(pitch_out, -80, 80);
+  Bound(thrust_out, 0, 100);
 
   overo_link.up.msg.thrust_out = thrust_out;
   overo_link.up.msg.pitch_out = pitch_out;
@@ -112,12 +116,14 @@ static inline void main_periodic( void ) {
   }
 }
 
-static inline void main_event( void ) {
+static inline void main_event(void)
+{
   ImuEvent(on_gyro_accel_event, on_accel_event, on_mag_event);
-  OveroLinkEvent(main_on_overo_msg_received,main_on_overo_link_error);
+  OveroLinkEvent(main_on_overo_msg_received, main_on_overo_link_error);
 }
 
-static inline void main_on_overo_msg_received(void) {
+static inline void main_on_overo_msg_received(void)
+{
 
   overo_link.up.msg.bench_sensor.x = bench_sensors.angle_1;
   overo_link.up.msg.bench_sensor.y = bench_sensors.angle_2;
@@ -143,70 +149,73 @@ static inline void main_on_overo_msg_received(void) {
 
 }
 
-static inline void main_on_overo_link_lost(void) {
+static inline void main_on_overo_link_lost(void)
+{
   //actuators_set(FALSE);
   spi_msg_cnt = 0;
 }
 
 
-static inline void on_accel_event(void) {
+static inline void on_accel_event(void)
+{
 
 }
 
-static inline void on_gyro_accel_event(void) {
+static inline void on_gyro_accel_event(void)
+{
   imu_scale_gyro(&imu);
   imu_scale_accel(&imu);
 
   //LED_TOGGLE(2);
   static uint8_t cnt;
   cnt++;
-  if (cnt > 15) cnt = 0;
+  if (cnt > 15) { cnt = 0; }
 
   if (cnt == 0) {
     DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
-                   &imu.gyro_unscaled.p,
-                   &imu.gyro_unscaled.q,
-                   &imu.gyro_unscaled.r);
+                               &imu.gyro_unscaled.p,
+                               &imu.gyro_unscaled.q,
+                               &imu.gyro_unscaled.r);
 
     DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,
-                &imu.accel_unscaled.x,
-                &imu.accel_unscaled.y,
-                &imu.accel_unscaled.z);
-  }
-  else if (cnt == 7) {
+                                &imu.accel_unscaled.x,
+                                &imu.accel_unscaled.y,
+                                &imu.accel_unscaled.z);
+  } else if (cnt == 7) {
     DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel,
-                 &imu.gyro.p,
-                 &imu.gyro.q,
-                 &imu.gyro.r);
+                                  &imu.gyro.p,
+                                  &imu.gyro.q,
+                                  &imu.gyro.r);
 
     DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel,
-                  &imu.accel.x,
-                  &imu.accel.y,
-                  &imu.accel.z);
+                                   &imu.accel.x,
+                                   &imu.accel.y,
+                                   &imu.accel.z);
   }
 }
 
 
-static inline void on_mag_event(void) {
+static inline void on_mag_event(void)
+{
   imu_scale_mag(&imu);
   static uint8_t cnt;
   cnt++;
-  if (cnt > 1) cnt = 0;
+  if (cnt > 1) { cnt = 0; }
 
-  if (cnt%2) {
+  if (cnt % 2) {
     DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel,
-                &imu.mag.x,
-                &imu.mag.y,
-                &imu.mag.z);
-  }
-  else {
+                                 &imu.mag.x,
+                                 &imu.mag.y,
+                                 &imu.mag.z);
+  } else {
     DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
-                  &imu.mag_unscaled.x,
-                  &imu.mag_unscaled.y,
-                  &imu.mag_unscaled.z);
+                              &imu.mag_unscaled.x,
+                              &imu.mag_unscaled.y,
+                              &imu.mag_unscaled.z);
   }
 }
 
-static inline void main_on_overo_link_error(void){
+static inline void main_on_overo_link_error(void)
+{
   spi_errors++;
 }

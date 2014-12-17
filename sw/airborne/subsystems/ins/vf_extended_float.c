@@ -69,27 +69,31 @@ struct VffExtended vff;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_vffe(struct transport_tx *trans, struct link_device *dev) {
+static void send_vffe(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_VFF_EXTENDED(trans, dev, AC_ID,
-      &vff.z_meas, &vff.z_meas_baro,
-      &vff.z, &vff.zdot, &vff.zdotdot,
-      &vff.bias, &vff.offset);
+                             &vff.z_meas, &vff.z_meas_baro,
+                             &vff.z, &vff.zdot, &vff.zdotdot,
+                             &vff.bias, &vff.offset);
 }
 #endif
 
-void vff_init_zero(void) {
+void vff_init_zero(void)
+{
   vff_init(0., 0., 0., 0.);
 }
 
-void vff_init(float init_z, float init_zdot, float init_accel_bias, float init_baro_offset) {
+void vff_init(float init_z, float init_zdot, float init_accel_bias, float init_baro_offset)
+{
   vff.z = init_z;
   vff.zdot = init_zdot;
   vff.bias = init_accel_bias;
   vff.offset = init_baro_offset;
   int i, j;
-  for (i=0; i<VFF_STATE_SIZE; i++) {
-    for (j=0; j<VFF_STATE_SIZE; j++)
+  for (i = 0; i < VFF_STATE_SIZE; i++) {
+    for (j = 0; j < VFF_STATE_SIZE; j++) {
       vff.P[i][j] = 0.;
+    }
     vff.P[i][i] = INIT_PXX;
   }
 
@@ -121,20 +125,21 @@ void vff_init(float init_z, float init_zdot, float init_accel_bias, float init_b
  Pk1 = F * Pk0 * F' + Q;
 
 */
-void vff_propagate(float accel, float dt) {
+void vff_propagate(float accel, float dt)
+{
   /* update state */
   vff.zdotdot = accel + 9.81 - vff.bias;
   vff.z = vff.z + dt * vff.zdot;
   vff.zdot = vff.zdot + dt * vff.zdotdot;
   /* update covariance */
-  const float FPF00 = vff.P[0][0] + dt * ( vff.P[1][0] + vff.P[0][1] + dt * vff.P[1][1] );
-  const float FPF01 = vff.P[0][1] + dt * ( vff.P[1][1] - vff.P[0][2] - dt * vff.P[1][2] );
-  const float FPF02 = vff.P[0][2] + dt * ( vff.P[1][2] );
-  const float FPF10 = vff.P[1][0] + dt * (-vff.P[2][0] + vff.P[1][1] - dt * vff.P[2][1] );
-  const float FPF11 = vff.P[1][1] + dt * (-vff.P[2][1] - vff.P[1][2] + dt * vff.P[2][2] );
-  const float FPF12 = vff.P[1][2] + dt * (-vff.P[2][2] );
-  const float FPF20 = vff.P[2][0] + dt * ( vff.P[2][1] );
-  const float FPF21 = vff.P[2][1] + dt * (-vff.P[2][2] );
+  const float FPF00 = vff.P[0][0] + dt * (vff.P[1][0] + vff.P[0][1] + dt * vff.P[1][1]);
+  const float FPF01 = vff.P[0][1] + dt * (vff.P[1][1] - vff.P[0][2] - dt * vff.P[1][2]);
+  const float FPF02 = vff.P[0][2] + dt * (vff.P[1][2]);
+  const float FPF10 = vff.P[1][0] + dt * (-vff.P[2][0] + vff.P[1][1] - dt * vff.P[2][1]);
+  const float FPF11 = vff.P[1][1] + dt * (-vff.P[2][1] - vff.P[1][2] + dt * vff.P[2][2]);
+  const float FPF12 = vff.P[1][2] + dt * (-vff.P[2][2]);
+  const float FPF20 = vff.P[2][0] + dt * (vff.P[2][1]);
+  const float FPF21 = vff.P[2][1] + dt * (-vff.P[2][2]);
   const float FPF22 = vff.P[2][2];
   const float FPF33 = vff.P[3][3];
 
@@ -168,15 +173,16 @@ void vff_propagate(float accel, float dt) {
   // update covariance
   Pp = Pm - K*H*Pm;
 */
-static void update_baro_conf(float z_meas, float conf) {
+static void update_baro_conf(float z_meas, float conf)
+{
   vff.z_meas_baro = z_meas;
 
   const float y = z_meas - vff.z + vff.offset;
   const float S = vff.P[0][0] - vff.P[0][3] - vff.P[3][0] + vff.P[3][3] + conf;
-  const float K0 = (vff.P[0][0] - vff.P[0][3]) * 1/S;
-  const float K1 = (vff.P[1][0] - vff.P[1][3]) * 1/S;
-  const float K2 = (vff.P[2][0] - vff.P[2][3]) * 1/S;
-  const float K3 = (vff.P[3][0] - vff.P[3][3]) * 1/S;
+  const float K0 = (vff.P[0][0] - vff.P[0][3]) * 1 / S;
+  const float K1 = (vff.P[1][0] - vff.P[1][3]) * 1 / S;
+  const float K2 = (vff.P[2][0] - vff.P[2][3]) * 1 / S;
+  const float K3 = (vff.P[3][0] - vff.P[3][3]) * 1 / S;
 
   vff.z       = vff.z       + K0 * y;
   vff.zdot    = vff.zdot    + K1 * y;
@@ -207,11 +213,13 @@ static void update_baro_conf(float z_meas, float conf) {
 
 }
 
-void vff_update_baro(float z_meas) {
+void vff_update_baro(float z_meas)
+{
   update_baro_conf(z_meas, R_BARO);
 }
 
-void vff_update_baro_conf(float z_meas, float conf) {
+void vff_update_baro_conf(float z_meas, float conf)
+{
   update_baro_conf(z_meas, conf);
 }
 
@@ -229,15 +237,16 @@ void vff_update_baro_conf(float z_meas, float conf) {
   // update covariance
   Pp = Pm - K*H*Pm;
 */
-static void update_alt_conf(float z_meas, float conf) {
+static void update_alt_conf(float z_meas, float conf)
+{
   vff.z_meas = z_meas;
 
   const float y = z_meas - vff.z;
   const float S = vff.P[0][0] + conf;
-  const float K0 = vff.P[0][0] * 1/S;
-  const float K1 = vff.P[1][0] * 1/S;
-  const float K2 = vff.P[2][0] * 1/S;
-  const float K3 = vff.P[3][0] * 1/S;
+  const float K0 = vff.P[0][0] * 1 / S;
+  const float K1 = vff.P[1][0] * 1 / S;
+  const float K2 = vff.P[2][0] * 1 / S;
+  const float K3 = vff.P[3][0] * 1 / S;
 
   vff.z       = vff.z       + K0 * y;
   vff.zdot    = vff.zdot    + K1 * y;
@@ -267,11 +276,13 @@ static void update_alt_conf(float z_meas, float conf) {
   vff.P[3][3] -= K3 * P3;
 }
 
-void vff_update_z(float z_meas) {
+void vff_update_z(float z_meas)
+{
   update_alt_conf(z_meas, R_ALT);
 }
 
-void vff_update_z_conf(float z_meas, float conf) {
+void vff_update_z_conf(float z_meas, float conf)
+{
   update_alt_conf(z_meas, conf);
 }
 
@@ -289,14 +300,15 @@ void vff_update_z_conf(float z_meas, float conf) {
   // update covariance
   Pp = Pm - K*H*Pm;
 */
-static void update_offset_conf(float offset, float conf) {
+static void update_offset_conf(float offset, float conf)
+{
 
   const float y = offset - vff.offset;
   const float S = vff.P[3][3] + conf;
-  const float K0 = vff.P[0][3] * 1/S;
-  const float K1 = vff.P[1][3] * 1/S;
-  const float K2 = vff.P[2][3] * 1/S;
-  const float K3 = vff.P[3][3] * 1/S;
+  const float K0 = vff.P[0][3] * 1 / S;
+  const float K1 = vff.P[1][3] * 1 / S;
+  const float K2 = vff.P[2][3] * 1 / S;
+  const float K3 = vff.P[3][3] * 1 / S;
 
   vff.z       = vff.z       + K0 * y;
   vff.zdot    = vff.zdot    + K1 * y;
@@ -326,12 +338,14 @@ static void update_offset_conf(float offset, float conf) {
   vff.P[3][3] -= K3 * P3;
 }
 
-void vff_update_offset(float offset) {
+void vff_update_offset(float offset)
+{
   update_offset_conf(offset, R_OFFSET);
 }
 
 
-void vff_realign(float z_meas) {
+void vff_realign(float z_meas)
+{
   //vff.z = z_meas;
   //vff.zdot = 0.;
   //vff.offset = 0.;

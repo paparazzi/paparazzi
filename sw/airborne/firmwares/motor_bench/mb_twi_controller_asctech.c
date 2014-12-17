@@ -22,7 +22,8 @@ uint8_t mb_twi_i2c_done;
 #define MB_TWI_CONTROLLER_MAX_CMD 200
 #define MB_TWI_CONTROLLER_ADDR 0x02
 
-void mb_twi_controller_init(void) {
+void mb_twi_controller_init(void)
+{
   mb_twi_nb_overun = 0;
   mb_twi_i2c_done = TRUE;
   mb_twi_controller_asctech_command = FALSE;
@@ -30,7 +31,8 @@ void mb_twi_controller_init(void) {
   mb_twi_controller_asctech_addr = MB_TWI_CONTROLLER_ASCTECH_ADDR_FRONT;
 }
 
-void mb_twi_controller_set( float throttle ) {
+void mb_twi_controller_set(float throttle)
+{
 
   if (mb_twi_i2c_done) {
     if (mb_twi_controller_asctech_command) {
@@ -42,7 +44,7 @@ void mb_twi_controller_set( float throttle ) {
           i2c0_buf[1] = mb_twi_controller_asctech_addr;
           i2c0_buf[2] = 0;
           i2c0_buf[3] = 231 + mb_twi_controller_asctech_addr;
-          //	mb_twi_i2c_done = FALSE;
+          //  mb_twi_i2c_done = FALSE;
           i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
           break;
 
@@ -51,7 +53,7 @@ void mb_twi_controller_set( float throttle ) {
           i2c0_buf[1] = mb_twi_controller_asctech_addr;
           i2c0_buf[2] = 0;
           i2c0_buf[3] = 234 + mb_twi_controller_asctech_addr;
-          //	mb_twi_i2c_done = FALSE;
+          //  mb_twi_i2c_done = FALSE;
           i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
           break;
 
@@ -60,15 +62,14 @@ void mb_twi_controller_set( float throttle ) {
           i2c0_buf[1] = mb_twi_controller_asctech_addr;
           i2c0_buf[2] = mb_twi_controller_asctech_new_addr;
           i2c0_buf[3] = 230 + mb_twi_controller_asctech_addr +
-            mb_twi_controller_asctech_new_addr;
+                        mb_twi_controller_asctech_new_addr;
           mb_twi_controller_asctech_addr = mb_twi_controller_asctech_new_addr;
-          //	mb_twi_i2c_done = FALSE;
+          //  mb_twi_i2c_done = FALSE;
           i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
           break;
 
       }
-    }
-    else {
+    } else {
 
       uint8_t pitch = 100;
       uint8_t roll  = 100;
@@ -81,12 +82,13 @@ void mb_twi_controller_set( float throttle ) {
       //      mb_twi_i2c_done = FALSE;
       i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
     }
-  }
-  else
+  } else {
     mb_twi_nb_overun++;
+  }
 }
 
-void mb_twi_controller_set_raw( uint8_t throttle ) {
+void mb_twi_controller_set_raw(uint8_t throttle)
+{
 
 
 }

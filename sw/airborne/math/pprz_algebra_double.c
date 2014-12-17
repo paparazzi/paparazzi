@@ -26,7 +26,7 @@
 
 #include "pprz_algebra_double.h"
 
-void double_rmat_of_eulers_321(struct DoubleRMat* rm, struct DoubleEulers* e)
+void double_rmat_of_eulers_321(struct DoubleRMat *rm, struct DoubleEulers *e)
 {
   const double sphi   = sin(e->phi);
   const double cphi   = cos(e->phi);
@@ -46,7 +46,7 @@ void double_rmat_of_eulers_321(struct DoubleRMat* rm, struct DoubleEulers* e)
   RMAT_ELMT(*rm, 2, 2) = cphi * ctheta;
 }
 
-void double_quat_of_eulers(struct DoubleQuat* q, struct DoubleEulers* e)
+void double_quat_of_eulers(struct DoubleQuat *q, struct DoubleEulers *e)
 {
   const double phi2   = e->phi / 2.0;
   const double theta2 = e->theta / 2.0;
@@ -65,7 +65,7 @@ void double_quat_of_eulers(struct DoubleQuat* q, struct DoubleEulers* e)
   q->qz =  c_phi2 * c_theta2 * s_psi2 - s_phi2 * s_theta2 * c_psi2;
 }
 
-void double_eulers_of_quat(struct DoubleEulers* e, struct DoubleQuat* q)
+void double_eulers_of_quat(struct DoubleEulers *e, struct DoubleQuat *q)
 {
   const double qx2  = q->qx * q->qx;
   const double qy2  = q->qy * q->qy;
@@ -87,7 +87,7 @@ void double_eulers_of_quat(struct DoubleEulers* e, struct DoubleQuat* q)
   e->psi = atan2(dcm01, dcm00);
 }
 
-void double_quat_vmult(struct DoubleVect3* v_out, struct DoubleQuat* q, struct DoubleVect3* v_in)
+void double_quat_vmult(struct DoubleVect3 *v_out, struct DoubleQuat *q, struct DoubleVect3 *v_in)
 {
   const double qi2_M1_2  = q->qi * q->qi - 0.5;
   const double qiqx = q->qi * q->qx;

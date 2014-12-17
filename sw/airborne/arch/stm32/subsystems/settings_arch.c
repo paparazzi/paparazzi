@@ -39,19 +39,19 @@
 #include <libopencm3/stm32/dbgmcu.h>
 
 struct FlashInfo {
-    uint32_t addr;
-    uint32_t total_size;
-    uint32_t page_nr;
-    uint32_t page_size;
+  uint32_t addr;
+  uint32_t total_size;
+  uint32_t page_nr;
+  uint32_t page_size;
 };
 
 
 static uint32_t pflash_checksum(uint32_t ptr, uint32_t size);
-static int32_t flash_detect(struct FlashInfo* flash);
-static int32_t pflash_program_bytes(struct FlashInfo* flash,
-                     uint32_t src,
-                     uint32_t size,
-                     uint32_t chksum);
+static int32_t flash_detect(struct FlashInfo *flash);
+static int32_t pflash_program_bytes(struct FlashInfo *flash,
+                                    uint32_t src,
+                                    uint32_t size,
+                                    uint32_t chksum);
 
 #if defined(STM32F1)
 #define FLASH_SIZE_ MMIO16(0x1FFFF7E0)
@@ -64,7 +64,8 @@ static int32_t pflash_program_bytes(struct FlashInfo* flash,
 #define FCHK        4
 
 
-static uint32_t pflash_checksum(uint32_t ptr, uint32_t size) {
+static uint32_t pflash_checksum(uint32_t ptr, uint32_t size)
+{
   uint32_t i;
 
   /* reset crc */
@@ -72,32 +73,32 @@ static uint32_t pflash_checksum(uint32_t ptr, uint32_t size) {
 
   if (ptr % 4) {
     /* calc in 8bit chunks */
-    for (i=0; i<(size & ~3); i+=4) {
-      CRC_DR = (*(uint8_t*) (ptr+i)) |
-               (*(uint8_t*) (ptr+i+1)) << 8 |
-               (*(uint8_t*) (ptr+i+2)) << 16 |
-               (*(uint8_t*) (ptr+i+3)) << 24;
+    for (i = 0; i < (size & ~3); i += 4) {
+      CRC_DR = (*(uint8_t *)(ptr + i)) |
+               (*(uint8_t *)(ptr + i + 1)) << 8 |
+               (*(uint8_t *)(ptr + i + 2)) << 16 |
+               (*(uint8_t *)(ptr + i + 3)) << 24;
     }
   } else {
     /* calc in 32bit */
-    for (i=0; i<(size & ~3); i+=4) {
-      CRC_DR = *(uint32_t*) (ptr+i);
+    for (i = 0; i < (size & ~3); i += 4) {
+      CRC_DR = *(uint32_t *)(ptr + i);
     }
   }
 
   /* remaining bytes */
   switch (size % 4) {
     case 1:
-      CRC_DR = *(uint8_t*) (ptr+i);
+      CRC_DR = *(uint8_t *)(ptr + i);
       break;
     case 2:
-      CRC_DR = (*(uint8_t*) (ptr+i)) |
-               (*(uint8_t*) (ptr+i+1)) << 8;
+      CRC_DR = (*(uint8_t *)(ptr + i)) |
+               (*(uint8_t *)(ptr + i + 1)) << 8;
       break;
     case 3:
-      CRC_DR = (*(uint8_t*) (ptr+i)) |
-               (*(uint8_t*) (ptr+i+1)) << 8 |
-               (*(uint8_t*) (ptr+i+2)) << 16;
+      CRC_DR = (*(uint8_t *)(ptr + i)) |
+               (*(uint8_t *)(ptr + i + 1)) << 8 |
+               (*(uint8_t *)(ptr + i + 2)) << 16;
       break;
     default:
       break;
@@ -106,7 +107,8 @@ static uint32_t pflash_checksum(uint32_t ptr, uint32_t size) {
   return CRC_DR;
 }
 
-static int32_t flash_detect(struct FlashInfo* flash) {
+static int32_t flash_detect(struct FlashInfo *flash)
+{
 
   flash->total_size = FLASH_SIZE_ * 0x400;
 
@@ -115,23 +117,21 @@ static int32_t flash_detect(struct FlashInfo* flash) {
            device ID is only readable when freshly loaded through JTAG?! */
 
   switch (flash->total_size) {
-    /* low density */
+      /* low density */
     case 0x00004000: /* 16 kBytes */
     case 0x00008000: /* 32 kBytes */
-    /* medium density, e.g. STM32F103RBT6 (Olimex STM32-H103) */
+      /* medium density, e.g. STM32F103RBT6 (Olimex STM32-H103) */
     case 0x00010000: /* 64 kBytes */
-    case 0x00020000: /* 128 kBytes */
-    {
+    case 0x00020000: { /* 128 kBytes */
       flash->page_size = 0x400;
       break;
     }
     /* high density, e.g. STM32F103RE (Joby Lisa/M, Lisa/L) */
     case 0x00040000: /* 256 kBytes */
     case 0x00080000: /* 512 kBytes */
-    /* XL density */
+      /* XL density */
     case 0x000C0000: /* 768 kBytes */
-    case 0x00100000: /* 1 MByte */
-    {
+    case 0x00100000: { /* 1 MByte */
       flash->page_size = 0x800;
       break;
     }
@@ -145,21 +145,19 @@ static int32_t flash_detect(struct FlashInfo* flash) {
   device_id = DBGMCU_IDCODE & DBGMCU_IDCODE_DEV_ID_MASK;
 
   switch (device_id) {
-    /* low density */
+      /* low density */
     case 0x412:
-    /* medium density, e.g. STM32F103RB (Olimex STM32-H103) */
-    case 0x410:
-    {
+      /* medium density, e.g. STM32F103RB (Olimex STM32-H103) */
+    case 0x410: {
       flash->page_size = 0x400;
       break;
     }
     /* high density, e.g. STM32F103RE (Joby Lisa/L) */
     case 0x414:
-    /* XL density */
+      /* XL density */
     case 0x430:
-    /* connectivity line */
-    case 0x418:
-    {
+      /* connectivity line */
+    case 0x418: {
       flash->page_size = 0x800;
       break;
     }
@@ -190,10 +188,11 @@ static int32_t flash_detect(struct FlashInfo* flash) {
 // $1 = {addr = 134739968, total_size = 524288, page_nr = 255, page_size = 2048}
 //              0x807F800             0x80000
 #if defined(STM32F1)
-static int32_t pflash_program_bytes(struct FlashInfo* flash,
-                    uint32_t   src,
-                    uint32_t   size,
-                    uint32_t   chksum) {
+static int32_t pflash_program_bytes(struct FlashInfo *flash,
+                                    uint32_t   src,
+                                    uint32_t   size,
+                                    uint32_t   chksum)
+{
   uint32_t i;
 
   /* erase */
@@ -202,55 +201,57 @@ static int32_t pflash_program_bytes(struct FlashInfo* flash,
   flash_lock();
 
   /* verify erase */
-  for (i=0; i<flash->page_size; i+=4) {
-    if ((*(uint32_t*) (flash->addr + i)) != 0xFFFFFFFF) return -1;
+  for (i = 0; i < flash->page_size; i += 4) {
+    if ((*(uint32_t *)(flash->addr + i)) != 0xFFFFFFFF) { return -1; }
   }
 
   flash_unlock();
   /* write full 16 bit words */
-  for (i=0; i<(size & ~1); i+=2) {
-    flash_program_half_word(flash->addr+i,
-        (uint16_t)(*(uint8_t*)(src+i) | (*(uint8_t*)(src+i+1)) << 8));
+  for (i = 0; i < (size & ~1); i += 2) {
+    flash_program_half_word(flash->addr + i,
+                            (uint16_t)(*(uint8_t *)(src + i) | (*(uint8_t *)(src + i + 1)) << 8));
   }
   /* fill bytes with a zero */
   if (size & 1) {
-    flash_program_half_word(flash->addr+i, (uint16_t)(*(uint8_t*)(src+i)));
+    flash_program_half_word(flash->addr + i, (uint16_t)(*(uint8_t *)(src + i)));
   }
   /* write size */
-  flash_program_half_word(flash->addr+flash->page_size-FSIZ,
+  flash_program_half_word(flash->addr + flash->page_size - FSIZ,
                           (uint16_t)(size & 0xFFFF));
-  flash_program_half_word(flash->addr+flash->page_size-FSIZ+2,
+  flash_program_half_word(flash->addr + flash->page_size - FSIZ + 2,
                           (uint16_t)((size >> 16) & 0xFFFF));
   /* write checksum */
-  flash_program_half_word(flash->addr+flash->page_size-FCHK,
+  flash_program_half_word(flash->addr + flash->page_size - FCHK,
                           (uint16_t)(chksum & 0xFFFF));
-  flash_program_half_word(flash->addr+flash->page_size-FCHK+2,
+  flash_program_half_word(flash->addr + flash->page_size - FCHK + 2,
                           (uint16_t)((chksum >> 16) & 0xFFFF));
   flash_lock();
 
   /* verify data */
-  for (i=0; i<size; i++) {
-    if ((*(uint8_t*) (flash->addr+i)) != (*(uint8_t*) (src+i))) return -2;
+  for (i = 0; i < size; i++) {
+    if ((*(uint8_t *)(flash->addr + i)) != (*(uint8_t *)(src + i))) { return -2; }
   }
-  if (*(uint32_t*) (flash->addr+flash->page_size-FSIZ) != size) return -3;
-  if (*(uint32_t*) (flash->addr+flash->page_size-FCHK) != chksum) return -4;
+  if (*(uint32_t *)(flash->addr + flash->page_size - FSIZ) != size) { return -3; }
+  if (*(uint32_t *)(flash->addr + flash->page_size - FCHK) != chksum) { return -4; }
 
   return 0;
 }
 #elif defined(STM32F4)
-static int32_t pflash_program_bytes(struct FlashInfo* flash __attribute__((unused)),
+static int32_t pflash_program_bytes(struct FlashInfo *flash __attribute__((unused)),
                                     uint32_t   src __attribute__((unused)),
                                     uint32_t   size __attribute__((unused)),
-                                    uint32_t   chksum __attribute__((unused))) {
+                                    uint32_t   chksum __attribute__((unused)))
+{
   return -1;
 }
 #endif
 
 
-int32_t persistent_write(uint32_t ptr, uint32_t size) {
+int32_t persistent_write(uint32_t ptr, uint32_t size)
+{
   struct FlashInfo flash_info;
-  if (flash_detect(&flash_info)) return -1;
-  if ((size > flash_info.page_size-FSIZ) || (size == 0)) return -2;
+  if (flash_detect(&flash_info)) { return -1; }
+  if ((size > flash_info.page_size - FSIZ) || (size == 0)) { return -2; }
 
   return pflash_program_bytes(&flash_info,
                               ptr,
@@ -258,23 +259,25 @@ int32_t persistent_write(uint32_t ptr, uint32_t size) {
                               pflash_checksum(ptr, size));
 }
 
-int32_t persistent_read(uint32_t ptr, uint32_t size) {
+int32_t persistent_read(uint32_t ptr, uint32_t size)
+{
   struct FlashInfo flash;
   uint32_t i;
 
   /* check parameters */
-  if (flash_detect(&flash)) return -1;
-  if ((size > flash.page_size-FSIZ) || (size == 0)) return -2;
+  if (flash_detect(&flash)) { return -1; }
+  if ((size > flash.page_size - FSIZ) || (size == 0)) { return -2; }
 
   /* check consistency */
-  if (size != *(uint32_t*)(flash.addr+flash.page_size-FSIZ)) return -3;
+  if (size != *(uint32_t *)(flash.addr + flash.page_size - FSIZ)) { return -3; }
   if (pflash_checksum(flash.addr, size) !=
-      *(uint32_t*)(flash.addr+flash.page_size-FCHK))
+      *(uint32_t *)(flash.addr + flash.page_size - FCHK)) {
     return -4;
+  }
 
   /* copy data */
-  for (i=0; i<size; i++) {
-    *(uint8_t*) (ptr+i) = *(uint8_t*) (flash.addr+i);
+  for (i = 0; i < size; i++) {
+    *(uint8_t *)(ptr + i) = *(uint8_t *)(flash.addr + i);
   }
 
   return 0;

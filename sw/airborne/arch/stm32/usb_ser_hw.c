@@ -475,7 +475,7 @@ void VCOM_send_message(void)
       if (!fifo_get(&txfifo, &buf[i])) {
         break;
       }
-	}
+    }
     usbd_ep_write_packet(my_usbd_dev, 0x82, buf, i);
   }
 }

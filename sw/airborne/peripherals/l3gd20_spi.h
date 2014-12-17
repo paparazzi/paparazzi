@@ -57,11 +57,13 @@ extern void l3gd20_spi_read(struct L3gd20_Spi *l3g);
 extern void l3gd20_spi_event(struct L3gd20_Spi *l3g);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void l3gd20_spi_periodic(struct L3gd20_Spi *l3g) {
-  if (l3g->initialized)
+static inline void l3gd20_spi_periodic(struct L3gd20_Spi *l3g)
+{
+  if (l3g->initialized) {
     l3gd20_spi_read(l3g);
-  else
+  } else {
     l3gd20_spi_start_configure(l3g);
+  }
 }
 
 #endif // L3GD20_SPI_H

@@ -48,10 +48,10 @@ extern struct FloatVect3 ins_mag;
 
 extern volatile uint8_t ins_msg_received;
 
-extern void vn100_init( void );
-extern void vn100_periodic_task( void );
-extern void vn100_event_task( void );
-extern void vn100_report_task( void );
+extern void vn100_init(void);
+extern void vn100_periodic_task(void);
+extern void vn100_event_task(void);
+extern void vn100_report_task(void);
 
 /* last received SPI packet */
 extern VN100_Res_Packet last_received_packet;

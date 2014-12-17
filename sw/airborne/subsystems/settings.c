@@ -38,10 +38,12 @@ struct PersistentSettings pers_settings;
 bool_t settings_store_flag;
 
 
-void settings_init(void) {
+void settings_init(void)
+{
 #if USE_PERSISTENT_SETTINGS
-  if (persistent_read((uint32_t)&pers_settings, sizeof(struct PersistentSettings)))
-    return; // return -1 ?
+  if (persistent_read((uint32_t)&pers_settings, sizeof(struct PersistentSettings))) {
+    return;  // return -1 ?
+  }
   /* from generated/settings.h */
   persistent_settings_load();
 #endif
@@ -50,7 +52,8 @@ void settings_init(void) {
 /** store settings marked as persistent to flash
  * @return 0 on success
  */
-int32_t settings_store(void) {
+int32_t settings_store(void)
+{
 #if USE_PERSISTENT_SETTINGS
   if (settings_store_flag) {
     /* from generated/settings.h */

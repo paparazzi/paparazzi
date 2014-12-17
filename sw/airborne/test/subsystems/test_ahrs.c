@@ -141,11 +141,11 @@ static inline void on_mag_event(void)
 static inline void main_report(void)
 {
 
-  PeriodicPrescaleBy10( {
+  PeriodicPrescaleBy10({
     DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
-                                &imu.accel_unscaled.x,
-                                &imu.accel_unscaled.y,
-                                &imu.accel_unscaled.z);
+    &imu.accel_unscaled.x,
+    &imu.accel_unscaled.y,
+    &imu.accel_unscaled.z);
   }, {
     DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
                                &imu.gyro_unscaled.p,
@@ -153,9 +153,9 @@ static inline void main_report(void)
                                &imu.gyro_unscaled.r);
   }, {
     DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
-                              &imu.mag_unscaled.x,
-                              &imu.mag_unscaled.y,
-                              &imu.mag_unscaled.z);
+    &imu.mag_unscaled.x,
+    &imu.mag_unscaled.y,
+    &imu.mag_unscaled.z);
   }, {
     DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
                                    &imu.accel.x,
@@ -163,16 +163,16 @@ static inline void main_report(void)
                                    &imu.accel.z);
   }, {
     DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
-                                  &imu.gyro.p,
-                                  &imu.gyro.q,
-                                  &imu.gyro.r);
+    &imu.gyro.p,
+    &imu.gyro.q,
+    &imu.gyro.r);
   },
 
   {
     DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
-                                 &imu.mag.x,
-                                 &imu.mag.y,
-                                 &imu.mag.z);
+    &imu.mag.x,
+    &imu.mag.y,
+    &imu.mag.z);
   },
 
   {
@@ -209,25 +209,25 @@ static inline void main_report(void)
     float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_impl.ltp_to_imu_quat);
     struct Int32Eulers euler_i;
     EULERS_BFP_OF_REAL(euler_i, ltp_to_imu_euler);
-    struct Int32Eulers* eulers_body = stateGetNedToBodyEulers_i();
+    struct Int32Eulers *eulers_body = stateGetNedToBodyEulers_i();
     DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
-                                 &euler_i.phi,
-                                 &euler_i.theta,
-                                 &euler_i.psi,
-                                 &(eulers_body->phi),
-                                 &(eulers_body->theta),
-                                 &(eulers_body->psi));
+    &euler_i.phi,
+    &euler_i.theta,
+    &euler_i.psi,
+    &(eulers_body->phi),
+    &(eulers_body->theta),
+    &(eulers_body->psi));
 #else
     struct Int32Eulers ltp_to_imu_euler;
     int32_eulers_of_quat(&ltp_to_imu_euler, &ahrs_impl.ltp_to_imu_quat);
-    struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
+    struct Int32Eulers *eulers = stateGetNedToBodyEulers_i();
     DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
-                                 &ltp_to_imu_euler.phi,
-                                 &ltp_to_imu_euler.theta,
-                                 &ltp_to_imu_euler.psi,
-                                 &(eulers->phi),
-                                 &(eulers->theta),
-                                 &(eulers->psi));
+    &ltp_to_imu_euler.phi,
+    &ltp_to_imu_euler.theta,
+    &ltp_to_imu_euler.psi,
+    &(eulers->phi),
+    &(eulers->theta),
+    &(eulers->psi));
 #endif
   }, {
 #ifndef AHRS_FLOAT

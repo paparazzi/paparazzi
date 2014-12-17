@@ -31,21 +31,21 @@ void socket_init(int is_server)
   inet_aton("127.0.0.1", &socket_server.sin_addr);
 
   if (is_server) {
-    if (bind(socket_fd, (struct sockaddr*)&socket_server, sizeof(socket_server)) != 0) {
+    if (bind(socket_fd, (struct sockaddr *)&socket_server, sizeof(socket_server)) != 0) {
       perror("Socket: bind");
       exit(1);
     }
   }
 }
 
-int socket_recv(char* buffer, int len)
+int socket_recv(char *buffer, int len)
 {
   socklen_t slen = sizeof(socket_server);
-  return recvfrom(socket_fd, buffer, len, MSG_DONTWAIT, (struct sockaddr*)&socket_server, &slen);
+  return recvfrom(socket_fd, buffer, len, MSG_DONTWAIT, (struct sockaddr *)&socket_server, &slen);
 }
 
-void socket_send(char* buffer, int len)
+void socket_send(char *buffer, int len)
 {
   socklen_t slen = sizeof(socket_server);
-  sendto(socket_fd, buffer, len, MSG_DONTWAIT, (struct sockaddr*)&socket_server, slen);
+  sendto(socket_fd, buffer, len, MSG_DONTWAIT, (struct sockaddr *)&socket_server, slen);
 }

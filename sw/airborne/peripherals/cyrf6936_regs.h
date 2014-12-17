@@ -85,11 +85,11 @@ enum {
 
 // CYRF_XACT_CFG
 enum {
-  CYRF_MODE_SLEEP     = (0x0 <<2),
-  CYRF_MODE_IDLE      = (0x1 <<2),
-  CYRF_MODE_SYNTH_TX  = (0x2 <<2),
-  CYRF_MODE_SYNTH_RX  = (0x3 <<2),
-  CYRF_MODE_RX        = (0x4 <<2),
+  CYRF_MODE_SLEEP     = (0x0 << 2),
+  CYRF_MODE_IDLE      = (0x1 << 2),
+  CYRF_MODE_SYNTH_TX  = (0x2 << 2),
+  CYRF_MODE_SYNTH_RX  = (0x3 << 2),
+  CYRF_MODE_RX        = (0x4 << 2),
 };
 #define CYRF_FRC_END            (1<<5)
 #define CYRF_ACK_EN             (1<<7)
@@ -201,10 +201,10 @@ enum {
   CYRF_PA_4       = 0x7,
 };
 enum {
-  CYRF_DATA_MODE_GFSK = (0x0 <<3),
-  CYRF_DATA_MODE_8DR  = (0x1 <<3),
-  CYRF_DATA_MODE_DDR  = (0x2 <<3),
-  CYRF_DATA_MODE_SDR  = (0x3 <<3),
+  CYRF_DATA_MODE_GFSK = (0x0 << 3),
+  CYRF_DATA_MODE_8DR  = (0x1 << 3),
+  CYRF_DATA_MODE_DDR  = (0x2 << 3),
+  CYRF_DATA_MODE_SDR  = (0x3 << 3),
 };
 #define CYRF_DATA_CODE_LENGTH   (1<<5)
 

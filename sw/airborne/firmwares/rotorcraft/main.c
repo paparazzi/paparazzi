@@ -109,14 +109,14 @@ PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 #if USE_AHRS && USE_IMU && (defined AHRS_PROPAGATE_FREQUENCY)
 #if (AHRS_PROPAGATE_FREQUENCY > PERIODIC_FREQUENCY)
 #warning "PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY"
-INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY to at least ",AHRS_PROPAGATE_FREQUENCY)
+INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY to at least ", AHRS_PROPAGATE_FREQUENCY)
 #endif
 #endif
 
-static inline void on_gyro_event( void );
-static inline void on_accel_event( void );
-static inline void on_gps_event( void );
-static inline void on_mag_event( void );
+static inline void on_gyro_event(void);
+static inline void on_accel_event(void);
+static inline void on_gps_event(void);
+static inline void on_mag_event(void);
 
 
 tid_t main_periodic_tid; ///< id for main_periodic() timer
@@ -130,10 +130,11 @@ tid_t baro_tid;          ///< id for baro_periodic() timer
 #endif
 
 #ifndef SITL
-int main( void ) {
+int main(void)
+{
   main_init();
 
-  while(1) {
+  while (1) {
     handle_periodic_tasks();
     main_event();
   }
@@ -141,7 +142,8 @@ int main( void ) {
 }
 #endif /* SITL */
 
-STATIC_INLINE void main_init( void ) {
+STATIC_INLINE void main_init(void)
+{
 
   mcu_init();
 
@@ -181,37 +183,46 @@ STATIC_INLINE void main_init( void ) {
 #endif
 
   // register the timers for the periodic functions
-  main_periodic_tid = sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
-  modules_tid = sys_time_register_timer(1./MODULES_FREQUENCY, NULL);
-  radio_control_tid = sys_time_register_timer((1./60.), NULL);
+  main_periodic_tid = sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
+  modules_tid = sys_time_register_timer(1. / MODULES_FREQUENCY, NULL);
+  radio_control_tid = sys_time_register_timer((1. / 60.), NULL);
   failsafe_tid = sys_time_register_timer(0.05, NULL);
   electrical_tid = sys_time_register_timer(0.1, NULL);
-  telemetry_tid = sys_time_register_timer((1./TELEMETRY_FREQUENCY), NULL);
+  telemetry_tid = sys_time_register_timer((1. / TELEMETRY_FREQUENCY), NULL);
 #if USE_BARO_BOARD
-  baro_tid = sys_time_register_timer(1./BARO_PERIODIC_FREQUENCY, NULL);
+  baro_tid = sys_time_register_timer(1. / BARO_PERIODIC_FREQUENCY, NULL);
 #endif
 }
 
-STATIC_INLINE void handle_periodic_tasks( void ) {
-  if (sys_time_check_and_ack_timer(main_periodic_tid))
+STATIC_INLINE void handle_periodic_tasks(void)
+{
+  if (sys_time_check_and_ack_timer(main_periodic_tid)) {
     main_periodic();
-  if (sys_time_check_and_ack_timer(modules_tid))
+  }
+  if (sys_time_check_and_ack_timer(modules_tid)) {
     modules_periodic_task();
-  if (sys_time_check_and_ack_timer(radio_control_tid))
+  }
+  if (sys_time_check_and_ack_timer(radio_control_tid)) {
     radio_control_periodic_task();
-  if (sys_time_check_and_ack_timer(failsafe_tid))
+  }
+  if (sys_time_check_and_ack_timer(failsafe_tid)) {
     failsafe_check();
-  if (sys_time_check_and_ack_timer(electrical_tid))
+  }
+  if (sys_time_check_and_ack_timer(electrical_tid)) {
     electrical_periodic();
-  if (sys_time_check_and_ack_timer(telemetry_tid))
+  }
+  if (sys_time_check_and_ack_timer(telemetry_tid)) {
     telemetry_periodic();
+  }
 #if USE_BARO_BOARD
-  if (sys_time_check_and_ack_timer(baro_tid))
+  if (sys_time_check_and_ack_timer(baro_tid)) {
     baro_periodic();
+  }
 #endif
 }
 
-STATIC_INLINE void main_periodic( void ) {
+STATIC_INLINE void main_periodic(void)
+{
 
   imu_periodic();
 
@@ -224,15 +235,16 @@ STATIC_INLINE void main_periodic( void ) {
   if (autopilot_in_flight) {
     RunOnceEvery(PERIODIC_FREQUENCY, { autopilot_flight_time++;
 #if defined DATALINK || defined SITL
-        datalink_time++;
+                                       datalink_time++;
 #endif
-        });
+                                     });
   }
 
   RunOnceEvery(10, LED_PERIODIC());
 }
 
-STATIC_INLINE void telemetry_periodic(void) {
+STATIC_INLINE void telemetry_periodic(void)
+{
 #if PERIODIC_TELEMETRY
   periodic_telemetry_send_Main(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
@@ -243,20 +255,19 @@ STATIC_INLINE void telemetry_periodic(void) {
 #define RC_LOST_MODE AP_MODE_FAILSAFE
 #endif
 
-STATIC_INLINE void failsafe_check( void ) {
+STATIC_INLINE void failsafe_check(void)
+{
   if (radio_control.status == RC_REALLY_LOST &&
       autopilot_mode != AP_MODE_KILL &&
       autopilot_mode != AP_MODE_HOME &&
       autopilot_mode != AP_MODE_FAILSAFE &&
-      autopilot_mode != AP_MODE_NAV)
-  {
+      autopilot_mode != AP_MODE_NAV) {
     autopilot_set_mode(RC_LOST_MODE);
   }
 
 #if FAILSAFE_ON_BAT_CRITICAL
   if (autopilot_mode != AP_MODE_KILL &&
-      electrical.bat_critical)
-  {
+      electrical.bat_critical) {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
 #endif
@@ -268,14 +279,12 @@ STATIC_INLINE void failsafe_check( void ) {
 #if NO_GPS_LOST_WITH_RC_VALID
       radio_control.status != RC_OK &&
 #endif
-      GpsIsLost())
-  {
+      GpsIsLost()) {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
 
   if (autopilot_mode == AP_MODE_HOME &&
-      autopilot_motors_on && GpsIsLost())
-  {
+      autopilot_motors_on && GpsIsLost()) {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
 #endif
@@ -283,7 +292,8 @@ STATIC_INLINE void failsafe_check( void ) {
   autopilot_check_in_flight(autopilot_motors_on);
 }
 
-STATIC_INLINE void main_event( void ) {
+STATIC_INLINE void main_event(void)
+{
 
   i2c_event();
 
@@ -323,9 +333,10 @@ STATIC_INLINE void main_event( void ) {
 
 }
 
-static inline void on_accel_event( void ) {
+static inline void on_accel_event(void)
+{
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_CORRECT_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS accel update.")
+  PRINT_CONFIG_MSG("Calculating dt for AHRS accel update.")
   // timestamp in usec when last callback was received
   static uint32_t last_ts = 0;
   // current timestamp
@@ -334,8 +345,8 @@ PRINT_CONFIG_MSG("Calculating dt for AHRS accel update.")
   float dt = (float)(now_ts - last_ts) / 1e6;
   last_ts = now_ts;
 #else
-PRINT_CONFIG_MSG("Using fixed AHRS_CORRECT_FREQUENCY for AHRS accel update.")
-PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
+  PRINT_CONFIG_MSG("Using fixed AHRS_CORRECT_FREQUENCY for AHRS accel update.")
+  PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
   const float dt = 1. / (AHRS_CORRECT_FREQUENCY);
 #endif
 
@@ -346,9 +357,10 @@ PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
   }
 }
 
-static inline void on_gyro_event( void ) {
+static inline void on_gyro_event(void)
+{
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS/INS propagation.")
+  PRINT_CONFIG_MSG("Calculating dt for AHRS/INS propagation.")
   // timestamp in usec when last callback was received
   static uint32_t last_ts = 0;
   // current timestamp
@@ -357,8 +369,8 @@ PRINT_CONFIG_MSG("Calculating dt for AHRS/INS propagation.")
   float dt = (float)(now_ts - last_ts) / 1e6;
   last_ts = now_ts;
 #else
-PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for AHRS/INS propagation.")
-PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
+  PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for AHRS/INS propagation.")
+  PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
   const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
 #endif
 
@@ -366,13 +378,13 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
 
   if (ahrs.status == AHRS_UNINIT) {
     ahrs_aligner_run();
-    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
+    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED) {
       ahrs_align();
-  }
-  else {
+    }
+  } else {
     ahrs_propagate(dt);
 #ifdef SITL
-    if (nps_bypass_ahrs) sim_overwrite_ahrs();
+    if (nps_bypass_ahrs) { sim_overwrite_ahrs(); }
 #endif
     ins_propagate(dt);
   }
@@ -381,21 +393,24 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
 #endif
 }
 
-static inline void on_gps_event(void) {
+static inline void on_gps_event(void)
+{
   ahrs_update_gps();
   ins_update_gps();
 #ifdef USE_VEHICLE_INTERFACE
-  if (gps.fix == GPS_FIX_3D)
+  if (gps.fix == GPS_FIX_3D) {
     vi_notify_gps_available();
+  }
 #endif
 }
 
-static inline void on_mag_event(void) {
+static inline void on_mag_event(void)
+{
   imu_scale_mag(&imu);
 
 #if USE_MAGNETOMETER
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS mag update.")
+  PRINT_CONFIG_MSG("Calculating dt for AHRS mag update.")
   // timestamp in usec when last callback was received
   static uint32_t last_ts = 0;
   // current timestamp
@@ -404,8 +419,8 @@ PRINT_CONFIG_MSG("Calculating dt for AHRS mag update.")
   float dt = (float)(now_ts - last_ts) / 1e6;
   last_ts = now_ts;
 #else
-PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS mag update.")
-PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
+  PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS mag update.")
+  PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
   const float dt = 1. / (AHRS_MAG_CORRECT_FREQUENCY);
 #endif
 

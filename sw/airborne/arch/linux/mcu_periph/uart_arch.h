@@ -32,7 +32,8 @@
 #include <termios.h>
 
 // for conversion between linux baud rate definition and actual speed
-static inline int uart_speed(int def) {
+static inline int uart_speed(int def)
+{
   switch (def) {
     case B1200: return 1200;
     case B2400: return 2400;

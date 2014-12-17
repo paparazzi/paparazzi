@@ -47,8 +47,7 @@ void dc_shoot_rc_periodic(void)
   }
   if ((rd_shoot == 1) && (rd_num < 4)) {
     rd_num = rd_num + 1;
-  }
-  else {
+  } else {
     rd_num = 0;
     rd_shoot = 0;
   }

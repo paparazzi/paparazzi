@@ -37,7 +37,8 @@
 #error "MS2100 arch currently only implemented for STM32F1"
 #endif
 
-void ms2100_arch_init( void ) {
+void ms2100_arch_init(void)
+{
 
   /* set mag reset as output (reset on PC13) ----*/
   rcc_periph_clock_enable(RCC_GPIOC);
@@ -59,7 +60,8 @@ void ms2100_arch_init( void ) {
   nvic_enable_irq(NVIC_EXTI9_5_IRQ);
 }
 
-void ms2100_reset_cb( struct spi_transaction * t __attribute__ ((unused)) ) {
+void ms2100_reset_cb(struct spi_transaction *t __attribute__((unused)))
+{
   // set RESET pin high for at least 100 nsec
   // busy wait should not harm
   Ms2100Set();
@@ -67,15 +69,17 @@ void ms2100_reset_cb( struct spi_transaction * t __attribute__ ((unused)) ) {
   // FIXME, make nanosleep funcion
   uint32_t dt_ticks = cpu_ticks_of_nsec(110);
   int32_t end_cpu_ticks = systick_get_value() - dt_ticks;
-  if (end_cpu_ticks < 0)
+  if (end_cpu_ticks < 0) {
     end_cpu_ticks += systick_get_reload();
+  }
   while (systick_get_value() > (uint32_t)end_cpu_ticks)
     ;
 
   Ms2100Reset();
 }
 
-void exti9_5_isr(void) {
+void exti9_5_isr(void)
+{
   ms2100.status = MS2100_GOT_EOC;
   exti_reset_request(EXTI5);
 }

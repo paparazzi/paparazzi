@@ -41,21 +41,23 @@ int at_socket = -1, //AT socket connection
     navdata_socket = -1; //Navdata socket connection
 
 struct sockaddr_in pc_addr, //Own pc address
-        drone_at, //Drone AT address
-        drone_nav, //Drone nav address
-        from; //From address
+    drone_at, //Drone AT address
+    drone_nav, //Drone nav address
+    from; //From address
 
 bool_t at_com_ready = FALSE; //Status of the at communication
 char sessionId[9]; //THe config session ID
 
-void at_com_send(char* command);
+void at_com_send(char *command);
 void init_at_config(void);
 
 //Init the at_com
-void init_at_com(void) {
+void init_at_com(void)
+{
   //Check if already initialized
-  if (at_com_ready)
+  if (at_com_ready) {
     return;
+  }
 
   //Create the at and navdata socket
   if ((at_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -88,7 +90,7 @@ void init_at_com(void) {
   //Set unicast mode on
   int one = 1;
   sendto(navdata_socket, &one, 4, 0, (struct sockaddr *) &drone_nav,
-      sizeof(drone_nav));
+         sizeof(drone_nav));
 
   //Init at config
   init_at_config();
@@ -98,7 +100,8 @@ void init_at_com(void) {
 }
 
 //Init the at config
-void init_at_config(void) {
+void init_at_config(void)
+{
   //Generate a session id
   uint32_t binaryId = (uint32_t) rand();
   binaryId = (0 != binaryId) ? binaryId : 1u;
@@ -120,54 +123,59 @@ void init_at_config(void) {
 #ifndef ARDRONE_FLIGHT_INDOOR
   at_com_send_config("control:outdoor", "TRUE");
 #else
-  at_com_send_config("control:outdoor","FALSE");
+  at_com_send_config("control:outdoor", "FALSE");
 #endif
 #ifndef ARDRONE_WITHOUT_SHELL
   at_com_send_config("control:flight_without_shell", "FALSE");
 #else
-  at_com_send_config("control:flight_without_shell","TRUE");
+  at_com_send_config("control:flight_without_shell", "TRUE");
 #endif
 #ifdef ARDRONE_OWNER_MAC
-  at_com_send_config("network:owner_mac",ARDRONE_OWNER_MAC);
+  at_com_send_config("network:owner_mac", ARDRONE_OWNER_MAC);
 #endif
 }
 
 //Recieve a navdata packet
-int at_com_recieve_navdata(unsigned char* buffer) {
+int at_com_recieve_navdata(unsigned char *buffer)
+{
   int l = sizeof(from);
   int n;
   // FIXME(ben): not clear why recvfrom() and not recv() is used.
   n = recvfrom(navdata_socket, buffer, ARDRONE_NAVDATA_BUFFER_SIZE, 0x0,
-         (struct sockaddr *) &from, (socklen_t *) &l);
+               (struct sockaddr *) &from, (socklen_t *) &l);
 
   return n;
 }
 
 //Send an AT command
-void at_com_send(char* command) {
-  sendto(at_socket, command, strlen(command), 0, (struct sockaddr*) &drone_at,
-      sizeof(drone_at));
+void at_com_send(char *command)
+{
+  sendto(at_socket, command, strlen(command), 0, (struct sockaddr *) &drone_at,
+         sizeof(drone_at));
 }
 
 //Send a Config
-void at_com_send_config(char* key, char* value) {
+void at_com_send_config(char *key, char *value)
+{
   char command[256];
   sprintf(command, "AT*CONFIG_IDS=%d,\"%s\",\"2BF07F58\",\"9D7BFD45\"\r",
-      packet_seq++, sessionId);
+          packet_seq++, sessionId);
   at_com_send(command);
   sprintf(command, "AT*CONFIG=%d,\"%s\",\"%s\"\r", packet_seq++, key, value);
   at_com_send(command);
 }
 
 //Send a Flat trim
-void at_com_send_ftrim(void) {
+void at_com_send_ftrim(void)
+{
   char command[256];
   sprintf(command, "AT*FTRIM=%d\r", packet_seq++);
   at_com_send(command);
 }
 
 //Send a Ref
-void at_com_send_ref(int bits) {
+void at_com_send_ref(int bits)
+{
   char command[256];
   sprintf(command, "AT*REF=%d,%d\r", packet_seq++, bits | REF_DEFAULT);
   at_com_send(command);
@@ -175,7 +183,8 @@ void at_com_send_ref(int bits) {
 
 //Send a Pcmd
 void at_com_send_pcmd(int mode, float thrust, float roll, float pitch,
-    float yaw) {
+                      float yaw)
+{
   int f_thrust, f_roll, f_pitch, f_yaw;
   char command[256];
 
@@ -186,12 +195,13 @@ void at_com_send_pcmd(int mode, float thrust, float roll, float pitch,
   memcpy(&f_yaw, &yaw, sizeof yaw);
 
   sprintf(command, "AT*PCMD=%d,%d,%d,%d,%d,%d\r", packet_seq++, mode, f_roll,
-      f_pitch, f_thrust, f_yaw);
+          f_pitch, f_thrust, f_yaw);
   at_com_send(command);
 }
 
 //Send a Calib
-void at_com_send_calib(int device) {
+void at_com_send_calib(int device)
+{
   char command[256];
   sprintf(command, "AT*CALIB=%d,%d\r", packet_seq++, device);
   at_com_send(command);

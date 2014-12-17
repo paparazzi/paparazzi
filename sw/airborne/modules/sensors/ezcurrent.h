@@ -40,8 +40,8 @@
 
 #include "std.h"
 
-extern void ezcurrent_init( void );
-extern void ezcurrent_read_periodic( void );
-extern void ezcurrent_read_event( void );
+extern void ezcurrent_init(void);
+extern void ezcurrent_read_periodic(void);
+extern void ezcurrent_read_event(void);
 
 #endif // EZCURRENT_H

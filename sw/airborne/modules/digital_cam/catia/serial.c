@@ -25,7 +25,7 @@
 
 int fd; /* File descriptor for the port */
 
-int serial_init(char* port_name)
+int serial_init(char *port_name)
 {
   struct termios orig_termios, cur_termios;
 

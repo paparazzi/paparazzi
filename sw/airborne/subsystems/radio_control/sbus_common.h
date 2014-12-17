@@ -87,12 +87,12 @@ struct Sbus {
 /**
  * Init function
  */
-void sbus_common_init(struct Sbus* sbus, struct uart_periph* dev);
+void sbus_common_init(struct Sbus *sbus, struct uart_periph *dev);
 
 /**
  * Decoding event function
  */
-void sbus_common_decode_event(struct Sbus* sbus, struct uart_periph* dev);
+void sbus_common_decode_event(struct Sbus *sbus, struct uart_periph *dev);
 
 
 /**

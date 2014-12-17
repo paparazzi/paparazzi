@@ -73,9 +73,9 @@ struct Bmp085 {
   int32_t pressure;                   ///< pressure in Pascal
 };
 
-extern void bmp085_read_eeprom_calib(struct Bmp085* bmp);
-extern void bmp085_init(struct Bmp085* bmp, struct i2c_periph *i2c_p, uint8_t addr);
-extern void bmp085_periodic(struct Bmp085* bmp);
-extern void bmp085_event(struct Bmp085* bmp);
+extern void bmp085_read_eeprom_calib(struct Bmp085 *bmp);
+extern void bmp085_init(struct Bmp085 *bmp, struct i2c_periph *i2c_p, uint8_t addr);
+extern void bmp085_periodic(struct Bmp085 *bmp);
+extern void bmp085_event(struct Bmp085 *bmp);
 
 #endif

@@ -42,7 +42,7 @@ extern "C" {
  *  @param nb numbre of values in the array, must be >0
  *  @return variance
  */
-static inline float variance_float(float* array, int nb)
+static inline float variance_float(float *array, int nb)
 {
   float me = 0.;
   float see = 0.;
@@ -63,7 +63,7 @@ static inline float variance_float(float* array, int nb)
  *  @param nb numbre of values in the array, must be >0
  *  @return variance
  */
-static inline int32_t variance_int(int32_t* array, int nb)
+static inline int32_t variance_int(int32_t *array, int nb)
 {
   float me = 0;
   float see = 0;

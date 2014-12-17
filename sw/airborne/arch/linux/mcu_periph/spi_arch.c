@@ -42,7 +42,7 @@ void spi_init_slaves(void)
    */
 }
 
-bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
+bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
 {
   int fd = (int)p->reg_addr;
 
@@ -57,10 +57,9 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
     uint8_t tx_buf[buf_len];
     memset(tx_buf, 0, sizeof tx_buf);
     /* copy bytes to transmit to larger buffer, rest filled with zero */
-    memcpy(tx_buf, (void*)t->output_buf, t->output_length);
+    memcpy(tx_buf, (void *)t->output_buf, t->output_length);
     xfer.tx_buf = (unsigned long)tx_buf;
-  }
-  else {
+  } else {
     xfer.tx_buf = (unsigned long)t->output_buf;
   }
 
@@ -68,8 +67,7 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
     uint8_t rx_buf[buf_len];
     memset(rx_buf, 0, sizeof rx_buf);
     xfer.rx_buf = (unsigned long)rx_buf;
-  }
-  else {
+  } else {
     xfer.rx_buf = (unsigned long)t->input_buf;
   }
 
@@ -93,19 +91,21 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
 
   /* copy recieved data if we had to use an extra rx_buffer */
   if (buf_len > t->input_length) {
-    memcpy((void*)t->input_buf, (void*)xfer.rx_buf, t->input_length);
+    memcpy((void *)t->input_buf, (void *)xfer.rx_buf, t->input_length);
   }
 
   t->status = SPITransSuccess;
   return TRUE;
 }
 
-bool_t spi_lock(struct spi_periph* p, uint8_t slave) {
+bool_t spi_lock(struct spi_periph *p, uint8_t slave)
+{
   // not implemented
   return FALSE;
 }
 
-bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
+bool_t spi_resume(struct spi_periph *p, uint8_t slave)
+{
   // not implemented
   return FALSE;
 }
@@ -121,10 +121,10 @@ void spi0_arch_init(void)
     spi0.reg_addr = NULL;
     return;
   }
-  spi0.reg_addr = (void*)fd;
+  spi0.reg_addr = (void *)fd;
 
   /* spi mode */
-  if (ioctl(fd, SPI_IOC_WR_MODE, (SPI_CPOL|SPI_CPHA)) < 0) {
+  if (ioctl(fd, SPI_IOC_WR_MODE, (SPI_CPOL | SPI_CPHA)) < 0) {
     perror("SPI0: can't set spi mode");
   }
 
@@ -155,10 +155,10 @@ void spi1_arch_init(void)
     spi1.reg_addr = NULL;
     return;
   }
-  spi1.reg_addr = (void*)fd;
+  spi1.reg_addr = (void *)fd;
 
   /* spi mode */
-  if (ioctl(fd, SPI_IOC_WR_MODE, (SPI_CPOL|SPI_CPHA)) < 0) {
+  if (ioctl(fd, SPI_IOC_WR_MODE, (SPI_CPOL | SPI_CPHA)) < 0) {
     perror("SPI1: can't set spi mode");
   }
 

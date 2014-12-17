@@ -53,7 +53,8 @@ extern struct ImuGL1I2c imu_gl1;
 
 extern void imu_gl1_i2c_event(void);
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+{
   imu_gl1_i2c_event();
   if (imu_gl1.gyro_valid) {
     imu_gl1.gyro_valid = FALSE;

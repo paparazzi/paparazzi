@@ -32,7 +32,8 @@
 //#if DATALINK == SUPERBITRF
 //void radio_control_impl_init(void) {}
 //#else
-void radio_control_impl_init(void) {
+void radio_control_impl_init(void)
+{
   superbitrf_init();
 }
 //#endif
@@ -41,8 +42,8 @@ void radio_control_impl_init(void) {
 static void superbitrf_rc_normalize(int16_t *in, int16_t *out, uint8_t count)
 {
   uint8_t i;
-  for(i = 0; i < count; i++) {
-    if(i == RADIO_THROTTLE) {
+  for (i = 0; i < count; i++) {
+    if (i == RADIO_THROTTLE) {
       out[i] = (in[i] + MAX_PPRZ) / 2;
       Bound(out[i], 0, MAX_PPRZ);
     } else {
@@ -56,7 +57,7 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
 {
   cyrf6936_event(&superbitrf.cyrf6936);
   superbitrf_event();
-  if(superbitrf.rc_frame_available) {
+  if (superbitrf.rc_frame_available) {
     radio_control.frame_cpt++;
     radio_control.time_since_last_frame = 0;
     radio_control.radio_ok_cpt = 0;

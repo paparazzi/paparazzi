@@ -75,7 +75,8 @@ static float nav_drop_x, nav_drop_y, nav_drop_z;
 static float nav_drop_vx, nav_drop_vy, nav_drop_vz;
 
 
-static void integrate( uint8_t wp_target ) {
+static void integrate(uint8_t wp_target)
+{
   /* Inspired from Arnold Schroeter's code */
   int i = 0;
   while (nav_drop_z > 0. && i < MAX_STEPS) {
@@ -85,7 +86,7 @@ static void integrate( uint8_t wp_target ) {
     float airz = -nav_drop_vz;
 
     /* alpha / m * air */
-    float beta = ALPHA_M * sqrt(airx*airx+airy*airy+airz*airz);
+    float beta = ALPHA_M * sqrt(airx * airx + airy * airy + airz * airz);
 
     /* Euler integration */
     nav_drop_vx += airx * beta * DT;
@@ -113,7 +114,8 @@ static void integrate( uint8_t wp_target ) {
 
 
 /** Update the RELEASE location with the actual ground speed and altitude */
-unit_t nav_drop_update_release( uint8_t wp_target ) {
+unit_t nav_drop_update_release(uint8_t wp_target)
+{
 
   nav_drop_z = stateGetPositionUtm_f()->alt - waypoints[wp_target].a;
   nav_drop_x = 0.;
@@ -131,7 +133,9 @@ unit_t nav_drop_update_release( uint8_t wp_target ) {
 
 /** Compute a first approximation for the RELEASE waypoint from wind and
     expected airspeed and altitude */
-unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, uint8_t wp_baseturn, uint8_t wp_climbout, float nav_drop_radius ) {
+unit_t nav_drop_compute_approach(uint8_t wp_target, uint8_t wp_start, uint8_t wp_baseturn, uint8_t wp_climbout,
+                                 float nav_drop_radius)
+{
   waypoints[WP_RELEASE].a = waypoints[wp_start].a;
   nav_drop_z = waypoints[WP_RELEASE].a - waypoints[wp_target].a;
   nav_drop_x = 0.;
@@ -143,7 +147,7 @@ unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, uint8_t w
   float y_0 = waypoints[wp_target].y - waypoints[wp_start].y;
 
   /* Unit vector from START to TARGET */
-  float d = sqrt(x_0*x_0+y_0*y_0);
+  float d = sqrt(x_0 * x_0 + y_0 * y_0);
   float x1 = x_0 / d;
   float y_1 = y_0 / d;
 
@@ -151,15 +155,15 @@ unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, uint8_t w
   waypoints[wp_baseturn].y = waypoints[wp_start].y - x1 * nav_drop_radius;
   waypoints[wp_baseturn].a = waypoints[wp_start].a;
   nav_drop_start_qdr = M_PI - atan2(-y_1, -x1);
-  if (nav_drop_radius < 0)
+  if (nav_drop_radius < 0) {
     nav_drop_start_qdr += M_PI;
+  }
 
   // wind in NED frame
   if (stateIsAirspeedValid()) {
-    nav_drop_vx = x1 * *stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->y;
-    nav_drop_vy = y_1 * *stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->x;
-  }
-  else {
+    nav_drop_vx = x1 **stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->y;
+    nav_drop_vy = y_1 **stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->x;
+  } else {
     // use approximate airspeed, initially set to AIRSPEED_AT_RELEASE
     nav_drop_vx = x1 * airspeed + stateGetHorizontalWindspeed_f()->y;
     nav_drop_vy = y_1 * airspeed + stateGetHorizontalWindspeed_f()->x;
@@ -180,18 +184,20 @@ unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, uint8_t w
 
 
 
-unit_t nav_drop_shoot( void ) {
+unit_t nav_drop_shoot(void)
+{
   ap_state->commands[COMMAND_HATCH] = MAX_PPRZ;
   return 0;
 }
 
 /* Compute start and end waypoints to be aligned on w1-w2 */
-bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t wp_before, uint8_t wp_after, float d_before, float d_after) {
+bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t wp_before, uint8_t wp_after, float d_before, float d_after)
+{
   float x_0 = waypoints[w2].x - waypoints[w1].x;
   float y_0 = waypoints[w2].y - waypoints[w1].y;
 
   /* Unit vector from W1 to W2 */
-  float d = sqrt(x_0*x_0+y_0*y_0);
+  float d = sqrt(x_0 * x_0 + y_0 * y_0);
   x_0 /= d;
   y_0 /= d;
 

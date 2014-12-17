@@ -48,22 +48,25 @@
 
 struct Hmc58xx mag_hmc58xx;
 
-void mag_hmc58xx_module_init(void) {
+void mag_hmc58xx_module_init(void)
+{
   hmc58xx_init(&mag_hmc58xx, &(MAG_HMC58XX_I2C_DEV), HMC58XX_ADDR);
 }
 
-void mag_hmc58xx_module_periodic(void) {
+void mag_hmc58xx_module_periodic(void)
+{
   hmc58xx_periodic(&mag_hmc58xx);
 }
 
-void mag_hmc58xx_module_event(void) {
+void mag_hmc58xx_module_event(void)
+{
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS mag update.")
+  PRINT_CONFIG_MSG("Calculating dt for AHRS mag update.")
   // timestamp in usec when last callback was received
   static uint32_t last_ts = 0;
 #else
-PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS mag update.")
-PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
+  PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS mag update.")
+  PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
   const float dt = 1. / (AHRS_MAG_CORRECT_FREQUENCY);
 #endif
 
@@ -103,7 +106,8 @@ PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
 #endif
 }
 
-void mag_hmc58xx_report(void) {
+void mag_hmc58xx_report(void)
+{
   struct Int32Vect3 mag = {
     (int32_t)(mag_hmc58xx.data.vect.x),
     (int32_t)(mag_hmc58xx.data.vect.y),

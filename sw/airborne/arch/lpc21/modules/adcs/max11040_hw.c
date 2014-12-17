@@ -46,22 +46,22 @@ static void EXTINT_ISR(void) __attribute__((naked));
 #define SPI1_VIC_SLOT 7
 #endif
 
-static void SSP_ISR(void) {
+static void SSP_ISR(void)
+{
   int i;
   ISR_ENTRY();
 
   switch (max11040_status) {
 
-    case MAX11040_RESET:
-    {
+    case MAX11040_RESET: {
       /* read dummy control byte reply */
-      uint8_t foo __attribute__ ((unused));
+      uint8_t foo __attribute__((unused));
       foo = SSPDR;
       foo = SSPDR;
       /* write configuration register */
       SSP_Send(0x60);       /* wr conf */
       SSP_Send(0x30);       /* adc0: en24bit, xtalen, no faultdis */
-      for (i=1; i<MAXM_NB_ADCS; i++) {
+      for (i = 1; i < MAXM_NB_ADCS; i++) {
         SSP_Send(0x20);     /* adcx: en24bit, no xtalen, no faultdis */
       }
       max11040_status = MAX11040_CONF;
@@ -69,17 +69,16 @@ static void SSP_ISR(void) {
     }
     break;
 
-    case MAX11040_CONF:
-    {
+    case MAX11040_CONF: {
       /* read dummy control byte reply */
-      uint8_t foo __attribute__ ((unused));
+      uint8_t foo __attribute__((unused));
       foo = SSPDR;
-      for (i=0; i<MAXM_NB_ADCS; i++) {
+      for (i = 0; i < MAXM_NB_ADCS; i++) {
         foo = SSPDR;
       }
       /* write sampling instant register */
       SSP_Send(0x40);       /* wr instant */
-      for (i=0; i<MAXM_NB_ADCS; i++) {
+      for (i = 0; i < MAXM_NB_ADCS; i++) {
         SSP_Send(0);        /* adcx: no delay */
         SSP_Send(0);
         SSP_Send(0);
@@ -90,12 +89,11 @@ static void SSP_ISR(void) {
     }
     break;
 
-    case MAX11040_INSTANT:
-    {
+    case MAX11040_INSTANT: {
       /* read dummy control byte reply */
-      uint8_t foo __attribute__ ((unused));
+      uint8_t foo __attribute__((unused));
       foo = SSPDR;
-      for (i=0; i<MAXM_NB_ADCS; i++) {
+      for (i = 0; i < MAXM_NB_ADCS; i++) {
         foo = SSPDR;
         foo = SSPDR;
         foo = SSPDR;
@@ -110,15 +108,14 @@ static void SSP_ISR(void) {
     }
     break;
 
-    case MAX11040_RATE:
-    {
-      uint8_t foo __attribute__ ((unused));
+    case MAX11040_RATE: {
+      uint8_t foo __attribute__((unused));
       foo = SSPDR;
       foo = SSPDR;
       foo = SSPDR;
       /* read data register */
       SSP_Send(0xF0);       /* rd data */
-      for (i=0; i<MAXM_NB_ADCS; i++) {
+      for (i = 0; i < MAXM_NB_ADCS; i++) {
         SSP_Send(0x00);     /* adcx: data */
         SSP_Send(0x00);
         SSP_Send(0x00);
@@ -137,11 +134,10 @@ static void SSP_ISR(void) {
     }
     break;
 
-    case MAX11040_DATA:
-    {
-      uint8_t foo __attribute__ ((unused));
+    case MAX11040_DATA: {
+      uint8_t foo __attribute__((unused));
       foo = SSPDR;
-      for (i=0; i<MAXM_NB_ADCS; i++) {
+      for (i = 0; i < MAXM_NB_ADCS; i++) {
         foo = SSPDR;
         foo = SSPDR;
         foo = SSPDR;
@@ -156,10 +152,10 @@ static void SSP_ISR(void) {
         foo = SSPDR;
       }
 
-    /* read data */
+      /* read data */
       /* read data register */
       SSP_Send(0xF0);       /* rd data */
-      for (i=0; i<MAXM_NB_ADCS; i++) {
+      for (i = 0; i < MAXM_NB_ADCS; i++) {
         SSP_Send(0x00);     /* adc0: data */
         SSP_Send(0x00);
         SSP_Send(0x00);
@@ -178,15 +174,13 @@ static void SSP_ISR(void) {
     }
     break;
 
-    case MAX11040_DATA2:
-    {
-      uint8_t foo __attribute__ ((unused));
+    case MAX11040_DATA2: {
+      uint8_t foo __attribute__((unused));
 
       SSP_ClearRti();
       SSP_ClearRxi();
 
-      if (max11040_count <= MAXM_NB_CHAN+2)
-      {
+      if (max11040_count <= MAXM_NB_CHAN + 2) {
         SSP_Send(0x00);
         SSP_Send(0x00);
         SSP_Send(0x00);
@@ -195,30 +189,31 @@ static void SSP_ISR(void) {
         SSP_Send(0x00);
       }
 
-      if (max11040_count == 0) foo = SSPDR;
+      if (max11040_count == 0) { foo = SSPDR; }
 
       max11040_values[max11040_buf_in][max11040_count]  = SSPDR << 16;
       max11040_values[max11040_buf_in][max11040_count] |= SSPDR << 8;
       max11040_values[max11040_buf_in][max11040_count] |= SSPDR;
-      if (max11040_values[max11040_buf_in][max11040_count] & 0x800000)
+      if (max11040_values[max11040_buf_in][max11040_count] & 0x800000) {
         max11040_values[max11040_buf_in][max11040_count] |= 0xFF000000;
+      }
 
       max11040_count++;
 
       max11040_values[max11040_buf_in][max11040_count]  = SSPDR << 16;
       max11040_values[max11040_buf_in][max11040_count] |= SSPDR << 8;
       max11040_values[max11040_buf_in][max11040_count] |= SSPDR;
-      if (max11040_values[max11040_buf_in][max11040_count] & 0x800000)
+      if (max11040_values[max11040_buf_in][max11040_count] & 0x800000) {
         max11040_values[max11040_buf_in][max11040_count] |= 0xFF000000;
+      }
 
       max11040_count++;
 
-      if (max11040_count == MAXM_NB_CHAN)
-      {
+      if (max11040_count == MAXM_NB_CHAN) {
         MaxmUnselect();
         max11040_data = MAX11040_DATA_AVAILABLE;
-        i = max11040_buf_in+1;
-        if (i >= MAX11040_BUF_SIZE) i=0;
+        i = max11040_buf_in + 1;
+        if (i >= MAX11040_BUF_SIZE) { i = 0; }
         if (i != max11040_buf_out) {
           max11040_buf_in = i;
         } else {
@@ -234,11 +229,11 @@ static void SSP_ISR(void) {
   ISR_EXIT();
 }
 
-void EXTINT_ISR(void) {
+void EXTINT_ISR(void)
+{
   ISR_ENTRY();
 
-  if (num_irqs++ == 5)
-  {
+  if (num_irqs++ == 5) {
     /* switch SSEL P0.20 to be used as GPIO */
     PINSEL1 &= ~(3 << 8);
     IO0DIR |= 1 << 20;
@@ -273,7 +268,8 @@ void EXTINT_ISR(void) {
 }
 
 
-void max11040_hw_init( void ) {
+void max11040_hw_init(void)
+{
   int i;
 
   /* *** configure SPI ***  */
@@ -286,8 +282,8 @@ void max11040_hw_init( void ) {
   SSPCPSR = 0x02;
 
   /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( VIC_SPI1 );         /* SPI1 selected as IRQ */
-  VICIntEnable = VIC_BIT( VIC_SPI1 );           /* enable it            */
+  VICIntSelect &= ~VIC_BIT(VIC_SPI1);           /* SPI1 selected as IRQ */
+  VICIntEnable = VIC_BIT(VIC_SPI1);             /* enable it            */
   _VIC_CNTL(SPI1_VIC_SLOT) = VIC_ENABLE | VIC_SPI1;
   _VIC_ADDR(SPI1_VIC_SLOT) = (uint32_t)SSP_ISR;  /* address of the ISR   */
 
@@ -300,15 +296,15 @@ void max11040_hw_init( void ) {
   SetBit(EXTINT, MAXM_DRDY_EINT);      /* clear pending EINT */
 
   /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( MAXM_DRDY_VIC_IT );                       /* select EINT as IRQ source */
-  VICIntEnable = VIC_BIT( MAXM_DRDY_VIC_IT );                         /* enable it                 */
+  VICIntSelect &= ~VIC_BIT(MAXM_DRDY_VIC_IT);                         /* select EINT as IRQ source */
+  VICIntEnable = VIC_BIT(MAXM_DRDY_VIC_IT);                           /* enable it                 */
   _VIC_CNTL(MAX11040_DRDY_VIC_SLOT) = VIC_ENABLE | MAXM_DRDY_VIC_IT;
   _VIC_ADDR(MAX11040_DRDY_VIC_SLOT) = (uint32_t)EXTINT_ISR;           /* address of the ISR        */
 
 
   /* write configuration register */
   SSP_Send(0x60);       /* wr conf */
-  for (i=0; i<MAXM_NB_ADCS; i++) {
+  for (i = 0; i < MAXM_NB_ADCS; i++) {
     SSP_Send(0x40);     /* adcx: reset */
   }
   SSP_Enable();

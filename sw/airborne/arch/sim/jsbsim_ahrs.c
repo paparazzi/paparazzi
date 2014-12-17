@@ -17,7 +17,8 @@ float sim_r;      ///< in radians/s
 bool_t ahrs_sim_available;
 
 // Updates from jsbsim
-void provide_attitude_and_rates(float phi, float theta, float psi, float p, float q, float r) {
+void provide_attitude_and_rates(float phi, float theta, float psi, float p, float q, float r)
+{
   sim_phi = phi;
   sim_theta = theta;
   sim_psi = psi;

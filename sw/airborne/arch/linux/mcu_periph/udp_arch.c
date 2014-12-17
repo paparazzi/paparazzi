@@ -29,15 +29,15 @@
 #include <stdlib.h>
 #include <errno.h>
 
-static inline void udp_create_socket(int* sock, const int protocol, const bool_t reuse_addr, const bool_t broadcast);
+static inline void udp_create_socket(int *sock, const int protocol, const bool_t reuse_addr, const bool_t broadcast);
 
 
 /**
  * Initialize the UDP stream
  */
-void udp_arch_periph_init(struct udp_periph* p, char* host, int port_out, int port_in, bool_t broadcast)
+void udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast)
 {
-  struct UdpNetwork* network = malloc(sizeof(struct UdpNetwork));
+  struct UdpNetwork *network = malloc(sizeof(struct UdpNetwork));
 
   if (port_out >= 0) {
     // Create the output socket (enable reuse of the address, and broadcast if necessary)
@@ -58,21 +58,21 @@ void udp_arch_periph_init(struct udp_periph* p, char* host, int port_out, int po
     network->addr_in.sin_port = htons(port_in);
     network->addr_in.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    bind(network->socket_in, (struct sockaddr*)&network->addr_in, sizeof(network->addr_in));
+    bind(network->socket_in, (struct sockaddr *)&network->addr_in, sizeof(network->addr_in));
   }
 
-  p->network = (void*)network;
+  p->network = (void *)network;
 }
 
 /**
  * Read bytes from UDP
  */
-void udp_receive(struct udp_periph* p)
+void udp_receive(struct udp_periph *p)
 {
   int16_t i;
   int16_t available = UDP_RX_BUFFER_SIZE - udp_char_available(p);
   uint8_t buf[UDP_RX_BUFFER_SIZE];
-  struct UdpNetwork* network = (struct UdpNetwork*) p->network;
+  struct UdpNetwork *network = (struct UdpNetwork *) p->network;
 
   if (available <= 0) {
     return;  // No space
@@ -80,7 +80,7 @@ void udp_receive(struct udp_periph* p)
 
   socklen_t slen = sizeof(struct sockaddr_in);
   ssize_t byte_read = recvfrom(network->socket_in, buf, UDP_RX_BUFFER_SIZE, MSG_DONTWAIT,
-                               (struct sockaddr*)&network->addr_in, &slen);
+                               (struct sockaddr *)&network->addr_in, &slen);
 
   if (byte_read > 0) {
     for (i = 0; i < byte_read; i++) {
@@ -93,13 +93,13 @@ void udp_receive(struct udp_periph* p)
 /**
  * Send a message
  */
-void udp_send_message(struct udp_periph* p)
+void udp_send_message(struct udp_periph *p)
 {
-  struct UdpNetwork* network = (struct UdpNetwork*) p->network;
+  struct UdpNetwork *network = (struct UdpNetwork *) p->network;
 
   if (p->tx_insert_idx > 0) {
     ssize_t test __attribute__((unused)) = sendto(network->socket_out, p->tx_buf, p->tx_insert_idx, MSG_DONTWAIT,
-                          (struct sockaddr*)&network->addr_out, sizeof(network->addr_out));
+                                           (struct sockaddr *)&network->addr_out, sizeof(network->addr_out));
     p->tx_insert_idx = 0;
   }
 }
@@ -107,7 +107,7 @@ void udp_send_message(struct udp_periph* p)
 /**
  * Create a new udp socket
  */
-static inline void udp_create_socket(int* sock, const int protocol, const bool_t reuse_addr, const bool_t broadcast)
+static inline void udp_create_socket(int *sock, const int protocol, const bool_t reuse_addr, const bool_t broadcast)
 {
   // Create the socket with the correct protocl
   *sock = socket(PF_INET, SOCK_DGRAM, protocol);

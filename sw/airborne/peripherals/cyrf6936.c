@@ -36,14 +36,17 @@
 
 /* Static functions used in the different statuses */
 static bool_t cyrf6936_write_register(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data);
-static bool_t cyrf6936_write_block(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data[], const uint8_t length);
+static bool_t cyrf6936_write_block(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data[],
+                                   const uint8_t length);
 static bool_t cyrf6936_read_register(struct Cyrf6936 *cyrf, const uint8_t addr);
 static bool_t cyrf6936_read_block(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t length);
 
 /**
  * Initializing the cyrf chip
  */
-void cyrf6936_init(struct Cyrf6936 *cyrf, struct spi_periph *spi_p, const uint8_t slave_idx, const uint32_t rst_port, const uint16_t rst_pin) {
+void cyrf6936_init(struct Cyrf6936 *cyrf, struct spi_periph *spi_p, const uint8_t slave_idx, const uint32_t rst_port,
+                   const uint16_t rst_pin)
+{
   /* Set spi_peripheral and the status */
   cyrf->spi_p = spi_p;
   cyrf->status = CYRF6936_UNINIT;
@@ -80,201 +83,216 @@ void cyrf6936_init(struct Cyrf6936 *cyrf, struct spi_periph *spi_p, const uint8_
 /**
  * The on event call for the CYRF6936 chip
  */
-void cyrf6936_event(struct Cyrf6936 *cyrf) {
+void cyrf6936_event(struct Cyrf6936 *cyrf)
+{
   int i;
   // Check if cyrf is initialized
-  if(cyrf->status == CYRF6936_UNINIT)
+  if (cyrf->status == CYRF6936_UNINIT) {
     return;
+  }
 
   // Check if there is still a transaction in progress
-  if(cyrf->spi_t.status == SPITransPending || cyrf->spi_t.status == SPITransRunning)
+  if (cyrf->spi_t.status == SPITransPending || cyrf->spi_t.status == SPITransRunning) {
     return;
+  }
 
   /* Check the status of the cyrf */
   switch (cyrf->status) {
 
-  /* Getting the MFG id */
-  case CYRF6936_GET_MFG_ID:
-    // When the last transaction isn't failed send the next
-    if(cyrf->spi_t.status != SPITransFailed)
-      cyrf->buffer_idx++;
+      /* Getting the MFG id */
+    case CYRF6936_GET_MFG_ID:
+      // When the last transaction isn't failed send the next
+      if (cyrf->spi_t.status != SPITransFailed) {
+        cyrf->buffer_idx++;
+      }
 
-    cyrf->spi_t.status = SPITransDone;
+      cyrf->spi_t.status = SPITransDone;
 
-    // Switch for the different states
-    switch (cyrf->buffer_idx) {
-    case 0:
-      cyrf6936_write_register(cyrf, CYRF_MFG_ID, 0xFF);
-      break;
-    case 1:
-      cyrf6936_read_block(cyrf, CYRF_MFG_ID, 6);
-      break;
-    case 2:
-      // Copy the MFG id
-      for(i = 0; i < 6; i++)
-        cyrf->mfg_id[i] = cyrf->input_buf[i+1];
+      // Switch for the different states
+      switch (cyrf->buffer_idx) {
+        case 0:
+          cyrf6936_write_register(cyrf, CYRF_MFG_ID, 0xFF);
+          break;
+        case 1:
+          cyrf6936_read_block(cyrf, CYRF_MFG_ID, 6);
+          break;
+        case 2:
+          // Copy the MFG id
+          for (i = 0; i < 6; i++) {
+            cyrf->mfg_id[i] = cyrf->input_buf[i + 1];
+          }
 
-      cyrf6936_write_register(cyrf, CYRF_MFG_ID, 0x00);
+          cyrf6936_write_register(cyrf, CYRF_MFG_ID, 0x00);
+          break;
+        default:
+          cyrf->status = CYRF6936_IDLE;
+          break;
+      }
       break;
+
+      /* Do a multi write */
+    case CYRF6936_MULTIWRITE:
+      // When the last transaction isn't failed send the next
+      if (cyrf->spi_t.status != SPITransFailed) {
+        cyrf->buffer_idx++;
+      }
+
+      cyrf->spi_t.status = SPITransDone;
+
+      // When we are done writing
+      if (cyrf->buffer_idx == cyrf->buffer_length) {
+        cyrf->status = CYRF6936_IDLE;
+        break;
+      }
+
+      // Write the next register from the buffer
+      cyrf6936_write_register(cyrf,
+                              ((uint8_t ( *)[2])cyrf->buffer)[cyrf->buffer_idx][0],
+                              ((uint8_t ( *)[2])cyrf->buffer)[cyrf->buffer_idx][1]);
+      break;
+
+      /* Do a write of the data code */
+    case CYRF6936_DATA_CODE:
+      break;
+
+      /* Do a write of channel, sop, data and crc */
+    case CYRF6936_CHAN_SOP_DATA_CRC:
+      // When the last transaction isn't failed send the next
+      if (cyrf->spi_t.status != SPITransFailed) {
+        cyrf->buffer_idx++;
+      }
+
+      cyrf->spi_t.status = SPITransDone;
+
+      // Switch for the different states
+      switch (cyrf->buffer_idx) {
+        case 0: // Write the CRC LSB
+          cyrf6936_write_register(cyrf, CYRF_CRC_SEED_LSB, cyrf->buffer[0]);
+          break;
+        case 1: // Write the CRC MSB
+          cyrf6936_write_register(cyrf, CYRF_CRC_SEED_MSB, cyrf->buffer[1]);
+          break;
+        case 2: // Write the SOP code
+          cyrf6936_write_block(cyrf, CYRF_SOP_CODE, &(cyrf->buffer[2]), 8);
+          break;
+        case 3: // Write the DATA code
+          cyrf6936_write_block(cyrf, CYRF_DATA_CODE, &(cyrf->buffer[10]), 16);
+          break;
+        case 4: // Write the Channel
+          cyrf6936_write_register(cyrf, CYRF_CHANNEL, cyrf->buffer[26]);
+          break;
+        default:
+          cyrf->status = CYRF6936_IDLE;
+          break;
+      }
+      break;
+
+      /* Do a read of the receive irq status, receive status and the receive packet */
+    case CYRF6936_RX_IRQ_STATUS_PACKET:
+      // When the last transaction isn't failed send the next
+      if (cyrf->spi_t.status != SPITransFailed) {
+        cyrf->buffer_idx++;
+      }
+
+      cyrf->spi_t.status = SPITransDone;
+
+      // Switch for the different states
+      switch (cyrf->buffer_idx) {
+        case 0: // Read the receive IRQ status
+          cyrf6936_read_register(cyrf, CYRF_RX_IRQ_STATUS);
+          break;
+        case 1: // Read the send IRQ status
+          cyrf->rx_irq_status = cyrf->input_buf[1];
+          cyrf6936_read_register(cyrf, CYRF_TX_IRQ_STATUS);
+          break;
+        case 2: // Read the receive status
+          cyrf->tx_irq_status = cyrf->input_buf[1];
+          cyrf6936_read_register(cyrf, CYRF_RX_STATUS);
+          break;
+        case 3: // Set the packet length
+          cyrf->rx_status = cyrf->input_buf[1];
+          cyrf6936_read_register(cyrf, CYRF_RX_COUNT);
+          break;
+        case 4: // Read the receive packet
+          cyrf->rx_count = cyrf->input_buf[1];
+          cyrf6936_read_block(cyrf, CYRF_RX_BUFFER, 16);
+          break;
+        default:
+          // Copy the receive packet
+          for (i = 0; i < 16; i++) {
+            cyrf->rx_packet[i] = cyrf->input_buf[i + 1];
+          }
+
+          cyrf->has_irq = TRUE;
+          cyrf->status = CYRF6936_IDLE;
+          break;
+      }
+      break;
+
+      /* The CYRF6936 is busy sending a packet */
+    case CYRF6936_SEND:
+      // When the last transaction isn't failed send the next
+      if (cyrf->spi_t.status != SPITransFailed) {
+        cyrf->buffer_idx++;
+      }
+
+      cyrf->spi_t.status = SPITransDone;
+
+      // Switch for the different states
+      switch (cyrf->buffer_idx) {
+        case 0: // Set the packet length
+          cyrf6936_write_register(cyrf, CYRF_TX_LENGTH, cyrf->buffer[0]);
+          break;
+        case 1: // Clear the TX buffer
+          cyrf6936_write_register(cyrf, CYRF_TX_CTRL, CYRF_TX_CLR);
+          break;
+        case 2: // Write the send packet
+          cyrf6936_write_block(cyrf, CYRF_TX_BUFFER, &cyrf->buffer[1], 16);
+          break;
+        case 3: // Send the packet
+          cyrf6936_write_register(cyrf, CYRF_TX_CTRL, CYRF_TX_GO | CYRF_TXC_IRQEN | CYRF_TXE_IRQEN);
+          break;
+        default:
+          cyrf->status = CYRF6936_IDLE;
+          break;
+      }
+      break;
+
+      /* This should not happen */
     default:
-      cyrf->status = CYRF6936_IDLE;
       break;
-    }
-    break;
-
-  /* Do a multi write */
-  case CYRF6936_MULTIWRITE:
-    // When the last transaction isn't failed send the next
-    if(cyrf->spi_t.status != SPITransFailed)
-      cyrf->buffer_idx++;
-
-    cyrf->spi_t.status = SPITransDone;
-
-    // When we are done writing
-    if(cyrf->buffer_idx == cyrf->buffer_length) {
-      cyrf->status = CYRF6936_IDLE;
-      break;
-    }
-
-    // Write the next register from the buffer
-    cyrf6936_write_register(cyrf,
-        ((uint8_t (*)[2])cyrf->buffer)[cyrf->buffer_idx][0],
-        ((uint8_t (*)[2])cyrf->buffer)[cyrf->buffer_idx][1]);
-    break;
-
-  /* Do a write of the data code */
-  case CYRF6936_DATA_CODE:
-    break;
-
-  /* Do a write of channel, sop, data and crc */
-  case CYRF6936_CHAN_SOP_DATA_CRC:
-    // When the last transaction isn't failed send the next
-    if(cyrf->spi_t.status != SPITransFailed)
-      cyrf->buffer_idx++;
-
-    cyrf->spi_t.status = SPITransDone;
-
-    // Switch for the different states
-    switch (cyrf->buffer_idx) {
-    case 0: // Write the CRC LSB
-      cyrf6936_write_register(cyrf, CYRF_CRC_SEED_LSB, cyrf->buffer[0]);
-      break;
-    case 1: // Write the CRC MSB
-      cyrf6936_write_register(cyrf, CYRF_CRC_SEED_MSB, cyrf->buffer[1]);
-      break;
-    case 2: // Write the SOP code
-      cyrf6936_write_block(cyrf, CYRF_SOP_CODE, &(cyrf->buffer[2]), 8);
-      break;
-    case 3: // Write the DATA code
-      cyrf6936_write_block(cyrf, CYRF_DATA_CODE, &(cyrf->buffer[10]), 16);
-      break;
-    case 4: // Write the Channel
-      cyrf6936_write_register(cyrf, CYRF_CHANNEL, cyrf->buffer[26]);
-      break;
-    default:
-      cyrf->status = CYRF6936_IDLE;
-      break;
-    }
-    break;
-
-  /* Do a read of the receive irq status, receive status and the receive packet */
-  case CYRF6936_RX_IRQ_STATUS_PACKET:
-    // When the last transaction isn't failed send the next
-    if(cyrf->spi_t.status != SPITransFailed)
-      cyrf->buffer_idx++;
-
-    cyrf->spi_t.status = SPITransDone;
-
-    // Switch for the different states
-    switch (cyrf->buffer_idx) {
-    case 0: // Read the receive IRQ status
-      cyrf6936_read_register(cyrf, CYRF_RX_IRQ_STATUS);
-      break;
-    case 1: // Read the send IRQ status
-      cyrf->rx_irq_status = cyrf->input_buf[1];
-      cyrf6936_read_register(cyrf, CYRF_TX_IRQ_STATUS);
-      break;
-    case 2: // Read the receive status
-      cyrf->tx_irq_status = cyrf->input_buf[1];
-      cyrf6936_read_register(cyrf, CYRF_RX_STATUS);
-      break;
-    case 3: // Set the packet length
-      cyrf->rx_status = cyrf->input_buf[1];
-      cyrf6936_read_register(cyrf, CYRF_RX_COUNT);
-      break;
-    case 4: // Read the receive packet
-      cyrf->rx_count = cyrf->input_buf[1];
-      cyrf6936_read_block(cyrf, CYRF_RX_BUFFER, 16);
-      break;
-    default:
-      // Copy the receive packet
-      for(i = 0; i < 16; i++)
-        cyrf->rx_packet[i] = cyrf->input_buf[i+1];
-
-      cyrf->has_irq = TRUE;
-      cyrf->status = CYRF6936_IDLE;
-      break;
-    }
-    break;
-
-  /* The CYRF6936 is busy sending a packet */
-  case CYRF6936_SEND:
-    // When the last transaction isn't failed send the next
-    if(cyrf->spi_t.status != SPITransFailed)
-      cyrf->buffer_idx++;
-
-    cyrf->spi_t.status = SPITransDone;
-
-    // Switch for the different states
-    switch (cyrf->buffer_idx) {
-    case 0: // Set the packet length
-      cyrf6936_write_register(cyrf, CYRF_TX_LENGTH, cyrf->buffer[0]);
-      break;
-    case 1: // Clear the TX buffer
-      cyrf6936_write_register(cyrf, CYRF_TX_CTRL, CYRF_TX_CLR);
-      break;
-    case 2: // Write the send packet
-      cyrf6936_write_block(cyrf, CYRF_TX_BUFFER, &cyrf->buffer[1], 16);
-      break;
-    case 3: // Send the packet
-      cyrf6936_write_register(cyrf, CYRF_TX_CTRL, CYRF_TX_GO | CYRF_TXC_IRQEN | CYRF_TXE_IRQEN);
-      break;
-    default:
-      cyrf->status = CYRF6936_IDLE;
-      break;
-    }
-    break;
-
-  /* This should not happen */
-  default:
-    break;
   }
 }
 
 /**
  * Write a byte to a register
  */
-static bool_t cyrf6936_write_register(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data) {
+static bool_t cyrf6936_write_register(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data)
+{
   return cyrf6936_write_block(cyrf, addr, &data, 1);
 }
 
 /**
  * Write multiple bytes to a register
  */
-static bool_t cyrf6936_write_block(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data[], const uint8_t length) {
+static bool_t cyrf6936_write_block(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data[],
+                                   const uint8_t length)
+{
   uint8_t i;
   /* Check if there is already a SPI transaction busy */
-  if(cyrf->spi_t.status != SPITransDone)
+  if (cyrf->spi_t.status != SPITransDone) {
     return FALSE;
+  }
 
   /* Set the buffer and commit the transaction */
-  cyrf->spi_t.output_length = length+1;
+  cyrf->spi_t.output_length = length + 1;
   cyrf->spi_t.input_length = 0;
   cyrf->output_buf[0] = addr | CYRF_DIR;
 
   // Copy the data
-  for(i = 0; i < length; i++)
-    cyrf->output_buf[i+1] = data[i];
+  for (i = 0; i < length; i++) {
+    cyrf->output_buf[i + 1] = data[i];
+  }
 
   // Submit the transaction
   return spi_submit(cyrf->spi_p, &(cyrf->spi_t));
@@ -283,16 +301,19 @@ static bool_t cyrf6936_write_block(struct Cyrf6936 *cyrf, const uint8_t addr, co
 /**
  * Read a byte from a register
  */
-static bool_t cyrf6936_read_register(struct Cyrf6936 *cyrf, const uint8_t addr) {
+static bool_t cyrf6936_read_register(struct Cyrf6936 *cyrf, const uint8_t addr)
+{
   return cyrf6936_read_block(cyrf, addr, 1);
 }
 
 /**
  * Read multiple bytes from a register
  */
-static bool_t cyrf6936_read_block(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t length) {
-  if(cyrf->spi_t.status != SPITransDone)
+static bool_t cyrf6936_read_block(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t length)
+{
+  if (cyrf->spi_t.status != SPITransDone) {
     return FALSE;
+  }
 
   /* Set the buffer and commit the transaction */
   cyrf->spi_t.output_length = 1;
@@ -306,9 +327,10 @@ static bool_t cyrf6936_read_block(struct Cyrf6936 *cyrf, const uint8_t addr, con
 /**
  * Write to one register
  */
-bool_t cyrf6936_write(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data) {
+bool_t cyrf6936_write(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data)
+{
   const uint8_t data_multi[][2] = {
-      {addr, data}
+    {addr, data}
   };
   return cyrf6936_multi_write(cyrf, data_multi, 1);
 }
@@ -316,11 +338,13 @@ bool_t cyrf6936_write(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t d
 /**
  * Write to multiple registers one byte
  */
-bool_t cyrf6936_multi_write(struct Cyrf6936 *cyrf, const uint8_t data[][2], const uint8_t length) {
+bool_t cyrf6936_multi_write(struct Cyrf6936 *cyrf, const uint8_t data[][2], const uint8_t length)
+{
   uint8_t i;
   /* Check if the cyrf6936 isn't busy */
-  if(cyrf->status != CYRF6936_IDLE)
+  if (cyrf->status != CYRF6936_IDLE) {
     return FALSE;
+  }
 
   // Set the status
   cyrf->status = CYRF6936_MULTIWRITE;
@@ -330,14 +354,15 @@ bool_t cyrf6936_multi_write(struct Cyrf6936 *cyrf, const uint8_t data[][2], cons
   cyrf->buffer_idx = 0;
 
   // Copy the buffer
-  for(i = 0; i< length; i++) {
-    cyrf->buffer[i*2] = data[i][0];
-    cyrf->buffer[i*2+1] = data[i][1];
+  for (i = 0; i < length; i++) {
+    cyrf->buffer[i * 2] = data[i][0];
+    cyrf->buffer[i * 2 + 1] = data[i][1];
   }
 
   /* Write the first regiter */
-  if(length > 0)
+  if (length > 0) {
     cyrf6936_write_register(cyrf, data[0][0], data[0][1]);
+  }
 
   return TRUE;
 }
@@ -345,11 +370,14 @@ bool_t cyrf6936_multi_write(struct Cyrf6936 *cyrf, const uint8_t data[][2], cons
 /**
  * Set the channel, SOP code, DATA code and the CRC seed
  */
-bool_t cyrf6936_write_chan_sop_data_crc(struct Cyrf6936 *cyrf, const uint8_t chan, const uint8_t sop_code[], const uint8_t data_code[], const uint16_t crc_seed) {
+bool_t cyrf6936_write_chan_sop_data_crc(struct Cyrf6936 *cyrf, const uint8_t chan, const uint8_t sop_code[],
+                                        const uint8_t data_code[], const uint16_t crc_seed)
+{
   uint8_t i;
   /* Check if the cyrf6936 isn't busy */
-  if(cyrf->status != CYRF6936_IDLE)
+  if (cyrf->status != CYRF6936_IDLE) {
     return FALSE;
+  }
 
   // Set the status
   cyrf->status = CYRF6936_CHAN_SOP_DATA_CRC;
@@ -359,12 +387,14 @@ bool_t cyrf6936_write_chan_sop_data_crc(struct Cyrf6936 *cyrf, const uint8_t cha
   cyrf->buffer[1] = (crc_seed >> 8) & 0xFF;
 
   // Copy the SOP code
-  for(i = 0; i < 8; i++)
-    cyrf->buffer[i+2] = sop_code[i];
+  for (i = 0; i < 8; i++) {
+    cyrf->buffer[i + 2] = sop_code[i];
+  }
 
   // Copy the DATA code
-  for(i = 0; i < 16; i++)
-    cyrf->buffer[i+10] = data_code[i];
+  for (i = 0; i < 16; i++) {
+    cyrf->buffer[i + 10] = data_code[i];
+  }
 
   // Copy the channel
   cyrf->buffer[26] = chan;
@@ -379,10 +409,12 @@ bool_t cyrf6936_write_chan_sop_data_crc(struct Cyrf6936 *cyrf, const uint8_t cha
 /**
  * Read the RX IRQ status register, the rx status register and the rx packet
  */
-bool_t cyrf6936_read_rx_irq_status_packet(struct Cyrf6936 *cyrf) {
+bool_t cyrf6936_read_rx_irq_status_packet(struct Cyrf6936 *cyrf)
+{
   /* Check if the cyrf6936 isn't busy */
-  if(cyrf->status != CYRF6936_IDLE)
+  if (cyrf->status != CYRF6936_IDLE) {
     return FALSE;
+  }
 
   // Set the status
   cyrf->status = CYRF6936_RX_IRQ_STATUS_PACKET;
@@ -397,20 +429,23 @@ bool_t cyrf6936_read_rx_irq_status_packet(struct Cyrf6936 *cyrf) {
 /**
  * Send a packet with a certain length
  */
-bool_t cyrf6936_send(struct Cyrf6936 *cyrf, const uint8_t data[], const uint8_t length) {
+bool_t cyrf6936_send(struct Cyrf6936 *cyrf, const uint8_t data[], const uint8_t length)
+{
   int i;
 
   /* Check if the cyrf6936 isn't busy */
-  if(cyrf->status != CYRF6936_IDLE)
+  if (cyrf->status != CYRF6936_IDLE) {
     return FALSE;
+  }
 
   // Set the status
   cyrf->status = CYRF6936_SEND;
 
   // Copy the length and the data
   cyrf->buffer[0] = length;
-  for(i = 0; i < length; i++)
-    cyrf->buffer[i+1] = data[i];
+  for (i = 0; i < length; i++) {
+    cyrf->buffer[i + 1] = data[i];
+  }
 
   /* Try to set the packet length */
   cyrf->buffer_idx = 0;

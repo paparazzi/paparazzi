@@ -57,7 +57,7 @@ struct telemetry_msg {
  */
 struct pprz_telemetry {
   uint8_t nb;                 ///< number of messages
-  struct telemetry_msg* msgs; ///< the list of (msg name, callbacks)
+  struct telemetry_msg *msgs; ///< the list of (msg name, callbacks)
 };
 
 /** Register a telemetry callback function.
@@ -68,9 +68,10 @@ struct pprz_telemetry {
  * @return TRUE if message registered with success, FALSE otherwise
  */
 #if PERIODIC_TELEMETRY
-extern bool_t register_periodic_telemetry(struct pprz_telemetry * _pt, const char * _msg, telemetry_cb _cb);
+extern bool_t register_periodic_telemetry(struct pprz_telemetry *_pt, const char *_msg, telemetry_cb _cb);
 #else
-static inline bool_t register_periodic_telemetry(struct pprz_telemetry * _pt __attribute__((unused)), const char * _msg __attribute__((unused)), telemetry_cb _cb __attribute__((unused))) { return FALSE; }
+static inline bool_t register_periodic_telemetry(struct pprz_telemetry *_pt __attribute__((unused)),
+    const char *_msg __attribute__((unused)), telemetry_cb _cb __attribute__((unused))) { return FALSE; }
 #endif
 
 #if USE_PERIODIC_TELEMETRY_REPORT

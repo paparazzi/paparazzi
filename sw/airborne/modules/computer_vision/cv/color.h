@@ -23,69 +23,64 @@
 #include <stdint.h>
 #include "image.h"
 
-inline void grayscale_uyvy(struct img_struct* input, struct img_struct* output);
-inline void grayscale_uyvy(struct img_struct* input, struct img_struct* output)
+inline void grayscale_uyvy(struct img_struct *input, struct img_struct *output);
+inline void grayscale_uyvy(struct img_struct *input, struct img_struct *output)
 {
   uint8_t *source = input->buf;
   uint8_t *dest = output->buf;
   source++;
 
-  for (int y=0;y<output->h;y++)
-  {
-    for (int x=0;x<output->w;x++)
-    {
+  for (int y = 0; y < output->h; y++) {
+    for (int x = 0; x < output->w; x++) {
       // UYVY
       *dest++ = 127;        // U
       *dest++ = *source;    // Y
-      source+=2;
+      source += 2;
     }
   }
 }
 
-inline int colorfilt_uyvy(struct img_struct* input, struct img_struct* output, uint8_t y_m, uint8_t y_M, uint8_t u_m, uint8_t u_M, uint8_t v_m, uint8_t v_M);
-inline int colorfilt_uyvy(struct img_struct* input, struct img_struct* output, uint8_t y_m, uint8_t y_M, uint8_t u_m, uint8_t u_M, uint8_t v_m, uint8_t v_M)
+inline int colorfilt_uyvy(struct img_struct *input, struct img_struct *output, uint8_t y_m, uint8_t y_M, uint8_t u_m,
+                          uint8_t u_M, uint8_t v_m, uint8_t v_M);
+inline int colorfilt_uyvy(struct img_struct *input, struct img_struct *output, uint8_t y_m, uint8_t y_M, uint8_t u_m,
+                          uint8_t u_M, uint8_t v_m, uint8_t v_M)
 {
   int cnt = 0;
   uint8_t *source = input->buf;
   uint8_t *dest = output->buf;
 
-  for (int y=0;y<output->h;y++)
-  {
-    for (int x=0;x<output->w;x+=2)
-    {
+  for (int y = 0; y < output->h; y++) {
+    for (int x = 0; x < output->w; x += 2) {
       // Color Check:
       if (
-          // Light
-               (dest[1] >= y_m)
-            && (dest[1] <= y_M)
-            && (dest[0] >= u_m)
-            && (dest[0] <= u_M)
-            && (dest[2] >= v_m)
-            && (dest[2] <= v_M)
-         )// && (dest[2] > 128))
-      {
+        // Light
+        (dest[1] >= y_m)
+        && (dest[1] <= y_M)
+        && (dest[0] >= u_m)
+        && (dest[0] <= u_M)
+        && (dest[2] >= v_m)
+        && (dest[2] <= v_M)
+      ) { // && (dest[2] > 128))
         cnt ++;
         // UYVY
         dest[0] = 64;        // U
         dest[1] = source[1];  // Y
         dest[2] = 255;        // V
         dest[3] = source[3];  // Y
-      }
-      else
-      {
+      } else {
         // UYVY
-        char u = source[0]-127;
-        u/=4;
+        char u = source[0] - 127;
+        u /= 4;
         dest[0] = 127;        // U
         dest[1] = source[1];  // Y
-        u = source[2]-127;
-        u/=4;
+        u = source[2] - 127;
+        u /= 4;
         dest[2] = 127;        // V
         dest[3] = source[3];  // Y
       }
 
-      dest+=4;
-      source+=4;
+      dest += 4;
+      source += 4;
     }
   }
   return cnt;

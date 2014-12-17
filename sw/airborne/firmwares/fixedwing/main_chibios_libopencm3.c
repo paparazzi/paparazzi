@@ -46,11 +46,11 @@
 #include "led.h"
 
 
-static int32_t pprz_thd (void *arg);
+static int32_t pprz_thd(void *arg);
 static bool_t sdlogOk ;
 bool_t pprzReady = FALSE;
 
-int main( void )
+int main(void)
 {
   // Init
   sys_time_init();
@@ -64,7 +64,7 @@ int main( void )
 
   chibios_chThdSleepMilliseconds(100);
 
-  launch_pprz_thd (&pprz_thd);
+  launch_pprz_thd(&pprz_thd);
   pprzReady = TRUE;
   // Call PPRZ periodic and event functions
   while (TRUE) {
@@ -74,7 +74,7 @@ int main( void )
 }
 
 
-static int32_t pprz_thd (void *arg)
+static int32_t pprz_thd(void *arg)
 {
   /*
      To be compatible with rtos architecture, each of this 4 workers should
@@ -82,7 +82,7 @@ static int32_t pprz_thd (void *arg)
      periodic task should sleep, and event task should wait for event
      */
   (void) arg;
-  chibios_chRegSetThreadName ("pprz big loop");
+  chibios_chRegSetThreadName("pprz big loop");
 
   while (!chThdShouldTerminate()) {
     Fbw(handle_periodic_tasks);

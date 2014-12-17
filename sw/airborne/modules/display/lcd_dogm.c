@@ -38,26 +38,29 @@
 #include "lcd_dogm.h"
 
 
-void lcd_cmd(uint8_t command) {
+void lcd_cmd(uint8_t command)
+{
   uint32_t i;
-  for (i=0;i<20000;i++);
+  for (i = 0; i < 20000; i++);
   lcddogmSelect();
   lcddogmCmdMode();
   lcd_spi_tx(command);
 }
 
-void lcd_data(uint8_t data) {
+void lcd_data(uint8_t data)
+{
   uint32_t i;
-  for (i=0;i<100000;i++);
+  for (i = 0; i < 100000; i++);
   lcddogmSelect();
   lcddogmDataMode();
   lcd_spi_tx(data);
 }
 
-void lcd_dogm_init( void ) {
+void lcd_dogm_init(void)
+{
   uint32_t i;
 
-  for (i=0;i<100000;i++);
+  for (i = 0; i < 100000; i++);
   lcd_dogm_init_hw();
 
   /* Write configuration */

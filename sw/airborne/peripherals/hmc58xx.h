@@ -81,11 +81,13 @@ extern void hmc58xx_read(struct Hmc58xx *hmc);
 extern void hmc58xx_event(struct Hmc58xx *hmc);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void hmc58xx_periodic(struct Hmc58xx *hmc) {
-  if (hmc->initialized)
+static inline void hmc58xx_periodic(struct Hmc58xx *hmc)
+{
+  if (hmc->initialized) {
     hmc58xx_read(hmc);
-  else
+  } else {
     hmc58xx_start_configure(hmc);
+  }
 }
 
 #endif /* HMC58XX_H */

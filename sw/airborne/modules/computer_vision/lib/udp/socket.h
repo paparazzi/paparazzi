@@ -16,9 +16,9 @@ struct UdpSocket {
 };
 
 
-extern struct UdpSocket* udp_socket(const char* str_ip_out, const int port_out, const int port_in, const int broadcast);
-extern int udp_write(struct UdpSocket* me, unsigned char* buf, int len);
-extern int udp_read(struct UdpSocket* me, unsigned char* buf, int len);
+extern struct UdpSocket *udp_socket(const char *str_ip_out, const int port_out, const int port_in, const int broadcast);
+extern int udp_write(struct UdpSocket *me, unsigned char *buf, int len);
+extern int udp_read(struct UdpSocket *me, unsigned char *buf, int len);
 
 
 #endif  /*  SOCKET_H  */

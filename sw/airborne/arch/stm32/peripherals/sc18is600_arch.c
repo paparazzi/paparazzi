@@ -22,7 +22,8 @@ extern void dma1_c4_irq_handler(void);
 
 static inline void sc18is600_setup_SPI_DMA(uint8_t _len);
 
-void sc18is600_arch_init(void) {
+void sc18is600_arch_init(void)
+{
 
   /* set slave select as output and assert it ( on PB12) */
   Sc18Is600Unselect();
@@ -97,11 +98,12 @@ void sc18is600_arch_init(void) {
 
 }
 
-static inline void sc18is600_setup_SPI_DMA(uint8_t _len) {
+static inline void sc18is600_setup_SPI_DMA(uint8_t _len)
+{
   /* SPI2_Rx_DMA_Channel configuration ------------------------------------*/
   DMA_DeInit(DMA1_Channel4);
   DMA_InitTypeDef DMA_initStructure_4 = {
-    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
+    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE + 0x0C),
     .DMA_MemoryBaseAddr = (uint32_t)sc18is600.priv_rx_buf,
     .DMA_DIR = DMA_DIR_PeripheralSRC,
     .DMA_BufferSize = _len,
@@ -117,7 +119,7 @@ static inline void sc18is600_setup_SPI_DMA(uint8_t _len) {
   /* SPI2_Tx_DMA_Channel configuration ------------------------------------*/
   DMA_DeInit(DMA1_Channel5);
   DMA_InitTypeDef DMA_initStructure_5 = {
-    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
+    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE + 0x0C),
     .DMA_MemoryBaseAddr = (uint32_t)sc18is600.priv_tx_buf,
     .DMA_DIR = DMA_DIR_PeripheralDST,
     .DMA_BufferSize = _len,
@@ -146,7 +148,8 @@ static inline void sc18is600_setup_SPI_DMA(uint8_t _len) {
 }
 
 
-void sc18is600_transmit(uint8_t addr, uint8_t len) {
+void sc18is600_transmit(uint8_t addr, uint8_t len)
+{
 
   sc18is600.transaction = Sc18Is600Transmit;
   sc18is600.status = Sc18Is600SendingRequest;
@@ -154,15 +157,17 @@ void sc18is600_transmit(uint8_t addr, uint8_t len) {
   sc18is600.priv_tx_buf[1] = len;
   sc18is600.priv_tx_buf[2] = addr;
   Sc18Is600Select();
-  sc18is600_setup_SPI_DMA(len+3);
+  sc18is600_setup_SPI_DMA(len + 3);
 
 }
 
-void sc18is600_receive(uint8_t addr, uint8_t len) {
+void sc18is600_receive(uint8_t addr, uint8_t len)
+{
 
 }
 
-void sc18is600_tranceive(uint8_t addr, uint8_t len_tx, uint8_t len_rx) {
+void sc18is600_tranceive(uint8_t addr, uint8_t len_tx, uint8_t len_rx)
+{
   sc18is600.transaction = Sc18Is600Transcieve;
   sc18is600.status = Sc18Is600SendingRequest;
   sc18is600.rx_len = len_rx;
@@ -170,12 +175,13 @@ void sc18is600_tranceive(uint8_t addr, uint8_t len_tx, uint8_t len_rx) {
   sc18is600.priv_tx_buf[1] = len_tx;
   sc18is600.priv_tx_buf[2] = len_rx;
   sc18is600.priv_tx_buf[3] = addr;
-  sc18is600.priv_tx_buf[4+len_tx] = addr;
+  sc18is600.priv_tx_buf[4 + len_tx] = addr;
   Sc18Is600Select();
-  sc18is600_setup_SPI_DMA(len_tx+5);
+  sc18is600_setup_SPI_DMA(len_tx + 5);
 }
 
-void sc18is600_write_to_register(uint8_t addr, uint8_t value) {
+void sc18is600_write_to_register(uint8_t addr, uint8_t value)
+{
   sc18is600.transaction = Sc18Is600WriteRegister;
   sc18is600.status = Sc18Is600SendingRequest;
   sc18is600.priv_tx_buf[0] = Sc18Is600_Cmd_Write_To_Reg; // write to register
@@ -186,7 +192,8 @@ void sc18is600_write_to_register(uint8_t addr, uint8_t value) {
 }
 
 
-void sc18is600_read_from_register(uint8_t addr) {
+void sc18is600_read_from_register(uint8_t addr)
+{
   sc18is600.transaction = Sc18Is600ReadRegister;
   sc18is600.status = Sc18Is600SendingRequest;
   sc18is600.priv_tx_buf[0] = Sc18Is600_Cmd_Read_From_Reg; // read from register
@@ -196,88 +203,88 @@ void sc18is600_read_from_register(uint8_t addr) {
   sc18is600_setup_SPI_DMA(3);
 }
 
-#define ReadI2CStatReg() {				\
+#define ReadI2CStatReg() {        \
     sc18is600.priv_tx_buf[0] = Sc18Is600_Cmd_Read_From_Reg; \
-    sc18is600.priv_tx_buf[1] = Sc18Is600_I2CStat;	\
-    sc18is600.priv_tx_buf[2] = 0;			\
-    Sc18Is600Select();					\
-    sc18is600_setup_SPI_DMA(3);				\
+    sc18is600.priv_tx_buf[1] = Sc18Is600_I2CStat; \
+    sc18is600.priv_tx_buf[2] = 0;     \
+    Sc18Is600Select();          \
+    sc18is600_setup_SPI_DMA(3);       \
   }
 
 
-void exti2_irq_handler(void) {
+void exti2_irq_handler(void)
+{
   /* clear EXTI */
-  if(EXTI_GetITStatus(EXTI_Line2) != RESET)
+  if (EXTI_GetITStatus(EXTI_Line2) != RESET) {
     EXTI_ClearITPendingBit(EXTI_Line2);
+  }
   switch (sc18is600.transaction) {
-  case Sc18Is600Receive:
-  case Sc18Is600Transmit:
-  case Sc18Is600Transcieve:
-    if (sc18is600.status == Sc18Is600WaitingForI2C) {
-      sc18is600.status = Sc18Is600ReadingI2CStat;
-      ReadI2CStatReg();
-    }
-    break;
-  case Sc18Is600ReadRegister:
-  case Sc18Is600WriteRegister:
-    // should not happen
-    break;
-  default:
-    break;
+    case Sc18Is600Receive:
+    case Sc18Is600Transmit:
+    case Sc18Is600Transcieve:
+      if (sc18is600.status == Sc18Is600WaitingForI2C) {
+        sc18is600.status = Sc18Is600ReadingI2CStat;
+        ReadI2CStatReg();
+      }
+      break;
+    case Sc18Is600ReadRegister:
+    case Sc18Is600WriteRegister:
+      // should not happen
+      break;
+    default:
+      break;
   }
 
 }
 
 
 
-void dma1_c4_irq_handler(void) {
+void dma1_c4_irq_handler(void)
+{
 
-    DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
-    /* Disable SPI_2 Rx and TX request */
-    SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, DISABLE);
-    SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, DISABLE);
-    /* Disable DMA1 Channel4 and 5 */
-    DMA_Cmd(DMA1_Channel4, DISABLE);
-    DMA_Cmd(DMA1_Channel5, DISABLE);
+  DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
+  /* Disable SPI_2 Rx and TX request */
+  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, DISABLE);
+  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, DISABLE);
+  /* Disable DMA1 Channel4 and 5 */
+  DMA_Cmd(DMA1_Channel4, DISABLE);
+  DMA_Cmd(DMA1_Channel5, DISABLE);
 
-    switch (sc18is600.transaction) {
+  switch (sc18is600.transaction) {
     case Sc18Is600ReadRegister:
     case Sc18Is600WriteRegister:
       sc18is600.status = Sc18Is600TransactionComplete;
       Sc18Is600Unselect();
       break;
     case Sc18Is600Transmit:
-      if (sc18is600.status==Sc18Is600SendingRequest) {
-    sc18is600.status = Sc18Is600WaitingForI2C;
-    Sc18Is600Unselect();
-      }
-      else if (sc18is600.status == Sc18Is600ReadingI2CStat) {
-    sc18is600.i2c_status = sc18is600.priv_rx_buf[2];
-    sc18is600.status = Sc18Is600TransactionComplete;
-    Sc18Is600Unselect();
+      if (sc18is600.status == Sc18Is600SendingRequest) {
+        sc18is600.status = Sc18Is600WaitingForI2C;
+        Sc18Is600Unselect();
+      } else if (sc18is600.status == Sc18Is600ReadingI2CStat) {
+        sc18is600.i2c_status = sc18is600.priv_rx_buf[2];
+        sc18is600.status = Sc18Is600TransactionComplete;
+        Sc18Is600Unselect();
       }
       break;
     case Sc18Is600Receive:
     case Sc18Is600Transcieve:
-      if (sc18is600.status==Sc18Is600SendingRequest) {
-    sc18is600.status = Sc18Is600WaitingForI2C;
-    Sc18Is600Unselect();
-      }
-      else if (sc18is600.status == Sc18Is600ReadingI2CStat) {
-    sc18is600.status = Sc18Is600ReadingBuffer;
-    sc18is600.priv_tx_buf[0] = Sc18Is600_Cmd_Read_Buffer;
-    // debug
-    for (int i=1; i<sc18is600.rx_len+1; i++) sc18is600.priv_tx_buf[i] = 0;
-    Sc18Is600Select();
-    sc18is600_setup_SPI_DMA(sc18is600.rx_len+1);
-      }
-      else if (sc18is600.status == Sc18Is600ReadingBuffer) {
-    sc18is600.status = Sc18Is600TransactionComplete;
-    Sc18Is600Unselect();
+      if (sc18is600.status == Sc18Is600SendingRequest) {
+        sc18is600.status = Sc18Is600WaitingForI2C;
+        Sc18Is600Unselect();
+      } else if (sc18is600.status == Sc18Is600ReadingI2CStat) {
+        sc18is600.status = Sc18Is600ReadingBuffer;
+        sc18is600.priv_tx_buf[0] = Sc18Is600_Cmd_Read_Buffer;
+        // debug
+        for (int i = 1; i < sc18is600.rx_len + 1; i++) { sc18is600.priv_tx_buf[i] = 0; }
+        Sc18Is600Select();
+        sc18is600_setup_SPI_DMA(sc18is600.rx_len + 1);
+      } else if (sc18is600.status == Sc18Is600ReadingBuffer) {
+        sc18is600.status = Sc18Is600TransactionComplete;
+        Sc18Is600Unselect();
       }
       break;
     default:
       break;
-    }
+  }
 
 }

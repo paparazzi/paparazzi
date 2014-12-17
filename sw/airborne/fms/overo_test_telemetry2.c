@@ -25,22 +25,23 @@
 
 #define DL_MSG_SIZE 128
 
-#define ADD_TIMEOUT() {				\
-    struct timeval tv;				\
-    evutil_timerclear(&tv);			\
-    tv.tv_sec  = TIMEOUT_DT_SEC;		\
-    tv.tv_usec = TIMEOUT_DT_USEC;		\
-    event_add(&timeout, &tv);			\
+#define ADD_TIMEOUT() {       \
+    struct timeval tv;        \
+    evutil_timerclear(&tv);     \
+    tv.tv_sec  = TIMEOUT_DT_SEC;    \
+    tv.tv_usec = TIMEOUT_DT_USEC;   \
+    event_add(&timeout, &tv);     \
   }
 
 static void timeout_cb(int fd, short event, void *arg);
 
 static struct event timeout;
 static struct event read_event;
-static struct FmsNetwork* network;
+static struct FmsNetwork *network;
 static struct DownlinkTransport *udp_transport;
 
-void timeout_cb(int fd, short event, void *arg) {
+void timeout_cb(int fd, short event, void *arg)
+{
 
   //  printf("in timeout_cb\n");
 
@@ -72,22 +73,21 @@ static inline int checked_read(int fd, char *buf, size_t len)
 }
 
 bool_t my_dl_msg_available;
-uint8_t my_dl_buffer[DL_MSG_SIZE]  __attribute__ ((aligned));
+uint8_t my_dl_buffer[DL_MSG_SIZE]  __attribute__((aligned));
 
 #define IdOfMsg(x) (x[1])
 
-static void dl_handle_msg(struct DownlinkTransport *tp) {
+static void dl_handle_msg(struct DownlinkTransport *tp)
+{
   uint8_t msg_id = IdOfMsg(my_dl_buffer);
   switch (msg_id) {
 
-  case  DL_PING:
-    {
+    case  DL_PING: {
       DOWNLINK_SEND_PONG(tp);
     }
     break;
 
-  case DL_SETTING :
-    {
+    case DL_SETTING : {
       uint8_t i = DL_SETTING_index(my_dl_buffer);
       float var = DL_SETTING_value(my_dl_buffer);
       // DlSetting(i, var);
@@ -107,7 +107,7 @@ static void on_datalink_event(int fd, short event __attribute__((unused)), void 
   struct udp_transport *udp_impl = tp->impl;
 
   int i = 0;
-  while (i<bytes_read) {
+  while (i < bytes_read) {
     parse_udp_dl(udp_impl, buf[i]);
     i++;
     if (udp_impl->udp_dl_msg_received) {
@@ -118,7 +118,8 @@ static void on_datalink_event(int fd, short event __attribute__((unused)), void 
   }
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
   network = network_new(GCS_HOST, GCS_PORT, DATALINK_PORT, FALSE);
   udp_transport = udp_transport_new(network);

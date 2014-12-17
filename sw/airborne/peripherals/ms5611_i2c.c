@@ -114,13 +114,13 @@ void ms5611_i2c_periodic_check(struct Ms5611_I2c *ms)
   }
 }
 
-void ms5611_i2c_event(struct Ms5611_I2c *ms) {
+void ms5611_i2c_event(struct Ms5611_I2c *ms)
+{
   if (ms->initialized) {
     if (ms->i2c_trans.status == I2CTransFailed) {
       ms->status = MS5611_STATUS_IDLE;
       ms->i2c_trans.status = I2CTransDone;
-    }
-    else if (ms->i2c_trans.status == I2CTransSuccess) {
+    } else if (ms->i2c_trans.status == I2CTransSuccess) {
       // Successfull reading
       switch (ms->status) {
 
@@ -128,13 +128,12 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms) {
           /* read D1 (pressure) */
           ms->data.d1 = (ms->i2c_trans.buf[0] << 16) |
                         (ms->i2c_trans.buf[1] << 8) |
-                         ms->i2c_trans.buf[2];
+                        ms->i2c_trans.buf[2];
           ms->i2c_trans.status = I2CTransDone;
           if (ms->data.d1 == 0) {
             /* if value is zero, it was read to soon and is invalid, back to idle */
             ms->status = MS5611_STATUS_IDLE;
-          }
-          else {
+          } else {
             /* start D2 conversion */
             ms->i2c_trans.buf[0] = MS5611_START_CONV_D2;
             i2c_transmit(ms->i2c_p, &(ms->i2c_trans), ms->i2c_trans.slave_addr, 1);
@@ -146,16 +145,16 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms) {
           /* read D2 (temperature) */
           ms->data.d2 = (ms->i2c_trans.buf[0] << 16) |
                         (ms->i2c_trans.buf[1] << 8) |
-                         ms->i2c_trans.buf[2];
+                        ms->i2c_trans.buf[2];
           ms->i2c_trans.status = I2CTransDone;
           if (ms->data.d2 == 0) {
             /* if value is zero, it was read to soon and is invalid, back to idle */
             ms->status = MS5611_STATUS_IDLE;
-          }
-          else {
+          } else {
             /* calculate temp and pressure from measurements and set available if valid */
-            if (ms5611_calc(&(ms->data)))
+            if (ms5611_calc(&(ms->data))) {
               ms->data_available = TRUE;
+            }
             ms->status = MS5611_STATUS_IDLE;
           }
           break;
@@ -165,8 +164,7 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms) {
           break;
       }
     }
-  }
-  else if (ms->status != MS5611_STATUS_UNINIT) { // Configuring but not yet initialized
+  } else if (ms->status != MS5611_STATUS_UNINIT) { // Configuring but not yet initialized
     switch (ms->i2c_trans.status) {
 
       case I2CTransFailed:
@@ -179,20 +177,18 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms) {
         if (ms->status == MS5611_STATUS_PROM) {
           /* read prom data */
           ms->data.c[ms->prom_cnt++] = (ms->i2c_trans.buf[0] << 8) |
-                                        ms->i2c_trans.buf[1];
+                                       ms->i2c_trans.buf[1];
           ms->i2c_trans.status = I2CTransDone;
           if (ms->prom_cnt < PROM_NB) {
             /* get next prom data */
             ms->i2c_trans.buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
             i2c_transceive(ms->i2c_p, &(ms->i2c_trans), ms->i2c_trans.slave_addr, 1, 2);
-          }
-          else {
+          } else {
             /* done reading prom, check prom crc */
             if (ms5611_prom_crc_ok(ms->data.c)) {
               ms->initialized = TRUE;
               ms->status = MS5611_STATUS_IDLE;
-            }
-            else {
+            } else {
               /* checksum error, try again */
               ms->status = MS5611_STATUS_UNINIT;
             }

@@ -25,7 +25,8 @@
 
 #include "stabilization_attitude_quat_transformations.h"
 
-void quat_from_rpy_cmd_i(struct Int32Quat *quat, struct Int32Eulers *rpy) {
+void quat_from_rpy_cmd_i(struct Int32Quat *quat, struct Int32Eulers *rpy)
+{
   struct FloatEulers rpy_f;
   EULERS_FLOAT_OF_BFP(rpy_f, *rpy);
   struct FloatQuat quat_f;
@@ -33,7 +34,8 @@ void quat_from_rpy_cmd_i(struct Int32Quat *quat, struct Int32Eulers *rpy) {
   QUAT_BFP_OF_REAL(*quat, quat_f);
 }
 
-void quat_from_rpy_cmd_f(struct FloatQuat *quat, struct FloatEulers *rpy) {
+void quat_from_rpy_cmd_f(struct FloatQuat *quat, struct FloatEulers *rpy)
+{
   // only a plug for now... doesn't apply roll/pitch wrt. current yaw angle
 
   /* orientation vector describing simultaneous rotation of roll/pitch/yaw */
@@ -43,7 +45,8 @@ void quat_from_rpy_cmd_f(struct FloatQuat *quat, struct FloatEulers *rpy) {
 
 }
 
-void quat_from_earth_cmd_i(struct Int32Quat *quat, struct Int32Vect2 *cmd, int32_t heading) {
+void quat_from_earth_cmd_i(struct Int32Quat *quat, struct Int32Vect2 *cmd, int32_t heading)
+{
   // use float conversion for now...
   struct FloatVect2 cmd_f;
   cmd_f.x = ANGLE_FLOAT_OF_BFP(cmd->x);
@@ -57,7 +60,8 @@ void quat_from_earth_cmd_i(struct Int32Quat *quat, struct Int32Vect2 *cmd, int32
   QUAT_BFP_OF_REAL(*quat, quat_f);
 }
 
-void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float heading) {
+void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float heading)
+{
 
   /* cmd_x is positive to north = negative pitch
    * cmd_y is positive to east = positive roll
