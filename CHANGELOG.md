@@ -1,3 +1,25 @@
+Paparazzi 5.3.2_testing
+=======================
+
+Third release candidate for v5.4 stable release.
+
+- code style: fix in (nearly) all airborne code
+- support Piksi GPS modules
+  [#1043] (https://github.com/paparazzi/paparazzi/pull/1043)
+  [#957] (https://github.com/paparazzi/paparazzi/issues/957)
+- fixedwing: airspeed tuning
+  [#877] (https://github.com/paparazzi/paparazzi/pull/877)
+- linux: handle SIGINT for console debug
+  [#1008] (https://github.com/paparazzi/paparazzi/pull/
+- rotorcraft: always allow to switch to MODE_MANUAL via RC
+  [#1036] (https://github.com/paparazzi/paparazzi/pull/1036)
+- flight plan: use flight plan position in nps for most example files
+- airframes: OBC example airframes
+  [#1044] (https://github.com/paparazzi/paparazzi/pull/1044)
+- transitioning: fix transition offset handling
+  [#1045] (https://github.com/paparazzi/paparazzi/pull/1045)
+
+
 Paparazzi 5.3.1_testing
 =======================
 
