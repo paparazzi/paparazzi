@@ -29,4 +29,46 @@
 
 #include "mcu_arch.h"
 
+#if USE_LINUX_SIGNAL
+
+/**
+ * Handle linux signals by hand if the program is not launch
+ * by a shell already doing it
+ */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <signal.h>
+
+/**
+ * catch SIGINT signal two times to stop the main program
+ */
+static void sig_handler(int signo)
+{
+  static int nb_signal = 0;
+
+  if (signo == SIGINT) {
+    printf("Received SIGINT\n");
+    if (nb_signal == 0) {
+      printf("Press Ctrl-C again to stop the program\n");
+      nb_signal++;
+    } else {
+      printf("Leaving now\n");
+      exit(0);
+    }
+  }
+}
+
+void mcu_arch_init(void)
+{
+  if (signal(SIGINT, sig_handler) == SIG_ERR) {
+    printf("Can't catch SIGINT\n");
+  }
+}
+
+#else
+
 void mcu_arch_init(void) { }
+
+#endif
+

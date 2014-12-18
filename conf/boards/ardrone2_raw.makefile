@@ -43,6 +43,9 @@ $(TARGET).CFLAGS   += -DUART1_DEV=\"/dev/ttyUSB0\"
 # for distinction between RAW and SDK version
 $(TARGET).CFLAGS +=-DARDRONE2_RAW
 
+# handle linux signals by hand
+$(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL
+
 # -----------------------------------------------------------------------
 
 # default LED configuration
