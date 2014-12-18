@@ -87,6 +87,7 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "mcu_periph/usb_serial.h"
 #endif
 
+#include "pprz_version.h"
 
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
@@ -112,6 +113,9 @@ PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY to at least ", AHRS_PROPAGATE_FREQUENCY)
 #endif
 #endif
+
+/** Paparazzi version */
+static const uint16_t version = PPRZ_VERSION_INT;
 
 static inline void on_gyro_event(void);
 static inline void on_accel_event(void);
@@ -245,9 +249,20 @@ STATIC_INLINE void main_periodic(void)
 
 STATIC_INLINE void telemetry_periodic(void)
 {
+  static uint8_t boot = TRUE;
+
+  /* initialisation phase during boot */
+  if (boot) {
+    uint16_t non_const_version = version;
+    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &non_const_version);
+    boot = FALSE;
+  }
+  /* then report periodicly */
+  else {
 #if PERIODIC_TELEMETRY
-  periodic_telemetry_send_Main(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+    periodic_telemetry_send_Main(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
+  }
 }
 
 /** mode to enter when RC is lost while using a mode with RC input (not AP_MODE_NAV) */

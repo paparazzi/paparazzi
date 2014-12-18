@@ -39,6 +39,7 @@
 #include "mcu_periph/sys_time.h"
 #include "subsystems/electrical.h"
 #include "state.h"
+#include "pprz_version.h"
 
 mavlink_system_t mavlink_system;
 
@@ -298,10 +299,11 @@ static inline void mavlink_send_params(void)
 static inline void mavlink_send_autopilot_version(void)
 {
   /// TODO: fill in versions correctly, how should they be encoded?
+  static uint32_t ver = PPRZ_VERSION_INT;
   static uint8_t custom_version[8];
   mavlink_msg_autopilot_version_send(MAVLINK_COMM_0,
                                      0,  // capabilities,
-                                     54, // version
+                                     ver, // version
                                      custom_version);
 }
 
