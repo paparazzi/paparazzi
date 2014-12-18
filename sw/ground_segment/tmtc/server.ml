@@ -100,6 +100,20 @@ let log_xml = fun timeofday data_file ->
 
 let start_time = U.gettimeofday ()
 
+(* Run a command and return its results as a string. *)
+let read_process command =
+  let buffer_size = 2048 in
+  let buffer = Buffer.create buffer_size in
+  let string = String.create buffer_size in
+  let in_channel = Unix.open_process_in command in
+  let chars_read = ref 1 in
+  while !chars_read <> 0 do
+    chars_read := input in_channel string 0 buffer_size;
+    Buffer.add_substring buffer string 0 !chars_read
+  done;
+  ignore (Unix.close_process_in in_channel);
+  Buffer.contents buffer
+
 (* Opens the log files *)
 let logger = fun () ->
   let d = U.localtime start_time in
@@ -111,6 +125,12 @@ let logger = fun () ->
   let log_name = sprintf "%s.log" basename
   and data_name = sprintf "%s.data" basename in
   let f = open_out (logs_path // log_name) in
+  (* version string with whitespace/newline at the end stripped *)
+  let version_str =
+    try
+      Str.replace_first (Str.regexp "[ \n]+$") "" (read_process (Env.paparazzi_src ^ "/paparazzi_version"))
+    with _ -> "UNKNOWN" in
+  output_string f ("<!-- logged with paparazzi_version " ^ version_str ^ " -->\n");
   output_string f (Xml.to_string_fmt (log_xml start_time data_name));
   close_out f;
   open_out (logs_path // data_name)
@@ -281,7 +301,7 @@ let send_telemetry_status = fun a ->
   let id = a.id in
   let tl_payload = fun link_id datalink_status link_status ->
     [ "ac_id", Pprz.String id;
-      "link_id", Pprz.String link_id; 
+      "link_id", Pprz.String link_id;
       "time_since_last_msg", Pprz.Float (U.gettimeofday () -. a.last_msg_date); (* don't use rx_lost_time from LINK_REPORT so it also works in simulation *)
       "rx_bytes", Pprz.Int link_status.rx_bytes;
       "rx_msgs", Pprz.Int link_status.rx_msgs;
