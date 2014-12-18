@@ -51,4 +51,28 @@
 /** paparazzi version encoded as one integer */
 #define PPRZ_VERSION_INT (PPRZ_VER_MAJOR * 100 + PPRZ_VER_MINOR * 10 + PPRZ_VER_PATCH)
 
+static inline uint8_t nibble_from_char(char c)
+{
+  if (c >= '0' && c <= '9') { return c - '0'; }
+  if (c >= 'a' && c <= 'f') { return c - 'a' + 10; }
+  if (c >= 'A' && c <= 'F') { return c - 'A' + 10; }
+  return 255;
+}
+
+/** Get git SHA1 of paparazzi version.
+ * Write the first 8bytes (16chars) to byte array.
+ * @param sha1 array to write to
+ */
+static inline void get_pprz_git_version(uint8_t sha1[8])
+{
+  static char *git_sha = GIT_VERSION;
+  uint8_t *p;
+  uint8_t i;
+
+  for (i = 0, p = (uint8_t *) git_sha; i < 8; i++) {
+    sha1[i] = (nibble_from_char(*p) << 4) | nibble_from_char(*(p + 1));
+    p += 2;
+  }
+}
+
 #endif /* PPRZ_VERSION_H */

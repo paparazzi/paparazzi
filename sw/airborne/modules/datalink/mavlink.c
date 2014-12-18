@@ -45,6 +45,7 @@ mavlink_system_t mavlink_system;
 
 static uint8_t mavlink_params_idx = NB_SETTING; /**< Transmitting parameters index */
 static char mavlink_params[NB_SETTING][16] = SETTINGS; /**< Transmitting parameter names */
+static uint8_t custom_version[8]; /**< first 8 bytes (16 chars) of GIT SHA1 */
 
 static inline void mavlink_send_heartbeat(void);
 static inline void mavlink_send_sys_status(void);
@@ -69,6 +70,8 @@ void mavlink_init(void)
 {
   mavlink_system.sysid = AC_ID; // System ID, 1-255
   mavlink_system.compid = MAV_COMP_ID_MISSIONPLANNER; // Component/Subsystem ID, 1-255
+
+  get_pprz_git_version(custom_version);
 }
 
 /**
@@ -300,7 +303,6 @@ static inline void mavlink_send_autopilot_version(void)
 {
   /// TODO: fill in versions correctly, how should they be encoded?
   static uint32_t ver = PPRZ_VERSION_INT;
-  static uint8_t custom_version[8];
   mavlink_msg_autopilot_version_send(MAVLINK_COMM_0,
                                      0,  // capabilities,
                                      ver, // version
