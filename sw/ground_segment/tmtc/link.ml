@@ -161,11 +161,10 @@ let send_status_msg =
       and msg_rate = float (status.rx_msg - status.last_rx_msg) /. dt in
       status.last_rx_msg <- status.rx_msg;
       status.last_rx_byte <- status.rx_byte;
-      status.ms_since_last_msg <- status.ms_since_last_msg + status_msg_period;
       let vs = ["ac_id", Pprz.Int ac_id;
                 "link_id", Pprz.Int !link_id;
                 "run_time", Pprz.Int t;
-                "rx_lost_time", Pprz.Int (1000 * status.ms_since_last_msg);
+                "rx_lost_time", Pprz.Int (status.ms_since_last_msg / 1000);
                 "rx_bytes", Pprz.Int status.rx_byte;
                 "rx_msgs", Pprz.Int status.rx_msg;
                 "rx_err", Pprz.Int status.rx_err;
@@ -177,6 +176,11 @@ let send_status_msg =
       send_ground_over_ivy "link" "LINK_REPORT" vs)
       statuss
 
+let update_ms_since_last_msg =
+  fun () ->
+    Hashtbl.iter (fun ac_id status ->
+      status.ms_since_last_msg <- status.ms_since_last_msg + status_msg_period / 3)
+      statuss
 
 let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
   let raw_data_size = match raw_data_size with None -> String.length (Serial.string_of_payload payload) | Some d -> d in
@@ -546,6 +550,7 @@ let () =
     (** Init and Periodic tasks *)
     begin
       ignore (Glib.Timeout.add status_msg_period (fun () -> send_status_msg (); true));
+      ignore (Glib.Timeout.add (status_msg_period / 3) (fun () -> update_ms_since_last_msg (); true));
       let start_ping = fun () ->
         ignore (Glib.Timeout.add ping_msg_period (fun () -> send_ping_msg device; true));
         false in
