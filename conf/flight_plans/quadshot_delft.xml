@@ -97,8 +97,7 @@
       <stay climb="-1" vmode="climb" wp="STDBY"/>
     </block>
     <block name="flare">
-      <exception cond="NavDetectGround()" deroute="landed"/>
-      <call fun="NavStartDetectGround()"/>
+      <exception cond="0.5 > sonar_adc.distance" deroute="landed"/>
       <attitude pitch="0" roll="0" throttle="0.13" vmode="throttle"/>
     </block>
     <block name="landed">

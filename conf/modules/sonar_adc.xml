@@ -17,7 +17,7 @@
   </header>
 
   <init fun="sonar_adc_init()"/>
-  <periodic fun="sonar_adc_read()" freq="10"/>
+  <periodic fun="sonar_adc_read()" freq="20"/>
 
   <makefile target="ap|sim">
     <file name="sonar_adc.c"/>

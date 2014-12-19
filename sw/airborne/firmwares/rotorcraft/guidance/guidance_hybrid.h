@@ -28,6 +28,12 @@
 #include "math/pprz_algebra_int.h"
 
 extern int32_t guidance_hybrid_norm_ref_airspeed;
+extern float alt_pitch_gain;
+extern int32_t max_airspeed;
+extern int32_t wind_gain;
+extern int32_t horizontal_speed_gain;
+extern float max_turn_bank;
+extern float turn_bank_gain;
 
 extern void guidance_hybrid_run(void);
 extern void guidance_hybrid_init(void);
