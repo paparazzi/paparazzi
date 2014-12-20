@@ -51,7 +51,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (help_label:GObj.
   let eb = GBin.event_box ~packing:h#pack () in
   let time = GMisc.label ~width:40 ~packing:eb#add () in
   let fields = List.filter (fun f -> Xml.tag f = "field") (Xml.children m) in
-  eb#coerce#misc#modify_bg [`SELECTED, `NAME "green"];
+  eb#coerce#misc#modify_bg [`SELECTED, `NAME "#00ff00"];
   let fields =
     List.fold_left
       (fun rest f ->

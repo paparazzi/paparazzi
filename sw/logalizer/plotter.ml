@@ -52,8 +52,8 @@ let parse_dnd =
     | [s; c; m; f; factor] -> (s, c, m, f, Ocaml_tools.affine_transform factor)
     | _ -> failwith (Printf.sprintf "parse_dnd: %s" s)
 
-
-let colors = [|"red"; "blue"; "green"; "orange"; "purple"; "magenta"|]
+(* since tcl8.6 "green" refers to "darkgreen" and the former "green" is now "lime", but that is not available in older versions, so hardcode the color to #00ff00*)
+let colors = [|"red"; "blue"; "#00ff00"; "orange"; "purple"; "magenta"|]
 
 let labelled_entry = fun ?width_chars text value (h:GPack.box) ->
   let label = GMisc.label ~text ~packing:h#pack () in

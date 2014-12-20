@@ -170,7 +170,7 @@ object
           dr#put_layout ~x ~y:0 ~fore:`BLACK layout;
 
         (* bar *)
-          let color = if age > 5 then "grey" else if flags land 0x01 = 1 then "green" else "red" in
+          let color = if age > 5 then "grey" else if flags land 0x01 = 1 then "#00ff00" else "red" in
           dr#set_foreground (`NAME color);
           let height = size cn0 in
           dr#rectangle ~filled:true ~x ~y:(y-height) ~width:indic_size ~height ();
@@ -263,7 +263,7 @@ class rc_settings = fun ?(visible = fun _ -> true) xmls ->
   let down = GBin.event_box ~packing:(table#attach ~top:3 ~bottom:5 ~left:0) () in
   let _ = GMisc.label ~text:"DOWN" ~packing:down#add () in
   let update_bg = fun ev active ->
-    ev#coerce#misc#modify_bg [`NORMAL, `NAME (if active then "green" else "white")] in
+    ev#coerce#misc#modify_bg [`NORMAL, `NAME (if active then "#00ff00" else "white")] in
   (* first index is auto1/auto2, second is up/down, third is value 1/2 *)
   let values = Array.init 2 (fun i -> Array.init 2 (fun j -> Array.init 2 (fun k -> GMisc.label ~text:"  N/A  " ~packing:(table#attach ~top:(1+j*2+k) ~left:(2+i*2)) ()))) in
 
@@ -353,7 +353,7 @@ class link ?(visible = fun _ -> true) (widget: GBin.frame) =
           if link_status_label#text <> link_status_string then (* Updating the link status light*)
             begin
               link_status_label#set_label (if time_since_last_msg > 2. then link_status_string else "   ");
-              let color = (if time_since_last_msg > 5. then "red" else if uplink_lost_time > 10 then "orange" else "green") in
+              let color = (if time_since_last_msg > 5. then "red" else if uplink_lost_time > 10 then "orange" else "#00ff00") in
               link_status_event_box#coerce#misc#modify_bg [`NORMAL, `NAME color];
             end;
 

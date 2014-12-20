@@ -330,7 +330,7 @@ object
           let rec f = fun s ->
             try
               if XmlEdit.attrib s "no" = stage_no then
-                XmlEdit.set_background s "green"
+                XmlEdit.set_background s "#00ff00"
               else
                 List.iter f (XmlEdit.children s)
             with

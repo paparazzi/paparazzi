@@ -769,8 +769,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   ignore (Glib.Timeout.add 1000 monitor_track_status);;
 
 
-
-let ok_color = "green"
+(* since tcl8.6 "green" refers to "darkgreen" and the former "green" is now "lime", but that is not available in older versions, so hardcode the color to #00ff00*)
+let ok_color = "#00ff00"
 let warning_color = "orange"
 let alert_color = "red"
 
