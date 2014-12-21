@@ -52,7 +52,7 @@
  <channel ctl="C" function="PITCH"    min="2011" neutral="1498" max="987" average="0"/>
  <channel ctl="B" function="YAW"      min="990" neutral="1500" max="2011" average="0"/>
  <channel ctl="A" function="THROTTLE" min="998" neutral="998" max="2011" average="0"/>
- <channel ctl="G" function="UNUSED"    min="2050" neutral="1500" max="950" average="1"/> <!-- center slider        -->
- <channel ctl="E" function="GAIN1"     min="2050" neutral="1496" max="948" average="1"/> <!-- top right slider     -->
- <channel ctl="PHAUX2" function="MODE"    min="2011" neutral="1500" max="987" average="1"/> <!-- Top right switch -->
+ <channel ctl="G" function="UNUSED"    min="2050" neutral="1500" max="950" average="1"/>
+ <channel ctl="E" function="GAIN1"     min="2050" neutral="1496" max="948" average="1"/>
+ <channel ctl="PHAUX2" function="MODE"    min="2011" neutral="1500" max="987" average="1"/> <!-- mode switch is on channel 7 -->
 </radio>
