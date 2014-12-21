@@ -84,6 +84,7 @@ ifneq ($(words $(GIT_SHA1)),1)
 GIT_SHA1 := "UNKNOWN"
 endif
 GIT_DESC := $(shell ./paparazzi_version)
+BUILD_DESC := $(shell cat $(PAPARAZZI_HOME)/var/build_version.txt)
 PPRZ_VER := $(shell echo $(GIT_DESC) | sed 's/[^0-9.]*\([0-9.]*\).*/\1/')
 PPRZ_VER_MAJOR := $(shell echo $(GIT_DESC) | sed 's/v\([0-9]*\).*/\1/')
 PPRZ_VER_MINOR := $(shell echo $(GIT_DESC) | sed 's/v[0-9]*.\([0-9]*\).*/\1/')
@@ -92,11 +93,17 @@ ifneq ($(words $(PPRZ_VER_PATCH)),1)
 PPRZ_VER_PATCH := 0
 endif
 export GIT_DESC
+export BUILD_DESC
 export GIT_SHA1
 export PPRZ_VER_MAJOR
 export PPRZ_VER_MINOR
 export PPRZ_VER_PATCH
 
+ifneq ($(GIT_DESC),$(BUILD_DESC))
+VERSION_MATCH = "\nWarning: version differ from build version ($(BUILD_DESC))"
+else
+VERSION_MATCH = ""
+endif
 
 # "make Q=''" to get full echo
 Q=@
@@ -126,7 +133,7 @@ init:
 
 print_version:
 	@echo "-----------------------------------------------------------------------"
-	@echo "Paparazzi version" $(GIT_DESC)
+	@echo "Paparazzi version" $(GIT_DESC)$(VERSION_MATCH)
 	@echo "-----------------------------------------------------------------------"
 
 

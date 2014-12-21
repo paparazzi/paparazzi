@@ -130,7 +130,15 @@ let logger = fun () ->
     try
       Str.replace_first (Str.regexp "[ \n]+$") "" (read_process (Env.paparazzi_src ^ "/paparazzi_version"))
     with _ -> "UNKNOWN" in
-  output_string f ("<!-- logged with paparazzi_version " ^ version_str ^ " -->\n");
+  output_string f ("<!-- logged with runtime paparazzi_version " ^ version_str ^ " -->\n");
+  let build_str =
+    try
+      let f = open_in (Env.paparazzi_home ^ "/var/build_version.txt") in
+      let s = input_line f in
+      close_in f;
+      s
+    with _ -> "UNKNOWN" in
+  output_string f ("<!-- logged with build paparazzi_version " ^ build_str ^ " -->\n");
   output_string f (Xml.to_string_fmt (log_xml start_time data_name));
   close_out f;
   open_out (logs_path // data_name)
