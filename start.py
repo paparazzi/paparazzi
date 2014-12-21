@@ -66,8 +66,8 @@ class ConfChooser:
 
         conf_files = []
 
-        pattern = "conf[._-]*xml*"
-        backup_pattern = "conf[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
+        pattern = "*conf[._-]*xml"
+        backup_pattern = "*conf[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
         excludes = ["%gconf.xml"]
 
         for path, subdirs, files in os.walk(self.conf_dir):
@@ -88,8 +88,8 @@ class ConfChooser:
 
         controlpanel_files = []
 
-        pattern = "control_panel[._-]*xml*"
-        backup_pattern = "control_panel[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
+        pattern = "*control_panel[._-]*xml"
+        backup_pattern = "*control_panel[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
         excludes = []
 
         for path, subdirs, files in os.walk(self.conf_dir):
