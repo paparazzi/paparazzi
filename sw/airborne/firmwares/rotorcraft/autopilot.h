@@ -168,4 +168,9 @@ static inline void autopilot_StoreSettings(float store)
   }
 }
 
+#if DOWNLINK
+#include "subsystems/datalink/transport.h"
+extern void send_autopilot_version(struct transport_tx *trans, struct link_device *dev);
+#endif
+
 #endif /* AUTOPILOT_H */

@@ -86,7 +86,6 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "subsystems/abi.h"
 
 #include "led.h"
-#include "pprz_version.h"
 
 #ifdef USE_NPS
 #include "nps_autopilot.h"
@@ -156,9 +155,6 @@ static void send_filter_status(struct transport_tx *trans, struct link_device *d
 #if USE_GPS
 static inline void on_gps_solution(void);
 #endif
-
-/** Paparazzi version */
-static const uint16_t version = PPRZ_VERSION_INT;
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 static uint8_t  mcu1_ppm_cpt;
@@ -462,8 +458,9 @@ void reporting_task(void)
 
   /* initialisation phase during boot */
   if (boot) {
-    uint16_t non_const_version = version;
-    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &non_const_version);
+#if DOWNLINK
+    send_autopilot_version(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+#endif
     boot = FALSE;
   }
   /* then report periodicly */

@@ -37,6 +37,8 @@
 #include "mcu_periph/gpio.h"
 #endif
 
+#include "pprz_version.h"
+
 uint8_t pprz_mode;
 bool_t kill_throttle;
 uint8_t  mcu1_status;
@@ -55,6 +57,13 @@ float energy;
 bool_t gps_lost;
 
 bool_t power_switch;
+
+void send_autopilot_version(struct transport_tx *trans, struct link_device *dev)
+{
+  static uint32_t ap_version = PPRZ_VERSION_INT;
+  static char *ver_desc = PPRZ_VERSION_DESC;
+  pprz_msg_send_AUTOPILOT_VERSION(trans, dev, AC_ID, &ap_version, strlen(ver_desc), ver_desc);
+}
 
 static void send_alive(struct transport_tx *trans, struct link_device *dev)
 {
@@ -169,6 +178,7 @@ void autopilot_init(void)
 #endif
 
   /* register some periodic message */
+  register_periodic_telemetry(DefaultPeriodic, "AUTOPILOT_VERSION", send_autopilot_version);
   register_periodic_telemetry(DefaultPeriodic, "ALIVE", send_alive);
   register_periodic_telemetry(DefaultPeriodic, "PPRZ_MODE", send_mode);
   register_periodic_telemetry(DefaultPeriodic, "ATTITUDE", send_attitude);
