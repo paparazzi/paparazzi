@@ -45,7 +45,7 @@
 
 <!DOCTYPE radio SYSTEM "radio.dtd">
 
-<!-- Values set by experiment! -->
+<!-- Values set by experiment using X8R receiver SBus connection -->
 
 <radio name="cockpitSX (easy)" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
  <channel ctl="D" function="ROLL"     min="990" neutral="1503" max="2011" average="0"/>
