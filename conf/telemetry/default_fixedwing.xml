@@ -3,6 +3,7 @@
 <telemetry>
   <process name="Ap">
     <mode name="default">
+      <message name="AUTOPILOT_VERSION"   period="11.1"/>
       <message name="AIRSPEED"            period="1"/>
       <message name="ALIVE"               period="5"/>
       <message name="GPS"                 period="0.25"/>
