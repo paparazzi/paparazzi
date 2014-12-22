@@ -111,11 +111,15 @@ let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
   let (pi, out, unixfd, io_watch) = run_and_log log callback ("exec "^c) in
     pid := pi;
     outchan := unixfd;
+    (* watch for hangup/end on the out io, after small delay call callback to stop/remove prog *)
     let io_watch' = Glib.Io.add_watch ~cond:[`HUP] ~callback:
       (fun _ ->
          (* call with a delay of 200ms, not strictly needed anymore, but seems more pleasing to the eye *)
          ignore (Glib.Timeout.add 200 (fun () -> callback true; false));
-         false) out in
+        (* return true to not automatically remove event source,
+           otherwise will try to remove non existent source in callback, resulting in:
+           GLib-CRITICAL **: Source ID xxx was not found when attempting to remove it *)
+         true) out in
     watches := [ io_watch; io_watch' ] in
 
   let remove_callback = fun () ->
