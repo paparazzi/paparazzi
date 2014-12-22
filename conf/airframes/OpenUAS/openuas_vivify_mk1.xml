@@ -175,6 +175,7 @@
 
   <!-- ************************* MODULES ************************* -->
   <modules>
+    <load name="auto1_commands.xml" />
     <!-- Baro altitude -->
     <load name="baro_ms5611_spi.xml" >
       <define name="MS5611_SPI_DEV" value="spi2"/>
