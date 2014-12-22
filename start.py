@@ -66,7 +66,7 @@ class ConfChooser:
 
         conf_files = []
 
-        pattern = "*conf[._-]*.xml"
+        pattern = "*conf[._-]*xml"
         backup_pattern = "*conf[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
         excludes = ["%gconf.xml"]
 
@@ -88,7 +88,7 @@ class ConfChooser:
 
         controlpanel_files = []
 
-        pattern = "*control_panel[._-]*.xml"
+        pattern = "*control_panel[._-]*xml"
         backup_pattern = "*control_panel[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
         excludes = []
 
