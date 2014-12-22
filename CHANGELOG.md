@@ -1,3 +1,23 @@
+Paparazzi 5.3.3_testing
+=======================
+
+Fourth release candidate for v5.4 stable release.
+
+- tmtc: fix rx_lost_time in link
+- paparazzicenter: fix GLib-CRITICAL warning when running clean/build/upload
+- server: write paparzzi_version as comment at beginning of log file
+  [#1049] (https://github.com/paparazzi/paparazzi/pull/1049)
+- replace BOOT message with AUTOPILOT_VERSION, show in GCS and add build version
+  [#1050] (https://github.com/paparazzi/paparazzi/pull/1050)
+- GCS: fix green color after colormap changes on some new systems
+  [#1051] (https://github.com/paparazzi/paparazzi/pull/1051)
+  [#575] (https://github.com/paparazzi/paparazzi/issues/575)
+- settings: display ? for current value on undo
+  [#1054] (https://github.com/paparazzi/paparazzi/issues/1054)
+- Add some more flexibility to conf and control_panel naming
+  [#1055] (https://github.com/paparazzi/paparazzi/pull/1055)
+
+
 Paparazzi 5.3.2_testing
 =======================
 
