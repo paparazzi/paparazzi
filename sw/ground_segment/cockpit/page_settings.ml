@@ -194,7 +194,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
   let set_default = fun x ->
     if not !modified then set_default x else () in
 
-  (* click current_value lable to request an update *)
+  (* click current_value label to request an update, a value of infinity for do_change requests new value *)
   let callback = fun _ ->
     do_change i infinity;
     current_value#set_text "?";
@@ -225,7 +225,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
   let callback = fun _ ->
     match !prev_value with
         None -> ()
-      | Some v -> do_change i v in
+      | Some v -> current_value#set_text "?"; do_change i v in
   ignore (undo_but#connect#clicked ~callback);
   tooltips#set_tip undo_but#coerce ~text:"Undo";
 
