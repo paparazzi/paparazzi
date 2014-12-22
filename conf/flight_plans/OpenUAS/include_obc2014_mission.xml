@@ -261,7 +261,7 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
 
     <block name="ReadyForDeparture" >
       <exception cond="ThrottleHigh()" deroute="Takeoff"/>
-      <attitude pitch="DegOfRad(set_takeoff_pitch)" roll="0" throttle="0.0" until="FALSE" vmode="throttle"/>
+      <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="0.0" until="FALSE" vmode="throttle"/>
     </block>
 
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
@@ -270,15 +270,15 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
       <set value="1" var="launch"/>
       <set value="0" var="autopilot_flight_time"/>
       <set var="unit" value="AirbrakesOff()"/>
-      <set value="set_airspeed_nominal" var="v_ctl_auto_airspeed_setpoint"/>
-      <attitude pitch="DegOfRad(set_takeoff_pitch)" roll="0" throttle="1.0" until="MoreThan(NavBlockTime(), 2)" vmode="throttle"/>
+      <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="1.0" until="MoreThan(NavBlockTime(), 2)" vmode="throttle"/>
     </block>
 
     <block name="Climb-Out">
       <!--<exception cond="rc_status==RC_REALLY_LOST" after 3 seconds and no IMU deroute="softlydown">if using RC stil on with a Auto2 mode switch-->
-      <attitude pitch="DegOfRad(set_takeoff_pitch)" roll="0" throttle="1.0" until="GetPosAlt() > ground_alt+40" vmode="throttle"/>
+      <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="1.0" until="GetPosAlt() > ground_alt+40" vmode="throttle"/>
       <set var="v_ctl_auto_throttle_nominal_cruise_throttle" value="1.0" />
-      <set var="v_ctl_auto_throttle_nominal_cruise_pitch" value="set_takeoff_pitch" />
+      <set var="v_ctl_auto_throttle_nominal_cruise_pitch" value="nav_takeoff_pitch_setting" />
     </block>
 
     <block name="determineflighttype">
@@ -321,14 +321,14 @@ to “Airfield Home” and orbit for either a landing or regain of Data Link.
 
 <!-- *********** Track to EL-1 *********** -->
     <block name="EntryLane1" strip_button="Joe" strip_icon="lookdown.png" group="Mission">
-      <set value="set_airspeed_tracking" var="v_ctl_auto_airspeed_setpoint"/>
+      <set value="nav_airspeed_tracking_setting" var="v_ctl_auto_airspeed_setpoint"/>
       <go from="AIRFIELDHOME" wp="EL1" hmode="route"/>
     </block>
     <!--  maybe add other waypoint to enterarea in a better way -->
 
 <!-- *********** Track Direct to EL-2, Entry to Search Area only via EL-2 *********** -->
     <block name="EntryLane2">
-      <set value="set_airspeed_tracking" var="v_ctl_auto_airspeed_setpoint"/>
+      <set value="nav_airspeed_tracking_setting" var="v_ctl_auto_airspeed_setpoint"/>
       <go from="EL1" wp="EL2" hmode="route" approaching_time="10" />
     </block>
 
@@ -389,7 +389,7 @@ best to perform many real life tests with the CAM
 
     <block name="Searching">
       <exception cond="PolySurveySweepBackNum >= 1" deroute="ReturnToBase"/> <!-- ? TODO decide to search in reverse again on until battery < volts needed to return home? if nothing found, go back?-->
-      <set value="set_airspeed_nominal" var="v_ctl_auto_airspeed_setpoint"/>
+      <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
       <call fun="nav_survey_poly_osam_run()"/>
     </block>
 
@@ -405,19 +405,19 @@ best to perform many real life tests with the CAM
 
 <!-- *********** Exit Search Area only via EL-3 *********** -->
     <block name="ReturnToBase">
-      <set value="set_airspeed_tracking" var="v_ctl_auto_airspeed_setpoint"/>
+      <set value="nav_airspeed_tracking_setting" var="v_ctl_auto_airspeed_setpoint"/>
       <go wp="EL3"/>
     </block>
 
 <!-- *********** Track Direct to EL-4 *********** -->
     <block name="ExitLane3">
-      <set value="set_airspeed_tracking" var="v_ctl_auto_airspeed_setpoint"/>
+      <set value="nav_airspeed_tracking_setting" var="v_ctl_auto_airspeed_setpoint"/>
       <go from="EL3" wp="EL4" hmode="route"/>
     </block>
 
 <!-- ************ Track to Kingaroy Airport *********** -->
     <block name="ExitLane4">
-      <set value="set_airspeed_tracking" var="v_ctl_auto_airspeed_setpoint"/>
+      <set value="nav_airspeed_tracking_setting" var="v_ctl_auto_airspeed_setpoint"/>
       <go from="EL4" wp="AIRFIELDHOME" hmode="route"/>
       <deroute block="ComputeLandingApproach"/>
     </block>
@@ -506,10 +506,10 @@ extern bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t start, uint8_t e
       </block>
 
     <block name="Land">
-      <set value="set_airspeed_nominal" var="v_ctl_auto_airspeed_setpoint"/>
+      <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
       <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
-      <set value="set_airspeed_glide" var="v_ctl_auto_airspeed_setpoint"/>
+      <set value="nav_airspeed_landing_setting" var="v_ctl_auto_airspeed_setpoint"/>
       <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 15 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG))" wp="_BASELEG"/>
     </block>
 
@@ -520,9 +520,8 @@ extern bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t start, uint8_t e
 
     <block name="Flare">
       <call fun="NavKillThrottle()" />
-      <set value="set_airspeed_glide*0.8" var="v_ctl_auto_airspeed_setpoint"/>
+      <set value="nav_airspeed_landing_setting*0.8" var="v_ctl_auto_airspeed_setpoint"/>
       <go approaching_time="0" from="TD" hmode="route" wp="FLARE"/>
-      <attitude roll="0.0" pitch="DegOfRad(set_flare_pitch)" throttle="0.0" until="FALSE" vmode="throttle"/>
       <!-- TODO: retract brake after landed is true (with +3seconds margin) better a sensor(witch) that detects IsAircraftOnSolidGround -->
     </block>
 
@@ -560,7 +559,7 @@ termination mode (Section 5.6).
       <!-- stop streaming thumbnails -->
       <!-- CDW set value="0" var="ticket_thumbnails"/ -->
       <!-- TODO: maybe set a little lower speed ? max endurence speed? -->
-      <set value="set_airspeed_nominal" var="v_ctl_auto_airspeed_setpoint"/>
+      <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
       <!-- Rules 2014 state a loiter of maximum 2 minutes = 120seconds is allowed -->
       <exception cond="(stage_time > 120)" deroute="AirfieldHomeLoiter"/>
       <!-- resume if datalink is regained-->

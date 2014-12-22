@@ -175,17 +175,19 @@
 
   <!-- ************************* MODULES ************************* -->
   <modules>
+    <!-- Baro altitude -->
     <load name="baro_ms5611_spi.xml" >
       <define name="MS5611_SPI_DEV" value="spi2"/>
       <define name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
     </load>
-    <!-- CDW: load name="qnh.xml"/-->
-    <load name="air_data.xml"/>
+    <!-- QNH -->
+    <load name="air_data.xml">
+      <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE" />
+    </load>
     <!-- CDW: load name="obc2014.xml"/-->
-
-    <!-- Disable uCenter in the future, setup the hardware itself -->
-    <load name="gps_ubx_ucenter.xml"/><!-- TODO: add parameter to disable SBAS CAREFUL about SBAS, disable it for Australia -->
-    <!-- to test, analyze performance etc.-->
+    <!-- GPS -->
+    <load name="gps_ubx_ucenter.xml"/><!-- WARNING: make sure to disable SBAS for Australia -->
+    <!-- Load -->
     <!-- load name="sys_mon.xml"/> -->
     <!--
     <load name="flight_benchmark.xml">
@@ -194,8 +196,6 @@
       <define name="BENCHMARK_TOLERANCE_POSITION" value="6" unit="m"/>
     </load>
     -->
-    <!-- ADD module to test the IMU health -->
-
     <!-- Airspeed sensor -->
     <load name="airspeed_adc.xml">
       <configure name="ADC_AIRSPEED" value="ADC_1"/>
