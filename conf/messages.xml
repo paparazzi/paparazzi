@@ -4,8 +4,9 @@
  <!-- messages from modem or sim to server -->
  <msg_class name="telemetry">
 
-   <message name="BOOT" id="1">
-     <field name="version" type="uint16"/>
+   <message name="AUTOPILOT_VERSION" id="1">
+     <field name="version" type="uint32">version encoded as: MAJOR * 10000 + MINOR * 100 + PATCH</field>
+     <field name="desc" type="char[]">version description as string from paparazzi_version</field>
    </message>
 
    <message name="ALIVE" id="2">

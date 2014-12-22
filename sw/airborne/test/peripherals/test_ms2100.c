@@ -61,7 +61,7 @@ static inline void main_periodic_task(void)
 {
   RunOnceEvery(10, {
     uint16_t foo = sys_time.nb_sec;
-    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &foo);
+    DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &foo);
     LED_TOGGLE(2);
     LED_PERIODIC();
   });

@@ -84,6 +84,8 @@ ifneq ($(words $(GIT_SHA1)),1)
 GIT_SHA1 := "UNKNOWN"
 endif
 GIT_DESC := $(shell ./paparazzi_version)
+BUILD_DESC := $(shell cat $(PAPARAZZI_HOME)/var/build_version.txt 2> /dev/null || echo UNKNOWN)
+# extract only version number in format <major>.<minor>.<patch>
 PPRZ_VER := $(shell echo $(GIT_DESC) | sed 's/[^0-9.]*\([0-9.]*\).*/\1/')
 PPRZ_VER_MAJOR := $(shell echo $(GIT_DESC) | sed 's/v\([0-9]*\).*/\1/')
 PPRZ_VER_MINOR := $(shell echo $(GIT_DESC) | sed 's/v[0-9]*.\([0-9]*\).*/\1/')
@@ -92,11 +94,17 @@ ifneq ($(words $(PPRZ_VER_PATCH)),1)
 PPRZ_VER_PATCH := 0
 endif
 export GIT_DESC
+export BUILD_DESC
 export GIT_SHA1
 export PPRZ_VER_MAJOR
 export PPRZ_VER_MINOR
 export PPRZ_VER_PATCH
 
+# show warning with print_version if PPRZ_VER (e.g. 5.3.2) is not part of the BUILD_DESC string
+VERSION_MATCH = ""
+ifeq (,$(findstring $(PPRZ_VER),$(BUILD_DESC)))
+VERSION_MATCH = "\nWarning: version differs from build version ($(BUILD_DESC)), you might want to run the toplevel make."
+endif
 
 # "make Q=''" to get full echo
 Q=@
@@ -126,7 +134,7 @@ init:
 
 print_version:
 	@echo "-----------------------------------------------------------------------"
-	@echo "Paparazzi version" $(GIT_DESC)
+	@echo "Paparazzi version" $(GIT_DESC)$(VERSION_MATCH)
 	@echo "-----------------------------------------------------------------------"
 
 

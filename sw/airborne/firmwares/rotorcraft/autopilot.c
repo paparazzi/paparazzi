@@ -50,6 +50,8 @@
 #include "mcu_periph/gpio.h"
 #endif
 
+#include "pprz_version.h"
+
 uint8_t  autopilot_mode;
 uint8_t  autopilot_mode_auto2;
 
@@ -143,6 +145,13 @@ PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO2 is AP_MODE_HOME")
 #if MODE_MANUAL == AP_MODE_NAV
 #error "MODE_MANUAL mustn't be AP_MODE_NAV"
 #endif
+
+void send_autopilot_version(struct transport_tx *trans, struct link_device *dev)
+{
+  static uint32_t ap_version = PPRZ_VERSION_INT;
+  static char *ver_desc = PPRZ_VERSION_DESC;
+  pprz_msg_send_AUTOPILOT_VERSION(trans, dev, AC_ID, &ap_version, strlen(ver_desc), ver_desc);
+}
 
 static void send_alive(struct transport_tx *trans, struct link_device *dev)
 {
@@ -285,6 +294,7 @@ void autopilot_init(void)
   /* set startup mode, propagates through to guidance h/v */
   autopilot_set_mode(MODE_STARTUP);
 
+  register_periodic_telemetry(DefaultPeriodic, "AUTOPILOT_VERSION", send_autopilot_version);
   register_periodic_telemetry(DefaultPeriodic, "ALIVE", send_alive);
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_STATUS", send_status);
   register_periodic_telemetry(DefaultPeriodic, "ENERGY", send_energy);

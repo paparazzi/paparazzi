@@ -104,7 +104,8 @@ type aircraft = {
   mutable last_dist_to_wp : float;
   mutable dl_values : string option array;
   mutable last_unix_time : float;
-  mutable airspeed : float
+  mutable airspeed : float;
+  mutable version : string;
 }
 
 let aircrafts = Hashtbl.create 3
@@ -681,7 +682,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
              notebook_label = _label;
              got_track_status_timer = 1000;
              dl_values = [||]; last_unix_time = 0.;
-             airspeed = 0.
+             airspeed = 0.;
+             version = ""
            } in
   Hashtbl.add aircrafts ac_id ac;
   select_ac acs_notebook ac_id;
@@ -1388,6 +1390,16 @@ let listen_info_msg = fun a ->
     log_and_say a ac.ac_name (Pprz.string_of_value msg_array) in
   tele_bind "INFO_MSG" (get_msg a)
 
+let listen_autopilot_version_msg = fun a ->
+  let get_msg = fun a _sender vs ->
+    let ac = find_ac _sender in
+    let desc_array = Pprz.assoc "desc" vs in
+    let version = Pprz.string_of_value desc_array in
+    if ac.version <> version then
+      log a ac.ac_name (sprintf "%s version:\n%s" ac.ac_name version);
+    ac.version <- version in
+  tele_bind "AUTOPILOT_VERSION" (get_msg a)
+
 let listen_tcas = fun a ->
   let get_alarm_tcas = fun a txt _sender vs ->
     let ac = find_ac _sender in
@@ -1425,6 +1437,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
   listen_alert my_alert;
   listen_error my_alert;
   listen_info_msg my_alert;
+  listen_autopilot_version_msg my_alert;
   listen_tcas my_alert;
   listen_dcshot geomap;
 
