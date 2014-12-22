@@ -4,6 +4,7 @@
   <process name="Ap">
     <mode name="default">
       <message name="AIRSPEED"            period="1.4"/>
+      <message name="AMSL"                period="1.4"/>
       <message name="ALIVE"               period="5"/>
       <message name="GPS"                 period="0.5"/>
       <message name="NAVIGATION"          period="1."/>
@@ -30,6 +31,7 @@
       <message name="IMU_MAG"             period="1.9"/>
       <message name="COMMANDS"            period="5"/>
       <message name="FBW_STATUS"          period="2"/>
+      <message name="PAYLOAD"             period=".2"/>
     </mode>
     <mode name="minimal">
       <message name="ALIVE"               period="5"/>

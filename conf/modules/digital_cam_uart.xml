@@ -10,13 +10,31 @@
   </doc>
   <settings>
     <dl_settings name="control">
+      <dl_settings name="dc">
+
+        <dl_setting max="255" min="0" step="1" module="digital_cam/dc" var="0" handler="send_command" shortname="Shutter">
+          <strip_button name="Photo" icon="digital-camera.png" value="32" group="maindc"/>
+        </dl_setting>
+
+        <dl_setting max="3" min="0" step="1" var="dc_autoshoot" values="STOP|PERIODIC|DISTANCE|EXT_TRIG">
+          <strip_button name="Start Autoshoot" icon="on.png" value="1" group="dcauto"/>
+          <strip_button name="Stop Autoshoot" icon="off.png" value="0" group="dcauto"/>
+        </dl_setting>
+
+        <dl_setting max="255" min="1" step="1" var="dc_autoshoot_quartersec_period" shortname="Periodic" param="DC_AUTOSHOOT_QUARTERSEC_PERIOD" unit="quarter-sec"/>
+        <dl_setting max="255" min="0" step="1" var="dc_distance_interval" shortname="dist" param="DC_AUTOSHOOT_DISTANCE_INTERVAL" unit="meter"/>
+
+        <dl_setting max="250" min="0" step="5" module="digital_cam/dc" var="dc_survey_interval" handler="Survey" shortname="Survey-Interval"/>
+        <dl_setting max="90" min="5" step="5" module="digital_cam/dc" var="dc_circle_interval" handler="Circle" shortname="Circle-Interval"/>
+        <dl_setting max="1" min="0" step="1" var="dc_cam_tracing" shortname="Cam-Tracing"/>
+      </dl_settings>
       <dl_settings name="tb">
-        <dl_setting max="2" min="0" step="1" var="ticket_thumbnails" shortname="thumbs">
+        <dl_setting max="2" min="0" step="1" var="digital_cam_uart_thumbnails" shortname="thumbs">
           <strip_button name="DL Thumbs High" icon="on.png" value="2" group="ticket"/>
           <strip_button name="DL Thumbs Low" icon="on.png" value="1" group="ticket"/>
           <strip_button name="DL Thumbs STOP" icon="off.png" value="0" group="ticket"/>
         </dl_setting>
-        <dl_setting max="2" min="0" step="1" var="ticket_status" shortname="status" />
+        <dl_setting max="2" min="0" step="1" var="digital_cam_uart_status" shortname="status" />
       </dl_settings>
     </dl_settings>
   </settings>

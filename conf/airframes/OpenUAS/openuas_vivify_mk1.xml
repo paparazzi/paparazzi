@@ -225,10 +225,10 @@
     <!-- <load name="nav_catapult.xml"/> -->
     <!-- <load name="geo_mag.xml"/> --> <!-- simplify the setup of magneto in various part of the world TODO needs fixing now aircarft in flight (strange)rule-->
 
-    <!-- CDW: load name="TICKET.xml">
+    <load name="digital_cam_uart.xml">
       <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="22" unit="quarter_second"/>
       <configure name="CAMERA_PORT" value="UART5"/>
-    </load -->
+    </load>
 
     <load name="baro_sim.xml"/>
     <!-- Navigation modules-->
@@ -244,7 +244,7 @@
       <define name="CLIMB_TIME" value="3" unit="s"/>
     </load>
 
-    <!-- needed to be able to survey an aerea -->
+    <!-- needed to be able to survey an area -->
     <load name="nav_survey_polygon.xml"/>
     <load name="nav_survey_poly_osam.xml"/>
 
