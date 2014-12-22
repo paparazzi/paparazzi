@@ -134,7 +134,7 @@ let logger = fun () ->
   let build_str =
     try
       let f = open_in (Env.paparazzi_home ^ "/var/build_version.txt") in
-      let s = input_line f in
+      let s = try input_line f with _ -> "UNKNOWN" in
       close_in f;
       s
     with _ -> "UNKNOWN" in
