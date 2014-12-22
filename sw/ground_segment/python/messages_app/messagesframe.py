@@ -97,11 +97,12 @@ class MessagesFrame(wx.Frame):
             size.x = LABEL_WIDTH
             name_text.SetMinSize(size)
             grid_sizer.Add(name_text, 1, wx.ALL, BORDER)
-            value_control = wx.StaticText(field_panel, -1, "42", style=wx.ST_NO_AUTORESIZE)
+            value_control = wx.StaticText(field_panel, -1, "42", style=wx.EXPAND)
             size = value_control.GetSize()
             size.x = LABEL_WIDTH
             value_control.SetMinSize(size)
-            grid_sizer.Add(value_control, 1, wx.ALL, BORDER)
+            grid_sizer.Add(value_control, 1, wx.ALL|wx.EXPAND, BORDER)
+            grid_sizer.AddGrowableCol(1)
             aircraft.messages[name].field_controls.append(value_control)
 
         field_panel.SetAutoLayout(True)
