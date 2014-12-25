@@ -42,9 +42,11 @@ let papget_listener =
   fun papget ->
     try
       let field = Papget_common.get_property "field" papget in
+      let sender = Papget_common.get_property "sender" papget in
+      prerr_endline field; flush stderr;
       match Str.split sep field with
           [msg_name; field_name] ->
-            (new Papget.message_field msg_name field_name)
+            (new Papget.message_field ~sender msg_name field_name)
         | _ -> failwith (sprintf "Unexpected field spec: %s" field)
     with
         _ -> failwith (sprintf "field attr expected in '%s" (Xml.to_string papget))
@@ -72,7 +74,8 @@ let extra_functions =
 let expression_listener = fun papget ->
   let expr = Papget_common.get_property "expr" papget in
   let expr = Expr_lexer.parse expr in
-  new Papget.expression ~extra_functions expr
+  let sender = Papget_common.get_property "sender" papget in
+  new Papget.expression ~extra_functions ~sender expr
 
 
 
@@ -125,12 +128,17 @@ let create = fun canvas_group papget ->
         let block_name = Papget_common.get_property "block_name" papget in
         let clicked = fun () ->
           prerr_endline "Warning: goto_block papget sends to all A/C";
+          let sender = Papget_common.get_property "sender" papget in
+              printf "%s\n" sender; flush stdout;
           Hashtbl.iter
             (fun ac_id ac ->
+              printf "%s %s\n" sender ac_id; flush stdout;
+              if ac_id = sender then begin
               let blocks = ExtXml.child ac.Live.fp "blocks" in
               let block = ExtXml.child ~select:(fun x -> ExtXml.attrib x "name" = block_name) blocks "block" in
               let block_id = ExtXml.int_attrib block "no" in
               Live.jump_to_block ac_id block_id
+              end
             )
             Live.aircrafts
         in
@@ -198,13 +206,14 @@ let parse_message_dnd =
       | _ -> raise (Parse_message_dnd (Printf.sprintf "parse_dnd: %s" s))
 let dnd_data_received = fun canvas_group _context ~x ~y data ~info ~time ->
   try (* With the format sent by Messages *)
-    let (_sender, _class_name, msg_name, field_name,scale) = parse_message_dnd data#data in
+    let (sender, _class_name, msg_name, field_name,scale) = parse_message_dnd data#data in
     let attrs =
       [ "type", "message_field";
         "display", "text";
         "x", sprintf "%d" x; "y", sprintf "%d" y ]
     and props =
       [ Papget_common.property "field" (sprintf "%s:%s" msg_name field_name);
+        Papget_common.property "sender" sender;
         Papget_common.property "scale" scale ] in
     let papget_xml = Xml.Element ("papget", attrs, props) in
     create canvas_group papget_xml

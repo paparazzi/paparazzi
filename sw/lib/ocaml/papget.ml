@@ -83,7 +83,7 @@ object
 end
 
 
-let hash_vars = fun expr ->
+let hash_vars = fun ?sender expr ->
   let htable = Hashtbl.create 3 in
   let rec loop = function
   E.Ident i -> prerr_endline i
@@ -131,8 +131,8 @@ let eval_expr = fun (extra_functions:(string * (string list -> string)) list) h 
 
 
 
-class expression = fun ?(extra_functions=[]) expr ->
-  let h = hash_vars expr in
+class expression = fun ?(extra_functions=[]) ?sender expr ->
+  let h = hash_vars ~sender expr in
 object
   val mutable callbacks = []
   val mutable last_value = "0."

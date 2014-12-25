@@ -545,6 +545,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
       (* Drag for Drop *)
           let papget = Papget_common.xml "goto_block" "button"
             [ "block_name", block_name;
+              "sender", ac_id;
               "icon", icon] in
           Papget_common.dnd_source b#coerce papget;
 

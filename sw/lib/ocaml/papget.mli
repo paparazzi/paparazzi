@@ -45,6 +45,7 @@ class message_field :
 
 class expression :
     ?extra_functions:(string * (string list -> string)) list ->
+    ?sender:string ->
     Expr_syntax.expression ->
       value
 
