@@ -47,7 +47,7 @@ static uint8_t mavlink_params_idx = NB_SETTING; /**< Transmitting parameters ind
 /** mavlink parameter names.
  * 16 chars + 1 NULL termination.
  */
-static char mavlink_params[NB_SETTING][16+1] = SETTINGS;
+static char mavlink_param_names[NB_SETTING][16+1] = SETTINGS_NAMES_SHORT;
 static uint8_t custom_version[8]; /**< first 8 bytes (16 chars) of GIT SHA1 */
 
 static inline void mavlink_send_heartbeat(void);
@@ -105,17 +105,17 @@ static int16_t settings_idx_from_param_id(char *param_id)
   // Go trough all the settings to search the ID
   for (i = 0; i < NB_SETTING; i++) {
     for (j = 0; j < 16; j++) {
-      if (mavlink_params[i][j] != param_id[j]) {
+      if (mavlink_param_names[i][j] != param_id[j]) {
         break;
       }
 
-      if (mavlink_params[i][j] == '\0') {
+      if (mavlink_param_names[i][j] == '\0') {
         settings_idx = i;
         return settings_idx;
       }
     }
 
-    if (mavlink_params[i][j] == '\0') {
+    if (mavlink_param_names[i][j] == '\0') {
       break;
     }
   }
@@ -183,7 +183,7 @@ void mavlink_event(void)
           }
 
           mavlink_msg_param_value_send(MAVLINK_COMM_0,
-                                       mavlink_params[cmd.param_index],
+                                       mavlink_param_names[cmd.param_index],
                                        settings_get_value(cmd.param_index),
                                        MAV_PARAM_TYPE_REAL32,
                                        NB_SETTING,
@@ -210,7 +210,7 @@ void mavlink_event(void)
                 DlSetting(idx, set.param_value);
                 // Report back new value
                 mavlink_msg_param_value_send(MAVLINK_COMM_0,
-                                             mavlink_params[idx],
+                                             mavlink_param_names[idx],
                                              settings_get_value(idx),
                                              MAV_PARAM_TYPE_REAL32,
                                              NB_SETTING,
@@ -329,7 +329,7 @@ static inline void mavlink_send_params(void)
   }
 
   mavlink_msg_param_value_send(MAVLINK_COMM_0,
-                               mavlink_params[mavlink_params_idx],
+                               mavlink_param_names[mavlink_params_idx],
                                settings_get_value(mavlink_params_idx),
                                MAV_PARAM_TYPE_REAL32,
                                NB_SETTING,
