@@ -85,7 +85,8 @@ void mavlink_periodic(void)
 {
   RunOnceEvery(2, mavlink_send_heartbeat());
   RunOnceEvery(5, mavlink_send_sys_status());
-  RunOnceEvery(5, mavlink_send_attitude());
+  RunOnceEvery(10, mavlink_send_attitude());
+  RunOnceEvery(5, mavlink_send_attitude_quaternion());
   RunOnceEvery(5, mavlink_send_params());
   RunOnceEvery(4, mavlink_send_local_position_ned());
   RunOnceEvery(5, mavlink_send_global_position_int());
@@ -350,7 +351,6 @@ static inline void mavlink_send_autopilot_version(void)
 
 static inline void mavlink_send_attitude_quaternion(void)
 {
-  /// TODO: check if same quaternion rotation or inverse
   mavlink_msg_attitude_quaternion_send(MAVLINK_COMM_0,
                                        get_sys_time_msec(),
                                        stateGetNedToBodyQuat_f()->qi,
