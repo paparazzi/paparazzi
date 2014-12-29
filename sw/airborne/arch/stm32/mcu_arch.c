@@ -127,7 +127,7 @@ static inline uint32_t rcc_get_ppre2(void)
 uint32_t timer_get_frequency(uint32_t timer_peripheral)
 {
   switch (timer_peripheral) {
-      // Timers on APB1
+      // Timers on high speed APB2
     case TIM1:
     case TIM8:
 #ifdef TIM9
@@ -140,14 +140,15 @@ uint32_t timer_get_frequency(uint32_t timer_peripheral)
     case TIM11:
 #endif
       if (!rcc_get_ppre2())
-        // no APB2 prescaler
       {
-        return rcc_ppre2_frequency;
+        /* without APB2 prescaler, runs at APB2 freq */
+        return rcc_apb2_frequency;
       } else {
-        return rcc_ppre2_frequency * 2;
+        /* with any ABP2 prescaler, runs at 2 * APB2 freq */
+        return rcc_apb2_frequency * 2;
       }
 
-      // timers on APB2
+      // timers on low speed APB1
     case TIM2:
     case TIM3:
     case TIM4:
@@ -164,11 +165,12 @@ uint32_t timer_get_frequency(uint32_t timer_peripheral)
     case TIM14:
 #endif
       if (!rcc_get_ppre1())
-        // no APB2 prescaler
       {
-        return rcc_ppre1_frequency;
+        /* without APB1 prescaler, runs at APB1 freq */
+        return rcc_apb1_frequency;
       } else {
-        return rcc_ppre1_frequency * 2;
+        /* with any ABP1 prescaler, runs at 2 * APB1 freq */
+        return rcc_apb1_frequency * 2;
       }
     default:
       // other timers currently not supported

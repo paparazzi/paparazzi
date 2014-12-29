@@ -1172,10 +1172,10 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
       bitrate = 3000;
     }
 
-    // rcc_ppre1_frequency is normally configured to max: 36MHz on F1 and 42MHz on F4
+    // rcc_apb1_frequency is normally configured to max: 36MHz on F1 and 42MHz on F4
     // in fast mode: 2counts low 1 count high -> / 3:
     // in standard mode: 1 count low, 1 count high -> /2:
-    devider = (rcc_ppre1_frequency / 2000) / (bitrate / 1000);
+    devider = (rcc_apb1_frequency / 2000) / (bitrate / 1000);
 
     // never allow faster than 600kbps
     if (devider < 20) {
