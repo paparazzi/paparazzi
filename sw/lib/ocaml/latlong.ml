@@ -541,10 +541,12 @@ type coordinates_kind =
             let l = lambertIIe_of geo in
             Printf.sprintf "%d %d" l.lbt_x l.lbt_y
           | Bearing georef ->
-            let (dx, dy) = utm_sub (utm_of WGS84 geo) (utm_of WGS84 georef#pos) in
-            let d = sqrt (dx*.dx+.dy*.dy) in
-            let bearing = (int_of_float ((Rad>>Deg)(atan2 dx dy)) + 360) mod 360 in
-            Printf.sprintf "%4d %4.0f" bearing d
+            try
+              let (dx, dy) = utm_sub (utm_of WGS84 geo) (utm_of WGS84 georef#pos) in
+              let d = sqrt (dx*.dx+.dy*.dy) in
+              let bearing = (int_of_float ((Rad>>Deg)(atan2 dx dy)) + 360) mod 360 in
+              Printf.sprintf "%4d %4.0f" bearing d
+            with _ -> "Dist across diff utm zones unsupported"
 
 let geographic_of_coordinates = fun kind s ->
   match kind with
