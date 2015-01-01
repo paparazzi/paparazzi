@@ -119,5 +119,6 @@ class widget :
     method zoom_adj : GData.adjustment
     method zoom_down : unit -> unit
     method zoom_in_place : float -> unit
+    method zoom_in_center : float -> unit
     method zoom_up : unit -> unit
   end
