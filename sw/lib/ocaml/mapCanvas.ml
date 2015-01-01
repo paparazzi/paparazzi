@@ -73,6 +73,10 @@ let my_menu_item = fun label ~callback ~packing () ->
   let mi = GMenu.menu_item ~label ~packing () in
   ignore (mi#connect#activate ~callback)
 
+let my_menu_item_insert = fun label ~menu ~pos ~callback  ->
+  let mi = GMenu.menu_item ~label () in
+  menu#insert mi ~pos ;
+  ignore (mi#connect#activate ~callback)
 
 let set_opacity = fun pixbuf opacity ->
   let pixbuf = GdkPixbuf.add_alpha pixbuf in
@@ -779,9 +783,63 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
     method georefs = georefs
 
     method add_info_georef = fun name geo ->
-      georefs <- (name, geo) :: georefs;
+      (* add to the end so georefs has same order as waypoint list *)
+      georefs <- List.append georefs [(name, geo)];
       let callback = fun () -> selected_georef <- Bearing geo in
       my_menu_item name ~packing:georef_menu#append ~callback ();
+
+
+
+
+    (*  Change the name in the georefs list and in the menu or delete  *)
+    method update_georef = fun name ~newname ~deleted ->
+      let name_changed = newname <> name && newname <> "" && deleted=false in
+      if name_changed || deleted then (
+        let oldgeorefs = georefs in
+        georefs <- [];
+        List.iteri (fun i (label,geo) ->
+          if name = label then (
+            if deleted=false then
+              georefs <- List.append georefs [((if name_changed then newname else label), geo)];
+            let callback = fun () -> selected_georef <- Bearing geo in
+            let menupos = i + (List.length georef_menu#children) - (List.length oldgeorefs) in            
+            georef_menu#remove (List.nth georef_menu#children menupos);
+
+            (* if deleted item was previously selected then select another item *)
+            if deleted && selected_georef = (Bearing geo) then (
+              (List.nth georef_menu#children 0)#activate ();    
+              optmenu#set_history 0;
+              );                          
+            (* if item is not deleted then readd with new name *)
+            if deleted=false then my_menu_item_insert newname ~menu:georef_menu ~pos:menupos ~callback;        
+            )
+          else
+            georefs <- List.append georefs [(label, geo)];
+          )
+          oldgeorefs;
+        );
+
+    (* change wp name *)
+    method edit_georef_name = fun oldname newname ->
+      self#update_georef oldname ~newname ~deleted:false
+
+    (* Delete item from georefs and from menu *)
+    method delete_georef = fun name ->
+      self#update_georef name ~deleted:true ~newname:""
+
+    (* delete all wp, including fitted objects *)
+    method clear_georefs = fun () ->
+        (* recursively delete first item from georefs and from menu *)
+      if (List.length georefs > 0) then (   
+        let (label,geo) = List.hd georefs in
+        self#delete_georef label;
+        self#clear_georefs ()
+      )
+      else (* finally delete all fitted objects *)
+        fitted_objects <- [];
+        
+
+        
 
     (** display methods *)
     method display_xy = fun s ->  lbl_xy#set_text s
