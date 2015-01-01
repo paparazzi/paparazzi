@@ -34,6 +34,10 @@ class widget :
   unit ->
   object
     method add_info_georef : string -> < pos : Latlong.geographic > -> unit
+    method update_georef : string -> newname:string -> deleted:bool -> unit
+    method edit_georef_name : string -> string -> unit
+    method delete_georef : string -> unit
+    method clear_georefs : unit -> unit
     method altitude : Latlong.geographic -> int
     method any_event : GdkEvent.any -> bool
     method arc :
