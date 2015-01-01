@@ -31,6 +31,7 @@ let (//) = Filename.concat
 type world = float * float
 
 let zoom_factor = 1.5 (* Mouse wheel zoom action *)
+let max_zoom = 40.
 let pan_step = 50 (* Pan keys speed *)
 let pan_arrow_size = 40.
 
@@ -202,7 +203,7 @@ object (self)
     wind_sock#label#set [`TEXT string]
 
   val adj = GData.adjustment
-    ~value:1. ~lower:0.005 ~upper:40.
+    ~value:1. ~lower:0.005 ~upper:max_zoom
     ~step_incr:0.25 ~page_incr:1.0 ~page_size:0. ()
 
   method info = info
@@ -216,6 +217,7 @@ object (self)
   val mutable region = None (* Rectangle selected region *)
   val mutable last_mouse_x = 0
   val mutable last_mouse_y = 0
+  val mutable zoom_level = 1.;
 
   val mutable fitted_objects = ([] : geographic list)
 
@@ -236,7 +238,7 @@ object (self)
         fitted_objects
         (max_float, -.max_float, max_float, -. max_float) in
 
-    (* Over 0° ? *)
+    (* Over 0Â° ? *)
     let min_long, max_long =
       if max_long -. min_long > pi
       then (max_long -. 2. *. pi, min_long)
@@ -258,7 +260,7 @@ object (self)
   initializer (
 
     spin_button#set_adjustment adj;
-    spin_button#set_value 1.; (* this should be done by set_adjustment but seems to fail on ubuntu 13.10 (at least) *)
+    spin_button#set_value zoom_level; (* this should be done by set_adjustment but seems to fail on ubuntu 13.10 (at least) *)
 
     utc_time#hide ();
 
@@ -273,7 +275,7 @@ object (self)
     ignore (canvas#event#connect#after#key_press self#key_press) ;
     ignore (canvas#event#connect#enter_notify (fun _ -> self#canvas#misc#grab_focus () ; false));
     ignore (canvas#event#connect#any self#any_event);
-    ignore (adj#connect#value_changed (fun () -> canvas#set_pixels_per_unit adj#value));
+    ignore (adj#connect#value_changed (fun () -> if abs_float (adj#value -. zoom_level) >= 0.01 then self#zoom_in_center adj#value));
 
     canvas#set_center_scroll_region false ;
     canvas#set_scroll_region (-25000000.) (-25000000.) 25000000. 25000000.;
@@ -285,7 +287,7 @@ object (self)
   (** methods *)
 
   (** accessors to instance variables *)
-  method current_zoom = adj#value
+  method current_zoom = zoom_level
   method canvas = canvas
   method frame = frame
   method factory = factory
@@ -405,13 +407,15 @@ object (self)
     pix#affine_relative [| cos_a; sin_a; -. sin_a; cos_a; 0.;0.|];
     pix
 
-  method fix_bg_coords (xw, yw) = (** FIXME: how to do it properly ? *)
-    let z = self#current_zoom in
-    ((xw +. 25000000.) *. z, (yw +. 25000000.) *. z)
+  method fix_bg_coords (xw, yw) = (** FIXME: how to do it properly ? *)    
+    ((xw +. 25000000.) *. zoom_level, (yw +. 25000000.) *. zoom_level)
 
   method zoom = fun value ->
-    adj#set_value value
-
+    let value = min max_zoom value in
+    zoom_level <- value;  (* must set this before changing adj so that another zoom is not triggered *)
+    adj#set_value value;
+    canvas#set_pixels_per_unit value
+        
   (**  events *******************************************)
   method background_event = fun ev ->
     match ev with
@@ -451,8 +455,8 @@ object (self)
             | Panning (x0, y0) ->
               let xc = GdkEvent.Motion.x ev
               and yc = GdkEvent.Motion.y ev in
-              let dx = self#current_zoom *. (xc -. x0)
-              and dy = self#current_zoom *. (yc -. y0) in
+              let dx = zoom_level *. (xc -. x0)
+              and dy = zoom_level *. (yc -. y0) in
               let (x, y) = canvas#get_scroll_offsets in
               canvas#scroll_to (x-truncate dx) (y-truncate dy)
             | _ -> ()
@@ -514,19 +518,28 @@ object (self)
   method connect_view = fun cb ->
     Hashtbl.add view_cbs cb ()
 
+  (* zoom keeping the center *)
+  method zoom_in_center = fun z -> 
+    let c = self#get_center () in
+    self#zoom z;
+    self#center c
+
+  (* zoom keeping the area under the mouse pointer *)
   method zoom_in_place = fun z ->
     let (x, y) = canvas#get_scroll_offsets in
     canvas#scroll_to (x+last_mouse_x) (y+last_mouse_y);
 
-    adj#set_value z;
+    self#zoom z;
 
     let (x, y) = canvas#get_scroll_offsets in
     canvas#scroll_to (x-last_mouse_x) (y-last_mouse_y)
 
+
+
   method zoom_up () =
-    self#zoom_in_place (adj#value*.zoom_factor);
+    self#zoom_in_place (zoom_level*.zoom_factor);
   method zoom_down () =
-    self#zoom_in_place (adj#value/.zoom_factor);
+    self#zoom_in_place (zoom_level/.zoom_factor);
 
   method any_event =
     let rec last_view = ref (0,0,0,0) in
@@ -611,7 +624,7 @@ object (self)
   let replace_still = fun _ ->
     let (x, y) = canvas#get_scroll_offsets in
     let (xc, yc) = canvas#window_to_world (float x) (float y) in
-    let z = 1./.self#current_zoom in
+    let z = 1./.zoom_level in
     still#affine_absolute [|z;0.;0.;z;xc;yc|]
   in
   self#connect_view replace_still;
