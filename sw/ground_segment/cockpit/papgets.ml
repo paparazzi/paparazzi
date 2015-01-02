@@ -127,20 +127,14 @@ let create = fun canvas_group papget ->
             | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
         let block_name = Papget_common.get_property "block_name" papget in
         let clicked = fun () ->
-          prerr_endline "Warning: goto_block papget sends to all A/C";
           let sender = Papget_common.get_property "sender" papget in
-              printf "%s\n" sender; flush stdout;
-          Hashtbl.iter
-            (fun ac_id ac ->
-              printf "%s %s\n" sender ac_id; flush stdout;
-              if ac_id = sender then begin
-              let blocks = ExtXml.child ac.Live.fp "blocks" in
-              let block = ExtXml.child ~select:(fun x -> ExtXml.attrib x "name" = block_name) blocks "block" in
-              let block_id = ExtXml.int_attrib block "no" in
-              Live.jump_to_block ac_id block_id
-              end
-            )
-            Live.aircrafts
+          try
+            let ac = Hashtbl.find Live.aircrafts sender in
+            let blocks = ExtXml.child ac.Live.fp "blocks" in
+            let block = ExtXml.child ~select:(fun x -> ExtXml.attrib x "name" = block_name) blocks "block" in
+            let block_id = ExtXml.int_attrib block "no" in
+            Live.jump_to_block sender block_id
+          with _ -> ()
         in
         let properties =
           [ Papget_common.property "block_name" block_name ] @ locked papget in
@@ -159,15 +153,15 @@ let create = fun canvas_group papget ->
         and value = float_of_string (Papget_common.get_property "value" papget) in
 
         let clicked = fun () ->
-          prerr_endline "Warning: variable_setting papget sending to all active A/C";
-          Hashtbl.iter
-            (fun ac_id ac ->
-              match ac.Live.dl_settings_page with
-                  None -> ()
-                | Some settings ->
-                  let var_id = settings#assoc varname in
-                  Live.dl_setting ac_id var_id value)
-            Live.aircrafts
+          let sender = Papget_common.get_property "sender" papget in
+          try
+            let ac = Hashtbl.find Live.aircrafts sender in
+            match ac.Live.dl_settings_page with
+              None -> ()
+            | Some settings ->
+                let var_id = settings#assoc varname in
+                Live.dl_setting sender var_id value
+          with _ -> ()
         in
         let properties =
           [ Papget_common.property "variable" varname;
