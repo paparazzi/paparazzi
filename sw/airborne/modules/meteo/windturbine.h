@@ -31,7 +31,7 @@
 #ifndef WINDTURBINE_H
 #define WINDTURBINE_H
 
-void windturbine_periodic( void );
+void windturbine_periodic(void);
 
 #endif
 

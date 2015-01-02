@@ -49,6 +49,9 @@ let icon_file = paparazzi_home // "data/pictures/penguin_icon.png"
 let icon_gcs_file = paparazzi_home // "data/pictures/penguin_icon_gcs.png"
 let icon_mes_file = paparazzi_home // "data/pictures/penguin_icon_msg.png"
 let icon_rep_file = paparazzi_home // "data/pictures/penguin_icon_rep.png"
+let icon_rtp_file = paparazzi_home // "data/pictures/penguin_icon_rtp.png"
+let icon_log_file = paparazzi_home // "data/pictures/penguin_icon_log.png"
+let icon_sim_file = paparazzi_home // "data/pictures/penguin_icon_sim.png"
 
 let gconf_file = paparazzi_home // "conf" // "%gconf.xml"
 

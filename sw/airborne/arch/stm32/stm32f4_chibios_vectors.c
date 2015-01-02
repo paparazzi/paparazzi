@@ -33,10 +33,10 @@
 /**
  * @brief   Type of an IRQ vector.
  */
-typedef void  (*irq_vector_t)(void);
+typedef void (*irq_vector_t)(void);
 enum HardwareFaultType {HardwareFault_NONE, HardwareFault_BUS, HardwareFault_MEM, HardwareFault_USAGE};
 static enum HardwareFaultType hardwareFaultType = HardwareFault_NONE;
-void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )  __attribute__((unused));
+void prvGetRegistersFromStack(uint32_t *pulFaultStackAddress)  __attribute__((unused));
 
 /**
  * @brief   Type of a structure representing the whole vectors table.
@@ -170,16 +170,16 @@ extern void Vector184(void);
  * @brief   STM32 vectors table.
  */
 #if !defined(__DOXYGEN__)
-__attribute__ ((used, section("vectors")))
+__attribute__((used, section("vectors")))
 #endif
 vectors_t _vectors = {
-  &__main_stack_end__,ResetHandler,       NMIVector,          HardFaultVector,
+  &__main_stack_end__, ResetHandler,       NMIVector,          HardFaultVector,
   MemManageVector,    BusFaultVector,     UsageFaultVector,   Vector1C,
   Vector20,           Vector24,           Vector28,           SVCallVector,
   DebugMonitorVector, Vector34,           PendSVVector,       SysTickVector,
-   {
-     DECLARE_IRQS
-   }
+  {
+    DECLARE_IRQS
+  }
 };
 
 /**
@@ -192,37 +192,42 @@ vectors_t _vectors = {
 
 
 
-static void  _unhandled_exception ( void ) __attribute__( ( naked ) );
+static void  _unhandled_exception(void) __attribute__((naked));
 
 
-void _unhandled_exception (void) {
+void _unhandled_exception(void)
+{
   __asm volatile
-    (
-     " tst lr, #4                                                \n"
-     " ite eq                                                    \n"
-     " mrseq r0, msp                                             \n"
-     " mrsne r0, psp                                             \n"
-     " ldr r1, [r0, #24]                                         \n"
-     " ldr r2, handler2_address_const                            \n"
-     " bx r2                                                     \n"
-     " handler2_address_const: .word prvGetRegistersFromStack    \n"
-     );
+  (
+    " tst lr, #4                                                \n"
+    " ite eq                                                    \n"
+    " mrseq r0, msp                                             \n"
+    " mrsne r0, psp                                             \n"
+    " ldr r1, [r0, #24]                                         \n"
+    " ldr r2, handler2_address_const                            \n"
+    " bx r2                                                     \n"
+    " handler2_address_const: .word prvGetRegistersFromStack    \n"
+  );
 }
 
 
-void _unhandled_exception_NMIVector(void) {
+void _unhandled_exception_NMIVector(void)
+{
   while (TRUE);
 }
 
-void _unhandled_exception_MemManageVector(void) {
+void _unhandled_exception_MemManageVector(void)
+{
   hardwareFaultType = HardwareFault_MEM;
   _unhandled_exception();
 }
-void _unhandled_exception_BusFaultVector(void) {
+void _unhandled_exception_BusFaultVector(void)
+{
   hardwareFaultType = HardwareFault_BUS;
   _unhandled_exception();
 }
-void _unhandled_exception_UsageFaultVector(void) {
+void _unhandled_exception_UsageFaultVector(void)
+{
   hardwareFaultType = HardwareFault_USAGE;
   _unhandled_exception();
 }
@@ -325,7 +330,7 @@ void Vector180(void) __attribute__((weak, alias("_unhandled_exception")));
 void Vector184(void) __attribute__((weak, alias("_unhandled_exception")));
 
 
-void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
+void prvGetRegistersFromStack(uint32_t *pulFaultStackAddress)
 {
   /* These are volatile to try and prevent the compiler/linker optimising them
      away as the variables never actually get used.  If the debugger won't show the

@@ -33,7 +33,8 @@
 
 #include "led_hw.h"
 
-static inline void led_init ( void ) {
+static inline void led_init(void)
+{
 #if USE_LED_1
   LED_INIT(1);
   LED_OFF(1);
@@ -95,12 +96,16 @@ static inline void led_init ( void ) {
 #endif /* LED_12 */
 }
 
+#define _LED_AVAILABLE(i) USE_LED_ ## i
+#define LED_AVAILABLE(i) _LED_AVAILABLE(i)
+
 #else /* USE_LED */
-static inline void led_init ( void ) {}
+static inline void led_init(void) {}
 #define LED_ON(i) {}
 #define LED_OFF(i) {}
 #define LED_TOGGLE(i) {}
 #define LED_PERIODIC() {}
+#define LED_AVAILABLE(i) 0
 #endif /* USE_LED */
 
 #endif /* LED_H */

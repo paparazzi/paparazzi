@@ -31,6 +31,8 @@ let led_delay = 500 (* Time in milliseconds while the green led is displayed *)
 
 let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ]
 
+let help_text = "Drag-and-drop field on:\n\t- Real-Time Plotter to plot a curve\n\t- GCS map to display as a papget"
+
 let pipe_regexp = Str.regexp "|"
 let values_of_field = fun field ->
   try
@@ -39,7 +41,7 @@ let values_of_field = fun field ->
       _ -> [||]
 
 (** Display one page for a message *)
-let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
+let one_page = fun sender class_name (notebook:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) bind m ->
   let id = (Xml.attrib m "name") in
   let h = GPack.hbox () in
   h#misc#set_property "name" (`STRING (Some id));
@@ -49,7 +51,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
   let eb = GBin.event_box ~packing:h#pack () in
   let time = GMisc.label ~width:40 ~packing:eb#add () in
   let fields = List.filter (fun f -> Xml.tag f = "field") (Xml.children m) in
-  eb#coerce#misc#modify_bg [`SELECTED, `NAME "green"];
+  eb#coerce#misc#modify_bg [`SELECTED, `NAME "#00ff00"];
   let fields =
     List.fold_left
       (fun rest f ->
@@ -61,6 +63,8 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
           let format_ = try Some (Xml.attrib f "format") with _ -> None in
           let h = GPack.hbox ~packing:v#pack () in
           let field_label = GButton.button ~label:name ~packing:h#pack () in
+          let tips = GData.tooltips () in
+          tips#set_tip field_label#coerce ~text:help_text;
 
           let value = ref "XXXX" in
           let l = GMisc.label ~text: !value ~packing:h#pack () in
@@ -79,7 +83,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
                 sprintf "%s (%d)" literal_values.(i) i
               with _ ->
                 match format_ with
-                | Some f -> alt_value (Pprz.formatted_string_of_value f x)
+                | Some f -> alt_value (Pprz.string_of_value_format f x)
                 | _ -> alt_value (Pprz.string_of_value x)
           and display_value = fun () ->
             if notebook#page_num v#coerce = notebook#current_page then
@@ -89,15 +93,26 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
           field_label#drag#source_set dnd_targets ~modi:[`BUTTON1] ~actions:[`COPY];
           let data_get = fun _ (sel:GObj.selection_context) ~info ~time ->
             let scale = Pprz.alt_unit_coef_of_xml ~auto:"display" f in
-            let field_descr =
-              if Pprz.is_array_type type_ then
-                match GToolbox.input_string ~title:"Index of value to drag" ~text:"0" "Index in the array ?" with
-                    None -> field_name
-                  | Some i -> sprintf "%s[%s]" field_name i
+            let v = List.hd (Str.split (Str.regexp " ") l#text) in (* get value *)
+            let nb = List.length (Str.split (Str.regexp ",") v) in (* get number of values if array *)
+            let range = if nb > 1 then sprintf "0-%d" (nb-1) else "0" in
+            if Pprz.is_array_type type_ then
+              match GToolbox.input_string ~title:"Index of value to drag" ~text:range "Index or range in the array ?" with
+                None -> ()
+              | Some i -> sel#return (sprintf "%s:%s:%s:%s[%s]:%s" sender class_name id field_name i scale)
               else
-                field_name in
-            sel#return (sprintf "%s:%s:%s:%s:%s" sender class_name id field_descr scale) in
+                sel#return (sprintf "%s:%s:%s:%s:%s" sender class_name id field_name scale)
+          in
           ignore (field_label#drag#connect#data_get ~callback:data_get);
+
+          (* hide notebook and display help during drag *)
+          let begin_drag = fun _ ->
+            notebook#coerce#misc#hide ();
+            help_label#misc#show ();
+            window#resize ~width:300 ~height:50
+          in
+          ignore (field_label#drag#connect#beginning ~callback:begin_drag);
+          ignore (field_label#drag#connect#ending ~callback:(fun _ -> notebook#coerce#misc#show (); help_label#misc#hide ()));
 
           (update, display_value)::rest
         with
@@ -155,7 +170,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
   in
   bind id display
 
-let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
+let rec one_class = fun (notebook:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) (ident, xml_class, sender) ->
   let class_name = (Xml.attrib xml_class "name") in
   let messages = Xml.children xml_class in
   let module P = Pprz.Messages (struct let name = class_name end) in
@@ -166,7 +181,7 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
       let get_one = fun sender _vs ->
         if not (Hashtbl.mem senders sender) then begin
           Hashtbl.add senders sender ();
-          one_class notebook (ident,  xml_class, Some sender)
+          one_class notebook help_label window (ident,  xml_class, Some sender)
         end in
       List.iter
         (fun m -> ignore (P.message_bind (Xml.attrib m "name") get_one))
@@ -182,7 +197,7 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
 
       (** Forall messages in the class *)
       let messages = list_sort (fun x -> Xml.attrib x "name") messages in
-      List.iter (fun m -> ignore (one_page sender_name class_name class_notebook bind m)) messages
+      List.iter (fun m -> ignore (one_page sender_name class_name class_notebook help_label window bind m)) messages
 
 
 
@@ -204,10 +219,13 @@ let _ =
   (** Open the window container with its notebook*)
   let icon = GdkPixbuf.from_file Env.icon_mes_file in
   let window = GWindow.window ~type_hint:`DIALOG ~icon ~title:"Messages" () in
+  window#set_default_size ~width:200 ~height:50;
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
+  let vbox = GPack.vbox ~packing:window#add () in
 
-  let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in
+  let notebook = GPack.notebook ~packing:vbox#pack ~tab_pos:`TOP () in
+  let help_label = GMisc.label ~text:help_text ~packing:vbox#pack ~show:false () in
 
   (** Get the XML description of the required classes *)
   let xml_classes =
@@ -225,7 +243,7 @@ let _ =
       !classes in
 
   (* Insert the message classes in the notebook *)
-  List.iter (one_class notebook) xml_classes;
+  List.iter (one_class notebook help_label#coerce window) xml_classes;
 
   (** Start the main loop *)
   window#show ();

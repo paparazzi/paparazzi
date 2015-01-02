@@ -13,7 +13,7 @@ $(TARGET).LDSCRIPT=$(SRC_ARCH)/lisa-l.ld
 # -----------------------------------------------------------------------
 ifeq ($(BOARD_PROCESSOR),'omap')
 
-	ARCH  = omap
+	ARCH  = linux
 	$(TARGET).LDFLAGS += -levent -lm
 
 # -----------------------------------------------------------------------

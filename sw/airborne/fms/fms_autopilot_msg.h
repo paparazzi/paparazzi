@@ -16,8 +16,7 @@
  * Testing
  */
 
-struct __attribute__ ((packed)) AutopilotMessageFoo
-{
+struct __attribute__((packed)) AutopilotMessageFoo {
   uint32_t foo;
   uint32_t bar;
   uint32_t bla;
@@ -31,8 +30,7 @@ struct __attribute__ ((packed)) AutopilotMessageFoo
 /*
  * BETH
  */
-struct __attribute__ ((packed)) AutopilotMessageBethUp
-{
+struct __attribute__((packed)) AutopilotMessageBethUp {
   struct Int16Rates gyro;
   struct Int16Vect3 accel;
   struct Int16Vect3 bench_sensor;
@@ -43,8 +41,7 @@ struct __attribute__ ((packed)) AutopilotMessageBethUp
   int8_t pitch_out;
 };
 
-struct __attribute__ ((packed)) AutopilotMessageBethDown
-{
+struct __attribute__((packed)) AutopilotMessageBethDown {
   uint8_t thrust;
   uint8_t pitch;
   uint32_t errors;
@@ -55,14 +52,12 @@ struct __attribute__ ((packed)) AutopilotMessageBethDown
  *  STM Telemetry through wifi
  */
 #define TW_BUF_LEN 63
-struct __attribute__ ((packed)) AutopilotMessageTWUp
-{
+struct __attribute__((packed)) AutopilotMessageTWUp {
   uint8_t tw_len;
   uint8_t data[TW_BUF_LEN];
 };
 
-struct __attribute__ ((packed)) AutopilotMessageTWDown
-{
+struct __attribute__((packed)) AutopilotMessageTWDown {
   uint8_t tw_len;
   uint8_t data[TW_BUF_LEN];
 };
@@ -71,23 +66,21 @@ struct __attribute__ ((packed)) AutopilotMessageTWDown
  * Passthrough, aka biplan
  */
 
-struct __attribute__ ((packed)) ADCMessage {
+struct __attribute__((packed)) ADCMessage {
   uint16_t channels[NB_ADC];
 };
 
 /* used to indicate parts of the message which actually represent a new measurement */
-struct __attribute__ ((packed)) PTUpValidFlags
-{
-  unsigned rc:1;
-  unsigned pressure_absolute:1;
-  unsigned pressure_differential:1;
-  unsigned vane:1;
-  unsigned imu:1;
-  unsigned adc:1;
+struct __attribute__((packed)) PTUpValidFlags {
+  unsigned rc: 1;
+  unsigned pressure_absolute: 1;
+  unsigned pressure_differential: 1;
+  unsigned vane: 1;
+  unsigned imu: 1;
+  unsigned adc: 1;
 };
 
-struct __attribute__ ((packed)) AutopilotMessagePTUp
-{
+struct __attribute__((packed)) AutopilotMessagePTUp {
   struct Int32Rates gyro;
   struct Int32Vect3 accel;
   struct Int32Vect3 mag;
@@ -113,8 +106,7 @@ struct __attribute__ ((packed)) AutopilotMessagePTUp
   uint32_t stm_crc_err_cnt;
 };
 
-struct __attribute__ ((packed)) AutopilotMessagePTDown
-{
+struct __attribute__((packed)) AutopilotMessagePTDown {
   uint16_t pwm_outputs_usecs[LISA_PWM_OUTPUT_NB];
 };
 
@@ -125,8 +117,7 @@ struct __attribute__ ((packed)) AutopilotMessagePTDown
 #define VI_GPS_DATA_VALID      2
 #define VI_BARO_ABS_DATA_VALID 3
 
-struct __attribute__ ((packed)) AutopilotMessageVIUp
-{
+struct __attribute__((packed)) AutopilotMessageVIUp {
   struct Int16Rates gyro;
   struct Int16Vect3 accel;
   struct Int16Vect3 mag;
@@ -136,8 +127,7 @@ struct __attribute__ ((packed)) AutopilotMessageVIUp
   uint8_t valid_sensors;
 };
 
-struct __attribute__ ((packed)) AutopilotMessageVIDown
-{
+struct __attribute__((packed)) AutopilotMessageVIDown {
 
 };
 
@@ -149,7 +139,7 @@ struct __attribute__ ((packed)) AutopilotMessageVIDown
  * is recomposed to a raw byte array on application
  * level.
  * Advantage: Interleaving message exchange, constant
- * 	latency
+ *  latency
  * Disadvantage: Overhead of message / package counters
  *
  * If there is no message to be transferred, an empty
@@ -192,8 +182,7 @@ struct __attribute__ ((packed)) AutopilotMessageVIDown
 #ifndef SPISTREAM_PACKAGE_SIZE
 #define SPISTREAM_PACKAGE_SIZE 32
 #endif
-struct __attribute__ ((packed)) AutopilotMessagePTStream
-{
+struct __attribute__((packed)) AutopilotMessagePTStream {
   uint8_t message_cnt;
   int8_t package_cntd;
   uint8_t pkg_data[SPISTREAM_PACKAGE_SIZE];
@@ -205,8 +194,7 @@ union AutopilotMessage {
   struct OVERO_LINK_MSG_DOWN msg_down;
 };
 
-struct __attribute__ ((packed)) AutopilotMessageCRCFrame
-{
+struct __attribute__((packed)) AutopilotMessageCRCFrame {
   union AutopilotMessage payload;
   uint8_t crc;
 };

@@ -94,12 +94,13 @@ bool_t baro_amsys_offset_init;
 double baro_amsys_offset_tmp;
 uint16_t baro_amsys_cnt;
 
-void baro_amsys_init( void ) {
-  baro_filter=BARO_AMSYS_FILTER;
+void baro_amsys_init(void)
+{
+  baro_filter = BARO_AMSYS_FILTER;
   pBaroRaw = 0;
   tBaroRaw = 0;
   baro_amsys_altitude = 0.0;
-  baro_amsys_p=0.0;
+  baro_amsys_p = 0.0;
   baro_amsys_offset = 0;
   baro_amsys_offset_tmp = 0;
   baro_amsys_valid = TRUE;
@@ -114,9 +115,10 @@ void baro_amsys_init( void ) {
   baro_amsys_i2c_trans.status = I2CTransDone;
 }
 
-void baro_amsys_read_periodic( void ) {
+void baro_amsys_read_periodic(void)
+{
   // Initiate next read
-  if (baro_amsys_i2c_trans.status == I2CTransDone){
+  if (baro_amsys_i2c_trans.status == I2CTransDone) {
 #ifndef MEASURE_AMSYS_TEMPERATURE
     i2c_receive(&BARO_AMSYS_I2C_DEV, &baro_amsys_i2c_trans, BARO_AMSYS_ADDR, 2);
 #else
@@ -125,25 +127,30 @@ void baro_amsys_read_periodic( void ) {
   }
 
 #ifdef BARO_AMSYS_SYNC_SEND
-  DOWNLINK_SEND_AMSYS_BARO(DefaultChannel, DefaultDevice, &pBaroRaw, &baro_amsys_p, &baro_amsys_offset, &ref_alt_init, &baro_amsys_abs_altitude, &baro_amsys_altitude, &baro_amsys_temp);
+  DOWNLINK_SEND_AMSYS_BARO(DefaultChannel, DefaultDevice, &pBaroRaw, &baro_amsys_p, &baro_amsys_offset, &ref_alt_init,
+                           &baro_amsys_abs_altitude, &baro_amsys_altitude, &baro_amsys_temp);
 #else
-  RunOnceEvery(10, DOWNLINK_SEND_AMSYS_BARO(DefaultChannel, DefaultDevice, &pBaroRaw, &baro_amsys_p, &baro_amsys_offset, &ref_alt_init, &baro_amsys_abs_altitude, &baro_amsys_altitude, &baro_amsys_temp));
+  RunOnceEvery(10, DOWNLINK_SEND_AMSYS_BARO(DefaultChannel, DefaultDevice, &pBaroRaw, &baro_amsys_p, &baro_amsys_offset,
+               &ref_alt_init, &baro_amsys_abs_altitude, &baro_amsys_altitude, &baro_amsys_temp));
 #endif
 }
 
-void baro_amsys_read_event( void ) {
+void baro_amsys_read_event(void)
+{
   pBaroRaw = 0;
   // Get raw altimeter from buffer
   pBaroRaw = (baro_amsys_i2c_trans.buf[0] << 8) | baro_amsys_i2c_trans.buf[1];
 #ifdef MEASURE_AMSYS_TEMPERATURE
   tBaroRaw = (baro_amsys_i2c_trans.buf[2] << 8) | baro_amsys_i2c_trans.buf[3];
-  baro_amsys_temp = (float)(tBaroRaw-TEMPERATURE_AMSYS_OFFSET_MIN)*TEMPERATURE_AMSYS_MAX/(float)(TEMPERATURE_AMSYS_OFFSET_MAX-TEMPERATURE_AMSYS_OFFSET_MIN)+(float)TEMPERATURE_AMSYS_MIN;
+  baro_amsys_temp = (float)(tBaroRaw - TEMPERATURE_AMSYS_OFFSET_MIN) * TEMPERATURE_AMSYS_MAX / (float)(
+                      TEMPERATURE_AMSYS_OFFSET_MAX - TEMPERATURE_AMSYS_OFFSET_MIN) + (float)TEMPERATURE_AMSYS_MIN;
 #endif
   // Check if this is valid altimeter
-  if (pBaroRaw == 0)
+  if (pBaroRaw == 0) {
     baro_amsys_valid = FALSE;
-  else
+  } else {
     baro_amsys_valid = TRUE;
+  }
 
   baro_amsys_adc = pBaroRaw;
 
@@ -151,13 +158,16 @@ void baro_amsys_read_event( void ) {
   //if (baro_amsys_valid && GpsFixValid()) {
   if (baro_amsys_valid) {
     //Cut RAW Min and Max
-    if (pBaroRaw < BARO_AMSYS_OFFSET_MIN)
+    if (pBaroRaw < BARO_AMSYS_OFFSET_MIN) {
       pBaroRaw = BARO_AMSYS_OFFSET_MIN;
-    if (pBaroRaw > BARO_AMSYS_OFFSET_MAX)
+    }
+    if (pBaroRaw > BARO_AMSYS_OFFSET_MAX) {
       pBaroRaw = BARO_AMSYS_OFFSET_MAX;
+    }
 
     //Convert to pressure
-    baro_amsys_p = (float)(pBaroRaw-BARO_AMSYS_OFFSET_MIN)*BARO_AMSYS_MAX_PRESSURE/(float)(BARO_AMSYS_OFFSET_MAX-BARO_AMSYS_OFFSET_MIN);
+    baro_amsys_p = (float)(pBaroRaw - BARO_AMSYS_OFFSET_MIN) * BARO_AMSYS_MAX_PRESSURE / (float)(
+                     BARO_AMSYS_OFFSET_MAX - BARO_AMSYS_OFFSET_MIN);
     // Send pressure over ABI
     AbiSendMsgBARO_ABS(BARO_AMSYS_SENDER_ID, &baro_amsys_p);
     // compute altitude localy
@@ -174,24 +184,25 @@ void baro_amsys_read_event( void ) {
         //baro_amsys_offset_altitude = 288.15 / 0.0065 * (1 - pow((baro_amsys_p)/1013.25 , 1/5.255));
       }
       // Check if averaging needs to continue
-      else if (baro_amsys_cnt <= BARO_AMSYS_OFFSET_NBSAMPLES_AVRG)
+      else if (baro_amsys_cnt <= BARO_AMSYS_OFFSET_NBSAMPLES_AVRG) {
         baro_amsys_offset_tmp += baro_amsys_p;
+      }
 
       baro_amsys_altitude = 0.0;
 
-    }
-    else {
+    } else {
       // Lowpassfiltering and convert pressure to altitude
-      baro_amsys_altitude = baro_filter * baro_old + (1 - baro_filter) * (baro_amsys_offset-baro_amsys_p)*baro_scale/(1.2041*9.81);
+      baro_amsys_altitude = baro_filter * baro_old + (1 - baro_filter) * (baro_amsys_offset - baro_amsys_p) * baro_scale /
+                            (1.2041 * 9.81);
       baro_old = baro_amsys_altitude;
       //New value available
     }
-    baro_amsys_abs_altitude=baro_amsys_altitude+ref_alt_init;
+    baro_amsys_abs_altitude = baro_amsys_altitude + ref_alt_init;
   } /*else {
     baro_amsys_abs_altitude = 0.0;
   }*/
 
 
-    // Transaction has been read
+  // Transaction has been read
   baro_amsys_i2c_trans.status = I2CTransDone;
 }

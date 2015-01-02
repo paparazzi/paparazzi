@@ -5,6 +5,10 @@
   <modules main_freq="512">
     <load name="servo_switch.xml"/>
     <load name="rotorcraft_cam.xml"/>
+    <load name="digital_cam.xml">
+      <!-- AUX1 -->
+      <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO7"/>
+    </load>
   </modules>
 
   <firmware name="rotorcraft">
@@ -235,6 +239,10 @@
 
   <section name="CAM" prefix="ROTORCRAFT_CAM_">
     <define name="DEFAULT_MODE" value="ROTORCRAFT_CAM_MODE_MANUAL"/>
+  </section>
+
+  <section name="DIGITAL_CAMERA" prefix="DC_">
+    <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="5" unit="meter"/>
   </section>
 
   <section name="SERVO_SWITCH">

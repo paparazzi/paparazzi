@@ -13,7 +13,9 @@
     <define name="DC_RELEASE" value="gpio_clear|gpio_set" description="specifies whether to set or clear gpio to release the shutter (default: gpio_clear)"/>
 
     <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
-    <define name="DC_AUTOSHOOT_METER_GRID" value="50" description="grid in meters"/>
+    <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="distance interval for DC_AUTOSHOOT_DISTANCE in meters"/>
+    <define name="DC_AUTOSHOOT_SURVEY_INTERVAL" value="50" description="distance interval for DC_AUTOSHOOT_SURVEY in meters"/>
+    <define name="DC_SHOT_SYNC_SEND" value="TRUE|FALSE" description="send DC_SHOT message when photo was taken (default: TRUE)"/>
   </doc>
   <settings>
     <dl_settings name="control">
@@ -26,34 +28,36 @@
           <strip_button name="ZoomOut" icon="zoom.png" value="119" group="dczoom"/>
         </dl_setting>
 
-        <dl_setting max="3" min="0" step="1" var="dc_autoshoot" >
+        <dl_setting max="3" min="0" step="1" var="dc_autoshoot" values="STOP|PERIODIC|DISTANCE|EXT_TRIG">
           <strip_button name="Start Autoshoot" icon="on.png" value="1" group="dcauto"/>
           <strip_button name="Stop Autoshoot" icon="off.png" value="0" group="dcauto"/>
         </dl_setting>
 
         <dl_setting max="255" min="1" step="1" var="dc_autoshoot_quartersec_period" shortname="Periodic" param="DC_AUTOSHOOT_QUARTERSEC_PERIOD" unit="quarter-sec"/>
-        <dl_setting max="5" min="0" step="1" var="dc_autoshoot_meter_grid" shortname="UTM%" param="DC_AUTOSHOOT_METER_GRID" unit="meter"/>
+        <dl_setting max="255" min="0" step="1" var="dc_distance_interval" shortname="dist" param="DC_AUTOSHOOT_DISTANCE_INTERVAL" unit="meter"/>
 
-        <dl_setting max="250" min="0" step="5" module="digital_cam/dc" var="dc_gps_dist" handler="Survey" shortname="Linear-Interval"/>
+        <dl_setting max="250" min="0" step="5" module="digital_cam/dc" var="dc_survey_interval" handler="Survey" shortname="Survey-Interval"/>
         <dl_setting max="90" min="5" step="5" module="digital_cam/dc" var="dc_circle_interval" handler="Circle" shortname="Circle-Interval"/>
         <dl_setting max="1" min="0" step="1" var="dc_cam_tracing" shortname="Cam-Tracing"/>
       </dl_settings>
     </dl_settings>
   </settings>
 
+  <conflicts>digital_cam_i2c,digital_cam_servo,digital_cam_uart</conflicts>
+
   <header>
     <file name="gpio_cam_ctrl.h"/>
+    <file name="dc.h"/>
   </header>
 
   <init fun="gpio_cam_ctrl_init()"/>
 
   <periodic fun="gpio_cam_ctrl_periodic()" freq="4" autorun="TRUE"/>
 
-  <makefile >
+  <makefile target="ap|sim|nps|jsbsim">
     <define name="DIGITAL_CAM" />
     <file name="gpio_cam_ctrl.c"/>
     <file name="dc.c"/>
-    <define name="SENSOR_SYNC_SEND" value="1"/>
   </makefile>
 
 </module>

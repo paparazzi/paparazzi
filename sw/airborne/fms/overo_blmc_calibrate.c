@@ -42,7 +42,8 @@ struct OveroBLMCCalibrate blmc_calibrate;
 static void main_init(void);
 static void dialog_with_io_proc(void);
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
   main_init();
 
@@ -50,19 +51,21 @@ int main(int argc, char *argv[]) {
 
 }
 
-static void dialog_with_io_proc() {
+static void dialog_with_io_proc()
+{
 
   struct AutopilotMessageCRCFrame msg_in;
   struct AutopilotMessageCRCFrame msg_out;
   uint8_t crc_valid;
 
-  for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) msg_out.payload.msg_down.pwm_outputs_usecs[i] = blmc_calibrate.servos_outputs_usecs[i];
+  for (uint8_t i = 0; i < LISA_PWM_OUTPUT_NB; i++) { msg_out.payload.msg_down.pwm_outputs_usecs[i] = blmc_calibrate.servos_outputs_usecs[i]; }
 
   spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in, &crc_valid);
 
 }
 
-static void main_init(void) {
+static void main_init(void)
+{
 
   /* Initalize our SPI link to IO processor */
   if (spi_link_init()) {
@@ -72,15 +75,15 @@ static void main_init(void) {
 
   printf("Starting at 2000us\n");
   /* Initialize blaaa */
-  for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) blmc_calibrate.servos_outputs_usecs[i] = 2000;
+  for (uint8_t i = 0; i < LISA_PWM_OUTPUT_NB; i++) { blmc_calibrate.servos_outputs_usecs[i] = 2000; }
   dialog_with_io_proc();
   getchar();
   printf("At 1000us\n");
-  for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) blmc_calibrate.servos_outputs_usecs[i] = 1000;
+  for (uint8_t i = 0; i < LISA_PWM_OUTPUT_NB; i++) { blmc_calibrate.servos_outputs_usecs[i] = 1000; }
   dialog_with_io_proc();
   getchar();
   printf("At 1500us\n");
-  for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) blmc_calibrate.servos_outputs_usecs[i] = 1500;
+  for (uint8_t i = 0; i < LISA_PWM_OUTPUT_NB; i++) { blmc_calibrate.servos_outputs_usecs[i] = 1500; }
   dialog_with_io_proc();
 
 }

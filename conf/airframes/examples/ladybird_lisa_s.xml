@@ -193,7 +193,6 @@
 
  <section name="SIMULATOR" prefix="NPS_">
    <define name="ACTUATOR_NAMES" value="{&quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;, &quot;nw_motor&quot;}"/>
-   <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad_ccw&quot;"/>
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
  </section>

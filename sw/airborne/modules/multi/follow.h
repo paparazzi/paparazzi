@@ -27,13 +27,13 @@
 #ifndef FOLLOW_H
 #define FOLLOW_H
 
-extern void follow_init( void );
-extern void follow_change_wp( unsigned char* buffer );
+extern void follow_init(void);
+extern void follow_change_wp(unsigned char *buffer);
 
 #define ParseRemoteGps() { \
-  if (DL_REMOTE_GPS_ac_id(dl_buffer) == FOLLOW_AC_ID) { \
-    follow_change_wp(dl_buffer); \
-  } \
-}
+    if (DL_REMOTE_GPS_ac_id(dl_buffer) == FOLLOW_AC_ID) { \
+      follow_change_wp(dl_buffer); \
+    } \
+  }
 
 #endif // FOLLOW

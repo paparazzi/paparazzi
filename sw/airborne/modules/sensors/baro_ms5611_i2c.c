@@ -57,7 +57,8 @@ float baro_ms5611_r;
 float baro_ms5611_sigma2;
 
 
-void baro_ms5611_init(void) {
+void baro_ms5611_init(void)
+{
   ms5611_i2c_init(&baro_ms5611, &MS5611_I2C_DEV, MS5611_SLAVE_ADDR);
 
   baro_ms5611_enabled = TRUE;
@@ -67,24 +68,27 @@ void baro_ms5611_init(void) {
   baro_ms5611_sigma2 = BARO_MS5611_SIGMA2;
 }
 
-void baro_ms5611_periodic_check( void ) {
+void baro_ms5611_periodic_check(void)
+{
 
   ms5611_i2c_periodic_check(&baro_ms5611);
 
 #if SENSOR_SYNC_SEND
   // send coeff every 30s
-  RunOnceEvery((30*BARO_MS5611_PERIODIC_CHECK_FREQ), baro_ms5611_send_coeff());
+  RunOnceEvery((30 * BARO_MS5611_PERIODIC_CHECK_FREQ), baro_ms5611_send_coeff());
 #endif
 }
 
 /// trigger new measurement or initialize if needed
-void baro_ms5611_read(void) {
+void baro_ms5611_read(void)
+{
   if (sys_time.nb_sec > 1) {
     ms5611_i2c_read(&baro_ms5611);
   }
 }
 
-void baro_ms5611_event( void ) {
+void baro_ms5611_event(void)
+{
 
   ms5611_i2c_event(&baro_ms5611);
 
@@ -107,7 +111,8 @@ void baro_ms5611_event( void ) {
   }
 }
 
-void baro_ms5611_send_coeff(void) {
+void baro_ms5611_send_coeff(void)
+{
   if (baro_ms5611.initialized) {
     DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
                                &baro_ms5611.data.c[0],

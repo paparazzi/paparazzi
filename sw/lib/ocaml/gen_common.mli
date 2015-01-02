@@ -24,12 +24,13 @@
 
 (* Module configuration:
   * Xml node
-  * file name
+  * file (with path)
+  * file name only
   * optional vpath
   * parameters
   * extrat targets
   *)
-type module_conf = { xml : Xml.xml; file : string; vpath : string option; param : Xml.xml list; extra_targets : string list; }
+type module_conf = { xml : Xml.xml; file : string; filename : string; vpath : string option; param : Xml.xml list; extra_targets : string list; }
 
 (* Modules directory *)
 val modules_dir : string

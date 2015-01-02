@@ -55,7 +55,8 @@ static uint8_t channel;
 
 #warning "This driver should be updated to use the new SPI peripheral"
 
-void imu_crista_arch_init(void) {
+void imu_crista_arch_init(void)
+{
   channel = 0;
 
   /* setup pins for SSP (SCK, MISO, MOSI) */
@@ -74,20 +75,22 @@ void imu_crista_arch_init(void) {
 
   /* setup slave select */
   /* configure SS pin */
-  SetBit( ADS8344_SS_IODIR,  ADS8344_SS_PIN);  /* pin is output  */
+  SetBit(ADS8344_SS_IODIR,  ADS8344_SS_PIN);   /* pin is output  */
   ADS8344Unselect();                           /* pin low        */
 }
 
 
-static inline void read_values( void ) {
-  uint8_t foo __attribute__ ((unused)) = SSPDR;
+static inline void read_values(void)
+{
+  uint8_t foo __attribute__((unused)) = SSPDR;
   uint8_t msb = SSPDR;
   uint8_t lsb = SSPDR;
   uint8_t llsb = SSPDR;
   ADS8344_values[channel] = (msb << 8 | lsb) << 1 | llsb >> 7;
 }
 
-static inline void send_request( void ) {
+static inline void send_request(void)
+{
   uint8_t control = 1 << 7 | channel << 4 | SGL_DIF << 2 | POWER_MODE;
   SSP_Send(control);
   SSP_Send(0);
@@ -95,7 +98,8 @@ static inline void send_request( void ) {
   SSP_Send(0);
 }
 
-void ADS8344_start( void ) {
+void ADS8344_start(void)
+{
   ADS8344Select();
   SSP_ClearRti();
   SSP_EnableRti();
@@ -103,21 +107,21 @@ void ADS8344_start( void ) {
   send_request();
 }
 
-void SPI1_ISR(void) {
- ISR_ENTRY();
- read_values();
- channel++;
- if (channel > 7-1) {
-   channel = 0;
-   ADS8344_available = TRUE;
-   ADS8344Unselect();
- }
- else {
-   send_request();
- }
+void SPI1_ISR(void)
+{
+  ISR_ENTRY();
+  read_values();
+  channel++;
+  if (channel > 7 - 1) {
+    channel = 0;
+    ADS8344_available = TRUE;
+    ADS8344Unselect();
+  } else {
+    send_request();
+  }
 
- SSP_ClearRti();
+  SSP_ClearRti();
 
- VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
- ISR_EXIT();
+  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
+  ISR_EXIT();
 }

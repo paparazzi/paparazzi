@@ -54,12 +54,14 @@ struct i2c_transaction pcf_trans;
 uint32_t pcf_direction;
 uint8_t  pcf_status;
 
-void wind_gfi_init(void) {
+void wind_gfi_init(void)
+{
   pcf_trans.status = I2CTransDone;
   pcf_status = PCF_IDLE;
 }
 
-void wind_gfi_periodic( void ) {
+void wind_gfi_periodic(void)
+{
   /* OE low, SEL high (for low data) */
   pcf_trans.buf[0] = 0xFF;
   pcf_trans.buf[1] = 0xBF;
@@ -67,14 +69,14 @@ void wind_gfi_periodic( void ) {
   i2c_transmit(&PCF_I2C_DEV, &pcf_trans, PCF_SLAVE_ADDR, 2);
 }
 
-void wind_gfi_event( void ) {
+void wind_gfi_event(void)
+{
   if (pcf_trans.status == I2CTransSuccess) {
 
     if (pcf_status == PCF_SET_OE_LSB) {
       pcf_status = PCF_READ_LSB;
       i2c_receive(&PCF_I2C_DEV, &pcf_trans, PCF_SLAVE_ADDR, 2);
-    }
-    else if (pcf_status == PCF_READ_LSB) {
+    } else if (pcf_status == PCF_READ_LSB) {
       /* read lower byte direction info */
       pcf_direction = pcf_trans.buf[0];
 
@@ -83,12 +85,10 @@ void wind_gfi_event( void ) {
       pcf_trans.buf[1] = 0x3F;
       pcf_status = PCF_SET_OE_MSB;
       i2c_transmit(&PCF_I2C_DEV, &pcf_trans, PCF_SLAVE_ADDR, 2);
-    }
-    else if (pcf_status == PCF_SET_OE_MSB) {
+    } else if (pcf_status == PCF_SET_OE_MSB) {
       pcf_status = PCF_READ_MSB;
       i2c_receive(&PCF_I2C_DEV, &pcf_trans, PCF_SLAVE_ADDR, 2);
-    }
-    else if (pcf_status == PCF_READ_MSB) {
+    } else if (pcf_status == PCF_READ_MSB) {
       float fpcf_direction;
 
       /* read higher byte direction info */
@@ -101,11 +101,10 @@ void wind_gfi_event( void ) {
       i2c_transmit(&PCF_I2C_DEV, &pcf_trans, PCF_SLAVE_ADDR, 2);
 
       /* 2048 digits per 360 degrees */
-      fpcf_direction = fmod((pcf_direction * (360./2048.)) + ZERO_OFFSET_DEGREES, 360.);
+      fpcf_direction = fmod((pcf_direction * (360. / 2048.)) + ZERO_OFFSET_DEGREES, 360.);
 
       DOWNLINK_SEND_TMP_STATUS(DefaultChannel, DefaultDevice, &pcf_direction, &fpcf_direction);
-    }
-    else if (pcf_status == PCF_IDLE) {
+    } else if (pcf_status == PCF_IDLE) {
       pcf_trans.status = I2CTransDone;
     }
   }

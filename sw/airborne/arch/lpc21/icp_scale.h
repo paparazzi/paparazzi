@@ -10,7 +10,8 @@
 
 volatile uint32_t pulse_len;
 
-static inline void icp_scale_init ( void ) {
+static inline void icp_scale_init(void)
+{
   /* select pin for capture */
   ICP_PINSEL |= ICP_PINSEL_VAL << ICP_PINSEL_BIT;
   /* enable capture 0.2 on falling edge + trigger interrupt */
@@ -18,12 +19,12 @@ static inline void icp_scale_init ( void ) {
 }
 
 
-#define ICP_ISR() {						\
-    static uint32_t last;					\
-    uint32_t now = T0CR2;					\
-    pulse_len = now - last;					\
-    last = now;							\
-    LED_TOGGLE(2);						\
+#define ICP_ISR() {           \
+    static uint32_t last;         \
+    uint32_t now = T0CR2;         \
+    pulse_len = now - last;         \
+    last = now;             \
+    LED_TOGGLE(2);            \
   }
 
 

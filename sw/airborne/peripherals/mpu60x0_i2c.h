@@ -75,11 +75,13 @@ extern void mpu60x0_i2c_read(struct Mpu60x0_I2c *mpu);
 extern void mpu60x0_i2c_event(struct Mpu60x0_I2c *mpu);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void mpu60x0_i2c_periodic(struct Mpu60x0_I2c *mpu) {
-  if (mpu->config.initialized)
+static inline void mpu60x0_i2c_periodic(struct Mpu60x0_I2c *mpu)
+{
+  if (mpu->config.initialized) {
     mpu60x0_i2c_read(mpu);
-  else
+  } else {
     mpu60x0_i2c_start_configure(mpu);
+  }
 }
 
 #endif // MPU60X0_I2C_H

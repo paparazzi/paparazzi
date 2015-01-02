@@ -35,15 +35,14 @@
 
 #define KALT_N_ETAT 3
 
-typedef struct
-{
+typedef struct {
   float Te;
   float P[KALT_N_ETAT][KALT_N_ETAT];
-  float W[KALT_N_ETAT-1][KALT_N_ETAT-1];
+  float W[KALT_N_ETAT - 1][KALT_N_ETAT - 1];
   float X[KALT_N_ETAT];
   float Bd[KALT_N_ETAT];
   float Ad[KALT_N_ETAT][KALT_N_ETAT];
-  float Md[KALT_N_ETAT][KALT_N_ETAT-1];
+  float Md[KALT_N_ETAT][KALT_N_ETAT - 1];
 } TypeKalman;
 
 extern TypeKalman alt_filter;

@@ -6,11 +6,13 @@
 
 uint16_t chemo_sensor;
 
-void chemo_init( void ) {
+void chemo_init(void)
+{
   chemo_sensor = 0;
 }
 
-void chemo_periodic( void ) {
+void chemo_periodic(void)
+{
 #ifdef ENOSE
   static uint16_t vals[ENOSE_NB_SENSOR][DETECT_PERIOD];
   static int idx;
@@ -19,15 +21,18 @@ void chemo_periodic( void ) {
   int dval = enose_val[0] - vals[0][idx];
   if (dval < -THRESHOLD) {
     chemo_sensor = -dval;
-  } else
+  } else {
     chemo_sensor = 0;
+  }
 
   int i;
-  for(i = 0; i < ENOSE_NB_SENSOR; i++)
+  for (i = 0; i < ENOSE_NB_SENSOR; i++) {
     vals[i][idx] = enose_val[i];
+  }
 
   idx++;
-  if (idx > DETECT_PERIOD)
+  if (idx > DETECT_PERIOD) {
     idx = 0;
+  }
 #endif /* ENOSE */
 }

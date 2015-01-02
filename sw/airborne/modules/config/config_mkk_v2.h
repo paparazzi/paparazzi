@@ -32,14 +32,13 @@
 
 #include "mcu_periph/i2c.h"
 
-struct config_mkk_v2_struct
-{
-    uint8_t read_config;
-    uint8_t addr;
+struct config_mkk_v2_struct {
+  uint8_t read_config;
+  uint8_t addr;
 
-    int nb_err;
+  int nb_err;
 
-    struct i2c_transaction trans;
+  struct i2c_transaction trans;
 };
 
 extern struct config_mkk_v2_struct config_mkk_v2;
@@ -51,8 +50,7 @@ void config_mkk_v2_periodic_telemetry(void);
 //////////////////////////////////////////////////////////////////
 // MKK Config
 
-typedef struct
-{
+typedef struct {
   uint8_t revision;
   uint8_t SetMask;
   uint8_t PwmScaling;
@@ -84,42 +82,42 @@ extern void config_mkk_v2_read_eeprom(void);
 #define config_mkk_v2_ResetDefault(_v) {      \
     config_mkk_v2_eeprom.SetMask = CONFIG_MKK_V2_MASK_SET_SAVE_EEPROM | CONFIG_MKK_V2_MASK_SET_DEFAULT_PARAMS; \
     config_mkk_v2_send_eeprom();         \
-}
+  }
 
 #define config_mkk_v2_SetPwmScaling(_v) {      \
     config_mkk_v2_eeprom.PwmScaling = _v;             \
     config_mkk_v2_eeprom.SetMask = CONFIG_MKK_V2_MASK_SET_SAVE_EEPROM | CONFIG_MKK_V2_MASK_SET_PWM_SCALING; \
     config_mkk_v2_send_eeprom();         \
-}
+  }
 
 #define config_mkk_v2_SetCurrentLimit(_v) {      \
     config_mkk_v2_eeprom.CurrentLimit = _v;             \
     config_mkk_v2_eeprom.SetMask = CONFIG_MKK_V2_MASK_SET_SAVE_EEPROM | CONFIG_MKK_V2_MASK_SET_CURRENT_LIMIT; \
     config_mkk_v2_send_eeprom();         \
-}
+  }
 
 #define config_mkk_v2_SetTempLimit(_v) {      \
     config_mkk_v2_eeprom.TempLimit = _v;             \
     config_mkk_v2_eeprom.SetMask = CONFIG_MKK_V2_MASK_SET_SAVE_EEPROM | CONFIG_MKK_V2_MASK_SET_TEMP_LIMIT; \
     config_mkk_v2_send_eeprom();         \
-}
+  }
 
 #define config_mkk_v2_SetCurrentScaling(_v) {      \
     config_mkk_v2_eeprom.CurrentScaling = _v;             \
     config_mkk_v2_eeprom.SetMask = CONFIG_MKK_V2_MASK_SET_SAVE_EEPROM | CONFIG_MKK_V2_MASK_SET_CURRENT_SCALING; \
     config_mkk_v2_send_eeprom();         \
-}
+  }
 
 #define config_mkk_v2_SetBitConfig(_v) {      \
     config_mkk_v2_eeprom.BitConfig = _v;             \
     config_mkk_v2_eeprom.SetMask = CONFIG_MKK_V2_MASK_SET_SAVE_EEPROM | CONFIG_MKK_V2_MASK_SET_BITCONFIG; \
     config_mkk_v2_send_eeprom();         \
-}
+  }
 
 #define config_mkk_v2_GetConfig(_v) {      \
     config_mkk_v2.addr = _v;               \
     config_mkk_v2_read_eeprom();             \
-}
+  }
 
 
 

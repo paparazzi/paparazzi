@@ -46,7 +46,8 @@ void ak8963_init(struct Ak8963 *ak, struct i2c_periph *i2c_p, uint8_t addr)
 void ak8963_configure(struct Ak8963 *ak)
 {
   // Only configure when not busy
-  if (ak->i2c_trans.status != I2CTransSuccess && ak->i2c_trans.status != I2CTransFailed && ak->i2c_trans.status != I2CTransDone) {
+  if (ak->i2c_trans.status != I2CTransSuccess && ak->i2c_trans.status != I2CTransFailed
+      && ak->i2c_trans.status != I2CTransDone) {
     return;
   }
 

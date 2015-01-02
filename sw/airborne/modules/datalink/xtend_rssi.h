@@ -23,13 +23,13 @@
 /** \file xtend_rssi.h
  *
  *   This measures the rssi pwm signal from a Digi XTend radio modem
- *	 and sends a message with the info.
+ *   and sends a message with the info.
  *
  */
 
 #ifndef XTEND_RSSI_H
 #define XTEND_RSSI_H
 
-void xtend_rssi_periodic( void );
+void xtend_rssi_periodic(void);
 
 #endif

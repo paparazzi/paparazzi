@@ -46,11 +46,13 @@ uint16_t adc_light_temt;
 
 static struct adc_buf buf_light_temt;
 
-void light_temt_init( void ) {
+void light_temt_init(void)
+{
   adc_buf_channel(ADC_CHANNEL_LIGHT_TEMT, &buf_light_temt, ADC_CHANNEL_LIGHT_NB_SAMPLES);
 }
 
-void light_temt_periodic( void ) {
+void light_temt_periodic(void)
+{
   float f_light_temt;
 
   adc_light_temt = buf_light_temt.sum / buf_light_temt.av_nb_sample;

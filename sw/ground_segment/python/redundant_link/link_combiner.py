@@ -27,8 +27,6 @@ import logging
 import sys
 import os
 import argparse
-from time import time
-import threading
 from ivy.std_api import *
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
@@ -121,19 +119,8 @@ class Link:
     def __init__(self, name, ac_id, buffer_size=10, verbose=0):
         self.buffer = Circular_Buffer(buffer_size)
         self.name = name
-        self.time_of_last_message = time()
         self.verbose = verbose
         self.acs = [ac_id]  #Storing a list of the aircrafts that use this link. Usually it's just one.
-
-        # The following are stored values from the DOWNLINK_STATUS message:
-        self.run_time = 0
-        self.rx_bytes = 0
-        self.rx_msgs = 0
-        self.rx_err = 0
-        self.rx_bytes_rate = 0
-        self.rx_msgs_rate = 0
-        self.ping_time = 0
-
 
     def checkBuffer(self,message):
         return self.buffer.contains(message.message())
@@ -147,48 +134,11 @@ class Link:
     def removeFromBuffer(self,message):
         self.buffer.remove(message.message())
 
-    def updateTimeOfLastMessage(self):
-        self.time_of_last_message = time()
-
-    def timeSinceLastMessage(self):
-        return time() - self.time_of_last_message
-
     def acAc(self, ac_id):
         self.acs = self.acs + [ac_id]
 
     def aircrafts(self):
         return self.acs
-
-    def sendLinkStatusMessage(self):
-        for ac_id in self.acs:
-            values = (  self.name,
-                        self.timeSinceLastMessage(),
-                        self.run_time,
-                        self.rx_bytes,
-                        self.rx_msgs,
-                        self.rx_err,
-                        self.rx_bytes_rate,
-                        self.rx_msgs_rate,
-                        self.ping_time)
-
-            IvySendMsg("%s LINK_STATUS %s %f %s %s %s %s %s %s %s" % ((ac_id,) + values))
-            threading.Timer(LINK_STATUS_PERIOD, self.sendLinkStatusMessage).start()
-
-    def updateStatus(self, downlink_status_message):
-
-        if downlink_status_message.name() != "DOWNLINK_STATUS":
-            raise(Exception("function called with message of name other than DOWNLINK_STATUS"))
-
-        message_values = downlink_status_message.values()
-
-        self.run_time = message_values['run_time']
-        self.rx_bytes = message_values['rx_bytes']
-        self.rx_msgs = message_values['rx_msgs']
-        self.rx_err = message_values['rx_err']
-        self.rx_bytes_rate = message_values['rx_bytes_rate']
-        self.rx_msgs_rate = message_values['rx_msgs_rate']
-        self.ping_time = message_values['ping_time']
-
 
 
 
@@ -221,16 +171,11 @@ class Link_Combiner:
         if message.linkName() not in self.links: #Adding a new link
             self.links[message.linkName()] = Link(message.linkName(), message.sender(), BUFFER_SIZE)
             # print("NEW LINK DETECTED: %s" %message.linkName(), file=sys.stderr)
-            self.repeatSendLinkStatusMessage(message)
 
         #Processing messages from an already added link
         link = self.links[message.linkName()]
         self.sendMessage(message)
         self.bufferMessage(message)
-        if message.name() != "DOWNLINK_STATUS":
-            link.updateTimeOfLastMessage()
-        else:
-            link.updateStatus(message)
         if message.sender() not in link.aircrafts():
             link.addAc(message.sender())
 
@@ -273,11 +218,6 @@ class Link_Combiner:
     def bufferMessage(self, message):
         self.links[message.linkName()].addToBuffer(message)
 
-    def repeatSendLinkStatusMessage(self, message):
-        link_name = message.linkName()
-        self.links[link_name].sendLinkStatusMessage()
-
-
 
 def main():
     messages_xml_map.ParseMessages()
@@ -286,17 +226,14 @@ def main():
     #Command line options
     parser = argparse.ArgumentParser(description="Link_Combiner listens to the ivy messages received from multiple Link agents (set each of their -id options to a unique number), and sends a combined stream of messages to the other agents.")
     parser.add_argument("-b", "-buffer_size", "--buffer_size", help="The number of elements messages to be stored in the circular buffer for each link", default=10)
-    parser.add_argument("-t", "-link_status_period", "--link_status_period", help="The number of miliseconds in between LINK_STATUS messages being sent to the GCS", default=1000)
     args = parser.parse_args()
 
     global BUFFER_SIZE
-    global LINK_STATUS_PERIOD
     BUFFER_SIZE = int(args.buffer_size)            #The number of elements messages to be stored in the circular buffer for each link.
-    LINK_STATUS_PERIOD = float(args.link_status_period)/1000    #The number of seconds in between LINK_STATUS messages being sent to the GCS.
-
 
     link_combiner = Link_Combiner()
 
 
 if __name__ == '__main__':
     main()
+

@@ -65,10 +65,10 @@ static struct test_output output[MAX_SAMPLE];
 #define IN_FILE  "/home/poine/work/savannah/paparazzi3.broken_stm32_deletion/trunk/sw/simulator/scilab/q6d/data/stop_stop_sensors.txt"
 
 
-static void read_ascii_flight_log(const char* filename);
+static void read_ascii_flight_log(const char *filename);
 static void feed_imu(int i);
 static void store_filter_output(int i);
-static void dump_output(const char* filename);
+static void dump_output(const char *filename);
 
 /* from fms_autopilot_msg.h */
 #define VI_IMU_DATA_VALID      0
@@ -76,29 +76,32 @@ static void dump_output(const char* filename);
 #define IMU_AVAILABLE(_flag) (_flag & (1<<VI_IMU_DATA_VALID))
 #define MAG_AVAILABLE(_flag) (_flag & (1<<VI_MAG_DATA_VALID))
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
   read_ascii_flight_log(IN_FILE);
 
   imu_init();
   ahrs_init();
 
-  for (int i=0; i<nb_samples; i++) {
+  for (int i = 0; i < nb_samples; i++) {
     feed_imu(i);
     if (ahrs.status == AHRS_UNINIT) {
       ahrs_aligner_run();
-      if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
+      if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED) {
         ahrs_align();
-    }
-    else {
-      ahrs_propagate((1./AHRS_PROPAGATE_FREQUENCY));
+      }
+    } else {
+      ahrs_propagate((1. / AHRS_PROPAGATE_FREQUENCY));
 #ifdef ENABLE_MAG_UPDATE
-      if (MAG_AVAILABLE(samples[i].flag))
+      if (MAG_AVAILABLE(samples[i].flag)) {
         ahrs_update_mag();
+      }
 #endif
 #ifdef ENABLE_ACCEL_UPDATE
-      if (IMU_AVAILABLE(samples[i].flag) && (!MAG_AVAILABLE(samples[i].flag)))
+      if (IMU_AVAILABLE(samples[i].flag) && (!MAG_AVAILABLE(samples[i].flag))) {
         ahrs_update_accel();
+      }
 #endif
     }
     store_filter_output(i);
@@ -111,23 +114,23 @@ int main(int argc, char** argv) {
 /*
  * Read an ascii flight log
  */
-static void read_ascii_flight_log(const char* filename) {
-  FILE* fd = fopen(filename, "r");
+static void read_ascii_flight_log(const char *filename)
+{
+  FILE *fd = fopen(filename, "r");
   nb_samples = 0;
   int ret = 0;
   do {
-    struct test_sample* s = &samples[nb_samples];
+    struct test_sample *s = &samples[nb_samples];
     ret = fscanf(fd, "%lf\t%hhu\t%lf %lf %lf\t%lf %lf %lf\t%lf %lf %lf\t%lf %lf %lf\t%lf %lf %lf\t%lf",
-     &s->time, &s->flag,
-     &s->gyro.p, &s->gyro.q, &s->gyro.r,
-     &s->accel.x, &s->accel.y, &s->accel.z,
-     &s->mag.x, &s->mag.y, &s->mag.z,
-     &s->gps_pecef.x, &s->gps_pecef.y, &s->gps_pecef.z,
-     &s->gps_vecef.x, &s->gps_vecef.y, &s->gps_vecef.z,
-     &s->baro);
+                 &s->time, &s->flag,
+                 &s->gyro.p, &s->gyro.q, &s->gyro.r,
+                 &s->accel.x, &s->accel.y, &s->accel.z,
+                 &s->mag.x, &s->mag.y, &s->mag.z,
+                 &s->gps_pecef.x, &s->gps_pecef.y, &s->gps_pecef.z,
+                 &s->gps_vecef.x, &s->gps_vecef.y, &s->gps_vecef.z,
+                 &s->baro);
     nb_samples++;
-  }
-  while (ret == 18  && nb_samples < MAX_SAMPLE);
+  } while (ret == 18  && nb_samples < MAX_SAMPLE);
   nb_samples--;
   fclose(fd);
   printf("read %d points in file %s\n", nb_samples, filename);
@@ -137,11 +140,11 @@ static void read_ascii_flight_log(const char* filename) {
 /*
  *
  */
-static void feed_imu(int i) {
-  if (i>0) {
+static void feed_imu(int i)
+{
+  if (i > 0) {
     RATES_COPY(imu.gyro_prev, imu.gyro);
-  }
-  else {
+  } else {
     RATES_BFP_OF_REAL(imu.gyro_prev, samples[0].gyro);
   }
   RATES_BFP_OF_REAL(imu.gyro, samples[i].gyro);
@@ -153,7 +156,8 @@ static void feed_imu(int i) {
  *
  */
 #if   defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_FLQ
-static void store_filter_output(int i) {
+static void store_filter_output(int i)
+{
 #ifdef OUTPUT_IN_BODY_FRAME
   QUAT_COPY(output[i].quat_est, ahrs_impl.ltp_to_body_quat);
   RATES_COPY(output[i].rate_est, ahrs_impl.body_rate);
@@ -165,7 +169,8 @@ static void store_filter_output(int i) {
   memcpy(output[i].P, ahrs_impl.P, sizeof(ahrs_impl.P));
 }
 #elif defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_FCR
-static void store_filter_output(int i) {
+static void store_filter_output(int i)
+{
 #ifdef OUTPUT_IN_BODY_FRAME
   QUAT_COPY(output[i].quat_est, ahrs_impl.ltp_to_body_quat);
   RATES_COPY(output[i].rate_est, ahrs_impl.body_rate);
@@ -177,7 +182,8 @@ static void store_filter_output(int i) {
   //  memcpy(output[i].P, ahrs_impl.P, sizeof(ahrs_impl.P));
 }
 #elif defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_ICE
-static void store_filter_output(int i) {
+static void store_filter_output(int i)
+{
 #ifdef OUTPUT_IN_BODY_FRAME
   QUAT_FLOAT_OF_BFP(output[i].quat_est, ahrs_impl.ltp_to_body_quat);
   RATES_FLOAT_OF_BFP(output[i].rate_est, ahrs_impl.body_rate);
@@ -195,17 +201,19 @@ static void store_filter_output(int i) {
 /*
  *
  */
-static void dump_output(const char* filename) {
-  FILE* fd = fopen(filename, "w");
+static void dump_output(const char *filename)
+{
+  FILE *fd = fopen(filename, "w");
   int i;
-  for (i=0; i<nb_samples; i++) {
-    fprintf(fd, "%.16f\t%.16f %.16f %.16f %.16f\t%.16f %.16f %.16f\t%.16f %.16f %.16f\t%.16f %.16f %.16f %.16f %.16f %.16f\n",
+  for (i = 0; i < nb_samples; i++) {
+    fprintf(fd,
+            "%.16f\t%.16f %.16f %.16f %.16f\t%.16f %.16f %.16f\t%.16f %.16f %.16f\t%.16f %.16f %.16f %.16f %.16f %.16f\n",
             samples[i].time,
             output[i].quat_est.qi, output[i].quat_est.qx, output[i].quat_est.qy, output[i].quat_est.qz, // quaternion
             output[i].rate_est.p, output[i].rate_est.q, output[i].rate_est.r,                           // omega
             output[i].bias_est.p, output[i].bias_est.q, output[i].bias_est.r,                           // bias
             output[i].P[0][0], output[i].P[1][1], output[i].P[2][2],                                    // covariance
-            output[i].P[3][3], output[i].P[4][4], output[i].P[5][5] );
+            output[i].P[3][3], output[i].P[4][4], output[i].P[5][5]);
   }
   fclose(fd);
   printf("wrote %d points in file %s\n", nb_samples, filename);

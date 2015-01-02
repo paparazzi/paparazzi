@@ -16,7 +16,7 @@
       <message name="CALIBRATION"    period="2.1"/>
       <message name="NAVIGATION_REF" period="9."/>
       <message name="PPRZ_MODE"      period="5."/>
-      <message name="DOWNLINK"       period="5.1"/>
+      <message name="DATALINK_REPORT"       period="5.1"/>
       <message name="DL_VALUE"       period="1.5"/>
       <message name="IR_SENSORS"     period="1.2"/>
       <message name="IMU_GYRO"       period="0.2"/>

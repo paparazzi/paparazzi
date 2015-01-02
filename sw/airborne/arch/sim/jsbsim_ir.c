@@ -15,7 +15,8 @@
 #define JSBSIM_IR_PITCH_NEUTRAL 0.
 #endif
 
-void set_ir(double roll __attribute__ ((unused)), double pitch __attribute__ ((unused))) {
+void set_ir(double roll __attribute__((unused)), double pitch __attribute__((unused)))
+{
   // INFRARED_TELEMETRY : Stupid hack to use with modules
 #if USE_INFRARED || USE_INFRARED_TELEMETRY
   double ir_contrast = 150; //FIXME
@@ -31,4 +32,5 @@ void set_ir(double roll __attribute__ ((unused)), double pitch __attribute__ ((u
 void ir_gain_calib(void) {}
 
 /** Required by infrared.c:ir_init() */
-void adc_buf_channel(uint8_t adc_channel __attribute__ ((unused)), struct adc_buf* s __attribute__ ((unused)), uint8_t av_nb_sample __attribute__ ((unused))) {}
+void adc_buf_channel(uint8_t adc_channel __attribute__((unused)), struct adc_buf *s __attribute__((unused)),
+                     uint8_t av_nb_sample __attribute__((unused))) {}

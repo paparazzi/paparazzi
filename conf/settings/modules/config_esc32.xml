@@ -1,0 +1,11 @@
+<settings>
+  <dl_settings>
+
+    <dl_settings NAME="esc32">
+      <dl_setting var="actuators_esc32.status" min="0" step="1" max="3" module="subsystems/actuators/actuators_esc32" shortname="status"  values="INIT|SOUND|UNARMED|RUNNING"/>
+      <dl_setting var="actuators_esc32.config_idx" min="0" step="1" max="255" module="subsystems/actuators/actuators_esc32" shortname="esc_id"/>
+      <dl_setting var="actuators_esc32.config_cmd" min="0" step="1" max="2" module="subsystems/actuators/actuators_esc32" shortname="esc_cmd" values="IDLE|BEEP|TURN|DIRECTION" handler="config_cmd"/>
+    </dl_settings>
+
+  </dl_settings>
+</settings>

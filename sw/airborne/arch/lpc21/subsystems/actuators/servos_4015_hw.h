@@ -41,7 +41,7 @@ extern void actuators_4015_init(void);
 #define Actuators4015Commit() {}
 #define Actuators4015Init() actuators_4015_init()
 
-void PWM_ISR ( void ) __attribute__((naked));
+void PWM_ISR(void) __attribute__((naked));
 
 
 #endif /* SERVOS_4015_HW_H */

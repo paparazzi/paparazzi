@@ -49,11 +49,10 @@
 #define PWM_INPUT2_PINSEL_MASK (0x3 <<PWM_INPUT2_PINSEL_BIT)
 #endif
 
-void pwm_input_init ( void )
+void pwm_input_init(void)
 {
   // initialize the arrays to 0 to avoid junk
-  for (int i=0; i < PWM_INPUT_NB; i++)
-  {
+  for (int i = 0; i < PWM_INPUT_NB; i++) {
     pwm_input_duty_tics[i] = 0;
     pwm_input_duty_valid[i] = 0;
     pwm_input_period_tics[i] = 0;

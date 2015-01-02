@@ -119,20 +119,39 @@ for line in f:
         # 618.710 1 DC_SHOT 212 29133350 -89510400 8.5 25 -9 29 0 0 385051650
         splitted = line.split( ' ' )
 
-        if len(splitted) < 12:
-            continue
         try:
-            photonr = int(splitted[ 3 ])
-            utm_east = ( float(int(splitted[ 4 ])) / 100. )
-            utm_north = ( float(int(splitted[ 5 ])) / 100. )
-            alt = float(splitted[ 6 ])
-            utm_zone = int(splitted[ 7 ])
-            phi = int(splitted[ 8 ])
-            theta = int(splitted[ 9 ])
-            course = int(splitted[ 10 ])
-            speed = int(splitted[ 11 ])
+            # old DC_SHOT message has 10 data fields with pos in UTM:
+            # photo_nr, utm_east, utm_north, z, utm_zone, phi, theta, course, speed, itow
+            if len(splitted) == 13:
+                photonr = int(splitted[ 3 ])
+                utm_east = ( float(int(splitted[ 4 ])) / 100. )
+                utm_north = ( float(int(splitted[ 5 ])) / 100. )
+                alt = float(splitted[ 6 ])
+                utm_zone = int(splitted[ 7 ])
+                phi = int(splitted[ 8 ])
+                theta = int(splitted[ 9 ])
+                course = int(splitted[ 10 ])
+                speed = int(splitted[ 11 ])
+                itow = int(splitted[ 12 ])
 
-            lon, lat = UTMtoLL( utm_north, utm_east, utm_zone )
+                lon, lat = UTMtoLL( utm_north, utm_east, utm_zone )
+
+            # current DC_SHOT messages has 11 data fields with pos in LLA:
+            # photo_nr, latitude, longitude, altitude, hmsl, phi, theta, psi, course, speed, itow
+            else if len(splitted) == 14:
+                photonr = int(splitted[ 3 ])
+                lat = RadOfDeg(int(splitted[ 4 ]) * 0.0000001) # to radians
+                lon = RadOfDeg(int(splitted[ 5 ]) * 0.0000001) # to radians
+                alt = int(splitted[ 6 ]) * 0.001 # to meters
+                hmsl = int(splitted[ 7 ]) * 0.001
+                phi = int(splitted[ 8 ])
+                theta = int(splitted[ 9 ])
+                psi = int(splitted[ 10 ]))
+                course = int(splitted[ 11 ])
+                speed = int(splitted[ 12 ])
+                itow = int(splitted[ 13])
+            else:
+                continue
 
             # Check that there as many photos and pick the indicated one.
             # (this assumes the photos were taken correctly without a hiccup)

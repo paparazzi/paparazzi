@@ -31,7 +31,8 @@ all:
 	@cat README
 
 shared_lib: $(OBJ)
-	$(CC) -shared -o $(BUILDDIR)/$(LIBNAME).so $(OBJ) -lm
+	@echo CREATE shared $(LIBNAME)
+	$(Q)$(CC) -shared -o $(BUILDDIR)/$(LIBNAME).so $(OBJ) -lm
 
 install_shared_lib: shared_lib
 	test -d $(LIB_INSTALLDIR) || mkdir -p $(LIB_INSTALLDIR)
@@ -43,8 +44,8 @@ install_shared_lib: shared_lib
 	sed -e 's#PREFIX#$(PREFIX)#g' $(PKGCONFIG_FILE).in > $(PKGCONFIG_INSTALLDIR)/$(PKGCONFIG_FILE)
 
 $(BUILDDIR)/%.o: %.c
-	test -d $(BUILDDIR) || mkdir -p $(BUILDDIR)
-	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
+	$(Q)test -d $(BUILDDIR) || mkdir -p $(BUILDDIR)
+	$(Q)$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
 
 clean:
 	$(Q)rm -f $(BUILDDIR)/*.o $(BUILDDIR)/$(LIBNAME).so

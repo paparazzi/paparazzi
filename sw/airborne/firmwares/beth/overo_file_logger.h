@@ -4,12 +4,12 @@
 #include <stdio.h>
 
 struct FileLogger {
-  FILE* outfile;
+  FILE *outfile;
 };
 
 extern struct FileLogger file_logger;
 
-extern void file_logger_init(char* filename);
+extern void file_logger_init(char *filename);
 extern void file_logger_periodic(void);
 extern void file_logger_exit(void);
 

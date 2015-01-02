@@ -3,6 +3,7 @@
 <telemetry>
   <process name="Ap">
     <mode name="default">
+      <message name="AUTOPILOT_VERSION"   period="11.1"/>
       <message name="AIRSPEED"            period="1"/>
       <message name="ALIVE"               period="5"/>
       <message name="GPS"                 period="0.25"/>
@@ -20,7 +21,7 @@
       <message name="PPRZ_MODE"           period="5."/>
       <message name="SETTINGS"            period="5."/>
       <message name="STATE_FILTER_STATUS" period="5."/>
-      <message name="DOWNLINK"            period="5.1"/>
+      <message name="DATALINK_REPORT"            period="5.1"/>
       <message name="DL_VALUE"            period="1.5"/>
       <message name="IR_SENSORS"          period="1.2"/>
       <message name="IMU_GYRO"            period="1.1"/>
@@ -30,6 +31,7 @@
       <message name="CAM_POINT"           period="1.0"/>
       <message name="COMMANDS"            period="5"/>
       <message name="FBW_STATUS"          period="2"/>
+      <message name="AIR_DATA"            period="1.3"/>
     </mode>
     <mode name="minimal">
       <message name="ALIVE"               period="5"/>
@@ -46,7 +48,7 @@
       <message name="NAVIGATION"          period="3."/>
       <message name="PPRZ_MODE"           period="5."/>
       <message name="STATE_FILTER_STATUS" period="5."/>
-      <message name="DOWNLINK"            period="5.1"/>
+      <message name="DATALINK_REPORT"            period="5.1"/>
       <message name="DL_VALUE"            period="1.5"/>
       <message name="IR_SENSORS"          period="5.2"/>
       <message name="IMU_GYRO"            period="10.1"/>
@@ -62,7 +64,7 @@
       <message name="NAVIGATION"          period="5.4"/>
       <message name="PPRZ_MODE"           period="5.5"/>
       <message name="STATE_FILTER_STATUS" period="7."/>
-      <message name="DOWNLINK"            period="5.7"/>
+      <message name="DATALINK_REPORT"            period="5.7"/>
     </mode>
     <mode name="raw_sensors">
       <message name="DL_VALUE"          period="0.5"/>

@@ -25,10 +25,10 @@
 #include "std.h"
 
 
-#define ImuCristaArchPeriodic() {		\
-    ADS8344_start();				\
+#define ImuCristaArchPeriodic() {   \
+    ADS8344_start();        \
   }
 
-extern void ADS8344_start( void );
+extern void ADS8344_start(void);
 
 #endif /* IMU_CRISTA_ARCH_H */

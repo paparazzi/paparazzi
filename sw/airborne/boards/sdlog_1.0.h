@@ -190,9 +190,9 @@
 #define CARD_DETECT_PIN 20
 
 
-#define LED_GREEN	3
-#define LED_YELLOW	2
-#define LED_RED		1
+#define LED_GREEN 3
+#define LED_YELLOW  2
+#define LED_RED   1
 
 
 #endif /* CONFIG_SD_LOGGER_PPRZ_H */

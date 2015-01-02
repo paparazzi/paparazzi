@@ -63,7 +63,7 @@ extern "C" {
  * @param[in] p degree of the output polynomial
  * @param[out] c pointer to the output array of polynomial coefficients [p]
  */
-void pprz_polyfit_float(float* x, float* y, int n, int p, float* c);
+void pprz_polyfit_float(float *x, float *y, int n, int p, float *c);
 
 
 #ifdef __cplusplus

@@ -41,7 +41,7 @@ struct inv_state  {
   struct FloatRates bias; ///< Estimated gyro biases
   struct NedCoor_f speed; ///< Estimates speed
   struct NedCoor_f pos;   ///< Estimates position
-  float hb;		            ///< Estimates barometers bias
+  float hb;               ///< Estimates barometers bias
   float as;               ///< Estimated accelerometer sensitivity
 //float cs;               ///< Estimated magnetic sensitivity
 };

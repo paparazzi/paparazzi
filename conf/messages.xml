@@ -4,8 +4,9 @@
  <!-- messages from modem or sim to server -->
  <msg_class name="telemetry">
 
-   <message name="BOOT" id="1">
-     <field name="version" type="uint16"/>
+   <message name="AUTOPILOT_VERSION" id="1">
+     <field name="version" type="uint32">version encoded as: MAJOR * 10000 + MINOR * 100 + PATCH</field>
+     <field name="desc" type="char[]">version description as string from paparazzi_version</field>
    </message>
 
    <message name="ALIVE" id="2">
@@ -183,25 +184,8 @@
     <field name="segment_north_2" type="float" unit="m"/>
   </message>
 
-  <message name="DOWNLINK_STATUS" id="23">
-    <field name="link_id" type="int8"/>
-    <field name="run_time" type="uint32" unit="s"/>
-    <field name="rx_bytes" type="uint32"/>
-    <field name="rx_msgs" type="uint32"/>
-    <field name="rx_err" type="uint32"/>
-    <field name="rx_bytes_rate" type="float" format="%.1f"/>
-    <field name="rx_msgs_rate" type="float" format="%.1f"/>
-    <field name="ping_time" type="float" format="%.2f" unit="ms"/>
-  </message>
-
-  <message name="MODEM_STATUS" id="24">
-    <field name="detected" type="uint8"/>
-    <field name="valim" type="float" format="%.1f"/>
-    <field name="cd" type="uint8"/>
-    <field name="nb_byte" type="uint32"/>
-    <field name="nb_msg" type="uint32"/>
-    <field name="nb_err" type="uint32"/>
-  </message>
+  <!-- ID 23 is free -->
+  <!-- ID 24 is free -->
 
   <message name="SVINFO" id="25">
     <field name="chn" type="uint8"/>
@@ -238,10 +222,13 @@
     <field name="flying" type="uint8" unit="bool"/>
   </message>
 
-  <message name="DOWNLINK" id="30">
-    <field name="nb_ovrn" type="uint8"/>
-    <field name="rate" type="uint16" unit="bytes/s"/>
-    <field name="nb_msgs" type="uint16"/>
+  <message name="DATALINK_REPORT" id="30">
+    <description>Datalink status reported by an aircraft for the ground</description>
+    <field name="uplink_lost_time" type="uint16" unit="s"/>
+    <field name="uplink_nb_msgs" type="uint16"/>
+    <field name="downlink_nb_msgs" type="uint16"/>
+    <field name="downlink_rate" type="uint16" unit="bytes/s"/>
+    <field name="downlink_ovrn" type="uint8"/>
   </message>
 
 <!-- Current value of one variable from the dl_settings (airframe.xml) -->
@@ -282,9 +269,9 @@
   </message>
 
   <message name="MKK" id="36">
-    <field name="nr" type="int8" unit="mA"/>
+    <field name="nr" type="uint8"/>
     <field name="rpm" type="uint8" unit="Poles/s"/>
-    <field name="current" type="int8" unit="mA"/>
+    <field name="current" type="uint8" unit="mA"/>
     <field name="temp" type="int8" unit="deg"/>
   </message>
 
@@ -542,10 +529,11 @@
 
   <message name="DC_INFO" id="64">
     <field name="mode" type="int16" unit=""/>
-    <field name="utm_east" type="float" unit="m"/>
-    <field name="utm_north" type="float" unit="m"/>
+    <field name="lat" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="alt" type="int32" unit="mm" alt_unit="m">altitude above WGS84 reference ellipsoid</field>
     <field name="course" type="float" unit="deg"/>
-    <field name="buffer" type="uint16"/>
+    <field name="photo_nr" type="uint16"/>
     <field name="dist" type="float" unit="m"/>
     <field name="next_dist" type="float" unit="m"/>
     <field name="start_x" type="float" unit="m"/>
@@ -600,18 +588,6 @@
     <field name="rssi_fade_margin" type="uint8" unit="dB"/>
     <field name="duty" type="uint8" unit="%"/>
   </message>
-
-  <message name="LINK_STATUS" id="71">
-      <field name="link_id" type="uint8"/>
-      <field name="time_since_last_msg" type="float" unit="s"/>
-      <field name="run_time" type="uint32" unit="s"/>
-      <field name="rx_bytes" type="uint32"/>
-      <field name="rx_msgs" type="uint32"/>
-      <field name="rx_err" type="uint32"/>
-      <field name="rx_bytes_rate" type="float" format="%.1f"/>
-      <field name="rx_msgs_rate" type="float" format="%.1f"/>
-      <field name="ping_time" type="float" format="%.2f" unit="ms"/>
-    </message>
 
   <message name="SUPERBITRF" id="72">
       <field name="status" type="uint8" values="UNINIT|INIT_BINDING|INIT_TRANSFER|BINDING|SYNCING_A|SYNCING_B|TRANSFER"/>
@@ -907,15 +883,16 @@
 
   <message name="DC_SHOT" id="110">
     <field name="photo_nr" type="int16"/>
-    <field name="utm_east"  type="int32" unit="cm"/>
-    <field name="utm_north" type="int32" unit="cm"/>
-    <field name="z" type="float" unit="m"/>
-    <field name="utm_zone"  type="uint8"/>
-    <field name="phi" type="int16" unit="decideg"/>
-    <field name="theta" type="int16" unit="decideg"/>
-    <field name="course" type="int16" unit="decideg"/>
-    <field name="speed"  type="uint16" unit="cm/s"/>
-    <field name="itow"  type="uint32" unit="ms"/>
+    <field name="lat" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001">Gedetic latitude</field>
+    <field name="lon" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001">Longitude</field>
+    <field name="alt" type="int32" unit="mm" alt_unit="m">altitude above WGS84 reference ellipsoid</field>
+    <field name="hmsl" type="int32" unit="mm" alt_unit="m">Height above Mean Sea Level (geoid)</field>
+    <field name="phi" type="int16" unit="decideg">Euler angle around x-axis (roll)</field>
+    <field name="theta" type="int16" unit="decideg">Euler angle around y-axis (pitch)</field>
+    <field name="psi" type="int16" unit="decideg">Euler angle around z-axis (yaw)</field>
+    <field name="course" type="int16" unit="decideg">Course over ground (CW/north)</field>
+    <field name="speed" type="uint16" unit="cm/s">horizontal ground speed</field>
+    <field name="itow" type="uint32" unit="ms">GPS time of week</field>
   </message>
 
   <message name="TEST_BOARD_RESULTS" id="111">
@@ -1462,13 +1439,13 @@
   </message>
 
   <message name="VFF_EXTENDED" id="161">
-      <field name="measure1"        type="float"/>
-      <field name="measure2"        type="float"/>
+      <field name="meas_baro"      type="float"/>
+      <field name="meas_alt"       type="float"/>
       <field name="z"              type="float"/>
       <field name="zd"             type="float"/>
-      <field name="zdd"             type="float"/>
+      <field name="zdd"            type="float"/>
       <field name="bias"           type="float"/>
-      <field name="offset"           type="float"/>
+      <field name="offset"         type="float"/>
   </message>
 
   <message name="VFF" id="162">
@@ -1931,7 +1908,21 @@
 
   <!--216 is free -->
   <!--217 is free -->
-  <!--218 is free -->
+
+  <message name="BEBOP_ACTUATORS" id="218">
+    <field name="cmd_thrust" type="int32"/>
+    <field name="cmd_roll" type="int32"/>
+    <field name="cmd_pitch" type="int32"/>
+    <field name="cmd_yaw" type="int32"/>
+    <field name="rpm_ref_lf" type="uint16" unit="rpm"/>
+    <field name="rpm_ref_rf" type="uint16" unit="rpm"/>
+    <field name="rpm_ref_rb" type="uint16" unit="rpm"/>
+    <field name="rpm_ref_lb" type="uint16" unit="rpm"/>
+    <field name="rpm_obs_lf" type="uint16" unit="rpm"/>
+    <field name="rpm_obs_rf" type="uint16" unit="rpm"/>
+    <field name="rpm_obs_rb" type="uint16" unit="rpm"/>
+    <field name="rpm_obs_lb" type="uint16" unit="rpm"/>
+  </message>
 
   <message name="WEATHER" id="219">
     <field name="p_amb" type="float" unit="Pa" alt_unit="mBar" alt_unit_coef="0.01"/>
@@ -2768,25 +2759,57 @@
   </message>
 
   <message name="TELEMETRY_STATUS" id="32">
+    <description>
+      Datalink status reported by Server for the GCS
+      Combines DATLINK_REPORT (telemetry class) and LINK_REPORT (ground class)
+    </description>
     <field name="ac_id" type="string"/>
+    <field name="link_id" type="string"/>
     <field name="time_since_last_msg" type="float" unit="s"/>
+    <field name="rx_bytes" type="uint32"/>
+    <field name="rx_msgs" type="uint32"/>
+    <field name="rx_bytes_rate" type="float" format="%.1f" unit="bytes/s"/>
+    <field name="tx_msgs" type="uint32"/>
+    <field name="uplink_lost_time" type="uint32" unit="s"/>
+    <field name="uplink_msgs" type="uint16"/>
+    <field name="downlink_msgs" type="uint16"/>
+    <field name="downlink_rate" type="uint16" unit="bytes/s"/>
+    <field name="ping_time" type="float" format="%.2f" unit="ms"/>
   </message>
 
   <message name="TELEMETRY_ERROR" id="33">
+    <description>Report a telemetry error</description>
     <field name="ac_id" type="string"/>
     <field name="message" type="string"/>
   </message>
 
-   <message name="TELEMETRY_MESSAGE" id="34">
+  <message name="TELEMETRY_MESSAGE" id="34">
+    <description>Encapsulated a telemetry class message (when using redundant link)</description>
     <field name="ac_id" type="string"/>
     <field name="link_id" type="string" />
     <field name="message" type="string" format=";sv"/>
-   </message>
+  </message>
 
   <message name="DATALINK_MESSAGE" id="35">
+    <description>Encapsulated a datalink class message (when using redundant link)</description>
     <field name="ac_id" type="string"/>
     <field name="link_id" type="string"/>
     <field name="message" type="string" format=";sv"/>
+  </message>
+
+  <message name="LINK_REPORT" id="36">
+    <description>Datalink status reported by Link for the Server</description>
+    <field name="ac_id" type="string"/>
+    <field name="link_id" type="uint8"/>
+    <field name="run_time" type="uint32" unit="s"/>
+    <field name="rx_lost_time" type="uint32" unit="s"/>
+    <field name="rx_bytes" type="uint32"/>
+    <field name="rx_msgs" type="uint32"/>
+    <field name="rx_err" type="uint32"/>
+    <field name="rx_bytes_rate" type="float" format="%.1f" unit="bytes/s"/>
+    <field name="rx_msgs_rate" type="float" format="%.1f" unit="msgs/s"/>
+    <field name="tx_msgs" type="uint32"/>
+    <field name="ping_time" type="float" format="%.2f" unit="ms"/>
   </message>
 
   <message name="PLUMES" id="100">

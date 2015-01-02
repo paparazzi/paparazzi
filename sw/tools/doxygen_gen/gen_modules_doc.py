@@ -308,7 +308,7 @@ if __name__ == '__main__':
     os.chdir(modules_dir)
     for file in glob.glob("*.xml"):
         module = read_module_file(file)
-        if len(module):
+        if module is not None:
             modules[file] = module
 
     # generate overview

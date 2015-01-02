@@ -14,7 +14,7 @@
 // Search&Rescue Onboard Detection Application
 #define SODA "/root/develop/allthings_obc2014/src/soda/soda"
 
-static void* handle_msg_shoot(void* ptr);
+static void *handle_msg_shoot(void *ptr);
 static inline void send_msg_image_buffer(void);
 static inline void send_msg_status(void);
 
@@ -22,7 +22,7 @@ static volatile int is_shooting, image_idx, image_count, shooting_idx, shooting_
 static char image_buffer[MAX_IMAGE_BUFFERS][IMAGE_SIZE];
 static pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
   pthread_t shooting_threads[MAX_PROCESSING_THREADS];
   char c;
@@ -66,13 +66,13 @@ int main(int argc, char* argv[])
       // Shoot an image if not busy
       if (mora_protocol.msg_id == MORA_SHOOT) {
         // Parse the shoot message
-        union dc_shot_union* shoot = (union dc_shot_union*) malloc(sizeof(union dc_shot_union));
+        union dc_shot_union *shoot = (union dc_shot_union *) malloc(sizeof(union dc_shot_union));
         for (i = 0; i < MORA_SHOOT_MSG_SIZE; i++) {
           shoot->bin[i] = mora_protocol.payload[i];
         }
         printf("CATIA:\tSHOT %d,%d\n", shoot->data.nr, shoot->data.phi);
 
-        pthread_create(&shooting_threads[(shooting_idx++ % MAX_PROCESSING_THREADS)], NULL, handle_msg_shoot, (void*)shoot);
+        pthread_create(&shooting_threads[(shooting_idx++ % MAX_PROCESSING_THREADS)], NULL, handle_msg_shoot, (void *)shoot);
         send_msg_status();
       }
 
@@ -101,10 +101,10 @@ int main(int argc, char* argv[])
   return 0;
 }
 
-static void* handle_msg_shoot(void* ptr)
+static void *handle_msg_shoot(void *ptr)
 {
   char filename[MAX_FILENAME], soda_call[512];
-  union dc_shot_union* shoot = (union dc_shot_union*) ptr;
+  union dc_shot_union *shoot = (union dc_shot_union *) ptr;
 
   // Test if can shoot
   pthread_mutex_lock(&mut);
@@ -131,7 +131,8 @@ static void* handle_msg_shoot(void* ptr)
 
   //Parse the image
   sprintf(soda_call, "%s %s %d %d %d %d %d %d %d %d %d %d", SODA, filename,
-          shoot->data.nr, shoot->data.lat, shoot->data.lon, shoot->data.alt, shoot->data.phi, shoot->data.theta, shoot->data.psi, shoot->data.vground, shoot->data.course, shoot->data.groundalt);
+          shoot->data.nr, shoot->data.lat, shoot->data.lon, shoot->data.alt, shoot->data.phi, shoot->data.theta, shoot->data.psi,
+          shoot->data.vground, shoot->data.course, shoot->data.groundalt);
   printf("CATIA-%d:\tCalling '%s'\n", shoot->data.nr, soda_call);
   short int ret = system(soda_call);
   printf("CATIA-%d:\tShooting: soda return %d of image %s\n", shoot->data.nr, ret, filename);
@@ -166,7 +167,7 @@ static inline void send_msg_status(void)
 {
   int i;
   struct mora_status_struct status_msg;
-  char* buffer = (char*) &status_msg;
+  char *buffer = (char *) &status_msg;
 
   pthread_mutex_lock(&mut);
   status_msg.cpu = 0;

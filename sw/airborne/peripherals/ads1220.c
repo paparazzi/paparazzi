@@ -83,18 +83,18 @@ static void ads1220_send_config(struct Ads1220 *ads)
   ads->spi_trans.input_length = 0;
   ads->tx_buf[0] = ADS1220_WREG(ADS1220_CONF0, 4);
   ads->tx_buf[1] = (
-      (ads->config.pga_bypass << 0) |
-      (ads->config.gain << 1) |
-      (ads->config.mux << 4));
+                     (ads->config.pga_bypass << 0) |
+                     (ads->config.gain << 1) |
+                     (ads->config.mux << 4));
   ads->tx_buf[2] = (
-      (ads->config.conv << 2) |
-      (ads->config.rate << 5));
+                     (ads->config.conv << 2) |
+                     (ads->config.rate << 5));
   ads->tx_buf[3] = (
-      (ads->config.idac << 0) |
-      (ads->config.vref << 6));
+                     (ads->config.idac << 0) |
+                     (ads->config.vref << 6));
   ads->tx_buf[4] = (
-      (ads->config.i2mux << 2) |
-      (ads->config.i1mux << 5));
+                     (ads->config.i2mux << 2) |
+                     (ads->config.i1mux << 5));
   spi_submit(ads->spi_p, &(ads->spi_trans));
 }
 
@@ -109,8 +109,7 @@ void ads1220_configure(struct Ads1220 *ads)
       spi_submit(ads->spi_p, &(ads->spi_trans));
       ads->config.status = ADS1220_SEND_RESET;
     }
-  }
-  else if (ads->config.status == ADS1220_INITIALIZING) { // Configuring but not yet initialized
+  } else if (ads->config.status == ADS1220_INITIALIZING) { // Configuring but not yet initialized
     if (ads->spi_trans.status == SPITransSuccess || ads->spi_trans.status == SPITransDone) {
       ads1220_send_config(ads); // do config
     }
@@ -133,31 +132,26 @@ void ads1220_event(struct Ads1220 *ads)
   if (ads->config.status == ADS1220_INITIALIZED) {
     if (ads->spi_trans.status == SPITransFailed) {
       ads->spi_trans.status = SPITransDone;
-    }
-    else if (ads->spi_trans.status == SPITransSuccess) {
+    } else if (ads->spi_trans.status == SPITransSuccess) {
       // Successfull reading of 24bits adc
-      ads->data = (uint32_t)(((uint32_t)(ads->rx_buf[0])<<16)|((uint32_t)(ads->rx_buf[1])<<8)|(ads->rx_buf[2]));
+      ads->data = (uint32_t)(((uint32_t)(ads->rx_buf[0]) << 16) | ((uint32_t)(ads->rx_buf[1]) << 8) | (ads->rx_buf[2]));
       ads->data_available = TRUE;
       ads->spi_trans.status = SPITransDone;
     }
-  }
-  else if (ads->config.status == ADS1220_SEND_RESET) { // Reset ads1220 before configuring
+  } else if (ads->config.status == ADS1220_SEND_RESET) { // Reset ads1220 before configuring
     if (ads->spi_trans.status == SPITransFailed) {
       ads->spi_trans.status = SPITransDone;
       ads->config.status = ADS1220_UNINIT; // config failed
-    }
-    else if (ads->spi_trans.status == SPITransSuccess) {
+    } else if (ads->spi_trans.status == SPITransSuccess) {
       ads->spi_trans.status = SPITransDone;
       ads->config.status = ADS1220_INITIALIZING;
       // do config at next call of ads1220_configure() (or ads1220_periodic())
     }
-  }
-  else if (ads->config.status == ADS1220_INITIALIZING) { // Configuring but not yet initialized
+  } else if (ads->config.status == ADS1220_INITIALIZING) { // Configuring but not yet initialized
     if (ads->spi_trans.status == SPITransFailed) {
       ads->spi_trans.status = SPITransDone;
       ads->config.status = ADS1220_UNINIT; // config failed
-    }
-    else if (ads->spi_trans.status == SPITransSuccess) {
+    } else if (ads->spi_trans.status == SPITransSuccess) {
       ads->spi_trans.status = SPITransDone;
       ads->config.status = ADS1220_INITIALIZED; // config done
     }

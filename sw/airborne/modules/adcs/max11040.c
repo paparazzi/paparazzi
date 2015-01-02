@@ -41,7 +41,8 @@ volatile uint32_t max11040_buf_in;
 volatile uint32_t max11040_buf_out;
 
 
-void max11040_init( void ) {
+void max11040_init(void)
+{
   max11040_status = MAX11040_RESET;
   max11040_data = MAX11040_RESET;
   max11040_count = 0;
@@ -51,36 +52,37 @@ void max11040_init( void ) {
   max11040_hw_init();
 }
 
-void max11040_periodic(void) {
+void max11040_periodic(void)
+{
 #ifdef MAX11040_DEBUG
   float max11040_values_f[16];
   int i;
 
   if (max11040_data == MAX11040_DATA_AVAILABLE) {
 //    LED_TOGGLE(3);
-    for (i=0; i<16; i++) {
+    for (i = 0; i < 16; i++) {
       /* we assume that the buffer will be full always in this test mode anyway */
       max11040_values_f[i] = (max11040_values[max11040_buf_in][i] * 2.2) / 8388608.0;
     }
 
     DOWNLINK_SEND_TURB_PRESSURE_VOLTAGE(
-        DefaultChannel, DefaultDevice,
-        &max11040_values_f[0],
-        &max11040_values_f[1],
-        &max11040_values_f[2],
-        &max11040_values_f[3],
-        &max11040_values_f[4],
-        &max11040_values_f[5],
-        &max11040_values_f[6],
-        &max11040_values_f[7],
-        &max11040_values_f[8],
-        &max11040_values_f[9],
-        &max11040_values_f[10],
-        &max11040_values_f[11],
-        &max11040_values_f[12],
-        &max11040_values_f[13],
-        &max11040_values_f[14],
-        &max11040_values_f[15] );
+      DefaultChannel, DefaultDevice,
+      &max11040_values_f[0],
+      &max11040_values_f[1],
+      &max11040_values_f[2],
+      &max11040_values_f[3],
+      &max11040_values_f[4],
+      &max11040_values_f[5],
+      &max11040_values_f[6],
+      &max11040_values_f[7],
+      &max11040_values_f[8],
+      &max11040_values_f[9],
+      &max11040_values_f[10],
+      &max11040_values_f[11],
+      &max11040_values_f[12],
+      &max11040_values_f[13],
+      &max11040_values_f[14],
+      &max11040_values_f[15]);
     max11040_data = MAX11040_IDLE;
   }
 #endif

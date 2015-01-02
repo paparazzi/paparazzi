@@ -51,7 +51,7 @@ extern struct spi_transaction link_mcu_trans;
 extern bool_t link_mcu_received;
 
 extern void link_mcu_init(void);
-extern void link_mcu_event_task( void );
+extern void link_mcu_event_task(void);
 
 #ifdef FBW
 extern void link_mcu_restart(void);

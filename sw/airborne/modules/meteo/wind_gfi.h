@@ -3,7 +3,7 @@
 
 #include "std.h"
 
-enum pcf_stat{
+enum pcf_stat {
   PCF_IDLE,
   PCF_SET_OE_LSB,
   PCF_READ_LSB,

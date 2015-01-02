@@ -50,9 +50,9 @@ void baro_MS5534A_reset(void);
 void baro_MS5534A_send(void);
 
 /* Set baro_MS5534A_available when pressure and temp are readable */
-void baro_MS5534A_event_task( void );
+void baro_MS5534A_event_task(void);
 
-void baro_MS5534A_event( void );
+void baro_MS5534A_event(void);
 
 #endif // USE_BARO_MS5534A
 

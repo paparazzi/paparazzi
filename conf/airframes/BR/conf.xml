@@ -1,0 +1,24 @@
+<conf>
+  <aircraft
+   name="DreamCatcher"
+   ac_id="230"
+   airframe="airframes/BR/DreamCacher_bart.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic_superbitrf_from_hand.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/superbitrf.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="LadyLisaBart"
+   ac_id="231"
+   airframe="airframes/BR/ladybird_kit_bart.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic_superbitrf_from_hand.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/superbitrf.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
+   gui_color="blue"
+  />
+</conf>

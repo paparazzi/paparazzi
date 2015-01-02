@@ -90,11 +90,13 @@ extern void itg3200_read(struct Itg3200 *itg);
 extern void itg3200_event(struct Itg3200 *itg);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void itg3200_periodic(struct Itg3200 *itg) {
-  if (itg->initialized)
+static inline void itg3200_periodic(struct Itg3200 *itg)
+{
+  if (itg->initialized) {
     itg3200_read(itg);
-  else
+  } else {
     itg3200_start_configure(itg);
+  }
 }
 
 #endif // ITG3200_H

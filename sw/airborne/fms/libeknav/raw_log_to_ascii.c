@@ -13,7 +13,7 @@
 #include "fms/fms_autopilot_msg.h"
 #include "fms/libeknav/raw_log.h"
 
-void print_raw_log_entry(struct raw_log_entry*);
+void print_raw_log_entry(struct raw_log_entry *);
 //void build_fake_log(void);
 
 #define PRT(a) printf("%f ", a);
@@ -28,7 +28,8 @@ struct raw_log_entry __attribute__ ((packed)){
 */
 
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
   //  build_fake_log();
 
@@ -44,7 +45,7 @@ int main(int argc, char** argv) {
   while (1) {
     struct raw_log_entry entry;
     ssize_t nb_read = read(raw_log_fd, &entry, sizeof(entry));
-    if (nb_read != sizeof(entry)) break;
+    if (nb_read != sizeof(entry)) { break; }
     print_raw_log_entry(&entry);
     printf("\n");
     //printf("%f %f %f %f", e.time, e.gyro.p, e.gyro.q, e.gyro.r);
@@ -55,7 +56,8 @@ int main(int argc, char** argv) {
 
 
 
-void print_raw_log_entry(struct raw_log_entry* e){
+void print_raw_log_entry(struct raw_log_entry *e)
+{
   struct DoubleVect3 tempvect;
   struct DoubleRates temprates;
   printf("%f\t", e->time);
@@ -68,7 +70,7 @@ void print_raw_log_entry(struct raw_log_entry* e){
   printf("% f % f % f\t", tempvect.x,      tempvect.y,     tempvect.z);
   printf("% i % i % i\t", e->message.ecef_pos.x, e->message.ecef_pos.y, e->message.ecef_pos.z);
   printf("% i % i % i\t", e->message.ecef_vel.x, e->message.ecef_vel.y, e->message.ecef_vel.z);
-  double baro_scaled = (double)(e->message.pressure_absolute)/256;
+  double baro_scaled = (double)(e->message.pressure_absolute) / 256;
   printf("%f", baro_scaled);
 }
 

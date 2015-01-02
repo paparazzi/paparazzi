@@ -54,7 +54,9 @@ static void put_1byte(struct pprzlog_transport *trans, struct link_device *dev, 
   dev->transmit(dev->periph, byte);
 }
 
-static void put_bytes(struct pprzlog_transport *trans, struct link_device *dev, enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t len, const void *bytes)
+static void put_bytes(struct pprzlog_transport *trans, struct link_device *dev,
+                      enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)),
+                      uint8_t len, const void *bytes)
 {
   const uint8_t *b = (const uint8_t *) bytes;
   int i;
@@ -63,7 +65,9 @@ static void put_bytes(struct pprzlog_transport *trans, struct link_device *dev, 
   }
 }
 
-static void put_named_byte(struct pprzlog_transport *trans, struct link_device *dev, enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t byte, const char * name __attribute__((unused)))
+static void put_named_byte(struct pprzlog_transport *trans, struct link_device *dev,
+                           enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)),
+                           uint8_t byte, const char *name __attribute__((unused)))
 {
   put_1byte(trans, dev, byte);
 }
@@ -79,8 +83,8 @@ static void start_message(struct pprzlog_transport *trans, struct link_device *d
   const uint8_t msg_len = size_of(trans, payload_len);
   trans->ck = 0;
   put_1byte(trans, dev, msg_len);
-  uint32_t ts = get_sys_time_usec()/100;
-  put_bytes(trans, dev, DL_TYPE_TIMESTAMP, DL_FORMAT_SCALAR, 4, (uint8_t*)(&ts));
+  uint32_t ts = get_sys_time_usec() / 100;
+  put_bytes(trans, dev, DL_TYPE_TIMESTAMP, DL_FORMAT_SCALAR, 4, (uint8_t *)(&ts));
 }
 
 static void end_message(struct pprzlog_transport *trans, struct link_device *dev)
@@ -89,17 +93,20 @@ static void end_message(struct pprzlog_transport *trans, struct link_device *dev
   dev->send_message(dev->periph);
 }
 
-static void overrun(struct pprzlog_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)))
+static void overrun(struct pprzlog_transport *trans __attribute__((unused)),
+                    struct link_device *dev __attribute__((unused)))
 {
 }
 
-static void count_bytes(struct pprzlog_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)), uint8_t bytes __attribute__((unused)))
+static void count_bytes(struct pprzlog_transport *trans __attribute__((unused)),
+                        struct link_device *dev __attribute__((unused)), uint8_t bytes __attribute__((unused)))
 {
 }
 
-static int check_available_space(struct pprzlog_transport *trans __attribute__((unused)), struct link_device *dev, uint8_t bytes)
+static int check_available_space(struct pprzlog_transport *trans __attribute__((unused)), struct link_device *dev,
+                                 uint8_t bytes)
 {
-  return dev->check_free_space(dev, bytes);
+  return dev->check_free_space(dev->periph, bytes);
 }
 
 void pprzlog_transport_init(void)

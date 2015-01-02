@@ -44,14 +44,12 @@
 #define RC_PPM_SIGNED_TICKS_OF_USEC(_v) signed_cpu_ticks_of_usec(_v)
 #define USEC_OF_RC_PPM_TICKS(_v)        usec_of_cpu_ticks(_v)
 
-#define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
-
 #define PPM_IT PPM_CRI
 
 #define PPM_ISR() {       \
-  uint32_t now = PPM_CR;  \
-  ppm_decode_frame(now);  \
-}
+    uint32_t now = PPM_CR;  \
+    ppm_decode_frame(now);  \
+  }
 
 #ifdef USE_PPM_RSSI_GPIO
 #define RssiValid() (bit_is_set(PPM_RSSI_IOPIN, PPM_RSSI_PIN) == PPM_RSSI_VALID_LEVEL)

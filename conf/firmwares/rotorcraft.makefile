@@ -55,7 +55,6 @@ $(TARGET).CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 #
 # Systime
 #
-$(TARGET).CFLAGS += -DUSE_SYS_TIME
 $(TARGET).srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 
@@ -105,7 +104,7 @@ $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 #
 # Electrical subsystem / Analog Backend
 #
-ifneq ($(ARCH), omap)
+ifneq ($(ARCH), linux)
 $(TARGET).CFLAGS += -DUSE_ADC
 $(TARGET).srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 $(TARGET).srcs   += subsystems/electrical.c
@@ -125,6 +124,8 @@ else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
 ns_srcs   += $(SRC_BOARD)/electrical_dummy.c
 else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
 ns_srcs   += $(SRC_BOARD)/electrical_raw.c
+else ifeq ($(BOARD), bebop)
+ns_srcs   += $(SRC_BOARD)/electrical.c
 endif
 
 #
@@ -158,7 +159,7 @@ endif
 
 ns_srcs += mcu_periph/uart.c
 ns_srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-ifeq ($(ARCH), omap)
+ifeq ($(ARCH), linux)
 ns_srcs += $(SRC_ARCH)/serial_port.c
 endif
 

@@ -87,10 +87,10 @@ float h_ctl_course_slew_increment;
 #endif
 
 
-inline static void h_ctl_roll_loop( void );
-inline static void h_ctl_pitch_loop( void );
+inline static void h_ctl_roll_loop(void);
+inline static void h_ctl_pitch_loop(void);
 #ifdef H_CTL_RATE_LOOP
-static inline void h_ctl_roll_rate_loop( void );
+static inline void h_ctl_roll_rate_loop(void);
 #endif
 
 #ifndef H_CTL_COURSE_PRE_BANK_CORRECTION
@@ -115,12 +115,14 @@ static float nav_ratio;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_calibration(struct transport_tx *trans, struct link_device *dev) {
+static void send_calibration(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_CALIBRATION(trans, dev, AC_ID,  &v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode);
 }
 #endif
 
-void h_ctl_init( void ) {
+void h_ctl_init(void)
+{
   h_ctl_course_setpoint = 0.;
   h_ctl_course_pre_bank = 0.;
   h_ctl_course_pre_bank_correction = H_CTL_COURSE_PRE_BANK_CORRECTION;
@@ -173,7 +175,7 @@ void h_ctl_init( void ) {
 #endif
 
 #ifdef AGR_CLIMB
-  nav_ratio=0;
+  nav_ratio = 0;
 #endif
 
 #if PERIODIC_TELEMETRY
@@ -185,7 +187,8 @@ void h_ctl_init( void ) {
  * \brief
  *
  */
-void h_ctl_course_loop ( void ) {
+void h_ctl_course_loop(void)
+{
   static float last_err;
 
   // Ground path error
@@ -198,10 +201,9 @@ void h_ctl_course_loop ( void ) {
   float advance = cos(err) * (*stateGetHorizontalSpeedNorm_f()) / reference_advance;
 
   if (
-      (advance < 1.)  &&                          // Path speed is small
-      ((*stateGetHorizontalSpeedNorm_f()) < reference_advance)  // Small path speed is due to wind (small groundspeed)
-      )
-  {
+    (advance < 1.)  &&                          // Path speed is small
+    ((*stateGetHorizontalSpeedNorm_f()) < reference_advance)  // Small path speed is due to wind (small groundspeed)
+  ) {
     /*
     // rough crabangle approximation
     float wind_mod = sqrt(wind_east*wind_east + wind_north*wind_north);
@@ -221,16 +223,11 @@ void h_ctl_course_loop ( void ) {
     float herr = stateGetNedToBodyEulers_f()->psi - h_ctl_course_setpoint; //+crab);
     NormRadAngle(herr);
 
-    if (advance < -0.5)              //<! moving in the wrong direction / big > 90 degree turn
-    {
+    if (advance < -0.5) {            //<! moving in the wrong direction / big > 90 degree turn
       err = herr;
-    }
-    else if (advance < 0.)           //<!
-    {
-      err = (-advance)*2. * herr;
-    }
-    else
-    {
+    } else if (advance < 0.) {       //<!
+      err = (-advance) * 2. * herr;
+    } else {
       err = advance * err;
     }
 
@@ -257,26 +254,24 @@ void h_ctl_course_loop ( void ) {
 #ifdef H_CTL_COURSE_SLEW_INCREMENT
   /* slew severe course changes (i.e. waypoint moves, block changes or perpendicular routes) */
   static float h_ctl_course_slew_rate = 0.;
-  float nav_angle_saturation = h_ctl_roll_max_setpoint/h_ctl_course_pgain;  /* heading error corresponding to max_roll */
+  float nav_angle_saturation = h_ctl_roll_max_setpoint / h_ctl_course_pgain; /* heading error corresponding to max_roll */
   float half_nav_angle_saturation = nav_angle_saturation / 2.;
   if (launch) {  /* prevent accumulator run-up on the ground */
     if (err > half_nav_angle_saturation) {
       h_ctl_course_slew_rate = Max(h_ctl_course_slew_rate, 0.);
-      err = Min(err,(half_nav_angle_saturation + h_ctl_course_slew_rate));
-      h_ctl_course_slew_rate +=h_ctl_course_slew_increment;
-    }
-    else if ( err < -half_nav_angle_saturation) {
+      err = Min(err, (half_nav_angle_saturation + h_ctl_course_slew_rate));
+      h_ctl_course_slew_rate += h_ctl_course_slew_increment;
+    } else if (err < -half_nav_angle_saturation) {
       h_ctl_course_slew_rate = Min(h_ctl_course_slew_rate, 0.);
-      err = Max(err,(-half_nav_angle_saturation + h_ctl_course_slew_rate));
-      h_ctl_course_slew_rate -=h_ctl_course_slew_increment;
-    }
-    else {
+      err = Max(err, (-half_nav_angle_saturation + h_ctl_course_slew_rate));
+      h_ctl_course_slew_rate -= h_ctl_course_slew_increment;
+    } else {
       h_ctl_course_slew_rate = 0.;
     }
   }
 #endif
 
-  float speed_depend_nav = (*stateGetHorizontalSpeedNorm_f())/NOMINAL_AIRSPEED;
+  float speed_depend_nav = (*stateGetHorizontalSpeedNorm_f()) / NOMINAL_AIRSPEED;
   Bound(speed_depend_nav, 0.66, 1.5);
 
   float cmd = -h_ctl_course_pgain * speed_depend_nav * (err + d_err * h_ctl_course_dgain);
@@ -290,11 +285,13 @@ void h_ctl_course_loop ( void ) {
       BoundAbs(cmd, h_ctl_roll_max_setpoint); /* bound cmd before NAV_RATIO and again after */
       /* altitude: z-up is positive -> positive error -> too low */
       if (v_ctl_altitude_error > 0) {
-        nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
-        Bound (nav_ratio, AGR_CLIMB_NAV_RATIO, 1);
+        nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) /
+                    (AGR_BLEND_START - AGR_BLEND_END));
+        Bound(nav_ratio, AGR_CLIMB_NAV_RATIO, 1);
       } else {
-        nav_ratio = AGR_DESCENT_NAV_RATIO + (1 - AGR_DESCENT_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
-        Bound (nav_ratio, AGR_DESCENT_NAV_RATIO, 1);
+        nav_ratio = AGR_DESCENT_NAV_RATIO + (1 - AGR_DESCENT_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) /
+                    (AGR_BLEND_START - AGR_BLEND_END));
+        Bound(nav_ratio, AGR_DESCENT_NAV_RATIO, 1);
       }
       cmd *= nav_ratio;
     }
@@ -314,7 +311,8 @@ void h_ctl_course_loop ( void ) {
   BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
 }
 
-void h_ctl_attitude_loop ( void ) {
+void h_ctl_attitude_loop(void)
+{
   if (!h_ctl_disabled) {
     h_ctl_roll_loop();
     h_ctl_pitch_loop();
@@ -323,17 +321,18 @@ void h_ctl_attitude_loop ( void ) {
 
 
 #ifdef H_CTL_ROLL_ATTITUDE_GAIN
-inline static void h_ctl_roll_loop( void ) {
+inline static void h_ctl_roll_loop(void)
+{
   float err = stateGetNedToBodyEulers_f()->phi - h_ctl_roll_setpoint;
-  struct FloatRates* body_rate = stateGetBodyRates_f();
+  struct FloatRates *body_rate = stateGetBodyRates_f();
 #ifdef SITL
   static float last_err = 0;
-  body_rate->p = (err - last_err)/(1/60.);
+  body_rate->p = (err - last_err) / (1 / 60.);
   last_err = err;
 #endif
   float cmd = h_ctl_roll_attitude_gain * err
-    + h_ctl_roll_rate_gain * body_rate->p
-    + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
+              + h_ctl_roll_rate_gain * body_rate->p
+              + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
 
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
 }
@@ -341,10 +340,11 @@ inline static void h_ctl_roll_loop( void ) {
 #else // H_CTL_ROLL_ATTITUDE_GAIN
 
 /** Computes h_ctl_aileron_setpoint from h_ctl_roll_setpoint */
-inline static void h_ctl_roll_loop( void ) {
+inline static void h_ctl_roll_loop(void)
+{
   float err = stateGetNedToBodyEulers_f()->phi - h_ctl_roll_setpoint;
   float cmd = h_ctl_roll_pgain * err
-    + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
+              + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
 
 #ifdef H_CTL_RATE_LOOP
@@ -365,7 +365,8 @@ inline static void h_ctl_roll_loop( void ) {
 
 #ifdef H_CTL_RATE_LOOP
 
-static inline void h_ctl_roll_rate_loop() {
+static inline void h_ctl_roll_rate_loop()
+{
   float err = stateGetBodyRates_f()->p - h_ctl_roll_rate_setpoint;
 
   /* I term calculation */
@@ -377,7 +378,7 @@ static inline void h_ctl_roll_rate_loop() {
   roll_rate_sum_values[roll_rate_sum_idx] = err;
   roll_rate_sum_err += err;
   roll_rate_sum_idx++;
-  if (roll_rate_sum_idx >= H_CTL_ROLL_RATE_SUM_NB_SAMPLES) roll_rate_sum_idx = 0;
+  if (roll_rate_sum_idx >= H_CTL_ROLL_RATE_SUM_NB_SAMPLES) { roll_rate_sum_idx = 0; }
 
   /* D term calculations */
   static float last_err = 0;
@@ -385,8 +386,10 @@ static inline void h_ctl_roll_rate_loop() {
   last_err = err;
 
   float throttle_dep_pgain =
-    Blend(h_ctl_hi_throttle_roll_rate_pgain, h_ctl_lo_throttle_roll_rate_pgain, v_ctl_throttle_setpoint/((float)MAX_PPRZ));
-  float cmd = throttle_dep_pgain * ( err + h_ctl_roll_rate_igain * roll_rate_sum_err / H_CTL_ROLL_RATE_SUM_NB_SAMPLES + h_ctl_roll_rate_dgain * d_err);
+    Blend(h_ctl_hi_throttle_roll_rate_pgain, h_ctl_lo_throttle_roll_rate_pgain,
+          v_ctl_throttle_setpoint / ((float)MAX_PPRZ));
+  float cmd = throttle_dep_pgain * (err + h_ctl_roll_rate_igain * roll_rate_sum_err / H_CTL_ROLL_RATE_SUM_NB_SAMPLES +
+                                    h_ctl_roll_rate_dgain * d_err);
 
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
 }
@@ -404,16 +407,17 @@ static inline void h_ctl_roll_rate_loop() {
 float v_ctl_auto_throttle_loiter_trim = V_CTL_AUTO_THROTTLE_LOITER_TRIM;
 float v_ctl_auto_throttle_dash_trim = V_CTL_AUTO_THROTTLE_DASH_TRIM;
 
-inline static float loiter(void) {
+inline static float loiter(void)
+{
   static float last_elevator_trim;
   float elevator_trim;
 
   float throttle_dif = v_ctl_auto_throttle_cruise_throttle - v_ctl_auto_throttle_nominal_cruise_throttle;
   if (throttle_dif > 0) {
-    float max_dif = Max(V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE - v_ctl_auto_throttle_nominal_cruise_throttle, 0.1);
+    float max_dif = Max(v_ctl_auto_throttle_max_cruise_throttle - v_ctl_auto_throttle_nominal_cruise_throttle, 0.1);
     elevator_trim = throttle_dif / max_dif * v_ctl_auto_throttle_dash_trim;
   } else {
-    float max_dif = Max(v_ctl_auto_throttle_nominal_cruise_throttle - V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, 0.1);
+    float max_dif = Max(v_ctl_auto_throttle_nominal_cruise_throttle - v_ctl_auto_throttle_min_cruise_throttle, 0.1);
     elevator_trim = - throttle_dif / max_dif * v_ctl_auto_throttle_loiter_trim;
   }
 
@@ -426,19 +430,21 @@ inline static float loiter(void) {
 #endif
 
 
-inline static void h_ctl_pitch_loop( void ) {
+inline static void h_ctl_pitch_loop(void)
+{
   static float last_err;
-  struct FloatEulers* att = stateGetNedToBodyEulers_f();
+  struct FloatEulers *att = stateGetNedToBodyEulers_f();
   /* sanity check */
-  if (h_ctl_elevator_of_roll <0.)
+  if (h_ctl_elevator_of_roll < 0.) {
     h_ctl_elevator_of_roll = 0.;
+  }
 
   h_ctl_pitch_loop_setpoint =  h_ctl_pitch_setpoint + h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(att->phi);
 
   float err = 0;
 
 #ifdef USE_AOA
-  switch (h_ctl_pitch_mode){
+  switch (h_ctl_pitch_mode) {
     case H_CTL_PITCH_MODE_THETA:
       err = att->theta - h_ctl_pitch_loop_setpoint;
       break;

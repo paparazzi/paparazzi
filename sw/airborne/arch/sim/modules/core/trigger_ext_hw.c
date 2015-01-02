@@ -24,7 +24,8 @@
 #include "core/trigger_ext_hw.h"
 #include "std.h"
 
-void trigger_ext_init ( void ) {
+void trigger_ext_init(void)
+{
   trigger_ext_valid = FALSE;
 }
 

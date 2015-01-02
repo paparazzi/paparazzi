@@ -6,6 +6,7 @@
   <process name="Main">
 
     <mode name="default" key_press="d">
+      <message name="AUTOPILOT_VERSION"      period="11.1"/>
       <message name="DL_VALUE"               period="1.1"/>
       <message name="ROTORCRAFT_STATUS"      period="1.2"/>
       <message name="ROTORCRAFT_FP"          period="0.25"/>
@@ -18,6 +19,8 @@
       <message name="INS"                    period=".25"/>
       <message name="I2C_ERRORS"             period="4.1"/>
       <message name="UART_ERRORS"            period="3.1"/>
+      <message name="DATALINK_REPORT"        period="5.1"/>
+      <message name="STATE_FILTER_STATUS"    period="3.2"/>
     </mode>
 
     <mode name="ppm">
@@ -88,9 +91,10 @@
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="0.9"/>
-      <message name="VFF"               period=".05"/>
+      <message name="VFF_EXTENDED"      period=".04"/>
       <message name="VERT_LOOP"         period=".05"/>
-      <message name="INS"               period=".05"/>
+      <message name="INS_Z"             period=".05"/>
+      <message name="INS"               period=".11"/>
       <message name="INS_REF"           period="5.1"/>
     </mode>
 
@@ -113,13 +117,6 @@
     <mode name="aligner">
       <message name="ALIVE"             period="0.9"/>
       <message name="FILTER_ALIGNER"    period="0.02"/>
-    </mode>
-
-    <mode name="hs_att_roll">
-      <message name="ROTORCRAFT_STATUS"           period="1.2"/>
-      <message name="ALIVE"                       period="0.9"/>
-      <message name="DL_VALUE"                    period="0.5"/>
-<!--      <message name="STAB_ATTITUDE_HS_ROLL" period="0.02"/> -->
     </mode>
 
     <mode name="tune_hover">

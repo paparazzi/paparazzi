@@ -82,7 +82,8 @@ extern struct ImuNavstik imu_navstik;
 extern void imu_navstik_event(void);
 
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+{
   imu_navstik_event();
   if (imu_navstik.gyro_valid) {
     imu_navstik.gyro_valid = FALSE;

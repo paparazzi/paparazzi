@@ -112,18 +112,18 @@ struct FloatRates {
 /* macros also usable if _v is not a FloatVect2, but a different struct with x,y members */
 #define FLOAT_VECT2_NORM(_v) sqrtf(VECT2_NORM2(_v))
 
-static inline float float_vect2_norm2(struct FloatVect2* v)
+static inline float float_vect2_norm2(struct FloatVect2 *v)
 {
   return v->x * v->x + v->y * v->y;
 }
 
-static inline float float_vect2_norm(struct FloatVect2* v)
+static inline float float_vect2_norm(struct FloatVect2 *v)
 {
   return sqrtf(float_vect2_norm2(v));
 }
 
 /** normalize 2D vector in place */
-static inline void float_vect2_normalize(struct FloatVect2* v)
+static inline void float_vect2_normalize(struct FloatVect2 *v)
 {
   const float n = float_vect2_norm(v);
   if (n > 0) {
@@ -144,18 +144,18 @@ static inline void float_vect2_normalize(struct FloatVect2* v)
 /* macros also usable if _v is not a FloatVect3, but a different struct with x,y,z members */
 #define FLOAT_VECT3_NORM(_v) sqrtf(VECT3_NORM2(_v))
 
-static inline float float_vect3_norm2(struct FloatVect3* v)
+static inline float float_vect3_norm2(struct FloatVect3 *v)
 {
   return v->x * v->x + v->y * v->y + v->z * v->z;
 }
 
-static inline float float_vect3_norm(struct FloatVect3* v)
+static inline float float_vect3_norm(struct FloatVect3 *v)
 {
   return sqrtf(float_vect3_norm2(v));
 }
 
 /** normalize 3D vector in place */
-static inline void float_vect3_normalize(struct FloatVect3* v)
+static inline void float_vect3_normalize(struct FloatVect3 *v)
 {
   const float n = float_vect3_norm(v);
   if (n > 0) {
@@ -182,14 +182,14 @@ static inline void float_vect3_normalize(struct FloatVect3* v)
   }
 
 
-extern void float_vect3_integrate_fi(struct FloatVect3* vec, struct FloatVect3* dv,
+extern void float_vect3_integrate_fi(struct FloatVect3 *vec, struct FloatVect3 *dv,
                                      float dt);
 
-extern void float_rates_integrate_fi(struct FloatRates* r, struct FloatRates* dr,
+extern void float_rates_integrate_fi(struct FloatRates *r, struct FloatRates *dr,
                                      float dt);
 
-extern void float_rates_of_euler_dot(struct FloatRates* r, struct FloatEulers* e,
-                                     struct FloatEulers* edot);
+extern void float_rates_of_euler_dot(struct FloatRates *r, struct FloatEulers *e,
+                                     struct FloatEulers *edot);
 
 /* defines for backwards compatibility */
 #define FLOAT_VECT3_INTEGRATE_FI(_vo, _dv, _dt) float_vect3_integrate_fi(&(_vo), &(_dv), _dt)
@@ -233,7 +233,7 @@ extern void float_rates_of_euler_dot(struct FloatRates* r, struct FloatEulers* e
 
 
 /** initialises a rotation matrix to identity */
-static inline void float_rmat_identity(struct FloatRMat* rm)
+static inline void float_rmat_identity(struct FloatRMat *rm)
 {
   FLOAT_MAT33_DIAG(*rm, 1., 1., 1.);
 }
@@ -241,49 +241,49 @@ static inline void float_rmat_identity(struct FloatRMat* rm)
 /** Inverse/transpose of a rotation matrix.
  * m_b2a = inv(_m_a2b) = transp(_m_a2b)
  */
-extern void float_rmat_inv(struct FloatRMat* m_b2a, struct FloatRMat* m_a2b);
+extern void float_rmat_inv(struct FloatRMat *m_b2a, struct FloatRMat *m_a2b);
 
 /** Composition (multiplication) of two rotation matrices.
  * m_a2c = m_a2b comp m_b2c , aka  m_a2c = m_b2c * m_a2b
  */
-extern void float_rmat_comp(struct FloatRMat* m_a2c, struct FloatRMat* m_a2b,
-                            struct FloatRMat* m_b2c);
+extern void float_rmat_comp(struct FloatRMat *m_a2c, struct FloatRMat *m_a2b,
+                            struct FloatRMat *m_b2c);
 
 /** Composition (multiplication) of two rotation matrices.
  * m_a2b = m_a2c comp_inv m_b2c , aka  m_a2b = inv(_m_b2c) * m_a2c
  */
-extern void float_rmat_comp_inv(struct FloatRMat* m_a2b, struct FloatRMat* m_a2c,
-                                struct FloatRMat* m_b2c);
+extern void float_rmat_comp_inv(struct FloatRMat *m_a2b, struct FloatRMat *m_a2c,
+                                struct FloatRMat *m_b2c);
 
 /// Norm of a rotation matrix.
-extern float float_rmat_norm(struct FloatRMat* rm);
+extern float float_rmat_norm(struct FloatRMat *rm);
 
 /** rotate 3D vector by rotation matrix.
  * vb = m_a2b * va
  */
-extern void float_rmat_vmult(struct FloatVect3* vb, struct FloatRMat* m_a2b,
-                             struct FloatVect3* va);
+extern void float_rmat_vmult(struct FloatVect3 *vb, struct FloatRMat *m_a2b,
+                             struct FloatVect3 *va);
 
 /** rotate 3D vector by transposed rotation matrix.
  * vb = m_b2a^T * va
  */
-extern void float_rmat_transp_vmult(struct FloatVect3* vb, struct FloatRMat* m_b2a,
-                                    struct FloatVect3* va);
+extern void float_rmat_transp_vmult(struct FloatVect3 *vb, struct FloatRMat *m_b2a,
+                                    struct FloatVect3 *va);
 
 /** rotate anglular rates by rotation matrix.
  * rb = m_a2b * ra
  */
-extern void float_rmat_ratemult(struct FloatRates* rb, struct FloatRMat* m_a2b,
-                                struct FloatRates* ra);
+extern void float_rmat_ratemult(struct FloatRates *rb, struct FloatRMat *m_a2b,
+                                struct FloatRates *ra);
 
 /** rotate anglular rates by transposed rotation matrix.
  * rb = m_b2a^T * ra
  */
-extern void float_rmat_transp_ratemult(struct FloatRates* rb, struct FloatRMat* m_b2a,
-                                       struct FloatRates* ra);
+extern void float_rmat_transp_ratemult(struct FloatRates *rb, struct FloatRMat *m_b2a,
+                                       struct FloatRates *ra);
 
 /** initialises a rotation matrix from unit vector axis and angle */
-extern void float_rmat_of_axis_angle(struct FloatRMat* rm, struct FloatVect3* uv, float angle);
+extern void float_rmat_of_axis_angle(struct FloatRMat *rm, struct FloatVect3 *uv, float angle);
 
 /** Rotation matrix from 321 Euler angles (float).
  * The Euler angles are interpreted as zy'x'' (intrinsic) rotation.
@@ -297,14 +297,14 @@ extern void float_rmat_of_axis_angle(struct FloatRMat* rm, struct FloatVect3* uv
  * @param[out] rm pointer to rotation matrix
  * @param[in]  e pointer to Euler angles
  */
-extern void float_rmat_of_eulers_321(struct FloatRMat* rm, struct FloatEulers* e);
-extern void float_rmat_of_eulers_312(struct FloatRMat* rm, struct FloatEulers* e);
+extern void float_rmat_of_eulers_321(struct FloatRMat *rm, struct FloatEulers *e);
+extern void float_rmat_of_eulers_312(struct FloatRMat *rm, struct FloatEulers *e);
 #define float_rmat_of_eulers float_rmat_of_eulers_321
 
-extern void float_rmat_of_quat(struct FloatRMat* rm, struct FloatQuat* q);
+extern void float_rmat_of_quat(struct FloatRMat *rm, struct FloatQuat *q);
 /** in place first order integration of a rotation matrix */
-extern void float_rmat_integrate_fi(struct FloatRMat* rm, struct FloatRates* omega, float dt);
-extern float float_rmat_reorthogonalize(struct FloatRMat* rm);
+extern void float_rmat_integrate_fi(struct FloatRMat *rm, struct FloatRates *omega, float dt);
+extern float float_rmat_reorthogonalize(struct FloatRMat *rm);
 
 /* defines for backwards compatibility */
 #define FLOAT_RMAT_INV(_m_b2a, _m_a2b) float_rmat_inv(&(_m_b2a), &(_m_a2b))
@@ -331,7 +331,7 @@ extern float float_rmat_reorthogonalize(struct FloatRMat* rm);
 //
 
 /** initialises a quaternion to identity */
-static inline void float_quat_identity(struct FloatQuat* q)
+static inline void float_quat_identity(struct FloatQuat *q)
 {
   q->qi = 1.0;
   q->qx = 0;
@@ -341,12 +341,12 @@ static inline void float_quat_identity(struct FloatQuat* q)
 
 #define FLOAT_QUAT_NORM2(_q) (SQUARE((_q).qi) + SQUARE((_q).qx) + SQUARE((_q).qy) + SQUARE((_q).qz))
 
-static inline float float_quat_norm(struct FloatQuat* q)
+static inline float float_quat_norm(struct FloatQuat *q)
 {
   return sqrtf(SQUARE(q->qi) + SQUARE(q->qx) +  SQUARE(q->qy) + SQUARE(q->qz));
 }
 
-static inline void float_quat_normalize(struct FloatQuat* q)
+static inline void float_quat_normalize(struct FloatQuat *q)
 {
   float qnorm = float_quat_norm(q);
   if (qnorm > FLT_MIN) {
@@ -357,12 +357,12 @@ static inline void float_quat_normalize(struct FloatQuat* q)
   }
 }
 
-static inline void float_quat_invert(struct FloatQuat* qo, struct FloatQuat* qi)
+static inline void float_quat_invert(struct FloatQuat *qo, struct FloatQuat *qi)
 {
   QUAT_INVERT(*qo, *qi);
 }
 
-static inline void float_quat_wrap_shortest(struct FloatQuat* q)
+static inline void float_quat_wrap_shortest(struct FloatQuat *q)
 {
   if (q->qi < 0.) {
     QUAT_EXPLEMENTARY(*q, *q);
@@ -375,75 +375,75 @@ static inline void float_quat_wrap_shortest(struct FloatQuat* q)
 /** Composition (multiplication) of two quaternions.
  * a2c = a2b comp b2c , aka  a2c = a2b * b2c
  */
-extern void float_quat_comp(struct FloatQuat* a2c, struct FloatQuat* a2b, struct FloatQuat* b2c);
+extern void float_quat_comp(struct FloatQuat *a2c, struct FloatQuat *a2b, struct FloatQuat *b2c);
 
 /** Composition (multiplication) of two quaternions.
  * a2b = a2c comp_inv b2c , aka  a2b = a2c * inv(b2c)
  */
-extern void float_quat_comp_inv(struct FloatQuat* a2b, struct FloatQuat* a2c, struct FloatQuat* b2c);
+extern void float_quat_comp_inv(struct FloatQuat *a2b, struct FloatQuat *a2c, struct FloatQuat *b2c);
 
 /** Composition (multiplication) of two quaternions.
  * b2c = a2b inv_comp a2c , aka  b2c = inv(_a2b) * a2c
  */
-extern void float_quat_inv_comp(struct FloatQuat* b2c, struct FloatQuat* a2b, struct FloatQuat* a2c);
+extern void float_quat_inv_comp(struct FloatQuat *b2c, struct FloatQuat *a2b, struct FloatQuat *a2c);
 
 /** Composition (multiplication) of two quaternions with normalization.
  * a2c = a2b comp b2c , aka  a2c = a2b * b2c
  */
-extern void float_quat_comp_norm_shortest(struct FloatQuat* a2c, struct FloatQuat* a2b, struct FloatQuat* b2c);
+extern void float_quat_comp_norm_shortest(struct FloatQuat *a2c, struct FloatQuat *a2b, struct FloatQuat *b2c);
 
 /** Composition (multiplication) of two quaternions with normalization.
  * a2b = a2c comp_inv b2c , aka  a2b = a2c * inv(b2c)
  */
-extern void float_quat_comp_inv_norm_shortest(struct FloatQuat* a2b, struct FloatQuat* a2c, struct FloatQuat* b2c);
+extern void float_quat_comp_inv_norm_shortest(struct FloatQuat *a2b, struct FloatQuat *a2c, struct FloatQuat *b2c);
 
 /** Composition (multiplication) of two quaternions with normalization.
  * b2c = a2b inv_comp a2c , aka  b2c = inv(_a2b) * a2c
  */
-extern void float_quat_inv_comp_norm_shortest(struct FloatQuat* b2c, struct FloatQuat* a2b, struct FloatQuat* a2c);
+extern void float_quat_inv_comp_norm_shortest(struct FloatQuat *b2c, struct FloatQuat *a2b, struct FloatQuat *a2c);
 
 /** Quaternion derivative from rotational velocity.
  * qd = -0.5*omega(r) * q
  * or equally:
  * qd = 0.5 * q * omega(r)
  */
-extern void float_quat_derivative(struct FloatQuat* qd, struct FloatRates* r, struct FloatQuat* q);
+extern void float_quat_derivative(struct FloatQuat *qd, struct FloatRates *r, struct FloatQuat *q);
 
 /** Quaternion derivative from rotational velocity with Lagrange multiplier.
  * qd = -0.5*omega(r) * q
  * or equally:
  * qd = 0.5 * q * omega(r)
  */
-extern void float_quat_derivative_lagrange(struct FloatQuat* qd, struct FloatRates* r, struct FloatQuat* q);
+extern void float_quat_derivative_lagrange(struct FloatQuat *qd, struct FloatRates *r, struct FloatQuat *q);
 
 /** Delta rotation quaternion with constant angular rates.
  */
-extern void float_quat_differential(struct FloatQuat* q_out, struct FloatRates* w, float dt);
+extern void float_quat_differential(struct FloatQuat *q_out, struct FloatRates *w, float dt);
 
 /** in place first order quaternion integration with constant rotational velocity */
-extern void float_quat_integrate_fi(struct FloatQuat* q, struct FloatRates* omega, float dt);
+extern void float_quat_integrate_fi(struct FloatQuat *q, struct FloatRates *omega, float dt);
 
 /** in place quaternion integration with constant rotational velocity */
-extern void float_quat_integrate(struct FloatQuat* q, struct FloatRates* omega, float dt);
+extern void float_quat_integrate(struct FloatQuat *q, struct FloatRates *omega, float dt);
 
 /** rotate 3D vector by quaternion.
  * vb = q_a2b * va * q_a2b^-1
  */
-extern void float_quat_vmult(struct FloatVect3* v_out, struct FloatQuat* q, struct FloatVect3* v_in);
+extern void float_quat_vmult(struct FloatVect3 *v_out, struct FloatQuat *q, struct FloatVect3 *v_in);
 
 /// Quaternion from Euler angles.
-extern void float_quat_of_eulers(struct FloatQuat* q, struct FloatEulers* e);
+extern void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e);
 
 /// Quaternion from unit vector and angle.
-extern void float_quat_of_axis_angle(struct FloatQuat* q, const struct FloatVect3* uv, float angle);
+extern void float_quat_of_axis_angle(struct FloatQuat *q, const struct FloatVect3 *uv, float angle);
 
 /** Quaternion from orientation vector.
  * Length/norm of the vector is the angle.
  */
-extern void float_quat_of_orientation_vect(struct FloatQuat* q, const struct FloatVect3* ov);
+extern void float_quat_of_orientation_vect(struct FloatQuat *q, const struct FloatVect3 *ov);
 
 /// Quaternion from rotation matrix.
-extern void float_quat_of_rmat(struct FloatQuat* q, struct FloatRMat* rm);
+extern void float_quat_of_rmat(struct FloatQuat *q, struct FloatRMat *rm);
 
 
 /* defines for backwards compatibility */
@@ -479,12 +479,12 @@ extern void float_quat_of_rmat(struct FloatQuat* q, struct FloatRMat* rm);
 
 #define FLOAT_EULERS_ZERO(_e) EULERS_ASSIGN(_e, 0., 0., 0.);
 
-static inline float float_eulers_norm(struct FloatEulers* e)
+static inline float float_eulers_norm(struct FloatEulers *e)
 {
   return sqrtf(SQUARE(e->phi) + SQUARE(e->theta) + SQUARE(e->psi));
 }
-extern void float_eulers_of_rmat(struct FloatEulers* e, struct FloatRMat* rm);
-extern void float_eulers_of_quat(struct FloatEulers* e, struct FloatQuat* q);
+extern void float_eulers_of_rmat(struct FloatEulers *e, struct FloatRMat *rm);
+extern void float_eulers_of_quat(struct FloatEulers *e, struct FloatQuat *q);
 
 /* defines for backwards compatibility */
 #define FLOAT_EULERS_OF_RMAT(_e, _rm) float_eulers_of_rmat(&(_e), &(_rm))
@@ -498,63 +498,63 @@ extern void float_eulers_of_quat(struct FloatEulers* e, struct FloatQuat* q);
 //
 
 /** a = 0 */
-static inline void float_vect_zero(float* a, const int n)
+static inline void float_vect_zero(float *a, const int n)
 {
   int i;
   for (i = 0; i < n; i++) { a[i] = 0.; }
 }
 
 /** a = b */
-static inline void float_vect_copy(float* a, const float* b, const int n)
+static inline void float_vect_copy(float *a, const float *b, const int n)
 {
   int i;
   for (i = 0; i < n; i++) { a[i] = b[i]; }
 }
 
 /** o = a + b */
-static inline void float_vect_sum(float* o, const float* a, const float* b, const int n)
+static inline void float_vect_sum(float *o, const float *a, const float *b, const int n)
 {
   int i;
   for (i = 0; i < n; i++) { o[i] = a[i] + b[i]; }
 }
 
 /** o = a - b */
-static inline void float_vect_diff(float* o, const float* a, const float* b, const int n)
+static inline void float_vect_diff(float *o, const float *a, const float *b, const int n)
 {
   int i;
   for (i = 0; i < n; i++) { o[i] = a[i] - b[i]; }
 }
 
 /** o = a * b (element wise) */
-static inline void float_vect_mul(float* o, const float* a, const float* b, const int n)
+static inline void float_vect_mul(float *o, const float *a, const float *b, const int n)
 {
   int i;
   for (i = 0; i < n; i++) { o[i] = a[i] * b[i]; }
 }
 
 /** a += b */
-static inline void float_vect_add(float* a, const float* b, const int n)
+static inline void float_vect_add(float *a, const float *b, const int n)
 {
   int i;
   for (i = 0; i < n; i++) { a[i] += b[i]; }
 }
 
 /** a -= b */
-static inline void float_vect_sub(float* a, const float* b, const int n)
+static inline void float_vect_sub(float *a, const float *b, const int n)
 {
   int i;
   for (i = 0; i < n; i++) { a[i] -= b[i]; }
 }
 
 /** o = a * s */
-static inline void float_vect_smul(float* o, const float* a, const float s, const int n)
+static inline void float_vect_smul(float *o, const float *a, const float s, const int n)
 {
   int i;
   for (i = 0; i < n; i++) { o[i] = a[i] * s; }
 }
 
 /** o = a / s */
-static inline void float_vect_sdiv(float* o, const float* a, const float s, const int n)
+static inline void float_vect_sdiv(float *o, const float *a, const float s, const int n)
 {
   int i;
   if (fabs(s) > 1e-5) {
@@ -563,7 +563,7 @@ static inline void float_vect_sdiv(float* o, const float* a, const float s, cons
 }
 
 /** ||a|| */
-static inline float float_vect_norm(const float* a, const int n)
+static inline float float_vect_norm(const float *a, const int n)
 {
   int i;
   float sum = 0;
@@ -586,7 +586,7 @@ static inline float float_vect_norm(const float* a, const int n)
   }
 
 /** a = 0 */
-static inline void float_mat_zero(float** a, int m, int n)
+static inline void float_mat_zero(float **a, int m, int n)
 {
   int i, j;
   for (i = 0; i < m; i++) {
@@ -595,7 +595,7 @@ static inline void float_mat_zero(float** a, int m, int n)
 }
 
 /** a = b */
-static inline void float_mat_copy(float** a, float** b, int m, int n)
+static inline void float_mat_copy(float **a, float **b, int m, int n)
 {
   int i, j;
   for (i = 0; i < m; i++) {
@@ -604,7 +604,7 @@ static inline void float_mat_copy(float** a, float** b, int m, int n)
 }
 
 /** o = a + b */
-static inline void float_mat_sum(float** o, float** a, float** b, int m, int n)
+static inline void float_mat_sum(float **o, float **a, float **b, int m, int n)
 {
   int i, j;
   for (i = 0; i < m; i++) {
@@ -613,7 +613,7 @@ static inline void float_mat_sum(float** o, float** a, float** b, int m, int n)
 }
 
 /** o = a - b */
-static inline void float_mat_diff(float** o, float** a, float** b, int m, int n)
+static inline void float_mat_diff(float **o, float **a, float **b, int m, int n)
 {
   int i, j;
   for (i = 0; i < m; i++) {
@@ -622,7 +622,7 @@ static inline void float_mat_diff(float** o, float** a, float** b, int m, int n)
 }
 
 /** transpose square matrix */
-static inline void float_mat_transpose(float** a, int n)
+static inline void float_mat_transpose(float **a, int n)
 {
   int i, j;
   for (i = 0; i < n; i++) {
@@ -640,7 +640,7 @@ static inline void float_mat_transpose(float** a, int n)
  * b: [n x l]
  * o: [m x l]
  */
-static inline void float_mat_mul(float** o, float** a, float** b, int m, int n, int l)
+static inline void float_mat_mul(float **o, float **a, float **b, int m, int n, int l)
 {
   int i, j, k;
   for (i = 0; i < m; i++) {
@@ -659,7 +659,7 @@ static inline void float_mat_mul(float** o, float** a, float** b, int m, int n, 
  * o: [I(d,d)     0     ]
  *    [  0    a(d,m:d,n)]
  */
-static inline void float_mat_minor(float** o, float** a, int m, int n, int d)
+static inline void float_mat_minor(float **o, float **a, int m, int n, int d)
 {
   int i, j;
   float_mat_zero(o, m, n);
@@ -672,7 +672,7 @@ static inline void float_mat_minor(float** o, float** a, int m, int n, int d)
 }
 
 /** o = I - v v^T */
-static inline void float_mat_vmul(float** o, float* v, int n)
+static inline void float_mat_vmul(float **o, float *v, int n)
 {
   int i, j;
   for (i = 0; i < n; i++) {
@@ -686,7 +686,7 @@ static inline void float_mat_vmul(float** o, float* v, int n)
 }
 
 /** o = c-th column of matrix a[m x n] */
-static inline void float_mat_col(float* o, float** a, int m, int c)
+static inline void float_mat_col(float *o, float **a, int m, int c)
 {
   int i;
   for (i = 0; i < m; i++) {

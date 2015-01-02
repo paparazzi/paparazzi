@@ -26,8 +26,8 @@
 
 extern int32_t mag_x, mag_y, mag_z;
 
-extern void hmc5843_module_init( void );
-extern void hmc5843_module_periodic( void );
-extern void hmc5843_module_event( void );
+extern void hmc5843_module_init(void);
+extern void hmc5843_module_periodic(void);
+extern void hmc5843_module_event(void);
 
 #endif // HMC5843__H

@@ -24,6 +24,6 @@
 #ifndef FMS_PERIODIC_H
 #define FMS_PERIODIC_H
 
-extern int fms_periodic_init( void(*periodic_handler)(int) );
+extern int fms_periodic_init(void(*periodic_handler)(int));
 
 #endif /* FMS_PERIODIC_H */

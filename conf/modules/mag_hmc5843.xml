@@ -4,7 +4,6 @@
   <doc>
     <description>hmc5843 magnetometer</description>
   </doc>
-  <!-- <depend conflict="ins" -->
   <header>
     <file name="mag_hmc5843.h"/>
   </header>

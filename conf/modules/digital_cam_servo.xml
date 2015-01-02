@@ -9,18 +9,21 @@
     <define name="DC_ZOOM_OUT_SERVO" value="servo" description="optional, Servo to activate zoom out"/>
     <define name="DC_POWER_SERVO" value="servo" description="optional, Servo to control power"/>
     <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
-    <define name="DC_AUTOSHOOT_METER_GRID" value="50" description="grid in meters"/>
+    <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="grid in meters"/>
   </doc>
+
+  <conflicts>digital_cam,digital_cam_i2c,digital_cam_uart</conflicts>
 
   <header>
     <file name="servo_cam_ctrl.h"/>
+    <file name="dc.h"/>
   </header>
 
   <init fun="servo_cam_ctrl_init()"/>
 
   <periodic fun="servo_cam_ctrl_periodic()" freq="4" autorun="TRUE"/>
 
-  <makefile >
+  <makefile target="ap|sim|nps|jsbsim">
     <define name="DIGITAL_CAM"/>
     <file name="servo_cam_ctrl.c"/>
     <file name="dc.c"/>

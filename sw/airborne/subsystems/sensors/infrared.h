@@ -147,13 +147,13 @@ struct Infrared {
 extern struct Infrared infrared;
 
 #define UpdateIRValue(_v) {                  \
-  infrared.value.ir1 = (IR_IR1_SIGN)*_v.ir1; \
-  infrared.value.ir2 = (IR_IR2_SIGN)*_v.ir2; \
-  infrared.value.ir3 = (IR_TOP_SIGN)*_v.ir3; \
-  infrared.roll = infrared.lateral_correction * IR_RollOfIrs(infrared.value.ir1, infrared.value.ir2); \
-  infrared.pitch = infrared.longitudinal_correction * IR_PitchOfIrs(infrared.value.ir1, infrared.value.ir2); \
-  infrared.top = infrared.vertical_correction * IR_TopOfIr(infrared.value.ir3); \
-}
+    infrared.value.ir1 = (IR_IR1_SIGN)*_v.ir1; \
+    infrared.value.ir2 = (IR_IR2_SIGN)*_v.ir2; \
+    infrared.value.ir3 = (IR_TOP_SIGN)*_v.ir3; \
+    infrared.roll = infrared.lateral_correction * IR_RollOfIrs(infrared.value.ir1, infrared.value.ir2); \
+    infrared.pitch = infrared.longitudinal_correction * IR_PitchOfIrs(infrared.value.ir1, infrared.value.ir2); \
+    infrared.top = infrared.vertical_correction * IR_TopOfIr(infrared.value.ir3); \
+  }
 
 // initialization of the infrared structure
 void infrared_struct_init(void);

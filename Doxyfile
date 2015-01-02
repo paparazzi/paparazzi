@@ -1528,7 +1528,6 @@ PREDEFINED             = USE_GPS \
                          USE_MAGNETOMETER \
                          USE_BAROMETER \
                          USE_LED \
-                         USE_SYS_TIME \
                          SPI_MASTER \
                          SPI_SLAVE \
                          USE_SPI0 \

@@ -31,7 +31,8 @@ static void baro_scp_read(void);
 static void EXTINT_ISR(void) __attribute__((naked));
 static void SPI1_ISR(void) __attribute__((naked));
 
-void baro_scp_periodic(void) {
+void baro_scp_periodic(void)
+{
   if (baro_scp_status == STA_UNINIT && sys_time.nb_sec > 1) {
     baro_scp_start_high_res_measurement();
     baro_scp_status = STA_INITIALISING;
@@ -68,7 +69,8 @@ void baro_scp_periodic(void) {
 #define SPI1_VIC_SLOT 7
 #endif
 
-void baro_scp_init( void ) {
+void baro_scp_init(void)
+{
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= 2 << 2 | 2 << 4 | 2 << 6;
 
@@ -76,7 +78,7 @@ void baro_scp_init( void ) {
   SSPCR0 = SSP_DDS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
   /* set prescaler for SSP clock */
-  SSPCPSR = PCLK/SSP_CLOCK;
+  SSPCPSR = PCLK / SSP_CLOCK;
 
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   // SPI1 selected as IRQ
@@ -92,31 +94,31 @@ void baro_scp_init( void ) {
   /* connected pin to EXINT */
   SPI1_DRDY_PINSEL |= SPI1_DRDY_PINSEL_VAL << SPI1_DRDY_PINSEL_BIT;
   SetBit(EXTMODE, SPI1_DRDY_EINT); /* EINT is edge trigered */
-  SetBit(EXTPOLAR,SPI1_DRDY_EINT); /* EINT is trigered on rising edge */
-  SetBit(EXTINT,SPI1_DRDY_EINT);   /* clear pending EINT */
+  SetBit(EXTPOLAR, SPI1_DRDY_EINT); /* EINT is trigered on rising edge */
+  SetBit(EXTINT, SPI1_DRDY_EINT);  /* clear pending EINT */
 
   /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( SPI1_DRDY_VIC_IT );  /* select EINT as IRQ source */
-  VICIntEnable = VIC_BIT( SPI1_DRDY_VIC_IT );    /* enable it */
+  VICIntSelect &= ~VIC_BIT(SPI1_DRDY_VIC_IT);    /* select EINT as IRQ source */
+  VICIntEnable = VIC_BIT(SPI1_DRDY_VIC_IT);      /* enable it */
   VICVectCntl11 = VIC_ENABLE | SPI1_DRDY_VIC_IT;
   VICVectAddr11 = (uint32_t)EXTINT_ISR;         // address of the ISR
 
   baro_scp_status = STA_UNINIT;
 }
 
-void SPI1_ISR(void) {
+void SPI1_ISR(void)
+{
   ISR_ENTRY();
 
   if (baro_scp_status == STA_INITIALISING) {
     uint8_t foo1 = SSPDR;
     uint8_t foo2 = SSPDR;
     baro_scp_status = STA_IDLE;
-    foo1=foo2;
-  }
-  else if (baro_scp_status == STA_IDLE) {
+    foo1 = foo2;
+  } else if (baro_scp_status == STA_IDLE) {
 
     uint8_t foo0 = SSPDR;
-    baro_scp_temperature = SSPDR<<8;
+    baro_scp_temperature = SSPDR << 8;
     baro_scp_temperature += SSPDR;
     if (baro_scp_temperature & 0x2000) {
       baro_scp_temperature |= 0xC000;
@@ -124,15 +126,15 @@ void SPI1_ISR(void) {
     baro_scp_temperature *= 5;
 
     uint8_t foo1 = SSPDR;
-    uint32_t datard8 = SSPDR<<16;
+    uint32_t datard8 = SSPDR << 16;
     uint8_t foo2 = SSPDR;
-    baro_scp_pressure = SSPDR<<8;
+    baro_scp_pressure = SSPDR << 8;
     baro_scp_pressure += SSPDR;
     baro_scp_pressure += datard8;
     baro_scp_pressure *= 25;
     baro_scp_available = TRUE;
-    foo1=foo2;
-    foo0=foo2;
+    foo1 = foo2;
+    foo0 = foo2;
   }
 
   ScpUnselect();
@@ -143,18 +145,20 @@ void SPI1_ISR(void) {
   ISR_EXIT();
 }
 
-void EXTINT_ISR(void) {
+void EXTINT_ISR(void)
+{
   ISR_ENTRY();
   baro_scp_read();
 
-  SetBit(EXTINT,SPI1_DRDY_EINT); /* clear EINT2 */
+  SetBit(EXTINT, SPI1_DRDY_EINT); /* clear EINT2 */
   VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
   ISR_EXIT();
 }
 
 /* write 0x0A to 0x03 */
-static void baro_scp_start_high_res_measurement(void) {
-  uint8_t cmd  = 0x03<<2|0x02;
+static void baro_scp_start_high_res_measurement(void)
+{
+  uint8_t cmd  = 0x03 << 2 | 0x02;
   uint8_t data = 0x0A;
   ScpSelect();
   SSPDR = cmd;
@@ -164,7 +168,8 @@ static void baro_scp_start_high_res_measurement(void) {
 }
 
 /* read 0x21 (TEMP), 0x1F (MSB) and 0x20 (LSB) */
-static void baro_scp_read(void) {
+static void baro_scp_read(void)
+{
   uint8_t cmd0 = 0x21 << 2;
   uint8_t cmd1 = 0x1F << 2;
   uint8_t cmd2 = 0x20 << 2;
@@ -180,7 +185,8 @@ static void baro_scp_read(void) {
   SpiEnable();
 }
 
-void baro_scp_event( void ) {
+void baro_scp_event(void)
+{
   if (baro_scp_available == TRUE) {
     float pressure = (float)baro_scp_pressure;
     AbiSendMsgBARO_ABS(BARO_SCP_SENDER_ID, &pressure);

@@ -10,9 +10,9 @@ BOARD_VERSION=2
 BOARD_TYPE=raw
 BOARD_CFG=\"boards/$(BOARD)$(BOARD_VERSION)_$(BOARD_TYPE).h\"
 
-ARCH=omap
+ARCH=linux
 $(TARGET).ARCHDIR = $(ARCH)
-# include conf/Makefile.ardrone2 (with specific upload rules) instead of only Makefile.omap:
+# include conf/Makefile.ardrone2 (with specific upload rules) instead of only Makefile.linux:
 ap.MAKEFILE = ardrone2
 
 # -----------------------------------------------------------------------
@@ -42,6 +42,9 @@ $(TARGET).CFLAGS   += -DUART1_DEV=\"/dev/ttyUSB0\"
 
 # for distinction between RAW and SDK version
 $(TARGET).CFLAGS +=-DARDRONE2_RAW
+
+# handle linux signals by hand
+$(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL
 
 # -----------------------------------------------------------------------
 

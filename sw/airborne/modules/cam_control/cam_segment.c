@@ -29,14 +29,17 @@
 #include "modules/cam_control/cam.h"
 #include "firmwares/fixedwing/nav.h"
 
-void cam_segment_init( void ) {
+void cam_segment_init(void)
+{
 }
 
-void cam_segment_stop ( void ) {
+void cam_segment_stop(void)
+{
   cam_mode = CAM_MODE_OFF;
 }
 
-void cam_segment_periodic( void ) {
+void cam_segment_periodic(void)
+{
   cam_mode = CAM_MODE_XY_TARGET;
   cam_target_x = desired_x;
   cam_target_y = desired_y;

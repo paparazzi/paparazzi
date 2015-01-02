@@ -56,12 +56,14 @@ uint8_t ac_id;
 #endif
 
 /** needs to be called at SYS_TIME_FREQUENCY */
-value sim_sys_time_task(value unit) {
+value sim_sys_time_task(value unit)
+{
   sys_tick_handler();
   return unit;
 }
 
-value sim_periodic_task(value unit) {
+value sim_periodic_task(value unit)
+{
   sensors_task();
   attitude_loop();
   reporting_task();
@@ -73,25 +75,29 @@ value sim_periodic_task(value unit) {
   return unit;
 }
 
-value sim_monitor_task(value unit) {
+value sim_monitor_task(value unit)
+{
   monitor_task();
   return unit;
 }
 
-value sim_nav_task(value unit) {
+value sim_nav_task(value unit)
+{
   navigation_task();
   return unit;
 }
 
 
-float ftimeofday(void) {
+float ftimeofday(void)
+{
   struct timeval t;
   struct timezone z;
   gettimeofday(&t, &z);
-  return (t.tv_sec + t.tv_usec/1e6);
+  return (t.tv_sec + t.tv_usec / 1e6);
 }
 
-value sim_init(value unit) {
+value sim_init(value unit)
+{
   init_fbw();
   init_ap();
 #ifdef SIM_UART
@@ -106,53 +112,60 @@ value sim_init(value unit) {
   if (stat(link_pipe_name, &st)) {
     if (mkfifo(link_pipe_name, 0644) == -1) {
       perror("make pipe");
-      exit (10);
+      exit(10);
     }
   }
-  if ( !(pipe_stream = fopen(link_pipe_name, "w")) ) {
+  if (!(pipe_stream = fopen(link_pipe_name, "w"))) {
     perror("open pipe");
-    exit (10);
+    exit(10);
   }
 #endif
 
   return unit;
 }
 
-value update_bat(value bat) {
+value update_bat(value bat)
+{
   electrical.vsupply = Int_val(bat);
   return Val_unit;
 }
 
-value update_dl_status(value dl_enabled) {
+value update_dl_status(value dl_enabled)
+{
   ivy_tp.ivy_dl_enabled = Int_val(dl_enabled);
   return Val_unit;
 }
 
 
-value get_commands(value val_commands) {
+value get_commands(value val_commands)
+{
   int i;
 
-  for(i=0; i < COMMANDS_NB; i++)
+  for (i = 0; i < COMMANDS_NB; i++) {
     Store_field(val_commands, i, Val_int(commands[i]));
+  }
 
   return Val_int(commands[COMMAND_THROTTLE]);
 }
 
-value set_datalink_message(value s) {
+value set_datalink_message(value s)
+{
   int n = string_length(s);
   char *ss = String_val(s);
   assert(n <= MSG_SIZE);
 
   int i;
-  for(i = 0; i < n; i++)
+  for (i = 0; i < n; i++) {
     dl_buffer[i] = ss[i];
+  }
 
   dl_parse_msg();
   return Val_unit;
 }
 
 /** Required by electrical */
-void adc_buf_channel(void* a __attribute__ ((unused)),
-         void* b __attribute__ ((unused)),
-         void* c __attribute__ ((unused))) {
+void adc_buf_channel(void *a __attribute__((unused)),
+                     void *b __attribute__((unused)),
+                     void *c __attribute__((unused)))
+{
 }

@@ -59,7 +59,7 @@
 #if USE_AUDIO_TELEMETRY
 #include "subsystems/datalink/audio_telemetry.h"
 #endif
-#ifdef USE_USB_SERIAL
+#if USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif
 #ifdef USE_UDP

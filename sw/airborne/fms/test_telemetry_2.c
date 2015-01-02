@@ -20,9 +20,10 @@
 static void timeout_cb(int fd, short event, void *arg);
 
 static struct event timeout;
-static struct FmsNetwork* network;
+static struct FmsNetwork *network;
 
-void timeout_cb(int fd, short event, void *arg) {
+void timeout_cb(int fd, short event, void *arg)
+{
 
   printf("in timeout_cb\n");
 
@@ -37,7 +38,8 @@ void timeout_cb(int fd, short event, void *arg) {
 }
 
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
   printf("hello world\n");
 

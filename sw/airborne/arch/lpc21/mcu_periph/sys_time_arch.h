@@ -39,7 +39,7 @@
 
 #include "std.h"
 
-void TIMER0_ISR ( void ) __attribute__((naked));
+void TIMER0_ISR(void) __attribute__((naked));
 
 /* T0 prescaler, set T0_CLK to 15MHz, T0_CLK = PCLK / T0PCLK_DIV */
 #if (PCLK == 15000000)
@@ -64,7 +64,8 @@ void TIMER0_ISR ( void ) __attribute__((naked));
  * WARNING: overflows after ??
  * @return microseconds since startup as uint32_t
  */
-static inline uint32_t get_sys_time_usec(void) {
+static inline uint32_t get_sys_time_usec(void)
+{
   return usec_of_cpu_ticks(T0TC);
 }
 
@@ -72,7 +73,8 @@ static inline uint32_t get_sys_time_usec(void) {
  * Get the time in milliseconds since startup.
  * @return milliseconds since startup as uint32_t
  */
-static inline uint32_t get_sys_time_msec(void) {
+static inline uint32_t get_sys_time_msec(void)
+{
   return msec_of_cpu_ticks(T0TC);
 }
 
@@ -82,10 +84,11 @@ static inline uint32_t get_sys_time_msec(void) {
 #define SysTickTimerStop(_t) { _t = (T0TC - _t); }
 
 /** Busy wait, in microseconds */
-static inline void sys_time_usleep(uint32_t us) {
+static inline void sys_time_usleep(uint32_t us)
+{
   uint32_t start = T0TC;
   uint32_t ticks = cpu_ticks_of_usec(us);
-  while ((uint32_t)(T0TC-start) < ticks);
+  while ((uint32_t)(T0TC - start) < ticks);
 }
 
 #endif /* SYS_TIME_ARCH_H */

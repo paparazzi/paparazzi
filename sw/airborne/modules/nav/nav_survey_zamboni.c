@@ -54,7 +54,8 @@ struct ZamboniSurvey zs;
  * @param sweep_lines   number of sweep_lines to fly
  * @param altitude      the altitude that must be reached before the flyover starts
  */
-bool_t nav_survey_zamboni_setup(uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing, int sweep_lines, float altitude)
+bool_t nav_survey_zamboni_setup(uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing,
+                                int sweep_lines, float altitude)
 {
   zs.current_laps = 0;
   zs.pre_leave_angle = 2;
@@ -87,8 +88,8 @@ bool_t nav_survey_zamboni_setup(uint8_t center_wp, uint8_t dir_wp, float sweep_l
   zs.sweep_width.y = +flight_vec.x * sweep_spacing;
 
   // calculate number of laps to fly and turning radius for each end
-  zs.total_laps = (sweep_lines+1)/2;
-  zs.turnradius1 = (zs.total_laps-1) * sweep_spacing * 0.5;
+  zs.total_laps = (sweep_lines + 1) / 2;
+  zs.turnradius1 = (zs.total_laps - 1) * sweep_spacing * 0.5;
   zs.turnradius2 = zs.total_laps * sweep_spacing * 0.5;
 
   struct FloatVect2 flight_line;
@@ -100,7 +101,7 @@ bool_t nav_survey_zamboni_setup(uint8_t center_wp, uint8_t dir_wp, float sweep_l
   VECT2_SUM(zs.seg_end, zs.wp_center, flight_line);
 
   struct FloatVect2 sweep_span;
-  VECT2_SMUL(sweep_span, zs.sweep_width, zs.total_laps-1);
+  VECT2_SMUL(sweep_span, zs.sweep_width, zs.total_laps - 1);
   //start and end of flight-line in return-direction
   VECT2_DIFF(zs.ret_start, zs.seg_end, sweep_span);
   VECT2_DIFF(zs.ret_end, zs.seg_start, sweep_span);
@@ -146,7 +147,7 @@ bool_t nav_survey_zamboni_run(void)
   //Turn from stage to return
   else if (zs.stage == Z_TURN1) {
     nav_circle_XY(zs.turn_center1.x, zs.turn_center1.y, zs.turnradius1);
-    if (NavCourseCloseTo(zs.return_angle + zs.pre_leave_angle)){
+    if (NavCourseCloseTo(zs.return_angle + zs.pre_leave_angle)) {
       // && nav_approaching_xy(zs.seg_end.x, zs.seg_end.y, zs.seg_start.x, zs.seg_start.y, CARROT
       //calculate SEG-points for the next flyover
       VECT2_ADD(zs.seg_start, zs.sweep_width);
@@ -193,8 +194,8 @@ bool_t nav_survey_zamboni_run(void)
       // calculate the rest of the points for the next fly-over
       VECT2_ADD(zs.ret_start, zs.sweep_width);
       VECT2_ADD(zs.ret_end, zs.sweep_width);
-      zs.turn_center1.x = (zs.seg_end.x + zs.ret_start.x)/2;
-      zs.turn_center1.y = (zs.seg_end.y + zs.ret_start.y)/2;
+      zs.turn_center1.x = (zs.seg_end.x + zs.ret_start.x) / 2;
+      zs.turn_center1.y = (zs.seg_end.y + zs.ret_start.y) / 2;
       zs.turn_center2.x = (zs.seg_start.x + zs.ret_end.x + zs.sweep_width.x) / 2;
       zs.turn_center2.y = (zs.seg_start.y + zs.ret_end.y + zs.sweep_width.y) / 2;
 
@@ -211,8 +212,7 @@ bool_t nav_survey_zamboni_run(void)
     LINE_STOP_FUNCTION;
 #endif
     return FALSE;
-  }
-  else {
+  } else {
     return TRUE;
   }
 }

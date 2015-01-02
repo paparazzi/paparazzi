@@ -166,38 +166,33 @@ float ac_char_cruise_throttle = 0.0f;
 float ac_char_cruise_pitch = 0.0f;
 int ac_char_cruise_count = 0;
 
-static void ac_char_average(float* last_v, float new_v, int count)
+static void ac_char_average(float *last_v, float new_v, int count)
 {
   *last_v = (((*last_v) * (((float)count) - 1.0f)) + new_v) / ((float) count);
 }
 
 static void ac_char_update(float throttle, float pitch, float climb, float accelerate)
 {
-  if ((accelerate > -0.02) && (accelerate < 0.02))
-  {
-    if (throttle >= 1.0f)
-    {
+  if ((accelerate > -0.02) && (accelerate < 0.02)) {
+    if (throttle >= 1.0f) {
       ac_char_climb_count++;
-      ac_char_average(&ac_char_climb_pitch, pitch * 57.6f,            ac_char_climb_count );
-      ac_char_average(&ac_char_climb_max ,  stateGetSpeedEnu_f()->z,  ac_char_climb_count );
-    }
-    else if (throttle <= 0.0f)
-    {
+      ac_char_average(&ac_char_climb_pitch, pitch * 57.6f,            ac_char_climb_count);
+      ac_char_average(&ac_char_climb_max ,  stateGetSpeedEnu_f()->z,  ac_char_climb_count);
+    } else if (throttle <= 0.0f) {
       ac_char_descend_count++;
-      ac_char_average(&ac_char_descend_pitch, pitch * 57.6f ,           ac_char_descend_count );
-      ac_char_average(&ac_char_descend_max ,  stateGetSpeedEnu_f()->z , ac_char_descend_count );
-    }
-    else if ((climb > -0.125) && (climb < 0.125))
-    {
+      ac_char_average(&ac_char_descend_pitch, pitch * 57.6f ,           ac_char_descend_count);
+      ac_char_average(&ac_char_descend_max ,  stateGetSpeedEnu_f()->z , ac_char_descend_count);
+    } else if ((climb > -0.125) && (climb < 0.125)) {
       ac_char_cruise_count++;
-      ac_char_average(&ac_char_cruise_throttle , throttle , ac_char_cruise_count );
-      ac_char_average(&ac_char_cruise_pitch    , pitch * 57.6f  ,   ac_char_cruise_count );
+      ac_char_average(&ac_char_cruise_throttle , throttle , ac_char_cruise_count);
+      ac_char_average(&ac_char_cruise_pitch    , pitch * 57.6f  ,   ac_char_cruise_count);
     }
   }
 }
 
 
-void v_ctl_init( void ) {
+void v_ctl_init(void)
+{
   /* mode */
   v_ctl_mode = V_CTL_MODE_MANUAL;
 
@@ -271,10 +266,10 @@ const float dt_navigation = 1.0 / ((float)NAVIGATION_FREQUENCY);
  * \brief Computes v_ctl_climb_setpoint and sets v_ctl_auto_throttle_submode
  */
 
-void v_ctl_altitude_loop( void )
+void v_ctl_altitude_loop(void)
 {
   // Airspeed Command Saturation
-  if (v_ctl_auto_airspeed_setpoint <= STALL_AIRSPEED * 1.23) v_ctl_auto_airspeed_setpoint = STALL_AIRSPEED * 1.23;
+  if (v_ctl_auto_airspeed_setpoint <= STALL_AIRSPEED * 1.23) { v_ctl_auto_airspeed_setpoint = STALL_AIRSPEED * 1.23; }
 
   // Altitude Controller
   v_ctl_altitude_error = v_ctl_altitude_setpoint - stateGetPositionUtm_f()->alt;
@@ -309,7 +304,7 @@ static float low_pass_vdot(float v)
  * Auto-throttle inner loop
  * \brief
  */
-void v_ctl_climb_loop( void )
+void v_ctl_climb_loop(void)
 {
   // Airspeed setpoint rate limiter:
   // AIRSPEED_SETPOINT_SLEW in m/s/s - a change from 15m/s to 18m/s takes 3s with the default value of 1
@@ -318,20 +313,22 @@ void v_ctl_climb_loop( void )
   v_ctl_auto_airspeed_setpoint_slew += airspeed_incr;
 
 #ifdef V_CTL_AUTO_GROUNDSPEED_SETPOINT
- // Ground speed control loop (input: groundspeed error, output: airspeed controlled)
+// Ground speed control loop (input: groundspeed error, output: airspeed controlled)
   float err_groundspeed = (v_ctl_auto_groundspeed_setpoint - (*stateGetHorizontalSpeedNorm_f()));
   v_ctl_auto_groundspeed_sum_err += err_groundspeed;
   BoundAbs(v_ctl_auto_groundspeed_sum_err, V_CTL_AUTO_GROUNDSPEED_MAX_SUM_ERR);
-  v_ctl_auto_airspeed_controlled = (err_groundspeed + v_ctl_auto_groundspeed_sum_err * v_ctl_auto_groundspeed_igain) * v_ctl_auto_groundspeed_pgain;
+  v_ctl_auto_airspeed_controlled = (err_groundspeed + v_ctl_auto_groundspeed_sum_err * v_ctl_auto_groundspeed_igain) *
+                                   v_ctl_auto_groundspeed_pgain;
 
   // Do not allow controlled airspeed below the setpoint
   if (v_ctl_auto_airspeed_controlled < v_ctl_auto_airspeed_setpoint_slew) {
     v_ctl_auto_airspeed_controlled = v_ctl_auto_airspeed_setpoint_slew;
     // reset integrator of ground speed loop
-    v_ctl_auto_groundspeed_sum_err = v_ctl_auto_airspeed_controlled/(v_ctl_auto_groundspeed_pgain*v_ctl_auto_groundspeed_igain);
+    v_ctl_auto_groundspeed_sum_err = v_ctl_auto_airspeed_controlled / (v_ctl_auto_groundspeed_pgain *
+                                     v_ctl_auto_groundspeed_igain);
   }
 #else
-    v_ctl_auto_airspeed_controlled = v_ctl_auto_airspeed_setpoint_slew;
+  v_ctl_auto_airspeed_controlled = v_ctl_auto_airspeed_setpoint_slew;
 #endif
 
   // Airspeed outerloop: positive means we need to accelerate
@@ -352,7 +349,7 @@ void v_ctl_climb_loop( void )
 #endif
 
   // Acceleration Error: positive means UAV needs to accelerate: needs extra energy
-  float vdot_err = low_pass_vdot( v_ctl_desired_acceleration - vdot );
+  float vdot_err = low_pass_vdot(v_ctl_desired_acceleration - vdot);
 
   // Flight Path Outerloop: positive means needs to climb more: needs extra energy
   float gamma_err  = (v_ctl_climb_setpoint - stateGetSpeedEnu_f()->z) / v_ctl_auto_airspeed_controlled;
@@ -364,48 +361,45 @@ void v_ctl_climb_loop( void )
   float en_dis_err = gamma_err - vdot_err;
 
   // Auto Cruise Throttle
-  if (launch && (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB))
-  {
+  if (launch && (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB)) {
     v_ctl_auto_throttle_nominal_cruise_throttle +=
-        v_ctl_auto_throttle_of_airspeed_igain * speed_error * dt_attidude
+      v_ctl_auto_throttle_of_airspeed_igain * speed_error * dt_attidude
       + en_tot_err * v_ctl_energy_total_igain * dt_attidude;
-    Bound(v_ctl_auto_throttle_nominal_cruise_throttle,0.0f,1.0f);
+    Bound(v_ctl_auto_throttle_nominal_cruise_throttle, 0.0f, 1.0f);
   }
 
   // Total Controller
   float controlled_throttle = v_ctl_auto_throttle_nominal_cruise_throttle
-    + v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
-    + v_ctl_auto_throttle_of_airspeed_pgain * speed_error
-    + v_ctl_energy_total_pgain * en_tot_err;
+                              + v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
+                              + v_ctl_auto_throttle_of_airspeed_pgain * speed_error
+                              + v_ctl_energy_total_pgain * en_tot_err;
 
-  if ((controlled_throttle >= 1.0f) || (controlled_throttle <= 0.0f) || (kill_throttle==1))
-  {
+  if ((controlled_throttle >= 1.0f) || (controlled_throttle <= 0.0f) || (kill_throttle == 1)) {
     // If your energy supply is not sufficient, then neglect the climb requirement
     en_dis_err = -vdot_err;
 
     // adjust climb_setpoint to maintain airspeed in case of an engine failure or an unrestriced climb
-     if(v_ctl_climb_setpoint>0) v_ctl_climb_setpoint += - 30. * dt_attidude;
-     if(v_ctl_climb_setpoint<0) v_ctl_climb_setpoint +=   30. * dt_attidude;
+    if (v_ctl_climb_setpoint > 0) { v_ctl_climb_setpoint += - 30. * dt_attidude; }
+    if (v_ctl_climb_setpoint < 0) { v_ctl_climb_setpoint +=   30. * dt_attidude; }
   }
 
 
   /* pitch pre-command */
-  if (launch && (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB))
-  {
+  if (launch && (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB)) {
     v_ctl_auto_throttle_nominal_cruise_pitch +=  v_ctl_auto_pitch_of_airspeed_igain * (-speed_error) * dt_attidude
-                          + v_ctl_energy_diff_igain * en_dis_err * dt_attidude;
-    Bound(v_ctl_auto_throttle_nominal_cruise_pitch,H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT);
+        + v_ctl_energy_diff_igain * en_dis_err * dt_attidude;
+    Bound(v_ctl_auto_throttle_nominal_cruise_pitch, H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT);
   }
   float v_ctl_pitch_of_vz =
-        + (v_ctl_climb_setpoint /*+ d_err * v_ctl_auto_throttle_pitch_of_vz_dgain*/) * v_ctl_auto_throttle_pitch_of_vz_pgain
-        - v_ctl_auto_pitch_of_airspeed_pgain * speed_error
-                + v_ctl_auto_pitch_of_airspeed_dgain * vdot
-                + v_ctl_energy_diff_pgain * en_dis_err
-                + v_ctl_auto_throttle_nominal_cruise_pitch;
-if(kill_throttle) v_ctl_pitch_of_vz = v_ctl_pitch_of_vz - 1/V_CTL_GLIDE_RATIO;
+    + (v_ctl_climb_setpoint /*+ d_err * v_ctl_auto_throttle_pitch_of_vz_dgain*/) * v_ctl_auto_throttle_pitch_of_vz_pgain
+    - v_ctl_auto_pitch_of_airspeed_pgain * speed_error
+    + v_ctl_auto_pitch_of_airspeed_dgain * vdot
+    + v_ctl_energy_diff_pgain * en_dis_err
+    + v_ctl_auto_throttle_nominal_cruise_pitch;
+  if (kill_throttle) { v_ctl_pitch_of_vz = v_ctl_pitch_of_vz - 1 / V_CTL_GLIDE_RATIO; }
 
   v_ctl_pitch_setpoint = v_ctl_pitch_of_vz + nav_pitch;
-  Bound(v_ctl_pitch_setpoint,H_CTL_PITCH_MIN_SETPOINT,H_CTL_PITCH_MAX_SETPOINT)
+  Bound(v_ctl_pitch_setpoint, H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT)
 
   ac_char_update(controlled_throttle, v_ctl_pitch_of_vz, v_ctl_climb_setpoint, v_ctl_desired_acceleration);
 
@@ -423,8 +417,9 @@ if(kill_throttle) v_ctl_pitch_of_vz = v_ctl_pitch_of_vz - 1/V_CTL_GLIDE_RATIO;
 /** \brief Computes slewed throttle from throttle setpoint
     called at 20Hz
  */
-void v_ctl_throttle_slew( void ) {
+void v_ctl_throttle_slew(void)
+{
   pprz_t diff_throttle = v_ctl_throttle_setpoint - v_ctl_throttle_slewed;
-  BoundAbs(diff_throttle, TRIM_PPRZ(V_CTL_THROTTLE_SLEW*MAX_PPRZ));
+  BoundAbs(diff_throttle, TRIM_PPRZ(V_CTL_THROTTLE_SLEW * MAX_PPRZ));
   v_ctl_throttle_slewed += diff_throttle;
 }

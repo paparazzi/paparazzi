@@ -110,9 +110,10 @@ int32_t gv_adapt_Xmeas;
 #define GV_ADAPT_P0_F 0.1
 static const int32_t gv_adapt_P0 = BFP_OF_REAL(GV_ADAPT_P0_F, GV_ADAPT_P_FRAC);
 static const int32_t gv_adapt_X0 = BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC) /
-  (GUIDANCE_V_ADAPT_INITIAL_HOVER_THROTTLE * MAX_PPRZ);
+                                   (GUIDANCE_V_ADAPT_INITIAL_HOVER_THROTTLE *MAX_PPRZ);
 
-void gv_adapt_init(void) {
+void gv_adapt_init(void)
+{
   gv_adapt_X = gv_adapt_X0;
   gv_adapt_P = gv_adapt_P0;
 }
@@ -124,7 +125,8 @@ void gv_adapt_init(void) {
  * @param thrust_applied  controller input [0 : MAX_PPRZ]
  * @param zd_ref          vertical speed reference in m/s with #INT32_SPEED_FRAC
  */
-void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref) {
+void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref)
+{
 
   static const int32_t gv_adapt_min_cmd = GUIDANCE_V_ADAPT_MIN_CMD * MAX_PPRZ;
   static const int32_t gv_adapt_max_cmd = GUIDANCE_V_ADAPT_MAX_CMD * MAX_PPRZ;
@@ -142,11 +144,12 @@ void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref) {
   gv_adapt_P =  gv_adapt_P + GV_ADAPT_SYS_NOISE;
 
   /* Compute our measurement. If zdd_meas is in the range +/-5g, meas is less than 30 bits */
-  const int32_t g_m_zdd = ((int32_t)BFP_OF_REAL(9.81, INT32_ACCEL_FRAC) - zdd_meas)<<(GV_ADAPT_X_FRAC - INT32_ACCEL_FRAC);
-  if ( g_m_zdd > 0) {
-    gv_adapt_Xmeas = (g_m_zdd + (thrust_applied>>1)) / thrust_applied;
+  const int32_t g_m_zdd = ((int32_t)BFP_OF_REAL(9.81,
+                           INT32_ACCEL_FRAC) - zdd_meas) << (GV_ADAPT_X_FRAC - INT32_ACCEL_FRAC);
+  if (g_m_zdd > 0) {
+    gv_adapt_Xmeas = (g_m_zdd + (thrust_applied >> 1)) / thrust_applied;
   } else {
-    gv_adapt_Xmeas = (g_m_zdd - (thrust_applied>>1)) / thrust_applied;
+    gv_adapt_Xmeas = (g_m_zdd - (thrust_applied >> 1)) / thrust_applied;
   }
 
   /* Compute a residual */
@@ -154,21 +157,21 @@ void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref) {
 
   /* Covariance Error  E = P + R  */
   int32_t ref = zd_ref >> (INT32_SPEED_FRAC - GV_ADAPT_P_FRAC);
-  if (zd_ref < 0) ref = -ref;
+  if (zd_ref < 0) { ref = -ref; }
   int32_t E = gv_adapt_P + GV_ADAPT_MEAS_NOISE_HOVER + ref * GV_ADAPT_MEAS_NOISE_OF_ZD;
 
   /* Kalman gain  K = P / (P + R) = P / E  */
-  int32_t K = (gv_adapt_P<<K_FRAC) / E;
+  int32_t K = (gv_adapt_P << K_FRAC) / E;
 
   /* Update Covariance  Pnew = P - K * P   */
-  gv_adapt_P = gv_adapt_P - ((K * gv_adapt_P)>>K_FRAC);
+  gv_adapt_P = gv_adapt_P - ((K * gv_adapt_P) >> K_FRAC);
   /* Don't let covariance climb over initial value */
   if (gv_adapt_P > gv_adapt_P0) {
     gv_adapt_P = gv_adapt_P0;
   }
 
   /* Update State */
-  gv_adapt_X = gv_adapt_X + (((int64_t)(K * residual))>>K_FRAC);
+  gv_adapt_X = gv_adapt_X + (((int64_t)(K * residual)) >> K_FRAC);
 
   /* Output bounds.
    * Don't let it climb over a value that would
@@ -176,8 +179,8 @@ void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref) {
    * or more than #GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE % throttle.
    */
   static const int32_t max_out = BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC) /
-    (GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE * MAX_PPRZ);
+                                 (GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE * MAX_PPRZ);
   static const int32_t min_out = BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC) /
-    (GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE * MAX_PPRZ);
+                                 (GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE * MAX_PPRZ);
   Bound(gv_adapt_X, min_out, max_out);
 }

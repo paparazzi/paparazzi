@@ -30,6 +30,7 @@ from optparse import OptionParser
 import usb
 import dfu
 import time
+import numpy
 
 APP_ADDRESS = 0x08002000
 SECTOR_SIZE = 2048
@@ -50,8 +51,8 @@ def stm32_erase(dev, addr):
             break
 
 
-def stm32_write(dev, data):
-    dev.download(2, data)
+def stm32_write(dev, data, crc):
+    dev.download(2+crc, data)
     while True:
         status = dev.get_status()
         if status.bState == dfu.STATE_DFU_DOWNLOAD_BUSY:
@@ -151,6 +152,8 @@ if __name__ == "__main__":
     valid_manufacturers.append("Black Sphere Technologies")
     valid_manufacturers.append("TUDelft MavLab. 2012->13")
     valid_manufacturers.append("1 BIT SQUARED")
+    valid_manufacturers.append("S.Krukowski")
+    valid_manufacturers.append("Paparazzi UAV")
 
     # list of tuples with possible stm32 (autopilot) devices
     stm32devs = []
@@ -232,14 +235,33 @@ if __name__ == "__main__":
     addr = options.addr
     print("Programming memory from 0x%08X...\r" % addr)
 
+    use_crc = False
+    if "CRC" in product:
+        use_crc = True
+
     init_progress_bar()
 
     while binf:
         update_progress_bar((addr - options.addr), bin_length)
         stm32_erase(target, addr)
-        stm32_write(target, binf[:SECTOR_SIZE])
 
-        binf = binf[SECTOR_SIZE:]
+        if use_crc:
+            write_block = binf[:(SECTOR_SIZE)]
+            write_block_array = numpy.frombuffer(write_block, "uint8")
+            crc1 = 0
+            crc2 = 0
+            for b in write_block_array:
+                crc1 += b
+                crc2 += crc1 & 0xFF
+            crc1 &= 0xFF
+            crc2 &= 0xFF
+            write_block += struct.pack('1B', crc1)
+            write_block += struct.pack('1B', crc2)
+            stm32_write(target, write_block, 1)
+        else:
+            stm32_write(target, binf[:SECTOR_SIZE], 0)
+
+        binf = binf[(SECTOR_SIZE):]
         addr += SECTOR_SIZE
 
     # Need to check all the way to 100% complete

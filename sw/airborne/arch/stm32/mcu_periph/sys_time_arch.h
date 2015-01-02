@@ -48,13 +48,14 @@
  * WARNING: overflows after 70min!
  * @return microseconds since startup as uint32_t
  */
-static inline uint32_t get_sys_time_usec(void) {
+static inline uint32_t get_sys_time_usec(void)
+{
 #ifdef RTOS_IS_CHIBIOS
   return (chibios_chTimeNow() * (1000000 / CH_FREQUENCY));
 #else
   return sys_time.nb_sec * 1000000 +
-    usec_of_cpu_ticks(sys_time.nb_sec_rem) +
-    usec_of_cpu_ticks(systick_get_reload() - systick_get_value());
+         usec_of_cpu_ticks(sys_time.nb_sec_rem) +
+         usec_of_cpu_ticks(systick_get_reload() - systick_get_value());
 #endif
 }
 
@@ -62,13 +63,14 @@ static inline uint32_t get_sys_time_usec(void) {
  * Get the time in milliseconds since startup.
  * @return milliseconds since startup as uint32_t
  */
-static inline uint32_t get_sys_time_msec(void) {
+static inline uint32_t get_sys_time_msec(void)
+{
 #ifdef RTOS_IS_CHIBIOS
   return (chibios_chTimeNow() * (1000 / CH_FREQUENCY));
 #else
   return sys_time.nb_sec * 1000 +
-    msec_of_cpu_ticks(sys_time.nb_sec_rem) +
-    msec_of_cpu_ticks(systick_get_reload() - systick_get_value());
+         msec_of_cpu_ticks(sys_time.nb_sec_rem) +
+         msec_of_cpu_ticks(systick_get_reload() - systick_get_value());
 #endif
 }
 
@@ -78,9 +80,10 @@ static inline uint32_t get_sys_time_msec(void) {
  *  max value is limited by the max number of cycle
  *  i.e 2^32 * usec_of_cpu_ticks(systick_get_reload())
  */
-static inline void sys_time_usleep(uint32_t us) {
+static inline void sys_time_usleep(uint32_t us)
+{
 #ifdef RTOS_IS_CHIBIOS
-  chibios_chThdSleepMicroseconds (us);
+  chibios_chThdSleepMicroseconds(us);
 #else
   // start time
   uint32_t start = systick_get_value();
@@ -94,8 +97,7 @@ static inline void sys_time_usleep(uint32_t us) {
   uint32_t end;
   if (rem < start) {
     end = start - rem;
-  }
-  else {
+  } else {
     // one more count flag is required
     n++;
     end = systick_get_reload() - rem + start;

@@ -94,10 +94,11 @@ void photogrammetry_calculator_update_camera2flightplan(void)
   // Flightplan Variables
   photogrammetry_height = ((float) photogrammetry_resolution) / pixel_projection_width / 1000.0f;
 
-  if (photogrammetry_height > photogrammetry_height_max)
+  if (photogrammetry_height > photogrammetry_height_max) {
     photogrammetry_height = photogrammetry_height_max;
-  else if (photogrammetry_height < photogrammetry_height_min)
+  } else if (photogrammetry_height < photogrammetry_height_min) {
     photogrammetry_height = photogrammetry_height_min;
+  }
 
   photogrammetry_sidestep = viewing_ratio_width * photogrammetry_height * (1.0f - photogrammetry_sidelap_f);
   photogrammetry_triggerstep = viewing_ratio_height * photogrammetry_height * (1.0f - photogrammetry_overlap_f);

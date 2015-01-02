@@ -51,22 +51,25 @@ float dpicco_temp;
 struct i2c_transaction dpicco_trans;
 
 
-void dpicco_init( void ) {
+void dpicco_init(void)
+{
   dpicco_trans.status = I2CTransDone;
 }
 
-void dpicco_periodic( void ) {
+void dpicco_periodic(void)
+{
   /* init read */
   i2c_receive(&DPICCO_I2C_DEV, &dpicco_trans, DPICCO_SLAVE_ADDR, 4);
 }
 
-void dpicco_event( void ) {
+void dpicco_event(void)
+{
 
   if (dpicco_trans.status == I2CTransSuccess) {
 //LED_TOGGLE(2);
 
-    dpicco_val[0] = (dpicco_trans.buf[0]<<8) | dpicco_trans.buf[1];
-    dpicco_val[1] = (dpicco_trans.buf[2]<<8) | dpicco_trans.buf[3];
+    dpicco_val[0] = (dpicco_trans.buf[0] << 8) | dpicco_trans.buf[1];
+    dpicco_val[1] = (dpicco_trans.buf[2] << 8) | dpicco_trans.buf[3];
 
     dpicco_humid = (dpicco_val[0] * DPICCO_HUMID_RANGE) / DPICCO_HUMID_MAX;
     dpicco_temp = ((dpicco_val[1] * DPICCO_TEMP_RANGE) / DPICCO_TEMP_MAX) + DPICCO_TEMP_OFFS;

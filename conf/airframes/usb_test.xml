@@ -21,8 +21,9 @@
 
   <firmware name="setup">
     <target name="tunnel"              board="tiny_2.11"/>
-    <target name="usb_tunnel_0"        board="tiny_2.11"/>
-    <target name="usb_tunnel_1"        board="tiny_2.11"/>
+    <target name="usb_tunnel"          board="tiny_2.11">
+      <configure name="TUNNEL_PORT" value="UART0"/>
+    </target>
     <target name="setup_actuators"     board="tiny_2.11"/>
   </firmware>
 

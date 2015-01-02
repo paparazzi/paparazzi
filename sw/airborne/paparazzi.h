@@ -10,10 +10,10 @@ typedef int16_t pprz_t; /* type of commands */
 
 #define TRIM_PPRZ(pprz) (pprz <  MIN_PPRZ ? MIN_PPRZ :  \
                          (pprz >  MAX_PPRZ ? MAX_PPRZ : \
-                                   pprz))
+                          pprz))
 #define TRIM_UPPRZ(pprz) (pprz <  0 ? 0 :  \
                           (pprz >  MAX_PPRZ ? MAX_PPRZ : \
-                                    pprz))
+                           pprz))
 
 #if defined FBW && defined AP
 #define SINGLE_MCU 1

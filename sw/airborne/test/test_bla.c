@@ -13,7 +13,8 @@
 #include "pprz_algebra_print.h"
 
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
   struct FloatEulers ea = { RadOfDeg(45.), RadOfDeg(30.), RadOfDeg(0.)};
   DISPLAY_FLOAT_EULERS("ea", ea);

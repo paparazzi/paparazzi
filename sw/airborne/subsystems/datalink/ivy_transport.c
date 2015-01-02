@@ -37,7 +37,9 @@
 
 struct ivy_transport ivy_tp;
 
-static void put_bytes(struct ivy_transport *trans, struct link_device *dev __attribute__((unused)), enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t len, const void *bytes)
+static void put_bytes(struct ivy_transport *trans, struct link_device *dev __attribute__((unused)),
+                      enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)),
+                      uint8_t len, const void *bytes)
 {
   const uint8_t *b = (const uint8_t *) bytes;
 
@@ -51,7 +53,7 @@ static void put_bytes(struct ivy_transport *trans, struct link_device *dev __att
     // print data with correct type
     switch (type) {
       case DL_TYPE_CHAR:
-        trans->ivy_p += sprintf(trans->ivy_p, "%c", (char)(*((char*)(b+i))));
+        trans->ivy_p += sprintf(trans->ivy_p, "%c", (char)(*((char *)(b + i))));
         i++;
         break;
       case DL_TYPE_UINT8:
@@ -59,48 +61,48 @@ static void put_bytes(struct ivy_transport *trans, struct link_device *dev __att
         i++;
         break;
       case DL_TYPE_UINT16:
-        trans->ivy_p += sprintf(trans->ivy_p, "%u", (uint16_t)(*((uint16_t*)(b+i))));
+        trans->ivy_p += sprintf(trans->ivy_p, "%u", (uint16_t)(*((uint16_t *)(b + i))));
         i += 2;
         break;
       case DL_TYPE_UINT32:
       case DL_TYPE_TIMESTAMP:
-        trans->ivy_p += sprintf(trans->ivy_p, "%u", (uint32_t)(*((uint32_t*)(b+i))));
+        trans->ivy_p += sprintf(trans->ivy_p, "%u", (uint32_t)(*((uint32_t *)(b + i))));
         i += 4;
         break;
       case DL_TYPE_UINT64:
 #if __WORDSIZE == 64
-        trans->ivy_p += sprintf(trans->ivy_p, "%lu", (uint64_t)(*((uint64_t*)(b+i))));
+        trans->ivy_p += sprintf(trans->ivy_p, "%lu", (uint64_t)(*((uint64_t *)(b + i))));
 #else
-        trans->ivy_p += sprintf(trans->ivy_p, "%llu", (uint64_t)(*((uint64_t*)(b+i))));
+        trans->ivy_p += sprintf(trans->ivy_p, "%llu", (uint64_t)(*((uint64_t *)(b + i))));
 #endif
         i += 8;
         break;
       case DL_TYPE_INT8:
-        trans->ivy_p += sprintf(trans->ivy_p, "%d", (int8_t)(*((int8_t*)(b+i))));
+        trans->ivy_p += sprintf(trans->ivy_p, "%d", (int8_t)(*((int8_t *)(b + i))));
         i++;
         break;
       case DL_TYPE_INT16:
-        trans->ivy_p += sprintf(trans->ivy_p, "%d", (int16_t)(*((int16_t*)(b+i))));
+        trans->ivy_p += sprintf(trans->ivy_p, "%d", (int16_t)(*((int16_t *)(b + i))));
         i += 2;
         break;
       case DL_TYPE_INT32:
-        trans->ivy_p += sprintf(trans->ivy_p, "%d", (int32_t)(*((int32_t*)(b+i))));
+        trans->ivy_p += sprintf(trans->ivy_p, "%d", (int32_t)(*((int32_t *)(b + i))));
         i += 4;
         break;
       case DL_TYPE_INT64:
 #if __WORDSIZE == 64
-        trans->ivy_p += sprintf(trans->ivy_p, "%ld", (uint64_t)(*((uint64_t*)(b+i))));
+        trans->ivy_p += sprintf(trans->ivy_p, "%ld", (uint64_t)(*((uint64_t *)(b + i))));
 #else
-        trans->ivy_p += sprintf(trans->ivy_p, "%lld", (uint64_t)(*((uint64_t*)(b+i))));
+        trans->ivy_p += sprintf(trans->ivy_p, "%lld", (uint64_t)(*((uint64_t *)(b + i))));
 #endif
         i += 8;
         break;
       case DL_TYPE_FLOAT:
-        trans->ivy_p += sprintf(trans->ivy_p, "%f", (float)(*((float*)(b+i))));
+        trans->ivy_p += sprintf(trans->ivy_p, "%f", (float)(*((float *)(b + i))));
         i += 4;
         break;
       case DL_TYPE_DOUBLE:
-        trans->ivy_p += sprintf(trans->ivy_p, "%f", (double)(*((double*)(b+i))));
+        trans->ivy_p += sprintf(trans->ivy_p, "%f", (double)(*((double *)(b + i))));
         i += 8;
         break;
       case DL_TYPE_ARRAY_LENGTH:
@@ -123,14 +125,15 @@ static void put_bytes(struct ivy_transport *trans, struct link_device *dev __att
   if (format == DL_FORMAT_ARRAY) {
     if (type == DL_TYPE_CHAR) {
       trans->ivy_p += sprintf(trans->ivy_p, "\" ");
-    }
-    else {
+    } else {
       trans->ivy_p += sprintf(trans->ivy_p, " ");
     }
   }
 }
 
-static void put_named_byte(struct ivy_transport *trans, struct link_device *dev __attribute__((unused)), enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)), uint8_t byte __attribute__((unused)), const char * name __attribute__((unused)))
+static void put_named_byte(struct ivy_transport *trans, struct link_device *dev __attribute__((unused)),
+                           enum TransportDataType type __attribute__((unused)), enum TransportDataFormat format __attribute__((unused)),
+                           uint8_t byte __attribute__((unused)), const char *name __attribute__((unused)))
 {
   trans->ivy_p += sprintf(trans->ivy_p, "%s ", name);
 }
@@ -140,7 +143,8 @@ static uint8_t size_of(struct ivy_transport *trans __attribute__((unused)), uint
   return len;
 }
 
-static void start_message(struct ivy_transport *trans, struct link_device *dev __attribute__((unused)), uint8_t payload_len __attribute__((unused)))
+static void start_message(struct ivy_transport *trans, struct link_device *dev __attribute__((unused)),
+                          uint8_t payload_len __attribute__((unused)))
 {
   trans->ivy_p = trans->ivy_buf;
 }
@@ -150,27 +154,31 @@ static void end_message(struct ivy_transport *trans, struct link_device *dev __a
   *(--trans->ivy_p) = '\0';
   if (trans->ivy_dl_enabled) {
     IvySendMsg("%s", trans->ivy_buf);
+    downlink.nb_msgs++;
   }
 }
 
-static void overrun(struct ivy_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)))
+static void overrun(struct ivy_transport *trans __attribute__((unused)),
+                    struct link_device *dev __attribute__((unused)))
 {
   downlink.nb_ovrn++;
 }
 
-static void count_bytes(struct ivy_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)), uint8_t bytes)
+static void count_bytes(struct ivy_transport *trans __attribute__((unused)),
+                        struct link_device *dev __attribute__((unused)), uint8_t bytes)
 {
   downlink.nb_bytes += bytes;
 }
 
-static int check_available_space(struct ivy_transport *trans __attribute__((unused)), struct link_device *dev __attribute__((unused)), uint8_t bytes __attribute__((unused)))
+static int check_available_space(struct ivy_transport *trans __attribute__((unused)),
+                                 struct link_device *dev __attribute__((unused)), uint8_t bytes __attribute__((unused)))
 {
   return TRUE;
 }
 
-static int check_free_space(struct ivy_transport* p __attribute__((unused)), uint8_t len __attribute__((unused))) { return TRUE; }
-static void transmit(struct ivy_transport* p __attribute__((unused)), uint8_t byte __attribute__((unused))) {}
-static void send_message(struct ivy_transport* p __attribute__((unused))) {}
+static int check_free_space(struct ivy_transport *p __attribute__((unused)), uint8_t len __attribute__((unused))) { return TRUE; }
+static void transmit(struct ivy_transport *p __attribute__((unused)), uint8_t byte __attribute__((unused))) {}
+static void send_message(struct ivy_transport *p __attribute__((unused))) {}
 
 void ivy_transport_init(void)
 {

@@ -40,10 +40,10 @@ extern void mcu_arch_init(void);
  */
 #define MyByteSwap16(in, out) {                 \
     asm volatile (                              \
-          "rev16        %0, %1\n\t"     \
-          : "=r" (out)                  \
-          : "r"(in)                     \
-          );                            \
+        "rev16        %0, %1\n\t"     \
+        : "=r" (out)                  \
+        : "r"(in)                     \
+                 );                            \
   }
 
 #define mcu_int_enable()  {}

@@ -173,8 +173,8 @@ let () =
 
   if Sys.file_exists Utils.backup_xml_file then begin
     let rec question_box = fun () ->
-      let message = "Configuration changes to conf/conf.xml were not saved during the last session.\nIf you made any manual changes to conf/conf.xml and choose [Discard changes] you will also lose these." in
-      match GToolbox.question_box ~title:"Backup" ~buttons:["Keep changes"; "Discard changes"; "View changes"] ~default:2 message with
+      let message = "Configuration changes to conf/conf.xml were not saved during the last session.\nYou can either keep the current version or restore the auto-saved backup from the last session to discard the changes.\nIf you made any manual changes to conf/conf.xml and choose [Restore auto-backup] you will lose these." in
+      match GToolbox.question_box ~title:"Backup" ~buttons:["Keep current"; "Restore auto-backup"; "View changes"] ~default:2 message with
       | 2 -> Sys.rename Utils.backup_xml_file Utils.conf_xml_file
       | 3 -> ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file)); question_box ()
       | _ -> Sys.remove Utils.backup_xml_file in
@@ -198,7 +198,8 @@ let () =
       let tag = GText.tag ~name:color () in
       tag#set_property (`BACKGROUND color);
       (color, tag))
-      ["red"; "green"; "orange"; "cyan"] in
+      (* since tcl8.6 "green" refers to "darkgreen" and the former "green" is now "lime", but that is not available in older versions, so hardcode the color to #00ff00*)
+      ["red"; "#00ff00"; "orange"; "cyan"] in
   let tag_table = GText.tag_table () in
   List.iter (fun (_color, tag) -> tag_table#add tag#as_tag) background_tags;
   let buffer = GText.buffer ~tag_table () in
@@ -206,7 +207,7 @@ let () =
 
   let errors = "red", ["error:"; "error "; "no such file"; "undefined reference"; "failure"; "multiple definition"]
   and warnings = "orange", ["warning"]
-  and info = "green", ["pragma message"]
+  and info = "#00ff00", ["pragma message"]
   and version = "cyan", ["paparazzi version"; "build aircraft"] in
 
   let color_regexps =

@@ -95,9 +95,10 @@ static const float psi_ddgain_surface[] = STABILIZATION_ATTITUDE_PSI_DDGAIN_SURF
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_att(struct transport_tx *trans, struct link_device *dev) {
-  struct FloatRates* body_rate = stateGetBodyRates_f();
-  struct FloatEulers* att = stateGetNedToBodyEulers_f();
+static void send_att(struct transport_tx *trans, struct link_device *dev)
+{
+  struct FloatRates *body_rate = stateGetBodyRates_f();
+  struct FloatEulers *att = stateGetNedToBodyEulers_f();
   pprz_msg_send_STAB_ATTITUDE_FLOAT(trans, dev, AC_ID,
                                     &(body_rate->p), &(body_rate->q), &(body_rate->r),
                                     &(att->phi), &(att->theta), &(att->psi),
@@ -119,7 +120,8 @@ static void send_att(struct transport_tx *trans, struct link_device *dev) {
                                     &body_rate_d.p, &body_rate_d.q, &body_rate_d.r);
 }
 
-static void send_att_ref(struct transport_tx *trans, struct link_device *dev) {
+static void send_att_ref(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_STAB_ATTITUDE_REF_FLOAT(trans, dev, AC_ID,
                                         &stab_att_sp_euler.phi,
                                         &stab_att_sp_euler.theta,
@@ -136,7 +138,8 @@ static void send_att_ref(struct transport_tx *trans, struct link_device *dev) {
 }
 #endif
 
-void stabilization_attitude_init(void) {
+void stabilization_attitude_init(void)
+{
 
   stabilization_attitude_ref_init();
 
@@ -155,8 +158,8 @@ void stabilization_attitude_init(void) {
   }
 
   float_quat_identity(&stabilization_att_sum_err_quat);
-  FLOAT_RATES_ZERO( last_body_rate );
-  FLOAT_RATES_ZERO( body_rate_d );
+  FLOAT_RATES_ZERO(last_body_rate);
+  FLOAT_RATES_ZERO(body_rate_d);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
@@ -174,7 +177,8 @@ void stabilization_attitude_gain_schedule(uint8_t idx)
   stabilization_attitude_ref_schedule(idx);
 }
 
-void stabilization_attitude_enter(void) {
+void stabilization_attitude_enter(void)
+{
 
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = stabilization_attitude_get_heading_f();
@@ -184,7 +188,8 @@ void stabilization_attitude_enter(void) {
   float_quat_identity(&stabilization_att_sum_err_quat);
 }
 
-void stabilization_attitude_set_failsafe_setpoint(void) {
+void stabilization_attitude_set_failsafe_setpoint(void)
+{
   /* set failsafe to zero roll/pitch and current heading */
   float heading2 = stabilization_attitude_get_heading_f() / 2;
   stab_att_sp_quat.qi = cosf(heading2);
@@ -193,14 +198,16 @@ void stabilization_attitude_set_failsafe_setpoint(void) {
   stab_att_sp_quat.qz = sinf(heading2);
 }
 
-void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy) {
+void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
+{
   // copy euler setpoint for debugging
   EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *rpy);
 
   quat_from_rpy_cmd_f(&stab_att_sp_quat, &stab_att_sp_euler);
 }
 
-void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading) {
+void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
+{
   struct FloatVect2 cmd_f;
   cmd_f.x = ANGLE_FLOAT_OF_BFP(cmd->x);
   cmd_f.y = ANGLE_FLOAT_OF_BFP(cmd->y);
@@ -237,7 +244,7 @@ static void attitude_run_ff(float ff_commands[], struct FloatAttitudeGains *gain
 #define GAIN_PRESCALER_I 1
 #endif
 static void attitude_run_fb(float fb_commands[], struct FloatAttitudeGains *gains, struct FloatQuat *att_err,
-    struct FloatRates *rate_err, struct FloatRates *rate_err_d, struct FloatQuat *sum_err)
+                            struct FloatRates *rate_err, struct FloatRates *rate_err_d, struct FloatQuat *sum_err)
 {
   /*  PID feedback */
   fb_commands[COMMAND_ROLL] =
@@ -276,7 +283,8 @@ static void attitude_run_fb(float fb_commands[], struct FloatAttitudeGains *gain
 #endif
 }
 
-void stabilization_attitude_run(bool_t enable_integrator) {
+void stabilization_attitude_run(bool_t enable_integrator)
+{
 
   /*
    * Update reference
@@ -289,14 +297,14 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
   /* attitude error                          */
   struct FloatQuat att_err;
-  struct FloatQuat* att_quat = stateGetNedToBodyQuat_f();
+  struct FloatQuat *att_quat = stateGetNedToBodyQuat_f();
   float_quat_inv_comp(&att_err, att_quat, &stab_att_ref_quat);
   /* wrap it in the shortest direction       */
   float_quat_wrap_shortest(&att_err);
 
   /*  rate error                */
   struct FloatRates rate_err;
-  struct FloatRates* body_rate = stateGetBodyRates_f();
+  struct FloatRates *body_rate = stateGetBodyRates_f();
   RATES_DIFF(rate_err, stab_att_ref_rate, *body_rate);
   /* rate_d error               */
   RATES_DIFF(body_rate_d, *body_rate, last_body_rate);
@@ -305,12 +313,12 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 #define INTEGRATOR_BOUND 1.0
   /* integrated error */
   if (enable_integrator) {
-    stabilization_att_sum_err_quat.qx += att_err.qx /IERROR_SCALE;
-    stabilization_att_sum_err_quat.qy += att_err.qy /IERROR_SCALE;
-    stabilization_att_sum_err_quat.qz += att_err.qz /IERROR_SCALE;
-    Bound(stabilization_att_sum_err_quat.qx,-INTEGRATOR_BOUND,INTEGRATOR_BOUND);
-    Bound(stabilization_att_sum_err_quat.qy,-INTEGRATOR_BOUND,INTEGRATOR_BOUND);
-    Bound(stabilization_att_sum_err_quat.qz,-INTEGRATOR_BOUND,INTEGRATOR_BOUND);
+    stabilization_att_sum_err_quat.qx += att_err.qx / IERROR_SCALE;
+    stabilization_att_sum_err_quat.qy += att_err.qy / IERROR_SCALE;
+    stabilization_att_sum_err_quat.qz += att_err.qz / IERROR_SCALE;
+    Bound(stabilization_att_sum_err_quat.qx, -INTEGRATOR_BOUND, INTEGRATOR_BOUND);
+    Bound(stabilization_att_sum_err_quat.qy, -INTEGRATOR_BOUND, INTEGRATOR_BOUND);
+    Bound(stabilization_att_sum_err_quat.qz, -INTEGRATOR_BOUND, INTEGRATOR_BOUND);
   } else {
     /* reset accumulator */
     float_quat_identity(&stabilization_att_sum_err_quat);
@@ -318,16 +326,20 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
   attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains[gain_idx], &stab_att_ref_accel);
 
-  attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains[gain_idx], &att_err, &rate_err, &body_rate_d, &stabilization_att_sum_err_quat);
+  attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains[gain_idx], &att_err, &rate_err, &body_rate_d,
+                  &stabilization_att_sum_err_quat);
 
   stabilization_cmd[COMMAND_ROLL] = stabilization_att_fb_cmd[COMMAND_ROLL] + stabilization_att_ff_cmd[COMMAND_ROLL];
   stabilization_cmd[COMMAND_PITCH] = stabilization_att_fb_cmd[COMMAND_PITCH] + stabilization_att_ff_cmd[COMMAND_PITCH];
   stabilization_cmd[COMMAND_YAW] = stabilization_att_fb_cmd[COMMAND_YAW] + stabilization_att_ff_cmd[COMMAND_YAW];
 
 #ifdef HAS_SURFACE_COMMANDS
-  stabilization_cmd[COMMAND_ROLL_SURFACE] = stabilization_att_fb_cmd[COMMAND_ROLL_SURFACE] + stabilization_att_ff_cmd[COMMAND_ROLL_SURFACE];
-  stabilization_cmd[COMMAND_PITCH_SURFACE] = stabilization_att_fb_cmd[COMMAND_PITCH_SURFACE] + stabilization_att_ff_cmd[COMMAND_PITCH_SURFACE];
-  stabilization_cmd[COMMAND_YAW_SURFACE] = stabilization_att_fb_cmd[COMMAND_YAW_SURFACE] + stabilization_att_ff_cmd[COMMAND_YAW_SURFACE];
+  stabilization_cmd[COMMAND_ROLL_SURFACE] = stabilization_att_fb_cmd[COMMAND_ROLL_SURFACE] +
+      stabilization_att_ff_cmd[COMMAND_ROLL_SURFACE];
+  stabilization_cmd[COMMAND_PITCH_SURFACE] = stabilization_att_fb_cmd[COMMAND_PITCH_SURFACE] +
+      stabilization_att_ff_cmd[COMMAND_PITCH_SURFACE];
+  stabilization_cmd[COMMAND_YAW_SURFACE] = stabilization_att_fb_cmd[COMMAND_YAW_SURFACE] +
+      stabilization_att_ff_cmd[COMMAND_YAW_SURFACE];
 #endif
 
   /* bound the result */
@@ -336,7 +348,8 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 }
 
-void stabilization_attitude_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn) {
+void stabilization_attitude_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn)
+{
 
   stabilization_attitude_read_rc_setpoint_quat_f(&stab_att_sp_quat, in_flight, in_carefree, coordinated_turn);
   //float_quat_wrap_shortest(&stab_att_sp_quat);

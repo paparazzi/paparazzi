@@ -41,8 +41,8 @@
 
 #include "mcu_periph/sys_time.h"
 
-#define MTK_DIY_OUTPUT_RATE	MTK_DIY_OUTPUT_4HZ
-#define OUTPUT_RATE			4
+#define MTK_DIY_OUTPUT_RATE MTK_DIY_OUTPUT_4HZ
+#define OUTPUT_RATE     4
 
 /* parser status */
 #define UNINIT        0
@@ -103,19 +103,21 @@ bool_t gps_configuring;
 static uint8_t gps_status_config;
 #endif
 
-void gps_impl_init(void) {
-   gps_mtk.status = UNINIT;
-   gps_mtk.msg_available = FALSE;
-   gps_mtk.error_cnt = 0;
-   gps_mtk.error_last = GPS_MTK_ERR_NONE;
+void gps_impl_init(void)
+{
+  gps_mtk.status = UNINIT;
+  gps_mtk.msg_available = FALSE;
+  gps_mtk.error_cnt = 0;
+  gps_mtk.error_last = GPS_MTK_ERR_NONE;
 #ifdef GPS_CONFIGURE
-   gps_status_config = 0;
-   gps_configuring = TRUE;
+  gps_status_config = 0;
+  gps_configuring = TRUE;
 #endif
 }
 
 static void gps_mtk_time2itow(uint32_t  gps_date, uint32_t  gps_time,
-                           int16_t* gps_week, uint32_t* gps_itow) {
+                              int16_t *gps_week, uint32_t *gps_itow)
+{
   /* convert UTC date/time to GPS week/itow, we have no idea about GPS
      leap seconds for now */
   uint16_t gps_msecond = gps_time % 1000;
@@ -131,63 +133,64 @@ static void gps_mtk_time2itow(uint32_t  gps_date, uint32_t  gps_time,
   *gps_itow = 0;
 
   /* sanity checks */
-  if (gps_month > 12) return;
+  if (gps_month > 12) { return; }
   if (gps_day > (DAYS_MONTH[gps_month] +
-    ((gps_month == 1) ? isleap(gps_year):0))) return;
-  if (gps_hour > 23) return;
-  if (gps_minute > 59) return;
-  if (gps_second > 59) return;
+                 ((gps_month == 1) ? isleap(gps_year) : 0))) { return; }
+  if (gps_hour > 23) { return; }
+  if (gps_minute > 59) { return; }
+  if (gps_second > 59) { return; }
 
   /* days since 6-JAN-1980 */
   days = -6;
-  for (i = 1980; i < gps_year; i++) days += (365 + isleap(i));
+  for (i = 1980; i < gps_year; i++) { days += (365 + isleap(i)); }
 
   /* add days in gps_year */
-  for (i = 0; i < gps_month-1; i++) {
-      days += DAYS_MONTH[i] + ((i == 1) ? isleap(gps_year):0);
+  for (i = 0; i < gps_month - 1; i++) {
+    days += DAYS_MONTH[i] + ((i == 1) ? isleap(gps_year) : 0);
   }
   days += gps_day;
 
   /* convert */
-  *gps_week = (uint16_t) (days / 7);
+  *gps_week = (uint16_t)(days / 7);
   *gps_itow = ((days % 7) * SECS_DAY +
-    gps_hour * SECS_HOUR +
-    gps_minute * SECS_MINUTE +
-    gps_second) * 1000 +
-    gps_msecond;
+               gps_hour * SECS_HOUR +
+               gps_minute * SECS_MINUTE +
+               gps_second) * 1000 +
+              gps_msecond;
 }
 
-void gps_mtk_read_message(void) {
+void gps_mtk_read_message(void)
+{
   if (gps_mtk.msg_class == MTK_DIY14_ID) {
     if (gps_mtk.msg_id == MTK_DIY14_NAV_ID) {
       /* get hardware clock ticks */
       gps_time_sync.t0_ticks      = sys_time.nb_tick;
       gps_time_sync.t0_tow      = MTK_DIY14_NAV_ITOW(gps_mtk.msg_buf);
       gps_time_sync.t0_tow_frac = 0;
-      gps.lla_pos.lat = MTK_DIY14_NAV_LAT(gps_mtk.msg_buf)*10;
-      gps.lla_pos.lon = MTK_DIY14_NAV_LON(gps_mtk.msg_buf)*10;
+      gps.lla_pos.lat = MTK_DIY14_NAV_LAT(gps_mtk.msg_buf) * 10;
+      gps.lla_pos.lon = MTK_DIY14_NAV_LON(gps_mtk.msg_buf) * 10;
       // FIXME: with MTK you do not receive vertical speed
       if (sys_time.nb_sec - gps.last_3dfix_time < 2) {
         gps.ned_vel.z  = ((gps.hmsl -
-            MTK_DIY14_NAV_HEIGHT(gps_mtk.msg_buf)*10)*OUTPUT_RATE)/10;
-      } else gps.ned_vel.z = 0;
-      gps.hmsl        = MTK_DIY14_NAV_HEIGHT(gps_mtk.msg_buf)*10;
+                           MTK_DIY14_NAV_HEIGHT(gps_mtk.msg_buf) * 10) * OUTPUT_RATE) / 10;
+      } else { gps.ned_vel.z = 0; }
+      gps.hmsl        = MTK_DIY14_NAV_HEIGHT(gps_mtk.msg_buf) * 10;
       // FIXME: with MTK you do not receive ellipsoid altitude
       gps.lla_pos.alt = gps.hmsl;
       gps.gspeed      = MTK_DIY14_NAV_GSpeed(gps_mtk.msg_buf);
       // FIXME: with MTK you do not receive speed 3D
       gps.speed_3d    = gps.gspeed;
-      gps.course      = (RadOfDeg(MTK_DIY14_NAV_Heading(gps_mtk.msg_buf)))*10;
+      gps.course      = (RadOfDeg(MTK_DIY14_NAV_Heading(gps_mtk.msg_buf))) * 10;
       gps.num_sv      = MTK_DIY14_NAV_numSV(gps_mtk.msg_buf);
       switch (MTK_DIY14_NAV_GPSfix(gps_mtk.msg_buf)) {
-      case MTK_DIY_FIX_3D:
-        gps.fix = GPS_FIX_3D;
-        break;
-      case MTK_DIY_FIX_2D:
-        gps.fix = GPS_FIX_2D;
-        break;
-      default:
-        gps.fix = GPS_FIX_NONE;
+        case MTK_DIY_FIX_3D:
+          gps.fix = GPS_FIX_3D;
+          break;
+        case MTK_DIY_FIX_2D:
+          gps.fix = GPS_FIX_2D;
+          break;
+        default:
+          gps.fix = GPS_FIX_NONE;
       }
       gps.tow         = MTK_DIY14_NAV_ITOW(gps_mtk.msg_buf);;
       // FIXME: with MTK DIY 1.4 you do not receive GPS week
@@ -200,15 +203,14 @@ void gps_mtk_read_message(void) {
       /* convert to utm */
       utm_of_lla_f(&utm_f, &lla_f);
       /* copy results of utm conversion */
-      gps.utm_pos.east = utm_f.east*100;
-      gps.utm_pos.north = utm_f.north*100;
+      gps.utm_pos.east = utm_f.east * 100;
+      gps.utm_pos.north = utm_f.north * 100;
       gps.utm_pos.alt = gps.lla_pos.alt;
       gps.utm_pos.zone = nav_utm_zone0;
 #ifdef GPS_LED
       if (gps.fix == GPS_FIX_3D) {
         LED_ON(GPS_LED);
-      }
-      else {
+      } else {
         LED_TOGGLE(GPS_LED);
       }
 #endif
@@ -227,30 +229,30 @@ void gps_mtk_read_message(void) {
       gps.t0_tow      = gps.tow;
       gps.t0_tow_frac = 0;
 #endif
-      gps.lla_pos.lat = MTK_DIY16_NAV_LAT(gps_mtk.msg_buf)*10;
-      gps.lla_pos.lon = MTK_DIY16_NAV_LON(gps_mtk.msg_buf)*10;
+      gps.lla_pos.lat = MTK_DIY16_NAV_LAT(gps_mtk.msg_buf) * 10;
+      gps.lla_pos.lon = MTK_DIY16_NAV_LON(gps_mtk.msg_buf) * 10;
       // FIXME: with MTK you do not receive vertical speed
       if (sys_time.nb_sec - gps.last_3dfix_time < 2) {
         gps.ned_vel.z  = ((gps.hmsl -
-            MTK_DIY16_NAV_HEIGHT(gps_mtk.msg_buf)*10)*OUTPUT_RATE)/10;
-      } else gps.ned_vel.z = 0;
-      gps.hmsl        = MTK_DIY16_NAV_HEIGHT(gps_mtk.msg_buf)*10;
+                           MTK_DIY16_NAV_HEIGHT(gps_mtk.msg_buf) * 10) * OUTPUT_RATE) / 10;
+      } else { gps.ned_vel.z = 0; }
+      gps.hmsl        = MTK_DIY16_NAV_HEIGHT(gps_mtk.msg_buf) * 10;
       // FIXME: with MTK you do not receive ellipsoid altitude
       gps.lla_pos.alt = gps.hmsl;
       gps.gspeed      = MTK_DIY16_NAV_GSpeed(gps_mtk.msg_buf);
       // FIXME: with MTK you do not receive speed 3D
       gps.speed_3d    = gps.gspeed;
-      gps.course      = (RadOfDeg(MTK_DIY16_NAV_Heading(gps_mtk.msg_buf)*10000)) * 10;
+      gps.course      = (RadOfDeg(MTK_DIY16_NAV_Heading(gps_mtk.msg_buf) * 10000)) * 10;
       gps.num_sv      = MTK_DIY16_NAV_numSV(gps_mtk.msg_buf);
       switch (MTK_DIY16_NAV_GPSfix(gps_mtk.msg_buf)) {
-      case MTK_DIY_FIX_3D:
-        gps.fix = GPS_FIX_3D;
-        break;
-      case MTK_DIY_FIX_2D:
-        gps.fix = GPS_FIX_2D;
-        break;
-      default:
-        gps.fix = GPS_FIX_NONE;
+        case MTK_DIY_FIX_3D:
+          gps.fix = GPS_FIX_3D;
+          break;
+        case MTK_DIY_FIX_2D:
+          gps.fix = GPS_FIX_2D;
+          break;
+        default:
+          gps.fix = GPS_FIX_NONE;
       }
       /* HDOP? */
       /* Computes from (lat, long) in the referenced UTM zone */
@@ -261,15 +263,14 @@ void gps_mtk_read_message(void) {
       /* convert to utm */
       utm_of_lla_f(&utm_f, &lla_f);
       /* copy results of utm conversion */
-      gps.utm_pos.east = utm_f.east*100;
-      gps.utm_pos.north = utm_f.north*100;
+      gps.utm_pos.east = utm_f.east * 100;
+      gps.utm_pos.north = utm_f.north * 100;
       gps.utm_pos.alt = gps.lla_pos.alt;
       gps.utm_pos.zone = nav_utm_zone0;
 #ifdef GPS_LED
       if (gps.fix == GPS_FIX_3D) {
         LED_ON(GPS_LED);
-      }
-      else {
+      } else {
         LED_TOGGLE(GPS_LED);
       }
 #endif
@@ -278,103 +279,106 @@ void gps_mtk_read_message(void) {
 }
 
 /* byte parsing */
-void gps_mtk_parse( uint8_t c ) {
+void gps_mtk_parse(uint8_t c)
+{
   if (gps_mtk.status < GOT_PAYLOAD) {
     gps_mtk.ck_a += c;
     gps_mtk.ck_b += gps_mtk.ck_a;
   }
   switch (gps_mtk.status) {
-  case UNINIT:
-    if (c == MTK_DIY14_SYNC1)
-      gps_mtk.status = GOT_SYNC1_14;
-    if (c == MTK_DIY16_ID)
-      gps_mtk.msg_class = c;
+    case UNINIT:
+      if (c == MTK_DIY14_SYNC1) {
+        gps_mtk.status = GOT_SYNC1_14;
+      }
+      if (c == MTK_DIY16_ID) {
+        gps_mtk.msg_class = c;
+      }
       gps_mtk.status = GOT_SYNC1_16;
-    break;
-  /* MTK_DIY_VER_14 */
-  case GOT_SYNC1_14:
-    if (c != MTK_DIY14_SYNC2) {
-      gps_mtk.error_last = GPS_MTK_ERR_OUT_OF_SYNC;
-      goto error;
-    }
-    if (gps_mtk.msg_available) {
-      /* Previous message has not yet been parsed: discard this one */
-      gps_mtk.error_last = GPS_MTK_ERR_OVERRUN;
-      goto error;
-    }
-    gps_mtk.ck_a = 0;
-    gps_mtk.ck_b = 0;
-    gps_mtk.status++;
-    gps_mtk.len = MTK_DIY14_NAV_LENGTH;
-    break;
-  case GOT_SYNC2_14:
-    if (c != MTK_DIY14_ID) {
-      gps_mtk.error_last = GPS_MTK_ERR_OUT_OF_SYNC;
-      goto error;
-    }
-    gps_mtk.msg_class = c;
-    gps_mtk.msg_idx = 0;
-    gps_mtk.status++;
-    break;
-  case GOT_CLASS_14:
-    if (c != MTK_DIY14_NAV_ID) {
-      gps_mtk.error_last = GPS_MTK_ERR_OUT_OF_SYNC;
-      goto error;
-    }
-    gps_mtk.msg_id = c;
-    gps_mtk.status = GOT_ID;
-    break;
-  /* MTK_DIY_VER_16 */
-  case GOT_SYNC1_16:
-    if (c != MTK_DIY16_NAV_ID) {
-      gps_mtk.error_last = GPS_MTK_ERR_OUT_OF_SYNC;
-      goto error;
-    }
-    if (gps_mtk.msg_available) {
-      /* Previous message has not yet been parsed: discard this one */
-      gps_mtk.error_last = GPS_MTK_ERR_OVERRUN;
-      goto error;
-    }
-    gps_mtk.msg_id = c;
-    gps_mtk.ck_a = 0;
-    gps_mtk.ck_b = 0;
-    gps_mtk.status++;
-    break;
-  case GOT_SYNC2_16:
-    gps_mtk.len = c;
-    gps_mtk.msg_idx = 0;
-    gps_mtk.status = GOT_ID;
-    break;
-  case GOT_ID:
-    gps_mtk.msg_buf[gps_mtk.msg_idx] = c;
-    gps_mtk.msg_idx++;
-    if (gps_mtk.msg_idx >= gps_mtk.len) {
+      break;
+      /* MTK_DIY_VER_14 */
+    case GOT_SYNC1_14:
+      if (c != MTK_DIY14_SYNC2) {
+        gps_mtk.error_last = GPS_MTK_ERR_OUT_OF_SYNC;
+        goto error;
+      }
+      if (gps_mtk.msg_available) {
+        /* Previous message has not yet been parsed: discard this one */
+        gps_mtk.error_last = GPS_MTK_ERR_OVERRUN;
+        goto error;
+      }
+      gps_mtk.ck_a = 0;
+      gps_mtk.ck_b = 0;
       gps_mtk.status++;
-    }
-    break;
-  case GOT_PAYLOAD:
-    if (c != gps_mtk.ck_a) {
-      gps_mtk.error_last = GPS_MTK_ERR_CHECKSUM;
+      gps_mtk.len = MTK_DIY14_NAV_LENGTH;
+      break;
+    case GOT_SYNC2_14:
+      if (c != MTK_DIY14_ID) {
+        gps_mtk.error_last = GPS_MTK_ERR_OUT_OF_SYNC;
+        goto error;
+      }
+      gps_mtk.msg_class = c;
+      gps_mtk.msg_idx = 0;
+      gps_mtk.status++;
+      break;
+    case GOT_CLASS_14:
+      if (c != MTK_DIY14_NAV_ID) {
+        gps_mtk.error_last = GPS_MTK_ERR_OUT_OF_SYNC;
+        goto error;
+      }
+      gps_mtk.msg_id = c;
+      gps_mtk.status = GOT_ID;
+      break;
+      /* MTK_DIY_VER_16 */
+    case GOT_SYNC1_16:
+      if (c != MTK_DIY16_NAV_ID) {
+        gps_mtk.error_last = GPS_MTK_ERR_OUT_OF_SYNC;
+        goto error;
+      }
+      if (gps_mtk.msg_available) {
+        /* Previous message has not yet been parsed: discard this one */
+        gps_mtk.error_last = GPS_MTK_ERR_OVERRUN;
+        goto error;
+      }
+      gps_mtk.msg_id = c;
+      gps_mtk.ck_a = 0;
+      gps_mtk.ck_b = 0;
+      gps_mtk.status++;
+      break;
+    case GOT_SYNC2_16:
+      gps_mtk.len = c;
+      gps_mtk.msg_idx = 0;
+      gps_mtk.status = GOT_ID;
+      break;
+    case GOT_ID:
+      gps_mtk.msg_buf[gps_mtk.msg_idx] = c;
+      gps_mtk.msg_idx++;
+      if (gps_mtk.msg_idx >= gps_mtk.len) {
+        gps_mtk.status++;
+      }
+      break;
+    case GOT_PAYLOAD:
+      if (c != gps_mtk.ck_a) {
+        gps_mtk.error_last = GPS_MTK_ERR_CHECKSUM;
+        goto error;
+      }
+      gps_mtk.status++;
+      break;
+    case GOT_CHECKSUM1:
+      if (c != gps_mtk.ck_b) {
+        gps_mtk.error_last = GPS_MTK_ERR_CHECKSUM;
+        goto error;
+      }
+      gps_mtk.msg_available = TRUE;
+      goto restart;
+      break;
+    default:
+      gps_mtk.error_last = GPS_MTK_ERR_UNEXPECTED;
       goto error;
-    }
-    gps_mtk.status++;
-    break;
-  case GOT_CHECKSUM1:
-    if (c != gps_mtk.ck_b) {
-      gps_mtk.error_last = GPS_MTK_ERR_CHECKSUM;
-      goto error;
-    }
-    gps_mtk.msg_available = TRUE;
-    goto restart;
-    break;
-  default:
-    gps_mtk.error_last = GPS_MTK_ERR_UNEXPECTED;
-    goto error;
   }
   return;
- error:
+error:
   gps_mtk.error_cnt++;
- restart:
+restart:
   gps_mtk.status = UNINIT;
   return;
 }
@@ -389,36 +393,41 @@ void gps_mtk_parse( uint8_t c ) {
  */
 #ifdef GPS_CONFIGURE
 
-static void MtkSend_CFG(char* dat) {
-  while (*dat != 0) GpsLink(Transmit(*dat++));
+static void MtkSend_CFG(char *dat)
+{
+  while (*dat != 0) { GpsLink(Transmit(*dat++)); }
 }
 
-void gps_configure_uart(void) {
+void gps_configure_uart(void)
+{
 }
 
 #ifdef USER_GPS_CONFIGURE
 #include USER_GPS_CONFIGURE
 #else
-static bool_t user_gps_configure(bool_t cpt) {
+static bool_t user_gps_configure(bool_t cpt)
+{
   switch (cpt) {
-  case 0:
-    MtkSend_CFG(MTK_DIY_SET_BINARY);
-    break;
-  case 1:
-    MtkSend_CFG(MTK_DIY_OUTPUT_RATE);
-    return FALSE;
-  default:
-    break;
+    case 0:
+      MtkSend_CFG(MTK_DIY_SET_BINARY);
+      break;
+    case 1:
+      MtkSend_CFG(MTK_DIY_OUTPUT_RATE);
+      return FALSE;
+    default:
+      break;
   }
   return TRUE; /* Continue, except for the last case */
 }
 #endif // ! USER_GPS_CONFIGURE
 
-void gps_configure( void ) {
-  static uint32_t count=0;
+void gps_configure(void)
+{
+  static uint32_t count = 0;
   /* start configuring after having received 50 bytes */
-  if (count++ > 50)
+  if (count++ > 50) {
     gps_configuring = user_gps_configure(gps_status_config++);
+  }
 }
 
 #endif /* GPS_CONFIGURE */

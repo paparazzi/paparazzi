@@ -38,11 +38,13 @@
 #include "subsystems/datalink/downlink.h"
 
 
-void trigger_ext_init ( void ) {
+void trigger_ext_init(void)
+{
   trig_ext_init();
 }
 
-void trigger_ext_periodic( void ) {
+void trigger_ext_periodic(void)
+{
   if (trig_ext_valid == TRUE) {
     uint8_t ac_id = 0;
     uint8_t turb_id = TURBINE_ID;
@@ -52,10 +54,10 @@ void trigger_ext_periodic( void ) {
     cycle_time = msec_of_sys_time_ticks(delta_t0);
 
     DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel, DefaultDevice,
-                &ac_id,
-                &turb_id,
-                &sync_itow,
-                &cycle_time );
+                                      &ac_id,
+                                      &turb_id,
+                                      &sync_itow,
+                                      &cycle_time);
     trig_ext_valid = FALSE;
   }
 }

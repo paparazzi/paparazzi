@@ -6,7 +6,7 @@
 #include <caml/memory.h>
 #include <caml/callback.h>
 
-extern value * leds_closure;
+extern value *leds_closure;
 
 #define LED_INIT(i) { }
 #define LED_ON(i) { if (leds_closure) callback2(*leds_closure, Val_int(i), Val_int(1)); }

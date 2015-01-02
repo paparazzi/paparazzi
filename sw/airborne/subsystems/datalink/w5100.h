@@ -63,12 +63,12 @@ extern uint8_t w5100_rx_buf[W5100_RX_BUFFER_SIZE];
 
 extern struct w5100_periph chip0;
 
-void w5100_init( void );
-void w5100_transmit( uint8_t data );
-uint16_t w5100_receive( uint8_t *buf, uint16_t len );
-void w5100_send( void );
-uint16_t w5100_rx_size( uint8_t _s );
-bool_t w5100_ch_available( void );
+void w5100_init(void);
+void w5100_transmit(uint8_t data);
+uint16_t w5100_receive(uint8_t *buf, uint16_t len);
+void w5100_send(void);
+uint16_t w5100_rx_size(uint8_t _s);
+bool_t w5100_ch_available(void);
 
 // Defines that are done in mcu_periph on behalf of uart.
 // We need to do these here...
@@ -87,13 +87,14 @@ bool_t w5100_ch_available( void );
 // W5100 needs a specific read_buffer function
 #include "subsystems/datalink/pprz_transport.h"
 
-static inline void w5100_read_buffer( struct pprz_transport *t ) {
-  while ( w5100_ch_available() ) {
-    w5100_receive( w5100_rx_buf, W5100_RX_BUFFER_SIZE );
+static inline void w5100_read_buffer(struct pprz_transport *t)
+{
+  while (w5100_ch_available()) {
+    w5100_receive(w5100_rx_buf, W5100_RX_BUFFER_SIZE);
     int c = 0;
     do {
-      parse_pprz( t, w5100_rx_buf[ c++ ] );
-    } while ( ( t->status != UNINIT ) && !(t->trans_rx.msg_received) );
+      parse_pprz(t, w5100_rx_buf[ c++ ]);
+    } while ((t->status != UNINIT) && !(t->trans_rx.msg_received));
   }
 }
 

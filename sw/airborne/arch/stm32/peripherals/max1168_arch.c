@@ -29,7 +29,8 @@
 #error "HMC5843 arch currently only implemented for STM32F1"
 #endif
 
-void max1168_arch_init( void ) {
+void max1168_arch_init(void)
+{
 
   /* configure external interrupt exti2 on PD2( data ready ) v1.0*/
   /*                                       PB2( data ready ) v1.1*/
@@ -47,7 +48,8 @@ void max1168_arch_init( void ) {
 
 }
 
-void exti2_isr(void) {
+void exti2_isr(void)
+{
 
   /* clear EXTI */
   exti_reset_request(EXTI2);

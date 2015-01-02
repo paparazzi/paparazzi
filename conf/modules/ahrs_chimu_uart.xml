@@ -1,13 +1,12 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins">
+<module name="ahrs_chimu_uart" dir="ins">
   <doc>
     <description>
       CHimu (UART)
       For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN
     </description>
   </doc>
-  <!-- <depend conflict="ins" -->
   <header>
     <file name="ins_module.h"/>
   </header>

@@ -26,11 +26,9 @@
 
 
 #define DATALINK_C
-#define PERIODIC_C_MAIN
 
 #include "generated/airframe.h"
 #include "generated/settings.h"
-#include "generated/periodic_telemetry.h"
 
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
@@ -47,8 +45,8 @@
 
 #include "subsystems/radio_control.h"
 
-static inline void main_init( void );
-static inline void main_periodic( void );
+static inline void main_init(void);
+static inline void main_periodic(void);
 static inline void main_event(void);
 
 static void on_rc_frame(void);
@@ -58,20 +56,24 @@ tid_t radio_control_tid; ///< id for radio_control_periodic_task() timer
 
 bool_t autopilot_motors_on;
 
-int main(void) {
+int main(void)
+{
 
   main_init();
   while (1) {
-    if (sys_time_check_and_ack_timer(main_periodic_tid))
+    if (sys_time_check_and_ack_timer(main_periodic_tid)) {
       main_periodic();
-    if (sys_time_check_and_ack_timer(radio_control_tid))
+    }
+    if (sys_time_check_and_ack_timer(radio_control_tid)) {
       radio_control_periodic_task();
+    }
     main_event();
   };
   return 0;
 }
 
-static inline void main_init( void ) {
+static inline void main_init(void)
+{
   mcu_init();
 
   actuators_init();
@@ -82,8 +84,8 @@ static inline void main_init( void ) {
   radio_control_init();
 
   mcu_int_enable();
-  main_periodic_tid = sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
-  radio_control_tid = sys_time_register_timer((1./60.), NULL);
+  main_periodic_tid = sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
+  radio_control_tid = sys_time_register_timer((1. / 60.), NULL);
 
   // just to make it usable in a standard rotorcraft airframe file
   // with <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
@@ -91,7 +93,8 @@ static inline void main_init( void ) {
   autopilot_motors_on = TRUE;
 }
 
-static inline void main_periodic( void ) {
+static inline void main_periodic(void)
+{
 
   SetActuatorsFromCommands(commands, 0);
 
@@ -102,60 +105,59 @@ static inline void main_periodic( void ) {
   RunOnceEvery(102, {DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, ACTUATORS_NB, actuators);});
 }
 
-static inline void main_event(void) {
+static inline void main_event(void)
+{
   DatalinkEvent();
   RadioControlEvent(on_rc_frame);
 }
 
 #define IdOfMsg(x) (x[1])
 
-void dl_parse_msg( void ) {
+void dl_parse_msg(void)
+{
   uint8_t msg_id = IdOfMsg(dl_buffer);
   switch (msg_id) {
-    case  DL_PING:
-      {
-        DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
-      }
-      break;
+    case  DL_PING: {
+      DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
+    }
+    break;
 
-    case DL_SETTING:
-      {
-        if (DL_SETTING_ac_id(dl_buffer) != AC_ID) break;
-        uint8_t i = DL_SETTING_index(dl_buffer);
-        float var = DL_SETTING_value(dl_buffer);
-        DlSetting(i, var);
-        DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &var);
-      }
-      break;
+    case DL_SETTING: {
+      if (DL_SETTING_ac_id(dl_buffer) != AC_ID) { break; }
+      uint8_t i = DL_SETTING_index(dl_buffer);
+      float var = DL_SETTING_value(dl_buffer);
+      DlSetting(i, var);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &var);
+    }
+    break;
 
-    case DL_GET_SETTING :
-      {
-        if (DL_GET_SETTING_ac_id(dl_buffer) != AC_ID) break;
-        uint8_t i = DL_GET_SETTING_index(dl_buffer);
-        float val = settings_get_value(i);
-        DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
-      }
-      break;
+    case DL_GET_SETTING : {
+      if (DL_GET_SETTING_ac_id(dl_buffer) != AC_ID) { break; }
+      uint8_t i = DL_GET_SETTING_index(dl_buffer);
+      float val = settings_get_value(i);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
+    }
+    break;
 #ifdef RADIO_CONTROL_TYPE_DATALINK
     case DL_RC_3CH :
 #ifdef RADIO_CONTROL_DATALINK_LED
       LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
 #endif
       parse_rc_3ch_datalink(
-                            DL_RC_3CH_throttle_mode(dl_buffer),
-                            DL_RC_3CH_roll(dl_buffer),
-                            DL_RC_3CH_pitch(dl_buffer));
+        DL_RC_3CH_throttle_mode(dl_buffer),
+        DL_RC_3CH_roll(dl_buffer),
+        DL_RC_3CH_pitch(dl_buffer));
       break;
     case DL_RC_4CH :
 #ifdef RADIO_CONTROL_DATALINK_LED
       LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
 #endif
       parse_rc_4ch_datalink(
-                            DL_RC_4CH_mode(dl_buffer),
-                            DL_RC_4CH_throttle(dl_buffer),
-                            DL_RC_4CH_roll(dl_buffer),
-                            DL_RC_4CH_pitch(dl_buffer),
-                            DL_RC_4CH_yaw(dl_buffer));
+        DL_RC_4CH_mode(dl_buffer),
+        DL_RC_4CH_throttle(dl_buffer),
+        DL_RC_4CH_roll(dl_buffer),
+        DL_RC_4CH_pitch(dl_buffer),
+        DL_RC_4CH_yaw(dl_buffer));
       break;
 #endif // RADIO_CONTROL_TYPE_DATALINK
 
@@ -165,7 +167,8 @@ void dl_parse_msg( void ) {
 }
 
 
-static void on_rc_frame(void) {
+static void on_rc_frame(void)
+{
 
   /* if there are some commands that should always be set from RC, do it */
 #ifdef SetAutoCommandsFromRC

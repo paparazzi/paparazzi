@@ -55,7 +55,7 @@
 
 
 typedef uint8_t tid_t; ///< sys_time timer id type
-typedef void (*sys_time_cb) (uint8_t id);
+typedef void (*sys_time_cb)(uint8_t id);
 
 struct sys_time_timer {
   bool_t          in_use;
@@ -108,7 +108,8 @@ extern void sys_time_update_timer(tid_t id, float duration);
  * @param id Timer id
  * @return TRUE if timer has elapsed
  */
-static inline bool_t sys_time_check_and_ack_timer(tid_t id) {
+static inline bool_t sys_time_check_and_ack_timer(tid_t id)
+{
   if (sys_time.timer[id].elapsed) {
     sys_time.timer[id].elapsed = FALSE;
     return TRUE;
@@ -120,7 +121,8 @@ static inline bool_t sys_time_check_and_ack_timer(tid_t id) {
  * Get the time in seconds since startup.
  * @return current system time as float with sys_time.resolution
  */
-static inline float get_sys_time_float(void) {
+static inline float get_sys_time_float(void)
+{
   return (float)(sys_time.nb_sec + (float)(sys_time.nb_sec_rem) / sys_time.cpu_ticks_per_sec);
 }
 
@@ -128,27 +130,33 @@ static inline float get_sys_time_float(void) {
 /*
  * Convenience functions to convert between seconds and sys_time ticks.
  */
-static inline uint32_t sys_time_ticks_of_sec(float seconds) {
+static inline uint32_t sys_time_ticks_of_sec(float seconds)
+{
   return (uint32_t)(seconds * sys_time.ticks_per_sec + 0.5);
 }
 
-static inline uint32_t sys_time_ticks_of_msec(uint32_t msec) {
+static inline uint32_t sys_time_ticks_of_msec(uint32_t msec)
+{
   return msec * sys_time.ticks_per_sec / 1000;
 }
 
-static inline uint32_t sys_time_ticks_of_usec(uint32_t usec) {
+static inline uint32_t sys_time_ticks_of_usec(uint32_t usec)
+{
   return usec * sys_time.ticks_per_sec / 1000000;
 }
 
-static inline float sec_of_sys_time_ticks(uint32_t ticks) {
+static inline float sec_of_sys_time_ticks(uint32_t ticks)
+{
   return (float)ticks * sys_time.resolution;
 }
 
-static inline uint32_t msec_of_sys_time_ticks(uint32_t ticks) {
+static inline uint32_t msec_of_sys_time_ticks(uint32_t ticks)
+{
   return ticks * 1000 / sys_time.ticks_per_sec;
 }
 
-static inline uint32_t usec_of_sys_time_ticks(uint32_t ticks) {
+static inline uint32_t usec_of_sys_time_ticks(uint32_t ticks)
+{
   return ticks * 1000 / sys_time.ticks_per_sec * 1000;
 }
 
@@ -157,31 +165,38 @@ static inline uint32_t usec_of_sys_time_ticks(uint32_t ticks) {
 /*
  * Convenience functions to convert between seconds and CPU ticks.
  */
-static inline uint32_t cpu_ticks_of_sec(float seconds) {
+static inline uint32_t cpu_ticks_of_sec(float seconds)
+{
   return (uint32_t)(seconds * sys_time.cpu_ticks_per_sec + 0.5);
 }
 
-static inline uint32_t cpu_ticks_of_usec(uint32_t usec) {
+static inline uint32_t cpu_ticks_of_usec(uint32_t usec)
+{
   return usec * (sys_time.cpu_ticks_per_sec / 1000000);
 }
 
-static inline int32_t signed_cpu_ticks_of_usec(int32_t usec) {
+static inline int32_t signed_cpu_ticks_of_usec(int32_t usec)
+{
   return usec * ((int32_t)sys_time.cpu_ticks_per_sec / 1000000);
 }
 
-static inline uint32_t cpu_ticks_of_nsec(uint32_t nsec) {
+static inline uint32_t cpu_ticks_of_nsec(uint32_t nsec)
+{
   return nsec * (sys_time.cpu_ticks_per_sec / 1000000) / 1000;
 }
 
-static inline uint32_t msec_of_cpu_ticks(uint32_t cpu_ticks) {
+static inline uint32_t msec_of_cpu_ticks(uint32_t cpu_ticks)
+{
   return cpu_ticks / (sys_time.cpu_ticks_per_sec / 1000);
 }
 
-static inline uint32_t usec_of_cpu_ticks(uint32_t cpu_ticks) {
+static inline uint32_t usec_of_cpu_ticks(uint32_t cpu_ticks)
+{
   return cpu_ticks / (sys_time.cpu_ticks_per_sec / 1000000);
 }
 
-static inline uint32_t nsec_of_cpu_ticks(uint32_t cpu_ticks) {
+static inline uint32_t nsec_of_cpu_ticks(uint32_t cpu_ticks)
+{
   return cpu_ticks / (sys_time.cpu_ticks_per_sec / 1000000) / 1000;
 }
 

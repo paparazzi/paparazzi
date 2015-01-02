@@ -37,6 +37,6 @@
 /** Reset callback.
  * called before spi transaction and after slave select
  */
-extern void ms2100_reset_cb( struct spi_transaction * t );
+extern void ms2100_reset_cb(struct spi_transaction *t);
 
 #endif /* MS2100_ARCH_H */

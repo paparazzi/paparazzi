@@ -63,7 +63,8 @@
 
 struct Aoa_Adc aoa_adc;
 
-void aoa_adc_init(void) {
+void aoa_adc_init(void)
+{
   aoa_adc.offset = AOA_OFFSET;
   aoa_adc.filter = AOA_FILTER;
   aoa_adc.sens = AOA_SENS;
@@ -71,14 +72,15 @@ void aoa_adc_init(void) {
   adc_buf_channel(ADC_CHANNEL_AOA, &aoa_adc.buf, ADC_CHANNEL_AOA_NB_SAMPLES);
 }
 
-void aoa_adc_update(void) {
+void aoa_adc_update(void)
+{
   static float prev_aoa = 0.0;
 
   aoa_adc.raw = aoa_adc.buf.sum / aoa_adc.buf.av_nb_sample;
 
   // PT1 filter and convert to rad
   aoa_adc.angle = aoa_adc.filter * prev_aoa +
-    (1.0 - aoa_adc.filter) * (aoa_adc.raw * aoa_adc.sens - aoa_adc.offset);
+                  (1.0 - aoa_adc.filter) * (aoa_adc.raw * aoa_adc.sens - aoa_adc.offset);
   prev_aoa = aoa_adc.angle;
 
 #ifdef USE_AOA

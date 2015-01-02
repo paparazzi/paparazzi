@@ -37,6 +37,8 @@
 #include "mcu_periph/gpio.h"
 #endif
 
+#include "pprz_version.h"
+
 uint8_t pprz_mode;
 bool_t kill_throttle;
 uint8_t  mcu1_status;
@@ -56,51 +58,69 @@ bool_t gps_lost;
 
 bool_t power_switch;
 
-static void send_alive(struct transport_tx *trans, struct link_device *dev) {
+void send_autopilot_version(struct transport_tx *trans, struct link_device *dev)
+{
+  static uint32_t ap_version = PPRZ_VERSION_INT;
+  static char *ver_desc = PPRZ_VERSION_DESC;
+  pprz_msg_send_AUTOPILOT_VERSION(trans, dev, AC_ID, &ap_version, strlen(ver_desc), ver_desc);
+}
+
+static void send_alive(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_ALIVE(trans, dev, AC_ID, 16, MD5SUM);
 }
 
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
 #include "rc_settings.h"
-static void send_rc_settings(struct transport_tx *trans, struct link_device *dev) {
-  if (!RcSettingsOff())
+static void send_rc_settings(struct transport_tx *trans, struct link_device *dev)
+{
+  if (!RcSettingsOff()) {
     pprz_msg_send_SETTINGS(trans, dev, AC_ID, &slider_1_val, &slider_2_val);
+  }
 }
 #else
 uint8_t rc_settings_mode = 0;
 #endif
 
-static void send_mode(struct transport_tx *trans, struct link_device *dev) {
+static void send_mode(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_PPRZ_MODE(trans, dev, AC_ID,
-      &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
+                          &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 }
 
-void autopilot_send_mode(void) {
+void autopilot_send_mode(void)
+{
   // use default telemetry here
+#if DOWNLINK
   send_mode(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+#endif
 }
 
-static void send_attitude(struct transport_tx *trans, struct link_device *dev) {
-  struct FloatEulers* att = stateGetNedToBodyEulers_f();
+static void send_attitude(struct transport_tx *trans, struct link_device *dev)
+{
+  struct FloatEulers *att = stateGetNedToBodyEulers_f();
   pprz_msg_send_ATTITUDE(trans, dev, AC_ID,
-      &(att->phi), &(att->psi), &(att->theta));
+                         &(att->phi), &(att->psi), &(att->theta));
 };
 
-static void send_estimator(struct transport_tx *trans, struct link_device *dev) {
+static void send_estimator(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_ESTIMATOR(trans, dev, AC_ID,
-      &(stateGetPositionUtm_f()->alt), &(stateGetSpeedEnu_f()->z));
+                          &(stateGetPositionUtm_f()->alt), &(stateGetSpeedEnu_f()->z));
 }
 
-static void send_bat(struct transport_tx *trans, struct link_device *dev) {
-  int16_t amps = (int16_t) (current/10);
+static void send_bat(struct transport_tx *trans, struct link_device *dev)
+{
+  int16_t amps = (int16_t)(current / 10);
   int16_t e = energy;
   pprz_msg_send_BAT(trans, dev, AC_ID,
-      &v_ctl_throttle_slewed, &vsupply, &amps,
-      &autopilot_flight_time, (uint8_t*)(&kill_throttle),
-      &block_time, &stage_time, &e);
+                    &v_ctl_throttle_slewed, &vsupply, &amps,
+                    &autopilot_flight_time, (uint8_t *)(&kill_throttle),
+                    &block_time, &stage_time, &e);
 }
 
-static void send_energy(struct transport_tx *trans, struct link_device *dev) {
+static void send_energy(struct transport_tx *trans, struct link_device *dev)
+{
   uint16_t e = energy;
   float vsup = ((float)vsupply) / 10.0f;
   float curs = ((float)current) / 1000.0f;
@@ -108,43 +128,40 @@ static void send_energy(struct transport_tx *trans, struct link_device *dev) {
   pprz_msg_send_ENERGY(trans, dev, AC_ID, &vsup, &curs, &e, &power);
 }
 
-static void send_dl_value(struct transport_tx *trans, struct link_device *dev) {
+static void send_dl_value(struct transport_tx *trans, struct link_device *dev)
+{
   PeriodicSendDlValue(trans, dev);
 }
 
 // FIXME not the best place
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include CTRL_TYPE_H
-static void send_desired(struct transport_tx *trans, struct link_device *dev) {
+static void send_desired(struct transport_tx *trans, struct link_device *dev)
+{
 #ifndef USE_AIRSPEED
   float v_ctl_auto_airspeed_setpoint = NOMINAL_AIRSPEED;
 #endif
   pprz_msg_send_DESIRED(trans, dev, AC_ID,
-      &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint,
-      &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint,
-      &v_ctl_auto_airspeed_setpoint);
+                        &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint,
+                        &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint,
+                        &v_ctl_auto_airspeed_setpoint);
 }
 
-static void send_airspeed(struct transport_tx *trans __attribute__((unused)), struct link_device *dev __attribute__((unused))) {
+static void send_airspeed(struct transport_tx *trans __attribute__((unused)),
+                          struct link_device *dev __attribute__((unused)))
+{
 #ifdef MEASURE_AIRSPEED
-  float* airspeed = stateGetAirspeed_f();
+  float *airspeed = stateGetAirspeed_f();
   pprz_msg_send_AIRSPEED(trans, dev, AC_ID, airspeed, airspeed, airspeed, airspeed);
 #elif USE_AIRSPEED
   pprz_msg_send_AIRSPEED(trans, dev, AC_ID,
-      stateGetAirspeed_f(), &v_ctl_auto_airspeed_setpoint,
-      &v_ctl_auto_airspeed_controlled, &v_ctl_auto_groundspeed_setpoint);
+                         stateGetAirspeed_f(), &v_ctl_auto_airspeed_setpoint,
+                         &v_ctl_auto_airspeed_controlled, &v_ctl_auto_groundspeed_setpoint);
 #endif
 }
 
-static void send_downlink(struct transport_tx *trans, struct link_device *dev) {
-  static uint16_t last;
-  uint16_t rate = (downlink.nb_bytes - last) / PERIOD_DOWNLINK_Ap_0;
-  last = downlink.nb_bytes;
-  pprz_msg_send_DOWNLINK(trans, dev, AC_ID,
-      &downlink.nb_ovrn, &rate, &downlink.nb_msgs);
-}
-
-void autopilot_init(void) {
+void autopilot_init(void)
+{
   pprz_mode = PPRZ_MODE_AUTO2;
   kill_throttle = FALSE;
   launch = FALSE;
@@ -161,9 +178,9 @@ void autopilot_init(void) {
 #endif
 
   /* register some periodic message */
+  register_periodic_telemetry(DefaultPeriodic, "AUTOPILOT_VERSION", send_autopilot_version);
   register_periodic_telemetry(DefaultPeriodic, "ALIVE", send_alive);
   register_periodic_telemetry(DefaultPeriodic, "PPRZ_MODE", send_mode);
-  register_periodic_telemetry(DefaultPeriodic, "DOWNLINK", send_downlink);
   register_periodic_telemetry(DefaultPeriodic, "ATTITUDE", send_attitude);
   register_periodic_telemetry(DefaultPeriodic, "ESTIMATOR", send_estimator);
   register_periodic_telemetry(DefaultPeriodic, "AIRSPEED", send_airspeed);

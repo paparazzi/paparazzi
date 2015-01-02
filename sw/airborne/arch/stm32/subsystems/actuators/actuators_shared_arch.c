@@ -33,12 +33,14 @@
 /** Set PWM channel configuration
  */
 void actuators_pwm_arch_channel_init(uint32_t timer_peripheral,
-                                                   enum tim_oc_id oc_id) {
+                                     enum tim_oc_id oc_id)
+{
 
   timer_disable_oc_output(timer_peripheral, oc_id);
   //There is no such register in TIM9 and 12.
-  if (timer_peripheral != TIM9 && timer_peripheral != TIM12)
+  if (timer_peripheral != TIM9 && timer_peripheral != TIM12) {
     timer_disable_oc_clear(timer_peripheral, oc_id);
+  }
   timer_enable_oc_preload(timer_peripheral, oc_id);
   timer_set_oc_slow_mode(timer_peripheral, oc_id);
   timer_set_oc_mode(timer_peripheral, oc_id, TIM_OCM_PWM1);
@@ -54,7 +56,8 @@ void actuators_pwm_arch_channel_init(uint32_t timer_peripheral,
  * @param[in] period period in us
  * @param[in] channels_mask output compare channels to enable
  */
-void set_servo_timer(uint32_t timer, uint32_t period, uint8_t channels_mask) {
+void set_servo_timer(uint32_t timer, uint32_t period, uint8_t channels_mask)
+{
   // WARNING, this reset is only implemented for TIM1-8 in libopencm3!!
   timer_reset(timer);
 
@@ -65,14 +68,16 @@ void set_servo_timer(uint32_t timer, uint32_t period, uint8_t channels_mask) {
    */
   if ((timer == TIM9) || (timer == TIM12))
     //There are no EDGE and DIR settings in TIM9 and TIM12
+  {
     timer_set_mode(timer, TIM_CR1_CKD_CK_INT, 0, 0);
-  else
+  } else {
     timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  }
 
 
   // By default the PWM_BASE_FREQ is set to 1MHz thus the timer tick period is 1uS
   uint32_t timer_clk = timer_get_frequency(timer);
-  timer_set_prescaler(timer, (timer_clk / PWM_BASE_FREQ) -1);
+  timer_set_prescaler(timer, (timer_clk / PWM_BASE_FREQ) - 1);
 
   timer_disable_preload(timer);
 

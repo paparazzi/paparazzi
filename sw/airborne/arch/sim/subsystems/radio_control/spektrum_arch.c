@@ -45,7 +45,8 @@ void radio_control_impl_init(void)
 {
   spektrum_available = FALSE;
 }
-void RadioControlEventImp(void (*frame_handler)(void) ) {
+void RadioControlEventImp(void (*frame_handler)(void))
+{
   if (spektrum_available) {
     radio_control.frame_cpt++;
     radio_control.time_since_last_frame = 0;
@@ -57,7 +58,8 @@ void RadioControlEventImp(void (*frame_handler)(void) ) {
 
 #if USE_NPS
 #ifdef RADIO_CONTROL
-void radio_control_feed(void) {
+void radio_control_feed(void)
+{
   radio_control.values[RADIO_ROLL]     = nps_radio_control.roll * MAX_PPRZ;
   radio_control.values[RADIO_PITCH]    = nps_radio_control.pitch * MAX_PPRZ;
   radio_control.values[RADIO_YAW]      = nps_radio_control.yaw * MAX_PPRZ;
@@ -71,26 +73,28 @@ void radio_control_feed(void) {}
 
 #elif !USE_JSBSIM // not NPS and not JSBSIM -> simple ocaml sim
 #ifdef RADIO_CONTROL
-value update_rc_channel(value c, value v) {
+value update_rc_channel(value c, value v)
+{
   // OCaml sim sends ppm values read from radio xml
   //assume "ppm" value range from 1000 to 2000 for now.. like in fake spektrum.xml
   if (Int_val(c) == 0) {
     // throttle channel has neutral at 1000
     radio_control.values[Int_val(c)] = (Double_val(v) - 1000.0) / 1000 * MAX_PPRZ;
-  }
-  else {
+  } else {
     // all other channels at 1500
     radio_control.values[Int_val(c)] = (Double_val(v) - 1500.0) / 500 * MAX_PPRZ;
   }
   return Val_unit;
 }
 
-value send_ppm(value unit) {
+value send_ppm(value unit)
+{
   spektrum_available = TRUE;
   return unit;
 }
 #else // RADIO_CONTROL
-value update_rc_channel(value c __attribute__ ((unused)), value v __attribute__ ((unused))) {
+value update_rc_channel(value c __attribute__((unused)), value v __attribute__((unused)))
+{
   return Val_unit;
 }
 value send_ppm(value unit) {return unit;}

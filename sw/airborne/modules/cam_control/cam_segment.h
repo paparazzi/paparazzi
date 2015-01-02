@@ -28,8 +28,8 @@
 #ifndef CAM_SEGMENT_H
 #define CAM_SEGMENT_H
 
-extern void cam_segment_init( void );
-extern void cam_segment_stop ( void );
-extern void cam_segment_periodic( void );
+extern void cam_segment_init(void);
+extern void cam_segment_stop(void);
+extern void cam_segment_periodic(void);
 
 #endif

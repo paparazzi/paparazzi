@@ -100,6 +100,20 @@ let log_xml = fun timeofday data_file ->
 
 let start_time = U.gettimeofday ()
 
+(* Run a command and return its results as a string. *)
+let read_process command =
+  let buffer_size = 2048 in
+  let buffer = Buffer.create buffer_size in
+  let string = String.create buffer_size in
+  let in_channel = Unix.open_process_in command in
+  let chars_read = ref 1 in
+  while !chars_read <> 0 do
+    chars_read := input in_channel string 0 buffer_size;
+    Buffer.add_substring buffer string 0 !chars_read
+  done;
+  ignore (Unix.close_process_in in_channel);
+  Buffer.contents buffer
+
 (* Opens the log files *)
 let logger = fun () ->
   let d = U.localtime start_time in
@@ -111,6 +125,20 @@ let logger = fun () ->
   let log_name = sprintf "%s.log" basename
   and data_name = sprintf "%s.data" basename in
   let f = open_out (logs_path // log_name) in
+  (* version string with whitespace/newline at the end stripped *)
+  let version_str =
+    try
+      Str.replace_first (Str.regexp "[ \n]+$") "" (read_process (Env.paparazzi_src ^ "/paparazzi_version"))
+    with _ -> "UNKNOWN" in
+  output_string f ("<!-- logged with runtime paparazzi_version " ^ version_str ^ " -->\n");
+  let build_str =
+    try
+      let f = open_in (Env.paparazzi_home ^ "/var/build_version.txt") in
+      let s = try input_line f with _ -> "UNKNOWN" in
+      close_in f;
+      s
+    with _ -> "UNKNOWN" in
+  output_string f ("<!-- logged with build paparazzi_version " ^ build_str ^ " -->\n");
   output_string f (Xml.to_string_fmt (log_xml start_time data_name));
   close_out f;
   open_out (logs_path // data_name)
@@ -199,7 +227,9 @@ let send_dl_values = fun a ->
   if a.nb_dl_setting_values > 0 then
     let csv = ref "" in
     for i = 0 to a.nb_dl_setting_values - 1 do
-      csv := sprintf "%s%f," !csv a.dl_setting_values.(i)
+      match a.dl_setting_values.(i) with
+      | None -> csv := sprintf "%s?," !csv
+      | Some s -> csv := sprintf "%s%f," !csv s
     done;
     let vs = ["ac_id", Pprz.String a.id; "values", Pprz.String !csv] in
     Ground_Pprz.message_send my_id "DL_VALUES" vs
@@ -277,13 +307,35 @@ let send_wind = fun a ->
 
 let send_telemetry_status = fun a ->
   let id = a.id in
-  try
-    let vs =
-      ["ac_id", Pprz.String id;
-       "time_since_last_msg", Pprz.Float (U.gettimeofday () -. a.last_msg_date)] in
-    Ground_Pprz.message_send my_id "TELEMETRY_STATUS" vs
-  with
-      _exc -> ()
+  let tl_payload = fun link_id datalink_status link_status ->
+    [ "ac_id", Pprz.String id;
+      "link_id", Pprz.String link_id;
+      "time_since_last_msg", Pprz.Float (U.gettimeofday () -. a.last_msg_date); (* don't use rx_lost_time from LINK_REPORT so it also works in simulation *)
+      "rx_bytes", Pprz.Int link_status.rx_bytes;
+      "rx_msgs", Pprz.Int link_status.rx_msgs;
+      "rx_bytes_rate", Pprz.Float link_status.rx_bytes_rate;
+      "tx_msgs", Pprz.Int link_status.tx_msgs;
+      "uplink_lost_time", Pprz.Int datalink_status.uplink_lost_time;
+      "uplink_msgs", Pprz.Int datalink_status.uplink_msgs;
+      "downlink_msgs", Pprz.Int datalink_status.downlink_msgs;
+      "downlink_rate", Pprz.Int datalink_status.downlink_rate;
+      "ping_time", Pprz.Float link_status.ping_time]
+  in
+  (* if no link send anyway for rx_lost_time with special link id *)
+  if Hashtbl.length a.link_status = 0 then
+    begin
+      let vs = tl_payload "no_id" a.datalink_status (Aircraft.link_status_init ()) in
+      Ground_Pprz.message_send my_id "TELEMETRY_STATUS" vs
+    end
+  else
+    (* send telemetry status for each link *)
+    Hashtbl.iter (fun link_id link_status ->
+      try
+        let vs = tl_payload (string_of_int link_id) a.datalink_status link_status in
+        Ground_Pprz.message_send my_id "TELEMETRY_STATUS" vs
+      with
+          _exc -> ()
+    ) a.link_status
 
 let send_moved_waypoints = fun a ->
   Hashtbl.iter
@@ -655,7 +707,11 @@ let setting = fun logging _sender vs ->
              "ac_id", Pprz.String ac_id;
              "value", List.assoc "value" vs] in
   Dl_Pprz.message_send dl_id "SETTING" vs;
-  log logging ac_id "SETTING" vs
+  log logging ac_id "SETTING" vs;
+  (* mark the setting as not yet confirmed *)
+  let ac = Hashtbl.find aircrafts ac_id in
+  let idx = Pprz.int_of_value (List.assoc "index" vs) in
+  ac.dl_setting_values.(idx) <- None
 
 
 (** Got a GET_DL_SETTING, and send an GET_SETTING *)
@@ -664,7 +720,11 @@ let get_setting = fun logging _sender vs ->
   let vs = [ "index", List.assoc "index" vs;
              "ac_id", Pprz.String ac_id ] in
   Dl_Pprz.message_send dl_id "GET_SETTING" vs;
-  log logging ac_id "GET_SETTING" vs
+  log logging ac_id "GET_SETTING" vs;
+  (* mark the setting as not yet confirmed *)
+  let ac = Hashtbl.find aircrafts ac_id in
+  let idx = Pprz.int_of_value (List.assoc "index" vs) in
+  ac.dl_setting_values.(idx) <- None
 
 
 (** Got a JUMP_TO_BLOCK, and send an BLOCK *)
@@ -674,7 +734,7 @@ let jump_block = fun logging _sender vs ->
   Dl_Pprz.message_send dl_id "BLOCK" vs;
   log logging ac_id "BLOCK" vs
 
-(** Got a RAW_DATALINK,send its contents *)
+(** Got a RAW_DATALINK, send its contents *)
 let raw_datalink = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs
   and m = Pprz.string_assoc "message" vs in
@@ -686,6 +746,25 @@ let raw_datalink = fun logging _sender vs ->
   Dl_Pprz.message_send dl_id msg.Pprz.name vs;
   log logging ac_id msg.Pprz.name vs
 
+(** Got a LINK_REPORT, update state but don't send (done asynchronously) *)
+let link_report = fun logging _sender vs ->
+  let ac_id = Pprz.string_assoc "ac_id" vs
+  and link_id = Pprz.int_assoc "link_id" vs in
+  try
+    let ac = Hashtbl.find aircrafts ac_id in
+    let link_status = {
+      Aircraft.rx_lost_time = Pprz.int_assoc "rx_lost_time" vs;
+      rx_bytes = Pprz.int_assoc "rx_bytes" vs;
+      rx_msgs = Pprz.int_assoc "rx_msgs" vs;
+      rx_bytes_rate = Pprz.float_assoc "rx_bytes_rate" vs;
+      tx_msgs = Pprz.int_assoc "tx_msgs" vs;
+      ping_time = Pprz.float_assoc "ping_time" vs;
+    } in
+    Hashtbl.replace ac.link_status link_id link_status;
+    log logging ac_id "LINK_REPORT" vs
+  with _ -> ()
+
+
 (** Get the 'ground' uplink messages, log them and send 'datalink' messages *)
 let ground_to_uplink = fun logging ->
   let bind_log_and_send = fun name handler ->
@@ -694,7 +773,8 @@ let ground_to_uplink = fun logging ->
   bind_log_and_send "DL_SETTING" setting;
   bind_log_and_send "GET_DL_SETTING" get_setting;
   bind_log_and_send "JUMP_TO_BLOCK" jump_block;
-  bind_log_and_send "RAW_DATALINK" raw_datalink
+  bind_log_and_send "RAW_DATALINK" raw_datalink;
+  bind_log_and_send "LINK_REPORT" link_report
 
 
 (* main loop *)

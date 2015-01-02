@@ -49,7 +49,7 @@ class canvas_text = fun ?(config=[]) canvas_group x y ->
 object (self)
   val mutable format = PC.get_prop "format" config "%.2f"
   val mutable size = float_of_string (PC.get_prop "size" config "15.")
-  val mutable color = PC.get_prop "color" config "green"
+  val mutable color = PC.get_prop "color" config "#00ff00"
 
   method tag = "Text"
   method item = (group :> movable_item)
@@ -187,10 +187,10 @@ class canvas_gauge = fun ?(config=[]) canvas_group x y ->
   let idx = GnoCanvas.polygon ~points:[|r3-.0.2;0.;0.;-.r1;-.(r3-.0.2);0.|]
     ~props:[`FILL_COLOR "red"; `OUTLINE_COLOR "white"] root in
   let _ = GnoCanvas.ellipse ~x1:r3 ~y1:r3 ~x2:(-.r3) ~y2:(-.r3) ~props:[`OUTLINE_COLOR "grey"] ~fill_color:"red" root in
-  let text_min = GnoCanvas.text ~x:(-.r1) ~y:(r1/.2.) ~props:[`ANCHOR `NE; `FILL_COLOR "green"] root in
-  let text_max = GnoCanvas.text ~x:r1 ~y:(r1/.2.) ~props:[`ANCHOR `NW; `FILL_COLOR "green"] root in
-  let text_mid = GnoCanvas.text ~x:0. ~y:(-.r2-.3.) ~props:[`ANCHOR `SOUTH; `FILL_COLOR "green"] root in
-  let text_text = GnoCanvas.text ~x:0. ~y:(r2+.3.) ~props:[`ANCHOR `NORTH; `FILL_COLOR "green"] root in
+  let text_min = GnoCanvas.text ~x:(-.r1) ~y:(r1/.2.) ~props:[`ANCHOR `NE; `FILL_COLOR "#00ff00"] root in
+  let text_max = GnoCanvas.text ~x:r1 ~y:(r1/.2.) ~props:[`ANCHOR `NW; `FILL_COLOR "#00ff00"] root in
+  let text_mid = GnoCanvas.text ~x:0. ~y:(-.r2-.3.) ~props:[`ANCHOR `SOUTH; `FILL_COLOR "#00ff00"] root in
+  let text_text = GnoCanvas.text ~x:0. ~y:(r2+.3.) ~props:[`ANCHOR `NORTH; `FILL_COLOR "#00ff00"] root in
 
 object
   val mutable min = PC.get_prop "min" config "-50."
@@ -251,7 +251,7 @@ class canvas_led = fun ?(config=[]) canvas_group x y ->
   let led = GnoCanvas.ellipse ~x1:r ~y1:r ~x2:(-.r) ~y2:(-.r)
     ~props:[`NO_FILL_COLOR; `OUTLINE_COLOR "grey"; `WIDTH_UNITS 2.]  root in
 
-  let led_text = GnoCanvas.text ~x:(-.r-.3.) ~y:0. ~props:[`ANCHOR `EAST; `FILL_COLOR "green"] root in
+  let led_text = GnoCanvas.text ~x:(-.r-.3.) ~y:0. ~props:[`ANCHOR `EAST; `FILL_COLOR "#00ff00"] root in
 
 object
   val mutable size = float_of_string (PC.get_prop "size" config "15.")
@@ -289,7 +289,7 @@ object
     let inv = if test_inv then not else (fun x -> x) in
       (* Led drawer *)
     if inv (value = test_value) then led#set [`FILL_COLOR "red"]
-    else led#set [`FILL_COLOR "green"];
+    else led#set [`FILL_COLOR "#00ff00"];
     let r = (Pervasives.max 2. (size /. 2.)) +. 1. in
     led#set [`X1 r; `Y1 r; `X2 (-.r); `Y2 (-.r)];
     led_text#set [`TEXT text; `SIZE_POINTS size; `X (-.r-.3.)]

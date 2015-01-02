@@ -28,8 +28,8 @@ Add to airframe file:
   <section name="Photogrammetry" prefix="PHOTOGRAMMETRY_">
     <!-- Camera Parameters -->
     <define name="FOCAL_LENGTH" value="35" unit="mm"/>
-    <define name="SENSOR_WIDTH" value="24" unit="mm"/>		<!-- In direction of the plane's wings -->
-    <define name="SENSOR_HEIGHT" value="13.5" unit="mm"/>	<!-- In direction of the plane's nose -->
+    <define name="SENSOR_WIDTH" value="24" unit="mm"/>    <!-- In direction of the plane's wings -->
+    <define name="SENSOR_HEIGHT" value="13.5" unit="mm"/> <!-- In direction of the plane's nose -->
     <define name="PIXELS_WIDTH" value="1024" unit=""/>
 
     <!-- Flight Safety Parameters -->
@@ -54,9 +54,9 @@ Add to flightplan or airframe file:
 Add to flightplan
 @verbatim
   <header>
-#define PHOTOGRAMMETRY_SWEEP_ANGLE RadOfDeg(53)	 // angle in radians from the North
-#define PHOTOGRAMMETRY_OVERLAP 50	             // 1-99 Procent
-#define PHOTOGRAMMETRY_SIDELAP 50	             // 1-99 Procent
+#define PHOTOGRAMMETRY_SWEEP_ANGLE RadOfDeg(53)  // angle in radians from the North
+#define PHOTOGRAMMETRY_OVERLAP 50              // 1-99 Procent
+#define PHOTOGRAMMETRY_SIDELAP 50              // 1-99 Procent
 #define PHOTOGRAMMETRY_RESOLUTION 80             // mm pixel projection size
 </header>
 
@@ -103,50 +103,50 @@ void photogrammetry_calculator_update_camera2flightplan(void);
 void photogrammetry_calculator_update_flightplan2camera(void);
 
 // Update Flightplan on Camera Change
-#define photogrammetry_calculator_UpdateSideLap(X)	{ 	\
-  photogrammetry_sidelap = X;					\
-  photogrammetry_calculator_update_camera2flightplan();		\
-}
+#define photogrammetry_calculator_UpdateSideLap(X)  {   \
+    photogrammetry_sidelap = X;         \
+    photogrammetry_calculator_update_camera2flightplan();   \
+  }
 
-#define photogrammetry_calculator_UpdateOverLap(X)	{ 	\
-  photogrammetry_overlap = X;					\
-  photogrammetry_calculator_update_camera2flightplan();		\
-}
+#define photogrammetry_calculator_UpdateOverLap(X)  {   \
+    photogrammetry_overlap = X;         \
+    photogrammetry_calculator_update_camera2flightplan();   \
+  }
 
-#define photogrammetry_calculator_UpdateResolution(X)	{ 	\
-  photogrammetry_resolution = X;				\
-  photogrammetry_calculator_update_camera2flightplan();		\
-}
+#define photogrammetry_calculator_UpdateResolution(X) {   \
+    photogrammetry_resolution = X;        \
+    photogrammetry_calculator_update_camera2flightplan();   \
+  }
 
 // Update Camera on Flightplan Change
-#define photogrammetry_calculator_UpdateHeight(X)	{ 	\
-  photogrammetry_height = X;					\
-  photogrammetry_calculator_update_flightplan2camera();		\
-}
+#define photogrammetry_calculator_UpdateHeight(X) {   \
+    photogrammetry_height = X;          \
+    photogrammetry_calculator_update_flightplan2camera();   \
+  }
 
-#define photogrammetry_calculator_UpdateSideStep(X)	{ 	\
-  photogrammetry_sidestep = X;					\
-  photogrammetry_calculator_update_flightplan2camera();		\
-}
+#define photogrammetry_calculator_UpdateSideStep(X) {   \
+    photogrammetry_sidestep = X;          \
+    photogrammetry_calculator_update_flightplan2camera();   \
+  }
 
-#define photogrammetry_calculator_UpdateTriggerStep(X)	{ 	\
-  photogrammetry_triggerstep = X;				\
-  photogrammetry_calculator_update_flightplan2camera();		\
-}
+#define photogrammetry_calculator_UpdateTriggerStep(X)  {   \
+    photogrammetry_triggerstep = X;       \
+    photogrammetry_calculator_update_flightplan2camera();   \
+  }
 
 
 // Flightplan Routine Wrappers
-#define PhotogrammetryCalculatorPolygonSurveyOsam(_WP, _COUNT) {  			\
-  WaypointAlt(_WP) = photogrammetry_height + GROUND_ALT;			\
-  int _ang = 90 - DegOfRad(photogrammetry_sweep_angle);				\
-  while (_ang > 90) _ang -= 180; while (_ang < -90) _ang += 180; 			\
-  nav_survey_poly_osam_setup((_WP), (_COUNT), 2*photogrammetry_sidestep, _ang); 	\
-}
+#define PhotogrammetryCalculatorPolygonSurveyOsam(_WP, _COUNT) {        \
+    WaypointAlt(_WP) = photogrammetry_height + GROUND_ALT;      \
+    int _ang = 90 - DegOfRad(photogrammetry_sweep_angle);       \
+    while (_ang > 90) _ang -= 180; while (_ang < -90) _ang += 180;      \
+    nav_survey_poly_osam_setup((_WP), (_COUNT), 2*photogrammetry_sidestep, _ang);   \
+  }
 
-#define PhotogrammetryCalculatorPolygonSurvey(_WP, _COUNT) {			\
-  nav_survey_polygon_setup((_WP), (_COUNT), DegOfRad(photogrammetry_sweep_angle),	\
-    photogrammetry_sidestep, photogrammetry_triggerstep, 			\
-  photogrammetry_radius_min,  photogrammetry_height + GROUND_ALT);		\
-}
+#define PhotogrammetryCalculatorPolygonSurvey(_WP, _COUNT) {      \
+    nav_survey_polygon_setup((_WP), (_COUNT), DegOfRad(photogrammetry_sweep_angle), \
+                             photogrammetry_sidestep, photogrammetry_triggerstep,      \
+                             photogrammetry_radius_min,  photogrammetry_height + GROUND_ALT);    \
+  }
 
 #endif

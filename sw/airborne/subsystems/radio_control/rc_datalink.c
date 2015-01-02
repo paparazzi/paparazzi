@@ -31,16 +31,17 @@ int8_t rc_dl_values[ RC_DL_NB_CHANNEL ];
 volatile bool_t rc_dl_frame_available;
 
 
-void radio_control_impl_init(void) {
+void radio_control_impl_init(void)
+{
   rc_dl_frame_available = FALSE;
 }
 
 
-void parse_rc_3ch_datalink( uint8_t throttle_mode,
-                        int8_t roll,
-                        int8_t pitch)
+void parse_rc_3ch_datalink(uint8_t throttle_mode,
+                           int8_t roll,
+                           int8_t pitch)
 {
-  uint8_t throttle = ((throttle_mode & 0xFC)>>2)*(128/64);
+  uint8_t throttle = ((throttle_mode & 0xFC) >> 2) * (128 / 64);
   uint8_t mode = throttle_mode & 0x03;
 
   rc_dl_values[RADIO_ROLL] = roll;
@@ -53,11 +54,11 @@ void parse_rc_3ch_datalink( uint8_t throttle_mode,
 }
 
 void parse_rc_4ch_datalink(
-    uint8_t mode,
-    uint8_t throttle,
-    int8_t roll,
-    int8_t pitch,
-    int8_t yaw)
+  uint8_t mode,
+  uint8_t throttle,
+  int8_t roll,
+  int8_t pitch,
+  int8_t yaw)
 {
   rc_dl_values[RADIO_MODE] = (int8_t)mode;
   rc_dl_values[RADIO_THROTTLE] = (int8_t)throttle;
@@ -73,13 +74,13 @@ void parse_rc_4ch_datalink(
  */
 static void rc_datalink_normalize(int8_t *in, int16_t *out)
 {
-  out[RADIO_ROLL] = (MAX_PPRZ/128) * in[RADIO_ROLL];
+  out[RADIO_ROLL] = (MAX_PPRZ / 128) * in[RADIO_ROLL];
   Bound(out[RADIO_ROLL], MIN_PPRZ, MAX_PPRZ);
-  out[RADIO_PITCH] = (MAX_PPRZ/128) * in[RADIO_PITCH];
+  out[RADIO_PITCH] = (MAX_PPRZ / 128) * in[RADIO_PITCH];
   Bound(out[RADIO_PITCH], MIN_PPRZ, MAX_PPRZ);
-  out[RADIO_YAW] = (MAX_PPRZ/128) * in[RADIO_YAW];
+  out[RADIO_YAW] = (MAX_PPRZ / 128) * in[RADIO_YAW];
   Bound(out[RADIO_YAW], MIN_PPRZ, MAX_PPRZ);
-  out[RADIO_THROTTLE] = ((MAX_PPRZ/128) * in[RADIO_THROTTLE]);
+  out[RADIO_THROTTLE] = ((MAX_PPRZ / 128) * in[RADIO_THROTTLE]);
   Bound(out[RADIO_THROTTLE], 0, MAX_PPRZ);
   out[RADIO_MODE] = MAX_PPRZ * (in[RADIO_MODE] - 1);
   Bound(out[RADIO_MODE], MIN_PPRZ, MAX_PPRZ);

@@ -33,18 +33,21 @@ struct i2c_transaction scp_trans;
 
 #define SCP1000_SLAVE_ADDR 0x22
 
-static void baro_scp_start_high_res_measurement(void) {
+static void baro_scp_start_high_res_measurement(void)
+{
   /* switch to high resolution */
   scp_trans.buf[0] = SCP1000_OPERATION;
   scp_trans.buf[1] = SCP1000_HIGH_RES;
   i2c_transmit(&SCP_I2C_DEV, &scp_trans, SCP1000_SLAVE_ADDR, 2);
 }
 
-void baro_scp_init( void ) {
+void baro_scp_init(void)
+{
   baro_scp_status = BARO_SCP_UNINIT;
 }
 
-void baro_scp_periodic( void ) {
+void baro_scp_periodic(void)
+{
 
   if (baro_scp_status == BARO_SCP_UNINIT && sys_time.nb_sec > 1) {
 
@@ -59,7 +62,8 @@ void baro_scp_periodic( void ) {
   }
 }
 
-void baro_scp_event( void ) {
+void baro_scp_event(void)
+{
 
   if (scp_trans.status == I2CTransSuccess) {
 
@@ -106,6 +110,6 @@ void baro_scp_event( void ) {
       baro_scp_status = BARO_SCP_IDLE;
     }
 
-    else baro_scp_status = BARO_SCP_IDLE;
+    else { baro_scp_status = BARO_SCP_IDLE; }
   }
 }

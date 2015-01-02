@@ -47,6 +47,8 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_flightgear.c                \
 
 
-nps.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp
-nps.srcs   += subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c subsystems/datalink/ivy_transport.c
-
+nps.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp -DDefaultPeriodic='&telemetry_Ap'
+nps.srcs += subsystems/datalink/ivy_transport.c
+nps.srcs += subsystems/datalink/downlink.c subsystems/datalink/telemetry.c
+nps.srcs += $(SRC_FIRMWARE)/datalink.c
+nps.srcs += $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c

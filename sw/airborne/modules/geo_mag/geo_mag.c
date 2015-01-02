@@ -36,17 +36,21 @@
 bool_t geo_mag_calc_flag;
 struct GeoMag geo_mag;
 
-void geo_mag_init(void) {
+void geo_mag_init(void)
+{
   geo_mag_calc_flag = FALSE;
   geo_mag.ready = FALSE;
 }
 
-void geo_mag_periodic(void) {
-  if (!geo_mag.ready && gps.fix == GPS_FIX_3D && kill_throttle)
+void geo_mag_periodic(void)
+{
+  if (!geo_mag.ready && gps.fix == GPS_FIX_3D && kill_throttle) {
     geo_mag_calc_flag = TRUE;
+  }
 }
 
-void geo_mag_event(void) {
+void geo_mag_event(void)
+{
 
   if (geo_mag_calc_flag) {
     double gha[MAXCOEFF]; // Geomag global variables
@@ -54,8 +58,8 @@ void geo_mag_event(void) {
 
     /* Current date in decimal year, for example 2012.68 */
     double sdate = GPS_EPOCH_BEGIN +
-      (double)gps.week/WEEKS_IN_YEAR +
-      (double)gps.tow/1000/SECS_IN_YEAR;
+                   (double)gps.week / WEEKS_IN_YEAR +
+                   (double)gps.tow / 1000 / SECS_IN_YEAR;
 
     /* LLA Position in decimal degrees and altitude in km */
     double latitude = (double)gps.lla_pos.lat / 1e7;
@@ -75,7 +79,8 @@ void geo_mag_event(void) {
     VECT3_COPY(DefaultAhrsImpl.mag_h, geo_mag.vect);
 #else
     // convert to MAG_BFP and copy to ahrs
-    VECT3_ASSIGN(DefaultAhrsImpl.mag_h, MAG_BFP_OF_REAL(geo_mag.vect.x), MAG_BFP_OF_REAL(geo_mag.vect.y), MAG_BFP_OF_REAL(geo_mag.vect.z));
+    VECT3_ASSIGN(DefaultAhrsImpl.mag_h, MAG_BFP_OF_REAL(geo_mag.vect.x),
+                 MAG_BFP_OF_REAL(geo_mag.vect.y), MAG_BFP_OF_REAL(geo_mag.vect.z));
 #endif
 
     geo_mag.ready = TRUE;

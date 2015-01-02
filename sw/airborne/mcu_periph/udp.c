@@ -27,7 +27,7 @@
 
 #include "mcu_periph/udp.h"
 
-void udp_periph_init(struct udp_periph* p, char* host, int port_out, int port_in, bool_t broadcast)
+void udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast)
 {
   p->rx_insert_idx = 0;
   p->rx_extract_idx = 0;
@@ -41,12 +41,12 @@ void udp_periph_init(struct udp_periph* p, char* host, int port_out, int port_in
   udp_arch_periph_init(p, host, port_out, port_in, broadcast);
 }
 
-bool_t udp_check_free_space(struct udp_periph* p, uint8_t len)
+bool_t udp_check_free_space(struct udp_periph *p, uint8_t len)
 {
   return (UDP_TX_BUFFER_SIZE - p->tx_insert_idx) >= len;
 }
 
-void udp_transmit(struct udp_periph* p, uint8_t data)
+void udp_transmit(struct udp_periph *p, uint8_t data)
 {
   if (p->tx_insert_idx >= UDP_TX_BUFFER_SIZE) {
     return;  // no room
@@ -56,7 +56,7 @@ void udp_transmit(struct udp_periph* p, uint8_t data)
   p->tx_insert_idx++;
 }
 
-uint16_t udp_char_available(struct udp_periph* p)
+uint16_t udp_char_available(struct udp_periph *p)
 {
   int16_t available = p->rx_insert_idx - p->rx_extract_idx;
   if (available < 0) {
@@ -65,7 +65,7 @@ uint16_t udp_char_available(struct udp_periph* p)
   return (uint16_t)available;
 }
 
-uint8_t udp_getch(struct udp_periph* p)
+uint8_t udp_getch(struct udp_periph *p)
 {
   uint8_t ret = p->rx_buf[p->rx_extract_idx];
   p->rx_extract_idx = (p->rx_extract_idx + 1) % UDP_RX_BUFFER_SIZE;

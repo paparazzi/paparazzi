@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="servo_switch">
+  <doc>
+    <description>AUTO1 FLAPS/HATCH COMMANDS.
+      Enable RC controlled HATCH and BRAKE/FLAPS in both MANUAL and AUTO1, while automatic in AUTO2.
+    </description>
+  </doc>
+  <header>
+    <file name="auto1_commands.h"/>
+  </header>
+  <periodic fun="periodic_auto1_commands()" autorun="TRUE"/>
+  <makefile>
+    <file name="auto1_commands.c"/>
+  </makefile>
+</module>
+

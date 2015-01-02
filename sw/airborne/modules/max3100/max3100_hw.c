@@ -75,7 +75,8 @@ static void SPI1_ISR(void) __attribute__((naked));
 #endif
 
 
-void max3100_init( void ) {
+void max3100_init(void)
+{
   max3100_status = MAX3100_STATUS_IDLE;
   max3100_data_available = false;
   max3100_transmit_buffer_empty = true;
@@ -110,8 +111,8 @@ void max3100_init( void ) {
   SetBit(EXTINT, MAX3100_IRQ_EINT);
 
   /* Configure interrupt vector for external pin interrupt */
-  VICIntSelect &= ~VIC_BIT( MAX3100_VIC_EINT );    // EXTINT selected as IRQ
-  VICIntEnable = VIC_BIT( MAX3100_VIC_EINT );             // EXTINT interrupt enabled
+  VICIntSelect &= ~VIC_BIT(MAX3100_VIC_EINT);      // EXTINT selected as IRQ
+  VICIntEnable = VIC_BIT(MAX3100_VIC_EINT);               // EXTINT interrupt enabled
   VICVectCntl8 = VIC_ENABLE | MAX3100_VIC_EINT;
   VICVectAddr8 = (uint32_t)EXTINT_ISR;   // address of the ISR
 
@@ -128,7 +129,8 @@ void max3100_init( void ) {
 
 
 /******* External interrupt: Data input available ***********/
-void EXTINT_ISR(void) {
+void EXTINT_ISR(void)
+{
   ISR_ENTRY();
 
   max3100_data_available = true;
@@ -139,7 +141,8 @@ void EXTINT_ISR(void) {
   ISR_EXIT();
 }
 
-void SPI1_ISR(void) {
+void SPI1_ISR(void)
+{
   ISR_ENTRY();
 
   while (bit_is_set(SSPSR, RNE)) {
@@ -156,7 +159,7 @@ void SPI1_ISR(void) {
   }
   SpiClearRti();                  /* clear interrupt */
   SpiDisableRti();
-  SpiDisable ();
+  SpiDisable();
   Max3100Unselect();
   max3100_status = MAX3100_STATUS_IDLE;
 
@@ -164,6 +167,7 @@ void SPI1_ISR(void) {
   ISR_EXIT();
 }
 
-void max3100_debug(void) {
+void max3100_debug(void)
+{
   /***     DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, 16, max3100_rx_buf); ***/
 }

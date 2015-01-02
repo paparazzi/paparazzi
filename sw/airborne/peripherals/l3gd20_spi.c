@@ -61,7 +61,8 @@ void l3gd20_spi_init(struct L3gd20_Spi *l3g, struct spi_periph *spi_p, uint8_t s
 }
 
 
-static void l3gd20_spi_write_to_reg(struct L3gd20_Spi *l3g, uint8_t _reg, uint8_t _val) {
+static void l3gd20_spi_write_to_reg(struct L3gd20_Spi *l3g, uint8_t _reg, uint8_t _val)
+{
   l3g->spi_trans.output_length = 2;
   l3g->spi_trans.input_length = 0;
   l3g->tx_buf[0] = _reg;
@@ -80,9 +81,10 @@ static void l3gd20_spi_send_config(struct L3gd20_Spi *l3g)
       l3g->spi_trans.output_length = 1;
       l3g->spi_trans.input_length = 2;
       /* set read bit then reg address */
-      l3g->tx_buf[0] = (1<<7 | L3GD20_REG_WHO_AM_I);
-      if (spi_submit(l3g->spi_p, &(l3g->spi_trans)))
+      l3g->tx_buf[0] = (1 << 7 | L3GD20_REG_WHO_AM_I);
+      if (spi_submit(l3g->spi_p, &(l3g->spi_trans))) {
         l3g->init_status++;
+      }
       break;
     case L3G_CONF_REG4:
       /* set SPI mode, Filtered Data Selection */
@@ -93,8 +95,8 @@ static void l3gd20_spi_send_config(struct L3gd20_Spi *l3g)
     case L3G_CONF_ENABLE:
       /* set data rate, range, enable measurement, is in standby after power up */
       reg_val = (l3g->config.drbw << 4) |
-        L3GD20_PD | // Power Down Control to active mode
-        L3GD20_Xen | L3GD20_Yen | L3GD20_Zen; // enable z,y,x axes
+                L3GD20_PD | // Power Down Control to active mode
+                L3GD20_Xen | L3GD20_Yen | L3GD20_Zen; // enable z,y,x axes
       l3gd20_spi_write_to_reg(l3g, L3GD20_REG_CTRL_REG1, reg_val);
       l3g->init_status++;
       break;
@@ -123,7 +125,7 @@ void l3gd20_spi_read(struct L3gd20_Spi *l3g)
     l3g->spi_trans.output_length = 1;
     l3g->spi_trans.input_length = 8;
     /* set read bit and multiple byte bit, then address */
-    l3g->tx_buf[0] = (1<<7|1<<6|L3GD20_REG_STATUS_REG);
+    l3g->tx_buf[0] = (1 << 7 | 1 << 6 | L3GD20_REG_STATUS_REG);
     spi_submit(l3g->spi_p, &(l3g->spi_trans));
   }
 }
@@ -135,20 +137,18 @@ void l3gd20_spi_event(struct L3gd20_Spi *l3g)
   if (l3g->initialized) {
     if (l3g->spi_trans.status == SPITransFailed) {
       l3g->spi_trans.status = SPITransDone;
-    }
-    else if (l3g->spi_trans.status == SPITransSuccess) {
+    } else if (l3g->spi_trans.status == SPITransSuccess) {
       // Successfull reading
       if (bit_is_set(l3g->rx_buf[1], 3)) {
         // new xyz data available
-        l3g->data_rates.rates.p = Int16FromBuf(l3g->rx_buf,2);
-        l3g->data_rates.rates.q = Int16FromBuf(l3g->rx_buf,4);
-        l3g->data_rates.rates.r = Int16FromBuf(l3g->rx_buf,6);
+        l3g->data_rates.rates.p = Int16FromBuf(l3g->rx_buf, 2);
+        l3g->data_rates.rates.q = Int16FromBuf(l3g->rx_buf, 4);
+        l3g->data_rates.rates.r = Int16FromBuf(l3g->rx_buf, 6);
         l3g->data_available = TRUE;
       }
       l3g->spi_trans.status = SPITransDone;
     }
-  }
-  else if (l3g->init_status != L3G_CONF_UNINIT) { // Configuring but not yet initialized
+  } else if (l3g->init_status != L3G_CONF_UNINIT) { // Configuring but not yet initialized
     switch (l3g->spi_trans.status) {
       case SPITransFailed:
         l3g->init_status--; // Retry config (TODO max retry)
@@ -156,8 +156,7 @@ void l3gd20_spi_event(struct L3gd20_Spi *l3g)
         if (l3g->init_status == L3G_CONF_WHO_AM_I_OK) {
           if (l3g->rx_buf[1] == L3GD20_WHO_AM_I) {
             l3g->init_status++;
-          }
-          else {
+          } else {
             l3g->init_status = L3G_CONF_WHO_AM_I;
           }
         }

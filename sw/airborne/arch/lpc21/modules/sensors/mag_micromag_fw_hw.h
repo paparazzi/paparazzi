@@ -31,36 +31,36 @@ extern volatile uint8_t micromag_cur_axe;
 #define MmOnSpiIt() {                                       \
     switch (micromag_status) {                              \
       case MM_SENDING_REQ:                                  \
-        {                                                   \
-          /* read dummy control byte reply */				\
-          uint8_t foo __attribute__ ((unused)) = SSPDR;     \
-          micromag_status = MM_WAITING_EOC;                 \
-          MmUnselect();                                     \
-          SpiClearRti();                                    \
-          SpiDisableRti();                                  \
-          SpiDisable();                                     \
-        }                                                   \
-        break;                                              \
+      {                                                   \
+        /* read dummy control byte reply */       \
+        uint8_t foo __attribute__ ((unused)) = SSPDR;     \
+        micromag_status = MM_WAITING_EOC;                 \
+        MmUnselect();                                     \
+        SpiClearRti();                                    \
+        SpiDisableRti();                                  \
+        SpiDisable();                                     \
+      }                                                   \
+      break;                                              \
       case MM_READING_RES:                                  \
-        {                                                   \
-          int16_t new_val;                                  \
-          new_val = SSPDR << 8;                             \
-          new_val += SSPDR;                                 \
-          if (abs(new_val) < 2000)                          \
-            micromag_values[micromag_cur_axe] = new_val;    \
-          MmUnselect();                                     \
-          SpiClearRti();                                    \
-          SpiDisableRti();                                  \
-          SpiDisable();                                     \
-          micromag_cur_axe++;                               \
-          if (micromag_cur_axe > 2) {                       \
-            micromag_cur_axe = 0;                           \
-            micromag_status = MM_DATA_AVAILABLE;            \
-          }                                                 \
-          else                                              \
-            micromag_status = MM_IDLE;                      \
-        }                                                   \
-        break;                                              \
+      {                                                   \
+        int16_t new_val;                                  \
+        new_val = SSPDR << 8;                             \
+        new_val += SSPDR;                                 \
+        if (abs(new_val) < 2000)                          \
+          micromag_values[micromag_cur_axe] = new_val;    \
+        MmUnselect();                                     \
+        SpiClearRti();                                    \
+        SpiDisableRti();                                  \
+        SpiDisable();                                     \
+        micromag_cur_axe++;                               \
+        if (micromag_cur_axe > 2) {                       \
+          micromag_cur_axe = 0;                           \
+          micromag_status = MM_DATA_AVAILABLE;            \
+        }                                                 \
+        else                                              \
+          micromag_status = MM_IDLE;                      \
+      }                                                   \
+      break;                                              \
     }                                                       \
   }
 
@@ -77,7 +77,7 @@ extern volatile uint8_t micromag_cur_axe;
     SpiEnable();                                                        \
   }
 
-#define MmReadRes() {							\
+#define MmReadRes() {             \
     micromag_status = MM_READING_RES;           \
     MmSelect();                                 \
     /* trigger 2 bytes read */                  \
@@ -88,6 +88,6 @@ extern volatile uint8_t micromag_cur_axe;
     SpiEnableRti();                             \
   }
 
-extern void micromag_hw_init( void );
+extern void micromag_hw_init(void);
 
 #endif /* MICROMAG_HW_H */

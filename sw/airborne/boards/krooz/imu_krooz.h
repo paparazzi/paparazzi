@@ -128,10 +128,12 @@ extern void imu_periodic(void);
 */
 
 /* Own Extra Functions */
-extern void imu_krooz_event( void );
-extern void imu_krooz_downlink_raw( void );
+extern void imu_krooz_event(void);
+extern void imu_krooz_downlink_raw(void);
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void) __attribute__((unused))) {
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void),
+                            void (* _mag_handler)(void) __attribute__((unused)))
+{
   imu_krooz_event();
   if (imu_krooz.gyr_valid) {
     imu_krooz.gyr_valid = FALSE;

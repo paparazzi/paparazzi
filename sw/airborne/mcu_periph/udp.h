@@ -44,23 +44,35 @@ struct udp_periph {
   uint8_t tx_buf[UDP_TX_BUFFER_SIZE];
   uint16_t tx_insert_idx;
   /** UDP network */
-  void* network;
+  void *network;
   /** Generic device interface */
   struct link_device device;
 };
 
-extern void     udp_periph_init(struct udp_periph* p, char* host, int port_out, int port_in, bool_t broadcast);
-extern bool_t   udp_check_free_space(struct udp_periph* p, uint8_t len);
-extern void     udp_transmit(struct udp_periph* p, uint8_t data);
-extern uint16_t udp_char_available(struct udp_periph* p);
-extern uint8_t  udp_getch(struct udp_periph* p);
+extern void     udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast);
+extern bool_t   udp_check_free_space(struct udp_periph *p, uint8_t len);
+extern void     udp_transmit(struct udp_periph *p, uint8_t data);
+extern uint16_t udp_char_available(struct udp_periph *p);
+extern uint8_t  udp_getch(struct udp_periph *p);
 extern void     udp_event(void);
-extern void     udp_arch_periph_init(struct udp_periph* p, char* host, int port_out, int port_in, bool_t broadcast);
-extern void     udp_send_message(struct udp_periph* p);
-extern void     udp_receive(struct udp_periph* p);
+extern void     udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast);
+extern void     udp_send_message(struct udp_periph *p);
+extern void     udp_receive(struct udp_periph *p);
 
 #if USE_UDP0
 extern struct udp_periph udp0;
+
+#ifndef UDP0_HOST
+#define UDP0_HOST "127.0.0.1"
+#endif
+
+#ifndef UDP0_PORT_OUT
+#define UDP0_PORT_OUT 4242
+#endif
+
+#ifndef UDP0_PORT_IN
+#define UDP0_PORT_IN 4243
+#endif
 
 #ifndef UDP0_BROADCAST
 #define UDP0_BROADCAST FALSE
@@ -77,6 +89,18 @@ extern struct udp_periph udp0;
 #if USE_UDP1
 extern struct udp_periph udp1;
 
+#ifndef UDP1_HOST
+#define UDP1_HOST "127.0.0.1"
+#endif
+
+#ifndef UDP1_PORT_OUT
+#define UDP1_PORT_OUT 4244
+#endif
+
+#ifndef UDP1_PORT_IN
+#define UDP1_PORT_IN 4245
+#endif
+
 #ifndef UDP1_BROADCAST
 #define UDP1_BROADCAST FALSE
 #endif
@@ -91,6 +115,18 @@ extern struct udp_periph udp1;
 
 #if USE_UDP2
 extern struct udp_periph udp2;
+
+#ifndef UDP2_HOST
+#define UDP2_HOST "127.0.0.1"
+#endif
+
+#ifndef UDP2_PORT_OUT
+#define UDP2_PORT_OUT 4246
+#endif
+
+#ifndef UDP2_PORT_IN
+#define UDP2_PORT_IN 4247
+#endif
 
 #ifndef UDP2_BROADCAST
 #define UDP2_BROADCAST FALSE

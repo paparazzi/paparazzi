@@ -56,12 +56,12 @@ extern volatile uint8_t max3100_rx_buf[MAX3100_RX_BUF_LEN];
 extern volatile uint8_t read_byte1, read_byte2;
 extern bool read_bytes;
 
-#define Max3100Select() {	\
-    SetBit(MAX3100_SS_IOCLR, MAX3100_SS_PIN);	\
+#define Max3100Select() { \
+    SetBit(MAX3100_SS_IOCLR, MAX3100_SS_PIN); \
   }
 
 #define Max3100Unselect() { \
-    SetBit(MAX3100_SS_IOSET, MAX3100_SS_PIN);	\
+    SetBit(MAX3100_SS_IOSET, MAX3100_SS_PIN); \
   }
 
 #define MAX3100_WRITE_CONF ((1U<<15) | (1U<<14))
@@ -94,14 +94,15 @@ extern bool read_bytes;
 #define UART3100Transmit(_x) { max3100_putchar(_x); }
 #define UART3100SendMessage() {}
 #define UART3100Getch() ({\
-   uint8_t ret = max3100_rx_buf[max3100_rx_extract_idx]; \
-   max3100_rx_extract_idx++; /* Since size=256 */        \
-   ret;                                                 \
-})
+    uint8_t ret = max3100_rx_buf[max3100_rx_extract_idx]; \
+    max3100_rx_extract_idx++; /* Since size=256 */        \
+    ret;                                                 \
+  })
 
 #define UART3100ChAvailable() (max3100_rx_extract_idx != max3100_rx_insert_idx)
 
-static inline void max3100_transmit(uint16_t data) {
+static inline void max3100_transmit(uint16_t data)
+{
   Max3100Select();
   SpiClearRti();
   SpiEnableRti();  /* enable rx fifo time out */
@@ -116,12 +117,14 @@ static inline void max3100_transmit(uint16_t data) {
 #define Max3100ReadData() max3100_transmit(MAX3100_READ_DATA)
 
 
-static inline void max3100_read_data(void) {
+static inline void max3100_read_data(void)
+{
   Max3100ReadData();
   max3100_status = MAX3100_STATUS_READING;
 }
 
-static inline void max3100_flush( void ) {
+static inline void max3100_flush(void)
+{
   if (max3100_status == MAX3100_STATUS_IDLE
       && max3100_tx_extract_idx != max3100_tx_insert_idx
       && max3100_transmit_buffer_empty) {
@@ -133,21 +136,24 @@ static inline void max3100_flush( void ) {
 }
 
 /** Warning: No bufferring; SPI must be available */
-static inline void max3100_putconfchar(char c) {
+static inline void max3100_putconfchar(char c)
+{
   Max3100TransmitConf(c);
   max3100_status = MAX3100_STATUS_WRITING;
 }
 
-static inline void max3100_putchar(char c) {
+static inline void max3100_putchar(char c)
+{
   max3100_tx_buf[max3100_tx_insert_idx] = c;
   max3100_tx_insert_idx++; /* automatic overflow since len=256 */
   /* flushed in the next event */
 }
 
-extern void max3100_init( void );
-extern void max3100_debug( void );
+extern void max3100_init(void);
+extern void max3100_debug(void);
 
-static inline void max3100_event( void ) {
+static inline void max3100_event(void)
+{
   if (read_bytes) {
     read_bytes = false;
     max3100_debug();
@@ -156,8 +162,9 @@ static inline void max3100_event( void ) {
     if (max3100_data_available) {
       max3100_data_available = false;
       max3100_read_data();
-    } else
+    } else {
       max3100_flush();
+    }
   }
 }
 

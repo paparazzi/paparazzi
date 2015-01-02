@@ -6,7 +6,7 @@
     <define name="VN100_SPI_DEV" value="spiX" description="select spi peripherals (default spi1)"/>
     <define name="VN100_SLAVE_IDX" value="X" description="spi slave index"/>
   </doc>
-  <!-- <depend conflict="ins" -->
+  <!-- <conflicts>ins</conflicts> -->
   <header>
     <file name="ins_vn100.h"/>
   </header>

@@ -6,7 +6,7 @@
 
 struct OveroTestPassthrough {
   /* our network connection */
-  char* gs_gw;
+  char *gs_gw;
 
   /* our sensors            */
   struct ImuFloat imu;
@@ -21,7 +21,7 @@ struct OveroTestPassthrough {
   /* the io proc status */
   uint32_t io_proc_msg_cnt;
   uint32_t io_proc_err_cnt;
-  };
+};
 
 extern struct OveroTestPassthrough otp;
 

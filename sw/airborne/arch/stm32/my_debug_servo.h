@@ -41,7 +41,7 @@
     DEBUG_S1_OFF();                                                     \
     DEBUG_S2_OFF();                                                     \
     DEBUG_S3_OFF();                                                     \
- }
+  }
 
 #define DEBUG_SERVO2_INIT() {                                           \
     /* S4: PC9 */                                                       \

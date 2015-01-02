@@ -29,16 +29,17 @@ bool_t servo_switch_on;
 #define _ServoSwitch(_n, _v) ActuatorSet(_n, _v)
 #define ServoSwitch(_n, _v) _ServoSwitch(_n, _v)
 
-void servo_switch_init(void) {
+void servo_switch_init(void)
+{
   servo_switch_on = FALSE;
   servo_switch_periodic();
 }
 
-void servo_switch_periodic(void) {
+void servo_switch_periodic(void)
+{
   if (servo_switch_on == TRUE) {
     ServoSwitch(SERVO_SWITCH_SERVO, SERVO_SWITCH_ON_VALUE);
-  }
-  else {
+  } else {
     ServoSwitch(SERVO_SWITCH_SERVO, SERVO_SWITCH_OFF_VALUE);
   }
 }

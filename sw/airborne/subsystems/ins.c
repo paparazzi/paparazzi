@@ -45,11 +45,12 @@ void WEAK ins_reset_local_origin(void) {}
 void WEAK ins_reset_altitude_ref(void) {}
 
 #if USE_GPS
-void WEAK ins_reset_utm_zone(struct UtmCoor_f * utm) {
+void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
+{
   struct LlaCoor_f lla0;
   lla_of_utm_f(&lla0, utm);
 #ifdef GPS_USE_LATLONG
-  utm->zone = (gps.lla_pos.lon/1e7 + 180) / 6 + 1;
+  utm->zone = (gps.lla_pos.lon / 1e7 + 180) / 6 + 1;
 #else
   utm->zone = gps.utm_pos.zone;
 #endif
@@ -58,7 +59,7 @@ void WEAK ins_reset_utm_zone(struct UtmCoor_f * utm) {
   stateSetLocalUtmOrigin_f(utm);
 }
 #else
-void WEAK ins_reset_utm_zone(struct UtmCoor_f * utm __attribute__((unused))) {}
+void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm __attribute__((unused))) {}
 #endif
 
 void WEAK ins_propagate(float dt __attribute__((unused))) {}

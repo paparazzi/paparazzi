@@ -35,7 +35,8 @@
 #include "generated/flight_plan.h"
 
 /// Utility function: converts lla (int) to local point (float)
-bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla) {
+bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
+{
   /// TODO: don't convert to float, either use double or do completely in fixed point
   struct LlaCoor_f lla_f;
   LLA_FLOAT_OF_BFP(lla_f, *lla);
@@ -59,7 +60,7 @@ bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla) {
   point->y = waypoints[WP_HOME].y + dy;
   point->z = lla->alt;
 
- return TRUE;
+  return TRUE;
 }
 
 // navigation time step
@@ -70,7 +71,8 @@ struct EnuCoor_f last_wp_f = { 0., 0., 0. };
 
 /** Navigation function to a single waypoint
  */
-static inline bool_t mission_nav_wp(struct _mission_wp * wp) {
+static inline bool_t mission_nav_wp(struct _mission_wp *wp)
+{
   if (nav_approaching_xy(wp->wp.wp_f.x, wp->wp.wp_f.y, last_wp_f.x, last_wp_f.y, CARROT)) {
     last_wp_f = wp->wp.wp_f; // store last wp
     return FALSE; // end of mission element
@@ -84,7 +86,8 @@ static inline bool_t mission_nav_wp(struct _mission_wp * wp) {
 
 /** Navigation function on a circle
  */
-static inline bool_t mission_nav_circle(struct _mission_circle * circle) {
+static inline bool_t mission_nav_circle(struct _mission_circle *circle)
+{
   nav_circle_XY(circle->center.center_f.x, circle->center.center_f.y, circle->radius);
   NavVerticalAutoThrottleMode(0.);
   NavVerticalAltitudeMode(circle->center.center_f.z, 0.);
@@ -93,8 +96,10 @@ static inline bool_t mission_nav_circle(struct _mission_circle * circle) {
 
 /** Navigation function along a segment
  */
-static inline bool_t mission_nav_segment(struct _mission_segment * segment) {
-  if (nav_approaching_xy(segment->to.to_f.x, segment->to.to_f.y, segment->from.from_f.x, segment->from.from_f.y, CARROT)) {
+static inline bool_t mission_nav_segment(struct _mission_segment *segment)
+{
+  if (nav_approaching_xy(segment->to.to_f.x, segment->to.to_f.y, segment->from.from_f.x, segment->from.from_f.y,
+                         CARROT)) {
     last_wp_f = segment->to.to_f;
     return FALSE; // end of mission element
   }
@@ -106,7 +111,8 @@ static inline bool_t mission_nav_segment(struct _mission_segment * segment) {
 
 /** Navigation function along a path
  */
-static inline bool_t mission_nav_path(struct _mission_path * path) {
+static inline bool_t mission_nav_path(struct _mission_path *path)
+{
   if (path->nb == 0) {
     return FALSE; // nothing to do
   }
@@ -116,13 +122,13 @@ static inline bool_t mission_nav_path(struct _mission_path * path) {
     wp.wp.wp_f = path->path.path_f[0];
     return mission_nav_wp(&wp);
   }
-  if (path->path_idx == path->nb-1) {
+  if (path->path_idx == path->nb - 1) {
     last_wp_f = path->path.path_f[path->path_idx]; // store last wp
     return FALSE; // end of path
   }
   // normal case
   struct EnuCoor_f from_f = path->path.path_f[path->path_idx];
-  struct EnuCoor_f to_f = path->path.path_f[path->path_idx+1];
+  struct EnuCoor_f to_f = path->path.path_f[path->path_idx + 1];
   nav_route_xy(from_f.x, from_f.y, to_f.x, to_f.y);
   NavVerticalAutoThrottleMode(0.);
   NavVerticalAltitudeMode(to_f.z, 0.); // both altitude should be the same anyway
@@ -133,16 +139,17 @@ static inline bool_t mission_nav_path(struct _mission_path * path) {
 }
 
 
-int mission_run() {
+int mission_run()
+{
   // current element
-  struct _mission_element * el = NULL;
+  struct _mission_element *el = NULL;
   if ((el = mission_get()) == NULL) {
     // TODO do something special like a waiting circle before ending the mission ?
     return FALSE; // end of mission
   }
 
   bool_t el_running = FALSE;
-  switch (el->type){
+  switch (el->type) {
     case MissionWP:
       el_running = mission_nav_wp(&(el->element.mission_wp));
       break;

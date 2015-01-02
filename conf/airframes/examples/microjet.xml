@@ -204,6 +204,7 @@
     <load name="nav_vertical_raster.xml"/>
     <load name="nav_bungee_takeoff.xml"/>
     <load name="infrared_adc.xml"/>
+    <load name="tune_airspeed.xml"/>
     <load name="digital_cam_servo.xml">
       <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />
     </load>
@@ -212,8 +213,9 @@
 
   <firmware name="setup">
     <target name="tunnel"           board="tiny_1.1" />
-    <target name="usb_tunnel_0"     board="tiny_1.1" />
-    <target name="usb_tunnel_1"     board="tiny_1.1" />
+    <target name="usb_tunnel"       board="tiny_1.1">
+      <configure name="TUNNEL_PORT" value="UART0"/>
+    </target>
   </firmware>
 
 </airframe>

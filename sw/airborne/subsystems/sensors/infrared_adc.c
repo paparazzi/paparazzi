@@ -52,11 +52,13 @@ static struct adc_buf buf_ir3;
 struct Infrared_raw ir_adc;
 
 // Standard infrared implementation
-void infrared_init(void) {
+void infrared_init(void)
+{
   infrared_adc_init();
 }
 
-void infrared_update(void) {
+void infrared_update(void)
+{
   infrared_adc_update();
 }
 
@@ -66,7 +68,8 @@ void infrared_event(void) {}
 /** \brief Initialisation of \a ir */
 /** Initialize \a adc_buf_channel
  */
-void infrared_adc_init(void) {
+void infrared_adc_init(void)
+{
 #if ! (defined SITL || defined HITL)
   adc_buf_channel(ADC_CHANNEL_IR1, &buf_ir1, ADC_CHANNEL_IR_NB_SAMPLES);
   adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2, ADC_CHANNEL_IR_NB_SAMPLES);
@@ -86,12 +89,13 @@ void infrared_adc_init(void) {
 /** \brief Update \a ir_roll and ir_pitch from ADCs or from simulator
  * message in HITL and SITL modes
  */
-void infrared_adc_update(void) {
+void infrared_adc_update(void)
+{
 #if ! (defined SITL || defined HITL)
-  ir_adc.ir1 = (int32_t)(buf_ir1.sum/buf_ir1.av_nb_sample) - IR_ADC_IR1_NEUTRAL;
-  ir_adc.ir2 = (int32_t)(buf_ir2.sum/buf_ir2.av_nb_sample) - IR_ADC_IR2_NEUTRAL;
+  ir_adc.ir1 = (int32_t)(buf_ir1.sum / buf_ir1.av_nb_sample) - IR_ADC_IR1_NEUTRAL;
+  ir_adc.ir2 = (int32_t)(buf_ir2.sum / buf_ir2.av_nb_sample) - IR_ADC_IR2_NEUTRAL;
 #ifdef ADC_CHANNEL_IR_TOP
-  ir_adc.ir3 = (int32_t)(buf_ir3.sum/buf_ir3.av_nb_sample) - IR_ADC_TOP_NEUTRAL;
+  ir_adc.ir3 = (int32_t)(buf_ir3.sum / buf_ir3.av_nb_sample) - IR_ADC_TOP_NEUTRAL;
 #endif // IR_TOP
   UpdateIRValue(ir_adc);
 #endif /* !SITL && !HITL */

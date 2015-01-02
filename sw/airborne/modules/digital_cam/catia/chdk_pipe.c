@@ -18,12 +18,13 @@
 #define SHELL "/root/develop/allthings_obc2014/src/popcorn/popcorn.sh"
 
 
-const char* setup = "lua props=require(\"propcase\");print(\"SetupScript\");set_prop(props.ISO_MODE,3200);set_prop(props.FLASH_MODE,2);set_prop(props.RESOLUTION,0);set_prop(props.DATE_STAMP,0);set_prop(props.AF_ASSIST_BEAM,0);set_prop(props.QUALITY,0);print(\"Ready\");\n";
+const char *setup =
+  "lua props=require(\"propcase\");print(\"SetupScript\");set_prop(props.ISO_MODE,3200);set_prop(props.FLASH_MODE,2);set_prop(props.RESOLUTION,0);set_prop(props.DATE_STAMP,0);set_prop(props.AF_ASSIST_BEAM,0);set_prop(props.QUALITY,0);print(\"Ready\");\n";
 
 static int fo, fi;
 static void wait_for_cmd(int timeout);
-static void wait_for_img(char* filename, int timeout);
-static pid_t popen2(const char* command, int* infp, int* outfp);
+static void wait_for_img(char *filename, int timeout);
+static pid_t popen2(const char *command, int *infp, int *outfp);
 
 /*void main(int argc, char ** argv, char ** envp)
 {
@@ -88,7 +89,7 @@ void chdk_pipe_deinit(void)
 /**
  * Shoot an image
  */
-void chdk_pipe_shoot(char* filename)
+void chdk_pipe_shoot(char *filename)
 {
   write(fi, "rs /root\n", 9);
   wait_for_img(filename, 10);
@@ -98,7 +99,7 @@ void chdk_pipe_shoot(char* filename)
  * Wait for the image to be available
  * TODO: add timeout
  */
-static void wait_for_img(char* filename, int timeout)
+static void wait_for_img(char *filename, int timeout)
 {
   int hash_cnt = 0;
   char ch;
@@ -133,7 +134,7 @@ static void wait_for_cmd(int timeout)
 /**
  * Open a process with stdin and stdout
  */
-static pid_t popen2(const char* command, int* infp, int* outfp)
+static pid_t popen2(const char *command, int *infp, int *outfp)
 {
   int p_stdin[2], p_stdout[2];
   pid_t pid;

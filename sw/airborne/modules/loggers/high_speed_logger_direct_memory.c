@@ -390,7 +390,8 @@ void memory_read_values(uint32_t mem_addr, uint8_t size)
   memory_transaction.output_length = 5;
 
   memory_transaction.input_buf = (uint8_t *) uart_read_buff;
-  memory_transaction.input_length = size + MEMORY_READ_LATTENCY; //the first MEMORY_READ_LATTENCY Bytes are lost because of reading to soon
+  memory_transaction.input_length = size +
+                                    MEMORY_READ_LATTENCY; //the first MEMORY_READ_LATTENCY Bytes are lost because of reading to soon
 
   memory_transaction.after_cb = memory_read_values_cb;
 

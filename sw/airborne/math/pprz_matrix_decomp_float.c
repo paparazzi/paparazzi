@@ -37,7 +37,7 @@
  * @param in pointer to the input array [n x n]
  * @param n dimension of the matrix
  */
-void pprz_cholesky_float(float** out, float** in, int n)
+void pprz_cholesky_float(float **out, float **in, int n)
 {
   int i, j, k;
   float _o[n][n];
@@ -70,11 +70,11 @@ void pprz_cholesky_float(float** out, float** in, int n)
  * @param m number of rows of the input matrix
  * @param n number of column of the input matrix
  */
-void pprz_qr_float(float** Q, float** R, float** in, int m, int n)
+void pprz_qr_float(float **Q, float **R, float **in, int m, int n)
 {
   int i, k;
   float _q[m][m][m];
-  float* q[m][m];
+  float *q[m][m];
   float _z[m][n], _z1[m][n], _z2[m][m];
   MAKE_MATRIX_PTR(z, _z, m);
   MAKE_MATRIX_PTR(z1, _z1, m);
@@ -144,7 +144,7 @@ static inline float pythag(float a, float b)
  * @param n number of columns of the input matrix
  * @return 0 (false) if convergence failed, 1 (true) if decomposition succed
  */
-int pprz_svd_float(float** a, float* w, float** v, int m, int n)
+int pprz_svd_float(float **a, float *w, float **v, int m, int n)
 {
   /* Householder reduction to bidiagonal form. */
   int flag, i, its, j, jj, k, l, NM;
@@ -443,7 +443,7 @@ int pprz_svd_float(float** a, float* w, float** v, int m, int n)
  * @param n number of columns of the matrix A
  * @param l number of columns of the matrix B
  */
-void pprz_svd_solve_float(float** x, float** u, float* w, float** v, float** b, int m, int n, int l)
+void pprz_svd_solve_float(float **x, float **u, float *w, float **v, float **b, int m, int n, int l)
 {
   int i, j, jj, k;
   float s;

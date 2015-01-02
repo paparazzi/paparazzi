@@ -42,8 +42,7 @@ void config_mkk_v2_init(void)
 void config_mkk_v2_periodic_read_status(void)
 {
   // Read Config
-  if (config_mkk_v2.read_config > 0)
-  {
+  if (config_mkk_v2.read_config > 0) {
     switch (config_mkk_v2.trans.status) {
       case I2CTransFailed:
         config_mkk_v2.read_config = 0;
@@ -66,13 +65,15 @@ void config_mkk_v2_periodic_read_status(void)
 
 void config_mkk_v2_periodic_telemetry(void)
 {
-    static uint8_t send_nr = 0;
+  static uint8_t send_nr = 0;
 
-    DOWNLINK_SEND_MKK(DefaultChannel, DefaultDevice, &send_nr, &actuators_mkk_v2.data[send_nr].MaxPWM, &actuators_mkk_v2.data[send_nr].Current, &actuators_mkk_v2.data[send_nr].Temperature);
+  DOWNLINK_SEND_MKK(DefaultChannel, DefaultDevice, &send_nr, &actuators_mkk_v2.data[send_nr].MaxPWM,
+                    &actuators_mkk_v2.data[send_nr].Current, &actuators_mkk_v2.data[send_nr].Temperature);
 
-    send_nr++;
-    if (send_nr >= ACTUATORS_MKK_V2_NB)
-      send_nr = 0;
+  send_nr++;
+  if (send_nr >= ACTUATORS_MKK_V2_NB) {
+    send_nr = 0;
+  }
 }
 
 
@@ -102,12 +103,11 @@ extern config_mkk_v2_eeprom_t config_mkk_v2_eeprom;
 
 uint8_t config_mkk_v2_crc(uint8_t offset)
 {
-    uint8_t crc = 0xaa;
-    for(int i=offset; i<(offset+7); i++)
-    {
-        crc += config_mkk_v2.trans.buf[i];
-    }
-    return crc;
+  uint8_t crc = 0xaa;
+  for (int i = offset; i < (offset + 7); i++) {
+    crc += config_mkk_v2.trans.buf[i];
+  }
+  return crc;
 }
 
 
@@ -119,74 +119,73 @@ config_mkk_v2_eeprom_t config_mkk_v2_eeprom;
 
 
 #define RETURN_IF_NOT_KILLMODE() \
-{                                \
-  if (!actuators_delay_done)     \
-    return;                      \
-}
+  {                                \
+    if (!actuators_delay_done)     \
+      return;                      \
+  }
 
 void config_mkk_v2_read_eeprom(void)
 {
-    // Activate decoder
-    config_mkk_v2.read_config = 1;
+  // Activate decoder
+  config_mkk_v2.read_config = 1;
 
-    // Do not read config while running
-    RETURN_IF_NOT_KILLMODE();
+  // Do not read config while running
+  RETURN_IF_NOT_KILLMODE();
 
-    // New I2C Write/Read Transaction
-    config_mkk_v2.trans.type = I2CTransTxRx;
-    config_mkk_v2.trans.slave_addr = 0x52 + config_mkk_v2.addr * 2;
-    config_mkk_v2.trans.len_w = 2;
-    config_mkk_v2.trans.buf[0] = 0;
-    config_mkk_v2.trans.buf[1] = (BL_READMODE_CONFIG<<3);
-    config_mkk_v2.trans.len_r = 8;
+  // New I2C Write/Read Transaction
+  config_mkk_v2.trans.type = I2CTransTxRx;
+  config_mkk_v2.trans.slave_addr = 0x52 + config_mkk_v2.addr * 2;
+  config_mkk_v2.trans.len_w = 2;
+  config_mkk_v2.trans.buf[0] = 0;
+  config_mkk_v2.trans.buf[1] = (BL_READMODE_CONFIG << 3);
+  config_mkk_v2.trans.len_r = 8;
 
-    i2c_submit(&ACTUATORS_MKK_V2_I2C_DEV, &config_mkk_v2.trans);
+  i2c_submit(&ACTUATORS_MKK_V2_I2C_DEV, &config_mkk_v2.trans);
 }
 
 void config_mkk_v2_parse_eeprom(void)
 {
-    config_mkk_v2_eeprom.crc            = config_mkk_v2.trans.buf[7];   // checksum
-    if (config_mkk_v2_crc(0) != config_mkk_v2_eeprom.crc)
-    {
-        config_mkk_v2.nb_err++;
-    }
-    else
-    {
-        config_mkk_v2_eeprom.revision       = config_mkk_v2.trans.buf[0];   // must be BL_revision
-        config_mkk_v2_eeprom.SetMask        = config_mkk_v2.trans.buf[1];   // settings mask
-        config_mkk_v2_eeprom.PwmScaling     = config_mkk_v2.trans.buf[2];   // maximum value of control pwm, acts like a thrust limit
-        config_mkk_v2_eeprom.CurrentLimit   = config_mkk_v2.trans.buf[3];   // current limit in A
-        config_mkk_v2_eeprom.TempLimit      = config_mkk_v2.trans.buf[4];   // in °C
-        config_mkk_v2_eeprom.CurrentScaling = config_mkk_v2.trans.buf[5];   // scaling factor for current measurement
-        config_mkk_v2_eeprom.BitConfig      = config_mkk_v2.trans.buf[6];   // see defines above
-    }
+  config_mkk_v2_eeprom.crc            = config_mkk_v2.trans.buf[7];   // checksum
+  if (config_mkk_v2_crc(0) != config_mkk_v2_eeprom.crc) {
+    config_mkk_v2.nb_err++;
+  } else {
+    config_mkk_v2_eeprom.revision       = config_mkk_v2.trans.buf[0];   // must be BL_revision
+    config_mkk_v2_eeprom.SetMask        = config_mkk_v2.trans.buf[1];   // settings mask
+    config_mkk_v2_eeprom.PwmScaling     =
+      config_mkk_v2.trans.buf[2];   // maximum value of control pwm, acts like a thrust limit
+    config_mkk_v2_eeprom.CurrentLimit   = config_mkk_v2.trans.buf[3];   // current limit in A
+    config_mkk_v2_eeprom.TempLimit      = config_mkk_v2.trans.buf[4];   // in °C
+    config_mkk_v2_eeprom.CurrentScaling = config_mkk_v2.trans.buf[5];   // scaling factor for current measurement
+    config_mkk_v2_eeprom.BitConfig      = config_mkk_v2.trans.buf[6];   // see defines above
+  }
 }
 
 void config_mkk_v2_send_eeprom(void)
 {
-    // Do not upload while running
-    RETURN_IF_NOT_KILLMODE();
+  // Do not upload while running
+  RETURN_IF_NOT_KILLMODE();
 
-    // Do not upload bad data:
-    if (config_mkk_v2_eeprom.revision != config_mkk_v2_EEPROM_REVISION)
-      return;
+  // Do not upload bad data:
+  if (config_mkk_v2_eeprom.revision != config_mkk_v2_EEPROM_REVISION) {
+    return;
+  }
 
-    // New I2C Write Transaction
-    config_mkk_v2.trans.type = I2CTransTx;
-    config_mkk_v2.trans.slave_addr = 0x52 + config_mkk_v2.addr * 2;
-    config_mkk_v2.trans.len_w = 10;
-    config_mkk_v2.trans.buf[0] = 0;
-    config_mkk_v2.trans.buf[1] = (BL_READMODE_CONFIG<<3);
+  // New I2C Write Transaction
+  config_mkk_v2.trans.type = I2CTransTx;
+  config_mkk_v2.trans.slave_addr = 0x52 + config_mkk_v2.addr * 2;
+  config_mkk_v2.trans.len_w = 10;
+  config_mkk_v2.trans.buf[0] = 0;
+  config_mkk_v2.trans.buf[1] = (BL_READMODE_CONFIG << 3);
 
-    config_mkk_v2.trans.buf[2] = config_mkk_v2_eeprom.revision;
-    config_mkk_v2.trans.buf[3] = config_mkk_v2_eeprom.SetMask;
-    config_mkk_v2.trans.buf[4] = config_mkk_v2_eeprom.PwmScaling;
-    config_mkk_v2.trans.buf[5] = config_mkk_v2_eeprom.CurrentLimit;
-    config_mkk_v2.trans.buf[6] = config_mkk_v2_eeprom.TempLimit;
-    config_mkk_v2.trans.buf[7] = config_mkk_v2_eeprom.CurrentScaling;
-    config_mkk_v2.trans.buf[8] = config_mkk_v2_eeprom.BitConfig;
-    config_mkk_v2.trans.buf[9] = config_mkk_v2_crc(2);
+  config_mkk_v2.trans.buf[2] = config_mkk_v2_eeprom.revision;
+  config_mkk_v2.trans.buf[3] = config_mkk_v2_eeprom.SetMask;
+  config_mkk_v2.trans.buf[4] = config_mkk_v2_eeprom.PwmScaling;
+  config_mkk_v2.trans.buf[5] = config_mkk_v2_eeprom.CurrentLimit;
+  config_mkk_v2.trans.buf[6] = config_mkk_v2_eeprom.TempLimit;
+  config_mkk_v2.trans.buf[7] = config_mkk_v2_eeprom.CurrentScaling;
+  config_mkk_v2.trans.buf[8] = config_mkk_v2_eeprom.BitConfig;
+  config_mkk_v2.trans.buf[9] = config_mkk_v2_crc(2);
 
-    i2c_submit(&ACTUATORS_MKK_V2_I2C_DEV, &config_mkk_v2.trans);
+  i2c_submit(&ACTUATORS_MKK_V2_I2C_DEV, &config_mkk_v2.trans);
 
 }

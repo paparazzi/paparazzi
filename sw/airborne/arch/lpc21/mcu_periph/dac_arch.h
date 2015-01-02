@@ -33,7 +33,8 @@
 #include "std.h"
 #include "LPC21xx.h"
 
-static inline void DACSet(uint16_t x) {
+static inline void DACSet(uint16_t x)
+{
   DACR = x << 6;
 }
 

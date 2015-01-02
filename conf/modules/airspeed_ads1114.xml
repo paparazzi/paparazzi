@@ -7,7 +7,6 @@
       Module to extend the baro_board module with an airspeed sensor using ads1114 adc
     </description>
   </doc>
-  <depend require="baro_board.xml"/>
   <header>
     <file name="airspeed_ads1114.h"/>
   </header>

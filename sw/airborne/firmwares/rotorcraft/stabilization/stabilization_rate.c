@@ -118,31 +118,33 @@ struct Int32Rates stabilization_rate_ff_cmd;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_rate(struct transport_tx *trans, struct link_device *dev) {
+static void send_rate(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_RATE_LOOP(trans, dev, AC_ID,
-      &stabilization_rate_sp.p,
-      &stabilization_rate_sp.q,
-      &stabilization_rate_sp.r,
-      &stabilization_rate_ref.p,
-      &stabilization_rate_ref.q,
-      &stabilization_rate_ref.r,
-      &stabilization_rate_refdot.p,
-      &stabilization_rate_refdot.q,
-      &stabilization_rate_refdot.r,
-      &stabilization_rate_sum_err.p,
-      &stabilization_rate_sum_err.q,
-      &stabilization_rate_sum_err.r,
-      &stabilization_rate_ff_cmd.p,
-      &stabilization_rate_ff_cmd.q,
-      &stabilization_rate_ff_cmd.r,
-      &stabilization_rate_fb_cmd.p,
-      &stabilization_rate_fb_cmd.q,
-      &stabilization_rate_fb_cmd.r,
-      &stabilization_cmd[COMMAND_THRUST]);
+                          &stabilization_rate_sp.p,
+                          &stabilization_rate_sp.q,
+                          &stabilization_rate_sp.r,
+                          &stabilization_rate_ref.p,
+                          &stabilization_rate_ref.q,
+                          &stabilization_rate_ref.r,
+                          &stabilization_rate_refdot.p,
+                          &stabilization_rate_refdot.q,
+                          &stabilization_rate_refdot.r,
+                          &stabilization_rate_sum_err.p,
+                          &stabilization_rate_sum_err.q,
+                          &stabilization_rate_sum_err.r,
+                          &stabilization_rate_ff_cmd.p,
+                          &stabilization_rate_ff_cmd.q,
+                          &stabilization_rate_ff_cmd.r,
+                          &stabilization_rate_fb_cmd.p,
+                          &stabilization_rate_fb_cmd.q,
+                          &stabilization_rate_fb_cmd.r,
+                          &stabilization_cmd[COMMAND_THRUST]);
 }
 #endif
 
-void stabilization_rate_init(void) {
+void stabilization_rate_init(void)
+{
 
   INT_RATES_ZERO(stabilization_rate_sp);
 
@@ -169,55 +171,65 @@ void stabilization_rate_init(void) {
 }
 
 
-void stabilization_rate_read_rc( void ) {
+void stabilization_rate_read_rc(void)
+{
 
-  if (ROLL_RATE_DEADBAND_EXCEEDED())
+  if (ROLL_RATE_DEADBAND_EXCEEDED()) {
     stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
-  else
+  } else {
     stabilization_rate_sp.p = 0;
+  }
 
-  if (PITCH_RATE_DEADBAND_EXCEEDED())
+  if (PITCH_RATE_DEADBAND_EXCEEDED()) {
     stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_PITCH] * STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ;
-  else
+  } else {
     stabilization_rate_sp.q = 0;
+  }
 
-  if (YAW_RATE_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN())
+  if (YAW_RATE_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN()) {
     stabilization_rate_sp.r = (int32_t)radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
-  else
+  } else {
     stabilization_rate_sp.r = 0;
+  }
 
   // Setpoint at ref resolution
   INT_RATES_LSHIFT(stabilization_rate_sp, stabilization_rate_sp, REF_FRAC - INT32_RATE_FRAC);
 }
 
 //Read rc with roll and yaw sitcks switched if the default orientation is vertical but airplane sticks are desired
-void stabilization_rate_read_rc_switched_sticks( void ) {
+void stabilization_rate_read_rc_switched_sticks(void)
+{
 
-  if (ROLL_RATE_DEADBAND_EXCEEDED())
-    stabilization_rate_sp.r = (int32_t) -radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
-  else
+  if (ROLL_RATE_DEADBAND_EXCEEDED()) {
+    stabilization_rate_sp.r = (int32_t) - radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
+  } else {
     stabilization_rate_sp.r = 0;
+  }
 
-  if (PITCH_RATE_DEADBAND_EXCEEDED())
+  if (PITCH_RATE_DEADBAND_EXCEEDED()) {
     stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_PITCH] * STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ;
-  else
+  } else {
     stabilization_rate_sp.q = 0;
+  }
 
-  if (YAW_RATE_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN())
+  if (YAW_RATE_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN()) {
     stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
-  else
+  } else {
     stabilization_rate_sp.p = 0;
+  }
 
   // Setpoint at ref resolution
-    INT_RATES_LSHIFT(stabilization_rate_sp, stabilization_rate_sp, REF_FRAC - INT32_RATE_FRAC);
+  INT_RATES_LSHIFT(stabilization_rate_sp, stabilization_rate_sp, REF_FRAC - INT32_RATE_FRAC);
 }
 
-void stabilization_rate_enter(void) {
+void stabilization_rate_enter(void)
+{
   RATES_COPY(stabilization_rate_ref, stabilization_rate_sp);
   INT_RATES_ZERO(stabilization_rate_sum_err);
 }
 
-void stabilization_rate_run(bool_t in_flight) {
+void stabilization_rate_run(bool_t in_flight)
+{
 
   /* reference */
   struct Int32Rates _r;
@@ -225,9 +237,10 @@ void stabilization_rate_run(bool_t in_flight) {
   RATES_SDIV(stabilization_rate_refdot, _r, STABILIZATION_RATE_REF_TAU);
   /* integrate ref */
   const struct Int32Rates _delta_ref = {
-    stabilization_rate_refdot.p >> ( F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC),
-    stabilization_rate_refdot.q >> ( F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC),
-    stabilization_rate_refdot.r >> ( F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC)};
+    stabilization_rate_refdot.p >> (F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC),
+    stabilization_rate_refdot.q >> (F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC),
+    stabilization_rate_refdot.r >> (F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC)
+  };
   RATES_ADD(stabilization_rate_ref, _delta_ref);
 
   /* compute feed-forward command */
@@ -239,28 +252,28 @@ void stabilization_rate_run(bool_t in_flight) {
   const struct Int32Rates _ref_scaled = {
     OFFSET_AND_ROUND(stabilization_rate_ref.p, (REF_FRAC - INT32_RATE_FRAC)),
     OFFSET_AND_ROUND(stabilization_rate_ref.q, (REF_FRAC - INT32_RATE_FRAC)),
-    OFFSET_AND_ROUND(stabilization_rate_ref.r, (REF_FRAC - INT32_RATE_FRAC)) };
+    OFFSET_AND_ROUND(stabilization_rate_ref.r, (REF_FRAC - INT32_RATE_FRAC))
+  };
   struct Int32Rates _error;
-  struct Int32Rates* body_rate = stateGetBodyRates_i();
+  struct Int32Rates *body_rate = stateGetBodyRates_i();
   RATES_DIFF(_error, _ref_scaled, (*body_rate));
   if (in_flight) {
     /* update integrator */
     RATES_ADD(stabilization_rate_sum_err, _error);
     RATES_BOUND_CUBE(stabilization_rate_sum_err, -MAX_SUM_ERR, MAX_SUM_ERR);
-  }
-  else {
+  } else {
     INT_RATES_ZERO(stabilization_rate_sum_err);
   }
 
   /* PI */
   stabilization_rate_fb_cmd.p = stabilization_rate_gain.p * _error.p +
-    OFFSET_AND_ROUND2((stabilization_rate_igain.p  * stabilization_rate_sum_err.p), 10);
+                                OFFSET_AND_ROUND2((stabilization_rate_igain.p  * stabilization_rate_sum_err.p), 10);
 
   stabilization_rate_fb_cmd.q = stabilization_rate_gain.q * _error.q +
-    OFFSET_AND_ROUND2((stabilization_rate_igain.q  * stabilization_rate_sum_err.q), 10);
+                                OFFSET_AND_ROUND2((stabilization_rate_igain.q  * stabilization_rate_sum_err.q), 10);
 
   stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
-    OFFSET_AND_ROUND2((stabilization_rate_igain.r  * stabilization_rate_sum_err.r), 10);
+                                OFFSET_AND_ROUND2((stabilization_rate_igain.r  * stabilization_rate_sum_err.r), 10);
 
   stabilization_rate_fb_cmd.p = stabilization_rate_fb_cmd.p >> 11;
   stabilization_rate_fb_cmd.q = stabilization_rate_fb_cmd.q >> 11;

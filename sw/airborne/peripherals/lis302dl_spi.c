@@ -61,7 +61,8 @@ void lis302dl_spi_init(struct Lis302dl_Spi *lis, struct spi_periph *spi_p, uint8
 }
 
 
-static void lis302dl_spi_write_to_reg(struct Lis302dl_Spi *lis, uint8_t _reg, uint8_t _val) {
+static void lis302dl_spi_write_to_reg(struct Lis302dl_Spi *lis, uint8_t _reg, uint8_t _val)
+{
   lis->spi_trans.output_length = 2;
   lis->spi_trans.input_length = 0;
   lis->tx_buf[0] = _reg;
@@ -80,9 +81,10 @@ static void lis302dl_spi_send_config(struct Lis302dl_Spi *lis)
       lis->spi_trans.output_length = 1;
       lis->spi_trans.input_length = 2;
       /* set read bit then reg address */
-      lis->tx_buf[0] = (1<<7 | LIS302DL_REG_WHO_AM_I);
-      if (spi_submit(lis->spi_p, &(lis->spi_trans)))
+      lis->tx_buf[0] = (1 << 7 | LIS302DL_REG_WHO_AM_I);
+      if (spi_submit(lis->spi_p, &(lis->spi_trans))) {
         lis->init_status++;
+      }
       break;
     case LIS_CONF_REG2:
       /* set SPI mode, Filtered Data Selection */
@@ -98,9 +100,9 @@ static void lis302dl_spi_send_config(struct Lis302dl_Spi *lis)
     case LIS_CONF_ENABLE:
       /* set data rate, range, enable measurement, is in standby after power up */
       reg_val = (lis->config.rate << 7) |
-        (1 << 6) | // Power Down Control to active mode
-        (lis->config.range << 5) |
-        0x5; // enable z,y,x axes
+                (1 << 6) | // Power Down Control to active mode
+                (lis->config.range << 5) |
+                0x5; // enable z,y,x axes
       lis302dl_spi_write_to_reg(lis, LIS302DL_REG_CTRL_REG1, reg_val);
       lis->init_status++;
       break;
@@ -129,7 +131,7 @@ void lis302dl_spi_read(struct Lis302dl_Spi *lis)
     lis->spi_trans.output_length = 1;
     lis->spi_trans.input_length = 8;
     /* set read bit and multiple byte bit, then address */
-    lis->tx_buf[0] = (1<<7|1<<6|LIS302DL_REG_STATUS);
+    lis->tx_buf[0] = (1 << 7 | 1 << 6 | LIS302DL_REG_STATUS);
     spi_submit(lis->spi_p, &(lis->spi_trans));
   }
 }
@@ -139,8 +141,7 @@ void lis302dl_spi_event(struct Lis302dl_Spi *lis)
   if (lis->initialized) {
     if (lis->spi_trans.status == SPITransFailed) {
       lis->spi_trans.status = SPITransDone;
-    }
-    else if (lis->spi_trans.status == SPITransSuccess) {
+    } else if (lis->spi_trans.status == SPITransSuccess) {
       // Successfull reading
       if (bit_is_set(lis->rx_buf[1], 3)) {
         // new xyz data available
@@ -151,17 +152,17 @@ void lis302dl_spi_event(struct Lis302dl_Spi *lis)
       }
       lis->spi_trans.status = SPITransDone;
     }
-  }
-  else if (lis->init_status != LIS_CONF_UNINIT) { // Configuring but not yet initialized
+  } else if (lis->init_status != LIS_CONF_UNINIT) { // Configuring but not yet initialized
     switch (lis->spi_trans.status) {
       case SPITransFailed:
         lis->init_status--; // Retry config (TODO max retry)
       case SPITransSuccess:
         if (lis->init_status == LIS_CONF_WHO_AM_I_OK) {
-          if (lis->rx_buf[1] == LIS302DL_WHO_AM_I)
+          if (lis->rx_buf[1] == LIS302DL_WHO_AM_I) {
             lis->init_status++;
-          else
+          } else {
             lis->init_status = LIS_CONF_WHO_AM_I;
+          }
         }
       case SPITransDone:
         lis->spi_trans.status = SPITransDone;

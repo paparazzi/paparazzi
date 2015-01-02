@@ -24,24 +24,24 @@
 #define LCDDOGM_RS_IODIR LCDDOGM_IO_(LCDDOGM_RS_PORT, DIR)
 #define LCDDOGM_RS_IOSET LCDDOGM_IO_(LCDDOGM_RS_PORT, SET)
 
-#define lcddogmSelect() {	\
-    SetBit(LCDDOGM_SS_IOCLR, LCDDOGM_SS_PIN);	\
+#define lcddogmSelect() { \
+    SetBit(LCDDOGM_SS_IOCLR, LCDDOGM_SS_PIN); \
   }
 
 #define lcddogmUnselect() { \
-    SetBit(LCDDOGM_SS_IOSET, LCDDOGM_SS_PIN);	\
+    SetBit(LCDDOGM_SS_IOSET, LCDDOGM_SS_PIN); \
   }
 
-#define lcddogmCmdMode() {	\
-    SetBit(LCDDOGM_RS_IOCLR, LCDDOGM_RS_PIN);	\
+#define lcddogmCmdMode() {  \
+    SetBit(LCDDOGM_RS_IOCLR, LCDDOGM_RS_PIN); \
   }
 
 #define lcddogmDataMode() { \
-    SetBit(LCDDOGM_RS_IOSET, LCDDOGM_RS_PIN);	\
+    SetBit(LCDDOGM_RS_IOSET, LCDDOGM_RS_PIN); \
   }
 
 extern void lcd_spi_tx(uint8_t data);
-extern void lcd_dogm_init_hw( void );
+extern void lcd_dogm_init_hw(void);
 
 
 #endif /* LCD_DOGM_HW_H */

@@ -39,8 +39,8 @@ extern pprz_t commands[COMMANDS_NB];
 extern const pprz_t commands_failsafe[COMMANDS_NB];
 
 #define SetCommands(t) { \
-  int i; \
-  for(i = 0; i < COMMANDS_NB; i++) commands[i] = t[i]; \
-}
+    int i; \
+    for(i = 0; i < COMMANDS_NB; i++) commands[i] = t[i]; \
+  }
 
 #endif /*  COMMANDS_H */

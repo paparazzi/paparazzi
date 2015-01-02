@@ -7,7 +7,8 @@
 
 #include "subsystems/imu/imu_krooz_sd_arch.h"
 
-void imu_krooz_sd_arch_init(void) {
+void imu_krooz_sd_arch_init(void)
+{
   rcc_periph_clock_enable(RCC_SYSCFG);
   rcc_periph_clock_enable(RCC_GPIOB);
   rcc_periph_clock_enable(RCC_GPIOB);
@@ -24,13 +25,14 @@ void imu_krooz_sd_arch_init(void) {
   nvic_set_priority(NVIC_EXTI9_5_IRQ, 0x0F);
 }
 
-void exti9_5_isr(void) {
+void exti9_5_isr(void)
+{
   /* clear EXTI */
-  if(EXTI_PR & EXTI6) {
+  if (EXTI_PR & EXTI6) {
     exti_reset_request(EXTI6);
     imu_krooz.hmc_eoc = TRUE;
   }
-  if(EXTI_PR & EXTI5) {
+  if (EXTI_PR & EXTI5) {
     exti_reset_request(EXTI5);
     imu_krooz.mpu_eoc = TRUE;
   }

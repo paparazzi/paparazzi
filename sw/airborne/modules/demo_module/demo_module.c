@@ -23,25 +23,30 @@
 #include "demo_module.h"
 #include "led.h"
 
-void init_demo(void) {
+void init_demo(void)
+{
   // this part is already done by led_init in fact
   LED_INIT(DEMO_MODULE_LED);
   LED_OFF(DEMO_MODULE_LED);
 }
 
-void periodic_1Hz_demo(void) {
+void periodic_1Hz_demo(void)
+{
   LED_TOGGLE(DEMO_MODULE_LED);
 }
 
-void periodic_10Hz_demo(void) {
+void periodic_10Hz_demo(void)
+{
   LED_TOGGLE(DEMO_MODULE_LED);
 }
 
-void start_demo(void) {
+void start_demo(void)
+{
   LED_ON(DEMO_MODULE_LED);
 }
 
-void stop_demo(void) {
+void stop_demo(void)
+{
   LED_OFF(DEMO_MODULE_LED);
 }
 

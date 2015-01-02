@@ -29,7 +29,8 @@
 #include "subsystems/sensors/baro.h"
 #include "baro_board.h"
 
-void airspeed_periodic(void) {
+void airspeed_periodic(void)
+{
   ads1114_read(&BARO_DIFF_ADS);
 }
 

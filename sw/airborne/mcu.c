@@ -47,7 +47,7 @@
 #if USE_ADC
 #include "mcu_periph/adc.h"
 #endif
-#ifdef USE_USB_SERIAL
+#if USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif
 #ifdef USE_UDP
@@ -61,7 +61,8 @@
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */
 
-void mcu_init(void) {
+void mcu_init(void)
+{
 
   mcu_arch_init();
 
@@ -110,7 +111,7 @@ void mcu_init(void) {
 #if USE_ADC
   adc_init();
 #endif
-#ifdef USE_USB_SERIAL
+#if USE_USB_SERIAL
   VCOM_init();
 #endif
 
@@ -167,7 +168,7 @@ void mcu_init(void) {
 #endif
 
 #else
-INFO("PERIPHERALS_AUTO_INIT not enabled! Peripherals (including sys_time) need explicit initialization.")
+  INFO("PERIPHERALS_AUTO_INIT not enabled! Peripherals (including sys_time) need explicit initialization.")
 #endif /* PERIPHERALS_AUTO_INIT */
 
 }

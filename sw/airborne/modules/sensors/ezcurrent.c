@@ -47,7 +47,8 @@
 
 struct i2c_transaction ezcurrent_i2c_trans;
 
-void ezcurrent_init( void ) {
+void ezcurrent_init(void)
+{
   electrical.vsupply = 0;
   electrical.current = 0;
 
@@ -55,7 +56,8 @@ void ezcurrent_init( void ) {
   ezcurrent_i2c_trans.slave_addr = EZCURRENT_ADDR;
 }
 
-void ezcurrent_read_periodic( void ) {
+void ezcurrent_read_periodic(void)
+{
   if (ezcurrent_i2c_trans.status == I2CTransDone) {
     i2c_receive(&EZCURRENT_I2C_DEV, &ezcurrent_i2c_trans, ezcurrent_i2c_trans.slave_addr, 10);
   }
@@ -64,7 +66,8 @@ void ezcurrent_read_periodic( void ) {
 #define Uint16FromBuf(_buf,_idx) ((uint16_t)((_buf[_idx+1]<<8) | _buf[_idx]))
 #define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx+1]<<8) | _buf[_idx]))
 
-void ezcurrent_read_event( void ) {
+void ezcurrent_read_event(void)
+{
   if (ezcurrent_i2c_trans.status == I2CTransSuccess) {
     /* voltage of EzOSD sensor is provided in mV, convert to deciVolt */
     electrical.vsupply = Uint16FromBuf(ezcurrent_i2c_trans.buf, 2) / 100;
@@ -75,7 +78,7 @@ void ezcurrent_read_event( void ) {
 
     // Transaction has been read
     ezcurrent_i2c_trans.status = I2CTransDone;
-  } else if ( ezcurrent_i2c_trans.status == I2CTransFailed ) {
+  } else if (ezcurrent_i2c_trans.status == I2CTransFailed) {
     ezcurrent_i2c_trans.status = I2CTransDone;
     // ezcurrent_i2c_trans.slave_addr++;
   }

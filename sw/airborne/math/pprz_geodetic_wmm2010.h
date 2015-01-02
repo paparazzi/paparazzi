@@ -62,9 +62,9 @@ extern "C" {
 extern const double gh1[];
 extern const double gh2[];
 
-int16_t extrapsh(double date, double dte1, int16_t nmax1, int16_t nmax2, double* gh);
+int16_t extrapsh(double date, double dte1, int16_t nmax1, int16_t nmax2, double *gh);
 int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t nmax,
-                 double* gh, double* geo_mag_x, double* geo_mag_y, double* geo_mag_z,
+                 double *gh, double *geo_mag_x, double *geo_mag_y, double *geo_mag_z,
                  int16_t iext, double ext1, double ext2, double ext3);
 
 #ifdef __cplusplus

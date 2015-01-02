@@ -108,7 +108,7 @@ static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, const flo
 
   if (air_data.calc_amsl_baro && air_data.qnh > 0) {
     air_data.amsl_baro = pprz_isa_height_of_pressure_full(air_data.pressure,
-                                                          air_data.qnh * 100.f);
+                         air_data.qnh * 100.f);
     air_data.amsl_baro_valid = TRUE;
   }
 
@@ -218,8 +218,7 @@ void air_data_periodic(void)
   // Watchdog on baro
   if (baro_health_counter > 0) {
     baro_health_counter--;
-  }
-  else {
+  } else {
     air_data.amsl_baro_valid = FALSE;
   }
 }

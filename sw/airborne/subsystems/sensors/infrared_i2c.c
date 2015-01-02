@@ -67,21 +67,25 @@ static uint8_t ir_i2c_hor_status;
 struct i2c_transaction irh_trans, irv_trans;
 
 // Standard infrared implementation
-void infrared_init(void) {
+void infrared_init(void)
+{
   infrared_i2c_init();
 }
 
-void infrared_update(void) {
+void infrared_update(void)
+{
   infrared_i2c_update();
 }
 
-void infrared_event(void) {
+void infrared_event(void)
+{
   infrared_i2cEvent();
 }
 
 /** Initialisation
  */
-void infrared_i2c_init( void ) {
+void infrared_i2c_init(void)
+{
   ir_i2c_data_hor_available = FALSE;
   ir_i2c_data_ver_available = FALSE;
   ir_i2c_hor_status = IR_I2C_IDLE;
@@ -94,7 +98,8 @@ void infrared_i2c_init( void ) {
   infrared_struct_init();
 }
 
-void infrared_i2c_update( void ) {
+void infrared_i2c_update(void)
+{
 #if ! (defined SITL || defined HITL)
   // IR horizontal
   if (irh_trans.status == I2CTransDone && ir_i2c_hor_status == IR_I2C_IDLE) {
@@ -125,19 +130,20 @@ void infrared_i2c_update( void ) {
 
 #define FilterIR(_ir_prev, _ir_next) (((1<<ir_i2c_conf_word)*_ir_prev + _ir_next) / ((1<<ir_i2c_conf_word) + 1))
 
-void infrared_i2c_hor_event( void ) {
+void infrared_i2c_hor_event(void)
+{
 #if ! (defined SITL || defined HITL)
   irh_trans.status = I2CTransDone;
   switch (ir_i2c_hor_status) {
     case IR_I2C_IDLE :
       break;
     case IR_I2C_READ_IR1 :
-      if (bit_is_set(irh_trans.buf[2],7)) {
+      if (bit_is_set(irh_trans.buf[2], 7)) {
         i2c_receive(&i2c0, &irh_trans, IR_HOR_I2C_ADDR, 3);
         break;
       }
       // Read IR1 value
-      int16_t ir1 = (irh_trans.buf[0]<<8) | irh_trans.buf[1];
+      int16_t ir1 = (irh_trans.buf[0] << 8) | irh_trans.buf[1];
       ir1 = ir1 - (IR_I2C_IR1_NEUTRAL << ir_i2c_conf_word);
       ir_i2c.ir1 = FilterIR(ir_i2c.ir1, ir1);
       // Select IR2 channel
@@ -152,11 +158,11 @@ void infrared_i2c_hor_event( void ) {
       break;
     case IR_I2C_READ_IR2 :
       // Read IR2 value
-      if (bit_is_set(irh_trans.buf[2],7)) {
+      if (bit_is_set(irh_trans.buf[2], 7)) {
         i2c_receive(&i2c0, &irh_trans, IR_HOR_I2C_ADDR, 3);
         break;
       }
-      int16_t ir2 = (irh_trans.buf[0]<<8) | irh_trans.buf[1];
+      int16_t ir2 = (irh_trans.buf[0] << 8) | irh_trans.buf[1];
       ir2 = ir2 - (IR_I2C_IR2_NEUTRAL << ir_i2c_conf_word);
       ir_i2c.ir2 = FilterIR(ir_i2c.ir2, ir2);
       // Update estimator
@@ -186,12 +192,13 @@ void infrared_i2c_hor_event( void ) {
 #endif /* !SITL && !HITL */
 }
 
-void infrared_i2c_ver_event( void ) {
+void infrared_i2c_ver_event(void)
+{
 #if ! (defined SITL || defined HITL)
   irv_trans.status = I2CTransDone;
   // Read TOP value
   if (irv_trans.type == I2CTransRx) {
-    int16_t ir3 = (irv_trans.buf[0]<<8) | irv_trans.buf[1];
+    int16_t ir3 = (irv_trans.buf[0] << 8) | irv_trans.buf[1];
     ir3 = ir3 - (IR_I2C_TOP_NEUTRAL << ir_i2c_conf_word);
     ir_i2c.ir3 = FilterIR(ir_i2c.ir3, ir3);
     ir_i2c_data_ver_available = TRUE;

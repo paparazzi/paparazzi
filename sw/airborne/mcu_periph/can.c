@@ -42,6 +42,7 @@ int ppz_can_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 
 void _can_run_rx_callback(uint32_t id, uint8_t *buf, uint8_t len)
 {
-  if(can_rx_callback)
+  if (can_rx_callback) {
     can_rx_callback(id, buf, len);
+  }
 }

@@ -32,7 +32,7 @@
 
 struct GpsMtk {
   bool_t msg_available;
-  uint8_t msg_buf[GPS_MTK_MAX_PAYLOAD] __attribute__ ((aligned));
+  uint8_t msg_buf[GPS_MTK_MAX_PAYLOAD] __attribute__((aligned));
   uint8_t msg_id;
   uint8_t msg_class;
 
@@ -99,9 +99,9 @@ extern bool_t gps_configuring;
     }                                                   \
   }
 
-#define ReadGpsBuffer() {					\
-    while (GpsLink(ChAvailable())&&!gps_mtk.msg_available)	\
-      gps_mtk_parse(GpsLink(Getch()));			\
+#define ReadGpsBuffer() {         \
+    while (GpsLink(ChAvailable())&&!gps_mtk.msg_available)  \
+      gps_mtk_parse(GpsLink(Getch()));      \
   }
 
 

@@ -36,8 +36,7 @@
  *   Message ID 100
  *   Fields are ordered to guarentee alignment
  */
-struct mavlink_optical_flow
-{
+struct mavlink_optical_flow {
   uint64_t time_usec;     ///< Timestamp (UNIX)
   float flow_comp_m_x;    ///< Flow in meters in x-sensor direction, angular-speed compensated
   float flow_comp_m_y;    ///< Flow in meters in y-sensor direction, angular-speed compensated

@@ -64,7 +64,7 @@ struct uart_periph {
   uint16_t tx_extract_idx;
   uint8_t tx_running;
   /** UART Register */
-  void* reg_addr;
+  void *reg_addr;
   /** UART Dev (linux) */
   char dev[UART_DEV_NAME_SIZE];
   volatile uint16_t ore;    ///< overrun error counter
@@ -75,23 +75,25 @@ struct uart_periph {
 };
 
 
-extern void uart_periph_init(struct uart_periph* p);
-extern void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud);
-extern void uart_periph_set_bits_stop_parity(struct uart_periph* p, uint8_t bits, uint8_t stop, uint8_t parity);
-extern void uart_periph_set_mode(struct uart_periph* p, bool_t tx_enabled, bool_t rx_enabled, bool_t hw_flow_control);
-extern void uart_transmit(struct uart_periph* p, uint8_t data);
-extern bool_t uart_check_free_space(struct uart_periph* p, uint8_t len);
-extern uint8_t uart_getch(struct uart_periph* p);
+extern void uart_periph_init(struct uart_periph *p);
+extern void uart_periph_set_baudrate(struct uart_periph *p, uint32_t baud);
+extern void uart_periph_set_bits_stop_parity(struct uart_periph *p, uint8_t bits, uint8_t stop, uint8_t parity);
+extern void uart_periph_set_mode(struct uart_periph *p, bool_t tx_enabled, bool_t rx_enabled, bool_t hw_flow_control);
+extern void uart_transmit(struct uart_periph *p, uint8_t data);
+extern bool_t uart_check_free_space(struct uart_periph *p, uint8_t len);
+extern uint8_t uart_getch(struct uart_periph *p);
 extern void uart_event(void);
 
 /**
  * Check UART for available chars in receive buffer.
  * @return number of chars in the buffer
  */
-static inline uint16_t uart_char_available(struct uart_periph* p) {
+static inline uint16_t uart_char_available(struct uart_periph *p)
+{
   int16_t available = p->rx_insert_idx - p->rx_extract_idx;
-  if (available < 0)
+  if (available < 0) {
     available += UART_RX_BUFFER_SIZE;
+  }
   return (uint16_t)available;
 }
 

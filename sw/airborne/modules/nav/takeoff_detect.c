@@ -91,8 +91,7 @@ void takeoff_detect_periodic(void)
       if (stateGetNedToBodyEulers_f()->theta > TAKEOFF_DETECT_LAUNCH_PITCH
           && pprz_mode == PPRZ_MODE_AUTO2) {
         takeoff_detect.timer++;
-      }
-      else {
+      } else {
         // else reset timer
         takeoff_detect.timer = 0;
       }

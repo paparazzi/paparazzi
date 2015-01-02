@@ -96,10 +96,10 @@ void gpio_cam_ctrl_init(void)
 #endif
 }
 
-void gpio_cam_ctrl_periodic( void )
+void gpio_cam_ctrl_periodic(void)
 {
 #ifdef DC_SHOOT_ON_BUTTON_RELEASE
-  if (dc_timer==1) {
+  if (dc_timer == 1) {
     dc_send_shot_position();
   }
 #endif
@@ -130,8 +130,7 @@ void gpio_cam_ctrl_periodic( void )
 void dc_send_command(uint8_t cmd)
 {
   dc_timer = DC_SHUTTER_DELAY;
-  switch (cmd)
-  {
+  switch (cmd) {
     case DC_SHOOT:
       DC_PUSH(DC_SHUTTER_GPIO);
 #ifndef DC_SHOOT_ON_BUTTON_RELEASE

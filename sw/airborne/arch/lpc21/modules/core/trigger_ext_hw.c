@@ -27,7 +27,8 @@
 #include "LPC21xx.h"
 #include BOARD_CONFIG
 
-void TRIG_ISR() {
+void TRIG_ISR()
+{
   static uint32_t last;
   uint32_t delta_t0_temp;
   trigger_t0 = TRIGGER_CR;
@@ -39,7 +40,8 @@ void TRIG_ISR() {
   }
 }
 
-void trigger_ext_init ( void ) {
+void trigger_ext_init(void)
+{
   /* select pin for capture */
   TRIG_EXT_PINSEL |= TRIG_EXT_PINSEL_VAL << TRIG_EXT_PINSEL_BIT;
   /* enable capture 0.2 on falling or rising edge + trigger interrupt */

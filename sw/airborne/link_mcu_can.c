@@ -53,8 +53,8 @@ union {
 // READ MESSAGES
 
 
-void link_mcu_on_can_msg(uint32_t id, uint8_t* data, int len);
-void link_mcu_on_can_msg(uint32_t id, uint8_t* data, int len)
+void link_mcu_on_can_msg(uint32_t id, uint8_t *data, int len);
+void link_mcu_on_can_msg(uint32_t id, uint8_t *data, int len)
 {
 #if COMMANDS_NB > 8
 #error "INTERMCU_CAN CAN ONLY SEND 4 OR 8 COMMANDS (packets of 8 bytes)"

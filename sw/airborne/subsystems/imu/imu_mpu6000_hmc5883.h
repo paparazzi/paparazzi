@@ -50,7 +50,8 @@ extern struct ImuMpu6000Hmc5883 imu_mpu_hmc;
 extern void imu_mpu_hmc_event(void);
 
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+{
   imu_mpu_hmc_event();
   if (imu_mpu_hmc.gyro_valid) {
     imu_mpu_hmc.gyro_valid = FALSE;

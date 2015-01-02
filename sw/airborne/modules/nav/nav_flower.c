@@ -35,8 +35,8 @@
 /************** Flower Navigation **********************************************/
 
 /** Makes a flower pattern.
-	CenterWP is the center of the flower. The Navigation Height is taken from this waypoint.
-	EdgeWP defines the radius of the flower (distance from CenterWP to EdgeWP)
+  CenterWP is the center of the flower. The Navigation Height is taken from this waypoint.
+  EdgeWP defines the radius of the flower (distance from CenterWP to EdgeWP)
 */
 
 enum FlowerStatus { Outside, FlowerLine, Circle };
@@ -65,22 +65,23 @@ bool_t nav_flower_setup(uint8_t CenterWP, uint8_t EdgeWP)
   EdgeCurrentX = WaypointX(Edge) - WaypointX(Center);
   EdgeCurrentY = WaypointY(Edge) - WaypointY(Center);
 
-  Flowerradius = sqrtf(EdgeCurrentX*EdgeCurrentX+EdgeCurrentY*EdgeCurrentY);
+  Flowerradius = sqrtf(EdgeCurrentX * EdgeCurrentX + EdgeCurrentY * EdgeCurrentY);
 
   TransCurrentX = stateGetPositionEnu_f()->x - WaypointX(Center);
   TransCurrentY = stateGetPositionEnu_f()->y - WaypointY(Center);
-  DistanceFromCenter = sqrtf(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
+  DistanceFromCenter = sqrtf(TransCurrentX * TransCurrentX + TransCurrentY * TransCurrentY);
 
-  FlowerTheta = atan2f(TransCurrentY,TransCurrentX);
-  Fly2X = Flowerradius*cosf(FlowerTheta+3.14)+WaypointX(Center);
-  Fly2Y = Flowerradius*sinf(FlowerTheta+3.14)+WaypointY(Center);
+  FlowerTheta = atan2f(TransCurrentY, TransCurrentX);
+  Fly2X = Flowerradius * cosf(FlowerTheta + 3.14) + WaypointX(Center);
+  Fly2Y = Flowerradius * sinf(FlowerTheta + 3.14) + WaypointY(Center);
   FlyFromX = stateGetPositionEnu_f()->x;
   FlyFromY = stateGetPositionEnu_f()->y;
 
-  if(DistanceFromCenter > Flowerradius)
+  if (DistanceFromCenter > Flowerradius) {
     CFlowerStatus = Outside;
-  else
+  } else {
     CFlowerStatus = FlowerLine;
+  }
 
   CircleX = 0;
   CircleY = 0;
@@ -91,65 +92,63 @@ bool_t nav_flower_run(void)
 {
   TransCurrentX = stateGetPositionEnu_f()->x - WaypointX(Center);
   TransCurrentY = stateGetPositionEnu_f()->y - WaypointY(Center);
-  DistanceFromCenter = sqrtf(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
+  DistanceFromCenter = sqrtf(TransCurrentX * TransCurrentX + TransCurrentY * TransCurrentY);
 
   bool_t InCircle = TRUE;
   float CircleTheta;
 
-  if(DistanceFromCenter > Flowerradius)
+  if (DistanceFromCenter > Flowerradius) {
     InCircle = FALSE;
+  }
 
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(waypoints[Center].a, 0.);
 
-  switch(CFlowerStatus)
-  {
-  case Outside:
-    nav_route_xy(FlyFromX,FlyFromY,Fly2X,Fly2Y);
-    if(InCircle)
-    {
-      CFlowerStatus = FlowerLine;
-      FlowerTheta = atan2f(TransCurrentY,TransCurrentX);
-      Fly2X = Flowerradius*cosf(FlowerTheta+3.14)+WaypointX(Center);
-      Fly2Y = Flowerradius*sinf(FlowerTheta+3.14)+WaypointY(Center);
-      FlyFromX = stateGetPositionEnu_f()->x;
-      FlyFromY = stateGetPositionEnu_f()->y;
-      nav_init_stage();
-    }
-    break;
-  case FlowerLine:
-    nav_route_xy(FlyFromX,FlyFromY,Fly2X,Fly2Y);
-    if(!InCircle)
-    {
-      CFlowerStatus = Circle;
-      CircleTheta = nav_radius/Flowerradius;
-      CircleX = Flowerradius*cosf(FlowerTheta+3.14-CircleTheta)+WaypointX(Center);
-      CircleY = Flowerradius*sinf(FlowerTheta+3.14-CircleTheta)+WaypointY(Center);
-      nav_init_stage();
-    }
-    break;
-  case Circle:
-    nav_circle_XY(CircleX, CircleY, nav_radius);
-    if(InCircle)
-    {
-      EdgeCurrentX = WaypointX(Edge) - WaypointX(Center);
-      EdgeCurrentY = WaypointY(Edge) - WaypointY(Center);
-      Flowerradius = sqrtf(EdgeCurrentX*EdgeCurrentX+EdgeCurrentY*EdgeCurrentY);
-      if(DistanceFromCenter > Flowerradius)
-        CFlowerStatus = Outside;
-      else
+  switch (CFlowerStatus) {
+    case Outside:
+      nav_route_xy(FlyFromX, FlyFromY, Fly2X, Fly2Y);
+      if (InCircle) {
         CFlowerStatus = FlowerLine;
-      FlowerTheta = atan2f(TransCurrentY,TransCurrentX);
-      Fly2X = Flowerradius*cosf(FlowerTheta+3.14)+WaypointX(Center);
-      Fly2Y = Flowerradius*sinf(FlowerTheta+3.14)+WaypointY(Center);
-      FlyFromX = stateGetPositionEnu_f()->x;
-      FlyFromY = stateGetPositionEnu_f()->y;
-      nav_init_stage();
-    }
-    break;
+        FlowerTheta = atan2f(TransCurrentY, TransCurrentX);
+        Fly2X = Flowerradius * cosf(FlowerTheta + 3.14) + WaypointX(Center);
+        Fly2Y = Flowerradius * sinf(FlowerTheta + 3.14) + WaypointY(Center);
+        FlyFromX = stateGetPositionEnu_f()->x;
+        FlyFromY = stateGetPositionEnu_f()->y;
+        nav_init_stage();
+      }
+      break;
+    case FlowerLine:
+      nav_route_xy(FlyFromX, FlyFromY, Fly2X, Fly2Y);
+      if (!InCircle) {
+        CFlowerStatus = Circle;
+        CircleTheta = nav_radius / Flowerradius;
+        CircleX = Flowerradius * cosf(FlowerTheta + 3.14 - CircleTheta) + WaypointX(Center);
+        CircleY = Flowerradius * sinf(FlowerTheta + 3.14 - CircleTheta) + WaypointY(Center);
+        nav_init_stage();
+      }
+      break;
+    case Circle:
+      nav_circle_XY(CircleX, CircleY, nav_radius);
+      if (InCircle) {
+        EdgeCurrentX = WaypointX(Edge) - WaypointX(Center);
+        EdgeCurrentY = WaypointY(Edge) - WaypointY(Center);
+        Flowerradius = sqrtf(EdgeCurrentX * EdgeCurrentX + EdgeCurrentY * EdgeCurrentY);
+        if (DistanceFromCenter > Flowerradius) {
+          CFlowerStatus = Outside;
+        } else {
+          CFlowerStatus = FlowerLine;
+        }
+        FlowerTheta = atan2f(TransCurrentY, TransCurrentX);
+        Fly2X = Flowerradius * cosf(FlowerTheta + 3.14) + WaypointX(Center);
+        Fly2Y = Flowerradius * sinf(FlowerTheta + 3.14) + WaypointY(Center);
+        FlyFromX = stateGetPositionEnu_f()->x;
+        FlyFromY = stateGetPositionEnu_f()->y;
+        nav_init_stage();
+      }
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
   return TRUE;
 }

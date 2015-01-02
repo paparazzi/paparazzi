@@ -25,7 +25,8 @@
 
 #include "subsystems/actuators/actuators_pwm_arch.h"
 
-void actuators_pwm_arch_init(void) {
+void actuators_pwm_arch_init(void)
+{
 
 }
 

@@ -35,10 +35,10 @@ uint8_t rc_settings_mode = 0;
 float slider_1_val, slider_2_val;
 
 #define ParamValInt16(param_init_val, param_travel, cur_pulse, init_pulse) \
-(param_init_val + (int16_t)(((float)(cur_pulse - init_pulse)) * param_travel / (float)MAX_PPRZ))
+  (param_init_val + (int16_t)(((float)(cur_pulse - init_pulse)) * param_travel / (float)MAX_PPRZ))
 
 #define ParamValFloat(param_init_val, param_travel, cur_pulse, init_pulse) \
-(param_init_val + ((float)(cur_pulse - init_pulse)) * param_travel / (float)MAX_PPRZ)
+  (param_init_val + ((float)(cur_pulse - init_pulse)) * param_travel / (float)MAX_PPRZ)
 
 #define RcChannel(x) (fbw_state->channels[x])
 
@@ -46,6 +46,7 @@ float slider_1_val, slider_2_val;
 #include "generated/settings.h"
 
 
-void rc_settings(bool_t mode_changed __attribute__ ((unused))) {
+void rc_settings(bool_t mode_changed __attribute__((unused)))
+{
   RCSettings(mode_changed);
 }

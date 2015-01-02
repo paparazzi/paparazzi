@@ -99,27 +99,27 @@ struct LtpDef_i {
   int32_t hmsl;                  ///< Height above mean sea level in mm
 };
 
-extern void ltp_of_ecef_rmat_from_lla_i(struct Int32RMat* ltp_of_ecef, struct LlaCoor_i* lla);
-extern void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef);
-extern void ltp_def_from_lla_i(struct LtpDef_i* def, struct LlaCoor_i* lla);
-extern void lla_of_ecef_i(struct LlaCoor_i* out, struct EcefCoor_i* in);
-extern void ecef_of_lla_i(struct EcefCoor_i* out, struct LlaCoor_i* in);
-extern void enu_of_ecef_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef);
-extern void ned_of_ecef_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef);
-extern void enu_of_ecef_pos_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef);
-extern void ned_of_ecef_pos_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef);
-extern void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef);
-extern void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef);
-extern void enu_of_lla_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct LlaCoor_i* lla);
-extern void ned_of_lla_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla);
-extern void enu_of_lla_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct LlaCoor_i* lla);
-extern void ned_of_lla_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla);
-extern void ecef_of_enu_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu);
-extern void ecef_of_ned_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned);
-extern void ecef_of_enu_pos_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu);
-extern void ecef_of_ned_pos_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned);
-extern void ecef_of_enu_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu);
-extern void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned);
+extern void ltp_of_ecef_rmat_from_lla_i(struct Int32RMat *ltp_of_ecef, struct LlaCoor_i *lla);
+extern void ltp_def_from_ecef_i(struct LtpDef_i *def, struct EcefCoor_i *ecef);
+extern void ltp_def_from_lla_i(struct LtpDef_i *def, struct LlaCoor_i *lla);
+extern void lla_of_ecef_i(struct LlaCoor_i *out, struct EcefCoor_i *in);
+extern void ecef_of_lla_i(struct EcefCoor_i *out, struct LlaCoor_i *in);
+extern void enu_of_ecef_point_i(struct EnuCoor_i *enu, struct LtpDef_i *def, struct EcefCoor_i *ecef);
+extern void ned_of_ecef_point_i(struct NedCoor_i *ned, struct LtpDef_i *def, struct EcefCoor_i *ecef);
+extern void enu_of_ecef_pos_i(struct EnuCoor_i *enu, struct LtpDef_i *def, struct EcefCoor_i *ecef);
+extern void ned_of_ecef_pos_i(struct NedCoor_i *ned, struct LtpDef_i *def, struct EcefCoor_i *ecef);
+extern void enu_of_ecef_vect_i(struct EnuCoor_i *enu, struct LtpDef_i *def, struct EcefCoor_i *ecef);
+extern void ned_of_ecef_vect_i(struct NedCoor_i *ned, struct LtpDef_i *def, struct EcefCoor_i *ecef);
+extern void enu_of_lla_point_i(struct EnuCoor_i *enu, struct LtpDef_i *def, struct LlaCoor_i *lla);
+extern void ned_of_lla_point_i(struct NedCoor_i *ned, struct LtpDef_i *def, struct LlaCoor_i *lla);
+extern void enu_of_lla_vect_i(struct EnuCoor_i *enu, struct LtpDef_i *def, struct LlaCoor_i *lla);
+extern void ned_of_lla_vect_i(struct NedCoor_i *ned, struct LtpDef_i *def, struct LlaCoor_i *lla);
+extern void ecef_of_enu_point_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, struct EnuCoor_i *enu);
+extern void ecef_of_ned_point_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, struct NedCoor_i *ned);
+extern void ecef_of_enu_pos_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, struct EnuCoor_i *enu);
+extern void ecef_of_ned_pos_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, struct NedCoor_i *ned);
+extern void ecef_of_enu_vect_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, struct EnuCoor_i *enu);
+extern void ecef_of_ned_vect_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, struct NedCoor_i *ned);
 
 #define CM_OF_M(_m)  ((_m)*1e2)
 #define M_OF_CM(_cm) ((_cm)/1e2)

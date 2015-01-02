@@ -74,7 +74,8 @@ static void alt_kalman_reset(void);
 static void alt_kalman_init(void);
 static void alt_kalman(float z_meas, float dt);
 
-void ins_init(void) {
+void ins_init(void)
+{
 
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, ground_alt, nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
@@ -100,13 +101,14 @@ void ins_init(void) {
 
 
 /** Reset the geographic reference to the current GPS fix */
-void ins_reset_local_origin(void) {
+void ins_reset_local_origin(void)
+{
   struct UtmCoor_f utm;
 #ifdef GPS_USE_LATLONG
   /* Recompute UTM coordinates in this zone */
   struct LlaCoor_f lla;
   LLA_FLOAT_OF_BFP(lla, gps.lla_pos);
-  utm.zone = (gps.lla_pos.lon/1e7 + 180) / 6 + 1;
+  utm.zone = (gps.lla_pos.lon / 1e7 + 180) / 6 + 1;
   utm_of_lla_f(&utm, &lla);
 #else
   utm.zone = gps.utm_pos.zone;
@@ -114,7 +116,7 @@ void ins_reset_local_origin(void) {
   utm.north = gps.utm_pos.north / 100.0f;
 #endif
   // ground_alt
-  utm.alt = gps.hmsl  /1000.0f;
+  utm.alt = gps.hmsl  / 1000.0f;
 
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
@@ -123,7 +125,8 @@ void ins_reset_local_origin(void) {
   ins_impl.reset_alt_ref = TRUE;
 }
 
-void ins_reset_altitude_ref(void) {
+void ins_reset_altitude_ref(void)
+{
   struct UtmCoor_f utm = state.utm_origin_f;
   // ground_alt
   utm.alt = gps.hmsl / 1000.0f;
@@ -135,7 +138,8 @@ void ins_reset_altitude_ref(void) {
 
 
 #if USE_BAROMETER
-static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure) {
+static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure)
+{
   // timestamp in usec when last callback was received
   static uint32_t last_ts = 0;
   // current timestamp
@@ -157,8 +161,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
     ins_impl.alt_dot = 0.0f;
     ins_impl.qfe = *pressure;
     alt_kalman_reset();
-  }
-  else { /* not realigning, so normal update with baro measurement */
+  } else { /* not realigning, so normal update with baro measurement */
     ins_impl.baro_alt = ground_alt + pprz_isa_height_of_pressure(*pressure, ins_impl.qfe);
     /* run the filter */
     alt_kalman(ins_impl.baro_alt, dt);
@@ -176,7 +179,8 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
 #endif
 
 
-void ins_update_gps(void) {
+void ins_update_gps(void)
+{
 #if USE_GPS
   struct UtmCoor_f utm;
   utm.east = gps.utm_pos.east / 100.0f;
@@ -205,8 +209,7 @@ void ins_update_gps(void) {
     ins_impl.alt = falt;
     ins_impl.alt_dot = 0.0f;
     alt_kalman_reset();
-  }
-  else {
+  } else {
     alt_kalman(falt, dt);
     ins_impl.alt_dot = -gps.ned_vel.z / 100.0f;
   }
@@ -232,18 +235,21 @@ void ins_update_gps(void) {
 
 static float p[2][2];
 
-static void alt_kalman_reset(void) {
+static void alt_kalman_reset(void)
+{
   p[0][0] = 1.0f;
   p[0][1] = 0.0f;
   p[1][0] = 0.0f;
   p[1][1] = 1.0f;
 }
 
-static void alt_kalman_init(void) {
+static void alt_kalman_init(void)
+{
   alt_kalman_reset();
 }
 
-static void alt_kalman(float z_meas, float dt) {
+static void alt_kalman(float z_meas, float dt)
+{
   float R = GPS_R;
   float SIGMA2 = GPS_SIGMA2;
 
@@ -280,18 +286,18 @@ static void alt_kalman(float z_meas, float dt) {
 #endif // USE_BAROMETER
 
   float q[2][2];
-  q[0][0] = dt*dt*dt*dt/4.;
-  q[0][1] = dt*dt*dt/2.;
-  q[1][0] = dt*dt*dt/2.;
-  q[1][1] = dt*dt;
+  q[0][0] = dt * dt * dt * dt / 4.;
+  q[0][1] = dt * dt * dt / 2.;
+  q[1][0] = dt * dt * dt / 2.;
+  q[1][1] = dt * dt;
 
 
   /* predict */
   ins_impl.alt += ins_impl.alt_dot * dt;
-  p[0][0] = p[0][0]+p[1][0]*dt+dt*(p[0][1]+p[1][1]*dt) + SIGMA2*q[0][0];
-  p[0][1] = p[0][1]+p[1][1]*dt + SIGMA2*q[0][1];
-  p[1][0] = p[1][0]+p[1][1]*dt + SIGMA2*q[1][0];
-  p[1][1] = p[1][1] + SIGMA2*q[1][1];
+  p[0][0] = p[0][0] + p[1][0] * dt + dt * (p[0][1] + p[1][1] * dt) + SIGMA2 * q[0][0];
+  p[0][1] = p[0][1] + p[1][1] * dt + SIGMA2 * q[0][1];
+  p[1][0] = p[1][0] + p[1][1] * dt + SIGMA2 * q[1][0];
+  p[1][1] = p[1][1] + SIGMA2 * q[1][1];
 
   /* error estimate */
   float e = p[0][0] + R;
@@ -305,14 +311,14 @@ static void alt_kalman(float z_meas, float dt) {
     ins_impl.alt += k_0 * e;
     ins_impl.alt_dot += k_1 * e;
 
-    p[1][0] = -p[0][0]*k_1+p[1][0];
-    p[1][1] = -p[0][1]*k_1+p[1][1];
-    p[0][0] = p[0][0] * (1-k_0);
-    p[0][1] = p[0][1] * (1-k_0);
+    p[1][0] = -p[0][0] * k_1 + p[1][0];
+    p[1][1] = -p[0][1] * k_1 + p[1][1];
+    p[0][0] = p[0][0] * (1 - k_0);
+    p[0][1] = p[0][1] * (1 - k_0);
   }
 
 #ifdef DEBUG_ALT_KALMAN
-  DOWNLINK_SEND_ALT_KALMAN(DefaultChannel,DefaultDevice,&(p[0][0]),&(p[0][1]),&(p[1][0]), &(p[1][1]));
+  DOWNLINK_SEND_ALT_KALMAN(DefaultChannel, DefaultDevice, &(p[0][0]), &(p[0][1]), &(p[1][0]), &(p[1][1]));
 #endif
 }
 

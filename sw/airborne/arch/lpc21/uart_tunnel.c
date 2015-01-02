@@ -11,9 +11,10 @@
 #define TXD1_PIN 8
 #define RXD1_PIN 9
 
-int main(int argc __attribute__((unused)), char** argv __attribute__((unused))) {
-  int tx=0, rx=0;
-  int tx_shadow=1, rx_shadow=1;
+int main(int argc __attribute__((unused)), char **argv __attribute__((unused)))
+{
+  int tx = 0, rx = 0;
+  int tx_shadow = 1, rx_shadow = 1;
   mcu_init();
   led_init();
 #if USE_LED_1
@@ -25,11 +26,11 @@ int main(int argc __attribute__((unused)), char** argv __attribute__((unused))) 
   SetBit(IO0DIR, TXD1_PIN);
 
   /* RXD0 and RXD1 input */
-  ClearBit(IO0DIR,RXD0_PIN);
-  ClearBit(IO0DIR,RXD1_PIN);
+  ClearBit(IO0DIR, RXD0_PIN);
+  ClearBit(IO0DIR, RXD1_PIN);
 
   /* use shadow bits to reduce jitter */
-  while(1) {
+  while (1) {
     tx = bit_is_set(IO0PIN, RXD0_PIN);
     if (tx != tx_shadow) {
       if (tx) {

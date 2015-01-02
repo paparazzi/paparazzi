@@ -1,10 +1,11 @@
 <!-- Paparazzi Modules DTD -->
 
-<!ELEMENT module (doc?,settings_file*,settings*,depend?,header,init*,periodic*,event*,datalink*,makefile*)>
+<!ELEMENT module (doc?,settings_file*,settings*,depends?,conflicts?,header,init*,periodic*,event*,datalink*,makefile*)>
 <!ELEMENT doc (description|define|configure|section)*>
 <!ELEMENT settings_file (file*)>
 <!ELEMENT settings (dl_settings?)>
-<!ELEMENT depend EMPTY>
+<!ELEMENT depends (#PCDATA)>
+<!ELEMENT conflicts (#PCDATA)>
 <!ELEMENT header (file*)>
 <!ELEMENT init EMPTY>
 <!ELEMENT periodic EMPTY>
@@ -28,10 +29,6 @@
 <!ATTLIST module
 name CDATA #REQUIRED
 dir CDATA #IMPLIED>
-
-<!ATTLIST depend
-require CDATA #IMPLIED
-conflict CDATA #IMPLIED>
 
 <!ATTLIST header>
 

@@ -15,7 +15,8 @@ static uint8_t last_plume_value;
 static float radius;
 static int8_t sign;
 
-bool_t nav_chemotaxis_init( uint8_t c, uint8_t plume ) {
+bool_t nav_chemotaxis_init(uint8_t c, uint8_t plume)
+{
   radius = MAX_RADIUS;
   last_plume_value = 0;
   sign = 1;
@@ -24,7 +25,8 @@ bool_t nav_chemotaxis_init( uint8_t c, uint8_t plume ) {
   return FALSE;
 }
 
-bool_t nav_chemotaxis( uint8_t c, uint8_t plume ) {
+bool_t nav_chemotaxis(uint8_t c, uint8_t plume)
+{
 
   if (chemo_sensor > last_plume_value) {
     /* Move the circle in this direction */
@@ -36,10 +38,11 @@ bool_t nav_chemotaxis( uint8_t c, uint8_t plume ) {
     /* Turn in the right direction */
     float dir_x = cos(M_PI_2 - (*stateGetHorizontalSpeedDir_f()));
     float dir_y = sin(M_PI_2 - (*stateGetHorizontalSpeedDir_f()));
-    float pvect = dir_x*y - dir_y*x;
+    float pvect = dir_x * y - dir_y * x;
     sign = (pvect > 0 ? -1 : 1);
     /* Reduce the radius */
-    radius = sign * (DEFAULT_CIRCLE_RADIUS+(MAX_CHEMO-chemo_sensor)/(float)MAX_CHEMO*(MAX_RADIUS-DEFAULT_CIRCLE_RADIUS));
+    radius = sign * (DEFAULT_CIRCLE_RADIUS + (MAX_CHEMO - chemo_sensor) / (float)MAX_CHEMO *
+                     (MAX_RADIUS - DEFAULT_CIRCLE_RADIUS));
 
 
     /* Store this plume */

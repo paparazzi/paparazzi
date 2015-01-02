@@ -55,10 +55,10 @@ extern void parse_mf_daq_msg(void);
 
 #if (defined MF_DAQ_POWER_PORT) && (defined MF_DAQ_POWER_PIN)
 #define meteo_france_DAQ_SetPower(_x) { \
-  mf_daq.power = _x; \
-  if (mf_daq.power) { gpio_set(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN); } \
-  else { gpio_clear(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN); } \
-}
+    mf_daq.power = _x; \
+    if (mf_daq.power) { gpio_set(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN); } \
+    else { gpio_clear(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN); } \
+  }
 #else // POWER PORT and PIN undefined
 #define meteo_france_DAQ_SetPower(_x) {}
 #endif

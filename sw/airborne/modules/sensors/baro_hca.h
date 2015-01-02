@@ -29,13 +29,13 @@
 
 extern struct i2c_transaction baro_hca_i2c_trans;
 
-extern void baro_hca_init( void );
-extern void baro_hca_read_periodic( void );
-extern void baro_hca_read_event( void );
+extern void baro_hca_init(void);
+extern void baro_hca_read_periodic(void);
+extern void baro_hca_read_event(void);
 
 #define BaroHcaEvent() { \
-  if (baro_hca_i2c_trans.status == I2CTransSuccess) baro_hca_read_event(); \
-  else if (baro_hca_i2c_trans.status == I2CTransFailed) baro_hca_i2c_trans.status = I2CTransDone; \
-}
+    if (baro_hca_i2c_trans.status == I2CTransSuccess) baro_hca_read_event(); \
+    else if (baro_hca_i2c_trans.status == I2CTransFailed) baro_hca_i2c_trans.status = I2CTransDone; \
+  }
 
 #endif

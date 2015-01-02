@@ -40,9 +40,9 @@
 extern uint8_t fbw_mode;
 extern bool_t failsafe_mode;
 
-void init_fbw( void );
-void handle_periodic_tasks_fbw( void );
-void periodic_task_fbw( void );
-void event_task_fbw( void );
+void init_fbw(void);
+void handle_periodic_tasks_fbw(void);
+void periodic_task_fbw(void);
+void event_task_fbw(void);
 
 #endif

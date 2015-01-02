@@ -54,7 +54,8 @@ bool_t log_started;
 INFO("MF_DAQ power pin is not defined")
 #endif
 
-void init_mf_daq(void) {
+void init_mf_daq(void)
+{
   mf_daq.nb = 0;
   mf_daq.power = MF_DAQ_POWER_INIT;
 #if (defined MF_DAQ_POWER_PORT) && (defined MF_DAQ_POWER_PIN)
@@ -64,30 +65,32 @@ void init_mf_daq(void) {
   log_started = FALSE;
 }
 
-void mf_daq_send_state(void) {
+void mf_daq_send_state(void)
+{
   // Send aircraft state to DAQ board
   DOWNLINK_SEND_MF_DAQ_STATE(pprz_tp, EXTRA_DOWNLINK_DEVICE,
-      &autopilot_flight_time,
-      &stateGetBodyRates_f()->p,
-      &stateGetBodyRates_f()->q,
-      &stateGetBodyRates_f()->r,
-      &stateGetNedToBodyEulers_f()->phi,
-      &stateGetNedToBodyEulers_f()->theta,
-      &stateGetNedToBodyEulers_f()->psi,
-      &stateGetAccelNed_f()->x,
-      &stateGetAccelNed_f()->y,
-      &stateGetAccelNed_f()->z,
-      &stateGetSpeedEnu_f()->x,
-      &stateGetSpeedEnu_f()->y,
-      &stateGetSpeedEnu_f()->z,
-      &stateGetPositionLla_f()->lat,
-      &stateGetPositionLla_f()->lon,
-      &stateGetPositionLla_f()->alt,
-      &stateGetHorizontalWindspeed_f()->y,
-      &stateGetHorizontalWindspeed_f()->x);
+                             &autopilot_flight_time,
+                             &stateGetBodyRates_f()->p,
+                             &stateGetBodyRates_f()->q,
+                             &stateGetBodyRates_f()->r,
+                             &stateGetNedToBodyEulers_f()->phi,
+                             &stateGetNedToBodyEulers_f()->theta,
+                             &stateGetNedToBodyEulers_f()->psi,
+                             &stateGetAccelNed_f()->x,
+                             &stateGetAccelNed_f()->y,
+                             &stateGetAccelNed_f()->z,
+                             &stateGetSpeedEnu_f()->x,
+                             &stateGetSpeedEnu_f()->y,
+                             &stateGetSpeedEnu_f()->z,
+                             &stateGetPositionLla_f()->lat,
+                             &stateGetPositionLla_f()->lon,
+                             &stateGetPositionLla_f()->alt,
+                             &stateGetHorizontalWindspeed_f()->y,
+                             &stateGetHorizontalWindspeed_f()->x);
 }
 
-void mf_daq_send_report(void) {
+void mf_daq_send_report(void)
+{
   // Send report over normal telemetry
   if (mf_daq.nb > 0) {
     DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 9, mf_daq.values);
@@ -102,42 +105,43 @@ void mf_daq_send_report(void) {
     // Log GPS for time reference
     uint8_t foo = 0;
     int16_t climb = -gps.ned_vel.z;
-    int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
+    int16_t course = (DegOfRad(gps.course) / ((int32_t)1e6));
     DOWNLINK_SEND_GPS(pprzlog_tp, chibios_sdlog, &gps.fix,
-        &gps.utm_pos.east, &gps.utm_pos.north,
-        &course, &gps.hmsl, &gps.gspeed, &climb,
-        &gps.week, &gps.tow, &gps.utm_pos.zone, &foo);
+                      &gps.utm_pos.east, &gps.utm_pos.north,
+                      &course, &gps.hmsl, &gps.gspeed, &climb,
+                      &gps.week, &gps.tow, &gps.utm_pos.zone, &foo);
   }
 }
 
-void parse_mf_daq_msg(void) {
+void parse_mf_daq_msg(void)
+{
   mf_daq.nb = DL_PAYLOAD_FLOAT_values_length(dl_buffer);
   if (mf_daq.nb > 0) {
-    if (mf_daq.nb > MF_DAQ_SIZE) mf_daq.nb = MF_DAQ_SIZE;
+    if (mf_daq.nb > MF_DAQ_SIZE) { mf_daq.nb = MF_DAQ_SIZE; }
     // Store data struct directly from dl_buffer
     memcpy(mf_daq.values, DL_PAYLOAD_FLOAT_values(dl_buffer), mf_daq.nb * sizeof(float));
     // Log on SD card
     if (log_started) {
       DOWNLINK_SEND_PAYLOAD_FLOAT(pprzlog_tp, chibios_sdlog, mf_daq.nb, mf_daq.values);
       DOWNLINK_SEND_MF_DAQ_STATE(pprzlog_tp, chibios_sdlog,
-          &autopilot_flight_time,
-          &stateGetBodyRates_f()->p,
-          &stateGetBodyRates_f()->q,
-          &stateGetBodyRates_f()->r,
-          &stateGetNedToBodyEulers_f()->phi,
-          &stateGetNedToBodyEulers_f()->theta,
-          &stateGetNedToBodyEulers_f()->psi,
-          &stateGetAccelNed_f()->x,
-          &stateGetAccelNed_f()->y,
-          &stateGetAccelNed_f()->z,
-          &stateGetSpeedEnu_f()->x,
-          &stateGetSpeedEnu_f()->y,
-          &stateGetSpeedEnu_f()->z,
-          &stateGetPositionLla_f()->lat,
-          &stateGetPositionLla_f()->lon,
-          &stateGetPositionLla_f()->alt,
-          &stateGetHorizontalWindspeed_f()->y,
-          &stateGetHorizontalWindspeed_f()->x);
+                                 &autopilot_flight_time,
+                                 &stateGetBodyRates_f()->p,
+                                 &stateGetBodyRates_f()->q,
+                                 &stateGetBodyRates_f()->r,
+                                 &stateGetNedToBodyEulers_f()->phi,
+                                 &stateGetNedToBodyEulers_f()->theta,
+                                 &stateGetNedToBodyEulers_f()->psi,
+                                 &stateGetAccelNed_f()->x,
+                                 &stateGetAccelNed_f()->y,
+                                 &stateGetAccelNed_f()->z,
+                                 &stateGetSpeedEnu_f()->x,
+                                 &stateGetSpeedEnu_f()->y,
+                                 &stateGetSpeedEnu_f()->z,
+                                 &stateGetPositionLla_f()->lat,
+                                 &stateGetPositionLla_f()->lon,
+                                 &stateGetPositionLla_f()->alt,
+                                 &stateGetHorizontalWindspeed_f()->y,
+                                 &stateGetHorizontalWindspeed_f()->x);
     }
   }
 }

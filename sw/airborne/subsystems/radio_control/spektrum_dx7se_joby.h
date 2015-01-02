@@ -34,12 +34,12 @@
 #define RC_SPK_SYNC_2 0x01
 
 #define RC_SPK_THROWS { MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                       -MAX_PPRZ/MAX_SPK, \
-                       -MAX_PPRZ/MAX_SPK, \
-                       -MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK }
+    MAX_PPRZ/MAX_SPK, \
+    -MAX_PPRZ/MAX_SPK, \
+    -MAX_PPRZ/MAX_SPK, \
+    -MAX_PPRZ/MAX_SPK, \
+    MAX_PPRZ/MAX_SPK, \
+    MAX_PPRZ/MAX_SPK }
 
 /*
   aileron 1

@@ -58,7 +58,7 @@ typedef void (*abi_callback)(void);
 struct abi_struct {
   uint8_t id;
   abi_callback cb;
-  struct abi_struct * next;
+  struct abi_struct *next;
 };
 typedef struct abi_struct abi_event;
 

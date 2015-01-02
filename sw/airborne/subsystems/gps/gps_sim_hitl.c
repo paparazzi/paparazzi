@@ -29,7 +29,8 @@
 bool_t gps_available;
 uint32_t gps_sim_hitl_timer;
 
-void gps_impl_init(void) {
+void gps_impl_init(void)
+{
   gps.fix = GPS_FIX_NONE;
   gps_available = FALSE;
 }

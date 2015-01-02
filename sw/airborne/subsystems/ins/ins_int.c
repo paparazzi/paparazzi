@@ -121,24 +121,27 @@ struct InsInt ins_impl;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_ins(struct transport_tx *trans, struct link_device *dev) {
+static void send_ins(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_INS(trans, dev, AC_ID,
-      &ins_impl.ltp_pos.x, &ins_impl.ltp_pos.y, &ins_impl.ltp_pos.z,
-      &ins_impl.ltp_speed.x, &ins_impl.ltp_speed.y, &ins_impl.ltp_speed.z,
-      &ins_impl.ltp_accel.x, &ins_impl.ltp_accel.y, &ins_impl.ltp_accel.z);
+                    &ins_impl.ltp_pos.x, &ins_impl.ltp_pos.y, &ins_impl.ltp_pos.z,
+                    &ins_impl.ltp_speed.x, &ins_impl.ltp_speed.y, &ins_impl.ltp_speed.z,
+                    &ins_impl.ltp_accel.x, &ins_impl.ltp_accel.y, &ins_impl.ltp_accel.z);
 }
 
-static void send_ins_z(struct transport_tx *trans, struct link_device *dev) {
+static void send_ins_z(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_INS_Z(trans, dev, AC_ID,
-      &ins_impl.baro_z, &ins_impl.ltp_pos.z, &ins_impl.ltp_speed.z, &ins_impl.ltp_accel.z);
+                      &ins_impl.baro_z, &ins_impl.ltp_pos.z, &ins_impl.ltp_speed.z, &ins_impl.ltp_accel.z);
 }
 
-static void send_ins_ref(struct transport_tx *trans, struct link_device *dev) {
+static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
+{
   if (ins_impl.ltp_initialized) {
     pprz_msg_send_INS_REF(trans, dev, AC_ID,
-        &ins_impl.ltp_def.ecef.x, &ins_impl.ltp_def.ecef.y, &ins_impl.ltp_def.ecef.z,
-        &ins_impl.ltp_def.lla.lat, &ins_impl.ltp_def.lla.lon, &ins_impl.ltp_def.lla.alt,
-        &ins_impl.ltp_def.hmsl, &ins_impl.qfe);
+                          &ins_impl.ltp_def.ecef.x, &ins_impl.ltp_def.ecef.y, &ins_impl.ltp_def.ecef.z,
+                          &ins_impl.ltp_def.lla.lat, &ins_impl.ltp_def.lla.lon, &ins_impl.ltp_def.lla.alt,
+                          &ins_impl.ltp_def.hmsl, &ins_impl.qfe);
   }
 }
 #endif
@@ -151,7 +154,8 @@ static void ins_update_from_hff(void);
 #endif
 
 
-void ins_init(void) {
+void ins_init(void)
+{
 
 #if USE_INS_NAV_INIT
   ins_init_origin_from_flightplan();
@@ -190,12 +194,15 @@ void ins_init(void) {
 #endif
 }
 
-void ins_periodic(void) {
-  if (ins_impl.ltp_initialized)
+void ins_periodic(void)
+{
+  if (ins_impl.ltp_initialized) {
     ins.status = INS_RUNNING;
+  }
 }
 
-void ins_reset_local_origin(void) {
+void ins_reset_local_origin(void)
+{
   ins_impl.ltp_initialized = FALSE;
 #if USE_HFF
   ins_impl.hf_realign = TRUE;
@@ -203,7 +210,8 @@ void ins_reset_local_origin(void) {
   ins_impl.vf_reset = TRUE;
 }
 
-void ins_reset_altitude_ref(void) {
+void ins_reset_altitude_ref(void)
+{
 #if USE_GPS
   struct LlaCoor_i lla = {
     state.ned_origin_i.lla.lon,
@@ -211,13 +219,14 @@ void ins_reset_altitude_ref(void) {
     gps.lla_pos.alt
   };
   ltp_def_from_lla_i(&ins_impl.ltp_def, &lla),
-  ins_impl.ltp_def.hmsl = gps.hmsl;
+                     ins_impl.ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ins_impl.ltp_def);
 #endif
   ins_impl.vf_reset = TRUE;
 }
 
-void ins_propagate(float dt) {
+void ins_propagate(float dt)
+{
   /* untilt accels */
   struct Int32Vect3 accel_meas_body;
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
@@ -229,8 +238,7 @@ void ins_propagate(float dt) {
   if (ins_impl.baro_initialized) {
     vff_propagate(z_accel_meas_float, dt);
     ins_update_from_vff();
-  }
-  else { // feed accel from the sensors
+  } else { // feed accel from the sensors
     // subtract -9.81m/s2 (acceleration measured due to gravity,
     // but vehicle not accelerating in ltp)
     ins_impl.ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
@@ -249,7 +257,8 @@ void ins_propagate(float dt) {
   ins_ned_to_state();
 }
 
-static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure) {
+static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure)
+{
   if (!ins_impl.baro_initialized && *pressure > 1e-7) {
     // wait for a first positive value
     ins_impl.qfe = *pressure;
@@ -262,8 +271,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
       ins_impl.qfe = *pressure;
       vff_realign(0.);
       ins_update_from_vff();
-    }
-    else {
+    } else {
       ins_impl.baro_z = -pprz_isa_height_of_pressure(*pressure, ins_impl.qfe);
 #if USE_VFF_EXTENDED
       vff_update_baro(ins_impl.baro_z);
@@ -276,7 +284,8 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
 }
 
 #if USE_GPS
-void ins_update_gps(void) {
+void ins_update_gps(void)
+{
   if (gps.fix == GPS_FIX_3D) {
     if (!ins_impl.ltp_initialized) {
       ltp_def_from_ecef_i(&ins_impl.ltp_def, &gps.ecef_pos);
@@ -331,7 +340,8 @@ void ins_update_gps(void) {
 
 
 #if USE_SONAR
-static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *distance) {
+static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *distance)
+{
   static float last_offset = 0.;
 
   /* update filter assuming a flat ground */
@@ -346,8 +356,7 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *dis
       && ins_impl.baro_initialized) {
     vff_update_z_conf(-(*distance), VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabsf(*distance));
     last_offset = vff.offset;
-  }
-  else {
+  } else {
     /* update offset with last value to avoid divergence */
     vff_update_offset(last_offset);
   }
@@ -356,7 +365,8 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *dis
 
 
 /** initialize the local origin (ltp_def) from flight plan position */
-static void ins_init_origin_from_flightplan(void) {
+static void ins_init_origin_from_flightplan(void)
+{
 
   struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
   llh_nav0.lat = NAV_LAT0;
@@ -374,19 +384,22 @@ static void ins_init_origin_from_flightplan(void) {
 }
 
 /** copy position and speed to state interface */
-static void ins_ned_to_state(void) {
+static void ins_ned_to_state(void)
+{
   stateSetPositionNed_i(&ins_impl.ltp_pos);
   stateSetSpeedNed_i(&ins_impl.ltp_speed);
   stateSetAccelNed_i(&ins_impl.ltp_accel);
 
 #if defined SITL && USE_NPS
-  if (nps_bypass_ins)
+  if (nps_bypass_ins) {
     sim_overwrite_ins();
+  }
 #endif
 }
 
 /** update ins state from vertical filter */
-static void ins_update_from_vff(void) {
+static void ins_update_from_vff(void)
+{
   ins_impl.ltp_accel.z = ACCEL_BFP_OF_REAL(vff.zdotdot);
   ins_impl.ltp_speed.z = SPEED_BFP_OF_REAL(vff.zdot);
   ins_impl.ltp_pos.z   = POS_BFP_OF_REAL(vff.z);
@@ -394,7 +407,8 @@ static void ins_update_from_vff(void) {
 
 #if USE_HFF
 /** update ins state from horizontal filter */
-static void ins_update_from_hff(void) {
+static void ins_update_from_hff(void)
+{
   ins_impl.ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
   ins_impl.ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
   ins_impl.ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);

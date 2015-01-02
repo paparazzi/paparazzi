@@ -11,11 +11,11 @@
 
 struct OveroGcsCom {
 
-  struct FmsNetwork* network;
+  struct FmsNetwork *network;
   struct DownlinkTransport *udp_transport;
   struct event datalink_event;
   /*  bool_t  my_dl_msg_available; */
-  uint8_t my_dl_buffer[GCS_COM_DL_BUF_SIZE]  __attribute__ ((aligned));
+  uint8_t my_dl_buffer[GCS_COM_DL_BUF_SIZE]  __attribute__((aligned));
 
 };
 

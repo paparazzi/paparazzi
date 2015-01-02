@@ -49,16 +49,19 @@ struct i2c_transaction lm75_trans;
 #define LM75_SLAVE_ADDR 0x90
 #endif
 
-void lm75_init(void) {
+void lm75_init(void)
+{
   lm75_trans.status = I2CTransDone;
 }
 
-void lm75_periodic( void ) {
+void lm75_periodic(void)
+{
   lm75_trans.buf[0] = LM75_TEMP_REG;
   i2c_transceive(&LM75_I2C_DEV, &lm75_trans, LM75_SLAVE_ADDR, 1, 2);
 }
 
-void lm75_event( void ) {
+void lm75_event(void)
+{
   if (lm75_trans.status == I2CTransSuccess) {
     uint16_t lm75_temperature;
     float flm75_temperature;
@@ -67,8 +70,9 @@ void lm75_event( void ) {
     lm75_temperature  = lm75_trans.buf[0] << 8;
     lm75_temperature |= lm75_trans.buf[1];
     lm75_temperature >>= 7;
-    if (lm75_temperature & 0x0100)
+    if (lm75_temperature & 0x0100) {
       lm75_temperature |= 0xFE00;
+    }
 
     flm75_temperature = ((int16_t) lm75_temperature) / 2.;
 

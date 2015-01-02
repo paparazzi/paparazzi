@@ -11,7 +11,7 @@
     </description>
     <define name="DC_RADIO_SHOOT" value="RADIO_xxx" description="specifies the channel to be used to trigger the camera by radio transmiter"/>
   </doc>
-  <depend require="digital_cam"/>
+  <depends>digital_cam|digital_cam_servo|digital_cam_uart|digital_cam_i2c</depends>
   <header>
     <file name="dc_shoot_rc.h"/>
   </header>

@@ -28,10 +28,12 @@
 #include "imu_ardrone2_sdk.h"
 
 
-void imu_impl_init(void) {
+void imu_impl_init(void)
+{
 
 }
 
-void imu_periodic(void) {
+void imu_periodic(void)
+{
 
 }

@@ -52,14 +52,14 @@ static void (* vane_callback)(uint8_t vane_id, float alpha, float beta) = NULL;
 static void (* pressure_absolute_callback)(uint8_t pressure_id, uint32_t pressure) = NULL;
 static void (* pressure_differential_callback)(uint8_t pressure_id, uint32_t pressure) = NULL;
 static void (* radio_control_callback)(void) = NULL;
-static void (* adc_callback)(uint16_t * adc_channels) = NULL;
+static void (* adc_callback)(uint16_t *adc_channels) = NULL;
 
 void spi_ap_link_downlink_send(struct DownlinkTransport *tp)
 {
   uint32_t timestamp = 0;
   DOWNLINK_SEND_EKF7_Y(tp, &timestamp, &imuFloat.accel.x, &imuFloat.accel.y, &imuFloat.accel.z,
-        &imuFloat.mag.x, &imuFloat.mag.y, &imuFloat.mag.z,
-        &imuFloat.gyro.p, &imuFloat.gyro.q, &imuFloat.gyro.r);
+                       &imuFloat.mag.x, &imuFloat.mag.y, &imuFloat.mag.z,
+                       &imuFloat.gyro.p, &imuFloat.gyro.q, &imuFloat.gyro.r);
 }
 
 void spi_ap_link_set_vane_callback(void (* vane_cb)(uint8_t vane_id, float alpha, float beta))
@@ -72,7 +72,8 @@ void spi_ap_link_set_pressure_absolute_callback(void (* pressure_absolute_cb)(ui
   pressure_absolute_callback = pressure_absolute_cb;
 }
 
-void spi_ap_link_set_pressure_differential_callback(void (* pressure_differential_cb)(uint8_t pressure_id, uint32_t pressure))
+void spi_ap_link_set_pressure_differential_callback(void (* pressure_differential_cb)(uint8_t pressure_id,
+    uint32_t pressure))
 {
   pressure_differential_callback = pressure_differential_cb;
 }
@@ -82,7 +83,7 @@ void spi_ap_link_set_radio_control_callback(void (* radio_control_cb)(void))
   radio_control_callback = radio_control_cb;
 }
 
-void spi_ap_link_set_adc_callback(void (* adc_callback_fun)(uint16_t * adc_channels))
+void spi_ap_link_set_adc_callback(void (* adc_callback_fun)(uint16_t *adc_channels))
 {
   adc_callback = adc_callback_fun;
 }
@@ -117,18 +118,21 @@ int spi_ap_link_init()
 static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
 {
 
-  if (msg_up->valid.vane && vane_callback)
+  if (msg_up->valid.vane && vane_callback) {
     vane_callback(0, msg_up->vane_angle1, msg_up->vane_angle2);
+  }
 
   // Fill pressure data
-  if (msg_up->valid.pressure_absolute && pressure_absolute_callback)
+  if (msg_up->valid.pressure_absolute && pressure_absolute_callback) {
     pressure_absolute_callback(0, msg_up->pressure_absolute);
+  }
 
-  if (msg_up->valid.pressure_differential && pressure_differential_callback)
+  if (msg_up->valid.pressure_differential && pressure_differential_callback) {
     pressure_differential_callback(0, (32768 + msg_up->pressure_differential));
+  }
 
   if (msg_up->valid.adc) {
-    if(adc_callback) {
+    if (adc_callback) {
       adc_callback(msg_up->adc.channels);
     }
   }
@@ -164,8 +168,9 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
 
   imuFloat.sample_count = msg_up->imu_tick;
 
-  if (msg_up->valid.imu)
+  if (msg_up->valid.imu) {
     rdyb_booz_imu_update(&imuFloat);
+  }
 }
 
 static void passthrough_down_fill(struct AutopilotMessagePTDown *msg_down)
@@ -186,7 +191,7 @@ void spi_ap_link_periodic()
   // SPI transcieve
   spi_link_send(&msg_down, sizeof(struct AutopilotMessageCRCFrame), &msg_up, &crc_valid);
 
-  if(crc_valid) {
+  if (crc_valid) {
     passthrough_up_parse(&msg_up.payload.msg_up);
   }
 }

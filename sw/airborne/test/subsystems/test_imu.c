@@ -37,144 +37,150 @@
 
 #include "interrupt_hw.h"
 
-static inline void main_init( void );
-static inline void main_periodic_task( void );
-static inline void main_event_task( void );
+static inline void main_init(void);
+static inline void main_periodic_task(void);
+static inline void main_event_task(void);
 
 static inline void on_gyro_event(void);
 static inline void on_accel_event(void);
 static inline void on_mag_event(void);
 
-int main( void ) {
+int main(void)
+{
   main_init();
-  while(1) {
-    if (sys_time_check_and_ack_timer(0))
+  while (1) {
+    if (sys_time_check_and_ack_timer(0)) {
       main_periodic_task();
+    }
     main_event_task();
   }
   return 0;
 }
 
-static inline void main_init( void ) {
+static inline void main_init(void)
+{
 
   mcu_init();
 
-  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+  sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
 
   imu_init();
 
   mcu_int_enable();
 }
 
-static inline void led_toggle ( void ) {
+static inline void led_toggle(void)
+{
 
 #ifdef BOARD_LISA_L
   LED_TOGGLE(7);
 #endif
 }
 
-static inline void main_periodic_task( void ) {
+static inline void main_periodic_task(void)
+{
   RunOnceEvery(100, {
-      led_toggle();
-      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
-    });
+    led_toggle();
+    DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
+  });
 #if USE_I2C2
   RunOnceEvery(111, {
-      uint16_t i2c2_queue_full_cnt        = i2c2.errors->queue_full_cnt;
-      uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
-      uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;
-      uint16_t i2c2_arb_lost_cnt          = i2c2.errors->arb_lost_cnt;
-      uint16_t i2c2_over_under_cnt        = i2c2.errors->over_under_cnt;
-      uint16_t i2c2_pec_recep_cnt         = i2c2.errors->pec_recep_cnt;
-      uint16_t i2c2_timeout_tlow_cnt      = i2c2.errors->timeout_tlow_cnt;
-      uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt;
-      uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt;
-      uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event;
-      const uint8_t _bus2 = 2;
-      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
-                               &i2c2_queue_full_cnt,
-                               &i2c2_ack_fail_cnt,
-                               &i2c2_miss_start_stop_cnt,
-                               &i2c2_arb_lost_cnt,
-                               &i2c2_over_under_cnt,
-                               &i2c2_pec_recep_cnt,
-                               &i2c2_timeout_tlow_cnt,
-                               &i2c2_smbus_alert_cnt,
-                               &i2c2_unexpected_event_cnt,
-                               &i2c2_last_unexpected_event,
-                               &_bus2);
-    });
+    uint16_t i2c2_queue_full_cnt        = i2c2.errors->queue_full_cnt;
+    uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
+    uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;
+    uint16_t i2c2_arb_lost_cnt          = i2c2.errors->arb_lost_cnt;
+    uint16_t i2c2_over_under_cnt        = i2c2.errors->over_under_cnt;
+    uint16_t i2c2_pec_recep_cnt         = i2c2.errors->pec_recep_cnt;
+    uint16_t i2c2_timeout_tlow_cnt      = i2c2.errors->timeout_tlow_cnt;
+    uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt;
+    uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt;
+    uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event;
+    const uint8_t _bus2 = 2;
+    DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
+    &i2c2_queue_full_cnt,
+    &i2c2_ack_fail_cnt,
+    &i2c2_miss_start_stop_cnt,
+    &i2c2_arb_lost_cnt,
+    &i2c2_over_under_cnt,
+    &i2c2_pec_recep_cnt,
+    &i2c2_timeout_tlow_cnt,
+    &i2c2_smbus_alert_cnt,
+    &i2c2_unexpected_event_cnt,
+    &i2c2_last_unexpected_event,
+    &_bus2);
+  });
 #endif
-  if (sys_time.nb_sec > 1) imu_periodic();
+  if (sys_time.nb_sec > 1) { imu_periodic(); }
   RunOnceEvery(10, { LED_PERIODIC();});
 }
 
-static inline void main_event_task( void ) {
+static inline void main_event_task(void)
+{
 
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 
 }
 
-static inline void on_accel_event(void) {
+static inline void on_accel_event(void)
+{
   imu_scale_accel(&imu);
 
   RunOnceEvery(50, LED_TOGGLE(3));
   static uint8_t cnt;
   cnt++;
-  if (cnt > 15) cnt = 0;
+  if (cnt > 15) { cnt = 0; }
   if (cnt == 0) {
     DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
-                &imu.accel_unscaled.x,
-                &imu.accel_unscaled.y,
-                &imu.accel_unscaled.z);
-  }
-  else if (cnt == 7) {
+                                &imu.accel_unscaled.x,
+                                &imu.accel_unscaled.y,
+                                &imu.accel_unscaled.z);
+  } else if (cnt == 7) {
     DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
-                  &imu.accel.x,
-                  &imu.accel.y,
-                  &imu.accel.z);
+                                   &imu.accel.x,
+                                   &imu.accel.y,
+                                   &imu.accel.z);
   }
 }
 
-static inline void on_gyro_event(void) {
+static inline void on_gyro_event(void)
+{
   imu_scale_gyro(&imu);
 
   RunOnceEvery(50, LED_TOGGLE(2));
   static uint8_t cnt;
   cnt++;
-  if (cnt > 15) cnt = 0;
+  if (cnt > 15) { cnt = 0; }
 
   if (cnt == 0) {
     DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
-                   &imu.gyro_unscaled.p,
-                   &imu.gyro_unscaled.q,
-                   &imu.gyro_unscaled.r);
-  }
-  else if (cnt == 7) {
+                               &imu.gyro_unscaled.p,
+                               &imu.gyro_unscaled.q,
+                               &imu.gyro_unscaled.r);
+  } else if (cnt == 7) {
     DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
-                 &imu.gyro.p,
-                 &imu.gyro.q,
-                 &imu.gyro.r);
+                                  &imu.gyro.p,
+                                  &imu.gyro.q,
+                                  &imu.gyro.r);
   }
 }
 
 
-static inline void on_mag_event(void) {
+static inline void on_mag_event(void)
+{
   imu_scale_mag(&imu);
   static uint8_t cnt;
   cnt++;
-  if (cnt > 10) cnt = 0;
+  if (cnt > 10) { cnt = 0; }
 
   if (cnt == 0) {
     DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
-                &imu.mag.x,
-                &imu.mag.y,
-                &imu.mag.z);
-  }
-  else if (cnt == 5) {
+                                 &imu.mag.x,
+                                 &imu.mag.y,
+                                 &imu.mag.z);
+  } else if (cnt == 5) {
     DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
-                  &imu.mag_unscaled.x,
-                  &imu.mag_unscaled.y,
-                  &imu.mag_unscaled.z);
+                              &imu.mag_unscaled.x,
+                              &imu.mag_unscaled.y,
+                              &imu.mag_unscaled.z);
   }
 }

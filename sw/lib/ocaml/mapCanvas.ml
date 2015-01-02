@@ -177,7 +177,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   let wind_sock = new Wind_sock.item 4. still in
   let _ = wind_sock#item#affine_relative (affine_pos_and_angle 60. 60. 0.) in
   (* Time *)
-  let utc_time = GnoCanvas.text ~x:0. ~y:0. ~props:[`TEXT "00:00:00"; `FILL_COLOR "green"; `ANCHOR `NW] still in
+  let utc_time = GnoCanvas.text ~x:0. ~y:0. ~props:[`TEXT "00:00:00"; `FILL_COLOR "#00ff00"; `ANCHOR `NW] still in
 
 object (self)
 

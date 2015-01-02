@@ -42,7 +42,7 @@ extern uint32_t trigger_t0;
 extern uint32_t trigger_delta_t0;
 extern volatile bool_t trigger_ext_valid;
 
-void trigger_ext_init ( void );
+void trigger_ext_init(void);
 
 #endif
 

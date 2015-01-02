@@ -101,9 +101,9 @@ extern void vi_impl_periodic(void);
 extern void vi_impl_set_enabled(bool_t enabled);
 
 
-#define vi_SetEnabled(_val) {			\
-    vi.enabled = _val;				\
-    vi_set_enabled(_val);			\
+#define vi_SetEnabled(_val) {     \
+    vi.enabled = _val;        \
+    vi_set_enabled(_val);     \
   }
 
 #endif /* VI_H */

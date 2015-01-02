@@ -31,7 +31,7 @@
 #include "dc.h"
 
 #ifndef DC_RADIO_SHOOT
-#error "You need to define DC_RADIO_SHOT to a RADIO_xxx channel to use this module"
+#error "You need to define DC_RADIO_SHOOT to a RADIO_xxx channel to use this module"
 #endif
 
 #define DC_RADIO_SHOOT_THRESHOLD 3000
@@ -47,8 +47,7 @@ void dc_shoot_rc_periodic(void)
   }
   if ((rd_shoot == 1) && (rd_num < 4)) {
     rd_num = rd_num + 1;
-  }
-  else {
+  } else {
     rd_num = 0;
     rd_shoot = 0;
   }

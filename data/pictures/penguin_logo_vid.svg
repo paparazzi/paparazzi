@@ -11,13 +11,13 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    inkscape:export-ydpi="12"
    inkscape:export-xdpi="12"
-   inkscape:export-filename="/home/karlito/MAV/delfly_desperado/paparazzi/data/pictures/icon_mes.png"
+   inkscape:export-filename="/home/gautier/dev/paparazzi/data/pictures/penguin_icon_vid.png"
    width="360"
-   height="330"
+   height="360"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.48.4 r9939"
-   sodipodi:docname="penguin_logo_messages (copy).svg"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="penguin_logo_vid.svg"
    version="1.1">
   <defs
      id="defs3" />
@@ -29,14 +29,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.2277142"
-     inkscape:cx="242.70492"
+     inkscape:cx="94.054689"
      inkscape:cy="180.73241"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
-     inkscape:window-width="1366"
-     inkscape:window-height="744"
-     inkscape:window-x="0"
-     inkscape:window-y="24"
+     inkscape:window-width="1293"
+     inkscape:window-height="748"
+     inkscape:window-x="-2"
+     inkscape:window-y="-3"
      showgrid="false"
      fit-margin-top="10"
      fit-margin-left="10"
@@ -51,7 +51,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -59,7 +59,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(6.1774787,3.2309135)">
+     transform="translate(6.1774787,33.230913)">
     <path
        style="fill:#aaa9ad"
        d="m 303.52355,242.5844 c -1.925,-0.18297 -6.7625,-0.84961 -10.75,-1.48143 l -7.25,-1.14875 0,-3.3383 c 0,-1.83607 0.69439,-5.07376 1.54309,-7.19486 l 1.54308,-3.85656 8.20692,0.31351 c 4.5138,0.17243 11.07663,-0.144 14.58407,-0.70318 3.50744,-0.55919 6.60483,-0.78904 6.88308,-0.51078 0.27826,0.27826 -0.89746,2.10428 -2.61271,4.05784 -3.50206,3.98863 -4.57657,7.13865 -3.93234,11.52805 0.47674,3.24823 0.7078,3.18257 -8.21519,2.33446 z m -24.75,-3.93083 c -3.81429,-3.00611 -4.12972,-5.77171 -1.2926,-11.33293 2.11827,-4.15215 3.60983,-5.0835 8.14123,-5.0835 l 2.93506,0 -2.60616,5.14302 c -1.91963,3.78821 -2.51488,6.29077 -2.25964,9.5 0.40149,5.04806 -0.39736,5.33613 -4.91789,1.77341 z m -22.25,-3.55036 c -3.575,-0.48452 -10.99428,-1.66742 -16.4873,-2.62867 -10.19369,-1.78383 -11.75537,-2.80447 -9.5439,-6.2374 0.82005,-1.27299 4.25671,-1.45571 22.70809,-1.20732 11.95799,0.16097 21.78743,0.38597 21.84321,0.5 0.0558,0.11403 -0.0819,2.56982 -0.30586,5.45732 l -0.40727,5.25 -5.65348,-0.1265 c -3.10942,-0.0696 -8.57849,-0.52292 -12.15349,-1.00743 z"
@@ -90,13 +90,14 @@
     <flowRoot
        xml:space="preserve"
        id="flowRoot2986"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       transform="matrix(1.6708683,0,0,1.9988508,-156.06368,1.1523852)"><flowRegion
+       style="font-size:40px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.18876266;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
+       transform="matrix(2.7025299,0,0,3.0112736,-452.82803,-6.4445575)"><flowRegion
          id="flowRegion2988"><rect
            id="rect2990"
            width="95.424126"
            height="47.210255"
            x="218.29184"
-           y="16.409105" /></flowRegion><flowPara
+           y="16.409105"
+           style="font-weight:bold;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.18876266;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;-inkscape-font-specification:Sans Bold" /></flowRegion><flowPara
          id="flowPara2992">VID</flowPara></flowRoot>  </g>
 </svg>

@@ -1,0 +1,40 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="datalink">
+  <doc>
+    <description>Basic MAVLink implementation</description>
+    <configure name="MAVLINK_PORT" value="UARTx|UDPx|UsbS" description="The port device to use for mavlink (default: UART1)"/>
+    <configure name="MAVLINK_BAUD" value="B57600" description="Baud rate if MAVLINK_PORT is a UART"/>
+  </doc>
+  <header>
+    <file name="mavlink.h"/>
+  </header>
+
+  <init fun="mavlink_init()"/>
+  <periodic fun="mavlink_periodic()" freq="10" autorun="TRUE"/>
+  <event fun="mavlink_event()"/>
+
+  <makefile>
+    <file name="mavlink.c"/>
+    <raw>
+      MAVLINK_PORT ?= UART1
+      MAVLINK_PORT_UPPER=$(shell echo $(MAVLINK_PORT) | tr a-z A-Z)
+      ifeq ($(MAVLINK_PORT), UsbS)
+      ap.CFLAGS += -DUSE_USB_SERIAL
+      ap.srcs += $(SRC_ARCH)/usb_ser_hw.c
+      ap.CFLAGS += -DMAVLINK_DEV=UsbS
+      else
+      ifeq ($(findstring UDP,$(MAVLINK_PORT)), UDP)
+      include $(CFG_SHARED)/udp.makefile
+      $(TARGET).CFLAGS += -DMAVLINK_DEV=$(MAVLINK_PORT_UPPER)
+      $(TARGET).CFLAGS += -DUSE_$(MAVLINK_PORT_UPPER)
+      else
+      MAVLINK_BAUD ?= B57600
+      ap.CFLAGS += -DMAVLINK_DEV=$(MAVLINK_PORT_UPPER)
+      ap.CFLAGS += -DUSE_$(MAVLINK_PORT_UPPER)
+      ap.CFLAGS += -D$(MAVLINK_PORT_UPPER)_BAUD=$(MAVLINK_BAUD)
+      endif
+      endif
+    </raw>
+  </makefile>
+</module>

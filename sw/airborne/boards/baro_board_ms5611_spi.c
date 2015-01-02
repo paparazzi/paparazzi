@@ -49,7 +49,8 @@
 struct Ms5611_Spi bb_ms5611;
 
 
-void baro_init(void) {
+void baro_init(void)
+{
   ms5611_spi_init(&bb_ms5611, &BB_MS5611_SPI_DEV, BB_MS5611_SLAVE_IDX);
 
 #ifdef BARO_LED
@@ -57,7 +58,8 @@ void baro_init(void) {
 #endif
 }
 
-void baro_periodic(void) {
+void baro_periodic(void)
+{
   if (sys_time.nb_sec > 1) {
 
     /* call the convenience periodic that initializes the sensor and starts reading*/
@@ -65,20 +67,21 @@ void baro_periodic(void) {
 
 #if DEBUG
     if (bb_ms5611.initialized)
-      RunOnceEvery((50*30),  DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
-                                                        &bb_ms5611.data.c[0],
-                                                        &bb_ms5611.data.c[1],
-                                                        &bb_ms5611.data.c[2],
-                                                        &bb_ms5611.data.c[3],
-                                                        &bb_ms5611.data.c[4],
-                                                        &bb_ms5611.data.c[5],
-                                                        &bb_ms5611.data.c[6],
-                                                        &bb_ms5611.data.c[7]));
+      RunOnceEvery((50 * 30),  DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
+                   &bb_ms5611.data.c[0],
+                   &bb_ms5611.data.c[1],
+                   &bb_ms5611.data.c[2],
+                   &bb_ms5611.data.c[3],
+                   &bb_ms5611.data.c[4],
+                   &bb_ms5611.data.c[5],
+                   &bb_ms5611.data.c[6],
+                   &bb_ms5611.data.c[7]));
 #endif
   }
 }
 
-void baro_event(void) {
+void baro_event(void)
+{
   if (sys_time.nb_sec > 1) {
     ms5611_spi_event(&bb_ms5611);
 
@@ -90,7 +93,7 @@ void baro_event(void) {
       bb_ms5611.data_available = FALSE;
 
 #ifdef BARO_LED
-      RunOnceEvery(10,LED_TOGGLE(BARO_LED));
+      RunOnceEvery(10, LED_TOGGLE(BARO_LED));
 #endif
 
 #if DEBUG

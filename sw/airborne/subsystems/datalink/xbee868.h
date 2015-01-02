@@ -34,21 +34,21 @@
 
 #define XBEE_TX_OVERHEAD 13
 #define XBEE_TX_HEADER { \
-  XBEE_TX_ID, \
-  NO_FRAME_ID, \
-  0x00, \
-  0x00, \
-  0x00, \
-  0x00, \
-  0x00, \
-  0x00, \
-  (GROUND_STATION_ADDR >> 8), \
-  (GROUND_STATION_ADDR & 0xff), \
-  0xff, \
-  0xfe, \
-  0x00, \
-  TX_OPTIONS \
-}
+    XBEE_TX_ID, \
+    NO_FRAME_ID, \
+    0x00, \
+    0x00, \
+    0x00, \
+    0x00, \
+    0x00, \
+    0x00, \
+    (GROUND_STATION_ADDR >> 8), \
+    (GROUND_STATION_ADDR & 0xff), \
+    0xff, \
+    0xfe, \
+    0x00, \
+    TX_OPTIONS \
+  }
 
 #define XbeeGetRSSI(_payload) {}
 

@@ -58,7 +58,6 @@ PERIODIC_FREQUENCY ?= 60
 $(TARGET).CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 
 $(TARGET).srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
-$(TARGET).CFLAGS += -DUSE_SYS_TIME
 
 #
 # InterMCU & Commands
@@ -144,7 +143,6 @@ fbw_srcs 		+= $(SRC_FIRMWARE)/main_fbw.c
 fbw_srcs 		+= subsystems/electrical.c
 fbw_srcs 		+= subsystems/commands.c
 fbw_srcs 		+= subsystems/actuators.c
-fbw_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
 
 ######################################################################
 ##
@@ -152,11 +150,8 @@ fbw_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
 ##
 
 ap_CFLAGS 		+= -DAP
-ap_CFLAGS 		+= -DDefaultPeriodic='&telemetry_Ap'
 ap_srcs 		+= $(SRC_FIRMWARE)/main_ap.c
 ap_srcs 		+= $(SRC_FIRMWARE)/autopilot.c
-ap_srcs			+= $(SRC_FIRMWARE)/ap_downlink.c
-ap_srcs         += subsystems/datalink/telemetry.c
 ap_srcs 		+= state.c
 ap_srcs 		+= subsystems/settings.c
 ap_srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
@@ -183,8 +178,8 @@ sim.srcs 		+= $(fbw_srcs) $(ap_srcs)
 sim.CFLAGS 		+= -DSITL
 sim.srcs 		+= $(SRC_ARCH)/sim_ap.c
 
-sim.CFLAGS 		+= -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp
-sim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c subsystems/datalink/ivy_transport.c
+sim.CFLAGS 		+= -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp -DDefaultPeriodic='&telemetry_Ap'
+sim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c subsystems/datalink/ivy_transport.c subsystems/datalink/telemetry.c $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c
 
 sim.srcs 		+= $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_adc_generic.c
 
@@ -223,8 +218,8 @@ jsbsim.srcs 		+= $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_fw.c $(SIMDIR)/sim_a
 jsbsim.CFLAGS 		+= -I/usr/include $(shell pkg-config glib-2.0 --cflags)
 jsbsim.LDFLAGS		+= $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(shell pcre-config --libs)
 
-jsbsim.CFLAGS 		+= -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp
-jsbsim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c subsystems/datalink/ivy_transport.c
+jsbsim.CFLAGS 		+= -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp -DDefaultPeriodic='&telemetry_Ap'
+jsbsim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c subsystems/datalink/ivy_transport.c $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c subsystems/datalink/telemetry.c
 
 jsbsim.srcs 		+= $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_ir.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/jsbsim_ahrs.c $(SRC_ARCH)/jsbsim_transport.c
 
@@ -244,9 +239,6 @@ else
   ifeq ($(SEPARATE_FBW),)
     ap.CFLAGS 		+= $(fbw_CFLAGS)
     ap.srcs 		+= $(fbw_srcs)
-  else
-   # avoid fbw_telemetry_mode error
-   ap_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
   endif
 endif
 

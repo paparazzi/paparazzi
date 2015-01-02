@@ -10,7 +10,8 @@ uint16_t wt_servo_motor_power;
 
 void mb_servo_set_ns(uint32_t duration_ns);
 
-void wt_servo_init(void) {
+void wt_servo_init(void)
+{
 
   /* set P0.21 as PWM5 output */
   PINSEL1 |= (0X01 << 10);
@@ -28,16 +29,18 @@ void wt_servo_init(void) {
 #define MB_SERVO_MIN_PULSE_NS   1000000
 #define MB_SERVO_RANGE_PULSE_NS 1000
 
-void wt_servo_set(uint16_t val) {
+void wt_servo_set(uint16_t val)
+{
 
-  uint32_t pulse_ns = MB_SERVO_MIN_PULSE_NS + val*MB_SERVO_RANGE_PULSE_NS;
+  uint32_t pulse_ns = MB_SERVO_MIN_PULSE_NS + val * MB_SERVO_RANGE_PULSE_NS;
   mb_servo_set_ns(pulse_ns);
 
 }
 
-void mb_servo_set_ns(uint32_t duration_ns) {
+void mb_servo_set_ns(uint32_t duration_ns)
+{
   /* set Match5 value (pulse duration )*/
   PWMMR5 = cpu_ticks_of_nsec(duration_ns);
- /* commit PWMMRx changes */
+  /* commit PWMMRx changes */
   PWMLER = PWMLER_LATCH5;
 }

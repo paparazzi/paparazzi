@@ -26,11 +26,9 @@
 
 
 #define DATALINK_C
-#define PERIODIC_C_MAIN
 
 #include "generated/airframe.h"
 #include "generated/settings.h"
-#include "generated/periodic_telemetry.h"
 
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
@@ -42,35 +40,40 @@
 #include "subsystems/actuators/actuators_pwm.h"
 
 
-static inline void main_init( void );
-static inline void main_periodic( void );
+static inline void main_init(void);
+static inline void main_periodic(void);
 static inline void main_event(void);
 
-int main(void) {
+int main(void)
+{
 
   main_init();
   while (1) {
-    if (sys_time_check_and_ack_timer(0))
+    if (sys_time_check_and_ack_timer(0)) {
       main_periodic();
+    }
     main_event();
   };
   return 0;
 }
 
-static inline void main_init( void ) {
+static inline void main_init(void)
+{
   mcu_init();
-  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+  sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   ActuatorsPwmInit();
 }
 
-static inline void main_periodic( void ) {
+static inline void main_periodic(void)
+{
   ActuatorsPwmCommit();
 
   LED_PERIODIC();
   RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);});
 }
 
-static inline void main_event(void) {
+static inline void main_event(void)
+{
   DatalinkEvent();
 }
 
@@ -78,44 +81,41 @@ static inline void main_event(void) {
 
 #define IdOfMsg(x) (x[1])
 
-void dl_parse_msg( void ) {
+void dl_parse_msg(void)
+{
   uint8_t msg_id = IdOfMsg(dl_buffer);
   switch (msg_id) {
-    case  DL_PING:
-      {
-        DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
-      }
-      break;
+    case  DL_PING: {
+      DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
+    }
+    break;
 
-    case DL_SET_ACTUATOR:
-      {
-        uint8_t servo_no = DL_SET_ACTUATOR_no(dl_buffer);
-        uint16_t servo_value = DL_SET_ACTUATOR_value(dl_buffer);
-        LED_TOGGLE(2);
-        if (servo_no < ACTUATORS_PWM_NB) {
-          ActuatorPwmSet(servo_no, servo_value);
-        }
+    case DL_SET_ACTUATOR: {
+      uint8_t servo_no = DL_SET_ACTUATOR_no(dl_buffer);
+      uint16_t servo_value = DL_SET_ACTUATOR_value(dl_buffer);
+      LED_TOGGLE(2);
+      if (servo_no < ACTUATORS_PWM_NB) {
+        ActuatorPwmSet(servo_no, servo_value);
       }
-      break;
+    }
+    break;
 
-    case DL_SETTING:
-      {
-        if (DL_SETTING_ac_id(dl_buffer) != AC_ID) break;
-        uint8_t i = DL_SETTING_index(dl_buffer);
-        float var = DL_SETTING_value(dl_buffer);
-        DlSetting(i, var);
-        DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &var);
-      }
-      break;
+    case DL_SETTING: {
+      if (DL_SETTING_ac_id(dl_buffer) != AC_ID) { break; }
+      uint8_t i = DL_SETTING_index(dl_buffer);
+      float var = DL_SETTING_value(dl_buffer);
+      DlSetting(i, var);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &var);
+    }
+    break;
 
-    case DL_GET_SETTING :
-      {
-        if (DL_GET_SETTING_ac_id(dl_buffer) != AC_ID) break;
-        uint8_t i = DL_GET_SETTING_index(dl_buffer);
-        float val = settings_get_value(i);
-        DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
-      }
-      break;
+    case DL_GET_SETTING : {
+      if (DL_GET_SETTING_ac_id(dl_buffer) != AC_ID) { break; }
+      uint8_t i = DL_GET_SETTING_index(dl_buffer);
+      float val = settings_get_value(i);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
+    }
+    break;
 
     default:
       break;

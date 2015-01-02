@@ -71,8 +71,8 @@ extern uint8_t cam_target_wp;
 extern uint8_t cam_target_ac;
 /** For CAM_MODE_AC_TARGET mode */
 
-void cam_periodic( void );
-void cam_init( void );
+void cam_periodic(void);
+void cam_init(void);
 
 extern int16_t cam_pan_command;
 #define cam_SetPanCommand(x) { ap_state->commands[COMMAND_CAM_PAN] = cam_pan_command = x;}
@@ -95,13 +95,5 @@ extern bool_t video_tx_state;
 #define VIDEO_TX_OFF()  { video_tx_state = 0; 0; }
 
 #endif
-
-#define SEND_CAM(_trans, _dev) { \
-  int16_t x = cam_target_x; \
-  int16_t y = cam_target_y; \
-  int16_t phi = DegOfRad(cam_phi_c); \
-  int16_t theta = DegOfRad(cam_theta_c); \
-  DOWNLINK_SEND_CAM(_trans, _dev, &phi, &theta, &x, &y); \
-}
 
 #endif // CAM_H

@@ -28,6 +28,6 @@
 #ifndef PWM_MEAS_H
 #define PWM_MEAS_H
 
-void pwm_meas_init( void );
+void pwm_meas_init(void);
 
 #endif

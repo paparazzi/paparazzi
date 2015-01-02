@@ -46,6 +46,7 @@
     <program name="Log Plotter" command="sw/logalizer/plot"/>
 
     <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
+    <program name="Real-time Plotter (Python)" command="sw/ground_segment/python/real_time_plot/messagepicker.py"/>
 
     <program name="Log File Player" command="sw/logalizer/play">
       <arg flag="-b" variable="ivy_bus"/>
@@ -158,6 +159,26 @@
         <arg flag="-redlink"/>
       </program>
       <program name="Link Combiner"/>
+    </session>
+
+    <session name="SupperBitRF">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyACM0"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Messages"/>
+    </session>
+
+    <session name="SupperBitRF cable telemetry">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyACM1"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Messages"/>
+      <program name="Messages"/>
     </session>
 
 

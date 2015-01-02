@@ -61,8 +61,8 @@ extern float  h_ctl_roll_slew;
 
 #ifdef USE_AOA
 /* Pitch mode */
-#define H_CTL_PITCH_MODE_THETA	0
-#define H_CTL_PITCH_MODE_AOA	1
+#define H_CTL_PITCH_MODE_THETA  0
+#define H_CTL_PITCH_MODE_AOA  1
 extern uint8_t h_ctl_pitch_mode;
 #endif
 
@@ -91,9 +91,9 @@ extern float h_ctl_roll_rate_dgain;
 #define stabilization_attitude_SetRollRatePGain(v) { h_ctl_hi_throttle_roll_rate_pgain = v; h_ctl_lo_throttle_roll_rate_pgain = v; }
 #endif
 
-extern void h_ctl_init( void );
-extern void h_ctl_course_loop ( void );
-extern void h_ctl_attitude_loop ( void );
+extern void h_ctl_init(void);
+extern void h_ctl_course_loop(void);
+extern void h_ctl_attitude_loop(void);
 
 extern float h_ctl_roll_attitude_gain;
 extern float h_ctl_roll_rate_gain;

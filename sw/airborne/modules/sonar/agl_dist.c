@@ -52,7 +52,8 @@ abi_event sonar_ev;
 
 static void sonar_cb(uint8_t sender_id, const float *distance);
 
-void agl_dist_init(void) {
+void agl_dist_init(void)
+{
   agl_dist_valid = FALSE;
   agl_dist_value = 0.;
   agl_dist_value_filtered = 0.;
@@ -62,13 +63,14 @@ void agl_dist_init(void) {
 }
 
 
-static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *distance) {
+static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *distance)
+{
   if (*distance < AGL_DIST_SONAR_MAX_RANGE && *distance > AGL_DIST_SONAR_MIN_RANGE) {
     agl_dist_value = *distance;
     agl_dist_valid = TRUE;
-    agl_dist_value_filtered = (AGL_DIST_SONAR_FILTER * agl_dist_value_filtered + agl_dist_value) / (AGL_DIST_SONAR_FILTER + 1);
-  }
-  else {
+    agl_dist_value_filtered = (AGL_DIST_SONAR_FILTER * agl_dist_value_filtered + agl_dist_value) /
+                              (AGL_DIST_SONAR_FILTER + 1);
+  } else {
     agl_dist_valid = FALSE;
   }
 }

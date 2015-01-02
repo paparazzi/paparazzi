@@ -6,6 +6,9 @@
 
   <firmware name="setup">
     <target name="tunnel"           board="lisa_m_2.0"/>
+    <target name="usb_tunnel"       board="lisa_m_2.0">
+      <configure name="TUNNEL_PORT" value="UART3"/>
+    </target>
     <target name="setup_actuators"  board="lisa_m_2.0">
       <subsystem name="actuators" type="pwm"/>
       <define name="SERVO_HZ" value="400"/>

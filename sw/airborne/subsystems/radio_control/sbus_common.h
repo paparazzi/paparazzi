@@ -30,6 +30,9 @@
 #include "std.h"
 #include "mcu_periph/uart.h"
 
+/* in case you want to override RADIO_CONTROL_NB_CHANNEL */
+#include "generated/airframe.h"
+
 /**
  * Macro to use radio.h file
  *
@@ -57,7 +60,17 @@
  */
 #define SBUS_BUF_LENGTH 24
 #define SBUS_NB_CHANNEL 16
+
+/**
+ * Default number of channels to actually use.
+ */
+#ifndef RADIO_CONTROL_NB_CHANNEL
 #define RADIO_CONTROL_NB_CHANNEL SBUS_NB_CHANNEL
+#endif
+
+#if RADIO_CONTROL_NB_CHANNEL > SBUS_NB_CHANNEL
+#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 16."
+#endif
 
 /**
  * SBUS structure
@@ -74,12 +87,12 @@ struct Sbus {
 /**
  * Init function
  */
-void sbus_common_init(struct Sbus* sbus, struct uart_periph* dev);
+void sbus_common_init(struct Sbus *sbus, struct uart_periph *dev);
 
 /**
  * Decoding event function
  */
-void sbus_common_decode_event(struct Sbus* sbus, struct uart_periph* dev);
+void sbus_common_decode_event(struct Sbus *sbus, struct uart_periph *dev);
 
 
 /**

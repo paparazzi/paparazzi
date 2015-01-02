@@ -45,30 +45,30 @@ extern uint8_t    tx_byte_idx;
 #define AudioTelemetrySendMessage() AUDIO_TELEMETRY_CHECK_RUNNING()
 
 #if TX_BUF_SIZE == 256
-#define UPDATE_HEAD() {			   \
-    tx_head++;				   \
-}
+#define UPDATE_HEAD() {        \
+    tx_head++;           \
+  }
 #else
-#define UPDATE_HEAD() {			   \
-  tx_head++;				   \
-  if (tx_head >= TX_BUF_SIZE) tx_head = 0; \
-}
+#define UPDATE_HEAD() {        \
+    tx_head++;           \
+    if (tx_head >= TX_BUF_SIZE) tx_head = 0; \
+  }
 #endif
 
 #define AudioTelemetryCheckFreeSpace(_space) (tx_head>=tx_tail? _space < (TX_BUF_SIZE - (tx_head - tx_tail)) : _space < (tx_tail - tx_head))
 
 #define AudioTelemetryPut1Byte(_byte) { \
-  tx_buf[tx_head] = _byte;	  \
-  UPDATE_HEAD();		  \
-}
+    tx_buf[tx_head] = _byte;    \
+    UPDATE_HEAD();      \
+  }
 
 #define AUDIO_TELEMETRY_LOAD_NEXT_BYTE() { \
-  tx_byte = tx_buf[tx_tail]; \
-  tx_byte_idx = 0; \
-  tx_tail++; \
-  if( tx_tail >= TX_BUF_SIZE ) \
-    tx_tail = 0; \
-}
+    tx_byte = tx_buf[tx_tail]; \
+    tx_byte_idx = 0; \
+    tx_tail++; \
+    if( tx_tail >= TX_BUF_SIZE ) \
+      tx_tail = 0; \
+  }
 
 #define AudioTelemetryTransmit(_x) Audio_TelemetryPut1Byte(_x)
 

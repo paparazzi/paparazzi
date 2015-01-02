@@ -39,7 +39,8 @@
 #define Ap(f)
 #endif
 
-int main( void ) {
+int main(void)
+{
   Fbw(init);
   Ap(init);
   while (1) {

@@ -43,8 +43,8 @@
 
 extern uint8_t MPPT_mode;
 
-void MPPT_init( void );
-void MPPT_automata( void );
-void MPPT_periodic( void );
+void MPPT_init(void);
+void MPPT_automata(void);
+void MPPT_periodic(void);
 
 #endif // MPPT_H

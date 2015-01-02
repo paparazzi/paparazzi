@@ -27,6 +27,9 @@ AHRS_ALIGNER_LED  ?= none
 GPS_LED           ?= none
 SYS_TIME_LED      ?= none
 
+TUNNEL_RX_LED     ?= 1
+TUNNEL_TX_LED     ?= 2
+
 
 #
 # default uart settings

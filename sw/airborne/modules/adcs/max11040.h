@@ -28,7 +28,7 @@ extern volatile uint32_t max11040_buf_out;
 #define MAX11040_IDLE            0
 #define MAX11040_DATA_AVAILABLE  1
 
-void max11040_init( void );
+void max11040_init(void);
 void max11040_periodic(void);
 
 

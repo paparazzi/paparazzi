@@ -5,12 +5,12 @@
 #include "std.h"
 #define MM_NB_AXIS 3
 
-extern void micromag_init( void );
-extern void micromag_read( void );
+extern void micromag_init(void);
+extern void micromag_read(void);
 
-extern void micromag_reset( void);
-extern void micromag_periodic( void );
-extern void micromag_event( void );
+extern void micromag_reset(void);
+extern void micromag_periodic(void);
+extern void micromag_event(void);
 
 #define MM_IDLE            0
 #define MM_BUSY            1

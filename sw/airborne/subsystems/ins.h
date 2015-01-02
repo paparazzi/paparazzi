@@ -33,8 +33,8 @@
 #include "state.h"
 
 enum InsStatus {
- INS_UNINIT=0,
- INS_RUNNING=1
+  INS_UNINIT = 0,
+  INS_RUNNING = 1
 };
 
 /* underlying includes (needed for parameters) */
@@ -78,7 +78,7 @@ extern void ins_reset_altitude_ref(void);
  *  Can be overwritte by specifc INS implementation.
  *  @param utm initial utm zone, returns the corrected utm position
  */
-extern void ins_reset_utm_zone(struct UtmCoor_f * utm);
+extern void ins_reset_utm_zone(struct UtmCoor_f *utm);
 
 /** Propagation. Usually integrates the gyro rates to angles.
  *  Reads the global #imu data struct.

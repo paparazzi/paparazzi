@@ -10,7 +10,7 @@ extern int8_t nav_poles_land;
 
 bool nav_poles_init(uint8_t wp1, uint8_t wp2,
                     uint8_t wp1c, uint8_t wp2c,
-        float radius );
+                    float radius);
 
 #define nav_poles_SetLandDir(_d) { if (_d < 0) _d = -1; else _d = 1; }
 

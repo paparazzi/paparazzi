@@ -29,52 +29,54 @@
 #include "subsystems/datalink/downlink.h"
 
 int main_periodic(void);
-static inline void main_init( void );
-static inline void main_periodic_task( void );
-static inline void main_event_task( void );
+static inline void main_init(void);
+static inline void main_periodic_task(void);
+static inline void main_event_task(void);
 
 #define NB_ADC 8
 #define ADC_NB_SAMPLES 16
 
 static struct adc_buf buf_adc[NB_ADC];
 
-static inline void main_init( void ) {
-    mcu_init();
-    sys_time_register_timer((1./100), NULL);
-    adc_init();
+static inline void main_init(void)
+{
+  mcu_init();
+  sys_time_register_timer((1. / 100), NULL);
+  adc_init();
 
 #ifdef ADC_0
-    adc_buf_channel(ADC_0, &buf_adc[0], ADC_NB_SAMPLES);
+  adc_buf_channel(ADC_0, &buf_adc[0], ADC_NB_SAMPLES);
 #endif
 #ifdef ADC_1
-    adc_buf_channel(ADC_1, &buf_adc[1], ADC_NB_SAMPLES);
+  adc_buf_channel(ADC_1, &buf_adc[1], ADC_NB_SAMPLES);
 #endif
 #ifdef ADC_2
-    adc_buf_channel(ADC_2, &buf_adc[2], ADC_NB_SAMPLES);
+  adc_buf_channel(ADC_2, &buf_adc[2], ADC_NB_SAMPLES);
 #endif
 #ifdef ADC_3
-    adc_buf_channel(ADC_3, &buf_adc[3], ADC_NB_SAMPLES);
+  adc_buf_channel(ADC_3, &buf_adc[3], ADC_NB_SAMPLES);
 #endif
 #ifdef ADC_4
-    adc_buf_channel(ADC_4, &buf_adc[4], ADC_NB_SAMPLES);
+  adc_buf_channel(ADC_4, &buf_adc[4], ADC_NB_SAMPLES);
 #endif
 #ifdef ADC_5
-    adc_buf_channel(ADC_5, &buf_adc[5], ADC_NB_SAMPLES);
+  adc_buf_channel(ADC_5, &buf_adc[5], ADC_NB_SAMPLES);
 #endif
 #ifdef ADC_6
-    adc_buf_channel(ADC_6, &buf_adc[6], ADC_NB_SAMPLES);
+  adc_buf_channel(ADC_6, &buf_adc[6], ADC_NB_SAMPLES);
 #endif
 #ifdef ADC_7
-    adc_buf_channel(ADC_7, &buf_adc[7], ADC_NB_SAMPLES);
+  adc_buf_channel(ADC_7, &buf_adc[7], ADC_NB_SAMPLES);
 #endif
 
-    mcu_int_enable();
+  mcu_int_enable();
 }
 
-int main( void ) {
+int main(void)
+{
   main_init();
 
-  while(1) {
+  while (1) {
     if (sys_time_check_and_ack_timer(0)) {
       main_periodic_task();
     }
@@ -83,20 +85,23 @@ int main( void ) {
   return 0;
 }
 
-static inline void main_periodic_task( void ) {
+static inline void main_periodic_task(void)
+{
   RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
   RunOnceEvery(100, {uint32_t sec = sys_time.nb_sec; DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &sec);});
   LED_PERIODIC();
 
   uint16_t values[NB_ADC];
   uint8_t i;
-  for(i = 0; i < NB_ADC; i++)
+  for (i = 0; i < NB_ADC; i++) {
     values[i] = buf_adc[i].sum / ADC_NB_SAMPLES;
+  }
 
   uint8_t id = 42;
   DOWNLINK_SEND_ADC(DefaultChannel, DefaultDevice, &id, NB_ADC, values);
 }
 
-static inline void main_event_task( void ) {
+static inline void main_event_task(void)
+{
 
 }

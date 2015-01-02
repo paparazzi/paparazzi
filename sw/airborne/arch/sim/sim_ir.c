@@ -13,15 +13,17 @@
 
 float sim_air_speed;
 
-void ir_gain_calib(void) {
+void ir_gain_calib(void)
+{
 }
 
 value set_ir_and_airspeed(
-    value roll __attribute__ ((unused)),
-    value front __attribute__ ((unused)),
-    value top __attribute__ ((unused)),
-    value air_speed
-    ) {
+  value roll __attribute__((unused)),
+  value front __attribute__((unused)),
+  value top __attribute__((unused)),
+  value air_speed
+)
+{
   // INFRARED_TELEMETRY : Stupid hack to use with modules
 #if USE_INFRARED || USE_INFRARED_TELEMETRY
   infrared.roll = Int_val(roll);

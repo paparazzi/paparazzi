@@ -13,11 +13,13 @@
 
 static void report(void);
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
   int traj = 0;
-  if (argc > 1)
+  if (argc > 1) {
     traj = atoi(argv[1]);
+  }
 
   aos_init(traj);
   report();
@@ -32,7 +34,8 @@ int main(int argc, char** argv) {
 }
 
 
-static void report(void) {
+static void report(void)
+{
 
   int output_sensors = FALSE;
   int output_pos = FALSE;
@@ -40,16 +43,16 @@ static void report(void) {
   printf("%f ", aos.time);
 
   printf("%f %f %f ", DegOfRad(aos.ltp_to_imu_euler.phi),
-                DegOfRad(aos.ltp_to_imu_euler.theta),
-                DegOfRad(aos.ltp_to_imu_euler.psi));
+         DegOfRad(aos.ltp_to_imu_euler.theta),
+         DegOfRad(aos.ltp_to_imu_euler.psi));
 
   printf("%f %f %f ", DegOfRad(aos.imu_rates.p),
-                DegOfRad(aos.imu_rates.q),
-                DegOfRad(aos.imu_rates.r));
+         DegOfRad(aos.imu_rates.q),
+         DegOfRad(aos.imu_rates.r));
 
   printf("%f %f %f ", DegOfRad(aos.gyro_bias.p),
-                DegOfRad(aos.gyro_bias.q),
-                DegOfRad(aos.gyro_bias.r));
+         DegOfRad(aos.gyro_bias.q),
+         DegOfRad(aos.gyro_bias.r));
 
 #if AHRS_TYPE == AHRS_TYPE_ICQ
   struct Int32Eulers ltp_to_imu_euler_i;
@@ -69,8 +72,8 @@ static void report(void) {
   struct FloatRates bias;
   RATES_FLOAT_OF_BFP(bias, ahrs_impl.gyro_bias);
   printf("%f %f %f ", DegOfRad(bias.p),
-               DegOfRad(bias.q),
-               DegOfRad(bias.r));
+         DegOfRad(bias.q),
+         DegOfRad(bias.r));
 
 #elif AHRS_TYPE == AHRS_TYPE_FCR2 || AHRS_TYPE == AHRS_TYPE_FCQ || AHRS_TYPE == AHRS_TYPE_FCR
 
@@ -83,14 +86,14 @@ static void report(void) {
          DegOfRad(ahrs_impl.imu_rate.r));
 
   printf("%f %f %f ", DegOfRad(ahrs_impl.gyro_bias.p),
-               DegOfRad(ahrs_impl.gyro_bias.q),
-               DegOfRad(ahrs_impl.gyro_bias.r));
+         DegOfRad(ahrs_impl.gyro_bias.q),
+         DegOfRad(ahrs_impl.gyro_bias.r));
 #endif
 
   if (output_pos) {
     printf("%f %f %f ", aos.ltp_pos.x,
-                        aos.ltp_pos.y,
-                  aos.ltp_pos.z);
+           aos.ltp_pos.y,
+           aos.ltp_pos.z);
   }
 
   if (output_sensors) {

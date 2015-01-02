@@ -32,7 +32,7 @@
 
 static struct point survey_from;
 static struct point survey_to;
-static bool_t survey_uturn __attribute__ ((unused)) = FALSE;
+static bool_t survey_uturn __attribute__((unused)) = FALSE;
 static survey_orientation_t survey_orientation = NS;
 
 #define SurveyGoingNorth() ((survey_orientation == NS) && (survey_to.y > survey_from.y))
@@ -50,7 +50,8 @@ static survey_orientation_t survey_orientation = NS;
 #endif
 
 
-void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so) {
+void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so)
+{
   nav_survey_west = Min(WaypointX(wp1), WaypointX(wp2));
   nav_survey_east = Max(WaypointX(wp1), WaypointX(wp2));
   nav_survey_south = Min(WaypointY(wp1), WaypointY(wp2));
@@ -58,8 +59,10 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
   survey_orientation = so;
 
   if (survey_orientation == NS) {
-    survey_from.x = survey_to.x = Min(Max(stateGetPositionEnu_f()->x, nav_survey_west+grid/2.), nav_survey_east-grid/2.);
-    if (stateGetPositionEnu_f()->y > nav_survey_north || (stateGetPositionEnu_f()->y > nav_survey_south && (*stateGetHorizontalSpeedDir_f()) > M_PI/2. && (*stateGetHorizontalSpeedDir_f()) < 3*M_PI/2)) {
+    survey_from.x = survey_to.x = Min(Max(stateGetPositionEnu_f()->x, nav_survey_west + grid / 2.),
+                                      nav_survey_east - grid / 2.);
+    if (stateGetPositionEnu_f()->y > nav_survey_north || (stateGetPositionEnu_f()->y > nav_survey_south
+        && (*stateGetHorizontalSpeedDir_f()) > M_PI / 2. && (*stateGetHorizontalSpeedDir_f()) < 3 * M_PI / 2)) {
       survey_to.y = nav_survey_south;
       survey_from.y = nav_survey_north;
     } else {
@@ -67,8 +70,10 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
       survey_to.y = nav_survey_north;
     }
   } else { /* survey_orientation == WE */
-    survey_from.y = survey_to.y = Min(Max(stateGetPositionEnu_f()->y, nav_survey_south+grid/2.), nav_survey_north-grid/2.);
-    if (stateGetPositionEnu_f()->x > nav_survey_east || (stateGetPositionEnu_f()->x > nav_survey_west && (*stateGetHorizontalSpeedDir_f()) > M_PI)) {
+    survey_from.y = survey_to.y = Min(Max(stateGetPositionEnu_f()->y, nav_survey_south + grid / 2.),
+                                      nav_survey_north - grid / 2.);
+    if (stateGetPositionEnu_f()->x > nav_survey_east || (stateGetPositionEnu_f()->x > nav_survey_west
+        && (*stateGetHorizontalSpeedDir_f()) > M_PI)) {
       survey_to.x = nav_survey_west;
       survey_from.x = nav_survey_east;
     } else {
@@ -82,7 +87,8 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
 }
 
 
-void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
+void nav_survey_rectangle(uint8_t wp1, uint8_t wp2)
+{
   static float survey_radius;
 
   nav_survey_active = TRUE;
@@ -118,7 +124,7 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
       if (survey_orientation == NS) {
         /* North or South limit reached, prepare U-turn and next leg */
         float x0 = survey_from.x; /* Current longitude */
-        if (x0+nav_survey_shift < nav_survey_west || x0+nav_survey_shift > nav_survey_east) {
+        if (x0 + nav_survey_shift < nav_survey_west || x0 + nav_survey_shift > nav_survey_east) {
           x0 += nav_survey_shift / 2;
           nav_survey_shift = -nav_survey_shift;
         }
@@ -132,7 +138,7 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
         survey_to.y = tmp;
 
         /** Do half a circle around WP 0 */
-        waypoints[0].x = x0 - nav_survey_shift/2.;
+        waypoints[0].x = x0 - nav_survey_shift / 2.;
         waypoints[0].y = survey_from.y;
 
         /* Computes the right direction for the circle */
@@ -144,7 +150,7 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
         /* East or West limit reached, prepare U-turn and next leg */
         /* There is a y0 declared in math.h (for ARM) !!! */
         float my_y0 = survey_from.y; /* Current latitude */
-        if (my_y0+nav_survey_shift < nav_survey_south || my_y0+nav_survey_shift > nav_survey_north) {
+        if (my_y0 + nav_survey_shift < nav_survey_south || my_y0 + nav_survey_shift > nav_survey_north) {
           my_y0 += nav_survey_shift / 2;
           nav_survey_shift = -nav_survey_shift;
         }
@@ -159,7 +165,7 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
 
         /** Do half a circle around WP 0 */
         waypoints[0].x = survey_from.x;
-        waypoints[0].y = my_y0 - nav_survey_shift/2.;
+        waypoints[0].y = my_y0 - nav_survey_shift / 2.;
 
         /* Computes the right direction for the circle */
         survey_radius = nav_survey_shift / 2.;

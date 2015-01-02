@@ -28,9 +28,9 @@
 #include "peripherals/bmp085_regs.h"
 
 
-static int32_t bmp085_compensated_temperature(struct Bmp085Calib* calib, int32_t raw)
+static int32_t bmp085_compensated_temperature(struct Bmp085Calib *calib, int32_t raw)
 {
-  int32_t x1 = (raw - calib->ac6) * calib->ac5 / (1<<15);
+  int32_t x1 = (raw - calib->ac6) * calib->ac5 / (1 << 15);
   int32_t x2 = (calib->mc << 11) / (x1 + calib->md);
   calib->b5 = x1 + x2;
   return (calib->b5 + 8) >> 4;
@@ -41,17 +41,17 @@ static int32_t bmp085_compensated_temperature(struct Bmp085Calib* calib, int32_t
 /** Apply temp calibration and sensor calibration to raw measurement to get Pa
  * (from BMP085 datasheet)
  */
-static int32_t bmp085_compensated_pressure(struct Bmp085Calib* calib, int32_t raw)
+static int32_t bmp085_compensated_pressure(struct Bmp085Calib *calib, int32_t raw)
 {
   int32_t b6 = calib->b5 - 4000;
   int32_t x1 = (calib->b2 * (b6 * b6 >> 12)) >> 11;
   int32_t x2 = calib->ac2 * b6 >> 11;
   int32_t x3 = x1 + x2;
-  int32_t b3 = (((calib->ac1 * 4 + x3) << BMP085_OSS) + 2)/4;
+  int32_t b3 = (((calib->ac1 * 4 + x3) << BMP085_OSS) + 2) / 4;
   x1 = calib->ac3 * b6 >> 13;
   x2 = (calib->b1 * (b6 * b6 >> 12)) >> 16;
   x3 = ((x1 + x2) + 2) >> 2;
-  uint32_t b4 = (calib->ac4 * (uint32_t) (x3 + 32768)) >> 15;
+  uint32_t b4 = (calib->ac4 * (uint32_t)(x3 + 32768)) >> 15;
   uint32_t b7 = (raw - b3) * (50000 >> BMP085_OSS);
   int32_t p = b7 < 0x80000000 ? (b7 * 2) / b4 : (b7 / b4) * 2;
   x1 = (p >> 8) * (p >> 8);
@@ -70,7 +70,7 @@ static bool_t bmp085_eoc_true(void)
 }
 
 
-void bmp085_read_eeprom_calib(struct Bmp085* bmp)
+void bmp085_read_eeprom_calib(struct Bmp085 *bmp)
 {
   if (bmp->status == BMP085_STATUS_UNINIT && bmp->i2c_trans.status == I2CTransDone) {
     bmp->initialized = FALSE;
@@ -80,7 +80,7 @@ void bmp085_read_eeprom_calib(struct Bmp085* bmp)
 }
 
 
-void bmp085_init(struct Bmp085* bmp, struct i2c_periph *i2c_p, uint8_t addr)
+void bmp085_init(struct Bmp085 *bmp, struct i2c_periph *i2c_p, uint8_t addr)
 {
   /* set i2c_peripheral */
   bmp->i2c_p = i2c_p;
@@ -105,7 +105,7 @@ void bmp085_init(struct Bmp085* bmp, struct i2c_periph *i2c_p, uint8_t addr)
  * Should run at < 40Hz unless eoc check function is provided.
  * At ultra high resolution (oss = 3) conversion time is max 25.5ms.
  */
-void bmp085_periodic(struct Bmp085* bmp)
+void bmp085_periodic(struct Bmp085 *bmp)
 {
   switch (bmp->status) {
     case BMP085_STATUS_IDLE:
@@ -139,7 +139,7 @@ void bmp085_periodic(struct Bmp085* bmp)
   }
 }
 
-void bmp085_event(struct Bmp085* bmp)
+void bmp085_event(struct Bmp085 *bmp)
 {
   if (bmp->i2c_trans.status == I2CTransSuccess) {
     switch (bmp->status) {
@@ -172,9 +172,9 @@ void bmp085_event(struct Bmp085* bmp)
 
       case BMP085_STATUS_READ_PRESS:
         /* get uncompensated pressure */
-        bmp->up = (bmp->i2c_trans.buf[0]<<16) |
+        bmp->up = (bmp->i2c_trans.buf[0] << 16) |
                   (bmp->i2c_trans.buf[1] << 8) |
-                   bmp->i2c_trans.buf[2];
+                  bmp->i2c_trans.buf[2];
         bmp->up = bmp->up >> (8 - BMP085_OSS);
         bmp->pressure = bmp085_compensated_pressure(&(bmp->calib), bmp->up);
         bmp->data_available = TRUE;
@@ -184,13 +184,13 @@ void bmp085_event(struct Bmp085* bmp)
       default:
         break;
     }
-  }
-  else if (bmp->i2c_trans.status == I2CTransFailed) {
+  } else if (bmp->i2c_trans.status == I2CTransFailed) {
     /* try again */
-    if (bmp->initialized)
+    if (bmp->initialized) {
       bmp->status = BMP085_STATUS_IDLE;
-    else
+    } else {
       bmp->status = BMP085_STATUS_UNINIT;
+    }
     bmp->i2c_trans.status = I2CTransDone;
   }
 }

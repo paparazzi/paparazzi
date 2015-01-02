@@ -45,23 +45,23 @@ enum arming_state {
 enum arming_state autopilot_arming_state;
 bool_t autopilot_unarmed_in_auto;
 
-static inline void autopilot_arming_init(void) {
+static inline void autopilot_arming_init(void)
+{
   autopilot_arming_state = STATE_UNINIT;
   autopilot_unarmed_in_auto = FALSE;
 }
 
-static inline void autopilot_arming_set(bool_t motors_on) {
+static inline void autopilot_arming_set(bool_t motors_on)
+{
   if (motors_on) {
     autopilot_arming_state = STATE_MOTORS_ON;
-  }
-  else {
+  } else {
     if (autopilot_arming_state == STATE_MOTORS_ON) {
       autopilot_arming_state = STATE_STARTABLE;
       /* if turned off in an AUTO mode, remember it so it can be turned on again in AUTO */
       if (autopilot_mode != MODE_MANUAL) {
         autopilot_unarmed_in_auto = TRUE;
-      }
-      else {
+      } else {
         autopilot_unarmed_in_auto = FALSE;
       }
     }
@@ -75,48 +75,47 @@ static inline void autopilot_arming_set(bool_t motors_on) {
  * Also to start the motors, throttle needs to be down, other sticks centered,
  * AHRS aligned and you need be in manual mode.
  */
-static inline void autopilot_arming_check_motors_on( void ) {
-  switch(autopilot_arming_state) {
-  case STATE_UNINIT:
-    autopilot_motors_on = FALSE;
-    if (kill_switch_is_on()) {
-      autopilot_arming_state = STATE_STARTABLE;
-    }
-    else {
-      autopilot_arming_state = STATE_WAITING;
-    }
-    break;
-  case STATE_WAITING:
-    autopilot_motors_on = FALSE;
-    if (kill_switch_is_on()) {
-      autopilot_arming_state = STATE_STARTABLE;
-    }
-    break;
-  case STATE_STARTABLE:
-    autopilot_motors_on = FALSE;
-    if (!kill_switch_is_on() &&
-        THROTTLE_STICK_DOWN() &&
-        rc_attitude_sticks_centered() &&
-        (autopilot_mode == MODE_MANUAL || autopilot_unarmed_in_auto)) {
-      autopilot_arming_state = STATE_MOTORS_ON;
-    }
-    break;
-  case STATE_MOTORS_ON:
-    autopilot_motors_on = TRUE;
-    if (kill_switch_is_on()) {
-      /* if killed, go to STATE_STARTABLE where motors will be turned off */
-      autopilot_arming_state = STATE_STARTABLE;
-      /* if turned off in an AUTO mode, remember it so it can be turned on again in AUTO */
-      if (autopilot_mode != MODE_MANUAL) {
-        autopilot_unarmed_in_auto = TRUE;
+static inline void autopilot_arming_check_motors_on(void)
+{
+  switch (autopilot_arming_state) {
+    case STATE_UNINIT:
+      autopilot_motors_on = FALSE;
+      if (kill_switch_is_on()) {
+        autopilot_arming_state = STATE_STARTABLE;
+      } else {
+        autopilot_arming_state = STATE_WAITING;
       }
-      else {
-        autopilot_unarmed_in_auto = FALSE;
+      break;
+    case STATE_WAITING:
+      autopilot_motors_on = FALSE;
+      if (kill_switch_is_on()) {
+        autopilot_arming_state = STATE_STARTABLE;
       }
-    }
-    break;
-  default:
-    break;
+      break;
+    case STATE_STARTABLE:
+      autopilot_motors_on = FALSE;
+      if (!kill_switch_is_on() &&
+          THROTTLE_STICK_DOWN() &&
+          rc_attitude_sticks_centered() &&
+          (autopilot_mode == MODE_MANUAL || autopilot_unarmed_in_auto)) {
+        autopilot_arming_state = STATE_MOTORS_ON;
+      }
+      break;
+    case STATE_MOTORS_ON:
+      autopilot_motors_on = TRUE;
+      if (kill_switch_is_on()) {
+        /* if killed, go to STATE_STARTABLE where motors will be turned off */
+        autopilot_arming_state = STATE_STARTABLE;
+        /* if turned off in an AUTO mode, remember it so it can be turned on again in AUTO */
+        if (autopilot_mode != MODE_MANUAL) {
+          autopilot_unarmed_in_auto = TRUE;
+        } else {
+          autopilot_unarmed_in_auto = FALSE;
+        }
+      }
+      break;
+    default:
+      break;
   }
 
 }

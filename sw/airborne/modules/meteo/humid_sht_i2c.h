@@ -9,7 +9,7 @@
 #define SHT2_TRIGGER_HUMID       0xF5
 #define SHT2_SOFT_RESET          0xFE
 
-enum sht_stat_i2c{
+enum sht_stat_i2c {
   SHT2_UNINIT,
   SHT2_IDLE,
   SHT2_RESET,
@@ -26,7 +26,7 @@ enum sht_stat_i2c{
   SHT2_READ_HUMID
 };
 
-int8_t humid_sht_crc(volatile uint8_t* data);
+int8_t humid_sht_crc(volatile uint8_t *data);
 void humid_sht_init_i2c(void);
 void humid_sht_periodic_i2c(void);
 void humid_sht_p_temp(void);

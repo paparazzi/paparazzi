@@ -215,7 +215,7 @@ object (self)
     (** draws the circular path to be followed by the aircraft in circle mode *)
   method draw_circle = fun en radius ->
     let create = fun () ->
-      desired_track <- DesiredCircle (en, radius, geomap#circle ~color:"green" en radius) in
+      desired_track <- DesiredCircle (en, radius, geomap#circle ~color:"#00ff00" en radius) in
     match desired_track with
         DesiredCircle (c, r, circle) ->
           if c <> en || r <> radius then begin
@@ -231,7 +231,7 @@ object (self)
     (** draws the linear path to be followed by the aircraft between two waypoints *)
   method draw_segment = fun en1 en2 ->
     let create = fun () ->
-      desired_track <- DesiredSegment (en1, en2, geomap#segment ~fill_color:"green" en1 en2) in
+      desired_track <- DesiredSegment (en1, en2, geomap#segment ~fill_color:"#00ff00" en1 en2) in
     match desired_track with
         DesiredCircle (c, r, circle) ->
           circle#destroy ();

@@ -801,7 +801,7 @@ let rec plot_window = fun ?export init ->
   let oid = plotter#get_oid in
   Hashtbl.add windows oid ();
 
-  plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));
+  plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_log_file));
   let vbox = GPack.vbox ~packing:plotter#add () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   let close = fun () ->

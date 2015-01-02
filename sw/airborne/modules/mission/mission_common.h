@@ -52,14 +52,14 @@ enum MissionInsertMode {
 };
 
 struct _mission_wp {
-  union{
+  union {
     struct EnuCoor_f wp_f;
     struct EnuCoor_i wp_i;
   } wp;
 };
 
 struct _mission_circle {
-  union{
+  union {
     struct EnuCoor_f center_f;
     struct EnuCoor_i center_i;
   } center;
@@ -68,12 +68,12 @@ struct _mission_circle {
 };
 
 struct _mission_segment {
-  union{
+  union {
     struct EnuCoor_f from_f;
     struct EnuCoor_i from_i;
   } from;
 
-  union{
+  union {
     struct EnuCoor_f to_f;
     struct EnuCoor_i to_i;
   } to;
@@ -81,7 +81,7 @@ struct _mission_segment {
 
 #define MISSION_PATH_NB 5
 struct _mission_path {
-  union{
+  union {
     struct EnuCoor_f path_f[MISSION_PATH_NB];
     struct EnuCoor_i path_i[MISSION_PATH_NB];
   } path;
@@ -127,18 +127,18 @@ extern void mission_init(void);
  * @param element mission element structure
  * @return return TRUE if insertion is succesful, FALSE otherwise
  */
-extern bool_t mission_insert(enum MissionInsertMode insert, struct _mission_element * element);
+extern bool_t mission_insert(enum MissionInsertMode insert, struct _mission_element *element);
 
 /** Convert mission element's points format if needed
  * @param el pointer to the mission element
  * @return return TRUE if conversion is succesful, FALSE otherwise
  */
-extern bool_t mission_element_convert(struct _mission_element * el);
+extern bool_t mission_element_convert(struct _mission_element *el);
 
 /** Get current mission element
  * @return return a pointer to the next mission element or NULL if no more elements
  */
-extern struct _mission_element * mission_get(void);
+extern struct _mission_element *mission_get(void);
 
 /** Get the ENU component of LLA mission point
  * This function is firmware specific.

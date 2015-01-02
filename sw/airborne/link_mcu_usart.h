@@ -42,10 +42,10 @@ extern struct link_mcu_msg link_mcu_from_fbw_msg;
 
 extern bool_t link_mcu_received;
 
-extern void link_mcu_send( void );
-extern void link_mcu_init( void );
-extern void link_mcu_event_task( void );
-extern void link_mcu_periodic_task( void );
+extern void link_mcu_send(void);
+extern void link_mcu_init(void);
+extern void link_mcu_event_task(void);
+extern void link_mcu_periodic_task(void);
 
 
 #endif /* LINK_MCU_USART_H */

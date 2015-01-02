@@ -4,7 +4,7 @@
   <doc>
     <description></description>
   </doc>
-  <depend require="trig_test.xml"/>
+  <depends>trig_test.xml</depends>
   <header>
     <file name="windturbine.h"/>
   </header>

@@ -101,8 +101,8 @@ object (self)
     (gauge_da#misc#set_size_request ~width () : unit)
 end
 
-
-class vgauge = fun ?(color="green") ?(history_len=50) gauge_da v_min v_max ->
+(* since tcl8.6 "green" refers to "darkgreen" and the former "green" is now "lime", but that is not available in older versions, so hardcode the color to #00ff00 *)
+class vgauge = fun ?(color="#00ff00") ?(history_len=50) gauge_da v_min v_max ->
 object (self)
   inherit gauge gauge_da
   val history = Array.create history_len 0
@@ -172,7 +172,7 @@ object (self)
       (new GDraw.drawable gauge_da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
 end
 
-class hgauge = fun ?(color="green") gauge_da v_min v_max ->
+class hgauge = fun ?(color="#00ff00") gauge_da v_min v_max ->
 object (self)
   inherit gauge gauge_da
   method set = fun ?(background="orange") value string ->

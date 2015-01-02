@@ -142,5 +142,6 @@ void electrical_periodic(void)
   /* electrical.current y = ( b^n - (b* x/a)^n )^1/n
    * a=1, n = electrical_priv.nonlin_factor
    */
-  electrical.current = b - pow((pow(b, electrical_priv.nonlin_factor) - pow((b * x), electrical_priv.nonlin_factor)), (1. / electrical_priv.nonlin_factor));
+  electrical.current = b - pow((pow(b, electrical_priv.nonlin_factor) - pow((b * x), electrical_priv.nonlin_factor)),
+                               (1. / electrical_priv.nonlin_factor));
 }

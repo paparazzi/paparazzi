@@ -34,7 +34,7 @@
       <define name="SEND_MS" value="TRU|FALSE" description="Send data over telemetry (PAYLOAD_FLOAT message, scaled PTU data)"/>
     </section>
   </doc>
-  <depend require="pwm_meas"/>
+  <depends>pwm_meas</depends>
   <header>
     <file name="meteo_stick.h"/>
   </header>

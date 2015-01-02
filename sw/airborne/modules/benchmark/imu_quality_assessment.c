@@ -28,32 +28,33 @@
 struct imu_quality_assessment_data_struct imu_quality_assessment_data;
 
 
-void imu_quality_assessment_init(void) {
+void imu_quality_assessment_init(void)
+{
 }
 
 #define IMU_QUALITY_ASSESSMENT_FILTER_ORDER    2
 
 
 #define PEAK_TRACKER(_Value, _Peak) {  \
-  if (  (_Value) > (_Peak)  )          \
-    _Peak = _Value;                    \
-  else if ( -(_Value) > (_Peak) )      \
-    _Peak = -(_Value);                 \
-}
+    if (  (_Value) > (_Peak)  )          \
+      _Peak = _Value;                    \
+    else if ( -(_Value) > (_Peak) )      \
+      _Peak = -(_Value);                 \
+  }
 
 
 void imu_quality_assessment_periodic(void)
 {
-  static int32_t lx[IMU_QUALITY_ASSESSMENT_FILTER_ORDER+1];
-  static int32_t fx[IMU_QUALITY_ASSESSMENT_FILTER_ORDER+1];
-  const int32_t A[IMU_QUALITY_ASSESSMENT_FILTER_ORDER+1] = {16384, -25576, 10508};
-  const int32_t B[IMU_QUALITY_ASSESSMENT_FILTER_ORDER+1] = {13117, -26234, 13117};
+  static int32_t lx[IMU_QUALITY_ASSESSMENT_FILTER_ORDER + 1];
+  static int32_t fx[IMU_QUALITY_ASSESSMENT_FILTER_ORDER + 1];
+  const int32_t A[IMU_QUALITY_ASSESSMENT_FILTER_ORDER + 1] = {16384, -25576, 10508};
+  const int32_t B[IMU_QUALITY_ASSESSMENT_FILTER_ORDER + 1] = {13117, -26234, 13117};
 
   // Peak tracking
 
-  PEAK_TRACKER( imu.accel.x, imu_quality_assessment_data.q_ax);
-  PEAK_TRACKER( imu.accel.y, imu_quality_assessment_data.q_ay);
-  PEAK_TRACKER( imu.accel.z, imu_quality_assessment_data.q_az);
+  PEAK_TRACKER(imu.accel.x, imu_quality_assessment_data.q_ax);
+  PEAK_TRACKER(imu.accel.y, imu_quality_assessment_data.q_ay);
+  PEAK_TRACKER(imu.accel.z, imu_quality_assessment_data.q_az);
 
   // High frequency high-pass filter
 
@@ -70,8 +71,8 @@ void imu_quality_assessment_periodic(void)
   fx[0] = B[0] * lx[0] + B[1] * lx[1] + B[2] * lx[2] - A[1] * fx[1] - A[2] * fx[2];
   fx[0] = fx[0] >> 14;
 
-  int32_t filt_x = ((fx[0])*IMU_ACCEL_X_SENS_NUM)/IMU_ACCEL_X_SENS_DEN;
-  PEAK_TRACKER( filt_x, imu_quality_assessment_data.q);
+  int32_t filt_x = ((fx[0]) * IMU_ACCEL_X_SENS_NUM) / IMU_ACCEL_X_SENS_DEN;
+  PEAK_TRACKER(filt_x, imu_quality_assessment_data.q);
 }
 
 

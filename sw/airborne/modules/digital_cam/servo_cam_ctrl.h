@@ -58,8 +58,8 @@ static inline void servo_cam_ctrl_init(void)
   dc_timer = 0;
 }
 
-#define DC_PUSH(X) 	ap_state->commands[X] = -MAX_PPRZ;
-#define DC_RELEASE(X) 	ap_state->commands[X] =  MAX_PPRZ;
+#define DC_PUSH(X)  ap_state->commands[X] = -MAX_PPRZ;
+#define DC_RELEASE(X)   ap_state->commands[X] =  MAX_PPRZ;
 
 #ifndef DC_SHUTTER_DELAY
 #define DC_SHUTTER_DELAY 2  /* 4Hz -> 0.5s */
@@ -71,10 +71,10 @@ static inline void servo_cam_ctrl_init(void)
 
 
 /* 4Hz Periodic */
-static inline void servo_cam_ctrl_periodic( void )
+static inline void servo_cam_ctrl_periodic(void)
 {
 #ifdef DC_SHOOT_ON_BUTTON_RELEASE
-  if (dc_timer==1) {
+  if (dc_timer == 1) {
     dc_send_shot_position();
   }
 #endif

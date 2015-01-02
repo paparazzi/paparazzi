@@ -42,14 +42,17 @@ struct   i2c_transaction geiger_trans;
 uint32_t count_geiger_1, count_geiger_2;
 uint16_t volt_geiger;
 
-void geiger_counter_init( void ) {
+void geiger_counter_init(void)
+{
 }
 
-void geiger_counter_periodic( void ) {
+void geiger_counter_periodic(void)
+{
   i2c_receive(&GEIGER_CNT_DEV, &geiger_trans, GEIGER_CNT_I2C_ADDR, 10);
 }
 
-void geiger_counter_event( void ) {
+void geiger_counter_event(void)
+{
   if (geiger_trans.status == I2CTransSuccess) {
     count_geiger_1  = (geiger_trans.buf[3] << 24) |
                       (geiger_trans.buf[2] << 16) |
@@ -66,7 +69,7 @@ void geiger_counter_event( void ) {
     if (volt_geiger & 0x8000) {
       volt_geiger &= 0x7FFF;
       DOWNLINK_SEND_GEIGER_COUNTER(DefaultChannel, DefaultDevice,
-          &count_geiger_1, &count_geiger_2, &volt_geiger);
+                                   &count_geiger_1, &count_geiger_2, &volt_geiger);
     }
   }
 }

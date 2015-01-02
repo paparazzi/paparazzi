@@ -72,10 +72,11 @@ struct ImuHbmini {
 extern struct ImuHbmini imu_hbmini;
 
 /* Own Extra Functions */
-extern void imu_hbmini_event( void );
-extern void imu_hbmini_downlink_raw( void );
+extern void imu_hbmini_event(void);
+extern void imu_hbmini_downlink_raw(void);
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+{
   imu_hbmini_event();
   if (imu_hbmini.gyr_valid) {
     imu_hbmini.gyr_valid = FALSE;

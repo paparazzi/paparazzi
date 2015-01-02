@@ -34,7 +34,8 @@ bool_t benchm_go;
 
 
 
-void flight_benchmark_init( void ) {
+void flight_benchmark_init(void)
+{
   SquareSumErr_airspeed = 0;
   SquareSumErr_altitude = 0;
   SquareSumErr_position = 0;
@@ -45,76 +46,79 @@ void flight_benchmark_init( void ) {
   benchm_go = 0;
 }
 
-void flight_benchmark_periodic( void ) {
+void flight_benchmark_periodic(void)
+{
   float Err_airspeed = 0;
   float Err_altitude = 0;
   float Err_position = 0;
 
-  if (benchm_reset){
+  if (benchm_reset) {
     flight_benchmark_reset();
     benchm_reset = 0;
   }
 
-  if (benchm_go){
-  #if USE_AIRSPEED && defined(BENCHMARK_AIRSPEED)
+  if (benchm_go) {
+#if USE_AIRSPEED && defined(BENCHMARK_AIRSPEED)
     Err_airspeed = fabs(*stateGetAirspeed_f() - v_ctl_auto_airspeed_setpoint);
-    if (Err_airspeed>ToleranceAispeed){
-      Err_airspeed = Err_airspeed-ToleranceAispeed;
+    if (Err_airspeed > ToleranceAispeed) {
+      Err_airspeed = Err_airspeed - ToleranceAispeed;
       SquareSumErr_airspeed += (Err_airspeed * Err_airspeed);
     }
-  #endif
+#endif
 
-  #ifdef BENCHMARK_ALTITUDE
+#ifdef BENCHMARK_ALTITUDE
     Err_altitude = fabs(stateGetPositionUtm_f()->alt - v_ctl_altitude_setpoint);
-    if (Err_altitude>ToleranceAltitude){
-      Err_altitude = Err_altitude-ToleranceAltitude;
+    if (Err_altitude > ToleranceAltitude) {
+      Err_altitude = Err_altitude - ToleranceAltitude;
       SquareSumErr_altitude += (Err_altitude * Err_altitude);
     }
-  #endif
+#endif
 
-  #ifdef BENCHMARK_POSITION
+#ifdef BENCHMARK_POSITION
 
-  //---------------This part is a waste of memory and calculation power -  but it works - feel free to optimize it ;-) -----------------
+    //---------------This part is a waste of memory and calculation power -  but it works - feel free to optimize it ;-) -----------------
 
-  // 	err_temp = waypoints[target].x - stateGetPositionEnu_f()->x;
+    //  err_temp = waypoints[target].x - stateGetPositionEnu_f()->x;
     float deltaPlaneX = 0;
     float deltaPlaneY = 0;
     float Err_position_segment = 0;
     float Err_position_circle = 0;
 
-// 		if (nav_in_segment){
-      float deltaX = nav_segment_x_2 - nav_segment_x_1;
-      float deltaY = nav_segment_y_2 - nav_segment_y_1;
-      float anglePath = atan2(deltaX,deltaY);
-      deltaPlaneX = nav_segment_x_2 - stateGetPositionEnu_f()->x;
-      deltaPlaneY = nav_segment_y_2 - stateGetPositionEnu_f()->y;
-      float anglePlane = atan2(deltaPlaneX,deltaPlaneY);
-      float angleDiff = fabs(anglePlane - anglePath);
-      Err_position_segment = fabs(sin(angleDiff)*sqrt(deltaPlaneX*deltaPlaneX+deltaPlaneY*deltaPlaneY));
-// 		}
+//    if (nav_in_segment){
+    float deltaX = nav_segment_x_2 - nav_segment_x_1;
+    float deltaY = nav_segment_y_2 - nav_segment_y_1;
+    float anglePath = atan2(deltaX, deltaY);
+    deltaPlaneX = nav_segment_x_2 - stateGetPositionEnu_f()->x;
+    deltaPlaneY = nav_segment_y_2 - stateGetPositionEnu_f()->y;
+    float anglePlane = atan2(deltaPlaneX, deltaPlaneY);
+    float angleDiff = fabs(anglePlane - anglePath);
+    Err_position_segment = fabs(sin(angleDiff) * sqrt(deltaPlaneX * deltaPlaneX + deltaPlaneY * deltaPlaneY));
+//    }
 
-// 		if (nav_in_circle){
-      deltaPlaneX = nav_circle_x - stateGetPositionEnu_f()->x;
-      deltaPlaneY = nav_circle_y - stateGetPositionEnu_f()->y;
-      Err_position_circle = fabs(sqrt(deltaPlaneX*deltaPlaneX+deltaPlaneY*deltaPlaneY)-nav_circle_radius);
-// 		}
-    if (Err_position_circle < Err_position_segment){
+//    if (nav_in_circle){
+    deltaPlaneX = nav_circle_x - stateGetPositionEnu_f()->x;
+    deltaPlaneY = nav_circle_y - stateGetPositionEnu_f()->y;
+    Err_position_circle = fabs(sqrt(deltaPlaneX * deltaPlaneX + deltaPlaneY * deltaPlaneY) - nav_circle_radius);
+//    }
+    if (Err_position_circle < Err_position_segment) {
       Err_position = Err_position_circle;
-    }
-    else
+    } else {
       Err_position = Err_position_segment;
+    }
 
-    if (Err_position>TolerancePosition){
+    if (Err_position > TolerancePosition) {
       SquareSumErr_position += (Err_position * Err_position);
     }
-  #endif
+#endif
   }
 
-  DOWNLINK_SEND_FLIGHT_BENCHMARK(DefaultChannel, DefaultDevice, &SquareSumErr_airspeed, &SquareSumErr_altitude, &SquareSumErr_position, &Err_airspeed, &Err_altitude, &Err_position)
+  DOWNLINK_SEND_FLIGHT_BENCHMARK(DefaultChannel, DefaultDevice, &SquareSumErr_airspeed, &SquareSumErr_altitude,
+                                 &SquareSumErr_position, &Err_airspeed, &Err_altitude, &Err_position)
 
 }
 
-void flight_benchmark_reset( void ) {
+void flight_benchmark_reset(void)
+{
   SquareSumErr_airspeed = 0;
   SquareSumErr_altitude = 0;
   SquareSumErr_position = 0;

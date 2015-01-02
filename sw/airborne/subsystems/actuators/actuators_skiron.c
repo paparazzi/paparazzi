@@ -34,7 +34,8 @@ PRINT_CONFIG_VAR(ACTUATORS_SKIRON_I2C_DEV)
 struct ActuatorsSkiron actuators_skiron;
 
 
-void actuators_skiron_init(void) {
+void actuators_skiron_init(void)
+{
 
   actuators_skiron.trans.type = I2CTransTx;
   actuators_skiron.trans.len_w = SERVOS_SKIRON_NB;
@@ -43,16 +44,17 @@ void actuators_skiron_init(void) {
 
 }
 
-void actuators_skiron_set(void) {
+void actuators_skiron_set(void)
+{
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
-    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
-    else actuators_delay_done = TRUE;
+    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) { return; }
+    else { actuators_delay_done = TRUE; }
   }
 #endif
 
 #ifdef KILL_MOTORS
-  for (uint8_t i=0; i<ACTUATORS_SKIRON_NB; i++) {
+  for (uint8_t i = 0; i < ACTUATORS_SKIRON_NB; i++) {
     actuators_skiron.trans.buf[i] = 0;
   }
 #endif

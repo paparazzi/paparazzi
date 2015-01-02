@@ -4,7 +4,7 @@ extern int fd;
 
 #include "std.h"
 
-int serial_init(char* port_name);
+int serial_init(char *port_name);
 
 static inline int ttyUSB0ChAvailable(void)
 {

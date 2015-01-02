@@ -26,9 +26,10 @@ uint16_t adc_generic_val2;
 
 uint8_t ac_id;
 
-void update_bat(double bat) {
-  electrical.vsupply = (int) (bat * 10.);
+void update_bat(double bat)
+{
+  electrical.vsupply = (int)(bat * 10.);
 }
 
-void adc_generic_init( void ) {}
-void adc_generic_periodic( void ) {}
+void adc_generic_init(void) {}
+void adc_generic_periodic(void) {}

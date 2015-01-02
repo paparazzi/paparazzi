@@ -35,7 +35,8 @@ struct ImuBooz2 imu_b2;
 
 PRINT_CONFIG_VAR(IMU_B2_MAG_TYPE)
 
-void imu_impl_init(void) {
+void imu_impl_init(void)
+{
 
   max1168_init();
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
@@ -51,7 +52,8 @@ void imu_impl_init(void) {
 }
 
 #include "led.h"
-void imu_periodic(void) {
+void imu_periodic(void)
+{
 
   // read adc
   Max1168Periodic();
@@ -67,7 +69,7 @@ void imu_periodic(void) {
 }
 
 #if defined IMU_MAG_45_HACK
-void imu_scale_mag(struct Imu* _imu)
+void imu_scale_mag(struct Imu *_imu)
 {
   int32_t msx = ((_imu->mag_unscaled.x - _imu->mag_neutral.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN;
   int32_t msy = ((_imu->mag_unscaled.y - _imu->mag_neutral.y) * IMU_MAG_Y_SIGN * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN;
@@ -76,5 +78,5 @@ void imu_scale_mag(struct Imu* _imu)
   _imu->mag.z = ((_imu->mag_unscaled.z - _imu->mag_neutral.z) * IMU_MAG_Z_SIGN * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN;
 }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_NONE
-void imu_scale_mag(struct Imu* _imu __attribute__((unused))) {}
+void imu_scale_mag(struct Imu *_imu __attribute__((unused))) {}
 #endif

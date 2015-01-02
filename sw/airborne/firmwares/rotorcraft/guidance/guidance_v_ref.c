@@ -84,26 +84,28 @@ int64_t gv_z_ref;
 #define GV_REF_INV_THAU_FRAC 16
 #define GV_REF_INV_THAU  BFP_OF_REAL((1./0.25), GV_REF_INV_THAU_FRAC)
 
-void gv_set_ref(int32_t alt, int32_t speed, int32_t accel) {
-  int64_t new_z = ((int64_t)alt)<<(GV_Z_REF_FRAC - INT32_POS_FRAC);
+void gv_set_ref(int32_t alt, int32_t speed, int32_t accel)
+{
+  int64_t new_z = ((int64_t)alt) << (GV_Z_REF_FRAC - INT32_POS_FRAC);
   gv_z_ref   = new_z;
-  gv_zd_ref  = speed>>(INT32_SPEED_FRAC - GV_ZD_REF_FRAC);
-  gv_zdd_ref = accel>>(INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
+  gv_zd_ref  = speed >> (INT32_SPEED_FRAC - GV_ZD_REF_FRAC);
+  gv_zdd_ref = accel >> (INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
 }
 
-void gv_update_ref_from_z_sp(int32_t z_sp) {
+void gv_update_ref_from_z_sp(int32_t z_sp)
+{
 
   gv_z_ref  += gv_zd_ref;
   gv_zd_ref += gv_zdd_ref;
 
   // compute the "speed part" of zdd = -2*zeta*omega*zd -omega^2(z_sp - z)
-  int32_t zd_zdd_res = gv_zd_ref>>(GV_ZD_REF_FRAC - GV_ZDD_REF_FRAC);
-  int32_t zdd_speed = ((int32_t)(-2*GV_ZETA_OMEGA)*zd_zdd_res)>>(GV_ZETA_OMEGA_FRAC);
+  int32_t zd_zdd_res = gv_zd_ref >> (GV_ZD_REF_FRAC - GV_ZDD_REF_FRAC);
+  int32_t zdd_speed = ((int32_t)(-2 * GV_ZETA_OMEGA) * zd_zdd_res) >> (GV_ZETA_OMEGA_FRAC);
   // compute z error in z_sp resolution
-  int32_t z_err_sp = z_sp - (int32_t)(gv_z_ref>>(GV_Z_REF_FRAC-INT32_POS_FRAC));
+  int32_t z_err_sp = z_sp - (int32_t)(gv_z_ref >> (GV_Z_REF_FRAC - INT32_POS_FRAC));
   // convert to accel resolution
-  int32_t z_err_accel = z_err_sp>>(INT32_POS_FRAC-GV_ZDD_REF_FRAC);
-  int32_t zdd_pos = ((int32_t)(GV_OMEGA_2)*z_err_accel)>>GV_OMEGA_2_FRAC;
+  int32_t z_err_accel = z_err_sp >> (INT32_POS_FRAC - GV_ZDD_REF_FRAC);
+  int32_t zdd_pos = ((int32_t)(GV_OMEGA_2) * z_err_accel) >> GV_OMEGA_2_FRAC;
   gv_zdd_ref = zdd_speed + zdd_pos;
 
   /* Saturate accelerations */
@@ -112,18 +114,20 @@ void gv_update_ref_from_z_sp(int32_t z_sp) {
   /* Saturate speed and adjust acceleration accordingly */
   if (gv_zd_ref <= GV_MIN_ZD) {
     gv_zd_ref = GV_MIN_ZD;
-    if (gv_zdd_ref < 0)
+    if (gv_zdd_ref < 0) {
       gv_zdd_ref = 0;
-  }
-  else if (gv_zd_ref >= GV_MAX_ZD) {
+    }
+  } else if (gv_zd_ref >= GV_MAX_ZD) {
     gv_zd_ref = GV_MAX_ZD;
-    if (gv_zdd_ref > 0)
+    if (gv_zdd_ref > 0) {
       gv_zdd_ref = 0;
+    }
   }
 }
 
 
-void gv_update_ref_from_zd_sp(int32_t zd_sp, int32_t z_pos) {
+void gv_update_ref_from_zd_sp(int32_t zd_sp, int32_t z_pos)
+{
 
   gv_z_ref  += gv_zd_ref;
   gv_zd_ref += gv_zdd_ref;
@@ -132,9 +136,9 @@ void gv_update_ref_from_zd_sp(int32_t zd_sp, int32_t z_pos) {
   int64_t cur_z = ((int64_t)z_pos) << (GV_Z_REF_FRAC - INT32_POS_FRAC);
   Bound(gv_z_ref, cur_z - GV_MAX_Z_DIFF, cur_z + GV_MAX_Z_DIFF);
 
-  int32_t zd_err = gv_zd_ref - (zd_sp>>(INT32_SPEED_FRAC - GV_ZD_REF_FRAC));
-  int32_t zd_err_zdd_res = zd_err>>(GV_ZD_REF_FRAC-GV_ZDD_REF_FRAC);
-  gv_zdd_ref = (-(int32_t)GV_REF_INV_THAU * zd_err_zdd_res)>>GV_REF_INV_THAU_FRAC;
+  int32_t zd_err = gv_zd_ref - (zd_sp >> (INT32_SPEED_FRAC - GV_ZD_REF_FRAC));
+  int32_t zd_err_zdd_res = zd_err >> (GV_ZD_REF_FRAC - GV_ZDD_REF_FRAC);
+  gv_zdd_ref = (-(int32_t)GV_REF_INV_THAU * zd_err_zdd_res) >> GV_REF_INV_THAU_FRAC;
 
   /* Saturate accelerations */
   Bound(gv_zdd_ref, GV_MIN_ZDD, GV_MAX_ZDD);
@@ -142,13 +146,14 @@ void gv_update_ref_from_zd_sp(int32_t zd_sp, int32_t z_pos) {
   /* Saturate speed and adjust acceleration accordingly */
   if (gv_zd_ref <= GV_MIN_ZD) {
     gv_zd_ref = GV_MIN_ZD;
-    if (gv_zdd_ref < 0)
+    if (gv_zdd_ref < 0) {
       gv_zdd_ref = 0;
-  }
-  else if (gv_zd_ref >= GV_MAX_ZD) {
+    }
+  } else if (gv_zd_ref >= GV_MAX_ZD) {
     gv_zd_ref = GV_MAX_ZD;
-    if (gv_zdd_ref > 0)
+    if (gv_zdd_ref > 0) {
       gv_zdd_ref = 0;
+    }
   }
 }
 

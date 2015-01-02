@@ -47,12 +47,13 @@ float max_dist_from_home = MAX_DIST_FROM_HOME;
 /** Computes squared distance to the HOME waypoint.
  * Updates #dist2_to_home and potentially sets #too_far_from_home
  */
-void compute_dist2_to_home(void) {
-  struct EnuCoor_f* pos = stateGetPositionEnu_f();
+void compute_dist2_to_home(void)
+{
+  struct EnuCoor_f *pos = stateGetPositionEnu_f();
   float ph_x = waypoints[WP_HOME].x - pos->x;
   float ph_y = waypoints[WP_HOME].y - pos->y;
-  dist2_to_home = ph_x*ph_x + ph_y *ph_y;
-  too_far_from_home = dist2_to_home > (MAX_DIST_FROM_HOME*MAX_DIST_FROM_HOME);
+  dist2_to_home = ph_x * ph_x + ph_y * ph_y;
+  too_far_from_home = dist2_to_home > (MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME);
 #if defined InAirspace
   too_far_from_home = too_far_from_home || !(InAirspace(pos_x, pos_y));
 #endif
@@ -62,7 +63,8 @@ void compute_dist2_to_home(void) {
 static float previous_ground_alt;
 
 /** Reset the UTM zone to current GPS fix */
-unit_t nav_reset_utm_zone(void) {
+unit_t nav_reset_utm_zone(void)
+{
 
   struct UtmCoor_f utm0;
   utm0.zone = nav_utm_zone0;
@@ -80,7 +82,8 @@ unit_t nav_reset_utm_zone(void) {
 }
 
 /** Reset the geographic reference to the current GPS fix */
-unit_t nav_reset_reference(void) {
+unit_t nav_reset_reference(void)
+{
   /* realign INS */
   ins_reset_local_origin();
 
@@ -97,7 +100,8 @@ unit_t nav_reset_reference(void) {
 }
 
 /** Reset the altitude reference to the current GPS alt */
-unit_t nav_reset_alt(void) {
+unit_t nav_reset_alt(void)
+{
   ins_reset_altitude_ref();
 
   /* Ground alt */
@@ -108,15 +112,17 @@ unit_t nav_reset_alt(void) {
 }
 
 /** Shift altitude of the waypoint according to a new ground altitude */
-unit_t nav_update_waypoints_alt(void) {
+unit_t nav_update_waypoints_alt(void)
+{
   uint8_t i;
-  for(i = 0; i < NB_WAYPOINT; i++) {
+  for (i = 0; i < NB_WAYPOINT; i++) {
     waypoints[i].a += ground_alt - previous_ground_alt;
   }
   return 0;
 }
 
-void common_nav_periodic_task_4Hz() {
+void common_nav_periodic_task_4Hz()
+{
   RunOnceEvery(4, { stage_time++;  block_time++; });
 }
 
@@ -126,7 +132,8 @@ void common_nav_periodic_task_4Hz() {
  * @param[in] uy    UTM y (north) coordinate
  * @param[in] alt   Altitude above MSL.
  */
-void nav_move_waypoint(uint8_t wp_id, float ux, float uy, float alt) {
+void nav_move_waypoint(uint8_t wp_id, float ux, float uy, float alt)
+{
   if (wp_id < nb_waypoint) {
     float dx, dy;
     dx = ux - nav_utm_east0 - waypoints[WP_HOME].x;

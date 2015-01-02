@@ -35,10 +35,12 @@
 
 uint32_t timestamp = 0; ///< Timestamp to be incremented during operation
 
-void init_openlog(void) {
+void init_openlog(void)
+{
 }
 
-void periodic_2Hz_openlog(void) 	{
-  timestamp=timestamp+500;
+void periodic_2Hz_openlog(void)
+{
+  timestamp = timestamp + 500;
   DOWNLINK_SEND_TIMESTAMP(DefaultChannel, DefaultDevice, &timestamp);
 }

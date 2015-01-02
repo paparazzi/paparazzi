@@ -11,10 +11,11 @@ int8_t nav_poles_land = 1;
     waypoints wp1 and wp2 */
 bool nav_poles_init(uint8_t wp1, uint8_t wp2,
                     uint8_t wp1c, uint8_t wp2c,
-        float radius) {
+                    float radius)
+{
   float x = WaypointX(wp2) - WaypointX(wp1);
   float y = WaypointY(wp2) - WaypointY(wp1);
-  float d = sqrt(x*x+y*y);
+  float d = sqrt(x * x + y * y);
 
   /* Unit vector from wp1 to wp2 */
   x /= d;

@@ -25,9 +25,10 @@ static void main_periodic(int);
 static void main_send_to_stm(void);
 
 static void on_datalink_event(int fd, short event, void *arg);
-static struct FmsNetwork* network;
+static struct FmsNetwork *network;
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
   /* Initalize event library */
   event_init();
@@ -54,7 +55,8 @@ int main(int argc, char** argv) {
 }
 
 
-static void main_periodic(int my_sig_num) {
+static void main_periodic(int my_sig_num)
+{
 
   DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
 
@@ -65,7 +67,8 @@ static void main_periodic(int my_sig_num) {
 }
 
 
-static void main_send_to_stm(void) {
+static void main_send_to_stm(void)
+{
 
   struct OVERO_LINK_MSG_UP   msg_in;
   struct OVERO_LINK_MSG_DOWN msg_out;
@@ -78,7 +81,8 @@ static void main_send_to_stm(void) {
 }
 
 
-static void on_datalink_event(int fd, short event, void *arg) {
+static void on_datalink_event(int fd, short event, void *arg)
+{
   char buf[255];
   int bytes_read;
   bytes_read = read(fd, buf, sizeof(buf) - 1);

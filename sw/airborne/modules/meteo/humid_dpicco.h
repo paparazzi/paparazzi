@@ -41,9 +41,9 @@
 
 extern float dpicco_temp;
 
-extern void dpicco_init( void );
-extern void dpicco_periodic( void );
-extern void dpicco_event( void );
+extern void dpicco_init(void);
+extern void dpicco_periodic(void);
+extern void dpicco_event(void);
 
 
 #endif /* DPICCO_H */

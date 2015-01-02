@@ -51,45 +51,50 @@ struct udp_transport {
 #define GOT_PAYLOAD 3
 #define GOT_CRC1 4
 
-static inline void parse_udp_dl( struct udp_transport *tp, uint8_t c ) {
+static inline void parse_udp_dl(struct udp_transport *tp, uint8_t c)
+{
 
   switch (tp->udp_dl_status) {
-  case UNINIT:
-    if (c == STX_UDP_RX)
+    case UNINIT:
+      if (c == STX_UDP_RX) {
+        tp->udp_dl_status++;
+      }
+      break;
+    case GOT_STX:
+      if (tp->udp_dl_msg_received) {
+        tp->udp_dl_ovrn++;
+        goto error;
+      }
+      tp->udp_dl_payload_len = c - 4; /* Counting STX, LENGTH and CRC1 and CRC2 */
+      tp->_ck_a = tp->_ck_b = c;
       tp->udp_dl_status++;
-    break;
-  case GOT_STX:
-    if (tp->udp_dl_msg_received) {
-      tp->udp_dl_ovrn++;
-      goto error;
-    }
-    tp->udp_dl_payload_len = c-4; /* Counting STX, LENGTH and CRC1 and CRC2 */
-    tp->_ck_a = tp->_ck_b = c;
-    tp->udp_dl_status++;
-    tp->payload_idx = 0;
-    break;
-  case GOT_LENGTH:
-    tp->udp_dl_payload[tp->payload_idx] = c;
-    tp->_ck_a += c; tp->_ck_b += tp->_ck_a;
-    tp->payload_idx++;
-    if (tp->payload_idx == tp->udp_dl_payload_len)
+      tp->payload_idx = 0;
+      break;
+    case GOT_LENGTH:
+      tp->udp_dl_payload[tp->payload_idx] = c;
+      tp->_ck_a += c; tp->_ck_b += tp->_ck_a;
+      tp->payload_idx++;
+      if (tp->payload_idx == tp->udp_dl_payload_len) {
+        tp->udp_dl_status++;
+      }
+      break;
+    case GOT_PAYLOAD:
+      if (c != tp->_ck_a) {
+        goto error;
+      }
       tp->udp_dl_status++;
-    break;
-  case GOT_PAYLOAD:
-    if (c != tp->_ck_a)
-      goto error;
-    tp->udp_dl_status++;
-    break;
-  case GOT_CRC1:
-    if (c != tp->_ck_b)
-      goto error;
-    tp->udp_dl_msg_received = TRUE;
-    goto restart;
+      break;
+    case GOT_CRC1:
+      if (c != tp->_ck_b) {
+        goto error;
+      }
+      tp->udp_dl_msg_received = TRUE;
+      goto restart;
   }
   return;
- error:
+error:
   tp->udp_dl_nb_err++;
- restart:
+restart:
   tp->udp_dl_status = UNINIT;
   return;
 }

@@ -54,8 +54,9 @@ struct GpsSkytraq gps_skytraq;
 #define SKYTRAQ_SYNC4 0x0A
 
 
-static inline uint16_t bswap16(uint16_t a) {
-  return (a<<8)|(a>>8);
+static inline uint16_t bswap16(uint16_t a)
+{
+  return (a << 8) | (a >> 8);
 }
 
 #define SKYTRAQ_NAVIGATION_DATA_FixMode(_payload) (uint8_t) (*((uint8_t*)_payload+2-2))
@@ -89,14 +90,16 @@ static inline uint16_t bswap16(uint16_t a) {
 
 static int distance_too_great(struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ecef_pos);
 
-void gps_impl_init(void) {
+void gps_impl_init(void)
+{
 
   gps_skytraq.status = UNINIT;
 
 }
 
 
-void gps_skytraq_read_message(void) {
+void gps_skytraq_read_message(void)
+{
 
   if (gps_skytraq.msg_id == SKYTRAQ_ID_NAVIGATION_DATA) {
     gps.ecef_pos.x  = SKYTRAQ_NAVIGATION_DATA_ECEFX(gps_skytraq.msg_buf);
@@ -107,13 +110,13 @@ void gps_skytraq_read_message(void) {
     gps.ecef_vel.z  = SKYTRAQ_NAVIGATION_DATA_ECEFVZ(gps_skytraq.msg_buf);
     gps.lla_pos.lat = SKYTRAQ_NAVIGATION_DATA_LAT(gps_skytraq.msg_buf);
     gps.lla_pos.lon = SKYTRAQ_NAVIGATION_DATA_LON(gps_skytraq.msg_buf);
-    gps.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(gps_skytraq.msg_buf)*10;
-    gps.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(gps_skytraq.msg_buf)*10;
+    gps.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(gps_skytraq.msg_buf) * 10;
+    gps.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(gps_skytraq.msg_buf) * 10;
     //   pacc;
     //   sacc;
     gps.pdop        = SKYTRAQ_NAVIGATION_DATA_PDOP(gps_skytraq.msg_buf);
     gps.num_sv      = SKYTRAQ_NAVIGATION_DATA_NumSV(gps_skytraq.msg_buf);
-    gps.tow         = SKYTRAQ_NAVIGATION_DATA_TOW(gps_skytraq.msg_buf)*10;
+    gps.tow         = SKYTRAQ_NAVIGATION_DATA_TOW(gps_skytraq.msg_buf) * 10;
 
     switch (SKYTRAQ_NAVIGATION_DATA_FixMode(gps_skytraq.msg_buf)) {
       case SKYTRAQ_FIX_3D_DGPS:
@@ -136,14 +139,14 @@ void gps_skytraq_read_message(void) {
     /* convert to utm */
     utm_of_lla_f(&utm_f, &lla_f);
     /* copy results of utm conversion */
-    gps.utm_pos.east = utm_f.east*100;
-    gps.utm_pos.north = utm_f.north*100;
+    gps.utm_pos.east = utm_f.east * 100;
+    gps.utm_pos.north = utm_f.north * 100;
     gps.utm_pos.alt = gps.lla_pos.alt;
     gps.utm_pos.zone = nav_utm_zone0;
 #endif
 
     if (gps.fix == GPS_FIX_3D) {
-      if ( distance_too_great(&gps_skytraq.ref_ltp.ecef, &gps.ecef_pos)) {
+      if (distance_too_great(&gps_skytraq.ref_ltp.ecef, &gps.ecef_pos)) {
         // just grab current ecef_pos as reference.
         ltp_def_from_ecef_i(&gps_skytraq.ref_ltp, &gps.ecef_pos);
       }
@@ -151,7 +154,7 @@ void gps_skytraq_read_message(void) {
       ned_of_ecef_vect_i(&gps.ned_vel, &gps_skytraq.ref_ltp, &gps.ecef_vel);
 
       // ground course in radians
-      gps.course = (atan2f( (float)gps.ned_vel.y, (float)gps.ned_vel.x )) * 1e7;
+      gps.course = (atan2f((float)gps.ned_vel.y, (float)gps.ned_vel.x)) * 1e7;
       // GT: gps.cacc = ... ? what should course accuracy be?
 
       // ground speed
@@ -166,8 +169,7 @@ void gps_skytraq_read_message(void) {
 #ifdef GPS_LED
     if (gps.fix == GPS_FIX_3D) {
       LED_ON(GPS_LED);
-    }
-    else {
+    } else {
       LED_TOGGLE(GPS_LED);
     }
 #endif
@@ -175,14 +177,16 @@ void gps_skytraq_read_message(void) {
 
 }
 
-void gps_skytraq_parse(uint8_t c) {
+void gps_skytraq_parse(uint8_t c)
+{
   if (gps_skytraq.status < GOT_PAYLOAD) {
     gps_skytraq.checksum ^= c;
   }
   switch (gps_skytraq.status) {
     case UNINIT:
-      if (c == SKYTRAQ_SYNC1)
+      if (c == SKYTRAQ_SYNC1) {
         gps_skytraq.status = GOT_SYNC1;
+      }
       break;
     case GOT_SYNC1:
       if (c != SKYTRAQ_SYNC2) {
@@ -192,7 +196,7 @@ void gps_skytraq_parse(uint8_t c) {
       gps_skytraq.status = GOT_SYNC2;
       break;
     case GOT_SYNC2:
-      gps_skytraq.len = c<<8;
+      gps_skytraq.len = c << 8;
       gps_skytraq.status = GOT_LEN1;
       break;
     case GOT_LEN1:
@@ -212,7 +216,7 @@ void gps_skytraq_parse(uint8_t c) {
     case GOT_ID:
       gps_skytraq.msg_buf[gps_skytraq.msg_idx] = c;
       gps_skytraq.msg_idx++;
-      if (gps_skytraq.msg_idx >= gps_skytraq.len-1) {
+      if (gps_skytraq.msg_idx >= gps_skytraq.len - 1) {
         gps_skytraq.status = GOT_PAYLOAD;
       }
       break;
@@ -238,14 +242,15 @@ void gps_skytraq_parse(uint8_t c) {
       goto error;
   }
   return;
- error:
+error:
   gps_skytraq.error_cnt++;
- restart:
+restart:
   gps_skytraq.status = UNINIT;
   return;
 }
 
-static int distance_too_great(struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ecef_pos) {
+static int distance_too_great(struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ecef_pos)
+{
   int32_t xdiff = abs(ecef_ref->x - ecef_pos->x);
   if (xdiff > MAX_DISTANCE) {
     return TRUE;

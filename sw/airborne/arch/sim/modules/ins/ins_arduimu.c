@@ -22,8 +22,9 @@ float throttle_slew;
 extern float sim_phi;
 extern float sim_theta;
 
-void ArduIMU_init( void ) {}
-void ArduIMU_periodic( void ) {
+void ArduIMU_init(void) {}
+void ArduIMU_periodic(void)
+{
   // Feed directly the estimator
   struct FloatEulers att = {
     sim_phi - ins_roll_neutral,
@@ -32,6 +33,6 @@ void ArduIMU_periodic( void ) {
   };
   stateSetNedToBodyEulers_f(&att);
 }
-void ArduIMU_periodicGPS( void ) {}
-void IMU_Daten_verarbeiten( void ) {}
+void ArduIMU_periodicGPS(void) {}
+void IMU_Daten_verarbeiten(void) {}
 

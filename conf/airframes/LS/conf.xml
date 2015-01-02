@@ -1,0 +1,24 @@
+<conf>
+  <aircraft
+   name="Altura"
+   ac_id="151"
+   airframe="airframes/LS/quadrotor_altura_lisa_m_2_0.xml"
+   radio="radios/spektrum.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/mavtec_outdoor_demo.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
+   gui_color="#00000000ffff"
+  />
+  <aircraft
+   name="MavTecLS"
+   ac_id="150"
+   airframe="airframes/LS/quadrotor_mavtec_lisa_m_2_0.xml"
+   radio="radios/spektrum.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/mavtec_outdoor_demo.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml"
+   settings_modules=""
+   gui_color="#ffff00000000"
+  />
+</conf>

@@ -38,9 +38,10 @@ static uint8_t buf_out[4];
 #define ADS8344Select()   GPIOB->BRR  = GPIO_Pin_12
 
 extern void dma1_c4_irq_handler(void);
-static void ADS8344_read_channel( void );
+static void ADS8344_read_channel(void);
 
-void imu_crista_arch_init(void) {
+void imu_crista_arch_init(void)
+{
 
   channel = 0;
   /* Enable SPI2 Periph clock -------------------------------------------------*/
@@ -87,7 +88,8 @@ void imu_crista_arch_init(void) {
 }
 
 
-void ADS8344_start( void ) {
+void ADS8344_start(void)
+{
 
   ADS8344Select();
   channel = 0;
@@ -95,7 +97,8 @@ void ADS8344_start( void ) {
 
 }
 
-static void ADS8344_read_channel( void ) {
+static void ADS8344_read_channel(void)
+{
 
   // control byte
   buf_out[0] = 1 << 7 | channel << 4 | SGL_DIF << 2 | POWER_MODE;
@@ -104,7 +107,7 @@ static void ADS8344_read_channel( void ) {
   /* SPI2_Rx_DMA_Channel configuration ------------------------------------*/
   DMA_DeInit(DMA1_Channel4);
   DMA_InitTypeDef DMA_initStructure_4 = {
-    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
+    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE + 0x0C),
     .DMA_MemoryBaseAddr = (uint32_t)buf_in,
     .DMA_DIR = DMA_DIR_PeripheralSRC,
     .DMA_BufferSize = 4,
@@ -121,7 +124,7 @@ static void ADS8344_read_channel( void ) {
   /* SPI2_Tx_DMA_Channel configuration ------------------------------------*/
   DMA_DeInit(DMA1_Channel5);
   DMA_InitTypeDef DMA_initStructure_5 = {
-    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
+    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE + 0x0C),
     .DMA_MemoryBaseAddr = (uint32_t)buf_out,
     .DMA_DIR = DMA_DIR_PeripheralDST,
     .DMA_BufferSize = 4,
@@ -151,7 +154,8 @@ static void ADS8344_read_channel( void ) {
 }
 
 
-void dma1_c4_irq_handler(void) {
+void dma1_c4_irq_handler(void)
+{
 
   ADS8344_values[channel] = (buf_in[1] << 8 | buf_in[2]) << 1 | buf_in[3] >> 7;
   channel++;
@@ -165,8 +169,7 @@ void dma1_c4_irq_handler(void) {
     /* Disable DMA1 Channel4 and 5 */
     DMA_Cmd(DMA1_Channel4, DISABLE);
     DMA_Cmd(DMA1_Channel5, DISABLE);
-  }
-  else {
+  } else {
     ADS8344_read_channel();
   }
 }

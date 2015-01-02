@@ -45,7 +45,7 @@
  *                                                                            *
  *****************************************************************************/
 
-void orientationCalcQuat_i(struct OrientationReps* orientation)
+void orientationCalcQuat_i(struct OrientationReps *orientation)
 {
   if (bit_is_set(orientation->status, ORREP_QUAT_I)) {
     return;
@@ -70,7 +70,7 @@ void orientationCalcQuat_i(struct OrientationReps* orientation)
   SetBit(orientation->status, ORREP_QUAT_I);
 }
 
-void orientationCalcRMat_i(struct OrientationReps* orientation)
+void orientationCalcRMat_i(struct OrientationReps *orientation)
 {
   if (bit_is_set(orientation->status, ORREP_RMAT_I)) {
     return;
@@ -95,7 +95,7 @@ void orientationCalcRMat_i(struct OrientationReps* orientation)
   SetBit(orientation->status, ORREP_RMAT_I);
 }
 
-void orientationCalcEulers_i(struct OrientationReps* orientation)
+void orientationCalcEulers_i(struct OrientationReps *orientation)
 {
   if (bit_is_set(orientation->status, ORREP_EULER_I)) {
     return;
@@ -120,7 +120,7 @@ void orientationCalcEulers_i(struct OrientationReps* orientation)
   SetBit(orientation->status, ORREP_EULER_I);
 }
 
-void orientationCalcQuat_f(struct OrientationReps* orientation)
+void orientationCalcQuat_f(struct OrientationReps *orientation)
 {
   if (bit_is_set(orientation->status, ORREP_QUAT_F)) {
     return;
@@ -145,7 +145,7 @@ void orientationCalcQuat_f(struct OrientationReps* orientation)
   SetBit(orientation->status, ORREP_QUAT_F);
 }
 
-void orientationCalcRMat_f(struct OrientationReps* orientation)
+void orientationCalcRMat_f(struct OrientationReps *orientation)
 {
   if (bit_is_set(orientation->status, ORREP_RMAT_F)) {
     return;
@@ -170,7 +170,7 @@ void orientationCalcRMat_f(struct OrientationReps* orientation)
   SetBit(orientation->status, ORREP_RMAT_F);
 }
 
-void orientationCalcEulers_f(struct OrientationReps* orientation)
+void orientationCalcEulers_f(struct OrientationReps *orientation)
 {
   if (bit_is_set(orientation->status, ORREP_EULER_F)) {
     return;

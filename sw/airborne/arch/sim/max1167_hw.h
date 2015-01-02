@@ -30,6 +30,6 @@
 #include "std.h"
 #include <matrix.h>
 
-extern void max1167_hw_feed_value(VEC* gyro, VEC* accel);
+extern void max1167_hw_feed_value(VEC *gyro, VEC *accel);
 
 #endif /* MAX1167_WH */

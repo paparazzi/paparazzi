@@ -298,7 +298,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
     | "DL_VALUE" ->
       let i = ivalue "index" in
       if i < max_nb_dl_setting_values then begin
-        a.dl_setting_values.(i) <- fvalue "value";
+        a.dl_setting_values.(i) <- Some (fvalue "value");
         a.nb_dl_setting_values <- max a.nb_dl_setting_values (i+1)
       end else
         failwith "Too much dl_setting values !!!"
@@ -350,5 +350,10 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         "resolve", Pprz.Int (ivalue "resolve")
       ] in
       Dl_Pprz.message_send "ground_dl" "TCAS_RESOLVE" vs
+    | "DATALINK_REPORT" ->
+      a.datalink_status.uplink_lost_time <- ivalue "uplink_lost_time";
+      a.datalink_status.uplink_msgs <- ivalue "uplink_nb_msgs";
+      a.datalink_status.downlink_rate <- ivalue "downlink_rate";
+      a.datalink_status.downlink_msgs <- ivalue "downlink_nb_msgs"
     | _ -> ()
 

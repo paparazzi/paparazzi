@@ -74,11 +74,13 @@ extern void mpu9250_spi_read(struct Mpu9250_Spi *mpu);
 extern void mpu9250_spi_event(struct Mpu9250_Spi *mpu);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void mpu9250_spi_periodic(struct Mpu9250_Spi *mpu) {
-  if (mpu->config.initialized)
+static inline void mpu9250_spi_periodic(struct Mpu9250_Spi *mpu)
+{
+  if (mpu->config.initialized) {
     mpu9250_spi_read(mpu);
-  else
+  } else {
     mpu9250_spi_start_configure(mpu);
+  }
 }
 
 #endif // MPU9250_SPI_H

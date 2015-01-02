@@ -61,7 +61,8 @@ static uint32_t foo = 0;
 static uint8_t spi_crc_ok = 1;
 static uint8_t last_state = 1;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
   (void) signal(SIGINT, main_exit);
 
@@ -94,24 +95,25 @@ int main(int argc, char *argv[]) {
 
   event_dispatch();
   //should never occur!
-  printf("goodbye! (%d)\n",foo);
+  printf("goodbye! (%d)\n", foo);
 
   return 0;
 }
 
 #define PITCH_MAGIC_NUMBER (121)
 
-static void main_periodic(int my_sig_num) {
+static void main_periodic(int my_sig_num)
+{
 
-/*  static int bar=0;
-  if (!(foo%2000)) {
-    if (bar) {
-      controller.tilt_sp = -0.4; bar=0;
-    }else{
-      controller.tilt_sp = 0.4; bar=1;
+  /*  static int bar=0;
+    if (!(foo%2000)) {
+      if (bar) {
+        controller.tilt_sp = -0.4; bar=0;
+      }else{
+        controller.tilt_sp = 0.4; bar=1;
+      }
     }
-  }
-*/
+  */
   //if (foo >2000 ) { controller.armed=1;}
 
   RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
@@ -121,25 +123,26 @@ static void main_periodic(int my_sig_num) {
   imu_scale_gyro(&imu);
 
   RunOnceEvery(50, {DOWNLINK_SEND_BETH(gcs_com.udp_transport,
-      &msg_in.payload.msg_up.bench_sensor.x,&msg_in.payload.msg_up.bench_sensor.y,
-      &msg_in.payload.msg_up.bench_sensor.z,&msg_in.payload.msg_up.cnt,
-      &msg_in.payload.msg_up.can_errs,&msg_in.payload.msg_up.spi_errs,
-      &msg_in.payload.msg_up.thrust_out,&msg_in.payload.msg_up.pitch_out);});
+                                       &msg_in.payload.msg_up.bench_sensor.x, &msg_in.payload.msg_up.bench_sensor.y,
+                                       &msg_in.payload.msg_up.bench_sensor.z, &msg_in.payload.msg_up.cnt,
+                                       &msg_in.payload.msg_up.can_errs, &msg_in.payload.msg_up.spi_errs,
+                                       &msg_in.payload.msg_up.thrust_out, &msg_in.payload.msg_up.pitch_out);
+                   });
 
-  estimator_run(msg_in.payload.msg_up.bench_sensor.z,msg_in.payload.msg_up.bench_sensor.y,
-    msg_in.payload.msg_up.bench_sensor.x);
+  estimator_run(msg_in.payload.msg_up.bench_sensor.z, msg_in.payload.msg_up.bench_sensor.y,
+                msg_in.payload.msg_up.bench_sensor.x);
 
-  if ( msg_in.payload.msg_up.cnt == 0) printf("STM indicates overo link is lost! %d %d\n",
-      msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);
-  if ( msg_in.payload.msg_up.cnt == 1) printf("STM indicates overo link is regained. %d %d\n",
-      msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);
+  if (msg_in.payload.msg_up.cnt == 0) printf("STM indicates overo link is lost! %d %d\n",
+        msg_in.payload.msg_up.cnt, msg_in.payload.msg_up.can_errs);
+  if (msg_in.payload.msg_up.cnt == 1) printf("STM indicates overo link is regained. %d %d\n",
+        msg_in.payload.msg_up.cnt, msg_in.payload.msg_up.can_errs);
 
   //If the stm32 cut the motors due to an error, we force the state machine into spinup mode.
   //when the stm32 resumes after the error, the system will need to be rearmed by the user.
-  if ( (controller.armed != 0) && (msg_in.payload.msg_up.pitch_out == PITCH_MAGIC_NUMBER) ) {
-    controller.armed = 0; last_state=1;
+  if ((controller.armed != 0) && (msg_in.payload.msg_up.pitch_out == PITCH_MAGIC_NUMBER)) {
+    controller.armed = 0; last_state = 1;
     printf("STM cut motor power. %d %d\n",
-      msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);
+           msg_in.payload.msg_up.cnt, msg_in.payload.msg_up.can_errs);
   }
 
 
@@ -151,51 +154,53 @@ static void main_periodic(int my_sig_num) {
 
   //file_logger_periodic();
 
-/*  RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(gcs_com.udp_transport,
-           //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
-        &imu.gyro_unscaled.p,&imu.gyro_unscaled.q,&imu.gyro_unscaled.r);});
-  RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(gcs_com.udp_transport,
-           //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
-        &imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);})
-  RunOnceEvery(50, {DOWNLINK_SEND_IMU_GYRO_SCALED(gcs_com.udp_transport,
-           //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
-        &imu.gyro.p,&imu.gyro.q,&imu.gyro.r);});
+  /*  RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(gcs_com.udp_transport,
+             //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
+          &imu.gyro_unscaled.p,&imu.gyro_unscaled.q,&imu.gyro_unscaled.r);});
+    RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(gcs_com.udp_transport,
+             //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
+          &imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);})
+    RunOnceEvery(50, {DOWNLINK_SEND_IMU_GYRO_SCALED(gcs_com.udp_transport,
+             //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
+          &imu.gyro.p,&imu.gyro.q,&imu.gyro.r);});
 
-  RunOnceEvery(50, {DOWNLINK_SEND_AHRS_EULER(gcs_com.udp_transport,
-      &estimator.tilt, &estimator.elevation, &estimator.azimuth );});
-  RunOnceEvery(50, {DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel,
-           //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
-        &imu.accel.x,&imu.accel.y,&imu.accel.z);});*/
+    RunOnceEvery(50, {DOWNLINK_SEND_AHRS_EULER(gcs_com.udp_transport,
+        &estimator.tilt, &estimator.elevation, &estimator.azimuth );});
+    RunOnceEvery(50, {DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel,
+             //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
+          &imu.accel.x,&imu.accel.y,&imu.accel.z);});*/
 
   RunOnceEvery(33, gcs_com_periodic());
 
 }
 
 #if 0
-static void main_parse_cmd_line(int argc, char *argv[]) {
+static void main_parse_cmd_line(int argc, char *argv[])
+{
 
-  if (argc>1){
+  if (argc > 1) {
     controller.kp = atof(argv[1]);
     //    printf("kp set to %f\n",kp);
-    if (argc>2) {
+    if (argc > 2) {
       controller.kd = atof(argv[2]);
       //      printf("kd set to %f\n",kd);
     } else {
-      controller.kd=1.0;
+      controller.kd = 1.0;
       //      printf("using default value of kd %f\n",kd);
     }
   } else {
     controller.kp = 0.05;
     //    printf("using default value of kp %f\n",kp);
   }
-/*
-  if (argc>1){
-    printf("args not currently supported\n");
-  }*/
+  /*
+    if (argc>1){
+      printf("args not currently supported\n");
+    }*/
 }
 #endif
 
-static void drive_output() {
+static void drive_output()
+{
   switch (controller.armed) {
     case 0:
       if (last_state == 2) {
@@ -209,13 +214,13 @@ static void drive_output() {
         }
         controller.cmd_pitch = 1;
         controller.cmd_thrust = 1;
-        last_state=0;
+        last_state = 0;
       }
       break;
     case 1:
       if (last_state != 1) {
         printf("Entering standby mode.\n");
-        last_state=1;
+        last_state = 1;
         if (last_state == 0) {
           controller.elevation_ref = estimator.elevation;
           controller.elevation_dot_ref = estimator.elevation_dot;
@@ -235,7 +240,7 @@ static void drive_output() {
         }
         //controller.elevation_sp = ((int32_t)(foo/2048.)%2) ? RadOfDeg(-20) : RadOfDeg(10);
         control_run();
-        last_state=2;
+        last_state = 2;
       }
       break;
     default:
@@ -243,7 +248,8 @@ static void drive_output() {
   }
 }
 
-static void main_exit(int sig) {
+static void main_exit(int sig)
+{
   printf("Initiating BETH shutdown...\n");
 
 //since the periodic event is no longer running when we get here right now,
@@ -251,7 +257,7 @@ static void main_exit(int sig) {
 #if 0
   printf("Zeroing setpoints...");
   uint32_t startfoo = foo;
-  while (foo < (startfoo +2000)) {
+  while (foo < (startfoo + 2000)) {
     controller.tilt_sp = 0;
     controller.elevation_sp = RadOfDeg(-25);
   }
@@ -266,7 +272,8 @@ static void main_exit(int sig) {
 
 
 
-static void main_talk_with_stm32() {
+static void main_talk_with_stm32()
+{
 
   //static int8_t adder = 1;
   //uint8_t *fooptr;
@@ -279,7 +286,7 @@ static void main_talk_with_stm32() {
   //msg_out.payload.msg_down.pitch = 0;
 
 
-  spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame) , &msg_in,&spi_crc_ok);
+  spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame) , &msg_in, &spi_crc_ok);
 
   /* for debugging overo/stm spi link
   if (msg_in.payload.msg_up.bench_sensor.x == 0){
@@ -291,12 +298,12 @@ static void main_talk_with_stm32() {
 
   foo++;
 
-  imu.gyro_unscaled.p = (msg_in.payload.msg_up.gyro.p&0xFFFF);
-  imu.gyro_unscaled.q = (msg_in.payload.msg_up.gyro.q&0xFFFF);
-  imu.gyro_unscaled.r = (msg_in.payload.msg_up.gyro.r&0xFFFF);
-  imu.accel_unscaled.x = (msg_in.payload.msg_up.accel.x&0xFFFF);
-  imu.accel_unscaled.y = (msg_in.payload.msg_up.accel.y&0xFFFF);
-  imu.accel_unscaled.z = (msg_in.payload.msg_up.accel.z&0xFFFF);
+  imu.gyro_unscaled.p = (msg_in.payload.msg_up.gyro.p & 0xFFFF);
+  imu.gyro_unscaled.q = (msg_in.payload.msg_up.gyro.q & 0xFFFF);
+  imu.gyro_unscaled.r = (msg_in.payload.msg_up.gyro.r & 0xFFFF);
+  imu.accel_unscaled.x = (msg_in.payload.msg_up.accel.x & 0xFFFF);
+  imu.accel_unscaled.y = (msg_in.payload.msg_up.accel.y & 0xFFFF);
+  imu.accel_unscaled.z = (msg_in.payload.msg_up.accel.z & 0xFFFF);
 
 }
 

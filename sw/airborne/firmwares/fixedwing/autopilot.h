@@ -50,13 +50,13 @@ extern void autopilot_init(void);
 #define  PPRZ_MODE_MANUAL 0
 #define  PPRZ_MODE_AUTO1 1
 #define  PPRZ_MODE_AUTO2 2
-#define  PPRZ_MODE_HOME	3
+#define  PPRZ_MODE_HOME 3
 #define  PPRZ_MODE_GPS_OUT_OF_ORDER 4
 #define  PPRZ_MODE_NB 5
 
 #define PPRZ_MODE_OF_PULSE(pprz) \
   (pprz > THRESHOLD2 ? PPRZ_MODE_AUTO2 : \
-        (pprz > THRESHOLD1 ? PPRZ_MODE_AUTO1 : PPRZ_MODE_MANUAL))
+   (pprz > THRESHOLD1 ? PPRZ_MODE_AUTO1 : PPRZ_MODE_MANUAL))
 
 extern uint8_t pprz_mode;
 extern bool_t kill_throttle;
@@ -66,8 +66,8 @@ extern uint8_t  mcu1_status;
 extern uint16_t autopilot_flight_time;
 
 #define autopilot_ResetFlightTimeAndLaunch(_) { \
-  autopilot_flight_time = 0; launch = FALSE; \
-}
+    autopilot_flight_time = 0; launch = FALSE; \
+  }
 
 
 // FIXME, move to control
@@ -91,7 +91,7 @@ extern uint16_t vsupply;
 /** Supply current in milliAmpere.
  * This the ap copy of the measurement from fbw
  */
-extern int32_t current;	// milliAmpere
+extern int32_t current; // milliAmpere
 
 /** Energy consumption (mAh)
  * This is the ap copy of the measurement from fbw
@@ -105,9 +105,9 @@ extern bool_t gps_lost;
 /** Assignment, returning _old_value != _value
  * Using GCC expression statements */
 #define ModeUpdate(_mode, _value) ({ \
-  uint8_t new_mode = _value; \
-  (_mode != new_mode ? _mode = new_mode, TRUE : FALSE); \
-})
+    uint8_t new_mode = _value; \
+    (_mode != new_mode ? _mode = new_mode, TRUE : FALSE); \
+  })
 
 /** Send mode over telemetry
  */
@@ -120,10 +120,10 @@ extern bool_t power_switch;
 #ifdef POWER_SWITCH_GPIO
 #include "mcu_periph/gpio.h"
 #define autopilot_SetPowerSwitch(_x) { \
-  power_switch = _x; \
-  if (_x) { gpio_set(POWER_SWITCH_GPIO); } \
-  else { gpio_clear(POWER_SWITCH_GPIO); } \
-}
+    power_switch = _x; \
+    if (_x) { gpio_set(POWER_SWITCH_GPIO); } \
+    else { gpio_clear(POWER_SWITCH_GPIO); } \
+  }
 #else // POWER_SWITCH_GPIO
 #define autopilot_SetPowerSwitch(_x) { power_switch = _x; }
 #endif // POWER_SWITCH_GPIO
@@ -154,5 +154,10 @@ static inline void autopilot_StoreSettings(float store)
     settings_store();
   }
 }
+
+#if DOWNLINK
+#include "subsystems/datalink/transport.h"
+extern void send_autopilot_version(struct transport_tx *trans, struct link_device *dev);
+#endif
 
 #endif /* AUTOPILOT_H */

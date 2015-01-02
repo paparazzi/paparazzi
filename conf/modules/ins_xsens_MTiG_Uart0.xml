@@ -4,8 +4,8 @@
   <doc>
     <description>XSens MTiG</description>
   </doc>
-  <!-- <depend conflict="ins" -->
-  <!-- <depend require="gps_xsens" -->
+  <!-- <conflicts>ins</conflicts> -->
+  <!-- <requires>gps_xsens</requires> -->
   <header>
     <file name="ins_module.h"/>
   </header>

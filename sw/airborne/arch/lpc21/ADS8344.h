@@ -30,7 +30,7 @@
 extern uint16_t ADS8344_values[NB_CHANNELS];
 extern bool_t ADS8344_available;
 
-void ADS8344_init( void );
-void ADS8344_start( void );
+void ADS8344_init(void);
+void ADS8344_start(void);
 
 #endif // ADS8344_H

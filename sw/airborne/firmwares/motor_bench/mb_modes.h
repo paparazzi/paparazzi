@@ -29,13 +29,13 @@ extern void mb_mode_init(void);
 extern void mb_mode_event(void);
 extern void mb_mode_periodic(float rpm, float thrust, float current);
 
-#define mb_modes_SetMode(_val) {			\
-    mb_modes_mode = _val;				\
+#define mb_modes_SetMode(_val) {      \
+    mb_modes_mode = _val;       \
     mb_modes_last_change_time = get_sys_time_float(); \
-    /*if  (mb_modes_mode == MB_MODES_RAMP)		\
-      mb_static_init();					\
-    if  (mb_modes_mode == MB_MODES_FIXED_RPM)		\
-    mb_mode_fixed_rpm_init();*/				\
+    /*if  (mb_modes_mode == MB_MODES_RAMP)    \
+      mb_static_init();         \
+    if  (mb_modes_mode == MB_MODES_FIXED_RPM)   \
+    mb_mode_fixed_rpm_init();*/       \
   }
 
 #endif /* MB_MODES_H */

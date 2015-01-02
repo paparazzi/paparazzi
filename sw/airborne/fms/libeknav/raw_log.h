@@ -10,13 +10,13 @@ struct __attribute__ ((packed)) raw_log_entry{
   struct FloatRates   gyro;
   struct FloatVect3   accel;
   struct FloatVect3   mag;
-  struct FloatVect3		ecef_pos;
-  struct FloatVect3		ecef_vel;
+  struct FloatVect3   ecef_pos;
+  struct FloatVect3   ecef_vel;
   int16_t pressure_absolute;
   uint8_t data_valid;
 };
 */
-struct __attribute__ ((packed)) raw_log_entry{
+struct __attribute__((packed)) raw_log_entry {
   float time;
   struct AutopilotMessageVIUp message;
 };

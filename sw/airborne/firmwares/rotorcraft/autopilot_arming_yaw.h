@@ -53,7 +53,8 @@ uint32_t autopilot_motors_on_counter;
 enum arming_state autopilot_check_motor_status;
 
 
-static inline void autopilot_arming_init(void) {
+static inline void autopilot_arming_init(void)
+{
   autopilot_motors_on_counter = 0;
   autopilot_check_motor_status = STATUS_MOTORS_OFF;
 }
@@ -61,11 +62,13 @@ static inline void autopilot_arming_init(void) {
 
 /** Update the status of the check_motors state machine.
  */
-static inline void autopilot_arming_set(bool_t motors_on) {
-  if (motors_on)
+static inline void autopilot_arming_set(bool_t motors_on)
+{
+  if (motors_on) {
     autopilot_check_motor_status = STATUS_MOTORS_ON;
-  else
+  } else {
     autopilot_check_motor_status = STATUS_MOTORS_OFF;
+  }
 }
 
 /**
@@ -74,51 +77,61 @@ static inline void autopilot_arming_set(bool_t motors_on) {
  * An intermediate state prevents oscillating between ON and OFF while keeping the stick pushed.
  * The stick must return to a neutral position before starting/stoping again.
  */
-static inline void autopilot_arming_check_motors_on( void ) {
+static inline void autopilot_arming_check_motors_on(void)
+{
+  /* only allow switching motor if not in KILL mode */
+  if (autopilot_mode != AP_MODE_KILL) {
 
-  switch(autopilot_check_motor_status) {
-    case STATUS_MOTORS_OFF:
-      autopilot_motors_on = FALSE;
-      autopilot_motors_on_counter = 0;
-      if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) // stick pushed
-        autopilot_check_motor_status = STATUS_M_OFF_STICK_PUSHED;
-      break;
-    case STATUS_M_OFF_STICK_PUSHED:
-      autopilot_motors_on = FALSE;
-      autopilot_motors_on_counter++;
-      if (autopilot_motors_on_counter >= MOTOR_ARMING_DELAY)
-        autopilot_check_motor_status = STATUS_START_MOTORS;
-      else if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) // stick released too soon
-        autopilot_check_motor_status = STATUS_MOTORS_OFF;
-      break;
-    case STATUS_START_MOTORS:
-      autopilot_motors_on = TRUE;
-      autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
-      if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) // wait until stick released
-        autopilot_check_motor_status = STATUS_MOTORS_ON;
-      break;
-    case STATUS_MOTORS_ON:
-      autopilot_motors_on = TRUE;
-      autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
-      if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) // stick pushed
-        autopilot_check_motor_status = STATUS_M_ON_STICK_PUSHED;
-      break;
-    case STATUS_M_ON_STICK_PUSHED:
-      autopilot_motors_on = TRUE;
-      autopilot_motors_on_counter--;
-      if (autopilot_motors_on_counter == 0)
-        autopilot_check_motor_status = STATUS_STOP_MOTORS;
-      else if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) // stick released too soon
-        autopilot_check_motor_status = STATUS_MOTORS_ON;
-      break;
-    case STATUS_STOP_MOTORS:
-      autopilot_motors_on = FALSE;
-      autopilot_motors_on_counter = 0;
-      if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) // wait until stick released
-        autopilot_check_motor_status = STATUS_MOTORS_OFF;
-      break;
-    default:
-      break;
+    switch (autopilot_check_motor_status) {
+      case STATUS_MOTORS_OFF:
+        autopilot_motors_on = FALSE;
+        autopilot_motors_on_counter = 0;
+        if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) { // stick pushed
+          autopilot_check_motor_status = STATUS_M_OFF_STICK_PUSHED;
+        }
+        break;
+      case STATUS_M_OFF_STICK_PUSHED:
+        autopilot_motors_on = FALSE;
+        autopilot_motors_on_counter++;
+        if (autopilot_motors_on_counter >= MOTOR_ARMING_DELAY) {
+          autopilot_check_motor_status = STATUS_START_MOTORS;
+        } else if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) { // stick released too soon
+          autopilot_check_motor_status = STATUS_MOTORS_OFF;
+        }
+        break;
+      case STATUS_START_MOTORS:
+        autopilot_motors_on = TRUE;
+        autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
+        if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) { // wait until stick released
+          autopilot_check_motor_status = STATUS_MOTORS_ON;
+        }
+        break;
+      case STATUS_MOTORS_ON:
+        autopilot_motors_on = TRUE;
+        autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
+        if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) { // stick pushed
+          autopilot_check_motor_status = STATUS_M_ON_STICK_PUSHED;
+        }
+        break;
+      case STATUS_M_ON_STICK_PUSHED:
+        autopilot_motors_on = TRUE;
+        autopilot_motors_on_counter--;
+        if (autopilot_motors_on_counter == 0) {
+          autopilot_check_motor_status = STATUS_STOP_MOTORS;
+        } else if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) { // stick released too soon
+          autopilot_check_motor_status = STATUS_MOTORS_ON;
+        }
+        break;
+      case STATUS_STOP_MOTORS:
+        autopilot_motors_on = FALSE;
+        autopilot_motors_on_counter = 0;
+        if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) { // wait until stick released
+          autopilot_check_motor_status = STATUS_MOTORS_OFF;
+        }
+        break;
+      default:
+        break;
+    }
   }
 }
 

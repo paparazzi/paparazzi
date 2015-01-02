@@ -4,8 +4,8 @@
 #include "math/pprz_algebra_float.h"
 
 struct traj {
-  char* name;
-  char* desc;
+  char *name;
+  char *desc;
   void (*init_fun)(void);
   void (*update_fun)(void);
 
@@ -15,7 +15,7 @@ struct traj {
 
 struct AhrsOnSynth {
 
-  struct traj* traj;
+  struct traj *traj;
 
   double time;
   double dt;
@@ -58,6 +58,6 @@ extern void aos_compute_state(void);
 #define AHRS_TYPE_FCQ  5
 #define AHRS_TYPE_NB   6
 
-extern char* ahrs_type_str[AHRS_TYPE_NB];
+extern char *ahrs_type_str[AHRS_TYPE_NB];
 
 #endif /* AHRS_ON_SYNTH_H */

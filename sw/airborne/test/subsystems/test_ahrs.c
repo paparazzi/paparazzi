@@ -79,6 +79,7 @@ static inline void main_init(void)
   ahrs_aligner_init();
 #endif
   ahrs_init();
+  downlink_init();
 
   DefaultAhrsRegister();
 

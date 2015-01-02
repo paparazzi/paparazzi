@@ -39,7 +39,8 @@
 
 #include BOARD_CONFIG
 
-void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
+void uart_periph_set_baudrate(struct uart_periph *p, uint32_t baud)
+{
 
   /* Configure USART baudrate */
   usart_set_baudrate((uint32_t)p->reg_addr, baud);
@@ -58,57 +59,63 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
 
 }
 
-void uart_periph_set_bits_stop_parity(struct uart_periph* p, uint8_t bits, uint8_t stop, uint8_t parity) {
+void uart_periph_set_bits_stop_parity(struct uart_periph *p, uint8_t bits, uint8_t stop, uint8_t parity)
+{
   /* Configure USART parity and data bits */
   if (parity == UPARITY_EVEN) {
     usart_set_parity((uint32_t)p->reg_addr, USART_PARITY_EVEN);
-    if (bits == UBITS_7)
+    if (bits == UBITS_7) {
       usart_set_databits((uint32_t)p->reg_addr, 8);
-    else // 8 data bits by default
+    } else { // 8 data bits by default
       usart_set_databits((uint32_t)p->reg_addr, 9);
-  }
-  else if (parity == UPARITY_ODD) {
+    }
+  } else if (parity == UPARITY_ODD) {
     usart_set_parity((uint32_t)p->reg_addr, USART_PARITY_ODD);
-    if (bits == UBITS_7)
+    if (bits == UBITS_7) {
       usart_set_databits((uint32_t)p->reg_addr, 8);
-    else // 8 data bits by default
+    } else { // 8 data bits by default
       usart_set_databits((uint32_t)p->reg_addr, 9);
-  }
-  else { // 8 data bist, NO_PARITY by default
+    }
+  } else { // 8 data bist, NO_PARITY by default
     usart_set_parity((uint32_t)p->reg_addr, USART_PARITY_NONE);
     usart_set_databits((uint32_t)p->reg_addr, 8); // is 7bits without parity possible ?
   }
   /* Configure USART stop bits */
-  if (stop == USTOP_2)
+  if (stop == USTOP_2) {
     usart_set_stopbits((uint32_t)p->reg_addr, USART_STOPBITS_2);
-  else // 1 stop bit by default
+  } else { // 1 stop bit by default
     usart_set_stopbits((uint32_t)p->reg_addr, USART_STOPBITS_1);
+  }
 }
 
-void uart_periph_set_mode(struct uart_periph* p, bool_t tx_enabled, bool_t rx_enabled, bool_t hw_flow_control) {
+void uart_periph_set_mode(struct uart_periph *p, bool_t tx_enabled, bool_t rx_enabled, bool_t hw_flow_control)
+{
   uint32_t mode = 0;
-  if (tx_enabled)
+  if (tx_enabled) {
     mode |= USART_MODE_TX;
-  if (rx_enabled)
+  }
+  if (rx_enabled) {
     mode |= USART_MODE_RX;
+  }
 
   /* set mode to Tx, Rx or TxRx */
   usart_set_mode((uint32_t)p->reg_addr, mode);
 
   if (hw_flow_control) {
     usart_set_flow_control((uint32_t)p->reg_addr, USART_FLOWCONTROL_RTS_CTS);
-  }
-  else {
+  } else {
     usart_set_flow_control((uint32_t)p->reg_addr, USART_FLOWCONTROL_NONE);
   }
 }
 
-void uart_transmit(struct uart_periph* p, uint8_t data ) {
+void uart_transmit(struct uart_periph *p, uint8_t data)
+{
 
   uint16_t temp = (p->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;
 
-  if (temp == p->tx_extract_idx)
-    return;                          // no room
+  if (temp == p->tx_extract_idx) {
+    return;  // no room
+  }
 
   USART_CR1((uint32_t)p->reg_addr) &= ~USART_CR1_TXEIE; // Disable TX interrupt
 
@@ -116,8 +123,7 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
   if (p->tx_running) { // yes, add to queue
     p->tx_buf[p->tx_insert_idx] = data;
     p->tx_insert_idx = temp;
-  }
-  else { // no, set running flag and write to output register
+  } else { // no, set running flag and write to output register
     p->tx_running = TRUE;
     usart_send((uint32_t)p->reg_addr, data);
   }
@@ -126,17 +132,17 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
 
 }
 
-static inline void usart_isr(struct uart_periph* p) {
+static inline void usart_isr(struct uart_periph *p)
+{
 
   if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_TXEIE) != 0) &&
       ((USART_SR((uint32_t)p->reg_addr) & USART_SR_TXE) != 0)) {
     // check if more data to send
     if (p->tx_insert_idx != p->tx_extract_idx) {
-      usart_send((uint32_t)p->reg_addr,p->tx_buf[p->tx_extract_idx]);
+      usart_send((uint32_t)p->reg_addr, p->tx_buf[p->tx_extract_idx]);
       p->tx_extract_idx++;
       p->tx_extract_idx %= UART_TX_BUFFER_SIZE;
-    }
-    else {
+    } else {
       p->tx_running = FALSE;   // clear running flag
       USART_CR1((uint32_t)p->reg_addr) &= ~USART_CR1_TXEIE; // Disable TX interrupt
     }
@@ -150,10 +156,10 @@ static inline void usart_isr(struct uart_periph* p) {
     uint16_t temp = (p->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;;
     p->rx_buf[p->rx_insert_idx] = usart_recv((uint32_t)p->reg_addr);
     // check for more room in queue
-    if (temp != p->rx_extract_idx)
-      p->rx_insert_idx = temp; // update insert index
-  }
-  else {
+    if (temp != p->rx_extract_idx) {
+      p->rx_insert_idx = temp;  // update insert index
+    }
+  } else {
     /* ORE, NE or FE error - read USART_DR reg and log the error */
     if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
         ((USART_SR((uint32_t)p->reg_addr) & USART_SR_ORE) != 0)) {
@@ -173,7 +179,8 @@ static inline void usart_isr(struct uart_periph* p) {
   }
 }
 
-static inline void usart_enable_irq(uint8_t IRQn) {
+static inline void usart_enable_irq(uint8_t IRQn)
+{
   /* Note:
    * In libstm32 times the priority of this interrupt was set to
    * preemption priority 2 and sub priority 1
@@ -209,7 +216,8 @@ static inline void usart_enable_irq(uint8_t IRQn) {
 #define UART1_PARITY UPARITY_NO
 #endif
 
-void uart1_init( void ) {
+void uart1_init(void)
+{
 
   uart_periph_init(&uart1);
   uart1.reg_addr = (void *)USART1;
@@ -273,7 +281,8 @@ void usart1_isr(void) { usart_isr(&uart1); }
 #define UART2_PARITY UPARITY_NO
 #endif
 
-void uart2_init( void ) {
+void uart2_init(void)
+{
 
   uart_periph_init(&uart2);
   uart2.reg_addr = (void *)USART2;
@@ -337,7 +346,8 @@ void usart2_isr(void) { usart_isr(&uart2); }
 #define UART3_PARITY UPARITY_NO
 #endif
 
-void uart3_init( void ) {
+void uart3_init(void)
+{
 
   uart_periph_init(&uart3);
   uart3.reg_addr = (void *)USART3;
@@ -397,7 +407,8 @@ void usart3_isr(void) { usart_isr(&uart3); }
 #define UART4_PARITY UPARITY_NO
 #endif
 
-void uart4_init( void ) {
+void uart4_init(void)
+{
 
   uart_periph_init(&uart4);
   uart4.reg_addr = (void *)UART4;
@@ -448,7 +459,8 @@ void uart4_isr(void) { usart_isr(&uart4); }
 #define UART5_PARITY UPARITY_NO
 #endif
 
-void uart5_init( void ) {
+void uart5_init(void)
+{
 
   uart_periph_init(&uart5);
   uart5.reg_addr = (void *)UART5;
@@ -503,7 +515,8 @@ void uart5_isr(void) { usart_isr(&uart5); }
 #define UART6_PARITY UPARITY_NO
 #endif
 
-void uart6_init( void ) {
+void uart6_init(void)
+{
 
   uart_periph_init(&uart6);
   uart6.reg_addr = (void *)USART6;

@@ -141,7 +141,7 @@ struct mora_transport {
 
 extern struct mora_transport mora_protocol;
 
-void parse_mora(struct mora_transport* t, uint8_t c);
+void parse_mora(struct mora_transport *t, uint8_t c);
 
 
 #endif

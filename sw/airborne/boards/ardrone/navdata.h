@@ -33,8 +33,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-typedef struct
-{
+typedef struct {
   uint16_t taille;
   uint16_t nu_trame;
 
@@ -75,10 +74,9 @@ typedef struct
 
   uint16_t chksum;
 
-} __attribute__ ((packed)) measures_t;
+} __attribute__((packed)) measures_t;
 
-struct bmp180_baro_calibration
-{
+struct bmp180_baro_calibration {
   int16_t ac1;
   int16_t ac2;
   int16_t ac3;
@@ -97,20 +95,20 @@ struct bmp180_baro_calibration
 
 #define NAVDATA_BUFFER_SIZE 80
 typedef struct {
-    uint8_t isInitialized;
-    uint16_t bytesRead;
-    uint32_t totalBytesRead;
-    uint32_t packetsRead;
-    uint32_t checksum_errors;
-    uint32_t lost_imu_frames;
-    uint16_t last_packet_number;
-    uint8_t buffer[NAVDATA_BUFFER_SIZE];
+  uint8_t isInitialized;
+  uint16_t bytesRead;
+  uint32_t totalBytesRead;
+  uint32_t packetsRead;
+  uint32_t checksum_errors;
+  uint32_t lost_imu_frames;
+  uint16_t last_packet_number;
+  uint8_t buffer[NAVDATA_BUFFER_SIZE];
 } navdata_port;
 
 extern measures_t navdata;
 extern navdata_port nav_port;
 struct bmp180_baro_calibration baro_calibration;
-navdata_port* port;
+navdata_port *port;
 uint16_t navdata_cks;
 uint8_t navdata_imu_available;
 uint8_t navdata_baro_available;

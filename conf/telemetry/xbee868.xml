@@ -21,7 +21,7 @@
 
       <message name="ALIVE"          period="18."	phase="0"/>
       <message name="CALIBRATION"    period="18."	phase="0"/>
-      <message name="DOWNLINK"       period="18."	phase="0"/>
+      <message name="DATALINK_REPORT"       period="18."	phase="0"/>
       <message name="GPS_SOL"        period="18."	phase="0"/>
       <message name="NAVIGATION_REF" period="18."	phase="0"/>
     </mode>

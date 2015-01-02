@@ -25,7 +25,7 @@ enum mlx_type {
   IR_MLX_RD_OBJ_TEMP
 };
 
-void ir_mlx_crc(unsigned char addr, volatile unsigned char* data);
+void ir_mlx_crc(unsigned char addr, volatile unsigned char *data);
 void ir_mlx_init(void);
 void ir_mlx_periodic(void);
 void ir_mlx_event(void);

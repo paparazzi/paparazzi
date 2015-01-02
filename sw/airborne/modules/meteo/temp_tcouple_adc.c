@@ -53,7 +53,8 @@ int32_t  temp_cnt;
 static struct adc_buf buf_temp_tcouple_ref;
 static struct adc_buf buf_temp_tcouple_val;
 
-void temp_tcouple_adc_init( void ) {
+void temp_tcouple_adc_init(void)
+{
   adc_buf_channel(ADC_CHANNEL_TEMP_REF,
                   &buf_temp_tcouple_ref,
                   ADC_CHANNEL_TEMP_TCOUPLE_NB_SAMPLES);
@@ -63,23 +64,24 @@ void temp_tcouple_adc_init( void ) {
   temp_cnt = 0;
 }
 
-void temp_tcouple_adc_periodic( void ) {
+void temp_tcouple_adc_periodic(void)
+{
   val[temp_cnt] = buf_temp_tcouple_val.sum / buf_temp_tcouple_val.av_nb_sample;
   ref[temp_cnt] = buf_temp_tcouple_ref.sum / buf_temp_tcouple_ref.av_nb_sample;
 
   /* no voltage divider, 10 bits adc, 3.3V max */
   /* T = U * 52.288899706 - 7.977784737996595 */
   fval[temp_cnt] = ((float)(val[temp_cnt] * 3.3) / 1023.)
-                     * 52.288899706 - 7.977784737996595;
+                   * 52.288899706 - 7.977784737996595;
   fref[temp_cnt] = ((float)(ref[temp_cnt] * 3.3) / 1023.)
-                     * 100. - 13.;
+                   * 100. - 13.;
 
   if (++temp_cnt >= TCOUPLE_NB) {
     DOWNLINK_SEND_TEMP_TCOUPLE(DefaultChannel, DefaultDevice,
-          &fval[0], &fval[1], &fval[2], &fval[3],
-          &fref[0], &fref[1], &fref[2], &fref[3],
-          &val[0], &val[1], &val[2], &val[3],
-          &ref[0], &ref[1], &ref[2], &ref[3]);
+                               &fval[0], &fval[1], &fval[2], &fval[3],
+                               &fref[0], &fref[1], &fref[2], &fref[3],
+                               &val[0], &val[1], &val[2], &val[3],
+                               &ref[0], &ref[1], &ref[2], &ref[3]);
     temp_cnt = 0;
   }
 }

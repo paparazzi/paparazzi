@@ -64,7 +64,7 @@ struct MedianFilter3Int median_accel;
 #endif
 struct MedianFilter3Int median_mag;
 
-void imu_impl_init( void )
+void imu_impl_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // MPU-60X0
@@ -98,18 +98,22 @@ void imu_impl_init( void )
   imu_krooz_sd_arch_init();
 }
 
-void imu_periodic( void )
+void imu_periodic(void)
 {
   // Start reading the latest gyroscope data
-  if (!imu_krooz.mpu.config.initialized)
+  if (!imu_krooz.mpu.config.initialized) {
     mpu60x0_i2c_start_configure(&imu_krooz.mpu);
+  }
 
-  if (!imu_krooz.hmc.initialized)
+  if (!imu_krooz.hmc.initialized) {
     hmc58xx_start_configure(&imu_krooz.hmc);
+  }
 
   if (imu_krooz.meas_nb) {
-    RATES_ASSIGN(imu.gyro_unscaled, -imu_krooz.rates_sum.q / imu_krooz.meas_nb, imu_krooz.rates_sum.p / imu_krooz.meas_nb, imu_krooz.rates_sum.r / imu_krooz.meas_nb);
-    VECT3_ASSIGN(imu.accel_unscaled, -imu_krooz.accel_sum.y / imu_krooz.meas_nb, imu_krooz.accel_sum.x / imu_krooz.meas_nb, imu_krooz.accel_sum.z / imu_krooz.meas_nb);
+    RATES_ASSIGN(imu.gyro_unscaled, -imu_krooz.rates_sum.q / imu_krooz.meas_nb, imu_krooz.rates_sum.p / imu_krooz.meas_nb,
+                 imu_krooz.rates_sum.r / imu_krooz.meas_nb);
+    VECT3_ASSIGN(imu.accel_unscaled, -imu_krooz.accel_sum.y / imu_krooz.meas_nb, imu_krooz.accel_sum.x / imu_krooz.meas_nb,
+                 imu_krooz.accel_sum.z / imu_krooz.meas_nb);
 
 #if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
@@ -130,14 +134,16 @@ void imu_periodic( void )
   //RunOnceEvery(10,imu_krooz_downlink_raw());
 }
 
-void imu_krooz_downlink_raw( void )
+void imu_krooz_downlink_raw(void)
 {
-  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,&imu.gyro_unscaled.p,&imu.gyro_unscaled.q,&imu.gyro_unscaled.r);
-  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,&imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);
+  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice, &imu.gyro_unscaled.p, &imu.gyro_unscaled.q,
+                             &imu.gyro_unscaled.r);
+  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice, &imu.accel_unscaled.x, &imu.accel_unscaled.y,
+                              &imu.accel_unscaled.z);
 }
 
 
-void imu_krooz_event( void )
+void imu_krooz_event(void)
 {
   if (imu_krooz.mpu_eoc) {
     mpu60x0_i2c_read(&imu_krooz.mpu);

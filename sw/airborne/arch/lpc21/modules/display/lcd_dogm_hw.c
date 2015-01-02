@@ -54,14 +54,16 @@ static void SPI1_ISR(void) __attribute__((naked));
 #define SPI1_VIC_SLOT 7
 #endif
 
-void lcd_spi_tx(uint8_t data) {
+void lcd_spi_tx(uint8_t data)
+{
   SpiClearRti();
   SpiEnableRti();
   SpiEnable();
   SSPDR = data;
 }
 
-void lcd_dogm_init_hw( void ) {
+void lcd_dogm_init_hw(void)
+{
   /* setup pins for SSP (SCK, MOSI) */
   PINSEL1 |= PINSEL1_SCK | PINSEL1_MOSI;
 
@@ -83,16 +85,17 @@ void lcd_dogm_init_hw( void ) {
   _VIC_CNTL(SPI1_VIC_SLOT) = (uint32_t)SPI1_ISR;    /* address of the ISR */
 }
 
-void SPI1_ISR(void) {
+void SPI1_ISR(void)
+{
   ISR_ENTRY();
 
   while (bit_is_set(SSPSR, RNE)) {
-    uint16_t foo __attribute__ ((unused));
+    uint16_t foo __attribute__((unused));
     foo = SSPDR;
   }
   SpiClearRti();                  /* clear interrupt */
   SpiDisableRti();
-  SpiDisable ();
+  SpiDisable();
   lcddogmUnselect();
 
   VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
