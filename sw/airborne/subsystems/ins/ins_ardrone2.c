@@ -85,12 +85,12 @@ void ins_reset_altitude_ref(void)
 {
 #if USE_GPS
   struct LlaCoor_i lla = {
-    state.ned_origin_i.lla.lon,
-    state.ned_origin_i.lla.lat,
-    gps.lla_pos.alt
+    .lat = state.ned_origin_i.lla.lat,
+    .lon = state.ned_origin_i.lla.lon,
+    .alt = gps.lla_pos.alt
   };
-  ltp_def_from_lla_i(&ins_impl.ltp_def, &lla),
-                     ins_impl.ltp_def.hmsl = gps.hmsl;
+  ltp_def_from_lla_i(&ins_impl.ltp_def, &lla);
+  ins_impl.ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ins_impl.ltp_def);
 #endif
 }
