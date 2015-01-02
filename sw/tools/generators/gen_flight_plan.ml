@@ -144,6 +144,11 @@ let print_waypoint_lla_wgs84 = fun utm0 default_alt waypoint ->
   let alt = float_of_string alt +. Egm96.of_wgs84 wgs84 in
   printf " {.lat=%Ld, .lon=%Ld, .alt=%.0f}, /* 1e7deg, 1e7deg, mm (above WGS84 ref ellipsoid) */ \\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (1000. *. alt)
 
+let print_waypoint_global = fun waypoint ->
+  try
+    let (_, _) = (float_attrib waypoint "lat", float_attrib waypoint "lon") in
+    printf " TRUE, \\\n"
+  with _ -> printf " FALSE, \\\n"
 
 let get_index_block = fun x ->
   try
@@ -847,6 +852,9 @@ let () =
       lprintf "};\n";
       Xml2h.define "WAYPOINTS_LLA_WGS84" "{ \\";
       List.iter (print_waypoint_lla_wgs84 utm0 alt) waypoints;
+      lprintf "};\n";
+      Xml2h.define "WAYPOINTS_GLOBAL" "{ \\";
+      List.iter print_waypoint_global waypoints;
       lprintf "};\n";
       Xml2h.define "NB_WAYPOINT" (string_of_int (List.length waypoints));
 
