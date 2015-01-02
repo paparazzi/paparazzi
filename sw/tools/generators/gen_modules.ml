@@ -177,13 +177,13 @@ let print_periodic_functions = fun modules ->
         let status = get_status_name f module_name in
         lprintf out_h "if (%s == MODULES_START) {\n" status;
         right ();
-        try lprintf out_h "%s;\n" (Xml.attrib f "start") with _ -> ();
+        ignore(try lprintf out_h "%s;\n" (Xml.attrib f "start") with _ -> ());
         lprintf out_h "%s = MODULES_RUN;\n" status;
         left ();
         lprintf out_h "}\n";
         lprintf out_h "if (%s == MODULES_STOP) {\n" status;
         right ();
-        try lprintf out_h "%s;\n" (Xml.attrib f "stop") with _ -> ();
+        ignore(try lprintf out_h "%s;\n" (Xml.attrib f "stop") with _ -> ());
         lprintf out_h "%s = MODULES_IDLE;\n" status;
         left ();
         lprintf out_h "}\n";
