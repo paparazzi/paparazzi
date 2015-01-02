@@ -78,7 +78,20 @@ void ins_periodic(void)
 
 void ins_reset_local_origin(void)
 {
+#if USE_GPS
+  if (gps.fix == GPS_FIX_3D) {
+    ltp_def_from_ecef_i(&ins_impl.ltp_def, &gps.ecef_pos);
+    ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
+    ins_impl.ltp_def.hmsl = gps.hmsl;
+    ins_impl.ltp_initialized = TRUE;
+    stateSetLocalOrigin_i(&ins_impl.ltp_def);
+  }
+  else {
+    ins_impl.ltp_initialized = FALSE;
+  }
+#else
   ins_impl.ltp_initialized = FALSE;
+#endif
 }
 
 void ins_reset_altitude_ref(void)
