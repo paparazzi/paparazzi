@@ -214,8 +214,8 @@ static void nav_ground_speed_loop(void)
       && nav_ground_speed_setpoint < MAXIMUM_AIRSPEED) {
     float err = nav_ground_speed_setpoint - (*stateGetHorizontalSpeedNorm_f());
     v_ctl_auto_throttle_cruise_throttle += nav_ground_speed_pgain * err;
-    Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE,
-          V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
+    Bound(v_ctl_auto_throttle_cruise_throttle, v_ctl_auto_throttle_min_cruise_throttle,
+          v_ctl_auto_throttle_max_cruise_throttle);
   } else {
     /* Reset cruise throttle to nominal value */
     v_ctl_auto_throttle_cruise_throttle = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
