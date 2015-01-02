@@ -61,7 +61,7 @@ test_state_interface.run: $(PAPARAZZI_SRC)/sw/airborne/state.c
 
 %.run: %.c | math_shlib
 	@echo BUILD $@
-	$(Q)$(CC) -L$(MATHLIB_PATH) -I$(PAPARAZZI_SRC)/sw/airborne -I$(PAPARAZZI_SRC)/sw/include $(USER_CFLAGS) tap.c $^ -lpprzmath -o $@
+	$(Q)$(CC) -L$(MATHLIB_PATH) -I$(PAPARAZZI_SRC)/sw/airborne -I$(PAPARAZZI_SRC)/sw/include $(USER_CFLAGS) tap.c $^ -lpprzmath -lm -o $@
 
 clean:
 	$(Q)rm -f $(MATHLIB_PATH)/*.o $(MATHLIB_PATH)/libpprzmath.so
