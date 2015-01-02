@@ -47,7 +47,9 @@
   <modules>
     <load name="sys_mon.xml"/>
     <load name="baro_sim.xml"/>
-    <load name="air_data.xml"/>
+    <load name="air_data.xml">
+      <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
+    </load>
 
     <!-- extra navigation routines -->
     <load name="nav_bungee_takeoff.xml"/>

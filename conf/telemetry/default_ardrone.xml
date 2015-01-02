@@ -119,13 +119,6 @@
       <message name="FILTER_ALIGNER"    period="0.02"/>
     </mode>
 
-    <mode name="hs_att_roll">
-      <message name="ROTORCRAFT_STATUS"           period="1.2"/>
-      <message name="ALIVE"                       period="0.9"/>
-      <message name="DL_VALUE"                    period="0.5"/>
-<!--      <message name="STAB_ATTITUDE_HS_ROLL" period="0.02"/> -->
-    </mode>
-
     <mode name="tune_hover">
       <message name="DL_VALUE"          period="1.1"/>
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
