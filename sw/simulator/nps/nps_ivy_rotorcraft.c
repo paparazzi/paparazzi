@@ -47,11 +47,12 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
     struct LlaCoor_i lla;
     lla.lat = atoi(argv[3]);
     lla.lon = atoi(argv[4]);
-    /* WP_alt from message is alt above MSL in cm
+    /* WP_alt from message is alt above MSL in mm
      * lla.alt is above ellipsoid in mm
      */
-    lla.alt = atoi(argv[5]) *10 - state.ned_origin_i.hmsl + state.ned_origin_i.lla.alt;
+    lla.alt = atoi(argv[5]) - state.ned_origin_i.hmsl + state.ned_origin_i.lla.alt;
     nav_move_waypoint_lla(wp_id, &lla);
-    printf("move wp id=%d x=%d y=%d z=%d\n", wp_id, waypoints[wp_id].x, waypoints[wp_id].y, waypoints[wp_id].z);
+    printf("move wp id=%d x=% .4f, y=% .4f, z=% .4f\n", wp_id,
+           WaypointX(wp_id), WaypointY(wp_id), WaypointAlt(wp_id));
   }
 }

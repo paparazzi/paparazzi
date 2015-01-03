@@ -683,8 +683,12 @@ let ivy_server = fun http ->
   ignore (Ground_Pprz.message_answerer my_id "AIRCRAFTS" send_aircrafts_msg);
   ignore (Ground_Pprz.message_answerer my_id "CONFIG" (send_config http))
 
+(** Convert to cm, with rounding *)
+let cm_of_m = fun f -> Pprz.Int (truncate ((100. *. f) +. 0.5))
 
-let cm_of_m = fun f -> Pprz.Int (truncate ((100. *. f) +. 0.5)) (* Convert to cm, with rounding *)
+(** Convert to mm, with rounding *)
+let mm_of_m = fun f -> Pprz.Int (truncate ((1000. *. f) +. 0.5))
+
 let dl_id = "ground_dl" (* Hack, should be [my_id] *)
 
 (** Got a ground.MOVE_WAYPOINT and send a datalink.MOVE_WP *)
@@ -696,7 +700,7 @@ let move_wp = fun logging _sender vs ->
              "ac_id", Pprz.String ac_id;
              "lat", deg7 "lat";
              "lon", deg7 "long";
-             "alt", cm_of_m (Pprz.float_assoc "alt" vs) ] in
+             "alt", mm_of_m (Pprz.float_assoc "alt" vs) ] in
   Dl_Pprz.message_send dl_id "MOVE_WP" vs;
   log logging ac_id "MOVE_WP" vs
 

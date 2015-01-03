@@ -103,10 +103,10 @@ void dl_parse_msg(void)
         struct LlaCoor_i lla;
         lla.lat = DL_MOVE_WP_lat(dl_buffer);
         lla.lon = DL_MOVE_WP_lon(dl_buffer);
-        /* WP_alt from message is alt above MSL in cm
+        /* WP_alt from message is alt above MSL in mm
          * lla.alt is above ellipsoid in mm
          */
-        lla.alt = DL_MOVE_WP_alt(dl_buffer) * 10 - state.ned_origin_i.hmsl +
+        lla.alt = DL_MOVE_WP_alt(dl_buffer) - state.ned_origin_i.hmsl +
                   state.ned_origin_i.lla.alt;
         nav_move_waypoint_lla(wp_id, &lla);
       }

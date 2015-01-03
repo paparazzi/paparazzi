@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 #define MOfCm(_x) (((float)(_x))/100.)
+#define MOfMM(_x) (((float)(_x))/1000.)
 
 void parse_dl_ping(char *argv[] __attribute__((unused)))
 {
@@ -52,7 +53,7 @@ void parse_dl_block(char *argv[])
 void parse_dl_move_wp(char *argv[])
 {
   uint8_t wp_id = atoi(argv[1]);
-  float a = MOfCm(atoi(argv[5]));
+  float a = MOfMM(atoi(argv[5]));
 
   /* Computes from (lat, long) in the referenced UTM zone */
   struct LlaCoor_f lla;
