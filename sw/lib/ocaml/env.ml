@@ -122,8 +122,8 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
       (fun filename -> parse_file ~parse_filter a (prefix filename))
       (Str.split space_regexp (pre_filter (ExtXml.attrib ac_conf a))) in
 
-  let parse_opt = fun a ->
-    try parse a with ExtXml.Error _ -> [] in
+  let parse_opt = fun ?(pre_filter=(fun x -> x)) ?(parse_filter=(fun x -> ExtXml.parse_file x)) a ->
+    try parse ~pre_filter ~parse_filter a with ExtXml.Error _ -> [] in
 
   (* dump expanded version of flight plan before parsing *)
   let parse_fp = fun a ->
@@ -148,8 +148,8 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
     with _ -> []
   in
 
-  let pervasives = parse "airframe" @ parse "telemetry" @ parse ~pre_filter:filter_settings "settings" @ parse ~pre_filter:filter_settings ~parse_filter:filter_modules_target "settings_modules" in
-  let optionals = parse_opt "radio" @ parse_fp "flight_plan" @ pervasives in
+  let pervasives = parse "airframe" @ parse "telemetry" @ parse ~pre_filter:filter_settings "settings" in
+  let optionals = parse_opt "radio" @ parse_fp "flight_plan" @ parse_opt ~pre_filter:filter_settings ~parse_filter:filter_modules_target "settings_modules"  @ pervasives in
 
   let children = Xml.children ac_conf@optionals in
   make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children
