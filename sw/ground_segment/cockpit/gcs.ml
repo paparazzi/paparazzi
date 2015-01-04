@@ -290,7 +290,7 @@ let button_press = fun (geomap:G.widget) ev ->
     GToolbox.popup_menu ~entries:([`I ("Load background tile", display_gm)]@m)
       ~button:3 ~time:(Int32.of_int 0);
     true
-  end else if GdkEvent.Button.button ev = 1 && Gdk.Convert.test_modifier `CONTROL state then
+  end else if GdkEvent.Button.button ev = 1 && Gdk.Convert.test_modifier `CONTROL state then (* create new wp on Ctrl-click *)
       let xc = GdkEvent.Button.x ev in
       let yc = GdkEvent.Button.y ev in
       let xyw = geomap#canvas#window_to_world xc yc in
