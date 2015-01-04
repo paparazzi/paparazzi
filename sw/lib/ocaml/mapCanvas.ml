@@ -796,25 +796,34 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
       let name_changed = newname <> name && newname <> "" && deleted=false in
       if name_changed || deleted then (
         let oldgeorefs = georefs in
+        let extraitems = (List.length georef_menu#children) - (List.length oldgeorefs) in        
         georefs <- [];
-        List.iteri (fun i (label,geo) ->
+        let i = ref 0 in
+        List.iter (fun (label,geo) ->
           if name = label then (
             if deleted=false then
               georefs <- List.append georefs [((if name_changed then newname else label), geo)];
             let callback = fun () -> selected_georef <- Bearing geo in
-            let menupos = i + (List.length georef_menu#children) - (List.length oldgeorefs) in            
+            let menupos = !i + extraitems in            
             georef_menu#remove (List.nth georef_menu#children menupos);
 
-            (* if deleted item was previously selected then select another item *)
-            if deleted && selected_georef = (Bearing geo) then (
-              (List.nth georef_menu#children 0)#activate ();    
-              optmenu#set_history 0;
-              );                          
             (* if item is not deleted then readd with new name *)
-            if deleted=false then my_menu_item_insert newname ~menu:georef_menu ~pos:menupos ~callback;        
+            if deleted=false then my_menu_item_insert newname ~menu:georef_menu ~pos:menupos ~callback; 
+
+            (* if deleted or changed item was previously selected then select another item o reselect so the change is shown *)
+            if selected_georef = (Bearing geo) then (
+              if deleted then (
+                (List.nth georef_menu#children 0)#activate ();    
+                optmenu#set_history 0;
+              )
+              else (
+                optmenu#set_history menupos;
+              );
+            );       
             )
           else
             georefs <- List.append georefs [(label, geo)];
+          i := !i + 1;
           )
           oldgeorefs;
         );
