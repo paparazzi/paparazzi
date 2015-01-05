@@ -1,3 +1,28 @@
+Paparazzi 5.4.0_stable
+======================
+
+Stable version release.
+
+- messages: MOVE_WP and WP_MOVED_LLA with altitude in mm
+- ins: immediately effective ins_reset_local_origin
+- server: don't fail if settings_modules is missing
+- python: messagesapp: growable value column width
+- python: add python real time plotter to control panel
+- module: mavlink, parse PARAM_SET, send origin and waypoints
+- module: FLAPS, HATCH, BRAKE via RC in AUTO1
+  [#878] (https://github.com/paparazzi/paparazzi/pull/878)
+- fixedwing: use min/max_cruise_throttle variables instead of defines
+  [#1057] (https://github.com/paparazzi/paparazzi/issues/1057)
+- GCS: turn off search in flight plan panel to fix hotkeys
+  [#995] (https://github.com/paparazzi/paparazzi/issues/995)
+  [#1061] (https://github.com/paparazzi/paparazzi/pull/1061)
+- GCS: fixes for flight plan editor and keeping map center on zoom
+  [#927] (https://github.com/paparazzi/paparazzi/issues/927)
+  [#1059] (https://github.com/paparazzi/paparazzi/pull/1059)
+- stm32/luftboot: update libopencm3 to get usb control call back fix
+  [#1058] (https://github.com/paparazzi/paparazzi/pull/1058)
+
+
 Paparazzi 5.3.3_testing
 =======================
 
@@ -30,7 +55,7 @@ Third release candidate for v5.4 stable release.
 - fixedwing: airspeed tuning
   [#877] (https://github.com/paparazzi/paparazzi/pull/877)
 - linux: handle SIGINT for console debug
-  [#1008] (https://github.com/paparazzi/paparazzi/pull/
+  [#1008] (https://github.com/paparazzi/paparazzi/pull/1008)
 - rotorcraft: always allow to switch to MODE_MANUAL via RC
   [#1036] (https://github.com/paparazzi/paparazzi/pull/1036)
 - flight plan: use flight plan position in nps for most example files
