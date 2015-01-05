@@ -46,15 +46,14 @@ bool_t i2c_idle(struct i2c_periph *p __attribute__((unused)))
   return TRUE;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
 bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
 {
   int file = (int)p->reg_addr;
 
   // Set the slave address
   ioctl(file, I2C_SLAVE, t->slave_addr);
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
 
   // Switch the different transaction types
   switch (t->type) {
@@ -84,12 +83,12 @@ bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
       break;
   }
 
-#pragma GCC diagnostic pop
-
   // Successfull transfer
   t->status = I2CTransSuccess;
   return TRUE;
 }
+#pragma GCC diagnostic pop
+
 
 #if USE_I2C0
 struct i2c_errors i2c0_errors;
