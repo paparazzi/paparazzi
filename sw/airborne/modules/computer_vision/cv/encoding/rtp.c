@@ -7,9 +7,7 @@
 
 #include "rtp.h"
 
-void send_rtp_packet(struct UdpSocket *sock, uint8_t *Jpeg, int JpegLen, uint32_t m_SequenceNumber,
-                     uint32_t m_Timestamp, uint32_t m_offset, uint8_t marker_bit, int w, int h, uint8_t format_code, uint8_t quality_code,
-                     uint8_t has_dri_header);
+void send_rtp_packet(struct UdpSocket *sock, uint8_t *Jpeg, int JpegLen, uint32_t m_SequenceNumber, uint32_t m_Timestamp, uint32_t m_offset, uint8_t marker_bit, int w, int h, uint8_t format_code, uint8_t quality_code, uint8_t has_dri_header);
 
 // http://www.ietf.org/rfc/rfc3550.txt
 
@@ -51,19 +49,16 @@ void test_rtp_frame(struct UdpSocket *sock)
   uint8_t quality_code = 0x54;
 
   if (toggle) {
-    send_rtp_packet(sock, JpegScanDataCh2A, KJpegCh2ScanDataLen, framecounter, timecounter, 0, 1, 64, 48, format_code,
-                    quality_code, 0);
+    send_rtp_packet(sock, JpegScanDataCh2A, KJpegCh2ScanDataLen, framecounter, timecounter, 0, 1, 64, 48, format_code, quality_code, 0);
   } else {
-    send_rtp_packet(sock, JpegScanDataCh2B, KJpegCh2ScanDataLen, framecounter, timecounter, 0, 1, 64, 48, format_code,
-                    quality_code, 0);
+    send_rtp_packet(sock, JpegScanDataCh2B, KJpegCh2ScanDataLen, framecounter, timecounter, 0, 1, 64, 48, format_code, quality_code, 0);
   }
   framecounter++;
   timecounter += 3600;
 }
 
 
-void send_rtp_frame(struct UdpSocket *sock, uint8_t *Jpeg, uint32_t JpegLen, int w, int h, uint8_t format_code,
-                    uint8_t quality_code, uint8_t has_dri_header, uint32_t delta_t)
+void send_rtp_frame(struct UdpSocket *sock, uint8_t *Jpeg, uint32_t JpegLen, int w, int h, uint8_t format_code, uint8_t quality_code, uint8_t has_dri_header, uint32_t delta_t)
 {
   static uint32_t packetcounter = 0;
   static uint32_t timecounter = 0;
@@ -88,8 +83,7 @@ void send_rtp_frame(struct UdpSocket *sock, uint8_t *Jpeg, uint32_t JpegLen, int
       len = JpegLen;
     }
 
-    send_rtp_packet(sock, Jpeg, len, packetcounter, timecounter, offset, lastpacket, w, h, format_code, quality_code,
-                    has_dri_header);
+    send_rtp_packet(sock, Jpeg, len, packetcounter, timecounter, offset, lastpacket, w, h, format_code, quality_code, has_dri_header);
 
     JpegLen   -= len;
     Jpeg      += len;

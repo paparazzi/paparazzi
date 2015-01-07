@@ -22,8 +22,7 @@
 # define SOCKET_ERROR -1
 # define IO_SOCKET ioctl
 
-struct UdpSocket *udp_socket(const char *str_ip_out, const int port_out, const int port_in, const int broadcast)
-{
+struct UdpSocket *udp_socket(const char *str_ip_out, const int port_out, const int port_in, const int broadcast) {
 
   struct UdpSocket *me = malloc(sizeof(struct UdpSocket));
 

@@ -43,10 +43,10 @@
 
 
 pthread_t video_thread;
-void *video_thread_main(void *data);
-void *video_thread_main(void *data)
+void *video_thread_main(void* data);
+void *video_thread_main(void* data)
 {
-  struct vid_struct *vid = (struct vid_struct *)data;
+  struct vid_struct* vid = (struct vid_struct*)data;
   printf("video_thread_main started\n");
   while (1) {
     fd_set fds;
@@ -61,7 +61,7 @@ void *video_thread_main(void *data)
     r = select(vid->fd + 1, &fds, NULL, NULL, &tv);
 
     if (-1 == r) {
-      if (EINTR == errno) { continue; }
+      if (EINTR == errno) continue;
       printf("select err\n");
     }
 
@@ -84,13 +84,13 @@ void *video_thread_main(void *data)
 
     vid->seq++;
 
-    if (vid->trigger) {
+    if(vid->trigger) {
 
       // todo add timestamp again
       //vid->img->timestamp = util_timestamp();
       vid->img->seq = vid->seq;
-      memcpy(vid->img->buf, vid->buffers[buf.index].buf, vid->w * vid->h * 2);
-      vid->trigger = 0;
+      memcpy(vid->img->buf, vid->buffers[buf.index].buf, vid->w*vid->h*2);
+      vid->trigger=0;
     }
 
     if (ioctl(vid->fd, VIDIOC_QBUF, &buf) < 0) {
@@ -108,9 +108,9 @@ int video_init(struct vid_struct *vid)
   unsigned int i;
   enum v4l2_buf_type type;
 
-  vid->seq = 0;
-  vid->trigger = 0;
-  if (vid->n_buffers == 0) { vid->n_buffers = 4; }
+  vid->seq=0;
+  vid->trigger=0;
+  if(vid->n_buffers==0) vid->n_buffers=4;
 
   vid->fd = open(vid->device, O_RDWR | O_NONBLOCK, 0);
 
@@ -148,7 +148,7 @@ int video_init(struct vid_struct *vid)
 
   printf("Buffer count = %d\n", vid->n_buffers);
 
-  vid->buffers = (struct buffer_struct *)calloc(vid->n_buffers, sizeof(struct buffer_struct));
+  vid->buffers = (struct buffer_struct*)calloc(vid->n_buffers, sizeof(struct buffer_struct));
 
   for (i = 0; i < vid->n_buffers; ++i) {
     struct v4l2_buffer buf;
@@ -164,11 +164,11 @@ int video_init(struct vid_struct *vid)
     }
 
     vid->buffers[i].length = buf.length;
-    printf("buffer%d.length=%d\n", i, buf.length);
-    vid->buffers[i].buf = mmap(NULL, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, vid->fd, buf.m.offset);
+    printf("buffer%d.length=%d\n",i,buf.length);
+    vid->buffers[i].buf = mmap(NULL, buf.length, PROT_READ|PROT_WRITE, MAP_SHARED, vid->fd, buf.m.offset);
 
     if (MAP_FAILED == vid->buffers[i].buf) {
-      printf("mmap() failed.\n");
+      printf ("mmap() failed.\n");
       return -1;
     }
   }
@@ -188,14 +188,14 @@ int video_init(struct vid_struct *vid)
   }
 
   type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  if (ioctl(vid->fd, VIDIOC_STREAMON, &type) < 0) {
+  if (ioctl(vid->fd, VIDIOC_STREAMON, &type)< 0) {
     printf("ioctl() VIDIOC_STREAMON failed.\n");
     return -1;
   }
 
   //start video thread
   int rc = pthread_create(&video_thread, NULL, video_thread_main, vid);
-  if (rc) {
+  if(rc) {
     printf("ctl_Init: Return code from pthread_create(mot_thread) is %d\n", rc);
     return 202;
   }
@@ -207,28 +207,27 @@ void video_close(struct vid_struct *vid)
 {
   int i;
   for (i = 0; i < (int)vid->n_buffers; ++i) {
-    if (-1 == munmap(vid->buffers[i].buf, vid->buffers[i].length)) { printf("munmap() failed.\n"); }
+    if (-1 == munmap(vid->buffers[i].buf, vid->buffers[i].length)) printf("munmap() failed.\n");
   }
   close(vid->fd);
 }
 
 struct img_struct *video_create_image(struct vid_struct *vid)
 {
-  struct img_struct *img = (struct img_struct *)malloc(sizeof(struct img_struct));
-  img->w = vid->w;
-  img->h = vid->h;
-  img->buf = (unsigned char *)malloc(vid->h * vid->w * 2);
+  struct img_struct* img = (struct img_struct*)malloc(sizeof(struct img_struct));
+  img->w=vid->w;
+  img->h=vid->h;
+  img->buf = (unsigned char*)malloc(vid->h*vid->w*2);
   return img;
 }
 
 pthread_mutex_t video_grab_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-void video_grab_image(struct vid_struct *vid, struct img_struct *img)
-{
+void video_grab_image(struct vid_struct *vid, struct img_struct *img) {
   pthread_mutex_lock(&video_grab_mutex);
   vid->img = img;
-  vid->trigger = 1;
+  vid->trigger=1;
   //  while(vid->trigger) pthread_yield();
-  while (vid->trigger) { usleep(1); }
+  while(vid->trigger) usleep(1);
   pthread_mutex_unlock(&video_grab_mutex);
 }

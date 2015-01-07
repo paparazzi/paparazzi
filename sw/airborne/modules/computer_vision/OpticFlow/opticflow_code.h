@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013
+ * Copyright (C) 2014 Hann Woei Ho
  *
  * This file is part of Paparazzi.
  *
@@ -19,30 +19,31 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/*
+ * @file paparazzi/sw/ext/ardrone2_vision/modules/OpticFlow/opticflow_code.h
+ * @brief optical-flow based hovering for Parrot AR.Drone 2.0
+ *
+ * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
+ */
 
-#include <stdint.h>
-#include "image.h"
+#ifndef _OPT_FL_LAND_H
+#define _OPT_FL_LAND_H
 
-inline void resize_uyuv(struct img_struct *input, struct img_struct *output, int downsample);
-inline void resize_uyuv(struct img_struct *input, struct img_struct *output, int downsample)
-{
-  uint8_t *source = input->buf;
-  uint8_t *dest = output->buf;
+// Settable by pluging
+extern unsigned int imgWidth, imgHeight;
+extern unsigned int verbose;
 
-  int pixelskip = downsample - 1;
-  for (int y = 0; y < output->h; y++) {
-    for (int x = 0; x < output->w; x += 2) {
-      // YUYV
-      *dest++ = *source++; // U
-      *dest++ = *source++; // Y
-      // now skip 3 pixels
-      source += (pixelskip + 1) * 2;
-      *dest++ = *source++; // U
-      *dest++ = *source++; // V
-      source += (pixelskip - 1) * 2;
-    }
-    // skip 3 rows
-    source += pixelskip * input->w * 2;
-  }
-}
+// Variables used by the controller
+extern float Velx, Vely;
+extern int count;
+extern int flow_count;
+extern struct FloatVect3 V_body;
 
+// Called by plugin
+void my_plugin_init(void);
+void my_plugin_run(unsigned char *frame);
+
+// Timer
+void start_timer_rates(void);
+long end_timer_rates(void);
+#endif
