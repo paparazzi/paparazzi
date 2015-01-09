@@ -5,10 +5,9 @@ import sys
 import os
 
 PPRZ_SRC = os.getenv("PAPARAZZI_SRC", "../../../..")
-sys.path.append(PPRZ_SRC + "/sw/lib/python/math")
+sys.path.append(PPRZ_SRC + "/sw/lib/python")
 
-from pprz_geodetic import *
-from math import degrees
+from pprz_math.geodetic import *
 import matplotlib.pyplot as plt
 import numpy as np
 

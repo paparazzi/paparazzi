@@ -1,5 +1,5 @@
-/* File : pprz_geodetic.i */
-%module pprz_geodetic
+/* File : geodetic.i */
+%module geodetic
 %feature("autodoc", "3");
 %include "typemaps.i"
 %include pprz_geodetic_int.i
