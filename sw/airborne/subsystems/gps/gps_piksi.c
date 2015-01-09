@@ -41,8 +41,8 @@
 #include "generated/flight_plan.h"
 #endif
 
-#ifndef USE_PIKSI_ECEF
-#define USE_PIKSI_ECEF 1
+#ifndef USE_PIKSI_BASELINE_ECEF
+#define USE_PIKSI_BASELINE_ECEF 1
 #endif
 
 /*
@@ -63,6 +63,10 @@ sbp_msg_callbacks_node_t dops_node;
 sbp_msg_callbacks_node_t gps_time_node;
 #if USE_PIKSI_BASELINE_ECEF
 sbp_msg_callbacks_node_t baseline_ecef_node;
+static bool_t baseline_ecef_valid;
+static uint32_t baseline_ecef_lost_counter;
+// baseline_ecef is lost after getting X pos_ecef message
+#define BASELINE_ECEF_LOST 5
 #endif
 //#if USE_PIKSI_BASELINE_NED
 //sbp_msg_callbacks_node_t baseline_ned_node;
@@ -80,6 +84,12 @@ static void sbp_pos_ecef_callback(uint16_t sender_id __attribute__((unused)),
                                   uint8_t msg[],
                                   void *context __attribute__((unused)))
 {
+#if USE_PIKSI_BASELINE_ECEF
+  if (baseline_ecef_valid) {
+    // if baseline ecef position is valid, use it
+    return;
+  }
+#endif
   sbp_pos_ecef_t pos_ecef = *(sbp_pos_ecef_t *)msg;
   gps.ecef_pos.x = (int32_t)(pos_ecef.x * 100.0);
   gps.ecef_pos.y = (int32_t)(pos_ecef.y * 100.0);
@@ -102,8 +112,11 @@ static void sbp_baseline_ecef_callback(uint16_t sender_id __attribute__((unused)
   gps.ecef_pos.z = (int32_t)(baseline_ecef.z / 10);
   gps.pacc = (uint32_t)(baseline_ecef.accuracy);
   gps.num_sv = baseline_ecef.n_sats;
+  gps.fix = GPS_FIX_3D;
   gps.tow = baseline_ecef.tow;
 
+  baseline_ecef_valid = TRUE;
+  baseline_ecef_lost_counter = 0;
   // High precision solution available
   gps_piksi_publish();
 }
@@ -121,6 +134,17 @@ static void sbp_vel_ecef_callback(uint16_t sender_id __attribute__((unused)),
   gps.sacc = (uint32_t)(vel_ecef.accuracy);
 
   // Solution available (VEL_ECEF is the last message to be send)
+#if USE_PIKSI_BASELINE_ECEF
+  // unless baseline ecef is valid
+  if (baseline_ecef_valid) {
+    // if baseline ecef position is valid, use it
+    return;
+  }
+  if (baseline_ecef_lost_counter < BASELINE_ECEF_LOST) {
+    baseline_ecef_lost_counter++;
+    baseline_ecef_valid = FALSE;
+  }
+#endif
   gps_piksi_publish();
 }
 
@@ -210,6 +234,9 @@ static void sbp_gps_time_callback(uint16_t sender_id __attribute__((unused)),
 
 void gps_impl_init(void)
 {
+  baseline_ecef_valid = FALSE;
+  baseline_ecef_lost_counter = 0;
+
   /* Setup SBP nodes */
   sbp_state_init(&sbp_state);
   /* Register a node and callback, and associate them with a specific message ID. */
