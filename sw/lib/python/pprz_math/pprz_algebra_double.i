@@ -127,6 +127,11 @@ struct DoubleEulers {
     v->qz = qz;
     return v;
   }
+  struct DoubleVect3 __mul__(struct DoubleVect3 *v) {
+    struct DoubleVect3 vout;
+    double_quat_vmult(&vout, $self, v);
+    return vout;
+  }
   double norm() {
     return double_quat_norm($self);
   }
@@ -151,7 +156,25 @@ struct DoubleEulers {
             $self->m[5], $self->m[6], $self->m[7], $self->m[8]);
     return tmp;
   }
-
+  struct DoubleVect3 __mul__(struct DoubleVect3 *v) {
+    struct DoubleVect3 vout;
+    double_quat_vmult(&vout, $self, v);
+    return vout;
+  }
+  double norm() {
+    return double_quat_norm($self);
+  }
+  void normalize() {
+    double_quat_normalize($self);
+  }
+  void set_identity() {
+    double_quat_identity($self);
+  }
+  struct DoubleEulers to_eulers() {
+    struct DoubleEulers e;
+    double_eulers_of_quat(&e, $self);
+    return e;
+  }
 };
 
 %extend DoubleEulers {

@@ -4,7 +4,48 @@
 #include "math/pprz_geodetic_float.h"
 %}
 
+/* don't wrap everything in header
 %include "math/pprz_geodetic_float.h"
+* instead only wrap the structs and extend them with nicer to use methods
+*/
+
+struct EcefCoor_f {
+  float x; ///< in meters
+  float y; ///< in meters
+  float z; ///< in meters
+};
+
+struct LlaCoor_f {
+  float lat; ///< in radians
+  float lon; ///< in radians
+  float alt; ///< in meters above WGS84 reference ellipsoid
+};
+
+struct NedCoor_f {
+  float x; ///< in meters
+  float y; ///< in meters
+  float z; ///< in meters
+};
+
+struct EnuCoor_f {
+  float x; ///< in meters
+  float y; ///< in meters
+  float z; ///< in meters
+};
+
+struct UtmCoor_f {
+  float north; ///< in meters
+  float east; ///< in meters
+  float alt; ///< in meters above WGS84 reference ellipsoid
+  uint8_t zone; ///< UTM zone number
+};
+
+struct LtpDef_f {
+  struct EcefCoor_f ecef; ///< origin of local frame in ECEF
+  struct LlaCoor_f  lla; ///< origin of local frame in LLA
+  struct FloatRMat ltp_of_ecef; ///< rotation from ECEF to local frame
+  float hmsl; ///< Height above mean sea level in meters
+};
 
 %extend EcefCoor_f {
   char *__str__() {
@@ -32,6 +73,36 @@
     v.y = $self->y - other->y;
     v.z = $self->z - other->z;
     return v;
+  }
+  struct LlaCoor_f to_lla() {
+    struct LlaCoor_f lla;
+    lla_of_ecef_f(&lla, $self);
+    return lla;
+  }
+  struct LtpDef_f to_ltp_def() {
+    struct LtpDef_f ltp;
+    ltp_def_from_ecef_f(&ltp, $self);
+    return ltp;
+  }
+  struct NedCoor_f to_ned(struct LtpDef_f *ltp) {
+    struct NedCoor_f ned;
+    ned_of_ecef_point_f(&ned, ltp, $self);
+    return ned;
+  }
+  struct EnuCoor_f to_enu(struct LtpDef_f *ltp) {
+    struct EnuCoor_f enu;
+    enu_of_ecef_point_f(&enu, ltp, $self);
+    return enu;
+  }
+  struct NedCoor_f to_ned_vect(struct LtpDef_f *ltp) {
+    struct NedCoor_f ned;
+    ned_of_ecef_vect_f(&ned, ltp, $self);
+    return ned;
+  }
+  struct EnuCoor_f to_enu_vect(struct LtpDef_f *ltp) {
+    struct EnuCoor_f enu;
+    enu_of_ecef_vect_f(&enu, ltp, $self);
+    return enu;
   }
 };
 
@@ -62,6 +133,16 @@
     v.z = $self->z - other->z;
     return v;
   }
+  struct EcefCoor_f to_ecef(struct LtpDef_f *ltp) {
+    struct EcefCoor_f ecef;
+    ecef_of_ned_point_f(&ecef, ltp, $self);
+    return ecef;
+  }
+  struct EcefCoor_f to_ecef_vect(struct LtpDef_f *ltp) {
+    struct EcefCoor_f ecef;
+    ecef_of_ned_vect_f(&ecef, ltp, $self);
+    return ecef;
+  }
 };
 
 %extend EnuCoor_f {
@@ -91,6 +172,16 @@
     v.z = $self->z - other->z;
     return v;
   }
+  struct EcefCoor_f to_ecef(struct LtpDef_f *ltp) {
+    struct EcefCoor_f ecef;
+    ecef_of_enu_point_f(&ecef, ltp, $self);
+    return ecef;
+  }
+  struct EcefCoor_f to_ecef_vect(struct LtpDef_f *ltp) {
+    struct EcefCoor_f ecef;
+    ecef_of_enu_vect_f(&ecef, ltp, $self);
+    return ecef;
+  }
 };
 
 %extend UtmCoor_f {
@@ -107,6 +198,11 @@
     v->zone = zone;
     return v;
   }
+  struct LlaCoor_f to_lla() {
+    struct LlaCoor_f lla;
+    lla_of_utm_f(&lla, $self);
+    return lla;
+  }
 };
 
 %extend LlaCoor_f {
@@ -121,6 +217,31 @@
     v->lon = lon;
     v->alt = alt;
     return v;
+  }
+  struct EcefCoor_f to_ecef() {
+    struct EcefCoor_f ecef;
+    ecef_of_lla_f(&ecef, $self);
+    return ecef;
+  }
+  struct NedCoor_f to_ned(struct LtpDef_f *ltp) {
+    struct NedCoor_f ned;
+    ned_of_lla_point_f(&ned, ltp, $self);
+    return ned;
+  }
+  struct EnuCoor_f to_enu(struct LtpDef_f *ltp) {
+    struct EnuCoor_f enu;
+    enu_of_lla_point_f(&enu, ltp, $self);
+    return enu;
+  }
+  struct UtmCoor_f to_utm() {
+    struct UtmCoor_f utm;
+    utm_of_lla_f(&utm, $self);
+    return utm;
+  }
+  struct LtpDef_f to_ltp_def() {
+    struct LtpDef_f ltp;
+    ltp_def_from_lla_f(&ltp, $self);
+    return ltp;
   }
 };
 

@@ -20,12 +20,9 @@ ALT0 = 147.000  # in m
 utm_origin = UtmCoor_d(north=UTM_NORTH0, east=UTM_EAST0, alt=ALT0, zone=UTM_ZONE0)
 print("origin %s" % utm_origin)
 
-lla_origin = LlaCoor_d()
-lla_of_utm_d(lla_origin, utm_origin)
-ecef_origin = EcefCoor_d()
-ecef_of_lla_d(ecef_origin, lla_origin)
-ltp_origin = LtpDef_d()
-ltp_def_from_ecef_d(ltp_origin, ecef_origin)
+lla_origin = utm_origin.to_lla()
+ecef_origin = lla_origin.to_ecef()
+ltp_origin = ecef_origin.to_ltp_def()
 print(ltp_origin)
 
 # calculate ENU coordinates for 100 points in 100m distance
@@ -42,13 +39,10 @@ for i in range(0, nb_points):
     #print(utm)
     utm_res[i, 0] = utm.east - utm_origin.east
     utm_res[i, 1] = utm.north - utm_origin.north
-    lla = LlaCoor_d()
-    lla_of_utm_d(lla, utm)
+    lla = utm.to_lla()
     #print(lla)
-    ecef = EcefCoor_d()
-    ecef_of_lla_d(ecef, lla)
-    enu = EnuCoor_d()
-    enu_of_ecef_point_d(enu, ltp_origin, ecef)
+    ecef = lla.to_ecef()
+    enu = ecef.to_enu(ltp_origin)
     enu_res[i, 0] = enu.x
     enu_res[i, 1] = enu.y
     #print(enu)

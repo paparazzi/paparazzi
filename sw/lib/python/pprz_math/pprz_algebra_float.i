@@ -142,6 +142,11 @@ struct FloatEulers {
     float_quat_comp(&qout, $self, &q);
     return qout;
   }
+  struct FloatVect3 __mul__(struct FloatVect3 *v) {
+    struct FloatVect3 vout;
+    float_quat_vmult(&vout, $self, v);
+    return vout;
+  }
   float norm() {
     return float_quat_norm($self);
   }
