@@ -177,6 +177,51 @@ struct DoubleEulers {
   }
 };
 
+%extend DoubleRMat {
+  char *__str__() {
+    static char tmp[1024];
+    sprintf(tmp,"RMat[% .5f, % .5f, % .5f]\n    [% .5f, % .5f, % .5f]\n    [% .5f, % .5f, % .5f]",
+            $self->m[0], $self->m[1], $self->m[2], $self->m[3], $self->m[4],
+            $self->m[5], $self->m[6], $self->m[7], $self->m[8]);
+    return tmp;
+  }
+  DoubleRMat() {
+    struct DoubleRMat *rm = (struct DoubleRMat *) malloc(sizeof(struct DoubleRMat));
+    double_rmat_identity(rm);
+    return rm;
+  }
+  struct DoubleRMat __mul__(struct DoubleRMat *m_b2c) {
+    struct DoubleRMat m_a2c;
+    double_rmat_comp(&m_a2c, $self, m_b2c);
+    return m_a2c;
+  }
+  struct DoubleRMat __mul__(struct DoubleQuat *q) {
+    struct DoubleRMat m_b2c;
+    double_rmat_of_quat(&m_b2c, q);
+    struct DoubleRMat m_a2c;
+    double_rmat_comp(&m_a2c, $self, &m_b2c);
+    return m_a2c;
+  }
+  struct DoubleVect3 __mul__(struct DoubleVect3 *va) {
+    struct DoubleVect3 v;
+    double_rmat_vmult(&v, $self, va);
+    return v;
+  }
+  void set_identity() {
+    double_rmat_identity($self);
+  }
+  struct DoubleRMat inverse() {
+    struct DoubleRMat inv;
+    double_rmat_inv(&inv, $self);
+    return inv;
+  }
+  struct DoubleRMat transposed() {
+    struct DoubleRMat inv;
+    double_rmat_inv(&inv, $self);
+    return inv;
+  }
+};
+
 %extend DoubleEulers {
   char *__str__() {
     static char tmp[1024];

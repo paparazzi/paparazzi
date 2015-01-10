@@ -235,6 +235,9 @@ struct FloatEulers {
     float_quat_of_rmat(&q, $self);
     return q;
   }
+  double reorthogonalize() {
+    return float_rmat_reorthogonalize($self);
+  }
 };
 
 %extend FloatEulers {

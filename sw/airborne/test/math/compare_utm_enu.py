@@ -8,6 +8,7 @@ PPRZ_SRC = os.getenv("PAPARAZZI_SRC", "../../../..")
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
 
 from pprz_math.geodetic import *
+from pprz_math.algebra import DoubleRMat
 import matplotlib.pyplot as plt
 import numpy as np
 

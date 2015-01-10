@@ -153,6 +153,29 @@ extern void double_quat_of_eulers(struct DoubleQuat *q, struct DoubleEulers *e);
 extern void double_eulers_of_quat(struct DoubleEulers *e, struct DoubleQuat *q);
 extern void double_quat_vmult(struct DoubleVect3 *v_out, struct DoubleQuat *q, struct DoubleVect3 *v_in);
 
+/** initialises a rotation matrix to identity */
+static inline void double_rmat_identity(struct DoubleRMat *rm)
+{
+  FLOAT_MAT33_DIAG(*rm, 1., 1., 1.);
+}
+
+/** Inverse/transpose of a rotation matrix.
+ * m_b2a = inv(_m_a2b) = transp(_m_a2b)
+ */
+extern void double_rmat_inv(struct DoubleRMat *m_b2a, struct DoubleRMat *m_a2b);
+
+/** Composition (multiplication) of two rotation matrices.
+ * m_a2c = m_a2b comp m_b2c , aka  m_a2c = m_b2c * m_a2b
+ */
+extern void double_rmat_comp(struct DoubleRMat *m_a2c, struct DoubleRMat *m_a2b,
+                             struct DoubleRMat *m_b2c);
+
+/** rotate 3D vector by rotation matrix.
+ * vb = m_a2b * va
+ */
+extern void double_rmat_vmult(struct DoubleVect3 *vb, struct DoubleRMat *m_a2b,
+                              struct DoubleVect3 *va);
+extern void double_rmat_of_quat(struct DoubleRMat *rm, struct DoubleQuat *q);
 static inline void double_rmat_of_eulers(struct DoubleRMat *rm, struct DoubleEulers *e)
 {
   double_rmat_of_eulers_321(rm, e);
