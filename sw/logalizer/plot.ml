@@ -326,7 +326,7 @@ class plot = fun ~width ~height ~packing () ->
         let points = ref [] in
         Array.iteri (fun i (t, v) -> if t > min_x && t <= max_x && (i mod step = 0) then points := List.rev_append [(scale_x t, scale_y v)] !points) curve.values;
 	renderer#set_color curve.color;
-	renderer#lines !points;
+        if List.length !points > 0 then renderer#lines !points;
 
 	(* Title *)
 	let (w, h) = renderer#create_text title in
