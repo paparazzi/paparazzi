@@ -136,7 +136,8 @@ int atan_zelf(int y, int x)
 
   if (x < 0) { x = -x; }
   if (y < 0) { y = -y; }
-  flip = 0;  if (x < y) { flip = 1; t = x;  x = y;  y = t; }
+  flip = 0;
+  if (x < y) { flip = 1; t = x;  x = y;  y = t; }
   if (x == 0) { return 90; }
 
   xy = (y * 1000) / x;

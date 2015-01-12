@@ -433,7 +433,8 @@ void MakeTables(int q)
 
 
 
-uint8_t *encode_image(uint8_t *input_ptr, uint8_t *output_ptr, uint32_t quality_factor, uint32_t image_format, uint32_t image_width, uint32_t image_height, uint8_t add_dri_header)
+uint8_t *encode_image(uint8_t *input_ptr, uint8_t *output_ptr, uint32_t quality_factor, uint32_t image_format,
+                      uint32_t image_width, uint32_t image_height, uint8_t add_dri_header)
 {
   uint16_t i, j;
 

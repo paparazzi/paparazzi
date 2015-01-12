@@ -26,7 +26,7 @@ inline void paparazzi_message_send(void)
 {
   udp_write(sock, (char *) &gst2ppz, sizeof(gst2ppz));
   int ret = udp_read(sock, (unsigned char *) &ppz2gst, sizeof(ppz2gst));
-  printf("read: %d \n",ret);
+  printf("read: %d \n", ret);
 }
 
 

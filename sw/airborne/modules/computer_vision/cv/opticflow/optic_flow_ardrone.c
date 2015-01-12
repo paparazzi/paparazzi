@@ -80,7 +80,8 @@ void getImageDifference(int *ImA, int *ImB, int *ImC, int width, int height)
 
 }
 
-void getSubPixel_gray(int *Patch, unsigned char *frame_buf, int center_x, int center_y, int half_window_size, int subpixel_factor)
+void getSubPixel_gray(int *Patch, unsigned char *frame_buf, int center_x, int center_y, int half_window_size,
+                      int subpixel_factor)
 {
   int x, y, x_0, y_0, x_0_or, y_0_or, i, j, window_size, alpha_x, alpha_y, max_x, max_y;
   //int printed, limit;
@@ -305,7 +306,8 @@ int calculateError(int *ImC, int width, int height)
   return error;
 }
 
-int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, int *p_x, int *p_y, int n_found_points, int imW, int imH, int *new_x, int *new_y, int *status, int half_window_size, int max_iterations)
+int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, int *p_x, int *p_y, int n_found_points,
+                int imW, int imH, int *new_x, int *new_y, int *status, int half_window_size, int max_iterations)
 {
   // A straightforward one-level implementation of Lucas-Kanade.
   // For all points:
@@ -363,7 +365,8 @@ int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, int 
     //printf("Subpixel coordinate: (%d,%d)\n\r", p_x[p], p_y[p]);
 
     // if the pixel is outside the ROI in the image, do not track it:
-    if (!(p_x[p] > ((half_window_size + 1) * subpixel_factor) && p_x[p] < (IMG_WIDTH - half_window_size) * subpixel_factor && p_y[p] > ((half_window_size + 1) * subpixel_factor) && p_y[p] < (IMG_HEIGHT - half_window_size)*subpixel_factor)) {
+    if (!(p_x[p] > ((half_window_size + 1) * subpixel_factor) && p_x[p] < (IMG_WIDTH - half_window_size) * subpixel_factor
+          && p_y[p] > ((half_window_size + 1) * subpixel_factor) && p_y[p] < (IMG_HEIGHT - half_window_size)*subpixel_factor)) {
 //      printf("Outside of ROI, P1[%d,%d]\n\r",p_x[p],p_y[p]);
       status[p] = 0;
     }
@@ -415,7 +418,10 @@ int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, int 
       //printf("it = %d, (p_x+v_x,p_y+v_y) = (%d,%d)\n\r", it, p_x[p]+v_x, p_y[p]+v_y);
       //printf("it = %d;", it);
       // if the pixel goes outside the ROI in the image, stop tracking:
-      if (!(p_x[p] + v_x > ((half_window_size + 1) * subpixel_factor) && p_x[p] + v_x < ((int)IMG_WIDTH - half_window_size) * subpixel_factor && p_y[p] + v_y > ((half_window_size + 1) * subpixel_factor) && p_y[p] + v_y < ((int)IMG_HEIGHT - half_window_size)*subpixel_factor)) {
+      if (!(p_x[p] + v_x > ((half_window_size + 1) * subpixel_factor)
+            && p_x[p] + v_x < ((int)IMG_WIDTH - half_window_size) * subpixel_factor
+            && p_y[p] + v_y > ((half_window_size + 1) * subpixel_factor)
+            && p_y[p] + v_y < ((int)IMG_HEIGHT - half_window_size)*subpixel_factor)) {
 //      printf("Outside of ROI, P1[%d,%d]\n\r",p_x[p],p_y[p]);
         status[p] = 0;
         break;

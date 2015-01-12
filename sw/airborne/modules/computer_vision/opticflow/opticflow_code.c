@@ -95,238 +95,216 @@ struct FloatVect3 V_body;
 // Called by plugin
 void my_plugin_init(void)
 {
-	// Initialize variables
-	gray_frame = (unsigned char *) calloc(imgWidth*imgHeight,sizeof(unsigned char));
-	prev_frame = (unsigned char *) calloc(imgWidth*imgHeight*2,sizeof(unsigned char));
-	prev_gray_frame = (unsigned char *) calloc(imgWidth*imgHeight,sizeof(unsigned char));
-	x = (int *) calloc(MAX_COUNT,sizeof(int));
-	new_x = (int *) calloc(MAX_COUNT,sizeof(int));
-	y = (int *) calloc(MAX_COUNT,sizeof(int));
-	new_y = (int *) calloc(MAX_COUNT,sizeof(int));
-	status = (int *) calloc(MAX_COUNT,sizeof(int));
-	dx = (int *) calloc(MAX_COUNT,sizeof(int));
-	dy = (int *) calloc(MAX_COUNT,sizeof(int));
-	old_img_init = 1;
-	OFx = 0.0;
-	OFy = 0.0;
-	dx_sum = 0.0;
-	dy_sum = 0.0;
-	diff_roll = 0.0;
-	diff_pitch = 0.0;
-	cam_h = 0.0;
-	prev_pitch = 0.0;
-	prev_roll = 0.0;
-	curr_pitch = 0.0;
-	curr_roll = 0.0;
-	curr_yaw = 0.0;
-	OFx_trans = 0.0;
-	OFy_trans = 0.0;
-	Velx = 0.0;
-	Vely = 0.0;
+  // Initialize variables
+  gray_frame = (unsigned char *) calloc(imgWidth * imgHeight, sizeof(unsigned char));
+  prev_frame = (unsigned char *) calloc(imgWidth * imgHeight * 2, sizeof(unsigned char));
+  prev_gray_frame = (unsigned char *) calloc(imgWidth * imgHeight, sizeof(unsigned char));
+  x = (int *) calloc(MAX_COUNT, sizeof(int));
+  new_x = (int *) calloc(MAX_COUNT, sizeof(int));
+  y = (int *) calloc(MAX_COUNT, sizeof(int));
+  new_y = (int *) calloc(MAX_COUNT, sizeof(int));
+  status = (int *) calloc(MAX_COUNT, sizeof(int));
+  dx = (int *) calloc(MAX_COUNT, sizeof(int));
+  dy = (int *) calloc(MAX_COUNT, sizeof(int));
+  old_img_init = 1;
+  OFx = 0.0;
+  OFy = 0.0;
+  dx_sum = 0.0;
+  dy_sum = 0.0;
+  diff_roll = 0.0;
+  diff_pitch = 0.0;
+  cam_h = 0.0;
+  prev_pitch = 0.0;
+  prev_roll = 0.0;
+  curr_pitch = 0.0;
+  curr_roll = 0.0;
+  curr_yaw = 0.0;
+  OFx_trans = 0.0;
+  OFy_trans = 0.0;
+  Velx = 0.0;
+  Vely = 0.0;
 }
 
 void my_plugin_run(unsigned char *frame)
 {
-	if(old_img_init == 1)
-	{
-		memcpy(prev_frame,frame,imgHeight*imgWidth*2);
-		CvtYUYV2Gray(prev_gray_frame, prev_frame, imgWidth, imgHeight);
-		old_img_init = 0;
-	}
+  if (old_img_init == 1) {
+    memcpy(prev_frame, frame, imgHeight * imgWidth * 2);
+    CvtYUYV2Gray(prev_gray_frame, prev_frame, imgWidth, imgHeight);
+    old_img_init = 0;
+  }
 
-	// ***********************************************************************************************************************
-	// Additional information from other sensors
-	// ***********************************************************************************************************************
+  // ***********************************************************************************************************************
+  // Additional information from other sensors
+  // ***********************************************************************************************************************
 
-    // Compute body velocities from ENU
-    V_Ned.x = stateGetSpeedNed_f()->x;
-    V_Ned.y = stateGetSpeedNed_f()->y;
-    V_Ned.z = stateGetSpeedNed_f()->z;
+  // Compute body velocities from ENU
+  V_Ned.x = stateGetSpeedNed_f()->x;
+  V_Ned.y = stateGetSpeedNed_f()->y;
+  V_Ned.z = stateGetSpeedNed_f()->z;
 
-    struct FloatQuat* BodyQuaternions = stateGetNedToBodyQuat_f();
-    FLOAT_RMAT_OF_QUAT(Rmat_Ned2Body,*BodyQuaternions);
-    RMAT_VECT3_MUL(V_body, Rmat_Ned2Body, V_Ned);
+  struct FloatQuat *BodyQuaternions = stateGetNedToBodyQuat_f();
+  FLOAT_RMAT_OF_QUAT(Rmat_Ned2Body, *BodyQuaternions);
+  RMAT_VECT3_MUL(V_body, Rmat_Ned2Body, V_Ned);
 
-	// ***********************************************************************************************************************
-	// Corner detection
-	// ***********************************************************************************************************************
+  // ***********************************************************************************************************************
+  // Corner detection
+  // ***********************************************************************************************************************
 
-	// FAST corner detection
-	int fast_threshold = 20;
-	xyFAST* pnts_fast;
-	pnts_fast = fast9_detect((const byte*)prev_gray_frame, imgWidth, imgHeight, imgWidth, fast_threshold, &count);
+  // FAST corner detection
+  int fast_threshold = 20;
+  xyFAST *pnts_fast;
+  pnts_fast = fast9_detect((const byte *)prev_gray_frame, imgWidth, imgHeight, imgWidth, fast_threshold, &count);
 
-	if(count > MAX_COUNT) count = MAX_COUNT;
-	for(int i = 0; i < count; i++)
-	{
-		x[i] = pnts_fast[i].x;
-		y[i] = pnts_fast[i].y;
-	}
-	free(pnts_fast);
+  if (count > MAX_COUNT) { count = MAX_COUNT; }
+  for (int i = 0; i < count; i++) {
+    x[i] = pnts_fast[i].x;
+    y[i] = pnts_fast[i].y;
+  }
+  free(pnts_fast);
 
-	// Remove neighbouring corners
-	min_distance = 3;
-	min_distance2 = min_distance*min_distance;
-	int *labelmin;
-	labelmin = (int *) calloc(MAX_COUNT,sizeof(int));
-	for(int i = 0; i < count; i++)
-	{
-		for(int j = i+1; j < count; j++)
-		{
-			// distance squared:
-			distance2 = (x[i] - x[j])*(x[i] - x[j]) + (y[i] - y[j])*(y[i] - y[j]);
-			if(distance2 < min_distance2)
-			{
-				labelmin[i] = 1;
-			}
-		}
-	}
+  // Remove neighbouring corners
+  min_distance = 3;
+  min_distance2 = min_distance * min_distance;
+  int *labelmin;
+  labelmin = (int *) calloc(MAX_COUNT, sizeof(int));
+  for (int i = 0; i < count; i++) {
+    for (int j = i + 1; j < count; j++) {
+      // distance squared:
+      distance2 = (x[i] - x[j]) * (x[i] - x[j]) + (y[i] - y[j]) * (y[i] - y[j]);
+      if (distance2 < min_distance2) {
+        labelmin[i] = 1;
+      }
+    }
+  }
 
-	int count_fil = count;
-	for(int i = count-1; i >= 0; i-- )
-	{
-		remove_point = 0;
+  int count_fil = count;
+  for (int i = count - 1; i >= 0; i--) {
+    remove_point = 0;
 
-		if(labelmin[i])
-		{
-			remove_point = 1;
-		}
+    if (labelmin[i]) {
+      remove_point = 1;
+    }
 
-		if(remove_point)
-		{
-			for(c = i; c <count_fil-1; c++)
-			{
-				x[c] = x[c+1];
-				y[c] = y[c+1];
-			}
-			count_fil--;
-		}
-	}
+    if (remove_point) {
+      for (c = i; c < count_fil - 1; c++) {
+        x[c] = x[c + 1];
+        y[c] = y[c + 1];
+      }
+      count_fil--;
+    }
+  }
 
-	if(count_fil>max_count) count_fil = max_count;
-	count = count_fil;
-	free(labelmin);
+  if (count_fil > max_count) { count_fil = max_count; }
+  count = count_fil;
+  free(labelmin);
 
-	// **********************************************************************************************************************
-	// Corner Tracking
-	// **********************************************************************************************************************
-	CvtYUYV2Gray(gray_frame, frame, imgWidth, imgHeight);
+  // **********************************************************************************************************************
+  // Corner Tracking
+  // **********************************************************************************************************************
+  CvtYUYV2Gray(gray_frame, frame, imgWidth, imgHeight);
 
-	error_opticflow = opticFlowLK(gray_frame, prev_gray_frame, x, y, count_fil, imgWidth, imgHeight, new_x, new_y, status, 5, 100);
+  error_opticflow = opticFlowLK(gray_frame, prev_gray_frame, x, y, count_fil, imgWidth, imgHeight, new_x, new_y, status,
+                                5, 100);
 
-	flow_count = count_fil;
-	for(int i=count_fil-1; i>=0; i--)
-	{
-		remove_point = 1;
+  flow_count = count_fil;
+  for (int i = count_fil - 1; i >= 0; i--) {
+    remove_point = 1;
 
-		if(status[i] && !(new_x[i] < borderx || new_x[i] > (imgWidth-1-borderx) ||
-				new_y[i] < bordery || new_y[i] > (imgHeight-1-bordery)))
-		{
-			remove_point = 0;
-		}
+    if (status[i] && !(new_x[i] < borderx || new_x[i] > (imgWidth - 1 - borderx) ||
+                       new_y[i] < bordery || new_y[i] > (imgHeight - 1 - bordery))) {
+      remove_point = 0;
+    }
 
-		if(remove_point)
-		{
-			for(c = i; c <flow_count-1; c++)
-			{
-				x[c] = x[c+1];
-				y[c] = y[c+1];
-				new_x[c] = new_x[c+1];
-				new_y[c] = new_y[c+1];
-			}
-			flow_count--;
-		}
-	}
+    if (remove_point) {
+      for (c = i; c < flow_count - 1; c++) {
+        x[c] = x[c + 1];
+        y[c] = y[c + 1];
+        new_x[c] = new_x[c + 1];
+        new_y[c] = new_y[c + 1];
+      }
+      flow_count--;
+    }
+  }
 
-	dx_sum = 0.0;
-	dy_sum = 0.0;
+  dx_sum = 0.0;
+  dy_sum = 0.0;
 
-	// Optical Flow Computation
-	for(int i=0; i<flow_count; i++)
-	{
-		dx[i] = new_x[i] - x[i];
-		dy[i] = new_y[i] - y[i];
-	}
+  // Optical Flow Computation
+  for (int i = 0; i < flow_count; i++) {
+    dx[i] = new_x[i] - x[i];
+    dy[i] = new_y[i] - y[i];
+  }
 
-	// Median Filter
-	if(flow_count)
-	{
-		quick_sort_int(dx,flow_count); // 11
-		quick_sort_int(dy,flow_count); // 11
+  // Median Filter
+  if (flow_count) {
+    quick_sort_int(dx, flow_count); // 11
+    quick_sort_int(dy, flow_count); // 11
 
-		dx_sum = (float) dx[flow_count/2];
-		dy_sum = (float) dy[flow_count/2];
-	}
-	else
-	{
-		dx_sum = 0.0;
-		dy_sum = 0.0;
-	}
+    dx_sum = (float) dx[flow_count / 2];
+    dy_sum = (float) dy[flow_count / 2];
+  } else {
+    dx_sum = 0.0;
+    dy_sum = 0.0;
+  }
 
-	// Flow Derotation
-	curr_pitch = stateGetNedToBodyEulers_f()->theta;
-	curr_roll = stateGetNedToBodyEulers_f()->phi;
-	curr_yaw = stateGetNedToBodyEulers_f()->psi;
+  // Flow Derotation
+  curr_pitch = stateGetNedToBodyEulers_f()->theta;
+  curr_roll = stateGetNedToBodyEulers_f()->phi;
+  curr_yaw = stateGetNedToBodyEulers_f()->psi;
 
-	diff_pitch = (curr_pitch - prev_pitch)*imgHeight/FOV_H;
-	diff_roll = (curr_roll - prev_roll)*imgWidth/FOV_W;
+  diff_pitch = (curr_pitch - prev_pitch) * imgHeight / FOV_H;
+  diff_roll = (curr_roll - prev_roll) * imgWidth / FOV_W;
 
-	prev_pitch = curr_pitch;
-	prev_roll = curr_roll;
+  prev_pitch = curr_pitch;
+  prev_roll = curr_roll;
 
 #ifdef FLOW_DEROTATION
-	if(flow_count)
-	{
-		OFx_trans = dx_sum - diff_roll;
-		OFy_trans = dy_sum - diff_pitch;
+  if (flow_count) {
+    OFx_trans = dx_sum - diff_roll;
+    OFy_trans = dy_sum - diff_pitch;
 
-		if((OFx_trans<=0) != (dx_sum<=0))
-		{
-			OFx_trans = 0;
-			OFy_trans = 0;
-		}
-	}
-	else
-	{
-		OFx_trans = dx_sum;
-		OFy_trans = dy_sum;
-	}
+    if ((OFx_trans <= 0) != (dx_sum <= 0)) {
+      OFx_trans = 0;
+      OFy_trans = 0;
+    }
+  } else {
+    OFx_trans = dx_sum;
+    OFy_trans = dy_sum;
+  }
 #else
-	OFx_trans = dx_sum;
-	OFy_trans = dy_sum;
+  OFx_trans = dx_sum;
+  OFy_trans = dy_sum;
 #endif
 
-	// Average Filter
-	OFfilter(&OFx, &OFy, OFx_trans, OFy_trans, flow_count, 1);
+  // Average Filter
+  OFfilter(&OFx, &OFy, OFx_trans, OFy_trans, flow_count, 1);
 
-	// Velocity Computation
-	#ifdef USE_SONAR
-		cam_h = 1; //ins_impl.sonar_z;
-	#else
-		cam_h = 1;
-	#endif
+  // Velocity Computation
+#ifdef USE_SONAR
+  cam_h = 1; //ins_impl.sonar_z;
+#else
+  cam_h = 1;
+#endif
 
-	if(flow_count)
-	{
-		Velx = OFy*cam_h*FPS/Fy_ARdrone + 0.05;
-		Vely = -OFx*cam_h*FPS/Fx_ARdrone - 0.1;
-	}
-	else
-	{
-		Velx = 0.0;
-		Vely = 0.0;
-	}
+  if (flow_count) {
+    Velx = OFy * cam_h * FPS / Fy_ARdrone + 0.05;
+    Vely = -OFx * cam_h * FPS / Fx_ARdrone - 0.1;
+  } else {
+    Velx = 0.0;
+    Vely = 0.0;
+  }
 
-	// **********************************************************************************************************************
-	// Next Loop Preparation
-	// **********************************************************************************************************************
+  // **********************************************************************************************************************
+  // Next Loop Preparation
+  // **********************************************************************************************************************
 
-	memcpy(prev_frame,frame,imgHeight*imgWidth*2);
-	memcpy(prev_gray_frame,gray_frame,imgHeight*imgWidth);
+  memcpy(prev_frame, frame, imgHeight * imgWidth * 2);
+  memcpy(prev_gray_frame, gray_frame, imgHeight * imgWidth);
 
-	// **********************************************************************************************************************
-	// Downlink Message
-	// **********************************************************************************************************************
-	DOWNLINK_SEND_OF_HOVER(DefaultChannel, DefaultDevice, &FPS, &dx_sum, &dy_sum, &OFx, &OFy, &diff_roll, &diff_pitch, &Velx, &Vely, &V_body.x, &V_body.y, &cam_h, &count);
+  // **********************************************************************************************************************
+  // Downlink Message
+  // **********************************************************************************************************************
+  DOWNLINK_SEND_OF_HOVER(DefaultChannel, DefaultDevice, &FPS, &dx_sum, &dy_sum, &OFx, &OFy, &diff_roll, &diff_pitch,
+                         &Velx, &Vely, &V_body.x, &V_body.y, &cam_h, &count);
 }
 

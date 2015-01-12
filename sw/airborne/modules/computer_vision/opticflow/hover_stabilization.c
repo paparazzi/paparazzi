@@ -65,102 +65,85 @@ float Vely_Int;
 float Error_Velx;
 float Error_Vely;
 
-#define CMD_OF_SAT	1500 // 40 deg = 2859.1851
+#define CMD_OF_SAT  1500 // 40 deg = 2859.1851
 unsigned char saturateX = 0, saturateY = 0;
 unsigned int set_heading;
 
 void init_hover_stabilization_onvision()
 {
-	INT_EULERS_ZERO(cmd_euler);
+  INT_EULERS_ZERO(cmd_euler);
 
-	activate_opticflow_hover = VISION_HOVER;
-	vision_phi_pgain = VISION_PHI_PGAIN;
-	vision_phi_igain = VISION_PHI_IGAIN;
-	vision_theta_pgain = VISION_THETA_PGAIN;
-	vision_theta_igain = VISION_THETA_IGAIN;
-	vision_desired_vx = VISION_DESIRED_VX;
-	vision_desired_vy = VISION_DESIRED_VY;
+  activate_opticflow_hover = VISION_HOVER;
+  vision_phi_pgain = VISION_PHI_PGAIN;
+  vision_phi_igain = VISION_PHI_IGAIN;
+  vision_theta_pgain = VISION_THETA_PGAIN;
+  vision_theta_igain = VISION_THETA_IGAIN;
+  vision_desired_vx = VISION_DESIRED_VX;
+  vision_desired_vy = VISION_DESIRED_VY;
 
-	set_heading = 1;
+  set_heading = 1;
 
-	Error_Velx = 0;
-	Error_Vely = 0;
-	Velx_Int = 0;
-	Vely_Int = 0;
+  Error_Velx = 0;
+  Error_Vely = 0;
+  Velx_Int = 0;
+  Vely_Int = 0;
 }
 
 void run_hover_stabilization_onvision(void)
 {
-	if(autopilot_mode == AP_MODE_VISION_HOVER)
-	{
-		run_opticflow_hover();
-	}
-	else
-	{
-		Velx_Int = 0;
-		Vely_Int = 0;
-	}
+  if (autopilot_mode == AP_MODE_VISION_HOVER) {
+    run_opticflow_hover();
+  } else {
+    Velx_Int = 0;
+    Vely_Int = 0;
+  }
 }
 
 void run_opticflow_hover(void)
 {
-	if(flow_count)
-	{
-		Error_Velx = Velx - vision_desired_vx;
-		Error_Vely = Vely - vision_desired_vy;
-	}
-	else
-	{
-		Error_Velx = 0;
-		Error_Vely = 0;
-	}
+  if (flow_count) {
+    Error_Velx = Velx - vision_desired_vx;
+    Error_Vely = Vely - vision_desired_vy;
+  } else {
+    Error_Velx = 0;
+    Error_Vely = 0;
+  }
 
-	if(saturateX==0)
-	{
-		if(activate_opticflow_hover==TRUE)
-		{
-			Velx_Int += vision_theta_igain*Error_Velx;
-		}
-		else
-		{
-			Velx_Int += vision_theta_igain*V_body.x;
-		}
-	}
-	if(saturateY==0)
-	{
-		if(activate_opticflow_hover==TRUE)
-		{
-			Vely_Int += vision_phi_igain*Error_Vely;
-		}
-		else
-		{
-			Vely_Int += vision_phi_igain*V_body.y;
-		}
-	}
+  if (saturateX == 0) {
+    if (activate_opticflow_hover == TRUE) {
+      Velx_Int += vision_theta_igain * Error_Velx;
+    } else {
+      Velx_Int += vision_theta_igain * V_body.x;
+    }
+  }
+  if (saturateY == 0) {
+    if (activate_opticflow_hover == TRUE) {
+      Vely_Int += vision_phi_igain * Error_Vely;
+    } else {
+      Vely_Int += vision_phi_igain * V_body.y;
+    }
+  }
 
-	if(set_heading)
-	{
-		cmd_euler.psi = stateGetNedToBodyEulers_i()->psi;
-		set_heading = 0;
-	}
+  if (set_heading) {
+    cmd_euler.psi = stateGetNedToBodyEulers_i()->psi;
+    set_heading = 0;
+  }
 
-	if(activate_opticflow_hover==TRUE)
-	{
-		cmd_euler.phi =  - (vision_phi_pgain*Error_Vely + Vely_Int);
-		cmd_euler.theta =  (vision_theta_pgain*Error_Velx + Velx_Int);
-	}
-	else
-	{
-		cmd_euler.phi =  - (vision_phi_pgain*V_body.y + Vely_Int);
-		cmd_euler.theta =  (vision_theta_pgain*V_body.x + Velx_Int);
-	}
+  if (activate_opticflow_hover == TRUE) {
+    cmd_euler.phi =  - (vision_phi_pgain * Error_Vely + Vely_Int);
+    cmd_euler.theta = (vision_theta_pgain * Error_Velx + Velx_Int);
+  } else {
+    cmd_euler.phi =  - (vision_phi_pgain * V_body.y + Vely_Int);
+    cmd_euler.theta = (vision_theta_pgain * V_body.x + Velx_Int);
+  }
 
-	saturateX = 0; saturateY = 0;
-	if(cmd_euler.phi<-CMD_OF_SAT){cmd_euler.phi = -CMD_OF_SAT; saturateX = 1;}
-	else if(cmd_euler.phi>CMD_OF_SAT){cmd_euler.phi = CMD_OF_SAT; saturateX = 1;}
-	if(cmd_euler.theta<-CMD_OF_SAT){cmd_euler.theta = -CMD_OF_SAT; saturateY = 1;}
-	else if(cmd_euler.theta>CMD_OF_SAT){cmd_euler.theta = CMD_OF_SAT;saturateY = 1;}
+  saturateX = 0; saturateY = 0;
+  if (cmd_euler.phi < -CMD_OF_SAT) {cmd_euler.phi = -CMD_OF_SAT; saturateX = 1;}
+  else if (cmd_euler.phi > CMD_OF_SAT) {cmd_euler.phi = CMD_OF_SAT; saturateX = 1;}
+  if (cmd_euler.theta < -CMD_OF_SAT) {cmd_euler.theta = -CMD_OF_SAT; saturateY = 1;}
+  else if (cmd_euler.theta > CMD_OF_SAT) {cmd_euler.theta = CMD_OF_SAT; saturateY = 1;}
 
-	stabilization_attitude_set_rpy_setpoint_i(&cmd_euler);
-	DOWNLINK_SEND_VISION_STABILIZATION(DefaultChannel, DefaultDevice, &Velx, &Vely, &Velx_Int, &Vely_Int, &cmd_euler.phi, &cmd_euler.theta);
+  stabilization_attitude_set_rpy_setpoint_i(&cmd_euler);
+  DOWNLINK_SEND_VISION_STABILIZATION(DefaultChannel, DefaultDevice, &Velx, &Vely, &Velx_Int, &Vely_Int, &cmd_euler.phi,
+                                     &cmd_euler.theta);
 }

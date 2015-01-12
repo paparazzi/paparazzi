@@ -30,12 +30,14 @@
 #define OPTIC
 void multiplyImages(int *ImA, int *ImB, int *ImC, int width, int height);
 void getImageDifference(int *ImA, int *ImB, int *ImC, int width, int height);
-void getSubPixel_gray(int *Patch, unsigned char *frame_buf, int center_x, int center_y, int half_window_size, int subpixel_factor);
+void getSubPixel_gray(int *Patch, unsigned char *frame_buf, int center_x, int center_y, int half_window_size,
+                      int subpixel_factor);
 void getGradientPatch(int *Patch, int *DX, int *DY, int half_window_size);
 int getSumPatch(int *Patch, int size);
 int calculateG(int *G, int *DX, int *DY, int half_window_size);
 int calculateError(int *ImC, int width, int height);
-int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, int *p_x, int *p_y, int n_found_points, int imW, int imH, int *new_x, int *new_y, int *status, int half_window_size, int max_iterations);
+int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, int *p_x, int *p_y, int n_found_points,
+                int imW, int imH, int *new_x, int *new_y, int *status, int half_window_size, int max_iterations);
 void quick_sort(float *a, int n);
 void quick_sort_int(int *a, int n);
 void CvtYUYV2Gray(unsigned char *grayframe, unsigned char *frame, int imW, int imH);

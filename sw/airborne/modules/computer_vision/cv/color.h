@@ -40,8 +40,10 @@ inline void grayscale_uyvy(struct img_struct *input, struct img_struct *output)
   }
 }
 
-inline int colorfilt_uyvy(struct img_struct *input, struct img_struct *output, uint8_t y_m, uint8_t y_M, uint8_t u_m, uint8_t u_M, uint8_t v_m, uint8_t v_M);
-inline int colorfilt_uyvy(struct img_struct *input, struct img_struct *output, uint8_t y_m, uint8_t y_M, uint8_t u_m, uint8_t u_M, uint8_t v_m, uint8_t v_M)
+inline int colorfilt_uyvy(struct img_struct *input, struct img_struct *output, uint8_t y_m, uint8_t y_M, uint8_t u_m,
+                          uint8_t u_M, uint8_t v_m, uint8_t v_M);
+inline int colorfilt_uyvy(struct img_struct *input, struct img_struct *output, uint8_t y_m, uint8_t y_M, uint8_t u_m,
+                          uint8_t u_M, uint8_t v_m, uint8_t v_M)
 {
   int cnt = 0;
   uint8_t *source = input->buf;
