@@ -1,0 +1,51 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cv_opticflow" dir="computer_vision">
+  <doc>
+    <description>Video ARDone 2</description>
+
+    <define name="DOWNLINK_VIDEO" value="FALSE" description="Also stream video: warning: this makes the optic flow slow: DEBUGGING only" />
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="video">
+        <dl_setting var="viewvideo_shot" min="0" step="1" max="1" shortname="save_shot" module="computer_vision/opticflow_module" handler="SaveShot"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="opticflow_module.h"/>
+  </header>
+
+  <init fun="opticflow_module_init()"/>
+
+  <periodic fun="opticflow_module_run()" freq="60" start="opticflow_module_start()" stop="opticflow_module_stop()" autorun="TRUE"/>
+  <makefile target="ap">
+    <define name="ARDRONE_VIDEO_PORT" value="2002" />
+    <define name="USE_ARDRONE_VIDEO" />
+
+    <file name="opticflow_module.c"/>
+    <file name="opticflow_code.c" dir="modules/computer_vision/opticflow"/>
+    <file name="hover_stabilization.c" dir="modules/computer_vision/opticflow"/>
+    <file name="optic_flow_ardrone.c" dir="modules/computer_vision/cv/opticflow"/>
+    <file name="fastRosten.c" dir="modules/computer_vision/cv/opticflow/fast9"/>
+    <file name="trig.c" dir="modules/computer_vision/cv"/>
+    <file name="jpeg.c" dir="modules/computer_vision/cv/encoding"/>
+    <file name="rtp.c" dir="modules/computer_vision/cv/encoding"/>
+    <file name="socket.c" dir="modules/computer_vision/lib/udp"/>
+    <file name="video.c" dir="modules/computer_vision/lib/v4l"/>
+    <define name="modules/computer_vision/cv" type="include"/>
+    <define name="modules/computer_vision/lib" type="include"/>
+    <define name="pthread" type="raw"/>
+    <define name="__USE_GNU"/>
+    <flag name="LDFLAGS" value="pthread"/>
+    <flag name="LDFLAGS" value="lrt"/>
+    <flag name="LDFLAGS" value="static"/>
+  </makefile>
+  <makefile target="nps">
+    <file name="viewvideo_nps.c"/>
+  </makefile>
+
+</module>
+

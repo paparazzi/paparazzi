@@ -31,7 +31,7 @@
 #include "opticflow_module.h"
 
 // Navigate Based On Vision
-#include "hover_stabilization.h"
+#include "opticflow/hover_stabilization.h"
 
 // Paparazzi
 #include "state.h" // for attitude
@@ -105,7 +105,7 @@ void opticflow_module_run(void)
 #include "resize.h"
 
 // Payload Code
-#include "opticflow_code.h"
+#include "opticflow/opticflow_code.h"
 
 // Downlink Video
 //#define DOWNLINK_VIDEO 1

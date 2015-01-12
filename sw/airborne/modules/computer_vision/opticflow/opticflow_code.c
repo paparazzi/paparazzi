@@ -33,9 +33,9 @@
 #include "opticflow_code.h"
 
 // Computer Vision
-#include "opticflow/optic_flow_gdc.h"
+#include "opticflow/optic_flow_ardrone.h"
 #include "opticflow/fast9/fastRosten.h"
-#include "opticflow_module.h"
+#include "../opticflow_module.h"
 
 // Paparazzi Data
 #include "subsystems/ins/ins_int.h"
@@ -301,7 +301,7 @@ void my_plugin_run(unsigned char *frame)
 
 	// Velocity Computation
 	#ifdef USE_SONAR
-		cam_h = ins_impl.sonar_z;
+		cam_h = 1; //ins_impl.sonar_z;
 	#else
 		cam_h = 1;
 	#endif
