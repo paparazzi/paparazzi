@@ -1972,8 +1972,30 @@
     <field name="t" type="uint32"/>
   </message>
 
- <!--228 is free -->
- <!--229 is free -->
+  <message name="OF_HOVER" id="228">
+    <field name="FPS"        type="float"/>
+    <field name="dx"         type="float"/>
+    <field name="dy"         type="float"/>
+    <field name="dx_trans"   type="float"/>
+    <field name="dy_trans"   type="float"/>
+    <field name="diff_roll"  type="float"/>
+    <field name="diff_pitch" type="float"/>
+    <field name="velx"       type="float"/>
+    <field name="vely"       type="float"/>
+    <field name="velx_Ned"   type="float"/>
+    <field name="vely_Ned"   type="float"/>
+    <field name="z_sonar"    type="float"/>
+    <field name="count"      type="int32"/>
+ </message>
+
+  <message name="VISION_STABILIZATION" id="229">
+    <field name="velx"      type="float"/>
+    <field name="vely"      type="float"/>
+    <field name="velx_i"    type="float"/>
+    <field name="vely_i"    type="float"/>
+    <field name="cmd_phi"   type="int32"/>
+    <field name="cmd_theta" type="int32"/>
+  </message>
 
   <message name="AHRS_ARDRONE2" id="230">
     <field name="state" type="uint32" />
