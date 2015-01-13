@@ -97,6 +97,8 @@ void opticflow_module_run(void)
   }
 }
 
+#include "firmwares/rotorcraft/navigation.h"
+
 void guidance_module_run(bool_t inflight)
 {
   nav_flight_altitude = -1;
