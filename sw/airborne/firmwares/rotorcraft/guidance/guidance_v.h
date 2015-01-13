@@ -32,12 +32,13 @@
 #include "firmwares/rotorcraft/guidance/guidance_v_ref.h"
 #include "firmwares/rotorcraft/guidance/guidance_v_adapt.h"
 
-#define GUIDANCE_V_MODE_KILL      0
-#define GUIDANCE_V_MODE_RC_DIRECT 1
-#define GUIDANCE_V_MODE_RC_CLIMB  2
-#define GUIDANCE_V_MODE_CLIMB     3
-#define GUIDANCE_V_MODE_HOVER     4
-#define GUIDANCE_V_MODE_NAV       5
+#define GUIDANCE_V_MODE_KILL             0
+#define GUIDANCE_V_MODE_RC_DIRECT        1
+#define GUIDANCE_V_MODE_RC_CLIMB         2
+#define GUIDANCE_V_MODE_CLIMB            3
+#define GUIDANCE_V_MODE_HOVER            4
+#define GUIDANCE_V_MODE_NAV              5
+#define GUIDANCE_V_MODE_MODULE_OUTERLOOP 6
 
 extern uint8_t guidance_v_mode;
 

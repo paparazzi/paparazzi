@@ -97,6 +97,12 @@ void opticflow_module_run(void)
   }
 }
 
+void guidance_module_run(bool_t inflight)
+{
+  nav_flight_altitude = -1;
+}
+
+
 /////////////////////////////////////////////////////////////////////////
 // COMPUTER VISION THREAD
 

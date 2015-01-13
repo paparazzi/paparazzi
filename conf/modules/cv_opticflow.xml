@@ -37,6 +37,7 @@
   <makefile target="ap">
     <define name="ARDRONE_VIDEO_PORT" value="2002" />
     <define name="USE_ARDRONE_VIDEO" />
+    <define name="USE_MODULE_OUTERLOOP" value="1" />
 
     <file name="opticflow_module.c"/>
     <file name="opticflow_code.c" dir="modules/computer_vision/opticflow"/>

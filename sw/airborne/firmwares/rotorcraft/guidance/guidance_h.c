@@ -252,6 +252,7 @@ void guidance_h_mode_changed(uint8_t new_mode)
         stabilization_attitude_enter();
       break;
 
+    case GUIDANCE_H_MODE_MODULE_OUTERLOOP:
     case GUIDANCE_H_MODE_NAV:
       guidance_h_nav_enter();
 #if NO_ATTITUDE_RESET_ON_MODE_CHANGE
@@ -304,6 +305,7 @@ void guidance_h_read_rc(bool_t  in_flight)
 #endif
       break;
 
+    case GUIDANCE_H_MODE_MODULE_OUTERLOOP:
     case GUIDANCE_H_MODE_NAV:
       if (radio_control.status == RC_OK) {
         stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight, FALSE, FALSE);
@@ -385,6 +387,15 @@ void guidance_h_run(bool_t  in_flight)
                                                guidance_h_heading_sp);
       }
       stabilization_attitude_run(in_flight);
+      break;
+    case GUIDANCE_H_MODE_MODULE_OUTERLOOP:
+      if (!in_flight) {
+        guidance_h_nav_enter();
+#if USE_MODULE_OUTERLOOP==1
+        guidance_module_run(in_flight);
+#endif
+      }
+
       break;
 
     default:

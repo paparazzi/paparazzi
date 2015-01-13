@@ -69,9 +69,6 @@ float Error_Vely;
 unsigned char saturateX = 0, saturateY = 0;
 unsigned int set_heading;
 
-// TODO FIX
-#define AP_MODE_VISION_HOVER 3
-
 
 void init_hover_stabilization_onvision()
 {
@@ -95,7 +92,7 @@ void init_hover_stabilization_onvision()
 
 void run_hover_stabilization_onvision(void)
 {
-  if (autopilot_mode == AP_MODE_VISION_HOVER) {
+  if (autopilot_mode == AP_MODE_MODULE_OUTERLOOP) {
     run_opticflow_hover();
   } else {
     Velx_Int = 0;
