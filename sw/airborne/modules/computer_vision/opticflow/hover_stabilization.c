@@ -69,6 +69,10 @@ float Error_Vely;
 unsigned char saturateX = 0, saturateY = 0;
 unsigned int set_heading;
 
+// TODO FIX
+#define AP_MODE_VISION_HOVER 3
+
+
 void init_hover_stabilization_onvision()
 {
   INT_EULERS_ZERO(cmd_euler);
