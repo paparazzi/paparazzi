@@ -13,11 +13,18 @@
     </description>
 
     <define name="DOWNLINK_VIDEO" value="FALSE" description="Also stream video: warning: this makes the optic flow slow: DEBUGGING only" />
+    <define name="HOVER" value="FALSE" description="TRUE/FALSE active or not"/>
+    <define name="PHI_PGAIN" value="500" description="optic flow pgain"/>
+    <define name="PHI_IGAIN" value="10" description="optic flow igain"/>
+    <define name="THETA_PGAIN" value="500" description="optic flow pgain"/>
+    <define name="THETA_IGAIN" value="10" description="optic flow igain"/>
+    <define name="DESIRED_VX" value="0" description="feedforward optic flow vx"/>
+    <define name="DESIRED_VY" value="0" description="feedforward optic flow vy"/>
   </doc>
   <settings>
     <dl_settings>
 	<dl_settings NAME="Vision Loop">
-        <dl_setting var="activate_opticflow_hover" min="0" step="1" max="1" module="computervision/opticflow/hover_stabilization" shortname="hover" param="VISION_HOVER" values="FALSE|TRUE"/>
+        <dl_setting var="activate_opticflow_hover" min="0" step="1" max="1" module="computer_vision/opticflow/hover_stabilization" shortname="hover" param="VISION_HOVER" values="FALSE|TRUE"/>
         <dl_setting var="vision_phi_pgain" min="0" step="1" max="10000" shortname="kp_v_phi" param="VISION_PHI_PGAIN"/>
         <dl_setting var="vision_phi_igain" min="0" step="1" max="1000" shortname="ki_v_phi" param="VISION_PHI_IGAIN"/>
         <dl_setting var="vision_theta_pgain" min="0" step="1" max="10000" shortname="kp_v_theta" param="VISION_THETA_PGAIN"/>
