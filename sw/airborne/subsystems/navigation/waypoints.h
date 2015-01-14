@@ -90,6 +90,9 @@ extern void nav_set_waypoint_here(uint8_t wp_id);
 /** set waypoint to current horizontal location without modifying altitude */
 extern void nav_set_waypoint_here_2d(uint8_t wp_id);
 
+/** update global LLA coordinates from its ENU coordinates */
+extern void nav_globalize_local_wp(uint8_t wp_id);
+
 /** update local ENU coordinates from its LLA coordinates */
 extern void nav_localize_global_wp(uint8_t wp_id);
 /** update local ENU coordinates of global waypoints */

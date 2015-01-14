@@ -59,6 +59,7 @@ void nav_set_waypoint_enu_i(uint8_t wp_id, struct EnuCoor_i *enu)
     ENU_FLOAT_OF_BFP(waypoints[wp_id].enu_f, waypoints[wp_id].enu_i);
     waypoints[wp_id].flags &= ~(1 << WP_FLAG_LLA_I);
     waypoints[wp_id].flags |= (1 << WP_FLAG_ENU_I | 1 << WP_FLAG_ENU_F);
+    nav_globalize_local_wp(wp_id);
   }
 }
 
@@ -69,13 +70,14 @@ void nav_set_waypoint_enu_f(uint8_t wp_id, struct EnuCoor_f *enu)
     ENU_BFP_OF_REAL(waypoints[wp_id].enu_i, waypoints[wp_id].enu_f);
     waypoints[wp_id].flags &= ~(1 << WP_FLAG_LLA_I);
     waypoints[wp_id].flags |= (1 << WP_FLAG_ENU_I | 1 << WP_FLAG_ENU_F);
+    nav_globalize_local_wp(wp_id);
   }
 }
 
 void nav_move_waypoint_enu_i(uint8_t wp_id, struct EnuCoor_i *new_pos)
 {
   if (wp_id < nb_waypoint) {
-    VECT3_COPY(waypoints[wp_id].enu_i, (*new_pos));
+    nav_set_waypoint_enu_i(wp_id, new_pos);
     DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(new_pos->x),
                                &(new_pos->y), &(new_pos->z));
   }
@@ -93,6 +95,7 @@ void nav_set_waypoint_xy_i(uint8_t wp_id, int32_t x, int32_t y)
     /* also update ENU float representation */
     waypoints[wp_id].enu_f.x = POS_FLOAT_OF_BFP(waypoints[wp_id].enu_i.x);
     waypoints[wp_id].enu_f.y = POS_FLOAT_OF_BFP(waypoints[wp_id].enu_i.y);
+    nav_globalize_local_wp(wp_id);
   }
 }
 
@@ -160,6 +163,16 @@ void nav_set_waypoint_here_2d(uint8_t wp_id)
     nav_set_waypoint_latlon(wp_id, stateGetPositionLla_i());
   } else {
     nav_set_waypoint_xy_i(wp_id, stateGetPositionEnu_i()->x, stateGetPositionEnu_i()->y);
+  }
+}
+
+void nav_globalize_local_wp(uint8_t wp_id)
+{
+  if (state.ned_initialized_i) {
+    struct EcefCoor_i ecef;
+    ecef_of_enu_pos_i(&ecef, &state.ned_origin_i, &waypoints[wp_id].enu_i);
+    lla_of_ecef_i(&waypoints[wp_id].lla, &ecef);
+    waypoints[wp_id].flags |= (1 << WP_FLAG_LLA_I);
   }
 }
 
