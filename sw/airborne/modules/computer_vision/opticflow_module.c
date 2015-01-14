@@ -158,8 +158,8 @@ void *computervision_thread_main(void *data)
 #endif
 
   // First Apply Settings before init
-  imgWidth = small.w;
-  imgHeight = small.h;
+  imgWidth = vid.w;
+  imgHeight = vid.h;
   verbose = 2;
   my_plugin_init();
 
