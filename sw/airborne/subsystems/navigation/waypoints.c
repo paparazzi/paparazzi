@@ -56,9 +56,10 @@ void nav_set_waypoint_enu_i(uint8_t wp_id, struct EnuCoor_i *enu)
 {
   if (wp_id < nb_waypoint) {
     memcpy(&waypoints[wp_id].enu_i, enu, sizeof(struct EnuCoor_i));
+    SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_I);
     ENU_FLOAT_OF_BFP(waypoints[wp_id].enu_f, waypoints[wp_id].enu_i);
-    waypoints[wp_id].flags &= ~(1 << WP_FLAG_LLA_I);
-    waypoints[wp_id].flags |= (1 << WP_FLAG_ENU_I | 1 << WP_FLAG_ENU_F);
+    SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_F);
+    ClearBit(waypoints[wp_id].flags, WP_FLAG_LLA_I);
     nav_globalize_local_wp(wp_id);
   }
 }
@@ -67,9 +68,10 @@ void nav_set_waypoint_enu_f(uint8_t wp_id, struct EnuCoor_f *enu)
 {
   if (wp_id < nb_waypoint) {
     memcpy(&waypoints[wp_id].enu_f, enu, sizeof(struct EnuCoor_f));
+    SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_I);
     ENU_BFP_OF_REAL(waypoints[wp_id].enu_i, waypoints[wp_id].enu_f);
-    waypoints[wp_id].flags &= ~(1 << WP_FLAG_LLA_I);
-    waypoints[wp_id].flags |= (1 << WP_FLAG_ENU_I | 1 << WP_FLAG_ENU_F);
+    SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_F);
+    ClearBit(waypoints[wp_id].flags, WP_FLAG_LLA_I);
     nav_globalize_local_wp(wp_id);
   }
 }
@@ -105,7 +107,7 @@ void nav_set_waypoint_lla(uint8_t wp_id, struct LlaCoor_i *lla)
     return;
   }
   memcpy(&waypoints[wp_id].lla, lla, sizeof(struct LlaCoor_i));
-  waypoints[wp_id].flags |= (1 << WP_FLAG_LLA_I);
+  SetBit(waypoints[wp_id].flags, WP_FLAG_LLA_I);
   nav_localize_global_wp(wp_id);
 }
 
@@ -136,7 +138,7 @@ void nav_set_waypoint_latlon(uint8_t wp_id, struct LlaCoor_i *lla)
   }
   waypoints[wp_id].lla.lat = lla->lat;
   waypoints[wp_id].lla.lon = lla->lon;
-  waypoints[wp_id].flags |= (1 << WP_FLAG_LLA_I);
+  SetBit(waypoints[wp_id].flags, WP_FLAG_LLA_I);
   nav_localize_global_wp(wp_id);
 }
 
@@ -172,7 +174,7 @@ void nav_globalize_local_wp(uint8_t wp_id)
     struct EcefCoor_i ecef;
     ecef_of_enu_pos_i(&ecef, &state.ned_origin_i, &waypoints[wp_id].enu_i);
     lla_of_ecef_i(&waypoints[wp_id].lla, &ecef);
-    waypoints[wp_id].flags |= (1 << WP_FLAG_LLA_I);
+    SetBit(waypoints[wp_id].flags, WP_FLAG_LLA_I);
   }
 }
 
@@ -187,8 +189,9 @@ void nav_localize_global_wp(uint8_t wp_id)
     enu.y = POS_BFP_OF_REAL(enu.y) / 100;
     enu.z = POS_BFP_OF_REAL(enu.z) / 100;
     memcpy(&waypoints[wp_id].enu_i, &enu, sizeof(struct EnuCoor_i));
+    SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_I);
     ENU_FLOAT_OF_BFP(waypoints[wp_id].enu_f, waypoints[wp_id].enu_i);
-    waypoints[wp_id].flags |= (1 << WP_FLAG_ENU_I | 1 << WP_FLAG_ENU_F);
+    SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_F);
   }
 }
 
