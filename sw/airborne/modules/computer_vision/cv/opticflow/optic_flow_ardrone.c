@@ -202,17 +202,6 @@ void getGradientPatch(int *Patch, int *DX, int *DY, int half_window_size)
 //      DY[ix2] = Y2 - Y1;
       DY[ix2] = (Y2 - Y1) / 2;
 
-      /*if(printed < 1 && DX[ix2] > 0)
-      {
-        printf("DX = %d, DY = %d\n\r", DX[ix2], DY[ix2]);
-        printed++;
-      }
-      else if(printed == 1 && DX[ix2] < 0)
-      {
-        printf("DX = %d, DY = %d\n\r", DX[ix2], DY[ix2]);
-        printed++;
-      }*/
-
 
     }
   }
