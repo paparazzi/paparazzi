@@ -70,6 +70,36 @@ unsigned char saturateX = 0, saturateY = 0;
 unsigned int set_heading;
 
 
+#ifndef VISION_HOVER
+#define VISION_HOVER TRUE
+#endif
+
+#ifndef VISION_PHI_PGAIN
+#define VISION_PHI_PGAIN 500.
+#endif
+
+#ifndef VISION_PHI_IGAIN
+#define VISION_PHI_IGAIN 10.
+#endif
+
+#ifndef VISION_THETA_PGAIN
+#define VISION_THETA_PGAIN 500.
+#endif
+
+#ifndef VISION_THETA_IGAIN
+#define VISION_THETA_IGAIN 10.
+#endif
+
+#ifndef VISION_DESIRED_VX
+#define VISION_DESIRED_VX 0.
+#endif
+
+#ifndef VISION_DESIRED_VY
+#define VISION_DESIRED_VY 0.
+#endif
+
+
+
 void init_hover_stabilization_onvision()
 {
   INT_EULERS_ZERO(cmd_euler);
