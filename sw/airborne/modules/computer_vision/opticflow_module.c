@@ -89,7 +89,6 @@ volatile uint8_t computervision_thread_has_results = 0;
 
 void opticflow_module_run(void)
 {
-
   // Read Latest Vision Module Results
   if (computervision_thread_has_results) {
     computervision_thread_has_results = 0;
@@ -147,13 +146,6 @@ void *computervision_thread_main(void *data)
   // Video Grabbing
   struct img_struct *img_new = video_create_image(&vid);
 
-  // Video Resizing
-#define DOWNSIZE_FACTOR 1
-  struct img_struct small;
-  small.w = vid.w / DOWNSIZE_FACTOR;
-  small.h = vid.h / DOWNSIZE_FACTOR;
-  small.buf = (uint8_t *)malloc(small.w * small.h * 2);
-
 #ifdef DOWNLINK_VIDEO
   // Video Compression
   uint8_t *jpegbuf = (uint8_t *)malloc(vid.h * vid.w * 2);
@@ -180,12 +172,8 @@ void *computervision_thread_main(void *data)
     //  printf("dt = %d, FPS = %f\n",timestamp, FPS);
     start_timer();
 
-    // Resize
-    //resize_uyuv(img_new, &small, DOWNSIZE_FACTOR);
-
     // Run Image Processing
     my_plugin_run(img_new->buf);
-    //  my_plugin_run(small.buf);
 
 #ifdef DOWNLINK_VIDEO
     // JPEG encode the image:

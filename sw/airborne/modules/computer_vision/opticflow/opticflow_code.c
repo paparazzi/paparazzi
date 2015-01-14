@@ -35,7 +35,7 @@
 // Computer Vision
 #include "opticflow/optic_flow_ardrone.h"
 #include "opticflow/fast9/fastRosten.h"
-#include "../opticflow_module.h"
+#include "modules/computer_vision/opticflow_module.h"
 
 // Paparazzi Data
 #include "subsystems/ins/ins_int.h"
