@@ -30,30 +30,27 @@
 
 #include <std.h>
 
-// Demo Controller Module
-extern void my_ctrl_init(void);
-extern void my_ctrl_run(void);
 // Settings
-extern int ctrl_module_demo_gain;
+extern float ctrl_module_demo_pr_ff_gain;  // Pitch/Roll
+extern float ctrl_module_demo_pr_d_gain;
+extern float ctrl_module_demo_y_ff_gain;   // Yaw
+extern float ctrl_module_demo_y_d_gain;
 
 
-
-
-
-// Vertical loop re-uses Alt-hold
-#define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_MODULE
-
-// Horizontal mode is a specific controller
+// Demo with own guidance_h
 #define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_MODULE
 
-// Implement own Horizontal loops
-inline void guidance_h_module_enter(void) { my_ctrl_init();}
-inline void guidance_h_module_read_rc(void) {}
-inline void guidance_h_module_run(bool_t in_flight) {my_ctrl_run();}
+// and own guidance_v
+#define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_MODULE
 
 // Implement own Horizontal loops
-inline void guidance_v_module_enter(void){}
-inline void guidance_v_module_run(bool_t in_flight){}
+extern void guidance_h_module_enter(void);
+extern void guidance_h_module_read_rc(void);
+extern void guidance_h_module_run(bool_t in_flight);
+
+// Implement own Horizontal loops
+extern void guidance_v_module_enter(void);
+extern void guidance_v_module_run(bool_t in_flight);
 
 
 #endif /* HOVER_STABILIZATION_H_ */
