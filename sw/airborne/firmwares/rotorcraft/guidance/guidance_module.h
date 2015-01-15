@@ -22,18 +22,22 @@
 /** @file firmwares/rotorcraft/guidance/guidance_module.h
  *  Guidance in a module file.
  *
- * Horizontal loop default is ATTITUDE
- * e.g.: #define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_ATTITUDE
+ * Implement a custom controller in a module
+ * Re-use desired modes:
  *
- * Implement own Horizontal loops when GUIDANCE_H_MODE_MODULE_SETTING is set to GUIDANCE_H_MODE_MODULE
+ * e.g.: #define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_HOVER
+ * can be used to only define a horizontal control in the module and use normal z_hold
+ *
+ * The guidance that the module implement must be activated with following defines:
+ *
+ * a) Implement own Horizontal loops when GUIDANCE_H_MODE_MODULE_SETTING is set to GUIDANCE_H_MODE_MODULE
+ * One must then implement:
  * extern void guidance_h_module_enter(void);
  * extern void guidance_h_module_read_rc(void);
  * extern void guidance_h_module_run(bool_t in_flight);
  *
- * Vertical loop default is ATTITUDE
- * e.g.: #define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_RC_DIRECT
  *
- * Implement own Vertical loops when  GUIDANCE_V_MODE_MODULE_SETTING is set to GUIDANCE_V_MODE_MODULE
+ * b) Implement own Vertical loops when GUIDANCE_V_MODE_MODULE_SETTING is set to GUIDANCE_V_MODE_MODULE
  * extern void guidance_v_module_enter(void);
  * extern void guidance_v_module_run(bool_t in_flight);
  *
