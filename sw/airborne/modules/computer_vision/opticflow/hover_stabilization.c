@@ -34,6 +34,7 @@
 // Stabilization
 //#include "stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+#include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "autopilot.h"
 
 // Downlink
