@@ -252,7 +252,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) ac_id packing dl_
               let papget = Papget_common.xml "variable_setting" "button"
                 ["variable", varname;
                  "value", ExtXml.attrib x "value";
-                 "sender", ac_id;
+                 "ac_id", ac_id;
                  "icon", icon] in
               Papget_common.dnd_source b#coerce papget;
 

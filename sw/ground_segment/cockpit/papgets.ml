@@ -42,7 +42,7 @@ let papget_listener =
   fun papget ->
     try
       let field = Papget_common.get_property "field" papget in
-      let sender = try Some (Papget_common.get_property "sender" papget) with _ -> None in
+      let sender = try Some (Papget_common.get_property "ac_id" papget) with _ -> None in
       match Str.split sep field, sender with
           [msg_name; field_name], Some sender ->
             (new Papget.message_field ~sender msg_name field_name)
@@ -75,7 +75,7 @@ let extra_functions =
 let expression_listener = fun papget ->
   let expr = Papget_common.get_property "expr" papget in
   let expr = Expr_lexer.parse expr in
-  let sender = try Some (Papget_common.get_property "sender" papget) with _ -> None in
+  let sender = try Some (Papget_common.get_property "ac_id" papget) with _ -> None in
   match sender with
     Some sender -> new Papget.expression ~extra_functions ~sender expr
   | None -> new Papget.expression ~extra_functions expr
@@ -136,7 +136,7 @@ let create = fun canvas_group papget ->
             let block_id = ExtXml.int_attrib block "no" in
             Live.jump_to_block ac_id block_id
           in
-          let sender = try Some (Papget_common.get_property "sender" papget) with _ -> None in
+          let sender = try Some (Papget_common.get_property "ac_id" papget) with _ -> None in
           match sender with
             Some ac_id -> begin try jump_to_block ac_id (Hashtbl.find Live.aircrafts ac_id) with _ -> () end
           | None ->
@@ -167,7 +167,7 @@ let create = fun canvas_group papget ->
                 let var_id = settings#assoc varname in
                 Live.dl_setting ac_id var_id value
           in
-          let sender = try Some (Papget_common.get_property "sender" papget) with _ -> None in
+          let sender = try Some (Papget_common.get_property "ac_id" papget) with _ -> None in
           match sender with
             Some ac_id -> begin try send_setting ac_id (Hashtbl.find Live.aircrafts ac_id) with _ -> () end
           | None ->
@@ -218,7 +218,7 @@ let dnd_data_received = fun canvas_group _context ~x ~y data ~info ~time ->
         "x", sprintf "%d" x; "y", sprintf "%d" y ]
     and props =
       [ Papget_common.property "field" (sprintf "%s:%s" msg_name field_name);
-        Papget_common.property "sender" sender;
+        Papget_common.property "ac_id" sender;
         Papget_common.property "scale" scale ] in
     let papget_xml = Xml.Element ("papget", attrs, props) in
     create canvas_group papget_xml
