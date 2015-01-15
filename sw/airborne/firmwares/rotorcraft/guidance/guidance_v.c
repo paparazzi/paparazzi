@@ -26,6 +26,7 @@
 
 #include "generated/airframe.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
+#include "firmwares/rotorcraft/guidance/guidance_module.h"
 
 #include "subsystems/radio_control.h"
 #include "firmwares/rotorcraft/stabilization.h"
@@ -232,11 +233,16 @@ void guidance_v_mode_changed(uint8_t new_mode)
     case GUIDANCE_V_MODE_RC_CLIMB:
     case GUIDANCE_V_MODE_CLIMB:
       guidance_v_zd_sp = 0;
-    case GUIDANCE_V_MODE_MODULE_OUTERLOOP:
     case GUIDANCE_V_MODE_NAV:
       guidance_v_z_sum_err = 0;
       GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
       break;
+
+#if GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE
+    case GUIDANCE_V_MODE_MODULE:
+      guidance_v_module_enter();
+      break;
+#endif
 
     default:
       break;
@@ -308,19 +314,12 @@ void guidance_v_run(bool_t in_flight)
         stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
       break;
 
-    case GUIDANCE_V_MODE_MODULE_OUTERLOOP:
-      guidance_v_z_sp = -nav_flight_altitude;
-      guidance_v_zd_sp = 0;
-      gv_update_ref_from_z_sp(guidance_v_z_sp);
-      run_hover_loop(in_flight);
-#if !NO_RC_THRUST_LIMIT
-      /* use rc limitation if available */
-      if (radio_control.status == RC_OK) {
-        stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
-      } else
-#endif
-        stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
+#if GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE
+    case GUIDANCE_V_MODE_MODULE:
+      guidance_v_module_run(in_flight);
       break;
+#endif
+
     case GUIDANCE_V_MODE_NAV: {
       if (vertical_mode == VERTICAL_MODE_ALT) {
         guidance_v_z_sp = -nav_flight_altitude;

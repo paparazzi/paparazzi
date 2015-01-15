@@ -31,6 +31,20 @@
 
 #include <std.h>
 
+// Controller module
+
+// Vertical loop re-uses Alt-hold
+#define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_HOVER
+
+// Horizontal mode is a specific controller
+#define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_MODULE
+
+// Implement own Horizontal loops
+extern void guidance_h_module_enter(void);
+extern void guidance_h_module_read_rc(void);
+extern void guidance_h_module_run(bool_t in_flight);
+
+
 void init_hover_stabilization_onvision(void);
 void run_hover_stabilization_onvision(void);
 void run_opticflow_hover(void);

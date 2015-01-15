@@ -98,6 +98,27 @@ unsigned int set_heading;
 #define VISION_DESIRED_VY 0.
 #endif
 
+void guidance_h_module_enter(void)
+{
+  // INIT
+  Velx_Int = 0;
+  Vely_Int = 0;
+  // GUIDANCE: Set Hover-z-hold
+  guidance_v_z_sp = -1;
+}
+
+void guidance_h_module_read_rc(void)
+{
+  // Do not read RC
+  // Setpoint being set by vision
+}
+
+void guidance_h_module_run(bool_t in_flight)
+{
+  // Run
+  // Setpoint being set by vision
+  stabilization_attitude_run(in_flight);
+}
 
 
 void init_hover_stabilization_onvision()
@@ -122,11 +143,8 @@ void init_hover_stabilization_onvision()
 
 void run_hover_stabilization_onvision(void)
 {
-  if (autopilot_mode == AP_MODE_MODULE_OUTERLOOP) {
+  if (autopilot_mode == AP_MODE_MODULE) {
     run_opticflow_hover();
-  } else {
-    Velx_Int = 0;
-    Vely_Int = 0;
   }
 }
 

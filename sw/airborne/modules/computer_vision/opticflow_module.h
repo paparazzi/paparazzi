@@ -31,6 +31,9 @@
 
 #include "std.h"
 
+// Navigate Based On Vision
+#include "opticflow/hover_stabilization.h"
+
 // Module functions
 extern void opticflow_module_init(void);
 extern void opticflow_module_run(void);

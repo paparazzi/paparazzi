@@ -49,15 +49,15 @@
 #define GUIDANCE_H_USE_SPEED_REF TRUE
 #endif
 
-#define GUIDANCE_H_MODE_KILL             0
-#define GUIDANCE_H_MODE_RATE             1
-#define GUIDANCE_H_MODE_ATTITUDE         2
-#define GUIDANCE_H_MODE_HOVER            3
-#define GUIDANCE_H_MODE_NAV              4
-#define GUIDANCE_H_MODE_RC_DIRECT        5
-#define GUIDANCE_H_MODE_CARE_FREE        6
-#define GUIDANCE_H_MODE_FORWARD          7
-#define GUIDANCE_H_MODE_MODULE_OUTERLOOP 8
+#define GUIDANCE_H_MODE_KILL      0
+#define GUIDANCE_H_MODE_RATE      1
+#define GUIDANCE_H_MODE_ATTITUDE  2
+#define GUIDANCE_H_MODE_HOVER     3
+#define GUIDANCE_H_MODE_NAV       4
+#define GUIDANCE_H_MODE_RC_DIRECT 5
+#define GUIDANCE_H_MODE_CARE_FREE 6
+#define GUIDANCE_H_MODE_FORWARD   7
+#define GUIDANCE_H_MODE_MODULE    8
 
 
 extern uint8_t guidance_h_mode;

@@ -30,9 +30,6 @@
 // Own header
 #include "opticflow_module.h"
 
-// Navigate Based On Vision
-#include "opticflow/hover_stabilization.h"
-
 // Paparazzi
 #include "state.h" // for attitude
 #include "boards/ardrone/navdata.h" // for ultrasound Height
@@ -94,13 +91,6 @@ void opticflow_module_run(void)
     computervision_thread_has_results = 0;
     run_hover_stabilization_onvision();
   }
-}
-
-#include "firmwares/rotorcraft/navigation.h"
-
-void guidance_module_run(bool_t inflight)
-{
-  nav_flight_altitude = -1;
 }
 
 
