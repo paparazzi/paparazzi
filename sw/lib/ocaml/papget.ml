@@ -86,14 +86,17 @@ end
 let hash_vars = fun ?sender expr ->
   let htable = Hashtbl.create 3 in
   let rec loop = function
-  E.Ident i -> prerr_endline i
+      E.Ident i -> prerr_endline i
     | E.Int _ | E.Float _ -> ()
     | E.Call (_id, list) | E.CallOperator (_id, list) -> List.iter loop list
     | E.Index (_id, e) -> loop e
     | E.Deref (_e, _f) as deref -> fprintf stderr "Warning: Deref operator is not allowed in Papgets expressions (%s)" (E.sprint deref)
     | E.Field (i, f) ->
       if not (Hashtbl.mem htable (i,f)) then
-        let msg_obj = new message_field i f in
+        let msg_obj = match sender with
+            Some sender -> new message_field ~sender i f
+          | None -> new message_field i f
+        in
         Hashtbl.add htable (i, f) msg_obj in
   loop expr;
   htable
@@ -111,7 +114,7 @@ let eval_bin_op = function
 
 let eval_expr = fun (extra_functions:(string * (string list -> string)) list) h e ->
   let rec loop = function
-  E.Ident ident -> failwith (sprintf "Papget.eval_expr '%s'" ident)
+      E.Ident ident -> failwith (sprintf "Papget.eval_expr '%s'" ident)
     | E.Int int -> string_of_int int
     | E.Float float -> string_of_float float
     | E.CallOperator (ident, [e1; e2]) ->
@@ -132,7 +135,10 @@ let eval_expr = fun (extra_functions:(string * (string list -> string)) list) h 
 
 
 class expression = fun ?(extra_functions=[]) ?sender expr ->
-  let h = hash_vars ~sender expr in
+  let h = match sender with
+      Some sender -> hash_vars ~sender expr
+    | None -> hash_vars expr
+  in
 object
   val mutable callbacks = []
   val mutable last_value = "0."

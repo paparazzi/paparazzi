@@ -42,11 +42,12 @@ let papget_listener =
   fun papget ->
     try
       let field = Papget_common.get_property "field" papget in
-      let sender = Papget_common.get_property "sender" papget in
-      prerr_endline field; flush stderr;
-      match Str.split sep field with
-          [msg_name; field_name] ->
+      let sender = try Some (Papget_common.get_property "sender" papget) with _ -> None in
+      match Str.split sep field, sender with
+          [msg_name; field_name], Some sender ->
             (new Papget.message_field ~sender msg_name field_name)
+        | [msg_name; field_name], None ->
+            (new Papget.message_field msg_name field_name)
         | _ -> failwith (sprintf "Unexpected field spec: %s" field)
     with
         _ -> failwith (sprintf "field attr expected in '%s" (Xml.to_string papget))
@@ -74,8 +75,10 @@ let extra_functions =
 let expression_listener = fun papget ->
   let expr = Papget_common.get_property "expr" papget in
   let expr = Expr_lexer.parse expr in
-  let sender = Papget_common.get_property "sender" papget in
-  new Papget.expression ~extra_functions ~sender expr
+  let sender = try Some (Papget_common.get_property "sender" papget) with _ -> None in
+  match sender with
+    Some sender -> new Papget.expression ~extra_functions ~sender expr
+  | None -> new Papget.expression ~extra_functions expr
 
 
 
@@ -127,14 +130,18 @@ let create = fun canvas_group papget ->
             | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
         let block_name = Papget_common.get_property "block_name" papget in
         let clicked = fun () ->
-          let sender = Papget_common.get_property "sender" papget in
-          try
-            let ac = Hashtbl.find Live.aircrafts sender in
+          let jump_to_block = fun ac_id ac ->
             let blocks = ExtXml.child ac.Live.fp "blocks" in
             let block = ExtXml.child ~select:(fun x -> ExtXml.attrib x "name" = block_name) blocks "block" in
             let block_id = ExtXml.int_attrib block "no" in
-            Live.jump_to_block sender block_id
-          with _ -> ()
+            Live.jump_to_block ac_id block_id
+          in
+          let sender = try Some (Papget_common.get_property "sender" papget) with _ -> None in
+          match sender with
+            Some ac_id -> begin try jump_to_block ac_id (Hashtbl.find Live.aircrafts ac_id) with _ -> () end
+          | None ->
+              prerr_endline "Warning: goto_block papget sends to all active A/C";
+              Hashtbl.iter jump_to_block Live.aircrafts
         in
         let properties =
           [ Papget_common.property "block_name" block_name ] @ locked papget in
@@ -153,15 +160,19 @@ let create = fun canvas_group papget ->
         and value = float_of_string (Papget_common.get_property "value" papget) in
 
         let clicked = fun () ->
-          let sender = Papget_common.get_property "sender" papget in
-          try
-            let ac = Hashtbl.find Live.aircrafts sender in
+          let send_setting = fun ac_id ac ->
             match ac.Live.dl_settings_page with
               None -> ()
             | Some settings ->
                 let var_id = settings#assoc varname in
-                Live.dl_setting sender var_id value
-          with _ -> ()
+                Live.dl_setting ac_id var_id value
+          in
+          let sender = try Some (Papget_common.get_property "sender" papget) with _ -> None in
+          match sender with
+            Some ac_id -> begin try send_setting ac_id (Hashtbl.find Live.aircrafts ac_id) with _ -> () end
+          | None ->
+              prerr_endline "Warning: variable_setting papget sending to all active A/C";
+              Hashtbl.iter send_setting Live.aircrafts
         in
         let properties =
           [ Papget_common.property "variable" varname;
