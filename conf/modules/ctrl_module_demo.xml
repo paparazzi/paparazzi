@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ctrl_module_demo" dir="ctrl">
+  <doc>
+    <description>
+        Demo Control Module
+
+        Attitude controller with own code
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+    <dl_settings NAME="CtrlModDemo">
+        <dl_setting var="ctrl_module_demo_gain" min="0" step="1" max="1" module="ctrl/ctrl_module_demo" shortname="gain"/>
+    </dl_settings>    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="ctrl_module_demo.h"/>
+  </header>
+
+
+  <makefile target="ap">
+    <file name="ctrl_module_demo.c"/>
+  </makefile>
+
+</module>
+
