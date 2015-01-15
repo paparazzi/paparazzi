@@ -22,16 +22,6 @@
 /** @file firmwares/rotorcraft/guidance/guidance_module.h
  *  Guidance in a module file.
  *
- *  If the module implements both V and H mode, take into account that the H is called first and later V
- */
-
-#ifndef GUIDANCE_MODULE_H_
-#define GUIDANCE_MODULE_H_
-
-#include "generated/modules.h"
-
-/**
- *
  * Horizontal loop default is ATTITUDE
  * e.g.: #define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_ATTITUDE
  *
@@ -46,6 +36,15 @@
  * Implement own Vertical loops when  GUIDANCE_V_MODE_MODULE_SETTING is set to GUIDANCE_V_MODE_MODULE
  * extern void guidance_v_module_enter(void);
  * extern void guidance_v_module_run(bool_t in_flight);
+ *
+ *  If the module implements both V and H mode, take into account that the H is called first and later V
+ *
  */
+
+#ifndef GUIDANCE_MODULE_H_
+#define GUIDANCE_MODULE_H_
+
+#include "generated/modules.h"
+
 
 #endif /* GUIDANCE_MODULE_H_ */
