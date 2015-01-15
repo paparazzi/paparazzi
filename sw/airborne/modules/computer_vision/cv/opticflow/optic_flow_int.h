@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Hann Woei Ho
+ * Copyright (C) 2014
  *
  * This file is part of Paparazzi.
  *
@@ -19,10 +19,9 @@
  */
 
 /**
- * @file modules/computer_vision/cv/opticflow/optic_flow_ardrone.h
- * @brief optical-flow based hovering for Parrot AR.Drone 2.0
+ * @file modules/computer_vision/cv/opticflow/optic_flow_int.h
+ * @brief efficient fixed-point optical-flow
  *
- * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
  */
 
 #ifndef OPTIC

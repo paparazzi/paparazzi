@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/computer_vision/optic_flow/opticflow_code.c
+ * @file modules/computer_vision/optic_flow/visual_estimator.c
  * @brief optical-flow based hovering for Parrot AR.Drone 2.0
  *
  * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
@@ -29,10 +29,10 @@
 #include <stdlib.h>
 
 // Own Header
-#include "opticflow_code.h"
+#include "visual_estimator.h"
 
 // Computer Vision
-#include "opticflow/optic_flow_ardrone.h"
+#include "opticflow/optic_flow_int.h"
 #include "opticflow/fast9/fastRosten.h"
 #include "modules/computer_vision/opticflow_module.h"
 

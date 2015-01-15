@@ -1,9 +1,5 @@
 /*
- * Copyright (C) 2014 Hann Woei Ho
- *
- * - Initial fixed-point C implementation by G. de Croon
- * - Algorithm: Lucas-Kanade by Yves Bouguet
- * - Publication: http://robots.stanford.edu/cs223b04/algo_tracking.pdf
+ * Copyright (C) 2014
  *
  * This file is part of Paparazzi.
  *
@@ -23,18 +19,20 @@
  */
 
 /**
- * @file modules/computer_vision/cv/opticflow/optic_flow_ardrone.c
- * @brief optical-flow based hovering for Parrot AR.Drone 2.0
+ * @file modules/computer_vision/cv/opticflow/optic_flow_int.c
+ * @brief efficient fixed-point optical-flow
  *
- * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
+ * - Initial fixed-point C implementation by G. de Croon
+ * - Algorithm: Lucas-Kanade by Yves Bouguet
+ * - Publication: http://robots.stanford.edu/cs223b04/algo_tracking.pdf
  */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include "optic_flow_ardrone.h"
-#include "../opticflow_module.h"
+#include "optic_flow_int.h"
+#include "modules/computer_vision/opticflow_module.h"
 
 #define int_index(x,y) (y * IMG_WIDTH + x)
 #define uint_index(xx, yy) (((yy * IMG_WIDTH + xx) * 2) & 0xFFFFFFFC)
@@ -83,12 +81,10 @@ void getSubPixel_gray(int *Patch, unsigned char *frame_buf, int center_x, int ce
                       int subpixel_factor)
 {
   int x, y, x_0, y_0, x_0_or, y_0_or, i, j, window_size, alpha_x, alpha_y, max_x, max_y;
-  //int printed, limit;
   unsigned int ix1, ix2, Y;
   window_size = half_window_size * 2 + 1;
   max_x = (IMG_WIDTH - 1) * subpixel_factor;
   max_y = (IMG_HEIGHT - 1) * subpixel_factor;
-  //printed = 0; limit = 4;
 
   for (i = 0; i < window_size; i++) {
     for (j = 0; j < window_size; j++) {
@@ -107,18 +103,9 @@ void getSubPixel_gray(int *Patch, unsigned char *frame_buf, int center_x, int ce
       x_0 = x_0_or * subpixel_factor;
       y_0_or = (y / subpixel_factor);
       y_0 = y_0_or * subpixel_factor;
-      /*if(printed < limit)
-      {
-        printf("x_0_or = %d, y_0_or = %d;\n\r", x_0_or, y_0_or);
-        printf("x_0 = %d, y_0 = %d\n\r");
-        printed++;
-      }*/
 
 
       if (x == x_0 && y == y_0) {
-        // simply copy the pixel:
-//        ix2 = uint_index(x_0_or, y_0_or);
-//          Y = ((unsigned int)frame_buf[ix2+1] + (unsigned int)frame_buf[ix2+3]) >> 1;
         ix2 = y_0_or * IMG_WIDTH + x_0_or;
         Y = (unsigned int)frame_buf[ix2 + 1];
         Patch[ix1] = (int) Y;
@@ -130,42 +117,22 @@ void getSubPixel_gray(int *Patch, unsigned char *frame_buf, int center_x, int ce
         // the patch pixel is a blend from the four surrounding pixels:
         ix2 = y_0_or * IMG_WIDTH + x_0_or;
         Y = (unsigned int)frame_buf[ix2 + 1];
-//        ix2 = uint_index(x_0_or, y_0_or);
-//        Y = ((unsigned int)frame_buf[ix2+1] + (unsigned int)frame_buf[ix2+3]) >> 1;
         Patch[ix1] = (subpixel_factor - alpha_x) * (subpixel_factor - alpha_y) * ((int) Y);
 
         ix2 = y_0_or * IMG_WIDTH + (x_0_or + 1);
         Y = (unsigned int)frame_buf[ix2 + 1];
-//        ix2 = uint_index((x_0_or+1), y_0_or);
-//        Y = ((unsigned int)frame_buf[ix2+1] + (unsigned int)frame_buf[ix2+3]) >> 1;
-        //if(printed < limit) printf("subpixel: TR = %d\n\r", Y);
         Patch[ix1] += alpha_x * (subpixel_factor - alpha_y) * ((int) Y);
 
         ix2 = (y_0_or + 1) * IMG_WIDTH + x_0_or;
         Y = (unsigned int)frame_buf[ix2 + 1];
-//        ix2 = uint_index(x_0_or, (y_0_or+1));
-//        Y = ((unsigned int)frame_buf[ix2+1] + (unsigned int)frame_buf[ix2+3]) >> 1;
-        //if(printed < limit) printf("subpixel: BL = %d\n\r", Y);
         Patch[ix1] += (subpixel_factor - alpha_x) * alpha_y * ((int) Y);
 
         ix2 = (y_0_or + 1) * IMG_WIDTH + (x_0_or + 1);
         Y = (unsigned int)frame_buf[ix2 + 1];
-//        ix2 = uint_index((x_0_or+1), (y_0_or+1));
-//        Y = ((unsigned int)frame_buf[ix2+1] + (unsigned int)frame_buf[ix2+3]) >> 1;
-        //if(printed < limit) printf("subpixel: BR = %d\n\r", Y);
         Patch[ix1] += alpha_x * alpha_y * ((int) Y);
 
         // normalize patch value
         Patch[ix1] /= (subpixel_factor * subpixel_factor);
-
-        /*if(printed < limit)
-        {
-
-          printf("alpha_x = %d, alpha_y = %d, x_0 = %d, y_0 = %d, x = %d, y = %d, Patch[ix1] = %d\n\r", alpha_x, alpha_y, x_0, y_0, x, y, Patch[ix1]);
-          // printed++;
-        }
-         */
-
       }
     }
   }
@@ -191,14 +158,12 @@ void getGradientPatch(int *Patch, int *DX, int *DY, int half_window_size)
       Y1 = Patch[ix1];
       ix1 = (unsigned int)(y * padded_patch_size + x + 1);
       Y2 = Patch[ix1];
-//      DX[ix2] = Y2 - Y1;
       DX[ix2] = (Y2 - Y1) / 2;
 
       ix1 = (unsigned int)((y - 1) * padded_patch_size + x);
       Y1 = Patch[ix1];
       ix1 = (unsigned int)((y + 1) * padded_patch_size + x);
       Y2 = Patch[ix1];
-//      DY[ix2] = Y2 - Y1;
       DY[ix2] = (Y2 - Y1) / 2;
 
 
@@ -215,26 +180,11 @@ int getSumPatch(int *Patch, int size)
 
   // in order to keep the sum within range:
   //threshold = 50000; // typical values are far below this threshold
-
   sum = 0;
   for (x = 0; x < size; x++) {
     for (y = 0; y < size; y++) {
       ix = (y * size) + x;
-      //if(sum < threshold && sum > -threshold)
-      //{
       sum += Patch[ix]; // do not check thresholds
-      //}
-      /*else
-      {
-        if(sum > threshold)
-        {
-          sum = threshold;
-        }
-        else
-        {
-          sum = -threshold;
-        }
-      }*/
     }
   }
 
@@ -342,20 +292,16 @@ int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, int 
   }
 
   for (p = 0; p < n_found_points; p++) {
-    //printf("*** NEW POINT ***\n\r");
     // status: point is not yet lost:
     status[p] = 1;
 
-    //printf("Normal coordinate: (%d,%d)\n\r", p_x[p], p_y[p]);
     // We want to be able to take steps in the image of 1 / subpixel_factor:
     p_x[p] *= subpixel_factor;
     p_y[p] *= subpixel_factor;
-    //printf("Subpixel coordinate: (%d,%d)\n\r", p_x[p], p_y[p]);
 
     // if the pixel is outside the ROI in the image, do not track it:
     if (!(p_x[p] > ((half_window_size + 1) * subpixel_factor) && p_x[p] < (IMG_WIDTH - half_window_size) * subpixel_factor
           && p_y[p] > ((half_window_size + 1) * subpixel_factor) && p_y[p] < (IMG_HEIGHT - half_window_size)*subpixel_factor)) {
-//      printf("Outside of ROI, P1[%d,%d]\n\r",p_x[p],p_y[p]);
       status[p] = 0;
     }
 
@@ -380,18 +326,13 @@ int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, int 
     if (error == NO_MEMORY) { return NO_MEMORY; }
 
     for (it = 0; it < 4; it++) {
-      //    printf("G[%d] = %d\n\r", it, G[it]);
       G[it] /= 255; // to keep values in range
-      //    printf("G[%d] = %d\n\r", it, G[it]);
     }
     // calculate G's determinant:
     Det = G[0] * G[3] - G[1] * G[2];
-    //printf("Det = %d\n\r", Det);
     Det = Det / subpixel_factor; // so that the steps will be expressed in subpixel units
-    //printf("Det = %d\n\r", Det);
     if (Det < 1) {
       status[p] = 0;
-//      printf("irrevertible G\n");
     }
 
     // (4) iterate over taking steps in the image to minimize the error:
@@ -403,14 +344,11 @@ int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, int 
     step_y = step_threshold + 1;
 
     while (status[p] == 1 && it < max_iterations && (abs(step_x) >= step_threshold || abs(step_y) >= step_threshold)) {
-      //printf("it = %d, (p_x+v_x,p_y+v_y) = (%d,%d)\n\r", it, p_x[p]+v_x, p_y[p]+v_y);
-      //printf("it = %d;", it);
       // if the pixel goes outside the ROI in the image, stop tracking:
       if (!(p_x[p] + v_x > ((half_window_size + 1) * subpixel_factor)
             && p_x[p] + v_x < ((int)IMG_WIDTH - half_window_size) * subpixel_factor
             && p_y[p] + v_y > ((half_window_size + 1) * subpixel_factor)
             && p_y[p] + v_y < ((int)IMG_HEIGHT - half_window_size)*subpixel_factor)) {
-//      printf("Outside of ROI, P1[%d,%d]\n\r",p_x[p],p_y[p]);
         status[p] = 0;
         break;
       }
@@ -427,40 +365,14 @@ int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, int 
 
       getSubPixel_gray(J_neighborhood, new_image_buf, p_x[p] + v_x, p_y[p] + v_y, half_window_size, subpixel_factor);
       //     [b] determine the image difference between the two neighborhoods
-      //printf("I = ");
-      //printIntMatrix(I_neighborhood, patch_size, patch_size);
-      //printf("J = ");
-      //printIntMatrix(J_neighborhood, patch_size, patch_size);
-      //getSubPixel(J_neighborhood, new_image_buf, subpixel_factor * ((p_x[p]+v_x)/subpixel_factor), subpixel_factor * ((p_y[p]+v_y) / subpixel_factor), half_window_size, subpixel_factor);
-      //printf("J2 = ");
-      //printIntMatrix(J_neighborhood, patch_size, patch_size);
-      //printf("figure(); subplot(1,2,1); imshow(I/255); subplot(1,2,2); imshow(J/255);\n\r");
       getImageDifference(I_neighborhood, J_neighborhood, ImDiff, patch_size, patch_size);
-      //printf("ImDiff = ");
-      //printIntMatrix(ImDiff, patch_size, patch_size);
       error = calculateError(ImDiff, patch_size, patch_size) / 255;
 
-//        if(error > error_threshold) printf("error threshold\n");
       if (error > error_threshold && it > max_iterations / 2) {
         status[p] = 0;
-//      printf("occlusion\n");
         break;
       }
-      //printf("error(%d) = %d;\n\r", it+1, error);
-      //     [c] calculate the 'b'-vector
-      //printf("DX = ");
-      //printIntMatrix(DX, patch_size, patch_size);
       multiplyImages(ImDiff, DX, IDDX, patch_size, patch_size);
-      //printf("IDDX = ");
-      //printIntMatrix(IDDX, patch_size, patch_size);
-      multiplyImages(ImDiff, DY, IDDY, patch_size, patch_size);
-      //printf("DY = ");
-      //printIntMatrix(DY, patch_size, patch_size);
-      //printf("IDDY = ");
-      //printIntMatrix(IDDY, patch_size, patch_size);
-      //printf("figure(); subplot(2,3,1); imagesc(ImDiff); subplot(2,3,2); imagesc(DX); subplot(2,3,3); imagesc(DY);");
-      //printf("subplot(2,3,4); imagesc(IDDY); subplot(2,3,5); imagesc(IDDX);\n\r");
-      // division by 255 to keep values in range:
       b_x = getSumPatch(IDDX, patch_size) / 255;
       b_y = getSumPatch(IDDY, patch_size) / 255;
       //printf("b_x = %d; b_y = %d;\n\r", b_x, b_y);
@@ -469,17 +381,10 @@ int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, int 
       step_y = (G[0] * b_y - G[2] * b_x) / Det;
       v_x += step_x;
       v_y += step_y; // - (?) since the origin in the image is in the top left of the image, with y positive pointing down
-      //printf("step = [%d,%d]; v = [%d,%d];\n\r", step_x, step_y, v_x, v_y);
-      //printf("pause(0.5);\n\r");
       // next iteration
       it++;
-      //      step_size = abs(step_x);
-      //      step_size += abs(step_y);
-      //printf("status = %d, it = %d, step_size = %d\n\r", status[p], it, step_size);
     } // iteration to find the right window in the new image
 
-    //printf("figure(); plot(error(1:(it+1)));\n\r");
-//  printf("it = %d\n",it);
     new_x[p] = (p_x[p] + v_x) / subpixel_factor;
     new_y[p] = (p_y[p] + v_y) / subpixel_factor;
     p_x[p] /= subpixel_factor;

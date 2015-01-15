@@ -46,9 +46,9 @@
     <define name="USE_ARDRONE_VIDEO" />
 
     <file name="opticflow_module.c"/>
-    <file name="opticflow_code.c" dir="modules/computer_vision/opticflow"/>
+    <file name="visual_estimator.c" dir="modules/computer_vision/opticflow"/>
     <file name="hover_stabilization.c" dir="modules/computer_vision/opticflow"/>
-    <file name="optic_flow_ardrone.c" dir="modules/computer_vision/cv/opticflow"/>
+    <file name="optic_flow_int.c" dir="modules/computer_vision/cv/opticflow"/>
     <file name="fastRosten.c" dir="modules/computer_vision/cv/opticflow/fast9"/>
     <file name="trig.c" dir="modules/computer_vision/cv"/>
     <file name="jpeg.c" dir="modules/computer_vision/cv/encoding"/>

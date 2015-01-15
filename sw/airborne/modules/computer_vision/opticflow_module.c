@@ -101,7 +101,7 @@ void opticflow_module_run(void)
 #include "resize.h"
 
 // Payload Code
-#include "opticflow/opticflow_code.h"
+#include "opticflow/visual_estimator.h"
 
 // Downlink Video
 //#define DOWNLINK_VIDEO 1
