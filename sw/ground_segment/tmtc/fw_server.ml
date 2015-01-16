@@ -318,7 +318,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       and lon = ivalue "lon"
       and alt = ivalue "alt" in
       let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
-      update_waypoint a (ivalue "wp_id") geo (float alt /. 100.)
+      update_waypoint a (ivalue "wp_id") geo (float alt /. 1000.)
     | "GENERIC_COM" ->
       let flight_time = ivalue "flight_time" in
       if flight_time >= a.flight_time then begin

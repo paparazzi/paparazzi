@@ -326,7 +326,7 @@ class plot = fun ~width ~height ~packing () ->
         let points = ref [] in
         Array.iteri (fun i (t, v) -> if t > min_x && t <= max_x && (i mod step = 0) then points := List.rev_append [(scale_x t, scale_y v)] !points) curve.values;
 	renderer#set_color curve.color;
-	renderer#lines !points;
+        if List.length !points > 0 then renderer#lines !points;
 
 	(* Title *)
 	let (w, h) = renderer#create_text title in
@@ -512,8 +512,8 @@ let pprz_float = function
   | Pprz.Float f -> f
   | Pprz.Int32 i -> Int32.to_float i
   | Pprz.Int64 i -> Int64.to_float i
-  | Pprz.String s -> float_of_string s
-  | Pprz.Char c -> float_of_string (String.make 1 c)
+  | Pprz.String s -> let v = try float_of_string s with _ -> 0. in v
+  | Pprz.Char c -> let v = try float_of_string (String.make 1 c) with _ -> 0. in v
   | Pprz.Array _ -> 0.
 
 

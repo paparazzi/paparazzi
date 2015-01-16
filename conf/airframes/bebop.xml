@@ -40,10 +40,10 @@
   </commands>
 
   <servos driver="Default">
-    <servo name="TOP_LEFT" no="0" min="3000" neutral="3000" max="12000"/>
-    <servo name="TOP_RIGHT" no="1" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_RIGHT" no="2" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_LEFT" no="3" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_RIGHT" no="0" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_LEFT" no="1" min="3000" neutral="3000" max="12000"/>
+    <servo name="BOTTOM_LEFT" no="2" min="3000" neutral="3000" max="12000"/>
+    <servo name="BOTTOM_RIGHT" no="3" min="3000" neutral="3000" max="12000"/>
   </servos>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
@@ -55,9 +55,9 @@
     <define name="MAX_SATURATION_OFFSET" value="3*MAX_PPRZ"/>
 
     <!-- Time cross layout (X), with order NW (CW), NE (CCW), SE (CW), SW (CCW) -->
-    <define name="ROLL_COEF" value="{  -256,  256,  256, -256 }"/>
+    <define name="ROLL_COEF" value="{   256, -256, -256,  256 }"/>
     <define name="PITCH_COEF" value="{  256,  256, -256, -256 }"/>
-    <define name="YAW_COEF" value="{    256, -256,  256, -256 }"/>
+    <define name="YAW_COEF" value="{   -256,  256, -256,  256 }"/>
     <define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
   </section>
 
@@ -195,8 +195,8 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="{&quot;nw_motor&quot;, &quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_ardrone2&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_ardrone2.h&quot;"/>
+    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad_ccw&quot;"/>
+    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>
 
   <section name="AUTOPILOT">

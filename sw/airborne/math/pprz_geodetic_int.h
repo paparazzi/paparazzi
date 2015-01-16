@@ -54,8 +54,8 @@ struct EcefCoor_i {
  * @brief vector in Latitude, Longitude and Altitude
  */
 struct LlaCoor_i {
-  int32_t lon; ///< in degrees*1e7
   int32_t lat; ///< in degrees*1e7
+  int32_t lon; ///< in degrees*1e7
   int32_t alt; ///< in millimeters above WGS84 reference ellipsoid
 };
 

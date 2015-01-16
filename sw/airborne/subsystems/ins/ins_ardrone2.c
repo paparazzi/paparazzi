@@ -78,19 +78,32 @@ void ins_periodic(void)
 
 void ins_reset_local_origin(void)
 {
+#if USE_GPS
+  if (gps.fix == GPS_FIX_3D) {
+    ltp_def_from_ecef_i(&ins_impl.ltp_def, &gps.ecef_pos);
+    ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
+    ins_impl.ltp_def.hmsl = gps.hmsl;
+    ins_impl.ltp_initialized = TRUE;
+    stateSetLocalOrigin_i(&ins_impl.ltp_def);
+  }
+  else {
+    ins_impl.ltp_initialized = FALSE;
+  }
+#else
   ins_impl.ltp_initialized = FALSE;
+#endif
 }
 
 void ins_reset_altitude_ref(void)
 {
 #if USE_GPS
   struct LlaCoor_i lla = {
-    state.ned_origin_i.lla.lon,
-    state.ned_origin_i.lla.lat,
-    gps.lla_pos.alt
+    .lat = state.ned_origin_i.lla.lat,
+    .lon = state.ned_origin_i.lla.lon,
+    .alt = gps.lla_pos.alt
   };
-  ltp_def_from_lla_i(&ins_impl.ltp_def, &lla),
-                     ins_impl.ltp_def.hmsl = gps.hmsl;
+  ltp_def_from_lla_i(&ins_impl.ltp_def, &lla);
+  ins_impl.ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ins_impl.ltp_def);
 #endif
 }

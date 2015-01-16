@@ -356,7 +356,7 @@
     <field name="wp_id" type="uint8"/>
     <field name="lat" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
     <field name="lon" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
-    <field name="alt" type="int32" unit="cm"/>
+    <field name="alt" type="int32" unit="mm" alt_unit="m">Height above Mean Sea Level (geoid)</field>
   </message>
 
   <message name="CHRONO" id="48">
@@ -2223,7 +2223,7 @@
   <field name="ac_id" type="uint8"/>
   <field name="lat" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
   <field name="lon" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
-  <field name="alt" type="int32" unit="cm"/>
+  <field name="alt" type="int32" unit="mm" alt_unit="m">Height above Mean Sea Level (geoid)</field>
  </message>
 
  <message name="WIND_INFO" id="3" link="forwarded">

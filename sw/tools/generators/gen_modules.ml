@@ -175,10 +175,18 @@ let print_periodic_functions = fun modules ->
       end
       else begin
         let status = get_status_name f module_name in
-        let start = (ExtXml.attrib_or_default f "start" "") in
-        lprintf out_h "if (%s == MODULES_START) { %s; %s = MODULES_RUN; }\n" status start status;
-        let stop = (ExtXml.attrib_or_default f "stop" "") in
-        lprintf out_h "if (%s == MODULES_STOP) { %s; %s = MODULES_IDLE; }\n" status stop status;
+        lprintf out_h "if (%s == MODULES_START) {\n" status;
+        right ();
+        ignore(try lprintf out_h "%s;\n" (Xml.attrib f "start") with _ -> ());
+        lprintf out_h "%s = MODULES_RUN;\n" status;
+        left ();
+        lprintf out_h "}\n";
+        lprintf out_h "if (%s == MODULES_STOP) {\n" status;
+        right ();
+        ignore(try lprintf out_h "%s;\n" (Xml.attrib f "stop") with _ -> ());
+        lprintf out_h "%s = MODULES_IDLE;\n" status;
+        left ();
+        lprintf out_h "}\n";
       end
     )
       periodic)

@@ -43,6 +43,7 @@ class waypoint :
   Latlong.geographic ->
   object
     method alt : float
+    method geomap : MapCanvas.widget
     method delete : unit -> unit
     method edit : unit
     method pos : Latlong.geographic

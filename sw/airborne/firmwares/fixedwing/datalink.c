@@ -75,6 +75,7 @@ uint8_t joystick_block;
 #endif
 
 #define MOfCm(_x) (((float)(_x))/100.)
+#define MOfMM(_x) (((float)(_x))/1000.)
 
 #define SenderIdOfMsg(x) (x[0])
 #define IdOfMsg(x) (x[1])
@@ -121,7 +122,7 @@ void dl_parse_msg(void)
 #ifdef NAV
       if (msg_id == DL_MOVE_WP && DL_MOVE_WP_ac_id(dl_buffer) == AC_ID) {
         uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
-        float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
+        float a = MOfMM(DL_MOVE_WP_alt(dl_buffer));
 
         /* Computes from (lat, long) in the referenced UTM zone */
         struct LlaCoor_f lla;

@@ -41,6 +41,10 @@
 #ifndef PPRZ_VERSION_H
 #define PPRZ_VERSION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define _STRINGIFY(s) #s
 #define STRINGIFY(s) _STRINGIFY(s)
 
@@ -74,5 +78,9 @@ static inline void get_pprz_git_version(uint8_t sha1[8])
     p += 2;
   }
 }
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* PPRZ_VERSION_H */

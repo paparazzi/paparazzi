@@ -28,6 +28,7 @@ void nps_ivy_init(char* ivy_bus) {
 #include "subsystems/datalink/downlink.h"
 
 #define MOfCm(_x) (((float)(_x))/100.)
+#define MOfMM(_x) (((float)(_x))/1000.)
 
 void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
                    void *user_data __attribute__ ((unused)),
@@ -35,7 +36,7 @@ void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
 
   if (atoi(argv[2]) == AC_ID) {
     uint8_t wp_id = atoi(argv[1]);
-    float a = MOfCm(atoi(argv[5]));
+    float a = MOfMM(atoi(argv[5]));
 
     /* Computes from (lat, long) in the referenced UTM zone */
     struct LlaCoor_f lla;

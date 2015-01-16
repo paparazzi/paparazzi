@@ -62,7 +62,8 @@ XmlEdit.Deleted -> wp#delete ()
 
       let wgs84 = geo_of_xml utm_ref float_attrib in
 
-      wp#set wgs84;
+      wp#geomap#edit_georef_name wp#name (assoc_nocase "name" attribs);
+      wp#set wgs84;      
       wp#set_name (assoc_nocase "name" attribs)
     with
         _ -> ()

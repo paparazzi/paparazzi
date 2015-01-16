@@ -52,8 +52,8 @@ struct EcefCoor_d {
  * @brief vector in Latitude, Longitude and Altitude
  */
 struct LlaCoor_d {
-  double lon; ///< in radians
   double lat; ///< in radians
+  double lon; ///< in radians
   double alt; ///< in meters above WGS84 reference ellipsoid
 };
 
