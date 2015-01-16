@@ -33,8 +33,14 @@
 #include "subsystems/ahrs.h"
 #include "math/pprz_orientation_conversion.h"
 
+struct AhrsInfrared {
+  bool_t is_aligned;
+};
+
+extern struct AhrsInfrared ahrs_infrared;
+
 extern void ahrs_infrared_register(void);
-extern void ahrs_infrared_init(struct OrientationReps* body_to_imu __attribute__((unused)));
+extern void ahrs_infrared_init(void);
 extern void ahrs_update_infrared(void);
 extern void ahrs_infrared_update_gps(void);
 

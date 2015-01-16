@@ -296,7 +296,7 @@ static inline void mavlink_send_heartbeat(void)
 #else
   uint8_t mav_type = MAV_TYPE_QUADROTOR;
 #endif
-  if (ahrs.status == AHRS_RUNNING) {
+  if (DefaultAhrsImpl.is_aligned) {
     if (kill_throttle) {
       mav_state = MAV_STATE_STANDBY;
     }

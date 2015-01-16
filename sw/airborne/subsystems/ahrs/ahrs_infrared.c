@@ -38,6 +38,8 @@
 #include "state.h"
 #include "subsystems/abi.h"
 
+struct AhrsInfrared ahrs_infrared;
+
 float heading;
 
 /** ABI binding for gyro data.
@@ -77,8 +79,9 @@ void ahrs_infrared_register(void)
   ahrs_register_impl(ahrs_infrared_init, ahrs_infrared_update_gps);
 }
 
-void ahrs_infrared_init(struct OrientationReps* body_to_imu __attribute__((unused))) {
-  ahrs.status = AHRS_RUNNING;
+void ahrs_infrared_init(void)
+{
+  ahrs_infrared.is_aligned = TRUE;
 
   heading = 0.;
 

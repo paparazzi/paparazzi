@@ -32,6 +32,7 @@
 # include <stdio.h>
 #endif
 
+#include "subsystems/ahrs.h"
 #include "ahrs_ardrone2.h"
 #include "state.h"
 #include "math/pprz_algebra_float.h"
@@ -71,14 +72,15 @@ void ahrs_ardrone2_register(void)
   ahrs_register_impl(ahrs_ardrone2_init, NULL);
 }
 
-void ahrs_ardrone2_init(struct OrientationReps* body_to_imu __attribute__((unused))) {
+void ahrs_ardrone2_init(void)
+{
   init_at_com();
 
   //Set navdata_demo to FALSE and flat trim the ar drone
   at_com_send_config("general:navdata_demo", "FALSE");
   at_com_send_ftrim();
 
-  ahrs.status = AHRS_RUNNING;
+  ahrs_ardrone2.is_aligned = TRUE;
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "AHRS_ARDRONE2", send_ahrs_ad2);

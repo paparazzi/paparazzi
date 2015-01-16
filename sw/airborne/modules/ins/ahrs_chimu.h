@@ -29,9 +29,15 @@
 #include "modules/ins/ins_module.h"
 #include "subsystems/ahrs.h"
 
+struct AhrsChimu {
+  bool_t is_aligned;
+};
+
+extern struct AhrsChimu ahrs_chimu;
+
 #define DefaultAhrsImpl ahrs_chimu
 
 extern void ahrs_chimu_register(void);
-extern void ahrs_chimu_init(struct OrientationReps* body_to_imu);
+extern void ahrs_chimu_init(void);
 
 #endif

@@ -30,14 +30,16 @@ CHIMU_PARSER_DATA CHIMU_DATA;
 INS_FORMAT ins_roll_neutral;
 INS_FORMAT ins_pitch_neutral;
 
+struct AhrsChimu ahrs_chimu;
+
 void ahrs_chimu_register(void)
 {
   ahrs_register_impl(ahrs_chimu_init, NULL);
 }
 
-void ahrs_chimu_init(struct OrientationReps* body_to_imu __attribute__((unused)))
+void ahrs_chimu_init(void)
 {
-  ahrs.status = AHRS_UNINIT;
+  ahrs_chimu.is_aligned = FALSE;
 
   uint8_t ping[7] = {CHIMU_STX, CHIMU_STX, 0x01, CHIMU_BROADCAST, MSG00_PING, 0x00, 0xE6 };
   uint8_t rate[12] = {CHIMU_STX, CHIMU_STX, 0x06, CHIMU_BROADCAST, MSG10_UARTSETTINGS, 0x05, 0xff, 0x79, 0x00, 0x00, 0x01, 0x76 };  // 50Hz attitude only + SPI
@@ -87,7 +89,7 @@ void parse_ins_msg(void)
           CHIMU_DATA.m_attitude.euler.psi
         };
         stateSetNedToBodyEulers_f(&att);
-        ahrs.status = AHRS_RUNNING;
+        ahrs_chimu.is_aligned = TRUE;
 #if CHIMU_DOWNLINK_IMMEDIATE
         DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &CHIMU_DATA.m_attitude.euler.phi,
                                  &CHIMU_DATA.m_attitude.euler.theta, &CHIMU_DATA.m_attitude.euler.psi);
