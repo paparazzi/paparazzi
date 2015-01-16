@@ -61,165 +61,30 @@ static inline void set_body_state_from_euler(void);
   }
 
 
-/** ABI binding for IMU data.
- * Used for gyro, accel and mag ABI messages.
- */
-#ifndef AHRS_ICE_IMU_ID
-#define AHRS_ICE_IMU_ID ABI_BROADCAST
-#endif
-static abi_event gyro_ev;
-static abi_event accel_ev;
-static abi_event mag_ev;
-
-static abi_event aligner_ev;
-
-static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
-                    const struct Int32Rates* gyro)
+void ahrs_ice_init(void)
 {
-  static uint32_t last_stamp = 0;
-  if (last_stamp > 0 && ahrs_ice.status == AHRS_ICE_RUNNING) {
-    float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_ice_propagate((struct Int32Rates*)gyro, dt);
-  }
-  last_stamp = *stamp;
-}
-
-static void accel_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
-                     const struct Int32Vect3* accel)
-{
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS int_cmpl_euler propagation.")
-  static uint32_t last_stamp = 0;
-  if (last_stamp > 0 && ahrs_ice.status == AHRS_ICE_RUNNING) {
-    float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_ice_update_accel((struct Int32Vect3*)accel, dt);
-  }
-  last_stamp = *stamp;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for AHRS int_cmpl_euler propagation.")
-PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
-  if (ahrs_ice.status == AHRS_ICE_RUNNING) {
-    const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-    ahrs_ice_propagate((struct Int32Rates*)gyro, dt);
-  }
-#endif
-}
-
-static void mag_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
-                   const struct Int32Vect3* mag)
-{
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_CORRECT_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS int_cmpl_euler accel update.")
-  static uint32_t last_stamp = 0;
-  if (last_stamp > 0 && ahrs_ice.status == AHRS_ICE_RUNNING) {
-    float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_ice_update_mag((struct Int32Vect3*)mag, dt);
-  }
-  last_stamp = *stamp;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_CORRECT_FREQUENCY for AHRS int_cmpl_quat accel update.")
-PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
-  if (ahrs_ice.status == AHRS_ICE_RUNNING) {
-    const float dt = 1. / (AHRS_CORRECT_FREQUENCY);
-    ahrs_ice_update_accel((struct Int32Rates*)accel, dt);
-  }
-#endif
-}
-
-static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
-                       const uint32_t* stamp __attribute__((unused)),
-                       const struct Int32Rates* lp_gyro, const struct Int32Vect3* lp_accel,
-                       const struct Int32Vect3* lp_mag)
-{
-  if (ahrs_ice.status != AHRS_ICE_RUNNING) {
-    ahrs_ice_align((struct Int32Rates*)lp_gyro, (struct Int32Vect3*)lp_accel,
-                   (struct Int32Vect3*)lp_mag);
-  }
-}
-
-#if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
-
-static void send_filter(struct transport_tx *trans, struct link_device *dev) {
-  pprz_msg_send_FILTER(trans, dev, AC_ID,
-      &ahrs_ice.ltp_to_imu_euler.phi,
-      &ahrs_ice.ltp_to_imu_euler.theta,
-      &ahrs_ice.ltp_to_imu_euler.psi,
-      &ahrs_ice.measure.phi,
-      &ahrs_ice.measure.theta,
-      &ahrs_ice.measure.psi,
-      &ahrs_ice.hi_res_euler.phi,
-      &ahrs_ice.hi_res_euler.theta,
-      &ahrs_ice.hi_res_euler.psi,
-      &ahrs_ice.residual.phi,
-      &ahrs_ice.residual.theta,
-      &ahrs_ice.residual.psi,
-      &ahrs_ice.gyro_bias.p,
-      &ahrs_ice.gyro_bias.q,
-      &ahrs_ice.gyro_bias.r);
-}
-
-static void send_euler(struct transport_tx *trans, struct link_device *dev) {
-  struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
-  pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
-      &ahrs_ice.ltp_to_imu_euler.phi,
-      &ahrs_ice.ltp_to_imu_euler.theta,
-      &ahrs_ice.ltp_to_imu_euler.psi,
-      &(eulers->phi),
-      &(eulers->theta),
-      &(eulers->psi));
-}
-
-static void send_bias(struct transport_tx *trans, struct link_device *dev) {
-  pprz_msg_send_AHRS_GYRO_BIAS_INT(trans, dev, AC_ID,
-      &ahrs_ice.gyro_bias.p, &ahrs_ice.gyro_bias.q, &ahrs_ice.gyro_bias.r);
-}
-#endif
-
-void ahrs_ice_register(void)
-{
-  ahrs_register_impl(ahrs_ice_init, NULL);
-}
-
-void ahrs_ice_init(struct OrientationReps* body_to_imu)
-{
-  /* save body_to_imu pointer */
-  ahrs_ice.body_to_imu = body_to_imu;
-
   ahrs_ice.status = AHRS_ICE_UNINIT;
+  ahrs_ice.is_aligned = FALSE;
 
-  /* set ltp_to_imu so that body is zero */
-  memcpy(&ahrs_ice.ltp_to_imu_euler, orientationGetEulers_i(ahrs_ice.body_to_imu),
-         sizeof(struct Int32Eulers));
+  /* init ltp_to_imu to zero */
+  INT_EULERS_ZERO(ahrs_ice.ltp_to_imu_euler)
   INT_RATES_ZERO(ahrs_ice.imu_rate);
 
   INT_RATES_ZERO(ahrs_ice.gyro_bias);
   ahrs_ice.reinj_1 = FACE_REINJ_1;
 
   ahrs_ice.mag_offset = AHRS_MAG_OFFSET;
-
-  /*
-   * Subscribe to scaled IMU measurements and attach callbacks
-   */
-  AbiBindMsgIMU_GYRO_INT32(AHRS_ICE_IMU_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(AHRS_ICE_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgIMU_MAG_INT32(AHRS_ICE_IMU_ID, &mag_ev, mag_cb);
-  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
-
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "FILTER", send_filter);
-  register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_euler);
-  register_periodic_telemetry(DefaultPeriodic, "AHRS_GYRO_BIAS_INT", send_bias);
-#endif
 }
 
 bool_t ahrs_ice_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
                   struct Int32Vect3* lp_mag)
 {
 
-  get_phi_theta_measurement_fom_accel(&ahrs_ice.hi_res_euler.phi, &ahrs_ice.hi_res_euler.theta, lp_accel);
+  get_phi_theta_measurement_fom_accel(&ahrs_ice.hi_res_euler.phi,
+                                      &ahrs_ice.hi_res_euler.theta, lp_accel);
   get_psi_measurement_from_mag(&ahrs_ice.hi_res_euler.psi,
-                               ahrs_ice.hi_res_euler.phi/F_UPDATE, ahrs_ice.hi_res_euler.theta/F_UPDATE, lp_mag);
+                               ahrs_ice.hi_res_euler.phi/F_UPDATE,
+                               ahrs_ice.hi_res_euler.theta/F_UPDATE, lp_mag);
 
   EULERS_COPY(ahrs_ice.measure, ahrs_ice.hi_res_euler);
   EULERS_COPY(ahrs_ice.measurement, ahrs_ice.hi_res_euler);
@@ -232,6 +97,7 @@ bool_t ahrs_ice_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
   RATES_COPY(ahrs_ice.gyro_bias, *lp_gyro);
 
   ahrs_ice.status = AHRS_ICE_RUNNING;
+  ahrs_ice.is_aligned = TRUE;
 
   return TRUE;
 }
@@ -286,7 +152,7 @@ static inline bool_t cut_accel (struct Int32Vect3 i1, struct Int32Vect3 i2, int3
  *
  */
 
-void ahrs_ice_propagate(struct Int32Rates* gyro, float dt __attribute__((unused))) {
+void ahrs_ice_propagate(struct Int32Rates* gyro) {
 
   /* unbias gyro             */
   struct Int32Rates uf_rate;
@@ -336,7 +202,7 @@ void ahrs_ice_propagate(struct Int32Rates* gyro, float dt __attribute__((unused)
 
 }
 
-void ahrs_ice_update_accel(struct Int32Vect3* accel, float dt __attribute__((unused))) {
+void ahrs_ice_update_accel(struct Int32Vect3* accel) {
 
 #if USE_NOISE_CUT || USE_NOISE_FILTER
   static struct Int32Vect3 last_accel = { 0, 0, 0 };
@@ -357,7 +223,7 @@ void ahrs_ice_update_accel(struct Int32Vect3* accel, float dt __attribute__((unu
 }
 
 
-void ahrs_ice_update_mag(struct Int32Vect3* mag, float dt __attribute__((unused))) {
+void ahrs_ice_update_mag(struct Int32Vect3* mag) {
 
   get_psi_measurement_from_mag(&ahrs_ice.measurement.psi, ahrs_ice.ltp_to_imu_euler.phi, ahrs_ice.ltp_to_imu_euler.theta, mag);
 
@@ -406,7 +272,7 @@ __attribute__ ((always_inline)) static inline void get_psi_measurement_from_mag(
 
 /* Rotate angles and rates from imu to body frame and set state */
 static void set_body_state_from_euler(void) {
-  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(ahrs_ice.body_to_imu);
+  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_ice.body_to_imu);
   struct Int32RMat ltp_to_imu_rmat, ltp_to_body_rmat;
   /* Compute LTP to IMU rotation matrix */
   int32_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_ice.ltp_to_imu_euler);
@@ -421,4 +287,20 @@ static void set_body_state_from_euler(void) {
   /* Set state */
   stateSetBodyRates_i(&body_rate);
 
+}
+
+void ahrs_ice_set_body_to_imu(struct OrientationReps* body_to_imu)
+{
+  ahrs_ice_set_body_to_imu_quat(orientationGetQuat_f(body_to_imu));
+}
+
+void ahrs_ice_set_body_to_imu_quat(struct FloatQuat* q_b2i)
+{
+  orientationSetQuat_f(&ahrs_ice.body_to_imu, q_b2i);
+
+  if (!ahrs_ice.is_aligned) {
+    /* Set ltp_to_imu so that body is zero */
+    memcpy(&ahrs_ice.ltp_to_imu_euler, orientationGetEulers_i(&ahrs_ice.body_to_imu),
+           sizeof(struct Int32Eulers));
+  }
 }
