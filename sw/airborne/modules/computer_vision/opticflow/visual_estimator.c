@@ -87,8 +87,6 @@ float cam_h, diff_roll, diff_pitch, OFx_trans, OFy_trans;
 float Velx, Vely;
 
 // Compute body velocities
-struct FloatVect3 V_Ned;
-struct FloatRMat Rmat_Ned2Body;
 struct FloatVect3 V_body;
 
 // Called by plugin
@@ -137,13 +135,9 @@ void my_plugin_run(unsigned char *frame)
   // ***********************************************************************************************************************
 
   // Compute body velocities from ENU
-  V_Ned.x = stateGetSpeedNed_f()->x;
-  V_Ned.y = stateGetSpeedNed_f()->y;
-  V_Ned.z = stateGetSpeedNed_f()->z;
-
-  struct FloatQuat *BodyQuaternions = stateGetNedToBodyQuat_f();
-  FLOAT_RMAT_OF_QUAT(Rmat_Ned2Body, *BodyQuaternions);
-  RMAT_VECT3_MUL(V_body, Rmat_Ned2Body, V_Ned);
+  struct FloatVect3 *vel_ned = (struct FloatVect3*)stateGetSpeedNed_f();
+  struct FloatQuat *q_n2b = stateGetNedToBodyQuat_f();
+  float_quat_vmult(&V_body, q_n2b, vel_ned);
 
   // ***********************************************************************************************************************
   // Corner detection
