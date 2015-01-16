@@ -471,7 +471,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
         break;
       case AP_MODE_MODULE:
 #ifdef GUIDANCE_V_MODE_MODULE_SETTING
-        guidance_v_mode_changed(GUIDANCE_V_MODE_MODULE);
+        guidance_v_mode_changed(GUIDANCE_V_MODE_MODULE_SETTING);
 #endif
         break;
       default:
