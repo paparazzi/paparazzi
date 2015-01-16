@@ -25,8 +25,8 @@
  * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
  */
 
-#ifndef OPTICFLOW_LAND_H
-#define OPTICFLOW_LAND_H
+#ifndef OPTICFLOW_MODULE_H
+#define OPTICFLOW_MODULE_H
 
 #include "std.h"
 
@@ -48,4 +48,4 @@ long time_elapsed(struct timeval *t1, struct timeval *t2);
 void start_timer(void);
 long end_timer(void);
 
-#endif /* OPTICFLOW_LAND_H */
+#endif /* OPTICFLOW_MODULE_H */

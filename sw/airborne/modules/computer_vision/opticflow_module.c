@@ -197,6 +197,3 @@ void opticflow_module_stop(void)
 {
   computer_vision_thread_command = 0;
 }
-
-
-

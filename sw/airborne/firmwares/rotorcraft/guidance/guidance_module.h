@@ -19,29 +19,30 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file firmwares/rotorcraft/guidance/guidance_module.h
- *  Guidance in a module file.
+/**
+ * @file firmwares/rotorcraft/guidance/guidance_module.h
+ * Guidance in a module file.
  *
- * Implement a custom controller in a module
+ * Implement a custom controller in a module.
  * Re-use desired modes:
  *
- * e.g.: #define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_HOVER
+ * e.g.: <tt>#define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_HOVER</tt>
  * can be used to only define a horizontal control in the module and use normal z_hold
  *
  * The guidance that the module implement must be activated with following defines:
  *
  * a) Implement own Horizontal loops when GUIDANCE_H_MODE_MODULE_SETTING is set to GUIDANCE_H_MODE_MODULE
  * One must then implement:
- * extern void guidance_h_module_enter(void);
- * extern void guidance_h_module_read_rc(void);
- * extern void guidance_h_module_run(bool_t in_flight);
+ * - void guidance_h_module_enter(void);
+ * - void guidance_h_module_read_rc(void);
+ * - void guidance_h_module_run(bool_t in_flight);
  *
  *
  * b) Implement own Vertical loops when GUIDANCE_V_MODE_MODULE_SETTING is set to GUIDANCE_V_MODE_MODULE
- * extern void guidance_v_module_enter(void);
- * extern void guidance_v_module_run(bool_t in_flight);
+ * - void guidance_v_module_enter(void);
+ * - void guidance_v_module_run(bool_t in_flight);
  *
- *  If the module implements both V and H mode, take into account that the H is called first and later V
+ * If the module implements both V and H mode, take into account that the H is called first and later V
  *
  */
 

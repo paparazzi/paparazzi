@@ -24,8 +24,9 @@
  *
  */
 
-#ifndef OPTIC
-#define OPTIC
+#ifndef OPTIC_FLOW_INT_H
+#define OPTIC_FLOW_INT_H
+
 void multiplyImages(int *ImA, int *ImB, int *ImC, int width, int height);
 void getImageDifference(int *ImA, int *ImB, int *ImC, int width, int height);
 void getSubPixel_gray(int *Patch, unsigned char *frame_buf, int center_x, int center_y, int half_window_size,
@@ -40,4 +41,5 @@ void quick_sort(float *a, int n);
 void quick_sort_int(int *a, int n);
 void CvtYUYV2Gray(unsigned char *grayframe, unsigned char *frame, int imW, int imH);
 void OFfilter(float *OFx, float *OFy, float dx, float dy, int count, int OF_FilterType);
-#endif
+
+#endif /* OPTIC_FLOW_INT_H */

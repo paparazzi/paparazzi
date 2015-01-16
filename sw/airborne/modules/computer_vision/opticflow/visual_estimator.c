@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/computer_vision/optic_flow/visual_estimator.c
+ * @file modules/computer_vision/opticflow/visual_estimator.c
  * @brief optical-flow based hovering for Parrot AR.Drone 2.0
  *
  * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
