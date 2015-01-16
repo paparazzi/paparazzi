@@ -147,10 +147,7 @@ void *computervision_thread_main(void *data)
 #endif
 
   // First Apply Settings before init
-  imgWidth = vid.w;
-  imgHeight = vid.h;
-  verbose = 2;
-  my_plugin_init();
+  my_plugin_init(vid.w, vid.h);
 
   while (computer_vision_thread_command > 0) {
     video_grab_image(&vid, img_new);

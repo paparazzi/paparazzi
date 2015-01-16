@@ -25,25 +25,20 @@
  * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
  */
 
-#ifndef _OPT_FL_LAND_H
-#define _OPT_FL_LAND_H
-
-// Settable by pluging
-extern unsigned int imgWidth, imgHeight;
-extern unsigned int verbose;
+#ifndef VISUAL_ESTIMATOR_H
+#define VISUAL_ESTIMATOR_H
 
 // Variables used by the controller
 extern float Velx, Vely;
-extern int count;
 extern int flow_count;
 extern struct FloatVect3 V_body;
 
-// Called by plugin
-void my_plugin_init(void);
+/**
+ * Initialize visual estimator.
+ * @param w  image width
+ * @param h  image height
+ */
+void my_plugin_init(unsigned int w, unsigned int h);
 void my_plugin_run(unsigned char *frame);
 
-// Timer
-void start_timer_rates(void);
-long end_timer_rates(void);
-
-#endif
+#endif /* VISUAL_ESTIMATOR_H */

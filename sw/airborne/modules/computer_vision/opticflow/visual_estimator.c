@@ -46,9 +46,8 @@
 // Timer
 #include <sys/time.h>
 
-// Settable by plugin
+// Image size set at init
 unsigned int imgWidth, imgHeight;
-unsigned int verbose = 0;
 
 // Local variables
 unsigned char *prev_frame, *gray_frame, *prev_gray_frame;
@@ -90,9 +89,11 @@ float Velx, Vely;
 struct FloatVect3 V_body;
 
 // Called by plugin
-void my_plugin_init(void)
+void my_plugin_init(unsigned int w, unsigned int h)
 {
   // Initialize variables
+  imgWidth = w;
+  imgHeight = h;
   gray_frame = (unsigned char *) calloc(imgWidth * imgHeight, sizeof(unsigned char));
   prev_frame = (unsigned char *) calloc(imgWidth * imgHeight * 2, sizeof(unsigned char));
   prev_gray_frame = (unsigned char *) calloc(imgWidth * imgHeight, sizeof(unsigned char));
