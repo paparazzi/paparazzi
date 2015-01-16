@@ -58,6 +58,7 @@ struct AhrsMlkf {
   struct OrientationReps body_to_imu;
 
   enum AhrsMlkfStatus status;
+  bool_t is_aligned;
 };
 
 extern struct AhrsMlkf ahrs_mlkf;

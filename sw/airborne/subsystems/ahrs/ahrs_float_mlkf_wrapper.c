@@ -60,7 +60,7 @@ PRINT_CONFIG_MSG("Calculating dt for AHRS_MLKF propagation.")
   /* timestamp in usec when last callback was received */
   static uint32_t last_stamp = 0;
 
-  if (last_stamp > 0 && ahrs_mlkf.status == AHRS_MLKF_RUNNING) {
+  if (last_stamp > 0 && ahrs_mlkf.is_aligned) {
     float dt = (float)(*stamp - last_stamp) * 1e-6;
     ahrs_mlkf_propagate((struct Int32Rates*)gyro, dt);
   }
@@ -79,7 +79,7 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
                      const uint32_t* stamp __attribute__((unused)),
                      const struct Int32Vect3* accel)
 {
-  if (ahrs_mlkf.status == AHRS_MLKF_RUNNING) {
+  if (ahrs_mlkf.is_aligned) {
     ahrs_mlkf_update_accel((struct Int32Vect3*)accel);
   }
 }
@@ -88,7 +88,7 @@ static void mag_cb(uint8_t sender_id __attribute__((unused)),
                    const uint32_t* stamp __attribute__((unused)),
                    const struct Int32Vect3* mag)
 {
-  if (ahrs_mlkf.status == AHRS_MLKF_RUNNING) {
+  if (ahrs_mlkf.is_aligned) {
     ahrs_mlkf_update_mag((struct Int32Vect3*)mag);
   }
 }
@@ -98,7 +98,7 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        const struct Int32Rates* lp_gyro, const struct Int32Vect3* lp_accel,
                        const struct Int32Vect3* lp_mag)
 {
-  if (ahrs_mlkf.status != AHRS_MLKF_RUNNING) {
+  if (!ahrs_mlkf.is_aligned) {
     ahrs_mlkf_align((struct Int32Rates*)lp_gyro, (struct Int32Vect3*)lp_accel,
                     (struct Int32Vect3*)lp_mag);
   }

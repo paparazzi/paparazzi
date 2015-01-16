@@ -59,7 +59,7 @@ struct AhrsMlkf ahrs_mlkf;
 
 void ahrs_mlkf_init(void) {
 
-  ahrs_mlkf.status = AHRS_MLKF_UNINIT;
+  ahrs_mlkf.is_aligned = FALSE;
 
   /* init ltp_to_imu quaternion as zero/identity rotation */
   float_quat_identity(&ahrs_mlkf.ltp_to_imu_quat);
@@ -93,7 +93,7 @@ void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat* q_b2i)
 {
   orientationSetQuat_f(&ahrs_mlkf.body_to_imu, q_b2i);
 
-  if (ahrs_mlkf.status == AHRS_MLKF_UNINIT) {
+  if (!ahrs_mlkf.is_aligned) {
     /* Set ltp_to_imu so that body is zero */
     memcpy(&ahrs_mlkf.ltp_to_imu_quat, orientationGetQuat_f(&ahrs_mlkf.body_to_imu),
            sizeof(struct FloatQuat));
@@ -116,7 +116,7 @@ bool_t ahrs_mlkf_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
   RATES_COPY(bias0, *lp_gyro);
   RATES_FLOAT_OF_BFP(ahrs_mlkf.gyro_bias, bias0);
 
-  ahrs_mlkf.status = AHRS_MLKF_RUNNING;
+  ahrs_mlkf.is_aligned = TRUE;
 
   return TRUE;
 }
