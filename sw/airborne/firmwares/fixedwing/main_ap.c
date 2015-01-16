@@ -149,7 +149,7 @@ volatile uint8_t ahrs_timeout_counter = 0;
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t mde = 3;
-  if (ahrs.status == AHRS_UNINIT) { mde = 2; }
+  if (!DefaultAhrsImpl.is_aligned) { mde = 2; }
   if (ahrs_timeout_counter > 10) { mde = 5; }
   uint16_t val = 0;
   pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &val);
@@ -770,19 +770,6 @@ static inline void on_gyro_event(void)
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
 
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
-  PRINT_CONFIG_MSG("Calculating dt for INS propagation.")
-    // timestamp in usec when last callback was received
-    static uint32_t last_ts = 0;
-  // dt between this and last callback in seconds
-  float dt = (float)(now_ts - last_ts) / 1e6;
-  last_ts = now_ts;
-#else
-  PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for INS propagation.")
-    PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
-    const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-#endif
-
   ahrs_timeout_counter = 0;
 
   imu_scale_gyro(&imu);
@@ -790,12 +777,8 @@ static inline void on_gyro_event(void)
   AbiSendMsgIMU_GYRO_INT32(1, &now_ts, &imu.gyro_prev);
 
 #if USE_AHRS_ALIGNER
-  // Run aligner on raw data as it also makes averages.
-  if (ahrs.status != AHRS_RUNNING) {
+  if (ahrs_aligner.status != AHRS_ALIGNER_LOCKED) {
     ahrs_aligner_run();
-    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED) {
-      ahrs.status = AHRS_RUNNING;
-    }
     return;
   }
 #endif
