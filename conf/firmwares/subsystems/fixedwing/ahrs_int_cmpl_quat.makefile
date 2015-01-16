@@ -22,9 +22,10 @@ ifneq ($(AHRS_ALIGNER_LED),none)
   AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
 
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat.h\"
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"
 AHRS_SRCS   += subsystems/ahrs.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_int_cmpl_quat.c
+AHRS_SRCS   += subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
 
 

@@ -32,7 +32,6 @@
 
 #include "subsystems/ahrs/ahrs_int_cmpl_quat.h"
 #include "subsystems/ahrs/ahrs_int_utils.h"
-#include "subsystems/abi.h"
 #include "state.h"
 
 #if USE_GPS
@@ -109,159 +108,18 @@ static inline void set_body_state_from_quat(void);
 static inline void UNUSED ahrs_icq_update_mag_full(struct Int32Vect3* mag, float dt);
 static inline void ahrs_icq_update_mag_2d(struct Int32Vect3* mag, float dt);
 
-/** ABI binding for IMU data.
- * Used for gyro, accel and mag ABI messages.
- */
-#ifndef AHRS_ICQ_IMU_ID
-#define AHRS_ICQ_IMU_ID ABI_BROADCAST
-#endif
-static abi_event gyro_ev;
-static abi_event accel_ev;
-static abi_event mag_ev;
-
-static abi_event aligner_ev;
-
-static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
-                    const struct Int32Rates* gyro)
+void ahrs_icq_init(void)
 {
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS int_cmpl_quat propagation.")
-  /* timestamp in usec when last callback was received */
-  static uint32_t last_stamp = 0;
-  if (last_stamp > 0 && ahrs_icq.status == AHRS_ICQ_RUNNING) {
-    float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_icq_propagate((struct Int32Rates*)gyro, dt);
-  }
-  last_stamp = *stamp;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for AHRS int_cmpl_quat propagation.")
-PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
-  if (ahrs_icq.status == AHRS_ICQ_RUNNING) {
-    const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-    ahrs_icq_propagate((struct Int32Rates*)gyro, dt);
-  }
-#endif
-}
-
-static void accel_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
-                     const struct Int32Vect3* accel)
-{
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_CORRECT_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS int_cmpl_quat accel update.")
-  static uint32_t last_stamp = 0;
-  if (last_stamp > 0 && ahrs_icq.status == AHRS_ICQ_RUNNING) {
-    float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_icq_update_accel((struct Int32Vect3*)accel, dt);
-  }
-  last_stamp = *stamp;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_CORRECT_FREQUENCY for AHRS int_cmpl_quat accel update.")
-PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
-  if (ahrs_icq.status == AHRS_ICQ_RUNNING) {
-    const float dt = 1. / (AHRS_CORRECT_FREQUENCY);
-    ahrs_icq_update_accel((struct Int32Rates*)accel, dt);
-  }
-#endif
-}
-
-static void mag_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
-                   const struct Int32Vect3* mag)
-{
-#if USE_MAGNETOMETER
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS int_cmpl_quat mag update.")
-  static uint32_t last_stamp = 0;
-  if (last_stamp > 0 && ahrs_icq.status == AHRS_ICQ_RUNNING) {
-    float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_icq_update_mag((struct Int32Vect3*)mag, dt);
-  }
-  last_stamp = *stamp;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS int_cmpl_quat mag update.")
-PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
-  if (ahrs_icq.status == AHRS_ICQ_RUNNING) {
-    const float dt = 1. / (AHRS_MAG_CORRECT_FREQUENCY);
-    ahrs_icq_update_mag((struct Int32Vect3*)mag, dt);
-  }
-#endif
-#endif
-}
-
-static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
-                       const uint32_t* stamp __attribute__((unused)),
-                       const struct Int32Rates* lp_gyro, const struct Int32Vect3* lp_accel,
-                       const struct Int32Vect3* lp_mag)
-{
-  if (ahrs_icq.status != AHRS_ICQ_RUNNING) {
-    ahrs_icq_align((struct Int32Rates*)lp_gyro, (struct Int32Vect3*)lp_accel,
-                  (struct Int32Vect3*)lp_mag);
-  }
-}
-
-#if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
-
-static void send_quat(struct transport_tx *trans, struct link_device *dev) {
-  struct Int32Quat* quat = stateGetNedToBodyQuat_i();
-  pprz_msg_send_AHRS_QUAT_INT(trans, dev, AC_ID,
-      &ahrs_icq.weight,
-      &ahrs_icq.ltp_to_imu_quat.qi,
-      &ahrs_icq.ltp_to_imu_quat.qx,
-      &ahrs_icq.ltp_to_imu_quat.qy,
-      &ahrs_icq.ltp_to_imu_quat.qz,
-      &(quat->qi),
-      &(quat->qx),
-      &(quat->qy),
-      &(quat->qz));
-}
-
-static void send_euler(struct transport_tx *trans, struct link_device *dev) {
-  struct Int32Eulers ltp_to_imu_euler;
-  int32_eulers_of_quat(&ltp_to_imu_euler, &ahrs_icq.ltp_to_imu_quat);
-  struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
-  pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
-      &ltp_to_imu_euler.phi,
-      &ltp_to_imu_euler.theta,
-      &ltp_to_imu_euler.psi,
-      &(eulers->phi),
-      &(eulers->theta),
-      &(eulers->psi));
-}
-
-static void send_bias(struct transport_tx *trans, struct link_device *dev) {
-  pprz_msg_send_AHRS_GYRO_BIAS_INT(trans, dev, AC_ID,
-      &ahrs_icq.gyro_bias.p, &ahrs_icq.gyro_bias.q, &ahrs_icq.gyro_bias.r);
-}
-
-static void send_geo_mag(struct transport_tx *trans, struct link_device *dev) {
-  struct FloatVect3 h_float;
-  h_float.x = MAG_FLOAT_OF_BFP(ahrs_icq.mag_h.x);
-  h_float.y = MAG_FLOAT_OF_BFP(ahrs_icq.mag_h.y);
-  h_float.z = MAG_FLOAT_OF_BFP(ahrs_icq.mag_h.z);
-  pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
-                        &h_float.x, &h_float.y, &h_float.z);
-}
-#endif
-
-void ahrs_icq_register(void)
-{
-  ahrs_register_impl(ahrs_icq_init, ahrs_icq_update_gps);
-}
-
-
-void ahrs_icq_init(struct OrientationReps* body_to_imu) {
-
-  /* save body_to_imu pointer */
-  ahrs_icq.body_to_imu = body_to_imu;
 
   ahrs_icq.status = AHRS_ICQ_UNINIT;
+  ahrs_icq.is_aligned = FALSE;
 
   ahrs_icq.ltp_vel_norm_valid = FALSE;
   ahrs_icq.heading_aligned = FALSE;
 
-  /* set ltp_to_imu so that body is zero */
-  memcpy(&ahrs_icq.ltp_to_imu_quat, orientationGetQuat_i(ahrs_icq.body_to_imu),
-         sizeof(struct Int32Quat));
+  /* init ltp_to_imu quaternion as zero/identity rotation */
+  int32_quat_identity(&ahrs_icq.ltp_to_imu_quat);
+
   INT_RATES_ZERO(ahrs_icq.imu_rate);
 
   INT_RATES_ZERO(ahrs_icq.gyro_bias);
@@ -290,22 +148,6 @@ void ahrs_icq_init(struct OrientationReps* body_to_imu) {
 
   ahrs_icq.accel_cnt = 0;
   ahrs_icq.mag_cnt = 0;
-
-  /*
-   * Subscribe to scaled IMU measurements and attach callbacks
-   */
-  AbiBindMsgIMU_GYRO_INT32(AHRS_ICQ_IMU_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(AHRS_ICQ_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgIMU_MAG_INT32(AHRS_ICQ_IMU_ID, &mag_ev, mag_cb);
-  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
-
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "AHRS_QUAT_INT", send_quat);
-  register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_euler);
-  register_periodic_telemetry(DefaultPeriodic, "AHRS_GYRO_BIAS_INT", send_bias);
-  register_periodic_telemetry(DefaultPeriodic, "GEO_MAG", send_geo_mag);
-#endif
-
 }
 
 
@@ -334,6 +176,7 @@ bool_t ahrs_icq_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
   INT_RATES_LSHIFT(ahrs_icq.high_rez_bias, ahrs_icq.high_rez_bias, 28);
 
   ahrs_icq.status = AHRS_ICQ_RUNNING;
+  ahrs_icq.is_aligned = TRUE;
 
   return TRUE;
 }
@@ -429,7 +272,7 @@ void ahrs_icq_update_accel(struct Int32Vect3* accel, float dt) {
 
     /* convert centrifucal acceleration from body to imu frame */
     struct Int32Vect3 acc_c_imu;
-    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(ahrs_icq.body_to_imu);
+    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_icq.body_to_imu);
     int32_rmat_vmult(&acc_c_imu, body_to_imu_rmat, &acc_c_body);
 
     /* and subtract it from imu measurement to get a corrected measurement
@@ -779,7 +622,7 @@ void ahrs_icq_realign_heading(int32_t heading) {
   QUAT_COPY(ltp_to_body_quat, q);
 
   /* compute ltp to imu rotations */
-  struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(ahrs_icq.body_to_imu);
+  struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&ahrs_icq.body_to_imu);
   int32_quat_comp(&ahrs_icq.ltp_to_imu_quat, &ltp_to_body_quat, body_to_imu_quat);
 
   /* Set state */
@@ -793,15 +636,31 @@ void ahrs_icq_realign_heading(int32_t heading) {
 static inline void set_body_state_from_quat(void) {
   /* Compute LTP to BODY quaternion */
   struct Int32Quat ltp_to_body_quat;
-  struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(ahrs_icq.body_to_imu);
+  struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&ahrs_icq.body_to_imu);
   int32_quat_comp_inv(&ltp_to_body_quat, &ahrs_icq.ltp_to_imu_quat, body_to_imu_quat);
   /* Set state */
   stateSetNedToBodyQuat_i(&ltp_to_body_quat);
 
   /* compute body rates */
   struct Int32Rates body_rate;
-  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(ahrs_icq.body_to_imu);
+  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_icq.body_to_imu);
   int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_icq.imu_rate);
   /* Set state */
   stateSetBodyRates_i(&body_rate);
+}
+
+void ahrs_icq_set_body_to_imu(struct OrientationReps* body_to_imu)
+{
+  ahrs_icq_set_body_to_imu_quat(orientationGetQuat_f(body_to_imu));
+}
+
+void ahrs_icq_set_body_to_imu_quat(struct FloatQuat* q_b2i)
+{
+  orientationSetQuat_f(&ahrs_icq.body_to_imu, q_b2i);
+
+  if (!ahrs_icq.is_aligned) {
+    /* Set ltp_to_imu so that body is zero */
+    memcpy(&ahrs_icq.ltp_to_imu_quat, orientationGetQuat_i(&ahrs_icq.body_to_imu),
+           sizeof(struct Int32Quat));
+  }
 }
