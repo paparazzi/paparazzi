@@ -27,7 +27,6 @@
  * Propagation can be done in rotation matrix or quaternion representation.
  */
 
-#include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_float_cmpl.h"
 #include "subsystems/ahrs/ahrs_float_utils.h"
 #include "math/pprz_algebra_float.h"
@@ -38,7 +37,6 @@
 #include "subsystems/gps.h"
 #endif
 #include "state.h"
-#include "subsystems/abi.h"
 
 //#include "../../test/pprz_algebra_print.h"
 
@@ -90,165 +88,16 @@ static inline void compute_body_orientation_and_rates(void);
 
 struct AhrsFloatCmpl ahrs_fc;
 
-
-/** ABI binding for IMU data.
- * Used for gyro, accel and mag ABI messages.
- */
-#ifndef AHRS_FC_IMU_ID
-#define AHRS_FC_IMU_ID ABI_BROADCAST
-#endif
-static abi_event gyro_ev;
-static abi_event accel_ev;
-static abi_event mag_ev;
-
-static abi_event aligner_ev;
-
-static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
-                    const struct Int32Rates* gyro)
+void ahrs_fc_init(void)
 {
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS float_cmpl propagation.")
-  /* timestamp in usec when last callback was received */
-  static uint32_t last_stamp = 0;
-
-  if (last_stamp > 0 && ahrs_fc.status == AHRS_FC_RUNNING) {
-    float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_fc_propagate((struct Int32Rates*)gyro, dt);
-  }
-  last_stamp = *stamp;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for AHRS float_cmpl propagation.")
-PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
-  if (ahrs_fc.status == AHRS_FC_RUNNING) {
-    const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-    ahrs_fc_propagate((struct Int32Rates*)gyro, dt);
-  }
-#endif
-}
-
-static void accel_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
-                     const struct Int32Vect3* accel)
-{
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_CORRECT_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS float_cmpl accel update.")
-  static uint32_t last_stamp = 0;
-  if (last_stamp > 0 && ahrs_fc.status == AHRS_FC_RUNNING) {
-    float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_fc_update_accel((struct Int32Vect3*)accel, dt);
-  }
-  last_stamp = *stamp;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_CORRECT_FREQUENCY for AHRS float_cmpl accel update.")
-PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
-  if (ahrs_fc.status == AHRS_FC_RUNNING) {
-    const float dt = 1. / (AHRS_CORRECT_FREQUENCY);
-    ahrs_fc_update_accel((struct Int32Vect3*)accel, dt);
-  }
-#endif
-}
-
-static void mag_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
-                   const struct Int32Vect3* mag)
-{
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS float_cmpl mag update.")
-  static uint32_t last_stamp = 0;
-  if (last_stamp > 0 && ahrs_fc.status == AHRS_FC_RUNNING) {
-    float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_fc_update_mag((struct Int32Vect3*)mag, dt);
-  }
-  last_stamp = *stamp;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS float_cmpl mag update.")
-PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
-  if (ahrs_fc.status == AHRS_FC_RUNNING) {
-    const float dt = 1. / (AHRS_MAG_CORRECT_FREQUENCY);
-    ahrs_fc_update_mag((struct Int32Vect3*)mag, dt);
-  }
-#endif
-}
-
-static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
-                       const uint32_t* stamp __attribute__((unused)),
-                       const struct Int32Rates* lp_gyro, const struct Int32Vect3* lp_accel,
-                       const struct Int32Vect3* lp_mag)
-{
-  if (ahrs_fc.status != AHRS_FC_RUNNING) {
-    ahrs_fc_align((struct Int32Rates*)lp_gyro, (struct Int32Vect3*)lp_accel,
-                  (struct Int32Vect3*)lp_mag);
-  }
-}
-
-#if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
-
-static void send_att(struct transport_tx *trans, struct link_device *dev) {
-  struct FloatEulers ltp_to_imu_euler;
-  float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_fc.ltp_to_imu_quat);
-  struct Int32Eulers euler_i;
-  EULERS_BFP_OF_REAL(euler_i, ltp_to_imu_euler);
-  struct Int32Eulers* eulers_body = stateGetNedToBodyEulers_i();
-  pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
-      &euler_i.phi,
-      &euler_i.theta,
-      &euler_i.psi,
-      &(eulers_body->phi),
-      &(eulers_body->theta),
-      &(eulers_body->psi));
-}
-
-static void send_geo_mag(struct transport_tx *trans, struct link_device *dev) {
-  pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
-                        &ahrs_fc.mag_h.x, &ahrs_fc.mag_h.y, &ahrs_fc.mag_h.z);
-}
-
-// TODO convert from float to int if we really need this one
-/*
-static void send_rmat(struct transport_tx *trans, struct link_device *dev) {
-  struct Int32RMat* att_rmat = stateGetNedToBodyRMat_i();
-  pprz_msg_send_AHRS_RMAT(trans, dev, AC_ID,
-      &ahrs_fc.ltp_to_imu_rmat.m[0],
-      &ahrs_fc.ltp_to_imu_rmat.m[1],
-      &ahrs_fc.ltp_to_imu_rmat.m[2],
-      &ahrs_fc.ltp_to_imu_rmat.m[3],
-      &ahrs_fc.ltp_to_imu_rmat.m[4],
-      &ahrs_fc.ltp_to_imu_rmat.m[5],
-      &ahrs_fc.ltp_to_imu_rmat.m[6],
-      &ahrs_fc.ltp_to_imu_rmat.m[7],
-      &ahrs_fc.ltp_to_imu_rmat.m[8],
-      &(att_rmat->m[0]),
-      &(att_rmat->m[1]),
-      &(att_rmat->m[2]),
-      &(att_rmat->m[3]),
-      &(att_rmat->m[4]),
-      &(att_rmat->m[5]),
-      &(att_rmat->m[6]),
-      &(att_rmat->m[7]),
-      &(att_rmat->m[8]));
-}
-*/
-#endif
-
-void ahrs_fc_register(void)
-{
-  ahrs_register_impl(ahrs_fc_init, ahrs_fc_update_gps);
-}
-
-void ahrs_fc_init(struct OrientationReps* body_to_imu)
-{
-  /* save body_to_imu pointer */
-  ahrs_fc.body_to_imu = body_to_imu;
-
   ahrs_fc.status = AHRS_FC_UNINIT;
+  ahrs_fc.is_aligned = FALSE;
 
   ahrs_fc.ltp_vel_norm_valid = FALSE;
   ahrs_fc.heading_aligned = FALSE;
 
-  /* Set ltp_to_imu so that body is zero */
-  memcpy(&ahrs_fc.ltp_to_imu_quat, orientationGetQuat_f(ahrs_fc.body_to_imu),
-         sizeof(struct FloatQuat));
-  memcpy(&ahrs_fc.ltp_to_imu_rmat, orientationGetRMat_f(ahrs_fc.body_to_imu),
-         sizeof(struct FloatRMat));
+  /* init ltp_to_imu quaternion as zero/identity rotation */
+  float_quat_identity(&ahrs_fc.ltp_to_imu_quat);
 
   FLOAT_RATES_ZERO(ahrs_fc.imu_rate);
 
@@ -270,19 +119,6 @@ void ahrs_fc_init(struct OrientationReps* body_to_imu)
 
   ahrs_fc.accel_cnt = 0;
   ahrs_fc.mag_cnt = 0;
-
-  /*
-   * Subscribe to scaled IMU measurements and attach callbacks
-   */
-  AbiBindMsgIMU_GYRO_INT32(AHRS_FC_IMU_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(AHRS_FC_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgIMU_MAG_INT32(AHRS_FC_IMU_ID, &mag_ev, mag_cb);
-  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
-
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_att);
-  register_periodic_telemetry(DefaultPeriodic, "GEO_MAG", send_geo_mag);
-#endif
 }
 
 bool_t ahrs_fc_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
@@ -311,6 +147,7 @@ bool_t ahrs_fc_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
   RATES_FLOAT_OF_BFP(ahrs_fc.gyro_bias, bias0);
 
   ahrs_fc.status = AHRS_FC_RUNNING;
+  ahrs_fc.is_aligned = TRUE;
 
   return TRUE;
 }
@@ -385,7 +222,7 @@ void ahrs_fc_update_accel(struct Int32Vect3* accel, float dt) {
 
     /* convert centrifugal acceleration from body to imu frame */
     struct FloatVect3 acc_c_imu;
-    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(ahrs_fc.body_to_imu);
+    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_fc.body_to_imu);
     float_rmat_vmult(&acc_c_imu, body_to_imu_rmat, &acc_c_body);
 
     /* and subtract it from imu measurement to get a corrected measurement of the gravity vector */
@@ -653,7 +490,7 @@ void ahrs_fc_realign_heading(float heading) {
   float_quat_comp_norm_shortest(&q, &q_c, ltp_to_body_quat);
 
   /* compute ltp to imu rotation quaternion and matrix */
-  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(ahrs_fc.body_to_imu);
+  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
   float_quat_comp(&ahrs_fc.ltp_to_imu_quat, &q, body_to_imu_quat);
   float_rmat_of_quat(&ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.ltp_to_imu_quat);
 
@@ -670,14 +507,32 @@ void ahrs_fc_realign_heading(float heading) {
 static inline void compute_body_orientation_and_rates(void) {
   /* Compute LTP to BODY quaternion */
   struct FloatQuat ltp_to_body_quat;
-  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(ahrs_fc.body_to_imu);
+  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
   float_quat_comp_inv(&ltp_to_body_quat, &ahrs_fc.ltp_to_imu_quat, body_to_imu_quat);
   /* Set state */
   stateSetNedToBodyQuat_f(&ltp_to_body_quat);
 
   /* compute body rates */
   struct FloatRates body_rate;
-  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(ahrs_fc.body_to_imu);
+  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_fc.body_to_imu);
   float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_fc.imu_rate);
   stateSetBodyRates_f(&body_rate);
+}
+
+void ahrs_fc_set_body_to_imu(struct OrientationReps* body_to_imu)
+{
+  ahrs_fc_set_body_to_imu_quat(orientationGetQuat_f(body_to_imu));
+}
+
+void ahrs_fc_set_body_to_imu_quat(struct FloatQuat* q_b2i)
+{
+  orientationSetQuat_f(&ahrs_fc.body_to_imu, q_b2i);
+
+  if (!ahrs_fc.is_aligned) {
+    /* Set ltp_to_imu so that body is zero */
+    memcpy(&ahrs_fc.ltp_to_imu_quat, orientationGetQuat_f(&ahrs_fc.body_to_imu),
+           sizeof(struct FloatQuat));
+    memcpy(&ahrs_fc.ltp_to_imu_rmat, orientationGetRMat_f(&ahrs_fc.body_to_imu),
+           sizeof(struct FloatRMat));
+  }
 }

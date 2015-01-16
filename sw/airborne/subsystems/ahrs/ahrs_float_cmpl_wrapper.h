@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2015 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -19,18 +19,18 @@
  */
 
 /**
- * @file subsystems/ahrs/ahrs_float_mlkf_wrapper.h
+ * @file subsystems/ahrs/ahrs_float_cmpl_wrapper.h
  *
- * Paparazzi specific wrapper to run MLKF filter.
+ * Paparazzi specific wrapper to run floating point complementary filter.
  */
 
-#ifndef AHRS_FLOAT_MLKF_WRAPPER_H
-#define AHRS_FLOAT_MLKF_WRAPPER_H
+#ifndef AHRS_FLOAT_CMPL_WRAPPER_H
+#define AHRS_FLOAT_CMPL_WRAPPER_H
 
-#include "subsystems/ahrs/ahrs_float_mlkf.h"
+#include "subsystems/ahrs/ahrs_float_cmpl.h"
 
-#define DefaultAhrsImpl ahrs_mlkf
+#define DefaultAhrsImpl ahrs_fc
 
-extern void ahrs_mlkf_register(void);
+extern void ahrs_fc_register(void);
 
-#endif /* AHRS_FLOAT_MLKF_WRAPPER_H */
+#endif /* AHRS_FLOAT_CMPL_WRAPPER_H */
