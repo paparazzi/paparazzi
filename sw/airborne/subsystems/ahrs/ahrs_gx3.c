@@ -47,10 +47,11 @@ static inline bool_t gx3_verify_chk(volatile uint8_t *buff_add);
 static inline float bef(volatile uint8_t *c);
 
 /* Big Endian to Float */
-static inline float bef(volatile uint8_t *c) {
+static inline float bef(volatile uint8_t *c)
+{
   float f;
-  int8_t * p;
-  p = ((int8_t *)&f)+3;
+  int8_t *p;
+  p = ((int8_t *)&f) + 3;
   *p-- = *c++;
   *p-- = *c++;
   *p-- = *c++;
@@ -58,16 +59,18 @@ static inline float bef(volatile uint8_t *c) {
   return f;
 }
 
-static inline bool_t gx3_verify_chk(volatile uint8_t *buff_add) {
-  uint16_t i,chk_calc;
+static inline bool_t gx3_verify_chk(volatile uint8_t *buff_add)
+{
+  uint16_t i, chk_calc;
   chk_calc = 0;
-  for (i=0;i<GX3_MSG_LEN-2;i++) {
-    chk_calc += (uint8_t)*buff_add++;
+  for (i = 0; i < GX3_MSG_LEN - 2; i++) {
+    chk_calc += (uint8_t) * buff_add++;
   }
-  return (chk_calc == ( (((uint16_t)*buff_add)<<8) + (uint8_t)*(buff_add+1) ));
+  return (chk_calc == ((((uint16_t) * buff_add) << 8) + (uint8_t) * (buff_add + 1)));
 }
 
-void ahrs_align(void) {
+void ahrs_align(void)
+{
   ahrs_impl.gx3_status = GX3Uninit;
 
   //make the gyros zero, takes 10s (specified in Byte 4 and 5)
@@ -83,12 +86,13 @@ void ahrs_align(void) {
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static send_gx3(struct transport_tx *trans, struct link_device *dev) {
+static send_gx3(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_GX3_INFO(trans, dev, AC_ID,
-      &ahrs_impl.gx3_freq,
-      &ahrs_impl.gx3_packet.chksm_error,
-      &ahrs_impl.gx3_packet.hdr_error,
-      &ahrs_impl.gx3_chksm);
+                         &ahrs_impl.gx3_freq,
+                         &ahrs_impl.gx3_packet.chksm_error,
+                         &ahrs_impl.gx3_packet.hdr_error,
+                         &ahrs_impl.gx3_chksm);
 }
 #endif
 
@@ -96,7 +100,8 @@ static send_gx3(struct transport_tx *trans, struct link_device *dev) {
  * GX3 can be set up during the startup, or it can be configured to
  * start sending data automatically after power up.
  */
-void imu_impl_init(void) {
+void imu_impl_init(void)
+{
   // Initialize variables
   ahrs_impl.gx3_status = GX3Uninit;
 
@@ -108,7 +113,7 @@ void imu_impl_init(void) {
   ahrs_impl.gx3_packet.hdr_error = 0;
 
   // It is necessary to wait for GX3 to power up for proper initialization
-  for (uint32_t startup_counter=0; startup_counter<IMU_GX3_LONG_DELAY*2; startup_counter++){
+  for (uint32_t startup_counter = 0; startup_counter < IMU_GX3_LONG_DELAY * 2; startup_counter++) {
     __asm("nop");
   }
 
@@ -173,7 +178,7 @@ void imu_impl_init(void) {
   */
 
   //Another wait loop for proper GX3 init
-  for (uint32_t startup_counter=0; startup_counter<IMU_GX3_LONG_DELAY; startup_counter++){
+  for (uint32_t startup_counter = 0; startup_counter < IMU_GX3_LONG_DELAY; startup_counter++) {
     __asm("nop");
   }
 
@@ -208,14 +213,16 @@ void imu_impl_init(void) {
 }
 
 
-void imu_periodic(void) {
+void imu_periodic(void)
+{
   /* IF IN NON-CONTINUOUS MODE, REQUEST DATA NOW
      uart_transmit(&GX3_PORT, 0xc8); // accel,gyro,R
   */
 }
 
 
-void gx3_packet_read_message(void) {
+void gx3_packet_read_message(void)
+{
   ahrs_impl.gx3_accel.x     = bef(&ahrs_impl.gx3_packet.msg_buf[1]);
   ahrs_impl.gx3_accel.y     = bef(&ahrs_impl.gx3_packet.msg_buf[5]);
   ahrs_impl.gx3_accel.z     = bef(&ahrs_impl.gx3_packet.msg_buf[9]);
@@ -279,7 +286,8 @@ void gx3_packet_read_message(void) {
 
 
 /* GX3 Packet Collection */
-void gx3_packet_parse( uint8_t c ) {
+void gx3_packet_parse(uint8_t c)
+{
   switch (ahrs_impl.gx3_packet.status) {
     case GX3PacketWaiting:
       ahrs_impl.gx3_packet.msg_idx = 0;
@@ -311,7 +319,8 @@ void gx3_packet_parse( uint8_t c ) {
   }
 }
 
-void ahrs_init(void) {
+void ahrs_init(void)
+{
   ahrs.status = AHRS_UNINIT;
   /* set ltp_to_imu so that body is zero */
   struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&imuf.body_to_imu);
@@ -324,7 +333,8 @@ void ahrs_init(void) {
   ahrs_aligner.status = AHRS_ALIGNER_LOCKED;
 }
 
-void ahrs_aligner_run(void) {
+void ahrs_aligner_run(void)
+{
 #ifdef AHRS_ALIGNER_LED
   LED_ON(AHRS_ALIGNER_LED);
 #endif
@@ -332,10 +342,11 @@ void ahrs_aligner_run(void) {
 }
 
 
-void ahrs_aligner_init(void) {
+void ahrs_aligner_init(void)
+{
 }
 
 /* no scaling */
-void imu_scale_gyro(struct Imu* _imu __attribute__((unused))) {}
-void imu_scale_accel(struct Imu* _imu __attribute__((unused))) {}
-void imu_scale_mag(struct Imu* _imu __attribute__((unused))) {}
+void imu_scale_gyro(struct Imu *_imu __attribute__((unused))) {}
+void imu_scale_accel(struct Imu *_imu __attribute__((unused))) {}
+void imu_scale_mag(struct Imu *_imu __attribute__((unused))) {}

@@ -47,8 +47,10 @@
 
 struct AhrsIntCmplEuler ahrs_ice;
 
-static inline void get_phi_theta_measurement_fom_accel(int32_t* phi_meas, int32_t* theta_meas, struct Int32Vect3* accel);
-static inline void get_psi_measurement_from_mag(int32_t* psi_meas, int32_t phi_est, int32_t theta_est, struct Int32Vect3* mag);
+static inline void get_phi_theta_measurement_fom_accel(int32_t *phi_meas, int32_t *theta_meas,
+    struct Int32Vect3 *accel);
+static inline void get_psi_measurement_from_mag(int32_t *psi_meas, int32_t phi_est, int32_t theta_est,
+    struct Int32Vect3 *mag);
 static inline void set_body_state_from_euler(void);
 
 #define F_UPDATE 512
@@ -76,15 +78,15 @@ void ahrs_ice_init(void)
   ahrs_ice.mag_offset = AHRS_MAG_OFFSET;
 }
 
-bool_t ahrs_ice_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
-                  struct Int32Vect3* lp_mag)
+bool_t ahrs_ice_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
+                      struct Int32Vect3 *lp_mag)
 {
 
   get_phi_theta_measurement_fom_accel(&ahrs_ice.hi_res_euler.phi,
                                       &ahrs_ice.hi_res_euler.theta, lp_accel);
   get_psi_measurement_from_mag(&ahrs_ice.hi_res_euler.psi,
-                               ahrs_ice.hi_res_euler.phi/F_UPDATE,
-                               ahrs_ice.hi_res_euler.theta/F_UPDATE, lp_mag);
+                               ahrs_ice.hi_res_euler.phi / F_UPDATE,
+                               ahrs_ice.hi_res_euler.theta / F_UPDATE, lp_mag);
 
   EULERS_COPY(ahrs_ice.measure, ahrs_ice.hi_res_euler);
   EULERS_COPY(ahrs_ice.measurement, ahrs_ice.hi_res_euler);
@@ -108,7 +110,8 @@ bool_t ahrs_ice_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
 
 #if USE_NOISE_CUT
 #include "led.h"
-static inline bool_t cut_rates (struct Int32Rates i1, struct Int32Rates i2, int32_t threshold) {
+static inline bool_t cut_rates(struct Int32Rates i1, struct Int32Rates i2, int32_t threshold)
+{
   struct Int32Rates diff;
   RATES_DIFF(diff, i1, i2);
   if (diff.p < -threshold || diff.p > threshold ||
@@ -121,7 +124,8 @@ static inline bool_t cut_rates (struct Int32Rates i1, struct Int32Rates i2, int3
 }
 #define RATE_CUT_THRESHOLD RATE_BFP_OF_REAL(1)
 
-static inline bool_t cut_accel (struct Int32Vect3 i1, struct Int32Vect3 i2, int32_t threshold) {
+static inline bool_t cut_accel(struct Int32Vect3 i1, struct Int32Vect3 i2, int32_t threshold)
+{
   struct Int32Vect3 diff;
   VECT3_DIFF(diff, i1, i2);
   if (diff.x < -threshold || diff.x > threshold ||
@@ -152,7 +156,8 @@ static inline bool_t cut_accel (struct Int32Vect3 i1, struct Int32Vect3 i2, int3
  *
  */
 
-void ahrs_ice_propagate(struct Int32Rates* gyro) {
+void ahrs_ice_propagate(struct Int32Rates *gyro)
+{
 
   /* unbias gyro             */
   struct Int32Rates uf_rate;
@@ -164,7 +169,7 @@ void ahrs_ice_propagate(struct Int32Rates* gyro) {
     /* low pass rate */
 #if USE_NOISE_FILTER
     RATES_SUM_SCALED(ahrs_ice.imu_rate, ahrs_ice.imu_rate, uf_rate, NOISE_FILTER_GAIN);
-    RATES_SDIV(ahrs_ice.imu_rate, ahrs_ice.imu_rate, NOISE_FILTER_GAIN+1);
+    RATES_SDIV(ahrs_ice.imu_rate, ahrs_ice.imu_rate, NOISE_FILTER_GAIN + 1);
 #else
     RATES_ADD(ahrs_ice.imu_rate, uf_rate);
     RATES_SDIV(ahrs_ice.imu_rate, ahrs_ice.imu_rate, 2);
@@ -202,7 +207,8 @@ void ahrs_ice_propagate(struct Int32Rates* gyro) {
 
 }
 
-void ahrs_ice_update_accel(struct Int32Vect3* accel) {
+void ahrs_ice_update_accel(struct Int32Vect3 *accel)
+{
 
 #if USE_NOISE_CUT || USE_NOISE_FILTER
   static struct Int32Vect3 last_accel = { 0, 0, 0 };
@@ -212,7 +218,7 @@ void ahrs_ice_update_accel(struct Int32Vect3* accel) {
 #endif
 #if USE_NOISE_FILTER
     VECT3_SUM_SCALED(*accel, *accel, last_accel, NOISE_FILTER_GAIN);
-    VECT3_SDIV(*accel, *accel, NOISE_FILTER_GAIN+1);
+    VECT3_SDIV(*accel, *accel, NOISE_FILTER_GAIN + 1);
 #endif
     get_phi_theta_measurement_fom_accel(&ahrs_ice.measurement.phi, &ahrs_ice.measurement.theta, accel);
 #if USE_NOISE_CUT
@@ -223,14 +229,18 @@ void ahrs_ice_update_accel(struct Int32Vect3* accel) {
 }
 
 
-void ahrs_ice_update_mag(struct Int32Vect3* mag) {
+void ahrs_ice_update_mag(struct Int32Vect3 *mag)
+{
 
-  get_psi_measurement_from_mag(&ahrs_ice.measurement.psi, ahrs_ice.ltp_to_imu_euler.phi, ahrs_ice.ltp_to_imu_euler.theta, mag);
+  get_psi_measurement_from_mag(&ahrs_ice.measurement.psi, ahrs_ice.ltp_to_imu_euler.phi, ahrs_ice.ltp_to_imu_euler.theta,
+                               mag);
 
 }
 
 /* measures phi and theta assuming no dynamic acceleration ?!! */
-__attribute__ ((always_inline)) static inline void get_phi_theta_measurement_fom_accel(int32_t* phi_meas, int32_t* theta_meas, struct Int32Vect3* accel) {
+__attribute__((always_inline)) static inline void get_phi_theta_measurement_fom_accel(int32_t *phi_meas,
+    int32_t *theta_meas, struct Int32Vect3 *accel)
+{
 
   *phi_meas = int32_atan2(-accel->y, -accel->z);
   int32_t cphi;
@@ -243,7 +253,9 @@ __attribute__ ((always_inline)) static inline void get_phi_theta_measurement_fom
 }
 
 /* measure psi by projecting magnetic vector in local tangeant plan */
-__attribute__ ((always_inline)) static inline void get_psi_measurement_from_mag(int32_t* psi_meas, int32_t phi_est, int32_t theta_est, struct Int32Vect3* mag) {
+__attribute__((always_inline)) static inline void get_psi_measurement_from_mag(int32_t *psi_meas, int32_t phi_est,
+    int32_t theta_est, struct Int32Vect3 *mag)
+{
 
   int32_t sphi;
   PPRZ_ITRIG_SIN(sphi, phi_est);
@@ -254,8 +266,8 @@ __attribute__ ((always_inline)) static inline void get_psi_measurement_from_mag(
   int32_t ctheta;
   PPRZ_ITRIG_COS(ctheta, theta_est);
 
-  int32_t sphi_stheta = (sphi*stheta)>>INT32_TRIG_FRAC;
-  int32_t cphi_stheta = (cphi*stheta)>>INT32_TRIG_FRAC;
+  int32_t sphi_stheta = (sphi * stheta) >> INT32_TRIG_FRAC;
+  int32_t cphi_stheta = (cphi * stheta) >> INT32_TRIG_FRAC;
   //int32_t sphi_ctheta = (sphi*ctheta)>>INT32_TRIG_FRAC;
   //int32_t cphi_ctheta = (cphi*ctheta)>>INT32_TRIG_FRAC;
 
@@ -266,12 +278,13 @@ __attribute__ ((always_inline)) static inline void get_psi_measurement_from_mag(
   //  sphi_ctheta * mag->y +
   //  cphi_ctheta * mag->z;
   float m_psi = -atan2(me, mn);
-  *psi_meas = ((m_psi - ahrs_ice.mag_offset)*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
+  *psi_meas = ((m_psi - ahrs_ice.mag_offset) * (float)(1 << (INT32_ANGLE_FRAC)) * F_UPDATE);
 
 }
 
 /* Rotate angles and rates from imu to body frame and set state */
-static void set_body_state_from_euler(void) {
+static void set_body_state_from_euler(void)
+{
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_ice.body_to_imu);
   struct Int32RMat ltp_to_imu_rmat, ltp_to_body_rmat;
   /* Compute LTP to IMU rotation matrix */
@@ -289,12 +302,12 @@ static void set_body_state_from_euler(void) {
 
 }
 
-void ahrs_ice_set_body_to_imu(struct OrientationReps* body_to_imu)
+void ahrs_ice_set_body_to_imu(struct OrientationReps *body_to_imu)
 {
   ahrs_ice_set_body_to_imu_quat(orientationGetQuat_f(body_to_imu));
 }
 
-void ahrs_ice_set_body_to_imu_quat(struct FloatQuat* q_b2i)
+void ahrs_ice_set_body_to_imu_quat(struct FloatQuat *q_b2i)
 {
   orientationSetQuat_f(&ahrs_ice.body_to_imu, q_b2i);
 

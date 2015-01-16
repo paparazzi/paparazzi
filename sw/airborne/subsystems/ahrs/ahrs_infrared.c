@@ -51,25 +51,27 @@ float heading;
 static abi_event gyro_ev;
 
 static void gyro_cb(uint8_t sender_id __attribute__((unused)),
-                    const uint32_t* stamp __attribute__((unused)),
-                    const struct Int32Rates* gyro)
+                    const uint32_t *stamp __attribute__((unused)),
+                    const struct Int32Rates *gyro)
 {
-  stateSetBodyRates_i((struct Int32Rates*)gyro);
+  stateSetBodyRates_i((struct Int32Rates *)gyro);
 }
 
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_infrared(struct transport_tx *trans, struct link_device *dev) {
+static void send_infrared(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_IR_SENSORS(trans, dev, AC_ID,
-      &infrared.value.ir1, &infrared.value.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
+                           &infrared.value.ir1, &infrared.value.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
 }
 
-static void send_status(struct transport_tx *trans, struct link_device *dev) {
+static void send_status(struct transport_tx *trans, struct link_device *dev)
+{
   uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top);
   uint8_t mde = 3;
-  if (contrast < 50) mde = 7;
+  if (contrast < 50) { mde = 7; }
   pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &contrast);
 }
 #endif
@@ -93,7 +95,8 @@ void ahrs_infrared_init(void)
 #endif
 }
 
-void ahrs_infrared_update_gps(void) {
+void ahrs_infrared_update_gps(void)
+{
 
   float hspeed_mod_f = gps.gspeed / 100.;
   float course_f = gps.course / 1e7;
@@ -103,23 +106,25 @@ void ahrs_infrared_update_gps(void) {
   float w_vn = cosf(course_f) * hspeed_mod_f - stateGetHorizontalWindspeed_f()->x;
   float w_ve = sinf(course_f) * hspeed_mod_f - stateGetHorizontalWindspeed_f()->y;
   heading = atan2f(w_ve, w_vn);
-  if (heading < 0.)
+  if (heading < 0.) {
     heading += 2 * M_PI;
+  }
 
 }
 
-void ahrs_update_infrared(void) {
+void ahrs_update_infrared(void)
+{
   float phi  = atan2(infrared.roll, infrared.top) - infrared.roll_neutral;
   float theta  = atan2(infrared.pitch, infrared.top) - infrared.pitch_neutral;
 
-  if (theta < -M_PI_2) theta += M_PI;
-  else if (theta > M_PI_2) theta -= M_PI;
+  if (theta < -M_PI_2) { theta += M_PI; }
+  else if (theta > M_PI_2) { theta -= M_PI; }
 
-  if (phi >= 0) phi *= infrared.correction_right;
-  else phi *= infrared.correction_left;
+  if (phi >= 0) { phi *= infrared.correction_right; }
+  else { phi *= infrared.correction_left; }
 
-  if (theta >= 0) theta *= infrared.correction_up;
-  else theta *= infrared.correction_down;
+  if (theta >= 0) { theta *= infrared.correction_up; }
+  else { theta *= infrared.correction_down; }
 
   struct FloatEulers att = { phi, theta, heading };
   stateSetNedToBodyEulers_f(&att);

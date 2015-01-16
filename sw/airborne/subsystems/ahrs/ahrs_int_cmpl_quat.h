@@ -106,13 +106,13 @@ struct AhrsIntCmplQuat {
 extern struct AhrsIntCmplQuat ahrs_icq;
 
 extern void ahrs_icq_init(void);
-extern void ahrs_icq_set_body_to_imu(struct OrientationReps* body_to_imu);
-extern void ahrs_icq_set_body_to_imu_quat(struct FloatQuat* q_b2i);
-extern bool_t ahrs_icq_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
-                             struct Int32Vect3* lp_mag);
-extern void ahrs_icq_propagate(struct Int32Rates* gyro, float dt);
-extern void ahrs_icq_update_accel(struct Int32Vect3* accel, float dt);
-extern void ahrs_icq_update_mag(struct Int32Vect3* mag, float dt);
+extern void ahrs_icq_set_body_to_imu(struct OrientationReps *body_to_imu);
+extern void ahrs_icq_set_body_to_imu_quat(struct FloatQuat *q_b2i);
+extern bool_t ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
+                             struct Int32Vect3 *lp_mag);
+extern void ahrs_icq_propagate(struct Int32Rates *gyro, float dt);
+extern void ahrs_icq_update_accel(struct Int32Vect3 *accel, float dt);
+extern void ahrs_icq_update_mag(struct Int32Vect3 *mag, float dt);
 extern void ahrs_icq_update_gps(void);
 
 /** Update yaw based on a heading measurement.
@@ -132,12 +132,14 @@ void ahrs_icq_realign_heading(int32_t heading);
 /// update pre-computed inv_kp and inv_ki gains from acc_omega and acc_zeta
 extern void ahrs_icq_set_accel_gains(void);
 
-static inline void ahrs_int_cmpl_quat_SetAccelOmega(float omega) {
+static inline void ahrs_int_cmpl_quat_SetAccelOmega(float omega)
+{
   ahrs_icq.accel_omega = omega;
   ahrs_icq_set_accel_gains();
 }
 
-static inline void ahrs_int_cmpl_quat_SetAccelZeta(float zeta) {
+static inline void ahrs_int_cmpl_quat_SetAccelZeta(float zeta)
+{
   ahrs_icq.accel_zeta = zeta;
   ahrs_icq_set_accel_gains();
 }
@@ -145,12 +147,14 @@ static inline void ahrs_int_cmpl_quat_SetAccelZeta(float zeta) {
 /// update pre-computed kp and ki gains from mag_omega and mag_zeta
 extern void ahrs_icq_set_mag_gains(void);
 
-static inline void ahrs_int_cmpl_quat_SetMagOmega(float omega) {
+static inline void ahrs_int_cmpl_quat_SetMagOmega(float omega)
+{
   ahrs_icq.mag_omega = omega;
   ahrs_icq_set_mag_gains();
 }
 
-static inline void ahrs_int_cmpl_quat_SetMagZeta(float zeta) {
+static inline void ahrs_int_cmpl_quat_SetMagZeta(float zeta)
+{
   ahrs_icq.mag_zeta = zeta;
   ahrs_icq_set_mag_gains();
 }

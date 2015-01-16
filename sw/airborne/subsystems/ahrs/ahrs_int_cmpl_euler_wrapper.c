@@ -32,39 +32,42 @@
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_filter(struct transport_tx *trans, struct link_device *dev) {
+static void send_filter(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_FILTER(trans, dev, AC_ID,
-      &ahrs_ice.ltp_to_imu_euler.phi,
-      &ahrs_ice.ltp_to_imu_euler.theta,
-      &ahrs_ice.ltp_to_imu_euler.psi,
-      &ahrs_ice.measure.phi,
-      &ahrs_ice.measure.theta,
-      &ahrs_ice.measure.psi,
-      &ahrs_ice.hi_res_euler.phi,
-      &ahrs_ice.hi_res_euler.theta,
-      &ahrs_ice.hi_res_euler.psi,
-      &ahrs_ice.residual.phi,
-      &ahrs_ice.residual.theta,
-      &ahrs_ice.residual.psi,
-      &ahrs_ice.gyro_bias.p,
-      &ahrs_ice.gyro_bias.q,
-      &ahrs_ice.gyro_bias.r);
+                       &ahrs_ice.ltp_to_imu_euler.phi,
+                       &ahrs_ice.ltp_to_imu_euler.theta,
+                       &ahrs_ice.ltp_to_imu_euler.psi,
+                       &ahrs_ice.measure.phi,
+                       &ahrs_ice.measure.theta,
+                       &ahrs_ice.measure.psi,
+                       &ahrs_ice.hi_res_euler.phi,
+                       &ahrs_ice.hi_res_euler.theta,
+                       &ahrs_ice.hi_res_euler.psi,
+                       &ahrs_ice.residual.phi,
+                       &ahrs_ice.residual.theta,
+                       &ahrs_ice.residual.psi,
+                       &ahrs_ice.gyro_bias.p,
+                       &ahrs_ice.gyro_bias.q,
+                       &ahrs_ice.gyro_bias.r);
 }
 
-static void send_euler(struct transport_tx *trans, struct link_device *dev) {
-  struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
+static void send_euler(struct transport_tx *trans, struct link_device *dev)
+{
+  struct Int32Eulers *eulers = stateGetNedToBodyEulers_i();
   pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
-      &ahrs_ice.ltp_to_imu_euler.phi,
-      &ahrs_ice.ltp_to_imu_euler.theta,
-      &ahrs_ice.ltp_to_imu_euler.psi,
-      &(eulers->phi),
-      &(eulers->theta),
-      &(eulers->psi));
+                               &ahrs_ice.ltp_to_imu_euler.phi,
+                               &ahrs_ice.ltp_to_imu_euler.theta,
+                               &ahrs_ice.ltp_to_imu_euler.psi,
+                               &(eulers->phi),
+                               &(eulers->theta),
+                               &(eulers->psi));
 }
 
-static void send_bias(struct transport_tx *trans, struct link_device *dev) {
+static void send_bias(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_AHRS_GYRO_BIAS_INT(trans, dev, AC_ID,
-      &ahrs_ice.gyro_bias.p, &ahrs_ice.gyro_bias.q, &ahrs_ice.gyro_bias.r);
+                                   &ahrs_ice.gyro_bias.p, &ahrs_ice.gyro_bias.q, &ahrs_ice.gyro_bias.r);
 }
 #endif
 
@@ -82,48 +85,48 @@ static abi_event body_to_imu_ev;
 
 
 static void gyro_cb(uint8_t sender_id __attribute__((unused)),
-                    const uint32_t* stamp __attribute__((unused)),
-                    const struct Int32Rates* gyro)
+                    const uint32_t *stamp __attribute__((unused)),
+                    const struct Int32Rates *gyro)
 {
   if (ahrs_ice.is_aligned) {
-    ahrs_ice_propagate((struct Int32Rates*)gyro);
+    ahrs_ice_propagate((struct Int32Rates *)gyro);
   }
 
 }
 
 static void accel_cb(uint8_t sender_id __attribute__((unused)),
-                     const uint32_t* stamp __attribute__((unused)),
-                     const struct Int32Vect3* accel)
+                     const uint32_t *stamp __attribute__((unused)),
+                     const struct Int32Vect3 *accel)
 {
   if (ahrs_ice.is_aligned) {
-    ahrs_ice_update_accel((struct Int32Vect3*)accel);
+    ahrs_ice_update_accel((struct Int32Vect3 *)accel);
   }
 }
 
 static void mag_cb(uint8_t sender_id __attribute__((unused)),
-                   const uint32_t* stamp __attribute__((unused)),
-                   const struct Int32Vect3* mag)
+                   const uint32_t *stamp __attribute__((unused)),
+                   const struct Int32Vect3 *mag)
 {
   if (ahrs_ice.is_aligned) {
-    ahrs_ice_update_mag((struct Int32Vect3*)mag);
+    ahrs_ice_update_mag((struct Int32Vect3 *)mag);
   }
 }
 
 static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
-                       const uint32_t* stamp __attribute__((unused)),
-                       const struct Int32Rates* lp_gyro, const struct Int32Vect3* lp_accel,
-                       const struct Int32Vect3* lp_mag)
+                       const uint32_t *stamp __attribute__((unused)),
+                       const struct Int32Rates *lp_gyro, const struct Int32Vect3 *lp_accel,
+                       const struct Int32Vect3 *lp_mag)
 {
   if (!ahrs_ice.is_aligned) {
-    ahrs_ice_align((struct Int32Rates*)lp_gyro, (struct Int32Vect3*)lp_accel,
-                  (struct Int32Vect3*)lp_mag);
+    ahrs_ice_align((struct Int32Rates *)lp_gyro, (struct Int32Vect3 *)lp_accel,
+                   (struct Int32Vect3 *)lp_mag);
   }
 }
 
 static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           const struct FloatQuat* q_b2i_f)
+                           const struct FloatQuat *q_b2i_f)
 {
-  ahrs_ice_set_body_to_imu_quat((struct FloatQuat*)q_b2i_f);
+  ahrs_ice_set_body_to_imu_quat((struct FloatQuat *)q_b2i_f);
 }
 
 void ahrs_ice_register(void)

@@ -77,13 +77,13 @@ struct AhrsFloatCmpl {
 extern struct AhrsFloatCmpl ahrs_fc;
 
 extern void ahrs_fc_init(void);
-extern void ahrs_fc_set_body_to_imu(struct OrientationReps* body_to_imu);
-extern void ahrs_fc_set_body_to_imu_quat(struct FloatQuat* q_b2i);
-extern bool_t ahrs_fc_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
-                            struct Int32Vect3* lp_mag);
-extern void ahrs_fc_propagate(struct Int32Rates* gyro, float dt);
-extern void ahrs_fc_update_accel(struct Int32Vect3* accel, float dt);
-extern void ahrs_fc_update_mag(struct Int32Vect3* mag, float dt);
+extern void ahrs_fc_set_body_to_imu(struct OrientationReps *body_to_imu);
+extern void ahrs_fc_set_body_to_imu_quat(struct FloatQuat *q_b2i);
+extern bool_t ahrs_fc_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
+                            struct Int32Vect3 *lp_mag);
+extern void ahrs_fc_propagate(struct Int32Rates *gyro, float dt);
+extern void ahrs_fc_update_accel(struct Int32Vect3 *accel, float dt);
+extern void ahrs_fc_update_mag(struct Int32Vect3 *mag, float dt);
 extern void ahrs_fc_update_gps(void);
 
 /** Update yaw based on a heading measurement.

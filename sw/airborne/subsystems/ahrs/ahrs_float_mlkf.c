@@ -48,16 +48,18 @@
 #define AHRS_MAG_NOISE_Z 0.2
 #endif
 
-static inline void propagate_ref(struct Int32Rates* gyro, float dt);
+static inline void propagate_ref(struct Int32Rates *gyro, float dt);
 static inline void propagate_state(float dt);
-static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3* b_measured, struct FloatVect3* noise);
+static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3 *b_measured,
+                                struct FloatVect3 *noise);
 static inline void reset_state(void);
 static inline void set_body_state_from_quat(void);
 
 struct AhrsMlkf ahrs_mlkf;
 
 
-void ahrs_mlkf_init(void) {
+void ahrs_mlkf_init(void)
+{
 
   ahrs_mlkf.is_aligned = FALSE;
 
@@ -74,22 +76,23 @@ void ahrs_mlkf_init(void) {
   const float P0_a = 1.;
   const float P0_b = 1e-4;
   float P0[6][6] = {{ P0_a, 0.,   0.,   0.,   0.,   0.  },
-                    { 0.,   P0_a, 0.,   0.,   0.,   0.  },
-                    { 0.,   0.,   P0_a, 0.,   0.,   0.  },
-                    { 0.,   0.,   0.,   P0_b, 0.,   0.  },
-                    { 0.,   0.,   0.,   0.,   P0_b, 0.  },
-                    { 0.,   0.,   0.,   0.,   0.,   P0_b}};
+    { 0.,   P0_a, 0.,   0.,   0.,   0.  },
+    { 0.,   0.,   P0_a, 0.,   0.,   0.  },
+    { 0.,   0.,   0.,   P0_b, 0.,   0.  },
+    { 0.,   0.,   0.,   0.,   P0_b, 0.  },
+    { 0.,   0.,   0.,   0.,   0.,   P0_b}
+  };
   memcpy(ahrs_mlkf.P, P0, sizeof(P0));
 
   VECT3_ASSIGN(ahrs_mlkf.mag_noise, AHRS_MAG_NOISE_X, AHRS_MAG_NOISE_Y, AHRS_MAG_NOISE_Z);
 }
 
-void ahrs_mlkf_set_body_to_imu(struct OrientationReps* body_to_imu)
+void ahrs_mlkf_set_body_to_imu(struct OrientationReps *body_to_imu)
 {
   ahrs_mlkf_set_body_to_imu_quat(orientationGetQuat_f(body_to_imu));
 }
 
-void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat* q_b2i)
+void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat *q_b2i)
 {
   orientationSetQuat_f(&ahrs_mlkf.body_to_imu, q_b2i);
 
@@ -101,8 +104,8 @@ void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat* q_b2i)
 }
 
 
-bool_t ahrs_mlkf_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
-                       struct Int32Vect3* lp_mag)
+bool_t ahrs_mlkf_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
+                       struct Int32Vect3 *lp_mag)
 {
 
   /* Compute an initial orientation from accel and mag directly as quaternion */
@@ -121,27 +124,30 @@ bool_t ahrs_mlkf_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
   return TRUE;
 }
 
-void ahrs_mlkf_propagate(struct Int32Rates* gyro, float dt) {
+void ahrs_mlkf_propagate(struct Int32Rates *gyro, float dt)
+{
   propagate_ref(gyro, dt);
   propagate_state(dt);
   set_body_state_from_quat();
 }
 
-void ahrs_mlkf_update_accel(struct Int32Vect3* accel) {
+void ahrs_mlkf_update_accel(struct Int32Vect3 *accel)
+{
   struct FloatVect3 imu_g;
   ACCELS_FLOAT_OF_BFP(imu_g, *accel);
   const float alpha = 0.92;
   ahrs_mlkf.lp_accel = alpha * ahrs_mlkf.lp_accel +
-    (1. - alpha) *(float_vect3_norm(&imu_g) - 9.81);
+                       (1. - alpha) * (float_vect3_norm(&imu_g) - 9.81);
   const struct FloatVect3 earth_g = {0.,  0., -9.81 };
-  const float dn = 250*fabs( ahrs_mlkf.lp_accel );
-  struct FloatVect3 g_noise = {1.+dn, 1.+dn, 1.+dn};
+  const float dn = 250 * fabs(ahrs_mlkf.lp_accel);
+  struct FloatVect3 g_noise = {1. + dn, 1. + dn, 1. + dn};
   update_state(&earth_g, &imu_g, &g_noise);
   reset_state();
 }
 
 
-void ahrs_mlkf_update_mag(struct Int32Vect3* mag) {
+void ahrs_mlkf_update_mag(struct Int32Vect3 *mag)
+{
   struct FloatVect3 imu_h;
   MAGS_FLOAT_OF_BFP(imu_h, *mag);
   update_state(&ahrs_mlkf.mag_h, &imu_h, &ahrs_mlkf.mag_noise);
@@ -149,7 +155,8 @@ void ahrs_mlkf_update_mag(struct Int32Vect3* mag) {
 }
 
 
-static inline void propagate_ref(struct Int32Rates* gyro, float dt) {
+static inline void propagate_ref(struct Int32Rates *gyro, float dt)
+{
   /* converts gyro to floating point */
   struct FloatRates gyro_float;
   RATES_FLOAT_OF_BFP(gyro_float, *gyro);
@@ -161,7 +168,7 @@ static inline void propagate_ref(struct Int32Rates* gyro, float dt) {
   /* lowpass angular rates */
   const float alpha = 0.1;
   FLOAT_RATES_LIN_CMB(ahrs_mlkf.imu_rate, ahrs_mlkf.imu_rate,
-                      (1.-alpha), gyro_float, alpha);
+                      (1. - alpha), gyro_float, alpha);
 #else
   RATES_COPY(ahrs_mlkf.imu_rate, gyro_float);
 #endif
@@ -175,27 +182,30 @@ static inline void propagate_ref(struct Int32Rates* gyro, float dt) {
  * Progagate filter's covariance
  * We don't propagate state as we assume to have reseted
  */
-static inline void propagate_state(float dt) {
+static inline void propagate_state(float dt)
+{
 
   /* predict covariance */
-  const float dp = ahrs_mlkf.imu_rate.p*dt;
-  const float dq = ahrs_mlkf.imu_rate.q*dt;
-  const float dr = ahrs_mlkf.imu_rate.r*dt;
+  const float dp = ahrs_mlkf.imu_rate.p * dt;
+  const float dq = ahrs_mlkf.imu_rate.q * dt;
+  const float dr = ahrs_mlkf.imu_rate.r * dt;
 
   float F[6][6] = {{  1.,   dr,  -dq,  -dt,   0.,   0.  },
-                   { -dr,   1.,   dp,   0.,  -dt,   0.  },
-                   {  dq,  -dp,   1.,   0.,   0.,  -dt  },
-                   {  0.,   0.,   0.,   1.,   0.,   0.  },
-                   {  0.,   0.,   0.,   0.,   1.,   0.  },
-                   {  0.,   0.,   0.,   0.,   0.,   1.  }};
+    { -dr,   1.,   dp,   0.,  -dt,   0.  },
+    {  dq,  -dp,   1.,   0.,   0.,  -dt  },
+    {  0.,   0.,   0.,   1.,   0.,   0.  },
+    {  0.,   0.,   0.,   0.,   1.,   0.  },
+    {  0.,   0.,   0.,   0.,   0.,   1.  }
+  };
   // P = FPF' + GQG
   float tmp[6][6];
-  MAT_MUL(6,6,6, tmp, F, ahrs_mlkf.P);
-  MAT_MUL_T(6,6,6,  ahrs_mlkf.P, tmp, F);
+  MAT_MUL(6, 6, 6, tmp, F, ahrs_mlkf.P);
+  MAT_MUL_T(6, 6, 6,  ahrs_mlkf.P, tmp, F);
   const float dt2 = dt * dt;
-  const float GQG[6] = {dt2*10e-3, dt2*10e-3, dt2*10e-3, dt2*9e-6, dt2*9e-6, dt2*9e-6 };
-  for (int i=0;i<6;i++)
+  const float GQG[6] = {dt2 * 10e-3, dt2 * 10e-3, dt2 * 10e-3, dt2 * 9e-6, dt2 * 9e-6, dt2 * 9e-6 };
+  for (int i = 0; i < 6; i++) {
     ahrs_mlkf.P[i][i] += GQG[i];
+  }
 
 }
 
@@ -203,20 +213,23 @@ static inline void propagate_state(float dt) {
 /**
  *  Incorporate one 3D vector measurement
  */
-static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3* b_measured, struct FloatVect3* noise) {
+static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3 *b_measured,
+                                struct FloatVect3 *noise)
+{
 
   /* converted expected measurement from inertial to body frame */
   struct FloatVect3 b_expected;
-  float_quat_vmult(&b_expected, &ahrs_mlkf.ltp_to_imu_quat, (struct FloatVect3*)i_expected);
+  float_quat_vmult(&b_expected, &ahrs_mlkf.ltp_to_imu_quat, (struct FloatVect3 *)i_expected);
 
   // S = HPH' + JRJ
   float H[3][6] = {{           0., -b_expected.z,  b_expected.y, 0., 0., 0.},
-                   { b_expected.z,            0., -b_expected.x, 0., 0., 0.},
-                   {-b_expected.y,  b_expected.x,            0., 0., 0., 0.}};
+    { b_expected.z,            0., -b_expected.x, 0., 0., 0.},
+    { -b_expected.y,  b_expected.x,            0., 0., 0., 0.}
+  };
   float tmp[3][6];
-  MAT_MUL(3,6,6, tmp, H, ahrs_mlkf.P);
+  MAT_MUL(3, 6, 6, tmp, H, ahrs_mlkf.P);
   float S[3][3];
-  MAT_MUL_T(3,6,3, S, tmp, H);
+  MAT_MUL_T(3, 6, 3, S, tmp, H);
 
   /* add the measurement noise */
   S[0][0] += noise->x;
@@ -228,34 +241,35 @@ static inline void update_state(const struct FloatVect3 *i_expected, struct Floa
 
   // K = PH'invS
   float tmp2[6][3];
-  MAT_MUL_T(6,6,3, tmp2, ahrs_mlkf.P, H);
+  MAT_MUL_T(6, 6, 3, tmp2, ahrs_mlkf.P, H);
   float K[6][3];
-  MAT_MUL(6,3,3, K, tmp2, invS);
+  MAT_MUL(6, 3, 3, K, tmp2, invS);
 
   // P = (I-KH)P
   float tmp3[6][6];
-  MAT_MUL(6,3,6, tmp3, K, H);
+  MAT_MUL(6, 3, 6, tmp3, K, H);
   float I6[6][6] = {{ 1., 0., 0., 0., 0., 0. },
-                    {  0., 1., 0., 0., 0., 0. },
-                    {  0., 0., 1., 0., 0., 0. },
-                    {  0., 0., 0., 1., 0., 0. },
-                    {  0., 0., 0., 0., 1., 0. },
-                    {  0., 0., 0., 0., 0., 1. }};
+    {  0., 1., 0., 0., 0., 0. },
+    {  0., 0., 1., 0., 0., 0. },
+    {  0., 0., 0., 1., 0., 0. },
+    {  0., 0., 0., 0., 1., 0. },
+    {  0., 0., 0., 0., 0., 1. }
+  };
   float tmp4[6][6];
-  MAT_SUB(6,6, tmp4, I6, tmp3);
+  MAT_SUB(6, 6, tmp4, I6, tmp3);
   float tmp5[6][6];
-  MAT_MUL(6,6,6, tmp5, tmp4, ahrs_mlkf.P);
+  MAT_MUL(6, 6, 6, tmp5, tmp4, ahrs_mlkf.P);
   memcpy(ahrs_mlkf.P, tmp5, sizeof(ahrs_mlkf.P));
 
   // X = X + Ke
   struct FloatVect3 e;
   VECT3_DIFF(e, *b_measured, b_expected);
-  ahrs_mlkf.gibbs_cor.qx  += K[0][0]*e.x + K[0][1]*e.y + K[0][2]*e.z;
-  ahrs_mlkf.gibbs_cor.qy  += K[1][0]*e.x + K[1][1]*e.y + K[1][2]*e.z;
-  ahrs_mlkf.gibbs_cor.qz  += K[2][0]*e.x + K[2][1]*e.y + K[2][2]*e.z;
-  ahrs_mlkf.gyro_bias.p  += K[3][0]*e.x + K[3][1]*e.y + K[3][2]*e.z;
-  ahrs_mlkf.gyro_bias.q  += K[4][0]*e.x + K[4][1]*e.y + K[4][2]*e.z;
-  ahrs_mlkf.gyro_bias.r  += K[5][0]*e.x + K[5][1]*e.y + K[5][2]*e.z;
+  ahrs_mlkf.gibbs_cor.qx  += K[0][0] * e.x + K[0][1] * e.y + K[0][2] * e.z;
+  ahrs_mlkf.gibbs_cor.qy  += K[1][0] * e.x + K[1][1] * e.y + K[1][2] * e.z;
+  ahrs_mlkf.gibbs_cor.qz  += K[2][0] * e.x + K[2][1] * e.y + K[2][2] * e.z;
+  ahrs_mlkf.gyro_bias.p  += K[3][0] * e.x + K[3][1] * e.y + K[3][2] * e.z;
+  ahrs_mlkf.gyro_bias.q  += K[4][0] * e.x + K[4][1] * e.y + K[4][2] * e.z;
+  ahrs_mlkf.gyro_bias.r  += K[5][0] * e.x + K[5][1] * e.y + K[5][2] * e.z;
 
 }
 
@@ -263,7 +277,8 @@ static inline void update_state(const struct FloatVect3 *i_expected, struct Floa
 /**
  * Incorporate errors to reference and zeros state
  */
-static inline void reset_state(void) {
+static inline void reset_state(void)
+{
 
   ahrs_mlkf.gibbs_cor.qi = 2.;
   struct FloatQuat q_tmp;
@@ -277,7 +292,8 @@ static inline void reset_state(void) {
 /**
  * Compute body orientation and rates from imu orientation and rates
  */
-static inline void set_body_state_from_quat(void) {
+static inline void set_body_state_from_quat(void)
+{
   struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_mlkf.body_to_imu);
   struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_mlkf.body_to_imu);
 

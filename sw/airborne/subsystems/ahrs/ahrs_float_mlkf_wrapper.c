@@ -32,7 +32,8 @@
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_geo_mag(struct transport_tx *trans, struct link_device *dev) {
+static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
                         &ahrs_mlkf.mag_h.x, &ahrs_mlkf.mag_h.y, &ahrs_mlkf.mag_h.z);
 }
@@ -52,62 +53,62 @@ static abi_event aligner_ev;
 static abi_event body_to_imu_ev;
 
 
-static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
-                    const struct Int32Rates* gyro)
+static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t *stamp,
+                    const struct Int32Rates *gyro)
 {
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS_MLKF propagation.")
+  PRINT_CONFIG_MSG("Calculating dt for AHRS_MLKF propagation.")
   /* timestamp in usec when last callback was received */
   static uint32_t last_stamp = 0;
 
   if (last_stamp > 0 && ahrs_mlkf.is_aligned) {
     float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_mlkf_propagate((struct Int32Rates*)gyro, dt);
+    ahrs_mlkf_propagate((struct Int32Rates *)gyro, dt);
   }
   last_stamp = *stamp;
 #else
-PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for AHRS_MLKF propagation.")
-PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
+  PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for AHRS_MLKF propagation.")
+  PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
   if (ahrs_mlkf.status == AHRS_MLKF_RUNNING) {
     const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-    ahrs_mlkf_propagate((struct Int32Rates*)gyro, dt);
+    ahrs_mlkf_propagate((struct Int32Rates *)gyro, dt);
   }
 #endif
 }
 
 static void accel_cb(uint8_t sender_id __attribute__((unused)),
-                     const uint32_t* stamp __attribute__((unused)),
-                     const struct Int32Vect3* accel)
+                     const uint32_t *stamp __attribute__((unused)),
+                     const struct Int32Vect3 *accel)
 {
   if (ahrs_mlkf.is_aligned) {
-    ahrs_mlkf_update_accel((struct Int32Vect3*)accel);
+    ahrs_mlkf_update_accel((struct Int32Vect3 *)accel);
   }
 }
 
 static void mag_cb(uint8_t sender_id __attribute__((unused)),
-                   const uint32_t* stamp __attribute__((unused)),
-                   const struct Int32Vect3* mag)
+                   const uint32_t *stamp __attribute__((unused)),
+                   const struct Int32Vect3 *mag)
 {
   if (ahrs_mlkf.is_aligned) {
-    ahrs_mlkf_update_mag((struct Int32Vect3*)mag);
+    ahrs_mlkf_update_mag((struct Int32Vect3 *)mag);
   }
 }
 
 static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
-                       const uint32_t* stamp __attribute__((unused)),
-                       const struct Int32Rates* lp_gyro, const struct Int32Vect3* lp_accel,
-                       const struct Int32Vect3* lp_mag)
+                       const uint32_t *stamp __attribute__((unused)),
+                       const struct Int32Rates *lp_gyro, const struct Int32Vect3 *lp_accel,
+                       const struct Int32Vect3 *lp_mag)
 {
   if (!ahrs_mlkf.is_aligned) {
-    ahrs_mlkf_align((struct Int32Rates*)lp_gyro, (struct Int32Vect3*)lp_accel,
-                    (struct Int32Vect3*)lp_mag);
+    ahrs_mlkf_align((struct Int32Rates *)lp_gyro, (struct Int32Vect3 *)lp_accel,
+                    (struct Int32Vect3 *)lp_mag);
   }
 }
 
 static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           const struct FloatQuat* q_b2i_f)
+                           const struct FloatQuat *q_b2i_f)
 {
-  ahrs_mlkf_set_body_to_imu_quat((struct FloatQuat*)q_b2i_f);
+  ahrs_mlkf_set_body_to_imu_quat((struct FloatQuat *)q_b2i_f);
 }
 
 void ahrs_mlkf_register(void)

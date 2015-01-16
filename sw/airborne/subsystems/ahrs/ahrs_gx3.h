@@ -90,12 +90,15 @@ struct AhrsFloatQuat {
 
 extern struct AhrsFloatQuat ahrs_impl;
 
-static inline void ReadGX3Buffer(void) {
-  while (uart_char_available(&GX3_PORT) && !ahrs_impl.gx3_packet.msg_available)
+static inline void ReadGX3Buffer(void)
+{
+  while (uart_char_available(&GX3_PORT) && !ahrs_impl.gx3_packet.msg_available) {
     gx3_packet_parse(uart_getch(&GX3_PORT));
+  }
 }
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+{
   if (uart_char_available(&GX3_PORT)) {
     ReadGX3Buffer();
   }
