@@ -38,9 +38,11 @@ OPT ?= 3
 CSTANDARD = -std=gnu99
 CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 
+FLOAT_ABI = -mfloat-abi=softfp -mfpu=vfp
+
 # Compiler flags.
 CFLAGS += $(CINCS)
-CFLAGS += -O$(OPT) -mfloat-abi=softfp -mtune=cortex-a8 -mfpu=vfp -march=armv7-a
+CFLAGS += -O$(OPT) $(FLOAT_ABI) -mtune=cortex-a8 -march=armv7-a
 CFLAGS += -fno-short-enums
 # CFLAGS += -malignment-traps
 CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
@@ -59,11 +61,11 @@ CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(USER_CFLAGS)
 
-LDFLAGS += -lm
+LDFLAGS += -lm $(FLOAT_ABI)
 
 CXXFLAGS = -pipe -O3 -fshow-column -ffast-math -fPIC
 CXXFLAGS += -g -ffunction-sections -fdata-sections
-CXXFLAGS += -mfloat-abi=softfp -mtune=cortex-a8 -mfpu=vfp -march=armv7-a
+CXXFLAGS += $(FLOAT_ABI) -mtune=cortex-a8 -march=armv7-a
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += $($(TARGET).CXXFLAGS)
 CXXFLAGS += $(USER_CFLAGS)
