@@ -147,7 +147,19 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
     2 -> quit_callback gui ac_combo session_combo target_combo ()
   | _ -> ()
 
-
+(* Run a command and return its results as a string. *)
+let read_process command =
+  let buffer_size = 2048 in
+  let buffer = Buffer.create buffer_size in
+  let string = String.create buffer_size in
+  let in_channel = Unix.open_process_in command in
+  let chars_read = ref 1 in
+  while !chars_read <> 0 do
+    chars_read := input in_channel string 0 buffer_size;
+    Buffer.add_substring buffer string 0 !chars_read
+  done;
+  ignore (Unix.close_process_in in_channel);
+  Buffer.contents buffer
 
 (************************** Main *********************************************)
 let () =
@@ -168,8 +180,21 @@ let () =
   let paparazzi_pixbuf = GdkPixbuf.from_file Env.icon_file in
   gui#window#set_icon (Some paparazzi_pixbuf);
 
+    (* version string with whitespace/newline at the end stripped *)
+  let version_str =
+    try
+      Str.replace_first (Str.regexp "[ \n]+$") "" (read_process (Env.paparazzi_src ^ "/paparazzi_version"))
+    with _ -> "UNKNOWN" in
+  let build_str =
+    try
+      let f = open_in (Env.paparazzi_home ^ "/var/build_version.txt") in
+      let s = try input_line f with _ -> "UNKNOWN" in
+      close_in f;
+      s
+    with _ -> "UNKNOWN" in
+
   let s = gui#statusbar#new_context "env" in
-  ignore (s#push (sprintf "HOME=%s SRC=%s" Env.paparazzi_home Env.paparazzi_src));
+  ignore (s#push (sprintf "HOME=%s SRC=%s \tVersion=%s \tBuild=%s" Env.paparazzi_home Env.paparazzi_src version_str build_str));
 
   if Sys.file_exists Utils.backup_xml_file then begin
     let rec question_box = fun () ->
@@ -257,14 +282,47 @@ let () =
   ignore (gui#menu_item_fullscreen#connect#activate ~callback);
 
   (* Help/About menu entry *)
-  let callback = fun () ->
-    ignore (GToolbox.message_box ~title:"About Paparazzi Center" ~icon:(GMisc.image ~pixbuf:paparazzi_pixbuf ())#coerce "Copyright (C) 2007-2008 ENAC, Pascal Brisset\nhttp://paparazzi.enac.fr") in
-  ignore (gui#menu_item_about#connect#activate ~callback);
+  let aboutDialog = GWindow.about_dialog
+    ~name:"Paparazzi Center"
+    ~logo:paparazzi_pixbuf
+    ~authors:["Pascal Brisset"]
+    ~copyright:"Copyright (C) 2007-2008 ENAC, Pascal Brisset"
+    ~license:"GPLv2"
+    ~website:"http://paparazziuav.org"
+    ~website_label:"http://paparazziuav.org"
+    (*~version:version_str*)
+    ~position:`CENTER_ON_PARENT
+    ~destroy_with_parent:true
+    ~parent:gui#window
+    ()
+  in
+  ignore (gui#menu_item_about#connect#activate ~callback:(fun () -> ignore (aboutDialog#run ()); aboutDialog#misc#hide ()));
+
+  let pprzInfoDialog (title,msg) =
+    (* somehow doen't show the pprz icon, but the default info icon instead *)
+    let dlg = GWindow.message_dialog
+      ~title:title
+      ~message:msg
+      ~icon:paparazzi_pixbuf
+      ~use_markup:true
+      ~modal:true
+      ~message_type:`INFO
+      ~position:`CENTER_ON_PARENT
+      ~destroy_with_parent:true
+      ~parent:gui#window
+      ~buttons:GWindow.Buttons.close () in
+    let res = dlg#run () = `CLOSE in
+    dlg#destroy ();
+    res
+  in
 
   (* Help/Get Help menu entry *)
-  let callback = fun () ->
-    ignore (GToolbox.message_box ~title:"Getting Help with Paparazzi" ~icon:(GMisc.image ~pixbuf:paparazzi_pixbuf ())#coerce "The primary documentation for Paparazzi is on the wiki:\nhttp://paparazzi.enac.fr\n\nCommunity-based support is through the paparazzi-devel mailing list:\nhttp://paparazzi.enac.fr/wiki/Contact\n\nThe Paparazzi auto-generated developer documentation is found on GitHub:\nhttp://paparazzi.github.io/docs/\n\nThe Paparazzi sourcecode can be found on GitHub:\nhttps://github.com/paparazzi/paparazzi\n\nIf you think you have found a bug or would like to make a feature request, feel\nfree to visit the Issues page found on GitHub (link found on the above webpage).") in
-  ignore (gui#menu_item_get_help#connect#activate ~callback);
+  let help_text = "Primary documentation: Paparazzi wiki:\n<a href='https://wiki.paparazziuav.org'>https://wiki.paparazziuav.org</a>\n\nCommunity-based support, mailing list: <a href='https://wiki.paparazziuav.org/wiki/Contact'>Contact</a>\n\nThe Paparazzi auto-generated developer documentation:\n<a href='http://docs.paparazziuav.org'>http://docs.paparazziuav.org</a>\n\nPaparazzi sourcecode and issue tracker:\n<a href='https://github.com/paparazzi/paparazzi'>https://github.com/paparazzi/paparazzi</a>" in
+  ignore (gui#menu_item_get_help#connect#activate ~callback:(fun () -> ignore (pprzInfoDialog ("Getting Help with Paparazzi",help_text))));
+
+  (* Version *)
+  let version_msg = ("Run version:\t" ^ version_str ^ "\nBuild version:\t" ^ build_str) in
+  ignore (gui#menu_item_version#connect#activate ~callback:(fun () -> ignore (pprzInfoDialog ("Version",version_msg))));
 
   (* Read preferences *)
   if Sys.file_exists Env.gconf_file then begin
