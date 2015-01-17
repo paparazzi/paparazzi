@@ -147,7 +147,19 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
     2 -> quit_callback gui ac_combo session_combo target_combo ()
   | _ -> ()
 
-
+(* Run a command and return its results as a string. *)
+let read_process command =
+  let buffer_size = 2048 in
+  let buffer = Buffer.create buffer_size in
+  let string = String.create buffer_size in
+  let in_channel = Unix.open_process_in command in
+  let chars_read = ref 1 in
+  while !chars_read <> 0 do
+    chars_read := input in_channel string 0 buffer_size;
+    Buffer.add_substring buffer string 0 !chars_read
+  done;
+  ignore (Unix.close_process_in in_channel);
+  Buffer.contents buffer
 
 (************************** Main *********************************************)
 let () =
@@ -265,6 +277,23 @@ let () =
   let callback = fun () ->
     ignore (GToolbox.message_box ~title:"Getting Help with Paparazzi" ~icon:(GMisc.image ~pixbuf:paparazzi_pixbuf ())#coerce "The primary documentation for Paparazzi is on the wiki:\nhttps://wiki.paparazziuav.org\n\nCommunity-based support is through the paparazzi-devel mailing list:\nhttps://wiki.paparazziuav.org/wiki/Contact\n\nThe Paparazzi auto-generated developer documentation is found on:\nhttp://docs.paparazziuav.org/\n\nThe Paparazzi sourcecode can be found on GitHub:\nhttps://github.com/paparazzi/paparazzi\n\nIf you think you have found a bug or would like to make a feature request, feel\nfree to visit the Issues page found on GitHub (link found on the above webpage).") in
   ignore (gui#menu_item_get_help#connect#activate ~callback);
+
+  (* Version *)
+  let callback = fun () ->
+    (* version string with whitespace/newline at the end stripped *)
+    let version_str =
+      try
+        Str.replace_first (Str.regexp "[ \n]+$") "" (read_process (Env.paparazzi_src ^ "/paparazzi_version"))
+      with _ -> "UNKNOWN" in
+    let build_str =
+    try
+      let f = open_in (Env.paparazzi_home ^ "/var/build_version.txt") in
+      let s = try input_line f with _ -> "UNKNOWN" in
+      close_in f;
+      s
+    with _ -> "UNKNOWN" in
+    ignore (GToolbox.message_box ~title:"Paparazzi version" ~icon:(GMisc.image ~pixbuf:paparazzi_pixbuf ())#coerce ("Run version:\t" ^ version_str ^ "\nBuild version:\t" ^ build_str)) in
+  ignore (gui#menu_item_version#connect#activate ~callback);
 
   (* Read preferences *)
   if Sys.file_exists Env.gconf_file then begin
