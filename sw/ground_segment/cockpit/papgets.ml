@@ -106,6 +106,11 @@ let locked = fun config ->
     [PC.property "locked" (PC.get_property "locked" config)]
   with _ -> []
 
+let ac_id_prop = fun config ->
+  try
+    [PC.property "ac_id" (PC.get_property "ac_id" config)]
+  with _ -> []
+
 let create = fun canvas_group papget ->
   try
     let type_ = ExtXml.attrib papget "type"
@@ -144,7 +149,7 @@ let create = fun canvas_group papget ->
               Hashtbl.iter jump_to_block Live.aircrafts
         in
         let properties =
-          [ Papget_common.property "block_name" block_name ] @ locked papget in
+          [ Papget_common.property "block_name" block_name ] @ locked papget @ ac_id_prop papget in
 
         let p = new Papget.canvas_goto_block_item properties clicked renderer in
         let p = (p :> Papget.item) in
@@ -177,7 +182,7 @@ let create = fun canvas_group papget ->
         let properties =
           [ Papget_common.property "variable" varname;
             Papget_common.float_property "value" value ]
-          @ locked papget in
+          @ locked papget @ ac_id_prop papget in
         let p = new Papget.canvas_variable_setting_item properties clicked renderer in
         let p = (p :> Papget.item) in
         register_papget p

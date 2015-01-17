@@ -64,7 +64,8 @@ object
   method connect = fun cb -> callbacks <- cb :: callbacks
   method config = fun () ->
     let field = sprintf "%s:%s" msg_name field_descr in
-    [ PC.property "field" field ]
+    let ac_id = match sender with None -> [] | Some id -> [PC.property "ac_id" id] in
+    [ PC.property "field" field ] @ ac_id
   method type_ = "message_field"
 
   initializer
@@ -148,7 +149,8 @@ object
   method connect = fun cb -> callbacks <- cb :: callbacks
 
   method config = fun () ->
-    [ PC.property "expr" (Expr_syntax.sprint expr)]
+    let ac_id = match sender with None -> [] | Some id -> [PC.property "ac_id" id] in
+    [ PC.property "expr" (Expr_syntax.sprint expr)] @ ac_id
 
   method type_ = "expression"
 
