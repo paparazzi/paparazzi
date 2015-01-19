@@ -180,8 +180,21 @@ let () =
   let paparazzi_pixbuf = GdkPixbuf.from_file Env.icon_file in
   gui#window#set_icon (Some paparazzi_pixbuf);
 
+    (* version string with whitespace/newline at the end stripped *)
+  let version_str =
+    try
+      Str.replace_first (Str.regexp "[ \n]+$") "" (read_process (Env.paparazzi_src ^ "/paparazzi_version"))
+    with _ -> "UNKNOWN" in
+  let build_str =
+    try
+      let f = open_in (Env.paparazzi_home ^ "/var/build_version.txt") in
+      let s = try input_line f with _ -> "UNKNOWN" in
+      close_in f;
+      s
+    with _ -> "UNKNOWN" in
+
   let s = gui#statusbar#new_context "env" in
-  ignore (s#push (sprintf "HOME=%s SRC=%s" Env.paparazzi_home Env.paparazzi_src));
+  ignore (s#push (sprintf "HOME=%s SRC=%s \tVersion=%s \tBuild=%s" Env.paparazzi_home Env.paparazzi_src version_str build_str));
 
   if Sys.file_exists Utils.backup_xml_file then begin
     let rec question_box = fun () ->
@@ -280,18 +293,6 @@ let () =
 
   (* Version *)
   let callback = fun () ->
-    (* version string with whitespace/newline at the end stripped *)
-    let version_str =
-      try
-        Str.replace_first (Str.regexp "[ \n]+$") "" (read_process (Env.paparazzi_src ^ "/paparazzi_version"))
-      with _ -> "UNKNOWN" in
-    let build_str =
-    try
-      let f = open_in (Env.paparazzi_home ^ "/var/build_version.txt") in
-      let s = try input_line f with _ -> "UNKNOWN" in
-      close_in f;
-      s
-    with _ -> "UNKNOWN" in
     ignore (GToolbox.message_box ~title:"Paparazzi version" ~icon:(GMisc.image ~pixbuf:paparazzi_pixbuf ())#coerce ("Run version:\t" ^ version_str ^ "\nBuild version:\t" ^ build_str)) in
   ignore (gui#menu_item_version#connect#activate ~callback);
 
