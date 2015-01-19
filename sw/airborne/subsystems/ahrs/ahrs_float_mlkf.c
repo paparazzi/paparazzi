@@ -50,8 +50,12 @@
 
 static inline void propagate_ref(struct Int32Rates *gyro, float dt);
 static inline void propagate_state(float dt);
-static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3 *b_measured,
+static inline void update_state(const struct FloatVect3 *i_expected,
+                                struct FloatVect3 *b_measured,
                                 struct FloatVect3 *noise);
+static inline void update_state_heading(const struct FloatVect3 *i_expected,
+                                        struct FloatVect3 *b_measured,
+                                        struct FloatVect3 *noise);
 static inline void reset_state(void);
 static inline void set_body_state_from_quat(void);
 
@@ -145,8 +149,24 @@ void ahrs_mlkf_update_accel(struct Int32Vect3 *accel)
   reset_state();
 }
 
-
 void ahrs_mlkf_update_mag(struct Int32Vect3 *mag)
+{
+#if AHRS_MAG_UPDATE_ALL_AXES
+  ahrs_mlkf_update_mag_full(mag);
+#else
+  ahrs_mlkf_update_mag_2d(mag);
+#endif
+}
+
+void ahrs_mlkf_update_mag_2d(struct Int32Vect3 *mag)
+{
+  struct FloatVect3 imu_h;
+  MAGS_FLOAT_OF_BFP(imu_h, *mag);
+  update_state_heading(&ahrs_mlkf.mag_h, &imu_h, &ahrs_mlkf.mag_noise);
+  reset_state();
+}
+
+void ahrs_mlkf_update_mag_full(struct Int32Vect3 *mag)
 {
   struct FloatVect3 imu_h;
   MAGS_FLOAT_OF_BFP(imu_h, *mag);
@@ -211,7 +231,10 @@ static inline void propagate_state(float dt)
 
 
 /**
- *  Incorporate one 3D vector measurement
+ * Incorporate one 3D vector measurement.
+ * @param i_expected expected 3d vector in inertial frame
+ * @param b_measured measured 3d vector in body/imu frame
+ * @param noise measurement noise vector (diagonal of covariance)
  */
 static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3 *b_measured,
                                 struct FloatVect3 *noise)
@@ -223,8 +246,8 @@ static inline void update_state(const struct FloatVect3 *i_expected, struct Floa
 
   // S = HPH' + JRJ
   float H[3][6] = {{           0., -b_expected.z,  b_expected.y, 0., 0., 0.},
-    { b_expected.z,            0., -b_expected.x, 0., 0., 0.},
-    { -b_expected.y,  b_expected.x,            0., 0., 0., 0.}
+                   { b_expected.z,            0., -b_expected.x, 0., 0., 0.},
+                   { -b_expected.y, b_expected.x,            0., 0., 0., 0.}
   };
   float tmp[3][6];
   MAT_MUL(3, 6, 6, tmp, H, ahrs_mlkf.P);
@@ -264,9 +287,9 @@ static inline void update_state(const struct FloatVect3 *i_expected, struct Floa
   // X = X + Ke
   struct FloatVect3 e;
   VECT3_DIFF(e, *b_measured, b_expected);
-  ahrs_mlkf.gibbs_cor.qx  += K[0][0] * e.x + K[0][1] * e.y + K[0][2] * e.z;
-  ahrs_mlkf.gibbs_cor.qy  += K[1][0] * e.x + K[1][1] * e.y + K[1][2] * e.z;
-  ahrs_mlkf.gibbs_cor.qz  += K[2][0] * e.x + K[2][1] * e.y + K[2][2] * e.z;
+  ahrs_mlkf.gibbs_cor.qx += K[0][0] * e.x + K[0][1] * e.y + K[0][2] * e.z;
+  ahrs_mlkf.gibbs_cor.qy += K[1][0] * e.x + K[1][1] * e.y + K[1][2] * e.z;
+  ahrs_mlkf.gibbs_cor.qz += K[2][0] * e.x + K[2][1] * e.y + K[2][2] * e.z;
   ahrs_mlkf.gyro_bias.p  += K[3][0] * e.x + K[3][1] * e.y + K[3][2] * e.z;
   ahrs_mlkf.gyro_bias.q  += K[4][0] * e.x + K[4][1] * e.y + K[4][2] * e.z;
   ahrs_mlkf.gyro_bias.r  += K[5][0] * e.x + K[5][1] * e.y + K[5][2] * e.z;
@@ -274,6 +297,77 @@ static inline void update_state(const struct FloatVect3 *i_expected, struct Floa
 }
 
 
+/**
+ * Incorporate one 3D vector measurement, only correcting heading.
+ * @param i_expected expected 3d vector in inertial frame
+ * @param b_measured measured 3d vector in body/imu frame
+ * @param noise measurement noise vector (diagonal of covariance)
+ * TODO: optimize
+ */
+static inline void update_state_heading(const struct FloatVect3 *i_expected,
+                                        struct FloatVect3 *b_measured,
+                                        struct FloatVect3 *noise)
+{
+
+  /* converted expected measurement from inertial to body frame */
+  struct FloatVect3 b_expected;
+  float_quat_vmult(&b_expected, &ahrs_mlkf.ltp_to_imu_quat, (struct FloatVect3 *)i_expected);
+
+  /* set roll/pitch errors to zero to only correct heading */
+  struct FloatVect3 i_h_2d = {i_expected->y, -i_expected->x, 0.f};
+  struct FloatVect3 b_yaw;
+  float_quat_vmult(&b_yaw, &ahrs_mlkf.ltp_to_imu_quat, &i_h_2d);
+  // S = HPH' + JRJ
+  float H[3][6] = {{ 0., 0., b_yaw.x, 0., 0., 0.},
+                   { 0., 0., b_yaw.y, 0., 0., 0.},
+                   { 0., 0., b_yaw.z, 0., 0., 0.}
+  };
+  float tmp[3][6];
+  MAT_MUL(3, 6, 6, tmp, H, ahrs_mlkf.P);
+  float S[3][3];
+  MAT_MUL_T(3, 6, 3, S, tmp, H);
+
+  /* add the measurement noise */
+  S[0][0] += noise->x;
+  S[1][1] += noise->y;
+  S[2][2] += noise->z;
+
+  float invS[3][3];
+  MAT_INV33(invS, S);
+
+  // K = PH'invS
+  float tmp2[6][3];
+  MAT_MUL_T(6, 6, 3, tmp2, ahrs_mlkf.P, H);
+  float K[6][3];
+  MAT_MUL(6, 3, 3, K, tmp2, invS);
+
+  // P = (I-KH)P
+  float tmp3[6][6];
+  MAT_MUL(6, 3, 6, tmp3, K, H);
+  float I6[6][6] = {{ 1., 0., 0., 0., 0., 0. },
+    {  0., 1., 0., 0., 0., 0. },
+    {  0., 0., 1., 0., 0., 0. },
+    {  0., 0., 0., 1., 0., 0. },
+    {  0., 0., 0., 0., 1., 0. },
+    {  0., 0., 0., 0., 0., 1. }
+  };
+  float tmp4[6][6];
+  MAT_SUB(6, 6, tmp4, I6, tmp3);
+  float tmp5[6][6];
+  MAT_MUL(6, 6, 6, tmp5, tmp4, ahrs_mlkf.P);
+  memcpy(ahrs_mlkf.P, tmp5, sizeof(ahrs_mlkf.P));
+
+  // X = X + Ke
+  struct FloatVect3 e;
+  VECT3_DIFF(e, *b_measured, b_expected);
+  ahrs_mlkf.gibbs_cor.qx += K[0][0] * e.x + K[0][1] * e.y + K[0][2] * e.z;
+  ahrs_mlkf.gibbs_cor.qy += K[1][0] * e.x + K[1][1] * e.y + K[1][2] * e.z;
+  ahrs_mlkf.gibbs_cor.qz += K[2][0] * e.x + K[2][1] * e.y + K[2][2] * e.z;
+  ahrs_mlkf.gyro_bias.p  += K[3][0] * e.x + K[3][1] * e.y + K[3][2] * e.z;
+  ahrs_mlkf.gyro_bias.q  += K[4][0] * e.x + K[4][1] * e.y + K[4][2] * e.z;
+  ahrs_mlkf.gyro_bias.r  += K[5][0] * e.x + K[5][1] * e.y + K[5][2] * e.z;
+
+}
 /**
  * Incorporate errors to reference and zeros state
  */

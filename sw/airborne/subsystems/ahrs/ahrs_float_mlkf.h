@@ -71,5 +71,7 @@ extern bool_t ahrs_mlkf_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_
 extern void ahrs_mlkf_propagate(struct Int32Rates *gyro, float dt);
 extern void ahrs_mlkf_update_accel(struct Int32Vect3 *accel);
 extern void ahrs_mlkf_update_mag(struct Int32Vect3 *mag);
+extern void ahrs_mlkf_update_mag_2d(struct Int32Vect3 *mag);
+extern void ahrs_mlkf_update_mag_full(struct Int32Vect3 *mag);
 
 #endif /* AHRS_FLOAT_MLKF_H */
