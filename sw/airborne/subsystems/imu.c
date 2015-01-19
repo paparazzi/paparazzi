@@ -43,22 +43,6 @@
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-#if USE_IMU_FLOAT
-
-static void send_accel(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_IMU_ACCEL(trans, dev, AC_ID,
-                          &imuf.accel.x, &imuf.accel.y, &imuf.accel.z);
-}
-
-static void send_gyro(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_IMU_GYRO(trans, dev, AC_ID,
-                         &imuf.gyro.p, &imuf.gyro.q, &imuf.gyro.r);
-}
-
-#else // !USE_IMU_FLOAT
-
 static void send_accel_raw(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_IMU_ACCEL_RAW(trans, dev, AC_ID,
@@ -118,12 +102,10 @@ static void send_mag(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_IMU_MAG(trans, dev, AC_ID,
                         &mag_float.x, &mag_float.y, &mag_float.z);
 }
-#endif // !USE_IMU_FLOAT
 
-#endif
+#endif /* PERIODIC_TELEMETRY */
 
 struct Imu imu;
-struct ImuFloat imuf;
 
 void imu_init(void)
 {
@@ -154,7 +136,6 @@ void imu_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
   register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO", send_gyro);
-#if !USE_IMU_FLOAT
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_RAW", send_accel_raw);
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_SCALED", send_accel_scaled);
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
@@ -164,7 +145,6 @@ void imu_init(void)
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_RAW", send_mag_raw);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_SCALED", send_mag_scaled);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG", send_mag);
-#endif // !USE_IMU_FLOAT
 #endif // DOWNLINK
 
   imu_impl_init();
