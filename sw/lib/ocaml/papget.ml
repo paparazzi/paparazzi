@@ -243,6 +243,9 @@ object (self)
     let file = Env.paparazzi_src // "sw" // "lib" // "ocaml" // "widgets.glade" in
     let dialog = new Gtk_papget_editor.papget_editor ~file () in
 
+    let ac_id = PC.get_prop "ac_id" config "Any" in
+    dialog#toplevel#set_title ("Papget Editor (A/C: "^ac_id^")");
+
     let tagged_renderers = Lazy.force PR.lazy_tagged_renderers in
     let strings = List.map fst tagged_renderers in
 
