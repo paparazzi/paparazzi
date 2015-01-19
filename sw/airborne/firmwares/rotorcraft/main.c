@@ -174,9 +174,6 @@ STATIC_INLINE void main_init(void)
 
   DefaultAhrsRegister();
 
-  // send body_to_imu from here for now
-  AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
-
 #if USE_GPS
   gps_init();
 #endif
@@ -203,6 +200,9 @@ STATIC_INLINE void main_init(void)
 #if USE_BARO_BOARD
   baro_tid = sys_time_register_timer(1. / BARO_PERIODIC_FREQUENCY, NULL);
 #endif
+
+  // send body_to_imu from here for now
+  AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
 }
 
 STATIC_INLINE void handle_periodic_tasks(void)

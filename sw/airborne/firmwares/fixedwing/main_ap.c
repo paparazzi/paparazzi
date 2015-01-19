@@ -208,6 +208,8 @@ void init_ap(void)
 #endif
 #endif
 
+  ins_init();
+
 #if USE_AHRS && USE_IMU
   register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
 #endif
@@ -215,8 +217,6 @@ void init_ap(void)
 #if USE_BARO_BOARD
   baro_init();
 #endif
-
-  ins_init();
 
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
@@ -271,6 +271,11 @@ void init_ap(void)
   ap_state->command_roll_trim = COMMAND_ROLL_TRIM;
   ap_state->command_pitch_trim = COMMAND_PITCH_TRIM;
   ap_state->command_yaw_trim = COMMAND_YAW_TRIM;
+
+#if USE_IMU
+  // send body_to_imu from here for now
+  AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
+#endif
 }
 
 
