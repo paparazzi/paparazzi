@@ -23,7 +23,7 @@
         <dl_setting MAX=".3" MIN="0." STEP="0.001" VAR="h_ctl_pitch_of_roll" shortname="pitch_of_roll" param="H_CTL_PITCH_OF_ROLL" module="stabilization/stabilization_attitude"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_aileron_of_throttle" shortname="aileron_of_throttle" module="stabilization/stabilization_adaptive"/>
 
-        <dl_setting MAX="60" MIN="0" STEP="1" VAR="h_ctl_roll_max_setpoint" shortname="max_roll" param="H_CTL_ROLL_MAX_SETPOINT" unit="rad" alt_unit="deg"/>
+        <dl_setting MAX="60" MIN="0" STEP="1." VAR="h_ctl_roll_max_setpoint" shortname="max_roll" param="H_CTL_ROLL_MAX_SETPOINT" unit="rad" alt_unit="deg"/>
         <dl_setting MAX="1" MIN="0" STEP="1" var="use_airspeed_ratio" values="FALSE|TRUE"/>
       </dl_settings>
 
