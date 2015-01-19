@@ -30,7 +30,6 @@
 #include "generated/airframe.h"
 
 #include "state.h"
-#include "subsystems/ins/ins_int.h"
 #include "navigation.h"
 #include "messages.h"
 #include "dl_protocol.h"
@@ -61,7 +60,7 @@ void follow_change_wp(unsigned char *buffer)
   new_pos.z = DL_REMOTE_GPS_ecef_z(buffer);
 
   // Translate to ENU
-  enu_of_ecef_point_i(&enu, &ins_impl.ltp_def, &new_pos);
+  enu_of_ecef_point_i(&enu, &state.ned_origin_i, &new_pos);
   INT32_VECT3_SCALE_2(enu, enu, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
 
   // TODO: Add the angle to the north
