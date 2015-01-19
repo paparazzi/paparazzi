@@ -22,11 +22,27 @@
     <define name="USE_I2C2"/>
     <configure name="PERIODIC_FREQUENCY" value="125"/>
 
-    <target name="ap" board="apogee_1.0_chibios"/>
-    <target name="sim" board="pc"/>
+    <target name="ap" board="apogee_1.0_chibios">
+      <subsystem name="ins" type="float_invariant">
+        <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
+        <configure name="AHRS_CORRECT_FREQUENCY" value="125"/>
+        <define name="BARO_BOARD_APOGEE_FREQ" value="50"/>
+        <define name="MPL3115_OVERSAMPLING" value="2"/>
+      </subsystem>
+    </target>
+    <target name="sim" board="pc">
+      <subsystem name="ahrs" type="float_dcm"/>
+      <subsystem name="ins" type="alt_float"/>
+    </target>
     <target name="nps" board="pc">
       <!-- Note NPS needs the ppm type radio_control subsystem -->
       <subsystem name="fdm" type="jsbsim"/>
+      <subsystem name="ins" type="float_invariant">
+        <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
+        <configure name="AHRS_CORRECT_FREQUENCY" value="125"/>
+        <define name="BARO_BOARD_APOGEE_FREQ" value="50"/>
+        <define name="MPL3115_OVERSAMPLING" value="2"/>
+      </subsystem>
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
@@ -39,12 +55,6 @@
       <define name="USE_MAGNETOMETER"/>
       <define name="APOGEE_LOWPASS_FILTER" value="MPU60X0_DLPF_20HZ"/>
       <define name="APOGEE_SMPLRT_DIV" value="7"/>
-    </subsystem>
-    <subsystem name="ins" type="float_invariant">
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
-      <configure name="AHRS_CORRECT_FREQUENCY" value="125"/>
-      <define name="BARO_BOARD_APOGEE_FREQ" value="50"/>
-      <define name="MPL3115_OVERSAMPLING" value="2"/>
     </subsystem>
     <subsystem name="control" type="new"/>
     <subsystem name="navigation"/>
