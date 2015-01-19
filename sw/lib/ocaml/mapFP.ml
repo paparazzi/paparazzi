@@ -83,7 +83,9 @@ let try_replace_attrib = fun node tag prev_v v ->
       Not_found -> ()
 
 (** Update all the references to waypoint names (attribute "wp") *)
-let update_wp_refs previous_name xml_tree = function
+(** FIXME This function is disabled for now since it is making
+ * a huge mess when reordering the waypoints *)
+(*let update_wp_refs previous_name xml_tree = function
 XmlEdit.Deleted -> () (** FIXME *)
   | XmlEdit.New_child _ -> ()
   | XmlEdit.Modified attribs ->
@@ -96,6 +98,7 @@ XmlEdit.Deleted -> () (** FIXME *)
       previous_name := new_name
     with
         Not_found -> ()
+*)
 
 let waypoints_node = fun xml_tree ->
   let xml_root = XmlEdit.root xml_tree in
@@ -155,7 +158,7 @@ let new_wp = fun ?(editable = false) (geomap:MapCanvas.widget) xml_tree waypoint
   let wp = MapWaypoints.waypoint ~show waypoints ~name ~alt wgs84 in
   geomap#register_to_fit (wp:>MapCanvas.geographic);
   XmlEdit.connect node (update_wp utm_ref wp);
-  XmlEdit.connect node (update_wp_refs (ref name) xml_tree);
+  (*XmlEdit.connect node (update_wp_refs (ref name) xml_tree);*) (* FIXME broken functionality *)
   let id = XmlEdit.id node in
   if editable then
     wp#connect (fun () -> update_xml xml_tree utm_ref wp id);
