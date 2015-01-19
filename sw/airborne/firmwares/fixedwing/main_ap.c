@@ -742,10 +742,10 @@ void event_task_ap(void)
 #if USE_GPS
 static inline void on_gps_solution(void)
 {
-  ins_update_gps();
 #if USE_AHRS
   ahrs_update_gps();
 #endif
+  ins_update_gps();
 #ifdef GPS_TRIGGERED_FUNCTION
   GPS_TRIGGERED_FUNCTION();
 #endif
@@ -753,7 +753,6 @@ static inline void on_gps_solution(void)
 #endif
 
 
-#if USE_AHRS
 #if USE_IMU
 static inline void on_accel_event(void)
 {
@@ -787,6 +786,20 @@ static inline void on_gyro_event(void)
   if (nps_bypass_ahrs) { sim_overwrite_ahrs(); }
 #endif
 
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
+PRINT_CONFIG_MSG("Calculating dt for INS propagation.")
+  // timestamp in usec when last callback was received
+  static uint32_t last_ts = 0;
+  // dt between this and last callback in seconds
+  float dt = (float)(now_ts - last_ts) / 1e6;
+  last_ts = now_ts;
+#else
+PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for INS propagation.")
+PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
+  const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
+#endif
+  ins_propagate(dt);
+
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
   new_ins_attitude = 1;
 #endif
@@ -805,5 +818,3 @@ static inline void on_mag_event(void)
 }
 
 #endif // USE_IMU
-
-#endif // USE_AHRS

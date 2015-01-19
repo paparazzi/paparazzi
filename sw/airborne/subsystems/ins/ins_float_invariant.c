@@ -34,7 +34,6 @@
 
 #include "subsystems/ahrs/ahrs_int_utils.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
-#include "subsystems/ahrs.h"
 
 #include "subsystems/ins.h"
 #include "subsystems/gps.h"
@@ -182,6 +181,21 @@ PRINT_CONFIG_VAR(INS_BARO_ID)
 abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, const float *pressure);
 
+/* magnetometer */
+#ifndef INS_MAG_ID
+#define INS_MAG_ID ABI_BROADCAST
+#endif
+static abi_event mag_ev;
+static void mag_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t *stamp,
+                   const struct Int32Vect3 *mag);
+
+static abi_event aligner_ev;
+static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
+                       const uint32_t *stamp __attribute__((unused)),
+                       const struct Int32Rates *lp_gyro, const struct Int32Vect3 *lp_accel,
+                       const struct Int32Vect3 *lp_mag);
+
+
 /* gps */
 bool_t ins_gps_fix_once;
 
@@ -250,9 +264,6 @@ void ins_init()
   B.y = INS_H_Y;
   B.z = INS_H_Z;
 
-  // Bind to BARO_ABS message
-  AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
-
   // init state and measurements
   init_invariant_state();
 
@@ -272,7 +283,13 @@ void ins_init()
   ins_impl.gains.sh   = INS_INV_SH;
 
   ins.status = INS_UNINIT;
+  ins_impl.is_aligned = FALSE;
   ins_impl.reset = FALSE;
+
+  // Bind to ABI messages
+  AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
+  AbiBindMsgIMU_MAG_INT32(INS_MAG_ID, &mag_ev, mag_cb);
+  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
 
 #if !INS_UPDATE_FW_ESTIMATOR && PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
@@ -326,29 +343,25 @@ void ins_reset_altitude_ref(void)
 #endif
 }
 
-void ahrs_init(void)
-{
-  ahrs.status = AHRS_UNINIT;
-}
-
-void ahrs_align(void)
+void ins_float_invariant_align(struct Int32Rates *lp_gyro,
+                               struct Int32Vect3 *lp_accel,
+                               struct Int32Vect3 *lp_mag)
 {
   /* Compute an initial orientation from accel and mag directly as quaternion */
-  ahrs_float_get_quat_from_accel_mag(&ins_impl.state.quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
+  ahrs_float_get_quat_from_accel_mag(&ins_impl.state.quat, lp_accel, lp_mag);
 
   /* use average gyro as initial value for bias */
   struct FloatRates bias0;
-  RATES_COPY(bias0, ahrs_aligner.lp_gyro);
+  RATES_COPY(bias0, *lp_gyro);
   RATES_FLOAT_OF_BFP(ins_impl.state.bias, bias0);
 
   // ins and ahrs are now running
-  ahrs.status = AHRS_RUNNING;
+  ins_impl.is_aligned = TRUE;
   ins.status = INS_RUNNING;
 }
 
-void ahrs_propagate(float dt)
+void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* accel, float dt)
 {
-  struct FloatVect3 accel;
   struct FloatRates body_rates;
 
   // realign all the filter if needed
@@ -356,17 +369,17 @@ void ahrs_propagate(float dt)
   if (ins_impl.reset) {
     ins_impl.reset = FALSE;
     ins.status = INS_UNINIT;
-    ahrs.status = AHRS_UNINIT;
+    ins_impl.is_aligned = FALSE;
     init_invariant_state();
   }
 
   // fill command vector
   struct Int32Rates gyro_meas_body;
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
-  int32_rmat_transp_ratemult(&gyro_meas_body, body_to_imu_rmat, &imu.gyro);
+  int32_rmat_transp_ratemult(&gyro_meas_body, body_to_imu_rmat, gyro);
   RATES_FLOAT_OF_BFP(ins_impl.cmd.rates, gyro_meas_body);
   struct Int32Vect3 accel_meas_body;
-  int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, &imu.accel);
+  int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, accel);
   ACCELS_FLOAT_OF_BFP(ins_impl.cmd.accel, accel_meas_body);
 
   // update correction gains
@@ -392,10 +405,11 @@ void ahrs_propagate(float dt)
   // untilt accel and remove gravity
   struct FloatQuat q_b2n;
   float_quat_invert(&q_b2n, &ins_impl.state.quat);
-  float_quat_vmult(&accel, &q_b2n, &ins_impl.cmd.accel);
-  VECT3_SMUL(accel, accel, 1. / (ins_impl.state.as));
-  VECT3_ADD(accel, A);
-  stateSetAccelNed_f((struct NedCoor_f *)&accel);
+  struct FloatVect3 accel_n;
+  float_quat_vmult(&accel_n, &q_b2n, &ins_impl.cmd.accel);
+  VECT3_SMUL(accel_n, accel_n, 1. / (ins_impl.state.as));
+  VECT3_ADD(accel_n, A);
+  stateSetAccelNed_f((struct NedCoor_f *)&accel_n);
 
   //------------------------------------------------------------//
 
@@ -470,7 +484,7 @@ void ahrs_propagate(float dt)
 #endif
 }
 
-void ahrs_update_gps(void)
+void ins_update_gps(void)
 {
 
   if (gps.fix == GPS_FIX_3D && ins.status == INS_RUNNING) {
@@ -534,14 +548,10 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
   }
 }
 
-void ahrs_update_accel(float dt __attribute__((unused)))
-{
-}
-
 // assume mag is dead when values are not moving anymore
 #define MAG_FROZEN_COUNT 30
 
-void ahrs_update_mag(float dt __attribute__((unused)))
+void ins_float_invariant_update_mag(struct Int32Vect3* mag)
 {
   static uint32_t mag_frozen_count = MAG_FROZEN_COUNT;
   static int32_t last_mx = 0;
@@ -558,7 +568,7 @@ void ahrs_update_mag(float dt __attribute__((unused)))
     struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
     struct Int32Vect3 mag_meas_body;
     // new values in body frame
-    int32_rmat_transp_vmult(&mag_meas_body, body_to_imu_rmat, &imu.mag);
+    int32_rmat_transp_vmult(&mag_meas_body, body_to_imu_rmat, mag);
     MAGS_FLOAT_OF_BFP(ins_impl.meas.mag, mag_meas_body);
     // reset counter
     mag_frozen_count = MAG_FROZEN_COUNT;
@@ -737,4 +747,30 @@ void float_quat_vmul_right(struct FloatQuat *mright, const struct FloatQuat *q,
   VECT3_SMUL(v2, *vi, q->qi);
   VECT3_ADD(v2, v1);
   QUAT_ASSIGN(*mright, qi, v2.x, v2.y, v2.z);
+}
+
+/** temporary functions for INS interface compatibility */
+void ins_propagate(float dt)
+{
+  ins_float_invariant_propagate(&imu.gyro, &imu.accel, dt);
+}
+
+static void mag_cb(uint8_t sender_id __attribute__((unused)),
+                   const uint32_t *stamp __attribute__((unused)),
+                   const struct Int32Vect3 *mag)
+{
+  if (ins_impl.is_aligned) {
+    ins_float_invariant_update_mag((struct Int32Vect3 *)mag);
+  }
+}
+
+static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
+                       const uint32_t *stamp __attribute__((unused)),
+                       const struct Int32Rates *lp_gyro, const struct Int32Vect3 *lp_accel,
+                       const struct Int32Vect3 *lp_mag)
+{
+  if (!ins_impl.is_aligned) {
+    ins_float_invariant_align((struct Int32Rates *)lp_gyro, (struct Int32Vect3 *)lp_accel,
+                              (struct Int32Vect3 *)lp_mag);
+  }
 }
