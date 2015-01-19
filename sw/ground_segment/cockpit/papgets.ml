@@ -43,11 +43,9 @@ let papget_listener =
     try
       let field = Papget_common.get_property "field" papget in
       let sender = try Some (Papget_common.get_property "ac_id" papget) with _ -> None in
-      match Str.split sep field, sender with
-          [msg_name; field_name], Some sender ->
-            (new Papget.message_field ~sender msg_name field_name)
-        | [msg_name; field_name], None ->
-            (new Papget.message_field msg_name field_name)
+      match Str.split sep field with
+          [msg_name; field_name] ->
+            (new Papget.message_field ?sender msg_name field_name)
         | _ -> failwith (sprintf "Unexpected field spec: %s" field)
     with
         _ -> failwith (sprintf "field attr expected in '%s" (Xml.to_string papget))
@@ -76,9 +74,7 @@ let expression_listener = fun papget ->
   let expr = Papget_common.get_property "expr" papget in
   let expr = Expr_lexer.parse expr in
   let sender = try Some (Papget_common.get_property "ac_id" papget) with _ -> None in
-  match sender with
-    Some sender -> new Papget.expression ~extra_functions ~sender expr
-  | None -> new Papget.expression ~extra_functions expr
+  new Papget.expression ~extra_functions ?sender expr
 
 
 
