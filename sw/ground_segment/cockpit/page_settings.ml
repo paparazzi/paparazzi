@@ -33,7 +33,12 @@ object
   method xml = xml
   val mutable last_known_value = None
   method last_known_value =
-    match last_known_value with None -> raise Not_found | Some v -> v
+    match last_known_value with
+    | None -> raise Not_found
+    | Some v ->
+        let auc = Pprz.alt_unit_coef_of_xml xml in
+        let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
+        (v -. alt_b) /. alt_a
   method current_value =
     let auc = Pprz.alt_unit_coef_of_xml xml in
     let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
