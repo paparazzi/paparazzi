@@ -44,6 +44,9 @@ let dump_store = fun save_id ->
     papgets
     []
 
+let has_papgets = fun () ->
+  (Hashtbl.fold (fun _ p n -> if p#deleted then n else n + 1) papgets 0) > 0
+
 let papget_listener =
   let sep = Str.regexp "[:\\.]" in
   fun papget ->
