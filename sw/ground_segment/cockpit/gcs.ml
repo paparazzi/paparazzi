@@ -693,7 +693,13 @@ let () =
   listen_dropped_papgets geomap;
 
   let save_layout = fun () ->
-    let the_new_layout = replace_widget_children "map2d" (Papgets.dump_store ()) the_layout in
+    (* Ask if ac_id parameters from papgets should be saved *)
+    let save_acid =
+      match GToolbox.question_box ~title:"Save Layout" ~buttons:["Yes"; "no"] ~default:1 "Do you want to save A/C id of Papgets if available\nYes: the saved layout will only work with A/C that have the same id (default)\nno: the saved layout will work with any A/C (but will mix data while using multiple A/C)" with
+      | 2 -> false
+      | _ -> true
+    in
+    let the_new_layout = replace_widget_children "map2d" (Papgets.dump_store save_acid) the_layout in
     let width, height = Gdk.Drawable.get_size window#misc#window in
     let the_new_layout = update_widget_size `HORIZONTAL widgets the_new_layout in
     let new_layout = Xml.Element ("layout", ["width", soi width; "height", soi height], [the_new_layout]) in

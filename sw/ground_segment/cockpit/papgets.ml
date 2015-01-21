@@ -25,13 +25,20 @@
 open Printf
 module PC = Papget_common
 
+let filter_acid = fun save conf ->
+  let filtered = List.filter (fun x ->
+    (* keep element if save is true or save is false and attrib name is not ac_id *)
+    if (ExtXml.attrib_or_default x "name" "" = "ac_id") && (not save) then false
+    else true) (Xml.children conf) in
+  Xml.Element (Xml.tag conf, Xml.attribs conf, filtered)
+
 let papgets = Hashtbl.create 5
 let register_papget = fun p -> Hashtbl.add papgets p p
-let dump_store = fun () ->
+let dump_store = fun save_id ->
   Hashtbl.fold
     (fun _ p r ->
       if not p#deleted then
-        p#config ()::r
+        (filter_acid save_id (p#config ()))::r
       else
         r)
     papgets

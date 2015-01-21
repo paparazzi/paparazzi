@@ -22,7 +22,7 @@
 *
 *)
 
-val dump_store : unit -> Xml.xml list
+val dump_store : bool -> Xml.xml list
 val create : #GnoCanvas.group -> Xml.xml -> unit
 val dnd_data_received :
   #GnoCanvas.group ->
