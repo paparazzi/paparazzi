@@ -571,6 +571,13 @@ let rec update_widget_size = fun orientation widgets xml ->
     | x -> failwith (sprintf "update_widget_size: %s" x)
 
 
+(* get DTD head line for layout *)
+let get_layout_dtd = fun filename ->
+  let gcs_regexp = Str.regexp (Filename.concat Env.paparazzi_home "conf/gcs") in
+  let local_dir = Str.replace_first gcs_regexp "" (Filename.dirname filename) in
+  let split = Str.split (Str.regexp Filename.dir_sep) local_dir in
+  let layout = List.fold_left (fun s _ -> "../" ^ s ) "layout.dtd" split in
+  sprintf "<!DOCTYPE layout SYSTEM \"%s\">" layout
 
 
 let save_layout = fun filename contents ->
@@ -585,6 +592,7 @@ let save_layout = fun filename contents ->
       `SAVE, Some name ->
         dialog#destroy ();
         let f = open_out name in
+        fprintf f "%s\n\n" (get_layout_dtd name);
         fprintf f "%s\n" contents;
         close_out f
     | _ -> dialog#destroy ()
