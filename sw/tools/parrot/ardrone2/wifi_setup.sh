@@ -20,6 +20,9 @@ export ATH_MODULE_ARGS="ifname=$NETIF"
 
 WIFI_MODE=`grep wifi_mode /data/config.ini | awk -F "=" '{ gsub(/ */,"",$2); print $2}'` 
 
+# ad-hoc wireless mesh routing daemon disabled by default
+OLSR=false
+
 case $WIFI_MODE in
 0)
     WIFI_MODE=master
@@ -29,6 +32,10 @@ case $WIFI_MODE in
     ;;
 2)
     WIFI_MODE=managed
+    ;;
+3)
+    WIFI_MODE=ad-hoc
+    OLSR=true
     ;;
 *)
     WIFI_MODE=master
@@ -84,7 +91,17 @@ SSID=ardrone2_wifi
 echo "SSID=\"$SSID\""
 fi
 
+RANDOM_CHAN=`grep wifi_channel /data/config.ini | awk -F "=" '{print $2}'`
+RANDOM_CHAN=`echo $RANDOM_CHAN`
+# Default random channel
+if [ -n "$RANDOM_CHAN" ]
+then
+echo "RANDOM_CHAN=$RANDOM_CHAN"
+else
+#default RANDOM_CHAN.
 RANDOM_CHAN=auto
+echo "RANDOM_CHAN=\"$RANDOM_CHAN\""
+fi
 
 
 echo "Creating $WIFI_MODE Network $SSID"
@@ -181,9 +198,15 @@ echo $MAC_ADDR `date` `/bin/random_mac` > /dev/urandom
 telnetd -l /bin/sh
 
 # Check if not booting in master mode
-if [ "$WIFI_MODE" != "managed" ]
+if [ "$WIFI_MODE" != "managed" ] && [ "$OLSR" != "true" ]
 then
 	udhcpd /tmp/udhcpd.conf
+fi
+
+# Check OLSR deamon should be started
+if [ "$OLSR" = "true" ] && [ -f "/bin/olsrd" ] && [ -f "/etc/olsrd/olsrd.conf" ]
+then
+  olsrd
 fi
 
 # Adding route for multicast-packet
