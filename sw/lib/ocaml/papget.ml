@@ -231,8 +231,13 @@ object (self)
       | `BUTTON_RELEASE ev ->
         if GdkEvent.Button.button ev = 1 then begin
           item#ungrab (GdkEvent.Button.time ev);
+          let bounds = item#get_bounds in
           if not motion then begin
             self#edit ()
+          end
+          else if (bounds.(0) < 0. && bounds.(2) < 0.) || (bounds.(1) < 0. && bounds.(3) < 0.) then begin
+            (* delete an item if placed out of the window on the left or top side *)
+            deleted <- true
           end;
           motion <- false
         end;
