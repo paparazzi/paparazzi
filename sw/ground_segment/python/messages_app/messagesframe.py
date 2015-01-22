@@ -4,7 +4,6 @@ import sys
 import os
 import time
 import threading
-import math
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
 sys.path.append(PPRZ_HOME + "/sw/lib/python")
@@ -17,8 +16,20 @@ DATA_WIDTH = 100
 HEIGHT = 800
 BORDER = 1
 
+
 class MessagesFrame(wx.Frame):
     def message_recv(self, ac_id, name, values):
+        """Handle incoming messages
+
+        Callback function for IvyMessagesInterface
+
+        :param ac_id: aircraft id
+        :type ac_id: int
+        :param name: message name
+        :type name: str
+        :param values: message values
+        :type values: list
+        """
         if ac_id in self.aircrafts and name in self.aircrafts[ac_id].messages:
             if time.time() - self.aircrafts[ac_id].messages[name].last_seen < 0.2:
                 return
@@ -31,11 +42,10 @@ class MessagesFrame(wx.Frame):
         start = 0
         end = book.GetPageCount()
 
-        while (start < end):
+        while start < end:
             if book.GetPageText(start) > name:
                 return start
-            start = start + 1
-
+            start += 1
         return start
 
     def update_leds(self):
@@ -53,7 +63,7 @@ class MessagesFrame(wx.Frame):
         self.timer.start()
 
     def setup_image_list(self, notebook):
-        imageList = wx.ImageList(24,24)
+        imageList = wx.ImageList(24, 24)
 
         image = wx.Image(PPRZ_HOME + "/data/pictures/gray_led24.png")
         bitmap = wx.BitmapFromImage(image)
@@ -84,7 +94,7 @@ class MessagesFrame(wx.Frame):
         grid_sizer = wx.FlexGridSizer(len(aircraft.messages[name].field_names), 2)
 
         index = self.find_page(messages_book, name)
-        messages_book.InsertPage(index, field_panel, name, imageId = 1)
+        messages_book.InsertPage(index, field_panel, name, imageId=1)
         aircraft.messages[name].index = index
 
         # update indexes of pages which are to be moved
@@ -140,5 +150,5 @@ class MessagesFrame(wx.Frame):
 
     def OnClose(self, event):
         self.timer.cancel()
-        self.interface.Shutdown()
+        self.interface.shutdown()
         self.Destroy()
