@@ -8,14 +8,32 @@ import threading
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
 sys.path.append(PPRZ_HOME + "/sw/lib/python")
 
-import messages_tool
 from ivy_msg_interface import IvyMessagesInterface
+import messages_xml_map
 
 WIDTH = 450
 LABEL_WIDTH = 166
 DATA_WIDTH = 100
 HEIGHT = 800
 BORDER = 1
+
+
+class Message:
+    def __init__(self, class_name, name):
+        messages_xml_map.parse_messages()
+        self.field_value = []
+        self.field_names = messages_xml_map.message_dictionary[class_name][name]
+        self.field_controls = []
+        self.index = None
+        self.last_seen = time.clock()
+        self.name = name
+
+
+class Aircraft:
+    def __init__(self, ac_id):
+        self.ac_id = ac_id
+        self.messages = {}
+        self.messages_book = None
 
 
 class MessagesFrame(wx.Frame):
@@ -34,7 +52,6 @@ class MessagesFrame(wx.Frame):
         if ac_id in self.aircrafts and name in self.aircrafts[ac_id].messages:
             if time.time() - self.aircrafts[ac_id].messages[name].last_seen < 0.2:
                 return
-
         wx.CallAfter(self.gui_update, ac_id, name, values)
 
     def find_page(self, book, name):
@@ -77,7 +94,7 @@ class MessagesFrame(wx.Frame):
         notebook.AssignImageList(imageList)
 
     def add_new_aircraft(self, ac_id):
-        self.aircrafts[ac_id] = messages_tool.Aircraft(ac_id)
+        self.aircrafts[ac_id] = Aircraft(ac_id)
         ac_panel = wx.Panel(self.notebook, -1)
         self.notebook.AddPage(ac_panel, str(ac_id))
         messages_book = wx.Notebook(ac_panel, style=wx.NB_LEFT)
@@ -90,7 +107,7 @@ class MessagesFrame(wx.Frame):
 
     def add_new_message(self, aircraft, name):
         messages_book = aircraft.messages_book
-        aircraft.messages[name] = messages_tool.Message("telemetry", name)
+        aircraft.messages[name] = Message("telemetry", name)
         field_panel = wx.Panel(messages_book)
         grid_sizer = wx.FlexGridSizer(len(aircraft.messages[name].field_names), 2)
 
