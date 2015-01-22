@@ -102,8 +102,9 @@ white</property>
   </widget>
   <widget class="GtkWindow" id="papget_editor">
     <property name="visible">True</property>
-    <property name="title" translatable="yes">Papget Editor</property>
+    <property name="title" translatable="yes">Papget Editor (A/C: Any)</property>
     <property name="modal">True</property>
+    <property name="default_width">300</property>
     <child>
       <widget class="GtkVBox" id="vbox">
         <property name="visible">True</property>

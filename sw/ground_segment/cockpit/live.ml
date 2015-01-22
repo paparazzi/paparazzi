@@ -545,6 +545,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
       (* Drag for Drop *)
           let papget = Papget_common.xml "goto_block" "button"
             [ "block_name", block_name;
+              "ac_id", ac_id;
               "icon", icon] in
           Papget_common.dnd_source b#coerce papget;
 
@@ -621,7 +622,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let dl_settings_page =
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
-      let settings_tab = new Page_settings.settings ~visible xml_settings dl_setting_callback (fun group x -> strip#add_widget ~group x) in
+      let settings_tab = new Page_settings.settings ~visible xml_settings dl_setting_callback ac_id (fun group x -> strip#add_widget ~group x) in
 
       (** Connect key shortcuts *)
       let key_press = fun ev ->
