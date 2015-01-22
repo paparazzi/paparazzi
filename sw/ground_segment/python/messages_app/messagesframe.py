@@ -9,6 +9,7 @@ PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
 sys.path.append(PPRZ_HOME + "/sw/lib/python")
 
 import messages_tool
+from ivy_msg_interface import IvyMessagesInterface
 
 WIDTH = 450
 LABEL_WIDTH = 166
@@ -146,7 +147,7 @@ class MessagesFrame(wx.Frame):
         sizer.Layout()
         self.timer = threading.Timer(0.1, self.update_leds)
         self.timer.start()
-        self.interface = messages_tool.IvyMessagesInterface(self.message_recv)
+        self.interface = IvyMessagesInterface(self.message_recv)
 
     def OnClose(self, event):
         self.timer.cancel()
