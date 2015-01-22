@@ -3,13 +3,15 @@ from __future__ import absolute_import, print_function
 from ivy.std_api import *
 import logging
 import os
+import sys
 import re
 
 
 class IvyMessagesInterface():
-    def __init__(self, callback, init=True, bind_regex="(.*)"):
+    def __init__(self, callback, init=True, verbose=True, bind_regex="(.*)"):
         self.callback = callback
         self.ivy_id = 0
+        self.verbose = verbose
         self.init_ivy(init, bind_regex)
 
     def stop(self):
@@ -48,12 +50,26 @@ class IvyMessagesInterface():
                 data += s.split(' ')
             else:
                 data.append(s)
-        try:
-            ac_id = int(data[0])
-            name = data[1]
+        # ignore ivy message with less than 3 elements
+        if len(data) < 3:
+            return
+
+        if data[0] in ["ground", "ground_dl", "dl"]:
+            msg_class = data[0]
+            msg_name = data[1]
+            ac_id = int(data[2])
+            values = list(filter(None, data[3:]))
+        elif data[0] == "sim":
+            return
+        else:
+            try:
+                ac_id = int(data[0])
+            except ValueError:
+                if self.verbose:
+                    print("ignoring message %s" % data[1])
+                    sys.stdout.flush()
+                return
+            msg_class = "telemetry"
+            msg_name = data[1]
             values = list(filter(None, data[2:]))
-            self.callback(ac_id, name, values)
-        except ValueError:
-            pass
-        except:
-            raise
+        self.callback(msg_class, msg_name, ac_id, values)

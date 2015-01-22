@@ -37,22 +37,27 @@ class Aircraft:
 
 
 class MessagesFrame(wx.Frame):
-    def message_recv(self, ac_id, name, values):
+    def message_recv(self, msg_class, msg_name, ac_id, values):
         """Handle incoming messages
 
         Callback function for IvyMessagesInterface
 
+        :param msg_class: message classe ("ground" or "telemetry")
+        :param msg_class: string
+        :param msg_name: message name
+        :type msg_name: str
         :param ac_id: aircraft id
         :type ac_id: int
-        :param name: message name
-        :type name: str
         :param values: message values
         :type values: list
         """
-        if ac_id in self.aircrafts and name in self.aircrafts[ac_id].messages:
-            if time.time() - self.aircrafts[ac_id].messages[name].last_seen < 0.2:
+        # only show messages of the requested class
+        if msg_class != self.msg_class:
+            return
+        if ac_id in self.aircrafts and msg_name in self.aircrafts[ac_id].messages:
+            if time.time() - self.aircrafts[ac_id].messages[msg_name].last_seen < 0.2:
                 return
-        wx.CallAfter(self.gui_update, ac_id, name, values)
+        wx.CallAfter(self.gui_update, msg_class, msg_name, ac_id, values)
 
     def find_page(self, book, name):
         if book.GetPageCount() < 1:
@@ -105,9 +110,9 @@ class MessagesFrame(wx.Frame):
         sizer.Layout()
         self.aircrafts[ac_id].messages_book = messages_book
 
-    def add_new_message(self, aircraft, name):
+    def add_new_message(self, aircraft, msg_class, name):
         messages_book = aircraft.messages_book
-        aircraft.messages[name] = Message("telemetry", name)
+        aircraft.messages[name] = Message(msg_class, name)
         field_panel = wx.Panel(messages_book)
         grid_sizer = wx.FlexGridSizer(len(aircraft.messages[name].field_names), 2)
 
@@ -137,22 +142,22 @@ class MessagesFrame(wx.Frame):
         field_panel.SetSizer(grid_sizer)
         field_panel.Layout()
 
-    def gui_update(self, ac_id, name, values):
+    def gui_update(self, msg_class, msg_name, ac_id, values):
         if ac_id not in self.aircrafts:
             self.add_new_aircraft(ac_id)
 
         aircraft = self.aircrafts[ac_id]
 
-        if name not in aircraft.messages:
-            self.add_new_message(aircraft, name)
+        if msg_name not in aircraft.messages:
+            self.add_new_message(aircraft, msg_class, msg_name)
 
-        aircraft.messages_book.SetPageImage(aircraft.messages[name].index, 1)
-        self.aircrafts[ac_id].messages[name].last_seen = time.time()
+        aircraft.messages_book.SetPageImage(aircraft.messages[msg_name].index, 1)
+        self.aircrafts[ac_id].messages[msg_name].last_seen = time.time()
 
         for index in range(0, len(values)):
-            aircraft.messages[name].field_controls[index].SetLabel(values[index])
+            aircraft.messages[msg_name].field_controls[index].SetLabel(values[index])
 
-    def __init__(self):
+    def __init__(self, msg_class="telemetry"):
         wx.Frame.__init__(self, id=-1, parent=None, name=u'MessagesFrame', size=wx.Size(WIDTH, HEIGHT), style=wx.DEFAULT_FRAME_STYLE, title=u'Messages')
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.notebook = wx.Notebook(self)
@@ -164,6 +169,7 @@ class MessagesFrame(wx.Frame):
         sizer.Layout()
         self.timer = threading.Timer(0.1, self.update_leds)
         self.timer.start()
+        self.msg_class = msg_class
         self.interface = IvyMessagesInterface(self.message_recv)
 
     def OnClose(self, event):
