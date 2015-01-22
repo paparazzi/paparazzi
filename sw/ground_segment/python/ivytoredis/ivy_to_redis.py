@@ -72,6 +72,7 @@ class Ivy2RedisServer():
     def message_recv(self, ac_id, name, values):
         key = ac_id + "." + name
         self.r.publish( key, values )
+        self.r.set( key, values )
 
     def run( self ):
         while( self.keep_running ):
