@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 The Paparazzi Team
+ * Copyright (C) 2008-2015 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,6 +22,8 @@
 /**
  * @file modules/nav/nav_bungee_takeoff.h
  *
+ * Takeoff functions for bungee takeoff.
+ *
  * from OSAM advanced navigation routines
  *
  */
@@ -31,7 +33,7 @@
 
 #include "std.h"
 
-extern bool_t nav_bungee_takeoff_setup(uint8_t BungeeWP);
+extern bool_t nav_bungee_takeoff_setup(uint8_t bungee_wp);
 extern bool_t nav_bungee_takeoff_run(void);
 
 #endif
