@@ -35,15 +35,16 @@
  * the prop will come on.
  * The plane will then continue to follow the line until it has reached a
  * specific height (defined in as BUNGEE_TAKEOFF_HEIGHT in airframe file) above
- * the bungee waypoint and speed (defined as BUNGEE_TAKEOFF_SPEED in the
- * airframe file).
+ * the bungee waypoint and airspeed (defined as BUNGEE_TAKEOFF_AIRSPEED in the
+ * airframe file). The airspeed limit is only used if USE_AIRSPEED flag is
+ * defined or set to true (and assuming the airspeed is then available).
  * It is also possible to specify the pitch angle (BUNGEE_TAKEOFF_PITCH) and
  * the throttle (BUNGEE_TAKEOFF_THROTTLE, between 0 and 1).
  *
  * @verbatim
  * <section name="BUNGEE" prefix="BUNGEE_TAKEOFF_">
  *   <define name="HEIGHT" value="30" unit="m"/>
- *   <define name="SPEED" value="15" unit="m/s"/>
+ *   <define name="AIRSPEED" value="15" unit="m/s"/>
  *   <define name="DISTANCE" value="10" unit="m"/>
  *   <define name="MIN_SPEED" value="5" unit="m/s"/>
  *   <define name="PITCH" value="15." unit="deg"/>
@@ -67,14 +68,39 @@
 #include "math/pprz_algebra_float.h"
 
 
+// Backward compatibility
+#ifdef Takeoff_Distance
+#warning "Takeoff_Distance depreciated, please use BUNGEE_TAKEOFF_DISTANCE instead"
+#define BUNGEE_TAKEOFF_DISTANCE Takeoff_Distance
+#endif
+#ifdef Takeoff_Height
+#warning "Takeoff_Height depreciated, please use BUNGEE_TAKEOFF_HEIGHT instead"
+#define BUNGEE_TAKEOFF_HEIGHT Takeoff_Height
+#endif
+#ifdef Takeoff_Speed
+#warning "Takeoff_Speed depreciated, please use BUNGEE_TAKEOFF_AIRSPEED instead (beware that USE_AIRSPEED flag is needed)"
+#define BUNGEE_TAKEOFF_AIRSPEED Takeoff_Speed
+#endif
+#ifdef Takeoff_MinSpeed
+#warning "Takeoff_MinSpeed depreciated, please use BUNGEE_TAKEOFF_MIN_SPEED instead"
+#define BUNGEE_TAKEOFF_MIN_SPEED Takeoff_MinSpeed
+#endif
+
+
 #ifndef BUNGEE_TAKEOFF_DISTANCE
 #define BUNGEE_TAKEOFF_DISTANCE 10.0
 #endif
 #ifndef BUNGEE_TAKEOFF_HEIGHT
 #define BUNGEE_TAKEOFF_HEIGHT 30.0
 #endif
-#ifndef BUNGEE_TAKEOFF_SPEED
-#define BUNGEE_TAKEOFF_SPEED 15.0
+#if USE_AIRSPEED
+#ifndef BUNGEE_TAKEOFF_AIRSPEED
+#define BUNGEE_TAKEOFF_AIRSPEED 15.0
+#endif
+#else
+#ifdef BUNGEE_TAKEOFF_AIRSPEED
+#warning "BUNGEE_TAKEOFF_AIRSPEED is defined but not USE_AIRSPEED. Airspeed limit will not be used"
+#endif
 #endif
 #ifndef BUNGEE_TAKEOFF_MIN_SPEED
 #define BUNGEE_TAKEOFF_MIN_SPEED 5.0
@@ -88,23 +114,6 @@
 #else
 #define BUNGEE_TAKEOFF_PITCH RadOfDeg(15.)
 #endif
-#endif
-
-#ifdef Takeoff_Distance
-#warning "Takeoff_Distance depreciated, please use BUNGEE_TAKEOFF_DISTANCE instead"
-#define BUNGEE_TAKEOFF_DISTANCE Takeoff_Distance
-#endif
-#ifdef Takeoff_Height
-#warning "Takeoff_Height depreciated, please use BUNGEE_TAKEOFF_HEIGHT instead"
-#define BUNGEE_TAKEOFF_HEIGHT Takeoff_Height
-#endif
-#ifdef Takeoff_Speed
-#warning "Takeoff_Speed depreciated, please use BUNGEE_TAKEOFF_SPEED instead"
-#define BUNGEE_TAKEOFF_SPEED Takeoff_Speed
-#endif
-#ifdef Takeoff_MinSpeed
-#warning "Takeoff_MinSpeed depreciated, please use BUNGEE_TAKEOFF_MIN_SPEED instead"
-#define BUNGEE_TAKEOFF_MIN_SPEED Takeoff_MinSpeed
 #endif
 
 enum TakeoffStatus {
@@ -194,7 +203,10 @@ bool_t nav_bungee_takeoff_run(void)
       kill_throttle = 0;
 
       if ((stateGetPositionUtm_f()->alt > bungee_point.z + BUNGEE_TAKEOFF_HEIGHT)
-          && ((*stateGetHorizontalSpeedNorm_f()) > BUNGEE_TAKEOFF_SPEED)) {
+#if USE_AIRSPEED
+          && ((*stateGetAirspeed_f()) > BUNGEE_TAKEOFF_AIRSPEED)
+#endif
+          ) {
         CTakeoffStatus = Finished;
         return FALSE;
       } else {

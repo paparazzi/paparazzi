@@ -35,15 +35,16 @@
  * the prop will come on.
  * The plane will then continue to follow the line until it has reached a
  * specific height (defined in as BUNGEE_TAKEOFF_HEIGHT in airframe file) above
- * the bungee waypoint and speed (defined as BUNGEE_TAKEOFF_SPEED in the
- * airframe file).
+ * the bungee waypoint and airspeed (defined as BUNGEE_TAKEOFF_AIRSPEED in the
+ * airframe file). The airspeed limit is only used if USE_AIRSPEED flag is
+ * defined or set to true (and assuming the airspeed is then available).
  * It is also possible to specify the pitch angle (BUNGEE_TAKEOFF_PITCH) and
  * the throttle (BUNGEE_TAKEOFF_THROTTLE, between 0 and 1).
  *
  * @verbatim
  * <section name="BUNGEE" prefix="BUNGEE_TAKEOFF_">
  *   <define name="HEIGHT" value="30" unit="m"/>
- *   <define name="SPEED" value="15" unit="m/s"/>
+ *   <define name="AIRSPEED" value="15" unit="m/s"/>
  *   <define name="DISTANCE" value="10" unit="m"/>
  *   <define name="MIN_SPEED" value="5" unit="m/s"/>
  *   <define name="PITCH" value="15." unit="deg"/>
