@@ -90,7 +90,7 @@ float Velx, Vely;
 struct FloatVect3 V_body;
 
 // Called by plugin
-void my_plugin_init(unsigned int w, unsigned int h)
+void opticflow_plugin_init(unsigned int w, unsigned int h)
 {
   // Initialize variables
   imgWidth = w;
@@ -124,7 +124,7 @@ void my_plugin_init(unsigned int w, unsigned int h)
   Vely = 0.0;
 }
 
-void my_plugin_run(unsigned char *frame)
+void opticflow_plugin_run(unsigned char *frame)
 {
   if (old_img_init == 1) {
     memcpy(prev_frame, frame, imgHeight * imgWidth * 2);

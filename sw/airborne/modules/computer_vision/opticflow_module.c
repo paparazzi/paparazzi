@@ -154,7 +154,7 @@ void *computervision_thread_main(void *data)
 #endif
 
   // First Apply Settings before init
-  my_plugin_init(vid.w, vid.h);
+  opticflow_plugin_init(vid.w, vid.h);
 
   while (computer_vision_thread_command > 0) {
     video_grab_image(&vid, img_new);
@@ -166,7 +166,7 @@ void *computervision_thread_main(void *data)
     start_timer();
 
     // Run Image Processing
-    my_plugin_run(img_new->buf);
+    opticflow_plugin_run(img_new->buf);
 
 #ifdef DOWNLINK_VIDEO
     // JPEG encode the image:

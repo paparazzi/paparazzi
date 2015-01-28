@@ -38,7 +38,7 @@ extern struct FloatVect3 V_body;
  * @param w  image width
  * @param h  image height
  */
-void my_plugin_init(unsigned int w, unsigned int h);
-void my_plugin_run(unsigned char *frame);
+void opticflow_plugin_init(unsigned int w, unsigned int h);
+void opticflow_plugin_run(unsigned char *frame);
 
 #endif /* VISUAL_ESTIMATOR_H */
