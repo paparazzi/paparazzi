@@ -98,5 +98,13 @@ extern void nav_localize_global_wp(uint8_t wp_id);
 /** update local ENU coordinates of global waypoints */
 extern void nav_localize_global_waypoints(void);
 
+/** Get LLA coordinates of waypoint.
+ * If the waypoint does not have its global coordinates set,
+ * the LLA representation is computed if the local origin is set.
+ *
+ * @param  wp_id waypoint id
+ * @return pointer to waypoint LLA coordinates, NULL if invalid
+ */
+extern struct LlaCoor_i *nav_get_waypoint_lla(uint8_t wp_id);
 
 #endif /* WAYPOINTS_H */
