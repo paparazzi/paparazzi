@@ -1,39 +1,24 @@
 from __future__ import absolute_import, print_function
 
-import messages_xml_map
 from ivy.std_api import *
 import logging
-import time
 import os
+import sys
 import re
 
-class Message:
-    def __init__(self, class_name, name):
-        messages_xml_map.ParseMessages()
-        self.field_value = []
-        self.field_names = messages_xml_map.message_dictionary[class_name][name]
-        self.field_controls = []
-        self.index = None
-        self.last_seen = time.clock()
-        self.name = name
-
-class Aircraft:
-    def __init__(self, id):
-        self.ac_id = id
-        self.messages = {}
-        self.messages_book = None
 
 class IvyMessagesInterface():
-    def __init__(self, callback, initIvy = True):
+    def __init__(self, callback, init=True, verbose=True, bind_regex="(.*)"):
         self.callback = callback
         self.ivy_id = 0
-        self.InitIvy(initIvy)
+        self.verbose = verbose
+        self.init_ivy(init, bind_regex)
 
-    def Stop(self):
+    def stop(self):
         IvyUnBindMsg(self.ivy_id)
 
-    def Shutdown(self):
-        self.Stop()
+    def shutdown(self):
+        self.stop()
         IvyStop()
 
     def __init__del__(self):
@@ -42,14 +27,14 @@ class IvyMessagesInterface():
         except:
             pass
 
-    def InitIvy(self, initIvy):
-        if initIvy:
+    def init_ivy(self, init, bind_regex):
+        if init:
             IvyInit("Messages %i" % os.getpid(), "READY", 0, lambda x,y: y, lambda x,y: y)
             logging.getLogger('Ivy').setLevel(logging.WARN)
             IvyStart("")
-        self.ivy_id = IvyBindMsg(self.OnIvyMsg, "(.*)")
+        self.ivy_id = IvyBindMsg(self.on_ivy_msg, bind_regex)
 
-    def OnIvyMsg(self, agent, *larg):
+    def on_ivy_msg(self, agent, *larg):
         """ Split ivy message up into the separate parts
         Basically parts/args in string are separated by space, but char array can also contain a space:
         |f,o,o, ,b,a,r| in old format or "foo bar" in new format
@@ -65,20 +50,28 @@ class IvyMessagesInterface():
                 data += s.split(' ')
             else:
                 data.append(s)
-        try:
-            ac_id = int(data[0])
-            name = data[1]
+        # ignore ivy message with less than 3 elements
+        if len(data) < 3:
+            return
+
+        # check which message class it is
+        # pass non-telemetry messages with ac_id 0
+        if data[0] in ["ground", "ground_dl", "dl"]:
+            msg_class = data[0]
+            msg_name = data[1]
+            ac_id = 0
             values = list(filter(None, data[2:]))
-            self.callback(ac_id, name, values)
-        except ValueError:
-            pass
-        except:
-            raise
-
-def test():
-    message = Message("WHIRLY")
-    print(message)
-    print(message.field_names)
-
-if __name__ == '__main__':
-    test()
+        elif data[0] == "sim":
+            return
+        else:
+            try:
+                ac_id = int(data[0])
+            except ValueError:
+                if self.verbose:
+                    print("ignoring message " + ' '.join(data))
+                    sys.stdout.flush()
+                return
+            msg_class = "telemetry"
+            msg_name = data[1]
+            values = list(filter(None, data[2:]))
+        self.callback(msg_class, msg_name, ac_id, values)
