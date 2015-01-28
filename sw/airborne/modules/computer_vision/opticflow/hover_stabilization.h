@@ -46,7 +46,6 @@ extern void guidance_h_module_run(bool_t in_flight);
 
 void init_hover_stabilization_onvision(void);
 void run_hover_stabilization_onvision(void);
-void run_opticflow_hover(void);
 
 extern bool activate_opticflow_hover;
 extern float vision_desired_vx;

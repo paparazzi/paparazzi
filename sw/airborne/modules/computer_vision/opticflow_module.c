@@ -26,8 +26,10 @@
  */
 
 
-// Own header
 #include "opticflow_module.h"
+
+// Navigate Based On Vision, needed to call init/run_hover_stabilization_onvision
+#include "opticflow/hover_stabilization.h"
 
 // Paparazzi
 #include "state.h" // for attitude
@@ -37,10 +39,17 @@
 
 // Frame Rate (FPS)
 #include <sys/time.h>
-float FPS;
-volatile long timestamp;
+
 #define USEC_PER_SEC 1000000L
-long time_elapsed(struct timeval *t1, struct timeval *t2)
+
+float FPS;
+
+// local variables
+volatile long timestamp;
+struct timeval start_time;
+struct timeval end_time;
+
+static long time_elapsed(struct timeval *t1, struct timeval *t2)
 {
   long sec, usec;
   sec = t2->tv_sec - t1->tv_sec;
@@ -52,18 +61,17 @@ long time_elapsed(struct timeval *t1, struct timeval *t2)
   return sec * USEC_PER_SEC + usec;
 }
 
-struct timeval start_time;
-struct timeval end_time;
-
-void start_timer()
+static void start_timer(void)
 {
   gettimeofday(&start_time, NULL);
 }
-long end_timer()
+
+static long end_timer(void)
 {
   gettimeofday(&end_time, NULL);
   return time_elapsed(&start_time, &end_time);
 }
+
 
 void opticflow_module_init(void)
 {

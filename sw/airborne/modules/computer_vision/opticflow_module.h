@@ -30,9 +30,6 @@
 
 #include "std.h"
 
-// Navigate Based On Vision
-#include "opticflow/hover_stabilization.h"
-
 // Module functions
 extern void opticflow_module_init(void);
 extern void opticflow_module_run(void);
@@ -41,11 +38,7 @@ extern void opticflow_module_stop(void);
 
 extern void guidance_module_run(bool_t inflight);
 
-// Frame Rate
+/// Frame Rate
 extern float FPS;
-struct timeval;
-long time_elapsed(struct timeval *t1, struct timeval *t2);
-void start_timer(void);
-long end_timer(void);
 
 #endif /* OPTICFLOW_MODULE_H */

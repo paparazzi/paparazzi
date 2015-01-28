@@ -98,6 +98,8 @@ unsigned int set_heading;
 #define VISION_DESIRED_VY 0.
 #endif
 
+void run_opticflow_hover(void);
+
 void guidance_h_module_enter(void)
 {
   // INIT
