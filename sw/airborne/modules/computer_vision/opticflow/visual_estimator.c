@@ -40,6 +40,7 @@
 
 // Paparazzi Data
 #include "state.h"
+#include "subsystems/abi.h"
 
 // Downlink
 #include "subsystems/datalink/downlink.h"
@@ -88,6 +89,25 @@ float Velx, Vely;
 
 struct FloatVect3 V_body;
 
+/** height above ground level, from ABI
+ * Used for scale computation, negative value means invalid.
+ */
+volatile float estimator_agl;
+
+/** default sonar/agl to use in opticflow visual_estimator */
+#ifndef OPTICFLOW_AGL_ID
+#define OPTICFLOW_AGL_ID ABI_BROADCAST
+#endif
+abi_event agl_ev;
+static void agl_cb(uint8_t sender_id, const float *distance);
+
+static void agl_cb(uint8_t sender_id __attribute__((unused)), const float *distance)
+{
+  if (distance > 0) {
+    estimator_agl = *distance;
+  }
+}
+
 // Called by plugin
 void opticflow_plugin_init(unsigned int w, unsigned int h)
 {
@@ -121,6 +141,10 @@ void opticflow_plugin_init(unsigned int w, unsigned int h)
   OFy_trans = 0.0;
   Velx = 0.0;
   Vely = 0.0;
+
+  // get AGL from sonar via ABI
+  estimator_agl = -1.0;
+  AbiBindMsgAGL(OPTICFLOW_AGL_ID, &agl_ev, agl_cb);
 }
 
 void opticflow_plugin_run(unsigned char *frame)
@@ -275,11 +299,12 @@ void opticflow_plugin_run(unsigned char *frame)
   OFfilter(&OFx, &OFy, OFx_trans, OFy_trans, flow_count, 1);
 
   // Velocity Computation
-#if USE_SONAR
-  cam_h = 1; //ins_impl.sonar_z;
-#else
-  cam_h = 1;
-#endif
+  if (estimator_agl < 0) {
+    cam_h = 1;
+  }
+  else {
+    cam_h = estimator_agl;
+  }
 
   if (flow_count) {
     Velx = OFy * cam_h * FPS / Fy_ARdrone + 0.05;
