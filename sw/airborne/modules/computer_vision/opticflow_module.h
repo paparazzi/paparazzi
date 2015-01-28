@@ -36,8 +36,6 @@ extern void opticflow_module_run(void);
 extern void opticflow_module_start(void);
 extern void opticflow_module_stop(void);
 
-extern void guidance_module_run(bool_t inflight);
-
 /// Frame Rate
 extern float FPS;
 
