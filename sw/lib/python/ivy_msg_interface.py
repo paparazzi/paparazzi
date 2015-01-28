@@ -54,11 +54,13 @@ class IvyMessagesInterface():
         if len(data) < 3:
             return
 
+        # check which message class it is
+        # pass non-telemetry messages with ac_id 0
         if data[0] in ["ground", "ground_dl", "dl"]:
             msg_class = data[0]
             msg_name = data[1]
-            ac_id = int(data[2])
-            values = list(filter(None, data[3:]))
+            ac_id = 0
+            values = list(filter(None, data[2:]))
         elif data[0] == "sim":
             return
         else:
@@ -66,7 +68,7 @@ class IvyMessagesInterface():
                 ac_id = int(data[0])
             except ValueError:
                 if self.verbose:
-                    print("ignoring message %s" % data[1])
+                    print("ignoring message " + ' '.join(data))
                     sys.stdout.flush()
                 return
             msg_class = "telemetry"
