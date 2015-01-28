@@ -34,11 +34,12 @@
 // Computer Vision
 #include "opticflow/optic_flow_int.h"
 #include "opticflow/fast9/fastRosten.h"
+
+// for FPS
 #include "modules/computer_vision/opticflow_module.h"
 
 // Paparazzi Data
-#include "subsystems/ins/ins_int.h"
-#include "subsystems/imu.h"
+#include "state.h"
 
 // Downlink
 #include "subsystems/datalink/downlink.h"
@@ -274,7 +275,7 @@ void my_plugin_run(unsigned char *frame)
   OFfilter(&OFx, &OFy, OFx_trans, OFy_trans, flow_count, 1);
 
   // Velocity Computation
-#ifdef USE_SONAR
+#if USE_SONAR
   cam_h = 1; //ins_impl.sonar_z;
 #else
   cam_h = 1;

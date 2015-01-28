@@ -31,7 +31,6 @@
 
 // Paparazzi
 #include "state.h" // for attitude
-#include "boards/ardrone/navdata.h" // for ultrasound Height
 
 // Threaded computer vision
 #include <pthread.h>
