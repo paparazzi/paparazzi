@@ -86,7 +86,6 @@ float cam_h, diff_roll, diff_pitch, OFx_trans, OFy_trans;
 // Lateral Velocity Computation
 float Velx, Vely;
 
-// Compute body velocities
 struct FloatVect3 V_body;
 
 // Called by plugin
@@ -132,23 +131,24 @@ void opticflow_plugin_run(unsigned char *frame)
     old_img_init = 0;
   }
 
-  // ***********************************************************************************************************************
+  // *************************************************************************************
   // Additional information from other sensors
-  // ***********************************************************************************************************************
+  // *************************************************************************************
 
   // Compute body velocities from ENU
   struct FloatVect3 *vel_ned = (struct FloatVect3*)stateGetSpeedNed_f();
   struct FloatQuat *q_n2b = stateGetNedToBodyQuat_f();
   float_quat_vmult(&V_body, q_n2b, vel_ned);
 
-  // ***********************************************************************************************************************
+  // *************************************************************************************
   // Corner detection
-  // ***********************************************************************************************************************
+  // *************************************************************************************
 
   // FAST corner detection
   int fast_threshold = 20;
   xyFAST *pnts_fast;
-  pnts_fast = fast9_detect((const byte *)prev_gray_frame, imgWidth, imgHeight, imgWidth, fast_threshold, &count);
+  pnts_fast = fast9_detect((const byte *)prev_gray_frame, imgWidth, imgHeight, imgWidth,
+                           fast_threshold, &count);
 
   if (count > MAX_COUNT) { count = MAX_COUNT; }
   for (int i = 0; i < count; i++) {
@@ -193,13 +193,13 @@ void opticflow_plugin_run(unsigned char *frame)
   count = count_fil;
   free(labelmin);
 
-  // **********************************************************************************************************************
+  // *************************************************************************************
   // Corner Tracking
-  // **********************************************************************************************************************
+  // *************************************************************************************
   CvtYUYV2Gray(gray_frame, frame, imgWidth, imgHeight);
 
-  error_opticflow = opticFlowLK(gray_frame, prev_gray_frame, x, y, count_fil, imgWidth, imgHeight, new_x, new_y, status,
-                                5, 100);
+  error_opticflow = opticFlowLK(gray_frame, prev_gray_frame, x, y, count_fil, imgWidth,
+                                imgHeight, new_x, new_y, status, 5, 100);
 
   flow_count = count_fil;
   for (int i = count_fil - 1; i >= 0; i--) {
@@ -289,17 +289,18 @@ void opticflow_plugin_run(unsigned char *frame)
     Vely = 0.0;
   }
 
-  // **********************************************************************************************************************
+  // *************************************************************************************
   // Next Loop Preparation
-  // **********************************************************************************************************************
+  // *************************************************************************************
 
   memcpy(prev_frame, frame, imgHeight * imgWidth * 2);
   memcpy(prev_gray_frame, gray_frame, imgHeight * imgWidth);
 
-  // **********************************************************************************************************************
+  // *************************************************************************************
   // Downlink Message
-  // **********************************************************************************************************************
-  DOWNLINK_SEND_OF_HOVER(DefaultChannel, DefaultDevice, &FPS, &dx_sum, &dy_sum, &OFx, &OFy, &diff_roll, &diff_pitch,
-                         &Velx, &Vely, &V_body.x, &V_body.y, &cam_h, &count);
+  // *************************************************************************************
+  DOWNLINK_SEND_OF_HOVER(DefaultChannel, DefaultDevice, &FPS, &dx_sum, &dy_sum, &OFx, &OFy,
+                         &diff_roll, &diff_pitch, &Velx, &Vely, &V_body.x, &V_body.y,
+                         &cam_h, &count);
 }
 
