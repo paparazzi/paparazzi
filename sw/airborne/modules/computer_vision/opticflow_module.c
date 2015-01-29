@@ -31,9 +31,6 @@
 // Navigate Based On Vision, needed to call init/run_hover_stabilization_onvision
 #include "opticflow/hover_stabilization.h"
 
-// Paparazzi
-#include "state.h" // for attitude
-
 // Threaded computer vision
 #include <pthread.h>
 

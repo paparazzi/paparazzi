@@ -22,7 +22,8 @@
  * @file modules/computer_vision/opticflow/hover_stabilization.c
  * @brief optical-flow based hovering for Parrot AR.Drone 2.0
  *
- * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
+ * Control loops for optic flow based hovering.
+ * Computes setpoint for the lower level attitude stabilization to control horizontal velocity.
  */
 
 // Own Header
@@ -195,6 +196,6 @@ void run_opticflow_hover(void)
   else if (cmd_euler.theta > CMD_OF_SAT) {cmd_euler.theta = CMD_OF_SAT; saturateY = 1;}
 
   stabilization_attitude_set_rpy_setpoint_i(&cmd_euler);
-  DOWNLINK_SEND_VISION_STABILIZATION(DefaultChannel, DefaultDevice, &Velx, &Vely, &Velx_Int, &Vely_Int, &cmd_euler.phi,
-                                     &cmd_euler.theta);
+  DOWNLINK_SEND_VISION_STABILIZATION(DefaultChannel, DefaultDevice, &Velx, &Vely, &Velx_Int,
+                                     &Vely_Int, &cmd_euler.phi, &cmd_euler.theta);
 }
