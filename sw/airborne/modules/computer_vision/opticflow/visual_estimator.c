@@ -103,7 +103,7 @@ static void agl_cb(uint8_t sender_id, const float *distance);
 
 static void agl_cb(uint8_t sender_id __attribute__((unused)), const float *distance)
 {
-  if (distance > 0) {
+  if (*distance > 0) {
     estimator_agl = *distance;
   }
 }
