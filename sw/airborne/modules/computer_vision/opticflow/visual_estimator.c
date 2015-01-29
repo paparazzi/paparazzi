@@ -81,7 +81,7 @@ float distance2, min_distance, min_distance2;
 
 // Flow Derotation
 #define FLOW_DEROTATION
-float curr_pitch, curr_roll, curr_yaw, prev_pitch, prev_roll;
+float curr_pitch, curr_roll, prev_pitch, prev_roll;
 float cam_h, diff_roll, diff_pitch, OFx_trans, OFy_trans;
 
 // Lateral Velocity Computation
@@ -136,7 +136,6 @@ void opticflow_plugin_init(unsigned int w, unsigned int h)
   prev_roll = 0.0;
   curr_pitch = 0.0;
   curr_roll = 0.0;
-  curr_yaw = 0.0;
   OFx_trans = 0.0;
   OFy_trans = 0.0;
   Velx = 0.0;
@@ -157,6 +156,7 @@ void opticflow_plugin_run(unsigned char *frame)
 
   // *************************************************************************************
   // Additional information from other sensors
+  // !!WARNING!! Accessing of the state interface is NOT tread safe!!!
   // *************************************************************************************
 
   // Compute body velocities from ENU
@@ -269,7 +269,6 @@ void opticflow_plugin_run(unsigned char *frame)
   // Flow Derotation
   curr_pitch = stateGetNedToBodyEulers_f()->theta;
   curr_roll = stateGetNedToBodyEulers_f()->phi;
-  curr_yaw = stateGetNedToBodyEulers_f()->psi;
 
   diff_pitch = (curr_pitch - prev_pitch) * imgHeight / FOV_H;
   diff_roll = (curr_roll - prev_roll) * imgWidth / FOV_W;
