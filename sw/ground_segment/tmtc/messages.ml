@@ -41,7 +41,7 @@ let values_of_field = fun field ->
       _ -> [||]
 
 (** Display one page for a message *)
-let one_page = fun sender class_name (notebook:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) bind m ->
+let one_page = fun sender class_name (notebook:GPack.notebook) (topnote:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) bind m ->
   let id = (Xml.attrib m "name") in
   let h = GPack.hbox () in
   h#misc#set_property "name" (`STRING (Some id));
@@ -107,12 +107,12 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (help_label:GObj.
 
           (* hide notebook and display help during drag *)
           let begin_drag = fun _ ->
-            notebook#coerce#misc#hide ();
+            topnote#coerce#misc#hide ();
             help_label#misc#show ();
             window#resize ~width:300 ~height:50
           in
           ignore (field_label#drag#connect#beginning ~callback:begin_drag);
-          ignore (field_label#drag#connect#ending ~callback:(fun _ -> notebook#coerce#misc#show (); help_label#misc#hide ()));
+          ignore (field_label#drag#connect#ending ~callback:(fun _ -> topnote#coerce#misc#show (); help_label#misc#hide ()));
 
           (update, display_value)::rest
         with
@@ -197,7 +197,7 @@ let rec one_class = fun (notebook:GPack.notebook) (help_label:GObj.widget) (wind
 
       (** Forall messages in the class *)
       let messages = list_sort (fun x -> Xml.attrib x "name") messages in
-      List.iter (fun m -> ignore (one_page sender_name class_name class_notebook help_label window bind m)) messages
+      List.iter (fun m -> ignore (one_page sender_name class_name class_notebook notebook help_label window bind m)) messages
 
 
 
