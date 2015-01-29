@@ -12,7 +12,7 @@
     <waypoint name="p2" x="27.5" y="-48.2"/>
     <waypoint name="p3" x="16.7" y="-19.6"/>
     <waypoint name="p4" x="13.7" y="-40.7"/>
-    <waypoint name="CAM" lat="43.5636661" lon="1.4810443" height="2."/>
+    <waypoint name="CAM" x="-20" y="-50" height="2."/>
     <waypoint name="TD" x="5.6" y="-10.9"/>
   </waypoints>
   <blocks>
