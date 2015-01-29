@@ -48,9 +48,6 @@
 #include "messages.h"
 #include "mcu_periph/uart.h"
 
-const uint8_t nb_waypoint = NB_WAYPOINT;
-struct EnuCoor_i waypoints[NB_WAYPOINT];
-
 struct EnuCoor_i navigation_target;
 struct EnuCoor_i navigation_carrot;
 
@@ -136,30 +133,23 @@ static void send_wp_moved(struct transport_tx *trans, struct link_device *dev)
   if (i >= nb_waypoint) { i = 0; }
   pprz_msg_send_WP_MOVED_ENU(trans, dev, AC_ID,
                              &i,
-                             &(waypoints[i].x),
-                             &(waypoints[i].y),
-                             &(waypoints[i].z));
+                             &(waypoints[i].enu_i.x),
+                             &(waypoints[i].enu_i.y),
+                             &(waypoints[i].enu_i.z));
 }
 #endif
 
 void nav_init(void)
 {
-  // convert to
-  const struct EnuCoor_f wp_tmp_float[NB_WAYPOINT] = WAYPOINTS_ENU;
-  // init int32 waypoints
-  uint8_t i = 0;
-  for (i = 0; i < nb_waypoint; i++) {
-    waypoints[i].x = POS_BFP_OF_REAL(wp_tmp_float[i].x);
-    waypoints[i].y = POS_BFP_OF_REAL(wp_tmp_float[i].y);
-    waypoints[i].z = POS_BFP_OF_REAL(wp_tmp_float[i].z);
-  }
+  waypoints_init();
+
   nav_block = 0;
   nav_stage = 0;
   nav_altitude = POS_BFP_OF_REAL(SECURITY_HEIGHT);
   nav_flight_altitude = nav_altitude;
   flight_altitude = SECURITY_ALT;
-  VECT3_COPY(navigation_target, waypoints[WP_HOME]);
-  VECT3_COPY(navigation_carrot, waypoints[WP_HOME]);
+  VECT3_COPY(navigation_target, waypoints[WP_HOME].enu_i);
+  VECT3_COPY(navigation_carrot, waypoints[WP_HOME].enu_i);
 
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
   vertical_mode = VERTICAL_MODE_ALT;
@@ -383,12 +373,15 @@ static inline void nav_set_altitude(void)
 unit_t nav_reset_reference(void)
 {
   ins_reset_local_origin();
+  /* update local ENU coordinates of global waypoints */
+  nav_localize_global_waypoints();
   return 0;
 }
 
 unit_t nav_reset_alt(void)
 {
   ins_reset_altitude_ref();
+  nav_localize_global_waypoints();
   return 0;
 }
 
@@ -414,28 +407,6 @@ void nav_periodic_task(void)
   nav_run();
 }
 
-void nav_move_waypoint_lla(uint8_t wp_id, struct LlaCoor_i *new_lla_pos)
-{
-  if (stateIsLocalCoordinateValid()) {
-    struct EnuCoor_i enu;
-    enu_of_lla_point_i(&enu, &state.ned_origin_i, new_lla_pos);
-    // convert ENU pos from cm to BFP with INT32_POS_FRAC
-    enu.x = POS_BFP_OF_REAL(enu.x) / 100;
-    enu.y = POS_BFP_OF_REAL(enu.y) / 100;
-    enu.z = POS_BFP_OF_REAL(enu.z) / 100;
-    nav_move_waypoint(wp_id, &enu);
-  }
-}
-
-void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i *new_pos)
-{
-  if (wp_id < nb_waypoint) {
-    VECT3_COPY(waypoints[wp_id], (*new_pos));
-    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(new_pos->x),
-                               &(new_pos->y), &(new_pos->z));
-  }
-}
-
 void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int16_t heading_rate_sp)
 {
   //  MY_ASSERT(wp < nb_waypoint); FIXME
@@ -446,16 +417,18 @@ void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int
   struct Int32Vect3 delta_pos;
   VECT3_SDIV(delta_pos, speed_sp, NAV_FREQ); /* fixme :make sure the division is really a >> */
   INT32_VECT3_RSHIFT(delta_pos, delta_pos, (INT32_SPEED_FRAC - INT32_POS_FRAC));
-  waypoints[wp].x += (s_heading * delta_pos.x + c_heading * delta_pos.y) >> INT32_TRIG_FRAC;
-  waypoints[wp].y += (c_heading * delta_pos.x - s_heading * delta_pos.y) >> INT32_TRIG_FRAC;
-  waypoints[wp].z += delta_pos.z;
+  waypoints[wp].enu_i.x += (s_heading * delta_pos.x + c_heading * delta_pos.y) >> INT32_TRIG_FRAC;
+  waypoints[wp].enu_i.y += (c_heading * delta_pos.x - s_heading * delta_pos.y) >> INT32_TRIG_FRAC;
+  waypoints[wp].enu_i.z += delta_pos.z;
   int32_t delta_heading = heading_rate_sp / NAV_FREQ;
   delta_heading = delta_heading >> (INT32_SPEED_FRAC - INT32_POS_FRAC);
   nav_heading += delta_heading;
 
   INT32_COURSE_NORMALIZE(nav_heading);
-  RunOnceEvery(10, DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp, &(waypoints[wp].x), &(waypoints[wp].y),
-               &(waypoints[wp].z)));
+  RunOnceEvery(10, DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp,
+                                              &(waypoints[wp].enu_i.x),
+                                              &(waypoints[wp].enu_i.y),
+                                              &(waypoints[wp].enu_i.z)));
 }
 
 bool_t nav_detect_ground(void)
@@ -474,10 +447,10 @@ bool_t nav_is_in_flight(void)
 void nav_home(void)
 {
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
-  VECT3_COPY(navigation_target, waypoints[WP_HOME]);
+  VECT3_COPY(navigation_target, waypoints[WP_HOME].enu_i);
 
   vertical_mode = VERTICAL_MODE_ALT;
-  nav_altitude = waypoints[WP_HOME].z;
+  nav_altitude = waypoints[WP_HOME].enu_i.z;
   nav_flight_altitude = nav_altitude;
 
   dist2_to_wp = dist2_to_home;
@@ -499,7 +472,7 @@ float get_dist2_to_point(struct EnuCoor_i *p)
 /** Returns squared horizontal distance to given waypoint */
 float get_dist2_to_waypoint(uint8_t wp_id)
 {
-  return get_dist2_to_point(&waypoints[wp_id]);
+  return get_dist2_to_point(&waypoints[wp_id].enu_i);
 }
 
 /** Computes squared distance to the HOME waypoint potentially sets
