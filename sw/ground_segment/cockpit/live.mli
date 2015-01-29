@@ -75,8 +75,8 @@ val track_size : int ref
 val auto_hide_fp : bool -> unit
 (** Automatically hide flight plan of not selected ac *)
 
-val listen_acs_and_msgs : MapCanvas.widget -> GPack.notebook -> Pages.alert -> bool -> Gtk_tools.pixmap_in_drawin_area -> unit
-(** [listen_acs_and_msgs geomap aircraft_notebook alert_page auto_center_new_ac alt_graph] *)
+val listen_acs_and_msgs : MapCanvas.widget -> GPack.notebook -> Pages.alert -> bool -> Gtk_tools.pixmap_in_drawin_area -> bool -> unit
+(** [listen_acs_and_msgs geomap aircraft_notebook alert_page auto_center_new_ac alt_graph timestamp] *)
 
 val jump_to_block : string -> int -> unit
 (** [jump_to_block ac_id block_id] Sends a JUMP_TO_BLOCK message *)
