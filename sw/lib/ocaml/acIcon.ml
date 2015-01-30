@@ -62,6 +62,32 @@ let icon_rotorcraft_template = {
   width = 2
 }
 
+let icon_quadrotor_template = {
+  lines = [];
+  ellipse = [
+    [| -8.; -8.; 8.;  8.|];      (** Center Ring **)
+    [|  8.; -5.;  18.;   5.|];
+    [| -8.; -5.; -18.;   5.|];
+    [| -5.;  8.;   5.;  18.|];
+    [| -5.; -8.;   5.; -18.|];
+  ];
+  width = 1
+}
+
+let icon_hexarotor_template = {
+  lines = [];
+  ellipse = [
+    [| -8.; -8.; 8.;  8.|];      (** Center Ring **)
+    [|  8.; -2.;  18.;   8.|];
+    [| -8.; -8.; -18.;   2.|];
+    [| -2.;  8.;   8.;  18.|];
+    [| -8.; -8.;   2.; -18.|];
+    [|  5.; -5.;  15.; -15.|];
+    [| -5.;  5.; -15.;  15.|];
+  ];
+  width = 1
+}
+
 let icon_home_template = {
   lines = [
     [| -9.; -9.; -9.; 9.; 9.; 9.; 9.; -9.|];
