@@ -41,5 +41,8 @@ struct pprzlog_transport {
 
 extern struct pprzlog_transport pprzlog_tp;
 
+// Init function
+extern void pprzlog_transport_init(void);
+
 #endif
 
