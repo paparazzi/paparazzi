@@ -170,7 +170,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (topnote:GPack.no
   in
   bind id display
 
-let rec one_class = fun (notebook:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) timestamp (ident, xml_class, sender) ->
+let rec one_class = fun (notebook:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) timestamp force (ident, xml_class, sender) ->
   let class_name = (Xml.attrib xml_class "name") in
   let messages = Xml.children xml_class in
   let module P = Pprz.Messages (struct let name = class_name end) in
@@ -181,11 +181,12 @@ let rec one_class = fun (notebook:GPack.notebook) (help_label:GObj.widget) (wind
       let get_one = fun sender _vs ->
         if not (Hashtbl.mem senders sender) then begin
           Hashtbl.add senders sender ();
-          one_class notebook help_label window timestamp (ident,  xml_class, Some sender)
+          one_class notebook help_label window timestamp force (ident,  xml_class, Some sender)
         end in
-      List.iter
-        (fun m -> ignore (P.message_bind ~timestamp (Xml.attrib m "name") get_one))
-        messages
+      if force || not (class_name = "telemetry") then (* bind to all messages in class *)
+        List.iter (fun m -> ignore (P.message_bind ~timestamp (Xml.attrib m "name") get_one)) messages
+      else (* if telemetry and not forces, only wait for ALIVE message *)
+        ignore (P.message_bind ~timestamp "ALIVE" get_one)
     | _ ->
       let class_notebook = GPack.notebook ~tab_border:0 ~tab_pos:`LEFT () in
       let l = match sender with None -> "" | Some s -> ":"^s in
@@ -194,7 +195,7 @@ let rec one_class = fun (notebook:GPack.notebook) (help_label:GObj.widget) (wind
       let bind, sender_name = match sender with
           None -> (fun m cb -> (P.message_bind ~timestamp m cb)), "*"
         | Some sender -> (fun m cb -> (P.message_bind ~sender ~timestamp m cb)), sender in
-
+      
       (** Forall messages in the class *)
       let messages = list_sort (fun x -> Xml.attrib x "name") messages in
       List.iter (fun m -> ignore (one_page sender_name class_name class_notebook notebook help_label window bind m)) messages
@@ -207,10 +208,12 @@ let _ =
   let ivy_bus = ref Defivybus.default_ivy_bus in
   let classes = ref ["telemetry:*"] in
   let timestamp = ref false in
+  let force = ref false in
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-c",  Arg.String (fun x -> classes := x :: !classes), "class name";
-      "-timestamp", Arg.Set timestamp, "Bind to timestampped messages" ]
+      "-timestamp", Arg.Set timestamp, "Bind to timestampped messages";
+      "-force", Arg.Set force, "Force waiting on all messages, not only ALIVE for telemetry class (increase network load)" ]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
     "Usage: ";
 
@@ -245,7 +248,7 @@ let _ =
       !classes in
 
   (* Insert the message classes in the notebook *)
-  List.iter (one_class notebook help_label#coerce window !timestamp) xml_classes;
+  List.iter (one_class notebook help_label#coerce window !timestamp !force) xml_classes;
 
   (** Start the main loop *)
   window#show ();
