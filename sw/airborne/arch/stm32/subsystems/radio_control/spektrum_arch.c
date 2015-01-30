@@ -47,7 +47,7 @@
 #define ONE_MHZ 1000000
 
 /* Number of low pulses sent to satellite receivers */
-#define MASTER_RECEIVER_PULSES 5
+#define MASTER_RECEIVER_PULSES 4     // RAB : Changed from 5 to 4 to enable the R100 satellite rx to bind successfully
 #define SLAVE_RECEIVER_PULSES 6
 
 #define TIM_TICS_FOR_100us 100

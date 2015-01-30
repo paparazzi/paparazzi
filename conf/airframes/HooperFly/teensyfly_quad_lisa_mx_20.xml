@@ -20,8 +20,9 @@
     </target>
 
     <subsystem name="radio_control" type="spektrum">
-      <define name="RADIO_MODE" value="RADIO_AUX1"/>
-      <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+      <define name="RADIO_MODE"        value="RADIO_FLAP"/>
+      <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+      <!-- <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/> -->
     </subsystem>
 
     <subsystem name="motor_mixing"/>
@@ -40,6 +41,7 @@
   </firmware>
 
   <modules>
+    <load name="send_imu_mag_current.xml"/>
     <load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
       <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
@@ -47,13 +49,14 @@
     <load name="gps_ubx_ucenter.xml"/>
     <load name="geo_mag.xml"/>
     <load name="air_data.xml"/>
+    <load name="nav_survey_rectangle_rotorcraft.xml"/>    
   </modules>
 
   <servos driver="Pwm">
     <servo name="FRONT_LEFT"  no="0" min="1000" neutral="1100" max="1900"/>
     <servo name="FRONT_RIGHT" no="1" min="1000" neutral="1100" max="1900"/>
-    <servo name="BACK_RIGHT"  no="3" min="1000" neutral="1100" max="1900"/>
-    <servo name="BACK_LEFT"   no="4" min="1000" neutral="1100" max="1900"/>
+    <servo name="BACK_RIGHT"  no="2" min="1000" neutral="1100" max="1900"/>
+    <servo name="BACK_LEFT"   no="3" min="1000" neutral="1100" max="1900"/>
   </servos>
 
   <commands>
@@ -85,17 +88,20 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="ACCEL_X_NEUTRAL" value="11"/>
-    <define name="ACCEL_Y_NEUTRAL" value="11"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-25"/>
+    <define name="ACCEL_X_NEUTRAL" value="36"/>
+    <define name="ACCEL_Y_NEUTRAL" value="15"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-108"/>
+    <define name="ACCEL_X_SENS" value="4.86727226621" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.87315360311" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.85264051322" integer="16"/>
 
     <!-- replace this with your own calibration -->
-    <define name="MAG_X_NEUTRAL" value="-179"/>
-    <define name="MAG_Y_NEUTRAL" value="-21"/>
-    <define name="MAG_Z_NEUTRAL" value="79"/>
-    <define name="MAG_X_SENS" value="4.17334785618" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.98885954135" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.40442339014" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="262"/>
+    <define name="MAG_Y_NEUTRAL" value="-108"/>
+    <define name="MAG_Z_NEUTRAL" value="43"/>
+    <define name="MAG_X_SENS" value="3.26330433172" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.22600231318" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.76287398848" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -161,16 +167,16 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="1000"/>
-    <define name="PHI_DGAIN"  value="400"/>
+    <define name="PHI_PGAIN"  value="500"/>
+    <define name="PHI_DGAIN"  value="200"/>
     <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="1000"/>
-    <define name="THETA_DGAIN"  value="400"/>
+    <define name="THETA_PGAIN"  value="500"/>
+    <define name="THETA_DGAIN"  value="200"/>
     <define name="THETA_IGAIN"  value="200"/>
 
-    <define name="PSI_PGAIN"  value="500"/>
-    <define name="PSI_DGAIN"  value="300"/>
+    <define name="PSI_PGAIN"  value="1350"/>
+    <define name="PSI_DGAIN"  value="500"/>
     <define name="PSI_IGAIN"  value="10"/>
 
     <!-- feedforward -->
@@ -205,9 +211,11 @@
   </section>
 
   <section name="AUTOPILOT">
+<!-- TOGGLE STATES -->
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1"  value="AP_MODE_HOVER_Z_HOLD"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+    <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
   </section>
 
   <section name="BAT">
