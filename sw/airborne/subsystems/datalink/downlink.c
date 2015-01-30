@@ -75,6 +75,10 @@ void downlink_init(void)
 #endif
 #endif
 
+#if USE_PPRZLOG
+  pprzlog_transport_init();
+#endif
+
 #if SITL
   ivy_transport_init();
 #endif
