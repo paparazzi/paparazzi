@@ -61,9 +61,12 @@ class track = fun ?(name="Noname") ?(icon="fixedwing") ?(size = 500) ?(color="re
   let aircraft = GnoCanvas.group group
   and track = GnoCanvas.group group in
   let icon_template = match icon with
-  | "home" -> ACI.icon_home_template
-  | "rotorcraft" -> ACI.icon_rotorcraft_template
-  | "flyingwing" -> ACI.icon_flyingwing_template
+  | "home"          -> ACI.icon_home_template
+  | "rotorcraft"    -> ACI.icon_rotorcraft_template
+  | "quadrotor"     -> ACI.icon_quadrotor_template
+  | "hexarotor"     -> ACI.icon_hexarotor_template
+  | "octorotor"     -> ACI.icon_octorotor_template
+  | "flyingwing"    -> ACI.icon_flyingwing_template
   | "fixedwing" | _ -> ACI.icon_fixedwing_template
   in
   let _ac_icon = new ACI.widget ~color ~icon_template aircraft in
