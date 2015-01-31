@@ -51,7 +51,7 @@ ground_subscriber.on("pmessage", function( subscription, channel, data ) {
     var ac_id = data.split(" ")[0];
     var msgname = channel.split(".")[1];
 
-    // console.log( "sending " + msgname + " about ac_id " + ac_id + ". data: " + data );
+    //console.log( "sending " + msgname + " about ac_id " + ac_id + ". data: " + data );
 
     io.sockets.in( ac_id ).emit( msgname, data );
 });

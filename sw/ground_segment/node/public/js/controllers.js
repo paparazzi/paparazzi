@@ -19,6 +19,9 @@ angular.module('pprzmon.controllers', [])
         var lat = parseFloat( elems[ 4 ] );
         var lon = parseFloat( elems[ 5 ] );
 
+        $log.log( lat );
+        $log.log( lon );
+
         var sw = $scope.map.bounds.getSouthWest();
         var ne = $scope.map.bounds.getNorthEast();
         if (( lat < sw.lat() ) || ( lat > ne.lat() ) || ( lon < sw.lng() ) || ( lon > ne.lng() ) ) {
