@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+    - "0.10"
+before_script: PATH="$(npm bin):$PATH" npm install
+script: grunt
+branches:
+  only:
+    - master
+    - develop
+    - legacy
+    - gh-pages-new2

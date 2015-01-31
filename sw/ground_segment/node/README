@@ -1,0 +1,23 @@
+INSTALLATION:
+=============
+
+This example depends on redis, which acts as the message bus.
+
+First install npm, then type npm install here to install the dependent libraries. Those are not saved to the repo.
+
+RUNNING:
+========
+You can start up paparazzi as usual and run a simulator or connect a real uav.
+
+Then start the "ivy-to-redis" script, which will forward messages on the ivy bus to redis.
+
+This example is pretty minimal, but comes with software like angular, which is useful to
+expand the example pretty easily into a full-blown application.
+
+The browser is intended as a monitor application. It does not yet allow the user to execute
+commands. 
+
+When the app in the browser starts up, it asks for the ac_id to monitor. This is because it doesn't yet
+implement any functionality to receive the aircraft messages and to dynamically adjust a UI to select
+which ac to monitor. Just type the ac_id in that box and the rest should come up.
+

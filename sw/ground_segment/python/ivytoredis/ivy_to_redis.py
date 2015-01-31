@@ -35,8 +35,8 @@ class Ivy2RedisServer():
         if self.verbose:
             print("received message, key=%s, values=%s" % (key, ' '.join(values)))
             sys.stdout.flush()
-        self.r.publish(key, values)
-        self.r.set(key, values)
+        self.r.publish(key, ' '.join(values))
+        self.r.set(key, ' '.join(values))
 
     def run(self):
         while self.keep_running:

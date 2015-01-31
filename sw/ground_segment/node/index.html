@@ -1,0 +1,60 @@
+<!--[if lt IE 7]>      <html lang="en" ng-app="pprzmon" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="pprzmon" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="pprzmon" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="pprzmon" class="no-js"> <!--<![endif]-->
+<html ng-app="pprzmon">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Paparazzi Monitor</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="bower_components/html5-boilerplate/css/normalize.css">
+  <link rel="stylesheet" href="bower_components/html5-boilerplate/css/main.css">
+  <link rel="stylesheet" href="css/app.css"/>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCunX8ZrWdSaLERm1H-NIdOoS58P4FkUOY">
+    </script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular-cookies.js"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" />
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src='js/lodash.min.js'></script>
+    <script src='js/angular-google-maps.min.js'></script>
+    <script src="js/ui-bootstrap-tpls-0.11.0.min.js"></script>
+    <script src="js/ngStorage.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="bower_components/angular-socket-io/socket.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/filters.js"></script>
+    <script src="js/directives.js"></script>
+</head>
+<script>
+
+
+
+</script>
+  <body ng-controller="MainController">
+    <ui-gmap-google-map center="map.center" zoom="map.zoom" draggable="true" events="map.events" latitude="map.lat", longitude="map.lng" pan="map.panning">
+         <ui-gmap-marker coords="uavMarker.coords" options="uavMarker.options" events="uavMarker.events" idKey="uavMarker.id" icon="uavMarker.icon">
+        </ui-gmap-marker>
+    </ui-gmap-google-map>
+</body>
+</html>
+<!--
+<div style="width:1000px;height:100px;padding:10px;overflow:scroll-y;">
+	<b>Position</b><div id="pos"></div>
+</div>
+<div style="width:1000px;height:100px;padding:10px;overflow:scroll-y;">
+	<b>Engine status</b><div id="engine"></div>
+</div>
+<div style="width:1000px;height:100px;padding:10px;overflow:scroll-y;">
+	<b>AP status</b><div id="ap"></div>
+</div>
+<div style="width:1000px;height:100px;padding:10px;overflow:scroll-y;">
+	<b>Telemetry status</b><div id="telemetry"></div>
+</div>
+-->
+
