@@ -622,14 +622,17 @@ let register_aircraft = fun name a ->
 
 
 (** Identifying message from an A/C *)
-let ident_msg = fun log name vs ->
+let ident_msg = fun log timestamp name vs ->
   try
     if not (Hashtbl.mem aircrafts name) &&
       not (Hashtbl.mem unknown_aircrafts name) then
       let get_md5sum = fun () -> Pprz.assoc "md5sum" vs in
       let ac, messages_xml = new_aircraft get_md5sum name in
       let ac_msg_closure = ac_msg messages_xml log name ac in
-      let _b = Ivy.bind (fun _ args -> ac_msg_closure args.(1) args.(2)) (sprintf "^(([0-9]+\\.[0-9]+) )?%s +(.*)" name) in
+      let tsregexp = if timestamp then "(([0-9]+\\.[0-9]+) )?" else "" in
+      let _b =
+        Ivy.bind (fun _ args -> if timestamp then ac_msg_closure args.(1) args.(2) else ac_msg_closure "" args.(0))
+        (sprintf "^%s%s +(.*)" tsregexp name) in
       register_aircraft name ac;
       Ground_Pprz.message_send my_id "NEW_AIRCRAFT" ["ac_id", Pprz.String name]
   with
@@ -639,11 +642,11 @@ let new_color = fun () ->
   sprintf "#%02x%02x%02x" (Random.int 256) (Random.int 256) (Random.int 256)
 
 (* Waits for new aircrafts *)
-let listen_acs = fun log ->
+let listen_acs = fun log timestamp ->
   (** Wait for any message (they all are identified with the A/C) *)
-  ignore (Tm_Pprz.message_bind "ALIVE" (ident_msg log));
+  ignore (Tm_Pprz.message_bind "ALIVE" (ident_msg log timestamp));
   if !replay_old_log then
-    ignore (Tm_Pprz.message_bind "PPRZ_MODE" (ident_msg log))
+    ignore (Tm_Pprz.message_bind "PPRZ_MODE" (ident_msg log timestamp))
 
 
 let send_config = fun http _asker args ->
@@ -785,7 +788,8 @@ let ground_to_uplink = fun logging ->
 let () =
   let ivy_bus = ref Defivybus.default_ivy_bus
   and logging = ref true
-  and http = ref false in
+  and http = ref false
+  and timestamp = ref false in
 
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "Bus\tDefault is %s" !ivy_bus);
@@ -795,6 +799,7 @@ let () =
       "-kml_no_http", Arg.Set Kml.no_http, "KML without web server (local files only)";
       "-kml_port", Arg.Set_int Kml.port, (sprintf "Port for KML files (default is %d)" !Kml.port);
       "-n", Arg.Clear logging, "Disable log";
+      "-timestamp", Arg.Set timestamp, "Bind on timestampped messages";
       "-no_md5_check", Arg.Set no_md5_check, "Disable safety matching of live and current configurations";
       "-replay_old_log", Arg.Set replay_old_log, "Enable aircraft registering on PPRZ_MODE messages"] in
 
@@ -816,7 +821,7 @@ let () =
       None in
 
   (* Waits for new aircrafts *)
-  listen_acs logging;
+  listen_acs logging !timestamp;
 
   (* Forward messages from ground agents to vehicles *)
   ground_to_uplink logging;

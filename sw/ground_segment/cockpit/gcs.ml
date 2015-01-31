@@ -338,6 +338,7 @@ and display_particules = ref false
 and wid = ref None
 and srtm = ref false
 and hide_fp = ref false
+and timestamp = ref false
 
 let options =
   [
@@ -371,6 +372,7 @@ let options =
     "-wid", Arg.String (fun s -> wid := Some (Int32.of_string s)), "<window id> Id of an existing window to be attached to";
     "-zoom", Arg.Set_float zoom, "Initial zoom";
     "-auto_hide_fp", Arg.Unit (fun () -> Live.auto_hide_fp true; hide_fp := true), "Automatically hide flight plans of unselected aircraft";
+    "-timestamp", Arg.Set timestamp, "Bind on timestampped telemetry messages";
   ]
 
 
@@ -771,7 +773,7 @@ let () =
     begin
       my_alert#add "Waiting for telemetry...";
       Speech.say "Waiting for telemetry...";
-      Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac alt_graph
+      Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac alt_graph !timestamp
     end;
 
   (** Display the window *)
