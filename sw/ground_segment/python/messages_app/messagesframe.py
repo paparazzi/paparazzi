@@ -40,27 +40,23 @@ class Aircraft(object):
 
 
 class MessagesFrame(wx.Frame):
-    def message_recv(self, msg_class, msg_name, ac_id, msg):
+    def message_recv(self, ac_id, msg):
         """Handle incoming messages
 
         Callback function for IvyMessagesInterface
 
-        :param msg_class: message classe ("ground" or "telemetry")
-        :param msg_class: string
-        :param msg_name: message name
-        :type msg_name: str
         :param ac_id: aircraft id
         :type ac_id: int
         :param msg: message
         :type msg: PprzMessage
         """
         # only show messages of the requested class
-        if msg_class != self.msg_class:
+        if msg.get_classname() != self.msg_class:
             return
-        if ac_id in self.aircrafts and msg_name in self.aircrafts[ac_id].messages:
-            if time.time() - self.aircrafts[ac_id].messages[msg_name].last_seen < 0.2:
+        if ac_id in self.aircrafts and msg.get_msgname() in self.aircrafts[ac_id].messages:
+            if time.time() - self.aircrafts[ac_id].messages[msg.get_msgname()].last_seen < 0.2:
                 return
-        wx.CallAfter(self.gui_update, msg_class, msg_name, ac_id, msg)
+        wx.CallAfter(self.gui_update, msg.get_classname(), msg.get_msgname(), ac_id, msg)
 
     def find_page(self, book, name):
         if book.GetPageCount() < 1:

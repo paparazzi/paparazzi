@@ -87,4 +87,4 @@ class IvyMessagesInterface(object):
             values = list(filter(None, data[2:]))
         msg = PprzMessage(msg_class, msg_name)
         msg.set_values(values)
-        self.callback(msg_class, msg_name, ac_id, msg)
+        self.callback(ac_id, msg)

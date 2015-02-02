@@ -27,6 +27,12 @@ class PprzMessage(object):
         self._fieldnames = messages_xml_map.get_msg_fields(class_name, name)
         self._fieldvalues = []
 
+    def get_msgname(self):
+        return self._name
+
+    def get_classname(self):
+        return self._class_name
+
     def get_fieldnames(self):
         return self._fieldnames
 

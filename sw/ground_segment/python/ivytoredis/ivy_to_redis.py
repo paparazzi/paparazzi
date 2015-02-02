@@ -29,13 +29,13 @@ class Ivy2RedisServer():
         self.keep_running = True
         print("Connected to redis server %s on port %i" % (redishost, redisport))
 
-    def message_recv(self, msg_class, msg_name, ac_id, msg):
+    def message_recv(self, ac_id, msg):
         # if ac_id is not 0 (i.e. telemetry from an aircraft) include it in the key
         # don't add it to the key for ground messages
         if ac_id:
-            key = "{0}.{1}.{2}".format(msg_class, msg_name, ac_id)
+            key = "{0}.{1}.{2}".format(msg.get_classname(), msg.get_msgname(), ac_id)
         else:
-            key = "{0}.{1}".format(msg_class, msg_name)
+            key = "{0}.{1}".format(msg.get_classname(), msg.get_msgname())
         if self.verbose:
             print("received message, key=%s, msg=%s" % (key, msg.to_json(payload_only=True)))
             sys.stdout.flush()
