@@ -37,9 +37,24 @@
 // Frame Rate (FPS)
 #include <sys/time.h>
 
+// Sockets
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
 #define USEC_PER_SEC 1000000L
 
 float FPS;
+
+
+struct CVresults {
+  int x;
+};
+
+
+int cv_sockets[2];
+
 
 // local variables
 volatile long timestamp;
@@ -91,6 +106,13 @@ void opticflow_module_run(void)
 {
   // Read Latest Vision Module Results
   if (computervision_thread_has_results) {
+    struct CVresults res;
+    if (read(cv_sockets[0], &res, sizeof(res))) {
+      perror("Failed to read CV results from socket.\n");
+    }
+    /* TODO: use results */
+    printf("result x=%i", res.x);
+
     computervision_thread_has_results = 0;
     run_hover_stabilization_onvision();
   }
@@ -120,9 +142,11 @@ void opticflow_module_run(void)
 pthread_t computervision_thread;
 volatile uint8_t computervision_thread_status = 0;
 volatile uint8_t computer_vision_thread_command = 0;
-void *computervision_thread_main(void *data);
-void *computervision_thread_main(void *data)
+void *computervision_thread_main(void *args);
+void *computervision_thread_main(void *args)
 {
+  int socket = *(int *) args;
+
   // Video Input
   struct vid_struct vid;
   vid.device = (char *)"/dev/video2"; // video1 = front camera; video2 = bottom camera
@@ -165,6 +189,14 @@ void *computervision_thread_main(void *data)
     // Run Image Processing
     opticflow_plugin_run(img_new->buf);
 
+    /* send results to main */
+    struct CVresults data;
+    /* TODO: fill in results here */
+    data.x = 42;
+    if (write(socket, &data, sizeof(data))) {
+      printf("failed to write to socket.\n");
+    }
+
 #ifdef DOWNLINK_VIDEO
     // JPEG encode the image:
     uint32_t quality_factor = 10; //20 if no resize,
@@ -187,10 +219,17 @@ void *computervision_thread_main(void *data)
 
 void opticflow_module_start(void)
 {
-  computer_vision_thread_command = 1;
-  int rc = pthread_create(&computervision_thread, NULL, computervision_thread_main, NULL);
-  if (rc) {
-    printf("ctl_Init: Return code from pthread_create(mot_thread) is %d\n", rc);
+  /* create socket pair for communication */
+  if (socketpair(AF_UNIX, SOCK_DGRAM, 0, cv_sockets) == 0) {
+    computer_vision_thread_command = 1;
+    int rc = pthread_create(&computervision_thread, NULL, computervision_thread_main,
+                            &cv_sockets[1]);
+    if (rc) {
+      printf("ctl_Init: Return code from pthread_create(mot_thread) is %d\n", rc);
+    }
+  }
+  else {
+    perror("Could not create socket.\n");
   }
 }
 
