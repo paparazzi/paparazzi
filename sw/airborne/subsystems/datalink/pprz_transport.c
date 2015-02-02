@@ -114,18 +114,18 @@ static int check_available_space(struct pprz_transport *trans __attribute__((unu
   return dev->check_free_space(dev->periph, bytes);
 }
 
-void pprz_transport_init(void)
+void pprz_transport_init(struct pprz_transport *t)
 {
-  pprz_tp.status = UNINIT;
-  pprz_tp.trans_rx.msg_received = FALSE;
-  pprz_tp.trans_tx.size_of = (size_of_t) size_of;
-  pprz_tp.trans_tx.check_available_space = (check_available_space_t) check_available_space;
-  pprz_tp.trans_tx.put_bytes = (put_bytes_t) put_bytes;
-  pprz_tp.trans_tx.put_named_byte = (put_named_byte_t) put_named_byte;
-  pprz_tp.trans_tx.start_message = (start_message_t) start_message;
-  pprz_tp.trans_tx.end_message = (end_message_t) end_message;
-  pprz_tp.trans_tx.overrun = (overrun_t) overrun;
-  pprz_tp.trans_tx.count_bytes = (count_bytes_t) count_bytes;
-  pprz_tp.trans_tx.impl = (void *)(&pprz_tp);
+  t->status = UNINIT;
+  t->trans_rx.msg_received = FALSE;
+  t->trans_tx.size_of = (size_of_t) size_of;
+  t->trans_tx.check_available_space = (check_available_space_t) check_available_space;
+  t->trans_tx.put_bytes = (put_bytes_t) put_bytes;
+  t->trans_tx.put_named_byte = (put_named_byte_t) put_named_byte;
+  t->trans_tx.start_message = (start_message_t) start_message;
+  t->trans_tx.end_message = (end_message_t) end_message;
+  t->trans_tx.overrun = (overrun_t) overrun;
+  t->trans_tx.count_bytes = (count_bytes_t) count_bytes;
+  t->trans_tx.impl = (void *)(t);
 }
 
