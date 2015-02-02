@@ -41,6 +41,8 @@ extern struct pprz_transport extra_pprz_tp;
     DlCheckAndParse();                                  \
   }
 
+/** Init function */
+extern void extra_pprz_dl_init(void);
 
 #endif /* EXTRA_PPRZ_DL_H */
 

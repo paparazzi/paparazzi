@@ -21,11 +21,12 @@
  *
  */
 
-#include "extra_pprz_dl.h"
-
-#if DATALINK != PPRZ
-uint8_t ck_a, ck_b;
-#endif
+#include "modules/datalink/extra_pprz_dl.h"
 
 struct pprz_transport extra_pprz_tp;
+
+void extra_pprz_dl_init(void)
+{
+  pprz_transport_init(&extra_pprz_tp);
+}
 

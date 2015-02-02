@@ -79,7 +79,7 @@ struct pprz_transport {
 extern struct pprz_transport pprz_tp;
 
 // Init function
-extern void pprz_transport_init(void);
+extern void pprz_transport_init(struct pprz_transport *t);
 
 static inline void parse_pprz(struct pprz_transport *t, uint8_t c)
 {

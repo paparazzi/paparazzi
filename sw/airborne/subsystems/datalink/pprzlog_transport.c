@@ -83,6 +83,7 @@ static void start_message(struct pprzlog_transport *trans, struct link_device *d
   const uint8_t msg_len = size_of(trans, payload_len);
   trans->ck = 0;
   put_1byte(trans, dev, msg_len);
+  put_1byte(trans, dev, 0); // TODO use correct source ID
   uint32_t ts = get_sys_time_usec() / 100;
   put_bytes(trans, dev, DL_TYPE_TIMESTAMP, DL_FORMAT_SCALAR, 4, (uint8_t *)(&ts));
 }
