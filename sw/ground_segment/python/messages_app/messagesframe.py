@@ -1,12 +1,17 @@
 import wx
 
 import sys
-import os
 import time
 import threading
 
-PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
-sys.path.append(PPRZ_HOME + "/sw/lib/python")
+from os import path, getenv
+
+# if PAPARAZZI_SRC not set, then assume the tree containing this
+# file is a reasonable substitute
+PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
+sys.path.append(PPRZ_SRC + "/sw/lib/python")
+
+PPRZ_HOME = getenv("PAPARAZZI_SRC", PPRZ_SRC)
 
 from ivy_msg_interface import IvyMessagesInterface
 import messages_xml_map
