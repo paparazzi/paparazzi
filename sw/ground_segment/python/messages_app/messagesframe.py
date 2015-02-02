@@ -11,7 +11,7 @@ from os import path, getenv
 PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
 
-PPRZ_HOME = getenv("PAPARAZZI_SRC", PPRZ_SRC)
+PPRZ_HOME = getenv("PAPARAZZI_HOME", PPRZ_SRC)
 
 from ivy_msg_interface import IvyMessagesInterface
 import messages_xml_map
