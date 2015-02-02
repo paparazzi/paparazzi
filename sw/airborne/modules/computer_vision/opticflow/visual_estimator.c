@@ -87,8 +87,6 @@ float cam_h, diff_roll, diff_pitch, OFx_trans, OFy_trans;
 // Lateral Velocity Computation
 float Velx, Vely;
 
-struct FloatVect3 V_body;
-
 /** height above ground level, from ABI
  * Used for scale computation, negative value means invalid.
  */
@@ -153,16 +151,6 @@ void opticflow_plugin_run(unsigned char *frame)
     CvtYUYV2Gray(prev_gray_frame, prev_frame, imgWidth, imgHeight);
     old_img_init = 0;
   }
-
-  // *************************************************************************************
-  // Additional information from other sensors
-  // !!WARNING!! Accessing of the state interface is NOT tread safe!!!
-  // *************************************************************************************
-
-  // Compute body velocities from ENU
-  struct FloatVect3 *vel_ned = (struct FloatVect3*)stateGetSpeedNed_f();
-  struct FloatQuat *q_n2b = stateGetNedToBodyQuat_f();
-  float_quat_vmult(&V_body, q_n2b, vel_ned);
 
   // *************************************************************************************
   // Corner detection
@@ -267,6 +255,7 @@ void opticflow_plugin_run(unsigned char *frame)
   }
 
   // Flow Derotation
+  // !!WARNING!! Accessing of the state interface is NOT tread safe!!!
   curr_pitch = stateGetNedToBodyEulers_f()->theta;
   curr_roll = stateGetNedToBodyEulers_f()->phi;
 
@@ -320,11 +309,13 @@ void opticflow_plugin_run(unsigned char *frame)
   memcpy(prev_frame, frame, imgHeight * imgWidth * 2);
   memcpy(prev_gray_frame, gray_frame, imgHeight * imgWidth);
 
+#if 0
   // *************************************************************************************
   // Downlink Message
   // *************************************************************************************
   DOWNLINK_SEND_OF_HOVER(DefaultChannel, DefaultDevice, &FPS, &dx_sum, &dy_sum, &OFx, &OFy,
                          &diff_roll, &diff_pitch, &Velx, &Vely, &V_body.x, &V_body.y,
                          &cam_h, &count);
+#endif
 }
 

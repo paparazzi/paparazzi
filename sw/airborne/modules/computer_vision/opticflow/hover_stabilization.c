@@ -153,6 +153,14 @@ void run_hover_stabilization_onvision(void)
 
 void run_opticflow_hover(void)
 {
+  struct FloatVect3 V_body;
+  if (activate_opticflow_hover == TRUE) {
+    // Compute body velocities from ENU
+    struct FloatVect3 *vel_ned = (struct FloatVect3*)stateGetSpeedNed_f();
+    struct FloatQuat *q_n2b = stateGetNedToBodyQuat_f();
+    float_quat_vmult(&V_body, q_n2b, vel_ned);
+  }
+
   if (flow_count) {
     Error_Velx = Velx - vision_desired_vx;
     Error_Vely = Vely - vision_desired_vy;

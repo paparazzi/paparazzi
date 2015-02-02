@@ -31,7 +31,6 @@
 // Variables used by the controller
 extern float Velx, Vely;
 extern int flow_count;
-extern struct FloatVect3 V_body;
 
 /**
  * Initialize visual estimator.
