@@ -1,0 +1,11 @@
+{
+    "name": "RedisNodeBridge",
+    "description": "Bridge between Redis and nodejs",
+    "version": "0.0.1",
+    "dependencies": {
+      "express": "3.x",
+      "socket.io" : "latest",
+      "redis" : "latest"
+    }
+}
+
