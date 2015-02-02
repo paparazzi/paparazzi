@@ -9,8 +9,12 @@ import argparse
 import sys
 import os
 
-PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
-sys.path.append(PPRZ_HOME + "/sw/lib/python")
+# if PAPARAZZI_SRC not set, then assume the tree containing this
+# file is a reasonable substitute
+PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                    '../../../../')))
+PPRZ_LIB_PYTHON = os.path.join(PPRZ_SRC, "sw/lib/python")
+sys.path.append(PPRZ_LIB_PYTHON)
 
 from ivy_msg_interface import IvyMessagesInterface
 
@@ -25,7 +29,7 @@ class Ivy2RedisServer():
         self.keep_running = True
         print("Connected to redis server %s on port %i" % (redishost, redisport))
 
-    def message_recv(self, msg_class, msg_name, ac_id, values):
+    def message_recv(self, msg_class, msg_name, ac_id, msg):
         # if ac_id is not 0 (i.e. telemetry from an aircraft) include it in the key
         # don't add it to the key for ground messages
         if ac_id:
@@ -33,10 +37,10 @@ class Ivy2RedisServer():
         else:
             key = "{0}.{1}".format(msg_class, msg_name)
         if self.verbose:
-            print("received message, key=%s, values=%s" % (key, ' '.join(values)))
+            print("received message, key=%s, msg=%s" % (key, msg.to_json(payload_only=True)))
             sys.stdout.flush()
-        self.r.publish(key, values)
-        self.r.set(key, values)
+        self.r.publish(key, msg.to_json(payload_only=True))
+        self.r.set(key, msg.to_json(payload_only=True))
 
     def run(self):
         while self.keep_running:
