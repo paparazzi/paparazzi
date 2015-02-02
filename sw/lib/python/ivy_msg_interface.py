@@ -6,9 +6,17 @@ import os
 import sys
 import re
 
+# if PAPARAZZI_SRC not set, then assume the tree containing this
+# file is a reasonable substitute
+PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                    '../../../../')))
+sys.path.append(PPRZ_SRC + "/sw/lib/python")
 
-class IvyMessagesInterface():
-    def __init__(self, callback, init=True, verbose=True, bind_regex="(.*)"):
+from pprz_msg.message import PprzMessage
+
+
+class IvyMessagesInterface(object):
+    def __init__(self, callback, init=True, verbose=False, bind_regex='(.*)'):
         self.callback = callback
         self.ivy_id = 0
         self.verbose = verbose
@@ -27,7 +35,7 @@ class IvyMessagesInterface():
         except:
             pass
 
-    def init_ivy(self, init, bind_regex):
+    def init_ivy(self, init=True, bind_regex='(.*)'):
         if init:
             IvyInit("Messages %i" % os.getpid(), "READY", 0, lambda x,y: y, lambda x,y: y)
             logging.getLogger('Ivy').setLevel(logging.WARN)
@@ -56,13 +64,16 @@ class IvyMessagesInterface():
 
         # check which message class it is
         # pass non-telemetry messages with ac_id 0
-        if data[0] in ["ground", "ground_dl", "dl"]:
+        if data[0] in ["sim", "ground_dl", "dl"]:
+            if self.verbose:
+                    print("ignoring message " + ' '.join(data))
+                    sys.stdout.flush()
+            return
+        elif data[0] in ["ground"]:
             msg_class = data[0]
             msg_name = data[1]
             ac_id = 0
             values = list(filter(None, data[2:]))
-        elif data[0] == "sim":
-            return
         else:
             try:
                 ac_id = int(data[0])
@@ -74,4 +85,6 @@ class IvyMessagesInterface():
             msg_class = "telemetry"
             msg_name = data[1]
             values = list(filter(None, data[2:]))
-        self.callback(msg_class, msg_name, ac_id, values)
+        msg = PprzMessage(msg_class, msg_name)
+        msg.set_values(values)
+        self.callback(msg_class, msg_name, ac_id, msg)

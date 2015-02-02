@@ -7,7 +7,7 @@ import os
 # if PAPARAZZI_HOME not set, then assume the tree containing this
 # file is a reasonable substitute
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                                      '../../../')))
+                                                                      '../../../..')))
 
 default_messages_file = '%s/conf/messages.xml' % PPRZ_HOME
 
@@ -59,6 +59,30 @@ def parse_messages(messages_file=default_messages_file):
                 # for now, just save the field names -- in the future maybe expand this to save a struct?
                 message_dictionary[class_name][message_name].append(the_field.attrib['name'])
                 message_dictionary_types[class_name][message_id].append(the_field.attrib['type'])
+
+
+def get_msg_fields(msg_class, msg_name):
+    if not message_dictionary:
+        parse_messages()
+    if msg_class in message_dictionary:
+        if msg_name in message_dictionary[msg_class]:
+            return message_dictionary[msg_class][msg_name]
+        else:
+            print("Error: msg_name %s not found in msg_class %s." % (msg_name, msg_class))
+    else:
+        print("Error: msg_class %s not found." % msg_class)
+    return []
+
+
+def get_msg_id(msg_class, msg_name):
+    if not message_dictionary:
+        parse_messages()
+    try:
+        return message_dictionary_name_id[msg_class][msg_name]
+    except KeyError:
+        print("Error: msg_name %s not found in msg_class %s." % (msg_name, msg_class))
+        return 0
+
 
 
 def test():
