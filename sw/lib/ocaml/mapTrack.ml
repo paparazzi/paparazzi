@@ -65,6 +65,7 @@ class track = fun ?(name="Noname") ?(icon="fixedwing") ?(size = 500) ?(color="re
   | "rotorcraft"    -> ACI.icon_rotorcraft_template
   | "quadrotor"     -> ACI.icon_quadrotor_template
   | "hexarotor"     -> ACI.icon_hexarotor_template
+  | "octorotor"     -> ACI.icon_octorotor_template
   | "flyingwing"    -> ACI.icon_flyingwing_template
   | "fixedwing" | _ -> ACI.icon_fixedwing_template
   in

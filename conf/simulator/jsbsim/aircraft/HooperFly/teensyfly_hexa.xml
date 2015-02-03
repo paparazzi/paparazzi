@@ -6,7 +6,7 @@
     <author>HooperFly</author>
     <filecreationdate>27-01-2015</filecreationdate>
     <version>Version 0.1 - beta</version>
-    <description>HooperFly RacerPEX Hexa, X configuration with rotor layout (FL/R/BL turning CW, FR/BR/L CCW)</description>
+    <description>HooperFly TeensyFly Hexa 345mm(13.58in) m2m diameter, X configuration with rotor layout (FL/R/BL turning CW, FR/BR/L CCW)</description>
   </fileheader>
 
   <metrics>
@@ -258,7 +258,7 @@
         <z>0</z>
       </location>
       <direction>
-        <x>-1</x>
+        <x>1</x>
         <y>0</y>
         <z>0</z>
       </direction>
@@ -277,7 +277,7 @@
         <z>0</z>
       </location>
       <direction>
-        <x>1</x>
+        <x>-1</x>
         <y>0</y>
         <z>0</z>
       </direction>
@@ -298,7 +298,7 @@
         <z>0</z>
       </location>
       <direction>
-        <x>1</x>
+        <x>-1</x>
         <y>0</y>
         <z>0</z>
       </direction>
@@ -317,7 +317,7 @@
         <z>0</z>
       </location>
       <direction>
-        <x>-1</x>
+        <x>1</x>
         <y>0</y>
         <z>0</z>
       </direction>
@@ -339,7 +339,7 @@
       </location>
       <direction>
         <x>0</x>
-        <y>1</y>
+        <y>-1</y>
         <z>0</z>
       </direction>
     </force>
@@ -358,7 +358,7 @@
       </location>
       <direction>
         <x>0</x>
-        <y>-1</y>
+        <y>1</y>
         <z>0</z>
       </direction>
     </force>
@@ -377,7 +377,7 @@
         <z>0</z>
       </location>
       <direction>
-        <x>-1</x>
+        <x>1</x>
         <y>0</y>
         <z>0</z>
       </direction>
@@ -396,7 +396,7 @@
         <z>0</z>
       </location>
       <direction>
-        <x>1</x>
+        <x>-1</x>
         <y>0</y>
         <z>0</z>
       </direction>
@@ -415,7 +415,7 @@
         <z>0</z>
       </location>
       <direction>
-        <x>1</x>
+        <x>-1</x>
         <y>0</y>
         <z>0</z>
       </direction>
@@ -434,7 +434,7 @@
         <z>0</z>
       </location>
       <direction>
-        <x>-1</x>
+        <x>1</x>
         <y>0</y>
         <z>0</z>
       </direction>
@@ -456,7 +456,7 @@
       </location>
       <direction>
         <x>0</x>
-        <y>1</y>
+        <y>-1</y>
         <z>0</z>
       </direction>
     </force>
@@ -475,7 +475,7 @@
       </location>
       <direction>
         <x>0</x>
-        <y>-1</y>
+        <y>1</y>
         <z>0</z>
       </direction>
     </force>
