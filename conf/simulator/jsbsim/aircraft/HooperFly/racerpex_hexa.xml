@@ -12,7 +12,7 @@
   <metrics>
     <wingarea unit="IN2"> 78.53 </wingarea>
     <wingspan unit="IN"> 10 </wingspan>
-    <chord unit="IN"> 6.79 </chord>
+    <chord unit="IN"> 12.41 </chord>
     <htailarea unit="FT2"> 0 </htailarea>
     <htailarm unit="FT"> 0 </htailarm>
     <vtailarea unit="FT2"> 0 </vtailarea>
@@ -137,8 +137,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-3.40</x>
-        <y>-5.88</y>
+        <x>-6.20</x>
+        <y>-10.74</y>
         <z>0</z>
       </location>
       <direction>
@@ -156,8 +156,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-3.40</x>
-        <y>5.88</y>
+        <x>-6.20</x>
+        <y>10.74</y>
         <z>0</z>
       </location>
       <direction>
@@ -176,7 +176,7 @@
       </function>
       <location unit="IN">
         <x>0</x>
-        <y>6.79</y>
+        <y>12.41</y>
         <z>0</z>
       </location>
       <direction>
@@ -194,8 +194,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.40</x>
-        <y>5.88</y>
+        <x>6.20</x>
+        <y>10.74</y>
         <z>0</z>
       </location>
       <direction>
@@ -213,8 +213,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.40</x>
-        <y>-5.88</y>
+        <x>6.20</x>
+        <y>-10.74</y>
         <z>0</z>
       </location>
       <direction>
@@ -233,7 +233,7 @@
       </function>
       <location unit="IN">
         <x>0</x>
-        <y>-6.79</y>
+        <y>-12.41</y>
         <z>0</z>
       </location>
       <direction>
@@ -253,8 +253,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-3.40</x>
-        <y>-3.9115</y>
+        <x>-6.20</x>
+        <y>-8.7715</y>
         <z>0</z>
       </location>
       <direction>
@@ -272,8 +272,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-3.40</x>
-        <y>-7.8485</y>
+        <x>-6.20</x>
+        <y>-12.7085</y>
         <z>0</z>
       </location>
       <direction>
@@ -293,8 +293,8 @@
       <location unit="IN">
         <!-- Necessary arm in IN to produce a moment ten times
         "weaker" then the force when both are measured in the SI is 1.9685 in. -->
-        <x>-3.40</x>
-        <y>7.8485</y>
+        <x>-6.20</x>
+        <y>12.7085</y>
         <z>0</z>
       </location>
       <direction>
@@ -312,8 +312,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-3.40</x>
-        <y>3.9115</y>
+        <x>-6.20</x>
+        <y>8.7715</y>
         <z>0</z>
       </location>
       <direction>
@@ -334,7 +334,7 @@
         <!-- Necessary arm in IN to produce a moment ten times
         "weaker" then the force when both are measured in the SI is 1.9685 in. -->
         <x>-1.9685</x>
-        <y>6.79</y>
+        <y>12.41</y>
         <z>0</z>
       </location>
       <direction>
@@ -353,7 +353,7 @@
       </function>
       <location unit="IN">
         <x>1.9685</x>
-        <y>6.79</y>
+        <y>12.41</y>
         <z>0</z>
       </location>
       <direction>
@@ -372,8 +372,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.40</x>
-        <y>3.9115</y>
+        <x>6.20</x>
+        <y>8.7715</y>
         <z>0</z>
       </location>
       <direction>
@@ -391,8 +391,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.40</x>
-        <y>7.8485</y>
+        <x>6.20</x>
+        <y>12.7085</y>
         <z>0</z>
       </location>
       <direction>
@@ -410,8 +410,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.40</x>
-        <y>-3.9115</y>
+        <x>6.20</x>
+        <y>-8.7715</y>
         <z>0</z>
       </location>
       <direction>
@@ -429,8 +429,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.40</x>
-        <y>-7.8485</y>
+        <x>6.20</x>
+        <y>-12.7085</y>
         <z>0</z>
       </location>
       <direction>
@@ -451,7 +451,7 @@
         <!-- Necessary arm in IN to produce a moment ten times
         "weaker" then the force when both are measured in the SI is 1.9685 in. -->
         <x>-1.9685</x>
-        <y>-6.79</y>
+        <y>-12.41</y>
         <z>0</z>
       </location>
       <direction>
@@ -470,7 +470,7 @@
       </function>
       <location unit="IN">
         <x>1.9685</x>
-        <y>-6.79</y>
+        <y>-12.41</y>
         <z>0</z>
       </location>
       <direction>

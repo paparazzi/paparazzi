@@ -12,7 +12,7 @@
   <metrics>
     <wingarea unit="IN2"> 78.53 </wingarea>
     <wingspan unit="IN"> 10 </wingspan>
-    <chord unit="IN"> 4.63 </chord>
+    <chord unit="IN"> 8.35 </chord>
     <htailarea unit="FT2"> 0 </htailarea>
     <htailarm unit="FT"> 0 </htailarm>
     <vtailarea unit="FT2"> 0 </vtailarea>
@@ -134,8 +134,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-3.27</x>
-        <y>-3.27</y>
+        <x>-6.25</x>
+        <y>-6.25</y>
         <z>0</z>
       </location>
       <direction>
@@ -153,8 +153,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-3.27</x>
-        <y>3.27</y>
+        <x>-6.25</x>
+        <y>6.25</y>
         <z>0</z>
       </location>
       <direction>
@@ -172,8 +172,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.27</x>
-        <y>3.27</y>
+        <x>6.25</x>
+        <y>6.25</y>
         <z>0</z>
       </location>
       <direction>
@@ -191,8 +191,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.27</x>
-        <y>-3.27</y>
+        <x>6.25</x>
+        <y>-6.25</y>
         <z>0</z>
       </location>
       <direction>
@@ -213,8 +213,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-3.27</x>
-        <y>-1.3015</y>
+        <x>-6.25</x>
+        <y>-4.2815</y>
         <z>0</z>
       </location>
       <direction>
@@ -232,8 +232,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-3.27</x>
-        <y>-5.2385</y>
+        <x>-6.25</x>
+        <y>-8.2185</y>
         <z>0</z>
       </location>
       <direction>
@@ -253,8 +253,8 @@
       <location unit="IN">
         <!-- Necessary arm in IN to produce a moment ten times
         "weaker" then the force when both are measured in the SI is 1.9685 in. -->
-        <x>-3.27</x>
-        <y>5.2385</y>
+        <x>-6.25</x>
+        <y>8.2185</y>
         <z>0</z>
       </location>
       <direction>
@@ -272,8 +272,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-3.27</x>
-        <y>1.3015</y>
+        <x>-6.25</x>
+        <y>4.2815</y>
         <z>0</z>
       </location>
       <direction>
@@ -291,8 +291,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.27</x>
-        <y>5.2385</y>
+        <x>6.25</x>
+        <y>8.2185</y>
         <z>0</z>
       </location>
       <direction>
@@ -310,8 +310,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.27</x>
-        <y>1.3015</y>
+        <x>6.25</x>
+        <y>4.2815</y>
         <z>0</z>
       </location>
       <direction>
@@ -329,8 +329,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.27</x>
-        <y>-1.3015</y>
+        <x>6.25</x>
+        <y>-4.2815</y>
         <z>0</z>
       </location>
       <direction>
@@ -348,8 +348,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.27</x>
-        <y>-5.2385</y>
+        <x>6.25</x>
+        <y>-8.2185</y>
         <z>0</z>
       </location>
       <direction>
