@@ -39,6 +39,7 @@ extern void viewvideo_stop(void);
 // Save picture on disk at full resolution
 // can be called from flight plan
 extern int viewvideo_save_shot(void);
+extern volatile int viewvideo_save_shot_number;
 
 extern int viewvideo_shot;
 #define viewvideo_SaveShot(_v) {  \
