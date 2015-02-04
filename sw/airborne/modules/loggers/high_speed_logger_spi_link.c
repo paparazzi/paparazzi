@@ -24,6 +24,13 @@
 
 #include "subsystems/imu.h"
 #include "mcu_periph/spi.h"
+#include "subsystems/actuators/motor_mixing.h"
+#include "state.h"
+#include "subsystems/radio_control.h"
+
+#include "stabilization.h"
+#include "stabilization/stabilization_attitude_quat_indi.h"
+#include "guidance/guidance_h.h"
 
 struct high_speed_logger_spi_link_data high_speed_logger_spi_link_data;
 struct spi_transaction high_speed_logger_spi_link_transaction;

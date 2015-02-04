@@ -1,9 +1,7 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<!-- Valkenburg -->
-<!-- <flight_plan alt="40" ground_alt="0" lat0="52.170867" lon0="4.412194" max_dist_from_home="1000" name="Transitioning test" security_height="2"> -->
-<!-- Delft -->
-<flight_plan alt="40" ground_alt="0" lat0="51.979438" lon0="4.390148" max_dist_from_home="1000" name="Transitioning test" security_height="2">
+<flight_plan alt="40" ground_alt="0" lat0="52.170867" lon0="4.412194" max_dist_from_home="1000" name="Transitioning test" security_height="2">
+<!-- <flight_plan alt="40" ground_alt="0" lat0="51.979438" lon0="4.390148" max_dist_from_home="1000" name="Transitioning test" security_height="2"> -->
   <header>
     #include "autopilot.h"
     #include "subsystems/radio_control.h"
@@ -13,11 +11,8 @@
 </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
-    <waypoint name="STDBY" x="-2.0" y="-5.0"/>
-    <waypoint name="p1" x="53.9" y="9.6"/>
-    <waypoint name="p2" x="-64.4" y="31.4"/>
-    <waypoint name="p3" x="-50.7" y="66.2"/>
-    <waypoint name="p4" x="60.0" y="41.3"/>
+    <waypoint name="STDBY" x="0.0" y="0.0"/>
+    <waypoint name="REMOTE_LANDING" x="-64.4" y="31.4"/>
   </waypoints>
   <blocks>
     <block name="Wait GPS">
@@ -33,62 +28,60 @@
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Start Engine">
-      <set value="FALSE" var="force_forward_flight"/>
       <call fun="NavResurrect()"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="stateGetPositionEnu_f()->z > 5.0" deroute="Climb"/>
+      <exception cond="stateGetPositionEnu_f()->z > 4.0" deroute="Climb"/>
       <call fun="NavSetWaypointHere(WP_STDBY)"/>
-      <set value="FALSE" var="force_forward_flight"/>
-      <attitude pitch="0" roll="0" throttle="0.5" until="FALSE" vmode="throttle"/>
+      <attitude pitch="0" roll="0" throttle="0.4" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Climb">
       <exception cond="stateGetPositionEnu_f()->z > 20.0" deroute="Standby"/>
       <call fun="NavSetWaypointHere(WP_STDBY)"/>
-      <set value="FALSE" var="force_forward_flight"/>
       <stay climb="2" vmode="climb" wp="STDBY"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <exception cond="radio_control.status > RC_OK" deroute="land"/>
-      <set value="FALSE" var="force_forward_flight"/>
-      <stay wp="STDBY"/>
+      <stay wp="STDBY" until="stage_time > 5"/>
     </block>
-    <block name="stay_p1">
+    <block name="Fly remote location">
       <exception cond="radio_control.status > RC_OK" deroute="land"/>
-      <set value="FALSE" var="force_forward_flight"/>
-      <stay wp="p1"/>
+      <go wp="REMOTE_LANDING"/>
     </block>
-    <block name="go_p2_p1">
+    <block name="Remote landing">
+      <exception cond="8.0 > stateGetPositionEnu_f()->z" deroute="descent_slow remote"/>
+      <stay climb="-1" vmode="climb" wp="REMOTE_LANDING"/>
+    </block>
+    <block name="descent_slow remote">
+      <exception cond="2.0 > stateGetPositionEnu_f()->z" deroute="flare remote"/>
+      <stay climb="-0.5" vmode="climb" wp="REMOTE_LANDING"/>
+    </block>
+    <block name="flare remote">
+      <exception cond="0.3 > sonar_adc.distance" deroute="landed remote"/>
+      <attitude pitch="0" roll="0" throttle="0.13" vmode="throttle"/>
+    </block>
+    <block name="landed remote">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine2">
+      <call fun="NavSetWaypointHere(WP_REMOTE_LANDING)"/>
+      <call fun="NavResurrect()"/>
+    </block>
+    <block name="Takeoff2" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="stateGetPositionEnu_f()->z > 4.0" deroute="Climb2"/>
+      <attitude pitch="0" roll="0" throttle="0.4" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Climb2">
+      <exception cond="stateGetPositionEnu_f()->z > 20.0" deroute="Remote hover"/>
+      <call fun="NavSetWaypointHere(WP_REMOTE_LANDING)"/>
+      <stay climb="2" vmode="climb" wp="REMOTE_LANDING"/>
+    </block>
+    <block name="Remote hover" strip_button="Standby" strip_icon="home.png">
       <exception cond="radio_control.status > RC_OK" deroute="land"/>
-      <set value="FALSE" var="force_forward_flight"/>
-      <go wp="p2"/>
-      <deroute block="stay_p1"/>
-    </block>
-    <block name="pylon_racing">
-      <exception cond="radio_control.status > RC_OK" deroute="land"/>
-      <set value="FALSE" var="force_forward_flight"/>
-      <go wp="p2"/>
-      <go wp="p3"/>
-      <go wp="p4"/>
-      <go wp="p1"/>
-      <deroute block="stay_p1"/>
-    </block>
-    <block name="pylon_racing_forward">
-      <exception cond="radio_control.status > RC_OK" deroute="land"/>
-      <set value="TRUE" var="force_forward_flight"/>
-      <go wp="p2"/>
-      <go wp="p3"/>
-      <go wp="p4"/>
-      <set value="FALSE" var="force_forward_flight"/>
-      <go wp="p1"/>
-      <deroute block="stay_p1"/>
-    </block>
-    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
-      <set value="FALSE" var="force_forward_flight"/>
-      <call fun="NavSetWaypointHere(WP_STDBY)"/>
+      <stay wp="REMOTE_LANDING" until="stage_time > 5"/>
     </block>
     <block name="land">
-      <set value="FALSE" var="force_forward_flight"/>
       <go wp="STDBY"/>
     </block>
     <block name="descent">
@@ -97,7 +90,7 @@
     </block>
     <block name="descent_slow">
       <exception cond="2.0 > stateGetPositionEnu_f()->z" deroute="flare"/>
-      <stay climb="-1" vmode="climb" wp="STDBY"/>
+      <stay climb="-0.5" vmode="climb" wp="STDBY"/>
     </block>
     <block name="flare">
       <exception cond="0.3 > sonar_adc.distance" deroute="landed"/>
