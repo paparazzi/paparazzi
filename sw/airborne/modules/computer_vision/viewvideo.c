@@ -85,6 +85,8 @@ void viewvideo_run(void) {}
 
 // take shot flag
 int viewvideo_shot = 0;
+volatile int viewvideo_save_shot_number = 0;
+
 
 /////////////////////////////////////////////////////////////////////////
 // COMPUTER VISION THREAD
@@ -100,6 +102,11 @@ void *computervision_thread_main(void *data)
   vid.device = (char *)"/dev/video1";
   vid.w = 1280;
   vid.h = 720;
+#if BOTTOM_CAMERA == 1
+  vid.device = (char *)"/dev/video2";
+  vid.w = 320;
+  vid.h = 240;
+#endif
   vid.n_buffers = 4;
   if (video_init(&vid) < 0) {
     printf("Error initialising video\n");
@@ -163,16 +170,26 @@ void *computervision_thread_main(void *data)
       uint32_t size = end - (jpegbuf);
       FILE *save;
       char save_name[128];
+#if LOG_ON_USB == 1
+      if (system("mkdir -p /data/video/usb/images") == 0) {
+#else
       if (system("mkdir -p /data/video/images") == 0) {
+#endif
         // search available index (max is 99)
-        for (; file_index < 99; file_index++) {
+        for (; file_index < 99999; file_index++) {
           printf("search %d\n", file_index);
-          sprintf(save_name, "/data/video/images/img_%02d.jpg", file_index);
+#if LOG_ON_USB == 1
+          sprintf(save_name, "/data/video/usb/images/img_%05d.jpg", file_index);
+#else
+          sprintf(save_name, "/data/video/images/img_%05d.jpg", file_index);
+#endif
           // test if file exists or not
           if (access(save_name, F_OK) == -1) {
             printf("access\n");
             save = fopen(save_name, "w");
             if (save != NULL) {
+              // Atomic copy
+              viewvideo_save_shot_number = file_index;
               fwrite(jpegbuf, sizeof(uint8_t), size, save);
               fclose(save);
             } else {
@@ -181,7 +198,7 @@ void *computervision_thread_main(void *data)
             // leave for loop
             break;
           } else {
-            printf("file exists\n");
+            //printf("file exists\n");
           }
         }
       }
