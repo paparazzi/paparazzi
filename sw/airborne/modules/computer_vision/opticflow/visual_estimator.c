@@ -47,7 +47,6 @@ unsigned int imgWidth, imgHeight;
 // Local variables
 unsigned char *prev_frame, *gray_frame, *prev_gray_frame;
 int old_img_init;
-float OFx, OFy, dx_sum, dy_sum;
 
 // ARDrone Vertical Camera Parameters
 #define FOV_H 0.67020643276
@@ -57,7 +56,6 @@ float OFx, OFy, dx_sum, dy_sum;
 
 // Corner Detection
 int *x, *y;
-int count = 0;
 int max_count = 25;
 #define MAX_COUNT 100
 
@@ -74,7 +72,7 @@ float distance2, min_distance, min_distance2;
 // Flow Derotation
 #define FLOW_DEROTATION
 float curr_pitch, curr_roll, prev_pitch, prev_roll;
-float cam_h, diff_roll, diff_pitch, OFx_trans, OFy_trans;
+float OFx_trans, OFy_trans;
 
 
 
@@ -95,13 +93,13 @@ void opticflow_plugin_init(unsigned int w, unsigned int h, struct CVresults *res
   dx = (int *) calloc(MAX_COUNT, sizeof(int));
   dy = (int *) calloc(MAX_COUNT, sizeof(int));
   old_img_init = 1;
-  OFx = 0.0;
-  OFy = 0.0;
-  dx_sum = 0.0;
-  dy_sum = 0.0;
-  diff_roll = 0.0;
-  diff_pitch = 0.0;
-  cam_h = 0.0;
+  results->OFx = 0.0;
+  results->OFy = 0.0;
+  results->dx_sum = 0.0;
+  results->dy_sum = 0.0;
+  results->diff_roll = 0.0;
+  results->diff_pitch = 0.0;
+  results->cam_h = 0.0;
   prev_pitch = 0.0;
   prev_roll = 0.0;
   curr_pitch = 0.0;
@@ -113,6 +111,7 @@ void opticflow_plugin_init(unsigned int w, unsigned int h, struct CVresults *res
   results->flow_count = 0;
   results->cnt = 0;
   results->status = 0;
+  results->count = 0;
 
   framerate_init();
 }
@@ -135,10 +134,10 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
   int fast_threshold = 20;
   xyFAST *pnts_fast;
   pnts_fast = fast9_detect((const byte *)prev_gray_frame, imgWidth, imgHeight, imgWidth,
-                           fast_threshold, &count);
+                           fast_threshold, &results->count);
 
-  if (count > MAX_COUNT) { count = MAX_COUNT; }
-  for (int i = 0; i < count; i++) {
+  if (results->count > MAX_COUNT) { results->count = MAX_COUNT; }
+  for (int i = 0; i < results->count; i++) {
     x[i] = pnts_fast[i].x;
     y[i] = pnts_fast[i].y;
   }
@@ -149,8 +148,8 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
   min_distance2 = min_distance * min_distance;
   int *labelmin;
   labelmin = (int *) calloc(MAX_COUNT, sizeof(int));
-  for (int i = 0; i < count; i++) {
-    for (int j = i + 1; j < count; j++) {
+  for (int i = 0; i < results->count; i++) {
+    for (int j = i + 1; j < results->count; j++) {
       // distance squared:
       distance2 = (x[i] - x[j]) * (x[i] - x[j]) + (y[i] - y[j]) * (y[i] - y[j]);
       if (distance2 < min_distance2) {
@@ -159,8 +158,8 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
     }
   }
 
-  int count_fil = count;
-  for (int i = count - 1; i >= 0; i--) {
+  int count_fil = results->count;
+  for (int i = results->count - 1; i >= 0; i--) {
     remove_point = 0;
 
     if (labelmin[i]) {
@@ -177,7 +176,7 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
   }
 
   if (count_fil > max_count) { count_fil = max_count; }
-  count = count_fil;
+  results->count = count_fil;
   free(labelmin);
 
   // *************************************************************************************
@@ -208,8 +207,8 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
     }
   }
 
-  dx_sum = 0.0;
-  dy_sum = 0.0;
+  results->dx_sum = 0.0;
+  results->dy_sum = 0.0;
 
   // Optical Flow Computation
   for (int i = 0; i < results->flow_count; i++) {
@@ -222,35 +221,35 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
     quick_sort_int(dx, results->flow_count); // 11
     quick_sort_int(dy, results->flow_count); // 11
 
-    dx_sum = (float) dx[results->flow_count / 2];
-    dy_sum = (float) dy[results->flow_count / 2];
+    results->dx_sum = (float) dx[results->flow_count / 2];
+    results->dy_sum = (float) dy[results->flow_count / 2];
   } else {
-    dx_sum = 0.0;
-    dy_sum = 0.0;
+    results->dx_sum = 0.0;
+    results->dy_sum = 0.0;
   }
 
   // Flow Derotation
   curr_pitch = info->theta;
   curr_roll = info->phi;
 
-  diff_pitch = (curr_pitch - prev_pitch) * imgHeight / FOV_H;
-  diff_roll = (curr_roll - prev_roll) * imgWidth / FOV_W;
+  results->diff_pitch = (curr_pitch - prev_pitch) * imgHeight / FOV_H;
+  results->diff_roll = (curr_roll - prev_roll) * imgWidth / FOV_W;
 
   prev_pitch = curr_pitch;
   prev_roll = curr_roll;
 
 #ifdef FLOW_DEROTATION
   if (results->flow_count) {
-    OFx_trans = dx_sum - diff_roll;
-    OFy_trans = dy_sum - diff_pitch;
+    OFx_trans = results->dx_sum - results->diff_roll;
+    OFy_trans = results->dy_sum - results->diff_pitch;
 
-    if ((OFx_trans <= 0) != (dx_sum <= 0)) {
+    if ((OFx_trans <= 0) != (results->dx_sum <= 0)) {
       OFx_trans = 0;
       OFy_trans = 0;
     }
   } else {
-    OFx_trans = dx_sum;
-    OFy_trans = dy_sum;
+    OFx_trans = results->dx_sum;
+    OFy_trans = results->dy_sum;
   }
 #else
   OFx_trans = dx_sum;
@@ -258,19 +257,21 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
 #endif
 
   // Average Filter
-  OFfilter(&OFx, &OFy, OFx_trans, OFy_trans, results->flow_count, 1);
+  OFfilter(&results->OFx, &results->OFy, OFx_trans, OFy_trans, results->flow_count, 1);
 
   // Velocity Computation
   if (info->agl < 0) {
-    cam_h = 1;
+    results->cam_h = 1;
   }
   else {
-    cam_h = info->agl;
+    results->cam_h = info->agl;
   }
 
+  results->FPS = framerate_get();
+
   if (results->flow_count) {
-    results->Velx = OFy * cam_h * FPS / Fy_ARdrone + 0.05;
-    results->Vely = -OFx * cam_h * FPS / Fx_ARdrone - 0.1;
+    results->Velx = results->OFy * results->cam_h * results->FPS / Fy_ARdrone + 0.05;
+    results->Vely = -results->OFx * results->cam_h * results->FPS / Fx_ARdrone - 0.1;
   } else {
     results->Velx = 0.0;
     results->Vely = 0.0;
@@ -283,13 +284,5 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
   memcpy(prev_frame, frame, imgHeight * imgWidth * 2);
   memcpy(prev_gray_frame, gray_frame, imgHeight * imgWidth);
 
-#if 0
-  // *************************************************************************************
-  // Downlink Message
-  // *************************************************************************************
-  DOWNLINK_SEND_OF_HOVER(DefaultChannel, DefaultDevice, &FPS, &dx_sum, &dy_sum, &OFx, &OFy,
-                         &diff_roll, &diff_pitch, &Velx, &Vely, &V_body.x, &V_body.y,
-                         &cam_h, &count);
-#endif
 }
 

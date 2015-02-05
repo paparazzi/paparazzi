@@ -10,9 +10,14 @@
 struct CVresults {
   int cnt;
   int status;
+  float FPS;
   float Velx;
   float Vely;
   int flow_count;
+  float cam_h;
+  int count;
+  float OFx, OFy, dx_sum, dy_sum;
+  float diff_roll, diff_pitch;
 };
 
 // Data from module to thread

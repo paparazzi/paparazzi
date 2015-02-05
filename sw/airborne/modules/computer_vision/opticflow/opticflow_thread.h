@@ -26,7 +26,5 @@
  */
 
 
-#include "std.h"
-
 void *computervision_thread_main(void *args);  /* computer vision thread: should be given a pointer to a socketpair as argument */
 void computervision_thread_request_exit(void);

@@ -74,6 +74,7 @@ static void agl_cb(uint8_t sender_id __attribute__((unused)), const float *dista
   }
 }
 
+#define DEBUG_INFO(X, ...) ;
 
 void opticflow_module_init(void)
 {
@@ -102,7 +103,7 @@ void opticflow_module_run(void)
     printf("[module] Failed to write to socket: written = %d, error=%d.\n",bytes_written, errno);
   }
   else {
-    printf("[module] Write # %d (%d bytes)\n",opticflow_module_data.cnt, bytes_written);
+    DEBUG_INFO("[module] Write # %d (%d bytes)\n",opticflow_module_data.cnt, bytes_written);
   }
 
   // Read Latest Vision Module Results
@@ -117,7 +118,7 @@ void opticflow_module_run(void)
     ////////////////////////////////////////////
     // Module-Side Code
     ////////////////////////////////////////////
-    printf("[module] Read vision %d\n",vision_results.cnt);
+    DEBUG_INFO("[module] Read vision %d\n",vision_results.cnt);
     run_hover_stabilization_onvision(&vision_results);
   }
 }

@@ -30,10 +30,13 @@
 
 #include <stdio.h>
 
+#define DEBUG_INFO(X, ...) ;
+
+
 static volatile enum{RUN,EXIT} computer_vision_thread_command = RUN;  /** request to close: set to 1 */
 
 void computervision_thread_request_exit(void) {
-  computer_vision_thread_command = 0;
+  computer_vision_thread_command = EXIT;
 }
 
 void *computervision_thread_main(void *args)
@@ -93,7 +96,7 @@ void *computervision_thread_main(void *args)
       }
     }
 
-    printf("[thread] Read # %d\n",autopilot_data.cnt);
+    DEBUG_INFO("[thread] Read # %d\n",autopilot_data.cnt);
 
     // Run Image Processing
     opticflow_plugin_run(img_new->buf, &autopilot_data, &vision_results);
@@ -104,7 +107,7 @@ void *computervision_thread_main(void *args)
     if (bytes_written != sizeof(vision_results)){
       perror("[thread] Failed to write to socket.\n");
     }
-    printf("[thread] Write # %d, (bytes %d)\n",vision_results.cnt, bytes_written);
+    DEBUG_INFO("[thread] Write # %d, (bytes %d)\n",vision_results.cnt, bytes_written);
 
 
 #ifdef DOWNLINK_VIDEO

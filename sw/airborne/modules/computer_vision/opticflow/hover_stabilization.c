@@ -142,16 +142,27 @@ void init_hover_stabilization_onvision()
 
 void run_hover_stabilization_onvision(struct CVresults* vision )
 {
-  if (autopilot_mode != AP_MODE_MODULE) {
-    return;
-  }
-
   struct FloatVect3 V_body;
   if (activate_opticflow_hover == TRUE) {
     // Compute body velocities from ENU
     struct FloatVect3 *vel_ned = (struct FloatVect3*)stateGetSpeedNed_f();
     struct FloatQuat *q_n2b = stateGetNedToBodyQuat_f();
     float_quat_vmult(&V_body, q_n2b, vel_ned);
+  }
+
+  // *************************************************************************************
+  // Downlink Message
+  // *************************************************************************************
+
+  DOWNLINK_SEND_OF_HOVER(DefaultChannel, DefaultDevice,
+                         &vision->FPS, &vision->dx_sum, &vision->dy_sum, &vision->OFx, &vision->OFy,
+                         &vision->diff_roll, &vision->diff_pitch,
+                         &vision->Velx, &vision->Vely,
+                         &V_body.x, &V_body.y,
+                         &vision->cam_h, &vision->count);
+
+  if (autopilot_mode != AP_MODE_MODULE) {
+    return;
   }
 
   if (vision->flow_count) {
