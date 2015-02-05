@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015
+ * Copyright (C) 2015 The Paparazzi Community
  *
  * This file is part of paparazzi.
  *
@@ -30,12 +30,12 @@
 #include "viewvideo.h"
 
 /** Set the default File logger path to the USB drive */
-#ifndef FILE_LOGGER_PATH
+#ifndef VIDEO_USB_LOGGER_PATH
 #define VIDEO_USB_LOGGER_PATH "/data/video/usb/"
 #endif
 
 /** The file pointer */
-static FILE *video_usb_logger;
+static FILE *video_usb_logger = NULL;
 
 /** Start the file logger and open a new file */
 void video_usb_logger_start(void)

@@ -37,7 +37,7 @@
 #endif
 
 /** The file pointer */
-static FILE *file_logger;
+static FILE *file_logger = NULL;
 
 /** Start the file logger and open a new file */
 void file_logger_start(void)

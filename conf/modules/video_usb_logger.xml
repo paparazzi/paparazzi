@@ -1,8 +1,10 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="computer_vision">
+<module name="video_usb_logger" dir="computer_vision">
   <doc>
-    <description>Logs attitude and position to a csv and images to jpeg files (only for linux)</description>
+    <description>Store video and attitude as jpeg/csv on USB-stick (only for Linux).
+
+        Logs attitude and position to a csv and images to jpeg files (only for linux).</description>
     <define name="VIDEO_USB_LOGGER_PATH" description="Logging path" />
   </doc>
   <depends>video_rtp_stream.xml</depends>
