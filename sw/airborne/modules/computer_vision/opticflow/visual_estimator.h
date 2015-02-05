@@ -20,14 +20,13 @@
 
 /**
  * @file modules/computer_vision/opticflow/visual_estimator.h
- * @brief optical-flow based hovering for Parrot AR.Drone 2.0
+ * @brief Estimate velocity from optic flow.
  *
- * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
+ * Using sensors from vertical camera and IMU of Parrot AR.Drone 2.0
  */
 
 #ifndef VISUAL_ESTIMATOR_H
 #define VISUAL_ESTIMATOR_H
-
 
 #include "inter_thread_data.h"
 

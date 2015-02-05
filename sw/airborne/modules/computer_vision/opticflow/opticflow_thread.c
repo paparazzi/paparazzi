@@ -23,8 +23,6 @@
  *
  */
 
-
-
 // Sockets
 #include <stdio.h>
 #include <unistd.h>
@@ -74,7 +72,10 @@ void *computervision_thread_main(void *args)
 
   // Video Input
   struct vid_struct vid;
-  vid.device = (char *)"/dev/video2"; // video1 = front camera; video2 = bottom camera
+  /* On ARDrone2:
+   * video1 = front camera; video2 = bottom camera
+   */
+  vid.device = (char *)"/dev/video2";
   vid.w = 320;
   vid.h = 240;
   vid.n_buffers = 4;

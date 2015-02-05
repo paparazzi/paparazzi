@@ -20,12 +20,12 @@
 
 /**
  * @file modules/computer_vision/opticflow/visual_estimator.c
- * @brief optical-flow based hovering for Parrot AR.Drone 2.0
+ * @brief Estimate velocity from optic flow.
  *
- * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
+ * Using sensors from vertical camera and IMU of Parrot AR.Drone 2.0.
+ *
+ * Warning: all this code is called form the Vision-Thread: do not access any autopilot data in here.
  */
-
-// Warning: all this code is called form the Vision-Thread: do not access any autopilot data in here.
 
 #include "std.h"
 
@@ -185,8 +185,8 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
   // *************************************************************************************
   CvtYUYV2Gray(visual_estimator.gray_frame, frame, w, h);
 
- opticFlowLK(visual_estimator.gray_frame, visual_estimator.prev_gray_frame, x, y, count_fil, w,
-                                h, new_x, new_y, status, 5, 100);
+  opticFlowLK(visual_estimator.gray_frame, visual_estimator.prev_gray_frame, x, y,
+              count_fil, w, h, new_x, new_y, status, 5, 100);
 
   results->flow_count = count_fil;
   for (int i = count_fil - 1; i >= 0; i--) {
@@ -281,4 +281,3 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
   memcpy(visual_estimator.prev_gray_frame, visual_estimator.gray_frame, w * h);
 
 }
-

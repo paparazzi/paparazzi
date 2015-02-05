@@ -22,8 +22,12 @@
  * @file modules/computer_vision/opticflow/opticflow_thread.h
  * @brief computer vision thread
  *
-  */
+ */
 
+#ifndef OPTICFLOW_THREAD_H
+#define OPTICFLOW_THREAD_H
 
 void *computervision_thread_main(void *args);  /* computer vision thread: should be given a pointer to a socketpair as argument */
 void computervision_thread_request_exit(void);
+
+#endif
