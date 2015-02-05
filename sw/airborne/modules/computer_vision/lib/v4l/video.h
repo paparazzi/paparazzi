@@ -22,7 +22,7 @@
 #ifndef _VIDEO_H
 #define _VIDEO_H
 
-#include "../../cv/image.h"
+#include "modules/computer_vision/cv/image.h"
 
 struct buffer_struct {
   void *buf;
