@@ -37,7 +37,7 @@
 #endif
 
 /** The file pointer */
-static FILE *file_logger;
+static FILE *file_logger = NULL;
 
 /** Start the file logger and open a new file */
 void file_logger_start(void)
@@ -67,8 +67,10 @@ void file_logger_start(void)
 /** Stop the logger an nicely close the file */
 void file_logger_stop(void)
 {
-  fclose(file_logger);
-  file_logger = NULL;
+  if (file_logger != NULL) {
+    fclose(file_logger);
+    file_logger = NULL;
+  }
 }
 
 /** Log the values to a csv file */
