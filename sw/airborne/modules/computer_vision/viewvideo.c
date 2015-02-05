@@ -155,11 +155,11 @@ void *computervision_thread_main(void *data)
 
   while (computer_vision_thread_command > 0) {
     // compute usleep to have a more stable frame rate
-    struct timeval time;
-    gettimeofday(&time, NULL);
-    int dt = (int)(time.tv_sec - last_time.tv_sec) * 1000000 + (int)(time.tv_usec - last_time.tv_usec);
+    struct timeval vision_thread_sleep_time;
+    gettimeofday(&vision_thread_sleep_time, NULL);
+    int dt = (int)(vision_thread_sleep_time.tv_sec - last_time.tv_sec) * 1000000 + (int)(vision_thread_sleep_time.tv_usec - last_time.tv_usec);
     if (dt < microsleep) { usleep(microsleep - dt); }
-    last_time = time;
+    last_time = vision_thread_sleep_time;
 
     // Grab new frame
     video_grab_image(&vid, img_new);
@@ -223,7 +223,7 @@ void *computervision_thread_main(void *data)
       0,                // Format 422
       quality_factor,   // Jpeg-Quality
       dri_jpeg_header,  // DRI Header
-      1                 // 90kHz time increment
+      0                 // 90kHz time increment
     );
     // Extra note: when the time increment is set to 0,
     // it is automaticaly calculated by the send_rtp_frame function
