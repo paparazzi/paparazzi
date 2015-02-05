@@ -39,6 +39,7 @@
 #include <pthread.h>
 
 // Sockets
+#include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -98,20 +99,25 @@ void opticflow_module_run(void)
   opticflow_module_data.theta = stateGetNedToBodyEulers_f()->theta;
   int bytes_written = write(cv_sockets[0], &opticflow_module_data, sizeof(opticflow_module_data));
   if (bytes_written != sizeof(opticflow_module_data)){
-    perror("module failed to write to socket.\n");
+    printf("[module] Failed to write to socket: written = %d, error=%d.\n",bytes_written, errno);
+  }
+  else {
+    printf("[module] Write # %d (%d bytes)\n",opticflow_module_data.cnt, bytes_written);
   }
 
   // Read Latest Vision Module Results
   struct CVresults vision_results;
-  int bytes_read = read(cv_sockets[0], &vision_results, sizeof(vision_results));
-  if (bytes_read <= sizeof(vision_results)) {
-    if (bytes_read != 0) {
-      printf("Failed to read CV results from socket.\n");
+  // Warning: if the vision runs faster than the module, you need to read multiple times
+  int bytes_read = recv(cv_sockets[0], &vision_results, sizeof(vision_results), MSG_DONTWAIT);
+  if (bytes_read != sizeof(vision_results)) {
+    if (bytes_read != -1) {
+      printf("[module] Failed to read %d bytes: CV results from socket errno=%d.\n",bytes_read, errno);
     }
   } else {
     ////////////////////////////////////////////
     // Module-Side Code
     ////////////////////////////////////////////
+    printf("[module] Read vision %d\n",vision_results.cnt);
     run_hover_stabilization_onvision(&vision_results);
   }
 }

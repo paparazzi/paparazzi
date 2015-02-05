@@ -8,7 +8,7 @@
 
 // Data from thread to module
 struct CVresults {
-  int x;
+  int cnt;
   int status;
   float Velx;
   float Vely;

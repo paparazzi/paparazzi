@@ -111,6 +111,8 @@ void opticflow_plugin_init(unsigned int w, unsigned int h, struct CVresults *res
   results->Velx = 0.0;
   results->Vely = 0.0;
   results->flow_count = 0;
+  results->cnt = 0;
+  results->status = 0;
 
   framerate_init();
 }

@@ -39,7 +39,6 @@ void computervision_thread_request_exit(void) {
 void *computervision_thread_main(void *args)
 {
   int thread_socket = *(int *) args;
-  int cnt = 0;
 
   computer_vision_thread_command = RUN;
 
@@ -78,27 +77,34 @@ void *computervision_thread_main(void *args)
   // First Apply Settings before init
   opticflow_plugin_init(vid.w, vid.h, &vision_results);
 
-  while (computer_vision_thread_command > 0) {
+  while (computer_vision_thread_command == RUN) {
     vision_results.status = 2;
     video_grab_image(&vid, img_new);
 
     // Get most recent State
-    int bytes_read = read(thread_socket, &autopilot_data, sizeof(autopilot_data));
-    if (bytes_read <= sizeof(autopilot_data)) {
-      if (bytes_read != 0) {
-        printf("Failed to read PPRZ info from socket.\n");
+    int bytes_read = sizeof(autopilot_data);
+    while (bytes_read == sizeof(autopilot_data))
+    {
+      bytes_read = recv(thread_socket, &autopilot_data, sizeof(autopilot_data), MSG_DONTWAIT);
+      if (bytes_read != sizeof(autopilot_data)) {
+        if (bytes_read != -1) {
+          printf("[thread] Failed to read %d bytes PPRZ info from socket.\n",bytes_read);
+        }
       }
     }
+
+    printf("[thread] Read # %d\n",autopilot_data.cnt);
 
     // Run Image Processing
     opticflow_plugin_run(img_new->buf, &autopilot_data, &vision_results);
 
     /* send results to main */
-    vision_results.x = cnt++;
+    vision_results.cnt++;
     int bytes_written = write(thread_socket, &vision_results, sizeof(vision_results));
     if (bytes_written != sizeof(vision_results)){
-      perror("failed to write to socket.\n");
+      perror("[thread] Failed to write to socket.\n");
     }
+    printf("[thread] Write # %d, (bytes %d)\n",vision_results.cnt, bytes_written);
 
 
 #ifdef DOWNLINK_VIDEO
