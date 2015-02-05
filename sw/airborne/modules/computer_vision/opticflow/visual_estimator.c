@@ -25,7 +25,10 @@
  * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
  */
 
+// Warning: all this code is called form the Vision-Thread: do not access any autopilot data in here.
+
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 // Own Header
@@ -36,17 +39,7 @@
 #include "opticflow/fast9/fastRosten.h"
 
 // for FPS
-#include "modules/computer_vision/opticflow_module.h"
-
-// Paparazzi Data
-#include "state.h"
-#include "subsystems/abi.h"
-
-// Downlink
-#include "subsystems/datalink/downlink.h"
-
-// Timer
-#include <sys/time.h>
+#include "modules/computer_vision/cv/framerate.h"
 
 // Image size set at init
 unsigned int imgWidth, imgHeight;
@@ -71,7 +64,6 @@ int max_count = 25;
 // Corner Tracking
 int *new_x, *new_y, *status, *dx, *dy;
 int error_opticflow;
-int flow_count = 0;
 int remove_point;
 int c;
 int borderx = 24, bordery = 24;
@@ -84,30 +76,10 @@ float distance2, min_distance, min_distance2;
 float curr_pitch, curr_roll, prev_pitch, prev_roll;
 float cam_h, diff_roll, diff_pitch, OFx_trans, OFy_trans;
 
-// Lateral Velocity Computation
-float Velx, Vely;
 
-/** height above ground level, from ABI
- * Used for scale computation, negative value means invalid.
- */
-volatile float estimator_agl;
-
-/** default sonar/agl to use in opticflow visual_estimator */
-#ifndef OPTICFLOW_AGL_ID
-#define OPTICFLOW_AGL_ID ABI_BROADCAST
-#endif
-abi_event agl_ev;
-static void agl_cb(uint8_t sender_id, const float *distance);
-
-static void agl_cb(uint8_t sender_id __attribute__((unused)), const float *distance)
-{
-  if (*distance > 0) {
-    estimator_agl = *distance;
-  }
-}
 
 // Called by plugin
-void opticflow_plugin_init(unsigned int w, unsigned int h)
+void opticflow_plugin_init(unsigned int w, unsigned int h, struct CVresults *results)
 {
   // Initialize variables
   imgWidth = w;
@@ -136,16 +108,17 @@ void opticflow_plugin_init(unsigned int w, unsigned int h)
   curr_roll = 0.0;
   OFx_trans = 0.0;
   OFy_trans = 0.0;
-  Velx = 0.0;
-  Vely = 0.0;
+  results->Velx = 0.0;
+  results->Vely = 0.0;
+  results->flow_count = 0;
 
-  // get AGL from sonar via ABI
-  estimator_agl = -1.0;
-  AbiBindMsgAGL(OPTICFLOW_AGL_ID, &agl_ev, agl_cb);
+  framerate_init();
 }
 
-void opticflow_plugin_run(unsigned char *frame)
+void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CVresults *results)
 {
+  framerate_run();
+
   if (old_img_init == 1) {
     memcpy(prev_frame, frame, imgHeight * imgWidth * 2);
     CvtYUYV2Gray(prev_gray_frame, prev_frame, imgWidth, imgHeight);
@@ -213,7 +186,7 @@ void opticflow_plugin_run(unsigned char *frame)
   error_opticflow = opticFlowLK(gray_frame, prev_gray_frame, x, y, count_fil, imgWidth,
                                 imgHeight, new_x, new_y, status, 5, 100);
 
-  flow_count = count_fil;
+  results->flow_count = count_fil;
   for (int i = count_fil - 1; i >= 0; i--) {
     remove_point = 1;
 
@@ -223,13 +196,13 @@ void opticflow_plugin_run(unsigned char *frame)
     }
 
     if (remove_point) {
-      for (c = i; c < flow_count - 1; c++) {
+      for (c = i; c < results->flow_count - 1; c++) {
         x[c] = x[c + 1];
         y[c] = y[c + 1];
         new_x[c] = new_x[c + 1];
         new_y[c] = new_y[c + 1];
       }
-      flow_count--;
+      results->flow_count--;
     }
   }
 
@@ -237,27 +210,26 @@ void opticflow_plugin_run(unsigned char *frame)
   dy_sum = 0.0;
 
   // Optical Flow Computation
-  for (int i = 0; i < flow_count; i++) {
+  for (int i = 0; i < results->flow_count; i++) {
     dx[i] = new_x[i] - x[i];
     dy[i] = new_y[i] - y[i];
   }
 
   // Median Filter
-  if (flow_count) {
-    quick_sort_int(dx, flow_count); // 11
-    quick_sort_int(dy, flow_count); // 11
+  if (results->flow_count) {
+    quick_sort_int(dx, results->flow_count); // 11
+    quick_sort_int(dy, results->flow_count); // 11
 
-    dx_sum = (float) dx[flow_count / 2];
-    dy_sum = (float) dy[flow_count / 2];
+    dx_sum = (float) dx[results->flow_count / 2];
+    dy_sum = (float) dy[results->flow_count / 2];
   } else {
     dx_sum = 0.0;
     dy_sum = 0.0;
   }
 
   // Flow Derotation
-  // !!WARNING!! Accessing of the state interface is NOT tread safe!!!
-  curr_pitch = stateGetNedToBodyEulers_f()->theta;
-  curr_roll = stateGetNedToBodyEulers_f()->phi;
+  curr_pitch = info->theta;
+  curr_roll = info->phi;
 
   diff_pitch = (curr_pitch - prev_pitch) * imgHeight / FOV_H;
   diff_roll = (curr_roll - prev_roll) * imgWidth / FOV_W;
@@ -266,7 +238,7 @@ void opticflow_plugin_run(unsigned char *frame)
   prev_roll = curr_roll;
 
 #ifdef FLOW_DEROTATION
-  if (flow_count) {
+  if (results->flow_count) {
     OFx_trans = dx_sum - diff_roll;
     OFy_trans = dy_sum - diff_pitch;
 
@@ -284,22 +256,22 @@ void opticflow_plugin_run(unsigned char *frame)
 #endif
 
   // Average Filter
-  OFfilter(&OFx, &OFy, OFx_trans, OFy_trans, flow_count, 1);
+  OFfilter(&OFx, &OFy, OFx_trans, OFy_trans, results->flow_count, 1);
 
   // Velocity Computation
-  if (estimator_agl < 0) {
+  if (info->agl < 0) {
     cam_h = 1;
   }
   else {
-    cam_h = estimator_agl;
+    cam_h = info->agl;
   }
 
-  if (flow_count) {
-    Velx = OFy * cam_h * FPS / Fy_ARdrone + 0.05;
-    Vely = -OFx * cam_h * FPS / Fx_ARdrone - 0.1;
+  if (results->flow_count) {
+    results->Velx = OFy * cam_h * FPS / Fy_ARdrone + 0.05;
+    results->Vely = -OFx * cam_h * FPS / Fx_ARdrone - 0.1;
   } else {
-    Velx = 0.0;
-    Vely = 0.0;
+    results->Velx = 0.0;
+    results->Vely = 0.0;
   }
 
   // *************************************************************************************

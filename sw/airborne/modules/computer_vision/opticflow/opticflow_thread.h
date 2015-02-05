@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Hann Woei Ho
+ * Copyright (C) 2015 The Paparazzi Community
  *
  * This file is part of Paparazzi.
  *
@@ -19,24 +19,14 @@
  */
 
 /**
- * @file modules/computer_vision/opticflow/visual_estimator.h
- * @brief optical-flow based hovering for Parrot AR.Drone 2.0
+ * @file modules/computer_vision/opticflow/opticflow_thread.c
+ * @brief computer vision thread
  *
  * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
  */
 
-#ifndef VISUAL_ESTIMATOR_H
-#define VISUAL_ESTIMATOR_H
 
+#include "std.h"
 
-#include "inter_thread_data.h"
-
-/**
- * Initialize visual estimator.
- * @param w  image width
- * @param h  image height
- */
-void opticflow_plugin_init(unsigned int w, unsigned int h, struct CVresults *results);
-void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CVresults* results);
-
-#endif /* VISUAL_ESTIMATOR_H */
+void *computervision_thread_main(void *args);  /* computer vision thread: should be given a pointer to a socketpair as argument */
+void computervision_thread_request_exit(void);

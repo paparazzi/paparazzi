@@ -29,11 +29,7 @@
 // Own Header
 #include "hover_stabilization.h"
 
-// Vision Data
-#include "visual_estimator.h"
-
 // Stabilization
-//#include "stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "autopilot.h"
@@ -144,15 +140,12 @@ void init_hover_stabilization_onvision()
   Vely_Int = 0;
 }
 
-void run_hover_stabilization_onvision(void)
+void run_hover_stabilization_onvision(struct CVresults* vision )
 {
-  if (autopilot_mode == AP_MODE_MODULE) {
-    run_opticflow_hover();
+  if (autopilot_mode != AP_MODE_MODULE) {
+    return;
   }
-}
 
-void run_opticflow_hover(void)
-{
   struct FloatVect3 V_body;
   if (activate_opticflow_hover == TRUE) {
     // Compute body velocities from ENU
@@ -161,9 +154,9 @@ void run_opticflow_hover(void)
     float_quat_vmult(&V_body, q_n2b, vel_ned);
   }
 
-  if (flow_count) {
-    Error_Velx = Velx - vision_desired_vx;
-    Error_Vely = Vely - vision_desired_vy;
+  if (vision->flow_count) {
+    Error_Velx = vision->Velx - vision_desired_vx;
+    Error_Vely = vision->Vely - vision_desired_vy;
   } else {
     Error_Velx = 0;
     Error_Vely = 0;
@@ -204,6 +197,6 @@ void run_opticflow_hover(void)
   else if (cmd_euler.theta > CMD_OF_SAT) {cmd_euler.theta = CMD_OF_SAT; saturateY = 1;}
 
   stabilization_attitude_set_rpy_setpoint_i(&cmd_euler);
-  DOWNLINK_SEND_VISION_STABILIZATION(DefaultChannel, DefaultDevice, &Velx, &Vely, &Velx_Int,
+  DOWNLINK_SEND_VISION_STABILIZATION(DefaultChannel, DefaultDevice, &vision->Velx, &vision->Vely, &Velx_Int,
                                      &Vely_Int, &cmd_euler.phi, &cmd_euler.theta);
 }

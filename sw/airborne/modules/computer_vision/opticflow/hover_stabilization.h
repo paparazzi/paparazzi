@@ -30,6 +30,7 @@
 #define HOVER_STABILIZATION_H_
 
 #include <std.h>
+#include "inter_thread_data.h"
 
 // Controller module
 
@@ -46,7 +47,7 @@ extern void guidance_h_module_run(bool_t in_flight);
 
 
 void init_hover_stabilization_onvision(void);
-void run_hover_stabilization_onvision(void);
+void run_hover_stabilization_onvision(struct CVresults *vision);
 
 extern bool activate_opticflow_hover;
 extern float vision_desired_vx;
