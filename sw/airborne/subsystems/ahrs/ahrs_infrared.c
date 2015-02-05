@@ -51,10 +51,10 @@ float heading;
 static abi_event gyro_ev;
 
 static void gyro_cb(uint8_t sender_id __attribute__((unused)),
-                    const uint32_t *stamp __attribute__((unused)),
-                    const struct Int32Rates *gyro)
+                    uint32_t stamp __attribute__((unused)),
+                    struct Int32Rates *gyro)
 {
-  stateSetBodyRates_i((struct Int32Rates *)gyro);
+  stateSetBodyRates_i(gyro);
 }
 
 

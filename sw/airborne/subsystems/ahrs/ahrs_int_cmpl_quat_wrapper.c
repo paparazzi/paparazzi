@@ -91,8 +91,8 @@ static abi_event aligner_ev;
 static abi_event body_to_imu_ev;
 
 
-static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t *stamp,
-                    const struct Int32Rates *gyro)
+static void gyro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp,
+                    struct Int32Rates *gyro)
 {
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
   PRINT_CONFIG_MSG("Calculating dt for AHRS_ICQ propagation.")
@@ -100,77 +100,76 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t *s
   static uint32_t last_stamp = 0;
 
   if (last_stamp > 0 && ahrs_icq.is_aligned) {
-    float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_icq_propagate((struct Int32Rates *)gyro, dt);
+    float dt = (float)(stamp - last_stamp) * 1e-6;
+    ahrs_icq_propagate(gyro, dt);
   }
-  last_stamp = *stamp;
+  last_stamp = stamp;
 #else
   PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for AHRS_ICQ propagation.")
   PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
   if (ahrs_icq.status == AHRS_ICQ_RUNNING) {
     const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-    ahrs_icq_propagate((struct Int32Rates *)gyro, dt);
+    ahrs_icq_propagate(gyro, dt);
   }
 #endif
 }
 
-static void accel_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t *stamp,
-                     const struct Int32Vect3 *accel)
+static void accel_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp,
+                     struct Int32Vect3 *accel)
 {
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_CORRECT_FREQUENCY)
   PRINT_CONFIG_MSG("Calculating dt for AHRS int_cmpl_quat accel update.")
   static uint32_t last_stamp = 0;
   if (last_stamp > 0 && ahrs_icq.is_aligned) {
-    float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_icq_update_accel((struct Int32Vect3 *)accel, dt);
+    float dt = (float)(stamp - last_stamp) * 1e-6;
+    ahrs_icq_update_accel(accel, dt);
   }
-  last_stamp = *stamp;
+  last_stamp = stamp;
 #else
   PRINT_CONFIG_MSG("Using fixed AHRS_CORRECT_FREQUENCY for AHRS int_cmpl_quat accel update.")
   PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
   if (ahrs_icq.is_aligned) {
     const float dt = 1. / (AHRS_CORRECT_FREQUENCY);
-    ahrs_icq_update_accel((struct Int32Vect3 *)accel, dt);
+    ahrs_icq_update_accel(accel, dt);
   }
 #endif
 }
 
-static void mag_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t *stamp,
-                   const struct Int32Vect3 *mag)
+static void mag_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp,
+                   struct Int32Vect3 *mag)
 {
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
   PRINT_CONFIG_MSG("Calculating dt for AHRS int_cmpl_quat mag update.")
   static uint32_t last_stamp = 0;
   if (last_stamp > 0 && ahrs_icq.is_aligned) {
-    float dt = (float)(*stamp - last_stamp) * 1e-6;
-    ahrs_icq_update_mag((struct Int32Vect3 *)mag, dt);
+    float dt = (float)(stamp - last_stamp) * 1e-6;
+    ahrs_icq_update_mag(mag, dt);
   }
-  last_stamp = *stamp;
+  last_stamp = stamp;
 #else
   PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS int_cmpl_quat mag update.")
   PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
   if (ahrs_icq.is_aligned) {
     const float dt = 1. / (AHRS_MAG_CORRECT_FREQUENCY);
-    ahrs_icq_update_mag((struct Int32Vect3 *)mag, dt);
+    ahrs_icq_update_mag(mag, dt);
   }
 #endif
 }
 
 static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
-                       const uint32_t *stamp __attribute__((unused)),
-                       const struct Int32Rates *lp_gyro, const struct Int32Vect3 *lp_accel,
-                       const struct Int32Vect3 *lp_mag)
+                       uint32_t stamp __attribute__((unused)),
+                       struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
+                       struct Int32Vect3 *lp_mag)
 {
   if (!ahrs_icq.is_aligned) {
-    ahrs_icq_align((struct Int32Rates *)lp_gyro, (struct Int32Vect3 *)lp_accel,
-                   (struct Int32Vect3 *)lp_mag);
+    ahrs_icq_align(lp_gyro, lp_accel, lp_mag);
   }
 }
 
 static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           const struct FloatQuat *q_b2i_f)
+                           struct FloatQuat *q_b2i_f)
 {
-  ahrs_icq_set_body_to_imu_quat((struct FloatQuat *)q_b2i_f);
+  ahrs_icq_set_body_to_imu_quat(q_b2i_f);
 }
 
 void ahrs_icq_register(void)

@@ -78,7 +78,7 @@ void mag_hmc58xx_module_event(void)
     // scale vector
     imu_scale_mag(&imu);
 
-    AbiSendMsgIMU_MAG_INT32(MAG_HMC58XX_SENDER_ID, &now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_INT32(MAG_HMC58XX_SENDER_ID, now_ts, &imu.mag);
 #endif
 #if MODULE_HMC58XX_SYNC_SEND
     mag_hmc58xx_report();

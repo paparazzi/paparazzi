@@ -766,7 +766,7 @@ static inline void on_accel_event(void)
 
   imu_scale_accel(&imu);
 
-  AbiSendMsgIMU_ACCEL_INT32(1, &now_ts, &imu.accel);
+  AbiSendMsgIMU_ACCEL_INT32(1, now_ts, &imu.accel);
 }
 
 static inline void on_gyro_event(void)
@@ -778,7 +778,7 @@ static inline void on_gyro_event(void)
 
   imu_scale_gyro(&imu);
 
-  AbiSendMsgIMU_GYRO_INT32(1, &now_ts, &imu.gyro_prev);
+  AbiSendMsgIMU_GYRO_INT32(1, now_ts, &imu.gyro_prev);
 
 #if USE_AHRS_ALIGNER
   if (ahrs_aligner.status != AHRS_ALIGNER_LOCKED) {
@@ -818,7 +818,7 @@ static inline void on_mag_event(void)
   uint32_t now_ts = get_sys_time_usec();
 
   imu_scale_mag(&imu);
-  AbiSendMsgIMU_MAG_INT32(1, &now_ts, &imu.mag);
+  AbiSendMsgIMU_MAG_INT32(1, now_ts, &imu.mag);
 #endif
 }
 

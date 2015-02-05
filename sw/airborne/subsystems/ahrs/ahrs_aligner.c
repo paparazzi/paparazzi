@@ -136,7 +136,7 @@ void ahrs_aligner_run(void)
       LED_ON(AHRS_ALIGNER_LED);
 #endif
       uint32_t now_ts = get_sys_time_usec();
-      AbiSendMsgIMU_LOWPASSED(ABI_BROADCAST, &now_ts, &ahrs_aligner.lp_gyro,
+      AbiSendMsgIMU_LOWPASSED(ABI_BROADCAST, now_ts, &ahrs_aligner.lp_gyro,
                               &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
     }
   }

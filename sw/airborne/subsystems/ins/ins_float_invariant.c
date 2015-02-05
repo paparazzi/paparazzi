@@ -186,14 +186,14 @@ static void baro_cb(uint8_t sender_id, float pressure);
 #define INS_MAG_ID ABI_BROADCAST
 #endif
 static abi_event mag_ev;
-static void mag_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t *stamp,
-                   const struct Int32Vect3 *mag);
+static void mag_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp,
+                   struct Int32Vect3 *mag);
 
 static abi_event aligner_ev;
 static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
-                       const uint32_t *stamp __attribute__((unused)),
-                       const struct Int32Rates *lp_gyro, const struct Int32Vect3 *lp_accel,
-                       const struct Int32Vect3 *lp_mag);
+                       uint32_t stamp __attribute__((unused)),
+                       struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
+                       struct Int32Vect3 *lp_mag);
 
 
 /* gps */
@@ -756,21 +756,20 @@ void ins_propagate(float dt)
 }
 
 static void mag_cb(uint8_t sender_id __attribute__((unused)),
-                   const uint32_t *stamp __attribute__((unused)),
-                   const struct Int32Vect3 *mag)
+                   uint32_t stamp __attribute__((unused)),
+                   struct Int32Vect3 *mag)
 {
   if (ins_impl.is_aligned) {
-    ins_float_invariant_update_mag((struct Int32Vect3 *)mag);
+    ins_float_invariant_update_mag(mag);
   }
 }
 
 static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
-                       const uint32_t *stamp __attribute__((unused)),
-                       const struct Int32Rates *lp_gyro, const struct Int32Vect3 *lp_accel,
-                       const struct Int32Vect3 *lp_mag)
+                       uint32_t stamp __attribute__((unused)),
+                       struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
+                       struct Int32Vect3 *lp_mag)
 {
   if (!ins_impl.is_aligned) {
-    ins_float_invariant_align((struct Int32Rates *)lp_gyro, (struct Int32Vect3 *)lp_accel,
-                              (struct Int32Vect3 *)lp_mag);
+    ins_float_invariant_align(lp_gyro, lp_accel, lp_mag);
   }
 }

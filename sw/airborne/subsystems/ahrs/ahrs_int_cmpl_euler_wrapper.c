@@ -85,48 +85,47 @@ static abi_event body_to_imu_ev;
 
 
 static void gyro_cb(uint8_t sender_id __attribute__((unused)),
-                    const uint32_t *stamp __attribute__((unused)),
-                    const struct Int32Rates *gyro)
+                    uint32_t stamp __attribute__((unused)),
+                    struct Int32Rates *gyro)
 {
   if (ahrs_ice.is_aligned) {
-    ahrs_ice_propagate((struct Int32Rates *)gyro);
+    ahrs_ice_propagate(gyro);
   }
 
 }
 
 static void accel_cb(uint8_t sender_id __attribute__((unused)),
-                     const uint32_t *stamp __attribute__((unused)),
-                     const struct Int32Vect3 *accel)
+                     uint32_t stamp __attribute__((unused)),
+                     struct Int32Vect3 *accel)
 {
   if (ahrs_ice.is_aligned) {
-    ahrs_ice_update_accel((struct Int32Vect3 *)accel);
+    ahrs_ice_update_accel(accel);
   }
 }
 
 static void mag_cb(uint8_t sender_id __attribute__((unused)),
-                   const uint32_t *stamp __attribute__((unused)),
-                   const struct Int32Vect3 *mag)
+                   uint32_t stamp __attribute__((unused)),
+                   struct Int32Vect3 *mag)
 {
   if (ahrs_ice.is_aligned) {
-    ahrs_ice_update_mag((struct Int32Vect3 *)mag);
+    ahrs_ice_update_mag(mag);
   }
 }
 
 static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
-                       const uint32_t *stamp __attribute__((unused)),
-                       const struct Int32Rates *lp_gyro, const struct Int32Vect3 *lp_accel,
-                       const struct Int32Vect3 *lp_mag)
+                       uint32_t stamp __attribute__((unused)),
+                       struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
+                       struct Int32Vect3 *lp_mag)
 {
   if (!ahrs_ice.is_aligned) {
-    ahrs_ice_align((struct Int32Rates *)lp_gyro, (struct Int32Vect3 *)lp_accel,
-                   (struct Int32Vect3 *)lp_mag);
+    ahrs_ice_align(lp_gyro, lp_accel, lp_mag);
   }
 }
 
 static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           const struct FloatQuat *q_b2i_f)
+                           struct FloatQuat *q_b2i_f)
 {
-  ahrs_ice_set_body_to_imu_quat((struct FloatQuat *)q_b2i_f);
+  ahrs_ice_set_body_to_imu_quat(q_b2i_f);
 }
 
 void ahrs_ice_register(void)
