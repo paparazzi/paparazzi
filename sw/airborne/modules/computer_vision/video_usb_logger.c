@@ -55,18 +55,17 @@ void video_usb_logger_start(void)
   file_logger = fopen(filename, "w");
 
   if (file_logger != NULL) {
-    fprintf(
-      file_logger,
-      "counter,image,roll,pitch,yaw,x,y,z,sonar\n"
-    );
+    fprintf(file_logger, "counter,image,roll,pitch,yaw,x,y,z,sonar\n");
   }
 }
 
 /** Stop the logger an nicely close the file */
 void video_usb_logger_stop(void)
 {
-  fclose(file_logger);
-  file_logger = NULL;
+  if (file_logger != NULL) {
+    fclose(file_logger);
+    file_logger = NULL;
+  }
 }
 
 /** Log the values to a csv file */
@@ -80,17 +79,9 @@ void video_usb_logger_periodic(void)
   struct Int32Eulers *euler = stateGetNedToBodyEulers_i();
   static uint32_t sonar = 0;
 
-  fprintf(file_logger, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-          counter,
-          viewvideo_save_shot_number,
-          euler->phi,
-          euler->theta,
-          euler->psi,
-          ned->x,
-          ned->y,
-          ned->z,
-          sonar
-         );
+  fprintf(file_logger, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", counter,
+          viewvideo_save_shot_number, euler->phi, euler->theta, euler->psi, ned->x,
+          ned->y, ned->z, sonar);
   counter++;
   // Save a new shot
   viewvideo_SaveShot(0);
