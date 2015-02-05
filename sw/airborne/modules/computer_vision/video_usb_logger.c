@@ -26,8 +26,6 @@
 #include "video_usb_logger.h"
 
 #include <stdio.h>
-#include "subsystems/imu.h"
-#include "firmwares/rotorcraft/stabilization.h"
 #include "state.h"
 #include "viewvideo.h"
 
@@ -62,9 +60,6 @@ void video_usb_logger_start(void)
       "counter,image,roll,pitch,yaw,x,y,z,sonar\n"
     );
   }
-
-  viewvideo_start();
-  viewvideo_SaveShot(0);
 }
 
 /** Stop the logger an nicely close the file */
@@ -72,7 +67,6 @@ void video_usb_logger_stop(void)
 {
   fclose(file_logger);
   file_logger = NULL;
-  viewvideo_stop();
 }
 
 /** Log the values to a csv file */
@@ -98,6 +92,6 @@ void video_usb_logger_periodic(void)
           sonar
          );
   counter++;
-  // Ask for a new shot
+  // Save a new shot
   viewvideo_SaveShot(0);
 }
