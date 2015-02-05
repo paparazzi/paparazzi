@@ -3,6 +3,7 @@
 <module name="computer_vision">
   <doc>
     <description>Logs attitude and position to a csv and images to jpeg files (only for linux)</description>
+    <define name="VIDEO_USB_LOGGER_PATH" description="Logging path" />
   </doc>
   <depends>video_rtp_stream.xml</depends>
   <header>
@@ -16,9 +17,6 @@
     <define name="BOTTOM_CAMERA" value="1" />
     <define name="LOG_ON_USB" value="1" />
     <define name="VIDEO_FPS" value="10" />
-    <flag name="LDFLAGS" value="pthread"/>
-    <flag name="LDFLAGS" value="lrt"/>
-    <flag name="LDFLAGS" value="static"/>
 
   </makefile>
 </module>

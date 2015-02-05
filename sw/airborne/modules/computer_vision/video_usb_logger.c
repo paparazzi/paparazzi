@@ -31,11 +31,11 @@
 
 /** Set the default File logger path to the USB drive */
 #ifndef FILE_LOGGER_PATH
-#define FILE_LOGGER_PATH "/data/video/usb/"
+#define VIDEO_USB_LOGGER_PATH "/data/video/usb/"
 #endif
 
 /** The file pointer */
-static FILE *file_logger;
+static FILE *video_usb_logger;
 
 /** Start the file logger and open a new file */
 void video_usb_logger_start(void)
@@ -44,34 +44,34 @@ void video_usb_logger_start(void)
   char filename[512];
 
   // Check for available files
-  sprintf(filename, "%s%05d.csv", FILE_LOGGER_PATH, counter);
-  while ((file_logger = fopen(filename, "r"))) {
-    fclose(file_logger);
+  sprintf(filename, "%s%05d.csv", VIDEO_USB_LOGGER_PATH, counter);
+  while ((video_usb_logger = fopen(filename, "r"))) {
+    fclose(video_usb_logger);
 
     counter++;
-    sprintf(filename, "%s%05d.csv", FILE_LOGGER_PATH, counter);
+    sprintf(filename, "%s%05d.csv", VIDEO_USB_LOGGER_PATH, counter);
   }
 
-  file_logger = fopen(filename, "w");
+  video_usb_logger = fopen(filename, "w");
 
-  if (file_logger != NULL) {
-    fprintf(file_logger, "counter,image,roll,pitch,yaw,x,y,z,sonar\n");
+  if (video_usb_logger != NULL) {
+    fprintf(video_usb_logger, "counter,image,roll,pitch,yaw,x,y,z,sonar\n");
   }
 }
 
 /** Stop the logger an nicely close the file */
 void video_usb_logger_stop(void)
 {
-  if (file_logger != NULL) {
-    fclose(file_logger);
-    file_logger = NULL;
+  if (video_usb_logger != NULL) {
+    fclose(video_usb_logger);
+    video_usb_logger = NULL;
   }
 }
 
 /** Log the values to a csv file */
 void video_usb_logger_periodic(void)
 {
-  if (file_logger == NULL) {
+  if (video_usb_logger == NULL) {
     return;
   }
   static uint32_t counter;
@@ -79,7 +79,7 @@ void video_usb_logger_periodic(void)
   struct Int32Eulers *euler = stateGetNedToBodyEulers_i();
   static uint32_t sonar = 0;
 
-  fprintf(file_logger, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", counter,
+  fprintf(video_usb_logger, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", counter,
           viewvideo_save_shot_number, euler->phi, euler->theta, euler->psi, ned->x,
           ned->y, ned->z, sonar);
   counter++;
