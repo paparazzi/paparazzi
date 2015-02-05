@@ -102,11 +102,11 @@ void *computervision_thread_main(void *data)
   vid.device = (char *)"/dev/video1";
   vid.w = 1280;
   vid.h = 720;
-//#if BOTTOM_CAMERA == 1
+#if USE_BOTTOM_CAMERA == 1
   vid.device = (char *)"/dev/video2";
   vid.w = 320;
   vid.h = 240;
-//#endif
+#endif
   vid.n_buffers = 4;
   if (video_init(&vid) < 0) {
     printf("Error initialising video\n");
