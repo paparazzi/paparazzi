@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/computer_vision/cv/framerate.h
+ * @file modules/computer_vision/cv/framerate.c
  *
  */
 
@@ -35,12 +35,6 @@ struct timeval start_time;
 struct timeval end_time;
 
 #define USEC_PER_SEC 1000000L
-
-static float framerate_FPS;
-
-float framerate_get(void) {
-  return framerate_FPS;
-}
 
 static long time_elapsed(struct timeval *t1, struct timeval *t2)
 {
@@ -68,15 +62,15 @@ static long end_timer(void)
 
 void framerate_init(void) {
   // Frame Rate Initialization
-  framerate_FPS = 0.0;
   timestamp = 0;
   start_timer();
 }
 
-void framerate_run(void) {
+float framerate_run(void) {
   // FPS
   timestamp = end_timer();
-  framerate_FPS = (float) 1000000 / (float)timestamp;
+  float framerate_FPS = (float) 1000000 / (float)timestamp;
   //  printf("dt = %d, FPS = %f\n",timestamp, FPS);
   start_timer();
+  return framerate_FPS;
 }

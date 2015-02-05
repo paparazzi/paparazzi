@@ -25,5 +25,4 @@
 
 
 void framerate_init(void);
-void framerate_run(void);
-float framerate_get(void);
+float framerate_run(void);

@@ -19,11 +19,10 @@
  */
 
 /**
- * @file modules/computer_vision/opticflow/opticflow_thread.c
+ * @file modules/computer_vision/opticflow/opticflow_thread.h
  * @brief computer vision thread
  *
- * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
- */
+  */
 
 
 void *computervision_thread_main(void *args);  /* computer vision thread: should be given a pointer to a socketpair as argument */

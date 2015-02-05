@@ -1,3 +1,27 @@
+/*
+ * Copyright (C) 2015 The Paparazzi Community
+ *
+ * This file is part of Paparazzi.
+ *
+ * Paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file modules/computer_vision/opticflow/opticflow_thread.c
+ *
+ */
 
 
 
@@ -29,9 +53,7 @@
 #endif
 
 #include <stdio.h>
-
 #define DEBUG_INFO(X, ...) ;
-
 
 static volatile enum{RUN,EXIT} computer_vision_thread_command = RUN;  /** request to close: set to 1 */
 
@@ -43,10 +65,12 @@ void *computervision_thread_main(void *args)
 {
   int thread_socket = *(int *) args;
 
-  computer_vision_thread_command = RUN;
-
+  // Local data in/out
   struct CVresults vision_results;
   struct PPRZinfo autopilot_data;
+
+  // Status
+  computer_vision_thread_command = RUN;
 
   // Video Input
   struct vid_struct vid;
@@ -55,11 +79,8 @@ void *computervision_thread_main(void *args)
   vid.h = 240;
   vid.n_buffers = 4;
 
-  vision_results.status = 1;
-
   if (video_init(&vid) < 0) {
     printf("Error initialising video\n");
-    vision_results.status = -1;
     return 0;
   }
 
@@ -81,10 +102,11 @@ void *computervision_thread_main(void *args)
   opticflow_plugin_init(vid.w, vid.h, &vision_results);
 
   while (computer_vision_thread_command == RUN) {
-    vision_results.status = 2;
+
+    // Wait for a new frame
     video_grab_image(&vid, img_new);
 
-    // Get most recent State
+    // Get most recent State information
     int bytes_read = sizeof(autopilot_data);
     while (bytes_read == sizeof(autopilot_data))
     {
@@ -95,20 +117,18 @@ void *computervision_thread_main(void *args)
         }
       }
     }
-
     DEBUG_INFO("[thread] Read # %d\n",autopilot_data.cnt);
 
-    // Run Image Processing
+    // Run Image Processing with image and data and get results
     opticflow_plugin_run(img_new->buf, &autopilot_data, &vision_results);
 
-    /* send results to main */
+    /* Send results to main */
     vision_results.cnt++;
     int bytes_written = write(thread_socket, &vision_results, sizeof(vision_results));
     if (bytes_written != sizeof(vision_results)){
       perror("[thread] Failed to write to socket.\n");
     }
     DEBUG_INFO("[thread] Write # %d, (bytes %d)\n",vision_results.cnt, bytes_written);
-
 
 #ifdef DOWNLINK_VIDEO
     // JPEG encode the image:
@@ -119,12 +139,11 @@ void *computervision_thread_main(void *args)
     uint32_t size = end - (jpegbuf);
 
     printf("Sending an image ...%u\n", size);
-    uint32_t delta_t_per_frame = 0; // 0 = use drone clock
-    send_rtp_frame(vsock, jpegbuf, size, small.w, small.h, 0, quality_factor, dri_header, delta_t_per_frame);
+    send_rtp_frame(vsock, jpegbuf, size, small.w, small.h, 0, quality_factor, dri_header, 0);
 #endif
   }
+
   printf("Thread Closed\n");
   video_close(&vid);
-  vision_results.status = -100;
   return 0;
 }

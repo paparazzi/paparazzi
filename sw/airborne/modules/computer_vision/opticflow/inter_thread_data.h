@@ -8,24 +8,26 @@
 
 // Data from thread to module
 struct CVresults {
-  int cnt;
-  int status;
-  float FPS;
-  float Velx;
+  int cnt;          // Number of processed frames
+
+  float Velx;       // Velocity as measured by camera
   float Vely;
   int flow_count;
-  float cam_h;
+
+  float cam_h;      // Debug parameters
   int count;
   float OFx, OFy, dx_sum, dy_sum;
-  float diff_roll, diff_pitch;
+  float diff_roll;
+  float diff_pitch;
+  float FPS;
 };
 
 // Data from module to thread
 struct PPRZinfo {
-  int cnt;
-  float theta;
-  float phi;
-  float agl;
+  int cnt;        // IMU msg counter
+  float phi;      // roll [rad]
+  float theta;    // pitch [rad]
+  float agl;      // height above ground [m]
 };
 
 
