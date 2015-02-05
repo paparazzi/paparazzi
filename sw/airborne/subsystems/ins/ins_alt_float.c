@@ -67,7 +67,7 @@ PRINT_CONFIG_MSG("USE_BAROMETER is TRUE: Using baro for altitude estimation.")
 #endif
 PRINT_CONFIG_VAR(INS_BARO_ID)
 abi_event baro_ev;
-static void baro_cb(uint8_t sender_id, const float *pressure);
+static void baro_cb(uint8_t sender_id, float pressure);
 #endif /* USE_BAROMETER */
 
 static void alt_kalman_reset(void);
@@ -138,7 +138,7 @@ void ins_reset_altitude_ref(void)
 
 
 #if USE_BAROMETER
-static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure)
+static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 {
   // timestamp in usec when last callback was received
   static uint32_t last_ts = 0;
@@ -152,17 +152,17 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
   Bound(dt, 0.002, 1.0)
 
   if (!ins_impl.baro_initialized) {
-    ins_impl.qfe = *pressure;
+    ins_impl.qfe = pressure;
     ins_impl.baro_initialized = TRUE;
   }
   if (ins_impl.reset_alt_ref) {
     ins_impl.reset_alt_ref = FALSE;
     ins_impl.alt = ground_alt;
     ins_impl.alt_dot = 0.0f;
-    ins_impl.qfe = *pressure;
+    ins_impl.qfe = pressure;
     alt_kalman_reset();
   } else { /* not realigning, so normal update with baro measurement */
-    ins_impl.baro_alt = ground_alt + pprz_isa_height_of_pressure(*pressure, ins_impl.qfe);
+    ins_impl.baro_alt = ground_alt + pprz_isa_height_of_pressure(pressure, ins_impl.qfe);
     /* run the filter */
     alt_kalman(ins_impl.baro_alt, dt);
     /* set new altitude, just copy old horizontal position */

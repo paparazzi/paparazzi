@@ -65,12 +65,12 @@ struct PPRZinfo opticflow_module_data;
 #define OPTICFLOW_AGL_ID ABI_BROADCAST
 #endif
 abi_event agl_ev;
-static void agl_cb(uint8_t sender_id, const float *distance);
+static void agl_cb(uint8_t sender_id, float distance);
 
-static void agl_cb(uint8_t sender_id __attribute__((unused)), const float *distance)
+static void agl_cb(uint8_t sender_id __attribute__((unused)), float distance)
 {
-  if (*distance > 0) {
-    opticflow_module_data.agl = *distance;
+  if (distance > 0) {
+    opticflow_module_data.agl = distance;
   }
 }
 

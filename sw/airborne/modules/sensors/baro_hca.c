@@ -98,7 +98,7 @@ void baro_hca_read_event(void)
     }
 
     float pressure = BARO_HCA_SCALE * (float)pBaroRaw + BARO_HCA_PRESSURE_OFFSET;
-    AbiSendMsgBARO_ABS(BARO_HCA_SENDER_ID, &pressure);
+    AbiSendMsgBARO_ABS(BARO_HCA_SENDER_ID, pressure);
   }
   baro_hca_i2c_trans.status = I2CTransDone;
 

@@ -67,7 +67,7 @@
 #define INS_SONAR_ID ABI_BROADCAST
 #endif
 abi_event sonar_ev;
-static void sonar_cb(uint8_t sender_id, const float *distance);
+static void sonar_cb(uint8_t sender_id, float distance);
 
 #ifdef INS_SONAR_THROTTLE_THRESHOLD
 #include "firmwares/rotorcraft/stabilization.h"
@@ -114,7 +114,7 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #endif
 PRINT_CONFIG_VAR(INS_BARO_ID)
 abi_event baro_ev;
-static void baro_cb(uint8_t sender_id, const float *pressure);
+static void baro_cb(uint8_t sender_id, float pressure);
 
 struct InsInt ins_impl;
 
@@ -271,22 +271,22 @@ void ins_propagate(float dt)
   ins_ned_to_state();
 }
 
-static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure)
+static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 {
-  if (!ins_impl.baro_initialized && *pressure > 1e-7) {
+  if (!ins_impl.baro_initialized && pressure > 1e-7) {
     // wait for a first positive value
-    ins_impl.qfe = *pressure;
+    ins_impl.qfe = pressure;
     ins_impl.baro_initialized = TRUE;
   }
 
   if (ins_impl.baro_initialized) {
     if (ins_impl.vf_reset) {
       ins_impl.vf_reset = FALSE;
-      ins_impl.qfe = *pressure;
+      ins_impl.qfe = pressure;
       vff_realign(0.);
       ins_update_from_vff();
     } else {
-      ins_impl.baro_z = -pprz_isa_height_of_pressure(*pressure, ins_impl.qfe);
+      ins_impl.baro_z = -pprz_isa_height_of_pressure(pressure, ins_impl.qfe);
 #if USE_VFF_EXTENDED
       vff_update_baro(ins_impl.baro_z);
 #else
@@ -354,12 +354,12 @@ void ins_update_gps(void)
 
 
 #if USE_SONAR
-static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *distance)
+static void sonar_cb(uint8_t __attribute__((unused)) sender_id, float distance)
 {
   static float last_offset = 0.;
 
   /* update filter assuming a flat ground */
-  if (*distance < INS_SONAR_MAX_RANGE && *distance > INS_SONAR_MIN_RANGE
+  if (distance < INS_SONAR_MAX_RANGE && distance > INS_SONAR_MIN_RANGE
 #ifdef INS_SONAR_THROTTLE_THRESHOLD
       && stabilization_cmd[COMMAND_THRUST] < INS_SONAR_THROTTLE_THRESHOLD
 #endif
@@ -368,7 +368,7 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *dis
 #endif
       && ins_impl.update_on_agl
       && ins_impl.baro_initialized) {
-    vff_update_z_conf(-(*distance), VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabsf(*distance));
+    vff_update_z_conf(-(distance), VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabsf(distance));
     last_offset = vff.offset;
   } else {
     /* update offset with last value to avoid divergence */

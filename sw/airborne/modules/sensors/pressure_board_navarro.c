@@ -143,7 +143,7 @@ void pbn_read_event(void)
     } else {
       // Compute pressure
       float pressure = PBN_ALTITUDE_SCALE * (float) pbn.altitude_adc + PBN_PRESSURE_OFFSET;
-      AbiSendMsgBARO_ABS(BARO_PBN_SENDER_ID, &pressure);
+      AbiSendMsgBARO_ABS(BARO_PBN_SENDER_ID, pressure);
       // Compute airspeed and altitude
       //pbn_airspeed = (-4.45 + sqrtf(19.84-0.57*(float)(airspeed_offset-airspeed_adc)))/0.28;
       uint16_t diff = Max(pbn.airspeed_adc - pbn.airspeed_offset, 0);

@@ -180,7 +180,7 @@ bool_t ins_baro_initialized;
 #endif
 PRINT_CONFIG_VAR(INS_BARO_ID)
 abi_event baro_ev;
-static void baro_cb(uint8_t sender_id, const float *pressure);
+static void baro_cb(uint8_t sender_id, float pressure);
 
 /* gps */
 bool_t ins_gps_fix_once;
@@ -501,7 +501,7 @@ void ahrs_update_gps(void)
 }
 
 
-static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure)
+static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 {
   static float ins_qfe = 101325.0f;
   static float alpha = 10.0f;
@@ -513,10 +513,10 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
     // try to find a stable qfe
     // TODO generic function in pprz_isa ?
     if (i == 1) {
-      baro_moy = *pressure;
-      baro_prev = *pressure;
+      baro_moy = pressure;
+      baro_prev = pressure;
     }
-    baro_moy = (baro_moy * (i - 1) + *pressure) / i;
+    baro_moy = (baro_moy * (i - 1) + pressure) / i;
     alpha = (10.*alpha + (baro_moy - baro_prev)) / (11.0f);
     baro_prev = baro_moy;
     // test stop condition
@@ -525,12 +525,12 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
       ins_baro_initialized = TRUE;
     }
     if (i == 250) {
-      ins_qfe = *pressure;
+      ins_qfe = pressure;
       ins_baro_initialized = TRUE;
     }
     i++;
   } else { /* normal update with baro measurement */
-    ins_impl.meas.baro_alt = -pprz_isa_height_of_pressure(*pressure, ins_qfe); // Z down
+    ins_impl.meas.baro_alt = -pprz_isa_height_of_pressure(pressure, ins_qfe); // Z down
   }
 }
 

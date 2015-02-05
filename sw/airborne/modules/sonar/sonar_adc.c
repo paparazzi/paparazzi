@@ -76,7 +76,7 @@ void sonar_adc_read(void)
 #endif // SITL
 
   // Send ABI message
-  AbiSendMsgAGL(AGL_SONAR_ADC_ID, &sonar_adc.distance);
+  AbiSendMsgAGL(AGL_SONAR_ADC_ID, sonar_adc.distance);
 
 #ifdef SENSOR_SYNC_SEND_SONAR
   // Send Telemetry report

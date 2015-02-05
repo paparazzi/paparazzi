@@ -99,8 +99,8 @@ module Gen_onboard = struct
     let rec args = fun h l ->
       match l with
           [] -> Printf.fprintf h ")"
-        | [(n,t)] -> Printf.fprintf h ", const %s * %s)" t n
-        | (n,t)::l' -> Printf.fprintf h ", const %s * %s" t n; args h l'
+        | [(n,t)] -> Printf.fprintf h ", %s %s)" t n
+        | (n,t)::l' -> Printf.fprintf h ", %s %s" t n; args h l'
     in
     Printf.fprintf h "(uint8_t sender_id";
     args h fields

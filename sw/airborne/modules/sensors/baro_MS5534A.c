@@ -273,7 +273,7 @@ void baro_MS5534A_event(void)
       DOWNLINK_SEND_BARO_MS5534A(DefaultChannel, DefaultDevice, &baro_MS5534A_pressure, &baro_MS5534A_temp, &baro_MS5534A_z);
 #endif
       float pressure = (float)baro_MS5534A_pressure;
-      AbiSendMsgBARO_ABS(BARO_MS5534A_SENDER_ID, &pressure);
+      AbiSendMsgBARO_ABS(BARO_MS5534A_SENDER_ID, pressure);
     }
   }
 }
