@@ -246,7 +246,7 @@
     <define name="ALT_SHIFT_PLUS" value="5"/>
     <define name="ALT_SHIFT_MINUS" value="-5"/>
     <define name="SPEECH_NAME" value="Teensy Fly Quad"/>
-    <define name="AC_ICON" value="quadrotor"/>
+    <define name="AC_ICON" value="quadrotor_x"/>
   </section>
 
 </airframe>

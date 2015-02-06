@@ -254,7 +254,7 @@
     <define name="ALT_SHIFT_PLUS" value="5"/>
     <define name="ALT_SHIFT_MINUS" value="-5"/>
     <define name="SPEECH_NAME" value="Racer PEX Octo"/>
-    <define name="AC_ICON" value="octorotor"/>
+    <define name="AC_ICON" value="octorotor_x"/>
   </section>
 
 </airframe>
