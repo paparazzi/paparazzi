@@ -42,8 +42,8 @@ The basis of steering is the standard signs of aerospace convention
     <message class="datalink" name="RC_4CH" send_always="true">
       <field name="throttle" value="Fit(-throttle,-124,126,0,127)" />
       <field name="roll" value="roll" />
-      <field name="pitch" value="-pitch" />
-      <field name="yaw" value="yaw" />
+      <field name="pitch" value="pitch" />
+      <field name="yaw" value="Fit(yaw,-125,125,-127,127)"/>
       <field name="mode" value="Fit(mode,-127,126,0,2)"/>
     </message>
   </messages>
