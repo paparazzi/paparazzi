@@ -34,34 +34,10 @@
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <subsystem name="ins" type="hff"/>
+    <subsystem name="ins"           type="hff"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>
-
-  <firmware name="test_progs">
-    <target name="test_sys_time_timer" board="lisa_mx_2.0"/>
-    <target name="test_adc" board="lisa_mx_2.0"/>
-    <target name="test_telemetry" board="lisa_mx_2.0"/>
-    <target name="test_baro_board" board="lisa_mx_2.0">
-      <configure name="BARO_LED" value="5"/>
-    </target>
-    <target name="test_radio_control" board="lisa_mx_2.0">
-      <subsystem name="radio_control" type="spektrum">
-        <define name="RADIO_MODE" value="RADIO_AUX1"/>
-        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="0"/>
-      </subsystem>
-    </target>
-    <target name="test_imu" board="lisa_mx_2.0">
-      <subsystem name="imu" type="lisa_mx_v2.0"/>
-    </target>
-    <target name="test_ahrs" board="lisa_mx_2.0">
-      <subsystem name="imu" type="lisa_mx_v2.0"/>
-      <subsystem name="ahrs" type="float_compl_quat"/>
-    </target>
-  </firmware>
-
-  <autopilot name="rotorcraft_autopilot.xml" freq="512"/>
 
   <modules>
     <load name="adc_generic.xml">
@@ -90,11 +66,11 @@
   </commands>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
-    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_ROLL"  value="0"/>
     <define name="TRIM_PITCH" value="0"/>
-    <define name="TRIM_YAW" value="0"/>
-    <define name="NB_MOTOR" value="6"/>
-    <define name="SCALE" value="256"/>
+    <define name="TRIM_YAW"   value="0"/>
+    <define name="NB_MOTOR"   value="6"/>
+    <define name="SCALE"      value="256"/>
     <!-- order (and rotation direction) : FL(CW), FR(CCW), R(CW), BR(CCW), BL(CW), L(CCW) -->
     <define name="ROLL_COEF"   value="{  128, -128,  -256,  -128,  128,  256 }"/>
     <define name="PITCH_COEF"  value="{  256,  256,     0,  -256, -256,    0 }"/>
@@ -226,10 +202,10 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;fl_motor&quot;, &quot;fr_motor&quot;, &quot;r_motor&quot;, &quot;br_motor&quot;, &quot;bl_motor&quot;, &quot;l_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;HooperFly/racerpex_hexa&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="JSBSIM_MODEL"    value="&quot;HooperFly/racerpex_hexa&quot;"/>
+    <define name="SENSORS_PARAMS"  value="&quot;nps_sensors_params_default.h&quot;"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
-    <define name="JS_AXIS_MODE" value="4"/>
+    <define name="JS_AXIS_MODE"    value="4"/>
   </section>
 
   <section name="AUTOPILOT">
@@ -240,17 +216,17 @@
 
   <section name="BAT">
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="10.1" unit="V"/>
-    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL"       value="9.6" unit="V"/>
+    <define name="LOW_BAT_LEVEL"          value="10.1" unit="V"/>
+    <define name="MAX_BAT_LEVEL"          value="12.4" unit="V"/>
   </section>
 
   <section name="GCS">
     <define name="ALT_SHIFT_PLUS_PLUS" value="30"/>
-    <define name="ALT_SHIFT_PLUS" value="5"/>
-    <define name="ALT_SHIFT_MINUS" value="-5"/>
-    <define name="SPEECH_NAME" value="Racer PEX Hexa"/>
-    <define name="AC_ICON" value="hexarotor_x"/>
+    <define name="ALT_SHIFT_PLUS"      value="5"/>
+    <define name="ALT_SHIFT_MINUS"     value="-5"/>
+    <define name="SPEECH_NAME"         value="Racer PEX Hexa"/>
+    <define name="AC_ICON"             value="hexarotor_x"/>
   </section>
 
 </airframe>
