@@ -1,0 +1,616 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sourceforge.net/JSBSim.xsl"?>
+<fdm_config name="OCTO COMPLETE EXT" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
+
+  <fileheader>
+    <author>HooperFly</author>
+    <filecreationdate>01-02-2015</filecreationdate>
+    <version>Version 0.1 - beta</version>
+    <description>HooperFly RacerPEX Octo, X configuration with rotor layout (FL1/FR3/BR5/BL7 turning CW, FR2/BR4/BL6,FL8 CCW)</description>
+  </fileheader>
+
+  <metrics>
+    <wingarea unit="IN2"> 78.53 </wingarea>
+    <wingspan unit="IN"> 10 </wingspan>
+    <chord unit="IN"> 16.19 </chord>
+    <htailarea unit="FT2"> 0 </htailarea>
+    <htailarm unit="FT"> 0 </htailarm>
+    <vtailarea unit="FT2"> 0 </vtailarea>
+    <vtailarm unit="FT"> 0 </vtailarm>
+    <location name="AERORP" unit="IN">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="EYEPOINT" unit="IN">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="VRP" unit="IN">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </metrics>
+
+  <mass_balance>
+    <ixx unit="SLUG*FT2"> 0.005 </ixx>
+    <iyy unit="SLUG*FT2"> 0.005 </iyy>
+    <izz unit="SLUG*FT2"> 0.010 </izz>
+    <ixy unit="SLUG*FT2"> 0. </ixy>
+    <ixz unit="SLUG*FT2"> 0. </ixz>
+    <iyz unit="SLUG*FT2"> 0. </iyz>
+        <emptywt unit="LBS"> 0.84 </emptywt>
+    <location name="CG" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </mass_balance>
+
+  <ground_reactions>
+    <contact type="STRUCTURE" name="CONTACT_FRONT">
+      <location unit="M">
+        <x>-0.15 </x>
+        <y> 0 </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_BACK">
+      <location unit="M">
+        <x> 0.15</x>
+        <y> 0   </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_RIGHT">
+      <location unit="M">
+        <x> 0.  </x>
+        <y> 0.15</y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_LEFT">
+      <location unit="M">
+        <x> 0.  </x>
+        <y>-0.15</y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+  </ground_reactions>
+
+
+
+
+  <external_reactions>
+
+    <property>fcs/fl1_motor</property>
+    <property>fcs/fr2_motor</property>
+    <property>fcs/fr3_motor</property>
+    <property>fcs/br4_motor</property>
+    <property>fcs/br5_motor</property>
+    <property>fcs/bl6_motor</property>
+    <property>fcs/bl7_motor</property>
+    <property>fcs/fl8_motor</property>
+
+    <!-- First the lift forces produced by each propeller -->
+
+    <force name="fl1_motor" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/fl1_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>-6.20</x>
+        <y>-14.96</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="fr2_motor" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/fr2_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>-6.20</x>
+        <y>14.96</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="fr3_motor" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/fr3_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>-14.96</x>
+        <y>6.20</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="br4_motor" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/br4_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>14.96</x>
+        <y>6.20</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="br5_motor" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/br5_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>6.20</x>
+        <y>14.96</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="bl6_motor" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/bl6_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>6.20</x>
+        <y>-14.96</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="bl7_motor" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/bl7_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>14.96</x>
+        <y>-6.20</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="fl8_motor" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/fl8_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>-14.96</x>
+        <y>-6.20</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <!-- Then the Moment Couples -->
+
+    <force name="fl1_couple1" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/fl1_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>-6.20</x>
+        <y>-12.9915</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="fl1_couple2" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/fl1_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>-6.20</x>
+        <y>-16.9285</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="fr2_couple1" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/fr2_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <!-- Necessary arm in IN to produce a moment ten times
+        "weaker" then the force when both are measured in the SI is 1.9685 in. -->
+        <x>-6.20</x>
+        <y>16.9285</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="fr2_couple2" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/fr2_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>-6.20</x>
+        <y>12.9915</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="fr3_couple1" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/fr3_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <!-- Necessary arm in IN to produce a moment ten times
+        "weaker" then the force when both are measured in the SI is 1.9685 in. -->
+        <x>-14.96</x>
+        <y>8.1685</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="fr3_couple2" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/fr3_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>-14.96</x>
+        <y>4.2315</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="br4_couple1" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/br4_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>14.96</x>
+        <y>4.2315</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="br4_couple2" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/br4_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>14.96</x>
+        <y>8.1685</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="br5_couple1" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/br5_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>6.20</x>
+        <y>12.9915</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="br5_couple2" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/br5_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>6.20</x>
+        <y>16.9285</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="bl6_couple1" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/bl6_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>6.20</x>
+        <y>-12.9915</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="bl6_couple2" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/bl6_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>6.20</x>
+        <y>-16.9285</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="bl7_couple1" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/bl7_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>14.96</x>
+        <y>-4.2315</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="bl7_couple2" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/bl7_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>14.96</x>
+        <y>-8.1685</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="fl8_couple1" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/fl8_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>-14.96</x>
+        <y>-4.2315</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="fl8_couple2" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/fl8_motor</property>
+          <value> 0.84 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>-14.96</x>
+        <y>-8.1685</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+  </external_reactions>
+
+  <propulsion/>
+
+  <flight_control name="FGFCS"/>
+
+  <aerodynamics>
+    <axis name="DRAG">
+      <function name="aero/coefficient/CD">
+        <description>Drag</description>
+        <product>
+          <property>aero/qbar-psf</property>
+          <value>47.9</value> <!-- Conversion to pascals -->
+          <value>0.0151</value> <!-- CD x Area (m^2) -->
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+    </axis>
+  </aerodynamics>
+
+</fdm_config>
