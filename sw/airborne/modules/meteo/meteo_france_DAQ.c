@@ -68,7 +68,7 @@ void init_mf_daq(void)
 void mf_daq_send_state(void)
 {
   // Send aircraft state to DAQ board
-  DOWNLINK_SEND_MF_DAQ_STATE(pprz_tp, EXTRA_DOWNLINK_DEVICE,
+  DOWNLINK_SEND_MF_DAQ_STATE(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,
                              &autopilot_flight_time,
                              &stateGetBodyRates_f()->p,
                              &stateGetBodyRates_f()->q,

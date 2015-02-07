@@ -95,9 +95,9 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_AIR_DATA automatically set to TRUE")
 static uint8_t baro_health_counter;
 
 
-static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure)
+static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 {
-  air_data.pressure = *pressure;
+  air_data.pressure = pressure;
 
   // calculate QNH from pressure and absolute alitude if that is available
   if (air_data.calc_qnh_once && stateIsGlobalCoordinateValid()) {
@@ -116,9 +116,9 @@ static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, const flo
   baro_health_counter = 10;
 }
 
-static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure)
+static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 {
-  air_data.differential = *pressure;
+  air_data.differential = pressure;
   if (air_data.calc_airspeed) {
     air_data.airspeed = tas_from_dynamic_pressure(air_data.differential);
 #if USE_AIRSPEED_AIR_DATA
@@ -127,9 +127,9 @@ static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, const fl
   }
 }
 
-static void temperature_cb(uint8_t __attribute__((unused)) sender_id, const float *temp)
+static void temperature_cb(uint8_t __attribute__((unused)) sender_id, float temp)
 {
-  air_data.temperature = *temp;
+  air_data.temperature = temp;
   if (air_data.calc_tas_factor && baro_health_counter > 0 && air_data.pressure > 0) {
     air_data.tas_factor = get_tas_factor(air_data.pressure, air_data.temperature);
   }

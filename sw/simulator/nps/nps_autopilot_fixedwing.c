@@ -114,7 +114,7 @@ void nps_autopilot_run_step(double time) {
 
   if (nps_sensors_baro_available()) {
     float pressure = (float) sensors.baro.value;
-    AbiSendMsgBARO_ABS(BARO_SIM_SENDER_ID, &pressure);
+    AbiSendMsgBARO_ABS(BARO_SIM_SENDER_ID, pressure);
     Fbw(event_task);
     Ap(event_task);
   }

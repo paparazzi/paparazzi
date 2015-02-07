@@ -545,6 +545,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
       (* Drag for Drop *)
           let papget = Papget_common.xml "goto_block" "button"
             [ "block_name", block_name;
+              "ac_id", ac_id;
               "icon", icon] in
           Papget_common.dnd_source b#coerce papget;
 
@@ -621,7 +622,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let dl_settings_page =
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
-      let settings_tab = new Page_settings.settings ~visible xml_settings dl_setting_callback (fun group x -> strip#add_widget ~group x) in
+      let settings_tab = new Page_settings.settings ~visible xml_settings dl_setting_callback ac_id (fun group x -> strip#add_widget ~group x) in
 
       (** Connect key shortcuts *)
       let key_press = fun ev ->
@@ -789,12 +790,12 @@ let alert_bind = fun msg cb ->
     try cb sender vs with _ -> () in
   ignore (Alert_Pprz.message_bind msg safe_cb)
 
-let tele_bind = fun msg cb ->
+let tele_bind = fun msg cb timestamp ->
   let safe_cb = fun sender vs ->
     try cb sender vs with
         AC_not_found -> () (* A/C not yet registed; silently ignore *)
       | x -> fprintf stderr "tele_bind (%s): %s\n%!" msg (Printexc.to_string x) in
-  ignore (Tele_Pprz.message_bind msg safe_cb)
+  ignore (Tele_Pprz.message_bind ~timestamp msg safe_cb)
 
 let ask_config = fun alert geomap fp_notebook ac ->
   let get_config = fun _sender values ->
@@ -1265,7 +1266,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
       let color =
         match ap_mode with
             "AUTO2" | "NAV" -> ok_color
-          | "AUTO1" | "R_RCC" | "A_RCC" | "ATT_C" | "R_ZH" | "A_ZH" | "HOVER" | "HOV_C" | "H_ZH" -> "#10F0E0"
+          | "AUTO1" | "R_RCC" | "A_RCC" | "ATT_C" | "R_ZH" | "A_ZH" | "HOVER" | "HOV_C" | "H_ZH" | "MODULE" -> "#10F0E0"
           | "MANUAL" | "RATE" | "ATT" | "RC_D" | "CF" | "FWD" -> warning_color
           | _ -> alert_color in
       ac.strip#set_color "AP" color;
@@ -1374,8 +1375,8 @@ let mark_dcshot = fun (geomap:G.widget) _sender vs ->
 (*  mark geomap ac.ac_name track !Plugin.frame *)
 
 
-let listen_dcshot = fun _geom ->
-  tele_bind "DC_SHOT" (mark_dcshot _geom)
+let listen_dcshot = fun _geom timestamp ->
+  tele_bind "DC_SHOT" (mark_dcshot _geom) timestamp
 
 let listen_error = fun a ->
   let get_error = fun _sender vs ->
@@ -1383,14 +1384,14 @@ let listen_error = fun a ->
     log_and_say a "gcs" msg in
   safe_bind "TELEMETRY_ERROR" get_error
 
-let listen_info_msg = fun a ->
+let listen_info_msg = fun a timestamp ->
   let get_msg = fun a _sender vs ->
     let ac = find_ac _sender in
     let msg_array = Pprz.assoc "msg" vs in
     log_and_say a ac.ac_name (Pprz.string_of_value msg_array) in
-  tele_bind "INFO_MSG" (get_msg a)
+  tele_bind "INFO_MSG" (get_msg a) timestamp
 
-let listen_autopilot_version_msg = fun a ->
+let listen_autopilot_version_msg = fun a timestamp ->
   let get_msg = fun a _sender vs ->
     let ac = find_ac _sender in
     let desc_array = Pprz.assoc "desc" vs in
@@ -1398,9 +1399,9 @@ let listen_autopilot_version_msg = fun a ->
     if ac.version <> version then
       log a ac.ac_name (sprintf "%s version:\n%s" ac.ac_name version);
     ac.version <- version in
-  tele_bind "AUTOPILOT_VERSION" (get_msg a)
+  tele_bind "AUTOPILOT_VERSION" (get_msg a) timestamp
 
-let listen_tcas = fun a ->
+let listen_tcas = fun a timestamp ->
   let get_alarm_tcas = fun a txt _sender vs ->
     let ac = find_ac _sender in
     let other_ac = get_ac vs in
@@ -1413,10 +1414,10 @@ let listen_tcas = fun a ->
       with _ -> "" in
     log_and_say a ac.ac_name (sprintf "%s : %s -> %s %s" txt ac.ac_speech_name other_ac.ac_speech_name resolve)
   in
-  tele_bind "TCAS_TA" (get_alarm_tcas a "tcas TA");
-  tele_bind "TCAS_RA" (get_alarm_tcas a "TCAS RA")
+  tele_bind "TCAS_TA" (get_alarm_tcas a "tcas TA") timestamp;
+  tele_bind "TCAS_RA" (get_alarm_tcas a "TCAS RA") timestamp
 
-let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt_graph ->
+let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt_graph timestamp ->
   (** Probe live A/Cs *)
   let probe = fun () ->
     message_request "gcs" "AIRCRAFTS" [] (fun _sender vs -> aircrafts_msg my_alert geomap ac_notebook vs) in
@@ -1436,10 +1437,10 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
   listen_svsinfo my_alert;
   listen_alert my_alert;
   listen_error my_alert;
-  listen_info_msg my_alert;
-  listen_autopilot_version_msg my_alert;
-  listen_tcas my_alert;
-  listen_dcshot geomap;
+  listen_info_msg my_alert timestamp;
+  listen_autopilot_version_msg my_alert timestamp;
+  listen_tcas my_alert timestamp;
+  listen_dcshot geomap timestamp;
 
   (** Select the active aircraft on notebook page selection *)
   let callback = fun i ->

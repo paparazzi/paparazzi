@@ -183,14 +183,14 @@ void meteo_stick_event(void)
   // send absolute pressure data over ABI as soon as available
   if (meteo_stick.pressure.data_available) {
     float abs = MS_PRESSURE_SCALE * (float)((int32_t)meteo_stick.pressure.data - MS_PRESSURE_OFFSET);
-    AbiSendMsgBARO_ABS(METEO_STICK_SENDER_ID, &abs);
+    AbiSendMsgBARO_ABS(METEO_STICK_SENDER_ID, abs);
     meteo_stick.pressure.data_available = FALSE;
   }
 
   // send differential pressure data over ABI as soon as available
   if (meteo_stick.diff_pressure.data_available) {
     float diff = MS_DIFF_PRESSURE_SCALE * (float)((int32_t)meteo_stick.diff_pressure.data - MS_DIFF_PRESSURE_OFFSET);
-    AbiSendMsgBARO_DIFF(METEO_STICK_SENDER_ID, &diff);
+    AbiSendMsgBARO_DIFF(METEO_STICK_SENDER_ID, diff);
     meteo_stick.diff_pressure.data_available = FALSE;
   }
 }

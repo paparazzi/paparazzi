@@ -26,6 +26,7 @@
 
 #include "generated/airframe.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
+#include "firmwares/rotorcraft/guidance/guidance_module.h"
 
 #include "subsystems/radio_control.h"
 #include "firmwares/rotorcraft/stabilization.h"
@@ -237,6 +238,12 @@ void guidance_v_mode_changed(uint8_t new_mode)
       GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
       break;
 
+#if GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE
+    case GUIDANCE_V_MODE_MODULE:
+      guidance_v_module_enter();
+      break;
+#endif
+
     default:
       break;
 
@@ -306,6 +313,12 @@ void guidance_v_run(bool_t in_flight)
 #endif
         stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
       break;
+
+#if GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE
+    case GUIDANCE_V_MODE_MODULE:
+      guidance_v_module_run(in_flight);
+      break;
+#endif
 
     case GUIDANCE_V_MODE_NAV: {
       if (vertical_mode == VERTICAL_MODE_ALT) {

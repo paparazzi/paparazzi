@@ -86,7 +86,7 @@ void navgo_baro_event(void)
     if (startup_cnt == 0) {
       // Send data when init phase is done
       float pressure = NAVGO_BARO_SENS * (mcp355x_data + NAVGO_BARO_OFFSET);
-      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
     }
     mcp355x_data_available = FALSE;
   }

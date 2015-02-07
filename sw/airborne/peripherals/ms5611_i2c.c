@@ -193,6 +193,8 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms)
               ms->status = MS5611_STATUS_UNINIT;
             }
           }
+        } else {
+          ms->i2c_trans.status = I2CTransDone;
         }
         break;
 

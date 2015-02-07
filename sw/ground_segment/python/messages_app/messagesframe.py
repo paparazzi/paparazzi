@@ -1,15 +1,20 @@
 import wx
 
 import sys
-import os
 import time
 import threading
-import math
 
-PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
-sys.path.append(PPRZ_HOME + "/sw/lib/python")
+from os import path, getenv
 
-import messages_tool
+# if PAPARAZZI_SRC not set, then assume the tree containing this
+# file is a reasonable substitute
+PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
+sys.path.append(PPRZ_SRC + "/sw/lib/python")
+
+PPRZ_HOME = getenv("PAPARAZZI_HOME", PPRZ_SRC)
+
+from ivy_msg_interface import IvyMessagesInterface
+from pprz_msg.message import PprzMessage
 
 WIDTH = 450
 LABEL_WIDTH = 166
@@ -17,13 +22,41 @@ DATA_WIDTH = 100
 HEIGHT = 800
 BORDER = 1
 
-class MessagesFrame(wx.Frame):
-    def message_recv(self, ac_id, name, values):
-        if ac_id in self.aircrafts and name in self.aircrafts[ac_id].messages:
-            if time.time() - self.aircrafts[ac_id].messages[name].last_seen < 0.2:
-                return
 
-        wx.CallAfter(self.gui_update, ac_id, name, values)
+class Message(PprzMessage):
+    def __init__(self, class_name, name):
+        super(Message, self).__init__(class_name, name)
+        self.field_controls = []
+        self.index = None
+        self.last_seen = time.clock()
+        self.name = name
+
+
+class Aircraft(object):
+    def __init__(self, ac_id):
+        self.ac_id = ac_id
+        self.messages = {}
+        self.messages_book = None
+
+
+class MessagesFrame(wx.Frame):
+    def message_recv(self, ac_id, msg):
+        """Handle incoming messages
+
+        Callback function for IvyMessagesInterface
+
+        :param ac_id: aircraft id
+        :type ac_id: int
+        :param msg: message
+        :type msg: PprzMessage
+        """
+        # only show messages of the requested class
+        if msg.get_classname() != self.msg_class:
+            return
+        if ac_id in self.aircrafts and msg.get_msgname() in self.aircrafts[ac_id].messages:
+            if time.time() - self.aircrafts[ac_id].messages[msg.get_msgname()].last_seen < 0.2:
+                return
+        wx.CallAfter(self.gui_update, msg.get_classname(), msg.get_msgname(), ac_id, msg)
 
     def find_page(self, book, name):
         if book.GetPageCount() < 1:
@@ -31,11 +64,10 @@ class MessagesFrame(wx.Frame):
         start = 0
         end = book.GetPageCount()
 
-        while (start < end):
+        while start < end:
             if book.GetPageText(start) > name:
                 return start
-            start = start + 1
-
+            start += 1
         return start
 
     def update_leds(self):
@@ -53,7 +85,7 @@ class MessagesFrame(wx.Frame):
         self.timer.start()
 
     def setup_image_list(self, notebook):
-        imageList = wx.ImageList(24,24)
+        imageList = wx.ImageList(24, 24)
 
         image = wx.Image(PPRZ_HOME + "/data/pictures/gray_led24.png")
         bitmap = wx.BitmapFromImage(image)
@@ -66,7 +98,7 @@ class MessagesFrame(wx.Frame):
         notebook.AssignImageList(imageList)
 
     def add_new_aircraft(self, ac_id):
-        self.aircrafts[ac_id] = messages_tool.Aircraft(ac_id)
+        self.aircrafts[ac_id] = Aircraft(ac_id)
         ac_panel = wx.Panel(self.notebook, -1)
         self.notebook.AddPage(ac_panel, str(ac_id))
         messages_book = wx.Notebook(ac_panel, style=wx.NB_LEFT)
@@ -77,21 +109,21 @@ class MessagesFrame(wx.Frame):
         sizer.Layout()
         self.aircrafts[ac_id].messages_book = messages_book
 
-    def add_new_message(self, aircraft, name):
+    def add_new_message(self, aircraft, msg_class, name):
         messages_book = aircraft.messages_book
-        aircraft.messages[name] = messages_tool.Message("telemetry", name)
+        aircraft.messages[name] = Message(msg_class, name)
         field_panel = wx.Panel(messages_book)
-        grid_sizer = wx.FlexGridSizer(len(aircraft.messages[name].field_names), 2)
+        grid_sizer = wx.FlexGridSizer(len(aircraft.messages[name].get_fieldnames()), 2)
 
         index = self.find_page(messages_book, name)
-        messages_book.InsertPage(index, field_panel, name, imageId = 1)
+        messages_book.InsertPage(index, field_panel, name, imageId=1)
         aircraft.messages[name].index = index
 
         # update indexes of pages which are to be moved
         for message_name in aircraft.messages:
             aircraft.messages[message_name].index = self.find_page(messages_book, message_name)
 
-        for field_name in aircraft.messages[name].field_names:
+        for field_name in aircraft.messages[name].get_fieldnames():
             name_text = wx.StaticText(field_panel, -1, field_name)
             size = name_text.GetSize()
             size.x = LABEL_WIDTH
@@ -109,22 +141,22 @@ class MessagesFrame(wx.Frame):
         field_panel.SetSizer(grid_sizer)
         field_panel.Layout()
 
-    def gui_update(self, ac_id, name, values):
+    def gui_update(self, msg_class, msg_name, ac_id, msg):
         if ac_id not in self.aircrafts:
             self.add_new_aircraft(ac_id)
 
         aircraft = self.aircrafts[ac_id]
 
-        if name not in aircraft.messages:
-            self.add_new_message(aircraft, name)
+        if msg_name not in aircraft.messages:
+            self.add_new_message(aircraft, msg_class, msg_name)
 
-        aircraft.messages_book.SetPageImage(aircraft.messages[name].index, 1)
-        self.aircrafts[ac_id].messages[name].last_seen = time.time()
+        aircraft.messages_book.SetPageImage(aircraft.messages[msg_name].index, 1)
+        self.aircrafts[ac_id].messages[msg_name].last_seen = time.time()
 
-        for index in range(0, len(values)):
-            aircraft.messages[name].field_controls[index].SetLabel(values[index])
+        for index in range(0, len(msg.get_fieldvalues())):
+            aircraft.messages[msg_name].field_controls[index].SetLabel(msg.get_field(index))
 
-    def __init__(self):
+    def __init__(self, msg_class="telemetry"):
         wx.Frame.__init__(self, id=-1, parent=None, name=u'MessagesFrame', size=wx.Size(WIDTH, HEIGHT), style=wx.DEFAULT_FRAME_STYLE, title=u'Messages')
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.notebook = wx.Notebook(self)
@@ -136,9 +168,10 @@ class MessagesFrame(wx.Frame):
         sizer.Layout()
         self.timer = threading.Timer(0.1, self.update_leds)
         self.timer.start()
-        self.interface = messages_tool.IvyMessagesInterface(self.message_recv)
+        self.msg_class = msg_class
+        self.interface = IvyMessagesInterface(self.message_recv)
 
     def OnClose(self, event):
         self.timer.cancel()
-        self.interface.Shutdown()
+        self.interface.shutdown()
         self.Destroy()

@@ -9,6 +9,7 @@
   <header>
     <file name="extra_pprz_dl.h"/>
   </header>
+  <init fun="extra_pprz_dl_init()"/>
   <event fun="ExtraDatalinkEvent()"/>
   <makefile target="ap">
     <raw>

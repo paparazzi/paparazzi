@@ -338,6 +338,7 @@ and display_particules = ref false
 and wid = ref None
 and srtm = ref false
 and hide_fp = ref false
+and timestamp = ref false
 
 let options =
   [
@@ -371,6 +372,7 @@ let options =
     "-wid", Arg.String (fun s -> wid := Some (Int32.of_string s)), "<window id> Id of an existing window to be attached to";
     "-zoom", Arg.Set_float zoom, "Initial zoom";
     "-auto_hide_fp", Arg.Unit (fun () -> Live.auto_hide_fp true; hide_fp := true), "Automatically hide flight plans of unselected aircraft";
+    "-timestamp", Arg.Set timestamp, "Bind on timestampped telemetry messages";
   ]
 
 
@@ -571,6 +573,13 @@ let rec update_widget_size = fun orientation widgets xml ->
     | x -> failwith (sprintf "update_widget_size: %s" x)
 
 
+(* get DTD head line for layout *)
+let get_layout_dtd = fun filename ->
+  let gcs_regexp = Str.regexp (Filename.concat Env.paparazzi_home "conf/gcs") in
+  let local_dir = Str.replace_first gcs_regexp "" (Filename.dirname filename) in
+  let split = Str.split (Str.regexp Filename.dir_sep) local_dir in
+  let layout = List.fold_left (fun s _ -> "../" ^ s ) "layout.dtd" split in
+  sprintf "<!DOCTYPE layout SYSTEM \"%s\">" layout
 
 
 let save_layout = fun filename contents ->
@@ -585,6 +594,7 @@ let save_layout = fun filename contents ->
       `SAVE, Some name ->
         dialog#destroy ();
         let f = open_out name in
+        fprintf f "%s\n\n" (get_layout_dtd name);
         fprintf f "%s\n" contents;
         close_out f
     | _ -> dialog#destroy ()
@@ -693,7 +703,15 @@ let () =
   listen_dropped_papgets geomap;
 
   let save_layout = fun () ->
-    let the_new_layout = replace_widget_children "map2d" (Papgets.dump_store ()) the_layout in
+    (* Ask if ac_id parameters from papgets should be saved *)
+    let save_acid =
+      if Papgets.has_papgets () then
+        match GToolbox.question_box ~title:"Save Layout" ~buttons:["Yes"; "no"] ~default:1 "Do you want to save A/C id of Papgets if available\nYes: the saved layout will only work with A/C that have the same id (default)\nno: the saved layout will work with any A/C (but will mix data while using multiple A/C)" with
+        | 2 -> false
+        | _ -> true
+      else true
+    in
+    let the_new_layout = replace_widget_children "map2d" (Papgets.dump_store save_acid) the_layout in
     let width, height = Gdk.Drawable.get_size window#misc#window in
     let the_new_layout = update_widget_size `HORIZONTAL widgets the_new_layout in
     let new_layout = Xml.Element ("layout", ["width", soi width; "height", soi height], [the_new_layout]) in
@@ -755,7 +773,7 @@ let () =
     begin
       my_alert#add "Waiting for telemetry...";
       Speech.say "Waiting for telemetry...";
-      Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac alt_graph
+      Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac alt_graph !timestamp
     end;
 
   (** Display the window *)

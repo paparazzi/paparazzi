@@ -613,7 +613,7 @@ module type MESSAGES = sig
   val message_send : ?timestamp:float -> ?link_id:int -> string -> string -> values -> unit
   (** [message_send sender link_id msg_name values] *)
 
-  val message_bind : ?sender:string -> string -> (string -> values -> unit) -> Ivy.binding
+  val message_bind : ?sender:string -> ?timestamp:bool -> string -> (string -> values -> unit) -> Ivy.binding
   (** [message_bind ?sender msg_name callback] *)
 
   val message_answerer : string -> string -> (string -> values -> values) -> Ivy.binding
@@ -764,20 +764,21 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
         Ivy.send ( Printf.sprintf "redlink TELEMETRY_MESSAGE %s %i %s" sender the_link_id modified_msg);
       end
           
-  let message_bind = fun ?sender msg_name cb ->
+  let message_bind = fun ?sender ?(timestamp=false) msg_name cb ->
+    let tsregexp, tsoffset = if timestamp then "([0-9]+\\.[0-9]+ )?", 1 else "", 0 in
     match sender with
         None ->
           Ivy.bind
             (fun _ args ->
-              let values = try snd (values_of_string args.(2)) with exc -> prerr_endline (Printexc.to_string exc); [] in
-              cb args.(1) values)
-            (sprintf "^([0-9]+\\.[0-9]+ )?([^ ]*) +(%s( .*|$))" msg_name)
+              let values = try snd (values_of_string args.(1+tsoffset)) with exc -> prerr_endline (Printexc.to_string exc); [] in
+              cb args.(tsoffset) values)
+            (sprintf "^%s([^ ]*) +(%s( .*|$))" tsregexp msg_name)
       | Some s ->
         Ivy.bind
           (fun _ args ->
-            let values = try snd (values_of_string args.(1)) with  exc -> prerr_endline (Printexc.to_string exc); [] in
+            let values = try snd (values_of_string args.(tsoffset)) with  exc -> prerr_endline (Printexc.to_string exc); [] in
             cb s values)
-          (sprintf "^([0-9]+\\.[0-9]+ )?%s +(%s( .*|$))" s msg_name)
+          (sprintf "^%s%s +(%s( .*|$))" tsregexp s msg_name)
 
   let message_answerer = fun sender msg_name cb ->
     let ivy_cb = fun _ args ->

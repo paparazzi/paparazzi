@@ -169,7 +169,7 @@ void baro_amsys_read_event(void)
     baro_amsys_p = (float)(pBaroRaw - BARO_AMSYS_OFFSET_MIN) * BARO_AMSYS_MAX_PRESSURE / (float)(
                      BARO_AMSYS_OFFSET_MAX - BARO_AMSYS_OFFSET_MIN);
     // Send pressure over ABI
-    AbiSendMsgBARO_ABS(BARO_AMSYS_SENDER_ID, &baro_amsys_p);
+    AbiSendMsgBARO_ABS(BARO_AMSYS_SENDER_ID, baro_amsys_p);
     // compute altitude localy
     if (!baro_amsys_offset_init) {
       --baro_amsys_cnt;

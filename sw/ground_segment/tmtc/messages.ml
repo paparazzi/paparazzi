@@ -41,7 +41,7 @@ let values_of_field = fun field ->
       _ -> [||]
 
 (** Display one page for a message *)
-let one_page = fun sender class_name (notebook:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) bind m ->
+let one_page = fun sender class_name (notebook:GPack.notebook) (topnote:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) bind m ->
   let id = (Xml.attrib m "name") in
   let h = GPack.hbox () in
   h#misc#set_property "name" (`STRING (Some id));
@@ -107,12 +107,12 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (help_label:GObj.
 
           (* hide notebook and display help during drag *)
           let begin_drag = fun _ ->
-            notebook#coerce#misc#hide ();
+            topnote#coerce#misc#hide ();
             help_label#misc#show ();
             window#resize ~width:300 ~height:50
           in
           ignore (field_label#drag#connect#beginning ~callback:begin_drag);
-          ignore (field_label#drag#connect#ending ~callback:(fun _ -> notebook#coerce#misc#show (); help_label#misc#hide ()));
+          ignore (field_label#drag#connect#ending ~callback:(fun _ -> topnote#coerce#misc#show (); help_label#misc#hide ()));
 
           (update, display_value)::rest
         with
@@ -170,7 +170,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (help_label:GObj.
   in
   bind id display
 
-let rec one_class = fun (notebook:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) (ident, xml_class, sender) ->
+let rec one_class = fun (notebook:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) timestamp force (ident, xml_class, sender) ->
   let class_name = (Xml.attrib xml_class "name") in
   let messages = Xml.children xml_class in
   let module P = Pprz.Messages (struct let name = class_name end) in
@@ -181,23 +181,24 @@ let rec one_class = fun (notebook:GPack.notebook) (help_label:GObj.widget) (wind
       let get_one = fun sender _vs ->
         if not (Hashtbl.mem senders sender) then begin
           Hashtbl.add senders sender ();
-          one_class notebook help_label window (ident,  xml_class, Some sender)
+          one_class notebook help_label window timestamp force (ident,  xml_class, Some sender)
         end in
-      List.iter
-        (fun m -> ignore (P.message_bind (Xml.attrib m "name") get_one))
-        messages
+      if force || not (class_name = "telemetry") then (* bind to all messages in class *)
+        List.iter (fun m -> ignore (P.message_bind ~timestamp (Xml.attrib m "name") get_one)) messages
+      else (* if telemetry and not forces, only wait for ALIVE message *)
+        ignore (P.message_bind ~timestamp "ALIVE" get_one)
     | _ ->
       let class_notebook = GPack.notebook ~tab_border:0 ~tab_pos:`LEFT () in
       let l = match sender with None -> "" | Some s -> ":"^s in
       let label = GMisc.label ~text:(ident^l) () in
       ignore (notebook#append_page ~tab_label:label#coerce class_notebook#coerce);
       let bind, sender_name = match sender with
-          None -> (fun m cb -> (P.message_bind m cb)), "*"
-        | Some sender -> (fun m cb -> (P.message_bind ~sender m cb)), sender in
-
+          None -> (fun m cb -> (P.message_bind ~timestamp m cb)), "*"
+        | Some sender -> (fun m cb -> (P.message_bind ~sender ~timestamp m cb)), sender in
+      
       (** Forall messages in the class *)
       let messages = list_sort (fun x -> Xml.attrib x "name") messages in
-      List.iter (fun m -> ignore (one_page sender_name class_name class_notebook help_label window bind m)) messages
+      List.iter (fun m -> ignore (one_page sender_name class_name class_notebook notebook help_label window bind m)) messages
 
 
 
@@ -206,9 +207,13 @@ let rec one_class = fun (notebook:GPack.notebook) (help_label:GObj.widget) (wind
 let _ =
   let ivy_bus = ref Defivybus.default_ivy_bus in
   let classes = ref ["telemetry:*"] in
+  let timestamp = ref false in
+  let force = ref false in
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
-      "-c",  Arg.String (fun x -> classes := x :: !classes), "class name"]
+      "-c",  Arg.String (fun x -> classes := x :: !classes), "class name";
+      "-timestamp", Arg.Set timestamp, "Bind to timestampped messages";
+      "-force", Arg.Set force, "Force waiting on all messages, not only ALIVE for telemetry class (increase network load)" ]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
     "Usage: ";
 
@@ -243,7 +248,7 @@ let _ =
       !classes in
 
   (* Insert the message classes in the notebook *)
-  List.iter (one_class notebook help_label#coerce window) xml_classes;
+  List.iter (one_class notebook help_label#coerce window !timestamp !force) xml_classes;
 
   (** Start the main loop *)
   window#show ();

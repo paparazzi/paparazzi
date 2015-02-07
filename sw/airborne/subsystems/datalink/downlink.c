@@ -65,7 +65,7 @@ void downlink_init(void)
 
 #if defined DATALINK
 #if DATALINK == PPRZ || DATALINK == SUPERBITRF || DATALINK == W5100
-  pprz_transport_init();
+  pprz_transport_init(&pprz_tp);
 #endif
 #if DATALINK == XBEE
   xbee_init();
@@ -73,6 +73,10 @@ void downlink_init(void)
 #if DATALINK == W5100
   w5100_init();
 #endif
+#endif
+
+#if USE_PPRZLOG
+  pprzlog_transport_init();
 #endif
 
 #if SITL

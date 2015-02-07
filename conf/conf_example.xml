@@ -7,8 +7,8 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
    settings="settings/rotorcraft_basic.xml"
-   gui_color="white"
    settings_modules=""
+   gui_color="white"
   />
   <aircraft
    name="Bixler"

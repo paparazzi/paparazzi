@@ -25,26 +25,37 @@
 open Printf
 module PC = Papget_common
 
+let filter_acid = fun save conf ->
+  let filtered = List.filter (fun x ->
+    (* keep element if save is true or save is false and attrib name is not ac_id *)
+    if (ExtXml.attrib_or_default x "name" "" = "ac_id") && (not save) then false
+    else true) (Xml.children conf) in
+  Xml.Element (Xml.tag conf, Xml.attribs conf, filtered)
+
 let papgets = Hashtbl.create 5
 let register_papget = fun p -> Hashtbl.add papgets p p
-let dump_store = fun () ->
+let dump_store = fun save_id ->
   Hashtbl.fold
     (fun _ p r ->
       if not p#deleted then
-        p#config ()::r
+        (filter_acid save_id (p#config ()))::r
       else
         r)
     papgets
     []
+
+let has_papgets = fun () ->
+  (Hashtbl.fold (fun _ p n -> if p#deleted then n else n + 1) papgets 0) > 0
 
 let papget_listener =
   let sep = Str.regexp "[:\\.]" in
   fun papget ->
     try
       let field = Papget_common.get_property "field" papget in
+      let sender = try Some (Papget_common.get_property "ac_id" papget) with _ -> None in
       match Str.split sep field with
           [msg_name; field_name] ->
-            (new Papget.message_field msg_name field_name)
+            (new Papget.message_field ?sender msg_name field_name)
         | _ -> failwith (sprintf "Unexpected field spec: %s" field)
     with
         _ -> failwith (sprintf "field attr expected in '%s" (Xml.to_string papget))
@@ -72,7 +83,8 @@ let extra_functions =
 let expression_listener = fun papget ->
   let expr = Papget_common.get_property "expr" papget in
   let expr = Expr_lexer.parse expr in
-  new Papget.expression ~extra_functions expr
+  let sender = try Some (Papget_common.get_property "ac_id" papget) with _ -> None in
+  new Papget.expression ~extra_functions ?sender expr
 
 
 
@@ -100,6 +112,11 @@ let locked = fun config ->
     [PC.property "locked" (PC.get_property "locked" config)]
   with _ -> []
 
+let ac_id_prop = fun config ->
+  try
+    [PC.property "ac_id" (PC.get_property "ac_id" config)]
+  with _ -> []
+
 let create = fun canvas_group papget ->
   try
     let type_ = ExtXml.attrib papget "type"
@@ -124,18 +141,21 @@ let create = fun canvas_group papget ->
             | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
         let block_name = Papget_common.get_property "block_name" papget in
         let clicked = fun () ->
-          prerr_endline "Warning: goto_block papget sends to all A/C";
-          Hashtbl.iter
-            (fun ac_id ac ->
-              let blocks = ExtXml.child ac.Live.fp "blocks" in
-              let block = ExtXml.child ~select:(fun x -> ExtXml.attrib x "name" = block_name) blocks "block" in
-              let block_id = ExtXml.int_attrib block "no" in
-              Live.jump_to_block ac_id block_id
-            )
-            Live.aircrafts
+          let jump_to_block = fun ac_id ac ->
+            let blocks = ExtXml.child ac.Live.fp "blocks" in
+            let block = ExtXml.child ~select:(fun x -> ExtXml.attrib x "name" = block_name) blocks "block" in
+            let block_id = ExtXml.int_attrib block "no" in
+            Live.jump_to_block ac_id block_id
+          in
+          let sender = try Some (Papget_common.get_property "ac_id" papget) with _ -> None in
+          match sender with
+            Some ac_id -> begin try jump_to_block ac_id (Hashtbl.find Live.aircrafts ac_id) with _ -> () end
+          | None ->
+              prerr_endline "Warning: goto_block papget sends to all active A/C";
+              Hashtbl.iter jump_to_block Live.aircrafts
         in
         let properties =
-          [ Papget_common.property "block_name" block_name ] @ locked papget in
+          [ Papget_common.property "block_name" block_name ] @ locked papget @ ac_id_prop papget in
 
         let p = new Papget.canvas_goto_block_item properties clicked renderer in
         let p = (p :> Papget.item) in
@@ -151,20 +171,24 @@ let create = fun canvas_group papget ->
         and value = float_of_string (Papget_common.get_property "value" papget) in
 
         let clicked = fun () ->
-          prerr_endline "Warning: variable_setting papget sending to all active A/C";
-          Hashtbl.iter
-            (fun ac_id ac ->
-              match ac.Live.dl_settings_page with
-                  None -> ()
-                | Some settings ->
-                  let var_id = settings#assoc varname in
-                  Live.dl_setting ac_id var_id value)
-            Live.aircrafts
+          let send_setting = fun ac_id ac ->
+            match ac.Live.dl_settings_page with
+              None -> ()
+            | Some settings ->
+                let var_id = settings#assoc varname in
+                Live.dl_setting ac_id var_id value
+          in
+          let sender = try Some (Papget_common.get_property "ac_id" papget) with _ -> None in
+          match sender with
+            Some ac_id -> begin try send_setting ac_id (Hashtbl.find Live.aircrafts ac_id) with _ -> () end
+          | None ->
+              prerr_endline "Warning: variable_setting papget sending to all active A/C";
+              Hashtbl.iter send_setting Live.aircrafts
         in
         let properties =
           [ Papget_common.property "variable" varname;
             Papget_common.float_property "value" value ]
-          @ locked papget in
+          @ locked papget @ ac_id_prop papget in
         let p = new Papget.canvas_variable_setting_item properties clicked renderer in
         let p = (p :> Papget.item) in
         register_papget p
@@ -198,13 +222,14 @@ let parse_message_dnd =
       | _ -> raise (Parse_message_dnd (Printf.sprintf "parse_dnd: %s" s))
 let dnd_data_received = fun canvas_group _context ~x ~y data ~info ~time ->
   try (* With the format sent by Messages *)
-    let (_sender, _class_name, msg_name, field_name,scale) = parse_message_dnd data#data in
+    let (sender, _class_name, msg_name, field_name,scale) = parse_message_dnd data#data in
     let attrs =
       [ "type", "message_field";
         "display", "text";
         "x", sprintf "%d" x; "y", sprintf "%d" y ]
     and props =
       [ Papget_common.property "field" (sprintf "%s:%s" msg_name field_name);
+        Papget_common.property "ac_id" sender;
         Papget_common.property "scale" scale ] in
     let papget_xml = Xml.Element ("papget", attrs, props) in
     create canvas_group papget_xml

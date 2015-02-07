@@ -95,13 +95,13 @@ void ardrone_baro_event(void)
     if (baro_calibrated) {
       // first read temperature because pressure calibration depends on temperature
       float temp_deg = 0.1 * baro_apply_calibration_temp(navdata.temperature_pressure);
-      AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, &temp_deg);
+      AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp_deg);
       int32_t press_pascal = baro_apply_calibration(navdata.pressure);
 #if USE_BARO_MEDIAN_FILTER
       press_pascal = update_median_filter(&baro_median, press_pascal);
 #endif
       float pressure = (float)press_pascal;
-      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
     }
     navdata_baro_available = FALSE;
   }
