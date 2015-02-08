@@ -70,27 +70,26 @@ void *computervision_thread_main(void *args)
   // Status
   computer_vision_thread_command = RUN;
 
-  // Video Input
-  struct vid_struct vid;
+
   /* On ARDrone2:
    * video1 = front camera; video2 = bottom camera
    */
-  vid.device = (char *)"/dev/video2";
-  vid.w = 320;
-  vid.h = 240;
-  vid.n_buffers = 4;
-
-  if (video_init(&vid) < 0) {
+  // Create a V4L2 device
+  struct v4l2_device *dev = v4l2_init("/dev/video2", 320, 240, 10);
+  if (dev == NULL) {
     printf("Error initialising video\n");
     return 0;
   }
 
-  // Video Grabbing
-  struct img_struct *img_new = video_create_image(&vid);
+  // Start the streaming on the V4L2 device
+  if(!v4l2_start_capture(dev)) {
+    printf("Could not start capture\n");
+    return 0;
+  }
 
 #ifdef DOWNLINK_VIDEO
   // Video Compression
-  uint8_t *jpegbuf = (uint8_t *)malloc(vid.h * vid.w * 2);
+  uint8_t *jpegbuf = (uint8_t *)malloc(dev->w * dev->h * 2);
 
   // Network Transmit
   struct UdpSocket *vsock;
@@ -100,12 +99,12 @@ void *computervision_thread_main(void *args)
 #endif
 
   // First Apply Settings before init
-  opticflow_plugin_init(vid.w, vid.h, &vision_results);
+  opticflow_plugin_init(dev->w, dev->h, &vision_results);
 
   while (computer_vision_thread_command == RUN) {
 
     // Wait for a new frame
-    video_grab_image(&vid, img_new);
+    struct v4l2_img_buf *img = v4l2_image_get(dev);
 
     // Get most recent State information
     int bytes_read = sizeof(autopilot_data);
@@ -121,7 +120,9 @@ void *computervision_thread_main(void *args)
     DEBUG_INFO("[thread] Read # %d\n",autopilot_data.cnt);
 
     // Run Image Processing with image and data and get results
-    opticflow_plugin_run(img_new->buf, &autopilot_data, &vision_results);
+    opticflow_plugin_run(img->buf, &autopilot_data, &vision_results);
+
+    //printf("Vision result %f %f\n", vision_results.Velx, vision_results.Vely);
 
     /* Send results to main */
     vision_results.cnt++;
@@ -136,15 +137,18 @@ void *computervision_thread_main(void *args)
     uint32_t quality_factor = 10; //20 if no resize,
     uint8_t dri_header = 0;
     uint32_t image_format = FOUR_TWO_TWO;  // format (in jpeg.h)
-    uint8_t *end = encode_image(small.buf, jpegbuf, quality_factor, image_format, small.w, small.h, dri_header);
+    uint8_t *end = encode_image(img->buf, jpegbuf, quality_factor, image_format, dev->w, dev->h, dri_header);
     uint32_t size = end - (jpegbuf);
 
-    printf("Sending an image ...%u\n", size);
-    send_rtp_frame(vsock, jpegbuf, size, small.w, small.h, 0, quality_factor, dri_header, 0);
+    //printf("Sending an image ...%u\n", size);
+    send_rtp_frame(vsock, jpegbuf, size, dev->w, dev->h, 0, quality_factor, dri_header, 0);
 #endif
+
+    // Free the image
+    v4l2_image_free(dev, img);
   }
 
   printf("Thread Closed\n");
-  video_close(&vid);
+  v4l2_close(dev);
   return 0;
 }

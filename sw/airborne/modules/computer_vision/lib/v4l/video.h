@@ -1,53 +1,62 @@
 /*
-    video.h - video driver
-
-    Copyright (C) 2011 Hugo Perquin - http://blog.perquin.com
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-    MA 02110-1301 USA.
+ * Copyright (C) 2015 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2011 Hugo Perquin - http://blog.perquin.com
+ *
+ * This file is part of Paparazzi.
+ *
+ * Paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
  */
 
-#ifndef _VIDEO_H
-#define _VIDEO_H
+/**
+ * @file modules/computer_vision/lib/v4l/v4l.h
+ * Capture images from a V4L2 device (Video for Linux 2)
+ */
 
-#include "modules/computer_vision/cv/image.h"
+#ifndef _V4L2_H
+#define _V4L2_H
 
-struct buffer_struct {
-  void *buf;
-  size_t length;
+#include "std.h"
+
+/* V4L2 memory mapped image buffer */
+struct v4l2_img_buf {
+  uint8_t idx;            //< The index of the buffer
+  pthread_mutex_t mutex;  //< Mutex lock of an image (the image is being processed)
+  size_t length;          //< The size of the buffer
+  void *buf;              //< Pointer to the memory mapped buffer
 };
 
-struct vid_struct {
-  char *device;
-  int w;
-  int h;
-  int seq;
-  unsigned int n_buffers;
-
-  //private members
-  int trigger;
-  struct img_struct *img;
-  struct buffer_struct *buffers;
-  int fd;
+/* V4L2 device */
+struct v4l2_device {
+  char *name;                     //< The name of the device
+  int fd;                         //< The file pointer to the device
+  pthread_t thread;               //< The thread that handles the images
+  uint16_t w;                     //< The width of the image
+  uint16_t h;                     //< The height of the image
+  uint8_t buffers_cnt;            //< The number of image buffers
+  uint8_t buffers_deq_idx;        //< The current dequeued index
+  struct v4l2_img_buf *buffers;  //< The memory mapped image buffers
 };
 
+/* External functions */
+struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height, uint8_t buffers_cnt);
+struct v4l2_img_buf *v4l2_image_get(struct v4l2_device *dev);
+struct v4l2_img_buf *v4l2_image_get_nonblock(struct v4l2_device *dev);
+void v4l2_image_free(struct v4l2_device *dev, struct v4l2_img_buf *img_buf);
+bool_t v4l2_start_capture(struct v4l2_device *dev);
+bool_t v4l2_stop_capture(struct v4l2_device *dev);
+void v4l2_close(struct v4l2_device *dev);
 
-int video_init(struct vid_struct *vid);
-struct img_struct *video_create_image(struct vid_struct *vid);
-
-void video_grab_image(struct vid_struct *vid, struct img_struct *img);
-void video_close(struct vid_struct *vid);
-
-#endif
+#endif /* _V4L2_H */
