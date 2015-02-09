@@ -34,9 +34,19 @@ PULSE_AUDIO_OPTS="--volume=/run/user/${USER_UID}/pulse:/run/pulse"
 
 # give the container access to USB, WARNING runs it as priviliged container!
 # use it if ENABLE_USB variable is non-empty/zero
-if [ -n "$ENABLE_USB" ]; then
-    echo "INFO: running as priviliged container to enable USB access!"
+if [ -n "$PRIVILEGED_USB" ]; then
+    echo "WARNING: running as priviliged container to enable complete USB access!"
+    echo "Better pass devices explicitly: ./run.sh -i -t --device=/dev/ttyUSB0 flixr/pprz-dev bash"
     USB_OPTS="--privileged --volume=/dev/bus/usb:/dev/bus/usb"
+fi
+
+# try to detect which USB devices to pass to the container automatically
+# set DISABLE_USB=1 to turn it off
+if [ -z "$DISABLE_USB" ]; then
+    USB_OPTS=$(find /dev -maxdepth 1 \( -name "ttyACM?" -or -name "ttyUSB?" \) -printf "--device=%p ")
+    if [ -n "$USB_OPTS" ]; then
+        echo Passing auto-detected USB devices: $USB_OPTS
+    fi
 fi
 
 # share the paparazzi directory and set it as working directory
