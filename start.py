@@ -14,17 +14,15 @@ from fnmatch import fnmatch
 import subprocess
 
 
-
-
 class ConfChooser:
 
     # General Functions
 
-    def update_combo(self, combo, list, active):
+    def update_combo(self, combo, clist, active):
         combo.set_sensitive(False)
         combo.get_model().clear()
         current_index = 0
-        for (i, text) in enumerate(list):
+        for (i, text) in enumerate(clist):
             combo.append_text(text)
             if os.path.join(self.conf_dir, text) == os.path.realpath(active):
                 current_index = i
@@ -34,7 +32,7 @@ class ConfChooser:
     def update_conf_label(self):
         desc = "Current conf: "
         if not os.path.lexists(self.conf_xml):
-                desc += "does not exist"
+            desc += "does not exist"
         else:
             if os.path.islink(self.conf_xml):
                 if os.path.exists(self.conf_xml):
@@ -48,7 +46,7 @@ class ConfChooser:
     def update_controlpanel_label(self):
         desc = "Current control_panel: "
         if not os.path.lexists(self.controlpanel_xml):
-                desc += "does not exist"
+            desc += "does not exist"
         else:
             if os.path.islink(self.controlpanel_xml):
                 if os.path.exists(self.controlpanel_xml):
@@ -61,11 +59,8 @@ class ConfChooser:
 
     # CallBack Functions
 
-
     def find_conf_files(self):
-
         conf_files = []
-
         pattern = "*conf[._-]*xml"
         backup_pattern = "*conf[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
         excludes = ["%gconf.xml"]
@@ -83,11 +78,8 @@ class ConfChooser:
         conf_files.sort()
         self.update_combo(self.conf_file_combo, conf_files, self.conf_xml)
 
-
     def find_controlpanel_files(self):
-
         controlpanel_files = []
-
         pattern = "*control_panel[._-]*xml"
         backup_pattern = "*control_panel[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
         excludes = []
@@ -104,7 +96,6 @@ class ConfChooser:
 
         controlpanel_files.sort()
         self.update_combo(self.controlpanel_file_combo, controlpanel_files, self.controlpanel_xml)
-
 
     def about(self, widget):
         about_d = gtk.AboutDialog()
@@ -134,14 +125,14 @@ class ConfChooser:
 
     def launch(self, widget):
         self.accept(widget)
-        os.system("./paparazzi &");
-        gtk.main_quit()
+        self.pp = subprocess.Popen("./paparazzi")
+        self.window.destroy()
 
     def backupconf(self, use_personal=False):
         timestr = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M")
         if os.path.islink(self.conf_xml):
             if self.verbose:
-                print("Symlink does not need backup");
+                print("Symlink does not need backup")
         else:
             if os.path.exists(self.conf_xml):
                 newname = "conf.xml." + timestr
@@ -160,7 +151,7 @@ class ConfChooser:
         timestr = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M")
         if os.path.islink(self.controlpanel_xml):
             if self.verbose:
-                print("Symlink does not need backup");
+                print("Symlink does not need backup")
         else:
             if os.path.exists(self.controlpanel_xml):
                 newname = "control_panel.xml." + timestr
@@ -195,7 +186,6 @@ class ConfChooser:
             self.find_controlpanel_files()
             print("Deleted: " + filename)
 
-
     def accept(self, widget):
         selected = self.conf_file_combo.get_active_text()
         if selected == "conf.xml":
@@ -220,8 +210,6 @@ class ConfChooser:
             os.symlink(selected, self.controlpanel_xml)
             self.update_controlpanel_label()
             self.find_controlpanel_files()
-
-
 
     def personal_conf(self, widget):
         if os.path.exists(self.conf_personal):
@@ -248,11 +236,10 @@ class ConfChooser:
             self.find_controlpanel_files()
 
     # Constructor Functions
-
-    def destroy(self, widget, data=None):
-        gtk.main_quit()
-
     def __init__(self):
+        # paparazzi process
+        self.pp = None
+
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_title("Paparazzi Configuration Chooser")
 
@@ -307,12 +294,12 @@ class ConfChooser:
         # Combo Bar
 
         self.conf_label = gtk.Label("Conf:")
-        self.conf_label.set_size_request(100,30)
+        self.conf_label.set_size_request(100, 30)
 
         self.conf_file_combo = gtk.combo_box_new_text()
         self.find_conf_files()
-#        self.firmwares_combo.connect("changed", self.parse_list_of_airframes)
-        self.conf_file_combo.set_size_request(550,30)
+        # self.firmwares_combo.connect("changed", self.parse_list_of_airframes)
+        self.conf_file_combo.set_size_request(550, 30)
 
         self.btnDeleteConf = gtk.Button(None, gtk.STOCK_DELETE)
         self.btnDeleteConf.connect("clicked", self.delete_conf)
@@ -329,11 +316,11 @@ class ConfChooser:
         self.confbar.pack_start(self.btnPersonalConf)
         self.my_vbox.pack_start(self.confbar, False)
 
-        ##### Explain current conf config
+        # Explain current conf config
 
-        self.conf_explain = gtk.Label("");
+        self.conf_explain = gtk.Label("")
         self.update_conf_label()
-        self.conf_explain.set_size_request(0,45)
+        self.conf_explain.set_size_request(0, 45)
 
         self.cfexbar = gtk.HBox()
         self.cfexbar.pack_start(self.conf_explain)
@@ -342,13 +329,13 @@ class ConfChooser:
 
         # Controlpanel
         self.controlpanel_label = gtk.Label("Controlpanel:")
-        self.controlpanel_label.set_size_request(100,30)
+        self.controlpanel_label.set_size_request(100, 30)
 
         self.controlpanel_file_combo = gtk.combo_box_new_text()
         self.find_controlpanel_files()
-        self.controlpanel_file_combo.set_size_request(550,30)
+        self.controlpanel_file_combo.set_size_request(550, 30)
 
-        #window
+        # window
 
         self.btnDeleteControl = gtk.Button(None, gtk.STOCK_DELETE)
         self.btnDeleteControl.connect("clicked", self.delete_controlpanel)
@@ -365,24 +352,23 @@ class ConfChooser:
         self.controlpanelbar.pack_start(self.btnPersonalControl)
         self.my_vbox.pack_start(self.controlpanelbar, False)
 
+        # Explain current controlpanel config
 
-        ##### Explain current controlpanel config
-
-        self.controlpanel_explain = gtk.Label("");
+        self.controlpanel_explain = gtk.Label("")
         self.update_controlpanel_label()
-        self.controlpanel_explain.set_size_request(0,45)
+        self.controlpanel_explain.set_size_request(0, 45)
 
         self.ctexbar = gtk.HBox()
         self.ctexbar.pack_start(self.controlpanel_explain)
 
         self.my_vbox.pack_start(self.ctexbar, False)
 
-        ### show backups button
+        # show backups button
         self.btnBackups = gtk.CheckButton("show backups")
         self.btnBackups.connect("toggled", self.set_backups)
         self.my_vbox.pack_start(self.btnBackups, False)
 
-        ##### Buttons
+        # Buttons
         self.btnAccept = gtk.Button("Set Active")
         self.btnAccept.connect("clicked", self.accept)
         self.btnAccept.set_tooltip_text("Set selected Conf/Control_Panel as Active")
@@ -392,31 +378,32 @@ class ConfChooser:
         self.btnLaunch.set_tooltip_text("Launch Paparazzi with current conf.xml and control_panel.xml")
 
         self.btnExit = gtk.Button("Exit")
-        self.btnExit.connect("clicked", self.destroy)
+        self.btnExit.connect("clicked", gtk.main_quit)
         self.btnExit.set_tooltip_text("Close application")
 
-
         self.toolbar = gtk.HBox()
-        self.toolbar.set_size_request(0,60)
+        self.toolbar.set_size_request(0, 60)
         self.toolbar.pack_start(self.btnLaunch)
         self.toolbar.pack_start(self.btnAccept)
         self.toolbar.pack_start(self.btnExit)
 
         self.my_vbox.pack_start(self.toolbar, False)
 
-        ##### Bottom
+        # Bottom
 
         self.window.add(self.my_vbox)
         self.window.show_all()
         self.window.set_position(gtk.WIN_POS_CENTER_ALWAYS)
-        self.window.connect("destroy", self.destroy)
+        self.window.connect("destroy", gtk.main_quit)
 
     def main(self):
         gtk.main()
+        if self.pp:
+            self.pp.wait()
 
 if __name__ == "__main__":
     import sys
-    if (len(sys.argv) > 1):
+    if len(sys.argv) > 1:
         airframe_file = sys.argv[1]
     gui = ConfChooser()
     gui.main()
