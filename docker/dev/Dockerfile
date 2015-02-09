@@ -7,6 +7,16 @@
 FROM flixr/pprz-dep
 MAINTAINER Felix Ruess <felix.ruess@gmail.com>
 
+# Set the env variable DEBIAN_FRONTEND to noninteractive
+ENV DEBIAN_FRONTEND noninteractive
+
+# install some extra convenience packages
+RUN apt-get update && apt-get install -y \
+    terminator
+
+# Clean up APT when done.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 ENV PULSE_SERVER /run/pulse/native
 
 # add basic user

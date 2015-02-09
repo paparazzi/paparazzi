@@ -8,7 +8,9 @@ help:
 	@echo "   1. make pull             - pull all pprz images"
 	@echo "   1. make clean            - remove all pprz images"
 	@echo "   2. make bash             - run bash on pprz-dev"
-	@echo "   2. make paparazzi        - run paparazzi center on pprz-dev"
+	@echo "   2. make terminator       - run terminator on pprz-dev"
+	@echo "   2. make paparazzi        - run ./paparazzi center on pprz-dev"
+	@echo "   2. make start            - run ./start.py on pprz-dev"
 	@echo ""
 
 build:
@@ -23,8 +25,11 @@ clean:
 	@docker rmi -f flixr/pprz-dep
 	@docker rmi -f flixr/pprz-dev
 
-bash:
-	@bash run.sh -i -t flixr/pprz-dev bash
+bash terminator:
+	@bash run.sh -i -t flixr/pprz-dev $@
 
 paparazzi:
 	@bash run.sh -i -t flixr/pprz-dev ./paparazzi
+
+start:
+	@bash run.sh -i -t flixr/pprz-dev ./start.py
