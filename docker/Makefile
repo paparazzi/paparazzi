@@ -8,6 +8,7 @@ help:
 	@echo "   1. make pull             - pull all pprz images"
 	@echo "   1. make clean            - remove all pprz images"
 	@echo "   2. make bash             - run bash on pprz-dev"
+	@echo "   2. make bash_usb         - run bash and enable USB"
 	@echo "   2. make paparazzi        - run paparazzi center on pprz-dev"
 	@echo ""
 
@@ -25,6 +26,10 @@ clean:
 
 bash:
 	@bash run.sh -i -t flixr/pprz-dev bash
+
+bash_usb:
+	@ENABLE_USB=1 bash ./run.sh -i -t flixr/pprz-dev bash
+
 
 paparazzi:
 	@bash run.sh -i -t flixr/pprz-dev ./paparazzi
