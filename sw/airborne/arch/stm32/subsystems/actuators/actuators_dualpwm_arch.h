@@ -45,7 +45,7 @@ extern void clear_timer_flag(void);
 
 extern void set_dual_pwm_timer_s_period(uint32_t period);
 
-extern void set_dual_pwm_timer_s_oc(uint32_t oc_value);
+extern void set_dual_pwm_timer_s_oc(uint32_t oc_value, uint32_t oc_value2);
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
