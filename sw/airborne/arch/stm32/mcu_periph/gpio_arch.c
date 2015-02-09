@@ -153,8 +153,8 @@ void gpio_setup_input_pulldown(uint32_t port, uint16_t gpios)
 void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output __attribute__((unused)))
 {
   gpio_enable_clock(port);
-  gpio_mode_setup(port, GPIO_MODE_AF, GPIO_PUPD_NONE, pin);
   gpio_set_af(port, af, pin);
+  gpio_mode_setup(port, GPIO_MODE_AF, GPIO_PUPD_NONE, pin);
 }
 
 void gpio_setup_pin_analog(uint32_t port, uint16_t pin)
