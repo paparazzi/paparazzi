@@ -12,6 +12,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # install some extra convenience packages
 RUN apt-get update && apt-get install -y \
+    light-themes \
     terminator
 
 # Clean up APT when done.
@@ -36,3 +37,6 @@ USER pprz
 
 ENV HOME /home/$USERNAME
 WORKDIR $HOME
+
+# set gtk theme
+RUN echo include \"/usr/share/themes/Ambiance/gtk-2.0/gtkrc\" > $HOME/.gtkrc-2.0
