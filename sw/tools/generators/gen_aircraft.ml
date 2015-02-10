@@ -134,7 +134,13 @@ let dump_module_section = fun xml f ->
                   | "include" | "I" -> "I"^vpath
                   | "raw" -> ""
                   | _ -> "D" in
-                fprintf f "%s.CFLAGS += -%s%s%s\n" target flag_type name value
+                try
+                  let cond = Xml.attrib field "cond" in
+                  fprintf f "%s\n" cond;
+                  fprintf f "%s.CFLAGS += -%s%s%s\n" target flag_type name value;
+                  fprintf f "endif\n";
+                with _ ->
+                  fprintf f "%s.CFLAGS += -%s%s%s\n" target flag_type name value
               ) targets
             | "flag" ->
               List.iter (fun target ->

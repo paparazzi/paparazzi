@@ -71,7 +71,8 @@ name CDATA #REQUIRED
 value CDATA #IMPLIED
 unit CDATA #IMPLIED
 type CDATA #IMPLIED
-description CDATA #IMPLIED>
+description CDATA #IMPLIED
+cond CDATA #IMPLIED>
 
 <!ATTLIST flag
 name CDATA #REQUIRED
