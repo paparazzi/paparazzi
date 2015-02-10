@@ -1,3 +1,65 @@
+Paparazzi 5.5_devel
+===================
+
+currently ongoing development, changes so far (no particular order, nor complete)
+
+- python: generate paparazzi math wrappers with SWIG
+  [#1066] (https://github.com/paparazzi/paparazzi/pull/1066)
+- ground segment: use pkg-config for ivy-c if available
+- GCS: improve papgets with multi aircraft support
+  [#1068] (https://github.com/paparazzi/paparazzi/pull/1068)
+- modules: rewrite nav_bungee_takeoff
+  [#1074] (https://github.com/paparazzi/paparazzi/pull/1074)
+- OCaml: try to live in harmony with the garbage collector
+  [#1076] (https://github.com/paparazzi/paparazzi/pull/1076)
+- python: improve ivy messages interface
+  [#1073] (https://github.com/paparazzi/paparazzi/pull/1073)
+- python: add simple ivy2redis script
+  [#1071] (https://github.com/paparazzi/paparazzi/pull/1071)
+- navigation: implement global waypoints for rotorcrafts
+  [#1065] (https://github.com/paparazzi/paparazzi/pull/1065)
+- arch/stm32: use desig_get_unique_id from libopencm3
+  [#1018] (https://github.com/paparazzi/paparazzi/pull/1018)
+- ground segment: improve Ivy efficiency
+  [#1082] (https://github.com/paparazzi/paparazzi/pull/1082)
+- modules: add video_usb_logger for ARDrone2
+  [#1086] (https://github.com/paparazzi/paparazzi/pull/1086)
+- joystick: add new RC USB joystick from HobbyKing
+  [#1088] (https://github.com/paparazzi/paparazzi/pull/1088)
+- modules: optic flow based hover for ARDrone2
+  [#1062] (https://github.com/paparazzi/paparazzi/pull/1062)
+- airborne: allow to pass variables by value to ABI callbacks
+  [#1087] (https://github.com/paparazzi/paparazzi/pull/1087)
+- conf: add HooperFly quad/hexa/octo airframe/JSBSim configs and new GCS icons
+  [#1081] (https://github.com/paparazzi/paparazzi/pull/1081)
+- modules: allow conditions in module defines and update meteo_stick
+  [#1092] (https://github.com/paparazzi/paparazzi/pull/1092)
+- mcu_periph: increase max size for spi buffer length (8bits to 16bits)
+
+Paparazzi 5.4.1_stable
+======================
+
+Maintenance release
+
+- plot: fix loading of logs with strings that are not representing a float
+- log: prevent display when no points
+  [#897] (https://github.com/paparazzi/paparazzi/issues/897)
+- GCS: disable broken WP reordering in editor
+- GCS: fix last known value was not returned with correct scale for saving
+- paparazzi center: show build/run versions and update help
+- messages: fix hide/show of notebook with multi A/C
+- start.py: properly use Popen to start paparazzi subprocess
+- bebop: actuators left/right reversed and fix NPS config
+- ms5611 barometer peripheral: fix I2C transaction
+- sdlog: call pprzlog_init if needed (and avoid segfault)
+- datalink: fix extra_dl and pprzlog
+- current sensor subsystem shared and not only for fixedwing
+- arch/linux: GCC diagnostic pragma outside of i2c_submit function
+- arch/linux: use same float_abi for linking as for compiling
+- arch/stm32: fix spektrum binding on F4
+  [#780] (https://github.com/paparazzi/paparazzi/issues/780)
+
+
 Paparazzi 5.4.0_stable
 ======================
 
