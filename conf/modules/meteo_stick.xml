@@ -10,10 +10,11 @@
       - Temperature in ADC (ADS1220)
       - Humidity in ticks (period of the input signal)
 
-      When using SEND_MS flag, scaled pressure, temperature and humidity data are sent over telemetry with the PAYLOAD_FLOAT message (array of float).
-      If scale factors and offset are not specified, raw values are sent (scale=1.0, offset=0).
+      Calibration data are stored in an EEPROM. When a sensor is calibrated with several reference temperature, a linear interpolation is used.
 
-      When using LOG_MS flag, raw pressure, temperature and humidity data are stored with raw gps data (position, speed, time, status).
+      When using SEND_MS flag, scaled pressure, temperature and humidity data are sent over telemetry with the PAYLOAD_FLOAT message (array of float).
+
+      When using LOG_MS flag, raw and calibrated pressure, temperature and humidity data are stored with raw gps data (position, speed, time, status).
       Field names and units are in the first line of the log file.
     </description>
     <configure name="MS_SPI_DEV" value="SPIX" description="Select SPI for external ADC"/>
@@ -21,17 +22,19 @@
     <configure name="MS_DIFF_PRESSURE_SLAVE_IDX" value="X" description="Index of the SPI slave for differential pressure"/>
     <configure name="MS_TEMPERATURE_SLAVE_IDX" value="X" description="Index of the SPI slave for temperature"/>
     <configure name="MS_HUMIDITY_PWM_INPUT" value="PWM_INPUTX" description="Select PWM input channel for humidity sensor"/>
+    <configure name="MS_EEPROM_SLAVE_IDX" value="X" description="Index of the SPI slave for calibration EEPROM"/>
     <section name="METEO_STICK">
-      <define name="MS_PRESSURE_OFFSET" value="0" description="Offset in ADC of the absolute pressure sensor"/>
-      <define name="MS_PRESSURE_SCALE" value="1." description="Scale factor of the absolute pressure sensor"/>
-      <define name="MS_TEMPERATURE_OFFSET" value="0" description="Offset in ADC of the  temperature sensor"/>
-      <define name="MS_TEMPERATURE_SCALE" value="1." description="Scale factor of the temperature sensor"/>
-      <define name="MS_HUMIDITY_OFFSET" value="0" description="Offset in micro seconds of the humidity sensor"/>
-      <define name="MS_HUMIDITY_SCALE" value="1." description="Scale factor of the pressure sensor"/>
-      <define name="MS_DIFF_PRESSURE_OFFSET" value="0" description="Offset in ADC of the differential pressure sensor"/>
-      <define name="MS_DIFF_PRESSURE_SCALE" value="1." description="Scale factor of the differential pressure sensor"/>
       <define name="LOG_MS" value="TRUE|FALSE" description="Log data on SD card (ascii format, raw PTU data + GPS data)"/>
       <define name="SEND_MS" value="TRU|FALSE" description="Send data over telemetry (PAYLOAD_FLOAT message, scaled PTU data)"/>
+      <define name="USE_MS_EEPROM" value="TRUE|FALSE" description="Enable/disable usage of calibration data from EEPROM (default TRUE, set to FALSE if MS_EEPROM_SLAVE_IDX is not configured"/>
+      <define name="MS_PRESSURE_OFFSET" value="0." description="Offset of the absolute pressure sensor (only used if EEPROM is not used)"/>
+      <define name="MS_PRESSURE_SCALE" value="1." description="Scale factor of the absolute pressure sensor (only used if EEPROM is not used)"/>
+      <define name="MS_TEMPERATURE_OFFSET" value="0." description="Offset of the  temperature sensor (only used if EEPROM is not used)"/>
+      <define name="MS_TEMPERATURE_SCALE" value="1." description="Scale factor of the temperature sensor (only used if EEPROM is not used)"/>
+      <define name="MS_HUMIDITY_OFFSET" value="0." description="Offset of the humidity sensor (only used if EEPROM is not used)"/>
+      <define name="MS_HUMIDITY_SCALE" value="1." description="Scale factor of the pressure sensor (only used if EEPROM is not used)"/>
+      <define name="MS_DIFF_PRESSURE_OFFSET" value="0." description="Offset of the differential pressure sensor (only used if EEPROM is not used)"/>
+      <define name="MS_DIFF_PRESSURE_SCALE" value="1." description="Scale factor of the differential pressure sensor (only used if EEPROM is not used)"/>
     </section>
   </doc>
   <depends>pwm_meas</depends>
@@ -47,18 +50,22 @@ MS_SPI_DEV_UPPER=$(shell echo $(MS_SPI_DEV) | tr a-z A-Z)
 MS_SPI_DEV_LOWER=$(shell echo $(MS_SPI_DEV) | tr A-Z a-z)
     </raw>
     <file name="meteo_stick.c"/>
+    <file name="meteo_stick_calib.c"/>
     <file name="ads1220.c" dir="peripherals"/>
+    <file name="eeprom25AA256.c" dir="peripherals"/>
     <define name="USE_$(MS_SPI_DEV_UPPER)"/>
-    <define name="MS_PRESSURE_SLAVE_IDX" value="$(MS_PRESSURE_SLAVE_IDX)"/>
-    <define name="MS_DIFF_PRESSURE_SLAVE_IDX" value="$(MS_DIFF_PRESSURE_SLAVE_IDX)"/>
-    <define name="MS_TEMPERATURE_SLAVE_IDX" value="$(MS_TEMPERATURE_SLAVE_IDX)"/>
-    <define name="USE_SPI_SLAVE$(MS_PRESSURE_SLAVE_IDX)"/>
-    <define name="USE_SPI_SLAVE$(MS_DIFF_PRESSURE_SLAVE_IDX)"/>
-    <define name="USE_SPI_SLAVE$(MS_TEMPERATURE_SLAVE_IDX)"/>
+    <define name="MS_PRESSURE_SLAVE_IDX" value="$(MS_PRESSURE_SLAVE_IDX)" cond="ifdef MS_PRESSURE_SLAVE_IDX"/>
+    <define name="MS_DIFF_PRESSURE_SLAVE_IDX" value="$(MS_DIFF_PRESSURE_SLAVE_IDX)" cond="ifdef MS_DIFF_PRESSURE_SLAVE_IDX"/>
+    <define name="MS_TEMPERATURE_SLAVE_IDX" value="$(MS_TEMPERATURE_SLAVE_IDX)" cond="ifdef MS_TEMPERATURE_SLAVE_IDX"/>
+    <define name="MS_EEPROM_SLAVE_IDX" value="$(MS_EEPROM_SLAVE_IDX)" cond="ifdef MS_EEPROM_SLAVE_IDX"/>
+    <define name="USE_SPI_SLAVE$(MS_PRESSURE_SLAVE_IDX)" cond="ifdef MS_PRESSURE_SLAVE_IDX"/>
+    <define name="USE_SPI_SLAVE$(MS_DIFF_PRESSURE_SLAVE_IDX)" cond="ifdef MS_PRESSURE_SLAVE_IDX"/>
+    <define name="USE_SPI_SLAVE$(MS_TEMPERATURE_SLAVE_IDX)" cond="ifdef MS_PRESSURE_SLAVE_IDX"/>
+    <define name="USE_SPI_SLAVE$(MS_EEPROM_SLAVE_IDX)" cond="ifdef MS_EEPROM_SLAVE_IDX"/>
     <define name="MS_SPI_DEV" value="$(MS_SPI_DEV_LOWER)"/>
-    <define name="MS_HUMIDITY_PWM_INPUT" value="$(MS_HUMIDITY_PWM_INPUT)"/>
-    <define name="PWM_INPUT_TICKS_PER_USEC" value="42"/> <!-- set timer clock to 42 MHz -->
-    <define name="USE_$(MS_HUMIDITY_PWM_INPUT)" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
+    <define name="MS_HUMIDITY_PWM_INPUT" value="$(MS_HUMIDITY_PWM_INPUT)" cond="ifdef MS_HUMIDITY_PWM_INPUT"/>
+    <define name="PWM_INPUT_TICKS_PER_USEC" value="42" cond="ifdef MS_PRESSURE_SLAVE_IDX"/> <!-- set timer clock to 42 MHz -->
+    <define name="USE_$(MS_HUMIDITY_PWM_INPUT)" value="PWM_PULSE_TYPE_ACTIVE_LOW" cond="ifdef MS_PRESSURE_SLAVE_IDX"/>
   </makefile>
 </module>
 

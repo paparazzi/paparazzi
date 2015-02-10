@@ -27,38 +27,126 @@
 #include "generated/airframe.h"
 
 /** Default scale and offset
- *  send raw values if nothing defined in airframe file
+ *  Only used if calibration from EEPROM is not used/available
  */
 #ifndef MS_PRESSURE_OFFSET
-#define MS_PRESSURE_OFFSET 0
+#define MS_PRESSURE_OFFSET 0.0f
 #endif
 #ifndef MS_PRESSURE_SCALE
-#define MS_PRESSURE_SCALE 1.0
+#define MS_PRESSURE_SCALE 1.0f
 #endif
 #ifndef MS_TEMPERATURE_OFFSET
-#define MS_TEMPERATURE_OFFSET 0
+#define MS_TEMPERATURE_OFFSET 0.0f
 #endif
 #ifndef MS_TEMPERATURE_SCALE
-#define MS_TEMPERATURE_SCALE 1.0
+#define MS_TEMPERATURE_SCALE 1.0f
 #endif
 #ifndef MS_HUMIDTY_OFFSET
-#define MS_HUMIDTY_OFFSET 0
+#define MS_HUMIDTY_OFFSET 0.0f
 #endif
 #ifndef MS_HUMIDTY_SCALE
-#define MS_HUMIDTY_SCALE 1.0
+#define MS_HUMIDTY_SCALE 1.0f
 #endif
 #ifndef MS_DIFF_PRESSURE_OFFSET
-#define MS_DIFF_PRESSURE_OFFSET 0
+#define MS_DIFF_PRESSURE_OFFSET 0.0f
 #endif
 #ifndef MS_DIFF_PRESSURE_SCALE
-#define MS_DIFF_PRESSURE_SCALE 1.0
+#define MS_DIFF_PRESSURE_SCALE 1.0f
+#endif
+
+// Test if EEPROM slave index is configured
+// if not, don't use EEPROM
+#ifndef MS_EEPROM_SLAVE_IDX
+#undef USE_MS_EEPROM
 #endif
 
 /** General structure */
 struct MeteoStick meteo_stick;
 
-/** Includes to log on SD card
+
+/** Prescaling of data according to datasheets
  */
+
+static const float maxAdc = 8388608.0f; // 2 ** 23
+
+static float get_pressure(uint32_t raw)
+{
+  const float uncal_abs = ((raw / maxAdc) + 0.095f) / 0.0009f;
+
+#if USE_MS_EEPROM
+  return mtostk_get_calibrated_value(&meteo_stick.calib, MTOSTK_ABS_PRESS, uncal_abs, meteo_stick.current_temperature);
+#else
+  return (MS_PRESSURE_OFFSET * uncal_abs) + MS_PRESSURE_OFFSET;
+#endif
+}
+
+static float get_temp(uint32_t raw)
+{
+  const float coeff_A = 3.9083e-3f;
+  const float coeff_B = -5.775e-7f;
+  const float R0 = 1000.0f;
+  const float gain_factor = Ads1220GainTable[ADS1220_GAIN_4];
+  const float pga_factor = 1.0f;
+  const float Rref = 6.8e3f;
+  const float Rt = (raw * Rref) / (gain_factor * pga_factor * maxAdc);
+  const float uncal_temp = ((-R0 * coeff_A) + (sqrtf(powf((R0 * coeff_A), 2.0f) +
+                            (4.0f * R0 * coeff_B * (Rt - R0))))) / (2.0f * R0 * coeff_B);
+
+#if USE_MS_EEPROM
+  return mtostk_get_calibrated_value(&meteo_stick.calib, MTOSTK_TEMP, uncal_temp, 0.);
+#else
+  return (MS_TEMPERATURE_SCALE * uncal_temp) + MS_TEMPERATURE_OFFSET;
+#endif
+}
+
+static float pitot_offset;
+static int pitot_counter;
+
+static float get_diff(uint32_t raw)
+{
+  const float gain_factor = Ads1220GainTable[ADS1220_GAIN_2];
+  const uint32_t raw_diff = raw > pitot_offset ? raw - pitot_offset : 0;
+  const float uncal_diff = ((raw_diff / maxAdc) * 5000.f / gain_factor);
+
+#if USE_MS_EEPROM
+  return mtostk_get_calibrated_value(&meteo_stick.calib, MTOSTK_DIF_PRESS, uncal_diff, meteo_stick.current_temperature);
+#else
+  return (MS_DIFF_PRESSURE_SCALE * uncal_diff) + MS_DIFF_PRESSURE_OFFSET;
+#endif
+}
+
+static float get_pitot(uint32_t raw)
+{
+  return sqrtf((2.0f * get_diff(raw)) / 1.293f);
+}
+
+static float get_humidity(uint32_t raw)
+{
+  const float icu_freq = 42e6f; // Freq
+  const float Ra = 390e3f;
+  const float Rb = 680e3f;
+  const float S1 = 0.3e-12f; // pico farad by % of relative humidity
+  const float calib_raw_period = 17800.f;
+  const float calib_humidity = 45.f;
+  const float k = 2.f * logf(2.f) * (Ra + Rb + Rb);
+  const float uncal_hum = calib_humidity + ((raw - calib_raw_period) / (k * icu_freq * S1));
+
+#if USE_MS_EEPROM
+  return mtostk_get_calibrated_value(&meteo_stick.calib, MTOSTK_HUMIDITY, uncal_hum, meteo_stick.current_temperature);
+#else
+  return (MS_HUMIDTY_SCALE * uncal_hum) + MS_HUMIDTY_OFFSET;
+#endif
+}
+
+
+/** Includes to log on SD card
+ *
+ * TRUE by default
+ */
+#ifndef LOG_MS
+#define LOG_MS TRUE
+#endif
+
 #if LOG_MS
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
@@ -66,7 +154,13 @@ bool_t log_ptu_started;
 #endif
 
 /* Includes and function to send over telemetry
+ *
+ * TRUE by default
  */
+#ifndef SEND_MS
+#define SEND_MS TRUE
+#endif
+
 #if SEND_MS
 #include "mcu_periph/uart.h"
 #include "messages.h"
@@ -78,10 +172,10 @@ bool_t log_ptu_started;
 static inline void meteo_stick_send_data(void)
 {
   float ptu_data[MS_DATA_SIZE];
-  ptu_data[0] = (float)(MS_PRESSURE_SCALE * ((int32_t)meteo_stick.pressure.data - MS_PRESSURE_OFFSET));
-  ptu_data[1] = (float)(MS_TEMPERATURE_SCALE * ((int32_t)meteo_stick.temperature.data - MS_TEMPERATURE_OFFSET));
-  ptu_data[2] = (float)(MS_HUMIDTY_SCALE * ((int32_t)meteo_stick.humidity_period - MS_HUMIDTY_OFFSET));
-  ptu_data[3] = (float)(MS_DIFF_PRESSURE_SCALE * ((int32_t)meteo_stick.diff_pressure.data - MS_DIFF_PRESSURE_OFFSET));
+  ptu_data[0] = meteo_stick.current_pressure;
+  ptu_data[1] = meteo_stick.current_temperature;
+  ptu_data[2] = meteo_stick.current_humidity;
+  ptu_data[3] = meteo_stick.current_airspeed;
   DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, MS_DATA_SIZE, ptu_data);
 }
 
@@ -132,6 +226,22 @@ void meteo_stick_init(void)
   // Init humidity
   meteo_stick.humidity_period = 0;
 
+  // Initial temperature (ISA at sea level)
+  meteo_stick.current_temperature = 15.0f;
+
+#if USE_MS_EEPROM
+  // Set number of calibration to 0 for all sensors
+  int i;
+  for (i = 0; i < MTOSTK_NUM_SENSORS; i++) {
+    meteo_stick.calib.params[i].num_temp = 0;
+  }
+  // Init eeprom
+  eeprom25AA256_init(&meteo_stick.eeprom, &(MS_SPI_DEV), MS_EEPROM_SLAVE_IDX);
+#endif
+
+  // Number of measurements before setting pitor offset
+  pitot_counter = 10;
+
 #if LOG_MS
   log_ptu_started = FALSE;
 #endif
@@ -147,18 +257,67 @@ void meteo_stick_periodic(void)
   ads1220_periodic(&meteo_stick.temperature);
   // Read PWM
   meteo_stick.humidity_period = pwm_input_period_tics[MS_HUMIDITY_PWM_INPUT];
+  meteo_stick.current_humidity = get_humidity(meteo_stick.humidity_period);
+
+#if USE_MS_EEPROM
+  if (meteo_stick.eeprom.data_available) {
+    // Extract calibration data
+    if (!mtostk_populate_cal_from_buffer(&meteo_stick.calib, (uint8_t *)(meteo_stick.eeprom.rx_buf + 3))) {
+      // Extraction failed
+      // Force number of calibration to 0 for all sensors
+      int i;
+      for (i = 0; i < MTOSTK_NUM_SENSORS; i++) {
+        meteo_stick.calib.params[i].num_temp = 0;
+      }
+    }
+  } else if (meteo_stick.eeprom.spi_trans.status == SPITransDone) {
+    // Load reading request (reading 1Kb from address 0x0)
+    eeprom25AA256_read(&meteo_stick.eeprom, 0x0, 1024);
+  }
+#endif
 
   // Log data
 #if LOG_MS
   if (pprzLogFile.fs != NULL) {
     if (!log_ptu_started) {
+#if USE_MS_EEPROM
+      if (meteo_stick.eeprom.data_available) {
+        // Print calibration data in the log header
+        sdLogWriteLog(&pprzLogFile, "# Calibration data (UUID: %s)\n#\n", meteo_stick.calib.uuid);
+        int i, j, k;
+        for (i = 0; i < MTOSTK_NUM_SENSORS; i++) {
+          sdLogWriteLog(&pprzLogFile, "# Sensor: %d, time: %d, num_temp: %d, num_coeff: %d\n", i,
+                        meteo_stick.calib.params[i].timestamp,
+                        meteo_stick.calib.params[i].num_temp,
+                        meteo_stick.calib.params[i].num_coeff);
+          if (meteo_stick.calib.params[i].timestamp == 0) {
+            continue; // No calibration
+          }
+          for (j = 0; j < meteo_stick.calib.params[i].num_temp; j++) {
+            sdLogWriteLog(&pprzLogFile, "#  Reference temp: %.2f\n", meteo_stick.calib.params[i].temps[j]);
+            sdLogWriteLog(&pprzLogFile, "#  Coeffs:");
+            for (k = 0; k < meteo_stick.calib.params[i].num_coeff; k++) {
+              sdLogWriteLog(&pprzLogFile, " %.5f", meteo_stick.calib.params[i].coeffs[j][k]);
+            }
+            sdLogWriteLog(&pprzLogFile, "\n");
+          }
+        }
+        sdLogWriteLog(&pprzLogFile, "#\n");
+        sdLogWriteLog(&pprzLogFile,
+                      "P(adc) T(adc) H(ticks) P_diff(adc) P(hPa) T(C) H(\%) CAS(m/s) FIX TOW(ms) WEEK Lat(1e7rad) Lon(1e7rad) HMSL(mm) GS(cm/s) course(1e7rad) VZ(cm/s)\n");
+        log_ptu_started = TRUE;
+      }
+#else
       sdLogWriteLog(&pprzLogFile,
-                    "P(adc) T(adc) H(ticks) P_diff(adc) GPS_fix TOW(ms) Week Lat(1e7rad) Lon(1e7rad) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
+                    "P(adc) T(adc) H(ticks) P_diff(adc) P(hPa) T(C) H(\%) CAS(m/s) FIX TOW(ms) WEEK Lat(1e7rad) Lon(1e7rad) HMSL(mm) GS(cm/s) course(1e7rad) VZ(cm/s)\n");
       log_ptu_started = TRUE;
+#endif
     } else {
-      sdLogWriteLog(&pprzLogFile, "%d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+      sdLogWriteLog(&pprzLogFile, "%d %d %d %d %.2f %.2f %.2f %.2f %d %d %d %d %d %d %d %d %d\n",
                     meteo_stick.pressure.data, meteo_stick.temperature.data,
                     meteo_stick.humidity_period, meteo_stick.diff_pressure.data,
+                    meteo_stick.current_pressure, meteo_stick.current_temperature,
+                    meteo_stick.current_humidity, meteo_stick.current_airspeed,
                     gps.fix, gps.tow, gps.week,
                     gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
                     gps.gspeed, gps.course, -gps.ned_vel.z);
@@ -180,18 +339,36 @@ void meteo_stick_event(void)
   ads1220_event(&meteo_stick.diff_pressure);
   ads1220_event(&meteo_stick.temperature);
 
+  // send temperature data over ABI as soon as available
+  if (meteo_stick.temperature.data_available) {
+    meteo_stick.current_temperature = get_temp(meteo_stick.temperature.data);
+    AbiSendMsgTEMPERATURE(METEO_STICK_SENDER_ID, meteo_stick.current_temperature);
+    meteo_stick.temperature.data_available = FALSE;
+  }
+
   // send absolute pressure data over ABI as soon as available
   if (meteo_stick.pressure.data_available) {
-    float abs = MS_PRESSURE_SCALE * (float)((int32_t)meteo_stick.pressure.data - MS_PRESSURE_OFFSET);
-    AbiSendMsgBARO_ABS(METEO_STICK_SENDER_ID, abs);
+    meteo_stick.current_pressure = get_pressure(meteo_stick.pressure.data);
+    AbiSendMsgBARO_ABS(METEO_STICK_SENDER_ID, meteo_stick.current_pressure);
     meteo_stick.pressure.data_available = FALSE;
   }
 
   // send differential pressure data over ABI as soon as available
   if (meteo_stick.diff_pressure.data_available) {
-    float diff = MS_DIFF_PRESSURE_SCALE * (float)((int32_t)meteo_stick.diff_pressure.data - MS_DIFF_PRESSURE_OFFSET);
+    if (pitot_counter > 0) {
+      pitot_counter--;
+      if (pitot_counter == 0) {
+        pitot_offset = meteo_stick.diff_pressure.data;
+      }
+    }
+    float diff = get_diff(meteo_stick.diff_pressure.data);
     AbiSendMsgBARO_DIFF(METEO_STICK_SENDER_ID, diff);
+    meteo_stick.current_airspeed = get_pitot(meteo_stick.diff_pressure.data);
     meteo_stick.diff_pressure.data_available = FALSE;
   }
+
+#if USE_MS_EEPROM
+  eeprom25AA256_event(&meteo_stick.eeprom);
+#endif
 }
 

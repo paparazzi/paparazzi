@@ -20,6 +20,8 @@
  */
 
 /**
+ * @file modules/meteo/meteo_stick.h
+ *
  * Data acquisition module for ENAC PTU board
  *
  * provides meteo data:
@@ -44,12 +46,29 @@
 #include "std.h"
 #include "peripherals/ads1220.h"
 
+#ifndef USE_MS_EEPROM
+#define USE_MS_EEPROM TRUE
+#endif
+
+#if USE_MS_EEPROM
+#include "peripherals/eeprom25AA256.h"
+#include "modules/meteo/meteo_stick_calib.h"
+#endif
+
 /** Raw sensors structure */
 struct MeteoStick {
   struct Ads1220 pressure;      ///< absolute pressure
   struct Ads1220 diff_pressure; ///< differential pressure
   struct Ads1220 temperature;   ///< temperature
   uint32_t humidity_period;     ///< humidity (in ticks)
+  float current_temperature;    ///< calibrated temperature
+  float current_pressure;       ///< calibrated pressure
+  float current_humidity;       ///< calibrated humidity
+  float current_airspeed;       ///< calibrated airspeed
+#if USE_MS_EEPROM
+  struct Eeprom25AA256 eeprom;  ///< eeprom with calibration data
+  Calibration_params calib;     ///< calibration
+#endif
 };
 
 extern struct MeteoStick meteo_stick;
