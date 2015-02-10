@@ -199,7 +199,7 @@ __attribute__((always_inline)) static inline void SpiTransmit(struct spi_periph 
 {
   // when all byte are sent, continue until tx_idx reach input_length
   // needed when input_length is bigger than output_length
-  uint8_t max_idx = Max(t->output_length, t->input_length);
+  uint16_t max_idx = Max(t->output_length, t->input_length);
   while (p->tx_idx_buf < max_idx && bit_is_set(((sspRegs_t *)(p->reg_addr))->sr, TNF)) {
     if (p->tx_idx_buf < t->output_length) {
       if (t->dss == SPIDss8bit) {

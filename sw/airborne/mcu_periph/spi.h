@@ -142,8 +142,8 @@ typedef void (*SPICallback)(struct spi_transaction *trans);
 struct spi_transaction {
   volatile uint8_t *input_buf;  ///< pointer to receive buffer for DMA
   volatile uint8_t *output_buf; ///< pointer to transmit buffer for DMA
-  uint8_t input_length;         ///< number of data words to read
-  uint8_t output_length;        ///< number of data words to write
+  uint16_t input_length;        ///< number of data words to read
+  uint16_t output_length;       ///< number of data words to write
   uint8_t slave_idx;            ///< slave id: #SPI_SLAVE0 to #SPI_SLAVE4
   enum SPISlaveSelect select;   ///< slave selection behavior
   enum SPIClockPolarity cpol;   ///< clock polarity control

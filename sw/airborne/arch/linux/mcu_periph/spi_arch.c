@@ -50,7 +50,7 @@ bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
   memset(&xfer, 0, sizeof xfer);
 
   /* length in bytes of transaction */
-  uint8_t buf_len = Max(t->input_length, t->output_length);
+  uint16_t buf_len = Max(t->input_length, t->output_length);
 
   /* handle transactions with different input/output length */
   if (buf_len > t->output_length) {
