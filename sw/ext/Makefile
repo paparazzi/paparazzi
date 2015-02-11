@@ -37,7 +37,7 @@ all: libopencm3.module luftboot.module chibios.module fatfs.module
 
 update_submodules:
 	$(Q)if [ -d $(PAPARAZZI_SRC)/.git ]; then \
-		cd $(PAPARAZZI_SRC) && git submodule update --quiet --init; \
+		cd $(PAPARAZZI_SRC) && git submodule update --init; \
 	fi
 
 libopencm3.module: update_submodules
