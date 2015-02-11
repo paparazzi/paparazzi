@@ -38,10 +38,10 @@
   </servos>
 
   <servos driver="Dualpwm">
-    <servo name="TOUW3" no="2" min="1100" neutral="1500" max="1900"/>
-    <servo name="TOUW4" no="3" min="1100" neutral="1500" max="1900"/>  <!-- 1700 -->
-    <servo name="TOUW1" no="4" min="1100" neutral="1500" max="1900"/>
-    <servo name="TOUW2" no="5" min="1100" neutral="1500" max="1900"/>
+    <servo name="TOUW2" no="5" min="1100" neutral="1100" max="1900"/>
+    <servo name="TOUW3" no="2" min="1100" neutral="1100" max="1900"/>
+    <servo name="TOUW4" no="3" min="1100" neutral="1100" max="1900"/>  <!-- 1700 -->
+    <servo name="TOUW1" no="4" min="1100" neutral="1100" max="1900"/>
   </servos>
 
 
@@ -52,7 +52,15 @@
     <axis name="YAW" failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
-
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="TOUW1" value="+@ROLL-@PITCH+@YAW"/>
+    <set servo="TOUW2" value="-@ROLL-@PITCH-@YAW"/>
+    <set servo="TOUW3" value="@PITCH-@ROLL+@YAW"/>
+    <set servo="TOUW4" value="@PITCH+@ROLL-@YAW"/>
+    <set servo="MOTOR" value="@THRUST" />
+  </command_laws>
+<!--
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
     <set servo="TOUW1" value="motor_mixing.commands[0]"/>
@@ -61,7 +69,7 @@
     <set servo="TOUW4" value="motor_mixing.commands[3]"/>
     <set servo="MOTOR" value="@THRUST" />
   </command_laws>
-
+-->
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
