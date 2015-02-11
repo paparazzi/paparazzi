@@ -30,7 +30,6 @@
 #ifndef OPENLOG_H
 #define OPENLOG_H
 
-void init_openlog(void);
 void periodic_2Hz_openlog(void);
 
 #endif

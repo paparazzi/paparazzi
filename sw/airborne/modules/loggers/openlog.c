@@ -31,16 +31,10 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
-
-
-uint32_t timestamp = 0; ///< Timestamp to be incremented during operation
-
-void init_openlog(void)
-{
-}
+#include "mcu_periph/sys_time.h"
 
 void periodic_2Hz_openlog(void)
 {
-  timestamp = timestamp + 500;
+  uint32_t timestamp = get_sys_time_msec();
   DOWNLINK_SEND_TIMESTAMP(DefaultChannel, DefaultDevice, &timestamp);
 }
