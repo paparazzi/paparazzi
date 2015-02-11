@@ -84,32 +84,36 @@ volatile uint8_t computer_vision_thread_command = 0;
 void *computervision_thread_main(void *data);
 void *computervision_thread_main(void *data)
 {
-  // Video Input
-  struct vid_struct vid;
-  vid.device = (char *)"/dev/video1";
-  vid.w = 1280;
-  vid.h = 720;
-  vid.n_buffers = 4;
-  if (video_init(&vid) < 0) {
+  // Create a V4L2 device
+#if USE_BOTTOM_CAMERA
+  struct v4l2_device *dev = v4l2_init("/dev/video2", 320, 240, 10);
+#else
+  struct v4l2_device *dev = v4l2_init("/dev/video1", 1280, 720, 4);
+#endif
+  if (dev == NULL) {
     printf("Error initialising video\n");
-    computervision_thread_status = -1;
     return 0;
   }
 
-  // Frame Grabbing
-  struct img_struct *img_new = video_create_image(&vid);
+
+  // Start the streaming on the V4L2 device
+  if(!v4l2_start_capture(dev)) {
+    printf("Could not start capture\n");
+    return 0;
+  }
+
 
   // Frame Resizing
   uint8_t quality_factor = IMAGE_QUALITY_FACTOR;
   uint8_t dri_jpeg_header = 1;
 
   struct img_struct small;
-  small.w = vid.w / IMAGE_DOWNSIZE_FACTOR;
-  small.h = vid.h / IMAGE_DOWNSIZE_FACTOR;
+  small.w = dev->w / IMAGE_DOWNSIZE_FACTOR;
+  small.h = dev->h / IMAGE_DOWNSIZE_FACTOR;
   small.buf = (uint8_t *)malloc(small.w * small.h * 2);
 
   // Commpressed image buffer
-  uint8_t *jpegbuf = (uint8_t *)malloc(vid.h * vid.w * 2);
+  uint8_t *jpegbuf = (uint8_t *)malloc(dev->h * dev->w * 2);
 
   // file index (search from 0)
   int file_index = 0;
@@ -118,10 +122,18 @@ void *computervision_thread_main(void *data)
 
   while (computer_vision_thread_command > 0) {
     usleep(microsleep);
-    video_grab_image(&vid, img_new);
+    // Wait for a new frame
+    struct v4l2_img_buf *img = v4l2_image_get(dev);
+    struct img_struct input;
+    input.buf = img->buf;
+    input.w = dev->w;
+    input.h = dev->h;
 
     // Resize
-    resize_uyuv(img_new, &small, IMAGE_DOWNSIZE_FACTOR);
+    resize_uyuv(&input, &small, IMAGE_DOWNSIZE_FACTOR);
+
+    // Free the image
+    v4l2_image_free(dev, img);
 
     // JPEG encode the image:
     uint32_t image_format = FOUR_TWO_TWO;  // format (in jpeg.h)
@@ -181,7 +193,7 @@ void *computervision_thread_main(void *data)
 
   }
   printf("Thread Closed\n");
-  video_close(&vid);
+  v4l2_close(dev);
   computervision_thread_status = -100;
   return 0;
 }
