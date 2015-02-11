@@ -33,26 +33,41 @@ EXT_DIR=$(PAPARAZZI_SRC)/sw/ext
 include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 
-all: libopencm3.module luftboot.module chibios.module fatfs.module
+all: libopencm3 luftboot chibios fatfs
 
+# update (and init if needed) all submodules
 update_submodules:
 	$(Q)if [ -d $(PAPARAZZI_SRC)/.git ]; then \
 		cd $(PAPARAZZI_SRC) && git submodule update --init; \
 	fi
 
-libopencm3.module: update_submodules
+# update (and init if needed) a specific submodule
+%.update:
+	$(Q)if [ -d $(PAPARAZZI_SRC)/.git ]; then \
+		cd $(PAPARAZZI_SRC) && git submodule update --init sw/ext/$*; \
+	fi
+
+# only build currentl checkout of libopencm3
+libopencm3.build:
 	$(Q)$(MAKE) -C libopencm3 lib PREFIX=$(PREFIX) TARGETS="stm32/f1"
 	$(Q)$(MAKE) -C libopencm3 lib PREFIX=$(PREFIX) FP_FLAGS="-mfloat-abi=softfp -mfpu=fpv4-sp-d16" TARGETS="stm32/f4"
 
-luftboot.module: update_submodules libopencm3.module
+# update and then build libopencm3
+libopencm3: libopencm3.update libopencm3.build
+
+# only build current checkout of luftboot
+luftboot.build: libopencm3.build
 	$(Q)$(MAKE) -C luftboot/src all LIBOPENCM3=../../libopencm3 PREFIX=$(PREFIX)
 
-luftboot_flash: luftboot.module libopencm3.module
+# update libopencm3 and luftboot, then build it
+luftboot: libopencm3.update luftboot.update luftboot.build
+
+luftboot_flash: luftboot.build
 	$(Q)$(MAKE) -C luftboot/src flash BMP_PORT?=/dev/ttyACM0 LIBOPENCM3=../../libopencm3 PREFIX=$(PREFIX)
 
-chibios.module: update_submodules
+chibios: chibios.update
 
-fatfs.module: update_submodules
+fatfs: fatfs.update
 
 clean:
 	$(Q)if [ -f libopencm3/Makefile ]; then \
@@ -62,4 +77,5 @@ clean:
 		$(MAKE) -C luftboot/src clean; \
 	fi
 
-.PHONY: all clean update_submodules libopencm3.module luftboot.module chibios.module fatfs.module
+.NOTPARALLEL: libopencm3 luftboot
+.PHONY: all clean update_submodules libopencm3 luftboot chibios fatfs luftboot_flash libopencm3.build luftboot.build
