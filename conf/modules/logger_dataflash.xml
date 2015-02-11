@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="loggers">
+<module name="logger_dataflash" dir="loggers">
   <doc>
     <description>
 SPI logger

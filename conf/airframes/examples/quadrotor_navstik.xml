@@ -48,7 +48,7 @@
       <define name="MS45XX_I2C_DEV" value="i2c3"/>
       <define name="USE_I2C3"/>
     </load>
-    <load name="direct_memory_logger.xml"/>
+    <load name="logger_dataflash.xml"/>
   </modules>
 
   <servos driver="Asctec_v2">
