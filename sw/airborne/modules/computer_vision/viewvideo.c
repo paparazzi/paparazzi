@@ -97,26 +97,23 @@ volatile uint8_t computer_vision_thread_command = 0;
 void *computervision_thread_main(void *data);
 void *computervision_thread_main(void *data)
 {
-  // Video Input
-  struct vid_struct vid;
+  // Create a V4L2 device
 #if USE_BOTTOM_CAMERA
-  vid.device = (char *)"/dev/video2";
-  vid.w = 320;
-  vid.h = 240;
+  struct v4l2_device *dev = v4l2_init("/dev/video2", 320, 240, 10);
 #else
-  vid.device = (char *)"/dev/video1";
-  vid.w = 1280;
-  vid.h = 720;
+  struct v4l2_device *dev = v4l2_init("/dev/video1", 1280, 720, 4);
 #endif
-  vid.n_buffers = 4;
-  if (video_init(&vid) < 0) {
+  if (dev == NULL) {
     printf("Error initialising video\n");
-    computervision_thread_status = -1;
     return 0;
   }
 
-  // Video Grabbing
-  struct img_struct *img_new = video_create_image(&vid);
+
+  // Start the streaming on the V4L2 device
+  if(!v4l2_start_capture(dev)) {
+    printf("Could not start capture\n");
+    return 0;
+  }
 
   // Video Resizing
   uint8_t quality_factor = VIDEO_QUALITY_FACTOR;
@@ -124,12 +121,12 @@ void *computervision_thread_main(void *data)
   int microsleep = (int)(1000000. / VIDEO_FPS);
 
   struct img_struct small;
-  small.w = vid.w / VIDEO_DOWNSIZE_FACTOR;
-  small.h = vid.h / VIDEO_DOWNSIZE_FACTOR;
+  small.w = dev->w / VIDEO_DOWNSIZE_FACTOR;
+  small.h = dev->h / VIDEO_DOWNSIZE_FACTOR;
   small.buf = (uint8_t *)malloc(small.w * small.h * 2);
 
   // Video Compression
-  uint8_t *jpegbuf = (uint8_t *)malloc(vid.h * vid.w * 2);
+  uint8_t *jpegbuf = (uint8_t *)malloc(dev->h * dev->w * 2);
 
   // Network Transmit
   struct UdpSocket *vsock;
@@ -162,12 +159,12 @@ void *computervision_thread_main(void *data)
     if (dt < microsleep) { usleep(microsleep - dt); }
     last_time = vision_thread_sleep_time;
 
-    // Grab new frame
-    video_grab_image(&vid, img_new);
+    // Wait for a new frame
+    struct v4l2_img_buf *img = v4l2_image_get(dev);
 
     // Save picture on disk
     if (computer_vision_thread_command == 2) {
-      uint8_t *end = encode_image(img_new->buf, jpegbuf, 99, FOUR_TWO_TWO, vid.w, vid.h, 1);
+      uint8_t *end = encode_image(img->buf, jpegbuf, 99, FOUR_TWO_TWO, dev->w, dev->h, 1);
       uint32_t size = end - (jpegbuf);
       FILE *save;
       char save_name[128];
@@ -209,7 +206,11 @@ void *computervision_thread_main(void *data)
     }
 
     // Resize
-    resize_uyuv(img_new, &small, VIDEO_DOWNSIZE_FACTOR);
+    struct img_struct input;
+    input.buf = img->buf;
+    input.w = dev->w;
+    input.h = dev->h;
+    resize_uyuv(&input, &small, VIDEO_DOWNSIZE_FACTOR);
 
     // JPEG encode the image:
     uint32_t image_format = FOUR_TWO_TWO;  // format (in jpeg.h)
@@ -235,9 +236,12 @@ void *computervision_thread_main(void *data)
     // the timestamp is always "late" so the frame is displayed immediately).
     // Here, we set the time increment to the lowest possible value
     // (1 = 1/90000 s) which is probably stupid but is actually working.
+
+    // Free the image
+    v4l2_image_free(dev, img);
   }
   printf("Thread Closed\n");
-  video_close(&vid);
+  v4l2_close(dev);
   computervision_thread_status = -100;
   return 0;
 }
