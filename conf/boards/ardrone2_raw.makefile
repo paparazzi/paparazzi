@@ -34,7 +34,7 @@ GPS_PORT           ?= UART1
 GPS_BAUD           ?= B57600
 
 # The datalink default uses UDP
-MODEM_HOST         ?= \"192.168.1.255\"
+MODEM_HOST         ?= 192.168.1.255
 
 # Here we define what the UART1_DEV device mapping
 $(TARGET).CFLAGS   += -DUART1_DEV=\"/dev/ttyUSB0\"
