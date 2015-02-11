@@ -199,6 +199,9 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) ac_id packing dl_
   let set_default = fun x ->
     if not !modified then set_default x else () in
 
+  (* build setting *)
+  let setting = new setting i dl_setting current_value set_default in
+
   (* click current_value label to request an update, a value of infinity for do_change requests new value *)
   let callback = fun _ ->
     do_change i infinity;
@@ -215,8 +218,12 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) ac_id packing dl_
   let commit_but = GButton.button ~packing:hbox#pack () in
   commit_but#set_border_width 2;
   let _icon = GMisc.image ~stock:`APPLY ~packing:commit_but#add () in
+  let idx = ref 0 in
   let callback = fun x ->
-    prev_value := (try Some ((float_of_string current_value#text-.alt_b)/.alt_a) with _ -> None);
+    prev_value := (try Some setting#last_known_value with _ ->
+      idx := -1;
+      Array.iteri (fun i v -> if current_value#text = v then idx := i) values;
+      if !idx >= 0 then Some (lower +. (float_of_int !idx)) else None);
     commit x;
     current_value#set_text "?"
   in
@@ -275,7 +282,8 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) ac_id packing dl_
       | t -> failwith (sprintf "Page_settings.one_setting, Unexpected tag: '%s'" t))
     (Xml.children dl_setting);
 
-  new setting i dl_setting current_value set_default
+  (* return setting *)
+  setting
 
 
 
