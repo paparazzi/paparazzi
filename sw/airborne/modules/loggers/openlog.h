@@ -17,10 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** \file openlog.h
+/**
+ * @file openlog.h
+ *
  * This module provides a timestamp-message, allowing
  * sw/logalizer/openlog2tlm to convert a recorded dumpfile,
  * created by openlog into the pprz-tlm format, to be converted into

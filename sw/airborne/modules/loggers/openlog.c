@@ -17,10 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
+ * @file openlog.c
+ *
  * This module provides a timestamp-message, allowing
  * sw/logalizer/openlog2tlm to convert a recorded dumpfile,
  * created by openlog into the pprz-tlm format, to be converted into
@@ -30,7 +31,6 @@
 #include "openlog.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
-#include "mcu_periph/uart.h"
 #include "mcu_periph/sys_time.h"
 
 void periodic_2Hz_openlog(void)
