@@ -156,6 +156,7 @@ void airspeed_ets_read_event(void)
 
   // Continue only if a new airspeed value was received
   if (airspeed_ets_valid) {
+#ifndef AIRSPEED_ETS_RAW      
     // Calculate offset average if not done already
     if (!airspeed_ets_offset_init) {
       --airspeed_ets_cnt;
@@ -176,7 +177,7 @@ void airspeed_ets_read_event(void)
       else if (airspeed_ets_cnt <= AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG) {
         airspeed_ets_offset_tmp += airspeed_ets_raw;
       }
-    }
+    }   
     // Convert raw to m/s
 #ifdef AIRSPEED_ETS_REVERSE
     if (airspeed_ets_offset_init && airspeed_ets_raw < airspeed_ets_offset) {
@@ -187,9 +188,14 @@ void airspeed_ets_read_event(void)
       airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf((float)(airspeed_ets_raw - airspeed_ets_offset)) - AIRSPEED_ETS_OFFSET;
     }
 #endif
-    else {
+    else  {
       airspeed_tmp = 0.0;
     }
+//RAW mode for sensor set to third-party mode
+#else 
+    airspeed_tmp = airspeed_ets_raw;
+#endif    //AIRSPEED_ETS_RAW
+    
     // Airspeed should always be positive
     if (airspeed_tmp < 0.0) {
       airspeed_tmp = 0.0;
@@ -204,7 +210,7 @@ void airspeed_ets_read_event(void)
       airspeed_ets += airspeed_ets_buffer[n];
     }
     airspeed_ets = airspeed_ets / (float)AIRSPEED_ETS_NBSAMPLES_AVRG;
-#if USE_AIRSPEED_ETS
+#if USE_AIRSPEED_ETS || defined(MEASURE_AIRSPEED)
     stateSetAirspeed_f(&airspeed_ets);
 #endif
 #if AIRSPEED_ETS_SYNC_SEND
