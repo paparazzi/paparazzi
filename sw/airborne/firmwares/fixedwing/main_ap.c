@@ -639,8 +639,10 @@ void sensors_task(void)
 #define KILL_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
 #endif
 
-/** Define minimal speed for takeoff in m/s */
+/** Default minimal speed for takeoff in m/s */
+#ifndef MIN_SPEED_FOR_TAKEOFF
 #define MIN_SPEED_FOR_TAKEOFF 5.
+#endif
 
 /** monitor stuff run at 1Hz */
 void monitor_task(void)
