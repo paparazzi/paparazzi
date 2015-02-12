@@ -382,8 +382,10 @@ static inline void telecommand_task(void)
   uint8_t mode_changed = FALSE;
   copy_from_to_fbw();
 
-  uint8_t really_lost = bit_is_set(fbw_state->status, STATUS_RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1
-                        || pprz_mode == PPRZ_MODE_MANUAL);
+  /* really_lost is true if we lost RC in MANUAL or AUTO1 */
+  uint8_t really_lost = bit_is_set(fbw_state->status, STATUS_RADIO_REALLY_LOST) &&
+    (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
+
   if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch) {
     if (too_far_from_home) {
       pprz_mode = PPRZ_MODE_HOME;
@@ -574,7 +576,8 @@ void attitude_loop(void)
     }
 #endif
 
-    h_ctl_pitch_setpoint = v_ctl_pitch_setpoint; // Copy the pitch setpoint from the guidance to the stabilization control
+    // Copy the pitch setpoint from the guidance to the stabilization control
+    h_ctl_pitch_setpoint = v_ctl_pitch_setpoint;
     Bound(h_ctl_pitch_setpoint, H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT);
     if (kill_throttle || (!autopilot_flight_time && !launch)) {
       v_ctl_throttle_setpoint = 0;
