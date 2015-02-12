@@ -177,7 +177,7 @@ void airspeed_ets_read_event(void)
       else if (airspeed_ets_cnt <= AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG) {
         airspeed_ets_offset_tmp += airspeed_ets_raw;
       }
-    }   
+    }
     // Convert raw to m/s
 #ifdef AIRSPEED_ETS_REVERSE
     if (airspeed_ets_offset_init && airspeed_ets_raw < airspeed_ets_offset) {
@@ -188,7 +188,7 @@ void airspeed_ets_read_event(void)
       airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf((float)(airspeed_ets_raw - airspeed_ets_offset)) - AIRSPEED_ETS_OFFSET;
     }
 #endif
-    else  {
+    else {
       airspeed_tmp = 0.0;
     }
 //RAW mode for sensor set to third-party mode
