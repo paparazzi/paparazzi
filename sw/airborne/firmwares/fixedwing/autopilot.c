@@ -150,13 +150,13 @@ static void send_desired(struct transport_tx *trans, struct link_device *dev)
 static void send_airspeed(struct transport_tx *trans __attribute__((unused)),
                           struct link_device *dev __attribute__((unused)))
 {
-#ifdef MEASURE_AIRSPEED
-  float *airspeed = stateGetAirspeed_f();
-  pprz_msg_send_AIRSPEED(trans, dev, AC_ID, airspeed, airspeed, airspeed, airspeed);
-#elif USE_AIRSPEED
+#if USE_AIRSPEED
   pprz_msg_send_AIRSPEED(trans, dev, AC_ID,
                          stateGetAirspeed_f(), &v_ctl_auto_airspeed_setpoint,
                          &v_ctl_auto_airspeed_controlled, &v_ctl_auto_groundspeed_setpoint);
+#else
+  float zero = 0;
+  pprz_msg_send_AIRSPEED(trans, dev, AC_ID, stateGetAirspeed_f(), &zero, &zero, &zero);
 #endif
 }
 
