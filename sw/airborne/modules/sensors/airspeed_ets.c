@@ -156,6 +156,7 @@ void airspeed_ets_read_event(void)
 
   // Continue only if a new airspeed value was received
   if (airspeed_ets_valid) {
+#ifndef AIRSPEED_ETS_3RD_PARTY_MODE      
     // Calculate offset average if not done already
     if (!airspeed_ets_offset_init) {
       --airspeed_ets_cnt;
@@ -190,6 +191,11 @@ void airspeed_ets_read_event(void)
     else {
       airspeed_tmp = 0.0;
     }
+//use raw value for sensor set to third-party mode
+#else 
+    airspeed_tmp = airspeed_ets_raw;
+#endif    //AIRSPEED_ETS_3RD_PARTY_MODE
+    
     // Airspeed should always be positive
     if (airspeed_tmp < 0.0) {
       airspeed_tmp = 0.0;
