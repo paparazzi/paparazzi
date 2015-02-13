@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<airframe name="ardrone2_raw">
+<airframe name="ardrone2_opticflow">
 
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2_raw">
