@@ -34,7 +34,7 @@
 #define PERSISTENT_SETTINGS_FILE "pprz_persistent_settings.binary"
 #endif
 
-int32_t persistent_write(uint32_t ptr, uint32_t size)
+int32_t persistent_write(void *ptr, uint32_t size)
 {
   FILE *file= fopen(PERSISTENT_SETTINGS_FILE, "wb");
   if (file != NULL) {
@@ -46,7 +46,7 @@ int32_t persistent_write(uint32_t ptr, uint32_t size)
   return -1;
 }
 
-int32_t persistent_read(uint32_t ptr, uint32_t size)
+int32_t persistent_read(void *ptr, uint32_t size)
 {
   FILE *file= fopen(PERSISTENT_SETTINGS_FILE, "rb");
   if (file != NULL) {

@@ -41,7 +41,7 @@ bool_t settings_store_flag;
 void settings_init(void)
 {
 #if USE_PERSISTENT_SETTINGS
-  if (persistent_read((uint32_t)&pers_settings, sizeof(struct PersistentSettings))) {
+  if (persistent_read((void *)&pers_settings, sizeof(struct PersistentSettings))) {
     return;  // return -1 ?
   }
   /* from generated/settings.h */
@@ -58,7 +58,7 @@ int32_t settings_store(void)
   if (settings_store_flag) {
     /* from generated/settings.h */
     persistent_settings_store();
-    if (!persistent_write((uint32_t)&pers_settings, sizeof(struct PersistentSettings))) {
+    if (!persistent_write((void *)&pers_settings, sizeof(struct PersistentSettings))) {
       /* persistent write was successful */
       settings_store_flag = TRUE;
       return 0;
