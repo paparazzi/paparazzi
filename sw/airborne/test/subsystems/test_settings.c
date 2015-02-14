@@ -30,8 +30,9 @@
 #include "subsystems/settings.h"
 #include "generated/settings.h"
 
-#include "mcu_periph/uart.h"
-#include "messages.h"
+#if USE_UDP
+#include "mcu_periph/udp.h"
+#endif
 
 static inline void main_init(void);
 static inline void main_periodic(void);
@@ -64,6 +65,9 @@ static inline void main_init(void)
 
   mcu_int_enable();
 
+#if DOWNLINK
+  downlink_init();
+#endif
 }
 
 static inline void main_periodic(void)
@@ -77,7 +81,9 @@ static inline void main_periodic(void)
 
 static inline void main_event(void)
 {
-
+#if USE_UDP
+  udp_event();
+#endif
   DatalinkEvent();
 }
 
