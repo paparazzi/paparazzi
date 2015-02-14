@@ -39,7 +39,7 @@
 uint32_t ratio_4ms, ratio_16ms;
 
 
-uint32_t actuators_dualpwm_values[ACTUATORS_PWM_NB];
+uint32_t actuators_dualpwm_values[ACTUATORS_DUALPWM_NB];
 
 /** PWM arch init called by generic pwm driver
  */
@@ -154,13 +154,13 @@ void dual_pwm_isr(void)
   if (num_pulse == 1) {
 
     set_dual_pwm_timer_s_period(ratio_16ms);
-    set_dual_pwm_timer_s_oc(actuators_dualpwm_values[2],actuators_dualpwm_values[4]);
+    set_dual_pwm_timer_s_oc(actuators_dualpwm_values[DUAL_PWM_SERVO_5_P1],actuators_dualpwm_values[DUAL_PWM_SERVO_5_P2]);
 
     num_pulse = 0;
   } else {
 
     set_dual_pwm_timer_s_period(ratio_4ms);
-    set_dual_pwm_timer_s_oc(actuators_dualpwm_values[3],actuators_dualpwm_values[5]);
+    set_dual_pwm_timer_s_oc(actuators_dualpwm_values[DUAL_PWM_SERVO_6_P1],actuators_dualpwm_values[DUAL_PWM_SERVO_6_P2]);
 
     num_pulse = 1;
   }

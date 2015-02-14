@@ -30,12 +30,13 @@
 
 #include BOARD_CONFIG
 
-#ifndef ACTUATORS_dualpwm_NB
-#define ACTUATORS_dualpwm_NB 8
+// Max 2 dualpwm channels of 2 pulses each
+#ifndef ACTUATORS_DUALPWM_NB
+#define ACTUATORS_DUALPWM_NB 4
 #endif
 
 
-extern uint32_t actuators_dualpwm_values[ACTUATORS_PWM_NB];
+extern uint32_t actuators_dualpwm_values[ACTUATORS_DUALPWM_NB];
 
 extern void actuators_dualpwm_commit(void);
 

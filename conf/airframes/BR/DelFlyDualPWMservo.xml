@@ -38,10 +38,10 @@
   </servos>
 
   <servos driver="Dualpwm">
-    <servo name="TOUW2" no="5" min="1100" neutral="1100" max="1900"/>
-    <servo name="TOUW3" no="2" min="1100" neutral="1100" max="1900"/>
-    <servo name="TOUW4" no="3" min="1100" neutral="1100" max="1900"/>  <!-- 1700 -->
-    <servo name="TOUW1" no="4" min="1100" neutral="1100" max="1900"/>
+    <servo name="TOUW2" no="0" min="1100" neutral="1100" max="1900"/>
+    <servo name="TOUW3" no="1" min="1100" neutral="1100" max="1900"/>
+    <servo name="TOUW4" no="2" min="1100" neutral="1100" max="1900"/>  <!-- 1700 -->
+    <servo name="TOUW1" no="3" min="1100" neutral="1100" max="1900"/>
   </servos>
 
 
