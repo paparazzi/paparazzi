@@ -33,7 +33,8 @@ include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux-toolchain
 # Define some ARM specifc flags
 
 ifdef HARD_FLOAT
-FLOAT_ABI ?=
+# e.g. for BBB or gumstix with armhf distribution
+FLOAT_ABI ?= -mfloat-abi=hard -mfpu=neon -ffast-math
 else
 FLOAT_ABI ?= -mfloat-abi=softfp -mfpu=vfp
 endif

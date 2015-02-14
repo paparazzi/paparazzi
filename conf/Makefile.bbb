@@ -1,0 +1,42 @@
+# Hey Emacs, this is a -*- makefile -*-
+#
+# Copyright (C) 2015 Felix Ruess <felix.ruess@gmail.com>
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
+#
+# This Makefile uses the generic Makefile.arm-linux
+# after setting some hard float options
+#
+
+HARD_FLOAT=yes
+
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux
+
+HOST ?= 192.168.7.2
+TARGET_DIR ?= ~/
+# upload to BBB
+upload program: $(OBJDIR)/$(TARGET).elf
+ifdef USER
+	scp -B $(OBJDIR)/$(TARGET).elf $(USER)@$(HOST):$(TARGET_DIR)
+else
+	scp -B $(OBJDIR)/$(TARGET).elf $(HOST):$(TARGET_DIR)
+endif
+
+# Listing of phony targets.
+.PHONY : upload program
