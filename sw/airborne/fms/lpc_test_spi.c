@@ -24,7 +24,6 @@
 #include "std.h"
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
-#include "interrupt_hw.h"
 #include "armVIC.h"
 #include "LPC21xx.h"
 

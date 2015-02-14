@@ -29,7 +29,7 @@
 #include "peripherals/ms2100.h"
 
 #include "LPC21xx.h"
-#include "interrupt_hw.h"
+#include "armVIC.h"
 #include "mcu_periph/sys_time.h"
 #include BOARD_CONFIG
 

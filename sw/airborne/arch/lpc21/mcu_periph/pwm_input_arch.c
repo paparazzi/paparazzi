@@ -30,7 +30,7 @@
 #include "mcu_periph/pwm_input_arch.h"
 
 #include "LPC21xx.h"
-#include "interrupt_hw.h"
+#include "armVIC.h"
 
 //UPDATE THESE TO BE MORE ACCESSIBLE AND BE WARY OF EXISTING USAGE
 //POSSIBLY MAKE MORE INPUTS ACCESSIBLE

@@ -2,7 +2,6 @@
 
 #include "LPC21xx.h"
 
-#include "interrupt_hw.h"
 #include "mcu.h"
 
 volatile uint32_t mb_tacho_duration;

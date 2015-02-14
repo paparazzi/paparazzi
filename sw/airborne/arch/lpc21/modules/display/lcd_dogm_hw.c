@@ -21,7 +21,7 @@
  */
 
 #include "LPC21xx.h"
-#include "interrupt_hw.h"
+#include "armVIC.h"
 #include "lcd_dogm_hw.h"
 
 

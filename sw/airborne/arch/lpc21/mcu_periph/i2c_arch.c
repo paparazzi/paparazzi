@@ -30,8 +30,8 @@
 #include "mcu_periph/i2c.h"
 
 #include "std.h"
-#include "interrupt_hw.h"
 #include BOARD_CONFIG
+#include "armVIC.h"
 
 ///////////////////
 // I2C Automaton //

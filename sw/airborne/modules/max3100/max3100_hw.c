@@ -21,7 +21,7 @@
  */
 
 #include "LPC21xx.h"
-#include "interrupt_hw.h"
+#include "armVIC.h"
 #include "max3100_hw.h"
 
 #include "subsystems/datalink/downlink.h"

@@ -35,7 +35,6 @@
 
 #include "subsystems/imu.h"
 
-#include "interrupt_hw.h"
 
 static inline void main_init(void);
 static inline void main_periodic_task(void);

@@ -11,7 +11,6 @@
 #include <stm32/dma.h>
 #include <stm32/adc.h>
 #include <stm32/i2c.h>
-#include "interrupt_hw.h"
 
 #include <string.h>
 

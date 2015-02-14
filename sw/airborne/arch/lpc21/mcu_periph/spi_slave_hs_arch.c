@@ -30,7 +30,6 @@
 #include "mcu_periph/spi.h"
 
 #include BOARD_CONFIG
-#include "interrupt_hw.h"
 #include "std.h"
 #include "mcu.h"
 #include "led.h"

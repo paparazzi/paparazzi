@@ -23,7 +23,6 @@
 
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
-#include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
 
 #include "subsystems/datalink/downlink.h"

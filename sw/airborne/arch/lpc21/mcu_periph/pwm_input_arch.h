@@ -32,7 +32,6 @@
 
 #include "std.h"
 #include "LPC21xx.h"
-#include "interrupt_hw.h"
 
 enum pwm_input_channels {
   PWM_INPUT1,

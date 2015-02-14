@@ -23,7 +23,7 @@
 #include "peripherals/max1168.h"
 
 #include "LPC21xx.h"
-#include "interrupt_hw.h"
+#include "armVIC.h"
 #include BOARD_CONFIG
 
 static void EXTINT0_ISR(void) __attribute__((naked));
