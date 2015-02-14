@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Copyright (C) 2014 Freek van Tienen <freek.v.tienen@gmail.com>
+#   Copyright (C) 2009-2015 The Paparazzi Team
 #
 # This file is part of paparazzi.
 #
@@ -20,16 +20,30 @@
 #
 
 #
-# This Makefile uses the generic Makefile.arm-linux and adds upload rules for the ARDrone2
+# Makefile for ARM linux targets (e.g. OMAP, BBB, ARDrone)
 #
 
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux
+#
+# find compiler toolchain
+# if HARD_FLOAT is defined at this point it will try to find the hf toolchain
+#
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux-toolchain
 
-DRONE = $(PAPARAZZI_SRC)/sw/tools/parrot/bebop.py
 
-# Program the device and start it.
-upload program: $(OBJDIR)/$(TARGET).elf
-	$(Q)$(DRONE) --host=$(HOST) upload_file_and_run $(OBJDIR)/$(TARGET).elf $(SUB_DIR)
+# Define some ARM specifc flags
 
-# Listing of phony targets.
-.PHONY : upload program
+ifdef HARD_FLOAT
+FLOAT_ABI ?=
+else
+FLOAT_ABI ?= -mfloat-abi=softfp -mfpu=vfp
+endif
+
+ARCH_FLAGS ?= -mtune=cortex-a8 -march=armv7-a
+
+# add ARM specifc flags to CFLAGS, LDFLAGS
+CFLAGS += $(FLOAT_ABI) $(ARCH_FLAGS)
+LDFLAGS += $(FLOAT_ABI)
+CXXFLAGS += $(FLOAT_ABI) $(ARCH_FLAGS)
+
+# include the common linux Makefile (common CFLAGS, actual targets)
+include $(PAPARAZZI_SRC)/conf/Makefile.linux

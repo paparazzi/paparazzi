@@ -21,13 +21,9 @@
 #
 
 #
-# Makefile for linux targets (e.g. OMAP, BBB, ARDrone)
+# Makefile for generic linux targets
+# Normally don't use this makefile directly, but rather Makefile.arm-linux or Makefile.bbb
 #
-
-#
-# find compiler toolchain
-#
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux-toolchain
 
 # Define programs and commands.
 
@@ -35,14 +31,19 @@ include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux-toolchain
 Q=@
 
 OPT ?= 3
-CSTANDARD = -std=gnu99
+DEBUG_INFO ?= n
+CSTANDARD ?= -std=gnu99
 CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 
-FLOAT_ABI = -mfloat-abi=softfp -mfpu=vfp
-
-# Compiler flags.
+#
+# Common compiler flags.
+# add then to arch specific CFLAGS already defined in e.g. Makefile.arm-linux
+#
+ifneq ($(DEBUG_INFO),n)
+CFLAGS += -g
+endif
 CFLAGS += $(CINCS)
-CFLAGS += -O$(OPT) $(FLOAT_ABI) -mtune=cortex-a8 -march=armv7-a
+CFLAGS += -O$(OPT) -fPIC
 CFLAGS += -fno-short-enums
 # CFLAGS += -malignment-traps
 CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
@@ -61,11 +62,11 @@ CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(USER_CFLAGS)
 
-LDFLAGS += -lm $(FLOAT_ABI)
+LDFLAGS += -lm
 
-CXXFLAGS = -pipe -O3 -fshow-column -ffast-math -fPIC
+CXXFLAGS += -O$(OPT) -fPIC
+CXXFLAGS += -pipe -fshow-column -ffast-math
 CXXFLAGS += -g -ffunction-sections -fdata-sections
-CXXFLAGS += $(FLOAT_ABI) -mtune=cortex-a8 -march=armv7-a
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += $($(TARGET).CXXFLAGS)
 CXXFLAGS += $(USER_CFLAGS)
@@ -85,9 +86,6 @@ printcommands:
 	@echo ""
 
 all: printcommands build
-
-# depend order only for parallel make
-build: | printcommands
 
 build: $(OBJDIR) elf
 
@@ -121,6 +119,8 @@ $(OBJDIR)/%.o : %.cpp $(OBJDIR)/../Makefile.ac
 
 # Listing of phony targets.
 .PHONY : printcommands all build elf
+
+.NOTPARALLEL: printcommands
 
 #
 # Dependencies

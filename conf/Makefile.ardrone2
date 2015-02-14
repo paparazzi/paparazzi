@@ -20,10 +20,10 @@
 #
 
 #
-# This Makefile uses the generic Makefile.linux and adds upload rules for the ARDrone2
+# This Makefile uses the generic Makefile.arm-linux and adds upload rules for the ARDrone2
 #
 
-include $(PAPARAZZI_SRC)/conf/Makefile.linux
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux
 
 DRONE = $(PAPARAZZI_SRC)/sw/tools/parrot/ardrone2.py
 

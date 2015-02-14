@@ -1,27 +1,39 @@
 # Hey Emacs, this is a -*- makefile -*-
 
 #
-# Copyright (C) 2012 - TU Delft Robotics Minor - Dino Hensen and Freek van Tienen
+# Copyright (C) 2012-2015 The Paparazzi Team
 #
-# Minimal makefile for arm-linux-gnueabi or arm-none-linux-gnueabi toolchain.
+# Minimal makefile for arm-linux cross compiling toolchain.
 # Assuming installed in default location.
+#
+# If HARD_FLOAT is defined try to find armhf cross compiler, otherwise default to softfloat
 
+ifdef HARD_FLOAT
+PREFIX ?= arm-linux-gnueabihf
+else
 PREFIX ?= arm-linux-gnueabi
+endif
 
 #
 # if gcc can't be found in path, try the codesourcery toolchain in /usr/local/codesourcery
 #
 ifeq ($(shell which $(PREFIX)-gcc),)
+ifndef HARD_FLOAT
   TOOLCHAIN=$(shell find -L /usr/local/codesourcery -maxdepth 2 -type d -name arm-none-linux-gnueabi 2>/dev/null | head -n 1)
   ifneq ($(TOOLCHAIN),)
     PREFIX=$(shell dirname $(TOOLCHAIN))/bin/arm-none-linux-gnueabi
+  endif
+endif
+endif
+
+# if toolchain could not be found, print some useful info
+ifeq ($(shell which $(PREFIX)-gcc),)
+  # no suitable toolchain found...
+  ifdef HARD_FLOAT
+    $(error Error: arm-linux-gnueabihf-gcc cross-compiler not found! Please install the gcc-arm-linux-gnueabihf package.)
   else
-    # no suitable toolchain found...
     $(error Error: arm-linux-gnueabi-gcc cross-compiler not found! Please install the gcc-arm-linux-gnueabi package.)
   endif
-else
-  # this was previously explicitly added, but shouln't be needed...
-  #CFLAGS += -I/usr/arm-linux-gnueabi/include
 endif
 
 CC   = $(PREFIX)-gcc
