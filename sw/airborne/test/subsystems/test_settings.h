@@ -3,9 +3,9 @@
 
 #include "std.h"
 
-extern float setting_a;
-extern float setting_b;
-extern float setting_c;
-extern float setting_d;
+extern float setting_f;
+extern uint8_t setting_u8;
+extern double setting_d;
+extern int32_t setting_i32;
 
 #endif
