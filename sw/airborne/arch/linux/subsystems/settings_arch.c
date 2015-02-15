@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013 The Paparazzi Team
+ * Copyright (C) 2009-2015 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -23,21 +23,46 @@
  * @file arch/linux/subsystems/settings_arch.c
  * linux arch Persistent settings.
  *
- * Unimplemented.
+ * Saves the PersistentSettings struct to a binary file.
  */
 
 #include "subsystems/settings.h"
+#include <stdio.h>
 
-int32_t persistent_write(uint32_t ptr, uint32_t size)
+/** Default file used to store persistent settings */
+#ifndef PERSISTENT_SETTINGS_FILE
+#define PERSISTENT_SETTINGS_FILE "pprz_persistent_settings.binary"
+#endif
+
+int32_t persistent_write(void *ptr, uint32_t size)
 {
-  ptr = ptr;
-  size = size;
+  FILE *file= fopen(PERSISTENT_SETTINGS_FILE, "wb");
+  if (file != NULL) {
+    fwrite(ptr, size, 1, file);
+    fclose(file);
+    return 0;
+  }
+  printf("Could not open settings file %s to write!\n", PERSISTENT_SETTINGS_FILE);
   return -1;
 }
 
-int32_t persistent_read(uint32_t ptr, uint32_t size)
+int32_t persistent_read(void *ptr, uint32_t size)
 {
-  ptr = ptr;
-  size = size;
-  return -1;
+  FILE *file= fopen(PERSISTENT_SETTINGS_FILE, "rb");
+  if (file == NULL) {
+    printf("Could not open settings file %s to read!\n", PERSISTENT_SETTINGS_FILE);
+    return -1;
+  }
+  /* check if binary file size matches requested struct size */
+  fseek(file, 0, SEEK_END);
+  if (ftell(file) != size) {
+    printf("Settings file %s size does not match, deleting it!", PERSISTENT_SETTINGS_FILE);
+    fclose(file);
+    remove(PERSISTENT_SETTINGS_FILE);
+    return -1;
+  }
+  fseek(file, 0, SEEK_SET);
+  fread(ptr, size, 1, file);
+  fclose(file);
+  return 0;
 }

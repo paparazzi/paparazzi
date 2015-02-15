@@ -247,19 +247,19 @@ static int32_t pflash_program_bytes(struct FlashInfo *flash __attribute__((unuse
 #endif
 
 
-int32_t persistent_write(uint32_t ptr, uint32_t size)
+int32_t persistent_write(void *ptr, uint32_t size)
 {
   struct FlashInfo flash_info;
   if (flash_detect(&flash_info)) { return -1; }
   if ((size > flash_info.page_size - FSIZ) || (size == 0)) { return -2; }
 
   return pflash_program_bytes(&flash_info,
-                              ptr,
+                              (uint32_t)ptr,
                               size,
-                              pflash_checksum(ptr, size));
+                              pflash_checksum((uint32_t)ptr, size));
 }
 
-int32_t persistent_read(uint32_t ptr, uint32_t size)
+int32_t persistent_read(void *ptr, uint32_t size)
 {
   struct FlashInfo flash;
   uint32_t i;
@@ -277,7 +277,7 @@ int32_t persistent_read(uint32_t ptr, uint32_t size)
 
   /* copy data */
   for (i = 0; i < size; i++) {
-    *(uint8_t *)(ptr + i) = *(uint8_t *)(flash.addr + i);
+    *(uint8_t *)((uint32_t)ptr + i) = *(uint8_t *)(flash.addr + i);
   }
 
   return 0;
