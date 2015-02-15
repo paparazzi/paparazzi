@@ -25,7 +25,10 @@
 # Normally don't use this makefile directly, but rather Makefile.arm-linux or Makefile.bbb
 #
 
-# Define programs and commands.
+# Define some default programs and commands (if not already set by e.g. Makefile.arm-linux
+CC  ?= gcc
+CXX ?= g++
+LD  ?= $(CC)
 
 # Launch with "make Q=''" to get full command display
 Q=@
