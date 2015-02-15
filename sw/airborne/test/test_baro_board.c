@@ -29,7 +29,6 @@
 
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
-#include "mcu_periph/uart.h"
 #include "led.h"
 
 #include "subsystems/datalink/downlink.h"
@@ -89,6 +88,7 @@ static inline void main_init(void)
 {
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
+  downlink_init();
   baro_init();
 
   baro_tid = sys_time_register_timer(1. / BARO_PERIODIC_FREQUENCY, NULL);

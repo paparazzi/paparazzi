@@ -23,10 +23,7 @@
 
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
-#include "mcu_periph/uart.h"
-
 #include "subsystems/datalink/downlink.h"
-
 #include "subsystems/radio_control.h"
 
 static inline void main_init(void);
@@ -51,6 +48,7 @@ static inline void main_init(void)
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   radio_control_init();
+  downlink_init();
   mcu_int_enable();
 }
 
@@ -88,9 +86,10 @@ static inline void main_periodic_task(void)
 
 static inline void main_event_task(void)
 {
-
+#if USE_UDP
+  udp_event();
+#endif
   RadioControlEvent(main_on_radio_control_frame);
-
 }
 
 static void main_on_radio_control_frame(void)
@@ -99,4 +98,3 @@ static void main_on_radio_control_frame(void)
   //  RunOnceEvery(10, {DOWNLINK_SEND_RC(RADIO_CONTROL_NB_CHANNEL, radio_control.values);});
 
 }
-

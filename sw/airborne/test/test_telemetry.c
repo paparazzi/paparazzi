@@ -27,23 +27,23 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "mcu_periph/uart.h"
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
 #include "led.h"
 
 static inline void main_init(void);
 static inline void main_periodic(void);
+static inline void main_event(void);
 
 int main(void)
 {
-
   main_init();
 
   while (1) {
     if (sys_time_check_and_ack_timer(0)) {
       main_periodic();
     }
+    main_event();
   }
   return 0;
 }
@@ -53,10 +53,19 @@ static inline void main_init(void)
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   mcu_int_enable();
+
+  downlink_init();
 }
 
 static inline void main_periodic(void)
 {
   RunOnceEvery(10, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
   LED_PERIODIC();
+}
+
+static inline void main_event(void)
+{
+#if USE_UDP
+  udp_event();
+#endif
 }

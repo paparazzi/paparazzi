@@ -61,6 +61,7 @@ static inline void main_init(void)
 {
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
+  downlink_init();
   ActuatorsPwmInit();
 }
 

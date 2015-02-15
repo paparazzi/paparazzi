@@ -23,7 +23,6 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
-#include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
 #include "peripherals/ms2100.h"
 #include "led.h"
@@ -53,7 +52,7 @@ static inline void main_init(void)
   sys_time_register_timer((1. / 50), NULL);
 
   ms2100_init(&ms2100, &(MS2100_SPI_DEV), MS2100_SLAVE_IDX);
-
+  downlink_init();
   mcu_int_enable();
 }
 

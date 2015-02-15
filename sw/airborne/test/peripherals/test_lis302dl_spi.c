@@ -28,7 +28,6 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
-#include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
 #include "led.h"
 
@@ -71,7 +70,7 @@ static inline void main_init(void)
   mcu_int_enable();
 
   sys_time_register_timer((1. / 50), NULL);
-
+  downlink_init();
   lis302dl_spi_init(&lis302, &(LIS302DL_SPI_DEV), LIS302DL_SPI_SLAVE_IDX);
 }
 

@@ -75,6 +75,7 @@ int main(void)
 static inline void main_init(void)
 {
   mcu_init();
+  downlink_init();
 
   actuators_init();
 #if USE_MOTOR_MIXING

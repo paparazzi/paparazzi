@@ -18,6 +18,13 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+
+/**
+ * @file test_settings.c
+ *
+ * Test persistent settings, use together with conf/settings/test_settings.xml
+ */
+
 #define DATALINK_C
 
 #include BOARD_CONFIG

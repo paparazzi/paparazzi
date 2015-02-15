@@ -25,7 +25,6 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "led.h"
-#include "mcu_periph/uart.h"
 #include "mcu_periph/i2c.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
@@ -81,6 +80,9 @@ static inline void main_periodic_task(void)
 
 static inline void main_event_task(void)
 {
+#if USE_UDP
+  udp_event();
+#endif
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 }
 
