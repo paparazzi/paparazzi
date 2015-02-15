@@ -37,6 +37,7 @@ int main(void)
     if (sys_time_check_and_ack_timer(0)) {
       main_periodic();
     }
+    uart_event();
   }
 
   return 0;
@@ -61,8 +62,11 @@ static inline void main_periodic(void)
 #if USE_UART3
   uart_transmit(&uart3, 'c');
 #endif
+#if USE_UART4
+  uart_transmit(&uart4, 'd');
+#endif
 #if USE_UART5
-  uart_transmit(&uart5, 'd');
+  uart_transmit(&uart5, 'e');
 #endif
 
   LED_OFF(1);
@@ -101,10 +105,21 @@ static inline void main_periodic(void)
   }
 #endif
 
+#if USE_UART4
+  if (uart_char_available(&uart4)) {
+    ch =  uart_getch(&uart4);
+    if (ch == 'd') {
+      LED_ON(1);
+    } else {
+      LED_ON(2);
+    }
+  }
+#endif
+
 #if USE_UART5
   if (uart_char_available(&uart5)) {
     ch =  uart_getch(&uart5);
-    if (ch == 'd') {
+    if (ch == 'e') {
       LED_ON(1);
     } else {
       LED_ON(2);

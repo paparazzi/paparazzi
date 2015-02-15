@@ -88,6 +88,8 @@ static inline void main_event_task(void)
 {
 #if USE_UDP
   udp_event();
+#else
+  uart_event();
 #endif
   RadioControlEvent(main_on_radio_control_frame);
 }

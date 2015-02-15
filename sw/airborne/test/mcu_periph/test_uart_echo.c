@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2015 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -19,17 +19,24 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file test_telemetry.c
- *
- * Periodically sends ALIVE telemetry messages.
- */
-
 #include BOARD_CONFIG
 #include "mcu.h"
+#include "mcu_periph/uart.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/datalink/downlink.h"
-#include "led.h"
+#include "std.h"
+
+#include <stdio.h>
+#include <string.h>
+
+#ifndef TEST_UART
+#if USE_UART1
+#define TEST_UART uart1
+#endif
+#if USE_UART4
+#define TEST_UART uart4
+#endif
+#endif
+PRINT_CONFIG_VAR(TEST_UART)
 
 static inline void main_init(void);
 static inline void main_periodic(void);
@@ -45,6 +52,7 @@ int main(void)
     }
     main_event();
   }
+
   return 0;
 }
 
@@ -52,22 +60,29 @@ static inline void main_init(void)
 {
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
-  mcu_int_enable();
-
-  downlink_init();
 }
 
 static inline void main_periodic(void)
 {
-  RunOnceEvery(10, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
-  LED_PERIODIC();
+  const char *foo = "FooBarBaz";
+  static int i = 0;
+
+  if (i == strlen(foo)) {
+    i = 0;
+  }
+
+  uart_transmit(&TEST_UART, foo[i]);
+  printf("%f, transmit: '%c'\n", get_sys_time_float(), foo[i]);
+
+  if (uart_char_available(&TEST_UART)) {
+    char c =  uart_getch(&TEST_UART);
+    printf("%f, received: '%c'\n", get_sys_time_float(), c);
+  }
+
+  i++;
 }
 
 static inline void main_event(void)
 {
-#if USE_UDP
-  udp_event();
-#else
   uart_event();
-#endif
 }
