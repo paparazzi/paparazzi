@@ -49,11 +49,20 @@ int32_t persistent_write(void *ptr, uint32_t size)
 int32_t persistent_read(void *ptr, uint32_t size)
 {
   FILE *file= fopen(PERSISTENT_SETTINGS_FILE, "rb");
-  if (file != NULL) {
-    fread(ptr, size, 1, file);
-    fclose(file);
-    return 0;
+  if (file == NULL) {
+    printf("Could not open settings file %s to read!\n", PERSISTENT_SETTINGS_FILE);
+    return -1;
   }
-  printf("Could not open settings file %s to read!\n", PERSISTENT_SETTINGS_FILE);
-  return -1;
+  /* check if binary file size matches requested struct size */
+  fseek(file, 0, SEEK_END);
+  if (ftell(file) != size) {
+    printf("Settings file %s size does not match, deleting it!", PERSISTENT_SETTINGS_FILE);
+    fclose(file);
+    remove(PERSISTENT_SETTINGS_FILE);
+    return -1;
+  }
+  fseek(file, 0, SEEK_SET);
+  fread(ptr, size, 1, file);
+  fclose(file);
+  return 0;
 }
