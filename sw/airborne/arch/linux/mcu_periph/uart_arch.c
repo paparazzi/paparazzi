@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "serial_port.h"
 
@@ -88,6 +89,7 @@ void uart_transmit(struct uart_periph *periph, uint8_t data)
   uint16_t temp = (periph->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;
 
   if (temp == periph->tx_extract_idx) {
+    printf("uart tx queue full!\n");
     return;  // no room
   }
 
@@ -100,12 +102,16 @@ void uart_transmit(struct uart_periph *periph, uint8_t data)
     struct SerialPort *port = (struct SerialPort *)(periph->reg_addr);
     int ret = write((int)(port->fd), &data, 1);
     if (ret < 1) {
-      TRACE("w %x [%d]\n", data, ret);
+      TRACE("uart_transmit: write %d failed [%d: %s]\n", data, ret, strerror(errno));
+      /* if write was interrupted, put data into queue */
+      if (errno == EINTR) {
+        periph->tx_buf[periph->tx_insert_idx] = data;
+        periph->tx_insert_idx = temp;
+      }
     }
   }
 }
 
-#include <errno.h>
 
 static inline void uart_handler(struct uart_periph *periph)
 {
@@ -120,10 +126,12 @@ static inline void uart_handler(struct uart_periph *periph)
   if (periph->tx_insert_idx != periph->tx_extract_idx) {
     int ret = write(fd, &(periph->tx_buf[periph->tx_extract_idx]), 1);
     if (ret < 1) {
-      TRACE("w %x [%d: %s]\n", periph->tx_buf[periph->tx_extract_idx], ret, strerror(errno));
+      TRACE("uart_handler: write %x failed [%d: %s]\n", periph->tx_buf[periph->tx_extract_idx], ret, strerror(errno));
     }
-    periph->tx_extract_idx++;
-    periph->tx_extract_idx %= UART_TX_BUFFER_SIZE;
+    else {
+      periph->tx_extract_idx++;
+      periph->tx_extract_idx %= UART_TX_BUFFER_SIZE;
+    }
   } else {
     periph->tx_running = FALSE;   // clear running flag
   }
