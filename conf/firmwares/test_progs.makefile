@@ -170,6 +170,39 @@ ifeq ($(ARCH), linux)
 test_uart_echo.srcs += $(SRC_ARCH)/serial_port.c
 endif
 
+#
+# test uart_send
+#
+# required configuration:
+#   -DUSE_UARTx
+#   -DUARTx_BAUD=B57600
+#
+test_uart_send.ARCHDIR = $(ARCH)
+test_uart_send.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_uart_send.srcs   += $(COMMON_TEST_SRCS)
+test_uart_send.srcs += mcu_periph/uart.c
+test_uart_send.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
+test_uart_send.srcs += test/mcu_periph/test_uart_send.c
+ifeq ($(ARCH), linux)
+test_uart_send.srcs += $(SRC_ARCH)/serial_port.c
+endif
+
+#
+# test uart_recv
+#
+# required configuration:
+#   -DUSE_UARTx
+#   -DUARTx_BAUD=B57600
+#
+test_uart_recv.ARCHDIR = $(ARCH)
+test_uart_recv.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_uart_recv.srcs   += $(COMMON_TEST_SRCS)
+test_uart_recv.srcs += mcu_periph/uart.c
+test_uart_recv.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
+test_uart_recv.srcs += test/mcu_periph/test_uart_recv.c
+ifeq ($(ARCH), linux)
+test_uart_recv.srcs += $(SRC_ARCH)/serial_port.c
+endif
 
 #
 # test_telemetry : Sends ALIVE telemetry messages

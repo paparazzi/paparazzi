@@ -16,6 +16,16 @@
       <configure name="PERIODIC_FREQUENCY" value="5"/>
     </target>
     <target name="test_telemetry"           board="beagle_bone_black"/>
+    <target name="test_uart_send"           board="beagle_bone_black">
+      <define name="USE_UART2"/>
+      <define name="UART2_BAUD" value="B9600"/>
+      <configure name="PERIODIC_FREQUENCY" value="10"/>
+    </target>
+    <target name="test_uart_recv"           board="beagle_bone_black">
+      <define name="USE_UART4"/>
+      <define name="UART4_BAUD" value="B9600"/>
+      <configure name="PERIODIC_FREQUENCY" value="10"/>
+    </target>
 
     <configure name="DEBUG_INFO" value="yes"/>
     <configure name="OPT" value="0"/>
