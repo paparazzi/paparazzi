@@ -30,12 +30,13 @@
 
 #include BOARD_CONFIG
 
-#ifndef ACTUATORS_dualpwm_NB
-#define ACTUATORS_dualpwm_NB 8
+// Max 2 dualpwm channels of 2 pulses each
+#ifndef ACTUATORS_DUALPWM_NB
+#define ACTUATORS_DUALPWM_NB 4
 #endif
 
 
-extern uint32_t actuators_dualpwm_values[ACTUATORS_PWM_NB];
+extern uint32_t actuators_dualpwm_values[ACTUATORS_DUALPWM_NB];
 
 extern void actuators_dualpwm_commit(void);
 
@@ -45,7 +46,7 @@ extern void clear_timer_flag(void);
 
 extern void set_dual_pwm_timer_s_period(uint32_t period);
 
-extern void set_dual_pwm_timer_s_oc(uint32_t oc_value);
+extern void set_dual_pwm_timer_s_oc(uint32_t oc_value, uint32_t oc_value2);
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 

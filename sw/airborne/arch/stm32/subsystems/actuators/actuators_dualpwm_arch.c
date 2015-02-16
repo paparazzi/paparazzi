@@ -39,7 +39,7 @@
 uint32_t ratio_4ms, ratio_16ms;
 
 
-uint32_t actuators_dualpwm_values[ACTUATORS_PWM_NB];
+uint32_t actuators_dualpwm_values[ACTUATORS_DUALPWM_NB];
 
 /** PWM arch init called by generic pwm driver
  */
@@ -132,11 +132,12 @@ void set_dual_pwm_timer_s_period(uint32_t period)
 }
 
 
-void set_dual_pwm_timer_s_oc(uint32_t oc_value)
+void set_dual_pwm_timer_s_oc(uint32_t oc_value, uint32_t oc_value2)
 {
 
 #if DUAL_PWM_USE_TIM5
   timer_set_oc_value(DUAL_PWM_SERVO_5_TIMER, DUAL_PWM_SERVO_5_OC, oc_value);
+  timer_set_oc_value(DUAL_PWM_SERVO_6_TIMER, DUAL_PWM_SERVO_6_OC, oc_value2);
 #endif
 }
 
@@ -153,13 +154,13 @@ void dual_pwm_isr(void)
   if (num_pulse == 1) {
 
     set_dual_pwm_timer_s_period(ratio_16ms);
-    set_dual_pwm_timer_s_oc(actuators_dualpwm_values[FIRST_DUAL_PWM_SERVO]);
+    set_dual_pwm_timer_s_oc(actuators_dualpwm_values[DUAL_PWM_SERVO_5_P1],actuators_dualpwm_values[DUAL_PWM_SERVO_5_P2]);
 
     num_pulse = 0;
   } else {
 
     set_dual_pwm_timer_s_period(ratio_4ms);
-    set_dual_pwm_timer_s_oc(actuators_dualpwm_values[SECOND_DUAL_PWM_SERVO]);
+    set_dual_pwm_timer_s_oc(actuators_dualpwm_values[DUAL_PWM_SERVO_6_P1],actuators_dualpwm_values[DUAL_PWM_SERVO_6_P2]);
 
     num_pulse = 1;
   }
