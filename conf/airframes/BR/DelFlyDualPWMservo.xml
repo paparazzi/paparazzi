@@ -1,31 +1,13 @@
-<!-- this is a LadyBird quadrotor frame equiped with Lisa/S 1.0 -->
-<!-- The LadyBird frame comes with four brushed motors in an X configuration. -->
-
 <!--
-     The motor and rotor configuration is the following:
-
-     Front
-             ^
-             |
-
-    Motor3(NW)  Motor0(NE)
-        CW      CCW
-          \     /
-           ,___,
-           |   |
-           |   |
-           |___|
-          /     \
-        CCW      CW
-     Motor2(SW)  Motor1(SE)
-
-    The Lisa/S is rotated by 13deg CCW against the frame.
+  This is a DelFly II airframe equiped with Lisa/S 1.0
+  this version of DelFly is equipped with 4 servos and a motor controller
+  2 - dual-servos are used which need 2 pulses every 20 millisecond:
+  pulse1 (1-2ms) 4ms pulse2 (1-2ms) 16ms
 -->
 
 <!--
      Applicable configuration:
-     airframe="airframes/examples/ladybird_lisa_s.xml"
-     radio="radios/cockpitSX.xml"
+     airframe="airframes/BR/DelFlyDualPWMServo.xml"
      telemetry="telemetry/default_rotorcraft.xml"
      flight_plan="flight_plans/rotorcraft_basic.xml"
      settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
@@ -40,7 +22,7 @@
   <servos driver="Dualpwm">
     <servo name="TOUW2" no="0" min="1100" neutral="1100" max="1900"/>
     <servo name="TOUW3" no="1" min="1100" neutral="1100" max="1900"/>
-    <servo name="TOUW4" no="2" min="1100" neutral="1100" max="1900"/>  <!-- 1700 -->
+    <servo name="TOUW4" no="2" min="1100" neutral="1100" max="1900"/>
     <servo name="TOUW1" no="3" min="1100" neutral="1100" max="1900"/>
   </servos>
 
