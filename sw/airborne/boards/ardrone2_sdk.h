@@ -3,6 +3,8 @@
 
 #define BOARD_ARDRONE2_SDK
 
+#define UART1_DEV "/dev/ttyUSB0"
+
 /* Internal communication */
 #define ARDRONE_NAVDATA_PORT 5554
 #define ARDRONE_AT_PORT 5556

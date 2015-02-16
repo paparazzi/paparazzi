@@ -3,6 +3,8 @@
 
 #define BOARD_ARDRONE2_RAW
 
+#define UART1_DEV "/dev/ttyUSB0"
+
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "boards/ardrone/actuators_ardrone2_raw.h"
 #define ActuatorDefaultSet(_x,_y) ActuatorArdroneSet(_x,_y)

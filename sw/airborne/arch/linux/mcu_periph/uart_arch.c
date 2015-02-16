@@ -23,6 +23,8 @@
  * linux uart handling
  */
 
+#include BOARD_CONFIG
+
 #include "mcu_periph/uart.h"
 
 #include <stdint.h>

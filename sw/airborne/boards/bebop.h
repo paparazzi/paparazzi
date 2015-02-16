@@ -25,6 +25,9 @@
 
 #define BOARD_BEBOP
 
+/** uart connected to GPS internally */
+#define UART1_DEV "/dev/ttyPA1"
+
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "boards/bebop/actuators.h"
 #define ActuatorDefaultSet(_x,_y) ActuatorsBebopSet(_x,_y)

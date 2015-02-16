@@ -26,7 +26,6 @@ MODEM_HOST         ?= 192.168.1.255
 #
 MODEM_PORT ?= UART4
 MODEM_BAUD ?= B57600
-$(TARGET).CFLAGS   += -DUART4_DEV=\"/dev/ttyO4\"
 
 
 # handle linux signals by hand (CTRL-C twice to stop)

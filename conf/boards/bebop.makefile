@@ -27,7 +27,6 @@ MODEM_HOST         ?= 192.168.42.255
 # The GPS sensor is connected internally
 GPS_PORT           ?= UART1
 GPS_BAUD           ?= B230400
-$(TARGET).CFLAGS   += -DUART1_DEV=\"/dev/ttyPA1\"
 
 # handle linux signals by hand
 $(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL
