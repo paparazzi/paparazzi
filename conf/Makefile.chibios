@@ -1,6 +1,11 @@
-# Hey Emacs, this is a -*- makefile -*-
 #
-# Copyright (C) 2012 The Paparazzi Team
+# Copyright (C) 2013 AggieAir, A Remote Sensing Unmanned Aerial System for Scientific Applications
+# Utah State University, http://aggieair.usu.edu/
+#
+# Michal Podhradsky (michal.podhradsky@aggiemail.usu.edu)
+# Calvin Coopmans (c.r.coopmans@ieee.org)
+#
+# credits to ENAC team for initial work on ChibiOs and Paparazzi integration
 #
 # This file is part of paparazzi.
 #
@@ -20,29 +25,21 @@
 # Boston, MA 02111-1307, USA.
 #
 
-
-# Verify that libopencm3 is compiled with chibios compatible float abi
-# correct abi is -mfloat-abi=softfp
-# on non chibios branches, libopencm3 is compiled with more optimised -mfloat-abi=hard
-TAG_ABI_VFP_COUNT= \
-	$(shell (readelf -A  $(PAPARAZZI_SRC)/sw/ext/libopencm3/lib/libopencm3_stm32f4.a | \
-	grep -c Tag_ABI_VFP_args))
-
-ifneq ($(TAG_ABI_VFP_COUNT),0)
-  $(error libopencm3_stm32f4.a is generated with chibios incompatible -mfloat-abi=hard, \
-	please recompile with -mfloat-abi=softfp))
-endif
-
-
 #
 # This is the common Makefile for target using chibios
+#
+# chibios directory
+CHIBIOS =  $(PAPARAZZI_SRC)/sw/ext/chibios
 
-CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD)/chibios-libopencm3
-CHIBIOS_LIB_DIR = $(PAPARAZZI_SRC)/sw/airborne/subsystems/chibios-libopencm3
-CHIBIOS_EXT =  $(PAPARAZZI_SRC)/sw/ext/chibios
-OPENCM3_EXT =  $(PAPARAZZI_SRC)/sw/ext/libopencm3
-PPRZ_GENERATED = $(AIRCRAFT_BUILD_DIR)/$(AIRCRAFT)/$(TARGET)/generated
-PPRZ_CHIBIOS_OCM3 = $(SRC_FIRMWARE)/chibios-libopencm3
+# directory with board defines for chibios platforms (board specific)
+CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/conf/boards/$(BOARD)
+
+# directory with board and OS configuration (project specific)
+PROJECT_DIR ?= boards/$(BOARD)/demo
+CHIBIOS_PROJECT_DIR = $(PAPARAZZI_SRC)/conf/$(PROJECT_DIR)
+
+# chibos arch directory
+CHIBIOS_ARCH_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios
 
 # Launch with "make Q=''" to get full command display
 Q=@
@@ -56,29 +53,16 @@ $(TARGET).objso	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)
 $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
 
-
 ##############################################################################
 # Build global options
 # NOTE: Can be overridden externally.
 #
 
-# Paparazzi options here.
-ifeq ($(PPRZ_DEFINITION),)
-  PPRZ_DEFINITION = -DUSE_CHIBIOS_RTOS -DUSE_ADC_WATCHDOG -DSYS_TIME_FREQUENCY=1000
-endif
-
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  # ChibiOS already define OPT
-  CH_OPT ?= 0 -g -ggdb3 -fno-inline
-
-  USE_OPT = -std=gnu11 -O$(CH_OPT) \
-	-falign-functions=16  -fno-omit-frame-pointer\
-	-W -Wall -Werror -Wno-error=unused-variable -Wno-error=format \
-	-Wno-error=unused-function -Wno-error=unused-parameter \
-	$(PPRZ_DEFINITION)
+   USE_OPT = -std=gnu99 -O2 -ggdb -fomit-frame-pointer -falign-functions \
+	 -W -Wall
 endif
-
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
@@ -109,58 +93,39 @@ ifeq ($(USE_VERBOSE_COMPILE),)
   endif
 endif
 
+# Enable this if you really want to use the STM FWLib.
+ifeq ($(USE_FWLIB),)
+  USE_FWLIB = no
+endif
+
 #
 # Build global options
 ##############################################################################
 
-##############################################################################
-# Architecture or project specific options
-#
-
-# Enables the use of FPU on Cortex-M4.
-ifeq ($(USE_FPU),)
-  USE_FPU = yes
-endif
-
 
 #
 # Architecture or project specific options
 ##############################################################################
+
+
 
 ##############################################################################
 # Project, sources and paths
 #
-
-# Define project name here
-PROJECT = ap
-
 # Imported source files and paths
-
-CHIBIOS = $(CHIBIOS_EXT)
-OPENCM3 = $(OPENCM3_EXT)
-OPENCM3_INC = $(OPENCM3)/include
-OPENCM3_LIB =  $(OPENCM3)/lib/
-
 include $(CHIBIOS_BOARD_DIR)/board.mk
-include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
+include $(CHIBIOS)/os/hal/platforms/$(CHIBIOS_BOARD_PLATFORM)
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F4xx/port.mk
-#include $(CHIBIOS)/os/various/fatfs_bindings/fatfs.mk
-include $(PAPARAZZI_HOME)/conf/chibios/fatfs.mk
-include $(PAPARAZZI_HOME)/conf/chibios/chibi_lib_for_pprz.mk
-
-# HACK : in order to make chibios to work with opencm3, we need a specially crafted
-#        vector.c file, with some vectors for chibios, and others for opencm3
-#	 shunting should be done in mcuconf.h
-PORTSRC := $(subst $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F4xx/vectors.c,\
-	$(PAPARAZZI_SRC)/sw/airborne/arch/stm32/stm32f4_chibios_vectors.c,\
-	$(PORTSRC))
-
+include $(CHIBIOS)/os/ports/GCC/$(CHIBIOS_BOARD_PORT)
 include $(CHIBIOS)/os/kernel/kernel.mk
 
-# Define linker script file here
-LDSCRIPT= $($(TARGET).LDSCRIPT)
 
+# Define linker script file here
+ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
+LDSCRIPT= $(CHIBIOS_ARCH_DIR)/$(CHIBIOS_BOARD_LINKER)
+else
+LDSCRIPT= $(PORTLD)/$(CHIBIOS_BOARD_LINKER)
+endif
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -170,12 +135,10 @@ CSRC = $(PORTSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
-       $(FATFSSRC) \
-       $(CHIBIOSLIBSRC) \
-       $(CHIBIOS)/os/various/chrtclib.c \
-       $(CHIBIOS)/os/various/syscalls.c
-
-ECSRC = $($(TARGET).srcs)
+       $(CHIBIOS)/os/various/evtimer.c \
+       $(CHIBIOS)/os/various/syscalls.c \
+       $(CHIBIOS_BOARD_MAIN) \
+       $($(TARGET).srcs)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -206,12 +169,10 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
-         $(CHIBIOS)/os/various $(OPENCM3_INC) \
-	 $(CHIBIOS_BOARD_DIR) $(CHIBIOS_LIB_DIR) \
-	 $(PPRZ_GENERATED) $(FATFSINC) \
-	 $(PPRZ_CHIBIOS_OCM3)
+         $(CHIBIOS)/os/various $(CHIBIOS_BOARD_DIR) $(CHIBIOS_PROJECT_DIR)
 
 BUILDDIR := $(OBJDIR)
+
 #
 # Project, sources and paths
 ##############################################################################
@@ -219,10 +180,8 @@ BUILDDIR := $(OBJDIR)
 ##############################################################################
 # Compiler settings
 #
+MCU  ?= cortex-m3
 
-MCU  = cortex-m4
-
-#TRGT = arm-elf-
 TRGT = arm-none-eabi-
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
@@ -249,6 +208,7 @@ CWARN = -Wall -Wextra -Wstrict-prototypes
 # Define C++ warning options here
 CPPWARN = -Wall -Wextra
 
+
 #
 # Compiler settings
 ##############################################################################
@@ -258,8 +218,7 @@ CPPWARN = -Wall -Wextra
 #
 
 # List all default C defines here, like -D_DEBUG=1
-DDEFS =  -DSTM32F4
-#DDEFS =
+DDEFS =
 
 # List all default ASM defines here, like -D_DEBUG=1
 DADEFS =
@@ -268,28 +227,28 @@ DADEFS =
 DINCDIR =
 
 # List the default directory to look for the libraries here
-DLIBDIR = $(OPENCM3_LIB)
+DLIBDIR =
 
 # List all default libraries here
-DLIBS = -lm -lopencm3_stm32f4
-#DLIBS = -lm -lc -lnosys -nostartfiles -Wl,--gc-sections
+DLIBS = -lm
+# -lm needed to tell the compiler to use <math.h>
 
 #
 # End of default section
 ##############################################################################
 
 ##############################################################################
-# Start of user section
+# Start of user section (extra libraries etc.)
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = $($(TARGET).CFLAGS) $(USER_CFLAGS) -DUSE_OCM3_SYSTICK_INIT=0
+UDEFS = $($(TARGET).CFLAGS)
 
 # Define ASM defines here
 UADEFS =
 
 # List all user directories here
-# remove -I before include dir because ChibiOS is adding them again
+#UINCDIR =
 UINCDIR = $(patsubst -I%,%,$(INCLUDES))
 
 # List the user directory to look for the libraries here
@@ -305,12 +264,40 @@ ULIBS =
 #
 # Include upload rules
 ##############################################################################
-include $(PAPARAZZI_HOME)/conf/Makefile.arm-embedded-toolchain
+# default: assume the luftboot bootloader is used
+# if luftboot is not used define NO_LUFTBOOT to a value != 0
+# this is necessary for Makefile.stm32-upload
+ifdef NO_LUFTBOOT
+ASSUMING_LUFTBOOT = "no"
+else
+ASSUMING_LUFTBOOT = "yes"
+endif
+
+
+# Settings for GDB
+# default port configuration for BMP
+BMP_PORT = /dev/ttyACM0
+GDB = $(shell which arm-none-eabi-gdb)
+
+
+# Settings for OOCD
+$(TARGET).OOCD_INTERFACE=flossjtag
+OOCD_INTERFACE=flossjtag
+OOCD = $(shell which openocd)
+
+ifndef $(TARGET).OOCD_BOARD
+OOCD_BOARD = lisa-m
+else
+OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
+endif
+###############################################################################
+# Upload makefile
 include $(PAPARAZZI_HOME)/conf/Makefile.stm32-upload
 
-
+###############################################################################
 ifeq ($(USE_FPU),yes)
-  USE_OPT += -mfloat-abi=softfp  -mfpu=fpv4-sp-d16 -fsingle-precision-constant
+  USE_OPT += -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -fsingle-precision-constant
+  #USE_OPT += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant
   DDEFS += -DCORTEX_USE_FPU=TRUE
 else
   DDEFS += -DCORTEX_USE_FPU=FALSE
@@ -318,8 +305,3 @@ endif
 
 EXTRA_RULES_INCLUDE_PATH = $(PAPARAZZI_HOME)/conf/chibios/chibios_extra_rules.mk
 include $(PAPARAZZI_HOME)/conf/chibios/chibios_rules.mk
-
-
-
-
-#include $(CHIBIOS_EXT)/os/ports/GCC/ARMCMx/rules.mk

@@ -49,12 +49,13 @@
 #endif
 
 /* Boolean values */
-#ifdef RTOS_IS_CHIBIOS
+#if USE_CHIBIOS_RTOS
 /* make bool_t an alias to bool instead of uint8_t dor chibios port
   probably a bad idea since sizeof(bool) is 4, and this will break
   message coding/decoding **** FIX NEEDEED ****
+  NOTE: works fine with RT_Paparazzi
 */
-typedef bool bool_t;
+#include "chtypes.h"
 #else
 typedef uint8_t bool_t;
 #endif
