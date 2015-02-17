@@ -30,9 +30,14 @@
  * ChibiOS initialized peripherals by itself, only interrupt
  * vector has to be relocated for Luftboot
  */
-#include "mcu.h"
+
+/* ChibiOS includes */
 #include "ch.h"
+#include "hal.h"
+/* Paparazzi includes */
+#include "mcu.h"
 #include "std.h"
+
 
 /*
  * SCB_VTOR has to be relocated if Luftboot is used
@@ -49,4 +54,14 @@ void mcu_arch_init(void)
   SCB_VTOR = 0x00002000;
 #endif
 #endif
+
+  /*
+   * System initializations.
+   * - HAL initialization, this also initializes the configured device drivers
+   *   and performs the board-specific initializations.
+   * - Kernel initialization, the main() function becomes a thread and the
+   *   RTOS is active.
+   */
+  halInit();
+  chSysInit();
 }

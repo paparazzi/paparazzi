@@ -18,8 +18,11 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+
+/* ChibiOS includes */
 #include "ch.h"
-#include "hal.h"
+
+/* paparazzi includes */
 #include "std.h"
 #include "mcu.h"
 #include "led.h"
@@ -114,17 +117,12 @@ static __attribute__((noreturn)) msg_t thd_main_periodic_05(void *arg)
 
 int main(void) {
 
-  /*
-   * System initializations.
+  /* Paparazzi initialization.
+   * Calls ChibiOS system initializations internally:
    * - HAL initialization, this also initializes the configured device drivers
    *   and performs the board-specific initializations.
    * - Kernel initialization, the main() function becomes a thread and the
    *   RTOS is active.
-   */
-  halInit();
-  chSysInit();
-
-  /*
    * Paparazzi initialization
    */
   mcu_init();
