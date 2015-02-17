@@ -136,9 +136,21 @@
 /*
  * I2C driver system settings.
  */
+#if USE_I2C1
+#define STM32_I2C_USE_I2C1                  TRUE
+#else
 #define STM32_I2C_USE_I2C1                  FALSE
+#endif
+#if USE_I2C2
 #define STM32_I2C_USE_I2C2                  TRUE
+#else
+#define STM32_I2C_USE_I2C2                  FALSE
+#endif
+#if USE_I2C3
+#define STM32_I2C_USE_I2C3                  TRUE
+#else
 #define STM32_I2C_USE_I2C3                  FALSE
+#endif
 #define STM32_I2C_I2C1_RX_DMA_STREAM        STM32_DMA_STREAM_ID(1, 0)
 #define STM32_I2C_I2C1_TX_DMA_STREAM        STM32_DMA_STREAM_ID(1, 6)
 #define STM32_I2C_I2C2_RX_DMA_STREAM        STM32_DMA_STREAM_ID(1, 2)
@@ -206,12 +218,36 @@
 /*
  * SERIAL driver system settings.
  */
+#if USE_UART1
+#define STM32_SERIAL_USE_USART1             TRUE
+#else
 #define STM32_SERIAL_USE_USART1             FALSE
+#endif
+#if USE_UART2
 #define STM32_SERIAL_USE_USART2             TRUE
+#else
+#define STM32_SERIAL_USE_USART2             FALSE
+#endif
+#if USE_UART3
 #define STM32_SERIAL_USE_USART3             TRUE
+#else
+#define STM32_SERIAL_USE_USART3             FALSE
+#endif
+#if USE_UART4
+#define STM32_SERIAL_USE_UART4              TRUE
+#else
 #define STM32_SERIAL_USE_UART4              FALSE
+#endif
+#if USE_UART5
 #define STM32_SERIAL_USE_UART5              TRUE
+#else
+#define STM32_SERIAL_USE_UART5              FALSE
+#endif
+#if USE_UART6
+#define STM32_SERIAL_USE_USART6             TRUE
+#else
 #define STM32_SERIAL_USE_USART6             FALSE
+#endif
 #define STM32_SERIAL_USART1_PRIORITY        12
 #define STM32_SERIAL_USART2_PRIORITY        12
 #define STM32_SERIAL_USART3_PRIORITY        12
@@ -222,9 +258,21 @@
 /*
  * SPI driver system settings.
  */
+#if USE_SPI1
+#define STM32_SPI_USE_SPI1                  TRUE
+#else
 #define STM32_SPI_USE_SPI1                  FALSE
+#endif
+#if USE_SPI2
 #define STM32_SPI_USE_SPI2                  TRUE
+#else
+#define STM32_SPI_USE_SPI2                  FALSE
+#endif
+#if USE_SPI3
+#define STM32_SPI_USE_SPI3                  TRUE
+#else
 #define STM32_SPI_USE_SPI3                  FALSE
+#endif
 #define STM32_SPI_SPI1_RX_DMA_STREAM        STM32_DMA_STREAM_ID(2, 0)
 #define STM32_SPI_SPI1_TX_DMA_STREAM        STM32_DMA_STREAM_ID(2, 3)
 #define STM32_SPI_SPI2_RX_DMA_STREAM        STM32_DMA_STREAM_ID(1, 3)

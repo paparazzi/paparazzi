@@ -34,6 +34,7 @@
 #ifndef _HALCONF_H_
 #define _HALCONF_H_
 
+/* include board specific conf */
 #include "mcuconf.h"
 
 /**
@@ -59,7 +60,11 @@
  * @brief   Enables the ADC subsystem.
  */
 #if !defined(HAL_USE_ADC) || defined(__DOXYGEN__)
+#if USE_ADC
 #define HAL_USE_ADC                 TRUE
+#else
+#define HAL_USE_ADC                 FALSE
+#endif
 #endif
 
 /**
@@ -87,7 +92,11 @@
  * @brief   Enables the I2C subsystem.
  */
 #if !defined(HAL_USE_I2C) || defined(__DOXYGEN__)
+#if USE_I2C1 || USE_I2C2 || USE_I2C3
 #define HAL_USE_I2C                 TRUE
+#else
+#define HAL_USE_I2C                 FALSE
+#endif
 #endif
 
 /**
@@ -136,21 +145,33 @@
  * @brief   Enables the SERIAL subsystem.
  */
 #if !defined(HAL_USE_SERIAL) || defined(__DOXYGEN__)
+#if USE_UART1 || USE_UART2 || USE_UART3 || USE_UART4 || USE_UART5 || USE_UART6
 #define HAL_USE_SERIAL              TRUE
+#else
+#define HAL_USE_SERIAL              FALSE
+#endif
 #endif
 
 /**
  * @brief   Enables the SERIAL over USB subsystem.
  */
 #if !defined(HAL_USE_SERIAL_USB) || defined(__DOXYGEN__)
+#if USE_USB_SERIAL
+#define HAL_USE_SERIAL_USB          TRUE
+#else
 #define HAL_USE_SERIAL_USB          FALSE
+#endif
 #endif
 
 /**
  * @brief   Enables the SPI subsystem.
  */
 #if !defined(HAL_USE_SPI) || defined(__DOXYGEN__)
+#if USE_SPI
 #define HAL_USE_SPI                 TRUE
+#else
+#define HAL_USE_SPI                 FALSE
+#endif
 #endif
 
 /**
