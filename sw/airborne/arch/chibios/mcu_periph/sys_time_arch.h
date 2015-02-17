@@ -49,8 +49,6 @@ extern uint32_t cpu_counter;
 extern uint32_t idle_counter;
 extern uint8_t cpu_frequency;
 
-#define SysTimeTimerStart(_t) {}
-
 extern uint32_t get_sys_time_usec(void);
 extern void sys_time_usleep(uint32_t us);
 
