@@ -1,0 +1,13 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!-- 
+    Experimental Airframe, for test only
+-->
+
+<airframe name="Chibios TEST suite">
+
+  <firmware name="test_chibios">
+    <target name="test_sys_time_timer" board="lisa_mx_rt"/>
+  </firmware>
+
+</airframe>
