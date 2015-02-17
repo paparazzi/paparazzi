@@ -39,7 +39,7 @@
 
 #include "led.h"
 
-#ifdef USE_I2C1
+#if USE_I2C1
 PRINT_CONFIG_VAR(I2C1_CLOCK_SPEED)
 static const I2CConfig i2cfg1 = I2C1_CFG_DEF;
 struct i2c_errors i2c1_errors;
@@ -52,7 +52,7 @@ void i2c1_hw_init(void)
 }
 #endif /* USE_I2C1 */
 
-#ifdef USE_I2C2
+#if USE_I2C2
 PRINT_CONFIG_VAR(I2C2_CLOCK_SPEED)
 static const I2CConfig i2cfg2 = I2C2_CFG_DEF;
 struct i2c_errors i2c2_errors;
@@ -65,7 +65,7 @@ void i2c2_hw_init(void)
 }
 #endif /* USE_I2C2 */
 
-#if defined USE_I2C3
+#if USE_I2C3
 PRINT_CONFIG_VAR(I2C3_CLOCK_SPEED)
 static const I2CConfig i2cfg3 = I2C3_CFG_DEF;
 struct i2c_errors i2c3_errors;

@@ -34,7 +34,7 @@
  */
 #include "mcu_periph/uart_arch.h"
 
-#ifdef USE_UART1
+#if USE_UART1
 static const SerialConfig usart1_config = {
   UART1_BAUD,                                             /*     BITRATE    */
   0,                                                        /*    USART CR1   */
@@ -49,7 +49,7 @@ void uart1_init(void)
 #endif
 
 
-#ifdef USE_UART2
+#if USE_UART2
 static const SerialConfig usart2_config = {
   UART2_BAUD,                                               /*     BITRATE    */
   0,                                                        /*    USART CR1   */
@@ -63,7 +63,7 @@ void uart2_init(void)
 }
 #endif
 
-#ifdef USE_UART3
+#if USE_UART3
 static const SerialConfig usart3_config = {
   UART3_BAUD,                                             /*     BITRATE    */
   0,                                                        /*    USART CR1   */
@@ -77,7 +77,7 @@ void uart3_init(void)
 }
 #endif
 
-#ifdef USE_UART4
+#if USE_UART4
 static const SerialConfig usart4_config = {
   UART4_BAUD,                                             /*     BITRATE    */
   0,                                                        /*    USART CR1   */
@@ -91,7 +91,7 @@ void uart4_init(void)
 }
 #endif
 
-#ifdef USE_UART5
+#if USE_UART5
 static const SerialConfig usart5_config = {
   UART5_BAUD,                                             /*     BITRATE    */
   0,                                                        /*    USART CR1   */
