@@ -32,11 +32,11 @@
 CHIBIOS =  $(PAPARAZZI_SRC)/sw/ext/chibios
 
 # directory with board defines for chibios platforms (board specific)
-CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/conf/boards/$(BOARD)
+CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD)/chibios
 
 # directory with board and OS configuration (project specific)
-PROJECT_DIR ?= boards/$(BOARD)/demo
-CHIBIOS_PROJECT_DIR = $(PAPARAZZI_SRC)/conf/$(PROJECT_DIR)
+PROJECT_DIR ?= demo
+CHIBIOS_PROJECT_DIR = $(CHIBIOS_BOARD_DIR)/$(PROJECT_DIR)
 
 # chibos arch directory
 CHIBIOS_ARCH_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios

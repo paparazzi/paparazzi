@@ -27,11 +27,9 @@
 
 # Board definition
 BOARD=lia
-BOARD_CFG=\"../../conf/boards/$(BOARD)/board.h\"#actual chibios defines
+BOARD_CFG=\"boards/$(BOARD)/chibios/board.h\"
 # Arch definition
-ARCH=chibios# for backwards compatibility with the paparazzi make process
-ARCH_DIR=chibios
-SRC_ARCH=arch/$(ARCH_DIR)
+ARCH=chibios
 $(TARGET).ARCHDIR = $(ARCH)
 
 # since it s Cortex M3
@@ -85,11 +83,6 @@ CHIBIOS_BOARD_LINKER = STM32F107xC.ld
 # Compiler settings
 #
 MCU = cortex-m3
-
-# -----------------------------------------------------------------------
-# include Makefile.chibios instead of Makefile.stm32
-$(TARGET).MAKEFILE = chibios
-
 
 #
 # default actuator configuration
