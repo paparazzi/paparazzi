@@ -6,7 +6,9 @@ import wx
 import sys
 import os
 
-sys.path.append(os.getenv("PAPARAZZI_HOME") + "/sw/lib/python")
+PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                      '../../../..')))
+sys.path.append(PPRZ_SRC + "/sw/lib/python")
 
 from settings_tool import IvySettingsInterface
 
