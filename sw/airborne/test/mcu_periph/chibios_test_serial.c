@@ -29,6 +29,10 @@
 /* paparazzi includes */
 #include "mcu.h"
 #include "led.h"
+#include "mcu_periph/sys_time.h"
+#include "mcu_periph/uart.h"
+#include "mcu_periph/uart_arch.h"
+
 
 /*
  * Thread Area Definitions
@@ -38,60 +42,16 @@
 /*
  * Thread Area Initialization
  */
-static WORKING_AREA(wa_thd_main_periodic_02, CH_THREAD_AREA_MAIN_PERIODIC);
-static WORKING_AREA(wa_thd_main_periodic_03, CH_THREAD_AREA_MAIN_PERIODIC);
 static WORKING_AREA(wa_thd_main_periodic_05, CH_THREAD_AREA_MAIN_PERIODIC);
+static WORKING_AREA(wa_thd_rx, CH_THREAD_AREA_MAIN_PERIODIC);
 
 /*
  * Static Thread Definitions
  */
-static __attribute__((noreturn)) msg_t thd_main_periodic_02(void *arg);
-static __attribute__((noreturn)) msg_t thd_main_periodic_03(void *arg);
 static __attribute__((noreturn)) msg_t thd_main_periodic_05(void *arg);
+static __attribute__((noreturn)) msg_t thd_rx(void *arg);
 
-/**
- * Test Thread
- *
- * Replaces main_periodic_02()
- *
- */
-static __attribute__((noreturn)) msg_t thd_main_periodic_02(void *arg)
-{
-  chRegSetThreadName("thd_main_periodic_02");
-  (void) arg;
-  systime_t time = chTimeNow();
-  while (TRUE)
-  {
-    time += MS2ST(200);
-#ifdef LED_GREEN
-      LED_TOGGLE(LED_GREEN);
-#endif
-    chThdSleepUntil(time);
-  }
-}
-
-/**
- * Test Thread
- *
- * Replaces main_periodic_03()
- *
- */
-static __attribute__((noreturn)) msg_t thd_main_periodic_03(void *arg)
-{
-  chRegSetThreadName("thd_main_periodic_03");
-  (void) arg;
-  systime_t time = chTimeNow();
-  while (TRUE)
-  {
-    time += MS2ST(300);
-#ifdef SYS_TIME_LED
-      LED_TOGGLE(SYS_TIME_LED);
-#endif
-    chThdSleepUntil(time);
-  }
-}
-
-/**
+/*
  * Test Thread
  *
  * Replaces main_periodic_05()
@@ -99,42 +59,59 @@ static __attribute__((noreturn)) msg_t thd_main_periodic_03(void *arg)
  */
 static __attribute__((noreturn)) msg_t thd_main_periodic_05(void *arg)
 {
-  chRegSetThreadName("thd_main_periodic_05");
+  chRegSetThreadName("thd_blinker");
   (void) arg;
   systime_t time = chTimeNow();
   while (TRUE)
   {
     time += MS2ST(500);
-#ifdef LED_RED
-      LED_TOGGLE(LED_RED);
+#ifdef SYS_TIME_LED
+      LED_TOGGLE(SYS_TIME_LED);
 #endif
     chThdSleepUntil(time);
   }
 }
 
+/*
+ * Serial RX thread
+ */
+__attribute__((noreturn)) msg_t thd_rx(void *arg)
+{
+  chRegSetThreadName("rx_thread");
+  (void) arg;
 
-int main(void) {
+  uint8_t charbuf;
+  while (TRUE) {
+#ifdef LED_GREEN
+      LED_TOGGLE(LED_GREEN);
+#endif
+    charbuf = uart_getch(&SERIAL_PORT);
+    uart_transmit(&SERIAL_PORT, charbuf);
+  }
+}
 
-  /* Paparazzi initialization.
-   * Calls ChibiOS system initializations internally:
-   * - HAL initialization, this also initializes the configured device drivers
-   *   and performs the board-specific initializations.
-   * - Kernel initialization, the main() function becomes a thread and the
-   *   RTOS is active.
-   * Paparazzi initialization
-   */
+int main(void)
+{
   mcu_init();
 
   /*
    * Init threads
    */
-  chThdCreateStatic(wa_thd_main_periodic_02, sizeof(wa_thd_main_periodic_02), NORMALPRIO, thd_main_periodic_02, NULL);
-  chThdCreateStatic(wa_thd_main_periodic_03, sizeof(wa_thd_main_periodic_03), NORMALPRIO, thd_main_periodic_03, NULL);
   chThdCreateStatic(wa_thd_main_periodic_05, sizeof(wa_thd_main_periodic_05), NORMALPRIO, thd_main_periodic_05, NULL);
+  chThdCreateStatic(wa_thd_rx, sizeof(wa_thd_rx), NORMALPRIO, thd_rx, NULL);
 
 
-  while(TRUE) {
-    chThdSleepMilliseconds(500);
+  while (1) {
+    /* sleep for 1s */
+    sys_time_ssleep(1);
+    uart_transmit(&SERIAL_PORT, 'N');
+    uart_transmit(&SERIAL_PORT, 'i');
+    uart_transmit(&SERIAL_PORT, 'c');
+    uart_transmit(&SERIAL_PORT, 'e');
+
+    sys_time_msleep(500);
+    uint8_t tx_switch[] = " work!\r\n";
+    uart_transmit_buffer(&SERIAL_PORT, tx_switch, sizeof(tx_switch));
   }
 
   return 0;

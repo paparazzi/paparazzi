@@ -91,8 +91,8 @@ static void send_uart3_err(struct transport_tx *trans, struct link_device *dev)
                             &ore, &ne_err, &fe_err, &_bus3);
 }
 #endif
-
 #endif
+
 
 #if USE_UART4
 struct uart_periph uart4;
@@ -219,14 +219,26 @@ bool_t uart_check_free_space(struct uart_periph *p, uint8_t len)
   return (uint16_t)(space - 1) >= len;
 }
 
+
 uint8_t uart_getch(struct uart_periph *p)
 {
+#if USE_CHIBIOS_RTOS
+  uint8_t ret = (uint8_t)sdGet((SerialDriver*)(p->reg_addr));
+#else
   uint8_t ret = p->rx_buf[p->rx_extract_idx];
   p->rx_extract_idx = (p->rx_extract_idx + 1) % UART_RX_BUFFER_SIZE;
+#endif /* USE_CHIBIOS_RTOS */
   return ret;
 }
 
 void WEAK uart_event(void)
+{
+
+}
+
+void WEAK uart_transmit_buffer(struct uart_periph *p __attribute__((unused)),
+                               uint8_t *data_buffer __attribute__((unused)),
+                               uint16_t length __attribute__((unused)))
 {
 
 }

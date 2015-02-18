@@ -76,5 +76,4 @@
     }                                                           \
   }
 
-
 #endif /* STM32_UART_ARCH_H */

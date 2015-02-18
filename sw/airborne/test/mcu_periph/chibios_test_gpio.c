@@ -1,5 +1,9 @@
 /*
- * Copyright (C) 2014 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2015 AggieAir, A Remote Sensing Unmanned Aerial System for Scientific Applications
+ * Utah State University, http://aggieair.usu.edu/
+ *
+ * Michal Podhradsky (michal.podhradsky@aggiemail.usu.edu)
+ * Calvin Coopmans (c.r.coopmans@ieee.org)
  *
  * This file is part of paparazzi.
  *

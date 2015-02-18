@@ -70,12 +70,12 @@ COMMON_TELEMETRY_SRCS    = mcu_periph/uart.c
 COMMON_TELEMETRY_SRCS   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 COMMON_TELEMETRY_SRCS   += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
+LED_DEFINES ?= -DLED_RED=4 -DLED_GREEN=3
+
 
 #
 # test sys_time
 #
-LED_DEFINES ?= -DLED_RED=4 -DLED_GREEN=3
-
 test_sys_time_timer.ARCHDIR = $(ARCH)
 test_sys_time_timer.CFLAGS += $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
 test_sys_time_timer.srcs   += $(COMMON_TEST_SRCS)
@@ -86,8 +86,33 @@ test_sys_time_usleep.CFLAGS += $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
 test_sys_time_usleep.srcs   += $(COMMON_TEST_SRCS)
 test_sys_time_usleep.srcs   += test/mcu_periph/chibios_test_sys_time_usleep.c
 
+#
+# test gpio
+#
 test_sys_gpio.ARCHDIR = $(ARCH)
 test_sys_gpio.CFLAGS += $(COMMON_TEST_CFLAGS) 
 test_sys_gpio.srcs   += $(COMMON_TEST_SRCS)
 test_sys_gpio.srcs   += test/mcu_periph/chibios_test_gpio.c
 
+#
+# test shell
+# shows the basic functionality of ChibiOS shell
+# might be useful later for implementing a console/terminal
+# functionality such as is in Pixhawk
+#
+test_shell.ARCHDIR = $(ARCH)
+test_shell.CFLAGS += $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
+test_shell.srcs   += $(COMMON_TEST_SRCS)
+test_shell.srcs += mcu_periph/uart.c
+test_shell.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
+test_shell.srcs += test/chibios_test_shell.c
+
+#
+# test serial ports
+#
+test_serial.ARCHDIR = $(ARCH)
+test_serial.CFLAGS += $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
+test_serial.srcs   += $(COMMON_TEST_SRCS)
+test_serial.srcs += mcu_periph/uart.c
+test_serial.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
+test_serial.srcs += test/mcu_periph/chibios_test_serial.c

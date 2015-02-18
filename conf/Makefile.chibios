@@ -118,6 +118,7 @@ include $(CHIBIOS)/os/hal/platforms/$(CHIBIOS_BOARD_PLATFORM)
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/$(CHIBIOS_BOARD_PORT)
 include $(CHIBIOS)/os/kernel/kernel.mk
+include $(CHIBIOS)/test/test.mk
 
 
 # Define linker script file here
@@ -137,8 +138,11 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
        $(CHIBIOS)/os/various/syscalls.c \
-       $(CHIBIOS_BOARD_MAIN) \
-       $($(TARGET).srcs)
+       $(CHIBIOS)/os/various/chprintf.c \
+       $(CHIBIOS)/os/various/shell.c \
+       $(CHIBIOS_BOARD_MAIN) 
+       
+ECSRC = $($(TARGET).srcs)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

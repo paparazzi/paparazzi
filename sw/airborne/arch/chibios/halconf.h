@@ -96,6 +96,10 @@
 
 /**
  * @brief   Enables the ICU subsystem.
+ * NOTE: ICU is needed form PPM and Spektrum radio
+ * Maybe also for Superbit. Leave default TRUE for now
+ * Might have to be changed to 
+ * ifdef RADIO_CONTROL_TYPE_PPM then TRUE, otherwise FALSE
  */
 #if !defined(HAL_USE_ICU) || defined(__DOXYGEN__)
 #define HAL_USE_ICU                 TRUE
@@ -180,7 +184,11 @@
  * @brief   Enables the USB subsystem.
  */
 #if !defined(HAL_USE_USB) || defined(__DOXYGEN__)
-#define HAL_USE_USB                 FALSE
+#if USE_USB_SERIAL
+#define HAL_USE_USB          TRUE
+#else
+#define HAL_USE_USB          FALSE
+#endif
 #endif
 
 /*===========================================================================*/
@@ -300,7 +308,7 @@
  *          default configuration.
  */
 #if !defined(SERIAL_DEFAULT_BITRATE) || defined(__DOXYGEN__)
-#define SERIAL_DEFAULT_BITRATE      38400
+#define SERIAL_DEFAULT_BITRATE      57600
 #endif
 
 /**

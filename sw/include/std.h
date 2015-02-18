@@ -50,15 +50,18 @@
 
 /* Boolean values */
 #if USE_CHIBIOS_RTOS
+#include "chtypes.h"
+#else /* USE_CHIBIOS_RTOS */
+#if USE_CHIBIOS_LIBOPENCM3
 /* make bool_t an alias to bool instead of uint8_t dor chibios port
   probably a bad idea since sizeof(bool) is 4, and this will break
   message coding/decoding **** FIX NEEDEED ****
-  NOTE: works fine with RT_Paparazzi
 */
-#include "chtypes.h"
-#else
+typedef bool bool_t;
+#else /* USE_CHIBIOS_LIBOPENCM3 */ 
 typedef uint8_t bool_t;
-#endif
+#endif 
+#endif 
 
 /* Unit (void) values */
 typedef uint8_t unit_t;

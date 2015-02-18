@@ -38,7 +38,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/cm3/systick.h>
 #include "std.h"
-#if USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_LIBOPENCM3
 #include "chibios_stub.h"
 #include "chconf.h"
 #endif
@@ -50,7 +50,7 @@
  */
 static inline uint32_t get_sys_time_usec(void)
 {
-#if USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_LIBOPENCM3
   return (chibios_chTimeNow() * (1000000 / CH_FREQUENCY));
 #else
   return sys_time.nb_sec * 1000000 +
@@ -65,7 +65,7 @@ static inline uint32_t get_sys_time_usec(void)
  */
 static inline uint32_t get_sys_time_msec(void)
 {
-#if USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_LIBOPENCM3
   return (chibios_chTimeNow() * (1000 / CH_FREQUENCY));
 #else
   return sys_time.nb_sec * 1000 +
@@ -82,7 +82,7 @@ static inline uint32_t get_sys_time_msec(void)
  */
 static inline void sys_time_usleep(uint32_t us)
 {
-#if USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_LIBOPENCM3
   chibios_chThdSleepMicroseconds(us);
 #else
   // start time

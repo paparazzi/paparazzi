@@ -83,6 +83,7 @@ extern void uart_transmit(struct uart_periph *p, uint8_t data);
 extern bool_t uart_check_free_space(struct uart_periph *p, uint8_t len);
 extern uint8_t uart_getch(struct uart_periph *p);
 extern void uart_event(void);
+extern void uart_transmit_buffer(struct uart_periph *p, uint8_t *data_buffer, uint16_t length);
 
 /**
  * Check UART for available chars in receive buffer.
