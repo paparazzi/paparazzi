@@ -10,6 +10,14 @@
     <target name="test_sys_time_timer"  board="lisa_mx_rt"/>
     <target name="test_sys_time_usleep" board="lisa_mx_rt"/>
     <target name="test_sys_gpio" board="lisa_mx_rt"/>
+    <target name="test_shell" board="lisa_mx_rt">
+      <define name="USE_UART3"/>
+    </target>
+    <target name="test_serial" board="lisa_mx_rt">
+      <define name="USE_UART3"/>
+      <define name="SERIAL_PORT" value="uart3"/>
+      <define name="UART3_BAUD" value="B57600"/>
+    </target>
   </firmware>
 
 </airframe>

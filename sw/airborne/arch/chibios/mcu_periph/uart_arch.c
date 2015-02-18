@@ -35,6 +35,9 @@
 #include "mcu_periph/uart_arch.h"
 
 #if USE_UART1
+#ifndef UART1_BAUD
+#define UART1_BAUD SERIAL_DEFAULT_BITRATE
+#endif
 static const SerialConfig usart1_config = {
   UART1_BAUD,                                             /*     BITRATE    */
   0,                                                        /*    USART CR1   */
@@ -50,6 +53,9 @@ void uart1_init(void)
 
 
 #if USE_UART2
+#ifndef UART2_BAUD
+#define UART2_BAUD SERIAL_DEFAULT_BITRATE
+#endif
 static const SerialConfig usart2_config = {
   UART2_BAUD,                                               /*     BITRATE    */
   0,                                                        /*    USART CR1   */
@@ -64,6 +70,9 @@ void uart2_init(void)
 #endif
 
 #if USE_UART3
+#ifndef UART3_BAUD
+#define UART3_BAUD SERIAL_DEFAULT_BITRATE
+#endif
 static const SerialConfig usart3_config = {
   UART3_BAUD,                                             /*     BITRATE    */
   0,                                                        /*    USART CR1   */
@@ -78,6 +87,9 @@ void uart3_init(void)
 #endif
 
 #if USE_UART4
+#ifndef UART4_BAUD
+#define UART4_BAUD SERIAL_DEFAULT_BITRATE
+#endif
 static const SerialConfig usart4_config = {
   UART4_BAUD,                                             /*     BITRATE    */
   0,                                                        /*    USART CR1   */
@@ -92,6 +104,9 @@ void uart4_init(void)
 #endif
 
 #if USE_UART5
+#ifndef UART5_BAUD
+#define UART5_BAUD SERIAL_DEFAULT_BITRATE
+#endif
 static const SerialConfig usart5_config = {
   UART5_BAUD,                                             /*     BITRATE    */
   0,                                                        /*    USART CR1   */
