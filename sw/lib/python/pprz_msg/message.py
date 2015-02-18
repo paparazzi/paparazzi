@@ -66,3 +66,9 @@ class PprzMessage(object):
 
     def to_json(self, payload_only=False):
         return json.dumps(self.to_dict(payload_only))
+
+    def to_original_msg( self ):
+        # _fieldvalues are still in correct order as they were found in original message
+        value_string = ' '.join( self._fieldvalues )
+        return "%s %s %s"%( self._class_name, self._name, value_string )
+
