@@ -88,3 +88,7 @@ class IvyMessagesInterface(object):
         msg = PprzMessage(msg_class, msg_name)
         msg.set_values(values)
         self.callback(ac_id, msg)
+
+    def send( self, msg ):
+        IvySendMsg( msg )
+
