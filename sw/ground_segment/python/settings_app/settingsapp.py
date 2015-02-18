@@ -7,7 +7,9 @@ import settingsframe
 import getopt
 import sys
 
-sys.path.append(os.getenv("PAPARAZZI_HOME") + "/sw/lib/python")
+PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                      '../../../..')))
+sys.path.append(PPRZ_SRC + "/sw/lib/python")
 import settings_xml_parse
 
 def Usage(scmd):

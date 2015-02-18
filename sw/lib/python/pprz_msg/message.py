@@ -36,19 +36,28 @@ class PprzMessage(object):
             else:
                 self._fieldvalues.append(0)
 
-    def get_msgname(self):
+    @property
+    def name(self):
+        """Get the message name."""
         return self._name
 
-    def get_classname(self):
+    @property
+    def msg_class(self):
+        """Get the message class."""
         return self._class_name
 
-    def get_fieldnames(self):
+    @property
+    def fieldnames(self):
+        """Get list of field names."""
         return self._fieldnames
 
-    def get_fieldvalues(self):
+    @property
+    def fieldvalues(self):
+        """Get list of field values."""
         return self._fieldvalues
 
     def get_field(self, idx):
+        """Get field value by index."""
         return self._fieldvalues[idx]
 
     def set_values(self, values):
@@ -58,19 +67,19 @@ class PprzMessage(object):
             raise PprzMessageError("Error: fields not matching")
 
     def __str__(self):
-        ret = '%s.%s {' % (self._class_name, self._name)
-        for idx, f in enumerate(self._fieldnames):
-            ret += '%s : %s, ' % (f, self._fieldvalues[idx])
+        ret = '%s.%s {' % (self.msg_class, self.name)
+        for idx, f in enumerate(self.fieldnames):
+            ret += '%s : %s, ' % (f, self.fieldvalues[idx])
         ret = ret[0:-2] + '}'
         return ret
 
     def to_dict(self, payload_only=False):
         d = {}
         if not payload_only:
-            d['msgname'] = self._name
-            d['msgclass'] = self._class_name
-        for idx, f in enumerate(self._fieldnames):
-            d[f] = self._fieldvalues[idx]
+            d['msgname'] = self.name
+            d['msgclass'] = self.msg_class
+        for idx, f in enumerate(self.fieldnames):
+            d[f] = self.fieldvalues[idx]
         return d
 
     def to_json(self, payload_only=False):
@@ -78,13 +87,13 @@ class PprzMessage(object):
 
     def payload_to_ivy_string(self):
         ivy_str = ''
-        for idx, t in enumerate(self._fieldtypes):
+        for idx, t in enumerate(self.fieldtypes):
             if "char[" in t:
-                ivy_str += '"' + self._fieldvalues[idx] + '"'
+                ivy_str += '"' + self.fieldvalues[idx] + '"'
             elif '[' in t:
-                ivy_str += ','.join([str(x) for x in self._fieldvalues[idx]])
+                ivy_str += ','.join([str(x) for x in self.fieldvalues[idx]])
             else:
-                ivy_str += str(self._fieldvalues[idx])
+                ivy_str += str(self.fieldvalues[idx])
             ivy_str += ' '
         return ivy_str
 
