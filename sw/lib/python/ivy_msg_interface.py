@@ -66,8 +66,8 @@ class IvyMessagesInterface(object):
         # pass non-telemetry messages with ac_id 0
         if data[0] in ["sim", "ground_dl", "dl"]:
             if self.verbose:
-                    print("ignoring message " + ' '.join(data))
-                    sys.stdout.flush()
+                print("ignoring message " + larg[0])
+                sys.stdout.flush()
             return
         elif data[0] in ["ground"]:
             msg_class = data[0]
@@ -79,7 +79,7 @@ class IvyMessagesInterface(object):
                 ac_id = int(data[0])
             except ValueError:
                 if self.verbose:
-                    print("ignoring message " + ' '.join(data))
+                    print("ignoring message " + larg[0])
                     sys.stdout.flush()
                 return
             msg_class = "telemetry"
@@ -88,3 +88,15 @@ class IvyMessagesInterface(object):
         msg = PprzMessage(msg_class, msg_name)
         msg.set_values(values)
         self.callback(ac_id, msg)
+
+    def send(self, msg, ac_id=None):
+        if isinstance(msg, PprzMessage):
+            if "telemetry" in msg.get_classname():
+                if ac_id is None:
+                    print("ac_id needed to send telemetry message.")
+                else:
+                    IvySendMsg("%d %s %s" % (ac_id, msg.get_msgname(), msg.payload_to_ivy_string()))
+            else:
+                IvySendMsg("%s %s %s" % (msg.get_classname(), msg.get_msgname(), msg.payload_to_ivy_string()))
+        else:
+            IvySendMsg(msg)

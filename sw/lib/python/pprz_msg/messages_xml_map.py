@@ -25,7 +25,9 @@ class MessagesNotFound(Exception):
         return "messages file " + repr(self.filename) + " not found"
 
 
-def parse_messages(messages_file=default_messages_file):
+def parse_messages(messages_file=''):
+    if not messages_file:
+        messages_file = default_messages_file
     if not os.path.isfile(messages_file):
         raise MessagesNotFound(messages_file)
     from lxml import etree
@@ -61,6 +63,16 @@ def parse_messages(messages_file=default_messages_file):
                 message_dictionary_types[class_name][message_id].append(the_field.attrib['type'])
 
 
+def get_msgs(msg_class):
+    if not message_dictionary:
+        parse_messages()
+    if msg_class in message_dictionary:
+        return message_dictionary[msg_class]
+    else:
+        print("Error: msg_class %s not found." % msg_class)
+    return []
+
+
 def get_msg_fields(msg_class, msg_name):
     if not message_dictionary:
         parse_messages()
@@ -84,11 +96,23 @@ def get_msg_id(msg_class, msg_name):
         return 0
 
 
+def get_msg_fieldtypes(msg_class, msg_id):
+    if not message_dictionary:
+        parse_messages()
+    if msg_class in message_dictionary_types:
+        if msg_id in message_dictionary_types[msg_class]:
+            return message_dictionary_types[msg_class][msg_id]
+        else:
+            print("Error: message with ID %d not found in msg_class %s." % (msg_id, msg_class))
+    else:
+        print("Error: msg_class %s not found." % msg_class)
+    return []
+
 
 def test():
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", help="path to messages.xml file", default=default_messages_file)
+    parser.add_argument("-f", "--file", help="path to messages.xml file")
     parser.add_argument("-l", "--list", help="list parsed messages", action="store_true", dest="list_messages")
     parser.add_argument("-c", "--class", help="message class", dest="msg_class", default="telemetry")
     args = parser.parse_args()
