@@ -60,6 +60,13 @@ class PprzMessage(object):
         """Get field value by index."""
         return self._fieldvalues[idx]
 
+    def __getattr__(self, attr):
+        # Try to dynamically return the field value for the given name
+        for idx, f in enumerate(self._fieldnames):
+            if f == attr:
+                return self._fieldvalues[idx]
+        raise AttributeError( "No such attribute %s"%( attr ))
+
     def set_values(self, values):
         if len(values) == len(self._fieldnames):
             self._fieldvalues = values
@@ -87,7 +94,7 @@ class PprzMessage(object):
 
     def payload_to_ivy_string(self):
         ivy_str = ''
-        for idx, t in enumerate(self.fieldtypes):
+        for idx, t in enumerate(self._fieldtypes):
             if "char[" in t:
                 ivy_str += '"' + self.fieldvalues[idx] + '"'
             elif '[' in t:
@@ -96,7 +103,6 @@ class PprzMessage(object):
                 ivy_str += str(self.fieldvalues[idx])
             ivy_str += ' '
         return ivy_str
-
 
 def test():
     import argparse
@@ -112,3 +118,4 @@ def test():
 
 if __name__ == '__main__':
     test()
+

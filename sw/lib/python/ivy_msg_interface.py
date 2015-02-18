@@ -100,3 +100,4 @@ class IvyMessagesInterface(object):
                 IvySendMsg("%s %s %s" % (msg.msg_class, msg.name, msg.payload_to_ivy_string()))
         else:
             IvySendMsg(msg)
+
