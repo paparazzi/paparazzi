@@ -91,12 +91,12 @@ class IvyMessagesInterface(object):
 
     def send(self, msg, ac_id=None):
         if isinstance(msg, PprzMessage):
-            if "telemetry" in msg.get_classname():
+            if "telemetry" in msg.msg_class:
                 if ac_id is None:
                     print("ac_id needed to send telemetry message.")
                 else:
-                    IvySendMsg("%d %s %s" % (ac_id, msg.get_msgname(), msg.payload_to_ivy_string()))
+                    IvySendMsg("%d %s %s" % (ac_id, msg.name, msg.payload_to_ivy_string()))
             else:
-                IvySendMsg("%s %s %s" % (msg.get_classname(), msg.get_msgname(), msg.payload_to_ivy_string()))
+                IvySendMsg("%s %s %s" % (msg.msg_class, msg.name, msg.payload_to_ivy_string()))
         else:
             IvySendMsg(msg)
