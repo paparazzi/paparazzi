@@ -56,6 +56,11 @@ class PprzMessage(object):
         """Get list of field values."""
         return self._fieldvalues
 
+    @property
+    def fieldtypes(self):
+        """Get list of field types."""
+        return self._fieldtypes
+
     def get_field(self, idx):
         """Get field value by index."""
         return self._fieldvalues[idx]
