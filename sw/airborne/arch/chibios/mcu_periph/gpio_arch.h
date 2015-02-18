@@ -30,20 +30,42 @@
 #ifndef GPIO_ARCH_H
 #define GPIO_ARCH_H
 
-/**
- * Set a gpio output to high level.
- */
-static inline void gpio_output_high(uint32_t port, uint16_t pin)
-{
-  palSetPad(port, pin);
-}
+#include "hal.h"
 
 /**
- * Clear a gpio output to low level.
+ * Setup one or more pins of the given GPIO port as outputs.
+ * Shouldn't be used as gpio config is done in HAL
  */
-static inline void gpio_output_low(uint32_t port, uint16_t pin)
-{
-  palClearPad(port, pin);
-}
+static inline void gpio_setup_output(uint32_t port __attribute__((unused)),
+		uint16_t gpios __attribute__((unused))) {}
+
+/**
+ * Setup one or more pins of the given GPIO port as inputs.
+ * Shouldn't be used as gpio config is done in HAL
+ */
+static inline void gpio_setup_intput(uint32_t port __attribute__((unused)),
+		uint16_t gpios __attribute__((unused))) {}
+
+
+/**
+ * Macro: Set a gpio output to high level.
+ * @param[in] port
+ * @param[in] pin
+ */
+#define gpio_set(_port, _pin) palSetPad(_port, _pin)
+
+/**
+ * Macro: Clear a gpio output to low level.
+ * @param[in] port
+ * @param[in] pin
+ */
+#define gpio_clear(_port, _pin) palClearPad(_port, _pin)
+
+/**
+ * Macro: Toggle a gpio output to low level.
+ * @param[in] port
+ * @param[in] pin
+ */
+#define gpio_toggle(_port,_pin) palTogglePad(_port, _pin)
 
 #endif /* GPIO_ARCH_H */

@@ -36,7 +36,6 @@
 #include "hal.h"
 /* Paparazzi includes */
 #include "mcu.h"
-#include "std.h"
 
 
 /*

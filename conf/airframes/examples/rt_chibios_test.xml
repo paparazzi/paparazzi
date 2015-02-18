@@ -7,7 +7,9 @@
 <airframe name="Chibios TEST suite">
 
   <firmware name="test_chibios">
-    <target name="test_sys_time_timer" board="lisa_mx_rt"/>
+    <target name="test_sys_time_timer"  board="lisa_mx_rt"/>
+    <target name="test_sys_time_usleep" board="lisa_mx_rt"/>
+    <target name="test_sys_gpio" board="lisa_mx_rt"/>
   </firmware>
 
 </airframe>

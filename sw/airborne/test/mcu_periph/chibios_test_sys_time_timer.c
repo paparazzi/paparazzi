@@ -23,14 +23,10 @@
 #include "ch.h"
 
 /* paparazzi includes */
-#include "std.h"
 #include "mcu.h"
 #include "led.h"
-#include "mcu_periph/sys_time.h"
 
-#define FREQUENCY_02 1./0.2
-#define FREQUENCY_03 1./0.3
-#define FREQUENCY_05 1./0.5
+#include "std.h"
 
 /*
  * Thread Area Definitions
@@ -64,7 +60,7 @@ static __attribute__((noreturn)) msg_t thd_main_periodic_02(void *arg)
   systime_t time = chTimeNow();
   while (TRUE)
   {
-    time += US2ST(1000000/FREQUENCY_02);
+    time += MS2ST(200);
 #ifdef LED_GREEN
       LED_TOGGLE(LED_GREEN);
 #endif
@@ -85,7 +81,7 @@ static __attribute__((noreturn)) msg_t thd_main_periodic_03(void *arg)
   systime_t time = chTimeNow();
   while (TRUE)
   {
-    time += US2ST(1000000/FREQUENCY_03);
+    time += MS2ST(300);
 #ifdef SYS_TIME_LED
       LED_TOGGLE(SYS_TIME_LED);
 #endif
@@ -106,7 +102,7 @@ static __attribute__((noreturn)) msg_t thd_main_periodic_05(void *arg)
   systime_t time = chTimeNow();
   while (TRUE)
   {
-    time += US2ST(1000000/FREQUENCY_05);
+    time += MS2ST(500);
 #ifdef LED_RED
       LED_TOGGLE(LED_RED);
 #endif

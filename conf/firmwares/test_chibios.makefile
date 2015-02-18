@@ -74,10 +74,20 @@ COMMON_TELEMETRY_SRCS   += subsystems/datalink/downlink.c subsystems/datalink/pp
 #
 # test sys_time
 #
-LED_DEFINES ?= -DLED_RED=2 -DLED_GREEN=3
+LED_DEFINES ?= -DLED_RED=4 -DLED_GREEN=3
 
 test_sys_time_timer.ARCHDIR = $(ARCH)
 test_sys_time_timer.CFLAGS += $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
 test_sys_time_timer.srcs   += $(COMMON_TEST_SRCS)
 test_sys_time_timer.srcs   += test/mcu_periph/chibios_test_sys_time_timer.c
+
+test_sys_time_usleep.ARCHDIR = $(ARCH)
+test_sys_time_usleep.CFLAGS += $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
+test_sys_time_usleep.srcs   += $(COMMON_TEST_SRCS)
+test_sys_time_usleep.srcs   += test/mcu_periph/chibios_test_sys_time_usleep.c
+
+test_sys_gpio.ARCHDIR = $(ARCH)
+test_sys_gpio.CFLAGS += $(COMMON_TEST_CFLAGS) 
+test_sys_gpio.srcs   += $(COMMON_TEST_SRCS)
+test_sys_gpio.srcs   += test/mcu_periph/chibios_test_gpio.c
 

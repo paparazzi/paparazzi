@@ -51,5 +51,7 @@ extern uint8_t cpu_frequency;
 
 extern uint32_t get_sys_time_usec(void);
 extern void sys_time_usleep(uint32_t us);
+extern void sys_time_msleep(uint16_t ms);
+extern void sys_time_ssleep(uint8_t s);
 
 #endif /* SYS_TIME_ARCH_H */

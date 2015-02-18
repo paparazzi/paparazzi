@@ -55,7 +55,23 @@ uint32_t get_sys_time_usec(void)
   return (uint32_t)(chTimeNow() / CH_FREQUENCY * 1000000);
 }
 
+/**
+ * sys_time_usleep(uint32_t us)
+ * Use only for up to 2^32/CH_FREQUENCY-1 usec
+ * e.g. if CH_FREQUENCY=10000 use max for 420000 us
+ * or 420ms, otherwise overflow happens
+ */
 void sys_time_usleep(uint32_t us)
 {
   chThdSleep(US2ST(us));
+}
+
+void sys_time_msleep(uint16_t ms)
+{
+  chThdSleep(MS2ST(ms));
+}
+
+void sys_time_ssleep(uint8_t s)
+{
+  chThdSleep(S2ST(s));
 }
