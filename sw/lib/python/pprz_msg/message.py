@@ -60,8 +60,15 @@ class PprzMessage(object):
         """Get field value by index."""
         return self._fieldvalues[idx]
 
+    def __getattr__(self, attr):
+        # Try to dynamically return the field value for the given name
+        for idx, f in enumerate(self.fieldnames):
+            if f == attr:
+                return self.fieldvalues[idx]
+        raise AttributeError("No such attribute %s" % attr)
+
     def set_values(self, values):
-        if len(values) == len(self._fieldnames):
+        if len(values) == len(self.fieldnames):
             self._fieldvalues = values
         else:
             raise PprzMessageError("Error: fields not matching")
