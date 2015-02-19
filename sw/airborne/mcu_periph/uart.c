@@ -220,17 +220,6 @@ bool_t uart_check_free_space(struct uart_periph *p, uint8_t len)
 }
 
 
-uint8_t uart_getch(struct uart_periph *p)
-{
-#if USE_CHIBIOS_RTOS
-  uint8_t ret = (uint8_t)sdGet((SerialDriver*)(p->reg_addr));
-#else
-  uint8_t ret = p->rx_buf[p->rx_extract_idx];
-  p->rx_extract_idx = (p->rx_extract_idx + 1) % UART_RX_BUFFER_SIZE;
-#endif /* USE_CHIBIOS_RTOS */
-  return ret;
-}
-
 void WEAK uart_event(void)
 {
 

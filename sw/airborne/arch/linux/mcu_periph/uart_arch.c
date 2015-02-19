@@ -140,6 +140,13 @@ static inline void uart_handler(struct uart_periph *periph)
 
 }
 
+uint8_t uart_getch(struct uart_periph *p)
+{
+  uint8_t ret = p->rx_buf[p->rx_extract_idx];
+  p->rx_extract_idx = (p->rx_extract_idx + 1) % UART_RX_BUFFER_SIZE;
+  return ret;
+}
+
 void uart_event(void)
 {
 #if USE_UART0

@@ -120,6 +120,12 @@ void uart5_init(void)
 }
 #endif
 
+
+uint8_t uart_getch(struct uart_periph *p)
+{
+  return (uint8_t)sdGet((SerialDriver*)(p->reg_addr));
+}
+
 /**
  * Set baudrate (from the serialConfig)
  * @note Baudrate is set in sdStart, no need for implementation
