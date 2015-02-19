@@ -140,8 +140,9 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
        $(CHIBIOS)/os/various/chprintf.c \
        $(CHIBIOS)/os/various/shell.c \
-       $(CHIBIOS_BOARD_MAIN) \
-       $($(TARGET).srcs)
+       $(CHIBIOS_BOARD_MAIN) 
+       
+ECSRC = $($(TARGET).srcs)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

@@ -103,13 +103,9 @@ test_sys_gpio.srcs   += test/mcu_periph/chibios_test_gpio.c
 test_shell.ARCHDIR = $(ARCH)
 test_shell.CFLAGS += $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
 test_shell.srcs   += $(COMMON_TEST_SRCS)
-# uart.c is conflicting with the same filename in Chibios
-# since ChibiOS builds firts, during linking there are unmet dependencies
-# and the build process fails. Hence it is necessary to use simlink
-# mcu_periph/uart_pprz.c -> mcu_periph/uart.c
-test_shell.srcs += mcu_periph/uart_pprz.c
+test_shell.srcs += mcu_periph/uart.c
 test_shell.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-test_shell.srcs += test/mcu_periph/chibios_test_shell.c
+test_shell.srcs += test/chibios_test_shell.c
 
 #
 # test serial ports
@@ -117,10 +113,6 @@ test_shell.srcs += test/mcu_periph/chibios_test_shell.c
 test_serial.ARCHDIR = $(ARCH)
 test_serial.CFLAGS += $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
 test_serial.srcs   += $(COMMON_TEST_SRCS)
-# uart.c is conflicting with the same filename in Chibios
-# since ChibiOS builds firts, during linking there are unmet dependencies
-# and the build process fails. Hence it is necessary to use simlink
-# mcu_periph/uart_pprz.c -> mcu_periph/uart.c
-test_serial.srcs += mcu_periph/uart_pprz.c
+test_serial.srcs += mcu_periph/uart.c
 test_serial.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_serial.srcs += test/mcu_periph/chibios_test_serial.c
