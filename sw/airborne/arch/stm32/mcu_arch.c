@@ -83,7 +83,7 @@ void mcu_arch_init(void)
    * this was previously in i2c driver
    * FIXME is it really needed ?
    */
-#ifndef USE_CHIBIOS_RTOS
+#ifndef USE_CHIBIOS_LIBOPENCM3
   scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
 #endif
 
