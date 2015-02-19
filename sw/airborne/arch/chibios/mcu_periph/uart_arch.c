@@ -147,9 +147,9 @@ void uart_transmit(struct uart_periph *p, uint8_t data)
 * uint8_t tx_switch[10] = { 0x01, 0x08, 0x12, 0x34, 0x56, 0x78, 0x12, 0x34, '\r' };
 * uart_transmit_buffer(&uart2, tx_switch, sizeof(tx_switch));
 */
-void uart_transmit_buffer(struct uart_periph *p, uint8_t *data_buffer, size_t length)
+void uart_transmit_buffer(struct uart_periph *p, uint8_t *data_buffer, uint16_t length)
 {
-  sdWrite((SerialDriver *)p->reg_addr, data_buffer, length);
+  sdWrite((SerialDriver *)p->reg_addr, data_buffer, (size_t)length);
 }
 
 /**
