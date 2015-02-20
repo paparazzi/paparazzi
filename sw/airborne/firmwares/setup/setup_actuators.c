@@ -152,34 +152,34 @@ void dl_parse_msg(void)
     LED_TOGGLE(2);
 
 #ifdef SERVO_0
-    ActuatorSet(0, actuators[SERVO_0_IDX];
+    ActuatorSet(0, actuators[SERVO_0_IDX]);
 #endif
 #ifdef SERVO_1
-                ActuatorSet(1, actuators[SERVO_1_IDX]);
+    ActuatorSet(1, actuators[SERVO_1_IDX]);
 #endif
 #ifdef SERVO_2
-                ActuatorSet(2, actuators[SERVO_2_IDX]);
+    ActuatorSet(2, actuators[SERVO_2_IDX]);
 #endif
 #ifdef SERVO_3
-                ActuatorSet(3, actuators[SERVO_3_IDX]);
+    ActuatorSet(3, actuators[SERVO_3_IDX]);
 #endif
 #ifdef SERVO_4
-                ActuatorSet(4, actuators[SERVO_4_IDX]);
+    ActuatorSet(4, actuators[SERVO_4_IDX]);
 #endif
 #ifdef SERVO_5
-                ActuatorSet(5, actuators[SERVO_5_IDX]);
+    ActuatorSet(5, actuators[SERVO_5_IDX]);
 #endif
 #ifdef SERVO_6
-                ActuatorSet(6, actuators[SERVO_6_IDX]);
+    ActuatorSet(6, actuators[SERVO_6_IDX]);
 #endif
 #ifdef SERVO_7
-                ActuatorSet(7, actuators[SERVO_7_IDX]);
+    ActuatorSet(7, actuators[SERVO_7_IDX]);
 #endif
 #ifdef SERVO_8
-                ActuatorSet(8, actuators[SERVO_8_IDX]);
+    ActuatorSet(8, actuators[SERVO_8_IDX]);
 #endif
 
-                DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
+    DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
   } else if (msg_id == DL_GET_SETTING && DL_GET_SETTING_ac_id(dl_buffer) == AC_ID) {
     uint8_t i = DL_GET_SETTING_index(dl_buffer);
     float val = settings_get_value(i);
