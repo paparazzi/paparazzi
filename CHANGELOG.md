@@ -1,3 +1,8 @@
+- GCS: fix undo for list of values
+  [#1054] (https://github.com/paparazzi/paparazzi/issues/1054)
+- lisa_mx: fix secondary spektrum satellite UART AF
+- logalizer: fix csv export after allowing description tag in messages
+
 Paparazzi 5.4.1_stable
 ======================
 
