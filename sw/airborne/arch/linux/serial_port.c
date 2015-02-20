@@ -69,6 +69,9 @@ int  serial_port_open_raw(struct SerialPort *me, const char *device, speed_t spe
   /* local modes  */
   me->cur_termios.c_lflag &= ~(ISIG | ICANON | IEXTEN | ECHO | FLUSHO | PENDIN);
   me->cur_termios.c_lflag |= NOFLSH;
+  /* output modes */
+  me->cur_termios.c_oflag &=~(OPOST|ONLCR|OCRNL|ONOCR|ONLRET);
+
   if (cfsetispeed(&me->cur_termios, speed)) {
     TRACE(TRACE_ERROR, "%s, set term speed failed: %s (%d)\n", device, strerror(errno), errno);
     close(me->fd);
