@@ -60,6 +60,8 @@ static inline void main_init(void)
 {
   mcu_init();
 
+  downlink_init();
+
   actuators_init();
   uint8_t i;
   for (i = 0; i < ACTUATORS_NB; i++) {
@@ -84,6 +86,11 @@ static inline void main_periodic(void)
 
 static inline void main_event(void)
 {
+#if USE_UDP
+  udp_event();
+#else
+  uart_event();
+#endif
   DatalinkEvent();
 }
 
