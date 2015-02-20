@@ -60,6 +60,8 @@ static inline void main_init(void)
 {
   mcu_init();
 
+  downlink_init();
+
   actuators_init();
   uint8_t i;
   for (i = 0; i < ACTUATORS_NB; i++) {
