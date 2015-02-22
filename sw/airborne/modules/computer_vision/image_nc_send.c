@@ -35,7 +35,7 @@
 #include <sys/wait.h>
 
 // Video
-#include "modules/computer_vision/lib/v4l/video.h"
+#include "modules/computer_vision/lib/v4l/v4l2.h"
 #include "modules/computer_vision/cv/resize.h"
 #include "modules/computer_vision/cv/encoding/jpeg.h"
 

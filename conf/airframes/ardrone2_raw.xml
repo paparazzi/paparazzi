@@ -29,7 +29,7 @@
     <load name="gps_ubx_ucenter.xml"/>
     <load name="send_imu_mag_current.xml"/>
     <load name="file_logger.xml"/>
-    <load name="video_rtp_stream.xml"/>
+    <!--load name="video_rtp_stream.xml"/-->
   </modules>
 
   <commands>

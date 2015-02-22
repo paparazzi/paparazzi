@@ -36,7 +36,7 @@
 // COMPUTER VISION THREAD
 
 // Video
-#include "v4l/video.h"
+#include "v4l/v4l2.h"
 #include "resize.h"
 
 // Payload Code

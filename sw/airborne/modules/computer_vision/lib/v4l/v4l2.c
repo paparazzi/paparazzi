@@ -21,7 +21,7 @@
  */
 
 /**
- * @file modules/computer_vision/lib/v4l/v4l.c
+ * @file modules/computer_vision/lib/v4l/v4l2.c
  * Capture images from a V4L2 device (Video for Linux 2)
  */
 
@@ -35,11 +35,12 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <linux/videodev2.h>
+#include <linux/v4l2-subdev.h>
 #include <pthread.h>
 
-#include "video.h"
+#include "v4l2.h"
 
-#define CLEAR(x) memset (&(x), 0, sizeof (x))
+#define CLEAR(x) memset(&(x), 0, sizeof (x))
 static void *v4l2_capture_thread(void *data);
 
 /**
@@ -69,13 +70,12 @@ static void *v4l2_capture_thread(void *data)
       if (EINTR == errno) { continue; }
       printf("[v4l2-capture] Select error %d on %s: %s\n", errno, dev->name, strerror(errno));
       dev->thread = (pthread_t) NULL;
-      return (void *) -1;
-    }
-    else if(sr == 0) {
+      return (void *) - 1;
+    } else if (sr == 0) {
       printf("[v4l2-capture] Select timeout on %s\n", dev->name);
       //continue;
       dev->thread = (pthread_t) NULL;
-      return (void *) -2;
+      return (void *) - 2;
     }
 
     // Dequeue a buffer
@@ -85,41 +85,87 @@ static void *v4l2_capture_thread(void *data)
     if (ioctl(dev->fd, VIDIOC_DQBUF, &buf) < 0) {
       printf("[v4l2-capture] Dequeue of buffer failed for %s.\n", dev->name);
       dev->thread = (pthread_t) NULL;
-      return (void *) -3;
+      return (void *) - 3;
     }
     assert(buf.index < dev->buffers_cnt);
 
-    //printf("Got image %d %d\n",  buf.timestamp.tv_sec, buf.timestamp.tv_usec);
+    // Update the dequeued id
+    // We need lock because between setting prev_idx and updating the deq_idx the deq_idx could change
+    pthread_mutex_lock(&dev->mutex);
+    uint16_t prev_idx = dev->buffers_deq_idx;
+    dev->buffers_deq_idx = buf.index;
+    pthread_mutex_unlock(&dev->mutex);
 
-    // Check if the current image is being processed
-    struct v4l2_img_buf *prev_img = &dev->buffers[dev->buffers_deq_idx];
-    if (dev->buffers_deq_idx != 255 && pthread_mutex_trylock(&prev_img->mutex) == 0) {
-      // Change the current dequeued index
-      dev->buffers_deq_idx = buf.index;
-
+    // Enqueue the previous image if not empty
+    if (prev_idx != V4L2_IMG_NONE) {
       // Enqueue the previous buffer
-      buf.index = prev_img->idx;
+      CLEAR(buf);
+      buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+      buf.memory = V4L2_MEMORY_MMAP;
+      buf.index = prev_idx;
       if (ioctl(dev->fd, VIDIOC_QBUF, &buf) < 0) {
-        printf("[v4l2-capture] Could not enqueue %d for %s\n", prev_img->idx, dev->name);
+        printf("[v4l2-capture] Could not enqueue %d for %s\n", prev_idx, dev->name);
       }
-      pthread_mutex_unlock(&prev_img->mutex);
     }
-    // Image is being processed so enqueue is done after processing
-    else {
-      // Change the current index
-      dev->buffers_deq_idx = buf.index;
-      //printf("[v4l2-capture] No enqueue, keep image and buffers_deq_idx: %d\n", dev->buffers_deq_idx);
-    }
+
   }
   return (void *)0;
 }
 
 /**
+ * Initialize a V4L2 subdevice.
+ * The subdevice name should be something like '/dev/v4l-subdev0'
+ * The pad and which indicate the way the subdevice should communicate
+ * with the real device. Which pad it should take.
+ * Code should be something like V4L2_MBUS_FMT_UYVY8_2X8. See the V4l2
+ * manual for available codes.
+ * Width and height are the amount of pixels this subdevice must cover.
+ */
+bool_t v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t code, uint16_t width, uint16_t height)
+{
+  struct v4l2_subdev_format sfmt;
+  CLEAR(sfmt);
+
+  // Try to open the subdevice
+  int fd = open(subdev_name, O_RDWR, 0);
+  if (fd < 0) {
+    printf("[v4l2] Cannot open subdevice '%s': %d, %s\n", subdev_name, errno, strerror(errno));
+    return FALSE;
+  }
+
+  // Try to get the subdevice data format settings
+  if (ioctl(fd, VIDIOC_SUBDEV_G_FMT, &sfmt) < 0) {
+    printf("[v4l2] Could not get subdevice data format settings of %s\n", subdev_name);
+    close(fd);
+    return FALSE;
+  }
+
+  // Set the new settings
+  sfmt.pad = pad;
+  sfmt.which = which;
+  sfmt.format.width = width;
+  sfmt.format.height = height;
+  sfmt.format.code = code;
+  sfmt.format.field = V4L2_FIELD_NONE;
+  sfmt.format.colorspace = 1;
+
+  if (ioctl(fd, VIDIOC_SUBDEV_S_FMT, &sfmt) < 0) {
+    printf("[v4l2] Could not set subdevice data format settings of %s\n", subdev_name);
+    close(fd);
+    return FALSE;
+  }
+
+  // Close the device
+  close(fd);
+  return TRUE;
+}
+
+/**
  * Initialize a V4L2(Video for Linux 2) device
  * The device name should be something like "/dev/video1"
- * When the width and height are 0 the width and height of the device is queried
+ * The subdevice name can be empty if there is no subdevice
  * The buffer_cnt are the amount of buffers used in memory mapping
- * Not that you need to close this device at the end of you program!
+ * Note that you need to close this device at the end of you program!
  */
 struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height, uint8_t buffers_cnt) {
   uint8_t i;
@@ -162,7 +208,8 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   fmt.fmt.pix.width = width;
   fmt.fmt.pix.height = height;
-  fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_UYVY;
+  fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_UYVY;//V4L2_PIX_FMT_NV12;//V4L2_PIX_FMT_SGRBG12;//V4L2_PIX_FMT_UYVY;
+  fmt.fmt.pix.field = V4L2_FIELD_NONE;
 
   if (ioctl(fd, VIDIOC_S_FMT, &fmt) < 0) {
     printf("[v4l2] Could not set data format settings of %s\n", device_name);
@@ -214,6 +261,7 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
       close(fd);
       return NULL;
     }
+    printf("[v4l2] Mapping buffer %d with length %d from %s\n", i, buf.length, device_name);
   }
 
   // Create the device only when everything succeeded
@@ -235,16 +283,26 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
  * Make sure you free the image after processing!
  */
 struct v4l2_img_buf *v4l2_image_get(struct v4l2_device *dev) {
-  // Try to get access to the current image
-  uint16_t deq_idx = dev->buffers_deq_idx;
-  while (TRUE) {
-    if(deq_idx != 255 && pthread_mutex_trylock(&dev->buffers[deq_idx].mutex) == 0)
-      break;
+  uint16_t img_idx = V4L2_IMG_NONE;
 
-    deq_idx = dev->buffers_deq_idx;
-    usleep(1);
+  // Continu to wait for an image
+  while (img_idx == V4L2_IMG_NONE) {
+    // We first check if the deq_idx is ok, this reduces the amount of locks
+    if (dev->buffers_deq_idx != V4L2_IMG_NONE) {
+      pthread_mutex_lock(&dev->mutex);
+
+      // We need to check it here again, because it could be changed
+      if (dev->buffers_deq_idx != V4L2_IMG_NONE) {
+        img_idx = dev->buffers_deq_idx;
+        dev->buffers_deq_idx = V4L2_IMG_NONE;
+      }
+
+      pthread_mutex_unlock(&dev->mutex);
+    }
   }
-  return &dev->buffers[deq_idx];
+
+  // Rreturn the image
+  return &dev->buffers[img_idx];
 }
 
 /**
@@ -253,11 +311,22 @@ struct v4l2_img_buf *v4l2_image_get(struct v4l2_device *dev) {
  * Make sure you free the image after processing!
  */
 struct v4l2_img_buf *v4l2_image_get_nonblock(struct v4l2_device *dev) {
-  struct v4l2_img_buf *img_buf = &dev->buffers[dev->buffers_deq_idx];
-  if (dev->buffers_deq_idx == 255 || pthread_mutex_trylock(&img_buf->mutex) != 0) {
-    return NULL;
+  uint16_t img_idx = V4L2_IMG_NONE;
+
+  // Try to get the current image
+  pthread_mutex_lock(&dev->mutex);
+  if (dev->buffers_deq_idx != V4L2_IMG_NONE) {
+    img_idx = dev->buffers_deq_idx;
+    dev->buffers_deq_idx = V4L2_IMG_NONE;
   }
-  return img_buf;
+  pthread_mutex_unlock(&dev->mutex);
+
+  // Check if we really got an image
+  if (img_idx == V4L2_IMG_NONE) {
+    return NULL;
+  } else {
+    return &dev->buffers[img_idx];
+  }
 }
 
 /**
@@ -276,13 +345,6 @@ void v4l2_image_free(struct v4l2_device *dev, struct v4l2_img_buf *img_buf)
   if (ioctl(dev->fd, VIDIOC_QBUF, &buf) < 0) {
     printf("[v4l2] Could not enqueue %d for %s\n", img_buf->idx, dev->name);
   }
-
-  //RACE CONDITION!!
-  if(dev->buffers_deq_idx == img_buf->idx)
-    dev->buffers_deq_idx = 255;
-
-  // Unlock the buffer
-  pthread_mutex_unlock(&img_buf->mutex);
 }
 
 /**
@@ -302,7 +364,7 @@ bool_t v4l2_start_capture(struct v4l2_device *dev)
   }
 
   // Enqueue all buffers
-  dev->buffers_deq_idx = 255; // Set none to dequeued
+  dev->buffers_deq_idx = V4L2_IMG_NONE;
   for (i = 0; i < dev->buffers_cnt; ++i) {
     struct v4l2_buffer buf;
 
@@ -319,7 +381,7 @@ bool_t v4l2_start_capture(struct v4l2_device *dev)
   // Start the stream
   type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if (ioctl(dev->fd, VIDIOC_STREAMON, &type) < 0) {
-    printf("[v4l2] Could not start stream of %s\n", dev->name);
+    printf("[v4l2] Could not start stream of %s, %d %s\n", dev->name, errno, strerror(errno));
     return FALSE;
   }
 
@@ -391,11 +453,9 @@ void v4l2_close(struct v4l2_device *dev)
 
   // Unmap all buffers
   for (i = 0; i < dev->buffers_cnt; ++i) {
-    pthread_mutex_lock(&dev->buffers[i].mutex);
     if (munmap(dev->buffers[i].buf, dev->buffers[i].length) < 0) {
       printf("[v4l2] Could not unmap buffer %d for %s\n", i, dev->name);
     }
-    pthread_mutex_unlock(&dev->buffers[i].mutex);
   }
 
   // Close the file pointer and free all memory

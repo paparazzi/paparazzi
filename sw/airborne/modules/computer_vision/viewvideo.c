@@ -40,7 +40,7 @@
 // UDP RTP Images
 #include "modules/computer_vision/lib/udp/socket.h"
 // Video
-#include "modules/computer_vision/lib/v4l/video.h"
+#include "modules/computer_vision/lib/v4l/v4l2.h"
 #include "modules/computer_vision/cv/resize.h"
 #include "modules/computer_vision/cv/encoding/jpeg.h"
 #include "modules/computer_vision/cv/encoding/rtp.h"

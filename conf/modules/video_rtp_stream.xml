@@ -31,14 +31,14 @@
     <file name="jpeg.c" dir="modules/computer_vision/cv/encoding"/>
     <file name="rtp.c" dir="modules/computer_vision/cv/encoding"/>
     <file name="socket.c" dir="modules/computer_vision/lib/udp"/>
-    <file name="video.c" dir="modules/computer_vision/lib/v4l"/>
+    <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
     <define name="modules/computer_vision/cv" type="include"/>
     <define name="modules/computer_vision/lib" type="include"/>
     <define name="pthread" type="raw"/>
     <define name="__USE_GNU"/>
     <flag name="LDFLAGS" value="pthread"/>
     <flag name="LDFLAGS" value="lrt"/>
-    <flag name="LDFLAGS" value="static"/>
+    <flag name="LDFLAGS" value="static-libgcc"/>
   </makefile>
   <makefile target="nps">
     <file name="viewvideo_nps.c"/>
