@@ -105,8 +105,11 @@ void *sys_time_thread_main(void *data)
     if (missed > 1) {
       printf("Missed %lld timer events!\n", missed);
     }
-    /* advance sys_time */
-    sys_tick_handler();
+    /* advance sys_time, in case we missed some events: call it more than once */
+    unsigned int i;
+    for (i = 0; i < missed; i++) {
+      sys_tick_handler();
+    }
   }
   return NULL;
 }
