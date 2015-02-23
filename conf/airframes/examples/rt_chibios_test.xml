@@ -18,6 +18,7 @@
       <define name="SERIAL_PORT" value="uart3"/>
       <define name="UART3_BAUD" value="B57600"/>
     </target>
+    <target name="test_telemetry" board="lisa_mx_rt"/>
   </firmware>
 
 </airframe>

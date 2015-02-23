@@ -47,7 +47,7 @@ SYS_TIME_LED       ?= 1
 #
 # default uart configuration
 #
-MODEM_PORT ?= UART2
+MODEM_PORT ?= UART3
 MODEM_BAUD ?= B57600
 
 GPS_PORT ?= UART5
