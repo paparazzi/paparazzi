@@ -30,8 +30,10 @@
 #include "mcu_arch.h"
 
 #if USE_LINUX_SIGNAL
+#include "message_pragmas.h"
+PRINT_CONFIG_MSG("Catching SIGINT. Press CTRL-C twice to stop program.")
 
-/**
+/*
  * Handle linux signals by hand if the program is not launch
  * by a shell already doing it
  */
@@ -61,7 +63,11 @@ static void sig_handler(int signo)
 
 void mcu_arch_init(void)
 {
-  if (signal(SIGINT, sig_handler) == SIG_ERR) {
+  struct sigaction sa;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  sa.sa_handler = &sig_handler;
+  if (sigaction(SIGINT, &sa, NULL) == -1) {
     printf("Can't catch SIGINT\n");
   }
 }

@@ -28,6 +28,7 @@
 #include <sys/time.h>
 #include <signal.h>
 #include <string.h>
+#include <stdio.h>
 
 #ifdef SYS_TIME_LED
 #include "led.h"
@@ -45,7 +46,10 @@ void sys_time_arch_init(void)
 
   memset(&sa, 0, sizeof(sa));
   sa.sa_handler = &sys_tick_handler;
-  sigaction(SIGALRM, &sa, NULL);
+  if (sigaction(SIGALRM, &sa, NULL) == -1) {
+    printf("Couldn't set up sys_time timer!\n");
+    return;
+  }
 
   // timer expires after sys_time.resolution sec
   timer.it_value.tv_sec = 0;
