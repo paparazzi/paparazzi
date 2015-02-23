@@ -25,15 +25,17 @@
  */
 
 #include "mcu_periph/sys_time.h"
-#include <sys/time.h>
-#include <signal.h>
-#include <string.h>
 #include <stdio.h>
 #include <pthread.h>
 #include <sys/timerfd.h>
+#include "rt_priority.h"
 
 #ifdef SYS_TIME_LED
 #include "led.h"
+#endif
+
+#ifndef SYS_TIME_THREAD_PRIO
+#define SYS_TIME_THREAD_PRIO 29
 #endif
 
 pthread_t sys_time_thread;
@@ -41,31 +43,6 @@ static void sys_tick_handler(void);
 void *sys_time_thread_main(void *data);
 
 #define NSEC_OF_SEC(sec) ((sec) * 1e9)
-
-static inline int get_rt_prio(int prio)
-{
-  struct sched_param param;
-  int policy;
-  pthread_getschedparam(pthread_self(), &policy, &param);
-  printf("Current shedparam: policy %d, prio %d\n", policy, param.sched_priority);
-
-  //SCHED_RR, SCHED_FIFO, SCHED_OTHER (POSIX scheduling policies)
-  int sched = SCHED_FIFO;
-  int min = sched_get_priority_min(sched);
-  int max = sched_get_priority_max(sched);
-  printf("Current min/max prios: %d/%d\n", min, max);
-  param.sched_priority = prio;
-  if (pthread_setschedparam(pthread_self(), sched, &param)) {
-    perror("setchedparam failed!");
-    return -1;
-  }
-  else {
-    pthread_getschedparam(pthread_self(), &policy, &param);
-    printf("New shedparam: policy %d, prio %d\n", policy, param.sched_priority);
-  }
-
-  return 0;
-}
 
 void *sys_time_thread_main(void *data)
 {
@@ -78,7 +55,7 @@ void *sys_time_thread_main(void *data)
     return NULL;
   }
 
-  get_rt_prio(29);
+  get_rt_prio(SYS_TIME_THREAD_PRIO);
 
   /* Make the timer periodic */
   struct itimerspec timer;
@@ -103,7 +80,7 @@ void *sys_time_thread_main(void *data)
       perror("Couldn't read timer!");
     }
     if (missed > 1) {
-      printf("Missed %lld timer events!\n", missed);
+      fprintf(stderr, "Missed %lld timer events!\n", missed);
     }
     /* advance sys_time, in case we missed some events: call it more than once */
     unsigned int i;
@@ -116,22 +93,18 @@ void *sys_time_thread_main(void *data)
 
 void sys_time_arch_init(void)
 {
-
   sys_time.cpu_ticks_per_sec = 1e6;
   sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution * sys_time.cpu_ticks_per_sec + 0.5);
-
 
   int ret = pthread_create(&sys_time_thread, NULL, sys_time_thread_main, NULL);
   if (ret) {
     perror("Could not setup sys_time_thread");
     return;
   }
-
 }
 
 static void sys_tick_handler(void)
 {
-
   sys_time.nb_tick++;
   sys_time.nb_sec_rem += sys_time.resolution_cpu_ticks;;
   if (sys_time.nb_sec_rem >= sys_time.cpu_ticks_per_sec) {
