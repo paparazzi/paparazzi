@@ -62,13 +62,16 @@ COMMON_TEST_SRCS   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch
 
 COMMON_TEST_CFLAGS += -DUSE_LED
 
+# pprz downlink/datalink
+COMMON_TELEMETRY_CFLAGS = -DDOWNLINK -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ
+COMMON_TELEMETRY_SRCS   = subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
+
 COMMON_TELEMETRY_MODEM_PORT_LOWER=$(shell echo $(MODEM_PORT) | tr A-Z a-z)
-COMMON_TELEMETRY_CFLAGS  = -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
-COMMON_TELEMETRY_CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=pprz_tp -DDOWNLINK_DEVICE=$(COMMON_TELEMETRY_MODEM_PORT_LOWER)
-COMMON_TELEMETRY_CFLAGS += -DDATALINK=PPRZ  -DPPRZ_UART=$(MODEM_PORT)
-COMMON_TELEMETRY_SRCS    = mcu_periph/uart.c
-COMMON_TELEMETRY_SRCS   += $(SRC_ARCH)/mcu_periph/uart_arch.c
-COMMON_TELEMETRY_SRCS   += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
+COMMON_TELEMETRY_CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+COMMON_TELEMETRY_CFLAGS += -DPPRZ_UART=$(MODEM_PORT)
+COMMON_TELEMETRY_CFLAGS += -DDOWNLINK_DEVICE=$(COMMON_TELEMETRY_MODEM_PORT_LOWER)
+COMMON_TELEMETRY_SRCS  += mcu_periph/uart.c
+COMMON_TELEMETRY_SRCS  += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 LED_DEFINES ?= -DLED_RED=4 -DLED_GREEN=3
 
@@ -116,3 +119,17 @@ test_serial.srcs   += $(COMMON_TEST_SRCS)
 test_serial.srcs += mcu_periph/uart.c
 test_serial.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_serial.srcs += test/mcu_periph/chibios_test_serial.c
+
+#
+# test_telemetry : Sends ALIVE telemetry messages
+#
+# configuration
+#   MODEM_PORT :
+#   MODEM_BAUD :
+#
+test_telemetry.ARCHDIR = $(ARCH)
+test_telemetry.CFLAGS += $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
+test_telemetry.srcs   += $(COMMON_TEST_SRCS)
+test_telemetry.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_telemetry.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_telemetry.srcs   += test/chibios_test_telemetry.c
