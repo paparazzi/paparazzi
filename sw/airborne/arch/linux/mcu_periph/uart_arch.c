@@ -156,7 +156,7 @@ void uart_event(void)
 void uart0_init(void)
 {
   uart_periph_init(&uart0);
-  strcpy(uart0.dev, UART0_DEV);
+  strncpy(uart0.dev, UART0_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart0, UART0_BAUD);
 }
 #endif /* USE_UART0 */
@@ -165,7 +165,7 @@ void uart0_init(void)
 void uart1_init(void)
 {
   uart_periph_init(&uart1);
-  strcpy(uart1.dev, UART1_DEV);
+  strncpy(uart1.dev, UART1_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart1, UART1_BAUD);
 }
 #endif /* USE_UART1 */
@@ -174,7 +174,7 @@ void uart1_init(void)
 void uart2_init(void)
 {
   uart_periph_init(&uart2);
-  strcpy(uart2.dev, UART2_DEV);
+  strncpy(uart2.dev, UART2_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart2, UART2_BAUD);
 }
 #endif /* USE_UART2 */
@@ -183,7 +183,7 @@ void uart2_init(void)
 void uart3_init(void)
 {
   uart_periph_init(&uart3);
-  strcpy(uart3.dev, UART3_DEV);
+  strncpy(uart3.dev, UART3_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart3, UART3_BAUD);
 }
 #endif /* USE_UART3 */
@@ -192,7 +192,7 @@ void uart3_init(void)
 void uart4_init(void)
 {
   uart_periph_init(&uart4);
-  strcpy(uart4.dev, UART4_DEV);
+  strncpy(uart4.dev, UART4_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart4, UART4_BAUD);
 }
 #endif /* USE_UART4 */
@@ -201,7 +201,7 @@ void uart4_init(void)
 void uart5_init(void)
 {
   uart_periph_init(&uart5);
-  strcpy(uart5.dev, UART5_DEV);
+  strncpy(uart5.dev, UART5_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart5, UART5_BAUD);
 }
 #endif /* USE_UART5 */
@@ -210,7 +210,7 @@ void uart5_init(void)
 void uart6_init(void)
 {
   uart_periph_init(&uart6);
-  strcpy(uart6.dev, UART6_DEV);
+  strncpy(uart6.dev, UART6_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart6, UART6_BAUD);
 }
 #endif /* USE_UART6 */
