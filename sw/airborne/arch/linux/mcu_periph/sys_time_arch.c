@@ -42,6 +42,31 @@ void *sys_time_thread_main(void *data);
 
 #define NSEC_OF_SEC(sec) ((sec) * 1e9)
 
+static inline int get_rt_prio(int prio)
+{
+  struct sched_param param;
+  int policy;
+  pthread_getschedparam(pthread_self(), &policy, &param);
+  printf("Current shedparam: policy %d, prio %d\n", policy, param.sched_priority);
+
+  //SCHED_RR, SCHED_FIFO, SCHED_OTHER (POSIX scheduling policies)
+  int sched = SCHED_FIFO;
+  int min = sched_get_priority_min(sched);
+  int max = sched_get_priority_max(sched);
+  printf("Current min/max prios: %d/%d\n", min, max);
+  param.sched_priority = prio;
+  if (pthread_setschedparam(pthread_self(), sched, &param)) {
+    perror("setchedparam failed!");
+    return -1;
+  }
+  else {
+    pthread_getschedparam(pthread_self(), &policy, &param);
+    printf("New shedparam: policy %d, prio %d\n", policy, param.sched_priority);
+  }
+
+  return 0;
+}
+
 void *sys_time_thread_main(void *data)
 {
   int fd;
@@ -52,6 +77,8 @@ void *sys_time_thread_main(void *data)
     perror("Could not set up timer.");
     return NULL;
   }
+
+  get_rt_prio(29);
 
   /* Make the timer periodic */
   struct itimerspec timer;
