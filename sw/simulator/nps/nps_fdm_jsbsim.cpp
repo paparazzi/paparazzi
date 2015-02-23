@@ -37,6 +37,7 @@
 #pragma GCC diagnostic pop
 
 #include <FGJSBBase.h>
+#include <initialization/FGInitialCondition.h>
 #include <models/FGPropulsion.h>
 #include <models/FGGroundReactions.h>
 #include <models/FGAccelerations.h>
@@ -230,7 +231,7 @@ static void feed_jsbsim(double* commands, int commands_nb) {
   for (i=0; i < commands_nb; i++) {
     sprintf(buf,"fcs/%s",names[i]);
     property = string(buf);
-    FDMExec->GetPropertyManager()->SetDouble(property,commands[i]);
+    FDMExec->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
   }
 
 }
@@ -241,8 +242,7 @@ static void feed_jsbsim(double* commands, int commands_nb) {
  */
 static void fetch_state(void) {
 
-  FGPropertyManager* node = FDMExec->GetPropertyManager()->GetNode("simulation/sim-time-sec");
-  fdm.time = node->getDoubleValue();
+  fdm.time = FDMExec->GetPropertyManager()->GetNode("simulation/sim-time-sec")->getDoubleValue();
 
 #if DEBUG_NPS_JSBSIM
   printf("%f,",fdm.time);
@@ -395,7 +395,7 @@ static void init_jsbsim(double dt) {
   // LLA initial coordinates (geodetic lat, geoid alt)
   struct LlaCoor_d lla0;
 
-  JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
+  FGInitialCondition *IC = FDMExec->GetIC();
   if(!jsbsim_ic_name.empty()) {
     if ( ! IC->Load(jsbsim_ic_name)) {
 #ifdef DEBUG
