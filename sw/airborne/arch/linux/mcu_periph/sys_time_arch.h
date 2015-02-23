@@ -31,8 +31,6 @@
 #include "std.h"
 #include <unistd.h>
 
-extern void sys_tick_handler(int signum);
-
 /**
  * Get the time in microseconds since startup.
  * WARNING: overflows after 71min34seconds!

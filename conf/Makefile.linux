@@ -65,7 +65,7 @@ CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(USER_CFLAGS)
 
-LDFLAGS += -lm
+LDFLAGS += -lm -pthread
 
 CXXFLAGS += -O$(OPT) -fPIC
 CXXFLAGS += -pipe -fshow-column -ffast-math
