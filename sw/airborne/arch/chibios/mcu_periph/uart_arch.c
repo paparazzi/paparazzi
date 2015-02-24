@@ -46,6 +46,7 @@ static const SerialConfig usart1_config = {
 };
 void uart1_init(void)
 {
+  uart_periph_init(&uart1);
   sdStart(&SD1, &usart1_config);
   uart1.reg_addr = &SD1;
 }
@@ -64,6 +65,7 @@ static const SerialConfig usart2_config = {
 };
 void uart2_init(void)
 {
+  uart_periph_init(&uart2);
   sdStart(&SD2, &usart2_config);
   uart2.reg_addr = &SD2;
 }
@@ -81,6 +83,7 @@ static const SerialConfig usart3_config = {
 };
 void uart3_init(void)
 {
+  uart_periph_init(&uart3);
   sdStart(&SD3, &usart3_config);
   uart3.reg_addr = &SD3;
 }
@@ -98,6 +101,7 @@ static const SerialConfig usart4_config = {
 };
 void uart4_init(void)
 {
+  uart_periph_init(&uart4);
   sdStart(&SD4, &usart4_config);
   uart4.reg_addr = &SD4;
 }
@@ -115,6 +119,7 @@ static const SerialConfig usart5_config = {
 };
 void uart5_init(void)
 {
+  uart_periph_init(&uart5);
   sdStart(&SD5, &usart5_config);
   uart5.reg_addr = &SD5;
 }

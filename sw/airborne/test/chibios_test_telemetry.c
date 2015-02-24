@@ -57,6 +57,18 @@ static msg_t ThdBlinker(void *arg) {
   return 0;
 }
 
+static WORKING_AREA(waThdTx, 1024);
+static msg_t ThdTx(void *arg) {
+
+  (void)arg;
+  chRegSetThreadName("sender");
+  while (TRUE) {
+    DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
+    chThdSleepMilliseconds(100);
+  }
+  return 0;
+}
+
 
 int main(void)
 {
@@ -68,14 +80,10 @@ int main(void)
    * Creates the blinker thread.
    */
   chThdCreateStatic(waThdBlinker, sizeof(waThdBlinker), NORMALPRIO, ThdBlinker, NULL);
+  chThdCreateStatic(waThdTx, sizeof(waThdTx), NORMALPRIO, ThdTx, NULL);
 
   while (TRUE) {
-    DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
-
-#ifdef LED_GREEN
-    LED_TOGGLE(LED_GREEN);
-#endif
-    chThdSleep(MS2ST(100));
+    chThdSleep(S2ST(1));
   }
 
   return 0;
