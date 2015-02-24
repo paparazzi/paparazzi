@@ -198,14 +198,14 @@ bool_t navdata_init()
   navdata_write(&cmd, 1);
 
   // read some potential dirt
-  // wait 10 milliseconds
-  char tmp[100];
+  // wait 10 milliseconds (doesn't work anymore because device doesn't support EAGAIN)
+  /*char tmp[100];
   for (int i = 0; i < 12; i++) {
     uint16_t dirt = read(nav_fd, tmp, sizeof tmp);
     (void) dirt;
 
     usleep(1000);
-  }
+  }*/
 
   baro_calibrated = FALSE;
   if (!acquire_baro_calibration()) {
