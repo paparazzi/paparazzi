@@ -29,6 +29,7 @@
 #define _CV_LIB_V4L2_H
 
 #include "std.h"
+#include <linux/v4l2-subdev.h>
 
 #define V4L2_IMG_NONE 255  //< There currently no image available
 
@@ -41,15 +42,15 @@ struct v4l2_img_buf {
 
 /* V4L2 device */
 struct v4l2_device {
-  char *name;                     //< The name of the device
-  int fd;                         //< The file pointer to the device
-  pthread_t thread;               //< The thread that handles the images
-  uint16_t w;                     //< The width of the image
-  uint16_t h;                     //< The height of the image
-  uint8_t buffers_cnt;            //< The number of image buffers
-  uint8_t buffers_deq_idx;        //< The current dequeued index
-  pthread_mutex_t mutex;          //< Mutex lock for enqueue/dequeue of buffers (change the deq_idx)
-  struct v4l2_img_buf *buffers;   //< The memory mapped image buffers
+  char *name;                       //< The name of the device
+  int fd;                           //< The file pointer to the device
+  pthread_t thread;                 //< The thread that handles the images
+  uint16_t w;                       //< The width of the image
+  uint16_t h;                       //< The height of the image
+  uint8_t buffers_cnt;              //< The number of image buffers
+  volatile uint8_t buffers_deq_idx; //< The current dequeued index
+  pthread_mutex_t mutex;            //< Mutex lock for enqueue/dequeue of buffers (change the deq_idx)
+  struct v4l2_img_buf *buffers;     //< The memory mapped image buffers
 };
 
 /* External functions */
