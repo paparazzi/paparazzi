@@ -105,6 +105,16 @@ void udp_send_message(struct udp_periph *p)
 }
 
 /**
+ * Send a packet from another buffer
+ */
+void udp_send_raw(struct udp_periph *p, uint8_t *buffer, uint16_t size)
+{
+  struct UdpNetwork *network = (struct UdpNetwork *) p->network;
+  ssize_t test __attribute__((unused)) = sendto(network->socket_out, buffer, size, MSG_DONTWAIT,
+                                         (struct sockaddr *)&network->addr_out, sizeof(network->addr_out));
+}
+
+/**
  * Create a new udp socket
  */
 static inline void udp_create_socket(int *sock, const int protocol, const bool_t reuse_addr, const bool_t broadcast)

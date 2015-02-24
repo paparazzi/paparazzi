@@ -27,6 +27,34 @@
 
 #include "mcu_periph/udp.h"
 
+/* Print the configurations */
+#if USE_UDP0
+struct udp_periph udp0;
+PRINT_CONFIG_VAR(UDP0_HOST);
+PRINT_CONFIG_VAR(UDP0_PORT_OUT);
+PRINT_CONFIG_VAR(UDP0_PORT_IN);
+PRINT_CONFIG_VAR(UDP0_BROADCAST);
+#endif // USE_UDP0
+
+#if USE_UDP1
+struct udp_periph udp1;
+PRINT_CONFIG_VAR(UDP1_HOST);
+PRINT_CONFIG_VAR(UDP1_PORT_OUT);
+PRINT_CONFIG_VAR(UDP1_PORT_IN);
+PRINT_CONFIG_VAR(UDP1_BROADCAST);
+#endif // USE_UDP1
+
+#if USE_UDP2
+struct udp_periph udp2;
+PRINT_CONFIG_VAR(UDP2_HOST);
+PRINT_CONFIG_VAR(UDP2_PORT_OUT);
+PRINT_CONFIG_VAR(UDP2_PORT_IN);
+PRINT_CONFIG_VAR(UDP2_BROADCAST);
+#endif // USE_UDP2
+
+/**
+ * Initialize the UDP peripheral
+ */
 void udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast)
 {
   p->rx_insert_idx = 0;
@@ -37,15 +65,21 @@ void udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in
   p->device.transmit = (transmit_t) udp_transmit;
   p->device.send_message = (send_message_t) udp_send_message;
 
-// Arch dependent initialization
+  // Arch dependent initialization
   udp_arch_periph_init(p, host, port_out, port_in, broadcast);
 }
 
+/**
+ * Check if there is free space in the transmit buffer
+ */
 bool_t udp_check_free_space(struct udp_periph *p, uint8_t len)
 {
   return (UDP_TX_BUFFER_SIZE - p->tx_insert_idx) >= len;
 }
 
+/**
+ * Transmit everything in the tx buffer
+ */
 void udp_transmit(struct udp_periph *p, uint8_t data)
 {
   if (p->tx_insert_idx >= UDP_TX_BUFFER_SIZE) {
@@ -56,6 +90,9 @@ void udp_transmit(struct udp_periph *p, uint8_t data)
   p->tx_insert_idx++;
 }
 
+/**
+ * Check if we have a character in the receive buffer
+ */
 uint16_t udp_char_available(struct udp_periph *p)
 {
   int16_t available = p->rx_insert_idx - p->rx_extract_idx;
@@ -65,6 +102,9 @@ uint16_t udp_char_available(struct udp_periph *p)
   return (uint16_t)available;
 }
 
+/**
+ * Get the last character from the receive buffer
+ */
 uint8_t udp_getch(struct udp_periph *p)
 {
   uint8_t ret = p->rx_buf[p->rx_extract_idx];
@@ -72,6 +112,9 @@ uint8_t udp_getch(struct udp_periph *p)
   return ret;
 }
 
+/**
+ * Called in the event loop to receive bytes
+ */
 void udp_event(void)
 {
 #if USE_UDP0
@@ -86,16 +129,3 @@ void udp_event(void)
   udp_receive(&udp2);
 #endif // USE_UDP2
 }
-
-
-#if USE_UDP0
-struct udp_periph udp0;
-#endif // USE_UDP0
-
-#if USE_UDP1
-struct udp_periph udp1;
-#endif // USE_UDP1
-
-#if USE_UDP2
-struct udp_periph udp2;
-#endif // USE_UDP2
