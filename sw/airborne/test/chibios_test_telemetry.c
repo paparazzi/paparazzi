@@ -63,7 +63,7 @@ static msg_t ThdTx(void *arg) {
   (void)arg;
   chRegSetThreadName("sender");
   while (TRUE) {
-    DOWNLINK_SEND_ALIVE2(DefaultChannel, DefaultDevice, 16, MD5SUM);
+    DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
     chThdSleepMilliseconds(100);
   }
   return 0;
