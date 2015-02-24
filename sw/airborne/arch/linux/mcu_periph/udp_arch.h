@@ -37,4 +37,14 @@ struct UdpNetwork {
   struct sockaddr_in addr_out;
 };
 
+/**
+ * Create UDP network (in/out sockets).
+ * @param[out] network   pointer to already allocated UdpNetwork struct
+ * @param[in]  host      hostname/address
+ * @param[in]  port_out  output port
+ * @param[in]  port_in   input port
+ * @param[in]  broadcast if TRUE enable broadcasting
+ */
+extern void udp_create_network(struct UdpNetwork *network, char *host, int port_out, int port_in, bool_t broadcast);
+
 #endif /* UDP_ARCH_H */
