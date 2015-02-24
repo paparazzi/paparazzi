@@ -1,15 +1,39 @@
+/*
+ * Copyright (C) 2012-2014 The Paparazzi Community
+ *
+ * This file is part of Paparazzi.
+ *
+ * Paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file modules/computer_vision/cv/encoding/rtp.c
+ *
+ * Encodes a vide stream with RTP (JPEG)
+ */
 
 #include <stdint.h>
 #include <string.h>
 #include <sys/time.h>
 
-#include "udp/socket.h"
-
 #include "rtp.h"
 
-void send_rtp_packet(struct UdpSocket *sock, uint8_t *Jpeg, int JpegLen, uint32_t m_SequenceNumber,
-                     uint32_t m_Timestamp, uint32_t m_offset, uint8_t marker_bit, int w, int h, uint8_t format_code, uint8_t quality_code,
-                     uint8_t has_dri_header);
+static void rtp_packet_send(struct udp_periph *udp, uint8_t *Jpeg, int JpegLen, uint32_t m_SequenceNumber,
+                            uint32_t m_Timestamp, uint32_t m_offset, uint8_t marker_bit, int w, int h, uint8_t format_code, uint8_t quality_code,
+                            uint8_t has_dri_header);
 
 // http://www.ietf.org/rfc/rfc3550.txt
 
@@ -36,11 +60,10 @@ uint8_t JpegScanDataCh2B[KJpegCh2ScanDataLen] = {
   0x80, 0x0a, 0x28, 0xa2, 0x80, 0x3f, 0xff, 0xd9
 };
 
-
-
-
-
-void test_rtp_frame(struct UdpSocket *sock)
+/**
+ * Send a test RTP frame
+ */
+void rtp_frame_test(struct udp_periph *udp)
 {
   static uint32_t framecounter = 0;
   static uint32_t timecounter = 0;
@@ -51,18 +74,20 @@ void test_rtp_frame(struct UdpSocket *sock)
   uint8_t quality_code = 0x54;
 
   if (toggle) {
-    send_rtp_packet(sock, JpegScanDataCh2A, KJpegCh2ScanDataLen, framecounter, timecounter, 0, 1, 64, 48, format_code,
+    rtp_packet_send(udp, JpegScanDataCh2A, KJpegCh2ScanDataLen, framecounter, timecounter, 0, 1, 64, 48, format_code,
                     quality_code, 0);
   } else {
-    send_rtp_packet(sock, JpegScanDataCh2B, KJpegCh2ScanDataLen, framecounter, timecounter, 0, 1, 64, 48, format_code,
+    rtp_packet_send(udp, JpegScanDataCh2B, KJpegCh2ScanDataLen, framecounter, timecounter, 0, 1, 64, 48, format_code,
                     quality_code, 0);
   }
   framecounter++;
   timecounter += 3600;
 }
 
-
-void send_rtp_frame(struct UdpSocket *sock, uint8_t *Jpeg, uint32_t JpegLen, int w, int h, uint8_t format_code,
+/**
+ * Send an RTP frame
+ */
+void rtp_frame_send(struct udp_periph *udp, uint8_t *Jpeg, uint32_t JpegLen, int w, int h, uint8_t format_code,
                     uint8_t quality_code, uint8_t has_dri_header, uint32_t delta_t)
 {
   static uint32_t packetcounter = 0;
@@ -88,7 +113,7 @@ void send_rtp_frame(struct UdpSocket *sock, uint8_t *Jpeg, uint32_t JpegLen, int
       len = JpegLen;
     }
 
-    send_rtp_packet(sock, Jpeg, len, packetcounter, timecounter, offset, lastpacket, w, h, format_code, quality_code,
+    rtp_packet_send(udp, Jpeg, len, packetcounter, timecounter, offset, lastpacket, w, h, format_code, quality_code,
                     has_dri_header);
 
     JpegLen   -= len;
@@ -110,9 +135,8 @@ void send_rtp_frame(struct UdpSocket *sock, uint8_t *Jpeg, uint32_t JpegLen, int
  set in the last packet of a frame.
  *
  */
-
-void send_rtp_packet(
-  struct UdpSocket *sock,
+static void rtp_packet_send(
+  struct udp_periph *udp,
   uint8_t *Jpeg, int JpegLen,
   uint32_t m_SequenceNumber, uint32_t m_Timestamp,
   uint32_t m_offset, uint8_t marker_bit,
@@ -190,5 +214,5 @@ void send_rtp_packet(
   // append the JPEG scan data to the RTP buffer
   memcpy(&RtpBuf[20], Jpeg, JpegLen);
 
-  udp_write(sock, RtpBuf, RtpPacketSize);
+  udp_send_raw(udp, RtpBuf, RtpPacketSize);
 };
