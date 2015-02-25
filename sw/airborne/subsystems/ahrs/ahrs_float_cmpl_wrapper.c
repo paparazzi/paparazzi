@@ -69,7 +69,8 @@ static abi_event aligner_ev;
 static abi_event body_to_imu_ev;
 
 
-static void gyro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp,
+static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
+                    uint32_t __attribute__((unused)) stamp,
                     struct Int32Rates *gyro)
 {
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
@@ -92,7 +93,8 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp,
 #endif
 }
 
-static void accel_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp,
+static void accel_cb(uint8_t __attribute__((unused)) sender_id,
+                     uint32_t __attribute__((unused)) stamp,
                      struct Int32Vect3 *accel)
 {
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_CORRECT_FREQUENCY)
@@ -113,7 +115,8 @@ static void accel_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp,
 #endif
 }
 
-static void mag_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp,
+static void mag_cb(uint8_t __attribute__((unused)) sender_id,
+                   uint32_t __attribute__((unused)) stamp,
                    struct Int32Vect3 *mag)
 {
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)

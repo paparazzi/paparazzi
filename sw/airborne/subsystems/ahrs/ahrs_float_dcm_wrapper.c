@@ -42,7 +42,8 @@ static abi_event aligner_ev;
 static abi_event body_to_imu_ev;
 
 
-static void gyro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp,
+static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
+                    uint32_t __attribute__((unused)) stamp,
                     struct Int32Rates *gyro)
 {
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
