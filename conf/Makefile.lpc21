@@ -97,6 +97,8 @@ CFLAGS += -Wnested-externs
 
 CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS) $(USER_CFLAGS)
+# on old lpc, avoid using double precision in some geodetic functions
+CFLAGS += -DUSE_SINGLE_PRECISION_LLA_ECEF
 
 # Assembler flags.
 ASFLAGS = -Wa,-adhlns=$(OBJDIR)/$(notdir $(<:.S=.lst))
