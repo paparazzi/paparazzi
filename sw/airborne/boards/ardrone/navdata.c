@@ -487,7 +487,15 @@ void navdata_update()
     // check if the start byte is correct
     if (navdata.buffer[0] != NAVDATA_START_BYTE) {
       uint8_t *pint = memchr(navdata.buffer, NAVDATA_START_BYTE, navdata.buffer_idx);
-      navdata.buffer_idx = (pint != NULL)? (pint - navdata.buffer):0;
+
+      // Check if we found the start byte in the read data
+      if(pint != NULL) {
+        memmove(navdata.buffer, pint, NAVDATA_PACKET_SIZE - (pint - navdata.buffer));
+        navdata.buffer_idx = pint - navdata.buffer;
+      }
+      else {
+        navdata.buffer_idx = 0;
+      }
       return;
     }
 

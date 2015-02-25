@@ -3,6 +3,8 @@ Paparazzi 5.5_devel
 
 currently ongoing development, changes so far (no particular order, nor complete)
 
+- arch/linux: change the sys timer to a multi threaded implementation
+  [#1117] (https://github.com/paparazzi/paparazzi/pull/1117)
 - python: generate paparazzi math wrappers with SWIG
   [#1066] (https://github.com/paparazzi/paparazzi/pull/1066)
 - ground segment: use pkg-config for ivy-c if available
