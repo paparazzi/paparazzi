@@ -328,7 +328,7 @@ void lla_of_ecef_i(struct LlaCoor_i *out, struct EcefCoor_i *in)
 
 #if USE_SINGLE_PRECISION_LLA_ECEF
   /* convert our input to floating point */
-  struct EcefCoor_d in_f;
+  struct EcefCoor_f in_f;
   in_f.x = M_OF_CM((float)in->x);
   in_f.y = M_OF_CM((float)in->y);
   in_f.z = M_OF_CM((float)in->z);
