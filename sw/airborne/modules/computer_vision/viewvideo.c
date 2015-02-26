@@ -94,10 +94,12 @@ PRINT_CONFIG_VAR(VIEWVIDEO_FPS);
 PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH);
 
 // Check if we are using netcat instead of RTP/UDP
-#ifdef VIEWVIDEO_USE_NC
+#ifndef VIEWVIDEO_USE_NETCAT
+#define VIEWVIDEO_USE_NETCAT FALSE
+#endif
+#if VIEWVIDEO_USE_NETCAT
 PRINT_CONFIG_MSG("[viewvideo] Using netcat.");
 #else
-#define VIEWVIDEO_USE_NC FALSE
 PRINT_CONFIG_MSG("[viewvideo] Using RTP/UDP stream.");
 PRINT_CONFIG_VAR(VIEWVIDEO_DEV);
 #endif
@@ -143,13 +145,18 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
     small.buf = NULL;
   }
 
-  // JPEG compression (8.25 bits are required for a 100% quality image)
-  uint8_t *jpegbuf = (uint8_t *)malloc(ceil(small.w * small.h * (8.25 / 8.)));
+  // JPEG compression (8.25 bits are required for a 100% quality image, margin of ~0.55)
+  uint8_t *jpegbuf = (uint8_t *)malloc(ceil(small.w * small.h * 1.1));
 
   // time
   uint32_t microsleep = (uint32_t)(1000000. / (float)viewvideo.fps);
   struct timeval last_time;
   gettimeofday(&last_time, NULL);
+
+#if VIEWVIDEO_USE_NETCAT
+  char nc_cmd[64];
+  sprintf(nc_cmd, "nc %s %d 2>/dev/null", VIEWVIDEO_HOST, VIEWVIDEO_PORT_OUT);
+#endif
 
   // Start streaming
   viewvideo.is_streaming = TRUE;
@@ -167,7 +174,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
     // Check if we need to take a shot
     if (viewvideo.take_shot) {
       // Create a high quality image (99% JPEG encoded)
-      uint8_t *jpegbuf_hr = (uint8_t *)malloc(ceil(viewvideo.dev->w * viewvideo.dev->h * (8.25 / 8.)));
+      uint8_t *jpegbuf_hr = (uint8_t *)malloc(ceil(viewvideo.dev->w * viewvideo.dev->h * 1.1));
       uint8_t *end = jpeg_encode_image(img->buf, jpegbuf_hr, 99, FOUR_TWO_TWO, viewvideo.dev->w, viewvideo.dev->h, TRUE);
       uint32_t size = end - (jpegbuf_hr);
 
@@ -208,19 +215,32 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
     }
 
     // JPEG encode the image:
-    uint8_t *end = jpeg_encode_image(small.buf, jpegbuf, VIEWVIDEO_QUALITY_FACTOR, FOUR_TWO_TWO, small.w, small.h, VIEWVIDEO_USE_NC);
+    uint8_t *end = jpeg_encode_image(small.buf, jpegbuf, VIEWVIDEO_QUALITY_FACTOR, FOUR_TWO_TWO, small.w, small.h, VIEWVIDEO_USE_NETCAT);
     uint32_t size = end - (jpegbuf);
 
-#if VIEWVIDEO_USE_NC
-    // Open process to send using netcat
-    char nc_cmd[64];
-    sprintf(nc_cmd, "nc %s %d 2>/dev/null", VIEWVIDEO_HOST, VIEWVIDEO_PORT_OUT);
-    FILE *netcat = popen(nc_cmd, "w");
-    if (netcat != NULL) {
-      fwrite(jpegbuf, sizeof(uint8_t), size, netcat);
-      pclose(netcat); // Ignore output, because it is too much when not connected
-    } else {
-      printf("[viewvideo] Failed to open netcat process.\n");
+#if VIEWVIDEO_USE_NETCAT
+    // Open process to send using netcat (in a fork because sometimes kills itself???)
+    pid_t pid = fork();
+
+    if(pid < 0) {
+      printf("[viewvideo] Could not create netcat fork.\n");
+    }
+    else if(pid ==0) {
+      // We are the child and want to send the image
+      FILE *netcat = popen(nc_cmd, "w");
+      if (netcat != NULL) {
+        fwrite(jpegbuf, sizeof(uint8_t), size, netcat);
+        pclose(netcat); // Ignore output, because it is too much when not connected
+      } else {
+        printf("[viewvideo] Failed to open netcat process.\n");
+      }
+
+      // Exit the program since we don't want to continue after transmitting
+      exit(0);
+    }
+    else {
+      // We want to wait until the child is finished
+      wait(NULL);
     }
 #else
     // Send image with RTP
@@ -246,6 +266,11 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
     // Free the image
     v4l2_image_free(viewvideo.dev, img);
   }
+
+  // Free all buffers
+  free(jpegbuf);
+  if (viewvideo.downsize_factor != 1)
+    free(small.buf);
   return 0;
 }
 
@@ -280,7 +305,7 @@ void viewvideo_init(void)
     return;
   }
 
-#ifdef VIEWVIDEO_USE_NC
+#if VIEWVIDEO_USE_NETCAT
   // Create an Netcat receiver file for the streaming
   sprintf(save_name, "%s/netcat-recv.sh", VIEWVIDEO_SHOT_PATH);
   FILE *fp = fopen(save_name, "w");
