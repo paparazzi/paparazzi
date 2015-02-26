@@ -94,9 +94,10 @@ PRINT_CONFIG_VAR(VIEWVIDEO_FPS);
 PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH);
 
 // Check if we are using netcat instead of RTP/UDP
-#ifdef VIEWVIDEO_NC_IP
+#ifdef VIEWVIDEO_USE_NC
 PRINT_CONFIG_MSG("[viewvideo] Using netcat.");
 #else
+#define VIEWVIDEO_USE_NC FALSE
 PRINT_CONFIG_MSG("[viewvideo] Using RTP/UDP stream.");
 PRINT_CONFIG_VAR(VIEWVIDEO_DEV);
 #endif
@@ -207,19 +208,17 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
     }
 
     // JPEG encode the image:
-    uint8_t *end = jpeg_encode_image(small.buf, jpegbuf, VIEWVIDEO_QUALITY_FACTOR, FOUR_TWO_TWO, small.w, small.h, FALSE);
+    uint8_t *end = jpeg_encode_image(small.buf, jpegbuf, VIEWVIDEO_QUALITY_FACTOR, FOUR_TWO_TWO, small.w, small.h, VIEWVIDEO_USE_NC);
     uint32_t size = end - (jpegbuf);
 
-#ifdef VIEWVIDEO_USE_NC
+#if VIEWVIDEO_USE_NC
     // Open process to send using netcat
     char nc_cmd[64];
-    sprintf(nc_cmd, "nc %s %d", VIEWVIDEO_HOST, VIEWVIDEO_PORT_OUT);
+    sprintf(nc_cmd, "nc %s %d 2>/dev/null", VIEWVIDEO_HOST, VIEWVIDEO_PORT_OUT);
     FILE *netcat = popen(nc_cmd, "w");
     if (netcat != NULL) {
       fwrite(jpegbuf, sizeof(uint8_t), size, netcat);
-      if (pclose(netcat) != 0) {
-        printf("[viewvideo] Sending image trough netcat failed.\n");
-      }
+      pclose(netcat); // Ignore output, because it is too much when not connected
     } else {
       printf("[viewvideo] Failed to open netcat process.\n");
     }
@@ -281,15 +280,31 @@ void viewvideo_init(void)
     return;
   }
 
+#ifdef VIEWVIDEO_USE_NC
+  // Create an Netcat receiver file for the streaming
+  sprintf(save_name, "%s/netcat-recv.sh", VIEWVIDEO_SHOT_PATH);
+  FILE *fp = fopen(save_name, "w");
+  if (fp != NULL) {
+    fprintf(fp, "i=0\n");
+    fprintf(fp, "while true\n");
+    fprintf(fp, "do\n");
+    fprintf(fp, "\tn=$(printf \"%%04d\" $i)\n");
+    fprintf(fp, "\tnc -l 0.0.0.0 %d > img_${n}.jpg\n", (int)(VIEWVIDEO_PORT_OUT));
+    fprintf(fp, "\ti=$((i+1))\n");
+    fprintf(fp, "done\n");
+    fclose(fp);
+  }
+#else
   // Create an SDP file for the streaming
   sprintf(save_name, "%s/stream.sdp", VIEWVIDEO_SHOT_PATH);
   FILE *fp = fopen(save_name, "w");
   if (fp != NULL) {
     fprintf(fp, "v=0\n");
     fprintf(fp, "m=video %d RTP/AVP 26\n", (int)(VIEWVIDEO_PORT_OUT));
-    fprintf(fp, "c=IN IP4 0.0.0.0");
+    fprintf(fp, "c=IN IP4 0.0.0.0\n");
     fclose(fp);
   }
+#endif
 }
 
 /**
