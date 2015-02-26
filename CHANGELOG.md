@@ -3,6 +3,8 @@ Paparazzi 5.5_devel
 
 currently ongoing development, changes so far (no particular order, nor complete)
 
+- linux/video: Rewrite of the linux video modules
+  [#1094] (https://github.com/paparazzi/paparazzi/pull/1094)
 - arch/linux: change the sys timer to a multi threaded implementation
   [#1117] (https://github.com/paparazzi/paparazzi/pull/1117)
 - python: generate paparazzi math wrappers with SWIG
