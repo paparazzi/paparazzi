@@ -93,8 +93,16 @@ PRINT_CONFIG_VAR(VIEWVIDEO_FPS);
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH);
 
-/* These are defined with configure */
+// Check if we are using netcat instead of RTP/UDP
+#ifdef VIEWVIDEO_NC_IP
+PRINT_CONFIG_MSG("[viewvideo] Using netcat.");
+#else
+PRINT_CONFIG_MSG("[viewvideo] Using RTP/UDP stream.");
 PRINT_CONFIG_VAR(VIEWVIDEO_DEV);
+#endif
+
+/* These are defined with configure */
+PRINT_CONFIG_VAR(VIEWVIDEO_HOST);
 PRINT_CONFIG_VAR(VIEWVIDEO_PORT_OUT);
 
 // Main thread
@@ -202,6 +210,20 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
     uint8_t *end = jpeg_encode_image(small.buf, jpegbuf, VIEWVIDEO_QUALITY_FACTOR, FOUR_TWO_TWO, small.w, small.h, FALSE);
     uint32_t size = end - (jpegbuf);
 
+#ifdef VIEWVIDEO_USE_NC
+    // Open process to send using netcat
+    char nc_cmd[64];
+    sprintf(nc_cmd, "nc %s %d", VIEWVIDEO_HOST, VIEWVIDEO_PORT_OUT);
+    FILE *netcat = popen(nc_cmd, "w");
+    if (netcat != NULL) {
+      fwrite(jpegbuf, sizeof(uint8_t), size, netcat);
+      if (pclose(netcat) != 0) {
+        printf("[viewvideo] Sending image trough netcat failed.\n");
+      }
+    } else {
+      printf("[viewvideo] Failed to open netcat process.\n");
+    }
+#else
     // Send image with RTP
     rtp_frame_send(
       &VIEWVIDEO_DEV,           // UDP device
@@ -220,6 +242,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
     // the timestamp is always "late" so the frame is displayed immediately).
     // Here, we set the time increment to the lowest possible value
     // (1 = 1/90000 s) which is probably stupid but is actually working.
+#endif
 
     // Free the image
     v4l2_image_free(viewvideo.dev, img);

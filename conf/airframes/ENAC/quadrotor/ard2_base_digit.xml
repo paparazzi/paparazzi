@@ -36,7 +36,9 @@
     <load name="agl_dist.xml">
       <define name="USE_SONAR"/>
     </load>
-    <load name="image_nc_send.xml"/>
+    <load name="video_rtp_stream.xml">
+      <configure name="VIEWVIDEO_USE_NC" value="TRUE"/>
+    </load>
     <load name="rotorcraft_cam.xml"/>
   </modules>
 
