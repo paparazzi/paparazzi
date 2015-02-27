@@ -54,6 +54,16 @@ static inline bool_t navdata_baro_calib(void);
 /* Main navdata structure */
 struct navdata_t navdata;
 
+/** Buffer filled in the thread (maximum one navdata packet) */
+static uint8_t navdata_buffer[NAVDATA_PACKET_SIZE];
+/** flag to indicate new packet is available in buffer */
+static bool_t navdata_available = FALSE;
+
+/* syncronization variables */
+static pthread_mutex_t navdata_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t  navdata_cond  = PTHREAD_COND_INITIALIZER;
+
+
 /** Sonar offset.
  *  Offset value in ADC
  *  equals to the ADC value so that height is zero
@@ -194,7 +204,7 @@ bool_t navdata_init()
   }
 
   // Reset available flags
-  navdata.packet_available = FALSE;
+  navdata_available = FALSE;
   navdata.baro_calibrated = FALSE;
   navdata.imu_available = FALSE;
   navdata.baro_available = FALSE;
@@ -283,13 +293,16 @@ static void *navdata_read(void *data __attribute__((unused)))
 
   while (TRUE) {
 
-    // Check if we need to read something or already have a packet
-    if (!navdata.packet_available) {
-      continue;
+    // Wait until we are notified to read next data,
+    // i.e. buffer has been copied in navdata_update
+    pthread_mutex_lock(&navdata_mutex);
+    while (navdata_available) {
+      pthread_cond_wait(&navdata_cond, &navdata_mutex);
     }
+    pthread_mutex_unlock(&navdata_mutex);
 
     // Read new bytes
-    int newbytes = read(navdata.fd, navdata.buffer + buffer_idx, NAVDATA_PACKET_SIZE - buffer_idx);
+    int newbytes = read(navdata.fd, navdata_buffer + buffer_idx, NAVDATA_PACKET_SIZE - buffer_idx);
 
     // When there was no signal interrupt
     if (newbytes > 0) {
@@ -300,13 +313,13 @@ static void *navdata_read(void *data __attribute__((unused)))
     // If we got a full packet
     if (buffer_idx >= NAVDATA_PACKET_SIZE) {
       // check if the start byte is correct
-      if (navdata.buffer[0] != NAVDATA_START_BYTE) {
-        uint8_t *pint = memchr(navdata.buffer, NAVDATA_START_BYTE, buffer_idx);
+      if (navdata_buffer[0] != NAVDATA_START_BYTE) {
+        uint8_t *pint = memchr(navdata_buffer, NAVDATA_START_BYTE, buffer_idx);
 
         // Check if we found the start byte in the read data
         if (pint != NULL) {
-          memmove(navdata.buffer, pint, NAVDATA_PACKET_SIZE - (pint - navdata.buffer));
-          buffer_idx = pint - navdata.buffer;
+          memmove(navdata_buffer, pint, NAVDATA_PACKET_SIZE - (pint - navdata_buffer));
+          buffer_idx = pint - navdata_buffer;
         } else {
           buffer_idx = 0;
         }
@@ -320,10 +333,10 @@ static void *navdata_read(void *data __attribute__((unused)))
       // Calculating the checksum
       uint16_t checksum = 0;
       for (int i = 2; i < NAVDATA_PACKET_SIZE - 2; i += 2) {
-        checksum += navdata.buffer[i] + (navdata.buffer[i + 1] << 8);
+        checksum += navdata_buffer[i] + (navdata_buffer[i + 1] << 8);
       }
 
-      struct navdata_measure_t *new_measurement = (struct navdata_measure_t *)navdata.buffer;
+      struct navdata_measure_t *new_measurement = (struct navdata_measure_t *)navdata_buffer;
 
       // Check if the checksum is ok
       if (new_measurement->chksum != checksum) {
@@ -334,7 +347,9 @@ static void *navdata_read(void *data __attribute__((unused)))
       }
 
       // set flag that we have new valid navdata
-      navdata.packet_available = TRUE;
+      pthread_mutex_lock(&navdata_mutex);
+      navdata_available = TRUE;
+      pthread_mutex_unlock(&navdata_mutex);
     }
   }
 
@@ -528,14 +543,18 @@ void navdata_update()
     return;
   }
 
+  pthread_mutex_lock(&navdata_mutex);
   // If we got a new navdata packet
-  if (navdata.packet_available) {
+  if (navdata_available) {
 
     // Copy the navdata packet
-    memcpy(&navdata.measure, navdata.buffer, NAVDATA_PACKET_SIZE);
+    memcpy(&navdata.measure, navdata_buffer, NAVDATA_PACKET_SIZE);
 
     // reset the flag
-    navdata.packet_available = FALSE;
+    navdata_available = FALSE;
+    // signal that we copied the buffer and new packet can be read
+    pthread_cond_signal(&navdata_cond);
+    pthread_mutex_unlock(&navdata_mutex);
 
     // Check if we missed a packet (our counter and the one from the navdata)
     navdata.last_packet_number++;
@@ -571,7 +590,10 @@ void navdata_update()
     navdata.imu_available = TRUE;
     navdata.packetsRead++;
   }
-
+  else {
+    // no new packet available, still unlock mutex again
+    pthread_mutex_unlock(&navdata_mutex);
+  }
 }
 
 /**
