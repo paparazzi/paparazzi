@@ -31,8 +31,7 @@
 #include <arpa/inet.h>
 
 struct UdpNetwork {
-  int socket_in;
-  int socket_out;
+  int sockfd;
   struct sockaddr_in addr_in;
   struct sockaddr_in addr_out;
 };

@@ -27,6 +27,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <errno.h>
 
 static inline void udp_create_socket(int *sock, const int protocol, const bool_t reuse_addr, const bool_t broadcast);
@@ -44,27 +45,24 @@ void udp_create_network(struct UdpNetwork *network, char *host, int port_out, in
   if (network == NULL) {
     return;
   }
-  if (port_out >= 0) {
-    // Create the output socket (enable reuse of the address, and broadcast if necessary)
-    udp_create_socket(&network->socket_out, 0, TRUE, broadcast);
 
-    // Setup the output address
-    network->addr_out.sin_family = PF_INET;
-    network->addr_out.sin_port = htons(port_out);
-    network->addr_out.sin_addr.s_addr = inet_addr(host);
-  }
+  // Create the output socket (enable reuse of the address, and broadcast if necessary)
+  udp_create_socket(&network->sockfd, 0, TRUE, broadcast);
 
+  // if an input port was specified, bind to it
   if (port_in >= 0) {
-    // Creat the input socket (enable reuse of the address, and disable broadcast)
-    udp_create_socket(&network->socket_in, 0, TRUE, FALSE);
-
     // Create the input address
     network->addr_in.sin_family = PF_INET;
     network->addr_in.sin_port = htons(port_in);
     network->addr_in.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    bind(network->socket_in, (struct sockaddr *)&network->addr_in, sizeof(network->addr_in));
+    bind(network->sockfd, (struct sockaddr *)&network->addr_in, sizeof(network->addr_in));
   }
+
+  // set the output/destination address for use in sendto later
+  network->addr_out.sin_family = PF_INET;
+  network->addr_out.sin_port = htons(port_out);
+  network->addr_out.sin_addr.s_addr = inet_addr(host);
 }
 
 /**
@@ -96,7 +94,7 @@ void udp_receive(struct udp_periph *p)
   }
 
   socklen_t slen = sizeof(struct sockaddr_in);
-  ssize_t byte_read = recvfrom(network->socket_in, buf, UDP_RX_BUFFER_SIZE, MSG_DONTWAIT,
+  ssize_t byte_read = recvfrom(network->sockfd, buf, UDP_RX_BUFFER_SIZE, MSG_DONTWAIT,
                                (struct sockaddr *)&network->addr_in, &slen);
 
   if (byte_read > 0) {
@@ -118,8 +116,17 @@ void udp_send_message(struct udp_periph *p)
   struct UdpNetwork *network = (struct UdpNetwork *) p->network;
 
   if (p->tx_insert_idx > 0) {
-    ssize_t test __attribute__((unused)) = sendto(network->socket_out, p->tx_buf, p->tx_insert_idx, MSG_DONTWAIT,
-                                           (struct sockaddr *)&network->addr_out, sizeof(network->addr_out));
+    ssize_t bytes_sent = sendto(network->sockfd, p->tx_buf, p->tx_insert_idx, MSG_DONTWAIT,
+                                (struct sockaddr *)&network->addr_out, sizeof(network->addr_out));
+    if (bytes_sent != p->tx_insert_idx) {
+      if (bytes_sent < 0) {
+        perror("udp_send_message failed");
+      }
+      else {
+        fprintf(stderr, "udp_send_message: only sent %d bytes instead of %d\n",
+                bytes_sent, p->tx_insert_idx);
+      }
+    }
     p->tx_insert_idx = 0;
   }
 }
@@ -133,7 +140,7 @@ void udp_send_raw(struct udp_periph *p, uint8_t *buffer, uint16_t size)
   if (p->network == NULL) return;
 
   struct UdpNetwork *network = (struct UdpNetwork *) p->network;
-  ssize_t test __attribute__((unused)) = sendto(network->socket_out, buffer, size, MSG_DONTWAIT,
+  ssize_t test __attribute__((unused)) = sendto(network->sockfd, buffer, size, MSG_DONTWAIT,
                                          (struct sockaddr *)&network->addr_out, sizeof(network->addr_out));
 }
 
