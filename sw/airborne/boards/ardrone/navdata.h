@@ -118,9 +118,8 @@ struct navdata_t {
   uint32_t lost_imu_frames;
   uint16_t last_packet_number;
 
-  volatile uint8_t buffer_idx;            //< Buffer insert index for reading/writing
   uint8_t buffer[NAVDATA_PACKET_SIZE];    //< Buffer filled in the thread (maximum one navdata packet)
-
+  volatile bool_t packet_available;       //< new valid packet is available in buffer
   struct navdata_measure_t measure;       //< Main navdata packet receieved from navboard
   struct bmp180_calib_t bmp180_calib;     //< BMP180 calibration receieved from navboard
 

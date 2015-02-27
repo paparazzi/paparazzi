@@ -194,6 +194,7 @@ bool_t navdata_init()
   }
 
   // Reset available flags
+  navdata.packet_available = FALSE;
   navdata.baro_calibrated = FALSE;
   navdata.imu_available = FALSE;
   navdata.baro_available = FALSE;
@@ -225,7 +226,7 @@ bool_t navdata_init()
 
   // Start navdata reading thread
   pthread_t navdata_thread;
-  if(pthread_create(&navdata_thread, NULL, navdata_read, NULL) != 0) {
+  if (pthread_create(&navdata_thread, NULL, navdata_read, NULL) != 0) {
     printf("[navdata] Could not create navdata reading thread!\n");
     return FALSE;
   }
@@ -277,18 +278,63 @@ static inline bool_t navdata_baro_calib(void)
  */
 static void *navdata_read(void *data __attribute__((unused)))
 {
-  while(TRUE) {
+  /* Buffer insert index for reading/writing */
+  static uint8_t buffer_idx = 0;
+
+  while (TRUE) {
+
     // Check if we need to read something or already have a packet
-    if((NAVDATA_PACKET_SIZE - navdata.buffer_idx) <= 0)
+    if (!navdata.packet_available) {
       continue;
+    }
 
     // Read new bytes
-    int newbytes = read(navdata.fd, navdata.buffer + navdata.buffer_idx, NAVDATA_PACKET_SIZE - navdata.buffer_idx);
+    int newbytes = read(navdata.fd, navdata.buffer + buffer_idx, NAVDATA_PACKET_SIZE - buffer_idx);
 
     // When there was no signal interrupt
     if (newbytes > 0) {
-      navdata.buffer_idx += newbytes;
+      buffer_idx += newbytes;
       navdata.totalBytesRead += newbytes;
+    }
+
+    // If we got a full packet
+    if (buffer_idx >= NAVDATA_PACKET_SIZE) {
+      // check if the start byte is correct
+      if (navdata.buffer[0] != NAVDATA_START_BYTE) {
+        uint8_t *pint = memchr(navdata.buffer, NAVDATA_START_BYTE, buffer_idx);
+
+        // Check if we found the start byte in the read data
+        if (pint != NULL) {
+          memmove(navdata.buffer, pint, NAVDATA_PACKET_SIZE - (pint - navdata.buffer));
+          buffer_idx = pint - navdata.buffer;
+        } else {
+          buffer_idx = 0;
+        }
+        fprintf(stderr, "[navdata] sync error, startbyte not found, resetting...\n");
+        continue;
+      }
+
+      /* full packet read with startbyte at the beginning, reset insert index */
+      buffer_idx = 0;
+
+      // Calculating the checksum
+      uint16_t checksum = 0;
+      for (int i = 2; i < NAVDATA_PACKET_SIZE - 2; i += 2) {
+        checksum += navdata.buffer[i] + (navdata.buffer[i + 1] << 8);
+      }
+
+      struct navdata_measure_t *new_measurement = (struct navdata_measure_t *)navdata.buffer;
+
+      // Check if the checksum is ok
+      if (new_measurement->chksum != checksum) {
+        fprintf(stderr, "[navdata] Checksum error [calculated: %d] [packet: %d] [diff: %d]\n",
+                checksum, new_measurement->chksum, checksum - new_measurement->chksum);
+        navdata.checksum_errors++;
+        continue;
+      }
+
+      // set flag that we have new valid navdata
+      navdata.packet_available = TRUE;
     }
   }
 
@@ -482,45 +528,20 @@ void navdata_update()
     return;
   }
 
-  // If we got a full packet
-  if (navdata.buffer_idx >= NAVDATA_PACKET_SIZE) {
-    // check if the start byte is correct
-    if (navdata.buffer[0] != NAVDATA_START_BYTE) {
-      uint8_t *pint = memchr(navdata.buffer, NAVDATA_START_BYTE, navdata.buffer_idx);
-
-      // Check if we found the start byte in the read data
-      if(pint != NULL) {
-        memmove(navdata.buffer, pint, NAVDATA_PACKET_SIZE - (pint - navdata.buffer));
-        navdata.buffer_idx = pint - navdata.buffer;
-      }
-      else {
-        navdata.buffer_idx = 0;
-      }
-      return;
-    }
+  // If we got a new navdata packet
+  if (navdata.packet_available) {
 
     // Copy the navdata packet
     memcpy(&navdata.measure, navdata.buffer, NAVDATA_PACKET_SIZE);
 
-    // Calculating the checksum
-    uint16_t checksum = 0;
-    for (int i = 2; i < NAVDATA_PACKET_SIZE - 2; i += 2) {
-      checksum += navdata.buffer[i] + (navdata.buffer[i + 1] << 8);
-    }
-
-    // Check if the checksum is ok
-    if (navdata.measure.chksum != checksum) {
-      printf("[navdata] Checksum error [calculated: %d] [packet: %d] [diff: %d]\n", checksum , navdata.measure.chksum,
-             checksum - navdata.measure.chksum);
-      navdata.checksum_errors++;
-      navdata.buffer_idx = 0;
-      return;
-    }
+    // reset the flag
+    navdata.packet_available = FALSE;
 
     // Check if we missed a packet (our counter and the one from the navdata)
     navdata.last_packet_number++;
     if (navdata.last_packet_number != navdata.measure.nu_trame) {
-      printf("[navdata] Lost frame: %d should have been %d\n", navdata.measure.nu_trame, navdata.last_packet_number);
+      fprintf(stderr, "[navdata] Lost frame: %d should have been %d\n",
+              navdata.measure.nu_trame, navdata.last_packet_number);
       navdata.lost_imu_frames++;
     }
     navdata.last_packet_number = navdata.measure.nu_trame;
@@ -549,7 +570,6 @@ void navdata_update()
 
     navdata.imu_available = TRUE;
     navdata.packetsRead++;
-    navdata.buffer_idx = 0;
   }
 
 }
@@ -557,6 +577,7 @@ void navdata_update()
 /**
  * Sends a one byte command
  */
-static void navdata_cmd_send(uint8_t cmd) {
+static void navdata_cmd_send(uint8_t cmd)
+{
   full_write(navdata.fd, &cmd, 1);
 }
