@@ -1,3 +1,17 @@
+Paparazzi 5.2.2_stable
+======================
+
+Maintenance release
+
+- ground_segment: filter for 'field' tag when looking at messages
+- python: fix settings path
+- messages: update dtd to allow descriptions
+- ext: update ChibiOS repo since old one was deleted
+- conf: update some TU Delft confs
+- start.py: alias for select_conf.py, now also selects control_panel
+- nps simulator: update nps_fdm_jsbsim to be compatible with latest jsbsim
+
+
 Paparazzi 5.2.1_stable
 ======================
 
@@ -28,6 +42,7 @@ Maintenance release
   [#817] (https://github.com/paparazzi/paparazzi/pull/817)
 - support for HBmini board
   [#864] (https://github.com/paparazzi/paparazzi/pull/864)
+
 
 Paparazzi 5.2.0_stable
 =======================
