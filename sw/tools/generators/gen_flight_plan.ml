@@ -531,7 +531,7 @@ let rec print_stage = fun index_of_waypoints x ->
             lprintf "  break;\n";
             lprintf "}\n"
         | "FALSE" ->
-            lprintf "%s\n" statement;
+            lprintf "%s;\n" statement;
             begin match break with
             | "TRUE" -> lprintf "NextStageAndBreak();\n";
             | "FALSE" -> lprintf "NextStage();\n";
