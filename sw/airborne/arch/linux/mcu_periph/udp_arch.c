@@ -88,7 +88,7 @@ void udp_send_message(struct udp_periph *p)
       }
       else {
         fprintf(stderr, "udp_send_message: only sent %d bytes instead of %d\n",
-                bytes_sent, p->tx_insert_idx);
+                (int)bytes_sent, p->tx_insert_idx);
       }
     }
     p->tx_insert_idx = 0;
