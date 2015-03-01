@@ -30,6 +30,7 @@
 
 #include "subsystems/imu.h"
 #include "state.h"
+#include "subsystems/abi.h"
 
 #ifdef IMU_POWER_GPIO
 #include "mcu_periph/gpio.h"
@@ -41,22 +42,6 @@
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
-
-#if USE_IMU_FLOAT
-
-static void send_accel(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_IMU_ACCEL(trans, dev, AC_ID,
-                          &imuf.accel.x, &imuf.accel.y, &imuf.accel.z);
-}
-
-static void send_gyro(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_IMU_GYRO(trans, dev, AC_ID,
-                         &imuf.gyro.p, &imuf.gyro.q, &imuf.gyro.r);
-}
-
-#else // !USE_IMU_FLOAT
 
 static void send_accel_raw(struct transport_tx *trans, struct link_device *dev)
 {
@@ -117,12 +102,10 @@ static void send_mag(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_IMU_MAG(trans, dev, AC_ID,
                         &mag_float.x, &mag_float.y, &mag_float.z);
 }
-#endif // !USE_IMU_FLOAT
 
-#endif
+#endif /* PERIODIC_TELEMETRY */
 
 struct Imu imu;
-struct ImuFloat imuf;
 
 void imu_init(void)
 {
@@ -149,14 +132,10 @@ void imu_init(void)
   struct FloatEulers body_to_imu_eulers =
   {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
-#if USE_IMU_FLOAT
-  orientationSetEulers_f(&imuf.body_to_imu, &body_to_imu_eulers);
-#endif
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
   register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO", send_gyro);
-#if !USE_IMU_FLOAT
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_RAW", send_accel_raw);
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_SCALED", send_accel_scaled);
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
@@ -166,7 +145,6 @@ void imu_init(void)
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_RAW", send_mag_raw);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_SCALED", send_mag_scaled);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG", send_mag);
-#endif // !USE_IMU_FLOAT
 #endif // DOWNLINK
 
   imu_impl_init();
@@ -179,9 +157,7 @@ void imu_SetBodyToImuPhi(float phi)
   memcpy(&body_to_imu_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
   body_to_imu_eulers.phi = phi;
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
-#if USE_IMU_FLOAT
-  orientationSetEulers_f(&imuf.body_to_imu, &body_to_imu_eulers);
-#endif
+  AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
 }
 
 void imu_SetBodyToImuTheta(float theta)
@@ -190,9 +166,7 @@ void imu_SetBodyToImuTheta(float theta)
   memcpy(&body_to_imu_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
   body_to_imu_eulers.theta = theta;
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
-#if USE_IMU_FLOAT
-  orientationSetEulers_f(&imuf.body_to_imu, &body_to_imu_eulers);
-#endif
+  AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
 }
 
 void imu_SetBodyToImuPsi(float psi)
@@ -201,9 +175,7 @@ void imu_SetBodyToImuPsi(float psi)
   memcpy(&body_to_imu_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
   body_to_imu_eulers.psi = psi;
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
-#if USE_IMU_FLOAT
-  orientationSetEulers_f(&imuf.body_to_imu, &body_to_imu_eulers);
-#endif
+  AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
 }
 
 void imu_SetBodyToImuCurrent(float set)
@@ -219,9 +191,7 @@ void imu_SetBodyToImuCurrent(float set)
       body_to_imu_eulers.phi += stateGetNedToBodyEulers_f()->phi;
       body_to_imu_eulers.theta += stateGetNedToBodyEulers_f()->theta;
       orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
-#if USE_IMU_FLOAT
-      orientationSetEulers_f(&imuf.body_to_imu, &body_to_imu_eulers);
-#endif
+      AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
     } else {
       // indicate that we couldn't set to current roll/pitch
       imu.b2i_set_current = FALSE;
@@ -231,9 +201,7 @@ void imu_SetBodyToImuCurrent(float set)
     struct FloatEulers body_to_imu_eulers =
     {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
     orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
-#if USE_IMU_FLOAT
-    orientationSetEulers_f(&imuf.body_to_imu, &body_to_imu_eulers);
-#endif
+    AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
   }
 }
 

@@ -157,7 +157,7 @@ static void send_navdata(struct transport_tx *trans, struct link_device *dev)
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t mde = 3;
-  if (ahrs.status == AHRS_UNINIT) { mde = 2; }
+  if (!DefaultAhrsImpl.is_aligned) { mde = 2; }
   if (imu_lost) { mde = 5; }
   uint16_t val = imu_lost_counter;
   pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &val);

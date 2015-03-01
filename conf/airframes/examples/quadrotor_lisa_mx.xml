@@ -33,7 +33,12 @@
     <subsystem name="imu"           type="lisa_mx_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="float_mlkf"/>
+    <subsystem name="ahrs"          type="float_mlkf">
+	    <!-- Uncomment to enable all axis update from the Magnetometer. Do
+		 it only if you have a very well calibrated and tested
+		 magnetometer otherwise your attitude will drift. -->
+	    <!--define name="AHRS_MAG_UPDATE_ALL_AXES" value="1"/-->
+    </subsystem>
     <subsystem name="ins" type="hff"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->

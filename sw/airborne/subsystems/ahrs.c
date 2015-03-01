@@ -29,12 +29,23 @@
 
 struct Ahrs ahrs;
 
-// weak functions, used if not explicitly provided by implementation
+void ahrs_register_impl(AhrsInit init, AhrsUpdateGps update_gps)
+{
+  ahrs.init = init;
+  ahrs.update_gps = update_gps;
 
-void WEAK ahrs_propagate(float dt __attribute__((unused))) {}
+  ahrs.init();
+}
 
-void WEAK ahrs_update_accel(float dt __attribute__((unused))) {}
+void ahrs_init(void)
+{
+  ahrs.init = NULL;
+  ahrs.update_gps = NULL;
+}
 
-void WEAK ahrs_update_mag(float dt __attribute__((unused))) {}
-
-void WEAK ahrs_update_gps(void) {}
+void ahrs_update_gps(void)
+{
+  if (ahrs.update_gps != NULL) {
+    ahrs.update_gps();
+  }
+}

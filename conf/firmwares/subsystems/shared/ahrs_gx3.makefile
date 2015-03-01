@@ -1,18 +1,11 @@
-# Rotorcraft AHRS module for GX3
+# AHRS subsystem for GX3
 # 2013, Utah State University, http://aggieair.usu.edu/
 
 GX3_PORT ?= UART3
 GX3_BAUD ?= B921600
-AHRS_ALIGNER_LED ?= none
 
 AHRS_CFLAGS  = -DUSE_AHRS
-AHRS_CFLAGS += -DAHRS_FLOAT
 AHRS_CFLAGS += -DUSE_IMU
-AHRS_CFLAGS += -DUSE_IMU_FLOAT
-
-ifneq ($(AHRS_ALIGNER_LED),none)
-  AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
-endif
 
 AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_gx3.h\"
 AHRS_SRCS   += $(SRC_SUBSYSTEMS)/ahrs.c

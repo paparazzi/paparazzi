@@ -29,9 +29,21 @@
 #ifndef AHRS_INFRARED_H
 #define AHRS_INFRARED_H
 
-#include "subsystems/ahrs.h"
 #include "std.h"
+#include "subsystems/ahrs.h"
+#include "math/pprz_orientation_conversion.h"
 
+struct AhrsInfrared {
+  bool_t is_aligned;
+};
+
+extern struct AhrsInfrared ahrs_infrared;
+
+extern void ahrs_infrared_register(void);
+extern void ahrs_infrared_init(void);
 extern void ahrs_update_infrared(void);
+extern void ahrs_infrared_update_gps(void);
+
+#define DefaultAhrsImpl ahrs_infrared
 
 #endif /* AHRS_INFRARED_H */

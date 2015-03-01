@@ -36,29 +36,58 @@
 #include "subsystems/gps.h"
 
 #include "state.h"
+#include "subsystems/abi.h"
+
+struct AhrsInfrared ahrs_infrared;
 
 float heading;
+
+/** ABI binding for gyro data.
+ * Used for gyro ABI messages.
+ */
+#ifndef AHRS_INFRARED_GYRO_ID
+#define AHRS_INFRARED_GYRO_ID ABI_BROADCAST
+#endif
+static abi_event gyro_ev;
+
+static void gyro_cb(uint8_t sender_id __attribute__((unused)),
+                    uint32_t stamp __attribute__((unused)),
+                    struct Int32Rates *gyro)
+{
+  stateSetBodyRates_i(gyro);
+}
+
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_infrared(struct transport_tx *trans, struct link_device *dev) {
+static void send_infrared(struct transport_tx *trans, struct link_device *dev)
+{
   pprz_msg_send_IR_SENSORS(trans, dev, AC_ID,
-      &infrared.value.ir1, &infrared.value.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
+                           &infrared.value.ir1, &infrared.value.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
 }
 
-static void send_status(struct transport_tx *trans, struct link_device *dev) {
+static void send_status(struct transport_tx *trans, struct link_device *dev)
+{
   uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top);
   uint8_t mde = 3;
-  if (contrast < 50) mde = 7;
+  if (contrast < 50) { mde = 7; }
   pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &contrast);
 }
 #endif
 
-void ahrs_init(void) {
-  ahrs.status = AHRS_UNINIT;
+void ahrs_infrared_register(void)
+{
+  ahrs_register_impl(ahrs_infrared_init, ahrs_infrared_update_gps);
+}
+
+void ahrs_infrared_init(void)
+{
+  ahrs_infrared.is_aligned = TRUE;
 
   heading = 0.;
+
+  AbiBindMsgIMU_GYRO_INT32(AHRS_INFRARED_GYRO_ID, &gyro_ev, gyro_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "IR_SENSORS", send_infrared);
@@ -66,29 +95,8 @@ void ahrs_init(void) {
 #endif
 }
 
-void ahrs_align(void) {
-
-  //TODO set gyro bias if used
-
-  ahrs.status = AHRS_RUNNING;
-}
-
-void ahrs_propagate(float dt __attribute__((unused))) {
-  struct FloatRates body_rate = { 0., 0., 0. };
-#ifdef ADC_CHANNEL_GYRO_P
-  body_rate.p = RATE_FLOAT_OF_BFP(imu.gyro.p);
-#endif
-#ifdef ADC_CHANNEL_GYRO_Q
-  body_rate.q = RATE_FLOAT_OF_BFP(imu.gyro.q);
-#endif
-#ifdef ADC_CHANNEL_GYRO_R
-  body_rate.r = RATE_FLOAT_OF_BFP(imu.gyro.r);
-#endif
-  stateSetBodyRates_f(&body_rate);
-}
-
-
-void ahrs_update_gps(void) {
+void ahrs_infrared_update_gps(void)
+{
 
   float hspeed_mod_f = gps.gspeed / 100.;
   float course_f = gps.course / 1e7;
@@ -98,26 +106,27 @@ void ahrs_update_gps(void) {
   float w_vn = cosf(course_f) * hspeed_mod_f - stateGetHorizontalWindspeed_f()->x;
   float w_ve = sinf(course_f) * hspeed_mod_f - stateGetHorizontalWindspeed_f()->y;
   heading = atan2f(w_ve, w_vn);
-  if (heading < 0.)
+  if (heading < 0.) {
     heading += 2 * M_PI;
+  }
 
 }
 
-void ahrs_update_infrared(void) {
+void ahrs_update_infrared(void)
+{
   float phi  = atan2(infrared.roll, infrared.top) - infrared.roll_neutral;
   float theta  = atan2(infrared.pitch, infrared.top) - infrared.pitch_neutral;
 
-  if (theta < -M_PI_2) theta += M_PI;
-  else if (theta > M_PI_2) theta -= M_PI;
+  if (theta < -M_PI_2) { theta += M_PI; }
+  else if (theta > M_PI_2) { theta -= M_PI; }
 
-  if (phi >= 0) phi *= infrared.correction_right;
-  else phi *= infrared.correction_left;
+  if (phi >= 0) { phi *= infrared.correction_right; }
+  else { phi *= infrared.correction_left; }
 
-  if (theta >= 0) theta *= infrared.correction_up;
-  else theta *= infrared.correction_down;
+  if (theta >= 0) { theta *= infrared.correction_up; }
+  else { theta *= infrared.correction_down; }
 
   struct FloatEulers att = { phi, theta, heading };
   stateSetNedToBodyEulers_f(&att);
 
 }
-

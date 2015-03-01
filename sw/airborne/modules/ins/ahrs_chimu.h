@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Paparazzi Team
+ * Copyright (C) 2014 Felix Ruess
  *
  * This file is part of paparazzi.
  *
@@ -20,22 +20,24 @@
  */
 
 /**
- * @file subsystems/ahrs/ahrs_sim.h
- *
- * Interface to set the AHRS from the simple OCaml simulator.
- *
+ * @file modules/ins/ahrs_chimu.h
  */
 
-#ifndef AHRS_SIM_H
-#define AHRS_SIM_H
+#ifndef AHRS_CHIMU_H
+#define AHRS_CHIMU_H
 
+#include "modules/ins/ins_module.h"
 #include "subsystems/ahrs.h"
-#include "std.h"
 
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
+struct AhrsChimu {
+  bool_t is_aligned;
+};
 
-extern void update_ahrs_from_sim(void);
-extern void ahrs_sim_init(void);
+extern struct AhrsChimu ahrs_chimu;
 
-#endif /* AHRS_SIM_H */
+#define DefaultAhrsImpl ahrs_chimu
+
+extern void ahrs_chimu_register(void);
+extern void ahrs_chimu_init(void);
+
+#endif

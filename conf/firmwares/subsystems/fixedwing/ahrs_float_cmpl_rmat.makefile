@@ -21,10 +21,11 @@ ifneq ($(AHRS_ALIGNER_LED),none)
   AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
 
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl.h\"
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_wrapper.h\"
 AHRS_CFLAGS += -DAHRS_PROPAGATE_RMAT
 AHRS_SRCS   += subsystems/ahrs.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_float_cmpl.c
+AHRS_SRCS   += subsystems/ahrs/ahrs_float_cmpl_wrapper.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
 
 ifdef AHRS_PROPAGATE_FREQUENCY

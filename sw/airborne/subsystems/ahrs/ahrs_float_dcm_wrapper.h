@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Paparazzi Team
+ * Copyright (C) 2015 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -14,28 +14,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with Paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
- * @file subsystems/ahrs/ahrs_sim.h
+ * @file subsystems/ahrs/ahrs_float_dcm_wrapper.h
  *
- * Interface to set the AHRS from the simple OCaml simulator.
- *
+ * Paparazzi specific wrapper to run floating point DCM filter.
  */
 
-#ifndef AHRS_SIM_H
-#define AHRS_SIM_H
+#ifndef AHRS_FLOAT_DCM_WRAPPER_H
+#define AHRS_FLOAT_DCM_WRAPPER_H
 
-#include "subsystems/ahrs.h"
-#include "std.h"
+#include "subsystems/ahrs/ahrs_float_dcm.h"
 
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
+#define DefaultAhrsImpl ahrs_dcm
 
-extern void update_ahrs_from_sim(void);
-extern void ahrs_sim_init(void);
+extern void ahrs_dcm_register(void);
 
-#endif /* AHRS_SIM_H */
+#endif /* AHRS_FLOAT_DCM_WRAPPER_H */

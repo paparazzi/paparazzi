@@ -26,6 +26,7 @@
 
 #include "ins_module.h"
 #include "imu_chimu.h"
+#include "ahrs_chimu.h"
 
 #include "led.h"
 
@@ -34,9 +35,18 @@ CHIMU_PARSER_DATA CHIMU_DATA;
 INS_FORMAT ins_roll_neutral;
 INS_FORMAT ins_pitch_neutral;
 
-void ahrs_init(void)
+struct AhrsChimu ahrs_chimu;
+
+void ahrs_chimu_update_gps(void);
+
+void ahrs_chimu_register(void)
 {
-  ahrs.status = AHRS_UNINIT;
+  ahrs_register_impl(ahrs_chimu_init, ahrs_chimu_update_gps);
+}
+
+void ahrs_chimu_init(void)
+{
+  ahrs_chimu.is_aligned = FALSE;
 
   // uint8_t ping[7] = {CHIMU_STX, CHIMU_STX, 0x01, CHIMU_BROADCAST, MSG00_PING, 0x00, 0xE6 };
   uint8_t rate[12] = {CHIMU_STX, CHIMU_STX, 0x06, CHIMU_BROADCAST, MSG10_UARTSETTINGS, 0x05, 0xff, 0x79, 0x00, 0x00, 0x01, 0x76 };  // 50Hz attitude only + SPI
@@ -68,10 +78,6 @@ void ahrs_init(void)
   InsSend(rate, 12);
 }
 
-void ahrs_align(void)
-{
-  ahrs.status = AHRS_RUNNING;
-}
 
 void parse_ins_msg(void)
 {
@@ -98,6 +104,8 @@ void parse_ins_msg(void)
           0.
         }; // FIXME rate r
         stateSetBodyRates_f(&rates);
+        //FIXME
+        ahrs_chimu.is_aligned = TRUE;
       } else if (CHIMU_DATA.m_MsgID == 0x02) {
 #if CHIMU_DOWNLINK_IMMEDIATE
         RunOnceEvery(25, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &CHIMU_DATA.m_sensor.rate[0],
@@ -109,7 +117,7 @@ void parse_ins_msg(void)
 }
 
 
-void ahrs_update_gps(void)
+void ahrs_chimu_update_gps(void)
 {
   // Send SW Centripetal Corrections
   uint8_t centripedal[19] = {0xae, 0xae, 0x0d, 0xaa, 0x0b, 0x02,   0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,   0xc2 };
@@ -129,12 +137,4 @@ void ahrs_update_gps(void)
   InsSend(centripedal, 19);
 
   // Downlink Send
-}
-
-void ahrs_propagate(float dt __attribute__((unused)))
-{
-}
-
-void ahrs_update_accel(float dt __attribute__((unused)))
-{
 }
