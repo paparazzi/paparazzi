@@ -70,7 +70,10 @@ void udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in
 }
 
 /**
- * Check if there is free space in the transmit buffer
+ * Check if there is enough free space in the transmit buffer.
+ * @param p   pointer to UDP peripheral
+ * @param len how many bytes of free space to check for
+ * @return TRUE if enough space for #len bytes
  */
 bool_t udp_check_free_space(struct udp_periph *p, uint8_t len)
 {
@@ -78,7 +81,9 @@ bool_t udp_check_free_space(struct udp_periph *p, uint8_t len)
 }
 
 /**
- * Transmit everything in the tx buffer
+ * Add one data byte to the tx buffer.
+ * @param p    pointer to UDP peripheral
+ * @param data byte to add to tx buffer
  */
 void udp_transmit(struct udp_periph *p, uint8_t data)
 {
@@ -91,7 +96,9 @@ void udp_transmit(struct udp_periph *p, uint8_t data)
 }
 
 /**
- * Check if we have a character in the receive buffer
+ * Get number of bytes available in receive buffer.
+ * @param p pointer to UDP peripheral
+ * @return number of bytes available in receive buffer
  */
 uint16_t udp_char_available(struct udp_periph *p)
 {
@@ -103,7 +110,9 @@ uint16_t udp_char_available(struct udp_periph *p)
 }
 
 /**
- * Get the last character from the receive buffer
+ * Get the last character from the receive buffer.
+ * @param p pointer to UDP peripheral
+ * @return last byte
  */
 uint8_t udp_getch(struct udp_periph *p)
 {
