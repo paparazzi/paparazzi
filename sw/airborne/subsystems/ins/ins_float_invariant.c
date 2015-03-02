@@ -282,7 +282,6 @@ void ins_init()
   ins_impl.gains.rh   = INS_INV_RH;
   ins_impl.gains.sh   = INS_INV_SH;
 
-  ins.status = INS_UNINIT;
   ins_impl.is_aligned = FALSE;
   ins_impl.reset = FALSE;
 
@@ -357,7 +356,6 @@ void ins_float_invariant_align(struct Int32Rates *lp_gyro,
 
   // ins and ahrs are now running
   ins_impl.is_aligned = TRUE;
-  ins.status = INS_RUNNING;
 }
 
 void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* accel, float dt)
@@ -368,7 +366,6 @@ void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* a
   // a complete init cycle is required
   if (ins_impl.reset) {
     ins_impl.reset = FALSE;
-    ins.status = INS_UNINIT;
     ins_impl.is_aligned = FALSE;
     init_invariant_state();
   }
@@ -488,7 +485,7 @@ void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* a
 void ins_update_gps(void)
 {
 
-  if (gps.fix == GPS_FIX_3D && ins.status == INS_RUNNING) {
+  if (gps.fix == GPS_FIX_3D && ins_impl.is_aligned) {
     ins_gps_fix_once = TRUE;
 
 #if INS_UPDATE_FW_ESTIMATOR
@@ -672,7 +669,7 @@ static inline void error_output(struct InsFloatInv *_ins)
 
   // pos and speed error only if GPS data are valid
   // or while waiting first GPS data to prevent diverging
-  if ((gps.fix == GPS_FIX_3D && ins.status == INS_RUNNING
+  if ((gps.fix == GPS_FIX_3D && ins_impl.is_aligned
 #if INS_UPDATE_FW_ESTIMATOR
        && state.utm_initialized_f
 #else

@@ -32,11 +32,6 @@
 #include "math/pprz_algebra_float.h"
 #include "state.h"
 
-enum InsStatus {
-  INS_UNINIT = 0,
-  INS_RUNNING = 1
-};
-
 /* underlying includes (needed for parameters) */
 #ifdef INS_TYPE_H
 #include INS_TYPE_H
@@ -44,7 +39,6 @@ enum InsStatus {
 
 /** Inertial Navigation System state */
 struct Ins {
-  enum InsStatus status;     ///< status of the INS
 };
 
 /** global INS state */

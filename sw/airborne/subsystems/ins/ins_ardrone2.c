@@ -69,13 +69,6 @@ void ins_init()
   INT32_VECT3_ZERO(ins_impl.ltp_accel);
 }
 
-void ins_periodic(void)
-{
-  if (ins_impl.ltp_initialized) {
-    ins.status = INS_RUNNING;
-  }
-}
-
 void ins_reset_local_origin(void)
 {
 #if USE_GPS

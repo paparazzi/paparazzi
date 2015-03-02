@@ -40,8 +40,6 @@ void ins_init(void)
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
   stateSetPositionUtm_f(&utm0);
-
-  ins.status = INS_RUNNING;
 }
 
 void ins_reset_local_origin(void)

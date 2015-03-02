@@ -95,8 +95,6 @@ void ins_init(void)
 
   // why do we have this here?
   alt_kalman(0.0f, 0.1);
-
-  ins.status = INS_RUNNING;
 }
 
 

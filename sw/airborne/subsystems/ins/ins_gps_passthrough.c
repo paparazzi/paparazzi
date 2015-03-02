@@ -119,14 +119,6 @@ void ins_init(void)
 #endif
 }
 
-void ins_periodic(void)
-{
-  if (ins_impl.ltp_initialized) {
-    ins.status = INS_RUNNING;
-  }
-}
-
-
 void ins_reset_local_origin(void)
 {
   ltp_def_from_ecef_i(&ins_impl.ltp_def, &gps.ecef_pos);
