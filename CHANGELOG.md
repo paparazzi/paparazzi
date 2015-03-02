@@ -35,6 +35,29 @@ currently ongoing development, changes so far (no particular order, nor complete
 - modules: allow conditions in module defines and update meteo_stick
   [#1092] (https://github.com/paparazzi/paparazzi/pull/1092)
 - mcu_periph: increase max size for spi buffer length (8bits to 16bits)
+- GCS: fix undo for list of values
+  [#1054] (https://github.com/paparazzi/paparazzi/issues/1054)
+- ARDrone2: add support for dynamic Ad-Hoc networking with OSLR
+  [#1097] (https://github.com/paparazzi/paparazzi/pull/1097)
+- modules: airspeed_ets: add 3rd party mode support
+  [#1099] (https://github.com/paparazzi/paparazzi/pull/1099)
+- arch/linux: implement persistent settings
+  [#1109] (https://github.com/paparazzi/paparazzi/pull/1109)
+- actuators: dual dual pwm
+  [#1102] (https://github.com/paparazzi/paparazzi/pull/1102)
+- arch/linux: fix uart driver
+  [#1110] (https://github.com/paparazzi/paparazzi/pull/1110)
+- rotorcraft: fix attitude flight plan primitive (attitude_set_rpy_setpoint)
+  [#1103] (https://github.com/paparazzi/paparazzi/pull/1103)
+- NPS simulator: update FDM bindings to be compatible with latest JSBSim
+  [#1118] (https://github.com/paparazzi/paparazzi/pull/1118)
+- modules: refactor logger modules
+  [#1095] (https://github.com/paparazzi/paparazzi/pull/1095)
+- arch/linux: refactor UDP support
+  [#1120] (https://github.com/paparazzi/paparazzi/pull/1120)
+- airborne: major refactoring of AHRS interfaces using ABI
+  [#856] (https://github.com/paparazzi/paparazzi/pull/856)
+
 
 Paparazzi 5.4.1_stable
 ======================
