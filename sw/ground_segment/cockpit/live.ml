@@ -41,6 +41,9 @@ let track_size = ref 500
 
 let _auto_hide_fp = ref false
 
+(* request AIRCRAFTS list until got first answer from server *)
+let _req_aircrafts = ref true
+
 let min_height = 200
 let lines_height = 30
 
@@ -1420,8 +1423,8 @@ let listen_tcas = fun a timestamp ->
 let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt_graph timestamp ->
   (** Probe live A/Cs *)
   let probe = fun () ->
-    message_request "gcs" "AIRCRAFTS" [] (fun _sender vs -> aircrafts_msg my_alert geomap ac_notebook vs) in
-  let _ = GMain.Timeout.add 1000 (fun () -> probe (); if Hashtbl.length aircrafts = 0 then true else false) in
+    message_request "gcs" "AIRCRAFTS" [] (fun _sender vs -> _req_aircrafts := false; aircrafts_msg my_alert geomap ac_notebook vs) in
+  let _ = GMain.Timeout.add 1000 (fun () -> probe (); !_req_aircrafts) in
 
   (** New aircraft message *)
   safe_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac my_alert geomap ac_notebook (Pprz.string_assoc "ac_id" vs));
