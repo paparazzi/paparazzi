@@ -105,5 +105,6 @@ $(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
 #
 ifneq ($(MAKECMDGOALS),clean)
 DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
+DEPS += $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.cpp=.d))
 -include $(DEPS)
 endif
