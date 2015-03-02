@@ -158,7 +158,7 @@ let dump_module_section = fun xml f ->
               List.iter (fun target -> fprintf f "%s.srcs += arch/$(ARCH)/%s/%s\n" target dir_name name) targets
             | "raw" ->
               begin match Xml.children field with
-                  [Xml.PCData s] -> fprintf f "%s\n" s
+                  [Xml.PCData s] -> List.iter (fun target -> fprintf f "ifeq ($(TARGET), %s)\n%s\nendif\n" target s) targets
                 | _ -> fprintf stderr "Warning: wrong makefile section in module '%s'\n" name
               end
             | _ -> ()
