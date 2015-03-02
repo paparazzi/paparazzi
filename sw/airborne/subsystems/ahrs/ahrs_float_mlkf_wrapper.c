@@ -101,7 +101,7 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        struct Int32Vect3 *lp_mag)
 {
   if (!ahrs_mlkf.is_aligned) {
-    ahrs_mlkf_align(lp_accel, lp_accel, lp_mag);
+    ahrs_mlkf_align(lp_gyro, lp_accel, lp_mag);
   }
 }
 
