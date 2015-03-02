@@ -47,7 +47,7 @@ ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 
 #########################################
 ## Simulator
-SIM_TARGETS = sim jsbsim nps
+SIM_TARGETS = sim nps
 
 ifneq (,$(findstring $(TARGET),$(SIM_TARGETS)))
 

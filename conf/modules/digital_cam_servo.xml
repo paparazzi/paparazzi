@@ -23,7 +23,7 @@
 
   <periodic fun="servo_cam_ctrl_periodic()" freq="4" autorun="TRUE"/>
 
-  <makefile target="ap|sim|nps|jsbsim">
+  <makefile target="ap|sim|nps">
     <define name="DIGITAL_CAM"/>
     <file name="servo_cam_ctrl.c"/>
     <file name="dc.c"/>

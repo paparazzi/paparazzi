@@ -28,7 +28,7 @@ You can use:
   <header>
     <file name="nav_survey_poly_osam.h"/>
   </header>
-  <makefile target="ap|sim|jsbsim|nps">
+  <makefile target="ap|sim|nps">
     <file name="nav_survey_poly_osam.c"/>
   </makefile>
 </module>

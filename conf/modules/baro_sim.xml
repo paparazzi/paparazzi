@@ -14,7 +14,7 @@
   <init fun="baro_sim_init()"/>
   <periodic fun="baro_sim_periodic()" freq="10."/>
 
-  <makefile target="sim|jsbsim">
+  <makefile target="sim">
     <file name="baro_sim.c"/>
     <define name="USE_BARO_BOARD" value="FALSE"/>
   </makefile>

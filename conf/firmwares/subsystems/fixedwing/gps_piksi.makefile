@@ -27,9 +27,6 @@ sim.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
 sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
 sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
 
-jsbsim.CFLAGS += -DUSE_GPS -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
-jsbsim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
-
 nps.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
 nps.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"
 nps.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_nps.c

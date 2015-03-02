@@ -27,7 +27,7 @@
   <header>
     <file name="nav_cube.h"/>
   </header>
-  <makefile target="ap|sim|jsbsim|nps">
+  <makefile target="ap|sim|nps">
     <file name="nav_cube.c"/>
   </makefile>
 </module>
