@@ -1421,7 +1421,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
   (** Probe live A/Cs *)
   let probe = fun () ->
     message_request "gcs" "AIRCRAFTS" [] (fun _sender vs -> aircrafts_msg my_alert geomap ac_notebook vs) in
-  let _ = GMain.Idle.add (fun () -> probe (); false) in
+  let _ = GMain.Timeout.add 1000 (fun () -> probe (); if Hashtbl.length aircrafts = 0 then true else false) in
 
   (** New aircraft message *)
   safe_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac my_alert geomap ac_notebook (Pprz.string_assoc "ac_id" vs));
