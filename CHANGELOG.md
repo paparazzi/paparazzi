@@ -57,6 +57,12 @@ currently ongoing development, changes so far (no particular order, nor complete
   [#1120] (https://github.com/paparazzi/paparazzi/pull/1120)
 - airborne: major refactoring of AHRS interfaces using ABI
   [#856] (https://github.com/paparazzi/paparazzi/pull/856)
+- build: don't add full path to NPS object files
+  [#798] (https://github.com/paparazzi/paparazzi/issues/798)
+- simulator: remove jsbsim target (fully replaced by NPS)
+  [#1123] (https://github.com/paparazzi/paparazzi/pull/1123)
+- GCS: fix AIRCRAFTS syncronization issue with server (sometimes resulted in blank GCS)
+  [#1078] (https://github.com/paparazzi/paparazzi/issues/1078)
 
 
 Paparazzi 5.4.1_stable
