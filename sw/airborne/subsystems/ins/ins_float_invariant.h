@@ -115,15 +115,16 @@ struct InsFloatInv {
   bool_t is_aligned;
 };
 
-extern struct InsFloatInv ins_impl;
+extern struct InsFloatInv ins_float_inv;
 
-#define DefaultAhrsImpl ins_impl
+#define DefaultAhrsImpl ins_float_inv
+#define DefaultInsImpl ins_float_inv
 
-/** dummy for now, will be removed when not using ahrs interface anymore */
-static inline void ins_impl_register(void) {}
+extern void ins_float_inv_register(void);
+extern void ins_float_inv_update_gps(void);
 
-/** Currently still called from ins_propagate (declared in INS interface). */
-extern void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* accel, float dt);
+extern void ins_float_invariant_propagate(struct Int32Rates* gyro,
+                                          struct Int32Vect3* accel, float dt);
 
 /** called on IMU_LOWPASSED ABI message */
 extern void ins_float_invariant_align(struct Int32Rates *lp_gyro,
