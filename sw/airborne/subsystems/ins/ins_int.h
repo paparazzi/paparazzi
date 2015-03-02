@@ -65,6 +65,17 @@ struct InsInt {
 };
 
 /** global INS state */
-extern struct InsInt ins_impl;
+extern struct InsInt ins_int;
+
+extern void ins_int_init(void);
+extern void ins_int_propagate(struct Int32Vect3 *accel, float dt);
+extern void ins_int_update_gps(void);
+
+
+#ifndef DefaultInsImpl
+#define DefaultInsImpl ins_int
+#endif
+
+extern void ins_int_register(void);
 
 #endif /* INS_INT_H */

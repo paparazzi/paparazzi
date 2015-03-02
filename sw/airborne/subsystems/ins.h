@@ -37,15 +37,22 @@
 #include INS_TYPE_H
 #endif
 
+typedef void (*InsInit)(void);
+typedef void (*InsUpdateGps)(void);
+
 /** Inertial Navigation System state */
 struct Ins {
+  InsInit init;
+  InsUpdateGps update_gps;
 };
 
 /** global INS state */
 extern struct Ins ins;
 
+extern void ins_register_impl(InsInit init, InsUpdateGps update_gps);
+
 /** INS initialization. Called at startup.
- *  Needs to be implemented by each INS algorithm.
+ *  Initializes the global ins struct.
  */
 extern void ins_init(void);
 
@@ -69,16 +76,10 @@ extern void ins_reset_altitude_ref(void);
  */
 extern void ins_reset_utm_zone(struct UtmCoor_f *utm);
 
-/** Propagation. Usually integrates the gyro rates to angles.
- *  Reads the global #imu data struct.
- *  Does nothing if not implemented by specific INS algorithm.
- *  @param dt time difference since last propagation in seconds
- */
-extern void ins_propagate(float dt);
 
 /** Update INS state with GPS measurements.
+ *  Calls implementation if registered.
  *  Reads the global #gps data struct.
- *  Does nothing if not implemented by specific INS algorithm.
  */
 extern void ins_update_gps(void);
 

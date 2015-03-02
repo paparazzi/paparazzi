@@ -109,6 +109,10 @@ INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY t
 #define _DefaultAhrsRegister(_x) __DefaultAhrsRegister(_x)
 #define DefaultAhrsRegister() _DefaultAhrsRegister(DefaultAhrsImpl)
 
+#define __DefaultInsRegister(_x) _x ## _register()
+#define _DefaultInsRegister(_x) __DefaultInsRegister(_x)
+#define DefaultInsRegister() _DefaultInsRegister(DefaultInsImpl)
+
 static inline void on_gyro_event(void);
 static inline void on_accel_event(void);
 static inline void on_gps_event(void);
@@ -164,6 +168,7 @@ STATIC_INLINE void main_init(void)
   ins_init();
 
   DefaultAhrsRegister();
+  DefaultInsRegister();
 
 #if USE_GPS
   gps_init();
@@ -362,20 +367,6 @@ static inline void on_gyro_event( void ) {
 #ifdef SITL
   if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif
-
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for INS propagation.")
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
-  // dt between this and last callback in seconds
-  float dt = (float)(now_ts - last_ts) / 1e6;
-  last_ts = now_ts;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for INS propagation.")
-PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
-  const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-#endif
-  ins_propagate(dt);
 
 #ifdef USE_VEHICLE_INTERFACE
   vi_notify_imu_available();

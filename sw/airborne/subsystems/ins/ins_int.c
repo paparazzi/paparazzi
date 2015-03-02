@@ -116,7 +116,15 @@ PRINT_CONFIG_VAR(INS_BARO_ID)
 abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, float pressure);
 
-struct InsInt ins_impl;
+/** ABI binding for IMU data.
+ * Used accel ABI messages.
+ */
+#ifndef INS_INT_IMU_ID
+#define INS_INT_IMU_ID ABI_BROADCAST
+#endif
+static abi_event accel_ev;
+
+struct InsInt ins_int;
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -124,24 +132,24 @@ struct InsInt ins_impl;
 static void send_ins(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_INS(trans, dev, AC_ID,
-                    &ins_impl.ltp_pos.x, &ins_impl.ltp_pos.y, &ins_impl.ltp_pos.z,
-                    &ins_impl.ltp_speed.x, &ins_impl.ltp_speed.y, &ins_impl.ltp_speed.z,
-                    &ins_impl.ltp_accel.x, &ins_impl.ltp_accel.y, &ins_impl.ltp_accel.z);
+                    &ins_int.ltp_pos.x, &ins_int.ltp_pos.y, &ins_int.ltp_pos.z,
+                    &ins_int.ltp_speed.x, &ins_int.ltp_speed.y, &ins_int.ltp_speed.z,
+                    &ins_int.ltp_accel.x, &ins_int.ltp_accel.y, &ins_int.ltp_accel.z);
 }
 
 static void send_ins_z(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_INS_Z(trans, dev, AC_ID,
-                      &ins_impl.baro_z, &ins_impl.ltp_pos.z, &ins_impl.ltp_speed.z, &ins_impl.ltp_accel.z);
+                      &ins_int.baro_z, &ins_int.ltp_pos.z, &ins_int.ltp_speed.z, &ins_int.ltp_accel.z);
 }
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 {
-  if (ins_impl.ltp_initialized) {
+  if (ins_int.ltp_initialized) {
     pprz_msg_send_INS_REF(trans, dev, AC_ID,
-                          &ins_impl.ltp_def.ecef.x, &ins_impl.ltp_def.ecef.y, &ins_impl.ltp_def.ecef.z,
-                          &ins_impl.ltp_def.lla.lat, &ins_impl.ltp_def.lla.lon, &ins_impl.ltp_def.lla.alt,
-                          &ins_impl.ltp_def.hmsl, &ins_impl.qfe);
+                          &ins_int.ltp_def.ecef.x, &ins_int.ltp_def.ecef.y, &ins_int.ltp_def.ecef.z,
+                          &ins_int.ltp_def.lla.lat, &ins_int.ltp_def.lla.lon, &ins_int.ltp_def.lla.alt,
+                          &ins_int.ltp_def.hmsl, &ins_int.qfe);
   }
 }
 #endif
@@ -154,28 +162,28 @@ static void ins_update_from_hff(void);
 #endif
 
 
-void ins_init(void)
+void ins_int_init(void)
 {
 
 #if USE_INS_NAV_INIT
   ins_init_origin_from_flightplan();
-  ins_impl.ltp_initialized = TRUE;
+  ins_int.ltp_initialized = TRUE;
 #else
-  ins_impl.ltp_initialized  = FALSE;
+  ins_int.ltp_initialized  = FALSE;
 #endif
 
   // Bind to BARO_ABS message
   AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
-  ins_impl.baro_initialized = FALSE;
+  ins_int.baro_initialized = FALSE;
 
 #if USE_SONAR
-  ins_impl.update_on_agl = INS_SONAR_UPDATE_ON_AGL;
+  ins_int.update_on_agl = INS_SONAR_UPDATE_ON_AGL;
   // Bind to AGL message
   AbiBindMsgAGL(INS_SONAR_ID, &sonar_ev, sonar_cb);
 #endif
 
-  ins_impl.vf_reset = FALSE;
-  ins_impl.hf_realign = FALSE;
+  ins_int.vf_reset = FALSE;
+  ins_int.hf_realign = FALSE;
 
   /* init vertical and horizontal filters */
   vff_init_zero();
@@ -183,9 +191,9 @@ void ins_init(void)
   b2_hff_init(0., 0., 0., 0.);
 #endif
 
-  INT32_VECT3_ZERO(ins_impl.ltp_pos);
-  INT32_VECT3_ZERO(ins_impl.ltp_speed);
-  INT32_VECT3_ZERO(ins_impl.ltp_accel);
+  INT32_VECT3_ZERO(ins_int.ltp_pos);
+  INT32_VECT3_ZERO(ins_int.ltp_speed);
+  INT32_VECT3_ZERO(ins_int.ltp_accel);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "INS", send_ins);
@@ -198,23 +206,23 @@ void ins_reset_local_origin(void)
 {
 #if USE_GPS
   if (gps.fix == GPS_FIX_3D) {
-    ltp_def_from_ecef_i(&ins_impl.ltp_def, &gps.ecef_pos);
-    ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
-    ins_impl.ltp_def.hmsl = gps.hmsl;
-    ins_impl.ltp_initialized = TRUE;
-    stateSetLocalOrigin_i(&ins_impl.ltp_def);
+    ltp_def_from_ecef_i(&ins_int.ltp_def, &gps.ecef_pos);
+    ins_int.ltp_def.lla.alt = gps.lla_pos.alt;
+    ins_int.ltp_def.hmsl = gps.hmsl;
+    ins_int.ltp_initialized = TRUE;
+    stateSetLocalOrigin_i(&ins_int.ltp_def);
   }
   else {
-    ins_impl.ltp_initialized = FALSE;
+    ins_int.ltp_initialized = FALSE;
   }
 #else
-  ins_impl.ltp_initialized = FALSE;
+  ins_int.ltp_initialized = FALSE;
 #endif
 
 #if USE_HFF
-  ins_impl.hf_realign = TRUE;
+  ins_int.hf_realign = TRUE;
 #endif
-  ins_impl.vf_reset = TRUE;
+  ins_int.vf_reset = TRUE;
 }
 
 void ins_reset_altitude_ref(void)
@@ -225,40 +233,40 @@ void ins_reset_altitude_ref(void)
     .lon = state.ned_origin_i.lla.lon,
     .alt = gps.lla_pos.alt
   };
-  ltp_def_from_lla_i(&ins_impl.ltp_def, &lla);
-  ins_impl.ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ins_impl.ltp_def);
+  ltp_def_from_lla_i(&ins_int.ltp_def, &lla);
+  ins_int.ltp_def.hmsl = gps.hmsl;
+  stateSetLocalOrigin_i(&ins_int.ltp_def);
 #endif
-  ins_impl.vf_reset = TRUE;
+  ins_int.vf_reset = TRUE;
 }
 
-void ins_propagate(float dt)
+void ins_int_propagate(struct Int32Vect3 *accel, float dt)
 {
   /* untilt accels */
   struct Int32Vect3 accel_meas_body;
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
-  int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, &imu.accel);
+  int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, accel);
   struct Int32Vect3 accel_meas_ltp;
   int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), &accel_meas_body);
 
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
-  if (ins_impl.baro_initialized) {
+  if (ins_int.baro_initialized) {
     vff_propagate(z_accel_meas_float, dt);
     ins_update_from_vff();
   } else { // feed accel from the sensors
     // subtract -9.81m/s2 (acceleration measured due to gravity,
     // but vehicle not accelerating in ltp)
-    ins_impl.ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
+    ins_int.ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
   }
 
 #if USE_HFF
   /* propagate horizontal filter */
   b2_hff_propagate();
-  /* convert and copy result to ins_impl */
+  /* convert and copy result to ins_int */
   ins_update_from_hff();
 #else
-  ins_impl.ltp_accel.x = accel_meas_ltp.x;
-  ins_impl.ltp_accel.y = accel_meas_ltp.y;
+  ins_int.ltp_accel.x = accel_meas_ltp.x;
+  ins_int.ltp_accel.y = accel_meas_ltp.y;
 #endif /* USE_HFF */
 
   ins_ned_to_state();
@@ -266,24 +274,24 @@ void ins_propagate(float dt)
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 {
-  if (!ins_impl.baro_initialized && pressure > 1e-7) {
+  if (!ins_int.baro_initialized && pressure > 1e-7) {
     // wait for a first positive value
-    ins_impl.qfe = pressure;
-    ins_impl.baro_initialized = TRUE;
+    ins_int.qfe = pressure;
+    ins_int.baro_initialized = TRUE;
   }
 
-  if (ins_impl.baro_initialized) {
-    if (ins_impl.vf_reset) {
-      ins_impl.vf_reset = FALSE;
-      ins_impl.qfe = pressure;
+  if (ins_int.baro_initialized) {
+    if (ins_int.vf_reset) {
+      ins_int.vf_reset = FALSE;
+      ins_int.qfe = pressure;
       vff_realign(0.);
       ins_update_from_vff();
     } else {
-      ins_impl.baro_z = -pprz_isa_height_of_pressure(pressure, ins_impl.qfe);
+      ins_int.baro_z = -pprz_isa_height_of_pressure(pressure, ins_int.qfe);
 #if USE_VFF_EXTENDED
-      vff_update_baro(ins_impl.baro_z);
+      vff_update_baro(ins_int.baro_z);
 #else
-      vff_update(ins_impl.baro_z);
+      vff_update(ins_int.baro_z);
 #endif
     }
     ins_ned_to_state();
@@ -291,22 +299,22 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 }
 
 #if USE_GPS
-void ins_update_gps(void)
+void ins_int_update_gps(void)
 {
   if (gps.fix == GPS_FIX_3D) {
-    if (!ins_impl.ltp_initialized) {
-      ltp_def_from_ecef_i(&ins_impl.ltp_def, &gps.ecef_pos);
-      ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
-      ins_impl.ltp_def.hmsl = gps.hmsl;
-      ins_impl.ltp_initialized = TRUE;
-      stateSetLocalOrigin_i(&ins_impl.ltp_def);
+    if (!ins_int.ltp_initialized) {
+      ltp_def_from_ecef_i(&ins_int.ltp_def, &gps.ecef_pos);
+      ins_int.ltp_def.lla.alt = gps.lla_pos.alt;
+      ins_int.ltp_def.hmsl = gps.hmsl;
+      ins_int.ltp_initialized = TRUE;
+      stateSetLocalOrigin_i(&ins_int.ltp_def);
     }
 
     struct NedCoor_i gps_pos_cm_ned;
-    ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_impl.ltp_def, &gps.ecef_pos);
+    ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_int.ltp_def, &gps.ecef_pos);
     /// @todo maybe use gps.ned_vel directly??
     struct NedCoor_i gps_speed_cm_s_ned;
-    ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_impl.ltp_def, &gps.ecef_vel);
+    ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_int.ltp_def, &gps.ecef_vel);
 
 #if INS_USE_GPS_ALT
     vff_update_z_conf((float)gps_pos_cm_ned.z / 100.0, INS_VFF_R_GPS);
@@ -322,27 +330,29 @@ void ins_update_gps(void)
     VECT2_ASSIGN(gps_speed_m_s_ned, gps_speed_cm_s_ned.x, gps_speed_cm_s_ned.y);
     VECT2_SDIV(gps_speed_m_s_ned, gps_speed_m_s_ned, 100.);
 
-    if (ins_impl.hf_realign) {
-      ins_impl.hf_realign = FALSE;
+    if (ins_int.hf_realign) {
+      ins_int.hf_realign = FALSE;
       const struct FloatVect2 zero = {0.0f, 0.0f};
       b2_hff_realign(gps_pos_m_ned, zero);
     }
     // run horizontal filter
     b2_hff_update_gps(&gps_pos_m_ned, &gps_speed_m_s_ned);
-    // convert and copy result to ins_impl
+    // convert and copy result to ins_int
     ins_update_from_hff();
 
 #else  /* hff not used */
     /* simply copy horizontal pos/speed from gps */
-    INT32_VECT2_SCALE_2(ins_impl.ltp_pos, gps_pos_cm_ned,
+    INT32_VECT2_SCALE_2(ins_int.ltp_pos, gps_pos_cm_ned,
                         INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
-    INT32_VECT2_SCALE_2(ins_impl.ltp_speed, gps_speed_cm_s_ned,
+    INT32_VECT2_SCALE_2(ins_int.ltp_speed, gps_speed_cm_s_ned,
                         INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
 #endif /* USE_HFF */
 
     ins_ned_to_state();
   }
 }
+#else
+void ins_int_update_gps(void) {}
 #endif /* USE_GPS */
 
 
@@ -357,10 +367,10 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, float distance)
       && stabilization_cmd[COMMAND_THRUST] < INS_SONAR_THROTTLE_THRESHOLD
 #endif
 #ifdef INS_SONAR_BARO_THRESHOLD
-      && ins_impl.baro_z > -INS_SONAR_BARO_THRESHOLD /* z down */
+      && ins_int.baro_z > -INS_SONAR_BARO_THRESHOLD /* z down */
 #endif
-      && ins_impl.update_on_agl
-      && ins_impl.baro_initialized) {
+      && ins_int.update_on_agl
+      && ins_int.baro_initialized) {
     vff_update_z_conf(-(distance), VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabsf(distance));
     last_offset = vff.offset;
   } else {
@@ -384,18 +394,18 @@ static void ins_init_origin_from_flightplan(void)
   struct EcefCoor_i ecef_nav0;
   ecef_of_lla_i(&ecef_nav0, &llh_nav0);
 
-  ltp_def_from_ecef_i(&ins_impl.ltp_def, &ecef_nav0);
-  ins_impl.ltp_def.hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(&ins_impl.ltp_def);
+  ltp_def_from_ecef_i(&ins_int.ltp_def, &ecef_nav0);
+  ins_int.ltp_def.hmsl = NAV_ALT0;
+  stateSetLocalOrigin_i(&ins_int.ltp_def);
 
 }
 
 /** copy position and speed to state interface */
 static void ins_ned_to_state(void)
 {
-  stateSetPositionNed_i(&ins_impl.ltp_pos);
-  stateSetSpeedNed_i(&ins_impl.ltp_speed);
-  stateSetAccelNed_i(&ins_impl.ltp_accel);
+  stateSetPositionNed_i(&ins_int.ltp_pos);
+  stateSetSpeedNed_i(&ins_int.ltp_speed);
+  stateSetAccelNed_i(&ins_int.ltp_accel);
 
 #if defined SITL && USE_NPS
   if (nps_bypass_ins) {
@@ -407,20 +417,45 @@ static void ins_ned_to_state(void)
 /** update ins state from vertical filter */
 static void ins_update_from_vff(void)
 {
-  ins_impl.ltp_accel.z = ACCEL_BFP_OF_REAL(vff.zdotdot);
-  ins_impl.ltp_speed.z = SPEED_BFP_OF_REAL(vff.zdot);
-  ins_impl.ltp_pos.z   = POS_BFP_OF_REAL(vff.z);
+  ins_int.ltp_accel.z = ACCEL_BFP_OF_REAL(vff.zdotdot);
+  ins_int.ltp_speed.z = SPEED_BFP_OF_REAL(vff.zdot);
+  ins_int.ltp_pos.z   = POS_BFP_OF_REAL(vff.z);
 }
 
 #if USE_HFF
 /** update ins state from horizontal filter */
 static void ins_update_from_hff(void)
 {
-  ins_impl.ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
-  ins_impl.ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
-  ins_impl.ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
-  ins_impl.ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
-  ins_impl.ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
-  ins_impl.ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
+  ins_int.ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
+  ins_int.ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
+  ins_int.ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
+  ins_int.ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
+  ins_int.ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
+  ins_int.ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
 }
 #endif
+
+
+static void accel_cb(uint8_t sender_id __attribute__((unused)),
+                     uint32_t stamp, struct Int32Vect3 *accel)
+{
+  PRINT_CONFIG_MSG("Calculating dt for INS int propagation.")
+  /* timestamp in usec when last callback was received */
+  static uint32_t last_stamp = 0;
+
+  if (last_stamp > 0) {
+    float dt = (float)(stamp - last_stamp) * 1e-6;
+    ins_int_propagate(accel, dt);
+  }
+  last_stamp = stamp;
+}
+
+void ins_int_register(void)
+{
+  ins_register_impl(ins_int_init, ins_int_update_gps);
+
+  /*
+   * Subscribe to scaled IMU measurements and attach callbacks
+   */
+  AbiBindMsgIMU_ACCEL_INT32(INS_INT_IMU_ID, &accel_ev, accel_cb);
+}

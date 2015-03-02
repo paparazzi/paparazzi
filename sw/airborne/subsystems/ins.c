@@ -35,9 +35,28 @@
 
 struct Ins ins;
 
+void ins_register_impl(InsInit init, InsUpdateGps update_gps)
+{
+  ins.init = init;
+  ins.update_gps = update_gps;
+
+  ins.init();
+}
+
+void ins_init(void)
+{
+  ins.init = NULL;
+  ins.update_gps = NULL;
+}
+
+void ins_update_gps(void)
+{
+  if (ins.update_gps != NULL) {
+    ins.update_gps();
+  }
+}
 
 // weak functions, used if not explicitly provided by implementation
-
 
 void WEAK ins_reset_local_origin(void)
 {
@@ -81,7 +100,4 @@ void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
 #else
 void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm __attribute__((unused))) {}
 #endif
-
-
-void WEAK ins_update_gps(void) {}
 
