@@ -20,7 +20,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file actuators.c
+/** @file subsystems/actuators.c
  *  Hardware independent actuators code.
  *
  */
