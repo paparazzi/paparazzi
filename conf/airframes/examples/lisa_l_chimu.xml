@@ -7,9 +7,6 @@
     <target name="sim" board="pc">
       <subsystem name="ahrs" type="int_cmpl_quat"/>
     </target>
-    <target name="jsbsim"       board="pc">
-      <subsystem name="ahrs" type="int_cmpl_quat"/>
-    </target>
 
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
@@ -143,12 +140,6 @@
     <define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
     <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
-  </section>
-
-  <section name="SIMU">
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
-    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="0." unit="deg"/>
-    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="0." unit="deg"/>
   </section>
 
   <section name="INS" prefix="INS_">

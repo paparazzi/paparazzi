@@ -10,9 +10,6 @@ ap.srcs   += $(ins_srcs)
 sim.CFLAGS += $(ins_CFLAGS)
 sim.srcs   += $(ins_srcs)
 
-jsbsim.CFLAGS += $(ins_CFLAGS)
-jsbsim.srcs   += $(ins_srcs)
-
 nps.CFLAGS += $(ins_CFLAGS)
 nps.srcs   += $(ins_srcs)
 

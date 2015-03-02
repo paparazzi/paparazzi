@@ -41,7 +41,7 @@
       nps.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"
     </raw>
   </makefile>
-  <makefile target="sim|jsbsim">
+  <makefile target="sim">
     <file name="gps_sim.c" dir="subsystems/gps"/>
     <define name="USE_GPS"/>
     <define name="GPS_USE_LATLONG"/>

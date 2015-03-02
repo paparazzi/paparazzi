@@ -35,7 +35,7 @@
   <init fun="nav_catapult_setup()"/>
   <!-- Run High Rate Lauch Detector -->
   <periodic fun="nav_catapult_highrate_module()" autorun="TRUE"/>
-  <makefile target="ap|sim|jsbsim|nps">
+  <makefile target="ap|sim|nps">
     <file name="nav_catapult.c"/>
   </makefile>
 </module>

@@ -58,5 +58,3 @@ ahrssim_srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
 sim.CFLAGS += $(ahrssim_CFLAGS)
 sim.srcs += $(ahrssim_srcs)
 
-jsbsim.CFLAGS += $(ahrssim_CFLAGS)
-jsbsim.srcs += $(ahrssim_srcs)

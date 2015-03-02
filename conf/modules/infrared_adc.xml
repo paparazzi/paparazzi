@@ -31,7 +31,7 @@
   </header>
   <init fun="infrared_adc_init()"/>
   <periodic fun="infrared_adc_update()" freq="60."/>
-  <makefile target="ap|sim|jsbsim">
+  <makefile target="ap|sim">
     <define name="USE_INFRARED_TELEMETRY"/>
     <file name="infrared.c" dir="subsystems/sensors"/>
     <file name="infrared_adc.c" dir="subsystems/sensors"/>

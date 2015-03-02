@@ -179,7 +179,7 @@ let get_simtype = fun (target_combo : Gtk_tools.combo) ->
   (* get the list of possible targets *)
   let targets = Gtk_tools.combo_values_list target_combo in
   (* filter non simulator targets *)
-  let sim_targets = ["sim"; "jsbsim"; "nps"] in
+  let sim_targets = ["sim"; "nps"] in
   let targets = List.filter (fun t -> List.mem t sim_targets) targets in
   (* open question box and return corresponding simulator type *)
   match targets with
