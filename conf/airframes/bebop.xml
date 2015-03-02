@@ -27,7 +27,7 @@
 
   <modules main_freq="512">
     <load name="send_imu_mag_current.xml"/>
-    <load name="file_logger.xml">
+    <load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="\\\"/data/ftp/internal_000/\\\""/>
     </load>
   </modules>

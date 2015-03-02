@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Christoph Niemann
+ * Copyright (C) 2015 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,27 +20,32 @@
  *
  */
 
-/**
- * This module provides a timestamp-message, allowing
- * sw/logalizer/openlog2tlm to convert a recorded dumpfile,
- * created by openlog into the pprz-tlm format, to be converted into
- * .data and .log files by sw/logalizer/sd2log
- */
+#ifndef LOGGER_UART_H_
+#define LOGGER_UART_H_
 
-#include "openlog.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
-#include "mcu_periph/uart.h"
+#include "std.h"
 
+extern void logger_uart_init(void);
+extern void logger_uart_periodic(void);
 
-uint32_t timestamp = 0; ///< Timestamp to be incremented during operation
+#define PACKED __attribute__((__packed__))
 
-void init_openlog(void)
-{
-}
+//union {
+  struct PACKED logger_uart_data_struct {
+    uint16_t start;
+    int16_t id;         // 1
+    int16_t gyro_p;     // 2
+    int16_t gyro_q;
+    int16_t gyro_r;
+    int16_t acc_x;      // 5
+    int16_t acc_y;
+    int16_t acc_z;
+    int16_t phi;        // 11
+    int16_t theta;
+    int16_t psi;
+    uint8_t crc;
+  };
+//  uint8_t bytes[23];
+//} logger_uart_data_union;
 
-void periodic_2Hz_openlog(void)
-{
-  timestamp = timestamp + 500;
-  DOWNLINK_SEND_TIMESTAMP(DefaultChannel, DefaultDevice, &timestamp);
-}
+#endif /* LOGGER_UART_H_ */

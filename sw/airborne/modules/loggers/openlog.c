@@ -17,20 +17,24 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** \file openlog.h
+/**
+ * @file openlog.c
+ *
  * This module provides a timestamp-message, allowing
  * sw/logalizer/openlog2tlm to convert a recorded dumpfile,
  * created by openlog into the pprz-tlm format, to be converted into
  * .data and .log files by sw/logalizer/sd2log
  */
 
-#ifndef OPENLOG_H
-#define OPENLOG_H
+#include "openlog.h"
+#include "messages.h"
+#include "subsystems/datalink/downlink.h"
+#include "mcu_periph/sys_time.h"
 
-void init_openlog(void);
-void periodic_2Hz_openlog(void);
-
-#endif
+void periodic_2Hz_openlog(void)
+{
+  uint32_t timestamp = get_sys_time_msec();
+  DOWNLINK_SEND_TIMESTAMP(DefaultChannel, DefaultDevice, &timestamp);
+}

@@ -41,7 +41,7 @@
   <!-- ************************* MODULES ************************* -->
 
   <modules main_freq="512">
-    <!--   <load name="high_speed_logger_spi_link.xml"/> -->
+    <!--   <load name="logger_spi_link.xml"/> -->
     <load name="imu_quality_assessment.xml"/>
     <load name="gps_ubx_ucenter.xml" />
   </modules>
