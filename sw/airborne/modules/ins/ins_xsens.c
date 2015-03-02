@@ -256,11 +256,6 @@ void ins_init(void)
   xsens_init();
 }
 
-void ins_periodic(void)
-{
-  xsens_periodic();
-}
-
 void ins_update_gps(void)
 {
   struct UtmCoor_f utm;

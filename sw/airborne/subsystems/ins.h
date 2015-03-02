@@ -49,11 +49,6 @@ extern struct Ins ins;
  */
 extern void ins_init(void);
 
-/** INS periodic call.
- *  Does nothing if not implemented by specific INS algorithm.
- */
-extern void ins_periodic(void);
-
 /** INS local origin reset.
  *  Reset horizontal and vertical reference to the current position.
  *  Does nothing if not implemented by specific INS algorithm.

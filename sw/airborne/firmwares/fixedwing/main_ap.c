@@ -634,7 +634,10 @@ void sensors_task(void)
   gps_periodic_check();
 #endif
 
-  ins_periodic();
+  //FIXME: temporary hack, remove me
+#if USE_INS_MODULE
+  xsens_periodic();
+#endif
 }
 
 
