@@ -51,6 +51,7 @@ static abi_event accel_ev;
 static abi_event mag_ev;
 static abi_event aligner_ev;
 static abi_event body_to_imu_ev;
+static abi_event geo_mag_ev;
 
 
 static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
@@ -111,6 +112,11 @@ static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
   ahrs_mlkf_set_body_to_imu_quat(q_b2i_f);
 }
 
+static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVect3 *h)
+{
+  memcpy(&ahrs_mlkf.mag_h, h, sizeof(struct FloatVect3));
+}
+
 void ahrs_mlkf_register(void)
 {
   ahrs_register_impl(ahrs_mlkf_init, NULL);
@@ -123,6 +129,7 @@ void ahrs_mlkf_register(void)
   AbiBindMsgIMU_MAG_INT32(AHRS_MLKF_IMU_ID, &mag_ev, mag_cb);
   AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
+  AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "GEO_MAG", send_geo_mag);

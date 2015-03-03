@@ -7,8 +7,6 @@ USE_MAGNETOMETER ?= 1
 INS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ins/ins_float_invariant_wrapper.h\"
 INS_CFLAGS += -DUSE_AHRS_ALIGNER
 INS_CFLAGS += -DUSE_AHRS
-# for geo mag
-INS_CFLAGS += -DAHRS_FLOAT
 
 ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))
   INS_CFLAGS += -DUSE_MAGNETOMETER

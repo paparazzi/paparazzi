@@ -46,7 +46,10 @@
       <field name="q_b2i_f" type="struct FloatQuat *"/>
     </message>
 
-  </msg_class>
+    <message name="GEO_MAG" id="9">
+      <field name="h" type="struct FloatVect3 *" unit="1.0"/>
+    </message>
 
+  </msg_class>
 
 </protocol>
