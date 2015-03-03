@@ -1359,9 +1359,9 @@ let get_svsinfo = fun alarm _sender vs ->
   if !gps_last_acc <> new_acc then begin
     match new_acc, !gps_last_acc with
     | GPS_ACC_HIGH, GPS_NO_ACC -> () (* nothing if pacc is good from the start *)
-    | GPS_ACC_HIGH, _ -> log_and_say alarm "gcs" "GPS accuracy below 10 meter"
-    | GPS_ACC_LOW, _ -> log_and_say alarm "gcs" "low GPS accuracy"
-    | GPS_ACC_VERY_LOW, _ -> log_and_say alarm "gcs" "Warning: very low GPS accuracy"
+    | GPS_ACC_HIGH, _ -> log_and_say alarm "gcs" (sprintf "%s, GPS accuracy below 10 meter" ac.ac_speech_name)
+    | GPS_ACC_LOW, _ -> log_and_say alarm "gcs" (sprintf "%s, low GPS accuracy" ac.ac_speech_name)
+    | GPS_ACC_VERY_LOW, _ -> log_and_say alarm "gcs" (sprintf "%s, Warning: very low GPS accuracy" ac.ac_speech_name)
     | _, _ -> ()
   end;
 
