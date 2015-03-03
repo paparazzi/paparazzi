@@ -16,17 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- *
  */
-
 
 /**
  * @file subsystems/ins/ins_float_invariant.c
  * @author Jean-Philippe Condomines <jp.condomines@gmail.com>
  *
  * INS using invariant filter.
- *
- * Only for fixedwing currenctly
  *
  */
 
@@ -50,28 +46,7 @@
 #include "math/pprz_rk_float.h"
 #include "math/pprz_isa.h"
 
-#include "subsystems/abi.h"
 #include "state.h"
-
-#include "led.h"
-
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
-
-#if !INS_UPDATE_FW_ESTIMATOR && PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
-static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
-{
-  float foo = 0.;
-  if (state.ned_initialized_i) {
-    pprz_msg_send_INS_REF(trans, dev, AC_ID,
-                          &state.ned_origin_i.ecef.x, &state.ned_origin_i.ecef.y, &state.ned_origin_i.ecef.z,
-                          &state.ned_origin_i.lla.lat, &state.ned_origin_i.lla.lon, &state.ned_origin_i.lla.alt,
-                          &state.ned_origin_i.hmsl, &foo);
-  }
-}
-#endif
 
 
 #if LOG_INVARIANT_FILTER
@@ -169,38 +144,6 @@ static const struct FloatVect3 A = { 0.f, 0.f, 9.81f };
 
 /* barometer */
 bool_t ins_baro_initialized;
-// Baro event on ABI
-#ifndef INS_BARO_ID
-#if USE_BARO_BOARD
-#define INS_BARO_ID BARO_BOARD_SENDER_ID
-#else
-#define INS_BARO_ID ABI_BROADCAST
-#endif
-#endif
-PRINT_CONFIG_VAR(INS_BARO_ID)
-abi_event baro_ev;
-static void baro_cb(uint8_t sender_id, float pressure);
-
-/* magnetometer */
-#ifndef INS_MAG_ID
-#define INS_MAG_ID ABI_BROADCAST
-#endif
-static abi_event mag_ev;
-static void mag_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp,
-                   struct Int32Vect3 *mag);
-
-static abi_event aligner_ev;
-static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
-                       uint32_t stamp __attribute__((unused)),
-                       struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
-                       struct Int32Vect3 *lp_mag);
-
-#ifndef INS_IMU_ID
-#define INS_IMU_ID ABI_BROADCAST
-#endif
-static abi_event gyro_ev;
-static void gyro_cb(uint8_t sender_id __attribute__((unused)),
-                    uint32_t stamp, struct Int32Rates *gyro);
 
 /* gps */
 bool_t ins_gps_fix_once;
@@ -510,7 +453,7 @@ void ins_float_inv_update_gps(void)
 }
 
 
-static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
+void ins_float_invariant_update_baro(float pressure)
 {
   static float ins_qfe = 101325.0f;
   static float alpha = 10.0f;
@@ -551,7 +494,7 @@ void ins_float_invariant_update_mag(struct Int32Vect3* mag)
   static uint32_t mag_frozen_count = MAG_FROZEN_COUNT;
   static int32_t last_mx = 0;
 
-  if (last_mx == imu.mag.x) {
+  if (last_mx == mag->x) {
     mag_frozen_count--;
     if (mag_frozen_count == 0) {
       // if mag is dead, better set measurements to zero
@@ -568,7 +511,7 @@ void ins_float_invariant_update_mag(struct Int32Vect3* mag)
     // reset counter
     mag_frozen_count = MAG_FROZEN_COUNT;
   }
-  last_mx = imu.mag.x;
+  last_mx = mag->x;
 }
 
 
@@ -742,52 +685,4 @@ void float_quat_vmul_right(struct FloatQuat *mright, const struct FloatQuat *q,
   VECT3_SMUL(v2, *vi, q->qi);
   VECT3_ADD(v2, v1);
   QUAT_ASSIGN(*mright, qi, v2.x, v2.y, v2.z);
-}
-
-static void gyro_cb(uint8_t sender_id __attribute__((unused)),
-                   uint32_t stamp, struct Int32Rates *gyro)
-{
-  PRINT_CONFIG_MSG("Calculating dt for INS float_invariant propagation.")
-  /* timestamp in usec when last callback was received */
-  static uint32_t last_stamp = 0;
-
-  if (last_stamp > 0) {
-    float dt = (float)(stamp - last_stamp) * 1e-6;
-    ins_float_invariant_propagate(gyro, &imu.accel, dt);
-  }
-  last_stamp = stamp;
-}
-
-static void mag_cb(uint8_t sender_id __attribute__((unused)),
-                   uint32_t stamp __attribute__((unused)),
-                   struct Int32Vect3 *mag)
-{
-  if (ins_float_inv.is_aligned) {
-    ins_float_invariant_update_mag(mag);
-  }
-}
-
-static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
-                       uint32_t stamp __attribute__((unused)),
-                       struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
-                       struct Int32Vect3 *lp_mag)
-{
-  if (!ins_float_inv.is_aligned) {
-    ins_float_invariant_align(lp_gyro, lp_accel, lp_mag);
-  }
-}
-
-void ins_float_inv_register(void)
-{
-  ins_register_impl(ins_float_inv_init, ins_float_inv_update_gps);
-
- // Bind to ABI messages
-  AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
-  AbiBindMsgIMU_MAG_INT32(INS_MAG_ID, &mag_ev, mag_cb);
-  AbiBindMsgIMU_GYRO_INT32(INS_IMU_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
-
-#if !INS_UPDATE_FW_ESTIMATOR && PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
-#endif
 }

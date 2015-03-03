@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- *
  */
 
-
-/*
+/**
+ * @file subsystems/ins/ins_float_invariant.h
+ * INS using invariant filter.
  * For more information, please send an email to "jp.condomines@gmail.com"
  */
 
@@ -117,22 +117,19 @@ struct InsFloatInv {
 
 extern struct InsFloatInv ins_float_inv;
 
-#define DefaultAhrsImpl ins_float_inv
-#define DefaultInsImpl ins_float_inv
-
-extern void ins_float_inv_register(void);
+extern void ins_float_inv_init(void);
 extern void ins_float_inv_update_gps(void);
 
 extern void ins_float_invariant_propagate(struct Int32Rates* gyro,
                                           struct Int32Vect3* accel, float dt);
 
-/** called on IMU_LOWPASSED ABI message */
 extern void ins_float_invariant_align(struct Int32Rates *lp_gyro,
                                       struct Int32Vect3 *lp_accel,
                                       struct Int32Vect3 *lp_mag);
 
-/** called on IMU_MAG_INT32 ABI messages */
 extern void ins_float_invariant_update_mag(struct Int32Vect3* mag);
+
+extern void ins_float_invariant_update_baro(float pressure);
 
 #endif /* INS_FLOAT_INVARIANT_H */
 
