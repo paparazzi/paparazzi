@@ -24,6 +24,8 @@
 
 
 type color = string
+type gps_acc_level = GPS_ACC_HIGH | GPS_ACC_LOW | GPS_ACC_VERY_LOW | GPS_NO_ACC
+
 type aircraft = private {
     ac_name : string;
     ac_speech_name : string;
@@ -62,7 +64,8 @@ type aircraft = private {
     mutable dl_values : string option array;
     mutable last_unix_time : float;
     mutable airspeed : float;
-    mutable version : string
+    mutable version : string;
+    mutable last_gps_acc : gps_acc_level
   }
 
 val aircrafts : (string, aircraft) Hashtbl.t
