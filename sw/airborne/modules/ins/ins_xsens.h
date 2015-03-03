@@ -46,6 +46,7 @@ extern struct XsensTime xsens_time;
 extern uint8_t xsens_msg_status;
 extern uint16_t xsens_time_stamp;
 
+extern void xsens_periodic(void);
 
 /* To use Xsens to just provide IMU measurements
  * for use with an external AHRS algorithm
@@ -82,6 +83,11 @@ extern struct ImuXsens imu_xsens;
 #define InsEvent(_ins_handler) {  \
     InsEventCheckAndHandle(handle_ins_msg())      \
   }
+#define DefaultInsImpl ins_xsens
+#define InsPeriodic xsens_periodic
+extern void ins_xsens_init(void);
+extern void ins_xsens_update_gps(void);
+extern void ins_xsens_register(void);
 #endif
 
 

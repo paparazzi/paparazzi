@@ -131,6 +131,10 @@ PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 #define _DefaultAhrsRegister(_x) __DefaultAhrsRegister(_x)
 #define DefaultAhrsRegister() _DefaultAhrsRegister(DefaultAhrsImpl)
 
+#define __DefaultInsRegister(_x) _x ## _register()
+#define _DefaultInsRegister(_x) __DefaultInsRegister(_x)
+#define DefaultInsRegister() _DefaultInsRegister(DefaultInsImpl)
+
 #if USE_AHRS && USE_IMU
 
 #ifdef AHRS_PROPAGATE_FREQUENCY
@@ -209,6 +213,7 @@ void init_ap(void)
 #endif
 
   ins_init();
+  DefaultInsRegister();
 
 #if USE_AHRS && USE_IMU
   register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
@@ -635,8 +640,8 @@ void sensors_task(void)
 #endif
 
   //FIXME: temporary hack, remove me
-#if USE_INS_MODULE
-  xsens_periodic();
+#ifdef InsPeriodic
+  InsPeriodic();
 #endif
 }
 

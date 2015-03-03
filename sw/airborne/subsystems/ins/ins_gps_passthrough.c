@@ -43,6 +43,8 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #include "generated/flight_plan.h"
 #endif
 
+#include "subsystems/ins/ins_gps_passthrough.h"
+
 struct InsGpsPassthrough {
   struct LtpDef_i  ltp_def;
   bool_t           ltp_initialized;
@@ -86,7 +88,7 @@ static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 }
 #endif
 
-void ins_init(void)
+void ins_gps_passthrough_init(void)
 {
 
 #if USE_INS_NAV_INIT
@@ -140,7 +142,7 @@ void ins_reset_altitude_ref(void)
   stateSetLocalOrigin_i(&ins_impl.ltp_def);
 }
 
-void ins_update_gps(void)
+void ins_gps_passthrough_update_gps(void)
 {
   if (gps.fix == GPS_FIX_3D) {
     if (!ins_impl.ltp_initialized) {
@@ -160,4 +162,9 @@ void ins_update_gps(void)
                         INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
     stateSetSpeedNed_i(&ins_impl.ltp_speed);
   }
+}
+
+void ins_gps_passthrough_register(void);
+{
+  ins_register_impl(ins_gps_passthrough_init, ins_gps_passthrough_update_gps);
 }

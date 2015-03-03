@@ -210,7 +210,6 @@ uint8_t send_ck;
 volatile int xsens_configured = 0;
 
 void xsens_init(void);
-void xsens_periodic(void);
 
 void xsens_init(void)
 {
@@ -247,7 +246,7 @@ void imu_periodic(void)
 #endif /* USE_IMU */
 
 #if USE_INS_MODULE
-void ins_init(void)
+void ins_xsens_init(void)
 {
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
@@ -256,7 +255,12 @@ void ins_init(void)
   xsens_init();
 }
 
-void ins_update_gps(void)
+void ins_xsens_register(void)
+{
+  ins_register_impl(ins_xsens_init, ins_xsens_update_gps);
+}
+
+void ins_xsens_update_gps(void)
 {
   struct UtmCoor_f utm;
   utm.east = gps.utm_pos.east / 100.;

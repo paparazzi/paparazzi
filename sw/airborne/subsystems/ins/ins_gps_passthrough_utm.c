@@ -35,7 +35,9 @@
 #include "subsystems/gps.h"
 #include "firmwares/fixedwing/nav.h"
 
-void ins_init(void)
+#include "subsystems/ins/ins_gps_passthrough_utm.h"
+
+void ins_gps_utm_init(void)
 {
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
@@ -69,7 +71,7 @@ void ins_reset_altitude_ref(void)
   stateSetLocalUtmOrigin_f(&utm);
 }
 
-void ins_update_gps(void)
+void ins_gps_utm_update_gps(void)
 {
   struct UtmCoor_f utm;
   utm.east = gps.utm_pos.east / 100.0f;
@@ -87,4 +89,9 @@ void ins_update_gps(void)
   };
   // set velocity
   stateSetSpeedNed_f(&ned_vel);
+}
+
+void ins_gps_utm_register(void)
+{
+  ins_register_impl(ins_gps_utm_init, ins_gps_utm_update_gps);
 }

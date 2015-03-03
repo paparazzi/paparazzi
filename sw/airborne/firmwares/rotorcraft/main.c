@@ -233,6 +233,11 @@ STATIC_INLINE void main_periodic(void)
 
   imu_periodic();
 
+  //FIXME: temporary hack, remove me
+#ifdef InsPeriodic
+  InsPeriodic();
+#endif
+
   /* run control loops */
   autopilot_periodic();
   /* set actuators     */
