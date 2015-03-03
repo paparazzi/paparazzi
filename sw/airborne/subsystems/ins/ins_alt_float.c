@@ -49,7 +49,7 @@
 #endif
 
 
-struct InsAltFloat ins_impl;
+struct InsAltFloat ins_altf;
 
 #if USE_BAROMETER
 #include "subsystems/sensors/baro.h"
@@ -74,7 +74,7 @@ static void alt_kalman_reset(void);
 static void alt_kalman_init(void);
 static void alt_kalman(float z_meas, float dt);
 
-void ins_init(void)
+void ins_alt_float_init(void)
 {
 
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, ground_alt, nav_utm_zone0 };
@@ -85,18 +85,15 @@ void ins_init(void)
   alt_kalman_init();
 
 #if USE_BAROMETER
-  ins_impl.qfe = 0.0f;
-  ins_impl.baro_initialized = FALSE;
-  ins_impl.baro_alt = 0.0f;
-  // Bind to BARO_ABS message
-  AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
+  ins_altf.qfe = 0.0f;
+  ins_altf.baro_initialized = FALSE;
+  ins_altf.baro_alt = 0.0f;
 #endif
-  ins_impl.reset_alt_ref = FALSE;
+  ins_altf.reset_alt_ref = FALSE;
 
   // why do we have this here?
   alt_kalman(0.0f, 0.1);
 }
-
 
 /** Reset the geographic reference to the current GPS fix */
 void ins_reset_local_origin(void)
@@ -120,7 +117,7 @@ void ins_reset_local_origin(void)
   stateSetLocalUtmOrigin_f(&utm);
 
   // reset filter flag
-  ins_impl.reset_alt_ref = TRUE;
+  ins_altf.reset_alt_ref = TRUE;
 }
 
 void ins_reset_altitude_ref(void)
@@ -131,12 +128,12 @@ void ins_reset_altitude_ref(void)
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
   // reset filter flag
-  ins_impl.reset_alt_ref = TRUE;
+  ins_altf.reset_alt_ref = TRUE;
 }
 
 
 #if USE_BAROMETER
-static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
+void ins_alt_float_update_baro(float pressure)
 {
   // timestamp in usec when last callback was received
   static uint32_t last_ts = 0;
@@ -149,35 +146,39 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
   // bound dt (assume baro freq 1Hz-500Hz
   Bound(dt, 0.002, 1.0)
 
-  if (!ins_impl.baro_initialized) {
-    ins_impl.qfe = pressure;
-    ins_impl.baro_initialized = TRUE;
+  if (!ins_altf.baro_initialized) {
+    ins_altf.qfe = pressure;
+    ins_altf.baro_initialized = TRUE;
   }
-  if (ins_impl.reset_alt_ref) {
-    ins_impl.reset_alt_ref = FALSE;
-    ins_impl.alt = ground_alt;
-    ins_impl.alt_dot = 0.0f;
-    ins_impl.qfe = pressure;
+  if (ins_altf.reset_alt_ref) {
+    ins_altf.reset_alt_ref = FALSE;
+    ins_altf.alt = ground_alt;
+    ins_altf.alt_dot = 0.0f;
+    ins_altf.qfe = pressure;
     alt_kalman_reset();
   } else { /* not realigning, so normal update with baro measurement */
-    ins_impl.baro_alt = ground_alt + pprz_isa_height_of_pressure(pressure, ins_impl.qfe);
+    ins_altf.baro_alt = ground_alt + pprz_isa_height_of_pressure(pressure, ins_altf.qfe);
     /* run the filter */
-    alt_kalman(ins_impl.baro_alt, dt);
+    alt_kalman(ins_altf.baro_alt, dt);
     /* set new altitude, just copy old horizontal position */
     struct UtmCoor_f utm;
     UTM_COPY(utm, *stateGetPositionUtm_f());
-    utm.alt = ins_impl.alt;
+    utm.alt = ins_altf.alt;
     stateSetPositionUtm_f(&utm);
     struct NedCoor_f ned_vel;
     memcpy(&ned_vel, stateGetSpeedNed_f(), sizeof(struct NedCoor_f));
-    ned_vel.z = -ins_impl.alt_dot;
+    ned_vel.z = -ins_altf.alt_dot;
     stateSetSpeedNed_f(&ned_vel);
   }
+}
+#else
+void ins_alt_float_update_baro(float pressure __attribute__((unused)))
+{
 }
 #endif
 
 
-void ins_update_gps(void)
+void ins_alt_float_update_gps(void)
 {
 #if USE_GPS
   struct UtmCoor_f utm;
@@ -202,24 +203,24 @@ void ins_update_gps(void)
 #endif
 
   float falt = gps.hmsl / 1000.0f;
-  if (ins_impl.reset_alt_ref) {
-    ins_impl.reset_alt_ref = FALSE;
-    ins_impl.alt = falt;
-    ins_impl.alt_dot = 0.0f;
+  if (ins_altf.reset_alt_ref) {
+    ins_altf.reset_alt_ref = FALSE;
+    ins_altf.alt = falt;
+    ins_altf.alt_dot = 0.0f;
     alt_kalman_reset();
   } else {
     alt_kalman(falt, dt);
-    ins_impl.alt_dot = -gps.ned_vel.z / 100.0f;
+    ins_altf.alt_dot = -gps.ned_vel.z / 100.0f;
   }
 #endif
-  utm.alt = ins_impl.alt;
+  utm.alt = ins_altf.alt;
   // set position
   stateSetPositionUtm_f(&utm);
 
   struct NedCoor_f ned_vel = {
     gps.ned_vel.x / 100.0f,
     gps.ned_vel.y / 100.0f,
-    -ins_impl.alt_dot
+    -ins_altf.alt_dot
   };
   // set velocity
   stateSetSpeedNed_f(&ned_vel);
@@ -291,7 +292,7 @@ static void alt_kalman(float z_meas, float dt)
 
 
   /* predict */
-  ins_impl.alt += ins_impl.alt_dot * dt;
+  ins_altf.alt += ins_altf.alt_dot * dt;
   p[0][0] = p[0][0] + p[1][0] * dt + dt * (p[0][1] + p[1][1] * dt) + SIGMA2 * q[0][0];
   p[0][1] = p[0][1] + p[1][1] * dt + SIGMA2 * q[0][1];
   p[1][0] = p[1][0] + p[1][1] * dt + SIGMA2 * q[1][0];
@@ -303,11 +304,11 @@ static void alt_kalman(float z_meas, float dt)
   if (fabs(e) > 1e-5) {
     float k_0 = p[0][0] / e;
     float k_1 =  p[1][0] / e;
-    e = z_meas - ins_impl.alt;
+    e = z_meas - ins_altf.alt;
 
     /* correction */
-    ins_impl.alt += k_0 * e;
-    ins_impl.alt_dot += k_1 * e;
+    ins_altf.alt += k_0 * e;
+    ins_altf.alt_dot += k_1 * e;
 
     p[1][0] = -p[0][0] * k_1 + p[1][0];
     p[1][1] = -p[0][1] * k_1 + p[1][1];
@@ -320,3 +321,19 @@ static void alt_kalman(float z_meas, float dt)
 #endif
 }
 
+#if USE_BAROMETER
+static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
+{
+  ins_alt_float_update_baro(pressure);
+}
+#endif
+
+void ins_altf_register(void)
+{
+  ins_register_impl(ins_alt_float_init, ins_alt_float_update_gps);
+
+#if USE_BAROMETER
+  // Bind to BARO_ABS message
+  AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
+#endif
+}
