@@ -20,7 +20,6 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="control"/>
-    <subsystem name="ahrs"      type="infrared"/>
     <subsystem name="imu"       type="analog">
       <configure name="GYRO_P" value="ADC_3"/>
     </subsystem>
@@ -41,6 +40,7 @@
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_7" />
     </load>
     <load name="infrared_adc.xml"/>
+    <load name="ahrs_infrared.xml"/>
     <load name="nav_line.xml"/>
   </modules>
 

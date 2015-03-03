@@ -21,7 +21,6 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="control"/>
-    <subsystem name="ahrs"          type="infrared"/>
     <subsystem name="gps"           type="ublox_utm"/>
     <subsystem name="ins"           type="gps_passthrough"/>
     <subsystem name="navigation"/>
@@ -33,6 +32,7 @@
 
   <modules>
     <load name="infrared_adc.xml"/>
+    <load name="ahrs_infrared.xml"/>
   </modules>
 
 <!-- commands section -->

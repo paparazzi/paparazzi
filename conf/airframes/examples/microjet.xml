@@ -175,13 +175,12 @@
     <subsystem name="imu"       type="analog">
       <configure name="GYRO_P" value="ADC_3"/>
     </subsystem>
-    <subsystem name="ahrs"      type="infrared"/>
     <subsystem name="gps"       type="ublox_utm"/>
     <subsystem name="navigation"/>
     <subsystem name="ins" type="alt_float"/>
   </firmware>
 
-<section name="GCS">
+  <section name="GCS">
     <define name="AC_ICON" value="flyingwing"/>
   </section>
 
@@ -197,6 +196,7 @@
     <load name="nav_vertical_raster.xml"/>
     <load name="nav_bungee_takeoff.xml"/>
     <load name="infrared_adc.xml"/>
+    <load name="ahrs_infrared.xml"/>
     <load name="tune_airspeed.xml"/>
     <load name="digital_cam_servo.xml">
       <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />

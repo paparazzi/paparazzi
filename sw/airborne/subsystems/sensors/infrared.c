@@ -27,10 +27,6 @@
 #include "subsystems/sensors/infrared.h"
 #include "generated/airframe.h"
 
-#ifdef INFRARED
-#error "The flag INFRARED has been deprecated. Please replace it with USE_INFRARED."
-#endif
-
 struct Infrared infrared;
 
 /** \brief Initialisation of \a ir structure

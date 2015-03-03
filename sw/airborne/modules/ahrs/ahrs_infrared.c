@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/ahrs/ahrs_infrared.c
+ * @file modules/ahrs/ahrs_infrared.c
  *
  * Attitude estimation using infrared sensors detecting the horizon.
  * For fixedwings only:
@@ -29,7 +29,7 @@
  *
  */
 
-#include "subsystems/ahrs/ahrs_infrared.h"
+#include "modules/ahrs/ahrs_infrared.h"
 
 #include "subsystems/sensors/infrared.h"
 #include "subsystems/imu.h"
@@ -38,9 +38,7 @@
 #include "state.h"
 #include "subsystems/abi.h"
 
-struct AhrsInfrared ahrs_infrared;
-
-float heading;
+static float heading;
 
 /** ABI binding for gyro data.
  * Used for gyro ABI messages.
@@ -76,15 +74,9 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
 }
 #endif
 
-void ahrs_infrared_register(void)
-{
-  ahrs_register_impl(ahrs_infrared_init, ahrs_infrared_update_gps);
-}
 
 void ahrs_infrared_init(void)
 {
-  ahrs_infrared.is_aligned = TRUE;
-
   heading = 0.;
 
   AbiBindMsgIMU_GYRO_INT32(AHRS_INFRARED_GYRO_ID, &gyro_ev, gyro_cb);
@@ -95,9 +87,9 @@ void ahrs_infrared_init(void)
 #endif
 }
 
+
 void ahrs_infrared_update_gps(void)
 {
-
   float hspeed_mod_f = gps.gspeed / 100.;
   float course_f = gps.course / 1e7;
 
@@ -112,7 +104,7 @@ void ahrs_infrared_update_gps(void)
 
 }
 
-void ahrs_update_infrared(void)
+void ahrs_infrared_periodic(void)
 {
   float phi  = atan2(infrared.roll, infrared.top) - infrared.roll_neutral;
   float theta  = atan2(infrared.pitch, infrared.top) - infrared.pitch_neutral;
@@ -128,5 +120,4 @@ void ahrs_update_infrared(void)
 
   struct FloatEulers att = { phi, theta, heading };
   stateSetNedToBodyEulers_f(&att);
-
 }

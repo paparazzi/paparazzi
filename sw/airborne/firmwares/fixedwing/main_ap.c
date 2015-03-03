@@ -200,7 +200,7 @@ void init_ap(void)
 #endif
 
 #if USE_AHRS
-#if defined SITL && !USE_NPS && !USE_INFRARED
+#if defined SITL && !USE_NPS
   ahrs_sim_init();
 #else
   ahrs_init();
@@ -568,10 +568,6 @@ volatile uint8_t new_ins_attitude = 0;
 void attitude_loop(void)
 {
 
-#if USE_INFRARED
-  ahrs_update_infrared();
-#endif /* USE_INFRARED */
-
   if (pprz_mode >= PPRZ_MODE_AUTO2) {
     if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE) {
       v_ctl_throttle_setpoint = nav_throttle_setpoint;
@@ -630,7 +626,7 @@ void sensors_task(void)
 #endif // USE_IMU
 
   //FIXME: this is just a kludge
-#if USE_AHRS && defined SITL && !USE_NPS && !USE_INFRARED
+#if USE_AHRS && defined SITL && !USE_NPS
   update_ahrs_from_sim();
 #endif
 
@@ -779,7 +775,9 @@ static inline void on_gyro_event(void)
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
 
+#if USE_AHRS
   ahrs_timeout_counter = 0;
+#endif
 
   imu_scale_gyro(&imu);
 
