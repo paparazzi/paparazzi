@@ -54,6 +54,10 @@ ifneq ($(SYS_TIME_LED),none)
 endif
 COMMON_TEST_CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 COMMON_TEST_SRCS   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+ifeq ($(ARCH), linux)
+# seems that we need to link agains librt for glibc < 2.17
+$(TARGET).LDFLAGS += -lrt
+endif
 
 COMMON_TEST_CFLAGS += -DUSE_LED
 
