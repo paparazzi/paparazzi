@@ -89,11 +89,11 @@ static inline void imu_ardrone2_event(void (* _gyro_handler)(void), void (* _acc
 {
   navdata_update();
   //checks if the navboard has a new dataset ready
-  if (navdata_imu_available == TRUE) {
-    navdata_imu_available = FALSE;
-    RATES_ASSIGN(imu.gyro_unscaled, navdata.vx, -navdata.vy, -navdata.vz);
-    VECT3_ASSIGN(imu.accel_unscaled, navdata.ax, 4096 - navdata.ay, 4096 - navdata.az);
-    VECT3_ASSIGN(imu.mag_unscaled, -navdata.mx, -navdata.my, -navdata.mz);
+  if (navdata.imu_available == TRUE) {
+    navdata.imu_available = FALSE;
+    RATES_ASSIGN(imu.gyro_unscaled, navdata.measure.vx, -navdata.measure.vy, -navdata.measure.vz);
+    VECT3_ASSIGN(imu.accel_unscaled, navdata.measure.ax, 4096 - navdata.measure.ay, 4096 - navdata.measure.az);
+    VECT3_ASSIGN(imu.mag_unscaled, -navdata.measure.mx, -navdata.measure.my, -navdata.measure.mz);
 
     _gyro_handler();
     _accel_handler();

@@ -25,45 +25,86 @@
  */
 
 #include "mcu_periph/sys_time.h"
-#include <sys/time.h>
-#include <signal.h>
-#include <string.h>
 #include <stdio.h>
+#include <pthread.h>
+#include <sys/timerfd.h>
+#include "rt_priority.h"
 
 #ifdef SYS_TIME_LED
 #include "led.h"
 #endif
 
+#ifndef SYS_TIME_THREAD_PRIO
+#define SYS_TIME_THREAD_PRIO 29
+#endif
+
+pthread_t sys_time_thread;
+static void sys_tick_handler(void);
+void *sys_time_thread_main(void *data);
+
+#define NSEC_OF_SEC(sec) ((sec) * 1e9)
+
+void *sys_time_thread_main(void *data)
+{
+  int fd;
+
+  /* Create the timer */
+  fd = timerfd_create(CLOCK_MONOTONIC, 0);
+  if (fd == -1) {
+    perror("Could not set up timer.");
+    return NULL;
+  }
+
+  get_rt_prio(SYS_TIME_THREAD_PRIO);
+
+  /* Make the timer periodic */
+  struct itimerspec timer;
+  /* timer expires after sys_time.resolution sec */
+  timer.it_value.tv_sec = 0;
+  timer.it_value.tv_nsec = NSEC_OF_SEC(sys_time.resolution);
+  /* and every SYS_TIME_RESOLUTION sec after that */
+  timer.it_interval.tv_sec = 0;
+  timer.it_interval.tv_nsec = NSEC_OF_SEC(sys_time.resolution);
+
+  if (timerfd_settime(fd, 0, &timer, NULL) == -1) {
+    perror("Could not set up timer.");
+    return NULL;
+  }
+
+  while (1) {
+    unsigned long long missed;
+    /* Wait for the next timer event. If we have missed any the
+	   number is written to "missed" */
+	int r = read(fd, &missed, sizeof(missed));
+    if (r == -1) {
+      perror("Couldn't read timer!");
+    }
+    if (missed > 1) {
+      fprintf(stderr, "Missed %lld timer events!\n", missed);
+    }
+    /* advance sys_time, in case we missed some events: call it more than once */
+    unsigned int i;
+    for (i = 0; i < missed; i++) {
+      sys_tick_handler();
+    }
+  }
+  return NULL;
+}
 
 void sys_time_arch_init(void)
 {
-
   sys_time.cpu_ticks_per_sec = 1e6;
   sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution * sys_time.cpu_ticks_per_sec + 0.5);
 
-  struct sigaction sa;
-  struct itimerval timer;
-
-  memset(&sa, 0, sizeof(sa));
-  sa.sa_handler = &sys_tick_handler;
-  if (sigaction(SIGALRM, &sa, NULL) == -1) {
-    printf("Couldn't set up sys_time timer!\n");
+  int ret = pthread_create(&sys_time_thread, NULL, sys_time_thread_main, NULL);
+  if (ret) {
+    perror("Could not setup sys_time_thread");
     return;
   }
-
-  // timer expires after sys_time.resolution sec
-  timer.it_value.tv_sec = 0;
-  timer.it_value.tv_usec = USEC_OF_SEC(sys_time.resolution);
-  // and every SYS_TIME_RESOLUTION sec after that
-  timer.it_interval.tv_sec = 0;
-  timer.it_interval.tv_usec = USEC_OF_SEC(sys_time.resolution);
-
-  setitimer(ITIMER_REAL, &timer, NULL);
 }
 
-void sys_tick_handler(int signum)
+static void sys_tick_handler(void)
 {
-
   sys_time.nb_tick++;
   sys_time.nb_sec_rem += sys_time.resolution_cpu_ticks;;
   if (sys_time.nb_sec_rem >= sys_time.cpu_ticks_per_sec) {
