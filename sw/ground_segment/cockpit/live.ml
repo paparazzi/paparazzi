@@ -70,6 +70,8 @@ let rec list_iter3 = fun f l1 l2 l3 ->
 
 
 type color = string
+type gps_acc_level = GPS_ACC_HIGH | GPS_ACC_LOW | GPS_ACC_VERY_LOW | GPS_NO_ACC
+
 type aircraft = {
   ac_name : string;
   ac_speech_name : string;
@@ -109,6 +111,7 @@ type aircraft = {
   mutable last_unix_time : float;
   mutable airspeed : float;
   mutable version : string;
+  mutable last_gps_acc : gps_acc_level
 }
 
 let aircrafts = Hashtbl.create 3
@@ -687,7 +690,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
              got_track_status_timer = 1000;
              dl_values = [||]; last_unix_time = 0.;
              airspeed = 0.;
-             version = ""
+             version = "";
+             last_gps_acc = GPS_NO_ACC
            } in
   Hashtbl.add aircrafts ac_id ac;
   select_ac acs_notebook ac_id;
@@ -1326,10 +1330,6 @@ let get_alert_bat_low = fun a _sender vs ->
 let listen_alert = fun a ->
   alert_bind "BAT_LOW" (get_alert_bat_low a)
 
-type gps_acc_level = GPS_ACC_HIGH | GPS_ACC_LOW | GPS_ACC_VERY_LOW | GPS_NO_ACC
-
-let gps_last_acc = ref GPS_NO_ACC
-
 let get_svsinfo = fun alarm _sender vs ->
   let ac = get_ac vs in
   let gps_page = ac.gps_page in
@@ -1356,16 +1356,15 @@ let get_svsinfo = fun alarm _sender vs ->
     if pacc <= 1000 then GPS_ACC_HIGH
     else if pacc > 1000 && pacc < 2000 then GPS_ACC_LOW
     else GPS_ACC_VERY_LOW in
-  if !gps_last_acc <> new_acc then begin
-    match new_acc, !gps_last_acc with
+  if ac.last_gps_acc <> new_acc then begin
+    match new_acc, ac.last_gps_acc with
     | GPS_ACC_HIGH, GPS_NO_ACC -> () (* nothing if pacc is good from the start *)
     | GPS_ACC_HIGH, _ -> log_and_say alarm "gcs" (sprintf "%s, GPS accuracy below 10 meter" ac.ac_speech_name)
     | GPS_ACC_LOW, _ -> log_and_say alarm "gcs" (sprintf "%s, low GPS accuracy" ac.ac_speech_name)
     | GPS_ACC_VERY_LOW, _ -> log_and_say alarm "gcs" (sprintf "%s, Warning: very low GPS accuracy" ac.ac_speech_name)
     | _, _ -> ()
   end;
-
-  gps_last_acc := new_acc
+  ac.last_gps_acc <- new_acc
 
 let listen_svsinfo = fun a -> safe_bind "SVSINFO" (get_svsinfo a)
 
