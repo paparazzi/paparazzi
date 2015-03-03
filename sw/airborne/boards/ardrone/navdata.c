@@ -49,7 +49,9 @@
 /* Internal used functions */
 static void *navdata_read(void *data __attribute__((unused)));
 static void navdata_cmd_send(uint8_t cmd);
-static inline bool_t navdata_baro_calib(void);
+static bool_t navdata_baro_calib(void);
+static void mag_freeze_check(void);
+static void baro_update_logic(void);
 
 /* Main navdata structure */
 struct navdata_t navdata;
@@ -251,36 +253,6 @@ bool_t navdata_init()
   return TRUE;
 }
 
-/**
- * Try to receive the baro calibration from the navdata board
- */
-static inline bool_t navdata_baro_calib(void)
-{
-  // Start baro calibration acquisition
-  navdata_cmd_send(NAVDATA_CMD_BARO_CALIB);
-
-  // Receive the calibration (blocking)
-  uint8_t calibBuffer[22];
-  if (full_read(navdata.fd, calibBuffer, sizeof calibBuffer) < 0) {
-    printf("[navdata] Could not read calibration data.");
-    return FALSE;
-  }
-
-  //Convert the read bytes
-  navdata.bmp180_calib.ac1 = calibBuffer[0]  << 8 | calibBuffer[1];
-  navdata.bmp180_calib.ac2 = calibBuffer[2]  << 8 | calibBuffer[3];
-  navdata.bmp180_calib.ac3 = calibBuffer[4]  << 8 | calibBuffer[5];
-  navdata.bmp180_calib.ac4 = calibBuffer[6]  << 8 | calibBuffer[7];
-  navdata.bmp180_calib.ac5 = calibBuffer[8]  << 8 | calibBuffer[9];
-  navdata.bmp180_calib.ac6 = calibBuffer[10] << 8 | calibBuffer[11];
-  navdata.bmp180_calib.b1  = calibBuffer[12] << 8 | calibBuffer[13];
-  navdata.bmp180_calib.b2  = calibBuffer[14] << 8 | calibBuffer[15];
-  navdata.bmp180_calib.mb  = calibBuffer[16] << 8 | calibBuffer[17];
-  navdata.bmp180_calib.mc  = calibBuffer[18] << 8 | calibBuffer[19];
-  navdata.bmp180_calib.md  = calibBuffer[20] << 8 | calibBuffer[21];
-
-  return TRUE;
-}
 
 /**
  * Main reading thread
@@ -356,6 +328,112 @@ static void *navdata_read(void *data __attribute__((unused)))
   return NULL;
 }
 
+
+/**
+ * Update the navdata (event loop)
+ */
+void navdata_update()
+{
+  // Check if initialized
+  if (!navdata.is_initialized) {
+    navdata_init();
+    mag_freeze_check();
+    return;
+  }
+
+  pthread_mutex_lock(&navdata_mutex);
+  // If we got a new navdata packet
+  if (navdata_available) {
+
+    // Copy the navdata packet
+    memcpy(&navdata.measure, navdata_buffer, NAVDATA_PACKET_SIZE);
+
+    // reset the flag
+    navdata_available = FALSE;
+    // signal that we copied the buffer and new packet can be read
+    pthread_cond_signal(&navdata_cond);
+    pthread_mutex_unlock(&navdata_mutex);
+
+    // Check if we missed a packet (our counter and the one from the navdata)
+    navdata.last_packet_number++;
+    if (navdata.last_packet_number != navdata.measure.nu_trame) {
+      fprintf(stderr, "[navdata] Lost frame: %d should have been %d\n",
+              navdata.measure.nu_trame, navdata.last_packet_number);
+      navdata.lost_imu_frames++;
+    }
+    navdata.last_packet_number = navdata.measure.nu_trame;
+
+    // Invert byte order so that TELEMETRY works better
+    uint8_t tmp;
+    uint8_t *p = (uint8_t *) & (navdata.measure.pressure);
+    tmp = p[0];
+    p[0] = p[1];
+    p[1] = tmp;
+    p = (uint8_t *) & (navdata.measure.temperature_pressure);
+    tmp = p[0];
+    p[0] = p[1];
+    p[1] = tmp;
+
+    baro_update_logic();
+    mag_freeze_check();
+
+#ifdef USE_SONAR
+    // Check if there is a new sonar measurement and update the sonar
+    if (navdata.measure.ultrasound >> 15) {
+      float sonar_meas = (float)((navdata.measure.ultrasound & 0x7FFF) - SONAR_OFFSET) * SONAR_SCALE;
+      AbiSendMsgAGL(AGL_SONAR_ARDRONE2_ID, sonar_meas);
+    }
+#endif
+
+    navdata.imu_available = TRUE;
+    navdata.packetsRead++;
+  }
+  else {
+    // no new packet available, still unlock mutex again
+    pthread_mutex_unlock(&navdata_mutex);
+  }
+}
+
+/**
+ * Sends a one byte command
+ */
+static void navdata_cmd_send(uint8_t cmd)
+{
+  full_write(navdata.fd, &cmd, 1);
+}
+
+
+/**
+ * Try to receive the baro calibration from the navdata board
+ */
+static bool_t navdata_baro_calib(void)
+{
+  // Start baro calibration acquisition
+  navdata_cmd_send(NAVDATA_CMD_BARO_CALIB);
+
+  // Receive the calibration (blocking)
+  uint8_t calibBuffer[22];
+  if (full_read(navdata.fd, calibBuffer, sizeof calibBuffer) < 0) {
+    printf("[navdata] Could not read calibration data.");
+    return FALSE;
+  }
+
+  //Convert the read bytes
+  navdata.bmp180_calib.ac1 = calibBuffer[0]  << 8 | calibBuffer[1];
+  navdata.bmp180_calib.ac2 = calibBuffer[2]  << 8 | calibBuffer[3];
+  navdata.bmp180_calib.ac3 = calibBuffer[4]  << 8 | calibBuffer[5];
+  navdata.bmp180_calib.ac4 = calibBuffer[6]  << 8 | calibBuffer[7];
+  navdata.bmp180_calib.ac5 = calibBuffer[8]  << 8 | calibBuffer[9];
+  navdata.bmp180_calib.ac6 = calibBuffer[10] << 8 | calibBuffer[11];
+  navdata.bmp180_calib.b1  = calibBuffer[12] << 8 | calibBuffer[13];
+  navdata.bmp180_calib.b2  = calibBuffer[14] << 8 | calibBuffer[15];
+  navdata.bmp180_calib.mb  = calibBuffer[16] << 8 | calibBuffer[17];
+  navdata.bmp180_calib.mc  = calibBuffer[18] << 8 | calibBuffer[19];
+  navdata.bmp180_calib.md  = calibBuffer[20] << 8 | calibBuffer[21];
+
+  return TRUE;
+}
+
 /**
  * Check if the magneto is frozen
  * Unknown why this bug happens.
@@ -371,6 +449,8 @@ static void mag_freeze_check(void)
 
     // has to have at least 30 times the same value to consider it a frozen magnetometer value
     if (MagFreezeCounter > 30) {
+      fprintf(stderr, "mag freeze detected, resetting!\n");
+
       // set imu_lost flag
       navdata.imu_lost = TRUE;
       navdata.lost_imu_frames++;
@@ -382,10 +462,6 @@ static void mag_freeze_check(void)
       gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
       usleep(20000);
       gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
-
-      //uint8_t mde = 5;
-      //uint16_t val = 0;
-      //DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &val);
 
       // Wait for 40ms for it to boot
       usleep(40000);
@@ -529,77 +605,4 @@ static void baro_update_logic(void)
     lastpressval_nospike = navdata.measure.pressure;
     lasttempval_nospike = navdata.measure.temperature_pressure;
   }
-}
-
-/**
- * Update the navdata (event loop)
- */
-void navdata_update()
-{
-  // Check if initialized
-  if (!navdata.is_initialized) {
-    navdata_init();
-    mag_freeze_check();
-    return;
-  }
-
-  pthread_mutex_lock(&navdata_mutex);
-  // If we got a new navdata packet
-  if (navdata_available) {
-
-    // Copy the navdata packet
-    memcpy(&navdata.measure, navdata_buffer, NAVDATA_PACKET_SIZE);
-
-    // reset the flag
-    navdata_available = FALSE;
-    // signal that we copied the buffer and new packet can be read
-    pthread_cond_signal(&navdata_cond);
-    pthread_mutex_unlock(&navdata_mutex);
-
-    // Check if we missed a packet (our counter and the one from the navdata)
-    navdata.last_packet_number++;
-    if (navdata.last_packet_number != navdata.measure.nu_trame) {
-      fprintf(stderr, "[navdata] Lost frame: %d should have been %d\n",
-              navdata.measure.nu_trame, navdata.last_packet_number);
-      navdata.lost_imu_frames++;
-    }
-    navdata.last_packet_number = navdata.measure.nu_trame;
-
-    // Invert byte order so that TELEMETRY works better
-    uint8_t tmp;
-    uint8_t *p = (uint8_t *) & (navdata.measure.pressure);
-    tmp = p[0];
-    p[0] = p[1];
-    p[1] = tmp;
-    p = (uint8_t *) & (navdata.measure.temperature_pressure);
-    tmp = p[0];
-    p[0] = p[1];
-    p[1] = tmp;
-
-    baro_update_logic();
-    mag_freeze_check();
-
-#ifdef USE_SONAR
-    // Check if there is a new sonar measurement and update the sonar
-    if (navdata.measure.ultrasound >> 15) {
-      float sonar_meas = (float)((navdata.measure.ultrasound & 0x7FFF) - SONAR_OFFSET) * SONAR_SCALE;
-      AbiSendMsgAGL(AGL_SONAR_ARDRONE2_ID, sonar_meas);
-    }
-#endif
-
-    navdata.imu_available = TRUE;
-    navdata.packetsRead++;
-  }
-  else {
-    // no new packet available, still unlock mutex again
-    pthread_mutex_unlock(&navdata_mutex);
-  }
-}
-
-/**
- * Sends a one byte command
- */
-static void navdata_cmd_send(uint8_t cmd)
-{
-  full_write(navdata.fd, &cmd, 1);
 }
