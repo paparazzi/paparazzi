@@ -25,14 +25,6 @@ AHRS_SRCS   += subsystems/ahrs/ahrs_int_cmpl_quat.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
 
-ifdef AHRS_PROPAGATE_FREQUENCY
-AHRS_CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
-endif
-
-ifdef AHRS_CORRECT_FREQUENCY
-AHRS_CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
-endif
-
 ap.CFLAGS += $(AHRS_CFLAGS)
 ap.srcs += $(AHRS_SRCS)
 
