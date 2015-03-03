@@ -1326,6 +1326,10 @@ let get_alert_bat_low = fun a _sender vs ->
 let listen_alert = fun a ->
   alert_bind "BAT_LOW" (get_alert_bat_low a)
 
+type gps_acc_level = GPS_ACC_HIGH | GPS_ACC_LOW | GPS_ACC_VERY_LOW | GPS_NO_ACC
+
+let gps_last_acc = ref GPS_NO_ACC
+
 let get_svsinfo = fun alarm _sender vs ->
   let ac = get_ac vs in
   let gps_page = ac.gps_page in
@@ -1348,8 +1352,20 @@ let get_svsinfo = fun alarm _sender vs ->
 
   gps_page#svsinfo pacc a;
 
-  if pacc > 1500 && pacc < 9999 then
-    log_and_say alarm "gcs" (sprintf "GPS acc: %d m" (pacc / 100))
+  let new_acc =
+    if pacc <= 1000 then GPS_ACC_HIGH
+    else if pacc > 1000 && pacc < 2000 then GPS_ACC_LOW
+    else GPS_ACC_VERY_LOW in
+  if !gps_last_acc <> new_acc then begin
+    match new_acc, !gps_last_acc with
+    | GPS_ACC_HIGH, GPS_NO_ACC -> () (* nothing if pacc is good from the start *)
+    | GPS_ACC_HIGH, _ -> log_and_say alarm "gcs" "GPS accuracy below 10 meter"
+    | GPS_ACC_LOW, _ -> log_and_say alarm "gcs" "low GPS accuracy"
+    | GPS_ACC_VERY_LOW, _ -> log_and_say alarm "gcs" "Warning: very low GPS accuracy"
+    | _, _ -> ()
+  end;
+
+  gps_last_acc := new_acc
 
 let listen_svsinfo = fun a -> safe_bind "SVSINFO" (get_svsinfo a)
 
