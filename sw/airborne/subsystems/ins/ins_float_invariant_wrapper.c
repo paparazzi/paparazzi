@@ -30,7 +30,7 @@
 #include "subsystems/imu.h"
 #include "message_pragmas.h"
 
-#if !INS_UPDATE_FW_ESTIMATOR && PERIODIC_TELEMETRY
+#if PERIODIC_TELEMETRY && !INS_FINV_USE_UTM
 #include "subsystems/datalink/telemetry.h"
 #include "state.h"
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
@@ -127,7 +127,7 @@ void ins_float_inv_register(void)
   AbiBindMsgIMU_GYRO_INT32(INS_FINV_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_LOWPASSED(INS_FINV_IMU_ID, &aligner_ev, aligner_cb);
 
-#if !INS_UPDATE_FW_ESTIMATOR && PERIODIC_TELEMETRY
+#if PERIODIC_TELEMETRY && !INS_FINV_USE_UTM
   register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
 #endif
 }

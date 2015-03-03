@@ -37,7 +37,7 @@
 
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
-#if INS_UPDATE_FW_ESTIMATOR
+#if INS_FINV_USE_UTM
 #include "firmwares/fixedwing/nav.h"
 #endif
 
@@ -187,7 +187,7 @@ void ins_float_inv_init(void)
 {
 
   // init position
-#if INS_UPDATE_FW_ESTIMATOR
+#if INS_FINV_USE_UTM
   struct UtmCoor_f utm0;
   utm0.north = (float)nav_utm_north0;
   utm0.east = (float)nav_utm_east0;
@@ -238,7 +238,7 @@ void ins_float_inv_init(void)
 
 void ins_reset_local_origin(void)
 {
-#if INS_UPDATE_FW_ESTIMATOR
+#if INS_FINV_USE_UTM
   struct UtmCoor_f utm;
 #ifdef GPS_USE_LATLONG
   /* Recompute UTM coordinates in this zone */
@@ -265,7 +265,7 @@ void ins_reset_local_origin(void)
 
 void ins_reset_altitude_ref(void)
 {
-#if INS_UPDATE_FW_ESTIMATOR
+#if INS_FINV_USE_UTM
   struct UtmCoor_f utm = state.utm_origin_f;
   utm.alt = gps.hmsl / 1000.0f;
   stateSetLocalUtmOrigin_f(&utm);
@@ -428,7 +428,7 @@ void ins_float_inv_update_gps(void)
   if (gps.fix == GPS_FIX_3D && ins_float_inv.is_aligned) {
     ins_gps_fix_once = TRUE;
 
-#if INS_UPDATE_FW_ESTIMATOR
+#if INS_FINV_USE_UTM
     if (state.utm_initialized_f) {
       // position (local ned)
       ins_float_inv.meas.pos_gps.x = (gps.utm_pos.north / 100.0f) - state.utm_origin_f.north;
@@ -610,7 +610,7 @@ static inline void error_output(struct InsFloatInv *_ins)
   // pos and speed error only if GPS data are valid
   // or while waiting first GPS data to prevent diverging
   if ((gps.fix == GPS_FIX_3D && ins_float_inv.is_aligned
-#if INS_UPDATE_FW_ESTIMATOR
+#if INS_FINV_USE_UTM
        && state.utm_initialized_f
 #else
        && state.ned_initialized_f
