@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <sys/timerfd.h>
+#include <time.h>
 #include "rt_priority.h"
 
 #ifdef SYS_TIME_LED
@@ -39,6 +40,8 @@
 #endif
 
 pthread_t sys_time_thread;
+static struct timespec startup_time;
+
 static void sys_tick_handler(void);
 void *sys_time_thread_main(void *data);
 
@@ -82,11 +85,8 @@ void *sys_time_thread_main(void *data)
     if (missed > 1) {
       fprintf(stderr, "Missed %lld timer events!\n", missed);
     }
-    /* advance sys_time, in case we missed some events: call it more than once */
-    unsigned int i;
-    for (i = 0; i < missed; i++) {
-      sys_tick_handler();
-    }
+    /* set current sys_time */
+    sys_tick_handler();
   }
   return NULL;
 }
@@ -95,6 +95,8 @@ void sys_time_arch_init(void)
 {
   sys_time.cpu_ticks_per_sec = 1e6;
   sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution * sys_time.cpu_ticks_per_sec + 0.5);
+
+  clock_gettime(CLOCK_MONOTONIC, &startup_time);
 
   int ret = pthread_create(&sys_time_thread, NULL, sys_time_thread_main, NULL);
   if (ret) {
@@ -105,21 +107,37 @@ void sys_time_arch_init(void)
 
 static void sys_tick_handler(void)
 {
-  sys_time.nb_tick++;
-  sys_time.nb_sec_rem += sys_time.resolution_cpu_ticks;;
-  if (sys_time.nb_sec_rem >= sys_time.cpu_ticks_per_sec) {
-    sys_time.nb_sec_rem -= sys_time.cpu_ticks_per_sec;
-    sys_time.nb_sec++;
+  /* get current time */
+  struct timespec now;
+  clock_gettime(CLOCK_MONOTONIC, &now);
+
+  /* time difference to startup */
+  time_t d_sec = now.tv_sec - startup_time.tv_sec;
+  long d_nsec = now.tv_nsec - startup_time.tv_nsec;
+
+  /* wrap if negative nanoseconds */
+  if (d_nsec < 0) {
+    d_sec -= 1;
+    d_nsec += 1000000000L;
+  }
+
 #ifdef SYS_TIME_LED
+  if (d_sec > sys_time.nb_sec) {
     LED_TOGGLE(SYS_TIME_LED);
+  }
 #endif
 
-  }
+  sys_time.nb_sec = d_sec;
+  sys_time.nb_sec_rem = cpu_ticks_of_nsec(d_nsec);
+  sys_time.nb_tick = sys_time_ticks_of_sec(d_sec) + sys_time_ticks_of_usec(d_nsec / 1000);
+
+  /* advance virtual timers */
   for (unsigned int i = 0; i < SYS_TIME_NB_TIMER; i++) {
     if (sys_time.timer[i].in_use &&
         sys_time.nb_tick >= sys_time.timer[i].end_time) {
       sys_time.timer[i].end_time += sys_time.timer[i].duration;
       sys_time.timer[i].elapsed = TRUE;
+      /* call registered callbacks, WARNING: they will be executed in the sys_time thread! */
       if (sys_time.timer[i].cb) {
         sys_time.timer[i].cb(i);
       }
