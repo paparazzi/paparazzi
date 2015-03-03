@@ -33,7 +33,6 @@
 
 #include "subsystems/ins.h"
 #include "subsystems/gps.h"
-#include "subsystems/imu.h"
 
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
@@ -312,7 +311,7 @@ void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* a
 
   // fill command vector
   struct Int32Rates gyro_meas_body;
-  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ins_float_inv.body_to_imu);
   int32_rmat_transp_ratemult(&gyro_meas_body, body_to_imu_rmat, gyro);
   RATES_FLOAT_OF_BFP(ins_float_inv.cmd.rates, gyro_meas_body);
   struct Int32Vect3 accel_meas_body;
@@ -503,7 +502,7 @@ void ins_float_invariant_update_mag(struct Int32Vect3* mag)
     }
   } else {
     // values are moving
-    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ins_float_inv.body_to_imu);
     struct Int32Vect3 mag_meas_body;
     // new values in body frame
     int32_rmat_transp_vmult(&mag_meas_body, body_to_imu_rmat, mag);
@@ -685,4 +684,14 @@ void float_quat_vmul_right(struct FloatQuat *mright, const struct FloatQuat *q,
   VECT3_SMUL(v2, *vi, q->qi);
   VECT3_ADD(v2, v1);
   QUAT_ASSIGN(*mright, qi, v2.x, v2.y, v2.z);
+}
+
+void ins_float_inv_set_body_to_imu_quat(struct FloatQuat *q_b2i)
+{
+  orientationSetQuat_f(&ins_float_inv.body_to_imu, q_b2i);
+
+  if (!ins_float_inv.is_aligned) {
+    /* Set ltp_to_imu so that body is zero */
+    memcpy(&ins_float_inv.state.quat, q_b2i, sizeof(struct FloatQuat));
+  }
 }

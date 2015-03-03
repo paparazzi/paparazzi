@@ -111,6 +111,9 @@ struct InsFloatInv {
 
   bool_t reset;                       ///< flag to request reset/reinit the filter
 
+  /** body_to_imu rotation */
+  struct OrientationReps body_to_imu;
+
   struct FloatVect3 mag_h;
   bool_t is_aligned;
 };
@@ -119,6 +122,7 @@ extern struct InsFloatInv ins_float_inv;
 
 extern void ins_float_inv_init(void);
 extern void ins_float_inv_update_gps(void);
+extern void ins_float_inv_set_body_to_imu_quat(struct FloatQuat *q_b2i);
 
 extern void ins_float_invariant_propagate(struct Int32Rates* gyro,
                                           struct Int32Vect3* accel, float dt);
