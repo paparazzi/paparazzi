@@ -99,8 +99,8 @@ void opticflow_module_run(void)
   opticflow_module_data.phi = stateGetNedToBodyEulers_f()->phi;
   opticflow_module_data.theta = stateGetNedToBodyEulers_f()->theta;
   int bytes_written = write(cv_sockets[0], &opticflow_module_data, sizeof(opticflow_module_data));
-  if (bytes_written != sizeof(opticflow_module_data)){
-    printf("[module] Failed to write to socket: written = %d, error=%d.\n",bytes_written, errno);
+  if (bytes_written != sizeof(opticflow_module_data) && errno !=4){
+    printf("[module] Failed to write to socket: written = %d, error=%d, %s.\n",bytes_written, errno, strerror(errno));
   }
   else {
     DEBUG_INFO("[module] Write # %d (%d bytes)\n",opticflow_module_data.cnt, bytes_written);

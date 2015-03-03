@@ -28,6 +28,7 @@
  */
 
 #include "subsystems/electrical.h"
+#include "video.h"
 #include <stdlib.h>
 
 struct Electrical electrical;
@@ -35,8 +36,11 @@ struct Electrical electrical;
 void electrical_init(void)
 {
   // First we try to kill the dragon-prog and its respawner if it is running (done here because initializes first)
-  int ret = system("killall -9 watchdog.sh; killall -9 dragon-prog");
-  (void) ret;
+  int ret __attribute__((unused)) = system("killall -q -9 watchdog.sh; killall -q -9 dragon-prog");
+
+  // We also try to initialize the video CMOS chips here (Bottom and front)
+  mt9v117_init();
+  //mt9f002_init();
 }
 
 void electrical_periodic(void) { }

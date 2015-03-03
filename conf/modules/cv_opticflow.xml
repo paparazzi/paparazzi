@@ -58,7 +58,7 @@
     <file name="jpeg.c" dir="modules/computer_vision/cv/encoding"/>
     <file name="rtp.c" dir="modules/computer_vision/cv/encoding"/>
     <file name="socket.c" dir="modules/computer_vision/lib/udp"/>
-    <file name="video.c" dir="modules/computer_vision/lib/v4l"/>
+    <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
     <define name="modules/computer_vision/cv" type="include"/>
     <define name="modules/computer_vision/lib" type="include"/>
     <define name="pthread" type="raw"/>

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012-2014 The Paparazzi Community
+ *               2015 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -36,125 +37,130 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <math.h>
+#include "mcu_periph/udp.h"
 
-// UDP RTP Images
-#include "modules/computer_vision/lib/udp/socket.h"
 // Video
-#include "modules/computer_vision/lib/v4l/video.h"
-#include "modules/computer_vision/cv/resize.h"
-#include "modules/computer_vision/cv/encoding/jpeg.h"
-#include "modules/computer_vision/cv/encoding/rtp.h"
+#include "lib/v4l/v4l2.h"
+#include "cv/resize.h"
+#include "cv/encoding/jpeg.h"
+#include "cv/encoding/rtp.h"
 
 // Threaded computer vision
 #include <pthread.h>
 
-// Default broadcast IP
-#ifndef VIDEO_SOCK_IP
-#define VIDEO_SOCK_IP "192.168.1.255"
+// The video device
+#ifndef VIEWVIDEO_DEVICE
+#define VIEWVIDEO_DEVICE "/dev/video1"
 #endif
+PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE);
 
-// Output socket can be defined from an offset
-#ifdef VIDEO_SOCK_OUT_OFFSET
-#define VIDEO_SOCK_OUT (5000+VIDEO_SOCK_OUT_OFFSET)
+// The video device size (width, height)
+#ifndef VIEWVIDEO_DEVICE_SIZE
+#define VIEWVIDEO_DEVICE_SIZE 1280,720
 #endif
+#define __SIZE_HELPER(x, y) #x", "#y
+#define _SIZE_HELPER(x) __SIZE_HELPER(x)
+PRINT_CONFIG_MSG("VIEWVIDEO_DEVICE_SIZE = " _SIZE_HELPER(VIEWVIDEO_DEVICE_SIZE));
 
-#ifndef VIDEO_SOCK_OUT
-#define VIDEO_SOCK_OUT 5000
+// The video device buffers (the amount of V4L2 buffers)
+#ifndef VIEWVIDEO_DEVICE_BUFFERS
+#define VIEWVIDEO_DEVICE_BUFFERS 10
 #endif
-
-#ifndef VIDEO_SOCK_IN
-#define VIDEO_SOCK_IN 4999
-#endif
+PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE_BUFFERS);
 
 // Downsize factor for video stream
-#ifndef VIDEO_DOWNSIZE_FACTOR
-#define VIDEO_DOWNSIZE_FACTOR 4
+#ifndef VIEWVIDEO_DOWNSIZE_FACTOR
+#define VIEWVIDEO_DOWNSIZE_FACTOR 4
 #endif
+PRINT_CONFIG_VAR(VIEWVIDEO_DOWNSIZE_FACTOR);
 
 // From 0 to 99 (99=high)
-#ifndef VIDEO_QUALITY_FACTOR
-#define VIDEO_QUALITY_FACTOR 50
+#ifndef VIEWVIDEO_QUALITY_FACTOR
+#define VIEWVIDEO_QUALITY_FACTOR 50
 #endif
+PRINT_CONFIG_VAR(VIEWVIDEO_QUALITY_FACTOR);
 
-// Frame Per Seconds
-#ifndef VIDEO_FPS
-#define VIDEO_FPS 4.
+// Frames Per Seconds
+#ifndef VIEWVIDEO_FPS
+#define VIEWVIDEO_FPS 4
 #endif
+PRINT_CONFIG_VAR(VIEWVIDEO_FPS);
 
-void viewvideo_run(void) {}
+// The place where the shots are saved (without slash on the end)
+#ifndef VIEWVIDEO_SHOT_PATH
+#define VIEWVIDEO_SHOT_PATH "/data/video/images"
+#endif
+PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH);
 
-// take shot flag
-int viewvideo_shot = 0;
-volatile int viewvideo_save_shot_number = 0;
-
-
-/////////////////////////////////////////////////////////////////////////
-// COMPUTER VISION THREAD
-
-pthread_t computervision_thread;
-volatile uint8_t computervision_thread_status = 0;
-volatile uint8_t computer_vision_thread_command = 0;
-void *computervision_thread_main(void *data);
-void *computervision_thread_main(void *data)
-{
-  // Video Input
-  struct vid_struct vid;
-#if USE_BOTTOM_CAMERA
-  vid.device = (char *)"/dev/video2";
-  vid.w = 320;
-  vid.h = 240;
+// Check if we are using netcat instead of RTP/UDP
+#ifndef VIEWVIDEO_USE_NETCAT
+#define VIEWVIDEO_USE_NETCAT FALSE
+#endif
+#if VIEWVIDEO_USE_NETCAT
+PRINT_CONFIG_MSG("[viewvideo] Using netcat.");
 #else
-  vid.device = (char *)"/dev/video1";
-  vid.w = 1280;
-  vid.h = 720;
+PRINT_CONFIG_MSG("[viewvideo] Using RTP/UDP stream.");
+PRINT_CONFIG_VAR(VIEWVIDEO_DEV);
 #endif
-  vid.n_buffers = 4;
-  if (video_init(&vid) < 0) {
-    printf("Error initialising video\n");
-    computervision_thread_status = -1;
+
+/* These are defined with configure */
+PRINT_CONFIG_VAR(VIEWVIDEO_HOST);
+PRINT_CONFIG_VAR(VIEWVIDEO_PORT_OUT);
+
+// Main thread
+static void *viewvideo_thread(void *data);
+void viewvideo_periodic(void) { }
+
+// Initialize the viewvideo structure with the defaults
+struct viewvideo_t viewvideo = {
+  .is_streaming = FALSE,
+  .downsize_factor = VIEWVIDEO_DOWNSIZE_FACTOR,
+  .quality_factor = VIEWVIDEO_QUALITY_FACTOR,
+  .fps = VIEWVIDEO_FPS,
+  .take_shot = FALSE,
+  .shot_number = 0
+};
+
+
+/**
+ * Handles all the video streaming and saving of the image shots
+ * This is a sepereate thread, so it needs to be thread safe!
+ */
+static void *viewvideo_thread(void *data __attribute__((unused)))
+{
+  // Start the streaming of the V4L2 device
+  if (!v4l2_start_capture(viewvideo.dev)) {
+    printf("[viewvideo-thread] Could not start capture of %s.\n", viewvideo.dev->name);
     return 0;
   }
 
-  // Video Grabbing
-  struct img_struct *img_new = video_create_image(&vid);
-
-  // Video Resizing
-  uint8_t quality_factor = VIDEO_QUALITY_FACTOR;
-  uint8_t dri_jpeg_header = 0;
-  int microsleep = (int)(1000000. / VIDEO_FPS);
-
+  // Resize image if needed
   struct img_struct small;
-  small.w = vid.w / VIDEO_DOWNSIZE_FACTOR;
-  small.h = vid.h / VIDEO_DOWNSIZE_FACTOR;
-  small.buf = (uint8_t *)malloc(small.w * small.h * 2);
-
-  // Video Compression
-  uint8_t *jpegbuf = (uint8_t *)malloc(vid.h * vid.w * 2);
-
-  // Network Transmit
-  struct UdpSocket *vsock;
-  vsock = udp_socket(VIDEO_SOCK_IP, VIDEO_SOCK_OUT, VIDEO_SOCK_IN, FMS_BROADCAST);
-
-  // Create SPD file and make folder if necessary
-  FILE *sdp;
-  if (system("mkdir -p /data/video/sdp") == 0) {
-    sdp = fopen("/data/video/sdp/x86_config-mjpeg.sdp", "w");
-    if (sdp != NULL) {
-      fprintf(sdp, "v=0\n");
-      fprintf(sdp, "m=video %d RTP/AVP 26\n", (int)(VIDEO_SOCK_OUT));
-      fprintf(sdp, "c=IN IP4 0.0.0.0");
-      fclose(sdp);
-    }
+  small.w = viewvideo.dev->w / viewvideo.downsize_factor;
+  small.h = viewvideo.dev->h / viewvideo.downsize_factor;
+  if (viewvideo.downsize_factor != 1) {
+    small.buf = (uint8_t *)malloc(small.w * small.h * 2);
+  } else {
+    small.buf = NULL;
   }
 
-  // file index (search from 0)
-  int file_index = 0;
+  // JPEG compression (8.25 bits are required for a 100% quality image, margin of ~0.55)
+  uint8_t *jpegbuf = (uint8_t *)malloc(ceil(small.w * small.h * 1.1));
 
   // time
+  uint32_t microsleep = (uint32_t)(1000000. / (float)viewvideo.fps);
   struct timeval last_time;
   gettimeofday(&last_time, NULL);
 
-  while (computer_vision_thread_command > 0) {
+#if VIEWVIDEO_USE_NETCAT
+  char nc_cmd[64];
+  sprintf(nc_cmd, "nc %s %d 2>/dev/null", VIEWVIDEO_HOST, VIEWVIDEO_PORT_OUT);
+#endif
+
+  // Start streaming
+  viewvideo.is_streaming = TRUE;
+  while (viewvideo.is_streaming) {
     // compute usleep to have a more stable frame rate
     struct timeval vision_thread_sleep_time;
     gettimeofday(&vision_thread_sleep_time, NULL);
@@ -162,70 +168,90 @@ void *computervision_thread_main(void *data)
     if (dt < microsleep) { usleep(microsleep - dt); }
     last_time = vision_thread_sleep_time;
 
-    // Grab new frame
-    video_grab_image(&vid, img_new);
+    // Wait for a new frame (blocking)
+    struct v4l2_img_buf *img = v4l2_image_get(viewvideo.dev);
 
-    // Save picture on disk
-    if (computer_vision_thread_command == 2) {
-      uint8_t *end = encode_image(img_new->buf, jpegbuf, 99, FOUR_TWO_TWO, vid.w, vid.h, 1);
-      uint32_t size = end - (jpegbuf);
-      FILE *save;
+    // Check if we need to take a shot
+    if (viewvideo.take_shot) {
+      // Create a high quality image (99% JPEG encoded)
+      uint8_t *jpegbuf_hr = (uint8_t *)malloc(ceil(viewvideo.dev->w * viewvideo.dev->h * 1.1));
+      uint8_t *end = jpeg_encode_image(img->buf, jpegbuf_hr, 99, FOUR_TWO_TWO, viewvideo.dev->w, viewvideo.dev->h, TRUE);
+      uint32_t size = end - (jpegbuf_hr);
+
+      // Search for a file where we can write to
       char save_name[128];
-#if LOG_ON_USB
-      if (system("mkdir -p /data/video/usb/images") == 0) {
-#else
-      if (system("mkdir -p /data/video/images") == 0) {
-#endif
-        // search available index (max is 99)
-        for (; file_index < 99999; file_index++) {
-          printf("search %d\n", file_index);
-#if LOG_ON_USB
-          sprintf(save_name, "/data/video/usb/images/img_%05d.jpg", file_index);
-#else
-          sprintf(save_name, "/data/video/images/img_%05d.jpg", file_index);
-#endif
-          // test if file exists or not
-          if (access(save_name, F_OK) == -1) {
-            printf("access\n");
-            save = fopen(save_name, "w");
-            if (save != NULL) {
-              // Atomic copy
-              viewvideo_save_shot_number = file_index;
-              fwrite(jpegbuf, sizeof(uint8_t), size, save);
-              fclose(save);
-            } else {
-              printf("Error when opening file %s\n", save_name);
-            }
-            // leave for loop
-            break;
+      for (; viewvideo.shot_number < 99999; viewvideo.shot_number++) {
+        sprintf(save_name, "%s/img_%05d.jpg", VIEWVIDEO_SHOT_PATH, viewvideo.shot_number);
+        // Check if file exists or not
+        if (access(save_name, F_OK) == -1) {
+          FILE *fp = fopen(save_name, "w");
+          if (fp == NULL) {
+            printf("[viewvideo-thread] Could not write shot %s.\n", save_name);
           } else {
-            //printf("file exists\n");
+            // Save it to the file and close it
+            fwrite(jpegbuf_hr, sizeof(uint8_t), size, fp);
+            fclose(fp);
           }
+
+          // We don't need to seek for a next index anymore
+          break;
         }
       }
-      if (computer_vision_thread_command == 2)
-        computer_vision_thread_command = 1;
-      viewvideo_shot = 0;
+
+      // We finished the shot
+      free(jpegbuf_hr);
+      viewvideo.take_shot = FALSE;
     }
 
-    // Resize
-    resize_uyuv(img_new, &small, VIDEO_DOWNSIZE_FACTOR);
+    // Only resize when needed
+    if (viewvideo.downsize_factor != 1) {
+      struct img_struct input;
+      input.buf = img->buf;
+      input.w = viewvideo.dev->w;
+      input.h = viewvideo.dev->h;
+      resize_uyuv(&input, &small, viewvideo.downsize_factor);
+    } else {
+      small.buf = img->buf;
+    }
 
     // JPEG encode the image:
-    uint32_t image_format = FOUR_TWO_TWO;  // format (in jpeg.h)
-    uint8_t *end = encode_image(small.buf, jpegbuf, quality_factor, image_format, small.w, small.h, dri_jpeg_header);
+    uint8_t *end = jpeg_encode_image(small.buf, jpegbuf, VIEWVIDEO_QUALITY_FACTOR, FOUR_TWO_TWO, small.w, small.h, VIEWVIDEO_USE_NETCAT);
     uint32_t size = end - (jpegbuf);
 
+#if VIEWVIDEO_USE_NETCAT
+    // Open process to send using netcat (in a fork because sometimes kills itself???)
+    pid_t pid = fork();
+
+    if(pid < 0) {
+      printf("[viewvideo] Could not create netcat fork.\n");
+    }
+    else if(pid ==0) {
+      // We are the child and want to send the image
+      FILE *netcat = popen(nc_cmd, "w");
+      if (netcat != NULL) {
+        fwrite(jpegbuf, sizeof(uint8_t), size, netcat);
+        pclose(netcat); // Ignore output, because it is too much when not connected
+      } else {
+        printf("[viewvideo] Failed to open netcat process.\n");
+      }
+
+      // Exit the program since we don't want to continue after transmitting
+      exit(0);
+    }
+    else {
+      // We want to wait until the child is finished
+      wait(NULL);
+    }
+#else
     // Send image with RTP
-    printf("Sending an image ...%u\n", size);
-    send_rtp_frame(
-      vsock,            // UDP
-      jpegbuf, size,    // JPEG
-      small.w, small.h, // Img Size
-      0,                // Format 422
-      quality_factor,   // Jpeg-Quality
-      dri_jpeg_header,  // DRI Header
-      0                 // 90kHz time increment
+    rtp_frame_send(
+      &VIEWVIDEO_DEV,           // UDP device
+      jpegbuf, size,            // JPEG
+      small.w, small.h,         // Img Size
+      0,                        // Format 422
+      VIEWVIDEO_QUALITY_FACTOR, // Jpeg-Quality
+      0,                        // DRI Header
+      0                         // 90kHz time increment
     );
     // Extra note: when the time increment is set to 0,
     // it is automaticaly calculated by the send_rtp_frame function
@@ -235,33 +261,123 @@ void *computervision_thread_main(void *data)
     // the timestamp is always "late" so the frame is displayed immediately).
     // Here, we set the time increment to the lowest possible value
     // (1 = 1/90000 s) which is probably stupid but is actually working.
+#endif
+
+    // Free the image
+    v4l2_image_free(viewvideo.dev, img);
   }
-  printf("Thread Closed\n");
-  video_close(&vid);
-  computervision_thread_status = -100;
+
+  // Free all buffers
+  free(jpegbuf);
+  if (viewvideo.downsize_factor != 1)
+    free(small.buf);
   return 0;
 }
 
+/**
+ * Initialize the view video
+ */
+void viewvideo_init(void)
+{
+#ifdef VIEWVIDEO_SUBDEV
+  PRINT_CONFIG_MSG("[viewvideo] Configuring a subdevice!");
+  PRINT_CONFIG_VAR(VIEWVIDEO_SUBDEV);
+
+  // Initialize the V4L2 subdevice (TODO: fix hardcoded path, which and code)
+  if (!v4l2_init_subdev("/dev/v4l-subdev0", 0, 1, V4L2_MBUS_FMT_UYVY8_2X8, VIEWVIDEO_DEVICE_SIZE)) {
+    printf("[viewvideo] Could not initialize the %s subdevice.\n", VIEWVIDEO_SUBDEV);
+    return;
+  }
+#endif
+
+  // Initialize the V4L2 device
+  viewvideo.dev = v4l2_init(VIEWVIDEO_DEVICE, VIEWVIDEO_DEVICE_SIZE, VIEWVIDEO_DEVICE_BUFFERS);
+  if (viewvideo.dev == NULL) {
+    printf("[viewvideo] Could not initialize the %s V4L2 device.\n", VIEWVIDEO_DEVICE);
+    return;
+  }
+
+  // Create the shot directory
+  char save_name[128];
+  sprintf(save_name, "mkdir -p %s", VIEWVIDEO_SHOT_PATH);
+  if (system(save_name) != 0) {
+    printf("[viewvideo] Could not create shot directory %s.\n", VIEWVIDEO_SHOT_PATH);
+    return;
+  }
+
+#if VIEWVIDEO_USE_NETCAT
+  // Create an Netcat receiver file for the streaming
+  sprintf(save_name, "%s/netcat-recv.sh", VIEWVIDEO_SHOT_PATH);
+  FILE *fp = fopen(save_name, "w");
+  if (fp != NULL) {
+    fprintf(fp, "i=0\n");
+    fprintf(fp, "while true\n");
+    fprintf(fp, "do\n");
+    fprintf(fp, "\tn=$(printf \"%%04d\" $i)\n");
+    fprintf(fp, "\tnc -l 0.0.0.0 %d > img_${n}.jpg\n", (int)(VIEWVIDEO_PORT_OUT));
+    fprintf(fp, "\ti=$((i+1))\n");
+    fprintf(fp, "done\n");
+    fclose(fp);
+  }
+#else
+  // Create an SDP file for the streaming
+  sprintf(save_name, "%s/stream.sdp", VIEWVIDEO_SHOT_PATH);
+  FILE *fp = fopen(save_name, "w");
+  if (fp != NULL) {
+    fprintf(fp, "v=0\n");
+    fprintf(fp, "m=video %d RTP/AVP 26\n", (int)(VIEWVIDEO_PORT_OUT));
+    fprintf(fp, "c=IN IP4 0.0.0.0\n");
+    fclose(fp);
+  }
+#endif
+}
+
+/**
+ * Start with streaming
+ */
 void viewvideo_start(void)
 {
-  computer_vision_thread_command = 1;
-  int rc = pthread_create(&computervision_thread, NULL, computervision_thread_main, NULL);
-  if (rc) {
-    printf("ctl_Init: Return code from pthread_create(mot_thread) is %d\n", rc);
+  // Check if we are already running
+  if (viewvideo.is_streaming) {
+    return;
+  }
+
+  // Start the streaming thread
+  pthread_t tid;
+  if (pthread_create(&tid, NULL, viewvideo_thread, NULL) != 0) {
+    printf("[vievideo] Could not create streaming thread.\n");
+    return;
   }
 }
 
+/**
+ * Stops the streaming
+ * This could take some time, because the thread is stopped asynchronous.
+ */
 void viewvideo_stop(void)
 {
-  computer_vision_thread_command = 0;
-}
-
-int viewvideo_save_shot(void)
-{
-  if (computer_vision_thread_command > 0) {
-    computer_vision_thread_command = 2;
+  // Check if not already stopped streaming
+  if (!viewvideo.is_streaming) {
+    return;
   }
-  return 0;
+
+  // Stop the streaming thread
+  viewvideo.is_streaming = FALSE;
+
+  // Stop the capturing
+  if (!v4l2_stop_capture(viewvideo.dev)) {
+    printf("[viewvideo] Could not stop capture of %s.\n", viewvideo.dev->name);
+    return;
+  }
+
+  // TODO: wait for the thread to finish to be able to start the thread again!
 }
 
-
+/**
+ * Take a shot and save it
+ * This will only work when the streaming is enabled
+ */
+void viewvideo_take_shot(bool_t take)
+{
+  viewvideo.take_shot = take;
+}

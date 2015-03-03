@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2015 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -20,18 +20,14 @@
  */
 
 /**
- * @file modules/computer_vision/image_nc_send.h
- *
- * Capture an image on an ARDrone2 and send it to the ground with netcat (nc)
+ * @file boards/bebop/video.h
+ * Initialization of the video specific parts of the Bebop
  */
 
-#ifndef IMAGE_NC_SEND_H
-#define IMAGE_NC_SEND_H
+#ifndef BOARDS_BEBOP_VIDEO_H
+#define BOARDS_BEBOP_VIDEO_H
 
-// Module functions
-extern void image_nc_send_run(void);
-extern void image_nc_send_start(void);
-extern void image_nc_send_stop(void);
+void mt9v117_init(void);
+void mt9f002_init(void);
 
-#endif /* IMAGE_NC_SEND_H */
-
+#endif /* BOARDS_BEBOP_VIDEO_H */
