@@ -38,17 +38,17 @@
 #define TRACE_ERROR 1
 
 /**
- * Create UDP network (socket).
- * @param[out] network   pointer to already allocated UdpNetwork struct
+ * Create UDP socket and bind it.
+ * @param[out] sock   pointer to already allocated UdpSocket struct
  * @param[in]  host      hostname/address
  * @param[in]  port_out  output port
  * @param[in]  port_in   input port (set to < 0 to disable)
  * @param[in]  broadcast if TRUE enable broadcasting
  * @return -1 on error, otherwise 0
  */
-int udp_socket_create(struct UdpNetwork *network, char *host, int port_out, int port_in, bool_t broadcast)
+int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port_in, bool_t broadcast)
 {
-  if (network == NULL) {
+  if (sock == NULL) {
     return -1;
   }
 
@@ -73,50 +73,50 @@ int udp_socket_create(struct UdpNetwork *network, char *host, int port_out, int 
   }
 
   // Create the socket with the correct protocl
-  network->sockfd = socket(PF_INET, SOCK_DGRAM, 0);
+  sock->sockfd = socket(PF_INET, SOCK_DGRAM, 0);
   int one = 1;
   // Enable reusing of address
-  setsockopt(network->sockfd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
+  setsockopt(sock->sockfd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 
   // Enable broadcasting
   if (broadcast) {
-    setsockopt(network->sockfd, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one));
+    setsockopt(sock->sockfd, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one));
   }
 
   // if an input port was specified, bind to it
   if (port_in >= 0) {
     // Create the input address
-    network->addr_in.sin_family = PF_INET;
-    network->addr_in.sin_port = htons(port_in);
-    network->addr_in.sin_addr.s_addr = htonl(INADDR_ANY);
+    sock->addr_in.sin_family = PF_INET;
+    sock->addr_in.sin_port = htons(port_in);
+    sock->addr_in.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    bind(network->sockfd, (struct sockaddr *)&network->addr_in, sizeof(network->addr_in));
+    bind(sock->sockfd, (struct sockaddr *)&sock->addr_in, sizeof(sock->addr_in));
   }
 
   // set the output/destination address for use in sendto later
-  network->addr_out.sin_family = PF_INET;
-  network->addr_out.sin_port = htons(port_out);
-  network->addr_out.sin_addr.s_addr = host_ip.s_addr;
+  sock->addr_out.sin_family = PF_INET;
+  sock->addr_out.sin_port = htons(port_out);
+  sock->addr_out.sin_addr.s_addr = host_ip.s_addr;
   return 0;
 }
 
 /**
  * Send a packet from buffer, blocking.
- * @param[in] network  pointer to UdpNetwork struct
+ * @param[in] sock  pointer to UdpSocket struct
  * @param[in] buffer   buffer to send
  * @param[in] len      buffer length in bytes
  * @return number of bytes sent (-1 on error)
  */
-int udp_socket_send(struct UdpNetwork *network, uint8_t *buffer, uint16_t len)
+int udp_socket_send(struct UdpSocket *sock, uint8_t *buffer, uint16_t len)
 {
-  if (network == NULL) {
+  if (sock == NULL) {
     return -1;
   }
 
-  ssize_t bytes_sent = sendto(network->sockfd, buffer, len, 0,
-                       (struct sockaddr *)&network->addr_out, sizeof(network->addr_out));
+  ssize_t bytes_sent = sendto(sock->sockfd, buffer, len, 0,
+                       (struct sockaddr *)&sock->addr_out, sizeof(sock->addr_out));
   if (bytes_sent != len) {
-    TRACE(TRACE_ERROR, "error sending to network %d (%d)\n", (int)bytes_sent, strerror(errno));
+    TRACE(TRACE_ERROR, "error sending to sock %d (%d)\n", (int)bytes_sent, strerror(errno));
   }
   return bytes_sent;
 }
@@ -124,23 +124,23 @@ int udp_socket_send(struct UdpNetwork *network, uint8_t *buffer, uint16_t len)
 /**
  * Receive a UDP packet, dont wait.
  * Sets the MSG_DONTWAIT flag, returns 0 if no data is available.
- * @param[in] network  pointer to UdpNetwork struct
+ * @param[in] sock  pointer to UdpSocket struct
  * @param[out] buffer  buffer to write received packet to
  * @param[in] len      buffer length in bytes
  * @return number of bytes received (-1 on error)
  */
-int udp_socket_recv_dontwait(struct UdpNetwork *network, uint8_t *buffer, uint16_t len)
+int udp_socket_recv_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint16_t len)
 {
   socklen_t slen = sizeof(struct sockaddr_in);
-  ssize_t bytes_read = recvfrom(network->sockfd, buffer, len, MSG_DONTWAIT,
-                                (struct sockaddr *)&network->addr_in, &slen);
+  ssize_t bytes_read = recvfrom(sock->sockfd, buffer, len, MSG_DONTWAIT,
+                                (struct sockaddr *)&sock->addr_in, &slen);
 
   if (bytes_read == -1) {
     // If not data is available, simply return zero bytes read, no error
     if (errno == EWOULDBLOCK) {
       return 0;
     } else {
-      TRACE(TRACE_ERROR, "error reading from network error %d \n", errno);
+      TRACE(TRACE_ERROR, "error reading from sock error %d \n", errno);
     }
   }
 
@@ -149,16 +149,16 @@ int udp_socket_recv_dontwait(struct UdpNetwork *network, uint8_t *buffer, uint16
 
 /**
  * Receive one UDP packet, blocking.
- * @param[in] network  pointer to UdpNetwork struct
+ * @param[in] sock  pointer to UdpSocket struct
  * @param[out] buffer  buffer to write received packet to
  * @param[in] len      buffer length in bytes (maximum bytes to read)
  * @return number of bytes received (-1 on error)
  */
-int udp_socket_recv(struct UdpNetwork *network, uint8_t *buffer, uint16_t len)
+int udp_socket_recv(struct UdpSocket *sock, uint8_t *buffer, uint16_t len)
 {
   socklen_t slen = sizeof(struct sockaddr_in);
-  ssize_t bytes_read = recvfrom(network->sockfd, buffer, len, 0,
-                                (struct sockaddr *)&network->addr_in, &slen);
+  ssize_t bytes_read = recvfrom(sock->sockfd, buffer, len, 0,
+                                (struct sockaddr *)&sock->addr_in, &slen);
 
   return bytes_read;
 }
