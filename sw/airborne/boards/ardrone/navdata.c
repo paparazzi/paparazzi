@@ -65,6 +65,9 @@ static bool_t navdata_available = FALSE;
 static pthread_mutex_t navdata_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  navdata_cond  = PTHREAD_COND_INITIALIZER;
 
+#ifndef NAVDATA_FILTER_ID
+#define NAVDATA_FILTER_ID 2
+#endif
 
 /** Sonar offset.
  *  Offset value in ADC
@@ -161,11 +164,12 @@ static void send_navdata(struct transport_tx *trans, struct link_device *dev)
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
+  uint8_t id = NAVDATA_FILTER_ID;
   uint8_t mde = 3;
   if (!DefaultAhrsImpl.is_aligned) { mde = 2; }
   if (navdata.imu_lost) { mde = 5; }
   uint16_t val = navdata.lost_imu_frames;
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &val);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &id, &mde, &val);
 }
 
 #endif

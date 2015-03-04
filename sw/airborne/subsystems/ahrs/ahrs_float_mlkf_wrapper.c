@@ -31,11 +31,29 @@
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
+#include "mcu_periph/sys_time.h"
 
 static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
                         &ahrs_mlkf.mag_h.x, &ahrs_mlkf.mag_h.y, &ahrs_mlkf.mag_h.z);
+}
+
+#ifndef AHRS_MLKF_FILTER_ID
+#define AHRS_MLKF_FILTER_ID 6
+#endif
+static uint32_t ahrs_mlkf_last_stamp;
+
+static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
+{
+  uint8_t id = AHRS_MLKF_FILTER_ID;
+  uint8_t mde = 3;
+  uint16_t val = 0;
+  if (!ahrs_mlkf.is_aligned) { mde = 2; }
+  uint32_t t_diff = get_sys_time_usec() - ahrs_mlkf_last_stamp;
+  /* set lost if no new gyro measurements for 50ms */
+  if (t_diff > 50000) { mde = 5; }
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &id, &mde, &val);
 }
 #endif
 
@@ -133,5 +151,6 @@ void ahrs_mlkf_register(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "GEO_MAG", send_geo_mag);
+  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
 #endif
 }

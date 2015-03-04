@@ -147,18 +147,6 @@ INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY t
 static inline void on_gyro_event(void);
 static inline void on_accel_event(void);
 static inline void on_mag_event(void);
-volatile uint8_t ahrs_timeout_counter = 0;
-
-//FIXME not the correct place
-static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
-{
-  uint8_t mde = 3;
-  if (!DefaultAhrsImpl.is_aligned) { mde = 2; }
-  if (ahrs_timeout_counter > 10) { mde = 5; }
-  uint16_t val = 0;
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &val);
-}
-
 #endif // USE_AHRS && USE_IMU
 
 #if USE_GPS
@@ -214,10 +202,6 @@ void init_ap(void)
 
   ins_init();
   DefaultInsRegister();
-
-#if USE_AHRS && USE_IMU
-  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
-#endif
 
 #if USE_BARO_BOARD
   baro_init();
@@ -622,12 +606,6 @@ void sensors_task(void)
 {
 #if USE_IMU
   imu_periodic();
-
-#if USE_AHRS
-  if (ahrs_timeout_counter < 255) {
-    ahrs_timeout_counter ++;
-  }
-#endif // USE_AHRS
 #endif // USE_IMU
 
   //FIXME: this is just a kludge
@@ -776,10 +754,6 @@ static inline void on_gyro_event(void)
 {
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
-
-#if USE_AHRS
-  ahrs_timeout_counter = 0;
-#endif
 
   imu_scale_gyro(&imu);
 

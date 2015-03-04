@@ -27,10 +27,18 @@
 
 #include "subsystems/ins/ins_float_invariant_wrapper.h"
 #include "subsystems/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "message_pragmas.h"
+
+#ifndef INS_FINV_FILTER_ID
+#define INS_FINV_FILTER_ID 2
+#endif
 
 /** last accel measurement */
 static struct Int32Vect3 ins_finv_accel;
+
+/** last gyro msg timestamp */
+static uint32_t ins_finv_last_stamp = 0;
 
 #if PERIODIC_TELEMETRY && !INS_FINV_USE_UTM
 #include "subsystems/datalink/telemetry.h"
@@ -45,6 +53,18 @@ static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
                           &state.ned_origin_i.lla.lon, &state.ned_origin_i.lla.alt,
                           &state.ned_origin_i.hmsl, &foo);
   }
+}
+
+static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
+{
+  uint8_t id = INS_FINV_FILTER_ID;
+  uint8_t mde = 3;
+  uint16_t val = 0;
+  if (!ins_float_inv.is_aligned) { mde = 2; }
+  uint32_t t_diff = get_sys_time_usec() - ins_finv_last_stamp;
+  /* set lost if no new gyro measurements for 50ms */
+  if (t_diff > 50000) { mde = 5; }
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &id, &mde, &val);
 }
 #endif
 
@@ -111,6 +131,8 @@ static void gyro_cb(uint8_t sender_id __attribute__((unused)),
   const float dt = 1. / (INS_PROPAGATE_FREQUENCY);
   ins_float_invariant_propagate(gyro, &ins_finv_accel, dt);
 #endif
+
+  ins_finv_last_stamp = stamp;
 }
 
 static void accel_cb(uint8_t sender_id __attribute__((unused)),
@@ -166,5 +188,6 @@ void ins_float_inv_register(void)
 
 #if PERIODIC_TELEMETRY && !INS_FINV_USE_UTM
   register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
+  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
 #endif
 }
