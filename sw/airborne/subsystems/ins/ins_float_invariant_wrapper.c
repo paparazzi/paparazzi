@@ -84,9 +84,14 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
   ins_float_invariant_update_baro(pressure);
 }
 
+/**
+ * Call ins_float_invariant_propagate on new gyro measurements.
+ * @FIXME: don't access global imu.accel
+ */
 static void gyro_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp, struct Int32Rates *gyro)
 {
+#if USE_AUTO_AHRS_FREQ || !defined(INS_PROPAGATE_FREQUENCY)
   PRINT_CONFIG_MSG("Calculating dt for INS float_invariant propagation.")
   /* timestamp in usec when last callback was received */
   static uint32_t last_stamp = 0;
@@ -96,6 +101,12 @@ static void gyro_cb(uint8_t sender_id __attribute__((unused)),
     ins_float_invariant_propagate(gyro, &imu.accel, dt);
   }
   last_stamp = stamp;
+#else
+  PRINT_CONFIG_MSG("Using fixed INS_PROPAGATE_FREQUENCY for INS float_invariant propagation.")
+  PRINT_CONFIG_VAR(INS_PROPAGATE_FREQUENCY)
+  const float dt = 1. / (INS_PROPAGATE_FREQUENCY);
+  ins_float_invariant_propagate(gyro, &imu.accel, dt);
+#endif
 }
 
 static void mag_cb(uint8_t sender_id __attribute__((unused)),
