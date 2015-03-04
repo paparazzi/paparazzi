@@ -877,7 +877,7 @@ let get_telemetry_status = fun alarm _sender vs ->
   | (Pages.Linkup, _)-> log_and_say alarm ac.ac_name (sprintf "%s, link %s re-connected" ac.ac_speech_name link_id)
   | (Pages.Nochange, _) -> ()
   | (Pages.Linkdown, _) -> log_and_say alarm ac.ac_name (sprintf "%s, link %s lost" ac.ac_speech_name link_id)
-  
+
 let get_engine_status_msg = fun _sender vs ->
   let ac = get_ac vs in
   ac.strip#set_throttle ~kill:ac.in_kill_mode (Pprz.float_assoc "throttle" vs);
@@ -1355,13 +1355,13 @@ let get_svsinfo = fun alarm _sender vs ->
   let new_acc =
     if pacc <= 1000 then GPS_ACC_HIGH
     else if pacc > 1000 && pacc < 2000 then GPS_ACC_LOW
-    else GPS_ACC_VERY_LOW in
+    else if pacc > 999 then GPS_NO_ACC else GPS_ACC_VERY_LOW in
   if ac.last_gps_acc <> new_acc then begin
     match new_acc, ac.last_gps_acc with
     | GPS_ACC_HIGH, GPS_NO_ACC -> () (* nothing if pacc is good from the start *)
-    | GPS_ACC_HIGH, _ -> log_and_say alarm "gcs" (sprintf "%s, GPS accuracy below 10 meter" ac.ac_speech_name)
+    | GPS_ACC_HIGH, _ -> log_and_say alarm "gcs" (sprintf "%s, GPS accuracy better than 10 meter" ac.ac_speech_name)
     | GPS_ACC_LOW, _ -> log_and_say alarm "gcs" (sprintf "%s, low GPS accuracy" ac.ac_speech_name)
-    | GPS_ACC_VERY_LOW, _ -> log_and_say alarm "gcs" (sprintf "%s, Warning: very low GPS accuracy" ac.ac_speech_name)
+    | GPS_ACC_VERY_LOW, _ -> log_and_say alarm "gcs" (sprintf "%s, Warning: GPS accuracy worse than 20 meter" ac.ac_speech_name)
     | _, _ -> ()
   end;
   ac.last_gps_acc <- new_acc
