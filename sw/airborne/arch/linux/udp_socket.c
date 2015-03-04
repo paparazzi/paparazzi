@@ -27,9 +27,11 @@
 #include "udp_socket.h"
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 
 //#define TRACE(type,fmt,args...)    fprintf(stderr, fmt, args)
 #define TRACE(type,fmt,args...)
@@ -42,11 +44,32 @@
  * @param[in]  port_out  output port
  * @param[in]  port_in   input port (set to < 0 to disable)
  * @param[in]  broadcast if TRUE enable broadcasting
+ * @return -1 on error, otherwise 0
  */
-void udp_socket_create(struct UdpNetwork *network, char *host, int port_out, int port_in, bool_t broadcast)
+int udp_socket_create(struct UdpNetwork *network, char *host, int port_out, int port_in, bool_t broadcast)
 {
   if (network == NULL) {
-    return;
+    return -1;
+  }
+
+  /* try to convert host ipv4 address to binary format */
+  struct in_addr host_ip;
+  if (!inet_aton(host, &host_ip)) {
+    /* not an IP address, try to resolve hostname */
+    struct hostent *hp;
+    hp = gethostbyname(host);
+    if (!hp) {
+      fprintf(stderr, "could not obtain address of %s\n", host);
+      return -1;
+    }
+    /* check if IPv4 address */
+    if (hp->h_addrtype == AF_INET && hp->h_length == 4) {
+      /* simply use first address */
+      memcpy(&host_ip.s_addr, hp->h_addr_list[0], hp->h_length);
+    }
+    else {
+      return -1;
+    }
   }
 
   // Create the socket with the correct protocl
@@ -73,7 +96,8 @@ void udp_socket_create(struct UdpNetwork *network, char *host, int port_out, int
   // set the output/destination address for use in sendto later
   network->addr_out.sin_family = PF_INET;
   network->addr_out.sin_port = htons(port_out);
-  network->addr_out.sin_addr.s_addr = inet_addr(host);
+  network->addr_out.sin_addr.s_addr = host_ip.s_addr;
+  return 0;
 }
 
 /**

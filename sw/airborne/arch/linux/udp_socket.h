@@ -44,8 +44,9 @@ struct UdpNetwork {
  * @param[in]  port_out  output port
  * @param[in]  port_in   input port (set to < 0 to disable)
  * @param[in]  broadcast if TRUE enable broadcasting
+ * @return -1 on error, otherwise 0
  */
-extern void udp_socket_create(struct UdpNetwork *network, char *host, int port_out, int port_in, bool_t broadcast);
+extern int udp_socket_create(struct UdpNetwork *network, char *host, int port_out, int port_in, bool_t broadcast);
 
 /**
  * Send a packet from buffer, blocking.
