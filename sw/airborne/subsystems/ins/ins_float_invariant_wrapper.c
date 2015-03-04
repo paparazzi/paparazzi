@@ -27,8 +27,10 @@
 
 #include "subsystems/ins/ins_float_invariant_wrapper.h"
 #include "subsystems/abi.h"
-#include "subsystems/imu.h"
 #include "message_pragmas.h"
+
+/** last accel measurement */
+static struct Int32Vect3 ins_finv_accel;
 
 #if PERIODIC_TELEMETRY && !INS_FINV_USE_UTM
 #include "subsystems/datalink/telemetry.h"
@@ -75,6 +77,7 @@ PRINT_CONFIG_VAR(INS_FINV_MAG_ID)
 static abi_event baro_ev;
 static abi_event mag_ev;
 static abi_event gyro_ev;
+static abi_event accel_ev;
 static abi_event aligner_ev;
 static abi_event body_to_imu_ev;
 static abi_event geo_mag_ev;
@@ -86,7 +89,8 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 
 /**
  * Call ins_float_invariant_propagate on new gyro measurements.
- * @FIXME: don't access global imu.accel
+ * Since acceleration measurement is also needed for propagation,
+ * use the last stored accel from #ins_finv_accel.
  */
 static void gyro_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp, struct Int32Rates *gyro)
@@ -98,15 +102,22 @@ static void gyro_cb(uint8_t sender_id __attribute__((unused)),
 
   if (last_stamp > 0) {
     float dt = (float)(stamp - last_stamp) * 1e-6;
-    ins_float_invariant_propagate(gyro, &imu.accel, dt);
+    ins_float_invariant_propagate(gyro, &ins_finv_accel, dt);
   }
   last_stamp = stamp;
 #else
   PRINT_CONFIG_MSG("Using fixed INS_PROPAGATE_FREQUENCY for INS float_invariant propagation.")
   PRINT_CONFIG_VAR(INS_PROPAGATE_FREQUENCY)
   const float dt = 1. / (INS_PROPAGATE_FREQUENCY);
-  ins_float_invariant_propagate(gyro, &imu.accel, dt);
+  ins_float_invariant_propagate(gyro, &ins_finv_accel, dt);
 #endif
+}
+
+static void accel_cb(uint8_t sender_id __attribute__((unused)),
+                     uint32_t stamp __attribute__((unused)),
+                     struct Int32Vect3 *accel)
+{
+  memcpy(&ins_finv_accel, accel, sizeof(struct Int32Vect3));
 }
 
 static void mag_cb(uint8_t sender_id __attribute__((unused)),
@@ -148,6 +159,7 @@ void ins_float_inv_register(void)
   AbiBindMsgBARO_ABS(INS_FINV_BARO_ID, &baro_ev, baro_cb);
   AbiBindMsgIMU_MAG_INT32(INS_FINV_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgIMU_GYRO_INT32(INS_FINV_IMU_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL_INT32(INS_FINV_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_LOWPASSED(INS_FINV_IMU_ID, &aligner_ev, aligner_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(INS_FINV_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
