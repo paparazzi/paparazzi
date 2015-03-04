@@ -70,6 +70,8 @@ let rec list_iter3 = fun f l1 l2 l3 ->
 
 
 type color = string
+type gps_acc_level = GPS_ACC_HIGH | GPS_ACC_LOW | GPS_ACC_VERY_LOW | GPS_NO_ACC
+
 type aircraft = {
   ac_name : string;
   ac_speech_name : string;
@@ -109,6 +111,7 @@ type aircraft = {
   mutable last_unix_time : float;
   mutable airspeed : float;
   mutable version : string;
+  mutable last_gps_acc : gps_acc_level
 }
 
 let aircrafts = Hashtbl.create 3
@@ -687,7 +690,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
              got_track_status_timer = 1000;
              dl_values = [||]; last_unix_time = 0.;
              airspeed = 0.;
-             version = ""
+             version = "";
+             last_gps_acc = GPS_NO_ACC
            } in
   Hashtbl.add aircrafts ac_id ac;
   select_ac acs_notebook ac_id;
@@ -874,7 +878,7 @@ let get_telemetry_status = fun alarm _sender vs ->
   | (Pages.Linkup, _)-> log_and_say alarm ac.ac_name (sprintf "%s, link %s re-connected" ac.ac_speech_name link_id)
   | (Pages.Nochange, _) -> ()
   | (Pages.Linkdown, _) -> log_and_say alarm ac.ac_name (sprintf "%s, link %s lost" ac.ac_speech_name link_id)
-  
+
 let get_engine_status_msg = fun _sender vs ->
   let ac = get_ac vs in
   ac.strip#set_throttle ~kill:ac.in_kill_mode (Pprz.float_assoc "throttle" vs);
@@ -1349,8 +1353,19 @@ let get_svsinfo = fun alarm _sender vs ->
 
   gps_page#svsinfo pacc a;
 
-  if pacc > 1500 && pacc < 9999 then
-    log_and_say alarm "gcs" (sprintf "GPS acc: %d m" (pacc / 100))
+  let new_acc =
+    if pacc <= 1000 then GPS_ACC_HIGH
+    else if pacc > 1000 && pacc < 2000 then GPS_ACC_LOW
+    else if pacc > 999 then GPS_NO_ACC else GPS_ACC_VERY_LOW in
+  if ac.last_gps_acc <> new_acc then begin
+    match new_acc, ac.last_gps_acc with
+    | GPS_ACC_HIGH, GPS_NO_ACC -> () (* nothing if pacc is good from the start *)
+    | GPS_ACC_HIGH, _ -> log_and_say alarm "gcs" (sprintf "%s, GPS accuracy better than 10 meter" ac.ac_speech_name)
+    | GPS_ACC_LOW, _ -> log_and_say alarm "gcs" (sprintf "%s, low GPS accuracy" ac.ac_speech_name)
+    | GPS_ACC_VERY_LOW, _ -> log_and_say alarm "gcs" (sprintf "%s, Warning: GPS accuracy worse than 20 meter" ac.ac_speech_name)
+    | _, _ -> ()
+  end;
+  ac.last_gps_acc <- new_acc
 
 let listen_svsinfo = fun a -> safe_bind "SVSINFO" (get_svsinfo a)
 
