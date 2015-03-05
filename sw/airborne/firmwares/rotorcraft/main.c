@@ -33,11 +33,6 @@
 #include <inttypes.h>
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
-#include "mcu_periph/i2c.h"
-#include "mcu_periph/uart.h"
-#if USE_UDP
-#include "mcu_periph/udp.h"
-#endif
 #include "led.h"
 
 #include "subsystems/datalink/telemetry.h"
@@ -84,10 +79,6 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 
 #include "generated/modules.h"
 #include "subsystems/abi.h"
-
-#if USE_USB_SERIAL
-#include "mcu_periph/usb_serial.h"
-#endif
 
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
@@ -317,20 +308,8 @@ STATIC_INLINE void failsafe_check(void)
 
 STATIC_INLINE void main_event(void)
 {
-
-  i2c_event();
-
-#ifndef SITL
-  uart_event();
-#endif
-
-#if USE_UDP
-  udp_event();
-#endif
-
-#if USE_USB_SERIAL
-  VCOM_event();
-#endif
+  /* event functions for mcu peripherals, like i2c, uart, etc.. */
+  mcu_event();
 
   DatalinkEvent();
 

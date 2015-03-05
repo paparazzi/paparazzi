@@ -60,6 +60,7 @@ static inline void main_periodic_task(void)
 
 static inline void main_event_task(void)
 {
+  mcu_event();
 
   if (uart_char_available(&uart2)) {
     uart_transmit(&uart1, uart_getch(&uart2));
@@ -68,5 +69,4 @@ static inline void main_event_task(void)
   if (uart_char_available(&uart1)) {
     uart_transmit(&uart2, uart_getch(&uart1));
   }
-
 }

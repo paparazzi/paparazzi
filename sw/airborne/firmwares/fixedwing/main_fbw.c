@@ -193,13 +193,8 @@ void event_task_fbw(void)
   RadioControlEvent(handle_rc_frame);
 #endif
 
-#if USE_I2C0 || USE_I2C1 || USE_I2C2 || USE_I2C3
-  i2c_event();
-#endif
-
-#ifndef SITL
-  uart_event();
-#endif
+  /* event functions for mcu peripherals, like i2c, uart, etc.. */
+  mcu_event();
 
 #ifdef INTER_MCU
 #if defined MCU_SPI_LINK | defined MCU_UART_LINK

@@ -65,9 +65,5 @@ static inline void main_periodic(void)
 
 static inline void main_event(void)
 {
-#if USE_UDP
-  udp_event();
-#else
-  uart_event();
-#endif
+  mcu_event();
 }

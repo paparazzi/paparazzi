@@ -104,5 +104,6 @@ static inline void main_periodic_task(void)
 
 static inline void main_event_task(void)
 {
+  mcu_event();
   BaroEvent();
 }

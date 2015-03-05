@@ -692,16 +692,10 @@ void event_task_ap(void)
 {
 
 #ifndef SINGLE_MCU
-#if USE_I2C0 || USE_I2C1 || USE_I2C2 || USE_I2C3
-  i2c_event();
-#endif
-
-  uart_event();
-#endif
-
-#if USE_USB_SERIAL
-  VCOM_event();
-#endif
+  /* for SINGLE_MCU done in main_fbw */
+  /* event functions for mcu peripherals, like i2c, uart, etc.. */
+  mcu_event();
+#endif /* SINGLE_MCU */
 
 #if USE_AHRS && USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
