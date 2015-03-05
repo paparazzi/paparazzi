@@ -127,14 +127,6 @@ PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 #endif
 
 
-#define __DefaultAhrsRegister(_x) _x ## _register()
-#define _DefaultAhrsRegister(_x) __DefaultAhrsRegister(_x)
-#define DefaultAhrsRegister() _DefaultAhrsRegister(DefaultAhrsImpl)
-
-#define __DefaultInsRegister(_x) _x ## _register()
-#define _DefaultInsRegister(_x) __DefaultInsRegister(_x)
-#define DefaultInsRegister() _DefaultInsRegister(DefaultInsImpl)
-
 #if USE_AHRS && USE_IMU
 
 #ifdef AHRS_PROPAGATE_FREQUENCY
@@ -196,12 +188,10 @@ void init_ap(void)
   ahrs_sim_init();
 #else
   ahrs_init();
-  DefaultAhrsRegister();
 #endif
 #endif
 
   ins_init();
-  DefaultInsRegister();
 
 #if USE_BARO_BOARD
   baro_init();
@@ -728,6 +718,11 @@ void event_task_ap(void)
 #if USE_GPS
 static inline void on_gps_solution(void)
 {
+  // current timestamp
+  uint32_t now_ts = get_sys_time_usec();
+
+  AbiSendMsgGPS(1, now_ts, &gps);
+
 #ifdef GPS_TRIGGERED_FUNCTION
   GPS_TRIGGERED_FUNCTION();
 #endif

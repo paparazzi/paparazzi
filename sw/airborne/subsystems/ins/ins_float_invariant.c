@@ -182,7 +182,7 @@ static inline void init_invariant_state(void)
   ins_gps_fix_once = FALSE;
 }
 
-void ins_float_inv_init(void)
+void ins_float_invariant_init(void)
 {
 
   // init position
@@ -421,7 +421,7 @@ void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* a
 #endif
 }
 
-void ins_float_inv_update_gps(struct GpsState *gps_s)
+void ins_float_invariant_update_gps(struct GpsState *gps_s)
 {
 
   if (gps_s->fix == GPS_FIX_3D && ins_float_inv.is_aligned) {

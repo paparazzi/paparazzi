@@ -27,6 +27,22 @@
 
 #include "subsystems/ahrs.h"
 
+#ifndef DefaultAhrsImpl
+#warning "DefaultAhrsImpl not set!"
+#else
+PRINT_CONFIG_VAR(DefaultAhrsImpl)
+#endif
+
+#define __DefaultAhrsRegister(_x) _x ## _register()
+#define _DefaultAhrsRegister(_x) __DefaultAhrsRegister(_x)
+#define DefaultAhrsRegister() _DefaultAhrsRegister(DefaultAhrsImpl)
+
+/** Attitude and Heading Reference System state */
+struct Ahrs {
+  /* function pointers to actual implementation, set by ahrs_register_impl */
+  AhrsInit init;
+};
+
 struct Ahrs ahrs;
 
 void ahrs_register_impl(AhrsInit init)
@@ -39,4 +55,7 @@ void ahrs_register_impl(AhrsInit init)
 void ahrs_init(void)
 {
   ahrs.init = NULL;
+#ifdef DefaultAhrsImpl
+  DefaultAhrsRegister();
+#endif
 }

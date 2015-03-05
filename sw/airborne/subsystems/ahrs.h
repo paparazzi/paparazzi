@@ -36,15 +36,6 @@
 
 typedef void (*AhrsInit)(void);
 
-/** Attitude and Heading Reference System state */
-struct Ahrs {
-  /* function pointers to actual implementation, set by ahrs_register_impl */
-  AhrsInit init;
-};
-
-/** global AHRS state */
-extern struct Ahrs ahrs;
-
 extern void ahrs_register_impl(AhrsInit init);
 
 /** AHRS initialization. Called at startup.

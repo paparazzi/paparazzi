@@ -105,14 +105,6 @@ INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY t
 #endif
 #endif
 
-#define __DefaultAhrsRegister(_x) _x ## _register()
-#define _DefaultAhrsRegister(_x) __DefaultAhrsRegister(_x)
-#define DefaultAhrsRegister() _DefaultAhrsRegister(DefaultAhrsImpl)
-
-#define __DefaultInsRegister(_x) _x ## _register()
-#define _DefaultInsRegister(_x) __DefaultInsRegister(_x)
-#define DefaultInsRegister() _DefaultInsRegister(DefaultInsImpl)
-
 static inline void on_gyro_event(void);
 static inline void on_accel_event(void);
 static inline void on_gps_event(void);
@@ -164,11 +156,9 @@ STATIC_INLINE void main_init(void)
 #if USE_AHRS_ALIGNER
   ahrs_aligner_init();
 #endif
+
   ahrs_init();
   ins_init();
-
-  DefaultAhrsRegister();
-  DefaultInsRegister();
 
 #if USE_GPS
   gps_init();

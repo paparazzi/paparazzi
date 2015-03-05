@@ -177,13 +177,13 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
                    struct GpsState *gps_s)
 {
-  ins_float_inv_update_gps(gps_s);
+  ins_float_invariant_update_gps(gps_s);
 }
 
 
-void ins_float_inv_register(void)
+void ins_float_invariant_register(void)
 {
-  ins_register_impl(ins_float_inv_init);
+  ins_register_impl(ins_float_invariant_init);
 
  // Bind to ABI messages
   AbiBindMsgBARO_ABS(INS_FINV_BARO_ID, &baro_ev, baro_cb);

@@ -33,6 +33,16 @@
 #include "state.h"
 #endif
 
+#ifndef DefaultInsImpl
+#warning "DefaultInsImpl not set!"
+#else
+PRINT_CONFIG_VAR(DefaultInsImpl)
+#endif
+
+#define __DefaultInsRegister(_x) _x ## _register()
+#define _DefaultInsRegister(_x) __DefaultInsRegister(_x)
+#define DefaultInsRegister() _DefaultInsRegister(DefaultInsImpl)
+
 /** Inertial Navigation System state */
 struct Ins {
   InsInit init;
@@ -50,6 +60,10 @@ void ins_register_impl(InsInit init)
 void ins_init(void)
 {
   ins.init = NULL;
+
+#ifdef DefaultInsImpl
+  DefaultInsRegister();
+#endif
 }
 
 

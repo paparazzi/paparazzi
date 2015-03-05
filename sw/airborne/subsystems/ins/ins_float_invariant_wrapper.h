@@ -29,9 +29,9 @@
 
 #include "subsystems/ins/ins_float_invariant.h"
 
-#define DefaultAhrsImpl ins_float_inv
-#define DefaultInsImpl ins_float_inv
+#define DefaultAhrsImpl ins_float_invariant
+#define DefaultInsImpl ins_float_invariant
 
-extern void ins_float_inv_register(void);
+extern void ins_float_invariant_register(void);
 
 #endif /* INS_FLOAT_INVARIANT_WRAPPER_H */

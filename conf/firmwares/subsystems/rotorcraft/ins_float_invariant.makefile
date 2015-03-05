@@ -8,6 +8,8 @@ INS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ins/ins_float_invariant_wrapper.h\"
 INS_CFLAGS += -DUSE_AHRS_ALIGNER
 INS_CFLAGS += -DUSE_AHRS
 
+INS_CFLAGS += -DINS_TYPE_H=\"subsystems/ins/ins_float_invariant_wrapper.h\"
+
 ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))
   INS_CFLAGS += -DUSE_MAGNETOMETER
 endif
