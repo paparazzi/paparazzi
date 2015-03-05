@@ -142,6 +142,7 @@ bool_t ahrs_dcm_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
   RATES_FLOAT_OF_BFP(ahrs_dcm.gyro_bias, bias0);
 
   ahrs_dcm.status = AHRS_DCM_RUNNING;
+  ahrs_dcm.is_aligned = TRUE;
 
   return TRUE;
 }
