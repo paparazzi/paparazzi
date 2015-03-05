@@ -38,7 +38,6 @@
 
 #include "mcu_periph/sys_time.h"
 #include "subsystems/electrical.h"
-#include "subsystems/ahrs.h"
 #include "state.h"
 #include "pprz_version.h"
 
@@ -296,7 +295,7 @@ static inline void mavlink_send_heartbeat(void)
 #else
   uint8_t mav_type = MAV_TYPE_QUADROTOR;
 #endif
-  if (DefaultAhrsImpl.is_aligned) {
+  if (stateIsAttitudeValid()) {
     if (kill_throttle) {
       mav_state = MAV_STATE_STANDBY;
     }

@@ -293,6 +293,9 @@ void ins_float_invariant_align(struct Int32Rates *lp_gyro,
   RATES_COPY(bias0, *lp_gyro);
   RATES_FLOAT_OF_BFP(ins_float_inv.state.bias, bias0);
 
+  /* push initial values to state interface */
+  stateSetNedToBodyQuat_f(&ins_float_inv.state.quat);
+
   // ins and ahrs are now running
   ins_float_inv.is_aligned = TRUE;
 }
