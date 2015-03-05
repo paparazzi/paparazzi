@@ -24,58 +24,20 @@
  */
 
 #include "mcu_periph/udp.h"
-#include <netdb.h>
-#include <netinet/in.h>
+#include "udp_socket.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <errno.h>
-
-static inline void udp_create_socket(int *sock, const int protocol, const bool_t reuse_addr, const bool_t broadcast);
-
-/**
- * Create UDP network (in/out sockets).
- * @param[out] network   pointer to already allocated UdpNetwork struct
- * @param[in]  host      hostname/address
- * @param[in]  port_out  output port
- * @param[in]  port_in   input port
- * @param[in]  broadcast if TRUE enable broadcasting
- */
-void udp_create_network(struct UdpNetwork *network, char *host, int port_out, int port_in, bool_t broadcast)
-{
-  if (network == NULL) {
-    return;
-  }
-  if (port_out >= 0) {
-    // Create the output socket (enable reuse of the address, and broadcast if necessary)
-    udp_create_socket(&network->socket_out, 0, TRUE, broadcast);
-
-    // Setup the output address
-    network->addr_out.sin_family = PF_INET;
-    network->addr_out.sin_port = htons(port_out);
-    network->addr_out.sin_addr.s_addr = inet_addr(host);
-  }
-
-  if (port_in >= 0) {
-    // Creat the input socket (enable reuse of the address, and disable broadcast)
-    udp_create_socket(&network->socket_in, 0, TRUE, FALSE);
-
-    // Create the input address
-    network->addr_in.sin_family = PF_INET;
-    network->addr_in.sin_port = htons(port_in);
-    network->addr_in.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    bind(network->socket_in, (struct sockaddr *)&network->addr_in, sizeof(network->addr_in));
-  }
-}
 
 /**
  * Initialize the UDP peripheral.
- * Allocate network struct and create the udp sockets.
+ * Allocate UdpSocket struct and create and bind the UDP socket.
  */
 void udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast)
 {
-  struct UdpNetwork *network = malloc(sizeof(struct UdpNetwork));
-  udp_create_network(network, host, port_out, port_in, broadcast);
-  p->network = (void *)network;
+  struct UdpSocket *sock = malloc(sizeof(struct UdpSocket));
+  udp_socket_create(sock, host, port_out, port_in, broadcast);
+  p->network = (void *)sock;
 }
 
 /**
@@ -89,15 +51,15 @@ void udp_receive(struct udp_periph *p)
   int16_t i;
   int16_t available = UDP_RX_BUFFER_SIZE - udp_char_available(p);
   uint8_t buf[UDP_RX_BUFFER_SIZE];
-  struct UdpNetwork *network = (struct UdpNetwork *) p->network;
+  struct UdpSocket *sock = (struct UdpSocket *) p->network;
 
   if (available <= 0) {
     return;  // No space
   }
 
   socklen_t slen = sizeof(struct sockaddr_in);
-  ssize_t byte_read = recvfrom(network->socket_in, buf, UDP_RX_BUFFER_SIZE, MSG_DONTWAIT,
-                               (struct sockaddr *)&network->addr_in, &slen);
+  ssize_t byte_read = recvfrom(sock->sockfd, buf, UDP_RX_BUFFER_SIZE, MSG_DONTWAIT,
+                               (struct sockaddr *)&sock->addr_in, &slen);
 
   if (byte_read > 0) {
     for (i = 0; i < byte_read; i++) {
@@ -115,11 +77,20 @@ void udp_send_message(struct udp_periph *p)
   if (p == NULL) return;
   if (p->network == NULL) return;
 
-  struct UdpNetwork *network = (struct UdpNetwork *) p->network;
+  struct UdpSocket *sock = (struct UdpSocket *) p->network;
 
   if (p->tx_insert_idx > 0) {
-    ssize_t test __attribute__((unused)) = sendto(network->socket_out, p->tx_buf, p->tx_insert_idx, MSG_DONTWAIT,
-                                           (struct sockaddr *)&network->addr_out, sizeof(network->addr_out));
+    ssize_t bytes_sent = sendto(sock->sockfd, p->tx_buf, p->tx_insert_idx, MSG_DONTWAIT,
+                                (struct sockaddr *)&sock->addr_out, sizeof(sock->addr_out));
+    if (bytes_sent != p->tx_insert_idx) {
+      if (bytes_sent < 0) {
+        perror("udp_send_message failed");
+      }
+      else {
+        fprintf(stderr, "udp_send_message: only sent %d bytes instead of %d\n",
+                (int)bytes_sent, p->tx_insert_idx);
+      }
+    }
     p->tx_insert_idx = 0;
   }
 }
@@ -132,27 +103,7 @@ void udp_send_raw(struct udp_periph *p, uint8_t *buffer, uint16_t size)
   if (p == NULL) return;
   if (p->network == NULL) return;
 
-  struct UdpNetwork *network = (struct UdpNetwork *) p->network;
-  ssize_t test __attribute__((unused)) = sendto(network->socket_out, buffer, size, MSG_DONTWAIT,
-                                         (struct sockaddr *)&network->addr_out, sizeof(network->addr_out));
-}
-
-/**
- * Create a new udp socket
- */
-static inline void udp_create_socket(int *sock, const int protocol, const bool_t reuse_addr, const bool_t broadcast)
-{
-  // Create the socket with the correct protocl
-  *sock = socket(PF_INET, SOCK_DGRAM, protocol);
-  int one = 1;
-
-  // Enable reusing of addres
-  if (reuse_addr) {
-    setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
-  }
-
-  // Enable broadcasting
-  if (broadcast) {
-    setsockopt(*sock, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one));
-  }
+  struct UdpSocket *sock = (struct UdpSocket *) p->network;
+  ssize_t test __attribute__((unused)) = sendto(sock->sockfd, buffer, size, MSG_DONTWAIT,
+                                         (struct sockaddr *)&sock->addr_out, sizeof(sock->addr_out));
 }
