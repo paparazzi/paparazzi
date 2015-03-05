@@ -21,7 +21,7 @@
 
 /**
  * @file subsystems/ahrs.c
- * Attitude and Heading Reference System interface.
+ * Dispatcher to register actual AHRS implementations.
  */
 
 
@@ -29,10 +29,9 @@
 
 struct Ahrs ahrs;
 
-void ahrs_register_impl(AhrsInit init, AhrsUpdateGps update_gps)
+void ahrs_register_impl(AhrsInit init)
 {
   ahrs.init = init;
-  ahrs.update_gps = update_gps;
 
   ahrs.init();
 }
@@ -40,12 +39,4 @@ void ahrs_register_impl(AhrsInit init, AhrsUpdateGps update_gps)
 void ahrs_init(void)
 {
   ahrs.init = NULL;
-  ahrs.update_gps = NULL;
-}
-
-void ahrs_update_gps(void)
-{
-  if (ahrs.update_gps != NULL) {
-    ahrs.update_gps();
-  }
 }

@@ -21,7 +21,7 @@
 
 /**
  * @file subsystems/ahrs.h
- * Attitude and Heading Reference System interface.
+ * Dispatcher to register actual AHRS implementations.
  */
 
 #ifndef AHRS_H
@@ -35,29 +35,21 @@
 #endif
 
 typedef void (*AhrsInit)(void);
-typedef void (*AhrsUpdateGps)(void);
 
 /** Attitude and Heading Reference System state */
 struct Ahrs {
   /* function pointers to actual implementation, set by ahrs_register_impl */
   AhrsInit init;
-  AhrsUpdateGps update_gps;
 };
 
 /** global AHRS state */
 extern struct Ahrs ahrs;
 
-extern void ahrs_register_impl(AhrsInit init, AhrsUpdateGps update_gps);
+extern void ahrs_register_impl(AhrsInit init);
 
 /** AHRS initialization. Called at startup.
  * Initialized the global AHRS struct.
  */
 extern void ahrs_init(void);
-
-/** Update AHRS state with GPS measurements.
- *  Calls implementation if registered.
- *  Reads the global #gps data struct.
- */
-extern void ahrs_update_gps(void);
 
 #endif /* AHRS_H */

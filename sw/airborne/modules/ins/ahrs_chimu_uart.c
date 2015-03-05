@@ -34,7 +34,7 @@ struct AhrsChimu ahrs_chimu;
 
 void ahrs_chimu_register(void)
 {
-  ahrs_register_impl(ahrs_chimu_init, NULL);
+  ahrs_register_impl(ahrs_chimu_init);
 }
 
 void ahrs_chimu_init(void)

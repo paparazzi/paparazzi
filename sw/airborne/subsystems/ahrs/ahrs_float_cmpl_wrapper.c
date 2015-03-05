@@ -86,6 +86,7 @@ static abi_event mag_ev;
 static abi_event aligner_ev;
 static abi_event body_to_imu_ev;
 static abi_event geo_mag_ev;
+static abi_event gps_ev;
 
 
 static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
@@ -177,9 +178,16 @@ static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVe
   memcpy(&ahrs_fc.mag_h, h, sizeof(struct FloatVect3));
 }
 
+static void gps_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct GpsState *gps_s)
+{
+  ahrs_fc_update_gps(gps_s);
+}
+
 void ahrs_fc_register(void)
 {
-  ahrs_register_impl(ahrs_fc_init, ahrs_fc_update_gps);
+  ahrs_register_impl(ahrs_fc_init);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
@@ -190,6 +198,7 @@ void ahrs_fc_register(void)
   AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
+  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_att);

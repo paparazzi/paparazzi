@@ -37,11 +37,20 @@ INS_FORMAT ins_pitch_neutral;
 
 struct AhrsChimu ahrs_chimu;
 
-void ahrs_chimu_update_gps(void);
+void ahrs_chimu_update_gps(uint8_t gps_fix, uint16_t gps_speed_3d);
 
+#include "subsystems/abi.h"
+static abi_event gps_ev;
+static void gps_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct GpsState *gps_s)
+{
+  ahrs_chimu_update_gps(gps_s->fix, gps_s->speed_3d);
+}
 void ahrs_chimu_register(void)
 {
-  ahrs_register_impl(ahrs_chimu_init, ahrs_chimu_update_gps);
+  ahrs_register_impl(ahrs_chimu_init);
+  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 }
 
 void ahrs_chimu_init(void)
@@ -117,15 +126,15 @@ void parse_ins_msg(void)
 }
 
 
-void ahrs_chimu_update_gps(void)
+void ahrs_chimu_update_gps(uint8_t gps_fix, uint16_t gps_speed_3d)
 {
   // Send SW Centripetal Corrections
   uint8_t centripedal[19] = {0xae, 0xae, 0x0d, 0xaa, 0x0b, 0x02,   0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,   0xc2 };
 
   float gps_speed = 0;
 
-  if (gps.fix == GPS_FIX_3D) {
-    gps_speed = gps.speed_3d / 100.;
+  if (gps_fix == GPS_FIX_3D) {
+    gps_speed = gps_speed_3d / 100.;
   }
   gps_speed = FloatSwap(gps_speed);
 

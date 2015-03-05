@@ -421,29 +421,29 @@ void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* a
 #endif
 }
 
-void ins_float_inv_update_gps(void)
+void ins_float_inv_update_gps(struct GpsState *gps_s)
 {
 
-  if (gps.fix == GPS_FIX_3D && ins_float_inv.is_aligned) {
+  if (gps_s->fix == GPS_FIX_3D && ins_float_inv.is_aligned) {
     ins_gps_fix_once = TRUE;
 
 #if INS_FINV_USE_UTM
     if (state.utm_initialized_f) {
       // position (local ned)
-      ins_float_inv.meas.pos_gps.x = (gps.utm_pos.north / 100.0f) - state.utm_origin_f.north;
-      ins_float_inv.meas.pos_gps.y = (gps.utm_pos.east / 100.0f) - state.utm_origin_f.east;
-      ins_float_inv.meas.pos_gps.z = state.utm_origin_f.alt - (gps.hmsl / 1000.0f);
+      ins_float_inv.meas.pos_gps.x = (gps_s->utm_pos.north / 100.0f) - state.utm_origin_f.north;
+      ins_float_inv.meas.pos_gps.y = (gps_s->utm_pos.east / 100.0f) - state.utm_origin_f.east;
+      ins_float_inv.meas.pos_gps.z = state.utm_origin_f.alt - (gps_s->hmsl / 1000.0f);
       // speed
-      ins_float_inv.meas.speed_gps.x = gps.ned_vel.x / 100.0f;
-      ins_float_inv.meas.speed_gps.y = gps.ned_vel.y / 100.0f;
-      ins_float_inv.meas.speed_gps.z = gps.ned_vel.z / 100.0f;
+      ins_float_inv.meas.speed_gps.x = gps_s->ned_vel.x / 100.0f;
+      ins_float_inv.meas.speed_gps.y = gps_s->ned_vel.y / 100.0f;
+      ins_float_inv.meas.speed_gps.z = gps_s->ned_vel.z / 100.0f;
     }
 #else
     if (state.ned_initialized_f) {
       struct EcefCoor_f ecef_pos, ecef_vel;
-      ECEF_FLOAT_OF_BFP(ecef_pos, gps.ecef_pos);
+      ECEF_FLOAT_OF_BFP(ecef_pos, gps_s->ecef_pos);
       ned_of_ecef_point_f(&ins_float_inv.meas.pos_gps, &state.ned_origin_f, &ecef_pos);
-      ECEF_FLOAT_OF_BFP(ecef_vel, gps.ecef_vel);
+      ECEF_FLOAT_OF_BFP(ecef_vel, gps_s->ecef_vel);
       ned_of_ecef_vect_f(&ins_float_inv.meas.speed_gps, &state.ned_origin_f, &ecef_vel);
     }
 #endif

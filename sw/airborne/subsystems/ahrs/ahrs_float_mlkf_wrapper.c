@@ -137,7 +137,7 @@ static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVe
 
 void ahrs_mlkf_register(void)
 {
-  ahrs_register_impl(ahrs_mlkf_init, NULL);
+  ahrs_register_impl(ahrs_mlkf_init);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks

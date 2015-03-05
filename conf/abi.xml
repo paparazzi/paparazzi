@@ -50,6 +50,11 @@
       <field name="h" type="struct FloatVect3 *" unit="1.0"/>
     </message>
 
+    <message name="GPS" id="10">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="gps_s" type="struct GpsState *"/>
+    </message>
+
   </msg_class>
 
 </protocol>

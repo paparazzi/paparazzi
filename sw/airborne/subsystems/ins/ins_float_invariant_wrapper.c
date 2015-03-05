@@ -101,6 +101,7 @@ static abi_event accel_ev;
 static abi_event aligner_ev;
 static abi_event body_to_imu_ev;
 static abi_event geo_mag_ev;
+static abi_event gps_ev;
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 {
@@ -172,10 +173,17 @@ static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVe
   memcpy(&ins_float_inv.mag_h, h, sizeof(struct FloatVect3));
 }
 
+static void gps_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct GpsState *gps_s)
+{
+  ins_float_inv_update_gps(gps_s);
+}
+
 
 void ins_float_inv_register(void)
 {
-  ins_register_impl(ins_float_inv_init, ins_float_inv_update_gps);
+  ins_register_impl(ins_float_inv_init, NULL);
 
  // Bind to ABI messages
   AbiBindMsgBARO_ABS(INS_FINV_BARO_ID, &baro_ev, baro_cb);
@@ -185,6 +193,7 @@ void ins_float_inv_register(void)
   AbiBindMsgIMU_LOWPASSED(INS_FINV_IMU_ID, &aligner_ev, aligner_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(INS_FINV_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
+  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 
 #if PERIODIC_TELEMETRY && !INS_FINV_USE_UTM
   register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);

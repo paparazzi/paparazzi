@@ -728,9 +728,6 @@ void event_task_ap(void)
 #if USE_GPS
 static inline void on_gps_solution(void)
 {
-#if USE_AHRS
-  ahrs_update_gps();
-#endif
   ins_update_gps();
 #ifdef GPS_TRIGGERED_FUNCTION
   GPS_TRIGGERED_FUNCTION();

@@ -380,8 +380,12 @@ static inline void on_gyro_event( void ) {
 
 static inline void on_gps_event(void)
 {
-  ahrs_update_gps();
   ins_update_gps();
+  // current timestamp
+  uint32_t now_ts = get_sys_time_usec();
+
+  AbiSendMsgGPS(1, now_ts, &gps);
+
 #ifdef USE_VEHICLE_INTERFACE
   if (gps.fix == GPS_FIX_3D) {
     vi_notify_gps_available();

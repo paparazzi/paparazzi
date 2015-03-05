@@ -179,17 +179,17 @@ void ahrs_dcm_propagate(struct Int32Rates *gyro, float dt)
   compute_ahrs_representations();
 }
 
-void ahrs_dcm_update_gps(void)
+void ahrs_dcm_update_gps(struct GpsState *gps_s)
 {
   static float last_gps_speed_3d = 0;
 
 #if USE_GPS
-  if (gps.fix == GPS_FIX_3D) {
+  if (gps_s->fix == GPS_FIX_3D) {
     ahrs_dcm.gps_age = 0;
-    ahrs_dcm.gps_speed = gps.speed_3d / 100.;
+    ahrs_dcm.gps_speed = gps_s->speed_3d / 100.;
 
-    if (gps.gspeed >= 500) { //got a 3d fix and ground speed is more than 5.0 m/s
-      ahrs_dcm.gps_course = ((float)gps.course) / 1.e7;
+    if (gps_s->gspeed >= 500) { //got a 3d fix and ground speed is more than 5.0 m/s
+      ahrs_dcm.gps_course = ((float)gps_s->course) / 1.e7;
       ahrs_dcm.gps_course_valid = TRUE;
     } else {
       ahrs_dcm.gps_course_valid = FALSE;

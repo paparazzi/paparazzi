@@ -70,7 +70,7 @@ static void send_ahrs_ad2(struct transport_tx *trans, struct link_device *dev)
 
 void ahrs_ardrone2_register(void)
 {
-  ahrs_register_impl(ahrs_ardrone2_init, NULL);
+  ahrs_register_impl(ahrs_ardrone2_init);
 }
 
 void ahrs_ardrone2_init(void)
