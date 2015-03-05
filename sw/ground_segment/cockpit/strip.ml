@@ -237,6 +237,7 @@ let add = fun config strip_param ->
   bat_da#misc#realize ();
   let bat = new vgauge bat_da min_bat max_bat in
   bat#request_width "22.5";
+  bat#set 0. [0.5, "UNK"];
 
   (* AGL gauge *)
   let agl_da = strip#drawingarea_agl in
@@ -309,7 +310,9 @@ object
   method set_agl value =
     let arrow = max (min 0.5 (climb /. 5.)) (-0.5) in
     agl#set ~arrow value [0.2, (sprintf "%3.0f" value); 0.8, sprintf "%+.1f" climb]
-  method set_bat value = bat#set value [0.5, (string_of_float value)]
+  method set_bat value =
+    let v = if value < 0.1 then "UNK" else (string_of_float value) in
+    bat#set value [0.5, v]
   method set_throttle ?(kill=false) value =
     let background = if kill then "red" else "orange" in
     throttle#set ~background value (sprintf "%.0f%%" value)
