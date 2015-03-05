@@ -157,7 +157,10 @@ STATIC_INLINE void main_init(void)
   ahrs_aligner_init();
 #endif
 
+#if USE_AHRS
   ahrs_init();
+#endif
+
   ins_init();
 
 #if USE_GPS

@@ -116,7 +116,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 static void gyro_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp, struct Int32Rates *gyro)
 {
-#if USE_AUTO_AHRS_FREQ || !defined(INS_PROPAGATE_FREQUENCY)
+#if USE_AUTO_INS_FREQ || !defined(INS_PROPAGATE_FREQUENCY)
   PRINT_CONFIG_MSG("Calculating dt for INS float_invariant propagation.")
   /* timestamp in usec when last callback was received */
   static uint32_t last_stamp = 0;
