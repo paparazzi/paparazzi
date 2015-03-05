@@ -30,6 +30,7 @@
 #define INS_INT_H
 
 #include "subsystems/ins.h"
+#include "subsystems/gps.h"
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_algebra_float.h"
@@ -69,7 +70,7 @@ extern struct InsInt ins_int;
 
 extern void ins_int_init(void);
 extern void ins_int_propagate(struct Int32Vect3 *accel, float dt);
-extern void ins_int_update_gps(void);
+extern void ins_int_update_gps(struct GpsState *gps_s);
 
 
 #ifndef DefaultInsImpl

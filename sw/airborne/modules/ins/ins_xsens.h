@@ -86,7 +86,6 @@ extern struct ImuXsens imu_xsens;
 #define DefaultInsImpl ins_xsens
 #define InsPeriodic xsens_periodic
 extern void ins_xsens_init(void);
-extern void ins_xsens_update_gps(void);
 extern void ins_xsens_register(void);
 #endif
 

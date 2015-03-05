@@ -31,7 +31,6 @@
 #define DefaultInsImpl ins_gps_utm
 
 extern void ins_gps_utm_init(void);
-extern void ins_gps_utm_update_gps(void);
 extern void ins_gps_utm_register(void);
 
 #endif /* INS_GPS_PASSTHROUGH_UTM_H */

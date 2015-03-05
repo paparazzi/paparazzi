@@ -51,7 +51,6 @@ extern struct InsAltFloat ins_altf;
 
 extern void ins_alt_float_init(void);
 extern void ins_alt_float_update_baro(float pressure);
-extern void ins_alt_float_update_gps(void);
 
 #ifndef DefaultInsImpl
 #define DefaultInsImpl ins_altf

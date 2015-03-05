@@ -38,18 +38,8 @@
 #endif
 
 typedef void (*InsInit)(void);
-typedef void (*InsUpdateGps)(void);
 
-/** Inertial Navigation System state */
-struct Ins {
-  InsInit init;
-  InsUpdateGps update_gps;
-};
-
-/** global INS state */
-extern struct Ins ins;
-
-extern void ins_register_impl(InsInit init, InsUpdateGps update_gps);
+extern void ins_register_impl(InsInit init);
 
 /** INS initialization. Called at startup.
  *  Initializes the global ins struct.

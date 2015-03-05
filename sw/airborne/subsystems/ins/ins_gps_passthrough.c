@@ -55,7 +55,7 @@ struct InsGpsPassthrough {
   struct NedCoor_i ltp_accel;
 };
 
-struct InsGpsPassthrough ins_impl;
+struct InsGpsPassthrough ins_gp;
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -63,27 +63,27 @@ struct InsGpsPassthrough ins_impl;
 static void send_ins(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_INS(trans, dev, AC_ID,
-                    &ins_impl.ltp_pos.x, &ins_impl.ltp_pos.y, &ins_impl.ltp_pos.z,
-                    &ins_impl.ltp_speed.x, &ins_impl.ltp_speed.y, &ins_impl.ltp_speed.z,
-                    &ins_impl.ltp_accel.x, &ins_impl.ltp_accel.y, &ins_impl.ltp_accel.z);
+                    &ins_gp.ltp_pos.x, &ins_gp.ltp_pos.y, &ins_gp.ltp_pos.z,
+                    &ins_gp.ltp_speed.x, &ins_gp.ltp_speed.y, &ins_gp.ltp_speed.z,
+                    &ins_gp.ltp_accel.x, &ins_gp.ltp_accel.y, &ins_gp.ltp_accel.z);
 }
 
 static void send_ins_z(struct transport_tx *trans, struct link_device *dev)
 {
   static const float fake_baro_z = 0.0;
   pprz_msg_send_INS_Z(trans, dev, AC_ID,
-                      (float *)&fake_baro_z, &ins_impl.ltp_pos.z,
-                      &ins_impl.ltp_speed.z, &ins_impl.ltp_accel.z);
+                      (float *)&fake_baro_z, &ins_gp.ltp_pos.z,
+                      &ins_gp.ltp_speed.z, &ins_gp.ltp_accel.z);
 }
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 {
   static const float fake_qfe = 0.0;
-  if (ins_impl.ltp_initialized) {
+  if (ins_gp.ltp_initialized) {
     pprz_msg_send_INS_REF(trans, dev, AC_ID,
-                          &ins_impl.ltp_def.ecef.x, &ins_impl.ltp_def.ecef.y, &ins_impl.ltp_def.ecef.z,
-                          &ins_impl.ltp_def.lla.lat, &ins_impl.ltp_def.lla.lon, &ins_impl.ltp_def.lla.alt,
-                          &ins_impl.ltp_def.hmsl, (float *)&fake_qfe);
+                          &ins_gp.ltp_def.ecef.x, &ins_gp.ltp_def.ecef.y, &ins_gp.ltp_def.ecef.z,
+                          &ins_gp.ltp_def.lla.lat, &ins_gp.ltp_def.lla.lon, &ins_gp.ltp_def.lla.alt,
+                          &ins_gp.ltp_def.hmsl, (float *)&fake_qfe);
   }
 }
 #endif
@@ -101,18 +101,18 @@ void ins_gps_passthrough_init(void)
   struct EcefCoor_i ecef_nav0;
   ecef_of_lla_i(&ecef_nav0, &llh_nav0);
 
-  ltp_def_from_ecef_i(&ins_impl.ltp_def, &ecef_nav0);
-  ins_impl.ltp_def.hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(&ins_impl.ltp_def);
+  ltp_def_from_ecef_i(&ins_gp.ltp_def, &ecef_nav0);
+  ins_gp.ltp_def.hmsl = NAV_ALT0;
+  stateSetLocalOrigin_i(&ins_gp.ltp_def);
 
-  ins_impl.ltp_initialized = TRUE;
+  ins_gp.ltp_initialized = TRUE;
 #else
-  ins_impl.ltp_initialized  = FALSE;
+  ins_gp.ltp_initialized  = FALSE;
 #endif
 
-  INT32_VECT3_ZERO(ins_impl.ltp_pos);
-  INT32_VECT3_ZERO(ins_impl.ltp_speed);
-  INT32_VECT3_ZERO(ins_impl.ltp_accel);
+  INT32_VECT3_ZERO(ins_gp.ltp_pos);
+  INT32_VECT3_ZERO(ins_gp.ltp_speed);
+  INT32_VECT3_ZERO(ins_gp.ltp_accel);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "INS", send_ins);
@@ -123,11 +123,11 @@ void ins_gps_passthrough_init(void)
 
 void ins_reset_local_origin(void)
 {
-  ltp_def_from_ecef_i(&ins_impl.ltp_def, &gps.ecef_pos);
-  ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
-  ins_impl.ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ins_impl.ltp_def);
-  ins_impl.ltp_initialized = TRUE;
+  ltp_def_from_ecef_i(&ins_gp.ltp_def, &gps.ecef_pos);
+  ins_gp.ltp_def.lla.alt = gps.lla_pos.alt;
+  ins_gp.ltp_def.hmsl = gps.hmsl;
+  stateSetLocalOrigin_i(&ins_gp.ltp_def);
+  ins_gp.ltp_initialized = TRUE;
 }
 
 void ins_reset_altitude_ref(void)
@@ -137,34 +137,40 @@ void ins_reset_altitude_ref(void)
     .lon = state.ned_origin_i.lla.lon,
     .alt = gps.lla_pos.alt
   };
-  ltp_def_from_lla_i(&ins_impl.ltp_def, &lla);
-  ins_impl.ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ins_impl.ltp_def);
+  ltp_def_from_lla_i(&ins_gp.ltp_def, &lla);
+  ins_gp.ltp_def.hmsl = gps.hmsl;
+  stateSetLocalOrigin_i(&ins_gp.ltp_def);
 }
 
-void ins_gps_passthrough_update_gps(void)
+
+#include "subsystems/abi.h"
+static abi_event gps_ev;
+static void gps_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct GpsState *gps_s)
 {
-  if (gps.fix == GPS_FIX_3D) {
-    if (!ins_impl.ltp_initialized) {
+  if (gps_s->fix == GPS_FIX_3D) {
+    if (!ins_gp.ltp_initialized) {
       ins_reset_local_origin();
     }
 
     /* simply scale and copy pos/speed from gps */
     struct NedCoor_i gps_pos_cm_ned;
-    ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_impl.ltp_def, &gps.ecef_pos);
-    INT32_VECT3_SCALE_2(ins_impl.ltp_pos, gps_pos_cm_ned,
+    ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_gp.ltp_def, &gps_s->ecef_pos);
+    INT32_VECT3_SCALE_2(ins_gp.ltp_pos, gps_pos_cm_ned,
                         INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
-    stateSetPositionNed_i(&ins_impl.ltp_pos);
+    stateSetPositionNed_i(&ins_gp.ltp_pos);
 
     struct NedCoor_i gps_speed_cm_s_ned;
-    ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_impl.ltp_def, &gps.ecef_vel);
-    INT32_VECT3_SCALE_2(ins_impl.ltp_speed, gps_speed_cm_s_ned,
+    ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_gp.ltp_def, &gps_s->ecef_vel);
+    INT32_VECT3_SCALE_2(ins_gp.ltp_speed, gps_speed_cm_s_ned,
                         INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
-    stateSetSpeedNed_i(&ins_impl.ltp_speed);
+    stateSetSpeedNed_i(&ins_gp.ltp_speed);
   }
 }
 
 void ins_gps_passthrough_register(void);
 {
-  ins_register_impl(ins_gps_passthrough_init, ins_gps_passthrough_update_gps);
+  ins_register_impl(ins_gps_passthrough_init);
+  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 }

@@ -31,7 +31,6 @@
 #define DefaultInsImpl ins_gps_passthrough
 
 extern void ins_gps_passthrough_init(void);
-extern void ins_gps_passthrough_update_gps(void);
 extern void ins_gps_passthrough_register(void);
 
 #endif /* INS_GPS_PASSTHROUGH_H */

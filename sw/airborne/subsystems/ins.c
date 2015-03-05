@@ -33,12 +33,16 @@
 #include "state.h"
 #endif
 
+/** Inertial Navigation System state */
+struct Ins {
+  InsInit init;
+};
+
 struct Ins ins;
 
-void ins_register_impl(InsInit init, InsUpdateGps update_gps)
+void ins_register_impl(InsInit init)
 {
   ins.init = init;
-  ins.update_gps = update_gps;
 
   ins.init();
 }
@@ -46,15 +50,8 @@ void ins_register_impl(InsInit init, InsUpdateGps update_gps)
 void ins_init(void)
 {
   ins.init = NULL;
-  ins.update_gps = NULL;
 }
 
-void ins_update_gps(void)
-{
-  if (ins.update_gps != NULL) {
-    ins.update_gps();
-  }
-}
 
 // weak functions, used if not explicitly provided by implementation
 

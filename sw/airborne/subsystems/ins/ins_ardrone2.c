@@ -158,9 +158,19 @@ void ins_ardrone2_update_gps(void)
 #endif /* USE_GPS */
 }
 
+#include "subsystems/abi.h"
+static abi_event gps_ev;
+static void gps_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct GpsState *gps_s)
+{
+  ins_ardrone2_update_gps();
+}
+
 void ins_ardrone2_register(void)
 {
-  ins_register_impl(ins_ardrone2_init, ins_ardrone2_update_gps);
+  ins_register_impl(ins_ardrone2_init);
 
+  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
   // FIXME: ins_ardrone2_periodic is currently called via InsPeriodic hack directly from main
 }

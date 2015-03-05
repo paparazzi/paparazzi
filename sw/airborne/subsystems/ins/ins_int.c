@@ -123,6 +123,7 @@ static void baro_cb(uint8_t sender_id, float pressure);
 #define INS_INT_IMU_ID ABI_BROADCAST
 #endif
 static abi_event accel_ev;
+static abi_event gps_ev;
 
 struct InsInt ins_int;
 
@@ -299,22 +300,22 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 }
 
 #if USE_GPS
-void ins_int_update_gps(void)
+void ins_int_update_gps(struct GpsState *gps_s)
 {
-  if (gps.fix == GPS_FIX_3D) {
+  if (gps_s->fix == GPS_FIX_3D) {
     if (!ins_int.ltp_initialized) {
-      ltp_def_from_ecef_i(&ins_int.ltp_def, &gps.ecef_pos);
-      ins_int.ltp_def.lla.alt = gps.lla_pos.alt;
-      ins_int.ltp_def.hmsl = gps.hmsl;
+      ltp_def_from_ecef_i(&ins_int.ltp_def, &gps_s->ecef_pos);
+      ins_int.ltp_def.lla.alt = gps_s->lla_pos.alt;
+      ins_int.ltp_def.hmsl = gps_s->hmsl;
       ins_int.ltp_initialized = TRUE;
       stateSetLocalOrigin_i(&ins_int.ltp_def);
     }
 
     struct NedCoor_i gps_pos_cm_ned;
-    ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_int.ltp_def, &gps.ecef_pos);
-    /// @todo maybe use gps.ned_vel directly??
+    ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_int.ltp_def, &gps_s->ecef_pos);
+    /// @todo maybe use gps_s->ned_vel directly??
     struct NedCoor_i gps_speed_cm_s_ned;
-    ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_int.ltp_def, &gps.ecef_vel);
+    ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_int.ltp_def, &gps_s->ecef_vel);
 
 #if INS_USE_GPS_ALT
     vff_update_z_conf((float)gps_pos_cm_ned.z / 100.0, INS_VFF_R_GPS);
@@ -450,12 +451,20 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
   last_stamp = stamp;
 }
 
+static void gps_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct GpsState *gps_s)
+{
+  ins_int_update_gps(gps_s);
+}
+
 void ins_int_register(void)
 {
-  ins_register_impl(ins_int_init, ins_int_update_gps);
+  ins_register_impl(ins_int_init);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
    */
   AbiBindMsgIMU_ACCEL_INT32(INS_INT_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 }

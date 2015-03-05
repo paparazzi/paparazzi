@@ -70,9 +70,13 @@ abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, float pressure);
 #endif /* USE_BAROMETER */
 
+abi_event gps_ev;
+
 static void alt_kalman_reset(void);
 static void alt_kalman_init(void);
 static void alt_kalman(float z_meas, float dt);
+
+void ins_alt_float_update_gps(struct GpsState *gps_s);
 
 void ins_alt_float_init(void)
 {
@@ -178,12 +182,12 @@ void ins_alt_float_update_baro(float pressure __attribute__((unused)))
 #endif
 
 
-void ins_alt_float_update_gps(void)
+void ins_alt_float_update_gps(struct GpsState *gps_s)
 {
 #if USE_GPS
   struct UtmCoor_f utm;
-  utm.east = gps.utm_pos.east / 100.0f;
-  utm.north = gps.utm_pos.north / 100.0f;
+  utm.east = gps_s->utm_pos.east / 100.0f;
+  utm.north = gps_s->utm_pos.north / 100.0f;
   utm.zone = nav_utm_zone0;
 
 #if !USE_BAROMETER
@@ -202,7 +206,7 @@ void ins_alt_float_update_gps(void)
   Bound(dt, 0.02, 2)
 #endif
 
-  float falt = gps.hmsl / 1000.0f;
+  float falt = gps_s->hmsl / 1000.0f;
   if (ins_altf.reset_alt_ref) {
     ins_altf.reset_alt_ref = FALSE;
     ins_altf.alt = falt;
@@ -210,7 +214,7 @@ void ins_alt_float_update_gps(void)
     alt_kalman_reset();
   } else {
     alt_kalman(falt, dt);
-    ins_altf.alt_dot = -gps.ned_vel.z / 100.0f;
+    ins_altf.alt_dot = -gps_s->ned_vel.z / 100.0f;
   }
 #endif
   utm.alt = ins_altf.alt;
@@ -218,8 +222,8 @@ void ins_alt_float_update_gps(void)
   stateSetPositionUtm_f(&utm);
 
   struct NedCoor_f ned_vel = {
-    gps.ned_vel.x / 100.0f,
-    gps.ned_vel.y / 100.0f,
+    gps_s->ned_vel.x / 100.0f,
+    gps_s->ned_vel.y / 100.0f,
     -ins_altf.alt_dot
   };
   // set velocity
@@ -328,12 +332,20 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 }
 #endif
 
+static void gps_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct GpsState *gps_s)
+{
+  ins_alt_float_update_gps(gps_s);
+}
+
 void ins_altf_register(void)
 {
-  ins_register_impl(ins_alt_float_init, ins_alt_float_update_gps);
+  ins_register_impl(ins_alt_float_init);
 
 #if USE_BAROMETER
   // Bind to BARO_ABS message
   AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
 #endif
+  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 }

@@ -380,7 +380,6 @@ static inline void on_gyro_event( void ) {
 
 static inline void on_gps_event(void)
 {
-  ins_update_gps();
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
 
