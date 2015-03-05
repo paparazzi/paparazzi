@@ -69,6 +69,10 @@ endif
 # Systime
 #
 $(TARGET).srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+ifeq ($(ARCH), linux)
+# seems that we need to link against librt for glibc < 2.17
+$(TARGET).LDFLAGS += -lrt
+endif
 
 
 #
