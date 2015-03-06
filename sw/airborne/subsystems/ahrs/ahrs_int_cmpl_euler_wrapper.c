@@ -28,6 +28,8 @@
 #include "subsystems/ahrs.h"
 #include "subsystems/abi.h"
 
+static uint32_t ahrs_ice_last_stamp;
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 #include "mcu_periph/sys_time.h"
@@ -74,7 +76,6 @@ static void send_bias(struct transport_tx *trans, struct link_device *dev)
 #ifndef AHRS_ICE_FILTER_ID
 #define AHRS_ICE_FILTER_ID 4
 #endif
-static uint32_t ahrs_ice_last_stamp;
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
@@ -103,13 +104,12 @@ static abi_event body_to_imu_ev;
 
 
 static void gyro_cb(uint8_t sender_id __attribute__((unused)),
-                    uint32_t stamp __attribute__((unused)),
-                    struct Int32Rates *gyro)
+                    uint32_t stamp, struct Int32Rates *gyro)
 {
+  ahrs_ice_last_stamp = stamp;
   if (ahrs_ice.is_aligned) {
     ahrs_ice_propagate(gyro);
   }
-
 }
 
 static void accel_cb(uint8_t sender_id __attribute__((unused)),

@@ -29,6 +29,8 @@
 #include "subsystems/ahrs.h"
 #include "subsystems/abi.h"
 
+static uint32_t ahrs_mlkf_last_stamp;
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 #include "mcu_periph/sys_time.h"
@@ -42,7 +44,6 @@ static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
 #ifndef AHRS_MLKF_FILTER_ID
 #define AHRS_MLKF_FILTER_ID 6
 #endif
-static uint32_t ahrs_mlkf_last_stamp;
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
@@ -73,9 +74,9 @@ static abi_event geo_mag_ev;
 
 
 static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
-                    uint32_t __attribute__((unused)) stamp,
-                    struct Int32Rates *gyro)
+                    uint32_t stamp, struct Int32Rates *gyro)
 {
+  ahrs_mlkf_last_stamp = stamp;
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
   PRINT_CONFIG_MSG("Calculating dt for AHRS_MLKF propagation.")
   /* timestamp in usec when last callback was received */
