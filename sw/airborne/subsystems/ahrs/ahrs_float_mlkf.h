@@ -59,6 +59,7 @@ struct AhrsMlkf {
 
   enum AhrsMlkfStatus status;
   bool_t is_aligned;
+  bool_t output_enabled; ///< if TRUE with push the estimation results to the state interface
 };
 
 extern struct AhrsMlkf ahrs_mlkf;

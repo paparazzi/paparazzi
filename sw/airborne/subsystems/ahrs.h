@@ -29,18 +29,37 @@
 
 #include "std.h"
 
-/* underlying includes (needed for parameters) */
+/* include actual (primary) implementation header */
 #ifdef AHRS_TYPE_H
 #include AHRS_TYPE_H
 #endif
 
-typedef void (*AhrsInit)(void);
+/* include secondary implementation header */
+#ifdef AHRS_SECONDARY_TYPE_H
+#include AHRS_SECONDARY_TYPE_H
+#endif
 
-extern void ahrs_register_impl(AhrsInit init);
+typedef bool_t (*AhrsEnableOutput)(bool_t);
+
+/* for settings when using secondary AHRS */
+extern uint8_t ahrs_output_idx;
+
+/**
+ * Register an AHRS implementation.
+ * Adds it to an internal list.
+ * @param enable pointer to function to enable/disable the output of registering AHRS
+ */
+extern void ahrs_register_impl(AhrsEnableOutput enable);
 
 /** AHRS initialization. Called at startup.
- * Initialized the global AHRS struct.
+ * Registers/initializes the default AHRS.
  */
 extern void ahrs_init(void);
+
+/**
+ * Switch to the output of another AHRS impl.
+ * @param idx index of the AHRS impl (0 = PRIMARY_AHRS, 1 = SECONDARY_AHRS).
+ */
+extern int ahrs_switch(uint8_t idx);
 
 #endif /* AHRS_H */

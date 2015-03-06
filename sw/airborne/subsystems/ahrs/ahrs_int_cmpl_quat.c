@@ -60,6 +60,10 @@ PRINT_CONFIG_MSG("LOW PASS FILTER ON GYRO RATES")
 #error "AHRS_USE_GPS_HEADING needs USE_GPS to be TRUE"
 #endif
 
+#ifndef AHRS_ICQ_OUTPUT_ENABLED
+#define AHRS_ICQ_OUTPUT_ENABLED TRUE
+#endif
+PRINT_CONFIG_VAR(AHRS_ICQ_OUTPUT_ENABLED)
 
 /*
  * default gains for correcting attitude and bias from accel/mag
@@ -112,6 +116,7 @@ void ahrs_icq_init(void)
 {
 
   ahrs_icq.status = AHRS_ICQ_UNINIT;
+  ahrs_icq.output_enabled = AHRS_ICQ_OUTPUT_ENABLED;
   ahrs_icq.is_aligned = FALSE;
 
   ahrs_icq.ltp_vel_norm_valid = FALSE;
@@ -168,7 +173,9 @@ bool_t ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
   lp_mag = lp_mag;
 #endif
 
-  set_body_state_from_quat();
+  if (ahrs_icq.output_enabled) {
+    set_body_state_from_quat();
+  }
 
   /* Use low passed gyro value as initial bias */
   RATES_COPY(ahrs_icq.gyro_bias, *lp_gyro);
@@ -209,7 +216,9 @@ void ahrs_icq_propagate(struct Int32Rates *gyro, float dt)
                           &omega, freq);
   int32_quat_normalize(&ahrs_icq.ltp_to_imu_quat);
 
-  set_body_state_from_quat();
+  if (ahrs_icq.output_enabled) {
+    set_body_state_from_quat();
+  }
 
   // increase accel and mag propagation counters
   ahrs_icq.accel_cnt++;
@@ -639,7 +648,9 @@ void ahrs_icq_realign_heading(int32_t heading)
   int32_quat_comp(&ahrs_icq.ltp_to_imu_quat, &ltp_to_body_quat, body_to_imu_quat);
 
   /* Set state */
-  stateSetNedToBodyQuat_i(&ltp_to_body_quat);
+  if (ahrs_icq.output_enabled) {
+    stateSetNedToBodyQuat_i(&ltp_to_body_quat);
+  }
 
   ahrs_icq.heading_aligned = TRUE;
 }

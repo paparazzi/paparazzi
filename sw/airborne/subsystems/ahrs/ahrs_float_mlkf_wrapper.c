@@ -135,9 +135,16 @@ static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVe
   memcpy(&ahrs_mlkf.mag_h, h, sizeof(struct FloatVect3));
 }
 
+static bool_t ahrs_mlkf_enable_output(bool_t enable)
+{
+  ahrs_mlkf.output_enabled = enable;
+  return ahrs_mlkf.output_enabled;
+}
+
 void ahrs_mlkf_register(void)
 {
-  ahrs_register_impl(ahrs_mlkf_init);
+  ahrs_mlkf_init();
+  ahrs_register_impl(ahrs_mlkf_enable_output);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks

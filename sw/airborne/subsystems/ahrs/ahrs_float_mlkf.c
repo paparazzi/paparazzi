@@ -42,6 +42,11 @@
 
 //#include <stdio.h>
 
+#ifndef AHRS_MLKF_OUTPUT_ENABLED
+#define AHRS_MLKF_OUTPUT_ENABLED TRUE
+#endif
+PRINT_CONFIG_VAR(AHRS_MLKF_OUTPUT_ENABLED)
+
 #ifndef AHRS_MAG_NOISE_X
 #define AHRS_MAG_NOISE_X 0.2
 #define AHRS_MAG_NOISE_Y 0.2
@@ -66,6 +71,7 @@ void ahrs_mlkf_init(void)
 {
 
   ahrs_mlkf.is_aligned = FALSE;
+  ahrs_mlkf.output_enabled = AHRS_MLKF_OUTPUT_ENABLED;
 
   /* init ltp_to_imu quaternion as zero/identity rotation */
   float_quat_identity(&ahrs_mlkf.ltp_to_imu_quat);
@@ -116,7 +122,9 @@ bool_t ahrs_mlkf_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
   ahrs_float_get_quat_from_accel_mag(&ahrs_mlkf.ltp_to_imu_quat, lp_accel, lp_mag);
 
   /* set initial body orientation */
-  set_body_state_from_quat();
+  if (ahrs_mlkf.output_enabled) {
+    set_body_state_from_quat();
+  }
 
   /* used averaged gyro as initial value for bias */
   struct Int32Rates bias0;
@@ -132,7 +140,9 @@ void ahrs_mlkf_propagate(struct Int32Rates *gyro, float dt)
 {
   propagate_ref(gyro, dt);
   propagate_state(dt);
-  set_body_state_from_quat();
+  if (ahrs_mlkf.output_enabled) {
+    set_body_state_from_quat();
+  }
 }
 
 void ahrs_mlkf_update_accel(struct Int32Vect3 *accel)
@@ -147,6 +157,9 @@ void ahrs_mlkf_update_accel(struct Int32Vect3 *accel)
   struct FloatVect3 g_noise = {1. + dn, 1. + dn, 1. + dn};
   update_state(&earth_g, &imu_g, &g_noise);
   reset_state();
+  if (ahrs_mlkf.output_enabled) {
+    set_body_state_from_quat();
+  }
 }
 
 void ahrs_mlkf_update_mag(struct Int32Vect3 *mag)
@@ -156,6 +169,9 @@ void ahrs_mlkf_update_mag(struct Int32Vect3 *mag)
 #else
   ahrs_mlkf_update_mag_2d(mag);
 #endif
+  if (ahrs_mlkf.output_enabled) {
+    set_body_state_from_quat();
+  }
 }
 
 void ahrs_mlkf_update_mag_2d(struct Int32Vect3 *mag)

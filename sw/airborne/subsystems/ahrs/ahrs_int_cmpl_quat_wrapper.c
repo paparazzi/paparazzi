@@ -209,9 +209,16 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   ahrs_icq_update_gps(gps_s);
 }
 
+static bool_t ahrs_icq_enable_output(bool_t enable)
+{
+  ahrs_icq.output_enabled = enable;
+  return ahrs_icq.output_enabled;
+}
+
 void ahrs_icq_register(void)
 {
-  ahrs_register_impl(ahrs_icq_init);
+  ahrs_icq_init();
+  ahrs_register_impl(ahrs_icq_enable_output);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
