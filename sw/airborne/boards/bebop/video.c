@@ -64,6 +64,9 @@ static bool_t _write(int fd, char *data, uint8_t cnt)
   return TRUE;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
+
 /**
  * Initialisation of the Aptina MT9V117 CMOS sensor
  */
@@ -430,3 +433,5 @@ void mt9f002_init(void)
   write(fd_i2c, "\1\0\1", 3);
   close(fd_i2c);
 }
+
+#pragma GCC diagnostic pop /* end disable -Wunused-result */
