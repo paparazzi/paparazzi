@@ -161,17 +161,6 @@ static void send_navdata(struct transport_tx *trans, struct link_device *dev)
                                 &navdata.measure.chksum,
                                 &navdata.checksum_errors);
 }
-
-static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
-{
-  uint8_t id = NAVDATA_FILTER_ID;
-  uint8_t mde = 3;
-  if (!DefaultAhrsImpl.is_aligned) { mde = 2; }
-  if (navdata.imu_lost) { mde = 5; }
-  uint16_t val = navdata.lost_imu_frames;
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &id, &mde, &val);
-}
-
 #endif
 
 /**
@@ -249,7 +238,6 @@ bool_t navdata_init()
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "ARDRONE_NAVDATA", send_navdata);
-  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
 #endif
 
   // Set to initialized
