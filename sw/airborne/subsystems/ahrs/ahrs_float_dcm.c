@@ -51,6 +51,10 @@
 #include "subsystems/datalink/downlink.h"
 #endif
 
+#ifndef AHRS_DCM_OUTPUT_ENABLED
+#define AHRS_DCM_OUTPUT_ENABLED TRUE
+#endif
+PRINT_CONFIG_VAR(AHRS_DCM_OUTPUT_ENABLED)
 
 struct AhrsFloatDCM ahrs_dcm;
 
@@ -104,6 +108,7 @@ void ahrs_dcm_init(void)
 {
   ahrs_dcm.status = AHRS_DCM_UNINIT;
   ahrs_dcm.is_aligned = FALSE;
+  ahrs_dcm.output_enabled = AHRS_DCM_OUTPUT_ENABLED;
 
   /* init ltp_to_imu euler with zero */
   FLOAT_EULERS_ZERO(ahrs_dcm.ltp_to_imu_euler);
@@ -134,7 +139,9 @@ bool_t ahrs_dcm_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
   set_dcm_matrix_from_rmat(&ltp_to_imu_rmat);
 
   /* Set initial body orientation */
-  set_body_orientation_and_rates();
+  if (ahrs_dcm.output_enabled) {
+    set_body_orientation_and_rates();
+  }
 
   /* use averaged gyro as initial value for bias */
   struct Int32Rates bias0;
@@ -545,7 +552,9 @@ static inline void compute_ahrs_representations(void)
   ahrs_dcm.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
 #endif
 
-  set_body_orientation_and_rates();
+  if (ahrs_dcm.output_enabled) {
+    set_body_orientation_and_rates();
+  }
 
   /*
     RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel, DefaultDevice,

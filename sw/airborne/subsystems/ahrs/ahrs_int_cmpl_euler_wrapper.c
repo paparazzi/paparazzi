@@ -146,11 +146,16 @@ static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
   ahrs_ice_set_body_to_imu_quat(q_b2i_f);
 }
 
+static bool_t ahrs_ice_enable_output(bool_t enable)
+{
+  ahrs_ice.output_enabled = enable;
+  return ahrs_ice.output_enabled;
+}
+
 void ahrs_ice_register(void)
 {
   ahrs_ice_init();
-  /// @TODO: provide enable function
-  ahrs_register_impl(NULL);
+  ahrs_register_impl(ahrs_ice_enable_output);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks

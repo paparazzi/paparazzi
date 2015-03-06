@@ -55,6 +55,10 @@
 #warning "Using magnetometer _and_ GPS course to update heading. Probably better to <configure name="USE_MAGNETOMETER" value="0"/> if you want to use GPS course."
 #endif
 
+#ifndef AHRS_FC_OUTPUT_ENABLED
+#define AHRS_FC_OUTPUT_ENABLED TRUE
+#endif
+PRINT_CONFIG_VAR(AHRS_FC_OUTPUT_ENABLED)
 
 /*
  * default gains for correcting attitude and bias from accel/mag
@@ -92,6 +96,7 @@ void ahrs_fc_init(void)
 {
   ahrs_fc.status = AHRS_FC_UNINIT;
   ahrs_fc.is_aligned = FALSE;
+  ahrs_fc.output_enabled = AHRS_FC_OUTPUT_ENABLED;
 
   ahrs_fc.ltp_vel_norm_valid = FALSE;
   ahrs_fc.heading_aligned = FALSE;
@@ -139,7 +144,9 @@ bool_t ahrs_fc_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
   float_rmat_of_quat(&ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.ltp_to_imu_quat);
 
   /* Compute initial body orientation */
-  compute_body_orientation_and_rates();
+  if (ahrs_fc.output_enabled) {
+    compute_body_orientation_and_rates();
+  }
 
   /* used averaged gyro as initial value for bias */
   struct Int32Rates bias0;
@@ -185,7 +192,10 @@ void ahrs_fc_propagate(struct Int32Rates *gyro, float dt)
   float_quat_normalize(&ahrs_fc.ltp_to_imu_quat);
   float_rmat_of_quat(&ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.ltp_to_imu_quat);
 #endif
-  compute_body_orientation_and_rates();
+
+  if (ahrs_fc.output_enabled) {
+    compute_body_orientation_and_rates();
+  }
 
   // increase accel and mag propagation counters
   ahrs_fc.accel_cnt++;
@@ -509,7 +519,9 @@ void ahrs_fc_realign_heading(float heading)
   float_rmat_of_quat(&ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.ltp_to_imu_quat);
 
   /* set state */
-  stateSetNedToBodyQuat_f(&q);
+  if (ahrs_fc.output_enabled) {
+    stateSetNedToBodyQuat_f(&q);
+  }
 
   ahrs_fc.heading_aligned = TRUE;
 }

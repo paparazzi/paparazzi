@@ -185,11 +185,16 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   ahrs_fc_update_gps(gps_s);
 }
 
+static bool_t ahrs_fc_enable_output(bool_t enable)
+{
+  ahrs_fc.output_enabled = enable;
+  return ahrs_fc.output_enabled;
+}
+
 void ahrs_fc_register(void)
 {
   ahrs_fc_init();
-  /// @TODO: provide enable function
-  ahrs_register_impl(NULL);
+  ahrs_register_impl(ahrs_fc_enable_output);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks

@@ -45,6 +45,11 @@
 #define AHRS_MAG_OFFSET 0.
 #endif
 
+#ifndef AHRS_ICE_OUTPUT_ENABLED
+#define AHRS_ICE_OUTPUT_ENABLED TRUE
+#endif
+PRINT_CONFIG_VAR(AHRS_ICE_OUTPUT_ENABLED)
+
 struct AhrsIntCmplEuler ahrs_ice;
 
 static inline void get_phi_theta_measurement_fom_accel(int32_t *phi_meas, int32_t *theta_meas,
@@ -67,6 +72,7 @@ void ahrs_ice_init(void)
 {
   ahrs_ice.status = AHRS_ICE_UNINIT;
   ahrs_ice.is_aligned = FALSE;
+  ahrs_ice.output_enabled = AHRS_ICE_OUTPUT_ENABLED;
 
   /* init ltp_to_imu to zero */
   INT_EULERS_ZERO(ahrs_ice.ltp_to_imu_euler)
@@ -94,7 +100,9 @@ bool_t ahrs_ice_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
   /* Compute LTP to IMU eulers      */
   EULERS_SDIV(ahrs_ice.ltp_to_imu_euler, ahrs_ice.hi_res_euler, F_UPDATE);
 
-  set_body_state_from_euler();
+  if (ahrs_ice.output_enabled) {
+    set_body_state_from_euler();
+  }
 
   RATES_COPY(ahrs_ice.gyro_bias, *lp_gyro);
 
@@ -203,8 +211,9 @@ void ahrs_ice_propagate(struct Int32Rates *gyro)
   /* Compute LTP to IMU eulers      */
   EULERS_SDIV(ahrs_ice.ltp_to_imu_euler, ahrs_ice.hi_res_euler, F_UPDATE);
 
-  set_body_state_from_euler();
-
+  if (ahrs_ice.output_enabled) {
+    set_body_state_from_euler();
+  }
 }
 
 void ahrs_ice_update_accel(struct Int32Vect3 *accel)

@@ -128,11 +128,16 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   ahrs_dcm_update_gps(gps_s);
 }
 
+static bool_t ahrs_dcm_enable_output(bool_t enable)
+{
+  ahrs_dcm.output_enabled = enable;
+  return ahrs_dcm.output_enabled;
+}
+
 void ahrs_dcm_register(void)
 {
   ahrs_dcm_init();
-  /// @TODO: provide enable function
-  ahrs_register_impl(NULL);
+  ahrs_register_impl(ahrs_dcm_enable_output);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
