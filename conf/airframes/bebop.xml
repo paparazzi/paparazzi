@@ -27,9 +27,9 @@
 
   <modules main_freq="512">
     <load name="send_imu_mag_current.xml"/>
-    <load name="logger_file.xml">
+    <!--load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="\\\"/data/ftp/internal_000/\\\""/>
-    </load>
+    </load-->
     <!--load name="video_rtp_stream.xml">
       <define name="VIEWVIDEO_FPS" value="60"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
