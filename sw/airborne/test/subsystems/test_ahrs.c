@@ -53,10 +53,6 @@ static inline void on_gyro_event(void);
 static inline void on_accel_event(void);
 static inline void on_mag_event(void);
 
-#define __DefaultAhrsRegister(_x) _x ## _register()
-#define _DefaultAhrsRegister(_x) __DefaultAhrsRegister(_x)
-#define DefaultAhrsRegister() _DefaultAhrsRegister(DefaultAhrsImpl)
-
 int main(void)
 {
   main_init();
@@ -79,8 +75,6 @@ static inline void main_init(void)
 #endif
   ahrs_init();
   downlink_init();
-
-  DefaultAhrsRegister();
 
   mcu_int_enable();
 }

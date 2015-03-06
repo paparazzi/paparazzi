@@ -339,7 +339,9 @@ void ahrs_gx3_init(void)
 
 void ahrs_gx3_register(void)
 {
-  ahrs_register_impl(ahrs_gx3_init);
+  ahrs_gx3_init();
+  /// @TODO: provide enable function
+  ahrs_register_impl(NULL);
 }
 
 

@@ -148,7 +148,9 @@ static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
 
 void ahrs_ice_register(void)
 {
-  ahrs_register_impl(ahrs_ice_init);
+  ahrs_ice_init();
+  /// @TODO: provide enable function
+  ahrs_register_impl(NULL);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks

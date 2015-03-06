@@ -130,7 +130,9 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 
 void ahrs_dcm_register(void)
 {
-  ahrs_register_impl(ahrs_dcm_init);
+  ahrs_dcm_init();
+  /// @TODO: provide enable function
+  ahrs_register_impl(NULL);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks

@@ -49,7 +49,9 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 }
 void ahrs_chimu_register(void)
 {
-  ahrs_register_impl(ahrs_chimu_init);
+  ahrs_chimu_init();
+  /// @TODO: provide enable function
+  ahrs_register_impl(NULL);
   AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 }
 

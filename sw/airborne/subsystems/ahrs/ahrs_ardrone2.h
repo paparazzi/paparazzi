@@ -47,7 +47,9 @@ struct AhrsARDrone {
 };
 extern struct AhrsARDrone ahrs_ardrone2;
 
-#define DefaultAhrsImpl ahrs_ardrone2
+#ifndef PRIMARY_AHRS
+#define PRIMARY_AHRS ahrs_ardrone2
+#endif
 
 extern void ahrs_ardrone2_register(void);
 extern void ahrs_ardrone2_init(void);

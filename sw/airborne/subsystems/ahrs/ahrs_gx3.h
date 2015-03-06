@@ -83,7 +83,10 @@ struct AhrsGX3 {
 };
 
 extern struct AhrsGX3 ahrs_gx3;
-#define DefaultAhrsImpl ahrs_gx3
+
+#ifndef PRIMARY_AHRS
+#define PRIMARY_AHRS ahrs_gx3
+#endif
 
 extern void ahrs_gx3_init(void);
 extern void ahrs_gx3_align(void);

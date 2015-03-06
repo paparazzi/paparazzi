@@ -33,7 +33,4 @@
 
 extern void ins_float_invariant_register(void);
 
-// dummy ahrs stuff for now (only for DefaultAhrsImpl.is_aligned)
-#define DefaultAhrsImpl ins_float_inv
-
 #endif /* INS_FLOAT_INVARIANT_WRAPPER_H */

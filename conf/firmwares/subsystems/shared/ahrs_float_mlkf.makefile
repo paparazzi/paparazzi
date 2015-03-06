@@ -20,18 +20,20 @@ endif
 
 ifdef SECONDARY_AHRS
 ifneq (,$(findstring $(SECONDARY_AHRS), mlkf))
-AHRS_MLKF_SEC = ahrs_mlkf
-endif
-endif
-
-ifdef AHRS_MLKF_SEC
+# this is the secondary AHRS
 AHRS_MLKF_CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
 AHRS_MLKF_CFLAGS += -DSECONDARY_AHRS=ahrs_mlkf
 AHRS_MLKF_CFLAGS += -DAHRS_MLKF_OUTPUT_ENABLED=FALSE
 else
+# this is the primary AHRS
 AHRS_MLKF_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
 AHRS_MLKF_CFLAGS += -DPRIMARY_AHRS=ahrs_mlkf
 endif
+else
+# plain old single AHRS usage
+AHRS_MLKF_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
+endif
+
 AHRS_MLKF_SRCS   += subsystems/ahrs.c
 AHRS_MLKF_SRCS   += subsystems/ahrs/ahrs_float_mlkf.c
 AHRS_MLKF_SRCS   += subsystems/ahrs/ahrs_float_mlkf_wrapper.c

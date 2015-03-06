@@ -184,11 +184,7 @@ void init_ap(void)
 #endif
 
 #if USE_AHRS
-#if defined SITL && !USE_NPS
-  ahrs_sim_init();
-#else
   ahrs_init();
-#endif
 #endif
 
   ins_init();
