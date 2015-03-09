@@ -59,21 +59,31 @@ struct NpsFdm {
   struct LlaCoor_d lla_pos_geoc; //geocentric lla from jsbsim
   double agl; //AGL from jsbsim in m
 
-  /*  velocity and acceleration wrt inertial frame expressed in ecef frame */
-  //  struct EcefCoor_d  ecef_inertial_vel;
-  //  struct EcefCoor_d  ecef_inertial_accel;
-  /*  velocity and acceleration wrt ecef frame expressed in ecef frame     */
+  /** acceleration in body frame, wrt ECI inertial frame */
+  struct DoubleVect3 body_inertial_accel;
+
+  /** velocity in ECEF frame, wrt ECEF frame */
   struct EcefCoor_d  ecef_ecef_vel;
+  /** acceleration in ECEF frame, wrt ECEF frame */
   struct EcefCoor_d  ecef_ecef_accel;
-  /*  velocity and acceleration wrt ecef frame expressed in body frame     */
+
+  /** velocity in body frame, wrt ECEF frame */
   struct DoubleVect3 body_ecef_vel;   /* aka UVW */
+  /** acceleration in body frame, wrt ECEF frame */
   struct DoubleVect3 body_ecef_accel;
-  /*  velocity and acceleration wrt ecef frame expressed in ltp frame     */
+
+  /** velocity in LTP frame, wrt ECEF frame */
   struct NedCoor_d ltp_ecef_vel;
+  /** acceleration in LTP frame, wrt ECEF frame */
   struct NedCoor_d ltp_ecef_accel;
-  /*  velocity and acceleration wrt ecef frame expressed in ltppprz frame */
+
+  /** velocity in ltppprz frame, wrt ECEF frame */
   struct NedCoor_d ltpprz_ecef_vel;
+  /** accel in ltppprz frame, wrt ECEF frame */
   struct NedCoor_d ltpprz_ecef_accel;
+
+  /** acceleration in body frame as measured by an accelerometer (incl. gravity) */
+  struct DoubleVect3 body_accel;
 
   /* attitude */
   struct DoubleQuat   ecef_to_body_quat;

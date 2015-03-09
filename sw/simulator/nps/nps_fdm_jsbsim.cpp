@@ -286,7 +286,13 @@ static void fetch_state(void) {
   const FGColumnVector3& fg_body_ecef_vel = propagate->GetUVW();
   jsbsimvec_to_vec(&fdm.body_ecef_vel, &fg_body_ecef_vel);
   const FGColumnVector3& fg_body_ecef_accel = accelerations->GetUVWdot();
-  jsbsimvec_to_vec(&fdm.body_ecef_accel,&fg_body_ecef_accel);
+  jsbsimvec_to_vec(&fdm.body_ecef_accel, &fg_body_ecef_accel);
+
+  const FGColumnVector3& fg_body_inertial_accel = accelerations->GetUVWidot();
+  jsbsimvec_to_vec(&fdm.body_inertial_accel, &fg_body_inertial_accel);
+
+  const FGColumnVector3& fg_body_accel = accelerations->GetBodyAccel();
+  jsbsimvec_to_vec(&fdm.body_accel, &fg_body_accel);
 
 #if DEBUG_NPS_JSBSIM
   printf("%f,%f,%f,%f,%f,%f,",(&fg_body_ecef_accel)->Entry(1),(&fg_body_ecef_accel)->Entry(2),(&fg_body_ecef_accel)->Entry(3),fdm.body_ecef_accel.x,fdm.body_ecef_accel.y,fdm.body_ecef_accel.z);
@@ -304,9 +310,10 @@ static void fetch_state(void) {
 #endif
 
   /* in ECEF frame */
-  const FGMatrix33& body_to_ecef = propagate->GetTb2ec();
-  const FGColumnVector3& fg_ecef_ecef_vel = body_to_ecef * fg_body_ecef_vel;
+  const FGColumnVector3& fg_ecef_ecef_vel = propagate->GetECEFVelocity();
   jsbsimvec_to_vec((DoubleVect3*)&fdm.ecef_ecef_vel, &fg_ecef_ecef_vel);
+
+  const FGMatrix33& body_to_ecef = propagate->GetTb2ec();
   const FGColumnVector3& fg_ecef_ecef_accel = body_to_ecef * fg_body_ecef_accel;
   jsbsimvec_to_vec((DoubleVect3*)&fdm.ecef_ecef_accel, &fg_ecef_ecef_accel);
 

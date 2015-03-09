@@ -30,22 +30,27 @@ void   nps_sensor_accel_run_step(struct NpsSensorAccel* accel, double time, stru
   if (time < accel->next_update)
     return;
 
+#if NPS_ACCEL_FROM_UVWDOT
   /* transform gravity to body frame */
   struct DoubleVect3 g_body;
   double_quat_vmult(&g_body, &fdm.ltp_to_body_quat, &fdm.ltp_g);
-  //  printf(" g_body %f %f %f\n", g_body.x, g_body.y, g_body.z);
+  //  printf(" g_body     % .3f % .3f % .3f\n", g_body.x, g_body.y, g_body.z);
 
-  //  printf(" accel_fdm %f %f %f\n", fdm.body_ecef_accel.x, fdm.body_ecef_accel.y, fdm.body_ecef_accel.z);
+  //  printf(" accel_fdm  % .3f % .3f % .3f\n", fdm.body_ecef_accel.x, fdm.body_ecef_accel.y, fdm.body_ecef_accel.z);
 
   /* substract gravity to acceleration in body frame */
   struct DoubleVect3 accelero_body;
   VECT3_DIFF(accelero_body, fdm.body_ecef_accel, g_body);
+#else
+  struct DoubleVect3 accelero_body;
+  VECT3_COPY(accelero_body, fdm.body_accel);
+#endif
 
-  //  printf(" accelero body %f %f %f\n", accelero_body.x, accelero_body.y, accelero_body.z);
+  //  printf(" accel body % .3f %.3f % .3f\n", accelero_body.x, accelero_body.y, accelero_body.z);
 
   /* transform to imu frame */
   struct DoubleVect3 accelero_imu;
-  MAT33_VECT3_MUL(accelero_imu, *body_to_imu, accelero_body );
+  MAT33_VECT3_MUL(accelero_imu, *body_to_imu, accelero_body);
 
   /* compute accelero readings */
   MAT33_VECT3_MUL(accel->value, accel->sensitivity, accelero_imu);
