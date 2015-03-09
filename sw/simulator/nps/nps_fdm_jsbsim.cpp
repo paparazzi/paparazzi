@@ -41,6 +41,7 @@
 #include <models/FGPropulsion.h>
 #include <models/FGGroundReactions.h>
 #include <models/FGAccelerations.h>
+#include <models/FGFCS.h>
 #include <models/atmosphere/FGWinds.h>
 
 #include "nps_fdm.h"
@@ -137,60 +138,59 @@ void nps_fdm_init(double dt) {
 
 }
 
-void nps_fdm_run_step(bool_t launch, double* commands, int commands_nb) {
-  static bool_t run_model = FALSE;
+void nps_fdm_run_step(bool_t launch __attribute__((unused)), double* commands, int commands_nb) {
 
-  if (launch && !run_model) {
-    run_model = TRUE;
 #ifdef NPS_JSBSIM_LAUNCHSPEED
+  static bool_t already_launched = FALSE;
+
+  if (launch && !already_launched) {
     printf("Launching with speed of %.1f m/s!\n", (float)NPS_JSBSIM_LAUNCHSPEED);
     FDMExec->GetIC()->SetUBodyFpsIC(FeetOfMeters(NPS_JSBSIM_LAUNCHSPEED));
-#endif
     FDMExec->RunIC();
+    already_launched = TRUE;
+  }
+#endif
+
+  feed_jsbsim(commands, commands_nb);
+
+  /* To deal with ground interaction issues, we decrease the time
+     step as the vehicle is close to the ground. This is done predictively
+     to ensure no weird accelerations or oscillations. From tests with a bouncing
+     ball model in JSBSim, it seems that 10k steps per second is reasonable to capture
+     all the dynamics. Higher might be a bit more stable, but really starting to push
+     the simulation CPU requirements, especially for more complex models.
+     - at init: get the largest radius from CG to any contact point (landing gear)
+     - if descending...
+     - find current number of timesteps to impact
+     - if impact imminent, calculate a new timestep to use (with limit)
+     - if ascending...
+     - change timestep back to init value
+     - run sim for as many steps as needed to reach init_dt amount of time
+
+     Of course, could probably be improved...
+  */
+  // If the vehicle has a downwards velocity
+  if (fdm.ltp_ecef_vel.z > 0) {
+    // Get the current number of timesteps until impact at current velocity
+    double numDT_to_impact = (fdm.agl - vehicle_radius_max) / (fdm.curr_dt * fdm.ltp_ecef_vel.z);
+    // If impact imminent within next timestep, use high sim rate
+    if (numDT_to_impact <= 1.0) {
+      fdm.curr_dt = min_dt;
+    }
+  }
+  // If the vehicle is moving upwards and out of the ground, reset timestep
+  else if ((fdm.ltp_ecef_vel.z <= 0) && ((fdm.agl + vehicle_radius_max) > 0)) {
+    fdm.curr_dt = fdm.init_dt;
   }
 
-  if (run_model) {
-    feed_jsbsim(commands, commands_nb);
+  // Calculate the number of sim steps for correct amount of time elapsed
+  int num_steps = int(fdm.init_dt / fdm.curr_dt);
 
-    /* To deal with ground interaction issues, we decrease the time
-       step as the vehicle is close to the ground. This is done predictively
-       to ensure no weird accelerations or oscillations. From tests with a bouncing
-       ball model in JSBSim, it seems that 10k steps per second is reasonable to capture
-       all the dynamics. Higher might be a bit more stable, but really starting to push
-       the simulation CPU requirements, especially for more complex models.
-       - at init: get the largest radius from CG to any contact point (landing gear)
-       - if descending...
-       - find current number of timesteps to impact
-       - if impact imminent, calculate a new timestep to use (with limit)
-       - if ascending...
-       - change timestep back to init value
-       - run sim for as many steps as needed to reach init_dt amount of time
-
-       Of course, could probably be improved...
-    */
-    // If the vehicle has a downwards velocity
-    if (fdm.ltp_ecef_vel.z > 0) {
-      // Get the current number of timesteps until impact at current velocity
-      double numDT_to_impact = (fdm.agl - vehicle_radius_max) / (fdm.curr_dt * fdm.ltp_ecef_vel.z);
-      // If impact imminent within next timestep, use high sim rate
-      if (numDT_to_impact <= 1.0) {
-        fdm.curr_dt = min_dt;
-      }
-    }
-    // If the vehicle is moving upwards and out of the ground, reset timestep
-    else if ((fdm.ltp_ecef_vel.z <= 0) && ((fdm.agl + vehicle_radius_max) > 0)) {
-      fdm.curr_dt = fdm.init_dt;
-    }
-
-    // Calculate the number of sim steps for correct amount of time elapsed
-    int num_steps = int(fdm.init_dt / fdm.curr_dt);
-
-    // Set the timestep then run sim
-    FDMExec->Setdt(fdm.curr_dt);
-    int i;
-    for (i = 0; i < num_steps; i++) {
-      FDMExec->Run();
-    }
+  // Set the timestep then run sim
+  FDMExec->Setdt(fdm.curr_dt);
+  int i;
+  for (i = 0; i < num_steps; i++) {
+    FDMExec->Run();
   }
 
   fetch_state();
@@ -233,7 +233,17 @@ static void feed_jsbsim(double* commands, int commands_nb) {
     property = string(buf);
     FDMExec->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
   }
+}
 
+void feed_jsbsim(double throttle, double aileron, double elevator, double rudder)
+{
+  FGFCS* FCS = FDMExec->GetFCS();
+  FCS->SetDaCmd(aileron);
+  FCS->SetDeCmd(elevator);
+  FCS->SetDrCmd(rudder);
+  for (unsigned int i = 0; i < FDMExec->GetPropulsion()->GetNumEngines(); i++) {
+    FCS->SetThrottleCmd(i, throttle);
+  }
 }
 
 
@@ -389,8 +399,10 @@ static void init_jsbsim(double dt) {
     exit(-1);
   }
 
-  //initRunning for all engines
-  FDMExec->GetPropulsion()->InitRunning(-1);
+#ifdef DEBUG
+  cerr << "NumEngines: " << FDMExec->GetPropulsion()->GetNumEngines() << endl;
+  cerr << "NumGearUnits: " << FDMExec->GetGroundReactions()->GetNumGearUnits() << endl;
+#endif
 
   // LLA initial coordinates (geodetic lat, geoid alt)
   struct LlaCoor_d lla0;
@@ -406,6 +418,7 @@ static void init_jsbsim(double dt) {
     }
 
     llh_from_jsbsim(&lla0, FDMExec->GetPropagate());
+    cout << "JSBSim initial conditions loaded from " << jsbsim_ic_name << endl;
   }
   else {
     // FGInitialCondition::SetAltitudeASLFtIC
@@ -420,23 +433,29 @@ static void init_jsbsim(double dt) {
     IC->SetLatitudeDegIC(DegOfRad(gc_lat));
     IC->SetLongitudeDegIC(NAV_LON0 / 1e7);
 
-
+    IC->SetWindNEDFpsIC(0.0, 0.0, 0.0);
     IC->SetAltitudeASLFtIC(FeetOfMeters(GROUND_ALT + 2.0));
     IC->SetTerrainElevationFtIC(FeetOfMeters(GROUND_ALT));
     IC->SetPsiDegIC(QFU);
     IC->SetVgroundFpsIC(0.);
 
-    //initRunning for all engines
-    FDMExec->GetPropulsion()->InitRunning(-1);
-    if (!FDMExec->RunIC()) {
-      cerr << "Initialization from flight plan unsuccessful" << endl;
-      exit(-1);
-    }
-
     lla0.lon = RadOfDeg(NAV_LON0 / 1e7);
     lla0.lat = gd_lat;
     lla0.alt = (double)(NAV_ALT0+NAV_MSL0)/1000.0;
   }
+
+  // initial commands to zero
+  feed_jsbsim(0.0, 0.0, 0.0, 0.0);
+
+  //loop JSBSim once w/o integrating
+  if (!FDMExec->RunIC()) {
+    cerr << "Initialization unsuccessful" << endl;
+    exit(-1);
+  }
+
+  //initRunning for all engines
+  FDMExec->GetPropulsion()->InitRunning(-1);
+
 
   // compute offset between geocentric and geodetic ecef
   ecef_of_lla_d(&offset, &lla0);

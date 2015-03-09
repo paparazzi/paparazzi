@@ -64,6 +64,8 @@ bool_t nps_bypass_ins;
 #define NPS_BYPASS_INS FALSE
 #endif
 
+PRINT_CONFIG_VAR(NPS_COMMANDS_NB)
+
 
 #if !defined (FBW) || !defined (AP)
 #error NPS does not currently support dual processor simulation for FBW and AP on fixedwing!
