@@ -21,11 +21,15 @@
     <subsystem name="imu" type="bebop"/>
     <subsystem name="gps" type="furuno"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
+    <subsystem name="ahrs"          type="float_mlkf"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat">
+      <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
+    </subsystem>
     <subsystem name="ins" type="extended"/>
   </firmware>
 
   <modules main_freq="512">
+    <load name="geo_mag.xml"/>
     <load name="send_imu_mag_current.xml"/>
     <!--load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="\\\"/data/ftp/internal_000/\\\""/>
