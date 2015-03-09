@@ -66,11 +66,4 @@ extern void ins_reset_altitude_ref(void);
  */
 extern void ins_reset_utm_zone(struct UtmCoor_f *utm);
 
-
-/** Update INS state with GPS measurements.
- *  Calls implementation if registered.
- *  Reads the global #gps data struct.
- */
-extern void ins_update_gps(void);
-
 #endif /* INS_H */
