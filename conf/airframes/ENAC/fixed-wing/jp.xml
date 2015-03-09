@@ -274,9 +274,7 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <!--define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/-->
-    <define name="JSBSIM_MODEL" value="&quot;LisaAspirin2&quot;"/>
-    <define name="ACTUATOR_NAMES" value="{&quot;throttle-cmd-norm&quot;, &quot;aileron-cmd-norm&quot;, &quot;elevator-cmd-norm&quot;, &quot;rudder-cmd-norm&quot;}"/>
+    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_invariant.h&quot;"/>
     <define name="JS_AXIS_MODE" value="4"/>
   </section>

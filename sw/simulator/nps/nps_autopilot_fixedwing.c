@@ -64,8 +64,6 @@ bool_t nps_bypass_ins;
 #define NPS_BYPASS_INS FALSE
 #endif
 
-PRINT_CONFIG_VAR(NPS_COMMANDS_NB)
-
 
 #if !defined (FBW) || !defined (AP)
 #error NPS does not currently support dual processor simulation for FBW and AP on fixedwing!
@@ -139,10 +137,32 @@ void nps_autopilot_run_step(double time) {
   Ap(handle_periodic_tasks);
 
   /* scale final motor commands to 0-1 for feeding the fdm */
+#ifdef NPS_ACTUATOR_NAMES
+PRINT_CONFIG_MSG("actuators for JSBSim explicitly set.")
+PRINT_CONFIG_VAR(NPS_COMMANDS_NB)
+  //PRINT_CONFIG_VAR(NPS_ACTUATOR_NAMES)
+
   for (uint8_t i=0; i < NPS_COMMANDS_NB; i++)
     autopilot.commands[i] = (double)commands[i]/MAX_PPRZ;
   // hack: invert pitch to fit most JSBSim models
   autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH]/MAX_PPRZ;
+#else
+PRINT_CONFIG_MSG("Using throttle, roll, pitch, yaw commands instead of explicit actuators.")
+PRINT_CONFIG_VAR(COMMAND_THROTTLE)
+PRINT_CONFIG_VAR(COMMAND_ROLL)
+PRINT_CONFIG_VAR(COMMAND_PITCH)
+
+  autopilot.commands[COMMAND_THROTTLE] = (double)commands[COMMAND_THROTTLE]/MAX_PPRZ;
+  autopilot.commands[COMMAND_ROLL] = (double)commands[COMMAND_ROLL]/MAX_PPRZ;
+  // hack: invert pitch to fit most JSBSim models
+  autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH]/MAX_PPRZ;
+#ifdef COMMAND_YAW
+PRINT_CONFIG_VAR(COMMAND_YAW)
+  autopilot.commands[COMMAND_YAW] = (double)commands[COMMAND_YAW]/MAX_PPRZ;
+#else
+  autopilot.commands[3] = 0.;
+#endif
+#endif
 
   // do the launch when clicking launch in GCS
   autopilot.launch = launch && !kill_throttle;

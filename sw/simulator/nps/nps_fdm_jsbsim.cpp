@@ -81,6 +81,7 @@ using namespace JSBSim;
 using namespace std;
 
 static void feed_jsbsim(double* commands, int commands_nb);
+static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder);
 static void fetch_state(void);
 static int check_for_nan(void);
 
@@ -222,7 +223,7 @@ void nps_fdm_set_wind(double speed, double dir, int turbulence_severity) {
  * @param commands_nb Number of commands (length of array)
  */
 static void feed_jsbsim(double* commands, int commands_nb) {
-
+#ifdef NPS_ACTUATOR_NAMES
   char buf[64];
   const char* names[] = NPS_ACTUATOR_NAMES;
   string property;
@@ -233,9 +234,17 @@ static void feed_jsbsim(double* commands, int commands_nb) {
     property = string(buf);
     FDMExec->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
   }
+#else
+  if (commands_nb != 4) {
+    cerr << "commands_nb must be 4!" << endl;
+    exit(-1);
+  }
+  /* call version that directly feeds throttle, aileron, elevator, rudder */
+  feed_jsbsim(commands[COMMAND_THROTTLE], commands[COMMAND_ROLL], commands[COMMAND_PITCH], commands[3]);
+#endif
 }
 
-void feed_jsbsim(double throttle, double aileron, double elevator, double rudder)
+static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder)
 {
   FGFCS* FCS = FDMExec->GetFCS();
   FCS->SetDaCmd(aileron);
