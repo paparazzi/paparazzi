@@ -23,8 +23,6 @@ nps.LDFLAGS += $(shell pkg-config glib-2.0 --libs) -lm -lglibivy $(shell pcre-co
 nps.CFLAGS  += -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I$(PAPARAZZI_SRC)/sw/simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 nps.LDFLAGS += $(shell sdl-config --libs)
 
-nps.CFLAGS  += -DNPS_ACCEL_FROM_UVWDOT
-
 #
 # add the simulator directory to the make searchpath
 #
