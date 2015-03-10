@@ -41,6 +41,7 @@
         <configure name="AHRS_CORRECT_FREQUENCY" value="125"/>
         <define name="BARO_BOARD_APOGEE_FREQ" value="50"/>
         <define name="MPL3115_OVERSAMPLING" value="2"/>
+        <define name="SEND_INVARIANT_FILTER"/>
       </subsystem>
     </target>
 
@@ -274,7 +275,8 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
+    <define name="JSBSIM_LAUNCHSPEED" value="15"/>
+    <define name="JSBSIM_MODEL" value="&quot;YardStik&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_invariant.h&quot;"/>
     <define name="JS_AXIS_MODE" value="4"/>
   </section>
