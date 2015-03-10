@@ -132,7 +132,7 @@ void nps_fdm_init(double dt) {
   init_ltp();
 
 #if DEBUG_NPS_JSBSIM
-  printf("fdm.time,fg_body_ecef_accel1,fg_body_ecef_accel2,fg_body_ecef_accel3,fdm.body_ecef_accel.x,fdm.body_ecef_accel.y,fdm.body_ecef_accel.z,fg_ltp_ecef_accel1,fg_ltp_ecef_accel2,fg_ltp_ecef_accel3,fdm.ltp_ecef_accel.x,fdm.ltp_ecef_accel.y,fdm.ltp_ecef_accel.z,fg_ecef_ecef_accel1,fg_ecef_ecef_accel2,fg_ecef_ecef_accel3,fdm.ecef_ecef_accel.x,fdm.ecef_ecef_accel.y,fdm.ecef_ecef_accel.z,fdm.ltpprz_ecef_accel.z,fdm.ltpprz_ecef_accel.y,fdm.ltpprz_ecef_accel.z,fdm.agl\n");
+  printf("fdm.time,fdm.body_ecef_accel.x,fdm.body_ecef_accel.y,fdm.body_ecef_accel.z,fdm.ltp_ecef_accel.x,fdm.ltp_ecef_accel.y,fdm.ltp_ecef_accel.z,fdm.ecef_ecef_accel.x,fdm.ecef_ecef_accel.y,fdm.ecef_ecef_accel.z,fdm.ltpprz_ecef_accel.z,fdm.ltpprz_ecef_accel.y,fdm.ltpprz_ecef_accel.z,fdm.agl\n");
 #endif
 
   fetch_state();
@@ -283,42 +283,33 @@ static void fetch_state(void) {
    */
 
   /* in body frame */
-  const FGColumnVector3& fg_body_ecef_vel = propagate->GetUVW();
-  jsbsimvec_to_vec(&fdm.body_ecef_vel, &fg_body_ecef_vel);
-  const FGColumnVector3& fg_body_ecef_accel = accelerations->GetUVWdot();
-  jsbsimvec_to_vec(&fdm.body_ecef_accel, &fg_body_ecef_accel);
-
-  const FGColumnVector3& fg_body_inertial_accel = accelerations->GetUVWidot();
-  jsbsimvec_to_vec(&fdm.body_inertial_accel, &fg_body_inertial_accel);
-
-  const FGColumnVector3& fg_body_accel = accelerations->GetBodyAccel();
-  jsbsimvec_to_vec(&fdm.body_accel, &fg_body_accel);
+  jsbsimvec_to_vec(&fdm.body_ecef_vel, &propagate->GetUVW());
+  jsbsimvec_to_vec(&fdm.body_ecef_accel, &accelerations->GetUVWdot());
+  jsbsimvec_to_vec(&fdm.body_inertial_accel, &accelerations->GetUVWidot());
+  jsbsimvec_to_vec(&fdm.body_accel, &accelerations->GetBodyAccel());
 
 #if DEBUG_NPS_JSBSIM
-  printf("%f,%f,%f,%f,%f,%f,",(&fg_body_ecef_accel)->Entry(1),(&fg_body_ecef_accel)->Entry(2),(&fg_body_ecef_accel)->Entry(3),fdm.body_ecef_accel.x,fdm.body_ecef_accel.y,fdm.body_ecef_accel.z);
+  printf("%f,%f,%f,", fdm.body_ecef_accel.x, fdm.body_ecef_accel.y, fdm.body_ecef_accel.z);
 #endif
 
   /* in LTP frame */
-  const FGMatrix33& body_to_ltp = propagate->GetTb2l();
-  const FGColumnVector3& fg_ltp_ecef_vel = body_to_ltp * fg_body_ecef_vel;
-  jsbsimvec_to_vec((DoubleVect3*)&fdm.ltp_ecef_vel, &fg_ltp_ecef_vel);
-  const FGColumnVector3& fg_ltp_ecef_accel = body_to_ltp * fg_body_ecef_accel;
+  jsbsimvec_to_vec((DoubleVect3*)&fdm.ltp_ecef_vel, &propagate->GetVel());
+  const FGColumnVector3& fg_ltp_ecef_accel = propagate->GetTb2l() * accelerations->GetUVWdot();
   jsbsimvec_to_vec((DoubleVect3*)&fdm.ltp_ecef_accel, &fg_ltp_ecef_accel);
 
 #if DEBUG_NPS_JSBSIM
-  printf("%f,%f,%f,%f,%f,%f,",(&fg_ltp_ecef_accel)->Entry(1),(&fg_ltp_ecef_accel)->Entry(2),(&fg_ltp_ecef_accel)->Entry(3),fdm.ltp_ecef_accel.x,fdm.ltp_ecef_accel.y,fdm.ltp_ecef_accel.z);
+  printf("%f,%f,%f,", fdm.ltp_ecef_accel.x, fdm.ltp_ecef_accel.y, fdm.ltp_ecef_accel.z);
 #endif
 
   /* in ECEF frame */
   const FGColumnVector3& fg_ecef_ecef_vel = propagate->GetECEFVelocity();
   jsbsimvec_to_vec((DoubleVect3*)&fdm.ecef_ecef_vel, &fg_ecef_ecef_vel);
 
-  const FGMatrix33& body_to_ecef = propagate->GetTb2ec();
-  const FGColumnVector3& fg_ecef_ecef_accel = body_to_ecef * fg_body_ecef_accel;
+  const FGColumnVector3& fg_ecef_ecef_accel = propagate->GetTb2ec() * accelerations->GetUVWdot();
   jsbsimvec_to_vec((DoubleVect3*)&fdm.ecef_ecef_accel, &fg_ecef_ecef_accel);
 
 #if DEBUG_NPS_JSBSIM
-  printf("%f,%f,%f,%f,%f,%f,",(&fg_ecef_ecef_accel)->Entry(1),(&fg_ecef_ecef_accel)->Entry(2),(&fg_ecef_ecef_accel)->Entry(3),fdm.ecef_ecef_accel.x,fdm.ecef_ecef_accel.y,fdm.ecef_ecef_accel.z);
+  printf("%f,%f,%f,", fdm.ecef_ecef_accel.x, fdm.ecef_ecef_accel.y, fdm.ecef_ecef_accel.z);
 #endif
 
   /* in LTP pprz */
@@ -327,7 +318,7 @@ static void fetch_state(void) {
   ned_of_ecef_vect_d(&fdm.ltpprz_ecef_accel, &ltpdef, &fdm.ecef_ecef_accel);
 
 #if DEBUG_NPS_JSBSIM
-  printf("%f,%f,%f,",fdm.ltpprz_ecef_accel.z,fdm.ltpprz_ecef_accel.y,fdm.ltpprz_ecef_accel.z);
+  printf("%f,%f,%f,", fdm.ltpprz_ecef_accel.z, fdm.ltpprz_ecef_accel.y, fdm.ltpprz_ecef_accel.z);
 #endif
 
   /* llh */
