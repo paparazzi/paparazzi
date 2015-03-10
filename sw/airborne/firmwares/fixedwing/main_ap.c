@@ -127,7 +127,7 @@ PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 #endif
 
 
-#if USE_AHRS && USE_IMU
+#if USE_IMU
 
 #ifdef AHRS_PROPAGATE_FREQUENCY
 #if (AHRS_PROPAGATE_FREQUENCY > PERIODIC_FREQUENCY)
@@ -139,7 +139,7 @@ INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY t
 static inline void on_gyro_event(void);
 static inline void on_accel_event(void);
 static inline void on_mag_event(void);
-#endif // USE_AHRS && USE_IMU
+#endif // USE_IMU
 
 #if USE_GPS
 static inline void on_gps_solution(void);
@@ -669,7 +669,7 @@ void event_task_ap(void)
   mcu_event();
 #endif /* SINGLE_MCU */
 
-#if USE_AHRS && USE_IMU
+#if USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 #endif
 
