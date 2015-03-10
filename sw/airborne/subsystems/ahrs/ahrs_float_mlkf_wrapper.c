@@ -28,8 +28,18 @@
 #include "subsystems/ahrs/ahrs_float_mlkf_wrapper.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/abi.h"
+#include "state.h"
 
+#ifndef AHRS_MLKF_OUTPUT_ENABLED
+#define AHRS_MLKF_OUTPUT_ENABLED TRUE
+#endif
+PRINT_CONFIG_VAR(AHRS_MLKF_OUTPUT_ENABLED)
+
+/** if TRUE with push the estimation results to the state interface */
+static bool_t ahrs_mlkf_output_enabled;
 static uint32_t ahrs_mlkf_last_stamp;
+
+static void set_body_state_from_quat(void);
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -85,6 +95,7 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
   if (last_stamp > 0 && ahrs_mlkf.is_aligned) {
     float dt = (float)(stamp - last_stamp) * 1e-6;
     ahrs_mlkf_propagate(gyro, dt);
+    set_body_state_from_quat();
   }
   last_stamp = stamp;
 #else
@@ -93,6 +104,7 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
   if (ahrs_mlkf.status == AHRS_MLKF_RUNNING) {
     const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
     ahrs_mlkf_propagate(gyro, dt);
+    set_body_state_from_quat();
   }
 #endif
 }
@@ -103,6 +115,7 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
 {
   if (ahrs_mlkf.is_aligned) {
     ahrs_mlkf_update_accel(accel);
+    set_body_state_from_quat();
   }
 }
 
@@ -112,6 +125,7 @@ static void mag_cb(uint8_t sender_id __attribute__((unused)),
 {
   if (ahrs_mlkf.is_aligned) {
     ahrs_mlkf_update_mag(mag);
+    set_body_state_from_quat();
   }
 }
 
@@ -121,7 +135,10 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        struct Int32Vect3 *lp_mag)
 {
   if (!ahrs_mlkf.is_aligned) {
-    ahrs_mlkf_align(lp_gyro, lp_accel, lp_mag);
+    /* set initial body orientation in state interface if alignment was successful */
+    if (ahrs_mlkf_align(lp_gyro, lp_accel, lp_mag)) {
+      set_body_state_from_quat();
+    }
   }
 }
 
@@ -138,12 +155,36 @@ static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVe
 
 static bool_t ahrs_mlkf_enable_output(bool_t enable)
 {
-  ahrs_mlkf.output_enabled = enable;
-  return ahrs_mlkf.output_enabled;
+  ahrs_mlkf_output_enabled = enable;
+  return ahrs_mlkf_output_enabled;
+}
+
+/**
+ * Compute body orientation and rates from imu orientation and rates
+ */
+static void set_body_state_from_quat(void)
+{
+  if (ahrs_mlkf_output_enabled) {
+    struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_mlkf.body_to_imu);
+    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_mlkf.body_to_imu);
+
+    /* Compute LTP to BODY quaternion */
+    struct FloatQuat ltp_to_body_quat;
+    float_quat_comp_inv(&ltp_to_body_quat, &ahrs_mlkf.ltp_to_imu_quat, body_to_imu_quat);
+    /* Set in state interface */
+    stateSetNedToBodyQuat_f(&ltp_to_body_quat);
+
+    /* compute body rates */
+    struct FloatRates body_rate;
+    float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_mlkf.imu_rate);
+    /* Set state */
+    stateSetBodyRates_f(&body_rate);
+  }
 }
 
 void ahrs_mlkf_register(void)
 {
+  ahrs_mlkf_output_enabled = AHRS_MLKF_OUTPUT_ENABLED;
   ahrs_mlkf_init();
   ahrs_register_impl(ahrs_mlkf_enable_output);
 
@@ -162,3 +203,4 @@ void ahrs_mlkf_register(void)
   register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
 #endif
 }
+
