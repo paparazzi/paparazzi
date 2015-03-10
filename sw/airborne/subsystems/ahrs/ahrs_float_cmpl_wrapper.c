@@ -27,8 +27,18 @@
 #include "subsystems/ahrs/ahrs_float_cmpl_wrapper.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/abi.h"
+#include "state.h"
 
+#ifndef AHRS_FC_OUTPUT_ENABLED
+#define AHRS_FC_OUTPUT_ENABLED TRUE
+#endif
+PRINT_CONFIG_VAR(AHRS_FC_OUTPUT_ENABLED)
+
+/** if TRUE with push the estimation results to the state interface */
+static bool_t ahrs_fc_output_enabled;
 static uint32_t ahrs_fc_last_stamp;
+
+static void compute_body_orientation_and_rates(void);
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -102,6 +112,7 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
   if (last_stamp > 0 && ahrs_fc.is_aligned) {
     float dt = (float)(stamp - last_stamp) * 1e-6;
     ahrs_fc_propagate(gyro, dt);
+    compute_body_orientation_and_rates();
   }
   last_stamp = stamp;
 #else
@@ -110,6 +121,7 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
   if (ahrs_fc.status == AHRS_FC_RUNNING) {
     const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
     ahrs_fc_propagate(gyro, dt);
+    compute_body_orientation_and_rates();
   }
 #endif
 }
@@ -164,7 +176,9 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        struct Int32Vect3 *lp_mag)
 {
   if (!ahrs_fc.is_aligned) {
-    ahrs_fc_align(lp_gyro, lp_accel, lp_mag);
+    if (ahrs_fc_align(lp_gyro, lp_accel, lp_mag)) {
+      compute_body_orientation_and_rates();
+    }
   }
 }
 
@@ -184,16 +198,39 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    struct GpsState *gps_s)
 {
   ahrs_fc_update_gps(gps_s);
+  compute_body_orientation_and_rates();
 }
 
 static bool_t ahrs_fc_enable_output(bool_t enable)
 {
-  ahrs_fc.output_enabled = enable;
-  return ahrs_fc.output_enabled;
+  ahrs_fc_output_enabled = enable;
+  return ahrs_fc_output_enabled;
+}
+
+/**
+ * Compute body orientation and rates from imu orientation and rates
+ */
+static void compute_body_orientation_and_rates(void)
+{
+  if (ahrs_fc_output_enabled) {
+    /* Compute LTP to BODY quaternion */
+    struct FloatQuat ltp_to_body_quat;
+    struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
+    float_quat_comp_inv(&ltp_to_body_quat, &ahrs_fc.ltp_to_imu_quat, body_to_imu_quat);
+    /* Set state */
+    stateSetNedToBodyQuat_f(&ltp_to_body_quat);
+
+    /* compute body rates */
+    struct FloatRates body_rate;
+    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_fc.body_to_imu);
+    float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_fc.imu_rate);
+    stateSetBodyRates_f(&body_rate);
+  }
 }
 
 void ahrs_fc_register(void)
 {
+  ahrs_fc_output_enabled = AHRS_FC_OUTPUT_ENABLED;
   ahrs_fc_init();
   ahrs_register_impl(ahrs_fc_enable_output);
 
