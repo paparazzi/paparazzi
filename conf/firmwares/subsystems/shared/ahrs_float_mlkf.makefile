@@ -23,7 +23,6 @@ ifneq (,$(findstring $(SECONDARY_AHRS), mlkf))
 # this is the secondary AHRS
 AHRS_MLKF_CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
 AHRS_MLKF_CFLAGS += -DSECONDARY_AHRS=ahrs_mlkf
-AHRS_MLKF_CFLAGS += -DAHRS_MLKF_OUTPUT_ENABLED=FALSE
 else
 # this is the primary AHRS
 AHRS_MLKF_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"

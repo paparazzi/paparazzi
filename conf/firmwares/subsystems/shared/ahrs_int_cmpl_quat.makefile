@@ -24,7 +24,6 @@ ifneq (,$(findstring $(SECONDARY_AHRS),ahrs_icq int_cmpl_quat))
 # this is the secondary AHRS
 AHRS_ICQ_CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"
 AHRS_ICQ_CFLAGS += -DSECONDARY_AHRS=ahrs_icq
-AHRS_ICQ_CFLAGS += -DAHRS_ICQ_OUTPUT_ENABLED=FALSE
 else
 # this is the primary AHRS
 AHRS_ICQ_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"

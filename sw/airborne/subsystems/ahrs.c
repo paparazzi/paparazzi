@@ -71,12 +71,14 @@ void ahrs_init(void)
   for (i=0; i < AHRS_NB_IMPL; i++) {
     ahrs_impls[i].enable = NULL;
   }
-  ahrs_output_idx = 0;
 
   RegisterAhrs(PRIMARY_AHRS);
 #ifdef SECONDARY_AHRS
   RegisterAhrs(SECONDARY_AHRS);
 #endif
+
+  // enable primary AHRS by default
+  ahrs_switch(0);
 }
 
 int ahrs_switch(uint8_t idx)
