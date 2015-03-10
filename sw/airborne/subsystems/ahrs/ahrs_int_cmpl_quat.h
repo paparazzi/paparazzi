@@ -102,7 +102,6 @@ struct AhrsIntCmplQuat {
 
   enum AhrsICQStatus status; ///< status of the AHRS, AHRS_ICQ_UNINIT or AHRS_ICQ_RUNNING
   bool_t is_aligned;
-  bool_t output_enabled; ///< if TRUE with push the estimation results to the state interface
 };
 
 extern struct AhrsIntCmplQuat ahrs_icq;

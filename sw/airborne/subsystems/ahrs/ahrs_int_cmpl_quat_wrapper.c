@@ -27,8 +27,18 @@
 #include "subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/abi.h"
+#include "state.h"
 
+#ifndef AHRS_ICQ_OUTPUT_ENABLED
+#define AHRS_ICQ_OUTPUT_ENABLED TRUE
+#endif
+PRINT_CONFIG_VAR(AHRS_ICQ_OUTPUT_ENABLED)
+
+/** if TRUE with push the estimation results to the state interface */
+static bool_t ahrs_icq_output_enabled;
 static uint32_t ahrs_icq_last_stamp;
+
+static void set_body_state_from_quat(void);
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -125,6 +135,7 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
   if (last_stamp > 0 && ahrs_icq.is_aligned) {
     float dt = (float)(stamp - last_stamp) * 1e-6;
     ahrs_icq_propagate(gyro, dt);
+    set_body_state_from_quat();
   }
   last_stamp = stamp;
 #else
@@ -133,6 +144,7 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
   if (ahrs_icq.status == AHRS_ICQ_RUNNING) {
     const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
     ahrs_icq_propagate(gyro, dt);
+    set_body_state_from_quat();
   }
 #endif
 }
@@ -147,6 +159,7 @@ static void accel_cb(uint8_t __attribute__((unused)) sender_id,
   if (last_stamp > 0 && ahrs_icq.is_aligned) {
     float dt = (float)(stamp - last_stamp) * 1e-6;
     ahrs_icq_update_accel(accel, dt);
+    set_body_state_from_quat();
   }
   last_stamp = stamp;
 #else
@@ -155,6 +168,7 @@ static void accel_cb(uint8_t __attribute__((unused)) sender_id,
   if (ahrs_icq.is_aligned) {
     const float dt = 1. / (AHRS_CORRECT_FREQUENCY);
     ahrs_icq_update_accel(accel, dt);
+    set_body_state_from_quat();
   }
 #endif
 }
@@ -169,6 +183,7 @@ static void mag_cb(uint8_t __attribute__((unused)) sender_id,
   if (last_stamp > 0 && ahrs_icq.is_aligned) {
     float dt = (float)(stamp - last_stamp) * 1e-6;
     ahrs_icq_update_mag(mag, dt);
+    set_body_state_from_quat();
   }
   last_stamp = stamp;
 #else
@@ -177,6 +192,7 @@ static void mag_cb(uint8_t __attribute__((unused)) sender_id,
   if (ahrs_icq.is_aligned) {
     const float dt = 1. / (AHRS_MAG_CORRECT_FREQUENCY);
     ahrs_icq_update_mag(mag, dt);
+    set_body_state_from_quat();
   }
 #endif
 }
@@ -187,7 +203,9 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        struct Int32Vect3 *lp_mag)
 {
   if (!ahrs_icq.is_aligned) {
-    ahrs_icq_align(lp_gyro, lp_accel, lp_mag);
+    if (ahrs_icq_align(lp_gyro, lp_accel, lp_mag)) {
+      set_body_state_from_quat();
+    }
   }
 }
 
@@ -212,12 +230,33 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 
 static bool_t ahrs_icq_enable_output(bool_t enable)
 {
-  ahrs_icq.output_enabled = enable;
-  return ahrs_icq.output_enabled;
+  ahrs_icq_output_enabled = enable;
+  return ahrs_icq_output_enabled;
+}
+
+/** Rotate angles and rates from imu to body frame and set state */
+static void set_body_state_from_quat(void)
+{
+  if (ahrs_icq_output_enabled) {
+    /* Compute LTP to BODY quaternion */
+    struct Int32Quat ltp_to_body_quat;
+    struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&ahrs_icq.body_to_imu);
+    int32_quat_comp_inv(&ltp_to_body_quat, &ahrs_icq.ltp_to_imu_quat, body_to_imu_quat);
+    /* Set state */
+    stateSetNedToBodyQuat_i(&ltp_to_body_quat);
+
+    /* compute body rates */
+    struct Int32Rates body_rate;
+    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_icq.body_to_imu);
+    int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_icq.imu_rate);
+    /* Set state */
+    stateSetBodyRates_i(&body_rate);
+  }
 }
 
 void ahrs_icq_register(void)
 {
+  ahrs_icq_output_enabled = AHRS_ICQ_OUTPUT_ENABLED;
   ahrs_icq_init();
   ahrs_register_impl(ahrs_icq_enable_output);
 
