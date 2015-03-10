@@ -47,6 +47,10 @@
 
 #include "state.h"
 
+// for debugging
+#if SEND_INVARIANT_FILTER
+#include "subsystems/datalink/telemetry.h"
+#endif
 
 #if LOG_INVARIANT_FILTER
 #include "sdLog.h"
@@ -356,26 +360,26 @@ void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* a
   struct FloatEulers eulers;
   FLOAT_EULERS_OF_QUAT(eulers, ins_float_inv.state.quat);
   RunOnceEvery(3,
-    pprz_msg_send_INV_FILTER(&(DefaultChannel).trans_tx, &(DefaultDevice).device,
-    AC_ID,
-    &ins_float_inv.state.quat.qi,
-    &eulers.phi,
-    &eulers.theta,
-    &eulers.psi,
-    &ins_float_inv.state.speed.x,
-    &ins_float_inv.state.speed.y,
-    &ins_float_inv.state.speed.z,
-    &ins_float_inv.state.pos.x,
-    &ins_float_inv.state.pos.y,
-    &ins_float_inv.state.pos.z,
-    &ins_float_inv.state.bias.p,
-    &ins_float_inv.state.bias.q,
-    &ins_float_inv.state.bias.r,
-    &ins_float_inv.state.as,
-    &ins_float_inv.state.hb,
-    &ins_float_inv.meas.baro_alt,
-    &ins_float_inv.meas.pos_gps.z)
-  );
+               pprz_msg_send_INV_FILTER(&(DefaultChannel).trans_tx, &(DefaultDevice).device,
+                                        AC_ID,
+                                        &ins_float_inv.state.quat.qi,
+                                        &eulers.phi,
+                                        &eulers.theta,
+                                        &eulers.psi,
+                                        &ins_float_inv.state.speed.x,
+                                        &ins_float_inv.state.speed.y,
+                                        &ins_float_inv.state.speed.z,
+                                        &ins_float_inv.state.pos.x,
+                                        &ins_float_inv.state.pos.y,
+                                        &ins_float_inv.state.pos.z,
+                                        &ins_float_inv.state.bias.p,
+                                        &ins_float_inv.state.bias.q,
+                                        &ins_float_inv.state.bias.r,
+                                        &ins_float_inv.state.as,
+                                        &ins_float_inv.state.hb,
+                                        &ins_float_inv.meas.baro_alt,
+                                        &ins_float_inv.meas.pos_gps.z);
+               );
 #endif
 
 #if LOG_INVARIANT_FILTER
