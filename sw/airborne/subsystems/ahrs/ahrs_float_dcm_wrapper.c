@@ -27,8 +27,18 @@
 #include "subsystems/ahrs/ahrs_float_dcm_wrapper.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/abi.h"
+#include "state.h"
 
+#ifndef AHRS_DCM_OUTPUT_ENABLED
+#define AHRS_DCM_OUTPUT_ENABLED TRUE
+#endif
+PRINT_CONFIG_VAR(AHRS_DCM_OUTPUT_ENABLED)
+
+/** if TRUE with push the estimation results to the state interface */
+static bool_t ahrs_dcm_output_enabled;
 static uint32_t ahrs_dcm_last_stamp;
+
+static void set_body_orientation_and_rates(void);
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -76,6 +86,7 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
   if (last_stamp > 0 && ahrs_dcm.is_aligned) {
     float dt = (float)(stamp - last_stamp) * 1e-6;
     ahrs_dcm_propagate(gyro, dt);
+    set_body_orientation_and_rates();
   }
   last_stamp = stamp;
 #else
@@ -84,6 +95,7 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
   if (ahrs_dcm.is_aligned) {
     const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
     ahrs_dcm_propagate(gyro, dt);
+    set_body_orientation_and_rates();
   }
 #endif
 }
@@ -112,7 +124,9 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        struct Int32Vect3 *lp_mag)
 {
   if (!ahrs_dcm.is_aligned) {
-    ahrs_dcm_align(lp_gyro, lp_accel, lp_mag);
+    if (ahrs_dcm_align(lp_gyro, lp_accel, lp_mag)) {
+      set_body_orientation_and_rates();
+    }
   }
 }
 
@@ -131,12 +145,33 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 
 static bool_t ahrs_dcm_enable_output(bool_t enable)
 {
-  ahrs_dcm.output_enabled = enable;
-  return ahrs_dcm.output_enabled;
+  ahrs_dcm_output_enabled = enable;
+  return ahrs_dcm_output_enabled;
+}
+
+/**
+ * Compute body orientation and rates from imu orientation and rates
+ */
+static void set_body_orientation_and_rates(void)
+{
+  if (ahrs_dcm_output_enabled) {
+    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_dcm.body_to_imu);
+
+    struct FloatRates body_rate;
+    float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_dcm.imu_rate);
+    stateSetBodyRates_f(&body_rate);
+
+    struct FloatRMat ltp_to_imu_rmat, ltp_to_body_rmat;
+    float_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_dcm.ltp_to_imu_euler);
+    float_rmat_comp_inv(&ltp_to_body_rmat, &ltp_to_imu_rmat, body_to_imu_rmat);
+
+    stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
+  }
 }
 
 void ahrs_dcm_register(void)
 {
+  ahrs_dcm_output_enabled = AHRS_DCM_OUTPUT_ENABLED;
   ahrs_dcm_init();
   ahrs_register_impl(ahrs_dcm_enable_output);
 

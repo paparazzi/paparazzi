@@ -34,8 +34,6 @@
 #include "subsystems/ahrs/ahrs_float_dcm_algebra.h"
 #include "math/pprz_algebra_float.h"
 
-#include "state.h"
-
 #if USE_GPS
 #include "subsystems/gps.h"
 #endif
@@ -50,11 +48,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 #endif
-
-#ifndef AHRS_DCM_OUTPUT_ENABLED
-#define AHRS_DCM_OUTPUT_ENABLED TRUE
-#endif
-PRINT_CONFIG_VAR(AHRS_DCM_OUTPUT_ENABLED)
 
 struct AhrsFloatDCM ahrs_dcm;
 
@@ -80,8 +73,7 @@ float MAG_Heading_X = 1;
 float MAG_Heading_Y = 0;
 #endif
 
-static inline void compute_ahrs_representations(void);
-static inline void set_body_orientation_and_rates(void);
+static void compute_ahrs_representations(void);
 static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat);
 
 void Normalize(void);
@@ -108,7 +100,6 @@ void ahrs_dcm_init(void)
 {
   ahrs_dcm.status = AHRS_DCM_UNINIT;
   ahrs_dcm.is_aligned = FALSE;
-  ahrs_dcm.output_enabled = AHRS_DCM_OUTPUT_ENABLED;
 
   /* init ltp_to_imu euler with zero */
   FLOAT_EULERS_ZERO(ahrs_dcm.ltp_to_imu_euler);
@@ -137,11 +128,6 @@ bool_t ahrs_dcm_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
 
   /* set filter dcm */
   set_dcm_matrix_from_rmat(&ltp_to_imu_rmat);
-
-  /* Set initial body orientation */
-  if (ahrs_dcm.output_enabled) {
-    set_body_orientation_and_rates();
-  }
 
   /* use averaged gyro as initial value for bias */
   struct Int32Rates bias0;
@@ -519,27 +505,7 @@ void Matrix_update(float dt)
   }
 }
 
-/*
- * Compute body orientation and rates from imu orientation and rates
- */
-static inline void set_body_orientation_and_rates(void)
-{
-
-  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_dcm.body_to_imu);
-
-  struct FloatRates body_rate;
-  float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_dcm.imu_rate);
-  stateSetBodyRates_f(&body_rate);
-
-  struct FloatRMat ltp_to_imu_rmat, ltp_to_body_rmat;
-  float_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_dcm.ltp_to_imu_euler);
-  float_rmat_comp_inv(&ltp_to_body_rmat, &ltp_to_imu_rmat, body_to_imu_rmat);
-
-  stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
-
-}
-
-static inline void compute_ahrs_representations(void)
+static void compute_ahrs_representations(void)
 {
 #if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
   ahrs_dcm.ltp_to_imu_euler.phi = atan2(accel_float.y, accel_float.z);   // atan2(acc_y,acc_z)
@@ -551,27 +517,6 @@ static inline void compute_ahrs_representations(void)
   ahrs_dcm.ltp_to_imu_euler.psi = atan2(DCM_Matrix[1][0], DCM_Matrix[0][0]);
   ahrs_dcm.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
 #endif
-
-  if (ahrs_dcm.output_enabled) {
-    set_body_orientation_and_rates();
-  }
-
-  /*
-    RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel, DefaultDevice,
-    &(DCM_Matrix[0][0]),
-    &(DCM_Matrix[0][1]),
-    &(DCM_Matrix[0][2]),
-
-    &(DCM_Matrix[1][0]),
-    &(DCM_Matrix[1][1]),
-    &(DCM_Matrix[1][2]),
-
-    &(DCM_Matrix[2][0]),
-    &(DCM_Matrix[2][1]),
-    &(DCM_Matrix[2][2])
-
-    ));
-  */
 }
 
 void ahrs_dcm_set_body_to_imu(struct OrientationReps *body_to_imu)

@@ -51,7 +51,6 @@ struct AhrsFloatDCM {
 
   enum AhrsDCMStatus status;
   bool_t is_aligned;
-  bool_t output_enabled; ///< if TRUE with push the estimation results to the state interface
 };
 extern struct AhrsFloatDCM ahrs_dcm;
 
