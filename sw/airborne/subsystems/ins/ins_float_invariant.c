@@ -416,26 +416,27 @@ void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* a
 #if SEND_INVARIANT_FILTER
   struct FloatEulers eulers;
   FLOAT_EULERS_OF_QUAT(eulers, ins_impl.state.quat);
-  RunOnceEvery(3, {
-    pprz_msg_send_INV_FILTER(trans, dev, AC_ID,
-    &ins_impl.state.quat.qi,
-    &eulers.phi,
-    &eulers.theta,
-    &eulers.psi,
-    &ins_impl.state.speed.x,
-    &ins_impl.state.speed.y,
-    &ins_impl.state.speed.z,
-    &ins_impl.state.pos.x,
-    &ins_impl.state.pos.y,
-    &ins_impl.state.pos.z,
-    &ins_impl.state.bias.p,
-    &ins_impl.state.bias.q,
-    &ins_impl.state.bias.r,
-    &ins_impl.state.as,
-    &ins_impl.state.hb,
-    &ins_impl.meas.baro_alt,
-    &ins_impl.meas.pos_gps.z)
-  });
+  RunOnceEvery(3,
+      pprz_msg_send_INV_FILTER(
+        &(DefaultChannel).trans_tx, &(DefaultDevice).device, AC_ID,
+        &ins_impl.state.quat.qi,
+        &eulers.phi,
+        &eulers.theta,
+        &eulers.psi,
+        &ins_impl.state.speed.x,
+        &ins_impl.state.speed.y,
+        &ins_impl.state.speed.z,
+        &ins_impl.state.pos.x,
+        &ins_impl.state.pos.y,
+        &ins_impl.state.pos.z,
+        &ins_impl.state.bias.p,
+        &ins_impl.state.bias.q,
+        &ins_impl.state.bias.r,
+        &ins_impl.state.as,
+        &ins_impl.state.hb,
+        &ins_impl.meas.baro_alt,
+        &ins_impl.meas.pos_gps.z)
+      );
 #endif
 
 #if LOG_INVARIANT_FILTER
