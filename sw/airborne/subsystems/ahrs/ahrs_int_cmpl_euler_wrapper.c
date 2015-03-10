@@ -27,8 +27,18 @@
 #include "subsystems/ahrs/ahrs_int_cmpl_euler_wrapper.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/abi.h"
+#include "state.h"
 
+#ifndef AHRS_ICE_OUTPUT_ENABLED
+#define AHRS_ICE_OUTPUT_ENABLED TRUE
+#endif
+PRINT_CONFIG_VAR(AHRS_ICE_OUTPUT_ENABLED)
+
+/** if TRUE with push the estimation results to the state interface */
+static bool_t ahrs_ice_output_enabled;
 static uint32_t ahrs_ice_last_stamp;
+
+static void set_body_state_from_euler(void);
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -109,6 +119,7 @@ static void gyro_cb(uint8_t sender_id __attribute__((unused)),
   ahrs_ice_last_stamp = stamp;
   if (ahrs_ice.is_aligned) {
     ahrs_ice_propagate(gyro);
+    set_body_state_from_euler();
   }
 }
 
@@ -136,7 +147,9 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        struct Int32Vect3 *lp_mag)
 {
   if (!ahrs_ice.is_aligned) {
-    ahrs_ice_align(lp_gyro, lp_accel, lp_mag);
+    if (ahrs_ice_align(lp_gyro, lp_accel, lp_mag)) {
+      set_body_state_from_euler();
+    }
   }
 }
 
@@ -148,12 +161,34 @@ static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
 
 static bool_t ahrs_ice_enable_output(bool_t enable)
 {
-  ahrs_ice.output_enabled = enable;
-  return ahrs_ice.output_enabled;
+  ahrs_ice_output_enabled = enable;
+  return ahrs_ice_output_enabled;
+}
+
+/* Rotate angles and rates from imu to body frame and set state */
+static void set_body_state_from_euler(void)
+{
+  if (ahrs_ice_output_enabled) {
+    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_ice.body_to_imu);
+    struct Int32RMat ltp_to_imu_rmat, ltp_to_body_rmat;
+    /* Compute LTP to IMU rotation matrix */
+    int32_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_ice.ltp_to_imu_euler);
+    /* Compute LTP to BODY rotation matrix */
+    int32_rmat_comp_inv(&ltp_to_body_rmat, &ltp_to_imu_rmat, body_to_imu_rmat);
+    /* Set state */
+    stateSetNedToBodyRMat_i(&ltp_to_body_rmat);
+
+    struct Int32Rates body_rate;
+    /* compute body rates */
+    int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_ice.imu_rate);
+    /* Set state */
+    stateSetBodyRates_i(&body_rate);
+  }
 }
 
 void ahrs_ice_register(void)
 {
+  ahrs_ice_output_enabled = AHRS_ICE_OUTPUT_ENABLED;
   ahrs_ice_init();
   ahrs_register_impl(ahrs_ice_enable_output);
 

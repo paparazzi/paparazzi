@@ -21,12 +21,12 @@ ifdef SECONDARY_AHRS
 ifneq (,$(findstring $(SECONDARY_AHRS), ice int_cmpl_euler))
 # this is the secondary AHRS
 AHRS_ICE_CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_euler_wrapper.h\"
-AHRS_ICE_CFLAGS += -DSECONDARY_AHRS=ahrs_fc
+AHRS_ICE_CFLAGS += -DSECONDARY_AHRS=ahrs_ice
 AHRS_ICE_CFLAGS += -DAHRS_FC_OUTPUT_ENABLED=FALSE
 else
 # this is the primary AHRS
 AHRS_ICE_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_euler_wrapper.h\"
-AHRS_ICE_CFLAGS += -DPRIMARY_AHRS=ahrs_fc
+AHRS_ICE_CFLAGS += -DPRIMARY_AHRS=ahrs_ice
 endif
 else
 # plain old single AHRS usage

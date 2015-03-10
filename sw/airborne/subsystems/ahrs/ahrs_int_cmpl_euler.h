@@ -55,7 +55,6 @@ struct AhrsIntCmplEuler {
 
   enum AhrsICEStatus status;
   bool_t is_aligned;
-  bool_t output_enabled; ///< if TRUE with push the estimation results to the state interface
 };
 
 extern struct AhrsIntCmplEuler ahrs_ice;
