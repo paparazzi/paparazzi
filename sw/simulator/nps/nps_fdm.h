@@ -59,9 +59,6 @@ struct NpsFdm {
   struct LlaCoor_d lla_pos_geoc; //geocentric lla from jsbsim
   double agl; //AGL from jsbsim in m
 
-  /** acceleration in body frame, wrt ECI inertial frame */
-  struct DoubleVect3 body_inertial_accel;
-
   /** velocity in ECEF frame, wrt ECEF frame */
   struct EcefCoor_d  ecef_ecef_vel;
   /** acceleration in ECEF frame, wrt ECEF frame */
@@ -82,6 +79,9 @@ struct NpsFdm {
   /** accel in ltppprz frame, wrt ECEF frame */
   struct NedCoor_d ltpprz_ecef_accel;
 
+  /** acceleration in body frame, wrt ECI inertial frame */
+  struct DoubleVect3 body_inertial_accel;
+
   /** acceleration in body frame as measured by an accelerometer (incl. gravity) */
   struct DoubleVect3 body_accel;
 
@@ -92,9 +92,13 @@ struct NpsFdm {
   struct DoubleQuat   ltpprz_to_body_quat;
   struct DoubleEulers ltpprz_to_body_eulers;
 
-  /*  velocity and acceleration wrt ecef frame expressed in body frame     */
+  /*  angular velocity and acceleration in body frame, wrt ECEF frame */
   struct DoubleRates  body_ecef_rotvel;
   struct DoubleRates  body_ecef_rotaccel;
+
+  /*  angular velocity and acceleration in body frame, wrt inertial ECI frame */
+  struct DoubleRates  body_inertial_rotvel;
+  struct DoubleRates  body_inertial_rotaccel;
 
   struct DoubleVect3 ltp_g;
   struct DoubleVect3 ltp_h;

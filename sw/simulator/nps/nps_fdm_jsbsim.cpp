@@ -352,6 +352,9 @@ static void fetch_state(void) {
   jsbsimvec_to_rate(&fdm.body_ecef_rotvel, &propagate->GetPQR());
   jsbsimvec_to_rate(&fdm.body_ecef_rotaccel, &accelerations->GetPQRdot());
 
+  jsbsimvec_to_rate(&fdm.body_inertial_rotvel, &propagate->GetPQRi());
+  jsbsimvec_to_rate(&fdm.body_inertial_rotaccel, &accelerations->GetPQRidot());
+
 
   /*
    * wind

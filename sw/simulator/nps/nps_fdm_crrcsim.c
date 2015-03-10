@@ -436,9 +436,9 @@ void decode_imupacket(struct NpsFdm * fdm, byte* buffer)
 
 
   /* angular rate (0.9387340515702713e4 rad/s to rad/s) */
-  fdm->body_ecef_rotvel.p  = (double)ShortOfBuf(buffer,9)*1.06526e-04;
-  fdm->body_ecef_rotvel.q  = (double)ShortOfBuf(buffer,11)*1.06526e-04;
-  fdm->body_ecef_rotvel.r  = (double)ShortOfBuf(buffer,13)*1.06526e-04;
+  fdm->body_inertial_rotvel.p  = (double)ShortOfBuf(buffer,9)*1.06526e-04;
+  fdm->body_inertial_rotvel.q  = (double)ShortOfBuf(buffer,11)*1.06526e-04;
+  fdm->body_inertial_rotvel.r  = (double)ShortOfBuf(buffer,13)*1.06526e-04;
 
   /* magnetic field in Gauss */
   //fdm->mag.x = (double)ShortOfBuf(buffer,15)*6.10352e-05;
@@ -454,9 +454,9 @@ void decode_imupacket(struct NpsFdm * fdm, byte* buffer)
       fdm->body_ecef_accel.x,
       fdm->body_ecef_accel.y,
       fdm->body_ecef_accel.z,
-      fdm->body_ecef_rotvel.p,
-      fdm->body_ecef_rotvel.q,
-      fdm->body_ecef_rotvel.r);
+      fdm->body_inertial_rotvel.p,
+      fdm->body_inertial_rotvel.q,
+      fdm->body_inertial_rotvel.r);
 #endif
 }
 

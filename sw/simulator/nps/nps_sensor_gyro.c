@@ -33,7 +33,7 @@ void nps_sensor_gyro_run_step(struct NpsSensorGyro* gyro, double time, struct Do
     return;
 
   /* transform body rates to IMU frame */
-  struct DoubleVect3* rate_body = (struct DoubleVect3*)(&fdm.body_ecef_rotvel);
+  struct DoubleVect3* rate_body = (struct DoubleVect3*)(&fdm.body_inertial_rotvel);
   struct DoubleVect3 rate_imu;
   MAT33_VECT3_MUL(rate_imu, *body_to_imu, *rate_body );
   /* compute gyros readings */
