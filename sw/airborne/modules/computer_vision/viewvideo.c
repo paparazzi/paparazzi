@@ -49,9 +49,6 @@
 // Threaded computer vision
 #include <pthread.h>
 
-#define _STRINGIFY(s) #s
-#define STRINGIFY(s) _STRINGIFY(s)
-
 // The video device
 #ifndef VIEWVIDEO_DEVICE
 #define VIEWVIDEO_DEVICE /dev/video1
@@ -158,7 +155,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
 
 #if VIEWVIDEO_USE_NETCAT
   char nc_cmd[64];
-  sprintf(nc_cmd, "nc %s %d 2>/dev/null", VIEWVIDEO_HOST, VIEWVIDEO_PORT_OUT);
+  sprintf(nc_cmd, "nc %s %d 2>/dev/null", STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT);
 #endif
 
   // Start streaming
