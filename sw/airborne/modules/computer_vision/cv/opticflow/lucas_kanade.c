@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/computer_vision/cv/opticflow/optic_flow_int.c
+ * @file modules/computer_vision/cv/opticflow/lucas_kanade.c
  * @brief efficient fixed-point optical-flow
  *
  * - Initial fixed-point C implementation by G. de Croon
@@ -31,8 +31,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include "optic_flow_int.h"
-#include "modules/computer_vision/opticflow_module.h"
+#include "lucas_kanade.h"
 
 #define int_index(x,y) (y * IMG_WIDTH + x)
 #define uint_index(xx, yy) (((yy * IMG_WIDTH + xx) * 2) & 0xFFFFFFFC)

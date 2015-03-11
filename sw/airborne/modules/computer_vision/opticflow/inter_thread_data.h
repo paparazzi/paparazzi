@@ -29,8 +29,8 @@
 #ifndef _INTER_THREAD_DATA_H
 #define _INTER_THREAD_DATA_H
 
-/// Data from thread to module
-struct CVresults {
+/* The result calculated from the opticflow */
+struct opticflow_result_t {
   int cnt;          // Number of processed frames
 
   float Velx;       // Velocity as measured by camera
@@ -42,12 +42,11 @@ struct CVresults {
   float OFx, OFy, dx_sum, dy_sum;
   float diff_roll;
   float diff_pitch;
-  float FPS;
+  float fps;        //< Frames per second of the optical flow calculation
 };
 
-/// Data from module to thread
-struct PPRZinfo {
-  int cnt;        // IMU msg counter
+/* The state of the drone when it took an image */
+struct opticflow_state_t {
   float phi;      // roll [rad]
   float theta;    // pitch [rad]
   float agl;      // height above ground [m]

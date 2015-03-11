@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/computer_vision/cv/opticflow/optic_flow_int.h
+ * @file modules/computer_vision/cv/opticflow/lucas_kanade.h
  * @brief efficient fixed-point optical-flow
  *
  */

@@ -30,14 +30,17 @@
 
 #include "std.h"
 #include <linux/v4l2-subdev.h>
+#include <pthread.h>
+#include <sys/time.h>
 
 #define V4L2_IMG_NONE 255  //< There currently no image available
 
 /* V4L2 memory mapped image buffer */
 struct v4l2_img_buf {
-  uint8_t idx;            //< The index of the buffer
-  size_t length;          //< The size of the buffer
-  void *buf;              //< Pointer to the memory mapped buffer
+  uint8_t idx;                //< The index of the buffer
+  size_t length;              //< The size of the buffer
+  struct timeval timestamp;   //< The time value of the image
+  void *buf;                  //< Pointer to the memory mapped buffer
 };
 
 /* V4L2 device */

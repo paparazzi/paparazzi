@@ -88,6 +88,9 @@ static void *v4l2_capture_thread(void *data)
     }
     assert(buf.index < dev->buffers_cnt);
 
+    // Copy the timestamp
+    memcpy(&dev->buffers[buf.index].timestamp, &buf.timestamp, sizeof(struct timeval));
+
     // Update the dequeued id
     // We need lock because between setting prev_idx and updating the deq_idx the deq_idx could change
     pthread_mutex_lock(&dev->mutex);

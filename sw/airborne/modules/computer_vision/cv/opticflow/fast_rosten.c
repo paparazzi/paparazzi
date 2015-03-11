@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <stdlib.h>
-#include "fastRosten.h"
+#include "fast_rosten.h"
 
 #define Compare(X, Y) ((X)>=(Y))
 
