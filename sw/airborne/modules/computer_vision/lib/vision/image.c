@@ -44,11 +44,13 @@ void image_create(struct image_t *img, uint16_t width, uint16_t height, enum ima
 
   // Depending on the type the size differs
   if(type == IMAGE_YUV422)
-    img->buf = malloc(sizeof(uint8_t)*2 * width * height);
+    img->buf_size = sizeof(uint8_t)*2 * width * height;
   else if(type == IMAGE_JPEG)
-    img->buf = malloc(sizeof(uint8_t)*1.1 * width * height); // At maximum quality this is enough
+    img->buf_size = sizeof(uint8_t)*1.1 * width * height; // At maximum quality this is enough
   else
-    img->buf = malloc(sizeof(uint8_t) * width * height);
+    img->buf_size = sizeof(uint8_t) * width * height;
+
+  img->buf = malloc(img->buf_size);
 }
 
 /**
@@ -58,6 +60,24 @@ void image_create(struct image_t *img, uint16_t width, uint16_t height, enum ima
 void image_free(struct image_t *img)
 {
   free(img->buf);
+}
+
+/**
+ * Copy an image from inut to output
+ * This will only work if the formats are the same
+ * @param[in] *input The input image to copy from
+ * @param[out] *output The out image to copy to
+ */
+void image_copy(struct image_t *input, struct image_t *output)
+{
+  if(input->type != output->type)
+    return;
+
+  output->w = input->w;
+  output->h = input->h;
+  output->buf_size = input->buf_size;
+  memcpy(&output->ts, &input->ts, sizeof(struct timeval));
+  memcpy(input->buf, output->buf, input->buf_size);
 }
 
 /**

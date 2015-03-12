@@ -31,16 +31,16 @@
 
 #include "std.h"
 #include "inter_thread_data.h"
+#include "lib/vision/image.h"
 #include "lib/v4l/v4l2.h"
-#include <sys/time.h>
 
 struct opticflow_t
 {
   unsigned int img_w;               //< The image width
   unsigned int img_h;               //< The image width
 
-  uint8_t *gray_frame;              //< Current gray image frame
-  uint8_t *prev_gray_frame;         //< Previous gray image frame
+  struct image_t img_gray;          //< Current gray image frame
+  struct image_t prev_img_gray;     //< Previous gray image frame
 
   bool_t got_first_img;             //< If we got a image to work with
 
@@ -51,7 +51,7 @@ struct opticflow_t
 };
 
 
-void opticflow_calc_init(struct opticflow_t *opticflow, unsigned int w, unsigned int h);
+void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h);
 void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img, struct opticflow_result_t *result);
 
 #endif /* OPTICFLOW_CALCULATOR_H */

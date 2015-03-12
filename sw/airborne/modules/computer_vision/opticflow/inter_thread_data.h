@@ -31,14 +31,15 @@
 
 /* The result calculated from the opticflow */
 struct opticflow_result_t {
-  int cnt;          // Number of processed frames
+  uint16_t cnt;           //< Number of processed frames
+  uint32_t corner_cnt;    //< The amount of coners found by FAST9
+
 
   float Velx;       // Velocity as measured by camera
   float Vely;
   int flow_count;
 
   float cam_h;      // Debug parameters
-  int count;
   float OFx, OFy, dx_sum, dy_sum;
   float diff_roll;
   float diff_pitch;

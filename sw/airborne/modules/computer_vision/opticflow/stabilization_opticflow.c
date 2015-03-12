@@ -137,7 +137,7 @@ void stabilization_opticflow_update(struct opticflow_result_t* result)
                          &result->diff_roll, &result->diff_pitch,
                          &result->Velx, &result->Vely,
                          &test, &test,
-                         &result->cam_h, &result->count);
+                         &result->cam_h, &result->corner_cnt);
 
   /* Check if we are in the correct AP_MODE before setting commands */
   if (autopilot_mode != AP_MODE_MODULE) {

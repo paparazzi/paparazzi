@@ -39,9 +39,6 @@ int calculateG(int *G, int *DX, int *DY, int half_window_size);
 int calculateError(int *ImC, int width, int height);
 int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, uint16_t *p_x, uint16_t *p_y, uint16_t n_found_points,
                 uint16_t imW, uint16_t imH, uint16_t *new_x, uint16_t *new_y, bool_t *status, uint16_t half_window_size, uint8_t max_iterations);
-void quick_sort(float *a, int n);
-void quick_sort_int(int *a, int n);
-void CvtYUYV2Gray(unsigned char *grayframe, unsigned char *frame, int imW, int imH);
 void OFfilter(float *OFx, float *OFy, float dx, float dy, int count, int OF_FilterType);
 
 #endif /* OPTIC_FLOW_INT_H */

@@ -308,6 +308,7 @@ void v4l2_image_get(struct v4l2_device *dev, struct image_t *img) {
   img->w = dev->w;
   img->h = dev->h;
   img->buf_idx = img_idx;
+  img->buf_size = dev->buffers[img_idx].length;
   img->buf = dev->buffers[img_idx].buf;
   memcpy(&img->ts, &dev->buffers[img_idx].timestamp, sizeof(struct timeval));
 }
@@ -340,6 +341,7 @@ bool_t v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img) {
     img->w = dev->w;
     img->h = dev->h;
     img->buf_idx = img_idx;
+    img->buf_size = dev->buffers[img_idx].length;
     img->buf = dev->buffers[img_idx].buf;
     memcpy(&img->ts, &dev->buffers[img_idx].timestamp, sizeof(struct timeval));
     return TRUE;

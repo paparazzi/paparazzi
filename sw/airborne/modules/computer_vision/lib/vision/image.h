@@ -49,9 +49,16 @@ struct image_t {
   void *buf;              //< Image buffer (depending on the image_type)
 };
 
+/* Image point structure */
+struct point_t {
+  uint16_t x;             //< The x coordinate of the point
+  uint16_t y;             //< The y coordinate of the point
+};
+
 /* Usefull image functions */
 void image_create(struct image_t *img, uint16_t width, uint16_t height, enum image_type type);
 void image_free(struct image_t *img);
+void image_copy(struct image_t *input, struct image_t *output);
 void image_to_grayscale(struct image_t *input, struct image_t *output);
 uint16_t image_yuv422_colorfilt(struct image_t *input, struct image_t *output, uint8_t y_m, uint8_t y_M, uint8_t u_m,
                           uint8_t u_M, uint8_t v_m, uint8_t v_M);

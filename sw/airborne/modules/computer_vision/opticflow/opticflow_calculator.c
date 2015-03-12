@@ -61,15 +61,15 @@ static uint32_t timeval_diff(struct timeval *starttime, struct timeval *finishti
  * @param[in] *w The image width
  * @param[in] *h The image height
  */
-void opticflow_calc_init(struct opticflow_t *opticflow, unsigned int w, unsigned int h)
+void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
 {
   /* Set the width/height of the image */
   opticflow->img_w = w;
   opticflow->img_h = h;
 
   /* Create the image buffers */
-  opticflow->gray_frame = (unsigned char *) calloc(w * h, sizeof(uint8_t));
-  opticflow->prev_gray_frame = (unsigned char *) calloc(w * h, sizeof(uint8_t));
+  image_create(&opticflow->img_gray, w, h, IMAGE_GRAYSCALE);
+  image_create(&opticflow->prev_img_gray, w, h, IMAGE_GRAYSCALE);
 
   /* Set the previous values */
   opticflow->got_first_img = FALSE;
@@ -98,8 +98,9 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   result->fps = 1 / (timeval_diff(&opticflow->prev_timestamp, &img->ts) / 1000.);
   memcpy(&opticflow->prev_timestamp, &img->ts, sizeof(struct timeval));
 
+  // Conver the first image to gray
   if (!opticflow->got_first_img) {
-    CvtYUYV2Gray(opticflow->prev_gray_frame, img->buf, opticflow->img_w, opticflow->img_h);
+    image_to_grayscale(img, &opticflow->prev_img_gray);
     opticflow->got_first_img = TRUE;
   }
 
@@ -107,13 +108,10 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // Corner detection
   // *************************************************************************************
 
-  // FAST corner detection
-  int fast_threshold = 5;
-  xyFAST *pnts_fast = fast9_detect((const byte *)opticflow->prev_gray_frame, opticflow->img_w, opticflow->img_h, opticflow->img_w,
-                           fast_threshold, &result->count);
-  if (result->count > MAX_COUNT) { result->count = MAX_COUNT; }
+  // FAST corner detection (TODO: non fixed threashold)
+  struct point_t *pnts_fast = fast9_detect(&opticflow->prev_img_gray, 5, &result->corner_cnt);
 
-  // Copy the points and remove neighboring corners
+  /*// Copy the points and remove neighboring corners
   const float min_distance2 = 10 * 10;
   bool_t remove_points[MAX_COUNT];
   uint16_t count_fil = 0;
@@ -135,12 +133,12 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   }
   free(pnts_fast);
   if(count_fil > 25) count_fil = 25;
-  result->count = count_fil;
+  result->count = count_fil;*/
 
 
   uint8_t *im = (uint8_t *)img->buf;
-  for(int i = 0; i < result->count; i++) {
-    uint16_t idx = 2*y[i]*opticflow->img_w + 2*x[i];
+  for(int i = 0; i < result->corner_cnt; i++) {
+    uint16_t idx = 2*pnts_fast[i].y*opticflow->img_w + 2*pnts_fast[i].x;
     im[idx] = 255;
     idx = idx+1 % (opticflow->img_w*opticflow->img_h*2);
     im[idx] = 255;
@@ -151,10 +149,10 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // *************************************************************************************
   // Corner Tracking
   // *************************************************************************************
-  CvtYUYV2Gray(opticflow->gray_frame, img->buf, opticflow->img_w, opticflow->img_h);
+  //CvtYUYV2Gray(opticflow->gray_frame, img->buf, opticflow->img_w, opticflow->img_h);
 
-  opticFlowLK(opticflow->gray_frame, opticflow->prev_gray_frame, x, y,
-              count_fil, opticflow->img_w, opticflow->img_h, new_x, new_y, status, 5, 100);
+  //opticFlowLK(opticflow->gray_frame, opticflow->prev_gray_frame, x, y,
+  //            count_fil, opticflow->img_w, opticflow->img_h, new_x, new_y, status, 5, 100);
 
   // Remove points if we lost tracking
  /* for (int i = count_fil - 1; i >= 0; i--) {
@@ -170,7 +168,7 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
     }
   }*/
 
-  result->dx_sum = 0.0;
+  /*result->dx_sum = 0.0;
   result->dy_sum = 0.0;
 
   // Optical Flow Computation
@@ -189,7 +187,7 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   } else {
     result->dx_sum = 0.0;
     result->dy_sum = 0.0;
-  }
+  }*/
 
   // Flow Derotation
   /*result->diff_pitch = (state->theta - opticflow->prev_pitch) * opticflow->img_h / FOV_H;
@@ -239,7 +237,7 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // Next Loop Preparation
   // *************************************************************************************
   */
-  memcpy(opticflow->prev_gray_frame, opticflow->gray_frame, opticflow->img_w * opticflow->img_h);
+  image_copy(&opticflow->img_gray, &opticflow->prev_img_gray);
 }
 
 /**
