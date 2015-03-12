@@ -32,6 +32,14 @@ CONF_XML=$(CONF)/conf.xml
 AIRBORNE=sw/airborne
 MESSAGES_XML = $(CONF)/messages.xml
 
+# make sure the TARGET variable is set if needed for current make target
+ifneq (,$(findstring $(MAKECMDGOALS),all_ac_h radio_ac_h flight_plan_ac_h))
+ifeq ($(TARGET),)
+$(warning No TARGET specified! Defaulting to "TARGET=ap")
+override TARGET=ap
+endif
+endif
+
 AIRCRAFT_CONF_DIR = $(AIRCRAFT_BUILD_DIR)/conf
 AC_GENERATED = $(AIRCRAFT_BUILD_DIR)/$(TARGET)/generated
 
