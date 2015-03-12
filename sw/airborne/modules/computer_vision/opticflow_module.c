@@ -32,7 +32,9 @@
 #include <pthread.h>
 #include "state.h"
 #include "subsystems/abi.h"
+
 #include "lib/v4l/v4l2.h"
+#include "lib/encoding/jpeg.h"
 
 /* default sonar/agl to use in opticflow visual_estimator */
 #ifndef OPTICFLOW_AGL_ID
@@ -139,10 +141,17 @@ static void *opticflow_module_calc(void *data __attribute__((unused))) {
     return 0;
   }
 
+#ifdef OPTICFLOW_DEBUG
+  // Create a new JPEG image
+  struct image_t img_jpeg;
+  image_create(&img_jpeg, opticflow_dev->w, opticflow_dev->h, IMAGE_JPEG);
+#endif
+
   /* Main loop of the optical flow calculation */
   while(TRUE) {
     // Try to fetch an image
-    struct v4l2_img_buf *img = v4l2_image_get(opticflow_dev);
+    struct image_t img;
+    v4l2_image_get(opticflow_dev, &img);
 
     // Copy the state
     pthread_mutex_lock(&opticflow_mutex);
@@ -152,7 +161,7 @@ static void *opticflow_module_calc(void *data __attribute__((unused))) {
 
     // Do the optical flow calculation
     struct opticflow_result_t temp_result;
-    opticflow_calc_frame(&opticflow, &temp_state, img, &temp_result);
+    opticflow_calc_frame(&opticflow, &temp_state, &img, &temp_result);
 
     // Copy the result if finished
     pthread_mutex_lock(&opticflow_mutex);
@@ -160,9 +169,41 @@ static void *opticflow_module_calc(void *data __attribute__((unused))) {
     opticflow_got_result = TRUE;
     pthread_mutex_unlock(&opticflow_mutex);
 
+#ifdef OPTICFLOW_DEBUG
+    jpeg_encode_image(&img, &img_jpeg, 99, TRUE);
+
+    // Open process to send using netcat (in a fork because sometimes kills itself???)
+    pid_t pid = fork();
+
+    if(pid < 0) {
+      printf("[viewvideo] Could not create netcat fork.\n");
+    }
+    else if(pid ==0) {
+      // We are the child and want to send the image
+      FILE *netcat = popen("nc 192.168.1.2 5000 2>/dev/null", "w");
+      if (netcat != NULL) {
+        fwrite(img_jpeg.buf, sizeof(uint8_t), img_jpeg.buf_size, netcat);
+        pclose(netcat); // Ignore output, because it is too much when not connected
+      } else {
+        printf("[viewvideo] Failed to open netcat process.\n");
+      }
+
+      // Exit the program since we don't want to continue after transmitting
+      exit(0);
+    }
+    else {
+      // We want to wait until the child is finished
+      wait(NULL);
+    }
+#endif
+
     // Free the image
-    v4l2_image_free(opticflow_dev, img);
+    v4l2_image_free(opticflow_dev, &img);
   }
+
+#ifdef OPTICFLOW_DEBUG
+  image_free(&img_jpeg);
+#endif
 }
 
 /**

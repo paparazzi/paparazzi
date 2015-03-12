@@ -22,6 +22,7 @@
 #define _CV_ENCODING_JPEG_H
 
 #include "std.h"
+#include "lib/vision/image.h"
 
 /* The different type of image encodings */
 #define FOUR_ZERO_ZERO          0
@@ -31,15 +32,7 @@
 #define RGB                     4
 
 /* JPEG encode an image */
-unsigned char *jpeg_encode_image(
-  uint8_t *in,
-  uint8_t *out,
-  uint32_t q,                       // image quality 1-8
-  uint32_t fmt,                     // image format code
-  uint32_t width,                   // image width
-  uint32_t height,                  // image height
-  bool_t add_dri_header             // data only or full jpeg file
-);
+void jpeg_encode_image(struct image_t *in, struct image_t *out, uint32_t quality_factor, bool_t add_dri_header);
 
 /* Create an SVS header */
 int jpeg_create_svs_header(unsigned char *buf, int32_t size, int w);

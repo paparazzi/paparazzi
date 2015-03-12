@@ -52,6 +52,6 @@ struct opticflow_t
 
 
 void opticflow_calc_init(struct opticflow_t *opticflow, unsigned int w, unsigned int h);
-void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct v4l2_img_buf *img, struct opticflow_result_t *result);
+void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img, struct opticflow_result_t *result);
 
 #endif /* OPTICFLOW_CALCULATOR_H */

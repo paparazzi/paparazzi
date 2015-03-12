@@ -254,7 +254,6 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
     }
 
     //  Map the buffer
-    buffers[i].idx = i;
     buffers[i].length = buf.length;
     buffers[i].buf = mmap(NULL, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, buf.m.offset);
     if (MAP_FAILED == buffers[i].buf) {
@@ -282,8 +281,10 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
  * This functions blocks until image access is granted. This should not take that long, because
  * it is only locked while enqueueing an image.
  * Make sure you free the image after processing!
+ * @param[in] *dev The V4L2 video device we want to get an image from
+ * @param[out] *img The image that we got from the video device
  */
-struct v4l2_img_buf *v4l2_image_get(struct v4l2_device *dev) {
+void v4l2_image_get(struct v4l2_device *dev, struct image_t *img) {
   uint16_t img_idx = V4L2_IMG_NONE;
 
   // Continu to wait for an image
@@ -302,16 +303,24 @@ struct v4l2_img_buf *v4l2_image_get(struct v4l2_device *dev) {
     }
   }
 
-  // Rreturn the image
-  return &dev->buffers[img_idx];
+  // Set the image
+  img->type = IMAGE_YUV422;
+  img->w = dev->w;
+  img->h = dev->h;
+  img->buf_idx = img_idx;
+  img->buf = dev->buffers[img_idx].buf;
+  memcpy(&img->ts, &dev->buffers[img_idx].timestamp, sizeof(struct timeval));
 }
 
 /**
  * Get the latest image and lock it (Thread safe, NON BLOCKING)
  * This function returns NULL if it can't get access to the current image.
  * Make sure you free the image after processing!
+ * @param[in] *dev The V4L2 video device we want to get an image from
+ * @param[out] *img The image that we got from the video device
+ * @return Whether we got an image or not
  */
-struct v4l2_img_buf *v4l2_image_get_nonblock(struct v4l2_device *dev) {
+bool_t v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img) {
   uint16_t img_idx = V4L2_IMG_NONE;
 
   // Try to get the current image
@@ -324,9 +333,16 @@ struct v4l2_img_buf *v4l2_image_get_nonblock(struct v4l2_device *dev) {
 
   // Check if we really got an image
   if (img_idx == V4L2_IMG_NONE) {
-    return NULL;
+    return FALSE;
   } else {
-    return &dev->buffers[img_idx];
+     // Set the image
+    img->type = IMAGE_YUV422;
+    img->w = dev->w;
+    img->h = dev->h;
+    img->buf_idx = img_idx;
+    img->buf = dev->buffers[img_idx].buf;
+    memcpy(&img->ts, &dev->buffers[img_idx].timestamp, sizeof(struct timeval));
+    return TRUE;
   }
 }
 
@@ -334,7 +350,7 @@ struct v4l2_img_buf *v4l2_image_get_nonblock(struct v4l2_device *dev) {
  * Free the image and enqueue the buffer (Thread safe)
  * This must be done after processing the image, because else all buffers are locked
  */
-void v4l2_image_free(struct v4l2_device *dev, struct v4l2_img_buf *img_buf)
+void v4l2_image_free(struct v4l2_device *dev, struct image_t *img)
 {
   struct v4l2_buffer buf;
 
@@ -342,9 +358,9 @@ void v4l2_image_free(struct v4l2_device *dev, struct v4l2_img_buf *img_buf)
   CLEAR(buf);
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   buf.memory = V4L2_MEMORY_MMAP;
-  buf.index = img_buf->idx;
+  buf.index = img->buf_idx;
   if (ioctl(dev->fd, VIDIOC_QBUF, &buf) < 0) {
-    printf("[v4l2] Could not enqueue %d for %s\n", img_buf->idx, dev->name);
+    printf("[v4l2] Could not enqueue %d for %s\n", img->buf_idx, dev->name);
   }
 }
 
