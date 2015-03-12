@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include "fast_rosten.h"
 
-static void fast_make_offsets(int32_t *pixel, uint16_t row_stride);
+static void fast_make_offsets(int32_t *pixel, uint16_t row_stride, uint8_t pixel_size);
 
 /**
  * Do a FAST9 corner detection
@@ -57,12 +57,12 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint32_t *n
     pixel_size = 2;
 
   // Calculate the pixel offsets
-  fast_make_offsets(pixel, img->w*pixel_size);
+  fast_make_offsets(pixel, img->w, pixel_size);
 
   // Go trough all the pixels (minus the borders)
   for (y = 3; y < img->h - 3; y++)
     for (x = 3; x < img->w - 3; x++) {
-      const uint8_t *p = (uint8_t *)img->buf + y * img->w * pixel_size + x + pixel_size/2;
+      const uint8_t *p = ((uint8_t *)img->buf) + y * img->w * pixel_size + x * pixel_size + pixel_size/2;
 
       // Calculate the threshold values
       int16_t cb = *p + threshold;
@@ -3618,22 +3618,22 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint32_t *n
  * @param[out] *pixel The offset array of the different pixels
  * @param[in] row_stride The row stride in the image
  */
-static void fast_make_offsets(int32_t *pixel, uint16_t row_stride)
+static void fast_make_offsets(int32_t *pixel, uint16_t row_stride, uint8_t pixel_size)
 {
-  pixel[0] = 0 + row_stride * 3;
-  pixel[1] = 1 + row_stride * 3;
-  pixel[2] = 2 + row_stride * 2;
-  pixel[3] = 3 + row_stride * 1;
-  pixel[4] = 3 + row_stride * 0;
-  pixel[5] = 3 + row_stride * -1;
-  pixel[6] = 2 + row_stride * -2;
-  pixel[7] = 1 + row_stride * -3;
-  pixel[8] = 0 + row_stride * -3;
-  pixel[9] = -1 + row_stride * -3;
-  pixel[10] = -2 + row_stride * -2;
-  pixel[11] = -3 + row_stride * -1;
-  pixel[12] = -3 + row_stride * 0;
-  pixel[13] = -3 + row_stride * 1;
-  pixel[14] = -2 + row_stride * 2;
-  pixel[15] = -1 + row_stride * 3;
+  pixel[0]  = 0*pixel_size  + row_stride * 3*pixel_size;
+  pixel[1]  = 1*pixel_size  + row_stride * 3*pixel_size;
+  pixel[2]  = 2*pixel_size  + row_stride * 2*pixel_size;
+  pixel[3]  = 3*pixel_size  + row_stride * 1*pixel_size;
+  pixel[4]  = 3*pixel_size  + row_stride * 0*pixel_size;
+  pixel[5]  = 3*pixel_size  + row_stride * -1*pixel_size;
+  pixel[6]  = 2*pixel_size  + row_stride * -2*pixel_size;
+  pixel[7]  = 1*pixel_size  + row_stride * -3*pixel_size;
+  pixel[8]  = 0*pixel_size  + row_stride * -3*pixel_size;
+  pixel[9]  = -1*pixel_size + row_stride * -3*pixel_size;
+  pixel[10] = -2*pixel_size + row_stride * -2*pixel_size;
+  pixel[11] = -3*pixel_size + row_stride * -1*pixel_size;
+  pixel[12] = -3*pixel_size + row_stride * 0*pixel_size;
+  pixel[13] = -3*pixel_size + row_stride * 1*pixel_size;
+  pixel[14] = -2*pixel_size + row_stride * 2*pixel_size;
+  pixel[15] = -1*pixel_size + row_stride * 3*pixel_size;
 }

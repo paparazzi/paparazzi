@@ -77,7 +77,7 @@ void image_copy(struct image_t *input, struct image_t *output)
   output->h = input->h;
   output->buf_size = input->buf_size;
   memcpy(&output->ts, &input->ts, sizeof(struct timeval));
-  memcpy(input->buf, output->buf, input->buf_size);
+  memcpy(output->buf, input->buf, input->buf_size);
 }
 
 /**
