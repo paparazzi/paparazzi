@@ -129,11 +129,11 @@ sub run_program
     my $stderr_and_out = '';
 
     my $stdout_handler = sub {
-        print @_ if $verbose;
+        warn @_ if $verbose;
         $stderr_and_out .= $_[0];
     };
     my $stderr_handler = sub {
-        print @_ if $verbose;
+        warn @_ if $verbose;
         # check if output on stderr contains warnings, but ignoring "Warning: low altitude"
         if ($_[0] =~ /warning/i && $_[0] !~ /Warning: low altitude/) {
             $warnings .= $_[0]."\n";

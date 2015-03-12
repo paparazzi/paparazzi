@@ -317,9 +317,12 @@ run_tests:
 
 test: all replace_current_conf_xml run_tests restore_conf_xml
 
+test_examples: all
+	CONF_XML=conf/conf_tests.xml prove tests/examples/
+
 
 .PHONY: all print_build_version _print_building _save_build_version update_google_version dox ground_segment ground_segment.opt \
 subdirs $(SUBDIRS) conf ext libpprz multimon cockpit cockpit.opt tmtc tmtc.opt generators\
 static sim_static lpctools commands \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
-test replace_current_conf_xml run_tests restore_conf_xml
+test replace_current_conf_xml run_tests restore_conf_xml test_examples
