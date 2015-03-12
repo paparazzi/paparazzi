@@ -115,7 +115,7 @@ ns_CFLAGS 		+= -DUSE_LED
 ifneq ($(SYS_TIME_LED),none)
   ns_CFLAGS 	+= -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
-ifneq ($(ARCH), lpc21)
+ifeq ($(ARCH), $(filter $(ARCH), stm32 sim))
   ns_srcs 	+= $(SRC_ARCH)/led_hw.c
 endif
 

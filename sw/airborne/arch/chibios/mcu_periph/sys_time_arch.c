@@ -55,6 +55,11 @@ uint32_t get_sys_time_usec(void)
   return (uint32_t)(chTimeNow() / CH_FREQUENCY * 1000000);
 }
 
+uint32_t get_sys_time_msec(void)
+{
+  return (uint32_t)(chTimeNow() / CH_FREQUENCY * 1000);
+}
+
 /**
  * sys_time_usleep(uint32_t us)
  * Use only for up to 2^32/CH_FREQUENCY-1 usec

@@ -31,6 +31,7 @@
 #define GPIO_ARCH_H
 
 #include "hal.h"
+#include "mcu_periph/gpio_def.h"
 
 /**
  * Setup one or more pins of the given GPIO port as outputs.

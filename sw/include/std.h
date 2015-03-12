@@ -58,10 +58,10 @@
   message coding/decoding **** FIX NEEDEED ****
 */
 typedef bool bool_t;
-#else /* USE_CHIBIOS_LIBOPENCM3 */ 
+#else /* USE_CHIBIOS_LIBOPENCM3 */
 typedef uint8_t bool_t;
-#endif 
-#endif 
+#endif
+#endif
 
 /* Unit (void) values */
 typedef uint8_t unit_t;

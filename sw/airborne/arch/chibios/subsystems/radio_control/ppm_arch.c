@@ -53,7 +53,7 @@ static void icuwidthcb(ICUDriver *icup)
 {
   static uint32_t now;
   now = (uint32_t)(icuGetWidth(icup) + timer_rollover_cnt);
-  DecodePpmFrame(now);
+  ppm_decode_frame(now);
 }
 
 /**
