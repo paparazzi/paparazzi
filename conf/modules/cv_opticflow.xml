@@ -64,6 +64,25 @@
     <flag name="LDFLAGS" value="lrt"/>
     <flag name="LDFLAGS" value="static-libgcc"/>
     <define name="OPTICFLOW_DEBUG"/>
+
+    <raw>
+      VIEWVIDEO_DEV         ?= UDP1
+      VIEWVIDEO_HOST        ?= $(MODEM_HOST)
+      VIEWVIDEO_PORT_OUT    ?= 5000
+      VIEWVIDEO_PORT_IN     ?= 4999
+      VIEWVIDEO_BROADCAST   ?= $(MODEM_BROADCAST)
+      VIEWVIDEO_DEV_LOWER   = $(shell echo $(VIEWVIDEO_DEV) | tr A-Z a-z)
+
+      VIEWVID_G_CFLAGS  = -DVIEWVIDEO_HOST=\"$(VIEWVIDEO_HOST)\" -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT)
+      VIEWVID_CFLAGS  = -DUSE_$(VIEWVIDEO_DEV) -DVIEWVIDEO_DEV=$(VIEWVIDEO_DEV_LOWER)
+      VIEWVID_CFLAGS += -D$(VIEWVIDEO_DEV)_PORT_OUT=$(VIEWVIDEO_PORT_OUT) -D$(VIEWVIDEO_DEV)_PORT_IN=$(VIEWVIDEO_PORT_IN)
+      VIEWVID_CFLAGS += -D$(VIEWVIDEO_DEV)_BROADCAST=$(VIEWVIDEO_BROADCAST) -D$(VIEWVIDEO_DEV)_HOST=\"$(VIEWVIDEO_HOST)\"
+      ifeq ($(VIEWVIDEO_USE_NC),)
+        ap.CFLAGS += $(VIEWVID_G_CFLAGS) $(VIEWVID_CFLAGS)
+      else
+        ap.CFLAGS += $(VIEWVID_G_CFLAGS) -DVIEWVIDEO_USE_NC
+      endif
+    </raw>
   </makefile>
 
   <makefile target="nps">

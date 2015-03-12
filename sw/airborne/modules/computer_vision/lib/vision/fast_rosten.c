@@ -40,15 +40,16 @@ static void fast_make_offsets(int32_t *pixel, uint16_t row_stride, uint8_t pixel
  * Do a FAST9 corner detection
  * @param[in] *img The image to do the corner detection on
  * @param[in] threshold The threshold which we use for FAST9
+ * @param[in] min_dist The minimum distance in pixels between detections
  * @param[out] *num_corner The amount of corners found
  * @return The corners found
  */
-struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint32_t *num_corners)
+struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uint32_t *num_corners)
 {
-  int corner_cnt = 0;
-  int rsize = 512;
+  uint32_t corner_cnt = 0;
+  uint16_t rsize = 512;
   int pixel[16];
-  int x, y;
+  uint16_t x, y, i;
   struct point_t *ret_corners = malloc(sizeof(struct point_t) * rsize);
 
   // Set the pixel size
@@ -62,6 +63,21 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint32_t *n
   // Go trough all the pixels (minus the borders)
   for (y = 3; y < img->h - 3; y++)
     for (x = 3; x < img->w - 3; x++) {
+      // First check if we aren't in range vertical (TODO: fix less intensive way)
+      bool_t need_skip = FALSE;
+      for(i = 0; i < corner_cnt; i++) {
+        if(x-min_dist < ret_corners[i].x && ret_corners[i].x < x+min_dist
+          && y-min_dist < ret_corners[i].y && ret_corners[i].y < y+min_dist) {
+          need_skip = TRUE;
+          break;
+        }
+      }
+
+      if(need_skip) {
+        x += min_dist;
+        continue;
+      }
+
       const uint8_t *p = ((uint8_t *)img->buf) + y * img->w * pixel_size + x * pixel_size + pixel_size/2;
 
       // Calculate the threshold values
@@ -3607,6 +3623,8 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint32_t *n
       ret_corners[corner_cnt].y = y;
       corner_cnt++;
 
+      // Skip some in the width direction
+      x += min_dist;
     }
 
   *num_corners = corner_cnt;

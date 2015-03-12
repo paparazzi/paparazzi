@@ -112,7 +112,7 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // *************************************************************************************
 
   // FAST corner detection (TODO: non fixed threashold)
-  struct point_t *pnts_fast = fast9_detect(img, 20, &result->corner_cnt);
+  struct point_t *pnts_fast = fast9_detect(img, 20, 10, &result->corner_cnt);
 
   /*// Copy the points and remove neighboring corners
   const float min_distance2 = 10 * 10;
