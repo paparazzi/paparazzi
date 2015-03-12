@@ -32,7 +32,8 @@
 CHIBIOS =  $(PAPARAZZI_SRC)/sw/ext/chibios
 
 # directory with board defines for chibios platforms (board specific)
-CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD)/chibios
+BOARD_DIR ?= $(BOARD)/chibios
+CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD_DIR)
 
 # directory with board and OS configuration (project specific)
 PROJECT_DIR ?= demo
@@ -61,7 +62,7 @@ $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 # Compiler options here.
 ifeq ($(USE_OPT),)
    USE_OPT = -std=gnu99 -O2 -ggdb -fomit-frame-pointer -falign-functions \
-	 -W -Wall
+	 -W -Wall -DUSE_CHIBIOS_RTOS
 endif
 
 # C specific options here (added to USE_OPT).
@@ -119,6 +120,9 @@ include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/$(CHIBIOS_BOARD_PORT)
 include $(CHIBIOS)/os/kernel/kernel.mk
 include $(CHIBIOS)/test/test.mk
+ifeq ($(USE_FATFS), TRUE)
+include $(PAPARAZZI_HOME)/conf/chibios/fatfs.mk
+endif
 
 
 # Define linker script file here
@@ -136,12 +140,14 @@ CSRC = $(PORTSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
+       $(FATFSSRC) \
        $(CHIBIOS)/os/various/evtimer.c \
        $(CHIBIOS)/os/various/syscalls.c \
        $(CHIBIOS)/os/various/chprintf.c \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS_BOARD_MAIN) 
        
+
 ECSRC = $($(TARGET).srcs)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -300,8 +306,11 @@ include $(PAPARAZZI_HOME)/conf/Makefile.stm32-upload
 
 ###############################################################################
 ifeq ($(USE_FPU),yes)
+ifeq ($(HARD_FLOAT),yes)
+  USE_OPT += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant
+else
   USE_OPT += -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -fsingle-precision-constant
-  #USE_OPT += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant
+endif
   DDEFS += -DCORTEX_USE_FPU=TRUE
 else
   DDEFS += -DCORTEX_USE_FPU=FALSE
