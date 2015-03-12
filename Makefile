@@ -304,25 +304,24 @@ ab_clean:
 #
 # Tests
 #
+test: test_math test_examples
 
-replace_current_conf_xml:
-	test conf/conf.xml && mv conf/conf.xml conf/conf.xml.backup.$(BUILD_DATETIME)
-	cp conf/conf_tests.xml conf/conf.xml
-
-restore_conf_xml:
-	test conf/conf.xml.backup.$(BUILD_DATETIME) && mv conf/conf.xml.backup.$(BUILD_DATETIME) conf/conf.xml
-
-run_tests:
-	cd tests; $(MAKE) test
-
-test: all replace_current_conf_xml run_tests restore_conf_xml
-
+# compiles all aircrafts in conf_tests.xml
 test_examples: all
 	CONF_XML=conf/conf_tests.xml prove tests/examples/
 
+# run some math tests that don't need whole paparazzi to be built
+test_math:
+	make -C tests/math
+
+# super simple simulator test, needs X
+# always uses conf/conf.xml, so that needs to contain the appropriate aircrafts
+# (only Microjet right now)
+test_sim: all
+	prove tests/sim
 
 .PHONY: all print_build_version _print_building _save_build_version update_google_version dox ground_segment ground_segment.opt \
 subdirs $(SUBDIRS) conf ext libpprz multimon cockpit cockpit.opt tmtc tmtc.opt generators\
 static sim_static lpctools commands \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
-test replace_current_conf_xml run_tests restore_conf_xml test_examples
+test test_examples test_math test_sim
