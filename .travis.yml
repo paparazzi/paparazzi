@@ -8,11 +8,10 @@ before_install:
   - sudo apt-get update -q
 install:
   - sudo apt-get install paparazzi-dev paparazzi-jsbsim gcc-arm-none-eabi libipc-run-perl
-before_script: cd conf && ln -s conf_tests.xml conf.xml && cd ..
 script:
   - make
   - make -C tests/math test
-  - PAPARAZZI_SRC=$PWD PAPARAZZI_HOME=$PWD J=AUTO prove tests/examples/
+  - PAPARAZZI_SRC=$PWD PAPARAZZI_HOME=$PWD CONF_XML=$PWD/conf/conf_tests.xml prove tests/examples/
 
 notifications:
   webhooks:
