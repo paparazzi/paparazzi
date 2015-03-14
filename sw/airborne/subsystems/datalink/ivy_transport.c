@@ -179,6 +179,7 @@ static int check_available_space(struct ivy_transport *trans __attribute__((unus
 static int check_free_space(struct ivy_transport *p __attribute__((unused)), uint8_t len __attribute__((unused))) { return TRUE; }
 static void transmit(struct ivy_transport *p __attribute__((unused)), uint8_t byte __attribute__((unused))) {}
 static void send_message(struct ivy_transport *p __attribute__((unused))) {}
+static int null_function(struct chibios_sdlog *p __attribute__((unused))) { return 0; }
 
 void ivy_transport_init(void)
 {
@@ -197,5 +198,7 @@ void ivy_transport_init(void)
   ivy_tp.device.check_free_space = (check_free_space_t) check_free_space;
   ivy_tp.device.transmit = (transmit_t) transmit;
   ivy_tp.device.send_message = (send_message_t) send_message;
+  ivy_tp.device.char_available = (char_available_t) null_function;
+  ivy_tp.device.getchar = (getchar_t) null_function;
   ivy_tp.device.periph = (void *)(&ivy_tp);
 }

@@ -218,6 +218,8 @@ static void superbitrf_transmit(struct SuperbitRF *p, uint8_t byte)
 
 static void superbitrf_send(struct SuperbitRF *p __attribute__((unused))) { }
 
+static int null_function(struct chibios_sdlog *p __attribute__((unused))) { return 0; }
+
 /**
  * Initialize the superbitrf
  */
@@ -243,6 +245,8 @@ void superbitrf_init(void)
   superbitrf.device.check_free_space = (check_free_space_t) superbitrf_check_free_space;
   superbitrf.device.transmit = (transmit_t) superbitrf_transmit;
   superbitrf.device.send_message = (send_message_t) superbitrf_send;
+  superbitrf.device.char_available = (char_available_t) null_function; // not needed
+  superbitrf.device.getchar = (getchar_t) null; // not needed
 
   // Initialize the binding pin
   gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);

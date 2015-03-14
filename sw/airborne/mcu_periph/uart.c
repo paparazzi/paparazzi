@@ -203,6 +203,8 @@ void uart_periph_init(struct uart_periph *p)
   p->device.check_free_space = (check_free_space_t)uart_check_free_space;
   p->device.transmit = (transmit_t)uart_transmit;
   p->device.send_message = (send_message_t)null_function;
+  p->device.char_available = (char_available_t)uart_char_available;
+  p->device.getchar = (getchar_t)uart_getch;
 
 #if PERIODIC_TELEMETRY
   // the first to register do it for the others
@@ -226,7 +228,17 @@ uint8_t uart_getch(struct uart_periph *p)
   return ret;
 }
 
+uint16_t uart_char_available(struct uart_periph *p)
+{
+  int16_t available = p->rx_insert_idx - p->rx_extract_idx;
+  if (available < 0) {
+    available += UART_RX_BUFFER_SIZE;
+  }
+  return (uint16_t)available;
+}
+
 void WEAK uart_event(void)
 {
 
 }
+

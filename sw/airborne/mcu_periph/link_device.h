@@ -36,6 +36,8 @@
 typedef int (*check_free_space_t)(void *, uint8_t);
 typedef void (*transmit_t)(void *, uint8_t);
 typedef void (*send_message_t)(void *);
+typedef int (*char_available_t)(void *);
+typedef uint8_t (*getchar_t)(void *);
 
 /** Device structure
  */
@@ -43,6 +45,8 @@ struct link_device {
   check_free_space_t check_free_space;  ///< check if transmit buffer is not full
   transmit_t transmit;                  ///< transmit one byte
   send_message_t send_message;          ///< send completed buffer
+  char_available_t char_available;      ///< check if a new character is available
+  getchar_t getchar;                    ///< get a new char
   void *periph;                         ///< pointer to parent implementation
 };
 

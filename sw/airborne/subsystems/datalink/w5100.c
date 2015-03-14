@@ -172,6 +172,13 @@ static inline uint16_t w5100_sock_get16(uint8_t _sock, uint16_t _reg)
 static int true_function(struct w5100_periph *p __attribute__((unused)), uint8_t len __attribute__((unused))) { return TRUE; }
 static void dev_transmit(struct w5100_periph *p __attribute__((unused)), uint8_t byte) {  w5100_transmit(byte); }
 static void dev_send(struct w5100_periph *p __attribute__((unused))) { w5100_send(); }
+static int dev_char_available(struct w5100_periph *p __attribute__((unused))) { return w5100_ch_available; }
+static uint8_t dev_getch(struct w5100_periph *p __attribute__((unused)))
+{
+  uint8_t c = 0;
+  w5100_receive(&c, 1);
+  return c;
+}
 
 void w5100_init(void)
 {
@@ -246,6 +253,8 @@ void w5100_init(void)
   chip0.device.check_free_space = (check_free_space_t) true_function;
   chip0.device.transmit = (transmit_t) dev_transmit;
   chip0.device.send_message = (send_message_t) dev_send;
+  chip0.device.char_available = (char_available_t) dev_char_available;
+  chip0.device.getchar = (getchar_t) dev_getch;
 }
 
 void w5100_transmit(uint8_t data)
