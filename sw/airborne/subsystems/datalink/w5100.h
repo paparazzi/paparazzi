@@ -98,18 +98,17 @@ static inline void w5100_read_buffer(struct pprz_transport *t)
   }
 }
 
-#define W5100Buffer(_dev) TransportLink(_dev,ChAvailable())
+#define W5100CheckAndParse(_dev, _trans) w5100_check_and_parse(&(_dev).device, &(_trans))
 
-#define W5100CheckAndParse(_dev,_trans) {       \
-    if (W5100Buffer(_dev)) {                    \
-      w5100_read_buffer( &(_trans) );           \
-      if (_trans.trans_rx.msg_received) {          \
-        pprz_parse_payload(&(_trans));         \
-        _trans.trans_rx.msg_received = FALSE;      \
-      }                                         \
-    }                                           \
+static inline void w5100_check_and_parse(struct link_device *dev, struct pprz_transport *trans) {
+  if (dev->char_available(dev->periph)) {
+    w5100_read_buffer(trans);
+    if (trans->trans_rx.msg_received) {
+      pprz_parse_payload(trans);
+      trans->trans_rx.msg_received = FALSE;
+    }
   }
-
+}
 
 #endif /* W5100_H */
 
