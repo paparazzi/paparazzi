@@ -134,19 +134,19 @@ static inline void xbee_parse_payload(struct xbee_transport *t)
   }
 }
 
-#define XBeeBuffer(_dev) TransportLink(_dev,ChAvailable())
-#define ReadXBeeBuffer(_dev,_trans) { while (TransportLink(_dev,ChAvailable())&&!(_trans.trans_rx.msg_received)) parse_xbee(&(_trans),TransportLink(_dev,Getch())); }
-#define XBeeCheckAndParse(_dev,_trans) {  \
-    if (XBeeBuffer(_dev)) {                 \
-      ReadXBeeBuffer(_dev,_trans);          \
-      if (_trans.trans_rx.msg_received) {      \
-        xbee_parse_payload(&(_trans));      \
-        _trans.trans_rx.msg_received = FALSE;  \
-      }                                     \
-    }                                       \
-  }
+#define XBeeCheckAndParse(_dev, _trans) xbee_check_and_parse(&(_dev).device, &(_trans))
 
-#define XBeePrintString(_dev, s) TransportLink(_dev,PrintString(s))
-#define XBeePrintHex16(_dev, x) TransportLink(_dev,PrintHex16(x))
+static inline void xbee_check_and_parse(struct link_device *dev, struct xbee_transport *trans)
+{
+  if (dev->char_available(dev->periph)) {
+    while (dev->char_available(dev->periph) && !trans->trans_rx.msg_received) {
+      parse_xbee(trans, dev->getchar(dev->periph));
+    }
+    if (trans->trans_rx.msg_received) {
+      xbee_parse_payload(trans);
+      trans->trans_rx.msg_received = FALSE;
+    }
+  }
+}
 
 #endif /* XBEE_H */
