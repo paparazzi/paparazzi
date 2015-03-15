@@ -115,6 +115,7 @@ void guidance_h_module_read_rc(void)
 
 /**
  * Main guidance loop
+ * @param[in] in_flight Whether we are in flight or not
  */
 void guidance_h_module_run(bool_t in_flight)
 {
@@ -124,8 +125,9 @@ void guidance_h_module_run(bool_t in_flight)
 
 /**
  * Update the controls based on a vision result
+ * @param[in] *result The opticflow calculation result used for control
  */
-void stabilization_opticflow_update(struct opticflow_result_t* result)
+void stabilization_opticflow_update(struct opticflow_result_t *result)
 {
   // *************************************************************************************
   // Downlink Message

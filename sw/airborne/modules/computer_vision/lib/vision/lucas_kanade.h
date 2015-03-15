@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014
+ * Copyright (C) 2014 G. de Croon
+ *               2015 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -19,9 +20,12 @@
  */
 
 /**
- * @file modules/computer_vision/cv/opticflow/lucas_kanade.h
- * @brief efficient fixed-point optical-flow
+ * @file modules/computer_vision/lib/vision/lucas_kanade.c
+ * @brief efficient fixed-point optical-flow calculation
  *
+ * - Initial fixed-point C implementation by G. de Croon
+ * - Algorithm: Lucas-Kanade by Yves Bouguet
+ * - Publication: http://robots.stanford.edu/cs223b04/algo_tracking.pdf
  */
 
 #ifndef OPTIC_FLOW_INT_H

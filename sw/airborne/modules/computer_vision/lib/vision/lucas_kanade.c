@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014
+ * Copyright (C) 2014 G. de Croon
+ *               2015 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -19,8 +20,8 @@
  */
 
 /**
- * @file modules/computer_vision/cv/opticflow/lucas_kanade.c
- * @brief efficient fixed-point optical-flow
+ * @file modules/computer_vision/lib/vision/lucas_kanade.c
+ * @brief efficient fixed-point optical-flow calculation
  *
  * - Initial fixed-point C implementation by G. de Croon
  * - Algorithm: Lucas-Kanade by Yves Bouguet
@@ -34,6 +35,20 @@
 #include "lucas_kanade.h"
 
 
+/**
+ * Compute the optical flow of several points using the Lucas-Kanade algorithm by Yves Bouguet
+ * The initial fixed-point implementation is doen by G. de Croon and is adapted by
+ * Freek van Tienen for the implementation in Paparazzi.
+ * @param[in] *new_img The newest grayscale image (TODO: fix YUV422 support)
+ * @param[in] *old_img The old grayscale image (TODO: fix YUV422 support)
+ * @param[in] *points Points to start tracking from
+ * @param[in] points_cnt The amount of points
+ * @param[out] *new_points The new locations of the points
+ * @param[out] *status Whether the point was tracked or not
+ * @param[in] half_window_size Half the window size (in both x and y direction) to search inside
+ * @param[in] max_iteration Maximum amount of iterations to find the new point
+ * @param[in] step_threshold The threshold at which the iterations should stop
+ */
 void opticFlowLK(struct image_t *new_img, struct image_t *old_img, struct point_t *points, uint16_t points_cnt,
                 struct point_t *new_points, bool_t *status, uint16_t half_window_size, uint8_t max_iterations, uint8_t step_threshold)
 {

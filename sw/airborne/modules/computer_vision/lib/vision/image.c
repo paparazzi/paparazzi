@@ -391,3 +391,28 @@ int32_t image_multiply(struct image_t *img_a, struct image_t *img_b, struct imag
 
   return sum;
 }
+
+/**
+ * Show points in an image by coloring them through giving
+ * the pixels the maximum value.
+ * @param[in,out] *img The image to place the points on
+ * @param[in] *points The points to sohw
+ * @param[in] *points_cnt The amount of points to show
+ */
+void image_show_points(struct image_t *img, struct point_t *points, uint16_t points_cnt)
+{
+  uint8_t *img_buf = (uint8_t *)img->buf;
+  uint8_t pixel_width = (img->type == IMAGE_YUV422)? 2 : 1;
+
+  // Go trough all points and color them
+  for(int i = 0; i < points_cnt; i++) {
+    uint32_t idx = pixel_width*points[i].y*img->w + points[i].x*pixel_width;
+    img_buf[idx] = 255;
+
+    // YUV422 consists of 2 pixels
+    if(img->type == IMAGE_YUV422) {
+      idx++;
+      img_buf[idx] = 255;
+    }
+  }
+}

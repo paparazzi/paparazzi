@@ -68,5 +68,6 @@ void image_gradients(struct image_t *input, struct image_t *dx, struct image_t *
 void image_calculate_g(struct image_t *dx, struct image_t *dy, int32_t *g);
 uint32_t image_difference(struct image_t *img_a, struct image_t *img_b, struct image_t *diff);
 int32_t image_multiply(struct image_t *img_a, struct image_t *img_b, struct image_t *mult);
+void image_show_points(struct image_t *img, struct point_t *points, uint16_t points_cnt);
 
 #endif

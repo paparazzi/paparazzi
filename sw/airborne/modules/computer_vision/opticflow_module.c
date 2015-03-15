@@ -193,6 +193,8 @@ static void *opticflow_module_calc(void *data __attribute__((unused))) {
 
 /**
  * Get the altitude above ground of the drone
+ * @param[in] sender_id The id that send the ABI message (unused)
+ * @param[in] distance The distance above ground level in meters
  */
 static void opticflow_agl_cb(uint8_t sender_id __attribute__((unused)), float distance)
 {
