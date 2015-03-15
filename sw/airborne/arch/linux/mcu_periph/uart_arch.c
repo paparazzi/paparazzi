@@ -42,6 +42,8 @@
 
 void uart_periph_set_baudrate(struct uart_periph *periph, uint32_t baud)
 {
+  periph->baudrate = baud;
+
   struct SerialPort *port;
   // close serial port if already open
   if (periph->reg_addr != NULL) {
