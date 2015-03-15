@@ -1339,7 +1339,7 @@ let get_svsinfo = fun alarm _sender vs ->
   and flagss = Str.split list_separator (Pprz.string_assoc "flags" vs)
   and ages = Str.split list_separator (Pprz.string_assoc "msg_age" vs) in
 
-  let a = Array.create (List.length svids) (0,0,0,0) in
+  let a = Array.make (List.length svids) (0,0,0,0) in
   let rec loop = fun i s c f ages ->
     match (s, c, f, ages) with
         [], [], [], [] -> ()

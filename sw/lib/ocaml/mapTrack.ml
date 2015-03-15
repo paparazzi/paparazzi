@@ -107,10 +107,10 @@ class track = fun ?(name="Noname") ?(icon="fixedwing") ?(size = 500) ?(color="re
 object (self)
   val mutable top = 0
   val mutable color = color
-  val mutable segments = Array.create size empty
-  val mutable v_segments = Array.create size empty
+  val mutable segments = Array.make size empty
+  val mutable v_segments = Array.make size empty
   val mutable v_top = 0
-  val mutable v_path = Array.create 10 v_empty
+  val mutable v_path = Array.make 10 v_empty
   val mutable last = None
   val mutable last_heading = 0.0
   val mutable last_altitude = 0.0
@@ -319,7 +319,7 @@ object (self)
     aircraft#affine_absolute a
 
   method resize =  fun new_size ->
-    let a = Array.create new_size empty in
+    let a = Array.make new_size empty in
     let size =  Array.length segments in
     let m = min new_size size in
     let j = ref ((top - m + size) mod size) in

@@ -105,7 +105,7 @@ end
 class vgauge = fun ?(color="#00ff00") ?(history_len=50) gauge_da v_min v_max ->
 object (self)
   inherit gauge gauge_da
-  val history = Array.create history_len 0
+  val history = Array.make history_len 0
   val mutable history_index = -1
   method set = fun ?arrow ?(background="orange") value strings ->
     let {Gtk.width=width; height=height} = gauge_da#misc#allocation in

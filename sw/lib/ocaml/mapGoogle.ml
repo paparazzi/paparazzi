@@ -34,7 +34,7 @@ type tiles_tree =
     Empty
   | Tile
   | Node of tiles_tree array
-let gm_tiles = Node (Array.create 4 Empty)
+let gm_tiles = Node (Array.make 4 Empty)
 
 (** Google Maps paths in the quadtree are coded with q,r,s and t*)
 let index_of = function
@@ -61,7 +61,7 @@ let add_tile = fun tile_key ->
     if i < String.length tile_key then
       match tree.(j) with
           Empty ->
-            let sons = Array.create 4 Empty in
+            let sons = Array.make 4 Empty in
             tree.(j) <- Node sons;
             loop (i+1) sons (index_of tile_key.[i])
         | Tile -> () (* Already there *)
@@ -142,7 +142,7 @@ let fill_window = fun (geomap:MapCanvas.widget) zoomlevel ->
               display_the_tile geomap tile image level;
               raise (New_displayed (zoomlevel+1-String.length tile.Gm.key))
             else begin
-              trees.(i) <- Node (Array.create 4 Empty);
+              trees.(i) <- Node (Array.make 4 Empty);
               loop twest tsouth tsize trees i zoom key
             end
           | Node sons ->

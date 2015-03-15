@@ -24,7 +24,7 @@
 
  let flatten = fun s a ->
    let n = Array.length a in
-   let b = Array.create (2*n) 0. in
+   let b = Array.make (2*n) 0. in
    for i = 0 to n - 1 do
      let (x, y) = a.(i) in
      b.(2*i) <- float x *. s;
