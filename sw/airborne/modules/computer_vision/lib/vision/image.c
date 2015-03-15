@@ -47,6 +47,8 @@ void image_create(struct image_t *img, uint16_t width, uint16_t height, enum ima
     img->buf_size = sizeof(uint8_t)*2 * width * height;
   else if(type == IMAGE_JPEG)
     img->buf_size = sizeof(uint8_t)*1.1 * width * height; // At maximum quality this is enough
+  else if(type == IMAGE_GRADIENT)
+    img->buf_size = sizeof(int16_t) * width * height;
   else
     img->buf_size = sizeof(uint8_t) * width * height;
 
@@ -205,4 +207,187 @@ void image_yuv422_downsample(struct image_t *input, struct image_t *output, uint
     // read 1 in every 'downsample' rows, so skip (downsample-1) rows after reading the first
     source += (downsample-1) * input->w * 2;
   }
+}
+
+/**
+ * This outputs a subpixel window image in grayscale
+ * Currently only works with Grayscale images as input but could be upgraded to
+ * also support YUV422 images.
+ * @param[in] *input Input image (grayscale only)
+ * @param[out] *output Window output (width and height is used to calculate the window size)
+ * @param[in] *center Center point in subpixel coordinates
+ * @param[in] subpixel_factor The subpixel factor per pixel
+ */
+void image_subpixel_window(struct image_t *input, struct image_t *output, struct point_t *center, uint16_t subpixel_factor)
+{
+  uint8_t *input_buf = (uint8_t *)input->buf;
+  uint8_t *output_buf = (uint8_t *)output->buf;
+
+  // Calculate the window size
+  uint16_t half_window = output->w / 2;
+  uint16_t subpixel_w = output->w * subpixel_factor;
+  uint16_t subpixel_h = output->h * subpixel_factor;
+
+  // Go through the whole window size in normal coordinates
+  for(uint16_t i = 0; i < output->w; i++) {
+    for(uint16_t j = 0; j < output->w; j++) {
+      // Calculate the subpixel coordinate
+      uint16_t x = center->x + (i - half_window) * subpixel_factor;
+      uint16_t y = center->y + (j - half_window) * subpixel_factor;
+      Bound(x, 0, subpixel_w);
+      Bound(y, 0, subpixel_h);
+
+      // Calculate the original pixel coordinate
+      uint16_t orig_x = x / subpixel_factor;
+      uint16_t orig_y = y / subpixel_factor;
+
+      // Calculate top left (in subpixel coordinates)
+      uint16_t tl_x = orig_x * subpixel_factor;
+      uint16_t tl_y = orig_y * subpixel_factor;
+
+      // Check if it is the top left pixel
+      uint32_t output_idx = output->w*y + x;
+      if(tl_x == x &&  tl_y == y) {
+        output_buf[output_idx] = input_buf[input->w*orig_y + orig_x];
+      }
+      else {
+        // Calculate the difference from the top left
+        uint16_t alpha_x = (x - tl_x);
+        uint16_t alpha_y = (y - tl_y);
+
+        // Blend from the 4 surrounding pixels
+        uint32_t blend = (subpixel_factor - alpha_x) * (subpixel_factor - alpha_y) * input_buf[input->w*orig_y + orig_x];
+        blend += alpha_x * (subpixel_factor - alpha_y) * input_buf[input->w*orig_y + (orig_x+1)];
+        blend += (subpixel_factor - alpha_x) * alpha_y * input_buf[input->w*(orig_y+1) + orig_x];
+        blend += alpha_x * alpha_y * input_buf[input->w*(orig_y+1) + (orig_x+1)];
+
+        // Set the normalized pixel blend
+        output_buf[output_idx] = blend / (subpixel_factor * subpixel_factor);
+      }
+    }
+  }
+}
+
+/**
+ * Calculate the  gradients using the following matrix:
+ * [0 0 0; -1 0 1; 0 0 0]
+ * @param[in] *input Input grayscale image
+ * @param[out] *dx Output gradient in the X direction (dx->w = input->w-2, dx->h = input->h-2)
+ * @param[out] *dy Output gradient in the Y direction (dx->w = input->w-2, dx->h = input->h-2)
+ */
+void image_gradients(struct image_t *input, struct image_t *dx, struct image_t *dy)
+{
+  // Fetch the buffers in the correct format
+  uint8_t *input_buf = (uint8_t *)input->buf;
+  int16_t *dx_buf = (int16_t *)dx->buf;
+  int16_t *dy_buf = (int16_t *)dx->buf;
+
+  // Go trough all pixels except the borders
+  for(uint16_t x = 1; x < input->w-1; x++) {
+    for(uint16_t y = 1; y < input->h-1; x++) {
+      dx_buf[(y-1)*dx->w + (x-1)] = -input_buf[y*input->w + x-1] + input_buf[y*input->w + x+1];
+      dy_buf[(y-1)*dx->w + (x-1)] = -input_buf[(y-1)*input->w + x] + input_buf[(y+1)*input->w + x];
+    }
+  }
+}
+
+/**
+ * Calculate the G vector of an image gradient
+ * This is used for optical flow calculation.
+ * @param[in] *dx The gradient in the X direction
+ * @param[in] *dy The gradient in the Y direction
+ * @param[out] *g The G[4] vector devided by 255 to keep in range
+ */
+void image_calculate_g(struct image_t *dx, struct image_t *dy, int32_t *g)
+{
+  int32_t sum_dxx = 0, sum_dxy = 0, sum_dyy = 0;
+
+  // Fetch the buffers in the correct format
+  int16_t *dx_buf = (int16_t *)dx->buf;
+  int16_t *dy_buf = (int16_t *)dx->buf;
+
+  // Calculate the different sums
+  for(uint16_t x = 0; x < dx->w; x++) {
+    for(uint16_t y = 0; y < dy->h; y++) {
+      sum_dxx += (dx_buf[y*dx->w + x] * dx_buf[y*dx->w + x]);
+      sum_dxy += (dx_buf[y*dx->w + x] * dy_buf[y*dy->w + x]);
+      sum_dyy += (dy_buf[y*dy->w + x] * dy_buf[y*dy->w + x]);
+    }
+  }
+
+  // ouput the G vector
+  g[0] = sum_dxx / 255;
+  g[1] = sum_dxy / 255;
+  g[2] = sum_dxy / 255;
+  g[3] = sum_dyy / 255;
+}
+
+/**
+ * Calculate the difference between two images and return the error
+ * This will only work with grayscale images
+ * @param[in] *img_a The image to substract from
+ * @param[in] *img_b The image to substract from img_a
+ * @param[out] *diff The image difference (if not needed can be NULL)
+ * @return The squared difference summed
+ */
+uint32_t image_difference(struct image_t *img_a, struct image_t *img_b, struct image_t *diff)
+{
+  uint32_t sum_diff2 = 0;
+  int16_t *diff_buf = NULL;
+
+  // Fetch the buffers in the correct format
+  uint8_t *img_a_buf = (uint8_t *)img_a->buf;
+  int16_t *img_b_buf = (int16_t *)img_b->buf;
+
+  // If we want the difference image back
+  if(diff != NULL)
+    diff_buf = (int16_t *)diff->buf;
+
+  // Go trough the imagge pixels and calculate the difference
+  for(uint16_t x = 0; x < img_a->w; x++) {
+    for(uint16_t y = 0; y < img_a->h; y++) {
+      int16_t diff_c = img_a_buf[y*img_a->w +x] - img_b_buf[y*img_b->w +x];
+      sum_diff2 += diff_c*diff_c;
+
+      // Set the difference image
+      if(diff_buf != NULL)
+        diff_buf[y*diff->w + x] = diff_c;
+    }
+  }
+
+  return sum_diff2;
+}
+
+/**
+ * Calculate the multiplication between two images and return the error
+ * This will only work with image gradients
+ * @param[in] *img_a The image to multiply
+ * @param[in] *img_b The image to multiply with
+ * @param[out] *mult The image multiplication (if not needed can be NULL)
+ * @return The sum of the multiplcation
+ */
+int32_t image_multiply(struct image_t *img_a, struct image_t *img_b, struct image_t *mult)
+{
+  int32_t sum = 0;
+  int16_t *img_a_buf = (int16_t *)img_a->buf;
+  int16_t *img_b_buf = (int16_t *)img_b->buf;
+  int16_t *mult_buf = NULL;
+
+  // When we want an output
+  if(mult != NULL)
+    mult_buf = (int16_t *)mult->buf;
+
+  // Calculate the multiplication
+  for(uint16_t x = 0; x < img_a->w; x++) {
+    for(uint16_t y = 0; y < img_a->h; y++) {
+      int16_t mult_c = img_a_buf[y*img_a->w +x] * img_b_buf[y*img_b->w +x];
+      sum += mult_c;
+
+      // Set the difference image
+      if(mult_buf != NULL)
+        mult_buf[y*mult->w + x] = mult_c;
+    }
+  }
+
+  return sum;
 }

@@ -86,14 +86,6 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
  */
 void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img, struct opticflow_result_t *result)
 {
-  // Corner Tracking
-  // Working Variables
-  uint16_t borderx = 24, bordery = 24;
-  uint16_t x[MAX_COUNT], y[MAX_COUNT];
-  uint16_t new_x[MAX_COUNT], new_y[MAX_COUNT];
-  bool_t status[MAX_COUNT];
-  int dx[MAX_COUNT], dy[MAX_COUNT];
-
   // Update FPS for information
   result->fps = 1 / (timeval_diff(&opticflow->prev_timestamp, &img->ts) / 1000.);
   memcpy(&opticflow->prev_timestamp, &img->ts, sizeof(struct timeval));
@@ -112,52 +104,26 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // *************************************************************************************
 
   // FAST corner detection (TODO: non fixed threashold)
-  struct point_t *pnts_fast = fast9_detect(img, 20, 10, &result->corner_cnt);
+  struct point_t *fast9_points = fast9_detect(img, 20, 5, &result->corner_cnt);
 
-  /*// Copy the points and remove neighboring corners
-  const float min_distance2 = 10 * 10;
-  bool_t remove_points[MAX_COUNT];
-  uint16_t count_fil = 0;
-  memset(&remove_points, FALSE, sizeof(bool_t) * MAX_COUNT);
-
-  for (uint16_t i = 0; i < result->count; i++) {
-    if(remove_points[i])
-      continue;
-
-    x[count_fil] = pnts_fast[i].x;
-    y[count_fil++] = pnts_fast[i].y;
-
-    // Skip some if they are too close
-    for(uint16_t j = i+1; j < result->count; j++) {
-      float distance2 = (x[i] - x[j]) * (x[i] - x[j]) + (y[i] - y[j]) * (y[i] - y[j]);
-      if(distance2 < min_distance2)
-        remove_points[j] = TRUE;
-    }
-  }
-  free(pnts_fast);
-  if(count_fil > 25) count_fil = 25;
-  result->count = count_fil;*/
-
-
-  image_to_grayscale(img, img);
+  /*image_to_grayscale(img, img);
   uint8_t *im = (uint8_t *)img->buf;
   for(int i = 0; i < result->corner_cnt; i++) {
-    uint32_t idx = 2*pnts_fast[i].y*opticflow->img_w + pnts_fast[i].x*2;
-    im[idx] = 255;
-    /*idx = idx+1 % (opticflow->img_w*opticflow->img_h*2);
+    uint32_t idx = 2*fast9_points[i].y*opticflow->img_w + fast9_points[i].x*2;
     im[idx] = 255;
     idx = idx+1 % (opticflow->img_w*opticflow->img_h*2);
-    im[idx] = 255;*/
-  }
-  free(pnts_fast);
+    im[idx] = 255;
+  }*/
+
 
   // *************************************************************************************
   // Corner Tracking
   // *************************************************************************************
-  //CvtYUYV2Gray(opticflow->gray_frame, img->buf, opticflow->img_w, opticflow->img_h);
 
-  //opticFlowLK(opticflow->gray_frame, opticflow->prev_gray_frame, x, y,
-  //            count_fil, opticflow->img_w, opticflow->img_h, new_x, new_y, status, 5, 100);
+  struct point_t *new_points = malloc(sizeof(struct point_t) * result->corner_cnt);
+  bool_t *tracked_points = malloc(sizeof(bool_t) * result->corner_cnt);
+  opticFlowLK(&opticflow->img_gray, &opticflow->prev_img_gray, fast9_points, result->corner_cnt,
+    new_points, tracked_points, 5, 100, 2);
 
   // Remove points if we lost tracking
  /* for (int i = count_fil - 1; i >= 0; i--) {
@@ -242,6 +208,9 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // Next Loop Preparation
   // *************************************************************************************
   */
+  free(fast9_points);
+  free(new_points);
+  free(tracked_points);
   image_copy(&opticflow->img_gray, &opticflow->prev_img_gray);
 }
 

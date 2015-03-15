@@ -28,17 +28,9 @@
 #define OPTIC_FLOW_INT_H
 
 #include "std.h"
+#include "image.h"
 
-void multiplyImages(int *ImA, int *ImB, int *ImC, int width, int height);
-void getImageDifference(int *ImA, int *ImB, int *ImC, int width, int height);
-void getSubPixel_gray(int *Patch, unsigned char *frame_buf, int center_x, int center_y, int half_window_size,
-                      int subpixel_factor);
-void getGradientPatch(int *Patch, int *DX, int *DY, int half_window_size);
-int getSumPatch(int *Patch, int size);
-int calculateG(int *G, int *DX, int *DY, int half_window_size);
-int calculateError(int *ImC, int width, int height);
-int opticFlowLK(unsigned char *new_image_buf, unsigned char *old_image_buf, uint16_t *p_x, uint16_t *p_y, uint16_t n_found_points,
-                uint16_t imW, uint16_t imH, uint16_t *new_x, uint16_t *new_y, bool_t *status, uint16_t half_window_size, uint8_t max_iterations);
-void OFfilter(float *OFx, float *OFy, float dx, float dy, int count, int OF_FilterType);
+void opticFlowLK(struct image_t *new_img, struct image_t *old_img, struct point_t *points, uint16_t points_cnt,
+                struct point_t *new_points, bool_t *status, uint16_t half_window_size, uint8_t max_iterations, uint8_t step_threshold);
 
 #endif /* OPTIC_FLOW_INT_H */

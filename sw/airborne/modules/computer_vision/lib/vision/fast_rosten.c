@@ -64,23 +64,27 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
   for (y = 3; y < img->h - 3; y++)
     for (x = 3; x < img->w - 3; x++) {
       // First check if we aren't in range vertical (TODO: fix less intensive way)
-      bool_t need_skip = FALSE;
-      for(i = 0; i < corner_cnt; i++) {
-        if(x-min_dist < ret_corners[i].x && ret_corners[i].x < x+min_dist
-          && y-min_dist < ret_corners[i].y && ret_corners[i].y < y+min_dist) {
-          need_skip = TRUE;
-          break;
+      if(min_dist > 0) {
+        bool_t need_skip = FALSE;
+
+        // Go trough all the previous corners
+        for(i = 0; i < corner_cnt; i++) {
+          if(x-min_dist < ret_corners[i].x && ret_corners[i].x < x+min_dist
+            && y-min_dist < ret_corners[i].y && ret_corners[i].y < y+min_dist) {
+            need_skip = TRUE;
+            break;
+          }
+        }
+
+        // Skip the box if we found a pixel nearby
+        if(need_skip) {
+          x += min_dist;
+          continue;
         }
       }
 
-      if(need_skip) {
-        x += min_dist;
-        continue;
-      }
-
-      const uint8_t *p = ((uint8_t *)img->buf) + y * img->w * pixel_size + x * pixel_size + pixel_size/2;
-
       // Calculate the threshold values
+      const uint8_t *p = ((uint8_t *)img->buf) + y * img->w * pixel_size + x * pixel_size + pixel_size/2;
       int16_t cb = *p + threshold;
       int16_t c_b = *p - threshold;
 
