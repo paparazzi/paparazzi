@@ -121,6 +121,9 @@ _save_build_version:
 update_google_version:
 	-$(MAKE) -C data/maps
 
+init:
+	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
+
 conf: conf/conf.xml conf/control_panel.xml conf/maps.xml
 
 conf/%.xml :conf/%_example.xml
@@ -320,7 +323,7 @@ test_math:
 test_sim: all
 	prove tests/sim
 
-.PHONY: all print_build_version _print_building _save_build_version update_google_version dox ground_segment ground_segment.opt \
+.PHONY: all print_build_version _print_building _save_build_version update_google_version init dox ground_segment ground_segment.opt \
 subdirs $(SUBDIRS) conf ext libpprz multimon cockpit cockpit.opt tmtc tmtc.opt generators\
 static sim_static lpctools commands \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \

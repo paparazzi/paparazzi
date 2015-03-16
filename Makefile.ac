@@ -136,10 +136,6 @@ endif
 endif
 
 
-init:
-	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
-
-
 print_version:
 	@echo "-----------------------------------------------------------------------"
 	@echo "Paparazzi version" $(GIT_DESC)$(VERSION_MATCH)
@@ -254,4 +250,4 @@ clean_ac :
 	@echo "CLEANING $(AIRCRAFT)"
 	$(Q)rm -fr $(AIRCRAFT_BUILD_DIR)
 
-.PHONY: init all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version
+.PHONY: all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version
