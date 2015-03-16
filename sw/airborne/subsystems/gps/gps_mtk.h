@@ -77,7 +77,7 @@ static inline void GpsEvent(void (* _sol_available_callback)(void))
   struct link_device *dev = &((GPS_LINK).device);
 
   if (dev->char_available(dev->periph)) {
-    while (dev->char_available(dev->periph) && !gps_ubx.msg_available) {
+    while (dev->char_available(dev->periph) && !gps_mtk.msg_available) {
       gps_mtk_parse(dev->getchar(dev->periph));
     }
     GpsConfigure();
