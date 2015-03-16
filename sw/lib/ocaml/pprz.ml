@@ -172,12 +172,15 @@ let rec string_of_value = function
 let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
 
 (* FIXME temporary solution, the complete formatted_string_of_value function
-   causes a segfault in server and GCS *)
+   causes a segfault in server and GCS
+   magic format also cases segfaults with OCaml 4.02, so complety disable this for now
+*)
 let string_of_value_format = fun format v ->
   match v with
-    Float x -> sprintf (magic format) x
+    (*Float x -> sprintf (magic format) x*)
   | v -> string_of_value v
 
+(* FIXME: causes a segfault in server and GCS. *)
 let rec formatted_string_of_value = fun format v ->
   match v with
     | Int x -> sprintf (magic format) x
@@ -733,6 +736,8 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
          try List.assoc field_name values with
              Not_found ->
                default_value field._type in
+       (* should actually use this here, but it segfaults, so disable format strings for now
+       formatted_string_of_value field.fformat v)*)
        string_of_value_format field.fformat v)
      msg.fields)
 
@@ -753,17 +758,17 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
       | Some the_link_id -> begin
         let index = ref 0 in
         let modified_msg = String.copy msg in
-        let func = fun c -> 
-          match c with 
-            ' ' -> begin 
-            String.set modified_msg !index ';'; 
+        let func = fun c ->
+          match c with
+            ' ' -> begin
+            String.set modified_msg !index ';';
             index := !index + 1
             end
           | x -> index := !index + 1; in
         String.iter func modified_msg;
         Ivy.send ( Printf.sprintf "redlink TELEMETRY_MESSAGE %s %i %s" sender the_link_id modified_msg);
       end
-          
+
   let message_bind = fun ?sender ?(timestamp=false) msg_name cb ->
     let tsregexp, tsoffset = if timestamp then "([0-9]+\\.[0-9]+ )?", 1 else "", 0 in
     match sender with
