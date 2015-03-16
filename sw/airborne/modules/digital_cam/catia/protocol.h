@@ -102,7 +102,7 @@ extern uint8_t mora_ck_a, mora_ck_b;
 #define MoraPutUint8( _byte) {     \
     mora_ck_a += _byte;              \
     mora_ck_b += mora_ck_a;          \
-    CameraLink(Transmit(_byte));     \
+    CameraLinkTransmit(_byte);     \
   }
 
 #define MoraHeader(msg_id, payload_len) {           \
