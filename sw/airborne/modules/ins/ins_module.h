@@ -73,12 +73,12 @@ void parse_ins_buffer(uint8_t);
 
 #include "mcu_periph/link_device.h"
 
-#define InsLink (&((INS_LINK).device))
+#define InsLinkDevice (&((INS_LINK).device))
 
 #ifndef SITL
 #include "mcu_periph/uart.h"
 
-#define InsSend1(c) InsLink->transmit(InsLink->periph, c)
+#define InsSend1(c) InsLinkDevice->transmit(InsLinkDevice->periph, c)
 #define InsUartSend1(c) InsSend1(c)
 #define InsSend(_dat,_len) { for (uint8_t i = 0; i< (_len); i++) InsSend1(_dat[i]); };
 #define InsUartSetBaudrate(_b) uart_periph_set_baudrate(INS_LINK, _b)
@@ -87,7 +87,7 @@ void parse_ins_buffer(uint8_t);
 
 static inline void ins_event_check_and_handle(void (* handler)(void))
 {
-  struct link_device *dev = InsLink;
+  struct link_device *dev = InsLinkDevice;
   if (dev->char_available(dev->periph)) {
     while (dev->char_available(dev->periph) && !ins_msg_received) {
       parse_ins_buffer(dev->getchar(dev->periph));
