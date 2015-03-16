@@ -1,7 +1,22 @@
+Paparazzi 5.4.2_stable
+======================
+
+Maintenance release
+
 - GCS: fix undo for list of values
   [#1054] (https://github.com/paparazzi/paparazzi/issues/1054)
 - lisa_mx: fix secondary spektrum satellite UART AF
 - logalizer: fix csv export after allowing description tag in messages
+- nps: update nps_fdm_jsbsim to be compatible with latest jsbsim
+  [#1118] (https://github.com/paparazzi/paparazzi/pull/1118)
+- rotorcraft: fix attitude flight plan primitive
+  [#1103] (https://github.com/paparazzi/paparazzi/pull/1103)
+- flight plans: fix 'call' statement without loop
+- generators: only include raw makefile part from modules if target matches
+- GCS: GPS accuracy speech less verbose
+  [#1046] (https://github.com/paparazzi/paparazzi/issues/1046)
+- GCS: call index of first/single link "single"
+  [#1098] (https://github.com/paparazzi/paparazzi/issues/1098)
 
 Paparazzi 5.4.1_stable
 ======================
