@@ -114,43 +114,70 @@ void i2c_setbitrate(struct i2c_periph *p __attribute__((unused)), int bitrate __
 bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
 {
 #if USE_I2C1 || USE_I2C2 || USE_I2C3
-  static msg_t status = RDY_OK;
-  static systime_t tmo = US2ST(1000000 / PERIODIC_FREQUENCY);
-  i2cAcquireBus((I2CDriver *)p->reg_addr);
-  status = i2cMasterTransmitTimeout((I2CDriver *)p->reg_addr, (i2caddr_t)((t->slave_addr) >> 1),
-                                    t->buf, (size_t)(t->len_w), t->buf, (size_t)(t->len_r), tmo);
-  i2cReleaseBus((I2CDriver *)p->reg_addr);
+  static msg_t status;
+  static systime_t tmo = US2ST(1000000/PERIODIC_FREQUENCY);
 
-  if (status != RDY_OK) {
+  // acquire bus
+  i2cAcquireBus((I2CDriver*)p->reg_addr);
+
+  // if bus not ready return
+  if (((I2CDriver*)p->reg_addr)->state !=  I2C_READY) {
     t->status = I2CTransFailed;
-    static i2cflags_t errors = 0;
-    errors = i2cGetErrors((I2CDriver *)p->reg_addr);
-    if (errors & I2CD_BUS_ERROR) {
-      p->errors->miss_start_stop_cnt++;
-    }
-    if (errors & I2CD_ARBITRATION_LOST) {
-      p->errors->arb_lost_cnt++;
-    }
-    if (errors & I2CD_ACK_FAILURE) {
-      p->errors->ack_fail_cnt++;
-    }
-    if (errors & I2CD_OVERRUN) {
-      p->errors->over_under_cnt++;
-    }
-    if (errors & I2CD_PEC_ERROR) {
-      p->errors->pec_recep_cnt++;
-    }
-    if (errors & I2CD_TIMEOUT) {
-      p->errors->timeout_tlow_cnt++;
-    }
-    if (errors & I2CD_SMB_ALERT) {
-      p->errors->smbus_alert_cnt++;
-    }
+    t->buf[0] = 0; // to show zero value on return
+    i2cReleaseBus((I2CDriver*)p->reg_addr);
+    // transaction not submitted
     return FALSE;
-  } else {
-    t->status = I2CTransSuccess;
-    return TRUE;
   }
+
+  // submit i2c transaction
+  status = i2cMasterTransmitTimeout((I2CDriver*)p->reg_addr, (i2caddr_t)((t->slave_addr)>>1),
+                                t->buf, (size_t)(t->len_w), t->buf, (size_t)(t->len_r), tmo);
+  // release bus
+  i2cReleaseBus((I2CDriver*)p->reg_addr);
+
+  switch (status) {
+    case RDY_OK:
+      //if the function succeeded
+      t->status = I2CTransSuccess;
+      break;
+    case RDY_TIMEOUT:
+      //if a timeout occurred before operation end
+      // mark as failed
+      t->status = I2CTransFailed;
+      break;
+    case RDY_RESET:
+      //if one or more I2C errors occurred, the errors can
+      //be retrieved using @p i2cGetErrors().
+      t->status = I2CTransFailed;
+      static i2cflags_t errors = 0;
+      errors = i2cGetErrors((I2CDriver*)p->reg_addr);
+      if (errors & I2CD_BUS_ERROR) {
+        p->errors->miss_start_stop_cnt++;
+      }
+      if (errors & I2CD_ARBITRATION_LOST) {
+        p->errors->arb_lost_cnt++;
+      }
+      if (errors & I2CD_ACK_FAILURE) {
+        p->errors->ack_fail_cnt++;
+      }
+      if (errors & I2CD_OVERRUN) {
+        p->errors->over_under_cnt++;
+      }
+      if (errors & I2CD_PEC_ERROR) {
+        p->errors->pec_recep_cnt++;
+      }
+      if (errors & I2CD_TIMEOUT) {
+        p->errors->timeout_tlow_cnt++;
+      }
+      if (errors & I2CD_SMB_ALERT) {
+        p->errors->smbus_alert_cnt++;
+      }
+      break;
+    default:
+      break;
+  }
+  // transaction submitted
+  return TRUE;
 #else
   (void) p;
   (void) t;
