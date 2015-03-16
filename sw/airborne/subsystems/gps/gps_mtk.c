@@ -115,6 +115,30 @@ void gps_impl_init(void)
 #endif
 }
 
+void gps_mtk_msg(void (* _cb)(void))
+{
+  gps.last_msg_ticks = sys_time.nb_sec_rem;
+  gps.last_msg_time = sys_time.nb_sec;
+  gps_mtk_read_message();
+  if (gps_mtk.msg_class == MTK_DIY14_ID &&
+      gps_mtk.msg_id == MTK_DIY14_NAV_ID) {
+    if (gps.fix == GPS_FIX_3D) {
+      gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+      gps.last_3dfix_time = sys_time.nb_sec;
+    }
+    _sol_available_callback();
+  }
+  if (gps_mtk.msg_class == MTK_DIY16_ID &&
+      gps_mtk.msg_id == MTK_DIY16_NAV_ID) {
+    if (gps.fix == GPS_FIX_3D) {
+      gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+      gps.last_3dfix_time = sys_time.nb_sec;
+    }
+    _cb();
+  }
+  gps_mtk.msg_available = FALSE;
+}
+
 static void gps_mtk_time2itow(uint32_t  gps_date, uint32_t  gps_time,
                               int16_t *gps_week, uint32_t *gps_itow)
 {

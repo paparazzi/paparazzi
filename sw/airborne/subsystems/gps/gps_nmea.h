@@ -52,44 +52,30 @@ extern struct GpsNmea gps_nmea;
 /*
  * This part is used by the autopilot to read data from a uart
  */
-#define __GpsLink(dev, _x) dev##_x
-#define _GpsLink(dev, _x)  __GpsLink(dev, _x)
-#define GpsLink(_x) _GpsLink(GPS_LINK, _x)
 
-#define GpsBuffer() GpsLink(ChAvailable())
+/** The function to be called when a characted from the device is available */
+#include "mcu_periph/link_device.h"
 
-#define GpsEvent(_sol_available_callback) {             \
-    nmea_parse_prop_init();                             \
-    if (GpsBuffer()) {                                  \
-      ReadGpsBuffer();                                  \
-    }                                                   \
-    if (gps_nmea.msg_available) {                       \
-      gps.last_msg_ticks = sys_time.nb_sec_rem;         \
-      gps.last_msg_time = sys_time.nb_sec;              \
-      nmea_parse_msg();                                 \
-      if (gps_nmea.pos_available) {                     \
-        if (gps.fix == GPS_FIX_3D) {                    \
-          gps.last_3dfix_ticks = sys_time.nb_sec_rem;   \
-          gps.last_3dfix_time = sys_time.nb_sec;        \
-        }                                               \
-        _sol_available_callback();                      \
-      }                                                 \
-      gps_nmea.msg_available = FALSE;                   \
-    }                                                   \
-  }
-
-#define ReadGpsBuffer() {         \
-    while (GpsLink(ChAvailable())&&!gps_nmea.msg_available) \
-      nmea_parse_char(GpsLink(Getch()));      \
-  }
-
-
-/** The function to be called when a characted friom the device is available */
 extern void nmea_parse_char(uint8_t c);
 extern void nmea_parse_msg(void);
 extern uint8_t nmea_calc_crc(const char *buff, int buff_sz);
 extern void nmea_parse_prop_init(void);
 extern void nmea_parse_prop_msg(void);
+extern void gps_nmea_msg(void (* _cb)(void));
+
+static inline void GpsEvent(void (* _sol_available_callback)(void))
+{
+  struct link_device *dev = &((GPS_LINK).device);
+
+  if (dev->char_available(dev->periph)) {
+    while (dev->char_available(dev->periph)) {
+      nmea_parse_char(dev->getchar(dev->periph));
+    }
+  }
+  if (gps_nmea.msg_available) {
+    gps_nmea_msg(_sol_available_callback);
+  }
+}
 
 /** Read until a certain character, placed here for proprietary includes */
 static inline void nmea_read_until(int *i)

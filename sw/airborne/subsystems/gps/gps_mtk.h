@@ -54,10 +54,7 @@ extern struct GpsMtk gps_mtk;
 /*
  * This part is used by the autopilot to read data from a uart
  */
-#define __GpsLink(dev, _x) dev##_x
-#define _GpsLink(dev, _x)  __GpsLink(dev, _x)
-#define GpsLink(_x) _GpsLink(GPS_LINK, _x)
-
+#include "mcu_periph/link_device.h"
 
 #ifdef GPS_CONFIGURE
 extern bool_t gps_configuring;
@@ -83,26 +80,7 @@ static inline void GpsEvent(void (* _sol_available_callback)(void))
     GpsConfigure();
   }
   if (gps_mtk.msg_available) {
-    gps.last_msg_ticks = sys_time.nb_sec_rem;
-    gps.last_msg_time = sys_time.nb_sec;
-    gps_mtk_read_message();
-    if (gps_mtk.msg_class == MTK_DIY14_ID &&
-        gps_mtk.msg_id == MTK_DIY14_NAV_ID) {
-      if (gps.fix == GPS_FIX_3D) {
-        gps.last_3dfix_ticks = sys_time.nb_sec_rem;
-        gps.last_3dfix_time = sys_time.nb_sec;
-      }
-      _sol_available_callback();
-    }
-    if (gps_mtk.msg_class == MTK_DIY16_ID &&
-        gps_mtk.msg_id == MTK_DIY16_NAV_ID) {
-      if (gps.fix == GPS_FIX_3D) {
-        gps.last_3dfix_ticks = sys_time.nb_sec_rem;
-        gps.last_3dfix_time = sys_time.nb_sec;
-      }
-      _sol_available_callback();
-    }
-    gps_mtk.msg_available = FALSE;
+    gps_mtk_msg(_sol_available_callback);
   }
 }
 

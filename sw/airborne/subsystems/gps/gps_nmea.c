@@ -63,6 +63,21 @@ void gps_impl_init(void)
   nmea_parse_prop_init();
 }
 
+void gps_nmea_msg(void (* _cb)(void))
+{
+  gps.last_msg_ticks = sys_time.nb_sec_rem;
+  gps.last_msg_time = sys_time.nb_sec;
+  nmea_parse_msg();
+  if (gps_nmea.pos_available) {
+    if (gps.fix == GPS_FIX_3D) {
+      gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+      gps.last_3dfix_time = sys_time.nb_sec;
+    }
+    _cb();
+  }
+  gps_nmea.msg_available = FALSE;
+}
+
 void WEAK nmea_parse_prop_init(void)
 {
 }

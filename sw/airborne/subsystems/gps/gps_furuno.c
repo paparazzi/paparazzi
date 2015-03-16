@@ -47,6 +47,8 @@ static const char *gps_furuno_settings[GPS_FURUNO_SETTINGS_NB] = {
 
 static void nmea_parse_perdcrv(void);
 
+#define GpsLinkDevice (&(GPS_LINK).device)
+
 void nmea_parse_prop_init(void)
 {
   static uint8_t i = 0;
@@ -64,9 +66,9 @@ void nmea_parse_prop_init(void)
     sprintf(buf, "$%s*%02X\r\n", gps_furuno_settings[i], crc);
 
     // Check if there is enough space to send the config msg
-    if (GpsLink(CheckFreeSpace(len + 6))) {
+    if (GpsLinkDevice->check_free_space(GpsLinkDevice->periph, len + 6)) {
       for (j = 0; j < len + 6; j++) {
-        GpsLink(Transmit(buf[j]));
+        GpsLinkDevice->transmit(GpsLinkDevice->periph, buf[j]);
       }
     } else {
       break;
