@@ -59,6 +59,7 @@ currently ongoing development, changes so far (no particular order, nor complete
   [#1095] (https://github.com/paparazzi/paparazzi/pull/1095)
 - arch/linux: refactor UDP support
   [#1120] (https://github.com/paparazzi/paparazzi/pull/1120)
+  [#1122] (https://github.com/paparazzi/paparazzi/pull/1122)
 - airborne: major refactoring of AHRS interfaces using ABI
   [#856] (https://github.com/paparazzi/paparazzi/pull/856)
 - build: don't add full path to NPS object files
@@ -67,6 +68,43 @@ currently ongoing development, changes so far (no particular order, nor complete
   [#1123] (https://github.com/paparazzi/paparazzi/pull/1123)
 - GCS: fix AIRCRAFTS syncronization issue with server (sometimes resulted in blank GCS)
   [#1078] (https://github.com/paparazzi/paparazzi/issues/1078)
+- AHRS: convert AHRS infrared to a module
+  [#1127] (https://github.com/paparazzi/paparazzi/pull/1127)
+- create_module: enforce lowercase file and dir and function names
+  [#914] (https://github.com/paparazzi/paparazzi/issues/914)
+- GCS: set bat level to UNK/0 at startup
+  [#885] (https://github.com/paparazzi/paparazzi/issues/885)
+- arch/linux: sys_time: get time from CLOCK_MONOTONIC
+  [#1128] (https://github.com/paparazzi/paparazzi/pull/1128)
+- mcu_periph: move mcu peripheral event functions to common mcu_event
+- NPS simulator: fix sensor simulation issues
+  [#1131] (https://github.com/paparazzi/paparazzi/pull/1131)
+  [#1132] (https://github.com/paparazzi/paparazzi/pull/1132)
+- NPS/FlightGear: add easystar model (with ailerons)
+- build: Possibilty to specify conf.xml file for building aircrafts
+  [#1134] (https://github.com/paparazzi/paparazzi/pull/1134)
+- OCaml: use Array.make instead of deprecated Array.create
+
+
+Paparazzi 5.4.2_stable
+======================
+
+Maintenance release
+
+- GCS: fix undo for list of values
+  [#1054] (https://github.com/paparazzi/paparazzi/issues/1054)
+- lisa_mx: fix secondary spektrum satellite UART AF
+- logalizer: fix csv export after allowing description tag in messages
+- nps: update nps_fdm_jsbsim to be compatible with latest jsbsim
+  [#1118] (https://github.com/paparazzi/paparazzi/pull/1118)
+- rotorcraft: fix attitude flight plan primitive
+  [#1103] (https://github.com/paparazzi/paparazzi/pull/1103)
+- flight plans: fix 'call' statement without loop
+- generators: only include raw makefile part from modules if target matches
+- GCS: GPS accuracy speech less verbose
+  [#1046] (https://github.com/paparazzi/paparazzi/issues/1046)
+- GCS: call index of first/single link "single"
+  [#1098] (https://github.com/paparazzi/paparazzi/issues/1098)
 
 
 Paparazzi 5.4.1_stable
