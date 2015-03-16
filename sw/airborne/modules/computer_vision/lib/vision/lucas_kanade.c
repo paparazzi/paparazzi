@@ -114,6 +114,7 @@ void opticFlowLK(struct image_t *new_img, struct image_t *old_img, struct point_
       status[p] = FALSE;
       continue;
     }
+    //printf("G[0]: %d, G[1]: %d, G[2]: %d, G[3]: %d, Det: %d\n", G[0], G[1], G[2], G[3], Det);
 
     // (4) iterate over taking steps in the image to minimize the error:
     memcpy(&new_points[p], &points[p], sizeof(struct point_t));
@@ -150,6 +151,9 @@ void opticFlowLK(struct image_t *new_img, struct image_t *old_img, struct point_
       if(abs(step_x) < step_threshold && abs(step_y) < step_threshold)
         break;
     }
+
+    //if(status[p])
+    //  printf("Got flow...\n");
 
     // Convert the point back to the original coordinate (TODO: maybe round it as it is closer to the original)
     new_points[p].x /= subpixel_factor;

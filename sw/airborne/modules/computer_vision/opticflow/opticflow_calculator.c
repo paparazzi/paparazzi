@@ -106,9 +106,15 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // FAST corner detection (TODO: non fixed threashold)
   struct point_t *fast9_points = fast9_detect(img, 20, 5, &result->corner_cnt);
 
-#if OPTICFLOW_SHOW_CORNERS
+//#if OPTICFLOW_SHOW_CORNERS
   image_show_points(img, fast9_points, result->corner_cnt);
-#endif
+//#endif
+
+  if(result->corner_cnt < 1) {
+    free(fast9_points);
+    image_copy(&opticflow->img_gray, &opticflow->prev_img_gray);
+    return;
+  }
 
   // *************************************************************************************
   // Corner Tracking
@@ -118,6 +124,7 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   bool_t *tracked_points = malloc(sizeof(bool_t) * result->corner_cnt);
   opticFlowLK(&opticflow->img_gray, &opticflow->prev_img_gray, fast9_points, result->corner_cnt,
     new_points, tracked_points, 5, 100, 2);
+  image_show_flow(img, fast9_points, new_points, result->corner_cnt, tracked_points);
 
   // Remove points if we lost tracking
  /* for (int i = count_fil - 1; i >= 0; i--) {

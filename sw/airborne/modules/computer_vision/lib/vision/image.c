@@ -225,12 +225,12 @@ void image_subpixel_window(struct image_t *input, struct image_t *output, struct
 
   // Calculate the window size
   uint16_t half_window = output->w / 2;
-  uint16_t subpixel_w = output->w * subpixel_factor;
-  uint16_t subpixel_h = output->h * subpixel_factor;
+  uint16_t subpixel_w = input->w * subpixel_factor;
+  uint16_t subpixel_h = input->h * subpixel_factor;
 
   // Go through the whole window size in normal coordinates
   for(uint16_t i = 0; i < output->w; i++) {
-    for(uint16_t j = 0; j < output->w; j++) {
+    for(uint16_t j = 0; j < output->h; j++) {
       // Calculate the subpixel coordinate
       uint16_t x = center->x + (i - half_window) * subpixel_factor;
       uint16_t y = center->y + (j - half_window) * subpixel_factor;
@@ -246,9 +246,8 @@ void image_subpixel_window(struct image_t *input, struct image_t *output, struct
       uint16_t tl_y = orig_y * subpixel_factor;
 
       // Check if it is the top left pixel
-      uint32_t output_idx = output->w*y + x;
       if(tl_x == x &&  tl_y == y) {
-        output_buf[output_idx] = input_buf[input->w*orig_y + orig_x];
+        output_buf[output->w*j + i] = input_buf[input->w*orig_y + orig_x];
       }
       else {
         // Calculate the difference from the top left
@@ -262,7 +261,7 @@ void image_subpixel_window(struct image_t *input, struct image_t *output, struct
         blend += alpha_x * alpha_y * input_buf[input->w*(orig_y+1) + (orig_x+1)];
 
         // Set the normalized pixel blend
-        output_buf[output_idx] = blend / (subpixel_factor * subpixel_factor);
+        output_buf[output->w*j + i] = blend / (subpixel_factor * subpixel_factor);
       }
     }
   }
@@ -270,7 +269,7 @@ void image_subpixel_window(struct image_t *input, struct image_t *output, struct
 
 /**
  * Calculate the  gradients using the following matrix:
- * [0 0 0; -1 0 1; 0 0 0]
+ * [0 -1 0; -1 0 1; 0 1 0]
  * @param[in] *input Input grayscale image
  * @param[out] *dx Output gradient in the X direction (dx->w = input->w-2, dx->h = input->h-2)
  * @param[out] *dy Output gradient in the Y direction (dx->w = input->w-2, dx->h = input->h-2)
@@ -280,13 +279,13 @@ void image_gradients(struct image_t *input, struct image_t *dx, struct image_t *
   // Fetch the buffers in the correct format
   uint8_t *input_buf = (uint8_t *)input->buf;
   int16_t *dx_buf = (int16_t *)dx->buf;
-  int16_t *dy_buf = (int16_t *)dx->buf;
+  int16_t *dy_buf = (int16_t *)dy->buf;
 
   // Go trough all pixels except the borders
   for(uint16_t x = 1; x < input->w-1; x++) {
-    for(uint16_t y = 1; y < input->h-1; x++) {
-      dx_buf[(y-1)*dx->w + (x-1)] = -input_buf[y*input->w + x-1] + input_buf[y*input->w + x+1];
-      dy_buf[(y-1)*dx->w + (x-1)] = -input_buf[(y-1)*input->w + x] + input_buf[(y+1)*input->w + x];
+    for(uint16_t y = 1; y < input->h-1; y++) {
+      dx_buf[(y-1)*dx->w + (x-1)] = (int16_t)input_buf[y*input->w + x+1] - (int16_t)input_buf[y*input->w + x-1];
+      dy_buf[(y-1)*dy->w + (x-1)] = (int16_t)input_buf[(y+1)*input->w + x] - (int16_t)input_buf[(y-1)*input->w + x];
     }
   }
 }
@@ -304,22 +303,22 @@ void image_calculate_g(struct image_t *dx, struct image_t *dy, int32_t *g)
 
   // Fetch the buffers in the correct format
   int16_t *dx_buf = (int16_t *)dx->buf;
-  int16_t *dy_buf = (int16_t *)dx->buf;
+  int16_t *dy_buf = (int16_t *)dy->buf;
 
   // Calculate the different sums
   for(uint16_t x = 0; x < dx->w; x++) {
     for(uint16_t y = 0; y < dy->h; y++) {
-      sum_dxx += (dx_buf[y*dx->w + x] * dx_buf[y*dx->w + x]);
-      sum_dxy += (dx_buf[y*dx->w + x] * dy_buf[y*dy->w + x]);
-      sum_dyy += (dy_buf[y*dy->w + x] * dy_buf[y*dy->w + x]);
+      sum_dxx += ((int32_t)dx_buf[y*dx->w + x] * dx_buf[y*dx->w + x]);
+      sum_dxy += ((int32_t)dx_buf[y*dx->w + x] * dy_buf[y*dy->w + x]);
+      sum_dyy += ((int32_t)dy_buf[y*dy->w + x] * dy_buf[y*dy->w + x]);
     }
   }
 
   // ouput the G vector
-  g[0] = sum_dxx / 255;
-  g[1] = sum_dxy / 255;
-  g[2] = sum_dxy / 255;
-  g[3] = sum_dyy / 255;
+  g[0] = sum_dxx;
+  g[1] = sum_dxy;
+  g[2] = g[1];
+  g[3] = sum_dyy;
 }
 
 /**
@@ -337,16 +336,16 @@ uint32_t image_difference(struct image_t *img_a, struct image_t *img_b, struct i
 
   // Fetch the buffers in the correct format
   uint8_t *img_a_buf = (uint8_t *)img_a->buf;
-  int16_t *img_b_buf = (int16_t *)img_b->buf;
+  uint8_t *img_b_buf = (uint8_t *)img_b->buf;
 
   // If we want the difference image back
   if(diff != NULL)
     diff_buf = (int16_t *)diff->buf;
 
   // Go trough the imagge pixels and calculate the difference
-  for(uint16_t x = 0; x < img_a->w; x++) {
-    for(uint16_t y = 0; y < img_a->h; y++) {
-      int16_t diff_c = img_a_buf[y*img_a->w +x] - img_b_buf[y*img_b->w +x];
+  for(uint16_t x = 0; x < img_b->w; x++) {
+    for(uint16_t y = 0; y < img_b->h; y++) {
+      int16_t diff_c = img_a_buf[(y+1)*img_a->w +(x+1)] - img_b_buf[y*img_b->w +x];
       sum_diff2 += diff_c*diff_c;
 
       // Set the difference image
@@ -395,6 +394,7 @@ int32_t image_multiply(struct image_t *img_a, struct image_t *img_b, struct imag
 /**
  * Show points in an image by coloring them through giving
  * the pixels the maximum value.
+ * This works with YUV422 and grayscale images
  * @param[in,out] *img The image to place the points on
  * @param[in] *points The points to sohw
  * @param[in] *points_cnt The amount of points to show
@@ -414,5 +414,89 @@ void image_show_points(struct image_t *img, struct point_t *points, uint16_t poi
       idx++;
       img_buf[idx] = 255;
     }
+  }
+}
+
+/**
+ * Shows the flow from a specific point to a new point
+ * This works on YUV422 and Grayscale images
+ * @param[in,out] *img The image to show the flow on
+ * @param[in] *points The initial point location
+ * @param[in] *new_points The new point locations
+ * @param[in] *points_cnt The amount of points to show
+ * @param[in] *status_points The status of the specific point (TRUE is tracked, FALSE is untracked)
+ */
+void image_show_flow(struct image_t *img, struct point_t *points, struct point_t *new_points, uint16_t points_cnt, bool_t *status_points)
+{
+  // Go through all the points
+  for(uint16_t i = 0; i < points_cnt; i++) {
+    // Check if we are still tracking
+    if(!status_points[i])
+      continue;
+
+    //printf("Drawing line\n");
+
+    // Draw a line from points[i] to new_points[i]
+    image_draw_line(img, &points[i], &new_points[i]);
+  }
+}
+
+/**
+ * Draw a line on the image
+ * @param[in,out] *img The image to show the line on
+ * @param[in] *from The point to draw from
+ * @param[in] *to The point to draw to
+ */
+void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *to)
+{
+  int xerr=0, yerr=0;
+  uint8_t *img_buf = (uint8_t *)img->buf;
+  uint8_t pixel_width = (img->type == IMAGE_YUV422)? 2 : 1;
+  uint16_t startx = from->x;
+  uint16_t starty = from->y;
+
+  /* compute the distances in both directions */
+  int32_t delta_x = from->x - to->x;
+  int32_t delta_y = from->y - to->y;
+
+  /* Compute the direction of the increment,
+     an increment of 0 means either a horizontal or vertical
+     line.
+  */
+  int8_t incx, incy;
+  if(delta_x>0) incx=1;
+  else if(delta_x==0) incx=0;
+  else incx=-1;
+
+  if(delta_y>0) incy=1;
+  else if(delta_y==0) incy=0;
+  else incy=-1;
+
+  /* determine which distance is greater */
+  uint16_t distance = 0;
+  delta_x = abs(delta_x);
+  delta_y = abs(delta_y);
+  if(delta_x > delta_y) distance = delta_x*20;
+  else distance = delta_y*20;
+
+  /* draw the line */
+  for(uint16_t t = 0; t <= distance+1; t++) {
+      img_buf[img->w*pixel_width*starty + startx*pixel_width] = 255;
+
+      if(img->type == IMAGE_YUV422) {
+        img_buf[img->w*pixel_width*starty + startx*pixel_width] = 255;
+        img_buf[img->w*pixel_width*starty + startx*pixel_width +1] = 255;
+      }
+
+      xerr += delta_x;
+      yerr += delta_y;
+      if(xerr > distance) {
+          xerr -= distance;
+          startx += incx;
+      }
+      if(yerr > distance) {
+          yerr -= distance;
+          starty += incy;
+      }
   }
 }

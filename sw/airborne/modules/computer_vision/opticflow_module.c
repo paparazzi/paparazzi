@@ -171,15 +171,41 @@ static void *opticflow_module_calc(void *data __attribute__((unused))) {
     pthread_mutex_unlock(&opticflow_mutex);
 
 #ifdef OPTICFLOW_DEBUG
-    jpeg_encode_image(&img, &img_jpeg, 50, FALSE);
+    jpeg_encode_image(&img, &img_jpeg, 80, FALSE);
     rtp_frame_send(
       &VIEWVIDEO_DEV,           // UDP device
       &img_jpeg,
       0,                        // Format 422
-      50, // Jpeg-Quality
+      80, // Jpeg-Quality
       0,                        // DRI Header
       0                         // 90kHz time increment
     );
+
+    // Open process to send using netcat (in a fork because sometimes kills itself???)
+    /*pid_t pid = fork();
+
+    if(pid < 0) {
+      printf("[viewvideo] Could not create netcat fork.\n");
+    }
+    else if(pid ==0) {
+      // We are the child and want to send the image
+      FILE *netcat = popen("nc 192.168.1.2 5000 2>/dev/null", "w");
+      if (netcat != NULL) {
+        fwrite(img_jpeg.buf, sizeof(uint8_t), img_jpeg.buf_size, netcat);
+        pclose(netcat); // Ignore output, because it is too much when not connected
+      } else {
+        printf("[viewvideo] Failed to open netcat process.\n");
+      }
+
+      // Exit the program since we don't want to continue after transmitting
+      exit(0);
+    }
+    else {
+      // We want to wait until the child is finished
+      wait(NULL);
+    }*/
+
+
 #endif
 
     // Free the image
