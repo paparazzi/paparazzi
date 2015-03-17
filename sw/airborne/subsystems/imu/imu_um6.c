@@ -76,7 +76,7 @@ inline uint16_t UM6_calculate_checksum(uint8_t packet_buffer[], uint8_t packet_l
 inline void UM6_send_packet(uint8_t *packet_buffer, uint8_t packet_length)
 {
   for (int i = 0; i < packet_length; i++) {
-    UM6Link(Transmit(packet_buffer[i]));
+    uart_transmit(&(UM6_LINK), packet_buffer[i]);
   }
 }
 
