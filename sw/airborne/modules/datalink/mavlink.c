@@ -311,7 +311,7 @@ static inline void mavlink_send_heartbeat(void)
                              mav_mode,
                              0, // custom_mode
                              mav_state);
-  MAVLinkSendMessage())
+  MAVLinkSendMessage();
 }
 
 /**
