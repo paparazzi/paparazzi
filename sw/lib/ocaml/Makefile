@@ -81,7 +81,7 @@ TESTS_SRC = test/test_latlong.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 
 all : byte native
-byte : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out META.pprz
+byte : lib-pprz.cma xlib-pprz.cma xml_get.out META.pprz
 native : lib-pprz.cmxa xlib-pprz.cmxa META.pprz
 
 
@@ -118,7 +118,7 @@ tests : lib-pprz.cma $(TESTS_CMO)
 	@echo OC $<
 	$(Q)$(OCAMLC) -ccopt -fPIC $(INCLUDES) -package $(PKGCOMMON) -c $<
 
-$(XCMO) $(XCMX) myGtkInit.cmo : PKGCOMMON=$(XPKGCOMMON)
+$(XCMO) $(XCMX): PKGCOMMON=$(XPKGCOMMON)
 
 
 GTKCFLAGS := $(shell pkg-config --cflags gtk+-2.0)

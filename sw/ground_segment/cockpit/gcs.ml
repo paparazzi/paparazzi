@@ -26,6 +26,8 @@ module G = MapCanvas
 open Printf
 open Latlong
 
+let locale = GtkMain.Main.init ~setlocale:false ()
+
 let soi = string_of_int
 
 let home = Env.paparazzi_home

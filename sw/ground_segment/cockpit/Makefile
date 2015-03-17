@@ -66,7 +66,7 @@ opt : $(MAIN).opt
 
 $(MAIN) : $(CMO) $(LIBPPRZCMA) $(XLIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(LIBS) $(LINKPKG) myGtkInit.cmo $(CMO) -o $@
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(LIBS) $(LINKPKG) $(CMO) -o $@
 
 $(MAIN).opt : $(CMX) $(LIBPPRZCMXA) $(XLIBPPRZCMXA)
 	@echo OOL $@
