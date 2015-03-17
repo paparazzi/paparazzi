@@ -108,7 +108,7 @@ setup_actuators.srcs   += mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c
 setup_actuators.CFLAGS += -DUSE_$(MODEM_PORT)
 setup_actuators.CFLAGS += -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 SETUP_ACTUATORS_MODEM_PORT_LOWER=$(shell echo $(MODEM_PORT) | tr A-Z a-z)
-setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_DEVICE=$(SETUP_ACTUATORS_MODEM_PORT_LOWER) -DPPRZ_UART=$(MODEM_PORT)
+setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_DEVICE=$(SETUP_ACTUATORS_MODEM_PORT_LOWER) -DPPRZ_UART=$(SETUP_ACTUATORS_MODEM_PORT_LOWER)
 setup_actuators.CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ
 setup_actuators.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
