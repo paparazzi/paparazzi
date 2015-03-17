@@ -26,7 +26,7 @@
  */
 
 #include "std.h"
-#include "stdio.h"
+//#include "stdio.h"
 
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
