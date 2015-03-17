@@ -365,6 +365,7 @@ extern bool_t spi_slave_wait(struct spi_periph *p);
 /** @}*/
 
 #if SPI_SLAVE_HS
+#include "mcu_periph/spi_slave_hs_arch.h"
 extern void spi_slave_hs_init(void);
 #endif
 

@@ -77,6 +77,7 @@ void parse_ins_buffer(uint8_t);
 
 #ifndef SITL
 #include "mcu_periph/uart.h"
+#include "mcu_periph/spi.h"
 
 #define InsSend1(c) InsLinkDevice->transmit(InsLinkDevice->periph, c)
 #define InsUartSend1(c) InsSend1(c)
