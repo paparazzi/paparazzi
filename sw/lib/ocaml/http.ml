@@ -2,7 +2,11 @@ exception Failure of string
 exception Not_Found of string
 exception Blocked of string
 
-open Http_client
+IFDEF NETCLIENT_V_4 THEN
+module H = Nethttp_client
+ELSE
+module H = Http_client
+END
 
 let file_of_url = fun ?dest url ->
   if String.sub url 0 7 = "file://" then
@@ -12,9 +16,9 @@ let file_of_url = fun ?dest url ->
       match dest with
           Some s -> s
         | None -> Filename.temp_file "fp" ".wget" in
-    let call = new Http_client.get url in
+    let call = new H.get url in
     call#set_response_body_storage (`File (fun () -> tmp_file));
-    let pipeline = new Http_client.pipeline in
+    let pipeline = new H.pipeline in
     pipeline#set_proxy_from_environment ();
     pipeline#add call;
     pipeline#run ();
