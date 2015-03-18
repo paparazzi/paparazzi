@@ -36,15 +36,20 @@
 <gtk_papget_*editor.ml>: package(lablgtk2.glade)
 
 
+# binaries
+"xml_get.byte": use_str, package(xml-light)
+
+<test/*.byte>: use_unix, use_str
+
 #
 # using custom tags from myocamlbuild.ml from here on...
 #
 
 # options for compiling C stubs
 "ml_gtk_drag.c": use_gtk
-#, package(lablgtk)
 
 # link C libs
 <lib-pprz.cm{x,}a>: linklib(pprz_stub.a)
-#<*.cm{x,}a>: linklib(pprz_stub.a)
 <xlib-pprz.cm{x,}a>: linklib(gtkdrag_stub.a)
+
+<test/test_logpprz.*>: package(xml-light), package(ivy), linklib(pprz_stub.a)

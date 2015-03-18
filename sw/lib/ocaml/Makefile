@@ -117,10 +117,6 @@ lib-pprz.cmxa: | liblib-pprz.a dlllib-pprz.so
 
 xlib-pprz.cmxa: | libxlib-pprz.a dllxlib-pprz.so
 
-xml_get.out : lib-pprz.cma xml_get.cmo
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ -package str,xml-light -linkpkg -I . $^
-
 tests : lib-pprz.cma $(TESTS_CMO)
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light,ivy -linkpkg -I . -dllpath . $^
 

@@ -1,4 +1,6 @@
 _build
+*.byte
+*.native
 # generated files
 gtk_papget*.ml
 expr_*.ml
