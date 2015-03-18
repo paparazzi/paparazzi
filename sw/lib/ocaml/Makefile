@@ -44,10 +44,8 @@ else
 endif
 
 LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2-gnome.gnomecanvas 2>/dev/null)
-METAFILE = META.pprz.linux
 ifeq ($(LABLGTK2GNOMECANVAS),)
 LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2.gnomecanvas 2>/dev/null)
-METAFILE = META.pprz.osx
 endif
 
 NETCLIENT_VER := $(shell ocamlfind query -format '%v' netclient)
@@ -185,9 +183,9 @@ gtk_papget_led_editor.ml : widgets.glade
 	$(Q)$(Q)lablgladecc2 -root table_led_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
 	$(Q)rm -f $($@_TMP)
 
-META.pprz : $(METAFILE)
+META.pprz: META.pprz.template
 	@echo COPY $<
-	$(shell cp $< META.pprz)
+	$(shell cp $< META.pprz && sed -i 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' META.pprz)
 
 clean :
 	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz
