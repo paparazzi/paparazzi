@@ -38,7 +38,15 @@ struct CVresults {
   int flow_count;
 
   float cam_h;      // Debug parameters
+
   int count;
+
+  int plot_count;
+  int x[100], y[100]; // TODO: make less ugly
+
+  int new_plot_count;
+  int new_x[100], new_y[100];
+
   float OFx, OFy, dx_sum, dy_sum;
   float diff_roll;
   float diff_pitch;

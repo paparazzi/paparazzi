@@ -140,6 +140,7 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
   pnts_fast = fast9_detect((const byte *)visual_estimator.prev_gray_frame, w, h, w,
                            fast_threshold, &results->count);
   if (results->count > MAX_COUNT) { results->count = MAX_COUNT; }
+  results->plot_count = results->count;
   for (int i = 0; i < results->count; i++) {
     x[i] = pnts_fast[i].x;
     y[i] = pnts_fast[i].y;
@@ -171,7 +172,9 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
     if (remove_point) {
       for (int c = i; c < count_fil - 1; c++) {
         x[c] = x[c + 1];
+        results->x[i] = x[i]; // TODO: make less ugly
         y[c] = y[c + 1];
+        results->y[i] = y[i]; // TODO: make less ugly
       }
       count_fil--;
     }
@@ -192,6 +195,7 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
   for (int i = count_fil - 1; i >= 0; i--) {
     int remove_point = 1;
 
+    // check if near edge, if yes remove points
     if (status[i] && !(new_x[i] < borderx || new_x[i] > (w - 1 - borderx) ||
                        new_y[i] < bordery || new_y[i] > (h - 1 - bordery))) {
       remove_point = 0;
@@ -214,7 +218,9 @@ void opticflow_plugin_run(unsigned char *frame, struct PPRZinfo* info, struct CV
   // Optical Flow Computation
   for (int i = 0; i < results->flow_count; i++) {
     dx[i] = new_x[i] - x[i];
+    results->new_x[i] = new_x[i];
     dy[i] = new_y[i] - y[i];
+    results->new_y[i] = new_y[i];
   }
 
   // Median Filter

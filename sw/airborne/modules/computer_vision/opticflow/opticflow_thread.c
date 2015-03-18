@@ -25,6 +25,7 @@
 
 // Sockets
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -43,14 +44,14 @@
 #include "visual_estimator.h"
 
 // Downlink Video
-//#define DOWNLINK_VIDEO 1
+#define DOWNLINK_VIDEO 1
 
 #ifdef DOWNLINK_VIDEO
 #include "encoding/jpeg.h"
 #include "encoding/rtp.h"
+#include "udp/socket.h"
 #endif
 
-#include <stdio.h>
 #define DEBUG_INFO(X, ...) ;
 
 static volatile enum{RUN,EXIT} computer_vision_thread_command = RUN;  /** request to close: set to 1 */
@@ -92,10 +93,10 @@ void *computervision_thread_main(void *args)
   uint8_t *jpegbuf = (uint8_t *)malloc(dev->w * dev->h * 2);
 
   // Network Transmit
-  struct UdpSocket *vsock;
-  //#define FMS_UNICAST 0
-  //#define FMS_BROADCAST 1
-  vsock = udp_socket("192.168.1.255", 5000, 5001, FMS_BROADCAST);
+  struct udp_periph vsock;
+  #define FMS_UNICAST 0
+  #define FMS_BROADCAST 1
+  udp_periph_init(&vsock, "192.168.1.255", 5000, 5001, FMS_BROADCAST);
 #endif
 
   // First Apply Settings before init
@@ -120,7 +121,7 @@ void *computervision_thread_main(void *args)
     DEBUG_INFO("[thread] Read # %d\n",autopilot_data.cnt);
 
     // Run Image Processing with image and data and get results
-    opticflow_plugin_run(img->buf, &autopilot_data, &vision_results);
+    // opticflow_plugin_run(img->buf, &autopilot_data, &vision_results);
 
     //printf("Vision result %f %f\n", vision_results.Velx, vision_results.Vely);
 
@@ -133,15 +134,42 @@ void *computervision_thread_main(void *args)
     DEBUG_INFO("[thread] Write # %d, (bytes %d)\n",vision_results.cnt, bytes_written);
 
 #ifdef DOWNLINK_VIDEO
+    // // Display the detected corners within the JPEG image and set the remaining image to grayscale
+    // uint16_t* buf_16 = (uint16_t*)img->buf;
+    // for (int i = 0; i < (img->length/2); i++) {
+
+    //   buf_16[i] = (0xFF00 & buf_16[i]) + 0x7F;
+    // }
+
+    // /* TODO: Really make this less ugly */
+    // for (int j = 0; j < vision_results.plot_count; j++) {
+    //   // int idx = vision_results.y[j] * 320 + vision_results.x[j];
+    //   // if (idx != 0 || idx == (320 * 240)) {
+    //   //   buf_16[idx-1] = 0xFFFF;
+    //   //   buf_16[idx] = 0xFFFF;
+    //   //   buf_16[idx+1] = 0xFFFF;
+    //   // }
+
+    //   int idx_new = vision_results.new_y[j] * 320 + vision_results.new_x[j];
+    //   if (idx_new != 0 || idx_new == (320 * 240)) {
+    //     buf_16[idx_new-1] = 0xFF00;
+    //     buf_16[idx_new] = 0xFF00;
+    //     buf_16[idx_new+1] = 0xFF00;
+    //   }
+    // }
+
+
+
+    
     // JPEG encode the image:
     uint32_t quality_factor = 10; //20 if no resize,
     uint8_t dri_header = 0;
     uint32_t image_format = FOUR_TWO_TWO;  // format (in jpeg.h)
-    uint8_t *end = encode_image(img->buf, jpegbuf, quality_factor, image_format, dev->w, dev->h, dri_header);
+    uint8_t *end = jpeg_encode_image(img->buf, jpegbuf, quality_factor, image_format, dev->w, dev->h, dri_header);
     uint32_t size = end - (jpegbuf);
 
     //printf("Sending an image ...%u\n", size);
-    send_rtp_frame(vsock, jpegbuf, size, dev->w, dev->h, 0, quality_factor, dri_header, 0);
+    rtp_frame_send(&vsock, jpegbuf, size, dev->w, dev->h, 0, quality_factor, dri_header, 0);
 #endif
 
     // Free the image
