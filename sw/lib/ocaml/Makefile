@@ -128,10 +128,6 @@ ml_gtk_drag.o : ml_gtk_drag.c
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
 
-ml_gtkgl_hack.o : ml_gtkgl_hack.c
-	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
-
 camltm.o : register_example.cmo
 	$(OCAMLC) $(INCLUDES) -output-obj -o $@ -package unix,str,xml-light,ivy debug.cmo serial.cmo extXml.cmo env.cmo pprz.cmo tm.cmo
 
