@@ -23,18 +23,40 @@
 
 Q=@
 
+OCAMLBUILD=ocamlbuild -use-ocamlfind
 
-OCAMLC=ocamlfind ocamlc
-OCAMLOPT=ocamlfind ocamlopt
-OCAMLDEP=ocamlfind ocamldep
-OCAMLLEX=ocamllex
-OCAMLYACC=ocamlyacc
-OCAMLMKLIB=ocamlmklib
-OCAMLLIBDIR=$(shell $(OCAMLC) -where)
+LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2-gnome.gnomecanvas 2>/dev/null)
+ifeq ($(LABLGTK2GNOMECANVAS),)
+LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2.gnomecanvas 2>/dev/null)
+endif
 
-# verbose ocamlmklib: Print commands before executing them
-#VERBOSITY = -verbose
-VERBOSITY =
+#
+# FIXME, do this check in myocamlbuild or try to pass as option
+#
+NETCLIENT_VER := $(shell ocamlfind query -format '%v' netclient)
+NETCLIENT_MAJOR := $(shell echo $(NETCLIENT_VER) | cut -f1 -d.)
+ifeq ($(shell test $(NETCLIENT_MAJOR) -ge 4; echo $$?),0)
+CAMLP4_DEFS = -DNETCLIENT_V_4
+endif
+
+
+
+all: byte native
+
+byte: gen_papget_editors META.pprz
+	@echo OB byte
+	$(Q)$(OCAMLBUILD) lib-pprz.cma xlib-pprz.cma
+
+native: gen_papget_editors META.pprz
+	@echo OB native
+	$(Q)$(OCAMLBUILD) lib-pprz.cmxa xlib-pprz.cmxa
+
+tests:
+	$(OCAMLBUILD) test/test_latlong.byte
+	$(OCAMLBUILD) test/test_logpprz.byte
+
+
+gen_papget_editors: gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml
 
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
@@ -42,126 +64,6 @@ ifeq ("$(UNAME)","Darwin")
 else
 	MKTEMP = mktemp
 endif
-
-LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2-gnome.gnomecanvas 2>/dev/null)
-ifeq ($(LABLGTK2GNOMECANVAS),)
-LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2.gnomecanvas 2>/dev/null)
-endif
-
-NETCLIENT_VER := $(shell ocamlfind query -format '%v' netclient)
-NETCLIENT_MAJOR := $(shell echo $(NETCLIENT_VER) | cut -f1 -d.)
-ifeq ($(shell test $(NETCLIENT_MAJOR) -ge 4; echo $$?),0)
-CAMLP4_DEFS = -DNETCLIENT_V_4
-endif
-CAMLP4_DEFS ?=
-PP_OPTS = -pp "camlp4o pa_macro.cmo $(CAMLP4_DEFS)"
-
-# which source files to run through caml4p
-PP_SRC = http.ml
-PP_CMO = $(PP_SRC:.ml=.cmo)
-PP_CMX = $(PP_SRC:.ml=.cmx)
-
-INCLUDES=
-PKGCOMMON=xml-light,netclient,glibivy,lablgtk2
-XINCLUDES=
-XPKGCOMMON=xml-light,glibivy,$(LABLGTK2GNOMECANVAS),lablgtk2.glade
-
-SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml fp_proc.ml gen_common.ml
-CMO = $(SRC:.ml=.cmo)
-CMX = $(SRC:.ml=.cmx)
-
-XSRC = gtk_tools.ml platform.ml contrastLabel.ml acIcon.ml wind_sock.ml gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml papget_common.ml papget_renderer.ml papget.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml mapGoogle.ml mapIGN.ml ml_gtk_drag.o xmlEdit.ml mapFP.ml
-XCMO = $(XSRC:.ml=.cmo)
-XCMX = $(XSRC:.ml=.cmx)
-
-# files to generate before running ocamldep
-GEN_DEP = expr_parser.ml expr_lexer.ml
-
-TESTS_SRC = test/test_latlong.ml
-TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
-
-all: byte native
-
-byte: gen_papget_editors META.pprz
-	@echo OB byte
-	$(Q)ocamlbuild -use-ocamlfind lib-pprz.cma xlib-pprz.cma
-
-native: gen_papget_editors META.pprz
-	@echo OB native
-	$(Q)ocamlbuild -use-ocamlfind lib-pprz.cmxa xlib-pprz.cmxa
-
-old: byte native
-old_byte: lib-pprz.cma xlib-pprz.cma xml_get.out META.pprz
-old_native: lib-pprz.cmxa xlib-pprz.cmxa META.pprz
-
-
-lib-pprz.cma liblib-pprz.a: $(CMO)
-	@echo OL $@
-	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
-
-lib-pprz.cmxa dlllib-pprz.so: $(CMX)
-	@echo OOL $@
-	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
-
-xlib-pprz.cma libxlib-pprz.a: $(XCMO)
-	@echo OL $@
-	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(XINCLUDES) -o xlib-pprz $^
-
-xlib-pprz.cmxa dllxlib-pprz.so: $(XCMX)
-	@echo OOL $@
-	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(XINCLUDES) -o xlib-pprz $^
-
-# trying to set correct dependencies for parallel build
-# these are order only depedencies
-lib-pprz.cmxa: | liblib-pprz.a dlllib-pprz.so
-
-xlib-pprz.cmxa: | libxlib-pprz.a dllxlib-pprz.so
-
-tests : lib-pprz.cma $(TESTS_CMO)
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light,ivy -linkpkg -I . -dllpath . $^
-
-%.o : %.c
-	@echo OC $<
-	$(Q)$(OCAMLC) -ccopt -fPIC $(INCLUDES) -package $(PKGCOMMON) -c $<
-
-$(XCMO) $(XCMX): PKGCOMMON=$(XPKGCOMMON)
-
-
-GTKCFLAGS := $(shell pkg-config --cflags gtk+-2.0)
-ml_gtk_drag.o : ml_gtk_drag.c
-	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
-
-# bit of a hack: only run some specifc files through caml4p
-$(PP_CMO) : $(PP_SRC)
-	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) $(PP_OPTS) -package $(PKGCOMMON) -c $<
-
-$(PP_CMX) : $(PP_SRC)
-	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(INCLUDES) $(PP_OPTS) -package $(PKGCOMMON) -c $<
-
-%.cmo : %.ml
-	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c $<
-
-%.cmx : %.ml
-	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(INCLUDES) -package $(PKGCOMMON) -c $<
-
-%.cmi : %.mli
-	@echo OC $<
-	$(Q)$(OCAMLC) $(XINCLUDES) $(INCLUDES) -package $(PKGCOMMON),$(XPKGCOMMON) $<
-
-%.ml : %.mll
-	@echo OCL $<
-	$(Q)$(OCAMLLEX) $<
-
-%.ml %.mli : %.mly
-	@echo OCY $<
-	$(Q)$(OCAMLYACC) $<
-
-gen_papget_editors: gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml
 
 gtk_papget_editor.ml : widgets.glade
 	@echo GLADE $@
@@ -196,20 +98,7 @@ META.pprz: META.pprz.template
 	$(shell cp $< META.pprz && sed -i 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' META.pprz)
 
 clean :
-	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz
+	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz
 	$(Q)ocamlbuild -clean -classic-display
 
-.PHONY: all byte native gen_papget_editors clean old old_byte old_native
-
-#
-# Dependencies
-#
-
-.depend: Makefile #$(GEN_DEP)
-	@echo DEPEND $@
-	$(Q)$(OCAMLDEP) $(PP_OPTS) $(PP_SRC) > .depend
-	$(Q)$(OCAMLDEP) $(filter-out $(PP_SRC), $(SRC) $(XSRC)) *.mli >> .depend
-
-ifneq ($(MAKECMDGOALS),clean)
--include .depend
-endif
+.PHONY: all byte native tests gen_papget_editors clean
