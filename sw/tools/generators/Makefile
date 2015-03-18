@@ -61,7 +61,7 @@ clean:
 
 .depend: Makefile
 	@echo DEPEND $@
-	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml *.mli > .depend
+	$(Q)$(OCAMLDEP) *.ml *.mli > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

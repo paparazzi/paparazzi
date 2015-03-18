@@ -143,8 +143,8 @@ actuators : actuators.c
 
 .depend: Makefile
 	@echo DEPEND $@
-	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) $(PP_OPTS) $(PP_SRC) > .depend
-	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) $(filter-out $(PP_SRC), $(ML)) *.mli >> .depend
+	$(Q)$(OCAMLDEP) $(PP_OPTS) $(PP_SRC) > .depend
+	$(Q)$(OCAMLDEP) $(filter-out $(PP_SRC), $(ML)) *.mli >> .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

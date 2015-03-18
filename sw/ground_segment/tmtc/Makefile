@@ -171,7 +171,7 @@ ivy_serial_bridge: ivy_serial_bridge.c
 
 .depend: Makefile
 	@echo DEPEND $@
-	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) -I ../multimon *.ml* > .depend
+	$(Q)$(OCAMLDEP) -I ../multimon *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend
