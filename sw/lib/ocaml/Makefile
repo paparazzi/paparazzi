@@ -201,6 +201,7 @@ META.pprz: META.pprz.template
 
 clean :
 	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz
+	$(Q)ocamlbuild -clean -classic-display
 
 .PHONY: all byte native gen_papget_editors clean old old_byte old_native
 
