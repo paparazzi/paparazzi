@@ -169,26 +169,15 @@ let rec string_of_value = function
       | _ -> String.concat separator l
 
 
-let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
-
-(* FIXME temporary solution, the complete formatted_string_of_value function
-   causes a segfault in server and GCS
-   magic format also cases segfaults with OCaml 4.02, so complety disable this for now
-*)
-let string_of_value_format = fun format v ->
-  match v with
-    (*Float x -> sprintf (magic format) x*)
-  | v -> string_of_value v
-
-(* FIXME: causes a segfault in server and GCS. *)
 let rec formatted_string_of_value = fun format v ->
+  let f = fun x -> Scanf.format_from_string format x in
   match v with
-    | Int x -> sprintf (magic format) x
-    | Float x -> sprintf (magic format) x
-    | Int32 x -> sprintf (magic format) x
-    | Int64 x -> sprintf (magic format) x
-    | Char x -> sprintf (magic format) x
-    | String x -> sprintf (magic format) x
+    | Int x -> sprintf (f "%d") x
+    | Float x -> sprintf (f "%f") x
+    | Int32 x -> sprintf (f "%ld") x
+    | Int64 x -> sprintf (f "%Ld") x
+    | Char x -> sprintf (f "%c") x
+    | String x ->sprintf "%s" x
     | Array a ->
         let l = (Array.to_list (Array.map (formatted_string_of_value format) a)) in
         match a.(0) with
@@ -736,9 +725,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
          try List.assoc field_name values with
              Not_found ->
                default_value field._type in
-       (* should actually use this here, but it segfaults, so disable format strings for now
-       formatted_string_of_value field.fformat v)*)
-       string_of_value_format field.fformat v)
+       formatted_string_of_value field.fformat v)
      msg.fields)
 
   let message_send = fun ?timestamp ?link_id sender msg_name values ->

@@ -11,7 +11,7 @@
 
    <message name="ALIVE" id="2">
      <description>alive/heartbeat message containing the MD5sum of the aircraft configuration</description>
-     <field name="md5sum" type="uint8[]"/>
+     <field name="md5sum" type="uint8[]" format="%x"/>
    </message>
 
    <message name="PONG" id="3">

@@ -311,11 +311,11 @@ let send_telemetry_status = fun a ->
     [ "ac_id", Pprz.String id;
       "link_id", Pprz.String link_id;
       "time_since_last_msg", Pprz.Float (U.gettimeofday () -. a.last_msg_date); (* don't use rx_lost_time from LINK_REPORT so it also works in simulation *)
-      "rx_bytes", Pprz.Int link_status.rx_bytes;
-      "rx_msgs", Pprz.Int link_status.rx_msgs;
+      "rx_bytes", Pprz.Int32 (Int32.of_int link_status.rx_bytes);
+      "rx_msgs", Pprz.Int32 (Int32.of_int link_status.rx_msgs);
       "rx_bytes_rate", Pprz.Float link_status.rx_bytes_rate;
-      "tx_msgs", Pprz.Int link_status.tx_msgs;
-      "uplink_lost_time", Pprz.Int datalink_status.uplink_lost_time;
+      "tx_msgs", Pprz.Int32 (Int32.of_int link_status.tx_msgs);
+      "uplink_lost_time", Pprz.Int32 (Int32.of_int datalink_status.uplink_lost_time);
       "uplink_msgs", Pprz.Int datalink_status.uplink_msgs;
       "downlink_msgs", Pprz.Int datalink_status.downlink_msgs;
       "downlink_rate", Pprz.Int datalink_status.downlink_rate;
@@ -401,8 +401,8 @@ let send_aircraft_msg = fun ac ->
             let values = ["ac_id", Pprz.String ac;
                           "cur_block", Pprz.Int a.cur_block;
                           "cur_stage", Pprz.Int a.cur_stage;
-                          "stage_time", Pprz.Int a.stage_time;
-                          "block_time", Pprz.Int a.block_time;
+                          "stage_time", Pprz.Int32 (Int32.of_int a.stage_time);
+                          "block_time", Pprz.Int32 (Int32.of_int a.block_time);
                           "target_lat", f ((Rad>>Deg)a.desired_pos.posn_lat);
                           "target_long", f ((Rad>>Deg)a.desired_pos.posn_long);
                           "target_alt", Pprz.Float a.desired_altitude;
@@ -432,7 +432,7 @@ let send_aircraft_msg = fun ac ->
     let state_filter_mode = get_indexed_value state_filter_modes a.state_filter_mode
     and kill_mode = if a.kill_mode then "ON" else "OFF" in
     let values = ["ac_id", Pprz.String ac;
-                  "flight_time", Pprz.Int a.flight_time;
+                  "flight_time", Pprz.Int32 (Int32.of_int a.flight_time);
                   "ap_mode", Pprz.String ap_mode;
                   "gaz_mode", Pprz.String gaz_mode;
                   "lat_mode", Pprz.String lat_mode;
