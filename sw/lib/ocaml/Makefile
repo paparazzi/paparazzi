@@ -80,9 +80,19 @@ GEN_DEP = expr_parser.ml expr_lexer.ml
 TESTS_SRC = test/test_latlong.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 
-all : byte native
-byte : lib-pprz.cma xlib-pprz.cma xml_get.out META.pprz
-native : lib-pprz.cmxa xlib-pprz.cmxa META.pprz
+all: byte native
+
+byte: gen_papget_editors META.pprz
+	@echo OB byte
+	$(Q)ocamlbuild -use-ocamlfind lib-pprz.cma xlib-pprz.cma
+
+native: gen_papget_editors META.pprz
+	@echo OB native
+	$(Q)ocamlbuild -use-ocamlfind lib-pprz.cmxa xlib-pprz.cmxa
+
+old: byte native
+old_byte: lib-pprz.cma xlib-pprz.cma xml_get.out META.pprz
+old_native: lib-pprz.cmxa xlib-pprz.cmxa META.pprz
 
 
 lib-pprz.cma liblib-pprz.a: $(CMO)
@@ -155,6 +165,8 @@ $(PP_CMX) : $(PP_SRC)
 	@echo OCY $<
 	$(Q)$(OCAMLYACC) $<
 
+gen_papget_editors: gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml
+
 gtk_papget_editor.ml : widgets.glade
 	@echo GLADE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
@@ -190,13 +202,13 @@ META.pprz: META.pprz.template
 clean :
 	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz
 
-.PHONY: all byte native clean
+.PHONY: all byte native gen_papget_editors clean old old_byte old_native
 
 #
 # Dependencies
 #
 
-.depend: Makefile $(GEN_DEP)
+.depend: Makefile #$(GEN_DEP)
 	@echo DEPEND $@
 	$(Q)$(OCAMLDEP) $(PP_OPTS) $(PP_SRC) > .depend
 	$(Q)$(OCAMLDEP) $(filter-out $(PP_SRC), $(SRC) $(XSRC)) *.mli >> .depend
