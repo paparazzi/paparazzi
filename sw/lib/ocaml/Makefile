@@ -44,7 +44,7 @@ else
 endif
 
 LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2-gnome.gnomecanvas 2>/dev/null)
-METAFILE = META.pprz.deb
+METAFILE = META.pprz.linux
 ifeq ($(LABLGTK2GNOMECANVAS),)
 LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2.gnomecanvas 2>/dev/null)
 METAFILE = META.pprz.osx
