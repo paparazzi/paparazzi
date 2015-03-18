@@ -128,12 +128,6 @@ ml_gtk_drag.o : ml_gtk_drag.c
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
 
-camltm.o : register_example.cmo
-	$(OCAMLC) $(INCLUDES) -output-obj -o $@ -package unix,str,xml-light,ivy debug.cmo serial.cmo extXml.cmo env.cmo pprz.cmo tm.cmo
-
-caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
-	$(CC) -o $@ $^ -L$(OCAMLLIBDIR) -lunix -lstr -livy-ocaml -lcamlrun -lm -livy -lcurses
-
 # bit of a hack: only run some specifc files through caml4p
 $(PP_CMO) : $(PP_SRC)
 	@echo OC $<
@@ -196,7 +190,7 @@ META.pprz : $(METAFILE)
 	$(shell cp $< META.pprz)
 
 clean :
-	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so caml_from_c_example tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz
+	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz
 
 .PHONY: all byte native clean
 
