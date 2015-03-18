@@ -1,7 +1,7 @@
 description = "Paparazzi UAS package"
 requires = "unix,str,xml-light,lablgtk2,glibivy,netclient"
 version = "1.0"
-directory = ""
+directory = "_build"
 
 archive(byte) = "lib-pprz.cma"
 archive(native) = "lib-pprz.cmxa"
