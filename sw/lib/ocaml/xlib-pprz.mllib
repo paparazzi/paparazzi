@@ -1,0 +1,22 @@
+gtk_tools
+platform
+contrastLabel
+acIcon
+wind_sock
+gtk_papget_editor
+gtk_papget_text_editor
+gtk_papget_gauge_editor
+gtk_papget_led_editor
+papget_common
+papget_renderer
+papget
+mapCanvas
+mapWaypoints
+mapTrack
+mapGoogle
+mapIGN
+xmlEdit
+mapFP
+
+# C files
+#ml_gtk_drag.o

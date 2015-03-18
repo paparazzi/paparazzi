@@ -104,17 +104,6 @@ paparazzi.sublime-workspace
 /sw/in_progress/fdm/fdm_step
 /sw/in_progress/fdm/fms_steps_attitude
 
-# /sw/lib/ocaml/
-/sw/lib/ocaml/gtk_papget_editor.ml
-/sw/lib/ocaml/gtk_papget_text_editor.ml
-/sw/lib/ocaml/gtk_papget_gauge_editor.ml
-/sw/lib/ocaml/expr_lexer.ml
-/sw/lib/ocaml/expr_parser.ml
-/sw/lib/ocaml/expr_parser.mli
-/sw/lib/ocaml/gtk_papget_led_editor.ml
-/sw/lib/ocaml/expr_lexer.ml
-/sw/lib/ocaml/META.pprz
-
 # /sw/logalizer/
 /sw/logalizer/plot
 /sw/logalizer/play
