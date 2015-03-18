@@ -35,7 +35,6 @@ CAMLINCLUDES = -I $(LIBPPRZDIR) -I $(SIMDIR) -I $(OBJDIR)
 PKG = -package glibivy,pprz
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 SIMSITLML = $(OBJDIR)/simsitl.ml
-MYGTKINITCMO = myGtkInit.cmo
 SITLCMA = $(SIMDIR)/sitl.cma
 OPT ?= 2
 
@@ -99,11 +98,11 @@ autopilot.so : $($(TARGET).objs)
 ifdef SIMSITLCUSTOM
 $(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
-	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ $(CAMLCMAS) $(MYGTKINITCMO) $^
+	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ $(CAMLCMAS) $^
 else
 $(OBJDIR)/simsitl : autopilot.so $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
-	$(Q)$(OCAMLC) -g $(CAMLINCLUDES) -o $@ $(LINKPKG) $(MYGTKINITCMO) $^ -dllpath $(OBJDIR) -dllpath $(SIMDIR)
+	$(Q)$(OCAMLC) -g $(CAMLINCLUDES) -o $@ $(LINKPKG) $^ -dllpath $(OBJDIR) -dllpath $(SIMDIR)
 endif
 
 
