@@ -681,6 +681,10 @@ let () =
   (** Put the canvas in a frame *)
   map_frame#add geomap#frame#coerce;
 
+  (** window for the strip panel *)
+  let scrolled = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
+  let strips_table = GPack.vbox ~spacing:5 ~packing:scrolled#add_with_viewport () in
+
   (** Aircraft notebook *)
   let ac_notebook = GPack.notebook ~tab_border:0 () in
 
@@ -696,7 +700,7 @@ let () =
   let plugin_frame = GPack.vbox ~width:plugin_width () in
 
   let widgets = ["map2d", map_frame#coerce;
-                 "strips", Strip.scrolled#coerce;
+                 "strips", scrolled#coerce;
                  "aircraft", ac_notebook#coerce;
                  "editor", editor_frame#coerce;
                  "alarms", alert_page#coerce;
@@ -782,7 +786,7 @@ let () =
     begin
       my_alert#add "Waiting for telemetry...";
       Speech.say "Waiting for telemetry...";
-      Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac alt_graph !timestamp
+      Live.listen_acs_and_msgs geomap ac_notebook strips_table my_alert !auto_center_new_ac alt_graph !timestamp
     end;
 
   (** Display the window *)

@@ -61,13 +61,6 @@ type strip_param = {
 
 let agl_max = 150.
 
-(** window for the strip panel *)
-let scrolled = GBin.scrolled_window ~hpolicy: `AUTOMATIC ~vpolicy: `AUTOMATIC ()
-let strips_table = GPack.vbox ~spacing:5 ~packing:scrolled#add_with_viewport ()
-
-
-
-
 (** set a label *)
 let set_label labels name value =
   try
@@ -198,7 +191,7 @@ end
 
 (** add a strip to the panel *)
 (*let add = fun config color min_bat max_bat ->*)
-let add = fun config strip_param ->
+let add = fun config strip_param (strips:GPack.box) ->
   let color = strip_param.color
   and min_bat = strip_param.min_bat
   and max_bat = strip_param.max_bat
@@ -217,7 +210,7 @@ let add = fun config strip_param ->
 
   let eventbox_dummy = GBin.event_box () in
 
-  strips_table#pack strip#toplevel#coerce;
+  strips#pack strip#toplevel#coerce;
 
   (* Name in top left *)
   strip#label_ac_name#set_label (sprintf "<b>%s</b>" ac_name);
