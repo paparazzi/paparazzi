@@ -139,7 +139,7 @@ static inline void GpsEvent(void (* _sol_available_callback)(void))
 
   if (dev->char_available(dev->periph)) {
     while (dev->char_available(dev->periph)) {
-      sirf_parse_char(dev->getchar(dev->periph));
+      sirf_parse_char(dev->get_char(dev->periph));
     }
   }
   if (gps_sirf.msg_available) {

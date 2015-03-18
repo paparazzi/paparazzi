@@ -65,7 +65,7 @@ void udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in
   p->device.transmit = (transmit_t) udp_transmit;
   p->device.send_message = (send_message_t) udp_send_message;
   p->device.char_available = (char_available_t) udp_char_available;
-  p->device.getchar = (getchar_t) udp_getch;
+  p->device.get_char = (get_char_t) udp_getch;
 
   // Arch dependent initialization
   udp_arch_periph_init(p, host, port_out, port_in, broadcast);

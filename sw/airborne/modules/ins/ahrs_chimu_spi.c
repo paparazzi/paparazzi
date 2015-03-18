@@ -83,7 +83,7 @@ void parse_ins_msg(void)
 {
   struct link_device *dev = InsLinkDevice;
   while (dev->char_available(dev->periph)) {
-    uint8_t ch = dev->getchar(dev->periph);
+    uint8_t ch = dev->get_char(dev->periph);
 
     if (CHIMU_Parse(ch, 0, &CHIMU_DATA)) {
       RunOnceEvery(25, LED_TOGGLE(3));

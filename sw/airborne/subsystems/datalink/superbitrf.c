@@ -246,7 +246,7 @@ void superbitrf_init(void)
   superbitrf.device.transmit = (transmit_t) superbitrf_transmit;
   superbitrf.device.send_message = (send_message_t) superbitrf_send;
   superbitrf.device.char_available = (char_available_t) null_function; // not needed
-  superbitrf.device.getchar = (getchar_t) null_function; // not needed
+  superbitrf.device.get_char = (get_char_t) null_function; // not needed
 
   // Initialize the binding pin
   gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);

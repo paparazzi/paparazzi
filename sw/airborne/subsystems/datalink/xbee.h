@@ -140,7 +140,7 @@ static inline void xbee_check_and_parse(struct link_device *dev, struct xbee_tra
 {
   if (dev->char_available(dev->periph)) {
     while (dev->char_available(dev->periph) && !trans->trans_rx.msg_received) {
-      parse_xbee(trans, dev->getchar(dev->periph));
+      parse_xbee(trans, dev->get_char(dev->periph));
     }
     if (trans->trans_rx.msg_received) {
       xbee_parse_payload(trans);

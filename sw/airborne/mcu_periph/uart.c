@@ -204,7 +204,7 @@ void uart_periph_init(struct uart_periph *p)
   p->device.transmit = (transmit_t)uart_transmit;
   p->device.send_message = (send_message_t)null_function;
   p->device.char_available = (char_available_t)uart_char_available;
-  p->device.getchar = (getchar_t)uart_getch;
+  p->device.get_char = (get_char_t)uart_getch;
 
 #if PERIODIC_TELEMETRY
   // the first to register do it for the others

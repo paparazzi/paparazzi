@@ -104,7 +104,7 @@ static inline void GpsEvent(void (* _sol_available_callback)(void))
 
   if (dev->char_available(dev->periph)) {
     while (dev->char_available(dev->periph) && !gps_ubx.msg_available) {
-      gps_ubx_parse(dev->getchar(dev->periph));
+      gps_ubx_parse(dev->get_char(dev->periph));
     }
   }
   if (gps_ubx.msg_available) {

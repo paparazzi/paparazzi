@@ -91,7 +91,7 @@ static inline void ins_event_check_and_handle(void (* handler)(void))
   struct link_device *dev = InsLinkDevice;
   if (dev->char_available(dev->periph)) {
     while (dev->char_available(dev->periph) && !ins_msg_received) {
-      parse_ins_buffer(dev->getchar(dev->periph));
+      parse_ins_buffer(dev->get_char(dev->periph));
     }
   }
   if (ins_msg_received) {

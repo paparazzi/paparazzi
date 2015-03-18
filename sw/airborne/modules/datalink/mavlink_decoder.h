@@ -255,7 +255,7 @@ static inline void mavlink_check_and_parse(struct link_device *dev, struct mavli
 {
   if (dev->char_available(dev->periph)) {
     while (dev->char_available(dev->periph) && !trans->trans.msg_received) {
-      parse_mavlink(trans, dev->getchar(dev->periph));
+      parse_mavlink(trans, dev->get_char(dev->periph));
     }
     if (trans->trans.msg_received) {
       mavlink_parse_payload(trans);

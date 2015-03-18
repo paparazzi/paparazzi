@@ -146,7 +146,7 @@ static inline void pprz_check_and_parse(struct link_device *dev, struct pprz_tra
 {
   if (dev->char_available(dev->periph)) {
     while (dev->char_available(dev->periph) && !trans->trans_rx.msg_received) {
-      parse_pprz(trans, dev->getchar(dev->periph));
+      parse_pprz(trans, dev->get_char(dev->periph));
     }
     if (trans->trans_rx.msg_received) {
       pprz_parse_payload(trans);

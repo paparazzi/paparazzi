@@ -75,7 +75,7 @@ static inline void GpsEvent(void (* _sol_available_callback)(void))
 
   if (dev->char_available(dev->periph)) {
     while (dev->char_available(dev->periph) && !gps_mtk.msg_available) {
-      gps_mtk_parse(dev->getchar(dev->periph));
+      gps_mtk_parse(dev->get_char(dev->periph));
     }
     GpsConfigure();
   }

@@ -55,7 +55,7 @@ extern mavlink_system_t mavlink_system;
 #define MAVLinkDev (&(MAVLINK_DEV).device)
 #define MAVLinkTransmit(c) MAVLinkDev->transmit(MAVLinkDev->periph, c)
 #define MAVLinkChAvailable() MAVLinkDev->char_available(MAVLinkDev->periph)
-#define MAVLinkGetch() MAVLinkDev->getchar(MAVLinkDev->periph)
+#define MAVLinkGetch() MAVLinkDev->get_char(MAVLinkDev->periph)
 #define MAVLinkSendMessage() MAVLinkDev->send_message(MAVLinkDev->periph)
 
 /**
