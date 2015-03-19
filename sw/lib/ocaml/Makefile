@@ -46,6 +46,13 @@ byte: gen_papget_editors _tags META
 	$(Q)$(OCAMLBUILD) -build-dir $(BUILDDIR) lib-pprz.cma xlib-pprz.cma
 	$(Q)cp META $(BUILDDIR)
 
+# byte with statically linked libs
+static: gen_papget_editors _tags META
+	@echo Build bytecode lib with static linking
+	$(Q)test -d $(BUILDDIR) || mkdir -p $(BUILDDIR)
+	$(Q)$(OCAMLBUILD) -build-dir $(BUILDDIR) -tag static lib-pprz.cma xlib-pprz.cma
+	$(Q)cp META $(BUILDDIR)
+
 native: gen_papget_editors _tags META
 	@echo Build native lib
 	$(Q)test -d $(BUILDDIR) || mkdir -p $(BUILDDIR)
@@ -132,4 +139,4 @@ clean :
 	$(Q)rm -rf $(PAPARAZZI_HOME)/var/lib/ocaml/pprz
 	$(Q)ocamlbuild -clean -classic-display -build-dir $(BUILDDIR)
 
-.PHONY: all byte native tests install install_local gen_papget_editors clean
+.PHONY: all byte static native tests install install_local gen_papget_editors clean

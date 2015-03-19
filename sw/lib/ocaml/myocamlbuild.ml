@@ -33,6 +33,9 @@ let _ =
       let libname = String.sub param 0 (String.length param - 2) in
       (S[A"-cclib"; A("-l"^libname)]));
 
+    (* If `static' tag is given, then every ocaml link in bytecode will add -custom *)
+    flag ["link"; "ocaml"; "byte"; "static"] (A"-custom");
+
     (* possibility to add defines for camlp4 in _tags file, e.g. define(FOO) *)
     pflag ["ocaml";"compile";] "define" (fun s -> S [A"-ppopt"; A ("-D"^s)]);
     pflag ["ocaml";"ocamldep";] "define" (fun s -> S [A"-ppopt"; A ("-D"^s)])
