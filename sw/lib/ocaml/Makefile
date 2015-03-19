@@ -38,17 +38,6 @@ endif
 INSTALL_FILES = $(shell ls $(BUILDDIR)/*.so $(BUILDDIR)/*.a $(BUILDDIR)/*.mli $(BUILDDIR)/*.cm*)
 
 
-#
-# FIXME, do this check in myocamlbuild or try to pass as option
-#
-NETCLIENT_VER := $(shell ocamlfind query -format '%v' netclient)
-NETCLIENT_MAJOR := $(shell echo $(NETCLIENT_VER) | cut -f1 -d.)
-ifeq ($(shell test $(NETCLIENT_MAJOR) -ge 4; echo $$?),0)
-CAMLP4_DEFS = -DNETCLIENT_V_4
-endif
-
-
-
 all: byte native
 
 byte: gen_papget_editors _tags META
@@ -67,6 +56,12 @@ install: byte native META
 	@echo INSTALL
 	$(Q)ocamlfind install $(INSTALL_FLAGS) pprz META $(INSTALL_FILES)
 
+tests:
+	$(OCAMLBUILD) test/test_latlong.byte
+	$(OCAMLBUILD) test/test_logpprz.byte
+
+#
+# INTERNAL target from here on...
 #
 # replacing LABLGTK2GNOMECANVAS in templates with lablgtk2-gnome.gnomecanvas or lablgtk2.gnomecanvas
 #
@@ -78,18 +73,21 @@ ifeq ($(LABLGTK2GNOMECANVAS),)
 $(error Found neither lablgtk2-gnome.gnomecanvas nor lablgtk2.gnomecanvas package)
 endif
 
+NETCLIENT_VER := $(shell ocamlfind query -format '%v' netclient)
+NETCLIENT_MAJOR := $(shell echo $(NETCLIENT_VER) | cut -f1 -d.)
+ifeq ($(shell test $(NETCLIENT_MAJOR) -ge 4; echo $$?),0)
+NETCLIENT_DEF = NETCLIENT_V_4
+else
+NETCLIENT_DEF = NETCLIENT_V_3
+endif
+
 _tags: _tags.template
 	@echo CREATE $@
-	$(shell cp $< $@ && sed -i 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' $@)
+	$(shell sed -e 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' -e 's/NETCLIENT_DEF/$(NETCLIENT_DEF)/g' $< > $@)
 
 META: META.template
 	@echo CREATE $@
 	$(shell cp $< $@ && sed -i 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' $@)
-
-
-tests:
-	$(OCAMLBUILD) test/test_latlong.byte
-	$(OCAMLBUILD) test/test_logpprz.byte
 
 gen_papget_editors: gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml
 

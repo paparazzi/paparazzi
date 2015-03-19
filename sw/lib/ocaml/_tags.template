@@ -14,10 +14,7 @@
 <gen_common.ml*>: package(xml-light)
 
 # http.ml needs to be preprocessed by camlp4 for the IFDEF
-"http.ml": syntax(camlp4o), package(camlp4.macro), package(netclient)
-
-#"lib-pprz.cma": package(xml-light), package(netclient), package(glibivy), package(lablgtk2)
-#"xlib-pprz.cma": package(xml-light), package(netclient), package(glibivy), package(lablgtk2)
+"http.ml": syntax(camlp4o), package(camlp4.macro), package(netclient), define(NETCLIENT_DEF)
 
 #
 # packages for xlib-pprz files
