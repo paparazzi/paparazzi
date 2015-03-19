@@ -29,8 +29,9 @@
 <map*.ml*>: package(lablgtk2)
 <xmlEdit.ml*>: package(lablgtk2)
 <mapFP.ml*>: package(xml-light)
-# todo, gnomecanvas package not named the same in all versions
-<wind_sock.ml*>: package(lablgtk2-gnome.gnomecanvas)
+
+# this is a bit of a hack, replace LABLGTK2GNOMECANVAS with actual package name
+<wind_sock.ml*>: package(LABLGTK2GNOMECANVAS)
 
 # options for files generated with lablgladecc2 in Makefile
 <gtk_papget_*editor.ml>: package(lablgtk2.glade)

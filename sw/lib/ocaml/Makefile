@@ -25,10 +25,18 @@ Q=@
 
 OCAMLBUILD=ocamlbuild -use-ocamlfind
 
-LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2-gnome.gnomecanvas 2>/dev/null)
-ifeq ($(LABLGTK2GNOMECANVAS),)
-LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2.gnomecanvas 2>/dev/null)
+PAPARAZZI_SRC ?= ../../..
+PAPARAZZI_HOME ?= $(PAPARAZZI_SRC)
+
+BUILDDIR ?= $(PAPARAZZI_HOME)/var/build/ocaml/pprz
+INSTALL_FLAGS ?=
+DESTDIR ?=
+ifneq ($(DESTDIR),)
+INSTALL_FLAGS += -destdir $(DESTDIR)
 endif
+
+INSTALL_FILES = $(shell ls $(BUILDDIR)/*.so $(BUILDDIR)/*.a $(BUILDDIR)/*.mli $(BUILDDIR)/*.cm*)
+
 
 #
 # FIXME, do this check in myocamlbuild or try to pass as option
@@ -43,18 +51,45 @@ endif
 
 all: byte native
 
-byte: gen_papget_editors META.pprz
-	@echo OB byte
-	$(Q)$(OCAMLBUILD) lib-pprz.cma xlib-pprz.cma
+byte: gen_papget_editors _tags META
+	@echo Build bytecode lib
+	$(Q)test -d $(BUILDDIR) || mkdir -p $(BUILDDIR)
+	$(Q)$(OCAMLBUILD) -build-dir $(BUILDDIR) lib-pprz.cma xlib-pprz.cma
+	$(Q)cp META $(BUILDDIR)
 
-native: gen_papget_editors META.pprz
-	@echo OB native
-	$(Q)$(OCAMLBUILD) lib-pprz.cmxa xlib-pprz.cmxa
+native: gen_papget_editors _tags META
+	@echo Build native lib
+	$(Q)test -d $(BUILDDIR) || mkdir -p $(BUILDDIR)
+	$(Q)$(OCAMLBUILD) -build-dir $(BUILDDIR) lib-pprz.cmxa xlib-pprz.cmxa
+	$(Q)cp META $(BUILDDIR)
+
+install: byte native META
+	@echo INSTALL
+	$(Q)ocamlfind install $(INSTALL_FLAGS) pprz META $(INSTALL_FILES)
+
+#
+# replacing LABLGTK2GNOMECANVAS in templates with lablgtk2-gnome.gnomecanvas or lablgtk2.gnomecanvas
+#
+LABLGTK2GNOMECANVAS := $(shell ocamlfind query -p-format lablgtk2-gnome.gnomecanvas 2>/dev/null)
+ifeq ($(LABLGTK2GNOMECANVAS),)
+LABLGTK2GNOMECANVAS := $(shell ocamlfind query -p-format lablgtk2.gnomecanvas 2>/dev/null)
+endif
+ifeq ($(LABLGTK2GNOMECANVAS),)
+$(error Found neither lablgtk2-gnome.gnomecanvas nor lablgtk2.gnomecanvas package)
+endif
+
+_tags: _tags.template
+	@echo CREATE $@
+	$(shell cp $< $@ && sed -i 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' $@)
+
+META: META.template
+	@echo CREATE $@
+	$(shell cp $< $@ && sed -i 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' $@)
+
 
 tests:
 	$(OCAMLBUILD) test/test_latlong.byte
 	$(OCAMLBUILD) test/test_logpprz.byte
-
 
 gen_papget_editors: gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml
 
@@ -93,12 +128,10 @@ gtk_papget_led_editor.ml : widgets.glade
 	$(Q)$(Q)lablgladecc2 -root table_led_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
 	$(Q)rm -f $($@_TMP)
 
-META.pprz: META.pprz.template
-	@echo COPY $<
-	$(shell cp $< META.pprz && sed -i 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' META.pprz)
 
 clean :
-	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz
-	$(Q)ocamlbuild -clean -classic-display
+	$(Q)rm -f *~ gtk_papget_*.ml META _tags
+	$(Q)rm -rf $(PAPARAZZI_HOME)/var/lib/ocaml/pprz
+	$(Q)ocamlbuild -clean -classic-display -build-dir $(BUILDDIR)
 
-.PHONY: all byte native tests gen_papget_editors clean
+.PHONY: all byte native tests install install_local gen_papget_editors clean

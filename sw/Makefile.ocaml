@@ -27,12 +27,11 @@ OCAMLC = ocamlfind ocamlc
 OCAMLOPT = ocamlfind ocamlopt
 OCAMLDEP = ocamlfind ocamldep
 OCAMLMKLIB = ocamlmklib
-LIBPPRZDIR = $(PAPARAZZI_SRC)/sw/lib/ocaml
-LIBPPRZCMA = $(LIBPPRZDIR)/_build/lib-pprz.cma
+
+LIBPPRZDIR = $(PAPARAZZI_HOME)/var/build/ocaml
+LIBPPRZCMA = $(LIBPPRZDIR)/pprz/lib-pprz.cma
 LIBPPRZCMXA = $(LIBPPRZCMA:.cma=.cmxa)
-XLIBPPRZCMA = $(LIBPPRZDIR)/_build/xlib-pprz.cma
+XLIBPPRZCMA = $(LIBPPRZDIR)/pprz/xlib-pprz.cma
 XLIBPPRZCMXA = $(XLIBPPRZCMA:.cma=.cmxa)
-#OCAMLDLL = -dllpath $(LIBPPRZDIR)
-#OCAMLXDLL = -dllpath $(LIBPPRZDIR)
 
 export OCAMLPATH=$(LIBPPRZDIR):$OCAMLPATH
