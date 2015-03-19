@@ -25,10 +25,25 @@ Q=@
 
 OCAMLBUILD=ocamlbuild -use-ocamlfind
 
-PAPARAZZI_SRC ?= ../../..
-PAPARAZZI_HOME ?= $(PAPARAZZI_SRC)
-
+#
+# NOTE: due to a bug in older ocamlbuild versions the build-dir can NOT be absolute
+# see http://caml.inria.fr/mantis/view.php?id=5503
+#
+# This means that for OCaml versions < 4, the PAPARAZZI_SRC must equal PAPARAZZI_HOME
+#
+OCAML_VERSION := $(shell ocamlc -version)
+OCAML_MAJOR := $(shell echo $(OCAML_VERSION) | cut -f1 -d.)
+ifeq ($(shell test $(OCAML_MAJOR) -lt 4; echo $$?),0)
+# need to use an old buggy ocaml(build) version: build-dir MUST be relative
+BUILDDIR ?= ../../../var/build/ocaml/pprz
+else
+# using a recent ocaml(build) version without THAT particular bug,
+# but build-dir MUST NOT contain ..
+# so use some magic here to get a normalized absolute path if PAPARAZZI_HOME is not set
+PAPARAZZI_HOME ?= $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../../..)
 BUILDDIR ?= $(PAPARAZZI_HOME)/var/build/ocaml/pprz
+endif
+
 INSTALL_FLAGS ?=
 DESTDIR ?=
 ifneq ($(DESTDIR),)
@@ -136,7 +151,7 @@ gtk_papget_led_editor.ml : widgets.glade
 
 clean :
 	$(Q)rm -f *~ gtk_papget_*.ml META _tags
-	$(Q)rm -rf $(PAPARAZZI_HOME)/var/lib/ocaml/pprz
+	$(Q)rm -rf $(BUILDDIR)
 	$(Q)ocamlbuild -clean -classic-display -build-dir $(BUILDDIR)
 
 .PHONY: all byte static native tests install install_local gen_papget_editors clean
