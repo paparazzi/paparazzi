@@ -70,17 +70,6 @@ void w5100_send(void);
 uint16_t w5100_rx_size(uint8_t _s);
 bool_t w5100_ch_available(void);
 
-// Defines that are done in mcu_periph on behalf of uart.
-// We need to do these here...
-#define W5100Init() w5100_init()
-#define W5100CheckFreeSpace(_x) (TRUE) // w5100_check_free_space(_x)
-#define W5100Transmit(_x) w5100_transmit(_x)
-#define W5100SendMessage() w5100_send()
-#define W5100ChAvailable() w5100_ch_available()
-#define W5100Getch() w5100_getch()
-#define W5100TxRunning chip0.tx_running
-#define W5100SetBaudrate(_b) w5100_set_baudrate(_b)
-
 
 // W5100 is using pprz_transport
 // FIXME it should not appear here, this will be fixed with the rx improvements some day...

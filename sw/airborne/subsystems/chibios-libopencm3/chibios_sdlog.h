@@ -55,9 +55,4 @@ struct chibios_sdlog {
 
 extern struct chibios_sdlog chibios_sdlog;
 
-/** Paparazzi datalink API */
-#define SDLOGCheckFreeSpace(_x) (true)
-#define SDLOGTransmit(_x) sdLogWriteByte(&pprzLogFile, _x)
-#define SDLOGSendMessage() {}
-
 #endif
