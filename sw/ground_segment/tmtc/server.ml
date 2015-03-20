@@ -379,13 +379,14 @@ let send_aircraft_msg = fun ac ->
     (** send ACINFO messages if more than one A/C registered *)
     if Hashtbl.length aircrafts > 1 then
       begin
+        let cm_of_m_32 = fun f -> Pprz.Int32 (Int32.of_int (truncate (100. *. f))) in
         let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f)) in
         let pos = LL.utm_of WGS84 a.pos in
         let ac_info = ["ac_id", Pprz.String ac;
-                       "utm_east", cm_of_m pos.utm_x;
-                       "utm_north", cm_of_m pos.utm_y;
+                       "utm_east", cm_of_m_32 pos.utm_x;
+                       "utm_north", cm_of_m_32 pos.utm_y;
                        "course", Pprz.Int (truncate (10. *. (Geometry_2d.rad2deg a.course)));
-                       "alt", cm_of_m a.alt;
+                       "alt", cm_of_m_32 a.alt;
                        "speed", cm_of_m a.gspeed;
                        "climb", cm_of_m a.climb;
                        "itow", Pprz.Int64 a.itow] in
@@ -690,7 +691,7 @@ let ivy_server = fun http ->
 let cm_of_m = fun f -> Pprz.Int (truncate ((100. *. f) +. 0.5))
 
 (** Convert to mm, with rounding *)
-let mm_of_m = fun f -> Pprz.Int (truncate ((1000. *. f) +. 0.5))
+let mm_of_m_32 = fun f -> Pprz.Int32 (Int32.of_int (truncate ((1000. *. f) +. 0.5)))
 
 let dl_id = "ground_dl" (* Hack, should be [my_id] *)
 
@@ -703,7 +704,7 @@ let move_wp = fun logging _sender vs ->
              "ac_id", Pprz.String ac_id;
              "lat", deg7 "lat";
              "lon", deg7 "long";
-             "alt", mm_of_m (Pprz.float_assoc "alt" vs) ] in
+             "alt", mm_of_m_32 (Pprz.float_assoc "alt" vs) ] in
   Dl_Pprz.message_send dl_id "MOVE_WP" vs;
   log logging ac_id "MOVE_WP" vs
 
