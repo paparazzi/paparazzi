@@ -141,7 +141,7 @@ type aircraft = {
   airframe : Xml.xml;
   mutable pos : Latlong.geographic;
   mutable unix_time : float;
-  mutable itow : int32; (* ms *)
+  mutable itow : int64; (* ms *)
   mutable roll    : float;
   mutable pitch   : float;
   mutable heading  : float; (* rad, CW 0=N *)
@@ -201,7 +201,7 @@ let new_aircraft = fun id name fp airframe ->
   let svsinfo_init = Array.init gps_nb_channels (fun _ -> svinfo_init ()) in
   { vehicle_type = UnknownVehicleType; id = id; name = name; flight_plan = fp; airframe = airframe;
     pos = { Latlong.posn_lat = 0.; posn_long = 0. };
-    unix_time = 0.; itow = Int32.of_int 0;
+    unix_time = 0.; itow = Int64.of_int 0;
     roll = 0.; pitch = 0.;
     gspeed=0.; airspeed= -1.; course = 0.; heading = 0.; alt=0.; climb=0.; agl = 0.;
     nav_ref = None; d_hmsl = 0.; ground_alt = 0.;

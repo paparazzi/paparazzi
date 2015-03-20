@@ -93,7 +93,7 @@ type aircraft = {
     airframe : Xml.xml;
     mutable pos : Latlong.geographic;
     mutable unix_time : float;
-    mutable itow : int32;
+    mutable itow : int64;
     mutable roll : float;
     mutable pitch : float;
     mutable heading : float; (* rad *)

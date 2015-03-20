@@ -91,7 +91,7 @@ external sprint_int8 : string -> int -> int -> unit = "c_sprint_int8"
 let types = [
   ("uint8",  { format = "%u"; glib_type = "guint8"; inttype = "uint8_t";  size = 1; value=Int 42 });
   ("uint16", { format = "%u";  glib_type = "guint16"; inttype = "uint16_t"; size = 2; value=Int 42 });
-  ("uint32", { format = "%lu" ;  glib_type = "guint32"; inttype = "uint32_t"; size = 4; value=Int 42 });
+  ("uint32", { format = "%Lu" ;  glib_type = "guint32"; inttype = "uint32_t"; size = 4; value=Int 42 }); (* uint32 should be lu, but doesn't fit into Int32 so Int64 (Lu) is used *)
   ("uint64", { format = "%Lu" ;  glib_type = "guint64"; inttype = "uint64_t"; size = 8; value=Int 42 });
   ("int8",   { format = "%d"; glib_type = "gint8"; inttype = "int8_t";   size = 1; value= Int 42 });
   ("int16",  { format = "%d";  glib_type = "gint16"; inttype = "int16_t";  size = 2; value= Int 42 });
@@ -137,7 +137,8 @@ let length_of_fixed_array_type = fun s ->
 
 let int_of_string = fun x ->
   try int_of_string x with
-      _ -> failwith (sprintf "Pprz.int_of_string: %s" x)
+      _ -> try int_of_string ("0x"^x) with (* try hex format in case *)
+        _ -> failwith (sprintf "Pprz.int_of_string: %s" x)
 
 let rec value = fun t v ->
   match t with

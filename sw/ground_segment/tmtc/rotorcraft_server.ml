@@ -179,7 +179,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
     Wind.update ac_name a.gspeed a.course*)
     | "GPS_INT" ->
       a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "tow" /. 1000.));
-      a.itow <- Int32.of_float (fvalue "tow");
+      a.itow <- Int64.of_float (fvalue "tow");
       a.gps_Pacc <- ivalue "pacc"
     | "ROTORCRAFT_STATUS" ->
       a.vehicle_type  <- Rotorcraft;
