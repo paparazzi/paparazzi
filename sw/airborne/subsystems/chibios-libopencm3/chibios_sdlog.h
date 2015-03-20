@@ -40,7 +40,7 @@
 
 extern FIL pprzLogFile;
 
-#if LOG_FLIGHTRECORDER
+#if FLIGHTRECORDER_SDLOG
 // if activated, will log all process states
 extern FIL flightRecorderLogFile;
 #endif

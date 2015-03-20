@@ -46,12 +46,13 @@ EventListener powerOutageListener;
 
 FIL pprzLogFile = {0};
 
-#if LOG_FLIGHTRECORDER
+struct chibios_sdlog chibios_sdlog;
+
+#if FLIGHTRECORDER_SDLOG
 static const char FLIGHTRECORDER_LOG_NAME[] = "fr_";
+static const char FR_LOG_DIR[] = "FLIGHT_RECORDER";
 FIL flightRecorderLogFile = {0};
 #endif
-
-struct chibios_sdlog chibios_sdlog;
 
 static WORKING_AREA(waThdBatterySurvey, 4096);
 static void launchBatterySurveyThread (void)
@@ -96,8 +97,8 @@ bool_t chibios_logInit(const bool_t binaryFile)
   if (sdLogOpenLog (&pprzLogFile, PPRZ_LOG_DIR, PPRZ_LOG_NAME) != SDLOG_OK)
     goto error;
 
-#if LOG_FLIGHTRECORDER
-  if (sdLogOpenLog (&flightRecorderLogFile, FLIGHTRECORDER_LOG_NAME) != SDLOG_OK)
+#if FLIGHTRECORDER_SDLOG
+  if (sdLogOpenLog (&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME) != SDLOG_OK)
     goto error;
 #endif
 
@@ -120,7 +121,7 @@ void chibios_logFinish(void)
   if (pprzLogFile.fs != NULL) {
     sdLogStopThread ();
     sdLogCloseLog (&pprzLogFile);
-#if LOG_FLIGHTRECORDER
+#if FLIGHTRECORDER_SDLOG
     sdLogCloseLog (&flightRecorderLogFile);
 #endif
     sdLogFinish ();
