@@ -109,7 +109,7 @@ _tags: _tags.template
 
 META: META.template
 	@echo CREATE $@
-	$(shell cp $< $@ && sed -i 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' $@)
+	$(shell sed -e 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' $< > $@)
 
 gen_papget_editors: gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml
 
