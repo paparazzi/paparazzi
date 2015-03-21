@@ -1,7 +1,25 @@
 (* Ocamlbuild plugin *)
 open Ocamlbuild_plugin
 
-let gtk_cflags = "-pthread -I/usr/include/gtk-2.0 -I/usr/lib/x86_64-linux-gnu/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/freetype2 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/libpng12 -I/usr/include/harfbuzz"
+
+
+let gtk_cflags =
+  let read_process_lines command =
+    let lines = ref [] in
+    let in_channel = Unix.open_process_in command in
+    begin
+      try
+        while true do
+          lines := input_line in_channel :: !lines
+        done;
+      with End_of_file ->
+        ignore (Unix.close_process_in in_channel)
+    end;
+    List.rev !lines in
+    let out = (read_process_lines "pkg-config --cflags gtk+-2.0") in
+    match out with
+      [] -> raise (Failure "pkg-config did not output anything")
+      | x :: out -> x;;
 
 let _ =
   dispatch & function
