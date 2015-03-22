@@ -37,15 +37,8 @@
 #include "generated/airframe.h" // AC_ID is required
 
 #if defined SITL
-
-#ifdef SIM_UART
-#include "sim_uart.h"
-#include "subsystems/datalink/pprz_transport.h"
-#include "subsystems/datalink/xbee.h"
-#else /* SIM_UART */
 /** Software In The Loop simulation uses IVY bus directly as the transport layer */
 #include "ivy_transport.h"
-#endif
 
 #else /** SITL */
 

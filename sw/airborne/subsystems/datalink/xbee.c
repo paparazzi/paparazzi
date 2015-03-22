@@ -30,10 +30,6 @@
 #include "subsystems/datalink/xbee.h"
 #include "subsystems/datalink/downlink.h"
 
-#ifdef SIM_UART
-#include "sim_uart.h"
-#endif
-
 /** Ground station address */
 #define GROUND_STATION_ADDR 0x100
 /** Aircraft address */
