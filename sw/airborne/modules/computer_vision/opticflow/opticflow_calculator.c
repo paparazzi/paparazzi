@@ -46,14 +46,9 @@
 #define Fx_ARdrone 343.1211
 #define Fy_ARdrone 348.5053
 
-// Corner Detection
-#define MAX_COUNT 100
-
-// Flow Derotation
-#define FLOW_DEROTATION
-
-/* Usefull for calculating FPS */
+/* Functions only used here */
 static uint32_t timeval_diff(struct timeval *starttime, struct timeval *finishtime);
+static int cmp_flow(const void *a, const void *b);
 
 /**
  * Initialize the opticflow calculator
@@ -63,18 +58,14 @@ static uint32_t timeval_diff(struct timeval *starttime, struct timeval *finishti
  */
 void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
 {
-  /* Set the width/height of the image */
-  opticflow->img_w = w;
-  opticflow->img_h = h;
-
   /* Create the image buffers */
   image_create(&opticflow->img_gray, w, h, IMAGE_GRAYSCALE);
   image_create(&opticflow->prev_img_gray, w, h, IMAGE_GRAYSCALE);
 
   /* Set the previous values */
   opticflow->got_first_img = FALSE;
-  opticflow->prev_pitch = 0.0;
-  opticflow->prev_roll = 0.0;
+  opticflow->prev_phi = 0.0;
+  opticflow->prev_theta = 0.0;
 }
 
 /**
@@ -104,14 +95,22 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // *************************************************************************************
 
   // FAST corner detection (TODO: non fixed threashold)
-  struct point_t *fast9_points = fast9_detect(img, 20, 5, &result->corner_cnt);
+  static uint8_t threshold = 20;
+  struct point_t *corners = fast9_detect(img, threshold, 10, 20, 20, &result->corner_cnt);
 
-//#if OPTICFLOW_SHOW_CORNERS
-  image_show_points(img, fast9_points, result->corner_cnt);
-//#endif
+  // Adaptive threshold
+  if(result->corner_cnt < 40 && threshold > 5)
+    threshold--;
+  else if(result->corner_cnt > 50 && threshold < 60)
+    threshold++;
 
+#if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_CORNERS
+  image_show_points(img, corners, result->corner_cnt);
+#endif
+
+  // Check if we found some corners to track
   if(result->corner_cnt < 1) {
-    free(fast9_points);
+    free(corners);
     image_copy(&opticflow->img_gray, &opticflow->prev_img_gray);
     return;
   }
@@ -120,98 +119,59 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // Corner Tracking
   // *************************************************************************************
 
-  struct point_t *new_points = malloc(sizeof(struct point_t) * result->corner_cnt);
-  bool_t *tracked_points = malloc(sizeof(bool_t) * result->corner_cnt);
-  opticFlowLK(&opticflow->img_gray, &opticflow->prev_img_gray, fast9_points, result->corner_cnt,
-    new_points, tracked_points, 5, 100, 2);
-  image_show_flow(img, fast9_points, new_points, result->corner_cnt, tracked_points);
+#define MAX_TRACK_CORNERS 25
+#define HALF_WINDOW_SIZE 5
+#define SUBPIXEL_FACTOR 10
+#define MAX_ITERATIONS 10
+#define THRESHOLD_VEC 2
+  // Execute a Lucas Kanade optical flow
+  result->tracked_cnt = result->corner_cnt;
+  struct flow_t *vectors = opticFlowLK(&opticflow->img_gray, &opticflow->prev_img_gray, corners, &result->tracked_cnt,
+    HALF_WINDOW_SIZE, SUBPIXEL_FACTOR, MAX_ITERATIONS, THRESHOLD_VEC, MAX_TRACK_CORNERS);
 
-  // Remove points if we lost tracking
- /* for (int i = count_fil - 1; i >= 0; i--) {
-    if (!status[i] || new_x[i] < borderx || new_x[i] > (opticflow->img_w - 1 - borderx) ||
-                       new_y[i] < bordery || new_y[i] > (opticflow->img_h - 1 - bordery)) {
-      for (int c = i; c < result->flow_count - 1; c++) {
-        x[c] = x[c + 1];
-        y[c] = y[c + 1];
-        new_x[c] = new_x[c + 1];
-        new_y[c] = new_y[c + 1];
-      }
-      result->flow_count--;
-    }
-  }*/
-
-  /*result->dx_sum = 0.0;
-  result->dy_sum = 0.0;
-
-  // Optical Flow Computation
-  for (int i = 0; i < result->flow_count; i++) {
-    dx[i] = new_x[i] - x[i];
-    dy[i] = new_y[i] - y[i];
-  }
-
-  // Median Filter
-  if (result->flow_count) {
-    quick_sort_int(dx, result->flow_count); // 11
-    quick_sort_int(dy, result->flow_count); // 11
-
-    result->dx_sum = (float) dx[result->flow_count / 2];
-    result->dy_sum = (float) dy[result->flow_count / 2];
-  } else {
-    result->dx_sum = 0.0;
-    result->dy_sum = 0.0;
-  }*/
-
-  // Flow Derotation
-  /*result->diff_pitch = (state->theta - opticflow->prev_pitch) * opticflow->img_h / FOV_H;
-  result->diff_roll = (state->phi - opticflow->prev_roll) * opticflow->img_w / FOV_W;
-  opticflow->prev_pitch = state->theta;
-  opticflow->prev_roll = state->phi;
-
-  float OFx_trans, OFy_trans;
-#ifdef FLOW_DEROTATION
-  if (result->flow_count) {
-    OFx_trans = result->dx_sum - result->diff_roll;
-    OFy_trans = result->dy_sum - result->diff_pitch;
-
-    if ((OFx_trans <= 0) != (result->dx_sum <= 0)) {
-      OFx_trans = 0;
-      OFy_trans = 0;
-    }
-  } else {
-    OFx_trans = result->dx_sum;
-    OFy_trans = result->dy_sum;
-  }
-#else
-  OFx_trans = result->dx_sum;
-  OFy_trans = result->dy_sum;
+#if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_FLOW
+  image_show_flow(img, vectors, result->tracked_cnt, SUBPIXEL_FACTOR);
 #endif
 
-  // Average Filter
-  OFfilter(&result->OFx, &result->OFy, OFx_trans, OFy_trans, result->flow_count, 1);
-
-  // Velocity Computation
-  if (state->agl < 0.01) {
-    result->cam_h = 0.01;
-  }
-  else {
-    result->cam_h = state->agl;
-  }
-
-  if (result->flow_count) {
-    result->Velx = result->OFy * result->cam_h * result->fps / Fy_ARdrone + 0.05;
-    result->Vely = -result->OFx * result->cam_h * result->fps / Fx_ARdrone - 0.1;
+  // Get the median flow
+  qsort(vectors, result->tracked_cnt, sizeof(struct flow_t), cmp_flow);
+  if(result->tracked_cnt == 0) {
+    // We got no flow
+    result->flow_x = 0;
+    result->flow_y = 0;
+  } else if(result->tracked_cnt > 3) {
+    // Take the average of the 3 median points
+    result->flow_x = vectors[result->tracked_cnt/2 -1].flow_x;
+    result->flow_y = vectors[result->tracked_cnt/2 -1].flow_y;
+    result->flow_x += vectors[result->tracked_cnt/2].flow_x;
+    result->flow_y += vectors[result->tracked_cnt/2].flow_y;
+    result->flow_x += vectors[result->tracked_cnt/2 +1].flow_x;
+    result->flow_y += vectors[result->tracked_cnt/2 +1].flow_y;
+    result->flow_x /= 3;
+    result->flow_y /= 3;
   } else {
-    result->Velx = 0.0;
-    result->Vely = 0.0;
+    // Take the median point
+    result->flow_x = vectors[result->tracked_cnt/2].flow_x;
+    result->flow_y = vectors[result->tracked_cnt/2].flow_y;
   }
+
+  // Flow Derotation
+  float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / FOV_W;
+  float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / FOV_H;
+  result->flow_der_x = result->flow_x - diff_flow_x * SUBPIXEL_FACTOR;
+  result->flow_der_y = result->flow_y - diff_flow_y * SUBPIXEL_FACTOR;
+  opticflow->prev_phi = state->phi;
+  opticflow->prev_theta = state->theta;
+
+  // Velocity calculation
+  result->vel_x = -result->flow_der_x * result->fps / SUBPIXEL_FACTOR * img->w / Fx_ARdrone;
+  result->vel_y =  result->flow_der_y * result->fps / SUBPIXEL_FACTOR * img->h / Fy_ARdrone;
 
   // *************************************************************************************
   // Next Loop Preparation
   // *************************************************************************************
-  */
-  free(fast9_points);
-  free(new_points);
-  free(tracked_points);
+  free(corners);
+  free(vectors);
   image_copy(&opticflow->img_gray, &opticflow->prev_img_gray);
 }
 
@@ -227,4 +187,18 @@ static uint32_t timeval_diff(struct timeval *starttime, struct timeval *finishti
   msec=(finishtime->tv_sec-starttime->tv_sec)*1000;
   msec+=(finishtime->tv_usec-starttime->tv_usec)/1000;
   return msec;
+}
+
+/**
+ * Compare two flow vectors based on flow distance
+ * Used for sorting.
+ * @param[in] *a The first flow vector (should be vect flow_t)
+ * @param[in] *b The second flow vector (should be vect flow_t)
+ * @return Negative if b has more flow than a, 0 if the same and positive if a has more flow than b
+ */
+static int cmp_flow(const void *a, const void *b)
+{
+  const struct flow_t *a_p = (const struct flow_t *)a;
+  const struct flow_t *b_p = (const struct flow_t *)b;
+  return (a_p->flow_x*a_p->flow_x + a_p->flow_y*a_p->flow_y) - (b_p->flow_x*b_p->flow_x + b_p->flow_y*b_p->flow_y);
 }

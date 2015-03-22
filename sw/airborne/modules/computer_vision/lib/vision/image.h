@@ -56,6 +56,13 @@ struct point_t {
   uint16_t y;             //< The y coordinate of the point
 };
 
+/* Vector structure for point differences */
+struct flow_t {
+  struct point_t pos;         //< The original position the flow comes from
+  int16_t flow_x;             //< The x direction flow in subpixels
+  int16_t flow_y;             //< The y direction flow in subpixels
+};
+
 /* Usefull image functions */
 void image_create(struct image_t *img, uint16_t width, uint16_t height, enum image_type type);
 void image_free(struct image_t *img);
@@ -69,7 +76,7 @@ void image_calculate_g(struct image_t *dx, struct image_t *dy, int32_t *g);
 uint32_t image_difference(struct image_t *img_a, struct image_t *img_b, struct image_t *diff);
 int32_t image_multiply(struct image_t *img_a, struct image_t *img_b, struct image_t *mult);
 void image_show_points(struct image_t *img, struct point_t *points, uint16_t points_cnt);
-void image_show_flow(struct image_t *img, struct point_t *points, struct point_t *new_points, uint16_t points_cnt, bool_t *status_points);
+void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t points_cnt, uint8_t subpixel_factor);
 void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *to);
 
 #endif

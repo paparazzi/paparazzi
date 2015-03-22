@@ -39,22 +39,22 @@
 #define CMD_OF_SAT  1500 // 40 deg = 2859.1851
 
 #ifndef VISION_PHI_PGAIN
-#define VISION_PHI_PGAIN 500
+#define VISION_PHI_PGAIN 400
 #endif
 PRINT_CONFIG_VAR(VISION_PHI_PGAIN);
 
 #ifndef VISION_PHI_IGAIN
-#define VISION_PHI_IGAIN 10
+#define VISION_PHI_IGAIN 20
 #endif
 PRINT_CONFIG_VAR(VISION_PHI_IGAIN);
 
 #ifndef VISION_THETA_PGAIN
-#define VISION_THETA_PGAIN 500
+#define VISION_THETA_PGAIN 400
 #endif
 PRINT_CONFIG_VAR(VISION_THETA_PGAIN);
 
 #ifndef VISION_THETA_IGAIN
-#define VISION_THETA_IGAIN 10
+#define VISION_THETA_IGAIN 20
 #endif
 PRINT_CONFIG_VAR(VISION_THETA_IGAIN);
 
@@ -92,17 +92,14 @@ struct opticflow_stab_t opticflow_stab = {
  */
 void guidance_h_module_enter(void)
 {
-  // Set the errors to 0
-  opticflow_stab.err_vx = 0;
+  /* Reset the integrated errors */
   opticflow_stab.err_vx_int = 0;
-  opticflow_stab.err_vy = 0;
   opticflow_stab.err_vy_int = 0;
 
-  // Set the euler command to 0
-  INT_EULERS_ZERO(opticflow_stab.cmd);
-
-  // GUIDANCE: Set Hover-z-hold (1 meter???)
-  guidance_v_z_sp = -1;
+  /* Set rool/pitch to 0 degrees and psi to current heading */
+  opticflow_stab.cmd.phi = 0;
+  opticflow_stab.cmd.theta = 0;
+  opticflow_stab.cmd.psi = stateGetNedToBodyEulers_i()->psi;
 }
 
 /**
@@ -119,7 +116,10 @@ void guidance_h_module_read_rc(void)
  */
 void guidance_h_module_run(bool_t in_flight)
 {
-  // Run the default attitude stabilization
+  /* Update the setpoint */
+  stabilization_attitude_set_rpy_setpoint_i(&opticflow_stab.cmd);
+
+  /* Run the default attitude stabilization */
   stabilization_attitude_run(in_flight);
 }
 
@@ -129,46 +129,35 @@ void guidance_h_module_run(bool_t in_flight)
  */
 void stabilization_opticflow_update(struct opticflow_result_t *result)
 {
-  // *************************************************************************************
-  // Downlink Message
-  // *************************************************************************************
-
-  float test = 1.5;
-  DOWNLINK_SEND_OF_HOVER(DefaultChannel, DefaultDevice,
-                         &result->fps, &result->dx_sum, &result->dy_sum, &result->OFx, &result->OFy,
-                         &result->diff_roll, &result->diff_pitch,
-                         &result->Velx, &result->Vely,
-                         &test, &test,
-                         &result->cam_h, &result->corner_cnt);
-
   /* Check if we are in the correct AP_MODE before setting commands */
   if (autopilot_mode != AP_MODE_MODULE) {
     return;
   }
 
   /* Calculate the error if we have enough flow */
-  if (result->flow_count > 0) {
-    opticflow_stab.err_vx = result->Velx - opticflow_stab.desired_vx;
-    opticflow_stab.err_vy = result->Vely - opticflow_stab.desired_vy;
-  } else {
-    opticflow_stab.err_vx = 0;
-    opticflow_stab.err_vy = 0;
+  float err_vx = 0;
+  float err_vy = 0;
+  if (result->tracked_cnt > 0) {
+    err_vx = opticflow_stab.desired_vx - result->vel_x;
+    err_vy = opticflow_stab.desired_vy - result->vel_y;
   }
 
   /* Calculate the integrated errors (TODO: bound??) */
-  opticflow_stab.err_vx_int += opticflow_stab.theta_igain * opticflow_stab.err_vx;
-  opticflow_stab.err_vy_int += opticflow_stab.phi_igain * opticflow_stab.err_vy;
+  opticflow_stab.err_vx_int += err_vx / 100;
+  opticflow_stab.err_vy_int += err_vy / 100;
 
   /* Calculate the commands */
-  opticflow_stab.cmd.theta = (opticflow_stab.theta_pgain * opticflow_stab.err_vx + opticflow_stab.err_vx_int);
-  opticflow_stab.cmd.phi = -(opticflow_stab.phi_pgain * opticflow_stab.err_vy + opticflow_stab.err_vy_int);
+  opticflow_stab.cmd.phi   = opticflow_stab.phi_pgain * err_vx / 100
+                              + opticflow_stab.phi_igain * opticflow_stab.err_vx_int;
+  opticflow_stab.cmd.theta = -(opticflow_stab.theta_pgain * err_vy / 100
+                              + opticflow_stab.err_vy_int * opticflow_stab.err_vy_int);
 
   /* Bound the roll and pitch commands */
   BoundAbs(opticflow_stab.cmd.phi, CMD_OF_SAT);
   BoundAbs(opticflow_stab.cmd.theta, CMD_OF_SAT);
 
-  /* Update the setpoint */
-  stabilization_attitude_set_rpy_setpoint_i(&opticflow_stab.cmd);
-  //DOWNLINK_SEND_VISION_STABILIZATION(DefaultChannel, DefaultDevice, &result->Velx, &result->Vely, &Velx_Int,
-  //                                   &Vely_Int, &cmd_euler.phi, &cmd_euler.theta);
+  DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice,
+                       &result->fps, &result->corner_cnt, &result->tracked_cnt, &result->flow_x, &result->flow_y,
+                       &result->flow_der_x, &result->flow_der_y, &result->vel_x, &result->vel_y,
+                       &opticflow_stab.cmd.phi, &opticflow_stab.cmd.theta);
 }

@@ -315,10 +315,10 @@ void image_calculate_g(struct image_t *dx, struct image_t *dy, int32_t *g)
   }
 
   // ouput the G vector
-  g[0] = sum_dxx;
-  g[1] = sum_dxy;
+  g[0] = sum_dxx / 255;
+  g[1] = sum_dxy / 255;
   g[2] = g[1];
-  g[3] = sum_dyy;
+  g[3] = sum_dyy / 255;
 }
 
 /**
@@ -421,23 +421,23 @@ void image_show_points(struct image_t *img, struct point_t *points, uint16_t poi
  * Shows the flow from a specific point to a new point
  * This works on YUV422 and Grayscale images
  * @param[in,out] *img The image to show the flow on
- * @param[in] *points The initial point location
- * @param[in] *new_points The new point locations
- * @param[in] *points_cnt The amount of points to show
- * @param[in] *status_points The status of the specific point (TRUE is tracked, FALSE is untracked)
+ * @param[in] *vectors The flow vectors to show
+ * @param[in] *points_cnt The amount of points and vectors to show
  */
-void image_show_flow(struct image_t *img, struct point_t *points, struct point_t *new_points, uint16_t points_cnt, bool_t *status_points)
+void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t points_cnt, uint8_t subpixel_factor)
 {
   // Go through all the points
   for(uint16_t i = 0; i < points_cnt; i++) {
-    // Check if we are still tracking
-    if(!status_points[i])
-      continue;
-
-    //printf("Drawing line\n");
-
-    // Draw a line from points[i] to new_points[i]
-    image_draw_line(img, &points[i], &new_points[i]);
+    // Draw a line from the original position with the flow vector
+    struct point_t from = {
+      vectors[i].pos.x / subpixel_factor,
+      vectors[i].pos.y / subpixel_factor
+    };
+    struct point_t to = {
+      (vectors[i].pos.x + vectors[i].flow_x) / subpixel_factor,
+      (vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor
+    };
+    image_draw_line(img, &from, &to);
   }
 }
 
@@ -480,12 +480,16 @@ void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *
   else distance = delta_y*20;
 
   /* draw the line */
-  for(uint16_t t = 0; t <= distance+1; t++) {
-      img_buf[img->w*pixel_width*starty + startx*pixel_width] = 255;
+  for(uint16_t t = 0; starty >= 0 && starty < img->h && startx >= 0 && startx < img->w && t <= distance+1; t++) {
+      img_buf[img->w*pixel_width*starty + startx*pixel_width] = (t <= 3)? 0 : 255;
 
       if(img->type == IMAGE_YUV422) {
-        img_buf[img->w*pixel_width*starty + startx*pixel_width] = 255;
         img_buf[img->w*pixel_width*starty + startx*pixel_width +1] = 255;
+
+        if(startx+1 < img->w) {
+          img_buf[img->w*pixel_width*starty + startx*pixel_width +2] = (t <= 3)? 0 : 255;
+          img_buf[img->w*pixel_width*starty + startx*pixel_width +3] = 255;
+        }
       }
 
       xerr += delta_x;

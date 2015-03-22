@@ -41,23 +41,14 @@ struct opticflow_stab_t {
   int32_t phi_igain;        //< The roll I gain on the err_vx_int
   int32_t theta_pgain;      //< The pitch P gain on the err_vy
   int32_t theta_igain;      //< The pitch I gain on the err_vy_int
-  float desired_vx;         //< The desired velocity in the x direction (m/s??)
-  float desired_vy;         //< The desired velocity in the y direction (m/s??)
+  float desired_vx;         //< The desired velocity in the x direction (cm/s)
+  float desired_vy;         //< The desired velocity in the y direction (cm/s)
 
-  float err_vx;             //< The velocity error in x direction (m/s??)
-  float err_vx_int;         //< The integrated velocity error in x direction (m/s??)
-  float err_vy;             //< The velocity error in y direction (m/s??)
-  float err_vy_int;         //< The integrated velocity error in y direction (m/s??)
-
+  float err_vx_int;         //< The integrated velocity error in x direction (m/s)
+  float err_vy_int;         //< The integrated velocity error in y direction (m/s)
   struct Int32Eulers cmd;   //< The commands that are send to the hover loop
 };
 extern struct opticflow_stab_t opticflow_stab;
-
-// Vertical loop re-uses Alt-hold
-#define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_HOVER
-
-// Horizontal mode is a specific controller
-#define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_MODULE
 
 // Implement own Horizontal loops
 extern void guidance_h_module_enter(void);

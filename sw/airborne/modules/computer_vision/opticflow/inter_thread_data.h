@@ -31,26 +31,24 @@
 
 /* The result calculated from the opticflow */
 struct opticflow_result_t {
-  uint16_t cnt;           //< Number of processed frames
-  uint32_t corner_cnt;    //< The amount of coners found by FAST9
+  float fps;              //< Frames per second of the optical flow calculation
+  uint16_t corner_cnt;    //< The amount of coners found by FAST9
+  uint16_t tracked_cnt;   //< The amount of tracked corners
 
+  int16_t flow_x;         //< Flow in x direction from the camera (in subpixels)
+  int16_t flow_y;         //< Flow in y direction from the camera (in subpixels)
+  int16_t flow_der_x;     //< The derotated flow calculation in the x direction (in subpixels)
+  int16_t flow_der_y;     //< The derotated flow calculation in the y direction (in subpixels)
 
-  float Velx;       // Velocity as measured by camera
-  float Vely;
-  int flow_count;
-
-  float cam_h;      // Debug parameters
-  float OFx, OFy, dx_sum, dy_sum;
-  float diff_roll;
-  float diff_pitch;
-  float fps;        //< Frames per second of the optical flow calculation
+  float vel_x;            //< The velocity in the x direction
+  float vel_y;            //< The velocity in the y direction
 };
 
 /* The state of the drone when it took an image */
 struct opticflow_state_t {
-  float phi;      // roll [rad]
-  float theta;    // pitch [rad]
-  float agl;      // height above ground [m]
+  float phi;      //< roll [rad]
+  float theta;    //< pitch [rad]
+  float agl;      //< height above ground [m]
 };
 
 #endif

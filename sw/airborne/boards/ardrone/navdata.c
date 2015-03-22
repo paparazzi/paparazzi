@@ -292,10 +292,10 @@ static void *navdata_read(void *data __attribute__((unused)))
         if (pint != NULL) {
           memmove(navdata_buffer, pint, NAVDATA_PACKET_SIZE - (pint - navdata_buffer));
           buffer_idx = pint - navdata_buffer;
+          fprintf(stderr, "[navdata] sync error, startbyte not found, resetting...\n");
         } else {
           buffer_idx = 0;
         }
-        fprintf(stderr, "[navdata] sync error, startbyte not found, resetting...\n");
         continue;
       }
 
