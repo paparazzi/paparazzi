@@ -69,7 +69,7 @@ static inline void GpsEvent(void (* _sol_available_callback)(void))
 
   if (dev->char_available(dev->periph)) {
     while (dev->char_available(dev->periph)) {
-      nmea_parse_char(dev->get_char(dev->periph));
+      nmea_parse_char(dev->get_byte(dev->periph));
     }
   }
   if (gps_nmea.msg_available) {

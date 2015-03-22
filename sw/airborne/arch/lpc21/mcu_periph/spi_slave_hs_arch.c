@@ -166,7 +166,7 @@ void spi_slave_hs_init(void)
   spi_slave_hs.device.transmit = (transmit_t) spi_slave_hs_transmit;
   spi_slave_hs.device.send_message = (send_message_t) spi_slave_hs_send;
   spi_slave_hs.device.char_available = (char_available_t) spi_slave_hs_char_available;
-  spi_slave_hs.device.get_char = (get_char_t) spi_slave_hs_getch;
+  spi_slave_hs.device.get_byte = (get_byte_t) spi_slave_hs_getch;
 
 }
 

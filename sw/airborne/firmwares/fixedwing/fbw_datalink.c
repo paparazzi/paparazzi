@@ -68,8 +68,8 @@ void fbw_datalink_event(void)
 #endif
 
   while (ModemLinkDevice->char_available(ModemLinkDevice->periph))
-    modem_parse(ModemLinkDevice->get_char(ModemLinkDevice->periph));
+    modem_parse(ModemLinkDevice->get_byte(ModemLinkDevice->periph));
 
   while (AutopilotLinkDevice->char_available(AutopilotLinkDevice->periph))
-    autopilot_parse(AutopilotLinkDevice->get_char(AutopilotLinkDevice->periph));
+    autopilot_parse(AutopilotLinkDevice->get_byte(AutopilotLinkDevice->periph));
 }

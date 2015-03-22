@@ -254,7 +254,7 @@ void w5100_init(void)
   chip0.device.transmit = (transmit_t) dev_transmit;
   chip0.device.send_message = (send_message_t) dev_send;
   chip0.device.char_available = (char_available_t) dev_char_available;
-  chip0.device.get_char = (get_char_t) dev_getch;
+  chip0.device.get_byte = (get_byte_t) dev_getch;
 }
 
 void w5100_transmit(uint8_t data)

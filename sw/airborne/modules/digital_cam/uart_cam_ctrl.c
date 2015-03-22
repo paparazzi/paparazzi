@@ -48,7 +48,7 @@
 #define CameraLinkDev (&(CAMERA_LINK).device)
 #define CameraLinkTransmit(c) CameraLinkDev->transmit(CameraLinkDev->periph, c)
 #define CameraLinkChAvailable() CameraLinkDev->check_available(CameraLinkDev->periph)
-#define CameraLinkGetch() CameraLinkGetch->get_char(CameraLinkDev->periph)
+#define CameraLinkGetch() CameraLinkGetch->get_byte(CameraLinkDev->periph)
 
 union dc_shot_union dc_shot_msg;
 union mora_status_union mora_status_msg;

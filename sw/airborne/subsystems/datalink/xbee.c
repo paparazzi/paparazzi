@@ -126,7 +126,7 @@ static uint8_t xbee_text_reply_is_ok(struct link_device *dev)
   int count = 0;
 
   while (dev->char_available(dev->periph)) {
-    char cc = dev->get_char(dev->periph);
+    char cc = dev->get_byte(dev->periph);
     if (count < 2) {
       c[count] = cc;
     }
@@ -184,7 +184,7 @@ void xbee_init(void)
 
   // Empty buffer before init process
   while (dev->char_available(dev->periph)) {
-    dev->get_char(dev->periph);
+    dev->get_byte(dev->periph);
   }
 
 #ifndef NO_XBEE_API_INIT

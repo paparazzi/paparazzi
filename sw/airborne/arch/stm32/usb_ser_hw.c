@@ -531,5 +531,5 @@ void VCOM_init(void)
   usb_serial.device.transmit = (transmit_t) usb_serial_transmit;
   usb_serial.device.send_message = (send_message_t) usb_serial_send;
   usb_serial.device.char_available = (char_available_t) usb_serial_char_available;
-  usb_serial.device.get_char = (get_char_t) usb_serial_getch;
+  usb_serial.device.get_byte = (get_byte_t) usb_serial_getch;
 }

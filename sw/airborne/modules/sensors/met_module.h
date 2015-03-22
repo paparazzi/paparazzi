@@ -40,7 +40,7 @@
 #define MetLinkDevice (&(MET_LINK).device)
 
 #define MetBuffer() MetLinkDevice->char_available(MetLinkDevice->periph)
-#define MetGetch() MetLinkDevice->get_char(MetLinkDevice->periph)
+#define MetGetch() MetLinkDevice->get_byte(MetLinkDevice->periph)
 #define ReadMetBuffer() { while (MetBuffer()&&!met_msg_received) parse_met_buffer(MetGetch()); }
 #define MetSend1(c) MetLinkDevice->transmit(MetLinkDevice->periph, c)
 #define MetUartSend1(c) MetSend1(c)

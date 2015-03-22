@@ -74,7 +74,7 @@ void parse_ins_msg(void)
 {
   struct link_device *dev = InsLinkDevice;
   while (dev->char_available(dev->periph)) {
-    uint8_t ch = dev->get_char(dev->periph);
+    uint8_t ch = dev->get_byte(dev->periph);
 
     if (CHIMU_Parse(ch, 0, &CHIMU_DATA)) {
       if (CHIMU_DATA.m_MsgID == 0x03) {
