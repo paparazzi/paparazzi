@@ -275,15 +275,15 @@ restart:
 
 static void ubx_send_1byte(struct link_device *dev, uint8_t byte)
 {
-  dev->transmit(dev->periph, byte);
+  dev->put_byte(dev->periph, byte);
   gps_ubx.send_ck_a += byte;
   gps_ubx.send_ck_b += gps_ubx.send_ck_a;
 }
 
 void ubx_header(struct link_device *dev, uint8_t nav_id, uint8_t msg_id, uint16_t len)
 {
-  dev->transmit(dev->periph, UBX_SYNC1);
-  dev->transmit(dev->periph, UBX_SYNC2);
+  dev->put_byte(dev->periph, UBX_SYNC1);
+  dev->put_byte(dev->periph, UBX_SYNC2);
   gps_ubx.send_ck_a = 0;
   gps_ubx.send_ck_b = 0;
   ubx_send_1byte(dev, nav_id);
@@ -294,8 +294,8 @@ void ubx_header(struct link_device *dev, uint8_t nav_id, uint8_t msg_id, uint16_
 
 void ubx_trailer(struct link_device *dev)
 {
-  dev->transmit(dev->periph, gps_ubx.send_ck_a);
-  dev->transmit(dev->periph, gps_ubx.send_ck_b);
+  dev->put_byte(dev->periph, gps_ubx.send_ck_a);
+  dev->put_byte(dev->periph, gps_ubx.send_ck_b);
   dev->send_message(dev->periph);
 }
 

@@ -68,7 +68,7 @@ void nmea_parse_prop_init(void)
     // Check if there is enough space to send the config msg
     if (GpsLinkDevice->check_free_space(GpsLinkDevice->periph, len + 6)) {
       for (j = 0; j < len + 6; j++) {
-        GpsLinkDevice->transmit(GpsLinkDevice->periph, buf[j]);
+        GpsLinkDevice->put_byte(GpsLinkDevice->periph, buf[j]);
       }
     } else {
       break;

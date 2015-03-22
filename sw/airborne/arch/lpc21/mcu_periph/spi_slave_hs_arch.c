@@ -163,7 +163,7 @@ void spi_slave_hs_init(void)
   // Configure generic device
   spi_slave_hs.device.periph = (void *)(&spi_slave_hs);
   spi_slave_hs.device.check_free_space = (check_free_space_t) spi_slave_hs_check_free_space;
-  spi_slave_hs.device.transmit = (transmit_t) spi_slave_hs_transmit;
+  spi_slave_hs.device.put_byte = (put_byte_t) spi_slave_hs_transmit;
   spi_slave_hs.device.send_message = (send_message_t) spi_slave_hs_send;
   spi_slave_hs.device.char_available = (char_available_t) spi_slave_hs_char_available;
   spi_slave_hs.device.get_byte = (get_byte_t) spi_slave_hs_getch;

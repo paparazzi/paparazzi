@@ -422,7 +422,7 @@ restart:
 static void MtkSend_CFG(char *dat)
 {
   struct link_device *dev = &((GPS_LINK).device);
-  while (*dat != 0) { dev->transmit(dev->periph, *dat++); }
+  while (*dat != 0) { dev->put_byte(dev->periph, *dat++); }
 }
 
 void gps_configure_uart(void)

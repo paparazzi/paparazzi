@@ -46,7 +46,7 @@
 #include "state.h"
 
 #define CameraLinkDev (&(CAMERA_LINK).device)
-#define CameraLinkTransmit(c) CameraLinkDev->transmit(CameraLinkDev->periph, c)
+#define CameraLinkTransmit(c) CameraLinkDev->put_byte(CameraLinkDev->periph, c)
 #define CameraLinkChAvailable() CameraLinkDev->check_available(CameraLinkDev->periph)
 #define CameraLinkGetch() CameraLinkGetch->get_byte(CameraLinkDev->periph)
 

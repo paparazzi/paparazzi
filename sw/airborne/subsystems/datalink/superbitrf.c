@@ -243,7 +243,7 @@ void superbitrf_init(void)
   // Configure generic device
   superbitrf.device.periph = (void *)(&superbitrf);
   superbitrf.device.check_free_space = (check_free_space_t) superbitrf_check_free_space;
-  superbitrf.device.transmit = (transmit_t) superbitrf_transmit;
+  superbitrf.device.put_byte = (put_byte_t) superbitrf_transmit;
   superbitrf.device.send_message = (send_message_t) superbitrf_send;
   superbitrf.device.char_available = (char_available_t) null_function; // not needed
   superbitrf.device.get_byte = (get_byte_t) null_function; // not needed

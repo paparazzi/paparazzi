@@ -251,7 +251,7 @@ void w5100_init(void)
   // Configure generic device
   chip0.device.periph = (void *)(&chip0);
   chip0.device.check_free_space = (check_free_space_t) true_function;
-  chip0.device.transmit = (transmit_t) dev_transmit;
+  chip0.device.put_byte = (put_byte_t) dev_transmit;
   chip0.device.send_message = (send_message_t) dev_send;
   chip0.device.char_available = (char_available_t) dev_char_available;
   chip0.device.get_byte = (get_byte_t) dev_getch;

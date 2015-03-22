@@ -56,7 +56,7 @@ struct xbee_transport xbee_tp;
 static void put_1byte(struct xbee_transport *trans, struct link_device *dev, const uint8_t byte)
 {
   trans->cs_tx += byte;
-  dev->transmit(dev->periph, byte);
+  dev->put_byte(dev->periph, byte);
 }
 
 static void put_bytes(struct xbee_transport *trans, struct link_device *dev,
@@ -86,10 +86,10 @@ static uint8_t size_of(struct xbee_transport *trans __attribute__((unused)), uin
 static void start_message(struct xbee_transport *trans, struct link_device *dev, uint8_t payload_len)
 {
   downlink.nb_msgs++;
-  dev->transmit(dev->periph, XBEE_START);
+  dev->put_byte(dev->periph, XBEE_START);
   const uint16_t len = payload_len + XBEE_API_OVERHEAD;
-  dev->transmit(dev->periph, (len >> 8));
-  dev->transmit(dev->periph, (len & 0xff));
+  dev->put_byte(dev->periph, (len >> 8));
+  dev->put_byte(dev->periph, (len & 0xff));
   trans->cs_tx = 0;
   const uint8_t header[] = XBEE_TX_HEADER;
   put_bytes(trans, dev, DL_TYPE_UINT8, DL_FORMAT_SCALAR, XBEE_TX_OVERHEAD + 1, header);
@@ -98,7 +98,7 @@ static void start_message(struct xbee_transport *trans, struct link_device *dev,
 static void end_message(struct xbee_transport *trans, struct link_device *dev)
 {
   trans->cs_tx = 0xff - trans->cs_tx;
-  dev->transmit(dev->periph, trans->cs_tx);
+  dev->put_byte(dev->periph, trans->cs_tx);
   dev->send_message(dev->periph);
 }
 
