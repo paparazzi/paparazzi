@@ -107,6 +107,7 @@ $(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
 else
 $(OBJDIR)/simsitl : autopilot.so $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
+	@echo $(shell pwd)
 	$(Q)$(OCAMLC) -g $(CAMLINCLUDES) -o $@ $(LINKPKG) $^ -dllpath $(OBJDIR) -dllpath $(SIMDIR)
 endif
 
