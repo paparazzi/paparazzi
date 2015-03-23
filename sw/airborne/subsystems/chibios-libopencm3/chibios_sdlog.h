@@ -49,10 +49,15 @@ extern bool_t chibios_logInit(const bool_t binaryFile);
 extern void chibios_logFinish(void);
 
 struct chibios_sdlog {
+  FIL *file;
   /** Generic device interface */
   struct link_device device;
 };
 
 extern struct chibios_sdlog chibios_sdlog;
+
+/** init chibios_sdlog structure
+ */
+extern void chibios_sdlog_init(struct chibios_sdlog *sdlog, FIL *file);
 
 #endif

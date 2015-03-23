@@ -41,19 +41,6 @@ static struct chibios_sdlog flightrecorder_sdlog;
 #warning "SD log is activated, but FLIGHTRECORDER_DEVICE is alreay set (should not be defined)"
 #endif
 
-// Functions for the generic device API
-static int sdlog_check_free_space(struct chibios_sdlog* p __attribute__((unused)), uint8_t len __attribute__((unused)))
-{
-  return TRUE;
-}
-
-static void sdlog_transmit(struct chibios_sdlog* p __attribute__((unused)), uint8_t byte)
-{
-  sdLogWriteByte(&flightRecorderLogFile, byte);
-}
-
-static void sdlog_send(struct chibios_sdlog* p __attribute__((unused))) { }
-
 #else
 // include downlink for other devices
 #include "subsystems/datalink/downlink.h"
@@ -62,10 +49,7 @@ static void sdlog_send(struct chibios_sdlog* p __attribute__((unused))) { }
 void flight_recorder_init()
 {
 #if FLIGHTRECORDER_SDLOG
-  flightrecorder_sdlog.device.periph = (void *)(&flightrecorder_sdlog);
-  flightrecorder_sdlog.device.check_free_space = (check_free_space_t) sdlog_check_free_space;
-  flightrecorder_sdlog.device.transmit = (transmit_t) sdlog_transmit;
-  flightrecorder_sdlog.device.send_message = (send_message_t) sdlog_send;
+  chibios_sdlog_init(&flightrecorder_sdlog, &flightRecorderLogFile);
 #endif
 }
 
