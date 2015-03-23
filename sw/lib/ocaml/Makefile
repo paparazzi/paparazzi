@@ -185,7 +185,7 @@ gtk_papget_led_editor.ml : widgets.glade
 
 META.pprz: META.pprz.template
 	@echo COPY $<
-	$(shell cp $< META.pprz && sed -i '' -e 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' META.pprz)
+	$(shell sed -e 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' $< > $@)
 
 clean :
 	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz
