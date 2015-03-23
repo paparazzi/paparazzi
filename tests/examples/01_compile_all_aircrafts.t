@@ -35,7 +35,11 @@ use Cwd;
 
 $|++;
 my $xmlSimple = XML::Simple->new(ForceArray => 1);
-my $conf = $xmlSimple->XMLin("$ENV{'PAPARAZZI_HOME'}/conf/conf.xml");
+my $conf_xml_file = $ENV{'CONF_XML'};
+if ($conf_xml_file eq "") {
+    $conf_xml_file = "$ENV{'PAPARAZZI_HOME'}/conf/conf.xml";
+}
+my $conf = $xmlSimple->XMLin($conf_xml_file);
 
 
 sub get_num_targets
@@ -57,7 +61,7 @@ sub get_num_targets
 }
 plan tests => get_num_targets()+1;
 
-ok(1, "Parsed the configuration file");
+ok(1, "Parsed the $conf_xml_file configuration file");
 foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
 {
 	my $airframe = $conf->{'aircraft'}->{$aircraft}->{'airframe'};
@@ -125,11 +129,11 @@ sub run_program
     my $stderr_and_out = '';
 
     my $stdout_handler = sub {
-        print @_ if $verbose;
+        warn @_ if $verbose;
         $stderr_and_out .= $_[0];
     };
     my $stderr_handler = sub {
-        print @_ if $verbose;
+        warn @_ if $verbose;
         # check if output on stderr contains warnings, but ignoring "Warning: low altitude"
         if ($_[0] =~ /warning/i && $_[0] !~ /Warning: low altitude/) {
             $warnings .= $_[0]."\n";

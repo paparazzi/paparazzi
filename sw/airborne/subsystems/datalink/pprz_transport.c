@@ -52,7 +52,7 @@ static void put_1byte(struct pprz_transport *trans, struct link_device *dev, con
 {
   trans->ck_a_tx += byte;
   trans->ck_b_tx += trans->ck_a_tx;
-  dev->transmit(dev->periph, byte);
+  dev->put_byte(dev->periph, byte);
 }
 
 static void put_bytes(struct pprz_transport *trans, struct link_device *dev,
@@ -82,17 +82,17 @@ static uint8_t size_of(struct pprz_transport *trans __attribute__((unused)), uin
 static void start_message(struct pprz_transport *trans, struct link_device *dev, uint8_t payload_len)
 {
   downlink.nb_msgs++;
-  dev->transmit(dev->periph, STX);
+  dev->put_byte(dev->periph, STX);
   const uint8_t msg_len = size_of(trans, payload_len);
-  dev->transmit(dev->periph, msg_len);
+  dev->put_byte(dev->periph, msg_len);
   trans->ck_a_tx = msg_len;
   trans->ck_b_tx = msg_len;
 }
 
 static void end_message(struct pprz_transport *trans, struct link_device *dev)
 {
-  dev->transmit(dev->periph, trans->ck_a_tx);
-  dev->transmit(dev->periph, trans->ck_b_tx);
+  dev->put_byte(dev->periph, trans->ck_a_tx);
+  dev->put_byte(dev->periph, trans->ck_b_tx);
   dev->send_message(dev->periph);
 }
 

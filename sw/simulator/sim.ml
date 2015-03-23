@@ -140,7 +140,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let _reset = fun () -> state := initial_state in
 
-    let commands = Array.create FM.nb_commands 0 in
+    let commands = Array.make FM.nb_commands 0 in
 
     Aircraft.commands commands;
 

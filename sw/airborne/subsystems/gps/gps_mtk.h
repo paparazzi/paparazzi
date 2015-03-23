@@ -54,11 +54,7 @@ extern struct GpsMtk gps_mtk;
 /*
  * This part is used by the autopilot to read data from a uart
  */
-#define __GpsLink(dev, _x) dev##_x
-#define _GpsLink(dev, _x)  __GpsLink(dev, _x)
-#define GpsLink(_x) _GpsLink(GPS_LINK, _x)
-
-#define GpsBuffer() GpsLink(ChAvailable())
+#include "mcu_periph/link_device.h"
 
 #ifdef GPS_CONFIGURE
 extern bool_t gps_configuring;
@@ -70,43 +66,23 @@ extern bool_t gps_configuring;
 #define GpsConfigure() {}
 #endif
 
-#define GpsEvent(_sol_available_callback) {             \
-    if (GpsBuffer()) {                                  \
-      ReadGpsBuffer();                                  \
-      GpsConfigure();                                   \
-    }                                                   \
-    if (gps_mtk.msg_available) {                        \
-      gps.last_msg_ticks = sys_time.nb_sec_rem;         \
-      gps.last_msg_time = sys_time.nb_sec;              \
-      gps_mtk_read_message();                           \
-      if (gps_mtk.msg_class == MTK_DIY14_ID &&          \
-          gps_mtk.msg_id == MTK_DIY14_NAV_ID) {         \
-        if (gps.fix == GPS_FIX_3D) {                    \
-          gps.last_3dfix_ticks = sys_time.nb_sec_rem;   \
-          gps.last_3dfix_time = sys_time.nb_sec;        \
-        }                                               \
-        _sol_available_callback();                      \
-      }                                                 \
-      if (gps_mtk.msg_class == MTK_DIY16_ID &&          \
-          gps_mtk.msg_id == MTK_DIY16_NAV_ID) {         \
-        if (gps.fix == GPS_FIX_3D) {                    \
-          gps.last_3dfix_ticks = sys_time.nb_sec_rem;   \
-          gps.last_3dfix_time = sys_time.nb_sec;        \
-        }                                               \
-        _sol_available_callback();                      \
-      }                                                 \
-      gps_mtk.msg_available = FALSE;                    \
-    }                                                   \
-  }
-
-#define ReadGpsBuffer() {         \
-    while (GpsLink(ChAvailable())&&!gps_mtk.msg_available)  \
-      gps_mtk_parse(GpsLink(Getch()));      \
-  }
-
-
 extern void gps_mtk_read_message(void);
 extern void gps_mtk_parse(uint8_t c);
+
+static inline void GpsEvent(void (* _sol_available_callback)(void))
+{
+  struct link_device *dev = &((GPS_LINK).device);
+
+  if (dev->char_available(dev->periph)) {
+    while (dev->char_available(dev->periph) && !gps_mtk.msg_available) {
+      gps_mtk_parse(dev->get_byte(dev->periph));
+    }
+    GpsConfigure();
+  }
+  if (gps_mtk.msg_available) {
+    gps_mtk_msg(_sol_available_callback);
+  }
+}
 
 /*
  * dynamic GPS configuration

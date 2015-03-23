@@ -51,7 +51,7 @@ struct pprzlog_transport pprzlog_tp;
 static void put_1byte(struct pprzlog_transport *trans, struct link_device *dev, const uint8_t byte)
 {
   trans->ck += byte;
-  dev->transmit(dev->periph, byte);
+  dev->put_byte(dev->periph, byte);
 }
 
 static void put_bytes(struct pprzlog_transport *trans, struct link_device *dev,
@@ -79,7 +79,7 @@ static uint8_t size_of(struct pprzlog_transport *trans __attribute__((unused)), 
 
 static void start_message(struct pprzlog_transport *trans, struct link_device *dev, uint8_t payload_len)
 {
-  dev->transmit(dev->periph, STX_LOG);
+  dev->put_byte(dev->periph, STX_LOG);
   const uint8_t msg_len = size_of(trans, payload_len);
   trans->ck = 0;
   put_1byte(trans, dev, msg_len);
@@ -90,7 +90,7 @@ static void start_message(struct pprzlog_transport *trans, struct link_device *d
 
 static void end_message(struct pprzlog_transport *trans, struct link_device *dev)
 {
-  dev->transmit(dev->periph, trans->ck);
+  dev->put_byte(dev->periph, trans->ck);
   dev->send_message(dev->periph);
 }
 

@@ -30,6 +30,9 @@
 #include "math/pprz_geodetic_float.h"
 #endif
 
+/** Includes macros generated from ubx.xml */
+#include "ubx_protocol.h"
+
 /* parser status */
 #define UNINIT        0
 #define GOT_SYNC1     1
@@ -51,9 +54,6 @@
 
 #define UTM_HEM_NORTH 0
 #define UTM_HEM_SOUTH 1
-
-
-#define GpsUartRunning GpsLink(TxRunning)
 
 struct GpsUbx gps_ubx;
 
@@ -273,11 +273,69 @@ restart:
   return;
 }
 
-void ubxsend_cfg_rst(uint16_t bbr , uint8_t reset_mode)
+static void ubx_send_1byte(struct link_device *dev, uint8_t byte)
+{
+  dev->put_byte(dev->periph, byte);
+  gps_ubx.send_ck_a += byte;
+  gps_ubx.send_ck_b += gps_ubx.send_ck_a;
+}
+
+void ubx_header(struct link_device *dev, uint8_t nav_id, uint8_t msg_id, uint16_t len)
+{
+  dev->put_byte(dev->periph, UBX_SYNC1);
+  dev->put_byte(dev->periph, UBX_SYNC2);
+  gps_ubx.send_ck_a = 0;
+  gps_ubx.send_ck_b = 0;
+  ubx_send_1byte(dev, nav_id);
+  ubx_send_1byte(dev, msg_id);
+  ubx_send_1byte(dev, (uint8_t)(len&0xFF));
+  ubx_send_1byte(dev, (uint8_t)(len>>8));
+}
+
+void ubx_trailer(struct link_device *dev)
+{
+  dev->put_byte(dev->periph, gps_ubx.send_ck_a);
+  dev->put_byte(dev->periph, gps_ubx.send_ck_b);
+  dev->send_message(dev->periph);
+}
+
+void ubx_send_bytes(struct link_device *dev, uint8_t len, uint8_t *bytes)
+{
+  int i;
+  for (i = 0; i < len; i++) {
+    ubx_send_1byte(dev, bytes[i]);
+  }
+}
+
+void ubx_send_cfg_rst(struct link_device *dev, uint16_t bbr , uint8_t reset_mode)
 {
 #ifdef GPS_LINK
-  UbxSend_CFG_RST(bbr, reset_mode, 0x00);
+  UbxSend_CFG_RST(dev, bbr, reset_mode, 0x00);
 #endif /* else less harmful for HITL */
 }
 
+#ifndef GPS_UBX_UCENTER
+#define gps_ubx_ucenter_event() {}
+#else
+#include "modules/gps/gps_ubx_ucenter.h"
+#endif
+
+void gps_ubx_msg(void (* _cb)(void))
+{
+  gps.last_msg_ticks = sys_time.nb_sec_rem;
+  gps.last_msg_time = sys_time.nb_sec;
+  gps_ubx_read_message();
+  gps_ubx_ucenter_event();
+  if (gps_ubx.msg_class == UBX_NAV_ID &&
+      (gps_ubx.msg_id == UBX_NAV_VELNED_ID ||
+       (gps_ubx.msg_id == UBX_NAV_SOL_ID &&
+        gps_ubx.have_velned == 0))) {
+    if (gps.fix == GPS_FIX_3D) {
+      gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+      gps.last_3dfix_time = sys_time.nb_sec;
+    }
+    _cb();
+  }
+  gps_ubx.msg_available = FALSE;
+}
 

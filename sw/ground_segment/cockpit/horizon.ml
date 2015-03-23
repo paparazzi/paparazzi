@@ -39,7 +39,7 @@ let arc = fun n r start stop ->
 
 let floats_of_points = fun ps ->
   let n = Array.length ps in
-  let a = Array.create (2*n) 0. in
+  let a = Array.make (2*n) 0. in
   for i = 0 to n - 1 do
     let (x, y) = ps.(i) in
     a.(2*i)<-x;
@@ -56,7 +56,7 @@ let ruler = fun ?(index_on_right=false) ~text_props ~max ~scale ~w ~index_width 
   let props = (text_props@[`ANCHOR `EAST]) in
 
   (* One step drawer *)
-  let tab = Array.create (max/step) false in
+  let tab = Array.make (max/step) false in
   let draw = fun i ->
     let i = i * step in
     let y = -. scale *. float i in

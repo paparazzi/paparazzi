@@ -69,7 +69,7 @@ type values = {
   }
 
 let create_values = fun size color ->
-  { array = Array.create size None; index = 0; color = color;
+  { array = Array.make size None; index = 0; color = color;
     average = GData.adjustment ~value:0. (); discrete = false;
     stdev = GData.adjustment ~value:0. ()}
 
@@ -135,7 +135,7 @@ class plot = fun ~size ~update_time ~width ~height ~packing () ->
     method set_size = fun new_size ->
       if new_size <> size && new_size > 0 then begin
         Hashtbl.iter (fun _ a ->
-          let new_array = Array.create new_size None in
+          let new_array = Array.make new_size None in
           for i = 0 to Pervasives.min size new_size - 1 do
             new_array.(new_size - 1 - i) <- a.array.((a.index-i+size) mod size)
           done;

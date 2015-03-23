@@ -91,7 +91,7 @@ external sprint_int8 : string -> int -> int -> unit = "c_sprint_int8"
 let types = [
   ("uint8",  { format = "%u"; glib_type = "guint8"; inttype = "uint8_t";  size = 1; value=Int 42 });
   ("uint16", { format = "%u";  glib_type = "guint16"; inttype = "uint16_t"; size = 2; value=Int 42 });
-  ("uint32", { format = "%lu" ;  glib_type = "guint32"; inttype = "uint32_t"; size = 4; value=Int 42 });
+  ("uint32", { format = "%Lu" ;  glib_type = "guint32"; inttype = "uint32_t"; size = 4; value=Int 42 }); (* uint32 should be lu, but doesn't fit into Int32 so Int64 (Lu) is used *)
   ("uint64", { format = "%Lu" ;  glib_type = "guint64"; inttype = "uint64_t"; size = 8; value=Int 42 });
   ("int8",   { format = "%d"; glib_type = "gint8"; inttype = "int8_t";   size = 1; value= Int 42 });
   ("int16",  { format = "%d";  glib_type = "gint16"; inttype = "int16_t";  size = 2; value= Int 42 });
@@ -137,7 +137,8 @@ let length_of_fixed_array_type = fun s ->
 
 let int_of_string = fun x ->
   try int_of_string x with
-      _ -> failwith (sprintf "Pprz.int_of_string: %s" x)
+      _ -> try int_of_string ("0x"^x) with (* try hex format in case *)
+        _ -> failwith (sprintf "Pprz.int_of_string: %s" x)
 
 let rec value = fun t v ->
   match t with
@@ -169,23 +170,15 @@ let rec string_of_value = function
       | _ -> String.concat separator l
 
 
-let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
-
-(* FIXME temporary solution, the complete formatted_string_of_value function
-   causes a segfault in server and GCS *)
-let string_of_value_format = fun format v ->
-  match v with
-    Float x -> sprintf (magic format) x
-  | v -> string_of_value v
-
 let rec formatted_string_of_value = fun format v ->
+  let f = fun x -> Scanf.format_from_string format x in
   match v with
-    | Int x -> sprintf (magic format) x
-    | Float x -> sprintf (magic format) x
-    | Int32 x -> sprintf (magic format) x
-    | Int64 x -> sprintf (magic format) x
-    | Char x -> sprintf (magic format) x
-    | String x -> sprintf (magic format) x
+    | Int x -> sprintf (f "%d") x
+    | Float x -> sprintf (f "%f") x
+    | Int32 x -> sprintf (f "%ld") x
+    | Int64 x -> sprintf (f "%Ld") x
+    | Char x -> sprintf (f "%c") x
+    | String x ->sprintf "%s" x
     | Array a ->
         let l = (Array.to_list (Array.map (formatted_string_of_value format) a)) in
         match a.(0) with
@@ -733,7 +726,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
          try List.assoc field_name values with
              Not_found ->
                default_value field._type in
-       string_of_value_format field.fformat v)
+       formatted_string_of_value field.fformat v)
      msg.fields)
 
   let message_send = fun ?timestamp ?link_id sender msg_name values ->
@@ -753,17 +746,17 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
       | Some the_link_id -> begin
         let index = ref 0 in
         let modified_msg = String.copy msg in
-        let func = fun c -> 
-          match c with 
-            ' ' -> begin 
-            String.set modified_msg !index ';'; 
+        let func = fun c ->
+          match c with
+            ' ' -> begin
+            String.set modified_msg !index ';';
             index := !index + 1
             end
           | x -> index := !index + 1; in
         String.iter func modified_msg;
         Ivy.send ( Printf.sprintf "redlink TELEMETRY_MESSAGE %s %i %s" sender the_link_id modified_msg);
       end
-          
+
   let message_bind = fun ?sender ?(timestamp=false) msg_name cb ->
     let tsregexp, tsoffset = if timestamp then "([0-9]+\\.[0-9]+ )?", 1 else "", 0 in
     match sender with

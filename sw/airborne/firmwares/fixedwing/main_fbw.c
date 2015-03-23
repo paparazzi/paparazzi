@@ -331,12 +331,7 @@ void periodic_task_fbw(void)
   }
 #endif
 
-#ifdef MCU_UART_LINK
-  inter_mcu_fill_fbw_state();
-  link_mcu_periodic_task();
-#endif
-
-#ifdef MCU_CAN_LINK
+#if defined MCU_UART_LINK || defined MCU_CAN_LINK
   inter_mcu_fill_fbw_state();
   link_mcu_periodic_task();
 #endif

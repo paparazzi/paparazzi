@@ -27,7 +27,7 @@ ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=uart0
 ap.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
-ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=UART0
+ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=uart0
 #ap.srcs += $(BOOZ)/booz_datalink.c
 
 ap.srcs += $(WIND_TUNNEL)/wt_servo.c
@@ -57,7 +57,7 @@ mb.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 mb.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=uart0
 mb.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
-mb.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=UART0
+mb.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=uart0
 
 mb.srcs += $(WIND_TUNNEL)/wt_servo.c
 

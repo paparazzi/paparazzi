@@ -125,14 +125,6 @@ extern void superbitrf_event(void);
 extern void superbitrf_set_mfg_id(uint32_t id);
 extern void superbitrf_set_protocol(uint8_t protocol);
 
-/* The datalink defines */
-#define SuperbitRFInit() { }//superbitrf_init(); }
-#define SuperbitRFCheckFreeSpace(_x) (((superbitrf.tx_insert_idx+1) %SUPERBITRF_TX_BUFFER_SIZE) != superbitrf.tx_extract_idx)
-#define SuperbitRFTransmit(_x) {                                    \
-    superbitrf.tx_buffer[superbitrf.tx_insert_idx] = _x;            \
-    superbitrf.tx_insert_idx = (superbitrf.tx_insert_idx+1) %SUPERBITRF_TX_BUFFER_SIZE;   \
-  }
-#define SuperbitRFSendMessage() { }
 #define SuperbitRFCheckAndParse() { }
 
 #endif /* DATALINK_SUPERBITRF_H */

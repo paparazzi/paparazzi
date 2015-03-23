@@ -8,13 +8,13 @@
       - Sends a RTP/UDP stream of the camera
       - Possibility to save an image(shot) on the internal memory (JPEG, full size, best quality)
     </description>
-    <define name="VIEWVIDEO_DEVICE" value="\\\"/dev/video1\\\"" description="The video device to capture from"/>
+    <define name="VIEWVIDEO_DEVICE" value="/dev/video1" description="The video device to capture from"/>
     <define name="VIEWVIDEO_DEVICE_SIZE" value="1280,720" description="Video capture size (width, height)"/>
     <define name="VIEWVIDEO_DEVICE_BUFFERS" value="10" description="Amount of V4L2 image buffers"/>
     <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4" description="Reduction factor of the video stream"/>
     <define name="VIEWVIDEO_QUALITY_FACTOR" value="50" description="JPEG encoding compression factor [0-99]"/>
     <define name="VIEWVIDEO_FPS" value="4" description="Video stream frame rate"/>
-    <define name="VIEWVIDEO_SHOT_PATH" value="\\\"/data/video/images\\\"" description="Path where the images should be saved"/>
+    <define name="VIEWVIDEO_SHOT_PATH" value="/data/video/images" description="Path where the images should be saved"/>
     <define name="VIEWVIDEO_USE_NETCAT" value="FALSE" description="Use netcat for transfering images"/>
   </doc>
   <settings>
@@ -50,7 +50,7 @@
       VIEWVIDEO_BROADCAST   ?= $(MODEM_BROADCAST)
       VIEWVIDEO_DEV_LOWER   = $(shell echo $(VIEWVIDEO_DEV) | tr A-Z a-z)
 
-      VIEWVID_G_CFLAGS  = -DVIEWVIDEO_HOST=\"$(VIEWVIDEO_HOST)\" -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT)
+      VIEWVID_G_CFLAGS  = -DVIEWVIDEO_HOST=$(VIEWVIDEO_HOST) -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT)
       VIEWVID_CFLAGS  = -DUSE_$(VIEWVIDEO_DEV) -DVIEWVIDEO_DEV=$(VIEWVIDEO_DEV_LOWER)
       VIEWVID_CFLAGS += -D$(VIEWVIDEO_DEV)_PORT_OUT=$(VIEWVIDEO_PORT_OUT) -D$(VIEWVIDEO_DEV)_PORT_IN=$(VIEWVIDEO_PORT_IN)
       VIEWVID_CFLAGS += -D$(VIEWVIDEO_DEV)_BROADCAST=$(VIEWVIDEO_BROADCAST) -D$(VIEWVIDEO_DEV)_HOST=\"$(VIEWVIDEO_HOST)\"

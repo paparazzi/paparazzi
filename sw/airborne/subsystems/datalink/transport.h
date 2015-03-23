@@ -43,16 +43,6 @@ struct transport_rx {
   uint8_t ovrn, error;                    ///< overrun and error flags
 };
 
-/** Transport link macros
- *
- * make the link between the transport layer
- * and the device layer
- */
-#define __TransportLink(dev, _x) dev##_x
-#define _TransportLink(dev, _x)  __TransportLink(dev, _x)
-#define TransportLink(_dev, _x) _TransportLink(_dev, _x)
-
-
 /** Data type
  */
 enum TransportDataType {

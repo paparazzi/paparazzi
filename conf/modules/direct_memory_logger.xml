@@ -48,7 +48,7 @@
     <define name="DM_LOG_SPI_DEV" value="$(DM_LOG_SPI_DEV_LOWER)" />
     <define name="DM_LOG_SPI_SLAVE_IDX" value="$(DM_LOG_SPI_SLAVE_IDX_UPPER)" />
 
-    <define name="DM_LOG_UART" value="$(DM_LOG_UART_UPPER)"/>
+    <define name="DM_LOG_UART" value="$(DM_LOG_UART_LOWER)"/>
     <define name="USE_$(DM_LOG_UART_UPPER)"/>
     <define name="$(DM_LOG_UART_UPPER)_BAUD" value="B230400"/>
 
