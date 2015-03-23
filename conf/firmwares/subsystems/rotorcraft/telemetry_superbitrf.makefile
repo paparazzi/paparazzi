@@ -4,7 +4,6 @@
 #
 ap.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_DEVICE=superbitrf
 ap.CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=SUPERBITRF
-ap.CFLAGS += -DDefaultPeriodic='&telemetry_Main'
 #ap.CFLAGS += -DUSE_SUPERBITRF -DUSE_SPI2 -DUSE_SPI_SLAVE2
 
 ap.srcs += peripherals/cyrf6936.c

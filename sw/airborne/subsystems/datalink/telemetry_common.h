@@ -34,12 +34,6 @@
 #include "mcu_periph/link_device.h"
 #include "subsystems/datalink/transport.h"
 
-/** Set default periodic telemetry to NULL
- */
-#ifndef DefaultPeriodic
-#define DefaultPeriodic NULL
-#endif
-
 /** Telemetry callback definition
  */
 typedef void (*telemetry_cb)(struct transport_tx *trans, struct link_device *dev);

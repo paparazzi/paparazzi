@@ -28,6 +28,13 @@
  */
 
 #include "subsystems/datalink/telemetry_common.h"
+#include "generated/periodic_telemetry.h"
+
+/** Implement global structures from generated header
+ */
+struct telemetry_msg telemetry_msg[TELEMETRY_NB_MSG] = TELEMETRY_STRUCT;
+struct pprz_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msg };
+
 
 /** Register a telemetry callback function.
  * @param _pt periodic telemetry structure to register
