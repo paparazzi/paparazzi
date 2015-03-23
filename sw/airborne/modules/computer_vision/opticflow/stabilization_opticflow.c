@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/computer_vision/opticflow/hover_stabilization.c
+ * @file modules/computer_vision/opticflow/stabilization_opticflow.c
  * @brief Optical-flow based control for Linux based systems
  *
  * Control loops for optic flow based hovering.

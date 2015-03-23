@@ -32,15 +32,8 @@
 #include "lib/vision/image.h"
 #include "mcu_periph/udp.h"
 
-void rtp_frame_send(
-  struct udp_periph *udp,             // socket
-  struct image_t *img,                // The image to send
-  uint8_t format_code,                // 0=422, 1=421
-  uint8_t quality_code,               // 0-99 of 128 for custom (include
-  uint8_t has_dri_header,             // Does Jpeg data include Header Info?
-  uint32_t delta_t                    // time step 90kHz
-);
-
+void rtp_frame_send(struct udp_periph *udp, struct image_t *img, uint8_t format_code, uint8_t quality_code,
+  uint8_t has_dri_header, uint32_t delta_t);
 void rtp_frame_test(struct udp_periph *udp);
 
 #endif /* _CV_ENCODING_RTP_H */

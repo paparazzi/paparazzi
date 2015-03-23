@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/computer_vision/lib/vision/lucas_kanade.c
+ * @file modules/computer_vision/lib/vision/lucas_kanade.h
  * @brief efficient fixed-point optical-flow calculation
  *
  * - Initial fixed-point C implementation by G. de Croon
