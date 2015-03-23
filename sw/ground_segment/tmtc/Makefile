@@ -28,25 +28,22 @@ include ../../Makefile.ocaml
 CONF = ../../../conf
 VAR = ../../../var
 
-INCLUDES= -I ../multimon
+INCLUDES=
 PKG = -package glibivy,pprz
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
 XPKG = -package pprz.xlib
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
 
-LIBMULTIMONCMA=../multimon/multimon.cma
-LIBMULTIMONDLL= multimon.cma -dllpath $(PAPARAZZI_SRC)/sw/ground_segment/multimon
-
 SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo fw_server.ml rotorcraft_server.ml intruder.cmo server.cmo
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 
-all: link server messages settings dia diadec ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge app_server ivy2nmea
+all: link server messages settings ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge app_server ivy2nmea
 
 opt: server.opt
 
 clean:
-	$(Q)rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge app_server gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 c_ivy_client_example_3 ivy2nmea
+	$(Q)rm -f link server messages settings *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge app_server gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 c_ivy_client_example_3 ivy2nmea
 
 messages : messages.cmo $(LIBPPRZCMA)
 	@echo OL $@
@@ -64,9 +61,9 @@ server.opt :  $(SERVERCMX) $(LIBPPRZCMXA)
 	@echo OOL $@
 	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ -package glibivy,pprz -linkpkg $(SERVERCMX)
 
-link : link.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
+link : link.cmo $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 
 ivy_tcp_aircraft : ivy_tcp_aircraft.cmo $(LIBPPRZCMA)
@@ -87,16 +84,6 @@ broadcaster : broadcaster.cmo $(LIBPPRZCMA)
 ivy2udp : ivy2udp.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
-
-
-dia : dia.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
-
-
-diadec : diadec.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
 150m : 150m.cmo $(LIBPPRZCMA)
@@ -171,7 +158,7 @@ ivy_serial_bridge: ivy_serial_bridge.c
 
 .depend: Makefile
 	@echo DEPEND $@
-	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) -I ../multimon *.ml* > .depend
+	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

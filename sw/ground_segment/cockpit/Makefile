@@ -31,7 +31,7 @@ INCLUDES=
 LIBS=
 LIBSX=$(LIBS:.cma=.cmxa)
 
-INCLUDES= -I ../multimon
+INCLUDES=
 PKG = -package pprz.xlib
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
 

@@ -61,7 +61,6 @@ STATICINCLUDE=$(PAPARAZZI_HOME)/var/include
 CONF=$(PAPARAZZI_SRC)/conf
 AIRBORNE=sw/airborne
 SIMULATOR=sw/simulator
-MULTIMON=sw/ground_segment/multimon
 COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
 GENERATORS=$(PAPARAZZI_SRC)/sw/tools/generators
@@ -143,19 +142,16 @@ libpprzlink:
 libpprz: libpprzlink _save_build_version
 	$(MAKE) -C $(LIB)/ocaml
 
-multimon:
-	$(MAKE) -C $(MULTIMON)
-
 cockpit: libpprz
 	$(MAKE) -C $(COCKPIT)
 
 cockpit.opt: libpprz
 	$(MAKE) -C $(COCKPIT) opt
 
-tmtc: libpprz cockpit multimon
+tmtc: libpprz cockpit
 	$(MAKE) -C $(TMTC)
 
-tmtc.opt: libpprz cockpit.opt multimon
+tmtc.opt: libpprz cockpit.opt
 	$(MAKE) -C $(TMTC) opt
 
 generators: libpprz
@@ -333,7 +329,7 @@ test_sim: all
 	prove tests/sim
 
 .PHONY: all print_build_version _print_building _save_build_version update_google_version init dox ground_segment ground_segment.opt \
-subdirs $(SUBDIRS) conf ext libpprz multimon cockpit cockpit.opt tmtc tmtc.opt generators\
+subdirs $(SUBDIRS) conf ext libpprz cockpit cockpit.opt tmtc tmtc.opt generators\
 static sim_static lpctools commands \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test test_examples test_math test_sim test_all_confs

@@ -2876,23 +2876,6 @@
   </msg_class>
 
 
-
-  <msg_class name="DIA"> <!-- data in audio -->
-    <message name="NAV_INFO" id="1">
-      <field name="unix_time" type="float"/>
-
-      <field name="lat"   type="float" unit="deg"/>
-      <field name="long"  type="float" unit="deg"/>
-      <field name="alt"   type="uint16" unit="m"/>
-
-      <field name="course" type="uint16" unit="deg"/>
-      <field name="speed" type="uint16" unit="cm/s"/>
-
-      <field name="cam_roll"  type="int16" unit="deg"/>
-      <field name="cam_pitch" type="int16" unit="deg"/>
-    </message>
-  </msg_class>
-
   <msg_class name="intermcu">
     <message name="IMCU_COMMANDS" id="1">
       <field name="status" type="uint8"/>
@@ -2904,6 +2887,5 @@
       <field name="values" type="int16[]"/>
     </message>
   </msg_class>
-
 
 </protocol>
