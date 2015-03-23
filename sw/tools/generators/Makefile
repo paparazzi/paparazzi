@@ -37,7 +37,7 @@ all: byte
 #
 byte:
 	@echo "Build generators (bytecode)"
-	$(Q)$(OCAMLBUILD) -no-links $(GEN_BYTE)
+	$(Q)$(OCAMLBUILD) -no-links -lflags "-dllpath-pkg pprz" $(GEN_BYTE)
 	$(Q)$(foreach file,$(GENS), ln -fs _build/$(file).byte $(file).out;)
 
 native:
