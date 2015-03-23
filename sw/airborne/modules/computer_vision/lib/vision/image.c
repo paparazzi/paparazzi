@@ -83,6 +83,26 @@ void image_copy(struct image_t *input, struct image_t *output)
 }
 
 /**
+ * This will switch image *a and *b
+ * This is faster as image_copy because it doesn't copy the
+ * whole image buffer.
+ * @param[in,out] *a The image to switch
+ * @param[in,out] *b The image to switch with
+ */
+void image_switch(struct image_t *a, struct image_t *b)
+{
+  /* Remember everything from image a */
+  struct image_t old_a;
+  memcpy(&old_a, a, sizeof(struct image_t));
+
+  /* Copy everything from b to a */
+  memcpy(a, b, sizeof(struct image_t));
+
+  /* Copy everything from the remembered a to b */
+  memcpy(b, &old_a, sizeof(struct image_t));
+}
+
+/**
  * Convert an image to grayscale.
  * Depending on the output type the U/V bytes are removed
  * @param[in] *input The input image (Needs to be YUV422)

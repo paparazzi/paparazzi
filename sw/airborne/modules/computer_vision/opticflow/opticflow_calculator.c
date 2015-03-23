@@ -172,7 +172,7 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // *************************************************************************************
   free(corners);
   free(vectors);
-  image_copy(&opticflow->img_gray, &opticflow->prev_img_gray);
+  image_switch(&opticflow->img_gray, &opticflow->prev_img_gray);
 }
 
 /**
