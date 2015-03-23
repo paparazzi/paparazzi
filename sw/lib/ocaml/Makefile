@@ -151,6 +151,7 @@ gtk_papget_led_editor.ml : widgets.glade
 
 clean :
 	$(Q)rm -f *~ gtk_papget_*.ml META _tags
+	$(Q)rm -f *.cm* *.out *.opt .depend *.a *.o *.so expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli
 	$(Q)rm -rf $(BUILDDIR)
 	$(Q)ocamlbuild -clean -classic-display -build-dir $(BUILDDIR)
 
