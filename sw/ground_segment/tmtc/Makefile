@@ -69,19 +69,19 @@ link : link.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-ivy_tcp_aircraft : ivy_tcp_aircraft.cmo  $(LIBMULTIMONCMA) $(LIBPPRZCMA)
+ivy_tcp_aircraft : ivy_tcp_aircraft.cmo $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 
-ivy_tcp_controller : ivy_tcp_controller.cmo  $(LIBMULTIMONCMA) $(LIBPPRZCMA)
+ivy_tcp_controller : ivy_tcp_controller.cmo $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 
-broadcaster : broadcaster.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
+broadcaster : broadcaster.cmo $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 
 ivy2udp : ivy2udp.cmo $(LIBPPRZCMA)
