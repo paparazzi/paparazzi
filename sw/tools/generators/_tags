@@ -1,0 +1,4 @@
+# uncomment to add debugging for all
+#true: debug
+
+<gen_*.*>: package(pprz)

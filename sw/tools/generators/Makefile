@@ -23,46 +23,30 @@
 Q=@
 
 include ../../Makefile.ocaml
+OCAMLBUILD=ocamlbuild -use-ocamlfind
 
-INCLUDES =
-PKG = -package pprz
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
+GEN_ML := $(shell ls *.ml)
+GEN_BYTE = $(GEN_ML:.ml=.byte)
+GEN_NATIVE = $(GEN_ML:.ml=.native)
+GENS = $(basename $(GEN_ML))
 
-all: gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_xsens.out gen_modules.out gen_autopilot.out gen_abi.out gen_srtm.out
+all: byte
 
-gen_flight_plan.out : gen_flight_plan.cmo $(LIBPPRZCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
+#
+# build without creating links, then make symlinks ourselves so they still have .out ending
+#
+byte:
+	@echo "Build generators (bytecode)"
+	$(Q)$(OCAMLBUILD) -no-links $(GEN_BYTE)
+	$(Q)$(foreach file,$(GENS), ln -fs _build/$(file).byte $(file).out;)
 
-gen_srtm.out : gen_srtm.ml $(LIBPPRZCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
-
-%.out : %.ml $(LIBPPRZCMA)
-	@echo OL $<
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
-
-%.cmo : %.ml
-	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) $(PKG) -c $<
-
-%.cmi : %.mli
-	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) $(PKG) -c $<
+native:
+	@echo "Build generators (native)"
+	$(Q)$(OCAMLBUILD) -no-links $(GEN_NATIVE)
+	$(Q)$(foreach file,$(GENS), ln -fs _build/$(file).native $(file).out;)
 
 clean:
 	$(Q)rm -f *.cm* *.out *~ .depend
+	$(Q)$(OCAMLBUILD) -clean
 
-.PHONY: all clean
-
-#
-# Dependencies
-#
-
-.depend: Makefile
-	@echo DEPEND $@
-	$(Q)$(OCAMLDEP) *.ml *.mli > .depend
-
-ifneq ($(MAKECMDGOALS),clean)
--include .depend
-endif
+.PHONY: all byte native clean
