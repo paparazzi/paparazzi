@@ -2,9 +2,6 @@
 # The superbitRF module as telemetry downlink/uplink
 #
 #
-ap.CFLAGS += -DUSE_$(MODEM_PORT)
-ap.CFLAGS += -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
-
 ap.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_FBW_DEVICE=superbitrf -DDOWNLINK_AP_DEVICE=superbitrf
 ap.CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=SUPERBITRF -DDefaultPeriodic='&telemetry_Ap'
 #ap.CFLAGS += -DUSE_SUPERBITRF -DUSE_SPI2 -DUSE_SPI_SLAVE2

@@ -70,17 +70,6 @@ void w5100_send(void);
 uint16_t w5100_rx_size(uint8_t _s);
 bool_t w5100_ch_available(void);
 
-// Defines that are done in mcu_periph on behalf of uart.
-// We need to do these here...
-#define W5100Init() w5100_init()
-#define W5100CheckFreeSpace(_x) (TRUE) // w5100_check_free_space(_x)
-#define W5100Transmit(_x) w5100_transmit(_x)
-#define W5100SendMessage() w5100_send()
-#define W5100ChAvailable() w5100_ch_available()
-#define W5100Getch() w5100_getch()
-#define W5100TxRunning chip0.tx_running
-#define W5100SetBaudrate(_b) w5100_set_baudrate(_b)
-
 
 // W5100 is using pprz_transport
 // FIXME it should not appear here, this will be fixed with the rx improvements some day...
@@ -98,18 +87,17 @@ static inline void w5100_read_buffer(struct pprz_transport *t)
   }
 }
 
-#define W5100Buffer(_dev) TransportLink(_dev,ChAvailable())
+#define W5100CheckAndParse(_dev, _trans) w5100_check_and_parse(&(_dev).device, &(_trans))
 
-#define W5100CheckAndParse(_dev,_trans) {       \
-    if (W5100Buffer(_dev)) {                    \
-      w5100_read_buffer( &(_trans) );           \
-      if (_trans.trans_rx.msg_received) {          \
-        pprz_parse_payload(&(_trans));         \
-        _trans.trans_rx.msg_received = FALSE;      \
-      }                                         \
-    }                                           \
+static inline void w5100_check_and_parse(struct link_device *dev, struct pprz_transport *trans) {
+  if (dev->char_available(dev->periph)) {
+    w5100_read_buffer(trans);
+    if (trans->trans_rx.msg_received) {
+      pprz_parse_payload(trans);
+      trans->trans_rx.msg_received = FALSE;
+    }
   }
-
+}
 
 #endif /* W5100_H */
 

@@ -143,8 +143,8 @@ void mavlink_event(void)
   mavlink_status_t status;
 
   // Check uplink
-  while (MAVLink(ChAvailable())) {
-    char test = MAVLink(Getch());
+  while (MAVLinkChAvailable()) {
+    char test = MAVLinkGetch();
 
     // When we receive a message
     if (mavlink_parse_char(MAVLINK_COMM_0, test, &msg, &status)) {
@@ -158,7 +158,7 @@ void mavlink_event(void)
           mavlink_msg_request_data_stream_decode(&msg, &cmd);
 
           mavlink_msg_data_stream_send(MAVLINK_COMM_0, cmd.req_stream_id, 0, 0);
-          MAVLink(SendMessage());
+          MAVLinkSendMessage();
           break;
         }
 
@@ -200,7 +200,7 @@ void mavlink_event(void)
                                        MAV_PARAM_TYPE_REAL32,
                                        NB_SETTING,
                                        cmd.param_index);
-          MAVLink(SendMessage());
+          MAVLinkSendMessage();
 
           break;
         }
@@ -227,7 +227,7 @@ void mavlink_event(void)
                                              MAV_PARAM_TYPE_REAL32,
                                              NB_SETTING,
                                              idx);
-                MAVLink(SendMessage());
+                MAVLinkSendMessage();
               }
             }
           }
@@ -244,7 +244,7 @@ void mavlink_event(void)
                                            msg.sysid,
                                            msg.compid,
                                            NB_WAYPOINT);
-            MAVLink(SendMessage());
+            MAVLinkSendMessage();
           }
         }
           break;
@@ -268,7 +268,7 @@ void mavlink_event(void)
                                             WaypointX(req.seq),
                                             WaypointY(req.seq),
                                             WaypointAlt(req.seq));
-              MAVLink(SendMessage());
+              MAVLinkSendMessage();
             }
           }
         }
@@ -311,7 +311,7 @@ static inline void mavlink_send_heartbeat(void)
                              mav_mode,
                              0, // custom_mode
                              mav_state);
-  MAVLink(SendMessage());
+  MAVLinkSendMessage();
 }
 
 /**
@@ -333,7 +333,7 @@ static inline void mavlink_send_sys_status(void)
                               0,      // Autopilot specific error 2
                               0,      // Autopilot specific error 3
                               0);     // Autopilot specific error 4
-  MAVLink(SendMessage());
+  MAVLinkSendMessage();
 }
 
 /**
@@ -349,7 +349,7 @@ static inline void mavlink_send_attitude(void)
                             stateGetBodyRates_f()->p,             // p
                             stateGetBodyRates_f()->q,             // q
                             stateGetBodyRates_f()->r);            // r
-  MAVLink(SendMessage());
+  MAVLinkSendMessage();
 }
 
 static inline void mavlink_send_local_position_ned(void)
@@ -362,7 +362,7 @@ static inline void mavlink_send_local_position_ned(void)
                                       stateGetSpeedNed_f()->x,
                                       stateGetSpeedNed_f()->y,
                                       stateGetSpeedNed_f()->z);
-  MAVLink(SendMessage());
+  MAVLinkSendMessage();
 }
 
 static inline void mavlink_send_global_position_int(void)
@@ -384,7 +384,7 @@ static inline void mavlink_send_global_position_int(void)
                                        stateGetSpeedNed_f()->y * 100,
                                        stateGetSpeedNed_f()->z * 100,
                                        compass_heading);
-  MAVLink(SendMessage());
+  MAVLinkSendMessage();
 }
 
 static inline void mavlink_send_gps_global_origin(void)
@@ -394,7 +394,7 @@ static inline void mavlink_send_gps_global_origin(void)
                                        state.ned_origin_i.lla.lat,
                                        state.ned_origin_i.lla.lon,
                                        state.ned_origin_i.hmsl);
-    MAVLink(SendMessage());
+    MAVLinkSendMessage();
   }
 }
 
@@ -413,7 +413,7 @@ static inline void mavlink_send_params(void)
                                MAV_PARAM_TYPE_REAL32,
                                NB_SETTING,
                                mavlink_params_idx);
-  MAVLink(SendMessage());
+  MAVLinkSendMessage();
 
   mavlink_params_idx++;
 }

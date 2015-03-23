@@ -22,9 +22,12 @@
   <periodic fun="airspeed_otf_periodic()" freq="1"/>
   <event fun="airspeed_otf_event()"/>
   <makefile target="ap">
+    <raw>
+      OTF_UART_LOWER=$(shell echo $(OTF_UART) | tr A-Z a-z)
+    </raw>
     <file name="airspeed_otf.c"/>
     <define name="USE_$(OTF_UART)"/>
-    <define name="MET_LINK" value="$(OTF_UART)"/>
+    <define name="MET_LINK" value="$(OTF_UART_LOWER)"/>
     <define name="$(OTF_UART)_BAUD" value="B115200"/>
   </makefile>
 </module>
