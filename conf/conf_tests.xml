@@ -312,10 +312,10 @@
    ac_id="14"
    airframe="airframes/ENAC/fixed-wing/apogee.xml"
    radio="radios/T10CG_SBUS.xml"
-   telemetry="telemetry/default_fixedwing_imu.xml"
+   telemetry="telemetry/fixedwing_flight_recorder.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/meteo_france_DAQ.xml"
+   settings_modules=""
    gui_color="blue"
   />
   <aircraft
