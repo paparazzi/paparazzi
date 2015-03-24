@@ -201,8 +201,10 @@ void uart_periph_init(struct uart_periph *p)
   p->fe_err = 0;
   p->device.periph = (void *)p;
   p->device.check_free_space = (check_free_space_t)uart_check_free_space;
-  p->device.transmit = (transmit_t)uart_transmit;
+  p->device.put_byte = (put_byte_t)uart_transmit;
   p->device.send_message = (send_message_t)null_function;
+  p->device.char_available = (char_available_t)uart_char_available;
+  p->device.get_byte = (get_byte_t)uart_getch;
 
 #if PERIODIC_TELEMETRY
   // the first to register do it for the others
@@ -231,3 +233,4 @@ void WEAK uart_transmit_buffer(struct uart_periph *p __attribute__((unused)),
 {
 
 }
+

@@ -79,10 +79,12 @@ void video_usb_logger_periodic(void)
   struct Int32Eulers *euler = stateGetNedToBodyEulers_i();
   static uint32_t sonar = 0;
 
+  // Take a new shot
+  viewvideo_take_shot(TRUE);
+
+  // Save to the file
   fprintf(video_usb_logger, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", counter,
-          viewvideo_save_shot_number, euler->phi, euler->theta, euler->psi, ned->x,
+          viewvideo.shot_number, euler->phi, euler->theta, euler->psi, ned->x,
           ned->y, ned->z, sonar);
   counter++;
-  // Save a new shot
-  viewvideo_SaveShot(0);
 }

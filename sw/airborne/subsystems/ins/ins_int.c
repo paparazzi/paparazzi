@@ -311,6 +311,25 @@ void ins_update_gps(void)
 
     struct NedCoor_i gps_pos_cm_ned;
     ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_impl.ltp_def, &gps.ecef_pos);
+
+    /* calculate body frame position taking BODY_TO_GPS translation (in cm) into account */
+#ifdef INS_BODY_TO_GPS_X
+    /* body2gps translation in body frame */
+    struct Int32Vect3 b2g_b = {
+      .x = INS_BODY_TO_GPS_X,
+      .y = INS_BODY_TO_GPS_Y,
+      .z = INS_BODY_TO_GPS_Z
+    };
+    /* rotate offset given in body frame to navigation/ltp frame using current attitude */
+    struct Int32Quat q_b2n;
+    memcpy(&q_b2n, stateGetNedToBodyQuat_i(), sizeof(struct Int32Quat));
+    QUAT_INVERT(q_b2n, q_b2n);
+    struct Int32Vect3 b2g_n;
+    int32_quat_vmult(&b2g_n, &q_b2n, &b2g_b);
+    /* subtract body2gps translation in ltp from gps position */
+    VECT3_SUB(gps_pos_cm_ned, b2g_n);
+#endif
+
     /// @todo maybe use gps.ned_vel directly??
     struct NedCoor_i gps_speed_cm_s_ned;
     ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_impl.ltp_def, &gps.ecef_vel);

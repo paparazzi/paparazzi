@@ -1,6 +1,5 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# AHRS_PROPAGATE_FREQUENCY
 # AHRS_H_X
 # AHRS_H_Y
 # AHRS_H_Z
@@ -22,19 +21,11 @@ ifneq ($(AHRS_ALIGNER_LED),none)
   AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
 
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat.h\"
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"
 AHRS_SRCS   += subsystems/ahrs.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_int_cmpl_quat.c
+AHRS_SRCS   += subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
-
-
-ifdef AHRS_PROPAGATE_FREQUENCY
-AHRS_CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
-endif
-
-ifdef AHRS_CORRECT_FREQUENCY
-AHRS_CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
-endif
 
 ap.CFLAGS += $(AHRS_CFLAGS)
 ap.srcs += $(AHRS_SRCS)
@@ -57,5 +48,3 @@ ahrssim_srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
 sim.CFLAGS += $(ahrssim_CFLAGS)
 sim.srcs += $(ahrssim_srcs)
 
-jsbsim.CFLAGS += $(ahrssim_CFLAGS)
-jsbsim.srcs += $(ahrssim_srcs)

@@ -45,8 +45,10 @@
 extern "C" {
 #endif
 
+#ifndef STRINGIFY
 #define _STRINGIFY(s) #s
 #define STRINGIFY(s) _STRINGIFY(s)
+#endif
 
 #define GIT_VERSION        STRINGIFY(GIT_SHA1)
 #define PPRZ_VERSION_DESC  STRINGIFY(GIT_DESC)

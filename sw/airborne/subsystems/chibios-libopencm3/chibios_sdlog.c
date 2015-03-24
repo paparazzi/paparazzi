@@ -75,6 +75,7 @@ static void sdlog_transmit(struct chibios_sdlog* p __attribute__((unused)), uint
 
 static void sdlog_send(struct chibios_sdlog* p __attribute__((unused))) { }
 
+static int null_function(struct chibios_sdlog *p __attribute__((unused))) { return 0; }
 
 bool_t chibios_logInit(const bool_t binaryFile)
 {
@@ -84,8 +85,10 @@ bool_t chibios_logInit(const bool_t binaryFile)
   // Configure generic device
   chibios_sdlog.device.periph = (void *)(&chibios_sdlog);
   chibios_sdlog.device.check_free_space = (check_free_space_t) sdlog_check_free_space;
-  chibios_sdlog.device.transmit = (transmit_t) sdlog_transmit;
+  chibios_sdlog.device.put_byte = (put_byte_t) sdlog_transmit;
   chibios_sdlog.device.send_message = (send_message_t) sdlog_send;
+  chibios_sdlog.device.char_available = (char_available_t) null_function; // write only
+  chibios_sdlog.device.get_byte = (get_byte_t) null_function; // write only
 
   if (sdLogInit (NULL) != SDLOG_OK)
     goto error;

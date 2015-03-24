@@ -20,7 +20,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file actuators.h
+/** @file subsystems/actuators.h
  *  Hardware independent API for actuators (servos, motor controllers).
  *
  */

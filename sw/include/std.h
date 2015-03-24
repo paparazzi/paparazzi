@@ -33,6 +33,10 @@
 /* some convenience macros to print debug/config messages at compile time */
 #include "message_pragmas.h"
 
+/* stringify a define, e.g. one that was not quoted */
+#define _STRINGIFY(s) #s
+#define STRINGIFY(s) _STRINGIFY(s)
+
 #ifndef FALSE
 #define FALSE 0
 #endif

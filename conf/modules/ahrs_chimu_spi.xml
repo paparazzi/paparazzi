@@ -13,13 +13,13 @@
     <define name="USE_AHRS"/>
     <define name="USE_INS_MODULE"/>
     <define name="USE_SPI"/>
-    <define name="INS_LINK" value="SpiSlave"/>
+    <define name="INS_LINK" value="spi_slave_hs"/>
     <define name="USE_USB_HIGH_PCLK" />
     <file name="ahrs_chimu_spi.c"/>
     <file name="imu_chimu.c"/>
     <file name="ahrs.c" dir="subsystems"/>
     <raw>
-      ap.CFLAGS += -DAHRS_TYPE_H=\"modules/ins/ins_module.h\"
+      ap.CFLAGS += -DAHRS_TYPE_H=\"modules/ins/ahrs_chimu.h\"
     </raw>
   </makefile>
 </module>

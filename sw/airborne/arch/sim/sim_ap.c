@@ -20,7 +20,6 @@
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "subsystems/commands.h"
 #include "firmwares/fixedwing/main_ap.h"
-#include "sim_uart.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/telemetry.h"
 #include "generated/flight_plan.h"
@@ -100,26 +99,6 @@ value sim_init(value unit)
 {
   init_fbw();
   init_ap();
-#ifdef SIM_UART
-  /* open named pipe */
-  char link_pipe_name[128];
-#ifdef SIM_XBEE
-  sprintf(link_pipe_name, "/tmp/pprz_xbee");
-#else
-  sprintf(link_pipe_name, "/tmp/pprz_link_%d", AC_ID);
-#endif
-  struct stat st;
-  if (stat(link_pipe_name, &st)) {
-    if (mkfifo(link_pipe_name, 0644) == -1) {
-      perror("make pipe");
-      exit(10);
-    }
-  }
-  if (!(pipe_stream = fopen(link_pipe_name, "w"))) {
-    perror("open pipe");
-    exit(10);
-  }
-#endif
 
   return unit;
 }

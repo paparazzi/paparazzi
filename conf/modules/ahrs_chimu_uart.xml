@@ -17,13 +17,13 @@
     <define name="USE_AHRS"/>
     <define name="USE_INS_MODULE"/>
     <define name="USE_UART$(CHIMU_UART_NR)" value="1"/>
-    <define name="INS_LINK" value="UART$(CHIMU_UART_NR)"/>
+    <define name="INS_LINK" value="uart$(CHIMU_UART_NR)"/>
     <define name="UART$(CHIMU_UART_NR)_BAUD" value="B115200"/>
     <file name="ahrs_chimu_uart.c"/>
     <file name="imu_chimu.c"/>
     <file name="ahrs.c" dir="subsystems"/>
     <raw>
-      ap.CFLAGS += -DAHRS_TYPE_H=\"modules/ins/ins_module.h\"
+      ap.CFLAGS += -DAHRS_TYPE_H=\"modules/ins/ahrs_chimu.h\"
     </raw>
   </makefile>
 </module>

@@ -43,28 +43,28 @@ void actuators_set(pprz_t commands[])
   float yaw = ((float)commands[COMMAND_YAW] / (float)MAX_PPRZ);
 
   //Starting engine
-  if (thrust > 0 && (ahrs_impl.control_state == CTRL_DEFAULT || ahrs_impl.control_state == CTRL_INIT
-                     || ahrs_impl.control_state == CTRL_LANDED)) {
+  if(thrust > 0 && (ahrs_ardrone2.control_state == CTRL_DEFAULT || ahrs_ardrone2.control_state == CTRL_INIT
+                    || ahrs_ardrone2.control_state == CTRL_LANDED)) {
     at_com_send_ref(REF_TAKEOFF);
   }
 
   //Check emergency or stop engine
-  if ((ahrs_impl.state & ARDRONE_EMERGENCY_MASK) != 0) {
+  if ((ahrs_ardrone2.state & ARDRONE_EMERGENCY_MASK) != 0) {
     at_com_send_ref(REF_EMERGENCY);
-  } else if (thrust < -0.9 && !(ahrs_impl.control_state == CTRL_DEFAULT || ahrs_impl.control_state == CTRL_INIT
-                                || ahrs_impl.control_state == CTRL_LANDED)) {
+  } else if(thrust < -0.9 && !(ahrs_ardrone2.control_state == CTRL_DEFAULT ||
+            ahrs_ardrone2.control_state == CTRL_INIT || ahrs_ardrone2.control_state == CTRL_LANDED)) {
     at_com_send_ref(0);
   }
 
   //Calibration
-  if ((ahrs_impl.state & ARDRONE_MAGNETO_NEEDS_CALIB) != 0 && (ahrs_impl.control_state == CTRL_FLYING
-      || ahrs_impl.control_state == CTRL_HOVERING)) {
+  if ((ahrs_ardrone2.state & ARDRONE_MAGNETO_NEEDS_CALIB) != 0 &&
+      (ahrs_ardrone2.control_state == CTRL_FLYING || ahrs_ardrone2.control_state == CTRL_HOVERING)) {
     at_com_send_calib(0);
   }
 
   //Moving
-  if ((ahrs_impl.state & ARDRONE_MAGNETO_NEEDS_CALIB) == 0 && (ahrs_impl.control_state == CTRL_FLYING
-      || ahrs_impl.control_state == CTRL_HOVERING)) {
+  if ((ahrs_ardrone2.state & ARDRONE_MAGNETO_NEEDS_CALIB) == 0 &&
+      (ahrs_ardrone2.control_state == CTRL_FLYING || ahrs_ardrone2.control_state == CTRL_HOVERING)) {
     at_com_send_pcmd(1, thrust, roll, pitch, yaw);
   }
 

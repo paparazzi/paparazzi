@@ -26,23 +26,24 @@
  */
 
 #include "std.h"
-#include "stdio.h"
+//#include "stdio.h"
 
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/spi.h"
-#include "led.h"
-#include "autopilot.h"
 
-#include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
-#include "subsystems/datalink/datalink.h"
+#include "autopilot.h"
 #include "subsystems/electrical.h"
-
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
 #include "state.h"
+
+// for GetPosAlt, include correct header until we have unified API
+#ifdef AP
+#include "subsystems/navigation/nav.h"
+#else
+#include "firmwares/rotorcraft/navigation.h"
+#endif
 
 // Peripherials
 #include "max7456.h"

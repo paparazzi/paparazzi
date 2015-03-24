@@ -28,9 +28,17 @@ include conf/Makefile.local
 # main directory where the generated files and compilation results for an aircraft are stored
 AIRCRAFT_BUILD_DIR = $(PAPARAZZI_HOME)/var/aircrafts/$(AIRCRAFT)
 CONF=$(PAPARAZZI_HOME)/conf
-CONF_XML=$(CONF)/conf.xml
+CONF_XML ?= $(CONF)/conf.xml
 AIRBORNE=sw/airborne
 MESSAGES_XML = $(CONF)/messages.xml
+
+# make sure the TARGET variable is set if needed for current make target
+ifneq (,$(findstring $(MAKECMDGOALS),all_ac_h radio_ac_h flight_plan_ac_h))
+ifeq ($(TARGET),)
+$(warning No TARGET specified! Defaulting to "TARGET=ap")
+override TARGET=ap
+endif
+endif
 
 AIRCRAFT_CONF_DIR = $(AIRCRAFT_BUILD_DIR)/conf
 AC_GENERATED = $(AIRCRAFT_BUILD_DIR)/$(TARGET)/generated
@@ -128,10 +136,6 @@ endif
 endif
 
 
-init:
-	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
-
-
 print_version:
 	@echo "-----------------------------------------------------------------------"
 	@echo "Paparazzi version" $(GIT_DESC)$(VERSION_MATCH)
@@ -223,7 +227,7 @@ $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 	@echo "#######################################"
 	@echo "# BUILD AIRCRAFT=$(AIRCRAFT), TARGET $*"
 	@echo "#######################################"
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(GENERATORS)/gen_aircraft.out $(AIRCRAFT)
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(GENERATORS)/gen_aircraft.out $(AIRCRAFT) $(CONF_XML)
 
 %.compile: %.ac_h | print_version
 	cd $(AIRBORNE); $(MAKE) -j$(NPROCS) TARGET=$* all
@@ -246,4 +250,4 @@ clean_ac :
 	@echo "CLEANING $(AIRCRAFT)"
 	$(Q)rm -fr $(AIRCRAFT_BUILD_DIR)
 
-.PHONY: init all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version
+.PHONY: all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version

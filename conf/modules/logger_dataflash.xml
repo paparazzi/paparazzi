@@ -1,0 +1,68 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="logger_dataflash" dir="loggers">
+  <doc>
+    <description>
+SPI logger
+A logger that connects and manage a memory directly connected to th SPI.
+
+This module includes some configurations :
+- @b ERASE_MEMORY_AT_START : if set to 1 the memory will be erased completly when starting a new log. This will take a little bit less than a minute, but afterwards you will be able to log values at a higher rate than if you didn't do it. If you let it to 0, the module is going to erase the memory block by block of 4K when needed.
+- @b SIZE_OF_LOGGED_VALUES : the number of Bytes that each value logged must be (in memory). You can write a 4 Bytes values in a 2 Bytes slots, you just need to be certain that you don't have any overflows.
+- @b NBR_VALUES_TO_LOG : the number of messages you want to log. This value is equivalent to the size of the values_to_log array.
+- @b SKIP_X_CALLS_BETWEEN_VALUES : you might want to slow down the logger instead of losing values (because of buffer overflows). if that value is set to 0, a new value of every logged messages will be added to the buffer. If set to 2, we will wait two calls to the module, then during the third one we will writte the values to the buffer. By default this modules is called at 512Hz.
+
+Then you have two arrays :
+
+- @b values_to_log : containing the pointer to the values to log.
+- @b name_of_the_values : the name of the messages logged. This is simply an aesthetic configuration, for you to know which message were logged.
+
+The applicaton to read the memory back is available here : http://karlito139.github.io/lisa_s_logger_reader/
+
+For more informations on how to use this module you can refer to the wiki : http://wiki.paparazziuav.org/wiki/Micro_logger
+    </description>
+    <configure name="HS_LOG_UART" value="UART1|UART2|UART3|UART4|UART5|UART6" description="Port to read back the memory"/>
+    <configure name="HS_LOG_SPI" value="SPI1|SPI2|SPI3|SPI4|SPI5|SPI6" description="Port to read back the memory"/>
+    <configure name="HS_LOG_SPI_SLAVE" value="SPI_SLAVE1|SPI_SLAVE2|SPI_SLAVE3|SPI_SLAVE4|SPI_SLAVE5|SPI_SLAVE6" description="Port to read back the memory"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="logger">
+        <dl_setting shortname="Status" var="logging_status_gui" min="0" max="3" module="loggers/high_speed_logger_direct_memory" values="idle|Initialise|start log|stop log" handler="handler"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="high_speed_logger_direct_memory.h"/>
+  </header>
+  <init fun="high_speed_logger_direct_memory_init()"/>
+  <periodic fun="high_speed_logger_direct_memory_periodic()" autorun="TRUE"/>
+  <makefile>
+
+    <raw>
+      HS_LOG_UART ?= uart3
+      HS_LOG_UART_LOWER=$(shell echo $(HS_LOG_UART) | tr A-Z a-z)
+      HS_LOG_UART_UPPER=$(shell echo $(HS_LOG_UART) | tr a-z A-Z)
+
+      HS_LOG_SPI ?= spi1
+      HS_LOG_SPI_LOWER=$(shell echo $(HS_LOG_SPI) | tr A-Z a-z)
+      HS_LOG_SPI_UPPER=$(shell echo $(HS_LOG_SPI) | tr a-z A-Z)
+
+      HS_LOG_SPI_SLAVE ?= spi_slave1
+      HS_LOG_SPI_SLAVE_LOWER=$(shell echo $(HS_LOG_SPI_SLAVE) | tr A-Z a-z)
+      HS_LOG_SPI_SLAVE_UPPER=$(shell echo $(HS_LOG_SPI_SLAVE) | tr a-z A-Z)
+    </raw>
+
+    <define name="SPI_MASTER" value="1" />
+    <define name="USE_$(HS_LOG_SPI_UPPER)" value="1" />
+    <define name="USE_$(HS_LOG_SPI_SLAVE_UPPER)" value="1" />
+    <define name="HIGH_SPEED_LOGGER_DIRECT_MEMORY_DEVICE" value="$(HS_LOG_SPI_LOWER)" />
+    <define name="HIGH_SPEED_LOGGER_DIRECT_MEMORY_SLAVE_NUMBER" value="$(HS_LOG_SPI_SLAVE_UPPER)" />
+
+    <define name="HS_LOG_UART" value="$(HS_LOG_UART_LOWER)"/>
+    <define name="USE_$(HS_LOG_UART_UPPER)"/>
+    <define name="$(HS_LOG_UART_UPPER)_BAUD" value="B115200"/>
+
+    <file name="high_speed_logger_direct_memory.c"/>
+  </makefile>
+</module>

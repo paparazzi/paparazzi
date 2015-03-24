@@ -16,7 +16,7 @@ ap.MAKEFILE = bebop
 # -----------------------------------------------------------------------
 USER=foobar
 HOST?=192.168.42.1
-SUB_DIR=paparazzi
+SUB_DIR=internal_000/paparazzi
 FTP_DIR=/data/ftp
 TARGET_DIR=$(FTP_DIR)/$(SUB_DIR)
 # -----------------------------------------------------------------------
@@ -30,6 +30,9 @@ GPS_BAUD           ?= B230400
 
 # handle linux signals by hand
 $(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL
+
+# Compile the video specific parts
+$(TARGET).srcs +=  $(SRC_BOARD)/video.c
 
 # -----------------------------------------------------------------------
 

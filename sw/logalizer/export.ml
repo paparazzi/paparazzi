@@ -75,7 +75,7 @@ let fill_data = fun (treeview:GTree.view) (model:GTree.tree_store) messages_xml 
 	treeview#expand_row (model#get_path parent);
       model#set ~row ~column:col_to_export to_export;
       model#set ~row ~column:col_field field_name)
-      (Xml.children msg))
+      (List.filter (fun x -> Xml.tag x = "field") (Xml.children msg)))
     (Xml.children messages_xml)
 
 type timestamp =

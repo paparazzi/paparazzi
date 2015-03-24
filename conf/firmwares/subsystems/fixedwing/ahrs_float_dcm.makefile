@@ -5,7 +5,7 @@
 USE_MAGNETOMETER ?= 0
 AHRS_ALIGNER_LED ?= none
 
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm_wrapper.h\"
 AHRS_CFLAGS += -DUSE_AHRS_ALIGNER
 AHRS_CFLAGS += -DUSE_AHRS
 
@@ -16,6 +16,7 @@ endif
 AHRS_SRCS   += $(SRC_SUBSYSTEMS)/ahrs.c
 AHRS_SRCS   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_aligner.c
 AHRS_SRCS   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_float_dcm.c
+AHRS_SRCS   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_float_dcm_wrapper.c
 
 
 ifneq ($(AHRS_ALIGNER_LED),none)
@@ -43,7 +44,4 @@ ahrssim_srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
 
 sim.CFLAGS += $(ahrssim_CFLAGS)
 sim.srcs += $(ahrssim_srcs)
-
-jsbsim.CFLAGS += $(ahrssim_CFLAGS)
-jsbsim.srcs += $(ahrssim_srcs)
 

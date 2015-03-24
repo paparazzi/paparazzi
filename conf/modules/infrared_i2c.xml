@@ -30,8 +30,8 @@
   <periodic fun="infrared_i2c_update()" freq="60."/>
   <!--periodic fun="infrared_i2cDownlink()" freq="1."/-->
   <event fun="infrared_i2cEvent()"/>
-  <makefile target="ap|sim|jsbsim">
-    <define name="USE_INFRARED_TELEMETRY"/>
+  <makefile target="ap|sim">
+    <define name="USE_INFRARED"/>
     <file name="infrared.c" dir="subsystems/sensors"/>
     <file name="infrared_i2c.c" dir="subsystems/sensors"/>
   </makefile>

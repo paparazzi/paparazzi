@@ -40,6 +40,21 @@ ifeq ($(LABLGTK2INIT),)
 LABLGTK2INIT = $(shell ocamlfind query -p-format lablgtk2.auto-init 2>/dev/null)
 endif
 
+LABLGTK2_VER := $(shell ocamlfind query -format '%v' lablgtk2)
+# major.minor version
+LABLGTK2_MM := $(shell echo $(LABLGTK2_VER) | cut -f1,2 -d.)
+#LABLGTK2_NATIVE_WINDOW := $(shell echo '$(LABLGTK2_MM)>=2.18' | bc)
+ifeq ($(shell echo '$(LABLGTK2_MM)>=2.18' | bc),1)
+CAMLP4_DEFS = -DGDK_NATIVE_WINDOW
+endif
+CAMLP4_DEFS ?=
+PP_OPTS = -pp "camlp4o pa_macro.cmo $(CAMLP4_DEFS)"
+
+# which source files to run through camlp4
+PP_SRC = gcs.ml
+PP_CMO = $(PP_SRC:.ml=.cmo)
+PP_CMX = $(PP_SRC:.ml=.cmx)
+
 ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml page_settings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml papgets.ml gcs.ml
 MAIN=gcs
 CMO=$(ML:.ml=.cmo)
@@ -51,12 +66,20 @@ opt : $(MAIN).opt
 
 $(MAIN) : $(CMO) $(LIBPPRZCMA) $(XLIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(LIBS) $(LINKPKG) myGtkInit.cmo $(CMO) -o $@
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(LIBS) $(LINKPKG) $(CMO) -o $@
 
 $(MAIN).opt : $(CMX) $(LIBPPRZCMXA) $(XLIBPPRZCMXA)
 	@echo OOL $@
 	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(LIBSX) -package pprz.xlib,$(LABLGTK2INIT) -linkpkg $(CMX) -o $@
 
+
+# bit of a hack: only run some specifc files through caml4p
+$(PP_CMO): $(PP_SRC)
+	@echo OC $<
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(PP_OPTS) $(PKG) -c $<
+$(PP_CMX): $(PP_SRC)
+	@echo OOC $<
+	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(PP_OPTS) $(PKG) -c $<
 
 %.cmo: %.ml
 	@echo OC $<
@@ -120,7 +143,8 @@ actuators : actuators.c
 
 .depend: Makefile
 	@echo DEPEND $@
-	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml* > .depend
+	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) $(PP_OPTS) $(PP_SRC) > .depend
+	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) $(filter-out $(PP_SRC), $(ML)) *.mli >> .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

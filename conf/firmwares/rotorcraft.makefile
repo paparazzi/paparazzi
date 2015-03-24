@@ -52,10 +52,27 @@ $(TARGET).srcs   += $(SRC_ARCH)/mcu_arch.c
 PERIODIC_FREQUENCY ?= 512
 $(TARGET).CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 
+ifdef AHRS_PROPAGATE_FREQUENCY
+$(TARGET).CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
+endif
+
+ifdef AHRS_CORRECT_FREQUENCY
+$(TARGET).CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
+endif
+
+ifdef AHRS_MAG_CORRECT_FREQUENCY
+$(TARGET).CFLAGS += -DAHRS_MAG_CORRECT_FREQUENCY=$(AHRS_MAG_CORRECT_FREQUENCY)
+endif
+
+
 #
 # Systime
 #
 $(TARGET).srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+ifeq ($(ARCH), linux)
+# seems that we need to link against librt for glibc < 2.17
+$(TARGET).LDFLAGS += -lrt
+endif
 
 
 #

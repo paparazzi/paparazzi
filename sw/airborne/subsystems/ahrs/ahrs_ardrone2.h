@@ -30,10 +30,9 @@
 #ifndef AHRS_ARDRONE2_H
 #define AHRS_ARDRONE2_H
 
-#include "subsystems/ahrs.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
 #include "std.h"
 #include "math/pprz_algebra_int.h"
+#include "math/pprz_geodetic_float.h"
 
 struct AhrsARDrone {
   uint32_t state;             // ARDRONE_STATES
@@ -44,7 +43,14 @@ struct AhrsARDrone {
   int32_t altitude;           // in cm above ground
   uint32_t battery;           // in percentage
   struct Int32Quat ltp_to_imu_quat;
+  bool_t is_aligned;
 };
-extern struct AhrsARDrone ahrs_impl;
+extern struct AhrsARDrone ahrs_ardrone2;
+
+#define DefaultAhrsImpl ahrs_ardrone2
+
+extern void ahrs_ardrone2_register(void);
+extern void ahrs_ardrone2_init(void);
+extern void ahrs_ardrone2_propagate(void);
 
 #endif /* AHRS_ARDRONE2_H */

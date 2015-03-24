@@ -92,7 +92,7 @@ bool_t   autopilot_detect_ground_once;
 #include "subsystems/ahrs.h"
 static inline int ahrs_is_aligned(void)
 {
-  return (ahrs.status == AHRS_RUNNING);
+  return DefaultAhrsImpl.is_aligned;
 }
 #else
 PRINT_CONFIG_MSG("Using AUTOPILOT_DISABLE_AHRS_KILL")

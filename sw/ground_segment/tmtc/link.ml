@@ -54,7 +54,7 @@ type ground_device = {
 let my_id = 0
 
 (* Here we set the default id of the link*)
-let link_id = ref 0
+let link_id = ref (-1)
 let red_link = ref false
 
 (* enable broadcast messages by default *)
@@ -244,7 +244,7 @@ module XB = struct (** XBee module *)
       false))
 
   (* Array of sent packets for retry: (packet, nb of retries) *)
-  let packets = Array.create 256 ("", -1)
+  let packets = Array.make 256 ("", -1)
 
   (* Frame id generation > 0 and < 256 *)
   let gen_frame_id =
@@ -478,7 +478,6 @@ let () =
       "-udp", Arg.Set udp, "Listen a UDP connection on <udp_port>";
       "-udp_port", Arg.Set_int udp_port, (sprintf "<UDP port> Default is %d" !udp_port);
       "-udp_uplink_port", Arg.Set_int udp_uplink_port, (sprintf "<UDP uplink port> Default is %d" !udp_uplink_port);
-      "-udp_port", Arg.Set_int udp_port, (sprintf "<UDP port> Default is %d" !udp_port);
       "-uplink", Arg.Set uplink, (sprintf "Deprecated (now default)");
       "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
       "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<nb retries> (%d)" !XB.nb_retries);
@@ -492,7 +491,7 @@ let () =
   Ivy.init "Link" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  if (!link_id <> 0) && (not !red_link) then
+  if (!link_id <> -1) && (not !red_link) then
     fprintf stderr "\nLINK WARNING: The link id was set to %i but the -redlink flag wasn't set. To use this link as a redundant link, set the -redlink flag.%!" !link_id;
 
   try

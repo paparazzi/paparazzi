@@ -32,7 +32,7 @@
 
 #if USE_NPS
 #include "nps_radio_control.h"
-#elif !USE_JSBSIM
+#else
 #include <caml/mlvalues.h>
 #endif
 

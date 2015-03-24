@@ -29,7 +29,6 @@ class Message(PprzMessage):
         self.field_controls = []
         self.index = None
         self.last_seen = time.clock()
-        self.name = name
 
 
 class Aircraft(object):
@@ -51,12 +50,13 @@ class MessagesFrame(wx.Frame):
         :type msg: PprzMessage
         """
         # only show messages of the requested class
-        if msg.get_classname() != self.msg_class:
+        if msg.msg_class != self.msg_class:
             return
-        if ac_id in self.aircrafts and msg.get_msgname() in self.aircrafts[ac_id].messages:
-            if time.time() - self.aircrafts[ac_id].messages[msg.get_msgname()].last_seen < 0.2:
+        if ac_id in self.aircrafts and msg.name in self.aircrafts[ac_id].messages:
+            if time.time() - self.aircrafts[ac_id].messages[msg.name].last_seen < 0.2:
                 return
-        wx.CallAfter(self.gui_update, msg.get_classname(), msg.get_msgname(), ac_id, msg)
+
+        wx.CallAfter(self.gui_update, ac_id, msg)
 
     def find_page(self, book, name):
         if book.GetPageCount() < 1:
@@ -113,7 +113,7 @@ class MessagesFrame(wx.Frame):
         messages_book = aircraft.messages_book
         aircraft.messages[name] = Message(msg_class, name)
         field_panel = wx.Panel(messages_book)
-        grid_sizer = wx.FlexGridSizer(len(aircraft.messages[name].get_fieldnames()), 2)
+        grid_sizer = wx.FlexGridSizer(len(aircraft.messages[name].fieldnames), 2)
 
         index = self.find_page(messages_book, name)
         messages_book.InsertPage(index, field_panel, name, imageId=1)
@@ -123,7 +123,7 @@ class MessagesFrame(wx.Frame):
         for message_name in aircraft.messages:
             aircraft.messages[message_name].index = self.find_page(messages_book, message_name)
 
-        for field_name in aircraft.messages[name].get_fieldnames():
+        for field_name in aircraft.messages[name].fieldnames:
             name_text = wx.StaticText(field_panel, -1, field_name)
             size = name_text.GetSize()
             size.x = LABEL_WIDTH
@@ -141,20 +141,18 @@ class MessagesFrame(wx.Frame):
         field_panel.SetSizer(grid_sizer)
         field_panel.Layout()
 
-    def gui_update(self, msg_class, msg_name, ac_id, msg):
+    def gui_update(self, ac_id, msg):
         if ac_id not in self.aircrafts:
             self.add_new_aircraft(ac_id)
-
         aircraft = self.aircrafts[ac_id]
+        if msg.name not in aircraft.messages:
+            self.add_new_message(aircraft, msg.msg_class, msg.name)
 
-        if msg_name not in aircraft.messages:
-            self.add_new_message(aircraft, msg_class, msg_name)
+        aircraft.messages_book.SetPageImage(aircraft.messages[msg.name].index, 1)
+        self.aircrafts[ac_id].messages[msg.name].last_seen = time.time()
 
-        aircraft.messages_book.SetPageImage(aircraft.messages[msg_name].index, 1)
-        self.aircrafts[ac_id].messages[msg_name].last_seen = time.time()
-
-        for index in range(0, len(msg.get_fieldvalues())):
-            aircraft.messages[msg_name].field_controls[index].SetLabel(msg.get_field(index))
+        for index in range(0, len(msg.fieldvalues)):
+            aircraft.messages[msg.name].field_controls[index].SetLabel(msg.get_field(index))
 
     def __init__(self, msg_class="telemetry"):
         wx.Frame.__init__(self, id=-1, parent=None, name=u'MessagesFrame', size=wx.Size(WIDTH, HEIGHT), style=wx.DEFAULT_FRAME_STYLE, title=u'Messages')

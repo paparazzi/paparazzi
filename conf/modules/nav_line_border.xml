@@ -19,7 +19,7 @@
   <header>
     <file name="nav_line_border.h"/>
   </header>
-  <makefile target="ap|sim|jsbsim|nps">
+  <makefile target="ap|sim|nps">
     <file name="nav_line_border.c"/>
   </makefile>
 </module>

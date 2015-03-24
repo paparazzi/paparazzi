@@ -21,7 +21,6 @@
 
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
     <subsystem name="ins" type="alt_float"/>
@@ -41,6 +40,7 @@
       <configure name="ADC_IR2" value="ADC_1"/>
       <configure name="ADC_IR_TOP" value="ADC_2"/>
     </load>
+    <load name="ahrs_infrared.xml"/>
   </modules>
 
 <!-- commands section -->

@@ -17,12 +17,6 @@ ifneq ($(AHRS_ALIGNER_LED),none)
   INS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
 
-AHRS_PROPAGATE_FREQUENCY ?= 125
-AHRS_CORRECT_FREQUENCY ?= 125
-
-INS_CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
-INS_CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
-
 ap.CFLAGS += $(INS_CFLAGS)
 ap.srcs += $(INS_SRCS)
 
@@ -44,7 +38,4 @@ ahrssim_srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
 
 sim.CFLAGS += $(ahrssim_CFLAGS)
 sim.srcs += $(ahrssim_srcs)
-
-jsbsim.CFLAGS += $(ahrssim_CFLAGS)
-jsbsim.srcs += $(ahrssim_srcs)
 

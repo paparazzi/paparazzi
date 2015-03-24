@@ -3,6 +3,10 @@ Paparazzi 5.5_devel
 
 currently ongoing development, changes so far (no particular order, nor complete)
 
+- linux/video: Rewrite of the linux video modules
+  [#1094] (https://github.com/paparazzi/paparazzi/pull/1094)
+- arch/linux: change the sys timer to a multi threaded implementation
+  [#1117] (https://github.com/paparazzi/paparazzi/pull/1117)
 - python: generate paparazzi math wrappers with SWIG
   [#1066] (https://github.com/paparazzi/paparazzi/pull/1066)
 - ground segment: use pkg-config for ivy-c if available
@@ -35,6 +39,73 @@ currently ongoing development, changes so far (no particular order, nor complete
 - modules: allow conditions in module defines and update meteo_stick
   [#1092] (https://github.com/paparazzi/paparazzi/pull/1092)
 - mcu_periph: increase max size for spi buffer length (8bits to 16bits)
+- GCS: fix undo for list of values
+  [#1054] (https://github.com/paparazzi/paparazzi/issues/1054)
+- ARDrone2: add support for dynamic Ad-Hoc networking with OSLR
+  [#1097] (https://github.com/paparazzi/paparazzi/pull/1097)
+- modules: airspeed_ets: add 3rd party mode support
+  [#1099] (https://github.com/paparazzi/paparazzi/pull/1099)
+- arch/linux: implement persistent settings
+  [#1109] (https://github.com/paparazzi/paparazzi/pull/1109)
+- actuators: dual dual pwm
+  [#1102] (https://github.com/paparazzi/paparazzi/pull/1102)
+- arch/linux: fix uart driver
+  [#1110] (https://github.com/paparazzi/paparazzi/pull/1110)
+- rotorcraft: fix attitude flight plan primitive (attitude_set_rpy_setpoint)
+  [#1103] (https://github.com/paparazzi/paparazzi/pull/1103)
+- NPS simulator: update FDM bindings to be compatible with latest JSBSim
+  [#1118] (https://github.com/paparazzi/paparazzi/pull/1118)
+- modules: refactor logger modules
+  [#1095] (https://github.com/paparazzi/paparazzi/pull/1095)
+- arch/linux: refactor UDP support
+  [#1120] (https://github.com/paparazzi/paparazzi/pull/1120)
+  [#1122] (https://github.com/paparazzi/paparazzi/pull/1122)
+- airborne: major refactoring of AHRS interfaces using ABI
+  [#856] (https://github.com/paparazzi/paparazzi/pull/856)
+- build: don't add full path to NPS object files
+  [#798] (https://github.com/paparazzi/paparazzi/issues/798)
+- simulator: remove jsbsim target (fully replaced by NPS)
+  [#1123] (https://github.com/paparazzi/paparazzi/pull/1123)
+- GCS: fix AIRCRAFTS syncronization issue with server (sometimes resulted in blank GCS)
+  [#1078] (https://github.com/paparazzi/paparazzi/issues/1078)
+- AHRS: convert AHRS infrared to a module
+  [#1127] (https://github.com/paparazzi/paparazzi/pull/1127)
+- create_module: enforce lowercase file and dir and function names
+  [#914] (https://github.com/paparazzi/paparazzi/issues/914)
+- GCS: set bat level to UNK/0 at startup
+  [#885] (https://github.com/paparazzi/paparazzi/issues/885)
+- arch/linux: sys_time: get time from CLOCK_MONOTONIC
+  [#1128] (https://github.com/paparazzi/paparazzi/pull/1128)
+- mcu_periph: move mcu peripheral event functions to common mcu_event
+- NPS simulator: fix sensor simulation issues
+  [#1131] (https://github.com/paparazzi/paparazzi/pull/1131)
+  [#1132] (https://github.com/paparazzi/paparazzi/pull/1132)
+- NPS/FlightGear: add easystar model (with ailerons)
+- build: Possibilty to specify conf.xml file for building aircrafts
+  [#1134] (https://github.com/paparazzi/paparazzi/pull/1134)
+- OCaml: use Array.make instead of deprecated Array.create
+
+
+Paparazzi 5.4.2_stable
+======================
+
+Maintenance release
+
+- GCS: fix undo for list of values
+  [#1054] (https://github.com/paparazzi/paparazzi/issues/1054)
+- lisa_mx: fix secondary spektrum satellite UART AF
+- logalizer: fix csv export after allowing description tag in messages
+- nps: update nps_fdm_jsbsim to be compatible with latest jsbsim
+  [#1118] (https://github.com/paparazzi/paparazzi/pull/1118)
+- rotorcraft: fix attitude flight plan primitive
+  [#1103] (https://github.com/paparazzi/paparazzi/pull/1103)
+- flight plans: fix 'call' statement without loop
+- generators: only include raw makefile part from modules if target matches
+- GCS: GPS accuracy speech less verbose
+  [#1046] (https://github.com/paparazzi/paparazzi/issues/1046)
+- GCS: call index of first/single link "single"
+  [#1098] (https://github.com/paparazzi/paparazzi/issues/1098)
+
 
 Paparazzi 5.4.1_stable
 ======================

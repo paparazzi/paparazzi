@@ -500,6 +500,7 @@ extern void int32_quat_integrate_fi(struct Int32Quat *q, struct Int64Quat *hr, s
 
 /** rotate 3D vector by quaternion.
  * vb = q_a2b * va * q_a2b^-1
+ * Doesn't support inplace rotation, meaning v_out mustn't be a pointer to same struct as v_in.
  */
 extern void int32_quat_vmult(struct Int32Vect3 *v_out, struct Int32Quat *q, struct Int32Vect3 *v_in);
 

@@ -153,8 +153,8 @@ void airspeed_otf_init(void)
 
 void airspeed_otf_event(void)
 {
-  while (MetLink(ChAvailable())) {
-    uint8_t ch = MetLink(Getch());
+  while (MetBuffer()) {
+    uint8_t ch = MetGetch();
     airspeed_otf_parse(ch);
   }
 }

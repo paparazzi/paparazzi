@@ -41,6 +41,7 @@
 
 void uart_periph_set_baudrate(struct uart_periph *p, uint32_t baud)
 {
+  p->baudrate = baud;
 
   /* Configure USART baudrate */
   usart_set_baudrate((uint32_t)p->reg_addr, baud);

@@ -32,36 +32,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "serial_port.h"
 
 // #define TRACE(fmt,args...)    fprintf(stderr, fmt, args)
 #define TRACE(fmt,args...)
 
-#if USE_UART0
-static inline void uart0_handler(void);
-#endif
-#if USE_UART1
-static inline void uart1_handler(void);
-#endif
-#if USE_UART2
-static inline void uart2_handler(void);
-#endif
-#if USE_UART3
-static inline void uart3_handler(void);
-#endif
-#if USE_UART4
-static inline void uart4_handler(void);
-#endif
-#if USE_UART5
-static inline void uart5_handler(void);
-#endif
-#if USE_UART6
-static inline void uart6_handler(void);
-#endif
 
 void uart_periph_set_baudrate(struct uart_periph *periph, uint32_t baud)
 {
+  periph->baudrate = baud;
+
   struct SerialPort *port;
   // close serial port if already open
   if (periph->reg_addr != NULL) {
@@ -88,6 +70,7 @@ void uart_transmit(struct uart_periph *periph, uint8_t data)
   uint16_t temp = (periph->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;
 
   if (temp == periph->tx_extract_idx) {
+    printf("uart tx queue full!\n");
     return;  // no room
   }
 
@@ -100,12 +83,16 @@ void uart_transmit(struct uart_periph *periph, uint8_t data)
     struct SerialPort *port = (struct SerialPort *)(periph->reg_addr);
     int ret = write((int)(port->fd), &data, 1);
     if (ret < 1) {
-      TRACE("w %x [%d]\n", data, ret);
+      TRACE("uart_transmit: write %d failed [%d: %s]\n", data, ret, strerror(errno));
+      /* if write was interrupted, put data into queue */
+      if (errno == EINTR) {
+        periph->tx_buf[periph->tx_insert_idx] = data;
+        periph->tx_insert_idx = temp;
+      }
     }
   }
 }
 
-#include <errno.h>
 
 static inline void uart_handler(struct uart_periph *periph)
 {
@@ -120,10 +107,12 @@ static inline void uart_handler(struct uart_periph *periph)
   if (periph->tx_insert_idx != periph->tx_extract_idx) {
     int ret = write(fd, &(periph->tx_buf[periph->tx_extract_idx]), 1);
     if (ret < 1) {
-      TRACE("w %x [%d: %s]\n", periph->tx_buf[periph->tx_extract_idx], ret, strerror(errno));
+      TRACE("uart_handler: write %x failed [%d: %s]\n", periph->tx_buf[periph->tx_extract_idx], ret, strerror(errno));
     }
-    periph->tx_extract_idx++;
-    periph->tx_extract_idx %= UART_TX_BUFFER_SIZE;
+    else {
+      periph->tx_extract_idx++;
+      periph->tx_extract_idx %= UART_TX_BUFFER_SIZE;
+    }
   } else {
     periph->tx_running = FALSE;   // clear running flag
   }
@@ -150,25 +139,25 @@ uint8_t uart_getch(struct uart_periph *p)
 void uart_event(void)
 {
 #if USE_UART0
-  uart0_handler();
+  uart_handler(&uart0);
 #endif
 #if USE_UART1
-  uart1_handler();
+  uart_handler(&uart1);
 #endif
 #if USE_UART2
-  uart2_handler();
+  uart_handler(&uart2);
 #endif
 #if USE_UART3
-  uart3_handler();
+  uart_handler(&uart3);
 #endif
 #if USE_UART4
-  uart4_handler();
+  uart_handler(&uart4);
 #endif
 #if USE_UART5
-  uart5_handler();
+  uart_handler(&uart5);
 #endif
 #if USE_UART6
-  uart6_handler();
+  uart_handler(&uart6);
 #endif
 }
 
@@ -176,13 +165,8 @@ void uart_event(void)
 void uart0_init(void)
 {
   uart_periph_init(&uart0);
-  strcpy(uart0.dev, UART0_DEV);
+  strncpy(uart0.dev, UART0_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart0, UART0_BAUD);
-}
-
-static inline void uart0_handler(void)
-{
-  uart_handler(&uart0);
 }
 #endif /* USE_UART0 */
 
@@ -190,13 +174,8 @@ static inline void uart0_handler(void)
 void uart1_init(void)
 {
   uart_periph_init(&uart1);
-  strcpy(uart1.dev, UART1_DEV);
+  strncpy(uart1.dev, UART1_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart1, UART1_BAUD);
-}
-
-static inline void uart1_handler(void)
-{
-  uart_handler(&uart1);
 }
 #endif /* USE_UART1 */
 
@@ -204,13 +183,8 @@ static inline void uart1_handler(void)
 void uart2_init(void)
 {
   uart_periph_init(&uart2);
-  strcpy(uart2.dev, UART2_DEV);
+  strncpy(uart2.dev, UART2_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart2, UART2_BAUD);
-}
-
-static inline void uart2_handler(void)
-{
-  uart_handler(&uart2);
 }
 #endif /* USE_UART2 */
 
@@ -218,13 +192,8 @@ static inline void uart2_handler(void)
 void uart3_init(void)
 {
   uart_periph_init(&uart3);
-  strcpy(uart3.dev, UART3_DEV);
+  strncpy(uart3.dev, UART3_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart3, UART3_BAUD);
-}
-
-static inline void uart3_handler(void)
-{
-  uart_handler(&uart3);
 }
 #endif /* USE_UART3 */
 
@@ -232,13 +201,8 @@ static inline void uart3_handler(void)
 void uart4_init(void)
 {
   uart_periph_init(&uart4);
-  strcpy(uart4.dev, UART4_DEV);
+  strncpy(uart4.dev, UART4_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart4, UART4_BAUD);
-}
-
-static inline void uart4_handler(void)
-{
-  uart_handler(&uart4);
 }
 #endif /* USE_UART4 */
 
@@ -246,13 +210,8 @@ static inline void uart4_handler(void)
 void uart5_init(void)
 {
   uart_periph_init(&uart5);
-  strcpy(uart5.dev, UART5_DEV);
+  strncpy(uart5.dev, UART5_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart5, UART5_BAUD);
-}
-
-static inline void uart5_handler(void)
-{
-  uart_handler(&uart5);
 }
 #endif /* USE_UART5 */
 
@@ -260,12 +219,7 @@ static inline void uart5_handler(void)
 void uart6_init(void)
 {
   uart_periph_init(&uart6);
-  strcpy(uart6.dev, UART6_DEV);
+  strncpy(uart6.dev, UART6_DEV, UART_DEV_NAME_SIZE);
   uart_periph_set_baudrate(&uart6, UART6_BAUD);
-}
-
-static inline void uart6_handler(void)
-{
-  uart_handler(&uart6);
 }
 #endif /* USE_UART6 */

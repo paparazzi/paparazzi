@@ -17,9 +17,10 @@ ifneq ($(AHRS_ALIGNER_LED),none)
   AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
 
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_euler.h\"
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_euler_wrapper.h\"
 AHRS_SRCS   += subsystems/ahrs.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_int_cmpl_euler.c
+AHRS_SRCS   += subsystems/ahrs/ahrs_int_cmpl_euler_wrapper.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
 
 ap.CFLAGS += $(AHRS_CFLAGS)
@@ -39,9 +40,6 @@ ahrssim_srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
 
 sim.CFLAGS += $(ahrssim_CFLAGS)
 sim.srcs += $(ahrssim_srcs)
-
-jsbsim.CFLAGS += $(ahrssim_CFLAGS)
-jsbsim.srcs += $(ahrssim_srcs)
 
 test_ahrs.CFLAGS += $(AHRS_CFLAGS)
 test_ahrs.srcs += $(AHRS_SRCS)

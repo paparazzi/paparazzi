@@ -24,6 +24,8 @@
 
 
 type color = string
+type gps_acc_level = GPS_ACC_HIGH | GPS_ACC_LOW | GPS_ACC_VERY_LOW | GPS_NO_ACC
+
 type aircraft = private {
     ac_name : string;
     ac_speech_name : string;
@@ -62,7 +64,8 @@ type aircraft = private {
     mutable dl_values : string option array;
     mutable last_unix_time : float;
     mutable airspeed : float;
-    mutable version : string
+    mutable version : string;
+    mutable last_gps_acc : gps_acc_level
   }
 
 val aircrafts : (string, aircraft) Hashtbl.t
@@ -75,7 +78,7 @@ val track_size : int ref
 val auto_hide_fp : bool -> unit
 (** Automatically hide flight plan of not selected ac *)
 
-val listen_acs_and_msgs : MapCanvas.widget -> GPack.notebook -> Pages.alert -> bool -> Gtk_tools.pixmap_in_drawin_area -> bool -> unit
+val listen_acs_and_msgs : MapCanvas.widget -> GPack.notebook -> GPack.box -> Pages.alert -> bool -> Gtk_tools.pixmap_in_drawin_area -> bool -> unit
 (** [listen_acs_and_msgs geomap aircraft_notebook alert_page auto_center_new_ac alt_graph timestamp] *)
 
 val jump_to_block : string -> int -> unit

@@ -203,7 +203,7 @@ void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
   // copy euler setpoint for debugging
   EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *rpy);
 
-  quat_from_rpy_cmd_f(&stab_att_sp_quat, &stab_att_sp_euler);
+  float_quat_of_eulers(&stab_att_sp_quat, &stab_att_sp_euler);
 }
 
 void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)

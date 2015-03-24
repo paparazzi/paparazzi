@@ -486,6 +486,16 @@ static void usb_serial_send(struct usb_serial_periph *p __attribute__((unused)))
   VCOM_send_message();
 }
 
+static int usb_serial_char_available(struct usb_serial_periph *p __attribute__((unused)))
+{
+  return VCOM_check_available();
+}
+
+static uint8_t usb_serial_getch(struct usb_serial_periph *p __attribute__((unused)))
+{
+  return (uint8_t)(VCOM_getchar());
+}
+
 void VCOM_init(void)
 {
   // initialise fifos
@@ -518,6 +528,8 @@ void VCOM_init(void)
   // Configure generic device
   usb_serial.device.periph = (void *)(&usb_serial);
   usb_serial.device.check_free_space = (check_free_space_t) usb_serial_check_free_space;
-  usb_serial.device.transmit = (transmit_t) usb_serial_transmit;
+  usb_serial.device.put_byte = (put_byte_t) usb_serial_transmit;
   usb_serial.device.send_message = (send_message_t) usb_serial_send;
+  usb_serial.device.char_available = (char_available_t) usb_serial_char_available;
+  usb_serial.device.get_byte = (get_byte_t) usb_serial_getch;
 }

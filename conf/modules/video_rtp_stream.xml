@@ -3,20 +3,24 @@
 <module name="video_rtp_stream" dir="computer_vision">
   <doc>
     <description>
-      Video stream of ARDone 2 front camera.
+      Video streaming for Linux devices
 
-      - sends a RTP/UDP stream of the from camera
-      - possibility to save an image on the internal memory (JPEG, full size, best quality, 100 pictures max if nothing else)
+      - Sends a RTP/UDP stream of the camera
+      - Possibility to save an image(shot) on the internal memory (JPEG, full size, best quality)
     </description>
-    <define name="VIDEO_SOCK_IP" value="192.168.1.255" description="IP broadcast address"/>
-    <define name="VIDEO_DOWNSIZE_FACTOR" value="4" description="Reduction factor of the video stream"/>
-    <define name="VIDEO_QUALITY_FACTOR" value="50" description="JPEG encoding compression factor [0-99]"/>
-    <define name="VIDEO_FPS" value="4." description="Video stream frame rate"/>
+    <define name="VIEWVIDEO_DEVICE" value="/dev/video1" description="The video device to capture from"/>
+    <define name="VIEWVIDEO_DEVICE_SIZE" value="1280,720" description="Video capture size (width, height)"/>
+    <define name="VIEWVIDEO_DEVICE_BUFFERS" value="10" description="Amount of V4L2 image buffers"/>
+    <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4" description="Reduction factor of the video stream"/>
+    <define name="VIEWVIDEO_QUALITY_FACTOR" value="50" description="JPEG encoding compression factor [0-99]"/>
+    <define name="VIEWVIDEO_FPS" value="4" description="Video stream frame rate"/>
+    <define name="VIEWVIDEO_SHOT_PATH" value="/data/video/images" description="Path where the images should be saved"/>
+    <define name="VIEWVIDEO_USE_NETCAT" value="FALSE" description="Use netcat for transfering images"/>
   </doc>
   <settings>
     <dl_settings>
       <dl_settings name="video">
-        <dl_setting var="viewvideo_shot" min="0" step="1" max="1" shortname="save_shot" module="computer_vision/viewvideo" handler="SaveShot"/>
+        <dl_setting var="viewvideo.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/viewvideo" handler="take_shot"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -25,20 +29,42 @@
     <file name="viewvideo.h"/>
   </header>
 
-  <periodic fun="viewvideo_run()" freq="1" start="viewvideo_start()" stop="viewvideo_stop()" autorun="TRUE"/>
+  <init fun="viewvideo_init()"/>
+  <periodic fun="viewvideo_periodic()" freq="1" start="viewvideo_start()" stop="viewvideo_stop()" autorun="TRUE"/>
   <makefile target="ap">
+
     <file name="viewvideo.c"/>
+
+    <!-- Include the needed Computer Vision files -->
+    <define name="modules/computer_vision" type="include"/>
     <file name="jpeg.c" dir="modules/computer_vision/cv/encoding"/>
     <file name="rtp.c" dir="modules/computer_vision/cv/encoding"/>
-    <file name="socket.c" dir="modules/computer_vision/lib/udp"/>
-    <file name="video.c" dir="modules/computer_vision/lib/v4l"/>
-    <define name="modules/computer_vision/cv" type="include"/>
-    <define name="modules/computer_vision/lib" type="include"/>
-    <define name="pthread" type="raw"/>
+    <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
+
+    <!-- Define the network connection to send images over -->
+    <raw>
+      VIEWVIDEO_DEV         ?= UDP1
+      VIEWVIDEO_HOST        ?= $(MODEM_HOST)
+      VIEWVIDEO_PORT_OUT    ?= 5000
+      VIEWVIDEO_PORT_IN     ?= 4999
+      VIEWVIDEO_BROADCAST   ?= $(MODEM_BROADCAST)
+      VIEWVIDEO_DEV_LOWER   = $(shell echo $(VIEWVIDEO_DEV) | tr A-Z a-z)
+
+      VIEWVID_G_CFLAGS  = -DVIEWVIDEO_HOST=$(VIEWVIDEO_HOST) -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT)
+      VIEWVID_CFLAGS  = -DUSE_$(VIEWVIDEO_DEV) -DVIEWVIDEO_DEV=$(VIEWVIDEO_DEV_LOWER)
+      VIEWVID_CFLAGS += -D$(VIEWVIDEO_DEV)_PORT_OUT=$(VIEWVIDEO_PORT_OUT) -D$(VIEWVIDEO_DEV)_PORT_IN=$(VIEWVIDEO_PORT_IN)
+      VIEWVID_CFLAGS += -D$(VIEWVIDEO_DEV)_BROADCAST=$(VIEWVIDEO_BROADCAST) -D$(VIEWVIDEO_DEV)_HOST=\"$(VIEWVIDEO_HOST)\"
+      ifeq ($(VIEWVIDEO_USE_NC),)
+        ap.CFLAGS += $(VIEWVID_G_CFLAGS) $(VIEWVID_CFLAGS)
+      else
+        ap.CFLAGS += $(VIEWVID_G_CFLAGS) -DVIEWVIDEO_USE_NC
+      endif
+    </raw>
+
+    <!-- Random flags -->
     <define name="__USE_GNU"/>
-    <flag name="LDFLAGS" value="pthread"/>
     <flag name="LDFLAGS" value="lrt"/>
-    <flag name="LDFLAGS" value="static"/>
+    <flag name="LDFLAGS" value="static-libgcc"/>
   </makefile>
   <makefile target="nps">
     <file name="viewvideo_nps.c"/>

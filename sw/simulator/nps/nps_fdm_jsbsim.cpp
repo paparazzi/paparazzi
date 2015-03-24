@@ -37,9 +37,11 @@
 #pragma GCC diagnostic pop
 
 #include <FGJSBBase.h>
+#include <initialization/FGInitialCondition.h>
 #include <models/FGPropulsion.h>
 #include <models/FGGroundReactions.h>
 #include <models/FGAccelerations.h>
+#include <models/FGFCS.h>
 #include <models/atmosphere/FGWinds.h>
 
 #include "nps_fdm.h"
@@ -79,6 +81,7 @@ using namespace JSBSim;
 using namespace std;
 
 static void feed_jsbsim(double* commands, int commands_nb);
+static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder);
 static void fetch_state(void);
 static int check_for_nan(void);
 
@@ -129,67 +132,66 @@ void nps_fdm_init(double dt) {
   init_ltp();
 
 #if DEBUG_NPS_JSBSIM
-  printf("fdm.time,fg_body_ecef_accel1,fg_body_ecef_accel2,fg_body_ecef_accel3,fdm.body_ecef_accel.x,fdm.body_ecef_accel.y,fdm.body_ecef_accel.z,fg_ltp_ecef_accel1,fg_ltp_ecef_accel2,fg_ltp_ecef_accel3,fdm.ltp_ecef_accel.x,fdm.ltp_ecef_accel.y,fdm.ltp_ecef_accel.z,fg_ecef_ecef_accel1,fg_ecef_ecef_accel2,fg_ecef_ecef_accel3,fdm.ecef_ecef_accel.x,fdm.ecef_ecef_accel.y,fdm.ecef_ecef_accel.z,fdm.ltpprz_ecef_accel.z,fdm.ltpprz_ecef_accel.y,fdm.ltpprz_ecef_accel.z,fdm.agl\n");
+  printf("fdm.time,fdm.body_ecef_accel.x,fdm.body_ecef_accel.y,fdm.body_ecef_accel.z,fdm.ltp_ecef_accel.x,fdm.ltp_ecef_accel.y,fdm.ltp_ecef_accel.z,fdm.ecef_ecef_accel.x,fdm.ecef_ecef_accel.y,fdm.ecef_ecef_accel.z,fdm.ltpprz_ecef_accel.z,fdm.ltpprz_ecef_accel.y,fdm.ltpprz_ecef_accel.z,fdm.agl\n");
 #endif
 
   fetch_state();
 
 }
 
-void nps_fdm_run_step(bool_t launch, double* commands, int commands_nb) {
-  static bool_t run_model = FALSE;
+void nps_fdm_run_step(bool_t launch __attribute__((unused)), double* commands, int commands_nb) {
 
-  if (launch && !run_model) {
-    run_model = TRUE;
 #ifdef NPS_JSBSIM_LAUNCHSPEED
+  static bool_t already_launched = FALSE;
+
+  if (launch && !already_launched) {
     printf("Launching with speed of %.1f m/s!\n", (float)NPS_JSBSIM_LAUNCHSPEED);
     FDMExec->GetIC()->SetUBodyFpsIC(FeetOfMeters(NPS_JSBSIM_LAUNCHSPEED));
-#endif
     FDMExec->RunIC();
+    already_launched = TRUE;
+  }
+#endif
+
+  feed_jsbsim(commands, commands_nb);
+
+  /* To deal with ground interaction issues, we decrease the time
+     step as the vehicle is close to the ground. This is done predictively
+     to ensure no weird accelerations or oscillations. From tests with a bouncing
+     ball model in JSBSim, it seems that 10k steps per second is reasonable to capture
+     all the dynamics. Higher might be a bit more stable, but really starting to push
+     the simulation CPU requirements, especially for more complex models.
+     - at init: get the largest radius from CG to any contact point (landing gear)
+     - if descending...
+     - find current number of timesteps to impact
+     - if impact imminent, calculate a new timestep to use (with limit)
+     - if ascending...
+     - change timestep back to init value
+     - run sim for as many steps as needed to reach init_dt amount of time
+
+     Of course, could probably be improved...
+  */
+  // If the vehicle has a downwards velocity
+  if (fdm.ltp_ecef_vel.z > 0) {
+    // Get the current number of timesteps until impact at current velocity
+    double numDT_to_impact = (fdm.agl - vehicle_radius_max) / (fdm.curr_dt * fdm.ltp_ecef_vel.z);
+    // If impact imminent within next timestep, use high sim rate
+    if (numDT_to_impact <= 1.0) {
+      fdm.curr_dt = min_dt;
+    }
+  }
+  // If the vehicle is moving upwards and out of the ground, reset timestep
+  else if ((fdm.ltp_ecef_vel.z <= 0) && ((fdm.agl + vehicle_radius_max) > 0)) {
+    fdm.curr_dt = fdm.init_dt;
   }
 
-  if (run_model) {
-    feed_jsbsim(commands, commands_nb);
+  // Calculate the number of sim steps for correct amount of time elapsed
+  int num_steps = int(fdm.init_dt / fdm.curr_dt);
 
-    /* To deal with ground interaction issues, we decrease the time
-       step as the vehicle is close to the ground. This is done predictively
-       to ensure no weird accelerations or oscillations. From tests with a bouncing
-       ball model in JSBSim, it seems that 10k steps per second is reasonable to capture
-       all the dynamics. Higher might be a bit more stable, but really starting to push
-       the simulation CPU requirements, especially for more complex models.
-       - at init: get the largest radius from CG to any contact point (landing gear)
-       - if descending...
-       - find current number of timesteps to impact
-       - if impact imminent, calculate a new timestep to use (with limit)
-       - if ascending...
-       - change timestep back to init value
-       - run sim for as many steps as needed to reach init_dt amount of time
-
-       Of course, could probably be improved...
-    */
-    // If the vehicle has a downwards velocity
-    if (fdm.ltp_ecef_vel.z > 0) {
-      // Get the current number of timesteps until impact at current velocity
-      double numDT_to_impact = (fdm.agl - vehicle_radius_max) / (fdm.curr_dt * fdm.ltp_ecef_vel.z);
-      // If impact imminent within next timestep, use high sim rate
-      if (numDT_to_impact <= 1.0) {
-        fdm.curr_dt = min_dt;
-      }
-    }
-    // If the vehicle is moving upwards and out of the ground, reset timestep
-    else if ((fdm.ltp_ecef_vel.z <= 0) && ((fdm.agl + vehicle_radius_max) > 0)) {
-      fdm.curr_dt = fdm.init_dt;
-    }
-
-    // Calculate the number of sim steps for correct amount of time elapsed
-    int num_steps = int(fdm.init_dt / fdm.curr_dt);
-
-    // Set the timestep then run sim
-    FDMExec->Setdt(fdm.curr_dt);
-    int i;
-    for (i = 0; i < num_steps; i++) {
-      FDMExec->Run();
-    }
+  // Set the timestep then run sim
+  FDMExec->Setdt(fdm.curr_dt);
+  int i;
+  for (i = 0; i < num_steps; i++) {
+    FDMExec->Run();
   }
 
   fetch_state();
@@ -221,7 +223,7 @@ void nps_fdm_set_wind(double speed, double dir, int turbulence_severity) {
  * @param commands_nb Number of commands (length of array)
  */
 static void feed_jsbsim(double* commands, int commands_nb) {
-
+#ifdef NPS_ACTUATOR_NAMES
   char buf[64];
   const char* names[] = NPS_ACTUATOR_NAMES;
   string property;
@@ -230,9 +232,27 @@ static void feed_jsbsim(double* commands, int commands_nb) {
   for (i=0; i < commands_nb; i++) {
     sprintf(buf,"fcs/%s",names[i]);
     property = string(buf);
-    FDMExec->GetPropertyManager()->SetDouble(property,commands[i]);
+    FDMExec->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
   }
+#else
+  if (commands_nb != 4) {
+    cerr << "commands_nb must be 4!" << endl;
+    exit(-1);
+  }
+  /* call version that directly feeds throttle, aileron, elevator, rudder */
+  feed_jsbsim(commands[COMMAND_THROTTLE], commands[COMMAND_ROLL], commands[COMMAND_PITCH], commands[3]);
+#endif
+}
 
+static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder)
+{
+  FGFCS* FCS = FDMExec->GetFCS();
+  FCS->SetDaCmd(aileron);
+  FCS->SetDeCmd(elevator);
+  FCS->SetDrCmd(rudder);
+  for (unsigned int i = 0; i < FDMExec->GetPropulsion()->GetNumEngines(); i++) {
+    FCS->SetThrottleCmd(i, throttle);
+  }
 }
 
 
@@ -241,8 +261,7 @@ static void feed_jsbsim(double* commands, int commands_nb) {
  */
 static void fetch_state(void) {
 
-  FGPropertyManager* node = FDMExec->GetPropertyManager()->GetNode("simulation/sim-time-sec");
-  fdm.time = node->getDoubleValue();
+  fdm.time = FDMExec->GetPropertyManager()->GetNode("simulation/sim-time-sec")->getDoubleValue();
 
 #if DEBUG_NPS_JSBSIM
   printf("%f,",fdm.time);
@@ -264,35 +283,33 @@ static void fetch_state(void) {
    */
 
   /* in body frame */
-  const FGColumnVector3& fg_body_ecef_vel = propagate->GetUVW();
-  jsbsimvec_to_vec(&fdm.body_ecef_vel, &fg_body_ecef_vel);
-  const FGColumnVector3& fg_body_ecef_accel = accelerations->GetUVWdot();
-  jsbsimvec_to_vec(&fdm.body_ecef_accel,&fg_body_ecef_accel);
+  jsbsimvec_to_vec(&fdm.body_ecef_vel, &propagate->GetUVW());
+  jsbsimvec_to_vec(&fdm.body_ecef_accel, &accelerations->GetUVWdot());
+  jsbsimvec_to_vec(&fdm.body_inertial_accel, &accelerations->GetUVWidot());
+  jsbsimvec_to_vec(&fdm.body_accel, &accelerations->GetBodyAccel());
 
 #if DEBUG_NPS_JSBSIM
-  printf("%f,%f,%f,%f,%f,%f,",(&fg_body_ecef_accel)->Entry(1),(&fg_body_ecef_accel)->Entry(2),(&fg_body_ecef_accel)->Entry(3),fdm.body_ecef_accel.x,fdm.body_ecef_accel.y,fdm.body_ecef_accel.z);
+  printf("%f,%f,%f,", fdm.body_ecef_accel.x, fdm.body_ecef_accel.y, fdm.body_ecef_accel.z);
 #endif
 
   /* in LTP frame */
-  const FGMatrix33& body_to_ltp = propagate->GetTb2l();
-  const FGColumnVector3& fg_ltp_ecef_vel = body_to_ltp * fg_body_ecef_vel;
-  jsbsimvec_to_vec((DoubleVect3*)&fdm.ltp_ecef_vel, &fg_ltp_ecef_vel);
-  const FGColumnVector3& fg_ltp_ecef_accel = body_to_ltp * fg_body_ecef_accel;
+  jsbsimvec_to_vec((DoubleVect3*)&fdm.ltp_ecef_vel, &propagate->GetVel());
+  const FGColumnVector3& fg_ltp_ecef_accel = propagate->GetTb2l() * accelerations->GetUVWdot();
   jsbsimvec_to_vec((DoubleVect3*)&fdm.ltp_ecef_accel, &fg_ltp_ecef_accel);
 
 #if DEBUG_NPS_JSBSIM
-  printf("%f,%f,%f,%f,%f,%f,",(&fg_ltp_ecef_accel)->Entry(1),(&fg_ltp_ecef_accel)->Entry(2),(&fg_ltp_ecef_accel)->Entry(3),fdm.ltp_ecef_accel.x,fdm.ltp_ecef_accel.y,fdm.ltp_ecef_accel.z);
+  printf("%f,%f,%f,", fdm.ltp_ecef_accel.x, fdm.ltp_ecef_accel.y, fdm.ltp_ecef_accel.z);
 #endif
 
   /* in ECEF frame */
-  const FGMatrix33& body_to_ecef = propagate->GetTb2ec();
-  const FGColumnVector3& fg_ecef_ecef_vel = body_to_ecef * fg_body_ecef_vel;
+  const FGColumnVector3& fg_ecef_ecef_vel = propagate->GetECEFVelocity();
   jsbsimvec_to_vec((DoubleVect3*)&fdm.ecef_ecef_vel, &fg_ecef_ecef_vel);
-  const FGColumnVector3& fg_ecef_ecef_accel = body_to_ecef * fg_body_ecef_accel;
+
+  const FGColumnVector3& fg_ecef_ecef_accel = propagate->GetTb2ec() * accelerations->GetUVWdot();
   jsbsimvec_to_vec((DoubleVect3*)&fdm.ecef_ecef_accel, &fg_ecef_ecef_accel);
 
 #if DEBUG_NPS_JSBSIM
-  printf("%f,%f,%f,%f,%f,%f,",(&fg_ecef_ecef_accel)->Entry(1),(&fg_ecef_ecef_accel)->Entry(2),(&fg_ecef_ecef_accel)->Entry(3),fdm.ecef_ecef_accel.x,fdm.ecef_ecef_accel.y,fdm.ecef_ecef_accel.z);
+  printf("%f,%f,%f,", fdm.ecef_ecef_accel.x, fdm.ecef_ecef_accel.y, fdm.ecef_ecef_accel.z);
 #endif
 
   /* in LTP pprz */
@@ -301,7 +318,7 @@ static void fetch_state(void) {
   ned_of_ecef_vect_d(&fdm.ltpprz_ecef_accel, &ltpdef, &fdm.ecef_ecef_accel);
 
 #if DEBUG_NPS_JSBSIM
-  printf("%f,%f,%f,",fdm.ltpprz_ecef_accel.z,fdm.ltpprz_ecef_accel.y,fdm.ltpprz_ecef_accel.z);
+  printf("%f,%f,%f,", fdm.ltpprz_ecef_accel.z, fdm.ltpprz_ecef_accel.y, fdm.ltpprz_ecef_accel.z);
 #endif
 
   /* llh */
@@ -334,6 +351,9 @@ static void fetch_state(void) {
    */
   jsbsimvec_to_rate(&fdm.body_ecef_rotvel, &propagate->GetPQR());
   jsbsimvec_to_rate(&fdm.body_ecef_rotaccel, &accelerations->GetPQRdot());
+
+  jsbsimvec_to_rate(&fdm.body_inertial_rotvel, &propagate->GetPQRi());
+  jsbsimvec_to_rate(&fdm.body_inertial_rotaccel, &accelerations->GetPQRidot());
 
 
   /*
@@ -389,13 +409,15 @@ static void init_jsbsim(double dt) {
     exit(-1);
   }
 
-  //initRunning for all engines
-  FDMExec->GetPropulsion()->InitRunning(-1);
+#ifdef DEBUG
+  cerr << "NumEngines: " << FDMExec->GetPropulsion()->GetNumEngines() << endl;
+  cerr << "NumGearUnits: " << FDMExec->GetGroundReactions()->GetNumGearUnits() << endl;
+#endif
 
   // LLA initial coordinates (geodetic lat, geoid alt)
   struct LlaCoor_d lla0;
 
-  JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
+  FGInitialCondition *IC = FDMExec->GetIC();
   if(!jsbsim_ic_name.empty()) {
     if ( ! IC->Load(jsbsim_ic_name)) {
 #ifdef DEBUG
@@ -406,6 +428,7 @@ static void init_jsbsim(double dt) {
     }
 
     llh_from_jsbsim(&lla0, FDMExec->GetPropagate());
+    cout << "JSBSim initial conditions loaded from " << jsbsim_ic_name << endl;
   }
   else {
     // FGInitialCondition::SetAltitudeASLFtIC
@@ -420,23 +443,29 @@ static void init_jsbsim(double dt) {
     IC->SetLatitudeDegIC(DegOfRad(gc_lat));
     IC->SetLongitudeDegIC(NAV_LON0 / 1e7);
 
-
+    IC->SetWindNEDFpsIC(0.0, 0.0, 0.0);
     IC->SetAltitudeASLFtIC(FeetOfMeters(GROUND_ALT + 2.0));
     IC->SetTerrainElevationFtIC(FeetOfMeters(GROUND_ALT));
     IC->SetPsiDegIC(QFU);
     IC->SetVgroundFpsIC(0.);
 
-    //initRunning for all engines
-    FDMExec->GetPropulsion()->InitRunning(-1);
-    if (!FDMExec->RunIC()) {
-      cerr << "Initialization from flight plan unsuccessful" << endl;
-      exit(-1);
-    }
-
     lla0.lon = RadOfDeg(NAV_LON0 / 1e7);
     lla0.lat = gd_lat;
     lla0.alt = (double)(NAV_ALT0+NAV_MSL0)/1000.0;
   }
+
+  // initial commands to zero
+  feed_jsbsim(0.0, 0.0, 0.0, 0.0);
+
+  //loop JSBSim once w/o integrating
+  if (!FDMExec->RunIC()) {
+    cerr << "Initialization unsuccessful" << endl;
+    exit(-1);
+  }
+
+  //initRunning for all engines
+  FDMExec->GetPropulsion()->InitRunning(-1);
+
 
   // compute offset between geocentric and geodetic ecef
   ecef_of_lla_d(&offset, &lla0);

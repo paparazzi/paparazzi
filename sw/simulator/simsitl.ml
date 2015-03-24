@@ -1,4 +1,6 @@
 
+(* don't set locale to avoid float_of_string problem *)
+let locale = GtkMain.Main.init ~setlocale:false ()
 
 let _ =
     Arg.parse (Sim.common_options@Sitl.options)

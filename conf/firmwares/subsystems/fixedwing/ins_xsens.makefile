@@ -25,7 +25,7 @@ endif
 #B115200
 
 ap.CFLAGS += -DUSE_UART$(XSENS_UART_NR)
-ap.CFLAGS += -DINS_LINK=UART$(XSENS_UART_NR)
+ap.CFLAGS += -DINS_LINK=uart$(XSENS_UART_NR)
 ap.CFLAGS += -DUART$(XSENS_UART_NR)_BAUD=$(XSENS_UART_BAUD)
 ap.CFLAGS += -DXSENS_OUTPUT_MODE=0x1836
 ap.srcs   += $(SRC_SUBSYSTEMS)/ins.c
@@ -47,7 +47,7 @@ ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 
 #########################################
 ## Simulator
-SIM_TARGETS = sim jsbsim nps
+SIM_TARGETS = sim nps
 
 ifneq (,$(findstring $(TARGET),$(SIM_TARGETS)))
 

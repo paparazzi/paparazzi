@@ -35,7 +35,6 @@ CAMLINCLUDES = -I $(LIBPPRZDIR) -I $(SIMDIR) -I $(OBJDIR)
 PKG = -package glibivy,pprz
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 SIMSITLML = $(OBJDIR)/simsitl.ml
-MYGTKINITCMO = myGtkInit.cmo
 SITLCMA = $(SIMDIR)/sitl.cma
 OPT ?= 2
 
@@ -60,12 +59,14 @@ CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 
 LDFLAGS		=	-lm
 
-# build sim in custom mode for Darwin and ARM systems for now...
+LIBFLAGS = -shared
+
 UNAME = $(shell uname -s)
 ifeq ($(UNAME),Darwin)
-SIMSITLCUSTOM=TRUE
+LIBFLAGS = -dynamiclib -undefined suppress -flat_namespace
 endif
 
+# build sim in custom mode for ARM systems for now...
 MNAME = $(shell uname -m)
 ifneq (,$(findstring arm,$(MNAME)))
 SIMSITLCUSTOM=TRUE
@@ -92,18 +93,21 @@ $(OBJDIR):
 	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 
 # shared library of the C autopilot part
+# Note: On darwin the file should actually have the .dylib ending but ocamlc
+# only assumes that .so files are shared libraries, even though this is only
+# correct on linux.
 autopilot.so : $($(TARGET).objs)
 	@echo BUILD $@
-	$(Q)$(CC) -shared -o $(OBJDIR)/$@ $^
+	$(Q)$(CC) $(LIBFLAGS) $^ -o $(OBJDIR)/$@
 
 ifdef SIMSITLCUSTOM
 $(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
-	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ $(CAMLCMAS) $(MYGTKINITCMO) $^
+	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ $(CAMLCMAS) $^
 else
 $(OBJDIR)/simsitl : autopilot.so $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
-	$(Q)$(OCAMLC) -g $(CAMLINCLUDES) -o $@ $(LINKPKG) $(MYGTKINITCMO) $^ -dllpath $(OBJDIR) -dllpath $(SIMDIR)
+	$(Q)$(OCAMLC) -g $(CAMLINCLUDES) -o $@ $(LINKPKG) $^ -dllpath $(OBJDIR) -dllpath $(SIMDIR)
 endif
 
 

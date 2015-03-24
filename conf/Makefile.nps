@@ -27,7 +27,6 @@
 SRC_ARCH = arch/sim
 
 OPT ?= 2
-SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
 
 # Launch with "make Q=''" to get full command display
 Q=@
@@ -91,29 +90,21 @@ $(OBJDIR)/%.s: %.cpp
 $(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
+	$(Q)$(CC) -MMD $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
 	@echo CXX $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(Q)$(CXX) -MMD $(CXXFLAGS) -c -o $@ $<
 
 .PHONY: all compile check_jsbsim
+
 
 #
 # Dependencies
 #
-
-$(OBJDIR)/%.d: %.c
-	@echo DEP $@
-	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) -MM -MG $(CFLAGS) $< | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $(OBJDIR)/$*.d
-
-$(OBJDIR)/%.d: %.cpp $(OBJDIR)/../Makefile.ac
-	@echo DEP $@
-	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CXX) -MM -MG $(CXXFLAGS) $< | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $(OBJDIR)/$*.d
- 
 ifneq ($(MAKECMDGOALS),clean)
--include $($(TARGET).objs:.o=.d)
+DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
+DEPS += $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.cpp=.d))
+-include $(DEPS)
 endif

@@ -20,6 +20,32 @@
       <field name="temp" type="float" unit="deg Celcius"/>
     </message>
 
+    <message name="IMU_GYRO_INT32" id="4">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="gyro" type="struct Int32Rates *"/>
+    </message>
+
+    <message name="IMU_ACCEL_INT32" id="5">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="accel" type="struct Int32Vect3 *"/>
+    </message>
+
+    <message name="IMU_MAG_INT32" id="6">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="mag" type="struct Int32Vect3 *"/>
+    </message>
+
+    <message name="IMU_LOWPASSED" id="7">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="gyro" type="struct Int32Rates *"/>
+      <field name="accel" type="struct Int32Vect3 *"/>
+      <field name="mag" type="struct Int32Vect3 *"/>
+    </message>
+
+    <message name="BODY_TO_IMU_QUAT" id="8">
+      <field name="q_b2i_f" type="struct FloatQuat *"/>
+    </message>
+
   </msg_class>
 
 

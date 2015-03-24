@@ -103,5 +103,12 @@
 #define AGL_SONAR_NPS_ID 3
 #endif
 
+/*
+ * IDs of magnetometer sensors (including IMUs with mag)
+ */
+
+#ifndef MAG_HMC58XX_SENDER_ID
+#define MAG_HMC58XX_SENDER_ID 2
+#endif
 
 #endif /* ABI_SENDER_IDS_H */

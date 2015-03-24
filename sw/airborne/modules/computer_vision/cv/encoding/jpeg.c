@@ -15,6 +15,10 @@
 
 #include "jpeg.h"
 
+/**
+ * @file modules/computer_vision/cv/encoding/jpeg.c
+ * Encode images with the use of the JPEG encoding
+ */
 
 static inline unsigned char svs_size_code(int w)
 {
@@ -37,7 +41,7 @@ static inline unsigned char svs_size_code(int w)
   return '9';
 }
 
-int create_svs_jpeg_header(unsigned char *jpegbuf, int32_t size, int w)
+int jpeg_create_svs_header(unsigned char *jpegbuf, int32_t size, int w)
 {
   // SVS Surveyor Jpeg UDP format
   uint32_t s = size;
@@ -79,68 +83,49 @@ typedef struct JPEG_ENCODER_STRUCTURE {
 
 } JPEG_ENCODER_STRUCTURE;
 
-#define        BLOCK_SIZE                64
 
+static void jpeg_initialization(JPEG_ENCODER_STRUCTURE *, uint32_t, uint32_t, uint32_t);
+//static void jpeg_initialize_quantization_tables(uint32_t);
 
-extern uint8_t    Lqt [BLOCK_SIZE];
-extern uint8_t    Cqt [BLOCK_SIZE];
-extern uint16_t    ILqt [BLOCK_SIZE];
-extern uint16_t    ICqt [BLOCK_SIZE];
+static uint8_t *jpeg_write_markers(uint8_t *, uint32_t, uint32_t, uint32_t);
 
-extern int16_t    Y1 [BLOCK_SIZE];
-extern int16_t    Y2 [BLOCK_SIZE];
-//extern int16_t    Y3 [BLOCK_SIZE];
-//extern int16_t    Y4 [BLOCK_SIZE];
-extern int16_t    CB [BLOCK_SIZE];
-extern int16_t    CR [BLOCK_SIZE];
-extern int16_t    Temp [BLOCK_SIZE];
+static void jpeg_read_400_format(JPEG_ENCODER_STRUCTURE *, uint8_t *);
+static void jpeg_read_422_format(JPEG_ENCODER_STRUCTURE *, uint8_t *);
 
-extern uint32_t lcode;
-extern uint16_t bitindex;
+static uint8_t *jpeg_encodeMCU(JPEG_ENCODER_STRUCTURE *, uint32_t, uint8_t *);
 
-void initialization(JPEG_ENCODER_STRUCTURE *, uint32_t, uint32_t, uint32_t);
+static void jpeg_levelshift(int16_t *);
+static void jpeg_DCT(int16_t *);
 
-void initialize_quantization_tables(uint32_t);
+static void jpeg_quantization(int16_t *, uint16_t *);
+static uint8_t *jpeg_huffman(JPEG_ENCODER_STRUCTURE *, uint16_t, uint8_t *);
 
-uint8_t *write_markers(uint8_t *, uint32_t, uint32_t, uint32_t);
+static uint8_t *jpeg_close_bitstream(uint8_t *);
 
-void read_400_format(JPEG_ENCODER_STRUCTURE *, uint8_t *);
-void read_422_format(JPEG_ENCODER_STRUCTURE *, uint8_t *);
+//static int16_t fdct_coeff[8] = {0x5a82, 0x5a82, 0x30fb, 0x7641, 0x18f8, 0x7d8a, 0x471c, 0x6a6d};
+//static int16_t fdct_temp[64];
 
-uint8_t *encodeMCU(JPEG_ENCODER_STRUCTURE *, uint32_t, uint8_t *);
-
-void levelshift(int16_t *);
-void DCT(int16_t *);
-
-void quantization(int16_t *, uint16_t *);
-uint8_t *huffman(JPEG_ENCODER_STRUCTURE *, uint16_t, uint8_t *);
-
-uint8_t *close_bitstream(uint8_t *);
-
-int16_t fdct_coeff[8] = {0x5a82, 0x5a82, 0x30fb, 0x7641, 0x18f8, 0x7d8a, 0x471c, 0x6a6d};
-int16_t fdct_temp[64];
-
-uint16_t luminance_dc_code_table [] = {
+static uint16_t luminance_dc_code_table [] = {
   0x0000, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006,
   0x000E, 0x001E, 0x003E, 0x007E, 0x00FE, 0x01FE
 };
 
-uint16_t luminance_dc_size_table [] = {
+static uint16_t luminance_dc_size_table [] = {
   0x0002, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003,
   0x0004, 0x0005, 0x0006, 0x0007, 0x0008, 0x0009
 };
 
-uint16_t chrominance_dc_code_table [] = {
+static uint16_t chrominance_dc_code_table [] = {
   0x0000, 0x0001, 0x0002, 0x0006, 0x000E, 0x001E,
   0x003E, 0x007E, 0x00FE, 0x01FE, 0x03FE, 0x07FE
 };
 
-uint16_t chrominance_dc_size_table [] = {
+static uint16_t chrominance_dc_size_table [] = {
   0x0002, 0x0002, 0x0002, 0x0003, 0x0004, 0x0005,
   0x0006, 0x0007, 0x0008, 0x0009, 0x000A, 0x000B
 };
 
-uint16_t luminance_ac_code_table [] = {
+static uint16_t luminance_ac_code_table [] = {
   0x000A,
   0x0000, 0x0001, 0x0004, 0x000B, 0x001A, 0x0078, 0x00F8, 0x03F6, 0xFF82, 0xFF83,
   0x000C, 0x001B, 0x0079, 0x01F6, 0x07F6, 0xFF84, 0xFF85, 0xFF86, 0xFF87, 0xFF88,
@@ -161,7 +146,7 @@ uint16_t luminance_ac_code_table [] = {
   0x07F9
 };
 
-uint16_t luminance_ac_size_table [] = {
+static uint16_t luminance_ac_size_table [] = {
   0x0004,
   0x0002, 0x0002, 0x0003, 0x0004, 0x0005, 0x0007, 0x0008, 0x000A, 0x0010, 0x0010,
   0x0004, 0x0005, 0x0007, 0x0009, 0x000B, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
@@ -182,7 +167,7 @@ uint16_t luminance_ac_size_table [] = {
   0x000B
 };
 
-uint16_t chrominance_ac_code_table [] = {
+static uint16_t chrominance_ac_code_table [] = {
   0x0000,
   0x0001, 0x0004, 0x000A, 0x0018, 0x0019, 0x0038, 0x0078, 0x01F4, 0x03F6, 0x0FF4,
   0x000B, 0x0039, 0x00F6, 0x01F5, 0x07F6, 0x0FF5, 0xFF88, 0xFF89, 0xFF8A, 0xFF8B,
@@ -203,7 +188,7 @@ uint16_t chrominance_ac_code_table [] = {
   0x03FA
 };
 
-uint16_t chrominance_ac_size_table [] = {
+static uint16_t chrominance_ac_size_table [] = {
   0x0002,
   0x0002, 0x0003, 0x0004, 0x0005, 0x0005, 0x0006, 0x0007, 0x0009, 0x000A, 0x000C,
   0x0004, 0x0006, 0x0008, 0x0009, 0x000B, 0x000C, 0x0010, 0x0010, 0x0010, 0x0010,
@@ -224,7 +209,7 @@ uint16_t chrominance_ac_size_table [] = {
   0x000A
 };
 
-uint8_t bitsize [] = {
+static uint8_t bitsize [] = {
   0, 1, 2, 2, 3, 3, 3, 3,
   4, 4, 4, 4, 4, 4, 4, 4,
   5, 5, 5, 5, 5, 5, 5, 5,
@@ -259,7 +244,7 @@ uint8_t bitsize [] = {
   8, 8, 8, 8, 8, 8, 8, 8
 };
 
-uint8_t markerdata [] = {
+static uint8_t markerdata [] = {
   0xFF, 0xC4, 0x00, 0x1F, 0x00, 0x00, 0x01, 0x05, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B,
 
   0xFF, 0xC4, 0x00, 0xB5, 0x10, 0x00, 0x02, 0x01, 0x03, 0x03, 0x02, 0x04, 0x03, 0x05, 0x05, 0x04, 0x04, 0x00, 0x00, 0x01, 0x7D, 0x01, 0x02, 0x03, 0x00, 0x04, 0x11, 0x05, 0x12, 0x21, 0x31, 0x41, 0x06, 0x13, 0x51, 0x61, 0x07, 0x22, 0x71, 0x14, 0x32, 0x81, 0x91, 0xA1, 0x08, 0x23, 0x42, 0xB1, 0xC1, 0x15, 0x52, 0xD1, 0xF0, 0x24, 0x33, 0x62, 0x72, 0x82, 0x09, 0x0A, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA,
@@ -270,7 +255,7 @@ uint8_t markerdata [] = {
 };
 
 
-uint8_t zigzag_table [] = {
+static uint8_t zigzag_table [] = {
   0,  1,   5,  6, 14, 15, 27, 28,
   2,  4,   7, 13, 16, 26, 29, 42,
   3,  8,  12, 17, 25, 30, 41, 43,
@@ -280,7 +265,7 @@ uint8_t zigzag_table [] = {
   21, 34, 37, 47, 50, 56, 59, 61,
   35, 36, 48, 49, 57, 58, 62, 63
 };
-uint8_t luminance_quant_table [] = {
+/*static uint8_t luminance_quant_table [] = {
   16, 11, 10, 16,  24,  40,  51,  61,
   12, 12, 14, 19,  26,  58,  60,  55,
   14, 13, 16, 24,  40,  57,  69,  56,
@@ -291,7 +276,7 @@ uint8_t luminance_quant_table [] = {
   72, 92, 95, 98, 112, 100, 103,  99
 };
 
-uint8_t chrominance_quant_table [] = {
+static uint8_t chrominance_quant_table [] = {
   17, 18, 24, 47, 99, 99, 99, 99,
   18, 21, 26, 66, 99, 99, 99, 99,
   24, 26, 56, 99, 99, 99, 99, 99,
@@ -300,27 +285,28 @@ uint8_t chrominance_quant_table [] = {
   99, 99, 99, 99, 99, 99, 99, 99,
   99, 99, 99, 99, 99, 99, 99, 99,
   99, 99, 99, 99, 99, 99, 99, 99
-};
+};*/
 
-uint8_t    Lqt [BLOCK_SIZE];
-uint8_t    Cqt [BLOCK_SIZE];
-uint16_t   ILqt [BLOCK_SIZE];
-uint16_t   ICqt [BLOCK_SIZE];
+#define JPEG_BLOCK_SIZE 64
+static uint8_t    Lqt [JPEG_BLOCK_SIZE];
+static uint8_t    Cqt [JPEG_BLOCK_SIZE];
+static uint16_t   ILqt [JPEG_BLOCK_SIZE];
+static uint16_t   ICqt [JPEG_BLOCK_SIZE];
 
-int16_t    Y1 [BLOCK_SIZE];
-int16_t    Y2 [BLOCK_SIZE];
-int16_t    Y3 [BLOCK_SIZE];
-int16_t    Y4 [BLOCK_SIZE];
-int16_t    CB [BLOCK_SIZE];
-int16_t    CR [BLOCK_SIZE];
-int16_t    Temp [BLOCK_SIZE];
-uint32_t   lcode = 0;
-uint16_t   bitindex = 0;
+static int16_t    Y1 [JPEG_BLOCK_SIZE];
+static int16_t    Y2 [JPEG_BLOCK_SIZE];
+//static int16_t    Y3 [JPEG_BLOCK_SIZE];
+//static int16_t    Y4 [JPEG_BLOCK_SIZE];
+static int16_t    CB [JPEG_BLOCK_SIZE];
+static int16_t    CR [JPEG_BLOCK_SIZE];
+static int16_t    Temp [JPEG_BLOCK_SIZE];
+static uint32_t   lcode = 0;
+static uint16_t   bitindex = 0;
 
 
 void (*read_format)(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint8_t *input_ptr);
 
-void initialization(JPEG_ENCODER_STRUCTURE *jpeg, uint32_t image_format, uint32_t image_width, uint32_t image_height)
+static void jpeg_initialization(JPEG_ENCODER_STRUCTURE *jpeg, uint32_t image_format, uint32_t image_width, uint32_t image_height)
 {
   uint16_t mcu_width, mcu_height, bytes_per_pixel;
 
@@ -332,7 +318,7 @@ void initialization(JPEG_ENCODER_STRUCTURE *jpeg, uint32_t image_format, uint32_
     jpeg->vertical_mcus = (uint16_t)((image_height + mcu_height - 1) >> 3);
 
     bytes_per_pixel = 1;
-    read_format = read_400_format;
+    read_format = jpeg_read_400_format;
   } else {
     jpeg->mcu_width = mcu_width = 16;
     jpeg->horizontal_mcus = (uint16_t)((image_width + mcu_width - 1) >> 4);
@@ -340,7 +326,7 @@ void initialization(JPEG_ENCODER_STRUCTURE *jpeg, uint32_t image_format, uint32_
     jpeg->mcu_height = mcu_height = 8;
     jpeg->vertical_mcus = (uint16_t)((image_height + mcu_height - 1) >> 3);
     bytes_per_pixel = 2;
-    read_format = read_422_format;
+    read_format = jpeg_read_422_format;
   }
 
   jpeg->rows_in_bottom_mcus = (uint16_t)(image_height - (jpeg->vertical_mcus - 1) * mcu_height);
@@ -433,8 +419,8 @@ void MakeTables(int q)
 
 
 
-uint8_t *encode_image(uint8_t *input_ptr, uint8_t *output_ptr, uint32_t quality_factor, uint32_t image_format,
-                      uint32_t image_width, uint32_t image_height, uint8_t add_dri_header)
+uint8_t *jpeg_encode_image(uint8_t *input_ptr, uint8_t *output_ptr, uint32_t quality_factor, uint32_t image_format,
+                           uint32_t image_width, uint32_t image_height, bool_t add_dri_header)
 {
   uint16_t i, j;
 
@@ -442,16 +428,16 @@ uint8_t *encode_image(uint8_t *input_ptr, uint8_t *output_ptr, uint32_t quality_
   JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure = &JpegStruct;
 
   /* Initialization of JPEG control structure */
-  initialization(jpeg_encoder_structure, image_format, image_width, image_height);
+  jpeg_initialization(jpeg_encoder_structure, image_format, image_width, image_height);
 
   /* Quantization Table Initialization */
-  //initialize_quantization_tables (quality_factor);
+  //jpeg_initialize_quantization_tables (quality_factor);
 
   MakeTables(quality_factor);
 
   /* Writing Marker Data */
   if (add_dri_header) {
-    output_ptr = write_markers(output_ptr, image_format, image_width, image_height);
+    output_ptr = jpeg_write_markers(output_ptr, image_format, image_width, image_height);
   }
 
   for (i = 1; i <= jpeg_encoder_structure->vertical_mcus; i++) {
@@ -473,7 +459,7 @@ uint8_t *encode_image(uint8_t *input_ptr, uint8_t *output_ptr, uint32_t quality_
       read_format(jpeg_encoder_structure, input_ptr);
 
       /* Encode the data in MCU */
-      output_ptr = encodeMCU(jpeg_encoder_structure, image_format, output_ptr);
+      output_ptr = jpeg_encodeMCU(jpeg_encoder_structure, image_format, output_ptr);
 
       input_ptr += jpeg_encoder_structure->mcu_width_size;
     }
@@ -482,38 +468,38 @@ uint8_t *encode_image(uint8_t *input_ptr, uint8_t *output_ptr, uint32_t quality_
   }
 
   /* Close Routine */
-  output_ptr = close_bitstream(output_ptr);
+  output_ptr = jpeg_close_bitstream(output_ptr);
   return output_ptr;
 }
 
-uint8_t *encodeMCU(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint32_t image_format, uint8_t *output_ptr)
+static uint8_t *jpeg_encodeMCU(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint32_t image_format, uint8_t *output_ptr)
 {
-  levelshift(Y1);
-  DCT(Y1);
-  quantization(Y1, ILqt);
-  output_ptr = huffman(jpeg_encoder_structure, 1, output_ptr);
+  jpeg_levelshift(Y1);
+  jpeg_DCT(Y1);
+  jpeg_quantization(Y1, ILqt);
+  output_ptr = jpeg_huffman(jpeg_encoder_structure, 1, output_ptr);
 
   if (image_format == FOUR_TWO_TWO) {
-    levelshift(Y2);
-    DCT(Y2);
-    quantization(Y2, ILqt);
-    output_ptr = huffman(jpeg_encoder_structure, 1, output_ptr);
+    jpeg_levelshift(Y2);
+    jpeg_DCT(Y2);
+    jpeg_quantization(Y2, ILqt);
+    output_ptr = jpeg_huffman(jpeg_encoder_structure, 1, output_ptr);
 
-    levelshift(CB);
-    DCT(CB);
-    quantization(CB, ICqt);
-    output_ptr = huffman(jpeg_encoder_structure, 2, output_ptr);
+    jpeg_levelshift(CB);
+    jpeg_DCT(CB);
+    jpeg_quantization(CB, ICqt);
+    output_ptr = jpeg_huffman(jpeg_encoder_structure, 2, output_ptr);
 
-    levelshift(CR);
-    DCT(CR);
-    quantization(CR, ICqt);
-    output_ptr = huffman(jpeg_encoder_structure, 3, output_ptr);
+    jpeg_levelshift(CR);
+    jpeg_DCT(CR);
+    jpeg_quantization(CR, ICqt);
+    output_ptr = jpeg_huffman(jpeg_encoder_structure, 3, output_ptr);
   }
   return output_ptr;
 }
 
 /* Level shifting to get 8 bit SIGNED values for the data  */
-void levelshift(int16_t *const data)
+static void jpeg_levelshift(int16_t *const data)
 {
   int16_t i;
 
@@ -523,7 +509,7 @@ void levelshift(int16_t *const data)
 }
 
 /* DCT for One block(8x8) */
-void DCT(int16_t *data)
+static void jpeg_DCT(int16_t *data)
 {
   //_r8x8dct(data, fdct_coeff, fdct_temp);
 
@@ -635,7 +621,7 @@ void DCT(int16_t *data)
     }    \
   }
 
-uint8_t *huffman(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint16_t component, uint8_t *output_ptr)
+static uint8_t *jpeg_huffman(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint16_t component, uint8_t *output_ptr)
 {
   uint16_t i;
   uint16_t *DcCodeTable, *DcSizeTable, *AcCodeTable, *AcSizeTable;
@@ -732,7 +718,7 @@ uint8_t *huffman(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint16_t compon
 }
 
 /* For bit Stuffing and EOI marker */
-uint8_t *close_bitstream(uint8_t *output_ptr)
+static uint8_t *jpeg_close_bitstream(uint8_t *output_ptr)
 {
   uint16_t i, count;
   uint8_t *ptr;
@@ -758,7 +744,7 @@ uint8_t *close_bitstream(uint8_t *output_ptr)
   return output_ptr;
 }
 
-uint8_t *write_markers(uint8_t *output_ptr, uint32_t image_format, uint32_t image_width, uint32_t image_height)
+static uint8_t *jpeg_write_markers(uint8_t *output_ptr, uint32_t image_format, uint32_t image_width, uint32_t image_height)
 {
   uint16_t i, header_length;
   uint8_t number_of_components;
@@ -899,7 +885,7 @@ uint8_t *write_markers(uint8_t *output_ptr, uint32_t image_format, uint32_t imag
 
 /* Multiply Quantization table with quality factor to get LQT and CQT
     factor ranges from 1 to 8;  1 = highest quality,  8 = lowest quality */
-void initialize_quantization_tables(uint32_t quality_factor)
+/*static void jpeg_initialize_quantization_tables(uint32_t quality_factor)
 {
   uint16_t i, index;
   uint32_t value;
@@ -915,7 +901,7 @@ void initialize_quantization_tables(uint32_t quality_factor)
   for (i = 0; i < 64; i++) {
     index = zigzag_table [i];
 
-    /* luminance quantization table * quality factor */
+    // luminance quantization table * quality factor
     value = luminance_quant_table [i] * quality_factor;
     value = (value + 0x200) >> 10;
 
@@ -929,7 +915,7 @@ void initialize_quantization_tables(uint32_t quality_factor)
     //ILqt [i] = DSP_Division (0x8000, value);
     ILqt [i] = 0x8000 / value;
 
-    /* chrominance quantization table * quality factor */
+    // chrominance quantization table * quality factor
     value = chrominance_quant_table [i] * quality_factor;
     value = (value + 0x200) >> 10;
 
@@ -943,10 +929,10 @@ void initialize_quantization_tables(uint32_t quality_factor)
     //ICqt [i] = DSP_Division (0x8000, value);
     ICqt [i] = 0x8000 / value;
   }
-}
+}*/
 
 /* multiply DCT Coefficients with Quantization table and store in ZigZag location */
-void quantization(int16_t *const data, uint16_t *const quant_table_ptr)
+static void jpeg_quantization(int16_t *const data, uint16_t *const quant_table_ptr)
 {
   int16_t i;
   int32_t value;
@@ -959,7 +945,7 @@ void quantization(int16_t *const data, uint16_t *const quant_table_ptr)
   }
 }
 
-void read_400_format(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint8_t *input_ptr)
+static void jpeg_read_400_format(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint8_t *input_ptr)
 {
   int32_t i, j;
   int16_t *Y1_Ptr = Y1;
@@ -989,7 +975,7 @@ void read_400_format(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint8_t *in
   }
 }
 
-void read_422_format(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint8_t *input_ptr)
+static void jpeg_read_422_format(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint8_t *input_ptr)
 {
   int32_t i, j;
   uint16_t Y1_cols, Y2_cols;

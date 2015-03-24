@@ -110,7 +110,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
                     utm_zone = ivalue "utm_zone" } in
           a.pos <- LL.of_utm WGS84 p;
           a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
-          a.itow <- Int32.of_float (fvalue "itow");
+          a.itow <- Int64.of_float (fvalue "itow");
           a.gspeed  <- fvalue "speed" /. 100.;
           a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
           if !heading_from_course then
@@ -125,7 +125,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
       a.pos <- geo;
       a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
-      a.itow <- Int32.of_float (fvalue "itow");
+      a.itow <- Int64.of_float (fvalue "itow");
       a.gspeed  <- fvalue "speed" /. 100.;
       a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
       if !heading_from_course then
