@@ -32,7 +32,6 @@
 
 #include "subsystems/ahrs/ahrs_int_cmpl_quat.h"
 #include "subsystems/ahrs/ahrs_int_utils.h"
-#include "state.h"
 
 #if USE_GPS
 #include "subsystems/gps.h"
@@ -59,7 +58,6 @@ PRINT_CONFIG_MSG("LOW PASS FILTER ON GYRO RATES")
 #if AHRS_USE_GPS_HEADING && !USE_GPS
 #error "AHRS_USE_GPS_HEADING needs USE_GPS to be TRUE"
 #endif
-
 
 /*
  * default gains for correcting attitude and bias from accel/mag
@@ -104,7 +102,6 @@ PRINT_CONFIG_VAR(AHRS_MAG_ZETA)
 
 struct AhrsIntCmplQuat ahrs_icq;
 
-static inline void set_body_state_from_quat(void);
 static inline void UNUSED ahrs_icq_update_mag_full(struct Int32Vect3 *mag, float dt);
 static inline void ahrs_icq_update_mag_2d(struct Int32Vect3 *mag, float dt);
 
@@ -168,8 +165,6 @@ bool_t ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
   lp_mag = lp_mag;
 #endif
 
-  set_body_state_from_quat();
-
   /* Use low passed gyro value as initial bias */
   RATES_COPY(ahrs_icq.gyro_bias, *lp_gyro);
   RATES_COPY(ahrs_icq.high_rez_bias, *lp_gyro);
@@ -208,8 +203,6 @@ void ahrs_icq_propagate(struct Int32Rates *gyro, float dt)
   int32_quat_integrate_fi(&ahrs_icq.ltp_to_imu_quat, &ahrs_icq.high_rez_quat,
                           &omega, freq);
   int32_quat_normalize(&ahrs_icq.ltp_to_imu_quat);
-
-  set_body_state_from_quat();
 
   // increase accel and mag propagation counters
   ahrs_icq.accel_cnt++;
@@ -270,14 +263,16 @@ void ahrs_icq_update_accel(struct Int32Vect3 *accel, float dt)
 #define ACC_FROM_CROSS_FRAC INT32_RATE_FRAC + INT32_SPEED_FRAC - INT32_ACCEL_FRAC - COMPUTATION_FRAC
 
     const struct Int32Vect3 vel_tangential_body =
-    {ahrs_icq.ltp_vel_norm >> COMPUTATION_FRAC, 0, 0};
+      {ahrs_icq.ltp_vel_norm >> COMPUTATION_FRAC, 0, 0};
+    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_icq.body_to_imu);
+    struct Int32Rates body_rate;
+    int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_icq.imu_rate);
     struct Int32Vect3 acc_c_body;
-    VECT3_RATES_CROSS_VECT3(acc_c_body, (*stateGetBodyRates_i()), vel_tangential_body);
+    VECT3_RATES_CROSS_VECT3(acc_c_body, body_rate, vel_tangential_body);
     INT32_VECT3_RSHIFT(acc_c_body, acc_c_body, ACC_FROM_CROSS_FRAC);
 
     /* convert centrifucal acceleration from body to imu frame */
     struct Int32Vect3 acc_c_imu;
-    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_icq.body_to_imu);
     int32_rmat_vmult(&acc_c_imu, body_to_imu_rmat, &acc_c_body);
 
     /* and subtract it from imu measurement to get a corrected measurement
@@ -514,11 +509,11 @@ static inline void ahrs_icq_update_mag_2d(struct Int32Vect3 *mag, float dt)
 
 }
 
-void ahrs_icq_update_gps(void)
+void ahrs_icq_update_gps(struct GpsState *gps_s __attribute__((unused)))
 {
 #if AHRS_GRAVITY_UPDATE_COORDINATED_TURN && USE_GPS
-  if (gps.fix == GPS_FIX_3D) {
-    ahrs_icq.ltp_vel_norm = SPEED_BFP_OF_REAL(gps.speed_3d / 100.);
+  if (gps_s->fix == GPS_FIX_3D) {
+    ahrs_icq.ltp_vel_norm = SPEED_BFP_OF_REAL(gps_s->speed_3d / 100.);
     ahrs_icq.ltp_vel_norm_valid = TRUE;
   } else {
     ahrs_icq.ltp_vel_norm_valid = FALSE;
@@ -528,12 +523,12 @@ void ahrs_icq_update_gps(void)
 #if AHRS_USE_GPS_HEADING && USE_GPS
   // got a 3d fix, ground speed > AHRS_HEADING_UPDATE_GPS_MIN_SPEED (default 5.0 m/s)
   // and course accuracy is better than 10deg
-  if (gps.fix == GPS_FIX_3D &&
-      gps.gspeed >= (AHRS_HEADING_UPDATE_GPS_MIN_SPEED * 100) &&
-      gps.cacc <= RadOfDeg(10 * 1e7)) {
+  if (gps_s->fix == GPS_FIX_3D &&
+      gps_s->gspeed >= (AHRS_HEADING_UPDATE_GPS_MIN_SPEED * 100) &&
+      gps_s->cacc <= RadOfDeg(10 * 1e7)) {
 
-    // gps.course is in rad * 1e7, we need it in rad * 2^INT32_ANGLE_FRAC
-    int32_t course = gps.course * ((1 << INT32_ANGLE_FRAC) / 1e7);
+    // gps_s->course is in rad * 1e7, we need it in rad * 2^INT32_ANGLE_FRAC
+    int32_t course = gps_s->course * ((1 << INT32_ANGLE_FRAC) / 1e7);
 
     /* the assumption here is that there is no side-slip, so heading=course */
 
@@ -555,10 +550,14 @@ void ahrs_icq_update_heading(int32_t heading)
 
   // row 0 of ltp_to_body_rmat = body x-axis in ltp frame
   // we only consider x and y
-  struct Int32RMat *ltp_to_body_rmat = stateGetNedToBodyRMat_i();
+  struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&ahrs_icq.body_to_imu);
+  struct Int32Quat ltp_to_body_quat;
+  int32_quat_comp_inv(&ltp_to_body_quat, &ahrs_icq.ltp_to_imu_quat, body_to_imu_quat);
+  struct Int32RMat ltp_to_body_rmat;
+  int32_rmat_of_quat(&ltp_to_body_rmat, &ltp_to_body_quat);
   struct Int32Vect2 expected_ltp = {
-    RMAT_ELMT((*ltp_to_body_rmat), 0, 0),
-    RMAT_ELMT((*ltp_to_body_rmat), 0, 1)
+    RMAT_ELMT(ltp_to_body_rmat, 0, 0),
+    RMAT_ELMT(ltp_to_body_rmat, 0, 1)
   };
 
   int32_t heading_x, heading_y;
@@ -608,8 +607,9 @@ void ahrs_icq_update_heading(int32_t heading)
 
 void ahrs_icq_realign_heading(int32_t heading)
 {
-
-  struct Int32Quat ltp_to_body_quat = *stateGetNedToBodyQuat_i();
+  struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&ahrs_icq.body_to_imu);
+  struct Int32Quat ltp_to_body_quat;
+  int32_quat_comp_inv(&ltp_to_body_quat, &ahrs_icq.ltp_to_imu_quat, body_to_imu_quat);
 
   /* quaternion representing only the heading rotation from ltp to body */
   struct Int32Quat q_h_new;
@@ -635,32 +635,9 @@ void ahrs_icq_realign_heading(int32_t heading)
   QUAT_COPY(ltp_to_body_quat, q);
 
   /* compute ltp to imu rotations */
-  struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&ahrs_icq.body_to_imu);
   int32_quat_comp(&ahrs_icq.ltp_to_imu_quat, &ltp_to_body_quat, body_to_imu_quat);
 
-  /* Set state */
-  stateSetNedToBodyQuat_i(&ltp_to_body_quat);
-
   ahrs_icq.heading_aligned = TRUE;
-}
-
-
-/* Rotate angles and rates from imu to body frame and set state */
-static inline void set_body_state_from_quat(void)
-{
-  /* Compute LTP to BODY quaternion */
-  struct Int32Quat ltp_to_body_quat;
-  struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&ahrs_icq.body_to_imu);
-  int32_quat_comp_inv(&ltp_to_body_quat, &ahrs_icq.ltp_to_imu_quat, body_to_imu_quat);
-  /* Set state */
-  stateSetNedToBodyQuat_i(&ltp_to_body_quat);
-
-  /* compute body rates */
-  struct Int32Rates body_rate;
-  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_icq.body_to_imu);
-  int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_icq.imu_rate);
-  /* Set state */
-  stateSetBodyRates_i(&body_rate);
 }
 
 void ahrs_icq_set_body_to_imu(struct OrientationReps *body_to_imu)

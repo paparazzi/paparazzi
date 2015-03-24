@@ -29,9 +29,14 @@
 #include "math/pprz_geodetic_wmm2010.h"
 #include "math/pprz_algebra_double.h"
 #include "subsystems/gps.h"
+#include "subsystems/abi.h"
+
+// for kill_throttle check
 #include "autopilot.h"
 
-#include "subsystems/ahrs.h"
+#ifndef GEO_MAG_SENDER_ID
+#define GEO_MAG_SENDER_ID 1
+#endif
 
 bool_t geo_mag_calc_flag;
 struct GeoMag geo_mag;
@@ -72,16 +77,13 @@ void geo_mag_event(void)
     mag_calc(1, latitude, longitude, alt, nmax, gha,
              &geo_mag.vect.x, &geo_mag.vect.y, &geo_mag.vect.z,
              IEXT, EXT_COEFF1, EXT_COEFF2, EXT_COEFF3);
-    double_vect3_normalize(&geo_mag.vect);
 
-    // copy to ahrs
-#ifdef AHRS_FLOAT
-    VECT3_COPY(DefaultAhrsImpl.mag_h, geo_mag.vect);
-#else
-    // convert to MAG_BFP and copy to ahrs
-    VECT3_ASSIGN(DefaultAhrsImpl.mag_h, MAG_BFP_OF_REAL(geo_mag.vect.x),
-                 MAG_BFP_OF_REAL(geo_mag.vect.y), MAG_BFP_OF_REAL(geo_mag.vect.z));
-#endif
+    // send as normalized float vector via ABI
+    struct FloatVect3 h = { .x = geo_mag.vect.x,
+                            .y = geo_mag.vect.y,
+                            .z = geo_mag.vect.z };
+    float_vect3_normalize(&h);
+    AbiSendMsgGEO_MAG(GEO_MAG_SENDER_ID, &h);
 
     geo_mag.ready = TRUE;
   }

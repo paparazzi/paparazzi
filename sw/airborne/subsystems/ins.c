@@ -33,12 +33,41 @@
 #include "state.h"
 #endif
 
+#ifndef DefaultInsImpl
+#warning "DefaultInsImpl not set!"
+#else
+PRINT_CONFIG_VAR(DefaultInsImpl)
+#endif
+
+#define __DefaultInsRegister(_x) _x ## _register()
+#define _DefaultInsRegister(_x) __DefaultInsRegister(_x)
+#define DefaultInsRegister() _DefaultInsRegister(DefaultInsImpl)
+
+/** Inertial Navigation System state */
+struct Ins {
+  InsInit init;
+};
+
 struct Ins ins;
+
+void ins_register_impl(InsInit init)
+{
+  ins.init = init;
+
+  ins.init();
+}
+
+void ins_init(void)
+{
+  ins.init = NULL;
+
+#ifdef DefaultInsImpl
+  DefaultInsRegister();
+#endif
+}
 
 
 // weak functions, used if not explicitly provided by implementation
-
-void WEAK ins_periodic(void) {}
 
 void WEAK ins_reset_local_origin(void)
 {
@@ -82,8 +111,4 @@ void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
 #else
 void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm __attribute__((unused))) {}
 #endif
-
-void WEAK ins_propagate(float dt __attribute__((unused))) {}
-
-void WEAK ins_update_gps(void) {}
 

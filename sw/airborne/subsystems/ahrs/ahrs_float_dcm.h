@@ -27,6 +27,7 @@
 #include <inttypes.h>
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_orientation_conversion.h"
+#include "subsystems/gps.h"
 
 enum AhrsDCMStatus {
   AHRS_DCM_UNINIT,
@@ -87,6 +88,6 @@ extern bool_t ahrs_dcm_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_a
 extern void ahrs_dcm_propagate(struct Int32Rates *gyro, float dt);
 extern void ahrs_dcm_update_accel(struct Int32Vect3 *accel);
 extern void ahrs_dcm_update_mag(struct Int32Vect3 *mag);
-extern void ahrs_dcm_update_gps(void);
+extern void ahrs_dcm_update_gps(struct GpsState *gps_s);
 
 #endif // AHRS_FLOAT_DCM_H

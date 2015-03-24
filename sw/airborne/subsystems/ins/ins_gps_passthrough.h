@@ -19,20 +19,18 @@
  */
 
 /**
- * @file subsystems/ahrs/ahrs_float_cmpl_wrapper.h
+ * @file subsystems/ins/ins_gps_passthrough.h
  *
- * Paparazzi specific wrapper to run floating point complementary filter.
+ * Simply converts GPS ECEF position and velocity to NED
+ * and passes it through to the state interface.
  */
 
-#ifndef AHRS_FLOAT_CMPL_WRAPPER_H
-#define AHRS_FLOAT_CMPL_WRAPPER_H
+#ifndef INS_GPS_PASSTHROUGH_H
+#define INS_GPS_PASSTHROUGH_H
 
-#include "subsystems/ahrs/ahrs_float_cmpl.h"
+#define DefaultInsImpl ins_gps_passthrough
 
-#ifndef PRIMARY_AHRS
-#define PRIMARY_AHRS ahrs_fc
-#endif
+extern void ins_gps_passthrough_init(void);
+extern void ins_gps_passthrough_register(void);
 
-extern void ahrs_fc_register(void);
-
-#endif /* AHRS_FLOAT_CMPL_WRAPPER_H */
+#endif /* INS_GPS_PASSTHROUGH_H */

@@ -35,13 +35,13 @@
 #include "subsystems/gps.h"
 #include "firmwares/fixedwing/nav.h"
 
-void ins_init(void)
+#include "subsystems/ins/ins_gps_passthrough_utm.h"
+
+void ins_gps_utm_init(void)
 {
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
   stateSetPositionUtm_f(&utm0);
-
-  ins.status = INS_RUNNING;
 }
 
 void ins_reset_local_origin(void)
@@ -71,22 +71,34 @@ void ins_reset_altitude_ref(void)
   stateSetLocalUtmOrigin_f(&utm);
 }
 
-void ins_update_gps(void)
+
+#include "subsystems/abi.h"
+static abi_event gps_ev;
+
+static void gps_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct GpsState *gps_s)
 {
   struct UtmCoor_f utm;
-  utm.east = gps.utm_pos.east / 100.0f;
-  utm.north = gps.utm_pos.north / 100.0f;
+  utm.east = gps_s->utm_pos.east / 100.0f;
+  utm.north = gps_s->utm_pos.north / 100.0f;
   utm.zone = nav_utm_zone0;
-  utm.alt = gps.hmsl / 1000.0f;
+  utm.alt = gps_s->hmsl / 1000.0f;
 
   // set position
   stateSetPositionUtm_f(&utm);
 
   struct NedCoor_f ned_vel = {
-    gps.ned_vel.x / 100.0f,
-    gps.ned_vel.y / 100.0f,
-    gps.ned_vel.z / 100.0f
+    gps_s->ned_vel.x / 100.0f,
+    gps_s->ned_vel.y / 100.0f,
+    gps_s->ned_vel.z / 100.0f
   };
   // set velocity
   stateSetSpeedNed_f(&ned_vel);
+}
+
+void ins_gps_utm_register(void)
+{
+  ins_register_impl(ins_gps_utm_init);
+  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 }

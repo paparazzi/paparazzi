@@ -32,6 +32,7 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
+#include "subsystems/gps.h"
 /* Include here headers with structure definition you may want to use with ABI
  * Ex: '#include "subsystems/gps.h"' in order to use the GpsState structure
  */

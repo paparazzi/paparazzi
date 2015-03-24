@@ -61,6 +61,8 @@ void update_ahrs_from_sim(void)
 }
 
 
-void ahrs_sim_init(void)
+void ahrs_sim_register(void)
 {
+  // dummy, simple ocaml sim only supports one basic fake AHRS anyway
+  ahrs_register_impl(NULL);
 }

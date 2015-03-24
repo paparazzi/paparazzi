@@ -19,20 +19,18 @@
  */
 
 /**
- * @file subsystems/ahrs/ahrs_float_cmpl_wrapper.h
+ * @file subsystems/ins/ins_float_invariant_wrapper.h
  *
- * Paparazzi specific wrapper to run floating point complementary filter.
+ * Paparazzi specific wrapper to run INVARIANT filter.
  */
 
-#ifndef AHRS_FLOAT_CMPL_WRAPPER_H
-#define AHRS_FLOAT_CMPL_WRAPPER_H
+#ifndef INS_FLOAT_INVARIANT_WRAPPER_H
+#define INS_FLOAT_INVARIANT_WRAPPER_H
 
-#include "subsystems/ahrs/ahrs_float_cmpl.h"
+#include "subsystems/ins/ins_float_invariant.h"
 
-#ifndef PRIMARY_AHRS
-#define PRIMARY_AHRS ahrs_fc
-#endif
+#define DefaultInsImpl ins_float_invariant
 
-extern void ahrs_fc_register(void);
+extern void ins_float_invariant_register(void);
 
-#endif /* AHRS_FLOAT_CMPL_WRAPPER_H */
+#endif /* INS_FLOAT_INVARIANT_WRAPPER_H */

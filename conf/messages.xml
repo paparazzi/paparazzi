@@ -2029,8 +2029,9 @@
   </message>
 
    <message name="STATE_FILTER_STATUS" id="232">
+     <field name="id" type="uint8"/>
      <field name="state_filter_mode" type="uint8" values="UNKNOWN|INIT|ALIGN|OK|GPS_LOST|IMU_LOST|COV_ERR|IR_CONTRAST|ERROR"/>
-     <field name="value" type="uint16" />
+     <field name="value" type="uint16"/>
    </message>
 
  <!--233 is free -->

@@ -19,20 +19,18 @@
  */
 
 /**
- * @file subsystems/ahrs/ahrs_float_cmpl_wrapper.h
+ * @file subsystems/ins/ins_gps_passthrough_utm.h
  *
- * Paparazzi specific wrapper to run floating point complementary filter.
+ * Simply passes GPS UTM position and velocity through to the state interface.
+ * For fixedwing firmware since it sets UTM pos only.
  */
 
-#ifndef AHRS_FLOAT_CMPL_WRAPPER_H
-#define AHRS_FLOAT_CMPL_WRAPPER_H
+#ifndef INS_GPS_PASSTHROUGH_UTM_H
+#define INS_GPS_PASSTHROUGH_UTM_H
 
-#include "subsystems/ahrs/ahrs_float_cmpl.h"
+#define DefaultInsImpl ins_gps_utm
 
-#ifndef PRIMARY_AHRS
-#define PRIMARY_AHRS ahrs_fc
-#endif
+extern void ins_gps_utm_init(void);
+extern void ins_gps_utm_register(void);
 
-extern void ahrs_fc_register(void);
-
-#endif /* AHRS_FLOAT_CMPL_WRAPPER_H */
+#endif /* INS_GPS_PASSTHROUGH_UTM_H */

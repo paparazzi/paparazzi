@@ -29,7 +29,9 @@
 
 #include "subsystems/ahrs/ahrs_float_dcm.h"
 
-#define DefaultAhrsImpl ahrs_dcm
+#ifndef PRIMARY_AHRS
+#define PRIMARY_AHRS ahrs_dcm
+#endif
 
 extern void ahrs_dcm_register(void);
 

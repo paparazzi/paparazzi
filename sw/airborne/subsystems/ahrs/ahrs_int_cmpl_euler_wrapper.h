@@ -29,7 +29,9 @@
 
 #include "subsystems/ahrs/ahrs_int_cmpl_euler.h"
 
-#define DefaultAhrsImpl ahrs_ice
+#ifndef PRIMARY_AHRS
+#define PRIMARY_AHRS ahrs_ice
+#endif
 
 extern void ahrs_ice_register(void);
 
