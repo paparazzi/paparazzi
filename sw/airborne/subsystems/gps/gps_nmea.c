@@ -60,6 +60,7 @@ struct GpsNmea gps_nmea;
 static void nmea_parse_GSA(void);
 static void nmea_parse_RMC(void);
 static void nmea_parse_GGA(void);
+static void nmea_parse_GSV(void);
 
 
 void gps_impl_init(void)
@@ -67,6 +68,7 @@ void gps_impl_init(void)
   gps.nb_channels = GPS_NB_CHANNELS;
   gps_nmea.msg_available = FALSE;
   gps_nmea.pos_available = FALSE;
+  gps_nmea.have_gsv = FALSE;
   gps_nmea.gps_nb_ovrn = 0;
   gps_nmea.msg_len = 0;
   nmea_parse_prop_init();
@@ -105,22 +107,24 @@ void nmea_parse_msg(void)
 
   if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "RMC", 3)) {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
-    NMEA_PRINT("parsing RMC: \"%s\" \n\r", gps_nmea.msg_buf);
-    NMEA_PRINT("RMC");
+    NMEA_PRINT("RMC: \"%s\" \n\r", gps_nmea.msg_buf);
     nmea_parse_RMC();
   } else if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "GGA", 3)) {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
-    NMEA_PRINT("parse_gps_msg() - parsing GGA gps-message \"%s\" \n\r", gps_nmea.msg_buf);
-    NMEA_PRINT("GGA");
+    NMEA_PRINT("GGA: \"%s\" \n\r", gps_nmea.msg_buf);
     nmea_parse_GGA();
   } else if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "GSA", 3)) {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
     NMEA_PRINT("GSA: \"%s\" \n\r", gps_nmea.msg_buf);
-    NMEA_PRINT("GSA");
     nmea_parse_GSA();
+  } else if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "GSV", 3)) {
+    gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
+    gps_nmea.have_gsv = TRUE;
+    NMEA_PRINT("GSV: \"%s\" \n\r", gps_nmea.msg_buf);
+    nmea_parse_GSV();
   } else {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
-    NMEA_PRINT("Propriarty message: len=%i \n\r \"%s\" \n\r", gps_nmea.msg_len, gps_nmea.msg_buf);
+    NMEA_PRINT("Other/propriarty message: len=%i \n\r \"%s\" \n\r", gps_nmea.msg_len, gps_nmea.msg_buf);
     nmea_parse_prop_msg();
   }
 
@@ -209,12 +213,17 @@ static void nmea_parse_GSA(void)
   int prn_cnt;
   for (prn_cnt = 0; prn_cnt < 12; prn_cnt++) {
     if (gps_nmea.msg_buf[i] != ',') {
-      gps.svinfos[prn_cnt].svid = atoi(&gps_nmea.msg_buf[i]);
-      NMEA_PRINT("p_GPGSA() - PRN %i=%i\n\r", satcount, gps.svinfos[prn_cnt].svid);
+      int prn = atoi(&gps_nmea.msg_buf[i]);
+      NMEA_PRINT("p_GPGSA() - PRN %i=%i\n\r", satcount, prn);
+      if (!gps_nmea.have_gsv) {
+        gps.svinfos[prn_cnt].svid = prn;
+      }
       satcount++;
     }
     else {
-      gps.svinfos[prn_cnt].svid = 0;
+      if (!gps_nmea.have_gsv) {
+        gps.svinfos[prn_cnt].svid = 0;
+      }
     }
     nmea_read_until(&i);
   }
@@ -400,4 +409,58 @@ static void nmea_parse_GGA(void)
   gps.ecef_pos.x = ecef_f.x * 100;
   gps.ecef_pos.y = ecef_f.y * 100;
   gps.ecef_pos.z = ecef_f.z * 100;
+}
+
+/**
+ * parse GPGSV-nmea-messages stored in
+ * nmea_msg_buf .
+ */
+static void nmea_parse_GSV(void)
+{
+  int i = 6;     // current position in the message, start after: GPGSA,
+
+  // attempt to reject empty packets right away
+  if (gps_nmea.msg_buf[i] == ',' && gps_nmea.msg_buf[i + 1] == ',') {
+    NMEA_PRINT("p_GPGSV() - skipping empty message\n\r");
+    return;
+  }
+
+  // total sentences
+  int nb_sen = atoi(&gps_nmea.msg_buf[i]);
+  NMEA_PRINT("p_GPGSV() - %i sentences\n\r", nb_sen);
+  nmea_read_until(&i);
+
+  // current sentence
+  int cur_sen = atoi(&gps_nmea.msg_buf[i]);
+  NMEA_PRINT("p_GPGSV() - sentence=%i\n\r", cur_sen);
+  nmea_read_until(&i);
+
+  // num satellites in view
+  int num_sat = atoi(&gps_nmea.msg_buf[i]);
+  NMEA_PRINT("p_GPGSV() - num_sat=%i\n\r", num_sat);
+  nmea_read_until(&i);
+
+  // up to 4 sats per sentence
+  int sat_cnt;
+  for (sat_cnt = 0; sat_cnt < 4; sat_cnt++) {
+    if (gps_nmea.msg_buf[i] == ',') break;
+    // 4 fields per sat: PRN, elevation (deg), azimuth (deg), SNR
+    int prn = atoi(&gps_nmea.msg_buf[i]);
+    nmea_read_until(&i);
+    int elev = atoi(&gps_nmea.msg_buf[i]);
+    nmea_read_until(&i);
+    int azim = atoi(&gps_nmea.msg_buf[i]);
+    nmea_read_until(&i);
+    int snr = atoi(&gps_nmea.msg_buf[i]);
+    nmea_read_until(&i);
+
+    int ch_idx = (cur_sen - 1) * 4 + sat_cnt;
+    if (ch_idx > 0 && ch_idx < 12) {
+      gps.svinfos[ch_idx].svid = prn;
+      gps.svinfos[ch_idx].cno = snr;
+      gps.svinfos[ch_idx].elev = elev;
+      gps.svinfos[ch_idx].azim = azim;
+    }
+    NMEA_PRINT("p_GPGSV() - SAT %i PRN=%i elev=%i azim=%i snr=%i\n\r", ch_idx, prn, elev, azim, snr);
+  }
 }
