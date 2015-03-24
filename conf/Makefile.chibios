@@ -61,7 +61,7 @@ $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-   USE_OPT = -std=gnu99 -O2 -ggdb -fomit-frame-pointer -falign-functions \
+   USE_OPT = -std=gnu99 -O0 -ggdb3 -fomit-frame-pointer -falign-functions \
 	 -W -Wall -DUSE_CHIBIOS_RTOS
 endif
 
