@@ -47,6 +47,14 @@
 #include <math.h>
 #include <stdlib.h>
 
+#ifndef NMEA_PRINT
+#define NMEA_PRINT(...) {};
+#endif
+
+#if NMEA_PRINT == printf
+#include <stdio.h>
+#endif
+
 struct GpsNmea gps_nmea;
 
 static void nmea_parse_GSA(void);

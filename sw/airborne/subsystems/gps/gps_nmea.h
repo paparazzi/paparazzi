@@ -32,10 +32,6 @@
 
 #include "mcu_periph/uart.h"
 
-#ifndef DEBUG_NMEA
-#define NMEA_PRINT(...) {};
-#endif
-
 #define GPS_NB_CHANNELS 12
 
 #define NMEA_MAXLEN 255
