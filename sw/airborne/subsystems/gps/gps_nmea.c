@@ -412,32 +412,40 @@ static void nmea_parse_GGA(void)
 }
 
 /**
- * parse GPGSV-nmea-messages stored in
- * nmea_msg_buf .
+ * Parse GSV-nmea-messages.
+ * Msg stored in gps_nmea.msg_buf.
  */
 static void nmea_parse_GSV(void)
 {
-  int i = 6;     // current position in the message, start after: GPGSA,
+  int i = 6;     // current position in the message, start after: GxGSA,
 
   // attempt to reject empty packets right away
   if (gps_nmea.msg_buf[i] == ',' && gps_nmea.msg_buf[i + 1] == ',') {
-    NMEA_PRINT("p_GPGSV() - skipping empty message\n\r");
+    NMEA_PRINT("p_GSV() - skipping empty message\n\r");
     return;
+  }
+
+  // check what satellites this messages contains
+  // GPGSV -> GPS
+  // GLGSV -> GLONASS
+  bool_t is_glonass = FALSE;
+  if (!strncmp(&gps_nmea.msg_buf[0] , "GL", 2)) {
+    is_glonass = TRUE;
   }
 
   // total sentences
   int nb_sen = atoi(&gps_nmea.msg_buf[i]);
-  NMEA_PRINT("p_GPGSV() - %i sentences\n\r", nb_sen);
+  NMEA_PRINT("p_GSV() - %i sentences\n\r", nb_sen);
   nmea_read_until(&i);
 
   // current sentence
   int cur_sen = atoi(&gps_nmea.msg_buf[i]);
-  NMEA_PRINT("p_GPGSV() - sentence=%i\n\r", cur_sen);
+  NMEA_PRINT("p_GSV() - sentence=%i\n\r", cur_sen);
   nmea_read_until(&i);
 
   // num satellites in view
   int num_sat = atoi(&gps_nmea.msg_buf[i]);
-  NMEA_PRINT("p_GPGSV() - num_sat=%i\n\r", num_sat);
+  NMEA_PRINT("p_GSV() - num_sat=%i\n\r", num_sat);
   nmea_read_until(&i);
 
   // up to 4 sats per sentence
@@ -455,12 +463,18 @@ static void nmea_parse_GSV(void)
     nmea_read_until(&i);
 
     int ch_idx = (cur_sen - 1) * 4 + sat_cnt;
-    if (ch_idx > 0 && ch_idx < 12) {
+    // don't populate svinfos with GLONASS sats for now
+    if (!is_glonass && ch_idx > 0 && ch_idx < 12) {
       gps.svinfos[ch_idx].svid = prn;
       gps.svinfos[ch_idx].cno = snr;
       gps.svinfos[ch_idx].elev = elev;
       gps.svinfos[ch_idx].azim = azim;
     }
-    NMEA_PRINT("p_GPGSV() - SAT %i PRN=%i elev=%i azim=%i snr=%i\n\r", ch_idx, prn, elev, azim, snr);
+    if (is_glonass) {
+      NMEA_PRINT("p_GSV() - GLONASS %i PRN=%i elev=%i azim=%i snr=%i\n\r", ch_idx, prn, elev, azim, snr);
+    }
+    else {
+      NMEA_PRINT("p_GSV() - GPS %i PRN=%i elev=%i azim=%i snr=%i\n\r", ch_idx, prn, elev, azim, snr);
+    }
   }
 }
