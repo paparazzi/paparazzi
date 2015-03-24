@@ -32,8 +32,8 @@
 
 /** Implement global structures from generated header
  */
-struct telemetry_msg telemetry_msg[TELEMETRY_NB_MSG] = TELEMETRY_STRUCT;
-struct pprz_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msg };
+struct telemetry_msg telemetry_msgs[TELEMETRY_NB_MSG] = TELEMETRY_STRUCT;
+struct pprz_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs };
 
 
 /** Register a telemetry callback function.

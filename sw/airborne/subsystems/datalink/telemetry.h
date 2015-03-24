@@ -59,7 +59,7 @@
  * Contains the list of message and register callbacks.
  * Filled with generated structure from periodic_telemetry.h
  */
-extern struct telemetry_msg telemetry_msg[TELEMETRY_NB_MSG];
+extern struct telemetry_msg telemetry_msgs[TELEMETRY_NB_MSG];
 extern struct pprz_telemetry pprz_telemetry;
 
 /** Set default periodic telemetry
