@@ -56,6 +56,7 @@ static void nmea_parse_GGA(void);
 
 void gps_impl_init(void)
 {
+  gps.nb_channels = GPS_NB_CHANNELS;
   gps_nmea.msg_available = FALSE;
   gps_nmea.pos_available = FALSE;
   gps_nmea.gps_nb_ovrn = 0;
@@ -195,9 +196,37 @@ static void nmea_parse_GSA(void)
   NMEA_PRINT("p_GPGSA() - gps.fix=%i (3=3D)\n\r", gps.fix);
   nmea_read_until(&i);
 
-  //int satcount = 0;
+  // up to 12 PRNs of satellites used for fix
+  int satcount = 0;
+  int prn_cnt;
+  for (prn_cnt = 0; prn_cnt < 12; prn_cnt++) {
+    if (gps_nmea.msg_buf[i] != ',') {
+      gps.svinfos[prn_cnt].svid = atoi(&gps_nmea.msg_buf[i]);
+      NMEA_PRINT("p_GPGSA() - PRN %i=%i\n\r", satcount, gps.svinfos[prn_cnt].svid);
+      satcount++;
+    }
+    else {
+      gps.svinfos[prn_cnt].svid = 0;
+    }
+    nmea_read_until(&i);
+  }
 
-  // TODO: get sateline-numbers for gps_svinfos
+  // PDOP
+  float pdop = strtof(&gps_nmea.msg_buf[i], NULL);
+  gps.pdop = pdop * 100;
+  NMEA_PRINT("p_GPGSA() - pdop=%f\n\r", pdop);
+  nmea_read_until(&i);
+
+  // HDOP
+  float hdop = strtof(&gps_nmea.msg_buf[i], NULL);
+  NMEA_PRINT("p_GPGSA() - hdop=%f\n\r", hdop);
+  nmea_read_until(&i);
+
+  // VDOP
+  float vdop = strtof(&gps_nmea.msg_buf[i], NULL);
+  NMEA_PRINT("p_GPGSA() - vdop=%f\n\r", vdop);
+  nmea_read_until(&i);
+
 }
 
 /**
@@ -234,13 +263,13 @@ static void nmea_parse_RMC(void)
   nmea_read_until(&i);
   double speed = strtod(&gps_nmea.msg_buf[i], NULL);
   gps.gspeed = speed * 1.852 * 100 / (60 * 60);
-  NMEA_PRINT("p_GPRMC() - ground-speed=%d knot = %d cm/s\n\r", (speed * 1000), (gps.gspeed * 1000));
+  NMEA_PRINT("p_GPRMC() - ground-speed=%f knot = %d cm/s\n\r", (speed * 1000), (gps.gspeed * 1000));
 
   // get course
   nmea_read_until(&i);
   double course = strtod(&gps_nmea.msg_buf[i], NULL);
   gps.course = RadOfDeg(course) * 1e7;
-  NMEA_PRINT("COURSE: %d \n\r", gps_course);
+  NMEA_PRINT("COURSE: %d \n\r", gps.course);
 }
 
 
@@ -282,7 +311,7 @@ static void nmea_parse_GGA(void)
   // convert to radians
   lla_f.lat = RadOfDeg(lat);
   gps.lla_pos.lat = lat * 1e7; // convert to fixed-point
-  NMEA_PRINT("p_GPGGA() - lat=%d gps_lat=%i\n\r", (lat * 1000), lla_f.lat);
+  NMEA_PRINT("p_GPGGA() - lat=%f gps_lat=%f\n\r", (lat * 1000), lla_f.lat);
 
 
   // get longitude [ddmm.mmmmm]
@@ -301,7 +330,7 @@ static void nmea_parse_GGA(void)
   // convert to radians
   lla_f.lon = RadOfDeg(lon);
   gps.lla_pos.lon = lon * 1e7; // convert to fixed-point
-  NMEA_PRINT("p_GPGGA() - lon=%d gps_lon=%i time=%u\n\r", (lon * 1000), lla_f.lon, gps.tow);
+  NMEA_PRINT("p_GPGGA() - lon=%f gps_lon=%f time=%u\n\r", (lon * 1000), lla_f.lon, gps.tow);
 
   // get position fix status
   nmea_read_until(&i);
@@ -320,10 +349,10 @@ static void nmea_parse_GGA(void)
   gps.num_sv = atoi(&gps_nmea.msg_buf[i]);
   NMEA_PRINT("p_GPGGA() - gps_numSatlitesUsed=%i\n\r", gps.num_sv);
 
-  // we use HDOP here, as the PDOP is not in the message
+  // get HDOP, but we use PDOP from GSA message
   nmea_read_until(&i);
-  float hdop = strtof(&gps_nmea.msg_buf[i], NULL);
-  gps.pdop = hdop * 100;
+  //float hdop = strtof(&gps_nmea.msg_buf[i], NULL);
+  //gps.pdop = hdop * 100;
 
   // get altitude (in meters) above geoid (MSL)
   nmea_read_until(&i);

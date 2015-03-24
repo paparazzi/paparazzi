@@ -36,6 +36,8 @@
 #define NMEA_PRINT(...) {};
 #endif
 
+#define GPS_NB_CHANNELS 12
+
 #define NMEA_MAXLEN 255
 
 struct GpsNmea {
