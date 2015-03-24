@@ -373,17 +373,22 @@ static void nmea_parse_GGA(void)
 
   // get altitude (in meters) above geoid (MSL)
   nmea_read_until(&i);
-  // lla_f.alt should actuall be height above ellipsoid,
-  // but since we don't get that, use hmsl instead
-  lla_f.alt = strtof(&gps_nmea.msg_buf[i], NULL);
-  gps.hmsl = lla_f.alt * 1000;
-  gps.lla_pos.alt = gps.hmsl;
-  NMEA_PRINT("p_GPGGA() - gps_alt=%i\n\r", gps.hmsl);
+  float hmsl = strtof(&gps_nmea.msg_buf[i], NULL);
+  gps.hmsl = hmsl * 1000;
+  NMEA_PRINT("p_GPGGA() - gps.hmsl=%i\n\r", gps.hmsl);
 
-  // get altitude units (allways M)
+  // get altitude units (always M)
   nmea_read_until(&i);
+
   // get geoid seperation
   nmea_read_until(&i);
+  float geoid = strtof(&gps_nmea.msg_buf[i], NULL);
+  NMEA_PRINT("p_GPGGA() - geoid alt=%f\n\r", geoid);
+  // height above ellipsoid
+  lla_f.alt = hmsl + geoid;
+  gps.lla_pos.alt = lla_f.alt * 1000;
+  NMEA_PRINT("p_GPGGA() - gps.alt=%i\n\r", gps.lla_pos.alt);
+
   // get seperations units
   nmea_read_until(&i);
   // get DGPS age
