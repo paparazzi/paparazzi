@@ -50,12 +50,6 @@ static bool_t   ppm_data_valid;
 
 
 #if PERIODIC_TELEMETRY
-#ifdef FBW
-#define DOWNLINK_TELEMETRY &telemetry_Fbw
-#else
-#define DOWNLINK_TELEMETRY DefaultPeriodic
-#endif
-
 #include "subsystems/datalink/telemetry.h"
 
 static void send_ppm(struct transport_tx *trans, struct link_device *dev)
@@ -79,7 +73,7 @@ void radio_control_impl_init(void)
   ppm_arch_init();
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DOWNLINK_TELEMETRY, "PPM", send_ppm);
+  register_periodic_telemetry(DefaultPeriodic, "PPM", send_ppm);
 #endif
 }
 

@@ -195,7 +195,7 @@ sim.srcs 		+= $(fbw_srcs) $(ap_srcs)
 sim.CFLAGS 		+= -DSITL
 sim.srcs 		+= $(SRC_ARCH)/sim_ap.c
 
-sim.CFLAGS 		+= -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp -DDefaultPeriodic='&telemetry_Ap'
+sim.CFLAGS 		+= -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp
 sim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c subsystems/datalink/ivy_transport.c subsystems/datalink/telemetry.c $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c
 
 sim.srcs 		+= $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_adc_generic.c
