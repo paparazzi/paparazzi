@@ -33,7 +33,7 @@
 /** Implement global structures from generated header
  */
 struct telemetry_msg telemetry_msgs[TELEMETRY_NB_MSG] = TELEMETRY_STRUCT;
-struct pprz_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs };
+struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs };
 
 
 /** Register a telemetry callback function.
@@ -42,9 +42,9 @@ struct pprz_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs };
  * @param _cb callback function, called according to telemetry mode and specified period
  * @return TRUE if message registered with success, FALSE otherwise
  */
-bool_t register_periodic_telemetry(struct pprz_telemetry *_pt, const char *_msg, telemetry_cb _cb)
+bool_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb)
 {
-  // return FALSE if NULL is passed as pprz_telemetry
+  // return FALSE if NULL is passed as periodic_telemetry
   if (_pt == NULL) { return FALSE; }
   // look for message name
   uint8_t i;

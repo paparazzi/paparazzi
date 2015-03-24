@@ -191,7 +191,7 @@ let print_process_send = fun out_h xml freq modules ->
       fprintf out_h "extern uint8_t telemetry_mode_%s;\n" process_name;
       fprintf out_h "#endif /* PERIODIC_C_%s */\n" (String.uppercase process_name);
 
-      lprintf out_h "static inline void periodic_telemetry_send_%s(struct pprz_telemetry *telemetry, struct transport_tx *trans, struct link_device *dev) {  /* %dHz */\n" process_name freq;
+      lprintf out_h "static inline void periodic_telemetry_send_%s(struct periodic_telemetry *telemetry, struct transport_tx *trans, struct link_device *dev) {  /* %dHz */\n" process_name freq;
       right ();
       output_modes out_h process_name modes freq modules;
       left ();
