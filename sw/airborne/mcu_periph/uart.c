@@ -222,6 +222,15 @@ bool_t uart_check_free_space(struct uart_periph *p, uint8_t len)
 }
 
 
+uint16_t uart_char_available(struct uart_periph *p)
+{
+  int16_t available = p->rx_insert_idx - p->rx_extract_idx;
+  if (available < 0) {
+    available += UART_RX_BUFFER_SIZE;
+  }
+  return (uint16_t)available;
+}
+
 void WEAK uart_event(void)
 {
 
