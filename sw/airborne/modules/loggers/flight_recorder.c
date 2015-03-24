@@ -46,6 +46,10 @@ static struct chibios_sdlog flightrecorder_sdlog;
 #include "subsystems/datalink/downlink.h"
 #endif
 
+#ifndef TELEMETRY_PROCESS_FlightRecorder
+#error "You need to use a telemetry xml file with FlightRecorder process!"
+#endif
+
 void flight_recorder_init()
 {
 #if FLIGHTRECORDER_SDLOG
