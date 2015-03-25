@@ -59,7 +59,7 @@ float baro_ms5611_sigma2;
 
 void baro_ms5611_init(void)
 {
-  ms5611_i2c_init(&baro_ms5611, &MS5611_I2C_DEV, MS5611_SLAVE_ADDR);
+  ms5611_i2c_init(&baro_ms5611, &MS5611_I2C_DEV, MS5611_SLAVE_ADDR, FALSE);
 
   baro_ms5611_enabled = TRUE;
   baro_ms5611_alt_valid = FALSE;

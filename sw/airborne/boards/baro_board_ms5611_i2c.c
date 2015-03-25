@@ -46,7 +46,7 @@
 #endif
 
 
-/* default i2c address
+/** default i2c address
  * when CSB is set to GND addr is 0xEE
  * when CSB is set to VCC addr is 0xEC
  *
@@ -56,13 +56,18 @@
 #define BB_MS5611_SLAVE_ADDR 0xEE
 #endif
 
+/// set to TRUE if baro is actually a MS5607
+#ifndef BB_MS5611_TYPE_MS5607
+#define BB_MS5611_TYPE_MS5607 FALSE
+#endif
+PRINT_CONFIG_VAR(BB_MS5611_TYPE_MS5607)
 
 struct Ms5611_I2c bb_ms5611;
 
 
 void baro_init(void)
 {
-  ms5611_i2c_init(&bb_ms5611, &BB_MS5611_I2C_DEV, BB_MS5611_SLAVE_ADDR);
+  ms5611_i2c_init(&bb_ms5611, &BB_MS5611_I2C_DEV, BB_MS5611_SLAVE_ADDR, BB_MS5611_TYPE_MS5607);
 
 #ifdef BARO_LED
   LED_OFF(BARO_LED);
