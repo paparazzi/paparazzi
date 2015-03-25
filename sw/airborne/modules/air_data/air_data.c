@@ -32,7 +32,7 @@
 #include "subsystems/abi.h"
 #include "math/pprz_isa.h"
 #include "state.h"
-
+#include "generated/airframe.h"
 
 /** global AirData state
  */
@@ -99,9 +99,15 @@ static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, float pre
 {
   air_data.pressure = pressure;
 
-  // calculate QNH from pressure and absolute alitude if that is available
+  // calculate QNH from pressure and absolute altitude if that is available
   if (air_data.calc_qnh_once && stateIsGlobalCoordinateValid()) {
-    float h = stateGetPositionLla_f()->alt;
+    /// FIXME: use height above MSL (geoid) and not WGS84 ellipsoid here
+    // in the meantime use geoid separation at local reference frame origin
+    float geoid_separation = 0;
+    if (state.ned_initialized_f) {
+      geoid_separation = state.ned_origin_f.lla.alt - state.ned_origin_f.hmsl;
+    }
+    float h = stateGetPositionLla_f()->alt - geoid_separation;
     air_data.qnh = pprz_isa_ref_pressure_of_height_full(air_data.pressure, h) / 100.f;
     air_data.calc_qnh_once = FALSE;
   }
