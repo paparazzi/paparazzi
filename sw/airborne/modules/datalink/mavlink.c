@@ -49,6 +49,8 @@
 #endif
 #include "generated/flight_plan.h"
 
+// for UINT16_MAX
+#include <stdint.h>
 
 mavlink_system_t mavlink_system;
 
