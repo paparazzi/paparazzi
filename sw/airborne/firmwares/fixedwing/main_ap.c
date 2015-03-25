@@ -72,9 +72,13 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #endif
 
 // datalink & telemetry
+#if DATALINK
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
+#endif
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
+#endif
 #include "subsystems/settings.h"
 
 // modules & settings
@@ -112,6 +116,9 @@ PRINT_CONFIG_VAR(CONTROL_FREQUENCY)
 /* TELEMETRY_FREQUENCY is defined in generated/periodic_telemetry.h
  * defaults to 60Hz or set by TELEMETRY_FREQUENCY configure option in airframe file
  */
+#ifndef TELEMETRY_FREQUENCY
+#define TELEMETRY_FREQUENCY 60
+#endif
 PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
 
 /* MODULES_FREQUENCY is defined in generated/modules.h
@@ -510,7 +517,7 @@ void navigation_task(void)
   CallTCAS();
 #endif
 
-#ifndef PERIOD_NAVIGATION_Ap_0 // If not sent periodically (in default 0 mode)
+#if DOWNLINK && !defined PERIOD_NAVIGATION_Ap_0 // If not sent periodically (in default 0 mode)
   SEND_NAVIGATION(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
 
@@ -652,8 +659,10 @@ void monitor_task(void)
       *stateGetHorizontalSpeedNorm_f() > MIN_SPEED_FOR_TAKEOFF) {
     autopilot_flight_time = 1;
     launch = TRUE; /* Not set in non auto launch */
+#if DOWNLINK
     uint16_t time_sec = sys_time.nb_sec;
     DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &time_sec);
+#endif
   }
 
 }
