@@ -81,6 +81,12 @@ PRINT_CONFIG_VAR(VIEWVIDEO_DOWNSIZE_FACTOR);
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_QUALITY_FACTOR);
 
+// RTP time increment at 90kHz (default: 0 for automatic)
+#ifndef VIEWVIDEO_RTP_TIME_INC
+#define VIEWVIDEO_RTP_TIME_INC 0
+#endif
+PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC);
+
 // Frames Per Seconds
 #ifndef VIEWVIDEO_FPS
 #define VIEWVIDEO_FPS 4
@@ -251,7 +257,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
       0,                        // Format 422
       VIEWVIDEO_QUALITY_FACTOR, // Jpeg-Quality
       0,                        // DRI Header
-      0                         // 90kHz time increment
+      VIEWVIDEO_RTP_TIME_INC    // 90kHz time increment
     );
     // Extra note: when the time increment is set to 0,
     // it is automaticaly calculated by the send_rtp_frame function
