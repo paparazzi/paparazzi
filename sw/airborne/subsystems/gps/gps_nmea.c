@@ -235,12 +235,12 @@ static void nmea_parse_GSA(void)
   nmea_read_until(&i);
 
   // HDOP
-  float hdop = strtof(&gps_nmea.msg_buf[i], NULL);
+  float hdop __attribute__((unused)) = strtof(&gps_nmea.msg_buf[i], NULL);
   NMEA_PRINT("p_GPGSA() - hdop=%f\n\r", hdop);
   nmea_read_until(&i);
 
   // VDOP
-  float vdop = strtof(&gps_nmea.msg_buf[i], NULL);
+  float vdop __attribute__((unused)) = strtof(&gps_nmea.msg_buf[i], NULL);
   NMEA_PRINT("p_GPGSA() - vdop=%f\n\r", vdop);
   nmea_read_until(&i);
 
@@ -439,7 +439,7 @@ static void nmea_parse_GSV(void)
   }
 
   // total sentences
-  int nb_sen = atoi(&gps_nmea.msg_buf[i]);
+  int nb_sen __attribute__((unused)) = atoi(&gps_nmea.msg_buf[i]);
   NMEA_PRINT("p_GSV() - %i sentences\n\r", nb_sen);
   nmea_read_until(&i);
 
@@ -449,7 +449,7 @@ static void nmea_parse_GSV(void)
   nmea_read_until(&i);
 
   // num satellites in view
-  int num_sat = atoi(&gps_nmea.msg_buf[i]);
+  int num_sat __attribute__((unused)) = atoi(&gps_nmea.msg_buf[i]);
   NMEA_PRINT("p_GSV() - num_sat=%i\n\r", num_sat);
   nmea_read_until(&i);
 
