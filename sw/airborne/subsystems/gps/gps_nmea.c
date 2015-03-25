@@ -47,17 +47,28 @@
 #include <math.h>
 #include <stdlib.h>
 
+#ifndef NMEA_PRINT
+#define NMEA_PRINT(...) {};
+#endif
+
+#if NMEA_PRINT == printf
+#include <stdio.h>
+#endif
+
 struct GpsNmea gps_nmea;
 
 static void nmea_parse_GSA(void);
 static void nmea_parse_RMC(void);
 static void nmea_parse_GGA(void);
+static void nmea_parse_GSV(void);
 
 
 void gps_impl_init(void)
 {
+  gps.nb_channels = GPS_NB_CHANNELS;
   gps_nmea.msg_available = FALSE;
   gps_nmea.pos_available = FALSE;
+  gps_nmea.have_gsv = FALSE;
   gps_nmea.gps_nb_ovrn = 0;
   gps_nmea.msg_len = 0;
   nmea_parse_prop_init();
@@ -96,22 +107,24 @@ void nmea_parse_msg(void)
 
   if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "RMC", 3)) {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
-    NMEA_PRINT("parsing RMC: \"%s\" \n\r", gps_nmea.msg_buf);
-    NMEA_PRINT("RMC");
+    NMEA_PRINT("RMC: \"%s\" \n\r", gps_nmea.msg_buf);
     nmea_parse_RMC();
   } else if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "GGA", 3)) {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
-    NMEA_PRINT("parse_gps_msg() - parsing GGA gps-message \"%s\" \n\r", gps_nmea.msg_buf);
-    NMEA_PRINT("GGA");
+    NMEA_PRINT("GGA: \"%s\" \n\r", gps_nmea.msg_buf);
     nmea_parse_GGA();
   } else if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "GSA", 3)) {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
     NMEA_PRINT("GSA: \"%s\" \n\r", gps_nmea.msg_buf);
-    NMEA_PRINT("GSA");
     nmea_parse_GSA();
+  } else if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "GSV", 3)) {
+    gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
+    gps_nmea.have_gsv = TRUE;
+    NMEA_PRINT("GSV: \"%s\" \n\r", gps_nmea.msg_buf);
+    nmea_parse_GSV();
   } else {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
-    NMEA_PRINT("Propriarty message: len=%i \n\r \"%s\" \n\r", gps_nmea.msg_len, gps_nmea.msg_buf);
+    NMEA_PRINT("Other/propriarty message: len=%i \n\r \"%s\" \n\r", gps_nmea.msg_len, gps_nmea.msg_buf);
     nmea_parse_prop_msg();
   }
 
@@ -195,9 +208,42 @@ static void nmea_parse_GSA(void)
   NMEA_PRINT("p_GPGSA() - gps.fix=%i (3=3D)\n\r", gps.fix);
   nmea_read_until(&i);
 
-  //int satcount = 0;
+  // up to 12 PRNs of satellites used for fix
+  int satcount = 0;
+  int prn_cnt;
+  for (prn_cnt = 0; prn_cnt < 12; prn_cnt++) {
+    if (gps_nmea.msg_buf[i] != ',') {
+      int prn = atoi(&gps_nmea.msg_buf[i]);
+      NMEA_PRINT("p_GPGSA() - PRN %i=%i\n\r", satcount, prn);
+      if (!gps_nmea.have_gsv) {
+        gps.svinfos[prn_cnt].svid = prn;
+      }
+      satcount++;
+    }
+    else {
+      if (!gps_nmea.have_gsv) {
+        gps.svinfos[prn_cnt].svid = 0;
+      }
+    }
+    nmea_read_until(&i);
+  }
 
-  // TODO: get sateline-numbers for gps_svinfos
+  // PDOP
+  float pdop = strtof(&gps_nmea.msg_buf[i], NULL);
+  gps.pdop = pdop * 100;
+  NMEA_PRINT("p_GPGSA() - pdop=%f\n\r", pdop);
+  nmea_read_until(&i);
+
+  // HDOP
+  float hdop __attribute__((unused)) = strtof(&gps_nmea.msg_buf[i], NULL);
+  NMEA_PRINT("p_GPGSA() - hdop=%f\n\r", hdop);
+  nmea_read_until(&i);
+
+  // VDOP
+  float vdop __attribute__((unused)) = strtof(&gps_nmea.msg_buf[i], NULL);
+  NMEA_PRINT("p_GPGSA() - vdop=%f\n\r", vdop);
+  nmea_read_until(&i);
+
 }
 
 /**
@@ -234,13 +280,13 @@ static void nmea_parse_RMC(void)
   nmea_read_until(&i);
   double speed = strtod(&gps_nmea.msg_buf[i], NULL);
   gps.gspeed = speed * 1.852 * 100 / (60 * 60);
-  NMEA_PRINT("p_GPRMC() - ground-speed=%d knot = %d cm/s\n\r", (speed * 1000), (gps.gspeed * 1000));
+  NMEA_PRINT("p_GPRMC() - ground-speed=%f knot = %d cm/s\n\r", (speed * 1000), (gps.gspeed * 1000));
 
   // get course
   nmea_read_until(&i);
   double course = strtod(&gps_nmea.msg_buf[i], NULL);
   gps.course = RadOfDeg(course) * 1e7;
-  NMEA_PRINT("COURSE: %d \n\r", gps_course);
+  NMEA_PRINT("COURSE: %d \n\r", gps.course);
 }
 
 
@@ -282,7 +328,7 @@ static void nmea_parse_GGA(void)
   // convert to radians
   lla_f.lat = RadOfDeg(lat);
   gps.lla_pos.lat = lat * 1e7; // convert to fixed-point
-  NMEA_PRINT("p_GPGGA() - lat=%d gps_lat=%i\n\r", (lat * 1000), lla_f.lat);
+  NMEA_PRINT("p_GPGGA() - lat=%f gps_lat=%f\n\r", (lat * 1000), lla_f.lat);
 
 
   // get longitude [ddmm.mmmmm]
@@ -301,7 +347,7 @@ static void nmea_parse_GGA(void)
   // convert to radians
   lla_f.lon = RadOfDeg(lon);
   gps.lla_pos.lon = lon * 1e7; // convert to fixed-point
-  NMEA_PRINT("p_GPGGA() - lon=%d gps_lon=%i time=%u\n\r", (lon * 1000), lla_f.lon, gps.tow);
+  NMEA_PRINT("p_GPGGA() - lon=%f gps_lon=%f time=%u\n\r", (lon * 1000), lla_f.lon, gps.tow);
 
   // get position fix status
   nmea_read_until(&i);
@@ -320,24 +366,29 @@ static void nmea_parse_GGA(void)
   gps.num_sv = atoi(&gps_nmea.msg_buf[i]);
   NMEA_PRINT("p_GPGGA() - gps_numSatlitesUsed=%i\n\r", gps.num_sv);
 
-  // we use HDOP here, as the PDOP is not in the message
+  // get HDOP, but we use PDOP from GSA message
   nmea_read_until(&i);
-  float hdop = strtof(&gps_nmea.msg_buf[i], NULL);
-  gps.pdop = hdop * 100;
+  //float hdop = strtof(&gps_nmea.msg_buf[i], NULL);
+  //gps.pdop = hdop * 100;
 
   // get altitude (in meters) above geoid (MSL)
   nmea_read_until(&i);
-  // lla_f.alt should actuall be height above ellipsoid,
-  // but since we don't get that, use hmsl instead
-  lla_f.alt = strtof(&gps_nmea.msg_buf[i], NULL);
-  gps.hmsl = lla_f.alt * 1000;
-  gps.lla_pos.alt = gps.hmsl;
-  NMEA_PRINT("p_GPGGA() - gps_alt=%i\n\r", gps.hmsl);
+  float hmsl = strtof(&gps_nmea.msg_buf[i], NULL);
+  gps.hmsl = hmsl * 1000;
+  NMEA_PRINT("p_GPGGA() - gps.hmsl=%i\n\r", gps.hmsl);
 
-  // get altitude units (allways M)
+  // get altitude units (always M)
   nmea_read_until(&i);
+
   // get geoid seperation
   nmea_read_until(&i);
+  float geoid = strtof(&gps_nmea.msg_buf[i], NULL);
+  NMEA_PRINT("p_GPGGA() - geoid alt=%f\n\r", geoid);
+  // height above ellipsoid
+  lla_f.alt = hmsl + geoid;
+  gps.lla_pos.alt = lla_f.alt * 1000;
+  NMEA_PRINT("p_GPGGA() - gps.alt=%i\n\r", gps.lla_pos.alt);
+
   // get seperations units
   nmea_read_until(&i);
   // get DGPS age
@@ -363,4 +414,72 @@ static void nmea_parse_GGA(void)
   gps.ecef_pos.x = ecef_f.x * 100;
   gps.ecef_pos.y = ecef_f.y * 100;
   gps.ecef_pos.z = ecef_f.z * 100;
+}
+
+/**
+ * Parse GSV-nmea-messages.
+ * Msg stored in gps_nmea.msg_buf.
+ */
+static void nmea_parse_GSV(void)
+{
+  int i = 6;     // current position in the message, start after: GxGSA,
+
+  // attempt to reject empty packets right away
+  if (gps_nmea.msg_buf[i] == ',' && gps_nmea.msg_buf[i + 1] == ',') {
+    NMEA_PRINT("p_GSV() - skipping empty message\n\r");
+    return;
+  }
+
+  // check what satellites this messages contains
+  // GPGSV -> GPS
+  // GLGSV -> GLONASS
+  bool_t is_glonass = FALSE;
+  if (!strncmp(&gps_nmea.msg_buf[0] , "GL", 2)) {
+    is_glonass = TRUE;
+  }
+
+  // total sentences
+  int nb_sen __attribute__((unused)) = atoi(&gps_nmea.msg_buf[i]);
+  NMEA_PRINT("p_GSV() - %i sentences\n\r", nb_sen);
+  nmea_read_until(&i);
+
+  // current sentence
+  int cur_sen = atoi(&gps_nmea.msg_buf[i]);
+  NMEA_PRINT("p_GSV() - sentence=%i\n\r", cur_sen);
+  nmea_read_until(&i);
+
+  // num satellites in view
+  int num_sat __attribute__((unused)) = atoi(&gps_nmea.msg_buf[i]);
+  NMEA_PRINT("p_GSV() - num_sat=%i\n\r", num_sat);
+  nmea_read_until(&i);
+
+  // up to 4 sats per sentence
+  int sat_cnt;
+  for (sat_cnt = 0; sat_cnt < 4; sat_cnt++) {
+    if (gps_nmea.msg_buf[i] == ',') break;
+    // 4 fields per sat: PRN, elevation (deg), azimuth (deg), SNR
+    int prn = atoi(&gps_nmea.msg_buf[i]);
+    nmea_read_until(&i);
+    int elev = atoi(&gps_nmea.msg_buf[i]);
+    nmea_read_until(&i);
+    int azim = atoi(&gps_nmea.msg_buf[i]);
+    nmea_read_until(&i);
+    int snr = atoi(&gps_nmea.msg_buf[i]);
+    nmea_read_until(&i);
+
+    int ch_idx = (cur_sen - 1) * 4 + sat_cnt;
+    // don't populate svinfos with GLONASS sats for now
+    if (!is_glonass && ch_idx > 0 && ch_idx < 12) {
+      gps.svinfos[ch_idx].svid = prn;
+      gps.svinfos[ch_idx].cno = snr;
+      gps.svinfos[ch_idx].elev = elev;
+      gps.svinfos[ch_idx].azim = azim;
+    }
+    if (is_glonass) {
+      NMEA_PRINT("p_GSV() - GLONASS %i PRN=%i elev=%i azim=%i snr=%i\n\r", ch_idx, prn, elev, azim, snr);
+    }
+    else {
+      NMEA_PRINT("p_GSV() - GPS %i PRN=%i elev=%i azim=%i snr=%i\n\r", ch_idx, prn, elev, azim, snr);
+    }
+  }
 }

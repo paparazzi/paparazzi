@@ -32,16 +32,15 @@
 
 #include "mcu_periph/uart.h"
 
-#ifndef DEBUG_NMEA
-#define NMEA_PRINT(...) {};
-#endif
+#define GPS_NB_CHANNELS 12
 
 #define NMEA_MAXLEN 255
 
 struct GpsNmea {
   bool_t msg_available;
   bool_t pos_available;
-  uint8_t gps_nb_ovrn;        // number if incomplete nmea-messages
+  bool_t have_gsv;            ///< flag set to TRUE if GPGSV message received
+  uint8_t gps_nb_ovrn;        ///< number if incomplete nmea-messages
   char msg_buf[NMEA_MAXLEN];  ///< buffer for storing one nmea-line
   int msg_len;
 };

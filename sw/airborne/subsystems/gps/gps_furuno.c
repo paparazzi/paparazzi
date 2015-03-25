@@ -38,10 +38,10 @@ static const char *gps_furuno_settings[GPS_FURUNO_SETTINGS_NB] = {
   "PERDCFG,NMEAOUT,GGA,1",      // Enable GGA every fix
   "PERDCFG,NMEAOUT,RMC,1",      // Enable RMC every fix
   "PERDCFG,NMEAOUT,GSA,1",      // Enable GSA every fix
-  "PERDCFG,NMEAOUT,GNS,0",      // Disable GSA
+  "PERDCFG,NMEAOUT,GNS,0",      // Disable GNS
   "PERDCFG,NMEAOUT,ZDA,0",      // Disable ZDA
   "PERDCFG,NMEAOUT,GSV,0",      // Disable GSV
-  "PERDCFG,NMEAOUT,GST,0",      // Disable ZDA
+  "PERDCFG,NMEAOUT,GST,0",      // Disable GST
   "PERDAPI,CROUT,V"             // Enable raw velocity
 };
 
