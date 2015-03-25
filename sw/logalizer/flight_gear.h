@@ -114,6 +114,7 @@ struct FGNetCtrls {
 #define FG_NET_FDM_MAX_WHEELS  3
 #define FG_NET_FDM_MAX_TANKS   4
 
+#ifndef _NET_FDM_HXX
 
 struct FGNetFDM {
 
@@ -199,6 +200,8 @@ struct FGNetFDM {
   float spoilers;
 };
 
+#endif
+
 struct FGNetMiniFDM {
    uint32_t version;           // increment when data values change
 
@@ -224,10 +227,33 @@ struct FGNetMiniFDM {
     int32_t warp;                 // offset in seconds to unix time
 };
 
+#if FG_2_4
 #define FG_NET_GUI_VERSION 7
+#else
+#define FG_NET_GUI_VERSION 8
+#endif /*FG_2_4*/
+
 #define FG_NET_GUI_MAX_TANKS 4
+
+// Prior to FG_NET_GUI_VERSION 8, OS X needed #pragma pack(4) to
+// properly display FG visualization data. In version 8 they added
+// a padding1 element to ensure proper data alignment, so this is
+// no longer required. The rest of this struct is based on FG source
+// in src/Network/net_gui.hxx
+
+#if FG_2_4
+#ifdef __x86_64__
+#pragma pack(push)
+#ifdef __APPLE__
+#pragma pack(4)
+#else
+#pragma pack(8)
+#endif /*__APPLE__*/
+#endif /*__x86_64__*/
+#endif /*FG_2_4*/
 struct FGNetGUI {
   uint32_t version;           // increment when data values change
+  uint32_t padding1;
 
   // Positions
   double longitude;           // geodetic (radians)
@@ -260,6 +286,13 @@ struct FGNetGUI {
   float course_deviation_deg; // degrees off target course
   float gs_deviation_deg;     // degrees off target glide slope
 };
+#if FG_2_4
+#ifdef __x86_64__
+#pragma pack(push)
+#pragma pack(pop)
+#endif /*__x86_64__*/
+#endif /*FG_2_4*/
+
 
 extern void net_fdm_dump (struct FGNetFDM* fdm);
 extern void net_fdm_ntoh (struct FGNetFDM* fdm);
