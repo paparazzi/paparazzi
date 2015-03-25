@@ -30,6 +30,7 @@
 
   <modules main_freq="512">
     <load name="geo_mag.xml"/>
+    <load name="air_data.xml"/>
     <load name="send_imu_mag_current.xml"/>
     <!--load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
@@ -82,6 +83,12 @@
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[2]"/>
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[3]"/>
   </command_laws>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="CALC_AIRSPEED" value="FALSE"/>
+    <define name="CALC_TAS_FACTOR" value="FALSE"/>
+    <define name="CALC_AMSL_BARO" value="TRUE"/>
+  </section>
 
   <section name="IMU" prefix="IMU_">
     <!-- Magneto calibration -->
