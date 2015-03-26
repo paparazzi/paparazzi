@@ -39,6 +39,7 @@
 struct GpsNmea {
   bool_t msg_available;
   bool_t pos_available;
+  bool_t is_configured;       ///< flag set to TRUE if configuration is finished
   bool_t have_gsv;            ///< flag set to TRUE if GPGSV message received
   uint8_t gps_nb_ovrn;        ///< number if incomplete nmea-messages
   char msg_buf[NMEA_MAXLEN];  ///< buffer for storing one nmea-line
@@ -55,6 +56,7 @@ extern struct GpsNmea gps_nmea;
 /** The function to be called when a characted from the device is available */
 #include "mcu_periph/link_device.h"
 
+extern void nmea_configure(void);
 extern void nmea_parse_char(uint8_t c);
 extern void nmea_parse_msg(void);
 extern uint8_t nmea_calc_crc(const char *buff, int buff_sz);
@@ -66,6 +68,10 @@ static inline void GpsEvent(void (* _sol_available_callback)(void))
 {
   struct link_device *dev = &((GPS_LINK).device);
 
+  if (!gps_nmea.is_configured) {
+    nmea_configure();
+    return;
+  }
   if (dev->char_available(dev->periph)) {
     while (dev->char_available(dev->periph)) {
       nmea_parse_char(dev->get_byte(dev->periph));

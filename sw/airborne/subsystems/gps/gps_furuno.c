@@ -45,36 +45,44 @@ static const char *gps_furuno_settings[GPS_FURUNO_SETTINGS_NB] = {
   "PERDAPI,CROUT,V"             // Enable raw velocity
 };
 
+static uint8_t furuno_cfg_cnt = 0;
+
 static void nmea_parse_perdcrv(void);
 
 #define GpsLinkDevice (&(GPS_LINK).device)
 
-void nmea_parse_prop_init(void)
+/**
+ * Configure furuno GPS.
+ * Sets gps_nmea.is_configured to TRUE if all config msgs are sent.
+ */
+void nmea_configure(void)
 {
-  static uint8_t i = 0;
-  uint8_t j, len, crc;
+  uint8_t i, j, len, crc;
   char buf[128];
 
-  // Return when doen
-  if (i == GPS_FURUNO_SETTINGS_NB) {
-    return;
-  }
-
-  for (; i < GPS_FURUNO_SETTINGS_NB; i++) {
+  for (i = furuno_cfg_cnt; i < GPS_FURUNO_SETTINGS_NB; i++) {
     len = strlen(gps_furuno_settings[i]);
-    crc = nmea_calc_crc(gps_furuno_settings[i], len);
-    sprintf(buf, "$%s*%02X\r\n", gps_furuno_settings[i], crc);
-
     // Check if there is enough space to send the config msg
     if (GpsLinkDevice->check_free_space(GpsLinkDevice->periph, len + 6)) {
+      crc = nmea_calc_crc(gps_furuno_settings[i], len);
+      sprintf(buf, "$%s*%02X\r\n", gps_furuno_settings[i], crc);
       for (j = 0; j < len + 6; j++) {
         GpsLinkDevice->put_byte(GpsLinkDevice->periph, buf[j]);
       }
+      furuno_cfg_cnt++;
     } else {
-      break;
+      // Not done yet...
+      return;
     }
   }
+  gps_nmea.is_configured = TRUE;
 }
+
+void nmea_parse_prop_init(void)
+{
+  furuno_cfg_cnt = 0;
+}
+
 
 void nmea_parse_prop_msg(void)
 {
