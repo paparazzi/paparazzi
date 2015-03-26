@@ -372,7 +372,7 @@ void ins_int_update_gps(struct GpsState *gps_s)
   }
 }
 #else
-void ins_int_update_gps(void) {}
+void ins_int_update_gps(struct GpsState *gps_s __attribute__((unused))) {}
 #endif /* USE_GPS */
 
 
