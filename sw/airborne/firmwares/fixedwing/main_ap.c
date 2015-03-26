@@ -72,7 +72,7 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #endif
 
 // datalink & telemetry
-#if DATALINK
+#if DATALINK || SITL
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
 #endif
