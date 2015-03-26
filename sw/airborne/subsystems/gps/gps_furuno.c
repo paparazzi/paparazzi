@@ -31,50 +31,66 @@
 #include <stdio.h>
 #include <string.h>
 
-#define GPS_FURUNO_SETTINGS_NB    10
+#define GPS_FURUNO_SETTINGS_NB    18
 static const char *gps_furuno_settings[GPS_FURUNO_SETTINGS_NB] = {
+  "PERDAPI,FIRSTFIXFILTER,STRONG",
   "PERDAPI,FIXPERSEC,5",        // Receive position every 5 Hz
+  "PERDAPI,FIXMASK,SENSITIVITY",
+  "PERDAPI,STATIC,0,0",
+  "PERDAPI,LATPROP,-1",         // Disable latency position propagation
+  "PERDAPI,OUTPROP,0",          // Disable position output propagation
+  "PERDAPI,PIN,OFF",
+  "PERDAPI,GNSS,AUTO,2,2,0,-1,-1",
+  "PERDSYS,ANTSEL,FORCE1L",
   "PERDAPI,CROUT,ALLOFF",       // Disable all propriarty output
+  "PERDAPI,CROUT,V",            // Enable proprietary PERDCRV raw velocity message
   "PERDCFG,NMEAOUT,GGA,1",      // Enable GGA every fix
   "PERDCFG,NMEAOUT,RMC,1",      // Enable RMC every fix
   "PERDCFG,NMEAOUT,GSA,1",      // Enable GSA every fix
   "PERDCFG,NMEAOUT,GNS,0",      // Disable GNS
   "PERDCFG,NMEAOUT,ZDA,0",      // Disable ZDA
-  "PERDCFG,NMEAOUT,GSV,0",      // Disable GSV
-  "PERDCFG,NMEAOUT,GST,0",      // Disable GST
-  "PERDAPI,CROUT,V"             // Enable raw velocity
+  "PERDCFG,NMEAOUT,GSV,1",      // Enable GSV
+  "PERDCFG,NMEAOUT,GST,0"       // Disable GST
 };
+
+static uint8_t furuno_cfg_cnt = 0;
 
 static void nmea_parse_perdcrv(void);
 
 #define GpsLinkDevice (&(GPS_LINK).device)
 
-void nmea_parse_prop_init(void)
+/**
+ * Configure furuno GPS.
+ * Sets gps_nmea.is_configured to TRUE if all config msgs are sent.
+ */
+void nmea_configure(void)
 {
-  static uint8_t i = 0;
-  uint8_t j, len, crc;
+  uint8_t i, j, len, crc;
   char buf[128];
 
-  // Return when doen
-  if (i == GPS_FURUNO_SETTINGS_NB) {
-    return;
-  }
-
-  for (; i < GPS_FURUNO_SETTINGS_NB; i++) {
+  for (i = furuno_cfg_cnt; i < GPS_FURUNO_SETTINGS_NB; i++) {
     len = strlen(gps_furuno_settings[i]);
-    crc = nmea_calc_crc(gps_furuno_settings[i], len);
-    sprintf(buf, "$%s*%02X\r\n", gps_furuno_settings[i], crc);
-
     // Check if there is enough space to send the config msg
     if (GpsLinkDevice->check_free_space(GpsLinkDevice->periph, len + 6)) {
+      crc = nmea_calc_crc(gps_furuno_settings[i], len);
+      sprintf(buf, "$%s*%02X\r\n", gps_furuno_settings[i], crc);
       for (j = 0; j < len + 6; j++) {
         GpsLinkDevice->put_byte(GpsLinkDevice->periph, buf[j]);
       }
+      furuno_cfg_cnt++;
     } else {
-      break;
+      // Not done yet...
+      return;
     }
   }
+  gps_nmea.is_configured = TRUE;
 }
+
+void nmea_parse_prop_init(void)
+{
+  furuno_cfg_cnt = 0;
+}
+
 
 void nmea_parse_prop_msg(void)
 {

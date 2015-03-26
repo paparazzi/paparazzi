@@ -64,12 +64,14 @@ static void nmea_parse_GSV(void);
 void gps_impl_init(void)
 {
   gps.nb_channels = GPS_NB_CHANNELS;
+  gps_nmea.is_configured = FALSE;
   gps_nmea.msg_available = FALSE;
   gps_nmea.pos_available = FALSE;
   gps_nmea.have_gsv = FALSE;
   gps_nmea.gps_nb_ovrn = 0;
   gps_nmea.msg_len = 0;
   nmea_parse_prop_init();
+  nmea_configure();
 }
 
 void gps_nmea_msg(void (* _cb)(void))
@@ -85,6 +87,11 @@ void gps_nmea_msg(void (* _cb)(void))
     _cb();
   }
   gps_nmea.msg_available = FALSE;
+}
+
+void WEAK nmea_configure(void)
+{
+  gps_nmea.is_configured = TRUE;
 }
 
 void WEAK nmea_parse_prop_init(void)
