@@ -117,9 +117,8 @@ endif
 #
 # Main
 #
-ifeq ($(RTOS), chibios-libopencm3)
- ns_srcs += $(SRC_FIRMWARE)/main_chibios_libopencm3.c
- ns_srcs += $(SRC_FIRMWARE)/chibios-libopencm3/chibios_init.c
+ifeq ($(RTOS), chibios)
+ ns_srcs += $(SRC_FIRMWARE)/main_chibios.c
 else
  ns_srcs += $(SRC_FIRMWARE)/main.c
 endif

@@ -688,6 +688,13 @@
 #define VAL_GPIOI_AFRL              0x00000000
 #define VAL_GPIOI_AFRH              0x00000000
 
+
+/*
+ * AHB_CLK
+ */
+#define AHB_CLK 168000000
+
+
 /*
  * LEDs
  */

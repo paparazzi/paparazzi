@@ -12,6 +12,8 @@ BOARD_CFG=\"boards/$(BOARD_DIR)/board.h\"
 ARCH=chibios
 $(TARGET).ARCHDIR = $(ARCH)
 
+RTOS=chibios
+
 ## FPU on F4
 USE_FPU=yes
 HARD_FLOAT=yes

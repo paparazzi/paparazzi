@@ -5,6 +5,7 @@
  * Michal Podhradsky (michal.podhradsky@aggiemail.usu.edu)
  * Calvin Coopmans (c.r.coopmans@ieee.org)
  *
+ * Copyright (C) 2015 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -23,6 +24,7 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+
 /**
  * @file arch/chibios/mcu_periph/sys_time_arch.c
  * Implementation of system time functions for ChibiOS arch
@@ -31,6 +33,9 @@
  * since ChibiOS uses different system time functions.
  */
 #include "mcu_periph/sys_time_arch.h"
+#include BOARD_CONFIG
+#include <ch.h>
+#include "led.h"
 
 /*
  * Extra defines for ChibiOS CPU monitoring
@@ -41,6 +46,13 @@ uint32_t cpu_counter;
 uint32_t idle_counter;
 uint8_t cpu_frequency;
 
+/*
+ * Sys_tick handler thread
+ */
+static msg_t thd_sys_tick(void *arg);
+static WORKING_AREA(wa_thd_sys_tick, 128);
+static void sys_tick_handler(void);
+
 void sys_time_arch_init(void)
 {
   core_free_memory = 0;
@@ -48,6 +60,16 @@ void sys_time_arch_init(void)
   cpu_counter = 0;
   idle_counter = 0;
   cpu_frequency = 0;
+
+  sys_time.cpu_ticks_per_sec = AHB_CLK;
+
+  /* cpu ticks per desired sys_time timer step */
+  sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution * sys_time.cpu_ticks_per_sec + 0.5);
+
+  // Create thread (PRIO should be higher than AP threads
+  chThdCreateStatic(wa_thd_sys_tick, sizeof(wa_thd_sys_tick),
+      NORMALPRIO+2, thd_sys_tick, NULL);
+
 }
 
 uint32_t get_sys_time_usec(void)
@@ -80,3 +102,45 @@ void sys_time_ssleep(uint8_t s)
 {
   chThdSleep(S2ST(s));
 }
+
+/*
+ * Sys_tick thread
+ */
+static __attribute__((noreturn)) msg_t thd_sys_tick(void *arg)
+{
+  (void) arg;
+  chRegSetThreadName("sys_tick_handler");
+
+  while (TRUE) {
+    sys_tick_handler();
+    chThdSleepMilliseconds(1);
+  }
+}
+
+static void sys_tick_handler(void)
+{
+  /* current time in sys_ticks */
+  sys_time.nb_tick = chTimeNow();
+  uint32_t sec = sys_time.nb_tick / CH_FREQUENCY;
+#ifdef SYS_TIME_LED
+  if (sec > sys_time.nb_sec) {
+    LED_TOGGLE(SYS_TIME_LED);
+  }
+#endif
+  sys_time.nb_sec = sec;
+  sys_time.nb_sec_rem = sys_time.nb_tick - cpu_ticks_of_sec(sys_time.nb_sec);
+
+  /* advance virtual timers */
+  for (unsigned int i = 0; i < SYS_TIME_NB_TIMER; i++) {
+    if (sys_time.timer[i].in_use &&
+        sys_time.nb_tick >= sys_time.timer[i].end_time) {
+      sys_time.timer[i].end_time += sys_time.timer[i].duration;
+      sys_time.timer[i].elapsed = TRUE;
+      /* call registered callbacks, WARNING: they will be executed in the sys_time thread! */
+      if (sys_time.timer[i].cb) {
+        sys_time.timer[i].cb(i);
+      }
+    }
+  }
+}
+
