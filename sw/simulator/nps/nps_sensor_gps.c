@@ -7,22 +7,23 @@
 #include "nps_sensors_utils.h"
 #include NPS_SENSORS_PARAMS
 
-void nps_sensor_gps_init(struct NpsSensorGps* gps, double time) {
+void nps_sensor_gps_init(struct NpsSensorGps *gps, double time)
+{
   FLOAT_VECT3_ZERO(gps->ecef_pos);
   FLOAT_VECT3_ZERO(gps->ecef_vel);
   gps->hmsl = 0.0;
   gps->pos_latency = NPS_GPS_POS_LATENCY;
   gps->speed_latency = NPS_GPS_SPEED_LATENCY;
   VECT3_ASSIGN(gps->pos_noise_std_dev,
-			   NPS_GPS_POS_NOISE_STD_DEV, NPS_GPS_POS_NOISE_STD_DEV, NPS_GPS_POS_NOISE_STD_DEV);
+               NPS_GPS_POS_NOISE_STD_DEV, NPS_GPS_POS_NOISE_STD_DEV, NPS_GPS_POS_NOISE_STD_DEV);
   VECT3_ASSIGN(gps->speed_noise_std_dev,
-			   NPS_GPS_SPEED_NOISE_STD_DEV, NPS_GPS_SPEED_NOISE_STD_DEV, NPS_GPS_SPEED_NOISE_STD_DEV);
+               NPS_GPS_SPEED_NOISE_STD_DEV, NPS_GPS_SPEED_NOISE_STD_DEV, NPS_GPS_SPEED_NOISE_STD_DEV);
   VECT3_ASSIGN(gps->pos_bias_initial,
-			   NPS_GPS_POS_BIAS_INITIAL_X, NPS_GPS_POS_BIAS_INITIAL_Y, NPS_GPS_POS_BIAS_INITIAL_Z);
+               NPS_GPS_POS_BIAS_INITIAL_X, NPS_GPS_POS_BIAS_INITIAL_Y, NPS_GPS_POS_BIAS_INITIAL_Z);
   VECT3_ASSIGN(gps->pos_bias_random_walk_std_dev,
-			   NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X,
-			   NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y,
-			   NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z);
+               NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X,
+               NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y,
+               NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z);
   FLOAT_VECT3_ZERO(gps->pos_bias_random_walk_value);
   gps->next_update = time;
   gps->data_available = FALSE;
@@ -35,10 +36,12 @@ void nps_sensor_gps_init(struct NpsSensorGps* gps, double time) {
  *
  */
 
-void nps_sensor_gps_run_step(struct NpsSensorGps* gps, double time) {
+void nps_sensor_gps_run_step(struct NpsSensorGps *gps, double time)
+{
 
-  if (time < gps->next_update)
+  if (time < gps->next_update) {
     return;
+  }
 
 
   /*
@@ -79,7 +82,7 @@ void nps_sensor_gps_run_step(struct NpsSensorGps* gps, double time) {
    */
   /* convert current ecef reading to lla */
   struct LlaCoor_d cur_lla_reading;
-  lla_of_ecef_d(&cur_lla_reading, (struct EcefCoor_d*) &cur_pos_reading);
+  lla_of_ecef_d(&cur_lla_reading, (struct EcefCoor_d *) &cur_pos_reading);
 
   /* store that for later and retrieve a previously stored data */
   UpdateSensorLatency(time, &cur_lla_reading, &gps->lla_history, gps->pos_latency, &gps->lla_pos);

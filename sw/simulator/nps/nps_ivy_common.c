@@ -87,6 +87,13 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
   if (atoi(argv[1]) != AC_ID)
     return;
 
+  /* HACK:
+   * we actually don't want to allow changing settings if datalink is disabled,
+   * but since we currently change this variable via settings we have to allow it
+   */
+  //if (!autopilot.datalink_enabled)
+  //  return;
+
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
   DlSetting(index, value);
@@ -99,6 +106,8 @@ static void on_DL_GET_SETTING(IvyClientPtr app __attribute__ ((unused)),
                               int argc __attribute__ ((unused)), char *argv[]) {
   if (atoi(argv[1]) != AC_ID)
     return;
+  if (!autopilot.datalink_enabled)
+    return;
 
   uint8_t index = atoi(argv[2]);
   float value = settings_get_value(index);
@@ -109,6 +118,9 @@ static void on_DL_GET_SETTING(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_PING(IvyClientPtr app __attribute__ ((unused)),
                        void *user_data __attribute__ ((unused)),
                        int argc __attribute__ ((unused)), char *argv[] __attribute__ ((unused))) {
+  if (!autopilot.datalink_enabled)
+    return;
+
   DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
 }
 
@@ -116,6 +128,8 @@ static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)),
                         void *user_data __attribute__ ((unused)),
                         int argc __attribute__ ((unused)), char *argv[]){
   if (atoi(argv[2]) != AC_ID)
+    return;
+  if (!autopilot.datalink_enabled)
     return;
 
   int block = atoi(argv[1]);
@@ -127,6 +141,9 @@ static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_RC_3CH(IvyClientPtr app __attribute__ ((unused)),
                          void *user_data __attribute__ ((unused)),
                          int argc __attribute__ ((unused)), char *argv[]){
+  if (!autopilot.datalink_enabled)
+    return;
+
   uint8_t throttle_mode = atoi(argv[2]);
   int8_t roll = atoi(argv[3]);
   int8_t pitch = atoi(argv[4]);
@@ -138,6 +155,8 @@ static void on_DL_RC_4CH(IvyClientPtr app __attribute__ ((unused)),
                          void *user_data __attribute__ ((unused)),
                          int argc __attribute__ ((unused)), char *argv[]){
   if (atoi(argv[1]) != AC_ID)
+    return;
+  if (!autopilot.datalink_enabled)
     return;
 
   uint8_t mode = atoi(argv[2]);

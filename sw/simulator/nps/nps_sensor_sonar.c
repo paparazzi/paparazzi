@@ -50,22 +50,27 @@
 #endif
 
 
-void nps_sensor_sonar_init(struct NpsSensorSonar* sonar, double time) {
+void nps_sensor_sonar_init(struct NpsSensorSonar *sonar, double time)
+{
   sonar->value = 0.;
+  sonar->offset = NPS_SONAR_OFFSET;
+  sonar->noise_std_dev = NPS_SONAR_NOISE_STD_DEV;
   sonar->next_update = time;
   sonar->data_available = FALSE;
 }
 
 
-void nps_sensor_sonar_run_step(struct NpsSensorSonar* sonar, double time) {
+void nps_sensor_sonar_run_step(struct NpsSensorSonar *sonar, double time)
+{
 
-  if (time < sonar->next_update)
+  if (time < sonar->next_update) {
     return;
+  }
 
   /* agl in meters */
-  sonar->value = fdm.agl + NPS_SONAR_OFFSET;
+  sonar->value = fdm.agl + sonar->offset;
   /* add noise with std dev meters */
-  sonar->value += get_gaussian_noise() * NPS_SONAR_NOISE_STD_DEV;
+  sonar->value += get_gaussian_noise() * sonar->noise_std_dev;
 
   sonar->next_update += NPS_SONAR_DT;
   sonar->data_available = TRUE;
