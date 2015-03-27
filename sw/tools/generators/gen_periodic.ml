@@ -82,9 +82,9 @@ let output_modes = fun out_h process_name modes freq modules ->
           l := (p, !phase) :: !l;
           i := !i + freq/10;
           right ();
-          lprintf out_h "if (telemetry->msgs[TELEMETRY_MSG_%s_ID].cb != NULL)\n" message_name;
+          lprintf out_h "if (telemetry->cbs[TELEMETRY_MSG_%s_ID] != NULL)\n" message_name;
           right ();
-          lprintf out_h "telemetry->msgs[TELEMETRY_MSG_%s_ID].cb(trans, dev);\n" message_name;
+          lprintf out_h "telemetry->cbs[TELEMETRY_MSG_%s_ID](trans, dev);\n" message_name;
           left ();
           fprintf out_h "#if USE_PERIODIC_TELEMETRY_REPORT\n";
           lprintf out_h "else periodic_telemetry_err_report(TELEMETRY_PROCESS_%s, telemetry_mode_%s, TELEMETRY_MSG_%s_ID);\n" process_name process_name message_name;
@@ -151,8 +151,8 @@ let print_message_table = fun out_h xml ->
   ) messages 0 in
   Xml2h.define "TELEMETRY_NB_MSG" (sprintf "%d" nb);
   (* Structure initialization *)
-  fprintf out_h "#define TELEMETRY_STRUCT { \\\n";
-  Hashtbl.iter (fun n _ -> fprintf out_h "  { \"%s\", NULL }, \\\n" n) messages;
+  fprintf out_h "#define TELEMETRY_MSG_NAMES { \\\n";
+  Hashtbl.iter (fun n _ -> fprintf out_h "  \"%s\", \\\n" n) messages;
   fprintf out_h "};\n\n"
 
 let print_process_send = fun out_h xml freq modules ->

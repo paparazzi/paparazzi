@@ -38,20 +38,19 @@
  */
 typedef void (*telemetry_cb)(struct transport_tx *trans, struct link_device *dev);
 
-/** Telemetry header
+/** periodic telemetry msg name definition
  */
-struct telemetry_msg {
-  char msg[64];     ///< name in telemetry xml file
-  telemetry_cb cb;  ///< callback funtion
-};
+typedef const char telemetry_msg[64];
+
 
 /** Periodic telemetry structure.
  *  Contains the total number of messages (from generated telemetry file)
  *  and the list of registered callbacks
  */
 struct periodic_telemetry {
-  uint8_t nb;                 ///< number of messages
-  struct telemetry_msg *msgs; ///< the list of (msg name, callbacks)
+  uint8_t nb;           ///< number of messages
+  telemetry_msg *msgs;  ///< the array of msg names
+  telemetry_cb *cbs;    ///< array of associated callbacks
 };
 
 /** Register a telemetry callback function.

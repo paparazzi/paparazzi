@@ -54,12 +54,11 @@
 #include "subsystems/datalink/downlink.h"
 #include "generated/periodic_telemetry.h"
 
-/** Global telemetry structures
+/** Global telemetry structure
  *
- * Contains the list of message and register callbacks.
+ * Contains the list of message names and registered callbacks.
  * Filled with generated structure from periodic_telemetry.h
  */
-extern struct telemetry_msg telemetry_msgs[TELEMETRY_NB_MSG];
 extern struct periodic_telemetry pprz_telemetry;
 
 /** Set default periodic telemetry
