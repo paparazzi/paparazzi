@@ -153,6 +153,9 @@ let print_message_table = fun out_h xml ->
   (* Structure initialization *)
   fprintf out_h "#define TELEMETRY_MSG_NAMES { \\\n";
   Hashtbl.iter (fun n _ -> fprintf out_h "  \"%s\", \\\n" n) messages;
+  fprintf out_h "};\n\n";
+  fprintf out_h "#define TELEMETRY_CBS_NULL { \\\n";
+  for i = 1 to (Hashtbl.length messages) do fprintf out_h "  NULL, \\\n" done;
   fprintf out_h "};\n\n"
 
 let print_process_send = fun out_h xml freq modules ->

@@ -33,7 +33,7 @@
 /* Implement global structures from generated header
  */
 telemetry_msg telemetry_msgs[TELEMETRY_NB_MSG] = TELEMETRY_MSG_NAMES;
-telemetry_cb telemetry_cbs[TELEMETRY_NB_MSG];
+telemetry_cb telemetry_cbs[TELEMETRY_NB_MSG] = TELEMETRY_CBS_NULL;
 struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs, telemetry_cbs };
 
 
