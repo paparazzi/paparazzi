@@ -42,6 +42,9 @@ ap.srcs   += $(IMU_SRCS)
 test_imu.CFLAGS += $(IMU_CFLAGS)
 test_imu.srcs   += $(IMU_SRCS)
 
+test_ahrs.CFLAGS += $(IMU_CFLAGS)
+test_ahrs.srcs   += $(IMU_SRCS)
+
 #
 # NPS simulator
 #

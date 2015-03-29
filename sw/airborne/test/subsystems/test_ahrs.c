@@ -21,6 +21,8 @@
 
 #include <inttypes.h>
 
+#define DATALINK_C
+
 /* PERIODIC_C_MAIN is defined before generated/periodic_telemetry.h
  * in order to implement telemetry_mode_Main_*
  */
@@ -39,6 +41,9 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/datalink/telemetry.h"
+
+#include "subsystems/datalink/datalink.h"
+#include "generated/settings.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
@@ -94,6 +99,7 @@ static inline void main_periodic_task(void)
 static inline void main_event_task(void)
 {
   mcu_event();
+  DatalinkEvent();
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 }
 
@@ -140,4 +146,34 @@ static inline void main_report(void)
   RunOnceEvery(512, DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM));
 
   periodic_telemetry_send_Main(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
+}
+
+void dl_parse_msg(void)
+{
+  datalink_time = 0;
+  uint8_t msg_id = dl_buffer[1];
+  switch (msg_id) {
+
+    case  DL_PING: {
+      DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
+    }
+    break;
+    case DL_SETTING:
+      if (DL_SETTING_ac_id(dl_buffer) == AC_ID) {
+        uint8_t i = DL_SETTING_index(dl_buffer);
+        float val = DL_SETTING_value(dl_buffer);
+        DlSetting(i, val);
+        DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
+      }
+      break;
+    case DL_GET_SETTING : {
+      if (DL_GET_SETTING_ac_id(dl_buffer) != AC_ID) { break; }
+      uint8_t i = DL_GET_SETTING_index(dl_buffer);
+      float val = settings_get_value(i);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
+    }
+    break;
+    default:
+      break;
+  }
 }

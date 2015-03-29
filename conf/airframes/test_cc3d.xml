@@ -40,6 +40,7 @@
     <target name="test_ahrs" board="cc3d">
       <subsystem name="imu" type="mpu6000"/>
       <subsystem name="ahrs" type="int_cmpl_quat"/>
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
     </target>
   </firmware>
 

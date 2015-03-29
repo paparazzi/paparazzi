@@ -124,7 +124,9 @@ static inline void on_accel_event(void)
 {
   imu_scale_accel(&imu);
 
+#if USE_LED_3
   RunOnceEvery(50, LED_TOGGLE(3));
+#endif
   static uint8_t cnt;
   cnt++;
   if (cnt > 15) { cnt = 0; }
@@ -145,7 +147,9 @@ static inline void on_gyro_event(void)
 {
   imu_scale_gyro(&imu);
 
+#if USE_LED_2
   RunOnceEvery(50, LED_TOGGLE(2));
+#endif
   static uint8_t cnt;
   cnt++;
   if (cnt > 15) { cnt = 0; }
