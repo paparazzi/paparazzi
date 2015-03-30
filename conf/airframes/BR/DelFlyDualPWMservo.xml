@@ -104,7 +104,6 @@
    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
 
     <define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/>
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
  </section>
 
  <section name="BAT">

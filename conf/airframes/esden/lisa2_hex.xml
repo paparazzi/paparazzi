@@ -159,7 +159,6 @@
  <section name="MISC">
    <define name="USE_EARTH_BOUND_RC_SETPOINT" value="FALSE"/>
    <define name="USE_REFERENCE_SYSTEM" value="FALSE"/>
-   <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
    <define name="MILLIAMP_AT_FULL_THROTTLE" value="66000"/>
  </section>
 
