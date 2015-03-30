@@ -69,7 +69,7 @@ extern bool_t gps_configuring;
 extern void gps_mtk_read_message(void);
 extern void gps_mtk_parse(uint8_t c);
 
-static inline void GpsEvent(void (* _sol_available_callback)(void))
+static inline void GpsEvent(void)
 {
   struct link_device *dev = &((GPS_LINK).device);
 
@@ -80,7 +80,7 @@ static inline void GpsEvent(void (* _sol_available_callback)(void))
     GpsConfigure();
   }
   if (gps_mtk.msg_available) {
-    gps_mtk_msg(_sol_available_callback);
+    gps_mtk_msg();
   }
 }
 

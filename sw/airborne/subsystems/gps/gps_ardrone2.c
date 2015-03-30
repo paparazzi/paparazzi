@@ -31,13 +31,11 @@
 #endif
 
 #include "subsystems/gps.h"
+#include "subsystems/abi.h"
 #include "math/pprz_geodetic_double.h"
-
-bool_t gps_ardrone2_available;
 
 void gps_impl_init(void)
 {
-  gps_ardrone2_available = FALSE;
 }
 
 void gps_ardrone2_parse(navdata_gps_t *navdata_gps)
@@ -76,6 +74,13 @@ void gps_ardrone2_parse(navdata_gps_t *navdata_gps)
     gps.fix = GPS_FIX_NONE;
   }
 
-  // Set that there is a packet
-  gps_ardrone2_available = TRUE;
+  gps.last_msg_ticks = sys_time.nb_sec_rem;
+  gps.last_msg_time = sys_time.nb_sec;
+  if (gps.fix == GPS_FIX_3D) {
+    gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+    gps.last_3dfix_time = sys_time.nb_sec;
+  }
+
+  uint32_t now_ts = get_sys_time_usec();
+  AbiSendMsgGPS(GPS_ARDRONE2_ID, now_ts, &gps);
 }

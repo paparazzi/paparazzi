@@ -148,10 +148,6 @@ static inline void on_accel_event(void);
 static inline void on_mag_event(void);
 #endif // USE_IMU
 
-#if USE_GPS
-static inline void on_gps_solution(void);
-#endif
-
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 static uint8_t  mcu1_ppm_cpt;
 #endif
@@ -688,7 +684,7 @@ void event_task_ap(void)
 #endif
 
 #if USE_GPS
-  GpsEvent(on_gps_solution);
+  GpsEvent();
 #endif /* USE_GPS */
 
 #if USE_BARO_BOARD
@@ -718,21 +714,6 @@ void event_task_ap(void)
 #endif
 
 } /* event_task_ap() */
-
-
-#if USE_GPS
-static inline void on_gps_solution(void)
-{
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  AbiSendMsgGPS(1, now_ts, &gps);
-
-#ifdef GPS_TRIGGERED_FUNCTION
-  GPS_TRIGGERED_FUNCTION();
-#endif
-}
-#endif
 
 
 #if USE_IMU

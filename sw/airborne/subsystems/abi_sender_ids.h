@@ -111,4 +111,51 @@
 #define MAG_HMC58XX_SENDER_ID 2
 #endif
 
+/*
+ * IDs of GPS sensors
+ */
+#ifndef GPS_UBX_ID
+#define GPS_UBX_ID 1
+#endif
+
+#ifndef GPS_NMEA_ID
+#define GPS_NMEA_ID 2
+#endif
+
+#ifndef GPS_SIRF_ID
+#define GPS_SIRF_ID 3
+#endif
+
+#ifndef GPS_SKYTRAQ_ID
+#define GPS_SKYTRAQ_ID 4
+#endif
+
+#ifndef GPS_MTK_ID
+#define GPS_MTK_ID 5
+#endif
+
+#ifndef GPS_PIKSI_ID
+#define GPS_PIKSI_ID 6
+#endif
+
+#ifndef GPS_XSENS_ID
+#define GPS_XSENS_ID 7
+#endif
+
+#ifndef GPS_DATALINK_ID
+#define GPS_DATALINK_ID 8
+#endif
+
+#ifndef GPS_UDP_ID
+#define GPS_UDP_ID 9
+#endif
+
+#ifndef GPS_ARDRONE2_ID
+#define GPS_ARDRONE2_ID 10
+#endif
+
+#ifndef GPS_SIM_ID
+#define GPS_SIM_ID 11
+#endif
+
 #endif /* ABI_SENDER_IDS_H */

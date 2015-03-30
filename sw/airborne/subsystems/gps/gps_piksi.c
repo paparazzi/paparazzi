@@ -32,6 +32,7 @@
 #include <sbp.h>
 #include <sbp_messages.h>
 #include "subsystems/gps.h"
+#include "subsystems/abi.h"
 #include "mcu_periph/uart.h"
 #include "math/pprz_geodetic_double.h"
 #if GPS_USE_LATLONG
@@ -66,6 +67,8 @@ sbp_msg_callbacks_node_t baseline_ecef_node;
 //#if USE_PIKSI_BASELINE_NED
 //sbp_msg_callbacks_node_t baseline_ned_node;
 //#endif
+
+static void gps_piksi_publish(void);
 
 /*
  * Callback functions to interpret SBP messages.
@@ -102,7 +105,7 @@ static void sbp_baseline_ecef_callback(uint16_t sender_id __attribute__((unused)
   gps.tow = baseline_ecef.tow;
 
   // High precision solution available
-  gps_piksi_available = TRUE;
+  gps_piksi_publish();
 }
 #endif
 
@@ -118,7 +121,7 @@ static void sbp_vel_ecef_callback(uint16_t sender_id __attribute__((unused)),
   gps.sacc = (uint32_t)(vel_ecef.accuracy);
 
   // Solution available (VEL_ECEF is the last message to be send)
-  gps_piksi_available = TRUE;
+  gps_piksi_publish();
 }
 
 static void sbp_pos_llh_callback(uint16_t sender_id __attribute__((unused)),
@@ -205,12 +208,8 @@ static void sbp_gps_time_callback(uint16_t sender_id __attribute__((unused)),
   gps.tow = gps_time.tow;
 }
 
-bool_t gps_piksi_available;
-
 void gps_impl_init(void)
 {
-  gps_piksi_available = FALSE;
-
   /* Setup SBP nodes */
   sbp_state_init(&sbp_state);
   /* Register a node and callback, and associate them with a specific message ID. */
@@ -256,6 +255,20 @@ void gps_piksi_event(void)
   }
   // call sbp event function
   sbp_process(&sbp_state, &fifo_read);
+}
+
+static void gps_piksi_publish(void)
+{
+  // current timestamp
+  uint32_t now_ts = get_sys_time_usec();
+
+  gps.last_msg_ticks = sys_time.nb_sec_rem;
+  gps.last_msg_time = sys_time.nb_sec;
+  if (gps.fix == GPS_FIX_3D) {
+    gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+    gps.last_3dfix_time = sys_time.nb_sec;
+  }
+  AbiSendMsgGPS(GPS_PIKSI_ID, now_ts, &gps);
 }
 
 /*

@@ -107,7 +107,6 @@ INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY t
 
 static inline void on_gyro_event(void);
 static inline void on_accel_event(void);
-static inline void on_gps_event(void);
 static inline void on_mag_event(void);
 
 
@@ -327,7 +326,7 @@ STATIC_INLINE void main_event(void)
 #endif
 
 #if USE_GPS
-  GpsEvent(on_gps_event);
+  GpsEvent();
 #endif
 
 #if FAILSAFE_GROUND_DETECT || KILL_ON_GROUND_DETECT
@@ -368,20 +367,6 @@ static inline void on_gyro_event( void ) {
 
 #ifdef USE_VEHICLE_INTERFACE
   vi_notify_imu_available();
-#endif
-}
-
-static inline void on_gps_event(void)
-{
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  AbiSendMsgGPS(1, now_ts, &gps);
-
-#ifdef USE_VEHICLE_INTERFACE
-  if (gps.fix == GPS_FIX_3D) {
-    vi_notify_gps_available();
-  }
 #endif
 }
 

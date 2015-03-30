@@ -74,7 +74,7 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   //gps_verbose_downlink = !launch;
   //gps_downlink();
 
-  gps_available = TRUE;
+  gps_sim_publish();
 
   return Val_unit;
 }

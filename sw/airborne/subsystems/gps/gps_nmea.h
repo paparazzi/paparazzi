@@ -62,9 +62,9 @@ extern void nmea_parse_msg(void);
 extern uint8_t nmea_calc_crc(const char *buff, int buff_sz);
 extern void nmea_parse_prop_init(void);
 extern void nmea_parse_prop_msg(void);
-extern void gps_nmea_msg(void (* _cb)(void));
+extern void gps_nmea_msg(void);
 
-static inline void GpsEvent(void (* _sol_available_callback)(void))
+static inline void GpsEvent(void)
 {
   struct link_device *dev = &((GPS_LINK).device);
 
@@ -78,7 +78,7 @@ static inline void GpsEvent(void (* _sol_available_callback)(void))
     }
   }
   if (gps_nmea.msg_available) {
-    gps_nmea_msg(_sol_available_callback);
+    gps_nmea_msg();
   }
 }
 

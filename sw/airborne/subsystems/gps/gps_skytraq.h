@@ -62,9 +62,9 @@ extern struct GpsSkytraq gps_skytraq;
 
 extern void gps_skytraq_read_message(void);
 extern void gps_skytraq_parse(uint8_t c);
-extern void gps_skytraq_msg(void (* _cb)(void));
+extern void gps_skytraq_msg(void);
 
-static inline void GpsEvent(void (* _sol_available_callback)(void))
+static inline void GpsEvent(void)
 {
   struct link_device *dev = &((GPS_LINK).device);
 
@@ -74,7 +74,7 @@ static inline void GpsEvent(void (* _sol_available_callback)(void))
     }
   }
   if (gps_skytraq.msg_available) {
-    gps_skytraq_msg(_sol_available_callback);
+    gps_skytraq_msg();
   }
 }
 
