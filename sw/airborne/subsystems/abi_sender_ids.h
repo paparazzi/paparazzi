@@ -158,4 +158,104 @@
 #define GPS_SIM_ID 11
 #endif
 
+
+/*
+ * IDs of IMU sensors (accel, gyro)
+ */
+#ifndef IMU_ANALOG_ID
+#define IMU_ANALOG_ID 1
+#endif
+
+#ifndef IMU_ARDRONE2_ID
+#define IMU_ARDRONE2_ID 2
+#endif
+
+#ifndef IMU_ASPIRIN_ID
+#define IMU_ASPIRIN_ID 3
+#endif
+
+#ifndef IMU_ASPIRIN2_ID
+#define IMU_ASPIRIN2_ID 4
+#endif
+
+#ifndef IMU_B2_ID
+#define IMU_B2_ID 5
+#endif
+
+#ifndef IMU_CRISTA_ID
+#define IMU_CRISTA_ID 6
+#endif
+
+#ifndef IMU_DROTEK_ID
+#define IMU_DROTEK_ID 7
+#endif
+
+#ifndef IMU_GL1_ID
+#define IMU_GL1_ID 8
+#endif
+
+#ifndef IMU_MPU6000_ID
+#define IMU_MPU6000_ID 9
+#endif
+
+#ifndef IMU_MPU6000_HMC_ID
+#define IMU_MPU6000_HMC_ID 10
+#endif
+
+#ifndef IMU_MPU9250_ID
+#define IMU_MPU9250_ID 11
+#endif
+
+#ifndef IMU_NAVSTIK_ID
+#define IMU_NAVSTIK_ID 12
+#endif
+
+#ifndef IMU_NPS_ID
+#define IMU_NPS_ID 13
+#endif
+
+#ifndef IMU_PPZUAV_ID
+#define IMU_PPZUAV_ID 14
+#endif
+
+#ifndef IMU_PX4_ID
+#define IMU_PX4_ID 15
+#endif
+
+#ifndef IMU_UM6_ID
+#define IMU_UM6_ID 16
+#endif
+
+#ifndef IMU_NAVGO_ID
+#define IMU_NAVGO_ID 17
+#endif
+
+#ifndef IMU_HBMINI_ID
+#define IMU_HBMINI_ID 18
+#endif
+
+#ifndef IMU_KROOZ_ID
+#define IMU_KROOZ_ID 19
+#endif
+
+#ifndef IMU_UMARIM_ID
+#define IMU_UMARIM_ID 20
+#endif
+
+#ifndef IMU_GX3_ID
+#define IMU_GX3_ID 21
+#endif
+
+#ifndef IMU_APOGEE_ID
+#define IMU_APOGEE_ID 22
+#endif
+
+#ifndef IMU_BEBOP_ID
+#define IMU_BEBOP_ID 23
+#endif
+
+#ifndef IMU_XSENS_ID
+#define IMU_XSENS_ID 24
+#endif
+
 #endif /* ABI_SENDER_IDS_H */

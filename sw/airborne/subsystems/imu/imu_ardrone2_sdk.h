@@ -21,20 +21,14 @@
 
 /**
  * @file subsystems/imu/imu_ardrone2_sdk.h
- * IMU implementation for ardrone2-sdk.
+ * dummy IMU implementation for ardrone2-sdk.
  */
 
 #ifndef IMU_ARDRONE2_SDK_H_
 #define IMU_ARDRONE2_SDK_H_
 
-#include "subsystems/imu.h"
-#include "generated/airframe.h"
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  _gyro_handler();
-  _accel_handler();
-  _mag_handler();
-}
+#define ImuEvent() {}
+
 
 #endif /* IMU_ARDRONE2_SDK_H_ */

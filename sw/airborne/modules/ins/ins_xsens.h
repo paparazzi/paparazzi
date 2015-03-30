@@ -53,6 +53,7 @@ extern void xsens_periodic(void);
  */
 #if USE_IMU
 #include "subsystems/imu.h"
+#include "subsystems/abi.h"
 
 struct ImuXsens {
   bool_t gyro_available;
@@ -61,20 +62,7 @@ struct ImuXsens {
 };
 extern struct ImuXsens imu_xsens;
 
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
-    if (imu_xsens.accel_available) {                            \
-      imu_xsens.accel_available = FALSE;                        \
-      _accel_handler();                                         \
-    }                                                           \
-    if (imu_xsens.gyro_available) {                             \
-      imu_xsens.gyro_available = FALSE;                         \
-      _gyro_handler();                                          \
-    }                                                           \
-    if (imu_xsens.mag_available) {                              \
-      imu_xsens.mag_available = FALSE;                          \
-      _mag_handler();                                           \
-    }                                                           \
-  }
+#define ImuEvent() {}
 #endif /* USE_IMU */
 
 

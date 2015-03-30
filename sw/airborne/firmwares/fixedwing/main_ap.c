@@ -135,17 +135,12 @@ PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 
 
 #if USE_IMU
-
 #ifdef AHRS_PROPAGATE_FREQUENCY
 #if (AHRS_PROPAGATE_FREQUENCY > PERIODIC_FREQUENCY)
 #warning "PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY"
 INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY to at least ", AHRS_PROPAGATE_FREQUENCY)
 #endif
 #endif
-
-static inline void on_gyro_event(void);
-static inline void on_accel_event(void);
-static inline void on_mag_event(void);
 #endif // USE_IMU
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
@@ -675,7 +670,7 @@ void event_task_ap(void)
 #endif /* SINGLE_MCU */
 
 #if USE_IMU
-  ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
+  ImuEvent();
 #endif
 
 #ifdef InsEvent
@@ -715,53 +710,3 @@ void event_task_ap(void)
 
 } /* event_task_ap() */
 
-
-#if USE_IMU
-static inline void on_accel_event(void)
-{
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  imu_scale_accel(&imu);
-
-  AbiSendMsgIMU_ACCEL_INT32(1, now_ts, &imu.accel);
-}
-
-static inline void on_gyro_event(void)
-{
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  imu_scale_gyro(&imu);
-
-  AbiSendMsgIMU_GYRO_INT32(1, now_ts, &imu.gyro_prev);
-
-#if USE_AHRS_ALIGNER
-  if (ahrs_aligner.status != AHRS_ALIGNER_LOCKED) {
-    ahrs_aligner_run();
-    return;
-  }
-#endif
-
-#if defined SITL && USE_NPS
-  if (nps_bypass_ahrs) { sim_overwrite_ahrs(); }
-#endif
-
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-  new_ins_attitude = 1;
-#endif
-
-}
-
-static inline void on_mag_event(void)
-{
-#if USE_MAGNETOMETER
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  imu_scale_mag(&imu);
-  AbiSendMsgIMU_MAG_INT32(1, now_ts, &imu.mag);
-#endif
-}
-
-#endif // USE_IMU

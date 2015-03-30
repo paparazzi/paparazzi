@@ -21,6 +21,8 @@
 
 #include <inttypes.h>
 
+#define ABI_C
+
 #ifdef BOARD_CONFIG
 #include BOARD_CONFIG
 #endif
@@ -33,15 +35,24 @@
 #include "subsystems/datalink/downlink.h"
 
 #include "subsystems/imu.h"
+#include "subsystems/abi.h"
 
+static abi_event gyro_ev;
+static abi_event accel_ev;
+static abi_event mag_ev;
+static void gyro_cb(uint8_t sender_id __attribute__((unused)),
+                    uint32_t stamp __attribute__((unused)),
+                    struct Int32Rates *gyro);
+static void accel_cb(uint8_t sender_id __attribute__((unused)),
+                     uint32_t stamp __attribute__((unused)),
+                     struct Int32Vect3 *accel);
+static void mag_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct Int32Vect3 *mag);
 
 static inline void main_init(void);
 static inline void main_periodic_task(void);
 static inline void main_event_task(void);
-
-static inline void on_gyro_event(void);
-static inline void on_accel_event(void);
-static inline void on_mag_event(void);
 
 int main(void)
 {
@@ -67,6 +78,10 @@ static inline void main_init(void)
   mcu_int_enable();
 
   downlink_init();
+
+  AbiBindMsgIMU_GYRO_INT32(0, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL_INT32(0, &accel_ev, accel_cb);
+  AbiBindMsgIMU_MAG_INT32(0, &mag_ev, mag_cb);
 }
 
 static inline void led_toggle(void)
@@ -117,13 +132,13 @@ static inline void main_periodic_task(void)
 static inline void main_event_task(void)
 {
   mcu_event();
-  ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
+  ImuEvent();
 }
 
-static inline void on_accel_event(void)
+static void accel_cb(uint8_t sender_id __attribute__((unused)),
+                     uint32_t stamp __attribute__((unused)),
+                     struct Int32Vect3 *accel)
 {
-  imu_scale_accel(&imu);
-
   RunOnceEvery(50, LED_TOGGLE(3));
   static uint8_t cnt;
   cnt++;
@@ -135,16 +150,16 @@ static inline void on_accel_event(void)
                                 &imu.accel_unscaled.z);
   } else if (cnt == 7) {
     DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
-                                   &imu.accel.x,
-                                   &imu.accel.y,
-                                   &imu.accel.z);
+                                   &accel->x,
+                                   &accel->y,
+                                   &accel->z);
   }
 }
 
-static inline void on_gyro_event(void)
+static void gyro_cb(uint8_t sender_id __attribute__((unused)),
+                    uint32_t stamp __attribute__((unused)),
+                    struct Int32Rates *gyro)
 {
-  imu_scale_gyro(&imu);
-
   RunOnceEvery(50, LED_TOGGLE(2));
   static uint8_t cnt;
   cnt++;
@@ -157,25 +172,26 @@ static inline void on_gyro_event(void)
                                &imu.gyro_unscaled.r);
   } else if (cnt == 7) {
     DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
-                                  &imu.gyro.p,
-                                  &imu.gyro.q,
-                                  &imu.gyro.r);
+                                  &gyro->p,
+                                  &gyro->q,
+                                  &gyro->r);
   }
 }
 
 
-static inline void on_mag_event(void)
+static void mag_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct Int32Vect3 *mag)
 {
-  imu_scale_mag(&imu);
   static uint8_t cnt;
   cnt++;
   if (cnt > 10) { cnt = 0; }
 
   if (cnt == 0) {
     DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
-                                 &imu.mag.x,
-                                 &imu.mag.y,
-                                 &imu.mag.z);
+                                 &mag->x,
+                                 &mag->y,
+                                 &mag->z);
   } else if (cnt == 5) {
     DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
                               &imu.mag_unscaled.x,

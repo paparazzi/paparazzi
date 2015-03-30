@@ -415,25 +415,44 @@ void handle_ins_msg(void)
 #endif
 
 #if USE_IMU
+  uint32_t now_ts = get_sys_time_usec();
 #ifdef XSENS_BACKWARDS
   if (imu_xsens.gyro_available) {
     RATES_ASSIGN(imu.gyro_unscaled, -RATE_BFP_OF_REAL(ins_p), -RATE_BFP_OF_REAL(ins_q), RATE_BFP_OF_REAL(ins_r));
+     imu_xsens.gyro_available = FALSE;
+     imu_scale_gyro(&imu);
+     AbiSendMsgIMU_GYRO_INT32(IMU_XSENS_ID, now_ts, &imu.gyro);
   }
   if (imu_xsens.accel_available) {
     VECT3_ASSIGN(imu.accel_unscaled, -ACCEL_BFP_OF_REAL(ins_ax), -ACCEL_BFP_OF_REAL(ins_ay), ACCEL_BFP_OF_REAL(ins_az));
+    imu_xsens.accel_available = FALSE;
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_XSENS_ID, now_ts, &imu.accel);
   }
   if (imu_xsens.mag_available) {
     VECT3_ASSIGN(imu.mag_unscaled, -MAG_BFP_OF_REAL(ins_mx), -MAG_BFP_OF_REAL(ins_my), MAG_BFP_OF_REAL(ins_mz));
+    imu_xsens.mag_available = FALSE;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_XSENS_ID, now_ts, &imu.mag);
   }
 #else
   if (imu_xsens.gyro_available) {
     RATES_ASSIGN(imu.gyro_unscaled, RATE_BFP_OF_REAL(ins_p), RATE_BFP_OF_REAL(ins_q), RATE_BFP_OF_REAL(ins_r));
+    imu_xsens.gyro_available = FALSE;
+    imu_scale_gyro(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_XSENS_ID, now_ts, &imu.gyro);
   }
   if (imu_xsens.accel_available) {
     VECT3_ASSIGN(imu.accel_unscaled, ACCEL_BFP_OF_REAL(ins_ax), ACCEL_BFP_OF_REAL(ins_ay), ACCEL_BFP_OF_REAL(ins_az));
+    imu_xsens.accel_available = FALSE;
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_XSENS_ID, now_ts, &imu.accel);
   }
   if (imu_xsens.mag_available) {
     VECT3_ASSIGN(imu.mag_unscaled, MAG_BFP_OF_REAL(ins_mx), MAG_BFP_OF_REAL(ins_my), MAG_BFP_OF_REAL(ins_mz));
+    imu_xsens.mag_available = FALSE;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_XSENS_ID, now_ts, &imu.mag);
   }
 #endif /* XSENS_BACKWARDS */
 #endif /* USE_IMU */

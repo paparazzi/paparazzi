@@ -59,22 +59,6 @@ extern void imu_aspirin_event(void);
 extern void imu_aspirin_arch_init(void);
 #endif
 
-
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  imu_aspirin_event();
-  if (imu_aspirin.gyro_valid) {
-    imu_aspirin.gyro_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_aspirin.accel_valid) {
-    imu_aspirin.accel_valid = FALSE;
-    _accel_handler();
-  }
-  if (imu_aspirin.mag_valid) {
-    imu_aspirin.mag_valid = FALSE;
-    _mag_handler();
-  }
-}
+#define ImuEvent imu_aspirin_event
 
 #endif /* IMU_ASPIRIN_H */
