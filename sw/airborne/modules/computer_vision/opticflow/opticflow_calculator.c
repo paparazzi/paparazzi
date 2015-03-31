@@ -40,11 +40,26 @@
 #include "lib/vision/lucas_kanade.h"
 #include "lib/vision/fast_rosten.h"
 
-// ARDrone Vertical Camera Parameters
-#define FOV_H 0.67020643276
-#define FOV_W 0.89360857702
-#define Fx_ARdrone 343.1211
-#define Fy_ARdrone 348.5053
+// Camera parameters (defaults are from an ARDrone 2)
+#ifndef OPTICFLOW_FOV_W
+#define OPTICFLOW_FOV_W 0.89360857702
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_FOV_W);
+
+#ifndef OPTICFLOW_FOV_H
+#define OPTICFLOW_FOV_H 0.67020643276
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_FOV_H);
+
+#ifndef OPTICFLOW_FX
+#define OPTICFLOW_FX 343.1211
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_FX);
+
+#ifndef OPTICFLOW_FY
+#define OPTICFLOW_FY 348.5053
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_FY);
 
 /* Set the default values */
 #ifndef OPTICFLOW_MAX_TRACK_CORNERS
@@ -208,16 +223,16 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   }
 
   // Flow Derotation
-  float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / FOV_W;
-  float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / FOV_H;
+  float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
+  float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;
   result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor;
   result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor;
   opticflow->prev_phi = state->phi;
   opticflow->prev_theta = state->theta;
 
   // Velocity calculation
-  result->vel_x = -result->flow_der_x * result->fps / opticflow->subpixel_factor * img->w / Fx_ARdrone;
-  result->vel_y =  result->flow_der_y * result->fps / opticflow->subpixel_factor * img->h / Fy_ARdrone;
+  result->vel_x = -result->flow_der_x * result->fps / opticflow->subpixel_factor * img->w / OPTICFLOW_FX;
+  result->vel_y =  result->flow_der_y * result->fps / opticflow->subpixel_factor * img->h / OPTICFLOW_FY;
 
   // *************************************************************************************
   // Next Loop Preparation

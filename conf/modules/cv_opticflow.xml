@@ -3,15 +3,14 @@
 <module name="cv_opticflow" dir="computer_vision">
   <doc>
     <description>
-        Compute Optic Flow from Ardrone2 Bottom Camera
+        Hovers the drone based on optical flow made for Linux video Devices.
 
-        Computes Pitch- and rollrate corrected optic flow from downward looking
-        ARDrone2 camera looking at a textured floor.
-
+        Computes Pitch- and roll attide from downward looking camera looking at a textured floor.
         - Sonar is required.
         - Controller can hold position
     </description>
 
+    <!-- Satbilization parameters and gains -->
     <section name="VISION" prefix="VISION_">
       <define name="PHI_PGAIN" value="400" description="Optic flow proportional gain on the roll velocity error"/>
       <define name="PHI_IGAIN" value="20" description="Optic flow integrated gain on the summed roll velocity error"/>
@@ -21,14 +20,30 @@
       <define name="DESIRED_VY" value="0" description="The desired velocity in the body frame y direction"/>
     </section>
 
+    <!-- Optical flow calculation parameters -->
     <section name="OPTICFLOW" prefix="OPTICFLOW_">
       <define name="AGL_ID" value="ABI_SENDER_ID" description="ABI sender id for AGL message (sonar measurement) (default: ABI_BROADCAST)"/>
+
+      <!-- Video device parameters -->
+      <define name="DEVICE" value="/dev/video2" description="The V4L2 camera device that is used for the calculations"/>
+      <define name="DEVICE_SIZE" value="320,240" description="The V4L2 camera device width and height"/>
+      <define name="DEVICE_BUFFERS" value="15" description="Amount of V4L2 video buffers"/>
+      <define name="SUBDEV" description="The V4L2 subdevice to initialize before the main device"/>
+
+      <!-- Camera parameters -->
+      <define name="FOV_W" value="0.89360857702" description="The field of view width of the bottom camera (Defaults are from an ARDrone 2)"/>
+      <define name="FOV_H" value="0.67020643276" description="The field of view height of the bottom camera (Defaults are from an ARDrone 2)"/>
+      <define name="FX" value="343.1211" description="Field in the x direction of the camera (Defaults are from an ARDrone 2)"/>
+      <define name="FY" value="348.5053" description="Field in the y direction of the camera (Defaults are from an ARDrone 2)"/>
+
+      <!-- Lucas Kanade optical flow calculation parameters -->
       <define name="MAX_TRACK_CORNERS" value="25" description="The maximum amount of corners the Lucas Kanade algorithm is tracking between two frames"/>
       <define name="WINDOW_SIZE" value="10" description="Window size used in Lucas Kanade algorithm"/>
       <define name="SUBPIXEL_FACTOR" value="10" description="Amount of subpixels per pixel, used for more precise (subpixel) calculations of the flow"/>
       <define name="MAX_ITERATIONS" value="10" description="Maximum number of iterations the Lucas Kanade algorithm should take"/>
       <define name="THRESHOLD_VEC" value="2" description="TThreshold in subpixels when the iterations of Lucas Kanade should stop"/>
 
+      <!-- FAST9 corner detection parameters -->
       <define name="FAST9_ADAPTIVE" value="TRUE" description="Whether we should use and adapative FAST9 crner detection threshold"/>
       <define name="FAST9_THRESHOLD" value="20" description="FAST9 default threshold"/>
       <define name="FAST9_MIN_DISTANCE" value="10" description="The amount of pixels between corners that should be detected"/>
@@ -37,6 +52,7 @@
 
   <settings>
 	  <dl_settings NAME="Vision stabilization">
+      <!-- Satabilization loop parameters and gains -->
       <dl_settings name="vision_stab">
         <dl_setting var="opticflow_stab.phi_pgain" module="computer_vision/opticflow_module" min="0" step="1" max="10000" shortname="kp_v_phi" param="VISION_PHI_PGAIN"/>
         <dl_setting var="opticflow_stab.phi_igain" module="computer_vision/opticflow_module" min="0" step="1" max="1000" shortname="ki_v_phi" param="VISION_PHI_IGAIN"/>
@@ -46,6 +62,7 @@
         <dl_setting var="opticflow_stab.desired_vy" module="computer_vision/opticflow_module" min="-5" step="0.01" max="5" shortname="desired_vy" param="VISION_DESIRED_VY"/>
       </dl_settings>
 
+      <!-- Optical flow calculations parameters for Lucas Kanade and FAST9 -->
       <dl_settings name="vision_calc">
         <dl_setting var="opticflow.max_track_corners" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="max_trck_corners" param="OPTICFLOW_MAX_TRACK_CORNERS"/>
         <dl_setting var="opticflow.window_size" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="window_size" param="OPTICFLOW_WINDOW_SIZE"/>
