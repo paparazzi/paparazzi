@@ -13,24 +13,49 @@
     </description>
 
     <section name="VISION" prefix="VISION_">
-      <define name="PHI_PGAIN" value="500" description="optic flow pgain"/>
-      <define name="PHI_IGAIN" value="10" description="optic flow igain"/>
-      <define name="THETA_PGAIN" value="500" description="optic flow pgain"/>
-      <define name="THETA_IGAIN" value="10" description="optic flow igain"/>
-      <define name="DESIRED_VX" value="0" description="feedforward optic flow vx"/>
-      <define name="DESIRED_VY" value="0" description="feedforward optic flow vy"/>
+      <define name="PHI_PGAIN" value="400" description="Optic flow proportional gain on the roll velocity error"/>
+      <define name="PHI_IGAIN" value="20" description="Optic flow integrated gain on the summed roll velocity error"/>
+      <define name="THETA_PGAIN" value="400" description="Optic flow proportional gain on the pitch velocity error"/>
+      <define name="THETA_IGAIN" value="20" description="Optic flow integrated gain on the summed pitch velocity error"/>
+      <define name="DESIRED_VX" value="0" description="The desired velocity in the body frame x direction"/>
+      <define name="DESIRED_VY" value="0" description="The desired velocity in the body frame y direction"/>
     </section>
-    <define name="OPTICFLOW_AGL_ID" value="ABI_SENDER_ID" description="ABI sender id for AGL message (sonar measurement) (default: ABI_BROADCAST)"/>
+
+    <section name="OPTICFLOW" prefix="OPTICFLOW_">
+      <define name="AGL_ID" value="ABI_SENDER_ID" description="ABI sender id for AGL message (sonar measurement) (default: ABI_BROADCAST)"/>
+      <define name="MAX_TRACK_CORNERS" value="25" description="The maximum amount of corners the Lucas Kanade algorithm is tracking between two frames"/>
+      <define name="WINDOW_SIZE" value="10" description="Window size used in Lucas Kanade algorithm"/>
+      <define name="SUBPIXEL_FACTOR" value="10" description="Amount of subpixels per pixel, used for more precise (subpixel) calculations of the flow"/>
+      <define name="MAX_ITERATIONS" value="10" description="Maximum number of iterations the Lucas Kanade algorithm should take"/>
+      <define name="THRESHOLD_VEC" value="2" description="TThreshold in subpixels when the iterations of Lucas Kanade should stop"/>
+
+      <define name="FAST9_ADAPTIVE" value="TRUE" description="Whether we should use and adapative FAST9 crner detection threshold"/>
+      <define name="FAST9_THRESHOLD" value="20" description="FAST9 default threshold"/>
+      <define name="FAST9_MIN_DISTANCE" value="10" description="The amount of pixels between corners that should be detected"/>
+    </section>
   </doc>
+
   <settings>
-	  <dl_settings NAME="Vision Loop">
-      <dl_settings name="vision">
+	  <dl_settings NAME="Vision stabilization">
+      <dl_settings name="vision_stab">
         <dl_setting var="opticflow_stab.phi_pgain" module="computer_vision/opticflow_module" min="0" step="1" max="10000" shortname="kp_v_phi" param="VISION_PHI_PGAIN"/>
         <dl_setting var="opticflow_stab.phi_igain" module="computer_vision/opticflow_module" min="0" step="1" max="1000" shortname="ki_v_phi" param="VISION_PHI_IGAIN"/>
         <dl_setting var="opticflow_stab.theta_pgain" module="computer_vision/opticflow_module" min="0" step="1" max="10000" shortname="kp_v_theta" param="VISION_THETA_PGAIN"/>
         <dl_setting var="opticflow_stab.theta_igain" module="computer_vision/opticflow_module" min="0" step="1" max="1000" shortname="ki_v_theta" param="VISION_THETA_IGAIN"/>
         <dl_setting var="opticflow_stab.desired_vx" module="computer_vision/opticflow_module" min="-5" step="0.01" max="5" shortname="desired_vx" param="VISION_DESIRED_VX"/>
         <dl_setting var="opticflow_stab.desired_vy" module="computer_vision/opticflow_module" min="-5" step="0.01" max="5" shortname="desired_vy" param="VISION_DESIRED_VY"/>
+      </dl_settings>
+
+      <dl_settings name="vision_calc">
+        <dl_setting var="opticflow.max_track_corners" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="max_trck_corners" param="OPTICFLOW_MAX_TRACK_CORNERS"/>
+        <dl_setting var="opticflow.window_size" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="window_size" param="OPTICFLOW_WINDOW_SIZE"/>
+        <dl_setting var="opticflow.subpixel_factor" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="subpixel_factor" param="OPTICFLOW_SUBPIXEL_FACTOR"/>
+        <dl_setting var="opticflow.max_iterations" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="max_iterations" param="OPTICFLOW_MAX_ITERATIONS"/>
+        <dl_setting var="opticflow.threshold_vec" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="threshold_vec" param="OPTICFLOW_THRESHOLD_VEC"/>
+
+        <dl_setting var="opticflow.fast9_adaptive" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="TRUE|FALSE" shortname="fast9_adaptive" param="OPTICFLOW_FAST9_ADAPTIVE"/>
+        <dl_setting var="opticflow.fast9_threshold" module="computer_vision/opticflow_module" min="0" step="1" max="255" shortname="fast9_threshold" param="OPTICFLOW_FAST9_THRESHOLD"/>
+        <dl_setting var="opticflow.fast9_min_distance" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="fast9_min_distance" param="OPTICFLOW_FAST9_MIN_DISTANCE"/>
       </dl_settings>
     </dl_settings>
   </settings>

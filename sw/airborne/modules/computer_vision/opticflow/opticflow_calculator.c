@@ -46,6 +46,47 @@
 #define Fx_ARdrone 343.1211
 #define Fy_ARdrone 348.5053
 
+/* Set the default values */
+#ifndef OPTICFLOW_MAX_TRACK_CORNERS
+#define OPTICFLOW_MAX_TRACK_CORNERS 25
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_MAX_TRACK_CORNERS);
+
+#ifndef OPTICFLOW_WINDOW_SIZE
+#define OPTICFLOW_WINDOW_SIZE 10
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_WINDOW_SIZE);
+
+#ifndef OPTICFLOW_SUBPIXEL_FACTOR
+#define OPTICFLOW_SUBPIXEL_FACTOR 10
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_SUBPIXEL_FACTOR);
+
+#ifndef OPTICFLOW_MAX_ITERATIONS
+#define OPTICFLOW_MAX_ITERATIONS 10
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_MAX_ITERATIONS);
+
+#ifndef OPTICFLOW_THRESHOLD_VEC
+#define OPTICFLOW_THRESHOLD_VEC 2
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_THRESHOLD_VEC);
+
+#ifndef OPTICFLOW_FAST9_ADAPTIVE
+#define OPTICFLOW_FAST9_ADAPTIVE TRUE
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_FAST9_ADAPTIVE);
+
+#ifndef OPTICFLOW_FAST9_THRESHOLD
+#define OPTICFLOW_FAST9_THRESHOLD 20
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_FAST9_THRESHOLD);
+
+#ifndef OPTICFLOW_FAST9_MIN_DISTANCE
+#define OPTICFLOW_FAST9_MIN_DISTANCE 10
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_FAST9_MIN_DISTANCE);
+
 /* Functions only used here */
 static uint32_t timeval_diff(struct timeval *starttime, struct timeval *finishtime);
 static int cmp_flow(const void *a, const void *b);
@@ -66,6 +107,17 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->got_first_img = FALSE;
   opticflow->prev_phi = 0.0;
   opticflow->prev_theta = 0.0;
+
+  /* Set the default values */
+  opticflow->max_track_corners = OPTICFLOW_MAX_TRACK_CORNERS;
+  opticflow->window_size = OPTICFLOW_WINDOW_SIZE;
+  opticflow->subpixel_factor = OPTICFLOW_SUBPIXEL_FACTOR;
+  opticflow->max_iterations = OPTICFLOW_MAX_ITERATIONS;
+  opticflow->threshold_vec = OPTICFLOW_THRESHOLD_VEC;
+
+  opticflow->fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE;
+  opticflow->fast9_threshold = OPTICFLOW_FAST9_THRESHOLD;
+  opticflow->fast9_min_distance = OPTICFLOW_FAST9_MIN_DISTANCE;
 }
 
 /**
@@ -95,14 +147,18 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // *************************************************************************************
 
   // FAST corner detection (TODO: non fixed threashold)
-  static uint8_t threshold = 20;
-  struct point_t *corners = fast9_detect(img, threshold, 10, 20, 20, &result->corner_cnt);
+  struct point_t *corners = fast9_detect(img, opticflow->fast9_threshold, opticflow->fast9_min_distance,
+    20, 20, &result->corner_cnt);
 
   // Adaptive threshold
-  if(result->corner_cnt < 40 && threshold > 5)
-    threshold--;
-  else if(result->corner_cnt > 50 && threshold < 60)
-    threshold++;
+  if(opticflow->fast9_adaptive) {
+
+    // Decrease and increase the threshold based on previous values
+    if(result->corner_cnt < 40 && opticflow->fast9_threshold > 5)
+      opticflow->fast9_threshold--;
+    else if(result->corner_cnt > 50 && opticflow->fast9_threshold < 60)
+      opticflow->fast9_threshold++;
+  }
 
 #if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_CORNERS
   image_show_points(img, corners, result->corner_cnt);
@@ -119,18 +175,14 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // Corner Tracking
   // *************************************************************************************
 
-#define MAX_TRACK_CORNERS 25
-#define HALF_WINDOW_SIZE 5
-#define SUBPIXEL_FACTOR 10
-#define MAX_ITERATIONS 10
-#define THRESHOLD_VEC 2
   // Execute a Lucas Kanade optical flow
   result->tracked_cnt = result->corner_cnt;
   struct flow_t *vectors = opticFlowLK(&opticflow->img_gray, &opticflow->prev_img_gray, corners, &result->tracked_cnt,
-    HALF_WINDOW_SIZE, SUBPIXEL_FACTOR, MAX_ITERATIONS, THRESHOLD_VEC, MAX_TRACK_CORNERS);
+    opticflow->window_size/2, opticflow->subpixel_factor, opticflow->max_iterations,
+    opticflow->threshold_vec, opticflow->max_track_corners);
 
 #if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_FLOW
-  image_show_flow(img, vectors, result->tracked_cnt, SUBPIXEL_FACTOR);
+  image_show_flow(img, vectors, result->tracked_cnt, opticflow->subpixel_factor);
 #endif
 
   // Get the median flow
@@ -158,14 +210,14 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // Flow Derotation
   float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / FOV_W;
   float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / FOV_H;
-  result->flow_der_x = result->flow_x - diff_flow_x * SUBPIXEL_FACTOR;
-  result->flow_der_y = result->flow_y - diff_flow_y * SUBPIXEL_FACTOR;
+  result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor;
+  result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor;
   opticflow->prev_phi = state->phi;
   opticflow->prev_theta = state->theta;
 
   // Velocity calculation
-  result->vel_x = -result->flow_der_x * result->fps / SUBPIXEL_FACTOR * img->w / Fx_ARdrone;
-  result->vel_y =  result->flow_der_y * result->fps / SUBPIXEL_FACTOR * img->h / Fy_ARdrone;
+  result->vel_x = -result->flow_der_x * result->fps / opticflow->subpixel_factor * img->w / Fx_ARdrone;
+  result->vel_y =  result->flow_der_y * result->fps / opticflow->subpixel_factor * img->h / Fy_ARdrone;
 
   // *************************************************************************************
   // Next Loop Preparation

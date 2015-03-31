@@ -64,7 +64,7 @@ PRINT_CONFIG_MSG("OPTICFLOW_DEVICE_SIZE = " _SIZE_HELPER(OPTICFLOW_DEVICE_SIZE))
 PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE_BUFFERS);
 
 /* The main opticflow variables */
-static struct opticflow_t opticflow;                //< Opticflow calculations
+struct opticflow_t opticflow;                       //< Opticflow calculations
 static struct opticflow_result_t opticflow_result;  //< The opticflow result
 static struct opticflow_state_t opticflow_state;    //< State of the drone to communicate with the opticflow
 static struct v4l2_device *opticflow_dev;           //< The opticflow camera V4L2 device
