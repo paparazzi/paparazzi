@@ -302,74 +302,72 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 #if USE_GPS
 void ins_int_update_gps(struct GpsState *gps_s)
 {
-  if (gps_s->fix == GPS_FIX_3D) {
-    if (!ins_int.ltp_initialized) {
-      ltp_def_from_ecef_i(&ins_int.ltp_def, &gps_s->ecef_pos);
-      ins_int.ltp_def.lla.alt = gps_s->lla_pos.alt;
-      ins_int.ltp_def.hmsl = gps_s->hmsl;
-      ins_int.ltp_initialized = TRUE;
-      stateSetLocalOrigin_i(&ins_int.ltp_def);
-    }
+  if (gps_s->fix != GPS_FIX_3D) {
+    return;
+  }
 
-    struct NedCoor_i gps_pos_cm_ned;
-    ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_int.ltp_def, &gps_s->ecef_pos);
+  if (!ins_int.ltp_initialized) {
+    ins_reset_local_origin();
+  }
 
-    /* calculate body frame position taking BODY_TO_GPS translation (in cm) into account */
+  struct NedCoor_i gps_pos_cm_ned;
+  ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_int.ltp_def, &gps_s->ecef_pos);
+
+  /* calculate body frame position taking BODY_TO_GPS translation (in cm) into account */
 #ifdef INS_BODY_TO_GPS_X
-    /* body2gps translation in body frame */
-    struct Int32Vect3 b2g_b = {
-      .x = INS_BODY_TO_GPS_X,
-      .y = INS_BODY_TO_GPS_Y,
-      .z = INS_BODY_TO_GPS_Z
-    };
-    /* rotate offset given in body frame to navigation/ltp frame using current attitude */
-    struct Int32Quat q_b2n;
-    memcpy(&q_b2n, stateGetNedToBodyQuat_i(), sizeof(struct Int32Quat));
-    QUAT_INVERT(q_b2n, q_b2n);
-    struct Int32Vect3 b2g_n;
-    int32_quat_vmult(&b2g_n, &q_b2n, &b2g_b);
-    /* subtract body2gps translation in ltp from gps position */
-    VECT3_SUB(gps_pos_cm_ned, b2g_n);
+  /* body2gps translation in body frame */
+  struct Int32Vect3 b2g_b = {
+    .x = INS_BODY_TO_GPS_X,
+    .y = INS_BODY_TO_GPS_Y,
+    .z = INS_BODY_TO_GPS_Z
+  };
+  /* rotate offset given in body frame to navigation/ltp frame using current attitude */
+  struct Int32Quat q_b2n;
+  memcpy(&q_b2n, stateGetNedToBodyQuat_i(), sizeof(struct Int32Quat));
+  QUAT_INVERT(q_b2n, q_b2n);
+  struct Int32Vect3 b2g_n;
+  int32_quat_vmult(&b2g_n, &q_b2n, &b2g_b);
+  /* subtract body2gps translation in ltp from gps position */
+  VECT3_SUB(gps_pos_cm_ned, b2g_n);
 #endif
 
-    /// @todo maybe use gps_s->ned_vel directly??
-    struct NedCoor_i gps_speed_cm_s_ned;
-    ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_int.ltp_def, &gps_s->ecef_vel);
+  /// @todo maybe use gps_s->ned_vel directly??
+  struct NedCoor_i gps_speed_cm_s_ned;
+  ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_int.ltp_def, &gps_s->ecef_vel);
 
 #if INS_USE_GPS_ALT
-    vff_update_z_conf((float)gps_pos_cm_ned.z / 100.0, INS_VFF_R_GPS);
+  vff_update_z_conf((float)gps_pos_cm_ned.z / 100.0, INS_VFF_R_GPS);
 #endif
 
 #if USE_HFF
-    /* horizontal gps transformed to NED in meters as float */
-    struct FloatVect2 gps_pos_m_ned;
-    VECT2_ASSIGN(gps_pos_m_ned, gps_pos_cm_ned.x, gps_pos_cm_ned.y);
-    VECT2_SDIV(gps_pos_m_ned, gps_pos_m_ned, 100.0f);
+  /* horizontal gps transformed to NED in meters as float */
+  struct FloatVect2 gps_pos_m_ned;
+  VECT2_ASSIGN(gps_pos_m_ned, gps_pos_cm_ned.x, gps_pos_cm_ned.y);
+  VECT2_SDIV(gps_pos_m_ned, gps_pos_m_ned, 100.0f);
 
-    struct FloatVect2 gps_speed_m_s_ned;
-    VECT2_ASSIGN(gps_speed_m_s_ned, gps_speed_cm_s_ned.x, gps_speed_cm_s_ned.y);
-    VECT2_SDIV(gps_speed_m_s_ned, gps_speed_m_s_ned, 100.);
+  struct FloatVect2 gps_speed_m_s_ned;
+  VECT2_ASSIGN(gps_speed_m_s_ned, gps_speed_cm_s_ned.x, gps_speed_cm_s_ned.y);
+  VECT2_SDIV(gps_speed_m_s_ned, gps_speed_m_s_ned, 100.);
 
-    if (ins_int.hf_realign) {
-      ins_int.hf_realign = FALSE;
-      const struct FloatVect2 zero = {0.0f, 0.0f};
-      b2_hff_realign(gps_pos_m_ned, zero);
-    }
-    // run horizontal filter
-    b2_hff_update_gps(&gps_pos_m_ned, &gps_speed_m_s_ned);
-    // convert and copy result to ins_int
-    ins_update_from_hff();
+  if (ins_int.hf_realign) {
+    ins_int.hf_realign = FALSE;
+    const struct FloatVect2 zero = {0.0f, 0.0f};
+    b2_hff_realign(gps_pos_m_ned, zero);
+  }
+  // run horizontal filter
+  b2_hff_update_gps(&gps_pos_m_ned, &gps_speed_m_s_ned);
+  // convert and copy result to ins_int
+  ins_update_from_hff();
 
 #else  /* hff not used */
-    /* simply copy horizontal pos/speed from gps */
-    INT32_VECT2_SCALE_2(ins_int.ltp_pos, gps_pos_cm_ned,
-                        INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
-    INT32_VECT2_SCALE_2(ins_int.ltp_speed, gps_speed_cm_s_ned,
-                        INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
+  /* simply copy horizontal pos/speed from gps */
+  INT32_VECT2_SCALE_2(ins_int.ltp_pos, gps_pos_cm_ned,
+                      INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
+  INT32_VECT2_SCALE_2(ins_int.ltp_speed, gps_speed_cm_s_ned,
+                      INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
 #endif /* USE_HFF */
 
-    ins_ned_to_state();
-  }
+  ins_ned_to_state();
 }
 #else
 void ins_int_update_gps(struct GpsState *gps_s __attribute__((unused))) {}
