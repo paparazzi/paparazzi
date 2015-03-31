@@ -43,6 +43,26 @@
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_AGL_ID);
 
+/* The video device */
+#ifndef OPTICFLOW_DEVICE
+#define OPTICFLOW_DEVICE /dev/video2
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_DEVICE);
+
+/* The video device size (width, height) */
+#ifndef OPTICFLOW_DEVICE_SIZE
+#define OPTICFLOW_DEVICE_SIZE 320,240
+#endif
+#define __SIZE_HELPER(x, y) #x", "#y
+#define _SIZE_HELPER(x) __SIZE_HELPER(x)
+PRINT_CONFIG_MSG("OPTICFLOW_DEVICE_SIZE = " _SIZE_HELPER(OPTICFLOW_DEVICE_SIZE));
+
+/* The video device buffers (the amount of V4L2 buffers) */
+#ifndef OPTICFLOW_DEVICE_BUFFERS
+#define OPTICFLOW_DEVICE_BUFFERS 15
+#endif
+PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE_BUFFERS);
+
 /* The main opticflow variables */
 static struct opticflow_t opticflow;                //< Opticflow calculations
 static struct opticflow_result_t opticflow_result;  //< The opticflow result
@@ -75,9 +95,19 @@ void opticflow_module_init(void)
   opticflow_calc_init(&opticflow, 320, 240);
   opticflow_got_result = FALSE;
 
+#ifdef OPTICFLOW_SUBDEV
+  PRINT_CONFIG_MSG("[opticflow_module] Configuring a subdevice!");
+  PRINT_CONFIG_VAR(OPTICFLOW_SUBDEV);
+
+  /* Initialize the V4L2 subdevice (TODO: fix hardcoded path, which and code) */
+  if (!v4l2_init_subdev(STRINGIFY(OPTICFLOW_SUBDEV), 0, 1, V4L2_MBUS_FMT_UYVY8_2X8, OPTICFLOW_DEVICE_SIZE)) {
+    printf("[opticflow_module] Could not initialize the %s subdevice.\n", STRINGIFY(OPTICFLOW_SUBDEV));
+    return;
+  }
+#endif
+
   /* Try to initialize the video device */
-  //v4l2_init_subdev("/dev/v4l-subdev0", 0, 1, V4L2_MBUS_FMT_UYVY8_2X8, 320, 240);
-  opticflow_dev = v4l2_init("/dev/video2", 320, 240, 60); //TODO: Fix defines
+  opticflow_dev = v4l2_init(STRINGIFY(OPTICFLOW_DEVICE), OPTICFLOW_DEVICE_SIZE, OPTICFLOW_DEVICE_BUFFERS);
   if (opticflow_dev == NULL) {
     printf("[opticflow_module] Could not initialize the video device\n");
   }
