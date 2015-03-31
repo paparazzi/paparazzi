@@ -5,6 +5,7 @@
  * Michal Podhradsky (michal.podhradsky@aggiemail.usu.edu)
  * Calvin Coopmans (c.r.coopmans@ieee.org)
  *
+ * Copyright (C) 2015 Gautier Hattenberger, Alexandre Bustico
  *
  * This file is part of paparazzi.
  *
@@ -35,46 +36,235 @@
 
 #include BOARD_CONFIG
 
+#include "ch.h"
 #include "hal.h"
 
 #include "led.h"
 
+// Timeout for I2C transaction
+static const systime_t tmo = US2ST(1000000/PERIODIC_FREQUENCY);
+
+/**
+ * main thread function
+ *
+ *  @param[in] p pointer to an i2c peripheral
+ */
+static void handle_i2c_thd(struct i2c_periph *p)
+{
+  if (p->trans_insert_idx == p->trans_extract_idx) {
+    p->status = I2CIdle;
+    // no transaction pending
+    return;
+  }
+  Mutex *mtx = (Mutex*)p->init_struct;
+
+  chMtxLock(mtx);
+  // Get next transation in queue
+  struct i2c_transaction *t = p->trans[p->trans_extract_idx];
+  chMtxUnlock();
+
+  // acquire bus
+  //i2cAcquireBus((I2CDriver*)p->reg_addr);
+
+  // if bus not ready return
+  if (((I2CDriver*)p->reg_addr)->state !=  I2C_READY) {
+    t->status = I2CTransFailed;
+    t->buf[0] = 0; // to show zero value on return
+    //i2cReleaseBus((I2CDriver*)p->reg_addr);
+    // transaction not submitted
+    p->status = I2CIdle;
+    return;
+  }
+
+  p->status = I2CStartRequested;
+  // submit i2c transaction
+  msg_t status = i2cMasterTransmitTimeout(
+      (I2CDriver*)p->reg_addr,
+      (i2caddr_t)((t->slave_addr)>>1),
+      (uint8_t*)t->buf, (size_t)(t->len_w),
+      (uint8_t*)t->buf, (size_t)(t->len_r),
+      tmo);
+  // release bus
+  //i2cReleaseBus((I2CDriver*)p->reg_addr);
+
+  chMtxLock(mtx);
+  // end of transaction, handle fifo
+  p->trans_extract_idx++;
+  if (p->trans_extract_idx >= I2C_TRANSACTION_QUEUE_LEN) {
+    p->trans_extract_idx = 0;
+  }
+  p->status = I2CIdle;
+  chMtxUnlock();
+
+  // Set report status and errors
+  switch (status) {
+    case RDY_OK:
+      //if the function succeeded
+      t->status = I2CTransSuccess;
+      break;
+    case RDY_TIMEOUT:
+      //if a timeout occurred before operation end
+      // mark as failed
+      t->status = I2CTransFailed;
+      break;
+    case RDY_RESET:
+      //if one or more I2C errors occurred, the errors can
+      //be retrieved using @p i2cGetErrors().
+      t->status = I2CTransFailed;
+      i2cflags_t errors = i2cGetErrors((I2CDriver*)p->reg_addr);
+      if (errors & I2CD_BUS_ERROR) {
+        p->errors->miss_start_stop_cnt++;
+      }
+      if (errors & I2CD_ARBITRATION_LOST) {
+        p->errors->arb_lost_cnt++;
+      }
+      if (errors & I2CD_ACK_FAILURE) {
+        p->errors->ack_fail_cnt++;
+      }
+      if (errors & I2CD_OVERRUN) {
+        p->errors->over_under_cnt++;
+      }
+      if (errors & I2CD_PEC_ERROR) {
+        p->errors->pec_recep_cnt++;
+      }
+      if (errors & I2CD_TIMEOUT) {
+        p->errors->timeout_tlow_cnt++;
+      }
+      if (errors & I2CD_SMB_ALERT) {
+        p->errors->smbus_alert_cnt++;
+      }
+      break;
+    default:
+      break;
+  }
+}
+
 #if USE_I2C1
+// I2C1 config
 PRINT_CONFIG_VAR(I2C1_CLOCK_SPEED)
 static const I2CConfig i2cfg1 = I2C1_CFG_DEF;
+// Errors
 struct i2c_errors i2c1_errors;
+// Mutex
+static MUTEX_DECL(i2c1_mtx);
+// Thread
+static __attribute__((noreturn)) msg_t thd_i2c1(void *arg);
+static WORKING_AREA(wa_thd_i2c1, 1024);
+
+/*
+ * I2C1 init
+ */
 void i2c1_hw_init(void)
 {
   i2cStart(&I2CD1, &i2cfg1);
   i2c1.reg_addr = &I2CD1;
-  i2c1.init_struct = NULL;
+  i2c1.init_struct = (void*)&i2c1_mtx;
   i2c1.errors = &i2c1_errors;
+
+  // Create thread
+  chThdCreateStatic(wa_thd_i2c1, sizeof(wa_thd_i2c1),
+      NORMALPRIO, thd_i2c1, NULL);
+}
+
+/*
+ * I2C1 thread
+ *
+ */
+static msg_t thd_i2c1(void *arg)
+{
+  (void) arg;
+  chRegSetThreadName("i2c1");
+
+  while (TRUE) {
+    handle_i2c_thd(&i2c1);
+    chThdSleepMicroseconds(1);
+  }
 }
 #endif /* USE_I2C1 */
 
 #if USE_I2C2
+// I2C2 config
 PRINT_CONFIG_VAR(I2C2_CLOCK_SPEED)
 static const I2CConfig i2cfg2 = I2C2_CFG_DEF;
+// Errors
 struct i2c_errors i2c2_errors;
+// Mutex
+static MUTEX_DECL(i2c2_mtx);
+// Thread
+static __attribute__((noreturn)) msg_t thd_i2c2(void *arg);
+static WORKING_AREA(wa_thd_i2c2, 1024);
+
+/*
+ * I2C2 init
+ */
 void i2c2_hw_init(void)
 {
   i2cStart(&I2CD2, &i2cfg2);
   i2c2.reg_addr = &I2CD2;
-  i2c2.init_struct = NULL;
+  i2c2.init_struct = (void*)&i2c2_mtx;
   i2c2.errors = &i2c2_errors;
+
+  // Create thread
+  chThdCreateStatic(wa_thd_i2c2, sizeof(wa_thd_i2c2),
+      NORMALPRIO, thd_i2c2, NULL);
+}
+
+/*
+ * I2C2 thread
+ *
+ */
+static msg_t thd_i2c2(void *arg)
+{
+  (void) arg;
+  chRegSetThreadName("i2c2");
+
+  while (TRUE) {
+    handle_i2c_thd(&i2c2);
+    chThdSleepMicroseconds(1);
+  }
 }
 #endif /* USE_I2C2 */
 
 #if USE_I2C3
+// I2C3 config
 PRINT_CONFIG_VAR(I2C3_CLOCK_SPEED)
 static const I2CConfig i2cfg3 = I2C3_CFG_DEF;
+// Errors
 struct i2c_errors i2c3_errors;
+// Mutex
+static MUTEX_DECL(i2c3_mtx);
+// Thread
+static __attribute__((noreturn)) msg_t thd_i2c3(void *arg);
+static WORKING_AREA(wa_thd_i2c3, 1024);
+
+/*
+ * I2C3 init
+ */
 void i2c3_hw_init(void)
 {
   i2cStart(&I2CD3, &i2cfg3);
   i2c3.reg_addr = &I2CD3;
-  i2c3.init_struct = NULL;
+  i2c3.init_struct = (void*)&i2c3_mtx;
   i2c3.errors = &i2c3_errors;
+
+  // Create thread
+  chThdCreateStatic(wa_thd_i2c3, sizeof(wa_thd_i2c3),
+      NORMALPRIO, thd_i2c3, NULL);
+}
+
+/*
+ * I2C3 thread
+ *
+ */
+static msg_t thd_i2c3(void *arg)
+{
+  (void) arg;
+  chRegSetThreadName("i2c3");
+
+  while (TRUE) {
+    handle_i2c_thd(&i2c3);
+    chThdSleepMicroseconds(1);
+  }
 }
 #endif /* USE_I2C3 */
 
@@ -113,76 +303,37 @@ void i2c_setbitrate(struct i2c_periph *p __attribute__((unused)), int bitrate __
  */
 bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
 {
-#if USE_I2C1 || USE_I2C2 || USE_I2C3
-  static msg_t status;
-  static systime_t tmo = US2ST(1000000/PERIODIC_FREQUENCY);
+  // mutex lock
+  Mutex *mtx = (Mutex*)p->init_struct;
+  chMtxLock(mtx);
 
-  // acquire bus
-  i2cAcquireBus((I2CDriver*)p->reg_addr);
-
-  // if bus not ready return
-  if (((I2CDriver*)p->reg_addr)->state !=  I2C_READY) {
+  uint8_t temp;
+  temp = p->trans_insert_idx + 1;
+  if (temp >= I2C_TRANSACTION_QUEUE_LEN) { temp = 0; }
+  if (temp == p->trans_extract_idx) {
+    // queue full
+    p->errors->queue_full_cnt++;
     t->status = I2CTransFailed;
-    t->buf[0] = 0; // to show zero value on return
-    i2cReleaseBus((I2CDriver*)p->reg_addr);
-    // transaction not submitted
     return FALSE;
   }
 
-  // submit i2c transaction
-  status = i2cMasterTransmitTimeout((I2CDriver*)p->reg_addr, (i2caddr_t)((t->slave_addr)>>1),
-                                t->buf, (size_t)(t->len_w), t->buf, (size_t)(t->len_r), tmo);
-  // release bus
-  i2cReleaseBus((I2CDriver*)p->reg_addr);
+  t->status = I2CTransPending;
 
-  switch (status) {
-    case RDY_OK:
-      //if the function succeeded
-      t->status = I2CTransSuccess;
-      break;
-    case RDY_TIMEOUT:
-      //if a timeout occurred before operation end
-      // mark as failed
-      t->status = I2CTransFailed;
-      break;
-    case RDY_RESET:
-      //if one or more I2C errors occurred, the errors can
-      //be retrieved using @p i2cGetErrors().
-      t->status = I2CTransFailed;
-      static i2cflags_t errors = 0;
-      errors = i2cGetErrors((I2CDriver*)p->reg_addr);
-      if (errors & I2CD_BUS_ERROR) {
-        p->errors->miss_start_stop_cnt++;
-      }
-      if (errors & I2CD_ARBITRATION_LOST) {
-        p->errors->arb_lost_cnt++;
-      }
-      if (errors & I2CD_ACK_FAILURE) {
-        p->errors->ack_fail_cnt++;
-      }
-      if (errors & I2CD_OVERRUN) {
-        p->errors->over_under_cnt++;
-      }
-      if (errors & I2CD_PEC_ERROR) {
-        p->errors->pec_recep_cnt++;
-      }
-      if (errors & I2CD_TIMEOUT) {
-        p->errors->timeout_tlow_cnt++;
-      }
-      if (errors & I2CD_SMB_ALERT) {
-        p->errors->smbus_alert_cnt++;
-      }
-      break;
-    default:
-      break;
+  //__disable_irq();
+  /* put transacation in queue */
+  p->trans[p->trans_insert_idx] = t;
+  p->trans_insert_idx = temp;
+
+  /* if peripheral is idle, start the transaction */
+  if (p->status == I2CIdle) {
+    // Resume thread ?
   }
+  /* else it will be started by the interrupt handler when the previous transactions completes */
+  //__enable_irq();
+
+  chMtxUnlock();
   // transaction submitted
   return TRUE;
-#else
-  (void) p;
-  (void) t;
-  return FALSE;
-#endif
 }
 
 /**
