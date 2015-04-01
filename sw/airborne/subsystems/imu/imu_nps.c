@@ -68,15 +68,15 @@ void imu_nps_event(void)
   if (imu_nps.gyro_available) {
     imu_nps.gyro_available = FALSE;
     imu_scale_gyro(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_NPS_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
   }
   if (imu_nps.accel_available) {
     imu_nps.accel_available = FALSE;
     imu_scale_accel(&imu);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_NPS_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
   if (imu_nps.mag_available) {
     imu_nps.mag_available = FALSE;
-    AbiSendMsgIMU_MAG_INT32(IMU_NPS_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }
 }

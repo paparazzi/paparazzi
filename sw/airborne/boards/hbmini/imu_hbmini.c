@@ -106,8 +106,8 @@ void imu_hbmini_event(void)
     max1168_status = MAX1168_IDLE;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_HBMINI_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_HBMINI_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
 
   // HMC58XX event task
@@ -119,7 +119,7 @@ void imu_hbmini_event(void)
 
     imu_hbmini.hmc.data_available = FALSE;
     imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_HBMINI_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }
 
 }

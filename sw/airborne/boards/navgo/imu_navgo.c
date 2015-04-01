@@ -130,7 +130,7 @@ void imu_navgo_event(void)
 #endif
     imu_navgo.itg.data_available = FALSE;
     imu_scale_gyro(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_NAVGO_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
   }
 
   // If the adxl345 I2C transaction has succeeded: convert the data
@@ -142,7 +142,7 @@ void imu_navgo_event(void)
 #endif
     imu_navgo.adxl.data_available = FALSE;
     imu_scale_accel(&imu);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_NAVGO_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
 
   // HMC58XX event task
@@ -154,8 +154,7 @@ void imu_navgo_event(void)
 #endif
     imu_navgo.hmc.data_available = FALSE;
     imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_NAVGO_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }
 
 }
-

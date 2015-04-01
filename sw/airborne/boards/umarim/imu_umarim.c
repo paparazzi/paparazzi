@@ -110,7 +110,7 @@ void imu_umarim_event(void)
     RATES_COPY(imu.gyro_unscaled, imu_umarim.itg.data.rates);
     imu_umarim.itg.data_available = FALSE;
     imu_scale_gyro(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_UMARIM_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
   }
 
   // If the adxl345 I2C transaction has succeeded: convert the data
@@ -120,7 +120,7 @@ void imu_umarim_event(void)
                  imu_umarim.adxl.data.vect.z);
     imu_umarim.adxl.data_available = FALSE;
     imu_scale_accel(&imu);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_UMARIM_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
 }
 

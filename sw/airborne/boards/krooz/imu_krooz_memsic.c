@@ -131,7 +131,7 @@ void imu_periodic(void)
     RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
     imu_krooz.meas_nb = 0;
     imu_scale_gyro(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_KROOZ_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
   }
 
   if (imu_krooz.meas_nb_acc.x && imu_krooz.meas_nb_acc.y && imu_krooz.meas_nb_acc.z) {
@@ -150,7 +150,7 @@ void imu_periodic(void)
     INT_VECT3_ZERO(imu_krooz.accel_sum);
     INT_VECT3_ZERO(imu_krooz.meas_nb_acc);
     imu_scale_accel(&imu);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_KROOZ_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
 
   RunOnceEvery(128, {axis_nb = 5;});
@@ -224,6 +224,6 @@ void imu_krooz_event(void)
     UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
     imu_krooz.hmc.data_available = FALSE;
     imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_KROOZ_ID, get_sys_time_usec(), &imu.mag);
+    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, get_sys_time_usec(), &imu.mag);
   }
 }

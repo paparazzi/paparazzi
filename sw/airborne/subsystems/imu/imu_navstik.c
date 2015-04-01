@@ -121,8 +121,8 @@ void imu_navstik_event(void)
     imu_navstik.mpu.data_available = FALSE;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_NAVSTIK_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_NAVSTIK_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
 
   /* HMC58XX event task */
@@ -133,6 +133,6 @@ void imu_navstik_event(void)
     imu.mag_unscaled.z =  imu_navstik.hmc.data.vect.z;
     imu_navstik.hmc.data_available = FALSE;
     imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_NAVSTIK_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }
 }

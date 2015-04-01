@@ -123,8 +123,8 @@ void imu_bebop_event(void)
     imu_bebop.mpu.data_available = FALSE;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_BEBOP_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_BEBOP_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
 
   /* AKM8963 event task */
@@ -136,6 +136,6 @@ void imu_bebop_event(void)
 
     imu_bebop.ak.data_available = FALSE;
     imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_BEBOP_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }
 }

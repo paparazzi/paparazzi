@@ -329,9 +329,9 @@ static void navdata_publish_imu(void)
   imu_scale_accel(&imu);
   imu_scale_mag(&imu);
   uint32_t now_ts = get_sys_time_usec();
-  AbiSendMsgIMU_GYRO_INT32(IMU_ARDRONE2_ID, now_ts, &imu.gyro);
-  AbiSendMsgIMU_ACCEL_INT32(IMU_ARDRONE2_ID, now_ts, &imu.accel);
-  AbiSendMsgIMU_MAG_INT32(IMU_ARDRONE2_ID, now_ts, &imu.mag);
+  AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
+  AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
+  AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
 }
 
 /**

@@ -127,8 +127,8 @@ void imu_periodic(void)
     uint32_t now_ts = get_sys_time_usec();
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_KROOZ_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_KROOZ_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
 
   //RunOnceEvery(10,imu_krooz_downlink_raw());
@@ -171,6 +171,6 @@ void imu_krooz_event(void)
     UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
     imu_krooz.hmc.data_available = FALSE;
     imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_KROOZ_ID, get_sys_time_usec(), &imu.mag);
+    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, get_sys_time_usec(), &imu.mag);
   }
 }
