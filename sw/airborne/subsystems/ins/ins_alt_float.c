@@ -27,6 +27,7 @@
 #include "subsystems/ins/ins_alt_float.h"
 
 #include "subsystems/abi.h"
+#include "state.h"
 
 #include <inttypes.h>
 #include <math.h>
@@ -70,7 +71,13 @@ abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, float pressure);
 #endif /* USE_BAROMETER */
 
-abi_event gps_ev;
+static abi_event gps_ev;
+static abi_event accel_ev;
+static abi_event body_to_imu_ev;
+static struct OrientationReps body_to_imu;
+#ifndef INS_ALT_IMU_ID
+#define INS_ALT_IMU_ID ABI_BROADCAST
+#endif
 
 static void alt_kalman_reset(void);
 static void alt_kalman_init(void);
@@ -85,6 +92,10 @@ void ins_alt_float_init(void)
   stateSetLocalUtmOrigin_f(&utm0);
 
   stateSetPositionUtm_f(&utm0);
+
+  // set initial body to imu to 0
+  struct Int32Eulers b2i0 = { 0, 0, 0 };
+  orientationSetEulers_i(&body_to_imu, &b2i0);
 
   alt_kalman_init();
 
@@ -134,7 +145,6 @@ void ins_reset_altitude_ref(void)
   // reset filter flag
   ins_altf.reset_alt_ref = TRUE;
 }
-
 
 #if USE_BAROMETER
 void ins_alt_float_update_baro(float pressure)
@@ -339,6 +349,26 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   ins_alt_float_update_gps(gps_s);
 }
 
+static void accel_cb(uint8_t sender_id __attribute__((unused)),
+                     uint32_t stamp __attribute__((unused)),
+                     struct Int32Vect3 *accel)
+{
+  // untilt accel and remove gravity
+  struct Int32Vect3 accel_body, accel_ned;
+  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&body_to_imu);
+  int32_rmat_transp_vmult(&accel_body, body_to_imu_rmat, accel);
+  struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
+  int32_rmat_transp_vmult(&accel_ned, ned_to_body_rmat, &accel_body);
+  accel_ned.z += ACCEL_BFP_OF_REAL(9.81);
+  stateSetAccelNed_i((struct NedCoor_i *)&accel_ned);
+}
+
+static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
+                           struct FloatQuat *q_b2i_f)
+{
+  orientationSetQuat_f(&body_to_imu, q_b2i_f);
+}
+
 void ins_altf_register(void)
 {
   ins_register_impl(ins_alt_float_init);
@@ -348,4 +378,6 @@ void ins_altf_register(void)
   AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
 #endif
   AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
+  AbiBindMsgIMU_ACCEL_INT32(INS_ALT_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgBODY_TO_IMU_QUAT(INS_ALT_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 }
