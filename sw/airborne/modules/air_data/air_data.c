@@ -137,7 +137,9 @@ static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, float pr
 static void temperature_cb(uint8_t __attribute__((unused)) sender_id, float temp)
 {
   air_data.temperature = temp;
-  if (air_data.calc_tas_factor && baro_health_counter > 0 && air_data.pressure > 0) {
+  /* only calculate tas factor if enabled and we have airspeed and valid data */
+  if (air_data.calc_tas_factor && air_data.airspeed > 0 && baro_health_counter > 0 &&
+      air_data.pressure > 0) {
     air_data.tas_factor = get_tas_factor(air_data.pressure, air_data.temperature);
   }
 }
