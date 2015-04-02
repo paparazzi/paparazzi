@@ -96,7 +96,7 @@ void mf_daq_send_report(void)
     DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 9, mf_daq.values);
   }
   // Test if log is started
-  if (pprzLogFile.fs != NULL) {
+  if (pprzLogFile != -1) {
     if (log_started == FALSE) {
       // Log MD5SUM once
       DOWNLINK_SEND_ALIVE(pprzlog_tp, chibios_sdlog, 16, MD5SUM);

@@ -29,6 +29,7 @@
 #define CHIBIOS_SDLOG_H
 
 #include "ff.h"
+#include "subsystems/chibios-libopencm3/sdLog.h"
 #include "mcu_periph/link_device.h"
 
 /*
@@ -38,18 +39,18 @@
  * when power failure event occurs, close all logs
  */
 
-extern FIL pprzLogFile;
+extern FileDes pprzLogFile;
 
 #if FLIGHTRECORDER_SDLOG
 // if activated, will log all process states
-extern FIL flightRecorderLogFile;
+extern FileDes flightRecorderLogFile;
 #endif
 
-extern bool_t chibios_logInit(const bool_t binaryFile);
-extern void chibios_logFinish(void);
+extern bool_t chibios_logInit(void);
+extern void chibios_logFinish(bool_t flush);
 
 struct chibios_sdlog {
-  FIL *file;
+  FileDes *file;
   /** Generic device interface */
   struct link_device device;
 };
@@ -58,6 +59,6 @@ extern struct chibios_sdlog chibios_sdlog;
 
 /** init chibios_sdlog structure
  */
-extern void chibios_sdlog_init(struct chibios_sdlog *sdlog, FIL *file);
+extern void chibios_sdlog_init(struct chibios_sdlog *sdlog, FileDes *file);
 
 #endif

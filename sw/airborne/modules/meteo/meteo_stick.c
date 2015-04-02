@@ -278,15 +278,15 @@ void meteo_stick_periodic(void)
 
   // Log data
 #if LOG_MS
-  if (pprzLogFile.fs != NULL) {
+  if (pprzLogFile != -1) {
     if (!log_ptu_started) {
 #if USE_MS_EEPROM
       if (meteo_stick.eeprom.data_available) {
         // Print calibration data in the log header
-        sdLogWriteLog(&pprzLogFile, "# Calibration data (UUID: %s)\n#\n", meteo_stick.calib.uuid);
+        sdLogWriteLog(pprzLogFile, "# Calibration data (UUID: %s)\n#\n", meteo_stick.calib.uuid);
         int i, j, k;
         for (i = 0; i < MTOSTK_NUM_SENSORS; i++) {
-          sdLogWriteLog(&pprzLogFile, "# Sensor: %d, time: %d, num_temp: %d, num_coeff: %d\n", i,
+          sdLogWriteLog(pprzLogFile, "# Sensor: %d, time: %d, num_temp: %d, num_coeff: %d\n", i,
                         meteo_stick.calib.params[i].timestamp,
                         meteo_stick.calib.params[i].num_temp,
                         meteo_stick.calib.params[i].num_coeff);
@@ -294,26 +294,26 @@ void meteo_stick_periodic(void)
             continue; // No calibration
           }
           for (j = 0; j < meteo_stick.calib.params[i].num_temp; j++) {
-            sdLogWriteLog(&pprzLogFile, "#  Reference temp: %.2f\n", meteo_stick.calib.params[i].temps[j]);
-            sdLogWriteLog(&pprzLogFile, "#  Coeffs:");
+            sdLogWriteLog(pprzLogFile, "#  Reference temp: %.2f\n", meteo_stick.calib.params[i].temps[j]);
+            sdLogWriteLog(pprzLogFile, "#  Coeffs:");
             for (k = 0; k < meteo_stick.calib.params[i].num_coeff; k++) {
-              sdLogWriteLog(&pprzLogFile, " %.5f", meteo_stick.calib.params[i].coeffs[j][k]);
+              sdLogWriteLog(pprzLogFile, " %.5f", meteo_stick.calib.params[i].coeffs[j][k]);
             }
-            sdLogWriteLog(&pprzLogFile, "\n");
+            sdLogWriteLog(pprzLogFile, "\n");
           }
         }
-        sdLogWriteLog(&pprzLogFile, "#\n");
-        sdLogWriteLog(&pprzLogFile,
+        sdLogWriteLog(pprzLogFile, "#\n");
+        sdLogWriteLog(pprzLogFile,
                       "P(adc) T(adc) H(ticks) P_diff(adc) P(hPa) T(C) H(\%) CAS(m/s) FIX TOW(ms) WEEK Lat(1e7rad) Lon(1e7rad) HMSL(mm) GS(cm/s) course(1e7rad) VZ(cm/s)\n");
         log_ptu_started = TRUE;
       }
 #else
-      sdLogWriteLog(&pprzLogFile,
+      sdLogWriteLog(pprzLogFile,
                     "P(adc) T(adc) H(ticks) P_diff(adc) P(hPa) T(C) H(\%) CAS(m/s) FIX TOW(ms) WEEK Lat(1e7rad) Lon(1e7rad) HMSL(mm) GS(cm/s) course(1e7rad) VZ(cm/s)\n");
       log_ptu_started = TRUE;
 #endif
     } else {
-      sdLogWriteLog(&pprzLogFile, "%d %d %d %d %.2f %.2f %.2f %.2f %d %d %d %d %d %d %d %d %d\n",
+      sdLogWriteLog(pprzLogFile, "%d %d %d %d %.2f %.2f %.2f %.2f %d %d %d %d %d %d %d %d %d\n",
                     meteo_stick.pressure.data, meteo_stick.temperature.data,
                     meteo_stick.humidity_period, meteo_stick.diff_pressure.data,
                     meteo_stick.current_pressure, meteo_stick.current_temperature,
