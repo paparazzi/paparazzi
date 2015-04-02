@@ -76,12 +76,6 @@
 #define DefaultChannel DOWNLINK_TRANSPORT
 #endif
 
-// FIXME are DOWNLINK_AP|FBW_DEVICE distinction really necessary ?
-// by default use AP_DEVICE if nothing is set ?
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-
 #ifndef DefaultDevice
 #define DefaultDevice DOWNLINK_DEVICE
 #endif
