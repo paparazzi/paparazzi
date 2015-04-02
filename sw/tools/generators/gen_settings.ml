@@ -144,7 +144,7 @@ let print_dl_settings = fun settings ->
   lprintf "static inline float settings_get_value(uint8_t i) {\n";
   right ();
   let idx = ref 0 in
-  lprintf "switch (i) { \\\n";
+  lprintf "switch (i) {\n";
   right ();
   List.iter
     (fun s ->
@@ -152,10 +152,10 @@ let print_dl_settings = fun settings ->
       lprintf "case %d: return %s;\n" !idx v; incr idx)
     settings;
   lprintf "default: return 0.;\n";
-  lprintf "}\n";
   left ();
   lprintf "}\n";
-  left()
+  left ();
+  lprintf "}\n"
 
 
 let inttype = function
@@ -309,7 +309,15 @@ let join_xml_files = fun xml_files ->
             then List.filter (fun t -> Xml.tag t = "settings") (Xml.children xml)
             else []
           end
-          else [xml]
+          else begin
+            (* if the top <settings> node has a target attribute,
+               only add if matches current target *)
+            let t = ExtXml.attrib_or_default xml "target" "" in
+            if t = "" || Str.string_match (Str.regexp (".*"^target^".*")) t 0 then
+              [xml]
+            else
+              []
+          end
         in
         (* include settings if name is matching *)
         List.fold_left (fun l x ->
