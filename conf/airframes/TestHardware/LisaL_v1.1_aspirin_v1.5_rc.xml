@@ -9,7 +9,6 @@
 <airframe name="TestConfig">
     <firmware name="rotorcraft">
         <target name="ap" board="lisa_l_1.1">
-            <!--define name="NO_RC_THRUST_LIMIT"/-->
             <subsystem name="radio_control" type="spektrum"/>
             <define name="RADIO_MODE" value="RADIO_AUX1"/>
             <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>

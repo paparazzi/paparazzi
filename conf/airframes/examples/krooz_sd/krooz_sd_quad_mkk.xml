@@ -23,7 +23,6 @@
     </subsystem>
     <subsystem name="motor_mixing"/>
 
-    <define name="NO_RC_THRUST_LIMIT"/>
     <define name="FAILSAFE_GROUND_DETECT" value="1"/>
     <define name="THRESHOLD_GROUND_DETECT" value="12."/>
     <define name="USE_GPS_ACC4R" value="1"/>
