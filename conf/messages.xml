@@ -1942,13 +1942,13 @@
   </message>
 
   <message name="AIR_DATA" id="222">
-    <field name="pressure" type="float" unit="Pa"/>
-    <field name="diff_p" type="float" unit="Pa"/>
-    <field name="temp" type="float" unit="deg celcius"/>
-    <field name="qnh" type="float" unit="hPa"/>
-    <field name="amsl_baro" type="float" unit="m"/>
-    <field name="airspeed" type="float" unit="m/s"/>
-    <field name="tas_factor" type="float"/>
+    <field name="pressure" type="float" unit="Pa">static pressure</field>
+    <field name="diff_p" type="float" unit="Pa">differential pressure</field>
+    <field name="temp" type="float" unit="deg celcius">air temperature</field>
+    <field name="qnh" type="float" unit="hPa">barometric pressure adjusted to sea level</field>
+    <field name="amsl_baro" type="float" unit="m">barometric altitude above mean sea level</field>
+    <field name="airspeed" type="float" unit="m/s">Equivalent Air Speed (or Calibrated Air Speed at low speed/altitude)</field>
+    <field name="tas" type="float">True Air Speed (when P, T and P_diff are available)</field>
   </message>
 
   <message name="AMSL" id="223">

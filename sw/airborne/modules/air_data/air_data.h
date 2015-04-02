@@ -39,7 +39,8 @@ struct AirData {
   float differential; ///< Differential pressure (total - static pressure) (Pa)
   float temperature;  ///< temperature in degrees Celcius, -1000 if unknown
 
-  float airspeed;     ///< Conventional Air Speed in m/s, -1 if unknown
+  float airspeed;     ///< Equivalent Air Speed (equals to Calibrated Air Speed at low speed/altitude) (in m/s, -1 if unknown
+  float tas;          ///< True Air Speed (TAS) in m/s, -1 if unknown
   float tas_factor;   ///< factor to convert equivalent airspeed (EAS) to true airspeed (TAS)
   float qnh;              ///< Barometric pressure adjusted to sea level in hPa, -1 if unknown
   float amsl_baro;        ///< altitude above sea level in m from pressure and QNH
