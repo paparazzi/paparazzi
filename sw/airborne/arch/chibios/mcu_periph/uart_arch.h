@@ -36,7 +36,6 @@
 #define CHIBIOS_UART_ARCH_H
 
 #include "mcu_periph/uart.h"
-#include "hal.h"
 
 #define B1200    1200
 #define B2400    2400
@@ -50,30 +49,5 @@
 #define B921600  921600
 #define B100000  100000
 #define B3000000 3000000
-
-#define ch_uart_receive_downlink(_port, _flag, _callback, _arg) {   \
-    if ((_flag & (SD_FRAMING_ERROR | SD_OVERRUN_ERROR |         \
-                  SD_NOISE_ERROR)) != 0) {                      \
-      if (_flag & SD_OVERRUN_ERROR) {                         \
-        _port.ore++;                                        \
-      }                                                       \
-      if (_flag & SD_NOISE_ERROR) {                           \
-        _port.ne_err++;                                     \
-      }                                                       \
-      if (_flag & SD_FRAMING_ERROR) {                         \
-        _port.fe_err++;                                     \
-      }                                                       \
-    }                                                           \
-    if (_flag & CHN_INPUT_AVAILABLE) {                         \
-      msg_t charbuf;                                           \
-      do {                                                     \
-        charbuf = sdGetTimeout((SerialDriver*)_port.reg_addr, TIME_IMMEDIATE);\
-        if ( charbuf != Q_TIMEOUT ) {                         \
-          _callback(_arg, charbuf);                          \
-        }                                                     \
-      }                                                        \
-      while (charbuf != Q_TIMEOUT);                            \
-    }                                                           \
-  }
 
 #endif /* STM32_UART_ARCH_H */
