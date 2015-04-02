@@ -68,7 +68,7 @@ void sys_time_arch_init(void)
 
   // Create thread (PRIO should be higher than AP threads
   chThdCreateStatic(wa_thd_sys_tick, sizeof(wa_thd_sys_tick),
-      NORMALPRIO+2, thd_sys_tick, NULL);
+      NORMALPRIO+3, thd_sys_tick, NULL);
 
 }
 
