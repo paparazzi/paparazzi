@@ -37,11 +37,12 @@ AHRS_ICE_SRCS   += subsystems/ahrs/ahrs_int_cmpl_euler.c
 AHRS_ICE_SRCS   += subsystems/ahrs/ahrs_int_cmpl_euler_wrapper.c
 AHRS_ICE_SRCS   += subsystems/ahrs/ahrs_aligner.c
 
-ap.CFLAGS += $(AHRS_ICE_CFLAGS)
-ap.srcs += $(AHRS_ICE_SRCS)
+# add it for all targets except sim and fbw
+ifeq (,$(findstring $(TARGET),sim fbw))
+$(TARGET).CFLAGS += $(AHRS_ICE_CFLAGS)
+$(TARGET).srcs += $(AHRS_ICE_SRCS)
+endif
 
-nps.CFLAGS += $(AHRS_ICE_CFLAGS)
-nps.srcs += $(AHRS_ICE_SRCS)
 
 #
 # Simple simulation of the AHRS result
@@ -54,6 +55,3 @@ ahrssim_srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
 
 sim.CFLAGS += $(ahrssim_CFLAGS)
 sim.srcs += $(ahrssim_srcs)
-
-test_ahrs.CFLAGS += $(AHRS_ICE_CFLAGS)
-test_ahrs.srcs += $(AHRS_ICE_SRCS)
