@@ -722,41 +722,47 @@
 /*
  * ADCs
  */
-#define BOARD_ADC_CHANNEL_1 13
-#define BOARD_ADC_CHANNEL_2 10
-#define BOARD_ADC_CHANNEL_3 11
-// we can only use ADC1,2,3; the last channel is for bat monitoring
-#define BOARD_ADC_CHANNEL_4 14
+// AUX 1
+#if USE_ADC_1
+#define AD1_1_CHANNEL ADC_CHANNEL_IN9
+#define ADC_1 AD1_1
+#define ADC_1_GPIO_PORT GPIOB
+#define ADC_1_GPIO_PIN GPIO1
+#endif
 
-/*
- * provide defines that can be used to access the ADC_x in the code or airframe file
- * these directly map to the index number of the 4 adc channels defined above
- * 4th (index 3) is used for bat monitoring by default
- */
-#define ADC_1 0
-#define ADC_2 1
-#define ADC_3 2
+// AUX 2
+#if USE_ADC_2
+#define AD1_2_CHANNEL ADC_CHANNEL_IN15
+#define ADC_2 AD1_2
+#define ADC_2_GPIO_PORT GPIOC
+#define ADC_2_GPIO_PIN GPIO5
+#endif
 
-// allow to define ADC_CHANNEL_VSUPPLY in the airframe file
+// AUX 3
+#if USE_ADC_3
+#define AD1_3_CHANNEL ADC_CHANNEL_IN14
+#define ADC_3 AD1_3
+#define ADC_3_GPIO_PORT GPIOC
+#define ADC_3_GPIO_PIN GPIO4
+#endif
+
+// Internal ADC for battery enabled by default
+#ifndef USE_ADC_4
+#define USE_ADC_4 1
+#endif
+#if USE_ADC_4
+#define AD1_4_CHANNEL ADC_CHANNEL_IN4
+#define ADC_4 AD1_4
+#define ADC_4_GPIO_PORT GPIOA
+#define ADC_4_GPIO_PIN GPIO4
+#endif
+
+/* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
-#define ADC_CHANNEL_VSUPPLY 3
+#define ADC_CHANNEL_VSUPPLY ADC_4
 #endif
 
-#ifndef ADC_CHANNEL_TEMP_SENSOR
-#define ADC_CHANNEL_TEMP_SENSOR 4
-#endif
-
-// active ADC
-#define USE_AD1 1
-#define USE_AD1_1 1
-#define USE_AD1_2 1
-#define USE_AD1_3 1
-#define USE_AD1_4 1
-
-#define DefaultVoltageOfAdc(adc) (0.0047*adc)
-
-// Read the electrical characteristics for STM32F105 chip
-#define CpuTempOfAdc(adc) ((1430 - adc)/4.3+25)
+#define DefaultVoltageOfAdc(adc) (0.006185*adc)
 
 /*
  * PWM defines

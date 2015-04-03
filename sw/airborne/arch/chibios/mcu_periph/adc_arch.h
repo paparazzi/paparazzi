@@ -5,6 +5,7 @@
  * Michal Podhradsky (michal.podhradsky@aggiemail.usu.edu)
  * Calvin Coopmans (c.r.coopmans@ieee.org)
  *
+ * Copyright (C) 2015 Gautier Hattenberger, Alexandre Bustico
  *
  * This file is part of paparazzi.
  *
@@ -34,43 +35,73 @@
 
 #include BOARD_CONFIG
 
-#include "hal.h"
-
-
-// ADC error flags
-extern uint8_t adc_error_flag;
-extern ADCDriver *adcp_err;
-
 // NB_ADCx_CHANNELS
 enum adc1_channels {
-#if USE_AD1_1
-  ADC1_C1,
+#ifdef AD1_1_CHANNEL
+  AD1_1,
 #endif
-#if USE_AD1_2
-  ADC1_C2,
+#ifdef AD1_2_CHANNEL
+  AD1_2,
 #endif
-#if USE_AD1_3
-  ADC1_C3,
+#ifdef AD1_3_CHANNEL
+  AD1_3,
 #endif
-#if USE_AD1_4
-  ADC1_C4,
+#ifdef AD1_4_CHANNEL
+  AD1_4,
+#endif
+#if USE_AD1_5
+  AD1_5,
+#endif
+#if USE_AD1_6
+  AD1_6,
+#endif
+#if USE_AD1_7
+  AD1_7,
+#endif
+#if USE_AD1_8
+  AD1_8,
+#endif
+#if USE_AD1_9
+  AD1_9,
+#endif
+#if USE_AD1_10
+  AD1_10,
+#endif
+#if USE_AD1_11
+  AD1_11,
+#endif
+#if USE_AD1_12
+  AD1_12,
+#endif
+#if USE_AD1_13
+  AD1_13,
+#endif
+#if USE_AD1_14
+  AD1_14,
+#endif
+#if USE_AD1_15
+  AD1_15,
+#endif
+#if USE_AD1_16
+  AD1_16,
 #endif
   NB_ADC1_CHANNELS
 };
 
 enum adc2_channels {
-#if USE_AD2_1
-  ADC2_C1,
-#endif
-#if USE_AD2_2
-  ADC2_C2,
-#endif
-#if USE_AD2_3
-  ADC2_C3,
-#endif
-#if USE_AD2_4
-  ADC2_C4,
-#endif
+//#if USE_AD2_1
+//  AD2_1 = NB_ADC1_CHANNELS,
+//#endif
+//#if USE_AD2_2
+//  AD2_2,
+//#endif
+//#if USE_AD2_3
+//  AD2_3,
+//#endif
+//#if USE_AD2_4
+//  AD2_4,
+//#endif
+  // TBC
   NB_ADC2_CHANNELS
 };
 
@@ -78,6 +109,12 @@ enum adc2_channels {
 #undef NB_ADC
 #endif
 
-#define NB_ADC (NB_ADC1_CHANNELS + NB_ADC2_CHANNELS)
+#define NB_ADC (NB_ADC1_CHANNELS)
+
+#include "hal.h"
+
+// ADC error flags
+extern uint8_t adc_error_flag;
+extern ADCDriver *adcp_err;
 
 #endif /* ADC_ARCH_H */
