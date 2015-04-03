@@ -32,7 +32,7 @@
 #include "subsystems/abi.h"
 #include "math/pprz_isa.h"
 #include "state.h"
-
+#include "generated/airframe.h"
 
 /** global AirData state
  */
@@ -99,9 +99,15 @@ static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, float pre
 {
   air_data.pressure = pressure;
 
-  // calculate QNH from pressure and absolute alitude if that is available
+  // calculate QNH from pressure and absolute altitude if that is available
   if (air_data.calc_qnh_once && stateIsGlobalCoordinateValid()) {
-    float h = stateGetPositionLla_f()->alt;
+    /// FIXME: use height above MSL (geoid) and not WGS84 ellipsoid here
+    // in the meantime use geoid separation at local reference frame origin
+    float geoid_separation = 0;
+    if (state.ned_initialized_f) {
+      geoid_separation = state.ned_origin_f.lla.alt - state.ned_origin_f.hmsl;
+    }
+    float h = stateGetPositionLla_f()->alt - geoid_separation;
     air_data.qnh = pprz_isa_ref_pressure_of_height_full(air_data.pressure, h) / 100.f;
     air_data.calc_qnh_once = FALSE;
   }
@@ -120,7 +126,8 @@ static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, float pr
 {
   air_data.differential = pressure;
   if (air_data.calc_airspeed) {
-    air_data.airspeed = tas_from_dynamic_pressure(air_data.differential);
+    air_data.airspeed = eas_from_dynamic_pressure(air_data.differential);
+    air_data.tas = tas_from_eas(air_data.airspeed);
 #if USE_AIRSPEED_AIR_DATA
     stateSetAirspeed_f(&air_data.airspeed);
 #endif
@@ -130,7 +137,9 @@ static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, float pr
 static void temperature_cb(uint8_t __attribute__((unused)) sender_id, float temp)
 {
   air_data.temperature = temp;
-  if (air_data.calc_tas_factor && baro_health_counter > 0 && air_data.pressure > 0) {
+  /* only calculate tas factor if enabled and we have airspeed and valid data */
+  if (air_data.calc_tas_factor && air_data.airspeed > 0 && baro_health_counter > 0 &&
+      air_data.pressure > 0) {
     air_data.tas_factor = get_tas_factor(air_data.pressure, air_data.temperature);
   }
 }
@@ -150,7 +159,7 @@ static void send_air_data(struct transport_tx *trans, struct link_device *dev)
                          &air_data.pressure, &air_data.differential,
                          &air_data.temperature, &air_data.qnh,
                          &air_data.amsl_baro, &air_data.airspeed,
-                         &air_data.tas_factor);
+                         &air_data.tas);
 }
 
 static void send_amsl(struct transport_tx *trans, struct link_device *dev)
@@ -181,6 +190,7 @@ void air_data_init(void)
   air_data.pressure = -1.0f;
   air_data.qnh = -1.0f;
   air_data.airspeed = -1.0f;
+  air_data.tas = -1.0f;
   air_data.temperature = -1000.0f;
   air_data.differential = 0.0f;
   air_data.amsl_baro = 0.0f;

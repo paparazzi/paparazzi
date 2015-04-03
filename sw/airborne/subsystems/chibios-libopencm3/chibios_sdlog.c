@@ -46,12 +46,13 @@ EventListener powerOutageListener;
 
 FIL pprzLogFile = {0};
 
-#if LOG_PROCESS_STATE
-static const char PROCESS_LOG_NAME[] = "processLog_";
-FIL processLogFile = {0};
-#endif
-
 struct chibios_sdlog chibios_sdlog;
+
+#if FLIGHTRECORDER_SDLOG
+static const char FLIGHTRECORDER_LOG_NAME[] = "fr_";
+static const char FR_LOG_DIR[] = "FLIGHT_RECORDER";
+FIL flightRecorderLogFile = {0};
+#endif
 
 static WORKING_AREA(waThdBatterySurvey, 4096);
 static void launchBatterySurveyThread (void)
@@ -68,24 +69,36 @@ static int sdlog_check_free_space(struct chibios_sdlog* p __attribute__((unused)
   return TRUE;
 }
 
-static void sdlog_transmit(struct chibios_sdlog* p __attribute__((unused)), uint8_t byte)
+static void sdlog_transmit(struct chibios_sdlog* p, uint8_t byte)
 {
-  sdLogWriteByte(&pprzLogFile, byte);
+  sdLogWriteByte(p->file, byte);
 }
 
 static void sdlog_send(struct chibios_sdlog* p __attribute__((unused))) { }
 
+static int null_function(struct chibios_sdlog *p __attribute__((unused))) { return 0; }
+
+void chibios_sdlog_init(struct chibios_sdlog *sdlog, FIL *file)
+{
+  // Store file descriptor
+  sdlog->file = file;
+  // Configure generic device
+  sdlog->device.periph = (void *)(sdlog);
+  sdlog->device.check_free_space = (check_free_space_t) sdlog_check_free_space;
+  sdlog->device.put_byte = (put_byte_t) sdlog_transmit;
+  sdlog->device.send_message = (send_message_t) sdlog_send;
+  sdlog->device.char_available = (char_available_t) null_function; // write only
+  sdlog->device.get_byte = (get_byte_t) null_function; // write only
+
+}
 
 bool_t chibios_logInit(const bool_t binaryFile)
 {
   nvicSetSystemHandlerPriority(HANDLER_PENDSV,
              CORTEX_PRIORITY_MASK(15));
 
-  // Configure generic device
-  chibios_sdlog.device.periph = (void *)(&chibios_sdlog);
-  chibios_sdlog.device.check_free_space = (check_free_space_t) sdlog_check_free_space;
-  chibios_sdlog.device.transmit = (transmit_t) sdlog_transmit;
-  chibios_sdlog.device.send_message = (send_message_t) sdlog_send;
+  // Init sdlog struct
+  chibios_sdlog_init(&chibios_sdlog, &pprzLogFile);
 
   if (sdLogInit (NULL) != SDLOG_OK)
     goto error;
@@ -93,8 +106,8 @@ bool_t chibios_logInit(const bool_t binaryFile)
   if (sdLogOpenLog (&pprzLogFile, PPRZ_LOG_DIR, PPRZ_LOG_NAME) != SDLOG_OK)
     goto error;
 
-#if LOG_PROCESS_STATE
-  if (sdLogOpenLog (&processLogFile, PROCESS_LOG_NAME) != SDLOG_OK)
+#if FLIGHTRECORDER_SDLOG
+  if (sdLogOpenLog (&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME) != SDLOG_OK)
     goto error;
 #endif
 
@@ -117,8 +130,8 @@ void chibios_logFinish(void)
   if (pprzLogFile.fs != NULL) {
     sdLogStopThread ();
     sdLogCloseLog (&pprzLogFile);
-#if LOG_PROCESS_STATE
-    sdLogCloseLog (&processLogFile);
+#if FLIGHTRECORDER_SDLOG
+    sdLogCloseLog (&flightRecorderLogFile);
 #endif
     sdLogFinish ();
     pprzLogFile.fs = NULL;

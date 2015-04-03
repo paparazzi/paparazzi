@@ -54,6 +54,10 @@ ifneq ($(SYS_TIME_LED),none)
 endif
 COMMON_TEST_CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 COMMON_TEST_SRCS   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+ifeq ($(ARCH), linux)
+# seems that we need to link agains librt for glibc < 2.17
+$(TARGET).LDFLAGS += -lrt
+endif
 
 COMMON_TEST_CFLAGS += -DUSE_LED
 
@@ -78,7 +82,7 @@ UDP_MODEM_PORT_LOWER=$(shell echo $(MODEM_DEV) | tr A-Z a-z)
 
 COMMON_TELEMETRY_CFLAGS += -DUSE_$(MODEM_DEV) -D$(MODEM_DEV)_PORT_OUT=$(MODEM_PORT_OUT) -D$(MODEM_DEV)_PORT_IN=$(MODEM_PORT_IN)
 COMMON_TELEMETRY_CFLAGS += -D$(MODEM_DEV)_BROADCAST=$(MODEM_BROADCAST) -D$(MODEM_DEV)_HOST=\"$(MODEM_HOST)\"
-COMMON_TELEMETRY_CFLAGS += -DPPRZ_UART=$(MODEM_DEV)
+COMMON_TELEMETRY_CFLAGS += -DPPRZ_UART=$(UDP_MODEM_PORT_LOWER)
 COMMON_TELEMETRY_CFLAGS += -DDOWNLINK_DEVICE=$(UDP_MODEM_PORT_LOWER)
 else
 # via UART
@@ -87,7 +91,7 @@ else
 #endif
 COMMON_TELEMETRY_MODEM_PORT_LOWER=$(shell echo $(MODEM_PORT) | tr A-Z a-z)
 COMMON_TELEMETRY_CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
-COMMON_TELEMETRY_CFLAGS += -DPPRZ_UART=$(MODEM_PORT)
+COMMON_TELEMETRY_CFLAGS += -DPPRZ_UART=$(COMMON_TELEMETRY_MODEM_PORT_LOWER)
 COMMON_TELEMETRY_CFLAGS += -DDOWNLINK_DEVICE=$(COMMON_TELEMETRY_MODEM_PORT_LOWER)
 COMMON_TELEMETRY_SRCS  += mcu_periph/uart.c
 COMMON_TELEMETRY_SRCS  += $(SRC_ARCH)/mcu_periph/uart_arch.c
@@ -110,6 +114,9 @@ endif
 endif
 ifeq ($(BOARD), navstik)
 LED_DEFINES = -DLED_RED=1 -DLED_GREEN=2
+endif
+ifeq ($(BOARD), cc3d)
+LED_DEFINES = -DLED_BLUE=1
 endif
 LED_DEFINES ?= -DLED_RED=2 -DLED_GREEN=3
 
@@ -425,6 +432,8 @@ test_ahrs.CFLAGS += $(COMMON_TEST_CFLAGS)
 test_ahrs.srcs   += $(COMMON_TEST_SRCS)
 test_ahrs.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_ahrs.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_ahrs.srcs   += subsystems/datalink/telemetry.c
+test_ahrs.CFLAGS += -DPERIODIC_TELEMETRY
 test_ahrs.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 test_ahrs.srcs   += test/subsystems/test_ahrs.c
 test_ahrs.srcs   += state.c

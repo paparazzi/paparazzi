@@ -1,5 +1,5 @@
-(*
- * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec
+/*
+ * Copyright (C) 2015 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -14,14 +14,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
- *)
+ * along with Paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 
-external load_bitmap_font : string -> GlList.base
-  = "_gtkgl_hack_load_bitmap_font"
-external unload_bitmap_font : GlList.base -> unit
-  = "_gtkgl_hack_unload_bitmap_font"
-val gl_print_string : GlList.base -> string -> unit
+/**
+ * @file subsystems/ins/ins_gps_passthrough.h
+ *
+ * Simply converts GPS ECEF position and velocity to NED
+ * and passes it through to the state interface.
+ */
+
+#ifndef INS_GPS_PASSTHROUGH_H
+#define INS_GPS_PASSTHROUGH_H
+
+#define DefaultInsImpl ins_gps_passthrough
+
+extern void ins_gps_passthrough_init(void);
+extern void ins_gps_passthrough_register(void);
+
+#endif /* INS_GPS_PASSTHROUGH_H */

@@ -3,9 +3,10 @@
 # Sirf GPS unit
 
 GPS_LED ?= none
+SIRF_GPS_PORT_LOWER=$(shell echo $(GPS_PORT) | tr A-Z a-z)
 
 ap.CFLAGS += -DUSE_GPS
-ap.CFLAGS += -DGPS_LINK=$(GPS_PORT)
+ap.CFLAGS += -DGPS_LINK=$(SIRF_GPS_PORT_LOWER)
 ap.CFLAGS += -DUSE_$(GPS_PORT)
 ap.CFLAGS += -D$(GPS_PORT)_BAUD=$(GPS_BAUD)
 

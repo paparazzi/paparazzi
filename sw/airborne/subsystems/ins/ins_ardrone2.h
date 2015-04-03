@@ -44,6 +44,15 @@ struct InsArdrone2 {
   struct NedCoor_f ltp_accel;
 };
 
-extern struct InsArdrone2 ins_impl;
+extern struct InsArdrone2 ins_ardrone2;
+
+#define DefaultInsImpl ins_ardrone2
+#define InsPeriodic ins_ardrone2_periodic
+
+extern void ins_ardrone2_init(void);
+extern void ins_ardrone2_periodic(void);
+extern void ins_ardrone2_update_gps(void);
+
+extern void ins_ardrone2_register(void);
 
 #endif /* INS_ARDRONE2_SDK_H */

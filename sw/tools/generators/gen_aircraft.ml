@@ -30,13 +30,13 @@ open Gen_common
 let (//) = Filename.concat
 
 let paparazzi_conf = Env.paparazzi_home // "conf"
-let conf_xml = paparazzi_conf // "conf.xml"
+let default_conf_xml = paparazzi_conf // "conf.xml"
 
 let mkdir = fun d ->
   assert (Sys.command (sprintf "mkdir -p %s" d) = 0)
 
 (** Raises a Failure if an ID or a NAME appears twice in the conf *)
-let check_unique_id_and_name = fun conf ->
+let check_unique_id_and_name = fun conf conf_xml ->
   let ids = Hashtbl.create 5
   and names = Hashtbl.create 5 in
   List.iter
@@ -315,11 +315,12 @@ let make_element = fun t a c -> Xml.Element (t,a,c)
 (******************************* MAIN ****************************************)
 let () =
   try
-    if Array.length Sys.argv <> 2 then
-      failwith (sprintf "Usage: %s <A/C ident (conf.xml)>" Sys.argv.(0));
+    if Array.length Sys.argv < 2 || Array.length Sys.argv > 3 then
+      failwith (sprintf "Usage: %s <Aircraft name> [conf.xml]" Sys.argv.(0));
     let aircraft = Sys.argv.(1) in
+    let conf_xml = if Array.length Sys.argv = 3 then Sys.argv.(2) else default_conf_xml in
     let conf = Xml.parse_file conf_xml in
-    check_unique_id_and_name conf;
+    check_unique_id_and_name conf conf_xml;
     let aircraft_xml =
       try
         ExtXml.child conf ~select:(fun x -> Xml.attrib x "name" = aircraft) "aircraft"
@@ -422,7 +423,7 @@ let () =
     end;
 
     (* Get TARGET env, needed to build modules.h according to the target *)
-    let t = Printf.sprintf "TARGET=%s" (try Sys.getenv "TARGET" with _ -> "") in
+    let t = try Printf.sprintf "TARGET=%s" (Sys.getenv "TARGET") with _ -> "" in
     make "all_ac_h" t;
     make_opt "radio_ac_h" "RADIO" "radio";
     make_opt "flight_plan_ac_h" "FLIGHT_PLAN" "flight_plan"

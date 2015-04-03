@@ -37,12 +37,6 @@ struct Sbus sbus1, sbus2;
 
 // Telemetry function
 #if PERIODIC_TELEMETRY
-#ifdef FBW
-#define DOWNLINK_TELEMETRY &telemetry_Fbw
-#else
-#define DOWNLINK_TELEMETRY DefaultPeriodic
-#endif
-
 #include "subsystems/datalink/telemetry.h"
 
 static void send_sbus(struct transport_tx *trans, struct link_device *dev)
@@ -61,7 +55,7 @@ void radio_control_impl_init(void)
 
   // Register telemetry message
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DOWNLINK_TELEMETRY, "PPM", send_sbus);
+  register_periodic_telemetry(DefaultPeriodic, "PPM", send_sbus);
 #endif
 }
 

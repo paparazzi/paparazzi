@@ -311,11 +311,11 @@ let send_telemetry_status = fun a ->
     [ "ac_id", Pprz.String id;
       "link_id", Pprz.String link_id;
       "time_since_last_msg", Pprz.Float (U.gettimeofday () -. a.last_msg_date); (* don't use rx_lost_time from LINK_REPORT so it also works in simulation *)
-      "rx_bytes", Pprz.Int link_status.rx_bytes;
-      "rx_msgs", Pprz.Int link_status.rx_msgs;
+      "rx_bytes", Pprz.Int64 (Int64.of_int link_status.rx_bytes);
+      "rx_msgs", Pprz.Int64 (Int64.of_int link_status.rx_msgs);
       "rx_bytes_rate", Pprz.Float link_status.rx_bytes_rate;
-      "tx_msgs", Pprz.Int link_status.tx_msgs;
-      "uplink_lost_time", Pprz.Int datalink_status.uplink_lost_time;
+      "tx_msgs", Pprz.Int64 (Int64.of_int link_status.tx_msgs);
+      "uplink_lost_time", Pprz.Int64 (Int64.of_int datalink_status.uplink_lost_time);
       "uplink_msgs", Pprz.Int datalink_status.uplink_msgs;
       "downlink_msgs", Pprz.Int datalink_status.downlink_msgs;
       "downlink_rate", Pprz.Int datalink_status.downlink_rate;
@@ -367,7 +367,7 @@ let send_aircraft_msg = fun ac ->
                   "lat", f ((Rad>>Deg)wgs84.posn_lat);
                   "long", f ((Rad>>Deg) wgs84.posn_long);
                   "unix_time", f a.unix_time;
-                  "itow", Pprz.Int32 a.itow;
+                  "itow", Pprz.Int64 a.itow;
                   "speed", f a.gspeed;
                   "airspeed", f a.airspeed; (* negative value is sent if no airspeed available *)
                   "course", f (Geometry_2d.rad2deg a.course);
@@ -379,16 +379,17 @@ let send_aircraft_msg = fun ac ->
     (** send ACINFO messages if more than one A/C registered *)
     if Hashtbl.length aircrafts > 1 then
       begin
+        let cm_of_m_32 = fun f -> Pprz.Int32 (Int32.of_int (truncate (100. *. f))) in
         let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f)) in
         let pos = LL.utm_of WGS84 a.pos in
         let ac_info = ["ac_id", Pprz.String ac;
-                       "utm_east", cm_of_m pos.utm_x;
-                       "utm_north", cm_of_m pos.utm_y;
+                       "utm_east", cm_of_m_32 pos.utm_x;
+                       "utm_north", cm_of_m_32 pos.utm_y;
                        "course", Pprz.Int (truncate (10. *. (Geometry_2d.rad2deg a.course)));
-                       "alt", cm_of_m a.alt;
+                       "alt", cm_of_m_32 a.alt;
                        "speed", cm_of_m a.gspeed;
                        "climb", cm_of_m a.climb;
-                       "itow", Pprz.Int32 a.itow] in
+                       "itow", Pprz.Int64 a.itow] in
         Dl_Pprz.message_send my_id "ACINFO" ac_info;
       end;
 
@@ -401,8 +402,8 @@ let send_aircraft_msg = fun ac ->
             let values = ["ac_id", Pprz.String ac;
                           "cur_block", Pprz.Int a.cur_block;
                           "cur_stage", Pprz.Int a.cur_stage;
-                          "stage_time", Pprz.Int a.stage_time;
-                          "block_time", Pprz.Int a.block_time;
+                          "stage_time", Pprz.Int64 (Int64.of_int a.stage_time);
+                          "block_time", Pprz.Int64 (Int64.of_int a.block_time);
                           "target_lat", f ((Rad>>Deg)a.desired_pos.posn_lat);
                           "target_long", f ((Rad>>Deg)a.desired_pos.posn_long);
                           "target_alt", Pprz.Float a.desired_altitude;
@@ -432,7 +433,7 @@ let send_aircraft_msg = fun ac ->
     let state_filter_mode = get_indexed_value state_filter_modes a.state_filter_mode
     and kill_mode = if a.kill_mode then "ON" else "OFF" in
     let values = ["ac_id", Pprz.String ac;
-                  "flight_time", Pprz.Int a.flight_time;
+                  "flight_time", Pprz.Int64 (Int64.of_int a.flight_time);
                   "ap_mode", Pprz.String ap_mode;
                   "gaz_mode", Pprz.String gaz_mode;
                   "lat_mode", Pprz.String lat_mode;
@@ -690,7 +691,7 @@ let ivy_server = fun http ->
 let cm_of_m = fun f -> Pprz.Int (truncate ((100. *. f) +. 0.5))
 
 (** Convert to mm, with rounding *)
-let mm_of_m = fun f -> Pprz.Int (truncate ((1000. *. f) +. 0.5))
+let mm_of_m_32 = fun f -> Pprz.Int32 (Int32.of_int (truncate ((1000. *. f) +. 0.5)))
 
 let dl_id = "ground_dl" (* Hack, should be [my_id] *)
 
@@ -703,7 +704,7 @@ let move_wp = fun logging _sender vs ->
              "ac_id", Pprz.String ac_id;
              "lat", deg7 "lat";
              "lon", deg7 "long";
-             "alt", mm_of_m (Pprz.float_assoc "alt" vs) ] in
+             "alt", mm_of_m_32 (Pprz.float_assoc "alt" vs) ] in
   Dl_Pprz.message_send dl_id "MOVE_WP" vs;
   log logging ac_id "MOVE_WP" vs
 

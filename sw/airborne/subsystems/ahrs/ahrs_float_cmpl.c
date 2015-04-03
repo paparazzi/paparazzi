@@ -36,7 +36,6 @@
 #if USE_GPS
 #include "subsystems/gps.h"
 #endif
-#include "state.h"
 
 //#include "../../test/pprz_algebra_print.h"
 
@@ -54,7 +53,6 @@
 #if USE_MAGNETOMETER && AHRS_USE_GPS_HEADING
 #warning "Using magnetometer _and_ GPS course to update heading. Probably better to <configure name="USE_MAGNETOMETER" value="0"/> if you want to use GPS course."
 #endif
-
 
 /*
  * default gains for correcting attitude and bias from accel/mag
@@ -82,9 +80,6 @@
 void ahrs_fc_update_mag_full(struct Int32Vect3 *mag, float dt);
 void ahrs_fc_update_mag_2d(struct Int32Vect3 *mag, float dt);
 void ahrs_fc_update_mag_2d_dumb(struct Int32Vect3 *mag);
-
-static inline void compute_body_orientation_and_rates(void);
-
 
 struct AhrsFloatCmpl ahrs_fc;
 
@@ -138,9 +133,6 @@ bool_t ahrs_fc_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
   /* Convert initial orientation from quat to rotation matrix representations. */
   float_rmat_of_quat(&ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.ltp_to_imu_quat);
 
-  /* Compute initial body orientation */
-  compute_body_orientation_and_rates();
-
   /* used averaged gyro as initial value for bias */
   struct Int32Rates bias0;
   RATES_COPY(bias0, *lp_gyro);
@@ -185,7 +177,6 @@ void ahrs_fc_propagate(struct Int32Rates *gyro, float dt)
   float_quat_normalize(&ahrs_fc.ltp_to_imu_quat);
   float_rmat_of_quat(&ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.ltp_to_imu_quat);
 #endif
-  compute_body_orientation_and_rates();
 
   // increase accel and mag propagation counters
   ahrs_fc.accel_cnt++;
@@ -221,12 +212,14 @@ void ahrs_fc_update_accel(struct Int32Vect3 *accel, float dt)
      * assumption: tangential velocity only along body x-axis
      */
     const struct FloatVect3 vel_tangential_body = {ahrs_fc.ltp_vel_norm, 0.0, 0.0};
+    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_fc.body_to_imu);
+    struct FloatRates body_rate;
+    float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_fc.imu_rate);
     struct FloatVect3 acc_c_body;
-    VECT3_RATES_CROSS_VECT3(acc_c_body, *stateGetBodyRates_f(), vel_tangential_body);
+    VECT3_RATES_CROSS_VECT3(acc_c_body, body_rate, vel_tangential_body);
 
     /* convert centrifugal acceleration from body to imu frame */
     struct FloatVect3 acc_c_imu;
-    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_fc.body_to_imu);
     float_rmat_vmult(&acc_c_imu, body_to_imu_rmat, &acc_c_body);
 
     /* and subtract it from imu measurement to get a corrected measurement of the gravity vector */
@@ -403,11 +396,11 @@ void ahrs_fc_update_mag_2d_dumb(struct Int32Vect3 *mag)
 
 }
 
-void ahrs_fc_update_gps(void)
+void ahrs_fc_update_gps(struct GpsState *gps_s)
 {
 #if AHRS_GRAVITY_UPDATE_COORDINATED_TURN && USE_GPS
-  if (gps.fix == GPS_FIX_3D) {
-    ahrs_fc.ltp_vel_norm = gps.speed_3d / 100.;
+  if (gps_s->fix == GPS_FIX_3D) {
+    ahrs_fc.ltp_vel_norm = gps_s->speed_3d / 100.;
     ahrs_fc.ltp_vel_norm_valid = TRUE;
   } else {
     ahrs_fc.ltp_vel_norm_valid = FALSE;
@@ -416,12 +409,11 @@ void ahrs_fc_update_gps(void)
 
 #if AHRS_USE_GPS_HEADING && USE_GPS
   //got a 3d fix, ground speed > 0.5 m/s and course accuracy is better than 10deg
-  if (gps.fix == GPS_FIX_3D &&
-      gps.gspeed >= 500 &&
-      gps.cacc <= RadOfDeg(10 * 1e7)) {
+  if (3dfix && gps_s->gspeed >= 500 &&
+      gps_s->cacc <= RadOfDeg(10 * 1e7)) {
 
-    // gps.course is in rad * 1e7, we need it in rad
-    float course = gps.course / 1e7;
+    // gps_s->course is in rad * 1e7, we need it in rad
+    float course = gps_s->course / 1e7;
 
     if (ahrs_fc.heading_aligned) {
       /* the assumption here is that there is no side-slip, so heading=course */
@@ -440,12 +432,16 @@ void ahrs_fc_update_heading(float heading)
 
   FLOAT_ANGLE_NORMALIZE(heading);
 
-  struct FloatRMat *ltp_to_body_rmat = stateGetNedToBodyRMat_f();
+  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
+  struct FloatQuat ltp_to_body_quat;
+  float_quat_comp_inv(&ltp_to_body_quat, &ahrs_fc.ltp_to_imu_quat, body_to_imu_quat);
+  struct FloatRMat ltp_to_body_rmat;
+  float_rmat_of_quat(&ltp_to_body_rmat, &ltp_to_body_quat);
   // row 0 of ltp_to_body_rmat = body x-axis in ltp frame
   // we only consider x and y
   struct FloatVect2 expected_ltp = {
-    RMAT_ELMT(*ltp_to_body_rmat, 0, 0),
-    RMAT_ELMT(*ltp_to_body_rmat, 0, 1)
+    RMAT_ELMT(ltp_to_body_rmat, 0, 0),
+    RMAT_ELMT(ltp_to_body_rmat, 0, 1)
   };
 
   // expected_heading cross measured_heading
@@ -488,10 +484,12 @@ void ahrs_fc_realign_heading(float heading)
   q_h_new.qz = sinf(heading / 2.0);
   q_h_new.qi = cosf(heading / 2.0);
 
-  struct FloatQuat *ltp_to_body_quat = stateGetNedToBodyQuat_f();
+  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
+  struct FloatQuat ltp_to_body_quat;
+  float_quat_comp_inv(&ltp_to_body_quat, &ahrs_fc.ltp_to_imu_quat, body_to_imu_quat);
   /* quaternion representing current heading only */
   struct FloatQuat q_h;
-  QUAT_COPY(q_h, *ltp_to_body_quat);
+  QUAT_COPY(q_h, ltp_to_body_quat);
   q_h.qx = 0.;
   q_h.qy = 0.;
   float_quat_normalize(&q_h);
@@ -502,37 +500,13 @@ void ahrs_fc_realign_heading(float heading)
 
   /* correct current heading in body frame */
   struct FloatQuat q;
-  float_quat_comp_norm_shortest(&q, &q_c, ltp_to_body_quat);
+  float_quat_comp_norm_shortest(&q, &q_c, &ltp_to_body_quat);
 
   /* compute ltp to imu rotation quaternion and matrix */
-  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
   float_quat_comp(&ahrs_fc.ltp_to_imu_quat, &q, body_to_imu_quat);
   float_rmat_of_quat(&ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.ltp_to_imu_quat);
 
-  /* set state */
-  stateSetNedToBodyQuat_f(&q);
-
   ahrs_fc.heading_aligned = TRUE;
-}
-
-
-/**
- * Compute body orientation and rates from imu orientation and rates
- */
-static inline void compute_body_orientation_and_rates(void)
-{
-  /* Compute LTP to BODY quaternion */
-  struct FloatQuat ltp_to_body_quat;
-  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
-  float_quat_comp_inv(&ltp_to_body_quat, &ahrs_fc.ltp_to_imu_quat, body_to_imu_quat);
-  /* Set state */
-  stateSetNedToBodyQuat_f(&ltp_to_body_quat);
-
-  /* compute body rates */
-  struct FloatRates body_rate;
-  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_fc.body_to_imu);
-  float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_fc.imu_rate);
-  stateSetBodyRates_f(&body_rate);
 }
 
 void ahrs_fc_set_body_to_imu(struct OrientationReps *body_to_imu)

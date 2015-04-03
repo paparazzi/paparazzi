@@ -108,6 +108,7 @@ static inline void main_periodic(void)
 
 static inline void main_event(void)
 {
+  mcu_event();
   DatalinkEvent();
   RadioControlEvent(on_rc_frame);
 }

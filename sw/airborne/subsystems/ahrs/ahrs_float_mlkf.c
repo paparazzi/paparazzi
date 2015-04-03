@@ -33,8 +33,6 @@
 
 #include <string.h>  /* for memcpy      */
 
-#include "state.h"
-
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_simple_matrix.h"
@@ -57,7 +55,6 @@ static inline void update_state_heading(const struct FloatVect3 *i_expected,
                                         struct FloatVect3 *b_measured,
                                         struct FloatVect3 *noise);
 static inline void reset_state(void);
-static inline void set_body_state_from_quat(void);
 
 struct AhrsMlkf ahrs_mlkf;
 
@@ -115,9 +112,6 @@ bool_t ahrs_mlkf_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
   /* Compute an initial orientation from accel and mag directly as quaternion */
   ahrs_float_get_quat_from_accel_mag(&ahrs_mlkf.ltp_to_imu_quat, lp_accel, lp_mag);
 
-  /* set initial body orientation */
-  set_body_state_from_quat();
-
   /* used averaged gyro as initial value for bias */
   struct Int32Rates bias0;
   RATES_COPY(bias0, *lp_gyro);
@@ -132,7 +126,6 @@ void ahrs_mlkf_propagate(struct Int32Rates *gyro, float dt)
 {
   propagate_ref(gyro, dt);
   propagate_state(dt);
-  set_body_state_from_quat();
 }
 
 void ahrs_mlkf_update_accel(struct Int32Vect3 *accel)
@@ -380,27 +373,5 @@ static inline void reset_state(void)
   float_quat_normalize(&q_tmp);
   memcpy(&ahrs_mlkf.ltp_to_imu_quat, &q_tmp, sizeof(ahrs_mlkf.ltp_to_imu_quat));
   float_quat_identity(&ahrs_mlkf.gibbs_cor);
-
-}
-
-/**
- * Compute body orientation and rates from imu orientation and rates
- */
-static inline void set_body_state_from_quat(void)
-{
-  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_mlkf.body_to_imu);
-  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_mlkf.body_to_imu);
-
-  /* Compute LTP to BODY quaternion */
-  struct FloatQuat ltp_to_body_quat;
-  float_quat_comp_inv(&ltp_to_body_quat, &ahrs_mlkf.ltp_to_imu_quat, body_to_imu_quat);
-  /* Set in state interface */
-  stateSetNedToBodyQuat_f(&ltp_to_body_quat);
-
-  /* compute body rates */
-  struct FloatRates body_rate;
-  float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_mlkf.imu_rate);
-  /* Set state */
-  stateSetBodyRates_f(&body_rate);
 
 }

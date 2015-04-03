@@ -71,6 +71,8 @@ static inline void main_periodic_task(void)
 
 static inline void main_event_task(void)
 {
+  mcu_event();
+
   ms2100_event(&ms2100);
   if (ms2100.status == MS2100_DATA_AVAILABLE) {
     RunOnceEvery(10, {

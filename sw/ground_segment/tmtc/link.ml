@@ -244,7 +244,7 @@ module XB = struct (** XBee module *)
       false))
 
   (* Array of sent packets for retry: (packet, nb of retries) *)
-  let packets = Array.create 256 ("", -1)
+  let packets = Array.make 256 ("", -1)
 
   (* Frame id generation > 0 and < 256 *)
   let gen_frame_id =

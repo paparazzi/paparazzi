@@ -22,7 +22,7 @@
 
 /**
  * @file peripherals/ms5611_i2c.c
- * Measurement Specialties (Intersema) MS5611-01BA pressure/temperature sensor interface for I2C.
+ * Measurement Specialties (Intersema) MS5611-01BA and MS5607-02BA03 pressure/temperature sensor interface for I2C.
  *
  */
 
@@ -30,7 +30,8 @@
 #include "peripherals/ms5611_i2c.h"
 
 
-void ms5611_i2c_init(struct Ms5611_I2c *ms, struct i2c_periph *i2c_p, uint8_t addr)
+void ms5611_i2c_init(struct Ms5611_I2c *ms, struct i2c_periph *i2c_p, uint8_t addr,
+                     bool_t is_ms5607)
 {
   /* set i2c_peripheral */
   ms->i2c_p = i2c_p;
@@ -44,6 +45,7 @@ void ms5611_i2c_init(struct Ms5611_I2c *ms, struct i2c_periph *i2c_p, uint8_t ad
   ms->initialized = FALSE;
   ms->status = MS5611_STATUS_UNINIT;
   ms->prom_cnt = 0;
+  ms->is_ms5607 = is_ms5607;
 }
 
 void ms5611_i2c_start_configure(struct Ms5611_I2c *ms)
@@ -152,8 +154,11 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms)
             ms->status = MS5611_STATUS_IDLE;
           } else {
             /* calculate temp and pressure from measurements and set available if valid */
-            if (ms5611_calc(&(ms->data))) {
-              ms->data_available = TRUE;
+            if (ms->is_ms5607) {
+              ms->data_available = ms5607_calc(&(ms->data));
+            }
+            else {
+              ms->data_available = ms5611_calc(&(ms->data));
             }
             ms->status = MS5611_STATUS_IDLE;
           }

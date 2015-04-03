@@ -733,8 +733,8 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
                LL.utm_zone = u0.LL.utm_zone;
                LL.utm_y = align u0.LL.utm_y 1000 } in
         for i = -size_utm_grid to size_utm_grid do
-          let h = Array.create (2*(2*size_utm_grid+1)) 0.
-          and v = Array.create (2*(2*size_utm_grid+1)) 0. in
+          let h = Array.make (2*(2*size_utm_grid+1)) 0.
+          and v = Array.make (2*(2*size_utm_grid+1)) 0. in
           for j = -size_utm_grid to size_utm_grid do
             let k = 2*(j+size_utm_grid) in
             let p = fun i j ->

@@ -21,25 +21,30 @@
     <subsystem name="imu" type="bebop"/>
     <subsystem name="gps" type="furuno"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
+    <subsystem name="ahrs"          type="float_mlkf"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat">
+      <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
+    </subsystem>
     <subsystem name="ins" type="extended"/>
   </firmware>
 
   <modules main_freq="512">
+    <load name="geo_mag.xml"/>
+    <load name="air_data.xml"/>
     <load name="send_imu_mag_current.xml"/>
-    <load name="logger_file.xml">
-      <define name="FILE_LOGGER_PATH" value="\\\"/data/ftp/internal_000/\\\""/>
-    </load>
-    <!--load name="video_rtp_stream.xml">
+    <!--load name="logger_file.xml">
+      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
+    </load-->
+    <load name="video_rtp_stream.xml">
       <define name="VIEWVIDEO_FPS" value="60"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-      <define name="VIEWVIDEO_DEVICE" value="\\\"/dev/video0\\\""/>
-      <define name="VIEWVIDEO_SUBDEV" value="\\\"/dev/v4l-subdev0\\\""/>
+      <define name="VIEWVIDEO_DEVICE" value="/dev/video0"/>
+      <define name="VIEWVIDEO_SUBDEV" value="/dev/v4l-subdev0"/>
       <define name="VIEWVIDEO_DEVICE_SIZE" value="320,240"/>
       <define name="VIEWVIDEO_DEVICE_BUFFERS" value="60"/>
-      <define name="VIEWVIDEO_SHOT_PATH" value="\\\"/data/ftp/internal_000/images\\\""/>
-    </load-->
+      <define name="VIEWVIDEO_SHOT_PATH" value="/data/ftp/internal_000/images"/>
+    </load>
   </modules>
 
   <commands>
@@ -78,6 +83,12 @@
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[2]"/>
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[3]"/>
   </command_laws>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="CALC_AIRSPEED" value="FALSE"/>
+    <define name="CALC_TAS_FACTOR" value="FALSE"/>
+    <define name="CALC_AMSL_BARO" value="TRUE"/>
+  </section>
 
   <section name="IMU" prefix="IMU_">
     <!-- Magneto calibration -->

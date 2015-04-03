@@ -7,7 +7,7 @@ archive(byte) = "lib-pprz.cma"
 archive(native) = "lib-pprz.cmxa"
 
 package "xlib" (
-  requires = "pprz,lablgtk2-gnome.gnomecanvas,lablgtk2.glade"
+  requires = "pprz,LABLGTK2GNOMECANVAS,lablgtk2.glade"
   version = "1.0"
   archive(byte) = "xlib-pprz.cma"
   archive(native) = "xlib-pprz.cmxa"

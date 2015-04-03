@@ -11,6 +11,8 @@
     <define name="DC_POWER_OFF_GPIO" value="GPIOC,GPIO1" description="optional, gpio to turn power off"/>
     <define name="DC_PUSH" value="gpio_set|gpio_clear" description="specifies whether to set or clear gpio to push the shutter (default: gpio_set)"/>
     <define name="DC_RELEASE" value="gpio_clear|gpio_set" description="specifies whether to set or clear gpio to release the shutter (default: gpio_clear)"/>
+    <define name="DC_SHUTTER_DELAY" value="2" description="how long to push shutter in periodic cycles (default of 2 = 0.5s at 4Hz periodic)"/>
+    <define name="DC_POWER_OFF_DELAY" value="3" description="how long to send power off in periodic cycles (default: 3 = 0.75s at 4Hz periodic)"/>
 
     <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
     <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="distance interval for DC_AUTOSHOOT_DISTANCE in meters"/>

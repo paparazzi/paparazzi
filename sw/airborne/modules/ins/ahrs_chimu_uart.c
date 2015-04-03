@@ -34,7 +34,9 @@ struct AhrsChimu ahrs_chimu;
 
 void ahrs_chimu_register(void)
 {
-  ahrs_register_impl(ahrs_chimu_init, NULL);
+  ahrs_chimu_init();
+  /// @TODO: provide enable function
+  ahrs_register_impl(NULL);
 }
 
 void ahrs_chimu_init(void)
@@ -72,8 +74,9 @@ void ahrs_chimu_init(void)
 
 void parse_ins_msg(void)
 {
-  while (InsLink(ChAvailable())) {
-    uint8_t ch = InsLink(Getch());
+  struct link_device *dev = InsLinkDevice;
+  while (dev->char_available(dev->periph)) {
+    uint8_t ch = dev->get_byte(dev->periph);
 
     if (CHIMU_Parse(ch, 0, &CHIMU_DATA)) {
       if (CHIMU_DATA.m_MsgID == 0x03) {

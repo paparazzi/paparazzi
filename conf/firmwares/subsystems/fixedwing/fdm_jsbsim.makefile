@@ -24,7 +24,7 @@ nps.srcs    += $(fbw_srcs) $(ap_srcs)
 nps.CFLAGS  += -DSITL -DUSE_NPS
 nps.CFLAGS  += $(shell pkg-config glib-2.0 --cflags)
 nps.LDFLAGS += $(shell pkg-config glib-2.0 --libs) -lm -lglibivy $(shell pcre-config --libs) -lgsl -lgslcblas
-nps.CFLAGS  += -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I$(PAPARAZZI_SRC)/sw/simulator/nps -I$(PAPARAZZI_HOME)/conf/simulator/nps
+nps.CFLAGS  += -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I$(PAPARAZZI_SRC)/sw/simulator -I$(PAPARAZZI_SRC)/sw/simulator/nps -I$(PAPARAZZI_HOME)/conf/simulator/nps
 nps.LDFLAGS += $(shell sdl-config --libs)
 
 # use the paparazzi-jsbsim package if it is installed, otherwise look for JSBsim under /opt/jsbsim
@@ -67,7 +67,7 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
 
 nps.srcs += math/pprz_geodetic_wmm2010.c
 
-nps.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp -DDefaultPeriodic='&telemetry_Ap'
+nps.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp
 nps.srcs += subsystems/datalink/ivy_transport.c
 nps.srcs += subsystems/datalink/downlink.c subsystems/datalink/telemetry.c
 nps.srcs += $(SRC_FIRMWARE)/datalink.c

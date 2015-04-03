@@ -32,6 +32,7 @@
 #define AHRS_INT_CMPL_QUAT_H
 
 #include "subsystems/ahrs.h"
+#include "subsystems/gps.h"
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_orientation_conversion.h"
@@ -113,7 +114,7 @@ extern bool_t ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_a
 extern void ahrs_icq_propagate(struct Int32Rates *gyro, float dt);
 extern void ahrs_icq_update_accel(struct Int32Vect3 *accel, float dt);
 extern void ahrs_icq_update_mag(struct Int32Vect3 *mag, float dt);
-extern void ahrs_icq_update_gps(void);
+extern void ahrs_icq_update_gps(struct GpsState *gps_s);
 
 /** Update yaw based on a heading measurement.
  * e.g. from GPS course

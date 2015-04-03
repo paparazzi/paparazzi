@@ -116,11 +116,7 @@ static inline void main_periodic_task(void)
 
 static inline void main_event_task(void)
 {
-#if USE_UDP
-  udp_event();
-#else
-  uart_event();
-#endif
+  mcu_event();
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 }
 
@@ -128,7 +124,9 @@ static inline void on_accel_event(void)
 {
   imu_scale_accel(&imu);
 
+#if USE_LED_3
   RunOnceEvery(50, LED_TOGGLE(3));
+#endif
   static uint8_t cnt;
   cnt++;
   if (cnt > 15) { cnt = 0; }
@@ -149,7 +147,9 @@ static inline void on_gyro_event(void)
 {
   imu_scale_gyro(&imu);
 
+#if USE_LED_2
   RunOnceEvery(50, LED_TOGGLE(2));
+#endif
   static uint8_t cnt;
   cnt++;
   if (cnt > 15) { cnt = 0; }

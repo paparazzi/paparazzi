@@ -21,11 +21,14 @@
 
 /**
  * @file boards/bebop/baro_board.h
- * Paparazzi Bebop Baro Sensor implementation using the ms5611.
+ * Paparazzi Bebop Baro Sensor implementation for the MS5607.
+ * Actually uses the MS5611 driver, but sets BB_MS5611_TYPE_MS5607 to TRUE.
  */
 
 #ifndef BOARDS_BEBOP_BARO_H
 #define BOARDS_BEBOP_BARO_H
+
+#define BB_MS5611_TYPE_MS5607 TRUE
 
 // only for printing the baro type during compilation
 #ifndef BARO_BOARD

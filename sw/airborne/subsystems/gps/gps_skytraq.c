@@ -97,6 +97,21 @@ void gps_impl_init(void)
 
 }
 
+void gps_skytraq_msg(void (* _cb)(void))
+{
+  gps.last_msg_ticks = sys_time.nb_sec_rem;
+  gps.last_msg_time = sys_time.nb_sec;
+  gps_skytraq_read_message();
+  if (gps_skytraq.msg_id == SKYTRAQ_ID_NAVIGATION_DATA) {
+    if (gps.fix == GPS_FIX_3D) {
+      gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+      gps.last_3dfix_time = sys_time.nb_sec;
+    }
+    _cb();
+  }
+  gps_skytraq.msg_available = FALSE;
+}
+
 
 void gps_skytraq_read_message(void)
 {

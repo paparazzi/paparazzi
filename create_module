@@ -36,9 +36,9 @@ printf "Not all options are accessible from this program,\n";
 printf "see http://wiki.paparazziuav.org/wiki/Modules for more information.\n";
 (*printf "Please follow the instruction or pass a module xml file as intput\n\n";;*)
 printf "Please follow the instruction\n\n";;
-let name = ask "Enter your module name";;
+let name = String.lowercase (ask "Enter your module name");;
 if name = "" then quit_with_error "module name must not be empty. Leaving." 1;;
-let dir = ask "Enter a module directory or leave blank if same as name";;
+let dir = String.lowercase (ask "Enter a module directory or leave blank if same as name");;
 let desc = ask "Enter a short description of your module";;
 
 let init_list = ref [];;
@@ -54,24 +54,24 @@ let ask_init = fun () ->
     printf "You already added an init function.\n"
   else begin
     printf "Initialization function to call, eg \"foo_init()\":\n";
-    let name = ask_param "function" Mandatory in
+    let name = String.lowercase (ask_param "function" Mandatory) in
     add_to_list init_list name
   end;
   true;;
 
 let ask_periodic = fun () ->
   printf "Parameters for a periodic function:\n";
-  let name = ask_param "function name" Mandatory in
+  let name = String.lowercase (ask_param "function name" Mandatory) in
   let freq = ask_param "call frequency" Mandatory in
-  let start = ask_param "start function" Optional in
-  let stop = ask_param "stop function" Optional in
+  let start =  String.lowercase (ask_param "start function" Optional) in
+  let stop =  String.lowercase (ask_param "stop function" Optional) in
   let auto = ask_param "autorun flag [TRUE, FALSE, LOCK (default)]" Optional in
   add_to_list periodic_list (name, freq, start, stop, auto);
   true;;
 
 let ask_event = fun () ->
   printf "Parameters for an event function:\n";
-  let name = ask_param "function name" Mandatory in
+  let name = String.lowercase(ask_param "function name" Mandatory) in
   add_to_list event_list name;
   true;;
 

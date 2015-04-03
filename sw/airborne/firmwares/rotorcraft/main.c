@@ -33,11 +33,6 @@
 #include <inttypes.h>
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
-#include "mcu_periph/i2c.h"
-#include "mcu_periph/uart.h"
-#if USE_UDP
-#include "mcu_periph/udp.h"
-#endif
 #include "led.h"
 
 #include "subsystems/datalink/telemetry.h"
@@ -85,10 +80,6 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "generated/modules.h"
 #include "subsystems/abi.h"
 
-#if USE_USB_SERIAL
-#include "mcu_periph/usb_serial.h"
-#endif
-
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 
@@ -113,10 +104,6 @@ PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY to at least ", AHRS_PROPAGATE_FREQUENCY)
 #endif
 #endif
-
-#define __DefaultAhrsRegister(_x) _x ## _register()
-#define _DefaultAhrsRegister(_x) __DefaultAhrsRegister(_x)
-#define DefaultAhrsRegister() _DefaultAhrsRegister(DefaultAhrsImpl)
 
 static inline void on_gyro_event(void);
 static inline void on_accel_event(void);
@@ -169,10 +156,12 @@ STATIC_INLINE void main_init(void)
 #if USE_AHRS_ALIGNER
   ahrs_aligner_init();
 #endif
-  ahrs_init();
-  ins_init();
 
-  DefaultAhrsRegister();
+#if USE_AHRS
+  ahrs_init();
+#endif
+
+  ins_init();
 
 #if USE_GPS
   gps_init();
@@ -237,6 +226,11 @@ STATIC_INLINE void main_periodic(void)
 
   imu_periodic();
 
+  //FIXME: temporary hack, remove me
+#ifdef InsPeriodic
+  InsPeriodic();
+#endif
+
   /* run control loops */
   autopilot_periodic();
   /* set actuators     */
@@ -268,7 +262,7 @@ STATIC_INLINE void telemetry_periodic(void)
   /* then report periodicly */
   else {
 #if PERIODIC_TELEMETRY
-    periodic_telemetry_send_Main(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+    periodic_telemetry_send_Main(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
   }
 }
@@ -317,20 +311,8 @@ STATIC_INLINE void failsafe_check(void)
 
 STATIC_INLINE void main_event(void)
 {
-
-  i2c_event();
-
-#ifndef SITL
-  uart_event();
-#endif
-
-#if USE_UDP
-  udp_event();
-#endif
-
-#if USE_USB_SERIAL
-  VCOM_event();
-#endif
+  /* event functions for mcu peripherals, like i2c, uart, etc.. */
+  mcu_event();
 
   DatalinkEvent();
 
@@ -384,20 +366,6 @@ static inline void on_gyro_event( void ) {
   if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif
 
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for INS propagation.")
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
-  // dt between this and last callback in seconds
-  float dt = (float)(now_ts - last_ts) / 1e6;
-  last_ts = now_ts;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for INS propagation.")
-PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
-  const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-#endif
-  ins_propagate(dt);
-
 #ifdef USE_VEHICLE_INTERFACE
   vi_notify_imu_available();
 #endif
@@ -405,8 +373,11 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
 
 static inline void on_gps_event(void)
 {
-  ahrs_update_gps();
-  ins_update_gps();
+  // current timestamp
+  uint32_t now_ts = get_sys_time_usec();
+
+  AbiSendMsgGPS(1, now_ts, &gps);
+
 #ifdef USE_VEHICLE_INTERFACE
   if (gps.fix == GPS_FIX_3D) {
     vi_notify_gps_available();

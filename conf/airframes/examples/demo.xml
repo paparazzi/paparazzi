@@ -91,7 +91,7 @@ demo5.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 demo5.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=uart0
 demo5.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
-demo5.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=UART0
+demo5.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=uart0
 
 
 #
@@ -117,7 +117,7 @@ demo6.srcs += $(SRC_ARCH)/usb_ser_hw.c
 demo6.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=usb_serial
 demo6.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
-//demo6.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=UART0
+//demo6.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=uart0
 
 
 
@@ -137,7 +137,7 @@ test_spk.CFLAGS += -DUSE_LED
 test_spk.srcs += $(SRC_ARCH)/armVIC.c
 
 test_spk.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DUSE_USB_SERIAL
-test_spk.CFLAGS += -DDOWNLINK_DEVICE=usb_serial -DPPRZ_UART=UsbS -DDATALINK=PPRZ
+test_spk.CFLAGS += -DDOWNLINK_DEVICE=usb_serial -DPPRZ_UART=usb_serial -DDATALINK=PPRZ
 test_spk.srcs += subsystems/datalink/downlink.c $(SRC_ARCH)/usb_ser_hw.c subsystems/datalink/pprz_transport.c
 test_spk.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
 test_spk.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c

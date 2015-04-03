@@ -185,7 +185,12 @@
 /      function must be added to the project. */
 
 
-#define	_FS_SHARE	0	/* 0:Disable or >=1:Enable */
+/* 0:Disable or >=1:Enable */
+#if FLIGHTRECORDER_SDLOG
+#define	_FS_SHARE	2 // Open a second file if flight recorder is used
+#else
+#define _FS_SHARE 0
+#endif
 /* To enable file shareing feature, set _FS_SHARE to 1 or greater. The value
    defines how many files can be opened simultaneously. */
 

@@ -40,24 +40,24 @@
 
 extern FIL pprzLogFile;
 
-#if LOG_PROCESS_STATE
+#if FLIGHTRECORDER_SDLOG
 // if activated, will log all process states
-extern FIL processLogFile;
+extern FIL flightRecorderLogFile;
 #endif
 
 extern bool_t chibios_logInit(const bool_t binaryFile);
 extern void chibios_logFinish(void);
 
 struct chibios_sdlog {
+  FIL *file;
   /** Generic device interface */
   struct link_device device;
 };
 
 extern struct chibios_sdlog chibios_sdlog;
 
-/** Paparazzi datalink API */
-#define SDLOGCheckFreeSpace(_x) (true)
-#define SDLOGTransmit(_x) sdLogWriteByte(&pprzLogFile, _x)
-#define SDLOGSendMessage() {}
+/** init chibios_sdlog structure
+ */
+extern void chibios_sdlog_init(struct chibios_sdlog *sdlog, FIL *file);
 
 #endif

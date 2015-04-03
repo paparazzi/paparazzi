@@ -75,15 +75,15 @@ subparser_upload_and_run.add_argument('file', help='Filename of an executable')
 subparser_upload_and_run.add_argument('folder', help='Destination subfolder (raw or sdk for Paparazzi autopilot)')
 subparser_upload = subparsers.add_parser('upload_file', help='Upload a file to the Bebop')
 subparser_upload.add_argument('file', help='Filename')
-subparser_upload.add_argument('folder', help='Destination subfolder (base destination folder is /data/video)')
+subparser_upload.add_argument('folder', help='Destination subfolder (base destination folder is /data/ftp)')
 subparser_download = subparsers.add_parser('download_file', help='Download a file from the Bebop')
 subparser_download.add_argument('file', help='Filename (with the path on the local machine)')
-subparser_download.add_argument('folder', help='Remote subfolder (base folder is /data/video)')
+subparser_download.add_argument('folder', help='Remote subfolder (base folder is /data/ftp)')
 subparser_download_dir = subparsers.add_parser('download_dir', help='Download all files from a folder from the Bebop')
 subparser_download_dir.add_argument('dest', help='destination folder (on the local machine)')
-subparser_download_dir.add_argument('folder', help='Remote subfolder (base folder is /data/video)')
+subparser_download_dir.add_argument('folder', help='Remote subfolder (base folder is /data/ftp)')
 subparser_rm_dir = subparsers.add_parser('rm_dir', help='Remove a directory and all its files from the Bebop')
-subparser_rm_dir.add_argument('folder', help='Remote subfolder (base folder is /data/video)')
+subparser_rm_dir.add_argument('folder', help='Remote subfolder (base folder is /data/ftp)')
 subparser_insmod = subparsers.add_parser('insmod', help='Upload and insert kernel module')
 subparser_insmod.add_argument('file', help='Filename of *.ko kernel module')
 subparser_start = subparsers.add_parser('start', help='Start a program on the Bebop')
@@ -98,6 +98,7 @@ tn, ftp = parrot_utils.connect(args.host)
 
 # Check the Bebop status
 if args.command == 'status':
+    print("Connected to Bebop at " + args.host)
     bebop_status()
 
 # Reboot the drone
@@ -107,12 +108,12 @@ elif args.command == 'reboot':
 
 # Kill a program
 elif args.command == 'kill':
-    parrot_utils.execute_command(tn,'killall -9 ' + args.program)
+    parrot_utils.execute_command(tn, 'killall -9 ' + args.program)
     print('Program "' + args.program + '" is now killed')
 
 # Start a program
 elif args.command == 'start':
-    parrot_utils.execute_command(tn,args.start + ' &')
+    parrot_utils.execute_command(tn, args.start + ' &')
     print('Program "' + args.start + '" is now started')
 
 
@@ -120,7 +121,7 @@ elif args.command == 'insmod':
     modfile = parrot_utils.split_into_path_and_file(args.file)
     print('Uploading \'' + modfile[1])
     parrot_utils.uploadfile(ftp, modfile[1], file(args.file, "rb"))
-    print(parrot_utils.execute_command(tn,"insmod /data/ftp/" + modfile[1]))
+    print(parrot_utils.execute_command(tn, "insmod /data/ftp/" + modfile[1]))
 
 elif args.command == 'upload_file_and_run':
     # Split filename and path
@@ -141,8 +142,8 @@ elif args.command == 'upload_file':
     # Split filename and path
     f = parrot_utils.split_into_path_and_file(args.file)
 
-    parrot_utils.execute_command(tn,"mkdir -p /data/ftp/" + args.folder)
-    print('Uploading \'' + f[1] + "\' from " + f[0] + " to /data/video/" + args.folder)
+    parrot_utils.execute_command(tn, "mkdir -p /data/ftp/" + args.folder)
+    print('Uploading \'' + f[1] + "\' from " + f[0] + " to /data/ftp/" + args.folder)
     parrot_utils.uploadfile(ftp, args.folder + "/" + f[1], file(args.file, "rb"))
     print("#pragma message: Upload of " + f[1] + " to Bebop Succes!")
 
@@ -151,9 +152,9 @@ elif args.command == 'download_file':
     f = parrot_utils.split_into_path_and_file(args.file)
     # Open file and download
     try:
-        file = open(args.file, 'wb')
+        fd = open(args.file, 'wb')
         print('Downloading \'' + f[1] + "\' from " + args.folder + " to " + f[0])
-        ftp.retrbinary("RETR " + args.folder + "/" + f[1], file.write)
+        ftp.retrbinary("RETR " + args.folder + "/" + f[1], fd.write)
         print("#pragma message: Download of " + f[1] + " from Bebop Succes!")
     except IOError:
         print("#pragma message: Fail to open file " + args.file)
@@ -161,7 +162,7 @@ elif args.command == 'download_file':
         os.remove(args.file)
         print("#pragma message: Download of " + f[1] + " from Bebop Failed!")
     else:
-        file.close()
+        fd.close()
 
 elif args.command == 'download_dir':
     # Split filename and path
@@ -175,16 +176,16 @@ elif args.command == 'download_dir':
         file_source = args.folder + '/' + file_name[1]
         file_dest = args.dest + '/' + file_name[1]
         try:
-            file = open(file_dest, 'wb')
+            fd = open(file_dest, 'wb')
             print('Downloading \'' + f + "\' to " + file_dest)
-            ftp.retrbinary("RETR " + file_source, file.write)
+            ftp.retrbinary("RETR " + file_source, fd.write)
         except IOError:
             print("#pragma message: Fail to open file " + file_dest)
         except:
             os.remove(file_dest)
             print("#pragma message: Download of " + f + " from Bebop Failed!")
         else:
-            file.close()
+            fd.close()
     print("#pragma message: End download of folder " + args.folder + " from Bebop")
 
 elif args.command == 'rm_dir':

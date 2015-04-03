@@ -33,6 +33,7 @@
 #include "std.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_orientation_conversion.h"
+#include "subsystems/gps.h"
 
 enum AhrsFCStatus {
   AHRS_FC_UNINIT,
@@ -84,7 +85,7 @@ extern bool_t ahrs_fc_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_ac
 extern void ahrs_fc_propagate(struct Int32Rates *gyro, float dt);
 extern void ahrs_fc_update_accel(struct Int32Vect3 *accel, float dt);
 extern void ahrs_fc_update_mag(struct Int32Vect3 *mag, float dt);
-extern void ahrs_fc_update_gps(void);
+extern void ahrs_fc_update_gps(struct GpsState *gps_s);
 
 /** Update yaw based on a heading measurement.
  * e.g. from GPS course

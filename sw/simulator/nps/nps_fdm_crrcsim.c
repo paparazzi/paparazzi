@@ -430,15 +430,25 @@ static void decode_ahrspacket(struct NpsFdm * fdm, byte* buffer)
 void decode_imupacket(struct NpsFdm * fdm, byte* buffer)
 {
   /* acceleration (0.1670132517315938e04 m/s^2 to m/s^2) */
-  fdm->body_ecef_accel.x = (double)ShortOfBuf(buffer,3)*5.98755e-04;
-  fdm->body_ecef_accel.y = (double)ShortOfBuf(buffer,5)*5.98755e-04;
-  fdm->body_ecef_accel.z = (double)ShortOfBuf(buffer,7)*5.98755e-04;
+  fdm->body_accel.x = (double)ShortOfBuf(buffer,3)*5.98755e-04;
+  fdm->body_accel.y = (double)ShortOfBuf(buffer,5)*5.98755e-04;
+  fdm->body_accel.z = (double)ShortOfBuf(buffer,7)*5.98755e-04;
+
+  /* since we don't get acceleration in ecef frame, use ECI for now */
+  fdm->body_ecef_accel.x = fdm->body_accel.x;
+  fdm->body_ecef_accel.y = fdm->body_accel.y;
+  fdm->body_ecef_accel.z = fdm->body_accel.z;
 
 
   /* angular rate (0.9387340515702713e4 rad/s to rad/s) */
-  fdm->body_ecef_rotvel.p  = (double)ShortOfBuf(buffer,9)*1.06526e-04;
-  fdm->body_ecef_rotvel.q  = (double)ShortOfBuf(buffer,11)*1.06526e-04;
-  fdm->body_ecef_rotvel.r  = (double)ShortOfBuf(buffer,13)*1.06526e-04;
+  fdm->body_inertial_rotvel.p = (double)ShortOfBuf(buffer,9)*1.06526e-04;
+  fdm->body_inertial_rotvel.q = (double)ShortOfBuf(buffer,11)*1.06526e-04;
+  fdm->body_inertial_rotvel.r = (double)ShortOfBuf(buffer,13)*1.06526e-04;
+
+  /* since we don't get angular velocity in ECEF frame, use the rotvel in ECI frame for now */
+  fdm->body_ecef_rotvel.p = fdm->body_inertial_rotvel.p;
+  fdm->body_ecef_rotvel.q = fdm->body_inertial_rotvel.q;
+  fdm->body_ecef_rotvel.r = fdm->body_inertial_rotvel.r;
 
   /* magnetic field in Gauss */
   //fdm->mag.x = (double)ShortOfBuf(buffer,15)*6.10352e-05;
@@ -451,12 +461,12 @@ void decode_imupacket(struct NpsFdm * fdm, byte* buffer)
 
 #if NPS_CRRCSIM_DEBUG
   printf("decode imu | accel %f %f %f | gyro %f %f %f\n",
-      fdm->body_ecef_accel.x,
-      fdm->body_ecef_accel.y,
-      fdm->body_ecef_accel.z,
-      fdm->body_ecef_rotvel.p,
-      fdm->body_ecef_rotvel.q,
-      fdm->body_ecef_rotvel.r);
+      fdm->body_accel.x,
+      fdm->body_accel.y,
+      fdm->body_accel.z,
+      fdm->body_inertial_rotvel.p,
+      fdm->body_inertial_rotvel.q,
+      fdm->body_inertial_rotvel.r);
 #endif
 }
 

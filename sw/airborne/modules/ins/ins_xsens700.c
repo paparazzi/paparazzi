@@ -188,11 +188,6 @@ void ins_init(void)
   xsens_init();
 }
 
-void ins_periodic(void)
-{
-  xsens_periodic();
-}
-
 void ins_update_gps(void)
 {
   struct UtmCoor_f utm;
@@ -304,7 +299,7 @@ void xsens_periodic(void)
 #if USE_INS_MODULE
 #include "state.h"
 
-static inline void update_fw_estimator(void)
+static inline void update_state_interface(void)
 {
   // Send to Estimator (Control)
 #if XSENS_BACKWARDS
@@ -339,7 +334,7 @@ void handle_ins_msg(void)
 {
 
 #if USE_INS_MODULE
-  update_fw_estimator();
+  update_state_interface();
 #endif
 
 #if USE_GPS_XSENS

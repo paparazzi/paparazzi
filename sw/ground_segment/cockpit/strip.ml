@@ -61,13 +61,6 @@ type strip_param = {
 
 let agl_max = 150.
 
-(** window for the strip panel *)
-let scrolled = GBin.scrolled_window ~hpolicy: `AUTOMATIC ~vpolicy: `AUTOMATIC ()
-let strips_table = GPack.vbox ~spacing:5 ~packing:scrolled#add_with_viewport ()
-
-
-
-
 (** set a label *)
 let set_label labels name value =
   try
@@ -105,7 +98,7 @@ end
 class vgauge = fun ?(color="#00ff00") ?(history_len=50) gauge_da v_min v_max ->
 object (self)
   inherit gauge gauge_da
-  val history = Array.create history_len 0
+  val history = Array.make history_len 0
   val mutable history_index = -1
   method set = fun ?arrow ?(background="orange") value strings ->
     let {Gtk.width=width; height=height} = gauge_da#misc#allocation in
@@ -198,7 +191,7 @@ end
 
 (** add a strip to the panel *)
 (*let add = fun config color min_bat max_bat ->*)
-let add = fun config strip_param ->
+let add = fun config strip_param (strips:GPack.box) ->
   let color = strip_param.color
   and min_bat = strip_param.min_bat
   and max_bat = strip_param.max_bat
@@ -217,7 +210,7 @@ let add = fun config strip_param ->
 
   let eventbox_dummy = GBin.event_box () in
 
-  strips_table#pack strip#toplevel#coerce;
+  strips#pack strip#toplevel#coerce;
 
   (* Name in top left *)
   strip#label_ac_name#set_label (sprintf "<b>%s</b>" ac_name);
@@ -237,6 +230,7 @@ let add = fun config strip_param ->
   bat_da#misc#realize ();
   let bat = new vgauge bat_da min_bat max_bat in
   bat#request_width "22.5";
+  bat#set 0. [0.5, "UNK"];
 
   (* AGL gauge *)
   let agl_da = strip#drawingarea_agl in
@@ -309,7 +303,9 @@ object
   method set_agl value =
     let arrow = max (min 0.5 (climb /. 5.)) (-0.5) in
     agl#set ~arrow value [0.2, (sprintf "%3.0f" value); 0.8, sprintf "%+.1f" climb]
-  method set_bat value = bat#set value [0.5, (string_of_float value)]
+  method set_bat value =
+    let v = if value < 0.1 then "UNK" else (string_of_float value) in
+    bat#set value [0.5, v]
   method set_throttle ?(kill=false) value =
     let background = if kill then "red" else "orange" in
     throttle#set ~background value (sprintf "%.0f%%" value)

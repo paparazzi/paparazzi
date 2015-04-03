@@ -13,7 +13,7 @@
     <define name="USE_AHRS"/>
     <define name="USE_INS_MODULE"/>
     <define name="USE_SPI"/>
-    <define name="INS_LINK" value="SpiSlave"/>
+    <define name="INS_LINK" value="spi_slave_hs"/>
     <define name="USE_USB_HIGH_PCLK" />
     <file name="ahrs_chimu_spi.c"/>
     <file name="imu_chimu.c"/>

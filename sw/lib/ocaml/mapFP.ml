@@ -236,11 +236,11 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
   (** The graphical waypoints *)
   let wpts_group = new MapWaypoints.group ~show_moved ~color ?editable geomap in
 
-  let array_of_waypoints = ref (Array.create 13 None) in
+  let array_of_waypoints = ref (Array.make 13 None) in
   let add_wp_to_array = fun index w ->
     let n = Array.length !array_of_waypoints in
     if index >= n then begin
-      let new_array = Array.create (n*2) None in
+      let new_array = Array.make (n*2) None in
       Array.blit !array_of_waypoints 0 new_array 0 n;
       array_of_waypoints := new_array
     end;

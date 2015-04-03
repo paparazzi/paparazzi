@@ -127,37 +127,24 @@ struct sirf_msg_41 {
 /*
  * This part is used by the autopilot to read data from a uart
  */
-#define __GpsLink(dev, _x) dev##_x
-#define _GpsLink(dev, _x)  __GpsLink(dev, _x)
-#define GpsLink(_x) _GpsLink(GPS_LINK, _x)
-
-#define GpsBuffer() GpsLink(ChAvailable())
-
-#define GpsEvent(_sol_available_callback) {             \
-    if (GpsBuffer()) {                                  \
-      ReadGpsBuffer();                                  \
-    }                                                   \
-    if (gps_sirf.msg_available) {                       \
-      gps.last_msg_ticks = sys_time.nb_sec_rem;         \
-      gps.last_msg_time = sys_time.nb_sec;              \
-      sirf_parse_msg();                                 \
-      if (gps_sirf.pos_available) {                     \
-        if (gps.fix == GPS_FIX_3D) {                    \
-          gps.last_3dfix_ticks = sys_time.nb_sec_rem;   \
-          gps.last_3dfix_time = sys_time.nb_sec;        \
-        }                                               \
-        _sol_available_callback();                      \
-      }                                                 \
-      gps_sirf.msg_available = FALSE;                   \
-    }                                                   \
-  }
-
-#define ReadGpsBuffer() {                                   \
-    while (GpsLink(ChAvailable())&&!gps_sirf.msg_available) \
-      sirf_parse_char(GpsLink(Getch()));                    \
-  }
+#include "mcu_periph/link_device.h"
 
 extern void sirf_parse_char(uint8_t c);
 extern void sirf_parse_msg(void);
+extern void gps_sirf_msg(void (* _cb)(void));
+
+static inline void GpsEvent(void (* _sol_available_callback)(void))
+{
+  struct link_device *dev = &((GPS_LINK).device);
+
+  if (dev->char_available(dev->periph)) {
+    while (dev->char_available(dev->periph)) {
+      sirf_parse_char(dev->get_byte(dev->periph));
+    }
+  }
+  if (gps_sirf.msg_available) {
+    gps_sirf_msg(_sol_available_callback);
+  }
+}
 
 #endif /* GPS_SIRF_H */

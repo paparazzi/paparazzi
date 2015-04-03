@@ -54,4 +54,17 @@
 #include "subsystems/datalink/downlink.h"
 #include "generated/periodic_telemetry.h"
 
+/** Global telemetry structure
+ *
+ * Contains the list of message names and registered callbacks.
+ * Filled with generated structure from periodic_telemetry.h
+ */
+extern struct periodic_telemetry pprz_telemetry;
+
+/** Set default periodic telemetry
+ */
+#ifndef DefaultPeriodic
+#define DefaultPeriodic (&pprz_telemetry)
+#endif
+
 #endif /* TELEMETRY_H */

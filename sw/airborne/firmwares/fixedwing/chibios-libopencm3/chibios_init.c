@@ -58,9 +58,7 @@ static WORKING_AREA(wa_thd_heartbeat, 2048);
 void chibios_launch_heartbeat (void);
 bool_t sdOk = FALSE;
 
-#if LOG_PROCESS_STATE
-static int32_t get_stack_free (Thread *tp);
-#endif
+
 
 /*
  * Init ChibiOS HAL and Sys
@@ -105,26 +103,6 @@ static __attribute__((noreturn)) msg_t thd_heartbeat(void *arg)
     chThdSleepMilliseconds (sdOk == TRUE ? 1000 : 200);
     static uint32_t timestamp = 0;
 
-#if LOG_PROCESS_STATE
-    sdLogWriteLog (&processLogFile, "    addr    stack  frestk prio refs  state  time name\r\n");
-#endif
-
-    // chSysDisable ();
-    Thread *tp = chRegFirstThread();
-    do {
-
-#if LOG_PROCESS_STATE
-      sdLogWriteLog (&processLogFile, "%.8lx %.8lx %6lu %4lu %4lu [S:%d] %5lu %s\r\n",
-          (uint32_t)tp, (uint32_t)tp->p_ctx.r13,
-          get_stack_free (tp),
-          (uint32_t)tp->p_prio, (uint32_t)(tp->p_refs - 1),
-          tp->p_state, (uint32_t)tp->p_time,
-          chRegGetThreadName(tp));
-#endif
-
-      tp = chRegNextThread(tp);
-    } while (tp != NULL);
-    // chSysEnable ();
 
     // we sync gps time to rtc every 5 seconds
     if (chTimeNow() - timestamp > 5000) {
@@ -138,20 +116,3 @@ static __attribute__((noreturn)) msg_t thd_heartbeat(void *arg)
 }
 
 
-#if LOG_PROCESS_STATE
-static int32_t get_stack_free (Thread *tp)
-{
-  int32_t index = 0;
-  const uint8_t *maxRamAddr =  (uint8_t*) (0x20000000 + (128*1024));
-  const int32_t internalStructSize = 80;
-
-  unsigned long long *stkAdr =  (unsigned long long *) ((uint8_t *) tp  + internalStructSize);
-  //unsigned long long *stkAdr =  (unsigned long long *) tp;
-
-  while ((stkAdr[index] == 0x5555555555555555) && ( ((uint8_t *) &(stkAdr[index])) < maxRamAddr))
-    index++;
-
-  const int32_t freeBytes = index * sizeof(long long);
-  return MAX(0, freeBytes - internalStructSize);
-}
-#endif

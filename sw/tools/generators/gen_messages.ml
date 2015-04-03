@@ -116,7 +116,7 @@ module Syntax = struct
     { id=id; name = name; period = period; fields = fields }
 
   let check_single_ids = fun msgs ->
-    let tab = Array.create 256 false
+    let tab = Array.make 256 false
     and  last_id = ref 0 in
     List.iter (fun msg ->
       if tab.(msg.id) then

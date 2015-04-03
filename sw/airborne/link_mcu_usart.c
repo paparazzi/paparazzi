@@ -29,16 +29,12 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 // LINK
 
-#define __InterMcuLink(dev, _x) dev##_x
-#define _InterMcuLink(dev, _x)  __InterMcuLink(dev, _x)
-#define InterMcuLink(_x) _InterMcuLink(INTERMCU_LINK, _x)
-
-#define InterMcuBuffer() InterMcuLink(ChAvailable())
-
-#define InterMcuUartSend1(c) InterMcuLink(Transmit(c))
-#define InterMcuUartSetBaudrate(_a) InterMcuLink(SetBaudrate(_a))
-#define InterMcuUartRunning InterMcuLink(TxRunning)
-#define InterMcuUartSendMessage InterMcuLink(SendMessage)
+// Use uart interface directly
+#define InterMcuBuffer() uart_char_available(&(INTERMCU_LINK))
+#define InterMcuUartSend1(c) uart_transmit(&(INTERMCU_LINK), c)
+#define InterMcuUartSetBaudrate(_a) uart_periph_set_baudrate(&(INTERMCU_LINK), _a)
+#define InterMcuUartSendMessage() {}
+#define InterMcuUartGetch() uart_getch(&(INTERMCU_LINK))
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // PROTOCOL
@@ -379,8 +375,8 @@ void link_mcu_event_task(void)
 {
   /* A message has been received */
   if (InterMcuBuffer()) {
-    while (InterMcuLink(ChAvailable())) {
-      intermcu_parse(InterMcuLink(Getch()));
+    while (InterMcuBuffer()) {
+      intermcu_parse(InterMcuUartGetch());
       if (intermcu_data.msg_available) {
         parse_mavpilot_msg();
         intermcu_data.msg_available = FALSE;

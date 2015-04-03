@@ -31,37 +31,18 @@
 #include "led.h"
 
 
-#define __ModemLink(dev, _x) dev##_x
-#define _ModemLink(dev, _x)  __ModemLink(dev, _x)
-#define ModemLink(_x) _ModemLink(MODEM_LINK, _x)
-#define ModemBuffer() ModemLink(ChAvailable())
-
-
-#define __AutopilotLink(dev, _x) dev##_x
-#define _AutopilotLink(dev, _x)  __AutopilotLink(dev, _x)
-#define AutopilotLink(_x) _AutopilotLink(AUTOPILOT_LINK, _x)
-
-#define AutopilotBuffer() AutopilotLink(ChAvailable())
+#define ModemLinkDevice (&(MODEM_LINK).device)
+#define AutopilotLinkDevice (&(AUTOPILOT_LINK).device)
 
 static inline void autopilot_parse(char c)
 {
-  ModemLink(Transmit(c));
+  ModemLinkDevice->put_byte(ModemLinkDevice->periph, c);
 }
 
 static inline void modem_parse(char c)
 {
-  AutopilotLink(Transmit(c));
+  AutopilotLinkDevice->put_byte(AutopilotLinkDevice->periph, c);
 }
-
-#define ReadAutopilotBuffer() {                 \
-    while (AutopilotLink(ChAvailable()))        \
-      autopilot_parse(AutopilotLink(Getch()));  \
-  }
-
-#define ReadModemBuffer() {                     \
-    while (ModemLink(ChAvailable()))            \
-      modem_parse(ModemLink(Getch()));          \
-  }
 
 void fbw_datalink_periodic(void)
 {
@@ -76,16 +57,19 @@ void fbw_datalink_periodic(void)
 void fbw_datalink_event(void)
 {
 #ifdef MODEM_LINK_LED
-  if (ModemLink(ChAvailable())) {
+  if (ModemLinkDevice->char_available(ModemLinkDevice->periph)) {
     LED_ON(MODEM_LINK_LED);
   }
 #endif
 #ifdef AUTOPILOT_LINK_LED
-  if (AutopilotLink(ChAvailable())) {
+  if (AutopilotLinkDevice->char_available(AutopilotLinkDevice->periph)) {
     LED_ON(AUTOPILOT_LINK_LED);
   }
 #endif
 
-  ReadModemBuffer();
-  ReadAutopilotBuffer();
+  while (ModemLinkDevice->char_available(ModemLinkDevice->periph))
+    modem_parse(ModemLinkDevice->get_byte(ModemLinkDevice->periph));
+
+  while (AutopilotLinkDevice->char_available(AutopilotLinkDevice->periph))
+    autopilot_parse(AutopilotLinkDevice->get_byte(AutopilotLinkDevice->periph));
 }

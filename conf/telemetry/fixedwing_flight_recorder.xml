@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<telemetry>
+  <process name="Ap">
+    <mode name="default">
+      <message name="AUTOPILOT_VERSION"   period="11.1"/>
+      <message name="AIRSPEED"            period="1"/>
+      <message name="ALIVE"               period="5.1"/>
+      <message name="GPS"                 period="0.25"/>
+      <message name="NAVIGATION"          period="1."/>
+      <message name="ATTITUDE"            period="0.1"/>
+      <message name="ESTIMATOR"           period="0.5"/>
+      <message name="ENERGY"              period="2.4"/>
+      <message name="WP_MOVED"            period="0.5"/>
+      <message name="CIRCLE"              period="1.05"/>
+      <message name="DESIRED"             period="0.2"/>
+      <message name="BAT"                 period="1.1"/>
+      <message name="SEGMENT"             period="1.2"/>
+      <message name="CALIBRATION"         period="2.1"/>
+      <message name="NAVIGATION_REF"      period="9."/>
+      <message name="PPRZ_MODE"           period="4.9"/>
+      <message name="SETTINGS"            period="5."/>
+      <message name="STATE_FILTER_STATUS" period="2.2"/>
+      <message name="DATALINK_REPORT"     period="5.1"/>
+      <message name="DL_VALUE"            period="1.5"/>
+      <message name="IR_SENSORS"          period="1.2"/>
+      <message name="SURVEY"              period="2.1"/>
+      <message name="GPS_SOL"             period="2.0"/>
+      <message name="IMU_ACCEL"           period=".8"/>
+      <message name="IMU_GYRO"            period=".6"/>
+      <message name="IMU_MAG"             period="1.3"/>
+      <message name="CAM"                 period="0.5"/>
+      <message name="CAM_POINT"           period="1.0"/>
+      <message name="COMMANDS"            period="5"/>
+      <message name="FBW_STATUS"          period="2"/>
+      <message name="AIR_DATA"            period="1.3"/>
+    </mode>
+    <mode name="minimal">
+      <message name="ALIVE"               period="5"/>
+      <message name="ATTITUDE"            period="4"/>
+      <message name="GPS"                 period="1.05"/>
+      <message name="ESTIMATOR"           period="1.3"/>
+      <message name="WP_MOVED"            period="1.4"/>
+      <message name="CIRCLE"              period="3.05"/>
+      <message name="DESIRED"             period="4.05"/>
+      <message name="BAT"                 period="1.1"/>
+      <message name="SEGMENT"             period="3.2"/>
+      <message name="CALIBRATION"         period="5.1"/>
+      <message name="NAVIGATION_REF"      period="9."/>
+      <message name="NAVIGATION"          period="3."/>
+      <message name="PPRZ_MODE"           period="5."/>
+      <message name="STATE_FILTER_STATUS" period="5."/>
+      <message name="DATALINK_REPORT"     period="5.1"/>
+      <message name="DL_VALUE"            period="1.5"/>
+      <message name="IR_SENSORS"          period="5.2"/>
+      <message name="SURVEY"              period="2.1"/>
+      <message name="GPS_SOL"             period="5.0"/>
+    </mode>
+    <mode name="extremal">
+      <message name="ALIVE"               period="5"/>
+      <message name="GPS"                 period="5.1"/>
+      <message name="ESTIMATOR"           period="5.3"/>
+      <message name="BAT"                 period="10.1"/>
+      <message name="DESIRED"             period="10.2"/>
+      <message name="NAVIGATION"          period="5.4"/>
+      <message name="PPRZ_MODE"           period="7.5"/>
+      <message name="STATE_FILTER_STATUS" period="8."/>
+      <message name="DATALINK_REPORT"     period="5.7"/>
+    </mode>
+    <mode name="raw_sensors">
+      <message name="DL_VALUE"          period="0.5"/>
+      <message name="ALIVE"             period="2.1"/>
+      <message name="IMU_ACCEL_RAW"     period=".05"/>
+      <message name="IMU_GYRO_RAW"      period=".05"/>
+      <message name="IMU_MAG_RAW"       period=".05"/>
+      <message name="BARO_RAW"          period="0.5"/>
+    </mode>
+    <mode name="scaled_sensors">
+      <message name="DL_VALUE"          period="0.5"/>
+      <message name="ALIVE"             period="2.1"/>
+      <message name="IMU_GYRO"          period=".075"/>
+      <message name="IMU_ACCEL"         period=".075"/>
+      <message name="IMU_MAG"           period=".1"/>
+    </mode>
+    <mode name="debug_imu">
+      <message name="ATTITUDE"            period="0.1"/>
+      <message name="ALIVE"               period="5"/>
+      <message name="GPS"                 period="5.1"/>
+      <message name="ESTIMATOR"           period="5.3"/>
+      <message name="BAT"                 period="10.1"/>
+      <message name="DESIRED"             period="10.2"/>
+      <message name="NAVIGATION"          period="5.4"/>
+      <message name="PPRZ_MODE"           period="5.5"/>
+      <message name="STATE_FILTER_STATUS" period="5."/>
+      <message name="DATALINK_REPORT"     period="5.7"/>
+      <message name="IMU_ACCEL"           period=".5"/>
+      <message name="IMU_GYRO"            period=".5"/>
+      <message name="IMU_MAG"             period=".5"/>
+      <message name="IMU_ACCEL_RAW"       period=".5"/>
+      <message name="IMU_GYRO_RAW"        period=".5"/>
+      <message name="IMU_MAG_RAW"         period=".5"/>
+    </mode>
+  </process>
+  <process name="Fbw">
+    <mode name="default">
+      <message name="COMMANDS"            period="5"/>
+      <message name="FBW_STATUS"          period="2"/>
+      <message name="ACTUATORS"           period="5"/> <!-- For trimming -->
+    </mode>
+    <mode name="debug">
+      <message name="PPM"                 period="0.5"/>
+      <message name="RC"                  period="0.5"/>
+      <message name="COMMANDS"            period="0.5"/>
+      <message name="FBW_STATUS"          period="1"/>
+      <message name="ACTUATORS"           period="5"/> <!-- For trimming -->
+    </mode>
+  </process>
+  <process name="FlightRecorder">
+    <mode name="default">
+      <message name="BAT"                 period="0.5"/>
+      <message name="ENERGY"              period="0.5"/>
+      <message name="GPS"                 period="0.2"/>
+      <message name="ATTITUDE"            period="0.05"/>
+      <message name="DESIRED"             period="0.05"/>
+      <message name="IMU_ACCEL"           period=".02"/>
+      <message name="IMU_GYRO"            period=".02"/>
+      <message name="IMU_MAG"             period=".02"/>
+      <message name="AIR_DATA"            period="0.5"/>
+      <message name="RC"                  period="0.05"/>
+      <message name="COMMANDS"            period="0.05"/>
+      <message name="ACTUATORS"           period="0.05"/>
+      <message name="PPRZ_MODE"           period="1.0"/>
+      <message name="FBW_MODE"            period="1.0"/>
+      <message name="NAVIGATION"          period="1.0"/>
+      <message name="DATALINK_REPORT"     period="1.0"/>
+    </mode>
+  </process>
+</telemetry>

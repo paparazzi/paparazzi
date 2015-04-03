@@ -3,20 +3,20 @@
 <settings>
   <dl_settings>
     <dl_settings NAME="invariant">
-      <dl_setting MAX="1" MIN="1" STEP="1" VAR="ins_impl.reset" shortname="reset"/>
-      <dl_setting MAX="10" MIN="0." STEP="0.001" VAR="ins_impl.gains.lv" shortname="lv" module="subsystems/ins/ins_float_invariant"/>
-      <dl_setting MAX="10" MIN="0." STEP="0.001" VAR="ins_impl.gains.lb" shortname="lb"/>
-      <dl_setting MAX="10" MIN="0." STEP="0.001" VAR="ins_impl.gains.mv" shortname="mv"/>
-      <dl_setting MAX="10" MIN="0." STEP="0.01" VAR="ins_impl.gains.mh" shortname="mh"/>
-      <dl_setting MAX="20" MIN="0." STEP="0.01" VAR="ins_impl.gains.nx" shortname="nx"/>
-      <dl_setting MAX="10" MIN="0." STEP="0.01" VAR="ins_impl.gains.nxz" shortname="nxz"/>
-      <dl_setting MAX="30" MIN="0." STEP="0.01" VAR="ins_impl.gains.mvz" shortname="mvz"/>
-      <dl_setting MAX="5" MIN="0." STEP="0.01" VAR="ins_impl.gains.nh" shortname="nh"/>
-      <dl_setting MAX="5" MIN="0." STEP="0.01" VAR="ins_impl.gains.ov" shortname="ov"/>
-      <dl_setting MAX="3" MIN="0." STEP="0.01" VAR="ins_impl.gains.ob" shortname="ob"/>
-      <dl_setting MAX="10" MIN="0." STEP="0.01" VAR="ins_impl.gains.rv" shortname="rv"/>
-      <dl_setting MAX="10" MIN="0." STEP="0.01" VAR="ins_impl.gains.rh" shortname="rh"/>
-      <dl_setting MAX="1" MIN="0." STEP="0.001" VAR="ins_impl.gains.sh" shortname="sh"/>
+      <dl_setting MAX="1" MIN="1" STEP="1" VAR="ins_float_inv.reset" shortname="reset"/>
+      <dl_setting MAX="10" MIN="0." STEP="0.001" VAR="ins_float_inv.gains.lv" shortname="lv" module="subsystems/ins/ins_float_invariant"/>
+      <dl_setting MAX="10" MIN="0." STEP="0.001" VAR="ins_float_inv.gains.lb" shortname="lb"/>
+      <dl_setting MAX="10" MIN="0." STEP="0.001" VAR="ins_float_inv.gains.mv" shortname="mv"/>
+      <dl_setting MAX="10" MIN="0." STEP="0.01" VAR="ins_float_inv.gains.mh" shortname="mh"/>
+      <dl_setting MAX="20" MIN="0." STEP="0.01" VAR="ins_float_inv.gains.nx" shortname="nx"/>
+      <dl_setting MAX="10" MIN="0." STEP="0.01" VAR="ins_float_inv.gains.nxz" shortname="nxz"/>
+      <dl_setting MAX="30" MIN="0." STEP="0.01" VAR="ins_float_inv.gains.mvz" shortname="mvz"/>
+      <dl_setting MAX="5" MIN="0." STEP="0.01" VAR="ins_float_inv.gains.nh" shortname="nh"/>
+      <dl_setting MAX="5" MIN="0." STEP="0.01" VAR="ins_float_inv.gains.ov" shortname="ov"/>
+      <dl_setting MAX="3" MIN="0." STEP="0.01" VAR="ins_float_inv.gains.ob" shortname="ob"/>
+      <dl_setting MAX="10" MIN="0." STEP="0.01" VAR="ins_float_inv.gains.rv" shortname="rv"/>
+      <dl_setting MAX="10" MIN="0." STEP="0.01" VAR="ins_float_inv.gains.rh" shortname="rh"/>
+      <dl_setting MAX="1" MIN="0." STEP="0.001" VAR="ins_float_inv.gains.sh" shortname="sh"/>
     </dl_settings>
   </dl_settings>
 </settings>

@@ -19,7 +19,7 @@ struct NpsSensorMag {
 };
 
 
-extern void nps_sensor_mag_init(struct NpsSensorMag* mag, double time);
-extern void nps_sensor_mag_run_step(struct NpsSensorMag* mag, double time, struct DoubleRMat* body_to_imu);
+extern void nps_sensor_mag_init(struct NpsSensorMag *mag, double time);
+extern void nps_sensor_mag_run_step(struct NpsSensorMag *mag, double time, struct DoubleRMat *body_to_imu);
 
 #endif /* NPS_SENSOR_MAG_H */

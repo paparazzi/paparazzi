@@ -51,7 +51,7 @@
 
 // The video device
 #ifndef VIEWVIDEO_DEVICE
-#define VIEWVIDEO_DEVICE "/dev/video1"
+#define VIEWVIDEO_DEVICE /dev/video1
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE);
 
@@ -80,6 +80,12 @@ PRINT_CONFIG_VAR(VIEWVIDEO_DOWNSIZE_FACTOR);
 #define VIEWVIDEO_QUALITY_FACTOR 50
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_QUALITY_FACTOR);
+
+// RTP time increment at 90kHz (default: 0 for automatic)
+#ifndef VIEWVIDEO_RTP_TIME_INC
+#define VIEWVIDEO_RTP_TIME_INC 0
+#endif
+PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC);
 
 // Frames Per Seconds
 #ifndef VIEWVIDEO_FPS
@@ -155,7 +161,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
 
 #if VIEWVIDEO_USE_NETCAT
   char nc_cmd[64];
-  sprintf(nc_cmd, "nc %s %d 2>/dev/null", VIEWVIDEO_HOST, VIEWVIDEO_PORT_OUT);
+  sprintf(nc_cmd, "nc %s %d 2>/dev/null", STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT);
 #endif
 
   // Start streaming
@@ -181,7 +187,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
       // Search for a file where we can write to
       char save_name[128];
       for (; viewvideo.shot_number < 99999; viewvideo.shot_number++) {
-        sprintf(save_name, "%s/img_%05d.jpg", VIEWVIDEO_SHOT_PATH, viewvideo.shot_number);
+        sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIEWVIDEO_SHOT_PATH), viewvideo.shot_number);
         // Check if file exists or not
         if (access(save_name, F_OK) == -1) {
           FILE *fp = fopen(save_name, "w");
@@ -251,7 +257,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
       0,                        // Format 422
       VIEWVIDEO_QUALITY_FACTOR, // Jpeg-Quality
       0,                        // DRI Header
-      0                         // 90kHz time increment
+      VIEWVIDEO_RTP_TIME_INC    // 90kHz time increment
     );
     // Extra note: when the time increment is set to 0,
     // it is automaticaly calculated by the send_rtp_frame function
@@ -284,30 +290,30 @@ void viewvideo_init(void)
   PRINT_CONFIG_VAR(VIEWVIDEO_SUBDEV);
 
   // Initialize the V4L2 subdevice (TODO: fix hardcoded path, which and code)
-  if (!v4l2_init_subdev("/dev/v4l-subdev0", 0, 1, V4L2_MBUS_FMT_UYVY8_2X8, VIEWVIDEO_DEVICE_SIZE)) {
-    printf("[viewvideo] Could not initialize the %s subdevice.\n", VIEWVIDEO_SUBDEV);
+  if (!v4l2_init_subdev(STRINGIFY(VIEWVIDEO_SUBDEV), 0, 1, V4L2_MBUS_FMT_UYVY8_2X8, VIEWVIDEO_DEVICE_SIZE)) {
+    printf("[viewvideo] Could not initialize the %s subdevice.\n", STRINGIFY(VIEWVIDEO_SUBDEV));
     return;
   }
 #endif
 
   // Initialize the V4L2 device
-  viewvideo.dev = v4l2_init(VIEWVIDEO_DEVICE, VIEWVIDEO_DEVICE_SIZE, VIEWVIDEO_DEVICE_BUFFERS);
+  viewvideo.dev = v4l2_init(STRINGIFY(VIEWVIDEO_DEVICE), VIEWVIDEO_DEVICE_SIZE, VIEWVIDEO_DEVICE_BUFFERS);
   if (viewvideo.dev == NULL) {
-    printf("[viewvideo] Could not initialize the %s V4L2 device.\n", VIEWVIDEO_DEVICE);
+    printf("[viewvideo] Could not initialize the %s V4L2 device.\n", STRINGIFY(VIEWVIDEO_DEVICE));
     return;
   }
 
   // Create the shot directory
   char save_name[128];
-  sprintf(save_name, "mkdir -p %s", VIEWVIDEO_SHOT_PATH);
+  sprintf(save_name, "mkdir -p %s", STRINGIFY(VIEWVIDEO_SHOT_PATH));
   if (system(save_name) != 0) {
-    printf("[viewvideo] Could not create shot directory %s.\n", VIEWVIDEO_SHOT_PATH);
+    printf("[viewvideo] Could not create shot directory %s.\n", STRINGIFY(VIEWVIDEO_SHOT_PATH));
     return;
   }
 
 #if VIEWVIDEO_USE_NETCAT
   // Create an Netcat receiver file for the streaming
-  sprintf(save_name, "%s/netcat-recv.sh", VIEWVIDEO_SHOT_PATH);
+  sprintf(save_name, "%s/netcat-recv.sh", STRINGIFY(VIEWVIDEO_SHOT_PATH));
   FILE *fp = fopen(save_name, "w");
   if (fp != NULL) {
     fprintf(fp, "i=0\n");
@@ -321,7 +327,7 @@ void viewvideo_init(void)
   }
 #else
   // Create an SDP file for the streaming
-  sprintf(save_name, "%s/stream.sdp", VIEWVIDEO_SHOT_PATH);
+  sprintf(save_name, "%s/stream.sdp", STRINGIFY(VIEWVIDEO_SHOT_PATH));
   FILE *fp = fopen(save_name, "w");
   if (fp != NULL) {
     fprintf(fp, "v=0\n");

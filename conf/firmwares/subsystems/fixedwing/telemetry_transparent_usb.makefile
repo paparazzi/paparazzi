@@ -2,9 +2,8 @@
 
 #serial USB (e.g. /dev/ttyACM0)
 
-telemetry_CFLAGS = -DDOWNLINK -DDOWNLINK_DEVICE=usb_serial -DPPRZ_UART=UsbS
+telemetry_CFLAGS = -DDOWNLINK -DDOWNLINK_DEVICE=usb_serial -DPPRZ_UART=usb_serial
 telemetry_CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ -DUSE_USB_SERIAL
-telemetry_CFLAGS += -DDefaultPeriodic='&telemetry_Ap'
 telemetry_srcs = subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c subsystems/datalink/telemetry.c
 telemetry_srcs += $(SRC_FIRMWARE)/datalink.c $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c
 # avoid fbw_telemetry_mode error
