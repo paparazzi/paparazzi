@@ -63,14 +63,12 @@ IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE2
 # SLAVE3 is on PC13, which is the baro CS
 IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE3
 
-ap.CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
-ap.srcs   += $(IMU_ASPIRIN_2_SRCS)
 
-test_imu.CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
-test_imu.srcs   += $(IMU_ASPIRIN_2_SRCS)
-
-test_ahrs.CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
-test_ahrs.srcs   += $(IMU_ASPIRIN_2_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
+$(TARGET).srcs += $(IMU_ASPIRIN_2_SRCS)
+endif
 
 #
 # NPS simulator

@@ -89,9 +89,14 @@ $(error Not implemented for the stm32 yet... should be trivial, just do it...)
 
 endif
 
-# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-ap.CFLAGS += $(imu_CFLAGS)
-ap.srcs += $(imu_srcs)
 
-test_imu.CFLAG += $(imu_CFLAGS)
-test_imu.srcs += $(imu_srcs)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(imu_CFLAGS)
+$(TARGET).srcs += $(imu_srcs)
+endif
+
+#
+# NPS simulator
+#
+include $(CFG_SHARED)/imu_nps.makefile

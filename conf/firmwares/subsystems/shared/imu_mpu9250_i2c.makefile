@@ -39,13 +39,11 @@ IMU_MPU9250_CFLAGS += -DIMU_MPU9250_I2C_DEV=$(MPU9250_I2C_DEV_LOWER)
 IMU_MPU9250_CFLAGS += -DUSE_$(MPU9250_I2C_DEV_UPPER)
 
 
-# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-
-ap.CFLAGS += $(IMU_MPU9250_CFLAGS)
-ap.srcs   += $(IMU_MPU9250_SRCS)
-
-test_imu.CFLAGS += $(IMU_MPU9250_CFLAGS)
-test_imu.srcs   += $(IMU_MPU9250_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_MPU9250_CFLAGS)
+$(TARGET).srcs += $(IMU_MPU9250_SRCS)
+endif
 
 
 #

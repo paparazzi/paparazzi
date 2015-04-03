@@ -13,8 +13,11 @@ IMU_UMARIM_CFLAGS += -DIMU_UMARIM_I2C_DEV=$(IMU_UMARIM_I2C_DEV)
 IMU_UMARIM_SRCS += peripherals/itg3200.c
 IMU_UMARIM_SRCS += peripherals/adxl345_i2c.c
 
-ap.CFLAGS += $(IMU_UMARIM_CFLAGS)
-ap.srcs   += $(IMU_UMARIM_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_UMARIM_CFLAGS)
+$(TARGET).srcs += $(IMU_UMARIM_SRCS)
+endif
 
 #
 # Simulator
