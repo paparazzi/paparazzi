@@ -69,7 +69,9 @@ static void handle_uart_tx(struct uart_periph *p)
   // check if more data to send
   if (p->tx_insert_idx != p->tx_extract_idx) {
     uint8_t data = p->tx_buf[p->tx_extract_idx];
+    p->tx_running = TRUE;
     sdWrite((SerialDriver *)p->reg_addr, &data, sizeof(data));
+    p->tx_running = FALSE;
     // TODO send by block (be careful with circular buffer)
     struct SerialInit *init_struct = (struct SerialInit*)(p->init_struct);
     chMtxLock(init_struct->tx_mtx);
@@ -77,7 +79,6 @@ static void handle_uart_tx(struct uart_periph *p)
     p->tx_extract_idx %= UART_TX_BUFFER_SIZE;
     chMtxUnlock();
   } else {
-    p->tx_running = FALSE;   // clear running flag
     chThdSleepMilliseconds(1);
   }
 }
@@ -562,19 +563,12 @@ void uart_transmit(struct uart_periph *p, uint8_t data)
   chMtxLock(init_struct->tx_mtx);
 
   uint16_t temp = (p->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;
-
   if (temp == p->tx_extract_idx) {
     chMtxUnlock();
     return;  // no room
   }
-
-  // check if in process of sending data
-  if (p->tx_running) { // yes, add to queue
-    p->tx_buf[p->tx_insert_idx] = data;
-    p->tx_insert_idx = temp;
-  } else { // no, set running flag and write to output register
-    p->tx_running = TRUE;
-  }
+  p->tx_buf[p->tx_insert_idx] = data;
+  p->tx_insert_idx = temp;
 
   chMtxUnlock();
 }
