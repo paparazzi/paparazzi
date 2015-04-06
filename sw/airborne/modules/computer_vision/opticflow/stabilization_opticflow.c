@@ -150,14 +150,9 @@ void stabilization_opticflow_update(struct opticflow_result_t *result)
   opticflow_stab.cmd.phi   = opticflow_stab.phi_pgain * err_vx / 100
                               + opticflow_stab.phi_igain * opticflow_stab.err_vx_int;
   opticflow_stab.cmd.theta = -(opticflow_stab.theta_pgain * err_vy / 100
-                              + opticflow_stab.err_vy_int * opticflow_stab.err_vy_int);
+                              + opticflow_stab.theta_igain * opticflow_stab.err_vy_int);
 
   /* Bound the roll and pitch commands */
   BoundAbs(opticflow_stab.cmd.phi, CMD_OF_SAT);
   BoundAbs(opticflow_stab.cmd.theta, CMD_OF_SAT);
-
-  DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice,
-                       &result->fps, &result->corner_cnt, &result->tracked_cnt, &result->flow_x, &result->flow_y,
-                       &result->flow_der_x, &result->flow_der_y, &result->vel_x, &result->vel_y,
-                       &opticflow_stab.cmd.phi, &opticflow_stab.cmd.theta);
 }

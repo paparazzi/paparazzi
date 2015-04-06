@@ -77,6 +77,26 @@ static pthread_mutex_t opticflow_mutex;             //< Mutex lock fo thread saf
 static void *opticflow_module_calc(void *data);                   //< The main optical flow calculation thread
 static void opticflow_agl_cb(uint8_t sender_id, float distance);  //< Callback function of the ground altitude
 
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+/**
+ * Send optical flow telemetry information
+ * @param[in] *trans The transport structure to send the information over
+ * @param[in] *dev The link to send the data over
+ */
+static void opticflow_telem_send(struct transport_tx *trans, struct link_device *dev)
+{
+  pthread_mutex_lock(&opticflow_mutex);
+  pprz_msg_send_OPTIC_FLOW_EST(trans, dev, AC_ID,
+                       &opticflow_result.fps, &opticflow_result.corner_cnt,
+                       &opticflow_result.tracked_cnt, &opticflow_result.flow_x,
+                       &opticflow_result.flow_y, &opticflow_result.flow_der_x,
+                       &opticflow_result.flow_der_y, &opticflow_result.vel_x,
+                       &opticflow_result.vel_y,
+                       &opticflow_stab.cmd.phi, &opticflow_stab.cmd.theta);
+  pthread_mutex_unlock(&opticflow_mutex);
+}
+#endif
 
 /**
  * Initialize the optical flow module for the bottom camera
@@ -111,6 +131,10 @@ void opticflow_module_init(void)
   if (opticflow_dev == NULL) {
     printf("[opticflow_module] Could not initialize the video device\n");
   }
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, "OPTIC_FLOW_EST", opticflow_telem_send);
+#endif
 }
 
 /**
@@ -174,7 +198,7 @@ static void *opticflow_module_calc(void *data __attribute__((unused))) {
     return 0;
   }
 
-#ifdef OPTICFLOW_DEBUG
+#if OPTICFLOW_DEBUG
   // Create a new JPEG image
   struct image_t img_jpeg;
   image_create(&img_jpeg, opticflow_dev->w, opticflow_dev->h, IMAGE_JPEG);
@@ -202,7 +226,7 @@ static void *opticflow_module_calc(void *data __attribute__((unused))) {
     opticflow_got_result = TRUE;
     pthread_mutex_unlock(&opticflow_mutex);
 
-#ifdef OPTICFLOW_DEBUG
+#if OPTICFLOW_DEBUG
     jpeg_encode_image(&img, &img_jpeg, 70, FALSE);
     rtp_frame_send(
       &VIEWVIDEO_DEV,           // UDP device
@@ -218,7 +242,7 @@ static void *opticflow_module_calc(void *data __attribute__((unused))) {
     v4l2_image_free(opticflow_dev, &img);
   }
 
-#ifdef OPTICFLOW_DEBUG
+#if OPTICFLOW_DEBUG
   image_free(&img_jpeg);
 #endif
 }

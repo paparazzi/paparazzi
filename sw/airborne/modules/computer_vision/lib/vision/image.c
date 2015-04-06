@@ -476,8 +476,8 @@ void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *
   uint16_t starty = from->y;
 
   /* compute the distances in both directions */
-  int32_t delta_x = from->x - to->x;
-  int32_t delta_y = from->y - to->y;
+  int32_t delta_x = to->x - from->x;
+  int32_t delta_y = to->y - from->y;
 
   /* Compute the direction of the increment,
      an increment of 0 means either a horizontal or vertical
