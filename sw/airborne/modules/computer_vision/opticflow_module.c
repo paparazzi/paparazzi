@@ -88,12 +88,12 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
 {
   pthread_mutex_lock(&opticflow_mutex);
   pprz_msg_send_OPTIC_FLOW_EST(trans, dev, AC_ID,
-                       &opticflow_result.fps, &opticflow_result.corner_cnt,
-                       &opticflow_result.tracked_cnt, &opticflow_result.flow_x,
-                       &opticflow_result.flow_y, &opticflow_result.flow_der_x,
-                       &opticflow_result.flow_der_y, &opticflow_result.vel_x,
-                       &opticflow_result.vel_y,
-                       &opticflow_stab.cmd.phi, &opticflow_stab.cmd.theta);
+                               &opticflow_result.fps, &opticflow_result.corner_cnt,
+                               &opticflow_result.tracked_cnt, &opticflow_result.flow_x,
+                               &opticflow_result.flow_y, &opticflow_result.flow_der_x,
+                               &opticflow_result.flow_der_y, &opticflow_result.vel_x,
+                               &opticflow_result.vel_y,
+                               &opticflow_stab.cmd.phi, &opticflow_stab.cmd.theta);
   pthread_mutex_unlock(&opticflow_mutex);
 }
 #endif
@@ -149,7 +149,7 @@ void opticflow_module_run(void)
   opticflow_state.theta = stateGetNedToBodyEulers_f()->theta;
 
   // Update the stabilization loops on the current calculation
-  if(opticflow_got_result) {
+  if (opticflow_got_result) {
     stabilization_opticflow_update(&opticflow_result);
     opticflow_got_result = FALSE;
   }
@@ -162,7 +162,7 @@ void opticflow_module_run(void)
 void opticflow_module_start(void)
 {
   // Check if we are not already running
-  if(opticflow_calc_thread != 0) {
+  if (opticflow_calc_thread != 0) {
     printf("[opticflow_module] Opticflow already started!\n");
     return;
   }
@@ -191,9 +191,10 @@ void opticflow_module_stop(void)
  * calculator based on Lucas Kanade
  */
 #include "errno.h"
-static void *opticflow_module_calc(void *data __attribute__((unused))) {
+static void *opticflow_module_calc(void *data __attribute__((unused)))
+{
   // Start the streaming on the V4L2 device
-  if(!v4l2_start_capture(opticflow_dev)) {
+  if (!v4l2_start_capture(opticflow_dev)) {
     printf("[opticflow_module] Could not start capture of the camera\n");
     return 0;
   }
@@ -205,7 +206,7 @@ static void *opticflow_module_calc(void *data __attribute__((unused))) {
 #endif
 
   /* Main loop of the optical flow calculation */
-  while(TRUE) {
+  while (TRUE) {
     // Try to fetch an image
     struct image_t img;
     v4l2_image_get(opticflow_dev, &img);

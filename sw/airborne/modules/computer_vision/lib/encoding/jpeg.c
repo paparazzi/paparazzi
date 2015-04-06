@@ -429,8 +429,9 @@ void jpeg_encode_image(struct image_t *in, struct image_t *out, uint32_t quality
   uint8_t *input_ptr = in->buf;
   uint32_t image_format = FOUR_ZERO_ZERO;
 
-  if(in->type == IMAGE_YUV422)
+  if (in->type == IMAGE_YUV422) {
     image_format = FOUR_TWO_TWO;
+  }
 
   JPEG_ENCODER_STRUCTURE JpegStruct;
   JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure = &JpegStruct;
@@ -479,7 +480,7 @@ void jpeg_encode_image(struct image_t *in, struct image_t *out, uint32_t quality
   output_ptr = jpeg_close_bitstream(output_ptr);
   out->w = in->w;
   out->h = in->h;
-  out->buf_size = output_ptr - (uint8_t*)out->buf;
+  out->buf_size = output_ptr - (uint8_t *)out->buf;
 }
 
 static uint8_t *jpeg_encodeMCU(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint32_t image_format, uint8_t *output_ptr)

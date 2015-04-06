@@ -163,16 +163,17 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
 
   // FAST corner detection (TODO: non fixed threashold)
   struct point_t *corners = fast9_detect(img, opticflow->fast9_threshold, opticflow->fast9_min_distance,
-    20, 20, &result->corner_cnt);
+                                         20, 20, &result->corner_cnt);
 
   // Adaptive threshold
-  if(opticflow->fast9_adaptive) {
+  if (opticflow->fast9_adaptive) {
 
     // Decrease and increase the threshold based on previous values
-    if(result->corner_cnt < 40 && opticflow->fast9_threshold > 5)
+    if (result->corner_cnt < 40 && opticflow->fast9_threshold > 5) {
       opticflow->fast9_threshold--;
-    else if(result->corner_cnt > 50 && opticflow->fast9_threshold < 60)
+    } else if (result->corner_cnt > 50 && opticflow->fast9_threshold < 60) {
       opticflow->fast9_threshold++;
+    }
   }
 
 #if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_CORNERS
@@ -180,7 +181,7 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
 #endif
 
   // Check if we found some corners to track
-  if(result->corner_cnt < 1) {
+  if (result->corner_cnt < 1) {
     free(corners);
     image_copy(&opticflow->img_gray, &opticflow->prev_img_gray);
     return;
@@ -193,8 +194,8 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // Execute a Lucas Kanade optical flow
   result->tracked_cnt = result->corner_cnt;
   struct flow_t *vectors = opticFlowLK(&opticflow->img_gray, &opticflow->prev_img_gray, corners, &result->tracked_cnt,
-    opticflow->window_size/2, opticflow->subpixel_factor, opticflow->max_iterations,
-    opticflow->threshold_vec, opticflow->max_track_corners);
+                                       opticflow->window_size / 2, opticflow->subpixel_factor, opticflow->max_iterations,
+                                       opticflow->threshold_vec, opticflow->max_track_corners);
 
 #if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_FLOW
   image_show_flow(img, vectors, result->tracked_cnt, opticflow->subpixel_factor);
@@ -202,24 +203,24 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
 
   // Get the median flow
   qsort(vectors, result->tracked_cnt, sizeof(struct flow_t), cmp_flow);
-  if(result->tracked_cnt == 0) {
+  if (result->tracked_cnt == 0) {
     // We got no flow
     result->flow_x = 0;
     result->flow_y = 0;
-  } else if(result->tracked_cnt > 3) {
+  } else if (result->tracked_cnt > 3) {
     // Take the average of the 3 median points
-    result->flow_x = vectors[result->tracked_cnt/2 -1].flow_x;
-    result->flow_y = vectors[result->tracked_cnt/2 -1].flow_y;
-    result->flow_x += vectors[result->tracked_cnt/2].flow_x;
-    result->flow_y += vectors[result->tracked_cnt/2].flow_y;
-    result->flow_x += vectors[result->tracked_cnt/2 +1].flow_x;
-    result->flow_y += vectors[result->tracked_cnt/2 +1].flow_y;
+    result->flow_x = vectors[result->tracked_cnt / 2 - 1].flow_x;
+    result->flow_y = vectors[result->tracked_cnt / 2 - 1].flow_y;
+    result->flow_x += vectors[result->tracked_cnt / 2].flow_x;
+    result->flow_y += vectors[result->tracked_cnt / 2].flow_y;
+    result->flow_x += vectors[result->tracked_cnt / 2 + 1].flow_x;
+    result->flow_y += vectors[result->tracked_cnt / 2 + 1].flow_y;
     result->flow_x /= 3;
     result->flow_y /= 3;
   } else {
     // Take the median point
-    result->flow_x = vectors[result->tracked_cnt/2].flow_x;
-    result->flow_y = vectors[result->tracked_cnt/2].flow_y;
+    result->flow_x = vectors[result->tracked_cnt / 2].flow_x;
+    result->flow_y = vectors[result->tracked_cnt / 2].flow_y;
   }
 
   // Flow Derotation
@@ -251,8 +252,8 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
 static uint32_t timeval_diff(struct timeval *starttime, struct timeval *finishtime)
 {
   uint32_t msec;
-  msec=(finishtime->tv_sec-starttime->tv_sec)*1000;
-  msec+=(finishtime->tv_usec-starttime->tv_usec)/1000;
+  msec = (finishtime->tv_sec - starttime->tv_sec) * 1000;
+  msec += (finishtime->tv_usec - starttime->tv_usec) / 1000;
   return msec;
 }
 
@@ -267,5 +268,5 @@ static int cmp_flow(const void *a, const void *b)
 {
   const struct flow_t *a_p = (const struct flow_t *)a;
   const struct flow_t *b_p = (const struct flow_t *)b;
-  return (a_p->flow_x*a_p->flow_x + a_p->flow_y*a_p->flow_y) - (b_p->flow_x*b_p->flow_x + b_p->flow_y*b_p->flow_y);
+  return (a_p->flow_x * a_p->flow_x + a_p->flow_y * a_p->flow_y) - (b_p->flow_x * b_p->flow_x + b_p->flow_y * b_p->flow_y);
 }

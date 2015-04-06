@@ -387,8 +387,7 @@ void navdata_update()
 
     navdata.imu_available = TRUE;
     navdata.packetsRead++;
-  }
-  else {
+  } else {
     // no new packet available, still unlock mutex again
     pthread_mutex_unlock(&navdata_mutex);
   }

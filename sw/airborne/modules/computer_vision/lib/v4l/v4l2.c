@@ -289,7 +289,8 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
  * @param[in] *dev The V4L2 video device we want to get an image from
  * @param[out] *img The image that we got from the video device
  */
-void v4l2_image_get(struct v4l2_device *dev, struct image_t *img) {
+void v4l2_image_get(struct v4l2_device *dev, struct image_t *img)
+{
   uint16_t img_idx = V4L2_IMG_NONE;
 
   // Continu to wait for an image
@@ -326,7 +327,8 @@ void v4l2_image_get(struct v4l2_device *dev, struct image_t *img) {
  * @param[out] *img The image that we got from the video device
  * @return Whether we got an image or not
  */
-bool_t v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img) {
+bool_t v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img)
+{
   uint16_t img_idx = V4L2_IMG_NONE;
 
   // Try to get the current image
@@ -341,7 +343,7 @@ bool_t v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img) {
   if (img_idx == V4L2_IMG_NONE) {
     return FALSE;
   } else {
-     // Set the image
+    // Set the image
     img->type = IMAGE_YUV422;
     img->w = dev->w;
     img->h = dev->h;

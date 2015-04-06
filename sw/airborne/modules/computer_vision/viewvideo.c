@@ -138,9 +138,9 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
   // Resize image if needed
   struct image_t img_small;
   image_create(&img_small,
-    viewvideo.dev->w/viewvideo.downsize_factor,
-    viewvideo.dev->h/viewvideo.downsize_factor,
-    IMAGE_YUV422);
+               viewvideo.dev->w / viewvideo.downsize_factor,
+               viewvideo.dev->h / viewvideo.downsize_factor,
+               IMAGE_YUV422);
 
   // Create the JPEG encoded image
   struct image_t img_jpeg;
@@ -214,10 +214,9 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
     // Open process to send using netcat (in a fork because sometimes kills itself???)
     pid_t pid = fork();
 
-    if(pid < 0) {
+    if (pid < 0) {
       printf("[viewvideo] Could not create netcat fork.\n");
-    }
-    else if(pid ==0) {
+    } else if (pid == 0) {
       // We are the child and want to send the image
       FILE *netcat = popen(nc_cmd, "w");
       if (netcat != NULL) {
@@ -229,8 +228,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
 
       // Exit the program since we don't want to continue after transmitting
       exit(0);
-    }
-    else {
+    } else {
       // We want to wait until the child is finished
       wait(NULL);
     }

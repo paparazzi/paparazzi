@@ -123,7 +123,7 @@ void rtp_frame_send(struct udp_periph *udp, struct image_t *img, uint8_t format_
     }
 
     rtp_packet_send(udp, jpeg_ptr, len, packetcounter, timecounter, offset, lastpacket, img->w, img->h, format_code,
-      quality_code, has_dri_header);
+                    quality_code, has_dri_header);
 
     jpeg_size -= len;
     jpeg_ptr  += len;

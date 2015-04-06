@@ -46,8 +46,7 @@ static void fast_make_offsets(int32_t *pixel, uint16_t row_stride, uint8_t pixel
  * @param[out] *num_corner The amount of corners found
  * @return The corners found
  */
-struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uint16_t x_padding, uint16_t y_padding, uint16_t *num_corners)
-{
+struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uint16_t x_padding, uint16_t y_padding, uint16_t *num_corners) {
   uint32_t corner_cnt = 0;
   uint16_t rsize = 512;
   int pixel[16];
@@ -56,8 +55,9 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
 
   // Set the pixel size
   uint8_t pixel_size = 1;
-  if(img->type == IMAGE_YUV422)
+  if (img->type == IMAGE_YUV422) {
     pixel_size = 2;
+  }
 
   // Calculate the pixel offsets
   fast_make_offsets(pixel, img->w, pixel_size);
@@ -66,27 +66,27 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
   for (y = 3 + y_padding; y < img->h - 3 - y_padding; y++)
     for (x = 3 + x_padding; x < img->w - 3 - x_padding; x++) {
       // First check if we aren't in range vertical (TODO: fix less intensive way)
-      if(min_dist > 0) {
+      if (min_dist > 0) {
         bool_t need_skip = FALSE;
 
         // Go trough all the previous corners
-        for(i = 0; i < corner_cnt; i++) {
-          if(x-min_dist < ret_corners[i].x && ret_corners[i].x < x+min_dist
-            && y-min_dist < ret_corners[i].y && ret_corners[i].y < y+min_dist) {
+        for (i = 0; i < corner_cnt; i++) {
+          if (x - min_dist < ret_corners[i].x && ret_corners[i].x < x + min_dist
+              && y - min_dist < ret_corners[i].y && ret_corners[i].y < y + min_dist) {
             need_skip = TRUE;
             break;
           }
         }
 
         // Skip the box if we found a pixel nearby
-        if(need_skip) {
+        if (need_skip) {
           x += min_dist;
           continue;
         }
       }
 
       // Calculate the threshold values
-      const uint8_t *p = ((uint8_t *)img->buf) + y * img->w * pixel_size + x * pixel_size + pixel_size/2;
+      const uint8_t *p = ((uint8_t *)img->buf) + y * img->w * pixel_size + x * pixel_size + pixel_size / 2;
       int16_t cb = *p + threshold;
       int16_t c_b = *p - threshold;
 
@@ -100,16 +100,16 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[6]] > cb)
                     if (p[pixel[7]] > cb)
                       if (p[pixel[8]] > cb)
-                      {}
+                        {}
                       else if (p[pixel[15]] > cb)
-                      {}
+                        {}
                       else {
                         continue;
                       }
                     else if (p[pixel[7]] < c_b)
                       if (p[pixel[14]] > cb)
                         if (p[pixel[15]] > cb)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -121,7 +121,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                                 if (p[pixel[12]] < c_b)
                                   if (p[pixel[13]] < c_b)
                                     if (p[pixel[15]] < c_b)
-                                    {}
+                                      {}
                                     else {
                                       continue;
                                     }
@@ -148,7 +148,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       }
                     else if (p[pixel[14]] > cb)
                       if (p[pixel[15]] > cb)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -159,7 +159,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[15]] > cb)
                       if (p[pixel[13]] > cb)
                         if (p[pixel[14]] > cb)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -171,7 +171,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                                 if (p[pixel[11]] < c_b)
                                   if (p[pixel[12]] < c_b)
                                     if (p[pixel[14]] < c_b)
-                                    {}
+                                      {}
                                     else {
                                       continue;
                                     }
@@ -204,7 +204,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                               if (p[pixel[12]] < c_b)
                                 if (p[pixel[13]] < c_b)
                                   if (p[pixel[14]] < c_b)
-                                  {}
+                                    {}
                                   else {
                                     continue;
                                   }
@@ -232,7 +232,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   else if (p[pixel[13]] > cb)
                     if (p[pixel[14]] > cb)
                       if (p[pixel[15]] > cb)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -248,7 +248,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                               if (p[pixel[12]] < c_b)
                                 if (p[pixel[14]] < c_b)
                                   if (p[pixel[15]] < c_b)
-                                  {}
+                                    {}
                                   else {
                                     continue;
                                   }
@@ -281,14 +281,14 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[12]] > cb)
                       if (p[pixel[13]] > cb)
                         if (p[pixel[15]] > cb)
-                        {}
+                          {}
                         else if (p[pixel[6]] > cb)
                           if (p[pixel[7]] > cb)
                             if (p[pixel[8]] > cb)
                               if (p[pixel[9]] > cb)
                                 if (p[pixel[10]] > cb)
                                   if (p[pixel[11]] > cb)
-                                  {}
+                                    {}
                                   else {
                                     continue;
                                   }
@@ -318,7 +318,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                               if (p[pixel[10]] < c_b)
                                 if (p[pixel[11]] < c_b)
                                   if (p[pixel[13]] < c_b)
-                                  {}
+                                    {}
                                   else {
                                     continue;
                                   }
@@ -352,9 +352,9 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                               if (p[pixel[12]] < c_b)
                                 if (p[pixel[13]] < c_b)
                                   if (p[pixel[6]] < c_b)
-                                  {}
+                                    {}
                                   else if (p[pixel[15]] < c_b)
-                                  {}
+                                    {}
                                   else {
                                     continue;
                                   }
@@ -387,7 +387,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                             if (p[pixel[11]] < c_b)
                               if (p[pixel[12]] < c_b)
                                 if (p[pixel[13]] < c_b)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -416,14 +416,14 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[13]] > cb)
                     if (p[pixel[14]] > cb)
                       if (p[pixel[15]] > cb)
-                      {}
+                        {}
                       else if (p[pixel[6]] > cb)
                         if (p[pixel[7]] > cb)
                           if (p[pixel[8]] > cb)
                             if (p[pixel[9]] > cb)
                               if (p[pixel[10]] > cb)
                                 if (p[pixel[11]] > cb)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -457,9 +457,9 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                             if (p[pixel[13]] < c_b)
                               if (p[pixel[14]] < c_b)
                                 if (p[pixel[6]] < c_b)
-                                {}
+                                  {}
                                 else if (p[pixel[15]] < c_b)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -493,13 +493,13 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[12]] > cb)
                       if (p[pixel[14]] > cb)
                         if (p[pixel[15]] > cb)
-                        {}
+                          {}
                         else if (p[pixel[6]] > cb)
                           if (p[pixel[7]] > cb)
                             if (p[pixel[8]] > cb)
                               if (p[pixel[9]] > cb)
                                 if (p[pixel[10]] > cb)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -521,7 +521,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                             if (p[pixel[8]] > cb)
                               if (p[pixel[9]] > cb)
                                 if (p[pixel[10]] > cb)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -551,7 +551,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                             if (p[pixel[9]] < c_b)
                               if (p[pixel[10]] < c_b)
                                 if (p[pixel[12]] < c_b)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -585,15 +585,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                             if (p[pixel[12]] < c_b)
                               if (p[pixel[6]] < c_b)
                                 if (p[pixel[5]] < c_b)
-                                {}
+                                  {}
                                 else if (p[pixel[14]] < c_b)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
                               else if (p[pixel[14]] < c_b)
                                 if (p[pixel[15]] < c_b)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -626,7 +626,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           if (p[pixel[10]] < c_b)
                             if (p[pixel[11]] < c_b)
                               if (p[pixel[12]] < c_b)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -656,13 +656,13 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[13]] > cb)
                     if (p[pixel[14]] > cb)
                       if (p[pixel[15]] > cb)
-                      {}
+                        {}
                       else if (p[pixel[6]] > cb)
                         if (p[pixel[7]] > cb)
                           if (p[pixel[8]] > cb)
                             if (p[pixel[9]] > cb)
                               if (p[pixel[10]] > cb)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -684,7 +684,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           if (p[pixel[8]] > cb)
                             if (p[pixel[9]] > cb)
                               if (p[pixel[10]] > cb)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -718,15 +718,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           if (p[pixel[13]] < c_b)
                             if (p[pixel[6]] < c_b)
                               if (p[pixel[5]] < c_b)
-                              {}
+                                {}
                               else if (p[pixel[14]] < c_b)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
                             else if (p[pixel[14]] < c_b)
                               if (p[pixel[15]] < c_b)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -761,12 +761,12 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[13]] > cb)
                       if (p[pixel[14]] > cb)
                         if (p[pixel[15]] > cb)
-                        {}
+                          {}
                         else if (p[pixel[6]] > cb)
                           if (p[pixel[7]] > cb)
                             if (p[pixel[8]] > cb)
                               if (p[pixel[9]] > cb)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -784,7 +784,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           if (p[pixel[7]] > cb)
                             if (p[pixel[8]] > cb)
                               if (p[pixel[9]] > cb)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -806,7 +806,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           if (p[pixel[7]] > cb)
                             if (p[pixel[8]] > cb)
                               if (p[pixel[9]] > cb)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -839,10 +839,10 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[6]] < c_b)
                           if (p[pixel[5]] < c_b)
                             if (p[pixel[4]] < c_b)
-                            {}
+                              {}
                             else if (p[pixel[12]] < c_b)
                               if (p[pixel[13]] < c_b)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -852,7 +852,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           else if (p[pixel[12]] < c_b)
                             if (p[pixel[13]] < c_b)
                               if (p[pixel[14]] < c_b)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -866,7 +866,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           if (p[pixel[13]] < c_b)
                             if (p[pixel[14]] < c_b)
                               if (p[pixel[15]] < c_b)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -900,12 +900,12 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[13]] > cb)
                     if (p[pixel[14]] > cb)
                       if (p[pixel[15]] > cb)
-                      {}
+                        {}
                       else if (p[pixel[6]] > cb)
                         if (p[pixel[7]] > cb)
                           if (p[pixel[8]] > cb)
                             if (p[pixel[9]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -923,7 +923,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[7]] > cb)
                           if (p[pixel[8]] > cb)
                             if (p[pixel[9]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -945,7 +945,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[7]] > cb)
                           if (p[pixel[8]] > cb)
                             if (p[pixel[9]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -979,15 +979,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[6]] < c_b)
                           if (p[pixel[5]] < c_b)
                             if (p[pixel[4]] < c_b)
-                            {}
+                              {}
                             else if (p[pixel[13]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
                           else if (p[pixel[13]] < c_b)
                             if (p[pixel[14]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -997,7 +997,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         else if (p[pixel[13]] < c_b)
                           if (p[pixel[14]] < c_b)
                             if (p[pixel[15]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -1033,11 +1033,11 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[13]] > cb)
                       if (p[pixel[14]] > cb)
                         if (p[pixel[15]] > cb)
-                        {}
+                          {}
                         else if (p[pixel[6]] > cb)
                           if (p[pixel[7]] > cb)
                             if (p[pixel[8]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -1051,7 +1051,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[6]] > cb)
                           if (p[pixel[7]] > cb)
                             if (p[pixel[8]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -1069,7 +1069,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[6]] > cb)
                           if (p[pixel[7]] > cb)
                             if (p[pixel[8]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -1091,7 +1091,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[6]] > cb)
                           if (p[pixel[7]] > cb)
                             if (p[pixel[8]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -1124,10 +1124,10 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[5]] < c_b)
                         if (p[pixel[4]] < c_b)
                           if (p[pixel[3]] < c_b)
-                          {}
+                            {}
                           else if (p[pixel[11]] < c_b)
                             if (p[pixel[12]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -1137,7 +1137,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         else if (p[pixel[11]] < c_b)
                           if (p[pixel[12]] < c_b)
                             if (p[pixel[13]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -1151,7 +1151,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[12]] < c_b)
                           if (p[pixel[13]] < c_b)
                             if (p[pixel[14]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -1169,7 +1169,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[13]] < c_b)
                           if (p[pixel[14]] < c_b)
                             if (p[pixel[15]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -1204,11 +1204,11 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[13]] > cb)
                     if (p[pixel[14]] > cb)
                       if (p[pixel[15]] > cb)
-                      {}
+                        {}
                       else if (p[pixel[6]] > cb)
                         if (p[pixel[7]] > cb)
                           if (p[pixel[8]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1222,7 +1222,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[6]] > cb)
                         if (p[pixel[7]] > cb)
                           if (p[pixel[8]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1240,7 +1240,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[6]] > cb)
                         if (p[pixel[7]] > cb)
                           if (p[pixel[8]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1262,7 +1262,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[6]] > cb)
                         if (p[pixel[7]] > cb)
                           if (p[pixel[8]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1296,15 +1296,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[5]] < c_b)
                         if (p[pixel[4]] < c_b)
                           if (p[pixel[3]] < c_b)
-                          {}
+                            {}
                           else if (p[pixel[12]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
                         else if (p[pixel[12]] < c_b)
                           if (p[pixel[13]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1314,7 +1314,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       else if (p[pixel[12]] < c_b)
                         if (p[pixel[13]] < c_b)
                           if (p[pixel[14]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1328,7 +1328,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[13]] < c_b)
                         if (p[pixel[14]] < c_b)
                           if (p[pixel[15]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1365,10 +1365,10 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[13]] > cb)
                       if (p[pixel[14]] > cb)
                         if (p[pixel[15]] > cb)
-                        {}
+                          {}
                         else if (p[pixel[6]] > cb)
                           if (p[pixel[7]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1378,7 +1378,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       else if (p[pixel[5]] > cb)
                         if (p[pixel[6]] > cb)
                           if (p[pixel[7]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1392,7 +1392,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[5]] > cb)
                         if (p[pixel[6]] > cb)
                           if (p[pixel[7]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1410,7 +1410,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[5]] > cb)
                         if (p[pixel[6]] > cb)
                           if (p[pixel[7]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1432,7 +1432,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[5]] > cb)
                         if (p[pixel[6]] > cb)
                           if (p[pixel[7]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1465,10 +1465,10 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[4]] < c_b)
                       if (p[pixel[3]] < c_b)
                         if (p[pixel[2]] < c_b)
-                        {}
+                          {}
                         else if (p[pixel[10]] < c_b)
                           if (p[pixel[11]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1478,7 +1478,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       else if (p[pixel[10]] < c_b)
                         if (p[pixel[11]] < c_b)
                           if (p[pixel[12]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1492,7 +1492,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[11]] < c_b)
                         if (p[pixel[12]] < c_b)
                           if (p[pixel[13]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1510,7 +1510,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[12]] < c_b)
                         if (p[pixel[13]] < c_b)
                           if (p[pixel[14]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1532,7 +1532,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[13]] < c_b)
                         if (p[pixel[14]] < c_b)
                           if (p[pixel[15]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1568,10 +1568,10 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[13]] > cb)
                     if (p[pixel[14]] > cb)
                       if (p[pixel[15]] > cb)
-                      {}
+                        {}
                       else if (p[pixel[6]] > cb)
                         if (p[pixel[7]] > cb)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -1581,7 +1581,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     else if (p[pixel[5]] > cb)
                       if (p[pixel[6]] > cb)
                         if (p[pixel[7]] > cb)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -1595,7 +1595,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[5]] > cb)
                       if (p[pixel[6]] > cb)
                         if (p[pixel[7]] > cb)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -1613,7 +1613,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[5]] > cb)
                       if (p[pixel[6]] > cb)
                         if (p[pixel[7]] > cb)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -1635,7 +1635,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[5]] > cb)
                       if (p[pixel[6]] > cb)
                         if (p[pixel[7]] > cb)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -1669,15 +1669,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[4]] < c_b)
                       if (p[pixel[3]] < c_b)
                         if (p[pixel[2]] < c_b)
-                        {}
+                          {}
                         else if (p[pixel[11]] < c_b)
-                        {}
+                          {}
                         else {
                           continue;
                         }
                       else if (p[pixel[11]] < c_b)
                         if (p[pixel[12]] < c_b)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -1687,7 +1687,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     else if (p[pixel[11]] < c_b)
                       if (p[pixel[12]] < c_b)
                         if (p[pixel[13]] < c_b)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -1701,7 +1701,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[12]] < c_b)
                       if (p[pixel[13]] < c_b)
                         if (p[pixel[14]] < c_b)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -1719,7 +1719,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[13]] < c_b)
                       if (p[pixel[14]] < c_b)
                         if (p[pixel[15]] < c_b)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -1757,10 +1757,10 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[4]] > cb)
                       if (p[pixel[3]] > cb)
                         if (p[pixel[2]] > cb)
-                        {}
+                          {}
                         else if (p[pixel[10]] > cb)
                           if (p[pixel[11]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1770,7 +1770,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       else if (p[pixel[10]] > cb)
                         if (p[pixel[11]] > cb)
                           if (p[pixel[12]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1784,7 +1784,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[11]] > cb)
                         if (p[pixel[12]] > cb)
                           if (p[pixel[13]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1802,7 +1802,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[12]] > cb)
                         if (p[pixel[13]] > cb)
                           if (p[pixel[14]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1824,7 +1824,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[13]] > cb)
                         if (p[pixel[14]] > cb)
                           if (p[pixel[15]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1857,10 +1857,10 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[13]] < c_b)
                       if (p[pixel[14]] < c_b)
                         if (p[pixel[15]] < c_b)
-                        {}
+                          {}
                         else if (p[pixel[6]] < c_b)
                           if (p[pixel[7]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1870,7 +1870,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       else if (p[pixel[5]] < c_b)
                         if (p[pixel[6]] < c_b)
                           if (p[pixel[7]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1884,7 +1884,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[5]] < c_b)
                         if (p[pixel[6]] < c_b)
                           if (p[pixel[7]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1902,7 +1902,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[5]] < c_b)
                         if (p[pixel[6]] < c_b)
                           if (p[pixel[7]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1924,7 +1924,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[5]] < c_b)
                         if (p[pixel[6]] < c_b)
                           if (p[pixel[7]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -1962,10 +1962,10 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[5]] > cb)
                         if (p[pixel[4]] > cb)
                           if (p[pixel[3]] > cb)
-                          {}
+                            {}
                           else if (p[pixel[11]] > cb)
                             if (p[pixel[12]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -1975,7 +1975,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         else if (p[pixel[11]] > cb)
                           if (p[pixel[12]] > cb)
                             if (p[pixel[13]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -1989,7 +1989,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[12]] > cb)
                           if (p[pixel[13]] > cb)
                             if (p[pixel[14]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -2007,7 +2007,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[13]] > cb)
                           if (p[pixel[14]] > cb)
                             if (p[pixel[15]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -2039,11 +2039,11 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[13]] < c_b)
                       if (p[pixel[14]] < c_b)
                         if (p[pixel[15]] < c_b)
-                        {}
+                          {}
                         else if (p[pixel[6]] < c_b)
                           if (p[pixel[7]] < c_b)
                             if (p[pixel[8]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -2057,7 +2057,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[6]] < c_b)
                           if (p[pixel[7]] < c_b)
                             if (p[pixel[8]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -2075,7 +2075,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[6]] < c_b)
                           if (p[pixel[7]] < c_b)
                             if (p[pixel[8]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -2097,7 +2097,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[6]] < c_b)
                           if (p[pixel[7]] < c_b)
                             if (p[pixel[8]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -2135,10 +2135,10 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[6]] > cb)
                           if (p[pixel[5]] > cb)
                             if (p[pixel[4]] > cb)
-                            {}
+                              {}
                             else if (p[pixel[12]] > cb)
                               if (p[pixel[13]] > cb)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -2148,7 +2148,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           else if (p[pixel[12]] > cb)
                             if (p[pixel[13]] > cb)
                               if (p[pixel[14]] > cb)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -2162,7 +2162,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           if (p[pixel[13]] > cb)
                             if (p[pixel[14]] > cb)
                               if (p[pixel[15]] > cb)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -2193,12 +2193,12 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[13]] < c_b)
                       if (p[pixel[14]] < c_b)
                         if (p[pixel[15]] < c_b)
-                        {}
+                          {}
                         else if (p[pixel[6]] < c_b)
                           if (p[pixel[7]] < c_b)
                             if (p[pixel[8]] < c_b)
                               if (p[pixel[9]] < c_b)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -2216,7 +2216,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           if (p[pixel[7]] < c_b)
                             if (p[pixel[8]] < c_b)
                               if (p[pixel[9]] < c_b)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -2238,7 +2238,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           if (p[pixel[7]] < c_b)
                             if (p[pixel[8]] < c_b)
                               if (p[pixel[9]] < c_b)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -2277,15 +2277,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                             if (p[pixel[12]] > cb)
                               if (p[pixel[6]] > cb)
                                 if (p[pixel[5]] > cb)
-                                {}
+                                  {}
                                 else if (p[pixel[14]] > cb)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
                               else if (p[pixel[14]] > cb)
                                 if (p[pixel[15]] > cb)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -2319,7 +2319,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                             if (p[pixel[9]] > cb)
                               if (p[pixel[10]] > cb)
                                 if (p[pixel[12]] > cb)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -2345,13 +2345,13 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[12]] < c_b)
                       if (p[pixel[14]] < c_b)
                         if (p[pixel[15]] < c_b)
-                        {}
+                          {}
                         else if (p[pixel[6]] < c_b)
                           if (p[pixel[7]] < c_b)
                             if (p[pixel[8]] < c_b)
                               if (p[pixel[9]] < c_b)
                                 if (p[pixel[10]] < c_b)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -2373,7 +2373,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                             if (p[pixel[8]] < c_b)
                               if (p[pixel[9]] < c_b)
                                 if (p[pixel[10]] < c_b)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -2406,7 +2406,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           if (p[pixel[10]] > cb)
                             if (p[pixel[11]] > cb)
                               if (p[pixel[12]] > cb)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -2442,9 +2442,9 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                               if (p[pixel[12]] > cb)
                                 if (p[pixel[13]] > cb)
                                   if (p[pixel[6]] > cb)
-                                  {}
+                                    {}
                                   else if (p[pixel[15]] > cb)
-                                  {}
+                                    {}
                                   else {
                                     continue;
                                   }
@@ -2478,7 +2478,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                               if (p[pixel[10]] > cb)
                                 if (p[pixel[11]] > cb)
                                   if (p[pixel[13]] > cb)
-                                  {}
+                                    {}
                                   else {
                                     continue;
                                   }
@@ -2503,14 +2503,14 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     else if (p[pixel[12]] < c_b)
                       if (p[pixel[13]] < c_b)
                         if (p[pixel[15]] < c_b)
-                        {}
+                          {}
                         else if (p[pixel[6]] < c_b)
                           if (p[pixel[7]] < c_b)
                             if (p[pixel[8]] < c_b)
                               if (p[pixel[9]] < c_b)
                                 if (p[pixel[10]] < c_b)
                                   if (p[pixel[11]] < c_b)
-                                  {}
+                                    {}
                                   else {
                                     continue;
                                   }
@@ -2543,7 +2543,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                             if (p[pixel[11]] > cb)
                               if (p[pixel[12]] > cb)
                                 if (p[pixel[13]] > cb)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -2579,7 +2579,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                                 if (p[pixel[11]] > cb)
                                   if (p[pixel[12]] > cb)
                                     if (p[pixel[14]] > cb)
-                                    {}
+                                      {}
                                     else {
                                       continue;
                                     }
@@ -2603,7 +2603,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         }
                       else if (p[pixel[13]] < c_b)
                         if (p[pixel[14]] < c_b)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -2618,7 +2618,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                               if (p[pixel[12]] > cb)
                                 if (p[pixel[13]] > cb)
                                   if (p[pixel[14]] > cb)
-                                  {}
+                                    {}
                                   else {
                                     continue;
                                   }
@@ -2653,7 +2653,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                                 if (p[pixel[12]] > cb)
                                   if (p[pixel[13]] > cb)
                                     if (p[pixel[15]] > cb)
-                                    {}
+                                      {}
                                     else {
                                       continue;
                                     }
@@ -2677,7 +2677,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         }
                       else if (p[pixel[14]] < c_b)
                         if (p[pixel[15]] < c_b)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -2686,15 +2686,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       }
                     else if (p[pixel[7]] < c_b)
                       if (p[pixel[8]] < c_b)
-                      {}
+                        {}
                       else if (p[pixel[15]] < c_b)
-                      {}
+                        {}
                       else {
                         continue;
                       }
                     else if (p[pixel[14]] < c_b)
                       if (p[pixel[15]] < c_b)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -2710,7 +2710,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                               if (p[pixel[12]] > cb)
                                 if (p[pixel[14]] > cb)
                                   if (p[pixel[15]] > cb)
-                                  {}
+                                    {}
                                   else {
                                     continue;
                                   }
@@ -2738,7 +2738,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   else if (p[pixel[13]] < c_b)
                     if (p[pixel[14]] < c_b)
                       if (p[pixel[15]] < c_b)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -2757,9 +2757,9 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                             if (p[pixel[13]] > cb)
                               if (p[pixel[14]] > cb)
                                 if (p[pixel[6]] > cb)
-                                {}
+                                  {}
                                 else if (p[pixel[15]] > cb)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -2788,14 +2788,14 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[13]] < c_b)
                     if (p[pixel[14]] < c_b)
                       if (p[pixel[15]] < c_b)
-                      {}
+                        {}
                       else if (p[pixel[6]] < c_b)
                         if (p[pixel[7]] < c_b)
                           if (p[pixel[8]] < c_b)
                             if (p[pixel[9]] < c_b)
                               if (p[pixel[10]] < c_b)
                                 if (p[pixel[11]] < c_b)
-                                {}
+                                  {}
                                 else {
                                   continue;
                                 }
@@ -2832,15 +2832,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           if (p[pixel[13]] > cb)
                             if (p[pixel[6]] > cb)
                               if (p[pixel[5]] > cb)
-                              {}
+                                {}
                               else if (p[pixel[14]] > cb)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
                             else if (p[pixel[14]] > cb)
                               if (p[pixel[15]] > cb)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -2870,13 +2870,13 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[13]] < c_b)
                     if (p[pixel[14]] < c_b)
                       if (p[pixel[15]] < c_b)
-                      {}
+                        {}
                       else if (p[pixel[6]] < c_b)
                         if (p[pixel[7]] < c_b)
                           if (p[pixel[8]] < c_b)
                             if (p[pixel[9]] < c_b)
                               if (p[pixel[10]] < c_b)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -2898,7 +2898,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                           if (p[pixel[8]] < c_b)
                             if (p[pixel[9]] < c_b)
                               if (p[pixel[10]] < c_b)
-                              {}
+                                {}
                               else {
                                 continue;
                               }
@@ -2935,15 +2935,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[6]] > cb)
                           if (p[pixel[5]] > cb)
                             if (p[pixel[4]] > cb)
-                            {}
+                              {}
                             else if (p[pixel[13]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
                           else if (p[pixel[13]] > cb)
                             if (p[pixel[14]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -2953,7 +2953,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         else if (p[pixel[13]] > cb)
                           if (p[pixel[14]] > cb)
                             if (p[pixel[15]] > cb)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -2984,12 +2984,12 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[13]] < c_b)
                     if (p[pixel[14]] < c_b)
                       if (p[pixel[15]] < c_b)
-                      {}
+                        {}
                       else if (p[pixel[6]] < c_b)
                         if (p[pixel[7]] < c_b)
                           if (p[pixel[8]] < c_b)
                             if (p[pixel[9]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -3007,7 +3007,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[7]] < c_b)
                           if (p[pixel[8]] < c_b)
                             if (p[pixel[9]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -3029,7 +3029,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                         if (p[pixel[7]] < c_b)
                           if (p[pixel[8]] < c_b)
                             if (p[pixel[9]] < c_b)
-                            {}
+                              {}
                             else {
                               continue;
                             }
@@ -3066,15 +3066,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[5]] > cb)
                         if (p[pixel[4]] > cb)
                           if (p[pixel[3]] > cb)
-                          {}
+                            {}
                           else if (p[pixel[12]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
                         else if (p[pixel[12]] > cb)
                           if (p[pixel[13]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -3084,7 +3084,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       else if (p[pixel[12]] > cb)
                         if (p[pixel[13]] > cb)
                           if (p[pixel[14]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -3098,7 +3098,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[13]] > cb)
                         if (p[pixel[14]] > cb)
                           if (p[pixel[15]] > cb)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -3130,11 +3130,11 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[13]] < c_b)
                     if (p[pixel[14]] < c_b)
                       if (p[pixel[15]] < c_b)
-                      {}
+                        {}
                       else if (p[pixel[6]] < c_b)
                         if (p[pixel[7]] < c_b)
                           if (p[pixel[8]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -3148,7 +3148,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[6]] < c_b)
                         if (p[pixel[7]] < c_b)
                           if (p[pixel[8]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -3166,7 +3166,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[6]] < c_b)
                         if (p[pixel[7]] < c_b)
                           if (p[pixel[8]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -3188,7 +3188,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                       if (p[pixel[6]] < c_b)
                         if (p[pixel[7]] < c_b)
                           if (p[pixel[8]] < c_b)
-                          {}
+                            {}
                           else {
                             continue;
                           }
@@ -3225,15 +3225,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[4]] > cb)
                       if (p[pixel[3]] > cb)
                         if (p[pixel[2]] > cb)
-                        {}
+                          {}
                         else if (p[pixel[11]] > cb)
-                        {}
+                          {}
                         else {
                           continue;
                         }
                       else if (p[pixel[11]] > cb)
                         if (p[pixel[12]] > cb)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -3243,7 +3243,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     else if (p[pixel[11]] > cb)
                       if (p[pixel[12]] > cb)
                         if (p[pixel[13]] > cb)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -3257,7 +3257,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[12]] > cb)
                       if (p[pixel[13]] > cb)
                         if (p[pixel[14]] > cb)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -3275,7 +3275,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[13]] > cb)
                       if (p[pixel[14]] > cb)
                         if (p[pixel[15]] > cb)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -3308,10 +3308,10 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[13]] < c_b)
                     if (p[pixel[14]] < c_b)
                       if (p[pixel[15]] < c_b)
-                      {}
+                        {}
                       else if (p[pixel[6]] < c_b)
                         if (p[pixel[7]] < c_b)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -3321,7 +3321,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     else if (p[pixel[5]] < c_b)
                       if (p[pixel[6]] < c_b)
                         if (p[pixel[7]] < c_b)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -3335,7 +3335,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[5]] < c_b)
                       if (p[pixel[6]] < c_b)
                         if (p[pixel[7]] < c_b)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -3353,7 +3353,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[5]] < c_b)
                       if (p[pixel[6]] < c_b)
                         if (p[pixel[7]] < c_b)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -3375,7 +3375,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                     if (p[pixel[5]] < c_b)
                       if (p[pixel[6]] < c_b)
                         if (p[pixel[7]] < c_b)
-                        {}
+                          {}
                         else {
                           continue;
                         }
@@ -3412,15 +3412,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[3]] > cb)
                     if (p[pixel[2]] > cb)
                       if (p[pixel[1]] > cb)
-                      {}
+                        {}
                       else if (p[pixel[10]] > cb)
-                      {}
+                        {}
                       else {
                         continue;
                       }
                     else if (p[pixel[10]] > cb)
                       if (p[pixel[11]] > cb)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -3430,7 +3430,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   else if (p[pixel[10]] > cb)
                     if (p[pixel[11]] > cb)
                       if (p[pixel[12]] > cb)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -3444,7 +3444,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[11]] > cb)
                     if (p[pixel[12]] > cb)
                       if (p[pixel[13]] > cb)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -3462,7 +3462,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[12]] > cb)
                     if (p[pixel[13]] > cb)
                       if (p[pixel[14]] > cb)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -3484,7 +3484,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[13]] > cb)
                     if (p[pixel[14]] > cb)
                       if (p[pixel[15]] > cb)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -3518,15 +3518,15 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[3]] < c_b)
                     if (p[pixel[2]] < c_b)
                       if (p[pixel[1]] < c_b)
-                      {}
+                        {}
                       else if (p[pixel[10]] < c_b)
-                      {}
+                        {}
                       else {
                         continue;
                       }
                     else if (p[pixel[10]] < c_b)
                       if (p[pixel[11]] < c_b)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -3536,7 +3536,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   else if (p[pixel[10]] < c_b)
                     if (p[pixel[11]] < c_b)
                       if (p[pixel[12]] < c_b)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -3550,7 +3550,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[11]] < c_b)
                     if (p[pixel[12]] < c_b)
                       if (p[pixel[13]] < c_b)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -3568,7 +3568,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[12]] < c_b)
                     if (p[pixel[13]] < c_b)
                       if (p[pixel[14]] < c_b)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -3590,7 +3590,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
                   if (p[pixel[13]] < c_b)
                     if (p[pixel[14]] < c_b)
                       if (p[pixel[15]] < c_b)
-                      {}
+                        {}
                       else {
                         continue;
                       }
@@ -3644,20 +3644,20 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
  */
 static void fast_make_offsets(int32_t *pixel, uint16_t row_stride, uint8_t pixel_size)
 {
-  pixel[0]  = 0*pixel_size  + row_stride * 3*pixel_size;
-  pixel[1]  = 1*pixel_size  + row_stride * 3*pixel_size;
-  pixel[2]  = 2*pixel_size  + row_stride * 2*pixel_size;
-  pixel[3]  = 3*pixel_size  + row_stride * 1*pixel_size;
-  pixel[4]  = 3*pixel_size  + row_stride * 0*pixel_size;
-  pixel[5]  = 3*pixel_size  + row_stride * -1*pixel_size;
-  pixel[6]  = 2*pixel_size  + row_stride * -2*pixel_size;
-  pixel[7]  = 1*pixel_size  + row_stride * -3*pixel_size;
-  pixel[8]  = 0*pixel_size  + row_stride * -3*pixel_size;
-  pixel[9]  = -1*pixel_size + row_stride * -3*pixel_size;
-  pixel[10] = -2*pixel_size + row_stride * -2*pixel_size;
-  pixel[11] = -3*pixel_size + row_stride * -1*pixel_size;
-  pixel[12] = -3*pixel_size + row_stride * 0*pixel_size;
-  pixel[13] = -3*pixel_size + row_stride * 1*pixel_size;
-  pixel[14] = -2*pixel_size + row_stride * 2*pixel_size;
-  pixel[15] = -1*pixel_size + row_stride * 3*pixel_size;
+  pixel[0]  = 0 * pixel_size  + row_stride * 3 * pixel_size;
+  pixel[1]  = 1 * pixel_size  + row_stride * 3 * pixel_size;
+  pixel[2]  = 2 * pixel_size  + row_stride * 2 * pixel_size;
+  pixel[3]  = 3 * pixel_size  + row_stride * 1 * pixel_size;
+  pixel[4]  = 3 * pixel_size  + row_stride * 0 * pixel_size;
+  pixel[5]  = 3 * pixel_size  + row_stride * -1 * pixel_size;
+  pixel[6]  = 2 * pixel_size  + row_stride * -2 * pixel_size;
+  pixel[7]  = 1 * pixel_size  + row_stride * -3 * pixel_size;
+  pixel[8]  = 0 * pixel_size  + row_stride * -3 * pixel_size;
+  pixel[9]  = -1 * pixel_size + row_stride * -3 * pixel_size;
+  pixel[10] = -2 * pixel_size + row_stride * -2 * pixel_size;
+  pixel[11] = -3 * pixel_size + row_stride * -1 * pixel_size;
+  pixel[12] = -3 * pixel_size + row_stride * 0 * pixel_size;
+  pixel[13] = -3 * pixel_size + row_stride * 1 * pixel_size;
+  pixel[14] = -2 * pixel_size + row_stride * 2 * pixel_size;
+  pixel[15] = -1 * pixel_size + row_stride * 3 * pixel_size;
 }
