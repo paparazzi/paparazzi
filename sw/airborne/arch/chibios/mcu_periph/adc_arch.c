@@ -200,6 +200,7 @@ static void adc_sample_time_on_all_channels(uint32_t *smpr1, uint32_t *smpr2, ui
  * @param[in] buffer pointer to a @p buffer with samples
  * @param[in] n number of samples
  */
+#include "led.h"
 void adc1callback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 {
   if (adcp->state != ADC_STOP) {
@@ -207,7 +208,13 @@ void adc1callback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
     for (int channel = 0; channel < ADC_NUM_CHANNELS; channel++) {
       if (adc1_buffers[channel] != NULL) {
         adc1_sum_tmp[channel] = 0;
-        adc1_samples_tmp[channel] = n;
+        if (n > 0) {
+          adc1_samples_tmp[channel] = n;
+        }
+        else {
+          LED_TOGGLE(4);
+          adc1_samples_tmp[channel] = 1;
+        }
         for (unsigned int sample = 0; sample < n; sample++) {
           adc1_sum_tmp[channel] += buffer[channel + sample * ADC_NUM_CHANNELS];
         }
@@ -253,6 +260,8 @@ void adc_buf_channel(uint8_t adc_channel, struct adc_buf *s, uint8_t av_nb_sampl
   }
 }
 
+static  ADCConversionGroup adcgrpcfg;
+
 /**
  * Adc init
  *
@@ -277,7 +286,7 @@ void adc_init(void)
   uint32_t smpr1, smpr2;
   adc_sample_time_on_all_channels(&smpr1, &smpr2, ADC_SAMPLE_41P5);
 
-  const ADCConversionGroup adcgrpcfg = {
+  adcgrpcfg = {
     TRUE, ADC_NUM_CHANNELS,
     adc1callback, adcerrorcallback,
     0, ADC_CR2_TSVREFE,
@@ -288,15 +297,17 @@ void adc_init(void)
   uint32_t smpr1, smpr2;
   adc_sample_time_on_all_channels(&smpr1, &smpr2, ADC_SAMPLE_56);
 
-  const ADCConversionGroup adcgrpcfg = {
-    TRUE, //circular
-    ADC_NUM_CHANNELS, //num channles
-    adc1callback, adcerrorcallback,
-    0, // CR1
-    ADC_CR2_SWSTART, //CR2
-    smpr1, smpr2,
-    sqr1, sqr2, sqr3
-  };
+  adcgrpcfg.circular = TRUE;
+  adcgrpcfg.num_channels = ADC_NUM_CHANNELS;
+  adcgrpcfg.end_cb = adc1callback;
+  adcgrpcfg.error_cb = adcerrorcallback;
+  adcgrpcfg.cr1 = 0;
+  adcgrpcfg.cr2 = 0;
+  adcgrpcfg.smpr1 = smpr1;
+  adcgrpcfg.smpr2 = smpr2;
+  adcgrpcfg.sqr1 = sqr1;
+  adcgrpcfg.sqr2 = sqr2;
+  adcgrpcfg.sqr3 = sqr3;
 #endif
 
   adcStart(&ADCD1, NULL);

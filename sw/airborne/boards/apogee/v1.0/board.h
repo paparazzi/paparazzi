@@ -260,7 +260,7 @@
  *
  */
 #define VAL_GPIOB_MODER             (PIN_MODE_ALTERNATE(GPIOB_PWM3_CH3)    | \
-                                     PIN_MODE_INPUT(GPIOB_AUX_PIN1)        | \
+                                     PIN_MODE_ANALOG(GPIOB_AUX_PIN1)        | \
                                      PIN_MODE_INPUT(GPIOB_BOOT1)           | \
                                      PIN_MODE_ALTERNATE(GPIOB_PWM2_CH2)    | \
                                      PIN_MODE_ALTERNATE(GPIOB_PWM3_CH1)    | \
@@ -370,7 +370,7 @@
                                      PIN_MODE_OUTPUT(GPIOC_PIN2)          | \
                                      PIN_MODE_OUTPUT(GPIOC_LED4)          | \
                                      PIN_MODE_INPUT(GPIOC_AUX3)           | \
-                                     PIN_MODE_INPUT(GPIOC_AUX2)           | \
+                                     PIN_MODE_ANALOG(GPIOC_AUX2)           | \
                                      PIN_MODE_ALTERNATE(GPIOC_USART6_TX)  | \
                                      PIN_MODE_ALTERNATE(GPIOC_USART6_RX)  | \
                                      PIN_MODE_ALTERNATE(GPIOC_SDIO_D0)    | \
