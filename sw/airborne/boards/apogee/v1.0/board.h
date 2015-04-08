@@ -73,7 +73,7 @@
 #define GPIOA_PWM2_CH1              15 // SERVO 5
 
 #define GPIOB_PWM3_CH3              0 // SERVO 0
-#define GPIOB_AUX_PIN1              1 // AUX1 / SERVO6 (TIM3_CHANNEL_4 when pwm)
+#define GPIOB_AUX1                  1 // AUX1 / SERVO6 (TIM3_CHANNEL_4 when pwm)
 #define GPIOB_BOOT1                 2 //
 #define GPIOB_PWM2_CH2              3 // SERVO 4
 #define GPIOB_PWM3_CH1              4 // SERVO 3
@@ -87,7 +87,7 @@
 #define GPIOB_POWER_SWITCH          12 // POWER SWITCH
 #define GPIOB_RX2_POL               13 // UART2 POLARITY
 #define GPIOB_SDIO_DETECT           14 // SDIO DETECT
-#define GPIOB_AUX_PIN15             15 // AUX4, only GPIO capable
+#define GPIOB_AUX4                  15 // AUX4, only GPIO capable
 
 #define GPIOC_LED1                  0 // LED 1
 #define GPIOC_LED3                  1 // LED 3
@@ -260,7 +260,7 @@
  *
  */
 #define VAL_GPIOB_MODER             (PIN_MODE_ALTERNATE(GPIOB_PWM3_CH3)    | \
-                                     PIN_MODE_ANALOG(GPIOB_AUX_PIN1)        | \
+                                     PIN_MODE_INPUT(GPIOB_AUX1)            | \
                                      PIN_MODE_INPUT(GPIOB_BOOT1)           | \
                                      PIN_MODE_ALTERNATE(GPIOB_PWM2_CH2)    | \
                                      PIN_MODE_ALTERNATE(GPIOB_PWM3_CH1)    | \
@@ -274,10 +274,10 @@
                                      PIN_MODE_OUTPUT(GPIOB_POWER_SWITCH)   | \
                                      PIN_MODE_OUTPUT(GPIOB_RX2_POL)        | \
                                      PIN_MODE_INPUT(GPIOB_SDIO_DETECT)     | \
-                                     PIN_MODE_INPUT(GPIOB_AUX_PIN15))
+                                     PIN_MODE_INPUT(GPIOB_AUX4))
 
 #define VAL_GPIOB_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOB_PWM3_CH3)    | \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_AUX_PIN1)    | \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_AUX1)        | \
                                      PIN_OTYPE_OPENDRAIN(GPIOB_BOOT1)      | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PWM2_CH2)    | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PWM3_CH1)    | \
@@ -291,10 +291,10 @@
                                      PIN_OTYPE_PUSHPULL(GPIOB_POWER_SWITCH)| \
                                      PIN_OTYPE_PUSHPULL(GPIOB_RX2_POL)     | \
                                      PIN_OTYPE_PUSHPULL(GPIOB_SDIO_DETECT) | \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_AUX_PIN15))
+                                     PIN_OTYPE_PUSHPULL(GPIOB_AUX4))
 
 #define VAL_GPIOB_OSPEEDR           (PIN_OSPEED_100M(GPIOB_PWM3_CH3)      | \
-                                     PIN_OSPEED_100M(GPIOB_AUX_PIN1)      | \
+                                     PIN_OSPEED_100M(GPIOB_AUX1)          | \
                                      PIN_OSPEED_100M(GPIOB_BOOT1)         | \
                                      PIN_OSPEED_100M(GPIOB_PWM2_CH2)      | \
                                      PIN_OSPEED_100M(GPIOB_PWM3_CH1)      | \
@@ -308,10 +308,10 @@
                                      PIN_OSPEED_100M(GPIOB_POWER_SWITCH)  | \
                                      PIN_OSPEED_100M(GPIOB_RX2_POL)       | \
                                      PIN_OSPEED_100M(GPIOB_SDIO_DETECT)   | \
-                                     PIN_OSPEED_100M(GPIOB_AUX_PIN15))
+                                     PIN_OSPEED_100M(GPIOB_AUX4))
 
 #define VAL_GPIOB_PUPDR             (PIN_PUPDR_FLOATING(GPIOB_PWM3_CH3)   | \
-                                     PIN_PUPDR_FLOATING(GPIOB_AUX_PIN1)   | \
+                                     PIN_PUPDR_FLOATING(GPIOB_AUX1)       | \
                                      PIN_PUPDR_FLOATING(GPIOB_BOOT1)      | \
                                      PIN_PUPDR_PULLDOWN(GPIOB_PWM2_CH2)   | \
                                      PIN_PUPDR_PULLDOWN(GPIOB_PWM3_CH1)   | \
@@ -325,10 +325,10 @@
                                      PIN_PUPDR_PULLUP(GPIOB_POWER_SWITCH) | \
                                      PIN_PUPDR_PULLUP(GPIOB_RX2_POL)      | \
                                      PIN_PUPDR_PULLUP(GPIOB_SDIO_DETECT)  | \
-                                     PIN_PUPDR_FLOATING(GPIOB_AUX_PIN15))
+                                     PIN_PUPDR_FLOATING(GPIOB_AUX4))
 
 #define VAL_GPIOB_ODR               (PIN_ODR_LOW(GPIOB_PWM3_CH3)          | \
-                                     PIN_ODR_LOW(GPIOB_AUX_PIN1)          | \
+                                     PIN_ODR_LOW(GPIOB_AUX1)              | \
                                      PIN_ODR_LOW(GPIOB_BOOT1)             | \
                                      PIN_ODR_HIGH(GPIOB_PWM2_CH2)         | \
                                      PIN_ODR_HIGH(GPIOB_PWM3_CH1)         | \
@@ -342,10 +342,10 @@
                                      PIN_ODR_HIGH(GPIOB_POWER_SWITCH)     | \
                                      PIN_ODR_HIGH(GPIOB_RX2_POL)          | \
                                      PIN_ODR_HIGH(GPIOB_SDIO_DETECT)      | \
-                                     PIN_ODR_HIGH(GPIOB_AUX_PIN15))
+                                     PIN_ODR_HIGH(GPIOB_AUX4))
 
 #define VAL_GPIOB_AFRL              (PIN_AFIO_AF(GPIOB_PWM3_CH3, 0)       | \
-                                     PIN_AFIO_AF(GPIOB_AUX_PIN1, 0)       | \
+                                     PIN_AFIO_AF(GPIOB_AUX1, 0)           | \
                                      PIN_AFIO_AF(GPIOB_BOOT1, 0)          | \
                                      PIN_AFIO_AF(GPIOB_PWM2_CH2, 1)       | \
                                      PIN_AFIO_AF(GPIOB_PWM3_CH1, 2)       | \
@@ -359,7 +359,7 @@
                                      PIN_AFIO_AF(GPIOB_POWER_SWITCH, 0)   | \
                                      PIN_AFIO_AF(GPIOB_RX2_POL, 0)        | \
                                      PIN_AFIO_AF(GPIOB_SDIO_DETECT, 0)    | \
-                                     PIN_AFIO_AF(GPIOB_AUX_PIN15, 0))
+                                     PIN_AFIO_AF(GPIOB_AUX4, 0))
 
 /*
  * GPIOC setup:

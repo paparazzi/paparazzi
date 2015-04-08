@@ -28,3 +28,12 @@
  * gpio functions implemented for ChibiOS arch
  */
 #include "mcu_periph/gpio.h"
+#include "hal.h"
+
+void gpio_setup_pin_analog(GPIO_TypeDef *port, uint16_t pin)
+{
+  chSysLock();
+  palSetPadMode(port, pin, PAL_MODE_INPUT_ANALOG);
+  chSysUnlock();
+}
+

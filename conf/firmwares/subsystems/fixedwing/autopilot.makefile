@@ -113,6 +113,10 @@ ifeq ($(ARCH), stm32)
   ns_srcs       += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif
 
+ifeq ($(ARCH), chibios)
+  ns_srcs       += $(SRC_ARCH)/mcu_periph/gpio_arch.c
+endif
+
 
 #
 # Main

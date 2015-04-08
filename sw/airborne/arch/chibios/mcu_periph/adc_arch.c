@@ -51,26 +51,21 @@
  * V_ref is 3.3V, ADC has 12bit resolution.
  */
 #include "mcu_periph/adc.h"
+#include "mcu_periph/gpio.h"
 #include "hal.h"
+#include "std.h"
 
 // From active ADC channels
-#define ADC_NUM_CHANNELS NB_ADC
+//#define ADC_NUM_CHANNELS NB_ADC
 
 // Macros to automatically enable the correct ADC
 
-#define USE_AD1 1
+// FIXME we can't use NB_ADC1_CHANNELS it is not a macro
 //#if NB_ADC1_CHANNELS != 0
-#if NB_ADC != 0
 #ifndef USE_AD1
 #define USE_AD1 1
 #endif
-#endif
-
-//#if defined(AD2_1_CHANNEL) || defined(AD2_2_CHANNEL) || defined(AD2_3_CHANNEL) || defined(AD2_4_CHANNEL)
-//#ifndef USE_AD2
-//#define USE_AD2 1
-//#endif
-//#endif
+///#endif
 
 // Create channel map
 static const uint8_t adc_channel_map[ADC_NUM_CHANNELS] = {
@@ -86,55 +81,52 @@ static const uint8_t adc_channel_map[ADC_NUM_CHANNELS] = {
 #ifdef AD1_4_CHANNEL
   AD1_4_CHANNEL,
 #endif
-#if USE_AD1_5
+#ifdef AD1_5_CHANNEL
   AD1_5_CHANNEL,
 #endif
-#if USE_AD1_6
+#ifdef AD1_6_CHANNEL
   AD1_6_CHANNEL,
 #endif
-#if USE_AD1_7
+#ifdef AD1_7_CHANNEL
   AD1_7_CHANNEL,
 #endif
-#if USE_AD1_8
+#ifdef AD1_8_CHANNEL
   AD1_8_CHANNEL,
 #endif
-#if USE_AD1_9
+#ifdef AD1_9_CHANNEL
   AD1_9_CHANNEL,
 #endif
-#if USE_AD1_10
+#ifdef AD1_10_CHANNEL
   AD1_10_CHANNEL,
 #endif
-#if USE_AD1_11
+#ifdef AD1_11_CHANNEL
   AD1_11_CHANNEL,
 #endif
-#if USE_AD1_12
+#ifdef AD1_12_CHANNEL
   AD1_12_CHANNEL,
 #endif
-#if USE_AD1_13
+#ifdef AD1_13_CHANNEL
   AD1_13_CHANNEL,
 #endif
-#if USE_AD1_14
+#ifdef AD1_14_CHANNEL
   AD1_14_CHANNEL,
 #endif
-#if USE_AD1_15
+#ifdef AD1_15_CHANNEL
   AD1_15_CHANNEL,
 #endif
-#if USE_AD1_16
+#ifdef AD1_16_CHANNEL
   AD1_16_CHANNEL,
 #endif
 };
 
-
 uint8_t adc_error_flag = 0;
 ADCDriver *adcp_err = NULL;
 
+// adc_samples buffer
+// FIXME compute size to have to correct number of samples ?
 #ifndef ADC_BUF_DEPTH
 #define ADC_BUF_DEPTH (MAX_AV_NB_SAMPLE/2)
 #endif
-
-#define ADC_V_REF_MV 3300
-#define ADC_12_BIT_RESOLUTION 4096
-
 static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 
 #if USE_AD1
@@ -143,7 +135,10 @@ static uint32_t adc1_sum_tmp[ADC_NUM_CHANNELS];
 static uint8_t adc1_samples_tmp[ADC_NUM_CHANNELS];
 #endif
 #if USE_AD2
-#error ADC2_not implemented in ChibiOS(STM32F105/7 board)
+#error ADC2_not implemented in ChibiOS
+#endif
+#if USE_AD3
+#error ADC3_not implemented in ChibiOS
 #endif
 
 // From libopencm3
@@ -200,7 +195,6 @@ static void adc_sample_time_on_all_channels(uint32_t *smpr1, uint32_t *smpr2, ui
  * @param[in] buffer pointer to a @p buffer with samples
  * @param[in] n number of samples
  */
-#include "led.h"
 void adc1callback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 {
   if (adcp->state != ADC_STOP) {
@@ -210,15 +204,13 @@ void adc1callback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
         adc1_sum_tmp[channel] = 0;
         if (n > 0) {
           adc1_samples_tmp[channel] = n;
-        }
-        else {
-          LED_TOGGLE(4);
+        } else {
           adc1_samples_tmp[channel] = 1;
         }
         for (unsigned int sample = 0; sample < n; sample++) {
           adc1_sum_tmp[channel] += buffer[channel + sample * ADC_NUM_CHANNELS];
         }
-        adc1_sum_tmp[channel] = (adc1_sum_tmp[channel]) * ADC_V_REF_MV / ADC_12_BIT_RESOLUTION;
+        adc1_sum_tmp[channel] = adc1_sum_tmp[channel];
       }
     }
     chSysLockFromIsr();
@@ -260,6 +252,10 @@ void adc_buf_channel(uint8_t adc_channel, struct adc_buf *s, uint8_t av_nb_sampl
   }
 }
 
+/**
+ * Configuration structure
+ * must be global
+ */
 static  ADCConversionGroup adcgrpcfg;
 
 /**
@@ -269,47 +265,73 @@ static  ADCConversionGroup adcgrpcfg;
  */
 void adc_init(void)
 {
+  /* Init GPIO ports for ADC operation
+   */
+#if USE_ADC_1
+  PRINT_CONFIG_MSG("Info: Using ADC_1");
+  gpio_setup_pin_analog(ADC_1_GPIO_PORT, ADC_1_GPIO_PIN);
+#endif
+#if USE_ADC_2
+  PRINT_CONFIG_MSG("Info: Using ADC_2");
+  gpio_setup_pin_analog(ADC_2_GPIO_PORT, ADC_2_GPIO_PIN);
+#endif
+#if USE_ADC_3
+  PRINT_CONFIG_MSG("Info: Using ADC_3");
+  gpio_setup_pin_analog(ADC_3_GPIO_PORT, ADC_3_GPIO_PIN);
+#endif
+#if USE_ADC_4
+  PRINT_CONFIG_MSG("Info: Using ADC_4");
+  gpio_setup_pin_analog(ADC_4_GPIO_PORT, ADC_4_GPIO_PIN);
+#endif
+#if USE_ADC_5
+  PRINT_CONFIG_MSG("Info: Using ADC_5");
+  gpio_setup_pin_analog(ADC_5_GPIO_PORT, ADC_5_GPIO_PIN);
+#endif
+#if USE_ADC_6
+  PRINT_CONFIG_MSG("Info: Using ADC_6");
+  gpio_setup_pin_analog(ADC_6_GPIO_PORT, ADC_6_GPIO_PIN);
+#endif
+#if USE_ADC_7
+  PRINT_CONFIG_MSG("Info: Using ADC_7");
+  gpio_setup_pin_analog(ADC_7_GPIO_PORT, ADC_7_GPIO_PIN);
+#endif
+#if USE_ADC_8
+  PRINT_CONFIG_MSG("Info: Using ADC_8");
+  gpio_setup_pin_analog(ADC_8_GPIO_PORT, ADC_8_GPIO_PIN);
+#endif
+#if USE_ADC_9
+  PRINT_CONFIG_MSG("Info: Using ADC_9");
+  gpio_setup_pin_analog(ADC_9_GPIO_PORT, ADC_9_GPIO_PIN);
+#endif
+
+  // Configurtion register
   uint32_t sqr1, sqr2, sqr3;
   adc_regular_sequence(&sqr1, &sqr2, &sqr3, ADC_NUM_CHANNELS, adc_channel_map);
 
-  /**
-   * Conversion configuration for ADC
-   *
-   * Continuous conversion, includes CPU temp sensor
-   * ADCCLK = 14 MHz
-   * Temp sensor: Ts = 7 + 12.5 = 19.5us
-   * Other channels: Ts = 41.5c + 12.5c = 54.0us
-   *
-   * @note: This should be probably moved into boar.h
-   */
 #ifdef __STM32F10x_H
   uint32_t smpr1, smpr2;
   adc_sample_time_on_all_channels(&smpr1, &smpr2, ADC_SAMPLE_41P5);
 
-  adcgrpcfg = {
-    TRUE, ADC_NUM_CHANNELS,
-    adc1callback, adcerrorcallback,
-    0, ADC_CR2_TSVREFE,
-    smpr1, smpr2,
-    sqr1, sqr2, sqr3
-  };
+  adcgrpcfg.cr2 = ADC_CR2_TSVREFE;
 #elif defined(__STM32F4xx_H)
   uint32_t smpr1, smpr2;
   adc_sample_time_on_all_channels(&smpr1, &smpr2, ADC_SAMPLE_56);
+
+  adcgrpcfg.cr2 = ADC_CR2_SWSTART;
+#endif
 
   adcgrpcfg.circular = TRUE;
   adcgrpcfg.num_channels = ADC_NUM_CHANNELS;
   adcgrpcfg.end_cb = adc1callback;
   adcgrpcfg.error_cb = adcerrorcallback;
   adcgrpcfg.cr1 = 0;
-  adcgrpcfg.cr2 = 0;
   adcgrpcfg.smpr1 = smpr1;
   adcgrpcfg.smpr2 = smpr2;
   adcgrpcfg.sqr1 = sqr1;
   adcgrpcfg.sqr2 = sqr2;
   adcgrpcfg.sqr3 = sqr3;
-#endif
 
+  // Start ADC in continious conversion mode
   adcStart(&ADCD1, NULL);
   adcStartConversion(&ADCD1, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
 }

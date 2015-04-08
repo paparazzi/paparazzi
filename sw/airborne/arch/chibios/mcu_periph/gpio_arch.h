@@ -47,6 +47,11 @@ static inline void gpio_setup_output(uint32_t port __attribute__((unused)),
 static inline void gpio_setup_intput(uint32_t port __attribute__((unused)),
 		uint16_t gpios __attribute__((unused))) {}
 
+/**
+ * Setup a gpio for analog use.
+ */
+extern void gpio_setup_pin_analog(GPIO_TypeDef *port, uint16_t pin);
+
 
 /**
  * Macro: Set a gpio output to high level.

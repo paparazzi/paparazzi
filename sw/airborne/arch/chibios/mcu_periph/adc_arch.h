@@ -33,6 +33,8 @@
 #ifndef ADC_ARCH_H
 #define ADC_ARCH_H
 
+#include "hal.h"
+
 #include BOARD_CONFIG
 
 // NB_ADCx_CHANNELS
@@ -49,69 +51,46 @@ enum adc1_channels {
 #ifdef AD1_4_CHANNEL
   AD1_4,
 #endif
-#if USE_AD1_5
+#ifdef AD1_5_CHANNEL
   AD1_5,
 #endif
-#if USE_AD1_6
+#ifdef AD1_6_CHANNEL
   AD1_6,
 #endif
-#if USE_AD1_7
+#ifdef AD1_7_CHANNEL
   AD1_7,
 #endif
-#if USE_AD1_8
+#ifdef AD1_8_CHANNEL
   AD1_8,
 #endif
-#if USE_AD1_9
+#ifdef AD1_9_CHANNEL
   AD1_9,
 #endif
-#if USE_AD1_10
+#ifdef AD1_10_CHANNEL
   AD1_10,
 #endif
-#if USE_AD1_11
+#ifdef AD1_11_CHANNEL
   AD1_11,
 #endif
-#if USE_AD1_12
+#ifdef AD1_12_CHANNEL
   AD1_12,
 #endif
-#if USE_AD1_13
+#ifdef AD1_13_CHANNEL
   AD1_13,
 #endif
-#if USE_AD1_14
+#ifdef AD1_14_CHANNEL
   AD1_14,
 #endif
-#if USE_AD1_15
+#ifdef AD1_15_CHANNEL
   AD1_15,
 #endif
-#if USE_AD1_16
+#ifdef AD1_16_CHANNEL
   AD1_16,
 #endif
   NB_ADC1_CHANNELS
 };
 
-enum adc2_channels {
-//#if USE_AD2_1
-//  AD2_1 = NB_ADC1_CHANNELS,
-//#endif
-//#if USE_AD2_2
-//  AD2_2,
-//#endif
-//#if USE_AD2_3
-//  AD2_3,
-//#endif
-//#if USE_AD2_4
-//  AD2_4,
-//#endif
-  // TBC
-  NB_ADC2_CHANNELS
-};
-
-#ifdef NB_ADC
-#undef NB_ADC
-#endif
-
-#define NB_ADC (NB_ADC1_CHANNELS)
-
-#include "hal.h"
+#define ADC_NUM_CHANNELS (NB_ADC1_CHANNELS)
 
 // ADC error flags
 extern uint8_t adc_error_flag;
