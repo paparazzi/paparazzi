@@ -53,7 +53,7 @@
 #ifndef VIEWVIDEO_DEVICE
 #define VIEWVIDEO_DEVICE /dev/video1
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE);
+PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE)
 
 // The video device size (width, height)
 #ifndef VIEWVIDEO_DEVICE_SIZE
@@ -61,58 +61,58 @@ PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE);
 #endif
 #define __SIZE_HELPER(x, y) #x", "#y
 #define _SIZE_HELPER(x) __SIZE_HELPER(x)
-PRINT_CONFIG_MSG("VIEWVIDEO_DEVICE_SIZE = " _SIZE_HELPER(VIEWVIDEO_DEVICE_SIZE));
+PRINT_CONFIG_MSG("VIEWVIDEO_DEVICE_SIZE = " _SIZE_HELPER(VIEWVIDEO_DEVICE_SIZE))
 
 // The video device buffers (the amount of V4L2 buffers)
 #ifndef VIEWVIDEO_DEVICE_BUFFERS
 #define VIEWVIDEO_DEVICE_BUFFERS 10
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE_BUFFERS);
+PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE_BUFFERS)
 
 // Downsize factor for video stream
 #ifndef VIEWVIDEO_DOWNSIZE_FACTOR
 #define VIEWVIDEO_DOWNSIZE_FACTOR 4
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_DOWNSIZE_FACTOR);
+PRINT_CONFIG_VAR(VIEWVIDEO_DOWNSIZE_FACTOR)
 
 // From 0 to 99 (99=high)
 #ifndef VIEWVIDEO_QUALITY_FACTOR
 #define VIEWVIDEO_QUALITY_FACTOR 50
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_QUALITY_FACTOR);
+PRINT_CONFIG_VAR(VIEWVIDEO_QUALITY_FACTOR)
 
 // RTP time increment at 90kHz (default: 0 for automatic)
 #ifndef VIEWVIDEO_RTP_TIME_INC
 #define VIEWVIDEO_RTP_TIME_INC 0
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC);
+PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC)
 
 // Frames Per Seconds
 #ifndef VIEWVIDEO_FPS
 #define VIEWVIDEO_FPS 4
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_FPS);
+PRINT_CONFIG_VAR(VIEWVIDEO_FPS)
 
 // The place where the shots are saved (without slash on the end)
 #ifndef VIEWVIDEO_SHOT_PATH
 #define VIEWVIDEO_SHOT_PATH "/data/video/images"
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH);
+PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
 
 // Check if we are using netcat instead of RTP/UDP
 #ifndef VIEWVIDEO_USE_NETCAT
 #define VIEWVIDEO_USE_NETCAT FALSE
 #endif
 #if VIEWVIDEO_USE_NETCAT
-PRINT_CONFIG_MSG("[viewvideo] Using netcat.");
+PRINT_CONFIG_MSG("[viewvideo] Using netcat.")
 #else
-PRINT_CONFIG_MSG("[viewvideo] Using RTP/UDP stream.");
-PRINT_CONFIG_VAR(VIEWVIDEO_DEV);
+PRINT_CONFIG_MSG("[viewvideo] Using RTP/UDP stream.")
+PRINT_CONFIG_VAR(VIEWVIDEO_DEV)
 #endif
 
 /* These are defined with configure */
-PRINT_CONFIG_VAR(VIEWVIDEO_HOST);
-PRINT_CONFIG_VAR(VIEWVIDEO_PORT_OUT);
+PRINT_CONFIG_VAR(VIEWVIDEO_HOST)
+PRINT_CONFIG_VAR(VIEWVIDEO_PORT_OUT)
 
 // Main thread
 static void *viewvideo_thread(void *data);
@@ -274,8 +274,8 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
 void viewvideo_init(void)
 {
 #ifdef VIEWVIDEO_SUBDEV
-  PRINT_CONFIG_MSG("[viewvideo] Configuring a subdevice!");
-  PRINT_CONFIG_VAR(VIEWVIDEO_SUBDEV);
+  PRINT_CONFIG_MSG("[viewvideo] Configuring a subdevice!")
+  PRINT_CONFIG_VAR(VIEWVIDEO_SUBDEV)
 
   // Initialize the V4L2 subdevice (TODO: fix hardcoded path, which and code)
   if (!v4l2_init_subdev(STRINGIFY(VIEWVIDEO_SUBDEV), 0, 1, V4L2_MBUS_FMT_UYVY8_2X8, VIEWVIDEO_DEVICE_SIZE)) {

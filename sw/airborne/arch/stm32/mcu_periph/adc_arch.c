@@ -231,39 +231,39 @@ void adc_init(void)
   /* Init GPIO ports for ADC operation
    */
 #if USE_ADC_1
-  PRINT_CONFIG_MSG("Info: Using ADC_1");
+  PRINT_CONFIG_MSG("Info: Using ADC_1")
   gpio_setup_pin_analog(ADC_1_GPIO_PORT, ADC_1_GPIO_PIN);
 #endif
 #if USE_ADC_2
-  PRINT_CONFIG_MSG("Info: Using ADC_2");
+  PRINT_CONFIG_MSG("Info: Using ADC_2")
   gpio_setup_pin_analog(ADC_2_GPIO_PORT, ADC_2_GPIO_PIN);
 #endif
 #if USE_ADC_3
-  PRINT_CONFIG_MSG("Info: Using ADC_3");
+  PRINT_CONFIG_MSG("Info: Using ADC_3")
   gpio_setup_pin_analog(ADC_3_GPIO_PORT, ADC_3_GPIO_PIN);
 #endif
 #if USE_ADC_4
-  PRINT_CONFIG_MSG("Info: Using ADC_4");
+  PRINT_CONFIG_MSG("Info: Using ADC_4")
   gpio_setup_pin_analog(ADC_4_GPIO_PORT, ADC_4_GPIO_PIN);
 #endif
 #if USE_ADC_5
-  PRINT_CONFIG_MSG("Info: Using ADC_5");
+  PRINT_CONFIG_MSG("Info: Using ADC_5")
   gpio_setup_pin_analog(ADC_5_GPIO_PORT, ADC_5_GPIO_PIN);
 #endif
 #if USE_ADC_6
-  PRINT_CONFIG_MSG("Info: Using ADC_6");
+  PRINT_CONFIG_MSG("Info: Using ADC_6")
   gpio_setup_pin_analog(ADC_6_GPIO_PORT, ADC_6_GPIO_PIN);
 #endif
 #if USE_ADC_7
-  PRINT_CONFIG_MSG("Info: Using ADC_7");
+  PRINT_CONFIG_MSG("Info: Using ADC_7")
   gpio_setup_pin_analog(ADC_7_GPIO_PORT, ADC_7_GPIO_PIN);
 #endif
 #if USE_ADC_8
-  PRINT_CONFIG_MSG("Info: Using ADC_8");
+  PRINT_CONFIG_MSG("Info: Using ADC_8")
   gpio_setup_pin_analog(ADC_8_GPIO_PORT, ADC_8_GPIO_PIN);
 #endif
 #if USE_ADC_9
-  PRINT_CONFIG_MSG("Info: Using ADC_9");
+  PRINT_CONFIG_MSG("Info: Using ADC_9")
   gpio_setup_pin_analog(ADC_9_GPIO_PORT, ADC_9_GPIO_PIN);
 #endif
 
