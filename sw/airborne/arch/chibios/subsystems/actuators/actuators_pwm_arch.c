@@ -43,7 +43,7 @@
  * in milliseconds to microseconds (required by pwmEnableChannel())
  */
 #ifndef PWM_CMD_TO_US
-#error "You have to define CMD_TO_US() in the board config file (board.h)"
+#define PWM_CMD_TO_US(_t) (1000000 * _t / PWM_FREQUENCY)
 #endif
 
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
@@ -57,7 +57,7 @@ int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
  *
  * @param[in] pwmp pointer to a @p PWMDriver object
  */
-static void pwmpcb(PWMDriver *pwmp __attribute__((unused))) {}
+ __attribute__((unused)) static void pwmpcb(PWMDriver *pwmp __attribute__((unused))) {}
 
 #if PWM_CONF_TIM1
 static PWMConfig pwmcfg1 = PWM_CONF1_DEF;

@@ -313,9 +313,9 @@
 #define VAL_GPIOB_PUPDR             (PIN_PUPDR_FLOATING(GPIOB_PWM3_CH3)   | \
                                      PIN_PUPDR_FLOATING(GPIOB_AUX1)       | \
                                      PIN_PUPDR_FLOATING(GPIOB_BOOT1)      | \
-                                     PIN_PUPDR_PULLDOWN(GPIOB_PWM2_CH2)   | \
-                                     PIN_PUPDR_PULLDOWN(GPIOB_PWM3_CH1)   | \
-                                     PIN_PUPDR_PULLDOWN(GPIOB_PWM3_CH2)   | \
+                                     PIN_PUPDR_FLOATING(GPIOB_PWM2_CH2)   | \
+                                     PIN_PUPDR_FLOATING(GPIOB_PWM3_CH1)   | \
+                                     PIN_PUPDR_FLOATING(GPIOB_PWM3_CH2)   | \
                                      PIN_PUPDR_FLOATING(GPIOB_USART1_TX)  | \
                                      PIN_PUPDR_PULLUP(GPIOB_I2C1_SDA)     | \
                                      PIN_PUPDR_PULLUP(GPIOB_I2C1_SCL)     | \
@@ -327,7 +327,7 @@
                                      PIN_PUPDR_PULLUP(GPIOB_SDIO_DETECT)  | \
                                      PIN_PUPDR_FLOATING(GPIOB_AUX4))
 
-#define VAL_GPIOB_ODR               (PIN_ODR_LOW(GPIOB_PWM3_CH3)          | \
+#define VAL_GPIOB_ODR               (PIN_ODR_HIGH(GPIOB_PWM3_CH3)         | \
                                      PIN_ODR_LOW(GPIOB_AUX1)              | \
                                      PIN_ODR_LOW(GPIOB_BOOT1)             | \
                                      PIN_ODR_HIGH(GPIOB_PWM2_CH2)         | \
@@ -344,7 +344,7 @@
                                      PIN_ODR_HIGH(GPIOB_SDIO_DETECT)      | \
                                      PIN_ODR_HIGH(GPIOB_AUX4))
 
-#define VAL_GPIOB_AFRL              (PIN_AFIO_AF(GPIOB_PWM3_CH3, 0)       | \
+#define VAL_GPIOB_AFRL              (PIN_AFIO_AF(GPIOB_PWM3_CH3, 2)       | \
                                      PIN_AFIO_AF(GPIOB_AUX1, 0)           | \
                                      PIN_AFIO_AF(GPIOB_BOOT1, 0)          | \
                                      PIN_AFIO_AF(GPIOB_PWM2_CH2, 1)       | \
@@ -767,9 +767,6 @@
 /*
  * PWM defines
  */
-#define PWM_FREQUENCY_1MHZ 1000000
-#define PWM_CMD_TO_US(_t) _t
-
 #ifndef USE_PWM0
 #define USE_PWM0 1
 #endif
@@ -777,6 +774,9 @@
 #define PWM_SERVO_0 0
 #define PWM_SERVO_0_DRIVER PWMD3
 #define PWM_SERVO_0_CHANNEL 2
+#define PWM_SERVO_0_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
+#else
+#define PWM_SERVO_0_ACTIVE PWM_OUTPUT_DISABLED
 #endif
 
 #ifndef USE_PWM1
@@ -786,6 +786,9 @@
 #define PWM_SERVO_1 1
 #define PWM_SERVO_1_DRIVER PWMD2
 #define PWM_SERVO_1_CHANNEL 2
+#define PWM_SERVO_1_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
+#else
+#define PWM_SERVO_1_ACTIVE PWM_OUTPUT_DISABLED
 #endif
 
 #ifndef USE_PWM2
@@ -795,6 +798,9 @@
 #define PWM_SERVO_2 2
 #define PWM_SERVO_2_DRIVER PWMD3
 #define PWM_SERVO_2_CHANNEL 1
+#define PWM_SERVO_2_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
+#else
+#define PWM_SERVO_2_ACTIVE PWM_OUTPUT_DISABLED
 #endif
 
 #ifndef USE_PWM3
@@ -804,6 +810,9 @@
 #define PWM_SERVO_3 3
 #define PWM_SERVO_3_DRIVER PWMD3
 #define PWM_SERVO_3_CHANNEL 0
+#define PWM_SERVO_3_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
+#else
+#define PWM_SERVO_3_ACTIVE PWM_OUTPUT_DISABLED
 #endif
 
 #ifndef USE_PWM4
@@ -813,6 +822,9 @@
 #define PWM_SERVO_4 4
 #define PWM_SERVO_4_DRIVER PWMD2
 #define PWM_SERVO_4_CHANNEL 1
+#define PWM_SERVO_4_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
+#else
+#define PWM_SERVO_4_ACTIVE PWM_OUTPUT_DISABLED
 #endif
 
 #ifndef USE_PWM5
@@ -822,14 +834,49 @@
 #define PWM_SERVO_5 5
 #define PWM_SERVO_5_DRIVER PWMD2
 #define PWM_SERVO_5_CHANNEL 0
+#define PWM_SERVO_5_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
+#else
+#define PWM_SERVO_5_ACTIVE PWM_OUTPUT_DISABLED
 #endif
 
 #if USE_PWM6
 #define PWM_SERVO_6 6
 #define PWM_SERVO_6_DRIVER PWMD3
 #define PWM_SERVO_6_CHANNEL 3
+#define PWM_SERVO_6_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
+#else
+#define PWM_SERVO_6_ACTIVE PWM_OUTPUT_DISABLED
 #endif
 
+#define PWM_CONF_TIM2 1
+#define PWM_CONF2_DEF { \
+  PWM_FREQUENCY, \
+  PWM_FREQUENCY/TIM2_SERVO_HZ, \
+  NULL, \
+  { \
+    { PWM_SERVO_5_ACTIVE, NULL }, \
+    { PWM_SERVO_4_ACTIVE, NULL }, \
+    { PWM_SERVO_1_ACTIVE, NULL }, \
+    { PWM_OUTPUT_DISABLED, NULL }, \
+  }, \
+  0, \
+  0 \
+}
+
+#define PWM_CONF_TIM3 1
+#define PWM_CONF3_DEF { \
+  PWM_FREQUENCY, \
+  PWM_FREQUENCY/TIM3_SERVO_HZ, \
+  NULL, \
+  { \
+    { PWM_SERVO_3_ACTIVE, NULL }, \
+    { PWM_SERVO_2_ACTIVE, NULL }, \
+    { PWM_SERVO_0_ACTIVE, NULL }, \
+    { PWM_SERVO_6_ACTIVE, NULL }, \
+  }, \
+  0, \
+  0 \
+}
 
 /**
  * PPM radio defines
