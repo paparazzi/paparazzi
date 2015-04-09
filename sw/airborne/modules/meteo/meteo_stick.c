@@ -69,7 +69,7 @@ struct MeteoStick meteo_stick;
 
 static const float maxAdc = 8388608.0f; // 2 ** 23
 
-static float get_pressure(uint32_t raw)
+static inline float get_pressure(uint32_t raw)
 {
   const float uncal_abs = ((raw / maxAdc) + 0.095f) / 0.0009f;
 
@@ -80,7 +80,7 @@ static float get_pressure(uint32_t raw)
 #endif
 }
 
-static float get_temp(uint32_t raw)
+static inline float get_temp(uint32_t raw)
 {
   const float coeff_A = 3.9083e-3f;
   const float coeff_B = -5.775e-7f;
@@ -102,7 +102,7 @@ static float get_temp(uint32_t raw)
 static float pitot_offset;
 static int pitot_counter;
 
-static float get_diff(uint32_t raw)
+static inline float get_diff(uint32_t raw)
 {
   const float gain_factor = Ads1220GainTable[ADS1220_GAIN_2];
   const uint32_t raw_diff = raw > pitot_offset ? raw - pitot_offset : 0;
@@ -115,12 +115,12 @@ static float get_diff(uint32_t raw)
 #endif
 }
 
-static float get_pitot(uint32_t raw)
+static inline float get_pitot(uint32_t raw)
 {
   return sqrtf((2.0f * get_diff(raw)) / 1.293f);
 }
 
-static float get_humidity(uint32_t raw)
+static inline float get_humidity(uint32_t raw)
 {
   const float icu_freq = 42e6f; // Freq
   const float Ra = 390e3f;
@@ -187,6 +187,7 @@ static inline void meteo_stick_send_data(void)
  */
 void meteo_stick_init(void)
 {
+#ifdef MS_PRESSURE_SLAVE_IDX
   // Init absolute pressure
   meteo_stick.pressure.config.mux = ADS1220_MUX_AIN0_AVSS;
   meteo_stick.pressure.config.gain = ADS1220_GAIN_1;
@@ -198,7 +199,9 @@ void meteo_stick_init(void)
   meteo_stick.pressure.config.i1mux = ADS1220_IMUX_OFF;
   meteo_stick.pressure.config.i2mux = ADS1220_IMUX_OFF;
   ads1220_init(&meteo_stick.pressure, &(MS_SPI_DEV), MS_PRESSURE_SLAVE_IDX);
+#endif
 
+#ifdef MS_DIFF_PRESSURE_SLAVE_IDX
   // Init differential pressure
   meteo_stick.diff_pressure.config.mux = ADS1220_MUX_AIN0_AVSS;
   meteo_stick.diff_pressure.config.gain = ADS1220_GAIN_2;
@@ -210,7 +213,9 @@ void meteo_stick_init(void)
   meteo_stick.diff_pressure.config.i1mux = ADS1220_IMUX_OFF;
   meteo_stick.diff_pressure.config.i2mux = ADS1220_IMUX_OFF;
   ads1220_init(&meteo_stick.diff_pressure, &(MS_SPI_DEV), MS_DIFF_PRESSURE_SLAVE_IDX);
+#endif
 
+#ifdef MS_TEMPERATURE_SLAVE_IDX
   // Init temperature
   meteo_stick.temperature.config.mux = ADS1220_MUX_AIN0_AIN1;
   meteo_stick.temperature.config.gain = ADS1220_GAIN_4;
@@ -222,12 +227,16 @@ void meteo_stick_init(void)
   meteo_stick.temperature.config.i1mux = ADS1220_IMUX_OFF;
   meteo_stick.temperature.config.i2mux = ADS1220_IMUX_A0_RP1;
   ads1220_init(&meteo_stick.temperature, &(MS_SPI_DEV), MS_TEMPERATURE_SLAVE_IDX);
+#endif
 
   // Init humidity
   meteo_stick.humidity_period = 0;
 
-  // Initial temperature (ISA at sea level)
-  meteo_stick.current_temperature = 15.0f;
+  // Initial conditions
+  meteo_stick.current_pressure = 0.0f;
+  meteo_stick.current_temperature = 0.0f;
+  meteo_stick.current_humidity = 0.0f;
+  meteo_stick.current_airspeed = 0.0f;
 
 #if USE_MS_EEPROM
   // Set number of calibration to 0 for all sensors
@@ -252,12 +261,20 @@ void meteo_stick_init(void)
 void meteo_stick_periodic(void)
 {
   // Read ADC
+#ifdef MS_PRESSURE_SLAVE_IDX
   ads1220_periodic(&meteo_stick.pressure);
+#endif
+#ifdef MS_DIFF_PRESSURE_SLAVE_IDX
   ads1220_periodic(&meteo_stick.diff_pressure);
+#endif
+#ifdef MS_TEMPERATURE_SLAVE_IDX
   ads1220_periodic(&meteo_stick.temperature);
+#endif
   // Read PWM
+#ifdef MS_HUMIDITY_PWM_INPUT
   meteo_stick.humidity_period = pwm_input_period_tics[MS_HUMIDITY_PWM_INPUT];
   meteo_stick.current_humidity = get_humidity(meteo_stick.humidity_period);
+#endif
 
 #if USE_MS_EEPROM
   if (meteo_stick.eeprom.data_available) {
@@ -335,24 +352,26 @@ void meteo_stick_periodic(void)
  */
 void meteo_stick_event(void)
 {
+#ifdef MS_PRESSURE_SLAVE_IDX
   ads1220_event(&meteo_stick.pressure);
+#endif
+#ifdef MS_DIFF_PRESSURE_SLAVE_IDX
   ads1220_event(&meteo_stick.diff_pressure);
+#endif
+#ifdef MS_TEMPERATURE_SLAVE_IDX
   ads1220_event(&meteo_stick.temperature);
+#endif
 
-  // send temperature data over ABI as soon as available
-  if (meteo_stick.temperature.data_available) {
-    meteo_stick.current_temperature = get_temp(meteo_stick.temperature.data);
-    AbiSendMsgTEMPERATURE(METEO_STICK_SENDER_ID, meteo_stick.current_temperature);
-    meteo_stick.temperature.data_available = FALSE;
-  }
-
+#ifdef MS_PRESSURE_SLAVE_IDX
   // send absolute pressure data over ABI as soon as available
   if (meteo_stick.pressure.data_available) {
     meteo_stick.current_pressure = get_pressure(meteo_stick.pressure.data);
     AbiSendMsgBARO_ABS(METEO_STICK_SENDER_ID, meteo_stick.current_pressure);
     meteo_stick.pressure.data_available = FALSE;
   }
+#endif
 
+#ifdef MS_DIFF_PRESSURE_SLAVE_IDX
   // send differential pressure data over ABI as soon as available
   if (meteo_stick.diff_pressure.data_available) {
     if (pitot_counter > 0) {
@@ -366,6 +385,16 @@ void meteo_stick_event(void)
     meteo_stick.current_airspeed = get_pitot(meteo_stick.diff_pressure.data);
     meteo_stick.diff_pressure.data_available = FALSE;
   }
+#endif
+
+#ifdef MS_TEMPERATURE_SLAVE_IDX
+  // send temperature data over ABI as soon as available
+  if (meteo_stick.temperature.data_available) {
+    meteo_stick.current_temperature = get_temp(meteo_stick.temperature.data);
+    AbiSendMsgTEMPERATURE(METEO_STICK_SENDER_ID, meteo_stick.current_temperature);
+    meteo_stick.temperature.data_available = FALSE;
+  }
+#endif
 
 #if USE_MS_EEPROM
   eeprom25AA256_event(&meteo_stick.eeprom);
