@@ -34,6 +34,10 @@ $(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL
 # Compile the video specific parts
 $(TARGET).srcs +=  $(SRC_BOARD)/video.c
 
+# Link static (Done for GLIBC)
+$(TARGET).CFLAGS += -DLINUX_LINK_STATIC
+$(TARGET).LDFLAGS += -static
+
 # -----------------------------------------------------------------------
 
 # default LED configuration

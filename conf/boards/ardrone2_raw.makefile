@@ -42,6 +42,10 @@ $(TARGET).CFLAGS +=-DARDRONE2_RAW
 # handle linux signals by hand
 $(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL
 
+# Link static (Done for GLIBC)
+$(TARGET).CFLAGS += -DLINUX_LINK_STATIC
+$(TARGET).LDFLAGS += -static
+
 # -----------------------------------------------------------------------
 
 # default LED configuration

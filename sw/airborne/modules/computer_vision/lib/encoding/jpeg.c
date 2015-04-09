@@ -415,20 +415,29 @@ void MakeTables(int q)
   }
 }
 
-
-
-
-
-uint8_t *jpeg_encode_image(uint8_t *input_ptr, uint8_t *output_ptr, uint32_t quality_factor, uint32_t image_format,
-                           uint32_t image_width, uint32_t image_height, bool_t add_dri_header)
+/**
+ * Encode an YUV422 image
+ * @param[in] *in The input image
+ * @param[out] *out The output JPEG image
+ * @param[in] quality_factor Quality factor of the encoding (0-99)
+ * @param[in] add_dri_header Add the DRI header (needed for full JPEG)
+ */
+void jpeg_encode_image(struct image_t *in, struct image_t *out, uint32_t quality_factor, bool_t add_dri_header)
 {
   uint16_t i, j;
+  uint8_t *output_ptr = out->buf;
+  uint8_t *input_ptr = in->buf;
+  uint32_t image_format = FOUR_ZERO_ZERO;
+
+  if (in->type == IMAGE_YUV422) {
+    image_format = FOUR_TWO_TWO;
+  }
 
   JPEG_ENCODER_STRUCTURE JpegStruct;
   JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure = &JpegStruct;
 
   /* Initialization of JPEG control structure */
-  jpeg_initialization(jpeg_encoder_structure, image_format, image_width, image_height);
+  jpeg_initialization(jpeg_encoder_structure, image_format, in->w, in->h);
 
   /* Quantization Table Initialization */
   //jpeg_initialize_quantization_tables (quality_factor);
@@ -437,7 +446,7 @@ uint8_t *jpeg_encode_image(uint8_t *input_ptr, uint8_t *output_ptr, uint32_t qua
 
   /* Writing Marker Data */
   if (add_dri_header) {
-    output_ptr = jpeg_write_markers(output_ptr, image_format, image_width, image_height);
+    output_ptr = jpeg_write_markers(output_ptr, image_format, in->w, in->h);
   }
 
   for (i = 1; i <= jpeg_encoder_structure->vertical_mcus; i++) {
@@ -469,7 +478,9 @@ uint8_t *jpeg_encode_image(uint8_t *input_ptr, uint8_t *output_ptr, uint32_t qua
 
   /* Close Routine */
   output_ptr = jpeg_close_bitstream(output_ptr);
-  return output_ptr;
+  out->w = in->w;
+  out->h = in->h;
+  out->buf_size = output_ptr - (uint8_t *)out->buf;
 }
 
 static uint8_t *jpeg_encodeMCU(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint32_t image_format, uint8_t *output_ptr)

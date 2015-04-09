@@ -34,18 +34,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef FAST_H
 #define FAST_H
 
-typedef struct { int x, y; } xyFAST;
-typedef unsigned char byte;
+#include "std.h"
+#include "lib/vision/image.h"
 
-int fast9_corner_score(const byte *p, const int pixel[], int bstart);
-
-xyFAST *fast9_detect(const byte *im, int xsize, int ysize, int stride, int b, int *ret_num_corners);
-
-int *fast9_score(const byte *i, int stride, xyFAST *corners, int num_corners, int b);
-
-xyFAST *fast9_detect_nonmax(const byte *im, int xsize, int ysize, int stride, int b, int *ret_num_corners);
-
-xyFAST *nonmax_suppression(const xyFAST *corners, const int *scores, int num_corners, int *ret_num_nonmax);
-
+struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uint16_t x_padding, uint16_t y_padding, uint16_t *num_corners);
 
 #endif

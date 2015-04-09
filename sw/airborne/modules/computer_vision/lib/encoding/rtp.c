@@ -62,6 +62,7 @@ uint8_t JpegScanDataCh2B[KJpegCh2ScanDataLen] = {
 
 /**
  * Send a test RTP frame
+ * @param[in] *udp The udp connection to send the test frame over
  */
 void rtp_frame_test(struct udp_periph *udp)
 {
@@ -86,13 +87,21 @@ void rtp_frame_test(struct udp_periph *udp)
 
 /**
  * Send an RTP frame
+ * @param[in] *udp The UDP connection to send the frame over
+ * @param[in] *img The image to send over the RTP connection
+ * @param[in] format_code 0 for YUV422 and 1 for YUV421
+ * @param[in] quality_code The JPEG encoding quality
+ * @param[in] has_dri_header Whether we have an DRI header or not
+ * @param[in] delta_t Time between images (if set to 0 or less it is calculated)
  */
-void rtp_frame_send(struct udp_periph *udp, uint8_t *Jpeg, uint32_t JpegLen, int w, int h, uint8_t format_code,
+void rtp_frame_send(struct udp_periph *udp, struct image_t *img, uint8_t format_code,
                     uint8_t quality_code, uint8_t has_dri_header, uint32_t delta_t)
 {
   static uint32_t packetcounter = 0;
   static uint32_t timecounter = 0;
   uint32_t offset = 0;
+  uint32_t jpeg_size = img->buf_size;
+  uint8_t *jpeg_ptr = img->buf;
 
 #define MAX_PACKET_SIZE 1400
 
@@ -104,20 +113,20 @@ void rtp_frame_send(struct udp_periph *udp, uint8_t *Jpeg, uint32_t JpegLen, int
   }
 
   // Split frame into packets
-  for (; JpegLen > 0;) {
+  for (; jpeg_size > 0;) {
     uint32_t len = MAX_PACKET_SIZE;
     uint8_t lastpacket = 0;
 
-    if (JpegLen <= len) {
+    if (jpeg_size <= len) {
       lastpacket = 1;
-      len = JpegLen;
+      len = jpeg_size;
     }
 
-    rtp_packet_send(udp, Jpeg, len, packetcounter, timecounter, offset, lastpacket, w, h, format_code, quality_code,
-                    has_dri_header);
+    rtp_packet_send(udp, jpeg_ptr, len, packetcounter, timecounter, offset, lastpacket, img->w, img->h, format_code,
+                    quality_code, has_dri_header);
 
-    JpegLen   -= len;
-    Jpeg      += len;
+    jpeg_size -= len;
+    jpeg_ptr  += len;
     offset    += len;
     packetcounter++;
   }
@@ -133,7 +142,18 @@ void rtp_frame_send(struct udp_periph *udp, uint8_t *Jpeg, uint32_t JpegLen, int
  * The RTP timestamp is in units of 90000Hz. The same timestamp MUST
  appear in each fragment of a given frame. The RTP marker bit MUST be
  set in the last packet of a frame.
- *
+ * @param[in] *udp The UDP socket to send the RTP packet over
+ * @param[in] *Jpeg JPEG encoded image byte buffer
+ * @param[in] JpegLen The length of the byte buffer
+ * @param[in] m_SequenceNumber RTP sequence number
+ * @param[in] m_Timestamp Timestamp of the image
+ * @param[in] m_offset 3 byte fragmentation offset for fragmented images
+ * @param[in] marker_bit RTP marker bit
+ * @param[in] w The width of the JPEG image
+ * @param[in] h The height of the image
+ * @param[in] format_code 0 for YUV422 and 1 for YUV421
+ * @param[in] quality_code The JPEG encoding quality
+ * @param[in] has_dri_header Whether we have an DRI header or not
  */
 static void rtp_packet_send(
   struct udp_periph *udp,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Paparazzi Community
+ * Copyright (C) 2012-2014 The Paparazzi Community
  *
  * This file is part of Paparazzi.
  *
@@ -14,20 +14,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Paparazzi; see the file COPYING.  If not, see
+ * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- */
-
-/**
- * @file modules/computer_vision/opticflow/opticflow_thread.h
- * @brief computer vision thread
  *
  */
 
-#ifndef OPTICFLOW_THREAD_H
-#define OPTICFLOW_THREAD_H
+/**
+ * @file modules/computer_vision/cv/encoding/rtp.h
+ *
+ * Encodes a vide stream with RTP (JPEG)
+ */
 
-void *computervision_thread_main(void *args);  /* computer vision thread: should be given a pointer to a socketpair as argument */
-void computervision_thread_request_exit(void);
+#ifndef _CV_ENCODING_RTP_H
+#define _CV_ENCODING_RTP_H
 
-#endif
+#include "std.h"
+#include "lib/vision/image.h"
+#include "mcu_periph/udp.h"
+
+void rtp_frame_send(struct udp_periph *udp, struct image_t *img, uint8_t format_code, uint8_t quality_code,
+                    uint8_t has_dri_header, uint32_t delta_t);
+void rtp_frame_test(struct udp_periph *udp);
+
+#endif /* _CV_ENCODING_RTP_H */
