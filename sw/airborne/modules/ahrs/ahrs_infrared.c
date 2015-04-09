@@ -38,6 +38,10 @@
 #include "state.h"
 #include "subsystems/abi.h"
 
+#ifndef INFRARED_FILTER_ID
+#define INFRARED_FILTER_ID 2
+#endif
+
 static float heading;
 
 /** ABI binding for gyro data.
@@ -69,8 +73,9 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
 {
   uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top);
   uint8_t mde = 3;
+  uint8_t id = INFRARED_FILTER_ID;
   if (contrast < 50) { mde = 7; }
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &contrast);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &id, &contrast);
 }
 #endif
 

@@ -52,6 +52,9 @@
 // for launch
 #include "firmwares/fixedwing/autopilot.h"
 
+// for datalink_time hack
+#include "subsystems/datalink/datalink.h"
+
 struct NpsAutopilot autopilot;
 bool_t nps_bypass_ahrs;
 bool_t nps_bypass_ins;
@@ -72,6 +75,7 @@ bool_t nps_bypass_ins;
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* rc_dev) {
 
   autopilot.launch = FALSE;
+  autopilot.datalink_enabled = TRUE;
 
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
   nps_electrical_init();
@@ -169,6 +173,10 @@ PRINT_CONFIG_VAR(COMMAND_YAW)
   if (!launch)
     autopilot.commands[COMMAND_THROTTLE] = 0;
 
+  // hack to reset datalink_time, since we don't use actual dl_parse_msg
+  if (autopilot.datalink_enabled) {
+    datalink_time = 0;
+  }
 }
 
 void sim_overwrite_ahrs(void) {

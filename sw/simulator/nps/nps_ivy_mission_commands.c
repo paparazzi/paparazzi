@@ -93,6 +93,9 @@ void nps_ivy_mission_commands_init(void) {
 static void on_DL_MISSION_GOTO_WP(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
+  if (!autopilot.datalink_enabled)
+    return;
+
   uint8_t i = 0;
   float dummy;
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
@@ -109,6 +112,9 @@ static void on_DL_MISSION_GOTO_WP(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_MISSION_GOTO_WP_LLA(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
+  if (!autopilot.datalink_enabled)
+    return;
+
   uint8_t i = 0;
   float dummy;
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
@@ -125,6 +131,9 @@ static void on_DL_MISSION_GOTO_WP_LLA(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_MISSION_CIRCLE(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
+  if (!autopilot.datalink_enabled)
+    return;
+
   uint8_t i = 0;
   float dummy;
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
@@ -141,6 +150,9 @@ static void on_DL_MISSION_CIRCLE(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_MISSION_CIRCLE_LLA(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
+  if (!autopilot.datalink_enabled)
+    return;
+
   uint8_t i = 0;
   float dummy;
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
@@ -157,6 +169,9 @@ static void on_DL_MISSION_CIRCLE_LLA(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_MISSION_SEGMENT(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
+  if (!autopilot.datalink_enabled)
+    return;
+
   uint8_t i = 0;
   float dummy;
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
@@ -173,6 +188,9 @@ static void on_DL_MISSION_SEGMENT(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_MISSION_SEGMENT_LLA(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
+  if (!autopilot.datalink_enabled)
+    return;
+
   uint8_t i = 0;
   float dummy;
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
@@ -189,6 +207,9 @@ static void on_DL_MISSION_SEGMENT_LLA(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_MISSION_PATH(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
+  if (!autopilot.datalink_enabled)
+    return;
+
   uint8_t i = 0;
   float dummy;
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
@@ -206,6 +227,9 @@ static void on_DL_MISSION_PATH(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_MISSION_PATH_LLA(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
+  if (!autopilot.datalink_enabled)
+    return;
+
   uint8_t i = 0;
   float dummy;
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
@@ -223,6 +247,8 @@ static void on_DL_MISSION_PATH_LLA(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_GOTO_MISSION(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
+  if (!autopilot.datalink_enabled)
+    return;
 
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
   dl_buffer[3] = (uint8_t)(atoi(argv[2])); //mission_id
@@ -233,6 +259,8 @@ static void on_DL_GOTO_MISSION(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_NEXT_MISSION(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
+  if (!autopilot.datalink_enabled)
+    return;
 
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
 
@@ -242,6 +270,8 @@ static void on_DL_NEXT_MISSION(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_END_MISSION(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
+  if (!autopilot.datalink_enabled)
+    return;
 
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
 

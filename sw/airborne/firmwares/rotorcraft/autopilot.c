@@ -30,7 +30,6 @@
 
 #include "mcu_periph/uart.h"
 #include "subsystems/radio_control.h"
-#include "subsystems/gps.h"
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
 #include "subsystems/electrical.h"
@@ -45,6 +44,12 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 
 #include "generated/settings.h"
+
+#if USE_GPS
+#include "subsystems/gps.h"
+#else
+#define GpsIsLost() TRUE
+#endif
 
 #ifdef POWER_SWITCH_GPIO
 #include "mcu_periph/gpio.h"
@@ -89,10 +94,9 @@ bool_t   autopilot_detect_ground_once;
 #endif
 
 #ifndef AUTOPILOT_DISABLE_AHRS_KILL
-#include "subsystems/ahrs.h"
 static inline int ahrs_is_aligned(void)
 {
-  return DefaultAhrsImpl.is_aligned;
+  return stateIsAttitudeValid();
 }
 #else
 PRINT_CONFIG_MSG("Using AUTOPILOT_DISABLE_AHRS_KILL")

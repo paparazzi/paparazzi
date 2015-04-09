@@ -88,11 +88,12 @@ IMU_CFLAGS += -DUSE_$(IMU_MPU_SPI_DEV_UPPER)
 IMU_CFLAGS += -DIMU_MPU_SPI_SLAVE_IDX=$(IMU_MPU_SPI_SLAVE_IDX)
 IMU_CFLAGS += -DUSE_$(IMU_MPU_SPI_SLAVE_IDX)
 
-ap.CFLAGS += $(IMU_CFLAGS)
-ap.srcs   += $(IMU_SRCS)
 
-test_imu.CFLAGS += $(IMU_CFLAGS)
-test_imu.srcs   += $(IMU_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_CFLAGS)
+$(TARGET).srcs += $(IMU_SRCS)
+endif
 
 #
 # NPS simulator

@@ -47,6 +47,14 @@ struct InsAltFloat {
 #endif
 };
 
-extern struct InsAltFloat ins_impl;
+extern struct InsAltFloat ins_altf;
+
+extern void ins_alt_float_init(void);
+extern void ins_alt_float_update_baro(float pressure);
+
+#ifndef DefaultInsImpl
+#define DefaultInsImpl ins_altf
+#endif
+extern void ins_altf_register(void);
 
 #endif /* INS_ALT_FLOAT_H */

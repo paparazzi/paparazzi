@@ -18,7 +18,7 @@ pid=0
 
 function quit {
   echo "Stop video"
-  if [ $pid > 0 ]
+  if [ "$pid" -gt 0 ]
   then
     kill -9 $pid
   fi
@@ -30,9 +30,9 @@ trap quit SIGINT
 
 # fetch sdp file on the ARDrone
 mkdir -p $SDP_DIR/$ADDR
-../ardrone2.py --host=$ADDR download_file $SDP_DIR/$ADDR/x86_config-mjpeg.sdp sdp
+../ardrone2.py --host=$ADDR download_file $SDP_DIR/$ADDR/stream.sdp images
 
-if [ ! -f $SDP_DIR/$ADDR/x86_config-mjpeg.sdp ];
+if [ ! -f $SDP_DIR/$ADDR/stream.sdp ];
 then
   echo "Unable to download sdp file from $ADDR"
   exit 0
@@ -42,7 +42,7 @@ fi
 echo "Start video"
 while [ 1 ]
 do
-  /usr/bin/mplayer -really-quiet $SDP_DIR/$ADDR/x86_config-mjpeg.sdp&
+  /usr/bin/mplayer -really-quiet $SDP_DIR/$ADDR/stream.sdp&
   pid=$!
   wait $pid
   echo "Restart video"

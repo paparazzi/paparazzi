@@ -57,9 +57,8 @@ endif
 
 endif #NO_MAG
 
-# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-ap.CFLAGS += $(imu_CFLAGS)
-ap.srcs += $(imu_srcs)
-
-test_imu.CFLAGS += $(imu_CFLAGS)
-test_imu.srcs += $(imu_srcs)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(imu_CFLAGS)
+$(TARGET).srcs += $(imu_srcs)
+endif

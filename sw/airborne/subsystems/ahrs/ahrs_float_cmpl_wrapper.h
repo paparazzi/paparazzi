@@ -29,7 +29,9 @@
 
 #include "subsystems/ahrs/ahrs_float_cmpl.h"
 
-#define DefaultAhrsImpl ahrs_fc
+#ifndef PRIMARY_AHRS
+#define PRIMARY_AHRS ahrs_fc
+#endif
 
 extern void ahrs_fc_register(void);
 

@@ -29,7 +29,9 @@
 
 #include "subsystems/ahrs/ahrs_int_cmpl_quat.h"
 
-#define DefaultAhrsImpl ahrs_icq
+#ifndef PRIMARY_AHRS
+#define PRIMARY_AHRS ahrs_icq
+#endif
 
 extern void ahrs_icq_register(void);
 

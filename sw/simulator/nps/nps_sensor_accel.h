@@ -19,7 +19,7 @@ struct NpsSensorAccel {
 };
 
 
-extern void   nps_sensor_accel_init(struct NpsSensorAccel* accel, double time);
-extern void   nps_sensor_accel_run_step(struct NpsSensorAccel* accel, double time, struct DoubleRMat* body_to_imu);
+extern void   nps_sensor_accel_init(struct NpsSensorAccel *accel, double time);
+extern void   nps_sensor_accel_run_step(struct NpsSensorAccel *accel, double time, struct DoubleRMat *body_to_imu);
 
 #endif /* NPS_SENSOR_ACCEL_H */

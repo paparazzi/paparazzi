@@ -29,7 +29,9 @@
 
 #include "subsystems/ahrs/ahrs_float_mlkf.h"
 
-#define DefaultAhrsImpl ahrs_mlkf
+#ifndef PRIMARY_AHRS
+#define PRIMARY_AHRS ahrs_mlkf
+#endif
 
 extern void ahrs_mlkf_register(void);
 

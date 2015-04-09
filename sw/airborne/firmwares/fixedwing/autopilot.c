@@ -29,9 +29,7 @@
 #include "firmwares/fixedwing/autopilot.h"
 
 #include "state.h"
-#include "subsystems/datalink/telemetry.h"
 #include "firmwares/fixedwing/nav.h"
-#include "generated/settings.h"
 
 #ifdef POWER_SWITCH_GPIO
 #include "mcu_periph/gpio.h"
@@ -57,6 +55,10 @@ float energy;
 bool_t gps_lost;
 
 bool_t power_switch;
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+#include "generated/settings.h"
 
 void send_autopilot_version(struct transport_tx *trans, struct link_device *dev)
 {
@@ -86,14 +88,6 @@ static void send_mode(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_PPRZ_MODE(trans, dev, AC_ID,
                           &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
-}
-
-void autopilot_send_mode(void)
-{
-  // use default telemetry here
-#if DOWNLINK
-  send_mode(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
-#endif
 }
 
 static void send_attitude(struct transport_tx *trans, struct link_device *dev)
@@ -159,6 +153,15 @@ static void send_airspeed(struct transport_tx *trans __attribute__((unused)),
   pprz_msg_send_AIRSPEED(trans, dev, AC_ID, stateGetAirspeed_f(), &zero, &zero, &zero);
 #endif
 }
+#endif /* PERIODIC_TELEMETRY */
+
+void autopilot_send_mode(void)
+{
+  // use default telemetry here
+#if DOWNLINK
+  send_mode(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+#endif
+}
 
 void autopilot_init(void)
 {
@@ -177,6 +180,7 @@ void autopilot_init(void)
   gpio_clear(POWER_SWITCH_GPIO);
 #endif
 
+#if PERIODIC_TELEMETRY
   /* register some periodic message */
   register_periodic_telemetry(DefaultPeriodic, "AUTOPILOT_VERSION", send_autopilot_version);
   register_periodic_telemetry(DefaultPeriodic, "ALIVE", send_alive);
@@ -190,6 +194,7 @@ void autopilot_init(void)
   register_periodic_telemetry(DefaultPeriodic, "DESIRED", send_desired);
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
   register_periodic_telemetry(DefaultPeriodic, "RC_SETTINGS", send_rc_settings);
+#endif
 #endif
 }
 

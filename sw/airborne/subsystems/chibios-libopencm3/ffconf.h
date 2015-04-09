@@ -173,7 +173,7 @@
 /* A header file that defines sync object types on the O/S, such as
 /  windows.h, ucos_ii.h and semphr.h, must be included prior to ff.h. */
 
-#define _FS_REENTRANT	0		/* 0:Disable or 1:Enable */
+#define _FS_REENTRANT	1		/* 0:Disable or 1:Enable */
 #define _FS_TIMEOUT		1000	/* Timeout period in unit of time ticks */
 #define	_SYNC_t			Semaphore * /* O/S dependent type of sync object. e.g. HANDLE, OS_EVENT*, ID and etc.. */
 
@@ -185,7 +185,12 @@
 /      function must be added to the project. */
 
 
-#define	_FS_SHARE	0	/* 0:Disable or >=1:Enable */
+/* 0:Disable or >=1:Enable */
+#if FLIGHTRECORDER_SDLOG
+#define	_FS_SHARE	2 // Open a second file if flight recorder is used
+#else
+#define _FS_SHARE 0
+#endif
 /* To enable file shareing feature, set _FS_SHARE to 1 or greater. The value
    defines how many files can be opened simultaneously. */
 

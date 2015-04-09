@@ -35,7 +35,9 @@ struct AhrsChimu {
 
 extern struct AhrsChimu ahrs_chimu;
 
-#define DefaultAhrsImpl ahrs_chimu
+#ifndef PRIMARY_AHRS
+#define PRIMARY_AHRS ahrs_chimu
+#endif
 
 extern void ahrs_chimu_register(void);
 extern void ahrs_chimu_init(void);

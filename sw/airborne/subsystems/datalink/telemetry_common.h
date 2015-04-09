@@ -34,30 +34,23 @@
 #include "mcu_periph/link_device.h"
 #include "subsystems/datalink/transport.h"
 
-/** Set default periodic telemetry to NULL
- */
-#ifndef DefaultPeriodic
-#define DefaultPeriodic NULL
-#endif
-
 /** Telemetry callback definition
  */
 typedef void (*telemetry_cb)(struct transport_tx *trans, struct link_device *dev);
 
-/** Telemetry header
+/** periodic telemetry msg name definition
  */
-struct telemetry_msg {
-  char msg[64];     ///< name in telemetry xml file
-  telemetry_cb cb;  ///< callback funtion
-};
+typedef const char telemetry_msg[64];
 
-/** Telemetry structure.
+
+/** Periodic telemetry structure.
  *  Contains the total number of messages (from generated telemetry file)
  *  and the list of registered callbacks
  */
-struct pprz_telemetry {
-  uint8_t nb;                 ///< number of messages
-  struct telemetry_msg *msgs; ///< the list of (msg name, callbacks)
+struct periodic_telemetry {
+  uint8_t nb;           ///< number of messages
+  telemetry_msg *msgs;  ///< the array of msg names
+  telemetry_cb *cbs;    ///< array of associated callbacks
 };
 
 /** Register a telemetry callback function.
@@ -68,9 +61,9 @@ struct pprz_telemetry {
  * @return TRUE if message registered with success, FALSE otherwise
  */
 #if PERIODIC_TELEMETRY
-extern bool_t register_periodic_telemetry(struct pprz_telemetry *_pt, const char *_msg, telemetry_cb _cb);
+extern bool_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb);
 #else
-static inline bool_t register_periodic_telemetry(struct pprz_telemetry *_pt __attribute__((unused)),
+static inline bool_t register_periodic_telemetry(struct periodic_telemetry *_pt __attribute__((unused)),
     const char *_msg __attribute__((unused)), telemetry_cb _cb __attribute__((unused))) { return FALSE; }
 #endif
 

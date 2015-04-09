@@ -41,9 +41,9 @@
 PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #endif
 
-struct InsArdrone2 ins_impl;
+struct InsArdrone2 ins_ardrone2;
 
-void ins_init()
+void ins_ardrone2_init(void)
 {
 #if USE_INS_NAV_INIT
   struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
@@ -55,42 +55,35 @@ void ins_init()
   struct EcefCoor_i ecef_nav0;
   ecef_of_lla_i(&ecef_nav0, &llh_nav0);
 
-  ltp_def_from_ecef_i(&ins_impl.ltp_def, &ecef_nav0);
-  ins_impl.ltp_def.hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(&ins_impl.ltp_def);
+  ltp_def_from_ecef_i(&ins_ardrone2.ltp_def, &ecef_nav0);
+  ins_ardrone2.ltp_def.hmsl = NAV_ALT0;
+  stateSetLocalOrigin_i(&ins_ardrone2.ltp_def);
 
-  ins_impl.ltp_initialized = TRUE;
+  ins_ardrone2.ltp_initialized = TRUE;
 #else
-  ins_impl.ltp_initialized  = FALSE;
+  ins_ardrone2.ltp_initialized  = FALSE;
 #endif
 
-  INT32_VECT3_ZERO(ins_impl.ltp_pos);
-  INT32_VECT3_ZERO(ins_impl.ltp_speed);
-  INT32_VECT3_ZERO(ins_impl.ltp_accel);
-}
-
-void ins_periodic(void)
-{
-  if (ins_impl.ltp_initialized) {
-    ins.status = INS_RUNNING;
-  }
+  INT32_VECT3_ZERO(ins_ardrone2.ltp_pos);
+  INT32_VECT3_ZERO(ins_ardrone2.ltp_speed);
+  INT32_VECT3_ZERO(ins_ardrone2.ltp_accel);
 }
 
 void ins_reset_local_origin(void)
 {
 #if USE_GPS
   if (gps.fix == GPS_FIX_3D) {
-    ltp_def_from_ecef_i(&ins_impl.ltp_def, &gps.ecef_pos);
-    ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
-    ins_impl.ltp_def.hmsl = gps.hmsl;
-    ins_impl.ltp_initialized = TRUE;
-    stateSetLocalOrigin_i(&ins_impl.ltp_def);
+    ltp_def_from_ecef_i(&ins_ardrone2.ltp_def, &gps.ecef_pos);
+    ins_ardrone2.ltp_def.lla.alt = gps.lla_pos.alt;
+    ins_ardrone2.ltp_def.hmsl = gps.hmsl;
+    ins_ardrone2.ltp_initialized = TRUE;
+    stateSetLocalOrigin_i(&ins_ardrone2.ltp_def);
   }
   else {
-    ins_impl.ltp_initialized = FALSE;
+    ins_ardrone2.ltp_initialized = FALSE;
   }
 #else
-  ins_impl.ltp_initialized = FALSE;
+  ins_ardrone2.ltp_initialized = FALSE;
 #endif
 }
 
@@ -102,65 +95,82 @@ void ins_reset_altitude_ref(void)
     .lon = state.ned_origin_i.lla.lon,
     .alt = gps.lla_pos.alt
   };
-  ltp_def_from_lla_i(&ins_impl.ltp_def, &lla);
-  ins_impl.ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ins_impl.ltp_def);
+  ltp_def_from_lla_i(&ins_ardrone2.ltp_def, &lla);
+  ins_ardrone2.ltp_def.hmsl = gps.hmsl;
+  stateSetLocalOrigin_i(&ins_ardrone2.ltp_def);
 #endif
 }
 
-void ins_propagate(float __attribute__((unused)) dt)
+void ins_ardrone2_periodic(void)
 {
   /* untilt accels and speeds */
-  float_rmat_transp_vmult((struct FloatVect3 *)&ins_impl.ltp_accel,
+  float_rmat_transp_vmult((struct FloatVect3 *)&ins_ardrone2.ltp_accel,
                           stateGetNedToBodyRMat_f(),
                           (struct FloatVect3 *)&ahrs_ardrone2.accel);
-  float_rmat_transp_vmult((struct FloatVect3 *)&ins_impl.ltp_speed,
+  float_rmat_transp_vmult((struct FloatVect3 *)&ins_ardrone2.ltp_speed,
                           stateGetNedToBodyRMat_f(),
                           (struct FloatVect3 *)&ahrs_ardrone2.speed);
 
   //Add g to the accelerations
-  ins_impl.ltp_accel.z += 9.81;
+  ins_ardrone2.ltp_accel.z += 9.81;
 
   //Save the accelerations and speeds
-  stateSetAccelNed_f(&ins_impl.ltp_accel);
-  stateSetSpeedNed_f(&ins_impl.ltp_speed);
+  stateSetAccelNed_f(&ins_ardrone2.ltp_accel);
+  stateSetSpeedNed_f(&ins_ardrone2.ltp_speed);
 
   //Don't set the height if we use the one from the gps
 #if !USE_GPS_HEIGHT
   //Set the height and save the position
-  ins_impl.ltp_pos.z = -(ahrs_ardrone2.altitude * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
-  stateSetPositionNed_i(&ins_impl.ltp_pos);
+  ins_ardrone2.ltp_pos.z = -(ahrs_ardrone2.altitude * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
+  stateSetPositionNed_i(&ins_ardrone2.ltp_pos);
 #endif
 }
 
 
-void ins_update_gps(void)
+void ins_ardrone2_update_gps(void)
 {
 #if USE_GPS
   //Check for GPS fix
   if (gps.fix == GPS_FIX_3D) {
     //Set the initial coordinates
-    if (!ins_impl.ltp_initialized) {
-      ltp_def_from_ecef_i(&ins_impl.ltp_def, &gps.ecef_pos);
-      ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
-      ins_impl.ltp_def.hmsl = gps.hmsl;
-      ins_impl.ltp_initialized = TRUE;
-      stateSetLocalOrigin_i(&ins_impl.ltp_def);
+    if (!ins_ardrone2.ltp_initialized) {
+      ltp_def_from_ecef_i(&ins_ardrone2.ltp_def, &gps.ecef_pos);
+      ins_ardrone2.ltp_def.lla.alt = gps.lla_pos.alt;
+      ins_ardrone2.ltp_def.hmsl = gps.hmsl;
+      ins_ardrone2.ltp_initialized = TRUE;
+      stateSetLocalOrigin_i(&ins_ardrone2.ltp_def);
     }
 
     //Set the x and y and maybe z position in ltp and save
     struct NedCoor_i ins_gps_pos_cm_ned;
-    ned_of_ecef_point_i(&ins_gps_pos_cm_ned, &ins_impl.ltp_def, &gps.ecef_pos);
+    ned_of_ecef_point_i(&ins_gps_pos_cm_ned, &ins_ardrone2.ltp_def, &gps.ecef_pos);
 
     //When we don't want to use the height of the navdata we can use the gps height
 #if USE_GPS_HEIGHT
-    INT32_VECT3_SCALE_2(ins_impl.ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
+    INT32_VECT3_SCALE_2(ins_ardrone2.ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
 #else
-    INT32_VECT2_SCALE_2(ins_impl.ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
+    INT32_VECT2_SCALE_2(ins_ardrone2.ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
 #endif
 
     //Set the local origin
-    stateSetPositionNed_i(&ins_impl.ltp_pos);
+    stateSetPositionNed_i(&ins_ardrone2.ltp_pos);
   }
 #endif /* USE_GPS */
+}
+
+#include "subsystems/abi.h"
+static abi_event gps_ev;
+static void gps_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct GpsState *gps_s)
+{
+  ins_ardrone2_update_gps();
+}
+
+void ins_ardrone2_register(void)
+{
+  ins_register_impl(ins_ardrone2_init);
+
+  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
+  // FIXME: ins_ardrone2_periodic is currently called via InsPeriodic hack directly from main
 }

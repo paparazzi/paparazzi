@@ -28,6 +28,14 @@
  */
 
 #include "subsystems/datalink/telemetry_common.h"
+#include "generated/periodic_telemetry.h"
+
+/* Implement global structures from generated header
+ */
+telemetry_msg telemetry_msgs[TELEMETRY_NB_MSG] = TELEMETRY_MSG_NAMES;
+telemetry_cb telemetry_cbs[TELEMETRY_NB_MSG] = TELEMETRY_CBS_NULL;
+struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs, telemetry_cbs };
+
 
 /** Register a telemetry callback function.
  * @param _pt periodic telemetry structure to register
@@ -35,17 +43,17 @@
  * @param _cb callback function, called according to telemetry mode and specified period
  * @return TRUE if message registered with success, FALSE otherwise
  */
-bool_t register_periodic_telemetry(struct pprz_telemetry *_pt, const char *_msg, telemetry_cb _cb)
+bool_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb)
 {
-  // return FALSE if NULL is passed as pprz_telemetry
+  // return FALSE if NULL is passed as periodic_telemetry
   if (_pt == NULL) { return FALSE; }
   // look for message name
   uint8_t i;
   for (i = 0; i < _pt->nb; i++) {
-    if (str_equal(_pt->msgs[i].msg, _msg)) {
+    if (str_equal(_pt->msgs[i], _msg)) {
       // register callback if not already done
-      if (_pt->msgs[i].cb == NULL) {
-        _pt->msgs[i].cb = _cb;
+      if (_pt->cbs[i] == NULL) {
+        _pt->cbs[i] = _cb;
         return TRUE;
       } else { return FALSE; }
     }

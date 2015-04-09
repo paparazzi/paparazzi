@@ -40,7 +40,7 @@
 /**
  * Create UDP socket and bind it.
  * @param[out] sock   pointer to already allocated UdpSocket struct
- * @param[in]  host      hostname/address
+ * @param[in]  host      ip address or hostname (hostname not possible if static linking)
  * @param[in]  port_out  output port
  * @param[in]  port_in   input port (set to < 0 to disable)
  * @param[in]  broadcast if TRUE enable broadcasting
@@ -52,6 +52,7 @@ int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port
     return -1;
   }
 
+#ifndef LINUX_LINK_STATIC
   /* try to convert host ipv4 address to binary format */
   struct in_addr host_ip;
   if (!inet_aton(host, &host_ip)) {
@@ -66,11 +67,11 @@ int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port
     if (hp->h_addrtype == AF_INET && hp->h_length == 4) {
       /* simply use first address */
       memcpy(&host_ip.s_addr, hp->h_addr_list[0], hp->h_length);
-    }
-    else {
+    } else {
       return -1;
     }
   }
+#endif
 
   // Create the socket with the correct protocl
   sock->sockfd = socket(PF_INET, SOCK_DGRAM, 0);
@@ -96,7 +97,11 @@ int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port
   // set the output/destination address for use in sendto later
   sock->addr_out.sin_family = PF_INET;
   sock->addr_out.sin_port = htons(port_out);
+#ifndef LINUX_LINK_STATIC
   sock->addr_out.sin_addr.s_addr = host_ip.s_addr;
+#else
+  sock->addr_out.sin_addr.s_addr = inet_addr(host);
+#endif
   return 0;
 }
 
@@ -114,7 +119,7 @@ int udp_socket_send(struct UdpSocket *sock, uint8_t *buffer, uint16_t len)
   }
 
   ssize_t bytes_sent = sendto(sock->sockfd, buffer, len, 0,
-                       (struct sockaddr *)&sock->addr_out, sizeof(sock->addr_out));
+                              (struct sockaddr *)&sock->addr_out, sizeof(sock->addr_out));
   if (bytes_sent != len) {
     TRACE(TRACE_ERROR, "error sending to sock %d (%d)\n", (int)bytes_sent, strerror(errno));
   }

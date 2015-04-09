@@ -30,8 +30,6 @@
 
 #include "ahrs_int_cmpl_euler.h"
 
-#include "state.h"
-#include "subsystems/abi.h"
 #include "math/pprz_trig_int.h"
 #include "math/pprz_algebra_int.h"
 
@@ -51,7 +49,6 @@ static inline void get_phi_theta_measurement_fom_accel(int32_t *phi_meas, int32_
     struct Int32Vect3 *accel);
 static inline void get_psi_measurement_from_mag(int32_t *psi_meas, int32_t phi_est, int32_t theta_est,
     struct Int32Vect3 *mag);
-static inline void set_body_state_from_euler(void);
 
 #define F_UPDATE 512
 
@@ -93,8 +90,6 @@ bool_t ahrs_ice_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
 
   /* Compute LTP to IMU eulers      */
   EULERS_SDIV(ahrs_ice.ltp_to_imu_euler, ahrs_ice.hi_res_euler, F_UPDATE);
-
-  set_body_state_from_euler();
 
   RATES_COPY(ahrs_ice.gyro_bias, *lp_gyro);
 
@@ -202,9 +197,6 @@ void ahrs_ice_propagate(struct Int32Rates *gyro)
 
   /* Compute LTP to IMU eulers      */
   EULERS_SDIV(ahrs_ice.ltp_to_imu_euler, ahrs_ice.hi_res_euler, F_UPDATE);
-
-  set_body_state_from_euler();
-
 }
 
 void ahrs_ice_update_accel(struct Int32Vect3 *accel)
@@ -279,26 +271,6 @@ __attribute__((always_inline)) static inline void get_psi_measurement_from_mag(i
   //  cphi_ctheta * mag->z;
   float m_psi = -atan2(me, mn);
   *psi_meas = ((m_psi - ahrs_ice.mag_offset) * (float)(1 << (INT32_ANGLE_FRAC)) * F_UPDATE);
-
-}
-
-/* Rotate angles and rates from imu to body frame and set state */
-static void set_body_state_from_euler(void)
-{
-  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_ice.body_to_imu);
-  struct Int32RMat ltp_to_imu_rmat, ltp_to_body_rmat;
-  /* Compute LTP to IMU rotation matrix */
-  int32_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_ice.ltp_to_imu_euler);
-  /* Compute LTP to BODY rotation matrix */
-  int32_rmat_comp_inv(&ltp_to_body_rmat, &ltp_to_imu_rmat, body_to_imu_rmat);
-  /* Set state */
-  stateSetNedToBodyRMat_i(&ltp_to_body_rmat);
-
-  struct Int32Rates body_rate;
-  /* compute body rates */
-  int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_ice.imu_rate);
-  /* Set state */
-  stateSetBodyRates_i(&body_rate);
 
 }
 

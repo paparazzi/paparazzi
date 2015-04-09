@@ -60,8 +60,9 @@ currently ongoing development, changes so far (no particular order, nor complete
 - arch/linux: refactor UDP support
   [#1120] (https://github.com/paparazzi/paparazzi/pull/1120)
   [#1122] (https://github.com/paparazzi/paparazzi/pull/1122)
-- airborne: major refactoring of AHRS interfaces using ABI
+- airborne: major refactoring of AHRS/INS interfaces using ABI, add dual AHRS support
   [#856] (https://github.com/paparazzi/paparazzi/pull/856)
+  [#1130] (https://github.com/paparazzi/paparazzi/pull/1130)
 - build: don't add full path to NPS object files
   [#798] (https://github.com/paparazzi/paparazzi/issues/798)
 - simulator: remove jsbsim target (fully replaced by NPS)
@@ -84,6 +85,22 @@ currently ongoing development, changes so far (no particular order, nor complete
 - build: Possibilty to specify conf.xml file for building aircrafts
   [#1134] (https://github.com/paparazzi/paparazzi/pull/1134)
 - OCaml: use Array.make instead of deprecated Array.create
+- OCaml: use camlp4 to ifdef around netclient/lablgtk version differences
+  [#1137] (https://github.com/paparazzi/paparazzi/pull/1137)
+- OCaml: fix string formatting of values in pprz ocaml lib
+  [#1135] (https://github.com/paparazzi/paparazzi/pull/1138)
+- OCaml: remove deprecated GnoDruid
+- INS: start considering BODY_TO_GPS translation
+  [#1080] (https://github.com/paparazzi/paparazzi/pull/1080)
+- airborne: refactoring, use the generic LinkDevice interface for receiving data streams
+  [#1140] (https://github.com/paparazzi/paparazzi/pull/1140)
+- modules: add flight_recorder, log to SD card or uart, configure via telemetry.xml
+  [#1114] (https://github.com/paparazzi/paparazzi/pull/1144)
+- modules: air_data: take geoid separation into account when calculating QNH
+- peripherals: ms5611 driver now also supports ms5607 (e.g. for Bebop)
+  [#1147] (https://github.com/paparazzi/paparazzi/pull/1147)
+- GPS: NMEA parser improvements
+  [#1146] (https://github.com/paparazzi/paparazzi/pull/1146)
 
 
 Paparazzi 5.4.2_stable
