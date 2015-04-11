@@ -217,6 +217,33 @@ let first_word = fun s ->
   with
     Not_found -> s
 
+(** Test if an element is available for the current target *)
+let is_element_unselected = fun target_combo name ->
+  let target = Gtk_tools.combo_value target_combo in
+  let test_targets = fun targets ->
+    List.exists (fun t -> t = target) targets
+  in
+  try
+    let name = (Env.paparazzi_home // "conf" // name) in
+    let xml = Xml.parse_file name in
+    match Xml.tag xml with
+    | "settings" ->
+        let targets = Xml.attrib xml "target" in
+        let target_list = Str.split (Str.regexp "|") targets in
+        not (test_targets target_list)
+    | "module" ->
+        let targets = List.map (fun x ->
+          match String.lowercase (Xml.tag x) with
+          | "makefile" -> Gen_common.targets_of_field x Env.default_module_targets
+          | _ -> []
+          ) (Xml.children xml) in
+        let targets = (List.flatten targets) in
+        (* singletonized list *)
+        let targets = Gen_common.singletonize (List.sort compare targets) in
+        not (test_targets targets)
+    | _ -> false
+  with _ -> false
+
 (** Get list of targets of an airframe *)
 let get_targets_list = fun ac_xml ->
   let firmwares = List.filter (fun x -> ExtXml.tag_is x "firmware") (Xml.children ac_xml) in
@@ -314,7 +341,10 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
         | Tree t ->
           ignore (Gtk_tools.clear_tree t);
           let names = Str.split regexp_space (value a) in
-          List.iter (fun n -> Gtk_tools.add_to_tree t n) names;
+          List.iter (fun n ->
+            let force_unselect = is_element_unselected target_combo n in
+            Gtk_tools.add_to_tree ~force_unselect t n
+          ) names;
       ) ac_files;
       let ac_id = ExtXml.attrib aircraft "ac_id"
       and gui_color = ExtXml.attrib_or_default aircraft "gui_color" "white" in
@@ -337,6 +367,41 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
         (Gtk_tools.combo_widget flash_combo)#misc#set_sensitive false
   in
   Gtk_tools.combo_connect ac_combo update_params;
+
+  (* connect target combo *)
+  Gtk_tools.combo_connect target_combo (fun target ->
+    let ac_name = Gtk_tools.combo_value ac_combo in
+    try
+      let aircraft = Hashtbl.find Utils.aircrafts ac_name in
+      let sample = aircraft_sample ac_name "42" in
+      (* update list of modules settings *)
+      let settings_modules = try
+        let af_xml = Xml.parse_file (Env.paparazzi_home // "conf" // (Xml.attrib aircraft "airframe")) in
+        get_settings_modules af_xml (ExtXml.attrib_or_default aircraft "settings_modules" "")
+      with
+      | Failure x -> prerr_endline x; []
+      | _ -> []
+      in
+      (* update aicraft hashtable *)
+      let aircraft = ExtXml.subst_attrib "settings_modules" (String.concat " " settings_modules) aircraft in
+      begin try Hashtbl.remove Utils.aircrafts ac_name with _ -> () end;
+      Hashtbl.add Utils.aircrafts ac_name aircraft;
+      let value = fun a -> try (ExtXml.attrib aircraft a) with _ -> Xml.attrib sample a in
+      (* update elements *)
+      List.iter (fun (a, _subdir, label, _, _, _, _) ->
+        match label with
+        | Label l -> l#set_text (value a)
+        | Tree t ->
+          ignore (Gtk_tools.clear_tree t);
+          let names = Str.split regexp_space (value a) in
+          List.iter (fun n ->
+            let force_unselect = is_element_unselected target_combo n in
+            Gtk_tools.add_to_tree ~force_unselect t n
+          ) names;
+      ) ac_files
+    with
+      Not_found -> ()
+    );
 
   (* New A/C button *)
   let callback = fun _ ->
@@ -424,7 +489,10 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
             let names = String.concat " " names in
             l#set_text names
         | Tree t ->
-            List.iter (fun n -> Gtk_tools.add_to_tree t n) names
+            List.iter (fun n ->
+              let force_unselect = is_element_unselected target_combo n in
+              Gtk_tools.add_to_tree ~force_unselect t n
+            ) names
         );
         save_callback gui ac_combo tree_set tree_set_mod ();
         let ac_name = Gtk_tools.combo_value ac_combo in
