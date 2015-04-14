@@ -838,48 +838,10 @@
     <field name="values" type="int16[]" unit="none"/>
   </message>
 
-  <message name="BETH" id="106">
-    <field name="azimuth" type="int16"/>
-    <field name="elevation" type="int16"/>
-    <field name="tilt" type="int16"/>
-    <field name="counter" type="uint32"/>
-    <field name="can_errs" type="uint16"/>
-    <field name="spi_errs" type="uint16"/>
-    <field name="thrust_out" type="int8"/>
-    <field name="pitch_out" type="int8"/>
-  </message>
-
-  <message name="BETH_ESTIMATOR" id="107">
-    <field name="tilt" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="tilt_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-    <field name="elevation" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="elevation_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-    <field name="azimuth" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="azimuth_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-  </message>
-
-  <message name="BETH_CONTROLLER" id="108">
-    <field name="pitch" type="float"/>
-    <field name="thrust" type="float"/>
-    <field name="pitch_ff" type="float"/>
-    <field name="pitch_fb" type="float"/>
-    <field name="thrust_ff" type="float"/>
-    <field name="thrust_fb" type="float"/>
-    <field name="tilt_sp" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="tilt_ref" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="tilt_dot_ref" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-    <field name="elevation_sp " type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="elevation_ref " type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="elevation_dot_ref" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-    <field name="azimuth_sp" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-  </message>
-
-  <message name="BETH_CONTROLLER_TWIST" id="109">
-    <field name="S" type="float"/>
-    <field name="S_dot" type="float"/>
-    <field name="U_twt" type="float"/>
-    <field name="error" type="float"/>
-  </message>
+  <!--106 is free -->
+  <!--107 is free -->
+  <!--108 is free -->
+  <!--109 is free -->
 
   <message name="DC_SHOT" id="110">
     <field name="photo_nr" type="int16"/>
@@ -901,9 +863,7 @@
     <field name="servo" type="uint16[]"/>
   </message>
 
-  <message name="BETH_CONTROLLER_SFB" id="112">
-    <field name="one" type="float"/>
-  </message>
+  <!--112 is free -->
 
   <message name="MLX_SERIAL" id="113">
     <field name="serial0" type="uint32"/>
