@@ -283,7 +283,7 @@ let parse_rc_modes = fun xml ->
  e.g. "!sim|nps" to mark support for all targets except sim and nps.
 *)
 let supports_target = fun t targets ->
-  if (String.get targets 0) = '!' then
+  if String.length targets > 0 && targets.[0] = '!' then
     not (Str.string_match (Str.regexp (".*"^t^".*")) targets 0)
   else
     Str.string_match (Str.regexp (".*"^t^".*")) targets 0
