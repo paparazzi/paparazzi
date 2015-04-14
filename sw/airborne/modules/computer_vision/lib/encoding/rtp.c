@@ -31,7 +31,7 @@
 
 #include "rtp.h"
 
-static void rtp_packet_send(struct udp_periph *udp, uint8_t *Jpeg, int JpegLen, uint32_t m_SequenceNumber,
+static void rtp_packet_send(struct UdpSocket *udp, uint8_t *Jpeg, int JpegLen, uint32_t m_SequenceNumber,
                             uint32_t m_Timestamp, uint32_t m_offset, uint8_t marker_bit, int w, int h, uint8_t format_code, uint8_t quality_code,
                             uint8_t has_dri_header);
 
@@ -64,7 +64,7 @@ uint8_t JpegScanDataCh2B[KJpegCh2ScanDataLen] = {
  * Send a test RTP frame
  * @param[in] *udp The udp connection to send the test frame over
  */
-void rtp_frame_test(struct udp_periph *udp)
+void rtp_frame_test(struct UdpSocket *udp)
 {
   static uint32_t framecounter = 0;
   static uint32_t timecounter = 0;
@@ -94,7 +94,7 @@ void rtp_frame_test(struct udp_periph *udp)
  * @param[in] has_dri_header Whether we have an DRI header or not
  * @param[in] delta_t Time between images (if set to 0 or less it is calculated)
  */
-void rtp_frame_send(struct udp_periph *udp, struct image_t *img, uint8_t format_code,
+void rtp_frame_send(struct UdpSocket *udp, struct image_t *img, uint8_t format_code,
                     uint8_t quality_code, uint8_t has_dri_header, uint32_t delta_t)
 {
   static uint32_t packetcounter = 0;
@@ -156,7 +156,7 @@ void rtp_frame_send(struct udp_periph *udp, struct image_t *img, uint8_t format_
  * @param[in] has_dri_header Whether we have an DRI header or not
  */
 static void rtp_packet_send(
-  struct udp_periph *udp,
+  struct UdpSocket *udp,
   uint8_t *Jpeg, int JpegLen,
   uint32_t m_SequenceNumber, uint32_t m_Timestamp,
   uint32_t m_offset, uint8_t marker_bit,
@@ -234,5 +234,5 @@ static void rtp_packet_send(
   // append the JPEG scan data to the RTP buffer
   memcpy(&RtpBuf[20], Jpeg, JpegLen);
 
-  udp_send_raw(udp, RtpBuf, RtpPacketSize);
+  udp_socket_send_dontwait(udp, RtpBuf, RtpPacketSize);
 };

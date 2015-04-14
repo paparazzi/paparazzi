@@ -127,6 +127,24 @@ int udp_socket_send(struct UdpSocket *sock, uint8_t *buffer, uint16_t len)
 }
 
 /**
+ * Send a packet from buffer, non-blocking.
+ * @param[in] sock  pointer to UdpSocket struct
+ * @param[in] buffer   buffer to send
+ * @param[in] len      buffer length in bytes
+ * @return number of bytes sent (-1 on error)
+ */
+int udp_socket_send_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint16_t len)
+{
+  if (sock == NULL) {
+    return -1;
+  }
+
+  ssize_t bytes_sent = sendto(sock->sockfd, buffer, len, MSG_DONTWAIT,
+                       (struct sockaddr *)&sock->addr_out, sizeof(sock->addr_out));
+  return bytes_sent;
+}
+
+/**
  * Receive a UDP packet, dont wait.
  * Sets the MSG_DONTWAIT flag, returns 0 if no data is available.
  * @param[in] sock  pointer to UdpSocket struct
