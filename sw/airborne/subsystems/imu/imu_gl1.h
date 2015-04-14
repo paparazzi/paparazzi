@@ -41,9 +41,6 @@
 #include "peripherals/adxl345_i2c.h"
 
 struct ImuGL1I2c {
-  volatile uint8_t accel_valid;
-  volatile uint8_t gyro_valid;
-  volatile uint8_t mag_valid;
   struct Adxl345_I2c acc_adxl;
   struct L3g4200 gyro_l3g;
   struct Hmc58xx mag_hmc;
@@ -53,21 +50,6 @@ extern struct ImuGL1I2c imu_gl1;
 
 extern void imu_gl1_i2c_event(void);
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  imu_gl1_i2c_event();
-  if (imu_gl1.gyro_valid) {
-    imu_gl1.gyro_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_gl1.accel_valid) {
-    imu_gl1.accel_valid = FALSE;
-    _accel_handler();
-  }
-  if (imu_gl1.mag_valid) {
-    imu_gl1.mag_valid = FALSE;
-    _mag_handler();
-  }
-}
+#define ImuEvent imu_gl1_i2c_event
 
 #endif /* IMU_GL1_H */

@@ -32,6 +32,7 @@
 */
 #include "subsystems/imu/imu_um6.h"
 #include "subsystems/imu.h"
+#include "subsystems/abi.h"
 #include "mcu_periph/sys_time.h"
 
 struct UM6Packet UM6_packet;
@@ -363,3 +364,12 @@ void UM6_packet_parse(uint8_t c)
 void imu_scale_gyro(struct Imu *_imu __attribute__((unused))) {}
 void imu_scale_accel(struct Imu *_imu __attribute__((unused))) {}
 void imu_scale_mag(struct Imu *_imu __attribute__((unused))) {}
+
+
+void imu_um6_publish(void)
+{
+  uint32_t now_ts = get_sys_time_usec();
+  AbiSendMsgIMU_GYRO_INT32(IMU_UM6_ID, now_ts, &imu.gyro);
+  AbiSendMsgIMU_ACCEL_INT32(IMU_UM6_ID, now_ts, &imu.accel);
+  AbiSendMsgIMU_MAG_INT32(IMU_UM6_ID, now_ts, &imu.mag);
+}

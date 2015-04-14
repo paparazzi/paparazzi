@@ -20,9 +20,7 @@
  */
 
 #include "subsystems/gps.h"
-
-bool_t gps_available;
-
+#include "subsystems/abi.h"
 
 #include "fms/fms_network.h"
 #include <string.h>
@@ -47,7 +45,6 @@ struct FmsNetwork *gps_network = NULL;
 void gps_impl_init(void)
 {
   gps.fix = GPS_FIX_NONE;
-  gps_available = FALSE;
   gps_network = network_new(GPS_UDP_HOST, 6000 /*out*/, 7000 /*in*/, TRUE);
 }
 
@@ -79,7 +76,6 @@ void gps_parse(void)
       gps.ecef_vel.z = UDP_GPS_INT(gps_udp_read_buffer + 40);
 
       gps.fix = GPS_FIX_3D;
-      gps_available = TRUE;
 
 #if GPS_USE_LATLONG
       // Computes from (lat, long) in the referenced UTM zone
@@ -95,6 +91,16 @@ void gps_parse(void)
       gps.utm_pos.alt = gps.lla_pos.alt;
       gps.utm_pos.zone = nav_utm_zone0;
 #endif
+
+      // publish new GPS data
+      uint32_t now_ts = get_sys_time_usec();
+      gps.last_msg_ticks = sys_time.nb_sec_rem;
+      gps.last_msg_time = sys_time.nb_sec;
+      if (gps.fix == GPS_FIX_3D) {
+        gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+        gps.last_3dfix_time = sys_time.nb_sec;
+      }
+      AbiSendMsgGPS(GPS_UDP_ID, now_ts, &gps);
 
     } else {
       printf("gps_udp error: msg len invalid %d bytes\n", size);

@@ -36,8 +36,6 @@
 
 
 struct ImuMpu6000 {
-  volatile bool_t gyro_valid;
-  volatile bool_t accel_valid;
   struct Mpu60x0_Spi mpu;
 };
 
@@ -46,17 +44,6 @@ extern struct ImuMpu6000 imu_mpu_spi;
 extern void imu_mpu_spi_event(void);
 
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void) __attribute__((unused)))
-{
-  imu_mpu_spi_event();
-  if (imu_mpu_spi.gyro_valid) {
-    imu_mpu_spi.gyro_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_mpu_spi.accel_valid) {
-    imu_mpu_spi.accel_valid = FALSE;
-    _accel_handler();
-  }
-}
+#define ImuEvent imu_mpu_spi_event
 
 #endif /* IMU_MPU6000_H */

@@ -71,11 +71,4 @@ extern void hmc5843_idle_task(void);
 
 #include <string.h>
 
-#define MagEvent(_m_handler) {                      \
-    hmc5843_idle_task();                            \
-    if (hmc5843.data_available) {                   \
-      _m_handler();                                 \
-    }                                               \
-  }
-
 #endif /* HMC5843_H */

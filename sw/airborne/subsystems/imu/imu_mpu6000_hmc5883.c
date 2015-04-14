@@ -25,7 +25,7 @@
  */
 
 #include "subsystems/imu.h"
-
+#include "subsystems/abi.h"
 #include "mcu_periph/spi.h"
 #include "peripherals/hmc58xx_regs.h"
 
@@ -74,10 +74,6 @@ struct ImuMpu6000Hmc5883 imu_mpu_hmc;
 
 void imu_impl_init(void)
 {
-  imu_mpu_hmc.accel_valid = FALSE;
-  imu_mpu_hmc.gyro_valid = FALSE;
-  imu_mpu_hmc.mag_valid = FALSE;
-
   mpu60x0_spi_init(&imu_mpu_hmc.mpu, &IMU_MPU_SPI_DEV, IMU_MPU_SPI_SLAVE_IDX);
   // change the default configuration
   imu_mpu_hmc.mpu.config.smplrt_div = IMU_MPU_SMPLRT_DIV;
@@ -102,13 +98,17 @@ void imu_periodic(void)
 
 void imu_mpu_hmc_event(void)
 {
+  uint32_t now_ts = get_sys_time_usec();
+
   mpu60x0_spi_event(&imu_mpu_hmc.mpu);
   if (imu_mpu_hmc.mpu.data_available) {
     RATES_COPY(imu.gyro_unscaled, imu_mpu_hmc.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_mpu_hmc.mpu.data_accel.vect);
     imu_mpu_hmc.mpu.data_available = FALSE;
-    imu_mpu_hmc.gyro_valid = TRUE;
-    imu_mpu_hmc.accel_valid = TRUE;
+    imu_scale_gyro(&imu);
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_MPU6000_HMC_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_MPU6000_HMC_ID, now_ts, &imu.accel);
   }
 
   /* HMC58XX event task */
@@ -119,6 +119,7 @@ void imu_mpu_hmc_event(void)
     imu.mag_unscaled.y = -imu_mpu_hmc.hmc.data.vect.x;
     imu.mag_unscaled.z =  imu_mpu_hmc.hmc.data.vect.z;
     imu_mpu_hmc.hmc.data_available = FALSE;
-    imu_mpu_hmc.mag_valid = TRUE;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_MPU6000_HMC_ID, now_ts, &imu.mag);
   }
 }

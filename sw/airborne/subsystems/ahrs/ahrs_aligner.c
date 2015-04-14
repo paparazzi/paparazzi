@@ -44,6 +44,20 @@ static struct Int32Vect3 mag_sum;
 static int32_t ref_sensor_samples[SAMPLES_NB];
 static uint32_t samples_idx;
 
+#ifndef AHRS_ALIGNER_IMU_ID
+#define AHRS_ALIGNER_IMU_ID ABI_BROADCAST
+#endif
+static abi_event gyro_ev;
+
+static void gyro_cb(uint8_t sender_id __attribute__((unused)),
+                    uint32_t stamp __attribute__((unused)),
+                    struct Int32Rates *gyro __attribute__((unused)))
+{
+  if (ahrs_aligner.status != AHRS_ALIGNER_LOCKED) {
+    ahrs_aligner_run();
+  }
+}
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
@@ -72,6 +86,9 @@ void ahrs_aligner_init(void)
   samples_idx = 0;
   ahrs_aligner.noise = 0;
   ahrs_aligner.low_noise_cnt = 0;
+
+  // for now: only bind to gyro message and still read from global imu struct
+  AbiBindMsgIMU_GYRO_INT32(AHRS_ALIGNER_IMU_ID, &gyro_ev, gyro_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "FILTER_ALIGNER", send_aligner);

@@ -201,7 +201,6 @@ bool_t navdata_init()
   // Reset available flags
   navdata_available = FALSE;
   navdata.baro_calibrated = FALSE;
-  navdata.imu_available = FALSE;
   navdata.baro_available = FALSE;
   navdata.imu_lost = FALSE;
 
@@ -320,6 +319,20 @@ static void *navdata_read(void *data __attribute__((unused)))
   return NULL;
 }
 
+#include "subsystems/imu.h"
+static void navdata_publish_imu(void)
+{
+  RATES_ASSIGN(imu.gyro_unscaled, navdata.measure.vx, -navdata.measure.vy, -navdata.measure.vz);
+  VECT3_ASSIGN(imu.accel_unscaled, navdata.measure.ax, 4096 - navdata.measure.ay, 4096 - navdata.measure.az);
+  VECT3_ASSIGN(imu.mag_unscaled, -navdata.measure.mx, -navdata.measure.my, -navdata.measure.mz);
+  imu_scale_gyro(&imu);
+  imu_scale_accel(&imu);
+  imu_scale_mag(&imu);
+  uint32_t now_ts = get_sys_time_usec();
+  AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
+  AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
+  AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
+}
 
 /**
  * Update the navdata (event loop)
@@ -377,7 +390,8 @@ void navdata_update()
     }
 #endif
 
-    navdata.imu_available = TRUE;
+    navdata_publish_imu();
+
     navdata.packetsRead++;
   } else {
     // no new packet available, still unlock mutex again

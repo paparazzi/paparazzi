@@ -40,6 +40,7 @@
 #error "USE_GPS needs to be 1 to use the Xsens GPS!"
 #endif
 #include "subsystems/gps.h"
+#include "subsystems/abi.h"
 #include "math/pprz_geodetic_wgs84.h"
 #include "math/pprz_geodetic_float.h"
 #include "subsystems/navigation/common_nav.h" /* needed for nav_utm_zone0 */
@@ -297,7 +298,19 @@ void ins_xsens_update_gps(struct GpsState *gps_s)
 void gps_impl_init(void)
 {
   gps.nb_channels = 0;
-  gps_xsens_msg_available = FALSE;
+}
+
+static void gps_xsens_publish(void)
+{
+  // publish gps data
+  uint32_t now_ts = get_sys_time_usec();
+  gps.last_msg_ticks = sys_time.nb_sec_rem;
+  gps.last_msg_time = sys_time.nb_sec;
+  if (gps.fix == GPS_FIX_3D) {
+    gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+    gps.last_3dfix_time = sys_time.nb_sec;
+  }
+  AbiSendMsgGPS(GPS_XSENS_ID, now_ts, &gps);
 }
 #endif
 
@@ -402,25 +415,44 @@ void handle_ins_msg(void)
 #endif
 
 #if USE_IMU
+  uint32_t now_ts = get_sys_time_usec();
 #ifdef XSENS_BACKWARDS
   if (imu_xsens.gyro_available) {
     RATES_ASSIGN(imu.gyro_unscaled, -RATE_BFP_OF_REAL(ins_p), -RATE_BFP_OF_REAL(ins_q), RATE_BFP_OF_REAL(ins_r));
+     imu_xsens.gyro_available = FALSE;
+     imu_scale_gyro(&imu);
+     AbiSendMsgIMU_GYRO_INT32(IMU_XSENS_ID, now_ts, &imu.gyro);
   }
   if (imu_xsens.accel_available) {
     VECT3_ASSIGN(imu.accel_unscaled, -ACCEL_BFP_OF_REAL(ins_ax), -ACCEL_BFP_OF_REAL(ins_ay), ACCEL_BFP_OF_REAL(ins_az));
+    imu_xsens.accel_available = FALSE;
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_XSENS_ID, now_ts, &imu.accel);
   }
   if (imu_xsens.mag_available) {
     VECT3_ASSIGN(imu.mag_unscaled, -MAG_BFP_OF_REAL(ins_mx), -MAG_BFP_OF_REAL(ins_my), MAG_BFP_OF_REAL(ins_mz));
+    imu_xsens.mag_available = FALSE;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_XSENS_ID, now_ts, &imu.mag);
   }
 #else
   if (imu_xsens.gyro_available) {
     RATES_ASSIGN(imu.gyro_unscaled, RATE_BFP_OF_REAL(ins_p), RATE_BFP_OF_REAL(ins_q), RATE_BFP_OF_REAL(ins_r));
+    imu_xsens.gyro_available = FALSE;
+    imu_scale_gyro(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_XSENS_ID, now_ts, &imu.gyro);
   }
   if (imu_xsens.accel_available) {
     VECT3_ASSIGN(imu.accel_unscaled, ACCEL_BFP_OF_REAL(ins_ax), ACCEL_BFP_OF_REAL(ins_ay), ACCEL_BFP_OF_REAL(ins_az));
+    imu_xsens.accel_available = FALSE;
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_XSENS_ID, now_ts, &imu.accel);
   }
   if (imu_xsens.mag_available) {
     VECT3_ASSIGN(imu.mag_unscaled, MAG_BFP_OF_REAL(ins_mx), MAG_BFP_OF_REAL(ins_my), MAG_BFP_OF_REAL(ins_mz));
+    imu_xsens.mag_available = FALSE;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_XSENS_ID, now_ts, &imu.mag);
   }
 #endif /* XSENS_BACKWARDS */
 #endif /* USE_IMU */
@@ -533,7 +565,7 @@ void parse_ins_msg(void)
       gps.sacc = XSENS_DATA_RAWGPS_sacc(xsens_msg_buf, offset) / 100;
       gps.pdop = 5;  // FIXME Not output by XSens
 
-      gps_xsens_msg_available = TRUE;
+      gps_xsens_publish();
 #endif
       offset += XSENS_DATA_RAWGPS_LENGTH;
     }
@@ -627,7 +659,7 @@ void parse_ins_msg(void)
       gps.hmsl = ins_z * 1000;
       // what about gps.lla_pos.alt and gps.utm_pos.alt ?
 
-      gps_xsens_msg_available = TRUE;
+      gps_xsens_publish();
 #endif
       offset += XSENS_DATA_Position_LENGTH;
     }

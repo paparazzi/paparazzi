@@ -122,7 +122,6 @@ struct navdata_t {
   struct bmp180_calib_t bmp180_calib;     ///< BMP180 calibration receieved from navboard
 
   bool_t baro_calibrated;                 ///< Whenever the baro is calibrated
-  bool_t imu_available;                   ///< Whenever the imu is available
   bool_t baro_available;                  ///< Whenever the baro is available
   bool_t imu_lost;                        ///< Whenever the imu is lost
 };

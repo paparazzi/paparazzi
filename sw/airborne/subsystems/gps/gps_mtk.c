@@ -32,7 +32,7 @@
  */
 
 #include "subsystems/gps.h"
-
+#include "subsystems/abi.h"
 #include "led.h"
 
 /* currently needed to get nav_utm_zone0 */
@@ -115,8 +115,11 @@ void gps_impl_init(void)
 #endif
 }
 
-void gps_mtk_msg(void (* _cb)(void))
+void gps_mtk_msg(void)
 {
+  // current timestamp
+  uint32_t now_ts = get_sys_time_usec();
+
   gps.last_msg_ticks = sys_time.nb_sec_rem;
   gps.last_msg_time = sys_time.nb_sec;
   gps_mtk_read_message();
@@ -126,7 +129,7 @@ void gps_mtk_msg(void (* _cb)(void))
       gps.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps.last_3dfix_time = sys_time.nb_sec;
     }
-    _sol_available_callback();
+    AbiSendMsgGPS(GPS_MTK_ID, now_ts, &gps);
   }
   if (gps_mtk.msg_class == MTK_DIY16_ID &&
       gps_mtk.msg_id == MTK_DIY16_NAV_ID) {
@@ -134,7 +137,7 @@ void gps_mtk_msg(void (* _cb)(void))
       gps.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps.last_3dfix_time = sys_time.nb_sec;
     }
-    _cb();
+    AbiSendMsgGPS(GPS_MTK_ID, now_ts, &gps);
   }
   gps_mtk.msg_available = FALSE;
 }

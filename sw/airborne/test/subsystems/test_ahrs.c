@@ -54,10 +54,6 @@ static inline void main_periodic_task(void);
 static inline void main_event_task(void);
 static inline void main_report(void);
 
-static inline void on_gyro_event(void);
-static inline void on_accel_event(void);
-static inline void on_mag_event(void);
-
 uint16_t datalink_time = 0;
 
 int main(void)
@@ -100,46 +96,8 @@ static inline void main_event_task(void)
 {
   mcu_event();
   DatalinkEvent();
-  ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
+  ImuEvent();
 }
-
-static inline void on_gyro_event(void)
-{
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  imu_scale_gyro(&imu);
-
-  AbiSendMsgIMU_GYRO_INT32(1, now_ts, &imu.gyro_prev);
-
-#if USE_AHRS_ALIGNER
-  if (ahrs_aligner.status != AHRS_ALIGNER_LOCKED) {
-    ahrs_aligner_run();
-    return;
-  }
-#endif
-}
-
-static inline void on_accel_event(void)
-{
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  imu_scale_accel(&imu);
-
-  AbiSendMsgIMU_ACCEL_INT32(1, now_ts, &imu.accel);
-}
-
-static inline void on_mag_event(void)
-{
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  imu_scale_mag(&imu);
-
-  AbiSendMsgIMU_MAG_INT32(1, now_ts, &imu.mag);
-}
-
 
 static inline void main_report(void)
 {

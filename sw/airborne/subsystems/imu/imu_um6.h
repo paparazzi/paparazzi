@@ -59,6 +59,7 @@
 
 extern void UM6_packet_read_message(void);
 extern void UM6_packet_parse(uint8_t c);
+extern void imu_um6_publish(void);
 
 extern struct UM6Packet UM6_packet;
 
@@ -98,7 +99,7 @@ enum UM6Status {
   UM6Running
 };
 
-static inline void imu_um6_event(void (* cb1)(void), void (*cb2)(void), void (*cb3)(void))
+static inline void imu_um6_event(void)
 {
   if (uart_char_available(&(UM6_LINK))) {
     while (uart_char_available(&(UM6_LINK)) && !UM6_packet.msg_available) {
@@ -107,16 +108,11 @@ static inline void imu_um6_event(void (* cb1)(void), void (*cb2)(void), void (*c
     if (UM6_packet.msg_available) {
       UM6_packet.msg_available = FALSE;
       UM6_packet_read_message();
-      cb1();
-      cb2();
-      cb3();
+      imu_um6_publish();
     }
   }
 }
 
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
-    imu_um6_event(_gyro_handler, _accel_handler, _mag_handler); \
-  }
-
+#define ImuEvent imu_um6_event
 
 #endif /* IMU_UM6_H*/
