@@ -23,8 +23,7 @@
 /**
  * @file arch/lpc21/mcu_arch.h
  * @brief lpc21 arch dependant microcontroller initialisation functions.
- * @defgroup lpc21_arch LPC21 architecture
- * @ingroup lpc21_arch
+ * @addtogroup lpc21_arch LPC21 architecture
  */
 
 #ifndef LPC21_MCU_ARCH_H

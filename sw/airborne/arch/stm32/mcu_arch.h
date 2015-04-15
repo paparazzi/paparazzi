@@ -23,8 +23,7 @@
 /**
  * @file arch/stm32/mcu_arch.h
  * @brief stm32 arch dependant microcontroller initialisation functions.
- * @defgroup stm32_arch STM32 architecture
- * @ingroup stm32_arch
+ * @addtogroup stm32_arch STM32 architecture
  */
 
 #ifndef STM32_MCU_ARCH_H
