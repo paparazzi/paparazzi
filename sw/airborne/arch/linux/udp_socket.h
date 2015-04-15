@@ -39,7 +39,7 @@ struct UdpSocket {
 
 /**
  * Create UDP network (in/out sockets).
- * @param[out] network   pointer to already allocated UdpSocket struct
+ * @param[out] sock   pointer to already allocated UdpSocket struct
  * @param[in]  host      hostname/address
  * @param[in]  port_out  output port
  * @param[in]  port_in   input port (set to < 0 to disable)
@@ -50,7 +50,7 @@ extern int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, i
 
 /**
  * Send a packet from buffer, blocking.
- * @param[in] network  pointer to UdpSocket struct
+ * @param[in] sock  pointer to UdpSocket struct
  * @param[in] buffer   buffer to send
  * @param[in] len     buffer length in bytes
  * @return number of bytes sent (-1 on error)
@@ -59,7 +59,7 @@ extern int udp_socket_send(struct UdpSocket *sock, uint8_t *buffer, uint16_t len
 
 /**
  * Receive a UDP packet, dont wait.
- * @param[in] network  pointer to UdpSocket struct
+ * @param[in] sock  pointer to UdpSocket struct
  * @param[out] buffer  buffer to write received packet to
  * @param[in] len     buffer length in bytes
  * @return number of bytes received (-1 on error)
@@ -68,7 +68,7 @@ extern int udp_socket_recv_dontwait(struct UdpSocket *sock, uint8_t *buffer, uin
 
 /**
  * Receive one UDP packet.
- * @param[in] network  pointer to UdpSocket struct
+ * @param[in] sock  pointer to UdpSocket struct
  * @param[out] buffer  buffer to write received packet to
  * @param[in] len     buffer length in bytes
  * @return number of bytes received (-1 on error)

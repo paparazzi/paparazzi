@@ -19,7 +19,7 @@
  */
 
 /**
- * @file arch/linux/udp_socket.h
+ * @file arch/linux/udp_socket.c
  *
  * Easily create and use UDP sockets.
  */

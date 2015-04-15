@@ -14,7 +14,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- * @file modules/computer_vision/cv/encoding/jpeg.h
+ * @file modules/computer_vision/lib/encoding/jpeg.h
  * Encode images with the use of the JPEG encoding
  */
 

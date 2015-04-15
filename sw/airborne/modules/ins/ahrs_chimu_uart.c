@@ -35,7 +35,7 @@ struct AhrsChimu ahrs_chimu;
 void ahrs_chimu_register(void)
 {
   ahrs_chimu_init();
-  /// @TODO: provide enable function
+  /// @todo: provide enable function
   ahrs_register_impl(NULL);
 }
 

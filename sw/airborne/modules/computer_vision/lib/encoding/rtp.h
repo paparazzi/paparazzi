@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/computer_vision/cv/encoding/rtp.h
+ * @file modules/computer_vision/lib/encoding/rtp.h
  *
  * Encodes a vide stream with RTP (JPEG)
  */

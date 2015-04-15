@@ -16,7 +16,7 @@
 #include "jpeg.h"
 
 /**
- * @file modules/computer_vision/cv/encoding/jpeg.c
+ * @file modules/computer_vision/lib/encoding/jpeg.c
  * Encode images with the use of the JPEG encoding
  */
 

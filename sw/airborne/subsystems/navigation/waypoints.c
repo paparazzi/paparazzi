@@ -87,7 +87,7 @@ void nav_move_waypoint_enu_i(uint8_t wp_id, struct EnuCoor_i *new_pos)
 
 /**
  * Set only local XY coordinates of waypoint without update altitude.
- * @TODO: how to handle global waypoints?
+ * @todo: how to handle global waypoints?
  */
 void nav_set_waypoint_xy_i(uint8_t wp_id, int32_t x, int32_t y)
 {

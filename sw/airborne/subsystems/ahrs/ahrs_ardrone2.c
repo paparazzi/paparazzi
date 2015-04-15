@@ -71,7 +71,7 @@ static void send_ahrs_ad2(struct transport_tx *trans, struct link_device *dev)
 void ahrs_ardrone2_register(void)
 {
   ahrs_ardrone2_init();
-  /// @TODO: provide enable function
+  /// @todo: provide enable function
   ahrs_register_impl(NULL);
 }
 
