@@ -22,7 +22,10 @@
  * @file pprz_geodetic_int.h
  * @brief Paparazzi fixed point math for geodetic calculations.
  *
- *
+ * @addtogroup math_geodetic
+ * @{
+ * @addtogroup math_geodetic_int Fixed Point Geodetic functions
+ * @{
  */
 
 #ifndef PPRZ_GEODETIC_INT_H
@@ -240,3 +243,5 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, st
 #endif
 
 #endif /* PPRZ_GEODETIC_INT_H */
+/** @}*/
+/** @}*/

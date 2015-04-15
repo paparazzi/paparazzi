@@ -22,7 +22,11 @@
  * @file pprz_geodetic_double.h
  * @brief Paparazzi double-precision floating point math for geodetic calculations.
  *
- *
+ * @addtogroup math_geodetic
+ * @{
+ * Double Geodetic functions and macros.
+ * @addtogroup math_geodetic_double Double Geodetic functions
+ * @{
  */
 
 #ifndef PPRZ_GEODETIC_DOUBLE_H
@@ -124,3 +128,5 @@ extern double gc_of_gd_lat_d(double gd_lat, double hmsl);
 #endif
 
 #endif /* PPRZ_GEODETIC_DOUBLE_H */
+/** @}*/
+/** @}*/

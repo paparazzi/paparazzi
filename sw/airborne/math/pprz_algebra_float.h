@@ -22,6 +22,10 @@
  * @file pprz_algebra_float.h
  * @brief Paparazzi floating point algebra.
  *
+ * @addtogroup math_algebra
+ * @{
+ * @defgroup math_algebra_float Float Algebra
+ * @{
  */
 
 #ifndef PPRZ_ALGEBRA_FLOAT_H
@@ -699,3 +703,5 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
 #endif
 
 #endif /* PPRZ_ALGEBRA_FLOAT_H */
+/** @}*/
+/** @}*/

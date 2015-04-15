@@ -22,6 +22,10 @@
  * @file pprz_algebra_int.h
  * @brief Paparazzi fixed point algebra.
  *
+ * @addtogroup math_algebra
+ * @{
+ * @addtogroup math_algebra_int Fixed Point Algebra
+ * @{
  */
 
 #ifndef PPRZ_ALGEBRA_INT_H
@@ -594,3 +598,5 @@ extern void int32_eulers_dot_321_of_rates(struct Int32Eulers *ed, struct Int32Eu
 #endif
 
 #endif /* PPRZ_ALGEBRA_INT_H */
+/** @}*/
+/** @}*/

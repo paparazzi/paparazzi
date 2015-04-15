@@ -122,3 +122,5 @@ extern void ecef_of_ned_vect_f(struct EcefCoor_f *ecef, struct LtpDef_f *def, st
 #endif
 
 #endif /* PPRZ_GEODETIC_FLOAT_H */
+/** @}*/
+/** @}*/

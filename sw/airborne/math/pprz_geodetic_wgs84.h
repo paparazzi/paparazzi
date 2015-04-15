@@ -34,6 +34,10 @@
  *
  * rows are from -180 to +170 starting north +90 to south-90
  *
+ * @addtogroup math_geodetic
+ * @{
+ * @addtogroup math_geodetic_wgs84 WGS-84 Geoid
+ * @{
  */
 
 #ifndef PPRZ_GEODETIC_WGS84_H
@@ -92,3 +96,5 @@ static inline float wgs84_ellipsoid_to_geoid(float lat, float lon)
 #endif
 
 #endif /* PPRZ_GEODETIC_WGS84_H */
+/** @}*/
+/** @}*/

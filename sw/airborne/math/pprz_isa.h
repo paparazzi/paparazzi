@@ -29,6 +29,10 @@
  * http://en.wikipedia.org/wiki/Atmospheric_pressure
  * http://en.wikipedia.org/wiki/International_Standard_Atmosphere
  *
+ * @addtogroup math
+ * @{
+ * @addtogroup math_isa International Standard Atmosphere utilities
+ * @{
  */
 
 #ifndef PPRZ_ISA_H
@@ -166,3 +170,5 @@ static inline float pprz_isa_ref_pressure_of_height_full(float pressure, float h
 #endif
 
 #endif /* PPRZ_ISA_H */
+/** @}*/
+/** @}*/
