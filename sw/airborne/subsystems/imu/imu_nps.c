@@ -77,6 +77,7 @@ void imu_nps_event(void)
   }
   if (imu_nps.mag_available) {
     imu_nps.mag_available = FALSE;
+    imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }
 }
