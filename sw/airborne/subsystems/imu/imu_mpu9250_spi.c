@@ -249,7 +249,7 @@ bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu)
   // Put the enable command as last.
   mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV0_CTRL,
                    (1 << 7) |    // Slave 0 enable
-                   (8 << 0));    // Read 7 bytes (mag x,y,z + status, cntl1)
+                   (8 << 0));    // Read 8 bytes (mag x,y,z + status, cntl1)
 
   return TRUE;
 }
