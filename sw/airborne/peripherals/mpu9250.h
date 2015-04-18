@@ -59,8 +59,14 @@ enum Mpu9250ConfStatus {
   MPU9250_CONF_ACCEL,
   MPU9250_CONF_I2C_SLAVES,
   MPU9250_CONF_INT_ENABLE,
+#ifdef IMU_MPU9250_SPI_DEV
+  MPU9250_CONF_I2C_MST_CTRL,
+  MPU9250_CONF_I2C_MST_DELAY,
+  MPU9250_CONF_SPI_ONLY_MST_EN,
+#endif
   MPU9250_CONF_DONE
 };
+
 
 /// Configuration function prototype
 typedef void (*Mpu9250ConfigSet)(void *mpu, uint8_t _reg, uint8_t _val);

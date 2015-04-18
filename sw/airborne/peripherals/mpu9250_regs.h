@@ -134,6 +134,18 @@
 // in MPU9250_REG_I2C_MST_STATUS
 #define MPU9250_I2C_SLV4_DONE       6
 
+// in MPU9250_I2C_MST_CTRL 
+// stop and start marking the beginning of the next read
+#define MPU9250_I2C_MST_P_NSR       4
+
+// in I2C_MST_DELAY_CTRL
+#define MPU9250_I2C_SLV0_DLY_EN     0
+#define MPU9250_I2C_SLV1_DLY_EN     1
+#define MPU9250_I2C_SLV2_DLY_EN     2
+#define MPU9250_I2C_SLV3_DLY_EN     3
+#define MPU9250_I2C_SLV4_DLY_EN     4
+#define MPU9250_I2C_DELAY_ES_SHADOW 7
+
 /** Digital Low Pass Filter Options
  */
 enum Mpu9250DLPFGyro {
