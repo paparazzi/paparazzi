@@ -72,6 +72,9 @@
 
 
 struct ImuMpu9250 {
+  volatile bool_t gyro_valid;
+  volatile bool_t accel_valid;
+  volatile bool_t mag_valid;
   struct Mpu9250_Spi mpu;
 
   struct spi_transaction wait_slave4_trans;
@@ -84,6 +87,21 @@ extern struct ImuMpu9250 imu_mpu9250;
 
 extern void imu_mpu9250_event(void);
 
-#define ImuEvent imu_mpu9250_event
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+{
+  imu_mpu9250_event();
+  if (imu_mpu9250.accel_valid) {
+    imu_mpu9250.accel_valid = FALSE;
+    _accel_handler();
+  }
+  if (imu_mpu9250.mag_valid) {
+    imu_mpu9250.mag_valid = FALSE;
+    _mag_handler();
+  }
+  if (imu_mpu9250.gyro_valid) {
+    imu_mpu9250.gyro_valid = FALSE;
+    _gyro_handler();
+  }
+}
 
 #endif /* IMU_MPU9250_SPI_H */
