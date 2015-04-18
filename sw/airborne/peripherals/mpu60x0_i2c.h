@@ -63,6 +63,7 @@ struct Mpu60x0_I2c {
     struct Int16Rates rates;          ///< rates data as angular rates in gyro coordinate system
     int16_t value[3];                 ///< rates data values accessible by channel index
   } data_rates;
+  float temp;                         ///< temperature in degrees Celcius
   uint8_t data_ext[MPU60X0_BUFFER_EXT_LEN];
   struct Mpu60x0Config config;
   enum Mpu60x0I2cSlaveInitStatus slave_init_status;
