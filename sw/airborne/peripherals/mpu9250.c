@@ -25,9 +25,13 @@
  * MPU-9250 driver common functions (I2C and SPI).
  *
  * Still needs the either the I2C or SPI specific implementation.
+ * add some spi process for I2C master mode
  */
 
 #include "peripherals/mpu9250.h"
+#ifdef IMU_MPU9250_SPI_DEV
+PRINT_CONFIG_MSG("MPU9250 IN SPI MODE")
+#endif
 
 void mpu9250_set_default_config(struct Mpu9250Config *c)
 {
@@ -117,3 +121,4 @@ void mpu9250_send_config(Mpu9250ConfigSet mpu_set, void *mpu, struct Mpu9250Conf
       break;
   }
 }
+
