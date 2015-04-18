@@ -1,6 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# MPU9250 IMU via I2C
+# MPU9250 IMU via SPI
+# Should  @ conf/firmwares/subsystems/shared/imu_mpu9250_spi.makefile
 #
 
 include $(CFG_SHARED)/spi_master.makefile
@@ -18,8 +19,23 @@ IMU_MPU9250_SRCS   += peripherals/mpu9250_spi.c
 
 
 # set default SPI device and slave index
+ifeq ($(ARCH), lpc21)
 IMU_MPU9250_SPI_DEV ?= spi1
 IMU_MPU9250_SPI_SLAVE_IDX ?= SPI_SLAVE0
+else ifeq ($(ARCH), stm32)
+IMU_MPU9250_SPI_DEV ?= spi2
+IMU_MPU9250_SPI_SLAVE_IDX ?= SPI_SLAVE2
+endif
+
+
+ifeq ($(TARGET), ap)
+ifndef IMU_MPU9250_SPI_DEV 
+$(error Error: IMU_MPU9250_SPI_DEV not configured!)
+endif
+ifndef IMU_MPU9250_SPI_SLAVE_IDX
+$(error Error: IMU_MPU9250_SPI_SLAVE_IDX not configured!)
+endif
+endif
 
 # convert spix to upper/lower case
 IMU_MPU9250_SPI_DEV_UPPER=$(shell echo $(IMU_MPU9250_SPI_DEV) | tr a-z A-Z)

@@ -27,6 +27,7 @@
 
 #include "subsystems/imu.h"
 #include "subsystems/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/spi.h"
 #include "peripherals/ak8963_regs.h"
 
@@ -91,7 +92,11 @@ PRINT_CONFIG_VAR(IMU_MPU9250_CHAN_Y)
 PRINT_CONFIG_VAR(IMU_MPU9250_CHAN_Z)
 
 #ifndef IMU_MPU9250_READ_MAG
-#define IMU_MPU9250_READ_MAG FALSE
+#define IMU_MPU9250_READ_MAG TRUE
+#endif
+
+#ifndef IMU_MPU9250_MAG_STARTUP_DELAY
+#define IMU_MPU9250_MAG_STARTUP_DELAY 1
 #endif
 
 struct ImuMpu9250 imu_mpu9250;
@@ -114,6 +119,8 @@ void imu_impl_init(void)
 
   /* "internal" ak8963 magnetometer as I2C slave */
 #if IMU_MPU9250_READ_MAG
+  /* read 15 bytes for status, accel, gyro + 7 bytes for mag slave */
+  imu_mpu9250.mpu.config.nb_bytes = 22;
   imu_mpu9250.mpu.config.nb_slaves = 1;
 #endif
   /* set callback function to configure mag */
@@ -175,12 +182,16 @@ void imu_mpu9250_event(void)
     RATES_COPY(imu.gyro_unscaled, rates);
 
 #if IMU_MPU9250_READ_MAG
-    /** FIXME: assumes that we get new mag data each time instead of reading drdy bit */
-    struct Int32Vect3 mag;
-    mag.x =  Int16FromBuf(imu_mpu9250.mpu.data_ext, 2*IMU_MPU9250_CHAN_Y);
-    mag.y =  Int16FromBuf(imu_mpu9250.mpu.data_ext, 2*IMU_MPU9250_CHAN_X);
-    mag.z = -Int16FromBuf(imu_mpu9250.mpu.data_ext, 2*IMU_MPU9250_CHAN_Z);
-    VECT3_COPY(imu.mag_unscaled, mag);
+    if (!bit_is_set(imu_mpu9250.mpu.data_ext[6], 3)) { //mag valid just HOFL == 0
+      /** FIXME: assumes that we get new mag data each time instead of reading drdy bit */
+      struct Int32Vect3 mag;
+      mag.x =  Int16FromBuf(imu_mpu9250.mpu.data_ext, 2 * IMU_MPU9250_CHAN_Y);
+      mag.y =  Int16FromBuf(imu_mpu9250.mpu.data_ext, 2 * IMU_MPU9250_CHAN_X);
+      mag.z = -Int16FromBuf(imu_mpu9250.mpu.data_ext, 2 * IMU_MPU9250_CHAN_Z);
+      VECT3_COPY(imu.mag_unscaled, mag);
+      imu_scale_mag(&imu);
+      AbiSendMsgIMU_MAG_INT32(IMU_MPU9250_ID, now_ts, &imu.mag);
+    }
 #endif
 
     imu_mpu9250.mpu.data_available = FALSE;
@@ -189,11 +200,6 @@ void imu_mpu9250_event(void)
     imu_scale_accel(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_MPU9250_ID, now_ts, &imu.gyro);
     AbiSendMsgIMU_ACCEL_INT32(IMU_MPU9250_ID, now_ts, &imu.accel);
-
-#if IMU_MPU9250_READ_MAG
-    imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_MPU9250_ID, now_ts, &imu.mag);
-#endif
   }
 
 }
@@ -212,12 +218,12 @@ bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu)
 {
   // wait before starting the configuration of the mag
   // doing to early may void the mode configuration
-  if (get_sys_time_float() < 1) {
+  if (get_sys_time_float() < IMU_MPU9250_MAG_STARTUP_DELAY) {
     return FALSE;
   }
 
-  // soft reset the device
-  mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV4_ADDR, (AK8963_ADDR >> 1));
+  //config AK8963 soft reset
+  mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV4_ADDR, (MPU9250_MAG_ADDR >> 1));
   mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV4_REG, AK8963_REG_CNTL2);
   mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV4_DO, 1);
   mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV4_CTRL, (1 << 7)); // Slave 4 enable
@@ -225,14 +231,15 @@ bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu)
   mpu_wait_slave4_ready();
 
   // Set it to continious measuring mode 2
-  mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV4_ADDR, (AK8963_ADDR >> 1));
+  mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV4_ADDR, (MPU9250_MAG_ADDR >> 1));
   mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV4_REG, AK8963_REG_CNTL1);
   mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV4_DO, AK8963_CNTL1_CM_2);
   mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV4_CTRL, (1 << 7)); // Slave 4 enable
 
   mpu_wait_slave4_ready();
 
-  mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV0_ADDR, (AK8963_ADDR >> 1) | MPU9250_SPI_READ);
+  //Config SLV0 for continus Read
+  mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV0_ADDR, (MPU9250_MAG_ADDR >> 1) | MPU9250_SPI_READ);
   mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV0_REG, AK8963_REG_HXL);
   // Put the enable command as last.
   mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV0_CTRL,
