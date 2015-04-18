@@ -72,9 +72,6 @@
 
 
 struct ImuMpu9250 {
-  volatile bool_t gyro_valid;
-  volatile bool_t accel_valid;
-  volatile bool_t mag_valid;
   struct Mpu9250_Spi mpu;
 
   struct spi_transaction wait_slave4_trans;
