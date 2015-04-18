@@ -106,11 +106,7 @@ void mpu_wait_slave4_ready_cb(struct spi_transaction *t);
 bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu);
 
 void imu_impl_init(void)
-{
-  imu_mpu9250.accel_valid = FALSE;
-  imu_mpu9250.gyro_valid = FALSE;
-  imu_mpu9250.mag_valid = FALSE;
-	
+{	
   /* MPU9250 */
   mpu9250_spi_init(&imu_mpu9250.mpu, &(IMU_MPU9250_SPI_DEV), IMU_MPU9250_SPI_SLAVE_IDX);
   // change the default configuration
@@ -184,8 +180,6 @@ void imu_mpu9250_event(void)
     // unscaled vector
     VECT3_COPY(imu.accel_unscaled, accel);
     RATES_COPY(imu.gyro_unscaled, rates);    
-    imu_mpu9250.gyro_valid = TRUE;
-    imu_mpu9250.accel_valid = TRUE;
 
 #if IMU_MPU9250_READ_MAG
     MagStatus2 =Int16FromBuf(imu_mpu9250.mpu.data_ext, 2*3);	//read status and cntl1
@@ -196,7 +190,6 @@ void imu_mpu9250_event(void)
             mag.y =  Int16FromBuf(imu_mpu9250.mpu.data_ext, 2*IMU_MPU9250_CHAN_X);
             mag.z = -Int16FromBuf(imu_mpu9250.mpu.data_ext, 2*IMU_MPU9250_CHAN_Z);
             VECT3_COPY(imu.mag_unscaled, mag);
-            imu_mpu9250.mag_valid = TRUE;
           }
 #endif
 
@@ -204,12 +197,14 @@ void imu_mpu9250_event(void)
 
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.accel);
+
 #if IMU_MPU9250_READ_MAG
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.mag);
 #endif
-    AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.accel);
+
   }
 
 }
