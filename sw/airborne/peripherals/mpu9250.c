@@ -114,27 +114,6 @@ void mpu9250_send_config(Mpu9250ConfigSet mpu_set, void *mpu, struct Mpu9250Conf
       mpu_set(mpu, MPU9250_REG_INT_ENABLE, (config->drdy_int_enable << 0));
       config->init_status++;
       break;
-
-#ifdef IMU_MPU9250_SPI_DEV
-    case MPU9250_CONF_I2C_MST_CTRL:
-      /* set i2c master speed to 400k P_NSK enable */
-      mpu_set(mpu, MPU9250_REG_USER_CTRL, (MPU9250_MST_CLK_400KHZ)|(1<<MPU9250_I2C_MST_P_NSR));
-      config->init_status++;
-      break;
-
-    case MPU9250_CONF_I2C_MST_DELAY:
-      /* set i2c master delay */
-      mpu_set(mpu, MPU9250_REG_I2C_MST_DELAY, (1 << MPU9250_I2C_SLV0_DLY_EN));
-      config->init_status++;
-      break;
-
-    case MPU9250_CONF_SPI_ONLY_MST_EN:
-      /* In SPI Mode, disable primary i2c */
-      mpu_set(mpu, MPU9250_REG_USER_CTRL, (1 << MPU9250_I2C_IF_DIS)|(1<<MPU9250_I2C_MST_EN));
-      config->init_status++;
-      break;
-#endif
-   
     case MPU9250_CONF_DONE:
       config->initialized = TRUE;
       break;

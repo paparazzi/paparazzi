@@ -119,8 +119,8 @@ void imu_impl_init(void)
 
   /* "internal" ak8963 magnetometer as I2C slave */
 #if IMU_MPU9250_READ_MAG
-  /* read 15 bytes for status, accel, gyro + 8 bytes for mag slave */
-  imu_mpu9250.mpu.config.nb_bytes = 23;
+  /* read 15 bytes for status, accel, gyro + 7 bytes for mag slave */
+  imu_mpu9250.mpu.config.nb_bytes = 22;
   imu_mpu9250.mpu.config.nb_slaves = 1;
 #endif
   /* set callback function to configure mag */
@@ -182,29 +182,23 @@ void imu_mpu9250_event(void)
     RATES_COPY(imu.gyro_unscaled, rates);    
 
 #if IMU_MPU9250_READ_MAG
-    MagStatus2 =Int16FromBuf(imu_mpu9250.mpu.data_ext, 2*3);	//read status and cntl1
-    if(0x0 == (MagStatus2&0x0008)) {	//mag valid just HOFL == 0		
+    if (!bit_is_set(imu_mpu9250.mpu.data_ext[6], 3)) {//mag valid just HOFL == 0		
             /** FIXME: assumes that we get new mag data each time instead of reading drdy bit */
             struct Int32Vect3 mag;
             mag.x =  Int16FromBuf(imu_mpu9250.mpu.data_ext, 2*IMU_MPU9250_CHAN_Y);
             mag.y =  Int16FromBuf(imu_mpu9250.mpu.data_ext, 2*IMU_MPU9250_CHAN_X);
             mag.z = -Int16FromBuf(imu_mpu9250.mpu.data_ext, 2*IMU_MPU9250_CHAN_Z);
             VECT3_COPY(imu.mag_unscaled, mag);
+    	    imu_scale_mag(&imu);
+            AbiSendMsgIMU_MAG_INT32(IMU_MPU9250_ID, now_ts, &imu.mag);
           }
 #endif
 
     imu_mpu9250.mpu.data_available = FALSE;
-
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_MPU9250_ID, now_ts, &imu.gyro);
     AbiSendMsgIMU_ACCEL_INT32(IMU_MPU9250_ID, now_ts, &imu.accel);
-
-#if IMU_MPU9250_READ_MAG
-    imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_MPU9250_ID, now_ts, &imu.mag);
-#endif
-
   }
 
 }
@@ -249,7 +243,7 @@ bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu)
   // Put the enable command as last.
   mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV0_CTRL,
                    (1 << 7) |    // Slave 0 enable
-                   (8 << 0));    // Read 8 bytes (mag x,y,z + status, cntl1)
+                   (7 << 0));    // Read 8 bytes (mag x,y,z + status)
 
   return TRUE;
 }

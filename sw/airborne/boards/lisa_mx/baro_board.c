@@ -49,8 +49,7 @@ void baro_init(void)
   baro_bmp085.eoc = &baro_eoc;
 
   gpio_clear(GPIOB, GPIO0);
-  //gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
-  //              GPIO_CNF_INPUT_PULL_UPDOWN, GPIO0);
+  gpio_setup_input_pulldown(GPIOB, GPIO0);
 
 #ifdef BARO_LED
   LED_OFF(BARO_LED);
@@ -75,9 +74,9 @@ void baro_event(void)
 
   if (baro_bmp085.data_available) {
     float pressure = (float)baro_bmp085.pressure;
-    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
+    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
     float temp = baro_bmp085.temperature / 10.0f;
-    AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, &temp);
+    AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
     baro_bmp085.data_available = FALSE;
 #ifdef BARO_LED
     RunOnceEvery(10, LED_TOGGLE(BARO_LED));
