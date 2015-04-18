@@ -26,6 +26,7 @@
  */
 
 #include "subsystems/imu.h"
+#include "subsystems/abi.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/spi.h"
 #include "peripherals/ak8963_regs.h"
@@ -164,6 +165,7 @@ void imu_periodic(void)
 void imu_mpu9250_event(void)
 {
   int16_t MagStatus2;
+  uint32_t now_ts = get_sys_time_usec();
   // If the MPU9250 SPI transaction has succeeded: convert the data
   mpu9250_spi_event(&imu_mpu9250.mpu);
 
@@ -186,7 +188,6 @@ void imu_mpu9250_event(void)
     imu_mpu9250.accel_valid = TRUE;
 
 #if IMU_MPU9250_READ_MAG
-
     MagStatus2 =Int16FromBuf(imu_mpu9250.mpu.data_ext, 2*3);	//read status and cntl1
     if(0x0 == (MagStatus2&0x0008)) {	//mag valid just HOFL == 0		
             /** FIXME: assumes that we get new mag data each time instead of reading drdy bit */
@@ -200,6 +201,15 @@ void imu_mpu9250_event(void)
 #endif
 
     imu_mpu9250.mpu.data_available = FALSE;
+
+    imu_scale_gyro(&imu);
+    imu_scale_accel(&imu);
+#if IMU_MPU9250_READ_MAG
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.mag);
+#endif
+    AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.accel);
   }
 
 }
