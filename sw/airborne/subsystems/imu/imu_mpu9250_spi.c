@@ -106,7 +106,7 @@ void mpu_wait_slave4_ready_cb(struct spi_transaction *t);
 bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu);
 
 void imu_impl_init(void)
-{	
+{
   /* MPU9250 */
   mpu9250_spi_init(&imu_mpu9250.mpu, &(IMU_MPU9250_SPI_DEV), IMU_MPU9250_SPI_SLAVE_IDX);
   // change the default configuration
@@ -160,7 +160,6 @@ void imu_periodic(void)
 #define Int16FromBuf(_buf,_idx) ((int16_t)(_buf[_idx] | (_buf[_idx+1] << 8)))
 void imu_mpu9250_event(void)
 {
-  int16_t MagStatus2;
   uint32_t now_ts = get_sys_time_usec();
   // If the MPU9250 SPI transaction has succeeded: convert the data
   mpu9250_spi_event(&imu_mpu9250.mpu);
@@ -179,7 +178,7 @@ void imu_mpu9250_event(void)
     };
     // unscaled vector
     VECT3_COPY(imu.accel_unscaled, accel);
-    RATES_COPY(imu.gyro_unscaled, rates);    
+    RATES_COPY(imu.gyro_unscaled, rates);
 
 #if IMU_MPU9250_READ_MAG
     if (!bit_is_set(imu_mpu9250.mpu.data_ext[6], 3)) {//mag valid just HOFL == 0		
@@ -193,7 +192,6 @@ void imu_mpu9250_event(void)
             AbiSendMsgIMU_MAG_INT32(IMU_MPU9250_ID, now_ts, &imu.mag);
           }
 #endif
-
     imu_mpu9250.mpu.data_available = FALSE;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
@@ -243,7 +241,7 @@ bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu)
   // Put the enable command as last.
   mpu_set_and_wait(mpu_set, mpu, MPU9250_REG_I2C_SLV0_CTRL,
                    (1 << 7) |    // Slave 0 enable
-                   (7 << 0));    // Read 8 bytes (mag x,y,z + status)
+                   (7 << 0));    // Read 7 bytes (mag x,y,z + status)
 
   return TRUE;
 }
