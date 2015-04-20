@@ -46,9 +46,10 @@ extern const uint8_t nb_waypoint;
 /** size == nb_waypoint, waypoint 0 is a dummy waypoint */
 extern struct Waypoint waypoints[];
 
-#define WaypointX(_wp)    waypoints[_wp].enu_f.x
-#define WaypointY(_wp)    waypoints[_wp].enu_f.y
-#define WaypointAlt(_wp)  waypoints[_wp].enu_f.z
+/* aliases for backwards compatibilty */
+#define WaypointX(_wp)    waypoint_get_x(_wp)
+#define WaypointY(_wp)    waypoint_get_y(_wp)
+#define WaypointAlt(_wp)  waypoint_get_alt(_wp)
 #define Height(_h) (_h)
 
 extern void waypoints_init(void);
