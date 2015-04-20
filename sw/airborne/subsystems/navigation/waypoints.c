@@ -47,9 +47,55 @@ void waypoints_init(void)
       waypoint_set_global_flag(i);
       waypoint_set_lla(i, &wp_tmp_lla_i[i]);
     } else {
-      waypoint_set_enu_f(i, &wp_tmp_float[i]);
+      waypoint_set_enu(i, &wp_tmp_float[i]);
     }
   }
+}
+
+bool_t waypoint_is_global(uint8_t wp_id)
+{
+  if (wp_id < nb_waypoint) {
+    return bit_is_set(waypoints[wp_id].flags, WP_FLAG_GLOBAL);
+  }
+  return FALSE;
+}
+
+void waypoint_set_global_flag(uint8_t wp_id)
+{
+  if (wp_id < nb_waypoint) {
+    SetBit(waypoints[wp_id].flags, WP_FLAG_GLOBAL);
+  }
+}
+
+void waypoint_clear_global_flag(uint8_t wp_id)
+{
+  if (wp_id < nb_waypoint) {
+    ClearBit(waypoints[wp_id].flags, WP_FLAG_GLOBAL);
+  }
+}
+
+float waypoint_get_x(uint8_t wp_id)
+{
+  if (wp_id < nb_waypoint) {
+    return waypoints[wp_id].enu_f.x;
+  }
+  return 0.f;
+}
+
+float waypoint_get_y(uint8_t wp_id)
+{
+  if (wp_id < nb_waypoint) {
+    return waypoints[wp_id].enu_f.y;
+  }
+  return 0.f;
+}
+
+float waypoint_get_alt(uint8_t wp_id)
+{
+  if (wp_id < nb_waypoint) {
+    return waypoints[wp_id].enu_f.z;
+  }
+  return 0.f;
 }
 
 void waypoint_set_enu_i(uint8_t wp_id, struct EnuCoor_i *enu)
@@ -64,7 +110,7 @@ void waypoint_set_enu_i(uint8_t wp_id, struct EnuCoor_i *enu)
   }
 }
 
-void waypoint_set_enu_f(uint8_t wp_id, struct EnuCoor_f *enu)
+void waypoint_set_enu(uint8_t wp_id, struct EnuCoor_f *enu)
 {
   if (wp_id < nb_waypoint) {
     memcpy(&waypoints[wp_id].enu_f, enu, sizeof(struct EnuCoor_f));
@@ -111,7 +157,7 @@ void waypoint_set_alt_i(uint8_t wp_id, int32_t alt)
   }
 }
 
-void waypoint_set_alt_f(uint8_t wp_id, float alt)
+void waypoint_set_alt(uint8_t wp_id, float alt)
 {
   if (wp_id < nb_waypoint) {
     waypoints[wp_id].enu_f.z = alt;
