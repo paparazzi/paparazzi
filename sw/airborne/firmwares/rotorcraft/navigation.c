@@ -376,14 +376,14 @@ unit_t nav_reset_reference(void)
 {
   ins_reset_local_origin();
   /* update local ENU coordinates of global waypoints */
-  nav_localize_global_waypoints();
+  waypoints_localize_all();
   return 0;
 }
 
 unit_t nav_reset_alt(void)
 {
   ins_reset_altitude_ref();
-  nav_localize_global_waypoints();
+  waypoints_localize_all();
   return 0;
 }
 
