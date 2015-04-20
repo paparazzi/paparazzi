@@ -108,7 +108,7 @@ void dl_parse_msg(void)
          */
         lla.alt = DL_MOVE_WP_alt(dl_buffer) - state.ned_origin_i.hmsl +
                   state.ned_origin_i.lla.alt;
-        nav_move_waypoint_lla(wp_id, &lla);
+        waypoint_move_lla(wp_id, &lla);
       }
     }
     break;

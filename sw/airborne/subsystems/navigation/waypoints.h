@@ -51,7 +51,7 @@ extern struct Waypoint waypoints[];
 #define WaypointAlt(_wp)  waypoints[_wp].enu_f.z
 #define Height(_h) (_h)
 
-static inline bool_t nav_wp_is_global(uint8_t wp_id)
+static inline bool_t waypoint_is_global(uint8_t wp_id)
 {
   if (wp_id < nb_waypoint) {
     return bit_is_set(waypoints[wp_id].flags, WP_FLAG_GLOBAL);
@@ -75,30 +75,30 @@ static inline void waypoint_clear_global_flag(uint8_t wp_id)
 
 extern void waypoints_init(void);
 
-extern void nav_set_waypoint_enu_f(uint8_t wp_id, struct EnuCoor_f *enu);
-extern void nav_set_waypoint_enu_i(uint8_t wp_id, struct EnuCoor_i *enu);
-extern void nav_set_waypoint_xy_i(uint8_t wp_id, int32_t x, int32_t y);
-extern void nav_set_waypoint_alt_i(uint8_t wp_id, int32_t alt);
-extern void nav_set_waypoint_alt_f(uint8_t wp_id, float alt);
-extern void nav_move_waypoint_enu_i(uint8_t wp_id, struct EnuCoor_i *new_pos);
-extern void nav_set_waypoint_lla(uint8_t wp_id, struct LlaCoor_i *lla);
-extern void nav_move_waypoint_lla(uint8_t wp_id, struct LlaCoor_i *lla);
+extern void waypoint_set_enu_f(uint8_t wp_id, struct EnuCoor_f *enu);
+extern void waypoint_set_enu_i(uint8_t wp_id, struct EnuCoor_i *enu);
+extern void waypoint_set_xy_i(uint8_t wp_id, int32_t x, int32_t y);
+extern void waypoint_set_alt_i(uint8_t wp_id, int32_t alt);
+extern void waypoint_set_alt_f(uint8_t wp_id, float alt);
+extern void waypoint_move_enu_i(uint8_t wp_id, struct EnuCoor_i *new_pos);
+extern void waypoint_set_lla(uint8_t wp_id, struct LlaCoor_i *lla);
+extern void waypoint_move_lla(uint8_t wp_id, struct LlaCoor_i *lla);
 /** set waypoint latitude/longitude without updating altitude */
-void nav_set_waypoint_latlon(uint8_t wp_id, struct LlaCoor_i *lla);
+void waypoint_set_latlon(uint8_t wp_id, struct LlaCoor_i *lla);
 
 /** set waypoint to current location and altitude */
-extern void nav_set_waypoint_here(uint8_t wp_id);
+extern void waypoint_set_here(uint8_t wp_id);
 
 /** set waypoint to current horizontal location without modifying altitude */
-extern void nav_set_waypoint_here_2d(uint8_t wp_id);
+extern void waypoint_set_here_2d(uint8_t wp_id);
 
 /** update global LLA coordinates from its ENU coordinates */
-extern void nav_globalize_local_wp(uint8_t wp_id);
+extern void waypoint_globalize(uint8_t wp_id);
 
 /** update local ENU coordinates from its LLA coordinates */
-extern void nav_localize_global_wp(uint8_t wp_id);
+extern void waypoint_localize(uint8_t wp_id);
 /** update local ENU coordinates of global waypoints */
-extern void nav_localize_global_waypoints(void);
+extern void waypoints_localize_all(void);
 
 /** Get LLA coordinates of waypoint.
  * If the waypoint does not have its global coordinates set,
@@ -107,6 +107,6 @@ extern void nav_localize_global_waypoints(void);
  * @param  wp_id waypoint id
  * @return pointer to waypoint LLA coordinates, NULL if invalid
  */
-extern struct LlaCoor_i *nav_get_waypoint_lla(uint8_t wp_id);
+extern struct LlaCoor_i *waypoint_get_lla(uint8_t wp_id);
 
 #endif /* WAYPOINTS_H */
