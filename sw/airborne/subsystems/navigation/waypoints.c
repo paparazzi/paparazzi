@@ -101,6 +101,26 @@ void nav_set_waypoint_xy_i(uint8_t wp_id, int32_t x, int32_t y)
   }
 }
 
+void nav_set_waypoint_alt_i(uint8_t wp_id, int32_t alt)
+{
+  if (wp_id < nb_waypoint) {
+    waypoints[wp_id].enu_i.z = alt;
+    /* also update ENU float representation */
+    waypoints[wp_id].enu_f.z = POS_FLOAT_OF_BFP(waypoints[wp_id].enu_i.z);
+    nav_globalize_local_wp(wp_id);
+  }
+}
+
+void nav_set_waypoint_alt_f(uint8_t wp_id, float alt)
+{
+  if (wp_id < nb_waypoint) {
+    waypoints[wp_id].enu_f.z = alt;
+    /* also update ENU fixed point representation */
+    waypoints[wp_id].enu_i.z = POS_BFP_OF_REAL(waypoints[wp_id].enu_f.z);
+    nav_globalize_local_wp(wp_id);
+  }
+}
+
 void nav_set_waypoint_lla(uint8_t wp_id, struct LlaCoor_i *lla)
 {
   if (wp_id >= nb_waypoint) {

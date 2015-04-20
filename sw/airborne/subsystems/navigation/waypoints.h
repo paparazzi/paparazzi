@@ -78,6 +78,8 @@ extern void waypoints_init(void);
 extern void nav_set_waypoint_enu_f(uint8_t wp_id, struct EnuCoor_f *enu);
 extern void nav_set_waypoint_enu_i(uint8_t wp_id, struct EnuCoor_i *enu);
 extern void nav_set_waypoint_xy_i(uint8_t wp_id, int32_t x, int32_t y);
+extern void nav_set_waypoint_alt_i(uint8_t wp_id, int32_t alt);
+extern void nav_set_waypoint_alt_f(uint8_t wp_id, float alt);
 extern void nav_move_waypoint_enu_i(uint8_t wp_id, struct EnuCoor_i *new_pos);
 extern void nav_set_waypoint_lla(uint8_t wp_id, struct LlaCoor_i *lla);
 extern void nav_move_waypoint_lla(uint8_t wp_id, struct LlaCoor_i *lla);
