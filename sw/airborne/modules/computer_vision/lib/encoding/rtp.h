@@ -30,10 +30,10 @@
 
 #include "std.h"
 #include "lib/vision/image.h"
-#include "mcu_periph/udp.h"
+#include "udp_socket.h"
 
-void rtp_frame_send(struct udp_periph *udp, struct image_t *img, uint8_t format_code, uint8_t quality_code,
+void rtp_frame_send(struct UdpSocket *udp, struct image_t *img, uint8_t format_code, uint8_t quality_code,
                     uint8_t has_dri_header, uint32_t delta_t);
-void rtp_frame_test(struct udp_periph *udp);
+void rtp_frame_test(struct UdpSocket *udp);
 
 #endif /* _CV_ENCODING_RTP_H */

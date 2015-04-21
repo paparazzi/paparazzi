@@ -38,13 +38,13 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <math.h>
-#include "mcu_periph/udp.h"
 
 // Video
 #include "lib/v4l/v4l2.h"
 #include "lib/vision/image.h"
 #include "lib/encoding/jpeg.h"
 #include "lib/encoding/rtp.h"
+#include "udp_socket.h"
 
 // Threaded computer vision
 #include <pthread.h>
@@ -107,7 +107,6 @@ PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
 PRINT_CONFIG_MSG("[viewvideo] Using netcat.")
 #else
 PRINT_CONFIG_MSG("[viewvideo] Using RTP/UDP stream.")
-PRINT_CONFIG_VAR(VIEWVIDEO_DEV)
 #endif
 
 /* These are defined with configure */
@@ -160,6 +159,9 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
 #if VIEWVIDEO_USE_NETCAT
   char nc_cmd[64];
   sprintf(nc_cmd, "nc %s %d 2>/dev/null", STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT);
+#else
+  struct UdpSocket video_sock;
+  udp_socket_create(&video_sock, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_BROADCAST);
 #endif
 
   // Start streaming
@@ -241,7 +243,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
 #else
     // Send image with RTP
     rtp_frame_send(
-      &VIEWVIDEO_DEV,           // UDP device
+      &video_sock,              // UDP socket
       &img_jpeg,
       0,                        // Format 422
       VIEWVIDEO_QUALITY_FACTOR, // Jpeg-Quality

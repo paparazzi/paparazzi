@@ -58,6 +58,15 @@ extern int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, i
 extern int udp_socket_send(struct UdpSocket *sock, uint8_t *buffer, uint16_t len);
 
 /**
+ * Send a packet from buffer, non-blocking.
+ * @param[in] sock  pointer to UdpSocket struct
+ * @param[in] buffer   buffer to send
+ * @param[in] len      buffer length in bytes
+ * @return number of bytes sent (-1 on error)
+ */
+extern int udp_socket_send_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint16_t len);
+
+/**
  * Receive a UDP packet, dont wait.
  * @param[in] sock  pointer to UdpSocket struct
  * @param[out] buffer  buffer to write received packet to
