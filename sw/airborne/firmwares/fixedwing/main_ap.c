@@ -158,6 +158,20 @@ tid_t monitor_tid;     ///< id for monitor_task() timer
 tid_t baro_tid;          ///< id for baro_periodic() timer
 #endif
 
+
+/// @todo, properly implement or remove
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+volatile uint8_t new_ins_attitude = 0;
+static abi_event new_att_ev;
+static void new_att_cb(uint8_t sender_id __attribute__((unused)),
+                       uint32_t stamp __attribute__((unused)),
+                       struct Int32Rates *gyro __attribute__((unused)))
+{
+  new_ins_attitude = 1;
+}
+#endif
+
+
 void init_ap(void)
 {
 #ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
@@ -179,6 +193,11 @@ void init_ap(void)
 
 #if USE_AHRS_ALIGNER
   ahrs_aligner_init();
+#endif
+
+  ///@todo: properly implement/fix a triggered attitude loop
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+  AbiBindMsgIMU_GYRO_INT32(ABI_BROADCAST, &new_att_ev, &new_att_cb);
 #endif
 
 #if USE_AHRS
@@ -533,10 +552,6 @@ void navigation_task(void)
   }
 }
 
-
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-volatile uint8_t new_ins_attitude = 0;
-#endif
 
 void attitude_loop(void)
 {
