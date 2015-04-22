@@ -222,4 +222,8 @@
 #define IMU_XSENS_ID 15
 #endif
 
+#ifndef IMU_MPU60X0_ID
+#define IMU_MPU60X0_ID 16
+#endif
+
 #endif /* ABI_SENDER_IDS_H */
