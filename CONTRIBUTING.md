@@ -49,7 +49,7 @@ Fixes issue #123
 
 # Additional Resources
 
-* [More information on contributing](http://wiki.paparzziuav.org/wiki/Contributing)
+* [More information on contributing](http://wiki.paparazziuav.org/wiki/Contributing)
 * [Coding style guidelines](http://docs.paparazziuav.org/latest/styleguide.html)
 * [Issue tracker](https://github.com/paparazzi/paparazzi/issues)
 * [General GitHub documentation](http://help.github.com/)
