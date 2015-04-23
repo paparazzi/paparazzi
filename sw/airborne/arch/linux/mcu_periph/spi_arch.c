@@ -124,22 +124,26 @@ void spi0_arch_init(void)
   spi0.reg_addr = (void *)fd;
 
   /* spi mode */
-  if (ioctl(fd, SPI_IOC_WR_MODE, (SPI_CPOL | SPI_CPHA)) < 0) {
+  unsigned char spi_mode = (SPI_CPOL | SPI_CPHA);
+  if (ioctl(fd, SPI_IOC_WR_MODE, &spi_mode) < 0) {
     perror("SPI0: can't set spi mode");
   }
 
   /* set to MSB first */
-  if (ioctl(fd, SPI_IOC_WR_LSB_FIRST, 0) < 0) {
+  unsigned char spi_order = 0;
+  if (ioctl(fd, SPI_IOC_WR_LSB_FIRST, &spi_order) < 0) {
     perror("SPI0: can't set spi bit justification");
   }
 
   /* bits per word default to 8 */
-  if (ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, 8) < 0) {
+  unsigned char spi_bits_per_word = 8;
+  if (ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &spi_bits_per_word) < 0) {
     perror("SPI0: can't set bits per word");
   }
 
   /* max speed in hz, 1MHz for now */
-  if (ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, 1000000) < 0) {
+  unsigned int spi_speed = 1000000;
+  if (ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &spi_speed) < 0) {
     perror("SPI0: can't set max speed hz");
   }
 }
@@ -158,22 +162,26 @@ void spi1_arch_init(void)
   spi1.reg_addr = (void *)fd;
 
   /* spi mode */
-  if (ioctl(fd, SPI_IOC_WR_MODE, (SPI_CPOL | SPI_CPHA)) < 0) {
+  unsigned char spi_mode = (SPI_CPOL | SPI_CPHA);
+  if (ioctl(fd, SPI_IOC_WR_MODE, &spi_mode) < 0) {
     perror("SPI1: can't set spi mode");
   }
 
   /* set to MSB first */
-  if (ioctl(fd, SPI_IOC_WR_LSB_FIRST, 0) < 0) {
+  unsigned char spi_order = 0;
+  if (ioctl(fd, SPI_IOC_WR_LSB_FIRST, &spi_order) < 0) {
     perror("SPI1: can't set spi bit justification");
   }
 
   /* bits per word default to 8 */
-  if (ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, 8) < 0) {
+  unsigned char spi_bits_per_word = 8;
+  if (ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &spi_bits_per_word) < 0) {
     perror("SPI1: can't set bits per word");
   }
 
   /* max speed in hz, 1MHz for now */
-  if (ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, 1000000) < 0) {
+  unsigned int spi_speed = 1000000;
+  if (ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &spi_speed) < 0) {
     perror("SPI1: can't set max speed hz");
   }
 }
