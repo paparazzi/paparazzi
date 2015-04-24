@@ -22,13 +22,8 @@
 from __future__ import print_function
 import re
 import argparse
-import socket
-import telnetlib
 import os
-import sys
 from time import sleep
-from ftplib import FTP
-import ftplib
 
 import parrot_utils
 
