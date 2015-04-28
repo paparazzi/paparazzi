@@ -72,6 +72,11 @@ let add_timestamp = ref None
 let status_msg_period = ref 1000 (** ms *)
 let ping_msg_period = ref 5000 (** ms  *)
 
+(* Time (in ms) after which an aircraft is regarded as dead/off if no messages are received.
+   If an aircraft is not live anymore, no uplink messages are sent.
+   Set to a negative number to disable this feature.
+*)
+let dead_aircraft_time_ms = ref 5000
 
 let send_message_over_ivy = fun sender name vs ->
   let timestamp =
@@ -106,13 +111,12 @@ type status = {
 }
 
 let statuss = Hashtbl.create 3
-let dead_aircraft_time_ms = 5000
 
 let initial_status = {
   last_rx_byte = 0; last_rx_msg = 0;
   rx_byte = 0; rx_msg = 0; rx_err = 0;
   tx_msg = 0;
-  ms_since_last_msg = dead_aircraft_time_ms;
+  ms_since_last_msg = !dead_aircraft_time_ms;
   last_ping = 0.; last_pong = 0.;
   udp_peername = None
 }
@@ -137,7 +141,7 @@ let status_ping_diff = 500 (* ms *)
 let live_aircraft = fun ac_id ->
   try
     let s = Hashtbl.find statuss ac_id in
-    s.ms_since_last_msg < dead_aircraft_time_ms
+    s.ms_since_last_msg < !dead_aircraft_time_ms
   with
       Not_found -> false
 
@@ -487,7 +491,8 @@ let () =
       "-redlink", Arg.Set red_link, (sprintf "Sets whether the link is a redundant link. Set this flag and the id flag to use multiple links");
       "-id", Arg.Set_int link_id, (sprintf "<id> Sets the link id. If multiple links are used, each must have a unique id. Default is %i" !link_id);
       "-status_period", Arg.Set_int status_msg_period, (sprintf "<period> Sets the period (in ms) of the LINK_REPORT status message. Default is %i" !status_msg_period);
-      "-ping_period", Arg.Set_int ping_msg_period, (sprintf "<period> Sets the period (in ms) of the PING message sent to aircrafs. Default is %i" !ping_msg_period)
+      "-ping_period", Arg.Set_int ping_msg_period, (sprintf "<period> Sets the period (in ms) of the PING message sent to aircrafs. Default is %i" !ping_msg_period);
+      "-ac_timeout", Arg.Set_int dead_aircraft_time_ms, (sprintf "<time> Sets the time (in ms) after which an aircraft is regarded as dead/off if no messages are received. Default is %i, set to negative to disable." !ping_msg_period)
     ] in
   Arg.parse options (fun _x -> ()) "Usage: ";
 
