@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright (C) 2008-2011  The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -58,6 +58,8 @@ extern float nav_radius;
 
 extern int32_t nav_leg_progress;
 extern uint32_t nav_leg_length;
+
+extern bool_t nav_survey_active;
 
 extern uint8_t vertical_mode;
 extern uint32_t nav_throttle;  ///< direct throttle from 0:MAX_PPRZ, used in VERTICAL_MODE_MANUAL
