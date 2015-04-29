@@ -118,6 +118,16 @@ typedef struct {
 
 client_data ConnectedClients[MAXCLIENT];  //Holds all status of devices
 
+//Write custom strncpy function to unsure null terminated string
+char * my_strncpy(char *dest, const char *src, size_t n) {
+  size_t i;
+  for (i = 0; i < n - 1 && src[i] != '\0'; i++)
+    dest[i] = src[i];
+  for ( ; i < n; i++)
+    dest[i] = '\0';
+  return dest;
+}
+
 
 //Remove Client from UdpBroadcast list
 void remove_client(char* RemClientIpAd) {
@@ -180,7 +190,7 @@ void add_client(char* ClientIpAd, gpointer connection_in) {
 int get_ac_data(char* InStr, char* RetBuf) {
   const char delimiters[] = " ";
   int  AcID;
-  char StrBuf[BUFLEN];
+  char StrBuf[strlen(InStr)];
 
   //Make writable copy
   strcpy(StrBuf, InStr);
@@ -208,7 +218,7 @@ int get_wp_data(char* InStr, char* RetBuf) {
   //Input command
   const char delimiters[] = " ";
   int  AcID;
-  char StrBuf[BUFLEN];
+  char StrBuf[strlen(InStr)];
 
   //Make writable copy
   strcpy(StrBuf, InStr);
@@ -236,7 +246,7 @@ int get_bl_data(char* InStr, char* RetBuf) {
   //Input command
   const char delimiters[] = " ";
   int  AcID;
-  char StrBuf[BUFLEN];
+  char StrBuf[strlen(InStr)];
 
   //Make writable copy
   strcpy(StrBuf, InStr);
@@ -507,7 +517,7 @@ void parse_ac_fp(int DevNameIndex, char *filename) {
         xmlTextReaderMoveToAttribute(reader,(const xmlChar *)"name");
         value = xmlTextReaderValue(reader);
         //copy it to DevNames[] structure
-        strcpy(DevNames[DevNameIndex].AcWp[wp_queue].Wp_Name, (char *) value);
+        my_strncpy(DevNames[DevNameIndex].AcWp[wp_queue].Wp_Name, (char *) value, MAXWPNAMELEN);
         wp_queue++;
       }
 
@@ -516,7 +526,7 @@ void parse_ac_fp(int DevNameIndex, char *filename) {
         if ( xmlTextReaderAttributeCount(reader) >= 1 ) {
           xmlTextReaderMoveToAttribute(reader,(const xmlChar *)"name");
           value = xmlTextReaderValue(reader);
-          strcpy(DevNames[DevNameIndex].AcBl[bl_queue].Bl_Name, (char *) value);
+          my_strncpy(DevNames[DevNameIndex].AcBl[bl_queue].Bl_Name, (char *) value, MAXWPNAMELEN);
           bl_queue++;
         }
       }
@@ -583,7 +593,7 @@ void parse_ac_af(int DevNameIndex, char *filename) {
         if (xmlStrEqual(value, (const xmlChar *)"AC_ICON")) {
           xmlTextReaderMoveToAttribute(reader,(const xmlChar *)"value");
           value = xmlTextReaderValue(reader);
-          strcpy(DevNames[DevNameIndex].type, (char *) value);
+          my_strncpy(DevNames[DevNameIndex].type, (char *) value, MAXNAMELENGTH);
           return;
         }
       }
@@ -683,7 +693,7 @@ void on_app_server_GET_CONFIG (IvyClientPtr app, void *user_data, int argc, char
   //Split arg0 to get process id and request id
   char * mtok;
   mtok = strtok (argv[0],"_");
-  while (mtok != NULL || i>2)
+  while (mtok != NULL || i<2)
   {
     RmId[i]= atoi(mtok);
     i++;
@@ -695,10 +705,10 @@ void on_app_server_GET_CONFIG (IvyClientPtr app, void *user_data, int argc, char
     int inc_device_id=atoi(argv[1]);
 
     //Save Device Name
-    strcpy(DevNames[inc_device_id].name, argv[7] );
+    my_strncpy(DevNames[inc_device_id].name, argv[7], MAXNAMELENGTH);
 
     //Save color
-    strcpy(DevNames[inc_device_id].color, argv[6]);
+    my_strncpy(DevNames[inc_device_id].color, argv[6], MAXWPNAMELEN);
 
     //Save Flight Plan Path
     //check if file is local
@@ -773,7 +783,7 @@ void on_app_server_AIRCRAFTS (IvyClientPtr app, void *user_data, int argc, char 
   //Split arg0 to get process id and request id
   char * mtok;
   mtok = strtok (argv[0],"_");
-  while (mtok != NULL || i>2)
+  while (mtok != NULL || i<2)
   {
     RmId[i]= atoi(mtok);
     i++;
