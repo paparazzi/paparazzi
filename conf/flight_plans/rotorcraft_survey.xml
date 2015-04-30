@@ -63,17 +63,11 @@
       <go from="p4" hmode="route" wp="p1"/>
       <deroute block="stay_p1"/>
     </block>
-    <block group="extra_pattern" name="Survey S1-S2 25m NS SET" strip_button="Svy25-NS">
-      <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, 25, NS)"/>
-      <deroute block="Survey RECTANGLE RUN"/>
+    <block group="extra_pattern" name="Survey S1-S2 25m NS" strip_button="Svy25-NS">
+      <survey_rectangle grid="25" orientation="NS" wp1="S1" wp2="S2"/>
     </block>
-    <block group="extra_pattern" name="Survey S1-S2 25m LO SET" strip_button="Svy25-LO">
-      <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, 25, WE)"/>
-      <deroute block="Survey RECTANGLE RUN"/>
-    </block>
-    <block group="extra_pattern" name="Survey RECTANGLE RUN" strip_button="Svy CONT">
-      <exception cond="rectangle_survey_sweep_num > 1" deroute="Standby"/>
-      <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S2)"/>
+    <block group="extra_pattern" name="Survey S1-S2 25m WE" strip_button="Svy25-LO">
+      <survey_rectangle grid="25" orientation="WE" wp1="S1" wp2="S2"/>
     </block>
     <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
       <circle radius="nav_radius" wp="CAM"/>

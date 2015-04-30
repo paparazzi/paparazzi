@@ -28,25 +28,14 @@
  * Rectangle is defined by two points, sweep can be south-north or west-east.
  */
 
-/*
-#include <stdio.h>
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
-*/
-
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
-
-#if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
-#endif
-
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "modules/nav/nav_survey_rectangle_rotorcraft.h"
 #include "state.h"
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+#endif
 
 static bool_t nav_survey_retange_active = FALSE;
 uint16_t rectangle_survey_sweep_num;
@@ -56,12 +45,12 @@ bool_t nav_in_circle = FALSE;
 static struct EnuCoor_f survey_from, survey_to;
 static struct EnuCoor_i survey_from_i, survey_to_i;
 
+
 static bool_t survey_uturn __attribute__((unused)) = FALSE;
 static survey_orientation_t survey_orientation = NS;
 
 float nav_survey_shift;
 float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
-//bool_t nav_survey_active;
 
 #define SurveyGoingNorth() ((survey_orientation == NS) && (survey_to.y > survey_from.y))
 #define SurveyGoingSouth() ((survey_orientation == NS) && (survey_to.y < survey_from.y))
@@ -92,7 +81,7 @@ void nav_survey_rectangle_rotorcraft_init(void)
   #endif
 }
 
-bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so)
+void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so)
 {
   rectangle_survey_sweep_num = 0;
   nav_survey_west = Min(WaypointX(wp1), WaypointX(wp2));
@@ -148,11 +137,10 @@ bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float gri
   }else{
     nav_set_heading_deg(90);
   }
-  return FALSE;
 }
 
 
-bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
+void nav_survey_rectangle(uint8_t wp1, uint8_t wp2)
 {
   static bool_t is_last_half = FALSE;
   static float survey_radius;
@@ -344,7 +332,5 @@ if ( !nav_survey_retange_active && ((!nav_approaching_from(&survey_from_i, NULL,
   } /* END turn */
 
   } /* END entry scan  */
-  return TRUE;
 
 }// /* END survey_retangle */
-
