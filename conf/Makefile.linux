@@ -34,7 +34,8 @@ LD  ?= $(CC)
 Q=@
 
 OPT ?= 3
-DEBUG_INFO ?= n
+# Slightly bigger .elf files but gains the ability to decode macros
+DEBUG_FLAGS ?= -ggdb3
 CSTANDARD ?= -std=gnu99
 CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 
@@ -42,11 +43,9 @@ CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 # Common compiler flags.
 # add then to arch specific CFLAGS already defined in e.g. Makefile.arm-linux
 #
-ifneq ($(DEBUG_INFO),n)
-CFLAGS += -g
-endif
 CFLAGS += $(CINCS)
 CFLAGS += -O$(OPT) -fPIC
+CFLAGS += $(DEBUG_FLAGS)
 CFLAGS += -fno-short-enums
 # CFLAGS += -malignment-traps
 CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
@@ -68,6 +67,7 @@ CFLAGS += $(USER_CFLAGS)
 LDFLAGS += -lm -pthread
 
 CXXFLAGS += -O$(OPT) -fPIC
+CXXFLAGS += $(DEBUG_FLAGS)
 CXXFLAGS += -pipe -fshow-column -ffast-math
 CXXFLAGS += -g -ffunction-sections -fdata-sections
 CXXFLAGS += -Wall -Wextra
