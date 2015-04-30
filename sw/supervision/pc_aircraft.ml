@@ -471,7 +471,12 @@ let build_handler = fun ~file gui ac_combo (target_combo:Gtk_tools.combo) (flash
       and target = Gtk_tools.combo_value target_combo
       and config = if gui#checkbutton_printconfig#active then "PRINT_CONFIG=1 " else "" in
       let target_cmd = sprintf "%s%s.compile" config target in
-      Utils.command ~file gui log ac_name target_cmd
+      gui#button_build#misc#set_sensitive false;
+      gui#button_upload#misc#set_sensitive false;
+      let finished_callback = fun () ->
+        gui#button_build#misc#set_sensitive true;
+        gui#button_upload#misc#set_sensitive true in
+      Utils.command ~file ~finished_callback gui log ac_name target_cmd
     ) with _ -> log "ERROR: Nothing to build!!!\n" in
     ignore (gui#button_build#connect#clicked ~callback);
 
@@ -483,6 +488,11 @@ let build_handler = fun ~file gui ac_combo (target_combo:Gtk_tools.combo) (flash
     and config = if gui#checkbutton_printconfig#active then "PRINT_CONFIG=1 " else "" in
     let options = try Hashtbl.find (fst CP.flash_modes) flash with _ -> "" in
     let target_cmd = sprintf "%s%s %s.upload" config options target in
-    Utils.command ~file gui log ac_name target_cmd in
+    gui#button_build#misc#set_sensitive false;
+    gui#button_upload#misc#set_sensitive false;
+    let finished_callback = fun () ->
+      gui#button_build#misc#set_sensitive true;
+      gui#button_upload#misc#set_sensitive true in
+    Utils.command ~file ~finished_callback gui log ac_name target_cmd in
   ignore (gui#button_upload#connect#clicked ~callback)
 
