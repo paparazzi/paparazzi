@@ -30,7 +30,7 @@
  */
 
 #include <sbp.h>
-#include <sbp_messages.h>
+#include <navigation.h>
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
 #include "mcu_periph/uart.h"
@@ -90,7 +90,7 @@ static void sbp_pos_ecef_callback(uint16_t sender_id __attribute__((unused)),
     return;
   }
 #endif
-  sbp_pos_ecef_t pos_ecef = *(sbp_pos_ecef_t *)msg;
+  msg_pos_ecef_t pos_ecef = *(msg_pos_ecef_t *)msg;
   gps.ecef_pos.x = (int32_t)(pos_ecef.x * 100.0);
   gps.ecef_pos.y = (int32_t)(pos_ecef.y * 100.0);
   gps.ecef_pos.z = (int32_t)(pos_ecef.z * 100.0);
@@ -106,7 +106,7 @@ static void sbp_baseline_ecef_callback(uint16_t sender_id __attribute__((unused)
                                        uint8_t msg[],
                                        void *context __attribute__((unused)))
 {
-  sbp_baseline_ecef_t baseline_ecef = *(sbp_baseline_ecef_t *)msg;
+  msg_baseline_ecef_t baseline_ecef = *(msg_baseline_ecef_t *)msg;
   gps.ecef_pos.x = (int32_t)(baseline_ecef.x / 10);
   gps.ecef_pos.y = (int32_t)(baseline_ecef.y / 10);
   gps.ecef_pos.z = (int32_t)(baseline_ecef.z / 10);
@@ -127,7 +127,7 @@ static void sbp_vel_ecef_callback(uint16_t sender_id __attribute__((unused)),
                                   uint8_t msg[],
                                   void *context __attribute__((unused)))
 {
-  sbp_vel_ecef_t vel_ecef = *(sbp_vel_ecef_t *)msg;
+  msg_vel_ecef_t vel_ecef = *(msg_vel_ecef_t *)msg;
   gps.ecef_vel.x = (int32_t)(vel_ecef.x / 10);
   gps.ecef_vel.y = (int32_t)(vel_ecef.y / 10);
   gps.ecef_vel.z = (int32_t)(vel_ecef.z / 10);
@@ -153,7 +153,7 @@ static void sbp_pos_llh_callback(uint16_t sender_id __attribute__((unused)),
                                  uint8_t msg[],
                                  void *context __attribute__((unused)))
 {
-  sbp_pos_llh_t pos_llh = *(sbp_pos_llh_t *)msg;
+  msg_pos_llh_t pos_llh = *(msg_pos_llh_t *)msg;
   gps.lla_pos.lat = (int32_t)(pos_llh.lat * 1e7);
   gps.lla_pos.lon = (int32_t)(pos_llh.lon * 1e7);
   int32_t alt = (int32_t)(pos_llh.height * 1000.);
@@ -194,7 +194,7 @@ static void sbp_pos_llh_callback(uint16_t sender_id __attribute__((unused)),
 //                                      uint8_t msg[],
 //                                      void *context __attribute__((unused)))
 //{
-//  sbp_baseline_ned_t baseline_ned = *(sbp_baseline_ned_t *)msg;
+//  msg_baseline_ned_t baseline_ned = *(sbp_baseline_ned_t *)msg;
 //}
 //#endif
 
@@ -203,7 +203,7 @@ static void sbp_vel_ned_callback(uint16_t sender_id __attribute__((unused)),
                                  uint8_t msg[],
                                  void *context __attribute__((unused)))
 {
-  sbp_vel_ned_t vel_ned = *(sbp_vel_ned_t *)msg;
+  msg_vel_ned_t vel_ned = *(msg_vel_ned_t *)msg;
   gps.ned_vel.x = (int32_t)(vel_ned.n / 10);
   gps.ned_vel.y = (int32_t)(vel_ned.e / 10);
   gps.ned_vel.z = (int32_t)(vel_ned.d / 10);
@@ -218,7 +218,7 @@ static void sbp_dops_callback(uint16_t sender_id __attribute__((unused)),
                               uint8_t msg[],
                               void *context __attribute__((unused)))
 {
-  sbp_dops_t dops = *(sbp_dops_t *)msg;
+  msg_dops_t dops = *(msg_dops_t *)msg;
   gps.pdop = dops.pdop;
 }
 
@@ -227,7 +227,7 @@ static void sbp_gps_time_callback(uint16_t sender_id __attribute__((unused)),
                                   uint8_t msg[],
                                   void *context __attribute__((unused)))
 {
-  sbp_gps_time_t gps_time = *(sbp_gps_time_t *)msg;
+  msg_gps_time_t gps_time = *(msg_gps_time_t *)msg;
   gps.week = gps_time.wn;
   gps.tow = gps_time.tow;
 }
@@ -240,17 +240,17 @@ void gps_impl_init(void)
   /* Setup SBP nodes */
   sbp_state_init(&sbp_state);
   /* Register a node and callback, and associate them with a specific message ID. */
-  sbp_register_callback(&sbp_state, SBP_POS_ECEF, &sbp_pos_ecef_callback, NULL, &pos_ecef_node);
-  sbp_register_callback(&sbp_state, SBP_VEL_ECEF, &sbp_vel_ecef_callback, NULL, &vel_ecef_node);
-  sbp_register_callback(&sbp_state, SBP_POS_LLH, &sbp_pos_llh_callback, NULL, &pos_llh_node);
-  sbp_register_callback(&sbp_state, SBP_VEL_NED, &sbp_vel_ned_callback, NULL, &vel_ned_node);
-  sbp_register_callback(&sbp_state, SBP_DOPS, &sbp_dops_callback, NULL, &dops_node);
-  sbp_register_callback(&sbp_state, SBP_GPS_TIME, &sbp_gps_time_callback, NULL, &gps_time_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_POS_ECEF, &sbp_pos_ecef_callback, NULL, &pos_ecef_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_VEL_ECEF, &sbp_vel_ecef_callback, NULL, &vel_ecef_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_POS_LLH, &sbp_pos_llh_callback, NULL, &pos_llh_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_VEL_NED, &sbp_vel_ned_callback, NULL, &vel_ned_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_DOPS, &sbp_dops_callback, NULL, &dops_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_GPS_TIME, &sbp_gps_time_callback, NULL, &gps_time_node);
 #if USE_PIKSI_BASELINE_ECEF
-  sbp_register_callback(&sbp_state, SBP_BASELINE_ECEF, &sbp_baseline_ecef_callback, NULL, &baseline_ecef_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_BASELINE_ECEF, &sbp_baseline_ecef_callback, NULL, &baseline_ecef_node);
 #endif
 //#if USE_PIKSI_BASELINE_NED
-//  sbp_register_callback(&sbp_state, SBP_BASELINE_NED, &sbp_baseline_ned_callback, NULL, &baseline_ned_node);
+//  sbp_register_callback(&sbp_state, SBP_MSG_BASELINE_NED, &sbp_baseline_ned_callback, NULL, &baseline_ned_node);
 //#endif
 }
 

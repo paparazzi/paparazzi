@@ -13,3 +13,6 @@
 [submodule "sw/ext/libzbar"]
 	path = sw/ext/libzbar
 	url = https://github.com/paparazzi/libzbar
+[submodule "sw/ext/libsbp"]
+	path = sw/ext/libsbp
+	url = https://github.com/swift-nav/libsbp.git
