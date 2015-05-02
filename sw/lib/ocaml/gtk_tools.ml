@@ -78,9 +78,9 @@ let combo_values_list = fun (combo : combo) ->
 
 let combo_separator = "--"
 
-let combo = fun strings vbox ->
+let combo = fun ?width strings vbox ->
   let (combo, (tree, column)) =
-    GEdit.combo_box_text ~packing:vbox#add ~strings () in
+    GEdit.combo_box_text ~packing:vbox#add ~strings ?width () in
   combo#set_active 0;
   combo#set_row_separator_func
     (Some (fun m row -> m#get ~row ~column = combo_separator)) ;

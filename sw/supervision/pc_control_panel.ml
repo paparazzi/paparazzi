@@ -213,7 +213,7 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
   in
 
   (* Sessions *)
-  let session_combo = Gtk_tools.combo [] gui#vbox_session in
+  let session_combo = Gtk_tools.combo ~width:50 [] gui#vbox_session in
 
   let remove_custom_sessions = fun () ->
     let (store, _column) = Gtk_tools.combo_model session_combo in
