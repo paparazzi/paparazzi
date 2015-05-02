@@ -28,14 +28,31 @@
  * Rectangle is defined by two points, sweep can be south-north or west-east.
  */
 
+/*
+#include <stdio.h>
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "subsystems/datalink/downlink.h"
+*/
+
+#ifndef RECTANGLE_SURVEY_DEFAULT_SWEEP
+#define RECTANGLE_SURVEY_DEFAULT_SWEEP 25
+#endif
+
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "subsystems/datalink/downlink.h"
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+#endif
+
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "modules/nav/nav_survey_rectangle_rotorcraft.h"
 #include "state.h"
 
-#if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
-#endif
+float sweep = RECTANGLE_SURVEY_DEFAULT_SWEEP;
 
 static bool_t nav_survey_retange_active = FALSE;
 uint16_t rectangle_survey_sweep_num;
@@ -45,12 +62,12 @@ bool_t nav_in_circle = FALSE;
 static struct EnuCoor_f survey_from, survey_to;
 static struct EnuCoor_i survey_from_i, survey_to_i;
 
-
 static bool_t survey_uturn __attribute__((unused)) = FALSE;
 static survey_orientation_t survey_orientation = NS;
 
 float nav_survey_shift;
 float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
+//bool_t nav_survey_active;
 
 #define SurveyGoingNorth() ((survey_orientation == NS) && (survey_to.y > survey_from.y))
 #define SurveyGoingSouth() ((survey_orientation == NS) && (survey_to.y < survey_from.y))
@@ -81,8 +98,9 @@ void nav_survey_rectangle_rotorcraft_init(void)
   #endif
 }
 
-void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so)
+bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so)
 {
+  if (grid == 0) {grid = sweep;}
   rectangle_survey_sweep_num = 0;
   nav_survey_west = Min(WaypointX(wp1), WaypointX(wp2));
   nav_survey_east = Max(WaypointX(wp1), WaypointX(wp2));
@@ -137,17 +155,18 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
   }else{
     nav_set_heading_deg(90);
   }
+  return FALSE;
 }
 
 
-void nav_survey_rectangle(uint8_t wp1, uint8_t wp2)
+bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
 {
   static bool_t is_last_half = FALSE;
   static float survey_radius;
     nav_survey_active = TRUE;
             
- /* entry scan */ // wait for start position and altitude be reached 
-if ( !nav_survey_retange_active && ((!nav_approaching_from(&survey_from_i, NULL, 0)) || ( stateGetPositionEnu_f()->z <= waypoints[wp1].enu_f.z )) ) { 
+ /* entry scan */ // wait for start position and altitude be reached
+if ( !nav_survey_retange_active && ((!nav_approaching_from(&survey_from_i, NULL, 0)) || ( abs (stateGetPositionEnu_f()->z - waypoints[wp1].enu_f.z )) > 1) ) { 
   } else {
     if (!nav_survey_retange_active) {
       nav_survey_retange_active = TRUE;
@@ -192,36 +211,27 @@ if ( !nav_survey_retange_active && ((!nav_approaching_from(&survey_from_i, NULL,
     
     } else {
       if (survey_orientation == NS) {
-        /* North or South limit reached, prepare U-turn and next leg */
+        /* North or South limit reached, prepare turn and next leg */
         float x0 = survey_from.x; /* Current longitude */
-        if ( (x0 + nav_survey_shift < nav_survey_west) || (x0 + nav_survey_shift > nav_survey_east) ) { // nao cabe um inteiro
+        if ( (x0 + nav_survey_shift < nav_survey_west) || (x0 + nav_survey_shift > nav_survey_east) ) { // not room for full sweep
 	  //fprintf(stderr,"nao cabe inteiro\n");
-          if ( ((x0 + (nav_survey_shift/2)) < nav_survey_west) || ((x0 + (nav_survey_shift/2)) > nav_survey_east)) {//nao cabe meio 
-	   //fprintf(stderr,"nao cabe meio\n");
-            if (is_last_half) {// se a ultima volta ja foi meia 
-	      //fprintf(stderr,"a ultima ja foi meia\n");
-	      //fprintf(stderr,"vira volta e faz um inteiro\n");
+          if ( ((x0 + (nav_survey_shift/2)) < nav_survey_west) || ((x0 + (nav_survey_shift/2)) > nav_survey_east)) {//not room for half sweep 
+            if (is_last_half) {// was last sweep half?
               nav_survey_shift = -nav_survey_shift;
               survey_radius = nav_survey_shift;
               is_last_half = FALSE;
-            }else{// 
-	      //fprintf(stderr,"a ultima nao foi meia\n");
-	      //fprintf(stderr,"vira a volta e faz meia\n");
+            }else{// last sweep not half
               nav_survey_shift = -nav_survey_shift;
               survey_radius = nav_survey_shift/2.;
             }
             rectangle_survey_sweep_num ++;
-	    //fprintf(stderr,"troca de lado <-> %d\n", rectangle_survey_sweep_num);
-          }else{//room for half after
-	    //fprintf(stderr,"cabe meio\n");
+          }else{//room for half sweep after
             survey_radius = nav_survey_shift/2.;
             is_last_half = true;
           }
-        }else {// cabe um inteiro 
-  	  //fprintf(stderr,"cabe inteiro\n");
+        }else {// room for full sweep after
           survey_radius = nav_survey_shift;
         }
-        //fprintf(stderr,"=============\n");
 
         x0 = x0 + survey_radius; /* Longitude of next leg */
         survey_from.x = survey_to.x = x0;
@@ -240,29 +250,29 @@ if ( !nav_survey_retange_active && ((!nav_approaching_from(&survey_from_i, NULL,
           survey_radius = -survey_radius;
         }
       } else { /* (survey_orientation == WE) */
-        /* East or West limit reached, prepare U-turn and next leg */
+        /* East or West limit reached, prepare turn and next leg */
         /* There is a y0 declared in math.h (for ARM) !!! */
-        float my_y0 = survey_from.y; /* Current longitude */
-        if (my_y0 + nav_survey_shift < nav_survey_south || my_y0 + nav_survey_shift > nav_survey_north) { // nao cabe um inteiro
-          if ( ((my_y0 + (nav_survey_shift/2)) < nav_survey_south) || ((my_y0 + (nav_survey_shift/2)) > nav_survey_north)) {//nao cabe meio 
-            if (is_last_half) {// se a ultima volta ja foi meia 
+        float my_y0 = survey_from.y; /* Current latitude */
+        if (my_y0 + nav_survey_shift < nav_survey_south || my_y0 + nav_survey_shift > nav_survey_north) { // not room for full sweep
+          if ( ((my_y0 + (nav_survey_shift/2)) < nav_survey_south) || ((my_y0 + (nav_survey_shift/2)) > nav_survey_north)) {//not room for half sweep  
+            if (is_last_half) {// was last sweep half?
               nav_survey_shift = -nav_survey_shift;
               survey_radius = nav_survey_shift;
               is_last_half = FALSE;
-            }else{// 
+            }else{// last sweep not half
               nav_survey_shift = -nav_survey_shift;
               survey_radius = nav_survey_shift/2.;
             }
             rectangle_survey_sweep_num ++;
-          }else{//room for half after
+          }else{//room for half sweep after
             survey_radius = nav_survey_shift/2.;
             is_last_half = true;
           }
-        }else {// cabe um inteiro 
+        }else {// room for full sweep after
           survey_radius = nav_survey_shift;
         }
 
-        my_y0 = my_y0 + survey_radius; /* Longitude of next leg */
+        my_y0 = my_y0 + survey_radius; /* latitude of next leg */
         survey_from.y = survey_to.y = my_y0;
 
         /* Swap West and East extremities */
@@ -332,5 +342,7 @@ if ( !nav_survey_retange_active && ((!nav_approaching_from(&survey_from_i, NULL,
   } /* END turn */
 
   } /* END entry scan  */
+  return TRUE;
 
 }// /* END survey_retangle */
+
