@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007-2009  ENAC, Pascal Brisset, Antoine Drouin
+ *                    2015  NAC-VA, Eduardo Lavratti
  *
  * This file is part of paparazzi.
  *
@@ -20,7 +21,7 @@
  */
 
 /**
- * @file .c
+ * @file modules/nav/nav_survey_rectangle_rotorcraft.h
  *
  * Automatic survey of a rectangle for rotorcraft.
  *
