@@ -184,23 +184,57 @@ void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[])
 #else
   if (FALSE) {
 #endif
+
+    /* mean of trim+roll+pitch commands */
+    int32_t mean_cmd = 0;
+
+    /* first calculate the highest priority part of the command:
+     * - trim + roll/pitch for each motor
+     * - record mean of that
+     * - add thrust command
+     * - record min/max including thrust
+     */
+    for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
+      motor_mixing.commands[i] = motor_mixing.trim[i] +
+        roll_coef[i] * in_cmd[COMMAND_ROLL] +
+        pitch_coef[i] * in_cmd[COMMAND_PITCH];
+      /* sum up for mean (average) trim+roll+pitch cmd */
+      mean_cmd += motor_mixing.commands[i];
+    }
+
+    /* divide sum by number of motors and scale to get mean thrust */
+    mean_cmd /= (MOTOR_MIXING_NB_MOTOR * MOTOR_MIXING_SCALE);
+
+    /* calculate thrust_cmd */
+    int32_t thrust_cmd = in_cmd[COMMAND_THRUST] - mean_cmd;
+    Bound(thrust_cmd, 0, MAX_PPRZ);
+
+    /* min/max of trim+roll+pitch+throttle commands */
     int32_t min_cmd = INT32_MAX;
     int32_t max_cmd = INT32_MIN;
-    /* do the mixing in float to avoid overflows, implicitly casted back to int32_t */
+
+    /* add thrust command and scale */
     for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
-      motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR +
-                                 (thrust_coef[i] * in_cmd[COMMAND_THRUST] +
-                                  roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
-                                  pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
-                                  yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
-                                  motor_mixing.trim[i]) / MOTOR_MIXING_SCALE *
-                                 (MOTOR_MIXING_MAX_MOTOR - MOTOR_MIXING_MIN_MOTOR) / MAX_PPRZ;
+      motor_mixing.commands[i] += thrust_coef[i] * thrust_cmd;
+      /* scale */
+      motor_mixing.commands[i] /=  MOTOR_MIXING_SCALE;
+      /* remember min/max */
       if (motor_mixing.commands[i] < min_cmd) {
         min_cmd = motor_mixing.commands[i];
       }
       if (motor_mixing.commands[i] > max_cmd) {
         max_cmd = motor_mixing.commands[i];
       }
+    }
+
+    /* calculate how much authority is left for yaw command */
+    int32_t yaw_authority = Min(ABS(min_cmd), (MAX_PPRZ - max_cmd));
+    int32_t bounded_yaw_cmd = in_cmd[COMMAND_YAW];
+    BoundAbs(bounded_yaw_cmd, yaw_authority);
+
+    /* add the bounded and scaled yaw command */
+    for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
+      motor_mixing.commands[i] += yaw_coef[i] * bounded_yaw_cmd / MOTOR_MIXING_SCALE;
     }
 
     if (min_cmd < MOTOR_MIXING_MIN_MOTOR && max_cmd > MOTOR_MIXING_MAX_MOTOR) {
