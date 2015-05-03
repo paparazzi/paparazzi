@@ -3,6 +3,8 @@
 <flight_plan alt="152" ground_alt="147" lat0="43 33 50.83" lon0="1 28 52.61" max_dist_from_home="150" name="Rotorcraft Basic (Enac)" security_height="2">
   <header>
 #include "autopilot.h"
+#define LINE_START_FUNCTION dc_Survey(dc_distance_interval);
+#define LINE_STOP_FUNCTION {dc_autoshoot = DC_AUTOSHOOT_STOP;}
   </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
@@ -68,11 +70,11 @@
       <survey_rectangle grid="30" orientation="NS" wp1="S1" wp2="S2"/>
     </block>
     <block group="extra_pattern" name="Survey S1-S2 NS" strip_button="Svy-NS" strip_icon="survey.png">
-      <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, 0, NS)"/>
+      <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, NS)"/>
       <deroute block="Survey RECTANGLE RUN"/>
     </block>
     <block group="extra_pattern" name="Survey S1-S2 LO" strip_button="Svy-LO" strip_icon="survey_we.png">
-      <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, 0, WE)"/>
+      <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, WE)"/>
       <deroute block="Survey RECTANGLE RUN"/>
     </block>
     <block group="extra_pattern" name="Survey RECTANGLE RUN" strip_button="Svy CONT">

@@ -46,8 +46,7 @@
 #include "state.h"
 
 float sweep = RECTANGLE_SURVEY_DEFAULT_SWEEP;
-
-static bool_t nav_survey_retange_active = FALSE;
+static bool_t nav_survey_rectangle_active = FALSE;
 uint16_t rectangle_survey_sweep_num;
 bool_t nav_in_segment = FALSE;
 bool_t nav_in_circle = FALSE;
@@ -60,7 +59,6 @@ static survey_orientation_t survey_orientation = NS;
 
 float nav_survey_shift;
 float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
-//bool_t nav_survey_active;
 
 #define SurveyGoingNorth() ((survey_orientation == NS) && (survey_to.y > survey_from.y))
 #define SurveyGoingSouth() ((survey_orientation == NS) && (survey_to.y < survey_from.y))
@@ -93,7 +91,6 @@ void nav_survey_rectangle_rotorcraft_init(void)
 
 bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so)
 {
-  if (grid == 0) {grid = sweep;}
   rectangle_survey_sweep_num = 0;
   nav_survey_west = Min(WaypointX(wp1), WaypointX(wp2));
   nav_survey_east = Max(WaypointX(wp1), WaypointX(wp2));
@@ -134,7 +131,7 @@ bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float gri
   }
   nav_survey_shift = grid;
   survey_uturn = FALSE;
-  nav_survey_retange_active = FALSE;
+  nav_survey_rectangle_active = FALSE;
 
   //go to start position
   ENU_BFP_OF_REAL(survey_from_i, survey_from);
@@ -142,7 +139,6 @@ bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float gri
   VECT3_COPY(navigation_target, survey_from_i);
   LINE_STOP_FUNCTION;
   NavVerticalAltitudeMode(waypoints[wp1].enu_f.z, 0.);
-  //=======NavVerticalAutoThrottleMode(0.); /* No pitch */
   if (survey_orientation == NS) {
     nav_set_heading_deg(0);
   } else {
@@ -159,11 +155,11 @@ bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
   nav_survey_active = TRUE;
 
   /* entry scan */ // wait for start position and altitude be reached
-  if (!nav_survey_retange_active && ((!nav_approaching_from(&survey_from_i, NULL, 0))
+  if (!nav_survey_rectangle_active && ((!nav_approaching_from(&survey_from_i, NULL, 0))
                                      || (fabsf(stateGetPositionEnu_f()->z - waypoints[wp1].enu_f.z)) > 1.)) {
   } else {
-    if (!nav_survey_retange_active) {
-      nav_survey_retange_active = TRUE;
+    if (!nav_survey_rectangle_active) {
+      nav_survey_rectangle_active = TRUE;
       LINE_START_FUNCTION;
     }
 
