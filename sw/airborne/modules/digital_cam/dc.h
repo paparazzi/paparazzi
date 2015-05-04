@@ -52,8 +52,8 @@ extern uint16_t dc_gps_count;
 /*
  * Variables for PERIODIC mode.
  */
-/** AutoShoot photos every X quarter_second */
-extern uint8_t dc_autoshoot_quartersec_period;
+/** AutoShoot photos every X seconds */
+extern float dc_autoshoot_period;
 
 
 /*
@@ -151,8 +151,8 @@ void dc_send_shot_position(void);
 /** initialize settings */
 extern void dc_init(void);
 
-/** periodic 4Hz function */
-extern void dc_periodic_4Hz(void);
+/** periodic function */
+extern void dc_periodic(void);
 
 /**
  * Sets the dc control in distance mode.

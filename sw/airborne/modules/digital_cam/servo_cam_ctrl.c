@@ -20,15 +20,83 @@
  *
  */
 
+/** @file modules/digital_cam/servo_cam_ctrl.c
+ *  @brief Digital Camera Control
+ *
+ * Provides the control of the shutter and the zoom of a digital camera
+ * via servos.
+ *
+ */
+
 #include "servo_cam_ctrl.h"
+#include "generated/modules.h"
+
+// Include Servo and airframe servo channels
+#include "std.h"
+#include "inter_mcu.h"
+#include "generated/airframe.h"
+
+#define DC_PUSH(X)  ap_state->commands[X] = -MAX_PPRZ;
+#define DC_RELEASE(X)   ap_state->commands[X] =  MAX_PPRZ;
+
+/** how long to push shutter in seconds */
+#ifndef DC_SHUTTER_DELAY
+#define DC_SHUTTER_DELAY 0.5
+#endif
+
+#ifndef DC_SHUTTER_SERVO
+#error DC: Please specify at least a DC_SHUTTER_SERVO
+#endif
+
 
 // Button Timer
-uint8_t dc_timer;
+static uint8_t dc_timer;
+
+
+void servo_cam_ctrl_init(void)
+{
+  // Call common DC init
+  dc_init();
+
+  // Do Servo specific DC init
+  dc_timer = 0;
+}
+
+
+/* Periodic */
+void servo_cam_ctrl_periodic(void)
+{
+#ifdef DC_SHOOT_ON_BUTTON_RELEASE
+  if (dc_timer == 1) {
+    dc_send_shot_position();
+  }
+#endif
+
+  if (dc_timer) {
+    dc_timer--;
+  } else {
+    DC_RELEASE(DC_SHUTTER_SERVO);
+#ifdef DC_ZOOM_IN_SERVO
+    DC_RELEASE(DC_ZOOM_IN_SERVO);
+#endif
+#ifdef DC_ZOOM_OUT_SERVO
+    DC_RELEASE(DC_ZOOM_OUT_SERVO);
+#endif
+#ifdef DC_POWER_SERVO
+    DC_RELEASE(DC_POWER_SERVO);
+#endif
+  }
+
+  // Common DC Periodic task
+  dc_periodic();
+}
+
 
 /* Command The Camera */
 void dc_send_command(uint8_t cmd)
 {
-  dc_timer = DC_SHUTTER_DELAY;
+  dc_timer = DC_SHUTTER_DELAY * SERVO_CAM_CTRL_PERIODIC_FREQ;
+
   switch (cmd) {
     case DC_SHOOT:
       DC_PUSH(DC_SHUTTER_SERVO);
@@ -55,6 +123,4 @@ void dc_send_command(uint8_t cmd)
       break;
   }
 }
-
-
 

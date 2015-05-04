@@ -8,7 +8,7 @@
     <define name="DC_ZOOM_IN_SERVO" value="servo" description="optional, Servo to activate zoom in"/>
     <define name="DC_ZOOM_OUT_SERVO" value="servo" description="optional, Servo to activate zoom out"/>
     <define name="DC_POWER_SERVO" value="servo" description="optional, Servo to control power"/>
-    <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
+    <define name="DC_AUTOSHOOT_PERIOD" value="0.5" description="time period for DC_AUTOSHOOT_PERIODIC in seconds"/>
     <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="grid in meters"/>
   </doc>
 
@@ -21,7 +21,7 @@
 
   <init fun="servo_cam_ctrl_init()"/>
 
-  <periodic fun="servo_cam_ctrl_periodic()" freq="4" autorun="TRUE"/>
+  <periodic fun="servo_cam_ctrl_periodic()" freq="10" autorun="TRUE"/>
 
   <makefile target="ap|sim|nps">
     <define name="DIGITAL_CAM"/>

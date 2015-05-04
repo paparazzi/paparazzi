@@ -227,7 +227,7 @@
     <!-- <load name="geo_mag.xml"/> --> <!-- simplify the setup of magneto in various part of the world TODO needs fixing now aircarft in flight (strange)rule-->
 
     <load name="digital_cam_uart.xml">
-      <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="22" unit="quarter_second"/>
+      <define name="DC_AUTOSHOOT_PERIOD" value="5.0" unit="sec"/>
       <configure name="CAMERA_PORT" value="UART5"/>
     </load>
 
