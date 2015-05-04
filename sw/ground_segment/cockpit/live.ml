@@ -114,6 +114,9 @@ type aircraft = {
   mutable last_gps_acc : gps_acc_level
 }
 
+let list_separator = Str.regexp ","
+let filter_acs = ref []
+
 let aircrafts = Hashtbl.create 3
 exception AC_not_found
 let find_ac = fun ac_id ->
@@ -174,7 +177,11 @@ let select_ac = fun acs_notebook ac_id ->
     (* Select and enlarge the label of the A/C notebook *)
     let n = acs_notebook#page_num ac.pages in
     acs_notebook#goto_page n;
-    ac.notebook_label#set_width_chars 20;
+    ac.notebook_label#set_width_chars 20
+
+let filter_ac_ids = fun acs ->
+  let acs = Str.split list_separator acs in
+  filter_acs := acs;
 
 module M = Map.Make (struct type t = string let compare = compare end)
 let log =
@@ -814,7 +821,7 @@ let ask_config = fun alert geomap fp_notebook strips ac ->
 
 
 let one_new_ac = fun alert (geomap:G.widget) fp_notebook strips ac ->
-  if not (Hashtbl.mem aircrafts ac) then
+  if (List.length !filter_acs = 0) || (List.mem ac !filter_acs) && not (Hashtbl.mem aircrafts ac) then
     ask_config alert geomap fp_notebook strips ac
 
 
@@ -906,8 +913,6 @@ let listen_if_calib_msg = fun () ->
 
 let listen_telemetry_status = fun a ->
   safe_bind "TELEMETRY_STATUS" (get_telemetry_status a)
-
-let list_separator = Str.regexp ","
 
 let aircrafts_msg = fun alert (geomap:G.widget) fp_notebook strips acs ->
   let acs = Pprz.string_assoc "ac_list" acs in
