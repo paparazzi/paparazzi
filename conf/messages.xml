@@ -542,7 +542,7 @@
     <field name="angle" type="float" unit="deg"/>
     <field name="last_block" type="float"/>
     <field name="count" type="uint16" unit=""/>
-    <field name="shutter" type="uint8" unit="s"/>
+    <field name="shutter" type="uint8" unit="decisec" alt_unit="sec" alt_unit_coef="0.1"/>
   </message>
 
   <message name="AMSYS_BARO" id="65">

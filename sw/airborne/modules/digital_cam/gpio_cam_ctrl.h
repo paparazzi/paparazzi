@@ -25,7 +25,7 @@
  * Provides the control of the shutter and the zoom of a digital camera
  * through standard binary IOs of the board.
  *
- * The required initialization (dc_init()) and periodic (4Hz) process.
+ * The required initialization (dc_init()) and periodic process.
  */
 
 #ifndef GPIO_CAM_CTRL_H
@@ -33,7 +33,7 @@
 
 extern void gpio_cam_ctrl_init(void);
 
-/** 4Hz Periodic */
+/** Periodic */
 extern void gpio_cam_ctrl_periodic(void);
 
 #endif // GPIO_CAM_CTRL_H
