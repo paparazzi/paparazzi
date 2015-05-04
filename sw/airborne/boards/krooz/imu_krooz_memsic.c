@@ -123,6 +123,8 @@ void imu_periodic(void)
     hmc58xx_start_configure(&imu_krooz.hmc);
   }
 
+  uint32_t now_ts = get_sys_time_usec();
+
   if (imu_krooz.meas_nb) {
     RATES_ASSIGN(imu.gyro_unscaled, -imu_krooz.rates_sum.q / imu_krooz.meas_nb,
                  imu_krooz.rates_sum.p / imu_krooz.meas_nb,
