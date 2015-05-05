@@ -109,7 +109,7 @@ void motor_mixing_init(void)
   motor_mixing.nb_saturation = 0;
 }
 
-__attribute__((always_inline)) static inline void offset_commands(int32_t offset)
+static void offset_commands(int32_t offset)
 {
   uint8_t j;
   for (j = 0; j < MOTOR_MIXING_NB_MOTOR; j++) {
@@ -117,17 +117,17 @@ __attribute__((always_inline)) static inline void offset_commands(int32_t offset
   }
 }
 
-__attribute__((always_inline)) static inline void bound_commands(void)
+static void bound_commands(void)
 {
   uint8_t j;
-  for (j = 0; j < MOTOR_MIXING_NB_MOTOR; j++)
-    Bound(motor_mixing.commands[j],
-          MOTOR_MIXING_MIN_MOTOR, MOTOR_MIXING_MAX_MOTOR);
+  for (j = 0; j < MOTOR_MIXING_NB_MOTOR; j++) {
+    Bound(motor_mixing.commands[j], MOTOR_MIXING_MIN_MOTOR, MOTOR_MIXING_MAX_MOTOR);
+  }
 }
 
-#ifdef MOTOR_MIXING_USE_MAX_MOTOR_STEP_BINDING
-__attribute__((always_inline)) static inline void bound_commands_step(void)
+static void bound_commands_step(void)
 {
+#ifdef MOTOR_MIXING_USE_MAX_MOTOR_STEP_BINDING
   uint8_t j;
   static int32_t prev_commands[MOTOR_MIXING_NB_MOTOR];
   static uint8_t initialized = 0;
@@ -146,12 +146,8 @@ __attribute__((always_inline)) static inline void bound_commands_step(void)
   for (j = 0; j < MOTOR_MIXING_NB_MOTOR; j++) {
     prev_commands[j] = motor_mixing.commands[j];
   }
-}
-#else
-__attribute__((always_inline)) static inline void bound_commands_step(void)
-{
-}
 #endif
+}
 
 void motor_mixing_run_spinup(uint32_t counter, uint32_t max_counter)
 {
@@ -159,9 +155,11 @@ void motor_mixing_run_spinup(uint32_t counter, uint32_t max_counter)
   for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
 #ifdef MOTOR_MIXING_STARTUP_DELAY
     if (counter > i * max_counter / (MOTOR_MIXING_NB_MOTOR + MOTOR_MIXING_STARTUP_DELAY)) {
-      if (counter > MOTOR_MIXING_NB_MOTOR * max_counter / (MOTOR_MIXING_NB_MOTOR + MOTOR_MIXING_STARTUP_DELAY)) {
-        motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR_STARTUP + (MOTOR_MIXING_MIN_MOTOR - MOTOR_MIXING_MIN_MOTOR_STARTUP) *
-                                   counter / max_counter;
+      if (counter > MOTOR_MIXING_NB_MOTOR * max_counter /
+          (MOTOR_MIXING_NB_MOTOR + MOTOR_MIXING_STARTUP_DELAY))
+      {
+        motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR_STARTUP +
+          (MOTOR_MIXING_MIN_MOTOR - MOTOR_MIXING_MIN_MOTOR_STARTUP) * counter / max_counter;
       } else {
         motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR_STARTUP;
       }
