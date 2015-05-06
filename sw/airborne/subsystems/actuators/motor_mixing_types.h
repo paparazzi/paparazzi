@@ -80,7 +80,7 @@
 #define MOTOR_MIXING_NB_MOTOR    6
 #define MOTOR_MIXING_SCALE       256
 #define MOTOR_MIXING_ROLL_COEF   {  128, -128, -256, -128,  128,  256 }
-#define MOTOR_MIXING_PITCH_COEF  {  221,  221,    0, -221, -221,    0 }
+#define MOTOR_MIXING_PITCH_COEF  {  222,  222,    0, -222, -222,    0 }
 #define MOTOR_MIXING_YAW_COEF    { -128,  128, -128,  128, -128,  128 }
 #define MOTOR_MIXING_THRUST_COEF {  256,  256,  256,  256,  256,  256 }
 
@@ -97,8 +97,8 @@
 #define MOTOR_FRONT_LEFT  5
 #define MOTOR_MIXING_NB_MOTOR    6
 #define MOTOR_MIXING_SCALE       256
-#define MOTOR_MIXING_ROLL_COEF   {    0, -181, -181,    0,  181,  181 }
-#define MOTOR_MIXING_PITCH_COEF  {  256,  181, -181, -256, -181,  181 }
+#define MOTOR_MIXING_ROLL_COEF   {    0, -222, -222,    0,  222,  222 }
+#define MOTOR_MIXING_PITCH_COEF  {  256,  128, -128, -256, -128,  128 }
 #define MOTOR_MIXING_YAW_COEF    { -128,  128, -128,  128, -128,  128 }
 #define MOTOR_MIXING_THRUST_COEF {  256,  256,  256,  256,  256,  256 }
 
