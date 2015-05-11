@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sonar">
+  <doc>
+    <description>
+     Bebop Sonar driver.
+     Reads an anlog sonar sensor and outputs sonar distance in [m]
+    </description>
+    <define name="USE_SONAR" value="" description="activate use of sonar in INS extended filter (only rotorcraft)"/>
+  </doc>
+
+  <header>
+    <file name="sonar_bebop.h"/>
+  </header>
+
+  <init fun="sonar_bebop_init()"/>
+
+  <makefile target="ap|sim">
+    <file name="sonar_bebop.c"/>
+  </makefile>
+  <makefile target="ap">
+    <define name="USE_SPI0" value="1"/>
+    <define name="USE_ADC0" value="1"/>
+    <define name="USE_SONAR" value="1"/>
+
+    <raw>
+      include $(CFG_SHARED)/spi_master.makefile
+    </raw>
+  </makefile>
+
+</module>

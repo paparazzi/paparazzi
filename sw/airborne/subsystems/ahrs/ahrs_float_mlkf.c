@@ -235,7 +235,7 @@ static inline void update_state(const struct FloatVect3 *i_expected, struct Floa
 
   /* converted expected measurement from inertial to body frame */
   struct FloatVect3 b_expected;
-  float_quat_vmult(&b_expected, &ahrs_mlkf.ltp_to_imu_quat, (struct FloatVect3 *)i_expected);
+  float_quat_vmult(&b_expected, &ahrs_mlkf.ltp_to_imu_quat, i_expected);
 
   // S = HPH' + JRJ
   float H[3][6] = {{           0., -b_expected.z,  b_expected.y, 0., 0., 0.},
@@ -304,7 +304,7 @@ static inline void update_state_heading(const struct FloatVect3 *i_expected,
 
   /* converted expected measurement from inertial to body frame */
   struct FloatVect3 b_expected;
-  float_quat_vmult(&b_expected, &ahrs_mlkf.ltp_to_imu_quat, (struct FloatVect3 *)i_expected);
+  float_quat_vmult(&b_expected, &ahrs_mlkf.ltp_to_imu_quat, i_expected);
 
   /* set roll/pitch errors to zero to only correct heading */
   struct FloatVect3 i_h_2d = {i_expected->y, -i_expected->x, 0.f};
