@@ -121,9 +121,9 @@ $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 #
 # Electrical subsystem / Analog Backend
 #
-ifneq ($(ARCH), linux)
 $(TARGET).CFLAGS += -DUSE_ADC
 $(TARGET).srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
+ifneq ($(ARCH), linux)
 $(TARGET).srcs   += subsystems/electrical.c
 endif
 

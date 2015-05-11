@@ -29,7 +29,7 @@ GPS_PORT           ?= UART1
 GPS_BAUD           ?= B230400
 
 # handle linux signals by hand
-$(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL
+$(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL -D_GNU_SOURCE
 
 # Compile the video specific parts
 $(TARGET).srcs +=  $(SRC_BOARD)/video.c

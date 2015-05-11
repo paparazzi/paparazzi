@@ -433,7 +433,7 @@ extern void float_quat_integrate(struct FloatQuat *q, struct FloatRates *omega, 
 /** rotate 3D vector by quaternion.
  * vb = q_a2b * va * q_a2b^-1
  */
-extern void float_quat_vmult(struct FloatVect3 *v_out, struct FloatQuat *q, struct FloatVect3 *v_in);
+extern void float_quat_vmult(struct FloatVect3 *v_out, struct FloatQuat *q, const struct FloatVect3 *v_in);
 
 /// Quaternion from Euler angles.
 extern void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e);

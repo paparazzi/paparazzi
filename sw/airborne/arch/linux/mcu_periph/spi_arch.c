@@ -33,6 +33,7 @@
 #include <linux/spi/spidev.h>
 
 #include "mcu_periph/spi.h"
+#include BOARD_CONFIG
 
 
 void spi_init_slaves(void)
@@ -42,6 +43,8 @@ void spi_init_slaves(void)
    */
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
 bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
 {
   int fd = (int)p->reg_addr;
@@ -73,7 +76,7 @@ bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
 
   xfer.len = buf_len;
   /* fixed speed of 1Mhz for now, use SPIClockDiv?? */
-  xfer.speed_hz = 1000000;
+  xfer.speed_hz = (uint32_t)p->init_struct;
   xfer.delay_usecs = 0;
   if (t->dss == SPIDss16bit) {
     xfer.bits_per_word = 16;
@@ -84,19 +87,20 @@ bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
     xfer.cs_change = 1;
   }
 
-  if (ioctl(fd, SPI_IOC_MESSAGE(1), xfer) < 0) {
+  if (ioctl(fd, SPI_IOC_MESSAGE(1), &xfer) < 0) {
     t->status = SPITransFailed;
     return FALSE;
   }
 
   /* copy recieved data if we had to use an extra rx_buffer */
   if (buf_len > t->input_length) {
-    memcpy((void *)t->input_buf, (void *)xfer.rx_buf, t->input_length);
+    memcpy((void *)t->input_buf, (void *)((uint32_t)xfer.rx_buf), t->input_length);
   }
 
   t->status = SPITransSuccess;
   return TRUE;
 }
+#pragma GCC diagnostic pop
 
 bool_t spi_lock(struct spi_periph *p, uint8_t slave)
 {
@@ -112,6 +116,23 @@ bool_t spi_resume(struct spi_periph *p, uint8_t slave)
 
 
 #if USE_SPI0
+
+#ifndef SPI0_MODE
+#define SPI0_MODE (SPI_CPOL | SPI_CPHA)
+#endif
+
+#ifndef SPI0_LSB_FIRST
+#define SPI0_LSB_FIRST 0
+#endif
+
+#ifndef SPI0_BITS_PER_WORD
+#define SPI0_BITS_PER_WORD 8
+#endif
+
+#ifndef SPI0_MAX_SPEED_HZ
+#define SPI0_MAX_SPEED_HZ 1000000
+#endif
+
 void spi0_arch_init(void)
 {
   int fd = open("/dev/spidev1.0", O_RDWR);
@@ -124,32 +145,50 @@ void spi0_arch_init(void)
   spi0.reg_addr = (void *)fd;
 
   /* spi mode */
-  unsigned char spi_mode = (SPI_CPOL | SPI_CPHA);
+  unsigned char spi_mode = SPI0_MODE;
   if (ioctl(fd, SPI_IOC_WR_MODE, &spi_mode) < 0) {
     perror("SPI0: can't set spi mode");
   }
 
   /* set to MSB first */
-  unsigned char spi_order = 0;
+  unsigned char spi_order = SPI0_LSB_FIRST;
   if (ioctl(fd, SPI_IOC_WR_LSB_FIRST, &spi_order) < 0) {
     perror("SPI0: can't set spi bit justification");
   }
 
   /* bits per word default to 8 */
-  unsigned char spi_bits_per_word = 8;
+  unsigned char spi_bits_per_word = SPI0_BITS_PER_WORD;
   if (ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &spi_bits_per_word) < 0) {
     perror("SPI0: can't set bits per word");
   }
 
   /* max speed in hz, 1MHz for now */
-  unsigned int spi_speed = 1000000;
+  unsigned int spi_speed = SPI0_MAX_SPEED_HZ;
   if (ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &spi_speed) < 0) {
     perror("SPI0: can't set max speed hz");
   }
+  spi0.init_struct = (void *)SPI0_MAX_SPEED_HZ;
 }
 #endif /* USE_SPI0 */
 
 #if USE_SPI1
+
+#ifndef SPI1_MODE
+#define SPI1_MODE (SPI_CPOL | SPI_CPHA)
+#endif
+
+#ifndef SPI1_LSB_FIRST
+#define SPI1_LSB_FIRST 0
+#endif
+
+#ifndef SPI1_BITS_PER_WORD
+#define SPI1_BITS_PER_WORD 8
+#endif
+
+#ifndef SPI1_MAX_SPEED_HZ
+#define SPI1_MAX_SPEED_HZ 1000000
+#endif
+
 void spi1_arch_init(void)
 {
   int fd = open("/dev/spidev1.1", O_RDWR);
@@ -162,27 +201,28 @@ void spi1_arch_init(void)
   spi1.reg_addr = (void *)fd;
 
   /* spi mode */
-  unsigned char spi_mode = (SPI_CPOL | SPI_CPHA);
+  unsigned char spi_mode = SPI1_MODE;
   if (ioctl(fd, SPI_IOC_WR_MODE, &spi_mode) < 0) {
     perror("SPI1: can't set spi mode");
   }
 
   /* set to MSB first */
-  unsigned char spi_order = 0;
+  unsigned char spi_order = SPI1_LSB_FIRST;
   if (ioctl(fd, SPI_IOC_WR_LSB_FIRST, &spi_order) < 0) {
     perror("SPI1: can't set spi bit justification");
   }
 
   /* bits per word default to 8 */
-  unsigned char spi_bits_per_word = 8;
-  if (ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &spi_bits_per_word) < 0) {
+  unsigned char spi_bits_per_word = SPI1_BITS_PER_WORD;
+  if (ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &spi_bits_per_word) < 0) {r
     perror("SPI1: can't set bits per word");
   }
 
   /* max speed in hz, 1MHz for now */
-  unsigned int spi_speed = 1000000;
+  unsigned int spi_speed = SPI1_MAX_SPEED_HZ;
   if (ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &spi_speed) < 0) {
     perror("SPI1: can't set max speed hz");
   }
+  spi1.init_struct = (void *)SPI1_MAX_SPEED_HZ;
 }
 #endif /* USE_SPI1 */
