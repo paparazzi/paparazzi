@@ -13,3 +13,9 @@
 [submodule "sw/ext/chibios"]
 	path = sw/ext/chibios
 	url = https://github.com/mabl/ChibiOS.git
+[submodule "sw/ext/unity"]
+	path = sw/ext/unity
+	url = https://github.com/ThrowTheSwitch/Unity
+[submodule "sw/ext/cmock"]
+	path = sw/ext/cmock
+	url = https://github.com/ThrowTheSwitch/CMock

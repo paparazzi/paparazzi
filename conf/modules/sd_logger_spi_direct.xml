@@ -1,0 +1,33 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="loggers">
+  <doc>
+    <description>Write logdata directly to an sd card.</description>
+  </doc>
+  <settings>
+    <dl_settings NAME="sdlogger">
+      <dl_settings NAME="SD Logger">
+        <dl_setting module="loggers/sd_logger_spi_direct" var="sdlogger.unique_id" min="0" max="10000000" step="1"/>
+        <dl_setting module="loggers/sd_logger_spi_direct" var="sdlogger.request_id" min="0" max="10000000" step="1"/>
+        <dl_setting module="loggers/sd_logger_spi_direct" var="sdlogger.cmd" min="0" max="255" step="1"/>
+        <dl_setting module="loggers/sd_logger_spi_direct" var="sdlogger.status" min="0" max="255" step="1"/>
+        <dl_setting module="loggers/sd_logger_spi_direct" var="sdcard1.status" min="0" max="255" step="1"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="sd_logger_spi_direct.h"/>
+  </header>
+  <init fun="sd_logger_start()"/>
+  <periodic fun="sd_logger_periodic()" autorun="TRUE"/>
+  <datalink message="SETTING" fun="sd_logger_command()"/>
+  <makefile target="ap">
+    <define name="SPI_MASTER" value="1" />
+    <define name="USE_SPI2" value="1" />
+    <define name="SD_LOGGER_SPI_LINK_DEVICE" value="spi2" />
+    <define name="USE_SPI_SLAVE3" value="1" />
+    <define name="SD_LOGGER_SPI_LINK_SLAVE_NUMBER" value="SPI_SLAVE3" />
+    <file name="sd_logger_spi_direct.c"/>
+    <file name="sdcard_spi.c" dir="peripherals"/>
+  </makefile>
+</module>

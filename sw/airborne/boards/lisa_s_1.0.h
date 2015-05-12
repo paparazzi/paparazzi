@@ -109,6 +109,10 @@
 #define SPI_SELECT_SLAVE2_PORT GPIOB
 #define SPI_SELECT_SLAVE2_PIN GPIO12
 
+/* SD SS (is also a servo pin) */
+#define SPI_SELECT_SLAVE3_PORT GPIOB
+#define SPI_SELECT_SLAVE3_PIN GPIO9
+
 /*
  * UART pin configuration
  *

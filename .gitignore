@@ -31,6 +31,18 @@
 /build.properties
 /META-INF
 
+# QtCreator IDE project files
+*.config
+*.files
+*.includes
+*.creator
+*.creator.user
+
+# For Unity and Cmock unit testing
+*.yml
+Mock*
+tests/unittest/build/*
+
 paparazzi.sublime-workspace
 
 # JetBrains (PyCharm, etc) IDE project files
