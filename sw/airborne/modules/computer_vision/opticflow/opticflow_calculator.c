@@ -232,8 +232,8 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   opticflow->prev_theta = state->theta;
 
   // Velocity calculation
-  result->vel_x = -result->flow_der_x * result->fps / opticflow->subpixel_factor * img->w / OPTICFLOW_FX;
-  result->vel_y =  result->flow_der_y * result->fps / opticflow->subpixel_factor * img->h / OPTICFLOW_FY;
+  result->vel_x = -result->flow_der_x * result->fps * state->agl/ opticflow->subpixel_factor * img->w / OPTICFLOW_FX;
+  result->vel_y =  result->flow_der_y * result->fps * state->agl/ opticflow->subpixel_factor * img->h / OPTICFLOW_FY;
 
   // *************************************************************************************
   // Next Loop Preparation
