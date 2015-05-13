@@ -86,11 +86,17 @@ let convert_value_with_code_unit_coef_of_xml = function xml ->
   (* if unit equals code unit, don't convert as that would always result in a float *)
   if u = cu then failwith "Not converting";
   (* default value for code_unit is rad[/s] when unit is deg[/s] *)
-  let conv = try (Pprz.scale_of_units u cu) with
-    | Pprz.Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
-    | Pprz.Unknown_conversion (su, scu) -> prerr_endline (sprintf "Warning: unknown unit conversion: from %s to %s" su scu); flush stderr; failwith "Unknown unit conversion"
-    | Pprz.No_automatic_conversion _ | _ -> failwith "Unit conversion error" in
-  let v = try ExtXml.float_attrib xml "value" with _ -> prerr_endline (sprintf "Error: Unit conversion of parameter %s impossible because '%s' is not a float" (Xml.attrib xml "name") (Xml.attrib xml "value")); flush stderr; exit 1 in
+  let conv = try Pprz.scale_of_units u cu with
+  | Pprz.Unit_conversion_error s ->
+      eprintf "Unit conversion error: %s\n%!" s;
+      exit 1
+  | Pprz.Unknown_conversion (su, scu) ->
+      eprintf "Warning: unknown unit conversion: from %s to %s\n%!" su scu;
+      failwith "Unknown unit conversion"
+  | Pprz.No_automatic_conversion _ | _ -> failwith "Unit conversion error" in
+  let v =
+    try ExtXml.float_attrib xml "value"
+    with _ -> prerr_endline (sprintf "Error: Unit conversion of parameter %s impossible because '%s' is not a float" (Xml.attrib xml "name") (Xml.attrib xml "value")); flush stderr; exit 1 in
   v *. conv
 
 let array_sep = Str.regexp "[,;]"

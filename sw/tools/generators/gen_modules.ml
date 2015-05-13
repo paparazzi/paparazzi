@@ -402,8 +402,13 @@ let () =
     fprintf out_h "#endif";
     nl ();
     (* Extract modules list *)
-    let modules = GC.get_modules_of_airframe xml in
-    let modules = GC.unload_unused_modules modules true in
+    let modules =
+      try
+        let target = Sys.getenv "TARGET" in
+        GC.get_modules_of_airframe ~target xml
+      with
+      | Not_found -> failwith "TARTGET env needs to be specified to generate modules files"
+    in
     (* Extract modules names (file name and module name) *)
     let modules_name =
       (List.map (fun m -> try Xml.attrib m.GC.xml "name" with _ -> "") modules) @
