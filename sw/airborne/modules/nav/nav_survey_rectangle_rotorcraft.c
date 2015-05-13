@@ -32,6 +32,12 @@
 #define RECTANGLE_SURVEY_DEFAULT_SWEEP 25
 #endif
 
+#ifdef RECTANGLE_SURVEY_USE_INTERLEAVE
+#define USE_INTERLEAVE TRUE
+#else 
+#define USE_INTERLEAVE FALSE
+#endif
+
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
@@ -50,6 +56,7 @@ static bool_t nav_survey_rectangle_active = FALSE;
 uint16_t rectangle_survey_sweep_num;
 bool_t nav_in_segment = FALSE;
 bool_t nav_in_circle = FALSE;
+bool_t interleave = USE_INTERLEAVE;
 
 static struct EnuCoor_f survey_from, survey_to;
 static struct EnuCoor_i survey_from_i, survey_to_i;
@@ -205,16 +212,23 @@ bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
           float x0 = survey_from.x; /* Current longitude */
           if ((x0 + nav_survey_shift < nav_survey_west)
               || (x0 + nav_survey_shift > nav_survey_east)) {   // not room for full sweep
-            //fprintf(stderr,"nao cabe inteiro\n");
             if (((x0 + (nav_survey_shift / 2)) < nav_survey_west)
                 || ((x0 + (nav_survey_shift / 2)) > nav_survey_east)) { //not room for half sweep
               if (is_last_half) {// was last sweep half?
                 nav_survey_shift = -nav_survey_shift;
-                survey_radius = nav_survey_shift;
+                if (interleave) {
+                  survey_radius = nav_survey_shift;
+                }else {
+                  survey_radius = nav_survey_shift /2.;
+                }
                 is_last_half = FALSE;
               } else { // last sweep not half
                 nav_survey_shift = -nav_survey_shift;
-                survey_radius = nav_survey_shift / 2.;
+                if (interleave) {
+                  survey_radius = nav_survey_shift /2.;
+                }else{
+                  survey_radius = nav_survey_shift ;
+                }
               }
               rectangle_survey_sweep_num ++;
             } else { //room for half sweep after
@@ -251,11 +265,19 @@ bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
                 || ((my_y0 + (nav_survey_shift / 2)) > nav_survey_north)) { //not room for half sweep
               if (is_last_half) {// was last sweep half?
                 nav_survey_shift = -nav_survey_shift;
-                survey_radius = nav_survey_shift;
+                if (interleave) {
+                  survey_radius = nav_survey_shift;
+                }else {
+                  survey_radius = nav_survey_shift /2.;
+                }
                 is_last_half = FALSE;
               } else { // last sweep not half
                 nav_survey_shift = -nav_survey_shift;
-                survey_radius = nav_survey_shift / 2.;
+                if (interleave) {
+                  survey_radius = nav_survey_shift /2.;
+                }else{
+                  survey_radius = nav_survey_shift ;
+                }
               }
               rectangle_survey_sweep_num ++;
             } else { //room for half sweep after
@@ -287,7 +309,19 @@ bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
         nav_in_segment = FALSE;
         survey_uturn = TRUE;
         LINE_STOP_FUNCTION;
-        dc_send_command(DC_SHOOT); //take a picture in the last position before go to the next sweep
+#ifdef DIGITAL_CAM
+        float temp;
+        if (survey_orientation == NS) {
+          temp = fabsf(nav_survey_north - nav_survey_south) / dc_distance_interval;
+        } else{
+          temp = fabsf(nav_survey_west - nav_survey_east) / dc_distance_interval;
+        }
+        double inteiro;
+        double fract = modf (temp , &inteiro);
+        if (fract > .5) {
+          dc_send_command(DC_SHOOT); //if last shot is more than shot_distance/2 from the corner take a picture in the corner before go to the next sweep
+        }
+#endif
       }
     } else { /* START turn */
 

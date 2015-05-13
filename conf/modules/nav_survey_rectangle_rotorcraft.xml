@@ -33,7 +33,8 @@ or using flightplan primitive
     <settings>
     <dl_settings>
       <dl_settings NAME="Ret_Survey">
-        <dl_setting min="10" max="500" step="1" var="sweep" type="float" shortname="Sweep" module="modules/nav/nav_survey_rectangle_rotorcraft"/>
+        <dl_setting min="10" max="500" step="1" var="sweep" type="float" shortname="Distance" module="modules/nav/nav_survey_rectangle_rotorcraft"/>
+        <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="interleave" type="bool" shortname="use_interleave" module="modules/nav/nav_survey_rectangle_rotorcraft"/>
       </dl_settings>
     </dl_settings>
   </settings>
