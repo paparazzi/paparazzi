@@ -30,7 +30,7 @@
     <file name="airspeed_amsys.h"/>
   </header>
   <init fun="airspeed_amsys_init()"/>
-  <periodic fun="airspeed_amsys_read_periodic()" freq="10."/>
+  <periodic fun="airspeed_amsys_read_periodic()" freq="60."/>
   <event fun="AirspeedAmsysEvent()"/>
 
   <makefile>
