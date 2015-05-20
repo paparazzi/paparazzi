@@ -81,7 +81,9 @@ let new_ac_id = fun () ->
 let parse_conf_xml = fun vbox ->
   let strings = ref [] in
   Hashtbl.iter (fun name _ac -> strings := name :: !strings) Utils.aircrafts;
-  let ordered = List.sort String.compare ("" :: !strings) in
+  let compare_ignore_case = fun s1 s2 ->
+    String.compare (String.lowercase s1) (String.lowercase s2) in
+  let ordered = List.sort compare_ignore_case ("" :: !strings) in
   Gtk_tools.combo ordered vbox
 
 let editor =

@@ -1,9 +1,12 @@
-#ifndef __SD_LOG_H__
-#define __SD_LOG_H__
+#pragma once
+#include "mcuconf.h"
 
 #include "ff.h"
 #include <stdarg.h>
-#include "mcuconf.h"
+
+#define NUMBERLEN 4
+#define NUMBERMAX 9999
+#define NUMBERFMF "%s\\%s%.04d.LOG"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,6 +66,7 @@ typedef enum {
   SDLOG_QUEUEFULL,
   SDLOG_NOTHREAD,
   SDLOG_INTERNAL_ERROR,
+  SDLOG_LOGNUM_ERROR
 } SdioError;
 
 
@@ -131,7 +135,6 @@ SdioError sdLogFlushLog (const FileDes fileObject);
  */
 SdioError sdLogCloseLog (const FileDes fileObject);
 
-
 /**
  * @brief	close all opened logs then stop worker thread
  * @param[in]	flush : if true : flush all ram buffers before closing (take more time)
@@ -172,4 +175,4 @@ SdioError sdLogWriteByte (const FileDes fileObject, const uint8_t value);
 }
 #endif
 
-#endif // __SD_LOG_H__
+

@@ -9,6 +9,7 @@
       <!-- AUX1 -->
       <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO7"/>
     </load>
+    <load name="nav_survey_rectangle_rotorcraft.xml"/>
   </modules>
 
   <firmware name="rotorcraft">
@@ -215,7 +216,7 @@
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="MAX_BANK" value="30" unit="deg"/>
     <define name="PGAIN" value="50"/>
-    <define name="DGAIN" value="80"/>
+    <define name="DGAIN" value="140"/>
     <define name="IGAIN" value="20"/>
     <define name="NGAIN" value="0"/>
     <!-- feedforward -->

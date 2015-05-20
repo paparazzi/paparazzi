@@ -401,7 +401,7 @@ void nav_periodic_task(void)
   RunOnceEvery(NAV_FREQ, { stage_time++;  block_time++; });
 
   nav_survey_active = FALSE;
-  
+
   dist2_to_wp = 0;
 
   /* from flight_plan.h */

@@ -375,6 +375,7 @@ let options =
     "-zoom", Arg.Set_float zoom, "Initial zoom";
     "-auto_hide_fp", Arg.Unit (fun () -> Live.auto_hide_fp true; hide_fp := true), "Automatically hide flight plans of unselected aircraft";
     "-timestamp", Arg.Set timestamp, "Bind on timestampped telemetry messages";
+    "-ac_ids", Arg.String (fun s -> Live.filter_ac_ids s), "comma separated list of AC IDs to show in GCS";
   ]
 
 

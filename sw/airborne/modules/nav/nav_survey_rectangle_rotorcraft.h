@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007-2009  ENAC, Pascal Brisset, Antoine Drouin
+ *                    2015  NAC-VA, Eduardo Lavratti
  *
  * This file is part of paparazzi.
  *
@@ -20,7 +21,7 @@
  */
 
 /**
- * @file .c
+ * @file modules/nav/nav_survey_rectangle_rotorcraft.h
  *
  * Automatic survey of a rectangle for rotorcraft.
  *
@@ -36,6 +37,8 @@ typedef enum {NS, WE} survey_orientation_t;
 
 extern float sweep;
 extern uint16_t rectangle_survey_sweep_num;
+extern bool_t interleave;
+
 
 extern void nav_survey_rectangle_rotorcraft_init(void);
 extern bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid1, survey_orientation_t so);

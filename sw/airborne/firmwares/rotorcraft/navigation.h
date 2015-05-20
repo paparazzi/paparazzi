@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright (C) 2008-2011  The Paparazzi Team
  *
  * This file is part of paparazzi.

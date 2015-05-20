@@ -70,10 +70,10 @@
 
    <section name="VISION" prefix="VISION_">
     <define name="HOVER" value="FALSE"/>
-    <define name="PHI_PGAIN" value="500"/>
-    <define name="PHI_IGAIN" value="10"/>
-    <define name="THETA_PGAIN" value="500"/>
-    <define name="THETA_IGAIN" value="10"/>
+    <define name="PHI_PGAIN" value="300"/>
+    <define name="PHI_IGAIN" value="5"/>
+    <define name="THETA_PGAIN" value="300"/>
+    <define name="THETA_IGAIN" value="5"/>
     <define name="DESIRED_VX" value="0"/>
     <define name="DESIRED_VY" value="0"/>
    </section>

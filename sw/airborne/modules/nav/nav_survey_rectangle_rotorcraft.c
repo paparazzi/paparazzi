@@ -28,15 +28,14 @@
  * Rectangle is defined by two points, sweep can be south-north or west-east.
  */
 
-/*
-#include <stdio.h>
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
-*/
-
 #ifndef RECTANGLE_SURVEY_DEFAULT_SWEEP
 #define RECTANGLE_SURVEY_DEFAULT_SWEEP 25
+#endif
+
+#ifdef RECTANGLE_SURVEY_USE_INTERLEAVE
+#define USE_INTERLEAVE TRUE
+#else 
+#define USE_INTERLEAVE FALSE
 #endif
 
 #include "mcu_periph/uart.h"
@@ -53,11 +52,11 @@
 #include "state.h"
 
 float sweep = RECTANGLE_SURVEY_DEFAULT_SWEEP;
-
-static bool_t nav_survey_retange_active = FALSE;
+static bool_t nav_survey_rectangle_active = FALSE;
 uint16_t rectangle_survey_sweep_num;
 bool_t nav_in_segment = FALSE;
 bool_t nav_in_circle = FALSE;
+bool_t interleave = USE_INTERLEAVE;
 
 static struct EnuCoor_f survey_from, survey_to;
 static struct EnuCoor_i survey_from_i, survey_to_i;
@@ -67,7 +66,6 @@ static survey_orientation_t survey_orientation = NS;
 
 float nav_survey_shift;
 float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
-//bool_t nav_survey_active;
 
 #define SurveyGoingNorth() ((survey_orientation == NS) && (survey_to.y > survey_from.y))
 #define SurveyGoingSouth() ((survey_orientation == NS) && (survey_to.y < survey_from.y))
@@ -100,7 +98,6 @@ void nav_survey_rectangle_rotorcraft_init(void)
 
 bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so)
 {
-  if (grid == 0) {grid = sweep;}
   rectangle_survey_sweep_num = 0;
   nav_survey_west = Min(WaypointX(wp1), WaypointX(wp2));
   nav_survey_east = Max(WaypointX(wp1), WaypointX(wp2));
@@ -109,14 +106,14 @@ bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float gri
   survey_orientation = so;
 
   if (survey_orientation == NS) {
-    if (abs(stateGetPositionEnu_f()->x - nav_survey_west) < abs(stateGetPositionEnu_f()->x - nav_survey_east)) {
+    if (fabsf(stateGetPositionEnu_f()->x - nav_survey_west) < fabsf(stateGetPositionEnu_f()->x - nav_survey_east)) {
       survey_from.x = survey_to.x = nav_survey_west + grid / 4.;
     } else {
       survey_from.x = survey_to.x = nav_survey_east - grid / 4.;
       grid = -grid;
     }
 
-    if (abs(stateGetPositionEnu_f()->y - nav_survey_south) > abs(stateGetPositionEnu_f()->y - nav_survey_north)) {
+    if (fabsf(stateGetPositionEnu_f()->y - nav_survey_south) > fabsf(stateGetPositionEnu_f()->y - nav_survey_north)) {
       survey_to.y = nav_survey_south;
       survey_from.y = nav_survey_north;
     } else {
@@ -124,14 +121,14 @@ bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float gri
       survey_to.y = nav_survey_north;
     }
   } else { /* survey_orientation == WE */
-    if (abs(stateGetPositionEnu_f()->y - nav_survey_south) < abs(stateGetPositionEnu_f()->y - nav_survey_north)) {
+    if (fabsf(stateGetPositionEnu_f()->y - nav_survey_south) < fabsf(stateGetPositionEnu_f()->y - nav_survey_north)) {
       survey_from.y = survey_to.y = nav_survey_south + grid / 4.;
     } else {
       survey_from.y = survey_to.y = nav_survey_north - grid / 4.;
       grid = -grid;
     }
 
-    if (abs(stateGetPositionEnu_f()->x - nav_survey_west) > abs(stateGetPositionEnu_f()->x - nav_survey_east)) {
+    if (fabsf(stateGetPositionEnu_f()->x - nav_survey_west) > fabsf(stateGetPositionEnu_f()->x - nav_survey_east)) {
       survey_to.x = nav_survey_west;
       survey_from.x = nav_survey_east;
     } else {
@@ -141,7 +138,7 @@ bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float gri
   }
   nav_survey_shift = grid;
   survey_uturn = FALSE;
-  nav_survey_retange_active = FALSE;
+  nav_survey_rectangle_active = FALSE;
 
   //go to start position
   ENU_BFP_OF_REAL(survey_from_i, survey_from);
@@ -149,7 +146,6 @@ bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float gri
   VECT3_COPY(navigation_target, survey_from_i);
   LINE_STOP_FUNCTION;
   NavVerticalAltitudeMode(waypoints[wp1].enu_f.z, 0.);
-  //=======NavVerticalAutoThrottleMode(0.); /* No pitch */
   if (survey_orientation == NS) {
     nav_set_heading_deg(0);
   } else {
@@ -166,11 +162,11 @@ bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
   nav_survey_active = TRUE;
 
   /* entry scan */ // wait for start position and altitude be reached
-  if (!nav_survey_retange_active && ((!nav_approaching_from(&survey_from_i, NULL, 0))
-                                     || (abs(stateGetPositionEnu_f()->z - waypoints[wp1].enu_f.z)) > 1)) {
+  if (!nav_survey_rectangle_active && ((!nav_approaching_from(&survey_from_i, NULL, 0))
+                                     || (fabsf(stateGetPositionEnu_f()->z - waypoints[wp1].enu_f.z)) > 1.)) {
   } else {
-    if (!nav_survey_retange_active) {
-      nav_survey_retange_active = TRUE;
+    if (!nav_survey_rectangle_active) {
+      nav_survey_rectangle_active = TRUE;
       LINE_START_FUNCTION;
     }
 
@@ -195,12 +191,12 @@ bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
     }
 
     if (!survey_uturn) { /* S-N, N-S, W-E or E-W straight route */
-      /*
+      /*  if you like to use position croos instead of approaching uncoment this line
           if ((stateGetPositionEnu_f()->y < nav_survey_north && SurveyGoingNorth()) ||
               (stateGetPositionEnu_f()->y > nav_survey_south && SurveyGoingSouth()) ||
               (stateGetPositionEnu_f()->x < nav_survey_east && SurveyGoingEast()) ||
               (stateGetPositionEnu_f()->x > nav_survey_west && SurveyGoingWest())) {
-              */
+      */
       /* Continue ... */
       ENU_BFP_OF_REAL(survey_to_i, survey_to);
 
@@ -216,21 +212,28 @@ bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
           float x0 = survey_from.x; /* Current longitude */
           if ((x0 + nav_survey_shift < nav_survey_west)
               || (x0 + nav_survey_shift > nav_survey_east)) {   // not room for full sweep
-            //fprintf(stderr,"nao cabe inteiro\n");
             if (((x0 + (nav_survey_shift / 2)) < nav_survey_west)
                 || ((x0 + (nav_survey_shift / 2)) > nav_survey_east)) { //not room for half sweep
               if (is_last_half) {// was last sweep half?
                 nav_survey_shift = -nav_survey_shift;
-                survey_radius = nav_survey_shift;
+                if (interleave) {
+                  survey_radius = nav_survey_shift;
+                }else {
+                  survey_radius = nav_survey_shift /2.;
+                }
                 is_last_half = FALSE;
               } else { // last sweep not half
                 nav_survey_shift = -nav_survey_shift;
-                survey_radius = nav_survey_shift / 2.;
+                if (interleave) {
+                  survey_radius = nav_survey_shift /2.;
+                }else{
+                  survey_radius = nav_survey_shift ;
+                }
               }
               rectangle_survey_sweep_num ++;
             } else { //room for half sweep after
               survey_radius = nav_survey_shift / 2.;
-              is_last_half = true;
+              is_last_half = TRUE;
             }
           } else {// room for full sweep after
             survey_radius = nav_survey_shift;
@@ -262,16 +265,24 @@ bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
                 || ((my_y0 + (nav_survey_shift / 2)) > nav_survey_north)) { //not room for half sweep
               if (is_last_half) {// was last sweep half?
                 nav_survey_shift = -nav_survey_shift;
-                survey_radius = nav_survey_shift;
+                if (interleave) {
+                  survey_radius = nav_survey_shift;
+                }else {
+                  survey_radius = nav_survey_shift /2.;
+                }
                 is_last_half = FALSE;
               } else { // last sweep not half
                 nav_survey_shift = -nav_survey_shift;
-                survey_radius = nav_survey_shift / 2.;
+                if (interleave) {
+                  survey_radius = nav_survey_shift /2.;
+                }else{
+                  survey_radius = nav_survey_shift ;
+                }
               }
               rectangle_survey_sweep_num ++;
             } else { //room for half sweep after
               survey_radius = nav_survey_shift / 2.;
-              is_last_half = true;
+              is_last_half = TRUE;
             }
           } else {// room for full sweep after
             survey_radius = nav_survey_shift;
@@ -298,9 +309,19 @@ bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
         nav_in_segment = FALSE;
         survey_uturn = TRUE;
         LINE_STOP_FUNCTION;
-        /* RAB - No camera support at this time
-        dc_send_command(DC_SHOOT); //take a picture in the last position before go to the next sweep
-        */
+#ifdef DIGITAL_CAM
+        float temp;
+        if (survey_orientation == NS) {
+          temp = fabsf(nav_survey_north - nav_survey_south) / dc_distance_interval;
+        } else{
+          temp = fabsf(nav_survey_west - nav_survey_east) / dc_distance_interval;
+        }
+        double inteiro;
+        double fract = modf (temp , &inteiro);
+        if (fract > .5) {
+          dc_send_command(DC_SHOOT); //if last shot is more than shot_distance/2 from the corner take a picture in the corner before go to the next sweep
+        }
+#endif
       }
     } else { /* START turn */
 
@@ -314,7 +335,7 @@ bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
       }
 
       //detect when segment has done
-      /*
+      /*  if you like to use position croos instead of approaching uncoment this line
           if ( (stateGetPositionEnu_f()->y > waypoints[0].enu_f.y && ((survey_orientation == WE) && (temp_f.y < waypoints[0].enu_f.y)) )||
                (stateGetPositionEnu_f()->y < waypoints[0].enu_f.y && ((survey_orientation == WE) && (temp_f.y > waypoints[0].enu_f.y)) )||
                (stateGetPositionEnu_f()->x < waypoints[0].enu_f.x && ((survey_orientation == NS) && (temp_f.x > waypoints[0].enu_f.x)) )||
@@ -351,3 +372,4 @@ bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
   return TRUE;
 
 }// /* END survey_retangle */
+
