@@ -30,8 +30,12 @@
 #ifndef MCU_PERIPH_STM32_CAN_ARCH_H
 #define MCU_PERIPH_STM32_CAN_ARCH_H
 
+#include "std.h"
+
 void can_hw_init(void);
+#if defined STM32F1
 void usb_lp_can1_rx0_irq_handler(void);
+#endif
 int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len);
 
 #endif /* MCU_PERIPH_STM32_CAN_ARCH_H */
