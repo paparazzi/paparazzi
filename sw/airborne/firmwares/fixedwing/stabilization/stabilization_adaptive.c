@@ -35,6 +35,7 @@
 #include "generated/airframe.h"
 #include CTRL_TYPE_H
 #include "firmwares/fixedwing/autopilot.h"
+#include "subsystems/imu.h"
 
 /* outer loop parameters */
 float h_ctl_course_setpoint; /* rad, CW/north */
@@ -57,11 +58,16 @@ struct HCtlAdaptRef {
   float pitch_angle;
   float pitch_rate;
   float pitch_accel;
+  float yaw_angle;
+  float yaw_rate;
+  float yaw_accel;
 
   float max_p;
   float max_p_dot;
   float max_q;
   float max_q_dot;
+  float max_r;
+  float max_r_dot;
 };
 
 struct HCtlAdaptRef h_ctl_ref;
@@ -79,6 +85,12 @@ struct HCtlAdaptRef h_ctl_ref;
 #ifndef H_CTL_REF_XI_Q
 #define H_CTL_REF_XI_Q 0.85
 #endif
+#ifndef H_CTL_REF_W_R
+#define H_CTL_REF_W_R 5.
+#endif
+#ifndef H_CTL_REF_XI_R
+#define H_CTL_REF_XI_R 0.85
+#endif
 #ifndef H_CTL_REF_MAX_P
 #define H_CTL_REF_MAX_P RadOfDeg(150.)
 #endif
@@ -90,6 +102,12 @@ struct HCtlAdaptRef h_ctl_ref;
 #endif
 #ifndef H_CTL_REF_MAX_Q_DOT
 #define H_CTL_REF_MAX_Q_DOT RadOfDeg(500.)
+#endif
+#ifndef H_CTL_REF_MAX_R
+#define H_CTL_REF_MAX_R RadOfDeg(150.)
+#endif
+#ifndef H_CTL_REF_MAX_R_DOT
+#define H_CTL_REF_MAX_R_DOT RadOfDeg(500.)
 #endif
 
 #if USE_ANGLE_REF
@@ -126,6 +144,20 @@ float h_ctl_pitch_Kffa;
 float h_ctl_pitch_Kffd;
 pprz_t h_ctl_elevator_setpoint;
 
+/* inner yaw loop parameters */
+#if H_CTL_YAW_LOOP
+float h_ctl_yaw_rate_setpoint;
+float h_ctl_yaw_dgain;
+float h_ctl_yaw_by_igain;
+float h_ctl_yaw_by_sum_err;
+pprz_t h_ctl_rudder_setpoint;
+#endif
+
+/* inner CL loop parameters */
+#if H_CTL_CL_LOOP
+pprz_t h_ctl_flaps_setpoint;
+#endif
+
 /* inner loop pre-command */
 float h_ctl_aileron_of_throttle;
 float h_ctl_elevator_of_roll;
@@ -145,6 +177,12 @@ float v_ctl_pitch_dash_trim;
 #endif
 inline static void h_ctl_roll_loop(void);
 inline static void h_ctl_pitch_loop(void);
+#if H_CTL_YAW_LOOP
+inline static void h_ctl_yaw_loop(void);
+#endif
+#if H_CTL_CL_LOOP
+inline static void h_ctl_cl_loop(void);
+#endif
 
 // Some default course gains
 // H_CTL_COURSE_PGAIN needs to be define in airframe
@@ -183,6 +221,11 @@ inline static void h_ctl_pitch_loop(void);
 #endif
 #ifndef H_CTL_PITCH_KFFD
 #define H_CTL_PITCH_KFFD 0.
+#endif
+
+// H_CTL_YAW_GAINS to be defined in airframe
+#ifndef H_CTL_YAW_KFFD
+#define H_CTL_YAW_KFFD 0.
 #endif
 
 #ifndef USE_GYRO_PITCH_RATE
@@ -225,6 +268,8 @@ void h_ctl_init(void)
   h_ctl_ref.max_p_dot = H_CTL_REF_MAX_P_DOT;
   h_ctl_ref.max_q = H_CTL_REF_MAX_Q;
   h_ctl_ref.max_q_dot = H_CTL_REF_MAX_Q_DOT;
+  h_ctl_ref.max_r = H_CTL_REF_MAX_R;
+  h_ctl_ref.max_r_dot = H_CTL_REF_MAX_R_DOT;
 
   h_ctl_course_setpoint = 0.;
   h_ctl_course_pre_bank = 0.;
@@ -256,6 +301,18 @@ void h_ctl_init(void)
   h_ctl_pitch_Kffa = H_CTL_PITCH_KFFA;
   h_ctl_pitch_Kffd = H_CTL_PITCH_KFFD;
   h_ctl_elevator_setpoint = 0;
+
+#if H_CTL_YAW_LOOP
+  h_ctl_yaw_dgain = H_CTL_YAW_DGAIN;
+  h_ctl_yaw_by_igain = H_CTL_YAW_BY_IGAIN;
+  h_ctl_yaw_by_sum_err = 0;
+  h_ctl_rudder_setpoint = 0;
+#endif
+
+#if H_CTL_CL_LOOP
+  h_ctl_flaps_setpoint = 0;
+#endif
+
   h_ctl_elevator_of_roll = 0; //H_CTL_ELEVATOR_OF_ROLL;
 #ifdef H_CTL_PITCH_OF_ROLL
   h_ctl_pitch_of_roll = H_CTL_PITCH_OF_ROLL;
@@ -330,6 +387,12 @@ void h_ctl_attitude_loop(void)
 #endif
     h_ctl_roll_loop();
     h_ctl_pitch_loop();
+#if H_CTL_YAW_LOOP
+    h_ctl_yaw_loop();
+#endif
+#if H_CTL_CL_LOOP
+    h_ctl_cl_loop();
+#endif
   }
 }
 
@@ -454,6 +517,7 @@ inline static void loiter(void)
 
 inline static void h_ctl_pitch_loop(void)
 {
+  static float cmd_fb = 0.;
 #if !USE_GYRO_PITCH_RATE
   static float last_err;
 #endif
@@ -489,6 +553,17 @@ inline static void h_ctl_pitch_loop(void)
   h_ctl_ref.pitch_accel = 0.;
 #endif
 
+#ifdef USE_KFF_UPDATE
+  // update Kff gains
+  h_ctl_pitch_Kffa += KFFA_UPDATE * h_ctl_ref.pitch_accel * cmd_fb / (h_ctl_ref.max_q_dot * h_ctl_ref.max_q_dot);
+  h_ctl_pitch_Kffd += KFFD_UPDATE * h_ctl_ref.pitch_rate  * cmd_fb / (h_ctl_ref.max_q * h_ctl_ref.max_q);
+#ifdef SITL
+  printf("%f %f %f\n", h_ctl_pitch_Kffa, h_ctl_pitch_Kffd, cmd_fb);
+#endif
+  h_ctl_pitch_Kffa = Max(h_ctl_pitch_Kffa, 0);
+  h_ctl_pitch_Kffd = Max(h_ctl_pitch_Kffd, 0);
+#endif
+
   // Compute errors
   float err =  h_ctl_ref.pitch_angle - stateGetNedToBodyEulers_f()->theta;
 #if USE_GYRO_PITCH_RATE
@@ -509,9 +584,10 @@ inline static void h_ctl_pitch_loop(void)
     }
   }
 
+  cmd_fb = h_ctl_pitch_pgain * err;
   float cmd = - h_ctl_pitch_Kffa * h_ctl_ref.pitch_accel
               - h_ctl_pitch_Kffd * h_ctl_ref.pitch_rate
-              + h_ctl_pitch_pgain * err
+              + cmd_fb
               + h_ctl_pitch_dgain * d_err
               + h_ctl_pitch_igain * h_ctl_pitch_sum_err;
 
@@ -519,4 +595,104 @@ inline static void h_ctl_pitch_loop(void)
 
   h_ctl_elevator_setpoint = TRIM_PPRZ(cmd);
 }
+
+/* yaw damper */
+#if H_CTL_YAW_LOOP
+inline static void h_ctl_yaw_loop(void)
+{
+ 
+#if H_CTL_YAW_TRIM_BY
+  // Actual Acceleration from IMU:
+ #ifndef SITL
+  struct Int32Vect3 accel_meas_body;
+  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+  int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, &imu.accel);
+  float by = ACCEL_FLOAT_OF_BFP(accel_meas_body.y);
+ #else
+  float by = 0;
+ #endif
+
+  if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
+    h_ctl_yaw_by_sum_err = 0.;
+  } else {
+     if (h_ctl_pitch_igain > 0.){
+//     only update wehn: phi<60degrees and by<2g
+       if(fabs(stateGetNedToBodyEulers_f()->phi) < 1.05 &&
+          fabs(by) < 20.) {
+       h_ctl_yaw_by_sum_err += by * H_CTL_REF_DT;
+//     max half rudder deflection for trim
+       BoundAbs(h_ctl_yaw_by_sum_err, MAX_PPRZ/(2* h_ctl_yaw_by_igain));
+       }
+   } else {
+      h_ctl_pitch_sum_err = 0.;
+    }
+  }
+#endif
+
+float Vo = *stateGetAirspeed_f();
+Bound(Vo, STALL_AIRSPEED, RACE_AIRSPEED);
+
+  h_ctl_ref.yaw_rate = h_ctl_yaw_rate_setpoint // set by RC
+                       + 9.81f/ Vo * sinf(h_ctl_roll_setpoint) // for turns
+;
+  float d_err = h_ctl_ref.yaw_rate - stateGetBodyRates_f()->r;
+
+  float cmd = + h_ctl_yaw_dgain * d_err
+#if H_CTL_YAW_TRIM_BY
+              - h_ctl_yaw_by_igain * h_ctl_yaw_by_sum_err
+#endif
+;
+  cmd /= airspeed_ratio2;
+  h_ctl_rudder_setpoint = TRIM_PPRZ(cmd);
+}
+#endif
+
+/* CL with Flaps - direct lift control */
+#if H_CTL_CL_LOOP
+inline static void h_ctl_cl_loop(void)
+{
+
+#ifndef SITL
+  struct Int32Vect3 accel_meas_body;
+  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+  int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, &imu.accel);
+  float bx = ACCEL_FLOAT_OF_BFP(accel_meas_body.z);
+  // max acc to be taken into acount
+  Bound(bx, -20, 0.);
+#else
+  float bx = 0;
+#endif
+
+#if H_CTL_CL_LOOP_USE_AIRSPEED_SETPOINT
+  float Vo = v_ctl_auto_airspeed_controlled + v_ctl_auto_airspeed_controlled *(1-sqrt(bx/10));
+  Bound(Vo, STALL_AIRSPEED, RACE_AIRSPEED);
+#else
+  float Vo = *stateGetAirspeed_f() + *stateGetAirspeed_f() *(1-sqrt(-bx/10));
+  Bound(Vo, STALL_AIRSPEED, RACE_AIRSPEED);
+#endif
+
+ float cmd = 0;
+// deadband around NOMINAL_AIRSPEED, rest linear
+ if(Vo > (NOMINAL_AIRSPEED*(1+H_CTL_CL_DEADBAND*NOMINAL_AIRSPEED/100))){
+    cmd = (Vo - NOMINAL_AIRSPEED)*(H_CTL_CL_FLAPS_RACE - H_CTL_CL_FLAPS_NOMINAL)/(RACE_AIRSPEED - NOMINAL_AIRSPEED);
+  }
+ else{
+    if(Vo < (NOMINAL_AIRSPEED*(1+H_CTL_CL_DEADBAND*NOMINAL_AIRSPEED/100))){
+       cmd = (Vo - NOMINAL_AIRSPEED)*(H_CTL_CL_FLAPS_STALL - H_CTL_CL_FLAPS_NOMINAL)/(STALL_AIRSPEED - NOMINAL_AIRSPEED);
+     }
+    else{
+       cmd = 0;             
+     }
+  }
+// no control in manual mode
+if (pprz_mode == PPRZ_MODE_MANUAL){
+    cmd = 0;
+  }
+// bound max flap angle
+  Bound(cmd, H_CTL_CL_FLAPS_RACE, H_CTL_CL_FLAPS_STALL);
+// from percent to pprz
+  cmd = cmd * MAX_PPRZ;
+  h_ctl_flaps_setpoint = TRIM_PPRZ(cmd);
+}
+#endif
 
