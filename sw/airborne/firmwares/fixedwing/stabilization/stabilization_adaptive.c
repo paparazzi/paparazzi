@@ -527,7 +527,7 @@ inline static void h_ctl_pitch_loop(void)
     h_ctl_pitch_of_roll = 0.;
   }
 
-  h_ctl_pitch_loop_setpoint = h_ctl_pitch_setpoint + h_ctl_pitch_of_roll * fabs(stateGetNedToBodyEulers_f()->phi);
+  h_ctl_pitch_loop_setpoint = h_ctl_pitch_setpoint + h_ctl_pitch_of_roll * fabsf(stateGetNedToBodyEulers_f()->phi);
 #if USE_PITCH_TRIM
   loiter();
 #endif
@@ -617,8 +617,8 @@ inline static void h_ctl_yaw_loop(void)
   } else {
      if (h_ctl_pitch_igain > 0.){
 //     only update wehn: phi<60degrees and by<2g
-       if(fabs(stateGetNedToBodyEulers_f()->phi) < 1.05 &&
-          fabs(by) < 20.) {
+       if(fabsf(stateGetNedToBodyEulers_f()->phi) < 1.05 &&
+          fabsf(by) < 20.) {
        h_ctl_yaw_by_sum_err += by * H_CTL_REF_DT;
 //     max half rudder deflection for trim
        BoundAbs(h_ctl_yaw_by_sum_err, MAX_PPRZ/(2* h_ctl_yaw_by_igain));
