@@ -7,6 +7,8 @@
 #include "printf.h"
 #include "sdio.h"
 #include "rtcAccess.h"
+#include <ctype.h>
+
 
 #define MIN(x , y)  (((x) < (y)) ? (x) : (y))
 #define MAX(x , y)  (((x) > (y)) ? (x) : (y))
@@ -54,7 +56,7 @@ struct FilePoolUnit {
 };
 
 static  struct FilePoolUnit fileDes[SDLOG_NUM_BUFFER] =
-{[0 ... SDLOG_NUM_BUFFER-1] = {.fil = {0}, .inUse = false, .tagAtClose=false}};
+  {[0 ... SDLOG_NUM_BUFFER-1] = {.fil = {0}, .inUse = false, .tagAtClose=false}};
 
 typedef enum {
   FCNTL_WRITE = 0b00,
@@ -408,10 +410,11 @@ SdioError getFileName(const char* prefix, const char* directoryName,
   fno.lfname = lfn;
   fno.lfsize = sizeof lfn;
 #endif
-  const size_t directoryNameLen = strlen (directoryName);
-  char slashDirName[directoryNameLen+2];
-  strcpy (slashDirName, "/");
-  strcat (slashDirName, directoryName);
+  const size_t directoryNameLen = MIN(strlen (directoryName), 128);
+  const size_t slashDirNameLen = directoryNameLen+2;
+  char slashDirName[slashDirNameLen];
+  strlcpy (slashDirName, "/", slashDirNameLen);
+  strlcat (slashDirName, directoryName, slashDirNameLen);
 
   rc = f_opendir(&dir, directoryName);
   if (rc != FR_OK) {
@@ -445,9 +448,15 @@ SdioError getFileName(const char* prefix, const char* directoryName,
     return SDLOG_FATFS_ERROR;
   }
 
-  chsnprintf (nextFileName, nameLength, "%s\\%s%.03d.LOG",
-      directoryName, prefix, maxCurrentIndex+indexOffset);
-  return SDLOG_OK;
+  if (maxCurrentIndex < NUMBERMAX) {
+    chsnprintf (nextFileName, nameLength, NUMBERFMF,
+        directoryName, prefix, maxCurrentIndex+indexOffset);
+    return SDLOG_OK;
+  } else {
+    chsnprintf (nextFileName, nameLength, "%s\\%s%.ERR",
+        directoryName, prefix);
+    return SDLOG_LOGNUM_ERROR;
+  }
 }
 
 
@@ -472,12 +481,17 @@ uint32_t uiGetIndexOfLogFile (const char* prefix, const char* fileName)
   const size_t len = strlen(prefix);
 
   // if filename does not began with prefix, return 0
-  if (strncmp (prefix, fileName, len))
+  if (strncmp (prefix, fileName, len) != 0)
     return 0;
 
   // we point on the first char after prefix
   const char* suffix = &(fileName[len]);
 
+  // we test that suffix is valid (at least begin with digit)
+    if (!isdigit ((int) suffix[0])) {
+      //      DebugTrace ("DBG> suffix = %s", suffix);
+      return 0;
+    }
 
   return (uint32_t) atoi (suffix);
 }
@@ -494,7 +508,7 @@ static msg_t thdSdLog(void *arg)
 
   UINT bw;
   static struct PerfBuffer perfBuffers[SDLOG_NUM_BUFFER] =
-  {[0 ... SDLOG_NUM_BUFFER-1] = {.buffer = {0}, .size = 0}};
+    {[0 ... SDLOG_NUM_BUFFER-1] = {.buffer = {0}, .size = 0}};
 
   chRegSetThreadName("thdSdLog");
   while (!chThdShouldTerminate()) {
@@ -536,7 +550,7 @@ static msg_t thdSdLog(void *arg)
         case FCNTL_WRITE:
           if (fileDes[lm->op.fd].inUse) {
             const int32_t messLen = retLen-sizeof(LogMessage);
-            if (messLen < (int32_t)(SDLOG_WRITE_BUFFER_SIZE-curBufFill)) {
+            if (messLen < (SDLOG_WRITE_BUFFER_SIZE-curBufFill)) {
               // the buffer can accept this message
               memcpy (&(perfBuffer[curBufFill]), lm->mess, messLen);
               perfBuffers[lm->op.fd].size += messLen; // curBufFill
