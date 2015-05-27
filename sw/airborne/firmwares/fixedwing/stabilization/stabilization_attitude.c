@@ -63,6 +63,17 @@ float  h_ctl_pitch_pgain;
 float  h_ctl_pitch_dgain;
 pprz_t h_ctl_elevator_setpoint;
 
+/* inner yaw loop parameters */
+#if H_CTL_YAW_LOOP
+float  h_ctl_yaw_rate_setpoint;
+pprz_t h_ctl_rudder_setpoint;
+#endif
+
+/* inner CL loop parameters */
+#if H_CTL_CL_LOOP
+pprz_t h_ctl_flaps_setpoint;
+#endif
+
 #ifdef USE_AOA
 uint8_t h_ctl_pitch_mode;
 #endif
