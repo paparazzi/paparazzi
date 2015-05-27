@@ -615,7 +615,7 @@ inline static void h_ctl_yaw_loop(void)
   if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
     h_ctl_yaw_by_sum_err = 0.;
   } else {
-     if (h_ctl_pitch_igain > 0.){
+     if (h_ctl_yaw_by_igain > 0.){
 //     only update wehn: phi<60degrees and by<2g
        if(fabsf(stateGetNedToBodyEulers_f()->phi) < 1.05 &&
           fabsf(by) < 20.) {
@@ -624,7 +624,7 @@ inline static void h_ctl_yaw_loop(void)
        BoundAbs(h_ctl_yaw_by_sum_err, MAX_PPRZ/(2* h_ctl_yaw_by_igain));
        }
    } else {
-      h_ctl_pitch_sum_err = 0.;
+      h_ctl_yaw_by_sum_err = 0.;
     }
   }
 #endif

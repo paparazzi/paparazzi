@@ -427,7 +427,7 @@ static inline void telecommand_task(void)
     h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
 #if H_CTL_YAW_LOOP
     /** Yaw is bounded between [-AUTO1_MAX_YAW_RATE;AUTO1_MAX_YAW_RATE] */
-    h_ctl_yaw_rate_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_YAW], 0., AUTO1_MAX_YAW_RATE);
+    h_ctl_yaw_rate_setpoint = 10 * FLOAT_OF_PPRZ(fbw_state->channels[RADIO_YAW], 0., AUTO1_MAX_YAW_RATE);
 #endif
   } /** Else asynchronously set by \a h_ctl_course_loop() */
 
