@@ -629,8 +629,12 @@ inline static void h_ctl_yaw_loop(void)
   }
 #endif
 
+#ifdef USE_AIRSPEED
 float Vo = *stateGetAirspeed_f();
 Bound(Vo, STALL_AIRSPEED, RACE_AIRSPEED);
+#else
+float Vo = NOMINAL_AIRSPEED;
+#endif
 
   h_ctl_ref.yaw_rate = h_ctl_yaw_rate_setpoint // set by RC
                        + 9.81f/ Vo * sinf(h_ctl_roll_setpoint) // for turns
