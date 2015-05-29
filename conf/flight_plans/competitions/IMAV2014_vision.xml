@@ -1,0 +1,163 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="58" ground_alt="46" home_mode_height="10" lat0="52.142596" lon0="5.840263" max_dist_from_home="250" name="IMAV2014 Digit" security_height="5">
+  <header>
+#include "subsystems/datalink/datalink.h"
+static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) {
+  float dx = wp1_x - wp2_x;
+  float dy = wp1_y - wp2_y;
+  return sqrtf(dx*dx + dy*dy);
+}
+#define WPAlt(_wp) waypoints[_wp].z
+</header>
+  <waypoints>
+    <waypoint lat="52.142983" lon="5.842166" name="HOME"/>
+    <waypoint name="STDBY" x="-1.6" y="-5.9"/>
+    <waypoint name="TD" lat="52.143185" lon="5.840102"/>
+    <waypoint name="CLIMB" x="0.5" y="6.6"/>
+    <waypoint name="CAM" x="76.7" y="3.8"/>
+    <waypoint name="ROOF" x="157.7" y="31.1"/>
+    <waypoint name="H1" x="29.6" y="-41.8"/>
+    <waypoint name="H2" x="14.1" y="-9.0"/>
+    <waypoint name="H3" x="45.1" y="30.2"/>
+    <waypoint name="H4" x="71.6" y="28.5"/>
+    <waypoint name="H5" x="94.7" y="67.5"/>
+    <waypoint name="H6" x="182.1" y="89.5"/>
+    <waypoint name="HERE" x="8.1" y="-13.9"/>
+  </waypoints>
+  <includes>
+    <include name="Data" procedure="IMAV2014_data.xml"/>
+  </includes>
+  <exceptions>
+    <exception cond="(autopilot_flight_time > (60*8)) && (IndexOfBlock('Back Home') >= nav_block) && !(nav_block == IndexOfBlock('Holding point'))" deroute="Back Home"/>
+    <exception cond="Or(InsideRed(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 150)" deroute="Center"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+    </block>
+    <block name="Holding point">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
+      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <call fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="stage_time>3 && autopilot_motors_on" vmode="throttle"/>
+      <stay climb="0.5" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="House 1" strip_button="H1" group="house1">
+      <set var="nav_flight_altitude" value="WPAlt(WP_H1)"/>
+      <call fun="NavSetWaypointHere(WP_HERE)"/>
+      <call fun="nav_set_heading_towards_waypoint(WP_H1)"/>
+      <go from="HERE" hmode="route" wp="H1"/>
+      <call fun="nav_set_heading_deg(310)"/>
+      <stay wp="H1" climb="-1.0" vmode="climb" until="2.0 > agl_dist_value_filtered"/>
+      <call fun="viewvideo_save_shot()"/>
+      <!--set var="nav_flight_altitude" value="stateGetPositionEnu_i()->z"/>
+      <stay wp="H1" until="stage_time > 2"/-->
+      <deroute block="House 2"/>
+    </block>
+    <block name="House 2" strip_button="H2" group="house1">
+      <set var="nav_flight_altitude" value="WPAlt(WP_H2)"/>
+      <call fun="NavSetWaypointHere(WP_HERE)"/>
+      <call fun="nav_set_heading_towards_waypoint(WP_H2)"/>
+      <go from="HERE" hmode="route" wp="H2"/>
+      <call fun="nav_set_heading_deg(90)"/>
+      <stay wp="H2" climb="-1.0" vmode="climb" until="2.0 > agl_dist_value_filtered"/>
+      <call fun="viewvideo_save_shot()"/>
+      <!--set var="nav_flight_altitude" value="stateGetPositionEnu_i()->z"/>
+      <stay wp="H2" until="stage_time > 2"/-->
+      <deroute block="House 3"/>
+    </block>
+    <block name="House 3" strip_button="H3" group="house1">
+      <set var="nav_flight_altitude" value="WPAlt(WP_H3)"/>
+      <call fun="NavSetWaypointHere(WP_HERE)"/>
+      <call fun="nav_set_heading_towards_waypoint(WP_H3)"/>
+      <go from="HERE" hmode="route" wp="H3"/>
+      <call fun="nav_set_heading_deg(130)"/>
+      <stay wp="H3" climb="-1.0" vmode="climb" until="2.0 > agl_dist_value_filtered"/>
+      <call fun="viewvideo_save_shot()"/>
+      <!--set var="nav_flight_altitude" value="stateGetPositionEnu_i()->z"/>
+      <stay wp="H3" until="stage_time > 2"/-->
+      <deroute block="House 4"/>
+    </block>
+    <block name="House 4" strip_button="H4" group="house2">
+      <set var="nav_flight_altitude" value="WPAlt(WP_H4)"/>
+      <call fun="NavSetWaypointHere(WP_HERE)"/>
+      <call fun="nav_set_heading_towards_waypoint(WP_H4)"/>
+      <go from="HERE" hmode="route" wp="H4"/>
+      <call fun="nav_set_heading_deg(80)"/>
+      <stay wp="H4" climb="-1.0" vmode="climb" until="2.0 > agl_dist_value_filtered"/>
+      <call fun="viewvideo_save_shot()"/>
+      <!--set var="nav_flight_altitude" value="stateGetPositionEnu_i()->z"/>
+      <stay wp="H4" until="stage_time > 20"/-->
+      <deroute block="Back Home"/>
+    </block>
+    <block name="House 5" strip_button="H5" group="house2">
+      <set var="nav_flight_altitude" value="WPAlt(WP_H5)"/>
+      <call fun="NavSetWaypointHere(WP_HERE)"/>
+      <call fun="nav_set_heading_towards_waypoint(WP_H5)"/>
+      <go from="HERE" hmode="route" wp="H5"/>
+      <call fun="nav_set_heading_deg(140)"/>
+      <stay wp="H5" climb="-1.0" vmode="climb" until="2.0 > agl_dist_value_filtered"/>
+      <call fun="viewvideo_save_shot()"/>
+      <!--set var="nav_flight_altitude" value="stateGetPositionEnu_i()->z"/>
+      <stay wp="H5" until="stage_time > 20"/-->
+      <deroute block="House 6"/>
+    </block>
+    <block name="House 6" strip_button="H6" group="house2">
+      <set var="nav_flight_altitude" value="WPAlt(WP_H6)"/>
+      <call fun="NavSetWaypointHere(WP_HERE)"/>
+      <call fun="nav_set_heading_towards_waypoint(WP_H6)"/>
+      <go from="HERE" hmode="route" wp="H6"/>
+      <call fun="nav_set_heading_deg(180)"/>
+      <stay wp="H6" climb="-1.0" vmode="climb" until="2.0 > agl_dist_value_filtered"/>
+      <call fun="viewvideo_save_shot()"/>
+      <!--set var="nav_flight_altitude" value="stateGetPositionEnu_i()->z"/>
+      <stay wp="H5" until="stage_time > 20"/-->
+      <deroute block="Back Home"/>
+    </block>
+    <block group="roof" name="Roof" strip_button="Roof">
+      <go from="STDBY" hmode="route" wp="ROOF"/>
+      <stay climb="-0.8" until="0.2 > agl_dist_value_filtered" vmode="climb" wp="ROOF"/>
+      <attitude pitch="0" roll="0" throttle="0" until="stage_time > 15" vmode="throttle"/>
+      <stay climb="0.8" until="agl_dist_value_filtered > 1.0" vmode="climb" wp="ROOF"/>
+    </block>
+    <block name="Back Home" strip_button="Back Home" group="roof">
+      <set var="nav_flight_altitude" value="WPAlt(WP_TD)"/>
+      <call fun="NavSetWaypointHere(WP_HERE)"/>
+      <call fun="nav_set_heading_towards_waypoint(WP_TD)"/>
+      <path wpts="HERE,H3,TD"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <exception cond="0.1 > agl_dist_value_filtered" deroute="Holding point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="-0.8" vmode="climb" wp="TD"/>
+    </block>
+    <block name="landed">
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Center">
+      <stay climb="-1.0" wp="HOME"/>
+    </block>
+  </blocks>
+</flight_plan>

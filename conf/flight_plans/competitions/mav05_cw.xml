@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan SECURITY_HEIGHT="25" lat0="47.4820" lon0="11.0945" ground_alt="730" qfu="280" alt="780" max_dist_from_home="300" name="Garmisch">
 

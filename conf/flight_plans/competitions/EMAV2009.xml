@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="100" ground_alt="54" lat0="52.3825204" lon0="5.897420" max_dist_from_home="1500" name="EMAV09" security_height="25">
   <header>

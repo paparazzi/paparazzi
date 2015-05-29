@@ -1,0 +1,120 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="61" ground_alt="46" home_mode_height="10" lat0="52.142596" lon0="5.840263" max_dist_from_home="250" name="IMAV2014 Digit" security_height="5">
+  <header>
+#include "subsystems/datalink/datalink.h"
+static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) {
+  float dx = wp1_x - wp2_x;
+  float dy = wp1_y - wp2_y;
+  return sqrtf(dx*dx + dy*dy);
+}
+#define WPAlt(_wp) waypoints[_wp].z
+</header>
+  <waypoints>
+    <waypoint lat="52.142983" lon="5.842166" name="HOME"/>
+    <waypoint name="STDBY" x="10.6" y="-6.7"/>
+    <waypoint name="TD" lat="52.143185" lon="5.840102"/>
+    <waypoint name="CLIMB" x="0.5" y="6.6"/>
+    <waypoint name="OBS1" x="172.0" y="24.5"/>
+    <waypoint name="OBS2" x="172.5" y="29.2"/>
+    <waypoint name="CAM" x="183.1" y="25.3"/>
+    <waypoint name="ROOF" x="157.7" y="31.1"/>
+    <waypoint name="HERE" x="8.1" y="-13.9"/>
+  </waypoints>
+  <includes>
+    <include name="Data" procedure="IMAV2014_data.xml"/>
+  </includes>
+  <exceptions>
+    <exception cond="(autopilot_flight_time > (60*8)) && (IndexOfBlock('Back Home') >= nav_block) && !(nav_block == IndexOfBlock('Holding point'))" deroute="Back Home"/>
+    <exception cond="Or(InsideRed(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 150)" deroute="Center"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+    </block>
+    <block name="Holding point">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Start Engine">
+      <call fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
+      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <call fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="stage_time>3 && autopilot_motors_on" vmode="throttle"/>
+      <stay vmode="climb" climb="0.5" wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="Observe 1" strip_button="Obs1" pre_call="nav_set_heading_towards_waypoint(WP_CAM)" group="obs1">
+      <go from="STDBY" hmode="route" wp="OBS1"/>
+      <set value="MODULES_START" var="ImageCapture_image_capture_run_status"/>
+      <stay wp="OBS1" height="5.0" until="stage_time>(5*60)"/>
+      <set value="MODULES_STOP" var="ImageCapture_image_capture_run_status"/>
+      <deroute block="Back from Obs1"/>
+    </block>
+    <block name="Back from Obs1" strip_button="Back1" group="obs1">
+      <set var="nav_flight_altitude" value="WPAlt(WP_TD)"/>
+      <call fun="NavSetWaypointHere(WP_HERE)"/>
+      <path wpts="HERE,STDBY,TD"/>
+      <deroute block="land"/>
+    </block>
+    <block name="Observe 2" strip_button="Obs2" pre_call="nav_set_heading_towards_waypoint(WP_CAM)" group="obs2">
+      <go from="STDBY" hmode="route" wp="OBS2"/>
+      <set value="MODULES_START" var="ImageCapture_image_capture_run_status"/>
+      <stay wp="OBS2" height="5.0" until="stage_time>(5*60)"/>
+      <set value="MODULES_STOP" var="ImageCapture_image_capture_run_status"/>
+      <deroute block="Back from Obs2"/>
+    </block>
+    <block name="Back from Obs2" strip_button="Back2" group="obs2">
+      <set var="nav_flight_altitude" value="WPAlt(WP_TD)"/>
+      <call fun="NavSetWaypointHere(WP_HERE)"/>
+      <path wpts="HERE,STDBY,TD"/>
+      <deroute block="land"/>
+    </block>
+    <block name="Roof" strip_button="Roof" group="roof">
+      <go from="STDBY" hmode="route" wp="ROOF"/>
+      <stay climb="-0.8" vmode="climb" wp="ROOF" until="0.2 > agl_dist_value_filtered"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time > 15"/>
+      <stay climb="0.8" vmode="climb" wp="ROOF" until="agl_dist_value_filtered > 1.0"/>
+    </block>
+    <block name="Back from Roof" strip_button="BackRoof" group="roof">
+      <set var="nav_flight_altitude" value="WPAlt(WP_TD)"/>
+      <call fun="NavSetWaypointHere(WP_HERE)"/>
+      <path wpts="HERE,STDBY,TD"/>
+      <deroute block="land"/>
+    </block>
+    <block name="Back Home" strip_button="Back" group="house2">
+      <set value="MODULES_STOP" var="ImageCapture_image_capture_run_status"/>
+      <set var="nav_flight_altitude" value="WPAlt(WP_TD)"/>
+      <call fun="NavSetWaypointHere(WP_HERE)"/>
+      <call fun="nav_set_heading_towards_waypoint(WP_TD)"/>
+      <path wpts="HERE,STDBY,TD"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <exception cond="0.1 > agl_dist_value_filtered" deroute="Holding point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="-0.8" vmode="climb" wp="TD"/>
+    </block>
+    <block name="landed">
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Center">
+      <stay wp="HOME" climb="-1.0"/>
+    </block>
+  </blocks>
+</flight_plan>

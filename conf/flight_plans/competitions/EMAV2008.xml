@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="140" ground_alt="55" lat0="52.523886" lon0="10.463764" max_dist_from_home="2500" name="Gifhorn-Wilsche EMAV08" qfu="-90" security_height="81">
   <header>

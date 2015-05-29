@@ -1,0 +1,33 @@
+<!DOCTYPE procedure SYSTEM "../flight_plan.dtd">
+
+<procedure>
+  <waypoints>
+    <!--waypoint name="C" lat="52.142983" lon="5.842166"/-->
+    <!--waypoint name="_G1" lat="52.143090" lon="5.839932"/>
+    <waypoint name="_G2" lat="52.143015" lon="5.838518"/>
+    <waypoint name="_G3" lat="52.141036" lon="5.840327"/-->
+    <waypoint name="_R1" lat="52.143034" lon="5.839884"/>
+    <waypoint name="_R2" lat="52.142826" lon="5.836271"/>
+    <waypoint name="_R3" lat="52.141897" lon="5.837266"/>
+    <waypoint name="_R4" lat="52.142711" lon="5.839948"/>
+    <!--waypoint name="_C1" x="-17.7" y="66.1"/>
+    <waypoint name="_C2" x="268.4" y="163.1"/>
+    <waypoint name="_C3" x="327.8" y="-7.0"/>
+    <waypoint name="_C4" x="63.9" y="-104.9"/-->
+  </waypoints>
+
+  <sectors>
+    <sector name="Red" color="red">
+      <corner name="_R1"/>
+      <corner name="_R2"/>
+      <corner name="_R3"/>
+      <corner name="_R4"/>
+    </sector>
+    <!--sector name="Green" color="lime">
+      <corner name="_G1"/>
+      <corner name="_G2"/>
+      <corner name="_G3"/>
+      <corner name="_G4"/>
+    </sector-->
+  </sectors>
+</procedure>

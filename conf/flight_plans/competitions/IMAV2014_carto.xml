@@ -1,0 +1,138 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="150" ground_alt="46" home_mode_height="50" lat0="52.142596" lon0="5.840263" max_dist_from_home="250" name="IMAV2014 Carto" qfu="180." security_height="25">
+<!--flight_plan alt="285" ground_alt="185" lat0="43.463040" lon0="1.273303" max_dist_from_home="1000" name="IMAV2014 Carto Muret" security_height="25" home_mode_height="50"-->
+  <header>
+#include "subsystems/datalink/datalink.h"
+static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) {
+  float dx = wp1_x - wp2_x;
+  float dy = wp1_y - wp2_y;
+  return sqrtf(dx*dx + dy*dy);
+}
+</header>
+  <waypoints>
+    <waypoint name="HOME" lat="52.142983" lon="5.842166"/>
+    <waypoint name="STDBY" lat="52.143239" lon="5.840320"/>
+    <waypoint height="30.0" name="AF" lat="52.143978" lon="5.840164"/>
+    <waypoint height="0.0" name="TD" lat="52.143185" lon="5.840102"/>
+    <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
+    <waypoint name="CLIMB" x="100" y="-160.0"/>
+    <waypoint name="N1" lat="52.143245" lon="5.840738"/>
+    <waypoint name="N2" lat="52.143398" lon="5.841467"/>
+    <waypoint name="N3" lat="52.143562" lon="5.842216"/>
+    <waypoint name="N4" lat="52.143709" lon="5.842983"/>
+    <waypoint name="S1" lat="52.141731" lon="5.841610"/>
+    <waypoint name="S2" lat="52.141883" lon="5.842377"/>
+    <waypoint name="S3" lat="52.142052" lon="5.843110"/>
+    <waypoint name="S4" lat="52.142215" lon="5.843841"/>
+    <waypoint name="_C1" lat="52.143043" lon="5.839784"/>
+    <waypoint name="_C2" lat="52.143899" lon="5.843859"/>
+    <waypoint name="_C3" lat="52.142386" lon="5.844636"/>
+    <waypoint name="_C4" lat="52.141529" lon="5.840656"/>
+  </waypoints>
+  <sectors>
+    <sector color="lime" name="Carto">
+      <corner name="_C1"/>
+      <corner name="_C2"/>
+      <corner name="_C3"/>
+      <corner name="_C4"/>
+    </sector>
+  </sectors>
+  <includes>
+    <include name="Data" procedure="IMAV2014_data.xml"/>
+  </includes>
+  <exceptions>
+    <exception cond="Or(InsideRed(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 150)" deroute="Center"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <!--call fun="NavSetGroundReferenceHere()"/-->
+    </block>
+    <block name="Holding point">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block name="Set Low Alt">
+      <set value="100." var="WaypointAlt(WP_STDBY)"/>
+    </block>
+    <block group="home" key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Carto1"/>
+      <call fun="{ hackhd_command(HACKHD_POWER_ON); FALSE; }"/>
+      <while cond="LessThan(NavBlockTime(), 4)"/>
+      <call fun="{ hackhd_command(HACKHD_SHOOT); FALSE; }"/>
+      <set value="0" var="kill_throttle"/>
+      <set value="0" var="autopilot_flight_time"/>
+      <go from="HOME" pitch="30" throttle="1.0" vmode="throttle" wp="CLIMB"/>
+    </block>
+    <block group="home" key="Ctrl+a" name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Carto1" strip_button="Carto" strip_icon="survey.png">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <call fun="nav_compute_baseleg(WP_N3, WP_S3, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 15 > fabs(GetPosAlt() - WaypointAlt(WP_STDBY)))" wp="_BASELEG" alt="WaypointAlt(WP_STDBY)"/>
+      <attitude alt="WaypointAlt(WP_STDBY)" roll="0.0" until="stage_time>=2"/>
+      <set value="MODULES_START" var="hackhd_hackhd_autoshoot_status"/>
+      <go approaching_time="0" from="N3" hmode="route" wp="S3" alt="WaypointAlt(WP_STDBY)"/>
+      <set value="MODULES_STOP" var="hackhd_hackhd_autoshoot_status"/>
+    </block>
+    <block name="Carto2">
+      <set value="wp_dist(WaypointX(WP_S1), WaypointY(WP_S1), WaypointX(WP_S3), WaypointY(WP_S3))/2" var="nav_radius"/>
+      <call fun="nav_compute_baseleg(WP_S1, WP_N1, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10)" wp="_BASELEG" alt="WaypointAlt(WP_STDBY)"/>
+      <attitude alt="WaypointAlt(WP_STDBY)" roll="0.0" until="stage_time>=2"/>
+      <set value="MODULES_START" var="hackhd_hackhd_autoshoot_status"/>
+      <go approaching_time="0" from="S1" hmode="route" wp="N1" alt="WaypointAlt(WP_STDBY)"/>
+      <set value="MODULES_STOP" var="hackhd_hackhd_autoshoot_status"/>
+    </block>
+    <block name="Carto3">
+      <set value="wp_dist(WaypointX(WP_N1), WaypointY(WP_N1), WaypointX(WP_N4), WaypointY(WP_N4))/2" var="nav_radius"/>
+      <call fun="nav_compute_baseleg(WP_N4, WP_S4, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10)" wp="_BASELEG" alt="WaypointAlt(WP_STDBY)"/>
+      <attitude alt="WaypointAlt(WP_STDBY)" roll="0.0" until="stage_time>=2"/>
+      <set value="MODULES_START" var="hackhd_hackhd_autoshoot_status"/>
+      <go approaching_time="0" from="N4" hmode="route" wp="S4" alt="WaypointAlt(WP_STDBY)"/>
+      <set value="MODULES_STOP" var="hackhd_hackhd_autoshoot_status"/>
+    </block>
+    <block name="Carto4">
+      <set value="wp_dist(WaypointX(WP_S2), WaypointY(WP_S2), WaypointX(WP_S4), WaypointY(WP_S4))/2" var="nav_radius"/>
+      <call fun="nav_compute_baseleg(WP_S2, WP_N2, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10)" wp="_BASELEG" alt="WaypointAlt(WP_STDBY)"/>
+      <attitude alt="WaypointAlt(WP_STDBY)" roll="0.0" until="stage_time>=2"/>
+      <set value="MODULES_START" var="hackhd_hackhd_autoshoot_status"/>
+      <go approaching_time="0" from="S2" hmode="route" wp="N2" alt="WaypointAlt(WP_STDBY)"/>
+      <set value="MODULES_STOP" var="hackhd_hackhd_autoshoot_status"/>
+      <deroute block="Land Left AF-TD"/>
+    </block>
+    <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block group="land" name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+    </block>
+    <block name="final">
+      <exception cond="GetAltRef() + 3 > GetPosAlt()" deroute="flare"/>
+      <call fun="{ hackhd_command(HACKHD_POWER_OFF); FALSE; }"/>
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+    </block>
+    <block name="flare">
+      <go exceeding_time="5" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Center" pre_call="if (InsideRed(GetPosX(), GetPosY())) NavKillThrottle();">
+      <circle radius="DEFAULT_CIRCLE_RADIUS" wp="HOME"/>
+    </block>
+  </blocks>
+</flight_plan>
