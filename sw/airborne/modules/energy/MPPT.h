@@ -21,7 +21,7 @@
  */
 
 /**
- * @file modules/MPPT/MPPT.h
+ * @file modules/energy/MPPT.h
  * @brief Solar cells MPTT monitoring
  *
  */

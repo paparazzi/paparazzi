@@ -19,11 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file gain_scheduling.c
+/** @file modules/ctrl/gain_scheduling.c
  * Module that interpolates gainsets in flight based on a scheduling variable
  */
 
-#include "gain_scheduling.h"
+#include "modules/ctrl/gain_scheduling.h"
 
 //Include for scheduling on transition_status
 #include "firmwares/rotorcraft/guidance/guidance_h.h"

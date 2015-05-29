@@ -20,7 +20,7 @@
  */
 
 /**
- * @file gain_scheduling.h
+ * @file modules/ctrl/gain_scheduling.h
  *
  * Module that interpolates between gain sets, depending on the scheduling variable.
  */

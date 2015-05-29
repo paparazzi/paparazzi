@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012  Thomas Kolb
+ * Copyright (C) 2009  ENAC, Pascal Brisset, Michel Gorraz
  *
  * This file is part of paparazzi.
  *
@@ -17,20 +17,32 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- */
-
-/**
- * @file modules/bat_checker/bat_checker.c
  *
- * Activate a buzzer/LED periodically or periodically to warn of low/critical battery level.
- * At LOW_BAT_LEVEL the buzzer will be activated periodically.
- * At CRITIC_BAT_LEVEL the buzzer will be activated permanently.
  */
 
-#ifndef BAT_CHECKER_H
-#define BAT_CHECKER_H
 
-void init_bat_checker(void);
-void bat_checker_periodic(void);
+#include "modules/energy/MPPT.h"
+#include "messages.h"
+#include "subsystems/datalink/downlink.h"
 
-#endif // BAT_CHECKER_H
+
+
+uint8_t MPPT_mode;
+
+static int16_t MPPT_data[NB_DATA];
+
+void MPPT_init(void)
+{
+  uint8_t i = 0;
+
+  for (i = 0; i < NB_DATA; i++) {
+    MPPT_data[i] = 42 + i;
+  }
+}
+
+void MPPT_periodic(void)
+{
+  MPPT_data[MPPT_ITOTAL_INDEX] = MPPT_data[MPPT_IBAT_INDEX] + MPPT_data[MPPT_ICONV_INDEX];
+
+  RunOnceEvery(8, DOWNLINK_SEND_MPPT(DefaultChannel, DefaultDevice, NB_DATA, MPPT_data));
+}

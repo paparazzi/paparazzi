@@ -20,7 +20,7 @@
  *
  */
 
-#include "gps_i2c.h"
+#include "modules/gps/gps_i2c.h"
 #include "mcu_periph/i2c.h"
 #include "subsystems/gps.h"
 

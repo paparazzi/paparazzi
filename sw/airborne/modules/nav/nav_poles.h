@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Chris
+ * Copyright (C) 2009-2015 ENAC
  *
  * This file is part of paparazzi.
  *
@@ -14,22 +14,30 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file modules/nav/nav_poles.h
  *
  */
 
-#ifndef MAX7456_H
-#define MAX7456_H
+#ifndef NAV_POLES_H
+#define NAV_POLES_H
 
+#include <stdbool.h>
 #include "std.h"
 
-extern void max7456_init(void);
-extern void max7456_periodic(void);
-extern void max7456_event(void);
+extern uint8_t nav_poles_count;
+extern float nav_poles_time;
+extern int8_t nav_poles_land;
 
-extern uint8_t osd_enable;
+bool nav_poles_init(uint8_t wp1, uint8_t wp2,
+                    uint8_t wp1c, uint8_t wp2c,
+                    float radius);
 
+#define nav_poles_SetLandDir(_d) { if (_d < 0) _d = -1; else _d = 1; }
 
-#endif //MAX7456_H
+#endif
+

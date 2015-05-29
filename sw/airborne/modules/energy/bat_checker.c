@@ -20,14 +20,14 @@
  */
 
 /**
- * @file modules/bat_checker/bat_checker.c
+ * @file modules/energy/bat_checker.c
  *
  * Activate a buzzer/LED periodically or periodically to warn of low/critical battery level.
  * At LOW_BAT_LEVEL the buzzer will be activated periodically.
  * At CRITIC_BAT_LEVEL the buzzer will be activated permanently.
  */
 
-#include "bat_checker.h"
+#include "modules/energy/bat_checker.h"
 #include "generated/airframe.h"
 #include "generated/modules.h"
 #include "subsystems/electrical.h"

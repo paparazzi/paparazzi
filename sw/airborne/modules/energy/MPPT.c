@@ -21,13 +21,13 @@
  */
 
 /**
- * @file modules/MPPT/MPPT.c
+ * @file modules/energy/MPPT.c
  * @brief Solar cells MPTT monitoring
  *
  */
 
 #include <stdbool.h>
-#include "MPPT.h"
+#include "modules/energy/MPPT.h"
 #include "firmwares/fixedwing/main_fbw.h"
 #include "mcu_periph/i2c.h"
 

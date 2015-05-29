@@ -1,6 +1,5 @@
-
 /*
- * Copyright (C) 2010 Eric Parsonage
+ * Copyright (C) 2012  Thomas Kolb
  *
  * This file is part of paparazzi.
  *
@@ -20,15 +19,18 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file modules/energy/bat_checker.c
+ *
+ * Activate a buzzer/LED periodically or periodically to warn of low/critical battery level.
+ * At LOW_BAT_LEVEL the buzzer will be activated periodically.
+ * At CRITIC_BAT_LEVEL the buzzer will be activated permanently.
+ */
 
-#ifndef DEPLOY_SONAR_BUOY_H
-#define DEPLOY_SONAR_BUOY_H
+#ifndef BAT_CHECKER_H
+#define BAT_CHECKER_H
 
-#include "std.h"
+void init_bat_checker(void);
+void bat_checker_periodic(void);
 
-extern bool_t buoy_1;
-extern bool_t buoy_2;
-extern void deploy_sonar_buoy_init(void);
-extern void deploy_sonar_buoy_periodic(void);
-
-#endif  /* DEPLOY_SONAR_BUOY_H */
+#endif // BAT_CHECKER_H

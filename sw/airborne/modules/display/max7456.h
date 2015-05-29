@@ -1,6 +1,5 @@
-
 /*
- * Copyright (C) 2012 Pranay Sinha <psinha@transition-robotics.com>
+ * Copyright (C) 2013 Chris
  *
  * This file is part of paparazzi.
  *
@@ -18,30 +17,25 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
 /**
- * @file led_safety_status.h
+ * @file modules/display/max7456.h
+ * Maxim MAX7456 single-channel monochrome on-screen display driver.
  *
- * Simple module to blink LEDs when battery voltage drops below a certain
- * level, radio control is lost or when takeoff safety conditions are not met.
  */
 
-#ifndef LED_SAFETY_STATUS_H
-#define LED_SAFETY_STATUS_H
+#ifndef MAX7456_H
+#define MAX7456_H
 
 #include "std.h"
 
-/**
- * Initialises periodic loop; place more init functions here if expanding driver
- */
-extern void led_safety_status_init(void);
+extern void max7456_init(void);
+extern void max7456_periodic(void);
+extern void max7456_event(void);
 
-/**
- * Periodic function that makes the leds blink in the right pattern for
- * each situation.
- */
-extern void led_safety_status_periodic(void);
+extern uint8_t osd_enable;
 
-#endif  /* LED_SAFETY_STATUS_H */
 
+#endif //MAX7456_H

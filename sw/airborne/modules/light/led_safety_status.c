@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file modules/light/led_safety_status.c
+ *
+ * Simple module to blink LEDs when battery voltage drops below a certain
+ * level, radio control is lost or when takeoff safety conditions are not met.
+ */
+
 #include "led.h"
 #include "generated/airframe.h"
 #include "subsystems/electrical.h"
@@ -27,7 +34,7 @@
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "autopilot_rc_helpers.h"
 
-#include "led_safety_status.h"
+#include "modules/light/led_safety_status.h"
 
 #ifndef SAFETY_WARNING_LED
 #error You must define SAFETY_WARNING_LED to use this module!

@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/max7456/max7456.c
+ * @file modules/display/max7456.c
  * Maxim MAX7456 single-channel monochrome on-screen display driver.
  *
  */
@@ -46,8 +46,8 @@
 #endif
 
 // Peripherials
-#include "max7456.h"
-#include "max7456_regs.h"
+#include "modules/display/max7456.h"
+#include "modules/display/max7456_regs.h"
 
 #define OSD_STRING_SIZE     31
 #define osd_sprintf         _osd_sprintf
