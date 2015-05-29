@@ -31,6 +31,7 @@
 #include "std.h"
 #include "paparazzi.h"
 #include "generated/airframe.h"
+#include "motor_mixing_types.h"
 
 struct MotorMixing {
   int32_t commands[MOTOR_MIXING_NB_MOTOR];
