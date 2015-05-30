@@ -1,15 +1,15 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this airframe file contains setup firmwares for Lisa/M V2.0 -->
+<!-- this airframe file contains setup firmwares for Lisa/MX V2.1 -->
 
-<airframe name="setup_lisam2">
+<airframe name="setup_lisamx">
 
   <firmware name="setup">
-    <target name="tunnel"           board="lisa_m_2.0"/>
-    <target name="usb_tunnel"       board="lisa_m_2.0">
+    <target name="tunnel"           board="lisa_mx_2.1"/>
+    <target name="usb_tunnel"       board="lisa_mx_2.1">
       <configure name="TUNNEL_PORT" value="UART3"/>
     </target>
-    <target name="setup_actuators"  board="lisa_m_2.0">
+    <target name="setup_actuators"  board="lisa_mx_2.1">
       <subsystem name="actuators" type="pwm"/>
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
@@ -17,28 +17,28 @@
   </firmware>
 
   <firmware name="test_progs">
-    <target name="test_sys_time_timer"      board="lisa_m_2.0"/>
-	<target name="test_sys_time_usleep"     board="lisa_m_2.0"/>
-    <target name="test_telemetry"           board="lisa_m_2.0"/>
-    <target name="test_ms2100"              board="lisa_m_2.0"/>
+    <target name="test_sys_time_timer"      board="lisa_mx_2.1"/>
+	<target name="test_sys_time_usleep"     board="lisa_mx_2.1"/>
+    <target name="test_telemetry"           board="lisa_mx_2.1"/>
+    <target name="test_ms2100"              board="lisa_mx_2.1"/>
 
-    <target name="test_actuators_pwm"       board="lisa_m_2.0">
+    <target name="test_actuators_pwm"       board="lisa_mx_2.1">
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
     </target>
-    <target name="test_actuators_pwm_sin"   board="lisa_m_2.0">
+    <target name="test_actuators_pwm_sin"   board="lisa_mx_2.1">
       <define name="USE_SERVOS_7AND8"/>
     </target>
-    <target name="test_esc_mkk_simple"      board="lisa_m_2.0"/>
-    <target name="test_esc_asctecv1_simple" board="lisa_m_2.0"/>
-    <target name="test_baro_board"          board="lisa_m_2.0">
+    <target name="test_esc_mkk_simple"      board="lisa_mx_2.1"/>
+    <target name="test_esc_asctecv1_simple" board="lisa_mx_2.1"/>
+    <target name="test_baro_board"          board="lisa_mx_2.1">
       <configure name="BARO_LED" value="5"/>
-      <!-- baro board options for Lisa/M 2.0: BARO_BOARD_BMP085, BARO_MS5611_I2C, BARO_MS5611_SPI (default) -->
+      <!-- baro board options for Lisa/MX 2.1: BARO_BOARD_BMP085, BARO_MS5611_I2C, BARO_MS5611_SPI (default) -->
       <configure name="LISA_M_BARO" value="BARO_MS5611_SPI"/>
     </target>
-    <target name="test_adc"                 board="lisa_m_2.0"/>
-    <target name="test_can"                 board="lisa_m_2.0"/>
-    <target name="test_uart"                board="lisa_m_2.0">
+    <target name="test_adc"                 board="lisa_mx_2.1"/>
+    <target name="test_can"                 board="lisa_mx_2.1"/>
+    <target name="test_uart"                board="lisa_mx_2.1">
       <define name="USE_UART2"/>
       <define name="UART2_BAUD" value="B57600"/>
       <define name="USE_UART3"/>
