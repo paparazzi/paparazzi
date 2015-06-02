@@ -63,6 +63,22 @@ def read_log(ac_id, filename, sensor):
     return np.array(list_meas)
 
 
+def read_log_scaled(ac_id, filename, sensor, t_start, t_end):
+    """Extracts scaled sensor measurements from a log."""
+    f = open(filename, 'r')
+    pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_SCALED (\S+) (\S+) (\S+)")
+    list_meas = []
+    while True:
+        line = f.readline().strip()
+        if line == '':
+            break
+        m = re.match(pattern, line)
+        if m:
+            if (float(m.group(1)) >= float(t_start)) and (float(m.group(1)) < (float(t_end)+1.0)):
+                list_meas.append([float(m.group(1)), float(m.group(2)), float(m.group(3)), float(m.group(4))])
+    return np.array(list_meas)
+
+
 def read_log_mag_current(ac_id, filename):
     """Extracts raw magnetometer and current measurements from a log."""
     f = open(filename, 'r')
@@ -130,6 +146,18 @@ def print_xml(p, sensor, res):
     print("<define name=\""+sensor+"_Z_SENS\" value=\""+str(p[5]*2**res)+"\" integer=\"16\"/>")
 
 
+def print_imu_scaled(sensor, measurements, attrs):
+    print("")
+    print(sensor+" : Time Range("+str(measurements[:,0].min(axis=0))+" : "+str(measurements[:,0].max(axis=0))+")")
+    np.set_printoptions(formatter={'float': '{:-7.3f}'.format})
+    print("         " + attrs[2] + "      " + attrs[3] + "      " + attrs[4])
+    print("Min   " + str(measurements[:,1:].min(axis=0)*attrs[0])  + " " + attrs[1])
+    print("Max   " + str(measurements[:,1:].max(axis=0)*attrs[0])  + " " + attrs[1])
+    print("Mean  " + str(measurements[:,1:].mean(axis=0)*attrs[0]) + " " + attrs[1])
+    print("StDev " + str(measurements[:,1:].std(axis=0)*attrs[0])  + " " + attrs[1])
+
+
+
 def plot_results(block, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref):
     """Plot calibration results."""
     plt.subplot(3, 1, 1)
@@ -171,6 +199,63 @@ def plot_results(block, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sen
         plt.show()
     else:
         plt.draw()
+
+def plot_imu_scaled(sensor, measurements, attrs):
+    """Plot imu scaled results."""
+
+
+    plt.figure("Sensor Scaled")
+
+    plt.subplot(4, 1, 1)
+    plt.plot(measurements[:, 0], measurements[:, 1]*attrs[0])
+    plt.plot(measurements[:, 0], measurements[:, 2]*attrs[0])
+    plt.plot(measurements[:, 0], measurements[:, 3]*attrs[0])
+    #plt.xlabel('Time (s)')
+    plt.ylabel(attrs[1])
+    plt.title(sensor)
+
+    plt.subplot(4, 1, 2)
+    plt.plot(measurements[:, 0], measurements[:, 1]*attrs[0], 'b')
+    #plt.xlabel('Time (s)')
+    plt.ylabel(attrs[2])
+
+    plt.subplot(4, 1, 3)
+    plt.plot(measurements[:, 0], measurements[:, 2]*attrs[0], 'g')
+    #plt.xlabel('Time (s)')
+    plt.ylabel(attrs[3])
+
+    plt.subplot(4, 1, 4)
+    plt.plot(measurements[:, 0], measurements[:, 3]*attrs[0], 'r')
+    plt.xlabel('Time (s)')
+    plt.ylabel(attrs[4])
+
+    plt.show()
+
+def plot_imu_scaled_fft(sensor, measurements, attrs):
+    """Plot imu scaled fft results."""
+
+    #dt = 0.0769
+    #Fs = 1/dt
+    Fs = 26.0
+
+    plt.figure("Sensor Scaled - FFT")
+
+    plt.subplot(3, 1, 1)
+    plt.magnitude_spectrum(measurements[:, 1]*attrs[0], Fs=Fs, scale='linear')
+    plt.ylabel(attrs[2])
+    plt.title(sensor)
+
+    plt.subplot(3, 1, 2)
+    plt.magnitude_spectrum(measurements[:, 2]*attrs[0], Fs=Fs, scale='linear')
+    plt.ylabel(attrs[3])
+
+    plt.subplot(3, 1, 3)
+    plt.magnitude_spectrum(measurements[:, 3]*attrs[0], Fs=Fs, scale='linear')
+    plt.xlabel('Frequency')
+    plt.ylabel(attrs[4])
+
+    plt.show()
+
 
 
 def plot_mag_3d(measured, calibrated, p):
