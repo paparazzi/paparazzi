@@ -56,6 +56,18 @@ let icon_sim_file = paparazzi_home // "data/pictures/penguin_icon_sim.png"
 let gconf_file = paparazzi_home // "conf" // "%gconf.xml"
 
 let gcs_icons_path = paparazzi_home // "data" // "pictures" // "gcs_icons"
+let gcs_default_icons_theme = "."
+
+let get_gcs_icon_path = fun theme icon ->
+  if Sys.file_exists (gcs_icons_path // theme // icon) then
+    (* test if file exists *)
+    gcs_icons_path // theme // icon
+  else if Sys.file_exists (gcs_icons_path // icon) then
+    (* else try default path *)
+    gcs_icons_path // icon
+  else
+    (* or raise not found *)
+    raise Not_found
 
 let dump_fp = paparazzi_src // "sw" // "tools" // "generators" // "gen_flight_plan.out -dump"
 

@@ -410,6 +410,14 @@ let get_icon_and_track_size = fun af_xml ->
     | x -> (x, !track_size)
   with _ -> (firmware_name, !track_size)
 
+let get_icons_theme = fun af_xml ->
+  try
+    let gcs_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "GCS") "section" in
+    let fvalue = fun name default ->
+      try ExtXml.attrib (ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+    fvalue "ICONS_THEME" Env.gcs_default_icons_theme
+  with _ -> Env.gcs_default_icons_theme
+
 let key_press_event = fun keys do_action ev ->
   try
     let (modifiers, action) = List.assoc (GdkEvent.Key.keyval ev) keys in
@@ -499,10 +507,12 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (strip
   (** Add a strip *)
   let min_bat, max_bat = get_bat_levels af_xml in
   let alt_shift_plus_plus, alt_shift_plus, alt_shift_minus = get_alt_shift af_xml in
+  let icons_theme = get_icons_theme af_xml in
   let param = { Strip.color = color; min_bat = min_bat; max_bat = max_bat;
                 alt_shift_plus_plus = alt_shift_plus_plus;
                 alt_shift_plus = alt_shift_plus;
-                alt_shift_minus = alt_shift_minus; } in
+                alt_shift_minus = alt_shift_minus;
+                icons_theme = icons_theme; } in
   (*let strip = Strip.add config color min_bat max_bat in*)
   let strip = Strip.add config param strips in
   strip#connect (fun () -> select_ac acs_notebook ac_id);
@@ -552,14 +562,14 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (strip
         try (* Is it an icon ? *)
           let icon = Xml.attrib block "strip_icon" in
           let b = GButton.button () in
-          let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
+          let pixbuf = GdkPixbuf.from_file (Env.get_gcs_icon_path icons_theme icon) in
           ignore (GMisc.image ~pixbuf ~packing:b#add ());
 
       (* Drag for Drop *)
           let papget = Papget_common.xml "goto_block" "button"
             [ "block_name", block_name;
               "ac_id", ac_id;
-              "icon", icon] in
+              "icon", icons_theme // icon] in
           Papget_common.dnd_source b#coerce papget;
 
       (* Associates the label as a tooltip *)
@@ -635,7 +645,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (strip
   let dl_settings_page =
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
-      let settings_tab = new Page_settings.settings ~visible xml_settings dl_setting_callback ac_id (fun group x -> strip#add_widget ~group x) in
+      let settings_tab = new Page_settings.settings ~visible xml_settings dl_setting_callback ac_id icons_theme (fun group x -> strip#add_widget ~group x) in
 
       (** Connect key shortcuts *)
       let key_press = fun ev ->
