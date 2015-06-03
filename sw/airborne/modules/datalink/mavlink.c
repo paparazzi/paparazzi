@@ -63,6 +63,8 @@ static int mavlink_send_message(mavlink_message_t* msg)
  */
 static void mavlink_send_heartbeat(void) 
 {
+  printf("Send heartbeat message\n");
+
   /* 
    * The heartbeat message will contain:
    *	- system ID (MAV ID)
