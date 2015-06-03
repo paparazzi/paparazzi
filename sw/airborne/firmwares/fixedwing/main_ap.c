@@ -425,9 +425,9 @@ static inline void telecommand_task(void)
 
     /** Pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
     h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
-#if H_CTL_YAW_LOOP
+#if H_CTL_YAW_LOOP && defined RADIO_YAW
     /** Yaw is bounded between [-AUTO1_MAX_YAW_RATE;AUTO1_MAX_YAW_RATE] */
-    h_ctl_yaw_rate_setpoint = 10 * FLOAT_OF_PPRZ(fbw_state->channels[RADIO_YAW], 0., AUTO1_MAX_YAW_RATE);
+    h_ctl_yaw_rate_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_YAW], 0., AUTO1_MAX_YAW_RATE);
 #endif
   } /** Else asynchronously set by \a h_ctl_course_loop() */
 
@@ -591,12 +591,11 @@ void attitude_loop(void)
   v_ctl_throttle_slew();
   ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
   ap_state->commands[COMMAND_ROLL] = -h_ctl_aileron_setpoint;
-
   ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
-#if H_CTL_YAW_LOOP
+#if H_CTL_YAW_LOOP && defined COMMAND_YAW
   ap_state->commands[COMMAND_YAW] = h_ctl_rudder_setpoint;
 #endif
-#if H_CTL_CL_LOOP
+#if H_CTL_CL_LOOP && defined COMMAND_CL
   ap_state->commands[COMMAND_CL] = h_ctl_flaps_setpoint;
 #endif
 
