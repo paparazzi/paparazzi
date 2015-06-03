@@ -1,0 +1,50 @@
+<!-- 
+
+Hobbyking 6CH RC Transmitter shaped USB HID joystick Mode 2
+http://www.hobbyking.com/hobbyking/store/__20951__Hobbyking_6CH_RC_Flight_Simulator_System_Mode_2_.html
+
+If you want to use this file for the same product but mode 1 the axis index 
+numbers have to be re-arranged, the rest will be exactly the same.
+
+This RC TX joystick has four axes,2 buttons, one dial, which are labeled on the
+RC TX joystick
+
+The button and dial give their output on an **axis** type not button type
+
+The button ""MIX" is not useful and hardwired to mixing and does NOT give
+indepenadant output, better remove it from your RC joystick.
+
+The 6CH Gyro switch only has 2 positions, not three :(
+We will use it as mode switch none the less between, MANUAL (or ATT) and NAV
+
+So it is a real 6CH USB joystick that just looks like a RC transmitter
+
+If you want to fly your UAS via the joystick add thid to your session:
+
+ /home/username/paparazzi/sw/ground_segment/joystick/input2ivy  -d 0 -ac yourarfamename hobbyking_usb_rc_6ch_rc_tx_joy_mode_2.xml
+
+Where -d 0 must be -d 1 if you have a laptop with accelometer installed
+
+The basis of steering is the standard signs of aerospace convention
+-->
+
+<joystick>
+  <input>
+    <axis index="0" name="roll"/>
+    <axis index="1" name="pitch"/> 
+    <axis index="2" name="throttle"/>
+    <axis index="3" name="mode"/>
+    <axis index="4" name="gearpit"/>
+    <axis index="5" name="yaw"/>
+  </input>
+
+  <messages period="0.0333333">
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="throttle" value="Fit(-throttle,-124,126,0,127)" />
+      <field name="roll" value="roll" />
+      <field name="pitch" value="pitch" />
+      <field name="yaw" value="Fit(yaw,-125,125,-127,127)"/>
+      <field name="mode" value="Fit(mode,-127,126,0,2)"/>
+    </message>
+  </messages>
+</joystick>
