@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2015 Lodewijk Sikkel <l.n.c.sikkel@tudelft.nl>
  *
  * This file is part of paparazzi.
  *
@@ -20,61 +20,41 @@
  *
  */
 
-/** @file modules/datalink/mavlink.h
- *  @brief Basic MAVLink datalink implementation
- */
-
 #ifndef DATALINK_MAVLINK_H
 #define DATALINK_MAVLINK_H
 
-#define MAVLINK_USE_CONVENIENCE_FUNCTIONS
-#define MAVLINK_ALIGNED_FIELDS 0
+#include <arpa/inet.h> // for AP_INET addresses
 
-#include <mavlink/mavlink_types.h>
+#include "mavlink/mavlink_types.h"
+#include "mavlink/paparazzi/mavlink.h"
 
-#if USE_UDP
-#include "mcu_periph/udp.h"
-#endif
-#if USE_USB_SERIAL
-#include "mcu_periph/usb_serial.h"
-#endif
-#include "mcu_periph/uart.h"
-
-/*
- * MAVLink description before main MAVLink include
+/** @file modules/datalink/mavlink.h
+ *  @brief Interface to PPRZServices using an UDP stream
  */
-extern mavlink_system_t mavlink_system;
 
-#ifndef MAVLINK_DEV
-#define MAVLINK_DEV uart1
-#endif
+#define MAVLINK_UDP_PORT 5000
+#ifndef MAVLINK_SYSTEM_SYSID
+#define MAVLINK_SYSTEM_SYSID 0 
+#endif 
+#ifndef MAVLINK_SYSTEM_COMPID
+#define MAVLINK_SYSTEM_COMPID 0 // MAV_COMP_ID_ALL=0
+#endif 
+#define MAVLINK_BUFFER_LENGTH 256
 
-/*
- * The MAVLink link description
- */
-#define MAVLinkDev (&(MAVLINK_DEV).device)
-#define MAVLinkTransmit(c) MAVLinkDev->put_byte(MAVLinkDev->periph, c)
-#define MAVLinkChAvailable() MAVLinkDev->char_available(MAVLinkDev->periph)
-#define MAVLinkGetch() MAVLinkDev->get_byte(MAVLinkDev->periph)
-#define MAVLinkSendMessage() MAVLinkDev->send_message(MAVLinkDev->periph)
+// Create the socket identifier
+int sock; 
 
-/**
- * Module functions
- */
+// Create the local address struct
+struct sockaddr_in loc_addr;
+
+// Create the host address struct
+struct sockaddr_in host_addr;
+
+// Create the mavlink message struct
+mavlink_message_t msg;
+
 void mavlink_init(void);
 void mavlink_periodic(void);
 void mavlink_event(void);
-
-/**
- * @brief Send one char (uint8_t) over a comm channel
- *
- * @param chan MAVLink channel to use, usually MAVLINK_COMM_0 = UART0
- * @param ch Character to send
- */
-static inline void comm_send_ch(mavlink_channel_t chan __attribute__((unused)), uint8_t ch)
-{
-  // Send bytes
-  MAVLinkTransmit(ch);
-}
 
 #endif // DATALINK_MAVLINK_H
