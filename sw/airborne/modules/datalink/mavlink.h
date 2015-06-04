@@ -20,6 +20,10 @@
  *
  */
 
+/** @file modules/datalink/mavlink.h
+ *  @brief Interface to MAVLink
+ */
+
 #ifndef DATALINK_MAVLINK_H
 #define DATALINK_MAVLINK_H
 
@@ -28,13 +32,11 @@
 #include "mavlink/mavlink_types.h"
 #include "mavlink/paparazzi/mavlink.h"
 
-/** @file modules/datalink/mavlink.h
- *  @brief Interface to PPRZServices using an UDP stream
- */
+mavlink_system_t mavlink_system;
 
 #define MAVLINK_UDP_PORT 5000
 #ifndef MAVLINK_SYSTEM_SYSID
-#define MAVLINK_SYSTEM_SYSID 0 
+#define MAVLINK_SYSTEM_SYSID 0 // Arbitrary
 #endif 
 #ifndef MAVLINK_SYSTEM_COMPID
 #define MAVLINK_SYSTEM_COMPID 0 // MAV_COMP_ID_ALL=0
@@ -48,10 +50,9 @@ int sock;
 struct sockaddr_in loc_addr;
 
 // Create the host address struct
-struct sockaddr_in host_addr;
+struct sockaddr_in rem_addr;
 
-// Create the mavlink message struct
-mavlink_message_t msg;
+extern int mavlink_send_message(mavlink_message_t* msg);
 
 void mavlink_init(void);
 void mavlink_periodic(void);

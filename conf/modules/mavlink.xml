@@ -14,28 +14,6 @@
 
   <makefile>
     <file name="mavlink.c"/>
-     <raw>
-<!--      MAVLINK_PORT ?= UART1
-      MAVLINK_PORT_UPPER=$(shell echo $(MAVLINK_PORT) | tr a-z A-Z)
-      MAVLINK_PORT_LOWER=$(shell echo $(MAVLINK_PORT) | tr A-Z a-z)
-      ifneq (,$(findstring usb,$(MAVLINK_PORT_LOWER)))
-      ap.CFLAGS += -DUSE_USB_SERIAL
-      ap.srcs += $(SRC_ARCH)/usb_ser_hw.c
-      ap.CFLAGS += -DMAVLINK_DEV=usb_serial
-      else
-      ifneq (,$(findstring udp,$(MAVLINK_PORT_LOWER)))
-      include $(CFG_SHARED)/udp.makefile
-      <!-- $(TARGET).CFLAGS += -DMAVLINK_DEV=$(MAVLINK_PORT_LOWER)
-      $(TARGET).CFLAGS += -DMAVLINK_DEV=udp1
-      <!-- $(TARGET).CFLAGS += -DUSE_$(MAVLINK_PORT_UPPER)
-      $(TARGET).CFLAGS += -DUSE_UDP1
-      else
-      MAVLINK_BAUD ?= B57600
-      ap.CFLAGS += -DMAVLINK_DEV=$(MAVLINK_PORT_LOWER)
-      ap.CFLAGS += -DUSE_$(MAVLINK_PORT_UPPER)
-      ap.CFLAGS += -D$(MAVLINK_PORT_UPPER)_BAUD=$(MAVLINK_BAUD)
-      endif
-      endif -->
-    </raw>
+    <file name="blocks.c" dir="modules/datalink/missionlib"/>
   </makefile>
 </module>

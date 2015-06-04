@@ -21,7 +21,7 @@
  */
 
 /** @file modules/datalink/mavlink.c
- *  @brief Interface to PPRZServices
+ *  @brief Interface to MAVLink
  */
 
 // Include own header
@@ -36,35 +36,29 @@
 #include <fcntl.h> // for making the socket receiving function nonblocking
 #include <unistd.h> // for close
 
-#include "mcu_periph/sys_time.h"
+// Include PPRZ headers
+#include "firmwares/rotorcraft/navigation.h" // for navigation calls
+#include "mcu_periph/sys_time.h" // for periodic calls
+#include "modules/datalink/missionlib/blocks.h" // for mission blocks
+
+mavlink_block_mgr block_mgr;
 
 /**
- * Send transmit buffer 
+ * REMOVE FOR RELEASE
  */
-static int mavlink_send_message(mavlink_message_t* msg)
-{
-  	uint8_t buf[MAVLINK_BUFFER_LENGTH];
-  	uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
-  	size_t bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr *)&host_addr, sizeof(host_addr));
-  	if (bytes_sent != len) {
-#define MAVLINK_BUFFER_SEND_ERROR_LINUX
-#ifdef MAVLINK_BUFFER_SEND_ERROR_LINUX
-  		printf("Failed to send current buffer.\n");
-#else
-  		// TODO: Fix for linux, stm32 etc.
-#endif
-  	}
-
-  	return bytes_sent;
-}
+#define MAVLINK_FLAG_DEBUG
+/**
+ * REMOVE FOR RELEASE
+ */
 
 /**
  * Send heartbeat
  */
 static void mavlink_send_heartbeat(void) 
 {
+#ifdef MAVLINK_FLAG_DEBUG
   printf("Send heartbeat message\n");
-
+#endif 
   /* 
    * The heartbeat message will contain:
    *	- system ID (MAV ID)
@@ -75,8 +69,9 @@ static void mavlink_send_heartbeat(void)
    * 	- custom mode 
    * 	- system state // TODO: Transmit system state
    */
-  mavlink_msg_heartbeat_pack(MAVLINK_SYSTEM_SYSID, // System id
-  							 MAVLINK_SYSTEM_COMPID, // Component id 
+  mavlink_message_t msg;
+  mavlink_msg_heartbeat_pack(mavlink_system.sysid, // System id
+  							 mavlink_system.compid, // Component id 
   							 &msg, // MAVLink message
   							 MAV_TYPE_QUADROTOR, // TODO: Allow for different configurations 
   							 MAV_AUTOPILOT_GENERIC, // Default
@@ -87,11 +82,36 @@ static void mavlink_send_heartbeat(void)
   mavlink_send_message(&msg);
 }
 
+/**
+ * Send transmit buffer 
+ */
+int mavlink_send_message(mavlink_message_t* msg)
+{
+  	uint8_t buf[MAVLINK_BUFFER_LENGTH];
+  	uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
+  	size_t bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr *)&rem_addr, sizeof(rem_addr));
+  	if (bytes_sent != len) {
+#define MAVLINK_BUFFER_SEND_ERROR_LINUX
+#ifdef MAVLINK_BUFFER_SEND_ERROR_LINUX
+  		perror("Failed to send current buffer.\n");
+#else
+  		// TODO: Fix for linux, stm32 etc.
+#endif
+  	}
+
+  	return bytes_sent;
+}
+
  /**
  * Interface initialization
  */
 void mavlink_init(void)
 {
+	// Initialize MAVLink
+	mavlink_system.sysid = 5;
+	mavlink_system.compid = 20;
+	mavlink_block_init(&block_mgr);
+
 	// Create socket
 	if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP /* domain, type, protocol */)) < 0) {
 #define MAVLINK_SOCKET_ERROR_LINUX
@@ -123,10 +143,10 @@ void mavlink_init(void)
     }
 	
 	// Initialize the host address struct
-	memset(&host_addr, 0, sizeof(host_addr));
-	host_addr.sin_family = AF_INET; // Internet Protocol
-	host_addr.sin_addr.s_addr = inet_addr("192.168.42.2"); // Set the target IP address (which is fixed!)
-	host_addr.sin_port = htons(MAVLINK_UDP_PORT);
+	memset(&rem_addr, 0, sizeof(rem_addr));
+	rem_addr.sin_family = AF_INET; // Internet Protocol
+	rem_addr.sin_addr.s_addr = inet_addr("192.168.42.2"); // Set the target IP address (TODO: Make this variable)
+	rem_addr.sin_port = htons(MAVLINK_UDP_PORT);
 }
 
 /**
@@ -144,5 +164,21 @@ void mavlink_periodic(void)
  */
 void mavlink_event(void)
 {
-	// TODO: Handle messages
+	socklen_t len;
+	uint8_t buf[MAVLINK_BUFFER_LENGTH]; // incoming message buffer
+	int16_t recsize = recvfrom(sock, (void *)buf, MAVLINK_BUFFER_LENGTH, 0, (struct sockaddr *)&rem_addr, &len); // retreive message from UDP buffer
+	if (recsize > 0) {
+		printf("Received %d bytes.\n", recsize);
+		mavlink_message_t msg; // incoming message
+		mavlink_status_t status;  
+		for (uint16_t i = 0; i < recsize; ++i) {
+			if (mavlink_parse_char(MAVLINK_COMM_0, buf[i], &msg, &status)) { // parse a single byte at a time and continue if the message could be decoded
+				// Packet received
+#ifdef MAVLINK_FLAG_DEBUG
+				printf("Received packet: SYS: %d, COMP: %d, LEN: %d, MSG ID: %d\n\n", msg.sysid, msg.compid, msg.len, msg.msgid);
+#endif
+				mavlink_block_message_handler(&msg); // Blocks message handler
+			}
+		}
+	}
 }
