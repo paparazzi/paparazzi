@@ -658,36 +658,39 @@ inline static void h_ctl_cl_loop(void)
   struct Int32Vect3 accel_meas_body;
   struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
   struct Int32Vect3 *accel_ned = (struct Int32Vect3 *)(stateGetAccelNed_i());
+  accel_ned.z -= ACCEL_BFP_OF_REAL(9.81f);
   int32_rmat_vmult(&accel_meas_body, ned_to_body_rmat, accel_ned);
-  float bx = ACCEL_FLOAT_OF_BFP(accel_meas_body.z);
-  // max acc to be taken into acount
-  Bound(bx, -9.81, 9.81);
+  float nz = ACCEL_FLOAT_OF_BFP(accel_meas_body.z) / 9.81f;
+  // max load factor to be taken into acount
+  Bound(nz, 0.5f, 2.f);
 #else
-  float bx = 0.;
+  float nz = 0.f;
 #endif
 
+  // Compute a corrected airspeed corresponding to the current load factor nz
+  // with Cz the lift coef at 1g, Czn the lift coef a n g, both at the same speed V,
+  // the corrected airspeed Vn is so that nz = Czn/Cz = V^2 / Vn^2,
+  // thus Vn = V / sqrt(nz)
 #if H_CTL_CL_LOOP_USE_AIRSPEED_SETPOINT
-  float Vo = v_ctl_auto_airspeed_controlled + v_ctl_auto_airspeed_controlled * (1 - sqrtf(bx / 10));
-  Bound(Vo, STALL_AIRSPEED, RACE_AIRSPEED);
+  float corrected_airspeed = v_ctl_auto_airspeed_controlled;
 #else
-  float Vo = *stateGetAirspeed_f() + *stateGetAirspeed_f() * (1 - sqrtf(-bx / 10));
-  Bound(Vo, STALL_AIRSPEED, RACE_AIRSPEED);
+  float corrected_airspeed = *stateGetAirspeed_f();
 #endif
+  corrected_airspeed /= sqrtf(nz);
+  Bound(corrected_airspeed, STALL_AIRSPEED, RACE_AIRSPEED);
 
-  float cmd = 0;
+  float cmd = 0.f;
   // deadband around NOMINAL_AIRSPEED, rest linear
-  if (Vo > (NOMINAL_AIRSPEED * (1 + H_CTL_CL_DEADBAND * NOMINAL_AIRSPEED / 100))) {
-    cmd = (Vo - NOMINAL_AIRSPEED) * (H_CTL_CL_FLAPS_RACE - H_CTL_CL_FLAPS_NOMINAL) / (RACE_AIRSPEED - NOMINAL_AIRSPEED);
-  } else {
-    if (Vo < (NOMINAL_AIRSPEED * (1 + H_CTL_CL_DEADBAND * NOMINAL_AIRSPEED / 100))) {
-      cmd = (Vo - NOMINAL_AIRSPEED) * (H_CTL_CL_FLAPS_STALL - H_CTL_CL_FLAPS_NOMINAL) / (STALL_AIRSPEED - NOMINAL_AIRSPEED);
-    } else {
-      cmd = 0;
-    }
+  if (corrected_airspeed > NOMINAL_AIRSPEED + H_CTL_CL_DEADBAND) {
+    cmd = (corrected_airspeed - NOMINAL_AIRSPEED) * (H_CTL_CL_FLAPS_RACE - H_CTL_CL_FLAPS_NOMINAL) / (RACE_AIRSPEED - NOMINAL_AIRSPEED);
   }
+  else if (corrected_airspeed < NOMINAL_AIRSPEED - H_CTL_CL_DEADBAND) {
+    cmd = (corrected_airspeed - NOMINAL_AIRSPEED) * (H_CTL_CL_FLAPS_STALL - H_CTL_CL_FLAPS_NOMINAL) / (STALL_AIRSPEED - NOMINAL_AIRSPEED);
+  }
+
   // no control in manual mode
   if (pprz_mode == PPRZ_MODE_MANUAL) {
-    cmd = 0;
+    cmd = 0.f;
   }
   // bound max flap angle
   Bound(cmd, H_CTL_CL_FLAPS_RACE, H_CTL_CL_FLAPS_STALL);
