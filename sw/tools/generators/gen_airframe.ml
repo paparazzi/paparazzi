@@ -119,9 +119,9 @@ let rec string_from_type = fun name v t ->
       end
   | "string" -> "\""^(rm_leading_trailing_spaces v)^"\""
   | "array" -> sprint_array v ""
-  | "float array" -> sprint_array v "float"
-  | "int array" -> sprint_array v "int"
-  | "string array" -> sprint_array v "string"
+  | "float[]" -> sprint_array v "float"
+  | "int[]" -> sprint_array v "int"
+  | "string[]" -> sprint_array v "string"
   | _ -> v
 
 
