@@ -658,7 +658,7 @@ inline static void h_ctl_cl_loop(void)
 #ifndef SITL
   struct Int32Vect3 accel_meas_body;
   struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
-  struct Int32Vect3 *accel_ned = (struct Int32Vect3 *)(stateGetAccelNed_i());
+  struct Int32Vect3 accel_ned = (struct Int32Vect3)(*stateGetAccelNed_i());
   accel_ned.z -= ACCEL_BFP_OF_REAL(9.81f);
   int32_rmat_vmult(&accel_meas_body, ned_to_body_rmat, accel_ned);
   float nz = ACCEL_FLOAT_OF_BFP(accel_meas_body.z) / 9.81f;
