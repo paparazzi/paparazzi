@@ -207,15 +207,41 @@ void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[])
     int32_t thrust_cmd = in_cmd[COMMAND_THRUST] - mean_cmd;
     Bound(thrust_cmd, 0, MAX_PPRZ);
 
-    /* min/max of trim+roll+pitch+throttle commands */
-    int32_t min_cmd = INT32_MAX;
-    int32_t max_cmd = INT32_MIN;
+    int32_t tmp_cmd;
+    int32_t max_overflow = 0;
 
     /* add thrust command and scale */
     for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
       motor_mixing.commands[i] += thrust_coef[i] * thrust_cmd;
-      /* scale */
-      motor_mixing.commands[i] /=  MOTOR_MIXING_SCALE;
+
+      /* compute the command with yaw for each motor to check how much it would saturate */
+      tmp_cmd = motor_mixing.commands[i] + yaw_coef[i] * in_cmd[COMMAND_YAW];
+      tmp_cmd /= MOTOR_MIXING_SCALE;
+
+      /* remember max overflow (how much in saturation) */
+      if (-tmp_cmd > max_overflow) {
+        max_overflow = -tmp_cmd;
+      }
+      else if (tmp_cmd - MAX_PPRZ > max_overflow) {
+        max_overflow = tmp_cmd - MAX_PPRZ;
+      }
+    }
+
+    /* calculate how much authority is left for yaw command */
+    int32_t yaw_authority = ABS(in_cmd[COMMAND_YAW]) - max_overflow;
+    Bound(yaw_authority, 0, MAX_PPRZ);
+    int32_t bounded_yaw_cmd = in_cmd[COMMAND_YAW];
+    BoundAbs(bounded_yaw_cmd, yaw_authority);
+
+    /* min/max of commands */
+    int32_t min_cmd = INT32_MAX;
+    int32_t max_cmd = INT32_MIN;
+
+    /* add the bounded yaw command and scale */
+    for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
+      motor_mixing.commands[i] += yaw_coef[i] * bounded_yaw_cmd;
+      motor_mixing.commands[i] /= MOTOR_MIXING_SCALE;
+
       /* remember min/max */
       if (motor_mixing.commands[i] < min_cmd) {
         min_cmd = motor_mixing.commands[i];
@@ -223,16 +249,6 @@ void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[])
       if (motor_mixing.commands[i] > max_cmd) {
         max_cmd = motor_mixing.commands[i];
       }
-    }
-
-    /* calculate how much authority is left for yaw command */
-    int32_t yaw_authority = Min(ABS(min_cmd), (MAX_PPRZ - max_cmd));
-    int32_t bounded_yaw_cmd = in_cmd[COMMAND_YAW];
-    BoundAbs(bounded_yaw_cmd, yaw_authority);
-
-    /* add the bounded and scaled yaw command */
-    for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
-      motor_mixing.commands[i] += yaw_coef[i] * bounded_yaw_cmd / MOTOR_MIXING_SCALE;
     }
 
     if (min_cmd < MOTOR_MIXING_MIN_MOTOR && max_cmd > MOTOR_MIXING_MAX_MOTOR) {
