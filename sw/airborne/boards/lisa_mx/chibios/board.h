@@ -1052,7 +1052,7 @@
 /*
  * AHB_CLK for paparazzi sys_time_arch
  */
-#define AHB_CLK 168000000
+#define AHB_CLK STM32_HCLK
 
 /*
  * LEDs

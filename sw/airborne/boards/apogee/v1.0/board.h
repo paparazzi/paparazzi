@@ -636,7 +636,7 @@
 /*
  * AHB_CLK
  */
-#define AHB_CLK 168000000
+#define AHB_CLK STM32_HCLK
 
 
 /*
