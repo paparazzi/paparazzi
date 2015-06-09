@@ -128,7 +128,7 @@ static void sys_tick_handler(void)
   }
 #endif
   sys_time.nb_sec = sec;
-  sys_time.nb_sec_rem = sys_time.nb_tick - cpu_ticks_of_sec(sys_time.nb_sec);
+  sys_time.nb_sec_rem = sys_time.nb_tick - sys_time_ticks_of_sec(sys_time.nb_sec);
 
   /* advance virtual timers */
   for (unsigned int i = 0; i < SYS_TIME_NB_TIMER; i++) {
