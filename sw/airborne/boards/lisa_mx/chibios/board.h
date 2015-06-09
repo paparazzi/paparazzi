@@ -1048,6 +1048,12 @@
                                      PIN_AFIO_AF(14, 0) |          \
                                      PIN_AFIO_AF(15, 0))
 
+
+/*
+ * AHB_CLK for paparazzi sys_time_arch
+ */
+#define AHB_CLK 168000000
+
 /*
  * LEDs
  */
