@@ -88,7 +88,7 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
   uint8_t mde = 3;
   uint8_t id = INFRARED_FILTER_ID;
   if (contrast < 50) { mde = 7; }
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &id, &contrast);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &id, &mde, &contrast);
 }
 #endif
 
