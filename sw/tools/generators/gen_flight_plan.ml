@@ -749,9 +749,11 @@ type sector_type = StaticSector | DynamicSector
 let print_inside_sector = fun t (s, pts) ->
   lprintf "static inline bool_t %s(float _x, float _y) {\n" (inside_function s);
   right ();
-  match t with
-  | StaticSector -> print_inside_polygon pts;
-  | DynamicSector -> print_inside_polygon_global pts;
+  begin
+    match t with
+    | StaticSector -> print_inside_polygon pts
+    | DynamicSector -> print_inside_polygon_global pts
+  end;
   left ();
   lprintf "}\n"
 
