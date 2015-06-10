@@ -603,9 +603,10 @@ inline static void h_ctl_yaw_loop(void)
 #if H_CTL_YAW_TRIM_BY
   // Actual Acceleration from IMU:
 #ifndef SITL
-  struct Int32Vect3 accel_meas_body;
+  struct Int32Vect3 accel_meas_body, accel_ned;
   struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
-  struct Int32Vect3 *accel_ned = (struct Int32Vect3 *)(stateGetAccelNed_i());
+  struct NedCoor_i *accel_tmp = stateGetAccelNed_i();
+  VECT3_COPY(accel_ned, (*accel_tmp));
   int32_rmat_vmult(&accel_meas_body, ned_to_body_rmat, accel_ned);
   float by = ACCEL_FLOAT_OF_BFP(accel_meas_body.y);
 #else
@@ -656,11 +657,12 @@ inline static void h_ctl_cl_loop(void)
 
 #if H_CTL_CL_LOOP_INCREASE_FLAPS_WITH_LOADFACTOR
 #ifndef SITL
-  struct Int32Vect3 accel_meas_body;
+  struct Int32Vect3 accel_meas_body, accel_ned;
   struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
-  struct Int32Vect3 accel_ned = (struct Int32Vect3)(*stateGetAccelNed_i());
+  struct NedCoor_i *accel_tmp = stateGetAccelNed_i();
+  VECT3_COPY(accel_ned, (*accel_tmp));
   accel_ned.z -= ACCEL_BFP_OF_REAL(9.81f);
-  int32_rmat_vmult(&accel_meas_body, ned_to_body_rmat, accel_ned);
+  int32_rmat_vmult(&accel_meas_body, ned_to_body_rmat, &accel_ned);
   float nz = ACCEL_FLOAT_OF_BFP(accel_meas_body.z) / 9.81f;
   // max load factor to be taken into acount
   // to prevent negative flap movement du to negative nz
