@@ -52,7 +52,8 @@ enum MAVLINK_BLOCK_STATES {
 #endif
 struct mavlink_block_mgr {
 	enum MAVLINK_BLOCK_STATES current_state; // The current state of the block handler
-	uint16_t current_block; // Counter that holds the index of the current block
+	uint16_t seq; // Sequence id
+	uint8_t current_block; // Counter that holds the index of the current block
 	uint8_t rem_sysid; // Remote system id
 	uint8_t rem_compid; // Remote component id
 	int timer_id; // Timer id
@@ -63,6 +64,7 @@ typedef struct mavlink_block_mgr mavlink_block_mgr;
 extern mavlink_block_mgr block_mgr;
 
 extern void mavlink_block_init(mavlink_block_mgr* block_mgr);
+extern void mavlink_block_cb(uint16_t current_block);
 extern void mavlink_block_message_handler(const mavlink_message_t* msg);
 
 #endif // MISSIONLIB_BLOCKS_H

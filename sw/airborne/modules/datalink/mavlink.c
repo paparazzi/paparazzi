@@ -28,6 +28,7 @@
 #include "modules/datalink/mavlink.h"
 
 #include <stdio.h>
+#include <stdint.h> // for INT16_MAX
 
 // Include UDP socket headers
 #include <sys/socket.h> // for socket system call
@@ -40,13 +41,16 @@
 #include "firmwares/rotorcraft/navigation.h" // for navigation calls
 #include "mcu_periph/sys_time.h" // for periodic calls
 #include "modules/datalink/missionlib/blocks.h" // for mission blocks
+#include "subsystems/electrical.h"
+#include "subsystems/gps.h"
+#include "state.h"
 
 mavlink_block_mgr block_mgr;
 
 /**
  * REMOVE FOR RELEASE
  */
-#define MAVLINK_FLAG_DEBUG
+#define MAVLINK_FLAG_DEBUG 1
 /**
  * REMOVE FOR RELEASE
  */
@@ -60,7 +64,7 @@ static void mavlink_send_heartbeat(void)
   printf("Send heartbeat message\n");
 #endif 
   /* 
-   * The heartbeat message will contain:
+   * The heartbeat message consists of:
    *	- system ID (MAV ID)
    *    - comp ID (0)
    * 	- MAV type 
@@ -79,6 +83,181 @@ static void mavlink_send_heartbeat(void)
   							 0, // TODO: Transmit custom autopilot mode
   							 MAV_STATE_UNINIT); // TODO: Allow state information (MODE/CALIB) to be transmitted
 
+  mavlink_send_message(&msg);
+}
+
+/**
+ * Send attitude
+ */
+static void mavlink_send_attitude(void)
+{
+#ifdef MAVLINK_FLAG_DEBUG
+  printf("Send attitude message\n");
+#endif 	
+  /*
+   * The attitude message consists of:
+   *	- boot time (ms)
+   *	- roll angle (rad)
+   *	- pitch angle (rad)
+   * 	- yaw angle (rad)
+   *	- roll rate (rad/s)
+   * 	- pitch rate (rad/s)
+   *	- yaw rate (rad/s)
+   */
+   mavlink_message_t msg;
+   mavlink_msg_attitude_pack(mavlink_system.sysid, // system id
+   							 mavlink_system.compid, // component id
+   							 &msg, // MAVLink message
+   							 get_sys_time_msec(), // timestamp
+                             stateGetNedToBodyEulers_f()->phi, // roll angle
+                             stateGetNedToBodyEulers_f()->theta, // pitch angle
+                             stateGetNedToBodyEulers_f()->psi, // yaw angle
+                             stateGetBodyRates_f()->p, // roll rate
+                             stateGetBodyRates_f()->q, // pitch rate
+                             stateGetBodyRates_f()->r); // yaw rate
+   mavlink_send_message(&msg);
+}
+
+/**
+ * Send local altitude and velocity in the local NED frame
+ */
+static void mavlink_send_altitude_ground_speed(void)
+{
+#ifdef MAVLINK_FLAG_DEBUG
+  printf("Send altitude and ground speed message\n");
+#endif 	
+  /*
+   * The altitude and ground speed message consists of:
+   *	- airspeed (ignored)
+   *	- groundspeed (m/s)
+   * 	- altitude (m)
+   *	- climb rate (m/s)
+   *	- heading (ignored)
+   *	- throttle setting (ignored) 
+   */
+   mavlink_message_t msg;
+   mavlink_msg_vfr_hud_pack(mavlink_system.sysid, // system id
+   							mavlink_system.compid, // component id
+   							&msg, // MAVLink message
+   							-1, // airspeed
+                            *stateGetHorizontalSpeedNorm_f(), // groundspeed
+                            stateGetPositionNed_f()->z, // altitude
+                            stateGetSpeedNed_f()->z, // climb rate
+                            -1, // heading
+                            0); // throttle setting
+   mavlink_send_message(&msg);
+}
+
+/**
+ * Send battery status
+ */
+static void mavlink_send_battery_status(void)
+{
+#ifdef MAVLINK_FLAG_DEBUG
+  printf("Send battery status message\n");
+#endif 	
+  /*
+   * The battery status message consists of:
+   *	- current consumed (ignored)
+   *	- energy consumed (ignored)
+   *	- temperature (ignored)
+   *	- voltages[] (millivolt)
+   *	- current battery (ignored)
+   *	- id (ignored)
+   *	- battery function (ignored)
+   * 	- type (ignored)
+   *	- battery remaining (ignored)
+   */
+   uint16_t voltages[10];
+   voltages[0] = electrical.vsupply * 10; // The voltage of the battery is set to the first cell
+   mavlink_message_t msg;
+   mavlink_msg_global_position_int_pack(mavlink_system.sysid, // system id
+   							   			mavlink_system.compid, // component id
+   							  			&msg, // MAVLink message
+							   			-1, // current consumed
+                        	   			-1, // energy consumed
+                        	   			INT16_MAX, // temperature
+                        	   			voltages, // voltages[]
+                        	   			-1, // current battery
+                        	   			0, // id
+                        	   			0, // battery function
+                        	   			0, // type
+                        	   			-1); // battery remaining
+   mavlink_send_message(&msg);
+}
+
+/**
+ * Send gps status
+ */
+static void mavlink_send_gps_status(void)
+{
+#ifdef MAVLINK_FLAG_DEBUG
+  printf("Send GPS status message\n");
+#endif 	
+  /*
+   * The GPS status message consists of:
+   *	- satellites visible
+   *	- satellite pnr[] (ignored)
+   *	- satellite used[] (ignored)
+   *	- satellite elavation[] (ignored)
+   *	- satellite azimuth[] (ignored)
+   *	- satellite snr[] (ignored)
+   */
+   uint8_t empty[20];
+   mavlink_message_t msg;
+   mavlink_msg_gps_status_pack(mavlink_system.sysid, // system id
+   							   mavlink_system.compid, // component id
+   							   &msg, // MAVLink message
+   							   gps.num_sv, // satellites visible
+                           	   empty, // satellite pnr[]
+                           	   empty, // satellite used[]
+                           	   empty, // satellite elevation[]
+                           	   empty, // satellite azimuth[]
+                           	   empty); // satellite snr[]
+   mavlink_send_message(&msg);
+}
+
+/**
+ * Send gps position
+ */
+static void mavlink_send_gps_position(void)
+{
+#ifdef MAVLINK_FLAG_DEBUG
+  printf("Send GPS position message\n");
+#endif 	
+  /*
+   * The GPS position message consists of:
+   *	- time (ignored)
+   *	- latitude (*1E7)
+   *	- longitude (*1E7)
+   *	- altitude (mm)
+   *	- relative altitude (mm)
+   *	- vx (ignored)
+   *	- vy (ignored)
+   *	- vz (ignored)
+   *	- heading (degrees*100)
+   */
+  float heading = DegOfRad(stateGetNedToBodyEulers_f()->psi);
+  if (heading < 0.) {
+    heading += 360;
+  }
+  uint16_t compass_heading = heading * 100;
+  
+  int32_t relative_alt = stateGetPositionLla_i()->alt - state.ned_origin_f.hmsl;
+
+  mavlink_message_t msg;
+  mavlink_msg_global_position_int_pack(mavlink_system.sysid, // system id
+ 								   	   mavlink_system.compid, // component id
+   								   	   &msg, // MAVLink message
+   								   	   0, // time
+                            	   	   stateGetPositionLla_i()->lat, // latitude
+                                       stateGetPositionLla_i()->lon, // longitude
+                                       stateGetPositionLla_i()->alt, // altitude
+                                       relative_alt, // relative altitude
+                            	   	   -1, // vx
+                            	   	   -1, // vy
+                            	   	   -1, // vz
+                            	   	   compass_heading); // compass heading
   mavlink_send_message(&msg);
 }
 
@@ -156,6 +335,11 @@ void mavlink_init(void)
 void mavlink_periodic(void)
 {
 	RunOnceEvery(10, mavlink_send_heartbeat()); // Call at 1Hz
+	RunOnceEvery(1, mavlink_send_attitude()); // Call at 10Hz
+	RunOnceEvery(1, mavlink_send_altitude_ground_speed()); // Call at 10Hz
+	RunOnceEvery(10, mavlink_send_battery_status()); // Call at 1Hz
+	RunOnceEvery(10, mavlink_send_gps_status()); // Call at 1Hz
+	RunOnceEvery(1, mavlink_send_gps_position()); // Call at 10Hz
 }
 
 /**
@@ -164,6 +348,12 @@ void mavlink_periodic(void)
  */
 void mavlink_event(void)
 {
+	// Update the current block index in the block manager
+	if (block_mgr.current_block != nav_block) {
+		block_mgr.current_block = nav_block;
+		mavlink_block_cb(block_mgr.current_block);
+	}
+
 	socklen_t len;
 	uint8_t buf[MAVLINK_BUFFER_LENGTH]; // incoming message buffer
 	int16_t recsize = recvfrom(sock, (void *)buf, MAVLINK_BUFFER_LENGTH, 0, (struct sockaddr *)&rem_addr, &len); // retreive message from UDP buffer
