@@ -15,7 +15,7 @@
 
 extern float coef_form_alt, coef_form_pos, coef_form_speed, coef_form_course;
 extern float form_prox;
-extern int form_mode;
+extern uint8_t form_mode;
 extern uint8_t leader_id;
 
 enum slot_status {UNSET, ACTIVE, IDLE, LOST};

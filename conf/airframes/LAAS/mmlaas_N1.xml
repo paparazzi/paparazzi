@@ -45,9 +45,6 @@
   </modules>
 
 
-
-
-
 <!-- commands section -->
   <servos>
     <servo name="THROTTLE"   no="0" min="1200" neutral="1200" max="2000"/>

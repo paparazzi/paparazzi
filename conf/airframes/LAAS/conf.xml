@@ -1,0 +1,35 @@
+<conf>
+  <aircraft
+   name="N1"
+   ac_id="21"
+   airframe="airframes/LAAS/mmlaas_N1.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/form_leader.xml"
+   settings="settings/fixedwing_basic.xml"
+   settings_modules="modules/formation_flight.xml modules/infrared_adc.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="N2"
+   ac_id="22"
+   airframe="airframes/LAAS/mmlaas_N2.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/form_follow.xml"
+   settings="settings/fixedwing_basic.xml"
+   settings_modules="modules/formation_flight.xml modules/infrared_adc.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="N3"
+   ac_id="23"
+   airframe="airframes/LAAS/mmlaas_N3.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/form_follow.xml"
+   settings="settings/fixedwing_basic.xml"
+   settings_modules="modules/formation_flight.xml modules/infrared_adc.xml"
+   gui_color="red"
+  />
+</conf>

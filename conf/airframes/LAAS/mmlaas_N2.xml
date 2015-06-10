@@ -221,7 +221,7 @@
   </section>
 
   <section name="SIMU">
-    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
+    <define name="YAW_RESPONSE_FACTOR" value="1."/>
   </section>
 
  <makefile>
