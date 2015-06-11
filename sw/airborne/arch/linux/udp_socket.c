@@ -183,7 +183,7 @@ int udp_socket_recv(struct UdpSocket *sock, uint8_t *buffer, uint16_t len)
   ssize_t bytes_read = recvfrom(sock->sockfd, buffer, len, 0,
                                 (struct sockaddr *)&sock->addr_in, &slen);
 
-  return bytes_read;
+  return (int)bytes_read;
 }
 
 int udp_socket_subscribe_multicast(struct UdpSocket *sock, const char* multicast_addr) {
