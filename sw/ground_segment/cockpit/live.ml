@@ -1332,7 +1332,8 @@ let listen_waypoint_moved = fun () ->
     try
       let w = ac.fp_group#get_wp wp_id in
       w#set_ground_alt ground_alt;
-      w#set ~altitude ~update:true geo
+      w#set ~altitude ~update:true geo;
+      ac.fp_group#update_sectors w#name
     with
         Not_found -> () (* Silently ignore unknown waypoints *)
   in
