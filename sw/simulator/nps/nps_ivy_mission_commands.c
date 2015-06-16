@@ -1,6 +1,7 @@
 #if USE_MISSION_COMMANDS_IN_NPS
 
 #include "nps_ivy.h"
+#include "nps_autopilot.h"
 
 #include <stdlib.h>
 #include <Ivy/ivy.h>
