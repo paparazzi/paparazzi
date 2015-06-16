@@ -71,8 +71,8 @@ bool_t mission_insert(enum MissionInsertMode insert, struct _mission_element *el
     case ReplaceAll:
       // reset queue and index
       memcpy(&mission.elements[0], element, sizeof(struct _mission_element));
-      mission.insert_idx = 0;
       mission.current_idx = 0;
+      mission.insert_idx = 1;
       break;
     default:
       // unknown insertion mode
