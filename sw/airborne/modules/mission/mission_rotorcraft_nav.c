@@ -52,7 +52,8 @@ bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
   struct EnuCoor_i tmp_enu_point_i;
   enu_of_lla_point_i(&tmp_enu_point_i, &state.ned_origin_i, lla);
   struct EnuCoor_f tmp_enu_point_f;
-  ENU_FLOAT_OF_BFP(tmp_enu_point_f, tmp_enu_point_i);
+  // result of enu_of_lla_point_i is in cm, convert to float in m
+  VECT3_SMUL(tmp_enu_point_f, tmp_enu_point_i, 0.01);
 
   //Bound the new waypoint with max distance from home
   struct FloatVect2 home;
