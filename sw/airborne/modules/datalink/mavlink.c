@@ -137,14 +137,14 @@ static void mavlink_send_altitude_ground_speed(void)
    */
    mavlink_message_t msg;
    mavlink_msg_vfr_hud_pack(mavlink_system.sysid, // system id
-   							mavlink_system.compid, // component id
-   							&msg, // MAVLink message
-   							-1, // airspeed
+   							            mavlink_system.compid, // component id
+   							            &msg, // MAVLink message
+   							            -1, // airspeed
                             *stateGetHorizontalSpeedNorm_f(), // groundspeed
-                            stateGetPositionNed_f()->z, // altitude
-                            stateGetSpeedNed_f()->z, // climb rate
                             -1, // heading
-                            0); // throttle setting
+                            0,  // throttle setting
+                            stateGetPositionNed_f()->z, // altitude
+                            stateGetSpeedNed_f()->z); // climb rate
    mavlink_send_message(&msg);
 }
 
@@ -169,20 +169,20 @@ static void mavlink_send_battery_status(void)
    *	- battery remaining (ignored)
    */
    uint16_t voltages[10];
-   voltages[0] = electrical.vsupply * 10; // The voltage of the battery is set to the first cell
+   voltages[0] = electrical.vsupply * 100; // The voltage of the battery is set to the first cell
    mavlink_message_t msg;
-   mavlink_msg_global_position_int_pack(mavlink_system.sysid, // system id
-   							   			mavlink_system.compid, // component id
-   							  			&msg, // MAVLink message
-							   			-1, // current consumed
-                        	   			-1, // energy consumed
-                        	   			INT16_MAX, // temperature
-                        	   			voltages, // voltages[]
-                        	   			-1, // current battery
-                        	   			0, // id
-                        	   			0, // battery function
-                        	   			0, // type
-                        	   			-1); // battery remaining
+   mavlink_msg_battery_status_pack(mavlink_system.sysid, // system id
+   							   			                mavlink_system.compid, // component id
+   							  			                &msg, // MAVLink message
+                                        0, // id
+                                        0, // battery function
+                                        0, // type
+                                        INT16_MAX, // temperature
+                                        voltages, // voltages[]
+                                        -1, // current battery
+							   			                  -1, // current consumed
+                        	   			      -1, // energy consumed                    	   			      
+                        	   			      0); // battery remaining
    mavlink_send_message(&msg);
 }
 
@@ -199,7 +199,7 @@ static void mavlink_send_gps_status(void)
    *	- satellites visible
    *	- satellite pnr[] (ignored)
    *	- satellite used[] (ignored)
-   *	- satellite elavation[] (ignored)
+   *	- satellite elevation[] (ignored)
    *	- satellite azimuth[] (ignored)
    *	- satellite snr[] (ignored)
    */
