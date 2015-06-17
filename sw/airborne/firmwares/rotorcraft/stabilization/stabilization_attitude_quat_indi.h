@@ -44,24 +44,27 @@ struct ReferenceSystem {
   float rate_r;
 };
 
+struct IndiVariables {
+  struct FloatRates filtered_rate;
+  struct FloatRates filtered_rate_deriv;
+  struct FloatRates filtered_rate_2deriv;
+  struct FloatRates angular_accel_ref;
+  struct FloatRates du;
+  struct FloatRates u_act_dyn;
+  struct FloatRates u_in;
+  struct FloatRates u;
+  struct FloatRates udot;
+  struct FloatRates udotdot;
+};
+
 extern struct FloatRates g1;
 extern float g2;
 extern struct ReferenceSystem reference_acceleration;
 
-extern struct FloatRates filtered_rate;
-extern struct FloatRates filtered_rate_deriv;
-extern struct FloatRates filtered_rate_2deriv;
-extern struct FloatRates angular_accel_ref;
-extern struct FloatRates indi_u;
-extern struct FloatRates indi_du;
-extern struct FloatRates u_act_dyn;
-extern struct FloatRates u_in;
-extern struct FloatRates udot;
-extern struct FloatRates udotdot;
-
 extern struct FloatRates g_est;
 
-void stabilization_indi_second_order_filter(struct FloatRates *input, struct FloatRates *filter_ddx, struct FloatRates *filter_dx, struct FloatRates *filter_x, float omega, float zeta, float omega_r);
+void stabilization_indi_second_order_filter(struct FloatRates *input, struct FloatRates *filter_ddx,
+    struct FloatRates *filter_dx, struct FloatRates *filter_x, float omega, float zeta, float omega_r);
 void lms_estimation(void);
 
 #endif /* STABILIZATION_ATTITUDE_QUAT_INT_H */
