@@ -1,0 +1,17 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="invariant">
+      <dl_setting MAX="1" MIN="1" STEP="1" VAR="ahrs_float_inv.reset" shortname="reset"/>
+      <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.lx" shortname="lx" module="subsystems/ahrs/ahrs_float_invariant"/>
+      <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.ly" shortname="ly"/>
+      <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.lz" shortname="lz"/>
+      <dl_setting MAX=".1" MIN="0." STEP="0.001" VAR="ahrs_float_inv.gains.mx" shortname="mx"/>
+      <dl_setting MAX=".1" MIN="0." STEP="0.001" VAR="ahrs_float_inv.gains.my" shortname="my"/>
+      <dl_setting MAX=".1" MIN="0." STEP="0.001" VAR="ahrs_float_inv.gains.mz" shortname="mz"/>
+      <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.n" shortname="n"/>
+      <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.o" shortname="o"/>
+    </dl_settings>
+  </dl_settings>
+</settings>
