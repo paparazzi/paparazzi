@@ -439,7 +439,7 @@ inline static void h_ctl_roll_loop(void)
   h_ctl_ref.roll_accel = 0.;
 #endif
 
-#ifdef USE_KFF_UPDATE
+#ifdef USE_KFF_UPDATE_ROLL
   // update Kff gains
   h_ctl_roll_Kffa += KFFA_UPDATE * h_ctl_ref.roll_accel * cmd_fb / (h_ctl_ref.max_p_dot * h_ctl_ref.max_p_dot);
   h_ctl_roll_Kffd += KFFD_UPDATE * h_ctl_ref.roll_rate  * cmd_fb / (h_ctl_ref.max_p * h_ctl_ref.max_p);
@@ -552,7 +552,7 @@ inline static void h_ctl_pitch_loop(void)
   h_ctl_ref.pitch_accel = 0.;
 #endif
 
-#ifdef USE_KFF_UPDATE
+#ifdef USE_KFF_UPDATE_PITCH
   // update Kff gains
   h_ctl_pitch_Kffa += KFFA_UPDATE * h_ctl_ref.pitch_accel * cmd_fb / (h_ctl_ref.max_q_dot * h_ctl_ref.max_q_dot);
   h_ctl_pitch_Kffd += KFFD_UPDATE * h_ctl_ref.pitch_rate  * cmd_fb / (h_ctl_ref.max_q * h_ctl_ref.max_q);
