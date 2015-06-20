@@ -36,6 +36,7 @@
 #include CTRL_TYPE_H
 #include "firmwares/fixedwing/autopilot.h"
 
+
 /* outer loop parameters */
 float h_ctl_course_setpoint; /* rad, CW/north */
 float h_ctl_course_pre_bank;
@@ -678,7 +679,7 @@ inline static void h_ctl_cl_loop(void)
   // the corrected airspeed Vn is so that nz = Czn/Cz = V^2 / Vn^2,
   // thus Vn = V / sqrt(nz)
 #if H_CTL_CL_LOOP_USE_AIRSPEED_SETPOINT
-  float corrected_airspeed = v_ctl_auto_airspeed_controlled;
+  float corrected_airspeed = v_ctl_auto_airspeed_setpoint;
 #else
   float corrected_airspeed = *stateGetAirspeed_f();
 #endif
