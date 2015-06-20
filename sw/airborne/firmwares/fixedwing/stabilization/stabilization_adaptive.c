@@ -664,10 +664,10 @@ inline static void h_ctl_cl_loop(void)
   VECT3_COPY(accel_ned, (*accel_tmp));
   accel_ned.z -= ACCEL_BFP_OF_REAL(9.81f);
   int32_rmat_vmult(&accel_meas_body, ned_to_body_rmat, &accel_ned);
-  float nz = ACCEL_FLOAT_OF_BFP(accel_meas_body.z) / 9.81f;
+  float nz = -ACCEL_FLOAT_OF_BFP(accel_meas_body.z) / 9.81f;
   // max load factor to be taken into acount
-  // to prevent negative flap movement du to negative nz
-  Bound(nz, 0.5f, 2.f);
+  // to prevent negative flap movement du to negative acceleration
+  Bound(nz, 1.f, 2.f);
 #else
   float nz = 0.f;
 #endif
