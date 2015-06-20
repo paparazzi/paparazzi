@@ -607,6 +607,7 @@ inline static void h_ctl_yaw_loop(void)
   struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
   struct NedCoor_i *accel_tmp = stateGetAccelNed_i();
   VECT3_COPY(accel_ned, (*accel_tmp));
+  accel_ned.z -= ACCEL_BFP_OF_REAL(9.81f);
   int32_rmat_vmult(&accel_meas_body, ned_to_body_rmat, &accel_ned);
   float by = ACCEL_FLOAT_OF_BFP(accel_meas_body.y);
 #else
