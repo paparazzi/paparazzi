@@ -148,8 +148,8 @@ pprz_t h_ctl_elevator_setpoint;
 #if H_CTL_YAW_LOOP
 float h_ctl_yaw_rate_setpoint;
 float h_ctl_yaw_dgain;
-float h_ctl_yaw_by_igain;
-float h_ctl_yaw_by_sum_err;
+float h_ctl_yaw_ny_igain;
+float h_ctl_yaw_ny_sum_err;
 pprz_t h_ctl_rudder_setpoint;
 #endif
 
@@ -304,8 +304,8 @@ void h_ctl_init(void)
 
 #if H_CTL_YAW_LOOP
   h_ctl_yaw_dgain = H_CTL_YAW_DGAIN;
-  h_ctl_yaw_by_igain = H_CTL_YAW_BY_IGAIN;
-  h_ctl_yaw_by_sum_err = 0.;
+  h_ctl_yaw_ny_igain = H_CTL_YAW_NY_IGAIN;
+  h_ctl_yaw_ny_sum_err = 0.;
   h_ctl_rudder_setpoint = 0;
 #endif
 
@@ -601,7 +601,7 @@ inline static void h_ctl_pitch_loop(void)
 inline static void h_ctl_yaw_loop(void)
 {
 
-#if H_CTL_YAW_TRIM_BY
+#if H_CTL_YAW_TRIM_NY
   // Actual Acceleration from IMU:
 #if (!defined SITL || defined USE_NPS)
   struct Int32Vect3 accel_meas_body, accel_ned;
@@ -616,17 +616,17 @@ inline static void h_ctl_yaw_loop(void)
 #endif
 
   if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
-    h_ctl_yaw_by_sum_err = 0.;
+    h_ctl_yaw_ny_sum_err = 0.;
   } else {
-    if (h_ctl_yaw_by_igain > 0.) {
+    if (h_ctl_yaw_ny_igain > 0.) {
       // only update when: phi<60degrees and ny<2g
       if (fabsf(stateGetNedToBodyEulers_f()->phi) < 1.05 && fabsf(ny) < 2.) {
-        h_ctl_yaw_by_sum_err += ny * H_CTL_REF_DT;
+        h_ctl_yaw_ny_sum_err += ny * H_CTL_REF_DT;
         // max half rudder deflection for trim
-        BoundAbs(h_ctl_yaw_by_sum_err, MAX_PPRZ / (2. * h_ctl_yaw_by_igain));
+        BoundAbs(h_ctl_yaw_ny_sum_err, MAX_PPRZ / (2. * h_ctl_yaw_ny_igain));
       }
     } else {
-      h_ctl_yaw_by_sum_err = 0.;
+      h_ctl_yaw_ny_sum_err = 0.;
     }
   }
 #endif
@@ -643,8 +643,8 @@ inline static void h_ctl_yaw_loop(void)
   float d_err = h_ctl_ref.yaw_rate - stateGetBodyRates_f()->r;
 
   float cmd = + h_ctl_yaw_dgain * d_err
-#if H_CTL_YAW_TRIM_BY
-              + h_ctl_yaw_by_igain * h_ctl_yaw_by_sum_err
+#if H_CTL_YAW_TRIM_NY
+              + h_ctl_yaw_ny_igain * h_ctl_yaw_ny_sum_err
 #endif
               ;
   cmd /= airspeed_ratio2;
