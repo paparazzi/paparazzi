@@ -305,7 +305,7 @@ void h_ctl_init(void)
 #if H_CTL_YAW_LOOP
   h_ctl_yaw_dgain = H_CTL_YAW_DGAIN;
   h_ctl_yaw_by_igain = H_CTL_YAW_BY_IGAIN;
-  h_ctl_yaw_by_sum_err = 0;
+  h_ctl_yaw_by_sum_err = 0.;
   h_ctl_rudder_setpoint = 0;
 #endif
 
@@ -603,25 +603,25 @@ inline static void h_ctl_yaw_loop(void)
 
 #if H_CTL_YAW_TRIM_BY
   // Actual Acceleration from IMU:
-#ifndef SITL
+#if (!defined SITL || defined USE_NPS)
   struct Int32Vect3 accel_meas_body, accel_ned;
   struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
   struct NedCoor_i *accel_tmp = stateGetAccelNed_i();
   VECT3_COPY(accel_ned, (*accel_tmp));
   accel_ned.z -= ACCEL_BFP_OF_REAL(9.81f);
   int32_rmat_vmult(&accel_meas_body, ned_to_body_rmat, &accel_ned);
-  float by = ACCEL_FLOAT_OF_BFP(accel_meas_body.y);
+  float ny = -ACCEL_FLOAT_OF_BFP(accel_meas_body.y) / 9.81f; // Lateral load factor (in g)
 #else
-  float by = 0.;
+  float ny = 0.f;
 #endif
 
   if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
     h_ctl_yaw_by_sum_err = 0.;
   } else {
     if (h_ctl_yaw_by_igain > 0.) {
-      // only update when: phi<60degrees and by<2g
-      if (fabsf(stateGetNedToBodyEulers_f()->phi) < 1.05 && fabsf(by) < 2.*9.81) {
-        h_ctl_yaw_by_sum_err += by * H_CTL_REF_DT;
+      // only update when: phi<60degrees and ny<2g
+      if (fabsf(stateGetNedToBodyEulers_f()->phi) < 1.05 && fabsf(ny) < 2.) {
+        h_ctl_yaw_by_sum_err += ny * H_CTL_REF_DT;
         // max half rudder deflection for trim
         BoundAbs(h_ctl_yaw_by_sum_err, MAX_PPRZ / (2. * h_ctl_yaw_by_igain));
       }
@@ -644,7 +644,7 @@ inline static void h_ctl_yaw_loop(void)
 
   float cmd = + h_ctl_yaw_dgain * d_err
 #if H_CTL_YAW_TRIM_BY
-              - h_ctl_yaw_by_igain * h_ctl_yaw_by_sum_err
+              + h_ctl_yaw_by_igain * h_ctl_yaw_by_sum_err
 #endif
               ;
   cmd /= airspeed_ratio2;
@@ -658,7 +658,7 @@ inline static void h_ctl_cl_loop(void)
 {
 
 #if H_CTL_CL_LOOP_INCREASE_FLAPS_WITH_LOADFACTOR
-#ifndef SITL
+#if (!defined SITL || defined USE_NPS)
   struct Int32Vect3 accel_meas_body, accel_ned;
   struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
   struct NedCoor_i *accel_tmp = stateGetAccelNed_i();
@@ -670,7 +670,7 @@ inline static void h_ctl_cl_loop(void)
   // to prevent negative flap movement du to negative acceleration
   Bound(nz, 1.f, 2.f);
 #else
-  float nz = 0.f;
+  float nz = 1.f;
 #endif
 #endif
 
