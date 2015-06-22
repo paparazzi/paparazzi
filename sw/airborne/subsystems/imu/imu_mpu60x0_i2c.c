@@ -71,7 +71,7 @@ struct ImuMpu60x0 imu_mpu_i2c;
 
 void imu_impl_init(void)
 {
-  mpu60x0_i2c_init(&imu_mpu_i2c.mpu, &(IMU_MPU60X0_I2C_DEV), IMU_MPU60X0_I2C_ADDR >> 1);
+  mpu60x0_i2c_init(&imu_mpu_i2c.mpu, &(IMU_MPU60X0_I2C_DEV), IMU_MPU60X0_I2C_ADDR);
   // change the default configuration
   imu_mpu_i2c.mpu.config.smplrt_div = IMU_MPU60X0_SMPLRT_DIV;
   imu_mpu_i2c.mpu.config.dlpf_cfg = IMU_MPU60X0_LOWPASS_FILTER;

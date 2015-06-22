@@ -79,14 +79,14 @@ struct ImuBebop imu_bebop;
 void imu_impl_init(void)
 {
   /* MPU-60X0 */
-  mpu60x0_i2c_init(&imu_bebop.mpu, &(BEBOP_MPU_I2C_DEV), MPU60X0_ADDR >> 1);
+  mpu60x0_i2c_init(&imu_bebop.mpu, &(BEBOP_MPU_I2C_DEV), MPU60X0_ADDR);
   imu_bebop.mpu.config.smplrt_div = BEBOP_SMPLRT_DIV;
   imu_bebop.mpu.config.dlpf_cfg = BEBOP_LOWPASS_FILTER;
   imu_bebop.mpu.config.gyro_range = BEBOP_GYRO_RANGE;
   imu_bebop.mpu.config.accel_range = BEBOP_ACCEL_RANGE;
 
   /* AKM8963 */
-  ak8963_init(&imu_bebop.ak, &(BEBOP_MAG_I2C_DEV), AK8963_ADDR >> 1);
+  ak8963_init(&imu_bebop.ak, &(BEBOP_MAG_I2C_DEV), AK8963_ADDR);
 }
 
 /**
