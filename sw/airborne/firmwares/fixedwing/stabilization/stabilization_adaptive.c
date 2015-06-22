@@ -22,7 +22,46 @@
 /**
  * @file firmwares/fixedwing/stabilization/stabilization_adaptive.c
  *
- * Fixed wing horizontal adaptive control.
+ * Fixed wing adaptive control.
+ *
+ *
+ * to use the attitude referece generator define
+ *   <define name="USE_ANGLE_REF"/>
+ *
+ * to use the adaptive part for roll and/or pitch define
+ *  <define name="USE_KFF_UPDATE_ROLL"/>
+ *  <define name="USE_KFF_UPDATE_PITCH"/>
+ *
+ * to use the yaw damper
+ *  <section name="AUTO1" prefix="AUTO1_">
+ *    <define name="MAX_YAW_RATE" value="RadOfDeg(100)"/>
+ *  </section>
+ *
+ *  <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+ *   <define name="YAW_LOOP" value="TRUE"/>
+ *   <define name="YAW_DGAIN" value="5000."/>
+ *  </section>
+ *
+ *   in addition "ny" can be trimed to minimize the sideslip angle
+ *    <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+ *     <define name="YAW_TRIM_NY" value="TRUE"/>
+ *     <define name="YAW_NY_IGAIN" value="5000."/>
+ *  </section>
+ *
+ * to use the automatic flap control define
+ *  <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+ *   <define name="CL_LOOP" value="TRUE"/>
+ *   <define name="CL_LOOP_USE_AIRSPEED_SETPOINT" value="TRUE"/>
+ *   <define name="CL_FLAPS_STALL" value="0.8"/>
+ *   <define name="CL_FLAPS_NOMINAL" value="0."/>
+ *   <define name="CL_FLAPS_RACE" value="-0.5"/>
+ *   <define name="CL_DEADBAND" value="1."/>
+ *  </section>
+ *
+ *   the actual flap setting can also be increased by the loadfactor "nz"
+ *    <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+ *     <define name="CL_LOOP_INCREASE_FLAPS_WITH_LOADFACTOR" value="TRUE"/>
+ *    </section>
  *
  */
 
@@ -102,12 +141,6 @@ struct HCtlAdaptRef h_ctl_ref;
 #endif
 #ifndef H_CTL_REF_MAX_Q_DOT
 #define H_CTL_REF_MAX_Q_DOT RadOfDeg(500.)
-#endif
-#ifndef H_CTL_REF_MAX_R
-#define H_CTL_REF_MAX_R RadOfDeg(150.)
-#endif
-#ifndef H_CTL_REF_MAX_R_DOT
-#define H_CTL_REF_MAX_R_DOT RadOfDeg(500.)
 #endif
 
 #if USE_ANGLE_REF
@@ -268,8 +301,6 @@ void h_ctl_init(void)
   h_ctl_ref.max_p_dot = H_CTL_REF_MAX_P_DOT;
   h_ctl_ref.max_q = H_CTL_REF_MAX_Q;
   h_ctl_ref.max_q_dot = H_CTL_REF_MAX_Q_DOT;
-  h_ctl_ref.max_r = H_CTL_REF_MAX_R;
-  h_ctl_ref.max_r_dot = H_CTL_REF_MAX_R_DOT;
 
   h_ctl_course_setpoint = 0.;
   h_ctl_course_pre_bank = 0.;
