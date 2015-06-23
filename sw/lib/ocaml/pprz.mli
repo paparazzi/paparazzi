@@ -75,6 +75,9 @@ type type_descr = {
 val types : (string * type_descr) list
 type values  = (string * value) list
 
+val value : _type -> string -> value
+(** return a value from a string and a type *)
+
 val assoc : string -> values -> value
 (** Safe assoc taking into accound characters case. May raise Failure ... *)
 
