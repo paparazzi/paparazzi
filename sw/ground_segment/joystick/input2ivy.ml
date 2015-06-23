@@ -490,7 +490,7 @@ let update_variables = fun inputs buttons hat axis variables ->
 let execute_action = fun ac_id inputs buttons hat axis variables message ->
   let values =
     List.map
-      (fun (name, expr) -> (name, Pprz.Int (eval_expr buttons hat axis inputs variables expr)))
+      (fun (_, expr) -> eval_expr buttons hat axis inputs variables expr)
       message.fields
 
   and on_event =
@@ -501,10 +501,12 @@ let execute_action = fun ac_id inputs buttons hat axis variables message ->
   let previous_values = get_previous_values message.msg_name in
   (* FIXME ((value <> previous) && on_event) || send_always ??? *)
   if ( ( (on_event, values) <> previous_values ) || message.send_always ) && on_event then begin
-    let vs = if message.has_ac_id then ("ac_id", Pprz.Int ac_id) :: values else values in
+    let vs = if message.has_ac_id then ac_id :: values else values in
+    (* build string from values *)
+    let vs = List.fold_left (fun s v -> sprintf "%s %d" s v) message.msg_name vs in
     match message.msg_class with
-        "datalink" -> DL.message_send "input2ivy" message.msg_name vs
-      | "ground" -> G.message_send "input2ivy" message.msg_name vs
+        "datalink" -> DL.message_send "input2ivy" message.msg_name (snd (DL.values_of_string vs))
+      | "ground" -> G.message_send "input2ivy" message.msg_name (snd (G.values_of_string vs))
       | "trim_plus" -> trim_adjust message.msg_name trim_step inputs
       | "trim_minus" -> trim_adjust message.msg_name (-.trim_step) inputs
       | "trim_save" -> trim_save inputs
