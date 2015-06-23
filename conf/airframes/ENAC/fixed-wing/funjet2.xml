@@ -10,6 +10,10 @@
 
 <airframe name="Funjet II">
 
+  <firmware name="test_progs">
+    <target name="test_math_trig_compressed" board="apogee_1.0"/>
+  </firmware>
+
   <modules>
     <load name="mag_hmc58xx.xml">
       <define name="MODULE_HMC58XX_UPDATE_AHRS"/>
