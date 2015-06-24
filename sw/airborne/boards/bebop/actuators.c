@@ -36,7 +36,7 @@
 #include "subsystems/datalink/telemetry.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
-static void send_actuators_bebop(struct transport_tx *trans, struct link_device *dev)
+static void send_bebop_actuators(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_BEBOP_ACTUATORS(trans, dev, AC_ID,
                                 &stabilization_cmd[COMMAND_THRUST],
@@ -66,7 +66,7 @@ void actuators_bebop_init(void)
   actuators_bebop.led = 0;
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "ACTUATORS_BEBOP", send_actuators_bebop);
+  register_periodic_telemetry(DefaultPeriodic, DL_BEBOP_ACTUATORS, send_actuators_bebop);
 #endif
 }
 

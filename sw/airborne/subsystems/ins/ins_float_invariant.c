@@ -265,7 +265,7 @@ void ins_float_invariant_init(void)
   ins_float_inv.reset = FALSE;
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "INVARIANT_FILTER", send_inv_filter);
+  register_periodic_telemetry(DefaultPeriodic, DL_INV_FILTER, send_inv_filter);
 #endif
 }
 

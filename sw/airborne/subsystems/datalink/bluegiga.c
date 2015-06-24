@@ -174,7 +174,7 @@ void bluegiga_init(struct bluegiga_periph *p)
   coms_status = BLUEGIGA_UNINIT;
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "BLUEGIGA", send_bluegiga);
+  register_periodic_telemetry(DefaultPeriodic, DL_BLUEGIGA, send_bluegiga);
 #endif
 
   // register spi slave read for transaction

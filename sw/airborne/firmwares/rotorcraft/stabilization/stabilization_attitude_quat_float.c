@@ -171,8 +171,8 @@ void stabilization_attitude_init(void)
   FLOAT_RATES_ZERO(body_rate_d);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
-  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_REF", send_att_ref);
+  register_periodic_telemetry(DefaultPeriodic, DL_STAB_ATTITUDE_FLOAT, send_att);
+  register_periodic_telemetry(DefaultPeriodic, DL_STAB_ATTITUDE_REF_FLOAT, send_att_ref);
 #endif
 }
 

@@ -155,11 +155,11 @@ void gps_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "GPS", send_gps);
-  register_periodic_telemetry(DefaultPeriodic, "GPS_INT", send_gps_int);
-  register_periodic_telemetry(DefaultPeriodic, "GPS_LLA", send_gps_lla);
-  register_periodic_telemetry(DefaultPeriodic, "GPS_SOL", send_gps_sol);
-  register_periodic_telemetry(DefaultPeriodic, "SVINFO", send_svinfo);
+  register_periodic_telemetry(DefaultPeriodic, DL_GPS, send_gps);
+  register_periodic_telemetry(DefaultPeriodic, DL_GPS_INT, send_gps_int);
+  register_periodic_telemetry(DefaultPeriodic, DL_GPS_LLA, send_gps_lla);
+  register_periodic_telemetry(DefaultPeriodic, DL_GPS_SOL, send_gps_sol);
+  register_periodic_telemetry(DefaultPeriodic, DL_SVINFO, send_svinfo);
 #endif
 }
 

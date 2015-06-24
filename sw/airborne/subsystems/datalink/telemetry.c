@@ -33,26 +33,25 @@
 /* Implement global structures from generated header.
  * Can register up to #TELEMETRY_NB_CBS callbacks per periodic message.
  */
-telemetry_msg telemetry_msgs[TELEMETRY_NB_MSG] = TELEMETRY_MSG_NAMES;
-struct telemetry_cb_slots telemetry_cbs[TELEMETRY_NB_MSG] = TELEMETRY_CBS_NULL;
-struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs, telemetry_cbs };
+struct telemetry_cb_slots telemetry_cbs[TELEMETRY_NB_MSG] = TELEMETRY_CBS;
+struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_cbs };
 
 
 /** Register a telemetry callback function.
  * @param _pt periodic telemetry structure to register
- * @param _msg message name (string) as defined in telemetry xml file
+ * @param _msgn message id/number (use DL_<message_name> define)
  * @param _cb callback function, called according to telemetry mode and specified period
  * @return -1 on failure to register, index of callback otherwise
  */
-int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb)
+int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, uint8_t _msgn, telemetry_cb _cb)
 {
+  uint8_t i, j;
   // return if NULL is passed as periodic_telemetry
   if (_pt == NULL) { return -1; }
-  // look for message name
-  uint8_t i, j;
+  // check if message with id _msgn has a periodic entery in telemetry file
   for (i = 0; i < _pt->nb; i++) {
-    if (str_equal(_pt->msgs[i], _msg)) {
-      // register another callback if not all TELEMETRY_NB_CBS slots taken
+    if (_pt->cbs[i].id == _msgn) {
+      // msg found, register another callback if not all TELEMETRY_NB_CBS slots taken
       for (j = 0; j < TELEMETRY_NB_CBS; j++) {
         if (_pt->cbs[i].slots[j] == NULL) {
           _pt->cbs[i].slots[j] = _cb;
@@ -63,7 +62,7 @@ int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_
       return -1;
     }
   }
-  // message name is not in telemetry file
+  // message is not in telemetry file
   return -1;
 }
 

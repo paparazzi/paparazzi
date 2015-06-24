@@ -250,7 +250,7 @@ void i2c_init(struct i2c_periph *p)
 
 #if PERIODIC_TELEMETRY
   // the first to register do it for the others
-  register_periodic_telemetry(DefaultPeriodic, "I2C_ERRORS", send_i2c_err);
+  register_periodic_telemetry(DefaultPeriodic, DL_I2C_ERRORS, send_i2c_err);
 #endif
 }
 

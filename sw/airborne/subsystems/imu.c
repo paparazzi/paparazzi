@@ -134,15 +134,15 @@ void imu_init(void)
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_RAW", send_accel_raw);
-  register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_SCALED", send_accel_scaled);
-  register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
-  register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO_RAW", send_gyro_raw);
-  register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO_SCALED", send_gyro_scaled);
-  register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO", send_gyro);
-  register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_RAW", send_mag_raw);
-  register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_SCALED", send_mag_scaled);
-  register_periodic_telemetry(DefaultPeriodic, "IMU_MAG", send_mag);
+  register_periodic_telemetry(DefaultPeriodic, DL_IMU_ACCEL_RAW, send_accel_raw);
+  register_periodic_telemetry(DefaultPeriodic, DL_IMU_ACCEL_SCALED, send_accel_scaled);
+  register_periodic_telemetry(DefaultPeriodic, DL_IMU_ACCEL, send_accel);
+  register_periodic_telemetry(DefaultPeriodic, DL_IMU_GYRO_RAW, send_gyro_raw);
+  register_periodic_telemetry(DefaultPeriodic, DL_IMU_GYRO_SCALED, send_gyro_scaled);
+  register_periodic_telemetry(DefaultPeriodic, DL_IMU_GYRO, send_gyro);
+  register_periodic_telemetry(DefaultPeriodic, DL_IMU_MAG_RAW, send_mag_raw);
+  register_periodic_telemetry(DefaultPeriodic, DL_IMU_MAG_SCALED, send_mag_scaled);
+  register_periodic_telemetry(DefaultPeriodic, DL_IMU_MAG, send_mag);
 #endif // DOWNLINK
 
   imu_impl_init();

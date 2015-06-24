@@ -96,7 +96,7 @@ void downlink_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "DATALINK_REPORT", send_downlink);
+  register_periodic_telemetry(DefaultPeriodic, DL_DATALINK_REPORT, send_downlink);
 #endif
 }
 

@@ -133,7 +133,7 @@ void stabilization_attitude_init(void)
 {
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_INDI", send_att_indi);
+  register_periodic_telemetry(DefaultPeriodic, DL_STAB_ATTITUDE_INDI, send_att_indi);
 #endif
 }
 

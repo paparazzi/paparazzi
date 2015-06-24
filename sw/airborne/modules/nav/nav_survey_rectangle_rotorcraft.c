@@ -34,7 +34,7 @@
 
 #ifdef RECTANGLE_SURVEY_USE_INTERLEAVE
 #define USE_INTERLEAVE TRUE
-#else 
+#else
 #define USE_INTERLEAVE FALSE
 #endif
 
@@ -92,7 +92,7 @@ static void send_survey(struct transport_tx *trans, struct link_device *dev)
 void nav_survey_rectangle_rotorcraft_init(void)
 {
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "SURVEY", send_survey);
+  register_periodic_telemetry(DefaultPeriodic, DL_SURVEY, send_survey);
 #endif
 }
 

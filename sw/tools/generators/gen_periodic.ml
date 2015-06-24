@@ -95,7 +95,7 @@ let output_modes = fun out_h process_name modes freq modules ->
           left ();
           lprintf out_h "}\n";
           fprintf out_h "#if USE_PERIODIC_TELEMETRY_REPORT\n";
-          lprintf out_h "if (j == 0) periodic_telemetry_err_report(TELEMETRY_PROCESS_%s, telemetry_mode_%s, TELEMETRY_MSG_%s_ID);\n" process_name process_name message_name;
+          lprintf out_h "if (j == 0) periodic_telemetry_err_report(TELEMETRY_PROCESS_%s, telemetry_mode_%s, DL_%s);\n" process_name process_name message_name;
           fprintf out_h "#endif\n";
           left ();
           lprintf out_h "}\n"
@@ -159,14 +159,11 @@ let print_message_table = fun out_h xml ->
   ) messages 0 in
   Xml2h.define "TELEMETRY_NB_MSG" (sprintf "%d" nb);
   (* Structure initialization *)
-  fprintf out_h "#define TELEMETRY_MSG_NAMES { \\\n";
+  fprintf out_h "\n#define TELEMETRY_MSG_NAMES { \\\n";
   Hashtbl.iter (fun n _ -> fprintf out_h "  \"%s\", \\\n" n) messages;
-  fprintf out_h "};\n\n";
-  fprintf out_h "#define TELEMETRY_CBS_NULL { \\\n";
-  for i = 1 to (Hashtbl.length messages) do
-    (* use one 0 to init all slots (number TELEMETRY_NB_CBS) to NULL *)
-    fprintf out_h "  {{ NULL }}, \\\n";
-  done;
+  fprintf out_h "}\n\n";
+  fprintf out_h "#define TELEMETRY_CBS { \\\n";
+  Hashtbl.iter (fun n _ -> fprintf out_h "  {.id=DL_%s, .slots={ NULL }}, \\\n" n) messages;
   fprintf out_h "}\n\n"
 
 let print_process_send = fun out_h xml freq modules ->

@@ -133,7 +133,7 @@ void link_mcu_init(void)
   link_mcu_trans.output_length = LINK_MCU_FRAME_LENGTH;
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "DEBUG_MCU_LINK", send_debug_link);
+  register_periodic_telemetry(DefaultPeriodic, DL_DEBUG_MCU_LINK, send_debug_link);
 #endif
 }
 

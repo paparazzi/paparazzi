@@ -128,7 +128,7 @@ void stabilization_rate_init(void)
   INT_RATES_ZERO(stabilization_rate_sum_err);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "RATE_LOOP", send_rate);
+  register_periodic_telemetry(DefaultPeriodic, DL_RATE_LOOP, send_rate);
 #endif
 }
 
