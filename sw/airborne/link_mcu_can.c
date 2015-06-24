@@ -218,8 +218,8 @@ void link_mcu_init(void)
 #ifdef AP
 #if PERIODIC_TELEMETRY
   // If FBW has not telemetry, then AP can send some of the info
-  register_periodic_telemetry(DefaultPeriodic, "COMMANDS", send_commands);
-  register_periodic_telemetry(DefaultPeriodic, "FBW_STATUS", send_fbw_status);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_COMMANDS, send_commands);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_FBW_STATUS, send_fbw_status);
 #endif
 #endif
 }

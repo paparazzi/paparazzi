@@ -124,7 +124,7 @@ void digital_cam_uart_init(void)
     }
   }
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "PAYLOAD", send_thumbnails);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_PAYLOAD, send_thumbnails);
 #endif
 
 #ifdef SITL

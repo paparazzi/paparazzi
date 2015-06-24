@@ -51,7 +51,7 @@ void radio_control_impl_init(void)
 
   // Register telemetry message
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "PPM", send_sbus);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_PPM, send_sbus);
 #endif
 }
 

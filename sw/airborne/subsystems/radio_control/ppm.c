@@ -73,7 +73,7 @@ void radio_control_impl_init(void)
   ppm_arch_init();
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "PPM", send_ppm);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_PPM, send_ppm);
 #endif
 }
 

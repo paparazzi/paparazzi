@@ -33,37 +33,31 @@
 /* Implement global structures from generated header.
  * Can register up to #TELEMETRY_NB_CBS callbacks per periodic message.
  */
-telemetry_msg telemetry_msgs[TELEMETRY_NB_MSG] = TELEMETRY_MSG_NAMES;
 struct telemetry_cb_slots telemetry_cbs[TELEMETRY_NB_MSG] = TELEMETRY_CBS_NULL;
-struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs, telemetry_cbs };
+struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_cbs };
 
 
 /** Register a telemetry callback function.
  * @param _pt periodic telemetry structure to register
- * @param _msg message name (string) as defined in telemetry xml file
+ * @param _msgn message name as defined in telemetry xml file with prepended TELEMETRY_MSG_
  * @param _cb callback function, called according to telemetry mode and specified period
  * @return -1 on failure to register, index of callback otherwise
  */
-int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb)
+int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, int8_t _msgn, telemetry_cb _cb)
 {
-  // return if NULL is passed as periodic_telemetry
+  uint8_t i;
+  // return FALSE if NULL is passed as periodic_telemetry
   if (_pt == NULL) { return -1; }
-  // look for message name
-  uint8_t i, j;
-  for (i = 0; i < _pt->nb; i++) {
-    if (str_equal(_pt->msgs[i], _msg)) {
-      // register another callback if not all TELEMETRY_NB_CBS slots taken
-      for (j = 0; j < TELEMETRY_NB_CBS; j++) {
-        if (_pt->cbs[i].slots[j] == NULL) {
-          _pt->cbs[i].slots[j] = _cb;
-          return j;
-        }
-      }
-      // message matched but no more empty slots available
-      return -1;
+  // return FALSE if message number is not existing
+  if (_msgn > _pt->nb || _msgn == -1) { return -1; }
+  // register another callback if not all TELEMETRY_NB_CBS slots taken
+  for (i = 0; i < TELEMETRY_NB_CBS; i++) {
+    if (_pt->cbs[_msgn].slots[i] == NULL) {
+      _pt->cbs[_msgn].slots[i] = _cb;
+      return i;
     }
   }
-  // message name is not in telemetry file
+  // message matched but no more empty slots available
   return -1;
 }
 

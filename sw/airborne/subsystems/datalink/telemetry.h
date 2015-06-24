@@ -42,17 +42,16 @@
  *   one of the names in your telemetry xml file or is already registered,
  *   the function return FALSE)
  *    @code
- *    register_periodic_telemetry(&your_telemetry_struct, "YOUR_MESSAGE_NAME", your_callback);
+ *    register_periodic_telemetry(&your_telemetry_struct, TELEMETRY_MSG_<YOUR_MESSAGE_NAME>, your_callback);
  *    @endcode
  * In most cases, the default telemetry structure should be used
  * (replace &your_telemetry_struct by DefaultPeriodic in the register function).
  */
 
 #include "std.h"
-#include "messages.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/datalink/downlink.h"
 #include "generated/periodic_telemetry.h"
+#include "subsystems/datalink/downlink.h"
 
 /** Global telemetry structure
  *
