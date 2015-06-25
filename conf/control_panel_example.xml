@@ -181,6 +181,19 @@
       <program name="Messages"/>
     </session>
 
+    <session name="Messages and Settings">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Settings">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+      </program>
+    </session>
 
   </section>
 

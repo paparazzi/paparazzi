@@ -244,7 +244,9 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
 	  (fun arg ->
 	    let constant =
 	      try double_quote (Xml.attrib arg "constant") with _ -> "" in
-	    p := sprintf "%s %s %s" !p (ExtXml.attrib arg "flag") constant)
+	    let real_constant =
+	      if constant = "@AIRCRAFT" then (Gtk_tools.combo_value ac_combo) else constant in
+	    p := sprintf "%s %s %s" !p (ExtXml.attrib arg "flag") real_constant)
 	  (Xml.children program);
 	run_and_monitor ?file gui log name !p)
       (Xml.children session)
