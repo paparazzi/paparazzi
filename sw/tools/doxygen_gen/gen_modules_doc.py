@@ -8,6 +8,8 @@ import os
 import sys
 import glob
 import re
+import copy
+import string
 
 
 def dox_new_page(name, title):
@@ -77,6 +79,7 @@ def module_page(filename, module):
     s = dox_new_page(page_name, brief)
     s += "Module XML file: @c " + filename + "\n\n"
     s += details + "\n"
+    s += get_xml_example(filename, module)
     s += module_configuration(module)
     s += module_functions(module)
     s += "@section files Files\n\n"
@@ -84,6 +87,28 @@ def module_page(filename, module):
     s += sources_list(module)
     s += "\n@subsection module_xml__{0} Raw {1} file:\n@include {1}\n".format(keyword, filename)
     s += "\n */\n\n"
+    return s
+
+
+def get_xml_example(filename, module):
+    opts = module.findall(".doc/define") + module.findall(".doc/configure")
+    s = "\n@section module_load_example__{0} Example for airframe file\n".format(filename[:-4].lower())
+    if opts:
+        s += "This example contains all possible configuration options, not all of them are mandatory!\n"
+    s += "@code{.xml}\n"
+    s += "<modules>\n"
+    if opts:
+        s += '  <load name="{0}">\n'.format(filename)
+        for o in opts:
+            e = copy.deepcopy(o)
+            if 'description' in e.attrib:
+                del e.attrib['description']
+            s += "    " + string.strip(ET.tostring(e)) + "\n"
+        s += "  </load>\n"
+    else:
+        s += '  <load name="{0}"/>\n'.format(filename)
+    s += "</modules>\n"
+    s += "@endcode\n"
     return s
 
 
@@ -280,9 +305,9 @@ if __name__ == '__main__':
     usage = "Usage: %prog [options] modules/dir" + "\n" + "Run %prog --help to list the options."
     parser = OptionParser(usage)
     parser.add_option("-i", "--inputdir", dest="input_dir",
-                      help="read input from DIR [default: PAPARAZZI_HOME/conf/modules", metavar="DIR")
+                      help="read input from DIR [default: PAPARAZZI_HOME/conf/modules]", metavar="DIR")
     parser.add_option("-o", "--outputdir", dest="output_dir",
-                      help="write output to DIR [default: PAPARAZZI_HOME/doc/manual", metavar="DIR")
+                      help="write output to DIR [default: PAPARAZZI_HOME/doc/manual/generated]", metavar="DIR")
     parser.add_option("-p", "--parents",
                       action="store_true", dest="create_parent_dirs",
                       help="Create parent dirs of output dir if they don't exist.")
