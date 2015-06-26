@@ -57,7 +57,7 @@ let _ =
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 
-  let time_scale_adj = GData.adjustment ~page_size:0. ~value:!time_scale ~lower:(1.) ~upper:10. ~step_incr:1. () in
+  let time_scale_adj = GData.adjustment ~page_size:0. ~value:!time_scale ~lower:(0.5) ~upper:10. ~step_incr:0.5 () in
   let wind_dir_adj = GData.adjustment ~page_size:0. ~value:!wind_dir ~lower:(0.) ~upper:359. ~step_incr:1.0 () in
   let wind_speed_adj = GData.adjustment ~page_size:0. ~value:!wind_speed ~lower:(0.) ~upper:30. ~step_incr:0.1 () in
   let wind_up_adj = GData.adjustment ~page_size:0. ~value:!wind_up ~lower:(-10.) ~upper:10. ~step_incr:0.1 () in
