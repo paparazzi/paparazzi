@@ -101,9 +101,8 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__ ((unused)),
   wind.y = atof(argv[2]); //north
   wind.z = atof(argv[3]); //up
 
-  /* calc wind speed and dir from ENU and set it in nps */
-  nps_atmosphere.wind_speed = FLOAT_VECT2_NORM(wind);
-  nps_atmosphere.wind_dir = atan2(-wind.x, -wind.y);
+  /* set wind speed in NED */
+  nps_atmosphere_set_wind_ned(wind.y, wind.x, -wind.z);
 
   /* not used so far */
   //float ir_contrast = atof(argv[4]);
