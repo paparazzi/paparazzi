@@ -6,6 +6,7 @@
 #include <Ivy/ivyglibloop.h>
 
 #include "generated/airframe.h"
+#include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_double.h"
 #include "nps_autopilot.h"
 #include "nps_fdm.h"
@@ -14,12 +15,20 @@
 #include "subsystems/ins.h"
 #include "subsystems/navigation/common_flight_plan.h"
 
+#if USE_GPS
+#include "subsystems/gps.h"
+#endif
+
 #ifdef RADIO_CONTROL_TYPE_DATALINK
 #include "subsystems/radio_control.h"
 #endif
 
 #include NPS_SENSORS_PARAMS
 
+/* Gaia Ivy functions */
+static void on_WORLD_ENV(IvyClientPtr app __attribute__ ((unused)),
+                         void *user_data __attribute__ ((unused)),
+                         int argc __attribute__ ((unused)), char *argv[]);
 
 /* Datalink Ivy functions */
 static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
@@ -52,6 +61,9 @@ void nps_ivy_common_init(char* ivy_bus) {
   const char* agent_name = AIRFRAME_NAME"_NPS";
   const char* ready_msg = AIRFRAME_NAME"_NPS Ready";
   IvyInit(agent_name, ready_msg, NULL, NULL, NULL, NULL);
+
+  IvyBindMsg(on_WORLD_ENV, NULL, "^(\\S*) WORLD_ENV (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+
   IvyBindMsg(on_DL_PING, NULL, "^(\\S*) DL_PING");
   IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
   IvyBindMsg(on_DL_GET_SETTING, NULL, "^(\\S*) GET_DL_SETTING (\\S*) (\\S*)");
@@ -74,8 +86,37 @@ void nps_ivy_common_init(char* ivy_bus) {
   }
 }
 
-//TODO use datalink parsing from booz or fw instead of doing it here explicitly
-//FIXME currently parsed correctly for booz only
+/*
+ * Parse WORLD_ENV message from gaia.
+ *
+ */
+static void on_WORLD_ENV(IvyClientPtr app __attribute__ ((unused)),
+                         void *user_data __attribute__ ((unused)),
+                         int argc __attribute__ ((unused)), char *argv[])
+{
+  // wind speed in m/s
+  struct FloatVect3 wind;
+  wind.x = atof(argv[1]); //east
+  wind.y = atof(argv[2]); //north
+  wind.z = atof(argv[3]); //up
+
+  /* calc wind speed and dir from ENU and set it in nps */
+  nps_atmosphere.wind_speed = FLOAT_VECT2_NORM(wind);
+  nps_atmosphere.wind_dir = atan2(-wind.x, -wind.y);
+
+  /* not used so far */
+  //float ir_contrast = atof(argv[4]);
+  //float time_scale = atof(argv[5]);
+
+#if USE_GPS
+  // directly set gps fix in subsystems/gps/gps_sim_nps.h
+  gps_has_fix = atoi(argv[6]); // gps_availability
+#endif
+}
+
+
+//TODO use datalink parsing from actual fixedwing or rotorcraft firmware,
+// instead of doing it here explicitly
 
 
 #include "generated/settings.h"
