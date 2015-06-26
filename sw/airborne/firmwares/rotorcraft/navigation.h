@@ -186,7 +186,8 @@ bool_t nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
     nav_throttle = _throttle;                  \
   }
 
-#define NavHeading(_course) {}
+/** Set the heading of the rotorcraft, nothing else */
+#define NavHeading nav_set_heading_rad
 
 #define NavAttitude(_roll) { \
     horizontal_mode = HORIZONTAL_MODE_ATTITUDE; \
