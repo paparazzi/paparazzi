@@ -8,6 +8,7 @@
 #include "generated/airframe.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_double.h"
+#include "nps_main.h"
 #include "nps_autopilot.h"
 #include "nps_fdm.h"
 #include "nps_sensors.h"
@@ -106,7 +107,9 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__ ((unused)),
 
   /* not used so far */
   //float ir_contrast = atof(argv[4]);
-  //float time_scale = atof(argv[5]);
+
+  /* set new time factor */
+  nps_set_time_factor(atof(argv[5]));
 
 #if USE_GPS
   // directly set gps fix in subsystems/gps/gps_sim_nps.h
