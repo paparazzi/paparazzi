@@ -20,32 +20,26 @@
  *
  */
 
-#ifndef MISSIONLIB_BLOCKS_H
-#define MISSIONLIB_BLOCKS_H
+ /** @file modules/datalink/missionlib/mission_manager.c
+ *  @brief Common functions used within the mission library
+ */
 
-// Disable auto-data structures
-#ifndef MAVLINK_NO_DATA
-#define MAVLINK_NO_DATA
+// Include own header
+#include "modules/datalink/mission_manager.h"
+
+#include "modules/datalink/mavlink.h"
+
+void mavlink_mission_message_handler(const mavlink_message_t* msg)
+{
+  switch(msg->msgid)
+  { 
+    case MAVLINK_MSG_ID_MISSION_ACK:
+    {
+#ifdef MAVLINK_FLAG_DEBUG
+        printf("Received MISSION_ACK message\n");
 #endif
-
-#include "generated/flight_plan.h"
-#include "mavlink/paparazzi/mavlink.h"
-
-// Block storage struct 
-#ifndef MAVLINK_MAX_BLOCK_COUNT
-#define MAVLINK_MAX_BLOCK_COUNT NB_BLOCK
-#endif
-struct mavlink_block_mgr {
-	uint16_t seq; // Sequence id (position of the current item on the list)
-	uint8_t current_block; // Counter that holds the index of the current block
-};
-
-typedef struct mavlink_block_mgr mavlink_block_mgr;
-
-extern mavlink_block_mgr block_mgr;
-
-extern void mavlink_block_init(mavlink_block_mgr* block_mgr);
-extern void mavlink_block_cb(uint16_t current_block);
-extern void mavlink_block_message_handler(const mavlink_message_t* msg);
-
-#endif // MISSIONLIB_BLOCKS_H
+      sys_time_cancel_timer(block_mgr.timer_id); // Cancel the timeout timer
+      block_mgr.current_state = STATE_IDLE;
+    }
+  }
+}

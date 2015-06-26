@@ -32,9 +32,19 @@
 #include "mavlink/mavlink_types.h"
 #include "mavlink/paparazzi/mavlink.h"
 
+#define QUOTE(name) #name
+#define STR(macro) QUOTE(macro)
+
+#define MAVLINK_IP_ADDRESS_STR STR(MAVLINK_IP_ADDRESS)
+
 mavlink_system_t mavlink_system;
 
+#ifndef MAVLINK_IP_ADDRESS
+#error Please provide the IP address of the UDP interface
+#endif
+#ifndef MAVLINK_UDP_PORT
 #define MAVLINK_UDP_PORT 5000
+#endif
 #ifndef MAVLINK_SYSTEM_SYSID
 #define MAVLINK_SYSTEM_SYSID 0 // Arbitrary
 #endif 

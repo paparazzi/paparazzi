@@ -30,34 +30,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "firmwares/rotorcraft/navigation.h"
-#include "mcu_periph/sys_time.h"
+#include "modules/datalink/mission_manager.h"
 #include "modules/datalink/mavlink.h"
-
-/**
- * REMOVE FOR RELEASE
- */
-#define MAVLINK_FLAG_DEBUG 1
-/**
- * REMOVE FOR RELEASE
- */
-
-/**
- * Timer callback function
- */
-static void timer_cb(uint8_t id) 
-{
-	sys_time_cancel_timer(id); // Cancel the timer that triggered the timeout event
-    block_mgr.current_state = STATE_IDLE;
-#define MAVLINK_TIMOUT_ERROR_LINUX
-#ifdef MAVLINK_TIMOUT_ERROR_LINUX
-	perror("Request timed out!");
-#else
-	// TODO: Fix for linux, stm32 etc.
-#endif
-
-	// TODO: Handle timeout retries
-}
 
 static void mavlink_send_block_count(uint8_t sysid, uint8_t compid, uint16_t count)
 {
@@ -99,17 +73,14 @@ static void mavlink_send_block(uint8_t sysid, uint8_t compid, uint16_t seq)
 #ifdef MAVLINK_INDEX_OUT_OF_BOUNDS_ERROR_LINUX
         perror("Block index out of bounds\n");
 #else
-        // TODO: Fix for linux, stm32 etc.
+        // TODO: Fix for stm32 etc.
 #endif
     }
 }
 
 void mavlink_block_init(mavlink_block_mgr* block_mgr)
 {
-	block_mgr->current_state = STATE_IDLE;
-	block_mgr->seq = 0;
-	block_mgr->rem_sysid = 0;
-	block_mgr->rem_compid = 0;
+  block_mgr->seq = 0;
 }
 
 void mavlink_block_cb(uint16_t current_block) 
@@ -178,15 +149,6 @@ void mavlink_block_message_handler(const mavlink_message_t* msg)
 			}
 
             break;
-        }
-
-        case MAVLINK_MSG_ID_MISSION_ACK:
-        {
-#ifdef MAVLINK_FLAG_DEBUG
-            printf("Received MISSION_ACK message\n");
-#endif
-        	sys_time_cancel_timer(block_mgr.timer_id); // Cancel the timeout timer
-            block_mgr.current_state = STATE_IDLE;
         }
 
         case MAVLINK_MSG_ID_BLOCK_ITEM:

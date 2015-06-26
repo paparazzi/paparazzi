@@ -324,7 +324,8 @@ void mavlink_init(void)
 	// Initialize the host address struct
 	memset(&rem_addr, 0, sizeof(rem_addr));
 	rem_addr.sin_family = AF_INET; // Internet Protocol
-	rem_addr.sin_addr.s_addr = inet_addr("192.168.42.2"); // Set the target IP address (TODO: Make this variable)
+	rem_addr.sin_addr.s_addr = inet_addr(MAVLINK_IP_ADDRESS_STR); 
+  // rem_addr.sin_addr.s_addr = inet_addr("192.168.42.3"); 
 	rem_addr.sin_port = htons(MAVLINK_UDP_PORT);
 }
 
