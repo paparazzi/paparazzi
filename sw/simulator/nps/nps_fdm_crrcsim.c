@@ -191,7 +191,20 @@ void nps_fdm_run_step(bool_t launch __attribute__((unused)), double* commands, i
 
 }
 
-void nps_fdm_set_wind(double speed __attribute__((unused)), double dir __attribute__((unused)), int turbulence_severity __attribute__((unused))) {
+void nps_fdm_set_wind(double speed __attribute__((unused)),
+                      double dir __attribute__((unused)))
+{
+}
+
+void nps_fdm_set_wind_ned(double wind_north __attribute__((unused)),
+                          double wind_east __attribute__((unused)),
+                          double wind_down __attribute__((unused)))
+{
+}
+
+void nps_fdm_set_turbulence(double wind_speed __attribute__((unused)),
+                            int turbulence_severity __attribute__((unused)))
+{
 }
 
 /***************************************************************************

@@ -206,13 +206,25 @@ void nps_fdm_run_step(bool_t launch __attribute__((unused)), double* commands, i
 
 }
 
-void nps_fdm_set_wind(double speed, double dir, int turbulence_severity) {
+void nps_fdm_set_wind(double speed, double dir)
+{
   FGWinds* Winds = FDMExec->GetWinds();
   Winds->SetWindspeed(FeetOfMeters(speed));
   Winds->SetWindPsi(dir);
+}
 
+void nps_fdm_set_wind_ned(double wind_north, double wind_east, double wind_down)
+{
+  FGWinds* Winds = FDMExec->GetWinds();
+  Winds->SetWindNED(FeetOfMeters(wind_north), FeetOfMeters(wind_east),
+                    FeetOfMeters(wind_down));
+}
+
+void nps_fdm_set_turbulence(double wind_speed, int turbulence_severity)
+{
+  FGWinds* Winds = FDMExec->GetWinds();
   /* wind speed used for turbulence */
-  Winds->SetWindspeed20ft(FeetOfMeters(speed)/2);
+  Winds->SetWindspeed20ft(FeetOfMeters(wind_speed)/2);
   Winds->SetProbabilityOfExceedence(turbulence_severity);
 }
 
