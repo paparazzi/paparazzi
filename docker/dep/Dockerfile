@@ -25,7 +25,8 @@ RUN apt-get update && apt-get install -y \
     libcanberra-gtk-module \
     paparazzi-dev \
     paparazzi-jsbsim \
-    x11-apps
+    x11-apps \
+    gedit
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
