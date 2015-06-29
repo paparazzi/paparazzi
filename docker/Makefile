@@ -6,7 +6,7 @@ help:
 	@echo ""
 	@echo "   1. make build            - build all pprz images"
 	@echo "   1. make pull             - pull all pprz images"
-	@echo "   1. make clean            - remove all pprz images"
+	@echo "   1. make remove_images    - remove all pprz images"
 	@echo "   2. make bash             - run bash on pprz-dev"
 	@echo "   2. make terminator       - run terminator on pprz-dev"
 	@echo "   2. make paparazzi        - run ./paparazzi center on pprz-dev"
@@ -21,7 +21,7 @@ pull:
 	@docker pull flixr/pprz-dep
 	@docker pull flixr/pprz-dev
 
-clean:
+remove_images:
 	@docker rmi -f flixr/pprz-dep
 	@docker rmi -f flixr/pprz-dev
 
