@@ -95,6 +95,8 @@ Airborne
 - rotorcraft: waypoint API function naming cleanup
   [#1169] (https://github.com/paparazzi/paparazzi/pull/1169)
 - rotorcraft: guidance: fix max bank angle limit
+- rotorcraft: make the heading flight plan primitive usable
+  [#1218] (https://github.com/paparazzi/paparazzi/pull/1218)
 - GPS: NMEA parser improvements
   [#1146] (https://github.com/paparazzi/paparazzi/pull/1146)
 - GPS: fix furuno parser (Bebop)
@@ -108,6 +110,8 @@ Airborne
 - state interface: fix LLA calculation if only UTM origin initialized
   [#1171] (https://github.com/paparazzi/paparazzi/pull/1171)
 - chibios SD logger: fix bad file name problem
+- fixedwing stabilization: yaw damper and active lift ctrl
+  [#1190] (https://github.com/paparazzi/paparazzi/pull/1190)
 
 Modules
 -------
@@ -159,6 +163,8 @@ Simulation
   [#1159] (https://github.com/paparazzi/paparazzi/pull/1159)
 - Updated FlightGear interface and removed obsolete HITL files
   [#1196] (https://github.com/paparazzi/paparazzi/pull/1196)
+- NPS: support gaia environment simulator
+  [#1219] (https://github.com/paparazzi/paparazzi/pull/1219)
 
 Linux arch support
 ------------------
@@ -198,6 +204,8 @@ other drivers/HW support
 - Parrot Bebop: support all sensors including sonar
   [#1149] (https://github.com/paparazzi/paparazzi/issues/1149)
   [#1182] (https://github.com/paparazzi/paparazzi/pull/1182)
+- peripherals: SD Card SPI interface
+  [#1220] (https://github.com/paparazzi/paparazzi/pull/1220)
 
 
 Paparazzi 5.4.2_stable
