@@ -1,0 +1,56 @@
+compiler:
+  path: gcc
+  source_path:     '/home/bart/paparazzi/sw/airborne/'
+  unit_tests_path: &unit_tests_path '/home/bart/paparazzi/tests/unittest/'
+  build_path:      &build_path 'build/'
+  options:
+    - -c
+    - -std=c99
+    - -Wall
+    - -Wextra
+#    - -Werror 
+    - -Wpointer-arith
+    - -Wcast-align
+    - -Wwrite-strings
+    - -Wswitch-default
+    - -Wunreachable-code
+    - -Winit-self
+    - -Wlogical-op
+    - -Wmissing-field-initializers
+    - -Wno-unknown-pragmas
+    - -Wjump-misses-init
+    - -Wstrict-prototypes
+#    - -Wundef
+    - -Wunsafe-loop-optimizations
+    - -Wold-style-definition
+MACRO_ITEMS
+  includes:
+    prefix: '-I'
+    items:
+INCLUDE_ITEMS
+  defines:
+    prefix: '-D'
+    items:
+      - __monitor
+  object_files:
+    prefix: '-o'
+    extension: '.o'
+    destination: *build_path
+linker:
+  path: gcc
+  options:
+    - -lm
+  includes:
+    prefix: '-I'
+  object_files:
+    path: *build_path
+    extension: '.o'
+  bin_files:
+    prefix: '-o'
+    extension: '.out'
+    destination: *build_path
+:cmock:
+  :treat_externs: :include
+  :plugins: ["ignore_arg", "callback"]
+
+colour: true
