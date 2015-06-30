@@ -25,12 +25,25 @@
  */
 
 // Include own header
-#include "modules/datalink/mission_manager.h"
+#include "modules/datalink/missionlib/mission_manager.h"
 
 #include "modules/datalink/mavlink.h"
+#include "modules/datalink/missionlib/blocks.h"
+#include "modules/datalink/missionlib/waypoints.h"
+
+void mavlink_mission_init(mavlink_mission_mgr* mission_mgr)
+{
+	mavlink_wp_init();
+
+	mission_mgr->seq = 0;
+}
 
 void mavlink_mission_message_handler(const mavlink_message_t* msg)
 {
+  mavlink_block_message_handler(msg);
+
+  mavlink_wp_message_handler(msg);
+
   switch(msg->msgid)
   { 
     case MAVLINK_MSG_ID_MISSION_ACK:
@@ -38,8 +51,8 @@ void mavlink_mission_message_handler(const mavlink_message_t* msg)
 #ifdef MAVLINK_FLAG_DEBUG
         printf("Received MISSION_ACK message\n");
 #endif
-      sys_time_cancel_timer(block_mgr.timer_id); // Cancel the timeout timer
-      block_mgr.current_state = STATE_IDLE;
+      sys_time_cancel_timer(mission_mgr.timer_id); // Cancel the timeout timer
+      mission_mgr.state = STATE_IDLE;
     }
   }
 }

@@ -41,19 +41,12 @@
 #include "firmwares/rotorcraft/navigation.h" // for navigation calls
 #include "mcu_periph/sys_time.h" // for periodic calls
 #include "modules/datalink/missionlib/blocks.h" // for mission blocks
+#include "modules/datalink/missionlib/mission_manager.h" // for mission blocks
 #include "subsystems/electrical.h"
 #include "subsystems/gps.h"
 #include "state.h"
 
-mavlink_block_mgr block_mgr;
-
-/**
- * REMOVE FOR RELEASE
- */
-#define MAVLINK_FLAG_DEBUG 1
-/**
- * REMOVE FOR RELEASE
- */
+mavlink_mission_mgr mission_mgr;
 
 /**
  * Send heartbeat
@@ -106,9 +99,9 @@ static void mavlink_send_attitude(void)
    */
    mavlink_message_t msg;
    mavlink_msg_attitude_pack(mavlink_system.sysid, // system id
-   							 mavlink_system.compid, // component id
-   							 &msg, // MAVLink message
-   							 get_sys_time_msec(), // timestamp
+   							             mavlink_system.compid, // component id
+   							             &msg, // MAVLink message
+   							             get_sys_time_msec(), // timestamp
                              stateGetNedToBodyEulers_f()->phi, // roll angle
                              stateGetNedToBodyEulers_f()->theta, // pitch angle
                              stateGetNedToBodyEulers_f()->psi, // yaw angle
@@ -206,9 +199,9 @@ static void mavlink_send_gps_status(void)
    uint8_t empty[20];
    mavlink_message_t msg;
    mavlink_msg_gps_status_pack(mavlink_system.sysid, // system id
-   							   mavlink_system.compid, // component id
-   							   &msg, // MAVLink message
-   							   gps.num_sv, // satellites visible
+   							               mavlink_system.compid, // component id
+   							               &msg, // MAVLink message
+   							               gps.num_sv, // satellites visible
                            	   empty, // satellite pnr[]
                            	   empty, // satellite used[]
                            	   empty, // satellite elevation[]
@@ -247,17 +240,17 @@ static void mavlink_send_gps_position(void)
 
   mavlink_message_t msg;
   mavlink_msg_global_position_int_pack(mavlink_system.sysid, // system id
- 								   	   mavlink_system.compid, // component id
-   								   	   &msg, // MAVLink message
-   								   	   0, // time
-                            	   	   stateGetPositionLla_i()->lat, // latitude
+ 								   	                   mavlink_system.compid, // component id
+   								   	                 &msg, // MAVLink message
+   								   	                 0, // time
+                            	   	     stateGetPositionLla_i()->lat, // latitude
                                        stateGetPositionLla_i()->lon, // longitude
                                        stateGetPositionLla_i()->alt, // altitude
                                        relative_alt, // relative altitude
-                            	   	   -1, // vx
-                            	   	   -1, // vy
-                            	   	   -1, // vz
-                            	   	   compass_heading); // compass heading
+                            	   	     -1, // vx
+                            	   	     -1, // vy
+                            	   	     -1, // vz
+                            	   	     compass_heading); // compass heading
   mavlink_send_message(&msg);
 }
 
@@ -289,7 +282,7 @@ void mavlink_init(void)
 	// Initialize MAVLink
 	mavlink_system.sysid = 5;
 	mavlink_system.compid = 20;
-	mavlink_block_init(&block_mgr);
+	mavlink_mission_init(&mission_mgr);
 
 	// Create socket
 	if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP /* domain, type, protocol */)) < 0) {
@@ -341,6 +334,12 @@ void mavlink_periodic(void)
 	RunOnceEvery(10, mavlink_send_battery_status()); // Call at 1Hz
 	RunOnceEvery(10, mavlink_send_gps_status()); // Call at 1Hz
 	RunOnceEvery(1, mavlink_send_gps_position()); // Call at 10Hz
+
+  // Update the current block index in the block manager (does not need to run as fast as possible)
+  if (mission_mgr.current_block != nav_block) {
+    mission_mgr.current_block = nav_block;
+    mavlink_block_cb(mission_mgr.current_block);
+  }
 }
 
 /**
@@ -349,12 +348,6 @@ void mavlink_periodic(void)
  */
 void mavlink_event(void)
 {
-	// Update the current block index in the block manager
-	if (block_mgr.current_block != nav_block) {
-		block_mgr.current_block = nav_block;
-		mavlink_block_cb(block_mgr.current_block);
-	}
-
 	socklen_t len;
 	uint8_t buf[MAVLINK_BUFFER_LENGTH]; // incoming message buffer
 	int16_t recsize = recvfrom(sock, (void *)buf, MAVLINK_BUFFER_LENGTH, 0, (struct sockaddr *)&rem_addr, &len); // retreive message from UDP buffer
@@ -368,7 +361,7 @@ void mavlink_event(void)
 #ifdef MAVLINK_FLAG_DEBUG
 				printf("Received packet: SYS: %d, COMP: %d, LEN: %d, MSG ID: %d\n\n", msg.sysid, msg.compid, msg.len, msg.msgid);
 #endif
-				mavlink_block_message_handler(&msg); // Blocks message handler
+				mavlink_mission_message_handler(&msg); // message handler
 			}
 		}
 	}

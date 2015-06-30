@@ -37,7 +37,7 @@
     </load-->
     <load name="mavlink.xml">
       <define name="MAVLINK_FLAG_DEBUG" value="0"/>
-      <define name="MAVLINK_IP_ADDRESS" value="192.168.42.3"/>
+      <define name="MAVLINK_IP_ADDRESS" value="192.168.42.4"/>
     </load>
   </modules>
 

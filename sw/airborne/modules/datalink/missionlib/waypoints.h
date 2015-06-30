@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MISSIONLIB_BLOCKS_H
-#define MISSIONLIB_BLOCKS_H
+#ifndef MISSIONLIB_WAYPOINTS_H
+#define MISSIONLIB_WAYPOINTS_H
 
 // Disable auto-data structures
 #ifndef MAVLINK_NO_DATA
@@ -31,8 +31,12 @@
 #include "generated/flight_plan.h"
 #include "mavlink/paparazzi/mavlink.h"
 
-extern void mavlink_block_init(void);
-extern void mavlink_block_cb(uint16_t current_block);
-extern void mavlink_block_message_handler(const mavlink_message_t* msg);
+// Block storage struct 
+#ifndef MAVLINK_MAX_WP_COUNT
+#define MAVLINK_MAX_WP_COUNT NB_WAYPOINT
+#endif
 
-#endif // MISSIONLIB_BLOCKS_H
+extern void mavlink_wp_init(void);
+extern void mavlink_wp_message_handler(const mavlink_message_t* msg);
+
+#endif // MISSIONLIB_WAYPOINTS_H

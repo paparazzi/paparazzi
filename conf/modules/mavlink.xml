@@ -15,5 +15,7 @@
   <makefile>
     <file name="mavlink.c"/>
     <file name="blocks.c" dir="modules/datalink/missionlib"/>
+    <file name="waypoints.c" dir="modules/datalink/missionlib"/>
+    <file name="mission_manager.c" dir="modules/datalink/missionlib"/>
   </makefile>
 </module>
