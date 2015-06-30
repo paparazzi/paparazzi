@@ -292,7 +292,8 @@ void h_ctl_course_loop(void)
 #if defined(AGR_CLIMB) && !USE_AIRSPEED
   /** limit navigation during extreme altitude changes */
   if (AGR_BLEND_START > AGR_BLEND_END && AGR_BLEND_END > 0) { /* prevent divide by zero, reversed or negative values */
-    if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE || V_CTL_AUTO_THROTTLE_BLENDED) {
+    if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE ||
+        v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_BLENDED) {
       BoundAbs(cmd, h_ctl_roll_max_setpoint); /* bound cmd before NAV_RATIO and again after */
       /* altitude: z-up is positive -> positive error -> too low */
       if (v_ctl_altitude_error > 0) {
