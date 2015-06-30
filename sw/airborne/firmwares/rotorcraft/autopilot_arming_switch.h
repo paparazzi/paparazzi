@@ -59,7 +59,8 @@ static inline void autopilot_arming_set(bool_t motors_on)
     if (autopilot_arming_state == STATE_MOTORS_ON) {
       autopilot_arming_state = STATE_STARTABLE;
       /* if turned off in an AUTO mode, remember it so it can be turned on again in AUTO */
-      if (autopilot_mode != MODE_MANUAL && autopilot_mode != AP_MODE_KILL) {
+      if (autopilot_mode != MODE_MANUAL && autopilot_mode != AP_MODE_KILL &&
+          autopilot_mode != AP_MODE_FAILSAFE) {
         autopilot_unarmed_in_auto = TRUE;
       } else {
         autopilot_unarmed_in_auto = FALSE;
@@ -109,7 +110,8 @@ static inline void autopilot_arming_check_motors_on(void)
         autopilot_motors_on = FALSE;
         autopilot_arming_state = STATE_STARTABLE;
         /* if turned off in an AUTO mode, remember it so it can be turned on again in AUTO */
-        if (autopilot_mode != MODE_MANUAL && autopilot_mode != AP_MODE_KILL) {
+        if (autopilot_mode != MODE_MANUAL && autopilot_mode != AP_MODE_KILL &&
+            autopilot_mode != AP_MODE_FAILSAFE) {
           autopilot_unarmed_in_auto = TRUE;
         } else {
           autopilot_unarmed_in_auto = FALSE;
