@@ -39,8 +39,8 @@
     <subsystem name="imu"           type="lisa_mx_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="float_mlkf"/>
-    <subsystem name="ins" type="hff"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <subsystem name="ins"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>
@@ -50,7 +50,10 @@
     <load name="geo_mag.xml"/>
     <load name="air_data.xml"/>
     <load name="mavlink.xml">
-      <!--configure name="MAVLINK_PORT" value="UsbS"/-->
+      <define name="UDP0_HOST" value="\\\"192.168.1.2\\\""/>
+      <define name="UDP0_BROADCAST" value="TRUE"/>
+      <define name="UDP0_PORT_OUT" value="5000"/>
+      <define name="UDP0_PORT_IN" value="5000"/>
     </load>
   </modules>
 
