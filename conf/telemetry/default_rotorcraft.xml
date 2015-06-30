@@ -91,6 +91,7 @@
       <message name="ALIVE"             period="0.9"/>
       <message name="STAB_ATTITUDE"     period=".03"/>
       <message name="STAB_ATTITUDE_REF" period=".03"/>
+      <message name="STAB_ATTITUDE_INDI"     period=".25"/>
     </mode>
 
     <mode name="vert_loop" key_press="v">
