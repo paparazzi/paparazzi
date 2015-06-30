@@ -83,9 +83,9 @@ void mavlink_block_init(void)
 
 void mavlink_block_cb(uint16_t current_block) 
 {
-    mavlink_send_block(current_block);
+    mavlink_send_block(current_block); // send the current block seq
 
-    mission_mgr.timer_id = sys_time_register_timer(MAVLINK_TIMEOUT, &timer_cb);
+    mission_mgr.timer_id = sys_time_register_timer(MAVLINK_TIMEOUT, &timer_cb); // wait for ack
 }
 
 void mavlink_block_message_handler(const mavlink_message_t* msg)

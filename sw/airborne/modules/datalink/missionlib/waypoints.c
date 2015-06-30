@@ -137,9 +137,8 @@ void mavlink_wp_message_handler(const mavlink_message_t* msg)
             printf("Received MISSION_REQUEST message\n");
 #endif
         	mavlink_mission_request_t mission_request_msg;
-        	mavlink_msg_mission_request_decode(msg, &mission_request_msg); // Cast the incoming message to a block_request_msg
+        	mavlink_msg_mission_request_decode(msg, &mission_request_msg); // Cast the incoming message to a mission_request_msg
         	if(mission_request_msg.target_system == mavlink_system.sysid) {	
-        		// Handle only cases in which the entire list is request, the block is sent again, or the next block was sent
         		if ((mission_mgr.state == STATE_SEND_LIST && mission_request_msg.seq == 0) || // Send the first waypoint
         				(mission_mgr.state == STATE_SEND_ITEM && (mission_request_msg.seq == mission_mgr.seq || // Send the current waypoint again
                                                                   mission_request_msg.seq == mission_mgr.seq+1))) { // Send the next waypoiny
@@ -166,7 +165,17 @@ void mavlink_wp_message_handler(const mavlink_message_t* msg)
 #ifdef MAVLINK_FLAG_DEBUG
             printf("Received BLOCK_ITEM message\n");
 #endif
-            // TODO: Update the waypoint defined by seq
+            mavlink_mission_item_t mission_item_msg;
+            mavlink_msg_mission_item_decode(msg, &mission_item_msg); // Cast the incoming message to a mission_item_msg
+            if(mission_item_msg.target_system == mavlink_system.sysid) {              
+                if (mission_mgr.state == STATE_IDLE) { // Only handle incoming mission item messages if there a not currently being sent
+                    struct LlaCoor_i lla;
+                    lla.lat = mission_item_msg.x; // lattitude
+                    lla.lon = mission_item_msg.y; // longitude
+                    lla.alt = mission_item_msg.z; // altitude
+                    nav_set_waypoint_latlon(mission_item_msg.seq, &lla); // move the waypoint with the id equal to seq 
+                }
+            }
         }
     }
 }
