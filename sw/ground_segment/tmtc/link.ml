@@ -69,6 +69,15 @@ let gen_stat_trafic = ref false
 
 let add_timestamp = ref None
 
+let status_msg_period = ref 1000 (** ms *)
+let ping_msg_period = ref 5000 (** ms  *)
+
+(* Time (in ms) after which an aircraft is regarded as dead/off if no messages are received.
+   If an aircraft is not live anymore, no uplink messages are sent.
+   Set to a zero (or negative number) to disable this feature.
+*)
+let dead_aircraft_time_ms = ref 5000
+
 let send_message_over_ivy = fun sender name vs ->
   let timestamp =
     match !add_timestamp with
@@ -102,13 +111,12 @@ type status = {
 }
 
 let statuss = Hashtbl.create 3
-let dead_aircraft_time_ms = 5000
 
 let initial_status = {
   last_rx_byte = 0; last_rx_msg = 0;
   rx_byte = 0; rx_msg = 0; rx_err = 0;
   tx_msg = 0;
-  ms_since_last_msg = dead_aircraft_time_ms;
+  ms_since_last_msg = !dead_aircraft_time_ms;
   last_ping = 0.; last_pong = 0.;
   udp_peername = None
 }
@@ -128,14 +136,12 @@ let update_status = fun ?udp_peername ac_id buf_size is_pong ->
   if is_pong then
     status.last_pong <- Unix.gettimeofday ();;
 
-let status_msg_period = 1000 (** ms *)
-let ping_msg_period = 5000 (** ms  *)
 let status_ping_diff = 500 (* ms *)
 
 let live_aircraft = fun ac_id ->
   try
     let s = Hashtbl.find statuss ac_id in
-    s.ms_since_last_msg < dead_aircraft_time_ms
+    !dead_aircraft_time_ms <= 0 || s.ms_since_last_msg < !dead_aircraft_time_ms
   with
       Not_found -> false
 
@@ -155,7 +161,7 @@ let send_status_msg =
   let start = Unix.gettimeofday () in
   fun () ->
     Hashtbl.iter (fun ac_id status ->
-      let dt = float status_msg_period /. 1000. in
+      let dt = float !status_msg_period /. 1000. in
       let t = int_of_float (Unix.gettimeofday () -. start) in
       let byte_rate = float (status.rx_byte - status.last_rx_byte) /. dt
       and msg_rate = float (status.rx_msg - status.last_rx_msg) /. dt in
@@ -179,7 +185,7 @@ let send_status_msg =
 let update_ms_since_last_msg =
   fun () ->
     Hashtbl.iter (fun ac_id status ->
-      status.ms_since_last_msg <- status.ms_since_last_msg + status_msg_period / 3)
+      status.ms_since_last_msg <- status.ms_since_last_msg + !status_msg_period / 3)
       statuss
 
 let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
@@ -483,7 +489,10 @@ let () =
       "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<nb retries> (%d)" !XB.nb_retries);
       "-xbee_868", Arg.Set Xbee.mode868, (sprintf "Enables the 868 protocol");
       "-redlink", Arg.Set red_link, (sprintf "Sets whether the link is a redundant link. Set this flag and the id flag to use multiple links");
-      "-id", Arg.Set_int link_id, (sprintf "Sets the link id. If multiple links are used, each must have a unique id. Default is %i" !link_id)
+      "-id", Arg.Set_int link_id, (sprintf "<id> Sets the link id. If multiple links are used, each must have a unique id. Default is %i" !link_id);
+      "-status_period", Arg.Set_int status_msg_period, (sprintf "<period> Sets the period (in ms) of the LINK_REPORT status message. Default is %i" !status_msg_period);
+      "-ping_period", Arg.Set_int ping_msg_period, (sprintf "<period> Sets the period (in ms) of the PING message sent to aircrafs. Default is %i" !ping_msg_period);
+      "-ac_timeout", Arg.Set_int dead_aircraft_time_ms, (sprintf "<time> Sets the time (in ms) after which an aircraft is regarded as dead/off if no messages are received. Default is %ims, set to zero to disable." !ping_msg_period)
     ] in
   Arg.parse options (fun _x -> ()) "Usage: ";
 
@@ -548,10 +557,10 @@ let () =
 
     (** Init and Periodic tasks *)
     begin
-      ignore (Glib.Timeout.add status_msg_period (fun () -> send_status_msg (); true));
-      ignore (Glib.Timeout.add (status_msg_period / 3) (fun () -> update_ms_since_last_msg (); true));
+      ignore (Glib.Timeout.add !status_msg_period (fun () -> send_status_msg (); true));
+      ignore (Glib.Timeout.add (!status_msg_period / 3) (fun () -> update_ms_since_last_msg (); true));
       let start_ping = fun () ->
-        ignore (Glib.Timeout.add ping_msg_period (fun () -> send_ping_msg device; true));
+        ignore (Glib.Timeout.add !ping_msg_period (fun () -> send_ping_msg device; true));
         false in
       ignore (Glib.Timeout.add status_ping_diff start_ping);
       if !aerocomm then

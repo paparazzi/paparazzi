@@ -29,6 +29,7 @@
  */
 
 #include "subsystems/imu.h"
+#include "subsystems/abi.h"
 #include "mcu_periph/i2c.h"
 
 /* i2c default suitable for Tiny/Twog */
@@ -79,10 +80,6 @@ struct ImuPpzuav imu_ppzuav;
 
 void imu_impl_init(void)
 {
-  imu_ppzuav.accel_valid = FALSE;
-  imu_ppzuav.gyro_valid = FALSE;
-  imu_ppzuav.mag_valid = FALSE;
-
   /* Set accel configuration */
   adxl345_i2c_init(&imu_ppzuav.acc_adxl, &(IMU_PPZUAV_I2C_DEV), ADXL345_ADDR);
   /* set the data rate */
@@ -114,13 +111,16 @@ void imu_periodic(void)
 
 void imu_ppzuav_event(void)
 {
+  uint32_t now_ts = get_sys_time_usec();
+
   adxl345_i2c_event(&imu_ppzuav.acc_adxl);
   if (imu_ppzuav.acc_adxl.data_available) {
     imu.accel_unscaled.x = -imu_ppzuav.acc_adxl.data.vect.x;
     imu.accel_unscaled.y =  imu_ppzuav.acc_adxl.data.vect.y;
     imu.accel_unscaled.z = -imu_ppzuav.acc_adxl.data.vect.z;
     imu_ppzuav.acc_adxl.data_available = FALSE;
-    imu_ppzuav.accel_valid = TRUE;
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_PPZUAV_ID, now_ts, &imu.accel);
   }
 
   /* If the itg3200 I2C transaction has succeeded: convert the data */
@@ -130,7 +130,8 @@ void imu_ppzuav_event(void)
     imu.gyro_unscaled.q =  imu_ppzuav.gyro_itg.data.rates.q;
     imu.gyro_unscaled.r = -imu_ppzuav.gyro_itg.data.rates.r;
     imu_ppzuav.gyro_itg.data_available = FALSE;
-    imu_ppzuav.gyro_valid = TRUE;
+    imu_scale_gyro(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_PPZUAV_ID, now_ts, &imu.gyro);
   }
 
   /* HMC58XX event task */
@@ -140,6 +141,7 @@ void imu_ppzuav_event(void)
     imu.mag_unscaled.y = -imu_ppzuav.mag_hmc.data.vect.x;
     imu.mag_unscaled.z = -imu_ppzuav.mag_hmc.data.vect.z;
     imu_ppzuav.mag_hmc.data_available = FALSE;
-    imu_ppzuav.mag_valid = TRUE;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_PPZUAV_ID, now_ts, &imu.mag);
   }
 }

@@ -11,9 +11,13 @@ imu_srcs   += $(SRC_SUBSYSTEMS)/imu/imu_ardrone2_raw.c
 imu_srcs   += $(SRC_BOARD)/navdata.c
 endif
 
-# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-ap.CFLAGS += $(imu_CFLAGS)
-ap.srcs += $(imu_srcs)
+
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(imu_CFLAGS)
+$(TARGET).srcs += $(imu_srcs)
+endif
+
 
 # Set the AHRS propegation frequencies
 AHRS_PROPAGATE_FREQUENCY ?= 200

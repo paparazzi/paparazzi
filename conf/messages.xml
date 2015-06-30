@@ -542,7 +542,7 @@
     <field name="angle" type="float" unit="deg"/>
     <field name="last_block" type="float"/>
     <field name="count" type="uint16" unit=""/>
-    <field name="shutter" type="uint8" unit="s"/>
+    <field name="shutter" type="uint8" unit="decisec" alt_unit="sec" alt_unit_coef="0.1"/>
   </message>
 
   <message name="AMSYS_BARO" id="65">
@@ -838,48 +838,10 @@
     <field name="values" type="int16[]" unit="none"/>
   </message>
 
-  <message name="BETH" id="106">
-    <field name="azimuth" type="int16"/>
-    <field name="elevation" type="int16"/>
-    <field name="tilt" type="int16"/>
-    <field name="counter" type="uint32"/>
-    <field name="can_errs" type="uint16"/>
-    <field name="spi_errs" type="uint16"/>
-    <field name="thrust_out" type="int8"/>
-    <field name="pitch_out" type="int8"/>
-  </message>
-
-  <message name="BETH_ESTIMATOR" id="107">
-    <field name="tilt" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="tilt_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-    <field name="elevation" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="elevation_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-    <field name="azimuth" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="azimuth_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-  </message>
-
-  <message name="BETH_CONTROLLER" id="108">
-    <field name="pitch" type="float"/>
-    <field name="thrust" type="float"/>
-    <field name="pitch_ff" type="float"/>
-    <field name="pitch_fb" type="float"/>
-    <field name="thrust_ff" type="float"/>
-    <field name="thrust_fb" type="float"/>
-    <field name="tilt_sp" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="tilt_ref" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="tilt_dot_ref" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-    <field name="elevation_sp " type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="elevation_ref " type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="elevation_dot_ref" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-    <field name="azimuth_sp" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-  </message>
-
-  <message name="BETH_CONTROLLER_TWIST" id="109">
-    <field name="S" type="float"/>
-    <field name="S_dot" type="float"/>
-    <field name="U_twt" type="float"/>
-    <field name="error" type="float"/>
-  </message>
+  <!--106 is free -->
+  <!--107 is free -->
+  <!--108 is free -->
+  <!--109 is free -->
 
   <message name="DC_SHOT" id="110">
     <field name="photo_nr" type="int16"/>
@@ -901,9 +863,7 @@
     <field name="servo" type="uint16[]"/>
   </message>
 
-  <message name="BETH_CONTROLLER_SFB" id="112">
-    <field name="one" type="float"/>
-  </message>
+  <!--112 is free -->
 
   <message name="MLX_SERIAL" id="113">
     <field name="serial0" type="uint32"/>
@@ -1906,7 +1866,19 @@
     <field name="msg" type="char[]"/>
   </message>
 
-  <!--216 is free -->
+  <message name="STAB_ATTITUDE_INDI" id="216">
+    <field name="angular_accel_p" type="float"/>
+    <field name="angular_accel_q" type="float"/>
+    <field name="angular_accel_r" type="float"/>
+    <field name="angular_accel_ref_p" type="float"/>
+    <field name="angular_accel_ref_q" type="float"/>
+    <field name="angular_accel_ref_r" type="float"/>
+    <field name="g1_p" type="float"/>
+    <field name="g1_q" type="float"/>
+    <field name="g1_r" type="float"/>
+    <field name="g2_r" type="float"/>
+  </message>
+
   <!--217 is free -->
 
   <message name="BEBOP_ACTUATORS" id="218">
@@ -1972,30 +1944,21 @@
     <field name="t" type="uint32"/>
   </message>
 
-  <message name="OF_HOVER" id="228">
-    <field name="FPS"        type="float"/>
-    <field name="dx"         type="float"/>
-    <field name="dy"         type="float"/>
-    <field name="dx_trans"   type="float"/>
-    <field name="dy_trans"   type="float"/>
-    <field name="diff_roll"  type="float"/>
-    <field name="diff_pitch" type="float"/>
-    <field name="velx"       type="float"/>
-    <field name="vely"       type="float"/>
-    <field name="velx_Ned"   type="float"/>
-    <field name="vely_Ned"   type="float"/>
-    <field name="z_sonar"    type="float"/>
-    <field name="count"      type="int32"/>
- </message>
-
-  <message name="VISION_STABILIZATION" id="229">
-    <field name="velx"      type="float"/>
-    <field name="vely"      type="float"/>
-    <field name="velx_i"    type="float"/>
-    <field name="vely_i"    type="float"/>
-    <field name="cmd_phi"   type="int32"/>
-    <field name="cmd_theta" type="int32"/>
+  <message name="OPTIC_FLOW_EST" id="228">
+    <field name="fps"         type="float"/>
+    <field name="corner_cnt"  type="uint16"/>
+    <field name="tracked_cnt" type="uint16"/>
+    <field name="flow_x"      type="int16" unit="subpixels"/>
+    <field name="flow_y"      type="int16" unit="subpixels"/>
+    <field name="flow_der_x"  type="int16" unit="subpixels"/>
+    <field name="flow_der_y"  type="int16" unit="subpixels"/>
+    <field name="vel_x"       type="float" unit="cm/s"/>
+    <field name="vel_y"       type="float" unit="cm/s"/>
+    <field name="cmd_phi"     type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="cmd_theta"   type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
   </message>
+
+  <!--229 is free -->
 
   <message name="AHRS_ARDRONE2" id="230">
     <field name="state" type="uint32" />

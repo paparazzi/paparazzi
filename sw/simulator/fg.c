@@ -24,7 +24,7 @@ value fg_msg_bytecode(value *argv, int argc) {
 
 value fg_msg_native(value s, value lat, value lon, value z, value phi, value theta, value psi) {
 
-  struct FGNetGUI msg;
+  struct FGNetGUI msg = {0};
   msg.version = FG_NET_GUI_VERSION;
 
   msg.longitude = Double_val(lon);

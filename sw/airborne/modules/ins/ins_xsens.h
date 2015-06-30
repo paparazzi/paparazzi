@@ -53,6 +53,7 @@ extern void xsens_periodic(void);
  */
 #if USE_IMU
 #include "subsystems/imu.h"
+#include "subsystems/abi.h"
 
 struct ImuXsens {
   bool_t gyro_available;
@@ -61,20 +62,7 @@ struct ImuXsens {
 };
 extern struct ImuXsens imu_xsens;
 
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
-    if (imu_xsens.accel_available) {                            \
-      imu_xsens.accel_available = FALSE;                        \
-      _accel_handler();                                         \
-    }                                                           \
-    if (imu_xsens.gyro_available) {                             \
-      imu_xsens.gyro_available = FALSE;                         \
-      _gyro_handler();                                          \
-    }                                                           \
-    if (imu_xsens.mag_available) {                              \
-      imu_xsens.mag_available = FALSE;                          \
-      _mag_handler();                                           \
-    }                                                           \
-  }
+#define ImuEvent() {}
 #endif /* USE_IMU */
 
 
@@ -91,19 +79,7 @@ extern void ins_xsens_register(void);
 
 
 #if USE_GPS_XSENS
-extern bool_t gps_xsens_msg_available;
-#define GpsEvent(_sol_available_callback) {         \
-    if (gps_xsens_msg_available) {                  \
-      gps.last_msg_ticks = sys_time.nb_sec_rem;     \
-      gps.last_msg_time = sys_time.nb_sec;          \
-      if (gps.fix == GPS_FIX_3D) {                  \
-        gps.last_3dfix_ticks = sys_time.nb_sec_rem; \
-        gps.last_3dfix_time = sys_time.nb_sec;      \
-      }                                             \
-      _sol_available_callback();                    \
-      gps_xsens_msg_available = FALSE;              \
-    }                                               \
-  }
+#define GpsEvent() {}
 #endif
 
 #endif

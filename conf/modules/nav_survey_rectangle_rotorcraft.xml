@@ -1,0 +1,49 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_survey_rectangle_for_rotorcraft" dir="nav">
+  <doc>
+    <description>
+Survey a rectangle with a rotorcraft.
+From Uni Stuttgart.
+Adapted to rotorcraft by Eduardo Reginato Lavratti
+In the flight plan, the survey blocks call init and run functions:
+1. Initialize the variables needed for the survey to start, with nav_survey_polygon_setup(WP1, WP2, sweep_width, orientation)
+  - WP1           the first corner of the rectangle (WP_waypoint_name)
+  - WP2           the second corner of the rectangle (WP_waypoint_name)
+  - sweep_width   distance between the sweeps
+  - angle         NS or WE orientation
+2. Run the survey with nav_survey_rectangle_rotorcraft_run(WP1,WP2)
+<!--
+Block example:
+@verbatim
+<block name="Poly Survey" strip_button="Poly Survey">
+  <call fun="nav_survey_polygon_setup(WP1, WP2, sweep_width, orientation)"/>
+  <call fun="nav_survey_rectangle_rotorcraft_run(WP1,WP2)"/>
+</block>
+or using flightplan primitive
+<block group="extra_pattern" name="Survey S1-S2 25m NS SET" strip_button="Svy25-NS">
+  <survey_rectangle grid="30" orientation="NS" wp1="S1" wp2="S2"/>
+</block>
+@endverbatim
+-->
+    </description>
+    <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="25" description="default sweep distance when using dinamic setup"/>
+  </doc>
+  
+    <settings>
+    <dl_settings>
+      <dl_settings NAME="Ret_Survey">
+        <dl_setting min="10" max="500" step="1" var="sweep" type="float" shortname="Distance" module="modules/nav/nav_survey_rectangle_rotorcraft"/>
+        <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="interleave" type="bool" shortname="use_interleave" module="modules/nav/nav_survey_rectangle_rotorcraft"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="nav_survey_rectangle_rotorcraft.h"/>
+  </header>
+  <init fun="nav_survey_rectangle_rotorcraft_init()"/>
+  <makefile target="ap|sim|nps">
+    <file name="nav_survey_rectangle_rotorcraft.c"/>
+  </makefile>
+</module>

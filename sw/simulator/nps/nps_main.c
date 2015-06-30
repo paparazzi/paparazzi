@@ -28,6 +28,7 @@
 #include <sys/time.h>
 #include <getopt.h>
 
+#include "nps_main.h"
 #include "nps_fdm.h"
 #include "nps_sensors.h"
 #include "nps_atmosphere.h"
@@ -113,7 +114,7 @@ static void nps_main_init(void) {
   nps_main.sim_time = 0.;
   nps_main.display_time = 0.;
   struct timeval t;
-  gettimeofday (&t, NULL);
+  gettimeofday(&t, NULL);
   nps_main.real_initial_time = time_to_double(&t);
   nps_main.scaled_initial_time = time_to_double(&t);
 
@@ -170,6 +171,34 @@ static void nps_main_display(void) {
   nps_ivy_display();
   if (nps_main.fg_host)
     nps_flightgear_send();
+}
+
+
+void nps_set_time_factor(float time_factor)
+{
+  if (time_factor < 0.0 || time_factor > 100.0) {
+    return;
+  }
+  if (abs(nps_main.host_time_factor - time_factor) < 0.01) {
+    return;
+  }
+
+  struct timeval tv_now;
+  double t_now, t_elapsed;
+
+  gettimeofday(&tv_now, NULL);
+  t_now = time_to_double(&tv_now);
+
+  /* "virtual" elapsed time with old time factor */
+  t_elapsed = (t_now - nps_main.scaled_initial_time) * nps_main.host_time_factor;
+
+  /* set new time factor */
+  nps_main.host_time_factor = time_factor;
+  printf("Time factor is %f\n", nps_main.host_time_factor);
+  fflush(stdout);
+
+  /* set new "virtual" scaled initial time using new time factor*/
+  nps_main.scaled_initial_time = t_now - t_elapsed / nps_main.host_time_factor;
 }
 
 

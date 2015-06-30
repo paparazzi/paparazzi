@@ -20,6 +20,8 @@
  *
  */
 
+#define _GNU_SOURCE
+
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <stdio.h>
@@ -98,13 +100,18 @@ void send_udp(const char *send_to_ip, int port, char *mesg) {
 }
 
 int say(const char *message) {
+  char *str;
 
-  char *str = malloc(snprintf(NULL, 0, "%s%s%s", "spd-say '", message, "'") + 1);
+  if (asprintf(&str, "spd-say '%s'", message) == -1) {
+    fprintf(stderr, "Could not allocate mem for say string\n");
+    return -1;
+  }
 
-  sprintf(str, "%s%s%s", "spd-say '", message, "'");
+  int ret = system(str);
 
-  return system(str);
+  free(str);
 
+  return ret;
 }
 
 void sendCurrentPlayingTime(void) {
@@ -230,10 +237,15 @@ static void on_video_time_tag_changed(GtkWidget *widget, gpointer data) {
 static void on_sync_clicked(GtkButton *button, gpointer user_data) {
 
   static uint8_t syncID = 1;
-  char *msg = malloc(snprintf(NULL, 0, "%s %d %s %d", "Aircraft", airframeID, ", video synchronisation", syncID) + 1);
+  char *msg;
 
-  sprintf(msg, "%s %d %s %d", "Aircraft", airframeID, ", video synchronisation", syncID);
-  say(msg);
+  if (asprintf(&msg, "Aircraft %d, video synchronisation %d", airframeID, syncID) > 0) {
+    say(msg);
+    free(msg);
+  }
+  else {
+    fprintf(stderr, "Could not allocate mem for msg string\n");
+  }
 
   IvySendMsg("%d VIDEO_SYNC %d", airframeID, syncID);  //TODO : get the current airframe ID
 

@@ -74,7 +74,7 @@ TESTS:
     #include "generated/airframe.h"
 
 // Completly replace with onboard recon copmpter interface
-    #ifdef DC_AUTOSHOOT_QUARTERSEC_PERIOD
+    #ifdef DC_AUTOSHOOT_PERIOD
     //TODO make shooting distance not periodic
     #define LINE_START_FUNCTION dc_autoshoot = DC_AUTOSHOOT_PERIODIC;
     #define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;

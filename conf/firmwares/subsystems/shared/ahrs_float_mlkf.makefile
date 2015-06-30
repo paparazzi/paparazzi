@@ -38,11 +38,8 @@ AHRS_MLKF_SRCS   += subsystems/ahrs/ahrs_float_mlkf.c
 AHRS_MLKF_SRCS   += subsystems/ahrs/ahrs_float_mlkf_wrapper.c
 AHRS_MLKF_SRCS   += subsystems/ahrs/ahrs_aligner.c
 
-ap.CFLAGS += $(AHRS_MLKF_CFLAGS)
-ap.srcs += $(AHRS_MLKF_SRCS)
-
-nps.CFLAGS += $(AHRS_MLKF_CFLAGS)
-nps.srcs += $(AHRS_MLKF_SRCS)
-
-test_ahrs.CFLAGS += $(AHRS_MLKF_CFLAGS)
-test_ahrs.srcs += $(AHRS_MLKF_SRCS)
+# add it for all targets except sim and fbw
+ifeq (,$(findstring $(TARGET),sim fbw))
+$(TARGET).CFLAGS += $(AHRS_MLKF_CFLAGS)
+$(TARGET).srcs += $(AHRS_MLKF_SRCS)
+endif

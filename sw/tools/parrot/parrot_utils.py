@@ -19,10 +19,8 @@
 #
 
 from __future__ import print_function
-import re
 import socket
 import telnetlib
-import os
 import sys
 from ftplib import FTP
 import ftplib

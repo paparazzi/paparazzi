@@ -8,20 +8,27 @@ import os
 import sys
 import glob
 import re
+import copy
+import string
+
 
 def dox_new_page(name, title):
     return "/** @page " + name + " " + title + "\n\n"
 
+
 def dox_section(name, title):
     return "@section " + name + " " + title + "\n"
+
 
 def dox_list_file(f):
     s = "- @ref " + f
     #s = "- " + f
     return s + "\n"
 
+
 def get_module_dir(module):
     return module.get("dir", module.get("name")).strip()
+
 
 def modules_category_list(category, modules):
     s = "@subsection modules_category_" + category.lower() + " " + category.title() + " modules\n\n"
@@ -29,6 +36,7 @@ def modules_category_list(category, modules):
         page_name = "module__" + fname[:-4].lower()
         s += "- " + fname + " @subpage " + page_name + "\n"
     return s + "\n\n"
+
 
 def modules_overview_page(modules_dict):
     s = dox_new_page("onboard_modules", "Onboard Modules")
@@ -63,6 +71,7 @@ def modules_overview_page(modules_dict):
     s += "\n */\n\n"
     return s
 
+
 def module_page(filename, module):
     (brief, details) = get_module_description(module)
     keyword = filename[:-4].lower()
@@ -70,6 +79,7 @@ def module_page(filename, module):
     s = dox_new_page(page_name, brief)
     s += "Module XML file: @c " + filename + "\n\n"
     s += details + "\n"
+    s += get_xml_example(filename, module)
     s += module_configuration(module)
     s += module_functions(module)
     s += "@section files Files\n\n"
@@ -79,6 +89,29 @@ def module_page(filename, module):
     s += "\n */\n\n"
     return s
 
+
+def get_xml_example(filename, module):
+    opts = module.findall(".doc/define") + module.findall(".doc/configure")
+    s = "\n@section module_load_example__{0} Example for airframe file\n".format(filename[:-4].lower())
+    if opts:
+        s += "This example contains all possible configuration options, not all of them are mandatory!\n"
+    s += "@code{.xml}\n"
+    s += "<modules>\n"
+    if opts:
+        s += '  <load name="{0}">\n'.format(filename)
+        for o in opts:
+            e = copy.deepcopy(o)
+            if 'description' in e.attrib:
+                del e.attrib['description']
+            s += "    " + string.strip(ET.tostring(e)) + "\n"
+        s += "  </load>\n"
+    else:
+        s += '  <load name="{0}"/>\n'.format(filename)
+    s += "</modules>\n"
+    s += "@endcode\n"
+    return s
+
+
 def get_doc_config_option(module, type):
     s = ""
     try:
@@ -87,7 +120,7 @@ def get_doc_config_option(module, type):
             s += "@subsection {0} {1} Options\n\n".format(type, type.title())
             for c in confs:
                 s += "- @b name: @c {0} @b value: <em>{1}</em>".format(c.get('name'), c.get('value'))
-                desc = c.get('description','')
+                desc = c.get('description', '')
                 if desc:
                     desc = " \\n\n  Description: " + desc
                 s += desc + "\n"
@@ -96,9 +129,10 @@ def get_doc_config_option(module, type):
         print("Error: Could not parse module config.")
     return s
 
+
 def get_doc_sections(module):
     s = ""
-    mname = module.get('name','')
+    mname = module.get('name', '')
     try:
         secs = module.findall("./doc/section")
         if secs:
@@ -106,7 +140,7 @@ def get_doc_sections(module):
             for sec in secs:
                 sname = sec.get('name')
                 s += "- @b section name: @c " + sname
-                p = sec.get('prefix','')
+                p = sec.get('prefix', '')
                 if p:
                     s += " prefix: @c " + p
                 s += "\n"
@@ -114,7 +148,7 @@ def get_doc_sections(module):
                 #print("module {0} has {1} defines in section {2}".format(mname, len(defs), sname))
                 for d in defs:
                     s += "  - @b name @c {0} @b value: <em>{1}</em>".format(d.get('name'), d.get('value'))
-                    desc = d.get('description','')
+                    desc = d.get('description', '')
                     if desc:
                         desc = " \\n\n    Description: " + desc
                     s += desc + "\n"
@@ -122,6 +156,7 @@ def get_doc_sections(module):
     except:
         print("Error: Could not parse doc/section of module " + mname)
     return s
+
 
 def module_configuration(module):
     doc = get_doc_config_option(module, 'configure')
@@ -131,6 +166,7 @@ def module_configuration(module):
         return "@section configuration Module configuration options\n\n" + doc
     else:
         return ""
+
 
 def get_module_description(module):
     desc = module.find("./doc/description")
@@ -143,10 +179,12 @@ def get_module_description(module):
         brief = d[0].strip()
         if len(d) > 1:
             details = d[1].strip()+"\n"
-    return (brief, details)
+    return brief, details
+
 
 def get_headers(module):
     return [f.get('name') for f in module.findall("./header/file")]
+
 
 def headers_list(module):
     headers = get_headers(module)
@@ -159,11 +197,13 @@ def headers_list(module):
     else:
         return ""
 
+
 def get_source_files(module):
     default_dir = os.path.join("modules", get_module_dir(module))
     sources = [os.path.join(f.get("dir", default_dir), f.get("name")) for f in module.findall("./makefile/file")]
     arch_sources = ["arch dependent: " + os.path.join(f.get("dir", default_dir), f.get("name")) for f in module.findall("./makefile/file_arch")]
     return sources + arch_sources
+
 
 def sources_list(module):
     files = get_source_files(module)
@@ -176,6 +216,7 @@ def sources_list(module):
     else:
         return ""
 
+
 def get_init_functions(module):
     s = ""
     inits = [f.get('fun') for f in module.findall("./init")]
@@ -186,6 +227,7 @@ def get_init_functions(module):
             s += "- " + init + "\n"
         s += "\n"
     return s
+
 
 def get_event_functions(module):
     s = ""
@@ -198,6 +240,7 @@ def get_event_functions(module):
         s += "\n"
     return s
 
+
 def get_periodic_functions(module):
     s = ""
     periodics = module.findall("./periodic")
@@ -205,18 +248,18 @@ def get_periodic_functions(module):
         s += "@subsection periodic_functions Periodic Functions\n\n"
         s += "These functions are called periodically at the specified frequency from the module periodic loop.\n\n"
         for p in periodics:
-            s += "- {0}\n".format(p.get('fun',''))
-            if p.get('period',''):
+            s += "- {0}\n".format(p.get('fun', ''))
+            if p.get('period', ''):
                 s += "  - Period in seconds: @a {0}\n".format(p.get('period'))
-            elif p.get('freq',''):
+            elif p.get('freq', ''):
                 s += "  - Frequency in Hz: @a {0}\n".format(p.get('freq'))
             else:
                 s += "  - Running at maximum module frequency.\n"
-            if p.get('delay',''):
+            if p.get('delay', ''):
                 s += "  - Delay: @a {0} \\n\n".format(p.get('delay'))
                 s += "    Integer to impose a sequence (between 0 and main_freq/function_freq)\n"
             # default for autorun is LOCK
-            autorun = p.get('autorun','LOCK')
+            autorun = p.get('autorun', 'LOCK')
             s += "  - Autorun: @a {0} \\n\n".format(autorun)
             if autorun == "TRUE":
                 s += "    Periodic function automatically starts after init.\n"
@@ -224,13 +267,14 @@ def get_periodic_functions(module):
                 s += "    Periodic function is started by user command.\n"
             else:
                 s += "    Periodic function automatically starts after init and can't be stopped.\n"
-            if p.get('start',''):
+            if p.get('start', ''):
                 s += "  - Start function: {0}\\n\n".format(p.get('start'))
                 s += "    Executed before the periodic function starts.\n"
-            if p.get('stop','') and autorun != "LOCK":
+            if p.get('stop', '') and autorun != "LOCK":
                 s += "  - Stop function: {0}\\n\n".format(p.get('stop'))
                 s += "    Executed after the periodic function stops.\n"
     return s
+
 
 def module_functions(module):
     fdoc = get_init_functions(module)
@@ -240,6 +284,7 @@ def module_functions(module):
         return "@section functions Module functions\n\n" + fdoc + "\n"
     else:
         return ""
+
 
 def read_module_file(file):
     try:
@@ -255,13 +300,14 @@ def read_module_file(file):
     else:
         return root
 
+
 if __name__ == '__main__':
     usage = "Usage: %prog [options] modules/dir" + "\n" + "Run %prog --help to list the options."
     parser = OptionParser(usage)
     parser.add_option("-i", "--inputdir", dest="input_dir",
-                      help="read input from DIR [default: PAPARAZZI_HOME/conf/modules", metavar="DIR")
+                      help="read input from DIR [default: PAPARAZZI_HOME/conf/modules]", metavar="DIR")
     parser.add_option("-o", "--outputdir", dest="output_dir",
-                      help="write output to DIR [default: PAPARAZZI_HOME/doc/manual", metavar="DIR")
+                      help="write output to DIR [default: PAPARAZZI_HOME/doc/manual/generated]", metavar="DIR")
     parser.add_option("-p", "--parents",
                       action="store_true", dest="create_parent_dirs",
                       help="Create parent dirs of output dir if they don't exist.")
@@ -325,4 +371,3 @@ if __name__ == '__main__':
         outfile.write(outstring)
     if options.verbose:
         print("Done.")
-

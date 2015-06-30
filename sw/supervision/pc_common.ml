@@ -95,7 +95,7 @@ let choose_xml_file = fun ?(multiple = false) title subdir cb ->
 
 
 
-let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
+let run_and_monitor = fun ?(once = false) ?file ?(finished_callback = fun () -> ()) gui log com_name com args ->
   let c = sprintf "%s %s" com args in
   let p = new Gtk_process.hbox_program ?file () in
   (gui#vbox_programs:GPack.box)#pack p#toplevel#coerce;
@@ -139,6 +139,7 @@ let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
             | (x, _) ->
               log (sprintf "\nSTOPPED '%s'\n\n" com);
           end;
+          finished_callback ();
           p#button_stop#set_label "gtk-redo";
           p#button_remove#misc#set_sensitive true;
           if once then
@@ -170,9 +171,9 @@ let basic_command = fun (log:string->unit) ac_name target ->
   ignore (run_and_log log (fun _ -> ()) com)
 
 
-let command = fun ?file gui (log:string->unit) ac_name target ->
+let command = fun ?file ?finished_callback gui (log:string->unit) ac_name target ->
   let com = sprintf "make -C %s -f Makefile.ac AIRCRAFT=%s %s" Env.paparazzi_src ac_name target in
-  run_and_monitor ~once:true ?file gui log "make" com ""
+  run_and_monitor ~once:true ?file ?finished_callback gui log "make" com ""
 
 
 let conf_is_set = fun home ->

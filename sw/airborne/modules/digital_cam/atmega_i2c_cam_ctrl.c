@@ -65,7 +65,7 @@ void atmega_i2c_cam_ctrl_init(void)
 void atmega_i2c_cam_ctrl_periodic(void)
 {
   atmega_i2c_cam_ctrl_just_sent_command = 0;
-  dc_periodic_4Hz();
+  dc_periodic();
 
   // Request Status
   if (atmega_i2c_cam_ctrl_just_sent_command == 0) {

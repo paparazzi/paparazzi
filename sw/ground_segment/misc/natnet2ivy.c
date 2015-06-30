@@ -40,7 +40,7 @@
 #include <time.h>
 
 #include "std.h"
-#include "fms/fms_network.h"
+#include "arch/linux/udp_socket.h"
 #include "math/pprz_geodetic_double.h"
 #include "math/pprz_algebra_double.h"
 
@@ -115,7 +115,7 @@ struct Aircraft {
 struct Aircraft aircrafts[MAX_RIGIDBODIES];                  ///< Mapping from rigid body ID to aircraft ID
 
 /** Natnet socket connections */
-struct FmsNetwork *natnet_data, *natnet_cmd;
+struct UdpSocket natnet_data, natnet_cmd;
 
 /** Tracking location LTP and angle offset from north */
 struct LtpDef_d tracking_ltp;       ///< The tracking system LTP definition
@@ -534,7 +534,7 @@ static gboolean sample_data(GIOChannel *chan, GIOCondition cond, gpointer data) 
   static int bytes_data = 0;
 
   // Keep on reading until we have the whole packet
-  bytes_data += network_read(natnet_data, buffer_data, MAX_PACKETSIZE);
+  bytes_data += udp_socket_recv(&natnet_data, buffer_data, MAX_PACKETSIZE);
 
   // Parse NatNet data
   if(bytes_data >= 2 && bytes_data >= buffer_data[1]) {
@@ -729,13 +729,13 @@ int main(int argc, char** argv)
 
   // Create the network connections
   printf_debug("Starting NatNet listening (multicast address: %s, data port: %d, version: %d.%d)\n", natnet_multicast_addr, natnet_data_port, natnet_major, natnet_minor);
-  natnet_data = network_new("", -1, natnet_data_port, 0); // Only receiving
-  network_subscribe_multicast(natnet_data, natnet_multicast_addr);
-  network_set_recvbuf(natnet_data, 0x100000); // 1MB
+  udp_socket_create(&natnet_data, "", -1, natnet_data_port, 0); // Only receiving
+  udp_socket_subscribe_multicast(&natnet_data, natnet_multicast_addr);
+  udp_socket_set_recvbuf(&natnet_data, 0x100000); // 1MB
 
   printf_debug("Starting NatNet command socket (server address: %s, command port: %d)\n", natnet_addr, natnet_cmd_port);
-  natnet_cmd = network_new(natnet_addr, natnet_cmd_port, 0, 1);
-  network_set_recvbuf(natnet_cmd, 0x100000); // 1MB
+  udp_socket_create(&natnet_cmd, natnet_addr, natnet_cmd_port, 0, 1);
+  udp_socket_set_recvbuf(&natnet_cmd, 0x100000); // 1MB
 
   // Create the Ivy Client
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
@@ -747,7 +747,7 @@ int main(int argc, char** argv)
     freq_transmit, min_velocity_samples);
   g_timeout_add(1000/freq_transmit, timeout_transmit_callback, NULL);
 
-  GIOChannel *sk = g_io_channel_unix_new(natnet_data->socket_in);
+  GIOChannel *sk = g_io_channel_unix_new(natnet_data.sockfd);
   g_io_add_watch(sk, G_IO_IN | G_IO_NVAL | G_IO_HUP,
                  sample_data, NULL);
 

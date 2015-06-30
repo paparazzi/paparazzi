@@ -23,6 +23,11 @@
  * @brief WMM2010 Geomagnetic field model.
  *
  * Based on the WMM2010 model (http://www.ngdc.noaa.gov/geomag/models.shtml)
+ *
+ * @addtogroup math_geodetic
+ * @{
+ * @addtogroup math_geodetic_wmm Geomagnetic field model
+ * @{
  */
 
 #ifndef WMM2010_H
@@ -72,3 +77,5 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
 #endif
 
 #endif /* WMM2010_H */
+/** @}*/
+/** @}*/

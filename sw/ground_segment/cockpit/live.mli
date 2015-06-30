@@ -87,3 +87,4 @@ val jump_to_block : string -> int -> unit
 val dl_setting : string -> int -> float -> unit
 (** [dl_setting ac_id var_index value] Sends a DL_SETTING message *)
 
+val filter_ac_ids: string -> unit

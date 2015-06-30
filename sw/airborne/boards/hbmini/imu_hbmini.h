@@ -37,8 +37,6 @@
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
 
-//#include "peripherals/itg3200.h"
-//#include "peripherals/adxl345_i2c.h"
 #include "peripherals/max1168.h"
 #include "peripherals/hmc58xx.h"
 
@@ -61,11 +59,6 @@
 
 
 struct ImuHbmini {
-  volatile bool_t gyr_valid;
-  volatile bool_t acc_valid;
-  volatile bool_t mag_valid;
-  //struct Itg3200 itg;
-  //struct Adxl345_I2c adxl;
   struct Hmc58xx hmc;
 };
 
@@ -75,21 +68,6 @@ extern struct ImuHbmini imu_hbmini;
 extern void imu_hbmini_event(void);
 extern void imu_hbmini_downlink_raw(void);
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  imu_hbmini_event();
-  if (imu_hbmini.gyr_valid) {
-    imu_hbmini.gyr_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_hbmini.acc_valid) {
-    imu_hbmini.acc_valid = FALSE;
-    _accel_handler();
-  }
-  if (imu_hbmini.mag_valid) {
-    imu_hbmini.mag_valid = FALSE;
-    _mag_handler();
-  }
-}
+#define ImuEvent imu_hbmini_event
 
 #endif

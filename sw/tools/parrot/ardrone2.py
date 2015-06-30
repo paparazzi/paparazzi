@@ -22,13 +22,8 @@
 from __future__ import print_function
 import re
 import argparse
-import socket
-import telnetlib
 import os
-import sys
 from time import sleep
-from ftplib import FTP
-import ftplib
 
 import parrot_utils
 
@@ -236,7 +231,7 @@ subparser_networkid.add_argument('name', help='the new network ID(SSID)')
 subparser_ipaddress = subparsers.add_parser('ipaddress', help='Set the IP address of the ARDrone 2')
 subparser_ipaddress.add_argument('address', help='the new IP address')
 subparser_wifimode = subparsers.add_parser('wifimode', help='Set the Wifi mode the ARDrone 2')
-subparser_wifimode.add_argument('mode', help='the new Wifi mode', choices=['master', 'ad-hoc', 'managed'])
+subparser_wifimode.add_argument('mode', help='the new Wifi mode', choices=['master', 'ad-hoc', 'managed', 'ad-hoc-olsr'])
 subparser_configure_network = subparsers.add_parser('configure_network', help='Configure the network on the ARDrone 2')
 subparser_configure_network.add_argument('name', help='the new network ID(SSID)')
 subparser_configure_network.add_argument('address', help='the new IP address')

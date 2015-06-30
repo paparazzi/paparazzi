@@ -22,7 +22,7 @@
 
 
 #include "subsystems/gps.h"
-
+#include "subsystems/abi.h"
 #include "led.h"
 
 #if GPS_USE_LATLONG
@@ -48,8 +48,10 @@ void gps_impl_init(void)
   gps_sirf.read_state = 0;
 }
 
-void gps_sirf_msg(void (* _cb)(void))
+void gps_sirf_msg(void)
 {
+  // current timestamp
+  uint32_t now_ts = get_sys_time_usec();
   gps.last_msg_ticks = sys_time.nb_sec_rem;
   gps.last_msg_time = sys_time.nb_sec;
   sirf_parse_msg();
@@ -58,7 +60,7 @@ void gps_sirf_msg(void (* _cb)(void))
       gps.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps.last_3dfix_time = sys_time.nb_sec;
     }
-    _cb();
+    AbiSendMsgGPS(GPS_SIRF_ID, now_ts, &gps);
   }
   gps_sirf.msg_available = FALSE;
 }

@@ -1,6 +1,7 @@
 #if USE_MISSION_COMMANDS_IN_NPS
 
 #include "nps_ivy.h"
+#include "nps_autopilot.h"
 
 #include <stdlib.h>
 #include <Ivy/ivy.h>
@@ -115,15 +116,17 @@ static void on_DL_MISSION_GOTO_WP_LLA(IvyClientPtr app __attribute__ ((unused)),
   if (!autopilot.datalink_enabled)
     return;
 
-  uint8_t i = 0;
-  float dummy;
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
   dl_buffer[3] = (uint8_t)(atoi(argv[2])); //insert mode
 
-  for(i=1; i<5 ; i++){ //target components
-    dummy = (float)(atof(argv[2+i]));
+  uint8_t i = 0;
+  int32_t dummy;
+  for(i=1; i<4 ; i++){ //target components (lat, lon, alt in int)
+    dummy = (int32_t)(atof(argv[2+i]));
     memcpy(&dl_buffer[i*4], &dummy, 4);
   }
+  float d = (float)(atof(argv[6]));
+  memcpy(&dl_buffer[i*4], &d, 4);  // duration
 
   mission_parse_GOTO_WP_LLA();
 }
@@ -153,15 +156,19 @@ static void on_DL_MISSION_CIRCLE_LLA(IvyClientPtr app __attribute__ ((unused)),
   if (!autopilot.datalink_enabled)
     return;
 
-  uint8_t i = 0;
-  float dummy;
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
   dl_buffer[3] = (uint8_t)(atoi(argv[2])); //insert mode
 
-  for(i=1; i<6 ; i++){ //target components
-    dummy = (float)(atof(argv[2+i]));
+  uint8_t i = 0;
+  int32_t dummy;
+  for(i=1; i<4 ; i++){ //target components (lat, lon, alt in int)
+    dummy = (int32_t)(atof(argv[2+i]));
     memcpy(&dl_buffer[i*4], &dummy, 4);
   }
+  float d = (float)(atof(argv[6])); // radius in m
+  memcpy(&dl_buffer[4*4], &d, 4);
+  d = (float)(atof(argv[7])); // duration
+  memcpy(&dl_buffer[5*4], &d, 4);
 
   mission_parse_CIRCLE_LLA();
 }
@@ -191,15 +198,17 @@ static void on_DL_MISSION_SEGMENT_LLA(IvyClientPtr app __attribute__ ((unused)),
   if (!autopilot.datalink_enabled)
     return;
 
-  uint8_t i = 0;
-  float dummy;
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
   dl_buffer[3] = (uint8_t)(atoi(argv[2])); //insert mode
 
-  for(i=1; i<7 ; i++){ //target components
-    dummy = (float)(atof(argv[2+i]));
+  uint8_t i = 0;
+  int32_t dummy;
+  for(i=1; i<6 ; i++){ //target components
+    dummy = (int32_t)(atof(argv[2+i]));
     memcpy(&dl_buffer[i*4], &dummy, 4);
   }
+  float d = (float)(atof(argv[8]));
+  memcpy(&dl_buffer[i*4], &d, 4);
 
   mission_parse_SEGMENT_LLA();
 }
@@ -230,16 +239,18 @@ static void on_DL_MISSION_PATH_LLA(IvyClientPtr app __attribute__ ((unused)),
   if (!autopilot.datalink_enabled)
     return;
 
-  uint8_t i = 0;
-  float dummy;
   dl_buffer[2] = (uint8_t)(atoi(argv[1])); //ac_id
   dl_buffer[3] = (uint8_t)(atoi(argv[2])); //insert mode
 
-  for(i=1; i<13 ; i++){ //target components
-    dummy = (float)(atof(argv[2+i]));
+  uint8_t i = 0;
+  int32_t dummy;
+  for(i=1; i<12 ; i++){ //target components
+    dummy = (int32_t)(atof(argv[2+i]));
     memcpy(&dl_buffer[i*4], &dummy, 4);
   }
-  dl_buffer[i*4] = (uint8_t)(atoi(argv[2+i])); //path nb
+  float d = (float)(atof(argv[2+12])); // duration
+  memcpy(&dl_buffer[i*4], &d, 4);
+  dl_buffer[13*4] = (uint8_t)(atoi(argv[2+13])); //path nb
 
   mission_parse_PATH_LLA();
 }

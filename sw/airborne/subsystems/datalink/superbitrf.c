@@ -38,33 +38,33 @@
 #ifndef SUPERBITRF_SPI_DEV
 #define SUPERBITRF_SPI_DEV      spi1
 #endif
-PRINT_CONFIG_VAR(SUPERBITRF_SPI_DEV);
+PRINT_CONFIG_VAR(SUPERBITRF_SPI_DEV)
 
 /* Default SuperbitRF RST PORT and PIN */
 #ifndef SUPERBITRF_RST_PORT
 #define SUPERBITRF_RST_PORT     GPIOC
 #endif
-PRINT_CONFIG_VAR(SUPERBITRF_RST_PORT);
+PRINT_CONFIG_VAR(SUPERBITRF_RST_PORT)
 #ifndef SUPERBITRF_RST_PIN
 #define SUPERBITRF_RST_PIN      GPIO12
 #endif
-PRINT_CONFIG_VAR(SUPERBITRF_RST_PIN);
+PRINT_CONFIG_VAR(SUPERBITRF_RST_PIN)
 
 /* Default SuperbitRF DRDY(IRQ) PORT and PIN */
 #ifndef SUPERBITRF_DRDY_PORT
 #define SUPERBITRF_DRDY_PORT     GPIOB
 #endif
-PRINT_CONFIG_VAR(SUPERBITRF_DRDY_PORT);
+PRINT_CONFIG_VAR(SUPERBITRF_DRDY_PORT)
 #ifndef SUPERBITRF_DRDY_PIN
 #define SUPERBITRF_DRDY_PIN      GPIO1
 #endif
-PRINT_CONFIG_VAR(SUPERBITRF_DRDY_PIN);
+PRINT_CONFIG_VAR(SUPERBITRF_DRDY_PIN)
 
 /* Default forcing in DSM2 mode is false */
 #ifndef SUPERBITRF_FORCE_DSM2
 #define SUPERBITRF_FORCE_DSM2   TRUE
 #endif
-PRINT_CONFIG_VAR(SUPERBITRF_FORCE_DSM2);
+PRINT_CONFIG_VAR(SUPERBITRF_FORCE_DSM2)
 
 /* The superbitRF structure */
 struct SuperbitRF superbitrf;
@@ -442,12 +442,12 @@ void superbitrf_event(void)
 #ifdef RADIO_TRANSMITTER_ID
             // otherwise load airframe file value
             else {
-              PRINT_CONFIG_VAR(RADIO_TRANSMITTER_ID);
+              PRINT_CONFIG_VAR(RADIO_TRANSMITTER_ID)
               superbitrf_set_mfg_id(RADIO_TRANSMITTER_ID);
             }
 #endif
 #ifdef RADIO_TRANSMITTER_CHAN
-            PRINT_CONFIG_VAR(RADIO_TRANSMITTER_CHAN);
+            PRINT_CONFIG_VAR(RADIO_TRANSMITTER_CHAN)
             if (superbitrf.num_channels == 0) {
               superbitrf.num_channels = RADIO_TRANSMITTER_CHAN;
             }
@@ -457,7 +457,7 @@ void superbitrf_event(void)
             }
 #ifdef RADIO_TRANSMITTER_PROTOCOL
             else {
-              PRINT_CONFIG_VAR(RADIO_TRANSMITTER_PROTOCOL);
+              PRINT_CONFIG_VAR(RADIO_TRANSMITTER_PROTOCOL)
               superbitrf_set_protocol(RADIO_TRANSMITTER_PROTOCOL);
             }
 #endif

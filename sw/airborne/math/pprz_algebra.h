@@ -23,6 +23,14 @@
  * @file pprz_algebra.h
  * @brief Paparazzi generic algebra macros.
  *
+ * @addtogroup math
+ * @{
+ * Paparazzi math functions.
+ * @addtogroup math_algebra Algebra functions
+ * @{
+ * Algebra functions and macros.
+ * @addtogroup math_algebra_generic Generic Algebra macros
+ * @{
  */
 
 #ifndef PPRZ_ALGEBRA_H
@@ -740,3 +748,6 @@ extern "C" {
 #endif
 
 #endif /* PPRZ_ALGEBRA_H */
+/** @}*/
+/** @}*/
+/** @}*/

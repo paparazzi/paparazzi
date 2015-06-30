@@ -80,25 +80,8 @@ extern struct ImuNps imu_nps;
 extern void imu_feed_gyro_accel(void);
 extern void imu_feed_mag(void);
 
-static inline void ImuMagEvent(void (* _mag_handler)(void))
-{
-  if (imu_nps.mag_available) {
-    imu_nps.mag_available = FALSE;
-    _mag_handler();
-  }
-}
+extern void imu_nps_event(void);
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  if (imu_nps.accel_available) {
-    imu_nps.accel_available = FALSE;
-    _accel_handler();
-  }
-  if (imu_nps.gyro_available) {
-    imu_nps.gyro_available = FALSE;
-    _gyro_handler();
-  }
-  ImuMagEvent(_mag_handler);
-}
+#define ImuEvent imu_nps_event
 
 #endif /* IMU_NPS_H */

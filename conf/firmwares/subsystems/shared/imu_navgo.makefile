@@ -14,8 +14,11 @@ IMU_NAVGO_SRCS += peripherals/itg3200.c
 IMU_NAVGO_SRCS += peripherals/adxl345_i2c.c
 IMU_NAVGO_SRCS += peripherals/hmc58xx.c
 
-ap.CFLAGS += $(IMU_NAVGO_CFLAGS)
-ap.srcs   += $(IMU_NAVGO_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_NAVGO_CFLAGS)
+$(TARGET).srcs += $(IMU_NAVGO_SRCS)
+endif
 
 #
 # Simulator

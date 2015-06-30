@@ -22,7 +22,13 @@
  * @file pprz_geodetic.h
  * @brief Paparazzi generic macros for geodetic calculations.
  *
- *
+ * @addtogroup math
+ * @{
+ * @addtogroup math_geodetic Geodetic functions
+ * @{
+ * Geodetic calculation functions and macros.
+ * @addtogroup math_geodetic_generic Generic Geodetic macros.
+ * @{
  */
 
 #ifndef PPRZ_GEODETIC_H
@@ -94,3 +100,6 @@ extern "C" {
 #endif
 
 #endif /* PPRZ_GEODETIC_H */
+/** @}*/
+/** @}*/
+/** @}*/

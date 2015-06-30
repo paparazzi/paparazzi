@@ -124,11 +124,11 @@ static inline void hackhd_log_shot_position(void)
 {
   // For unknown reason, the first shot is not taken
   // so we start logging at photo_nr = 1
-  if (pprzLogFile.fs != NULL && hackhd.photo_nr > 0) {
+  if (pprzLogFile != -1 && hackhd.photo_nr > 0) {
     struct FloatEulers att = *stateGetNedToBodyEulers_f();
     struct EnuCoor_f pos = *stateGetPositionEnu_f();
     uint32_t time = get_sys_time_msec();
-    sdLogWriteLog(&pprzLogFile, "%d %d %d %d %d %d %d %u\n",
+    sdLogWriteLog(pprzLogFile, "%d %d %d %d %d %d %d %u\n",
                   hackhd.photo_nr,
                   (int32_t)(DegOfRad(att.phi * 10.0f)),
                   (int32_t)(DegOfRad(att.theta * 10.0f)),

@@ -17,5 +17,8 @@ IMU_UM6_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_um6.c
 IMU_UM6_CFLAGS += -DUSE_$(UM6_PORT) -D$(UM6_PORT)_BAUD=$(UM6_BAUD)
 IMU_UM6_CFLAGS += -DUM6_LINK=$(UM6_PORT_LOWER)
 
-ap.CFLAGS += $(IMU_UM6_CFLAGS)
-ap.srcs   += $(IMU_UM6_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_UM6_CFLAGS)
+$(TARGET).srcs += $(IMU_UM6_SRCS)
+endif

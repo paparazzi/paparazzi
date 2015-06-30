@@ -140,7 +140,7 @@ void digital_cam_uart_init(void)
 void digital_cam_uart_periodic(void)
 {
   // Common DC Periodic task
-  dc_periodic_4Hz();
+  dc_periodic();
 }
 
 

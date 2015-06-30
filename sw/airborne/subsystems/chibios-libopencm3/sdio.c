@@ -28,9 +28,9 @@
 #include <string.h>
 #include "ch.h"
 #include "hal.h"
+#include "printf.h"
 #include "ff.h"
 #include "sdio.h"
-#include "printf.h"
 #include <stdarg.h>
 
 
@@ -39,6 +39,7 @@ static  uint32_t sdioBufferIndex=0;
 static void sdioDebug (const char *fmt, ...) ;
 
 static enum {STOP, CONNECT} cnxState = STOP;
+
 
 /*
 #                  ___    _____    _____
@@ -106,7 +107,6 @@ bool_t isCardInserted  (void)
 }
 
 
-
 /*
 #                 ______   _____     _____    ____
 #                /  ____| |  __ \   |_   _|  / __ \
@@ -130,8 +130,6 @@ bool_t isCardInserted  (void)
 /*
  * SDIO configuration.
  */
-
-#include <string.h>
 
 #define SDC_DATA_DESTRUCTIVE_TEST   TRUE
 
@@ -158,7 +156,7 @@ bool_t badblocks(uint32_t start, uint32_t end, uint32_t blockatonce, uint8_t pat
   uint32_t position = 0;
   uint32_t i = 0;
 
-
+  chDbgCheck(blockatonce <= SDC_BURST_SIZE, "badblocks");
 
   /* fill control buffer */
   for (i=0; i < MMCSD_BLOCK_SIZE * blockatonce; i++)

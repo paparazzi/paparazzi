@@ -39,11 +39,8 @@ AHRS_ICQ_SRCS   += subsystems/ahrs/ahrs_int_cmpl_quat.c
 AHRS_ICQ_SRCS   += subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.c
 AHRS_ICQ_SRCS   += subsystems/ahrs/ahrs_aligner.c
 
-ap.CFLAGS += $(AHRS_ICQ_CFLAGS)
-ap.srcs += $(AHRS_ICQ_SRCS)
-
-nps.CFLAGS += $(AHRS_ICQ_CFLAGS)
-nps.srcs += $(AHRS_ICQ_SRCS)
-
-test_ahrs.CFLAGS += $(AHRS_ICQ_CFLAGS)
-test_ahrs.srcs += $(AHRS_ICQ_SRCS)
+# add it for all targets except sim and fbw
+ifeq (,$(findstring $(TARGET),sim fbw))
+$(TARGET).CFLAGS += $(AHRS_ICQ_CFLAGS)
+$(TARGET).srcs += $(AHRS_ICQ_SRCS)
+endif

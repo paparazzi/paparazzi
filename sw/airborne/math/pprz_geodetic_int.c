@@ -287,7 +287,11 @@ void ecef_of_ned_pos_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, struct Ned
   ecef_of_enu_pos_i(ecef, def, &enu);
 }
 
-
+/** Convert a point from LLA to local ENU.
+ * @param[out] enu  ENU point in cm
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  lla  LLA point in 1e7deg and mm
+ */
 void enu_of_lla_point_i(struct EnuCoor_i *enu, struct LtpDef_i *def, struct LlaCoor_i *lla)
 {
   struct EcefCoor_i ecef;
@@ -295,6 +299,11 @@ void enu_of_lla_point_i(struct EnuCoor_i *enu, struct LtpDef_i *def, struct LlaC
   enu_of_ecef_point_i(enu, def, &ecef);
 }
 
+/** Convert a point from LLA to local NED.
+ * @param[out] ned  NED point in cm
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  lla  LLA point in 1e7deg and mm
+ */
 void ned_of_lla_point_i(struct NedCoor_i *ned, struct LtpDef_i *def, struct LlaCoor_i *lla)
 {
   struct EcefCoor_i ecef;

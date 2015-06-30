@@ -1,6 +1,7 @@
 /*
  * Driver for a Amsys Differential Presure Sensor I2C
  * AMS 5812-0003-D
+ * AMS 5812-0001-D
  *
  * Copyright (C) 2010 The Paparazzi Team
  *
@@ -42,7 +43,7 @@
 #define AIRSPEED_AMSYS_OFFSET_NBSAMPLES_AVRG 60
 #define AIRSPEED_AMSYS_NBSAMPLES_AVRG 10
 #ifndef AIRSPEED_AMSYS_MAXPRESURE
-#define AIRSPEED_AMSYS_MAXPRESURE 2068 //003-2068, 001-689 //Pascal
+#define AIRSPEED_AMSYS_MAXPRESURE 2068 //003-2068, 001-1034 //Pascal
 #endif
 #ifndef AIRSPEED_AMSYS_FILTER
 #define AIRSPEED_AMSYS_FILTER 0
@@ -53,7 +54,7 @@
 #ifdef MEASURE_AMSYS_TEMPERATURE
 #define TEMPERATURE_AMSYS_OFFSET_MAX 29491
 #define TEMPERATURE_AMSYS_OFFSET_MIN 3277
-#define TEMPERATURE_AMSYS_MAX 110
+#define TEMPERATURE_AMSYS_MAX 85
 #define TEMPERATURE_AMSYS_MIN -25
 #endif
 
@@ -147,7 +148,7 @@ void airspeed_amsys_read_event(void)
   airspeed_amsys_raw = (airspeed_amsys_i2c_trans.buf[0] << 8) | airspeed_amsys_i2c_trans.buf[1];
 #ifdef MEASURE_AMSYS_TEMPERATURE
   tempAS_amsys_raw = (airspeed_amsys_i2c_trans.buf[2] << 8) | airspeed_amsys_i2c_trans.buf[3];
-  const float temp_off_scale = (float)(TEMPERATURE_AMSYS_MAX) /
+  const float temp_off_scale = (float)(TEMPERATURE_AMSYS_MAX - TEMPERATURE_AMSYS_MIN) /
                                (TEMPERATURE_AMSYS_OFFSET_MAX - TEMPERATURE_AMSYS_OFFSET_MIN);
   // Tmin=-25, Tmax=85
   airspeed_temperature = temp_off_scale * (tempAS_amsys_raw - TEMPERATURE_AMSYS_OFFSET_MIN) +

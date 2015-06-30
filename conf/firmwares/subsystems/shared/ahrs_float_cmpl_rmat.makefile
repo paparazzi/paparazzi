@@ -39,11 +39,9 @@ AHRS_FC_SRCS   += subsystems/ahrs/ahrs_float_cmpl.c
 AHRS_FC_SRCS   += subsystems/ahrs/ahrs_float_cmpl_wrapper.c
 AHRS_FC_SRCS   += subsystems/ahrs/ahrs_aligner.c
 
-ap.CFLAGS += $(AHRS_FC_CFLAGS)
-ap.srcs += $(AHRS_FC_SRCS)
 
-nps.CFLAGS += $(AHRS_FC_CFLAGS)
-nps.srcs += $(AHRS_FC_SRCS)
-
-test_ahrs.CFLAGS += $(AHRS_FC_CFLAGS)
-test_ahrs.srcs += $(AHRS_FC_SRCS)
+# add it for all targets except sim and fbw
+ifeq (,$(findstring $(TARGET),sim fbw))
+$(TARGET).CFLAGS += $(AHRS_FC_CFLAGS)
+$(TARGET).srcs += $(AHRS_FC_SRCS)
+endif

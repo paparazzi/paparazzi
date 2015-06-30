@@ -209,8 +209,8 @@ let () =
   Utils.build_aircrafts ();
 
   let ac_combo = AC.parse_conf_xml gui#vbox_ac
-  and target_combo = Gtk_tools.combo ["sim";"fbw";"ap"] gui#vbox_target
-  and flash_combo = Gtk_tools.combo ["Default mode"] gui#vbox_flash in
+  and target_combo = Gtk_tools.combo ~width:50 ["sim";"fbw";"ap"] gui#vbox_target
+  and flash_combo = Gtk_tools.combo ~width:50 ["Default mode"] gui#vbox_flash in
 
   (Gtk_tools.combo_widget target_combo)#misc#set_sensitive false;
   (Gtk_tools.combo_widget flash_combo)#misc#set_sensitive false;

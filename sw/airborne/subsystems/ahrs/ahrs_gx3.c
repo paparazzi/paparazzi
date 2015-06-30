@@ -340,7 +340,7 @@ void ahrs_gx3_init(void)
 void ahrs_gx3_register(void)
 {
   ahrs_gx3_init();
-  /// @TODO: provide enable function
+  /// @todo: provide enable function
   ahrs_register_impl(NULL);
 }
 
@@ -349,3 +349,11 @@ void ahrs_gx3_register(void)
 void imu_scale_gyro(struct Imu *_imu __attribute__((unused))) {}
 void imu_scale_accel(struct Imu *_imu __attribute__((unused))) {}
 void imu_scale_mag(struct Imu *_imu __attribute__((unused))) {}
+
+void ahrs_gx3_publish_imu(void)
+{
+  uint32_t now_ts = get_sys_time_usec();
+  AbiSendMsgIMU_GYRO_INT32(IMU_GX3_ID, now_ts, &imu.gyro);
+  AbiSendMsgIMU_ACCEL_INT32(IMU_GX3_ID, now_ts, &imu.accel);
+  AbiSendMsgIMU_MAG_INT32(IMU_GX3_ID, now_ts, &imu.mag);
+}

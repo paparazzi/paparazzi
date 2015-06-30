@@ -109,7 +109,7 @@ struct FGNetCtrls {
 };
 
 
-#define FG_NET_FDM_VERSION 23
+#define FG_NET_FDM_VERSION 24
 #define FG_NET_FDM_MAX_ENGINES 4
 #define FG_NET_FDM_MAX_WHEELS  3
 #define FG_NET_FDM_MAX_TANKS   4
@@ -141,12 +141,9 @@ struct FGNetFDM {
   float v_north;              // north velocity in local/body frame, fps
   float v_east;               // east velocity in local/body frame, fps
   float v_down;               // down/vertical velocity in local/body frame, fps
-  float v_wind_body_north;    // north velocity in local/body frame
-                              // relative to local airmass, fps
-  float v_wind_body_east;     // east velocity in local/body frame
-                              // relative to local airmass, fps
-  float v_wind_body_down;     // down/vertical velocity in local/body
-                              // frame relative to local airmass, fps
+  float v_body_u;             // ECEF velocity in body frame
+  float v_body_v;             // ECEF velocity in body frame
+  float v_body_w;             // ECEF velocity in body frame
 
   // Accelerations
   float A_X_pilot;            // X accel in body frame ft/sec^2
@@ -163,6 +160,7 @@ struct FGNetFDM {
   uint32_t eng_state[FG_NET_FDM_MAX_ENGINES];// Engine state (off, cranking, running)
   float rpm[FG_NET_FDM_MAX_ENGINES];       // Engine RPM rev/min
   float fuel_flow[FG_NET_FDM_MAX_ENGINES]; // Fuel flow gallons/hr
+  float fuel_px[FG_NET_FDM_MAX_ENGINES];      // Fuel pressure psi
   float egt[FG_NET_FDM_MAX_ENGINES];       // Exhuast gas temp deg F
   float cht[FG_NET_FDM_MAX_ENGINES];       // Cylinder head temp deg F
   float mp_osi[FG_NET_FDM_MAX_ENGINES];    // Manifold pressure

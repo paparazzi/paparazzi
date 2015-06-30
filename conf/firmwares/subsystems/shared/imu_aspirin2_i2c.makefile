@@ -27,11 +27,12 @@ IMU_ASPIRIN2_I2C_DEV_LOWER=$(shell echo $(IMU_ASPIRIN2_I2C_DEV) | tr A-Z a-z)
 IMU_ASPIRIN2_CFLAGS += -DIMU_ASPIRIN2_I2C_DEV=$(IMU_ASPIRIN2_I2C_DEV_LOWER)
 IMU_ASPIRIN2_CFLAGS += -DUSE_$(IMU_ASPIRIN2_I2C_DEV_UPPER)
 
-ap.CFLAGS += $(IMU_ASPIRIN2_CFLAGS)
-ap.srcs   += $(IMU_ASPIRIN2_SRCS)
 
-test_imu.CFLAGS += $(IMU_ASPIRIN2_CFLAGS)
-test_imu.srcs   += $(IMU_ASPIRIN2_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_ASPIRIN2_CFLAGS)
+$(TARGET).srcs += $(IMU_ASPIRIN2_SRCS)
+endif
 
 #
 # NPS simulator

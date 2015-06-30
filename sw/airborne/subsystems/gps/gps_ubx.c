@@ -21,7 +21,7 @@
 
 
 #include "subsystems/gps.h"
-
+#include "subsystems/abi.h"
 #include "led.h"
 
 #if GPS_USE_LATLONG
@@ -192,7 +192,7 @@ void gps_ubx_read_message(void)
 void gps_ubx_parse(uint8_t c)
 {
 #if LOG_RAW_GPS
-  sdLogWriteByte(&pprzLogFile, c);
+  sdLogWriteByte(pprzLogFile, c);
 #endif
   if (gps_ubx.status < GOT_PAYLOAD) {
     gps_ubx.ck_a += c;
@@ -320,8 +320,11 @@ void ubx_send_cfg_rst(struct link_device *dev, uint16_t bbr , uint8_t reset_mode
 #include "modules/gps/gps_ubx_ucenter.h"
 #endif
 
-void gps_ubx_msg(void (* _cb)(void))
+void gps_ubx_msg(void)
 {
+  // current timestamp
+  uint32_t now_ts = get_sys_time_usec();
+
   gps.last_msg_ticks = sys_time.nb_sec_rem;
   gps.last_msg_time = sys_time.nb_sec;
   gps_ubx_read_message();
@@ -334,7 +337,7 @@ void gps_ubx_msg(void (* _cb)(void))
       gps.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps.last_3dfix_time = sys_time.nb_sec;
     }
-    _cb();
+    AbiSendMsgGPS(GPS_UBX_ID, now_ts, &gps);
   }
   gps_ubx.msg_available = FALSE;
 }

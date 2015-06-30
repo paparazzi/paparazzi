@@ -21,6 +21,10 @@
 /**
  * @file pprz_geodetic_utm.h
  * @brief Constants UTM (Mercator) projections.
+ * @addtogroup math_geodetic
+ * @{
+ * @addtogroup math_geodetic_utm UTM (Mercator) projections
+ * @{
  */
 
 #ifndef PPRZ_GEODETIC_UTM_H
@@ -61,3 +65,5 @@ static const float serie_coeff_proj_mercator_inverse[5] = {
 #endif
 
 #endif /* PPRZ_GEODETIC_UTM_H */
+/** @}*/
+/** @}*/

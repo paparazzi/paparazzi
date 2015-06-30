@@ -34,6 +34,7 @@
 #include "mcu_periph/i2c.h"
 #include "led.h"
 #include "filters/median_filter.h"
+#include "subsystems/abi.h"
 
 // Downlink
 #include "mcu_periph/uart.h"
@@ -88,10 +89,6 @@ void imu_impl_init(void)
   VECT3_ASSIGN(imu_krooz.accel_sum, 0, 0, 0);
   imu_krooz.meas_nb = 0;
 
-  imu_krooz.gyr_valid = FALSE;
-  imu_krooz.acc_valid = FALSE;
-  imu_krooz.mag_valid = FALSE;
-
   imu_krooz.hmc_eoc = FALSE;
   imu_krooz.mpu_eoc = FALSE;
 
@@ -127,8 +124,11 @@ void imu_periodic(void)
     VECT3_ASSIGN(imu_krooz.accel_sum, 0, 0, 0);
     imu_krooz.meas_nb = 0;
 
-    imu_krooz.gyr_valid = TRUE;
-    imu_krooz.acc_valid = TRUE;
+    uint32_t now_ts = get_sys_time_usec();
+    imu_scale_gyro(&imu);
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
 
   //RunOnceEvery(10,imu_krooz_downlink_raw());
@@ -170,6 +170,7 @@ void imu_krooz_event(void)
     VECT3_ASSIGN(imu.mag_unscaled, imu_krooz.hmc.data.vect.y, -imu_krooz.hmc.data.vect.x, imu_krooz.hmc.data.vect.z);
     UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
     imu_krooz.hmc.data_available = FALSE;
-    imu_krooz.mag_valid = TRUE;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, get_sys_time_usec(), &imu.mag);
   }
 }

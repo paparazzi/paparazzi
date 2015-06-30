@@ -56,6 +56,11 @@ val gconf_file : string
 (** XML preferences file à la gconf *)
 
 val gcs_icons_path : string
+val gcs_default_icons_theme : string
+val get_gcs_icon_path : string -> string -> string
+(** get_gcs_icon_path theme icon
+ * Get gcs icon path from icon name and theme name
+ * fallback to default theme or raise Not_found *)
 
 (* Default targets for modules *)
 val default_module_targets : string

@@ -18,11 +18,11 @@ IMU_KROOZ_SRCS += peripherals/mpu60x0.c
 IMU_KROOZ_SRCS += peripherals/mpu60x0_i2c.c
 IMU_KROOZ_SRCS += peripherals/hmc58xx.c
 
-ap.CFLAGS += $(IMU_KROOZ_CFLAGS)
-ap.srcs   += $(IMU_KROOZ_SRCS)
-
-test_imu.CFLAGS += $(IMU_KROOZ_CFLAGS)
-test_imu.srcs   += $(IMU_KROOZ_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_KROOZ_CFLAGS)
+$(TARGET).srcs += $(IMU_KROOZ_SRCS)
+endif
 
 #
 # NPS simulator

@@ -383,14 +383,14 @@ void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* a
 #endif
 
 #if LOG_INVARIANT_FILTER
-  if (pprzLogFile.fs != NULL) {
+  if (pprzLogFile != -1) {
     if (!log_started) {
       // log file header
-      sdLogWriteLog(&pprzLogFile,
+      sdLogWriteLog(pprzLogFile,
                     "p q r ax ay az gx gy gz gvx gvy gvz mx my mz b qi qx qy qz bp bq br vx vy vz px py pz hb as\n");
       log_started = TRUE;
     } else {
-      sdLogWriteLog(&pprzLogFile,
+      sdLogWriteLog(pprzLogFile,
                     "%.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f\n",
                     ins_float_inv.cmd.rates.p,
                     ins_float_inv.cmd.rates.q,

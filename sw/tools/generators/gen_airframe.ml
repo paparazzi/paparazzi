@@ -93,21 +93,52 @@ let convert_value_with_code_unit_coef_of_xml = function xml ->
   let v = try ExtXml.float_attrib xml "value" with _ -> prerr_endline (sprintf "Error: Unit conversion of parameter %s impossible because '%s' is not a float" (Xml.attrib xml "name") (Xml.attrib xml "value")); flush stderr; exit 1 in
   v *. conv
 
+let array_sep = Str.regexp "[,;]"
+let rec string_from_type = fun name v t ->
+  let sprint_array = fun v t ->
+    let vs = Str.split array_sep v in
+    let sl = List.map (fun vl -> string_from_type name vl t) vs in
+    "{ "^(String.concat " , " sl)^" }"
+  in
+  let rm_leading_trailing_spaces = fun s ->
+    let s = Str.global_replace (Str.regexp "^ *") "" s in
+    Str.global_replace (Str.regexp " *$") "" s
+  in
+  match t with
+  | "float" ->
+      begin
+        try
+          string_of_float (float_of_string (rm_leading_trailing_spaces v))
+        with _ -> prerr_endline (sprintf "Define value %s = %s is not compatible with type float" name v); flush stderr; exit 1
+      end
+  | "int" ->
+      begin
+        try
+          string_of_int (int_of_string (rm_leading_trailing_spaces v))
+        with _ -> prerr_endline (sprintf "Define value %s = %s is not compatible with type int" name v); flush stderr; exit 1
+      end
+  | "string" -> "\""^(rm_leading_trailing_spaces v)^"\""
+  | "array" -> sprint_array v ""
+  | "float[]" -> sprint_array v "float"
+  | "int[]" -> sprint_array v "int"
+  | "string[]" -> sprint_array v "string"
+  | _ -> v
+
 
 let parse_element = fun prefix s ->
   match Xml.tag s with
       "define" -> begin
         try
-          begin
-            (* fail if units conversion is not found and just copy value instead,
-               this is important for integer values, you can't just multiply them with 1.0 *)
-            try
-              let value = (convert_value_with_code_unit_coef_of_xml s) in
-              define (prefix^ExtXml.attrib s "name") (string_of_float value);
-            with
-                _ -> define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
-          end;
-          define_integer (prefix^(ExtXml.attrib s "name")) (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
+          (* fail if units conversion is not found and just copy value instead,
+             this is important for integer values, you can't just multiply them with 1.0 *)
+          let value =
+            try string_of_float (convert_value_with_code_unit_coef_of_xml s)
+            with _ -> ExtXml.display_entities (ExtXml.attrib s "value")
+          in
+          let name = (prefix^ExtXml.attrib s "name") in
+          let t = ExtXml.attrib_or_default s "type" "" in
+          define name (string_from_type name value t);
+          define_integer name (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
         with _ -> ();
       end
     | "linear" ->

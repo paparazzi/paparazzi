@@ -25,6 +25,11 @@
  */
 
 #include "subsystems/gps.h"
+#include "subsystems/abi.h"
+
+#include "state.h"
+#include "guidance/guidance_h.h"
+#include "guidance/guidance_v.h"
 
 bool_t gps_available;
 uint32_t gps_sim_hitl_timer;
@@ -32,5 +37,58 @@ uint32_t gps_sim_hitl_timer;
 void gps_impl_init(void)
 {
   gps.fix = GPS_FIX_NONE;
-  gps_available = FALSE;
+}
+
+void gps_sim_hitl_event(void)
+{
+  if (SysTimeTimer(gps_sim_hitl_timer) > 100000) {
+    SysTimeTimerStart(gps_sim_hitl_timer);
+    gps.last_msg_ticks = sys_time.nb_sec_rem;
+    gps.last_msg_time = sys_time.nb_sec;
+    if (state.ned_initialized_i) {
+      if (!autopilot_in_flight) {
+        struct Int32Vect2 zero_vector;
+        INT_VECT2_ZERO(zero_vector);
+        gh_set_ref(zero_vector, zero_vector, zero_vector);
+        INT_VECT2_ZERO(guidance_h_pos_ref);
+        INT_VECT2_ZERO(guidance_h_speed_ref);
+        INT_VECT2_ZERO(guidance_h_accel_ref);
+        gv_set_ref(0, 0, 0);
+        guidance_v_z_ref = 0;
+        guidance_v_zd_ref = 0;
+        guidance_v_zdd_ref = 0;
+      }
+      struct NedCoor_i ned_c;
+      ned_c.x = guidance_h_pos_ref.x * INT32_POS_OF_CM_DEN / INT32_POS_OF_CM_NUM;
+      ned_c.y = guidance_h_pos_ref.y * INT32_POS_OF_CM_DEN / INT32_POS_OF_CM_NUM;
+      ned_c.z = guidance_v_z_ref * INT32_POS_OF_CM_DEN / INT32_POS_OF_CM_NUM;
+      ecef_of_ned_point_i(&gps.ecef_pos, &state.ned_origin_i, &ned_c);
+      gps.lla_pos.alt = state.ned_origin_i.lla.alt - ned_c.z;
+      gps.hmsl = state.ned_origin_i.hmsl - ned_c.z;
+      ned_c.x = guidance_h_speed_ref.x * INT32_SPEED_OF_CM_S_DEN / INT32_SPEED_OF_CM_S_NUM;
+      ned_c.y = guidance_h_speed_ref.y * INT32_SPEED_OF_CM_S_DEN / INT32_SPEED_OF_CM_S_NUM;
+      ned_c.z = guidance_v_zd_ref * INT32_SPEED_OF_CM_S_DEN / INT32_SPEED_OF_CM_S_NUM;
+      ecef_of_ned_vect_i(&gps.ecef_vel, &state.ned_origin_i, &ned_c);
+      gps.fix = GPS_FIX_3D;
+      gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+      gps.last_3dfix_time = sys_time.nb_sec;
+      gps_available = TRUE;
+    }
+    else {
+      struct Int32Vect2 zero_vector;
+      INT_VECT2_ZERO(zero_vector);
+      gh_set_ref(zero_vector, zero_vector, zero_vector);
+      gv_set_ref(0, 0, 0);
+    }
+
+    // publish gps data
+    uint32_t now_ts = get_sys_time_usec();
+    gps.last_msg_ticks = sys_time.nb_sec_rem;
+    gps.last_msg_time = sys_time.nb_sec;
+    if (gps.fix == GPS_FIX_3D) {
+      gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+      gps.last_3dfix_time = sys_time.nb_sec;
+    }
+    AbiSendMsgGPS(GPS_SIM_ID, now_ts, &gps);
+  }
 }

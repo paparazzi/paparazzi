@@ -3,19 +3,17 @@
 <airframe name="bebop">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop">
-      <subsystem name="telemetry" type="transparent_udp"/>
-      <subsystem name="radio_control" type="datalink"/>
-    </target>
+    <target name="ap" board="bebop"/>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
     </target>
 
-  <!--define name="USE_SONAR" value="TRUE"/-->
+    <!--define name="USE_SONAR" value="TRUE"/-->
 
 	<!-- Subsystem section -->
+    <subsystem name="telemetry" type="transparent_udp"/>
+    <subsystem name="radio_control" type="datalink"/>
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators" type="bebop"/>
     <subsystem name="imu" type="bebop"/>
@@ -61,10 +59,10 @@
     <define name="MAX_SATURATION_OFFSET" value="3*MAX_PPRZ"/>
 
     <!-- Time cross layout (X), with order NW (CW), NE (CCW), SE (CW), SW (CCW) -->
-    <define name="ROLL_COEF" value="{   256, -256, -256,  256 }"/>
-    <define name="PITCH_COEF" value="{  256,  256, -256, -256 }"/>
-    <define name="YAW_COEF" value="{   -256,  256, -256,  256 }"/>
-    <define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
+    <define name="ROLL_COEF" value="   256, -256, -256,  256" type="int[]"/>
+    <define name="PITCH_COEF" value="  256,  256, -256, -256" type="int[]"/>
+    <define name="YAW_COEF" value="   -256,  256, -256,  256" type="int[]"/>
+    <define name="THRUST_COEF" value=" 256,  256,  256,  256" type="int[]"/>
   </section>
 
   <command_laws>
@@ -206,9 +204,9 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="{&quot;nw_motor&quot;, &quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad_ccw&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
 
   <section name="AUTOPILOT">

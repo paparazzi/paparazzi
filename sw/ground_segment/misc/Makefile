@@ -65,9 +65,9 @@ kestrel2ivy: kestrel2ivy.o
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -o kestrel2ivy kestrel2ivy.o $(LIBRARYS) $(IVY_LDFLAGS)
 
-natnet2ivy: natnet2ivy.o pprz_geodetic_double.o pprz_algebra_double.o fms_network.o
+natnet2ivy: natnet2ivy.o pprz_geodetic_double.o pprz_algebra_double.o udp_socket.o
 	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -o natnet2ivy natnet2ivy.o pprz_geodetic_double.o pprz_algebra_double.o fms_network.o $(LIBRARYS) $(NATNET_LIBRARYS) $(IVY_LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(LIBRARYS) $(NATNET_LIBRARYS) $(IVY_LDFLAGS)
 
 video_synchronizer: video_synchronizer.c
 	@echo CC $@
@@ -79,7 +79,7 @@ pprz_algebra_double.o : $(PAPARAZZI_SRC)/sw/airborne/math/pprz_algebra_double.c
 pprz_geodetic_double.o : $(PAPARAZZI_SRC)/sw/airborne/math/pprz_geodetic_double.c
 	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
 
-fms_network.o : $(PAPARAZZI_SRC)/sw/airborne/fms/fms_network.c
+udp_socket.o : $(PAPARAZZI_SRC)/sw/airborne/arch/linux/udp_socket.c
 	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
 
 %.o : %.c

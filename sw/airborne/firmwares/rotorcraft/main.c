@@ -105,12 +105,6 @@ INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY t
 #endif
 #endif
 
-static inline void on_gyro_event(void);
-static inline void on_accel_event(void);
-static inline void on_gps_event(void);
-static inline void on_mag_event(void);
-
-
 tid_t main_periodic_tid; ///< id for main_periodic() timer
 tid_t modules_tid;       ///< id for modules_periodic_task() timer
 tid_t failsafe_tid;      ///< id for failsafe_check() timer
@@ -320,14 +314,14 @@ STATIC_INLINE void main_event(void)
     RadioControlEvent(autopilot_on_rc_frame);
   }
 
-  ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
+  ImuEvent();
 
 #if USE_BARO_BOARD
   BaroEvent();
 #endif
 
 #if USE_GPS
-  GpsEvent(on_gps_event);
+  GpsEvent();
 #endif
 
 #if FAILSAFE_GROUND_DETECT || KILL_ON_GROUND_DETECT
@@ -335,65 +329,4 @@ STATIC_INLINE void main_event(void)
 #endif
 
   modules_event_task();
-
-}
-
-static inline void on_accel_event( void ) {
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  imu_scale_accel(&imu);
-
-  AbiSendMsgIMU_ACCEL_INT32(1, now_ts, &imu.accel);
-}
-
-static inline void on_gyro_event( void ) {
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  imu_scale_gyro(&imu);
-
-  AbiSendMsgIMU_GYRO_INT32(1, now_ts, &imu.gyro_prev);
-
-#if USE_AHRS_ALIGNER
-  if (ahrs_aligner.status != AHRS_ALIGNER_LOCKED) {
-    ahrs_aligner_run();
-    return;
-  }
-#endif
-
-#ifdef SITL
-  if (nps_bypass_ahrs) sim_overwrite_ahrs();
-#endif
-
-#ifdef USE_VEHICLE_INTERFACE
-  vi_notify_imu_available();
-#endif
-}
-
-static inline void on_gps_event(void)
-{
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  AbiSendMsgGPS(1, now_ts, &gps);
-
-#ifdef USE_VEHICLE_INTERFACE
-  if (gps.fix == GPS_FIX_3D) {
-    vi_notify_gps_available();
-  }
-#endif
-}
-
-static inline void on_mag_event(void)
-{
-  imu_scale_mag(&imu);
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  AbiSendMsgIMU_MAG_INT32(1, now_ts, &imu.mag);
-
-#ifdef USE_VEHICLE_INTERFACE
-  vi_notify_mag_available();
-#endif
 }

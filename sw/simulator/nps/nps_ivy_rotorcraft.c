@@ -54,7 +54,7 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
      * lla.alt is above ellipsoid in mm
      */
     lla.alt = atoi(argv[5]) - state.ned_origin_i.hmsl + state.ned_origin_i.lla.alt;
-    nav_move_waypoint_lla(wp_id, &lla);
+    waypoint_move_lla(wp_id, &lla);
     printf("move wp id=%d x=% .4f, y=% .4f, z=% .4f\n", wp_id,
            WaypointX(wp_id), WaypointY(wp_id), WaypointAlt(wp_id));
   }

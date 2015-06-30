@@ -27,6 +27,8 @@
 SRC_ARCH = arch/sim
 
 OPT ?= 2
+# Slightly bigger .elf files but gains the ability to decode macros
+DEBUG_FLAGS ?= -ggdb3
 
 # Launch with "make Q=''" to get full command display
 Q=@
@@ -36,7 +38,7 @@ CFLAGS += $(INCLUDES)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(USER_CFLAGS)
 CFLAGS += -O$(OPT)
-CFLAGS += -g
+CFLAGS += $(DEBUG_FLAGS)
 CFLAGS += -std=gnu99
 CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 
@@ -45,7 +47,7 @@ CXXFLAGS += $(INCLUDES)
 CXXFLAGS += $($(TARGET).CFLAGS)
 CXXFLAGS += $(USER_CFLAGS)
 CXXFLAGS += -O$(OPT)
-CXXFLAGS += -g
+CXXFLAGS += $(DEBUG_FLAGS)
 CXXFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 
 LDFLAGS	+= $($(TARGET).LDFLAGS)

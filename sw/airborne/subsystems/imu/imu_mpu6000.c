@@ -25,7 +25,7 @@
  */
 
 #include "subsystems/imu.h"
-
+#include "subsystems/abi.h"
 #include "mcu_periph/spi.h"
 
 /* SPI defaults set in subsystem makefile, can be configured from airframe file */
@@ -71,9 +71,6 @@ struct ImuMpu6000 imu_mpu_spi;
 
 void imu_impl_init(void)
 {
-  imu_mpu_spi.accel_valid = FALSE;
-  imu_mpu_spi.gyro_valid = FALSE;
-
   mpu60x0_spi_init(&imu_mpu_spi.mpu, &IMU_MPU_SPI_DEV, IMU_MPU_SPI_SLAVE_IDX);
   // change the default configuration
   imu_mpu_spi.mpu.config.smplrt_div = IMU_MPU_SMPLRT_DIV;
@@ -92,10 +89,13 @@ void imu_mpu_spi_event(void)
 {
   mpu60x0_spi_event(&imu_mpu_spi.mpu);
   if (imu_mpu_spi.mpu.data_available) {
+    uint32_t now_ts = get_sys_time_usec();
     RATES_COPY(imu.gyro_unscaled, imu_mpu_spi.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_mpu_spi.mpu.data_accel.vect);
     imu_mpu_spi.mpu.data_available = FALSE;
-    imu_mpu_spi.gyro_valid = TRUE;
-    imu_mpu_spi.accel_valid = TRUE;
+    imu_scale_gyro(&imu);
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_MPU6000_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_MPU6000_ID, now_ts, &imu.accel);
   }
 }

@@ -57,24 +57,16 @@
   </commands>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
-    <define name="TRIM_ROLL" value="0"/>
-    <define name="TRIM_PITCH" value="0"/>
-    <define name="TRIM_YAW" value="0"/>
-    <define name="NB_MOTOR" value="4"/>
-    <define name="SCALE" value="256"/>
     <!-- front/back turning CW, right/left CCW -->
-    <define name="ROLL_COEF"   value="{    0,    0, -256,  256 }"/>
-    <define name="PITCH_COEF"  value="{  256, -256,    0,    0 }"/>
-    <define name="YAW_COEF"    value="{ -256, -256,  256,  256 }"/>
-    <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
+    <define name="TYPE" value="QUAD_PLUS"/>
   </section>
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="FRONT"  value="motor_mixing.commands[0]"/>
-    <set servo="BACK"   value="motor_mixing.commands[1]"/>
-    <set servo="RIGHT"  value="motor_mixing.commands[2]"/>
-    <set servo="LEFT"   value="motor_mixing.commands[3]"/>
+    <set servo="FRONT" value="motor_mixing.commands[MOTOR_FRONT]"/>
+    <set servo="RIGHT" value="motor_mixing.commands[MOTOR_RIGHT]"/>
+    <set servo="BACK"  value="motor_mixing.commands[MOTOR_BACK]"/>
+    <set servo="LEFT"  value="motor_mixing.commands[MOTOR_LEFT]"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
@@ -196,7 +188,7 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
+    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;right_motor&quot;, &quot;back_motor&quot;, &quot;left_motor&quot;}"/>
     <define name="JSBSIM_MODEL" value="&quot;simple_quad&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->

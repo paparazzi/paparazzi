@@ -41,9 +41,6 @@
 
 
 struct ImuAspirinI2c {
-  volatile uint8_t accel_valid;
-  volatile uint8_t gyro_valid;
-  volatile uint8_t mag_valid;
   struct Adxl345_I2c acc_adxl;
   struct Itg3200 gyro_itg;
   struct Hmc58xx mag_hmc;
@@ -53,21 +50,6 @@ extern struct ImuAspirinI2c imu_aspirin;
 
 extern void imu_aspirin_i2c_event(void);
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  imu_aspirin_i2c_event();
-  if (imu_aspirin.gyro_valid) {
-    imu_aspirin.gyro_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_aspirin.accel_valid) {
-    imu_aspirin.accel_valid = FALSE;
-    _accel_handler();
-  }
-  if (imu_aspirin.mag_valid) {
-    imu_aspirin.mag_valid = FALSE;
-    _mag_handler();
-  }
-}
+#define ImuEvent imu_aspirin_i2c_event
 
 #endif /* IMU_ASPIRIN_I2C_H */

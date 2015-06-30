@@ -41,12 +41,11 @@ GL1_I2C_DEV_LOWER=$(shell echo $(GL1_I2C_DEV) | tr A-Z a-z)
 IMU_GL1_CFLAGS += -DGL1_I2C_DEV=$(GL1_I2C_DEV_LOWER)
 IMU_GL1_CFLAGS += -DUSE_$(GL1_I2C_DEV_UPPER)
 
-# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-ap.CFLAGS += $(IMU_GL1_CFLAGS)
-ap.srcs   += $(IMU_GL1_SRCS)
-
-test_imu.CFLAGS += $(IMU_GL1_CFLAGS)
-test_imu.srcs   += $(IMU_GL1_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_GL1_CFLAGS)
+$(TARGET).srcs += $(IMU_GL1_SRCS)
+endif
 
 #
 # NPS simulator

@@ -111,4 +111,119 @@
 #define MAG_HMC58XX_SENDER_ID 2
 #endif
 
+/*
+ * IDs of GPS sensors
+ */
+#ifndef GPS_UBX_ID
+#define GPS_UBX_ID 1
+#endif
+
+#ifndef GPS_NMEA_ID
+#define GPS_NMEA_ID 2
+#endif
+
+#ifndef GPS_SIRF_ID
+#define GPS_SIRF_ID 3
+#endif
+
+#ifndef GPS_SKYTRAQ_ID
+#define GPS_SKYTRAQ_ID 4
+#endif
+
+#ifndef GPS_MTK_ID
+#define GPS_MTK_ID 5
+#endif
+
+#ifndef GPS_PIKSI_ID
+#define GPS_PIKSI_ID 6
+#endif
+
+#ifndef GPS_XSENS_ID
+#define GPS_XSENS_ID 7
+#endif
+
+#ifndef GPS_DATALINK_ID
+#define GPS_DATALINK_ID 8
+#endif
+
+#ifndef GPS_UDP_ID
+#define GPS_UDP_ID 9
+#endif
+
+#ifndef GPS_ARDRONE2_ID
+#define GPS_ARDRONE2_ID 10
+#endif
+
+#ifndef GPS_SIM_ID
+#define GPS_SIM_ID 11
+#endif
+
+
+/*
+ * IDs of IMU sensors (accel, gyro)
+ */
+#ifndef IMU_BOARD_ID
+#define IMU_BOARD_ID 1
+#endif
+
+#ifndef IMU_ANALOG_ID
+#define IMU_ANALOG_ID 2
+#endif
+
+#ifndef IMU_ASPIRIN_ID
+#define IMU_ASPIRIN_ID 3
+#endif
+
+#ifndef IMU_ASPIRIN2_ID
+#define IMU_ASPIRIN2_ID 4
+#endif
+
+#ifndef IMU_B2_ID
+#define IMU_B2_ID 5
+#endif
+
+#ifndef IMU_CRISTA_ID
+#define IMU_CRISTA_ID 6
+#endif
+
+#ifndef IMU_DROTEK_ID
+#define IMU_DROTEK_ID 7
+#endif
+
+#ifndef IMU_GL1_ID
+#define IMU_GL1_ID 8
+#endif
+
+#ifndef IMU_MPU6000_ID
+#define IMU_MPU6000_ID 9
+#endif
+
+#ifndef IMU_MPU6000_HMC_ID
+#define IMU_MPU6000_HMC_ID 10
+#endif
+
+#ifndef IMU_MPU9250_ID
+#define IMU_MPU9250_ID 11
+#endif
+
+#ifndef IMU_PPZUAV_ID
+#define IMU_PPZUAV_ID 12
+#endif
+
+#ifndef IMU_UM6_ID
+#define IMU_UM6_ID 13
+#endif
+
+#ifndef IMU_GX3_ID
+#define IMU_GX3_ID 14
+#endif
+
+#ifndef IMU_XSENS_ID
+#define IMU_XSENS_ID 15
+#endif
+
+#ifndef IMU_MPU60X0_ID
+#define IMU_MPU60X0_ID 16
+#endif
+
 #endif /* ABI_SENDER_IDS_H */

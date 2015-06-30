@@ -76,6 +76,8 @@ int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
 int32_t nav_leg_progress;
 uint32_t nav_leg_length;
 
+bool_t nav_survey_active;
+
 int32_t nav_roll, nav_pitch;
 int32_t nav_heading;
 float nav_radius;
@@ -374,14 +376,14 @@ unit_t nav_reset_reference(void)
 {
   ins_reset_local_origin();
   /* update local ENU coordinates of global waypoints */
-  nav_localize_global_waypoints();
+  waypoints_localize_all();
   return 0;
 }
 
 unit_t nav_reset_alt(void)
 {
   ins_reset_altitude_ref();
-  nav_localize_global_waypoints();
+  waypoints_localize_all();
   return 0;
 }
 
@@ -397,6 +399,8 @@ void nav_init_stage(void)
 void nav_periodic_task(void)
 {
   RunOnceEvery(NAV_FREQ, { stage_time++;  block_time++; });
+
+  nav_survey_active = FALSE;
 
   dist2_to_wp = 0;
 

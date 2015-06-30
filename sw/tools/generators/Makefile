@@ -28,7 +28,7 @@ INCLUDES =
 PKG = -package pprz
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 
-all: gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_xsens.out gen_modules.out gen_autopilot.out gen_abi.out gen_srtm.out
+all: gen_aircraft.out gen_airframe.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_xsens.out gen_modules.out gen_autopilot.out gen_abi.out gen_srtm.out
 
 gen_flight_plan.out : gen_flight_plan.cmo $(LIBPPRZCMA)
 	@echo OL $@

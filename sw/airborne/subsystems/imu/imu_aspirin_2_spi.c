@@ -25,6 +25,7 @@
  */
 
 #include "subsystems/imu.h"
+#include "subsystems/abi.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/spi.h"
 #include "peripherals/hmc58xx_regs.h"
@@ -104,10 +105,6 @@ bool_t imu_aspirin2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
 
 void imu_impl_init(void)
 {
-  imu_aspirin2.accel_valid = FALSE;
-  imu_aspirin2.gyro_valid = FALSE;
-  imu_aspirin2.mag_valid = FALSE;
-
   mpu60x0_spi_init(&imu_aspirin2.mpu, &(ASPIRIN_2_SPI_DEV), ASPIRIN_2_SPI_SLAVE_IDX);
   // change the default configuration
   imu_aspirin2.mpu.config.smplrt_div = ASPIRIN_2_SMPLRT_DIV;
@@ -161,6 +158,8 @@ void imu_periodic(void)
 
 void imu_aspirin2_event(void)
 {
+  uint32_t now_ts = get_sys_time_usec();
+
   mpu60x0_spi_event(&imu_aspirin2.mpu);
   if (imu_aspirin2.mpu.data_available) {
     /* HMC5883 has xzy order of axes in returned data */
@@ -223,9 +222,13 @@ void imu_aspirin2_event(void)
 #endif
 
     imu_aspirin2.mpu.data_available = FALSE;
-    imu_aspirin2.gyro_valid = TRUE;
-    imu_aspirin2.accel_valid = TRUE;
-    imu_aspirin2.mag_valid = TRUE;
+
+    imu_scale_gyro(&imu);
+    imu_scale_accel(&imu);
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_MAG_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.mag);
   }
 }
 

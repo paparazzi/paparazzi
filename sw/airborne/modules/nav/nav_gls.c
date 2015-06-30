@@ -88,7 +88,7 @@ static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uin
 
   float td_af_x = WaypointX(_af) - WaypointX(_td);
   float td_af_y = WaypointY(_af) - WaypointY(_td);
-  float td_af = sqrt(td_af_x * td_af_x + td_af_y * td_af_y);
+  float td_af = sqrtf(td_af_x * td_af_x + td_af_y * td_af_y);
   float td_tod = (WaypointAlt(_af) - WaypointAlt(_td)) / (tanf(app_angle));
 
   // set wapoint TOD (top of decent)
@@ -98,7 +98,7 @@ static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uin
 
   // calculate ground speed on final (target_speed - head wind)
   struct FloatVect2 *wind = stateGetHorizontalWindspeed_f();
-  float wind_norm = sqrt(wind->x * wind->x + wind->y * wind->y);
+  float wind_norm = sqrtf(wind->x * wind->x + wind->y * wind->y);
   float wind_on_final = wind_norm * (((td_af_x * wind->y) / (td_af * wind_norm)) +
                                      ((td_af_y * wind->x) / (td_af * wind_norm)));
   Bound(wind_on_final, -MAX_WIND_ON_FINAL, MAX_WIND_ON_FINAL);
@@ -117,7 +117,7 @@ static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uin
   // calculate td_sd
   float td_sd_x = WaypointX(_sd) - WaypointX(_td);
   float td_sd_y = WaypointY(_sd) - WaypointY(_td);
-  float td_sd = sqrt(td_sd_x * td_sd_x + td_sd_y * td_sd_y);
+  float td_sd = sqrtf(td_sd_x * td_sd_x + td_sd_y * td_sd_y);
 
   // calculate sd_tod in x,y
   sd_tod_x = WaypointX(_tod) - WaypointX(_sd);
@@ -138,7 +138,7 @@ bool_t gls_start(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
   init = TRUE;
 
   //struct FloatVect2* wind = stateGetHorizontalWindspeed_f();
-  //float wind_additional = sqrt(wind->x*wind->x + wind->y*wind->y); // should be gusts only!
+  //float wind_additional = sqrtf(wind->x*wind->x + wind->y*wind->y); // should be gusts only!
   //Bound(wind_additional, 0, 0.5);
   //target_speed = STALL_AIRSPEED * 1.3 + wind_additional; FIXME
   target_speed =  APP_TARGET_SPEED; //  ok for now!
@@ -179,7 +179,7 @@ bool_t gls_run(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
   float nav_final_progress = ((pos_enu->x - WaypointX(_tod)) * final_x +
                               (pos_enu->y - WaypointY(_tod)) * final_y) / final2;
   Bound(nav_final_progress, -1, 1);
-  //  float nav_final_length = sqrt(final2);
+  //  float nav_final_length = sqrtf(final2);
 
   // calculate requiered decent rate on glideslope
   float pre_climb_glideslope = hspeed * (-tanf(app_angle));
@@ -206,7 +206,7 @@ bool_t gls_run(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
   float alt = 0.;
 
   // distance
-  float f_af = sqrt((pos_enu->x - WaypointX(_af)) * (pos_enu->x - WaypointX(_af)) +
+  float f_af = sqrtf((pos_enu->x - WaypointX(_af)) * (pos_enu->x - WaypointX(_af)) +
                     (pos_enu->y - WaypointY(_af)) * (pos_enu->y - WaypointY(_af)));
 
   if (f_af < app_distance_af_sd) { // approach fix (AF) to start descent (SD)

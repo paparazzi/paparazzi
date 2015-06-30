@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="bat_checker">
+<module name="bat_checker" dir="energy">
   <doc>
     <description>Battery checker module</description>
     <define name="BAT_CHECKER_DELAY" value="delay" description="number of seconds the battery voltage has to below LOW_BAT_LEVEL before warning signal is activated"/>

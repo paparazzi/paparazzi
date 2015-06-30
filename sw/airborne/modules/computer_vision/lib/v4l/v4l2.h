@@ -28,37 +28,41 @@
 #ifndef _CV_LIB_V4L2_H
 #define _CV_LIB_V4L2_H
 
-#include "std.h"
 #include <linux/v4l2-subdev.h>
+#include <pthread.h>
+#include <sys/time.h>
 
-#define V4L2_IMG_NONE 255  //< There currently no image available
+#include "std.h"
+#include "lib/vision/image.h"
+
+#define V4L2_IMG_NONE 255  ///< There currently no image available
 
 /* V4L2 memory mapped image buffer */
 struct v4l2_img_buf {
-  uint8_t idx;            //< The index of the buffer
-  size_t length;          //< The size of the buffer
-  void *buf;              //< Pointer to the memory mapped buffer
+  size_t length;              ///< The size of the buffer
+  struct timeval timestamp;   ///< The time value of the image
+  void *buf;                  ///< Pointer to the memory mapped buffer
 };
 
 /* V4L2 device */
 struct v4l2_device {
-  char *name;                       //< The name of the device
-  int fd;                           //< The file pointer to the device
-  pthread_t thread;                 //< The thread that handles the images
-  uint16_t w;                       //< The width of the image
-  uint16_t h;                       //< The height of the image
-  uint8_t buffers_cnt;              //< The number of image buffers
-  volatile uint8_t buffers_deq_idx; //< The current dequeued index
-  pthread_mutex_t mutex;            //< Mutex lock for enqueue/dequeue of buffers (change the deq_idx)
-  struct v4l2_img_buf *buffers;     //< The memory mapped image buffers
+  char *name;                       ///< The name of the device
+  int fd;                           ///< The file pointer to the device
+  pthread_t thread;                 ///< The thread that handles the images
+  uint16_t w;                       ///< The width of the image
+  uint16_t h;                       ///< The height of the image
+  uint8_t buffers_cnt;              ///< The number of image buffers
+  volatile uint8_t buffers_deq_idx; ///< The current dequeued index
+  pthread_mutex_t mutex;            ///< Mutex lock for enqueue/dequeue of buffers (change the deq_idx)
+  struct v4l2_img_buf *buffers;     ///< The memory mapped image buffers
 };
 
 /* External functions */
 bool_t v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t code, uint16_t width, uint16_t height);
 struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height, uint8_t buffers_cnt);
-struct v4l2_img_buf *v4l2_image_get(struct v4l2_device *dev);
-struct v4l2_img_buf *v4l2_image_get_nonblock(struct v4l2_device *dev);
-void v4l2_image_free(struct v4l2_device *dev, struct v4l2_img_buf *img_buf);
+void v4l2_image_get(struct v4l2_device *dev, struct image_t *img);
+bool_t v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img);
+void v4l2_image_free(struct v4l2_device *dev, struct image_t *img);
 bool_t v4l2_start_capture(struct v4l2_device *dev);
 bool_t v4l2_stop_capture(struct v4l2_device *dev);
 void v4l2_close(struct v4l2_device *dev);

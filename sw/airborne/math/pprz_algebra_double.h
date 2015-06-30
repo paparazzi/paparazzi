@@ -22,6 +22,10 @@
  * @file pprz_algebra_double.h
  * @brief Paparazzi double precision floating point algebra.
  *
+ * @addtogroup math_algebra
+ * @{
+ * @addtogroup math_algebra_double Double Algebra
+ * @{
  */
 
 #ifndef PPRZ_ALGEBRA_DOUBLE_H
@@ -193,3 +197,5 @@ static inline void double_rmat_of_eulers(struct DoubleRMat *rm, struct DoubleEul
 #endif
 
 #endif /* PPRZ_ALGEBRA_DOUBLE_H */
+/** @}*/
+/** @}*/

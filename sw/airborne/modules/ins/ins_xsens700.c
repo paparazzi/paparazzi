@@ -42,10 +42,10 @@
 #error "USE_GPS needs to be 1 to use the Xsens GPS!"
 #endif
 #include "subsystems/gps.h"
+#include "subsystems/abi.h"
 #include "math/pprz_geodetic_wgs84.h"
 #include "math/pprz_geodetic_float.h"
 #include "subsystems/navigation/common_nav.h" /* needed for nav_utm_zone0 */
-bool_t gps_xsens_msg_available;
 #endif
 
 // positions
@@ -213,7 +213,19 @@ void ins_update_gps(void)
 void gps_impl_init(void)
 {
   gps.nb_channels = 0;
-  gps_xsens_msg_available = FALSE;
+}
+
+static void gps_xsens_publish(void)
+{
+  // publish gps data
+  uint32_t now_ts = get_sys_time_usec();
+  gps.last_msg_ticks = sys_time.nb_sec_rem;
+  gps.last_msg_time = sys_time.nb_sec;
+  if (gps.fix == GPS_FIX_3D) {
+    gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+    gps.last_3dfix_time = sys_time.nb_sec;
+  }
+  AbiSendMsgGPS(GPS_XSENS_ID, now_ts, &gps);
 }
 #endif
 
@@ -485,7 +497,7 @@ void parse_ins_msg(void)
           gps.utm_pos.east = utm_f.east * 100;
           gps.utm_pos.north = utm_f.north * 100;
 
-          gps_xsens_msg_available = TRUE;
+          gps_xsens_publish();
         }
       } else if (code1 == 0xD0) {
         if (code2 == 0x10) {

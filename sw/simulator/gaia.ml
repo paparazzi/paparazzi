@@ -34,6 +34,7 @@ let ivy_bus = ref Defivybus.default_ivy_bus
 let time_scale = ref 1.
 let wind_speed = ref 0.
 let wind_dir = ref 0.
+let wind_up = ref 0.
 let gps_off = ref false
 
 let parse_args = fun () ->
@@ -42,6 +43,7 @@ let parse_args = fun () ->
       "-t", Arg.Set_float time_scale, "Set time scale (default: 1.0)";
       "-w", Arg.Set_float wind_speed, "Set wind speed (0-30m/s)";
       "-d", Arg.Set_float wind_dir, "Set wind direction 0-359 deg";
+      "-u", Arg.Set_float wind_up, "Set wind updraft (-10 to 10m/s)";
       "-g", Arg.Set gps_off, "Turn off GPS";
     ] in
   Arg.parse (options)
@@ -55,9 +57,10 @@ let _ =
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 
-  let time_scale_adj = GData.adjustment ~page_size:0. ~value:!time_scale ~lower:(1.) ~upper:10. ~step_incr:1. () in
+  let time_scale_adj = GData.adjustment ~page_size:0. ~value:!time_scale ~lower:(0.5) ~upper:10. ~step_incr:0.5 () in
   let wind_dir_adj = GData.adjustment ~page_size:0. ~value:!wind_dir ~lower:(0.) ~upper:359. ~step_incr:1.0 () in
   let wind_speed_adj = GData.adjustment ~page_size:0. ~value:!wind_speed ~lower:(0.) ~upper:30. ~step_incr:0.1 () in
+  let wind_up_adj = GData.adjustment ~page_size:0. ~value:!wind_up ~lower:(-10.) ~upper:10. ~step_incr:0.1 () in
   let infrared_contrast_adj = GData.adjustment ~page_size:0. ~value:266. ~lower:(0.) ~upper:1010. ~step_incr:10. () in
   let gps_sa = GButton.toggle_button ~label:"GPS OFF" ~active:!gps_off () in
 
@@ -67,10 +70,11 @@ let _ =
 
     let wind_east = -. wind_speed  *. cos wind_dir_rad
     and wind_north = -. wind_speed *. sin wind_dir_rad in
+    let wind_up = wind_up_adj#value in
 
     [ "wind_east", Pprz.Float wind_east;
       "wind_north", Pprz.Float wind_north;
-      "wind_up", Pprz.Float 0.0;
+      "wind_up", Pprz.Float wind_up;
       "ir_contrast", Pprz.Float infrared_contrast_adj#value;
       "time_scale", Pprz.Float time_scale_adj#value;
       "gps_availability", Pprz.Int (if gps_sa#active then 0 else 1)
@@ -80,7 +84,7 @@ let _ =
 
   List.iter
     (fun (a:GData.adjustment) -> ignore (a#connect#value_changed world_send))
-    [time_scale_adj; wind_dir_adj; wind_speed_adj; infrared_contrast_adj];
+    [time_scale_adj; wind_dir_adj; wind_speed_adj; wind_up_adj; infrared_contrast_adj];
   ignore (gps_sa#connect#toggled world_send);
 
   ignore (Glib.Timeout.add sending_period (fun () -> world_send (); true));
@@ -98,6 +102,10 @@ let _ =
   let hbox = GPack.hbox ~packing:vbox#pack () in
   ignore (GMisc.label ~text:"Wind speed:" ~packing:hbox#pack ());
   ignore (GRange.scale `HORIZONTAL ~adjustment:wind_speed_adj ~packing:hbox#add ());
+
+  let hbox = GPack.hbox ~packing:vbox#pack () in
+  ignore (GMisc.label ~text:"Wind up:" ~packing:hbox#pack ());
+  ignore (GRange.scale `HORIZONTAL ~adjustment:wind_up_adj ~packing:hbox#add ());
 
   vbox#pack gps_sa#coerce;
 

@@ -71,9 +71,6 @@
 
 /** Everything that is in the bebop IMU */
 struct ImuBebop {
-  volatile uint8_t accel_valid;   ///< Shows when the accelerometer is valid
-  volatile uint8_t gyro_valid;    ///< Shows when the gyrometer is valid
-  volatile uint8_t mag_valid;     ///< Shows when the Magneto is valid
   struct Mpu60x0_I2c mpu;         ///< The MPU gyro/accel device
   struct Ak8963 ak;               ///< The AK8963 mag
 };
@@ -81,21 +78,6 @@ struct ImuBebop {
 extern struct ImuBebop imu_bebop;
 extern void imu_bebop_event(void);
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  imu_bebop_event();
-  if (imu_bebop.gyro_valid) {
-    imu_bebop.gyro_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_bebop.accel_valid) {
-    imu_bebop.accel_valid = FALSE;
-    _accel_handler();
-  }
-  if (imu_bebop.mag_valid) {
-    imu_bebop.mag_valid = FALSE;
-    _mag_handler();
-  }
-}
+#define ImuEvent imu_bebop_event
 
 #endif /* IMU_BEBOP_H */

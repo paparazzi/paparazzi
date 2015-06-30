@@ -60,9 +60,6 @@
 
 
 struct ImuNavgo {
-  volatile bool_t gyr_valid;
-  volatile bool_t acc_valid;
-  volatile bool_t mag_valid;
   struct Itg3200 itg;
   struct Adxl345_I2c adxl;
   struct Hmc58xx hmc;
@@ -74,22 +71,6 @@ extern struct ImuNavgo imu_navgo;
 extern void imu_navgo_event(void);
 extern void imu_navgo_downlink_raw(void);
 
+#define ImuEvent imu_navgo_event
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  imu_navgo_event();
-  if (imu_navgo.gyr_valid) {
-    imu_navgo.gyr_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_navgo.acc_valid) {
-    imu_navgo.acc_valid = FALSE;
-    _accel_handler();
-  }
-  if (imu_navgo.mag_valid) {
-    imu_navgo.mag_valid = FALSE;
-    _mag_handler();
-  }
-}
-
-#endif // PPZUAVIMU_H
+#endif // IMU_NAVGO_H

@@ -95,6 +95,9 @@ void mpu60x0_i2c_event(struct Mpu60x0_I2c *mpu)
         mpu->data_rates.rates.q = Int16FromBuf(mpu->i2c_trans.buf, 11);
         mpu->data_rates.rates.r = Int16FromBuf(mpu->i2c_trans.buf, 13);
 
+        int16_t temp_raw = Int16FromBuf(mpu->i2c_trans.buf, 7);
+        mpu->temp = (float)temp_raw / 340.0f + 36.53f;
+
         // if we are reading slaves through the mpu, copy the ext_sens_data
         if ((mpu->config.i2c_bypass == FALSE) && (mpu->config.nb_slaves > 0)) {
           /* the buffer is volatile, since filled from ISR

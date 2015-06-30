@@ -1,0 +1,23 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="poles" dir="nav">
+  <doc>
+    <description>Navigate around two poles</description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Poles">
+        <dl_setting MAX="40" MIN="1" STEP="1" VAR="nav_poles_count" module="modules/nav/nav_poles"/>
+        <dl_setting MAX="180" MIN="0" STEP="1" VAR="nav_poles_time"/>
+        <dl_setting MAX="1" MIN="-1" STEP="2" VAR="nav_poles_land" module="modules/nav/nav_poles" handler="SetLandDir"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="nav_poles.h"/>
+  </header>
+  <makefile>
+    <file name="nav_poles.c"/>
+  </makefile>
+</module>
+

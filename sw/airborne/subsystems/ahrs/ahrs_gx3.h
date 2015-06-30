@@ -91,6 +91,7 @@ extern struct AhrsGX3 ahrs_gx3;
 extern void ahrs_gx3_init(void);
 extern void ahrs_gx3_align(void);
 extern void ahrs_gx3_register(void);
+extern void ahrs_gx3_publish_imu(void);
 
 static inline void ReadGX3Buffer(void)
 {
@@ -99,16 +100,14 @@ static inline void ReadGX3Buffer(void)
   }
 }
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+static inline void ImuEvent(void)
 {
   if (uart_char_available(&GX3_PORT)) {
     ReadGX3Buffer();
   }
   if (ahrs_gx3.packet.msg_available) {
     gx3_packet_read_message();
-    _gyro_handler();
-    _accel_handler();
-    _mag_handler();
+    ahrs_gx3_publish_imu();
     ahrs_gx3.packet.msg_available = FALSE;
   }
 }

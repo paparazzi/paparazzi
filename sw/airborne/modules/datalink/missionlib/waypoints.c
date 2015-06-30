@@ -163,7 +163,7 @@ void mavlink_wp_message_handler(const mavlink_message_t* msg)
         case MAVLINK_MSG_ID_MISSION_ITEM:
         {
 #ifdef MAVLINK_FLAG_DEBUG
-            printf("Received BLOCK_ITEM message\n");
+            printf("Received MISSION_ITEM message\n");
 #endif
             mavlink_mission_item_t mission_item_msg;
             mavlink_msg_mission_item_decode(msg, &mission_item_msg); // Cast the incoming message to a mission_item_msg

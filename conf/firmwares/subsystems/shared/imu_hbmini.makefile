@@ -24,8 +24,11 @@ IMU_HBMINI_CFLAGS += -DMAX1168_EOC_VIC_SLOT=11
 IMU_HBMINI_SRCS += peripherals/max1168.c
 IMU_HBMINI_SRCS += $(SRC_ARCH)/peripherals/max1168_arch.c
 
-ap.CFLAGS += $(IMU_HBMINI_CFLAGS)
-ap.srcs   += $(IMU_HBMINI_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_HBMINI_CFLAGS)
+$(TARGET).srcs += $(IMU_HBMINI_SRCS)
+endif
 
 #
 # Simulator

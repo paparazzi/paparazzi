@@ -44,14 +44,14 @@ EventSource powerOutageSource;
 EventListener powerOutageListener;
 
 
-FIL pprzLogFile = {0};
+FileDes pprzLogFile = -1;
 
 struct chibios_sdlog chibios_sdlog;
 
 #if FLIGHTRECORDER_SDLOG
 static const char FLIGHTRECORDER_LOG_NAME[] = "fr_";
 static const char FR_LOG_DIR[] = "FLIGHT_RECORDER";
-FIL flightRecorderLogFile = {0};
+FileDes flightRecorderLogFile = -1;
 #endif
 
 static WORKING_AREA(waThdBatterySurvey, 4096);
@@ -71,14 +71,14 @@ static int sdlog_check_free_space(struct chibios_sdlog* p __attribute__((unused)
 
 static void sdlog_transmit(struct chibios_sdlog* p, uint8_t byte)
 {
-  sdLogWriteByte(p->file, byte);
+  sdLogWriteByte(*p->file, byte);
 }
 
 static void sdlog_send(struct chibios_sdlog* p __attribute__((unused))) { }
 
 static int null_function(struct chibios_sdlog *p __attribute__((unused))) { return 0; }
 
-void chibios_sdlog_init(struct chibios_sdlog *sdlog, FIL *file)
+void chibios_sdlog_init(struct chibios_sdlog *sdlog, FileDes *file)
 {
   // Store file descriptor
   sdlog->file = file;
@@ -92,7 +92,7 @@ void chibios_sdlog_init(struct chibios_sdlog *sdlog, FIL *file)
 
 }
 
-bool_t chibios_logInit(const bool_t binaryFile)
+bool_t chibios_logInit(void)
 {
   nvicSetSystemHandlerPriority(HANDLER_PENDSV,
              CORTEX_PRIORITY_MASK(15));
@@ -103,16 +103,13 @@ bool_t chibios_logInit(const bool_t binaryFile)
   if (sdLogInit (NULL) != SDLOG_OK)
     goto error;
 
-  if (sdLogOpenLog (&pprzLogFile, PPRZ_LOG_DIR, PPRZ_LOG_NAME) != SDLOG_OK)
+  if (sdLogOpenLog (&pprzLogFile, PPRZ_LOG_DIR, PPRZ_LOG_NAME, TRUE) != SDLOG_OK)
     goto error;
 
 #if FLIGHTRECORDER_SDLOG
-  if (sdLogOpenLog (&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME) != SDLOG_OK)
+  if (sdLogOpenLog (&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, FALSE) != SDLOG_OK)
     goto error;
 #endif
-
-  if  (sdLoglaunchThread (binaryFile) != SDLOG_OK)
-    goto error;
 
   chEvtInit (&powerOutageSource);
 
@@ -125,16 +122,15 @@ error:
 }
 
 
-void chibios_logFinish(void)
+void chibios_logFinish(bool_t flush)
 {
-  if (pprzLogFile.fs != NULL) {
-    sdLogStopThread ();
-    sdLogCloseLog (&pprzLogFile);
-#if FLIGHTRECORDER_SDLOG
-    sdLogCloseLog (&flightRecorderLogFile);
-#endif
+  if (pprzLogFile != -1) {
+    sdLogCloseAllLogs(flush);
     sdLogFinish ();
-    pprzLogFile.fs = NULL;
+    pprzLogFile = 0;
+#if FLIGHTRECORDER_SDLOG
+    flightRecorderLogFile = 0;
+#endif
   }
 }
 
@@ -150,7 +146,7 @@ static msg_t batterySurveyThd(void *arg)
       V_ALERT, 0xfff, &powerOutageIsr);
 
   chEvtWaitOne(EVENT_MASK(1));
-  chibios_logFinish ();
+  chibios_logFinish (false);
   chThdExit(0);
   systemDeepSleep();
   return 0;

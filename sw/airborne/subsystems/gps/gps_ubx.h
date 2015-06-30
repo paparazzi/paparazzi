@@ -91,14 +91,14 @@ extern void ubx_send_cfg_rst(struct link_device *dev, uint16_t bbr, uint8_t rese
 
 extern void gps_ubx_read_message(void);
 extern void gps_ubx_parse(uint8_t c);
-extern void gps_ubx_msg(void (* _cb)(void));
+extern void gps_ubx_msg(void);
 
 
 /* Gps callback is called when receiving a VELNED or a SOL message
  * All position/speed messages are sent in one shot and VELNED is the last one on fixedwing
  * For rotorcraft, only SOL message is needed for pos/speed data
  */
-static inline void GpsEvent(void (* _sol_available_callback)(void))
+static inline void GpsEvent(void)
 {
   struct link_device *dev = &((GPS_LINK).device);
 
@@ -108,7 +108,7 @@ static inline void GpsEvent(void (* _sol_available_callback)(void))
     }
   }
   if (gps_ubx.msg_available) {
-    gps_ubx_msg(_sol_available_callback);
+    gps_ubx_msg();
   }
 }
 

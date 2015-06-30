@@ -109,7 +109,7 @@ void motor_mixing_init(void)
   motor_mixing.nb_saturation = 0;
 }
 
-__attribute__((always_inline)) static inline void offset_commands(int32_t offset)
+static void offset_commands(int32_t offset)
 {
   uint8_t j;
   for (j = 0; j < MOTOR_MIXING_NB_MOTOR; j++) {
@@ -117,17 +117,17 @@ __attribute__((always_inline)) static inline void offset_commands(int32_t offset
   }
 }
 
-__attribute__((always_inline)) static inline void bound_commands(void)
+static void bound_commands(void)
 {
   uint8_t j;
-  for (j = 0; j < MOTOR_MIXING_NB_MOTOR; j++)
-    Bound(motor_mixing.commands[j],
-          MOTOR_MIXING_MIN_MOTOR, MOTOR_MIXING_MAX_MOTOR);
+  for (j = 0; j < MOTOR_MIXING_NB_MOTOR; j++) {
+    Bound(motor_mixing.commands[j], MOTOR_MIXING_MIN_MOTOR, MOTOR_MIXING_MAX_MOTOR);
+  }
 }
 
-#ifdef MOTOR_MIXING_USE_MAX_MOTOR_STEP_BINDING
-__attribute__((always_inline)) static inline void bound_commands_step(void)
+static void bound_commands_step(void)
 {
+#ifdef MOTOR_MIXING_USE_MAX_MOTOR_STEP_BINDING
   uint8_t j;
   static int32_t prev_commands[MOTOR_MIXING_NB_MOTOR];
   static uint8_t initialized = 0;
@@ -146,12 +146,8 @@ __attribute__((always_inline)) static inline void bound_commands_step(void)
   for (j = 0; j < MOTOR_MIXING_NB_MOTOR; j++) {
     prev_commands[j] = motor_mixing.commands[j];
   }
-}
-#else
-__attribute__((always_inline)) static inline void bound_commands_step(void)
-{
-}
 #endif
+}
 
 void motor_mixing_run_spinup(uint32_t counter, uint32_t max_counter)
 {
@@ -159,9 +155,11 @@ void motor_mixing_run_spinup(uint32_t counter, uint32_t max_counter)
   for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
 #ifdef MOTOR_MIXING_STARTUP_DELAY
     if (counter > i * max_counter / (MOTOR_MIXING_NB_MOTOR + MOTOR_MIXING_STARTUP_DELAY)) {
-      if (counter > MOTOR_MIXING_NB_MOTOR * max_counter / (MOTOR_MIXING_NB_MOTOR + MOTOR_MIXING_STARTUP_DELAY)) {
-        motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR_STARTUP + (MOTOR_MIXING_MIN_MOTOR - MOTOR_MIXING_MIN_MOTOR_STARTUP) *
-                                   counter / max_counter;
+      if (counter > MOTOR_MIXING_NB_MOTOR * max_counter /
+          (MOTOR_MIXING_NB_MOTOR + MOTOR_MIXING_STARTUP_DELAY))
+      {
+        motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR_STARTUP +
+          (MOTOR_MIXING_MIN_MOTOR - MOTOR_MIXING_MIN_MOTOR_STARTUP) * counter / max_counter;
       } else {
         motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR_STARTUP;
       }
@@ -184,17 +182,67 @@ void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[])
 #else
   if (FALSE) {
 #endif
+
+    /* mean of trim+roll+pitch commands */
+    int32_t mean_cmd = 0;
+
+    /* first calculate the highest priority part of the command:
+     * - trim + roll/pitch for each motor
+     * - record mean of that
+     * - add thrust command
+     * - record min/max including thrust
+     */
+    for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
+      motor_mixing.commands[i] = motor_mixing.trim[i] +
+        roll_coef[i] * in_cmd[COMMAND_ROLL] +
+        pitch_coef[i] * in_cmd[COMMAND_PITCH];
+      /* sum up for mean (average) trim+roll+pitch cmd */
+      mean_cmd += motor_mixing.commands[i];
+    }
+
+    /* divide sum by number of motors and scale to get mean thrust */
+    mean_cmd /= (MOTOR_MIXING_NB_MOTOR * MOTOR_MIXING_SCALE);
+
+    /* calculate thrust_cmd */
+    int32_t thrust_cmd = in_cmd[COMMAND_THRUST] - mean_cmd;
+    Bound(thrust_cmd, 0, MAX_PPRZ);
+
+    int32_t tmp_cmd;
+    int32_t max_overflow = 0;
+
+    /* add thrust command and scale */
+    for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
+      motor_mixing.commands[i] += thrust_coef[i] * thrust_cmd;
+
+      /* compute the command with yaw for each motor to check how much it would saturate */
+      tmp_cmd = motor_mixing.commands[i] + yaw_coef[i] * in_cmd[COMMAND_YAW];
+      tmp_cmd /= MOTOR_MIXING_SCALE;
+
+      /* remember max overflow (how much in saturation) */
+      if (-tmp_cmd > max_overflow) {
+        max_overflow = -tmp_cmd;
+      }
+      else if (tmp_cmd - MAX_PPRZ > max_overflow) {
+        max_overflow = tmp_cmd - MAX_PPRZ;
+      }
+    }
+
+    /* calculate how much authority is left for yaw command */
+    int32_t yaw_authority = ABS(in_cmd[COMMAND_YAW]) - max_overflow;
+    Bound(yaw_authority, 0, MAX_PPRZ);
+    int32_t bounded_yaw_cmd = in_cmd[COMMAND_YAW];
+    BoundAbs(bounded_yaw_cmd, yaw_authority);
+
+    /* min/max of commands */
     int32_t min_cmd = INT32_MAX;
     int32_t max_cmd = INT32_MIN;
-    /* do the mixing in float to avoid overflows, implicitly casted back to int32_t */
+
+    /* add the bounded yaw command and scale */
     for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
-      motor_mixing.commands[i] = MOTOR_MIXING_MIN_MOTOR +
-                                 (thrust_coef[i] * in_cmd[COMMAND_THRUST] +
-                                  roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
-                                  pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
-                                  yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
-                                  motor_mixing.trim[i]) / MOTOR_MIXING_SCALE *
-                                 (MOTOR_MIXING_MAX_MOTOR - MOTOR_MIXING_MIN_MOTOR) / MAX_PPRZ;
+      motor_mixing.commands[i] += yaw_coef[i] * bounded_yaw_cmd;
+      motor_mixing.commands[i] /= MOTOR_MIXING_SCALE;
+
+      /* remember min/max */
       if (motor_mixing.commands[i] < min_cmd) {
         min_cmd = motor_mixing.commands[i];
       }

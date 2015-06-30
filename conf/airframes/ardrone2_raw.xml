@@ -3,15 +3,14 @@
 <airframe name="ardrone2_raw">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="ardrone2_raw">
-      <subsystem name="telemetry" type="transparent_udp"/>
-      <subsystem name="radio_control" type="datalink"/>
-    </target>
+    <target name="ap" board="ardrone2_raw"/>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
     </target>
+
+    <subsystem name="telemetry" type="transparent_udp"/>
+    <subsystem name="radio_control" type="datalink"/>
 
     <define name="USE_SONAR" value="TRUE"/>
 

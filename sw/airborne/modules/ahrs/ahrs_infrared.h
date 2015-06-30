@@ -33,8 +33,5 @@
 
 extern void ahrs_infrared_init(void);
 extern void ahrs_infrared_periodic(void);
-extern void ahrs_infrared_update_gps(void);
-
-#define GPS_TRIGGERED_FUNCTION ahrs_infrared_update_gps
 
 #endif /* AHRS_INFRARED_H */

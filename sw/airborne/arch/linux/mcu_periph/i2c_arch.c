@@ -52,8 +52,8 @@ bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
 {
   int file = (int)p->reg_addr;
 
-  // Set the slave address
-  ioctl(file, I2C_SLAVE, t->slave_addr);
+  // Set the slave address, converted to 7 bit
+  ioctl(file, I2C_SLAVE, t->slave_addr >> 1);
 
   // Switch the different transaction types
   switch (t->type) {

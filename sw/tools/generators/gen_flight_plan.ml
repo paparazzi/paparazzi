@@ -698,8 +698,8 @@ let dummy_waypoint =
                [])
 
 
-
 let print_inside_polygon = fun pts ->
+  let (_, pts) = List.split pts in
   let layers = Geometry_2d.slice_polygon (Array.of_list pts) in
   let rec f = fun i j ->
     if i = j then
@@ -723,25 +723,51 @@ let print_inside_polygon = fun pts ->
   in
   f 0 (Array.length layers - 1);;
 
-
-
-let print_inside_sector = fun (s, pts) ->
-  lprintf "static inline bool_t %s(float _x, float _y) { \\\n" (inside_function s);
+let print_inside_polygon_global = fun pts ->
+  lprintf "uint8_t i, j;\n";
+  lprintf "bool_t c = FALSE;\n";
+  (* build array of wp id *)
+  let (ids, _) = List.split pts in
+  lprintf "const uint8_t nb_pts = %d;\n" (List.length pts);
+  lprintf "const uint8_t wps_id[] = { %s };\n\n" (String.concat ", " ids);
+  (* start algo *)
+  lprintf "for (i = 0, j = nb_pts - 1; i < nb_pts; j = i++) {\n";
   right ();
-  print_inside_polygon pts;
+  lprintf "if (((WaypointY(wps_id[i]) > _y) != (WaypointY(wps_id[j]) > _y)) &&\n";
+  lprintf "   (_x < (WaypointX(wps_id[j])-WaypointX(wps_id[i])) * (_y-WaypointY(wps_id[i])) / (WaypointY(wps_id[j])-WaypointY(wps_id[i])) + WaypointX(wps_id[i]))) {\n";
+  right ();
+  lprintf "if (c == TRUE) { c = FALSE; } else { c = TRUE; }\n";
+  left();
+  lprintf "}\n";
+  left();
+  lprintf "}\n";
+  lprintf "return c;\n"
+
+
+type sector_type = StaticSector | DynamicSector
+
+let print_inside_sector = fun t (s, pts) ->
+  lprintf "static inline bool_t %s(float _x, float _y) {\n" (inside_function s);
+  right ();
+  begin
+    match t with
+    | StaticSector -> print_inside_polygon pts
+    | DynamicSector -> print_inside_polygon_global pts
+  end;
   left ();
   lprintf "}\n"
 
 
-let parse_wpt_sector = fun waypoints xml ->
+let parse_wpt_sector = fun indexes waypoints xml ->
   let sector_name = ExtXml.attrib xml "name" in
   let p2D_of = fun x ->
     let name = name_of x in
     try
       let wp = List.find (fun wp -> name_of wp = name) waypoints in
+      let i = get_index_waypoint name indexes in
       let x = float_attrib wp "x"
       and y = float_attrib wp "y" in
-      {G2D.x2D = x; G2D.y2D = y }
+      (i, {G2D.x2D = x; G2D.y2D = y })
     with
         Not_found -> failwith (sprintf "Error: corner '%s' of sector '%s' not found" name sector_name)
   in
@@ -870,16 +896,18 @@ let () =
       Xml2h.define "HOME_MODE_HEIGHT" (sof home_mode_height);
       Xml2h.define "MAX_DIST_FROM_HOME" (sof mdfh);
 
+      lprintf "\n#ifdef NAV_C\n\n";
+
       let index_of_waypoints =
         let i = ref (-1) in
         List.map (fun w -> incr i; (name_of w, !i)) waypoints in
 
       let sectors_element = try ExtXml.child xml "sectors" with Not_found -> Xml.Element ("", [], []) in
       let sectors = List.filter (fun x -> String.lowercase (Xml.tag x) = "sector") (Xml.children sectors_element) in
-      let sectors =  List.map (parse_wpt_sector waypoints) sectors in
-      List.iter print_inside_sector sectors;
+      let sectors_type = List.map (fun x -> match ExtXml.attrib_or_default x "type" "static" with "dynamic" -> DynamicSector | _ -> StaticSector) sectors in
+      let sectors = List.map (parse_wpt_sector index_of_waypoints waypoints) sectors in
+      List.iter2 print_inside_sector sectors_type sectors;
 
-      lprintf "#ifdef NAV_C\n";
       lprintf "\nstatic inline void auto_nav(void) {\n";
       right ();
       List.iter print_exception global_exceptions;

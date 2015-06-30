@@ -40,4 +40,19 @@
 #define USE_BARO_BOARD 1
 #endif
 
+/* The ADC from the sonar */
+#if USE_ADC0
+#define ADC0_ID             0
+#define ADC0_CHANNELS       2
+#define ADC0_CHANNELS_CNT   1
+#define ADC0_BUF_LENGTH     8192
+#endif
+
+/* The SPI from the sonar */
+#if USE_SPI0
+#define SPI0_MODE           0
+#define SPI0_BITS_PER_WORD  8
+#define SPI0_MAX_SPEED_HZ   320000
+#endif
+
 #endif /* CONFIG_BEBOP */

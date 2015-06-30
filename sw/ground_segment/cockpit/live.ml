@@ -114,6 +114,9 @@ type aircraft = {
   mutable last_gps_acc : gps_acc_level
 }
 
+let list_separator = Str.regexp ","
+let filter_acs = ref []
+
 let aircrafts = Hashtbl.create 3
 exception AC_not_found
 let find_ac = fun ac_id ->
@@ -174,7 +177,11 @@ let select_ac = fun acs_notebook ac_id ->
     (* Select and enlarge the label of the A/C notebook *)
     let n = acs_notebook#page_num ac.pages in
     acs_notebook#goto_page n;
-    ac.notebook_label#set_width_chars 20;
+    ac.notebook_label#set_width_chars 20
+
+let filter_ac_ids = fun acs ->
+  let acs = Str.split list_separator acs in
+  filter_acs := acs;
 
 module M = Map.Make (struct type t = string let compare = compare end)
 let log =
@@ -403,6 +410,14 @@ let get_icon_and_track_size = fun af_xml ->
     | x -> (x, !track_size)
   with _ -> (firmware_name, !track_size)
 
+let get_icons_theme = fun af_xml ->
+  try
+    let gcs_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "GCS") "section" in
+    let fvalue = fun name default ->
+      try ExtXml.attrib (ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+    fvalue "ICONS_THEME" Env.gcs_default_icons_theme
+  with _ -> Env.gcs_default_icons_theme
+
 let key_press_event = fun keys do_action ev ->
   try
     let (modifiers, action) = List.assoc (GdkEvent.Key.keyval ev) keys in
@@ -492,10 +507,12 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (strip
   (** Add a strip *)
   let min_bat, max_bat = get_bat_levels af_xml in
   let alt_shift_plus_plus, alt_shift_plus, alt_shift_minus = get_alt_shift af_xml in
+  let icons_theme = get_icons_theme af_xml in
   let param = { Strip.color = color; min_bat = min_bat; max_bat = max_bat;
                 alt_shift_plus_plus = alt_shift_plus_plus;
                 alt_shift_plus = alt_shift_plus;
-                alt_shift_minus = alt_shift_minus; } in
+                alt_shift_minus = alt_shift_minus;
+                icons_theme = icons_theme; } in
   (*let strip = Strip.add config color min_bat max_bat in*)
   let strip = Strip.add config param strips in
   strip#connect (fun () -> select_ac acs_notebook ac_id);
@@ -545,14 +562,14 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (strip
         try (* Is it an icon ? *)
           let icon = Xml.attrib block "strip_icon" in
           let b = GButton.button () in
-          let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
+          let pixbuf = GdkPixbuf.from_file (Env.get_gcs_icon_path icons_theme icon) in
           ignore (GMisc.image ~pixbuf ~packing:b#add ());
 
       (* Drag for Drop *)
           let papget = Papget_common.xml "goto_block" "button"
             [ "block_name", block_name;
               "ac_id", ac_id;
-              "icon", icon] in
+              "icon", icons_theme // icon] in
           Papget_common.dnd_source b#coerce papget;
 
       (* Associates the label as a tooltip *)
@@ -628,7 +645,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (strip
   let dl_settings_page =
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
-      let settings_tab = new Page_settings.settings ~visible xml_settings dl_setting_callback ac_id (fun group x -> strip#add_widget ~group x) in
+      let settings_tab = new Page_settings.settings ~visible xml_settings dl_setting_callback ac_id icons_theme (fun group x -> strip#add_widget ~group x) in
 
       (** Connect key shortcuts *)
       let key_press = fun ev ->
@@ -814,7 +831,7 @@ let ask_config = fun alert geomap fp_notebook strips ac ->
 
 
 let one_new_ac = fun alert (geomap:G.widget) fp_notebook strips ac ->
-  if not (Hashtbl.mem aircrafts ac) then
+  if (List.length !filter_acs = 0) || (List.mem ac !filter_acs) && not (Hashtbl.mem aircrafts ac) then
     ask_config alert geomap fp_notebook strips ac
 
 
@@ -906,8 +923,6 @@ let listen_if_calib_msg = fun () ->
 
 let listen_telemetry_status = fun a ->
   safe_bind "TELEMETRY_STATUS" (get_telemetry_status a)
-
-let list_separator = Str.regexp ","
 
 let aircrafts_msg = fun alert (geomap:G.widget) fp_notebook strips acs ->
   let acs = Pprz.string_assoc "ac_list" acs in
@@ -1317,7 +1332,8 @@ let listen_waypoint_moved = fun () ->
     try
       let w = ac.fp_group#get_wp wp_id in
       w#set_ground_alt ground_alt;
-      w#set ~altitude ~update:true geo
+      w#set ~altitude ~update:true geo;
+      ac.fp_group#update_sectors w#name
     with
         Not_found -> () (* Silently ignore unknown waypoints *)
   in

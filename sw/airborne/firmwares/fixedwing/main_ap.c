@@ -135,22 +135,13 @@ PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 
 
 #if USE_IMU
-
 #ifdef AHRS_PROPAGATE_FREQUENCY
 #if (AHRS_PROPAGATE_FREQUENCY > PERIODIC_FREQUENCY)
 #warning "PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY"
 INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY to at least ", AHRS_PROPAGATE_FREQUENCY)
 #endif
 #endif
-
-static inline void on_gyro_event(void);
-static inline void on_accel_event(void);
-static inline void on_mag_event(void);
 #endif // USE_IMU
-
-#if USE_GPS
-static inline void on_gps_solution(void);
-#endif
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 static uint8_t  mcu1_ppm_cpt;
@@ -166,6 +157,20 @@ tid_t monitor_tid;     ///< id for monitor_task() timer
 #if USE_BARO_BOARD
 tid_t baro_tid;          ///< id for baro_periodic() timer
 #endif
+
+
+/// @todo, properly implement or remove
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+volatile uint8_t new_ins_attitude = 0;
+static abi_event new_att_ev;
+static void new_att_cb(uint8_t sender_id __attribute__((unused)),
+                       uint32_t stamp __attribute__((unused)),
+                       struct Int32Rates *gyro __attribute__((unused)))
+{
+  new_ins_attitude = 1;
+}
+#endif
+
 
 void init_ap(void)
 {
@@ -188,6 +193,11 @@ void init_ap(void)
 
 #if USE_AHRS_ALIGNER
   ahrs_aligner_init();
+#endif
+
+  ///@todo: properly implement/fix a triggered attitude loop
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+  AbiBindMsgIMU_GYRO_INT32(ABI_BROADCAST, &new_att_ev, &new_att_cb);
 #endif
 
 #if USE_AHRS
@@ -415,6 +425,10 @@ static inline void telecommand_task(void)
 
     /** Pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
     h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
+#if H_CTL_YAW_LOOP && defined RADIO_YAW
+    /** Yaw is bounded between [-AUTO1_MAX_YAW_RATE;AUTO1_MAX_YAW_RATE] */
+    h_ctl_yaw_rate_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_YAW], 0., AUTO1_MAX_YAW_RATE);
+#endif
   } /** Else asynchronously set by \a h_ctl_course_loop() */
 
   /** In AUTO1, throttle comes from RADIO_THROTTLE
@@ -543,10 +557,6 @@ void navigation_task(void)
 }
 
 
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-volatile uint8_t new_ins_attitude = 0;
-#endif
-
 void attitude_loop(void)
 {
 
@@ -581,8 +591,13 @@ void attitude_loop(void)
   v_ctl_throttle_slew();
   ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
   ap_state->commands[COMMAND_ROLL] = -h_ctl_aileron_setpoint;
-
   ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
+#if H_CTL_YAW_LOOP && defined COMMAND_YAW
+  ap_state->commands[COMMAND_YAW] = h_ctl_rudder_setpoint;
+#endif
+#if H_CTL_CL_LOOP && defined COMMAND_CL
+  ap_state->commands[COMMAND_CL] = h_ctl_flaps_setpoint;
+#endif
 
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
   link_mcu_send();
@@ -679,7 +694,7 @@ void event_task_ap(void)
 #endif /* SINGLE_MCU */
 
 #if USE_IMU
-  ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
+  ImuEvent();
 #endif
 
 #ifdef InsEvent
@@ -688,7 +703,7 @@ void event_task_ap(void)
 #endif
 
 #if USE_GPS
-  GpsEvent(on_gps_solution);
+  GpsEvent();
 #endif /* USE_GPS */
 
 #if USE_BARO_BOARD
@@ -719,68 +734,3 @@ void event_task_ap(void)
 
 } /* event_task_ap() */
 
-
-#if USE_GPS
-static inline void on_gps_solution(void)
-{
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  AbiSendMsgGPS(1, now_ts, &gps);
-
-#ifdef GPS_TRIGGERED_FUNCTION
-  GPS_TRIGGERED_FUNCTION();
-#endif
-}
-#endif
-
-
-#if USE_IMU
-static inline void on_accel_event(void)
-{
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  imu_scale_accel(&imu);
-
-  AbiSendMsgIMU_ACCEL_INT32(1, now_ts, &imu.accel);
-}
-
-static inline void on_gyro_event(void)
-{
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  imu_scale_gyro(&imu);
-
-  AbiSendMsgIMU_GYRO_INT32(1, now_ts, &imu.gyro_prev);
-
-#if USE_AHRS_ALIGNER
-  if (ahrs_aligner.status != AHRS_ALIGNER_LOCKED) {
-    ahrs_aligner_run();
-    return;
-  }
-#endif
-
-#if defined SITL && USE_NPS
-  if (nps_bypass_ahrs) { sim_overwrite_ahrs(); }
-#endif
-
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-  new_ins_attitude = 1;
-#endif
-
-}
-
-static inline void on_mag_event(void)
-{
-#if USE_MAGNETOMETER
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-
-  imu_scale_mag(&imu);
-  AbiSendMsgIMU_MAG_INT32(1, now_ts, &imu.mag);
-#endif
-}
-
-#endif // USE_IMU

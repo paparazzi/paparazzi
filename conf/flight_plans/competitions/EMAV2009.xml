@@ -1,0 +1,46 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="100" ground_alt="54" lat0="52.3825204" lon0="5.897420" max_dist_from_home="1500" name="EMAV09" security_height="25">
+  <header>
+#include "datalink.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="96.2" y="-36.2"/>
+    <waypoint name="1" x="34.6" y="-31.9"/>
+    <waypoint name="2" x="174.3" y="79.9"/>
+    <waypoint name="MOB" x="418.5" y="208.7"/>
+    <waypoint alt="104.0" name="CLIMB" x="-0.2" y="-97.2"/>
+  </waypoints>
+
+  <includes>
+    <include name="Safety" procedure="EMAV2009_data.xml"/>
+    <include name="Safety" procedure="EMAV2009_safety.xml"/>
+    <include name="L" procedure="landing.xml"/>
+  </includes>
+
+  <exceptions/>
+  <blocks>
+    <block name="Holding point">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
+      <set value="0" var="kill_throttle"/>
+      <set value="0" var="autopilot_flight_time"/>
+      <go from="HOME" pitch="15" throttle="1.0" vmode="throttle" wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
+      <eight center="1" radius="nav_radius" turn_around="2"/>
+    </block>
+    <block name="MOB" strip_button="Circle around here" strip_icon="mob.png">
+      <call fun="NavSetWaypointHere(WP_MOB)"/>
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <circle radius="nav_radius" wp="MOB"/>
+    </block>
+  </blocks>
+</flight_plan>

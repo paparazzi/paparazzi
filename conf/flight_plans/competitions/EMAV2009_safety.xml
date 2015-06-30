@@ -1,0 +1,14 @@
+<!DOCTYPE procedure SYSTEM "../flight_plan.dtd">
+
+<procedure>
+  <exceptions>
+    <exception cond="Or(! InsideGreen(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 150)" deroute="Center"/>
+  </exceptions>
+
+  <blocks>
+    <block name="Center" pre_call="if (!InsideRed(GetPosX(), GetPosY())) NavKillThrottle();">
+      <circle wp="_CENTER" radius="DEFAULT_CIRCLE_RADIUS"/>
+    </block>
+  </blocks>
+
+</procedure>

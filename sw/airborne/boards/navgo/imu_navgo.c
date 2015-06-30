@@ -34,6 +34,7 @@
 #include "imu_navgo.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
+#include "subsystems/abi.h"
 
 // Downlink
 #include "mcu_periph/uart.h"
@@ -87,10 +88,6 @@ void imu_impl_init(void)
   InitMedianFilterVect3Int(median_accel);
   InitMedianFilterVect3Int(median_mag);
 #endif
-
-  imu_navgo.gyr_valid = FALSE;
-  imu_navgo.acc_valid = FALSE;
-  imu_navgo.mag_valid = FALSE;
 }
 
 void imu_periodic(void)
@@ -122,6 +119,7 @@ void imu_navgo_downlink_raw(void)
 
 void imu_navgo_event(void)
 {
+  uint32_t now_ts = get_sys_time_usec();
 
   // If the itg3200 I2C transaction has succeeded: convert the data
   itg3200_event(&imu_navgo.itg);
@@ -131,7 +129,8 @@ void imu_navgo_event(void)
     UpdateMedianFilterRatesInt(median_gyro, imu.gyro_unscaled);
 #endif
     imu_navgo.itg.data_available = FALSE;
-    imu_navgo.gyr_valid = TRUE;
+    imu_scale_gyro(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
   }
 
   // If the adxl345 I2C transaction has succeeded: convert the data
@@ -142,7 +141,8 @@ void imu_navgo_event(void)
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
 #endif
     imu_navgo.adxl.data_available = FALSE;
-    imu_navgo.acc_valid = TRUE;
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
 
   // HMC58XX event task
@@ -153,8 +153,8 @@ void imu_navgo_event(void)
     UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
 #endif
     imu_navgo.hmc.data_available = FALSE;
-    imu_navgo.mag_valid = TRUE;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }
 
 }
-

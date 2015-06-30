@@ -31,7 +31,6 @@
 #include "subsystems/datalink/pprzlog_transport.h"
 
 #if FLIGHTRECORDER_SDLOG
-
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
 static struct chibios_sdlog flightrecorder_sdlog;
@@ -61,7 +60,7 @@ void flight_recorder_periodic()
 {
 #if FLIGHTRECORDER_SDLOG
   // test if sd log is ready
-  if (flightRecorderLogFile.fs == NULL) return;
+  if (flightRecorderLogFile == -1) return;
 #endif
 
 #if PERIODIC_TELEMETRY

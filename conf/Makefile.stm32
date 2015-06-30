@@ -42,8 +42,9 @@ MCU   = cortex-m4
 else
 MCU   = cortex-m3
 endif
-#DEBUG = dwarf-2
 OPT ?= s
+# Slightly bigger .elf files but gains the ability to decode macros
+DEBUG_FLAGS ?= -ggdb3
 
 # input files
 SRCS = $($(TARGET).srcs)
@@ -69,6 +70,7 @@ endif
 
 CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES)
 CFLAGS += -D__thumb2__ -O$(OPT)
+CFLAGS += $(DEBUG_FLAGS)
 ifeq ($(ARCH_L), )
 CFLAGS += -msoft-float
 else ifeq ($(ARCH_L),f4)
@@ -87,7 +89,6 @@ CFLAGS += -mcpu=$(MCU) -mthumb -ansi
 CFLAGS += $(CSTANDARD)
 #CFLAGS += -malignment-traps
 CFLAGS += -fno-common
-CFLAGS += -g$(DEBUG)
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 
@@ -118,7 +119,7 @@ CFLAGS += $($(TARGET).CFLAGS)
 
 AFLAGS  = -ahls -mapcs-32
 AFLAGS += -mcpu=$(MCU) -mthumb
-AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
+AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst)
 
 LDFLAGS += -L../ext/libopencm3/lib
 LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -mcpu=$(MCU)

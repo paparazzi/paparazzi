@@ -244,7 +244,7 @@ twog_1.0 + aspirin + ETS baro + ETS speed
   </section>
 
   <section name="DIGITAL_CAMERA" prefix="DC_">
-    <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="12" unit="quarter_second"/>
+    <define name="AUTOSHOOT_PERIOD" value="3.0" unit="sec"/>
     <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="50" unit="meter"/>
   </section>
 

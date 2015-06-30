@@ -8,7 +8,7 @@
 <airframe name="FireStorm">
 
   <modules>
-    <load name="poles.xml"/>
+    <load name="nav_poles.xml"/>
   </modules>
 
   <firmware name="fixedwing">

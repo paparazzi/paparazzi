@@ -21,7 +21,7 @@
 
 /**
  * @file subsystems/imu/imu_ardrone2_sdk.c
- * IMU implementation for ardrone2-sdk.
+ * dummy IMU implementation for ardrone2-sdk.
  */
 
 #include "subsystems/imu.h"

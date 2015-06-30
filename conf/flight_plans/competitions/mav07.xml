@@ -1,0 +1,154 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="225" ground_alt="175" lat0="43.53900" lon0="1.24500" max_dist_from_home="1500" name="MAV07" qfu="0" security_height="25">
+  <header>
+#include "datalink.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="100" y="8.5"/>
+    <waypoint name="T1" x="526.5" y="96.7" alt="210"/>
+    <waypoint name="T2" x="862.3" y="-349.7" alt="210"/>
+    <waypoint name="T1__" x="506.6" y="192.0" alt="210"/>
+    <waypoint name="T2__" x="1002.0" y="-345.3" alt="210"/>
+    <waypoint name="T3" x="895.4" y="-24.2" alt="210"/>
+    <waypoint name="T3__" x="921.3" y="114.7" alt="210"/>
+    <waypoint alt="200" name="AF" x="282.5" y="-93.1"/>
+    <waypoint alt="175" name="TD" x="46.7" y="19.7"/>
+    <waypoint name="BASELEG" x="39.9" y="452.3"/>
+    <waypoint name="STDBY" x="208.3" y="37.3"/>
+    <waypoint name="RELEASE" x="-73.8" y="280.3"/>
+    <waypoint alt="210" name="START" x="364.1" y="-124.1"/>
+    <waypoint name="CLIMB" x="-89.8" y="222.4"/>
+    <waypoint alt="175" name="TARGET" x="122.3" y="6.4"/>
+    <waypoint alt="185" name="A1" x="130.3" y="113.3"/>
+    <waypoint alt="185" name="A2" x="82.5" y="35.6"/>
+    <waypoint name="A1__" x="-58.7" y="150.2"/>
+    <waypoint name="A2__" x="-178.5" y="150.8"/>
+    <waypoint name="_1" x="-137.6" y="-8.2"/>
+    <waypoint name="_2" x="161.7" y="385.5"/>
+    <waypoint name="_5" x="1269.1" y="-382.2"/>
+    <waypoint name="_6" x="1044.0" y="-710.8"/>
+    <waypoint name="_3" x="506.2" y="622.7"/>
+    <waypoint name="_4" x="1516.0" y="601.5"/>
+    <waypoint name="T3_SW" x="700" y="-280"/>
+    <waypoint name="T3_NE" x="1060" y="70"/>
+    <waypoint name="_T3_1" x="1049.4" y="-281.3"/>
+    <waypoint name="_T3_2" x="735.2" y="-274.7"/>
+    <waypoint name="_T3_3" x="742.3" y="64.6"/>
+    <waypoint name="_T3_4" x="1056.5" y="58.0"/>
+    <waypoint name="TAKEOFF" x="164.5" y="153.3"/>
+    <waypoint name="TOD" x="-11.7" y="385.4"/>
+  </waypoints>
+  <sectors>
+    <sector name="Fonsorbes">
+      <corner name="_1"/>
+      <corner name="_2"/>
+      <corner name="_3"/>
+      <corner name="_4"/>
+      <corner name="_5"/>
+      <corner name="_6"/>
+    </sector>
+    <sector name="T3">
+      <corner name="_T3_1"/>
+      <corner name="_T3_2"/>
+      <corner name="_T3_3"/>
+      <corner name="_T3_4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="!InsideFonsorbes(GetPosX(), GetPosY())" deroute="kill"/>
+    <exception cond="datalink_time > 35" deroute="standby"/>
+  </exceptions>
+  <blocks>
+    <block name="init">
+      <set value="1" var="kill_throttle"/>
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <set value="baro_MS5534A_pressure" var="baro_MS5534A_ground_pressure"/>
+    </block>
+    <block name="kill">
+      <set value="1" var="kill_throttle"/>
+      <while cond="TRUE">
+        <go wp="STDBY"/>
+      </while>
+    </block>
+    <block name="takeoff">
+      <exception cond="GetPosAlt() > GetAltRef() + 25" deroute="standby"/>
+      <set value="0" var="kill_throttle"/>
+      <go wp="TAKEOFF"/>
+    </block>
+    <block name="standby" strip_button="STDBY">
+      <set value="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="identify T1">
+      <eight center="T1" radius="nav_radius" turn_around="T1__"/>
+    </block>
+    <block name="identify T2">
+      <eight center="T2" radius="nav_radius" turn_around="T2__"/>
+    </block>
+    <block name="eight T3">
+      <eight center="T3" radius="nav_radius" turn_around="T3__"/>
+    </block>
+    <block name="survey T3">
+      <survey_rectangle wp1="T3_SW" grid="180" wp2="T3_NE"/>
+    </block>
+    <block name="Bomb Right">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="bomb"/>
+    </block>
+    <block name="bomb" strip_button="Bomb">
+      <set value="NavDropComputeApproach(WP_TARGET, WP_START, nav_radius)" var="unit"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(nav_drop_start_qdr)-10)" wp="BASELEG"/>
+    </block>
+    <block name="align">
+      <exception cond="NavDropUpdateRelease(WP_TARGET)" deroute="standby"/>
+      <go approaching_time="nav_drop_trigger_delay" from="START" hmode="route" wp="RELEASE"/>
+    </block>
+    <block name="shoot">
+      <set value="NavDropShoot()" var="unit"/>
+      <go from="RELEASE" hmode="route" wp="CLIMB"/>
+      <set value="NavDropCloseHatch()" var="unit"/>
+      <deroute block="standby"/>
+    </block>
+    <block name="close">
+      <set value="NavDropCloseHatch()" var="unit"/>
+      <deroute block="standby"/>
+    </block>
+    <block name="Arch Left">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <call fun="compute_alignment(WP_A1, WP_A2, WP_A1__, WP_A2__, 100, 10)"/>
+      <deroute block="arch"/>
+    </block>
+    <block name="arch">
+      <oval p1="A1__" p2="A2__" radius="nav_radius"/>
+    </block>
+    <block name="Land Right">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 10 > fabs(GetPosAlt() - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
+    </block>
+    <block name="final">
+      <exception cond="GetAltRef() + 10 > GetPosAlt()" deroute="flare"/>
+      <call fun="compute_TOD(WP_AF, WP_TD, WP_TOD, GLIDE_AIRSPEED, GLIDE_VSPEED)"/>
+      <go approaching_time="0" from="AF" hmode="route" wp="TOD"/>
+      <go from="TOD" hmode="route" pitch="stage_time*(GLIDE_PITCH/3)" throttle="0" vmode="throttle" wp="TD"/>
+    </block>
+    <block name="flare">
+      <go from="TOD" hmode="route" pitch="stage_time*(GLIDE_PITCH/3)" throttle="0" vmode="throttle" wp="TD"/>
+      <attitude pitch="GLIDE_PITCH" roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+
+    <block name="T3 Square">
+      <exception cond="! InsideT3(GetPosX(), GetPosY())" deroute="come back"/>
+      <attitude roll="0" vmode="alt" alt="WaypointAlt(WP_T3)"/>
+    </block>
+    <block name="come back">
+      <exception cond="InsideT3(GetPosX(), GetPosY())" deroute="T3 Square"/>
+      <go wp="T3"/>
+    </block>
+  </blocks>
+</flight_plan>

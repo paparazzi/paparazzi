@@ -26,7 +26,7 @@
  */
 
 #include "subsystems/imu.h"
-
+#include "subsystems/abi.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/spi.h"
 
@@ -117,6 +117,8 @@ void imu_periodic(void)
 
 void imu_aspirin_event(void)
 {
+  uint32_t now_ts = get_sys_time_usec();
+
   adxl345_spi_event(&imu_aspirin.acc_adxl);
   if (imu_aspirin.acc_adxl.data_available) {
     VECT3_COPY(imu.accel_unscaled, imu_aspirin.acc_adxl.data.vect);
@@ -144,5 +146,21 @@ void imu_aspirin_event(void)
 #endif
     imu_aspirin.mag_hmc.data_available = FALSE;
     imu_aspirin.mag_valid = TRUE;
+  }
+
+  if (imu_aspirin.gyro_valid) {
+    imu_aspirin.gyro_valid = FALSE;
+    imu_scale_gyro(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN_ID, now_ts, &imu.gyro);
+  }
+  if (imu_aspirin.accel_valid) {
+    imu_aspirin.accel_valid = FALSE;
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN_ID, now_ts, &imu.accel);
+  }
+  if (imu_aspirin.mag_valid) {
+    imu_aspirin.mag_valid = FALSE;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_ASPIRIN_ID, now_ts, &imu.mag);
   }
 }

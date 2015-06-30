@@ -93,6 +93,8 @@ if __name__ == "__main__":
 	dfudev.make_idle()
 
 	bin = open(argv[1], "rb").read()
+	if len(bin) == 0:
+		print ("ERROR: File length is zero! (Try downloading again)\r")
 
 	addr = 0x8002000
 	while bin:

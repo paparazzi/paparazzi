@@ -31,7 +31,7 @@
  */
 
 #include "subsystems/gps.h"
-
+#include "subsystems/abi.h"
 #include "led.h"
 
 #if GPS_USE_LATLONG
@@ -74,8 +74,11 @@ void gps_impl_init(void)
   nmea_configure();
 }
 
-void gps_nmea_msg(void (* _cb)(void))
+void gps_nmea_msg(void)
 {
+  // current timestamp
+  uint32_t now_ts = get_sys_time_usec();
+
   gps.last_msg_ticks = sys_time.nb_sec_rem;
   gps.last_msg_time = sys_time.nb_sec;
   nmea_parse_msg();
@@ -84,7 +87,7 @@ void gps_nmea_msg(void (* _cb)(void))
       gps.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps.last_3dfix_time = sys_time.nb_sec;
     }
-    _cb();
+    AbiSendMsgGPS(GPS_NMEA_ID, now_ts, &gps);
   }
   gps_nmea.msg_available = FALSE;
 }

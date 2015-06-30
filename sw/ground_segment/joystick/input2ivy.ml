@@ -85,7 +85,7 @@ type input =
 type msg = {
   msg_name : string;
   msg_class : string;
-  fields : (string * Syntax.expression) list;
+  fields : (string * Pprz._type * Syntax.expression) list;
   on_event : Syntax.expression option;
   send_always : bool;
   has_ac_id : bool
@@ -225,7 +225,7 @@ let parse_msg_field = fun msg_descr field ->
     raise (Failure "field not found") in
 
   let value = eval_settings_and_blocks field_descr (parse_value (Xml.attrib field "value")) in
-  (name, value)
+  (name, field_descr.Pprz._type, value)
 
 (** Parse a complete message and build its representation *)
 let parse_msg = fun msg ->
@@ -490,7 +490,10 @@ let update_variables = fun inputs buttons hat axis variables ->
 let execute_action = fun ac_id inputs buttons hat axis variables message ->
   let values =
     List.map
-      (fun (name, expr) -> (name, Pprz.Int (eval_expr buttons hat axis inputs variables expr)))
+      (fun (name, _type, expr) ->
+        let v = eval_expr buttons hat axis inputs variables expr in
+        (name, Pprz.value _type (sprintf "%d" v))
+      )
       message.fields
 
   and on_event =
@@ -501,10 +504,13 @@ let execute_action = fun ac_id inputs buttons hat axis variables message ->
   let previous_values = get_previous_values message.msg_name in
   (* FIXME ((value <> previous) && on_event) || send_always ??? *)
   if ( ( (on_event, values) <> previous_values ) || message.send_always ) && on_event then begin
-    let vs = if message.has_ac_id then ("ac_id", Pprz.Int ac_id) :: values else values in
     match message.msg_class with
-        "datalink" -> DL.message_send "input2ivy" message.msg_name vs
-      | "ground" -> G.message_send "input2ivy" message.msg_name vs
+        "datalink" ->
+          let vs = if message.has_ac_id then ("ac_id", Pprz.Int ac_id) :: values else values in
+          DL.message_send "input2ivy" message.msg_name vs
+      | "ground" ->
+          let vs = if message.has_ac_id then ("ac_id", Pprz.String (sprintf "%d" ac_id)) :: values else values in
+          G.message_send "input2ivy" message.msg_name vs
       | "trim_plus" -> trim_adjust message.msg_name trim_step inputs
       | "trim_minus" -> trim_adjust message.msg_name (-.trim_step) inputs
       | "trim_save" -> trim_save inputs

@@ -130,7 +130,11 @@ let convert_file = fun file ->
   and single_ac_id = ref (-1) in
 
   let use_payload = fun payload ->
+    try
     let log_msg = Logpprz.parse payload in
+    if log_msg.Logpprz.source > 1 then
+      fprintf stderr "Invalid source (%d), skipping message\n" log_msg.Logpprz.source
+    else
     let (msg_id, ac_id, vs) = values_of_payload log_msg log_msg.Logpprz.pprz_data in
 
     if log_msg.Logpprz.source = 0 && !single_ac_id < 0 then
@@ -156,6 +160,7 @@ let convert_file = fun file ->
 	| "ALIVE" when !md5 = "" ->
 	    md5 := hex_of_array (Pprz.assoc "md5sum" vs)
 	| _ -> ()
+  with _ -> fprintf stderr "Parsing error, skipping message\n"
   in
 
   let parser = Parser.parse use_payload in
