@@ -186,7 +186,7 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
                                   &radio_control.status, &radio_control.frame_rate,
                                   &fix, &autopilot_mode,
                                   &autopilot_in_flight, &autopilot_motors_on,
-                                  &guidance_h_mode, &guidance_v_mode,
+                                  &guidance_h.mode, &guidance_v_mode,
                                   &electrical.vsupply, &time_sec);
 }
 
@@ -215,10 +215,10 @@ static void send_fp(struct transport_tx *trans, struct link_device *dev)
                               &(stateGetNedToBodyEulers_i()->phi),
                               &(stateGetNedToBodyEulers_i()->theta),
                               &(stateGetNedToBodyEulers_i()->psi),
-                              &guidance_h_pos_sp.y,
-                              &guidance_h_pos_sp.x,
+                              &guidance_h.sp.pos.y,
+                              &guidance_h.sp.pos.x,
                               &carrot_up,
-                              &guidance_h_heading_sp,
+                              &guidance_h.sp.heading,
                               &stabilization_cmd[COMMAND_THRUST],
                               &autopilot_flight_time);
 }

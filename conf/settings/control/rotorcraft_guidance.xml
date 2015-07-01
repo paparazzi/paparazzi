@@ -13,19 +13,19 @@
     </dl_settings>
 
     <dl_settings NAME="Horiz Loop">
-      <dl_setting var="guidance_h_use_ref" min="0" step="1" max="1" module="guidance/guidance_h" shortname="use_ref" values="FALSE|TRUE" handler="SetUseRef" param="GUIDANCE_H_USE_REF"/>
+      <dl_setting var="guidance_h.use_ref" min="0" step="1" max="1" module="guidance/guidance_h" shortname="use_ref" values="FALSE|TRUE" handler="SetUseRef" param="GUIDANCE_H_USE_REF"/>
       <dl_setting var="gh_ref.max_speed" min="0.1" step="0.1" max="15.0" module="guidance/guidance_h" shortname="max_speed" handler="SetMaxSpeed" param="GUIDANCE_H_REF_MAX_SPEED"/>
-      <dl_setting var="guidance_h_approx_force_by_thrust" min="0" step="1" max="1" module="guidance/guidance_h" shortname="approx_force" values="FALSE|TRUE" param="GUIDANCE_H_APPROX_FORCE_BY_THRUST"/>
+      <dl_setting var="guidance_h.approx_force_by_thrust" min="0" step="1" max="1" module="guidance/guidance_h" shortname="approx_force" values="FALSE|TRUE" param="GUIDANCE_H_APPROX_FORCE_BY_THRUST"/>
       <dl_setting var="gh_ref.tau" min="0.1" step="0.1" max="1.0" module="guidance/guidance_h" shortname="tau" handler="SetTau" param="GUIDANCE_H_REF_TAU"/>
       <dl_setting var="gh_ref.omega" min="0.1" step="0.1" max="3.0" module="guidance/guidance_h" shortname="omega" handler="SetOmega" param="GUIDANCE_H_REF_OMEGA"/>
       <dl_setting var="gh_ref.zeta" min="0.7" step="0.05" max="1.0" module="guidance/guidance_h" shortname="zeta" handler="SetZeta" param="GUIDANCE_H_REF_ZETA"/>
-      <dl_setting var="guidance_h_pgain" min="0" step="1" max="400" module="guidance/guidance_h" shortname="kp" param="GUIDANCE_H_PGAIN"/>
-      <dl_setting var="guidance_h_dgain" min="0" step="1" max="400" module="guidance/guidance_h" shortname="kd" param="GUIDANCE_H_DGAIN"/>
-      <dl_setting var="guidance_h_igain" min="0" step="1" max="400" module="guidance/guidance_h" shortname="ki" handler="set_igain" param="GUIDANCE_H_IGAIN"/>
-      <dl_setting var="guidance_h_vgain" min="0" step="1" max="400" module="guidance/guidance_h" shortname="kv" param="GUIDANCE_H_VGAIN"/>
-      <dl_setting var="guidance_h_again" min="0" step="1" max="400" module="guidance/guidance_h" shortname="ka" param="GUIDANCE_H_AGAIN"/>
-      <dl_setting var="guidance_h_pos_sp.x" MIN="-10" MAX="10" STEP="1"  module="guidance/guidance_h" shortname="sp_x_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
-      <dl_setting var="guidance_h_pos_sp.y" MIN="-10" MAX="10" STEP="1"  module="guidance/guidance_h" shortname="sp_y_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
+      <dl_setting var="guidance_h.gains.p" min="0" step="1" max="400" module="guidance/guidance_h" shortname="kp" param="GUIDANCE_H_PGAIN"/>
+      <dl_setting var="guidance_h.gains.d" min="0" step="1" max="400" module="guidance/guidance_h" shortname="kd" param="GUIDANCE_H_DGAIN"/>
+      <dl_setting var="guidance_h.gains.i" min="0" step="1" max="400" module="guidance/guidance_h" shortname="ki" handler="set_igain" param="GUIDANCE_H_IGAIN"/>
+      <dl_setting var="guidance_h.gains.v" min="0" step="1" max="400" module="guidance/guidance_h" shortname="kv" param="GUIDANCE_H_VGAIN"/>
+      <dl_setting var="guidance_h.gains.a" min="0" step="1" max="400" module="guidance/guidance_h" shortname="ka" param="GUIDANCE_H_AGAIN"/>
+      <dl_setting var="guidance_h.sp.pos.x" MIN="-10" MAX="10" STEP="1"  module="guidance/guidance_h" shortname="sp_x_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
+      <dl_setting var="guidance_h.sp.pos.y" MIN="-10" MAX="10" STEP="1"  module="guidance/guidance_h" shortname="sp_y_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
     </dl_settings>
 
     <dl_settings NAME="NAV">
