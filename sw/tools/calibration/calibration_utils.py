@@ -144,6 +144,7 @@ def print_xml(p, sensor, res):
     print("<define name=\""+sensor+"_X_SENS\" value=\""+str(p[3]*2**res)+"\" integer=\"16\"/>")
     print("<define name=\""+sensor+"_Y_SENS\" value=\""+str(p[4]*2**res)+"\" integer=\"16\"/>")
     print("<define name=\""+sensor+"_Z_SENS\" value=\""+str(p[5]*2**res)+"\" integer=\"16\"/>")
+    print("")
 
 
 def print_imu_scaled(sensor, measurements, attrs):
@@ -158,8 +159,9 @@ def print_imu_scaled(sensor, measurements, attrs):
 
 
 
-def plot_results(block, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref):
+def plot_results(sensor, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref, blocking=True):
     """Plot calibration results."""
+    # plot raw measurements with filtered ones marked as red circles
     plt.subplot(3, 1, 1)
     plt.plot(measurements[:, 0])
     plt.plot(measurements[:, 1])
@@ -167,43 +169,52 @@ def plot_results(block, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sen
     plt.plot(flt_idx, flt_meas[:, 0], 'ro')
     plt.plot(flt_idx, flt_meas[:, 1], 'ro')
     plt.plot(flt_idx, flt_meas[:, 2], 'ro')
-    plt.xlabel('time (s)')
     plt.ylabel('ADC')
-    plt.title('Raw sensors')
+    plt.title('Raw '+sensor+', red dots are actually used measurements')
 
+    plt.tight_layout()
+    # show scaled measurements with initial guess
     plt.subplot(3, 2, 3)
     plt.plot(cp0[:, 0])
     plt.plot(cp0[:, 1])
     plt.plot(cp0[:, 2])
     plt.plot(-sensor_ref*np.ones(len(flt_meas)))
     plt.plot(sensor_ref*np.ones(len(flt_meas)))
+    plt.title('scaled '+sensor+' (initial guess)')
+    plt.xticks([])
 
     plt.subplot(3, 2, 4)
     plt.plot(np0)
     plt.plot(sensor_ref*np.ones(len(flt_meas)))
+    plt.title('norm of '+sensor+' (initial guess)')
+    plt.xticks([])
 
+    # show scaled measurements after optimization
     plt.subplot(3, 2, 5)
     plt.plot(cp1[:, 0])
     plt.plot(cp1[:, 1])
     plt.plot(cp1[:, 2])
     plt.plot(-sensor_ref*np.ones(len(flt_meas)))
     plt.plot(sensor_ref*np.ones(len(flt_meas)))
+    plt.title('scaled '+sensor+' (optimized)')
+    plt.xticks([])
 
     plt.subplot(3, 2, 6)
     plt.plot(np1)
     plt.plot(sensor_ref*np.ones(len(flt_meas)))
+    plt.title('norm of '+sensor+' (optimized)')
+    plt.xticks([])
 
     # if we want to have another plot we only draw the figure (non-blocking)
     # also in matplotlib before 1.0.0 there is only one call to show possible
-    if block:
+    if blocking:
         plt.show()
     else:
         plt.draw()
 
+
 def plot_imu_scaled(sensor, measurements, attrs):
     """Plot imu scaled results."""
-
-
     plt.figure("Sensor Scaled")
 
     plt.subplot(4, 1, 1)
@@ -231,9 +242,9 @@ def plot_imu_scaled(sensor, measurements, attrs):
 
     plt.show()
 
+
 def plot_imu_scaled_fft(sensor, measurements, attrs):
     """Plot imu scaled fft results."""
-
     #dt = 0.0769
     #Fs = 1/dt
     Fs = 26.0

@@ -58,6 +58,10 @@ def main():
         else:
             print(args[0] + " not found")
             sys.exit(1)
+
+    if not filename.endswith(".data"):
+        parser.error("Please specify a *.data log file")
+
     ac_ids = calibration_utils.get_ids_in_log(filename)
     if options.ac_id is None:
         if len(ac_ids) == 1:
@@ -78,8 +82,6 @@ def main():
         noise_window = 10
         noise_threshold = 1000
 
-    if not filename.endswith(".data"):
-        parser.error("Please specify a *.data log file")
     if options.verbose:
         print("reading file "+filename+" for aircraft "+options.ac_id+" and sensor "+options.sensor)
 
@@ -120,27 +122,30 @@ def main():
         return err
 
     p1, cov, info, msg, success = optimize.leastsq(err_func, p0[:], args=(flt_meas, sensor_ref), full_output=1)
-    if not success in [1, 2, 3, 4]:
+    optimze_failed = success not in [1, 2, 3, 4]
+    if optimze_failed:
         print("Optimization error: ", msg)
-        print("Please try to provide a clean logfile.")
-        sys.exit(1)
+        print("Please try to provide a clean logfile with proper distribution of measurements.")
+        #sys.exit(1)
 
     cp1, np1 = calibration_utils.scale_measurements(flt_meas, p1)
 
-    print("optimized guess : avg "+str(np1.mean())+" std "+str(np1.std()))
-#    print p1
+    if optimze_failed:
+        print("last iteration of failed optimized guess : avg "+str(np1.mean())+" std "+str(np1.std()))
+    else:
+        print("optimized guess : avg "+str(np1.mean())+" std "+str(np1.std()))
 
-    calibration_utils.print_xml(p1, options.sensor, sensor_res)
-    print("")
+    if not optimze_failed:
+        calibration_utils.print_xml(p1, options.sensor, sensor_res)
 
     if options.plot:
         # if we are calibrating a mag, just draw first plot (non-blocking), then show the second
         if options.sensor == "MAG":
-            calibration_utils.plot_results(False, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref)
+            calibration_utils.plot_results(options.sensor, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref, blocking=False)
             calibration_utils.plot_mag_3d(flt_meas, cp1, p1)
         # otherwise show the first plot (blocking)
         else:
-            calibration_utils.plot_results(True, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref)
+            calibration_utils.plot_results(options.sensor, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref)
 
 if __name__ == "__main__":
     main()
