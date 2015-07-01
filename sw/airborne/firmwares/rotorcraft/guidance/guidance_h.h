@@ -74,11 +74,6 @@ extern struct Int32Vect2 guidance_h_pos_ref;        ///< with #INT32_POS_FRAC
 extern struct Int32Vect2 guidance_h_speed_ref;      ///< with #INT32_SPEED_FRAC
 extern struct Int32Vect2 guidance_h_accel_ref;      ///< with #INT32_ACCEL_FRAC
 
-extern struct Int32Vect2 guidance_h_pos_err;
-extern struct Int32Vect2 guidance_h_speed_err;
-extern struct Int32Vect2 guidance_h_trim_att_integrator;
-
-
 /** horizontal guidance command.
  * In north/east with #INT32_ANGLE_FRAC
  * @todo convert to real force command
@@ -101,11 +96,8 @@ extern void guidance_h_mode_changed(uint8_t new_mode);
 extern void guidance_h_read_rc(bool_t in_flight);
 extern void guidance_h_run(bool_t in_flight);
 
+extern void guidance_h_set_igain(uint32_t igain);
 
-#define guidance_h_SetKi(_val) {            \
-    guidance_h_igain = _val;                \
-    INT_VECT2_ZERO(guidance_h_trim_att_integrator); \
-  }
 
 /* Make sure that ref can only be temporarily disabled for testing,
  * but not enabled if GUIDANCE_H_USE_REF was defined to FALSE.

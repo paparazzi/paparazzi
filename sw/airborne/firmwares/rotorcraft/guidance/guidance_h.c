@@ -82,9 +82,6 @@ struct Int32Vect2 guidance_h_accel_ref;
 #if GUIDANCE_H_USE_SPEED_REF
 struct Int32Vect2 guidance_h_speed_sp;
 #endif
-struct Int32Vect2 guidance_h_pos_err;
-struct Int32Vect2 guidance_h_speed_err;
-struct Int32Vect2 guidance_h_trim_att_integrator;
 
 struct Int32Vect2  guidance_h_cmd_earth;
 struct Int32Eulers guidance_h_rc_sp;
@@ -98,6 +95,11 @@ int32_t guidance_h_vgain;
 
 int32_t transition_percentage;
 int32_t transition_theta_offset;
+
+/* internal variables */
+struct Int32Vect2 guidance_h_pos_err;
+struct Int32Vect2 guidance_h_speed_err;
+struct Int32Vect2 guidance_h_trim_att_integrator;
 
 
 static void guidance_h_update_reference(void);
@@ -586,4 +588,10 @@ static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool_t in_flig
     speed_sp->x = 0;
     speed_sp->y = 0;
   }
+}
+
+void guidance_h_set_igain(uint32_t igain)
+{
+  guidance_h_igain = igain;
+  INT_VECT2_ZERO(guidance_h_trim_att_integrator);
 }
