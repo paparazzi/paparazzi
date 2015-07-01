@@ -10,11 +10,10 @@ else
     args="$@"
 fi
 
-if [ -z "$PAPARAZZI_HOME" ]; then
-    SCRIPT=$(readlink -f $0)
-    SCRIPT_DIR=$(dirname $(readlink -f $0))
-    PAPARAZZI_HOME=$(readlink -m $SCRIPT_DIR/..)
-fi
+# set PAPARAZZI_SRC to this tree
+SCRIPT=$(readlink -f $0)
+SCRIPT_DIR=$(dirname $(readlink -f $0))
+PAPARAZZI_SRC=$(readlink -m $SCRIPT_DIR/..)
 
 # PAPARAZZI_HOME inside the container
 PPRZ_HOME_CONTAINER=/home/pprz/paparazzi
@@ -50,7 +49,7 @@ if [ -z "$DISABLE_USB" ]; then
 fi
 
 # share the paparazzi directory and set it as working directory
-SHARE_PAPARAZZI_HOME_OPTS="--volume=$PAPARAZZI_HOME:$PPRZ_HOME_CONTAINER \
+SHARE_PAPARAZZI_HOME_OPTS="--volume=$PAPARAZZI_SRC:$PPRZ_HOME_CONTAINER \
   --env=PAPARAZZI_HOME=$PPRZ_HOME_CONTAINER \
   --env=PAPARAZZI_SRC=$PPRZ_HOME_CONTAINER \
   -w $PPRZ_HOME_CONTAINER"
