@@ -41,6 +41,10 @@
 #include "state.h"
 #include "pprz_version.h"
 
+#if defined RADIO_CONTROL
+#include "subsystems/radio_control.h"
+#endif
+
 // for waypoints, include correct header until we have unified API
 #ifdef AP
 #include "subsystems/navigation/common_nav.h"
@@ -291,11 +295,53 @@ void mavlink_event(void)
 static inline void mavlink_send_heartbeat(void)
 {
   uint8_t mav_state = MAV_STATE_CALIBRATING;
-  uint8_t mav_mode = MAV_MODE_FLAG_STABILIZE_ENABLED|MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
+  uint8_t mav_mode = 0;
 #ifdef AP
   uint8_t mav_type = MAV_TYPE_FIXED_WING;
+  switch (pprz_mode) {
+    case PPRZ_MODE_MANUAL:
+      mav_mode |= MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
+      break;
+    case PPRZ_MODE_AUTO1:
+      mav_mode |= MAV_MODE_FLAG_STABILIZE_ENABLED|MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
+      break;
+    case PPRZ_MODE_AUTO2:
+      mav_mode |= MAV_MODE_FLAG_GUIDED_ENABLED|MAV_MODE_FLAG_AUTO_ENABLED;
+      break;
+    case PPRZ_MODE_HOME:
+      mav_mode |= MAV_MODE_FLAG_AUTO_ENABLED;
+      break;
+    default:
+      break;
+  }
 #else
   uint8_t mav_type = MAV_TYPE_QUADROTOR;
+  switch (autopilot_mode) {
+    case AP_MODE_HOME:
+      mav_mode |= MAV_MODE_FLAG_AUTO_ENABLED;
+      break;
+    case AP_MODE_RATE_DIRECT:
+    case AP_MODE_RATE_RC_CLIMB:
+    case AP_MODE_RATE_Z_HOLD:
+    case AP_MODE_RC_DIRECT:
+      mav_mode |= MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
+      break;
+    case AP_MODE_ATTITUDE_DIRECT:
+    case AP_MODE_ATTITUDE_CLIMB:
+    case AP_MODE_ATTITUDE_Z_HOLD:
+    case AP_MODE_ATTITUDE_RC_CLIMB:
+    case AP_MODE_HOVER_DIRECT:
+    case AP_MODE_HOVER_CLIMB:
+    case AP_MODE_HOVER_Z_HOLD:
+    case AP_MODE_CARE_FREE_DIRECT:
+      mav_mode |= MAV_MODE_FLAG_STABILIZE_ENABLED|MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
+      break;
+    case AP_MODE_NAV:
+      mav_mode |= MAV_MODE_FLAG_GUIDED_ENABLED|MAV_MODE_FLAG_AUTO_ENABLED;
+      break;
+    default:
+      break;
+  }
 #endif
   if (stateIsAttitudeValid()) {
     if (kill_throttle) {
