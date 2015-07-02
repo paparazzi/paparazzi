@@ -137,8 +137,6 @@ endif
 ifeq ($(BOARD), booz)
 ns_CFLAGS += -DUSE_DAC
 ns_srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
-else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
-ns_srcs   += $(SRC_BOARD)/electrical_dummy.c
 else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
 ns_srcs   += $(SRC_BOARD)/electrical_raw.c
 else ifeq ($(BOARD), bebop)

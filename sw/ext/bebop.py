@@ -185,7 +185,7 @@ def bebop_status():
           read_from_config('motor1_hard', config_ini) + '\t' + read_from_config('motor2_hard', config_ini) + '\t' +
           read_from_config('motor3_hard', config_ini) + '\t' + read_from_config('motor4_hard', config_ini))
 
-    autorun = {'': 'Native', '0': 'Native', '1': 'Paparazzi RAW', '2': 'Paparazzi SDK'}
+    autorun = {'': 'Native', '0': 'Native', '1': 'Paparazzi'}
     if check_autoboot():
         print('Autorun at start:\tInstalled booting ' + autorun[read_from_config('start_paparazzi', config_ini)])
     else:
@@ -219,7 +219,7 @@ subparser_upload_gst = subparsers.add_parser('upload_gst_module',
 subparser_upload_gst.add_argument('file', help='Filename of *.so module')
 subparser_upload_and_run = subparsers.add_parser('upload_file_and_run', help='Upload and run software (for instance the Paparazzi autopilot)')
 subparser_upload_and_run.add_argument('file', help='Filename of an executable')
-subparser_upload_and_run.add_argument('folder', help='Destination subfolder (raw or sdk for Paparazzi autopilot)')
+subparser_upload_and_run.add_argument('folder', help='Destination subfolder (raw for Paparazzi autopilot)')
 subparser_upload = subparsers.add_parser('upload_file', help='Upload a file to the Bebop')
 subparser_upload.add_argument('file', help='Filename')
 subparser_upload.add_argument('folder', help='Destination subfolder (base destination folder is /data/video)')
@@ -249,10 +249,10 @@ subparser_configure_network.add_argument('name', help='the new network ID(SSID)'
 subparser_configure_network.add_argument('address', help='the new IP address')
 subparser_configure_network.add_argument('mode', help='the new Wifi mode', choices=['master', 'ad-hoc', 'managed'])
 subparser_install_autostart = subparsers.add_parser('install_autostart', help='Install custom autostart script and set what to start on boot for the Bebop')
-subparser_install_autostart.add_argument('type', choices=['native', 'paparazzi_raw', 'paparazzi_sdk'],
+subparser_install_autostart.add_argument('type', choices=['native', 'paparazzi_raw'],
                                  help='what to start on boot')
 subparser_autostart = subparsers.add_parser('autostart', help='Set what to start on boot for the Bebop')
-subparser_autostart.add_argument('type', choices=['native', 'paparazzi_raw', 'paparazzi_sdk'],
+subparser_autostart.add_argument('type', choices=['native', 'paparazzi_raw'],
                                  help='what to start on boot')
 
 args = parser.parse_args()
@@ -347,7 +347,7 @@ elif args.command == 'install_autostart':
             bebop_install_autoboot()
     else:
         bebop_install_autoboot()
-    autorun = {'native': '0', 'paparazzi_raw': '1', 'paparazzi_sdk': '2'}
+    autorun = {'native': '0', 'paparazzi_raw': '1'}
     write_to_config('start_paparazzi', autorun[args.type])
     print('The autostart on boot is changed to ' + args.type)
 
@@ -356,7 +356,7 @@ elif args.command == 'install_autostart':
 
 # Change the autostart
 elif args.command == 'autostart':
-    autorun = {'native': '0', 'paparazzi_raw': '1', 'paparazzi_sdk': '2'}
+    autorun = {'native': '0', 'paparazzi_raw': '1'}
     write_to_config('start_paparazzi', autorun[args.type])
     print('The autostart on boot is changed to ' + args.type)
 
