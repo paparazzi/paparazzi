@@ -1,0 +1,244 @@
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+
+<airframe name="bebop 201">
+
+  <firmware name="rotorcraft">
+
+    <target name="ap" board="bebop">
+      <subsystem name="telemetry" type="transparent_udp"/>
+      <subsystem name="radio_control" type="datalink"/>
+    </target>
+
+    <target name="nps" board="pc">
+      <subsystem name="fdm" type="jsbsim"/>
+      <subsystem name="radio_control" type="ppm"/>
+    </target>
+
+    <!--define name="USE_SONAR" value="TRUE"/-->
+
+    <!-- Subsystem section -->
+    <subsystem name="motor_mixing"/>
+    <subsystem name="actuators" type="bebop"/>
+    <subsystem name="imu" type="bebop"/>
+    <subsystem name="gps" type="furuno"/>
+    <subsystem name="stabilization" type="int_quat"/>
+    <!--subsystem name="ahrs" type="int_cmpl_quat"/>
+    <subsystem name="ins" type="extended"/-->
+    <subsystem name="ins" type="float_invariant"/>
+  </firmware>
+
+  <modules main_freq="512">
+    <load name="sonar_bebop.xml">
+      <define name="SENSOR_SYNC_SEND_SONAR"/>
+    </load>
+    <!--load name="send_imu_mag_current.xml"/>
+    <load name="file_logger.xml">
+      <define name="FILE_LOGGER_PATH" value="\\&quot;/data/ftp/internal_000/\\&quot;"/>
+    </load-->
+    <!--load name="video_rtp_stream.xml">
+      <define name="VIEWVIDEO_FPS" value="60"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+      <define name="VIEWVIDEO_RTP_TIME_INC" value="0"/>
+      <define name="VIEWVIDEO_DEVICE" value="/dev/video0"/>
+      <define name="VIEWVIDEO_SUBDEV" value="/dev/v4l-subdev0"/>
+      <define name="VIEWVIDEO_DEVICE_SIZE" value="320,240"/>
+      <define name="VIEWVIDEO_DEVICE_BUFFERS" value="60"/>
+      <define name="VIEWVIDEO_SHOT_PATH" value="/data/ftp/internal_000/images"/>
+    </load-->
+  </modules>
+
+  <commands>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="6000"/>
+  </commands>
+
+  <servos driver="Default">
+    <servo name="TOP_RIGHT" no="0" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_LEFT" no="1" min="3000" neutral="3000" max="12000"/>
+    <servo name="BOTTOM_LEFT" no="2" min="3000" neutral="3000" max="12000"/>
+    <servo name="BOTTOM_RIGHT" no="3" min="3000" neutral="3000" max="12000"/>
+  </servos>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
+    <define name="NB_MOTOR" value="4"/>
+    <define name="SCALE" value="255"/>
+    <define name="MAX_SATURATION_OFFSET" value="3*MAX_PPRZ"/>
+
+    <!-- Time cross layout (X), with order NW (CW), NE (CCW), SE (CW), SW (CCW) -->
+    <define name="ROLL_COEF" value="{ 256, -256, -256,  256 }"/>
+    <define name="PITCH_COEF" value="{ 256,  256, -256, -256 }"/>
+    <define name="YAW_COEF" value="{ -256,  256, -256,  256 }"/>
+    <define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
+  </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="TOP_LEFT" value="motor_mixing.commands[0]"/>
+    <set servo="TOP_RIGHT" value="motor_mixing.commands[1]"/>
+    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[2]"/>
+    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[3]"/>
+  </command_laws>
+
+  <section name="IMU" prefix="IMU_">
+    <!-- Magneto calibration -->
+    <define name="MAG_X_NEUTRAL" value="358"/>
+    <define name="MAG_Y_NEUTRAL" value="48"/>
+    <define name="MAG_Z_NEUTRAL" value="744"/>
+    <define name="MAG_X_SENS" value="7.76516794782" integer="16"/>
+    <define name="MAG_Y_SENS" value="8.23183938318" integer="16"/>
+    <define name="MAG_Z_SENS" value="8.59604596472" integer="16"/>
+
+    <!--define name="MAG_X_NEUTRAL" value="18"/>
+    <define name="MAG_Y_NEUTRAL" value="157"/>
+    <define name="MAG_Z_NEUTRAL" value="49"/>
+    <define name="MAG_X_SENS" value="10.5007722373" integer="16"/>
+    <define name="MAG_Y_SENS" value="11.1147400462" integer="16"/>
+    <define name="MAG_Z_SENS" value="11.6479371722" integer="16"/-->
+
+    <!-- Magneto current calibration -->
+    <define name="MAG_X_CURRENT_COEF" value="0.0"/>
+    <define name="MAG_Y_CURRENT_COEF" value="0.0"/>
+    <define name="MAG_Z_CURRENT_COEF" value="0.0"/>
+
+    <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
+  </section>
+
+  <!-- local magnetic field -->
+  <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
+  <section name="AHRS" prefix="INS_">
+    <!-- Toulouse -->
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
+    <!-- Delft -->
+    <!--define name="H_X" value="0.3892503"/>
+    <define name="H_Y" value="0.0017972"/>
+    <define name="H_Z" value="0.9211303"/-->
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="SONAR_MAX_RANGE" value="2.2"/>
+    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
+    <!-- Toulouse -->
+    <!--define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/-->
+  </section>
+
+  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_P" value="10000"/>
+    <define name="SP_MAX_Q" value="10000"/>
+    <define name="SP_MAX_R" value="10000"/>
+    <define name="DEADBAND_P" value="20"/>
+    <define name="DEADBAND_Q" value="20"/>
+    <define name="DEADBAND_R" value="200"/>
+    <define name="REF_TAU" value="4"/>
+
+    <!-- feedback -->
+    <define name="GAIN_P" value="400"/>
+    <define name="GAIN_Q" value="400"/>
+    <define name="GAIN_R" value="350"/>
+
+    <define name="IGAIN_P" value="75"/>
+    <define name="IGAIN_Q" value="75"/>
+    <define name="IGAIN_R" value="50"/>
+
+    <!-- feedforward -->
+    <define name="DDGAIN_P" value="300"/>
+    <define name="DDGAIN_Q" value="300"/>
+    <define name="DDGAIN_R" value="300"/>
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI" value="45" unit="deg"/>
+    <define name="SP_MAX_THETA" value="45" unit="deg"/>
+    <define name="SP_MAX_R" value="300" unit="deg/s"/>
+    <define name="DEADBAND_A" value="0"/>
+    <define name="DEADBAND_E" value="0"/>
+    <define name="DEADBAND_R" value="50"/>
+
+    <!-- reference -->
+    <define name="REF_OMEGA_P" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.9"/>
+    <define name="REF_MAX_P" value="600." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.9"/>
+    <define name="REF_MAX_Q" value="600." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_R" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_R" value="0.9"/>
+    <define name="REF_MAX_R" value="600." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN" value="650"/>
+    <define name="PHI_DGAIN" value="300"/>
+    <define name="PHI_IGAIN" value="0"/>
+
+    <define name="THETA_PGAIN" value="650"/>
+    <define name="THETA_DGAIN" value="300"/>
+    <define name="THETA_IGAIN" value="0"/>
+
+    <define name="PSI_PGAIN" value="4000"/>
+    <define name="PSI_DGAIN" value="350"/>
+    <define name="PSI_IGAIN" value="0"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN" value="0"/>
+    <define name="THETA_DDGAIN" value="0"/>
+    <define name="PSI_DDGAIN" value="0"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP" value="82"/>
+    <define name="HOVER_KD" value="117"/>
+    <define name="HOVER_KI" value="0"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.53"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <!-- Good weather -->
+    <define name="MAX_BANK" value="20" unit="deg"/>
+    <!-- Bad weather -->
+    <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
+    <define name="PGAIN" value="79"/>
+    <define name="DGAIN" value="100"/>
+    <define name="IGAIN" value="30"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor"/>
+    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad_ccw&quot;"/>
+    <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
+    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_ardrone2.h&quot;"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+  </section>
+
+  <section name="BAT">
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="9.7" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+  </section>
+</airframe>
