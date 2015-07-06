@@ -249,10 +249,10 @@ subparser_configure_network.add_argument('name', help='the new network ID(SSID)'
 subparser_configure_network.add_argument('address', help='the new IP address')
 subparser_configure_network.add_argument('mode', help='the new Wifi mode', choices=['master', 'ad-hoc', 'managed'])
 subparser_install_autostart = subparsers.add_parser('install_autostart', help='Install custom autostart script and set what to start on boot for the Bebop')
-subparser_install_autostart.add_argument('type', choices=['native', 'paparazzi_raw'],
+subparser_install_autostart.add_argument('type', choices=['native', 'paparazzi'],
                                  help='what to start on boot')
 subparser_autostart = subparsers.add_parser('autostart', help='Set what to start on boot for the Bebop')
-subparser_autostart.add_argument('type', choices=['native', 'paparazzi_raw'],
+subparser_autostart.add_argument('type', choices=['native', 'paparazzi'],
                                  help='what to start on boot')
 
 args = parser.parse_args()
@@ -347,7 +347,7 @@ elif args.command == 'install_autostart':
             bebop_install_autoboot()
     else:
         bebop_install_autoboot()
-    autorun = {'native': '0', 'paparazzi_raw': '1'}
+    autorun = {'native': '0', 'paparazzi': '1'}
     write_to_config('start_paparazzi', autorun[args.type])
     print('The autostart on boot is changed to ' + args.type)
 
@@ -356,7 +356,7 @@ elif args.command == 'install_autostart':
 
 # Change the autostart
 elif args.command == 'autostart':
-    autorun = {'native': '0', 'paparazzi_raw': '1'}
+    autorun = {'native': '0', 'paparazzi': '1'}
     write_to_config('start_paparazzi', autorun[args.type])
     print('The autostart on boot is changed to ' + args.type)
 

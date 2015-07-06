@@ -9,7 +9,7 @@ echo "Check if need to start paparazzi ..."
 START_PAPARAZZI=`grep start_paparazzi /data/config.ini | awk -F "=" '{ gsub(/ */,"",$2); print $2}'`
 case $START_PAPARAZZI in
 1)
-    START_PAPARAZZI=raw
+    START_PAPARAZZI=yes
     ;;
 *)
     START_PAPARAZZI=no
@@ -63,7 +63,7 @@ if [ -e $UPDATE_PATH ] ; then
 		inetd
 
 		# Check what to start
-		if [ "$START_PAPARAZZI" = "raw" ] ; then
+		if [ "$START_PAPARAZZI" = "yes" ] ; then
 			(/data/video/raw/ap.elf; gpio 181 -d ho 1) &
 		else
 			(/bin/program.elf ${PELF_ARGS}; gpio 181 -d ho 1) &
@@ -77,7 +77,7 @@ else
 
     inetd
     # Check what to start
-    if [ "$START_PAPARAZZI" = "raw" ] ; then
+    if [ "$START_PAPARAZZI" = "yes" ] ; then
         (/bin/program.elf ${PELF_ARGS}; gpio 181 -d ho 1) &
         sleep 10
 	(/data/video/raw/ap.elf; gpio 181 -d ho 1) &
