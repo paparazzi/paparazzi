@@ -59,7 +59,8 @@ static inline void autopilot_arming_set(bool_t motors_on)
     if (autopilot_arming_state == STATE_MOTORS_ON) {
       autopilot_arming_state = STATE_STARTABLE;
       /* if turned off in an AUTO mode, remember it so it can be turned on again in AUTO */
-      if (autopilot_mode != MODE_MANUAL) {
+      if (autopilot_mode != MODE_MANUAL && autopilot_mode != AP_MODE_KILL &&
+          autopilot_mode != AP_MODE_FAILSAFE) {
         autopilot_unarmed_in_auto = TRUE;
       } else {
         autopilot_unarmed_in_auto = FALSE;
@@ -94,24 +95,29 @@ static inline void autopilot_arming_check_motors_on(void)
       break;
     case STATE_STARTABLE:
       autopilot_motors_on = FALSE;
-      if (!kill_switch_is_on() &&
-          THROTTLE_STICK_DOWN() &&
-          rc_attitude_sticks_centered() &&
-          (autopilot_mode == MODE_MANUAL || autopilot_unarmed_in_auto)) {
+      /* don't allow to start if in KILL mode or kill switch is on */
+      if (autopilot_mode == AP_MODE_KILL || kill_switch_is_on()) {
+        break;
+      }
+      else if (THROTTLE_STICK_DOWN() && rc_attitude_sticks_centered() &&
+               (autopilot_mode == MODE_MANUAL || autopilot_unarmed_in_auto)) {
         autopilot_arming_state = STATE_MOTORS_ON;
       }
       break;
     case STATE_MOTORS_ON:
-      autopilot_motors_on = TRUE;
       if (kill_switch_is_on()) {
-        /* if killed, go to STATE_STARTABLE where motors will be turned off */
+        /* kill motors, go to startable state */
+        autopilot_motors_on = FALSE;
         autopilot_arming_state = STATE_STARTABLE;
         /* if turned off in an AUTO mode, remember it so it can be turned on again in AUTO */
-        if (autopilot_mode != MODE_MANUAL) {
+        if (autopilot_mode != MODE_MANUAL && autopilot_mode != AP_MODE_KILL &&
+            autopilot_mode != AP_MODE_FAILSAFE) {
           autopilot_unarmed_in_auto = TRUE;
         } else {
           autopilot_unarmed_in_auto = FALSE;
         }
+      } else {
+        autopilot_motors_on = TRUE;
       }
       break;
     default:
