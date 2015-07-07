@@ -31,7 +31,8 @@
 #include <stdint.h>
 #include "mcu_periph/i2c.h"
 
-#define ACTUATORS_BEBOP_ADDR          0x8
+// full 8-bit address
+#define ACTUATORS_BEBOP_ADDR          0x10
 
 // I2C Commands
 #define ACTUATORS_BEBOP_SET_REF_SPEED 0x02    ///< Set reference speed
