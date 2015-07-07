@@ -1,43 +1,41 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<airframe name="ardrone2_raw">
+<airframe name="ardrone2">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="ardrone2_raw">
-      <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
-      <configure name="USE_MAGNETOMETER" value="0"/>
-    </target>
+    <target name="ap" board="ardrone2"/>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
     </target>
 
-	<!-- Subsystem section -->
     <subsystem name="telemetry" type="transparent_udp"/>
     <subsystem name="radio_control" type="datalink"/>
+
+    <define name="USE_SONAR" value="TRUE"/>
+
+	<!-- Subsystem section -->
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators" type="ardrone2"/>
     <subsystem name="imu" type="ardrone2"/>
-    <subsystem name="gps" type="datalink"/>
+    <subsystem name="gps" type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs" type="int_cmpl_quat"/>
     <subsystem name="ins" type="extended"/>
   </firmware>
 
   <modules main_freq="512">
+    <load name="gps_ubx_ucenter.xml"/>
     <load name="send_imu_mag_current.xml"/>
-    <load name="follow.xml">
-      <define name="FOLLOW_AC_ID" value="101"/>
-      <define name="FOLLOW_WAYPOINT_ID" value="WP_p1"/>
-      <define name="FOLLOW_OFFSET_Z" value="2.0"/>
-    </load>
+    <load name="logger_file.xml"/>
+    <!--load name="video_rtp_stream.xml"/-->
   </modules>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="0"/>
-    <axis name="THRUST" failsafe_value="5760"/>
+    <axis name="THRUST" failsafe_value="3000"/>
   </commands>
 
   <servos driver="Default">
@@ -104,15 +102,11 @@
     <!--define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
     <define name="H_Z" value="0.9211303"/ -->
-
-    <!-- Use GPS heading instead of magneto -->
-    <define name="USE_GPS_HEADING" value="1"/>
   </section>
 
   <section name="INS" prefix="INS_">
-    <!-- Use GPS altitude measurments and set the R gain -->
-    <define name="USE_GPS_ALT" value="1"/>
-    <define name="VFF_R_GPS" value="0.01"/>
+    <define name="SONAR_MAX_RANGE" value="2.2"/>
+    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
@@ -144,7 +138,7 @@
     <!-- setpoints -->
     <define name="SP_MAX_PHI" value="45" unit="deg"/>
     <define name="SP_MAX_THETA" value="45" unit="deg"/>
-    <define name="SP_MAX_R" value="200" unit="deg/s"/>
+    <define name="SP_MAX_R" value="600" unit="deg/s"/>
     <define name="DEADBAND_A" value="0"/>
     <define name="DEADBAND_E" value="0"/>
     <define name="DEADBAND_R" value="250"/>
@@ -160,27 +154,27 @@
     <define name="REF_MAX_Q" value="600." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_R" value="300" unit="deg/s"/>
+    <define name="REF_OMEGA_R" value="200" unit="deg/s"/>
     <define name="REF_ZETA_R" value="0.9"/>
-    <define name="REF_MAX_R" value="400." unit="deg/s"/>
+    <define name="REF_MAX_R" value="300." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(4000.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN" value="1218"/>
+    <define name="PHI_PGAIN" value="592"/>
     <define name="PHI_DGAIN" value="303"/>
-    <define name="PHI_IGAIN" value="120"/>
+    <define name="PHI_IGAIN" value="0"/>
 
-    <define name="THETA_PGAIN" value="1218"/>
+    <define name="THETA_PGAIN" value="606"/>
     <define name="THETA_DGAIN" value="303"/>
-    <define name="THETA_IGAIN" value="120"/>
+    <define name="THETA_IGAIN" value="0"/>
 
     <define name="PSI_PGAIN" value="529"/>
     <define name="PSI_DGAIN" value="353"/>
-    <define name="PSI_IGAIN" value="10"/>
+    <define name="PSI_IGAIN" value="0"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN" value="150"/>
-    <define name="THETA_DDGAIN" value="150"/>
+    <define name="PHI_DDGAIN" value="0"/>
+    <define name="THETA_DDGAIN" value="0"/>
     <define name="PSI_DDGAIN" value="52"/>
   </section>
 
@@ -197,19 +191,9 @@
     <define name="MAX_BANK" value="20" unit="deg"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-
-    <!-- reference model -->
-    <define name="REF_OMEGA" value="RadOfDeg(67.)"/>
-    <define name="REF_ZETA" value="0.85"/>
-    <define name="REF_MAX_ACCEL" value="5.66"/>
-    <define name="REF_MAX_SPEED" value="3"/>
-
-    <!-- gains -->
-    <define name="PGAIN" value="116"/>
-    <define name="DGAIN" value="60"/>
+    <define name="PGAIN" value="79"/>
+    <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
-    <define name="VGAIN" value="0"/>
-    <define name="AGAIN" value="62"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">

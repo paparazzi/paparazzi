@@ -24,12 +24,12 @@
  */
 
 /**
- * @file boards/ardrone/actuators_ardrone2_raw.c
- * Actuator driver for ardrone2-raw version
+ * @file boards/ardrone/actuators.c
+ * Actuator driver for ardrone2 version
  */
 
 #include "subsystems/actuators.h"
-#include "actuators_ardrone2_raw.h"
+#include "actuators.h"
 #include "mcu_periph/gpio.h"
 #include "led_hw.h"
 #include "mcu_periph/sys_time.h"
@@ -53,7 +53,7 @@
  * 190  2.5
  * 130  3.0
  */
-int actuator_ardrone2_raw_fd; /**< File descriptor for the port */
+int actuator_ardrone2_fd; /**< File descriptor for the port */
 
 #define ARDRONE_GPIO_PORT       0x32524
 
@@ -83,18 +83,18 @@ void actuators_ardrone_init(void)
   led_hw_values = 0;
 
   //open mot port
-  actuator_ardrone2_raw_fd = open("/dev/ttyO0", O_RDWR | O_NOCTTY | O_NDELAY);
-  if (actuator_ardrone2_raw_fd == -1) {
+  actuator_ardrone2_fd = open("/dev/ttyO0", O_RDWR | O_NOCTTY | O_NDELAY);
+  if (actuator_ardrone2_fd == -1) {
     perror("open_port: Unable to open /dev/ttyO0 - ");
     return;
   }
-  fcntl(actuator_ardrone2_raw_fd, F_SETFL, 0); //read calls are non blocking
-  fcntl(actuator_ardrone2_raw_fd, F_GETFL, 0);
+  fcntl(actuator_ardrone2_fd, F_SETFL, 0); //read calls are non blocking
+  fcntl(actuator_ardrone2_fd, F_GETFL, 0);
 
   //set port options
   struct termios options;
   //Get the current options for the port
-  tcgetattr(actuator_ardrone2_raw_fd, &options);
+  tcgetattr(actuator_ardrone2_fd, &options);
   //Set the baud rates to 115200
   cfsetispeed(&options, B115200);
   cfsetospeed(&options, B115200);
@@ -105,7 +105,7 @@ void actuators_ardrone_init(void)
   options.c_oflag &= ~OPOST; //clear output options (raw output)
 
   //Set the new options for the port
-  tcsetattr(actuator_ardrone2_raw_fd, TCSANOW, &options);
+  tcsetattr(actuator_ardrone2_fd, TCSANOW, &options);
 
   //reset IRQ flipflop - on error 106 read 1, this code resets 106 to 0
   gpio_setup_input(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_INPUT);
@@ -157,11 +157,11 @@ void actuators_ardrone_init(void)
 
 int actuators_ardrone_cmd(uint8_t cmd, uint8_t *reply, int replylen)
 {
-  if (full_write(actuator_ardrone2_raw_fd, &cmd, 1) < 0) {
+  if (full_write(actuator_ardrone2_fd, &cmd, 1) < 0) {
     perror("actuators_ardrone_cmd: write failed");
     return -1;
   }
-  return full_read(actuator_ardrone2_raw_fd, reply, replylen);
+  return full_read(actuator_ardrone2_fd, reply, replylen);
 }
 
 #include "autopilot.h"
@@ -236,7 +236,7 @@ void actuators_ardrone_set_pwm(uint16_t pwm0, uint16_t pwm1, uint16_t pwm2, uint
   cmd[2] = ((pwm1 & 0x1ff) << 3) | ((pwm2 & 0x1ff) >> 6);
   cmd[3] = ((pwm2 & 0x1ff) << 2) | ((pwm3 & 0x1ff) >> 7);
   cmd[4] = ((pwm3 & 0x1ff) << 1);
-  full_write(actuator_ardrone2_raw_fd, cmd, 5);
+  full_write(actuator_ardrone2_fd, cmd, 5);
   RunOnceEvery(20, actuators_ardrone_led_run());
 }
 
@@ -265,10 +265,10 @@ void actuators_ardrone_set_leds(uint8_t led0, uint8_t led1, uint8_t led2, uint8_
   cmd[0] = 0x60 | ((led0 & 1) << 4) | ((led1 & 1) << 3) | ((led2 & 1) << 2) | ((led3 & 1) << 1);
   cmd[1] = ((led0 & 2) << 3) | ((led1 & 2) << 2) | ((led2 & 2) << 1) | ((led3 & 2) << 0);
 
-  full_write(actuator_ardrone2_raw_fd, cmd, 2);
+  full_write(actuator_ardrone2_fd, cmd, 2);
 }
 
 void actuators_ardrone_close(void)
 {
-  close(actuator_ardrone2_raw_fd);
+  close(actuator_ardrone2_fd);
 }

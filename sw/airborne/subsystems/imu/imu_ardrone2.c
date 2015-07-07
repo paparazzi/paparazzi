@@ -20,13 +20,13 @@
  */
 
 /**
- * @file subsystems/imu/imu_ardrone2_raw.c
- * IMU implementation for ardrone2-raw.
+ * @file subsystems/imu/imu_ardrone2.c
+ * IMU implementation for ardrone2.
  */
 
 #include "subsystems/imu.h"
 #include "navdata.h"
-#include "imu_ardrone2_raw.h"
+#include "imu_ardrone2.h"
 #include "mcu_periph/uart.h"
 
 void imu_impl_init(void)

@@ -24,12 +24,12 @@
  */
 
 /**
- * @file boards/ardrone/actuators_ardrone2_raw.h
+ * @file boards/ardrone/actuators.h
  * Actuator driver for ardrone2-raw version
  */
 
-#ifndef ACTUATORS_ARDRONE2_RAW_H_
-#define ACTUATORS_ARDRONE2_RAW_H_
+#ifndef ACTUATORS_ARDRONE2_H_
+#define ACTUATORS_ARDRONE2_H_
 
 #include <stdint.h>
 
@@ -59,4 +59,4 @@ void actuators_ardrone_set_pwm(uint16_t pwm0, uint16_t pwm1, uint16_t pwm2, uint
 void actuators_ardrone_set_leds(uint8_t led0, uint8_t led1, uint8_t led2, uint8_t led3);
 void actuators_ardrone_close(void);
 
-#endif /* ACTUATORS_ARDRONE2_RAW_H_ */
+#endif /* ACTUATORS_ARDRONE2_H_ */

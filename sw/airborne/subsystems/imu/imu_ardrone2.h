@@ -20,12 +20,12 @@
  */
 
 /**
- * @file subsystems/imu/imu_ardrone2_raw.h
- * IMU implementation for ardrone2-raw.
+ * @file subsystems/imu/imu_ardrone2.h
+ * IMU implementation for ardrone2.
  */
 
-#ifndef IMU_ARDRONE2_RAW_H_
-#define IMU_ARDRONE2_RAW_H_
+#ifndef IMU_ARDRONE2_H_
+#define IMU_ARDRONE2_H_
 
 #include "generated/airframe.h"
 #include "navdata.h"
@@ -87,4 +87,4 @@
 
 #define ImuEvent navdata_update
 
-#endif /* IMU_ARDRONE2_RAW_H_ */
+#endif /* IMU_ARDRONE2_H_ */

@@ -330,9 +330,9 @@
    gui_color="blue"
   />
   <aircraft
-   name="ardrone2_raw"
+   name="ardrone2"
    ac_id="201"
-   airframe="airframes/ardrone2_raw.xml"
+   airframe="airframes/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"

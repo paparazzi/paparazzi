@@ -1,14 +1,13 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# ardrone2_raw.makefile
+# ardrone2.makefile
 #
 # http://wiki.paparazziuav.org/wiki/AR.Drone_2_-_Specifications
 #
 
 BOARD=ardrone
 BOARD_VERSION=2
-BOARD_TYPE=raw
-BOARD_CFG=\"boards/$(BOARD)$(BOARD_VERSION)_$(BOARD_TYPE).h\"
+BOARD_CFG=\"boards/$(BOARD)$(BOARD_VERSION).h\"
 
 ARCH=linux
 $(TARGET).ARCHDIR = $(ARCH)
@@ -18,7 +17,7 @@ ap.MAKEFILE = ardrone2
 # -----------------------------------------------------------------------
 USER=foobar
 HOST?=192.168.1.1
-SUB_DIR=raw
+SUB_DIR=paparazzi
 FTP_DIR=/data/video
 TARGET_DIR=$(FTP_DIR)/$(SUB_DIR)
 # -----------------------------------------------------------------------
@@ -35,9 +34,6 @@ GPS_BAUD           ?= B57600
 
 # The datalink default uses UDP
 MODEM_HOST         ?= 192.168.1.255
-
-# for distinction between RAW and SDK version
-$(TARGET).CFLAGS +=-DARDRONE2_RAW
 
 # handle linux signals by hand
 $(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL -D_GNU_SOURCE

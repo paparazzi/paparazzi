@@ -22,8 +22,6 @@
  * ardrone GPIO driver
  */
 
-#ifdef ARDRONE2_RAW
-
 #include <fcntl.h>   /* File control definitions */
 #include <errno.h>   /* Error number definitions */
 #include <sys/ioctl.h>
@@ -133,5 +131,3 @@ uint16_t gpio_get(uint32_t port, uint16_t pin)
   ioctl(gpiofp, GPIO_READ, &data);
   return data.value;
 }
-
-#endif

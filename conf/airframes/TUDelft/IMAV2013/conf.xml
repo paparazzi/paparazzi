@@ -1,8 +1,8 @@
 <conf>
   <aircraft
-   name="Ardrone2_raw_181"
+   name="Ardrone2_181"
    ac_id="181"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -10,9 +10,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_182"
+   name="Ardrone2_182"
    ac_id="182"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -20,9 +20,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_183"
+   name="Ardrone2_183"
    ac_id="183"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -30,9 +30,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_184"
+   name="Ardrone2_184"
    ac_id="184"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -40,9 +40,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_185"
+   name="Ardrone2_185"
    ac_id="185"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -50,9 +50,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_186"
+   name="Ardrone2_186"
    ac_id="186"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -60,9 +60,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_187"
+   name="Ardrone2_187"
    ac_id="187"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -70,9 +70,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_188"
+   name="Ardrone2_188"
    ac_id="188"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -80,9 +80,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_189"
+   name="Ardrone2_189"
    ac_id="189"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -90,9 +90,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_190"
+   name="Ardrone2_190"
    ac_id="190"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -100,9 +100,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_191"
+   name="Ardrone2_191"
    ac_id="191"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -110,9 +110,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_192"
+   name="Ardrone2_192"
    ac_id="192"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -120,9 +120,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_193"
+   name="Ardrone2_193"
    ac_id="193"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -130,9 +130,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_194"
+   name="Ardrone2_194"
    ac_id="194"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"
@@ -140,9 +140,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_195"
+   name="Ardrone2_195"
    ac_id="195"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft_vision.xml"
@@ -150,9 +150,9 @@
    gui_color="red"
   />
   <aircraft
-   name="Ardrone2_raw_196"
+   name="Ardrone2_196"
    ac_id="196"
-   airframe="airframes/TUDelft/IMAV2013/ardrone2_raw.xml"
+   airframe="airframes/TUDelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_ardrone.xml"
    flight_plan="flight_plans/TUDelft/IMAV2013_rotorcraft.xml"

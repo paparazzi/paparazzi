@@ -1,8 +1,8 @@
 # imu AR.Drone2
 
-imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_ardrone2_raw.h\" -DUSE_IMU
+imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_ardrone2.h\" -DUSE_IMU
 imu_srcs   += $(SRC_SUBSYSTEMS)/imu.c
-imu_srcs   += $(SRC_SUBSYSTEMS)/imu/imu_ardrone2_raw.c
+imu_srcs   += $(SRC_SUBSYSTEMS)/imu/imu_ardrone2.c
 imu_srcs   += $(SRC_BOARD)/navdata.c
 
 

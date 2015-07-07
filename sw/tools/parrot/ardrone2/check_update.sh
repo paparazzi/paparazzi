@@ -64,7 +64,7 @@ if [ -e $UPDATE_PATH ] ; then
 
 		# Check what to start
 		if [ "$START_PAPARAZZI" = "yes" ] ; then
-			(/data/video/raw/ap.elf; gpio 181 -d ho 1) &
+			(/data/video/paparazzi/ap.elf; gpio 181 -d ho 1) &
 		else
 			(/bin/program.elf ${PELF_ARGS}; gpio 181 -d ho 1) &
 		fi
@@ -80,7 +80,7 @@ else
     if [ "$START_PAPARAZZI" = "yes" ] ; then
         (/bin/program.elf ${PELF_ARGS}; gpio 181 -d ho 1) &
         sleep 10
-	(/data/video/raw/ap.elf; gpio 181 -d ho 1) &
+	(/data/video/paparazzi/ap.elf; gpio 181 -d ho 1) &
     else
 	(/bin/program.elf ${PELF_ARGS}; gpio 181 -d ho 1) &
     fi
