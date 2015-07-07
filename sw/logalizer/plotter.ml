@@ -324,9 +324,9 @@ class plot = fun ~size ~update_time ~width ~height ~packing () ->
 let update_time = ref 0.5
 let size = ref 500
 
-type window = { title : string; geometry : string; update : float; size : int; curves : string list }
+type window = { title : string; geometry : string; update : float; size : int; curves : string list; consts : string list }
 
-let default_window = {title="Plotter"; geometry=""; update= !update_time; size= !size; curves=[]; }
+let default_window = {title="Plotter"; geometry=""; update= !update_time; size= !size; curves=[]; consts=[]; }
 
 
 (** [index_of_fields s] Returns i if s matches x[i] else 0. *)
@@ -547,6 +547,8 @@ let rec plot_window = fun window ->
 
   (* Init curves *)
   List.iter add_curve window.curves;
+  (* Init consts *)
+  List.iter add_cst window.consts;
 
   plotter#add_accel_group accel_group;
   plotter#show ()
@@ -561,7 +563,8 @@ let _ =
   let add_init = fun s ->
     match !init with
       [] -> failwith "unreachable"
-    | x::xs -> init := {x with curves = s::x.curves} :: xs in
+    | x::xs -> init := try ignore (float_of_string s); {x with consts = s::x.consts} :: xs with
+                       | Failure "float_of_string" -> {x with curves = s::x.curves} :: xs in
 
   let set_title = fun s ->
     match !init with
@@ -575,7 +578,7 @@ let _ =
 
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
-      "-c", Arg.String (fun x -> add_init x), "<curve>  Add a curve (e.g. '*:telemetry:BAT:voltage'). The curve is inserted into the last open window (cf -n option)";
+      "-c", Arg.String (fun x -> add_init x), "<curve>  Add a curve (e.g. '*:telemetry:BAT:voltage') or constant (e.g. '1.5'). The curve is inserted into the last open window (cf -n option)";
 
       (* no code yet *)
       "-t", Arg.String set_title, "<title>  Set the last opened window title (cf -n option)";
