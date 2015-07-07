@@ -1960,21 +1960,7 @@
 
   <!--229 is free -->
 
-  <message name="AHRS_ARDRONE2" id="230">
-    <field name="state" type="uint32" />
-    <field name="control_state" type="uint32" values="DEFAULT|INIT|LANDING|FLYING|HOVERING|TEST|TRANS_TAKEOFF|TRANS_GOTOFIX|TRANS_LANDING|TRANS_LOOPING"/>
-    <field name="phi" type="float" unit="mdeg"/>
-    <field name="theta" type="float" unit="mdeg"/>
-    <field name="psi" type="float" unit="mdeg"/>
-    <field name="speed_x" type="float" unit="m/s"/>
-    <field name="speed_y" type="float" unit="m/s"/>
-    <field name="speed_z" type="float" unit="m/s"/>
-    <field name="accel_x" type="float" unit="m/s^2"/>
-    <field name="accel_y" type="float" unit="m/s^2"/>
-    <field name="accel_z" type="float" unit="m/s^2"/>
-    <field name="altitude" type="int32" unit="cm"/>
-    <field name="battery" type="uint32" unit="%"/>
-  </message>
+  <!--230 is free -->
 
   <message name="ROTORCRAFT_STATUS" id="231">
     <field name="link_imu_nb_err" type="uint32"/>
