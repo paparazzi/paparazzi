@@ -195,6 +195,92 @@
       </program>
     </session>
 
+    <session name="Raw Sensors">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Settings">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="1000x250-0+0"/>
+        <arg flag="-t" constant="ACC"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:ax"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:ay"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:az"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+250"/>
+        <arg flag="-t" constant="GYRO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gp"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gq"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gr"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+500"/>
+        <arg flag="-t" constant="MAG"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:mx"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:my"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:mz"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+750"/>
+        <arg flag="-t" constant="BARO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="101325.0"/>
+        <arg flag="-c" constant="*:telemetry:BARO_RAW:abs"/>
+      </program>
+    </session>
+
+    <session name="Scaled Sensors">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Settings">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="1000x250-0+0"/>
+        <arg flag="-t" constant="ACC"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="9.81"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="-9.81"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ax:0.0009766"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ay:0.0009766"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:az:0.0009766"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+250"/>
+        <arg flag="-t" constant="GYRO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gp:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gq:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gr:0.0139882"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+500"/>
+        <arg flag="-t" constant="MAG"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mx:0.0004883"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:my:0.0004883"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mz:0.0004883"/>
+      </program>
+    </session>
+
   </section>
 
 </control_panel>
