@@ -211,7 +211,7 @@
   <aircraft
    name="bebop"
    ac_id="202"
-   airframe="airframes/bebop.xml"
+   airframe="airframes/bebop_indi.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"

@@ -63,7 +63,7 @@
   </commands>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
-    <!-- front/back turning CW, right/left CCW -->
+    <!-- front (CW), right (CCW), back (CW), left (CCW) -->
     <define name="TYPE" value="QUAD_PLUS"/>
   </section>
 

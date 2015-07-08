@@ -52,22 +52,17 @@
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_YAW" value="0"/>
-    <define name="NB_MOTOR" value="4"/>
-    <define name="SCALE" value="255"/>
 
     <!-- Time cross layout (X), with order NW (CW), NE (CCW), SE (CW), SW (CCW) -->
-    <define name="ROLL_COEF" value="{   256, -256, -256,  256 }"/>
-    <define name="PITCH_COEF" value="{  256,  256, -256, -256 }"/>
-    <define name="YAW_COEF" value="{   -256,  256, -256,  256 }"/>
-    <define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
+    <define name="TYPE" value="QUAD_X"/>
   </section>
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="TOP_LEFT" value="motor_mixing.commands[0]"/>
-    <set servo="TOP_RIGHT" value="motor_mixing.commands[1]"/>
-    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[2]"/>
-    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[3]"/>
+    <set servo="TOP_LEFT" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
+    <set servo="TOP_RIGHT" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
+    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
+    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">

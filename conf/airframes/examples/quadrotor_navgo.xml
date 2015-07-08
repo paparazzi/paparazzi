@@ -49,13 +49,9 @@
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_YAW" value="0"/>
-    <define name="NB_MOTOR" value="4"/>
-    <define name="SCALE" value="256"/>
+
     <!-- FRONT CW, RIGHT CCW, BACK CW, LEFT CCW -->
-    <define name="ROLL_COEF"  value="{    0, -256,    0,  256}"/>
-    <define name="PITCH_COEF" value="{  256,    0, -256,    0}"/>
-    <define name="YAW_COEF"   value="{ -256,  256, -256,  256}"/>
-    <define name="THRUST_COEF" value="{ 256,  256,  256,  256}"/>
+    <define name="TYPE" value="QUAD_PLUS"/>
   </section>
 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
