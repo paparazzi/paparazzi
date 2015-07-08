@@ -173,7 +173,7 @@ def ardrone2_status():
           read_from_config('motor1_hard', config_ini) + '\t' + read_from_config('motor2_hard', config_ini) + '\t' +
           read_from_config('motor3_hard', config_ini) + '\t' + read_from_config('motor4_hard', config_ini))
 
-    autorun = {'': 'Native', '0': 'Native', '1': 'Paparazzi RAW', '2': 'Paparazzi SDK'}
+    autorun = {'': 'Native', '0': 'Native', '1': 'Paparazzi'}
     if check_autoboot():
         print('Autorun at start:\tInstalled booting ' + autorun[read_from_config('start_paparazzi', config_ini)])
     else:
@@ -207,7 +207,7 @@ subparser_upload_gst = subparsers.add_parser('upload_gst_module',
 subparser_upload_gst.add_argument('file', help='Filename of *.so module')
 subparser_upload_and_run = subparsers.add_parser('upload_file_and_run', help='Upload and run software (for instance the Paparazzi autopilot)')
 subparser_upload_and_run.add_argument('file', help='Filename of an executable')
-subparser_upload_and_run.add_argument('folder', help='Destination subfolder (raw or sdk for Paparazzi autopilot)')
+subparser_upload_and_run.add_argument('folder', help='Destination subfolder (raw for Paparazzi autopilot)')
 subparser_upload = subparsers.add_parser('upload_file', help='Upload a file to the ARDrone 2')
 subparser_upload.add_argument('file', help='Filename')
 subparser_upload.add_argument('folder', help='Destination subfolder (base destination folder is /data/video)')
@@ -238,10 +238,10 @@ subparser_configure_network.add_argument('address', help='the new IP address')
 subparser_configure_network.add_argument('mode', help='the new Wifi mode', choices=['master', 'ad-hoc', 'managed', 'ad-hoc-olsr'])
 subparser_configure_network.add_argument('--channel', help='the wifi channel (auto or 1 to 11)', default='auto')
 subparser_install_autostart = subparsers.add_parser('install_autostart', help='Install custom autostart script and set what to start on boot for the ARDrone 2')
-subparser_install_autostart.add_argument('type', choices=['native', 'paparazzi_raw', 'paparazzi_sdk'],
+subparser_install_autostart.add_argument('type', choices=['native', 'paparazzi'],
                                  help='what to start on boot')
 subparser_autostart = subparsers.add_parser('autostart', help='Set what to start on boot for the ARDrone 2')
-subparser_autostart.add_argument('type', choices=['native', 'paparazzi_raw', 'paparazzi_sdk'],
+subparser_autostart.add_argument('type', choices=['native', 'paparazzi'],
                                  help='what to start on boot')
 
 args = parser.parse_args()
@@ -285,7 +285,7 @@ elif args.command == 'ipaddress':
 # Change the wifi mode
 elif args.command == 'wifimode':
     ardrone2_set_wifi_mode(args.mode)
-    
+
     if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
         parrot_utils.reboot(tn)
 
@@ -332,7 +332,7 @@ elif args.command == 'install_autostart':
             ardrone2_install_autoboot()
     else:
         ardrone2_install_autoboot()
-    autorun = {'native': '0', 'paparazzi_raw': '1', 'paparazzi_sdk': '2'}
+    autorun = {'native': '0', 'paparazzi': '1'}
     write_to_config('start_paparazzi', autorun[args.type])
     print('The autostart on boot is changed to ' + args.type)
 
@@ -341,7 +341,7 @@ elif args.command == 'install_autostart':
 
 # Change the autostart
 elif args.command == 'autostart':
-    autorun = {'native': '0', 'paparazzi_raw': '1', 'paparazzi_sdk': '2'}
+    autorun = {'native': '0', 'paparazzi': '1'}
     write_to_config('start_paparazzi', autorun[args.type])
     print('The autostart on boot is changed to ' + args.type)
 

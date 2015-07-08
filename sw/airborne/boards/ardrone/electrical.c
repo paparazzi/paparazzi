@@ -26,7 +26,7 @@
  * arch specific electrical status readings
  */
 
-#include "electrical_raw.h"
+#include "electrical.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

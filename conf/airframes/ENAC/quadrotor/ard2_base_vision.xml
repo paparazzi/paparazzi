@@ -5,7 +5,7 @@
   <firmware name="rotorcraft">
     <define name="DEBUG_VFF_EXTENDED"/>
     <configure name="HOST" value="192.168.1.$(AC_ID)"/>
-    <target name="ap" board="ardrone2_raw">
+    <target name="ap" board="ardrone2">
       <define name="USE_SONAR"/>
       <define name="USE_BARO_MEDIAN_FILTER"/>
       <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>

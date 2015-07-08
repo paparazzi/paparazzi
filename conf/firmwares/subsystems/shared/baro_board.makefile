@@ -26,7 +26,7 @@ else ifeq ($(BOARD), navstik)
   BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
 
 # Ardrone baro
-else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
+else ifeq ($(BOARD), ardrone)
   BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
 
 # Bebop baro

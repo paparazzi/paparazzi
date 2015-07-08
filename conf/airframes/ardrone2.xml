@@ -1,23 +1,23 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<airframe name="ardrone2_raw">
+<airframe name="ardrone2">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="ardrone2_raw"/>
+    <target name="ap" board="ardrone2"/>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
     </target>
 
-    <subsystem name="telemetry" type="transparent_udp"/>
-    <subsystem name="radio_control" type="datalink"/>
-
     <define name="USE_SONAR" value="TRUE"/>
 
 	<!-- Subsystem section -->
+    <subsystem name="telemetry" type="transparent_udp"/>
+    <subsystem name="radio_control" type="datalink"/>
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators" type="ardrone2"/>
     <subsystem name="imu" type="ardrone2"/>
+    <!-- gps: "ublox" or change to "sirf" for usage with parrot flight recorder -->
     <subsystem name="gps" type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs" type="int_cmpl_quat"/>
@@ -25,9 +25,12 @@
   </firmware>
 
   <modules main_freq="512">
+    <!-- remove the gps_ubx_ucenter module if you use the sirf gps (flight recorder) -->
     <load name="gps_ubx_ucenter.xml"/>
     <load name="send_imu_mag_current.xml"/>
-    <load name="logger_file.xml"/>
+    <load name="air_data.xml"/>
+    <load name="geo_mag.xml"/>
+    <!--load name="logger_file.xml"/-->
     <!--load name="video_rtp_stream.xml"/-->
   </modules>
 
@@ -94,6 +97,7 @@
   <!-- local magnetic field -->
   <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
   <section name="AHRS" prefix="AHRS_">
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
     <!-- Toulouse -->
     <define name="H_X" value="0.513081"/>
     <define name="H_Y" value="-0.00242783"/>

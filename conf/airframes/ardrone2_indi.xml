@@ -3,20 +3,19 @@
 <airframe name="ardrone2_indi">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="ardrone2_raw">
+    <target name="ap" board="ardrone2">
       <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
-      <subsystem name="telemetry" type="transparent_udp"/>
-      <subsystem name="radio_control" type="datalink"/>
     </target>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
     </target>
 
     <define name="USE_SONAR" value="FALSE"/>
 
-  <!-- Subsystem section -->
+    <!-- Subsystem section -->
+    <subsystem name="telemetry" type="transparent_udp"/>
+    <subsystem name="radio_control" type="datalink"/>
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators" type="ardrone2"/>
     <subsystem name="imu" type="ardrone2"/>
@@ -32,6 +31,7 @@
   <modules main_freq="512">
     <load name="gps_ubx_ucenter.xml"/>
     <load name="send_imu_mag_current.xml"/>
+    <load name="air_data.xml"/>
     <load name="logger_file.xml"/>
   </modules>
 

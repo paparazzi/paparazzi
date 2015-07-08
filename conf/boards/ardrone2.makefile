@@ -1,14 +1,13 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# ardrone2_sdk.makefile
+# ardrone2.makefile
 #
 # http://wiki.paparazziuav.org/wiki/AR.Drone_2_-_Specifications
 #
 
 BOARD=ardrone
 BOARD_VERSION=2
-BOARD_TYPE=sdk
-BOARD_CFG=\"boards/$(BOARD)$(BOARD_VERSION)_$(BOARD_TYPE).h\"
+BOARD_CFG=\"boards/$(BOARD)$(BOARD_VERSION).h\"
 
 ARCH=linux
 $(TARGET).ARCHDIR = $(ARCH)
@@ -17,8 +16,8 @@ ap.MAKEFILE = ardrone2
 
 # -----------------------------------------------------------------------
 USER=foobar
-HOST=192.168.1.1
-SUB_DIR=sdk
+HOST?=192.168.1.1
+SUB_DIR=paparazzi
 FTP_DIR=/data/video
 TARGET_DIR=$(FTP_DIR)/$(SUB_DIR)
 # -----------------------------------------------------------------------
@@ -30,20 +29,24 @@ ARDRONE2_IP_ADDRESS_PROBE ?= 1
 # -----------------------------------------------------------------------
 
 # The GPS sensor is connected trough USB so we have to define the device
-GPS_PORT         ?= UART1
-GPS_BAUD         ?= B57600
+GPS_PORT           ?= UART1
+GPS_BAUD           ?= B57600
 
 # The datalink default uses UDP
-MODEM_HOST       ?= 192.168.1.255
+MODEM_HOST         ?= 192.168.1.255
 
-# for distinction between SDK and RAW version
-ap.CFLAGS +=-DARDRONE2_SDK
+# handle linux signals by hand
+$(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL -D_GNU_SOURCE
+
+# Link static (Done for GLIBC)
+$(TARGET).CFLAGS += -DLINUX_LINK_STATIC
+$(TARGET).LDFLAGS += -static
 
 # -----------------------------------------------------------------------
 
 # default LED configuration
-RADIO_CONTROL_LED			?= none
+RADIO_CONTROL_LED			?= 6
 BARO_LED           			?= none
-AHRS_ALIGNER_LED   			?= none
-GPS_LED            			?= none
-SYS_TIME_LED       			?= none
+AHRS_ALIGNER_LED   			?= 5
+GPS_LED            			?= 3
+SYS_TIME_LED       			?= 0

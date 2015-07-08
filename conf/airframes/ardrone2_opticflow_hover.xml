@@ -3,7 +3,7 @@
 <airframe name="ardrone2_opticflow">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="ardrone2_raw"/>
+    <target name="ap" board="ardrone2"/>
 
     <!--target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
