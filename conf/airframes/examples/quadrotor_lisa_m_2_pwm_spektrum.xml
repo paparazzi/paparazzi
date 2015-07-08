@@ -49,6 +49,12 @@
     <servo name="LEFT"    no="3" min="1000" neutral="1100" max="1900"/>
   </servos>
 
+  <modules>
+    <load name="gps_ubx_ucenter.xml"/>
+    <load name="geo_mag.xml"/>
+    <load name="air_data.xml"/>
+  </modules>
+
   <commands>
     <axis name="ROLL"   failsafe_value="0"/>
     <axis name="PITCH"  failsafe_value="0"/>
@@ -88,9 +94,11 @@
   </section>
 
   <section name="AHRS" prefix="AHRS_">
-    <define name="H_X" value="0.3770441"/>
-    <define name="H_Y" value="0.0193986"/>
-    <define name="H_Z" value="0.9259921"/>
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
+    <!-- Toulouse -->
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
   </section>
 
   <section name="INS" prefix="INS_">
