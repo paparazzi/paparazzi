@@ -55,7 +55,7 @@ int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port
 #ifndef LINUX_LINK_STATIC
   /* try to convert host ipv4 address to binary format */
   struct in_addr host_ip;
-  if (!inet_aton(host, &host_ip)) {
+  if (host[0] != '\0' && !inet_aton(host, &host_ip)) {
     /* not an IP address, try to resolve hostname */
     struct hostent *hp;
     hp = gethostbyname(host);
