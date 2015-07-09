@@ -203,9 +203,12 @@
       <program name="Server">
         <arg flag="-n"/>
       </program>
-      <program name="Messages"/>
+      <program name="Messages">
+        <arg flag="-g" constant="300x400+0-220"/>
+      </program>
       <program name="Settings">
         <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="-g" constant="800x200+0-0"/>
       </program>
       <program name="Real-time Plotter">
         <arg flag="-g" constant="1000x250-0+0"/>
@@ -248,9 +251,12 @@
       <program name="Server">
         <arg flag="-n"/>
       </program>
-      <program name="Messages"/>
+      <program name="Messages">
+        <arg flag="-g" constant="300x400+0-220"/>
+      </program>
       <program name="Settings">
         <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="-g" constant="800x200+0-0"/>
       </program>
       <program name="Real-time Plotter">
         <arg flag="-g" constant="1000x250-0+0"/>

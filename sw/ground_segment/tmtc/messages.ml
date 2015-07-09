@@ -209,11 +209,13 @@ let _ =
   let classes = ref ["telemetry:*"] in
   let timestamp = ref false in
   let force = ref false in
+  let geometry = ref "" in
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-c",  Arg.String (fun x -> classes := x :: !classes), "class name";
       "-timestamp", Arg.Set timestamp, "Bind to timestampped messages";
-      "-force", Arg.Set force, "Force waiting on all messages, not only ALIVE for telemetry class (increase network load)" ]
+      "-force", Arg.Set force, "Force waiting on all messages, not only ALIVE for telemetry class (increase network load)";
+      "-g", Arg.String (fun x -> geometry := x), "<geometry>  Set the window geometry ( '500x500+100+100' )"]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
     "Usage: ";
 
@@ -225,6 +227,7 @@ let _ =
   let icon = GdkPixbuf.from_file Env.icon_mes_file in
   let window = GWindow.window ~type_hint:`DIALOG ~icon ~title:"Messages" () in
   window#set_default_size ~width:200 ~height:50;
+  ignore (window#parse_geometry !geometry);
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
   let vbox = GPack.vbox ~packing:window#add () in

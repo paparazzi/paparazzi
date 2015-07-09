@@ -80,11 +80,13 @@ let _ =
 
   let ivy_bus = ref Defivybus.default_ivy_bus in
   let acs = ref [] in
+  let geometry = ref "" in
 
   let anon_fun = (fun x -> prerr_endline ("WARNING: don't do anything with "^x)) in
   let speclist =
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
-      "-ac",  Arg.String (fun x -> acs := x :: !acs), "A/C name"]
+      "-ac",  Arg.String (fun x -> acs := x :: !acs), "A/C name";
+      "-g", Arg.String (fun x -> geometry := x), "<geometry>  Set the window geometry ( '500x500+100+100' )"]
   and usage_msg = "Usage: " in
 
   Arg.parse speclist anon_fun usage_msg;
@@ -102,7 +104,7 @@ let _ =
   (** Open the window container with its notebook*)
   let icon = GdkPixbuf.from_file Env.icon_file in
   let window = GWindow.window ~icon ~width:400 ~height:300 ~allow_shrink:true ~title:"PaSettings" () in
-
+  ignore (window#parse_geometry !geometry);
   let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in
 
   List.iter (one_ac notebook) !acs;
