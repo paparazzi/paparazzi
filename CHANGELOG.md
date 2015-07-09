@@ -10,6 +10,8 @@ General
   [#603] (https://github.com/paparazzi/paparazzi/issues/603)
 - paparazzi center: case insensitive sort of airframe combobox
   [#993] (https://github.com/paparazzi/paparazzi/issues/993)
+- paparazzi center: add `@AIRCRAFT` and `@AC_ID` placeholders for generic sessions
+  [#1217] (https://github.com/paparazzi/paparazzi/pull/1217)
 - GCS: improve papgets with multi aircraft support
   [#1068] (https://github.com/paparazzi/paparazzi/pull/1068)
 - GCS: fix undo for list of values
@@ -22,6 +24,10 @@ General
   [#1173] (https://github.com/paparazzi/paparazzi/pull/1173)
 - GCS: add new flat icon theme
   [#1193] (https://github.com/paparazzi/paparazzi/pull/1193)
+- plotter: add support for adding constant curves via command line
+  [#1227] (https://github.com/paparazzi/paparazzi/pull/1227)
+- ground segment: add geometry param to messages and setttings agents
+  [#1232] (https://github.com/paparazzi/paparazzi/pull/1232)
 - ground segment: improve Ivy efficiency
   [#1082] (https://github.com/paparazzi/paparazzi/pull/1082)
 - link: parameters for period of PING and LINK_REPORT messages
@@ -82,21 +88,6 @@ Airborne
   [#1151] (https://github.com/paparazzi/paparazzi/pull/1151)
 - actuators: dual dual pwm
   [#1102] (https://github.com/paparazzi/paparazzi/pull/1102)
-- rotorcraft: fix attitude flight plan primitive (attitude_set_rpy_setpoint)
-  [#1103] (https://github.com/paparazzi/paparazzi/pull/1103)
-- navigation: implement global waypoints for rotorcrafts
-  [#1065] (https://github.com/paparazzi/paparazzi/pull/1065)
-- rotorcraft: improve motor_mixing priorities
-  [#1170] (https://github.com/paparazzi/paparazzi/pull/1170)
-- rotorcraft: predefined motor_mixing for common configurations
-  [#1175] (https://github.com/paparazzi/paparazzi/pull/1175)
-- rotorcraft: heading integration protection in RC-event
-  [#1174] (https://github.com/paparazzi/paparazzi/pull/1174)
-- rotorcraft: waypoint API function naming cleanup
-  [#1169] (https://github.com/paparazzi/paparazzi/pull/1169)
-- rotorcraft: guidance: fix max bank angle limit
-- rotorcraft: make the heading flight plan primitive usable
-  [#1218] (https://github.com/paparazzi/paparazzi/pull/1218)
 - GPS: NMEA parser improvements
   [#1146] (https://github.com/paparazzi/paparazzi/pull/1146)
 - GPS: fix furuno parser (Bebop)
@@ -112,6 +103,31 @@ Airborne
 - chibios SD logger: fix bad file name problem
 - fixedwing stabilization: yaw damper and active lift ctrl
   [#1190] (https://github.com/paparazzi/paparazzi/pull/1190)
+
+Rotorcraft firmware
+-------------------
+
+- fix attitude flight plan primitive (attitude_set_rpy_setpoint)
+  [#1103] (https://github.com/paparazzi/paparazzi/pull/1103)
+- implement global waypoints for rotorcrafts
+  [#1065] (https://github.com/paparazzi/paparazzi/pull/1065)
+- improve motor_mixing priorities
+  [#1170] (https://github.com/paparazzi/paparazzi/pull/1170)
+- predefined motor_mixing for common configurations
+  [#1175] (https://github.com/paparazzi/paparazzi/pull/1175)
+- heading integration protection in RC-event
+  [#1174] (https://github.com/paparazzi/paparazzi/pull/1174)
+- waypoint API function naming cleanup
+  [#1169] (https://github.com/paparazzi/paparazzi/pull/1169)
+- guidance: fix max bank angle limit
+- make the heading flight plan primitive usable
+  [#1218] (https://github.com/paparazzi/paparazzi/pull/1218)
+- add simplified INDI (Incremental Nonlinear Dynamic Inversion) stabilization
+  [#1207] (https://github.com/paparazzi/paparazzi/pull/1207)
+- stabilization quat_int: reduce integrator quantization error
+  [#1205] (https://github.com/paparazzi/paparazzi/pull/1205)
+- fix arming with kill switch
+  [#1125] (https://github.com/paparazzi/paparazzi/pull/1125)
 
 Modules
 -------
@@ -190,20 +206,22 @@ Linux arch support
 other drivers/HW support
 ------------------------
 
+- remove support for ARDrone2 SDK version
+  [#1222] (https://github.com/paparazzi/paparazzi/pull/1222)
+- ARDrone2: add support for dynamic Ad-Hoc networking with OSLR
+  [#1097] (https://github.com/paparazzi/paparazzi/pull/1097)
+- Parrot Bebop: support all sensors including sonar
+  [#1149] (https://github.com/paparazzi/paparazzi/issues/1149)
+  [#1182] (https://github.com/paparazzi/paparazzi/pull/1182)
+- boards: add support for CC3D
 - IMU: support for MPU9250 ins SPI mode
   [#1161] (https://github.com/paparazzi/paparazzi/pull/1161)
 - peripherals: ms5611 driver now also supports ms5607 (e.g. for Bebop)
   [#1147] (https://github.com/paparazzi/paparazzi/pull/1147)
-- boards: add support for CC3D
-- ARDrone2: add support for dynamic Ad-Hoc networking with OSLR
-  [#1097] (https://github.com/paparazzi/paparazzi/pull/1097)
 - mcu_periph: move mcu peripheral event functions to common mcu_event
 - mcu_periph: increase max size for spi buffer length (8bits to 16bits)
 - arch/stm32: use desig_get_unique_id from libopencm3
   [#1018] (https://github.com/paparazzi/paparazzi/pull/1018)
-- Parrot Bebop: support all sensors including sonar
-  [#1149] (https://github.com/paparazzi/paparazzi/issues/1149)
-  [#1182] (https://github.com/paparazzi/paparazzi/pull/1182)
 - peripherals: SD Card SPI interface
   [#1220] (https://github.com/paparazzi/paparazzi/pull/1220)
 
