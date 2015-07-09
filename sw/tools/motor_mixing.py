@@ -58,10 +58,8 @@ class MotorMixing(object):
         # normalize roll/pitch to the largest of both
         # normalize yaw to 0.5
         # and transpose
-        rp_max = np.fabs(B[:, 0:2]).max()
-        #rp_max = np.fabs(np.linalg.norm(B[:, 0:2])).max()
-        #rp_max = np.fabs(np.sum(B[:, 0:2], axis=1)).max()
-        #rp_max = 2
+        max_lever = np.fabs(input_matrix[0:2, :]).max()
+        rp_max = np.fabs(B[:, 0:2]).max() / max_lever
         y_max = 2 * np.fabs(B[:, 2]).max()
         n = np.array([rp_max, rp_max, y_max])
         B_nt = (B / n).T
@@ -114,7 +112,6 @@ if __name__ == '__main__':
     # first rotor is front left
     mm.add_rotors(4, np.radians(-45))
     mm.print_xml()
-    print("Ahrg, normalization not correct if there is no rotor on x or y axis!")
 
     print("\nExample for hexa in + configuration:")
     mm.clear_rotors()
@@ -124,6 +121,11 @@ if __name__ == '__main__':
     mm.clear_rotors()
     print("\nExample for hexa in x configuration:")
     mm.add_rotors(6, np.radians(-30))
+    mm.print_xml()
+
+    mm.clear_rotors()
+    print("\nExample for octo in x configuration:")
+    mm.add_rotors(8, np.radians(-22.5))
     mm.print_xml()
 
     print("\nExample for hexa in slight V configuration:")
