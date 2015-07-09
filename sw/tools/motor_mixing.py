@@ -55,13 +55,17 @@ class MotorMixing(object):
         # Moore-Penrose pseudoinverse of input matrix (A)
         B = np.linalg.pinv(np.asarray(input_matrix))
         #print(B)
-        # normalize roll/pitch to the largest of both
-        # normalize yaw to 0.5
-        # and transpose
-        max_lever = np.fabs(input_matrix[0:2, :]).max()
+        # normalize inputs in xy plane to distance of 1.0 to center
+        xy = input_matrix[0:2, :]
+        xy_normalized = xy / np.linalg.norm(xy, axis=0)
+        # maximum distance to either x or y axis (effective lever arm for that axis)
+        max_lever = xy_normalized.max()
+        # normalize roll/pitch to the largest lever arm of both
         rp_max = np.fabs(B[:, 0:2]).max() / max_lever
+        # normalize yaw to 0.5
         y_max = 2 * np.fabs(B[:, 2]).max()
         n = np.array([rp_max, rp_max, y_max])
+        # normalize and transpose
         B_nt = (B / n).T
         if scale is None:
             return B_nt
