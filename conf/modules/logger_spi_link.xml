@@ -13,8 +13,8 @@
     <define name="SPI_MASTER" value="1" />
     <define name="USE_SPI1" value="1" />
     <define name="HIGH_SPEED_LOGGER_SPI_LINK_DEVICE" value="spi1" />
-    <define name="USE_SPI_SLAVE5" value="1" />
-    <define name="HIGH_SPEED_LOGGER_SPI_LINK_SLAVE_NUMBER" value="SPI_SLAVE5" />
+    <define name="USE_SPI_SLAVE1" value="1" />
+    <define name="HIGH_SPEED_LOGGER_SPI_LINK_SLAVE_NUMBER" value="SPI_SLAVE1" />
     <file name="high_speed_logger_spi_link.c"/>
   </makefile>
 </module>
