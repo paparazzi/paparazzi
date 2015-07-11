@@ -20,8 +20,9 @@
     </target>
 
     <subsystem name="radio_control" type="spektrum">
-      <define name="RADIO_MODE" value="RADIO_AUX1"/>
-      <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+      <define name="RADIO_MODE"        value="RADIO_FLAP"/>
+      <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+      <!-- <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/> -->
     </subsystem>
 
     <subsystem name="motor_mixing"/>
@@ -40,6 +41,7 @@
   </firmware>
 
   <modules>
+    <load name="send_imu_mag_current.xml"/>
     <load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
       <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
@@ -47,6 +49,17 @@
     <load name="gps_ubx_ucenter.xml"/>
     <load name="geo_mag.xml"/>
     <load name="air_data.xml"/>
+    <load name="nav_survey_rectangle_rotorcraft.xml">
+      <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
+    </load>
+    <!--
+    <load name="nav_survey_poly_rotorcraft.xml"/>
+    <load name="follow.xml">
+      <define name="FOLLOW_AC_ID" value="101"/>
+      <define name="FOLLOW_WAYPOINT_ID" value="WP_p1"/>
+      <define name="FOLLOW_OFFSET_Z" value="2.0"/>
+    </load>
+    -->
   </modules>
 
   <servos driver="Pwm">
@@ -112,9 +125,9 @@
 
   <section name="AHRS" prefix="AHRS_">
     <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
-    <define name="H_X" value="0.3770441"/>
-    <define name="H_Y" value="0.0193986"/>
-    <define name="H_Z" value="0.9259921"/>
+    <define name="H_X" value="0.36852472"/>
+    <define name="H_Y" value="0.10300471"/>
+    <define name="H_Z" value="0.9238937"/>
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
@@ -219,16 +232,17 @@
   </section>
 
   <section name="BAT">
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="10.1" unit="V"/>
-    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL"    value="9.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL"          value="9.9" unit="V"/>
+    <define name="LOW_BAT_LEVEL"             value="10.5" unit="V"/>
+    <define name="MAX_BAT_LEVEL"             value="12.4" unit="V"/>
   </section>
 
   <section name="GCS">
+    <define name="ICONS_THEME"         value="flat_theme"/>
     <define name="ALT_SHIFT_PLUS_PLUS" value="30"/>
-    <define name="ALT_SHIFT_PLUS"      value="5"/>
-    <define name="ALT_SHIFT_MINUS"     value="-5"/>
+    <define name="ALT_SHIFT_PLUS"      value="10"/>
+    <define name="ALT_SHIFT_MINUS"     value="-10"/>
     <define name="SPEECH_NAME"         value="Racer PEX Octo"/>
     <define name="AC_ICON"             value="octorotor_x"/>
   </section>

@@ -20,8 +20,9 @@
     </target>
 
     <subsystem name="radio_control" type="spektrum">
-      <define name="RADIO_MODE" value="RADIO_AUX1"/>
-      <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+      <define name="RADIO_MODE"        value="RADIO_FLAP"/>
+      <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+      <!-- <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/> -->
     </subsystem>
 
     <subsystem name="motor_mixing"/>
@@ -40,6 +41,7 @@
   </firmware>
 
   <modules>
+    <load name="send_imu_mag_current.xml"/>
     <load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
       <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
@@ -47,13 +49,24 @@
     <load name="gps_ubx_ucenter.xml"/>
     <load name="geo_mag.xml"/>
     <load name="air_data.xml"/>
+    <load name="nav_survey_rectangle_rotorcraft.xml">
+      <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
+    </load>
+    <!--
+    <load name="nav_survey_poly_rotorcraft.xml"/>
+    <load name="follow.xml">
+      <define name="FOLLOW_AC_ID" value="101"/>
+      <define name="FOLLOW_WAYPOINT_ID" value="WP_p1"/>
+      <define name="FOLLOW_OFFSET_Z" value="2.0"/>
+    </load>
+    -->
   </modules>
 
   <servos driver="Pwm">
     <servo name="FRONT_LEFT"  no="0" min="1000" neutral="1100" max="1900"/>
     <servo name="FRONT_RIGHT" no="1" min="1000" neutral="1100" max="1900"/>
-    <servo name="BACK_RIGHT"  no="3" min="1000" neutral="1100" max="1900"/>
-    <servo name="BACK_LEFT"   no="4" min="1000" neutral="1100" max="1900"/>
+    <servo name="BACK_RIGHT"  no="2" min="1000" neutral="1100" max="1900"/>
+    <servo name="BACK_LEFT"   no="3" min="1000" neutral="1100" max="1900"/>
   </servos>
 
   <commands>
@@ -72,7 +85,7 @@
     <!-- order (and rotation direction) : FL(CW), FR(CCW), BR(CW), BL(CCW) -->
     <define name="ROLL_COEF"   value="{  256, -256, -256,  256 }"/>
     <define name="PITCH_COEF"  value="{  256,  256, -256, -256 }"/>
-    <define name="YAW_COEF"    value="{ -256,  256, -256,  256 }"/>
+    <define name="YAW_COEF"    value="{ -144,  144, -144,  144 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
@@ -85,17 +98,26 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="ACCEL_X_NEUTRAL" value="11"/>
-    <define name="ACCEL_Y_NEUTRAL" value="11"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-25"/>
+    <!-- Accelerometer calibration -->
+    <define name="ACCEL_X_NEUTRAL" value="31"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-1"/>
+    <define name="ACCEL_Z_NEUTRAL" value="123"/>
+    <define name="ACCEL_X_SENS" value="4.89872084248" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.86346348291" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.83997796833" integer="16"/>
 
-    <!-- replace this with your own calibration -->
-    <define name="MAG_X_NEUTRAL" value="-179"/>
-    <define name="MAG_Y_NEUTRAL" value="-21"/>
-    <define name="MAG_Z_NEUTRAL" value="79"/>
-    <define name="MAG_X_SENS" value="4.17334785618" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.98885954135" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.40442339014" integer="16"/>
+    <!-- Magnetometer calibration -->
+    <define name="MAG_X_NEUTRAL" value="1"/>
+    <define name="MAG_Y_NEUTRAL" value="-135"/>
+    <define name="MAG_Z_NEUTRAL" value="154"/>
+    <define name="MAG_X_SENS" value="3.17267325535" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.18637372361" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.77559309241" integer="16"/>
+
+    <!-- Magnetometer current calibration -->
+    <define name= "MAG_X_CURRENT_COEF" value="0.00162839672033"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="0.00309421447631"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="-0.00642385318878"/>
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -104,9 +126,9 @@
 
   <section name="AHRS" prefix="AHRS_">
     <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
-    <define name="H_X" value="0.3770441"/>
-    <define name="H_Y" value="0.0193986"/>
-    <define name="H_Z" value="0.9259921"/>
+    <define name="H_X" value="0.36852472"/>
+    <define name="H_Y" value="0.10300471"/>
+    <define name="H_Z" value="0.9238937"/>
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
@@ -137,8 +159,8 @@
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
-    <define name="SP_MAX_PHI"     value="45." unit="deg"/>
-    <define name="SP_MAX_THETA"   value="45." unit="deg"/>
+    <define name="SP_MAX_PHI"     value="30." unit="deg"/>
+    <define name="SP_MAX_THETA"   value="30." unit="deg"/>
     <define name="SP_MAX_R"       value="90." unit="deg/s"/>
     <define name="DEADBAND_A"     value="0"/>
     <define name="DEADBAND_E"     value="0"/>
@@ -161,16 +183,16 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="1000"/>
-    <define name="PHI_DGAIN"  value="400"/>
+    <define name="PHI_PGAIN"  value="1246"/>
+    <define name="PHI_DGAIN"  value="495"/>
     <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="1000"/>
-    <define name="THETA_DGAIN"  value="400"/>
+    <define name="THETA_PGAIN"  value="1246"/>
+    <define name="THETA_DGAIN"  value="495"/>
     <define name="THETA_IGAIN"  value="200"/>
 
-    <define name="PSI_PGAIN"  value="500"/>
-    <define name="PSI_DGAIN"  value="300"/>
+    <define name="PSI_PGAIN"  value="1622"/>
+    <define name="PSI_DGAIN"  value="1241"/>
     <define name="PSI_IGAIN"  value="10"/>
 
     <!-- feedforward -->
@@ -205,22 +227,26 @@
   </section>
 
   <section name="AUTOPILOT">
-    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1"  value="AP_MODE_HOVER_Z_HOLD"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+<!-- TOGGLE STATES -->
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1"   value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO2"   value="AP_MODE_NAV"/>
   </section>
 
   <section name="BAT">
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL"       value="9.6" unit="V"/>
-    <define name="LOW_BAT_LEVEL"          value="10.1" unit="V"/>
-    <define name="MAX_BAT_LEVEL"          value="12.4" unit="V"/>
+	  <define name="MILLIAMP_AT_FULL_THROTTLE" value="80000"/>
+    <define name="CATASTROPHIC_BAT_LEVEL"    value="9.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL"          value="9.9" unit="V"/>
+    <define name="LOW_BAT_LEVEL"             value="10.5" unit="V"/>
+    <define name="MAX_BAT_LEVEL"             value="12.4" unit="V"/>
   </section>
 
   <section name="GCS">
+    <define name="ICONS_THEME"         value="flat_theme"/>
     <define name="ALT_SHIFT_PLUS_PLUS" value="30"/>
-    <define name="ALT_SHIFT_PLUS"      value="5"/>
-    <define name="ALT_SHIFT_MINUS"     value="-5"/>
+    <define name="ALT_SHIFT_PLUS"      value="10"/>
+    <define name="ALT_SHIFT_MINUS"     value="-10"/>
     <define name="SPEECH_NAME"         value="Racer PEX Quad"/>
     <define name="AC_ICON"             value="quadrotor_x"/>
   </section>
