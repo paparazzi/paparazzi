@@ -52,8 +52,8 @@
     <load name="nav_survey_rectangle_rotorcraft.xml">
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
     </load>
-    <load name="nav_survey_poly_rotorcraft.xml"/>
     <!--
+    <load name="nav_survey_poly_rotorcraft.xml"/>
     <load name="follow.xml">
       <define name="FOLLOW_AC_ID" value="101"/>
       <define name="FOLLOW_WAYPOINT_ID" value="WP_p1"/>
