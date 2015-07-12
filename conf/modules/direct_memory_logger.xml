@@ -7,7 +7,7 @@
     </description>
     <configure name="DM_LOG_UART" value="UART1|UART2|UART3|UART4|UART5|UART6" description="Port to read back the memory"/>
     <configure name="DM_LOG_SPI_DEV" value="SPI1|SPI2|SPI3|SPI4|SPI5|SPI6" description="SPI bus which the memory is connected to"/>
-    <configure name="DM_LOG_SPI_SLAVE" value="SPI_SLAVE1|SPI_SLAVE2|SPI_SLAVE3|SPI_SLAVE4|SPI_SLAVE5|SPI_SLAVE6" description="SPI slave which the memory is connected to"/>
+    <configure name="DM_LOG_SPI_SLAVE_IDX" value="SPI_SLAVE1|SPI_SLAVE2|SPI_SLAVE3|SPI_SLAVE4|SPI_SLAVE5|SPI_SLAVE6" description="SPI slave which the memory is connected to"/>
   </doc>
   <settings>
     <dl_settings name="direct_memory_logger">
