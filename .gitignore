@@ -116,7 +116,7 @@ paparazzi.sublime-workspace
 /sw/lib/ocaml/META.pprz
 
 # /sw/logalizer/
-/sw/logalizer/plot
+/sw/logalizer/logplotter
 /sw/logalizer/play
 /sw/logalizer/plotter
 /sw/logalizer/gtk_export.ml

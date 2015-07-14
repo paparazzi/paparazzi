@@ -30,7 +30,7 @@ LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 XPKG = -package pprz.xlib
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
 
-all: play plotter plot sd2log plotprofile openlog2tlm
+all: play plotter logplotter sd2log plotprofile openlog2tlm
 
 play : log_file.cmo play_core.cmo play.cmo $(LIBPPRZCMA)
 	@echo OL $@
@@ -44,7 +44,7 @@ plotter : plotter.cmo $(LIBPPRZCMA) $(XLIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
-plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo $(LIBPPRZCMA) $(XLIBPPRZCMA)
+logplotter : log_file.cmo gtk_export.cmo export.cmo logplotter.cmo $(LIBPPRZCMA) $(XLIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
@@ -135,7 +135,7 @@ ctrlstick: ctrlstick.c
 
 
 clean:
-	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrs2fg plot plotter gtk_export.ml openlog2tlm disp3d plotprofile tmclient ffjoystick ctrlstick sd2log
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrs2fg logplotter plotter gtk_export.ml openlog2tlm disp3d plotprofile tmclient ffjoystick ctrlstick sd2log
 
 .PHONY: all clean
 

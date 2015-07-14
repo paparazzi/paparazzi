@@ -43,7 +43,7 @@
 
     <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
 
-    <program name="Log Plotter" command="sw/logalizer/plot"/>
+    <program name="Log Plotter" command="sw/logalizer/logplotter"/>
 
     <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
     <program name="Real-time Plotter (Python)" command="sw/ground_segment/python/real_time_plot/messagepicker.py"/>
