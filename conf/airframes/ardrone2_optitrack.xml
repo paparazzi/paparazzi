@@ -5,6 +5,8 @@
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2">
       <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
+      <define name="USE_SONAR" value="0"/>      
+      <configure name="USE_BARO_BOARD" value="FALSE"/>
       <configure name="USE_MAGNETOMETER" value="0"/>
     </target>
 
@@ -107,6 +109,7 @@
 
     <!-- Use GPS heading instead of magneto -->
     <define name="USE_GPS_HEADING" value="1"/>
+    <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -223,6 +226,7 @@
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+    <define name="ARRIVED_AT_WAYPOINT" value="0.15"/>
   </section>
 
   <section name="BAT">
