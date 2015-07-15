@@ -56,6 +56,7 @@ CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 #CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
 CFLAGS += -lm -pthread
+CFLAGS += -DUSING_OS
 
 # flags only for C
 CFLAGS += -Wstrict-prototypes -Wmissing-declarations
