@@ -120,10 +120,34 @@ int main(void)
 {
   main_init();
 
+#if LIMIT_EVENT_POLLING
+  /* Limit main loop frequency to 1kHz.
+   * This is a kludge until we can better leverage threads and have real events.
+   * Without this limit the event flags will constantly polled as fast as possible,
+   * resulting on 100% cpu load on boards with an (RT)OS.
+   * On bare metal boards this is not an issue, as you have nothing else running anyway.
+   */
+  uint32_t t_begin = 0;
+  uint32_t t_diff = 0;
+  while (1) {
+    t_begin = get_sys_time_usec();
+
+    handle_periodic_tasks();
+    main_event();
+
+    /* sleep remaining time to limit to 1kHz */
+    t_diff = get_sys_time_usec() - t_begin;
+    if (t_diff < 1000) {
+      sys_time_usleep(1000 - t_diff);
+    }
+  }
+#else
   while (1) {
     handle_periodic_tasks();
     main_event();
   }
+#endif
+
   return 0;
 }
 #endif /* SITL */
