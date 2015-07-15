@@ -251,14 +251,19 @@ void ins_int_propagate(struct Int32Vect3 *accel, float dt)
   int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), &accel_meas_body);
 
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
-  if (ins_int.baro_initialized) {
+  #if USE_BARO_BOARD
+    if (ins_int.baro_initialized) {
+      vff_propagate(z_accel_meas_float, dt);
+      ins_update_from_vff();
+    } else { // feed accel from the sensors
+      // subtract -9.81m/s2 (acceleration measured due to gravity,
+      // but vehicle not accelerating in ltp)
+      ins_int.ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
+    }
+  #else
     vff_propagate(z_accel_meas_float, dt);
     ins_update_from_vff();
-  } else { // feed accel from the sensors
-    // subtract -9.81m/s2 (acceleration measured due to gravity,
-    // but vehicle not accelerating in ltp)
-    ins_int.ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
-  }
+  #endif
 
 #if USE_HFF
   /* propagate horizontal filter */
