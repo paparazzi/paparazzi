@@ -40,6 +40,8 @@ struct InsInt {
   struct LtpDef_i  ltp_def;
   bool_t           ltp_initialized;
 
+  uint32_t propagation_cnt; ///< number of propagation steps since the last measurement update
+
   /** request to realign horizontal filter.
    * Sets to current position (local origin unchanged).
    */

@@ -95,6 +95,11 @@ PRINT_CONFIG_MSG("INS_SONAR_UPDATE_ON_AGL defaulting to FALSE")
 #define INS_VFF_R_GPS 2.0
 #endif
 
+/** maximum number of propagation steps without any updates in between */
+#ifndef INS_MAX_PROPAGATION_STEPS
+#define INS_MAX_PROPAGATION_STEPS 200
+#endif
+
 #ifndef USE_INS_NAV_INIT
 #define USE_INS_NAV_INIT TRUE
 PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
@@ -172,6 +177,9 @@ void ins_int_init(void)
 #else
   ins_int.ltp_initialized  = FALSE;
 #endif
+
+  /* we haven't had any measurement updates yet, so set the counter to max */
+  ins_int.propagation_cnt = INS_MAX_PROPAGATION_STEPS;
 
   // Bind to BARO_ABS message
   AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
@@ -251,10 +259,17 @@ void ins_int_propagate(struct Int32Vect3 *accel, float dt)
   int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), &accel_meas_body);
 
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
-  if (ins_int.baro_initialized) {
+
+  /* Propagate only if we got any measurement during the last INS_MAX_PROPAGATION_STEPS.
+   * Otherwise halt the propagation to not diverge and only set the acceleration.
+   * This should only be relevant in the startup phase when the baro is not yet initialized
+   * and there is no gps fix yet...
+   */
+  if (ins_int.propagation_cnt < INS_MAX_PROPAGATION_STEPS) {
     vff_propagate(z_accel_meas_float, dt);
     ins_update_from_vff();
-  } else { // feed accel from the sensors
+  } else {
+    // feed accel from the sensors
     // subtract -9.81m/s2 (acceleration measured due to gravity,
     // but vehicle not accelerating in ltp)
     ins_int.ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
@@ -271,6 +286,11 @@ void ins_int_propagate(struct Int32Vect3 *accel, float dt)
 #endif /* USE_HFF */
 
   ins_ned_to_state();
+
+  /* increment the propagation counter, while making sure it doesn't overflow */
+  if (ins_int.propagation_cnt < 100*INS_MAX_PROPAGATION_STEPS) {
+    ins_int.propagation_cnt++;
+  }
 }
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
@@ -296,6 +316,9 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 #endif
     }
     ins_ned_to_state();
+
+    /* reset the counter to indicate we just had a measurement update */
+    ins_int.propagation_cnt = 0;
   }
 }
 
@@ -368,6 +391,9 @@ void ins_int_update_gps(struct GpsState *gps_s)
 #endif /* USE_HFF */
 
   ins_ned_to_state();
+
+  /* reset the counter to indicate we just had a measurement update */
+  ins_int.propagation_cnt = 0;
 }
 #else
 void ins_int_update_gps(struct GpsState *gps_s __attribute__((unused))) {}
@@ -395,6 +421,9 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, float distance)
     /* update offset with last value to avoid divergence */
     vff_update_offset(last_offset);
   }
+
+  /* reset the counter to indicate we just had a measurement update */
+  ins_int.propagation_cnt = 0;
 }
 #endif // USE_SONAR
 
