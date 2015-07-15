@@ -29,11 +29,17 @@
 /* already defined common configurations*/
 #define QUAD_PLUS   1
 #define QUAD_X      2
-#define QUAD_X_CCW  3
-#define HEXA_X      4
-#define HEXA_PLUS   5
-#define OCTO_X      6
-#define OCTO_PLUS   7
+#define HEXA_X      3
+#define HEXA_PLUS   4
+#define OCTO_X      5
+#define OCTO_PLUS   6
+
+/* set to TRUE to reverse the rotation direction of all motors */
+#if MOTOR_MIXING_REVERSE
+#define MOTOR_YAW_SIGN (-1)
+#else
+#define MOTOR_YAW_SIGN 1
+#endif
 
 #if MOTOR_MIXING_TYPE == QUAD_PLUS
 /*
@@ -48,7 +54,7 @@
 #define MOTOR_MIXING_SCALE       256
 #define MOTOR_MIXING_ROLL_COEF   {    0, -256,    0,  256 }
 #define MOTOR_MIXING_PITCH_COEF  {  256,    0, -256,    0 }
-#define MOTOR_MIXING_YAW_COEF    { -128,  128, -128,  128 }
+#define MOTOR_MIXING_YAW_COEF    { -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128, -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128 }
 #define MOTOR_MIXING_THRUST_COEF {  256,  256,  256,  256 }
 
 #elif MOTOR_MIXING_TYPE == QUAD_X
@@ -64,23 +70,7 @@
 #define MOTOR_MIXING_SCALE       256
 #define MOTOR_MIXING_ROLL_COEF   {  181, -181, -181,  181 }
 #define MOTOR_MIXING_PITCH_COEF  {  181,  181, -181, -181 }
-#define MOTOR_MIXING_YAW_COEF    { -128,  128, -128,  128 }
-#define MOTOR_MIXING_THRUST_COEF {  256,  256,  256,  256 }
-
-#elif MOTOR_MIXING_TYPE == QUAD_X_CCW
-/*
- * Quadrotor in time cross (X) configuration with motor order (reversed from QUAD_X):
- * front left (CCW), front right (CW), back right (CCW), back left (CW)
- */
-#define MOTOR_FRONT_LEFT  0
-#define MOTOR_FRONT_RIGHT 1
-#define MOTOR_BACK_RIGHT  2
-#define MOTOR_BACK_LEFT   3
-#define MOTOR_MIXING_NB_MOTOR    4
-#define MOTOR_MIXING_SCALE       256
-#define MOTOR_MIXING_ROLL_COEF   {  181, -181, -181,  181 }
-#define MOTOR_MIXING_PITCH_COEF  {  181,  181, -181, -181 }
-#define MOTOR_MIXING_YAW_COEF    {  128, -128,  128, -128 }
+#define MOTOR_MIXING_YAW_COEF    { -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128, -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128 }
 #define MOTOR_MIXING_THRUST_COEF {  256,  256,  256,  256 }
 
 #elif  MOTOR_MIXING_TYPE == HEXA_X
@@ -98,7 +88,7 @@
 #define MOTOR_MIXING_SCALE       256
 #define MOTOR_MIXING_ROLL_COEF   {  128, -128, -256, -128,  128,  256 }
 #define MOTOR_MIXING_PITCH_COEF  {  222,  222,    0, -222, -222,    0 }
-#define MOTOR_MIXING_YAW_COEF    { -128,  128, -128,  128, -128,  128 }
+#define MOTOR_MIXING_YAW_COEF    { -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128, -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128, -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128 }
 #define MOTOR_MIXING_THRUST_COEF {  256,  256,  256,  256,  256,  256 }
 
 #elif  MOTOR_MIXING_TYPE == HEXA_PLUS
@@ -116,7 +106,7 @@
 #define MOTOR_MIXING_SCALE       256
 #define MOTOR_MIXING_ROLL_COEF   {    0, -222, -222,    0,  222,  222 }
 #define MOTOR_MIXING_PITCH_COEF  {  256,  128, -128, -256, -128,  128 }
-#define MOTOR_MIXING_YAW_COEF    { -128,  128, -128,  128, -128,  128 }
+#define MOTOR_MIXING_YAW_COEF    { -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128, -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128, -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128 }
 #define MOTOR_MIXING_THRUST_COEF {  256,  256,  256,  256,  256,  256 }
 
 #elif  MOTOR_MIXING_TYPE == OCTO_PLUS
@@ -137,7 +127,7 @@
 #define MOTOR_MIXING_SCALE       256
 #define MOTOR_MIXING_ROLL_COEF   {    0, -181, -256, -181,    0,  181,  256,  181 }
 #define MOTOR_MIXING_PITCH_COEF  {  256,  181,    0, -181, -256, -181,    0,  181 }
-#define MOTOR_MIXING_YAW_COEF    { -128,  128, -128,  128, -128,  128, -128,  128 }
+#define MOTOR_MIXING_YAW_COEF    { -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128, -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128, -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128, -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128 }
 #define MOTOR_MIXING_THRUST_COEF {  256,  256,  256,  256,  256,  256,  256,  256 }
 
 #elif  MOTOR_MIXING_TYPE == OCTO_X
@@ -158,7 +148,7 @@
 #define MOTOR_MIXING_SCALE       256
 #define MOTOR_MIXING_ROLL_COEF   {   98,  -98, -237, -237,  -98,   98,  237,  237 }
 #define MOTOR_MIXING_PITCH_COEF  {  237,  237,   98,  -98, -237, -237,  -98,   98 }
-#define MOTOR_MIXING_YAW_COEF    { -128,  128, -128,  128, -128,  128, -128,  128 }
+#define MOTOR_MIXING_YAW_COEF    { -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128, -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128, -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128, -MOTOR_YAW_SIGN*128,  MOTOR_YAW_SIGN*128 }
 #define MOTOR_MIXING_THRUST_COEF {  256,  256,  256,  256,  256,  256,  256,  256 }
 
 #endif
