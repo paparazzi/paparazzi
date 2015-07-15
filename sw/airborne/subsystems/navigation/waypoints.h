@@ -101,6 +101,9 @@ extern void waypoint_set_lla(uint8_t wp_id, struct LlaCoor_i *lla);
 /** set waypoint latitude/longitude without updating altitude */
 extern void waypoint_set_latlon(uint8_t wp_id, struct LlaCoor_i *lla);
 
+/** copy one waypoint to another, this includes all flags from the source waypoint */
+extern void waypoint_copy(uint8_t wp_dest, uint8_t wp_src);
+
 
 /*
  * Move waypoints.

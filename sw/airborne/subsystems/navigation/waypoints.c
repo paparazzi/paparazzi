@@ -291,3 +291,10 @@ struct LlaCoor_i *waypoint_get_lla(uint8_t wp_id)
     return NULL;
   }
 }
+
+void waypoint_copy(uint8_t wp_dest, uint8_t wp_src)
+{
+  if (wp_dest < nb_waypoint && wp_src < nb_waypoint) {
+    memcpy(&waypoints[wp_dest], &waypoints[wp_src], sizeof(struct Waypoint));
+  }
+}
