@@ -448,7 +448,9 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (strip
   (** Get the airframe file *)
   let af_url = Pprz.string_assoc "airframe" config in
   let af_file =  Http.file_of_url af_url in
-  let af_xml = ExtXml.parse_file af_file in
+  (* do not check dtd if it is a http url *)
+  let via_http = Str.string_match (Str.regexp "http") af_url 0 in
+  let af_xml = ExtXml.parse_file ~noprovedtd:via_http af_file in
 
   (** Get an alternate speech name if available *)
   let speech_name = get_speech_name af_xml name in
