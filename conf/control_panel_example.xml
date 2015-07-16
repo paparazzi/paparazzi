@@ -71,6 +71,8 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
+    <program name="Http Server" command="$python -m SimpleHTTPServer 8889"/>
+
     <program name="Plot Meteo Profile" command="sw/logalizer/plotprofile"/>
 
     <program name="Weather Station" command="sw/ground_segment/misc/davis2ivy">

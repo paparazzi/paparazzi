@@ -42,6 +42,8 @@ let program_command = fun x ->
     let cmd = ExtXml.attrib xml "command" in
     if cmd.[0] = '/' then
       cmd
+    else if cmd.[0] = '$' then
+      String.sub cmd 1 ((String.length cmd) - 1)
     else
       Env.paparazzi_src // cmd
   with Not_found ->
