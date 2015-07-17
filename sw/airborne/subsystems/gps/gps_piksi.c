@@ -95,7 +95,16 @@ static void sbp_pos_ecef_callback(uint16_t sender_id __attribute__((unused)),
   gps.ecef_pos.x = (int32_t)(pos_ecef.x * 100.0);
   gps.ecef_pos.y = (int32_t)(pos_ecef.y * 100.0);
   gps.ecef_pos.z = (int32_t)(pos_ecef.z * 100.0);
-  gps.pacc = (uint32_t)(pos_ecef.accuracy);
+  //gps.pacc = (uint32_t)(pos_ecef.accuracy); FIXME not implemented yet by libswiftnav
+  // instead give some arbitrary values telling the fix mode
+  uint8_t fix_mode = (pos_ecef.flags & 0x3);
+  if (fix_mode == 2) {
+    gps.pacc = 2;
+  } else if (fix_mode == 1) {
+    gps.pacc = 1;
+  } else {
+    gps.pacc = 99;
+  }
   gps.num_sv = pos_ecef.n_sats;
   gps.fix = GPS_FIX_3D;
   gps.tow = pos_ecef.tow;
