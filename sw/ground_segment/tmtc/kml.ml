@@ -29,7 +29,6 @@ open Server_globals
 
 let enabled = ref false
 let no_http = ref false
-let port = ref 8889
 
 let el = fun t a c -> Xml.Element (t, a, c)
 let data = fun t d -> el t [] [Xml.PCData d]

@@ -659,7 +659,7 @@ let send_config = fun http _asker args ->
     let ac_name = ExtXml.attrib conf "name" in
     let protocol =
       if http then
-        sprintf "http://%s:8889" (Unix.gethostname ())
+        sprintf "http://%s:%d" !hostname !port
       else
         sprintf "file://%s" Env.paparazzi_home in
     let prefix = fun s -> sprintf "%s/%s%s" protocol root_dir s in
@@ -794,11 +794,11 @@ let () =
 
   let options =
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "Bus\tDefault is %s" !ivy_bus);
-      "-hostname", Arg.Set_string hostname, "<hostname> Set the address for the http server";
       "-http", Arg.Set http, "Send http: URLs (default is file:)";
+      "-hostname", Arg.Set_string hostname, "<hostname> Set the address for the http server";
+      "-port", Arg.Set_int port, (sprintf "<port> Set http port for serving XML and KML files (default is %d)" !port);
       "-kml", Arg.Set Kml.enabled, "Enable KML file updating";
       "-kml_no_http", Arg.Set Kml.no_http, "KML without web server (local files only)";
-      "-kml_port", Arg.Set_int Kml.port, (sprintf "Port for KML files (default is %d)" !Kml.port);
       "-n", Arg.Clear logging, "Disable log";
       "-timestamp", Arg.Set timestamp, "Bind on timestampped messages";
       "-no_md5_check", Arg.Set no_md5_check, "Disable safety matching of live and current configurations";
