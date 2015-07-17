@@ -911,7 +911,7 @@ let () =
     [ ("-export_csv", Arg.Set export, "Export in CSV in batch mode according to saved preferences (conf/%gconf.xml)");
       ("-v", Arg.Set verbose, "Verbose")]
     (fun x -> logs := x :: !logs)
-    "Usage: plot <log files>";
+    "Usage: logplotter <log files>";
 
   plot_window ~export: !export !logs;
 
