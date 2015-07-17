@@ -35,6 +35,11 @@
 void gps_piksi_event(void);
 
 /*
+ * Reset base station position
+ */
+void gps_piksi_set_base_pos(void);
+
+/*
  * The GPS event
  */
 #define GpsEvent gps_piksi_event

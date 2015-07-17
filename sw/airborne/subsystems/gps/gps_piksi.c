@@ -29,8 +29,9 @@
  * https://github.com/swift-nav/sbp_tutorial
  */
 
-#include <sbp.h>
-#include <navigation.h>
+#include <libsbp/sbp.h>
+#include <libsbp/navigation.h>
+#include <libsbp/observation.h>
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
 #include "mcu_periph/uart.h"
@@ -61,13 +62,19 @@ sbp_msg_callbacks_node_t pos_llh_node;
 sbp_msg_callbacks_node_t vel_ned_node;
 sbp_msg_callbacks_node_t dops_node;
 sbp_msg_callbacks_node_t gps_time_node;
+
 #if USE_PIKSI_BASELINE_ECEF
 sbp_msg_callbacks_node_t baseline_ecef_node;
-static bool_t baseline_ecef_valid;
-static uint32_t baseline_ecef_lost_counter;
-// baseline_ecef is lost after getting X pos_ecef message
-#define BASELINE_ECEF_LOST 5
+
+struct gps_baseline {
+  struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
+  bool_t ecef_valid;
+};
+
+static struct gps_baseline baseline;
+
 #endif
+
 //#if USE_PIKSI_BASELINE_NED
 //sbp_msg_callbacks_node_t baseline_ned_node;
 //#endif
@@ -84,12 +91,6 @@ static void sbp_pos_ecef_callback(uint16_t sender_id __attribute__((unused)),
                                   uint8_t msg[],
                                   void *context __attribute__((unused)))
 {
-#if USE_PIKSI_BASELINE_ECEF
-  if (baseline_ecef_valid) {
-    // if baseline ecef position is valid, use it
-    return;
-  }
-#endif
   msg_pos_ecef_t pos_ecef = *(msg_pos_ecef_t *)msg;
   gps.ecef_pos.x = (int32_t)(pos_ecef.x * 100.0);
   gps.ecef_pos.y = (int32_t)(pos_ecef.y * 100.0);
@@ -98,6 +99,7 @@ static void sbp_pos_ecef_callback(uint16_t sender_id __attribute__((unused)),
   gps.num_sv = pos_ecef.n_sats;
   gps.fix = GPS_FIX_3D;
   gps.tow = pos_ecef.tow;
+  // gps_piksi_publish(); // Done after receiving vel_ned
 }
 
 #if USE_PIKSI_BASELINE_ECEF
@@ -107,18 +109,13 @@ static void sbp_baseline_ecef_callback(uint16_t sender_id __attribute__((unused)
                                        void *context __attribute__((unused)))
 {
   msg_baseline_ecef_t baseline_ecef = *(msg_baseline_ecef_t *)msg;
-  gps.ecef_pos.x = (int32_t)(baseline_ecef.x / 10);
-  gps.ecef_pos.y = (int32_t)(baseline_ecef.y / 10);
-  gps.ecef_pos.z = (int32_t)(baseline_ecef.z / 10);
-  gps.pacc = (uint32_t)(baseline_ecef.accuracy);
-  gps.num_sv = baseline_ecef.n_sats;
-  gps.fix = GPS_FIX_3D;
-  gps.tow = baseline_ecef.tow;
-
-  baseline_ecef_valid = TRUE;
-  baseline_ecef_lost_counter = 0;
-  // High precision solution available
-  gps_piksi_publish();
+  baseline.ecef_pos.x = (int32_t)(baseline_ecef.x / 10);
+  baseline.ecef_pos.y = (int32_t)(baseline_ecef.y / 10);
+  baseline.ecef_pos.z = (int32_t)(baseline_ecef.z / 10);
+  if (baseline.ecef_valid == FALSE) {
+    gps_piksi_set_base_pos();
+  }
+  baseline.ecef_valid = TRUE;
 }
 #endif
 
@@ -134,17 +131,6 @@ static void sbp_vel_ecef_callback(uint16_t sender_id __attribute__((unused)),
   gps.sacc = (uint32_t)(vel_ecef.accuracy);
 
   // Solution available (VEL_ECEF is the last message to be send)
-#if USE_PIKSI_BASELINE_ECEF
-  // unless baseline ecef is valid
-  if (baseline_ecef_valid) {
-    // if baseline ecef position is valid, use it
-    return;
-  }
-  if (baseline_ecef_lost_counter < BASELINE_ECEF_LOST) {
-    baseline_ecef_lost_counter++;
-    baseline_ecef_valid = FALSE;
-  }
-#endif
   gps_piksi_publish();
 }
 
@@ -234,8 +220,7 @@ static void sbp_gps_time_callback(uint16_t sender_id __attribute__((unused)),
 
 void gps_impl_init(void)
 {
-  baseline_ecef_valid = FALSE;
-  baseline_ecef_lost_counter = 0;
+  baseline.ecef_valid = FALSE;
 
   /* Setup SBP nodes */
   sbp_state_init(&sbp_state);
@@ -268,6 +253,7 @@ uint8_t fifo_full(void);
 uint8_t fifo_write(char c);
 uint8_t fifo_read_char(char *c);
 uint32_t fifo_read(uint8_t *buff, uint32_t n, void *context);
+uint32_t write_callback(uint8_t *buff, uint32_t n, void *context);
 
 
 /*
@@ -296,6 +282,24 @@ static void gps_piksi_publish(void)
     gps.last_3dfix_time = sys_time.nb_sec;
   }
   AbiSendMsgGPS(GPS_PIKSI_ID, now_ts, &gps);
+}
+
+void gps_piksi_set_base_pos(void)
+{
+  // compute base pos from current rover position and baseleg
+  // TODO would probably need some averaging on the last values
+  struct EcefCoor_i base_pos;
+  VECT3_DIFF(base_pos, gps.ecef_pos, baseline.ecef_pos);
+  struct LlaCoor_i base_lla;
+  lla_of_ecef_i(&base_lla, &base_pos);
+  // fill sbp message
+  msg_base_pos_t msg_base_pos = {
+    .lat = (double)(DEG_OF_EM7DEG(base_lla.lat)),
+    .lon = (double)(DEG_OF_EM7DEG(base_lla.lon)),
+    .height = (double)(M_OF_MM(base_lla.alt))
+  };
+  // send message to piksi module
+  sbp_send_message(&sbp_state, SBP_MSG_BASE_POS, 0, sizeof(msg_base_pos_t), (u8*)(&msg_base_pos), write_callback);
 }
 
 /*
@@ -368,4 +372,13 @@ uint8_t fifo_full(void)
   return 0;
 }
 
+/* Write some bytes on a uart link */
+uint32_t write_callback(uint8_t *buff, uint32_t n, void *context __attribute__((unused)))
+{
+  uint32_t i = 0;
+  for (i = 0; i < n; i++) {
+    uart_transmit(&(GPS_LINK), buff[i]);
+  }
+  return n;
+}
 
