@@ -36,12 +36,15 @@ let programs =
     (fun p -> Hashtbl.add h (ExtXml.attrib p "name") p)
     (Xml.children s);
   h
+
 let program_command = fun x ->
   try
     let xml = Hashtbl.find programs x in
     let cmd = ExtXml.attrib xml "command" in
     if cmd.[0] = '/' then
       cmd
+    else if cmd.[0] = '$' then
+      String.sub cmd 1 ((String.length cmd) - 1)
     else
       Env.paparazzi_src // cmd
   with Not_found ->
@@ -234,22 +237,28 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
   register_custom_sessions ();
   Gtk_tools.select_in_combo session_combo "Simulation";
 
-  let execute_custom = fun session_name ->
-    let session = try Hashtbl.find sessions session_name with Not_found -> failwith (sprintf "Unknown session: %s" session_name) in
+  let get_program_args = fun program ->
+    let args = ref "" in
     List.iter
-      (fun program ->
-	let name = ExtXml.attrib program "name" in
-	let p = ref "" in
-	List.iter
 	  (fun arg ->
 	    let constant =
           match try double_quote (Xml.attrib arg "constant") with _ -> "" with
             "@AIRCRAFT" -> (Gtk_tools.combo_value ac_combo)
           | "@AC_ID" -> gui#entry_ac_id#text
           | const -> const in
-	    p := sprintf "%s %s %s" !p (ExtXml.attrib arg "flag") constant)
+	    args := sprintf "%s %s %s" !args (ExtXml.attrib arg "flag") constant)
 	  (Xml.children program);
-	run_and_monitor ?file gui log name !p)
+    !args
+  in
+
+
+  let execute_custom = fun session_name ->
+    let session = try Hashtbl.find sessions session_name with Not_found -> failwith (sprintf "Unknown session: %s" session_name) in
+    List.iter
+      (fun program ->
+        let name = ExtXml.attrib program "name" in
+	    let args = get_program_args program in
+	    run_and_monitor ?file gui log name args)
       (Xml.children session)
   in
 
@@ -279,9 +288,10 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
   (* Tools *)
   let entries = ref [] in
   Hashtbl.iter
-    (fun name _prog ->
+    (fun name prog ->
       let cb = fun () ->
-	run_and_monitor ?file gui log name "" in
+        let args = get_program_args prog in
+	    run_and_monitor ?file gui log name args in
       entries := `I (name, cb) :: !entries)
     programs;
   let compare = fun x y ->
