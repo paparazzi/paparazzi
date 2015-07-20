@@ -222,7 +222,7 @@
   <aircraft
    name="krooz_quad"
    ac_id="23"
-   airframe="airframes/examples/krooz_sd/krooz_sd_quad_mkk.xml"
+   airframe="airframes/examples/krooz_sd_quad_mkk.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
