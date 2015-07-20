@@ -32,6 +32,7 @@
 #include <libsbp/sbp.h>
 #include <libsbp/navigation.h>
 #include <libsbp/observation.h>
+#include "subsystems/gps/gps_piksi.h"
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
 #include "mcu_periph/uart.h"
@@ -44,6 +45,15 @@
 
 #ifndef USE_PIKSI_BASELINE_ECEF
 #define USE_PIKSI_BASELINE_ECEF 1
+#endif
+
+/* Force piksi module to use internal patch antenna
+ * Caution: default value might by "Auto" or "External" depending on the firmware version
+ */
+#define USE_PIKSI_PATCH_ANTENNA 1
+#if USE_PIKSI_PATCH_ANTENNA
+#include <libsbp/settings.h>
+static const char ANTENNA_SETTING[] = "frontend antenna_selection Patch";
 #endif
 
 /*
@@ -227,6 +237,22 @@ static void sbp_gps_time_callback(uint16_t sender_id __attribute__((unused)),
   gps.tow = gps_time.tow;
 }
 
+/*
+ * FIFO to hold received UART bytes before
+ * libswiftnav SBP submodule parses them.
+ */
+#define FIFO_LEN 512
+char sbp_msg_fifo[FIFO_LEN];
+
+/* FIFO functions */
+uint8_t fifo_empty(void);
+uint8_t fifo_full(void);
+uint8_t fifo_write(char c);
+uint8_t fifo_read_char(char *c);
+uint32_t fifo_read(uint8_t *buff, uint32_t n, void *context);
+uint32_t write_callback(uint8_t *buff, uint32_t n, void *context);
+
+
 void gps_impl_init(void)
 {
   baseline.ecef_valid = FALSE;
@@ -246,23 +272,11 @@ void gps_impl_init(void)
 //#if USE_PIKSI_BASELINE_NED
 //  sbp_register_callback(&sbp_state, SBP_MSG_BASELINE_NED, &sbp_baseline_ned_callback, NULL, &baseline_ned_node);
 //#endif
+
+#if USE_PIKSI_PATCH_ANTENNA
+  sbp_send_message(&sbp_state, SBP_MSG_SETTINGS, 0, sizeof(ANTENNA_SETTING) ,(u8*)(&ANTENNA_SETTING), write_callback);
+#endif
 }
-
-
-/*
- * FIFO to hold received UART bytes before
- * libswiftnav SBP submodule parses them.
- */
-#define FIFO_LEN 512
-char sbp_msg_fifo[FIFO_LEN];
-
-/* FIFO functions */
-uint8_t fifo_empty(void);
-uint8_t fifo_full(void);
-uint8_t fifo_write(char c);
-uint8_t fifo_read_char(char *c);
-uint32_t fifo_read(uint8_t *buff, uint32_t n, void *context);
-uint32_t write_callback(uint8_t *buff, uint32_t n, void *context);
 
 
 /*
