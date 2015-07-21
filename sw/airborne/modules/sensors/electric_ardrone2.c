@@ -22,11 +22,13 @@
  */
 
 /**
- * @file boards/ardrone/electrical_raw.c
+ * @file modules/electric_ardrone2/electric_ardrone2.c
  * arch specific electrical status readings
  */
 
-#include "electrical.h"
+
+#include "modules/sensors/electric_ardrone2.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -39,7 +41,7 @@
 #include "subsystems/commands.h"
 #include "generated/airframe.h"
 
-struct Electrical electrical;
+void electrical_ardrone2_setup(void);
 
 #if defined ADC_CHANNEL_VSUPPLY || defined ADC_CHANNEL_CURRENT || defined MILLIAMP_AT_FULL_THROTTLE
 static struct {
@@ -67,7 +69,7 @@ static struct {
 
 int fd;
 
-void electrical_init(void)
+void electric_ardrone2_init(void)
 {
   // First we try to kill the program.elf and its respawner if it is running (done here because initializes first)
   int ret = system("killall -9 program.elf.respawner.sh; killall -9 program.elf");
@@ -79,11 +81,11 @@ void electrical_init(void)
     fprintf(stderr, "Failed to set slave address: %m\n");
   }
 
-  electrical_setup();
+  electrical_ardrone2_setup();
   electrical_priv.nonlin_factor = CURRENT_ESTIMATION_NONLINEARITY;
 }
 
-void electrical_setup(void)
+void electrical_ardrone2_setup(void)
 {
   // Turn on MADC in CTRL1
   if (i2c_smbus_write_byte_data(fd, 0x00, 0x01))   {
@@ -107,10 +109,10 @@ void electrical_setup(void)
   }
 }
 
-void electrical_periodic(void)
+void electric_ardrone2_periodic(void)
 {
 
-  electrical_setup();
+  electrical_ardrone2_setup();
 
   unsigned char lsb, msb;
   lsb = i2c_smbus_read_byte_data(fd, 0x37);
@@ -144,4 +146,10 @@ void electrical_periodic(void)
    */
   electrical.current = b - pow((pow(b, electrical_priv.nonlin_factor) - pow((b * x), electrical_priv.nonlin_factor)),
                                (1. / electrical_priv.nonlin_factor));
+
+
 }
+
+
+
+
