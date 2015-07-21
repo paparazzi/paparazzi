@@ -38,8 +38,7 @@
 #include <unistd.h>
 #include <math.h>
 #include "mcu_periph/i2c_smbus.h"
-#include "subsystems/commands.h"
-#include "generated/airframe.h"
+
 
 void electrical_ardrone2_setup(void);
 
