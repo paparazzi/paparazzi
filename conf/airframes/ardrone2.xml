@@ -25,6 +25,7 @@
   </firmware>
 
   <modules main_freq="512">
+    <load name="electric_ardrone2.xml"/>
     <!-- remove the gps_ubx_ucenter module if you use the sirf gps (flight recorder) -->
     <load name="gps_ubx_ucenter.xml"/>
     <load name="send_imu_mag_current.xml"/>

@@ -22,11 +22,13 @@
  */
 
 /**
- * @file boards/ardrone/electrical_raw.c
- * arch specific electrical status readings
+ * @file modules/electric_ardrone2/electric_ardrone2.c
+ * Read battery voltage on ARDrone2 and publish to electrical subsystem.
  */
 
-#include "electrical.h"
+
+#include "modules/sensors/electric_ardrone2.h"
+
 #include <stdio.h>
 #include <string.h>
 //#include <stdlib.h>
@@ -36,38 +38,16 @@
 #include <unistd.h>
 #include <math.h>
 #include "mcu_periph/i2c_smbus.h"
-#include "subsystems/commands.h"
-#include "generated/airframe.h"
 
-struct Electrical electrical;
+#include "subsystems/electrical.h"
 
-#if defined ADC_CHANNEL_VSUPPLY || defined ADC_CHANNEL_CURRENT || defined MILLIAMP_AT_FULL_THROTTLE
-static struct {
-#ifdef ADC_CHANNEL_VSUPPLY
-  struct adc_buf vsupply_adc_buf;
-#endif
-#ifdef ADC_CHANNEL_CURRENT
-  struct adc_buf current_adc_buf;
-#endif
-#ifdef MILLIAMP_AT_FULL_THROTTLE
-  float nonlin_factor;
-#endif
-} electrical_priv;
-#endif
 
-#if defined COMMAND_THROTTLE
-#define COMMAND_CURRENT_ESTIMATION COMMAND_THROTTLE
-#elif defined COMMAND_THRUST
-#define COMMAND_CURRENT_ESTIMATION COMMAND_THRUST
-#endif
 
-#ifndef CURRENT_ESTIMATION_NONLINEARITY
-#define CURRENT_ESTIMATION_NONLINEARITY 1.2
-#endif
+void electrical_ardrone2_setup(void);
 
 int fd;
 
-void electrical_init(void)
+void electric_ardrone2_init(void)
 {
   // Initialize 12c device for power
   fd = open("/dev/i2c-1", O_RDWR);
@@ -75,11 +55,11 @@ void electrical_init(void)
     fprintf(stderr, "Failed to set slave address: %m\n");
   }
 
-  electrical_setup();
-  electrical_priv.nonlin_factor = CURRENT_ESTIMATION_NONLINEARITY;
+  electrical_ardrone2_setup();
+
 }
 
-void electrical_setup(void)
+void electrical_ardrone2_setup(void)
 {
   // Turn on MADC in CTRL1
   if (i2c_smbus_write_byte_data(fd, 0x00, 0x01))   {
@@ -103,10 +83,10 @@ void electrical_setup(void)
   }
 }
 
-void electrical_periodic(void)
+void electric_ardrone2_periodic(void)
 {
 
-  electrical_setup();
+  electrical_ardrone2_setup();
 
   unsigned char lsb, msb;
   lsb = i2c_smbus_read_byte_data(fd, 0x37);
@@ -123,21 +103,4 @@ void electrical_periodic(void)
   //leading to our 0.13595166 magic number for decivolts conversion
   electrical.vsupply = raw_voltage * 0.13595166;
 
-  /*
-   * Superellipse: abs(x/a)^n + abs(y/b)^n = 1
-   * with a = 1
-   * b = mA at full throttle
-   * n = 1.2     This defines nonlinearity (1 = linear)
-   * x = throttle
-   * y = current
-   *
-   * define CURRENT_ESTIMATION_NONLINEARITY in your airframe file to change the default nonlinearity factor of 1.2
-   */
-  float b = (float)MILLIAMP_AT_FULL_THROTTLE;
-  float x = ((float)commands[COMMAND_CURRENT_ESTIMATION]) / ((float)MAX_PPRZ);
-  /* electrical.current y = ( b^n - (b* x/a)^n )^1/n
-   * a=1, n = electrical_priv.nonlin_factor
-   */
-  electrical.current = b - pow((pow(b, electrical_priv.nonlin_factor) - pow((b * x), electrical_priv.nonlin_factor)),
-                               (1. / electrical_priv.nonlin_factor));
 }
