@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- Twinjet Multiplex (http://www.multiplex-rc.de/)
      Twog v1 board (http://wiki.paparazziuav.org/wiki/Twog_v1)

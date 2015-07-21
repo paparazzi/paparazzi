@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- this is a demo file for the OpenPilot CC3D board:
      * Autopilot:   OpenPilot CC3D         https://www.openpilot.org/product/coptercontrol/
