@@ -32,6 +32,9 @@
 #include "led_hw.h"
 #include "autopilot.h"
 
+#include "video.h"
+#include <stdlib.h>
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 #include "firmwares/rotorcraft/stabilization.h"
@@ -60,6 +63,14 @@ static uint8_t actuators_bebop_checksum(uint8_t *bytes, uint8_t size);
 
 void actuators_bebop_init(void)
 {
+  // First we try to kill the dragon-prog and its respawner if it is running
+  int ret __attribute__((unused)) = system("killall -q -9 watchdog.sh; killall -q -9 dragon-prog");
+
+  // We also try to initialize the video CMOS chips here (Bottom and front)
+  mt9v117_init();
+  //mt9f002_init();
+
+
   /* Initialize the I2C connection */
   actuators_bebop.i2c_trans.slave_addr = ACTUATORS_BEBOP_ADDR;
   actuators_bebop.i2c_trans.status = I2CTransDone;
