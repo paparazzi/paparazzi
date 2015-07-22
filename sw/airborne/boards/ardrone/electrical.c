@@ -140,4 +140,12 @@ void electrical_periodic(void)
    */
   electrical.current = b - pow((pow(b, electrical_priv.nonlin_factor) - pow((b * x), electrical_priv.nonlin_factor)),
                                (1. / electrical_priv.nonlin_factor));
+
+
+electrical_checks();
+
 }
+
+
+
+

@@ -29,6 +29,11 @@
 #ifndef ELECTRICAL_RAW_H_
 #define ELECTRICAL_RAW_H_
 
+// these ARDrone2 batteries often drop very quickly, set to 1 instead of default 5
+#ifndef BAT_CHECKER_DELAY
+#define BAT_CHECKER_DELAY 1
+#endif
+
 #include "subsystems/electrical.h"
 
 void electrical_setup(void);

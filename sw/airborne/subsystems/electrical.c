@@ -147,40 +147,5 @@ void electrical_periodic(void)
                                (1. / electrical_priv.nonlin_factor));
 #endif /* ADC_CHANNEL_CURRENT */
 
-  // mAh = mA * dt (10Hz -> hours)
-  electrical.energy += ((float)electrical.current) / 3600.0f / ELECTRICAL_PERIODIC_FREQ;
-
-  /*if valid voltage is seen then start checking. Set min level to 0 to always start*/
-  if (electrical.vsupply >= MIN_BAT_LEVEL * 10) {
-    vsupply_check_started = TRUE;
-  }
-
-  if (vsupply_check_started) {
-    if (electrical.vsupply < LOW_BAT_LEVEL * 10) {
-      if (bat_low_counter > 0) {
-        bat_low_counter--;
-      }
-      if (bat_low_counter == 0) {
-        electrical.bat_low = TRUE;
-      }
-    } else {
-      // reset battery low status and counter
-      bat_low_counter = BAT_CHECKER_DELAY * ELECTRICAL_PERIODIC_FREQ;
-      electrical.bat_low = FALSE;
-    }
-
-    if (electrical.vsupply < CRITIC_BAT_LEVEL * 10) {
-      if (bat_critical_counter > 0) {
-        bat_critical_counter--;
-      }
-      if (bat_critical_counter == 0) {
-        electrical.bat_critical = TRUE;
-      }
-    } else {
-      // reset battery critical status and counter
-      bat_critical_counter = BAT_CHECKER_DELAY * ELECTRICAL_PERIODIC_FREQ;
-      electrical.bat_critical = FALSE;
-    }
-  }
-
+  electrical_checks();
 }
