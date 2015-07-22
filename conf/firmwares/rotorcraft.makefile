@@ -123,9 +123,7 @@ $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 #
 $(TARGET).CFLAGS += -DUSE_ADC
 $(TARGET).srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-ifneq ($(ARCH), linux)
 $(TARGET).srcs   += subsystems/electrical.c
-endif
 
 
 ######################################################################
@@ -137,8 +135,6 @@ endif
 ifeq ($(BOARD), booz)
 ns_CFLAGS += -DUSE_DAC
 ns_srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
-else ifeq ($(BOARD), ardrone)
-ns_srcs   += $(SRC_BOARD)/electrical.c
 else ifeq ($(BOARD), bebop)
 ns_srcs   += $(SRC_BOARD)/electrical.c
 endif
