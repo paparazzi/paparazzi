@@ -63,6 +63,11 @@
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */
 
+void WEAK board_init(void)
+{
+  // default board init function does nothing...
+}
+
 void mcu_init(void)
 {
 
@@ -173,7 +178,14 @@ void mcu_init(void)
   INFO("PERIPHERALS_AUTO_INIT not enabled! Peripherals (including sys_time) need explicit initialization.")
 #endif /* PERIPHERALS_AUTO_INIT */
 
+  /* If we have a board specific init function, call it.
+   * Otherwise it will simply call the empty weak function.
+   */
+  board_init();
+
 }
+
+
 
 void mcu_event(void)
 {

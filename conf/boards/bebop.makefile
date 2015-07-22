@@ -31,6 +31,9 @@ GPS_BAUD           ?= B230400
 # handle linux signals by hand
 $(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL -D_GNU_SOURCE
 
+# board specific init function
+$(TARGET).srcs +=  $(SRC_BOARD)/board.c
+
 # Compile the video specific parts
 $(TARGET).srcs +=  $(SRC_BOARD)/video.c
 

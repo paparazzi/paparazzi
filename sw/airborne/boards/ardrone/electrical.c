@@ -29,7 +29,7 @@
 #include "electrical.h"
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/time.h>
@@ -69,10 +69,6 @@ int fd;
 
 void electrical_init(void)
 {
-  // First we try to kill the program.elf and its respawner if it is running (done here because initializes first)
-  int ret = system("killall -9 program.elf.respawner.sh; killall -9 program.elf");
-  (void) ret;
-
   // Initialize 12c device for power
   fd = open("/dev/i2c-1", O_RDWR);
   if (ioctl(fd, I2C_SLAVE_FORCE, 0x4a) < 0) {

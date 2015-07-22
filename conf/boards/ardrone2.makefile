@@ -38,6 +38,9 @@ MODEM_HOST         ?= 192.168.1.255
 # handle linux signals by hand
 $(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL -D_GNU_SOURCE
 
+# board specific init function
+$(TARGET).srcs +=  $(SRC_BOARD)/board.c
+
 # Link static (Done for GLIBC)
 $(TARGET).CFLAGS += -DLINUX_LINK_STATIC
 $(TARGET).LDFLAGS += -static

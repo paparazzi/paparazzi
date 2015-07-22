@@ -1,6 +1,5 @@
 /*
- *
- * Copyright (C) 2014 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2015 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -15,32 +14,27 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
- * @file boards/bebop/electrical.c
- * Dummy electrical status readings for the bebop.
- * Because the voltage measurements is done trough the motor controllers.
+ * @file boards/bebop/board.c
+ *
+ * Bebop specific board initialization function.
+ *
  */
 
-#include "subsystems/electrical.h"
-#include "video.h"
 #include <stdlib.h>
+#include "video.h"
+#include "mcu.h"
 
-struct Electrical electrical;
-
-void electrical_init(void)
+void board_init(void)
 {
-  // First we try to kill the dragon-prog and its respawner if it is running (done here because initializes first)
+  // First we try to kill the dragon-prog and its respawner if it is running
   int ret __attribute__((unused)) = system("killall -q -9 watchdog.sh; killall -q -9 dragon-prog");
 
   // We also try to initialize the video CMOS chips here (Bottom and front)
   mt9v117_init();
   //mt9f002_init();
 }
-
-void electrical_periodic(void) { }
