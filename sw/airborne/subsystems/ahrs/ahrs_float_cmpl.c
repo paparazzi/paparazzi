@@ -277,6 +277,7 @@ void ahrs_fc_update_accel(struct Int32Vect3 *accel, float dt)
 
 void ahrs_fc_update_mag(struct Int32Vect3 *mag, float dt)
 {
+#if USE_MAGNETOMETER
   // check if we had at least one propagation since last update
   if (ahrs_fc.mag_cnt == 0) {
     return;
@@ -288,6 +289,7 @@ void ahrs_fc_update_mag(struct Int32Vect3 *mag, float dt)
 #endif
   // reset mag propagation counter
   ahrs_fc.mag_cnt = 0;
+#endif
 }
 
 void ahrs_fc_update_mag_full(struct Int32Vect3 *mag, float dt)
