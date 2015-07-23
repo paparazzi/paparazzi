@@ -220,7 +220,7 @@ static void attitude_run_indi(int32_t indi_commands[], struct Int32Quat *att_err
                                          STABILIZATION_INDI_FILT_OMEGA, STABILIZATION_INDI_FILT_ZETA, STABILIZATION_INDI_FILT_OMEGA_R);
 
   //Don't increment if thrust is off
-  if (!in_flight) {
+  if (stabilization_cmd[COMMAND_THRUST] < 300) {
     FLOAT_RATES_ZERO(indi.u);
     FLOAT_RATES_ZERO(indi.du);
     FLOAT_RATES_ZERO(indi.u_act_dyn);
