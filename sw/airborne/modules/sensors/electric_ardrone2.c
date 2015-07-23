@@ -22,12 +22,12 @@
  */
 
 /**
- * @file modules/electric_ardrone2/electric_ardrone2.c
+ * @file modules/sensors/bat_voltage_ardrone2.c
  * Read battery voltage on ARDrone2 and publish to electrical subsystem.
  */
 
 
-#include "modules/sensors/electric_ardrone2.h"
+#include "modules/sensors/bat_voltage_ardrone2.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -47,7 +47,7 @@ void electrical_ardrone2_setup(void);
 
 int fd;
 
-void electric_ardrone2_init(void)
+void bat_voltage_ardrone2_init(void)
 {
   // Initialize 12c device for power
   fd = open("/dev/i2c-1", O_RDWR);
@@ -83,7 +83,7 @@ void electrical_ardrone2_setup(void)
   }
 }
 
-void electric_ardrone2_periodic(void)
+void bat_voltage_ardrone2_periodic(void)
 {
 
   electrical_ardrone2_setup();

@@ -24,7 +24,7 @@
   </firmware>
 
   <modules main_freq="512">
-    <load name="electric_ardrone2.xml"/>
+    <load name="bat_voltage_ardrone2.xml"/>
     <load name="gps_ubx_ucenter.xml"/>
     <load name="send_imu_mag_current.xml"/>
     <load name="logger_file.xml"/>

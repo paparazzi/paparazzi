@@ -22,13 +22,13 @@
  */
 
 /**
- * @file modules/electric_ardrone2/electric_ardrone2.c
- * arch specific electrical status readings
+ * @file modules/sensors/bat_voltage_ardrone2.c
+ * Read the battery voltage on ARDrone2.
  */
-#ifndef ELECTRICAL_ARDRONE2_H_
-#define ELECTRICAL_ARDRONE2_H_
+#ifndef BAT_VOLTAGE_ARDRONE2_H_
+#define BAT_VOLTAGE_ARDRONE2_H_
 
-void electric_ardrone2_init(void);
-void electric_ardrone2_periodic(void);
+void bat_voltage_ardrone2_init(void);
+void bat_voltage_ardrone2_periodic(void);
 
-#endif /* ELECTRICAL_ARDRONE2_H_ */
+#endif /* BAT_VOLTAGE_ARDRONE2_H_ */
