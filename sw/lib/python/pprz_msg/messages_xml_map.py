@@ -72,6 +72,17 @@ def get_msgs(msg_class):
         print("Error: msg_class %s not found." % msg_class)
     return []
 
+def get_msg_name(msg_class, msg_id):
+    if not message_dictionary:
+        parse_messages()
+    if msg_class in message_dictionary:
+        if msg_id in message_dictionary_id_name[msg_class]:
+            return message_dictionary_id_name[msg_class][msg_id]
+        else:
+            print("Error: msg_id %d not found in msg_class %s." % (msg_id, msg_class))
+    else:
+        print("Error: msg_class %s not found." % msg_class)
+    return ""
 
 def get_msg_fields(msg_class, msg_name):
     if not message_dictionary:
