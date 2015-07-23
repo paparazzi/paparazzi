@@ -28,10 +28,10 @@
 #include <stdlib.h>
 #include "mcu.h"
 
-/* check if the electric_ardrone2 module is loaded */
+/* check if the bat_voltage_ardrone2 module is loaded */
 #include "generated/modules.h"
 #ifndef BAT_VOLTAGE_ARDRONE2_PERIODIC_FREQ
-#warning No battery voltage measurement available! Please add <load name="electric_ardrone2.xml"/> to your modules.
+#warning No battery voltage measurement available! Please add <load name="bat_voltage_ardrone2.xml"/> to your modules.
 #endif
 
 void board_init(void)
