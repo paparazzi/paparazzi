@@ -159,14 +159,6 @@
   </section>
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
-    <!-- setpoints -->
-    <define name="SP_MAX_PHI" value="60." unit="deg"/>
-    <define name="SP_MAX_THETA" value="60." unit="deg"/>
-    <define name="SP_MAX_R" value="180." unit="deg/s"/>
-    <define name="DEADBAND_R" value="250"/>
-    <define name="DEADBAND_A" value="250"/>
-    <define name="SP_PSI_DELTA_LIMIT" value="90" unit="deg"/>
-
     <!-- control effectiveness -->
     <define name="G1_P" value="0.032"/>
     <define name="G1_Q" value="0.025"/>
