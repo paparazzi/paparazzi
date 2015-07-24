@@ -22,7 +22,7 @@
     <subsystem name="gps" type="ublox"/>
     <subsystem name="stabilization" type="indi"/>
     <subsystem name="ahrs" type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </subsystem>
     <subsystem name="ins" type="extended"/>
