@@ -131,14 +131,6 @@
   </section>
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
-    <!-- setpoints -->
-    <define name="SP_MAX_PHI" value="60." unit="deg"/>
-    <define name="SP_MAX_THETA" value="60." unit="deg"/>
-    <define name="SP_MAX_R" value="180." unit="deg/s"/>
-    <define name="DEADBAND_R" value="250"/>
-    <define name="DEADBAND_A" value="250"/>
-    <define name="SP_PSI_DELTA_LIMIT" value="90" unit="deg"/>
-
     <!-- control effectiveness -->
     <define name="G1_P" value="0.032"/>
     <define name="G1_Q" value="0.025"/>
@@ -193,24 +185,6 @@
     <define name="REF_ZETA_R" value="0.9"/>
     <define name="REF_MAX_R" value="600." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
-
-    <!-- feedback -->
-    <define name="PHI_PGAIN" value="592"/>
-    <define name="PHI_DGAIN" value="303"/>
-    <define name="PHI_IGAIN" value="0"/>
-
-    <define name="THETA_PGAIN" value="606"/>
-    <define name="THETA_DGAIN" value="303"/>
-    <define name="THETA_IGAIN" value="0"/>
-
-    <define name="PSI_PGAIN" value="529"/>
-    <define name="PSI_DGAIN" value="353"/>
-    <define name="PSI_IGAIN" value="0"/>
-
-    <!-- feedforward -->
-    <define name="PHI_DDGAIN" value="0"/>
-    <define name="THETA_DDGAIN" value="0"/>
-    <define name="PSI_DDGAIN" value="52"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
