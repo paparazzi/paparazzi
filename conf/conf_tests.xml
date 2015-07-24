@@ -321,7 +321,7 @@
   <aircraft
    name="ardrone2"
    ac_id="201"
-   airframe="airframes/ardrone2.xml"
+   airframe="airframes/examples/ardrone2.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -332,7 +332,7 @@
   <aircraft
    name="ardrone2_opticflow"
    ac_id="2"
-   airframe="airframes/ardrone2_opticflow_hover.xml"
+   airframe="airframes/examples/ardrone2_opticflow_hover.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -343,7 +343,7 @@
   <aircraft
    name="bebop"
    ac_id="202"
-   airframe="airframes/bebop.xml"
+   airframe="airframes/examples/bebop.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
