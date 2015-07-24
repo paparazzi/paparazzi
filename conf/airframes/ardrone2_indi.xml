@@ -130,6 +130,34 @@
     <define name="DDGAIN_R" value="300"/>
   </section>
 
+  <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoint limits for attitude stabilization rc flight -->
+    <define name="SP_MAX_PHI" value="45" unit="deg"/>
+    <define name="SP_MAX_THETA" value="45" unit="deg"/>
+    <define name="SP_MAX_R" value="180" unit="deg/s"/>
+    <define name="DEADBAND_A" value="0"/>
+    <define name="DEADBAND_E" value="0"/>
+    <define name="DEADBAND_R" value="250"/>
+  </section>
+
+  <section name="ATTITUDE_REFERENCE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- attitude reference generation model -->
+    <define name="REF_OMEGA_P" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.9"/>
+    <define name="REF_MAX_P" value="600." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.9"/>
+    <define name="REF_MAX_Q" value="600." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_R" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_R" value="0.9"/>
+    <define name="REF_MAX_R" value="600." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
+  </section>
+
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- setpoints -->
     <define name="SP_MAX_PHI" value="60." unit="deg"/>
@@ -167,50 +195,6 @@
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="TRUE"/>
     <define name="ADAPTIVE_MU" value="0.0001"/>
-  </section>
-
-  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
-    <!-- setpoints -->
-    <define name="SP_MAX_PHI" value="45" unit="deg"/>
-    <define name="SP_MAX_THETA" value="45" unit="deg"/>
-    <define name="SP_MAX_R" value="180" unit="deg/s"/>
-    <define name="DEADBAND_A" value="0"/>
-    <define name="DEADBAND_E" value="0"/>
-    <define name="DEADBAND_R" value="250"/>
-
-    <!-- reference -->
-    <define name="REF_OMEGA_P" value="450" unit="deg/s"/>
-    <define name="REF_ZETA_P" value="0.9"/>
-    <define name="REF_MAX_P" value="600." unit="deg/s"/>
-    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
-
-    <define name="REF_OMEGA_Q" value="450" unit="deg/s"/>
-    <define name="REF_ZETA_Q" value="0.9"/>
-    <define name="REF_MAX_Q" value="600." unit="deg/s"/>
-    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
-
-    <define name="REF_OMEGA_R" value="450" unit="deg/s"/>
-    <define name="REF_ZETA_R" value="0.9"/>
-    <define name="REF_MAX_R" value="600." unit="deg/s"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
-
-    <!-- feedback -->
-    <define name="PHI_PGAIN" value="592"/>
-    <define name="PHI_DGAIN" value="303"/>
-    <define name="PHI_IGAIN" value="0"/>
-
-    <define name="THETA_PGAIN" value="606"/>
-    <define name="THETA_DGAIN" value="303"/>
-    <define name="THETA_IGAIN" value="0"/>
-
-    <define name="PSI_PGAIN" value="529"/>
-    <define name="PSI_DGAIN" value="353"/>
-    <define name="PSI_IGAIN" value="0"/>
-
-    <!-- feedforward -->
-    <define name="PHI_DDGAIN" value="0"/>
-    <define name="THETA_DDGAIN" value="0"/>
-    <define name="PSI_DDGAIN" value="52"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
