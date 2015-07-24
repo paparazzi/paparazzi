@@ -183,36 +183,18 @@ void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[])
   if (FALSE) {
 #endif
 
-    /* mean of trim+roll+pitch commands */
-    int32_t mean_cmd = 0;
+    int32_t tmp_cmd;
+    int32_t max_overflow = 0;
 
     /* first calculate the highest priority part of the command:
-     * - trim + roll/pitch for each motor
-     * - record mean of that
-     * - add thrust command
-     * - record min/max including thrust
+     * - add trim + roll + pitch + thrust for each motor
+     * - calc max saturation/overflow when yaw command is also added
      */
     for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
       motor_mixing.commands[i] = motor_mixing.trim[i] +
         roll_coef[i] * in_cmd[COMMAND_ROLL] +
-        pitch_coef[i] * in_cmd[COMMAND_PITCH];
-      /* sum up for mean (average) trim+roll+pitch cmd */
-      mean_cmd += motor_mixing.commands[i];
-    }
-
-    /* divide sum by number of motors and scale to get mean thrust */
-    mean_cmd /= (MOTOR_MIXING_NB_MOTOR * MOTOR_MIXING_SCALE);
-
-    /* calculate thrust_cmd */
-    int32_t thrust_cmd = in_cmd[COMMAND_THRUST] - mean_cmd;
-    Bound(thrust_cmd, 0, MAX_PPRZ);
-
-    int32_t tmp_cmd;
-    int32_t max_overflow = 0;
-
-    /* add thrust command and scale */
-    for (i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
-      motor_mixing.commands[i] += thrust_coef[i] * thrust_cmd;
+        pitch_coef[i] * in_cmd[COMMAND_PITCH] +
+        thrust_coef[i] * in_cmd[COMMAND_THRUST];
 
       /* compute the command with yaw for each motor to check how much it would saturate */
       tmp_cmd = motor_mixing.commands[i] + yaw_coef[i] * in_cmd[COMMAND_YAW];
