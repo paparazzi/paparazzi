@@ -8,69 +8,6 @@ import sys
 import json
 import struct
 import messages_xml_map
-from enum import Enum
-
-STX = 0x99
-STX_TS = 0x98
-
-class PprzParserState(Enum):
-    WaitSTX = 1
-    GotSTX = 2
-    GotLength = 3
-    GotPayload = 4
-    GotCRC1 = 5
-
-class PprzParser(object):
-    """parser for binary Paparazzi messages"""
-    def __init__(self):
-        self.reset_parser()
-
-    def parse_byte(self, c):
-        """parse new byte, return True when a new full message is available"""
-        b = ord(c)
-        if self.state == PprzParserState.WaitSTX:
-            if b == STX:
-                self.state = PprzParserState.GotSTX
-        elif self.state == PprzParserState.GotSTX:
-            self.length = b - 4
-            self.buf = []
-            self.ck_a = b % 256
-            self.ck_b = b % 256
-            self.idx = 0
-            self.state = PprzParserState.GotLength
-        elif self.state == PprzParserState.GotLength:
-            self.buf.append(c);
-            self.ck_a = (self.ck_a + b) % 256
-            self.ck_b = (self.ck_b + self.ck_a) % 256
-            self.idx += 1
-            if self.idx == self.length:
-                self.state = PprzParserState.GotPayload
-        elif self.state == PprzParserState.GotPayload:
-            if self.ck_a == b:
-                self.state = PprzParserState.GotCRC1
-            else:
-                self.state = PprzParserState.WaitSTX
-        elif self.state == PprzParserState.GotCRC1:
-            self.state = PprzParserState.WaitSTX
-            if self.ck_b == b:
-                """New message available"""
-                return True
-        else:
-            self.state = PprzParserState.WaitSTX
-        return False
-
-    def get_buffer(self):
-        return self.buf
-
-    def reset_parser(self):
-        self.state = PprzParserState.WaitSTX
-        self.length = 0
-        self.buf = []
-        self.ck_a = 0
-        self.ck_b = 0
-        self.idx = 0
-
-            
 
 class PprzMessageError(Exception):
     def __init__(self, message, inner_exception=None):
@@ -103,6 +40,11 @@ class PprzMessage(object):
     def name(self):
         """Get the message name."""
         return self._name
+
+    @property
+    def msg_id(self):
+        """Get the message id."""
+        return self._id
 
     @property
     def msg_class(self):
@@ -239,23 +181,6 @@ class PprzMessage(object):
                 values.append(value)
         self.set_values(values)
 
-    def calculate_checksum(self, msg):
-        ck_a = 0
-        ck_b = 0
-        # start char not included in checksum for pprz protocol
-        for c in msg[1:]:
-            ck_a = (ck_a + ord(c)) % 256
-            ck_b = (ck_b + ck_a) % 256
-        return (ck_a, ck_b)
-
-    def payload_to_pprz_msg(self, sender):
-        stx = STX
-        data = self.payload_to_binary()
-        length = 6 + len(data)
-        msg = struct.pack("=BBBB", STX, length, sender, self._id) + data
-        (ck_a, ck_b) = self.calculate_checksum(msg)
-        msg = msg + struct.pack('=BB', ck_a, ck_b)
-        return msg
 
 def test():
     import argparse
