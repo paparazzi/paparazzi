@@ -79,9 +79,9 @@ static inline void main_init(void)
 
   downlink_init();
 
-  AbiBindMsgIMU_GYRO_INT32(0, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(0, &accel_ev, accel_cb);
-  AbiBindMsgIMU_MAG_INT32(0, &mag_ev, mag_cb);
+  AbiBindMsgIMU_GYRO_INT32(ABI_BROADCAST, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL_INT32(ABI_BROADCAST, &accel_ev, accel_cb);
+  AbiBindMsgIMU_MAG_INT32(ABI_BROADCAST, &mag_ev, mag_cb);
 }
 
 static inline void led_toggle(void)

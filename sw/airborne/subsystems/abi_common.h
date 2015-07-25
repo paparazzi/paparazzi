@@ -50,10 +50,16 @@
 typedef void (*abi_callback)(void);
 
 /** Broadcast address.
- * When passing broadcast address as a sender id,
- * messages from all senders are received
+ * When binding to an ABI message with broadcast address as a sender id,
+ * messages from all senders are received.
  */
-#define ABI_BROADCAST 0
+#define ABI_BROADCAST 255
+
+/** Reserved ABI ID to disable callback.
+ * When binding to an ABI message with 0 as sender id,
+ * the callback is disabled.
+ */
+#define ABI_DISABLE 0
 
 /** Event structure to store callbacks in a linked list */
 struct abi_struct {
