@@ -1,3 +1,33 @@
+Paparazzi 5.5.1_testing
+=======================
+
+Second release candidate for v5.6 stable release.
+
+- rotorcraft: fix stabilization INDI crash on takeoff bug
+  [#1255] (https://github.com/paparazzi/paparazzi/pull/1255)
+- airborne: change ABI_BROADCAST id from 0 to 255 and introduce ABI_DISABLE
+  [#1260] (https://github.com/paparazzi/paparazzi/pull/1260)
+- airframes: cleanup and use standard motor mixing types
+  [#1231] (https://github.com/paparazzi/paparazzi/pull/1231)
+  [#1249] (https://github.com/paparazzi/paparazzi/pull/1249)
+- ahrs: reduced default ahrs align delay
+  [#1256] (https://github.com/paparazzi/paparazzi/pull/1256)
+- add an optional board_init function and fix bat check on bebop
+  [#1253] (https://github.com/paparazzi/paparazzi/pull/1253)
+- ARDrone2: fix battery checks, needs bat_voltage_ardrone2 module now
+  [#1252] (https://github.com/paparazzi/paparazzi/pull/1252)
+- paparazzi center: improve handling of programs from control_panel.xml
+  [#1247] (https://github.com/paparazzi/paparazzi/pull/1247)
+- server: set http port, replace -kml_port option with -port
+  [#1248] (https://github.com/paparazzi/paparazzi/pull/1248)
+- logalizer: rename plot to logplotter for clarity
+  [#1226] (https://github.com/paparazzi/paparazzi/pull/1226
+- GCS: don't prove airframe dtd if served via http
+  [#1246] (https://github.com/paparazzi/paparazzi/pull/1246)
+- Fixed unsanctioned yaw unkill problem with uninitialised joysticks
+  [#1242] (https://github.com/paparazzi/paparazzi/pull/1242)
+
+
 Paparazzi 5.5.0_testing
 =======================
 
