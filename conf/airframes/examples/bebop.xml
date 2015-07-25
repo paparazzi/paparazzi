@@ -20,9 +20,6 @@
     <subsystem name="gps" type="furuno"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="float_mlkf"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat">
-      <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
-    </subsystem>
     <subsystem name="ins" type="extended"/>
   </firmware>
 

@@ -44,31 +44,8 @@
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>
 
-  <firmware name="test_progs">
-    <target name="test_sys_time_timer" board="lisa_mx_2.1"/>
-    <target name="test_adc" board="lisa_mx_2.1"/>
-    <target name="test_telemetry" board="lisa_mx_2.1"/>
-    <target name="test_baro_board" board="lisa_mx_2.1">
-      <configure name="BARO_LED" value="5"/>
-    </target>
-    <target name="test_radio_control" board="lisa_mx_2.1">
-      <subsystem name="radio_control" type="spektrum">
-        <define name="RADIO_MODE" value="RADIO_AUX1"/>
-        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="0"/>
-      </subsystem>
-    </target>
-    <target name="test_imu" board="lisa_mx_2.1">
-      <subsystem name="imu" type="lisa_mx_v2.1"/>
-    </target>
-  </firmware>
-
-  <autopilot name="rotorcraft_autopilot.xml" freq="512"/>
 
   <modules>
-    <load name="adc_generic.xml">
-      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
-      <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
-    </load>
     <load name="gps_ubx_ucenter.xml"/>
     <load name="geo_mag.xml"/>
     <load name="air_data.xml"/>

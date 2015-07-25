@@ -23,7 +23,6 @@
     <subsystem name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
-<!--     </subsystem> -->
       <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
     </subsystem>
     <subsystem name="ins" type="extended"/>
