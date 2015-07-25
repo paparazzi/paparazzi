@@ -180,7 +180,7 @@ void ins_alt_float_update_baro(float pressure)
     utm.alt = ins_altf.alt;
     stateSetPositionUtm_f(&utm);
     struct NedCoor_f ned_vel;
-    memcpy(&ned_vel, stateGetSpeedNed_f(), sizeof(struct NedCoor_f));
+    ned_vel = *stateGetSpeedNed_f();
     ned_vel.z = -ins_altf.alt_dot;
     stateSetSpeedNed_f(&ned_vel);
   }

@@ -85,7 +85,7 @@ void stabilization_attitude_set_failsafe_setpoint(void)
 
 void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
 {
-  memcpy(&stab_att_sp_euler, rpy, sizeof(struct Int32Eulers));
+  stab_att_sp_euler = *rpy;
 }
 
 void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)

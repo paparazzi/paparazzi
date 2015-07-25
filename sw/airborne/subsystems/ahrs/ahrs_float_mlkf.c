@@ -99,8 +99,7 @@ void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat *q_b2i)
 
   if (!ahrs_mlkf.is_aligned) {
     /* Set ltp_to_imu so that body is zero */
-    memcpy(&ahrs_mlkf.ltp_to_imu_quat, orientationGetQuat_f(&ahrs_mlkf.body_to_imu),
-           sizeof(struct FloatQuat));
+    ahrs_mlkf.ltp_to_imu_quat = *orientationGetQuat_f(&ahrs_mlkf.body_to_imu);
   }
 }
 
@@ -371,7 +370,7 @@ static inline void reset_state(void)
   struct FloatQuat q_tmp;
   float_quat_comp(&q_tmp, &ahrs_mlkf.ltp_to_imu_quat, &ahrs_mlkf.gibbs_cor);
   float_quat_normalize(&q_tmp);
-  memcpy(&ahrs_mlkf.ltp_to_imu_quat, &q_tmp, sizeof(ahrs_mlkf.ltp_to_imu_quat));
+  ahrs_mlkf.ltp_to_imu_quat = q_tmp;
   float_quat_identity(&ahrs_mlkf.gibbs_cor);
 
 }

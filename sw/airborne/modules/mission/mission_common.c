@@ -54,23 +54,23 @@ bool_t mission_insert(enum MissionInsertMode insert, struct _mission_element *el
     case Append:
       tmp = (mission.insert_idx + 1) % MISSION_ELEMENT_NB;
       if (tmp == mission.current_idx) { return FALSE; } // no room to insert element
-      memcpy(&mission.elements[mission.insert_idx], element, sizeof(struct _mission_element)); // add element
+      mission.elements[mission.insert_idx] = *element; // add element
       mission.insert_idx = tmp; // move insert index
       break;
     case Prepend:
       if (mission.current_idx == 0) { tmp = MISSION_ELEMENT_NB - 1; }
       else { tmp = mission.current_idx - 1; }
       if (tmp == mission.insert_idx) { return FALSE; } // no room to inser element
-      memcpy(&mission.elements[tmp], element, sizeof(struct _mission_element)); // add element
+      mission.elements[tmp] = *element; // add element
       mission.current_idx = tmp; // move current index
       break;
     case ReplaceCurrent:
       // current element can always be modified, index are not changed
-      memcpy(&mission.elements[mission.current_idx], element, sizeof(struct _mission_element));
+      mission.elements[mission.current_idx] = *element;
       break;
     case ReplaceAll:
       // reset queue and index
-      memcpy(&mission.elements[0], element, sizeof(struct _mission_element));
+      mission.elements[0] = *element;
       mission.current_idx = 0;
       mission.insert_idx = 1;
       break;

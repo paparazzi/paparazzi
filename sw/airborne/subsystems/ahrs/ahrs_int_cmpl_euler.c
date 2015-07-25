@@ -285,7 +285,6 @@ void ahrs_ice_set_body_to_imu_quat(struct FloatQuat *q_b2i)
 
   if (!ahrs_ice.is_aligned) {
     /* Set ltp_to_imu so that body is zero */
-    memcpy(&ahrs_ice.ltp_to_imu_euler, orientationGetEulers_i(&ahrs_ice.body_to_imu),
-           sizeof(struct Int32Eulers));
+    ahrs_ice.ltp_to_imu_euler = *orientationGetEulers_i(&ahrs_ice.body_to_imu);
   }
 }

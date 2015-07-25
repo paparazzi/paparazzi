@@ -65,8 +65,7 @@ bool_t nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, 
   nav_spiral.radius = float_vect2_norm(&edge);
 
   // get a copy of the current position
-  struct EnuCoor_f pos_enu;
-  memcpy(&pos_enu, stateGetPositionEnu_f(), sizeof(struct EnuCoor_f));
+  struct EnuCoor_f pos_enu = *stateGetPositionEnu_f();
 
   VECT2_DIFF(nav_spiral.trans_current, pos_enu, nav_spiral.center);
   nav_spiral.trans_current.z = stateGetPositionUtm_f()->alt - nav_spiral.center.z;
@@ -87,8 +86,7 @@ bool_t nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, 
 
 bool_t nav_spiral_run(void)
 {
-  struct EnuCoor_f pos_enu;
-  memcpy(&pos_enu, stateGetPositionEnu_f(), sizeof(struct EnuCoor_f));
+  struct EnuCoor_f pos_enu = *stateGetPositionEnu_f();
 
   VECT2_DIFF(nav_spiral.trans_current, pos_enu, nav_spiral.center);
   nav_spiral.dist_from_center = FLOAT_VECT3_NORM(nav_spiral.trans_current);

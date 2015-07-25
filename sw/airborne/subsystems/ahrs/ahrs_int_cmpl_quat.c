@@ -653,7 +653,6 @@ void ahrs_icq_set_body_to_imu_quat(struct FloatQuat *q_b2i)
 
   if (!ahrs_icq.is_aligned) {
     /* Set ltp_to_imu so that body is zero */
-    memcpy(&ahrs_icq.ltp_to_imu_quat, orientationGetQuat_i(&ahrs_icq.body_to_imu),
-           sizeof(struct Int32Quat));
+    ahrs_icq.ltp_to_imu_quat = *orientationGetQuat_i(&ahrs_icq.body_to_imu);
   }
 }

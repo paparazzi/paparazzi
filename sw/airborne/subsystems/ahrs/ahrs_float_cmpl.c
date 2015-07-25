@@ -522,9 +522,7 @@ void ahrs_fc_set_body_to_imu_quat(struct FloatQuat *q_b2i)
 
   if (!ahrs_fc.is_aligned) {
     /* Set ltp_to_imu so that body is zero */
-    memcpy(&ahrs_fc.ltp_to_imu_quat, orientationGetQuat_f(&ahrs_fc.body_to_imu),
-           sizeof(struct FloatQuat));
-    memcpy(&ahrs_fc.ltp_to_imu_rmat, orientationGetRMat_f(&ahrs_fc.body_to_imu),
-           sizeof(struct FloatRMat));
+    ahrs_fc.ltp_to_imu_quat = *orientationGetQuat_f(&ahrs_fc.body_to_imu);
+    ahrs_fc.ltp_to_imu_rmat = *orientationGetRMat_f(&ahrs_fc.body_to_imu);
   }
 }

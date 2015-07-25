@@ -530,7 +530,6 @@ void ahrs_dcm_set_body_to_imu_quat(struct FloatQuat *q_b2i)
 
   if (!ahrs_dcm.is_aligned) {
     /* Set ltp_to_imu so that body is zero */
-    memcpy(&ahrs_dcm.ltp_to_imu_euler, orientationGetEulers_f(&ahrs_dcm.body_to_imu),
-           sizeof(struct FloatEulers));
+    ahrs_dcm.ltp_to_imu_euler = *orientationGetEulers_f(&ahrs_dcm.body_to_imu);
   }
 }

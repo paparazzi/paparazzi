@@ -101,7 +101,7 @@ float waypoint_get_alt(uint8_t wp_id)
 void waypoint_set_enu_i(uint8_t wp_id, struct EnuCoor_i *enu)
 {
   if (wp_id < nb_waypoint) {
-    memcpy(&waypoints[wp_id].enu_i, enu, sizeof(struct EnuCoor_i));
+    waypoints[wp_id].enu_i = *enu;
     SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_I);
     ENU_FLOAT_OF_BFP(waypoints[wp_id].enu_f, waypoints[wp_id].enu_i);
     SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_F);
@@ -113,7 +113,7 @@ void waypoint_set_enu_i(uint8_t wp_id, struct EnuCoor_i *enu)
 void waypoint_set_enu(uint8_t wp_id, struct EnuCoor_f *enu)
 {
   if (wp_id < nb_waypoint) {
-    memcpy(&waypoints[wp_id].enu_f, enu, sizeof(struct EnuCoor_f));
+    waypoints[wp_id].enu_f = *enu;
     SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_I);
     ENU_BFP_OF_REAL(waypoints[wp_id].enu_i, waypoints[wp_id].enu_f);
     SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_F);
@@ -172,7 +172,7 @@ void waypoint_set_lla(uint8_t wp_id, struct LlaCoor_i *lla)
   if (wp_id >= nb_waypoint) {
     return;
   }
-  memcpy(&waypoints[wp_id].lla, lla, sizeof(struct LlaCoor_i));
+  waypoints[wp_id].lla = *lla;
   SetBit(waypoints[wp_id].flags, WP_FLAG_LLA_I);
   waypoint_localize(wp_id);
 }
@@ -254,7 +254,7 @@ void waypoint_localize(uint8_t wp_id)
     enu.x = POS_BFP_OF_REAL(enu.x) / 100;
     enu.y = POS_BFP_OF_REAL(enu.y) / 100;
     enu.z = POS_BFP_OF_REAL(enu.z) / 100;
-    memcpy(&waypoints[wp_id].enu_i, &enu, sizeof(struct EnuCoor_i));
+    waypoints[wp_id].enu_i = enu;
     SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_I);
     ENU_FLOAT_OF_BFP(waypoints[wp_id].enu_f, waypoints[wp_id].enu_i);
     SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_F);
@@ -295,6 +295,6 @@ struct LlaCoor_i *waypoint_get_lla(uint8_t wp_id)
 void waypoint_copy(uint8_t wp_dest, uint8_t wp_src)
 {
   if (wp_dest < nb_waypoint && wp_src < nb_waypoint) {
-    memcpy(&waypoints[wp_dest], &waypoints[wp_src], sizeof(struct Waypoint));
+    waypoints[wp_dest] = waypoints[wp_src];
   }
 }

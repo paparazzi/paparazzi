@@ -3,7 +3,7 @@ Paparazzi message representation
 
 """
 
-from __future__ import print_function
+from __future__ import print_function./
 import sys
 import json
 import messages_xml_map

@@ -392,7 +392,7 @@ void ahrs_float_inv_set_body_to_imu_quat(struct FloatQuat *q_b2i)
 
   if (!ahrs_float_inv.is_aligned) {
     /* Set ltp_to_imu so that body is zero */
-    memcpy(&ahrs_float_inv.state.quat, q_b2i, sizeof(struct FloatQuat));
+    ahrs_float_inv.state.quat = *q_b2i;
   }
 }
 

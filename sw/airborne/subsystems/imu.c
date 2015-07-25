@@ -152,7 +152,7 @@ void imu_init(void)
 void imu_SetBodyToImuPhi(float phi)
 {
   struct FloatEulers body_to_imu_eulers;
-  memcpy(&body_to_imu_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
+  body_to_imu_eulers = *orientationGetEulers_f(&imu.body_to_imu);
   body_to_imu_eulers.phi = phi;
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
   AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
@@ -161,7 +161,7 @@ void imu_SetBodyToImuPhi(float phi)
 void imu_SetBodyToImuTheta(float theta)
 {
   struct FloatEulers body_to_imu_eulers;
-  memcpy(&body_to_imu_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
+  body_to_imu_eulers = *orientationGetEulers_f(&imu.body_to_imu);
   body_to_imu_eulers.theta = theta;
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
   AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
@@ -170,7 +170,7 @@ void imu_SetBodyToImuTheta(float theta)
 void imu_SetBodyToImuPsi(float psi)
 {
   struct FloatEulers body_to_imu_eulers;
-  memcpy(&body_to_imu_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
+  body_to_imu_eulers = *orientationGetEulers_f(&imu.body_to_imu);
   body_to_imu_eulers.psi = psi;
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
   AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
@@ -183,7 +183,7 @@ void imu_SetBodyToImuCurrent(float set)
   if (imu.b2i_set_current) {
     // adjust imu_to_body roll and pitch by current NedToBody roll and pitch
     struct FloatEulers body_to_imu_eulers;
-    memcpy(&body_to_imu_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
+    body_to_imu_eulers = *orientationGetEulers_f(&imu.body_to_imu);
     if (stateIsAttitudeValid()) {
       // adjust imu_to_body roll and pitch by current NedToBody roll and pitch
       body_to_imu_eulers.phi += stateGetNedToBodyEulers_f()->phi;

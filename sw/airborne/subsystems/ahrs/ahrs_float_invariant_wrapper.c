@@ -180,7 +180,7 @@ static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
 
 static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVect3 *h)
 {
-  memcpy(&ahrs_float_inv.mag_h, h, sizeof(struct FloatVect3));
+  ahrs_float_inv.mag_h = *h;
 }
 
 static bool_t ahrs_float_invariant_enable_output(bool_t enable)

@@ -345,8 +345,7 @@ void ins_int_update_gps(struct GpsState *gps_s)
     .z = INS_BODY_TO_GPS_Z
   };
   /* rotate offset given in body frame to navigation/ltp frame using current attitude */
-  struct Int32Quat q_b2n;
-  memcpy(&q_b2n, stateGetNedToBodyQuat_i(), sizeof(struct Int32Quat));
+  struct Int32Quat q_b2n = *stateGetNedToBodyQuat_i();
   QUAT_INVERT(q_b2n, q_b2n);
   struct Int32Vect3 b2g_n;
   int32_quat_vmult(&b2g_n, &q_b2n, &b2g_b);

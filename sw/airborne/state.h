@@ -439,7 +439,7 @@ extern void stateInit(void);
 /// Set the local (flat earth) coordinate frame origin (int).
 static inline void stateSetLocalOrigin_i(struct LtpDef_i *ltp_def)
 {
-  memcpy(&state.ned_origin_i, ltp_def, sizeof(struct LtpDef_i));
+  state.ned_origin_i = *ltp_def;
   /* convert to float */
   ECEF_FLOAT_OF_BFP(state.ned_origin_f.ecef, state.ned_origin_i.ecef);
   LLA_FLOAT_OF_BFP(state.ned_origin_f.lla, state.ned_origin_i.lla);
@@ -459,7 +459,7 @@ static inline void stateSetLocalOrigin_i(struct LtpDef_i *ltp_def)
 /// Set the local (flat earth) coordinate frame origin from UTM (float).
 static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f *utm_def)
 {
-  memcpy(&state.utm_origin_f, utm_def, sizeof(struct UtmCoor_f));
+  state.utm_origin_f = *utm_def;
   state.utm_initialized_f = TRUE;
 
   /* clear bits for all local frame representations */
@@ -564,7 +564,7 @@ static inline void stateSetPosition_i(
 /// Set position from UTM coordinates (float).
 static inline void stateSetPositionUtm_f(struct UtmCoor_f *utm_pos)
 {
-  memcpy(&state.utm_pos_f, utm_pos, sizeof(struct UtmCoor_f));
+  state.utm_pos_f = *utm_pos;
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_UTM_F);
 }
@@ -628,7 +628,7 @@ static inline void stateSetPosition_f(
     state.pos_status |= (1 << POS_LLA_F);
   }
   if (utm_pos != NULL) {
-    memcpy(&state.utm_pos_f, utm_pos, sizeof(struct UtmCoor_f));
+    state.utm_pos_f = *utm_pos;
     state.pos_status |= (1 << POS_UTM_F);
   }
 }
