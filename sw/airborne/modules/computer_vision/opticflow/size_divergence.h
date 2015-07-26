@@ -2,7 +2,7 @@
  * Copyright (C) 2015 Guido de Croon <guido.de.croon@gmail.com>
  *
  * From:
- * Characterization of Flow Field Divergence for Vertical Landing Control of MAVs 
+ * Characterization of Flow Field Divergence for Vertical Landing Control of MAVs
  * by H.W. Ho and G.C.H.E. de Croon (submitted)
  *
  * This file is part of Paparazzi.
@@ -34,7 +34,7 @@
 #ifndef SIZE_DIVERGENCE
 #define SIZE_DIVERGENCE
 
-float get_size_divergence(struct flow_t* vectors, int count, int n_samples);
-float get_mean(float* numbers, int n_elements);
+float get_size_divergence(struct flow_t *vectors, int count, int n_samples);
+float get_mean(float *numbers, int n_elements);
 
 #endif
