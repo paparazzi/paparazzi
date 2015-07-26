@@ -29,10 +29,15 @@
     <!-- remove the gps_ubx_ucenter module if you use the sirf gps (flight recorder) -->
     <load name="gps_ubx_ucenter.xml"/>
     <load name="send_imu_mag_current.xml"/>
+<<<<<<< HEAD:conf/airframes/examples/ardrone2.xml
     <load name="air_data.xml"/>
     <load name="geo_mag.xml"/>
     <!--load name="logger_file.xml"/-->
     <!--load name="video_rtp_stream.xml"/-->
+=======
+    <load name="video_rtp_stream.xml"/>
+    <load name="video_usb_logger.xml"/>
+>>>>>>> guido/opticflow_landing:conf/airframes/ardrone2_raw.xml
   </modules>
 
   <commands>
