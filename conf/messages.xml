@@ -1954,6 +1954,7 @@
     <field name="flow_der_y"  type="int16" unit="subpixels"/>
     <field name="vel_x"       type="float" unit="cm/s"/>
     <field name="vel_y"       type="float" unit="cm/s"/>
+    <field name="div_size"    type="float" unit="1/s"/>
     <field name="cmd_phi"     type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
     <field name="cmd_theta"   type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
   </message>

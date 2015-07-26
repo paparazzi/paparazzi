@@ -95,6 +95,7 @@
     <!-- The optical flow module (calculator+stabilization) -->
     <file name="opticflow_module.c"/>
     <file name="opticflow_calculator.c" dir="modules/computer_vision/opticflow"/>
+    <file name="size_divergence.c" dir="modules/computer_vision/opticflow"/>
     <file name="stabilization_opticflow.c" dir="modules/computer_vision/opticflow"/>
 
     <!-- Main vision calculations -->

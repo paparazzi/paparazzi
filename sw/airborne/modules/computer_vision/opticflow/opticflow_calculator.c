@@ -35,10 +35,13 @@
 // Own Header
 #include "opticflow_calculator.h"
 
+
 // Computer Vision
 #include "lib/vision/image.h"
 #include "lib/vision/lucas_kanade.h"
 #include "lib/vision/fast_rosten.h"
+
+#include "size_divergence.h"
 
 // Camera parameters (defaults are from an ARDrone 2)
 #ifndef OPTICFLOW_FOV_W
@@ -144,6 +147,9 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
  */
 void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img, struct opticflow_result_t *result)
 {
+  // variables for size_divergence:
+  float size_divergence; int n_samples;
+
   // Update FPS for information
   result->fps = 1 / (timeval_diff(&opticflow->prev_timestamp, &img->ts) / 1000.);
   memcpy(&opticflow->prev_timestamp, &img->ts, sizeof(struct timeval));
@@ -161,7 +167,7 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // Corner detection
   // *************************************************************************************
 
-  // FAST corner detection (TODO: non fixed threashold)
+  // FAST corner detection (TODO: non fixed threshold)
   struct point_t *corners = fast9_detect(img, opticflow->fast9_threshold, opticflow->fast9_min_distance,
                                          20, 20, &result->corner_cnt);
 
@@ -201,6 +207,11 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   image_show_flow(img, vectors, result->tracked_cnt, opticflow->subpixel_factor);
 #endif
 
+  // Estimate size divergence:
+  n_samples = 100;
+  size_divergence = get_size_divergence(vectors, result->tracked_cnt, n_samples);
+  result->div_size = size_divergence;
+
   // Get the median flow
   qsort(vectors, result->tracked_cnt, sizeof(struct flow_t), cmp_flow);
   if (result->tracked_cnt == 0) {
@@ -232,8 +243,8 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   opticflow->prev_theta = state->theta;
 
   // Velocity calculation
-  result->vel_x = -result->flow_der_x * result->fps * state->agl/ opticflow->subpixel_factor * img->w / OPTICFLOW_FX;
-  result->vel_y =  result->flow_der_y * result->fps * state->agl/ opticflow->subpixel_factor * img->h / OPTICFLOW_FY;
+  result->vel_x = -result->flow_der_x * result->fps * state->agl / opticflow->subpixel_factor * img->w / OPTICFLOW_FX;
+  result->vel_y =  result->flow_der_y * result->fps * state->agl / opticflow->subpixel_factor * img->h / OPTICFLOW_FY;
 
   // *************************************************************************************
   // Next Loop Preparation
@@ -270,3 +281,5 @@ static int cmp_flow(const void *a, const void *b)
   const struct flow_t *b_p = (const struct flow_t *)b;
   return (a_p->flow_x * a_p->flow_x + a_p->flow_y * a_p->flow_y) - (b_p->flow_x * b_p->flow_x + b_p->flow_y * b_p->flow_y);
 }
+
+
