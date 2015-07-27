@@ -96,6 +96,16 @@ class PprzMessage(object):
                 return self.fieldvalues[idx]
         raise AttributeError("No such attribute %s" % attr)
 
+    def __getitem__(self, key):
+        # Try to dynamically return the field value for the given name
+        for idx, f in enumerate(self.fieldnames):
+            if f == key:
+                return self.fieldvalues[idx]
+        raise AttributeError("Msg %s has no field of name %s" % (self.name, key))
+
+    def __setitem__(self, key, value):
+        self.set_value_by_name(key, value)
+
     def set_values(self, values):
         if len(values) == len(self.fieldnames):
             self._fieldvalues = values
@@ -109,7 +119,7 @@ class PprzMessage(object):
             if f == name:
                 self._fieldvalues[idx] = value
                 return
-        raise AttributeError("No such attribute %s" % name)
+        raise AttributeError("Msg %s has no field of name %s" % (self.name, key))
 
     def __str__(self):
         ret = '%s.%s {' % (self.msg_class, self.name)
