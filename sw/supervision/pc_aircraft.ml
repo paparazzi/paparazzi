@@ -218,31 +218,6 @@ let first_word = fun s ->
     Not_found -> s
 
 (** Test if an element is available for the current target *)
-let is_element_unselected = fun target_combo name ->
-  let target = Gtk_tools.combo_value target_combo in
-  let test_targets = fun targets ->
-    List.exists (fun t -> t = target) targets
-  in
-  try
-    let name = (Env.paparazzi_home // "conf" // name) in
-    let xml = Xml.parse_file name in
-    match Xml.tag xml with
-    | "settings" ->
-        let targets = Xml.attrib xml "target" in
-        let target_list = Str.split (Str.regexp "|") targets in
-        not (test_targets target_list)
-    | "module" ->
-        let targets = List.map (fun x ->
-          match String.lowercase (Xml.tag x) with
-          | "makefile" -> Gen_common.targets_of_field x Env.default_module_targets
-          | _ -> []
-          ) (Xml.children xml) in
-        let targets = (List.flatten targets) in
-        (* singletonized list *)
-        let targets = Gen_common.singletonize (List.sort compare targets) in
-        not (test_targets targets)
-    | _ -> false
-  with _ -> false
 
 (** Get list of targets of an airframe *)
 let get_targets_list = fun ac_xml ->
@@ -342,7 +317,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
           ignore (Gtk_tools.clear_tree t);
           let names = Str.split regexp_space (value a) in
           List.iter (fun n ->
-            let force_unselect = is_element_unselected target_combo n in
+            let force_unselect = Gen_common.is_element_unselected (Gtk_tools.combo_value target_combo) n in
             Gtk_tools.add_to_tree ~force_unselect t n
           ) names;
       ) ac_files;
@@ -395,7 +370,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
           ignore (Gtk_tools.clear_tree t);
           let names = Str.split regexp_space (value a) in
           List.iter (fun n ->
-            let force_unselect = is_element_unselected target_combo n in
+            let force_unselect = Gen_common.is_element_unselected (Gtk_tools.combo_value target_combo) n in
             Gtk_tools.add_to_tree ~force_unselect t n
           ) names;
       ) ac_files
@@ -490,7 +465,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
             l#set_text names
         | Tree t ->
             List.iter (fun n ->
-              let force_unselect = is_element_unselected target_combo n in
+              let force_unselect = Gen_common.is_element_unselected (Gtk_tools.combo_value target_combo) n in
               Gtk_tools.add_to_tree ~force_unselect t n
             ) names
         );
