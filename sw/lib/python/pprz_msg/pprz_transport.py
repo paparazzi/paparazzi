@@ -40,19 +40,19 @@ class PprzTransport(object):
 
     def parse_byte(self, c):
         """parse new byte, return True when a new full message is available"""
-        b = ord(c)
+        b = struct.unpack("<B", c)[0]
         if self.state == PprzParserState.WaitSTX:
             if b == STX:
                 self.state = PprzParserState.GotSTX
         elif self.state == PprzParserState.GotSTX:
             self.length = b - 4
-            self.buf = []
+            self.buf = bytearray(self.length)
             self.ck_a = b % 256
             self.ck_b = b % 256
             self.idx = 0
             self.state = PprzParserState.GotLength
         elif self.state == PprzParserState.GotLength:
-            self.buf.append(c)
+            self.buf[self.idx] = b
             self.ck_a = (self.ck_a + b) % 256
             self.ck_b = (self.ck_b + self.ck_a) % 256
             self.idx += 1
@@ -77,8 +77,8 @@ class PprzTransport(object):
 
     def unpack_pprz_msg(self, msg_class, data):
         """Unpack a raw PPRZ message"""
-        sender_id = ord(data[0])
-        msg_id = ord(data[1])
+        sender_id = data[0]
+        msg_id = data[1]
         msg = PprzMessage(msg_class, msg_id)
         msg.binary_to_payload(data[2:])
         return sender_id, msg
@@ -92,7 +92,10 @@ class PprzTransport(object):
         ck_b = 0
         # start char not included in checksum for pprz protocol
         for c in msg[1:]:
-            ck_a = (ck_a + ord(c)) % 256
+            # try to handle differences between python 2.x and 3.x
+            if isinstance(c, str):
+                c = struct.unpack("<B", c)[0]
+            ck_a = (ck_a + c) % 256
             ck_b = (ck_b + ck_a) % 256
         return ck_a, ck_b
 

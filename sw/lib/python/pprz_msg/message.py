@@ -184,15 +184,15 @@ class PprzMessage(object):
         for idx, t in enumerate(self.fieldtypes):
             bin_type = self.fieldbintypes(t)
             if '[' in t:
-                array_length = int(struct.unpack('<B', data[msg_offset])[0])
+                array_length = data[msg_offset]
                 msg_offset += 1
                 array_value = []
                 for count in range(0, array_length):
-                    array_value.append(struct.unpack('<' + bin_type[0], "".join(data[msg_offset:msg_offset + bin_type[1]])))
+                    array_value.append(struct.unpack('<' + bin_type[0], data[msg_offset:msg_offset + bin_type[1]])[0])
                     msg_offset = msg_offset + bin_type[1]
                 values.append(array_value)
             else:
-                value = struct.unpack('<' + bin_type[0], "".join(data[msg_offset:msg_offset + bin_type[1]]))
+                value = struct.unpack('<' + bin_type[0], data[msg_offset:msg_offset + bin_type[1]])[0]
                 msg_offset = msg_offset + bin_type[1]
                 values.append(value)
         self.set_values(values)
