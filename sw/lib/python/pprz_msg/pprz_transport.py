@@ -6,7 +6,6 @@ Paparazzi transport encoding utilities
 from __future__ import absolute_import, division, print_function
 import struct
 from .message import PprzMessage
-from . import messages_xml_map
 
 # use Enum from python 3.4 if available (https://www.python.org/dev/peps/pep-0435/)
 # (backports as enum34 on pypi)
@@ -80,8 +79,7 @@ class PprzTransport(object):
         """Unpack a raw PPRZ message"""
         sender_id = ord(data[0])
         msg_id = ord(data[1])
-        msg_name = messages_xml_map.get_msg_name(msg_class, msg_id)
-        msg = PprzMessage(msg_class, msg_name)
+        msg = PprzMessage(msg_class, msg_id)
         msg.binary_to_payload(data[2:])
         return sender_id, msg
 

@@ -92,12 +92,12 @@ def test():
     serial_interface = SerialMessagesInterface(lambda s, m: print("new message from %i: %s" % (s, m)), device=args.dev,
                                                baudrate=args.baud, msg_class=args.msg_class, verbose=True)
     att_msg = PprzMessage('telemetry', 'ATTITUDE')
-    att_msg.set_value_by_name('phi', 0.1)
-    att_msg.set_value_by_name('theta', 0.2)
-    att_msg.set_value_by_name('psi', 0.3)
+    att_msg.['phi'] = 0.1
+    att_msg.['theta'] = 0.2
+    att_msg.['psi'] = 0.3
     serial_interface.send(att_msg, 42)
     to_msg = PprzMessage('telemetry', 'TAKEOFF')
-    to_msg.set_value_by_name('cpu_time', 10)
+    to_msg.['cpu_time'] = 10
     serial_interface.send(to_msg, 42)
     print("Starting serial interface on %s at %i baud" % (args.dev, args.baud))
     serial_interface.start()

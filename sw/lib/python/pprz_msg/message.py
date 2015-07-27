@@ -23,11 +23,15 @@ class PprzMessageError(Exception):
 class PprzMessage(object):
     """base Paparazzi message class"""
 
-    def __init__(self, class_name, name):
+    def __init__(self, class_name, msg):
         self._class_name = class_name
-        self._name = name
-        self._id = messages_xml_map.get_msg_id(class_name, name)
-        self._fieldnames = messages_xml_map.get_msg_fields(class_name, name)
+        if isinstance(msg, int):
+            self._id = msg
+            self._name = messages_xml_map.get_msg_name(class_name, msg)
+        else:
+            self._name = msg
+            self._id = messages_xml_map.get_msg_id(class_name, msg)
+        self._fieldnames = messages_xml_map.get_msg_fields(class_name, self._name)
         self._fieldtypes = messages_xml_map.get_msg_fieldtypes(class_name, self._id)
         self._fieldvalues = []
         # set empty values according to type
