@@ -1,4 +1,4 @@
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, division, print_function
 
 import threading
 import serial
@@ -17,7 +17,8 @@ import pprz_msg.messages_xml_map
 
 
 class SerialMessagesInterface(threading.Thread):
-    def __init__(self, callback, init=True, verbose=False, device='/dev/ttyUSB0', baudrate=115200, msg_class='telemetry', messages_file=''):
+    def __init__(self, callback, init=True, verbose=False, device='/dev/ttyUSB0', baudrate=115200,
+                 msg_class='telemetry'):
         threading.Thread.__init__(self)
         self.callback = callback
         self.verbose = verbose
@@ -25,11 +26,10 @@ class SerialMessagesInterface(threading.Thread):
         self.running = True
         try:
             self.ser = serial.Serial(device, baudrate, timeout=1.0)
-        except:
+        except serial.SerialException:
             print("Error: unable to open serial port '%s'" % device)
             exit(0)
         self.trans = PprzTransport(msg_class)
-        pprz_msg.messages_xml_map.parse_messages(messages_file)
 
     def stop(self):
         print("End thread and close serial link")
@@ -71,20 +71,26 @@ class SerialMessagesInterface(threading.Thread):
 
 # FIXME not working because of the thread ?
 import signal
+
+
 def signal_term_handler(signal, frame):
-        print("got SIGINT")
-        #sys.exit(0)
+    print("got SIGINT")
+    # sys.exit(0)
+
 
 def test():
     signal.signal(signal.SIGINT, signal_term_handler)
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", help="path to messages.xml file")
     parser.add_argument("-c", "--class", help="message class", dest='msg_class', default='telemetry')
     parser.add_argument("-d", "--device", help="device name", dest='dev', default='/dev/ttyUSB0')
     parser.add_argument("-b", "--baudrate", help="baudrate", dest='baud', default=115200, type=int)
     args = parser.parse_args()
-    serial_interface = SerialMessagesInterface(lambda s, m : print("new message from %i: %s" % (s, m)), device = args.dev, baudrate = args.baud, msg_class=args.msg_class, messages_file=args.file, verbose=True)
+    pprz_msg.messages_xml_map.parse_messages(args.file)
+    serial_interface = SerialMessagesInterface(lambda s, m: print("new message from %i: %s" % (s, m)), device=args.dev,
+                                               baudrate=args.baud, msg_class=args.msg_class, verbose=True)
     att_msg = PprzMessage('telemetry', 'ATTITUDE')
     att_msg.set_value_by_name('phi', 0.1)
     att_msg.set_value_by_name('theta', 0.2)
@@ -98,6 +104,7 @@ def test():
     signal.pause()
     serial_interface.stop()
     serial_interface.join()
+
 
 if __name__ == '__main__':
     test()

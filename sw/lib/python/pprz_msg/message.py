@@ -3,23 +3,26 @@ Paparazzi message representation
 
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 import sys
 import json
 import struct
-import messages_xml_map
+from . import messages_xml_map
+
 
 class PprzMessageError(Exception):
     def __init__(self, message, inner_exception=None):
         self.message = message
         self.inner_exception = inner_exception
         self.exception_info = sys.exc_info()
+
     def __str__(self):
         return self.message
 
 
 class PprzMessage(object):
     """base Paparazzi message class"""
+
     def __init__(self, class_name, name):
         self._class_name = class_name
         self._name = name
@@ -67,21 +70,21 @@ class PprzMessage(object):
         return self._fieldtypes
 
     def fieldbintypes(self, t):
-        """Get type and lenfth for binary format"""
+        """Get type and length for binary format"""
         data_types = {
-                'float': ['f', 4],
-                'uint8': ['B', 1],
-                'uint16': ['H', 2],
-                'uint32': ['L', 4],
-                'int8': ['b', 1],
-                'int16': ['h', 2],
-                'int32': ['l', 4],
-                'char': ['c', 1]
-                }
-        baseType = t
+            'float': ['f', 4],
+            'uint8': ['B', 1],
+            'uint16': ['H', 2],
+            'uint32': ['L', 4],
+            'int8': ['b', 1],
+            'int16': ['h', 2],
+            'int32': ['l', 4],
+            'char': ['c', 1]
+        }
+        base_type = t
         if t[-2:] == "[]":
-            baseType = t[:-2]
-        return data_types[baseType]
+            base_type = t[:-2]
+        return data_types[base_type]
 
     def get_field(self, idx):
         """Get field value by index."""
@@ -98,7 +101,7 @@ class PprzMessage(object):
         if len(values) == len(self.fieldnames):
             self._fieldvalues = values
         else:
-            print("set values %i %i" %(len(values), len(self.fieldnames)))
+            print("set values %i %i" % (len(values), len(self.fieldnames)))
             raise PprzMessageError("Error: fields not matching")
 
     def set_value_by_name(self, name, value):
@@ -145,8 +148,8 @@ class PprzMessage(object):
         data = []
         length = 0
         for idx, t in enumerate(self.fieldtypes):
-            binType = self.fieldbintypes(t)
-            struct_string += binType[0]
+            bin_type = self.fieldbintypes(t)
+            struct_string += bin_type[0]
             array_length = 1
             if "char[" in t:
                 array_length = len(self.fieldvalues[idx])
@@ -158,7 +161,7 @@ class PprzMessage(object):
                     data.append(x)
             else:
                 data.append(self.fieldvalues[idx])
-            length += binType[1] * array_length
+            length += bin_type[1] * array_length
         msg = struct.pack(struct_string, *data)
         return msg
 
@@ -166,24 +169,25 @@ class PprzMessage(object):
         msg_offset = 0
         values = []
         for idx, t in enumerate(self.fieldtypes):
-            binType = self.fieldbintypes(t)
+            bin_type = self.fieldbintypes(t)
             if t[-2:] == "[]":
                 array_length = int(struct.unpack('<B', data[msg_offset])[0])
-                msg_offset = msg_offset + 1
+                msg_offset += 1
                 array_value = []
                 for count in range(0, array_length):
-                    array_value.append(struct.unpack('<'+binType[0], "".join(data[msg_offset:msg_offset+binType[1]])))
-                    msg_offset = msg_offset + binType[1]
+                    array_value.append(struct.unpack('<' + bin_type[0], "".join(data[msg_offset:msg_offset + bin_type[1]])))
+                    msg_offset = msg_offset + bin_type[1]
                 values.append(array_value)
             else:
-                value = struct.unpack('<'+binType[0], "".join(data[msg_offset:msg_offset+binType[1]]))
-                msg_offset = msg_offset + binType[1]
+                value = struct.unpack('<' + bin_type[0], "".join(data[msg_offset:msg_offset + bin_type[1]]))
+                msg_offset = msg_offset + bin_type[1]
                 values.append(value)
         self.set_values(values)
 
 
 def test():
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", help="path to messages.xml file")
     parser.add_argument("-c", "--class", help="message class", dest="msg_class", default="telemetry")
@@ -193,6 +197,7 @@ def test():
     print("Listing %i messages in '%s' msg_class" % (len(messages), args.msg_class))
     for msg in messages:
         print(msg)
+
 
 if __name__ == '__main__':
     test()

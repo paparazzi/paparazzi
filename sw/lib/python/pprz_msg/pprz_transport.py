@@ -3,11 +3,17 @@ Paparazzi transport encoding utilities
 
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 import struct
-from pprz_msg.message import PprzMessage
-import messages_xml_map
-from enum import Enum
+from .message import PprzMessage
+from . import messages_xml_map
+
+# use Enum from python 3.4 if available (https://www.python.org/dev/peps/pep-0435/)
+# (backports as enum34 on pypi)
+try:
+    from enum import Enum
+except ImportError:
+    Enum = object
 
 STX = 0x99
 STX_TS = 0x98
@@ -47,7 +53,7 @@ class PprzTransport(object):
             self.idx = 0
             self.state = PprzParserState.GotLength
         elif self.state == PprzParserState.GotLength:
-            self.buf.append(c);
+            self.buf.append(c)
             self.ck_a = (self.ck_a + b) % 256
             self.ck_b = (self.ck_b + self.ck_a) % 256
             self.idx += 1
@@ -77,7 +83,7 @@ class PprzTransport(object):
         msg_name = messages_xml_map.get_msg_name(msg_class, msg_id)
         msg = PprzMessage(msg_class, msg_name)
         msg.binary_to_payload(data[2:])
-        return (sender_id, msg)
+        return sender_id, msg
 
     def unpack(self):
         """Unpack the last received message"""
@@ -90,7 +96,7 @@ class PprzTransport(object):
         for c in msg[1:]:
             ck_a = (ck_a + ord(c)) % 256
             ck_b = (ck_b + ck_a) % 256
-        return (ck_a, ck_b)
+        return ck_a, ck_b
 
     def pack_pprz_msg(self, sender, msg):
         data = msg.payload_to_binary()
@@ -98,6 +104,6 @@ class PprzTransport(object):
         length = 6 + len(data)
         msg = struct.pack("<BBBB", STX, length, sender, msg.msg_id) + data
         (ck_a, ck_b) = self.calculate_checksum(msg)
-        msg = msg + struct.pack('<BB', ck_a, ck_b)
+        msg += struct.pack('<BB', ck_a, ck_b)
         return msg
 
