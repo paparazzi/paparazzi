@@ -17,7 +17,7 @@ import pprz_msg.messages_xml_map
 
 
 class SerialMessagesInterface(threading.Thread):
-    def __init__(self, callback, init=True, verbose=False, device='/dev/ttyUSB0', baudrate=115200,
+    def __init__(self, callback, verbose=False, device='/dev/ttyUSB0', baudrate=115200,
                  msg_class='telemetry'):
         threading.Thread.__init__(self)
         self.callback = callback
@@ -62,24 +62,16 @@ class SerialMessagesInterface(threading.Thread):
                     if self.trans.parse_byte(c):
                         (sender_id, msg) = self.trans.unpack()
                         if self.verbose:
-                            print("New incoming message '%i' from %s" % (sender_id, msg.name))
+                            print("New incoming message '%s' from %i" % (msg.name, sender_id))
                         # Callback function on new message 
                         self.callback(sender_id, msg)
 
         except StopIteration:
             pass
 
-# FIXME not working because of the thread ?
-import signal
-
-
-def signal_term_handler(signal, frame):
-    print("got SIGINT")
-    # sys.exit(0)
-
 
 def test():
-    signal.signal(signal.SIGINT, signal_term_handler)
+    import time
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -91,19 +83,43 @@ def test():
     pprz_msg.messages_xml_map.parse_messages(args.file)
     serial_interface = SerialMessagesInterface(lambda s, m: print("new message from %i: %s" % (s, m)), device=args.dev,
                                                baudrate=args.baud, msg_class=args.msg_class, verbose=True)
-    att_msg = PprzMessage('telemetry', 'ATTITUDE')
-    att_msg.['phi'] = 0.1
-    att_msg.['theta'] = 0.2
-    att_msg.['psi'] = 0.3
-    serial_interface.send(att_msg, 42)
-    to_msg = PprzMessage('telemetry', 'TAKEOFF')
-    to_msg.['cpu_time'] = 10
-    serial_interface.send(to_msg, 42)
+
     print("Starting serial interface on %s at %i baud" % (args.dev, args.baud))
-    serial_interface.start()
-    signal.pause()
-    serial_interface.stop()
-    serial_interface.join()
+    try:
+        serial_interface.start()
+
+        # give the thread some time to properly start
+        time.sleep(0.1)
+
+        # send some datalink messages to aicraft for test
+        ac_id = 42
+        print("sending ping")
+        ping = PprzMessage('datalink', 'PING')
+        serial_interface.send(ping, 0)
+
+        get_setting = PprzMessage('datalink', 'GET_SETTING')
+        get_setting['index'] = 0
+        get_setting['ac_id'] = ac_id
+        serial_interface.send(get_setting, 0)
+
+        # change setting with index 0 (usually the telemetry mode)
+        set_setting = PprzMessage('datalink', 'SETTING')
+        set_setting['index'] = 0
+        set_setting['ac_id'] = ac_id
+        set_setting['value'] = 1
+        serial_interface.send(set_setting, 0)
+
+        # block = PprzMessage('datalink', 'BLOCK')
+        # block['block_id'] = 3
+        # block['ac_id'] = ac_id
+        # serial_interface.send(block, 0)
+
+        while serial_interface.isAlive():
+            serial_interface.join(1)
+    except (KeyboardInterrupt, SystemExit):
+        print('Shutting down...')
+        serial_interface.stop()
+        exit()
 
 
 if __name__ == '__main__':
