@@ -73,6 +73,7 @@ class PprzMessage(object):
         """Get type and length for binary format"""
         data_types = {
             'float': ['f', 4],
+            'double': ['d', 8],
             'uint8': ['B', 1],
             'uint16': ['H', 2],
             'uint32': ['L', 4],
@@ -81,9 +82,7 @@ class PprzMessage(object):
             'int32': ['l', 4],
             'char': ['c', 1]
         }
-        base_type = t
-        if t[-2:] == "[]":
-            base_type = t[:-2]
+        base_type = t.split('[')[0]
         return data_types[base_type]
 
     def get_field(self, idx):
@@ -170,7 +169,7 @@ class PprzMessage(object):
         values = []
         for idx, t in enumerate(self.fieldtypes):
             bin_type = self.fieldbintypes(t)
-            if t[-2:] == "[]":
+            if '[' in t:
                 array_length = int(struct.unpack('<B', data[msg_offset])[0])
                 msg_offset += 1
                 array_value = []
