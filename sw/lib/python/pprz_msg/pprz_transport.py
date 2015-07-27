@@ -96,8 +96,8 @@ class PprzTransport(object):
         data = msg.payload_to_binary()
         # STX + length + sender_id + msg_id + data + ck_a + ck_b
         length = 6 + len(data)
-        msg = struct.pack("=BBBB", STX, length, sender, msg.msg_id) + data
+        msg = struct.pack("<BBBB", STX, length, sender, msg.msg_id) + data
         (ck_a, ck_b) = self.calculate_checksum(msg)
-        msg = msg + struct.pack('=BB', ck_a, ck_b)
+        msg = msg + struct.pack('<BB', ck_a, ck_b)
         return msg
 

@@ -141,7 +141,7 @@ class PprzMessage(object):
         return ivy_str
 
     def payload_to_binary(self):
-        struct_string = "="
+        struct_string = "<"
         data = []
         length = 0
         for idx, t in enumerate(self.fieldtypes):
