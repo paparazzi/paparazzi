@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012  Sergey Krukowski <softsr@yahoo.de>
+ * Copyright (C) 2015  OpenUAS <info@openuas.org>
  *
  * This file is part of paparazzi.
  *
@@ -19,10 +20,10 @@
  */
 
 /**
- * @file pprz_geodetic_wmm2010.h
- * @brief WMM2010 Geomagnetic field model.
+ * @file pprz_geodetic_wmm2015.h
+ * @brief WMM2015 Geomagnetic field model.
  *
- * Based on the WMM2010 model (http://www.ngdc.noaa.gov/geomag/models.shtml)
+ * Based on the WMM2015 model (http://www.ngdc.noaa.gov/geomag/models.shtml)
  *
  * @addtogroup math_geodetic
  * @{
@@ -30,20 +31,20 @@
  * @{
  */
 
-#ifndef WMM2010_H
-#define WMM2010_H
+#ifndef WMM2015_H
+#define WMM2015_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define WMM2010_FRAC 2
+#define WMM2015_FRAC 2
 #define N_MAX_OF_GH  12
 
 // Geo mag current observation epoch begin
-#define GEO_EPOCH 2010.
-#define YR_MIN    2010.
-#define YR_MAX    2015.
+#define GEO_EPOCH 2015.
+#define YR_MIN    2015.
+#define YR_MAX    2020.
 #define NMAX_1 12
 #define NMAX_2 12
 
@@ -58,7 +59,8 @@ extern "C" {
 #define GPS_EPOCH_MONTH 1
 #define GPS_EPOCH_DAY   6
 
-#define WEEKS_IN_YEAR 52.143
+
+#define WEEKS_IN_YEAR 52.14285
 #define SECS_IN_YEAR 31536000
 
 #define MAXDEG 13
@@ -76,6 +78,6 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
 } /* extern "C" */
 #endif
 
-#endif /* WMM2010_H */
+#endif /* WMM2015_H */
 /** @}*/
 /** @}*/

@@ -63,7 +63,7 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_ivy_mission_commands.c
 
 # for geo mag calculation
-nps.srcs += math/pprz_geodetic_wmm2010.c
+nps.srcs += math/pprz_geodetic_wmm2015.c
 
 include $(CFG_SHARED)/telemetry_ivy.makefile
 nps.srcs += $(SRC_FIRMWARE)/rotorcraft_telemetry.c
