@@ -1380,7 +1380,7 @@ static void i2c_wd_check(struct i2c_periph *periph)
 
       periph->watchdog = 0; // restart watchdog
 
-      periph->errors->timeout_tlow_cnt++;
+      periph->errors->wd_reset_cnt++;
 
       return;
     }
