@@ -152,6 +152,7 @@ struct i2c_periph {
 /** I2C errors counter.
  */
 struct i2c_errors {
+  volatile uint16_t wd_reset_cnt;
   volatile uint16_t queue_full_cnt;
   volatile uint16_t ack_fail_cnt;
   volatile uint16_t miss_start_stop_cnt;
@@ -163,31 +164,22 @@ struct i2c_errors {
   volatile uint16_t unexpected_event_cnt;
   volatile uint32_t last_unexpected_event;
   volatile uint32_t er_irq_cnt;
-  volatile uint32_t irq_cnt;
-  volatile uint32_t event_chain[16];
-  volatile enum I2CStatus status_chain[16];
 };
 
 
-#include <string.h>
-#define I2C_ZERO_EVENTS(_err) {                     \
-    _err.irq_cnt = 0;                           \
-    memset((void*)_err.event_chain, 0, sizeof(_err.event_chain));   \
-    memset((void*)_err.status_chain, 0, sizeof(_err.status_chain)); \
-  }
-
 #define ZEROS_ERR_COUNTER(_i2c_err) {     \
-    _i2c_err.queue_full_cnt = 0;            \
-    _i2c_err.ack_fail_cnt = 0;        \
+    _i2c_err.wd_reset_cnt = 0;            \
+    _i2c_err.queue_full_cnt = 0;          \
+    _i2c_err.ack_fail_cnt = 0;            \
     _i2c_err.miss_start_stop_cnt = 0;     \
-    _i2c_err.arb_lost_cnt = 0;        \
-    _i2c_err.over_under_cnt = 0;      \
-    _i2c_err.pec_recep_cnt = 0;       \
-    _i2c_err.timeout_tlow_cnt = 0;      \
-    _i2c_err.smbus_alert_cnt = 0;     \
-    _i2c_err.unexpected_event_cnt = 0;      \
-    _i2c_err.last_unexpected_event = 0;     \
-    _i2c_err.er_irq_cnt = 0;        \
+    _i2c_err.arb_lost_cnt = 0;            \
+    _i2c_err.over_under_cnt = 0;          \
+    _i2c_err.pec_recep_cnt = 0;           \
+    _i2c_err.timeout_tlow_cnt = 0;        \
+    _i2c_err.smbus_alert_cnt = 0;         \
+    _i2c_err.unexpected_event_cnt = 0;    \
+    _i2c_err.last_unexpected_event = 0;   \
+    _i2c_err.er_irq_cnt = 0;              \
   }
 
 

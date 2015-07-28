@@ -101,57 +101,61 @@ static inline void main_periodic_task(void)
 
 #if USE_I2C1
   RunOnceEvery(111, {
-    uint16_t i2c1_queue_full_cnt        = i2c1.errors->queue_full_cnt;
-    uint16_t i2c1_ack_fail_cnt          = i2c1.errors->ack_fail_cnt;
-    uint16_t i2c1_miss_start_stop_cnt   = i2c1.errors->miss_start_stop_cnt;
-    uint16_t i2c1_arb_lost_cnt          = i2c1.errors->arb_lost_cnt;
-    uint16_t i2c1_over_under_cnt        = i2c1.errors->over_under_cnt;
-    uint16_t i2c1_pec_recep_cnt         = i2c1.errors->pec_recep_cnt;
-    uint16_t i2c1_timeout_tlow_cnt      = i2c1.errors->timeout_tlow_cnt;
-    uint16_t i2c1_smbus_alert_cnt       = i2c1.errors->smbus_alert_cnt;
-    uint16_t i2c1_unexpected_event_cnt  = i2c1.errors->unexpected_event_cnt;
-    uint32_t i2c1_last_unexpected_event = i2c1.errors->last_unexpected_event;
-    uint8_t _bus1 = 1;
-    DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
-    &i2c1_queue_full_cnt,
-    &i2c1_ack_fail_cnt,
-    &i2c1_miss_start_stop_cnt,
-    &i2c1_arb_lost_cnt,
-    &i2c1_over_under_cnt,
-    &i2c1_pec_recep_cnt,
-    &i2c1_timeout_tlow_cnt,
-    &i2c1_smbus_alert_cnt,
-    &i2c1_unexpected_event_cnt,
-    &i2c1_last_unexpected_event,
-    &_bus1);
-  });
+      uint16_t i2c1_wd_reset_cnt          = i2c1.errors->wd_reset_cnt;
+      uint16_t i2c1_queue_full_cnt        = i2c1.errors->queue_full_cnt;
+      uint16_t i2c1_ack_fail_cnt          = i2c1.errors->ack_fail_cnt;
+      uint16_t i2c1_miss_start_stop_cnt   = i2c1.errors->miss_start_stop_cnt;
+      uint16_t i2c1_arb_lost_cnt          = i2c1.errors->arb_lost_cnt;
+      uint16_t i2c1_over_under_cnt        = i2c1.errors->over_under_cnt;
+      uint16_t i2c1_pec_recep_cnt         = i2c1.errors->pec_recep_cnt;
+      uint16_t i2c1_timeout_tlow_cnt      = i2c1.errors->timeout_tlow_cnt;
+      uint16_t i2c1_smbus_alert_cnt       = i2c1.errors->smbus_alert_cnt;
+      uint16_t i2c1_unexpected_event_cnt  = i2c1.errors->unexpected_event_cnt;
+      uint32_t i2c1_last_unexpected_event = i2c1.errors->last_unexpected_event;
+      uint8_t _bus1 = 1;
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
+                               &i2c1_wd_reset_cnt,
+                               &i2c1_queue_full_cnt,
+                               &i2c1_ack_fail_cnt,
+                               &i2c1_miss_start_stop_cnt,
+                               &i2c1_arb_lost_cnt,
+                               &i2c1_over_under_cnt,
+                               &i2c1_pec_recep_cnt,
+                               &i2c1_timeout_tlow_cnt,
+                               &i2c1_smbus_alert_cnt,
+                               &i2c1_unexpected_event_cnt,
+                               &i2c1_last_unexpected_event,
+                               &_bus1);
+    });
 #endif
 #if USE_I2C2
   RunOnceEvery(111, {
-    uint16_t i2c2_queue_full_cnt        = i2c2.errors->queue_full_cnt;
-    uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
-    uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;
-    uint16_t i2c2_arb_lost_cnt          = i2c2.errors->arb_lost_cnt;
-    uint16_t i2c2_over_under_cnt        = i2c2.errors->over_under_cnt;
-    uint16_t i2c2_pec_recep_cnt         = i2c2.errors->pec_recep_cnt;
-    uint16_t i2c2_timeout_tlow_cnt      = i2c2.errors->timeout_tlow_cnt;
-    uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt;
-    uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt;
-    uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event;
-    uint8_t _bus2 = 2;
-    DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
-    &i2c2_queue_full_cnt,
-    &i2c2_ack_fail_cnt,
-    &i2c2_miss_start_stop_cnt,
-    &i2c2_arb_lost_cnt,
-    &i2c2_over_under_cnt,
-    &i2c2_pec_recep_cnt,
-    &i2c2_timeout_tlow_cnt,
-    &i2c2_smbus_alert_cnt,
-    &i2c2_unexpected_event_cnt,
-    &i2c2_last_unexpected_event,
-    &_bus2);
-  });
+      uint16_t i2c2_wd_reset_cnt          = i2c2.errors->wd_reset_cnt;
+      uint16_t i2c2_queue_full_cnt        = i2c2.errors->queue_full_cnt;
+      uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
+      uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;
+      uint16_t i2c2_arb_lost_cnt          = i2c2.errors->arb_lost_cnt;
+      uint16_t i2c2_over_under_cnt        = i2c2.errors->over_under_cnt;
+      uint16_t i2c2_pec_recep_cnt         = i2c2.errors->pec_recep_cnt;
+      uint16_t i2c2_timeout_tlow_cnt      = i2c2.errors->timeout_tlow_cnt;
+      uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt;
+      uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt;
+      uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event;
+      uint8_t _bus2 = 2;
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
+                               &i2c2_wd_reset_cnt,
+                               &i2c2_queue_full_cnt,
+                               &i2c2_ack_fail_cnt,
+                               &i2c2_miss_start_stop_cnt,
+                               &i2c2_arb_lost_cnt,
+                               &i2c2_over_under_cnt,
+                               &i2c2_pec_recep_cnt,
+                               &i2c2_timeout_tlow_cnt,
+                               &i2c2_smbus_alert_cnt,
+                               &i2c2_unexpected_event_cnt,
+                               &i2c2_last_unexpected_event,
+                               &_bus2);
+    });
 #endif
 
   if (sys_time.nb_sec > 1) { imu_periodic(); }

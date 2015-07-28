@@ -2135,6 +2135,7 @@
   <!-- 252 is free -->
 
   <message name="I2C_ERRORS" id="253">
+    <field name="wd_reset_cnt"                type="uint16"/>
     <field name="queue_full_cnt"              type="uint16"/>
     <field name="acknowledge_failure_cnt"     type="uint16"/>
     <field name="misplaced_start_or_stop_cnt" type="uint16"/>
