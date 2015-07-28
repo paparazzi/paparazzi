@@ -535,7 +535,7 @@ static inline void i2c_error(struct i2c_periph *periph)
 #ifdef I2C_DEBUG_LED
   uint8_t err_nr = 0;
 #endif
-  periph->errors->er_irq_cnt;
+  periph->errors->er_irq_cnt++;
   if ((I2C_SR1((uint32_t)periph->reg_addr) & I2C_SR1_AF) != 0) { /* Acknowledge failure */
     periph->errors->ack_fail_cnt++;
     I2C_SR1((uint32_t)periph->reg_addr) &= ~I2C_SR1_AF;

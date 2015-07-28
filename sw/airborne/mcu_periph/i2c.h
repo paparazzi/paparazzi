@@ -163,18 +163,8 @@ struct i2c_errors {
   volatile uint16_t unexpected_event_cnt;
   volatile uint32_t last_unexpected_event;
   volatile uint32_t er_irq_cnt;
-  volatile uint32_t irq_cnt;
-  volatile uint32_t event_chain[16];
-  volatile enum I2CStatus status_chain[16];
 };
 
-
-#include <string.h>
-#define I2C_ZERO_EVENTS(_err) {                     \
-    _err.irq_cnt = 0;                           \
-    memset((void*)_err.event_chain, 0, sizeof(_err.event_chain));   \
-    memset((void*)_err.status_chain, 0, sizeof(_err.status_chain)); \
-  }
 
 #define ZEROS_ERR_COUNTER(_i2c_err) {     \
     _i2c_err.queue_full_cnt = 0;            \
