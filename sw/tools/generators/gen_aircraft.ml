@@ -350,13 +350,13 @@ let () =
     (* normal settings *)
     let settings = try Env.filter_settings (value "settings") with _ -> "" in
     (* remove settings if not supported for the current target *)
-    let settings = List.fold_left (fun l s -> if Gen_common.is_element_unselected target s then l else l @ [s]) [] (Str.split (Str.regexp " ") settings) in
+    let settings = List.fold_left (fun l s -> if Gen_common.is_element_unselected ~verbose:true target s then l else l @ [s]) [] (Str.split (Str.regexp " ") settings) in
     (* update aircraft_xml *)
     let aircraft_xml = ExtXml.subst_attrib "settings" (String.concat " " settings) aircraft_xml in
     (* add modules settings *)
     let settings_modules = try Env.filter_settings (value "settings_modules") with _ -> "" in
     (* remove settings if not supported for the current target *)
-    let settings_modules = List.fold_left (fun l s -> if Gen_common.is_element_unselected target s then l else l @ [s]) [] (Str.split (Str.regexp " ") settings_modules) in
+    let settings_modules = List.fold_left (fun l s -> if Gen_common.is_element_unselected ~verbose:true target s then l else l @ [s]) [] (Str.split (Str.regexp " ") settings_modules) in
     (* update aircraft_xml *)
     let aircraft_xml = ExtXml.subst_attrib "settings_modules" (String.concat " " settings_modules) aircraft_xml in
     (* finally, concat all settings *)

@@ -72,5 +72,5 @@ val get_autopilot_of_airframe : Xml.xml -> (string * string option)
 (** [is_element_unselected target file]
  * Returns True if [target] is supported the element [file],
  * [file] being the file name of an Xml file (module or setting) *)
-val is_element_unselected : string -> string -> bool
+val is_element_unselected : ?verbose:bool -> string -> string -> bool
 

@@ -161,7 +161,7 @@ let get_modules_dir = fun modules ->
 (** [is_element_unselected target file]
  * Returns True if [target] is supported the element [file],
  * [file] being the file name of an Xml file (module or setting) *)
-let is_element_unselected = fun target name ->
+let is_element_unselected = fun ?(verbose=false) target name ->
   let test_targets = fun targets ->
     List.exists (fun t ->
       let l = String.length t in
@@ -179,7 +179,10 @@ let is_element_unselected = fun target name ->
     | "settings" ->
         let targets = Xml.attrib xml "target" in
         let target_list = Str.split (Str.regexp "|") targets in
-        not (test_targets target_list)
+        let unselected = not (test_targets target_list) in
+        if unselected && verbose then
+          begin Printf.printf "Warning: settings '%s' is not available for target '%s'\n" name target; flush stdout end;
+        unselected
     | "module" ->
         let targets = List.map (fun x ->
           match String.lowercase (Xml.tag x) with
@@ -189,7 +192,10 @@ let is_element_unselected = fun target name ->
         let targets = (List.flatten targets) in
         (* singletonized list *)
         let targets = singletonize (List.sort compare targets) in
-        not (test_targets targets)
+        let unselected = not (test_targets targets) in
+        if unselected && verbose then
+          begin Printf.printf "Warning: settings '%s' is not available for target '%s'\n" name target; flush stdout end;
+        unselected
     | _ -> false
   with _ -> false
 
