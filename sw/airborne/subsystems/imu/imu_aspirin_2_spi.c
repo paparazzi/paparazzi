@@ -115,12 +115,13 @@ void imu_impl_init(void)
   /* read 15 bytes for status, accel, gyro + 6 bytes for mag slave */
   imu_aspirin2.mpu.config.nb_bytes = 21;
 
+  /* use mag if not disabled */
+#if !ASPIRIN_2_DISABLE_MAG
   /* HMC5883 magnetometer as I2C slave */
   imu_aspirin2.mpu.config.nb_slaves = 1;
 
   /* set function to configure mag */
   imu_aspirin2.mpu.config.slaves[0].configure = &imu_aspirin2_configure_mag_slave;
-
 
   /* Set MPU I2C master clock */
   imu_aspirin2.mpu.config.i2c_mst_clk = MPU60X0_MST_CLK_400KHZ;
@@ -146,6 +147,7 @@ void imu_impl_init(void)
 
   imu_aspirin2.wait_slave4_trans.status = SPITransDone;
   imu_aspirin2.slave4_ready = FALSE;
+#endif
 }
 
 
@@ -162,11 +164,13 @@ void imu_aspirin2_event(void)
 
   mpu60x0_spi_event(&imu_aspirin2.mpu);
   if (imu_aspirin2.mpu.data_available) {
+#if !ASPIRIN_2_DISABLE_MAG
     /* HMC5883 has xzy order of axes in returned data */
     struct Int32Vect3 mag;
     mag.x = Int16FromBuf(imu_aspirin2.mpu.data_ext, 0);
     mag.z = Int16FromBuf(imu_aspirin2.mpu.data_ext, 2);
     mag.y = Int16FromBuf(imu_aspirin2.mpu.data_ext, 4);
+#endif
 
     /* Handle axis assignement for Lisa/S integrated Aspirin like IMU. */
 #ifdef LISA_S
@@ -183,7 +187,9 @@ void imu_aspirin2_event(void)
 #else
     RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
+#if !ASPIRIN_2_DISABLE_MAG
     VECT3_COPY(imu.mag_unscaled, mag);
+#endif
 #endif
 #else
 
@@ -199,7 +205,9 @@ void imu_aspirin2_event(void)
                  -imu_aspirin2.mpu.data_accel.vect.y,
                  imu_aspirin2.mpu.data_accel.vect.x,
                  imu_aspirin2.mpu.data_accel.vect.z);
+#if !ASPIRIN_2_DISABLE_MAG
     VECT3_ASSIGN(imu.mag_unscaled, -mag.y, mag.x, mag.z);
+#endif
 #else
 
     /* Handle real Aspirin IMU axis assignement. */
@@ -212,11 +220,15 @@ void imu_aspirin2_event(void)
                  imu_aspirin2.mpu.data_accel.vect.y,
                  -imu_aspirin2.mpu.data_accel.vect.x,
                  imu_aspirin2.mpu.data_accel.vect.z);
+#if !ASPIRIN_2_DISABLE_MAG
     VECT3_ASSIGN(imu.mag_unscaled, -mag.x, -mag.y, mag.z);
+#endif
 #else
     RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
+#if !ASPIRIN_2_DISABLE_MAG
     VECT3_ASSIGN(imu.mag_unscaled, mag.y, -mag.x, mag.z)
+#endif
 #endif
 #endif
 #endif
@@ -225,10 +237,12 @@ void imu_aspirin2_event(void)
 
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
-    imu_scale_mag(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.gyro);
     AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.accel);
+#if !ASPIRIN_2_DISABLE_MAG
+    imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.mag);
+#endif
   }
 }
 
