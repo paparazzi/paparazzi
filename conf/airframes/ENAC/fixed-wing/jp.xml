@@ -5,7 +5,7 @@
   <modules>
     <load name="mag_hmc58xx.xml">
       <define name="MODULE_HMC58XX_UPDATE_AHRS"/>
-      <define name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
     </load>
     <load name="airspeed_adc.xml">
       <configure name="ADC_AIRSPEED" value="ADC_1"/>
@@ -18,7 +18,6 @@
 
   <firmware name="fixedwing">
     <define name="USE_I2C1"/>
-    <define name="USE_I2C2"/>
     <configure name="PERIODIC_FREQUENCY" value="125"/>
 
     <target name="ap" board="apogee_1.0_chibios">

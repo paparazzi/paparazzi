@@ -92,9 +92,9 @@ void mag_hmc58xx_module_event(void)
 void mag_hmc58xx_report(void)
 {
   struct Int32Vect3 mag = {
-    (int32_t)(mag_hmc58xx.data.vect.x),
-    (int32_t)(mag_hmc58xx.data.vect.y),
-    (int32_t)(mag_hmc58xx.data.vect.z)
+    (int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_X]),
+    (int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_Y]),
+    (int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_Z])
   };
   DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
 }
