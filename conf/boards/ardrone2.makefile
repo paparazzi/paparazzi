@@ -46,7 +46,7 @@ $(TARGET).CFLAGS += -DLINUX_LINK_STATIC
 $(TARGET).LDFLAGS += -static
 
 # limit main loop to 1kHz so ap doesn't need 100% cpu
-$(TARGET).CFLAGS += -DLIMIT_EVENT_POLLING
+#$(TARGET).CFLAGS += -DLIMIT_EVENT_POLLING
 
 # -----------------------------------------------------------------------
 
