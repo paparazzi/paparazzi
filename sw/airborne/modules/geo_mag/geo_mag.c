@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012  Sergey Krukowski <softsr@yahoo.de>
+ * Copyright (C) 2015  OpenUAS <info@openuas.org>
  *
  * This file is part of paparazzi.
  *
@@ -21,17 +22,18 @@
 
 /**
  * @file modules/geo_mag/geo_mag.c
- * @brief Calculation of the Geomagnetic field vector from current GPS fix.
- * This module is based on the WMM2010 model (http://www.ngdc.noaa.gov/geomag/models.shtml).
+ * @brief Calculation of the Geomagnetic field vector from current location.
+ * This module is based on the WMM2015 model (http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml).
  */
 
 #include "modules/geo_mag/geo_mag.h"
-#include "math/pprz_geodetic_wmm2010.h"
+#include "math/pprz_geodetic_wmm2015.h"
 #include "math/pprz_algebra_double.h"
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
 
-// for kill_throttle check
+//FIXME: should not be in this spot
+//for kill_throttle check
 #include "autopilot.h"
 
 #ifndef GEO_MAG_SENDER_ID
@@ -49,6 +51,7 @@ void geo_mag_init(void)
 
 void geo_mag_periodic(void)
 {
+  //FIXME: kill_throttle has no place  in a geomag module
   if (!geo_mag.ready && gps.fix == GPS_FIX_3D && kill_throttle) {
     geo_mag_calc_flag = TRUE;
   }
@@ -61,7 +64,7 @@ void geo_mag_event(void)
     double gha[MAXCOEFF]; // Geomag global variables
     int32_t nmax;
 
-    /* Current date in decimal year, for example 2012.68 */
+    /* Current date in decimal year, for example 2015.68 */
     double sdate = GPS_EPOCH_BEGIN +
                    (double)gps.week / WEEKS_IN_YEAR +
                    (double)gps.tow / 1000 / SECS_IN_YEAR;
