@@ -36,8 +36,145 @@
 
 #include "serial_port.h"
 
+#include <pthread.h>
+#include <sys/select.h>
+
+static void uart_handler(struct uart_periph *periph);
+static void *uart_thread(void *data __attribute__((unused)));
+static pthread_mutex_t uart_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 // #define TRACE(fmt,args...)    fprintf(stderr, fmt, args)
 #define TRACE(fmt,args...)
+
+void uart_arch_init(void)
+{
+  pthread_mutex_init(&uart_mutex, NULL);
+
+  pthread_t tid;
+  if (pthread_create(&tid, NULL, uart_thread, NULL) != 0) {
+    fprintf(stderr, "uart_arch_init: Could not create UART reading thread.\n");
+    return;
+  }
+}
+
+static void *uart_thread(void *data __attribute__((unused)))
+{
+  /* file descriptor list */
+  fd_set fds_master;
+  /* maximum file descriptor number */
+  int fdmax = 0;
+
+  /* clear the fd list */
+  FD_ZERO(&fds_master);
+  /* add used fds */
+  int fd;
+#if USE_UART0
+  fd = ((struct SerialPort *)uart0.reg_addr)->fd;
+  FD_SET(fd, &fds_master);
+  if (fd > fdmax) {
+    fdmax =fd;
+  }
+#endif
+#if USE_UART1
+  fd = ((struct SerialPort *)uart1.reg_addr)->fd;
+  FD_SET(fd, &fds_master);
+  if (fd > fdmax) {
+    fdmax =fd;
+  }
+#endif
+#if USE_UART2
+  fd = ((struct SerialPort *)uart2.reg_addr)->fd;
+  FD_SET(fd, &fds_master);
+  if (fd > fdmax) {
+    fdmax =fd;
+  }
+#endif
+#if USE_UART3
+  fd = ((struct SerialPort *)uart3.reg_addr)->fd;
+  FD_SET(fd, &fds_master);
+  if (fd > fdmax) {
+    fdmax =fd;
+  }
+#endif
+#if USE_UART4
+  fd = ((struct SerialPort *)uart4.reg_addr)->fd;
+  FD_SET(fd, &fds_master);
+  if (fd > fdmax) {
+    fdmax =fd;
+  }
+#endif
+#if USE_UART5
+  fd = ((struct SerialPort *)uart5.reg_addr)->fd;
+  FD_SET(fd, &fds_master);
+  if (fd > fdmax) {
+    fdmax =fd;
+  }
+#endif
+#if USE_UART6
+  fd = ((struct SerialPort *)uart6.reg_addr)->fd;
+  FD_SET(fd, &fds_master);
+  if (fd > fdmax) {
+    fdmax =fd;
+  }
+#endif
+
+  /* fds to be read, modified after each select */
+  fd_set fds;
+
+  while (1) {
+    /* reset list of fds to check */
+    fds = fds_master;
+
+    if (select(fdmax + 1, &fds, NULL, NULL, NULL) < 0) {
+      fprintf(stderr, "uart_thread: select failed!");
+    }
+    else {
+#if USE_UART0
+      fd = ((struct SerialPort *)uart0.reg_addr)->fd;
+      if (FD_ISSET(fd, &fds)) {
+        uart_handler(&uart0);
+      }
+#endif
+#if USE_UART1
+      fd = ((struct SerialPort *)uart1.reg_addr)->fd;
+      if (FD_ISSET(fd, &fds)) {
+        uart_handler(&uart1);
+      }
+#endif
+#if USE_UART2
+      fd = ((struct SerialPort *)uart2.reg_addr)->fd;
+      if (FD_ISSET(fd, &fds)) {
+        uart_handler(&uart2);
+      }
+#endif
+#if USE_UART3
+      fd = ((struct SerialPort *)uart3.reg_addr)->fd;
+      if (FD_ISSET(fd, &fds)) {
+        uart_handler(&uart3);
+      }
+#endif
+#if USE_UART4
+      fd = ((struct SerialPort *)uart4.reg_addr)->fd;
+      if (FD_ISSET(fd, &fds)) {
+        uart_handler(&uart4);
+      }
+#endif
+#if USE_UART5
+      fd = ((struct SerialPort *)uart5.reg_addr)->fd;
+      if (FD_ISSET(fd, &fds)) {
+        uart_handler(&uart5);
+      }
+#endif
+#if USE_UART6
+      fd = ((struct SerialPort *)uart6.reg_addr)->fd;
+      if (FD_ISSET(fd, &fds)) {
+        uart_handler(&uart6);
+      }
+#endif
+    }
+  }
+  return 0;
+}
 
 
 void uart_periph_set_baudrate(struct uart_periph *periph, uint32_t baud)
@@ -94,7 +231,7 @@ void uart_transmit(struct uart_periph *periph, uint8_t data)
 }
 
 
-static inline void uart_handler(struct uart_periph *periph)
+static void uart_handler(struct uart_periph *periph)
 {
   unsigned char c = 'D';
 
@@ -102,6 +239,8 @@ static inline void uart_handler(struct uart_periph *periph)
 
   struct SerialPort *port = (struct SerialPort *)(periph->reg_addr);
   int fd = port->fd;
+
+  pthread_mutex_lock(&uart_mutex);
 
   // check if more data to send
   if (periph->tx_insert_idx != periph->tx_extract_idx) {
@@ -126,32 +265,27 @@ static inline void uart_handler(struct uart_periph *periph)
       periph->rx_insert_idx = temp;  // update insert index
     }
   }
-
+  pthread_mutex_unlock(&uart_mutex);
 }
 
-void uart_event(void)
+uint8_t uart_getch(struct uart_periph *p)
 {
-#if USE_UART0
-  uart_handler(&uart0);
-#endif
-#if USE_UART1
-  uart_handler(&uart1);
-#endif
-#if USE_UART2
-  uart_handler(&uart2);
-#endif
-#if USE_UART3
-  uart_handler(&uart3);
-#endif
-#if USE_UART4
-  uart_handler(&uart4);
-#endif
-#if USE_UART5
-  uart_handler(&uart5);
-#endif
-#if USE_UART6
-  uart_handler(&uart6);
-#endif
+  pthread_mutex_lock(&uart_mutex);
+  uint8_t ret = p->rx_buf[p->rx_extract_idx];
+  p->rx_extract_idx = (p->rx_extract_idx + 1) % UART_RX_BUFFER_SIZE;
+  pthread_mutex_unlock(&uart_mutex);
+  return ret;
+}
+
+uint16_t uart_char_available(struct uart_periph *p)
+{
+  pthread_mutex_lock(&uart_mutex);
+  int16_t available = p->rx_insert_idx - p->rx_extract_idx;
+  if (available < 0) {
+    available += UART_RX_BUFFER_SIZE;
+  }
+  pthread_mutex_unlock(&uart_mutex);
+  return (uint16_t)available;
 }
 
 #if USE_UART0

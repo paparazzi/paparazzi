@@ -37,7 +37,6 @@ int main(void)
     if (sys_time_check_and_ack_timer(0)) {
       main_periodic();
     }
-    uart_event();
   }
 
   return 0;

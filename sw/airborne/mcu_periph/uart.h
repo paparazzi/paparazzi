@@ -84,7 +84,6 @@ extern void uart_periph_set_mode(struct uart_periph *p, bool_t tx_enabled, bool_
 extern void uart_transmit(struct uart_periph *p, uint8_t data);
 extern bool_t uart_check_free_space(struct uart_periph *p, uint8_t len);
 extern uint8_t uart_getch(struct uart_periph *p);
-extern void uart_event(void);
 
 /**
  * Check UART for available chars in receive buffer.
@@ -92,6 +91,8 @@ extern void uart_event(void);
  */
 extern uint16_t uart_char_available(struct uart_periph *p);
 
+
+extern void uart_arch_init(void);
 
 #if USE_UART0
 extern struct uart_periph uart0;
