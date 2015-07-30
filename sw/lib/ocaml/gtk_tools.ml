@@ -168,13 +168,13 @@ let get_selected_in_tree = fun  (tree : tree) ->
  * if element is between brackets, set to unchecked
  * and remove brackets in tree name
  *)
-let add_to_tree = fun (tree : tree) string ->
+let add_to_tree = fun ?(force_unselect=false) (tree : tree) string ->
   let (store, name, check, _) = tree_model tree in
   let row = store#append () in
   let l = String.length string in
   let checked = not (string.[0] = '[' && string.[l - 1] = ']') in
   let string = if not checked then String.sub string 1 (l - 2) else string in
-  store#set ~row ~column:check checked;
+  store#set ~row ~column:check (checked && not force_unselect);
   store#set ~row ~column:name string
 
 let remove_selected_from_tree = fun (tree : tree) ->

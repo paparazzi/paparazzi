@@ -346,13 +346,28 @@ let () =
     mkdir (aircraft_conf_dir // "settings");
     mkdir (aircraft_conf_dir // "telemetry");
 
-    let settings =
-      try Env.filter_settings (value "settings") with
-          _ ->
-            fprintf stderr "\nWARNING: No 'settings' attribute specified for A/C '%s', using 'settings/dummy.xml'\n\n%!" aircraft;
-            "settings/dummy.xml" in
+    let target = try Sys.getenv "TARGET" with _ -> "" in
+    (* normal settings *)
+    let settings = try Env.filter_settings (value "settings") with _ -> "" in
+    (* remove settings if not supported for the current target *)
+    let settings = List.fold_left (fun l s -> if Gen_common.is_element_unselected ~verbose:true target s then l else l @ [s]) [] (Str.split (Str.regexp " ") settings) in
+    (* update aircraft_xml *)
+    let aircraft_xml = ExtXml.subst_attrib "settings" (String.concat " " settings) aircraft_xml in
     (* add modules settings *)
-    let settings = String.concat " " [settings; (try Env.filter_settings (value "settings_modules") with _ -> "")] in
+    let settings_modules = try Env.filter_settings (value "settings_modules") with _ -> "" in
+    (* remove settings if not supported for the current target *)
+    let settings_modules = List.fold_left (fun l s -> if Gen_common.is_element_unselected ~verbose:true target s then l else l @ [s]) [] (Str.split (Str.regexp " ") settings_modules) in
+    (* update aircraft_xml *)
+    let aircraft_xml = ExtXml.subst_attrib "settings_modules" (String.concat " " settings_modules) aircraft_xml in
+    (* finally, concat all settings *)
+    let settings = settings @ settings_modules in
+    let settings = if List.length settings = 0 then
+      begin
+        fprintf stderr "\nWARNING: No 'settings' attribute specified for A/C '%s', using 'settings/dummy.xml'\n\n%!" aircraft;
+        "settings/dummy.xml"
+      end
+      else String.concat " " settings
+    in
 
     (** Expands the configuration of the A/C into one single file *)
     let conf_aircraft = Env.expand_ac_xml aircraft_xml in

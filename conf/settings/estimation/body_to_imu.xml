@@ -1,6 +1,6 @@
 <!DOCTYPE settings SYSTEM "../settings.dtd">
 
-<settings>
+<settings target="!sim">
   <dl_settings>
     <dl_settings NAME="body2imu">
       <dl_setting MAX="90" MIN="-90" STEP="0.5" VAR="imu.body_to_imu.eulers_f.phi" shortname="b2i phi" module="subsystems/imu" param="IMU_BODY_TO_IMU_PHI" unit="rad" alt_unit="deg" handler="SetBodyToImuPhi"/>

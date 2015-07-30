@@ -144,7 +144,7 @@ let print_dl_settings = fun settings ->
   lprintf "static inline float settings_get_value(uint8_t i) {\n";
   right ();
   let idx = ref 0 in
-  lprintf "switch (i) { \\\n";
+  lprintf "switch (i) {\n";
   right ();
   List.iter
     (fun s ->
@@ -152,10 +152,10 @@ let print_dl_settings = fun settings ->
       lprintf "case %d: return %s;\n" !idx v; incr idx)
     settings;
   lprintf "default: return 0.;\n";
-  lprintf "}\n";
   left ();
   lprintf "}\n";
-  left()
+  left ();
+  lprintf "}\n"
 
 
 let inttype = function
@@ -276,6 +276,17 @@ let parse_rc_mode = fun xml ->
 let parse_rc_modes = fun xml ->
   List.iter parse_rc_mode (Xml.children xml)
 
+(*
+ Check if target t is marked as supported in the targets string.
+ The targets string is a pipe delimited list of supported targets, e.g. "ap|nps"
+ To specifiy a list with unsupported targets, prefix with !
+ e.g. "!sim|nps" to mark support for all targets except sim and nps.
+*)
+let supports_target = fun t targets ->
+  if String.length targets > 0 && targets.[0] = '!' then
+    not (Str.string_match (Str.regexp (".*"^t^".*")) targets 0)
+  else
+    Str.string_match (Str.regexp (".*"^t^".*")) targets 0
 
 let join_xml_files = fun xml_files ->
   let dl_settings = ref []
@@ -302,14 +313,22 @@ let join_xml_files = fun xml_files ->
             if List.exists (fun n ->
               if Xml.tag n = "makefile" then begin
                 let t = ExtXml.attrib_or_default n "target" Env.default_module_targets in
-                Str.string_match (Str.regexp (".*"^target^".*")) t 0
+                supports_target target t
               end
               else false
               ) (Xml.children xml)
             then List.filter (fun t -> Xml.tag t = "settings") (Xml.children xml)
             else []
           end
-          else [xml]
+          else begin
+            (* if the top <settings> node has a target attribute,
+               only add if matches current target *)
+            let t = ExtXml.attrib_or_default xml "target" "" in
+            if t = "" || (supports_target target t) then
+              [xml]
+            else
+              []
+          end
         in
         (* include settings if name is matching *)
         List.fold_left (fun l x ->

@@ -217,6 +217,8 @@ let first_word = fun s ->
   with
     Not_found -> s
 
+(** Test if an element is available for the current target *)
+
 (** Get list of targets of an airframe *)
 let get_targets_list = fun ac_xml ->
   let firmwares = List.filter (fun x -> ExtXml.tag_is x "firmware") (Xml.children ac_xml) in
@@ -314,7 +316,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
         | Tree t ->
           ignore (Gtk_tools.clear_tree t);
           let names = Str.split regexp_space (value a) in
-          List.iter (fun n -> Gtk_tools.add_to_tree t n) names;
+          List.iter (Gtk_tools.add_to_tree t) names;
       ) ac_files;
       let ac_id = ExtXml.attrib aircraft "ac_id"
       and gui_color = ExtXml.attrib_or_default aircraft "gui_color" "white" in
@@ -424,7 +426,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
             let names = String.concat " " names in
             l#set_text names
         | Tree t ->
-            List.iter (fun n -> Gtk_tools.add_to_tree t n) names
+            List.iter (Gtk_tools.add_to_tree t) names
         );
         save_callback gui ac_combo tree_set tree_set_mod ();
         let ac_name = Gtk_tools.combo_value ac_combo in
