@@ -164,14 +164,8 @@ void mcu_init(void)
   dac_init();
 #endif
 
-#ifdef USE_UDP0
-  UDP0Init();
-#endif
-#ifdef USE_UDP1
-  UDP1Init();
-#endif
-#ifdef USE_UDP2
-  UDP2Init();
+#if USE_UDP0 || USE_UDP1 || USE_UDP2
+  udp_arch_init();
 #endif
 
 #else
@@ -195,10 +189,6 @@ void mcu_event(void)
 
 #if USING_UART
   uart_event();
-#endif
-
-#if USE_UDP
-  udp_event();
 #endif
 
 #if USE_USB_SERIAL

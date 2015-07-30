@@ -54,7 +54,6 @@ extern bool_t   udp_check_free_space(struct udp_periph *p, uint8_t len);
 extern void     udp_transmit(struct udp_periph *p, uint8_t data);
 extern uint16_t udp_char_available(struct udp_periph *p);
 extern uint8_t  udp_getch(struct udp_periph *p);
-extern void     udp_event(void);
 extern void     udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast);
 extern void     udp_send_message(struct udp_periph *p);
 extern void     udp_send_raw(struct udp_periph *p, uint8_t *buffer, uint16_t size);
