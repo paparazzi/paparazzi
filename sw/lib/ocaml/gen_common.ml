@@ -134,7 +134,7 @@ let unload_unused_modules = fun modules print_error ->
   let is_target_in_module = fun m ->
     let target_is_in_module = List.exists (fun x -> String.compare target x = 0) (get_targets_of_module m) in
     if print_error && not target_is_in_module then
-      Printf.fprintf stderr "Module %s unloaded, target %s not supported\n" (Xml.attrib m.xml "name") target;
+      Printf.fprintf stderr "Info: Module %s unloaded, target %s not supported\n" (Xml.attrib m.xml "name") target;
     target_is_in_module
   in
   if String.length target = 0 then
@@ -181,7 +181,7 @@ let is_element_unselected = fun ?(verbose=false) target name ->
         let target_list = Str.split (Str.regexp "|") targets in
         let unselected = not (test_targets target_list) in
         if unselected && verbose then
-          begin Printf.printf "Warning: settings '%s' unloaded for target '%s'\n" name target; flush stdout end;
+          begin Printf.printf "Info: settings '%s' unloaded for target '%s'\n" name target; flush stdout end;
         unselected
     | "module" ->
         let targets = List.map (fun x ->
@@ -194,7 +194,7 @@ let is_element_unselected = fun ?(verbose=false) target name ->
         let targets = singletonize (List.sort compare targets) in
         let unselected = not (test_targets targets) in
         if unselected && verbose then
-          begin Printf.printf "Warning: module '%s' unloaded for target '%s'\n" name target; flush stdout end;
+          begin Printf.printf "Info: module '%s' unloaded for target '%s'\n" name target; flush stdout end;
         unselected
     | _ -> false
   with _ -> false
