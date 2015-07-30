@@ -2,7 +2,10 @@
 
 <module name="follow" dir="multi">
   <doc>
-    <description>Follow a certain AC_ID trough remote GPS</description>
+    <description>
+      Follow a certain AC_ID trough remote GPS.
+      Only for rotorcraft firmware.
+    </description>
     <define name="FOLLOW_AC_ID"               description="the aircraft ID which it has to follow"/>
     <define name="FOLLOW_WAYPOINT_ID"         description="the waypoint ID which it has to change"/>
     <define name="FOLLOW_OFFSET_X" value="0"  description="the x offset in ENU (meters) from the plane"/>
