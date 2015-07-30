@@ -1,3 +1,30 @@
+Paparazzi 5.5.2_testing
+=======================
+
+Thirst release canditate for v5.6 stable release.
+
+- ardrone2 and bebop: disable even loop limiting again
+  [#1240] (https://github.com/paparazzi/paparazzi/pull/1240)
+- bebop: finally fix I2C address for baro
+- modules: update geo_mag to latest WMM2015 model
+  [#1270] (https://github.com/paparazzi/paparazzi/pull/1270)
+- settings: add optional target attribute and calc MD5sum according to usable settings
+  [#1157] (https://github.com/paparazzi/paparazzi/pull/1157)
+- stm32: improve I2C stability in case of stuck bus
+  [#1264] (https://github.com/paparazzi/paparazzi/pull/1264)
+- i2c: cleanup I2C_ERRORS reporting
+  [#1268] (https://github.com/paparazzi/paparazzi/pull/1268)
+- modules: add divergen calculation for opticflow
+  [#1262] (https://github.com/paparazzi/paparazzi/pull/1262)
+- python: Add some utilities and a serial link interface to decode/encode PPRZ messages over a serial link
+  [#1261] (https://github.com/paparazzi/paparazzi/pull/1261)
+- modules: mag_hmc58xx: configure MAG_HMC58XX_I2C_DEV
+  [#1274] (https://github.com/paparazzi/paparazzi/pull/1274)
+- IMU: possibility to disable mag on aspirin 2
+  [#1273] (https://github.com/paparazzi/paparazzi/pull/1273)
+- fixedwing: fix H_CTL_YAW_LOOP in stabilization adaptive
+
+
 Paparazzi 5.5.1_testing
 =======================
 
