@@ -34,6 +34,7 @@
 
 struct GeoMag {
   struct DoubleVect3 vect;
+  bool_t calc_once;
   bool_t ready;
 };
 

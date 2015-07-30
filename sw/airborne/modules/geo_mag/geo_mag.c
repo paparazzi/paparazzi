@@ -40,12 +40,11 @@
 #define GEO_MAG_SENDER_ID 1
 #endif
 
-bool_t geo_mag_calc_flag;
 struct GeoMag geo_mag;
 
 void geo_mag_init(void)
 {
-  geo_mag_calc_flag = FALSE;
+  geo_mag.calc_once = FALSE;
   geo_mag.ready = FALSE;
 }
 
@@ -53,14 +52,13 @@ void geo_mag_periodic(void)
 {
   //FIXME: kill_throttle has no place  in a geomag module
   if (!geo_mag.ready && gps.fix == GPS_FIX_3D && kill_throttle) {
-    geo_mag_calc_flag = TRUE;
+    geo_mag.calc_once = TRUE;
   }
 }
 
 void geo_mag_event(void)
 {
-
-  if (geo_mag_calc_flag) {
+  if (geo_mag.calc_once) {
     double gha[MAXCOEFF]; // Geomag global variables
     int32_t nmax;
 
@@ -90,5 +88,5 @@ void geo_mag_event(void)
 
     geo_mag.ready = TRUE;
   }
-  geo_mag_calc_flag = FALSE;
+  geo_mag.calc_once = FALSE;
 }

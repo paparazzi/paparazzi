@@ -4,30 +4,34 @@
   <doc>
     <description>
       GeoMagnetic field vector.
-      Calculation of the normalized geomagnetic field vector (saved to ahrs_impl.mag_h) at startup as soon as a valid location is aquired.
-      Method uses is based on the the ngdc noaa DODWMM model and data (http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml).       
-      To obtain the a magnetic heading to be used by the autopilot, the program must know the magnetic declination at all the points en route, at the indicated flight altitude. 
-      It's very important to keep declination into account because a flight in some geographical areas without considering declination, could lead to unacceptable autopilot navigation errors.
-      The magnetic declination, that is the difference between true heading and magnetic heading, varies in time and space according to undefined rules, whose long-term progress can be considered substantially random.
-      To determine the magnetic declination for a point through mathematical calculations is thus indispensable to resort to a model, which represents the progress of the earth magnetic field all over the surface of the globe. The WMM is based on earth magnetic field
-      measuring at an high number of sites on the whole globe and on its mathematical representation through a series of characteristic values listed in a file (WMM.COF) which has a five-year validity. The autopilot used data derived from this file to make the complex
-      calculation of declination. Every 5 years (2015, 2020) an updated geomagnetic model is released and datatables in the code must be updated accordingly for more accurate flight.
+      Calculation of the normalized geomagnetic field vector at startup as soon as a valid location is aquired.
+      The result is published via the GEO_MAG ABI message.
+      The AHRS algorithms need to know the magnetic field vector at the current position in order to accurately calculate the heading.
+
+      Method uses is based on the the ngdc noaa DODWMM model and data (http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml).
+      The WMM is based on earth magnetic field measuring at an high number of sites on the whole globe and on its mathematical representation through a series of characteristic values listed in a file (WMM.COF) which has a five-year validity.
+      The autopilot used data derived from this file to make the complex calculation of declination.
+      Every 5 years (2015, 2020) an updated geomagnetic model is released and datatables in the code must be updated accordingly for more accurate flight.
     </description>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="geo_mag">
+        <dl_setting min="0" max="1" step="1" values="OFF|CALC" var="geo_mag.calc_once" module="geo_mag/geo_mag" shortname="calcNow"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="geo_mag.h"/>
   </header>
   <init fun="geo_mag_init()"/>
   <periodic fun="geo_mag_periodic()" freq="1"/>
   <event fun="geo_mag_event()"/>
-  <makefile target="ap|nps|sim">
+  <makefile target="ap|nps">
     <file name="geo_mag.c"/>
     <file name="pprz_geodetic_wmm2015.c" dir="math"/>
   </makefile>
   <makefile target="nps">
     <define name="NPS_CALC_GEO_MAG"/>
-  </makefile>
-  <makefile target="sim">
-    <define name="SIM_CALC_GEO_MAG"/>
   </makefile>
 </module>
