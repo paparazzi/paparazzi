@@ -181,7 +181,7 @@ let is_element_unselected = fun ?(verbose=false) target name ->
         let target_list = Str.split (Str.regexp "|") targets in
         let unselected = not (test_targets target_list) in
         if unselected && verbose then
-          begin Printf.printf "Warning: settings '%s' is not available for target '%s'\n" name target; flush stdout end;
+          begin Printf.printf "Warning: settings '%s' unloaded for target '%s'\n" name target; flush stdout end;
         unselected
     | "module" ->
         let targets = List.map (fun x ->
@@ -194,7 +194,7 @@ let is_element_unselected = fun ?(verbose=false) target name ->
         let targets = singletonize (List.sort compare targets) in
         let unselected = not (test_targets targets) in
         if unselected && verbose then
-          begin Printf.printf "Warning: settings '%s' is not available for target '%s'\n" name target; flush stdout end;
+          begin Printf.printf "Warning: module '%s' unloaded for target '%s'\n" name target; flush stdout end;
         unselected
     | _ -> false
   with _ -> false
