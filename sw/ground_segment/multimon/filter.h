@@ -32,14 +32,14 @@
 
 /* ---------------------------------------------------------------------- */
 
-extern inline unsigned int hweight32(unsigned int w)
+static inline unsigned int hweight32(unsigned int w)
         __attribute__ ((unused));
-extern inline unsigned int hweight16(unsigned short w)
+static inline unsigned int hweight16(unsigned short w)
         __attribute__ ((unused));
-extern inline unsigned int hweight8(unsigned char w)
+static inline unsigned int hweight8(unsigned char w)
         __attribute__ ((unused));
 
-extern inline unsigned int hweight32(unsigned int w)
+static inline unsigned int hweight32(unsigned int w)
 {
         unsigned int res = (w & 0x55555555) + ((w >> 1) & 0x55555555);
         res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
@@ -48,7 +48,7 @@ extern inline unsigned int hweight32(unsigned int w)
         return (res & 0x0000FFFF) + ((res >> 16) & 0x0000FFFF);
 }
 
-extern inline unsigned int hweight16(unsigned short w)
+static inline unsigned int hweight16(unsigned short w)
 {
         unsigned short res = (w & 0x5555) + ((w >> 1) & 0x5555);
         res = (res & 0x3333) + ((res >> 2) & 0x3333);
@@ -56,19 +56,19 @@ extern inline unsigned int hweight16(unsigned short w)
         return (res & 0x00FF) + ((res >> 8) & 0x00FF);
 }
 
-extern inline unsigned int hweight8(unsigned char w)
+static inline unsigned int hweight8(unsigned char w)
 {
         unsigned short res = (w & 0x55) + ((w >> 1) & 0x55);
         res = (res & 0x33) + ((res >> 2) & 0x33);
         return (res & 0x0F) + ((res >> 4) & 0x0F);
 }
 
-extern inline unsigned int gcd(unsigned int x, unsigned int y)
+static inline unsigned int gcd(unsigned int x, unsigned int y)
         __attribute__ ((unused));
-extern inline unsigned int lcm(unsigned int x, unsigned int y)
+static inline unsigned int lcm(unsigned int x, unsigned int y)
         __attribute__ ((unused));
 
-extern inline unsigned int gcd(unsigned int x, unsigned int y)
+static inline unsigned int gcd(unsigned int x, unsigned int y)
 {
         for (;;) {
                 if (!x)
@@ -82,7 +82,7 @@ extern inline unsigned int gcd(unsigned int x, unsigned int y)
         }
 }
 
-extern inline unsigned int lcm(unsigned int x, unsigned int y)
+static inline unsigned int lcm(unsigned int x, unsigned int y)
 {
         return x * y / gcd(x, y);
 }
@@ -90,7 +90,7 @@ extern inline unsigned int lcm(unsigned int x, unsigned int y)
 /* ---------------------------------------------------------------------- */
 
 #ifndef __HAVE_ARCH_MAC
-extern inline float mac(const float *a, const float *b, unsigned int size)
+static inline float mac(const float *a, const float *b, unsigned int size)
 {
 	float sum = 0;
 	unsigned int i;
@@ -101,7 +101,7 @@ extern inline float mac(const float *a, const float *b, unsigned int size)
 }
 #endif /* __HAVE_ARCH_MAC */
 
-extern inline float fsqr(float f)
+static inline float fsqr(float f)
 {
 	return f*f;
 }

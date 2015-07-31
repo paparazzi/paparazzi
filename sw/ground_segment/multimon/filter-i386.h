@@ -32,7 +32,7 @@
 
 #include <stdio.h>
 
-extern inline float __mac_g(const float *a, const float *b, unsigned int size)
+static inline float __mac_g(const float *a, const float *b, unsigned int size)
 {
 	float sum = 0;
 	unsigned int i;
@@ -42,7 +42,7 @@ extern inline float __mac_g(const float *a, const float *b, unsigned int size)
 	return sum;
 }
 
-extern inline float __mac_c(const float *a, const float *b, unsigned int size)
+static inline float __mac_c(const float *a, const float *b, unsigned int size)
 {
 	float f;
 
