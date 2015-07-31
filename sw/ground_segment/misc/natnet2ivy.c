@@ -55,7 +55,7 @@ char *natnet_multicast_addr     = "239.255.42.99";
 uint16_t natnet_cmd_port        = 1510;
 uint16_t natnet_data_port       = 1511;
 uint8_t natnet_major            = 2;
-uint8_t natnet_minor            = 5;
+uint8_t natnet_minor            = 7;
 
 /** Ivy Bus default */
 #ifdef __APPLE__
@@ -293,6 +293,14 @@ void natnet_parse(unsigned char *in) {
         // Mean marker error
         memcpy(&rigidBodies[j].error, ptr, 4); ptr += 4;
         printf_natnet("Mean marker error: %3.8f\n", rigidBodies[j].error);
+      }
+
+      // 2.6 and later
+      if( ((natnet_major == 2)&&(natnet_minor >= 6)) || (natnet_major > 2) || (natnet_major == 0) )
+      {
+          // params
+          short params = 0; memcpy(&params, ptr, 2); ptr += 2;
+//           bool bTrackingValid = params & 0x01; // 0x01 : rigid body was successfully tracked in this frame
       }
     } // next rigid body
 
