@@ -39,7 +39,7 @@
 #include <pthread.h>
 #include <sys/select.h>
 
-static void uart_handler(struct uart_periph *periph);
+static void uart_receive_handler(struct uart_periph *periph);
 static void *uart_thread(void *data __attribute__((unused)));
 static pthread_mutex_t uart_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -132,43 +132,43 @@ static void *uart_thread(void *data __attribute__((unused)))
 #if USE_UART0
       fd = ((struct SerialPort *)uart0.reg_addr)->fd;
       if (FD_ISSET(fd, &fds)) {
-        uart_handler(&uart0);
+        uart_receive_handler(&uart0);
       }
 #endif
 #if USE_UART1
       fd = ((struct SerialPort *)uart1.reg_addr)->fd;
       if (FD_ISSET(fd, &fds)) {
-        uart_handler(&uart1);
+        uart_receive_handler(&uart1);
       }
 #endif
 #if USE_UART2
       fd = ((struct SerialPort *)uart2.reg_addr)->fd;
       if (FD_ISSET(fd, &fds)) {
-        uart_handler(&uart2);
+        uart_receive_handler(&uart2);
       }
 #endif
 #if USE_UART3
       fd = ((struct SerialPort *)uart3.reg_addr)->fd;
       if (FD_ISSET(fd, &fds)) {
-        uart_handler(&uart3);
+        uart_receive_handler(&uart3);
       }
 #endif
 #if USE_UART4
       fd = ((struct SerialPort *)uart4.reg_addr)->fd;
       if (FD_ISSET(fd, &fds)) {
-        uart_handler(&uart4);
+        uart_receive_handler(&uart4);
       }
 #endif
 #if USE_UART5
       fd = ((struct SerialPort *)uart5.reg_addr)->fd;
       if (FD_ISSET(fd, &fds)) {
-        uart_handler(&uart5);
+        uart_receive_handler(&uart5);
       }
 #endif
 #if USE_UART6
       fd = ((struct SerialPort *)uart6.reg_addr)->fd;
       if (FD_ISSET(fd, &fds)) {
-        uart_handler(&uart6);
+        uart_receive_handler(&uart6);
       }
 #endif
     }
@@ -204,34 +204,17 @@ void uart_periph_set_baudrate(struct uart_periph *periph, uint32_t baud)
 
 void uart_transmit(struct uart_periph *periph, uint8_t data)
 {
-  uint16_t temp = (periph->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;
+  /* write single byte to serial port */
+  struct SerialPort *port = (struct SerialPort *)(periph->reg_addr);
+  int ret = write((int)(port->fd), &data, 1);
 
-  if (temp == periph->tx_extract_idx) {
-    printf("uart tx queue full!\n");
-    return;  // no room
-  }
-
-  // check if in process of sending data
-  if (periph->tx_running) { // yes, add to queue
-    periph->tx_buf[periph->tx_insert_idx] = data;
-    periph->tx_insert_idx = temp;
-  } else { // no, set running flag and write to output register
-    periph->tx_running = TRUE;
-    struct SerialPort *port = (struct SerialPort *)(periph->reg_addr);
-    int ret = write((int)(port->fd), &data, 1);
-    if (ret < 1) {
-      TRACE("uart_transmit: write %d failed [%d: %s]\n", data, ret, strerror(errno));
-      /* if write was interrupted, put data into queue */
-      if (errno == EINTR) {
-        periph->tx_buf[periph->tx_insert_idx] = data;
-        periph->tx_insert_idx = temp;
-      }
-    }
+  if (ret < 1) {
+    fprintf(stderr, "uart_transmit: write %d failed [%d: %s]\n", data, ret, strerror(errno));
   }
 }
 
 
-static void uart_handler(struct uart_periph *periph)
+static void uart_receive_handler(struct uart_periph *periph)
 {
   unsigned char c = 'D';
 
@@ -241,20 +224,6 @@ static void uart_handler(struct uart_periph *periph)
   int fd = port->fd;
 
   pthread_mutex_lock(&uart_mutex);
-
-  // check if more data to send
-  if (periph->tx_insert_idx != periph->tx_extract_idx) {
-    int ret = write(fd, &(periph->tx_buf[periph->tx_extract_idx]), 1);
-    if (ret < 1) {
-      TRACE("uart_handler: write %x failed [%d: %s]\n", periph->tx_buf[periph->tx_extract_idx], ret, strerror(errno));
-    }
-    else {
-      periph->tx_extract_idx++;
-      periph->tx_extract_idx %= UART_TX_BUFFER_SIZE;
-    }
-  } else {
-    periph->tx_running = FALSE;   // clear running flag
-  }
 
   if (read(fd, &c, 1) > 0) {
     //printf("r %x %c\n",c,c);
