@@ -95,7 +95,7 @@ PRINT_CONFIG_VAR(VIEWVIDEO_FPS)
 
 // The place where the shots are saved (without slash on the end)
 #ifndef VIEWVIDEO_SHOT_PATH
-#define VIEWVIDEO_SHOT_PATH "/data/video/images"
+#define VIEWVIDEO_SHOT_PATH /data/video/images
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
 
