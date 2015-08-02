@@ -1,7 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!--
-     * Vivify MK1 codename Vidya (http://www.openuas.org/)
+     * Vivify (http://www.openuas.org/)
      Lisa M v2.0 (http://paparazzi.enac.fr/wiki/index.php/)
      With modified power routing by setting Jumper J1
      + Aspirin v2.2 inclusive MS5611
