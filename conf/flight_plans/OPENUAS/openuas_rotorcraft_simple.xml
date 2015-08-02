@@ -1,7 +1,7 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 <!--
-The goal of this flightplan is to try to provide an easy, no-brainer flightplan for your first 100pct autonomous AR-Drone 2 tryout flights.
-It should be useable for UAS enthousiasts just starting in the field of autonomous AR-Drone 2 flights.
+The goal of this flightplan is to try to provide an easy, no-brainer flightplan for your first 100pct autonomous Parrot Drone tryout flights.
+It should be useable for UAS enthousiasts just starting in the field of autonomous Parrot Drone flights.
 This flightplan should be kept as simple as possible and *not* to be extended with more functionality, if one needs that, plz use another flightplan.
 
 For you first flights make sure you have more dan enough space and do not make decisions that would be unwise, you have a brain, best to put it to good use ;)
@@ -9,7 +9,7 @@ Your aircraft is your responsibility
 -->
 
 <!-- Default flightplan alt set to 30m. This hight makes it fly over most of trees in this world by default. Security height 15m a tradeof between telemetry loss, airframe damage and avarage small building and hill height -->
-<flight_plan alt="30" ground_alt="0" lat0="50.726999" lon0="7.567305" max_dist_from_home="100" name="AR-Drone 2 Basic" security_height="15">
+<flight_plan alt="30" ground_alt="0" lat0="50.726999" lon0="7.567305" max_dist_from_home="100" name="Parrot Simple" security_height="15">
   <header>
 #include "autopilot.h"
 #include "subsystems/ahrs.h"
@@ -42,8 +42,9 @@ Your aircraft is your responsibility
   <blocks>
     <block name="Setting home location"><!-- TODO: make sure there is an indicator in "ardrone2_simple.xml" GCS layout config screen displaying "Waiting for GPS position..."-->
       <call fun="NavKillThrottle()"/>
-<!-- if no valid fix or GPS accuracy > 16m or no AHRS , it's' a no-go, just wait TODO: timeout and message?-->
-      <while cond="!GpsFixValid() || gps.pacc > 1600 || !(ahrs.status == AHRS_RUNNING)"/>
+<!-- if no valid fix or GPS accuracy > 11m or no AHRS , it's' a no-go, just wait TODO: timeout and message?-->
+     <!-- <while cond="!GpsFixValid() || gps.pacc > 1600 || !(ahrs.status == AHRS_RUNNING)"/>-->
+     <while cond="!GpsFixValid() || gps.pacc > 1100"/>
 <!-- Additional wait to allow for better GPS data in the last secons before takeoff -->
       <while cond="LessThan(NavBlockTime(), 8)"/>
       <call fun="NavSetGroundReferenceHere()"/>
@@ -84,7 +85,8 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
       <!--   <exception cond="!autopilot_motors_on" deroute="Takeoff"/>-->
       <set value="0" var="autopilot_flight_time"/>    
       <!-- If take-off to first point takes to long to reach somehow because of some reason, abort flight -->
-     <exception cond="block_time > 260" deroute="Land"/>
+      <!-- todo test  various times -->
+     <exception cond="block_time > 560" deroute="Land"/>
      <!-- To make sure that takoff is straight up to the height of first waypoint A, so no sideways take-off, since sideways movements starting at low height from takeoff can have nasty effects) -->
 <!-- In real life aircraft can be blown sideways with strong wind TODO experiment with results of 2 stages 2 -->
 <!-- TODO see if adding this 2nd stage is better -->
@@ -126,6 +128,7 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
       <call fun="NavSetWaypointHere(WP__TDEMERGENCY)"/>
   <!--TODO: better test detect landing different surfaces and agles with sonar baro combi of AR-Drone 2 -->
       <call fun="NavStartDetectGround()"/>
+      <!--TODO: this is a throttle level for ARDrone2, should be nominaltrhrootle devided by 2 or so-->
       <stay wp="_TDEMERGENCY" throttle="0.40" vmode="throttle"/>
     </block>
     <block name="landed">
