@@ -1,10 +1,26 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
+<!--
+     * Psi a slightly modified Parrot AR.Drone 2.0 (http://www.openuas.org/)
+     + uBlox LEA5H and Sarantel helix GPS antenna
+     
+     NOTES:
+     + Original ballbearings replaced with real ball bearings for all axis
+     + Frontcamera movable by servo on debug port - optional
+     + Spektrum RX DSMX clone on debug port - optional
+     + Iridium 9603N - optional
 
-<airframe name="ardrone2">
+-->
+
+<airframe name="Psi">
+  <!-- ************************* FIRMWARE ************************* -->
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2">
       <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
       <!--<define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>-->
+      <define name="BAT_CHECKER_DELAY" value="50"/>
+      <!-- amount of time it take for the bat to check -->
+      <!-- to avoid bat low spike detection when strong up movement withch draws short sudden power-->
+      <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="50"/><!-- in seconds-->
     </target>
 
     <target name="nps" board="pc">
@@ -33,6 +49,8 @@
     <load name="gps_ubx_ucenter.xml"/>
     <load name="air_data.xml"/>
     <load name="geo_mag.xml"/>
+     <!-- ************************* PHOTOGRAMMETRY ****************************** -->
+     <!-- <load name="photogrammetry_calculator.xml"/> -->
     <!--<load name="video_rtp_stream.xml">
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="75"/>
       <define name="VIEWVIDEO_FPS" value="4"/>
@@ -41,7 +59,8 @@
     <!--<load name="video_usb_logger.xml"/>
       <define name="LOG_ON_USB" value="TRUE"/>
       <define name="VIDEO_USB_LOGGER_PATH" value="/data/video/usb0/myphotologs"/>
-    </load>-->
+    </load>--> 
+    <!--<load name="find_joe.xml"> -->
   </modules>
 
   <commands>
@@ -50,6 +69,12 @@
     <axis name="YAW" failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="3000"/>
   </commands>
+  
+    <!-- ************************ AUTO RC COMMANDS ***************************** -->
+  <auto_rc_commands>
+    <!-- To still be able to trigger cam in MODENAV-->
+    <!-- <set command="SHOOT" value="@AUX1"/> -->
+  </auto_rc_commands>
 
   <servos driver="Default">
     <servo name="TOP_LEFT" no="0" min="0" neutral="1" max="500"/>
@@ -103,7 +128,13 @@
   <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
 
   <section name="AHRS" prefix="AHRS_">
-    <!-- DE -->
+    <!-- Local Magnetic field NL Testfield-->
+    <!--
+     <define name="H_X" value="0.382478"/>
+     <define name="H_Y" value="0.00563406"/>
+     <define name="H_Z" value="0.923948"/>
+     -->
+    <!-- Local Magnetic field DE Testfield -->
     <define name="H_X" value="0.403896"/>
     <define name="H_Y" value="0.012277"/>
     <define name="H_Z" value="0.914723"/>
@@ -236,4 +267,11 @@
     <define name="LOW_BAT_LEVEL" value="10.2" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
+  
+  <!-- ************************ GCS SPECIFICS ******************************** -->
+  <section name="GCS">
+    <define name="SPEECH_NAME" value="Psi"/>
+  </section>
+  
+ 
 </airframe>
