@@ -4,7 +4,7 @@
 #define BOARD_ARDRONE2
 
 #ifndef UART1_DEV
-#define UART1_DEV "/dev/ttyUSB0"
+#define UART1_DEV "/dev/ttyUSB1"
 #endif
 
 /* Default actuators driver */

@@ -23,10 +23,10 @@
 /**
  * @file modules/computer_vision/viewvideo.c
  *
- * Get live images from a RTP/UDP stream
- * and save pictures on internal memory
+ * - Send live images to a RTP/UDP stream to be viewed on GCS
+ * - Save pictures on storage media
  *
- * Works on Linux platforms
+ * Works on Linux based Paparazzi autopilot platforms like Parrot AR.Drone 2.0
  */
 
 // Own header
@@ -87,7 +87,7 @@ PRINT_CONFIG_VAR(VIEWVIDEO_QUALITY_FACTOR)
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC)
 
-// Frames Per Seconds
+// Frames per Second
 #ifndef VIEWVIDEO_FPS
 #define VIEWVIDEO_FPS 4
 #endif
@@ -95,7 +95,8 @@ PRINT_CONFIG_VAR(VIEWVIDEO_FPS)
 
 // The place where the shots are saved (without slash on the end)
 #ifndef VIEWVIDEO_SHOT_PATH
-#define VIEWVIDEO_SHOT_PATH "/data/video/images"
+// NOTE: No doublequotes around it is correct will be added in the final string TODO:
+#define VIEWVIDEO_SHOT_PATH "/data/video/my images"
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
 
@@ -124,7 +125,7 @@ struct viewvideo_t viewvideo = {
   .quality_factor = VIEWVIDEO_QUALITY_FACTOR,
   .fps = VIEWVIDEO_FPS,
   .take_shot = FALSE,
-  .shot_number = 0
+  .shot_number = 1
 };
 
 
