@@ -1,4 +1,4 @@
-<control_panel name="paparazzi control panel">
+<control_panel name="OBC2014 control panel">
   <section name="variables">
     <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
     <variable name="fbw_serial_port" value="/dev/ttyS1"/>
@@ -15,7 +15,6 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
-    <program name="Vision Results" command="sw/ext/ardrone2_vision/modules/ObstacleAvoidSkySegmentation/visionresult/visionresult"/>
     <program name="GCS" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-speech"/>
       <arg flag="-b" variable="ivy_bus"/>
@@ -24,11 +23,9 @@
     <program name="Messages" command="sw/ground_segment/tmtc/messages">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="Messages (Python)" command="sw/ground_segment/python/messages_app/messagesapp.py"/>
     <program name="Settings" command="sw/ground_segment/tmtc/settings">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
-    <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py"/>
     <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
     <program name="Log Plotter" command="sw/logalizer/logplotter"/>
     <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
@@ -65,7 +62,7 @@
   <section name="sessions">
     <session name="OBC2014 Simulation FG">
       <program name="GCS">
-        <arg flag="-layout" constant="./OpenUAS/openuas_obc2014_kingaroy.xml"/>
+        <arg flag="-layout" constant="./OPENUAS/openuas_obc2014_kingaroy.xml"/>
         <arg flag="-maps_fill"/>
         <arg flag="-zoom" constant=".5"/>
         <arg flag="-track_size" constant="200"/>
@@ -76,7 +73,7 @@
         <arg flag="-n"/>
       </program>
       <program name="Simulator">
-        <arg flag="-a" constant="VivifyMK1"/>
+        <arg flag="-a" constant="Vivify"/>
         <arg flag="-t" constant="sim"/>
         <arg flag="--boot"/>
         <arg flag="--norc"/>
@@ -129,12 +126,16 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
+      <program name="Ivy2NMEAout" command="sw/ground_segment/misc/ivy2nmeaout">
+        <arg flag="-b" variable="ivy_bus"/>
+        <arg flag="-d" constant="/dev/ttyUSB1"/>
+        <arg flag="-s" constant="9600"/>
+    </program>
     </session>
-
     <session name="OpenUAS Simulation with OBC 2014 GUI">
       <program name="GCS">
         <arg flag="-speech"/>
-        <arg flag="-layout" constant="./OpenUAS/openuas_searchandrescue2014.xml"/>
+        <arg flag="-layout" constant="./OPENUAS/openuas_searchandrescue2014.xml"/>
         <arg flag="-center" constant="'WGS84"/>
         <arg flag="51.990" constant="4.378'"/>
         <arg flag="-ref" constant="'WGS84"/>
@@ -144,7 +145,7 @@
         <arg flag="-n"/>
       </program>
       <program name="Simulator">
-        <arg flag="-a" constant="VivfifyMK1"/>
+        <arg flag="-a" constant="Vivfify"/>
         <arg flag="-boot"/>
         <arg flag="-norc"/>
       </program>
@@ -166,12 +167,6 @@
         <arg flag="-s" constant="9600"/>
         <arg flag="-hfc"/>
       </program>
-      <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-layout" constant="./OpenUAS/gcsHeering.xml"/>
-      </program>
-      <program name="Messages"/>
     </session>
   </section>
 </control_panel>
