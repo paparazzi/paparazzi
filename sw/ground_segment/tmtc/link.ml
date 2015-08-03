@@ -176,7 +176,7 @@ let send_status_msg =
                 "rx_err", Pprz.Int64 (Int64.of_int status.rx_err);
                 "rx_bytes_rate", Pprz.Float byte_rate;
                 "rx_msgs_rate", Pprz.Float msg_rate;
-                "tx_msgs", Pprz.Int64 (Int64.of_int 0);
+                "tx_msgs", Pprz.Int64 (Int64.of_int status.tx_msg);
                 "ping_time", Pprz.Float (1000. *. (status.last_pong -. status.last_ping))
                ] in
       send_ground_over_ivy "link" "LINK_REPORT" vs)
