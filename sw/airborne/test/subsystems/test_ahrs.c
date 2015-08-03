@@ -54,8 +54,6 @@ static inline void main_periodic_task(void);
 static inline void main_event_task(void);
 static inline void main_report(void);
 
-uint16_t datalink_time = 0;
-
 int main(void)
 {
   main_init();

@@ -31,6 +31,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 
+#define DATALINK_C
 #include "subsystems/datalink/downlink.h"
 
 #include "subsystems/sensors/baro.h"
