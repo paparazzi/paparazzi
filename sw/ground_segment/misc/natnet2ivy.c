@@ -205,9 +205,9 @@ void natnet_parse(unsigned char *in) {
       memcpy(&old_rigid, &rigidBodies[j], sizeof(struct RigidBody));
 
       memcpy(&rigidBodies[j].id, ptr, 4); ptr += 4;
-      memcpy(&rigidBodies[j].x, ptr, 4); ptr += 4;   //x --> X
+      memcpy(&rigidBodies[j].y, ptr, 4); ptr += 4;   //x --> Y
       memcpy(&rigidBodies[j].z, ptr, 4); ptr += 4;   //y --> Z
-      memcpy(&rigidBodies[j].y, ptr, 4); ptr += 4;   //z --> Y
+      memcpy(&rigidBodies[j].x, ptr, 4); ptr += 4;   //z --> X
       memcpy(&rigidBodies[j].qx, ptr, 4); ptr += 4;  //qx --> QX
       memcpy(&rigidBodies[j].qz, ptr, 4); ptr += 4;  //qy --> QZ
       memcpy(&rigidBodies[j].qy, ptr, 4); ptr += 4;  //qz --> QY
@@ -460,8 +460,8 @@ gboolean timeout_transmit_callback(gpointer data) {
     struct DoubleEulers orient_eulers;
 
     // Add the Optitrack angle to the x and y positions
-    pos.x = cos(tracking_offset_angle) * rigidBodies[i].x + sin(tracking_offset_angle) * rigidBodies[i].y;
-    pos.y = sin(tracking_offset_angle) * rigidBodies[i].x - cos(tracking_offset_angle) * rigidBodies[i].y;
+    pos.x = cos(tracking_offset_angle) * rigidBodies[i].x - sin(tracking_offset_angle) * rigidBodies[i].y;
+    pos.y = sin(tracking_offset_angle) * rigidBodies[i].x + cos(tracking_offset_angle) * rigidBodies[i].y;
     pos.z = rigidBodies[i].z;
 
     // Convert the position to ecef and lla based on the Optitrack LTP
@@ -479,8 +479,8 @@ gboolean timeout_transmit_callback(gpointer data) {
       rigidBodies[i].vel_z = rigidBodies[i].vel_z / sample_time;
 
       // Add the Optitrack angle to the x and y velocities
-      speed.x = cos(tracking_offset_angle) * rigidBodies[i].vel_x + sin(tracking_offset_angle) * rigidBodies[i].vel_y;
-      speed.y = sin(tracking_offset_angle) * rigidBodies[i].vel_x - cos(tracking_offset_angle) * rigidBodies[i].vel_y;
+      speed.x = cos(tracking_offset_angle) * rigidBodies[i].vel_x - sin(tracking_offset_angle) * rigidBodies[i].vel_y;
+      speed.y = sin(tracking_offset_angle) * rigidBodies[i].vel_x + cos(tracking_offset_angle) * rigidBodies[i].vel_y;
       speed.z = rigidBodies[i].vel_z;
 
       // Conver the speed to ecef based on the Optitrack LTP
@@ -495,7 +495,7 @@ gboolean timeout_transmit_callback(gpointer data) {
     double_eulers_of_quat(&orient_eulers, &orient);
 
     // Calculate the heading by adding the Natnet offset angle and normalizing it
-    double heading = -orient_eulers.psi-tracking_offset_angle;
+    double heading = -orient_eulers.psi+90.0/57.6 - tracking_offset_angle; //the optitrack axes are 90 degrees rotated wrt ENU
     NormRadAngle(heading);
 
     printf_debug("[%d -> %d]Samples: %d\t%d\t\tTiming: %3.3f latency\n", rigidBodies[i].id, aircrafts[rigidBodies[i].id].ac_id
@@ -512,7 +512,7 @@ gboolean timeout_transmit_callback(gpointer data) {
       (int)(ecef_pos.z*100.0),                //int32 ECEF Z in CM
       (int)(DegOfRad(lla_pos.lat)*1e7),       //int32 LLA latitude in deg*1e7
       (int)(DegOfRad(lla_pos.lon)*1e7),       //int32 LLA longitude in deg*1e7
-      (int)(rigidBodies[i].z*1000.0),         //int32 LLA altitude in mm above elipsoid
+      (int)(lla_pos.alt*1000.0),              //int32 LLA altitude in mm above elipsoid
       (int)(rigidBodies[i].z*1000.0),         //int32 HMSL height above mean sea level in mm
       (int)(rigidBodies[i].ecef_vel.x*100.0), //int32 ECEF velocity X in cm/s
       (int)(rigidBodies[i].ecef_vel.y*100.0), //int32 ECEF velocity Y in cm/s
@@ -725,10 +725,10 @@ int main(int argc, char** argv)
 {
   // Set the default tracking system position and angle
   struct EcefCoor_d tracking_ecef;
-  tracking_ecef.x = 3924304;
-  tracking_ecef.y = 300360;
-  tracking_ecef.z = 5002162;
-  tracking_offset_angle = 123.0 / 57.6;
+  tracking_ecef.x = 3924332;
+  tracking_ecef.y = 300362;
+  tracking_ecef.z = 5002197;
+  tracking_offset_angle = 33.0 / 57.6;
   ltp_def_from_ecef_d(&tracking_ltp, &tracking_ecef);
 
   // Parse the options from cmdline
