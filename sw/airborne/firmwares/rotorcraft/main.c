@@ -329,7 +329,7 @@ STATIC_INLINE void failsafe_check(void)
 
 STATIC_INLINE void main_event(void)
 {
-  /* event functions for mcu peripherals, like i2c, uart, etc.. */
+  /* event functions for mcu peripherals: i2c, usb_serial.. */
   mcu_event();
 
   DatalinkEvent();

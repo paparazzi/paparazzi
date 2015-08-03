@@ -689,7 +689,7 @@ void event_task_ap(void)
 
 #ifndef SINGLE_MCU
   /* for SINGLE_MCU done in main_fbw */
-  /* event functions for mcu peripherals, like i2c, uart, etc.. */
+  /* event functions for mcu peripherals: i2c, usb_serial.. */
   mcu_event();
 #endif /* SINGLE_MCU */
 

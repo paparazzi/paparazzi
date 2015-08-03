@@ -193,7 +193,7 @@ void event_task_fbw(void)
   RadioControlEvent(handle_rc_frame);
 #endif
 
-  /* event functions for mcu peripherals, like i2c, uart, etc.. */
+  /* event functions for mcu peripherals: i2c, usb_serial.. */
   mcu_event();
 
 #ifdef INTER_MCU
