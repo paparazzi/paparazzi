@@ -32,6 +32,12 @@
 #include <pthread.h>
 #include <sys/select.h>
 
+#include "rt_priority.h"
+
+#ifndef UDP_THREAD_PRIO
+#define UDP_THREAD_PRIO 10
+#endif
+
 static void *udp_thread(void *data __attribute__((unused)));
 static pthread_mutex_t udp_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -174,6 +180,8 @@ void udp_send_raw(struct udp_periph *p, uint8_t *buffer, uint16_t size)
  */
 static void *udp_thread(void *data __attribute__((unused)))
 {
+  get_rt_prio(UDP_THREAD_PRIO);
+
   /* file descriptor list */
   fd_set socks_master;
   /* maximum file descriptor number */

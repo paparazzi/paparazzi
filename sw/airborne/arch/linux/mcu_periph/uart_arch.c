@@ -35,9 +35,14 @@
 #include <errno.h>
 
 #include "serial_port.h"
+#include "rt_priority.h"
 
 #include <pthread.h>
 #include <sys/select.h>
+
+#ifndef UART_THREAD_PRIO
+#define UART_THREAD_PRIO 11
+#endif
 
 static void uart_receive_handler(struct uart_periph *periph);
 static void *uart_thread(void *data __attribute__((unused)));
@@ -59,6 +64,8 @@ void uart_arch_init(void)
 
 static void *uart_thread(void *data __attribute__((unused)))
 {
+  get_rt_prio(UART_THREAD_PRIO);
+
   /* file descriptor list */
   fd_set fds_master;
   /* maximum file descriptor number */
