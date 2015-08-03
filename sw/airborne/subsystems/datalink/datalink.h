@@ -54,6 +54,9 @@ EXTERN bool_t dl_msg_available;
 /** time in seconds since last datalink message was received */
 EXTERN uint16_t datalink_time;
 
+/** number of datalink/uplink messages received */
+EXTERN uint16_t datalink_nb_msgs;
+
 #define MSG_SIZE 128
 EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
 
@@ -61,12 +64,15 @@ EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
 EXTERN void dl_parse_msg(void);
 
 /** Check for new message and parse */
-#define DlCheckAndParse() {   \
-    if (dl_msg_available) {      \
-      dl_parse_msg();            \
-      dl_msg_available = FALSE;  \
-    }                            \
+static inline void DlCheckAndParse(void)
+{
+  if (dl_msg_available) {
+    datalink_time = 0;
+    datalink_nb_msgs++;
+    dl_parse_msg();
+    dl_msg_available = FALSE;
   }
+}
 
 #if defined DATALINK && DATALINK == PPRZ
 

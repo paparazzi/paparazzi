@@ -48,10 +48,8 @@ static void send_downlink(struct transport_tx *trans, struct link_device *dev)
     last_ts = now_ts;
     last_nb_bytes = downlink.nb_bytes;
 
-    // TODO uplink nb received msg
-    uint16_t uplink_nb_msgs = 0;
     pprz_msg_send_DATALINK_REPORT(trans, dev, AC_ID,
-                                  &datalink_time, &uplink_nb_msgs,
+                                  &datalink_time, &datalink_nb_msgs,
                                   &downlink.nb_msgs, &rate, &downlink.nb_ovrn);
   }
 }
@@ -62,6 +60,8 @@ void downlink_init(void)
   downlink.nb_ovrn = 0;
   downlink.nb_bytes = 0;
   downlink.nb_msgs = 0;
+
+  datalink_nb_msgs = 0;
 
 #if defined DATALINK
 #if DATALINK == PPRZ || DATALINK == SUPERBITRF || DATALINK == W5100

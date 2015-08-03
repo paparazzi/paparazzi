@@ -65,8 +65,6 @@ static inline void main_event(void)
 
 void dl_parse_msg(void)
 {
-  // FIXME : when i remove the datalink=0 line it stops working !!!!
-  datalink_time = 0;
   uint8_t msg_id = dl_buffer[1];
   switch (msg_id) {
 

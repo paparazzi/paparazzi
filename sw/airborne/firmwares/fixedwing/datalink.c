@@ -82,7 +82,6 @@ uint8_t joystick_block;
 
 void dl_parse_msg(void)
 {
-  datalink_time = 0;
   uint8_t msg_id = IdOfMsg(dl_buffer);
 
 #if 0 // not ready yet
