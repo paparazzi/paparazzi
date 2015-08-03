@@ -48,6 +48,7 @@
 
 // Threaded computer vision
 #include <pthread.h>
+#include "rt_priority.h"
 
 // The video device
 #ifndef VIEWVIDEO_DEVICE
@@ -139,6 +140,9 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
     printf("[viewvideo-thread] Could not start capture of %s.\n", viewvideo.dev->name);
     return 0;
   }
+
+  // be nice to the more important stuff
+  set_nice_level(10);
 
   // Resize image if needed
   struct image_t img_small;
