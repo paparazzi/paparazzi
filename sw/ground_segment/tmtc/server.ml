@@ -757,7 +757,7 @@ let raw_datalink = fun logging _sender vs ->
 (** Got a LINK_REPORT, update state but don't send (done asynchronously) *)
 let link_report = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs
-  and link_id = Pprz.int_assoc "link_id" vs in
+  and link_id = int_of_string (Pprz.string_assoc "link_id" vs) in
   try
     let ac = Hashtbl.find aircrafts ac_id in
     let link_status = {

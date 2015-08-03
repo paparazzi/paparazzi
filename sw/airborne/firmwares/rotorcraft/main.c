@@ -256,12 +256,12 @@ STATIC_INLINE void main_periodic(void)
   SetActuatorsFromCommands(commands, autopilot_mode);
 
   if (autopilot_in_flight) {
-    RunOnceEvery(PERIODIC_FREQUENCY, { autopilot_flight_time++;
-#if defined DATALINK || defined SITL
-                                       datalink_time++;
-#endif
-                                     });
+    RunOnceEvery(PERIODIC_FREQUENCY, autopilot_flight_time++);
   }
+
+#if defined DATALINK || defined SITL
+  RunOnceEvery(PERIODIC_FREQUENCY, datalink_time++);
+#endif
 
   RunOnceEvery(10, LED_PERIODIC());
 }

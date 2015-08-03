@@ -21,6 +21,7 @@
 
 #include <inttypes.h>
 
+#define DATALINK_C
 #define ABI_C
 
 #ifdef BOARD_CONFIG

@@ -54,8 +54,6 @@ static inline void main_periodic_task(void);
 static inline void main_event_task(void);
 static inline void main_report(void);
 
-uint16_t datalink_time = 0;
-
 int main(void)
 {
   main_init();
@@ -108,7 +106,6 @@ static inline void main_report(void)
 
 void dl_parse_msg(void)
 {
-  datalink_time = 0;
   uint8_t msg_id = dl_buffer[1];
   switch (msg_id) {
 

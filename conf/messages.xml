@@ -2774,7 +2774,7 @@
   <message name="LINK_REPORT" id="36">
     <description>Datalink status reported by Link for the Server</description>
     <field name="ac_id" type="string"/>
-    <field name="link_id" type="uint8"/>
+    <field name="link_id" type="string"/>
     <field name="run_time" type="uint32" unit="s"/>
     <field name="rx_lost_time" type="uint32" unit="s"/>
     <field name="rx_bytes" type="uint32"/>
