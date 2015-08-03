@@ -464,6 +464,7 @@
     <field name="lat"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
     <field name="lon"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
     <field name="alt"        type="int32"  unit="mm" alt_unit="m">altitude above WGS84 reference ellipsoid</field>
+    <field name="hmsl"       type="int32"  unit="mm" alt_unit="m">Height above Mean Sea Level (geoid)</field>
     <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
     <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
     <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>

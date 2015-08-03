@@ -121,7 +121,7 @@ static void send_gps_lla(struct transport_tx *trans, struct link_device *dev)
   int16_t course = (DegOfRad(gps.course) / ((int32_t)1e6));
   pprz_msg_send_GPS_LLA(trans, dev, AC_ID,
                         &gps.lla_pos.lat, &gps.lla_pos.lon, &gps.lla_pos.alt,
-                        &course, &gps.gspeed, &climb,
+                        &gps.hmsl, &course, &gps.gspeed, &climb,
                         &gps.week, &gps.tow,
                         &gps.fix, &err);
 }
