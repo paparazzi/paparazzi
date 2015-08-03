@@ -48,16 +48,17 @@
 #define SUPERBITRF 3
 #define W5100 4
 
-EXTERN bool_t dl_msg_available;
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
+EXTERN bool_t dl_msg_available;
 
+/** time in seconds since last datalink message was received */
 EXTERN uint16_t datalink_time;
 
 #define MSG_SIZE 128
 EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
 
-EXTERN void dl_parse_msg(void);
 /** Should be called when chars are available in dl_buffer */
+EXTERN void dl_parse_msg(void);
 
 /** Check for new message and parse */
 #define DlCheckAndParse() {   \
