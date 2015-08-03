@@ -62,7 +62,7 @@ void udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in
   p->tx_insert_idx = 0;
   p->device.periph = (void *)p;
   p->device.check_free_space = (check_free_space_t) udp_check_free_space;
-  p->device.put_byte = (put_byte_t) udp_transmit;
+  p->device.put_byte = (put_byte_t) udp_put_byte;
   p->device.send_message = (send_message_t) udp_send_message;
   p->device.char_available = (char_available_t) udp_char_available;
   p->device.get_byte = (get_byte_t) udp_getch;
@@ -87,7 +87,7 @@ bool_t udp_check_free_space(struct udp_periph *p, uint8_t len)
  * @param p    pointer to UDP peripheral
  * @param data byte to add to tx buffer
  */
-void udp_transmit(struct udp_periph *p, uint8_t data)
+void udp_put_byte(struct udp_periph *p, uint8_t data)
 {
   if (p->tx_insert_idx >= UDP_TX_BUFFER_SIZE) {
     return;  // no room
