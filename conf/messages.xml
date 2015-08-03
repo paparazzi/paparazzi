@@ -261,10 +261,13 @@
   </message>
 
   <message name="WP_MOVED" id="35">
+    <description>
+      Waypoint with id wp_id has been updated/moved to the specified UTM coordinates.
+    </description>
     <field name="wp_id" type="uint8"/>
     <field name="utm_east" type="float" unit="m"/>
     <field name="utm_north" type="float" unit="m"/>
-    <field name="alt" type="float" unit="m"/>
+    <field name="alt" type="float" unit="m">Height above Mean Sea Level (geoid)</field>
     <field name="utm_zone" type="uint8"/>
   </message>
 
