@@ -65,7 +65,7 @@ void uart_periph_set_baudrate(struct uart_periph *periph, uint32_t baud)
   }
 }
 
-void uart_transmit(struct uart_periph *periph, uint8_t data)
+void uart_put_byte(struct uart_periph *periph, uint8_t data)
 {
   uint16_t temp = (periph->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;
 
@@ -83,7 +83,7 @@ void uart_transmit(struct uart_periph *periph, uint8_t data)
     struct SerialPort *port = (struct SerialPort *)(periph->reg_addr);
     int ret = write((int)(port->fd), &data, 1);
     if (ret < 1) {
-      TRACE("uart_transmit: write %d failed [%d: %s]\n", data, ret, strerror(errno));
+      TRACE("uart_put_byte: write %d failed [%d: %s]\n", data, ret, strerror(errno));
       /* if write was interrupted, put data into queue */
       if (errno == EINTR) {
         periph->tx_buf[periph->tx_insert_idx] = data;
