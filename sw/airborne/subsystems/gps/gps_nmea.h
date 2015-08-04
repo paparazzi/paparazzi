@@ -44,6 +44,7 @@ struct GpsNmea {
   uint8_t gps_nb_ovrn;        ///< number if incomplete nmea-messages
   char msg_buf[NMEA_MAXLEN];  ///< buffer for storing one nmea-line
   int msg_len;
+  uint8_t status;             ///< line parser status
 };
 
 extern struct GpsNmea gps_nmea;
