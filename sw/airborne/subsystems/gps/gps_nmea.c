@@ -106,7 +106,7 @@ void WEAK nmea_parse_prop_msg(void)
 }
 
 /**
- * parse_nmea_char() has a complete line.
+ * nmea_parse_char() has a complete line.
  * Find out what type of message it is and
  * hand it to the parser for that type.
  */

@@ -72,13 +72,11 @@ static inline void GpsEvent(void)
     nmea_configure();
     return;
   }
-  if (dev->char_available(dev->periph)) {
-    while (dev->char_available(dev->periph)) {
-      nmea_parse_char(dev->get_byte(dev->periph));
+  while (dev->char_available(dev->periph)) {
+    nmea_parse_char(dev->get_byte(dev->periph));
+    if (gps_nmea.msg_available) {
+      gps_nmea_msg();
     }
-  }
-  if (gps_nmea.msg_available) {
-    gps_nmea_msg();
   }
 }
 
