@@ -48,8 +48,8 @@ static void uart_receive_handler(struct uart_periph *periph);
 static void *uart_thread(void *data __attribute__((unused)));
 static pthread_mutex_t uart_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-// #define TRACE(fmt,args...)    fprintf(stderr, fmt, args)
-#define TRACE(fmt,args...)
+#define TRACE(fmt,args...)    fprintf(stderr, fmt, args)
+//#define TRACE(fmt,args...)
 
 void uart_arch_init(void)
 {
@@ -216,7 +216,7 @@ void uart_put_byte(struct uart_periph *periph, uint8_t data)
   int ret = write((int)(port->fd), &data, 1);
 
   if (ret < 1) {
-    fprintf(stderr, "uart_put_byte: write %d failed [%d: %s]\n", data, ret, strerror(errno));
+    TRACE("uart_put_byte: write %d failed [%d: %s]\n", data, ret, strerror(errno));
   }
 }
 
@@ -235,10 +235,13 @@ static void uart_receive_handler(struct uart_periph *periph)
   if (read(fd, &c, 1) > 0) {
     //printf("r %x %c\n",c,c);
     uint16_t temp = (periph->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;
-    periph->rx_buf[periph->rx_insert_idx] = c;
     // check for more room in queue
     if (temp != periph->rx_extract_idx) {
+      periph->rx_buf[periph->rx_insert_idx] = c;
       periph->rx_insert_idx = temp;  // update insert index
+    }
+    else {
+      TRACE("uart_receive_handler: rx_buf full! discarding received byte: %x %c", c, c);
     }
   }
   pthread_mutex_unlock(&uart_mutex);
