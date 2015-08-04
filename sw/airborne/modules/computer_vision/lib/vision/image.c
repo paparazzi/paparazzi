@@ -46,7 +46,7 @@ void image_create(struct image_t *img, uint16_t width, uint16_t height, enum ima
   if (type == IMAGE_YUV422) {
     img->buf_size = sizeof(uint8_t) * 2 * width * height;
   } else if (type == IMAGE_JPEG) {
-    img->buf_size = sizeof(uint8_t) * 1.1 * width * height;  // At maximum quality this is enough
+    img->buf_size = sizeof(uint8_t) * 1.6 * width * height;  // At maximum quality this is enough
   } else if (type == IMAGE_GRADIENT) {
     img->buf_size = sizeof(int16_t) * width * height;
   } else {
