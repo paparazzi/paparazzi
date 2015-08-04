@@ -31,7 +31,7 @@
 
 // Use uart interface directly
 #define InterMcuBuffer() uart_char_available(&(INTERMCU_LINK))
-#define InterMcuUartSend1(c) uart_transmit(&(INTERMCU_LINK), c)
+#define InterMcuUartSend1(c) uart_put_byte(&(INTERMCU_LINK), c)
 #define InterMcuUartSetBaudrate(_a) uart_periph_set_baudrate(&(INTERMCU_LINK), _a)
 #define InterMcuUartSendMessage() {}
 #define InterMcuUartGetch() uart_getch(&(INTERMCU_LINK))

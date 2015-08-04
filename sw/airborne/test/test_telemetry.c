@@ -25,6 +25,8 @@
  * Periodically sends ALIVE telemetry messages.
  */
 
+#define DATALINK_C
+
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"

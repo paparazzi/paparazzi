@@ -187,9 +187,9 @@ static void hott_send_telemetry_data(void)
     --hott_msg_len;
     if (hott_msg_len != 0) {
       msg_crc += *hott_msg_ptr;
-      uart_transmit(&HOTT_PORT, *hott_msg_ptr++);
+      uart_put_byte(&HOTT_PORT, *hott_msg_ptr++);
     } else {
-      uart_transmit(&HOTT_PORT, (int8_t)msg_crc);
+      uart_put_byte(&HOTT_PORT, (int8_t)msg_crc);
     }
   }
 }

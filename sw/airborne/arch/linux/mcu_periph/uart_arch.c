@@ -209,14 +209,14 @@ void uart_periph_set_baudrate(struct uart_periph *periph, uint32_t baud)
   }
 }
 
-void uart_transmit(struct uart_periph *periph, uint8_t data)
+void uart_put_byte(struct uart_periph *periph, uint8_t data)
 {
   /* write single byte to serial port */
   struct SerialPort *port = (struct SerialPort *)(periph->reg_addr);
   int ret = write((int)(port->fd), &data, 1);
 
   if (ret < 1) {
-    fprintf(stderr, "uart_transmit: write %d failed [%d: %s]\n", data, ret, strerror(errno));
+    fprintf(stderr, "uart_put_byte: write %d failed [%d: %s]\n", data, ret, strerror(errno));
   }
 }
 

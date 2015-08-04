@@ -20,7 +20,7 @@
  *
  */
 
-/** \file pprz_transport.h
+/** \file extra_pprz_dl.h
  *  \brief Extra datalink using PPRZ protocol
  *
  */

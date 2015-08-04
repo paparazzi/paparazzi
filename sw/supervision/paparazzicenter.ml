@@ -232,7 +232,7 @@ let () =
 
   let errors = "red", ["error:"; "error "; "no such file"; "undefined reference"; "failure"; "multiple definition"]
   and warnings = "orange", ["warning"]
-  and info = "#00ff00", ["pragma message"; "info:"; "info "]
+  and info = "#00ff00", ["pragma message"; "info:"]
   and version = "cyan", ["paparazzi version"; "build aircraft"] in
 
   let color_regexps =

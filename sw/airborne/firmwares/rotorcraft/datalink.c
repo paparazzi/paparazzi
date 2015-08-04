@@ -38,10 +38,6 @@
 #include "dl_protocol.h"
 #include "mcu_periph/uart.h"
 
-#ifdef BOOZ_FMS_TYPE
-#include "booz_fms.h"
-#endif
-
 #if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
 #include "subsystems/radio_control.h"
 #endif
@@ -60,8 +56,6 @@
 
 void dl_parse_msg(void)
 {
-
-  datalink_time = 0;
 
   uint8_t msg_id = IdOfMsg(dl_buffer);
   switch (msg_id) {
