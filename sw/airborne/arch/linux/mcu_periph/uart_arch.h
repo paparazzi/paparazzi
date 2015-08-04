@@ -26,6 +26,14 @@
 #ifndef UART_ARCH_H
 #define UART_ARCH_H
 
+// higher default uart buffer sizes on linux
+#ifndef UART_RX_BUFFER_SIZE
+#define UART_RX_BUFFER_SIZE 512
+#endif
+#ifndef UART_TX_BUFFER_SIZE
+#define UART_TX_BUFFER_SIZE 512
+#endif
+
 #include "mcu_periph/uart.h"
 
 // for definition of baud rates

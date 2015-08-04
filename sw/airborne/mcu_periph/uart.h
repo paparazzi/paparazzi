@@ -32,8 +32,12 @@
 #include "mcu_periph/link_device.h"
 #include "std.h"
 
+#ifndef UART_RX_BUFFER_SIZE
 #define UART_RX_BUFFER_SIZE 128
+#endif
+#ifndef UART_TX_BUFFER_SIZE
 #define UART_TX_BUFFER_SIZE 128
+#endif
 #define UART_DEV_NAME_SIZE 16
 
 /*
