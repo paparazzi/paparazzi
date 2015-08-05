@@ -31,7 +31,7 @@
 
 /** Set the default File logger path to the USB drive */
 #ifndef VIDEO_USB_LOGGER_PATH
-#define VIDEO_USB_LOGGER_PATH "/data/video/usb/"
+#define VIDEO_USB_LOGGER_PATH /data/video/usb
 #endif
 
 /** The file pointer */
@@ -44,12 +44,12 @@ void video_usb_logger_start(void)
   char filename[512];
 
   // Check for available files
-  sprintf(filename, "%s%05d.csv", VIDEO_USB_LOGGER_PATH, counter);
+  sprintf(filename, "%s/%05d.csv", STRINGIFY(VIDEO_USB_LOGGER_PATH), counter);
   while ((video_usb_logger = fopen(filename, "r"))) {
     fclose(video_usb_logger);
 
     counter++;
-    sprintf(filename, "%s%05d.csv", VIDEO_USB_LOGGER_PATH, counter);
+    sprintf(filename, "%s/%05d.csv", STRINGIFY(VIDEO_USB_LOGGER_PATH), counter);
   }
 
   video_usb_logger = fopen(filename, "w");
