@@ -33,7 +33,7 @@
   <modules main_freq="512">
     <load name="gps_ubx_ucenter.xml"/>
     <load name="time_countdown.xml"/>
-    <load name="TUDelft/imav2013.xml"/>
+    <load name="bat_voltage_ardrone2.xml"/>
   </modules>
 
   <commands>
