@@ -221,14 +221,14 @@ bool_t uart_check_free_space(struct uart_periph *p, uint8_t len)
   return (uint16_t)(space - 1) >= len;
 }
 
-uint8_t uart_getch(struct uart_periph *p)
+uint8_t WEAK uart_getch(struct uart_periph *p)
 {
   uint8_t ret = p->rx_buf[p->rx_extract_idx];
   p->rx_extract_idx = (p->rx_extract_idx + 1) % UART_RX_BUFFER_SIZE;
   return ret;
 }
 
-uint16_t uart_char_available(struct uart_periph *p)
+uint16_t WEAK uart_char_available(struct uart_periph *p)
 {
   int16_t available = p->rx_insert_idx - p->rx_extract_idx;
   if (available < 0) {
@@ -237,8 +237,6 @@ uint16_t uart_char_available(struct uart_periph *p)
   return (uint16_t)available;
 }
 
-void WEAK uart_event(void)
+void WEAK uart_arch_init(void)
 {
-
 }
-

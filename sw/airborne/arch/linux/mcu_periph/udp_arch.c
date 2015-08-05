@@ -29,6 +29,39 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include <pthread.h>
+#include <sys/select.h>
+
+#include "rt_priority.h"
+
+#ifndef UDP_THREAD_PRIO
+#define UDP_THREAD_PRIO 10
+#endif
+
+static void *udp_thread(void *data __attribute__((unused)));
+static pthread_mutex_t udp_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+void udp_arch_init(void)
+{
+  pthread_mutex_init(&udp_mutex, NULL);
+
+#ifdef USE_UDP0
+  UDP0Init();
+#endif
+#ifdef USE_UDP1
+  UDP1Init();
+#endif
+#ifdef USE_UDP2
+  UDP2Init();
+#endif
+
+  pthread_t tid;
+  if (pthread_create(&tid, NULL, udp_thread, NULL) != 0) {
+    fprintf(stderr, "udp_arch_init: Could not create UDP reading thread.\n");
+    return;
+  }
+}
+
 /**
  * Initialize the UDP peripheral.
  * Allocate UdpSocket struct and create and bind the UDP socket.
@@ -38,6 +71,36 @@ void udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int po
   struct UdpSocket *sock = malloc(sizeof(struct UdpSocket));
   udp_socket_create(sock, host, port_out, port_in, broadcast);
   p->network = (void *)sock;
+}
+
+/**
+ * Get number of bytes available in receive buffer.
+ * @param p pointer to UDP peripheral
+ * @return number of bytes available in receive buffer
+ */
+uint16_t udp_char_available(struct udp_periph *p)
+{
+  pthread_mutex_lock(&udp_mutex);
+  int16_t available = p->rx_insert_idx - p->rx_extract_idx;
+  if (available < 0) {
+    available += UDP_RX_BUFFER_SIZE;
+  }
+  pthread_mutex_unlock(&udp_mutex);
+  return (uint16_t)available;
+}
+
+/**
+ * Get the last character from the receive buffer.
+ * @param p pointer to UDP peripheral
+ * @return last byte
+ */
+uint8_t udp_getch(struct udp_periph *p)
+{
+  pthread_mutex_lock(&udp_mutex);
+  uint8_t ret = p->rx_buf[p->rx_extract_idx];
+  p->rx_extract_idx = (p->rx_extract_idx + 1) % UDP_RX_BUFFER_SIZE;
+  pthread_mutex_unlock(&udp_mutex);
+  return ret;
 }
 
 /**
@@ -61,12 +124,16 @@ void udp_receive(struct udp_periph *p)
   ssize_t byte_read = recvfrom(sock->sockfd, buf, UDP_RX_BUFFER_SIZE, MSG_DONTWAIT,
                                (struct sockaddr *)&sock->addr_in, &slen);
 
+  pthread_mutex_lock(&udp_mutex);
+
   if (byte_read > 0) {
     for (i = 0; i < byte_read; i++) {
       p->rx_buf[p->rx_insert_idx] = buf[i];
       p->rx_insert_idx = (p->rx_insert_idx + 1) % UDP_RX_BUFFER_SIZE;
     }
   }
+
+  pthread_mutex_unlock(&udp_mutex);
 }
 
 /**
@@ -106,4 +173,76 @@ void udp_send_raw(struct udp_periph *p, uint8_t *buffer, uint16_t size)
   struct UdpSocket *sock = (struct UdpSocket *) p->network;
   ssize_t test __attribute__((unused)) = sendto(sock->sockfd, buffer, size, MSG_DONTWAIT,
                                          (struct sockaddr *)&sock->addr_out, sizeof(sock->addr_out));
+}
+
+/**
+ * check for new udp packets to receive or send.
+ */
+static void *udp_thread(void *data __attribute__((unused)))
+{
+  get_rt_prio(UDP_THREAD_PRIO);
+
+  /* file descriptor list */
+  fd_set socks_master;
+  /* maximum file descriptor number */
+  int fdmax = 0;
+
+  /* clear the fd list */
+  FD_ZERO(&socks_master);
+  /* add used sockets */
+  int fd;
+#if USE_UDP0
+  fd = ((struct UdpSocket *)udp0.network)->sockfd;
+  FD_SET(fd, &socks_master);
+  if (fd > fdmax) {
+    fdmax =fd;
+  }
+#endif
+#if USE_UDP1
+  fd = ((struct UdpSocket *)udp1.network)->sockfd;
+  FD_SET(fd, &socks_master);
+  if (fd > fdmax) {
+    fdmax =fd;
+  }
+#endif
+#if USE_UDP2
+  fd = ((struct UdpSocket *)udp2.network)->sockfd;
+  FD_SET(fd, &socks_master);
+  if (fd > fdmax) {
+    fdmax =fd;
+  }
+#endif
+
+  /* socks to be read, modified after each select */
+  fd_set socks;
+
+  while (1) {
+    /* reset list of socks to check */
+    socks = socks_master;
+
+    if (select(fdmax + 1, &socks, NULL, NULL, NULL) < 0) {
+      fprintf(stderr, "udp_thread: select failed!");
+    }
+    else {
+#if USE_UDP0
+      fd = ((struct UdpSocket *)udp0.network)->sockfd;
+      if (FD_ISSET(fd, &socks)) {
+        udp_receive(&udp0);
+      }
+#endif
+#if USE_UDP1
+      fd = ((struct UdpSocket *)udp1.network)->sockfd;
+      if (FD_ISSET(fd, &socks)) {
+        udp_receive(&udp1);
+      }
+#endif
+#if USE_UDP2
+      fd = ((struct UdpSocket *)udp2.network)->sockfd;
+      if (FD_ISSET(fd, &socks)) {
+        udp_receive(&udp2);
+      }
+#endif
+    }
+  }
+  return 0;
 }
