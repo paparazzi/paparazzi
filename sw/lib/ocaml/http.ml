@@ -24,17 +24,17 @@ let file_of_url = fun ?dest url ->
     pipeline#run ();
     match call#status with
       | `Successful ->
-        (* prerr_endline (Printf.sprintf "file sucessfull: %s, '%s'" tmp_file url); *)
+        prerr_endline (Printf.sprintf "file sucessfull: %s, '%s'" tmp_file url);
         tmp_file
       | `Client_error ->
         begin
-          (* prerr_endline (Printf.sprintf "getting file '%s', client error: %d" url call#response_status_code); *)
+          prerr_endline (Printf.sprintf "getting file '%s', client error: %d" url call#response_status_code);
           Sys.remove tmp_file;
           match call#response_status_code with
               404 -> raise (Not_Found url)
             | 403 ->
               begin
-                (* prerr_endline (Printf.sprintf "Blocked!!!"); *)
+                prerr_endline (Printf.sprintf "Blocked!!!");
                 raise (Blocked url)
               end
             | _ -> raise (Failure url)
