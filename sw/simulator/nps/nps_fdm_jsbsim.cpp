@@ -44,6 +44,12 @@
 #include <models/FGFCS.h>
 #include <models/atmosphere/FGWinds.h>
 
+
+// Thrusters
+#include <models/propulsion/FGThruster.h>
+#include <models/propulsion/FGPropeller.h>
+
+
 #include "nps_fdm.h"
 #include "math/pprz_geodetic.h"
 #include "math/pprz_geodetic_double.h"
@@ -70,6 +76,42 @@
 #ifdef NPS_INITIAL_CONDITITONS
 #warning NPS_INITIAL_CONDITITONS was replaced by NPS_JSBSIM_INIT!
 #warning Defaulting to flight plan location.
+#endif
+
+/**
+ * Trim values for the airframe
+ */
+#ifndef NPS_JSBSIM_PITCH_TRIM
+#define NPS_JSBSIM_PITCH_TRIM 0.0
+#endif
+
+#ifndef NPS_JSBSIM_ROLL_TRIM
+#define NPS_JSBSIM_ROLL_TRIM 0.0
+#endif
+
+#ifndef NPS_JSBSIM_YAW_TRIM
+#define NPS_JSBSIM_YAW_TRIM 0.0
+#endif
+
+/**
+ * Control surface deflections for visualisation
+ */
+#define DEG2RAD 0.017
+
+#ifndef NPS_JSBSIM_ELEVATOR_MAX_RAD
+#define NPS_JSBSIM_ELEVATOR_MAX_RAD (20.0*DEG2RAD)
+#endif
+
+#ifndef NPS_JSBSIM_AILERON_MAX_RAD
+#define NPS_JSBSIM_AILERON_MAX_RAD (20.0*DEG2RAD)
+#endif
+
+#ifndef NPS_JSBSIM_RUDDER_MAX_RAD
+#define NPS_JSBSIM_RUDDER_MAX_RAD (20.0*DEG2RAD)
+#endif
+
+#ifndef NPS_JSBSIM_FLAP_MAX_RAD
+#define NPS_JSBSIM_FLAP_MAX_RAD (20.0*DEG2RAD)
 #endif
 
 /** Minimum JSBSim timestep
@@ -259,11 +301,27 @@ static void feed_jsbsim(double* commands, int commands_nb) {
 static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder)
 {
   FGFCS* FCS = FDMExec->GetFCS();
+  FGPropulsion* FProp = FDMExec->GetPropulsion();
+
+  // Set trims
+  FCS->SetPitchTrimCmd(NPS_JSBSIM_PITCH_TRIM);
+  FCS->SetRollTrimCmd(NPS_JSBSIM_ROLL_TRIM);
+  FCS->SetYawTrimCmd(NPS_JSBSIM_YAW_TRIM);
+
+  // Set commands
   FCS->SetDaCmd(aileron);
   FCS->SetDeCmd(elevator);
   FCS->SetDrCmd(rudder);
+
   for (unsigned int i = 0; i < FDMExec->GetPropulsion()->GetNumEngines(); i++) {
     FCS->SetThrottleCmd(i, throttle);
+
+    if (throttle > 0.01) {
+      FProp->SetStarter(1);
+    }
+    else {
+      FProp->SetStarter(0);
+    }
   }
 }
 
@@ -373,6 +431,36 @@ static void fetch_state(void) {
    */
   const FGColumnVector3& fg_wind_ned = FDMExec->GetWinds()->GetTotalWindNED();
   jsbsimvec_to_vec(&fdm.wind, &fg_wind_ned);
+
+  /*
+   * Control surface positions
+   *
+   */
+  fdm.rudder = (FDMExec->GetPropertyManager()->GetNode("fcs/rudder-pos-rad")->getDoubleValue())/NPS_JSBSIM_RUDDER_MAX_RAD;
+  fdm.left_aileron = (-1*FDMExec->GetPropertyManager()->GetNode("fcs/left-aileron-pos-rad")->getDoubleValue())/NPS_JSBSIM_AILERON_MAX_RAD;
+  fdm.right_aileron = (FDMExec->GetPropertyManager()->GetNode("fcs/right-aileron-pos-rad")->getDoubleValue())/NPS_JSBSIM_AILERON_MAX_RAD;
+  fdm.elevator = (FDMExec->GetPropertyManager()->GetNode("fcs/elevator-pos-rad")->getDoubleValue())/NPS_JSBSIM_ELEVATOR_MAX_RAD;
+  fdm.flap = (FDMExec->GetPropertyManager()->GetNode("fcs/flap-pos-rad")->getDoubleValue())/NPS_JSBSIM_FLAP_MAX_RAD;
+
+  /*
+   * Propulsion
+   */
+  FGPropulsion* FGProp =  FDMExec->GetPropulsion();
+  fdm.num_engines = FGProp->GetNumEngines();
+
+  /*
+   * Note that JSBSim for some reason has very high momentum for the propeller
+   * (even when the moment of inertia of the propeller has the right value)
+   * As a result after switching the motor off
+   */
+  for(uint32_t k=0; k<fdm.num_engines; k++) {
+    FGEngine* FGEng = FGProp->GetEngine(k);
+    FGThruster* FGThrst = FGEng->GetThruster();
+    fdm.eng_state[k] = FGEng->GetStarter();
+    fdm.rpm[k] = (float) FGThrst->GetRPM();
+    //printf("RPM: %f\n", fdm.rpm[k]);
+    //printf("STATE: %u\n", fdm.eng_state[k]);
+  }
 }
 
 /**

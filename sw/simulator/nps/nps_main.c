@@ -50,6 +50,7 @@ static struct {
   char* fg_host;
   unsigned int fg_port;
   unsigned int fg_time_offset;
+  int fg_fdm;
   char* js_dev;
   char* spektrum_dev;
   int rc_script;
@@ -169,8 +170,14 @@ static void nps_main_run_sim_step(void) {
 static void nps_main_display(void) {
   //  printf("display at %f\n", nps_main.display_time);
   nps_ivy_display();
-  if (nps_main.fg_host)
-    nps_flightgear_send();
+  if (nps_main.fg_host) {
+    if (nps_main.fg_fdm) {
+      nps_flightgear_send_fdm();
+    }
+    else {
+      nps_flightgear_send();
+    }
+  }
 }
 
 
@@ -285,6 +292,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
   nps_main.rc_script = 0;
   nps_main.ivy_bus = NULL;
   nps_main.host_time_factor = 1.0;
+  nps_main.fg_fdm = 0;
 
   static const char* usage =
 "Usage: %s [options]\n"
@@ -297,7 +305,8 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
 "   --spektrum_dev <spektrum device>       e.g. /dev/ttyUSB0\n"
 "   --rc_script <number>                   e.g. 0\n"
 "   --ivy_bus <ivy bus>                    e.g. 127.255.255.255\n"
-"   --time_factor <factor>                 e.g. 2.5\n";
+"   --time_factor <factor>                 e.g. 2.5\n"
+"   --fg_fdm";
 
 
   while (1) {
@@ -311,6 +320,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       {"rc_script", 1, NULL, 0},
       {"ivy_bus", 1, NULL, 0},
       {"time_factor", 1, NULL, 0},
+      {"fg_fdm", 0, NULL, 0},
       {0, 0, 0, 0}
     };
     int option_index = 0;
@@ -340,6 +350,9 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
             nps_main.ivy_bus = strdup(optarg); break;
           case 7:
             nps_main.host_time_factor = atof(optarg); break;
+          case 8:
+            nps_main.fg_fdm = 1;
+            break;
         }
         break;
 
