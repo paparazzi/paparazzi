@@ -22,9 +22,9 @@ static struct  {
 } flightgear;
 
 
-double htond (double x)
+double htond(double x)
 {
-  int * p = (int*)&x;
+  int *p = (int *)&x;
   int tmp = p[0];
   p[0] = htonl(p[1]);
   p[1] = htonl(tmp);
@@ -33,20 +33,21 @@ double htond (double x)
 }
 
 
-float htonf (float x)
+float htonf(float x)
 {
-  int * p = (int *)&x;
+  int *p = (int *)&x;
   *p = htonl(*p);
   return x;
 }
 
 
-void nps_flightgear_init(const char* host,  unsigned int port, unsigned int time_offset) {
+void nps_flightgear_init(const char *host,  unsigned int port, unsigned int time_offset)
+{
   int so_reuseaddr = 1;
-  struct protoent * pte = getprotobyname("UDP");
-  flightgear.socket = socket( PF_INET, SOCK_DGRAM, pte->p_proto);
+  struct protoent *pte = getprotobyname("UDP");
+  flightgear.socket = socket(PF_INET, SOCK_DGRAM, pte->p_proto);
   setsockopt(flightgear.socket, SOL_SOCKET, SO_REUSEADDR,
-         &so_reuseaddr, sizeof(so_reuseaddr));
+             &so_reuseaddr, sizeof(so_reuseaddr));
   flightgear.addr.sin_family = PF_INET;
   flightgear.addr.sin_port = htons(port);
   flightgear.addr.sin_addr.s_addr = inet_addr(host);
@@ -62,7 +63,8 @@ void nps_flightgear_init(const char* host,  unsigned int port, unsigned int time
  * For visualization with moving surfaces (elevator, propeller etc).
  * start fgfs with --native-fdm=socket... option
  */
-void nps_flightgear_send_fdm() {
+void nps_flightgear_send_fdm()
+{
   struct FGNetFDM fgfdm;
 
   memset(&fgfdm, 0, sizeof(fgfdm));
@@ -93,12 +95,11 @@ void nps_flightgear_send_fdm() {
 
   // Engine
   fgfdm.num_engines = htonl(fdm.num_engines);
-  for(int k=0; k<FG_NET_FDM_MAX_ENGINES; k++) {
+  for (int k = 0; k < FG_NET_FDM_MAX_ENGINES; k++) {
     // Temprary hack to clearly show when the engine is running
     if (fdm.eng_state[k] == 1) {
       fgfdm.rpm[k] = htonf(fdm.rpm[k]);
-    }
-    else {
+    } else {
       fgfdm.rpm[k] = htonf(0.0);
     }
     fgfdm.eng_state[k] = htonl(fdm.eng_state[k]);
@@ -112,11 +113,11 @@ void nps_flightgear_send_fdm() {
   fgfdm.left_flap = htonf(fdm.flap);
   fgfdm.right_flap = htonf(fdm.flap);
 
-  if (sendto(flightgear.socket, (char*)(&fgfdm), sizeof(fgfdm), 0,
-               (struct sockaddr*)&flightgear.addr, sizeof(flightgear.addr)) == -1) {
-      fprintf(stderr, "error sending to FlightGear\n");
-      fflush(stderr);
-    }
+  if (sendto(flightgear.socket, (char *)(&fgfdm), sizeof(fgfdm), 0,
+             (struct sockaddr *)&flightgear.addr, sizeof(flightgear.addr)) == -1) {
+    fprintf(stderr, "error sending to FlightGear\n");
+    fflush(stderr);
+  }
 }
 
 /**
@@ -126,7 +127,8 @@ void nps_flightgear_send_fdm() {
  *
  * This is the default option
  */
-void nps_flightgear_send() {
+void nps_flightgear_send()
+{
 
   struct FGNetGUI gui;
 
@@ -165,8 +167,8 @@ void nps_flightgear_send() {
   gui.gs_deviation_deg = 0.;
 
 
-  if (sendto(flightgear.socket, (char*)(&gui), sizeof(gui), 0,
-             (struct sockaddr*)&flightgear.addr, sizeof(flightgear.addr)) == -1) {
+  if (sendto(flightgear.socket, (char *)(&gui), sizeof(gui), 0,
+             (struct sockaddr *)&flightgear.addr, sizeof(flightgear.addr)) == -1) {
     fprintf(stderr, "error sending to FlightGear\n");
     fflush(stderr);
   }
