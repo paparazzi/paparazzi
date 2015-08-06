@@ -78,8 +78,8 @@ def main():
                         help="Number of RC script to use")
     nps_opts.add_option("--time_factor", type="float", action="store", metavar="factor",
                         help="Time factor (default 1.0)")
-    nps_opts.add_option("--fg_fdm", type="int", action="store", metavar="factor",
-                        help="FlightGear FDM")
+    nps_opts.add_option("--fg_fdm", action="store_true", metavar="factor",
+                        help="Use FlightGear native-fdm protocol instead of native-gui")
 
     # special options for the JSBSim sim (without sensor models)
     #jsbsim_opts = OptionGroup(parser, "JSBSim options",
@@ -147,7 +147,6 @@ def main():
             simargs.append(str(options.time_factor))
         if options.fg_fdm:
             simargs.append("--fg_fdm")
-            simargs.append(str(options.fg_fdm))
     else:
         parser.error("Please specify a valid sim type.")
 
