@@ -62,6 +62,7 @@ extern float g2;
 extern struct ReferenceSystem reference_acceleration;
 
 extern struct FloatRates g_est;
+extern bool_t use_adaptive_indi;
 
 void stabilization_indi_second_order_filter(struct FloatRates *input, struct FloatRates *filter_ddx,
     struct FloatRates *filter_dx, struct FloatRates *filter_x, float omega, float zeta, float omega_r);
