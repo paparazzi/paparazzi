@@ -244,7 +244,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
       // We want to wait until the child is finished
       wait(NULL);
     }
-#else
+#elif VIEWVIDEO_USE_RPT
     // Send image with RTP
     rtp_frame_send(
       &video_sock,              // UDP socket
@@ -262,6 +262,8 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
     // the timestamp is always "late" so the frame is displayed immediately).
     // Here, we set the time increment to the lowest possible value
     // (1 = 1/90000 s) which is probably stupid but is actually working.
+#else
+   // Do nothing
 #endif
 
     // Free the image

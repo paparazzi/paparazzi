@@ -16,6 +16,8 @@
     <define name="VIEWVIDEO_FPS" value="4" description="Video stream frame rate"/>
     <define name="VIEWVIDEO_SHOT_PATH" value="/data/video/images" description="Path where the images should be saved"/>
     <define name="VIEWVIDEO_USE_NETCAT" value="FALSE" description="Use netcat for transfering images"/>
+    <define name="VIEWVIDEO_USE_RPT" value="TRUE" description="Use RTP for transfering images"/>
+   
   </doc>
   <settings>
     <dl_settings>
