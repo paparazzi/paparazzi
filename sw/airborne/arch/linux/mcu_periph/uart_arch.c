@@ -48,8 +48,8 @@ static void uart_receive_handler(struct uart_periph *periph);
 static void *uart_thread(void *data __attribute__((unused)));
 static pthread_mutex_t uart_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-#define TRACE(fmt,args...)    fprintf(stderr, fmt, args)
-//#define TRACE(fmt,args...)
+//#define TRACE(fmt,args...)    fprintf(stderr, fmt, args)
+#define TRACE(fmt,args...)
 
 void uart_arch_init(void)
 {
