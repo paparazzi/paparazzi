@@ -1,0 +1,256 @@
+<!-- Paparazzi flight plan DTD -->
+
+<!ELEMENT flight_plan (header?,waypoints,sectors?,includes?,exceptions?,blocks)>
+
+<!ELEMENT procedure (param*,header?,waypoints?,sectors?,exceptions?,blocks?)>
+
+<!ELEMENT header (#PCDATA)>
+
+<!ELEMENT waypoints (waypoint+)>
+<!ELEMENT waypoint EMPTY>
+
+<!ELEMENT sectors (sector|kml)*>
+<!ELEMENT sector (corner,corner,corner+)>
+<!ELEMENT corner EMPTY>
+<!ELEMENT kml EMPTY>
+
+<!ELEMENT includes (include*)>
+
+<!ELEMENT exceptions (exception*)>
+
+<!ELEMENT blocks (block+)>
+<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path)*>
+
+<!ELEMENT include (arg|with)*>
+<!ELEMENT arg EMPTY>
+<!ELEMENT with EMPTY>
+
+<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT exception EMPTY>
+<!ELEMENT heading EMPTY>
+<!ELEMENT attitude EMPTY>
+<!ELEMENT go EMPTY>
+<!ELEMENT xyz EMPTY>
+<!ELEMENT set EMPTY>
+<!ELEMENT call EMPTY>
+<!ELEMENT circle EMPTY>
+<!ELEMENT home EMPTY>
+<!ELEMENT eight EMPTY>
+<!ELEMENT oval EMPTY>
+<!ELEMENT survey_rectangle EMPTY>
+<!ELEMENT deroute EMPTY>
+<!ELEMENT stay EMPTY>
+<!ELEMENT follow EMPTY>
+<!ELEMENT param EMPTY>
+<!ELEMENT return EMPTY>
+<!ELEMENT path EMPTY>
+
+
+<!ATTLIST flight_plan
+name CDATA #REQUIRED
+lat0 CDATA #REQUIRED
+lon0 CDATA #REQUIRED
+max_dist_from_home CDATA #REQUIRED
+ground_alt CDATA #REQUIRED
+security_height CDATA #REQUIRED
+alt CDATA #REQUIRED
+qfu CDATA #IMPLIED
+home_mode_height CDATA #IMPLIED>
+
+<!ATTLIST waypoints
+utm_x0 CDATA #IMPLIED
+utm_y0 CDATA #IMPLIED>
+
+<!ATTLIST waypoint
+name CDATA #REQUIRED
+x CDATA #IMPLIED
+y CDATA #IMPLIED
+lat CDATA #IMPLIED
+lon CDATA #IMPLIED
+alt CDATA #IMPLIED
+height CDATA #IMPLIED>
+
+<!ATTLIST exceptions>
+
+<!ATTLIST sectors>
+
+<!ATTLIST sector
+name CDATA #REQUIRED
+color CDATA #IMPLIED
+type CDATA #IMPLIED>
+
+<!ATTLIST corner
+name CDATA #REQUIRED>
+
+<!ATTLIST kml
+file CDATA #REQUIRED>
+
+<!ATTLIST blocks>
+
+<!ATTLIST block 
+name CDATA #REQUIRED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED
+strip_button CDATA #IMPLIED
+strip_icon CDATA #IMPLIED
+group CDATA #IMPLIED
+key CDATA #IMPLIED
+description CDATA #IMPLIED>
+
+<!ATTLIST exception
+cond CDATA #REQUIRED
+deroute CDATA #REQUIRED>
+
+<!ATTLIST while cond CDATA #IMPLIED>
+
+<!ATTLIST for
+var CDATA #REQUIRED
+from CDATA #REQUIRED
+to CDATA #REQUIRED>
+
+<!ATTLIST heading 
+course CDATA #REQUIRED
+vmode CDATA #IMPLIED
+alt CDATA #IMPLIED
+height CDATA #IMPLIED
+throttle CDATA #IMPLIED
+climb CDATA #IMPLIED
+pitch CDATA #IMPLIED
+until CDATA #REQUIRED>
+
+<!ATTLIST attitude
+roll CDATA #REQUIRED
+vmode CDATA #IMPLIED
+alt CDATA #IMPLIED
+height CDATA #IMPLIED
+throttle CDATA #IMPLIED
+climb CDATA #IMPLIED
+pitch CDATA #IMPLIED
+until CDATA #IMPLIED>
+
+<!ATTLIST go 
+wp CDATA #REQUIRED
+wp_qdr CDATA #IMPLIED
+wp_dist CDATA #IMPLIED
+from CDATA #IMPLIED
+from_qdr CDATA #IMPLIED
+from_dist CDATA #IMPLIED
+hmode CDATA #IMPLIED
+vmode CDATA #IMPLIED
+pitch CDATA #IMPLIED
+alt CDATA #IMPLIED
+height CDATA #IMPLIED
+approaching_time CDATA #IMPLIED
+exceeding_time CDATA #IMPLIED
+throttle CDATA #IMPLIED
+climb CDATA #IMPLIED
+until CDATA #IMPLIED>
+
+<!ATTLIST path
+wpts CDATA #REQUIRED
+vmode CDATA #IMPLIED
+pitch CDATA #IMPLIED
+alt CDATA #IMPLIED
+approaching_time CDATA #IMPLIED
+exceeding_time CDATA #IMPLIED
+throttle CDATA #IMPLIED
+climb CDATA #IMPLIED>
+
+<!ATTLIST set
+var CDATA #REQUIRED
+value CDATA #REQUIRED>
+
+<!ATTLIST call
+fun CDATA #REQUIRED
+until CDATA #IMPLIED
+loop CDATA #IMPLIED
+break CDATA #IMPLIED>
+
+<!ATTLIST follow
+ac_id CDATA #REQUIRED
+distance CDATA #REQUIRED
+height CDATA #REQUIRED>
+
+<!ATTLIST xyz
+radius CDATA #IMPLIED>
+
+<!ATTLIST home>
+
+<!ATTLIST circle
+wp CDATA #REQUIRED
+wp_qdr CDATA #IMPLIED
+wp_dist CDATA #IMPLIED
+radius CDATA #REQUIRED
+alt CDATA #IMPLIED
+height CDATA #IMPLIED
+vmode CDATA #IMPLIED
+climb CDATA #IMPLIED
+pitch CDATA #IMPLIED
+throttle CDATA #IMPLIED
+until CDATA #IMPLIED>
+
+<!ATTLIST eight
+center CDATA #REQUIRED
+turn_around CDATA #REQUIRED
+alt CDATA #IMPLIED
+vmode CDATA #IMPLIED
+climb CDATA #IMPLIED
+pitch CDATA #IMPLIED
+throttle CDATA #IMPLIED
+until CDATA #IMPLIED
+radius CDATA #REQUIRED>
+
+
+<!ATTLIST oval
+p1 CDATA #REQUIRED
+p2 CDATA #REQUIRED
+radius CDATA #REQUIRED
+alt CDATA #IMPLIED
+vmode CDATA #IMPLIED
+climb CDATA #IMPLIED
+pitch CDATA #IMPLIED
+throttle CDATA #IMPLIED
+until CDATA #IMPLIED>
+
+<!ATTLIST survey_rectangle
+grid CDATA #REQUIRED
+orientation CDATA #IMPLIED
+wp1 CDATA #REQUIRED
+wp2 CDATA #REQUIRED
+until CDATA #IMPLIED>
+
+<!ATTLIST stay
+wp CDATA #REQUIRED
+vmode CDATA #IMPLIED
+throttle CDATA #IMPLIED
+climb CDATA #IMPLIED
+alt CDATA #IMPLIED
+until CDATA #IMPLIED
+height CDATA #IMPLIED>
+
+<!ATTLIST deroute
+block CDATA #REQUIRED>
+
+<!ATTLIST includes>
+
+<!ATTLIST include
+name CDATA #REQUIRED
+procedure CDATA #REQUIRED
+>
+
+<!ATTLIST arg
+name CDATA #REQUIRED
+value CDATA #REQUIRED>
+
+<!ATTLIST with
+from CDATA #REQUIRED
+to CDATA #REQUIRED>
+
+<!ATTLIST param
+name CDATA #REQUIRED
+default_value CDATA #IMPLIED>
+
+<!ATTLIST header>
+
+<!ATTLIST return>
