@@ -1,0 +1,248 @@
+<control_panel name="paparazzi control panel">
+  <section name="variables">
+    <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
+    <variable name="fbw_serial_port" value="/dev/ttyS1"/>
+    <variable name="ap_serial_port" value="/dev/ttyS0"/>
+    <variable name="ivy_bus" value="127:2010"/>
+    <variable name="map" value="muret_UTM.xml"/>
+    <variable name="flight_plan" value="flight_plans/muret1.xml"/>
+  </section>
+  <section name="programs">
+    <program name="Server" command="sw/ground_segment/tmtc/server">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Data Link" command="sw/ground_segment/tmtc/link">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs -edit"/>
+    <program name="Messages" command="sw/ground_segment/tmtc/messages">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Messages (Python)" command="sw/ground_segment/python/messages_app/messagesapp.py"/>
+    <program name="Settings" command="sw/ground_segment/tmtc/settings">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py"/>
+    <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
+    <program name="Log Plotter" command="sw/logalizer/plot"/>
+    <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
+    <program name="Real-time Plotter (Python)" command="sw/ground_segment/python/real_time_plot/messagepicker.py"/>
+    <program name="Log File Player" command="sw/logalizer/play">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Simulator" command="sw/simulator/pprzsim-launch">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Video Synchronizer" command="sw/ground_segment/misc/video_synchronizer"/>
+    <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Hardware in the Loop" command="sw/simulator/simhitl">
+      <arg flag="-fbw" variable="fbw_serial_port"/>
+      <arg flag="-ap" variable="ap_serial_port"/>
+    </program>
+    <program name="Environment Simulator" command="sw/simulator/gaia">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Plot Meteo Profile" command="sw/logalizer/plotprofile"/>
+    <program name="Weather Station" command="sw/ground_segment/misc/davis2ivy">
+      <arg flag="-b" variable="ivy_bus"/>
+      <arg flag="-d" constant="/dev/ttyUSB1"/>
+    </program>
+    <program name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
+    <program name="App Server" command="sw/ground_segment/tmtc/app_server"/>
+    <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
+    <program name="Ivy2Nmea" command="sw/ground_segment/tmtc/ivy2nmea">
+      <arg flag="--ivy_bus" variable="ivy_bus"/>
+      <arg flag="--port" constant="/dev/ttyUSB1"/>
+      <arg flag="--id" constant="1"/>
+    </program>
+  </section>
+  <section name="sessions">
+    <session name="HITL">
+      <program name="Hardware in the Loop">
+        <arg flag="-a" constant="HITL"/>
+        <arg flag="-noground"/>
+        <arg flag="-boot"/>
+      </program>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+    </session>
+    <session name="USB0@57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-maps_fill"/>
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="ua.xml"/>
+      </program>
+      <program name="Messages"/>
+    </session>
+    <session name="USB1@57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB1"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-maps_fill"/>
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="ua.xml"/>
+      </program>
+      <program name="Messages"/>
+    </session>
+    <session name="USB0@19200">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="19200"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-maps_fill"/>
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="ua.xml"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="'500x500+100+100'"/>
+        <arg flag="-c" constant="'*:telemetry:TMP_STATUS:temp'"/>
+        <arg flag="-c" constant="'*:telemetry:SHT_STATUS:temp'"/>
+      </program>
+    </session>
+    <session name="Simulation">
+      <program name="Simulator">
+        <arg flag="-a" constant="AULA_A2_I"/>
+        <arg flag="-t" constant="sim"/>
+        <arg flag="--boot"/>
+        <arg flag="--norc"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-speech"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+    </session>
+    <session name="USB1@19200">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB1"/>
+        <arg flag="-s" constant="19200"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-maps_fill"/>
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="ua.xml"/>
+      </program>
+      <program name="Messages"/>
+    </session>
+    <session name="ARDrone2 Flight">
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+    </session>
+    <session name="USB3@19200">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB3"/>
+        <arg flag="-s" constant="19200"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-maps_fill"/>
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="ua.xml"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="'500x500+100+100'"/>
+        <arg flag="-c" constant="'*:telemetry:TMP_STATUS:temp'"/>
+        <arg flag="-c" constant="'*:telemetry:SHT_STATUS:temp'"/>
+      </program>
+    </session>
+    <session name="Flight USB-serial Redundant">
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-id" constant="1"/>
+        <arg flag="-redlink"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB1"/>
+        <arg flag="-id" constant="2"/>
+        <arg flag="-redlink"/>
+      </program>
+      <program name="Link Combiner"/>
+    </session>
+    <session name="SimulationUniA">
+      <program name="Simulator">
+        <arg flag="-a" constant="AULA_X8_I"/>
+        <arg flag="-t" constant="sim"/>
+        <arg flag="--boot"/>
+        <arg flag="--norc"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-maps_fill"/>
+        <arg flag="-layout" constant="ua.xml"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+    </session>
+    <session name="Flight USB-serial@9600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+    <session name="Flight USB-XBee-API@57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/paparazzi/xbee"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+    <session name="Flight USB-serial@57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+    <session name="SupperBitRF">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyACM0"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Messages"/>
+    </session>
+    <session name="SupperBitRF cable telemetry">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyACM1"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Messages"/>
+      <program name="Messages"/>
+    </session>
+  </section>
+</control_panel>
