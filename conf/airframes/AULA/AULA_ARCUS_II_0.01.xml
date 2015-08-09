@@ -1,13 +1,18 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="AS">
+<!--
+     AULA_X8_Ia modified 
+	2015-08-09 a.philipp@geo.uni-augsburg.de
+		Init
+-->
+
+<airframe name="ARCUS-II">
 
 
 <modules>
    <load name="flight_recorder.xml"/>
-   <load name="extra_dl.xml">
-      <configure name="EXTRA_DL_PORT" value="UART6"/>
-      <configure name="EXTRA_DL_BAUD" value="B57600"/>
+   <load name="air_data.xml">
+     <define name="AIR_DATA_BARO_ABS_ID"  />
    </load>
    <load name="gps_ubx_ucenter.xml"/>
    <load name="humid_sht.xml">
@@ -21,15 +26,27 @@
       <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
       <define name="AIRSPEED_ETS_SDLOG" value="TRUE"/>
     </load>
+    <load name="temp_temod.xml">
+      <define name="TEMOD_I2C_DEV" value="i2c1"/>
+      <define name="TEMP_TEMOD_SDLOG" value="TRUE"/>
+    </load>
 </modules>
 
 <firmware name="fixedwing">
-    <target name="sim" board="pc"/>
     <target name="ap" board="apogee_1.0_chibios">
-     <subsystem name="sdlog"/>
+      <configure name="USE_BARO_BOARD" value="FALSE"/>
+      <define name="MPU9150_SLV_MAG"/>
+      <define name="MPU9150_SLV_BARO"/>
+      <define name="MPU9150_SLV_BARO_SDLOG" value="TRUE" />
+      <subsystem name="radio_control" type="ppm"/>
+      <configure name="PERIODIC_FREQUENCY" value="100"/>
+    </target>
+    <target name="sim" board="pc">
+      <subsystem name="radio_control" type="ppm"/>
     </target>
 
     <define name="USE_I2C1"/>
+    <define name="USE_I2C2"/>
 
     <define name="USE_GYRO_PITCH_RATE"/>
     <configure name="PERIODIC_FREQUENCY" value="100"/>
@@ -90,43 +107,6 @@
     <set servo="FLAPS" value="@BRAKE"/>
   </command_laws>
 
-<!--
-
-  <command_laws>
-    <ratelimit var="brake_value" value="Chop(@BRAKE, 0, MAX_PPRZ)" rate_min="-MAX_BRAKE_RATE" rate_max="MAX_BRAKE_RATE" /> 
-    <set servo="THROTTLE" value="@THROTTLE"/>
-    <set servo="ELEVATOR" value="@PITCH + BRAKE_PITCH * $brake_value"/>
-    <set servo="RUDDER" value="@YAW"/>
-    <let var="roll" value="@ROLL"/>
-    <set servo="AILERON_LEFT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll + BRAKE_AILEVON * $brake_value"/>
-    <set servo="AILERON_RIGHT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll + BRAKE_AILEVON * (-1) * $brake_value"/>
-  </command_laws> 
-
-  <servos>
-    <servo name="THROTTLE" no="0" min="1000" neutral="1000" max="1810"/>
-     <servo name="ELEVATOR" no="1" min="2000" neutral="1500" max="1000"/>
-     <servo name="RUDDER" no="2" min="1960" neutral="1500" max="1040"/>
-    <servo name="AILERONS" no="3" min="1000" neutral="1500" max="2000"/>
-    <servo name="FLAP_RIGHT" no="4" min="1000" neutral="1527" max="2000"/>
-    <servo name="FLAP_LEFT" no="5" min="1000" neutral="1527" max="2000"/>
-  </servos>
-
-  <command_laws>
-    <ratelimit var="brake_value" value="Chop(@BRAKE, 0, MAX_PPRZ)" rate_min="-MAX_BRAKE_RATE" rate_max="MAX_BRAKE_RATE" /> 
-    <set servo="THROTTLE" value="@THROTTLE"/>
--->
-<!--    <set servo="ELEVATOR" value="@PITCH + BRAKE_PITCH * $brake_value"/> -->
-<!--    <set servo="ELEVATOR" value="@PITCH"/>
-    <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
-    <let var="roll" value="@ROLL"/>
-    <set servo="AILERONS" value="$roll"/>
-    <set servo="FLAP_RIGHT" value="@BRAKE"/>
-    <set servo="FLAP_LEFT" value="@BRAKE"/>
-  </command_laws>
-
--->
-
-
   <section name="BAT">
     <define name="CATASTROPHIC_BAT_LEVEL" value="14.0" unit="V"/>
     <define name="MilliAmpereOfAdc(_adc)" value="(_adc-158)*16.5698"/>
@@ -159,6 +139,11 @@
   <section name="AUTO1" prefix="AUTO1_">
      <define name="MAX_ROLL" value="0.7"/>
     <define name="MAX_PITCH" value="0.6"/>
+  </section>
+
+ <section name="GCS">
+   <define name="SPEECH_NAME" value="ARCUS 2"/>
+   <!-- <define name="AC_ICON" value="flyingwing"/> -->
   </section>
 
   <section name="IMU" prefix="IMU_">

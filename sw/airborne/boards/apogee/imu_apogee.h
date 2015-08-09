@@ -46,6 +46,13 @@
 #include "subsystems/abi.h"
 #endif
 
+// sd-log
+#if MPU9150_SLV_BARO_SDLOG
+#include "sdLog.h"
+#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "subsystems/gps.h"
+#endif
+
 // Default configuration
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
 #define IMU_GYRO_P_SIGN   1

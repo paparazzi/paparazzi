@@ -1,13 +1,13 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="AS">
+<airframe name="ARCUS-I">
 
+<!--################################################################-->
 
 <modules>
    <load name="flight_recorder.xml"/>
-   <load name="extra_dl.xml">
-      <configure name="EXTRA_DL_PORT" value="UART6"/>
-      <configure name="EXTRA_DL_BAUD" value="B57600"/>
+   <load name="air_data.xml">
+     <define name="AIR_DATA_BARO_ABS_ID"  />
    </load>
    <load name="gps_ubx_ucenter.xml"/>
    <load name="humid_sht.xml">
@@ -21,15 +21,41 @@
       <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
       <define name="AIRSPEED_ETS_SDLOG" value="TRUE"/>
     </load>
+    <load name="temp_temod.xml">
+      <define name="TEMOD_I2C_DEV" value="i2c1"/>
+      <define name="TEMP_TEMOD_SDLOG" value="TRUE"/>
+    </load>
+
+   <load name="nav_line_border.xml"/>
+   <load name="nav_line.xml"/>
+   <load name="nav_survey_poly_osam.xml">
+     <define name="POLY_OSAM_POLYGONSIZE" value="10" />
+     <define name="POLY_OSAM_ENTRY_RADIUS" value="0" />
+     <define name="POLY_OSAM_DEFAULT_SIZE" value="5" />
+     <define name="POLY_OSAM_DEFAULT_SWEEP" value="100" />
+     <define name="POLY_OSAM_MIN_RADIUS" value="30" />
+     <define name="POLY_OSAM_FIRST_SWEEP_DISTANCE" value="4" />
+   </load>
 </modules>
 
+<!--################################################################-->
+
 <firmware name="fixedwing">
-    <target name="sim" board="pc"/>
+
     <target name="ap" board="apogee_1.0_chibios">
-     <subsystem name="sdlog"/>
+      <configure name="USE_BARO_BOARD" value="FALSE"/>
+      <define name="MPU9150_SLV_MAG"/>
+      <define name="MPU9150_SLV_BARO"/>
+      <define name="MPU9150_SLV_BARO_SDLOG" value="TRUE" />
+      <subsystem name="radio_control" type="ppm"/>
+      <configure name="PERIODIC_FREQUENCY" value="100"/>
+    </target>
+    <target name="sim" board="pc">
+      <subsystem name="radio_control" type="ppm"/>
     </target>
 
     <define name="USE_I2C1"/>
+    <define name="USE_I2C2"/>
 
     <define name="USE_GYRO_PITCH_RATE"/>
     <configure name="PERIODIC_FREQUENCY" value="100"/>
@@ -52,6 +78,7 @@
     <subsystem name="gps" type="ublox"/>
  </firmware>
 
+<!--################################################################-->
 
   <firmware name="lisa_test_progs">
     <target name="test_led" board="apogee_1.0_chibios">
@@ -134,6 +161,12 @@
      <define name="MAX_ROLL" value="0.7"/>
     <define name="MAX_PITCH" value="0.6"/>
   </section>
+
+ <section name="GCS">
+   <define name="SPEECH_NAME" value="ARCUS 1"/>
+   <!-- <define name="AC_ICON" value="flyingwing"/> -->
+  </section>
+
 
   <section name="IMU" prefix="IMU_">
     <!-- Calibration Neutral -->
