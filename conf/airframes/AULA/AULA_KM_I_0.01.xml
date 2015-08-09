@@ -1,39 +1,79 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="KM">
+<!--
+     AULA_X8_Ia modified 
+	2015-08-09 a.philipp@geo.uni-augsburg.de
+		Init
+-->
 
+<airframe name="KM-1">
+
+<!--################################################################-->
+
+<modules>
+   <load name="flight_recorder.xml"/>
+   <load name="air_data.xml">
+     <define name="AIR_DATA_BARO_ABS_ID"  />
+   </load>
+   <load name="gps_ubx_ucenter.xml"/>
+   <load name="humid_sht.xml">
+      <define name="SHT_DAT_GPIO" value="GPIOB,GPIO1"/>
+      <define name="SHT_SCK_GPIO" value="GPIOC,GPIO5"/>
+      <define name="SHT_SDLOG" value="TRUE"/>
+    </load>
+   <load name="airspeed_ets.xml">
+      <define name="AIRSPEED_ETS_SYNC_SEND"/>
+      <define name="USE_I2C2"/> 
+      <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
+      <define name="AIRSPEED_ETS_SDLOG" value="TRUE"/>
+    </load>
+    <load name="temp_temod.xml">
+      <define name="TEMOD_I2C_DEV" value="i2c1"/>
+      <define name="TEMP_TEMOD_SDLOG" value="TRUE"/>
+    </load>
+
+   <load name="nav_line_border.xml"/>
+   <load name="nav_line.xml"/>
+   <load name="nav_survey_poly_osam.xml">
+     <define name="POLY_OSAM_POLYGONSIZE" value="10" />
+     <define name="POLY_OSAM_ENTRY_RADIUS" value="0" />
+     <define name="POLY_OSAM_DEFAULT_SIZE" value="5" />
+     <define name="POLY_OSAM_DEFAULT_SWEEP" value="100" />
+     <define name="POLY_OSAM_MIN_RADIUS" value="30" />
+     <define name="POLY_OSAM_FIRST_SWEEP_DISTANCE" value="4" />
+   </load>
+</modules>
 
 <!--################################################################-->
 
   <firmware name="fixedwing">
 
-<!--   <define name="USE_I2C0" />  -->
-<!--   <define name="USE_I2C1" />  -->
-   <define name="USE_I2C2"/>
+
+    <target name="ap" board="apogee_1.0_chibios">
+      <configure name="USE_BARO_BOARD" value="FALSE"/>
+      <define name="MPU9150_SLV_MAG"/>
+      <define name="MPU9150_SLV_BARO"/>
+      <define name="MPU9150_SLV_BARO_SDLOG" value="TRUE" />
+      <subsystem name="radio_control" type="ppm"/>
+      <configure name="PERIODIC_FREQUENCY" value="100"/>
+    </target>
+    <target name="sim" board="pc">
+      <subsystem name="radio_control" type="ppm"/>
+    </target>
+
+    <define name="USE_I2C1"/>
+    <define name="USE_I2C2"/>
 
     <define name="USE_GYRO_PITCH_RATE"/>
     <configure name="PERIODIC_FREQUENCY" value="100"/>
-
-    <target name="sim" board="pc"/>
-    <target name="ap" board="apogee_1.0_chibios">  
-    <subsystem name="sdlog"/> 
-    </target>
-
-    <!-- <subsystem name="radio_control" type="sbus"/> -->
     <subsystem name="radio_control"       type="ppm">
       <configure name="RADIO_CONTROL_LED" value="4"/>
     </subsystem>
-
-    <!-- Communication -->
-    <!-- <subsystem name="telemetry" type="xbee_api"> -->
     <subsystem name="telemetry" type="transparent">
-    <configure name="MODEM_BAUD"  value="B57600"/> 
-     <!--  <configure name="MODEM_BAUD"  value="B38400"/> -->
+      <configure name="MODEM_BAUD"  value="B57600"/> 
       <configure name="MODEM_PORT"  value="UART1"/>
     </subsystem>
-
-    <!-- minimal messages -->
-   <!--  <define name="TELEMETRY_MODE_AP" value="1"/> -->
+    <subsystem name="sdlog"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="imu"     type="apogee"/>
@@ -43,60 +83,9 @@
     <subsystem name="navigation"/>
 
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox">
-      <!-- <configure name="GPS_BAUD"          value="B9600"/> -->
-      <!-- <configure name="GPS_BAUD"          value="B38400"/>
-       <configure name="GPS_PORT"          value="UART4"/>
-       <configure name="GPS_LED"           value="4"/> -->
-    </subsystem>
-
-    <!--subsystem name="spi_master"/-->
+    <subsystem name="gps" type="ublox"/>
   </firmware>
 
-
-<!--################################################################-->
-
-  <modules>
-
-
-    <!--load name="sys_mon.xml"/-->
-    <!-- <load name="mcp355x.xml"> -->
-    <!--   <define name="USE_SPI1"/> -->
-    <!-- </load> -->
-    <load name="flight_recorder.xml"/>
-
-    <load name="extra_dl.xml">
-      <configure name="EXTRA_DL_PORT" value="UART6"/>
-      <configure name="EXTRA_DL_BAUD" value="B57600"/>
-    </load>
-
-<!--  <load name="meteo_france_DAQ.xml"/>  --> 
-<load name="humid_sht.xml">
-      <define name="SHT_DAT_GPIO" value="GPIOB,GPIO1"/>
-      <define name="SHT_SCK_GPIO" value="GPIOC,GPIO5"/>
-      <define name="SHT_SDLOG" value="TRUE"/>
-</load>
-
-   <load name="gps_ubx_ucenter.xml"/>
-
-
-  <!--  <load name="temp_temod.xml">
-      <define name="TEMOD_I2C_DEV" value="i2c1"/>
-      <configure name="TEMOD_TYPE" value="TEMOD_I2C_R1"/> 
-    </load> -->
-	
-
-	<load name="airspeed_ets.xml">
-            <define name="AIRSPEED_ETS_SYNC_SEND"/>
-            <define name="USE_I2C2"/> 
-            <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
-          <!--  <define name="AIRSPEED_ETS_SDLOG" value="TRUE"/> -->
-            <!-- <define name="AIRSPEED_ETS_SCALE"   value="1.44"/> 
-            <define name="AIRSPEED_ETS_OFFSET"  value="50"/> -->
-        </load>
-
-
-</modules>
 
   <firmware name="lisa_test_progs">
     <target name="test_led" board="apogee_1.0_chibios">

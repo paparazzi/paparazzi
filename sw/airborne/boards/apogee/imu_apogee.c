@@ -74,7 +74,19 @@ struct Ak8975 ak;
 
 #ifdef MPU9150_SLV_BARO
 struct Mpl3115 mpl;
+
+// sd-log
+#if MPU9150_SLV_BARO_SDLOG
+#include "sdLog.h"
+#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "subsystems/gps.h"
+bool_t log_mpu9150_slv_baro_started;
+int count_sd_writes;
 #endif
+
+#endif
+
+
 
 // baro config will be done later in bypass mode
 bool_t configure_baro_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
@@ -136,6 +148,12 @@ void imu_impl_init(void)
 
   mpl3115_init(&mpl, &(IMU_APOGEE_I2C_DEV), MPL3115_I2C_ADDR);
 
+// sd-log
+#if MPU9150_SLV_BARO_SDLOG
+  log_mpu9150_slv_baro_started = FALSE;
+  count_sd_writes=0;
+#endif
+  
 #endif
 }
 
@@ -196,6 +214,26 @@ void imu_apogee_event(void)
 #ifdef MPU9150_SLV_BARO
     mpu9150_i2c_baro_event(&imu_apogee.mpu, &pressure);
     AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
+
+// sd-log
+#if MPU9150_SLV_BARO_SDLOG
+  if (pprzLogFile != -1) {
+    if (!log_mpu9150_slv_baro_started) {
+      sdLogWriteLog(pprzLogFile, "MPU9150_SLV_BARO: Pres(Pa) GPS_fix TOW(ms) Week Lat(1e7rad) Lon(1e7rad) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
+      log_mpu9150_slv_baro_started = TRUE;
+    }
+    if (count_sd_writes == 0) {
+    sdLogWriteLog(pprzLogFile, "mpu9150_baro: %9.4f %d %d %d   %d %d %d   %d %d %d\n",
+		  pressure,
+		  gps.fix, gps.tow, gps.week,
+		  gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
+		  gps.gspeed, gps.course, -gps.ned_vel.z);
+    }
+    count_sd_writes++;
+    if (count_sd_writes > 8) {count_sd_writes=0;}
+  }
+#endif
+
 #endif
 
   }

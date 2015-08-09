@@ -1,7 +1,11 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!--
-     Apogee test board
+
+     AULA_A2 modified 
+	2015-08-09 a.philipp@geo.uni-augsburg.de
+		Init
+		
 -->
 
 <airframe name="Apogee_SUMO">
@@ -58,7 +62,7 @@
     <configure name="USE_BARO_BOARD" value="FALSE"/>
     <define name="MPU9150_SLV_MAG"/>
     <define name="MPU9150_SLV_BARO"/>
-
+    <define name="MPU9150_SLV_BARO_SDLOG" value="TRUE" />
 
       <subsystem name="radio_control" type="ppm"/>
 <!-- UNIA END -->
