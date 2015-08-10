@@ -28,7 +28,18 @@
  */
 #include "subsystems/gps.h"
 
-/**
+bool_t gps_has_fix;
+
+/*
  * Necessary to compile
  */
-void gps_impl_init(void) {}
+void gps_impl_init(void) {
+  gps_has_fix = FALSE;
+}
+
+#if USE_NPS
+/*
+ * For NPS only
+ */
+void  gps_feed_value() {}
+#endif /* USE_NPS */

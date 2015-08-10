@@ -29,6 +29,15 @@
 #ifndef GPS_TRANSPARENT_H
 #define GPS_TRANSPARENT_H
 
+extern bool_t gps_has_fix;
+
 #define GpsEvent(_x) ;
+
+#if USE_NPS
+/*
+ * Required for NPS
+ */
+extern void gps_feed_value();
+#endif /* USE_NPS */
 
 #endif /* GPS_TRANSPARENT_H */
