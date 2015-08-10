@@ -20,6 +20,10 @@
     </target>
 
     <target name="sim" 			board="pc"/>
+    
+    <target name="nps" board="pc">
+      <subsystem name="fdm" type="jsbsim"/>
+    </target>
 
     <define name="USE_MAGNETOMETER" value="FALSE"/>
 
@@ -81,6 +85,33 @@
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+    
+    <!-- Dummy Gyro values for NPS -
+    replace with your own calibration -->
+    <define name="GYRO_P_SIGN" value="1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
+    <define name="GYRO_R_SIGN" value="-1"/>
+    <define name="GYRO_P_NEUTRAL" value="0"/>
+    <define name="GYRO_Q_NEUTRAL" value="0"/>
+    <define name="GYRO_R_NEUTRAL" value="0"/>
+
+    <!-- Dummy Accel values for NPS -
+    replace with your own calibration -->
+    <define name="ACCEL_X_SIGN" value="1"/>
+    <define name="ACCEL_Y_SIGN" value="-1"/>
+    <define name="ACCEL_Z_SIGN" value="-1"/>
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
+
+    <!-- Dummy Mag values for NPS -
+    replace with your own calibration -->
+    <define name="MAG_X_SIGN" value="1"/>
+    <define name="MAG_Y_SIGN" value="-1"/>
+    <define name="MAG_Z_SIGN" value="-1"/>
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -144,6 +175,25 @@
     <define name="DEFAULT_ROLL" value="15" unit="deg"/>
     <define name="DEFAULT_PITCH" value="0" unit="deg"/>
     <define name="HOME_RADIUS" value="90" unit="m"/>
+  </section>
+  
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="JSBSIM_LAUNCHSPEED" value="15"/>
+    <define name="JSBSIM_MODEL" value="&quot;easystar&quot;"/>
+    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_invariant.h&quot;"/>
+    <define name="JS_AXIS_THROTTLE" value="0"/>
+    <define name="JS_AXIS_THROTTLE_REVERSED" value="1"/>
+    
+    <define name="JS_AXIS_ROLL" value="1"/>
+    
+    <define name="JS_AXIS_PITCH" value="2"/>
+    <define name="JS_AXIS_PITCH_REVERSED" value="1"/>
+        
+    <define name="JS_AXIS_YAW" value="3"/>
+    <define name="JS_AXIS_YAW_REVERSED" value="1"/>
+    
+    <define name="JS_AXIS_FLAPS" value="5"/>
+    <define name="JS_AXIS_MODE" value="7"/>
   </section>
 
 </airframe>
