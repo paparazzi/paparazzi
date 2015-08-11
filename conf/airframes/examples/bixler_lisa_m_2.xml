@@ -88,27 +88,18 @@
     
     <!-- Dummy Gyro values for NPS -
     replace with your own calibration -->
-    <define name="GYRO_P_SIGN" value="1"/>
-    <define name="GYRO_Q_SIGN" value="-1"/>
-    <define name="GYRO_R_SIGN" value="-1"/>
     <define name="GYRO_P_NEUTRAL" value="0"/>
     <define name="GYRO_Q_NEUTRAL" value="0"/>
     <define name="GYRO_R_NEUTRAL" value="0"/>
 
     <!-- Dummy Accel values for NPS -
     replace with your own calibration -->
-    <define name="ACCEL_X_SIGN" value="1"/>
-    <define name="ACCEL_Y_SIGN" value="-1"/>
-    <define name="ACCEL_Z_SIGN" value="-1"/>
     <define name="ACCEL_X_NEUTRAL" value="0"/>
     <define name="ACCEL_Y_NEUTRAL" value="0"/>
     <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
     <!-- Dummy Mag values for NPS -
     replace with your own calibration -->
-    <define name="MAG_X_SIGN" value="1"/>
-    <define name="MAG_Y_SIGN" value="-1"/>
-    <define name="MAG_Z_SIGN" value="-1"/>
     <define name="MAG_X_NEUTRAL" value="0"/>
     <define name="MAG_Y_NEUTRAL" value="0"/>
     <define name="MAG_Z_NEUTRAL" value="0"/>
