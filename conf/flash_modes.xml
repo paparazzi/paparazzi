@@ -22,6 +22,7 @@
       <board name="krooz_sd"/>
       <board name="lia_.*"/>
       <board name="lisa_[ms]_.*"/>
+      <board name="elle*"/>
     </boards>
   </mode>
   <mode name="USB (IAP)">
@@ -46,6 +47,7 @@
       <board name="li[s]?a_[m]?_.*"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
+      <board name="elle*"/>
     </boards>
   </mode>
   <mode name="USB DFU-UTIL">
@@ -55,6 +57,7 @@
       <board name="stm32f4_discovery"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="navstik_.*"/>
+      <board name="elle*"/>
     </boards>
   </mode>
   <mode name="STLink (SWD)">
@@ -64,6 +67,7 @@
       <board name="stm32f4_discovery"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="cc3d"/>
+      <board name="elle*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD)">
@@ -75,6 +79,7 @@
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
       <board name="cc3d"/>
+      <board name="elle*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (JTAG)">
@@ -85,6 +90,7 @@
       <board name="li[s]?a_[ms]?_.*"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
+      <board name="elle*"/>
     </boards>
   </mode>
   <mode name="JTAG (OpenOCD)">
@@ -93,6 +99,7 @@
       <board name="krooz_sd"/>
       <board name="li[s]?a_[lm]?_.*"/>
       <board name="navstik_.*"/>
+      <board name="elle*"/>
     </boards>
   </mode>
 </flash_modes>
