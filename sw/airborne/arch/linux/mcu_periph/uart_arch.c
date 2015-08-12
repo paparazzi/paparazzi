@@ -76,112 +76,140 @@ static void *uart_thread(void *data __attribute__((unused)))
   /* add used fds */
   int fd;
 #if USE_UART0
-  fd = ((struct SerialPort *)uart0.reg_addr)->fd;
-  FD_SET(fd, &fds_master);
-  if (fd > fdmax) {
-    fdmax =fd;
+  if (uart0.reg_addr != NULL) {
+    fd = ((struct SerialPort *)uart0.reg_addr)->fd;
+    FD_SET(fd, &fds_master);
+    if (fd > fdmax) {
+      fdmax =fd;
+    }
   }
 #endif
 #if USE_UART1
-  fd = ((struct SerialPort *)uart1.reg_addr)->fd;
-  FD_SET(fd, &fds_master);
-  if (fd > fdmax) {
-    fdmax =fd;
+  if (uart1.reg_addr != NULL) {
+    fd = ((struct SerialPort *)uart1.reg_addr)->fd;
+    FD_SET(fd, &fds_master);
+    if (fd > fdmax) {
+      fdmax =fd;
+    }
   }
 #endif
 #if USE_UART2
-  fd = ((struct SerialPort *)uart2.reg_addr)->fd;
-  FD_SET(fd, &fds_master);
-  if (fd > fdmax) {
-    fdmax =fd;
+  if (uart2.reg_addr != NULL) {
+    fd = ((struct SerialPort *)uart2.reg_addr)->fd;
+    FD_SET(fd, &fds_master);
+    if (fd > fdmax) {
+      fdmax =fd;
+    }
   }
 #endif
 #if USE_UART3
-  fd = ((struct SerialPort *)uart3.reg_addr)->fd;
-  FD_SET(fd, &fds_master);
-  if (fd > fdmax) {
-    fdmax =fd;
+  if (uart3.reg_addr != NULL) {
+    fd = ((struct SerialPort *)uart3.reg_addr)->fd;
+    FD_SET(fd, &fds_master);
+    if (fd > fdmax) {
+      fdmax =fd;
+    }
   }
 #endif
 #if USE_UART4
-  fd = ((struct SerialPort *)uart4.reg_addr)->fd;
-  FD_SET(fd, &fds_master);
-  if (fd > fdmax) {
-    fdmax =fd;
+  if (uart4.reg_addr != NULL) {
+    fd = ((struct SerialPort *)uart4.reg_addr)->fd;
+    FD_SET(fd, &fds_master);
+    if (fd > fdmax) {
+      fdmax =fd;
+    }
   }
 #endif
 #if USE_UART5
-  fd = ((struct SerialPort *)uart5.reg_addr)->fd;
-  FD_SET(fd, &fds_master);
-  if (fd > fdmax) {
-    fdmax =fd;
+  if (uart5.reg_addr != NULL) {
+    fd = ((struct SerialPort *)uart5.reg_addr)->fd;
+    FD_SET(fd, &fds_master);
+    if (fd > fdmax) {
+      fdmax =fd;
+    }
   }
 #endif
 #if USE_UART6
-  fd = ((struct SerialPort *)uart6.reg_addr)->fd;
-  FD_SET(fd, &fds_master);
-  if (fd > fdmax) {
-    fdmax =fd;
+  if (uart6.reg_addr != NULL) {
+    fd = ((struct SerialPort *)uart6.reg_addr)->fd;
+    FD_SET(fd, &fds_master);
+    if (fd > fdmax) {
+      fdmax =fd;
+    }
   }
+}
 #endif
 
-  /* fds to be read, modified after each select */
-  fd_set fds;
+/* fds to be read, modified after each select */
+fd_set fds;
 
-  while (1) {
-    /* reset list of fds to check */
-    fds = fds_master;
+while (1) {
+  /* reset list of fds to check */
+  fds = fds_master;
 
-    if (select(fdmax + 1, &fds, NULL, NULL, NULL) < 0) {
-      fprintf(stderr, "uart_thread: select failed!");
-    }
-    else {
+  if (select(fdmax + 1, &fds, NULL, NULL, NULL) < 0) {
+    fprintf(stderr, "uart_thread: select failed!");
+  }
+  else {
 #if USE_UART0
+    if (uart0.reg_addr != NULL) {
       fd = ((struct SerialPort *)uart0.reg_addr)->fd;
       if (FD_ISSET(fd, &fds)) {
         uart_receive_handler(&uart0);
       }
+    }
 #endif
 #if USE_UART1
+    if (uart1.reg_addr != NULL) {
       fd = ((struct SerialPort *)uart1.reg_addr)->fd;
       if (FD_ISSET(fd, &fds)) {
         uart_receive_handler(&uart1);
       }
+    }
 #endif
 #if USE_UART2
+    if (uart2.reg_addr != NULL) {
       fd = ((struct SerialPort *)uart2.reg_addr)->fd;
       if (FD_ISSET(fd, &fds)) {
         uart_receive_handler(&uart2);
       }
+    }
 #endif
 #if USE_UART3
+    if (uart3.reg_addr != NULL) {
       fd = ((struct SerialPort *)uart3.reg_addr)->fd;
       if (FD_ISSET(fd, &fds)) {
         uart_receive_handler(&uart3);
       }
+    }
 #endif
 #if USE_UART4
+    if (uart4.reg_addr != NULL) {
       fd = ((struct SerialPort *)uart4.reg_addr)->fd;
       if (FD_ISSET(fd, &fds)) {
         uart_receive_handler(&uart4);
       }
 #endif
 #if USE_UART5
-      fd = ((struct SerialPort *)uart5.reg_addr)->fd;
-      if (FD_ISSET(fd, &fds)) {
-        uart_receive_handler(&uart5);
+      if (uart5.reg_addr != NULL) {
+        fd = ((struct SerialPort *)uart5.reg_addr)->fd;
+        if (FD_ISSET(fd, &fds)) {
+          uart_receive_handler(&uart5);
+        }
       }
 #endif
 #if USE_UART6
-      fd = ((struct SerialPort *)uart6.reg_addr)->fd;
-      if (FD_ISSET(fd, &fds)) {
-        uart_receive_handler(&uart6);
+      if (uart6.reg_addr != NULL) {
+        fd = ((struct SerialPort *)uart6.reg_addr)->fd;
+        if (FD_ISSET(fd, &fds)) {
+          uart_receive_handler(&uart6);
+        }
       }
 #endif
     }
   }
   return 0;
-}
+ }
 
 
 void uart_periph_set_baudrate(struct uart_periph *periph, uint32_t baud)
@@ -206,11 +234,15 @@ void uart_periph_set_baudrate(struct uart_periph *periph, uint32_t baud)
   int ret = serial_port_open_raw(port, periph->dev, baud);
   if (ret != 0) {
     TRACE("Error opening %s code %d\n", periph->dev, ret);
+    serial_port_free(port);
+    periph->reg_addr = NULL;
   }
 }
 
 void uart_put_byte(struct uart_periph *periph, uint8_t data)
 {
+  if (periph->reg_addr == NULL) { return; } // device not initialized ?
+
   /* write single byte to serial port */
   struct SerialPort *port = (struct SerialPort *)(periph->reg_addr);
   int ret = write((int)(port->fd), &data, 1);
