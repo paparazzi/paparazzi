@@ -30,7 +30,7 @@
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="mpu9250_spi"/>
+    <subsystem name="imu"           type="elle0"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="float_mlkf">
@@ -82,23 +82,23 @@
   <section name="IMU" prefix="IMU_">
 
     <!-- replace this with your own calibration -->
-    <define name="MAG_X_NEUTRAL" value="-127"/>
-    <define name="MAG_Y_NEUTRAL" value="-30"/>
+    <define name="MAG_X_NEUTRAL" value="-30"/>
+    <define name="MAG_Y_NEUTRAL" value="-127"/>
     <define name="MAG_Z_NEUTRAL" value="-140"/>
-    <define name="MAG_X_SENS" value="7.09366475279" integer="16"/>
-    <define name="MAG_Y_SENS" value="7.11726808648" integer="16"/>
+    <define name="MAG_X_SENS" value="7.11726808648" integer="16"/>
+    <define name="MAG_Y_SENS" value="7.09366475279" integer="16"/>
     <define name="MAG_Z_SENS" value="6.84467824688" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="4"/>
-    <define name="ACCEL_Y_NEUTRAL" value="52"/>
+    <define name="ACCEL_X_NEUTRAL" value="52"/>
+    <define name="ACCEL_Y_NEUTRAL" value="4"/>
     <define name="ACCEL_Z_NEUTRAL" value="7"/>
-    <define name="ACCEL_X_SENS" value="2.44991708802" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="2.45056441681" integer="16"/>
+    <define name="ACCEL_X_SENS" value="2.45056441681" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.44991708802" integer="16"/>
     <define name="ACCEL_Z_SENS" value="2.44199722843" integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="180." unit="deg"/>
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="-90." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">
