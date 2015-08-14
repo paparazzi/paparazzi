@@ -41,7 +41,7 @@ SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo fw_serv
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 
-all: link server messages settings dia diadec ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge app_server ivy2nmea ivy_sbs_bridge
+all: link server messages settings dia diadec ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge app_server ivy2nmea
 
 opt: server.opt
 
@@ -148,10 +148,6 @@ gpsd2ivy: gpsd2ivy.c
 ivy2nmea: ivy2nmea.c
 	@echo OL $@
 	$(Q)$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS)
-
-ivy_sbs_bridge: ivy_sbs_bridge.c
-	@echo OL $@
-	$(Q)$(CC) $(GLIBIVY_CFLAGS) $(GTK_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) $(GTK_LDFLAGS) -lm
 
 c_ivy_client_example_1: c_ivy_client_example_1.c
 	$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS)

@@ -71,8 +71,6 @@ paparazzi.sublime-workspace
 # /sw/ground_segment/lpc21iap/
 /sw/ground_segment/lpc21iap/lpc21iap
 
-/sw/ground_segment/misc/ivy2serial
-
 # /sw/ground_segment/multimon/
 /sw/ground_segment/multimon/costabf.c
 /sw/ground_segment/multimon/mkcostab
@@ -147,6 +145,8 @@ paparazzi.sublime-workspace
 /sw/ground_segment/misc/kestrel2ivy
 /sw/ground_segment/misc/natnet2ivy
 /sw/ground_segment/misc/video_synchronizer
+/sw/ground_segment/misc/ivy2serial
+/sw/ground_segment/misc/sbs2ivy
 
 # /sw/airborne/arch/lpc21/test/bootloader
 /sw/airborne/arch/lpc21/test/bootloader/bl.dmp

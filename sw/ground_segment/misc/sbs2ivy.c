@@ -63,6 +63,10 @@
 #include <Ivy/version.h>
 //#include <Ivy/ivyglibloop.h>
 
+#include "math/pprz_geodetic_int.h"
+#include "math/pprz_geodetic_float.h"
+#include "math/pprz_geodetic_double.h"
+#include "math/pprz_algebra_double.h"
 
 #define Dprintf(X, ... )
 //#define Dprintf printf
@@ -73,45 +77,6 @@
 #define MAX_INTRUDER 10
 #define MAX_AGE_INTR 80   //Scaled by timer, stepsize 1/4s
 
-
-///////////
-//Mostly copied geometric liraries
-/////////////
-
-/* Computation for the WGS84 geoid only */
-#define E 0.08181919106
-#define K0 0.9996
-#define DELTA_EAST  500000.
-#define DELTA_NORTH 0.
-#define A 6378137.0
-#define N (K0*A)
-
-#define LambdaOfUtmZone(utm_zone) RadOfDeg((utm_zone-1)*6-180+3)
-
-static const float serie_coeff_proj_mercator[5] = {
-  0.99832429842242842444,
-  0.00083632803657738403,
-  0.00000075957783563707,
-  0.00000000119563131778,
-  0.00000000000241079916
-};
-
-static const float serie_coeff_proj_mercator_inverse[5] = {
-  0.998324298422428424,
-  0.000837732168742475825,
-  5.90586914811817062e-08,
-  1.6734091890305064e-10,
-  2.13883575853313883e-13
-};
-
-struct complex { float re; float im; };
-#define CScal(k, z) { z.re *= k;  z.im *= k; }
-#define CAdd(z1, z2) { z2.re += z1.re;  z2.im += z1.im; }
-#define CSub(z1, z2) { z2.re -= z1.re;  z2.im -= z1.im; }
-#define CI(z) { float tmp = z.re; z.re = - z.im; z.im = tmp; }
-#define CExp(z) { float e = exp(z.re); z.re = e*cos(z.im); z.im = e*sin(z.im); }
-
-#define CSin(z) { CI(z); struct complex _z = {-z.re, -z.im}; float e = exp(z.re); float cos_z_im = cos(z.im); z.re = e*cos_z_im; float sin_z_im = sin(z.im); z.im = e*sin_z_im; _z.re = cos_z_im/e; _z.im = -sin_z_im/e; CSub(_z, z); CScal(-0.5, z); CI(z); }
 
 #if DEBUG_INPUT == 1
 #define INPUT_PRINT(...) { printf( __VA_ARGS__);};
@@ -136,9 +101,6 @@ void handle_intruders(void);
 void sbs_parse_msg(void);
 void sbs_parse_char(unsigned char c);
 
-float DegOfRad(float i);
-float RadOfDeg(float i);
-
 void close_port(void);
 int open_port(void);
 void read_port(void);
@@ -154,42 +116,6 @@ struct MsgBuf {
 
 struct MsgBuf in_data;
 
-struct LlaCoor_f {
-  float lon; ///< in radians
-  float lat; ///< in radians
-  float alt; ///< in meters above WGS84 reference ellipsoid
-};
-
-/**
- * @brief position in UTM coordinates
- * Units: meters */
-struct UtmCoor_f {
-  float north; ///< in meters
-  float east; ///< in meters
-  float alt; ///< in meters above WGS84 reference ellipsoid
-  int zone; ///< UTM zone number
-};
-
-/**
- * @brief vector in Latitude, Longitude and Altitude
- * @details Units lat,lon: radians*1e7
- * Unit alt: centimeters above MSL
- */
-struct LlaCoor_i {
-  int lon; ///< in radians*1e7
-  int lat; ///< in radians*1e7
-  int alt; ///< in millimeters above WGS84 reference ellipsoid
-};
-
-/**
- * @brief position in UTM coordinates
- */
-struct UtmCoor_i {
-  int north; ///< in centimeters
-  int east; ///< in centimeters
-  int alt; ///< in millimeters above WGS84 reference ellipsoid
-  int zone; ///< UTM zone number
-};
 
 // data structure for intruders
 struct Intruder {
@@ -217,10 +143,6 @@ uint lastivyrcv = 0;
 uint lastivytrx = 0;
 
 int portstat = 0;
-
-void utm_of_lla_f(struct UtmCoor_f *utm, struct LlaCoor_f *lla);
-static inline float isometric_latitude_f(float phi, float e);
-static inline float isometric_latitude_fast_f(float phi);
 
 int dist(struct UtmCoor_i *utmi);
 
@@ -1108,54 +1030,4 @@ int dist(struct UtmCoor_i *utmi)
                         utmi->alt - local_uav.utm_z) / 10.0) * ((float)(utmi->alt - local_uav.utm_z) / 10.0));;
 
   return d;
-}
-
-float RadOfDeg(float i)
-{
-  float erg;
-  erg =  i / 180 * M_PI ;
-  return erg;
-}
-
-float DegOfRad(float i)
-{
-  float erg;
-  erg =  i / M_PI * 180 ;
-  return erg;
-}
-
-void utm_of_lla_f(struct UtmCoor_f *utm, struct LlaCoor_f *lla)
-{
-  float lambda_c = LambdaOfUtmZone(utm->zone);
-  float ll = isometric_latitude_f(lla->lat , E);
-  float dl = lla->lon - lambda_c;
-  float phi_ = asin(sin(dl) / cosh(ll));
-  float ll_ = isometric_latitude_fast_f(phi_);
-  float lambda_ = atan(sinh(ll) / cos(dl));
-  struct complex z_ = { lambda_,  ll_ };
-  CScal(serie_coeff_proj_mercator[0], z_);
-  int k;
-  for (k = 1; k < 3; k++) {
-    struct complex z = { lambda_,  ll_ };
-    CScal(2 * k, z);
-    CSin(z);
-    CScal(serie_coeff_proj_mercator[k], z);
-    CAdd(z, z_);
-  }
-  CScal(N, z_);
-  utm->east = DELTA_EAST + z_.im;
-  utm->north = DELTA_NORTH + z_.re;
-
-  // copy alt above reference ellipsoid
-  utm->alt = lla->alt;
-}
-
-static inline float isometric_latitude_f(float phi, float e)
-{
-  return log(tan(M_PI_4 + phi / 2.0)) - e / 2.0 * log((1.0 + e * sin(phi)) / (1.0 - e * sin(phi)));
-}
-
-static inline float isometric_latitude_fast_f(float phi)
-{
-  return log(tan(M_PI_4 + phi / 2.0));
 }
