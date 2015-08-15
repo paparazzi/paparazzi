@@ -31,6 +31,7 @@ open Printf
 open Latlong
 open Server_globals
 open Aircraft
+(*open Intruder*)
 module U = Unix
 module LL = Latlong
 
@@ -475,6 +476,9 @@ let replayed = fun ac_id ->
 (* Store of unknown received A/C ids. To be able to report an error only once *)
 let unknown_aircrafts = Hashtbl.create 5
 
+(* Intruders (external aircrafts), e.g. received via ADS-B *)
+let intruders = Hashtbl.create 3
+
 let get_conf = fun real_id id conf_xml ->
   try
     ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id)
@@ -649,6 +653,29 @@ let listen_acs = fun log timestamp ->
   if !replay_old_log then
     ignore (Tm_Pprz.message_bind "PPRZ_MODE" (ident_msg log timestamp))
 
+let add_intruder = fun msgname vs ->
+  let id = Pprz.string_assoc "id" vs in
+  let name = Pprz.string_assoc "name" vs in
+  let intruder = Intruder.new_intruder id name in
+  Hashtbl.add intruders id intruder
+
+let update_intruder = fun name vs ->
+  if not (Hashtbl.mem intruders name) then
+    add_intruder name vs;
+  let id = Pprz.string_assoc "id" vs in
+  let i = Hashtbl.find intruders id in
+  let lat = Pprz.int_assoc "lat" vs
+  and lon = Pprz.int_assoc "lon" vs in
+  let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
+  i.pos <- geo;
+  i.alt <- float (Pprz.int_assoc "alt" vs) /. 1000.;
+  i.course <- float (Pprz.int_assoc "course" vs) /. 10.;
+  i.gspeed <- float (Pprz.int_assoc "speed" vs) /. 100.;
+  i.climb <- float (Pprz.int_assoc "climb" vs) /. 100.
+
+(* listen for intruders *)
+let listen_intruders = fun log ->
+  ignore(Ground_Pprz.message_bind "INTRUDER" update_intruder)
 
 let send_config = fun http _asker args ->
   let ac_id' = Pprz.string_assoc "ac_id" args in
@@ -823,6 +850,9 @@ let () =
 
   (* Waits for new aircrafts *)
   listen_acs logging !timestamp;
+
+  (* wait for new external vehicles/intruders *)
+  listen_intruders logging;
 
   (* Forward messages from ground agents to vehicles *)
   ground_to_uplink logging;

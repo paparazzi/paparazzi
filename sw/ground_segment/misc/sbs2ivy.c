@@ -406,6 +406,25 @@ void send_ivy(void)
   zdot = remote_uav.climb / 100.0f;
   IvySendMsg("%d ESTIMATOR %f %f\n", remote_uav.ac_id, z, zdot);
 
+
+  /*
+  <message name="INTRUDER" id="37">
+    <field name="id" type="string"/>
+    <field name="name" type="string"/>
+    <field name="lat"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="alt"        type="int32"  unit="mm" alt_unit="m">altitude above WGS84 reference ellipsoid</field>
+    <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
+    <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
+  </message>
+  */
+
+  // FIXME: using WGS84 ellipsoid alt, it is probably hmsl???
+  IvySendMsg("%d INTRUDER %d %d %d %d %d %d %d %d\n", remote_uav.ac_id, remote_uav.ac_id,
+             remote_uav.lla_i.lat, remote_uav.lla_i.lon, remote_uav.lla_i.alt,
+             remote_uav.lla_i.alt, remote_uav.course, remote_uav.speed, remote_uav.climb);
+
   count_serial++;
   lastivytrx = timer;
 
