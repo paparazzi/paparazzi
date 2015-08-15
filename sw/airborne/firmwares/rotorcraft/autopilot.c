@@ -192,7 +192,7 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
 static void send_energy(struct transport_tx *trans, struct link_device *dev)
 {
   uint16_t e = electrical.energy;
-  if (fabs(energy) >= INT16_MAX) {
+  if (fabs(electrical.energy) >= INT16_MAX) {
     e = INT16_MAX;
   }
   float vsup = ((float)electrical.vsupply) / 10.0f;
