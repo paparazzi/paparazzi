@@ -78,7 +78,7 @@ void vff_init(float init_z, float init_zdot, float init_bias)
     for (j = 0; j < VFF_STATE_SIZE; j++) {
       vff.P[i][j] = 0.;
     }
-    vff.P[i][i] = VF_FLOAT_INIT_PXX;
+    vff.P[i][i] = VFF_INIT_PXX;
   }
 
 #if PERIODIC_TELEMETRY
@@ -122,11 +122,11 @@ void vff_propagate(float accel, float dt)
   const float FPF21 = vff.P[2][1] + dt * (-vff.P[2][2]);
   const float FPF22 = vff.P[2][2];
 
-  vff.P[0][0] = FPF00 + VF_FLOAT_ACCEL_NOISE * dt * dt / 2.;
+  vff.P[0][0] = FPF00 + VFF_ACCEL_NOISE * dt * dt / 2.;
   vff.P[0][1] = FPF01;
   vff.P[0][2] = FPF02;
   vff.P[1][0] = FPF10;
-  vff.P[1][1] = FPF11 + VF_FLOAT_ACCEL_NOISE * dt;
+  vff.P[1][1] = FPF11 + VFF_ACCEL_NOISE * dt;
   vff.P[1][2] = FPF12;
   vff.P[2][0] = FPF20;
   vff.P[2][1] = FPF21;
@@ -188,7 +188,7 @@ static inline void update_z_conf(float z_meas, float conf)
 
 void vff_update(float z_meas)
 {
-  update_z_conf(z_meas, VF_FLOAT_MEAS_NOISE);
+  update_z_conf(z_meas, VFF_MEAS_NOISE);
 }
 
 void vff_update_z_conf(float z_meas, float conf)
