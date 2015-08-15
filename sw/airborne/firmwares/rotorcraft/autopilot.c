@@ -26,6 +26,7 @@
  *
  */
 
+#include <stdint.h>
 #include "firmwares/rotorcraft/autopilot.h"
 
 #include "mcu_periph/uart.h"

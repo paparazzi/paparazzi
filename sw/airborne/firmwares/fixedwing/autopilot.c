@@ -26,6 +26,7 @@
  *
  */
 
+#include <stdint.h>
 #include "firmwares/fixedwing/autopilot.h"
 
 #include "state.h"
