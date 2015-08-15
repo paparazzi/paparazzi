@@ -110,9 +110,12 @@ def get_min_max_guess(meas, scale):
     """Initial boundary based calibration."""
     max_meas = meas[:, :].max(axis=0)
     min_meas = meas[:, :].min(axis=0)
-    n = (max_meas + min_meas) / 2
-    sf = 2*scale/(max_meas - min_meas)
-    return np.array([n[0], n[1], n[2], sf[0], sf[1], sf[2]])
+    if max_meas != min_meas:
+        n = (max_meas + min_meas) / 2
+        sf = 2*scale/(max_meas - min_meas)
+        return np.array([n[0], n[1], n[2], sf[0], sf[1], sf[2]])
+    else:
+        return np.array([0, 0, 0, 0])
 
 
 def scale_measurements(meas, p):
