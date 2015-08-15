@@ -47,6 +47,8 @@ void imu_impl_init(void)
   hmc5843_init();
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
   hmc58xx_init(&imu_b2.mag_hmc, &(IMU_B2_I2C_DEV), HMC58XX_ADDR);
+  // Booz2 v1.2 has HMC5843
+  imu_b2.mag_hmc.type = HMC_TYPE_5843;
 #endif
 
 }
