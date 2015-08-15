@@ -94,7 +94,7 @@ def main():
         print("found "+str(len(measurements))+" records")
 
     # check that values are not all zero
-    if measurements.all() == 0:
+    if not measurements.any():
         print("Error: all IMU_"+options.sensor+"_RAW measurements are zero!")
         sys.exit(1)
 
