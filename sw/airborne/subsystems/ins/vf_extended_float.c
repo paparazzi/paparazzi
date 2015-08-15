@@ -27,6 +27,8 @@
  *
  * Estimates altitude, vertical speed, accelerometer bias
  * and barometer offset.
+ *
+ * X = [ z zdot accel_bias baro_offset ]
  */
 
 #include "subsystems/ins/vf_extended_float.h"
@@ -45,19 +47,16 @@ PRINT_CONFIG_VAR(DEBUG_VFF_EXTENDED)
 #include "subsystems/datalink/downlink.h"
 #endif
 
-/*
+/** initial covariance diagonal */
+#ifndef VFF_EXTENDED_INIT_PXX
+#define VFF_EXTENDED_INIT_PXX 1.0
+#endif
 
-X = [ z zdot accel_bias baro_offset ]
+/** process noise covariance Q */
+#ifndef VFF_EXTENDED_ACCEL_NOISE
+#define VFF_EXTENDED_ACCEL_NOISE 0.5
+#endif
 
-temps :
-  propagate 86us
-  update    46us
-
-*/
-/* initial covariance diagonal */
-#define INIT_PXX 1.
-/* process noise */
-#define ACCEL_NOISE 0.5
 #define Qbiasbias 1e-7
 #define Qoffoff 1e-4
 #define R_BARO 1.
@@ -94,7 +93,7 @@ void vff_init(float init_z, float init_zdot, float init_accel_bias, float init_b
     for (j = 0; j < VFF_STATE_SIZE; j++) {
       vff.P[i][j] = 0.;
     }
-    vff.P[i][i] = INIT_PXX;
+    vff.P[i][i] = VFF_EXTENDED_INIT_PXX;
   }
 
 #if PERIODIC_TELEMETRY
@@ -103,28 +102,28 @@ void vff_init(float init_z, float init_zdot, float init_accel_bias, float init_b
 }
 
 
-/*
-
- F = [ 1 dt -dt^2/2 0
-       0  1 -dt     0
-       0  0   1     0
-       0  0   0     1 ];
-
- B = [ dt^2/2 dt 0 0]';
-
- Q = [ Qzz   0          0         0
-       0     Qzdotzdot  0         0
-       0     0          Qbiasbias 0
-       0     0     0    0         Qoffoff ];
-
- Qzz =  ACCEL_NOISE * DT_VFILTER * DT_VFILTER / 2.
- Qzdotzdot =  ACCEL_NOISE * DT_VFILTER
-
- Xk1 = F * Xk0 + B * accel;
-
- Pk1 = F * Pk0 * F' + Q;
-
-*/
+/**
+ * Propagate the filter in time.
+ *
+ * F = [ 1 dt -dt^2/2 0
+ *       0  1 -dt     0
+ *       0  0   1     0
+ *       0  0   0     1 ];
+ *
+ * B = [ dt^2/2 dt 0 0]';
+ *
+ * Q = [ Qzz   0          0         0
+ *       0     Qzdotzdot  0         0
+ *       0     0          Qbiasbias 0
+ *       0     0     0    0         Qoffoff ];
+ *
+ * Qzz =  VFF_EXTENDED_ACCEL_NOISE * DT_VFILTER * DT_VFILTER / 2.
+ * Qzdotzdot =  VFF_EXTENDED_ACCEL_NOISE * DT_VFILTER
+ *
+ * Xk1 = F * Xk0 + B * accel;
+ *
+ * Pk1 = F * Pk0 * F' + Q;
+ */
 void vff_propagate(float accel, float dt)
 {
   /* update state */
@@ -143,11 +142,11 @@ void vff_propagate(float accel, float dt)
   const float FPF22 = vff.P[2][2];
   const float FPF33 = vff.P[3][3];
 
-  vff.P[0][0] = FPF00 + ACCEL_NOISE * dt * dt / 2.;
+  vff.P[0][0] = FPF00 + VFF_EXTENDED_ACCEL_NOISE * dt * dt / 2.;
   vff.P[0][1] = FPF01;
   vff.P[0][2] = FPF02;
   vff.P[1][0] = FPF10;
-  vff.P[1][1] = FPF11 + ACCEL_NOISE * dt;
+  vff.P[1][1] = FPF11 + VFF_EXTENDED_ACCEL_NOISE * dt;
   vff.P[1][2] = FPF12;
   vff.P[2][0] = FPF20;
   vff.P[2][1] = FPF21;
@@ -159,20 +158,21 @@ void vff_propagate(float accel, float dt)
 #endif
 }
 
-/*
- * Update sensor "with" offset (baro)
-  H = [1 0 0 -1];
-  // state residual
-  y = rangemeter - H * Xm;
-  // covariance residual
-  S = H*Pm*H' + R;
-  // kalman gain
-  K = Pm*H'*inv(S);
-  // update state
-  Xp = Xm + K*y;
-  // update covariance
-  Pp = Pm - K*H*Pm;
-*/
+/**
+ * Update sensor "with" offset (baro).
+ *
+ * H = [1 0 0 -1];
+ * // state residual
+ * y = rangemeter - H * Xm;
+ * // covariance residual
+ * S = H*Pm*H' + R;
+ * // kalman gain
+ * K = Pm*H'*inv(S);
+ * // update state
+ * Xp = Xm + K*y;
+ * // update covariance
+ * Pp = Pm - K*H*Pm;
+ */
 static void update_baro_conf(float z_meas, float conf)
 {
   vff.z_meas_baro = z_meas;
@@ -223,20 +223,20 @@ void vff_update_baro_conf(float z_meas, float conf)
   update_baro_conf(z_meas, conf);
 }
 
-/*
+/**
  * Update sensor "without" offset (gps, sonar)
-  H = [1 0 0 0];
-  // state residual
-  y = rangemeter - H * Xm;
-  // covariance residual
-  S = H*Pm*H' + R;
-  // kalman gain
-  K = Pm*H'*inv(S);
-  // update state
-  Xp = Xm + K*y;
-  // update covariance
-  Pp = Pm - K*H*Pm;
-*/
+ * H = [1 0 0 0];
+ * // state residual
+ * y = rangemeter - H * Xm;
+ * // covariance residual
+ * S = H*Pm*H' + R;
+ * // kalman gain
+ * K = Pm*H'*inv(S);
+ * // update state
+ * Xp = Xm + K*y;
+ * // update covariance
+ * Pp = Pm - K*H*Pm;
+ */
 static void update_alt_conf(float z_meas, float conf)
 {
   vff.z_meas = z_meas;
@@ -286,20 +286,20 @@ void vff_update_z_conf(float z_meas, float conf)
   update_alt_conf(z_meas, conf);
 }
 
-/*
- * Update sensor offset (baro)
-  H = [0 0 0 1];
-  // state residual
-  y = rangemeter - H * Xm;
-  // covariance residual
-  S = H*Pm*H' + R;
-  // kalman gain
-  K = Pm*H'*inv(S);
-  // update state
-  Xp = Xm + K*y;
-  // update covariance
-  Pp = Pm - K*H*Pm;
-*/
+/**
+ * Update sensor offset (baro).
+ * H = [0 0 0 1];
+ * // state residual
+ * y = rangemeter - H * Xm;
+ * // covariance residual
+ * S = H*Pm*H' + R;
+ * // kalman gain
+ * K = Pm*H'*inv(S);
+ * // update state
+ * Xp = Xm + K*y;
+ * // update covariance
+ * Pp = Pm - K*H*Pm;
+ */
 static void update_offset_conf(float offset, float conf)
 {
 
