@@ -108,7 +108,7 @@ void bluegiga_init(void)
   // Configure generic device
   bluegiga_p.device.periph    = (void *)(&bluegiga_p);
   bluegiga_p.device.check_free_space = (check_free_space_t) true_function;
-  bluegiga_p.device.transmit  = (transmit_t) dev_transmit;
+  bluegiga_p.device.put_byte  = (put_byte_t) dev_transmit;
   bluegiga_p.device.send_message = (send_message_t) dev_send;
 
   // set DRDY interrupt pin for spi master triggered on falling edge
@@ -182,7 +182,7 @@ void bluegiga_receive(void)
 
     if (packet_len > bluegiga_spi.input_length) {
       // Direct message from Bluegiga
-      int k_rssi, i;
+      // int k_rssi, i;
       switch (packet_len) {
         case 0xff:        // Connection lost with ground station!
           // Stop datalink
