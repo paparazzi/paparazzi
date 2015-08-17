@@ -1,3 +1,4 @@
+Q=@
 CC = gcc
 
 TARGET = drone-telemetry-demo
@@ -21,11 +22,11 @@ DEPS := $(SRCS:.c=.d)
 all: $(TARGET)
 
 %.o: %.c
-	$(CC) -O3 -Wall -c -fmessage-length=0 -DPLATFORM_$(PLATFORM) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	i$(Q)$(CC) -O3 -Wall -c -fmessage-length=0 -DPLATFORM_$(PLATFORM) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
 
 $(TARGET): $(OBJS)
 	@echo 'Building target: $@'
-	$(CC) -o $(TARGET) $(OBJS) $(LIBS)
+	$(Q)$(CC) -o $(TARGET) $(OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 
 clean:

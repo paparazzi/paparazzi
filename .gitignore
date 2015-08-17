@@ -141,7 +141,6 @@ paparazzi.sublime-workspace
 # /sw/tools/
 /sw/tools/wiki_gen/wiki_gen
 /sw/tools/mergelogs
-/sw/tools/bluegiga_usb_dongle/*.d
 
 # /sw/ground_segment/misc
 /sw/ground_segment/misc/davis2ivy

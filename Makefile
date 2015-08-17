@@ -67,6 +67,7 @@ TMTC=sw/ground_segment/tmtc
 GENERATORS=$(PAPARAZZI_SRC)/sw/tools/generators
 JOYSTICK=sw/ground_segment/joystick
 EXT=sw/ext
+TOOLS=sw/tools
 
 #
 # build some stuff in subdirs
@@ -164,6 +165,7 @@ sim_static: libpprz
 
 ext:
 	$(MAKE) -C $(EXT)
+	$(MAKE) -C $(TOOLS)/bluegiga_usb_dongle
 
 #
 # make misc subdirs
@@ -281,6 +283,7 @@ clean:
 	$(Q)rm -f  $(GEN_HEADERS)
 	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)$(MAKE) -C $(EXT) clean
+	$(Q)$(MAKE) -C $(TOOLS)/bluegiga_usb_dongle clean
 	$(Q)find . -name '*~' -exec rm -f {} \;
 
 cleanspaces:
