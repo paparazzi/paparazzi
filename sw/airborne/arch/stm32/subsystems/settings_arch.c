@@ -112,10 +112,16 @@ static int32_t flash_detect(struct FlashInfo *flash)
 
   flash->total_size = FLASH_SIZE_ * 0x400;
 
-#if 1
+#if defined(STM32F1)
   /* FIXME This will not work for connectivity line (needs ID, see below), but
            device ID is only readable when freshly loaded through JTAG?! */
 
+  /* WARNING If you are using this for F4 this only works for memory sizes
+   * larger than 128kb. Otherwise the first few sectors are either 16kb or
+   * 64kb. To make those small devices work we would need to know what the page
+   * we want to put the settings into is. Otherwise we will might be writing
+   * into a 64kb page that is actually 16kb big. 
+   */
   switch (flash->total_size) {
       /* low density */
     case 0x00004000: /* 16 kBytes */
@@ -138,7 +144,7 @@ static int32_t flash_detect(struct FlashInfo *flash)
     default: {return -1;}
   }
 
-#else /* this is the correct way of detecting page sizes */
+#elif defined(STM32F4) /* this is the correct way of detecting page sizes but we currently only use it for the F4 because the F1 version is broken. */
   uint32_t device_id;
 
   /* read device id */
@@ -161,6 +167,14 @@ static int32_t flash_detect(struct FlashInfo *flash)
       flash->page_size = 0x800;
       break;
     }
+    case 0x0413: /* STM32F405xx/07xx and STM32F415xx/17xx) */
+    case 0x0419: /* STM32F42xxx and STM32F43xxx */
+    case 0x0423: /* STM32F401xB/C */
+    case 0x0433: /* STM32F401xD/E */
+    case 0x0431: { /* STM32F411xC/E */
+      flash->page_size = 0x20000;
+      break;
+    }
     default: return -1;
   }
 
@@ -176,10 +190,20 @@ static int32_t flash_detect(struct FlashInfo *flash)
       break;
     default: return -1;
   }
+#else
+#error Unknown device
 #endif
 
+#if defined(STM32F1)
   flash->page_nr = (flash->total_size / flash->page_size) - 1;
   flash->addr = FLASH_BEGIN + flash->page_nr * flash->page_size;
+#elif defined(STM32F4)
+  /* We are assuming all pages are 128kb so we have to compensate for the first
+   * few pages that are smaller which means we have to skip the first 4.
+   */
+  flash->page_nr = (flash->total_size / flash->page_size) - 1 + 4;
+  flash->addr = FLASH_BEGIN + (flash->page_nr - 4) * flash->page_size;
+#endif
 
   return 0;
 }
@@ -187,7 +211,6 @@ static int32_t flash_detect(struct FlashInfo *flash)
 // (gdb) p *flash
 // $1 = {addr = 134739968, total_size = 524288, page_nr = 255, page_size = 2048}
 //              0x807F800             0x80000
-#if defined(STM32F1)
 static int32_t pflash_program_bytes(struct FlashInfo *flash,
                                     uint32_t   src,
                                     uint32_t   size,
@@ -197,7 +220,11 @@ static int32_t pflash_program_bytes(struct FlashInfo *flash,
 
   /* erase */
   flash_unlock();
+#if defined(STM32F1)
   flash_erase_page(flash->addr);
+#elif defined(STM32F4)
+  flash_erase_sector(flash->page_nr, FLASH_CR_PROGRAM_X32);
+#endif
   flash_lock();
 
   /* verify erase */
@@ -236,16 +263,6 @@ static int32_t pflash_program_bytes(struct FlashInfo *flash,
 
   return 0;
 }
-#elif defined(STM32F4)
-static int32_t pflash_program_bytes(struct FlashInfo *flash __attribute__((unused)),
-                                    uint32_t   src __attribute__((unused)),
-                                    uint32_t   size __attribute__((unused)),
-                                    uint32_t   chksum __attribute__((unused)))
-{
-  return -1;
-}
-#endif
-
 
 int32_t persistent_write(void *ptr, uint32_t size)
 {
