@@ -667,11 +667,11 @@ let update_intruder = fun name vs ->
   let lat = Pprz.int_assoc "lat" vs
   and lon = Pprz.int_assoc "lon" vs in
   let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
-  i.pos <- geo;
-  i.alt <- float (Pprz.int_assoc "alt" vs) /. 1000.;
-  i.course <- float (Pprz.int_assoc "course" vs) /. 10.;
-  i.gspeed <- float (Pprz.int_assoc "speed" vs) /. 100.;
-  i.climb <- float (Pprz.int_assoc "climb" vs) /. 100.
+  i.Intruder.pos <- geo;
+  i.Intruder.alt <- float (Pprz.int_assoc "alt" vs) /. 1000.;
+  i.Intruder.course <- float (Pprz.int_assoc "course" vs) /. 10.;
+  i.Intruder.gspeed <- float (Pprz.int_assoc "speed" vs) /. 100.;
+  i.Intruder.climb <- float (Pprz.int_assoc "climb" vs) /. 100.
 
 (* listen for intruders *)
 let listen_intruders = fun log ->
