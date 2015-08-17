@@ -2791,14 +2791,15 @@
   </message>
 
   <message name="INTRUDER" id="37">
-    <field name="id" type="string"/>
-    <field name="name" type="string"/>
-    <field name="lat"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
-    <field name="lon"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
-    <field name="alt"        type="int32"  unit="mm" alt_unit="m">altitude above WGS84 reference ellipsoid</field>
-    <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
-    <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
-    <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
+    <field name="id"     type="string"/>
+    <field name="name"   type="string"/>
+    <field name="lat"    type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon"    type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="alt"    type="int32"  unit="mm" alt_unit="m">altitude above WGS84 reference ellipsoid</field>
+    <field name="course" type="int16"  unit="decideg" alt_unit="deg"/>
+    <field name="speed"  type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="climb"  type="int16"  unit="cm/s" alt_unit="m/s"/>
+    <field name="itow"   type="uint32" unit="ms"/>
   </message>
 
   <message name="PLUMES" id="100">

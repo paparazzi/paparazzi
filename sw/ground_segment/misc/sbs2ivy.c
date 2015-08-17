@@ -141,10 +141,11 @@ struct MsgBuf {
 
 struct MsgBuf in_data;
 
-
-// data structure for intruders
+#define NAME_MAXLEN 20
+/// data structure for intruders
 struct Intruder {
   int id;
+  char name[NAME_MAXLEN];
   struct UtmCoor_i utm_pos;
   struct LlaCoor_d lla;
   int lastalt;
@@ -336,6 +337,41 @@ static void on_Gps(IvyClientPtr app, void *user_data, int argc, char *argv[])
 // IVY Writer
 //////////////////////////////////////////////////////////////////////////////////
 
+void send_intruder(struct Intruder *intruder, uint8_t ac_id)
+{
+  /*
+  <message name="INTRUDER" id="37">
+    <field name="id" type="string"/>
+    <field name="name" type="string"/>
+    <field name="lat"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="alt"        type="int32"  unit="mm" alt_unit="m">altitude above WGS84 reference ellipsoid</field>
+    <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
+    <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
+    <field name="itow"   type="uint32" unit="ms"/>
+  </message>
+  */
+
+  struct LlaCoor_i lla_i;
+  LLA_BFP_OF_REAL(lla_i, intruder->lla);
+  // uav speed/climb are in in cm/s
+  uint16_t speed = intruder->gspeed * 100;
+  int16_t climb = intruder->climb * 100;
+  // course in decideg
+  int16_t course = intruder->course * 10;
+
+  // FIXME: using WGS84 ellipsoid alt, it is probably hmsl???
+  IvySendMsg("INTRUDER %d %s %d %d %d %d %d %d %d\n", ac_id, intruder->name,
+             lla_i.lat, lla_i.lon, lla_i.alt, course, speed, climb, 0);
+
+  count_serial++;
+  lastivytrx = timer;
+
+  sprintf(status_ivy_out, "Sending Intruder ID: %d  [%ld]", ac_id, count_serial);
+  gtk_label_set_text(GTK_LABEL(status_out_ivy), status_ivy_out);
+}
+
 void send_ivy(void)
 {
   float phi, theta, psi, z, zdot;
@@ -405,25 +441,6 @@ void send_ivy(void)
   z = ((float)remote_uav.utm_z) / 1000.0f;
   zdot = remote_uav.climb / 100.0f;
   IvySendMsg("%d ESTIMATOR %f %f\n", remote_uav.ac_id, z, zdot);
-
-
-  /*
-  <message name="INTRUDER" id="37">
-    <field name="id" type="string"/>
-    <field name="name" type="string"/>
-    <field name="lat"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
-    <field name="lon"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
-    <field name="alt"        type="int32"  unit="mm" alt_unit="m">altitude above WGS84 reference ellipsoid</field>
-    <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
-    <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
-    <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
-  </message>
-  */
-
-  // FIXME: using WGS84 ellipsoid alt, it is probably hmsl???
-  IvySendMsg("%d INTRUDER %d %d %d %d %d %d %d %d\n", remote_uav.ac_id, remote_uav.ac_id,
-             remote_uav.lla_i.lat, remote_uav.lla_i.lon, remote_uav.lla_i.alt,
-             remote_uav.lla_i.alt, remote_uav.course, remote_uav.speed, remote_uav.climb);
 
   count_serial++;
   lastivytrx = timer;
@@ -1048,6 +1065,17 @@ void handle_intruders(void)
     }
   }
 
+  if (sendivyflag) {
+    for (z = 0; z < MAX_INTRUDER + 1; z++) {
+      if (Intr[z].used) {
+        // TODO, find a better way to assign ac ids
+        send_intruder(&Intr[z], 200 + z);
+      }
+    }
+    sendivyflag = 0;
+  }
+
+#if 0
   if (num_intr) {
     remote_uav.ac_id = 254;
     remote_uav.phi = 0;
@@ -1069,8 +1097,8 @@ void handle_intruders(void)
         send_ivy();
       }
     }
-
   }
+#endif
 
   //show on window
   float dist_close = 0.0;

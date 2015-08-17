@@ -653,7 +653,26 @@ let listen_acs = fun log timestamp ->
   if !replay_old_log then
     ignore (Tm_Pprz.message_bind "PPRZ_MODE" (ident_msg log timestamp))
 
-let add_intruder = fun msgname vs ->
+let send_intruder_acinfo = fun id intruder ->
+  let cm_of_m_32 = fun f -> Pprz.Int32 (Int32.of_int (truncate (100. *. f))) in
+  let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f)) in
+  let pos = LL.utm_of WGS84 intruder.Intruder.pos in
+  let ac_info = ["ac_id", Pprz.String id;
+                 "utm_east", cm_of_m_32 pos.utm_x;
+                 "utm_north", cm_of_m_32 pos.utm_y;
+                 "course", Pprz.Int (truncate (10. *. (Geometry_2d.rad2deg intruder.Intruder.course)));
+                 "alt", cm_of_m_32 intruder.Intruder.alt;
+                 "speed", cm_of_m intruder.Intruder.gspeed;
+                 "climb", cm_of_m intruder.Intruder.climb;
+                 "itow", Pprz.Int64 intruder.Intruder.itow] in
+  Dl_Pprz.message_send my_id "ACINFO" ac_info
+
+let periodic_handle_intruders = fun () ->
+  (* TODO: remove old intruders, etc... *)
+  (* send ACINFO for each active intruder *)
+  Hashtbl.iter (send_intruder_acinfo) intruders
+
+let add_intruder = fun name vs ->
   let id = Pprz.string_assoc "id" vs in
   let name = Pprz.string_assoc "name" vs in
   let intruder = Intruder.new_intruder id name in
