@@ -187,6 +187,7 @@ static int32_t flash_detect(struct FlashInfo *flash)
     case 0x00080000: /* 512 kBytes */
     case 0x000C0000: /* 768 kBytes */
     case 0x00100000: /* 1 MByte */
+    case 0x00200000: /* 2 MByte */
       break;
     default: return -1;
   }
