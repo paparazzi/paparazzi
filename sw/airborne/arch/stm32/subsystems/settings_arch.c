@@ -116,6 +116,12 @@ static int32_t flash_detect(struct FlashInfo *flash)
   /* FIXME This will not work for connectivity line (needs ID, see below), but
            device ID is only readable when freshly loaded through JTAG?! */
 
+  /* WARNING If you are using this for F4 this only works for memory sizes
+   * larger than 128kb. Otherwise the first few sectors are either 16kb or
+   * 64kb. To make those small devices work we would need to know what the page
+   * we want to put the settings into is. Otherwise we will might be writing
+   * into a 64kb page that is actually 16kb big. 
+   */
   switch (flash->total_size) {
       /* low density */
     case 0x00004000: /* 16 kBytes */
@@ -178,8 +184,16 @@ static int32_t flash_detect(struct FlashInfo *flash)
   }
 #endif
 
+#if defined(STM32F1)
   flash->page_nr = (flash->total_size / flash->page_size) - 1;
   flash->addr = FLASH_BEGIN + flash->page_nr * flash->page_size;
+#elif defined(STM32F4)
+  /* We are assuming all pages are 128kb so we have to compensate for the first
+   * few pages that are smaller which means we have to skip the first 4.
+   */
+  flash->page_nr = (flash->total_size / flash->page_size) - 1 + 4;
+  flash->addr = FLASH_BEGIN + (flash->page_nr - 4) * flash->page_size;
+#endif
 
   return 0;
 }
@@ -187,7 +201,6 @@ static int32_t flash_detect(struct FlashInfo *flash)
 // (gdb) p *flash
 // $1 = {addr = 134739968, total_size = 524288, page_nr = 255, page_size = 2048}
 //              0x807F800             0x80000
-#if defined(STM32F1)
 static int32_t pflash_program_bytes(struct FlashInfo *flash,
                                     uint32_t   src,
                                     uint32_t   size,
@@ -197,7 +210,11 @@ static int32_t pflash_program_bytes(struct FlashInfo *flash,
 
   /* erase */
   flash_unlock();
+#if defined(STM32F1)
   flash_erase_page(flash->addr);
+#elif defined(STM32F4)
+  flash_erase_sector(flash->page_nr, FLASH_CR_PROGRAM_X32);
+#endif
   flash_lock();
 
   /* verify erase */
@@ -236,16 +253,6 @@ static int32_t pflash_program_bytes(struct FlashInfo *flash,
 
   return 0;
 }
-#elif defined(STM32F4)
-static int32_t pflash_program_bytes(struct FlashInfo *flash __attribute__((unused)),
-                                    uint32_t   src __attribute__((unused)),
-                                    uint32_t   size __attribute__((unused)),
-                                    uint32_t   chksum __attribute__((unused)))
-{
-  return -1;
-}
-#endif
-
 
 int32_t persistent_write(void *ptr, uint32_t size)
 {
