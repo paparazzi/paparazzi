@@ -149,9 +149,9 @@ struct Intruder {
   struct UtmCoor_i utm_pos;
   struct LlaCoor_d lla;
   int lastalt;
-  int gspeed;
-  int course;
-  int climb;
+  float gspeed;
+  float course;
+  float climb;
   float dist;
   uint time4;
   uint time3;
@@ -341,29 +341,25 @@ void send_intruder(struct Intruder *intruder, uint8_t ac_id)
 {
   /*
   <message name="INTRUDER" id="37">
-    <field name="id" type="string"/>
-    <field name="name" type="string"/>
-    <field name="lat"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
-    <field name="lon"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
-    <field name="alt"        type="int32"  unit="mm" alt_unit="m">altitude above WGS84 reference ellipsoid</field>
-    <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
-    <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
-    <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
+    <field name="id"     type="string"/>
+    <field name="name"   type="string"/>
+    <field name="lat"    type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon"    type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="alt"    type="int32"  unit="mm" alt_unit="m">altitude above WGS84 reference ellipsoid</field>
+    <field name="course" type="float"  unit="deg"/>
+    <field name="speed"  type="float" unit="m/s"/>
+    <field name="climb"  type="float"  unit="m/s"/>
     <field name="itow"   type="uint32" unit="ms"/>
   </message>
   */
 
   struct LlaCoor_i lla_i;
   LLA_BFP_OF_REAL(lla_i, intruder->lla);
-  // uav speed/climb are in in cm/s
-  uint16_t speed = intruder->gspeed * 100;
-  int16_t climb = intruder->climb * 100;
-  // course in decideg
-  int16_t course = intruder->course * 10;
 
   // FIXME: using WGS84 ellipsoid alt, it is probably hmsl???
-  IvySendMsg("INTRUDER %d %s %d %d %d %d %d %d %d\n", ac_id, intruder->name,
-             lla_i.lat, lla_i.lon, lla_i.alt, course, speed, climb, 0);
+  IvySendMsg("INTRUDER %d %s %d %d %d %f %f %f %d\n", ac_id, intruder->name,
+             lla_i.lat, lla_i.lon, lla_i.alt, intruder->course,
+             intruder->gspeed, intruder->climb, 0);
 
   count_serial++;
   lastivytrx = timer;
