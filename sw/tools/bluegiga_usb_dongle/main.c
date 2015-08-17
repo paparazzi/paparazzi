@@ -189,7 +189,7 @@ int cmp_bdaddr(bd_addr first, bd_addr second)
  * @param second Second address
  * @return returns how many bytes are the same
  */
-int cmp_addr(uint8 first[], uint8 second[])
+int cmp_addr(const uint8 first[], const uint8 second[])
 {
   int i;
   for (i = 5; i >= 0; i--) {
@@ -755,10 +755,9 @@ int main(int argc, char *argv[])
   //pthread_create(&threads[2], NULL, send_paparazzi_comms, NULL);
 
   // Message loop
-  char in;
   while (state != state_finish) {
     if (kbhit()) {
-      in = getchar();
+      getchar();
       break;
     }
     usleep(1000);

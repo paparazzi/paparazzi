@@ -46,11 +46,11 @@
       <arg flag="--port" constant="/dev/ttyUSB1"/>
       <arg flag="--id" constant="1"/>
     </program>
-    <program name="BluegigaUsbDongleScanner" command="sw/tools/bluegiga_usb_dongle/drone-telemetry-demo">
+    <program name="BluegigaUsbDongleScanner" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver">
       <arg flag="/dev/ttyACM2"/>
       <arg flag="scan" />
     </program>
-    <program name="BluegigaUsbDongle" command="sw/tools/bluegiga_usb_dongle/drone-telemetry-demo">
+    <program name="BluegigaUsbDongle" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver">
       <arg flag="/dev/ttyACM2"/>
       <arg flag="00:07:00:2d:d6:bb" />
       <arg flag="4242" />

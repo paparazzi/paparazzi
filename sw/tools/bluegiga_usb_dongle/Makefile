@@ -1,7 +1,7 @@
 Q=@
 CC = gcc
 
-TARGET = drone-telemetry-demo
+TARGET = bluegiga_usb_driver
 
 MACHINE = $(shell $(CC) -dumpmachine)
 # Windows
@@ -22,7 +22,7 @@ DEPS := $(SRCS:.c=.d)
 all: $(TARGET)
 
 %.o: %.c
-	i$(Q)$(CC) -O3 -Wall -c -fmessage-length=0 -DPLATFORM_$(PLATFORM) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
+	$(Q)$(CC) -O3 -Wall -c -fmessage-length=0 -DPLATFORM_$(PLATFORM) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o"$@" "$<"
 
 $(TARGET): $(OBJS)
 	@echo 'Building target: $@'
