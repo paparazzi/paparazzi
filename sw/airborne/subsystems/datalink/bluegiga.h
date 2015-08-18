@@ -28,7 +28,6 @@
 #define BLUEGIGA_DATA_LINK_H
 
 #include "mcu_periph/link_device.h"
-#include "generated/airframe.h"
 
 /* The different statuses the communication can be in */
 enum BlueGigaStatus {
@@ -91,7 +90,9 @@ static inline void bluegiga_read_buffer(struct pprz_transport *t)
     // reached end of circular read buffer or message received
     // if received, decode and advance
     if (t->trans_rx.msg_received) {
-      LED_TOGGLE(3);
+#ifdef MODEM_LED
+      LED_TOGGLE(MODEM_LED);
+#endif
       pprz_parse_payload(t);
       t->trans_rx.msg_received = FALSE;
     }
@@ -99,7 +100,7 @@ static inline void bluegiga_read_buffer(struct pprz_transport *t)
   } while (BlueGigaChAvailable()); // continue till all messages read
 }
 
-// transmit previous date in buffer and parse data received
+// transmit previous data in buffer and parse data received
 #define BlueGigaCheckAndParse(_dev,_trans) {      \
     if (BlueGigaChAvailable())                    \
       bluegiga_read_buffer( &(_trans) );          \

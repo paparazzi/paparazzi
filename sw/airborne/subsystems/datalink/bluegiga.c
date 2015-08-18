@@ -31,19 +31,16 @@
 #include "mcu_periph/gpio.h"
 
 #ifndef BLUEGIGA_SPI_DEV
-#define BLUEGIGA_SPI_DEV spi2
+#error "bluegiga: must define a BLUEGIGA_SPI_DEV"
 #endif
 
-#ifndef BLUEGIGA_SLAVE_IDX
-#define BLUEGIGA_SLAVE_IDX SPI_SLAVE2
-#endif
-
+// Bluegiga: DRDY defaults to SuperbitRf DRDY
 #ifndef BLUEGIGA_DRDY_GPIO
-#define BLUEGIGA_DRDY_GPIO GPIOC
+#define BLUEGIGA_DRDY_GPIO SUPERBITRF_DRDY_PORT
 #endif
 
 #ifndef BLUEGIGA_DRDY_GPIO_PIN
-#define BLUEGIGA_DRDY_GPIO_PIN GPIO6
+#define BLUEGIGA_DRDY_GPIO_PIN SUPERBITRF_DRDY_PIN
 #endif
 
 enum BlueGigaStatus coms_status;
@@ -73,14 +70,16 @@ static void trans_cb(struct spi_transaction *trans __attribute__((unused)))
 void bluegiga_init(void)
 {
 
-  LED_INIT(3);
+#ifdef MODEM_LED
+  LED_INIT(MODEM_LED);
+#endif
 
   // configure the SPI bus.
   bluegiga_spi.input_buf      = bluegiga_p.work_rx;
   bluegiga_spi.output_buf     = bluegiga_p.work_tx;
   bluegiga_spi.input_length   = 20;
   bluegiga_spi.output_length  = 20;
-  bluegiga_spi.slave_idx      = BLUEGIGA_SLAVE_IDX;
+  bluegiga_spi.slave_idx      = 0; // Not used for SPI-Slave: always NSS pin
   bluegiga_spi.select         = SPISelectUnselect;
   bluegiga_spi.cpol           = SPICpolIdleHigh;
   bluegiga_spi.cpha           = SPICphaEdge2;
@@ -191,7 +190,9 @@ void bluegiga_receive(void)
           bluegiga_p.tx_insert_idx    = 0;
           bluegiga_p.tx_extract_idx   = 0;
 
-          LED_OFF(3);
+#ifdef MODEM_LED
+          LED_OFF(MODEM_LED);
+#endif
           coms_status = BLUEGIGA_UNINIT;
           gpio_set(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);     // Reset interrupt pin
           break;
