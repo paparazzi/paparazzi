@@ -193,7 +193,9 @@ void bluegiga_receive(void)
           bluegiga_p.tx_insert_idx    = 0;
           bluegiga_p.tx_extract_idx   = 0;
 
-          LED_OFF(3);
+#ifdef MODEM_LED
+          LED_OFF(MODEM_LED);
+#endif
           coms_status = BLUEGIGA_UNINIT;
           gpio_set(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);     // Reset interrupt pin
           break;
