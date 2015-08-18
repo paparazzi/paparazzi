@@ -31,7 +31,7 @@
 #include "mcu_periph/gpio.h"
 
 #ifndef BLUEGIGA_SPI_DEV
-#define BLUEGIGA_SPI_DEV spi2
+#error "bluegiga: must define a BLUEGIGA_SPI_DEV"
 #endif
 
 #ifndef BLUEGIGA_SLAVE_IDX

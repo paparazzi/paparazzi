@@ -101,7 +101,7 @@ static inline void bluegiga_read_buffer(struct pprz_transport *t)
   } while (BlueGigaChAvailable()); // continue till all messages read
 }
 
-// transmit previous date in buffer and parse data received
+// transmit previous data in buffer and parse data received
 #define BlueGigaCheckAndParse(_dev,_trans) {      \
     if (BlueGigaChAvailable())                    \
       bluegiga_read_buffer( &(_trans) );          \
