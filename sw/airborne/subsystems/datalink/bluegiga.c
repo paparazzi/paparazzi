@@ -73,7 +73,9 @@ static void trans_cb(struct spi_transaction *trans __attribute__((unused)))
 void bluegiga_init(void)
 {
 
-  LED_INIT(3);
+#ifdef MODEM_LED
+  LED_INIT(MODEM_LED);
+#endif
 
   // configure the SPI bus.
   bluegiga_spi.input_buf      = bluegiga_p.work_rx;

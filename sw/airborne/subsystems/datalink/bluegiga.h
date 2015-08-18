@@ -91,7 +91,9 @@ static inline void bluegiga_read_buffer(struct pprz_transport *t)
     // reached end of circular read buffer or message received
     // if received, decode and advance
     if (t->trans_rx.msg_received) {
-      LED_TOGGLE(3);
+#ifdef MODEM_LED
+      LED_TOGGLE(MODEM_LED);
+#endif
       pprz_parse_payload(t);
       t->trans_rx.msg_received = FALSE;
     }
