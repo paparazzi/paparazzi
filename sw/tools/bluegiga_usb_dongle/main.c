@@ -624,7 +624,7 @@ void intHandler(int dummy)
 
 int main(int argc, char *argv[])
 {
-  signal(SIGINT, intHandler);
+  // signal(SIGINT, intHandler);
 
   pthread_t threads[3];
 
@@ -732,8 +732,10 @@ int main(int argc, char *argv[])
     usleep(500000); // 0.5s
   } while (uart_open(uart_port));
 
+  // start read thread
   pthread_create(&threads[0], NULL, read_message, NULL);
 
+  // get the mac address of the dongle
   ble_cmd_system_address_get();
 
   // Execute action
@@ -752,14 +754,13 @@ int main(int argc, char *argv[])
 
   pthread_create(&threads[1], NULL, send_msg, NULL);
   pthread_create(&threads[2], NULL, recv_paparazzi_comms, NULL);
-  //pthread_create(&threads[2], NULL, send_paparazzi_comms, NULL);
 
   // Message loop
   while (state != state_finish) {
-    if (kbhit()) {
-      getchar();
-      break;
-    }
+//    if (kbhit()) {
+//      getchar();
+//      break;
+//    }
     usleep(1000);
   }
 
