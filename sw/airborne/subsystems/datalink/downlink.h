@@ -46,6 +46,7 @@
 #include "subsystems/datalink/pprzlog_transport.h"
 #include "subsystems/datalink/xbee.h"
 #include "subsystems/datalink/w5100.h"
+#include "subsystems/datalink/bluegiga.h"
 #if USE_SUPERBITRF
 #include "subsystems/datalink/superbitrf.h"
 #endif
