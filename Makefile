@@ -283,7 +283,6 @@ clean:
 	$(Q)rm -f  $(GEN_HEADERS)
 	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)$(MAKE) -C $(EXT) clean
-	$(Q)$(MAKE) -C $(TOOLS)/bluegiga_usb_dongle clean
 	$(Q)find . -name '*~' -exec rm -f {} \;
 
 cleanspaces:

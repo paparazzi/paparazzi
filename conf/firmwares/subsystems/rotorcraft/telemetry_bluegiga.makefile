@@ -13,7 +13,9 @@ BLUEGIGA_PORT_LOWER=$(shell echo $(BLUEGIGA_PORT) | tr A-Z a-z)
 ap.CFLAGS += -DUSE_$(BLUEGIGA_PORT)_SLAVE -DSPI_SLAVE -DBLUEGIGA_SPI_DEV=$(BLUEGIGA_PORT_LOWER)
 
 MODEM_LED ?= none
+ifneq ($(MODEM_LED),none)
 ap.CFLAGS += -DMODEM_LED=$(MODEM_LED)
+endif
 
 ap.srcs += subsystems/datalink/downlink.c subsystems/datalink/bluegiga.c subsystems/datalink/pprz_transport.c subsystems/datalink/telemetry.c
 ap.srcs += $(SRC_FIRMWARE)/datalink.c $(SRC_FIRMWARE)/rotorcraft_telemetry.c
