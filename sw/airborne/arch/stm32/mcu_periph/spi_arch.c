@@ -1341,7 +1341,7 @@ void spi2_slave_arch_init(void) {
 
   // set the default configuration
   set_default_comm_config(&spi2_dma.comm);
-  spi1_dma.comm_sig = get_comm_signature(&spi2_dma.comm);
+  spi2_dma.comm_sig = get_comm_signature(&spi2_dma.comm);
 
   // set init struct, indices and status
   spi2.reg_addr = (void *)SPI2;
