@@ -178,7 +178,7 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
 #if USE_GPS
   uint8_t fix = gps.fix;
 #else
-  uint8_t fix = GPS_FIX_NONE;
+  uint8_t fix = 0;
 #endif
   uint16_t time_sec = sys_time.nb_sec;
   pprz_msg_send_ROTORCRAFT_STATUS(trans, dev, AC_ID,
