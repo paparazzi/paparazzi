@@ -50,7 +50,7 @@ struct EcefCoor_i tracking_ecef;
 struct LtpDef_i tracking_ltp;
 
 struct EnuCoor_i enu_pos, enu_speed;
- 
+
 struct EcefCoor_i ecef_pos, ecef_vel;
 
 struct LlaCoor_i lla_pos;
@@ -75,15 +75,18 @@ void gps_impl_init(void)
 
 #ifdef GPS_USE_DATALINK_SMALL
 // Parse the REMOTE_GPS_SMALL datalink packet
-void parse_gps_datalink_small(uint8_t num_sv, uint32_t pos_xyz, uint32_t speed_xy) {
+void parse_gps_datalink_small(uint8_t num_sv, uint32_t pos_xyz, uint32_t speed_xy)
+{
 
   // Position in ENU coordinates
   enu_pos.x = (int32_t)((pos_xyz >> 22) & 0x3FF); // bits 31-22 x position in cm
-  if (enu_pos.x & 0x200)
-    enu_pos.x |= 0xFFFFFC00; // fix for twos complements
+  if (enu_pos.x & 0x200) {
+    enu_pos.x |= 0xFFFFFC00;  // fix for twos complements
+  }
   enu_pos.y = (int32_t)((pos_xyz >> 12) & 0x3FF); // bits 21-12 y position in cm
-  if (enu_pos.y & 0x200)
-    enu_pos.y |= 0xFFFFFC00; // fix for twos complements
+  if (enu_pos.y & 0x200) {
+    enu_pos.y |= 0xFFFFFC00;  // fix for twos complements
+  }
   enu_pos.z = (int32_t)(pos_xyz >> 2 & 0x3FF); // bits 11-2 z position in cm
   // bits 1 and 0 are free
 
@@ -97,22 +100,25 @@ void parse_gps_datalink_small(uint8_t num_sv, uint32_t pos_xyz, uint32_t speed_x
   gps.lla_pos = lla_pos;
 
   enu_speed.x = (int32_t)((speed_xy >> 22) & 0x3FF); // bits 31-22 speed x in cm/s
-  if (enu_speed.x & 0x200)
-    enu_speed.x |= 0xFFFFFC00; // fix for twos complements
+  if (enu_speed.x & 0x200) {
+    enu_speed.x |= 0xFFFFFC00;  // fix for twos complements
+  }
   enu_speed.y = (int32_t)((speed_xy >> 12) & 0x3FF); // bits 21-12 speed y in cm/s
-  if (enu_speed.y & 0x200)
-    enu_speed.y |= 0xFFFFFC00; // fix for twos complements
+  if (enu_speed.y & 0x200) {
+    enu_speed.y |= 0xFFFFFC00;  // fix for twos complements
+  }
   enu_speed.z = 0;
 
   printf("ENU Speed: %u (%d, %d, %d)\n", speed_xy, enu_speed.x, enu_speed.y, enu_speed.z);
 
-  ecef_of_enu_vect_i(&gps.ecef_vel ,&tracking_ltp ,&enu_speed);
+  ecef_of_enu_vect_i(&gps.ecef_vel , &tracking_ltp , &enu_speed);
 
-  gps.hmsl = tracking_ltp.hmsl+enu_pos.z*10; // TODO: try to compensate for the loss in accuracy
-  
+  gps.hmsl = tracking_ltp.hmsl + enu_pos.z * 10; // TODO: try to compensate for the loss in accuracy
+
   gps.course = (int32_t)((speed_xy >> 2) & 0x3FF); // bits 11-2 heading in rad*1e2
-  if (gps.course & 0x200)
-    gps.course |= 0xFFFFFC00; // fix for twos complements
+  if (gps.course & 0x200) {
+    gps.course |= 0xFFFFFC00;  // fix for twos complements
+  }
 
   printf("Heading: %d\n", gps.course); // REMOVE
 

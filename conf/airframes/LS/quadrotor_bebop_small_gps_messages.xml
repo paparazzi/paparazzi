@@ -4,19 +4,18 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop">
-      <subsystem name="telemetry" type="transparent_udp"/>
-      <subsystem name="radio_control" type="datalink"/>
       <configure name="USE_MAGNETOMETER" value="0"/> <!-- Disable magnetometer -->
     </target>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
     </target>
 
-  <!--define name="USE_SONAR" value="TRUE"/-->
+    <!--define name="USE_SONAR" value="TRUE"/-->
 
-	<!-- Subsystem section -->
+  <!-- Subsystem section -->
+    <subsystem name="telemetry" type="transparent_udp"/>
+    <subsystem name="radio_control" type="datalink"/>
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators" type="bebop"/>
     <subsystem name="imu" type="bebop"/>
@@ -33,6 +32,16 @@
     <!--load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </load-->
+    <load name="video_rtp_stream.xml">
+      <define name="VIEWVIDEO_FPS" value="60"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+      <define name="VIEWVIDEO_DEVICE" value="/dev/video0"/>
+      <define name="VIEWVIDEO_SUBDEV" value="/dev/v4l-subdev0"/>
+      <define name="VIEWVIDEO_DEVICE_SIZE" value="320,240"/>
+      <define name="VIEWVIDEO_DEVICE_BUFFERS" value="60"/>
+      <define name="VIEWVIDEO_SHOT_PATH" value="/data/ftp/internal_000/images"/>
+    </load>
   </modules>
 
   <commands>
@@ -50,26 +59,16 @@
   </servos>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
-    <define name="TRIM_ROLL" value="0"/>
-    <define name="TRIM_PITCH" value="0"/>
-    <define name="TRIM_YAW" value="0"/>
-    <define name="NB_MOTOR" value="4"/>
-    <define name="SCALE" value="255"/>
-    <define name="MAX_SATURATION_OFFSET" value="3*MAX_PPRZ"/>
-
     <!-- Time cross layout (X), with order NW (CW), NE (CCW), SE (CW), SW (CCW) -->
-    <define name="ROLL_COEF" value="{   256, -256, -256,  256 }"/>
-    <define name="PITCH_COEF" value="{  256,  256, -256, -256 }"/>
-    <define name="YAW_COEF" value="{   -256,  256, -256,  256 }"/>
-    <define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
+    <define name="TYPE" value="QUAD_X"/>
   </section>
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="TOP_LEFT" value="motor_mixing.commands[0]"/>
-    <set servo="TOP_RIGHT" value="motor_mixing.commands[1]"/>
-    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[2]"/>
-    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[3]"/>
+    <set servo="TOP_LEFT" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
+    <set servo="TOP_RIGHT" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
+    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
+    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
 
   <section name="AIR_DATA" prefix="AIR_DATA_">
@@ -100,10 +99,7 @@
   <!-- local magnetic field -->
   <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
   <section name="AHRS" prefix="AHRS_">
-    <!-- Toulouse -->
-    <!--define name="H_X" value="0.513081"/>
-    <define name="H_Y" value="-0.00242783"/>
-    <define name="H_Z" value="0.858336"/-->
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
     <!-- Delft -->
     <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
@@ -174,16 +170,16 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN" value="650"/>
-    <define name="PHI_DGAIN" value="300"/>
+    <define name="PHI_PGAIN" value="920"/>
+    <define name="PHI_DGAIN" value="425"/>
     <define name="PHI_IGAIN" value="0"/>
 
-    <define name="THETA_PGAIN" value="650"/>
-    <define name="THETA_DGAIN" value="300"/>
+    <define name="THETA_PGAIN" value="920"/>
+    <define name="THETA_DGAIN" value="425"/>
     <define name="THETA_IGAIN" value="0"/>
 
-    <define name="PSI_PGAIN" value="4000"/>
-    <define name="PSI_DGAIN" value="350"/>
+    <define name="PSI_PGAIN" value="8000"/>
+    <define name="PSI_DGAIN" value="700"/>
     <define name="PSI_IGAIN" value="0"/>
 
     <!-- feedforward -->
@@ -211,9 +207,9 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="{&quot;nw_motor&quot;, &quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad_ccw&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
 
   <section name="AUTOPILOT">

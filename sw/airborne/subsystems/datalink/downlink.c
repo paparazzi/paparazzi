@@ -80,9 +80,6 @@ void downlink_init(void)
 #if DATALINK == W5100
   w5100_init();
 #endif
-#if DATALINK == BLUEGIGA
-  bluegiga_init();
-#endif
 #endif
 
 #if USE_PPRZLOG
