@@ -1313,7 +1313,7 @@ void dma1_channel2_isr(void) {
 
 // SPI arch slave init
 #if USE_SPI2_SLAVE
-#warning "STM32-SPI2 slave: Configured not to use the NSS pin"
+PRINT_CONFIG_MSG("STM32-SPI2 slave: Configured not to use the NSS pin")
 
 #ifndef STM32F1
 #error "SPI2 slave on STM32 only implemented for STM32F1"
