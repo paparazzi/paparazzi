@@ -170,12 +170,12 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN" value="920"/>
-    <define name="PHI_DGAIN" value="425"/>
+    <define name="PHI_PGAIN" value="2500"/>
+    <define name="PHI_DGAIN" value="300"/>
     <define name="PHI_IGAIN" value="0"/>
 
-    <define name="THETA_PGAIN" value="920"/>
-    <define name="THETA_DGAIN" value="425"/>
+    <define name="THETA_PGAIN" value="2500"/>
+    <define name="THETA_DGAIN" value="300"/>
     <define name="THETA_IGAIN" value="0"/>
 
     <define name="PSI_PGAIN" value="8000"/>
@@ -201,9 +201,9 @@
     <define name="MAX_BANK" value="20" unit="deg"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="79"/>
-    <define name="DGAIN" value="100"/>
-    <define name="IGAIN" value="30"/>
+    <define name="PGAIN" value="100"/>
+    <define name="DGAIN" value="200"/>
+    <define name="IGAIN" value="15"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">

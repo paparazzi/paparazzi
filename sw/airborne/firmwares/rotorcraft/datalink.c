@@ -138,7 +138,7 @@ void dl_parse_msg(void)
       }
 
       parse_gps_datalink_small(
-        DL_REMOTE_GPS_SMALL_num_sv(dl_buffer),
+        DL_REMOTE_GPS_SMALL_numsv(dl_buffer),
         DL_REMOTE_GPS_SMALL_pos_xyz(dl_buffer),
         DL_REMOTE_GPS_SMALL_speed_xy(dl_buffer));
       break;

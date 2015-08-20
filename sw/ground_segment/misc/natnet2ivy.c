@@ -517,16 +517,16 @@ gboolean timeout_transmit_callback(gpointer data) {
       pos_xyz |= (((uint32_t)(pos.z*100.0)) & 0x3FF) << 2; // bits 11-2 z position in cm
       // bits 1 and 0 are free
 
-      printf("ENU Pos: %u (%.2f, %.2f, %.2f)\n", pos_xyz, pos.x, pos.y, pos.z);
+      // printf("ENU Pos: %u (%.2f, %.2f, %.2f)\n", pos_xyz, pos.x, pos.y, pos.z);
 
       uint32_t speed_xy = (((uint32_t)(speed.x*100.0)) & 0x3FF) << 22; // bits 31-21 speed x in cm/s
       speed_xy |= (((uint32_t)(speed.x*100.0)) & 0x3FF) << 12; // bits 20-10 speed y in cm/s
       speed_xy |= (((uint32_t)(heading*100.0)) & 0x3FF) << 2; // bits 9-0 heading in rad*1e2 (The heading is already subsampled)
       // bits 1 and 0 are free
 
-      printf("ENU Vel: %u (%.2f, %.2f, 0.0)\n", speed_xy, speed.x, speed.y);
+      // printf("ENU Vel: %u (%.2f, %.2f, 0.0)\n", speed_xy, speed.x, speed.y);
 
-      printf("Heading: %.2f\n", heading);
+      // printf("Heading: %.2f\n", heading);
 
       IvySendMsg("0 REMOTE_GPS_SMALL %d %d %d %d", aircrafts[rigidBodies[i].id].ac_id, // uint8 rigid body ID (1 byte)
         (uint8_t)rigidBodies[i].nMarkers, // status (1 byte)
