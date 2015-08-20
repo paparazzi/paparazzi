@@ -34,10 +34,7 @@
 #error "bluegiga: must define a BLUEGIGA_SPI_DEV"
 #endif
 
-#ifndef BLUEGIGA_SLAVE_IDX
-#define BLUEGIGA_SLAVE_IDX SPI_SLAVE2
-#endif
-
+// Bluegiga
 #ifndef BLUEGIGA_DRDY_GPIO
 #define BLUEGIGA_DRDY_GPIO GPIOC
 #endif
@@ -82,7 +79,7 @@ void bluegiga_init(void)
   bluegiga_spi.output_buf     = bluegiga_p.work_tx;
   bluegiga_spi.input_length   = 20;
   bluegiga_spi.output_length  = 20;
-  bluegiga_spi.slave_idx      = BLUEGIGA_SLAVE_IDX;
+  bluegiga_spi.slave_idx      = 0; // Not used for SPI-Slave: always NSS pin
   bluegiga_spi.select         = SPISelectUnselect;
   bluegiga_spi.cpol           = SPICpolIdleHigh;
   bluegiga_spi.cpha           = SPICphaEdge2;
