@@ -2,8 +2,6 @@
 # The bluegiga module as telemetry downlink/uplink
 #
 #
-ap.CFLAGS += -DUSE_$(MODEM_PORT)
-ap.CFLAGS += -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 
 ap.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_DEVICE=bluegiga_p
 ap.CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=BLUEGIGA
