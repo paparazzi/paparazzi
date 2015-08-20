@@ -28,7 +28,6 @@
 #define BLUEGIGA_DATA_LINK_H
 
 #include "mcu_periph/link_device.h"
-#include "generated/airframe.h"
 
 /* The different statuses the communication can be in */
 enum BlueGigaStatus {
