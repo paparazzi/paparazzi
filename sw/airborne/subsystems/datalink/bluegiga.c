@@ -50,9 +50,14 @@ struct spi_transaction bluegiga_spi;
 signed char bluegiga_rssi[256];    // values initialized with 127
 
 // Functions for the generic device API
-static int true_function(struct bluegiga_periph *p __attribute__((unused)), uint8_t len __attribute__((unused)))
+static int dev_check_free_space(struct bluegiga_periph *p, uint8_t len)
 {
-  return TRUE;
+	uint8_t i = p->tx_insert_idx;
+	uint8_t o = p->tx_extract_idx;
+	if (i<o)
+		i+=BLUEGIGA_BUFFER_SIZE;
+
+  return (i-o) >= len;
 }
 static void dev_transmit(struct bluegiga_periph *p __attribute__((unused)), uint8_t byte)
 {
@@ -106,7 +111,7 @@ void bluegiga_init(void)
 
   // Configure generic device
   bluegiga_p.device.periph    = (void *)(&bluegiga_p);
-  bluegiga_p.device.check_free_space = (check_free_space_t) true_function;
+  bluegiga_p.device.check_free_space = (check_free_space_t) dev_check_free_space;
   bluegiga_p.device.put_byte  = (put_byte_t) dev_transmit;
   bluegiga_p.device.send_message = (send_message_t) dev_send;
 
