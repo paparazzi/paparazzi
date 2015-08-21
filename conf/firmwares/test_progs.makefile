@@ -378,6 +378,9 @@ include $(CFG_SHARED)/baro_board.makefile
 endif
 test_baro_board.CFLAGS += $(BARO_BOARD_CFLAGS)
 test_baro_board.srcs += $(BARO_BOARD_SRCS)
+ifeq ($(IMU_INIT),1)
+test_baro_board.srcs += test/test_baro_board_imu.c
+endif
 
 
 #
