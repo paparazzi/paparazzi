@@ -34,13 +34,13 @@
 #error "bluegiga: must define a BLUEGIGA_SPI_DEV"
 #endif
 
-// Bluegiga
+// Bluegiga: DRDY defaults to SuperbitRf DRDY
 #ifndef BLUEGIGA_DRDY_GPIO
-#define BLUEGIGA_DRDY_GPIO GPIOC
+#define BLUEGIGA_DRDY_GPIO SUPERBITRF_DRDY_PORT
 #endif
 
 #ifndef BLUEGIGA_DRDY_GPIO_PIN
-#define BLUEGIGA_DRDY_GPIO_PIN GPIO6
+#define BLUEGIGA_DRDY_GPIO_PIN SUPERBITRF_DRDY_PIN
 #endif
 
 enum BlueGigaStatus coms_status;

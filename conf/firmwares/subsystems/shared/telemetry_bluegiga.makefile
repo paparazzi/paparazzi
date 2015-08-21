@@ -4,6 +4,15 @@
 # On Lisa-s, the Superbit-RF module can be replaced with a
 # bluegiga-bluetooth 4 low power board. This subsystem puts
 # the telemetry over this bluetooth 4 link.
+#
+# Bluegiga is a SPI-slave device without Chip select but with a compulsory DRDY
+#
+# Required:
+# #define BLUEGIGA_SPI_DEV: the SPI device which MUST have a SLAVE mode without chipselect
+#
+# Optional: (defaults to SUPERBITRF DRDY)
+# #define BLUEGIGA_DRDY_GPIO
+# #define BLUEGIGA_DRDY_GPIO_PIN
 
 # Include SPI if not yet included
 include $(CFG_SHARED)/spi_master.makefile

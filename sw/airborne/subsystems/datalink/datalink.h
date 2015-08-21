@@ -106,7 +106,7 @@ static inline void DlCheckAndParse(void)
 #elif defined DATALINK && DATALINK == BLUEGIGA
 
 #define DatalinkEvent() {                       \
-    BlueGigaCheckAndParse(BLUEGIGA, pprz_tp);   \
+    BlueGigaCheckAndParse(BLUEGIGA_SPI_DEV, pprz_tp);   \
     DlCheckAndParse();                          \
   }
 
