@@ -55,6 +55,7 @@ struct bluegiga_periph {
   struct link_device device;
 };
 
+// DEVICE passed to all DOWNLINK_SEND functions
 extern struct bluegiga_periph bluegiga_p;
 
 void bluegiga_init(void);
