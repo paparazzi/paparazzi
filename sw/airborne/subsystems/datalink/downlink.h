@@ -46,6 +46,9 @@
 #include "subsystems/datalink/pprzlog_transport.h"
 #include "subsystems/datalink/xbee.h"
 #include "subsystems/datalink/w5100.h"
+#if DATALINK == BLUEGIGA
+#include "subsystems/datalink/bluegiga.h"
+#endif
 #if USE_SUPERBITRF
 #include "subsystems/datalink/superbitrf.h"
 #endif
@@ -82,7 +85,7 @@
 
 /** Downlink structure */
 struct downlink {
-  uint8_t nb_ovrn;    ///< Counter of messages not sent because of unavailibity of the output buffer
+  uint8_t nb_ovrn;    ///< Counter of messages not sent because of unavailability of the output buffer
   uint16_t nb_bytes;  ///< Number of bytes send over telemetry
   uint16_t nb_msgs;   ///< Number of messages send over telemetry
 };
