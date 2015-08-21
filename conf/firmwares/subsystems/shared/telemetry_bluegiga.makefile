@@ -1,7 +1,9 @@
 #
 # The bluegiga module as telemetry downlink/uplink
 #
-#
+# On Lisa-s, the Superbit-RF module can be replaced with a
+# bluegiga-bluetooth 4 low power board. This subsystem puts
+# the telemetry over this bluetooth 4 link.
 
 # Include SPI if not yet included
 include $(CFG_SHARED)/spi_master.makefile
@@ -20,6 +22,6 @@ ifneq ($(MODEM_LED),none)
 ap.CFLAGS += -DMODEM_LED=$(MODEM_LED)
 endif
 
-ap.srcs += subsystems/datalink/downlink.c subsystems/datalink/bluegiga.c
-ap.srcs += subsystems/datalink/pprz_transport.c subsystems/datalink/telemetry.c
-ap.srcs += $(SRC_FIRMWARE)/datalink.c $(SRC_FIRMWARE)/rotorcraft_telemetry.c
+ap.srcs += $(SRC_SUBSYSTEMS)/datalink/downlink.c $(SRC_SUBSYSTEMS)/datalink/bluegiga.c
+ap.srcs += $(SRC_SUBSYSTEMS)/datalink/pprz_transport.c $(SRC_SUBSYSTEMS)/datalink/telemetry.c
+ap.srcs += $(SRC_FIRMWARE)/datalink.c
