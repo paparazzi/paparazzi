@@ -88,6 +88,17 @@
    gui_color="white"
   />
   <aircraft
+   name="LadyLisaBluetooth"
+   ac_id="166"
+   airframe="airframes/examples/ladybird_lisa_s_bluegiga.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
+   gui_color="white"
+  />
+  <aircraft
    name="LisaLv11_Aspirinv15_FW"
    ac_id="12"
    airframe="airframes/TestHardware/LisaL_v1.1_aspirin_v1.5_fw.xml"
@@ -198,6 +209,17 @@
    gui_color="blue"
   />
   <aircraft
+   name="Quad_Elle0"
+   ac_id="165"
+   airframe="airframes/examples/quadrotor_elle0.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_float_mlkf.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
+   gui_color="white"
+  />
+  <aircraft
    name="Quad_HBMini"
    ac_id="152"
    airframe="airframes/examples/quadrotor_hbmini.xml"
@@ -227,17 +249,6 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
-   gui_color="white"
-  />
-  <aircraft
-   name="Quad_Elle0"
-   ac_id="165"
-   airframe="airframes/examples/quadrotor_elle0.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_float_mlkf.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
    gui_color="white"
   />
