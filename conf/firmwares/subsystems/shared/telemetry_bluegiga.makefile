@@ -33,4 +33,3 @@ endif
 
 ap.srcs += $(SRC_SUBSYSTEMS)/datalink/downlink.c $(SRC_SUBSYSTEMS)/datalink/bluegiga.c
 ap.srcs += $(SRC_SUBSYSTEMS)/datalink/pprz_transport.c $(SRC_SUBSYSTEMS)/datalink/telemetry.c
-ap.srcs += $(SRC_FIRMWARE)/datalink.c
