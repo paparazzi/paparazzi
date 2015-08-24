@@ -120,7 +120,7 @@ static int32_t flash_detect(struct FlashInfo *flash)
    * larger than 128kb. Otherwise the first few sectors are either 16kb or
    * 64kb. To make those small devices work we would need to know what the page
    * we want to put the settings into is. Otherwise we will might be writing
-   * into a 64kb page that is actually 16kb big. 
+   * into a 64kb page that is actually 16kb big.
    */
   switch (flash->total_size) {
       /* low density */
@@ -209,13 +209,8 @@ static int32_t flash_detect(struct FlashInfo *flash)
   return 0;
 }
 
-// (gdb) p *flash
-// $1 = {addr = 134739968, total_size = 524288, page_nr = 255, page_size = 2048}
-//              0x807F800             0x80000
-static int32_t pflash_program_bytes(struct FlashInfo *flash,
-                                    uint32_t   src,
-                                    uint32_t   size,
-                                    uint32_t   chksum)
+
+static int32_t pflash_erase(struct FlashInfo *flash)
 {
   uint32_t i;
 
@@ -232,6 +227,21 @@ static int32_t pflash_program_bytes(struct FlashInfo *flash,
   for (i = 0; i < flash->page_size; i += 4) {
     if ((*(uint32_t *)(flash->addr + i)) != 0xFFFFFFFF) { return -1; }
   }
+  return 0;
+}
+
+// (gdb) p *flash
+// $1 = {addr = 134739968, total_size = 524288, page_nr = 255, page_size = 2048}
+//              0x807F800             0x80000
+static int32_t pflash_program_bytes(struct FlashInfo *flash,
+                                    uint32_t   src,
+                                    uint32_t   size,
+                                    uint32_t   chksum)
+{
+  uint32_t i;
+
+  /* erase, return with error if not successful */
+  if (pflash_erase(flash)) { return -1; }
 
   flash_unlock();
   /* write full 16 bit words */
@@ -299,4 +309,12 @@ int32_t persistent_read(void *ptr, uint32_t size)
   }
 
   return 0;
+}
+
+int32_t persistent_clear(void)
+{
+  struct FlashInfo flash_info;
+  if (flash_detect(&flash_info)) { return -1; }
+
+  return pflash_erase(&flash_info);
 }

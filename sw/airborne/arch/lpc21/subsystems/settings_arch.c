@@ -281,3 +281,12 @@ int32_t persistent_read(void *ptr, uint32_t size)
 
   return 0;
 }
+
+int32_t persistent_clear(void)
+{
+  FlashInfo flash;
+
+  if (flash_detect(&flash)) { return -1; }
+
+  return pflash_erase_page(&flash);
+}
