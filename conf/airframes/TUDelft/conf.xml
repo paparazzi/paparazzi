@@ -101,7 +101,7 @@
   <aircraft
    name="quadshot_pylons"
    ac_id="178"
-   airframe="airframes/TUDelft/quadshot_pylons.xml"
+   airframe="airframes/TUDelft/airframes/quadshot_pylons.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
