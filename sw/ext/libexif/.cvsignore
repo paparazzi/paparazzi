@@ -1,0 +1,10 @@
+Makefile
+Makefile.in
+.libs
+.deps
+libexif.la
+*.o
+*.lo
+*.la
+libexif.pc
+_stdint.h
