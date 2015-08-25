@@ -46,7 +46,7 @@
 #include "lib/encoding/rtp.h"
 #include "udp_socket.h"
 
-#ifdef JPEG_WITH_EXIF_HEADER
+#if JPEG_WITH_EXIF_HEADER
 #include "lib/exif/exif_module.h"
 #endif
 
@@ -199,7 +199,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
         sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIEWVIDEO_SHOT_PATH), viewvideo.shot_number);
         // Check if file exists or not
         if (access(save_name, F_OK) == -1) {
-#ifdef JPEG_WITH_EXIF_HEADER
+#if JPEG_WITH_EXIF_HEADER
           	double lattitude = 50.788851;
           	double longitude = 6.046797;
           	float height = 25;
