@@ -20,7 +20,9 @@
   <settings>
     <dl_settings>
       <dl_settings name="video">
-        <dl_setting var="viewvideo.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/viewvideo" handler="take_shot"/>
+        <dl_setting var="viewvideo.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/viewvideo" handler="take_shot">
+          <strip_button name="Shoot" icon="digital-camera.png" value="1" group="video"/>
+        </dl_setting>
       </dl_settings>
     </dl_settings>
   </settings>
