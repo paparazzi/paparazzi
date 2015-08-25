@@ -31,7 +31,7 @@
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </load-->
     <load name="video_rtp_stream.xml">
-      <define name="VIEWVIDEO_FPS" value="60"/>
+      <define name="VIEWVIDEO_FPS" value="4"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
       <define name="VIEWVIDEO_DEVICE" value="/dev/video0"/>
