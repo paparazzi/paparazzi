@@ -104,9 +104,13 @@ PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
 #ifndef VIEWVIDEO_USE_NETCAT
 #define VIEWVIDEO_USE_NETCAT FALSE
 #endif
+#ifndef VIEWVIDEO_USE_RTP
+#define VIEWVIDEO_USE_RTP FALSE
+#endif
+
 #if VIEWVIDEO_USE_NETCAT
 PRINT_CONFIG_MSG("[viewvideo] Using netcat.")
-#else
+#elif VIEWVIDEO_USE_RTP
 PRINT_CONFIG_MSG("[viewvideo] Using RTP/UDP stream.")
 #endif
 
@@ -125,6 +129,8 @@ struct viewvideo_t viewvideo = {
   .quality_factor = VIEWVIDEO_QUALITY_FACTOR,
   .fps = VIEWVIDEO_FPS,
   .take_shot = FALSE,
+  .use_netcat=VIEWVIDEO_USE_NETCAT,
+  .use_rtp=VIEWVIDEO_USE_RTP,
   .shot_number = 0
 };
 
@@ -222,50 +228,50 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
       jpeg_encode_image(&img, &img_jpeg, VIEWVIDEO_QUALITY_FACTOR, VIEWVIDEO_USE_NETCAT);
     }
 
-#if VIEWVIDEO_USE_NETCAT
-    // Open process to send using netcat (in a fork because sometimes kills itself???)
-    pid_t pid = fork();
+    if(viewvideo.use_netcat){
+		// Open process to send using netcat (in a fork because sometimes kills itself???)
+    	/*
+		pid_t pid = fork();
 
-    if (pid < 0) {
-      printf("[viewvideo] Could not create netcat fork.\n");
-    } else if (pid == 0) {
-      // We are the child and want to send the image
-      FILE *netcat = popen(nc_cmd, "w");
-      if (netcat != NULL) {
-        fwrite(jpegbuf, sizeof(uint8_t), size, netcat);
-        pclose(netcat); // Ignore output, because it is too much when not connected
-      } else {
-        printf("[viewvideo] Failed to open netcat process.\n");
-      }
+		if (pid < 0) {
+		  printf("[viewvideo] Could not create netcat fork.\n");
+		} else if (pid == 0) {
+		  // We are the child and want to send the image
+		  FILE *netcat = popen(nc_cmd, "w");
+		  if (netcat != NULL) {
+			fwrite(jpegbuf, sizeof(uint8_t), size, netcat);
+			pclose(netcat); // Ignore output, because it is too much when not connected
+		  } else {
+			printf("[viewvideo] Failed to open netcat process.\n");
+		  }
 
-      // Exit the program since we don't want to continue after transmitting
-      exit(0);
-    } else {
-      // We want to wait until the child is finished
-      wait(NULL);
+		  // Exit the program since we don't want to continue after transmitting
+		  exit(0);
+		} else {
+		  // We want to wait until the child is finished
+		  wait(NULL);
+		}*/
     }
-#elif VIEWVIDEO_USE_RPT
-    // Send image with RTP
-    rtp_frame_send(
-      &video_sock,              // UDP socket
-      &img_jpeg,
-      0,                        // Format 422
-      VIEWVIDEO_QUALITY_FACTOR, // Jpeg-Quality
-      0,                        // DRI Header
-      VIEWVIDEO_RTP_TIME_INC    // 90kHz time increment
-    );
-    // Extra note: when the time increment is set to 0,
-    // it is automaticaly calculated by the send_rtp_frame function
-    // based on gettimeofday value. This seems to introduce some lag or jitter.
-    // An other way is to compute the time increment and set the correct value.
-    // It seems that a lower value is also working (when the frame is received
-    // the timestamp is always "late" so the frame is displayed immediately).
-    // Here, we set the time increment to the lowest possible value
-    // (1 = 1/90000 s) which is probably stupid but is actually working.
-#else
-   // Do nothing
-#endif
+    else if(viewvideo.use_rtp){
 
+		// Send image with RTP
+		rtp_frame_send(
+		  &video_sock,              // UDP socket
+		  &img_jpeg,
+		  0,                        // Format 422
+		  VIEWVIDEO_QUALITY_FACTOR, // Jpeg-Quality
+		  0,                        // DRI Header
+		  VIEWVIDEO_RTP_TIME_INC    // 90kHz time increment
+		);
+		// Extra note: when the time increment is set to 0,
+		// it is automaticaly calculated by the send_rtp_frame function
+		// based on gettimeofday value. This seems to introduce some lag or jitter.
+		// An other way is to compute the time increment and set the correct value.
+		// It seems that a lower value is also working (when the frame is received
+		// the timestamp is always "late" so the frame is displayed immediately).
+		// Here, we set the time increment to the lowest possible value
+		// (1 = 1/90000 s) which is probably stupid but is actually working.
+    }
     // Free the image
     v4l2_image_free(viewvideo.dev, &img);
   }
