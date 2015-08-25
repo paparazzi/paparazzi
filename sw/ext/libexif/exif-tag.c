@@ -991,7 +991,7 @@ exif_tag_get_title_in_ifd (ExifTag tag, ExifIfd ifd)
 	 * 
 	 * bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	 */
-	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+//	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	return _(ExifTagTable[i].title);
 }
 
