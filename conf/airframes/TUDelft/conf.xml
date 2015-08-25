@@ -98,4 +98,15 @@
    settings_modules="modules/light.xml modules/digital_cam.xml"
    gui_color="blue"
   />
+  <aircraft
+   name="quadshot_pylons"
+   ac_id="178"
+   airframe="airframes/TUDelft/quadshot_pylons.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int_quat.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
+   gui_color="blue"
+  />
 </conf>
