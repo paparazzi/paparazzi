@@ -1,38 +1,63 @@
 
 
+
+#include "exif_module.h"
+#include "state.h"
+
+
+//////////////////////////////////////////////////////////////
+// Multithreaded part
+
+volatile uint32_t lat_em7deg = 0;
+volatile uint32_t lon_em7deg = 0;
+volatile uint32_t alt_mm = 0;
+
+//////////////////////////////////////////////////////////////
+// Paparazzi part
+
+void push_gps_to_vision(void)
+{
+  struct LlaCoor_i *c = stateGetPositionLla_i();
+  lat_em7deg = c->lat;
+  lon_em7deg = c->lon;
+  alt_mm = c->alt;
+}
+
+/////////////////////////////////////////////////////////////
+// Vision part
+
 #include <libexif/exif-data.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "exif_module.h"
 
 /* Get an existing tag, or create one if it doesn't exist */
 static ExifEntry *init_tag(ExifData *exif, ExifIfd ifd, ExifTag tag)
 {
-	ExifEntry *entry;
-	/* Return an existing tag if one exists */
-	if (!((entry = exif_content_get_entry (exif->ifd[ifd], tag)))) {
-	    /* Allocate a new entry */
-	    entry = exif_entry_new ();
-	    //assert(entry != NULL); /* catch an out of memory condition */
-	    entry->tag = tag; /* tag must be set before calling
-				 exif_content_add_entry */
+  ExifEntry *entry;
+  /* Return an existing tag if one exists */
+  if (!((entry = exif_content_get_entry(exif->ifd[ifd], tag)))) {
+    /* Allocate a new entry */
+    entry = exif_entry_new();
+    //assert(entry != NULL); /* catch an out of memory condition */
+    entry->tag = tag; /* tag must be set before calling
+         exif_content_add_entry */
 
-	    /* Attach the ExifEntry to an IFD */
-	    exif_content_add_entry (exif->ifd[ifd], entry);
+    /* Attach the ExifEntry to an IFD */
+    exif_content_add_entry(exif->ifd[ifd], entry);
 
-	    /* Allocate memory for the entry and fill with default data */
-	    exif_entry_initialize (entry, tag);
+    /* Allocate memory for the entry and fill with default data */
+    exif_entry_initialize(entry, tag);
 
-	    /* Ownership of the ExifEntry has now been passed to the IFD.
-	     * One must be very careful in accessing a structure after
-	     * unref'ing it; in this case, we know "entry" won't be freed
-	     * because the reference count was bumped when it was added to
-	     * the IFD.
-	     */
-	    exif_entry_unref(entry);
-	}
-	return entry;
+    /* Ownership of the ExifEntry has now been passed to the IFD.
+     * One must be very careful in accessing a structure after
+     * unref'ing it; in this case, we know "entry" won't be freed
+     * because the reference count was bumped when it was added to
+     * the IFD.
+     */
+    exif_entry_unref(entry);
+  }
+  return entry;
 }
 
 /* Create a brand-new tag with a data field of the given length, in the
@@ -42,40 +67,40 @@ static ExifEntry *init_tag(ExifData *exif, ExifIfd ifd, ExifTag tag)
  */
 static ExifEntry *create_tag(ExifData *exif, ExifIfd ifd, ExifTag tag, size_t len)
 {
-	void *buf;
-	ExifEntry *entry;
+  void *buf;
+  ExifEntry *entry;
 
-	/* Create a memory allocator to manage this ExifEntry */
-	ExifMem *mem = exif_mem_new_default();
-	//assert(mem != NULL); /* catch an out of memory condition */
+  /* Create a memory allocator to manage this ExifEntry */
+  ExifMem *mem = exif_mem_new_default();
+  //assert(mem != NULL); /* catch an out of memory condition */
 
-	/* Create a new ExifEntry using our allocator */
-	entry = exif_entry_new_mem (mem);
-	//assert(entry != NULL);
+  /* Create a new ExifEntry using our allocator */
+  entry = exif_entry_new_mem(mem);
+  //assert(entry != NULL);
 
-	/* Allocate memory to use for holding the tag data */
-	buf = exif_mem_alloc(mem, len);
-	//assert(buf != NULL);
+  /* Allocate memory to use for holding the tag data */
+  buf = exif_mem_alloc(mem, len);
+  //assert(buf != NULL);
 
-	/* Fill in the entry */
-	entry->data = buf;
-	entry->size = len;
-	entry->tag = tag;
-	entry->components = len;
-	entry->format = EXIF_FORMAT_UNDEFINED;
+  /* Fill in the entry */
+  entry->data = buf;
+  entry->size = len;
+  entry->tag = tag;
+  entry->components = len;
+  entry->format = EXIF_FORMAT_UNDEFINED;
 
-	/* Attach the ExifEntry to an IFD */
-	exif_content_add_entry (exif->ifd[ifd], entry);
+  /* Attach the ExifEntry to an IFD */
+  exif_content_add_entry(exif->ifd[ifd], entry);
 
-	/* The ExifMem and ExifEntry are now owned elsewhere */
-	exif_mem_unref(mem);
-	exif_entry_unref(entry);
+  /* The ExifMem and ExifEntry are now owned elsewhere */
+  exif_mem_unref(mem);
+  exif_entry_unref(entry);
 
-	return entry;
+  return entry;
 }
 
 /* start of JPEG image data section */
-static const unsigned int image_data_offset = 20;
+static const unsigned int image_data_offset = 2;
 #define image_data_len (image_jpg_len - image_data_offset)
 
 /* raw EXIF header data */
@@ -89,7 +114,7 @@ static const unsigned int exif_header_len = sizeof(exif_header);
 #define FILE_BYTE_ORDER EXIF_BYTE_ORDER_INTEL
 
 /* comment to write into the EXIF block */
-#define FILE_COMMENT "libexif demonstration image"
+#define FILE_COMMENT "Paparazzi autopilot"
 
 /* special header required for EXIF_TAG_USER_COMMENT */
 #define ASCII_COMMENT "ASCII\0\0\0"
@@ -97,148 +122,161 @@ static const unsigned int exif_header_len = sizeof(exif_header);
 
 
 
-int write_exif_jpeg(char* filename, const unsigned char* image_jpg, const unsigned int image_jpg_len,
-		const unsigned int image_jpg_x, const unsigned int image_jpg_y,
-		double lattitude, double longitude, float height)
+int write_exif_jpeg(char *filename, const unsigned char *image_jpg, const unsigned int image_jpg_len,
+                    const unsigned int image_jpg_x, const unsigned int image_jpg_y,
+                    double lattitude, double longitude, float height)
 {
-	int rc = 1;
-	FILE *f;
-	unsigned char *exif_data;
-	unsigned int exif_data_len;
-	ExifEntry *entry;
-	ExifData *exif = exif_data_new();
-	if (!exif) {
-		fprintf(stderr, "Out of memory\n");
-		return 2;
-	}
+  int rc = 1;
+  FILE *f;
+  unsigned char *exif_data;
+  unsigned int exif_data_len;
+  ExifEntry *entry;
+  ExifData *exif = exif_data_new();
+  if (!exif) {
+    fprintf(stderr, "Out of memory\n");
+    return 2;
+  }
 
-	/* Set the image options */
-	exif_data_set_option(exif, EXIF_DATA_OPTION_FOLLOW_SPECIFICATION);
-	exif_data_set_data_type(exif, EXIF_DATA_TYPE_COMPRESSED);
-	exif_data_set_byte_order(exif, FILE_BYTE_ORDER);
+  /* Set the image options */
+  exif_data_set_option(exif, EXIF_DATA_OPTION_FOLLOW_SPECIFICATION);
+  exif_data_set_data_type(exif, EXIF_DATA_TYPE_COMPRESSED);
+  exif_data_set_byte_order(exif, FILE_BYTE_ORDER);
 
-	/* Create the mandatory EXIF fields with default data */
-	exif_data_fix(exif);
+  /* Create the mandatory EXIF fields with default data */
+  exif_data_fix(exif);
 
-	/* All these tags are created with default values by exif_data_fix() */
-	/* Change the data to the correct values for this image. */
-	entry = init_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_PIXEL_X_DIMENSION);
-	exif_set_long(entry->data, FILE_BYTE_ORDER, image_jpg_x);
+  /* All these tags are created with default values by exif_data_fix() */
+  /* Change the data to the correct values for this image. */
+  entry = init_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_PIXEL_X_DIMENSION);
+  exif_set_long(entry->data, FILE_BYTE_ORDER, image_jpg_x);
 
-	entry = init_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_PIXEL_Y_DIMENSION);
-	exif_set_long(entry->data, FILE_BYTE_ORDER, image_jpg_y);
+  entry = init_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_PIXEL_Y_DIMENSION);
+  exif_set_long(entry->data, FILE_BYTE_ORDER, image_jpg_y);
 
-	entry = init_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_COLOR_SPACE);
-	exif_set_short(entry->data, FILE_BYTE_ORDER, 1);
+  entry = init_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_COLOR_SPACE);
+  exif_set_short(entry->data, FILE_BYTE_ORDER, 1);
 
-	/* Create a EXIF_TAG_USER_COMMENT tag. This one must be handled
-	 * differently because that tag isn't automatically created and
-	 * allocated by exif_data_fix(), nor can it be created using
-	 * exif_entry_initialize() so it must be explicitly allocated here.
-	 */
-	entry = create_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_USER_COMMENT,
-			sizeof(ASCII_COMMENT) + sizeof(FILE_COMMENT) - 2);
-	/* Write the special header needed for a comment tag */
-	memcpy(entry->data, ASCII_COMMENT, sizeof(ASCII_COMMENT)-1);
-	/* Write the actual comment text, without the trailing NUL character */
-	memcpy(entry->data+8, FILE_COMMENT, sizeof(FILE_COMMENT)-1);
-	/* create_tag() happens to set the format and components correctly for
-	 * EXIF_TAG_USER_COMMENT, so there is nothing more to do. */
+  /* Create a EXIF_TAG_USER_COMMENT tag. This one must be handled
+   * differently because that tag isn't automatically created and
+   * allocated by exif_data_fix(), nor can it be created using
+   * exif_entry_initialize() so it must be explicitly allocated here.
+   */
+  entry = create_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_USER_COMMENT,
+                     sizeof(ASCII_COMMENT) + sizeof(FILE_COMMENT) - 2);
+  /* Write the special header needed for a comment tag */
+  memcpy(entry->data, ASCII_COMMENT, sizeof(ASCII_COMMENT) - 1);
+  /* Write the actual comment text, without the trailing NUL character */
+  memcpy(entry->data + 8, FILE_COMMENT, sizeof(FILE_COMMENT) - 1);
+  /* create_tag() happens to set the format and components correctly for
+   * EXIF_TAG_USER_COMMENT, so there is nothing more to do. */
 
-	/* Create a EXIF_TAG_SUBJECT_AREA tag */
-	entry = create_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_SUBJECT_AREA,
-			   4 * exif_format_get_size(EXIF_FORMAT_SHORT));
-	entry->format = EXIF_FORMAT_SHORT;
-	entry->components = 4;
-	exif_set_short(entry->data, FILE_BYTE_ORDER, image_jpg_x / 2);
-	exif_set_short(entry->data+2, FILE_BYTE_ORDER, image_jpg_y / 2);
-	exif_set_short(entry->data+4, FILE_BYTE_ORDER, image_jpg_x);
-	exif_set_short(entry->data+6, FILE_BYTE_ORDER, image_jpg_y);
+  /* Create a EXIF_TAG_SUBJECT_AREA tag */
+  entry = create_tag(exif, EXIF_IFD_EXIF, EXIF_TAG_SUBJECT_AREA,
+                     4 * exif_format_get_size(EXIF_FORMAT_SHORT));
+  entry->format = EXIF_FORMAT_SHORT;
+  entry->components = 4;
+  exif_set_short(entry->data, FILE_BYTE_ORDER, image_jpg_x / 2);
+  exif_set_short(entry->data + 2, FILE_BYTE_ORDER, image_jpg_y / 2);
+  exif_set_short(entry->data + 4, FILE_BYTE_ORDER, image_jpg_x);
+  exif_set_short(entry->data + 6, FILE_BYTE_ORDER, image_jpg_y);
 
-	entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_LATITUDE, 24);
+  entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_LATITUDE, 24);
   // Set the field's format and number of components, this is very important!
   entry->format = EXIF_FORMAT_RATIONAL;
   entry->components = 3;
   // Degrees
-  float lat = lattitude;
+  uint32_t lat = lat_em7deg;
+  uint32_t lati = lat / 1e7;
   ExifRational loc;
-  loc.numerator = (int)(lat);
+  loc.numerator = lati;
   loc.denominator = 1;
   exif_set_rational(entry->data, EXIF_BYTE_ORDER_INTEL, loc);
-  lat -= (int)lat;
+  lat -= lati * 1e7;
   lat *= 60.0;
-  loc.numerator = (int) lat;
-  loc.denominator = 1;
-  exif_set_rational(entry->data+8, EXIF_BYTE_ORDER_INTEL, loc);
-  lat -= (int)lat;
+  lati = lat / 1e7;
+  loc.numerator = lati;
+  exif_set_rational(entry->data + 8, EXIF_BYTE_ORDER_INTEL, loc);
+  lat -= lati * 1e7;
   lat *= 60.0;
-  loc.numerator = lat * 100.0;
+  lati = lat / 1e5;
+  loc.numerator = lati;
   loc.denominator = 100;
-  exif_set_rational(entry->data+16, EXIF_BYTE_ORDER_INTEL, loc);
+  exif_set_rational(entry->data + 16, EXIF_BYTE_ORDER_INTEL, loc);
 
-	entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_LONGITUDE, 24);
+  entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_LONGITUDE, 24);
   // Set the field's format and number of components, this is very important!
   entry->format = EXIF_FORMAT_RATIONAL;
   entry->components = 3;
   // Degrees
-  loc.numerator = (longitude * 1000000.0);
-  loc.denominator = 1000000;
-  exif_set_rational(entry->data, EXIF_BYTE_ORDER_INTEL, loc);
-  loc.numerator = 0;
+  // Degrees
+  uint32_t lon = lon_em7deg;
+  uint32_t loni = lon / 1e7;
+  loc.numerator = loni;
   loc.denominator = 1;
-  exif_set_rational(entry->data+8, EXIF_BYTE_ORDER_INTEL, loc);
-  exif_set_rational(entry->data+16, EXIF_BYTE_ORDER_INTEL, loc);
+  exif_set_rational(entry->data, EXIF_BYTE_ORDER_INTEL, loc);
+  lon -= loni * 1e7;
+  lon *= 60.0;
+  loni = lon / 1e7;
+  loc.numerator = loni;
+  loc.denominator = 1;
+  exif_set_rational(entry->data + 8, EXIF_BYTE_ORDER_INTEL, loc);
+  lon -= loni * 1e7;
+  lon *= 60.0;
+  loni = lon / 1e7;
+  loc.numerator = loni;
+  loc.denominator = 1;
+  exif_set_rational(entry->data + 16, EXIF_BYTE_ORDER_INTEL, loc);
 
 
-	/* Get a pointer to the EXIF data block we just created */
-	exif_data_save_data(exif, &exif_data, &exif_data_len);
-//	assert(exif_data != NULL);
+  /* Get a pointer to the EXIF data block we just created */
+  exif_data_save_data(exif, &exif_data, &exif_data_len);
+//  assert(exif_data != NULL);
 
-	f = fopen(filename, "wb");
-	if (!f) {
-		fprintf(stderr, "Error creating file %s\n", filename);
-		exif_data_unref(exif);
-		return rc;
-	}
-	/* Write EXIF header */
-	if (fwrite(exif_header, exif_header_len, 1, f) != 1) {
-		fprintf(stderr, "Error writing to file %s\n", filename);
-		goto errout;
-	}
-	/* Write EXIF block length in big-endian order */
-	if (fputc((exif_data_len+2) >> 8, f) < 0) {
-		fprintf(stderr, "Error writing to file %s\n", filename);
-		goto errout;
-	}
-	if (fputc((exif_data_len+2) & 0xff, f) < 0) {
-		fprintf(stderr, "Error writing to file %s\n", filename);
-		goto errout;
-	}
-	/* Write EXIF data block */
-	if (fwrite(exif_data, exif_data_len, 1, f) != 1) {
-		fprintf(stderr, "Error writing to file %s\n", filename);
-		goto errout;
-	}
-	/* Write JPEG image data, skipping the non-EXIF header */
-	if (fwrite(image_jpg+image_data_offset, image_data_len, 1, f) != 1) {
-		fprintf(stderr, "Error writing to file %s\n", filename);
-		goto errout;
-	}
-	printf("Wrote file %s\n", filename);
-	rc = 0;
+  f = fopen(filename, "wb");
+  if (!f) {
+    fprintf(stderr, "Error creating file %s\n", filename);
+    exif_data_unref(exif);
+    return rc;
+  }
+  /* Write EXIF header */
+  if (fwrite(exif_header, exif_header_len, 1, f) != 1) {
+    fprintf(stderr, "Error writing to file %s\n", filename);
+    goto errout;
+  }
+  /* Write EXIF block length in big-endian order */
+  if (fputc((exif_data_len + 2) >> 8, f) < 0) {
+    fprintf(stderr, "Error writing to file %s\n", filename);
+    goto errout;
+  }
+  if (fputc((exif_data_len + 2) & 0xff, f) < 0) {
+    fprintf(stderr, "Error writing to file %s\n", filename);
+    goto errout;
+  }
+  /* Write EXIF data block */
+  if (fwrite(exif_data, exif_data_len, 1, f) != 1) {
+    fprintf(stderr, "Error writing to file %s\n", filename);
+    goto errout;
+  }
+  /* Write JPEG image data, skipping the non-EXIF header */
+  if (fwrite(image_jpg + image_data_offset, image_data_len, 1, f) != 1) {
+    fprintf(stderr, "Error writing to file %s\n", filename);
+    goto errout;
+  }
+  printf("Wrote file %s\n", filename);
+  rc = 0;
 
 errout:
-	if (fclose(f)) {
-		fprintf(stderr, "Error writing to file %s\n", filename);
-		rc = 1;
-	}
-	/* The allocator we're using for ExifData is the standard one, so use
-	 * it directly to free this pointer.
-	 */
-	free(exif_data);
-	exif_data_unref(exif);
+  if (fclose(f)) {
+    fprintf(stderr, "Error writing to file %s\n", filename);
+    rc = 1;
+  }
+  /* The allocator we're using for ExifData is the standard one, so use
+   * it directly to free this pointer.
+   */
+  free(exif_data);
+  exif_data_unref(exif);
 
-	return rc;
+  return rc;
 }
 
 

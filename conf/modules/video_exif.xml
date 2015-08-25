@@ -13,7 +13,7 @@
   <header>
     <file name="lib/exif/exif_module.h"/>
   </header>
-
+  <periodic fun="push_gps_to_vision()" freq="8"/>
   <makefile target="ap">
     <define name="modules/computer_vision" type="include"/>
     <file name="exif_module.c" dir="modules/computer_vision/lib/exif"/>
