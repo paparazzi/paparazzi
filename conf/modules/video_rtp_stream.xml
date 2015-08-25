@@ -16,11 +16,15 @@
     <define name="VIEWVIDEO_FPS" value="4" description="Video stream frame rate"/>
     <define name="VIEWVIDEO_SHOT_PATH" value="/data/video/images" description="Path where the images should be saved"/>
     <define name="VIEWVIDEO_USE_NETCAT" value="FALSE" description="Use netcat for transfering images"/>
+    <define name="VIEWVIDEO_USE_RTP" value="FALSE" description="Use RTP for transfering images"/>
+   
   </doc>
   <settings>
     <dl_settings>
       <dl_settings name="video">
         <dl_setting var="viewvideo.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/viewvideo" handler="take_shot"/>
+    	<dl_setting var="viewvideo.use_rtp" min="0" step="1" max="1" shortname="rtp" module="computer_vision/viewvideo"/>
+        <dl_setting var="viewvideo.use_netcat" min="0" step="1" max="1" shortname="netcat" module="computer_vision/viewvideo"/>
       </dl_settings>
     </dl_settings>
   </settings>

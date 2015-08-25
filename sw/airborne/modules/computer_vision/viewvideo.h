@@ -42,6 +42,8 @@ struct viewvideo_t {
   uint8_t quality_factor;         ///< Quality factor during the stream
   uint8_t fps;                    ///< The amount of frames per second
 
+  bool_t use_netcat; 			  ///< Stream over Netcat
+  bool_t use_rtp; 				  ///< Stream over RTP
   volatile bool_t take_shot;      ///< Wether to take an image
   uint16_t shot_number;           ///< The last shot number
 };
