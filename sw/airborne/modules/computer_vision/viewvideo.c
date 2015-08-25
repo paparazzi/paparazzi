@@ -104,9 +104,17 @@ PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
 #ifndef VIEWVIDEO_USE_NETCAT
 #define VIEWVIDEO_USE_NETCAT FALSE
 #endif
+#ifndef VIEWVIDEO_USE_RTP
+#define VIEWVIDEO_USE_RTP TRUE
+#endif
+
+#if VIEWVIDEO_USE_NETCAT && VIEWVIDEO_USE_RTP
+#error "Can't set VIEWVIDEO_USE_NETCAT and VIEWVIDEO_USE_RTP to true at the same time."
+#endif
+
 #if VIEWVIDEO_USE_NETCAT
 PRINT_CONFIG_MSG("[viewvideo] Using netcat.")
-#else
+#elif VIEWVIDEO_USE_RTP
 PRINT_CONFIG_MSG("[viewvideo] Using RTP/UDP stream.")
 #endif
 
@@ -125,6 +133,7 @@ struct viewvideo_t viewvideo = {
   .quality_factor = VIEWVIDEO_QUALITY_FACTOR,
   .fps = VIEWVIDEO_FPS,
   .take_shot = FALSE,
+  .use_rtp = VIEWVIDEO_USE_RTP,
   .shot_number = 0
 };
 
@@ -174,7 +183,8 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
     // compute usleep to have a more stable frame rate
     struct timeval vision_thread_sleep_time;
     gettimeofday(&vision_thread_sleep_time, NULL);
-    int dt = (int)(vision_thread_sleep_time.tv_sec - last_time.tv_sec) * 1000000 + (int)(vision_thread_sleep_time.tv_usec - last_time.tv_usec);
+    int dt = (int)(vision_thread_sleep_time.tv_sec - last_time.tv_sec) * 1000000 +
+             (int)(vision_thread_sleep_time.tv_usec - last_time.tv_usec);
     if (dt < microsleep) { usleep(microsleep - dt); }
     last_time = vision_thread_sleep_time;
 
@@ -245,23 +255,26 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
       wait(NULL);
     }
 #else
-    // Send image with RTP
-    rtp_frame_send(
-      &video_sock,              // UDP socket
-      &img_jpeg,
-      0,                        // Format 422
-      VIEWVIDEO_QUALITY_FACTOR, // Jpeg-Quality
-      0,                        // DRI Header
-      VIEWVIDEO_RTP_TIME_INC    // 90kHz time increment
-    );
-    // Extra note: when the time increment is set to 0,
-    // it is automaticaly calculated by the send_rtp_frame function
-    // based on gettimeofday value. This seems to introduce some lag or jitter.
-    // An other way is to compute the time increment and set the correct value.
-    // It seems that a lower value is also working (when the frame is received
-    // the timestamp is always "late" so the frame is displayed immediately).
-    // Here, we set the time increment to the lowest possible value
-    // (1 = 1/90000 s) which is probably stupid but is actually working.
+    if (viewvideo.use_rtp) {
+
+      // Send image with RTP
+      rtp_frame_send(
+        &video_sock,              // UDP socket
+        &img_jpeg,
+        0,                        // Format 422
+        VIEWVIDEO_QUALITY_FACTOR, // Jpeg-Quality
+        0,                        // DRI Header
+        VIEWVIDEO_RTP_TIME_INC    // 90kHz time increment
+      );
+      // Extra note: when the time increment is set to 0,
+      // it is automaticaly calculated by the send_rtp_frame function
+      // based on gettimeofday value. This seems to introduce some lag or jitter.
+      // An other way is to compute the time increment and set the correct value.
+      // It seems that a lower value is also working (when the frame is received
+      // the timestamp is always "late" so the frame is displayed immediately).
+      // Here, we set the time increment to the lowest possible value
+      // (1 = 1/90000 s) which is probably stupid but is actually working.
+    }
 #endif
 
     // Free the image

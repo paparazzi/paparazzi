@@ -15,7 +15,8 @@
     <define name="VIEWVIDEO_QUALITY_FACTOR" value="50" description="JPEG encoding compression factor [0-99]"/>
     <define name="VIEWVIDEO_FPS" value="4" description="Video stream frame rate"/>
     <define name="VIEWVIDEO_SHOT_PATH" value="/data/video/images" description="Path where the images should be saved"/>
-    <define name="VIEWVIDEO_USE_NETCAT" value="FALSE" description="Use netcat for transfering images"/>
+    <define name="VIEWVIDEO_USE_NETCAT" value="FALSE|TRUE" description="Use netcat for transfering images (default: FALSE)"/>
+    <define name="VIEWVIDEO_USE_RTP" value="TRUE|FALSE" description="Use RTP for transfering images (default: TRUE)"/>
   </doc>
   <settings>
     <dl_settings>
@@ -23,6 +24,7 @@
         <dl_setting var="viewvideo.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/viewvideo" handler="take_shot">
           <strip_button name="Shoot" icon="digital-camera.png" value="1" group="video"/>
         </dl_setting>
+        <dl_setting var="viewvideo.use_rtp" min="0" step="1" max="1" values="FALSE|TRUE" shortname="rtp" module="computer_vision/viewvideo" param="VIEWVIDEO_USE_RTP"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -67,4 +69,3 @@
     <file name="viewvideo_nps.c"/>
   </makefile>
 </module>
-
