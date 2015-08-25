@@ -257,14 +257,17 @@ int uart_open(char *port)
   tcgetattr(serial_handle, &options);
 
   /*
-   * Set the baud rates to 115200...
+   * Set the baud rates...
+   *
+   * KLUDGE: Faster baudates not defined in MacOS X
    */
-  //cfsetispeed(&options, B115200);
-  //cfsetospeed(&options, B115200);
-
+#ifdef __APPLE__
+  cfsetispeed(&options, B230400);
+  cfsetospeed(&options, B230400);
+#else
   cfsetispeed(&options, B921600);
   cfsetospeed(&options, B921600);
-
+#endif
 
 
   /*
