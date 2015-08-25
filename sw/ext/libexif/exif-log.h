@@ -9,10 +9,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -39,10 +39,10 @@ typedef struct _ExifLog        ExifLog;
  *
  * \return new instance of #ExifLog
  */
-Q_EXPORT ExifLog *exif_log_new     (void);
-Q_EXPORT ExifLog *exif_log_new_mem (ExifMem *);
-Q_EXPORT void     exif_log_ref     (ExifLog *log);
-Q_EXPORT void     exif_log_unref   (ExifLog *log);
+Q_EXPORT ExifLog *exif_log_new(void);
+Q_EXPORT ExifLog *exif_log_new_mem(ExifMem *);
+Q_EXPORT void     exif_log_ref(ExifLog *log);
+Q_EXPORT void     exif_log_unref(ExifLog *log);
 
 /*! Delete instance of #ExifLog.
  * \see exif_log_new
@@ -50,13 +50,13 @@ Q_EXPORT void     exif_log_unref   (ExifLog *log);
  * \param[in] log #ExifLog
  * \return new instance of #ExifLog
  */
-Q_EXPORT void     exif_log_free    (ExifLog *log);
+Q_EXPORT void     exif_log_free(ExifLog *log);
 
 typedef enum {
-	EXIF_LOG_CODE_NONE,
-	EXIF_LOG_CODE_DEBUG,
-	EXIF_LOG_CODE_NO_MEMORY,
-	EXIF_LOG_CODE_CORRUPT_DATA
+  EXIF_LOG_CODE_NONE,
+  EXIF_LOG_CODE_DEBUG,
+  EXIF_LOG_CODE_NO_MEMORY,
+  EXIF_LOG_CODE_CORRUPT_DATA
 } ExifLogCode;
 
 /*! Return a textual description of the given class of error log.
@@ -64,19 +64,19 @@ typedef enum {
  * \param[in] code logging message class
  * \return textual description of the log class
  */
-Q_EXPORT const char *exif_log_code_get_title   (ExifLogCode code);
+Q_EXPORT const char *exif_log_code_get_title(ExifLogCode code);
 
 /*! Return a verbose description of the given class of error log.
  *
  * \param[in] code logging message class
  * \return verbose description of the log class
  */
-Q_EXPORT const char *exif_log_code_get_message (ExifLogCode code);
+Q_EXPORT const char *exif_log_code_get_message(ExifLogCode code);
 
 /*! Log callback function prototype.
  */
-typedef void (* ExifLogFunc) (ExifLog *log, ExifLogCode, const char *domain,
-			      const char *format, va_list args, void *data);
+typedef void (* ExifLogFunc)(ExifLog *log, ExifLogCode, const char *domain,
+                             const char *format, va_list args, void *data);
 
 /*! Register log callback function.
  * Calls to the log callback function are purely for diagnostic purposes.
@@ -85,13 +85,13 @@ typedef void (* ExifLogFunc) (ExifLog *log, ExifLogCode, const char *domain,
  * \param[in] func callback function to set
  * \param[in] data data to pass into callback function
  */
-Q_EXPORT void     exif_log_set_func (ExifLog *log, ExifLogFunc func, void *data);
+Q_EXPORT void     exif_log_set_func(ExifLog *log, ExifLogFunc func, void *data);
 
 #ifndef NO_VERBOSE_TAG_STRINGS
-Q_EXPORT void     exif_log  (ExifLog *log, ExifLogCode, const char *domain,
-		    const char *format, ...)
+Q_EXPORT void     exif_log(ExifLog *log, ExifLogCode, const char *domain,
+                           const char *format, ...)
 #ifdef __GNUC__
-			__attribute__((__format__(printf,4,5)))
+__attribute__((__format__(printf, 4, 5)))
 #endif
 ;
 #else
@@ -104,8 +104,8 @@ Q_EXPORT void     exif_log  (ExifLog *log, ExifLogCode, const char *domain,
 #endif
 #endif
 
-Q_EXPORT void     exif_logv (ExifLog *log, ExifLogCode, const char *domain,
-		    const char *format, va_list args);
+Q_EXPORT void     exif_logv(ExifLog *log, ExifLogCode, const char *domain,
+                            const char *format, va_list args);
 
 /* For your convenience */
 #define EXIF_LOG_NO_MEMORY(l,d,s) exif_log ((l), EXIF_LOG_CODE_NO_MEMORY, (d), "Could not allocate %lu byte(s).", (unsigned long)(s))

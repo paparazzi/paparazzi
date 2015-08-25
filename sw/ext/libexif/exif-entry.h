@@ -9,10 +9,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -41,31 +41,31 @@ typedef struct _ExifEntryPrivate ExifEntryPrivate;
 
 /*! Data found in one EXIF tag */
 struct _ExifEntry {
-	/*! EXIF tag for this entry */
-        ExifTag tag;
-	
-	/*! Type of data in this entry */
-        ExifFormat format;
+  /*! EXIF tag for this entry */
+  ExifTag tag;
 
-	/*! Number of elements in the array, if this is an array entry.
-	 * Contains 1 for non-array data types. */
-        unsigned long components;
+  /*! Type of data in this entry */
+  ExifFormat format;
 
-	/*! Pointer to the raw EXIF data for this entry. It is allocated
-	 * by #exif_entry_initialize and is NULL beforehand. Data contained
-	 * here may be manipulated using the functions in exif-utils.h */
-        unsigned char *data;
+  /*! Number of elements in the array, if this is an array entry.
+   * Contains 1 for non-array data types. */
+  unsigned long components;
 
-	/*! Number of bytes in the buffer at \c data. This must be no less
-	 * than exif_format_get_size(format)*components */
-        unsigned int size;
+  /*! Pointer to the raw EXIF data for this entry. It is allocated
+   * by #exif_entry_initialize and is NULL beforehand. Data contained
+   * here may be manipulated using the functions in exif-utils.h */
+  unsigned char *data;
 
-	/*! #ExifContent containing this entry. 
-	 * \see exif_entry_get_ifd */
-	ExifContent *parent;
+  /*! Number of bytes in the buffer at \c data. This must be no less
+   * than exif_format_get_size(format)*components */
+  unsigned int size;
 
-	/*! Internal data to be used by libexif itself */
-	ExifEntryPrivate *priv;
+  /*! #ExifContent containing this entry.
+   * \see exif_entry_get_ifd */
+  ExifContent *parent;
+
+  /*! Internal data to be used by libexif itself */
+  ExifEntryPrivate *priv;
 };
 
 /* Lifecycle */
@@ -77,7 +77,7 @@ struct _ExifEntry {
  *
  * \see exif_entry_new_mem, exif_entry_unref
  */
-Q_EXPORT ExifEntry  *exif_entry_new     (void);
+Q_EXPORT ExifEntry  *exif_entry_new(void);
 
 /*! Reserve memory for and initialize new #ExifEntry using the specified
  * memory allocator.
@@ -87,7 +87,7 @@ Q_EXPORT ExifEntry  *exif_entry_new     (void);
  *
  * \see exif_entry_new, exif_entry_unref
  */
-Q_EXPORT ExifEntry  *exif_entry_new_mem (ExifMem *);
+Q_EXPORT ExifEntry  *exif_entry_new_mem(ExifMem *);
 
 /*! Increase reference counter for #ExifEntry.
  *
@@ -95,14 +95,14 @@ Q_EXPORT ExifEntry  *exif_entry_new_mem (ExifMem *);
  *
  * \see exif_entry_unref
  */
-Q_EXPORT void        exif_entry_ref     (ExifEntry *entry);
+Q_EXPORT void        exif_entry_ref(ExifEntry *entry);
 
 /*! Decrease reference counter for #ExifEntry.
  * When the reference count drops to zero, free the entry.
  *
  * \param[in] entry #ExifEntry
  */
-Q_EXPORT void        exif_entry_unref   (ExifEntry *entry);
+Q_EXPORT void        exif_entry_unref(ExifEntry *entry);
 
 /*! Actually free the #ExifEntry.
  *
@@ -111,7 +111,7 @@ Q_EXPORT void        exif_entry_unref   (ExifEntry *entry);
  *
  * \param[in] entry EXIF entry
  */
-Q_EXPORT void        exif_entry_free  (ExifEntry *entry);
+Q_EXPORT void        exif_entry_free(ExifEntry *entry);
 
 /*! Initialize an empty #ExifEntry with default data in the correct format
  * for the given tag. If the entry is already initialized, this function
@@ -122,7 +122,7 @@ Q_EXPORT void        exif_entry_free  (ExifEntry *entry);
  * \param[out] e entry to initialize
  * \param[in] tag tag number to initialize as
  */
-Q_EXPORT void        exif_entry_initialize (ExifEntry *e, ExifTag tag);
+Q_EXPORT void        exif_entry_initialize(ExifEntry *e, ExifTag tag);
 
 /*! Fix the type or format of the given EXIF entry to bring it into spec.
  * If the data for this EXIF tag is in of the wrong type or is in an invalid
@@ -137,7 +137,7 @@ Q_EXPORT void        exif_entry_initialize (ExifEntry *e, ExifTag tag);
  *
  * \param[in,out] entry EXIF entry
  */
-Q_EXPORT void        exif_entry_fix        (ExifEntry *entry);
+Q_EXPORT void        exif_entry_fix(ExifEntry *entry);
 
 
 /* For your convenience */
@@ -160,8 +160,8 @@ Q_EXPORT void        exif_entry_fix        (ExifEntry *entry);
  * \param[in] maxlen length of the buffer val
  * \return val pointer
  */
-Q_EXPORT const char *exif_entry_get_value (ExifEntry *entry, char *val,
-				  unsigned int maxlen);
+Q_EXPORT const char *exif_entry_get_value(ExifEntry *entry, char *val,
+    unsigned int maxlen);
 
 /*! Dump text representation of #ExifEntry to stdout.
  * This is intended for diagnostic purposes only.
@@ -169,7 +169,7 @@ Q_EXPORT const char *exif_entry_get_value (ExifEntry *entry, char *val,
  * \param[in] entry EXIF tag data
  * \param[in] indent how many levels deep to indent the data
  */
-Q_EXPORT void        exif_entry_dump      (ExifEntry *entry, unsigned int indent);
+Q_EXPORT void        exif_entry_dump(ExifEntry *entry, unsigned int indent);
 
 /*! Return the IFD number of the given #ExifEntry
  *

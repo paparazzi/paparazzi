@@ -27,104 +27,110 @@
 #include <string.h>
 
 struct _ExifLog {
-	unsigned int ref_count;
+  unsigned int ref_count;
 
-	ExifLogFunc func;
-	void *data;
+  ExifLogFunc func;
+  void *data;
 
-	ExifMem *mem;
+  ExifMem *mem;
 };
 
 static const struct {
-	ExifLogCode code;
-	const char *title;
-	const char *message;
+  ExifLogCode code;
+  const char *title;
+  const char *message;
 } codes[] = {
-	{ EXIF_LOG_CODE_DEBUG, N_("Debugging information"),
-	  N_("Debugging information is available.") },
-	{ EXIF_LOG_CODE_NO_MEMORY, N_("Not enough memory"),
-	  N_("The system cannot provide enough memory.") },
-	{ EXIF_LOG_CODE_CORRUPT_DATA, N_("Corrupt data"),
-	  N_("The data provided does not follow the specification.") },
-	{ 0, NULL, NULL }
+  {
+    EXIF_LOG_CODE_DEBUG, N_("Debugging information"),
+    N_("Debugging information is available.")
+  },
+  {
+    EXIF_LOG_CODE_NO_MEMORY, N_("Not enough memory"),
+    N_("The system cannot provide enough memory.")
+  },
+  {
+    EXIF_LOG_CODE_CORRUPT_DATA, N_("Corrupt data"),
+    N_("The data provided does not follow the specification.")
+  },
+  { 0, NULL, NULL }
 };
 
 const char *
-exif_log_code_get_title (ExifLogCode code)
+exif_log_code_get_title(ExifLogCode code)
 {
-	unsigned int i;
+  unsigned int i;
 
-	for (i = 0; codes[i].title; i++) if (codes[i].code == code) break;
-	return _(codes[i].title);
+  for (i = 0; codes[i].title; i++) if (codes[i].code == code) { break; }
+  return _(codes[i].title);
 }
 
 const char *
-exif_log_code_get_message (ExifLogCode code)
+exif_log_code_get_message(ExifLogCode code)
 {
-	unsigned int i;
+  unsigned int i;
 
-	for (i = 0; codes[i].message; i++) if (codes[i].code == code) break;
-	return _(codes[i].message);
+  for (i = 0; codes[i].message; i++) if (codes[i].code == code) { break; }
+  return _(codes[i].message);
 }
 
 ExifLog *
-exif_log_new_mem (ExifMem *mem)
+exif_log_new_mem(ExifMem *mem)
 {
-	ExifLog *log;
+  ExifLog *log;
 
-	log = exif_mem_alloc (mem, sizeof (ExifLog));
-	if (!log) return NULL;
-	log->ref_count = 1;
+  log = exif_mem_alloc(mem, sizeof(ExifLog));
+  if (!log) { return NULL; }
+  log->ref_count = 1;
 
-	log->mem = mem;
-	exif_mem_ref (mem);
+  log->mem = mem;
+  exif_mem_ref(mem);
 
-	return log;
+  return log;
 }
 
 ExifLog *
-exif_log_new (void)
+exif_log_new(void)
 {
-	ExifMem *mem = exif_mem_new_default ();
-	ExifLog *log = exif_log_new_mem (mem);
+  ExifMem *mem = exif_mem_new_default();
+  ExifLog *log = exif_log_new_mem(mem);
 
-	exif_mem_unref (mem);
+  exif_mem_unref(mem);
 
-	return log;
+  return log;
 }
 
 void
-exif_log_ref (ExifLog *log)
+exif_log_ref(ExifLog *log)
 {
-	if (!log) return;
-	log->ref_count++;
+  if (!log) { return; }
+  log->ref_count++;
 }
 
 void
-exif_log_unref (ExifLog *log)
+exif_log_unref(ExifLog *log)
 {
-	if (!log) return;
-	if (log->ref_count > 0) log->ref_count--;
-	if (!log->ref_count) exif_log_free (log);
+  if (!log) { return; }
+  if (log->ref_count > 0) { log->ref_count--; }
+  if (!log->ref_count) { exif_log_free(log); }
 }
 
 void
-exif_log_free (ExifLog *log)
+exif_log_free(ExifLog *log)
 {
-	ExifMem *mem = log ? log->mem : NULL;
+  ExifMem *mem = log ? log->mem : NULL;
 
-	if (!log) return;
+  if (!log) { return; }
 
-	exif_mem_free (mem, log);
-	exif_mem_unref (mem);
+  exif_mem_free(mem, log);
+  exif_mem_unref(mem);
 }
 
 void
-exif_log_set_func (ExifLog *log, ExifLogFunc func, void *data)
+exif_log_set_func(ExifLog *log, ExifLogFunc func, void *data)
 {
-	if (!log) return;
-	log->func = func;
-	log->data = data;
+  if (!log) { return; }
+  log->func = func;
+  log->data = data;
 }
 
 #ifdef NO_VERBOSE_TAG_STRINGS
@@ -132,21 +138,21 @@ exif_log_set_func (ExifLog *log, ExifLogFunc func, void *data)
 #undef exif_log
 #endif
 void
-exif_log (ExifLog *log, ExifLogCode code, const char *domain,
-	  const char *format, ...)
+exif_log(ExifLog *log, ExifLogCode code, const char *domain,
+         const char *format, ...)
 {
-	va_list args;
+  va_list args;
 
-	va_start (args, format);
-	exif_logv (log, code, domain, format, args);
-	va_end (args);
+  va_start(args, format);
+  exif_logv(log, code, domain, format, args);
+  va_end(args);
 }
 
 void
-exif_logv (ExifLog *log, ExifLogCode code, const char *domain,
-	   const char *format, va_list args)
+exif_logv(ExifLog *log, ExifLogCode code, const char *domain,
+          const char *format, va_list args)
 {
-	if (!log) return;
-	if (!log->func) return;
-	log->func (log, code, domain, format, args, log->data);
+  if (!log) { return; }
+  if (!log->func) { return; }
+  log->func(log, code, domain, format, args, log->data);
 }

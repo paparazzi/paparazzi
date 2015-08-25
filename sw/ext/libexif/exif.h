@@ -70,9 +70,9 @@
  * Libexif by default relies on the calloc(3), realloc(3), and free(3)
  * functions, but the libexif user can tell libexif to use their
  * special memory management functions at runtime.
- * 
+ *
  * \section thread_safety Thread Safety
- * 
+ *
  * libexif is thread safe when the underlying C library is also thread safe.
  * Some C libraries may require defining a special macro (like _REENTRANT)
  * to ensure this, or may require linking to a special thread-safe version of

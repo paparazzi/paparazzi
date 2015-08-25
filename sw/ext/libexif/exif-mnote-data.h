@@ -9,10 +9,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -33,8 +33,8 @@ extern "C" {
 /*! Data found in the MakerNote tag */
 typedef struct _ExifMnoteData ExifMnoteData;
 
-Q_EXPORT void exif_mnote_data_ref   (ExifMnoteData *);
-Q_EXPORT void exif_mnote_data_unref (ExifMnoteData *);
+Q_EXPORT void exif_mnote_data_ref(ExifMnoteData *);
+Q_EXPORT void exif_mnote_data_unref(ExifMnoteData *);
 
 /*! Load the MakerNote data from a memory buffer.
  *
@@ -42,27 +42,27 @@ Q_EXPORT void exif_mnote_data_unref (ExifMnoteData *);
  * \param[in] buf pointer to raw MakerNote tag data
  * \param[in] buf_siz number of bytes of data at buf
  */
-Q_EXPORT void exif_mnote_data_load (ExifMnoteData *d, const unsigned char *buf,
-			   unsigned int buf_siz);
+Q_EXPORT void exif_mnote_data_load(ExifMnoteData *d, const unsigned char *buf,
+                                   unsigned int buf_siz);
 
 /*!
  * Save the raw MakerNote data into a memory buffer.  The buffer is
  * allocated by this function and must subsequently be freed by the
  * caller.
  *
- * \param[in,out] d extract the data from this structure 
+ * \param[in,out] d extract the data from this structure
  * \param[out] buf pointer to buffer pointer containing MakerNote data on return
  * \param[out] buf_siz pointer to the size of the buffer
  */
-Q_EXPORT void exif_mnote_data_save (ExifMnoteData *d, unsigned char **buf,
-			   unsigned int *buf_siz);
+Q_EXPORT void exif_mnote_data_save(ExifMnoteData *d, unsigned char **buf,
+                                   unsigned int *buf_siz);
 
 /*! Return the number of tags in the MakerNote.
  *
  * \param[in] d MakerNote data
  * \return number of tags, or 0 if no MakerNote or the type is not supported
  */
-Q_EXPORT unsigned int exif_mnote_data_count           (ExifMnoteData *d);
+Q_EXPORT unsigned int exif_mnote_data_count(ExifMnoteData *d);
 
 /*! Return the MakerNote tag number for the tag at the specified index within
  * the MakerNote.
@@ -71,7 +71,7 @@ Q_EXPORT unsigned int exif_mnote_data_count           (ExifMnoteData *d);
  * \param[in] n index of the entry within the MakerNote data
  * \return MakerNote tag number
  */
-Q_EXPORT unsigned int exif_mnote_data_get_id          (ExifMnoteData *d, unsigned int n);
+Q_EXPORT unsigned int exif_mnote_data_get_id(ExifMnoteData *d, unsigned int n);
 
 /*! Returns textual name of the given MakerNote tag. The name is a short,
  * unique (within this type of MakerNote), non-localized text string
@@ -81,7 +81,7 @@ Q_EXPORT unsigned int exif_mnote_data_get_id          (ExifMnoteData *d, unsigne
  * \param[in] n index of the entry within the MakerNote data
  * \return textual name of the tag
  */
-Q_EXPORT const char  *exif_mnote_data_get_name        (ExifMnoteData *d, unsigned int n);
+Q_EXPORT const char  *exif_mnote_data_get_name(ExifMnoteData *d, unsigned int n);
 
 /*! Returns textual title of the given MakerNote tag.
  * The title is a short, localized textual description of the tag.
@@ -90,7 +90,7 @@ Q_EXPORT const char  *exif_mnote_data_get_name        (ExifMnoteData *d, unsigne
  * \param[in] n index of the entry within the MakerNote data
  * \return textual name of the tag
  */
-Q_EXPORT const char  *exif_mnote_data_get_title       (ExifMnoteData *d, unsigned int n);
+Q_EXPORT const char  *exif_mnote_data_get_title(ExifMnoteData *d, unsigned int n);
 
 /*! Returns verbose textual description of the given MakerNote tag.
  *
@@ -98,7 +98,7 @@ Q_EXPORT const char  *exif_mnote_data_get_title       (ExifMnoteData *d, unsigne
  * \param[in] n index of the entry within the MakerNote data
  * \return textual description of the tag
  */
-Q_EXPORT const char  *exif_mnote_data_get_description (ExifMnoteData *d, unsigned int n);
+Q_EXPORT const char  *exif_mnote_data_get_description(ExifMnoteData *d, unsigned int n);
 
 /*! Return a textual representation of the value of the MakerNote entry.
  *
@@ -112,9 +112,9 @@ Q_EXPORT const char  *exif_mnote_data_get_description (ExifMnoteData *d, unsigne
  * \param[in] maxlen length of the buffer val
  * \return val pointer, or NULL on error
  */
-Q_EXPORT char  *exif_mnote_data_get_value (ExifMnoteData *d, unsigned int n, char *val, unsigned int maxlen);
+Q_EXPORT char  *exif_mnote_data_get_value(ExifMnoteData *d, unsigned int n, char *val, unsigned int maxlen);
 
-Q_EXPORT void exif_mnote_data_log (ExifMnoteData *, ExifLog *);
+Q_EXPORT void exif_mnote_data_log(ExifMnoteData *, ExifLog *);
 
 #ifdef __cplusplus
 }

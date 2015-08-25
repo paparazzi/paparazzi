@@ -10,10 +10,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -30,18 +30,18 @@ extern "C" {
 
 /*! EXIF tag data formats */
 typedef enum {
-        EXIF_FORMAT_BYTE       =  1,
-        EXIF_FORMAT_ASCII      =  2,
-        EXIF_FORMAT_SHORT      =  3,
-        EXIF_FORMAT_LONG       =  4,
-        EXIF_FORMAT_RATIONAL   =  5,
-	EXIF_FORMAT_SBYTE      =  6,
-        EXIF_FORMAT_UNDEFINED  =  7,
-	EXIF_FORMAT_SSHORT     =  8,
-        EXIF_FORMAT_SLONG      =  9,
-        EXIF_FORMAT_SRATIONAL  = 10,
-	EXIF_FORMAT_FLOAT      = 11,
-	EXIF_FORMAT_DOUBLE     = 12
+  EXIF_FORMAT_BYTE       =  1,
+  EXIF_FORMAT_ASCII      =  2,
+  EXIF_FORMAT_SHORT      =  3,
+  EXIF_FORMAT_LONG       =  4,
+  EXIF_FORMAT_RATIONAL   =  5,
+  EXIF_FORMAT_SBYTE      =  6,
+  EXIF_FORMAT_UNDEFINED  =  7,
+  EXIF_FORMAT_SSHORT     =  8,
+  EXIF_FORMAT_SLONG      =  9,
+  EXIF_FORMAT_SRATIONAL  = 10,
+  EXIF_FORMAT_FLOAT      = 11,
+  EXIF_FORMAT_DOUBLE     = 12
 } ExifFormat;
 
 /*! Return a textual representation of the given EXIF data type.
@@ -49,14 +49,14 @@ typedef enum {
  * \param[in] format EXIF data format
  * \return localized textual name
  */
-Q_EXPORT const char   *exif_format_get_name (ExifFormat format);
+Q_EXPORT const char   *exif_format_get_name(ExifFormat format);
 
 /*! Return the raw size of the given EXIF data type.
  *
  * \param[in] format EXIF data format
  * \return size in bytes
  */
-Q_EXPORT unsigned char exif_format_get_size (ExifFormat format);
+Q_EXPORT unsigned char exif_format_get_size(ExifFormat format);
 
 #ifdef __cplusplus
 }

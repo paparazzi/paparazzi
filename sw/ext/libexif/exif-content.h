@@ -9,10 +9,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -39,23 +39,22 @@ typedef struct _ExifContentPrivate ExifContentPrivate;
 #include <libexif/exif-log.h>
 #include <libexif/exif-mem.h>
 
-struct _ExifContent
-{
-        ExifEntry **entries;
-        unsigned int count;
+struct _ExifContent {
+  ExifEntry **entries;
+  unsigned int count;
 
-	/*! Data containing this content */
-	ExifData *parent;
+  /*! Data containing this content */
+  ExifData *parent;
 
-	ExifContentPrivate *priv;
+  ExifContentPrivate *priv;
 };
 
 /* Lifecycle */
-Q_EXPORT ExifContent *exif_content_new     (void);
-Q_EXPORT ExifContent *exif_content_new_mem (ExifMem *);
-Q_EXPORT void         exif_content_ref     (ExifContent *content);
-Q_EXPORT void         exif_content_unref   (ExifContent *content);
-Q_EXPORT void         exif_content_free    (ExifContent *content);
+Q_EXPORT ExifContent *exif_content_new(void);
+Q_EXPORT ExifContent *exif_content_new_mem(ExifMem *);
+Q_EXPORT void         exif_content_ref(ExifContent *content);
+Q_EXPORT void         exif_content_unref(ExifContent *content);
+Q_EXPORT void         exif_content_free(ExifContent *content);
 
 /*! Add an EXIF tag to an IFD.
  * If this tag already exists in the IFD, this function does nothing.
@@ -64,7 +63,7 @@ Q_EXPORT void         exif_content_free    (ExifContent *content);
  * \param[out] c IFD
  * \param[in] entry EXIF entry to add
  */
-Q_EXPORT void         exif_content_add_entry    (ExifContent *c, ExifEntry *entry);
+Q_EXPORT void         exif_content_add_entry(ExifContent *c, ExifEntry *entry);
 
 /*! Remove an EXIF tag from an IFD.
  * If this tag does not exist in the IFD, this function does nothing.
@@ -72,7 +71,7 @@ Q_EXPORT void         exif_content_add_entry    (ExifContent *c, ExifEntry *entr
  * \param[out] c IFD
  * \param[in] e EXIF entry to remove
  */
-Q_EXPORT void         exif_content_remove_entry (ExifContent *c, ExifEntry *e);
+Q_EXPORT void         exif_content_remove_entry(ExifContent *c, ExifEntry *e);
 
 /*! Return the #ExifEntry in this IFD corresponding to the given tag.
  * This is a pointer into a member of the #ExifContent array and must NOT be
@@ -82,7 +81,7 @@ Q_EXPORT void         exif_content_remove_entry (ExifContent *c, ExifEntry *e);
  * \param[in] tag EXIF tag to return
  * \return #ExifEntry of the tag, or NULL on error
  */
-Q_EXPORT ExifEntry   *exif_content_get_entry    (ExifContent *content, ExifTag tag);
+Q_EXPORT ExifEntry   *exif_content_get_entry(ExifContent *content, ExifTag tag);
 
 /*! Fix the IFD to bring it into specification. Call #exif_entry_fix on
  * each entry in this IFD to fix existing entries, create any new entries
@@ -91,9 +90,9 @@ Q_EXPORT ExifEntry   *exif_content_get_entry    (ExifContent *content, ExifTag t
  *
  * \param[in,out] c EXIF content for an IFD
  */
-Q_EXPORT void         exif_content_fix          (ExifContent *c);
+Q_EXPORT void         exif_content_fix(ExifContent *c);
 
-typedef void (* ExifContentForeachEntryFunc) (ExifEntry *, void *user_data);
+typedef void (* ExifContentForeachEntryFunc)(ExifEntry *, void *user_data);
 
 /*! Executes function on each EXIF tag in this IFD in turn.
  * The tags will not necessarily be visited in numerical order.
@@ -102,16 +101,16 @@ typedef void (* ExifContentForeachEntryFunc) (ExifEntry *, void *user_data);
  * \param[in] func function to call for each entry
  * \param[in] user_data data to pass into func on each call
  */
-Q_EXPORT void         exif_content_foreach_entry (ExifContent *content,
-					 ExifContentForeachEntryFunc func,
-					 void *user_data);
+Q_EXPORT void         exif_content_foreach_entry(ExifContent *content,
+    ExifContentForeachEntryFunc func,
+    void *user_data);
 
 /*! Return the IFD number in which the given #ExifContent is found.
  *
  * \param[in] c an #ExifContent*
  * \return IFD number, or #EXIF_IFD_COUNT on error
  */
-Q_EXPORT ExifIfd exif_content_get_ifd (ExifContent *c);
+Q_EXPORT ExifIfd exif_content_get_ifd(ExifContent *c);
 
 /*! Return a textual representation of the EXIF data for a tag.
  *
@@ -121,9 +120,9 @@ Q_EXPORT ExifIfd exif_content_get_ifd (ExifContent *c);
  * \param[in] m unsigned int length of the buffer v
  * \return the v pointer, or NULL on error
  */
-#define exif_content_get_value(c,t,v,m)					\
-	(exif_content_get_entry (c,t) ?					\
-	 exif_entry_get_value (exif_content_get_entry (c,t),v,m) : NULL)
+#define exif_content_get_value(c,t,v,m)         \
+  (exif_content_get_entry (c,t) ?         \
+   exif_entry_get_value (exif_content_get_entry (c,t),v,m) : NULL)
 
 /*! Dump contents of the IFD to stdout.
  * This is intended for diagnostic purposes only.
@@ -131,14 +130,14 @@ Q_EXPORT ExifIfd exif_content_get_ifd (ExifContent *c);
  * \param[in] content IFD data
  * \param[in] indent how many levels deep to indent the data
  */
-Q_EXPORT void exif_content_dump  (ExifContent *content, unsigned int indent);
+Q_EXPORT void exif_content_dump(ExifContent *content, unsigned int indent);
 
 /*! Set the log message object for this IFD.
  *
  * \param[in] content IFD
  * \param[in] log #ExifLog*
  */
-Q_EXPORT void exif_content_log   (ExifContent *content, ExifLog *log);
+Q_EXPORT void exif_content_log(ExifContent *content, ExifLog *log);
 
 #ifdef __cplusplus
 }

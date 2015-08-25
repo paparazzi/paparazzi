@@ -7,10 +7,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -30,13 +30,13 @@ extern "C" {
  * image data.
  */
 typedef enum {
-	EXIF_DATA_TYPE_UNCOMPRESSED_CHUNKY = 0,
-	EXIF_DATA_TYPE_UNCOMPRESSED_PLANAR,
-	EXIF_DATA_TYPE_UNCOMPRESSED_YCC,
-	EXIF_DATA_TYPE_COMPRESSED,
-	EXIF_DATA_TYPE_COUNT,
+  EXIF_DATA_TYPE_UNCOMPRESSED_CHUNKY = 0,
+  EXIF_DATA_TYPE_UNCOMPRESSED_PLANAR,
+  EXIF_DATA_TYPE_UNCOMPRESSED_YCC,
+  EXIF_DATA_TYPE_COMPRESSED,
+  EXIF_DATA_TYPE_COUNT,
 
-	EXIF_DATA_TYPE_UNKNOWN = EXIF_DATA_TYPE_COUNT
+  EXIF_DATA_TYPE_UNKNOWN = EXIF_DATA_TYPE_COUNT
 } ExifDataType;
 
 #ifdef __cplusplus

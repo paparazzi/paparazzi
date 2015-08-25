@@ -1,5 +1,5 @@
 /*! \file exif-utils.h
- *  \brief EXIF data manipulation functions and types 
+ *  \brief EXIF data manipulation functions and types
  */
 /*
  * Copyright (c) 2001 Lutz Mueller <lutz@users.sourceforge.net>
@@ -9,10 +9,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -32,34 +32,34 @@ extern "C" {
 #include <libexif/_stdint.h>
 
 
-/* If these definitions don't work for you, please let us fix the 
+/* If these definitions don't work for you, please let us fix the
  * macro generating _stdint.h */
-	
+
 /*! EXIF Unsigned Byte data type */
-typedef unsigned char	ExifByte;          /* 1 byte  */
-	
+typedef unsigned char ExifByte;          /* 1 byte  */
+
 /*! EXIF Signed Byte data type */
-typedef signed char	ExifSByte;         /* 1 byte  */
-	
+typedef signed char ExifSByte;         /* 1 byte  */
+
 /*! EXIF Text String data type */
-typedef char *		ExifAscii;
-	
+typedef char     *ExifAscii;
+
 /*! EXIF Unsigned Short data type */
-typedef uint16_t	ExifShort;         /* 2 bytes */
-	
+typedef uint16_t  ExifShort;         /* 2 bytes */
+
 /*! EXIF Signed Short data type */
 typedef int16_t         ExifSShort;        /* 2 bytes */
-	
+
 /*! EXIF Unsigned Long data type */
-typedef uint32_t	ExifLong;          /* 4 bytes */
-	
+typedef uint32_t  ExifLong;          /* 4 bytes */
+
 /*! EXIF Signed Long data type */
-typedef int32_t		ExifSLong;         /* 4 bytes */
+typedef int32_t   ExifSLong;         /* 4 bytes */
 
 /*! EXIF Unsigned Rational data type */
 typedef struct {ExifLong numerator; ExifLong denominator;} ExifRational;
 
-typedef char		ExifUndefined;     /* 1 byte  */
+typedef char    ExifUndefined;     /* 1 byte  */
 
 /*! EXIF Signed Rational data type */
 typedef struct {ExifSLong numerator; ExifSLong denominator;} ExifSRational;
@@ -71,7 +71,7 @@ typedef struct {ExifSLong numerator; ExifSLong denominator;} ExifSRational;
  * \param[in] order byte order of raw value
  * \return value
  */
-Q_EXPORT ExifShort     exif_get_short     (const unsigned char *b, ExifByteOrder order);
+Q_EXPORT ExifShort     exif_get_short(const unsigned char *b, ExifByteOrder order);
 
 /*! Retrieve an #ExifSShort value from memory.
  *
@@ -79,7 +79,7 @@ Q_EXPORT ExifShort     exif_get_short     (const unsigned char *b, ExifByteOrder
  * \param[in] order byte order of raw value
  * \return value
  */
-Q_EXPORT ExifSShort    exif_get_sshort    (const unsigned char *b, ExifByteOrder order);
+Q_EXPORT ExifSShort    exif_get_sshort(const unsigned char *b, ExifByteOrder order);
 
 /*! Retrieve an #ExifLong value from memory.
  *
@@ -87,7 +87,7 @@ Q_EXPORT ExifSShort    exif_get_sshort    (const unsigned char *b, ExifByteOrder
  * \param[in] order byte order of raw value
  * \return value
  */
-Q_EXPORT ExifLong      exif_get_long      (const unsigned char *b, ExifByteOrder order);
+Q_EXPORT ExifLong      exif_get_long(const unsigned char *b, ExifByteOrder order);
 
 /*! Retrieve an #ExifSLong value from memory.
  *
@@ -95,7 +95,7 @@ Q_EXPORT ExifLong      exif_get_long      (const unsigned char *b, ExifByteOrder
  * \param[in] order byte order of raw value
  * \return value
  */
-Q_EXPORT ExifSLong     exif_get_slong     (const unsigned char *b, ExifByteOrder order);
+Q_EXPORT ExifSLong     exif_get_slong(const unsigned char *b, ExifByteOrder order);
 
 /*! Retrieve an #ExifRational value from memory.
  *
@@ -103,7 +103,7 @@ Q_EXPORT ExifSLong     exif_get_slong     (const unsigned char *b, ExifByteOrder
  * \param[in] order byte order of raw value
  * \return value
  */
-Q_EXPORT ExifRational  exif_get_rational  (const unsigned char *b, ExifByteOrder order);
+Q_EXPORT ExifRational  exif_get_rational(const unsigned char *b, ExifByteOrder order);
 
 /*! Retrieve an #ExifSRational value from memory.
  *
@@ -111,7 +111,7 @@ Q_EXPORT ExifRational  exif_get_rational  (const unsigned char *b, ExifByteOrder
  * \param[in] order byte order of raw value
  * \return value
  */
-Q_EXPORT ExifSRational exif_get_srational (const unsigned char *b, ExifByteOrder order);
+Q_EXPORT ExifSRational exif_get_srational(const unsigned char *b, ExifByteOrder order);
 
 /*! Store an ExifShort value into memory in EXIF format.
  *
@@ -119,8 +119,8 @@ Q_EXPORT ExifSRational exif_get_srational (const unsigned char *b, ExifByteOrder
  * \param[in] order byte order to use
  * \param[in] value data value to store
  */
-Q_EXPORT void exif_set_short     (unsigned char *b, ExifByteOrder order,
-			 ExifShort value);
+Q_EXPORT void exif_set_short(unsigned char *b, ExifByteOrder order,
+                             ExifShort value);
 
 /*! Store an ExifSShort value into memory in EXIF format.
  *
@@ -128,8 +128,8 @@ Q_EXPORT void exif_set_short     (unsigned char *b, ExifByteOrder order,
  * \param[in] order byte order to use
  * \param[in] value data value to store
  */
-Q_EXPORT void exif_set_sshort    (unsigned char *b, ExifByteOrder order,
-			 ExifSShort value);
+Q_EXPORT void exif_set_sshort(unsigned char *b, ExifByteOrder order,
+                              ExifSShort value);
 
 /*! Store an ExifLong value into memory in EXIF format.
  *
@@ -137,8 +137,8 @@ Q_EXPORT void exif_set_sshort    (unsigned char *b, ExifByteOrder order,
  * \param[in] order byte order to use
  * \param[in] value data value to store
  */
-Q_EXPORT void exif_set_long      (unsigned char *b, ExifByteOrder order,
-			 ExifLong value);
+Q_EXPORT void exif_set_long(unsigned char *b, ExifByteOrder order,
+                            ExifLong value);
 
 /*! Store an ExifSLong value into memory in EXIF format.
  *
@@ -146,8 +146,8 @@ Q_EXPORT void exif_set_long      (unsigned char *b, ExifByteOrder order,
  * \param[in] order byte order to use
  * \param[in] value data value to store
  */
-Q_EXPORT void exif_set_slong     (unsigned char *b, ExifByteOrder order,
-			 ExifSLong value);
+Q_EXPORT void exif_set_slong(unsigned char *b, ExifByteOrder order,
+                             ExifSLong value);
 
 /*! Store an ExifRational value into memory in EXIF format.
  *
@@ -155,8 +155,8 @@ Q_EXPORT void exif_set_slong     (unsigned char *b, ExifByteOrder order,
  * \param[in] order byte order to use
  * \param[in] value data value to store
  */
-Q_EXPORT void exif_set_rational  (unsigned char *b, ExifByteOrder order,
-			 ExifRational value);
+Q_EXPORT void exif_set_rational(unsigned char *b, ExifByteOrder order,
+                                ExifRational value);
 
 /*! Store an ExifSRational value into memory in EXIF format.
  *
@@ -164,17 +164,17 @@ Q_EXPORT void exif_set_rational  (unsigned char *b, ExifByteOrder order,
  * \param[in] order byte order to use
  * \param[in] value data value to store
  */
-Q_EXPORT void exif_set_srational (unsigned char *b, ExifByteOrder order,
-			 ExifSRational value);
+Q_EXPORT void exif_set_srational(unsigned char *b, ExifByteOrder order,
+                                 ExifSRational value);
 
 /*! \internal */
-Q_EXPORT void exif_convert_utf16_to_utf8 (char *out, const unsigned short *in, int maxlen);
+Q_EXPORT void exif_convert_utf16_to_utf8(char *out, const unsigned short *in, int maxlen);
 
 /* Please do not use this function outside of the library. */
 
 /*! \internal */
-Q_EXPORT void exif_array_set_byte_order (ExifFormat, unsigned char *, unsigned int,
-		ExifByteOrder o_orig, ExifByteOrder o_new);
+Q_EXPORT void exif_array_set_byte_order(ExifFormat, unsigned char *, unsigned int,
+                                        ExifByteOrder o_orig, ExifByteOrder o_new);
 
 #undef  MIN
 #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
