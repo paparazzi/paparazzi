@@ -1181,11 +1181,15 @@ exif_tag_table_get_name(unsigned int n)
  * \param[in] entry pointer to a struct TagEntry
  * \return 0 if tags are equal, <0 if tag < entry, >0 if tag > entry
  */
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
 static int
 match_tag(const void *tag, const void *entry)
 {
   return *(int *)tag - ((struct TagEntry *)entry)->tag;
 }
+#pragma GCC diagnostic pop
 
 
 /*!
@@ -1317,7 +1321,7 @@ exif_tag_get_description_in_ifd(ExifTag tag, ExifIfd ifd)
    *
    * bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
    */
-  bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+//  bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
   return _(ExifTagTable[i].description);
 }
 

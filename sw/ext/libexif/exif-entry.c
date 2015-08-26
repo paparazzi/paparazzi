@@ -74,7 +74,7 @@ static void *
 exif_entry_alloc(ExifEntry *e, unsigned int i)
 {
   void *d;
-  ExifLog *l = NULL;
+//  ExifLog *l = NULL;
 
   if (!e || !e->priv || !i) { return NULL; }
 
@@ -91,7 +91,7 @@ static void *
 exif_entry_realloc(ExifEntry *e, void *d_orig, unsigned int i)
 {
   void *d;
-  ExifLog *l = NULL;
+//  ExifLog *l = NULL;
 
   if (!e || !e->priv) { return NULL; }
 
@@ -100,10 +100,10 @@ exif_entry_realloc(ExifEntry *e, void *d_orig, unsigned int i)
   d = exif_mem_realloc(e->priv->mem, d_orig, i);
   if (d) { return d; }
 
-  if (e->parent && e->parent->parent) {
-    l = exif_data_get_log(e->parent->parent);
-  }
-  EXIF_LOG_NO_MEMORY(l, "ExifEntry", i);
+  //if (e->parent && e->parent->parent) {
+  //  l = exif_data_get_log(e->parent->parent);
+  //}
+  //EXIF_LOG_NO_MEMORY(l, "ExifEntry", i);
   return NULL;
 }
 
@@ -953,6 +953,9 @@ static const struct {
   {0, { { 0, {NULL}}} }
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch"
+
 const char *
 exif_entry_get_value(ExifEntry *e, char *val, unsigned int maxlen)
 {
@@ -988,7 +991,7 @@ exif_entry_get_value(ExifEntry *e, char *val, unsigned int maxlen)
    *
    * bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
    */
-  bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+//  bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
 
   if (!e || !e->parent || !e->parent->parent || !maxlen) {
     return val;
@@ -1542,7 +1545,7 @@ exif_entry_get_value(ExifEntry *e, char *val, unsigned int maxlen)
 
   return val;
 }
-
+#pragma GCC diagnostic pop
 
 /*!
  * \bug Log and report failed exif_mem_malloc() calls.

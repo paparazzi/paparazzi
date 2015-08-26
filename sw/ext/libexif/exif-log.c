@@ -139,6 +139,9 @@ exif_log_set_func(ExifLog *log, ExifLogFunc func, void *data)
 #endif
 void
 exif_log(ExifLog *log, ExifLogCode code, const char *domain,
+         const char *format, ...);
+
+void exif_log(ExifLog *log, ExifLogCode code, const char *domain,
          const char *format, ...)
 {
   va_list args;

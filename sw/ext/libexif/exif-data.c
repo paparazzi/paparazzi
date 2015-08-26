@@ -808,7 +808,7 @@ exif_data_load_data(ExifData *data, const unsigned char *d_orig,
   ExifLong offset;
   ExifShort n;
   const unsigned char *d = d_orig;
-  unsigned int len, fullds;
+  unsigned int  fullds;
 
   if (!data || !data->priv || !d || !ds) {
     return;
@@ -871,10 +871,10 @@ exif_data_load_data(ExifData *data, const unsigned char *d_orig,
     }
     d++;
     ds--;
-    len = (d[0] << 8) | d[1];
-    exif_log(data->priv->log, EXIF_LOG_CODE_DEBUG, "ExifData",
-             "We have to deal with %i byte(s) of EXIF data.",
-             len);
+//    len = (d[0] << 8) | d[1];
+//    exif_log(data->priv->log, EXIF_LOG_CODE_DEBUG, "ExifData",
+//             "We have to deal with %i byte(s) of EXIF data.",
+//             len);
     d += 2;
     ds -= 2;
   }
