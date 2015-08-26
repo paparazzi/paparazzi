@@ -143,8 +143,12 @@ void electrical_periodic(void)
   /* electrical.current y = ( b^n - (b* x/a)^n )^1/n
    * a=1, n = electrical_priv.nonlin_factor
    */
-  electrical.current = b - pow((pow(b, electrical_priv.nonlin_factor) - pow((b * x), electrical_priv.nonlin_factor)),
+  if(x>1.0) //check if the thrust command is larger than the maximum to avoid getting a non-real number
+    electrical.current = b;
+  else {
+    electrical.current = b - pow((pow(b, electrical_priv.nonlin_factor) - pow((b * x), electrical_priv.nonlin_factor)),
                                (1. / electrical_priv.nonlin_factor));
+  }
 #endif /* ADC_CHANNEL_CURRENT */
 
   // mAh = mA * dt (10Hz -> hours)
