@@ -142,8 +142,7 @@ static const unsigned int exif_header_len = sizeof(exif_header);
 
 
 int write_exif_jpeg(char *filename, const unsigned char *image_jpg, const unsigned int image_jpg_len,
-                    const unsigned int image_jpg_x, const unsigned int image_jpg_y,
-                    double lattitude, double longitude, float height)
+                    const unsigned int image_jpg_x, const unsigned int image_jpg_y)
 {
   int rc = 1;
   FILE *f;

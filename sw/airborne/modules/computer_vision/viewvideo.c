@@ -178,7 +178,8 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
     // compute usleep to have a more stable frame rate
     struct timeval vision_thread_sleep_time;
     gettimeofday(&vision_thread_sleep_time, NULL);
-    int dt = (int)(vision_thread_sleep_time.tv_sec - last_time.tv_sec) * 1000000 + (int)(vision_thread_sleep_time.tv_usec - last_time.tv_usec);
+    int dt = (int)(vision_thread_sleep_time.tv_sec - last_time.tv_sec) * 1000000 + (int)(
+               vision_thread_sleep_time.tv_usec - last_time.tv_usec);
     if (dt < microsleep) { usleep(microsleep - dt); }
     last_time = vision_thread_sleep_time;
 
@@ -200,11 +201,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
         // Check if file exists or not
         if (access(save_name, F_OK) == -1) {
 #if JPEG_WITH_EXIF_HEADER
-          	double lattitude = 50.788851;
-          	double longitude = 6.046797;
-          	float height = 25;
-          	write_exif_jpeg(save_name, jpeg_hr.buf, jpeg_hr.buf_size, img.w, img.h,
-          			lattitude, longitude, height);
+          write_exif_jpeg(save_name, jpeg_hr.buf, jpeg_hr.buf_size, img.w, img.h);
 #else
           FILE *fp = fopen(save_name, "w");
           if (fp == NULL) {
