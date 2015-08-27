@@ -46,6 +46,10 @@
 #include "lib/encoding/rtp.h"
 #include "udp_socket.h"
 
+#if JPEG_WITH_EXIF_HEADER
+#include "lib/exif/exif_module.h"
+#endif
+
 // Threaded computer vision
 #include <pthread.h>
 #include "rt_priority.h"
@@ -205,6 +209,9 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
         sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIEWVIDEO_SHOT_PATH), viewvideo.shot_number);
         // Check if file exists or not
         if (access(save_name, F_OK) == -1) {
+#if JPEG_WITH_EXIF_HEADER
+          write_exif_jpeg(save_name, jpeg_hr.buf, jpeg_hr.buf_size, img.w, img.h);
+#else
           FILE *fp = fopen(save_name, "w");
           if (fp == NULL) {
             printf("[viewvideo-thread] Could not write shot %s.\n", save_name);
@@ -213,7 +220,7 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
             fwrite(jpeg_hr.buf, sizeof(uint8_t), jpeg_hr.buf_size, fp);
             fclose(fp);
           }
-
+#endif
           // We don't need to seek for a next index anymore
           break;
         }
