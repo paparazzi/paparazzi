@@ -1974,7 +1974,10 @@
     <field name="cmd_theta"   type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
   </message>
 
-  <!--229 is free -->
+  <message name="STEREO_IMG" id="229">
+    <field name="data_size" type="uint8"/>
+    <field name="imageBuffer" type="uint8[]"/>
+  </message>
 
   <!--230 is free -->
 
