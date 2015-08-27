@@ -31,7 +31,7 @@
 
 typedef struct {
   uint8_t len;
-  uint8_t* data;
+  uint8_t *data;
 } uint8array;
 
 extern uint8array stereocam_data;

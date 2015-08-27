@@ -39,7 +39,7 @@ struct link_device *dev = STEREO_PORT;
 #define StereoSend(_dat,_len) { for (uint8_t i = 0; i< (_len); i++) StereoSend1(_dat[i]); };
 #define StereoUartSetBaudrate(_b) uart_periph_set_baudrate(STEREO_PORT, _b);
 
-typedef struct ImageProperties{
+typedef struct ImageProperties {
   uint16_t positionImageStart;
   uint8_t width;
   uint8_t height;
@@ -48,9 +48,9 @@ typedef struct ImageProperties{
 // function primatives
 uint16_t add(uint16_t, uint16_t);
 uint16_t diff(uint16_t, uint16_t);
-uint8_t isEndOfImage(uint8_t*, uint16_t);
-uint8_t isStartOfImage(uint8_t*, uint16_t);
-ImageProperties get_image_properties(uint8_t *, ImageProperties*, uint16_t);
+uint8_t isEndOfImage(uint8_t *, uint16_t);
+uint8_t isStartOfImage(uint8_t *, uint16_t);
+ImageProperties get_image_properties(uint8_t *, ImageProperties *, uint16_t);
 static uint8_t handleStereoPackage(void);
 
 // pervasive local variables
@@ -83,8 +83,9 @@ uint16_t diff(uint16_t counter, uint16_t i)
  * Checks if the sequence in the array is equal to 255-0-0-171,
  * as this means that this is the end of an image
  */
-uint8_t isEndOfImage(uint8_t *stack, uint16_t i){
-  if (stack[i] == 255 && (stack[add(i,1)] == 0) && (stack[add(i, 2)] == 0) && stack[add(i, 3)]==171){
+uint8_t isEndOfImage(uint8_t *stack, uint16_t i)
+{
+  if (stack[i] == 255 && (stack[add(i, 1)] == 0) && (stack[add(i, 2)] == 0) && stack[add(i, 3)] == 171) {
     return 1;
   }
   return 0;
@@ -94,8 +95,9 @@ uint8_t isEndOfImage(uint8_t *stack, uint16_t i){
  * Checks if the sequence in the array is equal to 255-0-0-171,
  * as this means a new image is starting from here
  */
-uint8_t isStartOfImage(uint8_t *stack, uint16_t i){
-  if (stack[i] == 255 && (stack[add(i,1)] == 0) && (stack[add(i,2)] == 0) && stack[add(i,3)]==175){
+uint8_t isStartOfImage(uint8_t *stack, uint16_t i)
+{
+  if (stack[i] == 255 && (stack[add(i, 1)] == 0) && (stack[add(i, 2)] == 0) && stack[add(i, 3)] == 175) {
     return 1;
   }
   return 0;
@@ -104,64 +106,63 @@ uint8_t isStartOfImage(uint8_t *stack, uint16_t i){
 /**
  * Retrieve size of image from message
  */
-ImageProperties get_image_properties(uint8_t *raw, ImageProperties* properties, uint16_t start){
-    *properties = (ImageProperties){start,0,0};
-    uint16_t i = img_start, startOfLine = 0;
-    while( 1 ){
-      // Check the first 3 bytes for the pattern 255-0-0, then check what special byte is encoded next
-        if ((raw[i] == 255) && (raw[add(i,1)] == 0) && (raw[add(i, 2)] == 0)){
-            if (raw[add(i,3)] == 171){ // End of image
-                break;
-            }
-            if (raw[add(i,3)] == 128) // Start of line
-              startOfLine = i;
+ImageProperties get_image_properties(uint8_t *raw, ImageProperties *properties, uint16_t start)
+{
+  *properties = (ImageProperties) {start, 0, 0};
+  uint16_t i = img_start, startOfLine = 0;
+  while (1) {
+    // Check the first 3 bytes for the pattern 255-0-0, then check what special byte is encoded next
+    if ((raw[i] == 255) && (raw[add(i, 1)] == 0) && (raw[add(i, 2)] == 0)) {
+      if (raw[add(i, 3)] == 171) { // End of image
+        break;
+      }
+      if (raw[add(i, 3)] == 128) { // Start of line
+        startOfLine = i;
+      }
 
-            if (raw[add(i,3)] == 218) // End of line
-            {
-              properties->height++;
-              properties->width = diff(i,startOfLine + 4); // removed 4 for the indication bits at the end of line
-            }
-        }
-        i = add(i, 1);
+      if (raw[add(i, 3)] == 218) { // End of line
+        properties->height++;
+        properties->width = diff(i, startOfLine + 4); // removed 4 for the indication bits at the end of line
+      }
     }
-    return imageProperties;
+    i = add(i, 1);
+  }
+  return imageProperties;
 }
 
 /**
  * Get all available data from stereo com link and decode any complete messages.
  * Returns as soon as a complete message is found. Messages placed in msg_buf
  */
-static uint8_t handleStereoPackage(void) {
+static uint8_t handleStereoPackage(void)
+{
   // read all data from the stereo com link
-  while (dev->char_available(dev->periph))
-  {
+  while (dev->char_available(dev->periph)) {
     ser_read_buf[insert_loc] = dev->get_byte(dev->periph);
-    insert_loc = add(insert_loc,1);
+    insert_loc = add(insert_loc, 1);
   }
 
   // search for complete message in buffer, if found increments read location and returns immediately
-  while(diff(insert_loc, extract_loc) > 0)
-  {
-    if(isStartOfImage(ser_read_buf, extract_loc))
+  while (diff(insert_loc, extract_loc) > 0) {
+    if (isStartOfImage(ser_read_buf, extract_loc)) {
       img_start = extract_loc;
-    else if(isEndOfImage(ser_read_buf, extract_loc)) // process image
-    {
+    } else if (isEndOfImage(ser_read_buf, extract_loc)) { // process image
       // Find the properties of the image by iterating over the complete image
       imageProperties = get_image_properties(ser_read_buf, &imageProperties, img_start);
 
       // Copy array to circular buffer and remove all bytes that are indications of start and stop lines
       uint16_t i = img_start, j = 0, index = 0;
-      while(diff(extract_loc, i) > 0 ){
-        if ((ser_read_buf[i] == 255) && (ser_read_buf[add(i,1)] == 0) && (ser_read_buf[add(i,2)] == 0) && ser_read_buf[add(i,3)] == 128){ // Start Of Line
-            j = 0;
-            i = add(i,3);   // step over
-            while (j++ < imageProperties.width)
-            {
-              i = add(i,1);
-              msg_buf[index++] = ser_read_buf[i];
-            }
+      while (diff(extract_loc, i) > 0) {
+        if ((ser_read_buf[i] == 255) && (ser_read_buf[add(i, 1)] == 0) && (ser_read_buf[add(i, 2)] == 0)
+            && ser_read_buf[add(i, 3)] == 128) { // Start Of Line
+          j = 0;
+          i = add(i, 3);  // step over
+          while (j++ < imageProperties.width) {
+            i = add(i, 1);
+            msg_buf[index++] = ser_read_buf[i];
+          }
         }
-        i = add(i,1);
+        i = add(i, 1);
       } // continue search for new line
       stereocam_data.len = imageProperties.width * imageProperties.height;
       extract_loc = add(extract_loc, 4);
@@ -172,23 +173,25 @@ static uint8_t handleStereoPackage(void) {
   return 0;
 }
 
-extern void stereocam_start(void){
+extern void stereocam_start(void)
+{
   // initialize local variables
-  imageProperties = (ImageProperties){0,0,0};
+  imageProperties = (ImageProperties) {0, 0, 0};
 
   insert_loc = 0;
   extract_loc = 0;
   img_start = 0;
 }
 
-extern void stereocam_stop(void) {
+extern void stereocam_stop(void)
+{
 }
 
-extern void stereocam_periodic(void) {
-  if( handleStereoPackage() )
-  {
+extern void stereocam_periodic(void)
+{
+  if (handleStereoPackage()) {
 #ifdef SEND_STEREO
-      DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &(stereocam_data.len), stereocam_data.len, msg_buf);
+    DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &(stereocam_data.len), stereocam_data.len, msg_buf);
 #endif
   }
 }
