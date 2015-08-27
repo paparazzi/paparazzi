@@ -66,49 +66,9 @@ static void send_vn_info(struct transport_tx *trans, struct link_device *dev)
                                &ins_vn.vn_packet.counter,
                                &ins_vn.mode,
                                &ins_vn.err,
-                               &ins_vn.YprU.phi,
-                               &ins_vn.YprU.theta,
-                               &ins_vn.YprU.psi);
-}
-
-static void send_vn_msg(struct transport_tx *trans, struct link_device *dev)
-{
-  uint16_t vnstatus = (uint16_t)ins_vn.mode;
-  struct FloatEulers *attitude;
-  attitude = stateGetNedToBodyEulers_f();
-  struct NedCoor_f *ned_speed;
-  ned_speed = stateGetSpeedNed_f();
-  pprz_msg_send_VECTORNAV_MSG(trans, dev, AC_ID,
-                              &ins_vn.timestamp,
-                              &attitude->phi,
-                              &attitude->theta,
-                              &attitude->psi,
-                              &imuf.gyro.p,
-                              &imuf.gyro.q,
-                              &imuf.gyro.r,
-                              &ins_vn.pos_lla[0],
-                              &ins_vn.pos_lla[1],
-                              &ins_vn.pos_lla[2],
-                              &ned_speed->x,
-                              &ned_speed->y,
-                              &ned_speed->z,
-                              &imuf.accel.x,
-                              &imuf.accel.y,
-                              &imuf.accel.z,
-                              &gps.num_sv,
-                              &gps.fix,
-                              &ins_vn.posU[0],
-                              &ins_vn.posU[1],
-                              &ins_vn.posU[2],
-                              &ins_vn.velU,
-                              &ins_vn.ltp_accel_f.x,
-                              &ins_vn.ltp_accel_f.y,
-                              &ins_vn.ltp_accel_f.z,
-                              &ins_vn.YprU.phi,
-                              &ins_vn.YprU.theta,
-                              &ins_vn.YprU.psi,
-                              &vnstatus
-                             );
+                               &ins_vn.ypr_u.phi,
+                               &ins_vn.ypr_u.theta,
+                               &ins_vn.ypr_u.psi);
 }
 #endif
 
@@ -184,7 +144,6 @@ void ins_vectornav_init(void)
   register_periodic_telemetry(DefaultPeriodic, "INS_Z", send_ins_z);
   register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
   register_periodic_telemetry(DefaultPeriodic, "VECTORNAV_INFO", send_vn_info);
-  register_periodic_telemetry(DefaultPeriodic, "VECTORNAV_MSG", send_vn_msg);
 #endif
 }
 
@@ -210,7 +169,7 @@ void ins_vectornav_read_message(void)
   idx += 3 * sizeof(float);
 
   // Rates (imu frame), float, [rad/s]
-  memcpy(&imuf.gyro, &ins_vn.vn_packet.msg_buf[idx], 3 * sizeof(float));
+  memcpy(&ins_vn.gyro, &ins_vn.vn_packet.msg_buf[idx], 3 * sizeof(float));
   idx += 3 * sizeof(float);
 
   //Pos LLA, double,[deg, deg, m]
@@ -224,7 +183,7 @@ void ins_vectornav_read_message(void)
   idx += 3 * sizeof(float);
 
   // Accel (imu-frame), float, [m/s^-2]
-  memcpy(&imuf.accel, &ins_vn.vn_packet.msg_buf[idx], 3 * sizeof(float));
+  memcpy(&ins_vn.accel, &ins_vn.vn_packet.msg_buf[idx], 3 * sizeof(float));
   idx += 3 * sizeof(float);
 
   // tow (in nanoseconds), uint64
@@ -243,11 +202,11 @@ void ins_vectornav_read_message(void)
   idx++;
 
   //posU, float[3]
-  memcpy(&ins_vn.posU, &ins_vn.vn_packet.msg_buf[idx], 3 * sizeof(float));
+  memcpy(&ins_vn.pos_u, &ins_vn.vn_packet.msg_buf[idx], 3 * sizeof(float));
   idx += 3 * sizeof(float);
 
   //velU, float
-  memcpy(&ins_vn.velU, &ins_vn.vn_packet.msg_buf[idx], sizeof(float));
+  memcpy(&ins_vn.vel_u, &ins_vn.vn_packet.msg_buf[idx], sizeof(float));
   idx += sizeof(float);
 
   //linear acceleration imu-body frame, float [m/s^2]
@@ -262,7 +221,7 @@ void ins_vectornav_read_message(void)
   idx += 3 * sizeof(float);
 
   //YprU, float[3]
-  memcpy(&ins_vn.YprU, &ins_vn.vn_packet.msg_buf[idx], 3 * sizeof(float));
+  memcpy(&ins_vn.ypr_u, &ins_vn.vn_packet.msg_buf[idx], 3 * sizeof(float));
   idx += 3 * sizeof(float);
 
   //instatus, uint16
@@ -293,7 +252,7 @@ void ins_vectornav_check_status(void)
  */
 void ins_vectornav_set_sacc(void)
 {
-  gps.sacc = (uint32_t)(ins_vn.velU * 100);
+  gps.sacc = (uint32_t)(ins_vn.vel_u * 100);
 }
 
 /**
@@ -302,12 +261,12 @@ void ins_vectornav_set_sacc(void)
  */
 void ins_vectornav_set_pacc(void)
 {
-  float pacc = ins_vn.posU[0]; // in meters
-  if (ins_vn.posU[1] > pacc) {
-    pacc = ins_vn.posU[1];
+  float pacc = ins_vn.pos_u[0]; // in meters
+  if (ins_vn.pos_u[1] > pacc) {
+    pacc = ins_vn.pos_u[1];
   }
-  if (ins_vn.posU[2] > pacc) {
-    pacc = ins_vn.posU[2];
+  if (ins_vn.pos_u[2] > pacc) {
+    pacc = ins_vn.pos_u[2];
   }
 
   gps.pacc = (uint32_t)(pacc * 100);
@@ -319,12 +278,12 @@ void ins_vectornav_set_pacc(void)
  * yaw(0), pitch(1), roll(2) -> phi, theta, psi
  * [deg] -> rad
  */
-void ins_vectornav_yawPitchRoll_to_attitude(struct FloatEulers *vn_attitude)
+void ins_vectornav_yaw_pitch_roll_to_attitude(struct FloatEulers *vn_attitude)
 {
   static struct FloatEulers att_rad;
-  att_rad.phi = (vn_attitude->psi) * DEG_TO_RAD;
-  att_rad.theta = (vn_attitude->theta) * DEG_TO_RAD;
-  att_rad.psi = (vn_attitude->phi) * DEG_TO_RAD;
+  att_rad.phi = RadOfDeg(vn_attitude->psi);
+  att_rad.theta = RadOfDeg(vn_attitude->theta);
+  att_rad.psi = RadOfDeg(vn_attitude->phi);
 
   vn_attitude->phi = att_rad.phi;
   vn_attitude->theta = att_rad.theta;
@@ -338,22 +297,22 @@ void ins_vectornav_yawPitchRoll_to_attitude(struct FloatEulers *vn_attitude)
 void ins_vectornav_propagate()
 {
   // Acceleration [m/s^2]
-  ACCELS_BFP_OF_REAL(imu.accel, imuf.accel); // for backwards compatibility with fixed point interface
+  ACCELS_BFP_OF_REAL(imu.accel, ins_vn.accel); // for backwards compatibility with fixed point interface
 
   // Rates [rad/s]
   static struct FloatRates body_rate;
-  RATES_BFP_OF_REAL(imu.gyro, imuf.gyro);  // for backwards compatibility with fixed point interface
-  float_rmat_ratemult(&body_rate, orientationGetRMat_f(&imuf.body_to_imu), &imuf.gyro); // compute body rates
+  RATES_BFP_OF_REAL(imu.gyro, ins_vn.gyro);  // for backwards compatibility with fixed point interface
+  float_rmat_ratemult(&body_rate, orientationGetRMat_f(&imu.body_to_imu), &ins_vn.gyro); // compute body rates
   stateSetBodyRates_f(&body_rate);   // Set state [rad/s]
 
   // Attitude [deg]
-  ins_vectornav_yawPitchRoll_to_attitude(&ins_vn.attitude); // convert to correct units and axis [rad]
+  ins_vectornav_yaw_pitch_roll_to_attitude(&ins_vn.attitude); // convert to correct units and axis [rad]
   static struct FloatQuat imu_quat; // convert from euler to quat
   float_quat_of_eulers(&imu_quat, &ins_vn.attitude);
   static struct FloatRMat imu_rmat; // convert from quat to rmat
   float_rmat_of_quat(&imu_rmat, &imu_quat);
   static struct FloatRMat ltp_to_body_rmat; // rotate to body frame
-  float_rmat_comp(&ltp_to_body_rmat, &imu_rmat, orientationGetRMat_f(&imuf.body_to_imu));
+  float_rmat_comp(&ltp_to_body_rmat, &imu_rmat, orientationGetRMat_f(&imu.body_to_imu));
   stateSetNedToBodyRMat_f(&ltp_to_body_rmat); // set body states [rad]
 
   // NED (LTP) velocity [m/s]
@@ -370,7 +329,7 @@ void ins_vectornav_propagate()
 
   // NED (LTP) acceleration [m/s^2]
   static struct FloatVect3 accel_meas_ltp;// first we need to rotate linear acceleration from imu-frame to body-frame
-  float_rmat_transp_vmult(&accel_meas_ltp, orientationGetRMat_f(&imuf.body_to_imu), &(ins_vn.lin_accel));
+  float_rmat_transp_vmult(&accel_meas_ltp, orientationGetRMat_f(&imu.body_to_imu), &(ins_vn.lin_accel));
   static struct NedCoor_f ltp_accel; // assign to NedCoord_f struct
   VECT3_ASSIGN(ltp_accel, accel_meas_ltp.x, accel_meas_ltp.y, accel_meas_ltp.z);
   stateSetAccelNed_f(&ltp_accel); // then set the states
@@ -378,8 +337,8 @@ void ins_vectornav_propagate()
 
   // LLA position [rad, rad, m]
   //static struct LlaCoor_f lla_pos; // convert from deg to rad, and from double to float
-  ins_vn.lla_pos.lat = ((float)ins_vn.pos_lla[0]) * DEG_TO_RAD; // ins_impl.pos_lla[0] = lat
-  ins_vn.lla_pos.lon = ((float)ins_vn.pos_lla[1]) * DEG_TO_RAD; // ins_impl.pos_lla[1] = lon
+  ins_vn.lla_pos.lat = RadOfDeg((float)ins_vn.pos_lla[0]); // ins_impl.pos_lla[0] = lat
+  ins_vn.lla_pos.lon = RadOfDeg((float)ins_vn.pos_lla[1]); // ins_impl.pos_lla[1] = lon
   ins_vn.lla_pos.alt = ((float)ins_vn.pos_lla[2]); // ins_impl.pos_lla[2] = alt
   LLA_BFP_OF_REAL(gps.lla_pos, ins_vn.lla_pos);
   stateSetPositionLla_i(&gps.lla_pos);

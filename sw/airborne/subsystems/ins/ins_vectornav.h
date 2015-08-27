@@ -156,14 +156,16 @@ struct InsVectornav {
   // accel -> imu
   // num sats -> GPS
   // GPS fix -> GPS
-  float posU[3]; // The current GPS position uncertainty in the North East Down (NED) coordinate frame, given in meters.
-  float velU; // NED velocity uncertainty [m/s]
+  float pos_u[3]; // The current GPS position uncertainty in the North East Down (NED) coordinate frame, given in meters.
+  float vel_u; // NED velocity uncertainty [m/s]
   struct FloatVect3 lin_accel; // Linear acceleration in imu frame [m/s^2]
-  struct FloatEulers YprU; // Attitude uncertainty, 1sigma, float, [degrees], yaw, pitch, roll
+  struct FloatEulers ypr_u; // Attitude uncertainty, 1sigma, float, [degrees], yaw, pitch, roll
   uint16_t ins_status; // see page 122 of VN-200 datasheet
   uint8_t mode; // 0-not tracking, 1 - poor performance, 2- OK
   uint8_t err; // see page 122 of VN-200 datasheet
   struct FloatVect3 vel_body; //The estimated velocity in the imu frame, given in m/s.
+  struct FloatVect3 accel; // Acceleration in the imu frame, m/s
+  struct FloatRates gyro; // Rates in the imu frame m/s
 };
 
 
@@ -178,7 +180,7 @@ void ins_vectornav_check_status(void);
 void ins_vectornav_set_sacc(void);
 void ins_vectornav_set_pacc(void);
 void ins_vectornav_propagate(void);
-void ins_vectornav_yawPitchRoll_to_attitude(struct FloatEulers *vn_attitude);
+void ins_vectornav_yaw_pitch_roll_to_attitude(struct FloatEulers *vn_attitude);
 void ins_init_origin_from_flightplan(void);
 
 #endif /* INS_VECTORNAV_H */

@@ -196,37 +196,7 @@
     <field name="YprU3" 	type="float" 	unit="deg"/>
   </message>
 
-  <message name="VECTORNAV_MSG" id="24">
-    <field name="TimeStartup" 	type="float" 	unit="s" />
-    <field name="Roll" 	type="float" 	unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="Pitch" 	type="float"  unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="Yaw" 	type="float"  unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-    <field name="AngularRateP" 	type="float"  unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-    <field name="AngularRateQ" 	type="float"  unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-    <field name="AngularRateR" 	type="float"  unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-    <field name="PosLat" type="double" unit="deg"/>
-    <field name="PosLon" type="double" unit="deg"/>
-    <field name="PosAlt" type="double" unit="m"/>
-    <field name="VelNorth" type="float" unit="m/s"/>
-    <field name="VelEast"  type="float" unit="m/s"/>
-    <field name="VelDown" type="float" unit="m/s"/>    
-    <field name="AccelImuX" type="float" unit="m/s-2"/>
-    <field name="AccelImuY" type="float" unit="m/s-2"/>
-    <field name="AccelImuZ" type="float" unit="m/s-2"/>
-    <field name="NumSats" 	type="uint8"/>
-    <field name="GPSFix" 	type="uint8" 	values="NOFIX|TIMEONLY|2D|3D"/>
-    <field name="PosUncNorth" type="float" unit="m"/>
-    <field name="PosUncEast" type="float" unit="m"/>
-    <field name="PosUncDown" type="float" unit="m"/>
-    <field name="VelUnc" type="float" unit="m/s"/>
-    <field name="LinearAccelBodyX" type="float" unit="m/s^2"/>
-    <field name="LinearAccelBodyY" type="float" unit="m/s^2"/>
-    <field name="LinearAccelBodyZ" type="float" unit="m/s^2"/>
-    <field name="YawImuUnc" 	type="float" 	unit="deg"/>
-    <field name="PitchImuUnc" 	type="float"  unit="deg"/>
-    <field name="RollImuUnc" 	type="float"  unit="deg"/>
-    <field name="InsStatus" type="uint16" values="NoTracking|OutOfSpecs|OK"/>
-  </message>
+  <!--24 is free -->
 
   <message name="SVINFO" id="25">
     <field name="chn" type="uint8"/>

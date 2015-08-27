@@ -43,8 +43,6 @@
 #define VN_HEADER_SIZE 9
 #define VN_PAYLOAD_SIZE 144
 
-#define DEG_TO_RAD 0.017453292519943
-
 
 enum VNMsgStatus {
   VNMsgSync,
@@ -79,41 +77,6 @@ enum VNStatus {
 void vn200_event(struct VNPacket *vnp);
 void vn200_read_message(void);
 void vn200_parse(struct VNPacket *vnp, uint8_t c);
-
-/**
- * Calculates the 16-bit CRC for the given ASCII or binary message.
- * The CRC is calculated over the packet starting just after the sync byte (not including the sync byte)
- * and ending at the end of payload.
- */
-static inline unsigned short calculateCRC(unsigned char data[], unsigned int length)
-{
-  unsigned int i;
-  unsigned short crc = 0;
-  for (i = 0; i < length; i++) {
-    crc = (unsigned char)(crc >> 8) | (crc << 8);
-    crc ^= data[i];
-    crc ^= (unsigned char)(crc & 0xff) >> 4;
-    crc ^= crc << 12;
-    crc ^= (crc & 0x00ff) << 5;
-  }
-  return crc;
-}
-
-/**
- * Verify checksum
- */
-static inline bool verify_chk(unsigned char data[], unsigned int length, uint16_t *calc_chk, uint16_t *rec_chk)
-{
-  unsigned short calc_crc = calculateCRC(data, length);
-  unsigned short rec_crc = (unsigned short)(data[length] << 8 | data[length + 1]);
-  *calc_chk = (uint16_t) calc_crc;
-  *rec_chk = (uint16_t) rec_crc;
-  if (calc_crc == rec_crc) {
-    return 1;
-  } else {
-    return 0;
-  }
-}
 
 
 #endif /* VN200_SERIAl_H */
