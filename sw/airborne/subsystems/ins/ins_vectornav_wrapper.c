@@ -28,5 +28,8 @@
  */
 #include "subsystems/ins/ins_vectornav_wrapper.h"
 
-// Just dummy for now
-void ahrs_vectornav_register(void) {}
+
+void ins_vectornav_register(void)
+{
+  ins_register_impl(ins_vectornav_init);
+}

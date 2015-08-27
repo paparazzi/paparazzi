@@ -26,15 +26,19 @@
  *
  * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
-#ifndef AHRS_VECTORNAV_WRAPPER_H
-#define AHRS_VECTORNAV_WRAPPER_H
+#ifndef INS_VECTORNAV_WRAPPER_H
+#define INS_VECTORNAV_WRAPPER_H
 
 #include "subsystems/ins/ins_vectornav.h"
 
-#ifndef PRIMARY_AHRS
-#define PRIMARY_AHRS ahrs_vectornav
+#ifndef DefaultInsImpl
+#define DefaultInsImpl ins_vectornav
 #endif
 
-extern void ahrs_vectornav_register(void);
+#define InsEvent ins_vectornav_event
 
-#endif /* AHRS_VECTORNAV_WRAPPER_H */
+#define GpsEvent() {}
+
+extern void ins_vectornav_register(void);
+
+#endif /* INS_VECTORNAV_WRAPPER_H */

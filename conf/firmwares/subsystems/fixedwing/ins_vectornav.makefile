@@ -2,84 +2,29 @@
 # 2015, Michal Podhradsky, michal.podhradsky@aggiemail.usu.edu
 # Utah State University, http://aggieair.usu.edu/
 
-### AP & NPS Targets
+include $(CFG_SHARED)/ins_vectornav.makefile
 
-#
-# IMU defines
-#
-VN_CFLAGS += -DUSE_IMU
-VN_CFLAGS += -DUSE_IMU_FLOAT
-VN_CFLAGS += -DIMU_TYPE_H=\"ins/ins_vectornav.h\"
+ap.CFLAGS += -DGPS_USE_LATLONG
 
-VN_SRCS   += $(SRC_SUBSYSTEMS)/imu.c
 
-#
-# GPS defines
-#
-VN_CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
+#########################################
+## Simulator
 
-VN_SRCS += $(SRC_SUBSYSTEMS)/gps.c
+sim.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_sim.h\"
+sim.CFLAGS += -DUSE_AHRS
 
-#
-# AHRS defines
-#
-ifdef SECONDARY_AHRS
-ifneq (,$(findstring $(SECONDARY_AHRS),ahrs_vectornav))
-# this is the secondary AHRS
-AHRS_VN_CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ins/ins_vectornav_wrapper.h\"
-AHRS_VN_CFLAGS += -DSECONDARY_AHRS=ahrs_vectornav
-else
-# this is the primary AHRS
-AHRS_VN_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ins/ins_vectornav_wrapper.h\"
-AHRS_VN_CFLAGS += -DPRIMARY_AHRS=ahrs_vectornav
-endif
-else
-# plain old single AHRS usage
-AHRS_VN_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ins/ins_vectornav_wrapper.h\"
-endif
+sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
+sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
 
-AHRS_VN_CFLAGS  += -DUSE_AHRS
+sim.srcs   += $(SRC_SUBSYSTEMS)/ins.c
+sim.CFLAGS += -DINS_TYPE_H=\"subsystems/ins/ins_gps_passthrough_utm.h\"
+sim.srcs   += $(SRC_SUBSYSTEMS)/ins/ins_gps_passthrough_utm.c
 
-AHRS_VN_SRCS   += subsystems/ahrs.c
-AHRS_VN_SRCS   += subsystems/ins/ins_vectornav_wrapper.c
+sim.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
+sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
+sim.srcs += $(SRC_SUBSYSTEMS)/gps.c
 
-#
-# Add AHRS defines to the target (AP+NPS))
-# add it for all targets except sim and fbw
-#
-ifeq (,$(findstring $(TARGET),sim fbw))
-VN_CFLAGS += $(AHRS_VN_CFLAGS)
-VN_SRCS += $(AHRS_VN_SRCS)
-endif
-
-#
-# INS defines
-#
-VN_CFLAGS += -DINS_TYPE_H=\"subsystems/ins/ins_vectornav.h\"
-
-VN_SRCS += $(SRC_SUBSYSTEMS)/ins.c
-VN_SRCS += $(SRC_SUBSYSTEMS)/ins/ins_vectornav.c
-
-#
-# IO defines
-#
-VN_PORT ?= UART3
-VN_BAUD ?= B921600
-
-VN_CFLAGS += -DUSE_$(VN_PORT) -D$(VN_PORT)_BAUD=$(VN_BAUD)
-VN_PORT_LOWER=$(shell echo $(VN_PORT) | tr A-Z a-z)
-VN_CFLAGS += -DVN_PORT=$(VN_PORT_LOWER)
-
-VN_SRCS   += peripherals/vn200_serial.c
-
-#
-# Add to the target (AP+NPS))
-# add it for all targets except sim and fbw
-#
-ifeq (,$(findstring $(TARGET),sim fbw nps))
-$(TARGET).CFLAGS += $(VN_CFLAGS)
-$(TARGET).srcs += $(VN_SRCS)
-endif
 
 #
 # NPS simulator
@@ -92,10 +37,9 @@ nps.srcs += $(SRC_SUBSYSTEMS)/gps.c
 nps.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"
 nps.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_nps.c
 
-nps.CFLAGS += $(AHRS_VN_CFLAGS)
-nps.srcs += $(AHRS_VN_SRCS)
-nps.CFLAGS += -DNPS_BYPASS_AHRS -DNPS_BYPASS_INS
-
 nps.CFLAGS += -DINS_TYPE_H=\"subsystems/ins/ins_gps_passthrough_utm.h\"
 nps.srcs   += $(SRC_SUBSYSTEMS)/ins.c
 nps.srcs   += $(SRC_SUBSYSTEMS)/ins/ins_gps_passthrough_utm.c
+
+nps.CFLAGS += -DNPS_BYPASS_AHRS -DNPS_BYPASS_INS
+

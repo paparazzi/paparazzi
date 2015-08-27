@@ -36,15 +36,15 @@ struct InsVectornav ins_vn;
 static void send_ins(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_INS(trans, dev, AC_ID,
-                    &ins_vn.ltp_pos.x, &ins_vn.ltp_pos.y, &ins_vn.ltp_pos.z,
-                    &ins_vn.ltp_speed.x, &ins_vn.ltp_speed.y, &ins_vn.ltp_speed.z,
-                    &ins_vn.ltp_accel.x, &ins_vn.ltp_accel.y, &ins_vn.ltp_accel.z);
+                    &ins_vn.ltp_pos_i.x, &ins_vn.ltp_pos_i.y, &ins_vn.ltp_pos_i.z,
+                    &ins_vn.ltp_speed_i.x, &ins_vn.ltp_speed_i.y, &ins_vn.ltp_speed_i.z,
+                    &ins_vn.ltp_accel_i.x, &ins_vn.ltp_accel_i.y, &ins_vn.ltp_accel_i.z);
 }
 
 static void send_ins_z(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_INS_Z(trans, dev, AC_ID,
-                      &ins_vn.baro_z, &ins_vn.ltp_pos.z, &ins_vn.ltp_speed.z, &ins_vn.ltp_accel.z);
+                      &ins_vn.baro_z, &ins_vn.ltp_pos_i.z, &ins_vn.ltp_speed_i.z, &ins_vn.ltp_accel_i.z);
 }
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
@@ -70,6 +70,30 @@ static void send_vn_info(struct transport_tx *trans, struct link_device *dev)
                                &ins_vn.ypr_u.theta,
                                &ins_vn.ypr_u.psi);
 }
+
+static void send_accel(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_IMU_ACCEL(trans, dev, AC_ID,
+                          &ins_vn.accel.x, &ins_vn.accel.y, &ins_vn.accel.z);
+}
+
+static void send_gyro(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_IMU_GYRO(trans, dev, AC_ID,
+                         &ins_vn.gyro.p, &ins_vn.gyro.q, &ins_vn.gyro.r);
+}
+
+static void send_accel_scaled(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_IMU_ACCEL_SCALED(trans, dev, AC_ID,
+                                 &ins_vn.accel_i.x, &ins_vn.accel_i.y, &ins_vn.accel_i.z);
+}
+
+static void send_gyro_scaled(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_IMU_GYRO_SCALED(trans, dev, AC_ID,
+                                 &ins_vn.gyro_i.p, &ins_vn.gyro_i.q, &ins_vn.gyro_i.r);
+}
 #endif
 
 #ifndef USE_INS_NAV_INIT
@@ -78,14 +102,9 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE");
 #endif
 
 /**
- * Empty function for IMU initialization
- */
-void imu_impl_init(void) {}
-
-/**
  * Event handling for Vectornav
  */
-void imu_vectornav_event(void)
+void ins_vectornav_event(void)
 {
   // receive data
   vn200_event(&(ins_vn.vn_packet));
@@ -97,13 +116,6 @@ void imu_vectornav_event(void)
   }
 }
 
-/**
- * Compulsory register function
- */
-void ins_vectornav_register(void)
-{
-  ins_register_impl(ins_vectornav_init);
-}
 
 /**
  * Initialize Vectornav struct
@@ -124,9 +136,9 @@ void ins_vectornav_init(void)
   ins_vn.vn_packet.noise_error = 0;
   ins_vn.vn_packet.framing_error = 0;
 
-  INT32_VECT3_ZERO(ins_vn.ltp_pos);
-  INT32_VECT3_ZERO(ins_vn.ltp_speed);
-  INT32_VECT3_ZERO(ins_vn.ltp_accel);
+  INT32_VECT3_ZERO(ins_vn.ltp_pos_i);
+  INT32_VECT3_ZERO(ins_vn.ltp_speed_i);
+  INT32_VECT3_ZERO(ins_vn.ltp_accel_i);
 
   FLOAT_VECT3_ZERO(ins_vn.vel_ned);
   FLOAT_VECT3_ZERO(ins_vn.lin_accel);
@@ -139,11 +151,19 @@ void ins_vectornav_init(void)
   ins_vn.ltp_initialized  = FALSE;
 #endif
 
+  struct FloatEulers body_to_imu_eulers =
+  {INS_VN_BODY_TO_IMU_PHI, INS_VN_BODY_TO_IMU_THETA, INS_VN_BODY_TO_IMU_PSI};
+  orientationSetEulers_f(&ins_vn.body_to_imu, &body_to_imu_eulers);
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "INS", send_ins);
   register_periodic_telemetry(DefaultPeriodic, "INS_Z", send_ins_z);
   register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
   register_periodic_telemetry(DefaultPeriodic, "VECTORNAV_INFO", send_vn_info);
+  register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
+  register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO", send_gyro);
+  register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_SCALED", send_accel_scaled);
+  register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO_SCALED", send_gyro_scaled);
 #endif
 }
 
@@ -297,12 +317,14 @@ void ins_vectornav_yaw_pitch_roll_to_attitude(struct FloatEulers *vn_attitude)
 void ins_vectornav_propagate()
 {
   // Acceleration [m/s^2]
-  ACCELS_BFP_OF_REAL(imu.accel, ins_vn.accel); // for backwards compatibility with fixed point interface
+  // in fixed point for sending as ABI and telemetry msgs
+  ACCELS_BFP_OF_REAL(ins_vn.accel_i, ins_vn.accel);
 
   // Rates [rad/s]
   static struct FloatRates body_rate;
-  RATES_BFP_OF_REAL(imu.gyro, ins_vn.gyro);  // for backwards compatibility with fixed point interface
-  float_rmat_ratemult(&body_rate, orientationGetRMat_f(&imu.body_to_imu), &ins_vn.gyro); // compute body rates
+  // in fixed point for sending as ABI and telemetry msgs
+  RATES_BFP_OF_REAL(ins_vn.gyro_i, ins_vn.gyro);
+  float_rmat_ratemult(&body_rate, orientationGetRMat_f(&ins_vn.body_to_imu), &ins_vn.gyro); // compute body rates
   stateSetBodyRates_f(&body_rate);   // Set state [rad/s]
 
   // Attitude [deg]
@@ -312,7 +334,7 @@ void ins_vectornav_propagate()
   static struct FloatRMat imu_rmat; // convert from quat to rmat
   float_rmat_of_quat(&imu_rmat, &imu_quat);
   static struct FloatRMat ltp_to_body_rmat; // rotate to body frame
-  float_rmat_comp(&ltp_to_body_rmat, &imu_rmat, orientationGetRMat_f(&imu.body_to_imu));
+  float_rmat_comp(&ltp_to_body_rmat, &imu_rmat, orientationGetRMat_f(&ins_vn.body_to_imu));
   stateSetNedToBodyRMat_f(&ltp_to_body_rmat); // set body states [rad]
 
   // NED (LTP) velocity [m/s]
@@ -329,7 +351,7 @@ void ins_vectornav_propagate()
 
   // NED (LTP) acceleration [m/s^2]
   static struct FloatVect3 accel_meas_ltp;// first we need to rotate linear acceleration from imu-frame to body-frame
-  float_rmat_transp_vmult(&accel_meas_ltp, orientationGetRMat_f(&imu.body_to_imu), &(ins_vn.lin_accel));
+  float_rmat_transp_vmult(&accel_meas_ltp, orientationGetRMat_f(&ins_vn.body_to_imu), &(ins_vn.lin_accel));
   static struct NedCoor_f ltp_accel; // assign to NedCoord_f struct
   VECT3_ASSIGN(ltp_accel, accel_meas_ltp.x, accel_meas_ltp.y, accel_meas_ltp.z);
   stateSetAccelNed_f(&ltp_accel); // then set the states
@@ -400,16 +422,17 @@ void ins_vectornav_propagate()
   ins_vectornav_check_status();
 
   // update internal states for telemetry purposes
-  ins_vn.ltp_pos = *stateGetPositionNed_i();
-  ins_vn.ltp_speed = *stateGetSpeedNed_i();
-  ins_vn.ltp_accel = *stateGetAccelNed_i();
+  // TODO: directly convert vectornav output instead of using state interface
+  // to support multiple INS running at the same time
+  ins_vn.ltp_pos_i = *stateGetPositionNed_i();
+  ins_vn.ltp_speed_i = *stateGetSpeedNed_i();
+  ins_vn.ltp_accel_i = *stateGetAccelNed_i();
 
   // send ABI messages
   uint32_t now_ts = get_sys_time_usec();
   AbiSendMsgGPS(GPS_UBX_ID, now_ts, &gps);
-  AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN_ID, now_ts, &imu.gyro);
-  AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN_ID, now_ts, &imu.accel);
-  AbiSendMsgIMU_MAG_INT32(IMU_ASPIRIN_ID, now_ts, &imu.mag);
+  AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN_ID, now_ts, &ins_vn.gyro_i);
+  AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN_ID, now_ts, &ins_vn.accel_i);
 }
 
 
@@ -418,7 +441,6 @@ void ins_vectornav_propagate()
  */
 void ins_init_origin_from_flightplan(void)
 {
-
   struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
   llh_nav0.lat = NAV_LAT0;
   llh_nav0.lon = NAV_LON0;
@@ -431,5 +453,4 @@ void ins_init_origin_from_flightplan(void)
   ltp_def_from_ecef_i(&ins_vn.ltp_def, &ecef_nav0);
   ins_vn.ltp_def.hmsl = NAV_ALT0;
   stateSetLocalOrigin_i(&ins_vn.ltp_def);
-
 }

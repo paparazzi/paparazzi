@@ -699,7 +699,7 @@ void event_task_ap(void)
 
 #ifdef InsEvent
   TODO("calling InsEvent, remove me..")
-  InsEvent(NULL);
+  InsEvent();
 #endif
 
 #if USE_GPS
