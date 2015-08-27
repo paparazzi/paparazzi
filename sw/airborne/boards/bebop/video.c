@@ -163,39 +163,42 @@ void mt9v117_init(void)
   //read(fd_i2c, "\x04\x00", 2);
 
   write_reg(fd_i2c, "\x00\x30\x06\x01", 4);
-  write_reg(fd_i2c, "\xc8\x00\x00\x08", 4);
+  write_reg(fd_i2c, "\xc8\x00\x00\x0c", 4); //0x0008
   write_reg(fd_i2c, "\xc8\x02\x00\x10", 4);
-  write_reg(fd_i2c, "\xc8\x04\x01\xf5", 4);
+  write_reg(fd_i2c, "\xc8\x04\x01\xf3", 4); //0x01f5
   write_reg(fd_i2c, "\xc8\x06\x02\x97", 4);
   write_reg(fd_i2c, "\xc8\x08\x01\x11", 4);
   write_reg(fd_i2c, "\xc8\x0a\x00\xa4", 4);
   write_reg(fd_i2c, "\xc8\x0c\x02\xfa", 4);
   write_reg(fd_i2c, "\xc8\x12\x00\x31", 4);
-  write_reg(fd_i2c, "\xc8\x14\x00\xf3", 4);
-  write_reg(fd_i2c, "\xc8\x28\x00\x07", 4);
+  write_reg(fd_i2c, "\xc8\x14\x01\xe3", 4); //0x00f3
+  write_reg(fd_i2c, "\xc8\x28\x00\x03", 4); //0x0007
   write_reg(fd_i2c, "\xc8\x4c\x02\x80", 4);
-  write_reg(fd_i2c, "\xc8\x4e\x00\xf0", 4);
+  write_reg(fd_i2c, "\xc8\x4e\x01\xe0", 4); //240 (0x00f0)
   write_reg(fd_i2c, "\xc8\x50\x03", 3);
-  write_reg(fd_i2c, "\xc8\x54\x01\x40", 4);
-  write_reg(fd_i2c, "\xc8\x56\x00\xf0", 4);
+
+  write_reg(fd_i2c, "\xc8\x54\x02\x80", 4); //320 (0x0140)
+  write_reg(fd_i2c, "\xc8\x56\x01\xe0", 4); //240 (0x00f0)
+
   write_reg(fd_i2c, "\xc8\xec\x00\x00", 4);
   write_reg(fd_i2c, "\xc8\xee\x00\x00", 4);
-  write_reg(fd_i2c, "\xc8\xf0\x01\x3f", 4);
-  write_reg(fd_i2c, "\xc8\xf2\x00\xef", 4);
+  write_reg(fd_i2c, "\xc8\xf0\x02\x7f", 4); //0x013f
+  write_reg(fd_i2c, "\xc8\xf2\x01\xdf", 4); //0x00ef
   write_reg(fd_i2c, "\xc8\xf4\x00\x02", 4);
   write_reg(fd_i2c, "\xc8\xf6\x00\x02", 4);
-  write_reg(fd_i2c, "\xc8\xf8\x00\x3f", 4);
-  write_reg(fd_i2c, "\xc8\xfa\x00\x2f", 4);
-  write_reg(fd_i2c, "\xc8\x10\x04\x00", 4);
-  write_reg(fd_i2c, "\xc8\x0e\x01\x40", 4);
-  write_reg(fd_i2c, "\xc8\x16\x00\xb0", 4);
-  write_reg(fd_i2c, "\xc8\x18\x00\xd3", 4);
+  write_reg(fd_i2c, "\xc8\xf8\x00\x7f", 4); //0x003f
+  write_reg(fd_i2c, "\xc8\xfa\x00\x5f", 4); //0x002f
+  write_reg(fd_i2c, "\xc8\x10\x03\x52", 4); //0x0400 (0x045e??)
+  write_reg(fd_i2c, "\xc8\x0e\x01\xff", 4); //0x0140 (0x0143??)
+  write_reg(fd_i2c, "\xc8\x16\x00\xd4", 4); //0x00b0 (0x00a1??)
+  write_reg(fd_i2c, "\xc8\x18\x00\xfe", 4); //0x00d3 (0x00c1??)
   write_reg(fd_i2c, "\xc8\x1a\x00\x01", 4);
-  write_reg(fd_i2c, "\xc8\x1c\x00\x01", 4);
+  write_reg(fd_i2c, "\xc8\x1c\x00\x02", 4); //0x0001
   write_reg(fd_i2c, "\xc8\x1e\x00\x01", 4);
-  write_reg(fd_i2c, "\xc8\x20\x00\x01", 4);
-  //write_reg(fd_i2c, "\xc8\x58", 2);
-  //read(fd_i2c, "\x00\x10", 2);
+  write_reg(fd_i2c, "\xc8\x20\x00\x02", 4); //0x0001
+
+  write(fd_i2c, "\xc8\x58", 2);
+  read(fd_i2c, test, 2);
   write_reg(fd_i2c, "\xc8\x58\x00\x18", 4);
   write_reg(fd_i2c, "\xdc\x00\x28", 3);
 

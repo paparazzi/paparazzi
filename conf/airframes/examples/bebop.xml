@@ -36,7 +36,7 @@
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
       <define name="VIEWVIDEO_DEVICE" value="/dev/video0"/>
       <define name="VIEWVIDEO_SUBDEV" value="/dev/v4l-subdev0"/>
-      <define name="VIEWVIDEO_DEVICE_SIZE" value="320,240"/>
+      <define name="VIEWVIDEO_DEVICE_SIZE" value="640,480"/>
       <define name="VIEWVIDEO_DEVICE_BUFFERS" value="60"/>
       <define name="VIEWVIDEO_SHOT_PATH" value="/data/ftp/internal_000/images"/>
     </load>
