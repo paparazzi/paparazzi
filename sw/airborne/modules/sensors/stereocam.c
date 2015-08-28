@@ -20,14 +20,19 @@
  *
  */
 
-/** @file modules/stereocam.c
- *  @brief interface to usb stereocam
- *  In current implementation, messages limited to 256 characters
+/** @file modules/sensors/stereocam.c
+ *  @brief interface to TU Delft serial stereocam
+ *  Include stereocam.xml to your airframe file.
+ *  Parameters STEREO_PORT, STEREO_BAUD, SEND_STEREO and STEREO_BUF_SIZE should be configured with stereocam.xml.
  */
 
 #include "stereocam.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/telemetry.h"
+
+#ifndef SEND_STEREO
+#define SEND_STEREO TRUE
+#endif
 
 // define coms link for stereocam
 #define STEREO_PORT   (&((UART_LINK).device))
@@ -45,7 +50,7 @@ typedef struct ImageProperties {
   uint8_t height;
 } ImageProperties;
 
-// function primatives
+// function primitives
 uint16_t add(uint16_t, uint16_t);
 uint16_t diff(uint16_t, uint16_t);
 uint8_t isEndOfImage(uint8_t *, uint16_t);
@@ -59,8 +64,10 @@ ImageProperties imageProperties;
 uint8_t msg_buf[256];         // define local data
 uint8array stereocam_data = {.len = 0, .data = msg_buf};  // buffer used to contain image without line endings
 
-#define BUF_SIZE 1024                     // size of circular buffer
-uint8_t ser_read_buf[BUF_SIZE];           // circular buffer for incoming data
+#ifndef STEREO_BUF_SIZE
+#define STEREO_BUF_SIZE 1024                     // size of circular buffer
+#endif
+uint8_t ser_read_buf[STEREO_BUF_SIZE];           // circular buffer for incoming data
 uint16_t insert_loc, extract_loc, img_start;   // place holders for buffer read and write
 
 /**
@@ -68,7 +75,7 @@ uint16_t insert_loc, extract_loc, img_start;   // place holders for buffer read 
  */
 uint16_t add(uint16_t counter, uint16_t i)
 {
-  return (counter + i) % BUF_SIZE;
+  return (counter + i) % STEREO_BUF_SIZE;
 }
 
 /**
@@ -76,7 +83,7 @@ uint16_t add(uint16_t counter, uint16_t i)
  */
 uint16_t diff(uint16_t counter, uint16_t i)
 {
-  return (counter - i + BUF_SIZE) % BUF_SIZE;
+  return (counter - i + STEREO_BUF_SIZE) % STEREO_BUF_SIZE;
 }
 
 /**
@@ -136,8 +143,8 @@ ImageProperties get_image_properties(uint8_t *raw, ImageProperties *properties, 
  */
 static uint8_t handleStereoPackage(void)
 {
-  // read all data from the stereo com link
-  while (dev->char_available(dev->periph)) {
+  // read all data from the stereo com link, check that don't overtake extract
+  while (dev->char_available(dev->periph) && add(insert_loc, 1) != extract_loc) {
     ser_read_buf[insert_loc] = dev->get_byte(dev->periph);
     insert_loc = add(insert_loc, 1);
   }
@@ -190,7 +197,7 @@ extern void stereocam_stop(void)
 extern void stereocam_periodic(void)
 {
   if (handleStereoPackage()) {
-#ifdef SEND_STEREO
+#if SEND_STEREO
     DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &(stereocam_data.len), stereocam_data.len, msg_buf);
 #endif
   }
