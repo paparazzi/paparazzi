@@ -89,12 +89,12 @@ static struct {
 #define CURRENT_ESTIMATION_NONLINEARITY 1.2
 #endif
 
-#if defined MILLIAMP_AT_FULL_THROTTLE && !defined MILLIAMP_AT_ZERO_THROTTLE
-  PRINT_CONFIG_MSG("Assuming 0 mA at zero throttle")
-  #define MILLIAMP_AT_ZERO_THROTTLE 0
+#if defined MILLIAMP_AT_FULL_THROTTLE && !defined MILLIAMP_AT_IDLE_THROTTLE
+  PRINT_CONFIG_MSG("Assuming 0 mA at idle throttle")
+  #define MILLIAMP_AT_IDLE_THROTTLE 0
 #endif
 
-PRINT_CONFIG_VAR(MILLIAMP_AT_ZERO_THROTTLE)
+PRINT_CONFIG_VAR(MILLIAMP_AT_IDLE_THROTTLE)
 
 void electrical_init(void)
 {
@@ -148,7 +148,7 @@ void electrical_periodic(void)
    * define CURRENT_ESTIMATION_NONLINEARITY in your airframe file to change the default nonlinearity factor of 1.2
    */
   float full_current = (float)MILLIAMP_AT_FULL_THROTTLE;
-  float idle_current = (float)MILLIAMP_AT_ZERO_THROTTLE;
+  float idle_current = (float)MILLIAMP_AT_IDLE_THROTTLE;
 
   float x = ((float)commands[COMMAND_CURRENT_ESTIMATION]) / ((float)MAX_PPRZ);
 
