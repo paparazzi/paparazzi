@@ -6,9 +6,10 @@
      Get images from stereocam over uart
      add
       <!--load name="stereocam.xml">
-        <configure name="STEREO_UART" value="UART1"/>
+        <configure name="STEREO_UART" value="UARTX"/>
+        <configure name="STEREO_BAUD" value="BXXXXX"/>
       </load-->
-      to airframe file to include and configure UART
+      to airframe file to include and configure UART. Baud rates tested (B38400, B230400, B921600) 
    </description>
    </doc>
 <header>
@@ -22,7 +23,7 @@
     </raw>
     <define name="USE_$(STEREO_UART)"/>
     <define name="UART_LINK" value="$(STEREO_UART_LOWER)"/>
-    <define name="$(STEREO_UART)_BAUD" value="B38400"/>
+    <define name="$(STEREO_UART)_BAUD" value="$(STEREO_BAUD)"/>
     <file name="stereocam.c"/>
   </makefile>
  </module>
