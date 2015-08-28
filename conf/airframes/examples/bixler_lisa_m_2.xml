@@ -11,7 +11,7 @@
 <airframe name="Bixler LisaM 2.0">
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="lisa_m_2.0">
+    <target name="ap"           board="lisa_m_2.0">
       <!-- higher frequency for aspirin imu, ouputs data at 100Hz -->
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
@@ -19,8 +19,8 @@
       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
     </target>
 
-    <target name="sim" 			board="pc"/>
-    
+    <target name="sim"          board="pc"/>
+
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
     </target>
@@ -155,22 +155,22 @@
     <define name="DEFAULT_PITCH" value="0" unit="deg"/>
     <define name="HOME_RADIUS" value="90" unit="m"/>
   </section>
-  
+
   <section name="SIMULATOR" prefix="NPS_">
     <define name="JSBSIM_LAUNCHSPEED" value="15"/>
-    <define name="JSBSIM_MODEL" value="&quot;easystar&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_invariant.h&quot;"/>
+    <define name="JSBSIM_MODEL" value="easystar" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_invariant.h" type="string"/>
     <define name="JS_AXIS_THROTTLE" value="0"/>
     <define name="JS_AXIS_THROTTLE_REVERSED" value="1"/>
-    
+
     <define name="JS_AXIS_ROLL" value="1"/>
-    
+
     <define name="JS_AXIS_PITCH" value="2"/>
     <define name="JS_AXIS_PITCH_REVERSED" value="1"/>
-        
+
     <define name="JS_AXIS_YAW" value="3"/>
     <define name="JS_AXIS_YAW_REVERSED" value="1"/>
-    
+
     <define name="JS_AXIS_FLAPS" value="5"/>
     <define name="JS_AXIS_MODE" value="7"/>
   </section>

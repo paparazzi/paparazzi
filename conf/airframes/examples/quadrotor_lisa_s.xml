@@ -190,9 +190,9 @@
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">
-   <define name="ACTUATOR_NAMES" value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;left_motor&quot;, &quot;right_motor&quot;}"/>
-   <define name="JSBSIM_MODEL" value="&quot;simple_quad&quot;"/>
-   <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+   <define name="ACTUATOR_NAMES" value="front_motor, back_motor, left_motor, right_motor" type="string[]"/>
+   <define name="JSBSIM_MODEL" value="simple_quad" type="string"/>
+   <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
  </section>
 
  <modules main_freq="512">
