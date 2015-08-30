@@ -72,6 +72,10 @@ void mcu_init(void)
 {
 
   mcu_arch_init();
+  /* If we have a board specific init function, call it.
+   * Otherwise it will simply call the empty weak function.
+   */
+  board_init();
 
 #ifdef PERIPHERALS_AUTO_INIT
   sys_time_init();
@@ -174,11 +178,6 @@ void mcu_init(void)
 #else
   INFO("PERIPHERALS_AUTO_INIT not enabled! Peripherals (including sys_time) need explicit initialization.")
 #endif /* PERIPHERALS_AUTO_INIT */
-
-  /* If we have a board specific init function, call it.
-   * Otherwise it will simply call the empty weak function.
-   */
-  board_init();
 
 }
 

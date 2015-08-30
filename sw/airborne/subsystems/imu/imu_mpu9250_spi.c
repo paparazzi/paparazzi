@@ -91,6 +91,19 @@ PRINT_CONFIG_VAR(IMU_MPU9250_CHAN_Y)
 #endif
 PRINT_CONFIG_VAR(IMU_MPU9250_CHAN_Z)
 
+#ifndef IMU_MPU9250_X_SIGN
+#define IMU_MPU9250_X_SIGN 1
+#endif
+PRINT_CONFIG_VAR(IMU_MPU9250_X_SIGN)
+#ifndef IMU_MPU9250_Y_SIGN
+#define IMU_MPU9250_Y_SIGN 1
+#endif
+PRINT_CONFIG_VAR(IMU_MPU9250_Y_SIGN)
+#ifndef IMU_MPU9250_Z_SIGN
+#define IMU_MPU9250_Z_SIGN 1
+#endif
+PRINT_CONFIG_VAR(IMU_MPU9250_Z_SIGN)
+
 #ifndef IMU_MPU9250_READ_MAG
 #define IMU_MPU9250_READ_MAG TRUE
 #endif
@@ -168,14 +181,14 @@ void imu_mpu9250_event(void)
   if (imu_mpu9250.mpu.data_available) {
     // set channel order
     struct Int32Vect3 accel = {
-      (int32_t)(imu_mpu9250.mpu.data_accel.value[IMU_MPU9250_CHAN_X]),
-      (int32_t)(imu_mpu9250.mpu.data_accel.value[IMU_MPU9250_CHAN_Y]),
-      (int32_t)(imu_mpu9250.mpu.data_accel.value[IMU_MPU9250_CHAN_Z])
+      IMU_MPU9250_X_SIGN * (int32_t)(imu_mpu9250.mpu.data_accel.value[IMU_MPU9250_CHAN_X]),
+      IMU_MPU9250_Y_SIGN * (int32_t)(imu_mpu9250.mpu.data_accel.value[IMU_MPU9250_CHAN_Y]),
+      IMU_MPU9250_Z_SIGN * (int32_t)(imu_mpu9250.mpu.data_accel.value[IMU_MPU9250_CHAN_Z])
     };
     struct Int32Rates rates = {
-      (int32_t)(imu_mpu9250.mpu.data_rates.value[IMU_MPU9250_CHAN_X]),
-      (int32_t)(imu_mpu9250.mpu.data_rates.value[IMU_MPU9250_CHAN_Y]),
-      (int32_t)(imu_mpu9250.mpu.data_rates.value[IMU_MPU9250_CHAN_Z])
+      IMU_MPU9250_X_SIGN * (int32_t)(imu_mpu9250.mpu.data_rates.value[IMU_MPU9250_CHAN_X]),
+      IMU_MPU9250_Y_SIGN * (int32_t)(imu_mpu9250.mpu.data_rates.value[IMU_MPU9250_CHAN_Y]),
+      IMU_MPU9250_Z_SIGN * (int32_t)(imu_mpu9250.mpu.data_rates.value[IMU_MPU9250_CHAN_Z])
     };
     // unscaled vector
     VECT3_COPY(imu.accel_unscaled, accel);
@@ -185,9 +198,9 @@ void imu_mpu9250_event(void)
     if (!bit_is_set(imu_mpu9250.mpu.data_ext[6], 3)) { //mag valid just HOFL == 0
       /** FIXME: assumes that we get new mag data each time instead of reading drdy bit */
       struct Int32Vect3 mag;
-      mag.x =  Int16FromBuf(imu_mpu9250.mpu.data_ext, 2 * IMU_MPU9250_CHAN_Y);
-      mag.y =  Int16FromBuf(imu_mpu9250.mpu.data_ext, 2 * IMU_MPU9250_CHAN_X);
-      mag.z = -Int16FromBuf(imu_mpu9250.mpu.data_ext, 2 * IMU_MPU9250_CHAN_Z);
+      mag.x =  (IMU_MPU9250_X_SIGN) * Int16FromBuf(imu_mpu9250.mpu.data_ext, 2 * IMU_MPU9250_CHAN_Y);
+      mag.y =  (IMU_MPU9250_Y_SIGN) * Int16FromBuf(imu_mpu9250.mpu.data_ext, 2 * IMU_MPU9250_CHAN_X);
+      mag.z = -(IMU_MPU9250_Z_SIGN) * Int16FromBuf(imu_mpu9250.mpu.data_ext, 2 * IMU_MPU9250_CHAN_Z);
       VECT3_COPY(imu.mag_unscaled, mag);
       imu_scale_mag(&imu);
       AbiSendMsgIMU_MAG_INT32(IMU_MPU9250_ID, now_ts, &imu.mag);

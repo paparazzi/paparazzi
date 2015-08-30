@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2013 Gautier Hattenberger
+ * Hey Emacs, this is a -*- makefile -*-
+ *
+ * Copyright (C) 2015 Piotr Esden-Tempski <piotr@esden.net>
  *
  * This file is part of Paparazzi.
  *
@@ -19,16 +21,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* Linker script for ST STM32F4DISCOVERY (STM32F407VG, 1024K flash, 128K RAM). */
+/* Linker script for ELLE0 (STM32F415, 1024K flash, 192K RAM). */
 
 /* Define memory regions. */
 MEMORY
 {
-	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
-	/* Reserving 128kb at the end of the flash for persistent settings. */
-	rom (rx) : ORIGIN = 0x08000000, LENGTH = 896K
+    ram (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
+    /* Reserving 128kb flash for persistent settings. */
+    rom (rx) : ORIGIN = 0x08000000, LENGTH = 896K
 }
 
 /* Include the common ld script. */
 INCLUDE libopencm3_stm32f4.ld
-

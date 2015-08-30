@@ -19,7 +19,7 @@
     <subsystem name="imu" type="bebop"/>
     <subsystem name="gps" type="furuno"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="float_mlkf"/>
+    <subsystem name="ahrs" type="float_mlkf"/>
     <subsystem name="ins" type="extended"/>
   </firmware>
 
@@ -31,7 +31,7 @@
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </load-->
     <load name="video_rtp_stream.xml">
-      <define name="VIEWVIDEO_FPS" value="4"/>
+      <define name="VIEWVIDEO_FPS" value="60"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
       <define name="VIEWVIDEO_DEVICE" value="/dev/video0"/>
@@ -75,20 +75,9 @@
     <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
+  <include href="conf/airframes/TUDelft/calibrations/bebop_bart.xml" />
+
   <section name="IMU" prefix="IMU_">
-    <!-- Magneto calibration -->
-    <define name="MAG_X_NEUTRAL" value="18"/>
-    <define name="MAG_Y_NEUTRAL" value="157"/>
-    <define name="MAG_Z_NEUTRAL" value="49"/>
-    <define name="MAG_X_SENS" value="10.5007722373" integer="16"/>
-    <define name="MAG_Y_SENS" value="11.1147400462" integer="16"/>
-    <define name="MAG_Z_SENS" value="11.6479371722" integer="16"/>
-
-    <!-- Magneto current calibration -->
-    <define name="MAG_X_CURRENT_COEF" value="0.0"/>
-    <define name="MAG_Y_CURRENT_COEF" value="0.0"/>
-    <define name="MAG_Z_CURRENT_COEF" value="0.0"/>
-
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
@@ -191,7 +180,7 @@
     <define name="MAX_BANK" value="20" unit="deg"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="79"/>
+    <define name="PGAIN" value="15"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
   </section>
