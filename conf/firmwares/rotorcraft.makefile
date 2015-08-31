@@ -88,11 +88,6 @@ $(TARGET).srcs += subsystems/commands.c
 
 $(TARGET).srcs += state.c
 
-#
-# BARO_BOARD (if existing/configured)
-#
-include $(CFG_SHARED)/baro_board.makefile
-
 
 $(TARGET).srcs += $(SRC_FIRMWARE)/stabilization.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c

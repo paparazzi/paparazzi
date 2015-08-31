@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_board" dir="sensors">
+  <doc>
+    <description>
+      Baro board default.
+      Drivers for baros already on an autopilot board.
+    </description>
+    <configure name="USE_BARO_BOARD" value="TRUE" description="Set to FALSE to disable onboard baro"/>
+  </doc>
+  <header>
+    <file name="baro_board_module.h"/>
+  </header>
+  <init fun="baro_init()"/>
+  <periodic fun="baro_periodic()" freq="40"/>
+  <event fun="baro_event()"/>
+  <makefile target="ap">
+    <raw>
+include $(CFG_SHARED)/baro_board.makefile
+    </raw>
+  </makefile>
+</module>

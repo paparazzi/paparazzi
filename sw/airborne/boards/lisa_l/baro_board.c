@@ -21,7 +21,7 @@
  */
 
 #include "std.h"
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro_board_module.h"
 #include "mcu_periph/i2c.h"
 #include "subsystems/abi.h"
 #include "led.h"

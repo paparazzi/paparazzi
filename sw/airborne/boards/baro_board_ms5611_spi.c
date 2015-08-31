@@ -27,7 +27,7 @@
  *
  */
 
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro_board_module.h"
 #include "peripherals/ms5611_spi.h"
 
 #include "mcu_periph/sys_time.h"

@@ -30,7 +30,7 @@
 
 #include "std.h"
 
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro_board_module.h"
 #include "mcu_periph/adc.h"
 #include "mcu_periph/dac.h"
 

@@ -33,6 +33,7 @@
     <!--define name="AGR_CLIMB"/-->
     <!--define name="LOITER_TRIM"/-->
     <!--define name="PITCH_TRIM"/-->
+    <define name="USE_BARO_BOARD" value="FALSE"/>
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api"/>

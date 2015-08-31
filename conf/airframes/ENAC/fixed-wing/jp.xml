@@ -65,7 +65,7 @@
       <define name="USE_GPS_UBX_RXM_SFRB"/>
       <define name="LOG_RAW_GPS"/>
     </subsystem>
-
+    <define name="USE_BARO_BOARD" value="FALSE"/>
     <subsystem name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_2"/>
     </subsystem>

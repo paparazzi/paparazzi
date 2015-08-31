@@ -49,11 +49,6 @@
 #include "subsystems/imu.h"
 #include "subsystems/gps.h"
 
-#if USE_BARO_BOARD
-#include "subsystems/sensors/baro.h"
-PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BOARD)
-#endif
-
 #include "subsystems/electrical.h"
 
 #include "firmwares/rotorcraft/autopilot.h"
@@ -80,6 +75,14 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "generated/modules.h"
 #include "subsystems/abi.h"
 
+#if USE_BARO_BOARD
+#if BARO_BOARD_MODULE_LOADED
+PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BOARD)
+#else
+#warning "USE_BARO_BOARD is TRUE, but baro_board.xml module not loaded!"
+#endif // BARO_BOARD_MODULE_LOADED
+#endif // USE_BARO_BOARD
+
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 
@@ -92,11 +95,6 @@ PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
  * according to main_freq parameter set for modules in airframe file
  */
 PRINT_CONFIG_VAR(MODULES_FREQUENCY)
-
-#ifndef BARO_PERIODIC_FREQUENCY
-#define BARO_PERIODIC_FREQUENCY 50
-#endif
-PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 
 #if USE_AHRS && USE_IMU && (defined AHRS_PROPAGATE_FREQUENCY)
 #if (AHRS_PROPAGATE_FREQUENCY > PERIODIC_FREQUENCY)
@@ -111,9 +109,6 @@ tid_t failsafe_tid;      ///< id for failsafe_check() timer
 tid_t radio_control_tid; ///< id for radio_control_periodic_task() timer
 tid_t electrical_tid;    ///< id for electrical_periodic() timer
 tid_t telemetry_tid;     ///< id for telemetry_periodic() timer
-#if USE_BARO_BOARD
-tid_t baro_tid;          ///< id for baro_periodic() timer
-#endif
 
 #ifndef SITL
 int main(void)
@@ -167,9 +162,7 @@ STATIC_INLINE void main_init(void)
 
   radio_control_init();
 
-#if USE_BARO_BOARD
-  baro_init();
-#endif
+
   imu_init();
 #if USE_AHRS_ALIGNER
   ahrs_aligner_init();
@@ -204,9 +197,6 @@ STATIC_INLINE void main_init(void)
   failsafe_tid = sys_time_register_timer(0.05, NULL);
   electrical_tid = sys_time_register_timer(0.1, NULL);
   telemetry_tid = sys_time_register_timer((1. / TELEMETRY_FREQUENCY), NULL);
-#if USE_BARO_BOARD
-  baro_tid = sys_time_register_timer(1. / BARO_PERIODIC_FREQUENCY, NULL);
-#endif
 
   // send body_to_imu from here for now
   AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
@@ -232,11 +222,6 @@ STATIC_INLINE void handle_periodic_tasks(void)
   if (sys_time_check_and_ack_timer(telemetry_tid)) {
     telemetry_periodic();
   }
-#if USE_BARO_BOARD
-  if (sys_time_check_and_ack_timer(baro_tid)) {
-    baro_periodic();
-  }
-#endif
 }
 
 STATIC_INLINE void main_periodic(void)
@@ -339,10 +324,6 @@ STATIC_INLINE void main_event(void)
   }
 
   ImuEvent();
-
-#if USE_BARO_BOARD
-  BaroEvent();
-#endif
 
 #if USE_GPS
   GpsEvent();
