@@ -184,8 +184,19 @@
     <field name="segment_north_2" type="float" unit="m"/>
   </message>
 
-  <!-- ID 23 is free -->
-  <!-- ID 24 is free -->
+  <message name="VECTORNAV_INFO" id="23">
+    <field name="timestamp" 	type="float" 	unit="s"/>
+    <field name="chksm_error" 	type="uint32"/>
+    <field name="hdr_error" 	type="uint32"/>
+    <field name="counter" type="uint16"/>
+    <field name="ins_status" type="uint8" values="NoTracking|OutOfSpecs|OK"/>
+    <field name="ins_err" type="uint8"/>
+    <field name="YprU1" 	type="float" 	unit="deg"/>
+    <field name="YprU2" 	type="float" 	unit="deg"/>
+    <field name="YprU3" 	type="float" 	unit="deg"/>
+  </message>
+
+  <!--24 is free -->
 
   <message name="SVINFO" id="25">
     <field name="chn" type="uint8"/>
