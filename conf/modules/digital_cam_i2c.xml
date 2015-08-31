@@ -9,7 +9,7 @@
     <define name="DC_SHOOT_ON_BUTTON_RELEASE" />
     <define name="DC_SHOT_SYNC_SEND" value="TRUE|FALSE" description="send DC_SHOT message when photo was taken (default: TRUE)"/>
   </doc>
-  <conflicts>digital_cam,digital_cam_servo,digital_cam_uart</conflicts>
+  <conflicts>digital_cam,digital_cam_servo,digital_cam_uart,digital_cam_video</conflicts>
   <header>
     <file name="atmega_i2c_cam_ctrl.h"/>
     <file name="dc.h"/>
