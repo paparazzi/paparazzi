@@ -21,7 +21,7 @@
  */
 
 /** @file modules/stereocam.h
- *  @brief interface to stereocam
+ *  @brief interface to the TU Delft serial stereocam
  */
 
 #ifndef STEREOCAM_H_

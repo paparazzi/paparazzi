@@ -3,13 +3,20 @@
  <module name="stereocam" dir="sensors">
   <doc>
    <description>
-     Get images from stereocam over uart
-     add
-      <!--load name="stereocam.xml">
-        <configure name="STEREO_UART" value="UARTX"/>
-        <configure name="STEREO_BAUD" value="BXXXXX"/>
-      </load-->
-      to airframe file to include and configure UART. Baud rates tested (B38400, B230400, B921600) 
+     Module to read and decode messages from the TU Delft stereo camera over uart.
+     The stereo camera is designed and produced by Christophe de Wagter from the TU Delft.
+     To configure the stereo camera, add the following to the airframe file
+      <!--load name="stereocam.xml"-->
+        <!--configure name="STEREO_UART" value="UARTX"/-->	<!--Set the UART port number of the connected camera-->
+        <!--configure name="STEREO_BAUD" value="BXXXXX"/--> <!--Set the BAUD rate of the connected camera-->
+        <!--define name="SEND_STEREO" value="TRUE"/-->      <!--True sends a copy of received messages over the datalink, default true-->
+        <!--define name="STEREO_BUF_SIZE" value="1024"/-->  <!--Size of the receiving buffer, must be at least as large as the message being sent, default 1024-->
+      <!--/load-->
+      Baud rates tested include B38400, B230400, B921600.
+      SEND_STEREO is used to send a copy of received messages to the ground station over datalink, this is set to true by default if not set in the airframe. 
+      The STEREO_BUF_SIZE parameter sets the size of the receiving message buffer, this must be at least as large as the largest message being set although,
+      it is recommended to set it larger. This parameter is set by default to 1024 bytes.
+      If entire images are being sent, it is recommended to use a STEREO_BAUD of B921600 and a STEREO_BUF_SIZE of 32768
    </description>
    </doc>
 <header>
@@ -17,7 +24,6 @@
   </header>
   <periodic fun="stereocam_periodic()" start="stereocam_start()" stop="stereocam_stop()" autorun="TRUE" freq="512"/>
   <makefile>
-    <define name="SEND_STEREO" value="TRUE"/>
     <raw>
       STEREO_UART_LOWER=$(shell echo $(STEREO_UART) | tr A-Z a-z)
     </raw>
