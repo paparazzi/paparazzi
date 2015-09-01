@@ -2,7 +2,10 @@
 <module name="video_cam_ctrl" dir="digital_cam">
   <doc>
     <description>
-      Digital Camera Triggering of an embedded camera on a linux based autopilot.
+      Digital Photo Camera Triggering (using embedded video)
+
+      This module controls triggering of an embedded digital camera on a linux based autopilot. This particular version triggers the video_rtp_stream.xml module to store jpeg images.
+      It can trigger photos based on GPS distance, time or circle radius in both fixedwings and rotorcraft.
     </description>
     <define name="DC_AUTOSHOOT_PERIOD" value="0.5" description="time period for DC_AUTOSHOOT_PERIODIC in seconds"/>
     <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="grid in meters"/>
