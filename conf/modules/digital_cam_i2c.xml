@@ -3,13 +3,17 @@
 <module name="atmega_i2c_cam_ctrl" dir="digital_cam">
   <doc>
     <description>
-      Trigger Digital Camera (I2C).
-      Using I2C connected remote microcontroller
+      Digital Photo Camera Triggering (using a I2C channel)
+
+      This module controls triggering of an attached device via an I2C command.
+      Typically a remote microcontroller (atmega/arduino) will then use the triggering/zoom/power commands.
+      Using the PAYLOAD_COMMAND, all functions of the camera can be controlled.
+      It can trigger photos based on GPS distance, time or circle radius in both fixedwings and rotorcraft.
     </description>
     <define name="DC_SHOOT_ON_BUTTON_RELEASE" />
     <define name="DC_SHOT_SYNC_SEND" value="TRUE|FALSE" description="send DC_SHOT message when photo was taken (default: TRUE)"/>
   </doc>
-  <conflicts>digital_cam,digital_cam_servo,digital_cam_uart</conflicts>
+  <conflicts>digital_cam,digital_cam_servo,digital_cam_uart,digital_cam_video</conflicts>
   <header>
     <file name="atmega_i2c_cam_ctrl.h"/>
     <file name="dc.h"/>
