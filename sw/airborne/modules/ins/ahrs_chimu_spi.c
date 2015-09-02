@@ -47,16 +47,23 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 {
   ahrs_chimu_update_gps(gps_s->fix, gps_s->speed_3d);
 }
+
+static bool_t ahrs_chimu_enable_output(bool_t enable)
+{
+  ahrs_chimu.is_enabled = enable;
+  return ahrs_chimu.is_enabled;
+}
+
 void ahrs_chimu_register(void)
 {
   ahrs_chimu_init();
-  /// @todo: provide enable function
-  ahrs_register_impl(NULL);
+  ahrs_register_impl(ahrs_chimu_enable_output);
   AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 }
 
 void ahrs_chimu_init(void)
 {
+  ahrs_chimu.is_enabled = TRUE;
   ahrs_chimu.is_aligned = FALSE;
 
   // uint8_t ping[7] = {CHIMU_STX, CHIMU_STX, 0x01, CHIMU_BROADCAST, MSG00_PING, 0x00, 0xE6 };
@@ -99,25 +106,29 @@ void parse_ins_msg(void)
     if (CHIMU_Parse(ch, 0, &CHIMU_DATA)) {
       RunOnceEvery(25, LED_TOGGLE(3));
       if (CHIMU_DATA.m_MsgID == CHIMU_Msg_3_IMU_Attitude) {
+        // TODO: remove this flag as it doesn't work with multiple AHRS
         new_ins_attitude = 1;
         if (CHIMU_DATA.m_attitude.euler.phi > M_PI) {
           CHIMU_DATA.m_attitude.euler.phi -= 2 * M_PI;
         }
 
-        struct FloatEulers att = {
-          CHIMU_DATA.m_attitude.euler.phi,
-          CHIMU_DATA.m_attitude.euler.theta,
-          CHIMU_DATA.m_attitude.euler.psi
-        };
-        stateSetNedToBodyEulers_f(&att);
-        struct FloatRates rates = {
-          CHIMU_DATA.m_sensor.rate[0],
-          CHIMU_DATA.m_attrates.euler.theta,
-          0.
-        }; // FIXME rate r
-        stateSetBodyRates_f(&rates);
         //FIXME
         ahrs_chimu.is_aligned = TRUE;
+
+        if (ahrs_chimu.is_enabled) {
+          struct FloatEulers att = {
+            CHIMU_DATA.m_attitude.euler.phi,
+            CHIMU_DATA.m_attitude.euler.theta,
+            CHIMU_DATA.m_attitude.euler.psi
+          };
+          stateSetNedToBodyEulers_f(&att);
+          struct FloatRates rates = {
+            CHIMU_DATA.m_sensor.rate[0],
+            CHIMU_DATA.m_attrates.euler.theta,
+            0.
+          }; // FIXME rate r
+          stateSetBodyRates_f(&rates);
+        }
       } else if (CHIMU_DATA.m_MsgID == 0x02) {
 #if CHIMU_DOWNLINK_IMMEDIATE
         RunOnceEvery(25, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &CHIMU_DATA.m_sensor.rate[0],
