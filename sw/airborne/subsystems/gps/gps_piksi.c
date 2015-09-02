@@ -29,8 +29,10 @@
  * https://github.com/swift-nav/sbp_tutorial
  */
 
-#include <sbp.h>
-#include <sbp_messages.h>
+#include <libsbp/sbp.h>
+#include <libsbp/navigation.h>
+#include <libsbp/observation.h>
+#include "subsystems/gps/gps_piksi.h"
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
 #include "mcu_periph/uart.h"
@@ -41,8 +43,17 @@
 #include "generated/flight_plan.h"
 #endif
 
-#ifndef USE_PIKSI_ECEF
-#define USE_PIKSI_ECEF 1
+#ifndef USE_PIKSI_BASELINE_ECEF
+#define USE_PIKSI_BASELINE_ECEF 1
+#endif
+
+/* Force piksi module to use internal patch antenna
+ * Caution: default value might by "Auto" or "External" depending on the firmware version
+ */
+#define USE_PIKSI_PATCH_ANTENNA 1
+#if USE_PIKSI_PATCH_ANTENNA
+#include <libsbp/settings.h>
+static const char ANTENNA_SETTING[] = "frontend antenna_selection Patch";
 #endif
 
 /*
@@ -61,9 +72,19 @@ sbp_msg_callbacks_node_t pos_llh_node;
 sbp_msg_callbacks_node_t vel_ned_node;
 sbp_msg_callbacks_node_t dops_node;
 sbp_msg_callbacks_node_t gps_time_node;
+
 #if USE_PIKSI_BASELINE_ECEF
 sbp_msg_callbacks_node_t baseline_ecef_node;
+
+struct gps_baseline {
+  struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
+  bool_t ecef_valid;
+};
+
+static struct gps_baseline baseline;
+
 #endif
+
 //#if USE_PIKSI_BASELINE_NED
 //sbp_msg_callbacks_node_t baseline_ned_node;
 //#endif
@@ -80,14 +101,24 @@ static void sbp_pos_ecef_callback(uint16_t sender_id __attribute__((unused)),
                                   uint8_t msg[],
                                   void *context __attribute__((unused)))
 {
-  sbp_pos_ecef_t pos_ecef = *(sbp_pos_ecef_t *)msg;
+  msg_pos_ecef_t pos_ecef = *(msg_pos_ecef_t *)msg;
   gps.ecef_pos.x = (int32_t)(pos_ecef.x * 100.0);
   gps.ecef_pos.y = (int32_t)(pos_ecef.y * 100.0);
   gps.ecef_pos.z = (int32_t)(pos_ecef.z * 100.0);
-  gps.pacc = (uint32_t)(pos_ecef.accuracy);
+  //gps.pacc = (uint32_t)(pos_ecef.accuracy); FIXME not implemented yet by libswiftnav
+  // instead give some arbitrary values telling the fix mode
+  uint8_t fix_mode = (pos_ecef.flags & 0x3);
+  if (fix_mode == 2) {
+    gps.pacc = 2;
+  } else if (fix_mode == 1) {
+    gps.pacc = 1;
+  } else {
+    gps.pacc = 99;
+  }
   gps.num_sv = pos_ecef.n_sats;
   gps.fix = GPS_FIX_3D;
   gps.tow = pos_ecef.tow;
+  // gps_piksi_publish(); // Done after receiving vel_ned
 }
 
 #if USE_PIKSI_BASELINE_ECEF
@@ -96,16 +127,14 @@ static void sbp_baseline_ecef_callback(uint16_t sender_id __attribute__((unused)
                                        uint8_t msg[],
                                        void *context __attribute__((unused)))
 {
-  sbp_baseline_ecef_t baseline_ecef = *(sbp_baseline_ecef_t *)msg;
-  gps.ecef_pos.x = (int32_t)(baseline_ecef.x / 10);
-  gps.ecef_pos.y = (int32_t)(baseline_ecef.y / 10);
-  gps.ecef_pos.z = (int32_t)(baseline_ecef.z / 10);
-  gps.pacc = (uint32_t)(baseline_ecef.accuracy);
-  gps.num_sv = baseline_ecef.n_sats;
-  gps.tow = baseline_ecef.tow;
-
-  // High precision solution available
-  gps_piksi_publish();
+  msg_baseline_ecef_t baseline_ecef = *(msg_baseline_ecef_t *)msg;
+  baseline.ecef_pos.x = (int32_t)(baseline_ecef.x / 10);
+  baseline.ecef_pos.y = (int32_t)(baseline_ecef.y / 10);
+  baseline.ecef_pos.z = (int32_t)(baseline_ecef.z / 10);
+  if (baseline.ecef_valid == FALSE) {
+    gps_piksi_set_base_pos();
+  }
+  baseline.ecef_valid = TRUE;
 }
 #endif
 
@@ -114,7 +143,7 @@ static void sbp_vel_ecef_callback(uint16_t sender_id __attribute__((unused)),
                                   uint8_t msg[],
                                   void *context __attribute__((unused)))
 {
-  sbp_vel_ecef_t vel_ecef = *(sbp_vel_ecef_t *)msg;
+  msg_vel_ecef_t vel_ecef = *(msg_vel_ecef_t *)msg;
   gps.ecef_vel.x = (int32_t)(vel_ecef.x / 10);
   gps.ecef_vel.y = (int32_t)(vel_ecef.y / 10);
   gps.ecef_vel.z = (int32_t)(vel_ecef.z / 10);
@@ -129,7 +158,7 @@ static void sbp_pos_llh_callback(uint16_t sender_id __attribute__((unused)),
                                  uint8_t msg[],
                                  void *context __attribute__((unused)))
 {
-  sbp_pos_llh_t pos_llh = *(sbp_pos_llh_t *)msg;
+  msg_pos_llh_t pos_llh = *(msg_pos_llh_t *)msg;
   gps.lla_pos.lat = (int32_t)(pos_llh.lat * 1e7);
   gps.lla_pos.lon = (int32_t)(pos_llh.lon * 1e7);
   int32_t alt = (int32_t)(pos_llh.height * 1000.);
@@ -170,7 +199,7 @@ static void sbp_pos_llh_callback(uint16_t sender_id __attribute__((unused)),
 //                                      uint8_t msg[],
 //                                      void *context __attribute__((unused)))
 //{
-//  sbp_baseline_ned_t baseline_ned = *(sbp_baseline_ned_t *)msg;
+//  msg_baseline_ned_t baseline_ned = *(sbp_baseline_ned_t *)msg;
 //}
 //#endif
 
@@ -179,7 +208,7 @@ static void sbp_vel_ned_callback(uint16_t sender_id __attribute__((unused)),
                                  uint8_t msg[],
                                  void *context __attribute__((unused)))
 {
-  sbp_vel_ned_t vel_ned = *(sbp_vel_ned_t *)msg;
+  msg_vel_ned_t vel_ned = *(msg_vel_ned_t *)msg;
   gps.ned_vel.x = (int32_t)(vel_ned.n / 10);
   gps.ned_vel.y = (int32_t)(vel_ned.e / 10);
   gps.ned_vel.z = (int32_t)(vel_ned.d / 10);
@@ -194,7 +223,7 @@ static void sbp_dops_callback(uint16_t sender_id __attribute__((unused)),
                               uint8_t msg[],
                               void *context __attribute__((unused)))
 {
-  sbp_dops_t dops = *(sbp_dops_t *)msg;
+  msg_dops_t dops = *(msg_dops_t *)msg;
   gps.pdop = dops.pdop;
 }
 
@@ -203,30 +232,10 @@ static void sbp_gps_time_callback(uint16_t sender_id __attribute__((unused)),
                                   uint8_t msg[],
                                   void *context __attribute__((unused)))
 {
-  sbp_gps_time_t gps_time = *(sbp_gps_time_t *)msg;
+  msg_gps_time_t gps_time = *(msg_gps_time_t *)msg;
   gps.week = gps_time.wn;
   gps.tow = gps_time.tow;
 }
-
-void gps_impl_init(void)
-{
-  /* Setup SBP nodes */
-  sbp_state_init(&sbp_state);
-  /* Register a node and callback, and associate them with a specific message ID. */
-  sbp_register_callback(&sbp_state, SBP_POS_ECEF, &sbp_pos_ecef_callback, NULL, &pos_ecef_node);
-  sbp_register_callback(&sbp_state, SBP_VEL_ECEF, &sbp_vel_ecef_callback, NULL, &vel_ecef_node);
-  sbp_register_callback(&sbp_state, SBP_POS_LLH, &sbp_pos_llh_callback, NULL, &pos_llh_node);
-  sbp_register_callback(&sbp_state, SBP_VEL_NED, &sbp_vel_ned_callback, NULL, &vel_ned_node);
-  sbp_register_callback(&sbp_state, SBP_DOPS, &sbp_dops_callback, NULL, &dops_node);
-  sbp_register_callback(&sbp_state, SBP_GPS_TIME, &sbp_gps_time_callback, NULL, &gps_time_node);
-#if USE_PIKSI_BASELINE_ECEF
-  sbp_register_callback(&sbp_state, SBP_BASELINE_ECEF, &sbp_baseline_ecef_callback, NULL, &baseline_ecef_node);
-#endif
-//#if USE_PIKSI_BASELINE_NED
-//  sbp_register_callback(&sbp_state, SBP_BASELINE_NED, &sbp_baseline_ned_callback, NULL, &baseline_ned_node);
-//#endif
-}
-
 
 /*
  * FIFO to hold received UART bytes before
@@ -241,6 +250,33 @@ uint8_t fifo_full(void);
 uint8_t fifo_write(char c);
 uint8_t fifo_read_char(char *c);
 uint32_t fifo_read(uint8_t *buff, uint32_t n, void *context);
+uint32_t write_callback(uint8_t *buff, uint32_t n, void *context);
+
+
+void gps_impl_init(void)
+{
+  baseline.ecef_valid = FALSE;
+
+  /* Setup SBP nodes */
+  sbp_state_init(&sbp_state);
+  /* Register a node and callback, and associate them with a specific message ID. */
+  sbp_register_callback(&sbp_state, SBP_MSG_POS_ECEF, &sbp_pos_ecef_callback, NULL, &pos_ecef_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_VEL_ECEF, &sbp_vel_ecef_callback, NULL, &vel_ecef_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_POS_LLH, &sbp_pos_llh_callback, NULL, &pos_llh_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_VEL_NED, &sbp_vel_ned_callback, NULL, &vel_ned_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_DOPS, &sbp_dops_callback, NULL, &dops_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_GPS_TIME, &sbp_gps_time_callback, NULL, &gps_time_node);
+#if USE_PIKSI_BASELINE_ECEF
+  sbp_register_callback(&sbp_state, SBP_MSG_BASELINE_ECEF, &sbp_baseline_ecef_callback, NULL, &baseline_ecef_node);
+#endif
+//#if USE_PIKSI_BASELINE_NED
+//  sbp_register_callback(&sbp_state, SBP_MSG_BASELINE_NED, &sbp_baseline_ned_callback, NULL, &baseline_ned_node);
+//#endif
+
+#if USE_PIKSI_PATCH_ANTENNA
+  sbp_send_message(&sbp_state, SBP_MSG_SETTINGS, 0, sizeof(ANTENNA_SETTING) ,(u8*)(&ANTENNA_SETTING), write_callback);
+#endif
+}
 
 
 /*
@@ -269,6 +305,24 @@ static void gps_piksi_publish(void)
     gps.last_3dfix_time = sys_time.nb_sec;
   }
   AbiSendMsgGPS(GPS_PIKSI_ID, now_ts, &gps);
+}
+
+void gps_piksi_set_base_pos(void)
+{
+  // compute base pos from current rover position and baseleg
+  // TODO would probably need some averaging on the last values
+  struct EcefCoor_i base_pos;
+  VECT3_DIFF(base_pos, gps.ecef_pos, baseline.ecef_pos);
+  struct LlaCoor_i base_lla;
+  lla_of_ecef_i(&base_lla, &base_pos);
+  // fill sbp message
+  msg_base_pos_t msg_base_pos = {
+    .lat = (double)(DEG_OF_EM7DEG(base_lla.lat)),
+    .lon = (double)(DEG_OF_EM7DEG(base_lla.lon)),
+    .height = (double)(M_OF_MM(base_lla.alt))
+  };
+  // send message to piksi module
+  sbp_send_message(&sbp_state, SBP_MSG_BASE_POS, 0, sizeof(msg_base_pos_t), (u8*)(&msg_base_pos), write_callback);
 }
 
 /*
@@ -339,6 +393,16 @@ uint8_t fifo_full(void)
     return 1;
   }
   return 0;
+}
+
+/* Write some bytes on a uart link */
+uint32_t write_callback(uint8_t *buff, uint32_t n, void *context __attribute__((unused)))
+{
+  uint32_t i = 0;
+  for (i = 0; i < n; i++) {
+    uart_transmit(&(GPS_LINK), buff[i]);
+  }
+  return n;
 }
 
 

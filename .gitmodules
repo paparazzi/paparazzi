@@ -10,3 +10,6 @@
 [submodule "sw/ext/chibios"]
 	path = sw/ext/chibios
 	url = https://github.com/mabl/ChibiOS.git
+[submodule "sw/ext/libsbp"]
+	path = sw/ext/libsbp
+	url = https://github.com/swift-nav/libsbp.git
