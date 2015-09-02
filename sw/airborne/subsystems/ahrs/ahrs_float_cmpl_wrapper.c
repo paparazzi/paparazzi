@@ -215,6 +215,11 @@ static bool_t ahrs_fc_enable_output(bool_t enable)
   return ahrs_fc_output_enabled;
 }
 
+static bool_t ahrs_fc_is_aligned(void)
+{
+  return ahrs_fc.is_aligned;
+}
+
 /**
  * Compute body orientation and rates from imu orientation and rates
  */
@@ -240,7 +245,7 @@ void ahrs_fc_register(void)
 {
   ahrs_fc_output_enabled = AHRS_FC_OUTPUT_ENABLED;
   ahrs_fc_init();
-  ahrs_register_impl(ahrs_fc_enable_output);
+  ahrs_register_impl(ahrs_fc_enable_output, ahrs_fc_is_aligned);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks

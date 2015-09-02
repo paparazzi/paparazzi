@@ -189,6 +189,11 @@ static bool_t ahrs_float_invariant_enable_output(bool_t enable)
   return ahrs_finv_output_enabled;
 }
 
+static bool_t ahrs_float_invariant_is_aligned(void)
+{
+  return ahrs_float_inv.is_aligned;
+}
+
 /**
  * Compute body orientation and rates from imu orientation and rates
  */
@@ -217,7 +222,7 @@ void ahrs_float_invariant_register(void)
 {
   ahrs_finv_output_enabled = AHRS_FINV_OUTPUT_ENABLED;
   ahrs_float_invariant_init();
-  ahrs_register_impl(ahrs_float_invariant_enable_output);
+  ahrs_register_impl(ahrs_float_invariant_enable_output,ahrs_float_invariant_is_aligned);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks

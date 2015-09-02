@@ -49,17 +49,19 @@ PRINT_CONFIG_VAR(SECONDARY_AHRS)
 /** references a registered AHRS implementation */
 struct AhrsImpl {
   AhrsEnableOutput enable;
+  AhrsIsAligned aligned;
 };
 
 struct AhrsImpl ahrs_impls[AHRS_NB_IMPL];
 uint8_t ahrs_output_idx;
 
-void ahrs_register_impl(AhrsEnableOutput enable)
+void ahrs_register_impl(AhrsEnableOutput enable, AhrsIsAligned aligned)
 {
   int i;
   for (i=0; i < AHRS_NB_IMPL; i++) {
     if (ahrs_impls[i].enable == NULL) {
       ahrs_impls[i].enable = enable;
+      ahrs_impls[i].aligned = aligned;
       break;
     }
   }
@@ -70,6 +72,7 @@ void ahrs_init(void)
   int i;
   for (i=0; i < AHRS_NB_IMPL; i++) {
     ahrs_impls[i].enable = NULL;
+    ahrs_impls[i].aligned = NULL;
   }
 
   RegisterAhrs(PRIMARY_AHRS);
@@ -83,6 +86,7 @@ void ahrs_init(void)
 
 int ahrs_switch(uint8_t idx)
 {
+	// TODO: prevent switching from an aligned AHRS to a non-aligned
   if (idx >= AHRS_NB_IMPL) { return -1; }
   if (ahrs_impls[idx].enable == NULL) { return -1; }
   /* first disable other AHRS output */
@@ -96,4 +100,16 @@ int ahrs_switch(uint8_t idx)
   ahrs_impls[idx].enable(TRUE);
   ahrs_output_idx = idx;
   return ahrs_output_idx;
+}
+
+bool_t ahrs_all_aligned(void)
+{
+	int i;
+	for (i=0; i < AHRS_NB_IMPL; i++) {
+    if (ahrs_impls[i].aligned != NULL) {
+      if (!ahrs_impls[i].aligned())
+      	return FALSE;
+    }
+  }
+  return TRUE;
 }

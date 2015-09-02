@@ -337,11 +337,16 @@ void ahrs_gx3_init(void)
   ahrs_gx3.is_aligned = FALSE;
 }
 
+static bool_t ahrs_gx3_is_aligned(void)
+{
+  return ahrs_gx3.is_aligned;
+}
+
 void ahrs_gx3_register(void)
 {
   ahrs_gx3_init();
   /// @todo: provide enable function
-  ahrs_register_impl(NULL);
+  ahrs_register_impl(NULL,ahrs_gx3_is_aligned);
 }
 
 

@@ -32,15 +32,27 @@ INS_FORMAT ins_pitch_neutral;
 
 struct AhrsChimu ahrs_chimu;
 
+static bool_t ahrs_chimu_enable_output(bool_t enable)
+{
+  ahrs_chimu.is_enabled = enable;
+  return ahrs_chimu.is_enabled;
+}
+
+static bool_t ahrs_chimu_is_aligned(void)
+{
+  return ahrs_chimu.is_aligned;
+}
+
 void ahrs_chimu_register(void)
 {
   ahrs_chimu_init();
   /// @todo: provide enable function
-  ahrs_register_impl(NULL);
+  ahrs_register_impl(ahrs_chimu_enable_output,ahrs_chimu_is_aligned);
 }
 
 void ahrs_chimu_init(void)
 {
+  ahrs_chimu.is_enabled = TRUE;
   ahrs_chimu.is_aligned = FALSE;
 
   uint8_t ping[7] = {CHIMU_STX, CHIMU_STX, 0x01, CHIMU_BROADCAST, MSG00_PING, 0x00, 0xE6 };
@@ -91,6 +103,7 @@ void parse_ins_msg(void)
           CHIMU_DATA.m_attitude.euler.theta,
           CHIMU_DATA.m_attitude.euler.psi
         };
+
         stateSetNedToBodyEulers_f(&att);
         ahrs_chimu.is_aligned = TRUE;
 #if CHIMU_DOWNLINK_IMMEDIATE

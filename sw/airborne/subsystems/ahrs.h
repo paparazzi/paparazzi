@@ -40,6 +40,7 @@
 #endif
 
 typedef bool_t (*AhrsEnableOutput)(bool_t);
+typedef bool_t (*AhrsIsAligned)(void);
 
 /* for settings when using secondary AHRS */
 extern uint8_t ahrs_output_idx;
@@ -49,7 +50,7 @@ extern uint8_t ahrs_output_idx;
  * Adds it to an internal list.
  * @param enable pointer to function to enable/disable the output of registering AHRS
  */
-extern void ahrs_register_impl(AhrsEnableOutput enable);
+extern void ahrs_register_impl(AhrsEnableOutput enable, AhrsIsAligned aligned);
 
 /** AHRS initialization. Called at startup.
  * Registers/initializes the default AHRS.
@@ -61,5 +62,9 @@ extern void ahrs_init(void);
  * @param idx index of the AHRS impl (0 = PRIMARY_AHRS, 1 = SECONDARY_AHRS).
  */
 extern int ahrs_switch(uint8_t idx);
+
+/** AHRS initialization check. Returns if all registered AHRS implementations are running.
+ */
+extern bool_t ahrs_all_aligned(void);
 
 #endif /* AHRS_H */
