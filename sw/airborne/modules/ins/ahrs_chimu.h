@@ -30,6 +30,7 @@
 #include "subsystems/ahrs.h"
 
 struct AhrsChimu {
+  bool_t is_enabled;
   bool_t is_aligned;
 };
 

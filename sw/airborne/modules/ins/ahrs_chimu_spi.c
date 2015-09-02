@@ -47,20 +47,29 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 {
   ahrs_chimu_update_gps(gps_s->fix, gps_s->speed_3d);
 }
+
+static bool_t ahrs_chimu_enable_output(bool_t enable)
+{
+  ahrs_chimu.is_enabled = enable;
+  return ahrs_chimu.is_enabled;
+}
+
 static bool_t ahrs_chimu_is_aligned(void)
 {
   return ahrs_chimu.is_aligned;
 }
+
 void ahrs_chimu_register(void)
 {
   ahrs_chimu_init();
   /// @todo: provide enable function
-  ahrs_register_impl(NULL,ahrs_chimu_is_aligned);
+  ahrs_register_impl(ahrs_chimu_enable_output,ahrs_chimu_is_aligned);
   AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 }
 
 void ahrs_chimu_init(void)
 {
+  ahrs_chimu.is_enabled = TRUE;
   ahrs_chimu.is_aligned = FALSE;
 
   // uint8_t ping[7] = {CHIMU_STX, CHIMU_STX, 0x01, CHIMU_BROADCAST, MSG00_PING, 0x00, 0xE6 };
