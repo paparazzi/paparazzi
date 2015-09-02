@@ -81,10 +81,19 @@ bool_t nav_survey_active;
 int32_t nav_roll, nav_pitch;
 int32_t nav_heading;
 float nav_radius;
+float nav_climb_vspeed, nav_descend_vspeed;
 
 /** default nav_circle_radius in meters */
 #ifndef DEFAULT_CIRCLE_RADIUS
 #define DEFAULT_CIRCLE_RADIUS 5.
+#endif
+
+#ifndef NAV_CLIMB_VSPEED
+#define NAV_CLIMB_VSPEED 0.5
+#endif
+
+#ifndef NAV_DESCEND_VSPEED
+#define NAV_DESCEND_VSPEED -0.8
 #endif
 
 uint8_t vertical_mode;
@@ -160,6 +169,8 @@ void nav_init(void)
   nav_pitch = 0;
   nav_heading = 0;
   nav_radius = DEFAULT_CIRCLE_RADIUS;
+  nav_climb_vspeed = NAV_CLIMB_VSPEED;
+  nav_descend_vspeed = NAV_DESCEND_VSPEED;
   nav_throttle = 0;
   nav_climb = 0;
   nav_leg_progress = 0;
