@@ -2454,8 +2454,8 @@
   <message name="REMOTE_GPS_SMALL" id="54" link="broadcasted">
     <field name="ac_id"   type="uint8"/>
     <field name="numsv"   type="uint8"/>
-    <field name="pos_xyz"  type="uint32" unit="cm"/>bits 31-22 x position in cm : bits 21-12 y position in cm : bits 11-2 z position in cm : bits 1 and 0 are free</field>
-    <field name="speed_xy"  type="uint32" unit="cm/s"/>bits 31-22 speed x in cm/s : bits 21-12 speed y in cm/s : bits 11-2 heading in rad*1e2 : bits 1 and 0 are free</field>
+    <field name="pos_xyz"  type="uint32" unit="cm">bits 31-22 x position in cm : bits 21-12 y position in cm : bits 11-2 z position in cm : bits 1 and 0 are free</field>
+    <field name="speed_xy"  type="uint32" unit="cm/s">bits 31-22 speed x in cm/s : bits 21-12 speed y in cm/s : bits 11-2 heading in rad*1e2 : bits 1 and 0 are free</field>
   </message>
 
   <message name="REMOTE_GPS" id="55" link="broadcasted">
