@@ -2440,8 +2440,8 @@
   <message name="REMOTE_GPS_SMALL" id="54" link="broadcasted">
     <field name="ac_id"   type="uint8"/>
     <field name="numsv"   type="uint8"/>
-    <field name="pos_xyz"  type="uint32"/>
-    <field name="speed_xy"  type="uint32"/>
+    <field name="pos_xyz"  type="uint32" unit="cm"/>
+    <field name="speed_xy"  type="uint32" unit="cm/s"/>
   </message>
 
   <message name="REMOTE_GPS" id="55" link="broadcasted">
