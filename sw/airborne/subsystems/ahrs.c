@@ -61,7 +61,7 @@ void ahrs_register_impl(AhrsEnableOutput enable, AhrsIsAligned aligned)
   for (i=0; i < AHRS_NB_IMPL; i++) {
     if (ahrs_impls[i].enable == NULL) {
       ahrs_impls[i].enable = enable;
-      ahrs_impls[i].enable = aligned;
+      ahrs_impls[i].aligned = aligned;
       break;
     }
   }

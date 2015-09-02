@@ -60,9 +60,14 @@ void update_ahrs_from_sim(void)
 
 }
 
+static bool_t ahrs_sim_is_aligned(void)
+{
+  return TRUE;
+}
+
 
 void ahrs_sim_register(void)
 {
   // dummy, simple ocaml sim only supports one basic fake AHRS anyway
-  ahrs_register_impl(NULL);
+  ahrs_register_impl(NULL,ahrs_sim_is_aligned);
 }
