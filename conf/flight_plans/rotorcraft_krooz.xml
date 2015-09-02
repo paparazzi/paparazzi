@@ -46,7 +46,7 @@
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
 			<!--<call fun="NavStopDetectGround()"/>-->
       <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
-      <stay vmode="climb" climb="1.0" wp="CLIMB"/>
+      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
     </block>
 		<block name="Come Home">
 			<call fun="NavSetWpCurAlt(WP_STDBY)"/>
@@ -94,7 +94,7 @@
 			<exception cond="RcCommand(RC_MODE_CHANGE) && autopilot_motors_on" deroute="Land here"/>
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <call fun="NavStartDetectGround()"/>
-      <stay climb="-0.8" vmode="climb" wp="TD"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>
   </blocks>
 </flight_plan>
