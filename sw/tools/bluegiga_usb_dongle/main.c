@@ -137,22 +137,28 @@ void *send_msg()
     if (action == action_broadcast) {
       diff = (insert_idx[0] - extract_idx[0] + 1024) % 1024;
       if (diff) {
+        ble_cmd_gap_end_procedure();
         bt_msg_len = diff < 31 ? diff : 31;
         //ble_cmd_attclient_attribute_write(device, drone_handle_measurement, bt_msg_len[device], &data_buf[device][extract_idx[device]]);
 
         ble_cmd_gap_set_adv_data(0, bt_msg_len, &data_buf[0][extract_idx[0]]);
-        ble_cmd_gap_set_mode(gap_user_data, gap_non_connectable);
+        ble_cmd_gap_set_mode(gap_user_data, gap_non_connectable);    //gap_set_mode($84, gap_scannable_non_connectable)
         extract_idx[device] = (extract_idx[device] + bt_msg_len) % 1024;
 
-        usleep(2000); // advertisement interval set at 320ms so pause for shorter before turning off
+        usleep(1000); // advertisement interval set at 320ms so pause for shorter before turning off
         ble_cmd_gap_set_mode(0, 0);   // stop advertising
+
+        ble_cmd_gap_discover(gap_discover_observation);   // return to listening
+        usleep(5000);
       }
     } else {
       device = 0;
       while (ac_id[device] != -1 && device < 8) {
         diff = (insert_idx[device] - extract_idx[device] + 1024) % 1024;
         if (diff) {
-          bt_msg_len = diff < 18 ? diff : 18; //diff < 27 ? diff : 27;
+          bt_msg_len = diff < 27 ? diff : 27;
+          //if (bt_msg_len > 18)
+          //  printf("Long msg: %d, buff size: %d\n", bt_msg_len, diff);
           //ble_cmd_attclient_attribute_write(device, drone_handle_measurement, bt_msg_len[device], &data_buf[device][extract_idx[device]]);
 
           ble_cmd_attclient_write_command(device, drone_handle_measurement, bt_msg_len, &data_buf[device][extract_idx[device]]);
@@ -279,8 +285,8 @@ void *read_message()
 
   //return 0;
 }
-
-void *send_paparazzi_comms()
+/*
+void* send_paparazzi_comms()
 {
   printf("send Comms started\n");
   unsigned char device = 0;
@@ -301,7 +307,7 @@ void *send_paparazzi_comms()
   }
   pthread_exit(NULL);
 }
-
+*/
 // enable indications or notifications
 void enable_indications(uint8 connection_handle, uint16 client_configuration_handle)
 {
@@ -328,48 +334,62 @@ void ble_rsp_system_get_info(const struct ble_msg_system_get_info_rsp_t *msg)
 // bt callback advertiser found
 void ble_evt_gap_scan_response(const struct ble_msg_gap_scan_response_evt_t *msg)
 {
-  uint8_t i;
-  char *name = NULL;
+  if (action == action_broadcast) {
+    printf("advertisement from: ");
+    print_bdaddr(msg->sender);
+    printf(" data: ");
+    int i;
+    for (i = 0; i < msg->data.len; i++) {
+      printf("%02x ", msg->data.data[i]);
+    }
+    printf("\n");
+    if (sock[0])
+      sendto(sock[0], msg->data.data, msg->data.len, MSG_DONTWAIT,
+             (struct sockaddr *)&send_addr[0], sizeof(struct sockaddr));
+  } else {
+    uint8_t i;
+    char *name = NULL;
 
-  // Check if this device already found, if not add to the list
+    // Check if this device already found, if not add to the list
 
-  if (!connect_all) {
-    printf("New device found: ");
+    if (!connect_all) {
+      printf("New device found: ");
 
-    // Parse data
-    for (i = 0; i < msg->data.len;) {
-      int8 len = msg->data.data[i++];
-      if (!len) { continue; }
-      if (i + len > msg->data.len) { break; } // not enough data
-      uint8 type = msg->data.data[i++];
-      switch (type) {
-        case 0x09:  // device name
-          name = malloc(len);
-          memcpy(name, msg->data.data + i, len - 1);
-          name[len - 1] = '\0';
+      // Parse data
+      for (i = 0; i < msg->data.len;) {
+        int8 len = msg->data.data[i++];
+        if (!len) { continue; }
+        if (i + len > msg->data.len) { break; } // not enough data
+        uint8 type = msg->data.data[i++];
+        switch (type) {
+          case 0x09:  // device name
+            name = malloc(len);
+            memcpy(name, msg->data.data + i, len - 1);
+            name[len - 1] = '\0';
+        }
+        i += len - 1;
       }
-      i += len - 1;
+
+      print_bdaddr(msg->sender);
+      // printf(" RSSI:%d", msg->rssi);
+
+      printf(" Name:");
+      if (name) { printf("%s", name); }
+      else { printf("Unknown"); }
+      printf("\n");
+
+      free(name);
     }
 
-    print_bdaddr(msg->sender);
-    // printf(" RSSI:%d", msg->rssi);
+    // automatically connect if reponding device has appropriate mac address hearder
+    if (connect_all && cmp_addr(msg->sender.addr, MAC_ADDR) >= 4) {
+      printf("Trying to connect to "); print_bdaddr(msg->sender); printf("\n");
+      //change_state(state_connecting);
+      // connection interval unit 1.25ms
+      // connection interval must be divisible by number of connection * 2.5ms and larger than minimum (7.5ms)
 
-    printf(" Name:");
-    if (name) { printf("%s", name); }
-    else { printf("Unknown"); }
-    printf("\n");
-
-    free(name);
-  }
-
-  // automatically connect if reponding device has appropriate mac address hearder
-  if (connect_all && cmp_addr(msg->sender.addr, MAC_ADDR) >= 4) {
-    printf("Trying to connect to "); print_bdaddr(msg->sender); printf("\n");
-    //change_state(state_connecting);
-    // connection interval unit 1.25ms
-    // connection interval must be divisible by number of connection * 2.5ms and larger than minimum (7.5ms)
-
-    ble_cmd_gap_connect_direct(&msg->sender.addr, gap_address_type_public, 6, 16, 100, 9);
+      ble_cmd_gap_connect_direct(&msg->sender.addr, gap_address_type_public, 6, 16, 100, 9);
+    }
   }
 }
 
@@ -553,6 +573,8 @@ void ble_evt_connection_disconnected(const struct ble_msg_connection_disconnecte
   printf("Connection %d terminated\n" , msg->connection);
   if (!connect_all) {
     ble_cmd_gap_connect_direct(&connect_addr, gap_address_type_public, 6, 16, 100, 9);
+    printf("Trying to reconnection to ");
+    print_bdaddr(connect_addr);
   }
   //change_state(state_connecting);
 
@@ -593,21 +615,35 @@ void *recv_paparazzi_comms()
   unsigned char device = 0;
   while (state != state_finish) {
     if (state == state_listening_measurements) {
-      device = 0;
-      while (ac_id[device] != -1 && device < 8) {
-        if (connected[device] && sock[device]) {
-          bytes_recv = recvfrom(sock[device], recv_data, 1024, MSG_DONTWAIT, (struct sockaddr *)&rec_addr[device],
-                                (socklen_t *)&sin_size);
+      if (action == action_broadcast) {
+        if (sock[0]) {
+          bytes_recv = recvfrom(sock[0], recv_data, 1024, MSG_DONTWAIT, (struct sockaddr *)&rec_addr[0], (socklen_t *)&sin_size);
           if (bytes_recv > 0) {
-            send_count[device] += bytes_recv;
+            send_count[0] += bytes_recv;
             //          for (i = 0; i<bytes_recv; i++)
-            memcpy(&data_buf[device][insert_idx[device]], recv_data, bytes_recv);
+            memcpy(&data_buf[0][insert_idx[0]], recv_data, bytes_recv);
 
             //send_msg(device, 0);
-            insert_idx[device] = (insert_idx[device] + bytes_recv) % 1024;
+            insert_idx[0] = (insert_idx[0] + bytes_recv) % 1024;
           }
         }
-        device++;
+      } else {
+        device = 0;
+        while (ac_id[device] != -1 && device < 8) {
+          if (connected[device] && sock[device]) {
+            bytes_recv = recvfrom(sock[device], recv_data, 1024, MSG_DONTWAIT, (struct sockaddr *)&rec_addr[device],
+                                  (socklen_t *)&sin_size);
+            if (bytes_recv > 0) {
+              send_count[device] += bytes_recv;
+              //          for (i = 0; i<bytes_recv; i++)
+              memcpy(&data_buf[device][insert_idx[device]], recv_data, bytes_recv);
+
+              //send_msg(device, 0);
+              insert_idx[device] = (insert_idx[device] + bytes_recv) % 1024;
+            }
+          }
+          device++;
+        }
       }
     }
     usleep(5000);
