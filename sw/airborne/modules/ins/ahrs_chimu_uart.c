@@ -32,11 +32,16 @@ INS_FORMAT ins_pitch_neutral;
 
 struct AhrsChimu ahrs_chimu;
 
+static bool_t ahrs_chimu_is_aligned(void)
+{
+  return ahrs_chimu.is_aligned;
+}
+
 void ahrs_chimu_register(void)
 {
   ahrs_chimu_init();
   /// @todo: provide enable function
-  ahrs_register_impl(NULL);
+  ahrs_register_impl(NULL,ahrs_chimu_is_aligned);
 }
 
 void ahrs_chimu_init(void)
