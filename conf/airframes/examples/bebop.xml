@@ -196,6 +196,11 @@
     <define name="IGAIN" value="30"/>
   </section>
 
+  <section name="NAVIGATION" prefix="NAV_">
+    <define  name="CLIMB_VSPEED" value="2.5" />
+    <define  name="DESCEND_VSPEED" value="-1.0" />
+  </section>
+
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
     <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
