@@ -167,6 +167,11 @@ static bool_t ahrs_mlkf_enable_output(bool_t enable)
   return ahrs_mlkf_output_enabled;
 }
 
+static bool_t ahrs_mlkf_is_aligned(void)
+{
+  return ahrs_mlkf.is_aligned;
+}
+
 /**
  * Compute body orientation and rates from imu orientation and rates
  */
@@ -194,7 +199,7 @@ void ahrs_mlkf_register(void)
 {
   ahrs_mlkf_output_enabled = AHRS_MLKF_OUTPUT_ENABLED;
   ahrs_mlkf_init();
-  ahrs_register_impl(ahrs_mlkf_enable_output);
+  ahrs_register_impl(ahrs_mlkf_enable_output,ahrs_mlkf_is_aligned);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks

@@ -242,6 +242,11 @@ static bool_t ahrs_icq_enable_output(bool_t enable)
   return ahrs_icq_output_enabled;
 }
 
+static bool_t ahrs_icq_is_aligned(void)
+{
+  return ahrs_icq.is_aligned;
+}
+
 /** Rotate angles and rates from imu to body frame and set state */
 static void set_body_state_from_quat(void)
 {
@@ -266,7 +271,7 @@ void ahrs_icq_register(void)
 {
   ahrs_icq_output_enabled = AHRS_ICQ_OUTPUT_ENABLED;
   ahrs_icq_init();
-  ahrs_register_impl(ahrs_icq_enable_output);
+  ahrs_register_impl(ahrs_icq_enable_output, ahrs_icq_is_aligned);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
