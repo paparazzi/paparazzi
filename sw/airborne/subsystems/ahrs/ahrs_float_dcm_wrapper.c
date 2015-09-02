@@ -157,6 +157,11 @@ static bool_t ahrs_dcm_enable_output(bool_t enable)
   return ahrs_dcm_output_enabled;
 }
 
+static bool_t ahrs_dcm_is_aligned(void)
+{
+  return ahrs_dcm.is_aligned;
+}
+
 /**
  * Compute body orientation and rates from imu orientation and rates
  */
@@ -181,7 +186,7 @@ void ahrs_dcm_register(void)
 {
   ahrs_dcm_output_enabled = AHRS_DCM_OUTPUT_ENABLED;
   ahrs_dcm_init();
-  ahrs_register_impl(ahrs_dcm_enable_output);
+  ahrs_register_impl(ahrs_dcm_enable_output,ahrs_dcm_is_aligned);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks

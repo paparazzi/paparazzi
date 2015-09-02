@@ -173,6 +173,11 @@ static bool_t ahrs_ice_enable_output(bool_t enable)
   return ahrs_ice_output_enabled;
 }
 
+static bool_t ahrs_ice_is_aligned(void)
+{
+  return ahrs_ice.is_aligned;
+}
+
 /* Rotate angles and rates from imu to body frame and set state */
 static void set_body_state_from_euler(void)
 {
@@ -198,7 +203,7 @@ void ahrs_ice_register(void)
 {
   ahrs_ice_output_enabled = AHRS_ICE_OUTPUT_ENABLED;
   ahrs_ice_init();
-  ahrs_register_impl(ahrs_ice_enable_output);
+  ahrs_register_impl(ahrs_ice_enable_output,ahrs_ice_is_aligned);
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
