@@ -20,7 +20,7 @@
  *
  */
 
-/** @file modules/stereocam.h
+/** @file modules/sensors/stereocam.h
  *  @brief interface to the TU Delft serial stereocam
  */
 
@@ -40,4 +40,4 @@ extern void stereocam_start(void);
 extern void stereocam_stop(void);
 extern void stereocam_periodic(void);
 
-#endif /* LISA_STEREO_H_ */
+#endif /* STEREOCAM_H_ */

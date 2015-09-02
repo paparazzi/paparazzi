@@ -20,7 +20,7 @@
  *
  */
 
-/** @file modules/stereocam.c
+/** @file modules/sensors/stereocam.c
  *  @brief interface to TU Delft serial stereocam
  *  Include stereocam.xml to your airframe file.
  *  Parameters STEREO_PORT, STEREO_BAUD, SEND_STEREO and STEREO_BUF_SIZE should be configured with stereocam.xml.
