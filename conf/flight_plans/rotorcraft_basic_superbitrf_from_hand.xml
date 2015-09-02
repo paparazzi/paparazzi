@@ -6,7 +6,7 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
   <header>
 
 #include "autopilot.h"
-#include "subsystems/ahrs.h"
+#include "subsystems/ahrs/ahrs_int_cmpl_quat.h"
 #include "subsystems/electrical.h"
 #include "subsystems/datalink/datalink.h"
 
@@ -56,7 +56,7 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
   <blocks>
     <block name="Init">
       <call fun="NavKillThrottle()"/>
-      <while cond="!GpsFixValid() || gps.pacc > 400 || !(ahrs.status == AHRS_RUNNING)"/>
+      <while cond="!GpsFixValid() || gps.pacc > 400 || !(ahrs_icq.status == AHRS_ICQ_RUNNING)"/>
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 8)"/>
