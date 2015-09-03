@@ -396,8 +396,8 @@ struct State {
   struct Int32Vect2 h_windspeed_i;
 
   /**
-   * Norm of horizontal ground speed.
-   * @details Unit: m/s in BFP with #INT32_SPEED_FRAC
+   * Norm of relative wind speed.
+   * Unit: m/s in BFP with #INT32_SPEED_FRAC
    */
   int32_t airspeed_i;
 
@@ -864,21 +864,21 @@ static inline struct EcefCoor_i *stateGetSpeedEcef_i(void)
 }
 
 /// Get norm of horizontal ground speed (int).
-static inline uint32_t *stateGetHorizontalSpeedNorm_i(void)
+static inline uint32_t stateGetHorizontalSpeedNorm_i(void)
 {
   if (!bit_is_set(state.speed_status, SPEED_HNORM_I)) {
     stateCalcHorizontalSpeedNorm_i();
   }
-  return &state.h_speed_norm_i;
+  return state.h_speed_norm_i;
 }
 
 /// Get dir of horizontal ground speed (int).
-static inline int32_t *stateGetHorizontalSpeedDir_i(void)
+static inline int32_t stateGetHorizontalSpeedDir_i(void)
 {
   if (!bit_is_set(state.speed_status, SPEED_HDIR_I)) {
     stateCalcHorizontalSpeedDir_i();
   }
-  return &state.h_speed_dir_i;
+  return state.h_speed_dir_i;
 }
 
 /// Get ground speed in local NED coordinates (float).
@@ -909,21 +909,21 @@ static inline struct EcefCoor_f *stateGetSpeedEcef_f(void)
 }
 
 /// Get norm of horizontal ground speed (float).
-static inline float *stateGetHorizontalSpeedNorm_f(void)
+static inline float stateGetHorizontalSpeedNorm_f(void)
 {
   if (!bit_is_set(state.speed_status, SPEED_HNORM_F)) {
     stateCalcHorizontalSpeedNorm_f();
   }
-  return &state.h_speed_norm_f;
+  return state.h_speed_norm_f;
 }
 
 /// Get dir of horizontal ground speed (float).
-static inline float *stateGetHorizontalSpeedDir_f(void)
+static inline float stateGetHorizontalSpeedDir_f(void)
 {
   if (!bit_is_set(state.speed_status, SPEED_HDIR_F)) {
     stateCalcHorizontalSpeedDir_f();
   }
-  return &state.h_speed_dir_f;
+  return state.h_speed_dir_f;
 }
 /** @}*/
 
@@ -1289,12 +1289,12 @@ static inline struct Int32Vect2 *stateGetHorizontalWindspeed_i(void)
 }
 
 /// Get airspeed (int).
-static inline int32_t *stateGetAirspeed_i(void)
+static inline int32_t stateGetAirspeed_i(void)
 {
   if (!bit_is_set(state.wind_air_status, AIRSPEED_I)) {
     stateCalcAirspeed_i();
   }
-  return &state.airspeed_i;
+  return state.airspeed_i;
 }
 
 /// Get horizontal windspeed (float).
@@ -1307,30 +1307,30 @@ static inline struct FloatVect2 *stateGetHorizontalWindspeed_f(void)
 }
 
 /// Get airspeed (float).
-static inline float *stateGetAirspeed_f(void)
+static inline float stateGetAirspeed_f(void)
 {
   if (!bit_is_set(state.wind_air_status, AIRSPEED_F)) {
     stateCalcAirspeed_f();
   }
-  return &state.airspeed_f;
+  return state.airspeed_f;
 }
 
 /// Get angle of attack (float).
-static inline float *stateGetAngleOfAttack_f(void)
+static inline float stateGetAngleOfAttack_f(void)
 {
   ///  @todo only float for now
 //  if (!bit_is_set(state.wind_air_status, AOA_F))
 //    stateCalcAOA_f();
-  return &state.angle_of_attack_f;
+  return state.angle_of_attack_f;
 }
 
 /// Get sideslip (float).
-static inline float *stateGetSideslip_f(void)
+static inline float stateGetSideslip_f(void)
 {
   ///  @todo only float for now
 //  if (!bit_is_set(state.wind_air_status, SIDESLIP_F))
 //    stateCalcSideslip_f();
-  return &state.sideslip_f;
+  return state.sideslip_f;
 }
 
 /** @}*/

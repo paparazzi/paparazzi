@@ -166,11 +166,12 @@ void dl_parse_msg(void)
       wind.y = DL_WIND_INFO_east(dl_buffer);
       stateSetHorizontalWindspeed_f(&wind);
 #if !USE_AIRSPEED
-      float airspeed = DL_WIND_INFO_airspeed(dl_buffer);
-      stateSetAirspeed_f(&airspeed);
+      float wi_airspeed = DL_WIND_INFO_airspeed(dl_buffer);
+      stateSetAirspeed_f(&wi_airspeed);
 #endif
 #ifdef WIND_INFO_RET
-      DOWNLINK_SEND_WIND_INFO_RET(DefaultChannel, DefaultDevice, &wind.y, &wind.x, stateGetAirspeed_f());
+      float airspeed = stateGetAirspeed_f();
+      DOWNLINK_SEND_WIND_INFO_RET(DefaultChannel, DefaultDevice, &wind.y, &wind.x, &airspeed);
 #endif
     }
     break;
