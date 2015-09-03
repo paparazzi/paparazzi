@@ -7,6 +7,7 @@
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
+      <subsystem name="udp"/>
     </target>
 
     <!--define name="USE_SONAR" value="TRUE"/-->

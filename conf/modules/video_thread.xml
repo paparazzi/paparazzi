@@ -48,5 +48,9 @@
   </makefile>
   <makefile target="nps">
     <file name="video_thread_nps.c"/>
+    <file name="cv.c"/>
+    <file name="image.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
+    <flag name="LDFLAGS" value="lpthread"/>
   </makefile>
 </module>

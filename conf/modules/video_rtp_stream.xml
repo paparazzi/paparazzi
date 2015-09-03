@@ -27,7 +27,7 @@
   </header>
 
   <init fun="viewvideo_init()"/>
-  <makefile target="ap">
+  <makefile target="ap|nps">
 
     <file name="viewvideo.c"/>
 
@@ -44,13 +44,11 @@
       VIEWVID_CFLAGS  = -DVIEWVIDEO_HOST=$(VIEWVIDEO_HOST) -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT)
       ifeq ($(VIEWVIDEO_USE_NC),)
         ap.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=$(VIEWVIDEO_BROADCAST)
+        nps.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=FALSE
       else
-        ap.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_USE_NC
+        $(TARGET).CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_USE_NC
       endif
     </raw>
 
-  </makefile>
-  <makefile target="nps">
-    <file name="viewvideo_nps.c"/>
   </makefile>
 </module>
