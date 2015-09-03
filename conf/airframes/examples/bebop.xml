@@ -30,15 +30,17 @@
     <!--load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </load-->
-    <load name="video_rtp_stream.xml">
+    <load name="video_thread.xml">
       <define name="VIEWVIDEO_FPS" value="4"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
-      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
       <define name="VIEWVIDEO_DEVICE" value="/dev/video0"/>
       <define name="VIEWVIDEO_SUBDEV" value="/dev/v4l-subdev0"/>
       <define name="VIEWVIDEO_DEVICE_SIZE" value="640,480"/>
       <define name="VIEWVIDEO_DEVICE_BUFFERS" value="60"/>
       <define name="VIEWVIDEO_SHOT_PATH" value="/data/ftp/internal_000/images"/>
+    </load>
+    <load name="video_rtp_stream.xml">
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
     </load>
   </modules>
 
