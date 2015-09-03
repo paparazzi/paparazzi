@@ -1,12 +1,36 @@
+/*
+ * Copyright (C) 2015
+ *
+ * This file is part of Paparazzi.
+ *
+ * Paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file modules/computer_vision/qrcode/qr_code.c
+ */
 
 #include "qr_code.h"
 
 #include "zbar.h"
 #include <stdio.h>
 
-void qrcode_periodic(void)
+void qrcode_init(void)
 {
-
+	// TODO: add qrscan to the list of image processing tasks in viewvideo
 }
 
 // Telemetry
@@ -63,7 +87,7 @@ void qrscan(struct image_t *img)
     printf("decoded %s symbol \"%s\"\n",
            zbar_get_symbol_name(typ), data);
 
-#if PERIODIC_TELEMETRY
+#if DOWNLINK
     DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, strlen(data), data);
 #endif
   }

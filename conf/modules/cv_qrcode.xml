@@ -3,14 +3,16 @@
 <module name="qrcode" dir="computer_vision/qrcode">
   <doc>
     <description>
-      QR code reader
+      QR code reader using ZBAR library
+
+      A telemetry message with the code content is sent when a QR code is detected when qrscan is called.
     </description>
   </doc>
 
   <header>
     <file name="qr_code.h"/>
   </header>
-  <periodic fun="qrcode_periodic()" freq="2"/>
+  <init fun="qrcode_init()"/>
   <makefile target="ap">
     <file name="qr_code.c"/>
 
