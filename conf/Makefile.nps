@@ -50,7 +50,7 @@ CXXFLAGS += -O$(OPT)
 CXXFLAGS += $(DEBUG_FLAGS)
 CXXFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 
-LDFLAGS	+= $($(TARGET).LDFLAGS)
+LDFLAGS	+= $($(TARGET).LDFLAGS) -pthread
 
 #
 # General rules
