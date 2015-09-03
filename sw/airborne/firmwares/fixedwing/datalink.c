@@ -166,8 +166,7 @@ void dl_parse_msg(void)
       wind.y = DL_WIND_INFO_east(dl_buffer);
       stateSetHorizontalWindspeed_f(&wind);
 #if !USE_AIRSPEED
-      float wi_airspeed = DL_WIND_INFO_airspeed(dl_buffer);
-      stateSetAirspeed_f(&wi_airspeed);
+      stateSetAirspeed_f(DL_WIND_INFO_airspeed(dl_buffer));
 #endif
 #ifdef WIND_INFO_RET
       float airspeed = stateGetAirspeed_f();

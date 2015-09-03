@@ -1233,9 +1233,9 @@ static inline void stateSetHorizontalWindspeed_i(struct Int32Vect2 *h_windspeed)
 }
 
 /// Set airspeed (int).
-static inline void stateSetAirspeed_i(int32_t *airspeed)
+static inline void stateSetAirspeed_i(int32_t airspeed)
 {
-  state.airspeed_i = *airspeed;
+  state.airspeed_i = airspeed;
   /* clear bits for all airspeed representations and only set the new one */
   ClearBit(state.wind_air_status, AIRSPEED_F);
   SetBit(state.wind_air_status, AIRSPEED_I);
@@ -1251,27 +1251,27 @@ static inline void stateSetHorizontalWindspeed_f(struct FloatVect2 *h_windspeed)
 }
 
 /// Set airspeed (float).
-static inline void stateSetAirspeed_f(float *airspeed)
+static inline void stateSetAirspeed_f(float airspeed)
 {
-  state.airspeed_f = *airspeed;
+  state.airspeed_f = airspeed;
   /* clear bits for all airspeed representations and only set the new one */
   ClearBit(state.wind_air_status, AIRSPEED_I);
   SetBit(state.wind_air_status, AIRSPEED_F);
 }
 
 /// Set angle of attack in radians (float).
-static inline void stateSetAngleOfAttack_f(float *aoa)
+static inline void stateSetAngleOfAttack_f(float aoa)
 {
-  state.angle_of_attack_f = *aoa;
+  state.angle_of_attack_f = aoa;
   /* clear bits for all AOA representations and only set the new one */
   /// @todo no integer yet
   SetBit(state.wind_air_status, AOA_F);
 }
 
 /// Set sideslip angle in radians (float).
-static inline void stateSetSideslip_f(float *sideslip)
+static inline void stateSetSideslip_f(float sideslip)
 {
-  state.sideslip_f = *sideslip;
+  state.sideslip_f = sideslip;
   /* clear bits for all sideslip representations and only set the new one */
   /// @todo no integer yet
   SetBit(state.wind_air_status, SIDESLIP_F);

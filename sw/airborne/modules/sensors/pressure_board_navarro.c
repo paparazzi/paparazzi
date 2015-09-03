@@ -151,7 +151,7 @@ void pbn_read_event(void)
       pbn.airspeed = (pbn.airspeed_filter * pbn.airspeed + tmp_airspeed) /
                      (pbn.airspeed_filter + 1.);
 #if USE_AIRSPEED_PBN
-      stateSetAirspeed_f(&pbn.airspeed);
+      stateSetAirspeed_f(pbn.airspeed);
 #endif
 
       pbn.altitude = PBN_ALTITUDE_SCALE * (float)(pbn.altitude_adc - pbn.altitude_offset);
