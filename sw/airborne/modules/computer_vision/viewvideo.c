@@ -31,6 +31,7 @@
 
 // Own header
 #include "modules/computer_vision/viewvideo.h"
+#include "modules/computer_vision/cv.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -141,7 +142,6 @@ struct viewvideo_t viewvideo = {
   .shot_number = 0
 };
 
-
 /**
  * Handles all the video streaming and saving of the image shots
  * This is a sepereate thread, so it needs to be thread safe!
@@ -230,6 +230,8 @@ static void *viewvideo_thread(void *data __attribute__((unused)))
       image_free(&jpeg_hr);
       viewvideo.take_shot = FALSE;
     }
+
+    cv_run(&img);
 
     // Only resize when needed
     if (viewvideo.downsize_factor != 1) {

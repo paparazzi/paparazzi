@@ -38,6 +38,7 @@
   <makefile target="ap">
 
     <file name="viewvideo.c"/>
+    <file name="cv.c"/>
 
     <!-- Include the needed Computer Vision files -->
     <define name="modules/computer_vision" type="include"/>
