@@ -99,8 +99,8 @@ struct viewvideo_t viewvideo = {
  * This is a sepereate thread, so it needs to be thread safe!
  */
 struct UdpSocket video_sock;
-bool_t viewvideo_function(struct image_t* img);
-bool_t viewvideo_function(struct image_t* img)
+bool_t viewvideo_function(struct image_t *img);
+bool_t viewvideo_function(struct image_t *img)
 {
   // Resize image if needed
   struct image_t img_small;
@@ -187,13 +187,13 @@ bool_t viewvideo_function(struct image_t* img)
  */
 void viewvideo_init(void)
 {
-	char save_name[512];
+  char save_name[512];
 //  struct UdpSocket video_sock;
   udp_socket_create(&video_sock, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_BROADCAST);
 
-	cv_add(viewvideo_function);
+  cv_add(viewvideo_function);
 
-	viewvideo.is_streaming = TRUE;
+  viewvideo.is_streaming = TRUE;
 
 #if VIEWVIDEO_USE_NETCAT
   // Create an Netcat receiver file for the streaming

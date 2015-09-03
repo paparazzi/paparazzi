@@ -32,9 +32,9 @@
 #include "std.h"
 #include "lib/vision/image.h"
 
-typedef bool_t (*cvFunction)(struct image_t* img);
+typedef bool_t (*cvFunction)(struct image_t *img);
 
 extern void cv_add(cvFunction func);
-extern void cv_run(struct image_t* img);
+extern void cv_run(struct image_t *img);
 
 #endif /* CV_H_ */

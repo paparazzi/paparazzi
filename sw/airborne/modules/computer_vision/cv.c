@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/computer_vision/cv.h
+ * @file modules/computer_vision/cv.c
  *
  * Computer vision framework for onboard processing
  */
@@ -34,17 +34,15 @@ cvFunction cv_func[MAX_CV_FUNC];
 
 void cv_add(cvFunction func)
 {
-	if (cv_func_cnt < (MAX_CV_FUNC-1))
-	{
-		cv_func[cv_func_cnt] = func;
-		cv_func_cnt++;
-	}
+  if (cv_func_cnt < (MAX_CV_FUNC - 1)) {
+    cv_func[cv_func_cnt] = func;
+    cv_func_cnt++;
+  }
 }
 
-void cv_run(struct image_t* img)
+void cv_run(struct image_t *img)
 {
-	for (int i=0;i<cv_func_cnt;i++)
-	{
-		cv_func[i](img);
-	}
+  for (int i = 0; i < cv_func_cnt; i++) {
+    cv_func[i](img);
+  }
 }
