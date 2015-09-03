@@ -127,7 +127,7 @@ void opticflow_module_init(void)
 #endif
 
   /* Try to initialize the video device */
-  opticflow_dev = v4l2_init(STRINGIFY(OPTICFLOW_DEVICE), OPTICFLOW_DEVICE_SIZE, OPTICFLOW_DEVICE_BUFFERS);
+  opticflow_dev = v4l2_init(STRINGIFY(OPTICFLOW_DEVICE), OPTICFLOW_DEVICE_SIZE, OPTICFLOW_DEVICE_BUFFERS,V4L2_PIX_FMT_UYVY);
   if (opticflow_dev == NULL) {
     printf("[opticflow_module] Could not initialize the video device\n");
   }
