@@ -32,6 +32,7 @@
     <load name="air_data.xml"/>
     <load name="geo_mag.xml"/>
     <!--load name="logger_file.xml"/-->
+    <!--load name="video_thread.xml"/-->
     <!--load name="video_rtp_stream.xml"/-->
   </modules>
 

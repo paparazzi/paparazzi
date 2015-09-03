@@ -1,6 +1,5 @@
-/*
- * Copyright (C) 2012-2014 The Paparazzi Community
- *               2015 Freek van Tienen <freek.v.tienen@gmail.com>
+	/*
+ * Copyright (C) 2015
  *
  * This file is part of Paparazzi.
  *

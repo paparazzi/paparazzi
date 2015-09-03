@@ -36,6 +36,7 @@
     <load name="agl_dist.xml">
       <define name="USE_SONAR"/>
     </load>
+    <load name="video_thread.xml"/>
     <load name="video_rtp_stream.xml">
       <configure name="VIEWVIDEO_USE_NC" value="TRUE"/>
     </load>

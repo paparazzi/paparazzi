@@ -10,6 +10,8 @@
     </description>
   </doc>
 
+  <depends>video_thread</depends>
+
   <header>
     <file name="lib/exif/exif_module.h"/>
   </header>

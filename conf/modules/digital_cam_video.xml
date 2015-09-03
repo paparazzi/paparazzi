@@ -34,7 +34,7 @@
     </dl_settings>
   </settings>
 
-  <depends>video_rtp_stream</depends>
+  <depends>video_thread</depends>
 
   <conflicts>digital_cam,digital_cam_servo,digital_cam_i2c,digital_cam_uart</conflicts>
 

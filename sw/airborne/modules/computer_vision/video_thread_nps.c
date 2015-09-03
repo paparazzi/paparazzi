@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013
+ * Copyright (C) 2015
  *
  * This file is part of Paparazzi.
  *
@@ -25,18 +25,19 @@
  */
 
 // Own header
-#include "viewvideo.h"
+#include "video_thread.h"
 
-// Initialize the viewvideo structure with the defaults
-struct viewvideo_t viewvideo = {
-  .is_streaming = FALSE,
-  .downsize_factor = 1,
-  .quality_factor = 99,
+// Initialize the video_thread structure with the defaults
+struct video_thread_t video_thread = {
+  .is_running = FALSE,
+  .fps = 30,
+  .take_shot = FALSE,
+  .shot_number = 0
 };
 
 // All dummy functions
-void viewvideo_init(void) {}
-void viewvideo_periodic(void) {}
-void viewvideo_start(void) {}
-void viewvideo_stop(void) {}
-void viewvideo_take_shot(bool_t take __attribute__((unused))) {}
+void video_thread_init(void) {}
+void video_thread_periodic(void) {}
+void video_thread_start(void) {}
+void video_thread_stop(void) {}
+void video_thread_take_shot(bool_t take __attribute__((unused))) {}
