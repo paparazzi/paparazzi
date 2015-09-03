@@ -26,6 +26,7 @@
 
 // Own header
 #include "video_thread.h"
+#include "cv.h"
 
 // Initialize the video_thread structure with the defaults
 struct video_thread_t video_thread = {
@@ -37,7 +38,40 @@ struct video_thread_t video_thread = {
 
 // All dummy functions
 void video_thread_init(void) {}
-void video_thread_periodic(void) {}
+void video_thread_periodic(void)
+{
+  struct image_t img;
+  image_create(&img, 320, 240, IMAGE_YUV422);
+  int i, j;
+  uint8_t u, v;
+
+#ifdef SMARTUAV_SIMULATOR
+  SMARTUAV_IMPORT(&img);
+#else
+  if (video_thread.is_running) {
+    u = 0;
+    v = 255;
+  } else {
+    u = 255;
+    v = 0;
+  }
+  uint8_t *p = (uint8_t *) img.buf;
+  for (j = 0; j < img.h; j++) {
+    for (i = 0; i < img.w; i += 2) {
+      *p++ = u;
+      *p++ = j;
+      *p++ = v;
+      *p++ = j;
+    }
+  }
+  video_thread.is_running = ! video_thread.is_running;
+#endif
+
+  cv_run(&img);
+
+  image_free(&img);
+}
+
 void video_thread_start(void) {}
 void video_thread_stop(void) {}
 void video_thread_take_shot(bool_t take __attribute__((unused))) {}
