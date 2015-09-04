@@ -34,6 +34,27 @@
 #warning No battery voltage measurement available! Please add <load name="bat_voltage_ardrone2.xml"/> to your modules.
 #endif
 
+#include "peripherals/video_device.h"
+
+struct video_device_t front_camera = {
+  .w = 1280,
+  .h = 720,
+  .dev_name = "/dev/video1",
+  .subdev_name = NULL,
+  .format = V4L2_PIX_FMT_UYVY,
+  .filters = NULL
+};
+
+struct video_device_t bottom_camera = {
+  .w = 320,
+  .h = 240,
+  .dev_name = "/dev/video2",
+  .subdev_name = NULL,
+  .format = V4L2_PIX_FMT_UYVY,
+  .filters = NULL
+};
+
+
 void board_init(void)
 {
   // First we try to kill the program.elf and its respawner if it is running

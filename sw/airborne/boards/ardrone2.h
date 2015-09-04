@@ -3,9 +3,15 @@
 
 #define BOARD_ARDRONE2
 
+#include "peripherals/video_device.h"
+
 #ifndef UART1_DEV
 #define UART1_DEV /dev/ttyUSB0
 #endif
+
+/* Cameras */
+extern struct video_device_t bottom_camera;
+extern struct video_device_t front_camera;
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "boards/ardrone/actuators.h"
