@@ -66,11 +66,13 @@ void gps_impl_init(void)
   gps.gspeed = 700; // To enable course setting
   gps.cacc = 0; // To enable course setting
 
+#if GPS_USE_DATALINK_SMALL
   tracking_ecef.x = GPS_LOCAL_ECEF_ORIGIN_X;
   tracking_ecef.y = GPS_LOCAL_ECEF_ORIGIN_Y;
   tracking_ecef.z = GPS_LOCAL_ECEF_ORIGIN_Z;
 
   ltp_def_from_ecef_i(&tracking_ltp, &tracking_ecef);
+#endif
 }
 
 #ifdef GPS_USE_DATALINK_SMALL
