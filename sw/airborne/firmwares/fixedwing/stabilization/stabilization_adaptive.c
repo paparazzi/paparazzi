@@ -376,14 +376,14 @@ void h_ctl_course_loop(void)
   static float last_err;
 
   // Ground path error
-  float err = h_ctl_course_setpoint - (*stateGetHorizontalSpeedDir_f());
+  float err = h_ctl_course_setpoint - stateGetHorizontalSpeedDir_f();
   NormRadAngle(err);
 
   float d_err = err - last_err;
   last_err = err;
   NormRadAngle(d_err);
 
-  float speed_depend_nav = (*stateGetHorizontalSpeedNorm_f()) / NOMINAL_AIRSPEED;
+  float speed_depend_nav = stateGetHorizontalSpeedNorm_f() / NOMINAL_AIRSPEED;
   Bound(speed_depend_nav, 0.66, 1.5);
 
   h_ctl_roll_setpoint = h_ctl_course_pre_bank_correction * h_ctl_course_pre_bank
@@ -399,7 +399,7 @@ static inline void compute_airspeed_ratio(void)
   if (use_airspeed_ratio) {
     // low pass airspeed
     static float airspeed = 0.;
-    airspeed = (15 * airspeed + (*stateGetAirspeed_f())) / 16;
+    airspeed = (15 * airspeed + stateGetAirspeed_f()) / 16;
     // compute ratio
     float airspeed_ratio = airspeed / NOMINAL_AIRSPEED;
     Bound(airspeed_ratio, AIRSPEED_RATIO_MIN, AIRSPEED_RATIO_MAX);
@@ -663,7 +663,7 @@ inline static void h_ctl_yaw_loop(void)
 #endif
 
 #ifdef USE_AIRSPEED
-  float Vo = *stateGetAirspeed_f();
+  float Vo = stateGetAirspeed_f();
   Bound(Vo, STALL_AIRSPEED, RACE_AIRSPEED);
 #else
   float Vo = NOMINAL_AIRSPEED;
@@ -712,7 +712,7 @@ inline static void h_ctl_cl_loop(void)
 #if H_CTL_CL_LOOP_USE_AIRSPEED_SETPOINT
   float corrected_airspeed = v_ctl_auto_airspeed_setpoint;
 #else
-  float corrected_airspeed = *stateGetAirspeed_f();
+  float corrected_airspeed = stateGetAirspeed_f();
 #endif
 #if H_CTL_CL_LOOP_INCREASE_FLAPS_WITH_LOADFACTOR
   corrected_airspeed /= sqrtf(nz);

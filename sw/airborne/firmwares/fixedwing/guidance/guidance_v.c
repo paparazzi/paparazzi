@@ -344,7 +344,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void)
                       (err + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
 
   // Ground speed control loop (input: groundspeed error, output: airspeed controlled)
-  float err_groundspeed = (v_ctl_auto_groundspeed_setpoint - *stateGetHorizontalSpeedNorm_f());
+  float err_groundspeed = (v_ctl_auto_groundspeed_setpoint - stateGetHorizontalSpeedNorm_f());
   v_ctl_auto_groundspeed_sum_err += err_groundspeed;
   BoundAbs(v_ctl_auto_groundspeed_sum_err, V_CTL_AUTO_GROUNDSPEED_MAX_SUM_ERR);
   v_ctl_auto_airspeed_controlled = (err_groundspeed + v_ctl_auto_groundspeed_sum_err * v_ctl_auto_groundspeed_igain) *
@@ -358,7 +358,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void)
   }
 
   // Airspeed control loop (input: airspeed controlled, output: throttle controlled)
-  float err_airspeed = (v_ctl_auto_airspeed_controlled - *stateGetAirspeed_f());
+  float err_airspeed = (v_ctl_auto_airspeed_controlled - stateGetAirspeed_f());
   v_ctl_auto_airspeed_sum_err += err_airspeed;
   BoundAbs(v_ctl_auto_airspeed_sum_err, V_CTL_AUTO_AIRSPEED_MAX_SUM_ERR);
   controlled_throttle = (err_airspeed + v_ctl_auto_airspeed_sum_err * v_ctl_auto_airspeed_igain) *

@@ -137,7 +137,7 @@ void airspeed_ets_read_periodic(void)
   }
 #elif !defined USE_NPS
   extern float sim_air_speed;
-  stateSetAirspeed_f(&sim_air_speed);
+  stateSetAirspeed_f(sim_air_speed);
 #endif //SITL
 }
 
@@ -212,7 +212,7 @@ void airspeed_ets_read_event(void)
     }
     airspeed_ets = airspeed_ets / (float)AIRSPEED_ETS_NBSAMPLES_AVRG;
 #if USE_AIRSPEED_ETS
-    stateSetAirspeed_f(&airspeed_ets);
+    stateSetAirspeed_f(airspeed_ets);
 #endif
 #if AIRSPEED_ETS_SYNC_SEND
     DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, DefaultDevice, &airspeed_ets_raw, &airspeed_ets_offset, &airspeed_ets);

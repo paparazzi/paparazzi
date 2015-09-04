@@ -111,7 +111,7 @@ void ArduIMU_periodicGPS(void)
   // Test for high acceleration:
   //  - low speed
   //  - high thrust
-  float speed = *stateGetHorizontalSpeedNorm_f();
+  float speed = stateGetHorizontalSpeedNorm_f();
   if (speed < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
     high_accel_flag = TRUE;
   } else {
