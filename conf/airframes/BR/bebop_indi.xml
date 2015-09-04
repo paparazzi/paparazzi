@@ -35,18 +35,18 @@
     <!--load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </load-->
-    <load name="video_rtp_stream.xml">
+    <load name="video_thread.xml">
       <define name="VIEWVIDEO_FPS" value="4"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
-      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
       <define name="VIEWVIDEO_DEVICE" value="/dev/video0"/>
       <define name="VIEWVIDEO_SUBDEV" value="/dev/v4l-subdev0"/>
       <define name="VIEWVIDEO_DEVICE_SIZE" value="640,480"/>
       <define name="VIEWVIDEO_DEVICE_BUFFERS" value="60"/>
       <define name="VIEWVIDEO_SHOT_PATH" value="/data/ftp/internal_000/images"/>
     </load>
-    <load name="nav_survey_rectangle_rotorcraft.xml"/>
-    <load name="digital_cam_video.xml"/>
+    <load name="video_rtp_stream.xml">
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+    </load>
   </modules>
 
   <commands>
@@ -206,17 +206,11 @@
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <!-- Good weather -->
     <define name="MAX_BANK" value="20" unit="deg"/>
-    <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
     <define name="PGAIN" value="15"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
-  </section>
-
-  <section name="NAVIGATION" prefix="NAV_">
-    <define  name="CLIMB_VSPEED" value="2.5" />
-    <define  name="DESCEND_VSPEED" value="-1.0" />
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
