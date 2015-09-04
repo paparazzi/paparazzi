@@ -2,7 +2,7 @@
   <aircraft
    name="ARDrone2_default"
    ac_id="10"
-   airframe="airframes/TUDelft/airframes/ardrone2_default.xml"
+   airframe="airframes/examples/ardrone2.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
