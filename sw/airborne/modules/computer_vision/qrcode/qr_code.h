@@ -34,7 +34,7 @@
 #include "../lib/vision/image.h"
 
 extern void qrcode_init(void);
-extern void qrscan(struct image_t *img);
+extern bool_t qrscan(struct image_t *img);
 
 
 #endif

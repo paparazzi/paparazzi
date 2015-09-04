@@ -24,6 +24,7 @@
  */
 
 #include "qr_code.h"
+#include "cv.h"
 
 #include "zbar.h"
 #include <stdio.h>
@@ -31,6 +32,7 @@
 void qrcode_init(void)
 {
 	// TODO: add qrscan to the list of image processing tasks in viewvideo
+  cv_add(qrscan);
 }
 
 // Telemetry
@@ -39,7 +41,7 @@ void qrcode_init(void)
 
 zbar_image_scanner_t *scanner = 0;
 
-void qrscan(struct image_t *img)
+bool_t qrscan(struct image_t *img)
 {
   int i, j;
 
