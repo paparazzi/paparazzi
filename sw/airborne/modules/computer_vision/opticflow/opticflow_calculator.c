@@ -273,7 +273,6 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
     result->flow_x = vectors[result->tracked_cnt / 2].flow_x;
     result->flow_y = vectors[result->tracked_cnt / 2].flow_y;
   }
-}
 
   // Flow Derotation
   float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
