@@ -62,8 +62,10 @@ static void bebop_front_camera_save_shot(struct image_t *img_color, struct image
 void bebop_front_camera_periodic(void) { }
 
 // Initialize the bebop_front_camera structure with the defaults
-struct viewvideo_t bebop_front_camera = {
+struct bebopfrontcamera_t bebop_front_camera = {
   .is_streaming = FALSE,
+  .take_shot = FALSE,
+  .shot_number = 0,
   .take_shot = FALSE,
   .shot_number = 0
 };

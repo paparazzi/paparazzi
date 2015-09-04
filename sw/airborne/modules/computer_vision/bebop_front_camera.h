@@ -33,9 +33,19 @@
 #define BEBOP_FRONT_CAMERA_H
 
 #include "std.h"
-#include "viewvideo.h"
 
-extern struct viewvideo_t bebop_front_camera;
+// Main viewvideo structure
+struct bebopfrontcamera_t {
+  struct v4l2_device *dev;        ///< The V4L2 device that is used for the video stream
+  uint8_t fps;                    ///< The amount of frames per second
+  volatile bool_t take_shot;      ///< Wether to take an image
+  uint16_t shot_number;           ///< The last shot number
+  volatile bool_t is_streaming;   ///< When the device is streaming
+  uint8_t downsize_factor;        ///< Downsize factor during the stream
+  uint8_t quality_factor;         ///< Quality factor during the stream
+  bool_t use_rtp;                 ///< Stream over RTP
+};
+extern struct bebopfrontcamera_t bebop_front_camera;
 
 // Module functions
 extern void bebop_front_camera_init(void);
