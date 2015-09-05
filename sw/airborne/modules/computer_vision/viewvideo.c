@@ -177,8 +177,8 @@ bool_t viewvideo_function(struct image_t *img)
   }
 
   // Free all buffers
-  //image_free(&img_jpeg);
-  //image_free(&img_small);
+  image_free(&img_jpeg);
+  image_free(&img_small);
   return TRUE;
 }
 
