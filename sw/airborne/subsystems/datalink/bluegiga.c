@@ -52,13 +52,7 @@ signed char bluegiga_rssi[256];    // values initialized with 127
 // Functions for the generic device API
 static int dev_check_free_space(struct bluegiga_periph *p, uint8_t len)
 {
-  uint8_t i = p->tx_insert_idx;
-  uint8_t o = p->tx_extract_idx;
-  if (i < o) {
-    i += BLUEGIGA_BUFFER_SIZE;
-  }
-
-  return (i - o) >= len;
+  return TRUE;
 }
 static void dev_transmit(struct bluegiga_periph *p __attribute__((unused)), uint8_t byte)
 {
