@@ -97,6 +97,9 @@
     <file name="opticflow_calculator.c" dir="modules/computer_vision/opticflow"/>
     <file name="size_divergence.c" dir="modules/computer_vision/opticflow"/>
     <file name="stabilization_opticflow.c" dir="modules/computer_vision/opticflow"/>
+    <file name="linear_flow_fit.c" dir="modules/computer_vision/opticflow"/>
+    <file name="pprz_algebra_float.c" dir="math"/>
+    <file name="pprz_matrix_decomp_float.c" dir="math"/>
 
     <!-- Main vision calculations -->
     <file name="fast_rosten.c" dir="modules/computer_vision/lib/vision"/>
