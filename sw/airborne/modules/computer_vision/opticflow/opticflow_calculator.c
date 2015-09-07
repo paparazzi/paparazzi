@@ -158,7 +158,7 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   float size_divergence; int n_samples;
 
   // variables for linear flow fit:
-  float error_threshold; int n_iterations_RANSAC, n_samples_RANSAC, success_fit; float slope_x, slope_y, surface_roughness, focus_of_expansion_x, focus_of_expansion_y, relative_velocity_x, relative_velocity_y, relative_velocity_z, time_to_contact, divergence, fit_error; int n_inliers_u, n_inliers_v;
+  float error_threshold; int n_iterations_RANSAC, n_samples_RANSAC, success_fit; struct linear_flow_fit_info fit_info;
 
   // Update FPS for information
   result->fps = 1 / (timeval_diff(&opticflow->prev_timestamp, &img->ts) / 1000.);
@@ -230,15 +230,15 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
     error_threshold = 10.0f;
     n_iterations_RANSAC = 20;
     n_samples_RANSAC = 5;
-    success_fit = analyze_linear_flow_field(vectors, result->tracked_cnt, error_threshold, n_iterations_RANSAC, n_samples_RANSAC, img->w, img->h, &slope_x, &slope_y, &surface_roughness, &focus_of_expansion_x, &focus_of_expansion_y, &relative_velocity_x, &relative_velocity_y, &relative_velocity_z, &time_to_contact, &divergence, &fit_error, &n_inliers_u, &n_inliers_v);
+    success_fit = analyze_linear_flow_field(vectors, result->tracked_cnt, error_threshold, n_iterations_RANSAC, n_samples_RANSAC, img->w, img->h, &fit_info);
 
     if (!success_fit) {
-      divergence = 0.0f;
-      surface_roughness = 0.0f;
+      fit_info.divergence = 0.0f;
+      fit_info.surface_roughness = 0.0f;
     }
 
-    result->divergence = divergence;
-    result->surface_roughness = surface_roughness;
+    result->divergence = fit_info.divergence;
+    result->surface_roughness = fit_info.surface_roughness;
   } else {
     result->divergence = 0.0f;
     result->surface_roughness = 0.0f;

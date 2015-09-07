@@ -60,21 +60,9 @@
  * @param[in] n_samples Number of samples used for a single fit (min. 3).
  * @param[in] im_width Image width in pixels
  * @param[in] im_height Image height in pixels
- * @param[out] slope_x* Slope of the surface in x-direction - given sufficient lateral motion.
- * @param[out] slope_y* Slope of the surface in y-direction - given sufficient lateral motion.
- * @param[out] surface_roughness* The error of the linear fit is a measure of surface roughness.
- * @param[out] focus_of_expansion_x* Image x-coordinate of the focus of expansion (contraction).
- * @param[out] focus_of_expansion_y* Image y-coordinate of the focus of expansion (contraction).
- * @param[out] relative_velocity_x* Relative velocity in x-direction, i.e., vx / z, where z is the depth in direction of the camera's principal axis.
- * @param[out] relative_velocity_y* Relative velocity in y-direction, i.e., vy / z, where z is the depth in direction of the camera's principal axis.
- * @param[out] relative_velocity_z* Relative velocity in z-direction, i.e., vz / z, where z is the depth in direction of the camera's principal axis.
- * @param[out] time_to_contact* Basically, 1 / relative_velocity_z.
- * @param[out] divergence* Basically, relative_velocity_z. Actual divergence of a 2D flow field is 2 * relative_velocity_z.
- * @param[out] fit_error* Error of the fit (same as surface roughness).
- * @param[out] n_inliers_u Number of inliers in the horizontal flow fit.
- * @param[out] n_inliers_v Number of inliers in the vertical flow fit.
+ * @param[out] info Contains all info extracted from the linear flow fit.
  */
-int analyze_linear_flow_field(struct flow_t *vectors, int count, float error_threshold, int n_iterations, int n_samples, int im_width, int im_height, float *slope_x, float *slope_y, float *surface_roughness, float *focus_of_expansion_x, float *focus_of_expansion_y, float *relative_velocity_x, float *relative_velocity_y, float *relative_velocity_z, float *time_to_contact, float *divergence, float *fit_error, int *n_inliers_u, int *n_inliers_v)
+int analyze_linear_flow_field(struct flow_t *vectors, int count, float error_threshold, int n_iterations, int n_samples, int im_width, int im_height, struct linear_flow_fit_info *info)
 {
   // Are there enough flow vectors to perform a fit?
   if (count < MIN_SAMPLES_FIT) {
@@ -84,16 +72,16 @@ int analyze_linear_flow_field(struct flow_t *vectors, int count, float error_thr
 
   // fit linear flow field:
   float parameters_u[3], parameters_v[3], min_error_u, min_error_v;
-  fit_linear_flow_field(vectors, count, n_iterations, error_threshold, n_samples, parameters_u, parameters_v, fit_error, &min_error_u, &min_error_v, n_inliers_u, n_inliers_v);
+  fit_linear_flow_field(vectors, count, n_iterations, error_threshold, n_samples, parameters_u, parameters_v, &(*info).fit_error, &min_error_u, &min_error_v, &(*info).n_inliers_u, &(*info).n_inliers_v);
 
   // extract information from the parameters:
-  extract_information_from_parameters(parameters_u, parameters_v, im_width, im_height, relative_velocity_x, relative_velocity_y, relative_velocity_z, slope_x, slope_y, focus_of_expansion_x, focus_of_expansion_y);
+  extract_information_from_parameters(parameters_u, parameters_v, im_width, im_height, info);
 
   // surface roughness is equal to fit error:
-  (*surface_roughness) = (*fit_error);
-  (*divergence) = (*relative_velocity_z);
-  float div = (abs(*divergence) < 1E-5) ? 1E-5 : (*divergence);
-  (*time_to_contact) = 1.0f / div;
+  (*info).surface_roughness = (*info).fit_error;
+  (*info).divergence = (*info).relative_velocity_z;
+  float diverg = (abs((*info).divergence) < 1E-5) ? 1E-5 : (*info).divergence;
+  (*info).time_to_contact = 1.0f / diverg;
 
   // return successful fit:
   return FIT;
@@ -321,16 +309,10 @@ void fit_linear_flow_field(struct flow_t *vectors, int count, float error_thresh
  * @param[in] parameters_v* Parameters of the vertical flow field
  * @param[in] im_width Width of image in pixels
  * @param[in] im_height Height of image in pixels
- * @param[out] relative_velocity_x* Relative velocity in x-direction, i.e., vx / z, where z is the depth in direction of the camera's principal axis.
- * @param[out] relative_velocity_y* Relative velocity in y-direction, i.e., vy / z, where z is the depth in direction of the camera's principal axis.
- * @param[out] relative_velocity_z* Relative velocity in z-direction, i.e., vz / z, where z is the depth in direction of the camera's principal axis.
- * @param[out] slope_x* Slope of the surface in x-direction - given sufficient lateral motion.
- * @param[out] slope_y* Slope of the surface in y-direction - given sufficient lateral motion.
- * @param[out] focus_of_expansion_x* Image x-coordinate of the focus of expansion (contraction).
- * @param[out] focus_of_expansion_y* Image y-coordinate of the focus of expansion (contraction).
+ * @param[out] info Contains all info extracted from the linear flow fit
  */
 
-void extract_information_from_parameters(float *parameters_u, float *parameters_v, int im_width, int im_height, float *relative_velocity_x, float *relative_velocity_y, float *relative_velocity_z, float *slope_x, float *slope_y, float *focus_of_expansion_x, float *focus_of_expansion_y)
+void extract_information_from_parameters(float *parameters_u, float *parameters_v, int im_width, int im_height, struct linear_flow_fit_info *info)
 {
   // This method assumes a linear flow field in x- and y- direction according to the formulas:
   // u = parameters_u[0] * x + parameters_u[1] * y + parameters_u[2]
@@ -339,15 +321,15 @@ void extract_information_from_parameters(float *parameters_u, float *parameters_
   // and v is the vertical flow at image coordinate (x,y)
 
   // relative velocities:
-  *relative_velocity_z = (parameters_u[0] + parameters_v[1]) / 2.0f; // divergence / 2
+  (*info).relative_velocity_z = (parameters_u[0] + parameters_v[1]) / 2.0f; // divergence / 2
 
   // translation orthogonal to the camera axis:
   // flow in the center of the image:
-  *relative_velocity_x = -(parameters_u[2] + (im_width / 2.0f) * parameters_u[0] + (im_height / 2.0f) * parameters_u[1]);
-  *relative_velocity_y = -(parameters_v[2] + (im_width / 2.0f) * parameters_v[0] + (im_height / 2.0f) * parameters_v[1]);
+  (*info).relative_velocity_x = -(parameters_u[2] + (im_width / 2.0f) * parameters_u[0] + (im_height / 2.0f) * parameters_u[1]);
+  (*info).relative_velocity_y = -(parameters_v[2] + (im_width / 2.0f) * parameters_v[0] + (im_height / 2.0f) * parameters_v[1]);
 
-  float arv_x = abs(*relative_velocity_x);
-  float arv_y = abs(*relative_velocity_y);
+  float arv_x = abs((*info).relative_velocity_x);
+  float arv_y = abs((*info).relative_velocity_y);
 
   // extract inclination from flow field:
   float threshold_slope = 1.0;
@@ -355,26 +337,26 @@ void extract_information_from_parameters(float *parameters_u, float *parameters_
 
   if (abs(parameters_v[1]) < eta && arv_y < threshold_slope && arv_x >= 2 * threshold_slope) {
     // there is no forward motion and not enough vertical motion, but enough horizontal motion:
-    *slope_x = parameters_u[0] / *relative_velocity_x;
+    (*info).slope_x = parameters_u[0] / (*info).relative_velocity_x;
   } else if (arv_y >= 2 * threshold_slope) {
     // there is sufficient vertical motion:
-    *slope_x = parameters_v[0] / *relative_velocity_y;
+    (*info).slope_x = parameters_v[0] / (*info).relative_velocity_y;
   } else {
     // there may be forward motion, then we can do a quadratic fit:
     // a linear fit provides no information though
-    *slope_x = 0.0f;
+    (*info).slope_x = 0.0f;
   }
 
   if (abs(parameters_u[0]) < eta && arv_x < threshold_slope && arv_y >= 2 * threshold_slope) {
     // there is no forward motion, little horizontal movement, but sufficient vertical motion:
-    *slope_y = parameters_v[1] / *relative_velocity_y;
+    (*info).slope_y = parameters_v[1] / (*info).relative_velocity_y;
   } else if (arv_x >= 2 * threshold_slope) {
     // there is sufficient horizontal motion:
-    *slope_y = parameters_u[1] / *relative_velocity_x;
+    (*info).slope_y = parameters_u[1] / (*info).relative_velocity_x;
   } else {
     // there could be forward motion, then we can do a quadratic fit:
     // a linear fit provides no information though
-    *slope_y = 0.0f;
+    (*info).slope_y = 0.0f;
   }
 
   // Focus of Expansion:
@@ -383,12 +365,12 @@ void extract_information_from_parameters(float *parameters_u, float *parameters_
   // x:
   float denominator = parameters_v[0] * parameters_u[1] - parameters_u[0] * parameters_v[1];
   if (abs(denominator) > 1E-5) {
-    *focus_of_expansion_x = ((parameters_u[2] * parameters_v[1] - parameters_v[2] * parameters_u[1]) / denominator);
-  } else { *focus_of_expansion_x = 0.0f; }
+    (*info).focus_of_expansion_x = ((parameters_u[2] * parameters_v[1] - parameters_v[2] * parameters_u[1]) / denominator);
+  } else { (*info).focus_of_expansion_x = 0.0f; }
   // y:
   denominator = parameters_u[1];
   if (abs(denominator) > 1E-5) {
-    *focus_of_expansion_y = (-(parameters_u[0] * (*focus_of_expansion_x) + parameters_u[2]) / denominator);
-  } else { *focus_of_expansion_y = 0.0f; }
+    (*info).focus_of_expansion_y = (-(parameters_u[0] * ((*info).focus_of_expansion_x) + parameters_u[2]) / denominator);
+  } else { (*info).focus_of_expansion_y = 0.0f; }
 }
 
