@@ -17,6 +17,9 @@
 # Include SPI if not yet included
 include $(CFG_SHARED)/spi_master.makefile
 
+ap.CFLAGS += -DUSE_UART3
+ap.CFLAGS += -DUART3_BAUD=B38400
+
 # Set downlink to paparazzi transport over bluegiga protocol over SPI slave
 ap.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_DEVICE=bluegiga_p
 ap.CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=BLUEGIGA
