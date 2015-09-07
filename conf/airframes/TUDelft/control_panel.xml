@@ -46,6 +46,27 @@
   </section>
 
   <section name="sessions">
+    <session name="Bluegiga">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_port" constant="4242"/>
+        <arg flag="-udp_uplink_port" constant="4252"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="GCS"/>
+      <program name="NatNet">
+        <arg flag="-ac" constant="1"/>
+        <arg flag="12"/>
+        <arg flag="-small"/>
+        <arg flag="-tf" constant="5"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-d" constant="2"/>
+        <arg flag="-ac" constant="LadyLisaBluegiga"/>
+        <arg flag="hobbyking.xml"/>
+      </program>
+    </session>
     <session name="Flight USB0 @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
