@@ -218,39 +218,32 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
 #endif
 
   // Estimate size divergence:
-  if(SIZE_DIV)
-  {
-  n_samples = 100;
-  size_divergence = get_size_divergence(vectors, result->tracked_cnt, n_samples);
-  result->div_size = size_divergence;
-  }
-  else
-  {
+  if (SIZE_DIV) {
+    n_samples = 100;
+    size_divergence = get_size_divergence(vectors, result->tracked_cnt, n_samples);
+    result->div_size = size_divergence;
+  } else {
     result->div_size = 0.0f;
   }
-  if(LINEAR_FIT)
-  {
+  if (LINEAR_FIT) {
     // Linear flow fit (normally derotation should be performed before):
     error_threshold = 10.0f;
     n_iterations_RANSAC = 20;
     n_samples_RANSAC = 5;
     success_fit = analyze_linear_flow_field(vectors, result->tracked_cnt, error_threshold, n_iterations_RANSAC, n_samples_RANSAC, img->w, img->h, &slope_x, &slope_y, &surface_roughness, &focus_of_expansion_x, &focus_of_expansion_y, &relative_velocity_x, &relative_velocity_y, &relative_velocity_z, &time_to_contact, &divergence, &fit_error, &n_inliers_u, &n_inliers_v);
-    
-    if(!success_fit)
-    {
+
+    if (!success_fit) {
       divergence = 0.0f;
       surface_roughness = 0.0f;
     }
 
     result->divergence = divergence;
     result->surface_roughness = surface_roughness;
-  }
-  else
-  {
+  } else {
     result->divergence = 0.0f;
     result->surface_roughness = 0.0f;
   }
- 
+
 
   // Get the median flow
   qsort(vectors, result->tracked_cnt, sizeof(struct flow_t), cmp_flow);
