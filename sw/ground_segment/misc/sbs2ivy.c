@@ -163,6 +163,8 @@ struct Intruder Intr[MAX_INTRUDER + 1];
 //Flags
 int sendivyflag = 0;
 
+int enable_remote_uav;
+
 int num_intr;
 
 uint timer = 100;
@@ -229,7 +231,7 @@ struct _uav_type_ {
 }
 __attribute__((packed))
 
-local_uav, remote_uav;
+local_uav;
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -368,17 +370,31 @@ void send_intruder(struct Intruder *intruder, uint8_t ac_id)
   gtk_label_set_text(GTK_LABEL(status_out_ivy), status_ivy_out);
 }
 
-void send_ivy(void)
-{
-  float phi, theta, psi, z, zdot;
 
-  phi = ((float) remote_uav.phi) / 1000.0f;
-  theta = ((float) remote_uav.theta) / 1000.0f;
-  psi = (RadOfDeg(remote_uav.course));
+void send_remote_uav(struct Intruder *intruder)
+{
+
+  struct _uav_type_ remote_uav;
+
+  remote_uav.ac_id = 254;
+  remote_uav.phi = 0;
+  LLA_BFP_OF_REAL(remote_uav.lla_i, Intr->lla);
+  remote_uav.utm_east = Intr->utm_pos.east;
+  remote_uav.utm_north = Intr->utm_pos.north;
+  remote_uav.utm_z = Intr->utm_pos.alt;
+  remote_uav.utm_zone = Intr->utm_pos.zone;
+  // uav speed/climb are in in cm/s
+  remote_uav.speed = Intr->gspeed * 100;
+  remote_uav.climb = Intr->climb * 100;
+  // course in decideg
+  remote_uav.course = Intr->course * 10;
+
 
   IvySendMsg("%d ALIVE 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n", remote_uav.ac_id);
 
-  IvySendMsg("%d ATTITUDE %f %f %f\n", remote_uav.ac_id, phi, psi, theta);
+  // ATTITUDE: phi, psi, theta
+  float psi = RadOfDeg(Intr->course);
+  IvySendMsg("%d ATTITUDE %f %f %f\n", remote_uav.ac_id, 0.0f, psi, 0.0f);
 
 
   /*
@@ -434,8 +450,8 @@ void send_ivy(void)
 
   IvySendMsg("%d FBW_STATUS 2 0 1 81 0 \n", remote_uav.ac_id);
 
-  z = ((float)remote_uav.utm_z) / 1000.0f;
-  zdot = remote_uav.climb / 100.0f;
+  float z = ((float)remote_uav.utm_z) / 1000.0f;
+  float zdot = remote_uav.climb / 100.0f;
   IvySendMsg("%d ESTIMATOR %f %f\n", remote_uav.ac_id, z, zdot);
 
   count_serial++;
@@ -508,7 +524,6 @@ gint delete_event(GtkWidget *widget,
 int main(int argc, char **argv)
 {
 
-
   gtk_init(&argc, &argv);
 
   if (argc < 2) {
@@ -542,9 +557,7 @@ int main(int argc, char **argv)
 
   // Init UAV
 
-  remote_uav.phi = 1000;
-  remote_uav.theta = 200;
-  remote_uav.psi = -3140;
+  enable_remote_uav = 1;
 
   // Start IVY
   IvyInit("SBS2Ivy", "SBS2Ivy READY", NULL, NULL, NULL, NULL);
@@ -1063,38 +1076,17 @@ void handle_intruders(void)
 
   if (sendivyflag) {
     for (z = 0; z < MAX_INTRUDER + 1; z++) {
-      if (Intr[z].used) {
+      if (Intr[z].used == 1 && enable_remote_uav) {
+        if (z == 0) {
+          send_remote_uav(&Intr[0]);
+        }
+
         // TODO, find a better way to assign ac ids
         send_intruder(&Intr[z], 200 + z);
       }
     }
     sendivyflag = 0;
   }
-
-#if 0
-  if (num_intr) {
-    remote_uav.ac_id = 254;
-    remote_uav.phi = 0;
-    LLA_BFP_OF_REAL(remote_uav.lla_i, Intr[0].lla);
-    remote_uav.utm_east = Intr[0].utm_pos.east;
-    remote_uav.utm_north = Intr[0].utm_pos.north;
-    remote_uav.utm_z = Intr[0].utm_pos.alt;
-    remote_uav.utm_zone = Intr[0].utm_pos.zone;
-    // uav speed/climb are in in cm/s
-    remote_uav.speed = Intr[0].gspeed * 100;
-    remote_uav.climb = Intr[0].climb * 100;
-    // course in decideg
-    remote_uav.course = Intr[0].course * 10;
-
-    //Send to IVY if data valid
-    if (sendivyflag == 1) {
-      if (Intr[0].used) {
-        sendivyflag = 0;
-        send_ivy();
-      }
-    }
-  }
-#endif
 
   //show on window
   float dist_close = 0.0;
@@ -1115,10 +1107,9 @@ void handle_intruders(void)
 //calculate distance intruder to local UAV
 int dist(struct UtmCoor_i *utmi)
 {
-
-  int d = sqrtf((float)(utmi->north - local_uav.utm_north) * (float)(utmi->north - local_uav.utm_north) + (float)(
-                  utmi->east - local_uav.utm_east) * (float)(utmi->east - local_uav.utm_east) + ((float)(
-                        utmi->alt - local_uav.utm_z) / 10.0) * ((float)(utmi->alt - local_uav.utm_z) / 10.0));;
+  int d = sqrtf((float)(utmi->north - local_uav.utm_north) * (float)(utmi->north - local_uav.utm_north) +
+                (float)(utmi->east - local_uav.utm_east) * (float)(utmi->east - local_uav.utm_east) +
+                ((float)(utmi->alt - local_uav.utm_z) / 10.0) * ((float)(utmi->alt - local_uav.utm_z) / 10.0));
 
   return d;
 }
