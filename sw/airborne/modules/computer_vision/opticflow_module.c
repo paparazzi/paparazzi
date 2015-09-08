@@ -93,6 +93,7 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
                                &opticflow_result.flow_y, &opticflow_result.flow_der_x,
                                &opticflow_result.flow_der_y, &opticflow_result.vel_x,
                                &opticflow_result.vel_y, &opticflow_result.div_size,
+                               &opticflow_result.surface_roughness, &opticflow_result.divergence,
                                &opticflow_stab.cmd.phi, &opticflow_stab.cmd.theta);
   pthread_mutex_unlock(&opticflow_mutex);
 }
@@ -127,7 +128,7 @@ void opticflow_module_init(void)
 #endif
 
   /* Try to initialize the video device */
-  opticflow_dev = v4l2_init(STRINGIFY(OPTICFLOW_DEVICE), OPTICFLOW_DEVICE_SIZE, OPTICFLOW_DEVICE_BUFFERS);
+  opticflow_dev = v4l2_init(STRINGIFY(OPTICFLOW_DEVICE), OPTICFLOW_DEVICE_SIZE, OPTICFLOW_DEVICE_BUFFERS, V4L2_PIX_FMT_UYVY);
   if (opticflow_dev == NULL) {
     printf("[opticflow_module] Could not initialize the video device\n");
   }

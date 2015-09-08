@@ -86,6 +86,6 @@ void airspeed_adc_update(void)
 #endif //SITL
 
 #if USE_AIRSPEED_ADC
-  stateSetAirspeed_f(&airspeed_adc.airspeed);
+  stateSetAirspeed_f(airspeed_adc.airspeed);
 #endif
 }

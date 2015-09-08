@@ -32,6 +32,7 @@
     <load name="air_data.xml"/>
     <load name="geo_mag.xml"/>
     <!--load name="logger_file.xml"/-->
+    <!--load name="video_thread.xml"/-->
     <!--load name="video_rtp_stream.xml"/-->
   </modules>
 
@@ -197,9 +198,9 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="{&quot;nw_motor&quot;, &quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_ardrone2&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_ardrone2.h&quot;"/>
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_ardrone2" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_ardrone2.h" type="string"/>
   </section>
 
   <section name="AUTOPILOT">

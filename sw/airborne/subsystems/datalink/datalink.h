@@ -47,6 +47,7 @@
 #define XBEE 2
 #define SUPERBITRF 3
 #define W5100 4
+#define BLUEGIGA 5
 
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
 EXTERN bool_t dl_msg_available;
@@ -99,6 +100,13 @@ static inline void DlCheckAndParse(void)
 
 #define DatalinkEvent() {                       \
     SuperbitRFCheckAndParse();                  \
+    DlCheckAndParse();                          \
+  }
+
+#elif defined DATALINK && DATALINK == BLUEGIGA
+
+#define DatalinkEvent() {                       \
+    BlueGigaCheckAndParse(DOWNLINK_DEVICE, pprz_tp);   \
     DlCheckAndParse();                          \
   }
 

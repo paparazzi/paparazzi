@@ -37,22 +37,14 @@
 // Main viewvideo structure
 struct viewvideo_t {
   volatile bool_t is_streaming;   ///< When the device is streaming
-  struct v4l2_device *dev;        ///< The V4L2 device that is used for the video stream
   uint8_t downsize_factor;        ///< Downsize factor during the stream
   uint8_t quality_factor;         ///< Quality factor during the stream
-  uint8_t fps;                    ///< The amount of frames per second
-
-  volatile bool_t take_shot;      ///< Wether to take an image
-  uint16_t shot_number;           ///< The last shot number
+  bool_t use_rtp;                 ///< Stream over RTP
 };
 extern struct viewvideo_t viewvideo;
 
 // Module functions
 extern void viewvideo_init(void);
-extern void viewvideo_periodic(void); ///< A dummy for now
-extern void viewvideo_start(void);
-extern void viewvideo_stop(void);
-extern void viewvideo_take_shot(bool_t take);
 
 #endif /* VIEW_VIDEO_H */
 

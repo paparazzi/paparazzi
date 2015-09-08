@@ -36,6 +36,7 @@
     <load name="agl_dist.xml">
       <define name="USE_SONAR"/>
     </load>
+    <load name="video_thread.xml"/>
     <load name="video_rtp_stream.xml">
       <define name="VIDEO_SOCK_OUT_OFFSET" value="$(AC_ID)"/>
       <define name="VIDEO_DOWNSIZE_FACTOR" value="2"/>

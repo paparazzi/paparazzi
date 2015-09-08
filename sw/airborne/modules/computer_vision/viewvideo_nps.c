@@ -32,9 +32,6 @@ struct viewvideo_t viewvideo = {
   .is_streaming = FALSE,
   .downsize_factor = 1,
   .quality_factor = 99,
-  .fps = 30,
-  .take_shot = FALSE,
-  .shot_number = 0
 };
 
 // All dummy functions

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 import wx
-import getopt
-import sys
 import radiowatchframe
 
 class RadioWatchApp(wx.App):

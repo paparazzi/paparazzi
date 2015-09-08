@@ -84,6 +84,7 @@ void hmc58xx_init(struct Hmc58xx *hmc, struct i2c_periph *i2c_p, uint8_t addr)
   hmc->type = HMC_TYPE_5883;
   hmc->initialized = FALSE;
   hmc->init_status = HMC_CONF_UNINIT;
+  hmc->adc_overflow_cnt = 0;
 }
 
 static void hmc58xx_i2c_tx_reg(struct Hmc58xx *hmc, uint8_t reg, uint8_t val)
@@ -165,7 +166,14 @@ void hmc58xx_event(struct Hmc58xx *hmc)
         hmc->data.vect.y = Int16FromBuf(hmc->i2c_trans.buf, 4);
         hmc->data.vect.z = Int16FromBuf(hmc->i2c_trans.buf, 2);
       }
-      hmc->data_available = TRUE;
+      /* only set available if measurements valid: -4096 if ADC under/overflow in sensor */
+      if (hmc->data.vect.x != -4096 && hmc->data.vect.y != -4096 &&
+          hmc->data.vect.z != -4096) {
+        hmc->data_available = TRUE;
+      }
+      else {
+        hmc->adc_overflow_cnt++;
+      }
       hmc->i2c_trans.status = I2CTransDone;
     }
   } else if (hmc->init_status != HMC_CONF_UNINIT) { // Configuring but not yet initialized

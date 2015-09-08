@@ -58,8 +58,8 @@ int potential_task(void)
 
   uint8_t i;
 
-  float ch = cosf((*stateGetHorizontalSpeedDir_f()));
-  float sh = sinf((*stateGetHorizontalSpeedDir_f()));
+  float ch = cosf(stateGetHorizontalSpeedDir_f());
+  float sh = sinf(stateGetHorizontalSpeedDir_f());
   potential_force.east = 0.;
   potential_force.north = 0.;
   potential_force.alt = 0.;
@@ -83,8 +83,8 @@ int potential_task(void)
       if (da > FORCE_MAX_DIST || da < -FORCE_MAX_DIST) { continue; }
       float dist = sqrtf(de * de + dn * dn + da * da);
       if (dist == 0.) { continue; }
-      float dve = (*stateGetHorizontalSpeedNorm_f()) * sh - ac->gspeed * sha;
-      float dvn = (*stateGetHorizontalSpeedNorm_f()) * ch - ac->gspeed * cha;
+      float dve = stateGetHorizontalSpeedNorm_f() * sh - ac->gspeed * sha;
+      float dvn = stateGetHorizontalSpeedNorm_f() * ch - ac->gspeed * cha;
       float dva = stateGetSpeedEnu_f()->z - the_acs[i].climb;
       float scal = dve * de + dvn * dn + dva * da;
       if (scal < 0.) { continue; } // No risk of collision

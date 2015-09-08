@@ -26,6 +26,7 @@
  *
  */
 
+#include <stdint.h>
 #include "firmwares/rotorcraft/autopilot.h"
 
 #include "mcu_periph/uart.h"
@@ -177,7 +178,7 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
 #if USE_GPS
   uint8_t fix = gps.fix;
 #else
-  uint8_t fix = GPS_FIX_NONE;
+  uint8_t fix = 0;
 #endif
   uint16_t time_sec = sys_time.nb_sec;
   pprz_msg_send_ROTORCRAFT_STATUS(trans, dev, AC_ID,
@@ -192,6 +193,9 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
 static void send_energy(struct transport_tx *trans, struct link_device *dev)
 {
   uint16_t e = electrical.energy;
+  if (fabs(electrical.energy) >= INT16_MAX) {
+    e = INT16_MAX;
+  }
   float vsup = ((float)electrical.vsupply) / 10.0f;
   float curs = ((float)electrical.current) / 1000.0f;
   float power = vsup * curs;

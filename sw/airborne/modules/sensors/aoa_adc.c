@@ -84,7 +84,7 @@ void aoa_adc_update(void)
   prev_aoa = aoa_adc.angle;
 
 #ifdef USE_AOA
-  stateSetAngleOfAttack_f(&aoa_adc.angle);
+  stateSetAngleOfAttack_f(aoa_adc.angle);
 #endif
 
   RunOnceEvery(30, DOWNLINK_SEND_AOA_ADC(DefaultChannel, DefaultDevice, &aoa_adc.raw, &aoa_adc.angle));
