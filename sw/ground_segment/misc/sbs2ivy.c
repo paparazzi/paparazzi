@@ -77,6 +77,7 @@
 #include <errno.h>
 #include <termios.h>
 #include <math.h>
+#include <getopt.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -127,7 +128,7 @@ void sbs_parse_msg(void);
 void sbs_parse_char(unsigned char c);
 
 void close_port(void);
-int open_port(void);
+int open_port(char *host, unsigned int port);
 void read_port(void);
 
 
@@ -163,8 +164,6 @@ struct Intruder Intr[MAX_INTRUDER + 1];
 //Flags
 int sendivyflag = 0;
 
-int enable_remote_uav;
-
 int num_intr;
 
 uint timer = 100;
@@ -177,12 +176,29 @@ int dist(struct UtmCoor_i *utmi);
 
 
 //TCP Port variables
-int sockfd, portno;
+int sockfd;
 struct sockaddr_in serv_addr;
-struct hostent *server;
 char buffer[256];
 fd_set readSet;
 struct timeval selTimeout;
+
+
+/** Ivy Bus default */
+#ifdef __APPLE__
+#define DEFAULT_IVY_BUS "224.255.255.255"
+#else
+#define DEFAULT_IVY_BUS "127.255.255.255:2010"
+#endif
+
+struct Opts {
+  uint8_t ac_id;
+  char *host;
+  unsigned int port;
+  unsigned int enable_remote_uav;
+  char *ivy_bus;
+};
+
+struct Opts opts;
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -493,7 +509,7 @@ gboolean timeout_callback(gpointer data)
       gtk_label_set_text(GTK_LABEL(status_out_ivy), status_ivy_out);
     }
     if (portstat == 0) {
-      portstat = open_port();
+      portstat = open_port(opts.host, opts.port);
     }
 
   } else {
@@ -521,43 +537,86 @@ gint delete_event(GtkWidget *widget,
 }
 
 
+static bool_t parse_options(int argc, char **argv, struct Opts *opts)
+{
+  opts->ac_id = 0;
+  opts->host = "localhost";
+  opts->port = 30003;
+  opts->enable_remote_uav = 0;
+  opts->ivy_bus = DEFAULT_IVY_BUS;
+
+  static const char *usage =
+    "Usage: %s [options]\n"
+    " Options :\n"
+    "   -h                           Display this help\n"
+    "   --ac <ac_id>                 e.g. 23\n"
+    "   --host <hostname>            e.g. localhost\n"
+    "   --port <port>                e.g. 30002\n"
+    "   --enable_remote_uav\n"
+    "   --ivy_bus <ivy bus>          e.g. 127.255.255.255\n";
+
+  while (1) {
+
+    static struct option long_options[] = {
+      {"ac", 1, NULL, 0},
+      {"host", 1, NULL, 0},
+      {"port", 1, NULL, 0},
+      {"enable_remote_uav", 0, NULL, 0},
+      {"ivy_bus", 1, NULL, 0},
+      {0, 0, 0, 0}
+    };
+    int option_index = 0;
+    int c = getopt_long(argc, argv, "h", long_options, &option_index);
+    if (c == -1) {
+      break;
+    }
+
+    switch (c) {
+      case 0:
+        switch (option_index) {
+          case 0:
+            opts->ac_id = atoi(optarg); break;
+          case 1:
+            opts->host = strdup(optarg); break;
+          case 2:
+            opts->port = atoi(optarg); break;
+          case 3:
+            opts->enable_remote_uav = 1; break;
+          case 4:
+            opts->ivy_bus = strdup(optarg); break;
+          default:
+            break;
+        }
+        break;
+
+      case 'h':
+        fprintf(stderr, usage, argv[0]);
+        exit(0);
+
+      default: /* ’?’ */
+        printf("?? getopt returned character code 0%o ??\n", c);
+        fprintf(stderr, usage, argv[0]);
+        exit(EXIT_FAILURE);
+    }
+  }
+  return TRUE;
+}
+
 int main(int argc, char **argv)
 {
 
   gtk_init(&argc, &argv);
 
-  if (argc < 2) {
-    printf("Use: ivy2serial ac_id \n");
-    return -1;
-  }
+  if (!parse_options(argc, argv, &opts)) { return 1; }
 
-
-  local_uav.ac_id = atoi(argv[1]);
+  local_uav.ac_id = opts.ac_id;
 
   sprintf(status_str, "Listening to AC=%d", local_uav.ac_id);
   sprintf(status_ivy_str, "--");
   sprintf(status_ivy_out, "--");
   printf("%s\n", status_str);
 
-  // Try open port
-
-  if (argc > 2) { //dedicated port
-    if (argc < 3) {
-      printf("Server and Port please\n");
-    } else {
-      server = gethostbyname(argv[2]);
-      portno = atoi(argv[3]);
-    }
-  } else {
-    printf("Standard localhost 30003 used!\n");
-    server = gethostbyname("localhost");
-    portno = 30003;
-  }
-  portstat = open_port();
-
-  // Init UAV
-
-  enable_remote_uav = 1;
+  portstat = open_port(opts.host, opts.port);
 
   // Start IVY
   IvyInit("SBS2Ivy", "SBS2Ivy READY", NULL, NULL, NULL, NULL);
@@ -639,7 +698,7 @@ int main(int argc, char **argv)
 //////////////////////////////////////////////////////////////////////////////////
 
 /// Open
-int open_port(void)
+int open_port(char *host, unsigned int port)
 {
 
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -647,12 +706,15 @@ int open_port(void)
     perror("ERROR opening socket");
   }
 
+  struct hostent *server;
+  server = gethostbyname(host);
+
   bzero((char *) &serv_addr, sizeof(serv_addr));
   serv_addr.sin_family = AF_INET;
   bcopy((char *)server->h_addr,
         (char *)&serv_addr.sin_addr.s_addr,
         server->h_length);
-  serv_addr.sin_port = htons(portno);
+  serv_addr.sin_port = htons(port);
   if ((connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) && DEBUG_INPUT) {
     perror("ERROR connecting socket");
     return 0;
@@ -664,6 +726,8 @@ int open_port(void)
 
   selTimeout.tv_sec = 0;       /* timeout (secs.) */
   selTimeout.tv_usec = 10;     /* 10 microseconds */
+
+  printf("Connected to %s, port %i\n", host, port);
 
   return 1;
 }
@@ -1076,7 +1140,7 @@ void handle_intruders(void)
 
   if (sendivyflag) {
     for (z = 0; z < MAX_INTRUDER + 1; z++) {
-      if (Intr[z].used == 1 && enable_remote_uav) {
+      if (Intr[z].used == 1 && opts.enable_remote_uav) {
         if (z == 0) {
           send_remote_uav(&Intr[0]);
         }
