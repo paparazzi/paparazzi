@@ -195,6 +195,12 @@
  <modules main_freq="512">
    <load name="gps_ubx_ucenter.xml"/>
    <load name="send_imu_mag_current.xml"/>
+   <load name="stereocam.xml">
+ <configure name="STEREO_UART" value="UART1" description="Sets the UART port number of the connected camera (required)"/>
+   <configure name="STEREO_BAUD" value="B9600" description="Sets the BAUD rate of the connected camera (required: must be same as camera)"/>
+   <define name="SEND_STEREO" value="TRUE" description="If TRUE, a copy of received messages is sent to the ground station over the datalink (default: TRUE)"/>
+   <define name="STEREO_BUF_SIZE" value="1024" description="Size of the receiving buffer, must be at least as large as the message being sent (default: 1024)"/>
+   </load>
  </modules>
 
   <firmware name="rotorcraft">
