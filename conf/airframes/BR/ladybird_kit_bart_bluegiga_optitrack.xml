@@ -158,14 +158,22 @@
   </section>
 
   <section name="INS" prefix="INS_">
+    <define name="USE_GPS_ALT" value="1"/>
+  </section>
+
+  <section name="GPS" prefix="GPS_">
+    <define name="USE_DATALINK_SMALL" value="1"/>
+    <define name="LOCAL_ECEF_ORIGIN_X" value="392433200"/>
+    <define name="LOCAL_ECEF_ORIGIN_Y" value="30036200"/>
+    <define name="LOCAL_ECEF_ORIGIN_Z" value="500219700"/>
   </section>
 
  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
    <define name="HOVER_KP" value="276"/>
    <define name="HOVER_KD" value="455"/>
    <define name="HOVER_KI" value="100"/>
-   <define name="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" value="0.5"/>
-   <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+   <define name="NOMINAL_HOVER_THROTTLE" value="0.65"/>
+   <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">
@@ -173,17 +181,23 @@
     <define name="H_X" value="0.39049610"/>
     <define name="H_Y" value="0.00278894"/>
     <define name="H_Z" value="0.92060036"/>
+    <define name="USE_GPS_HEADING" value="1"/>
   </section>
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
    <define name="PGAIN" value="90"/>
    <define name="DGAIN" value="50"/>
    <define name="IGAIN" value="24"/>
+   <define name="REF_MAX_SPEED" value="0.5" />
  </section>
 
   <section name="NAVIGATION" prefix="NAV_">
     <define  name="CLIMB_VSPEED" value="1.0" />
     <define  name="DESCEND_VSPEED" value="-0.5" />
+  </section>
+
+  <section name="MISC">
+    <define name="ARRIVED_AT_WAYPOINT" value="0.2" />
   </section>
 
  <section name="SIMULATOR" prefix="NPS_">
@@ -193,7 +207,6 @@
  </section>
 
  <modules main_freq="512">
-   <load name="gps_ubx_ucenter.xml"/>
    <load name="send_imu_mag_current.xml"/>
    <load name="stereoavoid.xml"/>
    <load name="mission_rotorcraft.xml"/>
@@ -202,10 +215,10 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
       <subsystem name="radio_control" type="datalink">
-        <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
       </subsystem>
-
+      <configure name="USE_MAGNETOMETER" value="0"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
+      <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
     </target>
 
     <target name="nps" board="pc">
@@ -233,12 +246,9 @@
     <subsystem name="imu" type="lisa_s_v1.0">
       <define name="LISA_S_UPSIDE_DOWN"/> <!-- Upside down is a relative term. :) -->
     </subsystem>
-    <subsystem name="gps" type="ublox"/>
+    <subsystem name="gps" type="datalink"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs" type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="1"/>
-      <define name="AHRS_USE_GPS_HEADING" value="0"/>
-    </subsystem>
+    <subsystem name="ahrs" type="int_cmpl_quat"/>
     <subsystem name="ins"/>
   </firmware>
 </airframe>

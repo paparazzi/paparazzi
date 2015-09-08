@@ -1,0 +1,36 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stereoavoid">
+  <doc>
+    <description>Read Stereoboard Obstacle Protocol</description>
+    <configure name="STEREO_UART" value="UARTX" description="Sets the UART port number of the connected camera (required)"/>
+  </doc>
+
+  <header>
+    <file name="stereo_avoid.h"/>
+  </header>
+
+  <init fun="stereo_avoid_init()"/>
+  <periodic fun="stereo_avoid_run()" freq="20" autorun="TRUE"/>
+
+  <makefile>
+    <raw>
+      STEREO_UART ?= UART1
+      STEREO_BAUD ?= B9600
+      STEREO_LED ?= 3
+      STEREO_UART_LOWER=$(shell echo $(STEREO_UART) | tr A-Z a-z)
+    </raw>
+    <define name="USE_$(STEREO_UART)"/>
+    <define name="STEREO_UART" value="$(STEREO_UART_LOWER)"/>
+    <define name="$(STEREO_UART)_BAUD" value="$(STEREO_BAUD)"/>
+    <file name="stereo_avoid.c"/>
+    <file name="avoid_navigation.c"/>
+  </makefile>
+  <makefile  target="ap">
+    <file name="stereo_avoid.c"/>
+  </makefile>
+  <makefile  target="nps">
+    <file name="stereo_avoid_sim.c"/>
+  </makefile>
+</module>
+
