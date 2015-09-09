@@ -16,8 +16,8 @@
     <waypoint name="p4" x="-20.4" y="37.2"/>
     <waypoint name="CAM" x="-44.3" y="-9.5"/>
     <waypoint name="TD" x="-9.5" y="14.8"/>
-    <waypoint name="S1" height="20" x="-57.6" y="32.8"/>
-    <waypoint name="S2" height="20" x="17.3" y="19.4"/>
+    <waypoint name="S1" height="30" x="-57.6" y="32.8"/>
+    <waypoint name="S2" height="30" x="17.3" y="19.4"/>
   </waypoints>
   <blocks>
     <block name="Wait GPS">
