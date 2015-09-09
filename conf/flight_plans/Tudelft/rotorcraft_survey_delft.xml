@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="152" ground_alt="147" lat0="51.991126" lon0="4.378142" max_dist_from_home="150" name="Rotorcraft Basic (Enac)" security_height="2">
   <header>
@@ -16,8 +16,8 @@
     <waypoint name="p4" x="13.7" y="-40.7"/>
     <waypoint name="CAM" x="19.2" y="-55.4"/>
     <waypoint name="TD" x="5.6" y="-10.9"/>
-    <waypoint name="S1" x="50.0" y="-49.8"/>
-    <waypoint name="S2" x="-19.0" y="11.8"/>
+    <waypoint name="S1" height="20" x="50.0" y="-49.8"/>
+    <waypoint name="S2" height="20" x="-19.0" y="11.8"/>
   </waypoints>
   <blocks>
     <block name="Wait GPS">
