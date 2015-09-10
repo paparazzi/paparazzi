@@ -2,7 +2,7 @@
   <aircraft
    name="Bebop_INDI"
    ac_id="21"
-   airframe="airframes/BR/bebop_indi.xml"
+   airframe="airframes/BR/bebop_indi_frog.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/Tudelft/rotorcraft_survey_delft.xml"
