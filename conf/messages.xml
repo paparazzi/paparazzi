@@ -1977,6 +1977,7 @@
   </message>
 
   <message name="STEREO_IMG" id="229">
+    <field name="frequency" type="uint8"/>
     <field name="data_size" type="uint8"/>
     <field name="imageBuffer" type="uint8[]"/>
   </message>
