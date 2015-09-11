@@ -93,7 +93,7 @@
     <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
-  <include href="conf/airframes/TUDelft/calibrations/bebop_bart.xml"/>
+  <include href="conf/airframes/TUDelft/calibrations/bebop8.xml"/>
 
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
@@ -175,10 +175,10 @@
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness -->
-    <define name="G1_P" value="0"/>
-    <define name="G1_Q" value="0"/>
-    <define name="G1_R" value="0.003778"/>
-    <define name="G2_R" value="0.170849"/>
+    <define name="G1_P" value="0.0639"/>
+    <define name="G1_Q" value="0.0361"/>
+    <define name="G1_R" value="0.0022"/>
+    <define name="G2_R" value="0.1450"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>
@@ -218,8 +218,8 @@
     <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="15"/>
-    <define name="DGAIN" value="100"/>
+    <define name="PGAIN" value="7"/>
+    <define name="DGAIN" value="76"/>
     <define name="IGAIN" value="30"/>
   </section>
 

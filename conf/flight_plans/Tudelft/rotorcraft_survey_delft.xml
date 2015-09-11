@@ -3,6 +3,7 @@
 <flight_plan alt="152" ground_alt="147" lat0="51.991126" lon0="4.378142" max_dist_from_home="150" name="Rotorcraft Basic (Enac)" security_height="2">
   <header>
 #include "autopilot.h"
+#include "subsystems/electrical.h"
 #define LINE_START_FUNCTION dc_Survey(dc_distance_interval);
 #define LINE_STOP_FUNCTION {dc_autoshoot = DC_AUTOSHOOT_STOP;}
 </header>
@@ -19,6 +20,12 @@
     <waypoint name="S1" height="30" x="50.0" y="-49.8"/>
     <waypoint name="S2" height="30" x="-19.0" y="11.8"/>
   </waypoints>
+
+  <exceptions>
+      <exception cond="electrical.bat_low" deroute="Standby"/>
+      <exception cond="electrical.bat_critical" deroute="land here"/>  
+  </exceptions>
+
   <blocks>
     <block name="Wait GPS">
       <call fun="NavKillThrottle()"/>

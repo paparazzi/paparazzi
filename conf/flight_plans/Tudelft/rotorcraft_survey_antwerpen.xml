@@ -19,6 +19,12 @@
     <waypoint name="S1" height="30" x="-57.6" y="32.8"/>
     <waypoint name="S2" height="30" x="17.3" y="19.4"/>
   </waypoints>
+
+  <exceptions>
+      <exception cond="electrical.bat_low" deroute="Standby"/>
+      <exception cond="electrical.bat_critical" deroute="land here"/>  
+  </exceptions>
+
   <blocks>
     <block name="Wait GPS">
       <call fun="NavKillThrottle()"/>
