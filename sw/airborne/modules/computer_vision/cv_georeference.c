@@ -32,14 +32,6 @@
 #include "state.h"
 #include "generated/flight_plan.h"
 
-struct camera_frame_t {
-  int32_t w;     ///< Frame width [px]
-  int32_t h;     ///< Frame height [px]
-  int32_t f;     ///< Camera Focal length in [px]
-  int32_t px;    ///< Target pixel coordinate (left = 0)
-  int32_t py;    ///< Target pixel coordinate (top = 0)
-};
-
 struct georeference_filter_t {
   struct Int32Vect3 x;          ///< Target
   struct Int32Vect3 v;          ///< Target Velocity
@@ -111,8 +103,10 @@ void georeference_project(struct camera_frame_t *tar, int wp)
   geo.x_t.z = 0;
 
   // ENU
-  waypoint_set_xy_i(wp, geo.x_t.y, geo.x_t.x);
-  waypoint_set_alt_i(wp, geo.x_t.z);
+  if (wp > 0) {
+    waypoint_set_xy_i(wp, geo.x_t.y, geo.x_t.x);
+    waypoint_set_alt_i(wp, geo.x_t.z);
+  }
 }
 
 void georeference_filter(bool_t kalman, int wp)
@@ -134,11 +128,14 @@ void georeference_filter(bool_t kalman, int wp)
     VECT3_ADD(geo.filter.x, geo.x_t);
     geo.filter.P++;
     VECT3_SDIV(geo.filter.x,geo.filter.x,geo.filter.P);
+    if (geo.filter.P > 70) {
+      geo.filter.P = 70;
+    }
   }
 
   // ENU
   waypoint_set_xy_i(wp, geo.filter.x.y, geo.filter.x.x);
-  waypoint_set_alt_i(wp, geo.filter.x.z);
+  //waypoint_set_alt_i(wp, geo.filter.x.z);
 }
 
 int32_t focus_length;
