@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="uart_drop" dir="com">
+  <doc>
+    <description>Module for dropping balls using UART</description>
+  </doc>
+  <header>
+    <file name="uart_drop.h"/>
+  </header>
+  <makefile>
+    <file name="uart_drop.c"/>
+    <raw>
+      UART_DROP_PORT ?= UART1
+      UART_DROP_BAUD ?= B115200
+      UART_DROP_PORT_LOWER = $(shell echo $(UART_DROP_PORT) | tr A-Z a-z)
+      ap.CFLAGS += -DUART_DROP_PORT=$(UART_DROP_PORT_LOWER) -DUSE_$(UART_DROP_PORT) -D$(UART_DROP_PORT)_BAUD=$(UART_DROP_BAUD)
+    </raw>
+  </makefile>
+</module>
+

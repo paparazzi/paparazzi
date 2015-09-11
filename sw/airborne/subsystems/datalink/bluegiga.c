@@ -50,7 +50,7 @@ struct spi_transaction bluegiga_spi;
 signed char bluegiga_rssi[256];    // values initialized with 127
 
 // Functions for the generic device API
-static int dev_check_free_space(struct bluegiga_periph *p, uint8_t len)
+static int dev_check_free_space(struct bluegiga_periph *p __attribute__((unused)), uint8_t len __attribute__((unused)))
 {
   return TRUE;
 }
