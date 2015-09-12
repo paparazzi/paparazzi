@@ -157,9 +157,14 @@ let get_index_block = fun x ->
       Not_found -> failwith (sprintf "Unknown block: '%s'" x)
 
 let print_exception = fun x ->
-  let i = get_index_block (ExtXml.attrib x "deroute") in
   let c = parsed_attrib x "cond" in
-  lprintf "if ((nav_block != %d) && %s) { GotoBlock(%d); return; }\n" i c i
+  try
+    let i = get_index_block (ExtXml.attrib x "deroute") in
+    lprintf "if ((nav_block != %d) && %s) { GotoBlock(%d); return; }\n" i c i
+  with
+    ExtXml.Error _ ->
+    let f =  ExtXml.attrib x "exec" in
+    lprintf "if (%s) { %s; return; }\n" c f
 
 let element = fun a b c -> Xml.Element (a, b, c)
 let goto l = element "goto" ["name",l] []
