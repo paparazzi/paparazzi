@@ -5,9 +5,20 @@
    airframe="airframes/BR/bebop_indi.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_survey.xml"
+   flight_plan="flight_plans/Tudelft/rotorcraft_survey_delft.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_secondary.xml settings/estimation/ahrs_float_mlkf.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/stabilization_att_indi.xml"
-   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/video_rtp_stream.xml modules/nav_survey_rectangle_rotorcraft.xml modules/digital_cam_video.xml"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/video_rtp_stream.xml modules/nav_survey_rectangle_rotorcraft.xml modules/digital_cam_video.xml modules/cv_colorfilter.xml"
+   gui_color="#ffff0689b7a1"
+  />
+  <aircraft
+   name="Bebop_INDI_frog"
+   ac_id="25"
+   airframe="airframes/BR/bebop_indi_frog.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/Tudelft/rotorcraft_survey_delft.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_secondary.xml settings/estimation/ahrs_float_mlkf.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/stabilization_att_indi.xml"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/video_rtp_stream.xml modules/nav_survey_rectangle_rotorcraft.xml modules/digital_cam_video.xml modules/cv_colorfilter.xml"
    gui_color="#ffff0689b7a1"
   />
   <aircraft
@@ -16,10 +27,10 @@
    airframe="airframes/BR/bebop_default.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_survey.xml"
+   flight_plan="flight_plans/Tudelft/rotorcraft_survey_delft.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_float_mlkf.xml settings/control/stabilization_att_int_quat.xml"
-   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/video_rtp_stream.xml modules/nav_survey_rectangle_rotorcraft.xml modules/digital_cam_video.xml"
    gui_color="green"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/video_rtp_stream.xml modules/nav_survey_rectangle_rotorcraft.xml modules/digital_cam_video.xml"
   />
   <aircraft
    name="DelFlyDualPWM"
