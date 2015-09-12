@@ -8,6 +8,7 @@ import sys
 import json
 import struct
 from . import messages_xml_map
+# import messages_xml_map
 
 
 class PprzMessageError(Exception):
@@ -33,6 +34,7 @@ class PprzMessage(object):
             self._id = messages_xml_map.get_msg_id(class_name, msg)
         self._fieldnames = messages_xml_map.get_msg_fields(class_name, self._name)
         self._fieldtypes = messages_xml_map.get_msg_fieldtypes(class_name, self._id)
+        self._fieldcoefs = messages_xml_map.get_msg_fieldcoefs(class_name, self._id)
         self._fieldvalues = []
         # set empty values according to type
         for t in self._fieldtypes:
@@ -72,6 +74,11 @@ class PprzMessage(object):
     def fieldtypes(self):
         """Get list of field types."""
         return self._fieldtypes
+
+    @property
+    def fieldcoefs(self):
+        """Get list of field coefs."""
+        return self._fieldcoefs
 
     def fieldbintypes(self, t):
         """Get type and length for binary format"""
