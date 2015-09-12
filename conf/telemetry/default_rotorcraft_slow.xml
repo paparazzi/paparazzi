@@ -142,13 +142,6 @@
       <message name="INS_REF"           period="5.1"/>
     </mode>
 
-    <mode name="mag_current_calibration">
-      <message name="ROTORCRAFT_STATUS" period="1.2"/>
-      <message name="DL_VALUE"          period="0.5"/>
-      <message name="ALIVE"             period="2.1"/>
-      <message name="IMU_MAG_CURRENT_CALIBRATION"   period="0.05"/>
-    </mode>
-
   </process>
 
 </telemetry>
