@@ -20,7 +20,7 @@ ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_piksi.h\"
 ap.srcs   += $(SRC_SUBSYSTEMS)/gps/gps_piksi.c
 
 # libsbp
-ap.CFLAGS += -I$(PAPARAZZI_SRC)/sw/ext/libsbp/c/include/libsbp
+ap.CFLAGS += -I$(PAPARAZZI_SRC)/sw/ext/libsbp/c/include
 ap.srcs		+= $(PAPARAZZI_SRC)/sw/ext/libsbp/c/src/sbp.c $(PAPARAZZI_SRC)/sw/ext/libsbp/c/src/edc.c
 
 sim.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG

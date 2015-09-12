@@ -32,6 +32,8 @@
 #ifndef GPS_PIKSI_H
 #define GPS_PIKSI_H
 
+#define GPS_NB_CHANNELS 10
+
 extern void gps_piksi_event(void);
 
 /*

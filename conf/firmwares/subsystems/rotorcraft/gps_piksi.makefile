@@ -21,7 +21,6 @@ ap.srcs   += $(SRC_SUBSYSTEMS)/gps/gps_piksi.c
 
 # libsbp
 ap.CFLAGS += -I$(PAPARAZZI_SRC)/sw/ext/libsbp/c/include
-ap.CFLAGS += -I$(PAPARAZZI_SRC)/sw/ext/libsbp/c/include/libsbp
 ap.srcs		+= $(PAPARAZZI_SRC)/sw/ext/libsbp/c/src/sbp.c $(PAPARAZZI_SRC)/sw/ext/libsbp/c/src/edc.c
 
 nps.CFLAGS += -DUSE_GPS
