@@ -191,3 +191,10 @@ uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks)
 
   return itow_now;
 }
+
+/**
+ * Default parser for GPS injected data
+ */
+void WEAK gps_inject_data(uint8_t packet_id __attribute__((unused)), uint8_t length __attribute__((unused)), uint8_t *data __attribute__((unused))){
+
+}

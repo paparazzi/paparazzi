@@ -108,6 +108,8 @@ extern void gps_init(void);
 /** GPS model specific init implementation */
 extern void gps_impl_init(void);
 
+/** GPS packet injection (default empty) */
+extern void gps_inject_data(uint8_t packet_id, uint8_t length, uint8_t *data);
 
 /** GPS timeout in seconds */
 #ifndef GPS_TIMEOUT

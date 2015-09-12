@@ -2534,6 +2534,12 @@
    <field name="pan" type="int8"/>
  </message>
 
+ <message name="GPS_INJECT" id="153" link="forwarded">
+   <field name="ac_id" type="uint8"/>
+   <field name="packet_id" type="uint8"/>
+   <field name="data" type="uint8[]"/>
+ </message>
+
 </msg_class>
 
 
