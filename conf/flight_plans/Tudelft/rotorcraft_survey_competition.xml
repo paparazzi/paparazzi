@@ -1,0 +1,88 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="30" ground_alt="0" lat0="50.789517" lon0="6.047089" max_dist_from_home="150" name="IMAV2015_competition_outdoor" security_height="2">
+
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="CLIMB" x="0.0" y="5.0"/>
+    <waypoint name="STDBY" x="-2.0" y="-5.0"/>
+    <waypoint name="water_gather" lat="50.789794" lon="6.047433"/>
+    <waypoint name="water_drop" lat="50.788935" lon="6.04677"/>
+    <waypoint name="buidling" lat="50.788882" lon="6.04664"/>
+    <waypoint name="window_enter" lat="50.788862" lon="6.04662"/>
+    <waypoint name="release_zone_1" lat="50.788788" lon="6.046509"/>
+    <waypoint name="release_zone_2" lat="50.788923" lon="6.046411"/>
+    <waypoint name="release_zone_3" lat="50.788977" lon="6.046422"/>
+    <waypoint name="field_center" lat="50.789517" lon="6.047089"/>
+    <waypoint name="landing" lat="50.788867" lon="6.047097"/>
+    <waypoint name="take_off" lat="50.788867" lon="6.047097"/>
+    <waypoint name="corner e" lat="50.788917" lon="6.047113"/>
+    <waypoint name="corner s" lat="50.788597" lon="6.046721"/>
+    <waypoint name="corner w" lat="50.788973" lon="6.045944"/>
+    <waypoint name="corner n" lat="50.789323" lon="6.04633"/>
+    <waypoint name="green1A" lat="50.790144" lon="6.046879"/>
+    <waypoint name="green1B" lat="50.789748" lon="6.047844"/>
+    <waypoint name="green1C" lat="50.789009" lon="6.046983"/>
+    <waypoint name="green1D" lat="50.788901" lon="6.047261"/>
+    <waypoint name="green1E" lat="50.788562" lon="6.046819"/>
+    <waypoint name="green1F" lat="50.789133" lon="6.045664"/>
+    <waypoint name="green2A" lat="50.792148" lon="6.050254"/>
+    <waypoint name="green2B" lat="50.791919" lon="6.050600"/>
+    <waypoint name="green2C" lat="50.790328" lon="6.047809"/>
+    <waypoint name="green2D" lat="50.790463" lon="6.047445"/>
+    <waypoint name="red1" lat="50.792258" lon="6.050243"/>
+    <waypoint name="red2" lat="50.791936" lon="6.050774"/>
+    <waypoint name="red3" lat="50.790049" lon="6.047459"/>
+    <waypoint name="red4" lat="50.789813" lon="6.047994"/>
+    <waypoint name="red5" lat="50.788901" lon="6.047394"/>
+    <waypoint name="red6" lat="50.788511" lon="6.046824"/>
+    <waypoint name="red7" lat="50.789134" lon="6.045624"/>
+    <waypoint name="red8" lat="50.790228" lon="6.046823"/>
+    <waypoint name="p1" x="-3.2" y="17.7"/>
+    <waypoint name="p2" x="14.1" y="-12.3"/>
+    <waypoint name="p3" x="16.7" y="-19.6"/>
+    <waypoint name="p4" x="13.7" y="-40.7"/>
+    <waypoint name="CAM" x="19.2" y="-55.4"/>
+    <waypoint name="TD" x="5.6" y="-10.9"/>
+    <waypoint name="S1" height="30" x="50.0" y="-49.8"/>
+    <waypoint name="S2" height="30" x="-19.0" y="11.8"/>
+  </waypoints>
+
+  <sectors>
+    <sector name="RED" color="red">
+      <corner name="red1"/>
+      <corner name="red2"/>
+      <corner name="red3"/>
+      <corner name="red4"/>
+      <corner name="red5"/>
+      <corner name="red6"/>
+      <corner name="red7"/>
+      <corner name="red8"/>
+    </sector>
+
+    <sector name="GREEN1" color="green">
+      <corner name="green1A"/>
+      <corner name="green1B"/>
+      <corner name="green1C"/>
+      <corner name="green1D"/>
+      <corner name="green1E"/>
+      <corner name="green1F"/>
+    </sector>
+
+    <sector name="GREEN2" color="green">
+      <corner name="green2A"/>
+      <corner name="green2B"/>
+      <corner name="green2C"/>
+      <corner name="green2D"/>
+    </sector>
+  </sectors>
+
+  <includes>
+    <include name="Mission" procedure="rotorcraft_survey_mission.xml"/>
+  </includes>
+
+  <blocks>
+    <block name="Dummy"/>
+  </blocks>
+
+</flight_plan>
