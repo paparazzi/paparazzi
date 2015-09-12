@@ -185,7 +185,7 @@ let ac_msg = fun messages_xml logging ac_name ac ->
 let cam_max_angle = (Deg>>Rad) 89.
 
 let send_cam_status = fun a ->
-  if a.gps_mode = gps_mode_3D then
+  if a.gps_mode >= gps_mode_3D then
     match a.nav_ref with
         None -> () (* No geo ref for camera target *)
       | Some nav_ref ->

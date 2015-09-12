@@ -76,7 +76,7 @@ static inline void send_svinfo_available(struct transport_tx *trans, struct link
   if (i >= gps.nb_channels) { i = 0; }
   // send SVINFO for all satellites while no GPS fix,
   // after 3D fix, send avialable sats if they were updated
-  if (gps.fix != GPS_FIX_3D) {
+  if (gps.fix < GPS_FIX_3D) {
     send_svinfo_id(trans, dev, i);
   } else if (gps.svinfos[i].cno != last_cnos[i]) {
     send_svinfo_id(trans, dev, i);
