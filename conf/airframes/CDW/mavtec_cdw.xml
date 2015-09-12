@@ -22,10 +22,10 @@
     <subsystem name="actuators" type="asctec_v2"/>
 
     <subsystem name="telemetry" type="xbee_api"/>
-    <subsystem name="imu" type="aspirin_v2.1"/>
+    <subsystem name="imu" type="lisa_mx_v2.1"/>
     <subsystem name="gps" type="ublox"/>
-    <subsystem name="stabilization" type="int_euler"/>
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
+    <subsystem name="stabilization" type="int_quat"/>
+    <subsystem name="ahrs" type="float_mlkf"/>
     <subsystem name="ins" type="hff"/>
   </firmware>
 
@@ -40,11 +40,13 @@
   <modules main_freq="512">
     <!--   <load name="logger_spi_link.xml"/>
     <load name="imu_quality_assessment.xml"/> -->
+    <load name="send_imu_mag_current.xml"/>
     <load name="gps_ubx_ucenter.xml" />
     <load name="nav_survey_rectangle_rotorcraft.xml" />
     <load name="digital_cam.xml">
       <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
     </load>
+    <load name="geo_mag.xml"/>
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->
@@ -91,19 +93,23 @@
   <section name="IMU" prefix="IMU_">
     <define name="ACCEL_X_NEUTRAL" value="0"/>
     <define name="ACCEL_Y_NEUTRAL" value="0"/>
-    <define name="ACCEL_Z_NEUTRAL" value="200"/>
-    <define name="ACCEL_X_SENS" value="9.810" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="9.810" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="9.810" integer="16"/>
-    <define name="MAG_X_NEUTRAL" value="0"/>
-    <define name="MAG_Y_NEUTRAL" value="0"/>
-    <define name="MAG_Z_NEUTRAL" value="0"/>
-    <define name="MAG_X_SENS" value="1." integer="16"/>
-    <define name="MAG_Y_SENS" value="1." integer="16"/>
-    <define name="MAG_Z_SENS" value="1." integer="16"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
+
+    <define name="MAG_X_NEUTRAL" value="140"/>
+    <define name="MAG_Y_NEUTRAL" value="146"/>
+    <define name="MAG_Z_NEUTRAL" value="80"/>
+
+    <define name="MAG_X_SENS" value="3.68116427889" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.74966778358" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.05311539389" integer="16"/>
+
+    <define name= "MAG_X_CURRENT_COEF" value="0.00322676138551"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="0.00266367218758"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="-0.0004557295634"/>
+
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="270." unit="deg"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -140,19 +146,19 @@
     <define name="REF_MAX_R" value="180." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
     <!-- feedback -->
-    <define name="PHI_PGAIN" value="900"/>
-    <define name="PHI_DGAIN" value="200"/>
-    <define name="PHI_IGAIN" value="200"/>
-    <define name="THETA_PGAIN" value="900"/>
-    <define name="THETA_DGAIN" value="200"/>
-    <define name="THETA_IGAIN" value="200"/>
-    <define name="PSI_PGAIN" value="900"/>
-    <define name="PSI_DGAIN" value="200"/>
+    <define name="PHI_PGAIN" value="600"/>
+    <define name="PHI_DGAIN" value="150"/>
+    <define name="PHI_IGAIN" value="20"/>
+    <define name="THETA_PGAIN" value="600"/>
+    <define name="THETA_DGAIN" value="150"/>
+    <define name="THETA_IGAIN" value="20"/>
+    <define name="PSI_PGAIN" value="600"/>
+    <define name="PSI_DGAIN" value="100"/>
     <define name="PSI_IGAIN" value="10"/>
     <!-- feedforward -->
-    <define name="PHI_DDGAIN" value=" 200"/>
-    <define name="THETA_DDGAIN" value=" 200"/>
-    <define name="PSI_DDGAIN" value=" 200"/>
+    <define name="PHI_DDGAIN" value="150"/>
+    <define name="THETA_DDGAIN" value="150"/>
+    <define name="PSI_DDGAIN" value="200"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -177,6 +183,7 @@
   </section>
 
   <section name="BAT">
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
 
