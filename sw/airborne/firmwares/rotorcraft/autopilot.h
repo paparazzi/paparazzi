@@ -51,6 +51,7 @@
 #define AP_MODE_CARE_FREE_DIRECT  15
 #define AP_MODE_FORWARD           16
 #define AP_MODE_MODULE            17
+#define AP_MODE_FLIP              18
 
 extern uint8_t autopilot_mode;
 extern uint8_t autopilot_mode_auto2;

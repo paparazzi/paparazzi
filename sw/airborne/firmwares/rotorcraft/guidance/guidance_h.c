@@ -27,6 +27,7 @@
 #include "generated/airframe.h"
 
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
+#include "firmwares/rotorcraft/guidance/guidance_flip.h"
 #include "firmwares/rotorcraft/guidance/guidance_module.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
@@ -263,6 +264,10 @@ void guidance_h_mode_changed(uint8_t new_mode)
         stabilization_attitude_enter();
       break;
 
+    case GUIDANCE_H_MODE_FLIP:
+      guidance_flip_enter();
+      break;
+
     default:
       break;
   }
@@ -317,12 +322,14 @@ void guidance_h_read_rc(bool_t  in_flight)
         INT_EULERS_ZERO(guidance_h.rc_sp);
       }
       break;
+    case GUIDANCE_H_MODE_FLIP:
+      stabilization_attitude_read_rc(in_flight, FALSE, FALSE);
+      break;
     default:
       break;
   }
 
 }
-
 
 void guidance_h_run(bool_t  in_flight)
 {
@@ -398,6 +405,10 @@ void guidance_h_run(bool_t  in_flight)
       guidance_h_module_run(in_flight);
       break;
 #endif
+
+    case GUIDANCE_H_MODE_FLIP:
+      guidance_flip_run();
+      break;
 
     default:
       break;

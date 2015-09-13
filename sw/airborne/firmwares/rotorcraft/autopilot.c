@@ -436,6 +436,9 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
         guidance_h_mode_changed(GUIDANCE_H_MODE_MODULE_SETTING);
 #endif
         break;
+      case AP_MODE_FLIP:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_FLIP);
+        break;
       default:
         break;
     }
@@ -481,6 +484,9 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
 #ifdef GUIDANCE_V_MODE_MODULE_SETTING
         guidance_v_mode_changed(GUIDANCE_V_MODE_MODULE_SETTING);
 #endif
+        break;
+      case AP_MODE_FLIP:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_FLIP);
         break;
       default:
         break;

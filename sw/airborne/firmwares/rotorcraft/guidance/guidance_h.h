@@ -58,6 +58,7 @@
 #define GUIDANCE_H_MODE_CARE_FREE   6
 #define GUIDANCE_H_MODE_FORWARD     7
 #define GUIDANCE_H_MODE_MODULE      8
+#define GUIDANCE_H_MODE_FLIP        9
 
 
 struct HorizontalGuidanceSetpoint {
