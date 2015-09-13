@@ -1264,7 +1264,7 @@
     <field name="carrot_east"   type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
     <field name="carrot_north"  type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
     <field name="carrot_up"     type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
-    <field name="carrot_psi"    type="int32" alt_unit="deg" alt_unit_coef="0.0000546"/>
+    <field name="carrot_psi"    type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
     <field name="thrust"        type="int32"/>
     <field name="flight_time"   type="uint16" unit="s"/>
   </message>
