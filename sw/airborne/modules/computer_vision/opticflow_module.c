@@ -65,7 +65,7 @@ PRINT_CONFIG_MSG("OPTICFLOW_DEVICE_SIZE = " _SIZE_HELPER(OPTICFLOW_DEVICE_SIZE))
 #ifndef OPTICFLOW_DEVICE_BUFFERS
 #define OPTICFLOW_DEVICE_BUFFERS 15       ///< The video device buffers (the amount of V4L2 buffers)
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE_BUFFERS)
+PRINT_CONFIG_VAR(OPTICFLOW_DEVICE_BUFFERS)
 
 /* The main opticflow variables */
 struct opticflow_t opticflow;                      ///< Opticflow calculations

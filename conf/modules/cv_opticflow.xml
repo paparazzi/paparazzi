@@ -82,23 +82,6 @@
     <!-- Main vision calculations -->
     <file name="fast_rosten.c" dir="modules/computer_vision/lib/vision"/>
     <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
-
-    <raw>
-      VIEWVIDEO_HOST        ?= $(MODEM_HOST)
-      VIEWVIDEO_PORT_OUT    ?= 5000
-      VIEWVIDEO_BROADCAST   ?= $(MODEM_BROADCAST)
-
-      VIEWVID_CFLAGS  = -DVIEWVIDEO_HOST=$(VIEWVIDEO_HOST) -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT)
-      ifeq ($(VIEWVIDEO_USE_NC),)
-        ap.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=$(VIEWVIDEO_BROADCAST)
-      else
-        ap.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_USE_NC
-      endif
-    </raw>
-  </makefile>
-
-  <makefile target="nps">
-    <file name="viewvideo_nps.c"/>
   </makefile>
 
 </module>
