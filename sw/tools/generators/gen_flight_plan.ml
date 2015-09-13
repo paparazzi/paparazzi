@@ -158,15 +158,16 @@ let get_index_block = fun x ->
 
 let print_exception = fun x ->
   let c = parsed_attrib x "cond" in
+  let i = get_index_block (ExtXml.attrib x "deroute") in
   begin
   try
     let f =  ExtXml.attrib x "exec" in
-    lprintf "if (%s) { %s; }\n" c f
+    lprintf "if ((nav_block != %d) && %s) {%s; GotoBlock(%d); return; }\n" i c f i
   with
-    ExtXml.Error _ -> ()
-  end;
-  let i = get_index_block (ExtXml.attrib x "deroute") in
-  lprintf "if ((nav_block != %d) && %s) { GotoBlock(%d); return; }\n" i c i
+    ExtXml.Error _ -> (
+     lprintf "if ((nav_block != %d) && %s) { GotoBlock(%d); return; }\n" i c i
+    )
+  end
 
 
 let element = fun a b c -> Xml.Element (a, b, c)

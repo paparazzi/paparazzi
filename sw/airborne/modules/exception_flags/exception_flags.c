@@ -33,3 +33,7 @@ bool_t exception_flag[10];
 void exception_flags_init(void) {
   memset(exception_flag,0,sizeof(exception_flag));
 }
+
+void check_exception_flag(uint8_t flag_num) {
+  exception_flag[flag_num] = 1;
+}

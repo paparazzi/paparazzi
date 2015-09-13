@@ -31,6 +31,7 @@
 #define EXCEPTION_FLAGS_H_
 
 extern void exception_flags_init(void);
+extern void check_exception_flag(uint8_t flag_num);
 
 extern bool_t exception_flag[10];
 

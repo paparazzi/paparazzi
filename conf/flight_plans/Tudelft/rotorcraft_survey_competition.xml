@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="30" ground_alt="0" lat0="50.789517" lon0="6.047089" max_dist_from_home="150" name="IMAV2015_competition_outdoor" security_height="2">
+<flight_plan alt="30" ground_alt="0" lat0="50.789517" lon0="6.047089" max_dist_from_home="400" name="IMAV2015_competition_outdoor" security_height="2">
 
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
