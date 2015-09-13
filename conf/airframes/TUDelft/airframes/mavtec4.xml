@@ -26,7 +26,9 @@
     <subsystem name="actuators"     type="pwm"/>
     <subsystem name="telemetry"     type="xbee_api"/>
     <subsystem name="imu"           type="lisa_mx_v2.1"/>
-    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="gps"           type="piksi">
+      <define name="USE_PIKSI_EXT_ANTENNA" value="TRUE"/>
+    </subsystem>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="float_mlkf"/>
     <subsystem name="ins" type="hff"/>
@@ -36,7 +38,7 @@
     <load name="geo_mag.xml"/>
     <load name="air_data.xml"/>
     <load name="servo_switch.xml"/>
-    <load name="gps_ubx_ucenter.xml"/>
+    <!--load name="gps_ubx_ucenter.xml"/-->
   </modules>
 
   <servos driver="Asctec_v2">
