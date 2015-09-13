@@ -18,32 +18,36 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/computer_vision/cv_georeference.h"
+ * @file "modules/computer_vision/cv_blob_locator.h"
  * @author C. De Wagter
- * Geo-reference computer vision detections
+ * Find a colored item and track its geo-location and update a waypoint to it
  */
 
-#ifndef CV_GEOREFERENCE_H
-#define CV_GEOREFERENCE_H
+#ifndef CV_BLOB_LOCATOR_H
+#define CV_BLOB_LOCATOR_H
 
-#include "std.h"
 #include <stdint.h>
 
-extern int32_t focus_length;
+extern uint8_t color_lum_min;
+extern uint8_t color_lum_max;
 
-extern void georeference_init(void);
-extern void georeference_run(void);
+extern uint8_t color_cb_min;
+extern uint8_t color_cb_max;
 
-struct camera_frame_t {
-  int32_t w;     ///< Frame width [px]
-  int32_t h;     ///< Frame height [px]
-  int32_t f;     ///< Camera Focal length in [px]
-  int32_t px;    ///< Target pixel coordinate (left = 0)
-  int32_t py;    ///< Target pixel coordinate (top = 0)
-};
+extern uint8_t color_cr_min;
+extern uint8_t color_cr_max;
 
-void georeference_project(struct camera_frame_t *tar, int wp);
-void georeference_filter(bool_t kalman, int wp);
+extern uint8_t cv_blob_locator_reset;
+
+extern void cv_blob_locator_init(void);
+extern void cv_blob_locator_periodic(void);
+extern void cv_blob_locator_event(void);
+extern void cv_blob_locator_start(void);
+extern void cv_blob_locator_stop(void);
+
+#define cv_blob_locator_GeoReset(_v) {       \
+    cv_blob_locator_start();                 \
+  }
 
 
 #endif
