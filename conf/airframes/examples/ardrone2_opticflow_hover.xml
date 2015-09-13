@@ -29,6 +29,7 @@
     <load name="send_imu_mag_current.xml"/>
     <load name="logger_file.xml"/>
     <load name="cv_opticflow.xml"/>
+    <load name="opticflow_hover.xml"/>
   </modules>
 
   <commands>

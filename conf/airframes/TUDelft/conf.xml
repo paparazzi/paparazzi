@@ -7,8 +7,8 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/control/stabilization_att_int_quat.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml"
    gui_color="red"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml"
   />
   <aircraft
    name="ARDrone2_indi"
@@ -29,7 +29,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/control/stabilization_att_int_quat.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/cv_opticflow.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/cv_opticflow.xml modules/opticflow_hover.xml"
    gui_color="red"
   />
   <aircraft
@@ -51,7 +51,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_float_mlkf.xml settings/control/stabilization_att_int_quat.xml"
-   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/bebop_front_camera.xml"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/video_rtp_stream.xml"
    gui_color="green"
   />
   <aircraft

@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/computer_vision/opticflow/stabilization_opticflow.c
+ * @file modules/guidance_opticflow/guidance_opticflow_hover.c
  * @brief Optical-flow based control for Linux based systems
  *
  * Control loops for optic flow based hovering.
@@ -28,7 +28,7 @@
  */
 
 // Own Header
-#include "stabilization_opticflow.h"
+#include "guidance_opticflow_hover.h"
 
 #include "subsystems/abi.h"
 

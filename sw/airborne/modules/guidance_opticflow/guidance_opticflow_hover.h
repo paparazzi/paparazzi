@@ -20,15 +20,15 @@
  */
 
 /**
- * @file modules/computer_vision/opticflow/stabilization_opticflow.h
+ * @file modules/guidance_opticflow/guidance_opticflow_hover.h
  * @brief Optical-flow based control for Linux based systems
  *
  * Control loops for optic flow based hovering.
  * Computes setpoint for the lower level attitude stabilization to control horizontal velocity.
  */
 
-#ifndef CV_STABILIZATION_OPTICFLOW_H_
-#define CV_STABILIZATION_OPTICFLOW_H_
+#ifndef GUIDANCE_OPTICFLOW_HOVER_H_
+#define GUIDANCE_OPTICFLOW_HOVER_H_
 
 #include "std.h"
 #include "math/pprz_algebra_int.h"
@@ -54,4 +54,4 @@ extern void guidance_h_module_enter(void);
 extern void guidance_h_module_read_rc(void);
 extern void guidance_h_module_run(bool_t in_flight);
 
-#endif /* CV_STABILIZATION_OPTICFLOW_H_ */
+#endif /* GUIDANCE_OPTICFLOW_HOVER_H_ */

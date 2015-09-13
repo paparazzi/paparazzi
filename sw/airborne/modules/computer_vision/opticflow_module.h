@@ -20,17 +20,15 @@
 
 /**
  * @file modules/computer_vision/opticflow_module.h
- * @brief optical-flow based hovering for Parrot AR.Drone 2.0
+ * @brief optical-flow calculation for Parrot Drones
  *
- * Sensors from vertical camera and IMU of Parrot AR.Drone 2.0
  */
 
 #ifndef OPTICFLOW_MODULE_H
 #define OPTICFLOW_MODULE_H
 
-// Include opticflow calculator and stabilization loops
+// Include opticflow calculator
 #include "opticflow/opticflow_calculator.h"
-#include "opticflow/stabilization_opticflow.h"
 
 // Needed for settings
 extern struct opticflow_t opticflow;
