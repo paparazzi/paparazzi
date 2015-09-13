@@ -102,6 +102,11 @@ void guidance_h_module_run(bool_t in_flight)
   ctrl_module_run(in_flight);
 }
 
+void guidance_v_module_init(void)
+{
+  // initialization of your custom vertical controller goes here
+}
+
 // Implement own Vertical loops
 void guidance_v_module_enter(void)
 {

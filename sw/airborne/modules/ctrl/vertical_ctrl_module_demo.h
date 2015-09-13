@@ -19,39 +19,36 @@
  */
 
 /**
- * @file modules/ctrl/ctrl_module_demo.c
- * @brief example empty controller
+ * @file modules/ctrl/vertical_ctrl_module_demo.c
+ * @brief example vertical
  *
- * Implements an example simple rate controller in a module.
+ * Implements an example vertical controller in a module.
  */
 
-#ifndef CTRL_MODULE_DEMO_H_
-#define CTRL_MODULE_DEMO_H_
+#ifndef VERTICAL_CTRL_MODULE_DEMO_H_
+#define VERTICAL_CTRL_MODULE_DEMO_H_
 
-#include <std.h>
+#include "std.h"
 
-// Settings
-extern float ctrl_module_demo_pr_ff_gain;  // Pitch/Roll
-extern float ctrl_module_demo_pr_d_gain;
-extern float ctrl_module_demo_y_ff_gain;   // Yaw
-extern float ctrl_module_demo_y_d_gain;
+struct VerticalCtrlDemo {
+  float agl;
+  float setpoint;
+  float pgain;
+  float igain;
+  float sum_err;
+};
 
+extern struct VerticalCtrlDemo v_ctrl;
 
-// Demo with own guidance_h
-#define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_MODULE
+// for example use the standard horizontal (hover) mode
+#define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_HOVER
 
 // and own guidance_v
 #define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_MODULE
-
-// Implement own Horizontal loops
-extern void guidance_h_module_init(void);
-extern void guidance_h_module_enter(void);
-extern void guidance_h_module_read_rc(void);
-extern void guidance_h_module_run(bool_t in_flight);
 
 // Implement own Vertical loops
 extern void guidance_v_module_init(void);
 extern void guidance_v_module_enter(void);
 extern void guidance_v_module_run(bool_t in_flight);
 
-#endif /* CTRL_MODULE_DEMO_H_ */
+#endif /* VERTICAL_CTRL_MODULE_DEMO_H_ */

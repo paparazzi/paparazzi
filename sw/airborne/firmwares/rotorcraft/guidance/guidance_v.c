@@ -187,6 +187,10 @@ void guidance_v_init(void)
 
   gv_adapt_init();
 
+#if GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE
+  guidance_v_module_init();
+#endif
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "VERT_LOOP", send_vert_loop);
   register_periodic_telemetry(DefaultPeriodic, "TUNE_VERT", send_tune_vert);
