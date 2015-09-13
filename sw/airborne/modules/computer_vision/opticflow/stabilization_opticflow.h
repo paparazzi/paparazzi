@@ -31,8 +31,6 @@
 #define CV_STABILIZATION_OPTICFLOW_H_
 
 #include "std.h"
-#include "lib/v4l/v4l2.h"
-#include "inter_thread_data.h"
 #include "math/pprz_algebra_int.h"
 
 /* The opticflow stabilization */
@@ -51,11 +49,9 @@ struct opticflow_stab_t {
 extern struct opticflow_stab_t opticflow_stab;
 
 // Implement own Horizontal loops
+extern void guidance_h_module_init(void);
 extern void guidance_h_module_enter(void);
 extern void guidance_h_module_read_rc(void);
 extern void guidance_h_module_run(bool_t in_flight);
-
-// Update the stabiliztion commands based on a vision result
-void stabilization_opticflow_update(struct opticflow_result_t *vision);
 
 #endif /* CV_STABILIZATION_OPTICFLOW_H_ */

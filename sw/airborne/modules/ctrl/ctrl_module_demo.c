@@ -77,6 +77,11 @@ void ctrl_module_run(bool_t in_flight)
 ////////////////////////////////////////////////////////////////////
 // Call our controller
 // Implement own Horizontal loops
+void guidance_h_module_init(void)
+{
+  ctrl_module_init();
+}
+
 void guidance_h_module_enter(void)
 {
   ctrl_module_init();

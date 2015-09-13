@@ -30,11 +30,19 @@
 // Own Header
 #include "stabilization_opticflow.h"
 
+#include "subsystems/abi.h"
+
 // Stabilization
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "autopilot.h"
 #include "subsystems/datalink/downlink.h"
+
+/** Default sender to accect VELOCITY_ESTIMATE messages from */
+#ifndef VISION_VELOCITY_ESTIMATE_ID
+#define VISION_VELOCITY_ESTIMATE_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(VISION_VELOCITY_ESTIMATE_ID)
 
 #define CMD_OF_SAT  1500 // 40 deg = 2859.1851
 
@@ -76,6 +84,8 @@ PRINT_CONFIG_VAR(VISION_DESIRED_VY)
 #error "ALL control gains have to be positive!!!"
 #endif
 
+static abi_event velocity_est_ev;
+
 /* Initialize the default gains and settings */
 struct opticflow_stab_t opticflow_stab = {
   .phi_pgain = VISION_PHI_PGAIN,
@@ -85,6 +95,18 @@ struct opticflow_stab_t opticflow_stab = {
   .desired_vx = VISION_DESIRED_VX,
   .desired_vy = VISION_DESIRED_VY
 };
+
+
+static void stabilization_opticflow_vel_cb(uint8_t sender_id __attribute__((unused)),
+                                           uint32_t stamp, float vel_x, float vel_y, float vel_z);
+/**
+ * Initialization of horizontal guidance module.
+ */
+void guidance_h_module_init(void)
+{
+  // Subscribe to the VELOCITY_ESTIMATE ABI message
+  AbiBindMsgVELOCITY_ESTIMATE(VISION_VELOCITY_ESTIMATE_ID, &velocity_est_ev, stabilization_opticflow_vel_cb);
+}
 
 /**
  * Horizontal guidance mode enter resets the errors
@@ -124,23 +146,19 @@ void guidance_h_module_run(bool_t in_flight)
 }
 
 /**
- * Update the controls based on a vision result
- * @param[in] *result The opticflow calculation result used for control
+ * Update the controls on a new VELOCITY_ESTIMATE ABI message.
  */
-void stabilization_opticflow_update(struct opticflow_result_t *result)
+static void stabilization_opticflow_vel_cb(uint8_t sender_id __attribute__((unused)),
+                                           uint32_t stamp, float vel_x, float vel_y, float vel_z)
 {
   /* Check if we are in the correct AP_MODE before setting commands */
   if (autopilot_mode != AP_MODE_MODULE) {
     return;
   }
 
-  /* Calculate the error if we have enough flow */
-  float err_vx = 0;
-  float err_vy = 0;
-  if (result->tracked_cnt > 0) {
-    err_vx = opticflow_stab.desired_vx - result->vel_x;
-    err_vy = opticflow_stab.desired_vy - result->vel_y;
-  }
+  /* Calculate the error */
+  float err_vx = opticflow_stab.desired_vx - vel_x;
+  float err_vy = opticflow_stab.desired_vy - vel_y;
 
   /* Calculate the integrated errors (TODO: bound??) */
   opticflow_stab.err_vx_int += err_vx / 100;

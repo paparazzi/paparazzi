@@ -55,6 +55,23 @@
       <field name="gps_s" type="struct GpsState *"/>
     </message>
 
+    <message name="OPTICAL_FLOW" id="11">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="flow_x" type="int16_t">Flow in x direction from the camera (in subpixels)</field>
+      <field name="flow_y" type="int16_t">Flow in y direction from the camera (in subpixels)</field>
+      <field name="flow_der_x" type="int16_t">The derotated flow calculation in the x direction (in subpixels)</field>
+      <field name="flow_der_y" type="int16_t">The derotated flow calculation in the y direction (in subpixels)</field>
+      <field name="quality" type="uint8_t"/>
+      <field name="dist" type="float">Distance to ground</field>
+    </message>
+
+    <message name="VELOCITY_ESTIMATE" id="12">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="x" type="float" unit="m/s"/>
+      <field name="y" type="float" unit="m/s"/>
+      <field name="z" type="float" unit="m/s"/>
+    </message>
+
   </msg_class>
 
 </protocol>
