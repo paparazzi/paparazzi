@@ -97,8 +97,7 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
                                &opticflow_result.flow_y, &opticflow_result.flow_der_x,
                                &opticflow_result.flow_der_y, &opticflow_result.vel_x,
                                &opticflow_result.vel_y, &opticflow_result.div_size,
-                               &opticflow_result.surface_roughness, &opticflow_result.divergence,
-                               &opticflow_stab.cmd.phi, &opticflow_stab.cmd.theta);
+                               &opticflow_result.surface_roughness, &opticflow_result.divergence);
   pthread_mutex_unlock(&opticflow_mutex);
 }
 #endif
