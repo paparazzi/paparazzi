@@ -76,7 +76,7 @@ static inline void send_svinfo_available(struct transport_tx *trans, struct link
   if (i >= gps.nb_channels) { i = 0; }
   // send SVINFO for all satellites while no GPS fix,
   // after 3D fix, send avialable sats if they were updated
-  if (gps.fix != GPS_FIX_3D) {
+  if (gps.fix < GPS_FIX_3D) {
     send_svinfo_id(trans, dev, i);
   } else if (gps.svinfos[i].cno != last_cnos[i]) {
     send_svinfo_id(trans, dev, i);
@@ -190,4 +190,11 @@ uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks)
   }
 
   return itow_now;
+}
+
+/**
+ * Default parser for GPS injected data
+ */
+void WEAK gps_inject_data(uint8_t packet_id __attribute__((unused)), uint8_t length __attribute__((unused)), uint8_t *data __attribute__((unused))){
+
 }

@@ -172,6 +172,8 @@ ext:
 #
 subdirs: $(SUBDIRS)
 
+$(MISC): ext
+
 $(SUBDIRS):
 	$(MAKE) -C $@
 

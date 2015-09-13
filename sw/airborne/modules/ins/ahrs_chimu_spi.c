@@ -147,7 +147,7 @@ void ahrs_chimu_update_gps(uint8_t gps_fix, uint16_t gps_speed_3d)
 
   float gps_speed = 0;
 
-  if (gps_fix == GPS_FIX_3D) {
+  if (GpsFixValid()) {
     gps_speed = gps_speed_3d / 100.;
   }
   gps_speed = FloatSwap(gps_speed);

@@ -165,6 +165,19 @@ void dl_parse_msg(void)
         DL_REMOTE_GPS_course(dl_buffer));
       break;
 #endif
+#if USE_GPS
+    case DL_GPS_INJECT :
+      // Check if the GPS is for this AC
+      if (DL_GPS_INJECT_ac_id(dl_buffer) != AC_ID) { break; }
+
+      // GPS parse data
+      gps_inject_data(
+        DL_GPS_INJECT_packet_id(dl_buffer),
+        DL_GPS_INJECT_data_length(dl_buffer),
+        DL_GPS_INJECT_data(dl_buffer)
+        );
+      break;
+#endif
     default:
       break;
   }

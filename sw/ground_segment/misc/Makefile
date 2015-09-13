@@ -47,27 +47,33 @@ IVY_INC = $(shell pkg-config --cflags-only-I ivy-glib)
 IVY_LDFLAGS = $(shell pkg-config --libs-only-L ivy-glib) -livy
 endif
 
-# Optitrack specific librarys and includes
-NATNET_LIBRARYS = $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(shell pcre-config --libs)
+# GLIB libraries
+GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(shell pcre-config --libs)
 
+# Paparazzi includes
 INCLUDES += $(shell pkg-config glib-2.0 --cflags) -I$(PAPARAZZI_SRC)/sw/airborne/ -I$(PAPARAZZI_SRC)/sw/include/ $(IVY_INC)
+INCLUDES += -I$(PAPARAZZI_SRC)/sw/ext/libsbp/c/include/ -I$(PAPARAZZI_SRC)/sw/airborne/arch/linux/
 
-all: davis2ivy kestrel2ivy natnet2ivy video_synchronizer
+all: davis2ivy kestrel2ivy natnet2ivy sbp2ivy video_synchronizer
 
 clean:
-	$(Q)rm -f *.o davis2ivy kestrel2ivy natnet2ivy video_synchronizer
+	$(Q)rm -f *.o davis2ivy kestrel2ivy natnet2ivy sbp2ivy video_synchronizer
 
 davis2ivy: davis2ivy.o
 	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -o davis2ivy davis2ivy.o $(LIBRARYS) $(IVY_LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(LIBRARYS) $(IVY_LDFLAGS)
 
 kestrel2ivy: kestrel2ivy.o
 	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -o kestrel2ivy kestrel2ivy.o $(LIBRARYS) $(IVY_LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(LIBRARYS) $(IVY_LDFLAGS)
 
 natnet2ivy: natnet2ivy.o pprz_geodetic_double.o pprz_algebra_double.o udp_socket.o
 	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(LIBRARYS) $(NATNET_LIBRARYS) $(IVY_LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(LIBRARYS) $(GLIB_LDFLAGS) $(IVY_LDFLAGS)
+
+sbp2ivy: sbp2ivy.o serial_port.o sbp.o edc.o
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(INCLUDES) $(LIBRARYS) $(GLIB_LDFLAGS) $(IVY_LDFLAGS)
 
 video_synchronizer: video_synchronizer.c
 	@echo CC $@
@@ -81,6 +87,15 @@ pprz_geodetic_double.o : $(PAPARAZZI_SRC)/sw/airborne/math/pprz_geodetic_double.
 
 udp_socket.o : $(PAPARAZZI_SRC)/sw/airborne/arch/linux/udp_socket.c
 	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
+
+serial_port.o : $(PAPARAZZI_SRC)/sw/airborne/arch/linux/serial_port.c
+	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
+
+sbp.o : $(PAPARAZZI_SRC)/sw/ext/libsbp/c/src/sbp.c
+	$(Q)$(CC) $(CFLAGS) -c -std=c99 -O2 -Wall $(INCLUDES) $<
+
+edc.o : $(PAPARAZZI_SRC)/sw/ext/libsbp/c/src/edc.c
+	$(Q)$(CC) $(CFLAGS) -c -std=c99 -O2 -Wall $(INCLUDES) $<
 
 %.o : %.c
 	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
