@@ -42,6 +42,9 @@
 #include "subsystems/radio_control.h"
 #endif
 
+#if USE_GPS
+#include "subsystems/gps.h"
+#endif
 #if defined GPS_DATALINK
 #include "subsystems/gps/gps_datalink.h"
 #endif
