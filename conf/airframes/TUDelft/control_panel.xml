@@ -64,7 +64,9 @@
       </program>
       <program name="Server"/>
       <program name="Messages"/>
-      <program name="GCS"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
       <program name="NatNet">
         <arg flag="-ac" constant="1"/>
         <arg flag="12"/>
@@ -83,7 +85,9 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
     </session>
     <session name="Flight ACM1 @57600">
       <program name="Data Link">
@@ -91,7 +95,9 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
     </session>
     <session name="Flight ACM0 @57600">
       <program name="Data Link">
@@ -99,7 +105,9 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
     </session>
     <session name="Flight XBee @57600">
       <program name="Data Link">
@@ -108,14 +116,18 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
     </session>
     <session name="Flight UDP">
       <program name="Data Link">
         <arg flag="-udp"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
     </session>
     <session name="Raw Sensors">
       <program name="Real-time Plotter">
