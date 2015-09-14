@@ -1,77 +1,71 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="30" ground_alt="0" lat0="50.789517" lon0="6.047089" max_dist_from_home="400" name="IMAV2015_competition_outdoor" security_height="2">
+<flight_plan alt="30" ground_alt="0" lat0="50.788595" lon0="6.04692" max_dist_from_home="500" name="IMAV2015_competition_outdoor" security_height="2">
   <waypoints>
-    <waypoint name="HOME" x="0.0" y="0.0"/>
-    <waypoint name="CLIMB" x="0.0" y="5.0"/>
-    <waypoint name="STDBY" x="-2.0" y="-5.0"/>
-    <waypoint lat="50.791905" lon="6.050280" name="raceA"/>
-    <waypoint lat="50.790329" lon="6.047711" name="raceB"/>
-    <waypoint lat="50.789794" lon="6.047433" name="water_gather"/>
-    <waypoint lat="50.788935" lon="6.04677" name="water_drop"/>
-    <waypoint lat="50.788882" lon="6.04664" name="buidling"/>
-    <waypoint lat="50.788862" lon="6.04662" name="window_enter"/>
-    <waypoint lat="50.788788" lon="6.046509" name="release_zone_1"/>
-    <waypoint lat="50.788923" lon="6.046411" name="release_zone_2"/>
-    <waypoint lat="50.788977" lon="6.046422" name="release_zone_3"/>
-    <waypoint lat="50.789517" lon="6.047089" name="field_center"/>
-    <waypoint lat="50.788867" lon="6.047097" name="landing"/>
-    <waypoint lat="50.788867" lon="6.047097" name="take_off"/>
-    <waypoint lat="50.788917" lon="6.047113" name="corner_e"/>
-    <waypoint lat="50.788615" lon="6.046760" name="corner_s"/>
-    <waypoint lat="50.788992" lon="6.045993" name="corner_w"/>
-    <waypoint lat="50.789323" lon="6.04633" name="corner_n"/>
-    <waypoint lat="50.790144" lon="6.046879" name="green1A"/>
-    <waypoint lat="50.789748" lon="6.047844" name="green1B"/>
-    <waypoint lat="50.789009" lon="6.046983" name="green1C"/>
-    <waypoint lat="50.788901" lon="6.047261" name="green1D"/>
-    <waypoint lat="50.788562" lon="6.046819" name="green1E"/>
-    <waypoint lat="50.789133" lon="6.045664" name="green1F"/>
-    <waypoint lat="50.792148" lon="6.050254" name="green2A"/>
-    <waypoint lat="50.791919" lon="6.050600" name="green2B"/>
-    <waypoint lat="50.790328" lon="6.047809" name="green2C"/>
-    <waypoint lat="50.790463" lon="6.047445" name="green2D"/>
-    <waypoint lat="50.792258" lon="6.050243" name="red1"/>
-    <waypoint lat="50.791936" lon="6.050774" name="red2"/>
-    <waypoint lat="50.790049" lon="6.047459" name="red3"/>
-    <waypoint lat="50.789813" lon="6.047994" name="red4"/>
-    <waypoint lat="50.788911" lon="6.047371" name="red5"/>
-    <waypoint lat="50.788499" lon="6.046839" name="red6"/>
-    <waypoint lat="50.789122" lon="6.045567" name="red7"/>
-    <waypoint lat="50.790228" lon="6.046823" name="red8"/>
-    <waypoint name="p1" x="-3.2" y="17.7"/>
-    <waypoint name="p2" x="14.1" y="-12.3"/>
-    <waypoint name="p3" x="16.7" y="-19.6"/>
-    <waypoint name="p4" x="13.7" y="-40.7"/>
-    <waypoint name="CAM" x="19.2" y="-55.4"/>
-    <waypoint name="TD" x="5.6" y="-10.9"/>
-    <waypoint height="30" name="S1" x="50.0" y="-49.8"/>
-    <waypoint height="30" name="S2" x="-19.0" y="11.8"/>
+    <waypoint name="HOME" x="0.0" y=".0"/>
+    <waypoint name="CLIMB" x="-7.6" y="15.4"/>
+    <waypoint name="STDBY" x="-3.7" y="24.0"/>
+    <waypoint lat="50.790483" lon="6.047899" name="raceA"/>
+    <waypoint lat="50.791800" lon="6.050200" name="raceB"/>
+    <waypoint lat="50.789794" lon="6.047431" name="WG"/>
+    <waypoint lat="50.788923" lon="6.046754" name="WD"/>
+    <waypoint lat="50.788761" lon="6.046508" name="RZ1"/>
+    <waypoint lat="50.788912" lon="6.046406" name="RZ2"/>
+    <waypoint lat="50.788972" lon="6.046423" name="RZ3"/>
+    <waypoint lat="50.789522" lon="6.047118" name="FC"/>
+    <waypoint lat="50.788917" lon="6.047113" name="S1"/>
+    <waypoint lat="50.788597" lon="6.046721" name="S2"/>
+    <waypoint lat="50.788973" lon="6.045944" name="S3"/>
+    <waypoint lat="50.789323" lon="6.046330" name="S4"/>
+    <waypoint lat="50.790144" lon="6.046879" name="_green1A"/>
+    <waypoint lat="50.789748" lon="6.047844" name="_green1B"/>
+    <waypoint lat="50.789058" lon="6.047072" name="_green1C"/>
+    <waypoint lat="50.788919" lon="6.047391" name="_green1D"/>
+    <waypoint lat="50.788477" lon="6.046880" name="_green1E"/>
+    <waypoint lat="50.789113" lon="6.045554" name="_green1F"/>
+    <waypoint lat="50.792252" lon="6.050405" name="_green2A"/>
+    <waypoint lat="50.791915" lon="6.050962" name="_green2B"/>
+    <waypoint lat="50.790077" lon="6.047761" name="_green2C"/>
+    <waypoint lat="50.790426" lon="6.047251" name="_green2D"/>
+    <waypoint lat="50.792552" lon="6.050093" name="_red1"/>
+    <waypoint lat="50.791882" lon="6.051268" name="_red2"/>
+    <waypoint lat="50.789988" lon="6.047834" name="_red3"/>
+    <waypoint lat="50.789781" lon="6.048204" name="_red4"/>
+    <waypoint lat="50.788865" lon="6.047626" name="_red5"/>
+    <waypoint lat="50.788209" lon="6.046744" name="_red6"/>
+    <waypoint lat="50.789046" lon="6.045032" name="_red7"/>
+    <waypoint lat="50.790416" lon="6.046338" name="_red8"/>
+    <waypoint name="p1" x="77.2" y="199.5"/>
+    <waypoint name="p2" x="70.7" y="206.8"/>
+    <waypoint name="p3" x="246.1" y="353.6"/>
+    <waypoint name="p4" x="252.3" y="347.2"/>
+    <waypoint name="CAM" x="27.5" y="95.0"/>
+    <waypoint lat="50.788731" lon="6.046967" name="TD"/>
   </waypoints>
   <sectors>
     <sector color="red" name="RED">
-      <corner name="red1"/>
-      <corner name="red2"/>
-      <corner name="red3"/>
-      <corner name="red4"/>
-      <corner name="red5"/>
-      <corner name="red6"/>
-      <corner name="red7"/>
-      <corner name="red8"/>
+      <corner name="_red1"/>
+      <corner name="_red2"/>
+      <corner name="_red3"/>
+      <corner name="_red4"/>
+      <corner name="_red5"/>
+      <corner name="_red6"/>
+      <corner name="_red7"/>
+      <corner name="_red8"/>
     </sector>
     <sector color="green" name="GREEN1">
-      <corner name="green1A"/>
-      <corner name="green1B"/>
-      <corner name="green1C"/>
-      <corner name="green1D"/>
-      <corner name="green1E"/>
-      <corner name="green1F"/>
+      <corner name="_green1A"/>
+      <corner name="_green1B"/>
+      <corner name="_green1C"/>
+      <corner name="_green1D"/>
+      <corner name="_green1E"/>
+      <corner name="_green1F"/>
     </sector>
     <sector color="green" name="GREEN2">
-      <corner name="green2A"/>
-      <corner name="green2B"/>
-      <corner name="green2C"/>
-      <corner name="green2D"/>
+      <corner name="_green2A"/>
+      <corner name="_green2B"/>
+      <corner name="_green2C"/>
+      <corner name="_green2D"/>
     </sector>
   </sectors>
   <includes>

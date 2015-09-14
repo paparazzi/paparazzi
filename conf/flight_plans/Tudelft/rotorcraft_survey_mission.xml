@@ -39,11 +39,19 @@
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <stay wp="STDBY"/>
     </block>
+    <block name="LookRobot" strip_button="LookRobot" strip_icon="home.png">
+      <stay wp="FC"/>
+    </block>
+    <block name="visualflare">
+      <exception cond="NavDetectGround()" deroute="holding_point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="CAM"/>
+    </block>
     <block name="stay_p1">
       <stay wp="p1"/>
     </block>
     <block name="go_p2">
-      <call fun="nav_set_heading_deg(90)"/>
       <go wp="p2"/>
       <deroute block="stay_p1"/>
     </block>
@@ -53,11 +61,17 @@
       <go from="p2" hmode="route" wp="p1"/>
       <deroute block="stay_p1"/>
     </block>
-    <block name="route">
-      <go from="p1" hmode="route" wp="p3"/>
+    <block name="race">
+      <go from="p1" hmode="route" wp="p2"/>
+      <go from="p2" hmode="route" wp="p3"/>
       <go from="p3" hmode="route" wp="p4"/>
       <go from="p4" hmode="route" wp="p1"/>
-      <deroute block="stay_p1"/>
+      <deroute block="race"/>
+    </block>
+    <block name="raceline">
+      <go from="raceA" hmode="route" wp="raceB"/>
+      <go from="raceB" hmode="route" wp="raceA"/>
+      <deroute block="raceline"/>
     </block>
     <block group="extra_pattern" name="Survey S1-S2 NS" strip_button="Svy-NS" strip_icon="survey.png">
       <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, NS)"/>
@@ -67,25 +81,20 @@
       <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, WE)"/>
       <deroute block="Survey RECTANGLE RUN"/>
     </block>
-    <block group="extra_pattern" name="Survey Poly" strip_button="Svy-P">
-      <call fun="nav_survey_poly_setup_towards(WP_corner_e, 4, sweep, WP_corner_s)"/>
-      <deroute block="Survey Poly RUN"/>
-    </block>
     <block group="extra_pattern" name="Survey RECTANGLE RUN" strip_button="Svy CONT">
       <exception cond="rectangle_survey_sweep_num >= 1" deroute="Standby"/>
       <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S2)"/>
+    </block>
+    <block group="extra_pattern" name="Survey Poly" strip_button="Svy-P">
+      <call fun="nav_survey_poly_setup_towards(WP_S1, 4, sweep, WP_S4)"/>
+      <deroute block="Survey Poly RUN"/>
     </block>
     <block group="extra_pattern" name="Survey Poly RUN" strip_button="Svy-P CONT">
       <exception cond="PolySurveySweepNum >= 10" deroute="Standby"/>
       <call fun="nav_survey_poly_run()"/>
     </block>
-    <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
+    <block name="circle CV" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
       <circle radius="nav_radius" wp="CAM"/>
-    </block>
-    <block name="race">
-      <go from="raceA" hmode="route" wp="raceB"/>
-      <go from="raceB" hmode="route" wp="raceA"/>
-      <deroute block="Standby"/>
     </block>
     <block name="land_here" strip_button="Land Here" strip_icon="land-right.png">
       <call fun="NavSetWaypointHere(WP_TD)"/>
