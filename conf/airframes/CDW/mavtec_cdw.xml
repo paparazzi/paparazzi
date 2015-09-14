@@ -47,6 +47,7 @@
       <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
     </load>
     <load name="geo_mag.xml"/>
+    <load name="exception_flags.xml"/>
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->
