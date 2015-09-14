@@ -132,6 +132,17 @@
    gui_color="blue"
   />
   <aircraft
+   name="bebop_flip"
+   ac_id="3"
+   airframe="airframes/TUDelft/airframes/bebop_flip.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_indi.xml"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="quadshot_pylons"
    ac_id="178"
    airframe="airframes/TUDelft/airframes/quadshot_pylons.xml"
