@@ -5,10 +5,8 @@
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="CLIMB" x="0.0" y="5.0"/>
     <waypoint name="STDBY" x="-2.0" y="-5.0"/>
-
     <waypoint lat="50.791905" lon="6.050280" name="raceA"/>
     <waypoint lat="50.790329" lon="6.047711" name="raceB"/>
-
     <waypoint lat="50.789794" lon="6.047433" name="water_gather"/>
     <waypoint lat="50.788935" lon="6.04677" name="water_drop"/>
     <waypoint lat="50.788882" lon="6.04664" name="buidling"/>
@@ -20,8 +18,8 @@
     <waypoint lat="50.788867" lon="6.047097" name="landing"/>
     <waypoint lat="50.788867" lon="6.047097" name="take_off"/>
     <waypoint lat="50.788917" lon="6.047113" name="corner_e"/>
-    <waypoint lat="50.788597" lon="6.046721" name="corner_s"/>
-    <waypoint lat="50.788973" lon="6.045944" name="corner_w"/>
+    <waypoint lat="50.788615" lon="6.046760" name="corner_s"/>
+    <waypoint lat="50.788992" lon="6.045993" name="corner_w"/>
     <waypoint lat="50.789323" lon="6.04633" name="corner_n"/>
     <waypoint lat="50.790144" lon="6.046879" name="green1A"/>
     <waypoint lat="50.789748" lon="6.047844" name="green1B"/>

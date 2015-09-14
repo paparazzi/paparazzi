@@ -26,7 +26,7 @@ You can use:
   <header>
     <file name="nav_survey_poly_rotorcraft.h"/>
   </header>
-  <makefile target="ap|sim|nps">
+  <makefile target="ap|nps">
     <file name="nav_survey_poly_rotorcraft.c"/>
   </makefile>
 </module>

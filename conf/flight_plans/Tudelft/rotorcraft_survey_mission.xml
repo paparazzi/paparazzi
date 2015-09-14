@@ -67,9 +67,17 @@
       <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, WE)"/>
       <deroute block="Survey RECTANGLE RUN"/>
     </block>
+    <block group="extra_pattern" name="Survey Poly" strip_button="Svy-P">
+      <call fun="nav_survey_poly_setup_towards(WP_corner_e, 4, sweep, WP_corner_s)"/>
+      <deroute block="Survey Poly RUN"/>
+    </block>
     <block group="extra_pattern" name="Survey RECTANGLE RUN" strip_button="Svy CONT">
       <exception cond="rectangle_survey_sweep_num >= 1" deroute="Standby"/>
       <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S2)"/>
+    </block>
+    <block group="extra_pattern" name="Survey Poly RUN" strip_button="Svy-P CONT">
+      <exception cond="PolySurveySweepNum >= 10" deroute="Standby"/>
+      <call fun="nav_survey_poly_run()"/>
     </block>
     <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
       <circle radius="nav_radius" wp="CAM"/>
