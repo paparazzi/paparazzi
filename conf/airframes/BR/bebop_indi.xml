@@ -32,6 +32,7 @@
   <modules main_freq="512">
     <load name="geo_mag.xml"/>
     <load name="air_data.xml"/>
+    <load name="exception_flags.xml"/>
     <load name="send_imu_mag_current.xml"/>
     <!--load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
@@ -93,7 +94,7 @@
     <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
-  <include href="conf/airframes/TUDelft/calibrations/bebop7.xml" />
+  <include href="conf/airframes/TUDelft/calibrations/bebop6.xml" />
 
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
