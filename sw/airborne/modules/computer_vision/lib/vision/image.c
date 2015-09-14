@@ -257,8 +257,8 @@ void image_subpixel_window(struct image_t *input, struct image_t *output, struct
       // Calculate the subpixel coordinate
       uint16_t x = center->x + (i - half_window) * subpixel_factor;
       uint16_t y = center->y + (j - half_window) * subpixel_factor;
-      Bound(x, 0, subpixel_w);
-      Bound(y, 0, subpixel_h);
+      BoundUpper(x, subpixel_w);
+      BoundUpper(y, subpixel_h);
 
       // Calculate the original pixel coordinate
       uint16_t orig_x = x / subpixel_factor;
