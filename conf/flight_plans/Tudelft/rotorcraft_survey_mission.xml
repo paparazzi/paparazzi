@@ -74,6 +74,11 @@
     <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
       <circle radius="nav_radius" wp="CAM"/>
     </block>
+    <block name="race">
+      <go from="raceA" hmode="route" wp="raceB"/>
+      <go from="raceB" hmode="route" wp="raceA"/>
+      <deroute block="Standby"/>
+    </block>
     <block name="land_here" strip_button="Land Here" strip_icon="land-right.png">
       <call fun="NavSetWaypointHere(WP_TD)"/>
     </block>
