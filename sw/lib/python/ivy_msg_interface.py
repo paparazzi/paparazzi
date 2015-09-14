@@ -16,7 +16,7 @@ from pprz_msg.message import PprzMessage
 
 
 class IvyMessagesInterface(object):
-    def __init__(self, callback, init=True, verbose=False, bind_regex='(.*)'):
+    def __init__(self, callback=None, init=True, verbose=False, bind_regex='(.*)'):
         self.callback = callback
         self.ivy_id = 0
         self.verbose = verbose
@@ -47,6 +47,10 @@ class IvyMessagesInterface(object):
         Basically parts/args in string are separated by space, but char array can also contain a space:
         |f,o,o, ,b,a,r| in old format or "foo bar" in new format
         """
+        # return if no callback is set
+        if self.callback is None:
+            return
+
         # first split on array delimiters
         l = re.split('([|\"][^|]*[|\"])', larg[0])
         # strip spaces and filter out emtpy strings

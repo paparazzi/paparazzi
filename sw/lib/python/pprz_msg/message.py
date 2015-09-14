@@ -130,7 +130,7 @@ class PprzMessage(object):
             if f == name:
                 self._fieldvalues[idx] = value
                 return
-        raise AttributeError("Msg %s has no field of name %s" % (self.name, key))
+        raise AttributeError("Msg %s has no field of name %s" % (self.name, name))
 
     def __str__(self):
         ret = '%s.%s {' % (self.msg_class, self.name)
