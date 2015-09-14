@@ -13,6 +13,7 @@ PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirn
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
 
 from pprz_msg.message import PprzMessage
+from pprz_msg import messages_xml_map
 
 
 class IvyMessagesInterface(object):
@@ -20,6 +21,8 @@ class IvyMessagesInterface(object):
         self.callback = callback
         self.ivy_id = 0
         self.verbose = verbose
+        # make sure all messages are parsed before we start creating them in callbacks
+        messages_xml_map.parse_messages()
         self.init_ivy(init, bind_regex)
 
     def stop(self):

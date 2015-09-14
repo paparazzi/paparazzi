@@ -31,6 +31,7 @@ def parse_messages(messages_file=''):
         messages_file = default_messages_file
     if not os.path.isfile(messages_file):
         raise MessagesNotFound(messages_file)
+    #print("Parsing %s" % messages_file)
     from lxml import etree
     tree = etree.parse(messages_file)
     for the_class in tree.xpath("//msg_class[@name]"):
@@ -152,8 +153,8 @@ def test():
     parse_messages(args.file)
     if args.list_messages:
         print("Listing %i messages in '%s' msg_class" % (len(message_dictionary[args.msg_class]), args.msg_class))
-        for msg in message_dictionary[args.msg_class]:
-            print(msg)
+        for msg_name, msg_fields in message_dictionary[args.msg_class].iteritems():
+            print(msg_name + ": " + ", ".join(msg_fields))
 
 if __name__ == '__main__':
     test()

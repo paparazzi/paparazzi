@@ -3,12 +3,11 @@ Paparazzi message representation
 
 """
 
-from __future__ import absolute_import, division, print_function
+from __future__ import division, print_function
 import sys
 import json
 import struct
-from . import messages_xml_map
-# import messages_xml_map
+import messages_xml_map
 
 
 class PprzMessageError(Exception):
@@ -118,11 +117,12 @@ class PprzMessage(object):
         self.set_value_by_name(key, value)
 
     def set_values(self, values):
+        #print("msg %s: %s" % (self.name, ", ".join(self.fieldnames)))
         if len(values) == len(self.fieldnames):
             self._fieldvalues = values
         else:
-            print("set values %i %i" % (len(values), len(self.fieldnames)))
-            raise PprzMessageError("Error: fields not matching")
+            raise PprzMessageError("Error: Msg %s has %d fields, tried to set %i values" %
+                                   (self.name, len(self.fieldnames), len(values)))
 
     def set_value_by_name(self, name, value):
         # Try to set a value from its name
