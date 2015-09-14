@@ -8,11 +8,11 @@
       - Sends a RTP/UDP stream of the camera
       - Possibility to save an image(shot) on the internal memory (JPEG, full size, best quality)
     </description>
-    <define name="video_thread_DEVICE" value="/dev/video1" description="The video device to capture from"/>
-    <define name="video_thread_DEVICE_SIZE" value="1280,720" description="Video capture size (width, height)"/>
-    <define name="video_thread_DEVICE_BUFFERS" value="10" description="Amount of V4L2 image buffers"/>
-    <define name="video_thread_FPS" value="4" description="Video stream frame rate"/>
-    <define name="video_thread_SHOT_PATH" value="/data/video/images" description="Path where the images should be saved"/>
+    <define name="VIDEO_THREAD_DEVICE" value="/dev/video1" description="The video device to capture from"/>
+    <define name="VIDEO_THREAD_DEVICE_SIZE" value="1280,720" description="Video capture size (width, height)"/>
+    <define name="VIDEO_THREAD_DEVICE_BUFFERS" value="10" description="Amount of V4L2 image buffers"/>
+    <define name="VIDEO_THREAD_FPS" value="4" description="Video stream frame rate"/>
+    <define name="VIDEO_THREAD_SHOT_PATH" value="/data/video/images" description="Path where the images should be saved"/>
   </doc>
   <settings>
     <dl_settings>

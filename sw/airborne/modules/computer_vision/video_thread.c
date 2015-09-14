@@ -48,36 +48,36 @@
 #include "rt_priority.h"
 
 // The video device
-#ifndef VIEWVIDEO_DEVICE
-#define VIEWVIDEO_DEVICE /dev/video1
+#ifndef VIDEO_THREAD_DEVICE
+#define VIDEO_THREAD_DEVICE /dev/video1
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE)
+PRINT_CONFIG_VAR(VIDEO_THREAD_DEVICE)
 
 // The video device size (width, height)
-#ifndef VIEWVIDEO_DEVICE_SIZE
-#define VIEWVIDEO_DEVICE_SIZE 1280,720
+#ifndef VIDEO_THREAD_DEVICE_SIZE
+#define VIDEO_THREAD_DEVICE_SIZE 1280,720
 #endif
 #define __SIZE_HELPER(x, y) #x", "#y
 #define _SIZE_HELPER(x) __SIZE_HELPER(x)
-PRINT_CONFIG_MSG("VIEWVIDEO_DEVICE_SIZE = " _SIZE_HELPER(VIEWVIDEO_DEVICE_SIZE))
+PRINT_CONFIG_MSG("VIDEO_THREAD_DEVICE_SIZE = " _SIZE_HELPER(VIDEO_THREAD_DEVICE_SIZE))
 
 // The video device buffers (the amount of V4L2 buffers)
-#ifndef VIEWVIDEO_DEVICE_BUFFERS
-#define VIEWVIDEO_DEVICE_BUFFERS 10
+#ifndef VIDEO_THREAD_DEVICE_BUFFERS
+#define VIDEO_THREAD_DEVICE_BUFFERS 10
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_DEVICE_BUFFERS)
+PRINT_CONFIG_VAR(VIDEO_THREAD_DEVICE_BUFFERS)
 
 // Frames Per Seconds
-#ifndef VIEWVIDEO_FPS
-#define VIEWVIDEO_FPS 4
+#ifndef VIDEO_THREAD_FPS
+#define VIDEO_THREAD_FPS 4
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_FPS)
+PRINT_CONFIG_VAR(VIDEO_THREAD_FPS)
 
 // The place where the shots are saved (without slash on the end)
-#ifndef VIEWVIDEO_SHOT_PATH
-#define VIEWVIDEO_SHOT_PATH "/data/video/images"
+#ifndef VIDEO_THREAD_SHOT_PATH
+#define VIDEO_THREAD_SHOT_PATH "/data/video/images"
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
+PRINT_CONFIG_VAR(VIDEO_THREAD_SHOT_PATH)
 
 // Main thread
 static void *video_thread_function(void *data);
@@ -86,7 +86,7 @@ void video_thread_periodic(void) { }
 // Initialize the video_thread structure with the defaults
 struct video_thread_t video_thread = {
   .is_running = FALSE,
-  .fps = VIEWVIDEO_FPS,
+  .fps = VIDEO_THREAD_FPS,
   .take_shot = FALSE,
   .shot_number = 0
 };
@@ -136,7 +136,7 @@ static void *video_thread_function(void *data __attribute__((unused)))
       // Search for a file where we can write to
       char save_name[128];
       for (; video_thread.shot_number < 99999; video_thread.shot_number++) {
-        sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIEWVIDEO_SHOT_PATH), video_thread.shot_number);
+        sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_THREAD_SHOT_PATH), video_thread.shot_number);
         // Check if file exists or not
         if (access(save_name, F_OK) == -1) {
 #if JPEG_WITH_EXIF_HEADER
@@ -176,29 +176,29 @@ static void *video_thread_function(void *data __attribute__((unused)))
  */
 void video_thread_init(void)
 {
-#ifdef VIEWVIDEO_SUBDEV
+#ifdef VIDEO_THREAD_SUBDEV
   PRINT_CONFIG_MSG("[video_thread] Configuring a subdevice!")
-  PRINT_CONFIG_VAR(VIEWVIDEO_SUBDEV)
+  PRINT_CONFIG_VAR(VIDEO_THREAD_SUBDEV)
 
   // Initialize the V4L2 subdevice (TODO: fix hardcoded path, which and code)
-  if (!v4l2_init_subdev(STRINGIFY(VIEWVIDEO_SUBDEV), 0, 1, V4L2_MBUS_FMT_UYVY8_2X8, VIEWVIDEO_DEVICE_SIZE)) {
-    printf("[video_thread] Could not initialize the %s subdevice.\n", STRINGIFY(VIEWVIDEO_SUBDEV));
+  if (!v4l2_init_subdev(STRINGIFY(VIDEO_THREAD_SUBDEV), 0, 1, V4L2_MBUS_FMT_UYVY8_2X8, VIDEO_THREAD_DEVICE_SIZE)) {
+    printf("[video_thread] Could not initialize the %s subdevice.\n", STRINGIFY(VIDEO_THREAD_SUBDEV));
     return;
   }
 #endif
 
   // Initialize the V4L2 device
-  video_thread.dev = v4l2_init(STRINGIFY(VIEWVIDEO_DEVICE), VIEWVIDEO_DEVICE_SIZE, VIEWVIDEO_DEVICE_BUFFERS,  V4L2_PIX_FMT_UYVY);
+  video_thread.dev = v4l2_init(STRINGIFY(VIDEO_THREAD_DEVICE), VIDEO_THREAD_DEVICE_SIZE, VIDEO_THREAD_DEVICE_BUFFERS,  V4L2_PIX_FMT_UYVY);
   if (video_thread.dev == NULL) {
-    printf("[video_thread] Could not initialize the %s V4L2 device.\n", STRINGIFY(VIEWVIDEO_DEVICE));
+    printf("[video_thread] Could not initialize the %s V4L2 device.\n", STRINGIFY(VIDEO_THREAD_DEVICE));
     return;
   }
 
   // Create the shot directory
   char save_name[128];
-  sprintf(save_name, "mkdir -p %s", STRINGIFY(VIEWVIDEO_SHOT_PATH));
+  sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
   if (system(save_name) != 0) {
-    printf("[video_thread] Could not create shot directory %s.\n", STRINGIFY(VIEWVIDEO_SHOT_PATH));
+    printf("[video_thread] Could not create shot directory %s.\n", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
     return;
   }
 }
