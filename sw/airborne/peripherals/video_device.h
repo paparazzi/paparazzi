@@ -32,12 +32,13 @@
 #include "modules/computer_vision/lib/v4l/v4l2.h"
 
 /** V4L2 device settings */
-struct video_device_t {
+struct video_config_t {
   int w;              ///< Width
   int h;              ///< Height
   char* dev_name;     ///< path to device
   char* subdev_name;  ///< path to sub device
   uint32_t format;    ///< Video format
+  uint8_t buf_cnt;    ///< Amount of V4L2 video device buffers
   void* filters;      ///< filters to use
 };
 

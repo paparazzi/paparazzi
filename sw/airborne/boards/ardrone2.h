@@ -10,8 +10,8 @@
 #endif
 
 /* Cameras */
-extern struct video_device_t bottom_camera;
-extern struct video_device_t front_camera;
+extern struct video_config_t bottom_camera;
+extern struct video_config_t front_camera;
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "boards/ardrone/actuators.h"

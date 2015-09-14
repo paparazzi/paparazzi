@@ -38,6 +38,10 @@
 #include "lib/v4l/v4l2.h"
 #include "lib/vision/image.h"
 #include "lib/encoding/jpeg.h"
+#include "peripherals/video_device.h"
+
+// include board for bottom_camera and front_camera on ARDrone2 and Bebop
+#include BOARD_CONFIG
 
 #if JPEG_WITH_EXIF_HEADER
 #include "lib/exif/exif_module.h"
@@ -47,25 +51,32 @@
 #include <pthread.h>
 #include "rt_priority.h"
 
-// The video device
-#ifndef VIDEO_THREAD_DEVICE
-#define VIDEO_THREAD_DEVICE /dev/video1
-#endif
-PRINT_CONFIG_VAR(VIDEO_THREAD_DEVICE)
-
-// The video device size (width, height)
-#ifndef VIDEO_THREAD_DEVICE_SIZE
-#define VIDEO_THREAD_DEVICE_SIZE 1280,720
-#endif
-#define __SIZE_HELPER(x, y) #x", "#y
-#define _SIZE_HELPER(x) __SIZE_HELPER(x)
-PRINT_CONFIG_MSG("VIDEO_THREAD_DEVICE_SIZE = " _SIZE_HELPER(VIDEO_THREAD_DEVICE_SIZE))
-
+/// The camera video config (usually bottom_camera or front_camera)
+#ifndef VIDEO_THREAD_CAMERA
+#warning "Are you sure you don't want to use the bottom_camera or front_camera?"
 // The video device buffers (the amount of V4L2 buffers)
 #ifndef VIDEO_THREAD_DEVICE_BUFFERS
 #define VIDEO_THREAD_DEVICE_BUFFERS 10
 #endif
 PRINT_CONFIG_VAR(VIDEO_THREAD_DEVICE_BUFFERS)
+#ifndef VIDEO_THREAD_SUBDEV
+#define VIDEO_THREAD_SUBDEV NULL
+#endif
+#ifndef VIDEO_THREAD_FILTERS
+#define VIDEO_THREAD_FILTERS NULL
+#endif
+struct video_config_t custom_camera = {
+  .w = VIDEO_THREAD_VIDEO_WIDTH,
+  .h = VIDEO_THREAD_VIDEO_HEIGHT,
+  .dev_name = STRINGIFY(VIDEO_THREAD_DEVICE),
+  .subdev_name = VIDEO_THREAD_SUBDEV,
+  .buf_cnt = VIDEO_THREAD_DEVICE_BUFFERS,
+  .filters = VIDEO_THREAD_FILTERS
+};
+#define VIDEO_THREAD_CAMERA custom_camera
+#endif
+PRINT_CONFIG_VAR(VIDEO_THREAD_CAMERA)
+
 
 // Frames Per Seconds
 #ifndef VIDEO_THREAD_FPS
@@ -95,8 +106,26 @@ struct video_thread_t video_thread = {
  * Handles all the video streaming and saving of the image shots
  * This is a sepereate thread, so it needs to be thread safe!
  */
-static void *video_thread_function(void *data __attribute__((unused)))
+static void *video_thread_function(void *data)
 {
+  struct video_config_t *vid = (struct video_config_t *)data;
+
+  // Initialize the V4L2 subdevice if needed
+  if (vid->subdev_name != NULL) {
+    if (!v4l2_init_subdev(vid->subdev_name, 0, 1, vid->format, vid->w, vid->h)) {
+      printf("[video_thread] Could not initialize the %s subdevice.\n", vid->subdev_name);
+      return 0;
+    }
+  }
+
+  // Initialize the V4L2 device
+  video_thread.dev = v4l2_init(vid->dev_name, vid->w, vid->h, vid->buf_cnt, vid->format);
+  if (video_thread.dev == NULL) {
+    printf("[video_thread] Could not initialize the %s V4L2 device.\n", vid->dev_name);
+    return 0;
+  }
+
+
   // Start the streaming of the V4L2 device
   if (!v4l2_start_capture(video_thread.dev)) {
     printf("[video_thread-thread] Could not start capture of %s.\n", video_thread.dev->name);
@@ -176,24 +205,6 @@ static void *video_thread_function(void *data __attribute__((unused)))
  */
 void video_thread_init(void)
 {
-#ifdef VIDEO_THREAD_SUBDEV
-  PRINT_CONFIG_MSG("[video_thread] Configuring a subdevice!")
-  PRINT_CONFIG_VAR(VIDEO_THREAD_SUBDEV)
-
-  // Initialize the V4L2 subdevice (TODO: fix hardcoded path, which and code)
-  if (!v4l2_init_subdev(STRINGIFY(VIDEO_THREAD_SUBDEV), 0, 1, V4L2_MBUS_FMT_UYVY8_2X8, VIDEO_THREAD_DEVICE_SIZE)) {
-    printf("[video_thread] Could not initialize the %s subdevice.\n", STRINGIFY(VIDEO_THREAD_SUBDEV));
-    return;
-  }
-#endif
-
-  // Initialize the V4L2 device
-  video_thread.dev = v4l2_init(STRINGIFY(VIDEO_THREAD_DEVICE), VIDEO_THREAD_DEVICE_SIZE, VIDEO_THREAD_DEVICE_BUFFERS,  V4L2_PIX_FMT_UYVY);
-  if (video_thread.dev == NULL) {
-    printf("[video_thread] Could not initialize the %s V4L2 device.\n", STRINGIFY(VIDEO_THREAD_DEVICE));
-    return;
-  }
-
   // Create the shot directory
   char save_name[128];
   sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
@@ -215,7 +226,7 @@ void video_thread_start(void)
 
   // Start the streaming thread
   pthread_t tid;
-  if (pthread_create(&tid, NULL, video_thread_function, NULL) != 0) {
+  if (pthread_create(&tid, NULL, video_thread_function, (void*)(&VIDEO_THREAD_CAMERA)) != 0) {
     printf("[vievideo] Could not create streaming thread.\n");
     return;
   }

@@ -36,21 +36,23 @@
 
 #include "peripherals/video_device.h"
 
-struct video_device_t front_camera = {
+struct video_config_t front_camera = {
   .w = 1280,
   .h = 720,
   .dev_name = "/dev/video1",
   .subdev_name = NULL,
   .format = V4L2_PIX_FMT_UYVY,
+  .buf_cnt = 10,
   .filters = NULL
 };
 
-struct video_device_t bottom_camera = {
+struct video_config_t bottom_camera = {
   .w = 320,
   .h = 240,
   .dev_name = "/dev/video2",
   .subdev_name = NULL,
   .format = V4L2_PIX_FMT_UYVY,
+  .buf_cnt = 10,
   .filters = NULL
 };
 

@@ -39,21 +39,23 @@
 
 #include "boards/bebop.h"
 
-struct video_device_t bottom_camera = {
+struct video_config_t bottom_camera = {
   .w = 640,
   .h = 480,
   .dev_name = "/dev/video0",
   .subdev_name = NULL,
   .format = V4L2_PIX_FMT_UYVY,
+  .buf_cnt = 60,
   .filters = NULL
 };
 
-struct video_device_t front_camera = {
+struct video_config_t front_camera = {
   .w = 1408,
   .h = 2112,
   .dev_name = "/dev/video1",
   .subdev_name = "/dev/v4l-subdev1",
   .format = V4L2_PIX_FMT_SGBRG10,
+  .buf_cnt = 80,
   .filters = NULL //{DeMosaic, AEC, ABW}
 };
 
