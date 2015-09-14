@@ -38,6 +38,7 @@ extern uint8_t color_cr_min;
 extern uint8_t color_cr_max;
 
 extern uint8_t cv_blob_locator_reset;
+extern uint8_t cv_blob_locator_type;
 
 extern void cv_blob_locator_init(void);
 extern void cv_blob_locator_periodic(void);

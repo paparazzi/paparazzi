@@ -35,6 +35,8 @@
  * @return The deviation of the marker location wrt the center.
  */
 
+bool_t marker_enabled = TRUE;
+
 
 #define Img(X,Y)(source[(Y)*input->w*2+(X)*2+1])
 #define Out(X,Y)(source[(Y)*input->w*2+(X)*2])
@@ -51,6 +53,13 @@ inline int AbsDiff(int A, int B)
 struct marker_deviation_t marker(struct image_t *input, uint8_t M)
 {
   struct marker_deviation_t marker_deviation;
+
+  marker_deviation.x = 0;
+  marker_deviation.y = 0;
+  marker_deviation.inlier = 0;
+
+  if (! marker_enabled)
+    return marker_deviation;
 
   uint8_t *source = (uint8_t *) input->buf;
   uint16_t x, y, i, j, k;

@@ -7,14 +7,18 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="ColorFilter">
-         <dl_setting var="color_lum_min" min="0" step="1" max="255" shortname="y_min" />
-         <dl_setting var="color_lum_max" min="0" step="1" max="255" shortname="y_max" />
-         <dl_setting var="color_cb_min"  min="0" step="1" max="255" shortname="u_min" />
-         <dl_setting var="color_cb_max"  min="0" step="1" max="255" shortname="u_max" />
-         <dl_setting var="color_cr_min"  min="0" step="1" max="255" shortname="v_min" />
-         <dl_setting var="color_cr_max"  min="0" step="1" max="255" shortname="v_max" />
+        <dl_setting var="color_lum_min" min="0" step="1" max="255" shortname="y_min" />
+        <dl_setting var="color_lum_max" min="0" step="1" max="255" shortname="y_max" />
+        <dl_setting var="color_cb_min"  min="0" step="1" max="255" shortname="u_min" />
+        <dl_setting var="color_cb_max"  min="0" step="1" max="255" shortname="u_max" />
+        <dl_setting var="color_cr_min"  min="0" step="1" max="255" shortname="v_min" />
+        <dl_setting var="color_cr_max"  min="0" step="1" max="255" shortname="v_max" />
         <dl_setting var="cv_blob_locator_reset" max="1" min="0" step="1" module="computer_vision/cv_blob_locator"  handler="GeoReset">
           <strip_button name="Reset" value="1" />
+        </dl_setting>
+        <dl_setting var="cv_blob_locator_type" min="0" step="1" max="1" module="computer_vision/cv_blob_locator" values="BLOB|IMAVMARKER">
+          <strip_button name="POWER ON" icon="on.png" value="1" group="power_switch"/>
+          <strip_button name="POWER OFF" icon="off.png" value="0" group="power_switch"/>
         </dl_setting>
       </dl_settings>
     </dl_settings>
@@ -30,6 +34,7 @@
   <event fun="cv_blob_locator_event()"/>
   <makefile>
     <file name="cv_blob_locator.c"/>
+    <file name="imavmarker.c" dir="modules/computer_vision/blob" />
     <file name="blob_finder.c" dir="modules/computer_vision/blob" />
     <file name="cv_georeference.c" dir="modules/computer_vision/" />
   </makefile>

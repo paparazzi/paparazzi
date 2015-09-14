@@ -26,6 +26,7 @@
 #include "modules/computer_vision/cv_blob_locator.h"
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/blob/blob_finder.h"
+#include "modules/computer_vision/blob/imavmarker.h"
 
 
 uint8_t color_lum_min;
@@ -38,12 +39,21 @@ uint8_t color_cr_min;
 uint8_t color_cr_max;
 
 uint8_t cv_blob_locator_reset;
+uint8_t cv_blob_locator_type;
 
 volatile uint32_t blob_locator = 0;
+
+volatile bool_t blob_enabled = FALSE;
 
 // Computer vision thread
 bool_t cv_blob_locator_func(struct image_t *img);
 bool_t cv_blob_locator_func(struct image_t *img) {
+
+  blob_enabled = ! marker_enabled;
+
+  if (!blob_enabled)
+    return FALSE;
+
 
   // Color Filter
   struct image_filter_t filter[2];
@@ -168,6 +178,16 @@ void cv_blob_locator_periodic(void) {
 
 
 void cv_blob_locator_event(void) {
+  if (cv_blob_locator_type == 1)
+  {
+    blob_enabled = TRUE;
+    marker_enabled = FALSE;
+  }
+  else
+  {
+    blob_enabled = FALSE;
+    marker_enabled = TRUE;
+  }
   if (blob_locator != 0) {
     // CV thread has results: import
     uint32_t temp = blob_locator;

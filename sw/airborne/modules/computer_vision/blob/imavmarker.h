@@ -35,4 +35,6 @@ struct marker_deviation_t {
 };
 
 
+extern bool_t marker_enabled;
+
 struct marker_deviation_t marker(struct image_t *input, uint8_t M);
