@@ -66,6 +66,8 @@ float failsafe_mode_dist2 = FAILSAFE_MODE_DISTANCE * FAILSAFE_MODE_DISTANCE;
 float dist2_to_home;
 bool_t too_far_from_home;
 
+bool_t exception_flag[10] = {0}; //exception flags that can be used in the flight plan
+
 float dist2_to_wp;
 
 uint8_t horizontal_mode;
@@ -113,6 +115,10 @@ static inline void nav_set_altitude(void);
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
+
+void set_exception_flag(uint8_t flag_num) {
+  exception_flag[flag_num] = 1;
+}
 
 static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
 {

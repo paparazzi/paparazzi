@@ -87,6 +87,9 @@ void nav_periodic_task(void);
 bool_t nav_detect_ground(void);
 bool_t nav_is_in_flight(void);
 
+extern bool_t exception_flag[10];
+extern void set_exception_flag(uint8_t flag_num);
+
 extern bool_t nav_set_heading_rad(float rad);
 extern bool_t nav_set_heading_deg(float deg);
 extern bool_t nav_set_heading_towards(float x, float y);

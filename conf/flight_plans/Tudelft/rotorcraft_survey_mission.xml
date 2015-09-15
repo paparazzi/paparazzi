@@ -10,8 +10,8 @@
   </header>
 
   <exceptions>
-      <exception cond="electrical.bat_low && (exception_flag[0] == 0)" deroute="Standby" exec="check_exception_flag(0)"/>
-      <exception cond="electrical.bat_critical && (exception_flag[1] == 0)" deroute="land_here" exec="check_exception_flag(1)"/>
+      <exception cond="electrical.bat_low && (exception_flag[0] == 0)" deroute="Standby" exec="set_exception_flag(0)"/>
+      <exception cond="electrical.bat_critical && (exception_flag[1] == 0)" deroute="land_here" exec="set_exception_flag(1)"/>
   </exceptions>
 
   <blocks>

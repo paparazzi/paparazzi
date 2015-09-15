@@ -27,7 +27,6 @@
   <modules main_freq="512">
     <load name="geo_mag.xml"/>
     <load name="air_data.xml"/>
-    <load name="exception_flags.xml"/>
     <load name="send_imu_mag_current.xml"/>
     <!--load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
