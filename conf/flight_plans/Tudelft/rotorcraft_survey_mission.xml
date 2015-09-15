@@ -103,11 +103,11 @@
     </block>
 
     <block group="survey" name="Survey Poly" strip_button="Survey-Polygon-S1-S2-S3-S4" strip_icon="googleearth.png">
-      <call fun="nav_survey_poly_setup_towards(WP_S1, 4, sweep, WP_S4)"/>
+      <call fun="nav_survey_poly_setup_towards(WP_S1, 4, sweep, WP_S2)"/>
       <deroute block="Survey Poly RUN"/>
     </block>
     <block name="Survey Poly RUN">
-      <exception cond="PolySurveySweepNum >= 10" deroute="Standby"/>
+      <exception cond="PolySurveySweepNum >= 5" deroute="Standby"/>
       <call fun="nav_survey_poly_run()"/>
     </block>
 

@@ -13,10 +13,10 @@
     <waypoint lat="50.788912" lon="6.046406" name="RZ2"/>
     <waypoint lat="50.788972" lon="6.046423" name="RZ3"/>
     <waypoint lat="50.789522" lon="6.047118" name="FC"/>
-    <waypoint lat="50.788917" lon="6.047113" name="S1"/>
-    <waypoint lat="50.788597" lon="6.046721" name="S2"/>
-    <waypoint lat="50.788973" lon="6.045944" name="S3"/>
-    <waypoint lat="50.789323" lon="6.046330" name="S4"/>
+    <waypoint lat="50.788597" lon="6.046721" name="S1"/>
+    <waypoint lat="50.788973" lon="6.045944" name="S2"/>
+    <waypoint lat="50.789323" lon="6.046330" name="S3"/>
+    <waypoint lat="50.788917" lon="6.047113" name="S4"/>
     <waypoint lat="50.790483" lon="6.047864" name="p1"/>
     <waypoint lat="50.790463" lon="6.047897" name="p2"/>
     <waypoint lat="50.791799" lon="6.050232" name="p3"/>
