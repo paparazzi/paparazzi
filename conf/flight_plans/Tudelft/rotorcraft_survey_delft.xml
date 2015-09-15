@@ -9,6 +9,7 @@
     <waypoint name="raceB" x="21.0" y="-43.3"/>
     <waypoint name="WG" x="17.9" y="-28.5"/>
     <waypoint name="WD" x="13.6" y="-19.0"/>
+    <waypoint name="DROP" x="31.8" y="-29.1"/>
     <waypoint name="RZ1" x="31.8" y="-29.1"/>
     <waypoint name="RZ2" x="20.4" y="-34.0"/>
     <waypoint name="RZ3" x="9.9" y="-38.7"/>

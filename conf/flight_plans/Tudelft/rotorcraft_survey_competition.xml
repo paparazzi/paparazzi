@@ -12,7 +12,8 @@
     <waypoint lat="50.791800" lon="6.050200" name="raceB"/>
     <waypoint lat="50.789794" lon="6.047431" name="WG"/>
     <waypoint lat="50.7889307058111" lon="6.04677769236132" name="WD"/>
-    <waypoint lat=" 50.788775526101" lon="6.04652336854142" name="RZ1"/>
+    <waypoint lat="50.788775526101" lon="6.04652336854142" name="DROP"/>
+    <waypoint lat="50.788775526101" lon="6.04652336854142" name="RZ1"/>
     <waypoint lat="50.7889170568219" lon="6.04640018582595" name="RZ2"/>
     <waypoint lat="50.7889755961272" lon="6.04642327267965" name="RZ3"/>
     <waypoint lat="50.789522" lon="6.047118" name="FC"/>
