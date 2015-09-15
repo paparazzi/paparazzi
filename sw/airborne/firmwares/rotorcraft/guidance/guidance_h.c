@@ -28,6 +28,7 @@
 
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/guidance/guidance_flip.h"
+#include "firmwares/rotorcraft/guidance/guidance_indi.h"
 #include "firmwares/rotorcraft/guidance/guidance_module.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
@@ -71,6 +72,9 @@ PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF)
 #define GUIDANCE_H_APPROX_FORCE_BY_THRUST FALSE
 #endif
 
+#ifndef GUIDANCE_INDI
+#define GUIDANCE_INDI FALSE
+#endif
 
 struct HorizontalGuidance guidance_h;
 
@@ -190,6 +194,10 @@ void guidance_h_init(void)
   register_periodic_telemetry(DefaultPeriodic, "GUIDANCE_H_REF", send_href);
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_TUNE_HOVER", send_tune_hover);
 #endif
+
+#if GUIDANCE_INDI
+  guidance_indi_enter();
+#endif
 }
 
 
@@ -237,6 +245,9 @@ void guidance_h_mode_changed(uint8_t new_mode)
       break;
 
     case GUIDANCE_H_MODE_HOVER:
+#if GUIDANCE_INDI
+      guidance_indi_enter();
+#endif
       guidance_h_hover_enter();
 #if NO_ATTITUDE_RESET_ON_MODE_CHANGE
       /* reset attitude stabilization if previous mode was not using it */
@@ -359,6 +370,9 @@ void guidance_h_run(bool_t  in_flight)
 
       guidance_h_update_reference();
 
+#if GUIDANCE_INDI
+      guidance_indi_run(in_flight);
+#else
       /* set psi command */
       guidance_h.sp.heading = guidance_h.rc_sp.psi;
       /* compute x,y earth commands */
@@ -366,6 +380,7 @@ void guidance_h_run(bool_t  in_flight)
       /* set final attitude setpoint */
       stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
                                              guidance_h.sp.heading);
+#endif
       stabilization_attitude_run(in_flight);
       break;
 
@@ -391,11 +406,15 @@ void guidance_h_run(bool_t  in_flight)
         /* set psi command */
         guidance_h.sp.heading = nav_heading;
         INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
+#if GUIDANCE_INDI
+        guidance_indi_run(in_flight);
+#else
         /* compute x,y earth commands */
         guidance_h_traj_run(in_flight);
         /* set final attitude setpoint */
         stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
                                                guidance_h.sp.heading);
+#endif
       }
       stabilization_attitude_run(in_flight);
       break;
