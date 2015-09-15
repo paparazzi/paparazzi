@@ -315,6 +315,7 @@ void waypoint_position_copy(uint8_t wp_dest, uint8_t wp_src)
     waypoints[wp_dest].enu_f.x = waypoints[wp_src].enu_f.x;
     waypoints[wp_dest].enu_f.y = waypoints[wp_src].enu_f.y;
     waypoints[wp_dest].enu_i.x = waypoints[wp_src].enu_i.x;
+    waypoints[wp_dest].enu_i.y = waypoints[wp_src].enu_i.y;
     waypoints[wp_dest].lla.lat = waypoints[wp_src].lla.lat;
     waypoints[wp_dest].lla.lon = waypoints[wp_src].lla.lon;
   }
