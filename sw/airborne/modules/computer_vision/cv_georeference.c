@@ -106,6 +106,10 @@ void georeference_project(struct camera_frame_t *tar, int wp)
   if (wp > 0) {
     waypoint_set_xy_i(wp, geo.x_t.y, geo.x_t.x);
     waypoint_set_alt_i(wp, geo.x_t.z);
+
+//    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp, &(geo.x_t->x),
+//                                   &(geo.x_t->y), &(geo.x_t->z));
+
   }
 }
 

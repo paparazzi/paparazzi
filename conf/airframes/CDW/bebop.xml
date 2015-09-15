@@ -24,9 +24,6 @@
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </subsystem>
-    <subsystem name="ahrs" type="float_mlkf">
-      <configure name="SECONDARY_AHRS" value="float_mlkf"/>
-    </subsystem>
     <subsystem name="ins" type="extended"/>
   </firmware>
 
