@@ -281,11 +281,11 @@ void gps_impl_init(void)
   sbp_send_message(&sbp_state, SBP_MSG_SETTINGS_WRITE, SBP_SENDER_ID, sizeof(SBP_UART_SET2), (u8*)(&SBP_UART_SET2), gps_piksi_write);
   sbp_send_message(&sbp_state, SBP_MSG_SETTINGS_WRITE, SBP_SENDER_ID, sizeof(SBP_UART_SET3), (u8*)(&SBP_UART_SET3), gps_piksi_write);
   sbp_send_message(&sbp_state, SBP_MSG_SETTINGS_SAVE, SBP_SENDER_ID, 0, NULL, gps_piksi_write);
-  msg_base_pos_t base_pos;
+  /*msg_base_pos_t base_pos;
   base_pos.lat = 51.991152;
   base_pos.lon = 4.378052;
   base_pos.height = 50.;
-  sbp_send_message(&sbp_state, SBP_MSG_BASE_POS, SBP_SENDER_ID, sizeof(msg_base_pos_t), (u8*)(&base_pos), gps_piksi_write);
+  sbp_send_message(&sbp_state, SBP_MSG_BASE_POS, SBP_SENDER_ID, sizeof(msg_base_pos_t), (u8*)(&base_pos), gps_piksi_write);*/
 
   gps.nb_channels = GPS_NB_CHANNELS;
 }
