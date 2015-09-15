@@ -108,23 +108,6 @@ struct video_thread_t video_thread = {
  */
 static void *video_thread_function(void *data)
 {
-  struct video_config_t *vid = (struct video_config_t *)data;
-
-  // Initialize the V4L2 subdevice if needed
-  if (vid->subdev_name != NULL) {
-    if (!v4l2_init_subdev(vid->subdev_name, 0, 1, vid->format, vid->w, vid->h)) {
-      printf("[video_thread] Could not initialize the %s subdevice.\n", vid->subdev_name);
-      return 0;
-    }
-  }
-
-  // Initialize the V4L2 device
-  video_thread.dev = v4l2_init(vid->dev_name, vid->w, vid->h, vid->buf_cnt, vid->format);
-  if (video_thread.dev == NULL) {
-    printf("[video_thread] Could not initialize the %s V4L2 device.\n", vid->dev_name);
-    return 0;
-  }
-
 
   // Start the streaming of the V4L2 device
   if (!v4l2_start_capture(video_thread.dev)) {
@@ -205,6 +188,24 @@ static void *video_thread_function(void *data)
  */
 void video_thread_init(void)
 {
+  struct video_config_t *vid = (struct video_config_t *)&(VIDEO_THREAD_CAMERA);
+
+  // Initialize the V4L2 subdevice if needed
+  if (vid->subdev_name != NULL) {
+    // FIXME! add subdev format to config, only needed on bebop front camera so far
+    if (!v4l2_init_subdev(vid->subdev_name, 0, 0, V4L2_MBUS_FMT_SGBRG10_1X10, vid->w, vid->h)) {
+      printf("[video_thread] Could not initialize the %s subdevice.\n", vid->subdev_name);
+      return 0;
+    }
+  }
+
+  // Initialize the V4L2 device
+  video_thread.dev = v4l2_init(vid->dev_name, vid->w, vid->h, vid->buf_cnt, vid->format);
+  if (video_thread.dev == NULL) {
+    printf("[video_thread] Could not initialize the %s V4L2 device.\n", vid->dev_name);
+    return 0;
+  }
+
   // Create the shot directory
   char save_name[128];
   sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
@@ -226,7 +227,7 @@ void video_thread_start(void)
 
   // Start the streaming thread
   pthread_t tid;
-  if (pthread_create(&tid, NULL, video_thread_function, (void*)(&VIDEO_THREAD_CAMERA)) != 0) {
+  if (pthread_create(&tid, NULL, video_thread_function, NULL) != 0) {
     printf("[vievideo] Could not create streaming thread.\n");
     return;
   }

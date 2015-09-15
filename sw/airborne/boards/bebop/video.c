@@ -55,7 +55,7 @@ struct video_config_t front_camera = {
   .dev_name = "/dev/video1",
   .subdev_name = "/dev/v4l-subdev1",
   .format = V4L2_PIX_FMT_SGBRG10,
-  .buf_cnt = 80,
+  .buf_cnt = 10,
   .filters = NULL //{DeMosaic, AEC, ABW}
 };
 
