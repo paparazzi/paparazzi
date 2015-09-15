@@ -15,6 +15,8 @@
   </exceptions>
 
   <blocks>
+
+<!-- BOOT -->
     <block name="Wait GPS">
       <call fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
@@ -27,27 +29,26 @@
       <call fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
-    <block name="Start Engine">
+
+<!-- START -->
+    <block name="Start Engine" strip_button="Start Engine" strip_icon="resurrect.png" group="takeoff">
       <call fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
-    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="takeoff">
       <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
-    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+
+<!-- OBSERVE -->
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="hover">
       <stay wp="STDBY"/>
     </block>
-    <block name="LookRobot" strip_button="LookRobot" strip_icon="home.png">
+    <block name="LookRobot" strip_button="LookRobot-FC" strip_icon="lookdown.png" group="hover">
       <stay wp="FC"/>
     </block>
-    <block name="visualflare">
-      <exception cond="NavDetectGround()" deroute="holding_point"/>
-      <exception cond="!nav_is_in_flight()" deroute="landed"/>
-      <call fun="NavStartDetectGround()"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="CAM"/>
-    </block>
+
     <block name="stay_p1">
       <stay wp="p1"/>
     </block>
@@ -61,54 +62,72 @@
       <go from="p2" hmode="route" wp="p1"/>
       <deroute block="stay_p1"/>
     </block>
-    <block name="race">
+    <block name="circle CV" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
+      <circle radius="nav_radius" wp="CAM"/>
+    </block>
+
+<!-- LAPS -->
+    <block name="race" strip_button="Oval p1-p2-p3-p4" strip_icon="oval.png" group="race">
       <go from="p1" hmode="route" wp="p2"/>
       <go from="p2" hmode="route" wp="p3"/>
       <go from="p3" hmode="route" wp="p4"/>
       <go from="p4" hmode="route" wp="p1"/>
       <deroute block="race"/>
     </block>
-    <block name="raceline">
+    <block name="raceline" strip_button="Line raceA-raceB" strip_icon="line.png" group="race">
       <go from="raceA" hmode="route" wp="raceB"/>
       <go from="raceB" hmode="route" wp="raceA"/>
       <deroute block="raceline"/>
     </block>
-    <block group="extra_pattern" name="Survey S1-S2 NS" strip_button="Svy-NS" strip_icon="survey.png">
+
+<!-- SURVEYS -->
+    <block group="survey" name="Survey S1-S2 NS" strip_button="Survey-NS-S1-S2" strip_icon="survey.png">
       <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, NS)"/>
       <deroute block="Survey RECTANGLE RUN"/>
     </block>
-    <block group="extra_pattern" name="Survey S1-S2 EW" strip_button="Svy-LO" strip_icon="survey_we.png">
+    <block group="survey" name="Survey S1-S2 EW" strip_button="Survey-EW-S1-S2" strip_icon="survey_we.png">
       <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, WE)"/>
       <deroute block="Survey RECTANGLE RUN"/>
     </block>
-    <block group="extra_pattern" name="Survey RECTANGLE RUN" strip_button="Svy CONT">
+    <block name="Survey RECTANGLE RUN">
       <exception cond="rectangle_survey_sweep_num >= 1" deroute="Standby"/>
       <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S2)"/>
     </block>
-    <block group="extra_pattern" name="Survey Poly" strip_button="Svy-P">
+
+    <block group="survey" name="Survey Poly" strip_button="Survey-Polygon-S1-S2-S3-S4" strip_icon="googleearth.png">
       <call fun="nav_survey_poly_setup_towards(WP_S1, 4, sweep, WP_S4)"/>
       <deroute block="Survey Poly RUN"/>
     </block>
-    <block group="extra_pattern" name="Survey Poly RUN" strip_button="Svy-P CONT">
+    <block name="Survey Poly RUN">
       <exception cond="PolySurveySweepNum >= 10" deroute="Standby"/>
       <call fun="nav_survey_poly_run()"/>
     </block>
-    <block name="circle CV" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
-      <circle radius="nav_radius" wp="CAM"/>
-    </block>
-    <block name="land_here" strip_button="Land Here" strip_icon="land-right.png">
+
+<!-- LANDINGS -->
+    <block name="land_here" strip_button="Land Here" strip_icon="downdown.png" group="landing">
+      <call fun="NavCopyWaypoint(WP_CAM,WP_TD)"/><!-- Backup TD location -->
       <call fun="NavSetWaypointHere(WP_TD)"/>
+      <deroute block="flare"/>
     </block>
-    <block name="land">
+    <block name="land" strip_button="Land at TD" strip_icon="land-right.png" group="landing">
       <go wp="TD"/>
+      <deroute block="flare"/>
+    </block>
+    <block name="visual_flare" strip_button="VisualLanding-CAM" strip_icon="cam_lock.png" group="landing">
+      <exception cond="NavDetectGround()" deroute="holding_point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="CAM"/>
+      <deroute block="landed"/>
     </block>
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="holding_point"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
       <call fun="NavStartDetectGround()"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <deroute block="landed"/>
     </block>
-    <block name="landed">
+    <block name="landed" strip_button="Kill" strip_icon="kill.png" group="landing">
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
   </blocks>

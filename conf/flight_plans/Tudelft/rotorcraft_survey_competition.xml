@@ -17,6 +17,12 @@
     <waypoint lat="50.788597" lon="6.046721" name="S2"/>
     <waypoint lat="50.788973" lon="6.045944" name="S3"/>
     <waypoint lat="50.789323" lon="6.046330" name="S4"/>
+    <waypoint lat="50.790483" lon="6.047864" name="p1"/>
+    <waypoint lat="50.790463" lon="6.047897" name="p2"/>
+    <waypoint lat="50.791799" lon="6.050232" name="p3"/>
+    <waypoint lat="50.791818" lon="6.050201" name="p4"/>
+    <waypoint name="CAM" x="27.5" y="95.0"/>
+    <waypoint lat="50.788731" lon="6.046967" name="TD"/>
     <waypoint lat="50.790144" lon="6.046879" name="_green1A"/>
     <waypoint lat="50.789748" lon="6.047844" name="_green1B"/>
     <waypoint lat="50.789058" lon="6.047072" name="_green1C"/>
@@ -35,12 +41,6 @@
     <waypoint lat="50.788209" lon="6.046744" name="_red6"/>
     <waypoint lat="50.789046" lon="6.045032" name="_red7"/>
     <waypoint lat="50.790416" lon="6.046338" name="_red8"/>
-    <waypoint name="p1" x="77.2" y="199.5"/>
-    <waypoint name="p2" x="70.7" y="206.8"/>
-    <waypoint name="p3" x="246.1" y="353.6"/>
-    <waypoint name="p4" x="252.3" y="347.2"/>
-    <waypoint name="CAM" x="27.5" y="95.0"/>
-    <waypoint lat="50.788731" lon="6.046967" name="TD"/>
   </waypoints>
   <sectors>
     <sector color="red" name="RED">

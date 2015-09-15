@@ -50,10 +50,10 @@
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
     </load>
     <load name="nav_survey_poly_rotorcraft.xml">
-      <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
+      <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/>
     </load>
     <load name="digital_cam_video.xml">
-      <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="10"/>
+      <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5"/>
     </load>
     <load name="video_exif.xml"/>
   </modules>
