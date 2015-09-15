@@ -103,6 +103,7 @@ extern void waypoint_set_latlon(uint8_t wp_id, struct LlaCoor_i *lla);
 
 /** copy one waypoint to another, this includes all flags from the source waypoint */
 extern void waypoint_copy(uint8_t wp_dest, uint8_t wp_src);
+extern void waypoint_position_copy(uint8_t wp_dest, uint8_t wp_src);
 
 
 /*

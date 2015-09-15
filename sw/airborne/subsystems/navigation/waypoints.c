@@ -131,16 +131,6 @@ void waypoint_move_enu_i(uint8_t wp_id, struct EnuCoor_i *new_pos)
   }
 }
 
-// Position Only
-void waypoint_move_en_i(uint8_t wp_id, struct EnuCoor_i *new_pos)
-{
-  if (wp_id < nb_waypoint) {
-    waypoint_set_enu_i(wp_id, new_pos);
-    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(new_pos->x),
-                               &(new_pos->y), &(new_pos->z));
-  }
-}
-
 /**
  * Set only local XY coordinates of waypoint without update altitude.
  * @todo: how to handle global waypoints?
