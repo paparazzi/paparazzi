@@ -16,12 +16,12 @@
       <dl_settings name="dc">
 
         <dl_setting max="255" min="0" step="1" module="digital_cam/dc" var="0" handler="send_command" shortname="Shutter">
-          <strip_button name="Photo" icon="digital-camera.png" value="32" group="maindc"/>
+          <strip_button name="Photo" icon="digital-camera.png" value="32" group="dc"/>
         </dl_setting>
 
         <dl_setting max="3" min="0" step="1" var="dc_autoshoot" values="STOP|PERIODIC|DISTANCE|EXT_TRIG">
-          <strip_button name="Start Autoshoot" icon="on.png" value="1" group="dcauto"/>
-          <strip_button name="Stop Autoshoot" icon="off.png" value="0" group="dcauto"/>
+          <strip_button name="Start Autoshoot" icon="dcstart.png" value="1" group="dc"/>
+          <strip_button name="Stop Autoshoot" icon="dcstop.png" value="0" group="dc"/>
         </dl_setting>
 
         <dl_setting max="60" min="0.1" step="0.5" var="dc_autoshoot_period" shortname="Periodic" param="DC_AUTOSHOOT_PERIOD" unit="sec"/>
