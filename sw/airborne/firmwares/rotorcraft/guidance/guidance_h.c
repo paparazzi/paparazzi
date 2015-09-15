@@ -378,10 +378,7 @@ void guidance_h_run(bool_t  in_flight)
         struct Int32Eulers sp_cmd_i;
         sp_cmd_i.phi = nav_roll;
         sp_cmd_i.theta = nav_pitch;
-        /** @todo: heading can't be set via attitude block yet.
-         * use current euler psi for now, should be real heading
-         */
-        sp_cmd_i.psi = stateGetNedToBodyEulers_i()->psi;
+        sp_cmd_i.psi = nav_heading;
         stabilization_attitude_set_rpy_setpoint_i(&sp_cmd_i);
       } else {
         INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_carrot);
