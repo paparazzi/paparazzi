@@ -119,8 +119,8 @@ struct marker_deviation_t marker(struct image_t *input, uint8_t M)
     Out(x, maxy) = 0xff;
   }
 
-  marker_deviation.x = ((int32_t)0) - ((int32_t)(input->w) / 2);
-  marker_deviation.y = -((int32_t)0) + ((int32_t)(input->h) / 2);
+  marker_deviation.x = input->w;
+  marker_deviation.y = input->h;
   marker_deviation.inlier = 0;
 
   //printf("The number of inliers = %i\n", counter3);
