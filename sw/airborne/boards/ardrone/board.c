@@ -43,7 +43,7 @@ struct video_config_t front_camera = {
   .subdev_name = NULL,
   .format = V4L2_PIX_FMT_UYVY,
   .buf_cnt = 10,
-  .filters = NULL
+  .filters = 0
 };
 
 struct video_config_t bottom_camera = {
@@ -53,7 +53,7 @@ struct video_config_t bottom_camera = {
   .subdev_name = NULL,
   .format = V4L2_PIX_FMT_UYVY,
   .buf_cnt = 10,
-  .filters = NULL
+  .filters = 0
 };
 
 

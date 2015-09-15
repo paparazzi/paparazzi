@@ -31,6 +31,8 @@
 #include "std.h"
 #include "modules/computer_vision/lib/v4l/v4l2.h"
 
+#define VIDEO_FILTER_DEBAYER 0x01
+
 /** V4L2 device settings */
 struct video_config_t {
   int w;              ///< Width
@@ -39,7 +41,7 @@ struct video_config_t {
   char* subdev_name;  ///< path to sub device
   uint32_t format;    ///< Video format
   uint8_t buf_cnt;    ///< Amount of V4L2 video device buffers
-  void* filters;      ///< filters to use
+  uint8_t filters;    ///< filters to use (bitfield with VIDEO_FILTER_x)
 };
 
 

@@ -37,6 +37,7 @@
 // Video
 #include "lib/v4l/v4l2.h"
 #include "lib/vision/image.h"
+#include "lib/vision/bayern.h"
 #include "lib/encoding/jpeg.h"
 #include "peripherals/video_device.h"
 
@@ -63,7 +64,7 @@ PRINT_CONFIG_VAR(VIDEO_THREAD_DEVICE_BUFFERS)
 #define VIDEO_THREAD_SUBDEV NULL
 #endif
 #ifndef VIDEO_THREAD_FILTERS
-#define VIDEO_THREAD_FILTERS NULL
+#define VIDEO_THREAD_FILTERS 0
 #endif
 struct video_config_t custom_camera = {
   .w = VIDEO_THREAD_VIDEO_WIDTH,
@@ -102,12 +103,60 @@ struct video_thread_t video_thread = {
   .shot_number = 0
 };
 
+static void video_thread_save_shot(struct image_t *img, struct image_t *img_jpeg)
+{
+
+  // Search for a file where we can write to
+  char save_name[128];
+  for (; video_thread.shot_number < 99999; video_thread.shot_number++) {
+    sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_THREAD_SHOT_PATH), video_thread.shot_number);
+    // Check if file exists or not
+    if (access(save_name, F_OK) == -1) {
+
+      // Create a high quality image (99% JPEG encoded)
+      jpeg_encode_image(img, img_jpeg, 99, TRUE);
+
+#if JPEG_WITH_EXIF_HEADER
+      write_exif_jpeg(save_name, img_jpeg->buf, img_jpeg->buf_size, img_jpeg->w, img_jpeg->h);
+#else
+      FILE *fp = fopen(save_name, "w");
+      if (fp == NULL) {
+        printf("[video_thread-thread] Could not write shot %s.\n", save_name);
+      } else {
+        // Save it to the file and close it
+        fwrite(img_jpeg->buf, sizeof(uint8_t), img_jpeg->buf_size, fp);
+        fclose(fp);
+      }
+#endif
+
+      // We don't need to seek for a next index anymore
+      break;
+    }
+  }
+}
+
+
 /**
  * Handles all the video streaming and saving of the image shots
  * This is a sepereate thread, so it needs to be thread safe!
  */
 static void *video_thread_function(void *data)
 {
+  struct video_config_t *vid = (struct video_config_t *)&(VIDEO_THREAD_CAMERA);
+
+  struct image_t img_jpeg;
+  struct image_t img_color;
+
+  // create the images
+  if (vid->filters) {
+    // fixme: don't hardcode size, works for bebop front camera for now
+#define IMG_FLT_SIZE 272
+    image_create(&img_color, IMG_FLT_SIZE, IMG_FLT_SIZE, IMAGE_YUV422);
+    image_create(&img_jpeg, IMG_FLT_SIZE, IMG_FLT_SIZE, IMAGE_JPEG);
+  }
+  else {
+    image_create(&img_jpeg, vid->w, vid->h, IMAGE_JPEG);
+  }
 
   // Start the streaming of the V4L2 device
   if (!v4l2_start_capture(video_thread.dev)) {
@@ -138,47 +187,33 @@ static void *video_thread_function(void *data)
     struct image_t img;
     v4l2_image_get(video_thread.dev, &img);
 
+    // pointer to the final image to pass for saving and further processing
+    struct image_t *img_final = &img;
+
+    // run selected filters
+    if (vid->filters) {
+      if (vid->filters & VIDEO_FILTER_DEBAYER) {
+        BayernToYUV(&img, &img_color, 0, 0);
+      }
+      // use color image for further processing
+      img_final = &img_color;
+    }
+
     // Check if we need to take a shot
     if (video_thread.take_shot) {
-      // Create a high quality image (99% JPEG encoded)
-      struct image_t jpeg_hr;
-      image_create(&jpeg_hr, img.w, img.h, IMAGE_JPEG);
-      jpeg_encode_image(&img, &jpeg_hr, 99, TRUE);
-
-      // Search for a file where we can write to
-      char save_name[128];
-      for (; video_thread.shot_number < 99999; video_thread.shot_number++) {
-        sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_THREAD_SHOT_PATH), video_thread.shot_number);
-        // Check if file exists or not
-        if (access(save_name, F_OK) == -1) {
-#if JPEG_WITH_EXIF_HEADER
-          write_exif_jpeg(save_name, jpeg_hr.buf, jpeg_hr.buf_size, img.w, img.h);
-#else
-          FILE *fp = fopen(save_name, "w");
-          if (fp == NULL) {
-            printf("[video_thread-thread] Could not write shot %s.\n", save_name);
-          } else {
-            // Save it to the file and close it
-            fwrite(jpeg_hr.buf, sizeof(uint8_t), jpeg_hr.buf_size, fp);
-            fclose(fp);
-          }
-#endif
-          // We don't need to seek for a next index anymore
-          break;
-        }
-      }
-
-      // We finished the shot
-      image_free(&jpeg_hr);
+      video_thread_save_shot(img_final, &img_jpeg);
       video_thread.take_shot = FALSE;
     }
 
     // Run processing if required
-    cv_run(&img);
+    cv_run(img_final);
 
     // Free the image
     v4l2_image_free(video_thread.dev, &img);
   }
+
+  image_free(&img_jpeg);
+  image_free(&img_color);
 
   return 0;
 }
@@ -195,7 +230,7 @@ void video_thread_init(void)
     // FIXME! add subdev format to config, only needed on bebop front camera so far
     if (!v4l2_init_subdev(vid->subdev_name, 0, 0, V4L2_MBUS_FMT_SGBRG10_1X10, vid->w, vid->h)) {
       printf("[video_thread] Could not initialize the %s subdevice.\n", vid->subdev_name);
-      return 0;
+      return;
     }
   }
 
@@ -203,7 +238,7 @@ void video_thread_init(void)
   video_thread.dev = v4l2_init(vid->dev_name, vid->w, vid->h, vid->buf_cnt, vid->format);
   if (video_thread.dev == NULL) {
     printf("[video_thread] Could not initialize the %s V4L2 device.\n", vid->dev_name);
-    return 0;
+    return;
   }
 
   // Create the shot directory
@@ -227,7 +262,7 @@ void video_thread_start(void)
 
   // Start the streaming thread
   pthread_t tid;
-  if (pthread_create(&tid, NULL, video_thread_function, NULL) != 0) {
+  if (pthread_create(&tid, NULL, video_thread_function, (void*)(&VIDEO_THREAD_CAMERA)) != 0) {
     printf("[vievideo] Could not create streaming thread.\n");
     return;
   }
