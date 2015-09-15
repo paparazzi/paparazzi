@@ -41,6 +41,8 @@
 #include "lib/encoding/jpeg.h"
 #include "peripherals/video_device.h"
 
+#include "mcu_periph/sys_time.h"
+
 // include board for bottom_camera and front_camera on ARDrone2 and Bebop
 #include BOARD_CONFIG
 
@@ -168,20 +170,24 @@ static void *video_thread_function(void *data)
   set_nice_level(10);
 
   // Initialize timing
-  uint32_t microsleep = (uint32_t)(1000000. / (float)video_thread.fps);
-  struct timeval last_time;
-  gettimeofday(&last_time, NULL);
+  struct timespec time_now;
+  struct timespec time_prev;
+  clock_gettime(CLOCK_MONOTONIC, &time_prev);
 
   // Start streaming
   video_thread.is_running = TRUE;
   while (video_thread.is_running) {
-    // compute usleep to have a more stable frame rate
-    struct timeval vision_thread_sleep_time;
-    gettimeofday(&vision_thread_sleep_time, NULL);
-    int dt = (int)(vision_thread_sleep_time.tv_sec - last_time.tv_sec) * 1000000 +
-             (int)(vision_thread_sleep_time.tv_usec - last_time.tv_usec);
-    if (dt < microsleep) { usleep(microsleep - dt); }
-    last_time = vision_thread_sleep_time;
+
+    // get time in us since last run
+    clock_gettime(CLOCK_MONOTONIC, &time_now);
+    unsigned int dt_us = sys_time_elapsed_us(&time_prev, &time_now);
+    time_prev = time_now;
+
+    // sleep remaining time to limit to specified fps
+    uint32_t fps_period_us = (uint32_t)(1000000. / (float)video_thread.fps);
+    if (dt_us < fps_period_us) {
+      usleep(fps_period_us - dt_us);
+    }
 
     // Wait for a new frame (blocking)
     struct image_t img;
