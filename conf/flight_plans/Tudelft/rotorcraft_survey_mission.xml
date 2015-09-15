@@ -46,7 +46,15 @@
       <stay wp="STDBY"/>
     </block>
     <block name="LookRobot" strip_button="LookRobot-FC" strip_icon="lookdown.png" group="hover">
+      <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_FC)"/>
+      <go wp="CRUISE"/>
       <stay wp="FC"/>
+    </block>
+    <block name="ReleaseZone1" strip_button="LookRobot-FC" strip_icon="lookdown.png" group="release">
+      <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_RZ1)"/>
+      <go wp="CRUISE"/>
+      <go wp="RZ1"/>
+      <deroute block="Standby"/>
     </block>
 
     <block name="stay_p1">

@@ -22,6 +22,7 @@
     <waypoint name="p3" x="0.7" y="16.8"/>
     <waypoint name="p4" x="-4.5" y="14.4"/>
     <waypoint name="CAM" x="19.2" y="-55.4"/>
+    <waypoint name="CRUISE" x="19.2" y="-55.4" height="20"/>
     <waypoint name="TD" x="2.8" y="-3.4" height="5"/>
     <waypoint name="_red1" x="75.2" y="114.6"/>
     <waypoint name="_red2" x="140.7" y="-44.7"/>

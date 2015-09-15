@@ -131,6 +131,16 @@ void waypoint_move_enu_i(uint8_t wp_id, struct EnuCoor_i *new_pos)
   }
 }
 
+// Position Only
+void waypoint_move_en_i(uint8_t wp_id, struct EnuCoor_i *new_pos)
+{
+  if (wp_id < nb_waypoint) {
+    waypoint_set_enu_i(wp_id, new_pos);
+    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(new_pos->x),
+                               &(new_pos->y), &(new_pos->z));
+  }
+}
+
 /**
  * Set only local XY coordinates of waypoint without update altitude.
  * @todo: how to handle global waypoints?
@@ -296,5 +306,16 @@ void waypoint_copy(uint8_t wp_dest, uint8_t wp_src)
 {
   if (wp_dest < nb_waypoint && wp_src < nb_waypoint) {
     waypoints[wp_dest] = waypoints[wp_src];
+  }
+}
+
+void waypoint_position_copy(uint8_t wp_dest, uint8_t wp_src)
+{
+  if (wp_dest < nb_waypoint && wp_src < nb_waypoint) {
+    waypoints[wp_dest].enu_f.x = waypoints[wp_src].enu_f.x;
+    waypoints[wp_dest].enu_f.y = waypoints[wp_src].enu_f.y;
+    waypoints[wp_dest].enu_i.x = waypoints[wp_src].enu_i.x;
+    waypoints[wp_dest].lla.lat = waypoints[wp_src].lla.lat;
+    waypoints[wp_dest].lla.lon = waypoints[wp_src].lla.lon;
   }
 }

@@ -22,6 +22,7 @@
     <waypoint lat="50.791799" lon="6.050232" name="p3"/>
     <waypoint lat="50.791818" lon="6.050201" name="p4"/>
     <waypoint name="CAM" x="27.5" y="95.0"/>
+    <waypoint name="CRUISE" x="19.2" y="-55.4" height="25"/>
     <waypoint lat="50.788731" lon="6.046967" name="TD"/>
     <waypoint lat="50.790144" lon="6.046879" name="_green1A"/>
     <waypoint lat="50.789748" lon="6.047844" name="_green1B"/>
