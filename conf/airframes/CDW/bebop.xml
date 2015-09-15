@@ -20,11 +20,12 @@
     <subsystem name="imu" type="bebop"/>
     <subsystem name="gps" type="furuno"/>
     <subsystem name="stabilization" type="indi"/>
-    <subsystem name="ahrs"          type="float_mlkf"/>
     <subsystem name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
-      <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
+    </subsystem>
+    <subsystem name="ahrs" type="float_mlkf">
+      <configure name="SECONDARY_AHRS" value="float_mlkf"/>
     </subsystem>
     <subsystem name="ins" type="extended"/>
   </firmware>
@@ -244,8 +245,8 @@
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="10.9" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="11.0" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="11.0" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="11.1" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 </airframe>
