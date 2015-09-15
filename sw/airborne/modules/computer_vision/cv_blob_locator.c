@@ -44,12 +44,27 @@ uint8_t cv_blob_locator_type;
 volatile uint32_t blob_locator = 0;
 
 volatile bool_t blob_enabled = FALSE;
+volatile bool_t marker_enabled = FALSE;
 
 // Computer vision thread
+bool_t cv_marker_func(struct image_t *img);
+bool_t cv_marker_func(struct image_t *img) {
+
+  if (!marker_enabled)
+    return FALSE;
+
+  struct marker_deviation_t m = marker(img, 10);
+
+  uint32_t temp = m.x;
+  temp = temp << 16;
+  temp += m.y;
+  blob_locator = temp;
+
+  return FALSE;
+}
+
 bool_t cv_blob_locator_func(struct image_t *img);
 bool_t cv_blob_locator_func(struct image_t *img) {
-
-  blob_enabled = ! marker_enabled;
 
   if (!blob_enabled)
     return FALSE;
@@ -169,6 +184,7 @@ void cv_blob_locator_init(void) {
   georeference_init();
 
   cv_add(cv_blob_locator_func);
+  cv_add(cv_marker_func);
 }
 
 void cv_blob_locator_periodic(void) {
@@ -178,15 +194,20 @@ void cv_blob_locator_periodic(void) {
 
 
 void cv_blob_locator_event(void) {
-  if (cv_blob_locator_type == 1)
+  switch (cv_blob_locator_type)
   {
+  case 1:
     blob_enabled = TRUE;
     marker_enabled = FALSE;
-  }
-  else
-  {
+    break;
+  case 2:
     blob_enabled = FALSE;
     marker_enabled = TRUE;
+    break;
+  default:
+    blob_enabled = FALSE;
+    marker_enabled = FALSE;
+    break;
   }
   if (blob_locator != 0) {
     // CV thread has results: import
@@ -206,8 +227,8 @@ void cv_blob_locator_event(void) {
     cam.h = 240;
     cam.w = 320;
 
-    georeference_project(&cam, WP_p2);
-    georeference_filter(FALSE,WP_p1);
+    georeference_project(&cam, WP_p1);
+    georeference_filter(FALSE,WP_CAM);
 
   }
 }
