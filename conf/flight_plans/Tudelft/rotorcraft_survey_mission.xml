@@ -56,6 +56,9 @@
       <go wp="RZ1"/>
       <deroute block="Standby"/>
     </block>
+    <block name="CAM" strip_button="Follow-Vision-Geolocation-Results" strip_icon="lookdown.png" group="hover">
+      <stay wp="CAM"/>
+    </block>
 
     <block name="stay_p1">
       <stay wp="p1"/>
