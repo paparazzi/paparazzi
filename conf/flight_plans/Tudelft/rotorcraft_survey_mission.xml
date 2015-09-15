@@ -5,8 +5,10 @@
   <header>
 #include "autopilot.h"
 #include "subsystems/electrical.h"
+#ifdef DC_AUTOSHOOT_STOP
 #define LINE_START_FUNCTION dc_Survey(dc_distance_interval);
 #define LINE_STOP_FUNCTION {dc_autoshoot = DC_AUTOSHOOT_STOP;}
+#endif
   </header>
 
   <exceptions>
