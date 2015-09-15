@@ -39,8 +39,9 @@
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 #include "mcu_periph/sys_time.h"
 #include "autopilot.h"
+#include "stabilization/stabilization_attitude_ref_quat_int.h"
 
-float guidance_indi_pos_gain = 0.9;
+float guidance_indi_pos_gain = 0.5;
 float guidance_indi_speed_gain = 1.8;
 struct FloatVect3 sp_accel = {0.0,0.0,0.0};
 
@@ -78,15 +79,10 @@ void guidance_indi_enter(void) {
   FLOAT_VECT3_ZERO(filt_accel_ned_dd);
 }
 
-void guidance_indi_run(bool_t in_flight) {
+void guidance_indi_run(bool_t in_flight, int32_t heading) {
 
-  //maybe include rc to add some position inputs
-  /* orientation vector describing simultaneous rotation of roll/pitch */
-//   struct FloatVect3 ov;
-//   ov.x = get_rc_roll_f();
-//   ov.y = get_rc_pitch_f();
-//   ov.z = 0.0;
-
+  //filter accel to get rid of noise
+  //filter attitude to synchronize with accel
   guidance_indi_filter_attitude();
   guidance_indi_filter_accel();
 
@@ -96,8 +92,6 @@ void guidance_indi_run(bool_t in_flight) {
   float speed_sp_x = pos_x_err*guidance_indi_pos_gain;
   float speed_sp_y = pos_y_err*guidance_indi_pos_gain;
 
-//     float accel_x = (-ov.y/ (STABILIZATION_ATTITUDE_SP_MAX_THETA)*8.0 - stateGetSpeedNed_f()->x)*auto_speed_gain;
-//     float accel_y = (ov.x/ (STABILIZATION_ATTITUDE_SP_MAX_PHI)*8.0 - stateGetSpeedNed_f()->y)*auto_speed_gain;
   sp_accel.x = (speed_sp_x - stateGetSpeedNed_f()->x)*guidance_indi_speed_gain;
   sp_accel.y = (speed_sp_y - stateGetSpeedNed_f()->y)*guidance_indi_speed_gain;
 //   sp_accel.x = (radio_control.values[RADIO_PITCH]/9600.0)*8.0;
@@ -129,7 +123,7 @@ void guidance_indi_run(bool_t in_flight) {
   Bound(guidance_euler_cmd.phi, -0.7, 0.7);
   Bound(guidance_euler_cmd.theta, -0.7, 0.7);
 
-  stabilization_attitude_set_setpoint_rp_quat_f(in_flight);
+  stabilization_attitude_set_setpoint_rp_quat_f(in_flight, heading);
 
 }
 
@@ -187,7 +181,7 @@ void guidance_indi_calcG(struct FloatMat33 *Gmat) {
   RMAT_ELMT(*Gmat, 2, 2) = cphi*ctheta;
 }
 
-void stabilization_attitude_set_setpoint_rp_quat_f(bool_t in_flight)
+void stabilization_attitude_set_setpoint_rp_quat_f(bool_t in_flight, int32_t heading)
 {
   struct FloatQuat q_rp_cmd;
   float_quat_of_eulers(&q_rp_cmd, &guidance_euler_cmd); //TODO this is a quaternion without yaw! add the desired yaw before you use it!
@@ -208,11 +202,8 @@ void stabilization_attitude_set_setpoint_rp_quat_f(bool_t in_flight)
   if (in_flight) {
     /* get current heading setpoint */
     struct FloatQuat q_yaw_sp;
-#if defined STABILIZATION_ATTITUDE_TYPE_INT
-    float_quat_of_axis_angle(&q_yaw_sp, &zaxis, ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.psi));
-#else
-    float_quat_of_axis_angle(&q_yaw_sp, &zaxis, stab_att_sp_euler.psi);
-#endif
+    float_quat_of_axis_angle(&q_yaw_sp, &zaxis, ANGLE_FLOAT_OF_BFP(heading));
+
 
     /* rotation between current yaw and yaw setpoint */
     struct FloatQuat q_yaw_diff;

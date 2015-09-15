@@ -370,11 +370,12 @@ void guidance_h_run(bool_t  in_flight)
 
       guidance_h_update_reference();
 
-#if GUIDANCE_INDI
-      guidance_indi_run(in_flight);
-#else
       /* set psi command */
       guidance_h.sp.heading = guidance_h.rc_sp.psi;
+
+#if GUIDANCE_INDI
+      guidance_indi_run(in_flight, guidance_h.sp.heading);
+#else
       /* compute x,y earth commands */
       guidance_h_traj_run(in_flight);
       /* set final attitude setpoint */
@@ -407,7 +408,7 @@ void guidance_h_run(bool_t  in_flight)
         guidance_h.sp.heading = nav_heading;
         INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
 #if GUIDANCE_INDI
-        guidance_indi_run(in_flight);
+        guidance_indi_run(in_flight, guidance_h.sp.heading);
 #else
         /* compute x,y earth commands */
         guidance_h_traj_run(in_flight);
