@@ -41,6 +41,9 @@ uint8_t color_cr_max;
 uint8_t cv_blob_locator_reset;
 uint8_t cv_blob_locator_type;
 
+int geofilter_length = 5;
+int marker_size = 18;
+
 volatile uint32_t blob_locator = 0;
 
 volatile bool_t blob_enabled = FALSE;
@@ -53,7 +56,7 @@ bool_t cv_marker_func(struct image_t *img) {
   if (!marker_enabled)
     return FALSE;
 
-  struct marker_deviation_t m = marker(img, 10);
+  struct marker_deviation_t m = marker(img, marker_size);
 
   uint32_t temp = m.x;
   temp = temp << 16;
@@ -228,7 +231,7 @@ void cv_blob_locator_event(void) {
     cam.w = 320;
 
     georeference_project(&cam, WP_p1);
-    georeference_filter(FALSE,WP_CAM);
+    georeference_filter(FALSE,WP_CAM, geofilter_length);
 
   }
 }

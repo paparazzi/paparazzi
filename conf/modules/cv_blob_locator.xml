@@ -13,6 +13,8 @@
         <dl_setting var="color_cb_max"  min="0" step="1" max="255" shortname="u_max" />
         <dl_setting var="color_cr_min"  min="0" step="1" max="255" shortname="v_min" />
         <dl_setting var="color_cr_max"  min="0" step="1" max="255" shortname="v_max" />
+        <dl_setting var="marker_size"  min="1" step="1" max="20" shortname="marker" />
+        <dl_setting var="geofilter_length"  min="1" step="1" max="100" shortname="filter" />
         <dl_setting var="cv_blob_locator_reset" max="1" min="0" step="1" module="computer_vision/cv_blob_locator"  handler="GeoReset">
           <strip_button name="Reset Geoprojection Filter" value="1" icon="resurrect.png" value="2" group="cv"/>
         </dl_setting>

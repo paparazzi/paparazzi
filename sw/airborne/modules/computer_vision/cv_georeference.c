@@ -31,6 +31,7 @@
 
 #include "state.h"
 #include "generated/flight_plan.h"
+#include "subsystems/datalink/downlink.h"
 
 struct georeference_filter_t {
   struct Int32Vect3 x;          ///< Target
@@ -107,13 +108,15 @@ void georeference_project(struct camera_frame_t *tar, int wp)
     waypoint_set_xy_i(wp, geo.x_t.y, geo.x_t.x);
     waypoint_set_alt_i(wp, geo.x_t.z);
 
-//    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp, &(geo.x_t->x),
-//                                   &(geo.x_t->y), &(geo.x_t->z));
+    int32_t h = -geo.x_t.z;
+    uint8_t wp_id = wp;
+    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(geo.x_t.y),
+                                   &(geo.x_t.x), &(h));
 
   }
 }
 
-void georeference_filter(bool_t kalman, int wp)
+void georeference_filter(bool_t kalman, int wp, int length)
 {
   struct Int32Vect3 err;
 
@@ -132,14 +135,19 @@ void georeference_filter(bool_t kalman, int wp)
     VECT3_ADD(geo.filter.x, geo.x_t);
     geo.filter.P++;
     VECT3_SDIV(geo.filter.x,geo.filter.x,geo.filter.P);
-    if (geo.filter.P > 70) {
-      geo.filter.P = 70;
+    if (geo.filter.P > length) {
+      geo.filter.P = length;
     }
   }
 
   // ENU
   waypoint_set_xy_i(wp, geo.filter.x.y, geo.filter.x.x);
   //waypoint_set_alt_i(wp, geo.filter.x.z);
+
+  int32_t h = 0;
+  uint8_t wp_id = wp;
+  DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(geo.filter.x.y),
+                                 &(geo.filter.x.x), &(h));
 }
 
 int32_t focus_length;
@@ -166,7 +174,7 @@ void georeference_run(void)
   target.px = 0;
   target.py = 120;
   georeference_project(&target,0);
-  georeference_filter(FALSE, WP_CAM);
+  georeference_filter(FALSE, WP_CAM,50);
 }
 
 void georeference_init(void)

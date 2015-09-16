@@ -40,6 +40,9 @@ extern uint8_t color_cr_max;
 extern uint8_t cv_blob_locator_reset;
 extern uint8_t cv_blob_locator_type;
 
+extern int marker_size;
+extern int geofilter_length;
+
 extern void cv_blob_locator_init(void);
 extern void cv_blob_locator_periodic(void);
 extern void cv_blob_locator_event(void);

@@ -70,7 +70,7 @@ struct marker_deviation_t marker(struct image_t *input, uint8_t M)
     for (i = M; i < (input->w - M); i++) {
       int bad, good;
       good = bad = 0;
-      for (k = 1; k < M; k++) {
+      for (k = 1; k < M; k+=2) {
         // Pattern must be symmetric
         bad += AbsDiff(Img(i - k, j)   , Img(i + k, j));
         bad += AbsDiff(Img(i, j - k)   , Img(i, j + k));
@@ -106,7 +106,7 @@ struct marker_deviation_t marker(struct image_t *input, uint8_t M)
       }
 
       if (v > 0) {
-        Out(i, j) = 0xff;
+//        Out(i, j) = 0xff;
       }
     }
   }
@@ -119,8 +119,8 @@ struct marker_deviation_t marker(struct image_t *input, uint8_t M)
     Out(x, maxy) = 0xff;
   }
 
-  marker_deviation.x = input->w;
-  marker_deviation.y = input->h;
+  marker_deviation.x = maxx;
+  marker_deviation.y = maxy;
   marker_deviation.inlier = 0;
 
   //printf("The number of inliers = %i\n", counter3);
