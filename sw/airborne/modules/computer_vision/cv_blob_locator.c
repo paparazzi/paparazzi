@@ -27,6 +27,7 @@
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/blob/blob_finder.h"
 #include "modules/computer_vision/blob/imavmarker.h"
+#include "modules/computer_vision/detect_window.h"
 
 
 uint8_t color_lum_min;
@@ -48,6 +49,7 @@ volatile uint32_t blob_locator = 0;
 
 volatile bool_t blob_enabled = FALSE;
 volatile bool_t marker_enabled = FALSE;
+volatile bool_t window_enabled = FALSE;
 
 // Computer vision thread
 bool_t cv_marker_func(struct image_t *img);
@@ -65,6 +67,52 @@ bool_t cv_marker_func(struct image_t *img) {
 
   return FALSE;
 }
+
+#define Img(X,Y)(((uint8_t*)img->buf)[(Y)*img->w*2+(X)*2])
+
+
+// Computer vision thread
+bool_t cv_window_func(struct image_t *img);
+bool_t cv_window_func(struct image_t *img) {
+
+  if (!window_enabled)
+    return FALSE;
+
+
+  uint16_t coordinate[2] = {0,0};
+  uint16_t response = 0;
+  uint32_t integral_image[img->w * img->h];
+
+  struct image_t gray;
+  image_create(&gray, img->w, img->h, IMAGE_GRAYSCALE);
+  image_to_grayscale(img, &gray);
+
+  response = detect_window_sizes( (uint8_t*)gray.buf, (uint32_t)img->w, (uint32_t)img->h, coordinate, integral_image, MODE_BRIGHT);
+
+  image_free(&gray);
+
+  // Display the marker location and center-lines.
+  int px = coordinate[0] & 0xFFFe;
+  int py = coordinate[1] & 0xFFFe;
+
+  for (int y = 0; y < img->h-1; y++) {
+    Img(px, y)   = 65;
+    Img(px+1, y) = 255;
+  }
+  for (int x = 0; x < img->w-1; x+=2) {
+    Img(x, py)   = 65;
+    Img(x+1, py) = 255;
+  }
+
+
+  uint32_t temp = coordinate[0];
+  temp = temp << 16;
+  temp += coordinate[1];
+  blob_locator = temp;
+
+  return FALSE;
+}
+
 
 bool_t cv_blob_locator_func(struct image_t *img);
 bool_t cv_blob_locator_func(struct image_t *img) {
@@ -188,6 +236,7 @@ void cv_blob_locator_init(void) {
 
   cv_add(cv_blob_locator_func);
   cv_add(cv_marker_func);
+  cv_add(cv_window_func);
 }
 
 void cv_blob_locator_periodic(void) {
@@ -202,14 +251,22 @@ void cv_blob_locator_event(void) {
   case 1:
     blob_enabled = TRUE;
     marker_enabled = FALSE;
+    window_enabled = FALSE;
     break;
   case 2:
     blob_enabled = FALSE;
     marker_enabled = TRUE;
+    window_enabled = FALSE;
+    break;
+  case 3:
+    blob_enabled = FALSE;
+    marker_enabled = FALSE;
+    window_enabled = TRUE;
     break;
   default:
     blob_enabled = FALSE;
     marker_enabled = FALSE;
+    window_enabled = FALSE;
     break;
   }
   if (blob_locator != 0) {
