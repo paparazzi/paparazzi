@@ -5,7 +5,7 @@
   <header>
 #include "autopilot.h"
 #include "subsystems/electrical.h"
-#ifdef DC_AUTOSHOOT_STOP
+#ifdef DC_AUTOSHOOT_SURVEY_INTERVAL
 #define LINE_START_FUNCTION dc_Survey(dc_distance_interval);
 #define LINE_STOP_FUNCTION {dc_autoshoot = DC_AUTOSHOOT_STOP;}
 #endif
@@ -54,6 +54,10 @@
       <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_FC)"/>
       <go wp="CRUISE"/>
       <stay wp="FC"/>
+    </block>
+
+    <block name="CAM" strip_button="Follow-Vision-Geolocation-Results" strip_icon="lookdown.png" group="hover">
+      <stay wp="CAM"/>
     </block>
 
     <block name="stay_p1">

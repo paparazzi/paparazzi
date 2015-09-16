@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop_indi">
 
@@ -38,12 +38,10 @@
     </load-->
     <load name="video_thread.xml">
       <define name="VIDEO_THREAD_FPS" value="4"/>
-      <define name="VIDEO_THREAD_DEVICE" value="/dev/video0"/>
-      <define name="VIDEO_THREAD_SUBDEV" value="/dev/v4l-subdev0"/>
-      <define name="VIDEO_THREAD_DEVICE_SIZE" value="640,480"/>
-      <define name="VIDEO_THREAD_DEVICE_BUFFERS" value="60"/>
+      <define name="VIDEO_THREAD_CAMERA" value="bottom_camera"/>
       <define name="VIDEO_THREAD_SHOT_PATH" value="/data/ftp/internal_000/images"/>
     </load>
+    <load name="cv_blob_locator.xml"/>
     <load name="video_rtp_stream.xml">
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
@@ -52,13 +50,12 @@
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
     </load>
     <load name="nav_survey_poly_rotorcraft.xml">
-      <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
+      <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/>
     </load>
     <load name="digital_cam_video.xml">
       <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5"/>
     </load>
     <load name="video_exif.xml"/>
-    <load name="cv_colorfilter.xml"/>
   </modules>
 
   <commands>
@@ -96,7 +93,7 @@
     <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
-  <include href="conf/airframes/TUDelft/calibrations/bebop8.xml"/>
+  <include href="conf/airframes/TUDelft/calibrations/bebop4.xml"/>
 
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
@@ -221,8 +218,8 @@
     <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="7"/>
-    <define name="DGAIN" value="76"/>
+    <define name="PGAIN" value="15"/>
+    <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
   </section>
 
