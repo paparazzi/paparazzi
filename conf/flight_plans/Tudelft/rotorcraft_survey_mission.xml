@@ -92,28 +92,28 @@
        <go wp="DROP"/>
        <stay climb="nav_descend_vspeed" vmode="climb" wp="DROP" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
        <call fun="DropOpen()"/>
-       <stay climb="nav_climb_vspeed" vmode="climb" wp="DROP" until="stateGetPositionEnu_f()->z > 25"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="DROP" until="stateGetPositionEnu_f()->z > 13"/>
        <deroute block="land"/>
     </block>
     <block name="drop_zone1" group="drop">
        <go wp="RZ1"/>
        <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ1" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
        <call fun="DropOpen()"/>
-       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ1" until="stateGetPositionEnu_f()->z > 25"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ1" until="stateGetPositionEnu_f()->z > 13"/>
        <deroute block="land"/>
     </block>
     <block name="drop_zone2" group="drop">
        <go wp="RZ2"/>
        <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ2" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
        <call fun="DropOpen()"/>
-       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ2" until="stateGetPositionEnu_f()->z > 25"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ2" until="stateGetPositionEnu_f()->z > 13"/>
        <deroute block="land"/>
     </block>
     <block name="drop_zone3" group="drop">
        <go wp="RZ3"/>
        <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ3" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
        <call fun="DropOpen()"/>
-       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ3" until="stateGetPositionEnu_f()->z > 25"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ3" until="stateGetPositionEnu_f()->z > 13"/>
        <deroute block="land"/>
     </block>
 

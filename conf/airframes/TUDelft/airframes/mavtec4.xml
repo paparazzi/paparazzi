@@ -31,7 +31,8 @@
     </subsystem>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <subsystem name="ins" type="hff"/>
+    <subsystem name="ins"           type="hff"/>
+    <subsystem name="guidance"      type="indi"/>
   </firmware>
 
   <modules>
@@ -59,7 +60,7 @@
   </servos>
 
   <servos driver="Pwm">
-     <servo name="DROP" no="4" min="1000" neutral="1500" max="2100"/>
+     <servo name="DROP" no="4" min="900" neutral="1500" max="2000"/>
   </servos>
 
   <commands>
@@ -90,6 +91,12 @@
     <set servo="BACK"    value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
     <set servo="LEFT"    value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
+
+  <section name="MISC">
+    <define name="NAV_CLIMB_VSPEED" value="2.5"/>
+    <define name="NAV_DESCEND_VSPEED" value="-1.0"/>
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+  </section>
 
   <section name="IMU" prefix="IMU_">
     <define name="ACCEL_X_NEUTRAL" value="11"/>
@@ -190,7 +197,7 @@
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="MAX_BANK" value="35" unit="deg"/>
     <define name="USE_SPEED_REF" value="TRUE"/>
     <define name="PGAIN" value="50"/>
     <define name="DGAIN" value="100"/>
