@@ -105,18 +105,23 @@ struct marker_deviation_t marker(struct image_t *input, uint8_t M)
         maxy = j;
       }
 
-      if (v > 0) {
+//      if (v > 0) {
 //        Out(i, j) = 0xff;
-      }
+//      }
     }
   }
 
   // Display the marker location and center-lines.
-  for (y = 0; y < input->h; y++) {
-    Out(maxx, y) = 0xff;
+  int px = maxx & 0xFFFe;
+  int py = maxy & 0xFFFe;
+
+  for (y = 0; y < input->h-1; y++) {
+    Out(px, y)   = 65;
+    Out(px+1, y) = 255;
   }
-  for (x = 0; x < input->w; x++) {
-    Out(x, maxy) = 0xff;
+  for (x = 0; x < input->w-1; x+=2) {
+    Out(x, py)   = 65;
+    Out(x+1, py) = 255;
   }
 
   marker_deviation.x = maxx;
