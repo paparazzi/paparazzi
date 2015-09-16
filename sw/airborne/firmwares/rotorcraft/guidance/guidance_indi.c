@@ -62,6 +62,9 @@ struct FloatMat33 Ga;
 struct FloatMat33 Ga_inv;
 struct FloatVect3 euler_cmd;
 
+float filter_omega = 20.0;
+float filter_zeta = 0.65;
+
 struct FloatEulers guidance_euler_cmd;
 
 void guidance_indi_enter(void) {
@@ -86,8 +89,8 @@ void guidance_indi_run(bool_t in_flight, int32_t heading) {
   guidance_indi_filter_attitude();
   guidance_indi_filter_accel();
 
-  float pos_x_err = POS_FLOAT_OF_BFP(guidance_h.sp.pos.x) - stateGetPositionNed_f()->x; //+-ov.y/ (STABILIZATION_ATTITUDE_SP_MAX_THETA)*3.0;
-  float pos_y_err = POS_FLOAT_OF_BFP(guidance_h.sp.pos.y) - stateGetPositionNed_f()->y; //+ ov.x/ (STABILIZATION_ATTITUDE_SP_MAX_PHI)*3.0;
+  float pos_x_err = POS_FLOAT_OF_BFP(guidance_h.ref.pos.x) - stateGetPositionNed_f()->x; //+-ov.y/ (STABILIZATION_ATTITUDE_SP_MAX_THETA)*3.0;
+  float pos_y_err = POS_FLOAT_OF_BFP(guidance_h.ref.pos.y) - stateGetPositionNed_f()->y; //+ ov.x/ (STABILIZATION_ATTITUDE_SP_MAX_PHI)*3.0;
 
   float speed_sp_x = pos_x_err*guidance_indi_pos_gain;
   float speed_sp_y = pos_y_err*guidance_indi_pos_gain;
@@ -120,8 +123,8 @@ void guidance_indi_run(bool_t in_flight, int32_t heading) {
   guidance_euler_cmd.psi = 0;//stateGetNedToBodyEulers_f()->psi;
 
   //Bound euler angles to prevent flipping and keep upright
-  Bound(guidance_euler_cmd.phi, -0.7, 0.7);
-  Bound(guidance_euler_cmd.theta, -0.7, 0.7);
+  Bound(guidance_euler_cmd.phi, -GUIDANCE_H_MAX_BANK, GUIDANCE_H_MAX_BANK);
+  Bound(guidance_euler_cmd.theta, -GUIDANCE_H_MAX_BANK, GUIDANCE_H_MAX_BANK);
 
   stabilization_attitude_set_setpoint_rp_quat_f(in_flight, heading);
 
@@ -136,10 +139,10 @@ void guidance_indi_filter_accel(void)
   VECT3_ADD_SCALED(filt_accel_ned_d, filt_accel_ned_dd, 1.0/PERIODIC_FREQUENCY);
 //   filt_accelzbodyd = filt_accelzbodyd + filt_accelzbodydd / PERIODIC_FREQUENCY; //also do body z accel
 
-  filt_accel_ned_dd.x = -filt_accel_ned_d.x * 2 * 0.55 * 50.0 + (stateGetAccelNed_f()->x - filt_accel_ned.x) * 50.0*50.0;
-  filt_accel_ned_dd.y = -filt_accel_ned_d.y * 2 * 0.55 * 50.0 + (stateGetAccelNed_f()->y - filt_accel_ned.y) * 50.0*50.0;
-  filt_accel_ned_dd.z = -filt_accel_ned_d.z * 2 * 0.55 * 50.0 + (stateGetAccelNed_f()->z - filt_accel_ned.z) * 50.0*50.0;
-//   filt_accelzbodydd= -filt_accelzbodyd * 2 * 0.55 * 50.0 + (accel_meas_body_f.z - filt_accelzbody) * 50.0*50.0;
+  filt_accel_ned_dd.x = -filt_accel_ned_d.x * 2 * filter_zeta * filter_omega + (stateGetAccelNed_f()->x - filt_accel_ned.x) * filter_omega*filter_omega;
+  filt_accel_ned_dd.y = -filt_accel_ned_d.y * 2 * filter_zeta * filter_omega + (stateGetAccelNed_f()->y - filt_accel_ned.y) * filter_omega*filter_omega;
+  filt_accel_ned_dd.z = -filt_accel_ned_d.z * 2 * filter_zeta * filter_omega + (stateGetAccelNed_f()->z - filt_accel_ned.z) * filter_omega*filter_omega;
+//   filt_accelzbodydd= -filt_accelzbodyd * 2 * filter_zeta * filter_omega + (accel_meas_body_f.z - filt_accelzbody) * filter_omega*filter_omega;
 }
 
 void guidance_indi_filter_attitude(void)
@@ -152,8 +155,8 @@ void guidance_indi_filter_attitude(void)
 //   float cospsi = cosf(stateGetNedToBodyEulers_f()->psi);
 //   float sinpsi = sinf(stateGetNedToBodyEulers_f()->psi);
 
-  roll_filtdd = -roll_filtd * 2 * 0.55 * 50.0 + (stateGetNedToBodyEulers_f()->phi - roll_filt) * 50.0*50.0;
-  pitch_filtdd = -pitch_filtd * 2 * 0.55 * 50.0 + (stateGetNedToBodyEulers_f()->theta - pitch_filt) * 50.0*50.0;
+  roll_filtdd = -roll_filtd * 2 * filter_zeta * filter_omega + (stateGetNedToBodyEulers_f()->phi - roll_filt) * filter_omega*filter_omega;
+  pitch_filtdd = -pitch_filtd * 2 * filter_zeta * filter_omega + (stateGetNedToBodyEulers_f()->theta - pitch_filt) * filter_omega*filter_omega;
 }
 
 void guidance_indi_calcG(struct FloatMat33 *Gmat) {
