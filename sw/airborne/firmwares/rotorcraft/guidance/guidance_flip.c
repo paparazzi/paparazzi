@@ -36,9 +36,15 @@
 #include "stabilization/stabilization_attitude_rc_setpoint.h"
 #include "stabilization/stabilization_attitude.h"
 
+#ifndef STOP_ROLL_CMD_ANGLE
 #define STOP_ROLL_CMD_ANGLE 25.0
+#endif
+#ifndef FIRST_THRUST_DURATION
 #define FIRST_THRUST_DURATION 0.3
+#endif
+#ifndef FINAL_THRUST_LEVEL
 #define FINAL_THRUST_LEVEL 6000
+#endif
 
 uint32_t flip_counter;
 uint8_t flip_state;

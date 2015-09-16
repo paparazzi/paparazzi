@@ -11,6 +11,17 @@
    settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml"
   />
   <aircraft
+   name="ARDrone2_flip"
+   ac_id="14"
+   airframe="airframes/TUDelft/airframes/ardrone2_flip.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml settings/control/stabilization_att_indi.xml"
+   settings_modules="modules/air_data.xml"
+   gui_color="red"
+  />
+  <aircraft
    name="ARDrone2_indi"
    ac_id="13"
    airframe="airframes/TUDelft/airframes/ardrone2_indi.xml"
@@ -18,7 +29,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml settings/control/stabilization_att_indi.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml"
+   settings_modules="modules/air_data.xml"
    gui_color="red"
   />
   <aircraft
