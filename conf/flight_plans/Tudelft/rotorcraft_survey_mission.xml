@@ -9,6 +9,10 @@
 #define LINE_START_FUNCTION dc_Survey(dc_distance_interval);
 #define LINE_STOP_FUNCTION {dc_autoshoot = DC_AUTOSHOOT_STOP;}
 #endif
+=======
+#ifndef DropOpen
+#define DropOpen() FALSE
+#endif
   </header>
 
   <exceptions>
@@ -52,15 +56,6 @@
       <go wp="CRUISE"/>
       <stay wp="FC"/>
     </block>
-    <block name="ReleaseZone1" strip_button="LookRobot-FC" strip_icon="lookdown.png" group="release">
-      <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_RZ1)"/>
-      <go wp="CRUISE"/>
-      <go wp="RZ1"/>
-      <deroute block="Standby"/>
-    </block>
-    <block name="CAM" strip_button="Follow-Vision-Geolocation-Results" strip_icon="lookdown.png" group="hover">
-      <stay wp="CAM"/>
-    </block>
 
     <block name="stay_p1">
       <stay wp="p1"/>
@@ -77,6 +72,36 @@
     </block>
     <block name="circle CV" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
       <circle radius="nav_radius" wp="CAM"/>
+    </block>
+
+<!-- DROPPINGS -->
+    <block name="drop" group="drop">
+       <go wp="DROP"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="DROP" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
+       <call fun="DropOpen()"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="DROP" until="stateGetPositionEnu_f()->z > 25"/>
+       <deroute block="land"/>
+    </block>
+    <block name="drop_zone1" group="drop">
+       <go wp="RZ1"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ1" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
+       <call fun="DropOpen()"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ1" until="stateGetPositionEnu_f()->z > 25"/>
+       <deroute block="land"/>
+    </block>
+    <block name="drop_zone2" group="drop">
+       <go wp="RZ2"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ2" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
+       <call fun="DropOpen()"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ2" until="stateGetPositionEnu_f()->z > 25"/>
+       <deroute block="land"/>
+    </block>
+    <block name="drop_zone3" group="drop">
+       <go wp="RZ3"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ3" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
+       <call fun="DropOpen()"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ3" until="stateGetPositionEnu_f()->z > 25"/>
+       <deroute block="land"/>
     </block>
 
 <!-- LAPS -->

@@ -58,6 +58,11 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
+  <section name="MISC">
+    <define name="NAV_DESCEND_VSPEED" value="-1.0"/>
+    <define name="NAV_CLIMB_VSPEED" value="1.0"/>
+  </section>
+
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <!-- front left (CW), front right (CCW), back right (CW), back left (CCW) -->
     <define name="TYPE" value="QUAD_X"/>
