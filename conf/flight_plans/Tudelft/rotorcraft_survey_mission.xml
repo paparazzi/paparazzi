@@ -9,7 +9,6 @@
 #define LINE_START_FUNCTION dc_Survey(dc_distance_interval);
 #define LINE_STOP_FUNCTION {dc_autoshoot = DC_AUTOSHOOT_STOP;}
 #endif
-=======
 #ifndef DropOpen
 #define DropOpen() FALSE
 #endif
