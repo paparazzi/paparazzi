@@ -19,31 +19,18 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file stabilization_attitude_ref_float.h
+/** @file stabilization_attitude_ref.h
  *  Rotorcraft attitude reference generation API.
- *  Common to all floating-point reference generators (euler and quaternion)
+ *  Interface functions that need to be provided by each implementation.
  */
 
-#ifndef STABILIZATION_ATTITUDE_REF_FLOAT_H
-#define STABILIZATION_ATTITUDE_REF_FLOAT_H
+#ifndef STABILIZATION_ATTITUDE_REF_H
+#define STABILIZATION_ATTITUDE_REF_H
 
-#include "math/pprz_algebra_float.h"
-
-extern struct FloatEulers stab_att_sp_euler;
-extern struct FloatQuat   stab_att_sp_quat;
-extern struct FloatEulers stab_att_ref_euler;
-extern struct FloatQuat   stab_att_ref_quat;
-extern struct FloatRates  stab_att_ref_rate;
-extern struct FloatRates  stab_att_ref_accel;
-
-struct FloatRefModel {
-  struct FloatRates omega;
-  struct FloatRates zeta;
-};
-
-extern struct FloatRefModel stab_att_ref_model[];
 
 extern void stabilization_attitude_ref_init(void);
 extern void stabilization_attitude_ref_update(void);
+extern void stabilization_attitude_ref_enter(void);
 
-#endif /* STABILIZATION_ATTITUDE_REF_FLOAT_H */
+
+#endif /* STABILIZATION_ATTITUDE_REF_H */

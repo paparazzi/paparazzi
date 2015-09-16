@@ -25,31 +25,12 @@
  * Rotorcraft attitude reference generation in euler float version.
  */
 
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_euler_float.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_saturate.h"
 #include "generated/airframe.h"
 
-struct FloatEulers stab_att_sp_euler;
-struct FloatEulers stab_att_ref_euler;
-struct FloatRates  stab_att_ref_rate;
-struct FloatRates  stab_att_ref_accel;
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_euler_float.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_saturate.h"
 
-void stabilization_attitude_ref_init(void)
-{
-
-  FLOAT_EULERS_ZERO(stab_att_sp_euler);
-  FLOAT_EULERS_ZERO(stab_att_ref_euler);
-  FLOAT_RATES_ZERO(stab_att_ref_rate);
-  FLOAT_RATES_ZERO(stab_att_ref_accel);
-
-}
-
-
-/*
- * Reference
- */
-#define DT_UPDATE (1./PERIODIC_FREQUENCY)
-
+/* shortcuts for saturation defines */
 #define REF_ACCEL_MAX_P STABILIZATION_ATTITUDE_REF_MAX_PDOT
 #define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_QDOT
 #define REF_ACCEL_MAX_R STABILIZATION_ATTITUDE_REF_MAX_RDOT
@@ -58,6 +39,7 @@ void stabilization_attitude_ref_init(void)
 #define REF_RATE_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_Q
 #define REF_RATE_MAX_R STABILIZATION_ATTITUDE_REF_MAX_R
 
+/* shortcuts for ref model parametes used in update */
 #define OMEGA_P   STABILIZATION_ATTITUDE_REF_OMEGA_P
 #define OMEGA_Q   STABILIZATION_ATTITUDE_REF_OMEGA_Q
 #define OMEGA_R   STABILIZATION_ATTITUDE_REF_OMEGA_R
@@ -66,63 +48,104 @@ void stabilization_attitude_ref_init(void)
 #define ZETA_Q    STABILIZATION_ATTITUDE_REF_ZETA_Q
 #define ZETA_R    STABILIZATION_ATTITUDE_REF_ZETA_R
 
+#ifndef USE_ATT_REF
+#define USE_ATT_REF 1
+#endif
 
-#define USE_REF 1
+struct AttRefEulerFloat att_ref_euler_f;
 
-static inline void reset_psi_ref_from_body(void)
+static inline void reset_psi_ref(struct AttRefEulerFloat *ref, float psi);
+
+
+/*
+ *
+ * Functions to be called from the attitude stabilization.
+ * These all take no arguments in order to make it easier to swap ref implementations.
+ *
+ */
+void stabilization_attitude_ref_init(void)
+{
+  attitude_ref_euler_float_init(&att_ref_euler_f);
+}
+
+void stabilization_attitude_ref_enter(void)
 {
   //sp has been set from body using stabilization_attitude_get_yaw_f, use that value
-  stab_att_ref_euler.psi = stab_att_sp_euler.psi;
-  stab_att_ref_rate.r = 0;
-  stab_att_ref_accel.r = 0;
+  reset_psi_ref(&att_ref_euler_f, stab_att_sp_euler.psi);
 }
 
-void stabilization_attitude_ref_enter()
+void stabilization_attitude_ref_update(void)
 {
-  reset_psi_ref_from_body();
+#if USE_ATT_REF
+  static const float dt = (1./PERIODIC_FREQUENCY);
+  attitude_ref_euler_float_update(&att_ref_euler_f, &stab_att_sp_euler, dt);
+#else
+  EULERS_COPY(att_ref_euler_f.euler, stab_att_sp_euler);
+  FLOAT_RATES_ZERO(att_ref_euler_f.rate);
+  FLOAT_RATES_ZERO(att_ref_euler_f.accel);
+#endif
 }
 
-void stabilization_attitude_ref_update()
-{
 
-#if USE_REF
+
+/*
+ *
+ * Implementation.
+ * Should not rely on any global variables, so these functions can be used like a lib.
+ * TODO: put two_omega_squared in struct?
+ *
+ */
+void attitude_ref_euler_float_init(struct AttRefEulerFloat *ref)
+{
+  FLOAT_EULERS_ZERO(ref->euler);
+  FLOAT_RATES_ZERO(ref->rate);
+  FLOAT_RATES_ZERO(ref->accel);
+}
+
+void attitude_ref_euler_float_update(struct AttRefEulerFloat *ref, struct FloatEulers *sp_eulers, float dt)
+{
 
   /* dumb integrate reference attitude        */
   struct FloatRates delta_rate;
-  RATES_SMUL(delta_rate, stab_att_ref_rate, DT_UPDATE);
+  RATES_SMUL(delta_rate, ref->rate, dt);
   struct FloatEulers delta_angle;
   EULERS_ASSIGN(delta_angle, delta_rate.p, delta_rate.q, delta_rate.r);
-  EULERS_ADD(stab_att_ref_euler, delta_angle);
-  FLOAT_ANGLE_NORMALIZE(stab_att_ref_euler.psi);
+  EULERS_ADD(ref->euler, delta_angle);
+  FLOAT_ANGLE_NORMALIZE(ref->euler.psi);
 
   /* integrate reference rotational speeds   */
   struct FloatRates delta_accel;
-  RATES_SMUL(delta_accel, stab_att_ref_accel, DT_UPDATE);
-  RATES_ADD(stab_att_ref_rate, delta_accel);
+  RATES_SMUL(delta_accel, ref->accel, dt);
+  RATES_ADD(ref->rate, delta_accel);
 
   /* compute reference attitude error        */
   struct FloatEulers ref_err;
-  EULERS_DIFF(ref_err, stab_att_ref_euler, stab_att_sp_euler);
+  EULERS_DIFF(ref_err, ref->euler, *sp_eulers);
   /* wrap it in the shortest direction       */
   FLOAT_ANGLE_NORMALIZE(ref_err.psi);
 
   /* compute reference angular accelerations */
-  stab_att_ref_accel.p = -2.*ZETA_P * OMEGA_P * stab_att_ref_rate.p - OMEGA_P * OMEGA_P * ref_err.phi;
-  stab_att_ref_accel.q = -2.*ZETA_Q * OMEGA_P * stab_att_ref_rate.q - OMEGA_Q * OMEGA_Q * ref_err.theta;
-  stab_att_ref_accel.r = -2.*ZETA_R * OMEGA_P * stab_att_ref_rate.r - OMEGA_R * OMEGA_R * ref_err.psi;
+  ref->accel.p = -2.*ZETA_P * OMEGA_P * ref->rate.p - OMEGA_P * OMEGA_P * ref_err.phi;
+  ref->accel.q = -2.*ZETA_Q * OMEGA_P * ref->rate.q - OMEGA_Q * OMEGA_Q * ref_err.theta;
+  ref->accel.r = -2.*ZETA_R * OMEGA_P * ref->rate.r - OMEGA_R * OMEGA_R * ref_err.psi;
 
   /*  saturate acceleration */
   const struct FloatRates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
   const struct FloatRates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
-  RATES_BOUND_BOX(stab_att_ref_accel, MIN_ACCEL, MAX_ACCEL);
+  RATES_BOUND_BOX(ref->accel, MIN_ACCEL, MAX_ACCEL);
 
   /* saturate speed and trim accel accordingly */
-  SATURATE_SPEED_TRIM_ACCEL();
+  SATURATE_SPEED_TRIM_ACCEL(*ref);
+}
 
-#else   /* !USE_REF */
-  EULERS_COPY(stab_att_ref_euler, stabilization_att_sp);
-  FLOAT_RATES_ZERO(stab_att_ref_rate);
-  FLOAT_RATES_ZERO(stab_att_ref_accel);
-#endif /* USE_REF */
-
+/*
+ *
+ * Local helper functions.
+ *
+ */
+static inline void reset_psi_ref(struct AttRefEulerFloat *ref, float psi)
+{
+  ref->euler.psi = psi;
+  ref->rate.r = 0;
+  ref->accel.r = 0;
 }
