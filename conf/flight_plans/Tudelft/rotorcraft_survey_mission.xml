@@ -55,6 +55,11 @@
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
+    <block name="Takeoff-Water" strip_button="Takeoff-Water" group="takeoff">
+      <exception cond="stateGetPositionEnu_f()->z > 27.0" deroute="drop_water"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
 
 <!-- OBSERVE -->
     <block name="Standby" strip_button="Standby" strip_icon="home.png" group="hover">
@@ -114,6 +119,13 @@
        <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ3" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
        <call fun="DropOpen()"/>
        <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ3" until="stateGetPositionEnu_f()->z > 13"/>
+       <deroute block="land"/>
+    </block>
+    <block name="drop_water" group="drop">
+       <go wp="WD"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="WD" until="LessThan(stateGetPositionEnu_f()->z, 8)"/>
+       <call fun="DropOpen()"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="WD" until="stateGetPositionEnu_f()->z > 12"/>
        <deroute block="land"/>
     </block>
 
