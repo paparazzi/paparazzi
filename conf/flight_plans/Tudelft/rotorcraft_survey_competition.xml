@@ -11,11 +11,11 @@
     <waypoint lat="50.790483" lon="6.047899" name="raceA"/>
     <waypoint lat="50.791800" lon="6.050200" name="raceB"/>
     <waypoint lat="50.789794" lon="6.047431" name="WG"/>
-    <waypoint lat="50.7889307058111" lon="6.04677769236132" name="WD"/>
-    <waypoint lat="50.788775526101" lon="6.04652336854142" name="DROP"/>
-    <waypoint lat="50.788775526101" lon="6.04652336854142" name="RZ1"/>
-    <waypoint lat="50.7889170568219" lon="6.04640018582595" name="RZ2"/>
-    <waypoint lat="50.7889755961272" lon="6.04642327267965" name="RZ3"/>
+    <waypoint lat="50.7889307058111" lon="6.04677769236132" name="WD" height="15"/>
+    <waypoint lat="50.788775526101" lon="6.04652336854142" name="DROP" height="15"/>
+    <waypoint lat="50.788775526101" lon="6.04652336854142" name="RZ1" height="15"/>
+    <waypoint lat="50.7889170568219" lon="6.04640018582595" name="RZ2" height="15"/>
+    <waypoint lat="50.7889755961272" lon="6.04642327267965" name="RZ3" height="15"/>
     <waypoint lat="50.789522" lon="6.047118" name="FC"/>
     <waypoint lat="50.788597" lon="6.046721" name="S1"/>
     <waypoint lat="50.788973" lon="6.045944" name="S2"/>
@@ -27,7 +27,7 @@
     <waypoint lat="50.791818" lon="6.050201" name="p4"/>
     <waypoint name="CAM" x="27.5" y="95.0"/>
     <waypoint name="CRUISE" x="19.2" y="-55.4" height="25"/>
-    <waypoint lat="50.7887171157922" lon="6.04695109268497" name="TD"/>
+    <waypoint lat="50.7887171157922" lon="6.04695109268497" name="TD" height="15"/>
     <waypoint lat="50.790144" lon="6.046879" name="_green1A"/>
     <waypoint lat="50.789748" lon="6.047844" name="_green1B"/>
     <waypoint lat="50.789058" lon="6.047072" name="_green1C"/>

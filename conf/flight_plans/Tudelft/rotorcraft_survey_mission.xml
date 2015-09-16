@@ -5,7 +5,7 @@
   <header>
 #include "autopilot.h"
 #include "subsystems/electrical.h"
-#ifdef DC_AUTOSHOOT_SURVEY_INTERVAL
+#ifdef dc_Survey
 #define LINE_START_FUNCTION dc_Survey(dc_distance_interval);
 #define LINE_STOP_FUNCTION {dc_autoshoot = DC_AUTOSHOOT_STOP;}
 #endif
@@ -36,12 +36,22 @@
     </block>
 
 <!-- START -->
-    <block name="Start Engine" strip_button="Start Engine" strip_icon="resurrect.png" group="takeoff">
+    <block name="Start Engine" strip_button="Start Engine" strip_icon="resurrect.png" group="engine">
       <call fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
-    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="takeoff">
-      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+    <block name="Takeoff-Standby" strip_button="Takeoff-Drop" strip_icon="takeoff.png" group="takeoff">
+      <exception cond="stateGetPositionEnu_f()->z > 10.0" deroute="drop"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Takeoff-Map" strip_button="Takeoff-Map" strip_icon="survey.png" group="takeoff">
+      <exception cond="stateGetPositionEnu_f()->z > 10.0" deroute="SurveyPoly"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Takeoff-Drop" strip_button="Takeoff-Drop" strip_icon="parachute.png" group="takeoff">
+      <exception cond="stateGetPositionEnu_f()->z > 10.0" deroute="drop"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
@@ -122,6 +132,7 @@
     </block>
 
 <!-- SURVEYS -->
+<!--
     <block group="survey" name="Survey S1-S2 NS" strip_button="Survey-NS-S1-S2" strip_icon="survey.png">
       <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, NS)"/>
       <deroute block="Survey RECTANGLE RUN"/>
@@ -134,8 +145,8 @@
       <exception cond="rectangle_survey_sweep_num >= 1" deroute="Standby"/>
       <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S2)"/>
     </block>
-
-    <block group="survey" name="Survey Poly" strip_button="Survey-Polygon-S1-S2-S3-S4" strip_icon="googleearth.png">
+-->
+    <block group="survey" name="SurveyPoly" strip_button="Survey-Polygon-S1-S2-S3-S4" strip_icon="googleearth.png">
       <call fun="nav_survey_poly_setup_towards(WP_S1, 4, sweep, WP_S2)"/>
       <deroute block="Survey Poly RUN"/>
     </block>
