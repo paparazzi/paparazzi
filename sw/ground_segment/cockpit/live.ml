@@ -111,7 +111,8 @@ type aircraft = {
   mutable last_unix_time : float;
   mutable airspeed : float;
   mutable version : string;
-  mutable last_gps_acc : gps_acc_level
+  mutable last_gps_acc : gps_acc_level;
+  mutable last_bat_warn_time : float
 }
 
 let list_separator = Str.regexp ","
@@ -710,7 +711,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (strip
              dl_values = [||]; last_unix_time = 0.;
              airspeed = 0.;
              version = "";
-             last_gps_acc = GPS_NO_ACC
+             last_gps_acc = GPS_NO_ACC;
+             last_bat_warn_time = 0.
            } in
   Hashtbl.add aircrafts ac_id ac;
   select_ac acs_notebook ac_id;
@@ -1344,7 +1346,11 @@ let listen_waypoint_moved = fun () ->
 let get_alert_bat_low = fun a _sender vs ->
   let ac = get_ac vs in
   let level = Pprz.string_assoc "level" vs in
-  log_and_say a ac.ac_name (sprintf "%s, %s %s" ac.ac_speech_name "BAT LOW" level)
+  let unix_time = Unix.gettimeofday() in
+  if unix_time > (ac.last_bat_warn_time +. 10.) then begin
+    log_and_say a ac.ac_name (sprintf "%s, %s %s" ac.ac_speech_name "BAT LOW" level);
+    ac.last_bat_warn_time <- unix_time
+  end
 
 let listen_alert = fun a ->
   alert_bind "BAT_LOW" (get_alert_bat_low a)
