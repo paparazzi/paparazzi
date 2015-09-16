@@ -47,6 +47,7 @@
     <load name="nav_survey_poly_rotorcraft.xml">
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
     </load>
+    <load name="drop_zone.xml"/>
     <!--load name="gps_ubx_ucenter.xml"/-->
   </modules>
 
