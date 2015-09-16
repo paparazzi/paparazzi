@@ -36,7 +36,7 @@ LOG = logging.getLogger('control')
 LOG.setLevel(logging.DEBUG)
 
 
-class att_ref:
+class att_ref(object):
     """Default second order attitude reference model, Python implementation"""
     name = 'Python default'
 

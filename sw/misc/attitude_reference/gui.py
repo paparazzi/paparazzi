@@ -23,14 +23,16 @@ class Worker(GObject.GObject):
         self.n_step = n_step
 
     def start(self, args):
-        if self.running: self.cancel()
+        if self.running:
+            self.cancel()
         self.t = threading.Thread(target=self._work, args=args)
         self.t.daemon = True
         self.t.start()
 
     def cancel(self, wait=True):
         self.canceled = True
-        if wait: self.t.join()
+        if wait:
+            self.t.join()
 
     def _emit(self, *args):
         GObject.idle_add(GObject.GObject.emit, self, *args)
@@ -38,6 +40,7 @@ class Worker(GObject.GObject):
     def _work(self, args):
         self.running = True
         self.canceled = False
+        print("starting new work thread with args %s\nnow calling work init" % args)
         self._work_init(args)
         for i in range(0, self.n_step):
             if self.canceled:
@@ -67,6 +70,7 @@ class AttRefParamView(Gtk.Frame):
         for c in self.ref_classes:
             self.combo_type.append_text(c.name)
         self.combo_type.set_active(0)
+        self.progress = self.b.get_object("progressbar")
 
         self.spin_cfg = {
             'omega': {'range': (0.2, 20., 0.1, 1., 0.), 'r2d': lambda x: x, 'd2r': lambda x: x},

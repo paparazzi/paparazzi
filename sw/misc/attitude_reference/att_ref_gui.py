@@ -33,6 +33,8 @@ This is a graphical user interface for playing with reference attitude
 #
 #
 
+from __future__ import print_function
+
 from gi.repository import Gtk, GObject
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
@@ -58,12 +60,12 @@ class Reference(gui.Worker):
         # self.update_sp(sp, _type, _omega, _xi, _max_vel, _max_accel)
 
     def update_type(self, _type):
-        print 'update_type', _type
+        print('update_type', _type)
         self.impl = _type()
         self.recompute()
 
     def update_param(self, p, v):
-        print 'update_param', p, v
+        print('update_param', p, v)
         self.impl.set_param(p, v)
         self.recompute()
 
@@ -72,14 +74,20 @@ class Reference(gui.Worker):
         self.quat = np.zeros((len(sp.time), pa.q_size))
         self.vel = np.zeros((len(sp.time), pa.r_size))
         self.accel = np.zeros((len(sp.time), pa.r_size))
-        # self.update(sp, _type, _omega, _xi, _max_vel, _max_accel)
+        self.update(sp, _type, _omega, _xi, _max_vel, _max_accel)
+        self.recompute()
 
     def update(self, sp, _type=None, _omega=None, _xi=None, _max_vel=None, _max_accel=None):
-        if _omega <> None: self.omega = _omega
-        if _xi <> None: self.xi = _xi
-        if _max_vel <> None: self.max_vel = _max_vel
-        if _max_accel <> None: self.max_accel = _max_accel
-        if _type <> None:
+        self.sp = sp
+        if _omega is not None:
+            self.omega = _omega
+        if _xi is not None:
+            self.xi = _xi
+        if _max_vel is not None:
+            self.max_vel = _max_vel
+        if _max_accel is not None:
+            self.max_accel = _max_accel
+        if _type is not None:
             self.type = _type
             self.impl = Reference.impls[_type](omega=self.omega * np.ones(3), xi=self.xi * np.ones(3))
             # self.impl.set_params(self.omega*np.ones(3), self.xi*np.ones(3), self.max_vel*np.ones(3), self.max_accel*np.ones(3))
@@ -89,33 +97,33 @@ class Reference(gui.Worker):
             # self.work(None, (sp,))
 
     def recompute(self):
+        print("recomputing...")
         self.up_to_date = False
         self.start((self.sp,))
 
     def _work_init(self, sp):
-        print '_work_init ', self, self.impl, sp, sp.dt
+        print('_work_init ', self, self.impl, sp, sp.dt)
         self.euler = np.zeros((len(sp.time), pa.e_size))
         self.quat = np.zeros((len(sp.time), pa.q_size))
         self.vel = np.zeros((len(sp.time), pa.r_size))
         self.accel = np.zeros((len(sp.time), pa.r_size))
         euler0 = [0.3, 0.1, 0.2]
         self.impl.set_euler(np.array(euler0))
-        self.quat[0], self.euler[0], self.vel[0], self.accel[
-            0] = self.impl.quat, self.impl.euler, self.impl.vel, self.impl.accel
+        self.quat[0], self.euler[0], self.vel[0], self.accel[0] = self.impl.quat, self.impl.euler, self.impl.vel, self.impl.accel
         self.n_iter_per_step = float(len(sp.time)) / self.n_step
 
     def _work_step(self, i, sp):
         start, stop = int(i * self.n_iter_per_step), int((i + 1) * self.n_iter_per_step)
-        # print '_work_step', start, stop
+        # print('_work_step of %s: i %i, start %i, stop %i' % (self.impl, i, start, stop))
         for j in range(start, stop):
             self.quat[j], self.vel[j], self.accel[j] = self.impl.update_quat(sp.quat[j], sp.dt)
             self.euler[j] = pa.euler_of_quat(self.quat[j])
 
     def _work_done(self, sp):
-        print '_work_done'
+        print('_work_done')
 
 
-class Setpoint():
+class Setpoint(object):
     t_static, t_step_phi, t_step_theta, t_step_psi, t_step_random, t_nb = range(0, 6)
     t_names = ["constant", "step phi", "step theta", "step psi", "step_random"]
 
@@ -131,7 +139,8 @@ class Setpoint():
         try:
             i = [Setpoint.t_step_phi, Setpoint.t_step_theta, Setpoint.t_step_psi].index(self.type)
             self.euler[:, i] = step_ampl / 2 * scipy.signal.square(math.pi / step_duration * self.time)
-        except:
+        except Exception as e:
+            print(e)
             pass
 
         self.quat = np.zeros((len(self.time), pa.q_size))
@@ -139,7 +148,7 @@ class Setpoint():
             self.quat[i] = pa.quat_of_euler(self.euler[i])
 
 
-class GUI():
+class GUI(object):
     def __init__(self, sp, refs):
         self.b = Gtk.Builder()
         self.b.add_from_file("att_ref_gui.xml")
@@ -184,7 +193,8 @@ class Plot(Gtk.Frame):
         for i in range(0, 3):
             axis = self.f.add_subplot(331 + i)
             axis.clear()
-            for ref in refs: axis.plot(sp.time, pu.deg_of_rad(ref.euler[:, i]))
+            for ref in refs:
+                axis.plot(sp.time, pu.deg_of_rad(ref.euler[:, i]))
             axis.plot(sp.time, pu.deg_of_rad(sp.euler[:, i]))
             self.decorate(axis, title[i], *(('deg', legend) if i == 0 else (None, None)))
 
@@ -207,7 +217,7 @@ class Plot(Gtk.Frame):
         self.canvas.draw()
 
 
-class Application():
+class Application(object):
     def __init__(self):
         self.sp = Setpoint()
         self.refs = [Reference(self.sp), Reference(self.sp)]
@@ -220,17 +230,17 @@ class Application():
         self._on_ref_changed(None, self.refs[1], self.gui.refs[1])
 
     def on_ref_update_progress(self, ref, v, nref):
-        # print 'progress', ref, v
-        self.gui.b.get_object("progressbar_ref_{}".format(nref)).set_fraction(v)
+        #print('progress', nref, v)
+        self.gui.refs[nref - 1].progress.set_fraction(v)
 
     def on_ref_update_completed(self, ref, nref):
-        print 'on_ref_update_completed', ref, nref
-        self.gui.b.get_object("progressbar_ref_{}".format(nref)).set_fraction(1.)
+        #print('on_ref_update_completed', ref, nref)
+        self.gui.refs[nref - 1].progress.set_fraction(1.0)
         for r in self.refs:
             if r.running:
-                print 'not repainting'
+                print('not repainting')
                 return
-        print 'repainting'
+        print('repainting')
         self.gui.plot.update(self.sp, self.refs)
 
     def register_gui(self):
@@ -241,7 +251,8 @@ class Application():
     def register_setpoint(self):
         b = self.gui.b
         c_sp_type = b.get_object("combo_sp_type")
-        for n in Setpoint.t_names: c_sp_type.append_text(n)
+        for n in Setpoint.t_names:
+            c_sp_type.append_text(n)
         c_sp_type.set_active(self.sp.type)
         c_sp_type.connect("changed", self.on_sp_changed)
 
@@ -256,22 +267,25 @@ class Application():
             w.connect("value-changed", self.on_sp_changed)
 
     def on_sp_changed(self, widget):
-        b = self.view.b
+        b = self.gui.b
         _type = b.get_object("combo_sp_type").get_active()
         names = ["spin_sp_duration", "spin_sp_step_duration", "spin_sp_step_amplitude"]
         _duration, _step_duration, _step_amplitude = [b.get_object(name).get_value() for name in names]
-        print widget, _type, _duration, _step_duration, _step_amplitude
+        print('_on_sp_changed', _type, _duration, _step_duration, _step_amplitude)
         _step_amplitude = pu.rad_of_deg(_step_amplitude)
         self.sp.update(_type, _duration, _step_duration, _step_amplitude)
-        for r in self.refs: r.update_sp(self.sp)
+        # somehow running two threads to update both references at the same time produces bogus data..
+        # so this doesn't really work until you change the parameter of one ref again
+        for r in self.refs:
+            r.update_sp(self.sp)
 
     def _on_ref_changed(self, widget, ref, view):
-        print '_on_ref_changed', widget, ref, view
+        print('_on_ref_changed', widget, ref, view)
         ref.update_type(view.get_selected_ref_class())
         view.update(ref.impl)
 
     def _on_ref_param_changed(self, widget, p, ref, view):
-        print '_on_ref_param_changed', widget, ref, view
+        print('_on_ref_param_changed', widget, ref, view)
         val = view.spin_cfg[p]['d2r'](widget.get_value())
         ref.update_param(p, val)
 
