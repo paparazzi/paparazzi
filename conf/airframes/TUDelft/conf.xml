@@ -55,7 +55,18 @@
    gui_color="red"
   />
   <aircraft
-   name="Bebop5_CDW"
+   name="Bebop2_Smeur"
+   ac_id="21"
+   airframe="airframes/TUDelft/airframes/bebop_indi.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/Tudelft/rotorcraft_survey_competition.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_indi.xml settings/control/rotorcraft_speed.xml"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/cv_blob_locator.xml modules/video_rtp_stream.xml modules/nav_survey_rectangle_rotorcraft.xml modules/nav_survey_poly_rotorcraft.xml modules/digital_cam_video.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Bebop5_Chris"
    ac_id="151"
    airframe="airframes/CDW/bebop.xml"
    radio="radios/dummy.xml"
@@ -77,18 +88,7 @@
    gui_color="red"
   />
   <aircraft
-   name="Bebop_indi"
-   ac_id="21"
-   airframe="airframes/TUDelft/airframes/bebop_indi.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/Tudelft/rotorcraft_survey_competition.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_indi.xml settings/control/rotorcraft_speed.xml"
-   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/cv_blob_locator.xml modules/video_rtp_stream.xml modules/nav_survey_rectangle_rotorcraft.xml modules/nav_survey_poly_rotorcraft.xml modules/digital_cam_video.xml"
-   gui_color="red"
-  />
-  <aircraft
-   name="MAVTec3_CDW"
+   name="MAVTec3_Chris"
    ac_id="33"
    airframe="airframes/CDW/mavtec_cdw.xml"
    radio="radios/R6107SP_7ch.xml"
