@@ -267,7 +267,7 @@ uint16_t get_window_response(uint16_t x, uint16_t y, uint16_t feature_size, uint
       resp = RES;
     }
   } else { //if(MODE == MODE_BRIGHT)
-    if (inner_area > 0) {
+    if (inner_area > 0 && (inner_area / px_inner) > 0) {
       resp = (RES * (whole_area - inner_area) / px_border) / (inner_area / px_inner);
       //printf("%u: %u %u %u %u\n",resp,(RES*RES*(whole_area - inner_area)/px_border), (inner_area/px_inner), px_inner, px_border);
     } else {

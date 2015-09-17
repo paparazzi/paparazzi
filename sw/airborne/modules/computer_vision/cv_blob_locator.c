@@ -95,20 +95,23 @@ bool_t cv_window_func(struct image_t *img) {
   int px = coordinate[0] & 0xFFFe;
   int py = coordinate[1] & 0xFFFe;
 
-  for (int y = 0; y < img->h-1; y++) {
-    Img(px, y)   = 65;
-    Img(px+1, y) = 255;
-  }
-  for (int x = 0; x < img->w-1; x+=2) {
-    Img(x, py)   = 65;
-    Img(x+1, py) = 255;
-  }
+  if (response < 92) {
 
+    for (int y = 0; y < img->h-1; y++) {
+      Img(px, y)   = 65;
+      Img(px+1, y) = 255;
+    }
+    for (int x = 0; x < img->w-1; x+=2) {
+      Img(x, py)   = 65;
+      Img(x+1, py) = 255;
+    }
 
-  uint32_t temp = coordinate[0];
-  temp = temp << 16;
-  temp += coordinate[1];
-  blob_locator = temp;
+    uint32_t temp = coordinate[0];
+    temp = temp << 16;
+    temp += coordinate[1];
+    blob_locator = temp;
+
+  }
 
   return FALSE;
 }
