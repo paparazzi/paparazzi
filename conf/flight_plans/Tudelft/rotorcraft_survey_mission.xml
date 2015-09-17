@@ -82,6 +82,12 @@
       <call fun="NavCopyWaypointPositionOnly(WP_CAM,WP_FC)"/>
     </block>
     <block name="Vision" >
+      <exception cond="! InsideTENNIS(GetPosX(), GetPosY())" deroute="NoVision"/>
+      <exception cond="block_time > 60" deroute="ComeBack"/>
+      <call fun="StartVision()"/>
+      <stay wp="CAM"/>
+    </block>
+    <block name="NoVision" >
       <exception cond="block_time > 60" deroute="ComeBack"/>
       <call fun="StartVision()"/>
       <stay wp="FC"/>
@@ -204,8 +210,9 @@
     <block name="visual_flare" strip_button="VisualLanding-CAM" strip_icon="cam_lock.png" group="landing">
       <exception cond="NavDetectGround()" deroute="holding_point"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <exception cond="!InsideLAND(GetPosX(), GetPosY())" deroute="land"/>
       <call fun="NavStartDetectGround()"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="CAM"/>
+      <stay climb="-0.2" vmode="climb" wp="CAM"/>
       <deroute block="landed"/>
     </block>
     <block name="flare">

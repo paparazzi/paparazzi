@@ -2,21 +2,21 @@
 
 <flight_plan alt="30" ground_alt="0" lat0="50.788595" lon0="6.04692" max_dist_from_home="500" name="IMAV2015_competition_outdoor" security_height="2">
   <waypoints>
-    <waypoint name="PLATE1"  lat="50.7888090239206" lon="6.04674224830944"/>
-    <waypoint name="PLATE2"  lat="50.7890460391004" lon="6.04647268082583"/>
-    <waypoint name="PLATE3" lat="50.7888723417903" lon="6.04631880264475"/>
+    <waypoint lat="50.7888090239206" lon="6.04674224830944" name="PLATE1"/>
+    <waypoint lat="50.7890460391004" lon="6.04647268082583" name="PLATE2"/>
+    <waypoint lat="50.7888723417903" lon="6.04631880264475" name="PLATE3"/>
     <waypoint name="HOME" x="0.0" y=".0"/>
     <waypoint name="CLIMB" x="-7.6" y="15.4"/>
     <waypoint name="STDBY" x="-3.7" y="24.0"/>
     <waypoint lat="50.790483" lon="6.047899" name="raceA"/>
     <waypoint lat="50.791800" lon="6.050200" name="raceB"/>
     <waypoint lat="50.789794" lon="6.047431" name="WG"/>
-    <waypoint lat="50.7889307058111" lon="6.04677769236132" name="WD" height="30"/>
-    <waypoint lat="50.788775526101" lon="6.04652336854142" name="DROP" height="15"/>
-    <waypoint lat="50.788775526101" lon="6.04652336854142" name="RZ1" height="15"/>
-    <waypoint lat="50.7889170568219" lon="6.04640018582595" name="RZ2" height="15"/>
-    <waypoint lat="50.7889755961272" lon="6.04642327267965" name="RZ3" height="15"/>
-    <waypoint lat="50.789522" lon="6.047118" name="FC" height="20"/>
+    <waypoint height="30" lat="50.7889307058111" lon="6.04677769236132" name="WD"/>
+    <waypoint height="15" lat="50.788775526101" lon="6.04652336854142" name="DROP"/>
+    <waypoint height="15" lat="50.788775526101" lon="6.04652336854142" name="RZ1"/>
+    <waypoint height="15" lat="50.7889170568219" lon="6.04640018582595" name="RZ2"/>
+    <waypoint height="15" lat="50.7889755961272" lon="6.04642327267965" name="RZ3"/>
+    <waypoint height="20" lat="50.789522" lon="6.047118" name="FC"/>
     <waypoint lat="50.788597" lon="6.046721" name="S1"/>
     <waypoint lat="50.788973" lon="6.045944" name="S2"/>
     <waypoint lat="50.789323" lon="6.046330" name="S3"/>
@@ -26,8 +26,8 @@
     <waypoint lat="50.791799" lon="6.050232" name="p3"/>
     <waypoint lat="50.791818" lon="6.050201" name="p4"/>
     <waypoint name="CAM" x="27.5" y="95.0"/>
-    <waypoint name="CRUISE" x="19.2" y="-55.4" height="25"/>
-    <waypoint lat="50.7887171157922" lon="6.04695109268497" name="TD" height="15"/>
+    <waypoint height="25" name="CRUISE" x="19.2" y="-55.4"/>
+    <waypoint height="15" lat="50.7887171157922" lon="6.04695109268497" name="TD"/>
     <waypoint lat="50.790144" lon="6.046879" name="_green1A"/>
     <waypoint lat="50.789748" lon="6.047844" name="_green1B"/>
     <waypoint lat="50.789058" lon="6.047072" name="_green1C"/>
@@ -46,6 +46,14 @@
     <waypoint lat="50.788209" lon="6.046744" name="_red6"/>
     <waypoint lat="50.789046" lon="6.045032" name="_red7"/>
     <waypoint lat="50.790416" lon="6.046338" name="_red8"/>
+    <waypoint lat="50.789622" lon="6.047338" name="_vision1"/>
+    <waypoint lat="50.789352" lon="6.047115" name="_vision2"/>
+    <waypoint lat="50.789443" lon="6.046932" name="_vision3"/>
+    <waypoint lat="50.789662" lon="6.047205" name="_vision4"/>
+    <waypoint lat="50.788606" lon="6.046939" name="_land1"/>
+    <waypoint lat="50.788686" lon="6.046810" name="_land2"/>
+    <waypoint lat="50.788813" lon="6.046949" name="_land3"/>
+    <waypoint lat="50.788737" lon="6.047124" name="_land4"/>
   </waypoints>
   <sectors>
     <sector color="red" name="RED">
@@ -71,6 +79,18 @@
       <corner name="_green2B"/>
       <corner name="_green2C"/>
       <corner name="_green2D"/>
+    </sector>
+    <sector color="green" name="TENNIS">
+      <corner name="_vision1"/>
+      <corner name="_vision2"/>
+      <corner name="_vision3"/>
+      <corner name="_vision4"/>
+    </sector>
+    <sector color="green" name="LAND">
+      <corner name="_land1"/>
+      <corner name="_land2"/>
+      <corner name="_land3"/>
+      <corner name="_land4"/>
     </sector>
   </sectors>
   <includes>
