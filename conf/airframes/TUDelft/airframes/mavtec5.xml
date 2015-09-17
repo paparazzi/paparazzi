@@ -17,7 +17,7 @@
     </target>
 
     <subsystem name="radio_control" type="spektrum">
-      <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
+      <define name="RADIO_KILL_SWITCH" value="RADIO_AUX2"/>
       <define name="RADIO_MODE" value="RADIO_GEAR"/>
     </subsystem>
 
@@ -30,7 +30,7 @@
       <define name="USE_PIKSI_EXT_ANTENNA" value="TRUE"/>
     </subsystem>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="float_mlkf"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins" type="hff"/>
   </firmware>
 
@@ -44,6 +44,8 @@
     <load name="nav_survey_poly_rotorcraft.xml">
       <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/>
     </load>
+    <load name="drop_zone.xml"/>
+    <load name="gps_ubx_ucenter.xml"/>
   </modules>
 
   <servos driver="Asctec_v2">
@@ -63,11 +65,6 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
-
-  <section name="MISC">
-    <define name="NAV_DESCEND_VSPEED" value="-1.0"/>
-    <define name="NAV_CLIMB_VSPEED" value="1.0"/>
-  </section>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <!-- front left (CW), front right (CCW), back right (CW), back left (CCW) -->
@@ -90,6 +87,12 @@
     <set servo="BACK"    value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
     <set servo="LEFT"    value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
+
+  <section name="MISC">
+    <define name="NAV_CLIMB_VSPEED" value="2.5"/>
+    <define name="NAV_DESCEND_VSPEED" value="-1.0"/>
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+  </section>
 
   <section name="IMU" prefix="IMU_">
     <define name="ACCEL_X_NEUTRAL" value="11"/>
@@ -189,7 +192,7 @@
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="MAX_BANK" value="35" unit="deg"/>
     <define name="USE_SPEED_REF" value="TRUE"/>
     <define name="PGAIN" value="50"/>
     <define name="DGAIN" value="100"/>
@@ -199,7 +202,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;nw_motor&quot;, &quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad_ccw&quot;"/>
+    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
     <define name="JS_AXIS_MODE" value="4"/>
