@@ -2,9 +2,9 @@
 
 <flight_plan alt="30" ground_alt="0" lat0="50.788595" lon0="6.04692" max_dist_from_home="500" name="IMAV2015_competition_outdoor" security_height="2">
   <waypoints>
-    <waypoint lat="50.7888090239206" lon="6.04674224830944" name="PLATE1"/>
-    <waypoint lat="50.7890460391004" lon="6.04647268082583" name="PLATE2"/>
-    <waypoint lat="50.7888723417903" lon="6.04631880264475" name="PLATE3"/>
+    <waypoint lat="50.7888090239206" lon="6.04674224830944" name="_PLATE1"/>
+    <waypoint lat="50.7890460391004" lon="6.04647268082583" name="_PLATE2"/>
+    <waypoint lat="50.7888723417903" lon="6.04631880264475" name="_PLATE3"/>
     <waypoint name="HOME" x="0.0" y=".0"/>
     <waypoint name="CLIMB" x="-7.6" y="15.4"/>
     <waypoint name="STDBY" x="-3.7" y="24.0"/>
