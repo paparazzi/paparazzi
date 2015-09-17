@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="33" ground_alt="0" lat0="50.788595" lon0="6.04692" max_dist_from_home="500" name="IMAV2015_competition_outdoor" security_height="2">
+<flight_plan alt="290" ground_alt="260" lat0="50.788595" lon0="6.04692" max_dist_from_home="500" name="IMAV2015_competition_outdoor" security_height="2">
   <waypoints>
     <waypoint lat="50.7888090239206" lon="6.04674224830944" name="_PLATE1"/>
     <waypoint lat="50.7890460391004" lon="6.04647268082583" name="_PLATE2"/>
@@ -28,6 +28,7 @@
     <waypoint lat="50.791818" lon="6.050201" name="p4"/>
     <waypoint height="25" name="CRUISE" x="19.2" y="-55.4"/>
     <waypoint height="15" lat="50.7887171157922" lon="6.04695109268497" name="TD"/>
+    <waypoint height="15" x="0" y="0" name="ETD"/>
     <waypoint lat="50.790144" lon="6.046879" name="_green1A"/>
     <waypoint lat="50.789748" lon="6.047844" name="_green1B"/>
     <waypoint lat="50.789058" lon="6.047072" name="_green1C"/>

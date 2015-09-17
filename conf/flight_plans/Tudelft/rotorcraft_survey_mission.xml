@@ -27,17 +27,17 @@
   <exceptions>
       <exception cond="electrical.bat_low && (exception_flag[0] == 0)" deroute="ComeBackAndLand" exec="set_exception_flag(0)"/>
       <exception cond="electrical.bat_critical && (exception_flag[1] == 0)" deroute="land_here" exec="set_exception_flag(1)"/>
-    <exception cond="(!InsideRED(GetPosX(), GetPosY()) && !(nav_block == IndexOfBlock('flare')) && !(nav_block == IndexOfBlock('landed')))" deroute="land_here"/>
+    <exception cond="(!InsideRED(GetPosX(), GetPosY()) && !(nav_block == IndexOfBlock('flare')) && !(nav_block == IndexOfBlock('landed')) && !(nav_block == IndexOfBlock('WaitGPS')) && !(nav_block == IndexOfBlock('GeoInit')))" deroute="land_emergency"/>
   </exceptions>
 
   <blocks>
 
 <!-- BOOT -->
-    <block name="Wait GPS">
+    <block name="WaitGPS">
       <call fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
     </block>
-    <block name="Geo init">
+    <block name="GeoInit">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call fun="NavSetGroundReferenceHere()"/>
     </block>
@@ -237,6 +237,20 @@
       <deroute block="landed"/>
     </block>
     <block name="landed" strip_button="Kill" strip_icon="kill.png" group="landing">
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="land_emergency">
+      <call fun="NavSetWaypointHere(WP_ETD)"/>
+      <deroute block="flare_emergency"/>
+    </block>
+    <block name="flare_emergency">
+      <exception cond="NavDetectGround()" deroute="landed_emergency"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed_emergency"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="ETD"/>
+      <deroute block="landed"/>
+    </block>
+    <block name="landed_emergency">
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
   </blocks>
