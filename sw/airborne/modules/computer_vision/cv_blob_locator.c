@@ -312,6 +312,11 @@ void start_vision(void) {
   record_video = 1;
   cv_blob_locator_type = 3;
 }
+void start_vision_land(void) {
+  georeference_init();
+  record_video = 1;
+  cv_blob_locator_type = 2;
+}
 void stop_vision(void) {
   georeference_init();
   record_video = 0;

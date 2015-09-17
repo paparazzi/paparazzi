@@ -55,10 +55,12 @@ extern void cv_blob_locator_stop(void);
   }
 
 #define StartVision(X) { start_vision(); FALSE; }
+#define StartVisionLand(X) { start_vision_land(); FALSE; }
 #define StopVision(X) { stop_vision(); FALSE; }
 
 
 extern void start_vision(void);
+extern void start_vision_land(void);
 extern void stop_vision(void);
 
 

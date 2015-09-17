@@ -15,6 +15,9 @@
 #ifndef StartVision
 #define StartVision() FALSE
 #endif
+#ifndef StartVisionLand
+#define StartVisionLand() FALSE
+#endif
 #ifndef StopVision
 #define StopVision() FALSE
 #endif
@@ -84,7 +87,7 @@
     </block>
     <block name="Vision" >
       <exception cond="! InsideTENNIS(GetPosX(), GetPosY())" deroute="NoVision"/>
-      <exception cond="block_time > 60" deroute="ComeBackAndLand"/>
+      <exception cond="block_time > 60" deroute="ComeBackAndVisualLand"/>
       <call fun="StartVision()"/>
       <stay wp="CAM"/>
     </block>
@@ -100,6 +103,15 @@
       <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_TD)"/>
       <go wp="CRUISE"/>
       <deroute block="land"/>
+    </block>
+    <block name="ComeBackAndVisualLand">
+      <call fun="StopVision()"/>
+      <call fun="NavSetWaypointHere(WP_CRUISE)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CRUISE" until="stateGetPositionEnu_f()->z > 30"/>
+      <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_TD)"/>
+      <call fun="NavCopyWaypointPositionOnly(WP_CAM,WP_TD)"/>
+      <go wp="CRUISE"/>
+      <deroute block="visual_flare"/>
     </block>
 
     <block name="CAM" strip_button="Follow-Vision-Geolocation-Results" strip_icon="lookdown.png" group="hover">
@@ -206,6 +218,7 @@
     </block>
     <block name="land" strip_button="Land at TD" strip_icon="land-right.png" group="landing">
       <go wp="TD"/>
+      <call fun="StartVisionLand()"/>
       <deroute block="flare"/>
     </block>
     <block name="visual_flare" strip_button="VisualLanding-CAM" strip_icon="cam_lock.png" group="landing">
