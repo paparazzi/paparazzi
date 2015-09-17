@@ -22,7 +22,7 @@
   </header>
 
   <exceptions>
-      <exception cond="electrical.bat_low && (exception_flag[0] == 0)" deroute="land" exec="set_exception_flag(0)"/>
+      <exception cond="electrical.bat_low && (exception_flag[0] == 0)" deroute="ComeBackAndLand" exec="set_exception_flag(0)"/>
       <exception cond="electrical.bat_critical && (exception_flag[1] == 0)" deroute="land_here" exec="set_exception_flag(1)"/>
     <exception cond="(!InsideRED(GetPosX(), GetPosY()) && !(nav_block == IndexOfBlock('flare')) && !(nav_block == IndexOfBlock('landed')))" deroute="land_here"/>
   </exceptions>
@@ -48,7 +48,7 @@
       <call fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
-    <block name="Takeoff-Standby" strip_button="Takeoff-Drop" strip_icon="takeoff.png" group="takeoff">
+    <block name="Takeoff-Standby" strip_button="Takeoff-Standby" strip_icon="takeoff.png" group="takeoff">
       <exception cond="stateGetPositionEnu_f()->z > 10.0" deroute="Standby"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
@@ -84,18 +84,18 @@
     </block>
     <block name="Vision" >
       <exception cond="! InsideTENNIS(GetPosX(), GetPosY())" deroute="NoVision"/>
-      <exception cond="block_time > 60" deroute="ComeBack"/>
+      <exception cond="block_time > 60" deroute="ComeBackAndLand"/>
       <call fun="StartVision()"/>
       <stay wp="CAM"/>
     </block>
     <block name="NoVision" >
-      <exception cond="block_time > 60" deroute="ComeBack"/>
+      <exception cond="block_time > 60" deroute="ComeBackAndLand"/>
       <call fun="StartVision()"/>
       <stay wp="FC"/>
     </block>
-    <block name="ComeBack" strip_button="Abort" strip_icon="home.png" group="hover">
+    <block name="ComeBackAndLand" strip_button="ComeBackAndLand" strip_icon="land-right.png" group="hover">
       <call fun="StopVision()"/>
-      <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_FC)"/>
+      <call fun="NavSetWaypointHere(WP_CRUISE)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CRUISE" until="stateGetPositionEnu_f()->z > 30"/>
       <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_TD)"/>
       <go wp="CRUISE"/>
