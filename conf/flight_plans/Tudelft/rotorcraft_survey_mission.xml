@@ -12,6 +12,13 @@
 #ifndef DropOpen
 #define DropOpen() FALSE
 #endif
+#ifndef StartVision
+#define StartVision() FALSE
+#endif
+#ifndef StopVision
+#define StopVision() FALSE
+#endif
+#define WpAlt(X) (30)
   </header>
 
   <exceptions>
@@ -65,10 +72,27 @@
     <block name="Standby" strip_button="Standby" strip_icon="home.png" group="hover">
       <stay wp="STDBY"/>
     </block>
-    <block name="LookRobot" strip_button="LookRobot-FC" strip_icon="lookdown.png" group="hover">
+
+    <block name="GoTennis" strip_button="LookRobot-FC" strip_icon="lookdown.png" group="hover">
       <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_FC)"/>
       <go wp="CRUISE"/>
+    </block>
+    <block name="LookRobot" >
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="FC" until="LessThan(stateGetPositionEnu_f()->z, 20)"/>
+      <call fun="NavCopyWaypointPositionOnly(WP_CAM,WP_FC)"/>
+    </block>
+    <block name="Vision" >
+      <exception cond="block_time > 60" deroute="ComeBack"/>
+      <call fun="StartVision()"/>
       <stay wp="FC"/>
+    </block>
+    <block name="ComeBack" strip_button="Abort" strip_icon="home.png" group="hover">
+      <call fun="StopVision()"/>
+      <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_FC)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CRUISE" until="stateGetPositionEnu_f()->z > 30"/>
+      <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_TD)"/>
+      <go wp="CRUISE"/>
+      <deroute block="land"/>
     </block>
 
     <block name="CAM" strip_button="Follow-Vision-Geolocation-Results" strip_icon="lookdown.png" group="hover">
@@ -163,7 +187,7 @@
       <deroute block="Survey Poly RUN"/>
     </block>
     <block name="Survey Poly RUN">
-      <exception cond="PolySurveySweepNum >= 5" deroute="Standby"/>
+      <exception cond="PolySurveySweepNum >= 5" deroute="GoTennis"/>
       <call fun="nav_survey_poly_run()"/>
     </block>
 

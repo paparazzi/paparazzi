@@ -44,6 +44,7 @@ uint8_t cv_blob_locator_type;
 
 int geofilter_length = 5;
 int marker_size = 18;
+int record_video = 0;
 
 volatile uint32_t blob_locator = 0;
 
@@ -243,7 +244,9 @@ void cv_blob_locator_init(void) {
 }
 
 void cv_blob_locator_periodic(void) {
-
+  if (record_video == 1) {
+    video_thread_take_shot(TRUE);
+  }
 }
 
 
@@ -302,4 +305,15 @@ extern void cv_blob_locator_start(void) {
 
 extern void cv_blob_locator_stop(void) {
 
+}
+
+void start_vision(void) {
+  georeference_init();
+  record_video = 1;
+  cv_blob_locator_type = 3;
+}
+void stop_vision(void) {
+  georeference_init();
+  record_video = 0;
+  cv_blob_locator_type = 0;
 }

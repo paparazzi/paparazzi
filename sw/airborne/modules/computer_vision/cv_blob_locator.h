@@ -42,6 +42,7 @@ extern uint8_t cv_blob_locator_type;
 
 extern int marker_size;
 extern int geofilter_length;
+extern int record_video;
 
 extern void cv_blob_locator_init(void);
 extern void cv_blob_locator_periodic(void);
@@ -52,6 +53,13 @@ extern void cv_blob_locator_stop(void);
 #define cv_blob_locator_GeoReset(_v) {       \
     cv_blob_locator_start();                 \
   }
+
+#define StartVision(X) { start_vision(); FALSE; }
+#define StopVision(X) { stop_vision(); FALSE; }
+
+
+extern void start_vision(void);
+extern void stop_vision(void);
 
 
 #endif

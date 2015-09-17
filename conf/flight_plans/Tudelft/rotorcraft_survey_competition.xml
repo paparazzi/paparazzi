@@ -16,7 +16,7 @@
     <waypoint lat="50.788775526101" lon="6.04652336854142" name="RZ1" height="15"/>
     <waypoint lat="50.7889170568219" lon="6.04640018582595" name="RZ2" height="15"/>
     <waypoint lat="50.7889755961272" lon="6.04642327267965" name="RZ3" height="15"/>
-    <waypoint lat="50.789522" lon="6.047118" name="FC"/>
+    <waypoint lat="50.789522" lon="6.047118" name="FC" height="20"/>
     <waypoint lat="50.788597" lon="6.046721" name="S1"/>
     <waypoint lat="50.788973" lon="6.045944" name="S2"/>
     <waypoint lat="50.789323" lon="6.046330" name="S3"/>
