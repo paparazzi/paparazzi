@@ -20,11 +20,9 @@
     <subsystem name="imu" type="bebop"/>
     <subsystem name="gps" type="furuno"/>
     <subsystem name="stabilization" type="indi"/>
-    <subsystem name="ahrs" type="float_mlkf"/>
     <subsystem name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
-      <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
     </subsystem>
     <subsystem name="ins" type="extended"/>
   </firmware>
@@ -218,7 +216,7 @@
     <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="15"/>
+    <define name="PGAIN" value="79"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
   </section>

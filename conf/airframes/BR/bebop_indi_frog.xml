@@ -43,8 +43,8 @@
     </load>
     <load name="cv_blob_locator.xml"/>
     <load name="video_rtp_stream.xml">
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
-      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="2"/>
     </load>
     <load name="nav_survey_rectangle_rotorcraft.xml">
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
