@@ -20,6 +20,7 @@
 
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators" type="asctec_v2"/>
+    <subsystem name="actuators" type="pwm"/>
 
     <subsystem name="telemetry" type="xbee_api"/>
     <subsystem name="imu" type="lisa_mx_v2.1"/>
@@ -41,6 +42,7 @@
   <modules main_freq="512">
     <!--   <load name="logger_spi_link.xml"/>
     <load name="imu_quality_assessment.xml"/> -->
+    <load name="servo_switch.xml"/>
     <load name="send_imu_mag_current.xml"/>
     <load name="gps_ubx_ucenter.xml" />
     <load name="nav_survey_rectangle_rotorcraft.xml"/>
@@ -58,6 +60,18 @@
     <servo name="LEFT"  no="2" min="0" neutral="3" max="200"/><!-- BACKRIGHT -->
     <servo name="RIGHT" no="3" min="0" neutral="3" max="200"/><!-- BACKLEFT -->
   </servos>
+
+  <servos driver="Pwm">
+     <servo name="DROP" no="4" min="1100" neutral="1500" max="2100"/>
+  </servos>
+
+  <section name="SERVO_SWITCH">
+    <define name="SERVO_SWITCH_SERVO" value="DROP"/>
+    <define name="SERVO_SWITCH_ON_VALUE" value="SERVO_DROP_MIN"/>
+    <define name="SERVO_SWITCH_OFF_VALUE" value="SERVO_DROP_MAX"/>
+    <define name="DropOpen()" value="ServoSwitchOn()"/>
+    <define name="DropClose()" value="ServoSwitchOff()"/>
+  </section>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

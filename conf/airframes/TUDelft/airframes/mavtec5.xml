@@ -26,7 +26,7 @@
     <subsystem name="actuators"     type="pwm"/>
     <subsystem name="telemetry"     type="xbee_api"/>
     <subsystem name="imu"           type="lisa_mx_v2.1"/>
-    <subsystem name="gps"           type="piksi">
+    <subsystem name="gps"           type="ublox">
       <define name="USE_PIKSI_EXT_ANTENNA" value="TRUE"/>
     </subsystem>
     <subsystem name="stabilization" type="int_quat"/>
@@ -48,7 +48,7 @@
   </servos>
 
   <servos driver="Pwm">
-     <servo name="DROP" no="4" min="1000" neutral="1500" max="2100"/>
+     <servo name="DROP" no="4" min="1100" neutral="1500" max="2100"/>
   </servos>
 
   <commands>

@@ -62,8 +62,8 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/Tudelft/rotorcraft_survey_competition.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_indi.xml settings/control/rotorcraft_speed.xml"
-   settings_modules="[modules/geo_mag.xml] modules/air_data.xml modules/video_thread.xml modules/cv_blob_locator.xml modules/video_rtp_stream.xml [modules/nav_survey_rectangle_rotorcraft.xml] modules/nav_survey_poly_rotorcraft.xml modules/digital_cam_video.xml"
    gui_color="#ffff0689b7a1"
+   settings_modules="[modules/geo_mag.xml] modules/air_data.xml modules/video_thread.xml modules/cv_blob_locator.xml modules/video_rtp_stream.xml [modules/nav_survey_rectangle_rotorcraft.xml] modules/nav_survey_poly_rotorcraft.xml modules/digital_cam_video.xml"
   />
   <aircraft
    name="Bebop_default"
@@ -95,7 +95,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/Tudelft/rotorcraft_survey_competition.xml"
    settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/modules/config_asctec_v2.xml settings/control/rotorcraft_guidance.xml settings/control/rotorcraft_speed.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/nav_survey_rectangle_rotorcraft.xml modules/nav_survey_poly_rotorcraft.xml modules/geo_mag.xml"
+   settings_modules="modules/servo_switch.xml modules/gps_ubx_ucenter.xml modules/nav_survey_rectangle_rotorcraft.xml modules/nav_survey_poly_rotorcraft.xml modules/geo_mag.xml"
    gui_color="blue"
   />
   <aircraft
