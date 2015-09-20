@@ -317,6 +317,11 @@ test: test_math test_examples
 test_examples: all
 	CONF_XML=conf/conf_tests.xml prove tests/examples/
 
+test_all_confs: all
+	$(Q)$(eval $CONFS:=$(shell ./find_confs.py))
+	@echo "Found $(words $($CONFS)) config files: $($CONFS)"
+	$(Q)$(foreach conf,$($CONFS),echo "Testing all aircrafts in conf: $(conf)" && CONF_XML=$(conf) prove tests/examples/ ;)
+
 # run some math tests that don't need whole paparazzi to be built
 test_math:
 	make -C tests/math
@@ -331,4 +336,4 @@ test_sim: all
 subdirs $(SUBDIRS) conf ext libpprz multimon cockpit cockpit.opt tmtc tmtc.opt generators\
 static sim_static lpctools commands \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
-test test_examples test_math test_sim
+test test_examples test_math test_sim test_all_confs
