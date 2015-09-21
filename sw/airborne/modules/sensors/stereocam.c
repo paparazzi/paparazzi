@@ -62,9 +62,9 @@ static uint8_t handleStereoPackage(void);
 MsgProperties msgProperties;
 
 uint8_t msg_buf[256];         // define local data
-uint8array stereocam_data = {.len = 0, .data = msg_buf, .data_new = 0};  // buffer used to contain image without line endings
+uint8array stereocam_data = {.len = 0, .data = msg_buf, .fresh = 0};  // buffer used to contain image without line endings
 uint16_t freq_counter = 0;
-uint16_t frequency = 0;
+uint8_t frequency = 0;
 uint32_t previous_time = 0;
 
 #ifndef STEREO_BUF_SIZE
@@ -151,7 +151,8 @@ static uint8_t handleStereoPackage(void)
   }
 
   // search for complete message in buffer, if found increments read location and returns immediately
-  while (diff(insert_loc, extract_loc) > 0) {
+  // stay length of line header behind insert (NB. code can be changed to look back instead of forward)
+  while (diff(insert_loc, extract_loc) > 3) {
     if (isStartOfMsg(ser_read_buf, extract_loc)) {
       msg_start = extract_loc;
     } else if (isEndOfMsg(ser_read_buf, extract_loc)) { // process msg
@@ -159,16 +160,16 @@ static uint8_t handleStereoPackage(void)
       get_msg_properties(ser_read_buf, &msgProperties, msg_start);
 
       // Copy array to circular buffer and remove all bytes that are indications of start and stop lines
-      uint16_t i = add(msg_start, 8), j = 0, k = 0, index = 0;
+      uint16_t i = msg_start, j = 0, k = 0, index = 0;
       for (k = 0; k < msgProperties.height; k++) {
+        i = add(i, 8);    // step over EOL and SOL or SOM and SOL
         for (j = 0; j < msgProperties.width; j++) {
           msg_buf[index++] = ser_read_buf[i];
           i = add(i, 1);
         }
-        i = add(i, 8);    // step over EOL and SOL
       } // continue search for new line
       stereocam_data.len = msgProperties.width * msgProperties.height;
-      stereocam_data.data_new = 1;
+      stereocam_data.fresh = 1;
       extract_loc = add(extract_loc, 4);      // step over EOM string
       return 1;
     }
@@ -190,6 +191,8 @@ extern void stereocam_start(void)
   freq_counter = 0;
   frequency = 0;
   previous_time = sys_time.nb_tick;
+
+  stereocam_data.fresh = 0;
 }
 
 extern void stereocam_stop(void)
@@ -201,7 +204,7 @@ extern void stereocam_periodic(void)
   if (handleStereoPackage()) {
     freq_counter++;
     if ((sys_time.nb_tick - previous_time) > sys_time.ticks_per_sec) {  // 1s has past
-      frequency = (uint16_t)((freq_counter * (sys_time.nb_tick - previous_time)) / sys_time.ticks_per_sec);
+      frequency = (uint8_t)((freq_counter * (sys_time.nb_tick - previous_time)) / sys_time.ticks_per_sec);
       freq_counter = 0;
       previous_time = sys_time.nb_tick;
     }
