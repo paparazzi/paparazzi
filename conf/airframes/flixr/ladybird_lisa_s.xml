@@ -53,7 +53,7 @@
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
+      <subsystem name="radio_control" type="spektrum"/>
     </target>
 
     <subsystem name="motor_mixing"/>

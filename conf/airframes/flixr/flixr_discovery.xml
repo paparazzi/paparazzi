@@ -55,7 +55,9 @@
 
   <firmware name="setup">
     <target name="tunnel"          board="twog_1.0" />
-    <target name="usb_tunnel"    board="twog_1.0"/>
+    <target name="usb_tunnel"    board="twog_1.0">
+       <configure name="TUNNEL_PORT" value="UART1"/>
+    </target>
   </firmware>
 
   <firmware name="test_progs">
