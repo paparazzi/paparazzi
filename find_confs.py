@@ -9,7 +9,7 @@ def find_conf_files(pprz_home, conf_dir, exclude_backups=True):
     conf_files = []
     pattern = "*conf[._-]*xml"
     backup_pattern = "*conf[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
-    excludes = ["%gconf.xml"]
+    excludes = ["conf/%gconf.xml", "conf/conf.xml"]
 
     for path, subdirs, files in os.walk(conf_dir):
         for name in files:
@@ -18,7 +18,7 @@ def find_conf_files(pprz_home, conf_dir, exclude_backups=True):
             if fnmatch(name, pattern):
                 filepath = os.path.join(path, name)
                 entry = os.path.relpath(filepath, pprz_home)
-                if not os.path.islink(filepath) and name not in excludes:
+                if not os.path.islink(filepath) and entry not in excludes:
                     conf_files.append(entry)
     return conf_files
 
