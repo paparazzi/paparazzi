@@ -24,6 +24,13 @@
 
 #define DATALINK_C
 
+/* PERIODIC_C_MAIN is defined before generated/periodic_telemetry.h
+ * in order to implement telemetry_mode_Main_*
+ */
+#define PERIODIC_C_MAIN
+
+#include "generated/periodic_telemetry.h"
+
 #include "generated/airframe.h"
 #include "generated/settings.h"
 
