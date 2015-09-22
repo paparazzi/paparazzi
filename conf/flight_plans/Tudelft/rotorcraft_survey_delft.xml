@@ -22,9 +22,10 @@
     <waypoint name="p2" x="25.5" y="-43.9"/>
     <waypoint name="p3" x="0.7" y="16.8"/>
     <waypoint name="p4" x="-4.5" y="14.4"/>
-    <waypoint name="CAM" x="19.2" y="-55.4"/>
-    <waypoint name="CRUISE" x="19.2" y="-55.4" height="20"/>
+    <waypoint name="CAM" x="19" y="-55"/>
+    <waypoint name="CRUISE" x="19" y="-56" height="20"/>
     <waypoint name="TD" x="2.8" y="-3.4" height="5"/>
+    <waypoint name="ETD" x="19" y="-57" height="5"/>
     <waypoint name="_red1" x="75.2" y="114.6"/>
     <waypoint name="_red2" x="140.7" y="-44.7"/>
     <waypoint name="_red3" x="-32.5" y="-127.4"/>
@@ -56,6 +57,18 @@
       <corner name="_green2B"/>
       <corner name="_green2C"/>
       <corner name="_green2D"/>
+    </sector>
+    <sector color="red" name="TENNIS">
+      <corner name="_red1"/>
+      <corner name="_red2"/>
+      <corner name="_red3"/>
+      <corner name="_red4"/>
+    </sector>
+    <sector color="red" name="LAND">
+      <corner name="_red1"/>
+      <corner name="_red2"/>
+      <corner name="_red3"/>
+      <corner name="_red4"/>
     </sector>
   </sectors>
   <includes>
