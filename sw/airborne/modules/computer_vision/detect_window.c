@@ -62,8 +62,6 @@ uint16_t detect_window_sizes(uint8_t *in, uint32_t image_width, uint32_t image_h
 {
   // whether to calculate the integral image (only do once):
   uint8_t calculate_integral_image = 1;
-  // whether the algorithm will determine the size of the window on the basis of the average distance to objects in view
-  uint8_t determine_size = 0;
   uint16_t sizes[N_WINDOW_SIZES];
   uint16_t best_response[N_WINDOW_SIZES];
   uint16_t best_index = 0;
@@ -76,7 +74,7 @@ uint16_t detect_window_sizes(uint8_t *in, uint32_t image_width, uint32_t image_h
 
     // coordinate will contain the coordinate, best_response will be the best match * 100
     calculate_integral_image = (s == 0); // only calculate the integal image for the first window size
-    best_response[s] = detect_window_one_size(in, image_width, image_height, coordinate, determine_size, &sizes[s],
+    best_response[s] = detect_window_one_size(in, image_width, image_height, coordinate, &sizes[s],
                        calculate_integral_image, integral_image, MODE);
     if (s == 0 || best_response[s] < best_response[best_index]) {
       best_index = s;
@@ -91,14 +89,13 @@ uint16_t detect_window_sizes(uint8_t *in, uint32_t image_width, uint32_t image_h
 }
 
 uint16_t detect_window_one_size(uint8_t *in, uint32_t image_width, uint32_t image_height, uint16_t *coordinate,
-                                uint8_t determine_size, uint16_t *size, uint8_t calculate_integral_image, uint32_t *integral_image, uint8_t MODE)
+                                uint16_t *size, uint8_t calculate_integral_image, uint32_t *integral_image, uint8_t MODE)
 {
   /*
    * Steps:
    * (0) filter out the bad pixels (i.e., those lower than 4) and replace them with a disparity of 6.
    * (1) get integral image (if calculate_integral_image == 1)
-   * (2) get average disparity to determine probable size (if determine_size == 1)
-   * (3) determine responses per location while determining the best-matching location (put it in coordinate)
+   * (2) determine responses per location while determining the best-matching location (put it in coordinate)
    */
 
   // output of the function:
@@ -129,9 +126,7 @@ uint16_t detect_window_one_size(uint8_t *in, uint32_t image_width, uint32_t imag
   px_border = px_whole - px_inner;
   px_outer = border_size * window_size;
 
-  //print_number(px_inner, 0); print_space();
-
-  // (3) determine a response map for that size
+  // (2) determine a response map for that size
   for (x = 0; x < image_width - feature_size; x++) {
     for (y = 0; y < image_height - feature_size; y++) {
       response = get_window_response(x, y, feature_size, border_size, integral_image, image_width, image_height, px_inner,
@@ -156,8 +151,6 @@ uint16_t detect_window_one_size(uint8_t *in, uint32_t image_width, uint32_t imag
     }
   }
 
-  //in[coordinate[0]+coordinate[1]*image_width] = 255;
-
   // the coordinate is at the top left corner of the feature,
   // the center of the window is then at:
   coordinate[0] += feature_size / 2;
@@ -167,7 +160,7 @@ uint16_t detect_window_one_size(uint8_t *in, uint32_t image_width, uint32_t imag
 }
 
 // this function can help if the window is not visible anymore:
-uint16_t detect_escape(uint8_t *in, uint32_t image_width, uint32_t image_height, uint16_t *escape_coordinate,
+uint16_t detect_escape(uint8_t *in __attribute__((unused)), uint32_t image_width, uint32_t image_height, uint16_t *escape_coordinate,
                        uint32_t *integral_image, uint8_t n_cells)
 {
   uint16_t c, r, min_c, min_r;
@@ -224,7 +217,8 @@ uint32_t get_sum_disparities(uint16_t min_x, uint16_t min_y, uint16_t max_x, uin
                              uint32_t image_width, uint32_t image_height)
 {
   uint32_t sum;
-  if (min_x + min_y * image_width < 0) { return 0; }
+  // If variables are not unsigned, then check for negative inputs
+  // if (min_x + min_y * image_width < 0) { return 0; }
   if (max_x + max_y * image_width >= image_width * image_height) { return 0; }
   sum = integral_image[min_x + min_y * image_width] + integral_image[max_x + max_y * image_width] -
         integral_image[max_x + min_y * image_width] - integral_image[min_x + max_y * image_width];
@@ -232,7 +226,7 @@ uint32_t get_sum_disparities(uint16_t min_x, uint16_t min_y, uint16_t max_x, uin
 }
 
 uint32_t get_avg_disparity(uint16_t min_x, uint16_t min_y, uint16_t max_x, uint16_t max_y, uint32_t *integral_image,
-                           uint32_t image_width, uint32_t image_height)
+                           uint32_t image_width, uint32_t image_height __attribute__((unused)))
 {
   uint16_t w, h;
   uint32_t sum, avg, n_pix;

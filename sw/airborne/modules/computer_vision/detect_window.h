@@ -40,7 +40,7 @@ extern bool_t detect_window(struct image_t *img);
 uint16_t detect_window_sizes(uint8_t *in, uint32_t image_width, uint32_t image_height, uint16_t *coordinate,
                              uint32_t *integral_image, uint8_t MODE);
 uint16_t detect_window_one_size(uint8_t *in, uint32_t image_width, uint32_t image_height, uint16_t *coordinate,
-                                uint8_t determine_size, uint16_t *size, uint8_t calculate_integral_image, uint32_t *integral_image, uint8_t MODE);
+                                uint16_t *size, uint8_t calculate_integral_image, uint32_t *integral_image, uint8_t MODE);
 uint16_t detect_escape(uint8_t *in, uint32_t image_width, uint32_t image_height, uint16_t *escape_coordinate,
                        uint32_t *integral_image, uint8_t n_cells);
 void get_integral_image(uint8_t *in, uint32_t image_width, uint32_t image_height, uint32_t *integral_image);
