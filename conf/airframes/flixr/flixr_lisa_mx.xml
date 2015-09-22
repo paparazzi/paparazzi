@@ -33,7 +33,7 @@
       <define name="SERVO_HZ" value="400"/>
     </subsystem>
 
-    <subsystem name="telemetry"     type="transparent_usb"/>
+    <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="aspirin_v2.2"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
@@ -46,6 +46,7 @@
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
     <!--define name="FAILSAFE_ON_BAT_CRITICAL" value="TRUE"/-->
+    <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
   </firmware>
 
   <firmware name="setup">
