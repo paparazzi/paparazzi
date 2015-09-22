@@ -403,11 +403,13 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
   (* A/C id *)
   ignore(gui#entry_ac_id#connect#changed ~callback:(fun () -> save_callback gui ac_combo tree_set tree_set_mod ()));
 
+  let callback = fun _ ->
+    update_params (Gtk_tools.combo_value ac_combo);
+    save_callback gui ac_combo tree_set tree_set_mod () in
   (* refresh button *)
-  ignore(gui#button_refresh#connect#clicked ~callback:(fun () -> update_params (Gtk_tools.combo_value ac_combo)));
-
+  ignore(gui#button_refresh#connect#clicked ~callback);
   (* update with build button *)
-  ignore(gui#button_build#connect#clicked ~callback:(fun () -> update_params (Gtk_tools.combo_value ac_combo)));
+  ignore(gui#button_build#connect#clicked ~callback);
 
   (* Conf *)
   List.iter (fun (name, subdir, label, button_browse, button_edit, editor, button_remove) ->
