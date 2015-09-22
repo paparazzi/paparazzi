@@ -408,8 +408,9 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
     save_callback gui ac_combo tree_set tree_set_mod () in
   (* refresh button *)
   ignore(gui#button_refresh#connect#clicked ~callback);
-  (* update with build button *)
+  (* update with build and upload button *)
   ignore(gui#button_build#connect#clicked ~callback);
+  ignore(gui#button_upload#connect#clicked ~callback);
 
   (* Conf *)
   List.iter (fun (name, subdir, label, button_browse, button_edit, editor, button_remove) ->
