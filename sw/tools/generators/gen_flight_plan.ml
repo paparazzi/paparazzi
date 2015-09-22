@@ -89,6 +89,17 @@ let name_of = fun wp -> ExtXml.attrib wp "name"
 
 let ground_alt = ref 0.
 let security_height = ref 0.
+let fp_wgs84 = ref { posn_lat = 0.; posn_long = 0.}
+
+let check_altitude_srtm = fun a x wgs84 ->
+  Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
+  try
+    let srtm_alt = float (Srtm.of_wgs84 wgs84) in
+    if a < srtm_alt then begin
+      fprintf stderr "\nMAJOR WARNING: below SRTM ground altitude (%.0f<%.0f) in %s\n" a srtm_alt (Xml.to_string x)
+    end
+  with Srtm.Tile_not_found e ->
+    fprintf stderr "No SRTM data found to check altitude.\n"
 
 let check_altitude = fun a x ->
   if a < !ground_alt +. !security_height then begin
@@ -141,6 +152,8 @@ let print_waypoint_lla_wgs84 = fun utm0 default_alt waypoint ->
   and alt = try sof (float_attrib waypoint "height" +. !ground_alt) with _ -> default_alt in
   let alt = try Xml.attrib waypoint "alt" with _ -> alt in
   let wgs84 = Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm0 (x, y)) in
+  if Srtm.available wgs84 then
+    check_altitude_srtm (float_of_string alt) waypoint wgs84;
   let alt = float_of_string alt +. Egm96.of_wgs84 wgs84 in
   printf " {.lat=%Ld, .lon=%Ld, .alt=%.0f}, /* 1e7deg, 1e7deg, mm (above WGS84 ref ellipsoid) */ \\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (1000. *. alt)
 
@@ -796,8 +809,8 @@ let () =
   try
     let xml = ExtXml.parse_file !xml_file in
 
-    let wgs84 = georef_of_xml xml in
-    let xml = check_geo_ref wgs84 xml in
+    fp_wgs84 := georef_of_xml xml;
+    let xml = check_geo_ref !fp_wgs84 xml in
 
     let dir = Filename.dirname !xml_file in
     let xml = Fp_proc.process_includes dir xml in
@@ -812,9 +825,9 @@ let () =
     and blocks = Xml.children (ExtXml.child xml "blocks")
     and global_exceptions = try Xml.children (ExtXml.child xml "exceptions") with _ -> [] in
 
-    let utm0 = utm_of WGS84 wgs84 in
+    let utm0 = utm_of WGS84 !fp_wgs84 in
     let rel_utm_of_wgs84 = fun wgs84 ->
-      let utm = utm_of WGS84 wgs84 in
+      let utm = utm_of WGS84 !fp_wgs84 in
       (utm.utm_x -. utm0.utm_x, utm.utm_y -. utm0.utm_y) in
     let waypoints =
       List.map (localize_waypoint rel_utm_of_wgs84) waypoints in
@@ -859,14 +872,15 @@ let () =
         with _ -> !security_height in
 
       check_altitude (float_of_string alt) xml;
+      check_altitude_srtm (float_of_string alt) xml !fp_wgs84;
 
       Xml2h.define "NAV_UTM_EAST0" (sprintf "%.0f" utm0.utm_x);
       Xml2h.define "NAV_UTM_NORTH0" (sprintf "%.0f" utm0.utm_y);
       Xml2h.define "NAV_UTM_ZONE0" (sprintf "%d" utm0.utm_zone);
-      Xml2h.define "NAV_LAT0" (sprintf "%Ld /* 1e7deg */" (convert_angle wgs84.posn_lat));
-      Xml2h.define "NAV_LON0" (sprintf "%Ld /* 1e7deg */" (convert_angle wgs84.posn_long));
+      Xml2h.define "NAV_LAT0" (sprintf "%Ld /* 1e7deg */" (convert_angle !fp_wgs84.posn_lat));
+      Xml2h.define "NAV_LON0" (sprintf "%Ld /* 1e7deg */" (convert_angle !fp_wgs84.posn_long));
       Xml2h.define "NAV_ALT0" (sprintf "%.0f /* mm above msl */" (1000. *. !ground_alt));
-      Xml2h.define "NAV_MSL0" (sprintf "%.0f /* mm, EGM96 geoid-height (msl) over ellipsoid */" (1000. *. Egm96.of_wgs84 wgs84));
+      Xml2h.define "NAV_MSL0" (sprintf "%.0f /* mm, EGM96 geoid-height (msl) over ellipsoid */" (1000. *. Egm96.of_wgs84 !fp_wgs84));
 
       Xml2h.define "QFU" (sprintf "%.1f" qfu);
 
