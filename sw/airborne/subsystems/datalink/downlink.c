@@ -81,7 +81,7 @@ void downlink_init(void)
   w5100_init();
 #endif
 #if DATALINK == BLUEGIGA
-  bluegiga_init();
+  bluegiga_init(&bluegiga_p);
 #endif
 
 #endif

@@ -37,7 +37,13 @@ enum BlueGigaStatus {
   BLUEGIGA_SCANNING               /**< The com is switched from data link to rssi scanning */
 };
 
+#ifndef BLUEGIGA_BUFFER_SIZE
 #define BLUEGIGA_BUFFER_SIZE 256    // buffer max value: 256
+#elif BLUEGIGA_BUFFER_SIZE < 256
+#warning "BLUEGIGA_BUFFER_SIZE may be smaller than possible message length, check subsystems/datalink/bluegiga.c:dev_check_free_space for more information"
+#elif BLUEGIGA_BUFFER_SIZE > 256
+#error "BLUEGIGA_BUFFER_SIZE not made for sizes larger than 256, check subsystems/datalink/bluegiga.c for more information"
+#endif
 
 struct bluegiga_periph {
   /* Receive buffer */
@@ -57,36 +63,28 @@ struct bluegiga_periph {
 
 // DEVICE passed to all DOWNLINK_SEND functions
 extern struct bluegiga_periph bluegiga_p;
+extern signed char bluegiga_rssi[];    // values initialized with 127
 
-void bluegiga_init(void);
-bool_t bluegiga_check_free_space(int len);
-void bluegiga_transmit(uint8_t data);
-void bluegiga_receive(void);
-void bluegiga_send(void);
+bool_t bluegiga_ch_available(struct bluegiga_periph *p);
 void bluegiga_increment_buf(uint8_t *buf_idx, uint8_t len);
 
-extern signed char bluegiga_rssi[];    // values initialized with 127
-void bluegiga_scan(void);
+void bluegiga_init(struct bluegiga_periph *p);
+void bluegiga_send(struct bluegiga_periph *p);
 
-// Device interface macros
-#define BlueGigaCheckFreeSpace() (((bluegiga_p.tx_insert_idx+1)%BLUEGIGA_BUFFER_SIZE) != bluegiga_p.tx_extract_idx)
-#define BlueGigaTransmit(_x) bluegiga_transmit(_x)
-#define BlueGigaSendMessage() bluegiga_send()
-#define BlueGigaChAvailable() (bluegiga_p.rx_extract_idx != bluegiga_p.rx_insert_idx)
-#define BlueGigaGetch() bluegiga_getch()
+void bluegiga_scan(void);
 
 // BLUEGIGA is using pprz_transport
 // FIXME it should not appear here, this will be fixed with the rx improvements some day...
 // BLUEGIGA needs a specific read_buffer function
 #include "subsystems/datalink/pprz_transport.h"
 #include "led.h"
-static inline void bluegiga_read_buffer(struct pprz_transport *t)
+static inline void bluegiga_read_buffer(struct bluegiga_periph *p, struct pprz_transport *t)
 {
   do {
-    int c = 0;
+    uint8_t c = 0;
     do {
-      parse_pprz(t, bluegiga_p.rx_buf[(bluegiga_p.rx_extract_idx + c++) % BLUEGIGA_BUFFER_SIZE]);
-    } while (((bluegiga_p.rx_extract_idx + c) % BLUEGIGA_BUFFER_SIZE != bluegiga_p.rx_insert_idx)
+      parse_pprz(t, p->rx_buf[(p->rx_extract_idx + c++) % BLUEGIGA_BUFFER_SIZE]);
+    } while (((p->rx_extract_idx + c) % BLUEGIGA_BUFFER_SIZE != p->rx_insert_idx)
              && !(t->trans_rx.msg_received));
     // reached end of circular read buffer or message received
     // if received, decode and advance
@@ -97,15 +95,16 @@ static inline void bluegiga_read_buffer(struct pprz_transport *t)
       pprz_parse_payload(t);
       t->trans_rx.msg_received = FALSE;
     }
-    bluegiga_increment_buf(&bluegiga_p.rx_extract_idx, c);
-  } while (BlueGigaChAvailable()); // continue till all messages read
+    bluegiga_increment_buf(&p->rx_extract_idx, c);
+  } while (bluegiga_ch_available(p)); // continue till all messages read
 }
 
 // transmit previous data in buffer and parse data received
-#define BlueGigaCheckAndParse(_dev,_trans) {      \
-    if (BlueGigaChAvailable())                    \
-      bluegiga_read_buffer( &(_trans) );          \
-    bluegiga_send();                              \
+// TODO: (Kirk) Remove hard coded device perph here
+#define BlueGigaCheckAndParse(_dev,_trans) {     \
+    if (bluegiga_ch_available(&(_dev)))          \
+      bluegiga_read_buffer(&(_dev), &(_trans));  \
+    bluegiga_send((&_dev));                      \
   }
 
 #endif /* BLUEGIGA_DATA_LINK_H */
