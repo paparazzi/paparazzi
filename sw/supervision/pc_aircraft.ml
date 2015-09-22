@@ -406,6 +406,9 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
   (* refresh button *)
   ignore(gui#button_refresh#connect#clicked ~callback:(fun () -> update_params (Gtk_tools.combo_value ac_combo)));
 
+  (* update with build button *)
+  ignore(gui#button_build#connect#clicked ~callback:(fun () -> update_params (Gtk_tools.combo_value ac_combo)));
+
   (* Conf *)
   List.iter (fun (name, subdir, label, button_browse, button_edit, editor, button_remove) ->
     (* editor button callback *)
