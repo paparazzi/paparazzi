@@ -32,7 +32,10 @@
  */
 #define PERIODIC_C_MAIN
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include "generated/periodic_telemetry.h"
+#pragma GCC diagnostic pop
 
 #include "generated/airframe.h"
 #include "generated/settings.h"
