@@ -20,7 +20,6 @@
     <target name="test_sys_time_timer"      board="elle0_1.0"/>
 	<target name="test_sys_time_usleep"     board="elle0_1.0"/>
     <target name="test_telemetry"           board="elle0_1.0"/>
-    <target name="test_ms2100"              board="elle0_1.0"/>
 
     <target name="test_actuators_pwm"       board="elle0_1.0">
       <define name="SERVO_HZ" value="400"/>
@@ -32,10 +31,9 @@
     <target name="test_esc_mkk_simple"      board="elle0_1.0"/>
     <target name="test_esc_asctecv1_simple" board="elle0_1.0"/>
     <target name="test_baro_board"          board="elle0_1.0">
-      <configure name="BARO_LED" value="5"/>
+      <configure name="BARO_LED" value="2"/>
     </target>
     <target name="test_adc"                 board="elle0_1.0"/>
-    <target name="test_can"                 board="elle0_1.0"/>
     <target name="test_uart"                board="elle0_1.0">
       <define name="USE_UART2"/>
       <define name="UART2_BAUD" value="B57600"/>
