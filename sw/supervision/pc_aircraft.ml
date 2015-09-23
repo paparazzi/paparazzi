@@ -227,6 +227,8 @@ let get_targets_list = fun ac_xml ->
 
 (** Parse Airframe File for Targets **)
 let parse_ac_targets = fun target_combo ac_file (log:string->unit) ->
+  (* remember last target *)
+  let last_target = Gtk_tools.combo_value target_combo in
   (* Clear ComboBox *)
   let (store, column) = Gtk_tools.combo_model target_combo in
   store#clear ();
@@ -241,7 +243,7 @@ let parse_ac_targets = fun target_combo ac_file (log:string->unit) ->
       Gtk_tools.add_to_combo target_combo "sim"
     end;
     let combo_box = Gtk_tools.combo_widget target_combo in
-    combo_box#set_active 0
+    Gtk_tools.select_in_combo target_combo last_target
   with _ -> log (sprintf "Error while parsing targets from file %s\n" ac_file)
 
 (* Parse AC file for flash mode *)
