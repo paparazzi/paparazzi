@@ -74,7 +74,7 @@ static void *uart_thread(void *data __attribute__((unused)))
   /* clear the fd list */
   FD_ZERO(&fds_master);
   /* add used fds */
-  int fd;
+  int __attribute__ ((unused)) fd;
 #if USE_UART0
   if (uart0.reg_addr != NULL) {
     fd = ((struct SerialPort *)uart0.reg_addr)->fd;
@@ -258,7 +258,7 @@ void uart_put_byte(struct uart_periph *periph, uint8_t data)
 }
 
 
-static void uart_receive_handler(struct uart_periph *periph)
+static void __attribute__ ((unused)) uart_receive_handler(struct uart_periph *periph)
 {
   unsigned char c = 'D';
 
