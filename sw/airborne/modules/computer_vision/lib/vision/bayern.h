@@ -55,7 +55,7 @@ void BayernToYUV(struct image_t *Input, struct image_t *out,
 void BayernToYUV(struct image_t *in, struct image_t *out,
                  int RedX, int RedY)
 {
-  uint16_t *ii = (uint8_t *) in->buf;
+  uint16_t *ii = (uint16_t *) in->buf;
   uint8_t *oi = (uint8_t *) out->buf;
   int x, y;
 
