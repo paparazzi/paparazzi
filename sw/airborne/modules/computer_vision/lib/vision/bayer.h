@@ -21,11 +21,11 @@
  */
 
 /**
- * @file modules/computer_vision/lib/vision/bayern.c
+ * @file modules/computer_vision/lib/vision/bayer.c
  */
 
-#ifndef BAYERN_H
-#define BAYERN_H
+#ifndef Bayer_H
+#define Bayer_H
 
 #include "lib/vision/image.h"
 
@@ -41,18 +41,18 @@ static inline uint8_t clip(uint16_t x)
 }
 
 
-void BayernToYUV(struct image_t *Input, struct image_t *out,
+void BayerToYUV(struct image_t *Input, struct image_t *out,
                  int RedX, int RedY);
 
 
 /**
- * @brief Decode Bayern Pattern
+ * @brief Decode Bayer Pattern
  * @param RedX, RedY the coordinates of the upper-rightmost green pixel
  *        which has a red pixel next to it and a blue underneath
  *
  */
 
-void BayernToYUV(struct image_t *in, struct image_t *out,
+void BayerToYUV(struct image_t *in, struct image_t *out,
                  int RedX, int RedY)
 {
   uint16_t *ii = (uint16_t *) in->buf;
@@ -62,7 +62,7 @@ void BayernToYUV(struct image_t *in, struct image_t *out,
 
   for (y = 0; y < out->h; y++) {
     for (x = 0; x < out->w; x += 2) {
-      /* RGB Bayern:
+      /* RGB Bayer:
        * RBRBRBRBRBRBRBRB
        * GRGRGRGRGRGRGRGR
        */
@@ -99,4 +99,4 @@ void BayernToYUV(struct image_t *in, struct image_t *out,
   }
 }
 
-#endif /* BAYERN_H */
+#endif /* Bayer_H */

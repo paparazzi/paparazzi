@@ -37,7 +37,7 @@
 // Video
 #include "lib/v4l/v4l2.h"
 #include "lib/vision/image.h"
-#include "lib/vision/bayern.h"
+#include "lib/vision/bayer.h"
 #include "lib/encoding/jpeg.h"
 #include "lib/encoding/rtp.h"
 #include "udp_socket.h"
@@ -105,7 +105,7 @@ static void *bebop_front_camera_thread(void *data __attribute__((unused)))
     struct image_t img;
     v4l2_image_get(bebop_front_camera.dev, &img);
 
-    BayernToYUV(&img, &img_color, 0, 0);
+    BayerToYUV(&img, &img_color, 0, 0);
 
     if (bebop_front_camera.take_shot) {
       // Save the image
