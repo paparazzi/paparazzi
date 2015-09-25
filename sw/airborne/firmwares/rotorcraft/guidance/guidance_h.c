@@ -95,7 +95,9 @@ struct Int32Vect2 guidance_h_trim_att_integrator;
 struct Int32Vect2  guidance_h_cmd_earth;
 
 static void guidance_h_update_reference(void);
+#if !GUIDANCE_INDI
 static void guidance_h_traj_run(bool_t in_flight);
+#endif
 static void guidance_h_hover_enter(void);
 static void guidance_h_nav_enter(void);
 static inline void transition_run(void);
@@ -476,6 +478,7 @@ static void guidance_h_update_reference(void)
  * you get an angle of 5.6 degrees for 1m pos error */
 #define GH_GAIN_SCALE 2
 
+#if !GUIDANCE_INDI
 static void guidance_h_traj_run(bool_t in_flight)
 {
   /* maximum bank angle: default 20 deg, max 40 deg*/
@@ -541,6 +544,7 @@ static void guidance_h_traj_run(bool_t in_flight)
 
   VECT2_STRIM(guidance_h_cmd_earth, -total_max_bank, total_max_bank);
 }
+#endif
 
 static void guidance_h_hover_enter(void)
 {

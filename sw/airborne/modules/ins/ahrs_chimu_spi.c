@@ -140,7 +140,7 @@ void parse_ins_msg(void)
 }
 
 
-void ahrs_chimu_update_gps(uint8_t gps_fix, uint16_t gps_speed_3d)
+void ahrs_chimu_update_gps(uint8_t gps_fix __attribute__((unused)), uint16_t gps_speed_3d)
 {
   // Send SW Centripetal Corrections
   uint8_t centripedal[19] = {0xae, 0xae, 0x0d, 0xaa, 0x0b, 0x02,   0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,   0xc2 };

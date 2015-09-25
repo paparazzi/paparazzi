@@ -68,7 +68,7 @@ LiPo/LiIo-Zellen: 2-3
   <section name="ACTUATORS_MKK_V2" prefix="ACTUATORS_MKK_V2_">
     <define name="NB" value="3"/>
     <define name="ADDR" value="{ 0x52, 0x56, 0x54 }"/>
-    <define name="DEVICE" value="i2c1"/>
+    <define name="I2C_DEV" value="i2c1"/>
   </section>
 
   <servos driver="Mkk_v2">

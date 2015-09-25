@@ -88,7 +88,7 @@ static void ivy_send_message(uint8_t packet_id, uint8_t len, uint8_t msg[]) {
     strcat(gps_packet, number);
   }
 
-  IvySendMsg(gps_packet);
+  IvySendMsg("%s", gps_packet);
   printf_debug("Ivy send: %s\n", gps_packet);
 }
 
