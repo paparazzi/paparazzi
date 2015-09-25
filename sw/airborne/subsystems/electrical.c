@@ -164,7 +164,7 @@ void electrical_periodic(void)
    * a=1, n = electrical_priv.nonlin_factor
    */
 #ifndef FBW
-  if(kill_trottle) {
+  if(kill_throttle) {
     // Assume no current when throttle killed (motors off)
     electrical.current = 0;
   } else {
