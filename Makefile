@@ -315,7 +315,7 @@ test: test_math test_examples
 
 # compiles all aircrafts in conf_tests.xml
 test_examples: all
-	CONF_XML=conf/conf_tests.xml prove tests/examples/
+	CONF_XML=conf/conf_tests.xml prove tests/aircrafts/
 
 test_all_confs: all
 	$(Q)$(eval $CONFS:=$(shell ./find_confs.py))
