@@ -54,6 +54,27 @@
 #define MS_DIFF_PRESSURE_SCALE 1.0f
 #endif
 
+// Test if pressure sensor is configured and/or should send ABI message
+#ifdef MS_PRESSURE_SLAVE_IDX
+#ifndef USE_MS_PRESSURE
+#define USE_MS_PRESSURE TRUE
+#endif
+#endif
+
+// Test if diff pressure sensor is configured and/or should send ABI message
+#ifdef MS_DIFF_PRESSURE_SLAVE_IDX
+#ifndef USE_MS_DIFF_PRESSURE
+#define USE_MS_DIFF_PRESSURE TRUE
+#endif
+#endif
+
+// Test if temperature sensor is configured and/or should send ABI message
+#ifdef MS_TEMPERATURE_SLAVE_IDX
+#ifndef USE_MS_TEMPERATURE
+#define USE_MS_TEMPERATURE TRUE
+#endif
+#endif
+
 // Test if EEPROM slave index is configured
 // if not, don't use EEPROM
 #ifndef MS_EEPROM_SLAVE_IDX
@@ -366,7 +387,9 @@ void meteo_stick_event(void)
   // send absolute pressure data over ABI as soon as available
   if (meteo_stick.pressure.data_available) {
     meteo_stick.current_pressure = get_pressure(meteo_stick.pressure.data);
+#if USE_MS_PRESSURE
     AbiSendMsgBARO_ABS(METEO_STICK_SENDER_ID, meteo_stick.current_pressure);
+#endif
     meteo_stick.pressure.data_available = FALSE;
   }
 #endif
@@ -381,7 +404,9 @@ void meteo_stick_event(void)
       }
     }
     float diff = get_diff(meteo_stick.diff_pressure.data);
+#if USE_MS_DIFF_PRESSURE
     AbiSendMsgBARO_DIFF(METEO_STICK_SENDER_ID, diff);
+#endif
     meteo_stick.current_airspeed = get_pitot(meteo_stick.diff_pressure.data);
     meteo_stick.diff_pressure.data_available = FALSE;
   }
@@ -391,7 +416,9 @@ void meteo_stick_event(void)
   // send temperature data over ABI as soon as available
   if (meteo_stick.temperature.data_available) {
     meteo_stick.current_temperature = get_temp(meteo_stick.temperature.data);
+#if USE_MS_TEMPERATURE
     AbiSendMsgTEMPERATURE(METEO_STICK_SENDER_ID, meteo_stick.current_temperature);
+#endif
     meteo_stick.temperature.data_available = FALSE;
   }
 #endif
