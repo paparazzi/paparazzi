@@ -125,7 +125,8 @@
       <message name="IMU_ACCEL"           period=".02"/>
       <message name="IMU_GYRO"            period=".02"/>
       <message name="IMU_MAG"             period=".02"/>
-      <message name="AIR_DATA"            period="0.5"/>
+      <message name="AIR_DATA"            period="0.05"/>
+      <message name="AOA"                 period="0.05"/>
       <message name="RC"                  period="0.05"/>
       <message name="COMMANDS"            period="0.05"/>
       <message name="ACTUATORS"           period="0.05"/>

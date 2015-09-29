@@ -69,6 +69,7 @@ struct MeteoStick {
   struct Eeprom25AA256 eeprom;  ///< eeprom with calibration data
   Calibration_params calib;     ///< calibration
 #endif
+  bool_t reset_dp_offset;       ///< reset differential pressure offset
 };
 
 extern struct MeteoStick meteo_stick;

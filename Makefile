@@ -315,12 +315,12 @@ test: test_math test_examples
 
 # compiles all aircrafts in conf_tests.xml
 test_examples: all
-	CONF_XML=conf/conf_tests.xml prove tests/examples/
+	CONF_XML=conf/conf_tests.xml prove tests/aircrafts/
 
 test_all_confs: all
 	$(Q)$(eval $CONFS:=$(shell ./find_confs.py))
 	@echo "************\nFound $(words $($CONFS)) config files: $($CONFS)"
-	$(Q)$(foreach conf,$($CONFS),echo "\n************\nTesting all aircrafts in conf: $(conf)\n************" && (CONF_XML=$(conf) prove tests/examples/ || echo "failed $(conf)" >> TEST_ALL_CONFS_FAILED);) test -f TEST_ALL_CONFS_FAILED && cat TEST_ALL_CONFS_FAILED && rm -f TEST_ALL_CONFS_FAILED && exit 1
+	$(Q)$(foreach conf,$($CONFS),echo "\n************\nTesting all aircrafts in conf: $(conf)\n************" && (CONF_XML=$(conf) prove tests/aircrafts/ || echo "failed $(conf)" >> TEST_ALL_CONFS_FAILED);) test -f TEST_ALL_CONFS_FAILED && cat TEST_ALL_CONFS_FAILED && rm -f TEST_ALL_CONFS_FAILED && exit 1
 
 # run some math tests that don't need whole paparazzi to be built
 test_math:

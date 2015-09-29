@@ -38,7 +38,7 @@
  */
 struct Aoa_Adc {
   struct adc_buf buf;
-  uint16_t raw; ///< raw ADC value
+  uint32_t raw; ///< raw ADC value
   float angle;  ///< Angle of attack in radians
   float offset; ///< Angle of attack offset in radians
   float sens;   ///< sensitiviy, i.e. scale to conver raw to angle

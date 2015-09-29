@@ -87,6 +87,6 @@ void aoa_adc_update(void)
   stateSetAngleOfAttack_f(aoa_adc.angle);
 #endif
 
-  RunOnceEvery(30, DOWNLINK_SEND_AOA_ADC(DefaultChannel, DefaultDevice, &aoa_adc.raw, &aoa_adc.angle));
+  RunOnceEvery(30, DOWNLINK_SEND_AOA(DefaultChannel, DefaultDevice, &aoa_adc.raw, &aoa_adc.angle));
 }
 
