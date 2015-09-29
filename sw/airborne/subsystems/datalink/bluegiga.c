@@ -53,10 +53,8 @@ void bluegiga_transmit(struct bluegiga_periph *p, uint8_t data);
 void bluegiga_receive(struct spi_transaction *trans);
 
 // Functions for the generic link device device API
-// TODO: I tried to remove the hard coded bluegiga_p here but I clearly don't understand how the link_device calls are made
-static int dev_check_free_space(struct link_device *dev __attribute__((unused)), uint8_t len)
+static int dev_check_free_space(struct bluegiga_periph *p, uint8_t len)
 {
-  struct bluegiga_periph *p = &bluegiga_p; //(struct bluegiga_periph*)(dev->periph);
   // check if there is enough space for message
   // NB if BLUEGIGA_BUFFER_SIZE is smaller than 256 then an additional check is needed that len < BLUEGIGA_BUFFER_SIZE
   if ( len - 1 <= ((p->tx_extract_idx - p->tx_insert_idx - 1 + BLUEGIGA_BUFFER_SIZE) % BLUEGIGA_BUFFER_SIZE))
@@ -64,24 +62,20 @@ static int dev_check_free_space(struct link_device *dev __attribute__((unused)),
 
   return FALSE;
 }
-static void dev_put_byte(struct link_device *dev __attribute__((unused)), uint8_t byte)
+static void dev_put_byte(struct bluegiga_periph *p, uint8_t byte)
 {
-  struct bluegiga_periph *p = &bluegiga_p; //(struct bluegiga_periph*)(dev->periph);
   bluegiga_transmit(p, byte);
 }
-static void dev_send_message(struct link_device *dev __attribute__((unused)))
+static void dev_send_message(struct bluegiga_periph *p)
 {
-  struct bluegiga_periph *p = &bluegiga_p; //(struct bluegiga_periph*)(dev->periph);
   bluegiga_send(p);
 }
-static int dev_char_available(struct link_device *dev __attribute__((unused)))
+static int dev_char_available(struct bluegiga_periph *p)
 {
-  struct bluegiga_periph *p = &bluegiga_p; //(struct bluegiga_periph*)(dev->periph);
   return bluegiga_ch_available(p);
 }
-static uint8_t dev_get_byte(struct link_device *dev __attribute__((unused)))
+static uint8_t dev_get_byte(struct bluegiga_periph *p)
 {
-  struct bluegiga_periph *p = &bluegiga_p; //(struct bluegiga_periph*)(dev->periph);
   uint8_t ret = p->rx_buf[p->rx_extract_idx];
   bluegiga_increment_buf(&p->rx_extract_idx,1);
   return ret;
@@ -162,7 +156,7 @@ void bluegiga_init(struct bluegiga_periph *p)
 /* Add one byte to the end of tx circular buffer */
 void bluegiga_transmit(struct bluegiga_periph *p, uint8_t data)
 {
-  if (dev_check_free_space(&p->device, 1) && coms_status != BLUEGIGA_UNINIT) {
+  if (dev_check_free_space(p, 1) && coms_status != BLUEGIGA_UNINIT) {
     p->tx_buf[p->tx_insert_idx] = data;
     bluegiga_increment_buf(&p->tx_insert_idx, 1);
   }
