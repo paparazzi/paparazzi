@@ -37,6 +37,13 @@
       <define name="MS_DIFF_PRESSURE_SCALE" value="1." description="Scale factor of the differential pressure sensor (only used if EEPROM is not used)"/>
     </section>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="MS">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="meteo_stick.reset_dp_offset" shortname="Reset offset" module="modules/meteo/meteo_stick" values="NONE|RESET"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <depends>pwm_meas</depends>
   <header>
     <file name="meteo_stick.h"/>
