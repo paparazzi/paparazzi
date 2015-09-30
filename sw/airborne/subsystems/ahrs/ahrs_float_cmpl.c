@@ -398,7 +398,7 @@ void ahrs_fc_update_mag_2d_dumb(struct Int32Vect3 *mag)
 
 }
 
-void ahrs_fc_update_gps(struct GpsState *gps_s)
+void ahrs_fc_update_gps(struct GpsState *gps_s __attribute__((unused)))
 {
 #if AHRS_GRAVITY_UPDATE_COORDINATED_TURN && USE_GPS
   if (gps_s->fix >= GPS_FIX_3D) {

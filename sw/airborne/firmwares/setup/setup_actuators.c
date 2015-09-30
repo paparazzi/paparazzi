@@ -109,7 +109,7 @@ void dl_parse_msg(void)
   uint8_t msg_id = IdOfMsg(dl_buffer);
   if (msg_id == DL_SET_ACTUATOR) {
     uint8_t actuator_no = DL_SET_ACTUATOR_no(dl_buffer);
-    uint16_t actuator_value = DL_SET_ACTUATOR_value(dl_buffer);
+    uint16_t actuator_value __attribute__((unused)) = DL_SET_ACTUATOR_value(dl_buffer);
     LED_TOGGLE(2);
 
     /* bad hack:

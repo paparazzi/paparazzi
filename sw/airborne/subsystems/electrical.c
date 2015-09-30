@@ -64,12 +64,12 @@ PRINT_CONFIG_VAR(MIN_BAT_LEVEL)
 
 struct Electrical electrical;
 
-#if defined ADC_CHANNEL_VSUPPLY || defined ADC_CHANNEL_CURRENT || defined MILLIAMP_AT_FULL_THROTTLE
+#if defined ADC_CHANNEL_VSUPPLY || (defined ADC_CHANNEL_CURRENT && !defined SITL) || defined MILLIAMP_AT_FULL_THROTTLE
 static struct {
 #ifdef ADC_CHANNEL_VSUPPLY
   struct adc_buf vsupply_adc_buf;
 #endif
-#ifdef ADC_CHANNEL_CURRENT
+#if defined ADC_CHANNEL_CURRENT && !defined SITL
   struct adc_buf current_adc_buf;
 #endif
 #ifdef MILLIAMP_AT_FULL_THROTTLE
@@ -163,15 +163,19 @@ void electrical_periodic(void)
   /* electrical.current y = ( b^n - (b* x/a)^n )^1/n
    * a=1, n = electrical_priv.nonlin_factor
    */
+#ifndef FBW
   if(kill_throttle) {
     // Assume no current when throttle killed (motors off)
     electrical.current = 0;
   } else {
+#endif
     electrical.current = full_current -
                          pow((pow(full_current - idle_current, electrical_priv.nonlin_factor) -
                               pow(((full_current - idle_current) * x), electrical_priv.nonlin_factor)),
                            (1. / electrical_priv.nonlin_factor));
+#ifndef FBW
   }
+#endif
 #endif /* ADC_CHANNEL_CURRENT */
 
   // mAh = mA * dt (10Hz -> hours)

@@ -366,7 +366,7 @@ void ahrs_icq_update_accel(struct Int32Vect3 *accel, float dt)
 }
 
 
-void ahrs_icq_update_mag(struct Int32Vect3 *mag, float dt)
+void ahrs_icq_update_mag(struct Int32Vect3 *mag __attribute__((unused)), float dt __attribute__((unused)))
 {
 #if USE_MAGNETOMETER
   // check if we had at least one propagation since last update

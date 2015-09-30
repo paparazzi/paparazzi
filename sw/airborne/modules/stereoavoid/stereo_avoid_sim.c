@@ -84,7 +84,7 @@ void stereo_avoid_run(void)
 
     float viewangle = 50; // degrees
     float range = viewangle / 2.0f;
-    float deg_per_bin = viewangle / ((float) 2);
+    //float deg_per_bin = viewangle / ((float) 2);
 
     float disperity = 0;
 

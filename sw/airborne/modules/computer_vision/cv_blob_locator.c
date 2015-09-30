@@ -293,8 +293,12 @@ void cv_blob_locator_event(void) {
     cam.h = 240;
     cam.w = 320;
 
+#ifdef WP_p1
     georeference_project(&cam, WP_p1);
+#endif
+#ifdef WP_CAM
     georeference_filter(FALSE,WP_CAM, geofilter_length);
+#endif
 
   }
 }

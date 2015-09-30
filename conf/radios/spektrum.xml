@@ -49,9 +49,9 @@
  <channel ctl="right_stick_horiz" function="ROLL" min="2000" neutral="1500" max="1000" average="0"/>
  <channel ctl="right_stick_vert" function="PITCH" min="2000" neutral="1500" max="1000" average="0"/>
  <channel ctl="left_stick_horiz" function="YAW" min="2000" neutral="1500" max="1000" average="0"/>
- <channel ctl="aux1" function="GEAR" min="1000" neutral="1500" max="2000" average="1"/>
- <channel ctl="aux2" function="AUX1" min="1000" neutral="1500" max="2000" average="1"/>
+ <channel ctl="aux0" function="GEAR" min="1000" neutral="1500" max="2000" average="1"/>
+ <channel ctl="aux1" function="AUX1" min="1000" neutral="1500" max="2000" average="1"/>
  <channel ctl="aux2" function="AUX2" min="1000" neutral="1500" max="2000" average="1"/>
  <channel ctl="aux3" function="AUX3" min="1000" neutral="1500" max="2000" average="1"/>
- <channel ctl="aux4" function="AUX4" min="1000" neutral="1500" max="2000" average="1"/>
+ <channel ctl="aux4" function="MODE" min="1000" neutral="1500" max="2000" average="1"/>
 </radio>

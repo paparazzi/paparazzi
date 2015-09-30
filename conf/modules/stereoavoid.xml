@@ -23,7 +23,6 @@
     <define name="USE_$(STEREO_UART)"/>
     <define name="STEREO_UART" value="$(STEREO_UART_LOWER)"/>
     <define name="$(STEREO_UART)_BAUD" value="$(STEREO_BAUD)"/>
-    <file name="stereo_avoid.c"/>
     <file name="avoid_navigation.c"/>
   </makefile>
   <makefile  target="ap">
