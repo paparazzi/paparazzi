@@ -62,7 +62,7 @@
 
   <section name="sessions">
 
-   <session name="ARDrone2 Flight">
+   <session name="Flight UDP/WiFi">
       <program name="Server"/>
       <program name="GCS"/>
       <program name="Data Link">
