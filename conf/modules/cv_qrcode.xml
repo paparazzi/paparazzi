@@ -9,6 +9,8 @@
     </description>
   </doc>
 
+  <depends>video_thread</depends>
+
   <header>
     <file name="qr_code.h"/>
   </header>

@@ -31,7 +31,7 @@
 
 void qrcode_init(void)
 {
-	// TODO: add qrscan to the list of image processing tasks in viewvideo
+	// Add qrscan to the list of image processing tasks in video_thread
   cv_add(qrscan);
 }
 
@@ -89,6 +89,7 @@ bool_t qrscan(struct image_t *img)
     printf("decoded %s symbol \"%s\"\n",
            zbar_get_symbol_name(typ), data);
 
+    // TODO: not allowed to access telemetry from vision thread
 #if DOWNLINK
     DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, strlen(data), data);
 #endif
