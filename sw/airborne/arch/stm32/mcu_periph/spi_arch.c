@@ -717,13 +717,9 @@ void spi1_arch_init(void)
 
   // Configure GPIOs: SCK, MISO and MOSI
 #ifdef STM32F1
-  // TODO configure lisa board files to use gpio_setup_pin_af function
-  gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                GPIO_SPI1_SCK | GPIO_SPI1_MOSI);
-
-  gpio_set_mode(GPIO_BANK_SPI1_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI1_MISO);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_MISO, GPIO_SPI2_MISO, SPI2_GPIO_AF, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_MOSI, GPIO_SPI2_MOSI, SPI2_GPIO_AF, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_SCK, GPIO_SPI2_SCK, SPI2_GPIO_AF, TRUE);
 #elif defined STM32F4
   gpio_setup_pin_af(SPI1_GPIO_PORT_MISO, SPI1_GPIO_MISO, SPI1_GPIO_AF, FALSE);
   gpio_setup_pin_af(SPI1_GPIO_PORT_MOSI, SPI1_GPIO_MOSI, SPI1_GPIO_AF, TRUE);
