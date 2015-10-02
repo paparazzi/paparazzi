@@ -1248,18 +1248,11 @@ void spi1_slave_arch_init(void) {
   rcc_periph_clock_enable(RCC_SPI1);
 
   // Configure GPIOs: SCK, MISO and MOSI
-  // TODO configure lisa board files to use gpio_setup_pin_af function
-  gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_INPUT,
-                GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI1_SCK | GPIO_SPI1_MOSI);
-
-  gpio_set_mode(GPIO_BANK_SPI1_MISO, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                GPIO_SPI1_MISO);
-
-  gpio_set_mode(GPIO_BANK_SPI1_NSS, GPIO_MODE_INPUT,
-                GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI1_NSS);
+  gpio_setup_pin_af(GPIO_BANK_SPI1_MISO, GPIO_SPI1_MISO, 0, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI1_MOSI, GPIO_SPI1_MOSI, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI1_SCK, GPIO_SPI1_SCK, 0, FALSE);
+  // set NSS as input
+  gpio_setup_pin_af(GPIO_BANK_SPI1_NSS, GPIO_SPI1_NSS, 0, FALSE);
 
   // reset SPI
   spi_reset(SPI1);
@@ -1342,18 +1335,11 @@ void spi2_slave_arch_init(void) {
   rcc_periph_clock_enable(RCC_SPI2);
 
   // Configure GPIOs: SCK, MISO and MOSI
-  // TODO configure lisa board files to use gpio_setup_pin_af function
-  gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_INPUT,
-                GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI2_SCK | GPIO_SPI2_MOSI);
-
-  gpio_set_mode(GPIO_BANK_SPI2_MISO, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                GPIO_SPI2_MISO);
-
-  gpio_set_mode(GPIO_BANK_SPI2_NSS, GPIO_MODE_INPUT,
-                GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI2_NSS);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_MISO, GPIO_SPI1_MISO, 0, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_MOSI, GPIO_SPI2_MOSI, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_SCK, GPIO_SPI2_SCK, 0, FALSE);
+  // set NSS as input
+  gpio_setup_pin_af(GPIO_BANK_SPI2_NSS, GPIO_SPI2_NSS, 0, FALSE);
 
   // reset SPI
   spi_reset(SPI2);
