@@ -717,9 +717,9 @@ void spi1_arch_init(void)
 
   // Configure GPIOs: SCK, MISO and MOSI
 #ifdef STM32F1
-  gpio_setup_pin_af(GPIO_BANK_SPI2_MISO, GPIO_SPI2_MISO, SPI2_GPIO_AF, FALSE);
-  gpio_setup_pin_af(GPIO_BANK_SPI2_MOSI, GPIO_SPI2_MOSI, SPI2_GPIO_AF, TRUE);
-  gpio_setup_pin_af(GPIO_BANK_SPI2_SCK, GPIO_SPI2_SCK, SPI2_GPIO_AF, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI1_MISO, GPIO_SPI1_MISO, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI1_MOSI, GPIO_SPI1_MOSI, 0, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI1_SCK, GPIO_SPI1_SCK, 0, TRUE);
 #elif defined STM32F4
   gpio_setup_pin_af(SPI1_GPIO_PORT_MISO, SPI1_GPIO_MISO, SPI1_GPIO_AF, FALSE);
   gpio_setup_pin_af(SPI1_GPIO_PORT_MOSI, SPI1_GPIO_MOSI, SPI1_GPIO_AF, TRUE);
@@ -805,13 +805,9 @@ void spi2_arch_init(void)
 
   // Configure GPIOs: SCK, MISO and MOSI
 #ifdef STM32F1
-  // TODO configure lisa board files to use gpio_setup_pin_af function
-  gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                GPIO_SPI2_SCK | GPIO_SPI2_MOSI);
-
-  gpio_set_mode(GPIO_BANK_SPI2_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI2_MISO);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_MISO, GPIO_SPI2_MISO, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_MOSI, GPIO_SPI2_MOSI, 0, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_SCK, GPIO_SPI2_SCK, 0, TRUE);
 #elif defined STM32F4
   gpio_setup_pin_af(SPI2_GPIO_PORT_MISO, SPI2_GPIO_MISO, SPI2_GPIO_AF, FALSE);
   gpio_setup_pin_af(SPI2_GPIO_PORT_MOSI, SPI2_GPIO_MOSI, SPI2_GPIO_AF, TRUE);
@@ -898,13 +894,9 @@ void spi3_arch_init(void)
 
   // Configure GPIOs: SCK, MISO and MOSI
 #ifdef STM32F1
-  // TODO configure lisa board files to use gpio_setup_pin_af function
-  gpio_set_mode(GPIO_BANK_SPI3_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                GPIO_SPI3_SCK | GPIO_SPI3_MOSI);
-
-  gpio_set_mode(GPIO_BANK_SPI3_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI3_MISO);
+  gpio_setup_pin_af(GPIO_BANK_SPI3_MISO, GPIO_SPI3_MISO, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI3_MOSI, GPIO_SPI3_MOSI, 0, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI3_SCK, GPIO_SPI3_SCK, 0, TRUE);
 #elif defined STM32F4
   gpio_setup_pin_af(SPI3_GPIO_PORT_MISO, SPI3_GPIO_MISO, SPI3_GPIO_AF, FALSE);
   gpio_setup_pin_af(SPI3_GPIO_PORT_MOSI, SPI3_GPIO_MOSI, SPI3_GPIO_AF, TRUE);
