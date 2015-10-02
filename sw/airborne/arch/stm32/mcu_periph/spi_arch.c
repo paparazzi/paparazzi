@@ -1335,7 +1335,7 @@ void spi2_slave_arch_init(void) {
   rcc_periph_clock_enable(RCC_SPI2);
 
   // Configure GPIOs: SCK, MISO and MOSI
-  gpio_setup_pin_af(GPIO_BANK_SPI2_MISO, GPIO_SPI1_MISO, 0, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_MISO, GPIO_SPI2_MISO, 0, TRUE);
   gpio_setup_pin_af(GPIO_BANK_SPI2_MOSI, GPIO_SPI2_MOSI, 0, FALSE);
   gpio_setup_pin_af(GPIO_BANK_SPI2_SCK, GPIO_SPI2_SCK, 0, FALSE);
   // set NSS as input
