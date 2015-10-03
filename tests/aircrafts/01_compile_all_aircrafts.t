@@ -1,28 +1,31 @@
 #!/usr/bin/perl -w
 
 #
-# Reads conf/conf.xml (can be symlink to e.g. conf/conf_tests.xml)
-# and compiles all targets of all aircrafts.
+# Reads a conf XML file and compiles all targets of all aircrafts.
 #
 # Mandatory environment variables:
 #  PAPARAZZI_SRC : path to paparazzi source directory
 #  PAPARAZZI_HOME : path to paparazz home directory containing the conf
 #
 # optional environment variables:
+#  CONF_XML : path to conf file to read, conf/conf.xml by default
 #  TEST_VERBOSE : set to 1 to print the compile output even if there was no error
 #  SHOW_WARNINGS_FULL : set to 1 to print the complete compile output if there were warnings
 #  HIDE_WARNINGS : set to 1 to disable printing of warnings
 #
 # environment variables passed on to make:
-#  J=AUTO : detect number of CPUs to set jobs for parallel compilation
+#  J=AUTO : detect number of CPUs to set jobs for parallel compilation (default)
 #
 # Examples on how to test compile all aircrafts/targets in your current conf.xml:
 # only showing full compile output if there has been an error, if there were warnings only print those
-#  prove test/examples
+#  prove test/aircrafts
 # with parallel compilation and showing full output during compilation
-#  J=AUTO prove tests/examples -v
-# with parallel compilation and treating all warnings as errors:
-#  J=AUTO USER_CFLAGS=-Werror prove tests/examples
+#  J=AUTO prove tests/aircrafts -v
+# without parallel compilation and treating all warnings as errors:
+#  J=1 USER_CFLAGS=-Werror prove tests/aircrafts
+#
+# Example on how to test a specific conf.xml and disabling printing of warnings:
+#  CONF_XML=conf/airframes/flixr/conf.xml HIDE_WARNINGS=1 prove tests/aircrafts
 #
 
 use Test::More;
