@@ -33,9 +33,6 @@ LiPo/LiIo-Zellen: 2-3
       <define name="USE_ATTITUDE_REF" value="1" />
       <define name="AHRS_PROPAGATE_LOW_PASS_RATES" value="1" />
     </target>
-    <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-    </target>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry" type="xbee_api"/>
     <subsystem name="motor_mixing"/>
@@ -210,11 +207,6 @@ LiPo/LiIo-Zellen: 2-3
     <define name="XBEE_INIT" value="&quot;ATID3332\r&quot;"/>
     <define name="FACE_REINJ_1" value="1024"/>
     <define name="VoltageOfAdc(adc)" value="(0.00528*adc)"/>
-  </section>
-
-  <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>
 
   </airframe>
