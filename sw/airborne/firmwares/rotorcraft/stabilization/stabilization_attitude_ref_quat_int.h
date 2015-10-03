@@ -44,7 +44,7 @@ struct FloatRefModel {
   struct Int32Rates two_omega2;
 };
 
-/** Attitude reference models and state/output (float) */
+/** Attitude reference models and state/output (quat int) */
 struct AttRefQuatInt {
   struct Int32Eulers euler;
   struct Int32Quat   quat;
