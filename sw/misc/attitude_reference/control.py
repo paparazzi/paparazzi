@@ -96,14 +96,14 @@ class att_ref_sat_naive(att_ref):
     name = 'Python Sat Naive'
 
     def __init__(self, **kwargs):
-        att_ref.__init__(self, **kwargs)
+        super(att_ref_sat_naive, self).__init__(**kwargs)
         self.sat_vel = kwargs.get('sat_vel', pu.rad_of_deg(100))
         self.sat_accel = kwargs.get('sat_accel', pu.rad_of_deg(500))
         for p in ['sat_vel', 'sat_accel']:
             self.ensure_vect(p)
 
     def update_quat(self, setpoint, dt):
-        att_ref.update_quat(self, setpoint, dt)
+        super(att_ref_sat_naive, self).update_quat(setpoint, dt)
         self.accel = np.clip(self.accel, -self.sat_accel, self.sat_accel)
         for i in range(0, 3):
             if self.vel[i] >= self.sat_vel[i]:
@@ -122,7 +122,7 @@ class att_ref_sat_nested(att_ref_sat_naive):
     name = 'Python Sat Nested'
 
     def __init__(self, **kwargs):
-        att_ref_sat_naive.__init__(self, **kwargs)
+        super(att_ref_sat_nested, self).__init__(**kwargs)
         self._compute_auxiliary()
 
     def update_quat(self, sp, dt):
@@ -137,7 +137,7 @@ class att_ref_sat_nested(att_ref_sat_naive):
         return self.quat, self.vel, self.accel
 
     def set_param(self, p, v):
-        att_ref_sat_naive.set_param(self, p, v)
+        super(att_ref_sat_nested, self).set_param(p, v)
         self._compute_auxiliary()
 
     def _compute_auxiliary(self):
@@ -172,7 +172,7 @@ class att_ref_sat_nested2(att_ref_sat_naive):
     name = 'Python Sat Nested2'
 
     def __init__(self, **kwargs):
-        att_ref_sat_naive.__init__(self, **kwargs)
+        super(att_ref_sat_nested2, self).__init__(**kwargs)
         self.sat_jerk = kwargs.get('sat_jerk', pu.rad_of_deg(3000))
         self.ensure_vect('sat_jerk')
         self.jerk = np.zeros(3)
@@ -193,7 +193,7 @@ class att_ref_sat_nested2(att_ref_sat_naive):
         return self.quat, self.vel, self.accel
 
     def set_param(self, p, v):
-        att_ref_sat_naive.set_param(self, p, v)
+        super(att_ref_sat_nested2, self).set_param(p, v)
         self._compute_auxiliary()
 
     def _compute_auxiliary(self):
