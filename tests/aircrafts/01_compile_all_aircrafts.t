@@ -48,7 +48,8 @@ sub get_num_targets
     foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
     {
         my $airframe = $conf->{'aircraft'}->{$aircraft}->{'airframe'};
-        my $airframe_config = $xmlSimple->XMLin("$ENV{'PAPARAZZI_HOME'}/conf/$airframe");
+        my $airframe_config = eval { $xmlSimple->XMLin("$ENV{'PAPARAZZI_HOME'}/conf/$airframe") };
+        warn $@ if ($@);
         foreach my $process (sort keys %{$airframe_config->{'firmware'}})
         {
             foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}->{'target'}})
@@ -64,10 +65,11 @@ plan tests => get_num_targets()+1;
 ok(1, "Parsed the $conf_xml_file configuration file");
 foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
 {
-	my $airframe = $conf->{'aircraft'}->{$aircraft}->{'airframe'};
-	my $airframe_config = $xmlSimple->XMLin("$ENV{'PAPARAZZI_HOME'}/conf/$airframe");
-	foreach my $process (sort keys %{$airframe_config->{'firmware'}})
-	{
+    my $airframe = $conf->{'aircraft'}->{$aircraft}->{'airframe'};
+    my $airframe_config = eval { $xmlSimple->XMLin("$ENV{'PAPARAZZI_HOME'}/conf/$airframe") };
+    warn "Skipping aircraft $aircraft: $@" if ($@);
+    foreach my $process (sort keys %{$airframe_config->{'firmware'}})
+    {
         #warn "EX: [$aircraft] ". Dumper($airframe_config->{'firmware'}->{$process}->{'target'});
         foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}->{'target'}})
         {
@@ -101,7 +103,7 @@ foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
             }
             ok($exit_status == 0, "Compile aircraft: $aircraft, target: $target");
         }
-	}
+    }
 }
 
 done_testing();
