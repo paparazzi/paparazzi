@@ -13,6 +13,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.0">
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
+      <configure name="BMP_PORT" value="/dev/cu.usbmodemE2B9BDC1"/>
     </target>
 
     <target name="nps" board="pc">
@@ -22,7 +23,7 @@
     <subsystem name="radio_control" type="spektrum">
       <define name="RADIO_MODE"        value="RADIO_FLAP"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
-      <!-- <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/> -->
+        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
     </subsystem>
 
     <subsystem name="motor_mixing"/>
@@ -55,7 +56,7 @@
     <!--
     <load name="nav_survey_poly_rotorcraft.xml"/>
     <load name="follow.xml">
-      <define name="FOLLOW_AC_ID" value="101"/>
+      <define name="FOLLOW_AC_ID" value="218"/>
       <define name="FOLLOW_WAYPOINT_ID" value="WP_p1"/>
       <define name="FOLLOW_OFFSET_Z" value="2.0"/>
     </load>
@@ -86,9 +87,9 @@
     <define name="SCALE"      value="256"/>
     <!-- order (and rotation direction) : FL(CW), FR(CCW), R(CW), BR(CCW), BL(CW), L(CCW) -->
     <define name="ROLL_COEF"   value="{  128, -128,  -256,  -128,  128,  256 }"/>
-    <define name="PITCH_COEF"  value="{  256,  256,     0,  -256, -256,    0 }"/>
-    <define name="YAW_COEF"    value="{ -256,  256,  -256,   256, -256,  256 }"/>
-    <define name="THRUST_COEF" value="{  256,  256,   256,   256,  256,  256 }"/> 
+    <define name="PITCH_COEF"  value="{  224,  224,     0,  -224, -224,    0 }"/>
+    <define name="YAW_COEF"    value="{ -144,  144,  -144,   144, -144,  144  }"/>
+    <define name="THRUST_COEF" value="{  256,  256,   256,   256,  256,  256 }"/>   
   </section>
 
   <command_laws>
@@ -102,20 +103,29 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="ACCEL_X_NEUTRAL" value="11"/>
-    <define name="ACCEL_Y_NEUTRAL" value="11"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-25"/>
+    <!-- Accelerometer calibration -->
+    <define name="ACCEL_X_NEUTRAL" value="47"/>
+    <define name="ACCEL_Y_NEUTRAL" value="8"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-24"/>
+    <define name="ACCEL_X_SENS" value="4.91131900437" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.91852521581" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.81667144123" integer="16"/>
 
-    <!-- replace this with your own calibration -->
-    <define name="MAG_X_NEUTRAL" value="-179"/>
-    <define name="MAG_Y_NEUTRAL" value="-21"/>
-    <define name="MAG_Z_NEUTRAL" value="79"/>
-    <define name="MAG_X_SENS" value="4.17334785618" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.98885954135" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.40442339014" integer="16"/>
+    <!-- Magnetometer calibration -->
+    <define name="MAG_X_NEUTRAL" value="44"/>
+    <define name="MAG_Y_NEUTRAL" value="87"/>
+    <define name="MAG_Z_NEUTRAL" value="-30"/>
+    <define name="MAG_X_SENS" value="3.22844359495" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.22595333564" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.57743817336" integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <!-- Magnetometer current calibration -->
+    <define name= "MAG_X_CURRENT_COEF" value="-7.06593991654e-05"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="-0.000163433776094"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="-0.000658850176027"/>
+
+    <define name="BODY_TO_IMU_PHI"   value="0.51" unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0.47" unit="deg"/>
     <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
   </section>
 
@@ -154,8 +164,8 @@
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
-    <define name="SP_MAX_PHI"     value="45." unit="deg"/>
-    <define name="SP_MAX_THETA"   value="45." unit="deg"/>
+    <define name="SP_MAX_PHI"     value="30." unit="deg"/>
+    <define name="SP_MAX_THETA"   value="30." unit="deg"/>
     <define name="SP_MAX_R"       value="90." unit="deg/s"/>
     <define name="DEADBAND_A"     value="0"/>
     <define name="DEADBAND_E"     value="0"/>
@@ -178,16 +188,16 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="1000"/>
-    <define name="PHI_DGAIN"  value="400"/>
+    <define name="PHI_PGAIN"  value="1246"/>
+    <define name="PHI_DGAIN"  value="495"/>
     <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="1000"/>
-    <define name="THETA_DGAIN"  value="400"/>
+    <define name="THETA_PGAIN"  value="1246"/>
+    <define name="THETA_DGAIN"  value="495"/>
     <define name="THETA_IGAIN"  value="200"/>
 
-    <define name="PSI_PGAIN"  value="500"/>
-    <define name="PSI_DGAIN"  value="300"/>
+    <define name="PSI_PGAIN"  value="2836"/>
+    <define name="PSI_DGAIN"  value="1929"/>
     <define name="PSI_IGAIN"  value="10"/>
 
     <!-- feedforward -->
@@ -200,7 +210,7 @@
     <define name="HOVER_KP"    value="150"/>
     <define name="HOVER_KD"    value="80"/>
     <define name="HOVER_KI"    value="20"/>
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.5"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.58"/>
     <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
   </section>
 
@@ -214,9 +224,9 @@
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">
-    <define  name="CLIMB_VSPEED" value="1.0" />
-    <define  name="DESCEND_VSPEED" value="-1.0" />
-  </section>
+    <define name="CLIMB_VSPEED"   value="1.5" />
+    <define name="DESCEND_VSPEED" value="-1.0" />
+  </section>    
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;fl_motor&quot;, &quot;fr_motor&quot;, &quot;r_motor&quot;, &quot;br_motor&quot;, &quot;bl_motor&quot;, &quot;l_motor&quot;}"/>
@@ -227,12 +237,16 @@
   </section>
 
   <section name="AUTOPILOT">
-    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1"  value="AP_MODE_HOVER_Z_HOLD"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+    <!-- TOGGLE STATES -->
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1"   value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO2"   value="AP_MODE_NAV"/>
   </section>
 
   <section name="BAT">
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="12000" />
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="120000"/>
     <define name="CATASTROPHIC_BAT_LEVEL"    value="9.3" unit="V"/>
     <define name="CRITIC_BAT_LEVEL"          value="9.9" unit="V"/>
     <define name="LOW_BAT_LEVEL"             value="10.5" unit="V"/>
