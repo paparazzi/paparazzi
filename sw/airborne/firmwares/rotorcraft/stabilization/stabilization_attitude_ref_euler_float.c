@@ -48,51 +48,12 @@
 #define ZETA_Q    STABILIZATION_ATTITUDE_REF_ZETA_Q
 #define ZETA_R    STABILIZATION_ATTITUDE_REF_ZETA_R
 
-#ifndef USE_ATT_REF
-#define USE_ATT_REF 1
-#endif
-
-struct AttRefEulerFloat att_ref_euler_f;
-
 static inline void reset_psi_ref(struct AttRefEulerFloat *ref, float psi);
-
-
-/*
- *
- * Functions to be called from the attitude stabilization.
- * These all take no arguments in order to make it easier to swap ref implementations.
- *
- */
-void stabilization_attitude_ref_init(void)
-{
-  attitude_ref_euler_float_init(&att_ref_euler_f);
-}
-
-void stabilization_attitude_ref_enter(void)
-{
-  //sp has been set from body using stabilization_attitude_get_yaw_f, use that value
-  reset_psi_ref(&att_ref_euler_f, stab_att_sp_euler.psi);
-}
-
-void stabilization_attitude_ref_update(void)
-{
-#if USE_ATT_REF
-  static const float dt = (1./PERIODIC_FREQUENCY);
-  attitude_ref_euler_float_update(&att_ref_euler_f, &stab_att_sp_euler, dt);
-#else
-  EULERS_COPY(att_ref_euler_f.euler, stab_att_sp_euler);
-  FLOAT_RATES_ZERO(att_ref_euler_f.rate);
-  FLOAT_RATES_ZERO(att_ref_euler_f.accel);
-#endif
-}
-
-
 
 /*
  *
  * Implementation.
  * Should not rely on any global variables, so these functions can be used like a lib.
- * TODO: put two_omega_squared in struct?
  *
  */
 void attitude_ref_euler_float_init(struct AttRefEulerFloat *ref)
@@ -100,6 +61,11 @@ void attitude_ref_euler_float_init(struct AttRefEulerFloat *ref)
   FLOAT_EULERS_ZERO(ref->euler);
   FLOAT_RATES_ZERO(ref->rate);
   FLOAT_RATES_ZERO(ref->accel);
+}
+
+void attitude_ref_euler_float_enter(struct AttRefEulerFloat *ref, float psi)
+{
+  reset_psi_ref(ref, psi);
 }
 
 void attitude_ref_euler_float_update(struct AttRefEulerFloat *ref, struct FloatEulers *sp_eulers, float dt)

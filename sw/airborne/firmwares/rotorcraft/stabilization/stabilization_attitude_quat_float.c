@@ -40,6 +40,8 @@ struct FloatAttitudeGains stabilization_gains[STABILIZATION_ATTITUDE_GAIN_NB];
 struct FloatEulers stab_att_sp_euler;
 struct FloatQuat   stab_att_sp_quat;
 
+struct AttRefQuatFloat att_ref_quat_f;
+
 struct FloatQuat stabilization_att_sum_err_quat;
 
 struct FloatRates last_body_rate;
@@ -147,7 +149,8 @@ void stabilization_attitude_init(void)
   FLOAT_EULERS_ZERO(stab_att_sp_euler);
   float_quat_identity(&stab_att_sp_quat);
   /* reference */
-  stabilization_attitude_ref_init();
+  attitude_ref_quat_float_init(&att_ref_quat_f);
+  attitude_ref_quat_float_schedule(&att_ref_quat_f, STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT);
 
   for (int i = 0; i < STABILIZATION_ATTITUDE_GAIN_NB; i++) {
     VECT3_ASSIGN(stabilization_gains[i].p, phi_pgain[i], theta_pgain[i], psi_pgain[i]);
@@ -180,7 +183,7 @@ void stabilization_attitude_gain_schedule(uint8_t idx)
     return;
   }
   gain_idx = idx;
-  stabilization_attitude_ref_schedule(idx);
+  attitude_ref_quat_float_schedule(&att_ref_quat_f, idx);
 }
 
 void stabilization_attitude_enter(void)
@@ -189,7 +192,7 @@ void stabilization_attitude_enter(void)
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = stabilization_attitude_get_heading_f();
 
-  stabilization_attitude_ref_enter();
+  attitude_ref_quat_float_enter(&att_ref_quat_f, stab_att_sp_euler.psi);
 
   float_quat_identity(&stabilization_att_sum_err_quat);
 }
@@ -295,7 +298,8 @@ void stabilization_attitude_run(bool_t enable_integrator)
   /*
    * Update reference
    */
-  stabilization_attitude_ref_update();
+  static const float dt = (1./PERIODIC_FREQUENCY);
+  attitude_ref_quat_float_update(&att_ref_quat_f, &stab_att_sp_quat, dt);
 
   /*
    * Compute errors for feedback

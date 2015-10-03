@@ -32,6 +32,15 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_float.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_saturate.h"
 
+/// default to fast but less precise quaternion integration
+#ifndef STABILIZATION_ATTITUDE_REF_QUAT_INFINITESIMAL_STEP
+#define STABILIZATION_ATTITUDE_REF_QUAT_INFINITESIMAL_STEP TRUE
+#endif
+
+#ifndef STABILIZATION_ATTITUDE_GAIN_NB
+#define STABILIZATION_ATTITUDE_GAIN_NB 1
+#endif
+
 /* shortcuts for saturation defines */
 #define REF_ACCEL_MAX_P STABILIZATION_ATTITUDE_REF_MAX_PDOT
 #define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_QDOT
@@ -41,10 +50,8 @@
 #define REF_RATE_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_Q
 #define REF_RATE_MAX_R STABILIZATION_ATTITUDE_REF_MAX_R
 
-struct AttRefQuatFloat att_ref_quat_f;
 
-static int ref_idx = STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT;
-
+/* parameters used for initialization */
 static const float omega_p[] = STABILIZATION_ATTITUDE_REF_OMEGA_P;
 static const float zeta_p[] = STABILIZATION_ATTITUDE_REF_ZETA_P;
 static const float omega_q[] = STABILIZATION_ATTITUDE_REF_OMEGA_Q;
@@ -52,39 +59,12 @@ static const float zeta_q[] = STABILIZATION_ATTITUDE_REF_ZETA_Q;
 static const float omega_r[] = STABILIZATION_ATTITUDE_REF_OMEGA_R;
 static const float zeta_r[] = STABILIZATION_ATTITUDE_REF_ZETA_R;
 
-struct FloatRates two_omega_squared[STABILIZATION_ATTITUDE_GAIN_NB];
-
 static inline void reset_psi_ref(struct AttRefQuatFloat *ref, float psi);
-
-/*
- *
- * Functions to be called from the attitude stabilization.
- * These all take no arguments in order to make it easier to swap ref implementations.
- *
- */
-void stabilization_attitude_ref_init(void)
-{
-  attitude_ref_quat_float_init(&att_ref_quat_f);
-}
-
-void stabilization_attitude_ref_enter(void)
-{
-  //sp has been set from body using stabilization_attitude_get_yaw_f, use that value
-  reset_psi_ref(&att_ref_quat_f, stab_att_sp_euler.psi);
-}
-
-void stabilization_attitude_ref_update(void)
-{
-  static const float dt = (1./PERIODIC_FREQUENCY);
-  attitude_ref_quat_float_update(&att_ref_quat_f, &stab_att_sp_quat, dt);
-}
-
 
 /*
  *
  * Implementation.
  * Should not rely on any global variables, so these functions can be used like a lib.
- * TODO: put two_omega_squared in struct?
  *
  */
 void attitude_ref_quat_float_init(struct AttRefQuatFloat *ref)
@@ -97,16 +77,17 @@ void attitude_ref_quat_float_init(struct AttRefQuatFloat *ref)
   for (int i = 0; i < STABILIZATION_ATTITUDE_GAIN_NB; i++) {
     RATES_ASSIGN(ref->model[i].omega, omega_p[i], omega_q[i], omega_r[i]);
     RATES_ASSIGN(ref->model[i].zeta, zeta_p[i], zeta_q[i], zeta_r[i]);
-    RATES_ASSIGN(two_omega_squared[i], 2 * omega_p[i]*omega_p[i], 2 * omega_q[i]*omega_q[i], 2 * omega_r[i]*omega_r[i]);
+    RATES_ASSIGN(ref->model[i].two_omega2, 2 * omega_p[i]*omega_p[i], 2 * omega_q[i]*omega_q[i], 2 * omega_r[i]*omega_r[i]);
   }
 
+  ref->cur_idx = 0;
 }
 
+void attitude_ref_quat_float_enter(struct AttRefQuatFloat *ref, float psi)
+{
+  reset_psi_ref(ref, psi);
+}
 
-/// default to fast but less precise quaternion integration
-#ifndef STABILIZATION_ATTITUDE_REF_QUAT_INFINITESIMAL_STEP
-#define STABILIZATION_ATTITUDE_REF_QUAT_INFINITESIMAL_STEP TRUE
-#endif
 
 void attitude_ref_quat_float_update(struct AttRefQuatFloat *ref, struct FloatQuat *sp_quat, float dt)
 {
@@ -140,12 +121,12 @@ void attitude_ref_quat_float_update(struct AttRefQuatFloat *ref, struct FloatQua
   float_quat_wrap_shortest(&err);
   /* propagate the 2nd order linear model: xdotdot = -2*zeta*omega*xdot - omega^2*x  */
   /* since error quaternion contains the half-angles we get 2*omega^2*err */
-  ref->accel.p = -2.*ref->model[ref_idx].zeta.p * ref->model[ref_idx].omega.p * ref->rate.p -
-    two_omega_squared[ref_idx].p * err.qx;
-  ref->accel.q = -2.*ref->model[ref_idx].zeta.q * ref->model[ref_idx].omega.q * ref->rate.q -
-    two_omega_squared[ref_idx].q * err.qy;
-  ref->accel.r = -2.*ref->model[ref_idx].zeta.r * ref->model[ref_idx].omega.r * ref->rate.r -
-    two_omega_squared[ref_idx].r * err.qz;
+  ref->accel.p = -2.*ref->model[ref->cur_idx].zeta.p * ref->model[ref->cur_idx].omega.p * ref->rate.p -
+    ref->model[ref->cur_idx].two_omega2.p * err.qx;
+  ref->accel.q = -2.*ref->model[ref->cur_idx].zeta.q * ref->model[ref->cur_idx].omega.q * ref->rate.q -
+    ref->model[ref->cur_idx].two_omega2.q * err.qy;
+  ref->accel.r = -2.*ref->model[ref->cur_idx].zeta.r * ref->model[ref->cur_idx].omega.r * ref->rate.r -
+    ref->model[ref->cur_idx].two_omega2.r * err.qz;
 
   /*  saturate acceleration */
   const struct FloatRates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
@@ -183,44 +164,44 @@ static inline void reset_psi_ref(struct AttRefQuatFloat *ref, float psi)
  * Setting of the reference model parameters
  *
  */
-void stabilization_attitude_ref_idx_set_omega_p(uint8_t idx, float omega)
+void attitude_ref_quat_float_idx_set_omega_p(struct AttRefQuatFloat *ref, uint8_t idx, float omega)
 {
-  att_ref_quat_f.model[idx].omega.p = omega;
-  two_omega_squared[idx].p = 2 * omega * omega;
+  ref->model[idx].omega.p = omega;
+  ref->model[idx].two_omega2.p = 2 * omega * omega;
 }
 
-void stabilization_attitude_ref_idx_set_omega_q(uint8_t idx, float omega)
+void attitude_ref_quat_float_idx_set_omega_q(struct AttRefQuatFloat *ref, uint8_t idx, float omega)
 {
-  att_ref_quat_f.model[idx].omega.q = omega;
-  two_omega_squared[idx].q = 2 * omega * omega;
+  ref->model[idx].omega.q = omega;
+  ref->model[idx].two_omega2.q = 2 * omega * omega;
 }
 
-void stabilization_attitude_ref_idx_set_omega_r(uint8_t idx, float omega)
+void attitude_ref_quat_float_idx_set_omega_r(struct AttRefQuatFloat *ref, uint8_t idx, float omega)
 {
-  att_ref_quat_f.model[idx].omega.r = omega;
-  two_omega_squared[idx].r = 2 * omega * omega;
+  ref->model[idx].omega.r = omega;
+  ref->model[idx].two_omega2.r = 2 * omega * omega;
 }
 
-void stabilization_attitude_ref_set_omega_p(float omega)
+void attitude_ref_quat_float_set_omega_p(struct AttRefQuatFloat *ref, float omega)
 {
-  stabilization_attitude_ref_idx_set_omega_p(ref_idx, omega);
+  attitude_ref_quat_float_idx_set_omega_p(ref, ref->cur_idx, omega);
 }
 
-void stabilization_attitude_ref_set_omega_q(float omega)
+void attitude_ref_quat_float_set_omega_q(struct AttRefQuatFloat *ref, float omega)
 {
-  stabilization_attitude_ref_idx_set_omega_q(ref_idx, omega);
+  attitude_ref_quat_float_idx_set_omega_q(ref, ref->cur_idx, omega);
 }
 
-void stabilization_attitude_ref_set_omega_r(float omega)
+void attitude_ref_quat_float_set_omega_r(struct AttRefQuatFloat *ref, float omega)
 {
-  stabilization_attitude_ref_idx_set_omega_r(ref_idx, omega);
+  attitude_ref_quat_float_idx_set_omega_r(ref, ref->cur_idx, omega);
 }
 
 
 /*
  * schedule a different model
  */
-void stabilization_attitude_ref_schedule(uint8_t idx)
+void attitude_ref_quat_float_schedule(struct AttRefQuatFloat *ref, uint8_t idx)
 {
-  ref_idx = idx;
+  ref->cur_idx = idx;
 }

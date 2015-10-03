@@ -35,10 +35,15 @@
 #include "math/pprz_algebra_float.h"
 #include "state.h"
 
+#ifndef USE_ATT_REF
+#define USE_ATT_REF 1
+#endif
+
 struct FloatAttitudeGains stabilization_gains;
 struct FloatEulers stabilization_att_sum_err;
 
 struct FloatEulers stab_att_sp_euler;
+struct AttRefEulerFloat att_ref_euler_f;
 
 float stabilization_att_fb_cmd[COMMANDS_NB];
 float stabilization_att_ff_cmd[COMMANDS_NB];
@@ -93,7 +98,7 @@ static void send_att_ref(struct transport_tx *trans, struct link_device *dev)
 void stabilization_attitude_init(void)
 {
 
-  stabilization_attitude_ref_init();
+  attitude_ref_euler_float_init(&att_ref_euler_f);
 
   VECT3_ASSIGN(stabilization_gains.p,
                STABILIZATION_ATTITUDE_PHI_PGAIN,
@@ -134,7 +139,7 @@ void stabilization_attitude_enter(void)
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = stabilization_attitude_get_heading_f();
 
-  stabilization_attitude_ref_enter();
+  attitude_ref_euler_float_enter(&att_ref_euler_f, stab_att_sp_euler.psi);
 
   FLOAT_EULERS_ZERO(stabilization_att_sum_err);
 }
@@ -171,7 +176,14 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
 void stabilization_attitude_run(bool_t  in_flight)
 {
 
-  stabilization_attitude_ref_update();
+#if USE_ATT_REF
+  static const float dt = (1./PERIODIC_FREQUENCY);
+  attitude_ref_euler_float_update(&att_ref_euler_f, &stab_att_sp_euler, dt);
+#else
+  EULERS_COPY(att_ref_euler_f.euler, stab_att_sp_euler);
+  FLOAT_RATES_ZERO(att_ref_euler_f.rate);
+  FLOAT_RATES_ZERO(att_ref_euler_f.accel);
+#endif
 
   /* Compute feedforward */
   stabilization_att_ff_cmd[COMMAND_ROLL] =

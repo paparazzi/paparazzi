@@ -23,10 +23,6 @@
 #define STABILIZATION_ATTITUDE_REF_EULER_FLOAT_H
 
 #include "math/pprz_algebra_float.h"
-#include "stabilization_attitude_ref.h"
-
-
-extern struct FloatEulers stab_att_sp_euler;
 
 /** Attitude reference state/output (euler float) */
 struct AttRefEulerFloat {
@@ -35,9 +31,8 @@ struct AttRefEulerFloat {
   struct FloatRates  accel;
 };
 
-extern struct AttRefEulerFloat att_ref_euler_f;
-
 extern void attitude_ref_euler_float_init(struct AttRefEulerFloat *ref);
+extern void attitude_ref_euler_float_enter(struct AttRefEulerFloat *ref, float psi);
 extern void attitude_ref_euler_float_update(struct AttRefEulerFloat *ref, struct FloatEulers *sp_eulers, float dt);
 
 #endif /* STABILIZATION_ATTITUDE_REF_EULER_FLOAT_H */
