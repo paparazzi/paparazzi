@@ -192,7 +192,7 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
   quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
 }
 
-static void attitude_run_indi(int32_t indi_commands[], struct Int32Quat *att_err, bool_t in_flight)
+static void attitude_run_indi(int32_t indi_commands[], struct Int32Quat *att_err, bool_t in_flight __attribute__((unused)))
 {
   //Calculate required angular acceleration
   struct FloatRates *body_rate = stateGetBodyRates_f();

@@ -43,16 +43,51 @@
       <arg flag="--port" constant="/dev/ttyUSB1"/>
       <arg flag="--id" constant="1"/>
     </program>
+    <program name="BluegigaUsbDongleScanner" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver">
+      <arg flag="/dev/ttyACM2"/>
+      <arg flag="scan" />
+    </program>
+    <program name="BluegigaUsbDongle" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver">
+      <arg flag="/dev/ttyACM2"/>
+      <arg flag="00:07:00:2d:d6:bb" />
+      <arg flag="4242" />
+      <arg flag="4252" />
+    </program>
   </section>
 
   <section name="sessions">
+    <session name="Bluegiga">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_port" constant="4242"/>
+        <arg flag="-udp_uplink_port" constant="4252"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
+      <program name="NatNet">
+        <arg flag="-ac" constant="1"/>
+        <arg flag="12"/>
+        <arg flag="-small"/>
+        <arg flag="-tf" constant="5"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-d" constant="2"/>
+        <arg flag="-ac" constant="LadyLisaBluegiga"/>
+        <arg flag="hobbyking.xml"/>
+      </program>
+    </session>
     <session name="Flight USB0 @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
     </session>
     <session name="Flight ACM1 @57600">
       <program name="Data Link">
@@ -60,7 +95,9 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
     </session>
     <session name="Flight ACM0 @57600">
       <program name="Data Link">
@@ -68,7 +105,9 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
     </session>
     <session name="Flight XBee @57600">
       <program name="Data Link">
@@ -77,14 +116,18 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
     </session>
     <session name="Flight UDP">
       <program name="Data Link">
         <arg flag="-udp"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
     </session>
     <session name="Raw Sensors">
       <program name="Real-time Plotter">

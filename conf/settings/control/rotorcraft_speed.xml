@@ -1,0 +1,16 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings target="ap|nps">
+  <dl_settings>
+
+    <dl_settings NAME="Horiz Loop">
+      <dl_setting var="gh_ref.max_speed" min="0.1" step="0.1" max="15.0" module="guidance/guidance_h" shortname="max_speed" handler="SetMaxSpeed" param="GUIDANCE_H_REF_MAX_SPEED">
+        <strip_button name="V1" value="1" group="speed"/>
+        <strip_button name="V2" value="2" group="speed"/>
+        <strip_button name="V5" value="5" group="speed"/>
+        <strip_button name="V10" value="10" group="speed"/>
+      </dl_setting>
+    </dl_settings>
+
+  </dl_settings>
+</settings>

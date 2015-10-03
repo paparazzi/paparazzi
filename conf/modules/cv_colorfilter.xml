@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ColorFilter" dir="computer_vision">
+  <doc>
+    <description>ColorFilter</description>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="ColorFilter">
+         <dl_setting var="color_lum_min" min="0" step="1" max="255" shortname="y_min" />
+         <dl_setting var="color_lum_max" min="0" step="1" max="255" shortname="y_max" />
+         <dl_setting var="color_cb_min"  min="0" step="1" max="255" shortname="u_min" />
+         <dl_setting var="color_cb_max"  min="0" step="1" max="255" shortname="u_max" />
+         <dl_setting var="color_cr_min"  min="0" step="1" max="255" shortname="v_min" />
+         <dl_setting var="color_cr_max"  min="0" step="1" max="255" shortname="v_max" />
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>video_thread</depends>
+
+  <header>
+    <file name="colorfilter.h"/>
+  </header>
+
+  <init fun="colorfilter_init()"/>
+  <makefile>
+    <file name="colorfilter.c"/>
+  </makefile>
+</module>
+

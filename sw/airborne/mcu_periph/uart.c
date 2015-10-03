@@ -146,7 +146,8 @@ static void send_uart6_err(struct transport_tx *trans, struct link_device *dev)
 #endif
 
 #if PERIODIC_TELEMETRY
-static void send_uart_err(struct transport_tx *trans, struct link_device *dev)
+static void send_uart_err(struct transport_tx *trans __attribute__ ((unused)),
+                          struct link_device *dev __attribute__ ((unused)))
 {
   static uint8_t uart_nb_cnt = 0;
   switch (uart_nb_cnt) {

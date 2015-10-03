@@ -33,6 +33,7 @@ BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= 2
 GPS_LED            ?= none
 SYS_TIME_LED       ?= 1
+MODEM_LED          ?= 3
 
 #
 # default uart configuration

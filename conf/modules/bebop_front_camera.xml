@@ -1,0 +1,61 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="bebop_front_camera" dir="computer_vision">
+  <doc>
+    <description>
+      Video streaming for the Bebop front camera
+
+    </description>
+    <define name="BEBOP_FRONT_CAMERA_SHOT_PATH" value="/data/ftp/internal_000/images" description="Path where the images should be saved"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="video">
+        <dl_setting var="bebop_front_camera.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/bebop_front_camera" handler="take_shot">
+          <strip_button name="Shoot" icon="digital-camera.png" value="1" group="video"/>
+        </dl_setting>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+
+  <header>
+    <file name="bebop_front_camera.h"/>
+  </header>
+
+  <init fun="bebop_front_camera_init()"/>
+  <periodic fun="bebop_front_camera_periodic()" freq="1" start="bebop_front_camera_start()" stop="bebop_front_camera_stop()" autorun="TRUE"/>
+  <makefile target="ap">
+    <file name="bebop_front_camera.c"/>
+
+    <!-- Include the needed Computer Vision files -->
+    <define name="modules/computer_vision" type="include"/>
+    <file name="image.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
+    <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
+    <file name="rtp.c" dir="modules/computer_vision/lib/encoding"/>
+
+    <!-- Random flags -->
+    <define name="__USE_GNU"/>
+    <flag name="LDFLAGS" value="lrt"/>
+    <flag name="LDFLAGS" value="static-libgcc"/>
+
+    <raw>
+      BEBOP_FRONT_CAMERA_HOST        ?= $(MODEM_HOST)
+      BEBOP_FRONT_CAMERA_PORT_OUT    ?= 6000
+      BEBOP_FRONT_CAMERA_BROADCAST   ?= $(MODEM_BROADCAST)
+
+      BEBOPVIEWVID_CFLAGS  = -DBEBOP_FRONT_CAMERA_HOST=$(BEBOP_FRONT_CAMERA_HOST) -DBEBOP_FRONT_CAMERA_PORT_OUT=$(BEBOP_FRONT_CAMERA_PORT_OUT)
+      ifeq ($(BEBOP_FRONT_CAMERA_USE_NC),)
+        ap.CFLAGS += $(BEBOPVIEWVID_CFLAGS) -DBEBOP_FRONT_CAMERA_BROADCAST=$(BEBOP_FRONT_CAMERA_BROADCAST)
+      else
+        ap.CFLAGS += $(BEBOPVIEWVID_CFLAGS) -DBEBOP_FRONT_CAMERA_USE_NC
+      endif
+    </raw>
+
+  </makefile>
+  <makefile target="nps">
+    <file name="BEBOP_FRONT_CAMERA_nps.c"/>
+  </makefile>
+</module>
+

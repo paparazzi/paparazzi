@@ -7,6 +7,7 @@
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
+      <subsystem name="udp"/>
     </target>
 
     <!--define name="USE_SONAR" value="TRUE"/-->
@@ -19,22 +20,41 @@
     <subsystem name="imu" type="bebop"/>
     <subsystem name="gps" type="furuno"/>
     <subsystem name="stabilization" type="indi"/>
-    <subsystem name="ahrs"          type="float_mlkf"/>
     <subsystem name="ahrs" type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
-      <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
     </subsystem>
     <subsystem name="ins" type="extended"/>
+    <subsystem name="guidance" type="indi"/>
   </firmware>
 
   <modules main_freq="512">
     <load name="geo_mag.xml"/>
     <load name="air_data.xml"/>
     <load name="send_imu_mag_current.xml"/>
-    <load name="logger_file.xml">
+    <!--load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
+    </load-->
+    <load name="video_thread.xml">
+      <define name="VIDEO_THREAD_FPS" value="4"/>
+      <define name="VIDEO_THREAD_CAMERA" value="bottom_camera"/>
+      <define name="VIDEO_THREAD_SHOT_PATH" value="/data/ftp/internal_000/images"/>
     </load>
+    <load name="cv_blob_locator.xml"/>
+    <load name="video_rtp_stream.xml">
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+    </load>
+    <load name="nav_survey_rectangle_rotorcraft.xml">
+      <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
+    </load>
+    <load name="nav_survey_poly_rotorcraft.xml">
+      <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/>
+    </load>
+    <load name="digital_cam_video.xml">
+      <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5"/>
+    </load>
+    <load name="video_exif.xml"/>
   </modules>
 
   <commands>
@@ -74,12 +94,12 @@
 
   <section name="IMU" prefix="IMU_">
     <!-- Magneto calibration -->
-    <define name="MAG_X_NEUTRAL" value="18"/>
-    <define name="MAG_Y_NEUTRAL" value="157"/>
-    <define name="MAG_Z_NEUTRAL" value="49"/>
-    <define name="MAG_X_SENS" value="10.5007722373" integer="16"/>
-    <define name="MAG_Y_SENS" value="11.1147400462" integer="16"/>
-    <define name="MAG_Z_SENS" value="11.6479371722" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="-99"/>
+    <define name="MAG_Y_NEUTRAL" value="-18"/>
+    <define name="MAG_Z_NEUTRAL" value="104"/>
+    <define name="MAG_X_SENS" value="6.86866736641" integer="16"/>
+    <define name="MAG_Y_SENS" value="7.14211759775" integer="16"/>
+    <define name="MAG_Z_SENS" value="7.74589177316" integer="16"/>
 
     <!-- Magneto current calibration -->
     <define name="MAG_X_CURRENT_COEF" value="0.0"/>
@@ -197,7 +217,7 @@
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
     <define name="HOVER_KP" value="283"/>
     <define name="HOVER_KD" value="82"/>
-    <define name="HOVER_KI" value="13"/>
+    <define name="HOVER_KI" value="20"/>
     <define name="NOMINAL_HOVER_THROTTLE" value="0.655"/>
     <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
   </section>
@@ -205,11 +225,17 @@
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <!-- Good weather -->
     <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
     <define name="PGAIN" value="79"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
+  </section>
+
+  <section name="NAVIGATION" prefix="NAV_">
+    <define name="CLIMB_VSPEED" value="2.5"/>
+    <define name="DESCEND_VSPEED" value="-1.0"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
@@ -223,13 +249,15 @@
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
   </section>
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="9.7" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="11.0" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="11.1" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 </airframe>

@@ -33,9 +33,8 @@
 // ignore stupid warnings in JSBSim
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-#include <FGFDMExec.h>
-#pragma GCC diagnostic pop
 
+#include <FGFDMExec.h>
 #include <FGJSBBase.h>
 #include <initialization/FGInitialCondition.h>
 #include <models/FGPropulsion.h>
@@ -44,10 +43,12 @@
 #include <models/FGFCS.h>
 #include <models/atmosphere/FGWinds.h>
 
-
 // Thrusters
 #include <models/propulsion/FGThruster.h>
 #include <models/propulsion/FGPropeller.h>
+
+// end ignore unused param warnings in JSBSim
+#pragma GCC diagnostic pop
 
 
 #include "nps_fdm.h"

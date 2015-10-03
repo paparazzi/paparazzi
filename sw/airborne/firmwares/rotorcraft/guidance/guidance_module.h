@@ -33,6 +33,7 @@
  *
  * a) Implement own Horizontal loops when GUIDANCE_H_MODE_MODULE_SETTING is set to GUIDANCE_H_MODE_MODULE
  * One must then implement:
+ * - void guidance_h_module_init(void);
  * - void guidance_h_module_enter(void);
  * - void guidance_h_module_read_rc(void);
  * - void guidance_h_module_run(bool_t in_flight);

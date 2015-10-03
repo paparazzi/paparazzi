@@ -1,0 +1,61 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="video_thread" dir="computer_vision">
+  <doc>
+    <description>
+      Read video in a thread.
+      Only for Linux devices.
+      To be used in other modules for further processing (e.g. opticflow, QR code, streaming).
+
+      - Possibility to save an image(shot) on the internal memory (JPEG, full size, best quality)
+    </description>
+    <define name="VIDEO_THREAD_CAMERA" value="bottom_camera|front_camera" description="which camera video config to use"/>
+    <define name="VIDEO_THREAD_FPS" value="4" description="Video stream frame rate"/>
+    <define name="VIDEO_THREAD_SHOT_PATH" value="/data/video/images" description="Path where the images should be saved"/>
+    <define name="VIDEO_THREAD_DEVICE" value="/dev/video1" description="The video device to capture from (only if VIDEO_THREAD_CAMERA is not defined)"/>
+    <define name="VIDEO_THREAD_DEVICE_VIDEO_WIDTH" value="1280" description="Video capture width (only if VIDEO_THREAD_CAMERA is not defined)"/>
+    <define name="VIDEO_THREAD_DEVICE_VIDEO_HEIGHT" value="720" description="Video capture height (only if VIDEO_THREAD_CAMERA is not defined)"/>
+    <define name="VIDEO_THREAD_DEVICE_BUFFERS" value="10" description="Amount of V4L2 image buffers (only if VIDEO_THREAD_CAMERA is not defined)"/>
+
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="video">
+        <dl_setting var="video_thread.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/video_thread" handler="take_shot">
+          <strip_button name="Videothread Save Jpeg" icon="digital-camera.png" value="1" group="cv"/>
+        </dl_setting>
+        <dl_setting var="video_thread.fps" min="1" step="1" max="25" shortname="fps" module="computer_vision/video_thread" param="VIDEO_THREAD_FPS"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="video_thread.h"/>
+  </header>
+
+  <init fun="video_thread_init()"/>
+  <periodic fun="video_thread_periodic()" freq="1" start="video_thread_start()" stop="video_thread_stop()" autorun="TRUE"/>
+  <makefile target="ap">
+
+    <file name="video_thread.c"/>
+    <file name="cv.c"/>
+
+    <!-- Include the needed Computer Vision files -->
+    <define name="modules/computer_vision" type="include"/>
+    <file name="image.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
+    <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
+
+    <!-- Random flags -->
+    <define name="__USE_GNU"/>
+    <flag name="LDFLAGS" value="lrt"/>
+    <flag name="LDFLAGS" value="static-libgcc"/>
+  </makefile>
+  <makefile target="nps">
+    <file name="video_thread_nps.c"/>
+    <file name="cv.c"/>
+    <file name="image.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
+    <flag name="LDFLAGS" value="lpthread"/>
+  </makefile>
+</module>

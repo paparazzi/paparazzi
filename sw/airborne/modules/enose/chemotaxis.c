@@ -36,8 +36,8 @@ bool_t nav_chemotaxis(uint8_t c, uint8_t plume)
     waypoints[c].y = waypoints[plume].y + ALPHA * y;
     //    DownlinkSendWp(c);
     /* Turn in the right direction */
-    float dir_x = cos(M_PI_2 - (*stateGetHorizontalSpeedDir_f()));
-    float dir_y = sin(M_PI_2 - (*stateGetHorizontalSpeedDir_f()));
+    float dir_x = cos(M_PI_2 - stateGetHorizontalSpeedDir_f());
+    float dir_y = sin(M_PI_2 - stateGetHorizontalSpeedDir_f());
     float pvect = dir_x * y - dir_y * x;
     sign = (pvect > 0 ? -1 : 1);
     /* Reduce the radius */

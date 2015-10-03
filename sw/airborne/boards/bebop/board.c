@@ -36,5 +36,5 @@ void board_init(void)
 
   // We also try to initialize the video CMOS chips here (Bottom and front)
   mt9v117_init();
-  //mt9f002_init();
+  mt9f002_init();
 }

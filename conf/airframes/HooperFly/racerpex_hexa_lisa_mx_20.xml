@@ -213,6 +213,11 @@
     <define name="IGAIN" value="20"/>
   </section>
 
+  <section name="NAVIGATION" prefix="NAV_">
+    <define  name="CLIMB_VSPEED" value="1.0" />
+    <define  name="DESCEND_VSPEED" value="-1.0" />
+  </section>
+
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;fl_motor&quot;, &quot;fr_motor&quot;, &quot;r_motor&quot;, &quot;br_motor&quot;, &quot;bl_motor&quot;, &quot;l_motor&quot;}"/>
     <define name="JSBSIM_MODEL"    value="&quot;HooperFly/racerpex_hexa&quot;"/>

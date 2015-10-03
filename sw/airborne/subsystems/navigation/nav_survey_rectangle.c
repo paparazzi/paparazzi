@@ -62,7 +62,7 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
     survey_from.x = survey_to.x = Min(Max(stateGetPositionEnu_f()->x, nav_survey_west + grid / 2.),
                                       nav_survey_east - grid / 2.);
     if (stateGetPositionEnu_f()->y > nav_survey_north || (stateGetPositionEnu_f()->y > nav_survey_south
-        && (*stateGetHorizontalSpeedDir_f()) > M_PI / 2. && (*stateGetHorizontalSpeedDir_f()) < 3 * M_PI / 2)) {
+                                                          && stateGetHorizontalSpeedDir_f() > M_PI / 2. && stateGetHorizontalSpeedDir_f() < 3 * M_PI / 2)) {
       survey_to.y = nav_survey_south;
       survey_from.y = nav_survey_north;
     } else {
@@ -73,7 +73,7 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
     survey_from.y = survey_to.y = Min(Max(stateGetPositionEnu_f()->y, nav_survey_south + grid / 2.),
                                       nav_survey_north - grid / 2.);
     if (stateGetPositionEnu_f()->x > nav_survey_east || (stateGetPositionEnu_f()->x > nav_survey_west
-        && (*stateGetHorizontalSpeedDir_f()) > M_PI)) {
+        && stateGetHorizontalSpeedDir_f() > M_PI)) {
       survey_to.x = nav_survey_west;
       survey_from.x = nav_survey_east;
     } else {

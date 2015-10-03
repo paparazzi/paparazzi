@@ -3,7 +3,8 @@
 <settings>
   <dl_settings>
     <dl_settings NAME="Persistence">
-      <dl_setting var="settings_store_flag" min="1" step="1" max="1" shortname="store" handler="StoreSettings" module="autopilot" values="Store"/>
+      <dl_setting var="settings_store_flag" min="1" step="1" max="1" shortname="store" handler="StoreSettings" module="autopilot" values="Stored"/>
+      <dl_setting var="settings_clear_flag" min="1" step="1" max="1" shortname="clear" handler="ClearSettings" module="autopilot" values="Cleared"/>
     </dl_settings>
   </dl_settings>
 </settings>

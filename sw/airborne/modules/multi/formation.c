@@ -130,13 +130,13 @@ int formation_flight(void)
 
   static uint8_t _1Hz   = 0;
   uint8_t nb = 0, i;
-  float hspeed_dir = (*stateGetHorizontalSpeedDir_f());
+  float hspeed_dir = stateGetHorizontalSpeedDir_f();
   float ch = cosf(hspeed_dir);
   float sh = sinf(hspeed_dir);
   form_n = 0.;
   form_e = 0.;
   form_a = 0.;
-  form_speed = (*stateGetHorizontalSpeedNorm_f());
+  form_speed = stateGetHorizontalSpeedNorm_f();
   form_speed_n = form_speed * ch;
   form_speed_e = form_speed * sh;
 
@@ -212,9 +212,9 @@ int formation_flight(void)
   form_n /= _nb;
   form_e /= _nb;
   form_a /= _nb;
-  form_speed = form_speed / (nb + 1) - (*stateGetHorizontalSpeedNorm_f());
-  //form_speed_e = form_speed_e / (nb+1) - (*stateGetHorizontalSpeedNorm_f()) * sh;
-  //form_speed_n = form_speed_n / (nb+1) - (*stateGetHorizontalSpeedNorm_f()) * ch;
+  form_speed = form_speed / (nb + 1) - stateGetHorizontalSpeedNorm_f();
+  //form_speed_e = form_speed_e / (nb+1) - stateGetHorizontalSpeedNorm_f() * sh;
+  //form_speed_n = form_speed_n / (nb+1) - stateGetHorizontalSpeedNorm_f() * ch;
 
   // set commands
   NavVerticalAutoThrottleMode(0.);

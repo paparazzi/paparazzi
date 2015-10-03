@@ -738,8 +738,8 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
         | Some x -> sprintf "%f " x in
     let msg = sprintf "%s%s %s" timestamp_string sender s in
     let n = String.length msg in
-    if n > 1000 then (** FIXME: to prevent Ivy bug on long message *)
-      fprintf stderr "Discarding long ivy message (%d bytes)\n%!" n
+    if n > 10000 then (** prevent really long Ivy message, should not happen with normal usage *)
+      fprintf stderr "Discarding long ivy message %s (%d bytes)\n%!" msg_name n
     else
       match link_id with
         None -> Ivy.send msg

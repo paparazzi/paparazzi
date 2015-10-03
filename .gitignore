@@ -144,6 +144,7 @@ paparazzi.sublime-workspace
 /sw/ground_segment/misc/davis2ivy
 /sw/ground_segment/misc/kestrel2ivy
 /sw/ground_segment/misc/natnet2ivy
+/sw/ground_segment/misc/sbp2ivy
 /sw/ground_segment/misc/video_synchronizer
 /sw/ground_segment/misc/ivy2serial
 /sw/ground_segment/misc/sbs2ivy

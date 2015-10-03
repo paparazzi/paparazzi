@@ -2,7 +2,12 @@
 
 <module name="digital_cam">
   <doc>
-    <description>Digital camera control (trigger using GPIO)</description>
+    <description>
+      Digital Photo Camera Triggering (using a GPIO pin)
+
+      This module controls triggering of an attached external digital camera via one or more GPIO pins for on/off/shoot/zoom.
+      It can trigger photos based on GPS distance, time or circle radius in both fixedwings and rotorcraft.
+    </description>
     <define name="DC_SHOOT_ON_BUTTON_RELEASE" description="if defined, call dc_send_shot_postion on button release instead of on push"/>
     <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12" description="mandatory, gpio to control shutter"/>
     <define name="DC_ZOOM_IN_GPIO" value="GPIOC,GPIO2" description="optional, gpio to activate zoom in"/>
@@ -31,8 +36,8 @@
         </dl_setting>
 
         <dl_setting max="3" min="0" step="1" var="dc_autoshoot" values="STOP|PERIODIC|DISTANCE|EXT_TRIG">
-          <strip_button name="Start Autoshoot" icon="on.png" value="1" group="dcauto"/>
-          <strip_button name="Stop Autoshoot" icon="off.png" value="0" group="dcauto"/>
+          <strip_button name="Start Autoshoot" icon="dcstart.png" value="1" group="dcauto"/>
+          <strip_button name="Stop Autoshoot" icon="dcstart.png" value="0" group="dcauto"/>
         </dl_setting>
 
         <dl_setting max="60" min="0.1" step="0.5" var="dc_autoshoot_period" shortname="Periodic" param="DC_AUTOSHOOT_PERIOD" unit="sec"/>
@@ -45,7 +50,7 @@
     </dl_settings>
   </settings>
 
-  <conflicts>digital_cam_i2c,digital_cam_servo,digital_cam_uart</conflicts>
+  <conflicts>digital_cam_i2c,digital_cam_servo,digital_cam_uart,digital_cam_video</conflicts>
 
   <header>
     <file name="gpio_cam_ctrl.h"/>

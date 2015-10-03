@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="drop_zone" dir="multi">
+  <doc>
+    <description>
+      Only for selecting a drop zone...
+    </description>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="drop">
+        <dl_setting var="drop_zone_nb" min="1" step="1" max="3" module="multi/drop_zone" shortname="drop_z" handler="set"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="drop_zone.h"/>
+  </header>
+
+  <makefile>
+    <file name="drop_zone.c"/>
+  </makefile>
+</module>

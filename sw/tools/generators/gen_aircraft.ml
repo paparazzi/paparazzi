@@ -363,7 +363,7 @@ let () =
     let settings = settings @ settings_modules in
     let settings = if List.length settings = 0 then
       begin
-        fprintf stderr "\nWARNING: No 'settings' attribute specified for A/C '%s', using 'settings/dummy.xml'\n\n%!" aircraft;
+        fprintf stderr "\nInfo: No 'settings' attribute specified for A/C '%s', using 'settings/dummy.xml'\n\n%!" aircraft;
         "settings/dummy.xml"
       end
       else String.concat " " settings

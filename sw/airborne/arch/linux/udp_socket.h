@@ -55,7 +55,7 @@ extern int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, i
  * @param[in] len     buffer length in bytes
  * @return number of bytes sent (-1 on error)
  */
-extern int udp_socket_send(struct UdpSocket *sock, uint8_t *buffer, uint16_t len);
+extern int udp_socket_send(struct UdpSocket *sock, uint8_t *buffer, uint32_t len);
 
 /**
  * Send a packet from buffer, non-blocking.
@@ -64,7 +64,7 @@ extern int udp_socket_send(struct UdpSocket *sock, uint8_t *buffer, uint16_t len
  * @param[in] len      buffer length in bytes
  * @return number of bytes sent (-1 on error)
  */
-extern int udp_socket_send_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint16_t len);
+extern int udp_socket_send_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint32_t len);
 
 /**
  * Receive a UDP packet, dont wait.
@@ -73,7 +73,7 @@ extern int udp_socket_send_dontwait(struct UdpSocket *sock, uint8_t *buffer, uin
  * @param[in] len     buffer length in bytes
  * @return number of bytes received (-1 on error)
  */
-extern int udp_socket_recv_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint16_t len);
+extern int udp_socket_recv_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint32_t len);
 
 /**
  * Receive one UDP packet.
@@ -82,7 +82,7 @@ extern int udp_socket_recv_dontwait(struct UdpSocket *sock, uint8_t *buffer, uin
  * @param[in] len     buffer length in bytes
  * @return number of bytes received (-1 on error)
  */
-extern int udp_socket_recv(struct UdpSocket *sock, uint8_t *buffer, uint16_t len);
+extern int udp_socket_recv(struct UdpSocket *sock, uint8_t *buffer, uint32_t len);
 
 extern int udp_socket_subscribe_multicast(struct UdpSocket *sock, const char* multicast_addr);
 extern int udp_socket_set_recvbuf(struct UdpSocket *sock, int buf_size);

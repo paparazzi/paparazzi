@@ -210,7 +210,7 @@ void ms45xx_i2c_event(void)
       // Compute airspeed
       ms45xx.airspeed = sqrtf(Max(ms45xx.diff_pressure * ms45xx.airspeed_scale, 0));
 #if USE_AIRSPEED_MS45XX
-      stateSetAirspeed_f(&ms45xx.airspeed);
+      stateSetAirspeed_f(ms45xx.airspeed);
 #endif
       if (ms45xx.sync_send) {
         ms45xx_downlink(&(DefaultChannel).trans_tx, &(DefaultDevice).device);

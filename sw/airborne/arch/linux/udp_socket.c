@@ -112,7 +112,7 @@ int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port
  * @param[in] len      buffer length in bytes
  * @return number of bytes sent (-1 on error)
  */
-int udp_socket_send(struct UdpSocket *sock, uint8_t *buffer, uint16_t len)
+int udp_socket_send(struct UdpSocket *sock, uint8_t *buffer, uint32_t len)
 {
   if (sock == NULL) {
     return -1;
@@ -133,7 +133,7 @@ int udp_socket_send(struct UdpSocket *sock, uint8_t *buffer, uint16_t len)
  * @param[in] len      buffer length in bytes
  * @return number of bytes sent (-1 on error)
  */
-int udp_socket_send_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint16_t len)
+int udp_socket_send_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint32_t len)
 {
   if (sock == NULL) {
     return -1;
@@ -152,7 +152,7 @@ int udp_socket_send_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint16_t l
  * @param[in] len      buffer length in bytes
  * @return number of bytes received (-1 on error)
  */
-int udp_socket_recv_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint16_t len)
+int udp_socket_recv_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint32_t len)
 {
   socklen_t slen = sizeof(struct sockaddr_in);
   ssize_t bytes_read = recvfrom(sock->sockfd, buffer, len, MSG_DONTWAIT,
@@ -177,7 +177,7 @@ int udp_socket_recv_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint16_t l
  * @param[in] len      buffer length in bytes (maximum bytes to read)
  * @return number of bytes received (-1 on error)
  */
-int udp_socket_recv(struct UdpSocket *sock, uint8_t *buffer, uint16_t len)
+int udp_socket_recv(struct UdpSocket *sock, uint8_t *buffer, uint32_t len)
 {
   socklen_t slen = sizeof(struct sockaddr_in);
   ssize_t bytes_read = recvfrom(sock->sockfd, buffer, len, 0,

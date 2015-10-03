@@ -190,7 +190,7 @@ static void *udp_thread(void *data __attribute__((unused)))
   /* clear the fd list */
   FD_ZERO(&socks_master);
   /* add used sockets */
-  int fd;
+  int fd __attribute__((unused));
 #if USE_UDP0
   fd = ((struct UdpSocket *)udp0.network)->sockfd;
   FD_SET(fd, &socks_master);
