@@ -1476,7 +1476,7 @@ let get_intruders = fun (geomap:G.widget) _sender vs ->
     Intruders.new_intruder id name time geomap
 
 let listen_intruders = fun (geomap:G.widget) ->
-  safe_bind "INTRUDERS" (get_intruders geomap)
+  safe_bind "INTRUDER" (get_intruders geomap)
 
 
 let listen_acs_and_msgs = fun geomap ac_notebook strips my_alert auto_center_new_ac alt_graph timestamp ->
@@ -1503,6 +1503,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook strips my_alert auto_center_new
   listen_autopilot_version_msg my_alert timestamp;
   listen_tcas my_alert timestamp;
   listen_dcshot geomap timestamp;
+  listen_intruders geomap;
 
   (** Select the active aircraft on notebook page selection *)
   let callback = fun i ->
