@@ -170,6 +170,11 @@ let run = fun serial_port log adj i0 speed no_gui ->
               _ -> ()
       end;
     with _ -> (); end;
+    (* also try to replay ground messages *)
+    begin try
+      let _ = Ground_Pprz.message_of_name name in
+      Ivy.send (Printf.sprintf "replay_ground %s" m);
+    with _ -> (); end;
     adj#set_value t;
     if i + 1 < Array.length log then begin
       let dt = time_of log.(i+1) -. t in
