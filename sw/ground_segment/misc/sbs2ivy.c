@@ -97,11 +97,11 @@
 #include "math/pprz_geodetic_double.h"
 #include "math/pprz_algebra_double.h"
 
+#include "sbs_parser.h"
+
 #define DEBUG_INPUT 0
 #define DEBUG_INTR 0
 
-#define MAX_INTRUDER 10
-#define MAX_AGE_INTR 80   //Scaled by timer, stepsize 1/4s
 
 
 #if DEBUG_INPUT == 1
@@ -117,62 +117,24 @@
 #define INTR_PRINT(...) {  };
 #endif
 
-#define INPUT_MAXLEN 255
 
-void parse_msg4(void);
-void parse_msg3(void);
-
-void handle_intruders(void);
-
-void sbs_parse_msg(void);
-void sbs_parse_char(unsigned char c);
+static void send_intruders(void);
+void utm_i_of_lla_d(struct UtmCoor_i *utmi, struct LlaCoor_d *lla);
 
 void close_port(void);
 int open_port(char *host, unsigned int port);
 void read_port(void);
 
+struct SbsMsgData in_data;
 
-struct MsgBuf {
-  int msg_available;
-  int pos_available;
-  int nb_ovrn;        // number if incomplete messages
-  char msg_buf[INPUT_MAXLEN];  ///< buffer for storing one line
-  int msg_len;
-};
 
-struct MsgBuf in_data;
-
-#define NAME_MAXLEN 20
-/// data structure for intruders
-struct Intruder {
-  int id;
-  char name[NAME_MAXLEN];
-  struct UtmCoor_i utm_pos;
-  struct LlaCoor_d lla;
-  int lastalt;
-  float gspeed;
-  float course;
-  float climb;
-  float dist;
-  uint time4;
-  uint time3;
-  int used;
-};
-
-struct Intruder Intr[MAX_INTRUDER + 1];
-
-//Flags
-int sendivyflag = 0;
-
-int num_intr;
-
-uint timer = 100;
-uint lastivyrcv = 0;
-uint lastivytrx = 0;
+unsigned int timer = 100;
+unsigned int lastivyrcv = 0;
+unsigned int lastivytrx = 0;
 
 int portstat = 0;
 
-int dist(struct UtmCoor_i *utmi);
+static float dist_to_uav(struct UtmCoor_i *utmi);
 
 
 //TCP Port variables
@@ -355,7 +317,7 @@ static void on_Gps(IvyClientPtr app, void *user_data, int argc, char *argv[])
 // IVY Writer
 //////////////////////////////////////////////////////////////////////////////////
 
-void send_intruder(struct Intruder *intruder)
+void send_intruder_msg(struct Intruder *intruder)
 {
   /*
   <message name="INTRUDER" id="37">
@@ -389,27 +351,31 @@ void send_intruder(struct Intruder *intruder)
 
 void send_remote_uav(struct Intruder *intruder)
 {
-
   struct _uav_type_ remote_uav;
 
   remote_uav.ac_id = 254;
   remote_uav.phi = 0;
-  LLA_BFP_OF_REAL(remote_uav.lla_i, Intr->lla);
-  remote_uav.utm_east = Intr->utm_pos.east;
-  remote_uav.utm_north = Intr->utm_pos.north;
-  remote_uav.utm_z = Intr->utm_pos.alt;
-  remote_uav.utm_zone = Intr->utm_pos.zone;
+  LLA_BFP_OF_REAL(remote_uav.lla_i, intruder->lla);
+
+  struct UtmCoor_i utmi;
+  utm_i_of_lla_d(&utmi, &intruder->lla);
+
+  remote_uav.utm_east = utmi.east;
+  remote_uav.utm_north = utmi.north;
+  remote_uav.utm_z = utmi.alt;
+  remote_uav.utm_zone = utmi.zone;
+
   // uav speed/climb are in in cm/s
-  remote_uav.speed = Intr->gspeed * 100;
-  remote_uav.climb = Intr->climb * 100;
+  remote_uav.speed = intruder->gspeed * 100;
+  remote_uav.climb = intruder->climb * 100;
   // course in decideg
-  remote_uav.course = Intr->course * 10;
+  remote_uav.course = intruder->course * 10;
 
 
   IvySendMsg("%d ALIVE 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n", remote_uav.ac_id);
 
   // ATTITUDE: phi, psi, theta
-  float psi = RadOfDeg(Intr->course);
+  float psi = RadOfDeg(intruder->course);
   IvySendMsg("%d ATTITUDE %f %f %f\n", remote_uav.ac_id, 0.0f, psi, 0.0f);
 
 
@@ -492,8 +458,8 @@ gboolean timeout_callback(gpointer data)
   if (portstat == 1) {
     read_port();
   }
-  sendivyflag = 1;
-  handle_intruders();
+  // send intruder info
+  send_intruders();
   timer++;
 
   // One out of 4
@@ -762,439 +728,56 @@ void read_port(void)
     while (select(sockfd + 1, &readSet, NULL, NULL, &selTimeout) > 0) {
       FD_SET(sockfd, &readSet);//re-set
       if (read(sockfd, &readbuf, 1) == 1) {
-        sbs_parse_char(readbuf);
+        sbs_parse_char(&in_data, readbuf);
       } else { //port closed at server, go to reconnect
         portstat = 0;
         close_port();
         break;
       }
       if (in_data.msg_available) {
-        sbs_parse_msg();
+        sbs_parse_msg(&in_data);
       }
     }
   }
 
 }
 
-/**
- * This is the actual parser.
- * It reads one character at a time
- * setting in_data.msg_available to TRUE
- * after a full line.
- */
-void sbs_parse_char(unsigned char c)
+
+
+static void send_intruders(void)
 {
-  //reject empty lines
-  if (in_data.msg_len == 0) {
-    if (c == '\r' || c == '\n' || c == '$') {
-      return;
-    }
-  }
-
-  // fill the buffer, unless it's full
-  if (in_data.msg_len < INPUT_MAXLEN - 1) {
-
-    // messages end with a linefeed
-    //AD: TRUNK:       if (c == '\r' || c == '\n')
-    if (c == '\r' || c == '\n') {
-      in_data.msg_available = 1;
-    } else {
-      in_data.msg_buf[in_data.msg_len] = c;
-      in_data.msg_len ++;
-      in_data.msg_available = 0;
-    }
-  }
-
-  if (in_data.msg_len >= INPUT_MAXLEN - 1) {
-    in_data.msg_available = 1;
-  }
-}
-
-
-/**
- * sbs_parse_char() has a complete line.
- * Find out what type of message it is and
- * hand it to the parser for that type.
-MSG,4,,,495224,,,,,,,,404,54,,,64,,0,0,0,0
-MSG,1,,,495224,,,,,,TAP594  ,,,,,,,,0,0,0,0
-MSG,8,,,495224,,,,,,,,,,,,,,,,,
-MSG,3,,,495224,,,,,,,37000,,,48.27750,11.68840,,,0,0,0,0
- */
-void sbs_parse_msg(void)
-{
-
-  if (in_data.msg_len > 5 && !strncmp(in_data.msg_buf , "MSG,4", 5)) {
-    in_data.msg_buf[in_data.msg_len] = 0;
-    INPUT_PRINT("parsing MSG 4: \"%s\" \n\r", in_data.msg_buf);
-    parse_msg4();
-  } else {
-    if (in_data.msg_len > 5 && !strncmp(in_data.msg_buf , "MSG,3", 5)) {
-      in_data.msg_buf[in_data.msg_len] = 0;
-      INPUT_PRINT("parsing MSG 3: \"%s\" \n\r", in_data.msg_buf);
-      parse_msg3();
-    } else {
-      in_data.msg_buf[in_data.msg_len] = 0;
-      INPUT_PRINT("ignoring: len=%i \"%s\" \n\r", in_data.msg_len, in_data.msg_buf);
-    }
-  }
-
-  // reset message-buffer
-  in_data.msg_len = 0;
-}
-
-
-static inline void read_until_sep(int *i)
-{
-  while (in_data.msg_buf[(*i)++] != ',') {
-    if (*i >= in_data.msg_len) {
-      return;
-    }
-  }
-}
-
-
-/**
- * parse MSG 4 SBS airborne velocity message
- *
- * MSG,4,0,1019,3C65A3,1119,2015/08/14,18:19:17.913,2015/08/14,18:19:17.913,,,511.6,48.6,,,128,,,,,
- */
-void parse_msg4(void)
-{
-  int i = 6;     // current position in the message, start after: MSG,4,
-  char *endptr;  // end of parsed substrings
-
-  // transmission type
-  //int type = atoi(&in_data.msg_buf[4]);
-  //if (type != 4) { return; }
-
-  // aircraft ID
-  read_until_sep(&i);
-  int aircraft_id = atoi(&in_data.msg_buf[i]);
-  INPUT_PRINT("MSG4 aircraft_id = %i \n\r", aircraft_id);
-
-  // hex ident
-  read_until_sep(&i);
-  // Reading Hex number
-  char hex_ident[10] = "foo";
-  for (int j=0; j < 10; j++) {
-    if (in_data.msg_buf[i+j] == ',') {
-      hex_ident[j] = '\0';
-      break;
-    }
-    hex_ident[j] = in_data.msg_buf[i+j];
-  }
-  hex_ident[9] = '\0';
-  INPUT_PRINT("MSG4 hex_ident = %s\n\r", hex_ident);
-  in_data.msg_buf[i - 2] = '0';
-  in_data.msg_buf[i - 1] = 'x';
-  //get Flarm intruder ID
-  int __attribute__((unused)) flarm_id = strtod(&in_data.msg_buf[i - 2], &endptr);
-  INPUT_PRINT("MSG4 flarm_id = %i \n\r", flarm_id);
-
-  // flight ID
-  read_until_sep(&i);
-  int __attribute__((unused)) flight_id = atoi(&in_data.msg_buf[i]);
-  INPUT_PRINT("MSG4 flight_id = %i\n\r", flight_id);
-
-  // skip some fields
-  // generated_date, generated_time, logged_date, logged_time, ?, ?
-  for (int j = 0; j < 6; j++) {
-    read_until_sep(&i);
-  }
-
-  //get intruder Ground speed (knots) and convert to m/s
-  read_until_sep(&i);
-  double speed = strtod(&in_data.msg_buf[i], &endptr) * 0.5144444;
-  INPUT_PRINT("Speed = %f m/s\n\r", speed);
-
-  //get intruder ground track
-  read_until_sep(&i);
-  double track = strtod(&in_data.msg_buf[i], &endptr);
-  INPUT_PRINT("Track = %f deg\n\r", track);
-
-  // next field: empty
-  read_until_sep(&i);
-
-  // next field: empty
-  read_until_sep(&i);
-
-  // next field: Climb rate
-  read_until_sep(&i);
-
-  //get intruder climb rate (feet per minute) and convert to m/s
-  double climb = strtod(&in_data.msg_buf[i], &endptr) * 0.00508;
-  INPUT_PRINT("Climb = %f m/s\n\r", climb);
-
-  //Build table of current intruder situation
-
-  //Check if already in list, then replace by new values
-  int z ;
-  int newflag = 1;
-
-  for (z = 0; z < MAX_INTRUDER; z++) {
-    if (Intr[z].id == aircraft_id) {
-      newflag = 0;
-      //Check for positive or negative vertical speed (not signed :-( )
-      if (Intr[z].utm_pos.alt < Intr[z].lastalt) {
-        //sinking
-        climb = -climb;
-      } else if (Intr[z].utm_pos.alt == Intr[z].lastalt) {
-        //equal.. take last
-        if (Intr[z].climb < 0) {
-          climb = -climb;
-        }
-      }
-
-      Intr[z].gspeed = speed;
-      Intr[z].course = track;
-      Intr[z].climb  = climb;
-      Intr[z].time4  = timer;
-    }
-
-  }
-
-  //New intruder
-  if (newflag) {
-    Intr[MAX_INTRUDER].id     = aircraft_id;
-    strcpy(Intr[MAX_INTRUDER].name, hex_ident);
-    Intr[MAX_INTRUDER].gspeed = speed;
-    Intr[MAX_INTRUDER].course = track;
-    Intr[MAX_INTRUDER].climb  = climb;
-    Intr[MAX_INTRUDER].time4  = timer;
-    Intr[MAX_INTRUDER].used   = 4;
-    INPUT_PRINT("new = %i \n\r", Intr[MAX_INTRUDER].id);
-
-  }
-
-  handle_intruders();
-
-  return;
-}
-
-
-/**
- * parse MSG 3 SBS Message (airborne position message)
- *
- * MSG,3,0,1019,3C65A3,1119,2015/08/14,18:18:21.714,2015/08/14,18:18:21.714,,35000,,,52.81230,13.39689,,,,0,0,0
- *
- * message_type
- * transmission_type
- * session_id
- * aircraft_id = parts[3];
- * hex_ident = parts[4];
- * flight_id = parts[5];
- * generated_date = parts[6];
- * generated_time = parts[7];
- * logged_date = parts[8];
- * logged_time = parts[9];
- * callsign = parts[10];
- * altitude = sbs1_value_to_int(parts[11]);
- * ground_speed = sbs1_value_to_int(parts[12]);
- * track = sbs1_value_to_int(parts[13]);
- * lat = sbs1_value_to_float(parts[14]);
- * lon = sbs1_value_to_float(parts[15]);
- * vertical_rate = sbs1_value_to_int(parts[16]);
- * squawk = parts[17];
- * alert = sbs1_value_to_bool(parts[18]);
- * emergency = sbs1_value_to_bool(parts[19]);
- * spi = sbs1_value_to_bool(parts[20]);
- * is_on_ground = sbs1_value_to_bool(parts[21]);
- */
-void parse_msg3(void)
-{
-
-  int i = 6;     // current position in the message, start after: MSG,3,
-  char *endptr;  // end of parsed substrings
-  struct LlaCoor_d lla;
-  struct UtmCoor_f utmf;
-  struct UtmCoor_i utmi;
-
-  // transmission type
-  //int type = atoi(&in_data.msg_buf[4]);
-  //if (type != 3) { return; }
-
-  // aircraft ID
-  read_until_sep(&i);
-  int aircraft_id = atoi(&in_data.msg_buf[i]);
-  INPUT_PRINT("MSG3 aircraft_id = %i \n\r", aircraft_id);
-
-  // hex ident
-  read_until_sep(&i);
-  //Reading Hex number
-  char hex_ident[10] = "foo";
-  for (int j=0; j < 10; j++) {
-    if (in_data.msg_buf[i+j] == ',') {
-      hex_ident[j] = '\0';
-      break;
-    }
-    hex_ident[j] = in_data.msg_buf[i+j];
-  }
-  hex_ident[9] = '\0';
-  INPUT_PRINT("MSG3 hex_ident = %s\n\r", hex_ident);
-  in_data.msg_buf[i - 2] = '0';
-  in_data.msg_buf[i - 1] = 'x';
-  //get Flarm intruder ID
-  int __attribute__((unused)) flarm_id = strtod(&in_data.msg_buf[i - 2], &endptr);
-  INPUT_PRINT("MSG3 flarm_id = %i \n\r", flarm_id);
-
-  // flight ID
-  read_until_sep(&i);
-  int __attribute__((unused)) flight_id = atoi(&in_data.msg_buf[i]);
-  INPUT_PRINT("MSG3 flight_id = %i\n\r", flight_id);
-
-  // skip some fields
-  // generated_date, generated_time, logged_date, logged_time, callsign
-  for (int j = 0; j < 5; j++) {
-    read_until_sep(&i);
-  }
-
-  //get intruder alt (in feet)
-  read_until_sep(&i);
-  lla.alt = strtod(&in_data.msg_buf[i], &endptr) * 0.3048; //feet to m
-  INPUT_PRINT("Alt = %f m\n\r", lla.alt);
-
-  // ground_speed
-  read_until_sep(&i);
-
-  // track
-  read_until_sep(&i);
-
-  // latitude
-  read_until_sep(&i);
-  double lat = strtod(&in_data.msg_buf[i], &endptr);
-  INPUT_PRINT("Lat = %f deg\n\r", lat);
-  lla.lat = RadOfDeg(lat);
-
-  // longitude
-  read_until_sep(&i);
-  double lon = strtod(&in_data.msg_buf[i], &endptr);
-  INPUT_PRINT("Lon = %f deg\n\r", lon);
-  lla.lon = RadOfDeg(lon);
-
-  // vertical rate
-  read_until_sep(&i);
-
-  // not using the rest of the fields atm
-
-
-  // FIXME, LLA should not be stored as float!
-  struct LlaCoor_f lla_f;
-  LLA_COPY(lla_f, lla);
-  struct LlaCoor_i lla_i;
-  LLA_BFP_OF_REAL(lla_i, lla);
-
-  //Calculations for UTM zone of local UAV so that distance calc works even for zone borders
-  utmf.zone = local_uav.utm_zone;
-  utm_of_lla_f(&utmf, &lla_f);
-
-  /* copy results of utm conversion */
-  utmi.east = utmf.east * 100;
-  utmi.north = utmf.north * 100;
-  utmi.alt = lla_i.alt;
-  utmi.zone = utmf.zone;
-
-  INPUT_PRINT("UTMI E N Z = %d, %d, %d, %d \n\r", utmi.east, utmi.north, utmi.zone,  dist(&utmi));
-
-
-  //Build table of current intruder situation
-
-  //Check if already in list, then replace by new values
-  int z ;
-  int newflag = 1;
-
-  for (z = 0; z < MAX_INTRUDER; z++) {
-    if (Intr[z].id == aircraft_id) {
-      newflag = 0;
-      Intr[z].lastalt  = Intr[z].utm_pos.alt;
-      Intr[z].lla      = lla;
-      Intr[z].utm_pos  = utmi;
-      Intr[z].dist     = dist(&utmi);
-      Intr[z].time3    = timer;
-    }
-
-  }
-
-  //New intruder
-  //If Relative East is empty (value 0), it is a mode C/S transponder, so no position.
-  if (newflag) {
-    Intr[MAX_INTRUDER].id       = aircraft_id;
-    strcpy(Intr[MAX_INTRUDER].name, hex_ident);
-    Intr[MAX_INTRUDER].lla      = lla;
-    Intr[MAX_INTRUDER].utm_pos  = utmi;
-    Intr[MAX_INTRUDER].dist     = dist(&utmi);
-    Intr[MAX_INTRUDER].time3    = timer;
-    Intr[MAX_INTRUDER].used     = 3;
-    INPUT_PRINT("new = %i \n\r", Intr[MAX_INTRUDER].id);
-
-  }
-
-  handle_intruders();
-  return;
-}
-
-//Build up of intruder table
-void handle_intruders(void)
-{
-
-  int z;
-
-  //Analyse if Data ok
-  num_intr = 0;
-  for (z = 0; z < MAX_INTRUDER; z++) {
-    //If data too old, mark unused
-    if (((timer - Intr[z].time3) < MAX_AGE_INTR) && ((timer - Intr[z].time4) < MAX_AGE_INTR)) {
-      Intr[z].used = 1 ;
-      num_intr++; //count valid planes
-    } else if ((timer - Intr[z].time3) < MAX_AGE_INTR) {
-      Intr[z].used = 3 ;
-    } else if ((timer - Intr[z].time4) < MAX_AGE_INTR) {
-      Intr[z].used = 4 ;
-    } else {
-      Intr[z].used = 0;
-    }
-  }
-
-  INTR_PRINT("unsort %i", num_intr);
-  for (z = 0; z < MAX_INTRUDER + 1; z++) {
-    INTR_PRINT("Nr:%i d:%.2f u:%d", z, Intr[z].dist, Intr[z].used);
-  }
-  INTR_PRINT("fin \n\r");
-
-  //Sort for dist and used
-  int zi;
-  struct Intruder Temp_int;
-  //Bubble sort
-  for (z = 0; z < MAX_INTRUDER + 1; z++) {
-    for (zi = 0; zi < MAX_INTRUDER + 1; zi++) {
-      if (((Intr[zi].dist > Intr[zi + 1].dist) && (Intr[zi + 1].used == 1)) || (Intr[zi].used == 0)) {
-        Temp_int = Intr[zi];
-        Intr[zi] = Intr[zi + 1];
-        Intr[zi + 1] = Temp_int;
+  int num_intr = 0;
+  int closest_intr = -1;
+  float min_dist = 0.0;
+
+  // make sure intruder info is up-to-date (old ones deleted)
+  update_intruders(intruders);
+
+  /* count and send all valid intruders and find closest one */
+  for (int i = 0; i < MAX_INTRUDERS; i++) {
+    if (intruders[i].used == 1) {
+      num_intr++;
+
+      send_intruder_msg(&intruders[i]);
+
+      struct UtmCoor_i utmi;
+      utm_i_of_lla_d(&utmi, &intruders[i].lla);
+
+      float dist = dist_to_uav(&utmi);
+      if (min_dist <= 0.0f || dist < min_dist) {
+        min_dist = dist;
+        closest_intr = i;
       }
     }
   }
 
-  if (sendivyflag) {
-    for (z = 0; z < MAX_INTRUDER + 1; z++) {
-      if (Intr[z].used == 1) {
-        if (options.enable_remote_uav && z == 0) {
-          send_remote_uav(&Intr[0]);
-        }
-
-        send_intruder(&Intr[z]);
-      }
-    }
-    sendivyflag = 0;
+  if (options.enable_remote_uav && closest_intr >= 0) {
+    send_remote_uav(&intruders[closest_intr]);
   }
 
   //show on window
-  float dist_close = 0.0;
-  if (Intr[0].used == 1) {
-    dist_close = Intr[0].dist / 100000.0;
-  }
-
   if (portstat == 1) {
-    sprintf(status_sbs_str, "Connected; Intruders: %i  Min.Dist: %4.1f km", num_intr, dist_close);
+    sprintf(status_sbs_str, "Connected; Intruders: %i  Min.Dist: %4.1f km", num_intr, min_dist / 1000.0);
     gtk_label_set_text(GTK_LABEL(status_sbs), status_sbs_str);
   } else {
     sprintf(status_sbs_str, "No SBS Data, Port closed");
@@ -1203,12 +786,34 @@ void handle_intruders(void)
   return;
 }
 
-//calculate distance intruder to local UAV
-int dist(struct UtmCoor_i *utmi)
+//calculate distance intruder to local UAV in meters
+static float dist_to_uav(struct UtmCoor_i *utmi)
 {
-  int d = sqrtf((float)(utmi->north - local_uav.utm_north) * (float)(utmi->north - local_uav.utm_north) +
-                (float)(utmi->east - local_uav.utm_east) * (float)(utmi->east - local_uav.utm_east) +
-                ((float)(utmi->alt - local_uav.utm_z) / 10.0) * ((float)(utmi->alt - local_uav.utm_z) / 10.0));
+  float dn = (float)(utmi->north - local_uav.utm_north) / 100.0;
+  float de = (float)(utmi->east - local_uav.utm_east) / 100.0;
+  float da = (float)(utmi->alt - local_uav.utm_z) / 1000.0;
+  return sqrtf(dn * dn + de * de + da * da);
+}
 
-  return d;
+void utm_i_of_lla_d(struct UtmCoor_i *utmi, struct LlaCoor_d *lla)
+{
+  // FIXME, LLA should not be stored as float!
+  struct LlaCoor_f lla_f;
+  LLA_COPY(lla_f, *lla);
+  struct LlaCoor_i lla_i;
+  LLA_BFP_OF_REAL(lla_i, *lla);
+
+  struct UtmCoor_f utmf;
+
+  //Calculations for UTM zone of local UAV so that distance calc works even for zone borders
+  utmf.zone = local_uav.utm_zone;
+  utm_of_lla_f(&utmf, &lla_f);
+
+  /* copy results of utm conversion */
+  utmi->east = utmf.east * 100;
+  utmi->north = utmf.north * 100;
+  utmi->alt = lla_i.alt;
+  utmi->zone = utmf.zone;
+
+  INPUT_PRINT("UTMI E N Z = %d, %d, %d\n\r", utmi->east, utmi->north, utmi->zone);
 }

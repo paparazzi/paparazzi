@@ -82,7 +82,7 @@ video_synchronizer: video_synchronizer.c
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) $(GTK_CFLAGS) $(LIBRARYS) $(INCLUDES) -o $@ $< $(GTK_LDFLAGS)
 
-sbs2ivy: sbs2ivy.o pprz_geodetic_double.o pprz_geodetic_float.o
+sbs2ivy: sbs2ivy.o pprz_geodetic_double.o pprz_geodetic_float.o sbs_parser.o
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) $(GTK_CFLAGS) -o $@ $^ $(LIBRARYS) $(GLIBIVY_LDFLAGS) $(GTK_LDFLAGS) -lm
 
@@ -109,6 +109,9 @@ edc.o : $(PAPARAZZI_SRC)/sw/ext/libsbp/c/src/edc.c
 
 sbs2ivy.o : sbs2ivy.c
 	$(Q)$(CC) $(CFLAGS) $(GTK_CFLAGS) -c -std=gnu99 -O2 -Wall $(INCLUDES) $<
+
+sbs_parser.o : sbs_parser.c
+	$(Q)$(CC) $(CFLAGS) -c -std=gnu99 -O2 -Wall $(INCLUDES) $<
 
 %.o : %.c
 	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
