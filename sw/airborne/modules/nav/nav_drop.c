@@ -121,8 +121,8 @@ unit_t nav_drop_update_release(uint8_t wp_target)
   nav_drop_x = 0.;
   nav_drop_y = 0.;
 
-  nav_drop_vx = stateGetHorizontalSpeedNorm_f() * sin(stateGetHorizontalSpeedDir_f();
-  nav_drop_vy = stateGetHorizontalSpeedNorm_f() * cos(stateGetHorizontalSpeedDir_f();
+  nav_drop_vx = stateGetHorizontalSpeedNorm_f() * sin(stateGetHorizontalSpeedDir_f());
+  nav_drop_vy = stateGetHorizontalSpeedNorm_f() * cos(stateGetHorizontalSpeedDir_f());
   nav_drop_vz = 0.;
 
   integrate(wp_target);
