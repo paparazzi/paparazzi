@@ -657,7 +657,9 @@ let send_intruder_acinfo = fun id intruder ->
   let cm_of_m_32 = fun f -> Pprz.Int32 (Int32.of_int (truncate (100. *. f))) in
   let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f)) in
   let pos = LL.utm_of WGS84 intruder.Intruder.pos in
-  let ac_info = ["ac_id", Pprz.String id;
+  (* TODO: find a better way to map intruders to AC_IDs *)
+  let ac_id = 200 in
+  let ac_info = ["ac_id", Pprz.Int ac_id;
                  "utm_east", cm_of_m_32 pos.utm_x;
                  "utm_north", cm_of_m_32 pos.utm_y;
                  "course", Pprz.Int (truncate (10. *. (Geometry_2d.rad2deg intruder.Intruder.course)));
@@ -672,16 +674,16 @@ let periodic_handle_intruders = fun () ->
   (* send ACINFO for each active intruder *)
   Hashtbl.iter (send_intruder_acinfo) intruders
 
-let add_intruder = fun name vs ->
+let add_intruder = fun vs ->
   let id = Pprz.string_assoc "id" vs in
   let name = Pprz.string_assoc "name" vs in
   let intruder = Intruder.new_intruder id name in
   Hashtbl.add intruders id intruder
 
-let update_intruder = fun name vs ->
-  if not (Hashtbl.mem intruders name) then
-    add_intruder name vs;
+let update_intruder = fun _sender vs ->
   let id = Pprz.string_assoc "id" vs in
+  if not (Hashtbl.mem intruders id) then
+    add_intruder vs;
   let i = Hashtbl.find intruders id in
   let lat = Pprz.int_assoc "lat" vs
   and lon = Pprz.int_assoc "lon" vs in

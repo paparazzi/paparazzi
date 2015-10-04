@@ -355,7 +355,7 @@ static void on_Gps(IvyClientPtr app, void *user_data, int argc, char *argv[])
 // IVY Writer
 //////////////////////////////////////////////////////////////////////////////////
 
-void send_intruder(struct Intruder *intruder, uint8_t ac_id)
+void send_intruder(struct Intruder *intruder)
 {
   /*
   <message name="INTRUDER" id="37">
@@ -375,14 +375,14 @@ void send_intruder(struct Intruder *intruder, uint8_t ac_id)
   LLA_BFP_OF_REAL(lla_i, intruder->lla);
 
   // FIXME: using WGS84 ellipsoid alt, it is probably hmsl???
-  IvySendMsg("INTRUDER %d %s %d %d %d %f %f %f %d\n", ac_id, intruder->name,
+  IvySendMsg("INTRUDER %d %s %d %d %d %f %f %f %d\n", intruder->id, intruder->name,
              lla_i.lat, lla_i.lon, lla_i.alt, intruder->course,
              intruder->gspeed, intruder->climb, 0);
 
   count_serial++;
   lastivytrx = timer;
 
-  sprintf(status_ivy_out, "Sending Intruder ID: %d  [%ld]", ac_id, count_serial);
+  sprintf(status_ivy_out, "Sending Intruder ID: %d  [%ld]", intruder->id, count_serial);
   gtk_label_set_text(GTK_LABEL(status_out_ivy), status_ivy_out);
 }
 
@@ -605,9 +605,9 @@ static bool_t parse_options(int argc, char **argv, struct Opts *opts)
 int main(int argc, char **argv)
 {
 
-  gtk_init(&argc, &argv);
-
   if (!parse_options(argc, argv, &opts)) { return 1; }
+
+  gtk_init(&argc, &argv);
 
   local_uav.ac_id = opts.ac_id;
 
@@ -616,6 +616,7 @@ int main(int argc, char **argv)
   sprintf(status_ivy_out, "--");
   printf("%s\n", status_str);
 
+  printf("Listening for SBS-1 messages on %s:%d\n", opts.host, opts.port);
   portstat = open_port(opts.host, opts.port);
 
   // Start IVY
@@ -1140,13 +1141,12 @@ void handle_intruders(void)
 
   if (sendivyflag) {
     for (z = 0; z < MAX_INTRUDER + 1; z++) {
-      if (Intr[z].used == 1 && opts.enable_remote_uav) {
-        if (z == 0) {
+      if (Intr[z].used == 1) {
+        if (opts.enable_remote_uav && z == 0) {
           send_remote_uav(&Intr[0]);
         }
 
-        // TODO, find a better way to assign ac ids
-        send_intruder(&Intr[z], 200 + z);
+        send_intruder(&Intr[z]);
       }
     }
     sendivyflag = 0;
