@@ -687,7 +687,7 @@ let add_intruder = fun vs ->
   let intruder = Intruder.new_intruder id name in
   Hashtbl.add intruders id intruder
 
-let update_intruder = fun _sender vs ->
+let update_intruder = fun logging _sender vs ->
   let id = Pprz.string_assoc "id" vs in
   (*prerr_endline (sprintf "update_intruder %s" id);*)
   if not (Hashtbl.mem intruders id) then
@@ -701,11 +701,12 @@ let update_intruder = fun _sender vs ->
   i.Intruder.course <- Pprz.float_assoc "course" vs;
   i.Intruder.gspeed <- Pprz.float_assoc "speed" vs;
   i.Intruder.climb <- Pprz.float_assoc "climb" vs;
-  i.Intruder.unix_time <- U.gettimeofday ()
+  i.Intruder.unix_time <- U.gettimeofday ();
+  log logging "ground" "INTRUDER" vs
 
-(* listen for intruders *)
+(* listen for intruders and log them *)
 let listen_intruders = fun log ->
-  ignore(Ground_Pprz.message_bind "INTRUDER" update_intruder)
+  ignore(Ground_Pprz.message_bind "INTRUDER" (update_intruder log))
 
 let send_config = fun http _asker args ->
   let ac_id' = Pprz.string_assoc "ac_id" args in
