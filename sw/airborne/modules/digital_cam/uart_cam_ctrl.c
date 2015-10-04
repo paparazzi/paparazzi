@@ -45,10 +45,11 @@
 
 #include "state.h"
 
-#define CameraLinkDev (&(CAMERA_LINK).device)
+
+#define CameraLinkDev (&((CAMERA_LINK).device))
 #define CameraLinkTransmit(c) CameraLinkDev->put_byte(CameraLinkDev->periph, c)
-#define CameraLinkChAvailable() CameraLinkDev->check_available(CameraLinkDev->periph)
-#define CameraLinkGetch() CameraLinkGetch->get_byte(CameraLinkDev->periph)
+#define CameraLinkChAvailable() CameraLinkDev->char_available(CameraLinkDev->periph)
+#define CameraLinkGetch() CameraLinkDev->get_byte(CameraLinkDev->periph)
 
 union dc_shot_union dc_shot_msg;
 union mora_status_union mora_status_msg;
@@ -60,12 +61,6 @@ int digital_cam_uart_thumbnails = 0;
 static uint8_t thumbs[THUMB_COUNT][THUMB_MSG_SIZE];
 static uint8_t thumb_pointer = 0;
 
-
-
-#define ReadCameraBuffer() {                      \
-    while (CameraLinkChAvailable())               \
-      digital_cam_uart_parse(CameraLinkGetch());  \
-  }
 
 void digital_cam_uart_event(void)
 {

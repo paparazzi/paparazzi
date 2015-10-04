@@ -70,10 +70,11 @@
     <file name="catia/protocol.c"/>
     <file name="dc.c"/>
     <raw>
-$(TARGET).CFLAGS += -DCAMERA_LINK=$(CAMERA_PORT)
-$(TARGET).CFLAGS += -DUSE_$(CAMERA_PORT)
+CAMERA_PORT_LOWER=$(shell echo $(CAMERA_PORT) | tr A-Z a-z)
 $(TARGET).CFLAGS += -D$(CAMERA_PORT)_BAUD=B115200
     </raw>
+    <define name="USE_$(CAMERA_PORT)"/>
+    <define name="CAMERA_LINK" value="$(CAMERA_PORT_LOWER)"/>
   </makefile>
 </module>
 
