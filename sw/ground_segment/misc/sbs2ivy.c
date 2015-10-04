@@ -198,7 +198,7 @@ struct Opts {
   char *ivy_bus;
 };
 
-struct Opts opts;
+struct Opts options;
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -509,7 +509,7 @@ gboolean timeout_callback(gpointer data)
       gtk_label_set_text(GTK_LABEL(status_out_ivy), status_ivy_out);
     }
     if (portstat == 0) {
-      portstat = open_port(opts.host, opts.port);
+      portstat = open_port(options.host, options.port);
     }
 
   } else {
@@ -605,19 +605,19 @@ static bool_t parse_options(int argc, char **argv, struct Opts *opts)
 int main(int argc, char **argv)
 {
 
-  if (!parse_options(argc, argv, &opts)) { return 1; }
+  if (!parse_options(argc, argv, &options)) { return 1; }
 
   gtk_init(&argc, &argv);
 
-  local_uav.ac_id = opts.ac_id;
+  local_uav.ac_id = options.ac_id;
 
   sprintf(status_str, "Listening to AC=%d", local_uav.ac_id);
   sprintf(status_ivy_str, "--");
   sprintf(status_ivy_out, "--");
   printf("%s\n", status_str);
 
-  printf("Listening for SBS-1 messages on %s:%d\n", opts.host, opts.port);
-  portstat = open_port(opts.host, opts.port);
+  printf("Listening for SBS-1 messages on %s:%d\n", options.host, options.port);
+  portstat = open_port(options.host, options.port);
 
   // Start IVY
   IvyInit("SBS2Ivy", "SBS2Ivy READY", NULL, NULL, NULL, NULL);
@@ -1142,7 +1142,7 @@ void handle_intruders(void)
   if (sendivyflag) {
     for (z = 0; z < MAX_INTRUDER + 1; z++) {
       if (Intr[z].used == 1) {
-        if (opts.enable_remote_uav && z == 0) {
+        if (options.enable_remote_uav && z == 0) {
           send_remote_uav(&Intr[0]);
         }
 
