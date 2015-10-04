@@ -888,12 +888,12 @@ void parse_msg4(void)
   in_data.msg_buf[i - 2] = '0';
   in_data.msg_buf[i - 1] = 'x';
   //get Flarm intruder ID
-  int flarm_id = strtod(&in_data.msg_buf[i - 2], &endptr);
+  int __attribute__((unused)) flarm_id = strtod(&in_data.msg_buf[i - 2], &endptr);
   INPUT_PRINT("MSG4 flarm_id = %i \n\r", flarm_id);
 
   // flight ID
   read_until_sep(&i);
-  int flight_id = atoi(&in_data.msg_buf[i]);
+  int __attribute__((unused)) flight_id = atoi(&in_data.msg_buf[i]);
   INPUT_PRINT("MSG4 flight_id = %i\n\r", flight_id);
 
   // skip some fields
@@ -903,7 +903,7 @@ void parse_msg4(void)
   }
 
   //get intruder Ground speed (knots) and convert to m/s
-read_until_sep(&i);
+  read_until_sep(&i);
   double speed = strtod(&in_data.msg_buf[i], &endptr) * 0.5144444;
   INPUT_PRINT("Speed = %f m/s\n\r", speed);
 
@@ -1034,12 +1034,12 @@ void parse_msg3(void)
   in_data.msg_buf[i - 2] = '0';
   in_data.msg_buf[i - 1] = 'x';
   //get Flarm intruder ID
-  int flarm_id = strtod(&in_data.msg_buf[i - 2], &endptr);
+  int __attribute__((unused)) flarm_id = strtod(&in_data.msg_buf[i - 2], &endptr);
   INPUT_PRINT("MSG3 flarm_id = %i \n\r", flarm_id);
 
   // flight ID
   read_until_sep(&i);
-  int flight_id = atoi(&in_data.msg_buf[i]);
+  int __attribute__((unused)) flight_id = atoi(&in_data.msg_buf[i]);
   INPUT_PRINT("MSG3 flight_id = %i\n\r", flight_id);
 
   // skip some fields
