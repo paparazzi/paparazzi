@@ -32,10 +32,10 @@ ifeq ("$(UNAME)","Darwin")
   LIBRARYS = $(shell if test -d /opt/paparazzi/lib; then echo "-L/opt/paparazzi/lib"; elif test -d /opt/local/lib; then echo "-L/opt/local/lib"; fi)
   INCLUDES = $(shell if test -d /opt/paparazzi/include; then echo "-I/opt/paparazzi/include"; elif test -d /opt/local/include; then echo "-I/opt/local/include"; fi)
 else
-  LIBRARYS = -s
+  LIBRARYS =
 endif
 
-CFLAGS += -Wall -fPIC
+CFLAGS += -Wall -fPIC -g
 GTK_CFLAGS  = $(shell pkg-config gtk+-2.0 --cflags)
 GTK_LDFLAGS = $(shell pkg-config gtk+-2.0 --libs) $(shell pkg-config --libs ivy-glib) $(shell pcre-config --libs) -fPIC
 
