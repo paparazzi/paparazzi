@@ -363,4 +363,7 @@ object (self)
   initializer
     ignore(geomap#zoom_adj#connect#value_changed
              (fun () -> self#zoom geomap#zoom_adj#value))
+
+  initializer
+    Gc.finalise (fun self -> group#destroy ()) self
 end
