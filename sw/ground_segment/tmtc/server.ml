@@ -658,7 +658,7 @@ let send_intruder_acinfo = fun id intruder ->
   let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f)) in
   let pos = LL.utm_of WGS84 intruder.Intruder.pos in
   (* TODO: find a better way to map intruders to AC_IDs *)
-  let ac_id = 200 in
+  let ac_id = 200 + ((int_of_string id) mod 50) in
   let ac_info = ["ac_id", Pprz.Int ac_id;
                  "utm_east", cm_of_m_32 pos.utm_x;
                  "utm_north", cm_of_m_32 pos.utm_y;
@@ -670,7 +670,14 @@ let send_intruder_acinfo = fun id intruder ->
   Dl_Pprz.message_send my_id "ACINFO" ac_info
 
 let periodic_handle_intruders = fun () ->
-  (* TODO: remove old intruders, etc... *)
+  (* remove old intruders after 10s *)
+  Hashtbl.iter
+    (fun id i ->
+      if (U.gettimeofday () -. i.Intruder.unix_time) > 10.0 then begin
+        (*prerr_endline (sprintf "remove intruder %s" id);*)
+        Hashtbl.remove intruders id
+      end;
+    ) intruders;
   (* send ACINFO for each active intruder *)
   Hashtbl.iter (send_intruder_acinfo) intruders
 
@@ -682,6 +689,7 @@ let add_intruder = fun vs ->
 
 let update_intruder = fun _sender vs ->
   let id = Pprz.string_assoc "id" vs in
+  (*prerr_endline (sprintf "update_intruder %s" id);*)
   if not (Hashtbl.mem intruders id) then
     add_intruder vs;
   let i = Hashtbl.find intruders id in
@@ -692,7 +700,8 @@ let update_intruder = fun _sender vs ->
   i.Intruder.alt <- float (Pprz.int_assoc "alt" vs) /. 1000.;
   i.Intruder.course <- Pprz.float_assoc "course" vs;
   i.Intruder.gspeed <- Pprz.float_assoc "speed" vs;
-  i.Intruder.climb <- Pprz.float_assoc "climb" vs
+  i.Intruder.climb <- Pprz.float_assoc "climb" vs;
+  i.Intruder.unix_time <- U.gettimeofday ()
 
 (* listen for intruders *)
 let listen_intruders = fun log ->
@@ -877,6 +886,9 @@ let () =
 
   (* Forward messages from ground agents to vehicles *)
   ground_to_uplink logging;
+
+  (* call periodic_handle_intruders every second *)
+  ignore (Glib.Timeout.add 1000 (fun () -> periodic_handle_intruders (); true));
 
   (* Waits for client configurations requests on the Ivy bus *)
   ivy_server !http;

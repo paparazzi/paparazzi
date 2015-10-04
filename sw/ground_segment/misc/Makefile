@@ -108,7 +108,7 @@ edc.o : $(PAPARAZZI_SRC)/sw/ext/libsbp/c/src/edc.c
 	$(Q)$(CC) $(CFLAGS) -c -std=c99 -O2 -Wall $(INCLUDES) $<
 
 sbs2ivy.o : sbs2ivy.c
-	$(Q)$(CC) $(CFLAGS) $(GTK_CFLAGS) -c -O2 -Wall $(INCLUDES) $<
+	$(Q)$(CC) $(CFLAGS) $(GTK_CFLAGS) -c -std=gnu99 -O2 -Wall $(INCLUDES) $<
 
 %.o : %.c
 	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<

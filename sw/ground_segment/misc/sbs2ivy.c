@@ -375,7 +375,7 @@ void send_intruder(struct Intruder *intruder)
   LLA_BFP_OF_REAL(lla_i, intruder->lla);
 
   // FIXME: using WGS84 ellipsoid alt, it is probably hmsl???
-  IvySendMsg("INTRUDER %d %s %d %d %d %f %f %f %d\n", intruder->id, intruder->name,
+  IvySendMsg("ground INTRUDER %d %s %d %d %d %f %f %f %d\n", intruder->id, intruder->name,
              lla_i.lat, lla_i.lon, lla_i.alt, intruder->course,
              intruder->gspeed, intruder->climb, 0);
 
@@ -869,24 +869,41 @@ void parse_msg4(void)
 
   // aircraft ID
   read_until_sep(&i);
+  int aircraft_id = atoi(&in_data.msg_buf[i]);
+  INPUT_PRINT("MSG4 aircraft_id = %i \n\r", aircraft_id);
 
   // hex ident
   read_until_sep(&i);
   // Reading Hex number
+  char hex_ident[10] = "foo";
+  for (int j=0; j < 10; j++) {
+    if (in_data.msg_buf[i+j] == ',') {
+      hex_ident[j] = '\0';
+      break;
+    }
+    hex_ident[j] = in_data.msg_buf[i+j];
+  }
+  hex_ident[9] = '\0';
+  INPUT_PRINT("MSG4 hex_ident = %s\n\r", hex_ident);
   in_data.msg_buf[i - 2] = '0';
   in_data.msg_buf[i - 1] = 'x';
   //get Flarm intruder ID
-  int id = strtod(&in_data.msg_buf[i - 2], &endptr);
-  INPUT_PRINT("MSG4 id = %i \n\r", id);
+  int flarm_id = strtod(&in_data.msg_buf[i - 2], &endptr);
+  INPUT_PRINT("MSG4 flarm_id = %i \n\r", flarm_id);
 
-  // skip to ground speed
-  // flight_id, generated_date, generated_time, logged_date, logged_time, ?, ?
-  int j;
-  for (j = 0; j < 8; j++) {
+  // flight ID
+  read_until_sep(&i);
+  int flight_id = atoi(&in_data.msg_buf[i]);
+  INPUT_PRINT("MSG4 flight_id = %i\n\r", flight_id);
+
+  // skip some fields
+  // generated_date, generated_time, logged_date, logged_time, ?, ?
+  for (int j = 0; j < 6; j++) {
     read_until_sep(&i);
   }
 
   //get intruder Ground speed (knots) and convert to m/s
+read_until_sep(&i);
   double speed = strtod(&in_data.msg_buf[i], &endptr) * 0.5144444;
   INPUT_PRINT("Speed = %f m/s\n\r", speed);
 
@@ -915,7 +932,7 @@ void parse_msg4(void)
   int newflag = 1;
 
   for (z = 0; z < MAX_INTRUDER; z++) {
-    if (Intr[z].id == id) {
+    if (Intr[z].id == aircraft_id) {
       newflag = 0;
       //Check for positive or negative vertical speed (not signed :-( )
       if (Intr[z].utm_pos.alt < Intr[z].lastalt) {
@@ -938,7 +955,8 @@ void parse_msg4(void)
 
   //New intruder
   if (newflag) {
-    Intr[MAX_INTRUDER].id     = id;
+    Intr[MAX_INTRUDER].id     = aircraft_id;
+    strcpy(Intr[MAX_INTRUDER].name, hex_ident);
     Intr[MAX_INTRUDER].gspeed = speed;
     Intr[MAX_INTRUDER].course = track;
     Intr[MAX_INTRUDER].climb  = climb;
@@ -985,7 +1003,7 @@ void parse_msg4(void)
 void parse_msg3(void)
 {
 
-  int i = 6;     // current position in the message, start after: MSG,4,
+  int i = 6;     // current position in the message, start after: MSG,3,
   char *endptr;  // end of parsed substrings
   struct LlaCoor_d lla;
   struct UtmCoor_f utmf;
@@ -997,20 +1015,36 @@ void parse_msg3(void)
 
   // aircraft ID
   read_until_sep(&i);
+  int aircraft_id = atoi(&in_data.msg_buf[i]);
+  INPUT_PRINT("MSG3 aircraft_id = %i \n\r", aircraft_id);
 
   // hex ident
   read_until_sep(&i);
   //Reading Hex number
+  char hex_ident[10] = "foo";
+  for (int j=0; j < 10; j++) {
+    if (in_data.msg_buf[i+j] == ',') {
+      hex_ident[j] = '\0';
+      break;
+    }
+    hex_ident[j] = in_data.msg_buf[i+j];
+  }
+  hex_ident[9] = '\0';
+  INPUT_PRINT("MSG3 hex_ident = %s\n\r", hex_ident);
   in_data.msg_buf[i - 2] = '0';
   in_data.msg_buf[i - 1] = 'x';
   //get Flarm intruder ID
-  int id = strtod(&in_data.msg_buf[i - 2], &endptr);
-  INPUT_PRINT("MSG3 id = %i \n\r", id);
+  int flarm_id = strtod(&in_data.msg_buf[i - 2], &endptr);
+  INPUT_PRINT("MSG3 flarm_id = %i \n\r", flarm_id);
+
+  // flight ID
+  read_until_sep(&i);
+  int flight_id = atoi(&in_data.msg_buf[i]);
+  INPUT_PRINT("MSG3 flight_id = %i\n\r", flight_id);
 
   // skip some fields
-  // flight_id, generated_date, generated_time, logged_date, logged_time, callsign
-  int j;
-  for (j = 0; j < 6; j++) {
+  // generated_date, generated_time, logged_date, logged_time, callsign
+  for (int j = 0; j < 5; j++) {
     read_until_sep(&i);
   }
 
@@ -1069,7 +1103,7 @@ void parse_msg3(void)
   int newflag = 1;
 
   for (z = 0; z < MAX_INTRUDER; z++) {
-    if (Intr[z].id == id) {
+    if (Intr[z].id == aircraft_id) {
       newflag = 0;
       Intr[z].lastalt  = Intr[z].utm_pos.alt;
       Intr[z].lla      = lla;
@@ -1083,7 +1117,8 @@ void parse_msg3(void)
   //New intruder
   //If Relative East is empty (value 0), it is a mode C/S transponder, so no position.
   if (newflag) {
-    Intr[MAX_INTRUDER].id       = id;
+    Intr[MAX_INTRUDER].id       = aircraft_id;
+    strcpy(Intr[MAX_INTRUDER].name, hex_ident);
     Intr[MAX_INTRUDER].lla      = lla;
     Intr[MAX_INTRUDER].utm_pos  = utmi;
     Intr[MAX_INTRUDER].dist     = dist(&utmi);
