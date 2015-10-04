@@ -70,6 +70,7 @@ class track = fun ?(name="Noname") ?(icon="fixedwing") ?(size = 500) ?(color="re
   | "hexarotor_x"   -> ACI.icon_hexarotor_x_template
   | "octorotor_x"   -> ACI.icon_octorotor_x_template
   | "flyingwing"    -> ACI.icon_flyingwing_template
+  | "intruder"      -> ACI.icon_intruder_template
   | "fixedwing" | _ -> ACI.icon_fixedwing_template
   in
   let _ac_icon = new ACI.widget ~color ~icon_template aircraft in
@@ -130,6 +131,8 @@ object (self)
   method track = track
   method v_path = v_path
   method aircraft = aircraft
+  method id = ac_id
+  method name = name
   method set_label = fun s ->
           ac_label#set_name s
   method clear_one = fun i ->

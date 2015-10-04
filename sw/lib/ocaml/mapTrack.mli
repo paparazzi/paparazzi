@@ -32,6 +32,8 @@ class track :
   object
     method add_point : Latlong.geographic -> float -> unit
     method aircraft : GnoCanvas.group
+    method id : string
+    method name : string
     method clear : unit -> unit
     method clear_map2D : unit
     method clear_one : int -> unit
