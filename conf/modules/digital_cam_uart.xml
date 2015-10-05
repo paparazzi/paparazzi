@@ -63,8 +63,9 @@
   <event fun="digital_cam_uart_event()"/>
   <makefile target="sim">
     <file name="catia/serial.c"/>
+    <define name="UART5_DEV" value="ttyUSB0"/>
   </makefile>
-  <makefile>
+  <makefile target="ap|sim|nps">
     <define name="DIGITAL_CAM" />
     <file name="uart_cam_ctrl.c"/>
     <file name="catia/protocol.c"/>

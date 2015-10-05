@@ -158,6 +158,21 @@
     <!-- ****************************** SIM *********************************-->
     <target name="sim" board="pc">
       <define name="INS_BARO_ID" value="BARO_SIM_SENDER_ID"/>
+      <subsystem name="telemetry" 	type="xbee_api">
+        <configure name="MODEM_BAUD" 		value="B9600"/>
+      </subsystem>
+      <subsystem name="control" type="energy"/>
+      <subsystem name="imu" type="aspirin_v2.2"/>
+      <subsystem name="ahrs" type="int_cmpl_quat">
+        <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
+        <!-- * no need? since already set by default * -->
+        <define name="USE_MAGNETOMETER" value="FALSE"/>
+        <!-- TRUE by default but better set it to be sure if you want to use it -->
+      </subsystem>
+      <subsystem name="gps"       type="ublox"/>
+      <subsystem name="navigation"/>
+      <subsystem name="ins" type="alt_float"/>
+      <subsystem name="uart"/>
     </target>
 
     <!-- **************************** set for all *******************************-->
