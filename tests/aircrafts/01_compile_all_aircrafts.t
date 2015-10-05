@@ -76,7 +76,7 @@ foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
         #warn "EX: [$aircraft] ". Dumper($airframe_config->{'firmware'}->{$process}->{'target'});
         foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}->{'target'}})
         {
-            #warn "AIRCRAFT: [$aircraft] TARGET: [$target]\n";
+            diag("compiling AIRCRAFT: [$aircraft] TARGET: [$target]");
             my $make_options = "AIRCRAFT=$aircraft clean_ac $target.compile";
             my ($exit_status, $warnings, $output) = run_program(
                 "Attempting to build the firmware $target for the aircraft $aircraft.",
