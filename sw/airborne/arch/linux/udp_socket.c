@@ -120,7 +120,7 @@ int udp_socket_send(struct UdpSocket *sock, uint8_t *buffer, uint32_t len)
 
   ssize_t bytes_sent = sendto(sock->sockfd, buffer, len, 0,
                               (struct sockaddr *)&sock->addr_out, sizeof(sock->addr_out));
-  if (bytes_sent != len) {
+  if (bytes_sent != ((ssize_t)len)) {
     TRACE(TRACE_ERROR, "error sending to sock %d (%d)\n", (int)bytes_sent, strerror(errno));
   }
   return bytes_sent;
