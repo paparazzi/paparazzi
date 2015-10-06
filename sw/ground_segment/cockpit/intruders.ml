@@ -30,7 +30,7 @@ type intruder = {
 let intruders = Hashtbl.create 1
 
 let new_intruder = fun id name time geomap ->
-  let track = new MapTrack.track ~size:20 ~icon:"intruder" ~name ~show_carrot:false id geomap in
+  let track = new MapTrack.track ~size:200 ~icon:"intruder" ~name ~show_carrot:false id geomap in
   let intruder = { intruder_track = track; last_update = time } in
   Hashtbl.add intruders id intruder
 
