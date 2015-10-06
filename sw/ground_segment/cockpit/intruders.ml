@@ -30,15 +30,14 @@ type intruder = {
 let intruders = Hashtbl.create 1
 
 let new_intruder = fun id name time geomap ->
-  let track = new MapTrack.track ~size:10 ~icon:"intruder" ~name id geomap in
+  let track = new MapTrack.track ~size:20 ~icon:"intruder" ~name ~show_carrot:false id geomap in
   let intruder = { intruder_track = track; last_update = time } in
   Hashtbl.add intruders id intruder
 
 let remove_intruder = fun id ->
   try
     let intruder = Hashtbl.find intruders id in
-    intruder.intruder_track#clear ();
-    (* TODO delete something more ? mapTrack object ? *)
+    intruder.intruder_track#destroy ();
     Hashtbl.remove intruders id
   with _ -> () (* no intruder *)
 

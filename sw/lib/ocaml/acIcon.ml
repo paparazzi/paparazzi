@@ -168,9 +168,12 @@ let icon_home_template = {
 }
 
 let icon_intruder_template = {
-  lines = [];
+  lines = [
+    [| 0.; 0.; 0.; -24. |];
+    [| 6.; -15.; 0.; -24.;  -6.; -15.|];   (** Front Marker **)
+  ];
   ellipse = [
-    [| -10.; -10.; 10.; 10.|];
+    [| -8.; -8.; 8.; 8.|];
   ];
   width = 1
 }

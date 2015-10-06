@@ -27,6 +27,7 @@ class track :
   ?icon:string ->
   ?size:int ->
   ?color:string ->
+  ?show_carrot:bool ->
   string ->
   MapCanvas.widget ->
   object
@@ -69,4 +70,5 @@ class track :
     method zoom : float -> unit
     method event : GnoCanvas.item_event -> bool
     method set_event_cb : (string -> unit) -> unit
+    method destroy : unit -> unit
   end
