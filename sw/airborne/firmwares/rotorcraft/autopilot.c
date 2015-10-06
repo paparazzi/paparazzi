@@ -163,6 +163,12 @@ static void send_alive(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_ALIVE(trans, dev, AC_ID, 16, MD5SUM);
 }
 
+static void send_attitude(struct transport_tx *trans, struct link_device *dev)
+{
+  struct FloatEulers *att = stateGetNedToBodyEulers_f();
+  pprz_msg_send_ATTITUDE(trans, dev, AC_ID, &(att->phi), &(att->psi), &(att->theta));
+};
+
 #if USE_MOTOR_MIXING
 #include "subsystems/actuators/motor_mixing.h"
 #endif
@@ -305,6 +311,7 @@ void autopilot_init(void)
   register_periodic_telemetry(DefaultPeriodic, "AUTOPILOT_VERSION", send_autopilot_version);
   register_periodic_telemetry(DefaultPeriodic, "ALIVE", send_alive);
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_STATUS", send_status);
+   register_periodic_telemetry(DefaultPeriodic, "ATTITUDE", send_attitude);
   register_periodic_telemetry(DefaultPeriodic, "ENERGY", send_energy);
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_FP", send_fp);
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_CMD", send_rotorcraft_cmd);
