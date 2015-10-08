@@ -92,20 +92,9 @@
     <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
+  <include href="conf/airframes/TUDelft/calibrations/bebop7.xml" />
+
   <section name="IMU" prefix="IMU_">
-    <!-- Magneto calibration -->
-    <define name="MAG_X_NEUTRAL" value="-99"/>
-    <define name="MAG_Y_NEUTRAL" value="-18"/>
-    <define name="MAG_Z_NEUTRAL" value="104"/>
-    <define name="MAG_X_SENS" value="6.86866736641" integer="16"/>
-    <define name="MAG_Y_SENS" value="7.14211759775" integer="16"/>
-    <define name="MAG_Z_SENS" value="7.74589177316" integer="16"/>
-
-    <!-- Magneto current calibration -->
-    <define name="MAG_X_CURRENT_COEF" value="0.0"/>
-    <define name="MAG_Y_CURRENT_COEF" value="0.0"/>
-    <define name="MAG_Z_CURRENT_COEF" value="0.0"/>
-
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
