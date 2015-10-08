@@ -1460,6 +1460,23 @@ let listen_tcas = fun a timestamp ->
   tele_bind "TCAS_TA" (get_alarm_tcas a "tcas TA") timestamp;
   tele_bind "TCAS_RA" (get_alarm_tcas a "TCAS RA") timestamp
 
+let get_intruders = fun (geomap:G.widget) _sender vs ->
+  let f = fun s -> Pprz.float_assoc s vs in
+  let i = fun s -> float (Pprz.int_assoc s vs) in
+  let name = Pprz.string_assoc "name" vs
+  and id = Pprz.string_assoc "id" vs
+  and time = Unix.gettimeofday ()
+  and lat = (i "lat") /. 1e7
+  and lon = (i "lon") /. 1e7 in
+  let pos = { posn_lat=(Deg>>Rad)lat; posn_long=(Deg>>Rad)lon } in
+  if not (Intruders.intruder_exist id) then
+    Intruders.new_intruder id name time geomap;
+  Intruders.update_intruder id pos (f "course") ((i "alt") /. 1000.) (f "speed") (f "climb") time
+
+let listen_intruders = fun (geomap:G.widget) ->
+  safe_bind "INTRUDER" (get_intruders geomap)
+
+
 let listen_acs_and_msgs = fun geomap ac_notebook strips my_alert auto_center_new_ac alt_graph timestamp ->
   (** Probe live A/Cs *)
   let probe = fun () ->
@@ -1484,6 +1501,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook strips my_alert auto_center_new
   listen_autopilot_version_msg my_alert timestamp;
   listen_tcas my_alert timestamp;
   listen_dcshot geomap timestamp;
+  listen_intruders geomap;
 
   (** Select the active aircraft on notebook page selection *)
   let callback = fun i ->
@@ -1504,4 +1522,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook strips my_alert auto_center_new
     match GdkEvent.Key.keyval ev with
       | k when (k = GdkKeysyms._c) || (k = GdkKeysyms._C) -> center_active () ; true
       | _ -> false in
-  ignore (geomap#canvas#event#connect#after#key_press key_press)
+  ignore (geomap#canvas#event#connect#after#key_press key_press);
+
+  (* call periodic_handle_intruders every second *)
+  ignore (Glib.Timeout.add 1000 (fun () -> Intruders.remove_old_intruders (); true));

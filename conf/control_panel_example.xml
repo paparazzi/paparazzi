@@ -57,7 +57,9 @@
       <arg flag="4242" />
       <arg flag="4252" />
     </program>
-
+    <program name="ADS-B Intruders receiver" command="sw/ground_segment/misc/sbs2ivy">
+      <arg flag="--ac" constant="@AC_ID"/>
+    </program>
  </section>
 
   <section name="sessions">

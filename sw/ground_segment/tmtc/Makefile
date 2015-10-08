@@ -37,7 +37,7 @@ XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
 LIBMULTIMONCMA=../multimon/multimon.cma
 LIBMULTIMONDLL= multimon.cma -dllpath $(PAPARAZZI_SRC)/sw/ground_segment/multimon
 
-SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo fw_server.ml rotorcraft_server.ml server.cmo
+SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo fw_server.ml rotorcraft_server.ml intruder.cmo server.cmo
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 
