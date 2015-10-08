@@ -20,7 +20,7 @@
     <subsystem name="imu" type="bebop"/>
     <subsystem name="gps" type="furuno"/>
     <subsystem name="stabilization" type="indi"/>
-    <subsystem name="ahrs" type="float_mlkf"/>
+    <subsystem name="stabilization" type="rate_indi"/>
     <subsystem name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>

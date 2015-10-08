@@ -33,6 +33,7 @@
     <subsystem name="imu"           type="lisa_mx_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
+    <subsystem name="stabilization" type="rate"/>
     <subsystem name="ahrs"          type="float_mlkf">
 	    <!-- Uncomment to enable all axis update from the Magnetometer. Do
 		 it only if you have a very well calibrated and tested

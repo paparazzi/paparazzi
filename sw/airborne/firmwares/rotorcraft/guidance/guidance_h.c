@@ -229,9 +229,11 @@ void guidance_h_mode_changed(uint8_t new_mode)
       stabilization_none_enter();
       break;
 
+#if USE_STABILIZATION_RATE
     case GUIDANCE_H_MODE_RATE:
       stabilization_rate_enter();
       break;
+#endif
 
     case GUIDANCE_H_MODE_CARE_FREE:
       stabilization_attitude_reset_care_free_heading();
@@ -299,6 +301,7 @@ void guidance_h_read_rc(bool_t  in_flight)
       stabilization_none_read_rc();
       break;
 
+#if USE_STABILIZATION_RATE
     case GUIDANCE_H_MODE_RATE:
 #if SWITCH_STICKS_FOR_RATE_CONTROL
       stabilization_rate_read_rc_switched_sticks();
@@ -306,6 +309,8 @@ void guidance_h_read_rc(bool_t  in_flight)
       stabilization_rate_read_rc();
 #endif
       break;
+#endif
+
     case GUIDANCE_H_MODE_CARE_FREE:
       stabilization_attitude_read_rc(in_flight, TRUE, FALSE);
       break;
@@ -352,9 +357,11 @@ void guidance_h_run(bool_t  in_flight)
       stabilization_none_run(in_flight);
       break;
 
+#if USE_STABILIZATION_RATE
     case GUIDANCE_H_MODE_RATE:
       stabilization_rate_run(in_flight);
       break;
+#endif
 
     case GUIDANCE_H_MODE_FORWARD:
       if (transition_percentage < (100 << INT32_PERCENTAGE_FRAC)) {

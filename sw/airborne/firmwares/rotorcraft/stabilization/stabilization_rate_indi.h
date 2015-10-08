@@ -1,12 +1,5 @@
 /*
- * Copyright (C) Ewoud Smeur <ewoud_smeur@msn.com>
- * MAVLab Delft University of Technology
- *
- * This control algorithm is Incremental Nonlinear Dynamic Inversion (INDI)
- *
- * This is a simplified implementation of the (soon to be) publication in the
- * journal of Control Guidance and Dynamics: Adaptive Incremental Nonlinear
- * Dynamic Inversion for Attitude Control of Micro Aerial Vehicles
+ * Copyright (C) 2016 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -26,14 +19,19 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file stabilization_attitude_quat_indi.h
- * This is the header file of the corresponding c file
+/** @file stabilization_rate_indi.h
+ *  Rate stabilization for rotorcrafts based on INDI.
  */
 
-#ifndef STABILIZATION_ATTITUDE_QUAT_INDI_H
-#define STABILIZATION_ATTITUDE_QUAT_INDI_H
+#ifndef STABILIZATION_RATE_INDI
+#define STABILIZATION_RATE_INDI
 
-#include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
+#include "math/pprz_algebra_int.h"
 
-#endif /* STABILIZATION_ATTITUDE_QUAT_INT_H */
+extern void stabilization_rate_init(void);
+extern void stabilization_rate_read_rc(void);
+extern void stabilization_rate_read_rc_switched_sticks(void);
+extern void stabilization_rate_run(bool_t in_flight);
+extern void stabilization_rate_enter(void);
 
+#endif /* STABILIZATION_RATE_INDI */
