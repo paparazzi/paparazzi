@@ -242,12 +242,14 @@ let parse_ac_targets = fun target_combo ac_file (log:string->unit) ->
       Gtk_tools.add_to_combo target_combo "ap";
       Gtk_tools.add_to_combo target_combo "sim"
     end;
-    let combo_box = Gtk_tools.combo_widget target_combo in
     Gtk_tools.select_in_combo target_combo last_target
   with _ -> log (sprintf "Error while parsing targets from file %s\n" ac_file)
 
 (* Parse AC file for flash mode *)
 let parse_ac_flash = fun target flash_combo ac_file ->
+  (* remember last flash mode *)
+  let last_flash_mode = Gtk_tools.combo_value flash_combo in
+  (* Clear ComboBox *)
   let (store, column) = Gtk_tools.combo_model flash_combo in
   store#clear ();
   Gtk_tools.add_to_combo flash_combo "Default";
@@ -262,8 +264,8 @@ let parse_ac_flash = fun target flash_combo ac_file ->
         flash_modes := !flash_modes @ m;
       ) (snd CP.flash_modes);
     List.iter (fun m ->  Gtk_tools.add_to_combo flash_combo m) !flash_modes;
-    Gtk_tools.select_in_combo flash_combo "Default";
-    (Gtk_tools.combo_widget flash_combo)#misc#set_sensitive (List.length !flash_modes > 0)
+    (Gtk_tools.combo_widget flash_combo)#misc#set_sensitive (List.length !flash_modes > 0);
+    Gtk_tools.select_in_combo flash_combo last_flash_mode
   with _ ->
     (* not a valid airframe file *)
     (Gtk_tools.combo_widget flash_combo)#misc#set_sensitive false
@@ -329,8 +331,10 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
       gui#entry_ac_id#set_text ac_id;
       (Gtk_tools.combo_widget target_combo)#misc#set_sensitive true;
       (Gtk_tools.combo_widget flash_combo)#misc#set_sensitive true;
+      let last_flash_mode = Gtk_tools.combo_value flash_combo in
       parse_ac_targets target_combo (ExtXml.attrib aircraft "airframe") log;
       parse_ac_flash (Gtk_tools.combo_value target_combo) flash_combo (ExtXml.attrib aircraft "airframe");
+      Gtk_tools.select_in_combo flash_combo last_flash_mode;
     with
       Not_found ->
         gui#label_airframe#set_text "";
