@@ -99,9 +99,11 @@ void attitude_ref_quat_int_enter(struct AttRefQuatInt *ref, int32_t psi)
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
 /**
  * Propagate reference.
+ * CAUTION! Periodic frequency is assumed to be 512 Hz.
  * FIXME: use dt instead of hardcoded 512Hz via F_UPDATE_RES
  */
-void attitude_ref_quat_int_update(struct AttRefQuatInt *ref, struct Int32Quat *sp_quat, float dt)
+void attitude_ref_quat_int_update(struct AttRefQuatInt *ref, struct Int32Quat *sp_quat,
+                                  float dt __attribute__((unused)))
 {
   /* integrate reference attitude            */
   const struct Int32Rates rate_ref_scaled = {

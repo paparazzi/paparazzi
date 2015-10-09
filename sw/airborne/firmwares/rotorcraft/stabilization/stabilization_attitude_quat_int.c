@@ -230,6 +230,7 @@ void stabilization_attitude_run(bool_t enable_integrator)
   /*
    * Update reference
    * Warning: dt is currently not used in the quat_int ref impl
+   * PERIODIC_FREQUENCY is assumed to be 512Hz
    */
   static const float dt = (1./PERIODIC_FREQUENCY);
   attitude_ref_quat_int_update(&att_ref_quat_i, &stab_att_sp_quat, dt);
