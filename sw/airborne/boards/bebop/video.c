@@ -95,6 +95,7 @@ static bool_t _write(int fd, char *data, uint8_t cnt)
 
 /**
  * Initialisation of the Aptina MT9V117 CMOS sensor
+ * (1/6 inch VGA, bottom camera)
  */
 void mt9v117_init(void)
 {
@@ -378,6 +379,7 @@ uint16_t mt9f002_read_reg16(uint16_t reg)
 
 /**
  * Initialisation of the Aptina MT9F002 CMOS sensor
+ * (1/2.3 inch 14Mp, front camera)
  */
 void mt9f002_init(void)
 {
