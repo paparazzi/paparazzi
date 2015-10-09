@@ -96,6 +96,6 @@ void actuators_mkk_v2_set(void)
     actuators_mkk_v2.trans[i].buf[1] = actuators_mkk_v2.setpoint[i] & 0x07;
 #endif
 
-    i2c_submit(&ACTUATORS_MKK_V2_DEVICE, &actuators_mkk_v2.trans[i]);
+    i2c_submit(&ACTUATORS_MKK_V2_I2C_DEV, &actuators_mkk_v2.trans[i]);
   }
 }

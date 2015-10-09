@@ -158,7 +158,7 @@ static uint8_t xbee_try_to_enter_api(struct link_device *dev)
 #define XBEE_ATBD_CODE "ATBD6\rATWR\r"
 #pragma message "Experimental: XBEE-API@57k6 auto-baudrate 9k6 -> 57k6 (stop ground link for correct operation)"
 #else
-#warning XBEE-API Non default baudrate: auto-baud disabled
+#pragma message "XBEE-API Non default baudrate: auto-baud disabled."
 #endif
 
 

@@ -3,22 +3,10 @@
 <module name="cv_opticflow" dir="computer_vision">
   <doc>
     <description>
-        Hovers the drone based on optical flow made for Linux video Devices.
-
-        Computes Pitch- and roll attide from downward looking camera looking at a textured floor.
-        - Sonar is required.
-        - Controller can hold position
+      Compute optical flow.
+      Made for Linux video Devices.
+      Computes x and y velocity using optical flow and distance to ground (using sonar).
     </description>
-
-    <!-- Satbilization parameters and gains -->
-    <section name="VISION" prefix="VISION_">
-      <define name="PHI_PGAIN" value="400" description="Optic flow proportional gain on the roll velocity error"/>
-      <define name="PHI_IGAIN" value="20" description="Optic flow integrated gain on the summed roll velocity error"/>
-      <define name="THETA_PGAIN" value="400" description="Optic flow proportional gain on the pitch velocity error"/>
-      <define name="THETA_IGAIN" value="20" description="Optic flow integrated gain on the summed pitch velocity error"/>
-      <define name="DESIRED_VX" value="0" description="The desired velocity in the body frame x direction"/>
-      <define name="DESIRED_VY" value="0" description="The desired velocity in the body frame y direction"/>
-    </section>
 
     <!-- Optical flow calculation parameters -->
     <section name="OPTICFLOW" prefix="OPTICFLOW_">
@@ -51,16 +39,7 @@
   </doc>
 
   <settings>
-	  <dl_settings NAME="Vision stabilization">
-      <!-- Satabilization loop parameters and gains -->
-      <dl_settings name="vision_stab">
-        <dl_setting var="opticflow_stab.phi_pgain" module="computer_vision/opticflow_module" min="0" step="1" max="10000" shortname="kp_v_phi" param="VISION_PHI_PGAIN"/>
-        <dl_setting var="opticflow_stab.phi_igain" module="computer_vision/opticflow_module" min="0" step="1" max="1000" shortname="ki_v_phi" param="VISION_PHI_IGAIN"/>
-        <dl_setting var="opticflow_stab.theta_pgain" module="computer_vision/opticflow_module" min="0" step="1" max="10000" shortname="kp_v_theta" param="VISION_THETA_PGAIN"/>
-        <dl_setting var="opticflow_stab.theta_igain" module="computer_vision/opticflow_module" min="0" step="1" max="1000" shortname="ki_v_theta" param="VISION_THETA_IGAIN"/>
-        <dl_setting var="opticflow_stab.desired_vx" module="computer_vision/opticflow_module" min="-5" step="0.01" max="5" shortname="desired_vx" param="VISION_DESIRED_VX"/>
-        <dl_setting var="opticflow_stab.desired_vy" module="computer_vision/opticflow_module" min="-5" step="0.01" max="5" shortname="desired_vy" param="VISION_DESIRED_VY"/>
-      </dl_settings>
+	<dl_settings NAME="Vision stabilization">
 
       <!-- Optical flow calculations parameters for Lucas Kanade and FAST9 -->
       <dl_settings name="vision_calc">
@@ -92,35 +71,17 @@
     <file name="rtp.c" dir="modules/computer_vision/lib/encoding"/>
     <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
 
-    <!-- The optical flow module (calculator+stabilization) -->
+    <!-- The optical flow module (calculator) -->
     <file name="opticflow_module.c"/>
     <file name="opticflow_calculator.c" dir="modules/computer_vision/opticflow"/>
     <file name="size_divergence.c" dir="modules/computer_vision/opticflow"/>
-    <file name="stabilization_opticflow.c" dir="modules/computer_vision/opticflow"/>
+    <file name="linear_flow_fit.c" dir="modules/computer_vision/opticflow"/>
+    <file name="pprz_algebra_float.c" dir="math"/>
+    <file name="pprz_matrix_decomp_float.c" dir="math"/>
 
     <!-- Main vision calculations -->
     <file name="fast_rosten.c" dir="modules/computer_vision/lib/vision"/>
     <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
-
-    <raw>
-      VIEWVIDEO_HOST        ?= $(MODEM_HOST)
-      VIEWVIDEO_PORT_OUT    ?= 5000
-      VIEWVIDEO_BROADCAST   ?= $(MODEM_BROADCAST)
-
-      VIEWVID_CFLAGS  = -DVIEWVIDEO_HOST=$(VIEWVIDEO_HOST) -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT)
-      ifeq ($(VIEWVIDEO_USE_NC),)
-        ap.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=$(VIEWVIDEO_BROADCAST)
-      else
-        ap.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_USE_NC
-      endif
-
-      ap.CFLAGS += -DGUIDANCE_V_MODE_MODULE_SETTING=GUIDANCE_V_MODE_HOVER
-      ap.CFLAGS += -DGUIDANCE_H_MODE_MODULE_SETTING=GUIDANCE_H_MODE_MODULE
-    </raw>
-  </makefile>
-
-  <makefile target="nps">
-    <file name="viewvideo_nps.c"/>
   </makefile>
 
 </module>

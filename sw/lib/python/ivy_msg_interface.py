@@ -13,13 +13,16 @@ PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirn
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
 
 from pprz_msg.message import PprzMessage
+from pprz_msg import messages_xml_map
 
 
 class IvyMessagesInterface(object):
-    def __init__(self, callback, init=True, verbose=False, bind_regex='(.*)'):
+    def __init__(self, callback=None, init=True, verbose=False, bind_regex='(.*)'):
         self.callback = callback
         self.ivy_id = 0
         self.verbose = verbose
+        # make sure all messages are parsed before we start creating them in callbacks
+        messages_xml_map.parse_messages()
         self.init_ivy(init, bind_regex)
 
     def stop(self):
@@ -47,6 +50,10 @@ class IvyMessagesInterface(object):
         Basically parts/args in string are separated by space, but char array can also contain a space:
         |f,o,o, ,b,a,r| in old format or "foo bar" in new format
         """
+        # return if no callback is set
+        if self.callback is None:
+            return
+
         # first split on array delimiters
         l = re.split('([|\"][^|]*[|\"])', larg[0])
         # strip spaces and filter out emtpy strings

@@ -13,6 +13,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.0">
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
+      <configure name="BMP_PORT" value="/dev/cu.usbmodemE2B9BDC1"/>
     </target>
 
     <target name="nps" board="pc">
@@ -222,6 +223,11 @@
     <define name="AGAIN" value="70"/>
   </section>
 
+  <section name="NAVIGATION" prefix="NAV_">
+    <define name="CLIMB_VSPEED"   value="1.5" />
+    <define name="DESCEND_VSPEED" value="-1.0" />
+  </section>    
+
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;fl_motor&quot;, &quot;fr_motor&quot;, &quot;r_motor&quot;, &quot;br_motor&quot;, &quot;bl_motor&quot;, &quot;l_motor&quot;}"/>
     <define name="JSBSIM_MODEL"    value="&quot;HooperFly/teensyfly_hexa&quot;"/>
@@ -231,7 +237,7 @@
   </section>
 
   <section name="AUTOPILOT">
-<!-- TOGGLE STATES -->
+    <!-- TOGGLE STATES -->
     <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
     <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1"   value="AP_MODE_HOVER_Z_HOLD"/>
@@ -240,6 +246,7 @@
 
 
   <section name="BAT">
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="5880" />
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="58800"/>
     <define name="CATASTROPHIC_BAT_LEVEL"    value="9.3" unit="V"/>
     <define name="CRITIC_BAT_LEVEL"          value="9.9" unit="V"/>

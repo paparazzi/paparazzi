@@ -37,6 +37,8 @@ struct PersistentSettings pers_settings;
  */
 bool_t settings_store_flag;
 
+bool_t settings_clear_flag;
+
 
 void settings_init(void)
 {
@@ -66,5 +68,23 @@ int32_t settings_store(void)
   }
 #endif
   settings_store_flag = FALSE;
+  return -1;
+}
+
+/** clear all persistent settings from flash
+ * @return 0 on success
+ */
+int32_t settings_clear(void)
+{
+#if USE_PERSISTENT_SETTINGS
+  if (settings_clear_flag) {
+    if (!persistent_clear()) {
+      /* clearing all persistent settings was successful */
+      settings_clear_flag = TRUE;
+      return 0;
+    }
+  }
+#endif
+  settings_clear_flag = FALSE;
   return -1;
 }

@@ -136,7 +136,7 @@ void nav_circle_XY(float x, float y, float radius)
     (dist2_center > Square(abs_radius + dist_carrot)
      || dist2_center < Square(abs_radius - dist_carrot)) ?
     0 :
-    atanf((*stateGetHorizontalSpeedNorm_f()) * (*stateGetHorizontalSpeedNorm_f()) / (NAV_GRAVITY * radius));
+    atanf(stateGetHorizontalSpeedNorm_f() * stateGetHorizontalSpeedNorm_f() / (NAV_GRAVITY * radius));
 
   float carrot_angle = dist_carrot / abs_radius;
   carrot_angle = Min(carrot_angle, M_PI / 4);
@@ -160,7 +160,7 @@ void nav_circle_XY(float x, float y, float radius)
     float start_alt = waypoints[_last_wp].a;                            \
     float diff_alt = waypoints[_wp].a - start_alt;                      \
     float alt = start_alt + nav_leg_progress * diff_alt;                \
-    float pre_climb = (*stateGetHorizontalSpeedNorm_f()) * diff_alt / nav_leg_length; \
+    float pre_climb = stateGetHorizontalSpeedNorm_f() * diff_alt / nav_leg_length; \
     NavVerticalAltitudeMode(alt, pre_climb);                            \
   }
 
@@ -212,7 +212,7 @@ static void nav_ground_speed_loop(void)
 {
   if (MINIMUM_AIRSPEED < nav_ground_speed_setpoint
       && nav_ground_speed_setpoint < MAXIMUM_AIRSPEED) {
-    float err = nav_ground_speed_setpoint - (*stateGetHorizontalSpeedNorm_f());
+    float err = nav_ground_speed_setpoint - stateGetHorizontalSpeedNorm_f();
     v_ctl_auto_throttle_cruise_throttle += nav_ground_speed_pgain * err;
     Bound(v_ctl_auto_throttle_cruise_throttle, v_ctl_auto_throttle_min_cruise_throttle,
           v_ctl_auto_throttle_max_cruise_throttle);
@@ -342,13 +342,13 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
     float leg_x = x - from_x;
     float leg_y = y - from_y;
     float leg = sqrtf(Max(leg_x * leg_x + leg_y * leg_y, 1.));
-    float exceed_dist = approaching_time * (*stateGetHorizontalSpeedNorm_f()); // negative value
+    float exceed_dist = approaching_time * stateGetHorizontalSpeedNorm_f(); // negative value
     float scal_prod = (leg_x * pw_x + leg_y * pw_y) / leg;
     return (scal_prod < exceed_dist);
   } else {
     // fly close enough of the waypoint or cross it
     dist2_to_wp = pw_x * pw_x + pw_y * pw_y;
-    float min_dist = approaching_time * (*stateGetHorizontalSpeedNorm_f());
+    float min_dist = approaching_time * stateGetHorizontalSpeedNorm_f();
     if (dist2_to_wp < min_dist * min_dist) {
       return TRUE;
     }
@@ -374,11 +374,11 @@ void fly_to_xy(float x, float y)
     }
     lateral_mode = LATERAL_MODE_COURSE;
   } else {
-    float diff = atan2f(x - pos->x, y - pos->y) - (*stateGetHorizontalSpeedDir_f());
+    float diff = atan2f(x - pos->x, y - pos->y) - stateGetHorizontalSpeedDir_f();
     NormRadAngle(diff);
     BoundAbs(diff, M_PI / 2.);
     float s = sinf(diff);
-    float speed = *stateGetHorizontalSpeedNorm_f();
+    float speed = stateGetHorizontalSpeedNorm_f();
     h_ctl_roll_setpoint = atanf(2 * speed * speed * s * h_ctl_course_pgain / (CARROT * NOMINAL_AIRSPEED * 9.81));
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
     lateral_mode = LATERAL_MODE_ROLL;

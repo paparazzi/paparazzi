@@ -55,6 +55,7 @@ extern int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
 extern int32_t nav_roll, nav_pitch;     ///< with #INT32_ANGLE_FRAC
 extern int32_t nav_heading; ///< with #INT32_ANGLE_FRAC
 extern float nav_radius;
+extern float nav_climb_vspeed, nav_descend_vspeed;
 
 extern int32_t nav_leg_progress;
 extern uint32_t nav_leg_length;
@@ -86,6 +87,9 @@ void nav_periodic_task(void);
 bool_t nav_detect_ground(void);
 bool_t nav_is_in_flight(void);
 
+extern bool_t exception_flag[10];
+extern void set_exception_flag(uint8_t flag_num);
+
 extern bool_t nav_set_heading_rad(float rad);
 extern bool_t nav_set_heading_deg(float deg);
 extern bool_t nav_set_heading_towards(float x, float y);
@@ -106,6 +110,7 @@ extern bool_t nav_set_heading_current(void);
 
 #define NavSetWaypointHere(_wp) ({ waypoint_set_here_2d(_wp); FALSE; })
 #define NavCopyWaypoint(_wp1, _wp2) ({ waypoint_copy(_wp1, _wp2); FALSE; })
+#define NavCopyWaypointPositionOnly(_wp1, _wp2) ({ waypoint_position_copy(_wp1, _wp2); FALSE; })
 
 /** Normalize a degree angle between 0 and 359 */
 #define NormCourse(x) { \

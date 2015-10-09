@@ -36,7 +36,9 @@
     <subsystem name="gps" type="ublox"/>
     <subsystem name="ins" type="alt_float"/>
 
-    <subsystem name="actuators" type="pwm_double"/>
+    <subsystem name="actuators" type="dualpwm">
+      <define name="DUAL_PWM_ON"/>
+    </subsystem>
   </firmware>
 
  <modules>
@@ -47,7 +49,7 @@
   <servos driver="Pwm">
     <servo name="MOTOR" no="2" min="1040" neutral="1040" max="2000"/>
   </servos>
-  <servos driver="Pwm_double">
+  <servos driver="Dualpwm">
     <servo name="AILEVON_LEFT" no="0" min="1200" neutral="1500" max="1800"/>
     <servo name="AILEVON_RIGHT" no="1" min="1800" neutral="1500" max="1200"/>
   </servos>

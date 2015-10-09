@@ -167,6 +167,17 @@ let icon_home_template = {
   width = 3;
 }
 
+let icon_intruder_template = {
+  lines = [
+    [| 0.; 0.; 0.; -24. |];
+    [| 6.; -15.; 0.; -24.;  -6.; -15.|];   (** Front Marker **)
+  ];
+  ellipse = [
+    [| -8.; -8.; 8.; 8.|];
+  ];
+  width = 1
+}
+
 class widget = fun ?(color="red") ?(icon_template=icon_fixedwing_template) (group:GnoCanvas.group) ->
   let new_line width color points =
     GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS width; `CAP_STYLE `ROUND] ~points:points group in

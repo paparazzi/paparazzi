@@ -72,7 +72,8 @@ bool_t nps_bypass_ins;
 #error NPS does not currently support dual processor simulation for FBW and AP on fixedwing!
 #endif
 
-void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* rc_dev) {
+void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char *rc_dev)
+{
 
   autopilot.launch = FALSE;
   autopilot.datalink_enabled = TRUE;
@@ -88,14 +89,16 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 
 }
 
-void nps_autopilot_run_systime_step( void ) {
+void nps_autopilot_run_systime_step(void)
+{
   sys_tick_handler();
 }
 
 #include <stdio.h>
 #include "subsystems/gps.h"
 
-void nps_autopilot_run_step(double time) {
+void nps_autopilot_run_step(double time)
+{
 
   nps_electrical_run_step(time);
 
@@ -116,7 +119,7 @@ void nps_autopilot_run_step(double time) {
     imu_feed_mag();
     Fbw(event_task);
     Ap(event_task);
- }
+  }
 
   if (nps_sensors_baro_available()) {
     float pressure = (float) sensors.baro.value;
@@ -144,27 +147,28 @@ void nps_autopilot_run_step(double time) {
 
   /* scale final motor commands to 0-1 for feeding the fdm */
 #ifdef NPS_ACTUATOR_NAMES
-PRINT_CONFIG_MSG("actuators for JSBSim explicitly set.")
-PRINT_CONFIG_VAR(NPS_COMMANDS_NB)
+  PRINT_CONFIG_MSG("actuators for JSBSim explicitly set.")
+  PRINT_CONFIG_VAR(NPS_COMMANDS_NB)
   //PRINT_CONFIG_VAR(NPS_ACTUATOR_NAMES)
 
-  for (uint8_t i=0; i < NPS_COMMANDS_NB; i++)
-    autopilot.commands[i] = (double)commands[i]/MAX_PPRZ;
+  for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
+    autopilot.commands[i] = (double)commands[i] / MAX_PPRZ;
+  }
   // hack: invert pitch to fit most JSBSim models
-  autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH]/MAX_PPRZ;
+  autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH] / MAX_PPRZ;
 #else
-PRINT_CONFIG_MSG("Using throttle, roll, pitch, yaw commands instead of explicit actuators.")
-PRINT_CONFIG_VAR(COMMAND_THROTTLE)
-PRINT_CONFIG_VAR(COMMAND_ROLL)
-PRINT_CONFIG_VAR(COMMAND_PITCH)
+  PRINT_CONFIG_MSG("Using throttle, roll, pitch, yaw commands instead of explicit actuators.")
+  PRINT_CONFIG_VAR(COMMAND_THROTTLE)
+  PRINT_CONFIG_VAR(COMMAND_ROLL)
+  PRINT_CONFIG_VAR(COMMAND_PITCH)
 
-  autopilot.commands[COMMAND_THROTTLE] = (double)commands[COMMAND_THROTTLE]/MAX_PPRZ;
-  autopilot.commands[COMMAND_ROLL] = (double)commands[COMMAND_ROLL]/MAX_PPRZ;
+  autopilot.commands[COMMAND_THROTTLE] = (double)commands[COMMAND_THROTTLE] / MAX_PPRZ;
+  autopilot.commands[COMMAND_ROLL] = (double)commands[COMMAND_ROLL] / MAX_PPRZ;
   // hack: invert pitch to fit most JSBSim models
-  autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH]/MAX_PPRZ;
+  autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH] / MAX_PPRZ;
 #ifdef COMMAND_YAW
-PRINT_CONFIG_VAR(COMMAND_YAW)
-  autopilot.commands[COMMAND_YAW] = (double)commands[COMMAND_YAW]/MAX_PPRZ;
+  PRINT_CONFIG_VAR(COMMAND_YAW)
+  autopilot.commands[COMMAND_YAW] = (double)commands[COMMAND_YAW] / MAX_PPRZ;
 #else
   autopilot.commands[3] = 0.;
 #endif
@@ -172,8 +176,9 @@ PRINT_CONFIG_VAR(COMMAND_YAW)
 
   // do the launch when clicking launch in GCS
   autopilot.launch = launch && !kill_throttle;
-  if (!launch)
+  if (!launch) {
     autopilot.commands[COMMAND_THROTTLE] = 0;
+  }
 
   // hack to reset datalink_time, since we don't use actual dl_parse_msg
   if (autopilot.datalink_enabled) {
@@ -181,7 +186,8 @@ PRINT_CONFIG_VAR(COMMAND_YAW)
   }
 }
 
-void sim_overwrite_ahrs(void) {
+void sim_overwrite_ahrs(void)
+{
 
   struct FloatQuat quat_f;
   QUAT_COPY(quat_f, fdm.ltp_to_body_quat);
@@ -193,7 +199,8 @@ void sim_overwrite_ahrs(void) {
 
 }
 
-void sim_overwrite_ins(void) {
+void sim_overwrite_ins(void)
+{
 
   struct NedCoor_f ltp_pos;
   VECT3_COPY(ltp_pos, fdm.ltpprz_pos);

@@ -109,7 +109,7 @@ void uart_periph_set_mode(struct uart_periph *p, bool_t tx_enabled, bool_t rx_en
   }
 }
 
-void uart_transmit(struct uart_periph *p, uint8_t data)
+void uart_put_byte(struct uart_periph *p, uint8_t data)
 {
 
   uint16_t temp = (p->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;

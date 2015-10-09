@@ -8,7 +8,7 @@
     <configure name="MODEM_HOST" value="192.168.1.1"/>
     <configure name="MODEM_BROADCAST" value="FALSE"/>
 
-    <target name="ap" board="ardrone2_raw">
+    <target name="ap" board="ardrone2">
       <define name="USE_SONAR"/>
       <define name="USE_BARO_MEDIAN_FILTER"/>
       <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
@@ -36,12 +36,13 @@
 
   <modules main_freq="512">
     <load name="gps_ubx_ucenter.xml"/>
+    <load name="bat_voltage_ardrone2.xml"/>
   </modules>
 
   <!-- include common control -->
-  <include href="conf/airframes/ENAC/parrot/ard2_base_control.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/ard2_base_control.xml"/>
   <!-- include arframe calibration -->
-  <include href="conf/airframes/ENAC/parrot/ard2_$AC_ID.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/ard2_$AC_ID.xml"/>
 
   <!-- local magnetic field -->
   <!-- http://paparazzi.enac.fr/wiki/Subsystem/ahrs#Local_Magnetic_Field -->

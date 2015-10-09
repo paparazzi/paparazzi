@@ -13,6 +13,7 @@ default_messages_file = '%s/conf/messages.xml' % PPRZ_HOME
 
 message_dictionary = {}
 message_dictionary_types = {}
+message_dictionary_coefs = {}
 message_dictionary_id_name = {}
 message_dictionary_name_id = {}
 
@@ -30,6 +31,7 @@ def parse_messages(messages_file=''):
         messages_file = default_messages_file
     if not os.path.isfile(messages_file):
         raise MessagesNotFound(messages_file)
+    #print("Parsing %s" % messages_file)
     from lxml import etree
     tree = etree.parse(messages_file)
     for the_class in tree.xpath("//msg_class[@name]"):
@@ -39,6 +41,7 @@ def parse_messages(messages_file=''):
             message_dictionary_name_id[class_name] = {}
             message_dictionary[class_name] = {}
             message_dictionary_types[class_name] = {}
+            message_dictionary_coefs[class_name] = {}
         for the_message in the_class.xpath("message[@name]"):
             message_name = the_message.attrib['name']
             if 'id' in the_message.attrib:
@@ -56,11 +59,17 @@ def parse_messages(messages_file=''):
             # insert this message into our dictionary as a list with room for the fields
             message_dictionary[class_name][message_name] = []
             message_dictionary_types[class_name][message_id] = []
+            message_dictionary_coefs[class_name][message_id] = []
 
             for the_field in the_message.xpath('field[@name]'):
                 # for now, just save the field names -- in the future maybe expand this to save a struct?
                 message_dictionary[class_name][message_name].append(the_field.attrib['name'])
                 message_dictionary_types[class_name][message_id].append(the_field.attrib['type'])
+                try:
+                    message_dictionary_coefs[class_name][message_id].append(float(the_field.attrib['alt_unit_coef']))
+                except KeyError:
+                    # print("no such key")
+                    message_dictionary_coefs[class_name][message_id].append(1.)
 
 
 def get_msgs(msg_class):
@@ -121,6 +130,18 @@ def get_msg_fieldtypes(msg_class, msg_id):
         print("Error: msg_class %s not found." % msg_class)
     return []
 
+def get_msg_fieldcoefs(msg_class, msg_id):
+    if not message_dictionary:
+        parse_messages()
+    if msg_class in message_dictionary_coefs:
+        if msg_id in message_dictionary_coefs[msg_class]:
+            return message_dictionary_coefs[msg_class][msg_id]
+        else:
+            print("Error: message with ID %d not found in msg_class %s." % (msg_id, msg_class))
+    else:
+        print("Error: msg_class %s not found." % msg_class)
+    return []
+
 
 def test():
     import argparse
@@ -132,8 +153,8 @@ def test():
     parse_messages(args.file)
     if args.list_messages:
         print("Listing %i messages in '%s' msg_class" % (len(message_dictionary[args.msg_class]), args.msg_class))
-        for msg in message_dictionary[args.msg_class]:
-            print(msg)
+        for msg_name, msg_fields in message_dictionary[args.msg_class].iteritems():
+            print(msg_name + ": " + ", ".join(msg_fields))
 
 if __name__ == '__main__':
     test()

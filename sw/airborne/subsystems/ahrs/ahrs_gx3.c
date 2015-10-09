@@ -77,11 +77,11 @@ void ahrs_gx3_align(void)
   ahrs_gx3.is_aligned = FALSE;
 
   //make the gyros zero, takes 10s (specified in Byte 4 and 5)
-  uart_transmit(&GX3_PORT, 0xcd);
-  uart_transmit(&GX3_PORT, 0xc1);
-  uart_transmit(&GX3_PORT, 0x29);
-  uart_transmit(&GX3_PORT, 0x27);
-  uart_transmit(&GX3_PORT, 0x10);
+  uart_put_byte(&GX3_PORT, 0xcd);
+  uart_put_byte(&GX3_PORT, 0xc1);
+  uart_put_byte(&GX3_PORT, 0x29);
+  uart_put_byte(&GX3_PORT, 0x27);
+  uart_put_byte(&GX3_PORT, 0x10);
 
   ahrs_gx3.is_aligned = TRUE;
 }
@@ -125,59 +125,59 @@ void imu_impl_init(void)
   /*
   // FOR NON-CONTINUOUS MODE UNCOMMENT THIS
   //4 byte command for non-Continous Mode so we can set the other settings
-  uart_transmit(&GX3_PORT, 0xc4);
-  uart_transmit(&GX3_PORT, 0xc1);
-  uart_transmit(&GX3_PORT, 0x29);
-  uart_transmit(&GX3_PORT, 0x00); // stop
+  uart_put_byte(&GX3_PORT, 0xc4);
+  uart_put_byte(&GX3_PORT, 0xc1);
+  uart_put_byte(&GX3_PORT, 0x29);
+  uart_put_byte(&GX3_PORT, 0x00); // stop
   */
 
   //Sampling Settings (0xDB)
-  uart_transmit(&GX3_PORT, 0xdb); //set update speed
-  uart_transmit(&GX3_PORT, 0xa8);
-  uart_transmit(&GX3_PORT, 0xb9);
+  uart_put_byte(&GX3_PORT, 0xdb); //set update speed
+  uart_put_byte(&GX3_PORT, 0xa8);
+  uart_put_byte(&GX3_PORT, 0xb9);
   //set rate of IMU link, is 1000/IMU_DIV
 #define IMU_DIV1 0
 #define IMU_DIV2 2
 #define ACC_FILT_DIV 2
 #define MAG_FILT_DIV 30
 #ifdef GX3_SAVE_SETTINGS
-  uart_transmit(&GX3_PORT, 0x02);//set params and save them in non-volatile memory
+  uart_put_byte(&GX3_PORT, 0x02);//set params and save them in non-volatile memory
 #else
-  uart_transmit(&GX3_PORT, 0x02); //set and don't save
+  uart_put_byte(&GX3_PORT, 0x02); //set and don't save
 #endif
-  uart_transmit(&GX3_PORT, IMU_DIV1);
-  uart_transmit(&GX3_PORT, IMU_DIV2);
-  uart_transmit(&GX3_PORT, 0b00000000);  //set options byte 8 - GOOD
-  uart_transmit(&GX3_PORT, 0b00000011);  //set options byte 7 - GOOD
+  uart_put_byte(&GX3_PORT, IMU_DIV1);
+  uart_put_byte(&GX3_PORT, IMU_DIV2);
+  uart_put_byte(&GX3_PORT, 0b00000000);  //set options byte 8 - GOOD
+  uart_put_byte(&GX3_PORT, 0b00000011);  //set options byte 7 - GOOD
   //0 - calculate orientation, 1 - enable coning & sculling, 2-3 reserved, 4 - no little endian data,
   // 5 - no NaN supressed, 6 - disable finite size correction, 7 - reserved,
   // 8  - enable magnetometer, 9 - reserved, 10 - enable magnetic north compensation, 11 - enable gravity compensation
   // 12 - no quaternion calculation, 13-15 reserved
-  uart_transmit(&GX3_PORT, ACC_FILT_DIV);
-  uart_transmit(&GX3_PORT, MAG_FILT_DIV); //mag window filter size == 33hz
-  uart_transmit(&GX3_PORT, 0x00);
-  uart_transmit(&GX3_PORT, 10); // Up Compensation in secs, def=10s
-  uart_transmit(&GX3_PORT, 0x00);
-  uart_transmit(&GX3_PORT, 10); // North Compensation in secs
-  uart_transmit(&GX3_PORT, 0x00); //power setting = 0, high power/bw
-  uart_transmit(&GX3_PORT, 0x00); //rest of the bytes are 0
-  uart_transmit(&GX3_PORT, 0x00);
-  uart_transmit(&GX3_PORT, 0x00);
-  uart_transmit(&GX3_PORT, 0x00);
-  uart_transmit(&GX3_PORT, 0x00);
+  uart_put_byte(&GX3_PORT, ACC_FILT_DIV);
+  uart_put_byte(&GX3_PORT, MAG_FILT_DIV); //mag window filter size == 33hz
+  uart_put_byte(&GX3_PORT, 0x00);
+  uart_put_byte(&GX3_PORT, 10); // Up Compensation in secs, def=10s
+  uart_put_byte(&GX3_PORT, 0x00);
+  uart_put_byte(&GX3_PORT, 10); // North Compensation in secs
+  uart_put_byte(&GX3_PORT, 0x00); //power setting = 0, high power/bw
+  uart_put_byte(&GX3_PORT, 0x00); //rest of the bytes are 0
+  uart_put_byte(&GX3_PORT, 0x00);
+  uart_put_byte(&GX3_PORT, 0x00);
+  uart_put_byte(&GX3_PORT, 0x00);
+  uart_put_byte(&GX3_PORT, 0x00);
 
   // OPTIONAL: realign up and north
   /*
-    uart_transmit(&GX3_PORT, 0xdd);
-    uart_transmit(&GX3_PORT, 0x54);
-    uart_transmit(&GX3_PORT, 0x4c);
-    uart_transmit(&GX3_PORT, 3);
-    uart_transmit(&GX3_PORT, 10);
-    uart_transmit(&GX3_PORT, 10);
-    uart_transmit(&GX3_PORT, 0x00);
-    uart_transmit(&GX3_PORT, 0x00);
-    uart_transmit(&GX3_PORT, 0x00);
-    uart_transmit(&GX3_PORT, 0x00);
+    uart_put_byte(&GX3_PORT, 0xdd);
+    uart_put_byte(&GX3_PORT, 0x54);
+    uart_put_byte(&GX3_PORT, 0x4c);
+    uart_put_byte(&GX3_PORT, 3);
+    uart_put_byte(&GX3_PORT, 10);
+    uart_put_byte(&GX3_PORT, 10);
+    uart_put_byte(&GX3_PORT, 0x00);
+    uart_put_byte(&GX3_PORT, 0x00);
+    uart_put_byte(&GX3_PORT, 0x00);
+    uart_put_byte(&GX3_PORT, 0x00);
   */
 
   //Another wait loop for proper GX3 init
@@ -187,23 +187,23 @@ void imu_impl_init(void)
 
 #ifdef GX3_SET_WAKEUP_MODE
   //Mode Preset (0xD5)
-  uart_transmit(&GX3_PORT, 0xD5);
-  uart_transmit(&GX3_PORT, 0xBA);
-  uart_transmit(&GX3_PORT, 0x89);
-  uart_transmit(&GX3_PORT, 0x02); // wake up in continuous mode
+  uart_put_byte(&GX3_PORT, 0xD5);
+  uart_put_byte(&GX3_PORT, 0xBA);
+  uart_put_byte(&GX3_PORT, 0x89);
+  uart_put_byte(&GX3_PORT, 0x02); // wake up in continuous mode
 
   //Continuous preset (0xD6)
-  uart_transmit(&GX3_PORT, 0xD6);
-  uart_transmit(&GX3_PORT, 0xC6);
-  uart_transmit(&GX3_PORT, 0x6B);
-  uart_transmit(&GX3_PORT, 0xc8); // accel, gyro, R
+  uart_put_byte(&GX3_PORT, 0xD6);
+  uart_put_byte(&GX3_PORT, 0xC6);
+  uart_put_byte(&GX3_PORT, 0x6B);
+  uart_put_byte(&GX3_PORT, 0xc8); // accel, gyro, R
 #endif
 
   //4 byte command for Continous Mode
-  uart_transmit(&GX3_PORT, 0xc4);
-  uart_transmit(&GX3_PORT, 0xc1);
-  uart_transmit(&GX3_PORT, 0x29);
-  uart_transmit(&GX3_PORT, 0xc8); // accel,gyro,R
+  uart_put_byte(&GX3_PORT, 0xc4);
+  uart_put_byte(&GX3_PORT, 0xc1);
+  uart_put_byte(&GX3_PORT, 0x29);
+  uart_put_byte(&GX3_PORT, 0xc8); // accel,gyro,R
 
   // Reset gyros to zero
   ahrs_gx3_align();
@@ -218,7 +218,7 @@ void imu_impl_init(void)
 void imu_periodic(void)
 {
   /* IF IN NON-CONTINUOUS MODE, REQUEST DATA NOW
-     uart_transmit(&GX3_PORT, 0xc8); // accel,gyro,R
+     uart_put_byte(&GX3_PORT, 0xc8); // accel,gyro,R
   */
 }
 

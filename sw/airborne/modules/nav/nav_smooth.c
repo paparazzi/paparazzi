@@ -55,8 +55,8 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius)
   float da_y = WaypointY(wp_a) - stateGetPositionEnu_f()->y;
 
   /* D_CD orthogonal to current course, CD on the side of A */
-  float u_x = cos(M_PI_2 - (*stateGetHorizontalSpeedDir_f()));
-  float u_y = sin(M_PI_2 - (*stateGetHorizontalSpeedDir_f()));
+  float u_x = cos(M_PI_2 - stateGetHorizontalSpeedDir_f());
+  float u_y = sin(M_PI_2 - stateGetHorizontalSpeedDir_f());
   d_radius = - Sign(u_x * da_y - u_y * da_x) * radius;
   wp_cd.x = stateGetPositionEnu_f()->x + d_radius * u_y;
   wp_cd.y = stateGetPositionEnu_f()->y - d_radius * u_x;
@@ -185,7 +185,7 @@ bool_t snav_on_time(float nominal_radius)
   float remaining_time = snav_desired_tow - gps.tow / 1000.;
 
   /* Use the nominal airspeed if the estimated one is not realistic */
-  float airspeed = *stateGetAirspeed_f();
+  float airspeed = stateGetAirspeed_f();
   if (airspeed < NOMINAL_AIRSPEED / 2. ||
       airspeed > 2.* NOMINAL_AIRSPEED) {
     airspeed = NOMINAL_AIRSPEED;

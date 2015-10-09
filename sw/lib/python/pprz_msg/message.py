@@ -3,11 +3,11 @@ Paparazzi message representation
 
 """
 
-from __future__ import absolute_import, division, print_function
+from __future__ import division, print_function
 import sys
 import json
 import struct
-from . import messages_xml_map
+import messages_xml_map
 
 
 class PprzMessageError(Exception):
@@ -33,6 +33,7 @@ class PprzMessage(object):
             self._id = messages_xml_map.get_msg_id(class_name, msg)
         self._fieldnames = messages_xml_map.get_msg_fields(class_name, self._name)
         self._fieldtypes = messages_xml_map.get_msg_fieldtypes(class_name, self._id)
+        self._fieldcoefs = messages_xml_map.get_msg_fieldcoefs(class_name, self._id)
         self._fieldvalues = []
         # set empty values according to type
         for t in self._fieldtypes:
@@ -73,6 +74,11 @@ class PprzMessage(object):
         """Get list of field types."""
         return self._fieldtypes
 
+    @property
+    def fieldcoefs(self):
+        """Get list of field coefs."""
+        return self._fieldcoefs
+
     def fieldbintypes(self, t):
         """Get type and length for binary format"""
         data_types = {
@@ -111,11 +117,12 @@ class PprzMessage(object):
         self.set_value_by_name(key, value)
 
     def set_values(self, values):
+        #print("msg %s: %s" % (self.name, ", ".join(self.fieldnames)))
         if len(values) == len(self.fieldnames):
             self._fieldvalues = values
         else:
-            print("set values %i %i" % (len(values), len(self.fieldnames)))
-            raise PprzMessageError("Error: fields not matching")
+            raise PprzMessageError("Error: Msg %s has %d fields, tried to set %i values" %
+                                   (self.name, len(self.fieldnames), len(values)))
 
     def set_value_by_name(self, name, value):
         # Try to set a value from its name
@@ -123,7 +130,7 @@ class PprzMessage(object):
             if f == name:
                 self._fieldvalues[idx] = value
                 return
-        raise AttributeError("Msg %s has no field of name %s" % (self.name, key))
+        raise AttributeError("Msg %s has no field of name %s" % (self.name, name))
 
     def __str__(self):
         ret = '%s.%s {' % (self.msg_class, self.name)

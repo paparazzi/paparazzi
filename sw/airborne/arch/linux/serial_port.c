@@ -9,6 +9,12 @@
 #include <string.h>
 #include <unistd.h>
 
+// IUCLC flag translates upper case to lower case (actually needed here?)
+// but is not in POSIX and OSX
+#ifndef IUCLC
+#define IUCLC 0
+#endif
+
 //#define TRACE(type,fmt,args...)    fprintf(stderr, fmt, args)
 #define TRACE(type,fmt,args...)
 #define TRACE_ERROR 1

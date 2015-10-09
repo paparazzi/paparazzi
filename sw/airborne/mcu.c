@@ -72,6 +72,10 @@ void mcu_init(void)
 {
 
   mcu_arch_init();
+  /* If we have a board specific init function, call it.
+   * Otherwise it will simply call the empty weak function.
+   */
+  board_init();
 
 #ifdef PERIPHERALS_AUTO_INIT
   sys_time_init();
@@ -102,6 +106,9 @@ void mcu_init(void)
 #endif
 #if USE_UART6
   uart6_init();
+#endif
+#if USING_UART
+  uart_arch_init();
 #endif
 #ifdef USE_I2C0
   i2c0_init();
@@ -164,24 +171,13 @@ void mcu_init(void)
   dac_init();
 #endif
 
-#ifdef USE_UDP0
-  UDP0Init();
-#endif
-#ifdef USE_UDP1
-  UDP1Init();
-#endif
-#ifdef USE_UDP2
-  UDP2Init();
+#if USE_UDP0 || USE_UDP1 || USE_UDP2
+  udp_arch_init();
 #endif
 
 #else
   INFO("PERIPHERALS_AUTO_INIT not enabled! Peripherals (including sys_time) need explicit initialization.")
 #endif /* PERIPHERALS_AUTO_INIT */
-
-  /* If we have a board specific init function, call it.
-   * Otherwise it will simply call the empty weak function.
-   */
-  board_init();
 
 }
 
@@ -191,14 +187,6 @@ void mcu_event(void)
 {
 #if USING_I2C
   i2c_event();
-#endif
-
-#if USING_UART
-  uart_event();
-#endif
-
-#if USE_UDP
-  udp_event();
 #endif
 
 #if USE_USB_SERIAL

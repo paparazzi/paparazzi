@@ -71,7 +71,7 @@ static inline void main_periodic(void)
     i = 0;
   }
 
-  uart_transmit(&TEST_UART, foo[i]);
+  uart_put_byte(&TEST_UART, foo[i]);
   printf("%f, transmit: '%c'\n", get_sys_time_float(), foo[i]);
 
   if (uart_char_available(&TEST_UART)) {
@@ -84,5 +84,4 @@ static inline void main_periodic(void)
 
 static inline void main_event(void)
 {
-  uart_event();
 }

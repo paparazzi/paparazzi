@@ -756,7 +756,7 @@ void send_buffer_to_uart(void)
         }
         break;
       }
-      uart_transmit(&HS_LOG_UART, uart_read_buff[i]);
+      uart_put_byte(&HS_LOG_UART, uart_read_buff[i]);
       i++;
     }
 

@@ -138,13 +138,11 @@ static inline void GpsEvent(void)
 {
   struct link_device *dev = &((GPS_LINK).device);
 
-  if (dev->char_available(dev->periph)) {
-    while (dev->char_available(dev->periph)) {
-      sirf_parse_char(dev->get_byte(dev->periph));
+  while (dev->char_available(dev->periph)) {
+    sirf_parse_char(dev->get_byte(dev->periph));
+    if (gps_sirf.msg_available) {
+      gps_sirf_msg();
     }
-  }
-  if (gps_sirf.msg_available) {
-    gps_sirf_msg();
   }
 }
 

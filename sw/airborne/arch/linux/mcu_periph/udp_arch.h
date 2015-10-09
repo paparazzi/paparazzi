@@ -29,4 +29,6 @@
 #include "mcu_periph/udp.h"
 #include "udp_socket.h"
 
+extern void udp_arch_init(void);
+
 #endif /* UDP_ARCH_H */

@@ -51,6 +51,7 @@
 #define AP_MODE_CARE_FREE_DIRECT  15
 #define AP_MODE_FORWARD           16
 #define AP_MODE_MODULE            17
+#define AP_MODE_FLIP              18
 
 extern uint8_t autopilot_mode;
 extern uint8_t autopilot_mode_auto2;
@@ -161,11 +162,20 @@ static inline void DetectGroundEvent(void)
 
 #include "subsystems/settings.h"
 
+/* try to make sure that we don't write to flash while flying */
 static inline void autopilot_StoreSettings(float store)
 {
   if (kill_throttle && store) {
     settings_store_flag = store;
     settings_store();
+  }
+}
+
+static inline void autopilot_ClearSettings(float clear)
+{
+  if (kill_throttle && clear) {
+    settings_clear_flag = clear;
+    settings_clear();
   }
 }
 

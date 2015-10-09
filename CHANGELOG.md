@@ -1,3 +1,40 @@
+Paparazzi 5.6.0_stable
+======================
+
+Stable version release.
+
+- compile/run paparazzi in a docker container
+  [#1272] (https://github.com/paparazzi/paparazzi/pull/1272)
+- multimon: fix compilation with gcc 5.x
+  [#1276] (https://github.com/paparazzi/paparazzi/pull/1276)
+- arch/linux: replace mcu event polling with threads
+  [#1277] (https://github.com/paparazzi/paparazzi/pull/1277)
+- ardrone2: make UART1_DEV changeable from airframe file
+- optitrack/natnet: update to version 2.7
+  [#1275] (https://github.com/paparazzi/paparazzi/pull/1275)
+  [#1284] (https://github.com/paparazzi/paparazzi/pull/1284)
+- link/GCS: fix LINK_REPORT and display of link status in GCS
+  [#1279] (https://github.com/paparazzi/paparazzi/pull/1279)
+- GPS: add hmsl to GPS_LLA message
+  [#1282] (https://github.com/paparazzi/paparazzi/pull/1282)
+- modules: set nice level for viewvideo thread
+  [#1283] (https://github.com/paparazzi/paparazzi/pull/1283)
+- arch/linux: Rename uart/udp_transmit to uart/udp_put_byte
+  [#1285] (https://github.com/paparazzi/paparazzi/pull/1285)
+- GPS: NMEA parser fixes
+  [#1287] (https://github.com/paparazzi/paparazzi/pull/1287)
+- modules: viewvideo, fix image path
+  [#1289] (https://github.com/paparazzi/paparazzi/issues/1289)
+- simulator: FlightGear visualization using native-fdm for NPS
+  [#1290] (https://github.com/paparazzi/paparazzi/pull/1290)
+- rotorcraft: INDI stabilization updates
+  [#1292] (https://github.com/paparazzi/paparazzi/pull/1292)
+- boards: add support for ELLE0
+  [#1294] (https://github.com/paparazzi/paparazzi/pull/1294)
+- arch/linux: uart: fix crash if device does not exist
+  [#1299] (https://github.com/paparazzi/paparazzi/pull/1299)
+
+
 Paparazzi 5.5.2_testing
 =======================
 

@@ -51,7 +51,7 @@ void geo_mag_init(void)
 void geo_mag_periodic(void)
 {
   //FIXME: kill_throttle has no place  in a geomag module
-  if (!geo_mag.ready && gps.fix == GPS_FIX_3D && kill_throttle) {
+  if (!geo_mag.ready && GpsFixValid() && kill_throttle) {
     geo_mag.calc_once = TRUE;
   }
 }

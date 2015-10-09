@@ -167,16 +167,16 @@ let send_status_msg =
       and msg_rate = float (status.rx_msg - status.last_rx_msg) /. dt in
       status.last_rx_msg <- status.rx_msg;
       status.last_rx_byte <- status.rx_byte;
-      let vs = ["ac_id", Pprz.Int ac_id;
-                "link_id", Pprz.Int !link_id;
-                "run_time", Pprz.Int t;
-                "rx_lost_time", Pprz.Int (status.ms_since_last_msg / 1000);
-                "rx_bytes", Pprz.Int status.rx_byte;
-                "rx_msgs", Pprz.Int status.rx_msg;
-                "rx_err", Pprz.Int status.rx_err;
+      let vs = ["ac_id", Pprz.String (string_of_int ac_id);
+                "link_id", Pprz.String (string_of_int !link_id);
+                "run_time", Pprz.Int64 (Int64.of_int t);
+                "rx_lost_time", Pprz.Int64 (Int64.of_int (status.ms_since_last_msg / 1000));
+                "rx_bytes", Pprz.Int64 (Int64.of_int status.rx_byte);
+                "rx_msgs", Pprz.Int64 (Int64.of_int status.rx_msg);
+                "rx_err", Pprz.Int64 (Int64.of_int status.rx_err);
                 "rx_bytes_rate", Pprz.Float byte_rate;
                 "rx_msgs_rate", Pprz.Float msg_rate;
-                "tx_msgs", Pprz.Int 0;
+                "tx_msgs", Pprz.Int64 (Int64.of_int status.tx_msg);
                 "ping_time", Pprz.Float (1000. *. (status.last_pong -. status.last_ping))
                ] in
       send_ground_over_ivy "link" "LINK_REPORT" vs)

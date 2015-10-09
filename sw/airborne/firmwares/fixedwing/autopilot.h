@@ -147,11 +147,20 @@ extern bool_t power_switch;
 
 #include "subsystems/settings.h"
 
+/* try to make sure that we don't write to flash while flying */
 static inline void autopilot_StoreSettings(float store)
 {
   if (kill_throttle && store) {
     settings_store_flag = store;
     settings_store();
+  }
+}
+
+static inline void autopilot_ClearSettings(float clear)
+{
+  if (kill_throttle && clear) {
+    settings_clear_flag = clear;
+    settings_clear();
   }
 }
 

@@ -224,7 +224,7 @@ let () =
       tag#set_property (`BACKGROUND color);
       (color, tag))
       (* since tcl8.6 "green" refers to "darkgreen" and the former "green" is now "lime", but that is not available in older versions, so hardcode the color to #00ff00*)
-      ["red"; "#00ff00"; "orange"; "cyan"] in
+      ["red"; "#00ff00"; "orange"; "cyan"; "yellow"] in
   let tag_table = GText.tag_table () in
   List.iter (fun (_color, tag) -> tag_table#add tag#as_tag) background_tags;
   let buffer = GText.buffer ~tag_table () in
@@ -232,7 +232,8 @@ let () =
 
   let errors = "red", ["error:"; "error "; "no such file"; "undefined reference"; "failure"; "multiple definition"]
   and warnings = "orange", ["warning"]
-  and info = "#00ff00", ["pragma message"; "info:"; "info "]
+  and minor_warnings = "yellow", ["no srtm data found"]
+  and info = "#00ff00", ["pragma message"; "info:"]
   and version = "cyan", ["paparazzi version"; "build aircraft"] in
 
   let color_regexps =
@@ -241,7 +242,7 @@ let () =
       let s = String.concat "\\|" s in
       let s = ".*\\("^s^"\\)" in
       color, Str.regexp_case_fold s)
-      [errors; warnings; info; version] in
+      [errors; warnings; minor_warnings; info; version] in
   let compute_tags = fun s ->
     let rec loop = function
 	(color, regexp)::rs ->

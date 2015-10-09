@@ -29,7 +29,7 @@ endif
 
 
 ifeq ($(TARGET), ap)
-ifndef IMU_MPU9250_SPI_DEV 
+ifndef IMU_MPU9250_SPI_DEV
 $(error Error: IMU_MPU9250_SPI_DEV not configured!)
 endif
 ifndef IMU_MPU9250_SPI_SLAVE_IDX

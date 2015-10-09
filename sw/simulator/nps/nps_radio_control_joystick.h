@@ -23,7 +23,7 @@
 #ifndef NPS_RADIO_CONTROL_JOYSTICK_H
 #define NPS_RADIO_CONTROL_JOYSTICK_H
 
-extern int nps_radio_control_joystick_init(const char* device);
+extern int nps_radio_control_joystick_init(const char *device);
 extern void nps_radio_control_joystick_update(void);
 
 struct NpsJoystick {

@@ -67,37 +67,12 @@
     <define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
   </section>
 
+  <include href="conf/airframes/TUDelft/calibrations/ladybird18.xml" />
+
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI"   value="-13." unit="deg"/>
-
-    <define name="ACCEL_X_NEUTRAL" value="0"/>
-    <define name="ACCEL_Y_NEUTRAL" value="0"/>
-    <define name="ACCEL_Z_NEUTRAL" value="0"/>
-
-    <!-- MAGNETO CALIBRATION ANTWERPEN 
-<define name="MAG_X_NEUTRAL" value="-147"/>
-<define name="MAG_Y_NEUTRAL" value="152"/>
-<define name="MAG_Z_NEUTRAL" value="-5"/>
-<define name="MAG_X_SENS" value="3.56142779007" integer="16"/>
-<define name="MAG_Y_SENS" value="3.82223743533" integer="16"/>
-<define name="MAG_Z_SENS" value="4.15618897164" integer="16"/> -->
-
-    <!-- MAGNETO CALIBRATION DELFT-->
-<define name="MAG_X_NEUTRAL" value="10"/>
-<define name="MAG_Y_NEUTRAL" value="238"/>
-<define name="MAG_Z_NEUTRAL" value="-74"/>
-<define name="MAG_X_SENS" value="3.67001348283" integer="16"/>
-<define name="MAG_Y_SENS" value="3.98840260231" integer="16"/>
-<define name="MAG_Z_SENS" value="4.32568461736" integer="16"/>
-
-
-
-    <!-- MAGNETO CURRENT CALIBRATION -->
-    <define name= "MAG_X_CURRENT_COEF" value="-0.0176704713698"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="0.0174222594634"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="0.0187570316492"/>
   </section>
 
  <section name="AUTOPILOT">
@@ -205,6 +180,11 @@
    <define name="DGAIN" value="50"/>
    <define name="IGAIN" value="24"/>
  </section>
+
+  <section name="NAVIGATION" prefix="NAV_">
+    <define  name="CLIMB_VSPEED" value="1.0" />
+    <define  name="DESCEND_VSPEED" value="-0.5" />
+  </section>
 
  <section name="SIMULATOR" prefix="NPS_">
    <define name="ACTUATOR_NAMES" value="{&quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;, &quot;nw_motor&quot;}"/>

@@ -19,13 +19,14 @@
 static int sp_fd;
 
 static gboolean on_serial_data_received(GIOChannel *source,
-                    GIOCondition condition,
-                    gpointer data);
-static void parse_data(char* buf, int len);
+                                        GIOCondition condition,
+                                        gpointer data);
+static void parse_data(char *buf, int len);
 static void handle_frame(void);
 
 
-int nps_radio_control_spektrum_init(const char* device) {
+int nps_radio_control_spektrum_init(const char *device)
+{
 
   if ((sp_fd = open(device, O_RDWR | O_NONBLOCK)) < 0) {
     printf("opening %s (%s)\n", device, strerror(errno));
@@ -33,14 +34,14 @@ int nps_radio_control_spektrum_init(const char* device) {
   }
   struct termios termios;
   /* input modes  */
-  termios.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|INPCK|ISTRIP|INLCR|IGNCR
-                       |ICRNL|IUCLC|IXON|IXANY|IXOFF|IMAXBEL);
+  termios.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | INPCK | ISTRIP | INLCR | IGNCR
+                       | ICRNL | IUCLC | IXON | IXANY | IXOFF | IMAXBEL);
   termios.c_iflag |= IGNPAR;
   /* control modes*/
-  termios.c_cflag &= ~(CSIZE|PARENB|CRTSCTS|PARODD|HUPCL);
-  termios.c_cflag |= CREAD|CS8|CSTOPB|CLOCAL;
+  termios.c_cflag &= ~(CSIZE | PARENB | CRTSCTS | PARODD | HUPCL);
+  termios.c_cflag |= CREAD | CS8 | CSTOPB | CLOCAL;
   /* local modes  */
-  termios.c_lflag &= ~(ISIG|ICANON|IEXTEN|ECHO|FLUSHO|PENDIN);
+  termios.c_lflag &= ~(ISIG | ICANON | IEXTEN | ECHO | FLUSHO | PENDIN);
   termios.c_lflag |= NOFLSH;
   /* speed        */
   speed_t speed = B115200;
@@ -53,9 +54,9 @@ int nps_radio_control_spektrum_init(const char* device) {
     printf("setting term attributes (%s)\n", strerror(errno));
     return -1;
   }
-  GIOChannel* channel = g_io_channel_unix_new(sp_fd);
+  GIOChannel *channel = g_io_channel_unix_new(sp_fd);
   g_io_channel_set_encoding(channel, NULL, NULL);
-  g_io_add_watch (channel, G_IO_IN , on_serial_data_received, NULL);
+  g_io_add_watch(channel, G_IO_IN , on_serial_data_received, NULL);
   return 0;
 }
 
@@ -63,19 +64,20 @@ int nps_radio_control_spektrum_init(const char* device) {
 
 
 static gboolean on_serial_data_received(GIOChannel *source,
-                    GIOCondition condition __attribute__ ((unused)),
-                    gpointer data __attribute__ ((unused))) {
+                                        GIOCondition condition __attribute__((unused)),
+                                        gpointer data __attribute__((unused)))
+{
   char buf[255];
   gsize bytes_read;
-  GError* _err = NULL;
+  GError *_err = NULL;
   GIOStatus st = g_io_channel_read_chars(source, buf, 255, &bytes_read, &_err);
   if (!_err) {
-    if (st == G_IO_STATUS_NORMAL)
+    if (st == G_IO_STATUS_NORMAL) {
       parse_data(buf, bytes_read);
-  }
-  else {
+    }
+  } else {
     printf("error reading serial: %s\n", _err->message);
-    g_error_free (_err);
+    g_error_free(_err);
   }
   return TRUE;
 }
@@ -94,45 +96,48 @@ uint8_t status = STA_UNINIT;
 static uint8_t frame_buf[FRAME_LEN];
 static uint32_t idx = 0;
 
-static void parse_data(char* buf, int len) {
+static void parse_data(char *buf, int len)
+{
   int i;
-  for (i=0; i<len; i++) {
+  for (i = 0; i < len; i++) {
     int8_t c = buf[i ];
     switch (status) {
-    case STA_UNINIT:
-      if (c==SYNC_1)
-        status = STA_GOT_SYNC_1;
-      break;
-    case STA_GOT_SYNC_1:
-      if (c==SYNC_2) {
-        status = STA_GOT_SYNC_2;
-        idx = 0;
-      }
-      else
-        status = STA_UNINIT;
-      break;
-    case STA_GOT_SYNC_2:
-      frame_buf[idx] = c;
-      idx++;
-      if (idx == FRAME_LEN) {
-        status = STA_UNINIT;
-        handle_frame();
-      }
-      break;
+      case STA_UNINIT:
+        if (c == SYNC_1) {
+          status = STA_GOT_SYNC_1;
+        }
+        break;
+      case STA_GOT_SYNC_1:
+        if (c == SYNC_2) {
+          status = STA_GOT_SYNC_2;
+          idx = 0;
+        } else {
+          status = STA_UNINIT;
+        }
+        break;
+      case STA_GOT_SYNC_2:
+        frame_buf[idx] = c;
+        idx++;
+        if (idx == FRAME_LEN) {
+          status = STA_UNINIT;
+          handle_frame();
+        }
+        break;
     }
   }
 }
 
 
 #define CHANNEL_OF_FRAME(i) ((((frame_buf[2*i]<<8) + frame_buf[2*i+1])&0x03FF)-512)
-static void handle_frame(void) {
+static void handle_frame(void)
+{
 
 
-  nps_radio_control.roll = (float)CHANNEL_OF_FRAME(0)/-340.;
-  nps_radio_control.throttle = (float)(CHANNEL_OF_FRAME(1)+340)/680.;
-  nps_radio_control.pitch = (float)CHANNEL_OF_FRAME(2)/-340.;
-  nps_radio_control.yaw = (float)CHANNEL_OF_FRAME(3)/-340.;
-  nps_radio_control.mode = (float)CHANNEL_OF_FRAME(5)/340.;
+  nps_radio_control.roll = (float)CHANNEL_OF_FRAME(0) / -340.;
+  nps_radio_control.throttle = (float)(CHANNEL_OF_FRAME(1) + 340) / 680.;
+  nps_radio_control.pitch = (float)CHANNEL_OF_FRAME(2) / -340.;
+  nps_radio_control.yaw = (float)CHANNEL_OF_FRAME(3) / -340.;
+  nps_radio_control.mode = (float)CHANNEL_OF_FRAME(5) / 340.;
 
 
   //  printf("%f %f %f %f %f \n", nps_radio_control.roll, nps_radio_control.throttle, nps_radio_control.pitch, nps_radio_control.yaw, nps_radio_control.mode);

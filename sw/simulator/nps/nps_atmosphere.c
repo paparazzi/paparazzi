@@ -65,8 +65,8 @@ void nps_atmosphere_set_wind_speed(double speed)
 void nps_atmosphere_set_wind_dir(double dir)
 {
   /* normalize dir to 0-2Pi */
-  while (dir < 0.0) dir += 2 * M_PI;
-  while (dir >= 2 * M_PI) dir -= 2 * M_PI;
+  while (dir < 0.0) { dir += 2 * M_PI; }
+  while (dir >= 2 * M_PI) { dir -= 2 * M_PI; }
 
   nps_atmosphere.wind_dir = dir;
   /* recalc wind in north and east */
@@ -84,8 +84,8 @@ void nps_atmosphere_set_wind_ned(double wind_north, double wind_east, double win
 
   double dir = atan2(-wind_east, -wind_north);
   /* normalize dir to 0-2Pi */
-  while (dir < 0.0) dir += 2 * M_PI;
-  while (dir >= 2 * M_PI) dir -= 2 * M_PI;
+  while (dir < 0.0) { dir += 2 * M_PI; }
+  while (dir >= 2 * M_PI) { dir -= 2 * M_PI; }
   nps_atmosphere.wind_dir = dir;
 }
 

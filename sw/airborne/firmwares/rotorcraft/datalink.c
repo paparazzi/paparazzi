@@ -38,14 +38,13 @@
 #include "dl_protocol.h"
 #include "mcu_periph/uart.h"
 
-#ifdef BOOZ_FMS_TYPE
-#include "booz_fms.h"
-#endif
-
 #if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
 #include "subsystems/radio_control.h"
 #endif
 
+#if USE_GPS
+#include "subsystems/gps.h"
+#endif
 #if defined GPS_DATALINK
 #include "subsystems/gps/gps_datalink.h"
 #endif
@@ -60,8 +59,6 @@
 
 void dl_parse_msg(void)
 {
-
-  datalink_time = 0;
 
   uint8_t msg_id = IdOfMsg(dl_buffer);
   switch (msg_id) {
@@ -137,6 +134,19 @@ void dl_parse_msg(void)
       break;
 #endif // RADIO_CONTROL_TYPE_DATALINK
 #if defined GPS_DATALINK
+#ifdef GPS_USE_DATALINK_SMALL
+    case DL_REMOTE_GPS_SMALL :
+      // Check if the GPS is for this AC
+      if (DL_REMOTE_GPS_SMALL_ac_id(dl_buffer) != AC_ID) {
+        break;
+      }
+
+      parse_gps_datalink_small(
+        DL_REMOTE_GPS_SMALL_numsv(dl_buffer),
+        DL_REMOTE_GPS_SMALL_pos_xyz(dl_buffer),
+        DL_REMOTE_GPS_SMALL_speed_xy(dl_buffer));
+      break;
+#endif
     case DL_REMOTE_GPS :
       // Check if the GPS is for this AC
       if (DL_REMOTE_GPS_ac_id(dl_buffer) != AC_ID) { break; }
@@ -156,6 +166,19 @@ void dl_parse_msg(void)
         DL_REMOTE_GPS_ecef_zd(dl_buffer),
         DL_REMOTE_GPS_tow(dl_buffer),
         DL_REMOTE_GPS_course(dl_buffer));
+      break;
+#endif
+#if USE_GPS
+    case DL_GPS_INJECT :
+      // Check if the GPS is for this AC
+      if (DL_GPS_INJECT_ac_id(dl_buffer) != AC_ID) { break; }
+
+      // GPS parse data
+      gps_inject_data(
+        DL_GPS_INJECT_packet_id(dl_buffer),
+        DL_GPS_INJECT_data_length(dl_buffer),
+        DL_GPS_INJECT_data(dl_buffer)
+        );
       break;
 #endif
     default:

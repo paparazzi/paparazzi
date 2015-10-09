@@ -1,0 +1,59 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="qrcode" dir="computer_vision/qrcode">
+  <doc>
+    <description>
+      QR code reader using ZBAR library
+
+      A telemetry message with the code content is sent when a QR code is detected when qrscan is called.
+    </description>
+  </doc>
+
+  <depends>video_thread</depends>
+
+  <header>
+    <file name="qr_code.h"/>
+  </header>
+  <init fun="qrcode_init()"/>
+  <makefile target="ap">
+    <file name="qr_code.c"/>
+
+    <!-- zbar -->
+    <configure name="EXTSW" value="$(PAPARAZZI_SRC)/sw/ext" />
+    <configure name="LIBZBAR" value="$(EXTSW)/libzbar/zbar-0.10" />
+
+    <file name="bch15_5.c" dir="$(LIBZBAR)/zbar/qrcode"/>
+    <file name="binarize.c" dir="$(LIBZBAR)/zbar/qrcode"/>
+    <file name="isaac.c" dir="$(LIBZBAR)/zbar/qrcode"/>
+    <file name="qrdec.c" dir="$(LIBZBAR)/zbar/qrcode"/>
+    <file name="qrdectxt.c" dir="$(LIBZBAR)/zbar/qrcode"/>
+    <file name="rs.c" dir="$(LIBZBAR)/zbar/qrcode"/>
+    <file name="util.c" dir="$(LIBZBAR)/zbar/qrcode"/>
+
+    <file name="qr_finder.c" dir="$(LIBZBAR)/zbar/decoder"/>
+    <file name="ean.c" dir="$(LIBZBAR)/zbar/decoder"/>
+
+
+    <file name="error.c" dir="$(LIBZBAR)/zbar"/>
+    <file name="image.c" dir="$(LIBZBAR)/zbar"/>
+    <file name="scanner.c" dir="$(LIBZBAR)/zbar"/>
+    <file name="symbol.c" dir="$(LIBZBAR)/zbar"/>
+    <file name="refcnt.c" dir="$(LIBZBAR)/zbar"/>
+    <file name="decoder.c" dir="$(LIBZBAR)/zbar"/>
+    <file name="img_scanner.c" dir="$(LIBZBAR)/zbar"/>
+
+    <!-- libexif flags -->
+    <define name="$(LIBZBAR)/zbar" type="include"/>
+    <define name="$(LIBZBAR)/include" type="include"/>
+
+    <!--define name="DEBUG_QR_FINDER" value="1"/-->
+
+    <flag name="CFLAGS" value="Wno-cast-qual"/>
+    <flag name="CFLAGS" value="Wno-parentheses"/>
+    <flag name="CFLAGS" value="Wno-pointer-arith"/>
+    <flag name="CFLAGS" value="Wno-missing-prototypes"/>
+    <flag name="CFLAGS" value="Wno-shadow"/>
+    <flag name="CFLAGS" value="Wno-missing-declarations"/>
+  </makefile>
+</module>
+

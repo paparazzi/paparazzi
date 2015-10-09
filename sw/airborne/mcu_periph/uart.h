@@ -32,8 +32,12 @@
 #include "mcu_periph/link_device.h"
 #include "std.h"
 
+#ifndef UART_RX_BUFFER_SIZE
 #define UART_RX_BUFFER_SIZE 128
+#endif
+#ifndef UART_TX_BUFFER_SIZE
 #define UART_TX_BUFFER_SIZE 128
+#endif
 #define UART_DEV_NAME_SIZE 16
 
 /*
@@ -81,10 +85,9 @@ extern void uart_periph_init(struct uart_periph *p);
 extern void uart_periph_set_baudrate(struct uart_periph *p, uint32_t baud);
 extern void uart_periph_set_bits_stop_parity(struct uart_periph *p, uint8_t bits, uint8_t stop, uint8_t parity);
 extern void uart_periph_set_mode(struct uart_periph *p, bool_t tx_enabled, bool_t rx_enabled, bool_t hw_flow_control);
-extern void uart_transmit(struct uart_periph *p, uint8_t data);
+extern void uart_put_byte(struct uart_periph *p, uint8_t data);
 extern bool_t uart_check_free_space(struct uart_periph *p, uint8_t len);
 extern uint8_t uart_getch(struct uart_periph *p);
-extern void uart_event(void);
 
 /**
  * Check UART for available chars in receive buffer.
@@ -92,6 +95,8 @@ extern void uart_event(void);
  */
 extern uint16_t uart_char_available(struct uart_periph *p);
 
+
+extern void uart_arch_init(void);
 
 #if USE_UART0
 extern struct uart_periph uart0;

@@ -177,7 +177,7 @@ void ahrs_dcm_update_gps(struct GpsState *gps_s)
   static float last_gps_speed_3d = 0;
 
 #if USE_GPS
-  if (gps_s->fix == GPS_FIX_3D) {
+  if (gps_s->fix >= GPS_FIX_3D) {
     ahrs_dcm.gps_age = 0;
     ahrs_dcm.gps_speed = gps_s->speed_3d / 100.;
 

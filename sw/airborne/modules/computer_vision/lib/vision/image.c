@@ -46,7 +46,7 @@ void image_create(struct image_t *img, uint16_t width, uint16_t height, enum ima
   if (type == IMAGE_YUV422) {
     img->buf_size = sizeof(uint8_t) * 2 * width * height;
   } else if (type == IMAGE_JPEG) {
-    img->buf_size = sizeof(uint8_t) * 1.1 * width * height;  // At maximum quality this is enough
+    img->buf_size = sizeof(uint8_t) * 2 * width * height;  // At maximum quality this is enough
   } else if (type == IMAGE_GRADIENT) {
     img->buf_size = sizeof(int16_t) * width * height;
   } else {
@@ -62,7 +62,10 @@ void image_create(struct image_t *img, uint16_t width, uint16_t height, enum ima
  */
 void image_free(struct image_t *img)
 {
-  free(img->buf);
+  if (img->buf != NULL) {
+    free(img->buf);
+    img->buf = NULL;
+  }
 }
 
 /**
@@ -257,8 +260,8 @@ void image_subpixel_window(struct image_t *input, struct image_t *output, struct
       // Calculate the subpixel coordinate
       uint16_t x = center->x + (i - half_window) * subpixel_factor;
       uint16_t y = center->y + (j - half_window) * subpixel_factor;
-      Bound(x, 0, subpixel_w);
-      Bound(y, 0, subpixel_h);
+      BoundUpper(x, subpixel_w);
+      BoundUpper(y, subpixel_h);
 
       // Calculate the original pixel coordinate
       uint16_t orig_x = x / subpixel_factor;
@@ -506,7 +509,7 @@ void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *
   else { distance = delta_y * 20; }
 
   /* draw the line */
-  for (uint16_t t = 0; starty >= 0 && starty < img->h && startx >= 0 && startx < img->w && t <= distance + 1; t++) {
+  for (uint16_t t = 0; /* starty >= 0 && */ starty < img->h && /* startx >= 0 && */ startx < img->w && t <= distance + 1; t++) {
     img_buf[img->w * pixel_width * starty + startx * pixel_width] = (t <= 3) ? 0 : 255;
 
     if (img->type == IMAGE_YUV422) {

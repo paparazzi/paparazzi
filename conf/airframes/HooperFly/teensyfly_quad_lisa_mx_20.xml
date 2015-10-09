@@ -13,6 +13,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.0">
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
+      <configure name="BMP_PORT" value="/dev/cu.usbmodemE2B9BDC1"/>
     </target>
 
     <target name="nps" board="pc">
@@ -85,7 +86,7 @@
     <!-- order (and rotation direction) : FL(CW), FR(CCW), BR(CW), BL(CCW) -->
     <define name="ROLL_COEF"   value="{  256, -256, -256,  256 }"/>
     <define name="PITCH_COEF"  value="{  256,  256, -256, -256 }"/>
-    <define name="YAW_COEF"    value="{ -128,  128, -128,  128 }"/>
+    <define name="YAW_COEF"    value="{ -144,  144, -144,  144 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
@@ -99,25 +100,25 @@
 
   <section name="IMU" prefix="IMU_">
     <!-- Accelerometer calibration -->
-    <define name="ACCEL_X_NEUTRAL" value="36"/>
-    <define name="ACCEL_Y_NEUTRAL" value="15"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-108"/>
-    <define name="ACCEL_X_SENS" value="4.86727226621" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="4.87315360311" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="4.85264051322" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="43"/>
+    <define name="ACCEL_Y_NEUTRAL" value="16"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-88"/>
+    <define name="ACCEL_X_SENS" value="4.86690071015" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.87149099624" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.84287655479" integer="16"/>
 
     <!-- Magnetometer calibration -->
-    <define name="MAG_X_NEUTRAL" value="262"/>
-    <define name="MAG_Y_NEUTRAL" value="-108"/>
-    <define name="MAG_Z_NEUTRAL" value="43"/>
-    <define name="MAG_X_SENS" value="3.26330433172" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.22600231318" integer="16"/>
-    <define name="MAG_Z_SENS" value="3.76287398848" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="152"/>
+    <define name="MAG_Y_NEUTRAL" value="-303"/>
+    <define name="MAG_Z_NEUTRAL" value="62"/>
+    <define name="MAG_X_SENS" value="3.29980866695" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.30429585831" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.75140831368" integer="16"/>
 
     <!-- Magnetometer current calibration -->
-    <define name= "MAG_X_CURRENT_COEF" value="0.00162839672033"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="0.00309421447631"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="-0.00642385318878"/>
+    <define name= "MAG_X_CURRENT_COEF" value="-0.000907035498531"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="-0.00160202369806"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="0.00426261634789"/>
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -183,16 +184,16 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="500"/>
-    <define name="PHI_DGAIN"  value="200"/>
+    <define name="PHI_PGAIN"  value="750"/>
+    <define name="PHI_DGAIN"  value="300"/>
     <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="500"/>
-    <define name="THETA_DGAIN"  value="200"/>
+    <define name="THETA_PGAIN"  value="750"/>
+    <define name="THETA_DGAIN"  value="300"/>
     <define name="THETA_IGAIN"  value="200"/>
 
-    <define name="PSI_PGAIN"  value="1350"/>
-    <define name="PSI_DGAIN"  value="500"/>
+    <define name="PSI_PGAIN"  value="2820"/>
+    <define name="PSI_DGAIN"  value="1536"/>
     <define name="PSI_IGAIN"  value="10"/>
 
     <!-- feedforward -->
@@ -205,7 +206,7 @@
     <define name="HOVER_KP"    value="150"/>
     <define name="HOVER_KD"    value="80"/>
     <define name="HOVER_KI"    value="20"/>
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.5"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.63"/>
     <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
   </section>
 
@@ -218,6 +219,11 @@
     <define name="IGAIN" value="20"/>
   </section>
 
+  <section name="NAVIGATION" prefix="NAV_">
+    <define name="CLIMB_VSPEED"   value="1.5" />
+    <define name="DESCEND_VSPEED" value="-1.0" />
+  </section>    
+
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;nw_motor&quot;, &quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;}"/>
     <define name="JSBSIM_MODEL"    value="&quot;HooperFly/teensyfly_quad&quot;"/>
@@ -227,7 +233,7 @@
   </section>
 
   <section name="AUTOPILOT">
-<!-- TOGGLE STATES -->
+    <!-- TOGGLE STATES -->
     <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
     <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1"   value="AP_MODE_HOVER_Z_HOLD"/>
@@ -235,6 +241,7 @@
   </section>
 
   <section name="BAT">
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="3920" />
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="39200"/>
     <define name="CATASTROPHIC_BAT_LEVEL"    value="9.3" unit="V"/>
     <define name="CRITIC_BAT_LEVEL"          value="9.9" unit="V"/>

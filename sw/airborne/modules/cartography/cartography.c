@@ -599,9 +599,9 @@ bool_t nav_survey_losange_carto(void)
 
         course_next_rail = atan2(pointC.x - pointB.x, pointC.y - pointB.y);
         PRTDEB(f, course_next_rail)
-        PRTDEB(f, (*stateGetHorizontalSpeedDir_f()))
+        PRTDEB(f, stateGetHorizontalSpeedDir_f())
 
-        angle_between = (course_next_rail - (*stateGetHorizontalSpeedDir_f()));
+        angle_between = (course_next_rail - stateGetHorizontalSpeedDir_f());
         while (angle_between > M_PI) { angle_between -= 2 * M_PI; }
         while (angle_between < -M_PI) { angle_between += 2 * M_PI; }
 
@@ -643,9 +643,9 @@ bool_t nav_survey_losange_carto(void)
 
         course_next_rail = atan2(pointC.x - pointB.x, pointC.y - pointB.y);
         PRTDEB(f, course_next_rail)
-        PRTDEB(f, (*stateGetHorizontalSpeedDir_f()))
+        PRTDEB(f, stateGetHorizontalSpeedDir_f())
 
-        angle_between = (course_next_rail - (*stateGetHorizontalSpeedDir_f()));
+        angle_between = (course_next_rail - stateGetHorizontalSpeedDir_f());
         while (angle_between > M_PI) { angle_between -= 2 * M_PI; }
         while (angle_between < -M_PI) { angle_between += 2 * M_PI; }
 

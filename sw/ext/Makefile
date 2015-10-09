@@ -33,7 +33,7 @@ EXT_DIR=$(PAPARAZZI_SRC)/sw/ext
 include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 
-all: libopencm3 luftboot chibios fatfs
+all: libopencm3 luftboot chibios fatfs libsbp
 
 # update (and init if needed) all submodules
 update_submodules:
@@ -68,6 +68,8 @@ luftboot_flash: luftboot.build
 chibios: chibios.update
 
 fatfs: fatfs.update
+
+libsbp: libsbp.update
 
 clean:
 	$(Q)if [ -f libopencm3/Makefile ]; then \

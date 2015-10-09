@@ -90,5 +90,5 @@ static inline void main_periodic(void)
 
 static inline void main_event(void)
 {
-  uart_event();
+
 }

@@ -80,7 +80,7 @@ void uart_periph_set_bits_stop_parity(struct uart_periph *p __attribute__((unuse
   // TBD
 }
 
-void uart_transmit(struct uart_periph *p, uint8_t data)
+void uart_put_byte(struct uart_periph *p, uint8_t data)
 {
   uint16_t temp;
   unsigned cpsr;
