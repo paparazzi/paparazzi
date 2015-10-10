@@ -30,7 +30,12 @@
 #ifndef STABILIZATION_ATTITUDE_REF_QUAT_FLOAT_H
 #define STABILIZATION_ATTITUDE_REF_QUAT_FLOAT_H
 
+#include "generated/airframe.h"
 #include "math/pprz_algebra_float.h"
+
+#ifndef STABILIZATION_ATTITUDE_GAIN_NB
+#define STABILIZATION_ATTITUDE_GAIN_NB 1
+#endif
 
 /** Attitude reference model parameters (float) */
 struct FloatRefModel {
@@ -47,7 +52,7 @@ struct AttRefQuatFloat {
   struct FloatRates  rate;
   struct FloatRates  accel;
   uint8_t cur_idx;
-  struct FloatRefModel  model[];
+  struct FloatRefModel  model[STABILIZATION_ATTITUDE_GAIN_NB];
 };
 
 
