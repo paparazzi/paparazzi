@@ -20,6 +20,7 @@ class Worker(GObject.GObject):
         GObject.GObject.__init__(self)
         self.running = False
         self.canceled = False
+        self.do_work = False
         self.n_step = n_step
 
     def start(self, args):
@@ -31,6 +32,7 @@ class Worker(GObject.GObject):
 
     def cancel(self, wait=True):
         self.canceled = True
+        self.do_work = False
         if wait:
             self.t.join()
 
@@ -40,7 +42,8 @@ class Worker(GObject.GObject):
     def _work(self, args):
         self.running = True
         self.canceled = False
-        print("starting new work thread with args %s\nnow calling work init" % args)
+        self.do_work = False
+        #print("starting new work thread with args %s\nnow calling work init" % args)
         self._work_init(args)
         for i in range(0, self.n_step):
             if self.canceled:

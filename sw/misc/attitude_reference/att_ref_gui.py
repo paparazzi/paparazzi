@@ -60,14 +60,16 @@ class Reference(gui.Worker):
         # self.update_sp(sp, _type, _omega, _xi, _max_vel, _max_accel)
 
     def update_type(self, _type):
-        print('update_type', _type)
+        #print('update_type', _type)
         self.impl = _type()
-        self.recompute()
+        self.do_work = True
+        #self.recompute()
 
     def update_param(self, p, v):
-        print('update_param', p, v)
+        #print('update_param', p, v)
         self.impl.set_param(p, v)
-        self.recompute()
+        self.do_work = True
+        #self.recompute()
 
     def update_sp(self, sp, _type=None, _omega=None, _xi=None, _max_vel=None, _max_accel=None):
         self.euler = np.zeros((len(sp.time), pa.e_size))
@@ -75,7 +77,8 @@ class Reference(gui.Worker):
         self.vel = np.zeros((len(sp.time), pa.r_size))
         self.accel = np.zeros((len(sp.time), pa.r_size))
         self.update(sp, _type, _omega, _xi, _max_vel, _max_accel)
-        self.recompute()
+        self.do_work = True
+        #self.recompute()
 
     def update(self, sp, _type=None, _omega=None, _xi=None, _max_vel=None, _max_accel=None):
         self.sp = sp
@@ -97,12 +100,11 @@ class Reference(gui.Worker):
             # self.work(None, (sp,))
 
     def recompute(self):
-        print("recomputing...")
-        self.up_to_date = False
+        #print("recomputing...")
         self.start((self.sp,))
 
     def _work_init(self, sp):
-        print('_work_init ', self, self.impl, sp, sp.dt)
+        #print('_work_init ', self, self.impl, sp, sp.dt)
         self.euler = np.zeros((len(sp.time), pa.e_size))
         self.quat = np.zeros((len(sp.time), pa.q_size))
         self.vel = np.zeros((len(sp.time), pa.r_size))
@@ -118,9 +120,6 @@ class Reference(gui.Worker):
         for j in range(start, stop):
             self.quat[j], self.vel[j], self.accel[j] = self.impl.update_quat(sp.quat[j], sp.dt)
             self.euler[j] = pa.euler_of_quat(self.quat[j])
-
-    def _work_done(self, sp):
-        print('_work_done')
 
 
 class Setpoint(object):
@@ -236,11 +235,8 @@ class Application(object):
     def on_ref_update_completed(self, ref, nref):
         #print('on_ref_update_completed', ref, nref)
         self.gui.refs[nref - 1].progress.set_fraction(1.0)
-        for r in self.refs:
-            if r.running:
-                print('not repainting')
-                return
-        print('repainting')
+        # recompute remaining refs (if any)
+        self.recompute_sequentially()
         self.gui.plot.update(self.sp, self.refs)
 
     def register_gui(self):
@@ -266,28 +262,46 @@ class Application(object):
             w.update()
             w.connect("value-changed", self.on_sp_changed)
 
+    def recompute_sequentially(self):
+        """
+        Somehow running two threads to update both references at the same time produces bogus data..
+        As a workaround we simply run them one after the other.
+        """
+        for r in self.refs:
+            if r.running:
+                return
+        for r in self.refs:
+            if r.do_work:
+                r.recompute()
+                return
+
     def on_sp_changed(self, widget):
         b = self.gui.b
         _type = b.get_object("combo_sp_type").get_active()
         names = ["spin_sp_duration", "spin_sp_step_duration", "spin_sp_step_amplitude"]
         _duration, _step_duration, _step_amplitude = [b.get_object(name).get_value() for name in names]
-        print('_on_sp_changed', _type, _duration, _step_duration, _step_amplitude)
+        #print('_on_sp_changed', _type, _duration, _step_duration, _step_amplitude)
         _step_amplitude = pu.rad_of_deg(_step_amplitude)
         self.sp.update(_type, _duration, _step_duration, _step_amplitude)
         # somehow running two threads to update both references at the same time produces bogus data..
-        # so this doesn't really work until you change the parameter of one ref again
+        # as a workaround we simply run them one after the other
         for r in self.refs:
             r.update_sp(self.sp)
+            #r.recompute()
+        self.recompute_sequentially()
 
     def _on_ref_changed(self, widget, ref, view):
-        print('_on_ref_changed', widget, ref, view)
+        #print('_on_ref_changed', widget, ref, view)
         ref.update_type(view.get_selected_ref_class())
         view.update(ref.impl)
+        self.recompute_sequentially()
+
 
     def _on_ref_param_changed(self, widget, p, ref, view):
-        print('_on_ref_param_changed', widget, ref, view)
+        #print('_on_ref_param_changed', widget, ref, view)
         val = view.spin_cfg[p]['d2r'](widget.get_value())
         ref.update_param(p, val)
+        self.recompute_sequentially()
 
     def run(self):
         Gtk.main()
