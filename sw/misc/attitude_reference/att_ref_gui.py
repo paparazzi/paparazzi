@@ -49,15 +49,21 @@ import gui
 
 
 class Reference(gui.Worker):
-    t_default, t_sat1, t_sat2, t_nb = range(0, 4)
-    t_names = ["python default", "python saturated naive", "python saturated nested"]
-    impls = [ctl.att_ref, ctl.att_ref_sat_naive]
 
-    def __init__(self, sp, _type=t_default, _omega=6., _xi=0.8, _max_vel=pu.rad_of_deg(100),
-                 _max_accel=pu.rad_of_deg(500)):
+    def __init__(self, sp, ref_impl=ctl.att_ref_default, omega=6., xi=0.8, max_vel=pu.rad_of_deg(100),
+                 max_accel=pu.rad_of_deg(500)):
         gui.Worker.__init__(self)
+        self.impl = ref_impl()
         self.sp = sp
-        # self.update_sp(sp, _type, _omega, _xi, _max_vel, _max_accel)
+        self.reset_outputs(sp)
+        self.update(sp, ref_impl, omega, xi, max_vel, max_accel)
+        self.do_work = True
+
+    def reset_outputs(self, sp):
+        self.euler = np.zeros((len(sp.time), pa.e_size))
+        self.quat = np.zeros((len(sp.time), pa.q_size))
+        self.vel = np.zeros((len(sp.time), pa.r_size))
+        self.accel = np.zeros((len(sp.time), pa.r_size))
 
     def update_type(self, _type):
         #print('update_type', _type)
@@ -71,33 +77,24 @@ class Reference(gui.Worker):
         self.do_work = True
         #self.recompute()
 
-    def update_sp(self, sp, _type=None, _omega=None, _xi=None, _max_vel=None, _max_accel=None):
-        self.euler = np.zeros((len(sp.time), pa.e_size))
-        self.quat = np.zeros((len(sp.time), pa.q_size))
-        self.vel = np.zeros((len(sp.time), pa.r_size))
-        self.accel = np.zeros((len(sp.time), pa.r_size))
-        self.update(sp, _type, _omega, _xi, _max_vel, _max_accel)
+    def update_sp(self, sp, ref_impl=None, omega=None, xi=None, max_vel=None, max_accel=None):
+        self.reset_outputs(sp)
+        self.update(sp, ref_impl, omega, xi, max_vel, max_accel)
         self.do_work = True
         #self.recompute()
 
-    def update(self, sp, _type=None, _omega=None, _xi=None, _max_vel=None, _max_accel=None):
+    def update(self, sp, ref_impl=None, omega=None, xi=None, max_vel=None, max_accel=None):
         self.sp = sp
-        if _omega is not None:
-            self.omega = _omega
-        if _xi is not None:
-            self.xi = _xi
-        if _max_vel is not None:
-            self.max_vel = _max_vel
-        if _max_accel is not None:
-            self.max_accel = _max_accel
-        if _type is not None:
-            self.type = _type
-            self.impl = Reference.impls[_type](omega=self.omega * np.ones(3), xi=self.xi * np.ones(3))
-            # self.impl.set_params(self.omega*np.ones(3), self.xi*np.ones(3), self.max_vel*np.ones(3), self.max_accel*np.ones(3))
-            # self.up_to_date = False
-            # pdb.set_trace()
-            # foo = copy.deepcopy(sp,)
-            # self.work(None, (sp,))
+        if ref_impl is not None:
+            self.impl = ref_impl()
+        if omega is not None:
+            self.impl.set_param('omega', omega)
+        if xi is not None:
+            self.impl.set_param('xi', xi)
+        if max_vel is not None:
+            self.impl.set_param('max_vel', max_vel)
+        if max_accel is not None:
+            self.impl.set_param('max_accel', max_accel)
 
     def recompute(self):
         #print("recomputing...")
@@ -118,7 +115,8 @@ class Reference(gui.Worker):
         start, stop = int(i * self.n_iter_per_step), int((i + 1) * self.n_iter_per_step)
         # print('_work_step of %s: i %i, start %i, stop %i' % (self.impl, i, start, stop))
         for j in range(start, stop):
-            self.quat[j], self.vel[j], self.accel[j] = self.impl.update_quat(sp.quat[j], sp.dt)
+            self.impl.update_quat(sp.quat[j], sp.dt)
+            self.quat[j], self.vel[j], self.accel[j] = self.impl.quat, self.impl.vel, self.impl.accel
             self.euler[j] = pa.euler_of_quat(self.quat[j])
 
 
@@ -150,16 +148,18 @@ class Setpoint(object):
 class GUI(object):
     def __init__(self, sp, refs):
         self.b = Gtk.Builder()
-        self.b.add_from_file("att_ref_gui.xml")
+        self.b.add_from_file("ressources/att_ref_gui.xml")
         w = self.b.get_object("window")
         w.connect("delete-event", Gtk.main_quit)
         mb = self.b.get_object("main_vbox")
         self.plot = Plot(sp, refs)
         mb.pack_start(self.plot, True, True, 0)
         mb = self.b.get_object("main_hbox")
-        ref_classes = [ctl.att_ref, ctl.att_ref_sat_naive, ctl.att_ref_sat_nested, ctl.att_ref_sat_nested2]
-        self.refs = [gui.AttRefParamView('<b>Ref {}</b>'.format(i), ref_classes=ref_classes) for i in range(1, 3)]
-        for r in self.refs:
+        ref_classes = [ctl.att_ref_default, ctl.att_ref_sat_naive, ctl.att_ref_sat_nested, ctl.att_ref_sat_nested2,
+                       ctl.AttRefFloatNative, ctl.AttRefIntNative]
+        self.ref_views = [gui.AttRefParamView('<b>Ref {}</b>'.format(i+1), ref_classes=ref_classes,
+                                              active_impl=r.impl) for i, r in enumerate(refs)]
+        for r in self.ref_views:
             mb.pack_start(r, True, True, 0)
         w.show_all()
 
@@ -219,22 +219,21 @@ class Plot(Gtk.Frame):
 class Application(object):
     def __init__(self):
         self.sp = Setpoint()
-        self.refs = [Reference(self.sp), Reference(self.sp)]
+        self.refs = [Reference(self.sp), Reference(self.sp, ref_impl=ctl.AttRefFloatNative)]
         for nref, r in enumerate(self.refs):
             r.connect("progress", self.on_ref_update_progress, nref + 1)
             r.connect("completed", self.on_ref_update_completed, nref + 1)
         self.gui = GUI(self.sp, self.refs)
         self.register_gui()
-        self._on_ref_changed(None, self.refs[0], self.gui.refs[0])
-        self._on_ref_changed(None, self.refs[1], self.gui.refs[1])
+        self.recompute_sequentially()
 
     def on_ref_update_progress(self, ref, v, nref):
         #print('progress', nref, v)
-        self.gui.refs[nref - 1].progress.set_fraction(v)
+        self.gui.ref_views[nref - 1].progress.set_fraction(v)
 
     def on_ref_update_completed(self, ref, nref):
         #print('on_ref_update_completed', ref, nref)
-        self.gui.refs[nref - 1].progress.set_fraction(1.0)
+        self.gui.ref_views[nref - 1].progress.set_fraction(1.0)
         # recompute remaining refs (if any)
         self.recompute_sequentially()
         self.gui.plot.update(self.sp, self.refs)
@@ -242,7 +241,8 @@ class Application(object):
     def register_gui(self):
         self.register_setpoint()
         for i in range(0, 2):
-            self.gui.refs[i].connect(self._on_ref_changed, self._on_ref_param_changed, self.refs[i], self.gui.refs[i])
+            self.gui.ref_views[i].connect(self._on_ref_changed, self._on_ref_param_changed, self.refs[i], self.gui.ref_views[i])
+            self.gui.ref_views[i].update_view(self.refs[i].impl)
 
     def register_setpoint(self):
         b = self.gui.b
@@ -293,12 +293,11 @@ class Application(object):
     def _on_ref_changed(self, widget, ref, view):
         #print('_on_ref_changed', widget, ref, view)
         ref.update_type(view.get_selected_ref_class())
-        view.update(ref.impl)
+        view.update_ref_params(ref.impl)
         self.recompute_sequentially()
 
-
     def _on_ref_param_changed(self, widget, p, ref, view):
-        #print('_on_ref_param_changed', widget, ref, view)
+        #print("_on_ref_param_changed: %s %s=%s" % (ref.impl.name, p, val))
         val = view.spin_cfg[p]['d2r'](widget.get_value())
         ref.update_param(p, val)
         self.recompute_sequentially()

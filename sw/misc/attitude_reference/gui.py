@@ -59,7 +59,7 @@ class Worker(GObject.GObject):
 class AttRefParamView(Gtk.Frame):
     """a graphical user interface for editing parameters of an attitude reference"""
 
-    def __init__(self, txt=None, ref_classes=[]):
+    def __init__(self, txt=None, ref_classes=[], active_impl=None):
         Gtk.Frame.__init__(self)
         if txt is not None:
             lab = Gtk.Label()
@@ -72,7 +72,6 @@ class AttRefParamView(Gtk.Frame):
         self.combo_type = self.b.get_object("comboboxtext_references")
         for c in self.ref_classes:
             self.combo_type.append_text(c.name)
-        self.combo_type.set_active(0)
         self.progress = self.b.get_object("progressbar")
 
         self.spin_cfg = {
@@ -87,6 +86,11 @@ class AttRefParamView(Gtk.Frame):
             adj = Gtk.Adjustment(0., *c['range'])
             w.set_adjustment(adj)
 
+        if active_impl is not None:
+            self.update_view(active_impl)
+        else:
+            self.combo_type.set_active(0)
+
     def connect(self, cbk_type_changed, cbk_param_changed, *args):
         self.combo_type.connect("changed", cbk_type_changed, *args)
         for n in self.spin_cfg.keys():
@@ -94,17 +98,35 @@ class AttRefParamView(Gtk.Frame):
             self.spin_cfg[n]['handler'] = w.connect("value-changed", cbk_param_changed, n, *args)
 
     def get_selected(self):
-        return self.b.get_object("comboboxtext_references").get_active()
+        return self.combo_type.get_active()
+
+    def set_active(self, ref_class):
+        self.combo_type.set_active(self.ref_classes.index(ref_class))
 
     def get_selected_ref_class(self):
         return self.ref_classes[self.get_selected()]
 
-    def update(self, ref):
+    def update_view(self, ref):
+        """ update view according to ref params """
+        self.set_active(ref.__class__)
         for n, c in self.spin_cfg.iteritems():
             w = self.b.get_object("spin_{}".format(n))
             try:
-                with w.handler_block(c['handler']):
-                    w.set_value(c['r2d'](getattr(ref, n)[0]))
+                w.set_value(c['r2d'](getattr(ref, n)[0]))
                 w.set_sensitive(True)
             except AttributeError:
+                w.set_sensitive(False)
+
+    def update_ref_params(self, ref):
+        """" upate ref params from view by emitting value-changed.
+        if param was not sensitive, update view with current param from ref
+        """
+        for n, c in self.spin_cfg.iteritems():
+            w = self.b.get_object("spin_{}".format(n))
+            if hasattr(ref, n):
+                if not w.is_sensitive():
+                    w.set_value(c['r2d'](getattr(ref, n)[0]))
+                w.emit('value-changed')
+                w.set_sensitive(True)
+            else:
                 w.set_sensitive(False)

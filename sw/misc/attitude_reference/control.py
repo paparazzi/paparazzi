@@ -31,32 +31,57 @@ import pat.utils as pu
 import pat.algebra as pa
 import pat.control as pc
 
+from c_att_refs.ref_quat_float import RefQuatFloat
+from c_att_refs.ref_quat_int import RefQuatInt
+
 LOG = logging.getLogger('control')
 # LOG.setLevel(logging.ERROR)
 LOG.setLevel(logging.DEBUG)
 
 
-class att_ref(object):
-    """Default second order attitude reference model, Python implementation"""
-    name = 'Python default'
-
+class AttitudeReference(object):
+    """Sort of abstract base class"""
     def __init__(self, **kwargs):
         self.omega = kwargs.get('omega', 6.)
         self.xi = kwargs.get('xi', 0.8)
         self.t = kwargs.get('t0', 0.)
         for p in ['omega', 'xi']:
             self.ensure_vect(p)
-        self.euler, self.quat = np.zeros(3), pa.quat_zero()
-        self.vel, self.accel = np.zeros(3), np.zeros(3)
 
     def ensure_vect(self, p):
         if type(getattr(self, p)) == float:
             setattr(self, p, getattr(self, p) * np.ones(3))
 
     def set_param(self, p, v):
-        if type(v) == float:
-            v = v * np.ones(3)
-        setattr(self, p, v)
+        if hasattr(self, p):
+            #print("%s: setting param %s to %s" % (self.name, p, v))
+            if type(v) == float:
+                v = v * np.ones(3)
+            setattr(self, p, v)
+
+    def run(self, t, sp_euler=None, sp_quat=None):
+        dt = t - self.t
+        self.t = t
+        if sp_euler is not None:
+            self.update_euler(sp_euler, dt)
+        elif sp_quat is not None:
+            self.update_quat(sp_quat, dt)
+
+    def update_quat(self, setpoint, dt):
+        raise NotImplementedError("Should have implemented this")
+
+    def set_euler(self, euler):
+        raise NotImplementedError("Should have implemented this")
+
+
+class att_ref_default(AttitudeReference):
+    """Default second order attitude reference model, Python implementation"""
+    name = 'Python default'
+
+    def __init__(self, **kwargs):
+        super(att_ref_default, self).__init__(**kwargs)
+        self.euler, self.quat = np.zeros(3), pa.quat_zero()
+        self.vel, self.accel = np.zeros(3), np.zeros(3)
 
     def set_quat(self, quat, vel=np.zeros(3), accel=np.zeros(3)):
         self.quat = quat
@@ -82,16 +107,8 @@ class att_ref(object):
         self.update_quat(pa.quat_of_euler(setpoint), dt)
         self.euler = pa.euler_of_quat(self.quat)
 
-    def run(self, t, sp_euler=None, sp_quat=None):
-        dt = t - self.t
-        self.t = t
-        if sp_euler is not None:
-            self.update_euler(sp_euler, dt)
-        elif sp_quat is not None:
-            self.update_quat(sp_quat, dt)
 
-
-class att_ref_sat_naive(att_ref):
+class att_ref_sat_naive(att_ref_default):
     """Attitude reference model with naive saturation"""
     name = 'Python Sat Naive'
 
@@ -213,26 +230,45 @@ class att_ref_sat_nested2(att_ref_sat_naive):
         LOG.debug(' CM:\n{}\n'.format(self.CM))
 
 
-class att_ref_native(att_ref):
-    """ The C implementations"""
+class AttRefNative(AttitudeReference):
+    """ Base class for native C implementations """
+    def __init__(self, **kwargs):
+        super(AttRefNative, self).__init__(**kwargs)
 
-    def __init__(self, _type):
-        att_ref.__init__(self)
-        self.name = 'native_' + _type
-        self.c_impl = __import__('reference_' + _type)
-        self.c_impl.init()
+    def update_quat(self, setpoint, dt):
+        self.setpoint = setpoint
+        self.update(dt)
 
-    def update_euler(self, setpoint, dt):
-        ref = np.zeros(9)
-        self.c_impl.update(setpoint, ref, dt)
-        self.euler, self.vel, self.accel = ref[0:3], ref[3:7], ref[7:10]
+    def set_euler(self, euler):
+        self.euler = euler
+
+    @property
+    def vel(self):
+        """ alias for rate """
+        return self.rate
 
 
-class att_ref_analytic_disc(att_ref):
+class AttRefFloatNative(AttRefNative, RefQuatFloat):
+    """ C implementation stabilization_attitude_ref_quat_float """
+    name = 'Native Quat Float'
+
+    def __init__(self, **kwargs):
+        super(AttRefFloatNative, self).__init__(**kwargs)
+
+
+class AttRefIntNative(AttRefNative, RefQuatInt):
+    """ C implementation stabilization_attitude_ref_quat_int """
+    name = 'Native Quat Int'
+
+    def __init__(self, **kwargs):
+        super(AttRefIntNative, self).__init__(**kwargs)
+
+
+class att_ref_analytic_disc(att_ref_default):
     """ Scalar discrete time second order LTI"""
 
     def __init__(self, axis=0):
-        att_ref.__init__(self)
+        super(att_ref_analytic_disc, self).__init__()
         self.name = 'Scalar Analytic discrete time'
         self.axis = axis
 
@@ -256,11 +292,11 @@ class att_ref_analytic_disc(att_ref):
         self.euler[self.axis], self.vel[self.axis] = Xi1
 
 
-class att_ref_analytic_cont(att_ref):
+class att_ref_analytic_cont(att_ref_default):
     """ Scalar continuous time second order LTI"""
 
     def __init__(self, axis=0):
-        att_ref.__init__(self)
+        super(att_ref_analytic_cont, self).__init__(**kwargs)
         self.name = 'Scalar Analytic continuous time'
         self.axis = axis
 
