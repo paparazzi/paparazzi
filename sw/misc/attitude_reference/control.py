@@ -45,6 +45,9 @@ class AttitudeReference(object):
         self.omega = kwargs.get('omega', 6.)
         self.xi = kwargs.get('xi', 0.8)
         self.t = kwargs.get('t0', 0.)
+        for key, value in kwargs.iteritems():
+            if hasattr(self, key):
+                setattr(self, key, value)
         for p in ['omega', 'xi']:
             self.ensure_vect(p)
 

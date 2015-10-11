@@ -78,3 +78,23 @@ cdef class RefQuatFloat:
                 self.set_omega(omega * np.ones(3))
             else:
                 self.set_omega(omega)
+
+    property sat_vel:
+        def __get__(self):
+            return np.array([self.ref.saturation.max_rate.p, self.ref.saturation.max_rate.q, self.ref.saturation.max_rate.r])
+        def __set__(self, vel):
+            if type(vel) == float:
+                vel = vel * np.ones(3)
+            self.ref.saturation.max_rate.p = vel[0]
+            self.ref.saturation.max_rate.q = vel[1]
+            self.ref.saturation.max_rate.r = vel[2]
+
+    property sat_accel:
+        def __get__(self):
+            return np.array([self.ref.saturation.max_accel.p, self.ref.saturation.max_accel.q, self.ref.saturation.max_accel.r])
+        def __set__(self, accel):
+            if type(accel) == float:
+                accel = accel * np.ones(3)
+            self.ref.saturation.max_accel.p = accel[0]
+            self.ref.saturation.max_accel.q = accel[1]
+            self.ref.saturation.max_accel.r = accel[2]

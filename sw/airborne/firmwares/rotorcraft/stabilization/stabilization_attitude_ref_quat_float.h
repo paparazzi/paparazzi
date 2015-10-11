@@ -32,6 +32,7 @@
 
 #include "generated/airframe.h"
 #include "math/pprz_algebra_float.h"
+#include "attitude_ref_saturate_naive.h"
 
 #ifndef STABILIZATION_ATTITUDE_GAIN_NB
 #define STABILIZATION_ATTITUDE_GAIN_NB 1
@@ -53,6 +54,7 @@ struct AttRefQuatFloat {
   struct FloatRates  accel;
   uint8_t cur_idx;
   struct FloatRefModel  model[STABILIZATION_ATTITUDE_GAIN_NB];
+  struct FloatRefSat saturation;
 };
 
 

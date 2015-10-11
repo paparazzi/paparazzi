@@ -87,7 +87,7 @@ sp[:, 0] = pu.rad_of_deg(45.) * scipy.signal.square(math.pi / 2 * time + math.pi
 args = {'omega': 10., 'xi': 0.7, 'sat_vel': pu.rad_of_deg(150.), 'sat_accel': pu.rad_of_deg(1800),
         'sat_jerk': pu.rad_of_deg(27000)}
 rs = [ctl.att_ref_sat_naive(**args), ctl.att_ref_sat_nested(**args), ctl.att_ref_sat_nested2(**args)]
-# beware that the saturation parameters of the native implementations are currently defined at compile time!!
+# beware that the saturation parameters of IntNative can only be set/defined at compile time!!
 # rs.append(ctl.AttRefIntNative(**args))
 rs.append(ctl.AttRefFloatNative(**args))
 
