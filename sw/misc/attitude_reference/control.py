@@ -247,6 +247,15 @@ class AttRefNative(AttitudeReference):
         """ alias for rate """
         return self.rate
 
+    @property
+    def xi(self):
+        """ alias for zeta """
+        return self.zeta
+
+    @xi.setter
+    def xi(self, value):
+        self.zeta = value
+
 
 class AttRefFloatNative(AttRefNative, RefQuatFloat):
     """ C implementation stabilization_attitude_ref_quat_float """

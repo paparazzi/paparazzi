@@ -52,8 +52,10 @@ def random_setpoint(time, dt_step=2):
 def test_ref(r, time, setpoint):
     ref = np.zeros((len(time), 9))
     for i in range(1, time.size):
-        r.update_euler(setpoint[i], time[i] - time[i - 1])
-        ref[i] = np.concatenate((r.euler, r.vel, r.accel))
+        sp_quat = pa.quat_of_euler(setpoint[i])
+        r.update_quat(sp_quat, time[i] - time[i - 1])
+        euler = pa.euler_of_quat(r.quat)
+        ref[i] = np.concatenate((euler, r.vel, r.accel))
     return ref
 
 
@@ -80,23 +82,19 @@ sp[:, 0] = pu.rad_of_deg(45.) * scipy.signal.square(math.pi / 2 * time + math.pi
 # sp[:, 2] = pu.rad_of_deg(45.)
 # sp = random_setpoint(time)
 
-# rs = [ctl.att_ref_analytic_disc(axis=0), ctl.att_ref_analytic_cont(axis=0), ctl.att_ref(), ctl.att_ref_native('floating_point')]
-# rs = [ctl.att_ref(), ctl.att_ref_native('floating_point'), ctl.att_ref_native('fixed_point')]
-
+# rs = [ctl.att_ref_analytic_disc(axis=0), ctl.att_ref_analytic_cont(axis=0), ctl.att_ref_default()]
 
 args = {'omega': 10., 'xi': 0.7, 'sat_vel': pu.rad_of_deg(150.), 'sat_accel': pu.rad_of_deg(1800),
         'sat_jerk': pu.rad_of_deg(27000)}
-# rs = [ctl.att_ref(**args)]
-# rs = [ctl.att_ref_sat_naive(**args)]
-# rs = [ctl.att_ref_sat_nested(**args)]
-# rs = [ctl.att_ref(**args), ctl.att_ref_sat_naive(**args), ctl.att_ref_sat_nested(**args)]
-# rs = [ctl.att_ref_sat_naive(**args), ctl.att_ref_sat_nested2(**args)]
-# rs = [ctl.att_ref_sat_nested(**args), ctl.att_ref_sat_nested2(**args)]
 rs = [ctl.att_ref_sat_naive(**args), ctl.att_ref_sat_nested(**args), ctl.att_ref_sat_nested2(**args)]
+# beware that the saturation parameters of the native implementations are currently defined at compile time!!
+# rs.append(ctl.AttRefIntNative(**args))
+rs.append(ctl.AttRefFloatNative(**args))
 
 xrs = [test_ref(r, time, sp) for r in rs]
 figure = None
-for xr in xrs: figure = plot_ref(time, xr, None, figure)
+for xr in xrs:
+    figure = plot_ref(time, xr, None, figure)
 figure = plot_ref(time, None, sp, figure)
 legends = [r.name for r in rs] + ['Setpoint']
 plt.subplot(3, 3, 3)
