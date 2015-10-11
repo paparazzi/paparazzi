@@ -4,7 +4,6 @@ import numpy as np
 
 REF_ACCEL_FRAC = 12
 REF_RATE_FRAC = 16
-REF_ANGLE_FRAC = 20
 INT32_ANGLE_FRAC = 12
 INT32_QUAT_FRAC = 15
 
@@ -29,13 +28,6 @@ cdef class RefQuatInt:
         euler_i.phi = euler[0] * (1 << INT32_ANGLE_FRAC)
         euler_i.theta = euler[1] * (1 << INT32_ANGLE_FRAC)
         euler_i.psi = euler[2] * (1 << INT32_ANGLE_FRAC)
-        return euler_i
-
-    cpdef Int32Eulers ref_euler_bfp_of_real(self, euler):
-        cdef Int32Eulers euler_i
-        euler_i.phi = euler[0] * (1 << REF_ANGLE_FRAC)
-        euler_i.theta = euler[1] * (1 << REF_ANGLE_FRAC)
-        euler_i.psi = euler[2] * (1 << REF_ANGLE_FRAC)
         return euler_i
 
     cpdef update(self, dt, setpoint=None):
@@ -67,11 +59,10 @@ cdef class RefQuatInt:
     property euler:
         def __get__(self):
             euler = np.array([self.ref.euler.phi, self.ref.euler.theta, self.ref.euler.psi], dtype='d')
-            return euler / (1 << REF_ANGLE_FRAC)
+            return euler / (1 << INT32_ANGLE_FRAC)
         def __set__(self, euler):
-            self.ref.euler = self.ref_euler_bfp_of_real(euler)
-            euler_i = self.euler_bfp_of_real(euler)
-            int32_quat_of_eulers(&self.ref.quat, &euler_i)
+            self.ref.euler = self.euler_bfp_of_real(euler)
+            int32_quat_of_eulers(&self.ref.quat, &self.ref.euler)
 
     property quat:
         def __get__(self):
@@ -80,10 +71,6 @@ cdef class RefQuatInt:
         def __set__(self, quat):
             self.ref.quat = self.quat_bfp_of_real(quat)
             int32_eulers_of_quat(&self.ref.euler, &self.ref.quat)
-            # convert to eulers with REF_ANGLE_FRAC
-            self.ref.euler.phi = self.ref.euler.phi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)
-            self.ref.euler.theta = self.ref.euler.theta << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)
-            self.ref.euler.psi = self.ref.euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)
 
     property rate:
         def __get__(self):

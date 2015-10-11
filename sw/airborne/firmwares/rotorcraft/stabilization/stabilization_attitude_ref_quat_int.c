@@ -81,10 +81,7 @@ void attitude_ref_quat_int_enter(struct AttRefQuatInt *ref, int32_t psi)
 {
   reset_psi_ref(ref, psi);
 
-  /* convert reference attitude with REF_ANGLE_FRAC to eulers with normal INT32_ANGLE_FRAC */
-  struct Int32Eulers ref_eul;
-  INT32_EULERS_RSHIFT(ref_eul, ref->euler, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
-  int32_quat_of_eulers(&ref->quat, &ref_eul);
+  int32_quat_of_eulers(&ref->quat, &ref->euler);
   int32_quat_wrap_shortest(&ref->quat);
 
   /* set reference rate and acceleration to zero */
@@ -165,10 +162,8 @@ void attitude_ref_quat_int_update(struct AttRefQuatInt *ref, struct Int32Quat *s
   SATURATE_SPEED_TRIM_ACCEL(*ref);
 
 
-  /* compute ref_euler for debugging and telemetry */
-  struct Int32Eulers ref_eul;
-  int32_eulers_of_quat(&ref_eul, &ref->quat);
-  INT32_EULERS_LSHIFT(ref->euler, ref_eul, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
+  /* compute euler representation for debugging and telemetry */
+  int32_eulers_of_quat(&ref->euler, &ref->quat);
 }
 
 
@@ -253,7 +248,7 @@ void attitude_ref_quat_int_set_zeta(struct AttRefQuatInt *ref, struct FloatRates
 
 static inline void reset_psi_ref(struct AttRefQuatInt *ref, int32_t psi)
 {
-  ref->euler.psi = psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+  ref->euler.psi = psi;
   ref->rate.r = 0;
   ref->accel.r = 0;
 }
