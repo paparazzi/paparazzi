@@ -46,10 +46,10 @@ struct FloatRefModel {
 
 /** Attitude reference models and state/output (quat int) */
 struct AttRefQuatInt {
-  struct Int32Eulers euler;
+  struct Int32Eulers euler;   ///< with #REF_ANGLE_FRAC
   struct Int32Quat   quat;
-  struct Int32Rates  rate;
-  struct Int32Rates  accel;
+  struct Int32Rates  rate;    ///< with #REF_RATE_FRAC
+  struct Int32Rates  accel;   ///< with #REF_ACCEL_FRAC
   struct FloatRefModel  model;
 };
 
