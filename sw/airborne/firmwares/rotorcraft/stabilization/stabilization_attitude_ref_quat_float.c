@@ -30,30 +30,11 @@
 #include "generated/airframe.h"
 
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_float.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_defaults.h"
 
 /// default to fast but less precise quaternion integration
 #ifndef STABILIZATION_ATTITUDE_REF_QUAT_INFINITESIMAL_STEP
 #define STABILIZATION_ATTITUDE_REF_QUAT_INFINITESIMAL_STEP TRUE
-#endif
-
-#ifndef STABILIZATION_ATTITUDE_REF_MAX_P
-#define STABILIZATION_ATTITUDE_REF_MAX_P RadOfDeg(400.)
-#endif
-#ifndef STABILIZATION_ATTITUDE_REF_MAX_Q
-#define STABILIZATION_ATTITUDE_REF_MAX_Q RadOfDeg(400.)
-#endif
-#ifndef STABILIZATION_ATTITUDE_REF_MAX_R
-#define STABILIZATION_ATTITUDE_REF_MAX_R RadOfDeg(180.)
-#endif
-
-#ifndef STABILIZATION_ATTITUDE_REF_MAX_PDOT
-#define STABILIZATION_ATTITUDE_REF_MAX_PDOT RadOfDeg(2000.)
-#endif
-#ifndef STABILIZATION_ATTITUDE_REF_MAX_QDOT
-#define STABILIZATION_ATTITUDE_REF_MAX_QDOT RadOfDeg(2000.)
-#endif
-#ifndef STABILIZATION_ATTITUDE_REF_MAX_RDOT
-#define STABILIZATION_ATTITUDE_REF_MAX_RDOT RadOfDeg(1800.)
 #endif
 
 

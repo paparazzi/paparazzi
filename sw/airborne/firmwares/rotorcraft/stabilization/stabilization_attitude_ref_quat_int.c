@@ -29,16 +29,7 @@
 
 #include "generated/airframe.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_saturate.h"
-
-#define REF_ACCEL_MAX_P BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_PDOT, REF_ACCEL_FRAC)
-#define REF_ACCEL_MAX_Q BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_QDOT, REF_ACCEL_FRAC)
-#define REF_ACCEL_MAX_R BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_RDOT, REF_ACCEL_FRAC)
-
-#define REF_RATE_MAX_P BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_P, REF_RATE_FRAC)
-#define REF_RATE_MAX_Q BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_Q, REF_RATE_FRAC)
-#define REF_RATE_MAX_R BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_R, REF_RATE_FRAC)
-
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_defaults.h"
 
 
 #define TWO_ZETA_OMEGA_RES 10
@@ -63,6 +54,13 @@ void attitude_ref_quat_int_init(struct AttRefQuatInt *ref)
   int32_quat_identity(&ref->quat);
   INT_RATES_ZERO(ref->rate);
   INT_RATES_ZERO(ref->accel);
+
+  attitude_ref_quat_int_set_max_p(ref, STABILIZATION_ATTITUDE_REF_MAX_P);
+  attitude_ref_quat_int_set_max_q(ref, STABILIZATION_ATTITUDE_REF_MAX_Q);
+  attitude_ref_quat_int_set_max_r(ref, STABILIZATION_ATTITUDE_REF_MAX_R);
+  attitude_ref_quat_int_set_max_pdot(ref, STABILIZATION_ATTITUDE_REF_MAX_PDOT);
+  attitude_ref_quat_int_set_max_qdot(ref, STABILIZATION_ATTITUDE_REF_MAX_QDOT);
+  attitude_ref_quat_int_set_max_rdot(ref, STABILIZATION_ATTITUDE_REF_MAX_RDOT);
 
   struct FloatRates omega0 = {STABILIZATION_ATTITUDE_REF_OMEGA_P,
                               STABILIZATION_ATTITUDE_REF_OMEGA_Q,
@@ -153,22 +151,26 @@ void attitude_ref_quat_int_update(struct AttRefQuatInt *ref, struct Int32Quat *s
   RATES_SUM(ref->accel, accel_rate, accel_angle);
 
 
-  /* saturate acceleration */
-  const struct Int32Rates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
-  const struct Int32Rates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
-  RATES_BOUND_BOX(ref->accel, MIN_ACCEL, MAX_ACCEL);
-
-  /* saturate angular speed and trim accel accordingly */
-  SATURATE_SPEED_TRIM_ACCEL(*ref);
-
+  /* saturate */
+  attitude_ref_int_saturate_naive(&ref->rate, &ref->accel, &ref->saturation);
 
   /* compute euler representation for debugging and telemetry */
   int32_eulers_of_quat(&ref->euler, &ref->quat);
 }
 
 
+static inline void reset_psi_ref(struct AttRefQuatInt *ref, int32_t psi)
+{
+  ref->euler.psi = psi;
+  ref->rate.r = 0;
+  ref->accel.r = 0;
+}
 
 
+/*
+ * Recomputation of cached values.
+ *
+ */
 static void update_ref_model_p(struct AttRefQuatInt *ref)
 {
   ref->model.two_zeta_omega.p = BFP_OF_REAL((2 * ref->model.zeta.p * ref->model.omega.p), TWO_ZETA_OMEGA_RES);
@@ -195,6 +197,10 @@ static void update_ref_model(struct AttRefQuatInt *ref)
 }
 
 
+/*
+ * Setting handlers for changing the ref model parameters.
+ *
+ */
 void attitude_ref_quat_int_set_omega_p(struct AttRefQuatInt *ref, float omega_p)
 {
   ref->model.omega.p = omega_p;
@@ -245,10 +251,33 @@ void attitude_ref_quat_int_set_zeta(struct AttRefQuatInt *ref, struct FloatRates
   attitude_ref_quat_int_set_zeta_r(ref, zeta->r);
 }
 
-
-static inline void reset_psi_ref(struct AttRefQuatInt *ref, int32_t psi)
+void attitude_ref_quat_int_set_max_p(struct AttRefQuatInt *ref, float max_p)
 {
-  ref->euler.psi = psi;
-  ref->rate.r = 0;
-  ref->accel.r = 0;
+  ref->saturation.max_rate.p = BFP_OF_REAL(max_p, REF_RATE_FRAC);
 }
+
+void attitude_ref_quat_int_set_max_q(struct AttRefQuatInt *ref, float max_q)
+{
+  ref->saturation.max_rate.q = BFP_OF_REAL(max_q, REF_RATE_FRAC);
+}
+
+void attitude_ref_quat_int_set_max_r(struct AttRefQuatInt *ref, float max_r)
+{
+  ref->saturation.max_rate.r = BFP_OF_REAL(max_r, REF_RATE_FRAC);
+}
+
+void attitude_ref_quat_int_set_max_pdot(struct AttRefQuatInt *ref, float max_pdot)
+{
+  ref->saturation.max_accel.p = BFP_OF_REAL(max_pdot, REF_ACCEL_FRAC);
+}
+
+void attitude_ref_quat_int_set_max_qdot(struct AttRefQuatInt *ref, float max_qdot)
+{
+  ref->saturation.max_accel.q = BFP_OF_REAL(max_qdot, REF_ACCEL_FRAC);
+}
+
+void attitude_ref_quat_int_set_max_rdot(struct AttRefQuatInt *ref, float max_rdot)
+{
+  ref->saturation.max_accel.r = BFP_OF_REAL(max_rdot, REF_ACCEL_FRAC);
+}
+

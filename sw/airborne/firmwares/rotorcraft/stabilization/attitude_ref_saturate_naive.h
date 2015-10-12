@@ -27,28 +27,33 @@
 #define ATTITUDE_REF_SATURATE_NAIVE_H
 
 #include "math/pprz_algebra_float.h"
+#include "math/pprz_algebra_int.h"
 
 struct FloatRefSat {
   struct FloatRates max_rate;
   struct FloatRates max_accel;
 };
 
+struct Int32RefSat {
+  struct Int32Rates max_rate;
+  struct Int32Rates max_accel;
+};
+
 /** saturate angular speed and trim accel accordingly */
-static inline void saturate_speed_trim_accel(float *rate, float *accel, float max_rate)
-{
-  if (*rate >= max_rate) {
-    *rate = max_rate;
-    if (*accel > 0.) {
-      *accel = 0.;
-    }
+#define SATURATE_SPEED_TRIM_ACCEL(_rate, _accel, _max_rate) {   \
+    if ((_rate) >= (_max_rate)) {                               \
+      (_rate) = (_max_rate);                                    \
+      if ((_accel) > 0) {                                       \
+        (_accel) = 0;                                           \
+      }                                                         \
+    }                                                           \
+    else if ((_rate) <= -(_max_rate)) {                         \
+      (_rate) = -(_max_rate);                                   \
+      if ((_accel) < 0) {                                       \
+        (_accel) = 0;                                           \
+      }                                                         \
+    }                                                           \
   }
-  else if (*rate <= -max_rate) {
-    *rate = -max_rate;
-    if (*accel < 0.) {
-      *accel = 0.;
-    }
-  }
-}
 
 static inline void attitude_ref_float_saturate_naive(struct FloatRates *rate,
                                                      struct FloatRates *accel,
@@ -58,9 +63,22 @@ static inline void attitude_ref_float_saturate_naive(struct FloatRates *rate,
   RATES_BOUND_BOX_ABS(*accel, sat->max_accel);
 
   /* saturate angular speed and trim accel accordingly */
-  saturate_speed_trim_accel(&rate->p, &accel->p, sat->max_rate.p);
-  saturate_speed_trim_accel(&rate->q, &accel->q, sat->max_rate.q);
-  saturate_speed_trim_accel(&rate->r, &accel->r, sat->max_rate.r);
+  SATURATE_SPEED_TRIM_ACCEL(rate->p, accel->p, sat->max_rate.p);
+  SATURATE_SPEED_TRIM_ACCEL(rate->q, accel->q, sat->max_rate.q);
+  SATURATE_SPEED_TRIM_ACCEL(rate->r, accel->r, sat->max_rate.r);
+}
+
+static inline void attitude_ref_int_saturate_naive(struct Int32Rates *rate,
+                                                   struct Int32Rates *accel,
+                                                   struct Int32RefSat *sat)
+{
+  /* saturate angular acceleration */
+  RATES_BOUND_BOX_ABS(*accel, sat->max_accel);
+
+  /* saturate angular speed and trim accel accordingly */
+  SATURATE_SPEED_TRIM_ACCEL(rate->p, accel->p, sat->max_rate.p);
+  SATURATE_SPEED_TRIM_ACCEL(rate->q, accel->q, sat->max_rate.q);
+  SATURATE_SPEED_TRIM_ACCEL(rate->r, accel->r, sat->max_rate.r);
 }
 
 #endif /* ATTITUDE_REF_SATURATE_NAIVE_H */
