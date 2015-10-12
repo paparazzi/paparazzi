@@ -1294,7 +1294,10 @@ void dma1_channel2_isr(void) {
 
 // SPI arch slave init
 #if USE_SPI2_SLAVE
+
+#ifdef SPI2_SLAVE_NO_NSS
 PRINT_CONFIG_MSG("STM32-SPI2 slave: Configured not to use the NSS pin")
+#endif
 
 #ifndef STM32F1
 #error "SPI2 slave on STM32 only implemented for STM32F1"
@@ -1331,7 +1334,7 @@ void spi2_slave_arch_init(void) {
   spi2.trans_extract_idx = 0;
   spi2.status = SPIIdle;
 
-  // Enable SPI1 Periph and gpio clocks
+  // Enable SPI2 Periph and gpio clocks
   rcc_periph_clock_enable(RCC_SPI2);
 
   // Configure GPIOs: SCK, MISO and MOSI

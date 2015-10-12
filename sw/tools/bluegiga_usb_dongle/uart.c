@@ -1,5 +1,5 @@
 //
-// Bluegiga’s Bluetooth Smart Demo Application
+// Bluegigaï¿½s Bluetooth Smart Demo Application
 // Contact: support@bluegiga.com.
 //
 // This is free software distributed under the terms of the MIT license reproduced below.
@@ -256,19 +256,8 @@ int uart_open(char *port)
    */
   tcgetattr(serial_handle, &options);
 
-  /*
-   * Set the baud rates...
-   *
-   * KLUDGE: Faster baudates not defined in MacOS X
-   */
-#ifdef __APPLE__
   cfsetispeed(&options, B230400);
   cfsetospeed(&options, B230400);
-#else
-  cfsetispeed(&options, B921600);
-  cfsetospeed(&options, B921600);
-#endif
-
 
   /*
    * Enable the receiver and set parameters ...

@@ -99,6 +99,24 @@ void bluegiga_increment_buf(uint8_t *buf_idx, uint8_t len)
   *buf_idx = (*buf_idx + len) % BLUEGIGA_BUFFER_SIZE;
 }
 
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+
+uint32_t last_ts = 0;
+static void send_bluegiga(struct transport_tx *trans, struct link_device *dev)
+{
+  uint32_t now_ts = get_sys_time_msec();
+
+  if (now_ts > last_ts){
+    uint32_t rate = 1000*bluegiga_p.bytes_recvd_since_last/(now_ts - last_ts);
+    pprz_msg_send_BLUEGIGA(trans, dev, AC_ID, &rate);
+
+    bluegiga_p.bytes_recvd_since_last = 0;
+    last_ts = now_ts;
+  }
+}
+#endif
+
 void bluegiga_init(struct bluegiga_periph *p)
 {
 #ifdef MODEM_LED
@@ -143,6 +161,8 @@ void bluegiga_init(struct bluegiga_periph *p)
     bluegiga_rssi[i] = 127;
   }
 
+  p->bytes_recvd_since_last = 0;
+
   // set DRDY interrupt pin for spi master triggered on falling edge
   gpio_setup_output(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);
   gpio_set(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);
@@ -151,6 +171,10 @@ void bluegiga_init(struct bluegiga_periph *p)
   spi_slave_register(&(BLUEGIGA_SPI_DEV), &bluegiga_spi);
 
   coms_status = BLUEGIGA_UNINIT;
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, "BLUEGIGA", send_bluegiga);
+#endif
 }
 
 /* Add one byte to the end of tx circular buffer */
@@ -246,6 +270,7 @@ void bluegiga_receive(struct spi_transaction *trans)
         bluegiga_p.rx_buf[(bluegiga_p.rx_insert_idx + i) % BLUEGIGA_BUFFER_SIZE] = trans->input_buf[i + 4];
       }
       bluegiga_increment_buf(&bluegiga_p.rx_insert_idx, packet_len);
+      bluegiga_p.bytes_recvd_since_last += packet_len;
       coms_status = BLUEGIGA_IDLE;
     } else {
       coms_status = BLUEGIGA_IDLE;

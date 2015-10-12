@@ -59,6 +59,10 @@ struct bluegiga_periph {
   uint8_t work_rx[20];
   /** Generic device interface */
   struct link_device device;
+
+  /* some administrative variable */
+  uint32_t bytes_recvd_since_last;
+
 };
 
 // DEVICE passed to all DOWNLINK_SEND functions
