@@ -5,18 +5,25 @@ It should be useable for UAS enthousiasts just starting in the field of autonomo
 This flightplan should be kept as simple as possible and *not* to be extended with more functionality, if one needs that, plz use another flightplan.
 
 For you first flights make sure you have more dan enough space and do not make decisions that would be unwise, you have a brain, best to put it to good use ;)
-Your aircraft is your responsibility
+Your safe aircraft operation is *your* responsibility
 -->
 
 <!-- Default flightplan alt set to 30m. This hight makes it fly over most of trees in this world by default. Security height 15m a tradeof between telemetry loss, airframe damage and avarage small building and hill height -->
-<flight_plan alt="30" ground_alt="0" lat0="50.726999" lon0="7.567305" max_dist_from_home="100" name="Parrot Simple" security_height="15">
+<flight_plan alt="230" ground_alt="200" lat0="50.799999" lon0="7.566666" max_dist_from_home="100" name="Parrot Simple" security_height="15">
   <header>
-#include "autopilot.h"
-#include "subsystems/ahrs.h"
-#include "subsystems/electrical.h"
-#include "subsystems/datalink/datalink.h"
+
+//Set Generic options
+    #include "autopilot.h"
+//Enable AHRS Health test functions
+    #include "subsystems/ahrs/ahrs_aligner.h"
+//Enable advanced electrical power functions
+    #include "subsystems/electrical.h"
+//Enable datalink tests
+    #include "subsystems/datalink/datalink.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
+
   </header>
+
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="_CLIMB" x="0.0" y="5.0"/>
@@ -43,8 +50,8 @@ Your aircraft is your responsibility
     <block name="Setting home location"><!-- TODO: make sure there is an indicator in "ardrone2_simple.xml" GCS layout config screen displaying "Waiting for GPS position..."-->
       <call fun="NavKillThrottle()"/>
 <!-- if no valid fix or GPS accuracy > 11m or no AHRS , it's' a no-go, just wait TODO: timeout and message?-->
-     <!-- <while cond="!GpsFixValid() || gps.pacc > 1600 || !(ahrs.status == AHRS_RUNNING)"/>-->
-     <while cond="!GpsFixValid() || gps.pacc > 1100"/>
+    <!-- <while cond="!GpsFixValid() || gps.pacc > 1100 || stateIsAttitudeValid()"/>-->
+    <while cond="!GpsFixValid()"/>
 <!-- Additional wait to allow for better GPS data in the last secons before takeoff -->
       <while cond="LessThan(NavBlockTime(), 8)"/>
       <call fun="NavSetGroundReferenceHere()"/>
@@ -129,10 +136,11 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
   <!--TODO: better test detect landing different surfaces and agles with sonar baro combi of AR-Drone 2 -->
       <call fun="NavStartDetectGround()"/>
       <!--TODO: this is a throttle level for ARDrone2, should be nominaltrhrootle devided by 2 or so-->
-      <stay wp="_TDEMERGENCY" throttle="0.40" vmode="throttle"/>
+      <stay wp="_TDEMERGENCY" throttle="0.40" vmode="throttle"/> <!-- 0.40 is for AR.Drone 2.0 Bebop could be a lower value -->
     </block>
     <block name="landed">
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
   </blocks>
 </flight_plan>
+

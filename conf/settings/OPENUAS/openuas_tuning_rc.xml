@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<!-- A conf to use to tune an A/C using only the rc -->
+
+<!--
+<!ELEMENT settings (rc_settings?,dl_settings?)>
+
+<!ELEMENT rc_settings (rc_mode*)>
+<!ELEMENT rc_mode (rc_setting*)>
+<!ELEMENT rc_setting EMPTY>
+
+<!ATTLIST rc_mode name CDATA #REQUIRED>
+
+<!ATTLIST rc_setting var CDATA #REQUIRED>
+<!ATTLIST rc_setting type (int16|float) #REQUIRED>
+<!ATTLIST rc_setting range CDATA #REQUIRED>
+<!ATTLIST rc_setting rc (gain_1_up|gain_2_up|gain_1_down|gain_2_down) #REQUIRED>
+-->
+
+<settings>
+
+  <rc_settings>
+
+    <rc_mode NAME="AUTO1">
+      <rc_setting VAR="infrared_pitch_neutral" RANGE="0.2" RC="gain_1_up"    TYPE="float"/>
+      <rc_setting VAR="infrared_roll_neutral"  RANGE="-0.2" RC="gain_1_down" TYPE="float"/>
+    </rc_mode>
+    <rc_mode NAME="AUTO2">
+      <rc_setting VAR="h_ctl_course_pgain" RANGE="0.5" RC="gain_1_up" TYPE="float"/>
+      <rc_setting VAR="flight_altitude" RANGE="-100" RC="gain_1_down" TYPE="float"/>
+    </rc_mode>
+  </rc_settings>
+
+</settings>
+

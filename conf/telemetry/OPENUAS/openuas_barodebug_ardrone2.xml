@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "../telemetry.dtd">
+<telemetry>
+
+  <process name="Main">
+
+    <mode name="default" key_press="d">
+      <message name="DL_VALUE"               period="0.7"/>
+      <message name="ROTORCRAFT_STATUS"      period="1.2"/>
+      <message name="ROTORCRAFT_FP"          period="0.25"/>
+      <message name="ROTORCRAFT_NAV_STATUS"  period="1.6"/>
+      <message name="ALIVE"                  period="2.1"/>
+      <message name="INS_REF"                period="5.1"/>
+      <message name="GPS_INT"                period="0.25"/>
+      <message name="INS"                    period="0.25"/>
+      <message name="INS_REF"                period="0.25"/>
+      <message name="IMU_ACCEL_RAW"          period="0.21"/>
+      <message name="IMU_GYRO_RAW"           period="0.13"/>
+      <message name="IMU_MAG_RAW"            period="0.25"/>
+      <message name="BARO_RAW"               period="0.07"/>
+      <message name="ARDRONE_NAVDATA"        period="0.05"/>      
+      <message name="I2C_ERRORS"             period="2.1"/>
+      <message name="UART_ERRORS"            period="2.3"/>
+    </mode>
+
+   <mode name="vert_loop" key_press="v">
+      <message name="ROTORCRAFT_STATUS" period="1.2"/>
+      <message name="DL_VALUE"          period="0.5"/>
+      <message name="ALIVE"             period="0.9"/>
+      <message name="VFF"               period=".05"/>
+      <message name="VERT_LOOP"         period=".05"/>
+      <message name="INS"               period=".05"/>
+      <message name="INS_REF"           period="5.1"/>
+    </mode>
+
+    <mode name="mag_current_calibration">
+      <message name="ROTORCRAFT_STATUS" period="1.2"/>
+      <message name="DL_VALUE"          period="0.5"/>
+      <message name="ALIVE"             period="2.1"/>
+      <message name="IMU_MAG_CURRENT_CALIBRATION"   period="0.05"/>
+    </mode>
+
+  </process>
+
+</telemetry>
+

@@ -1,0 +1,73 @@
+<layout width="1918" height="1095">
+  <rows>
+    <widget NAME="map2d" SIZE="850">
+      <papget type="variable_setting" display="button" x="64" y="700">
+        <property name="variable" value="launch"/>
+        <property name="value" value="1."/>
+        <property name="locked" value="false"/>
+        <property name="icon" value="openuas_launch.png"/>
+      </papget>
+      <papget type="message_field" display="text" x="100" y="20">
+        <property name="field" value="ESTIMATOR:z_dot"/>
+        <property name="scale" value="1"/>
+        <property name="format" value="Climb:%.1fm/s"/>
+        <property name="size" value="30."/>
+        <property name="color" value="pink"/>
+      </papget>
+      <papget type="goto_block" display="button" x="0" y="0">
+        <property name="block_name" value="Takeoff"/>
+        <property name="locked" value="false"/>
+        <property name="icon" value="openuas_takeoff.png"/>
+      </papget>
+      <papget type="message_field" display="gauge" x="70" y="0">
+        <property name="field" value="BAT:voltage"/>
+        <property name="scale" value="0.1"/>
+        <property name="min" value="0."/>
+        <property name="max" value="8.7"/>
+        <property name="size" value="100."/>
+        <property name="text" value="Bat(V)"/>
+      </papget>
+      <papget type="goto_block" display="button" x="256" y="0">
+        <property name="block_name" value="shoot"/>
+        <property name="locked" value="false"/>
+        <property name="icon" value="openuas_drop3.png"/>
+      </papget>
+      <papget type="message_field" display="ruler" x="0" y="577">
+        <property name="field" value="ESTIMATOR:z"/>
+        <property name="scale" value="1"/>
+        <property name="height" value="400."/>
+        <property name="index_of_right" value="false"/>
+        <property name="scale" value="1."/>
+        <property name="width" value="64."/>
+        <property name="scale" value="10"/>
+      </papget>
+      <papget type="variable_setting" display="button" x="192" y="0">
+        <property name="variable" value="home"/>
+        <property name="value" value="1."/>
+        <property name="locked" value="false"/>
+        <property name="icon" value="openuas_home.png"/>
+      </papget>
+      <papget type="goto_block" display="button" x="128" y="0">
+        <property name="block_name" value="standby"/>
+        <property name="locked" value="false"/>
+        <property name="icon" value="openuas_standby.png"/>
+      </papget>
+      <papget type="message_field" display="gauge" x="370" y="0">
+        <property name="field" value="BAT:throttle"/>
+        <property name="scale" value="0.0104167"/>
+        <property name="min" value="0."/>
+        <property name="max" value="100."/>
+        <property name="size" value="100."/>
+        <property name="text" value="Throttle(%)"/>
+      </papget>
+    </widget>
+    <columns>
+      <rows SIZE="275">
+        <widget NAME="strips" SIZE="650"/>
+      </rows>
+      <widget size="100" name="altgraph"/>
+      <widget NAME="aircraft" SIZE="650"/>
+      <widget NAME="alarms"/>
+    </columns>
+  </rows>
+</layout>
