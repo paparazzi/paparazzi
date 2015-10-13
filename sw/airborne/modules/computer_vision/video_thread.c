@@ -188,6 +188,10 @@ static void *video_thread_function(void *data)
     if (dt_us < fps_period_us) {
       usleep(fps_period_us - dt_us);
     }
+    else {
+      fprintf(stderr, "video_thread: desired %i fps, only managing %.1f fps\n",
+              video_thread.fps, 1000000.f / dt_us);
+    }
 
     // Wait for a new frame (blocking)
     struct image_t img;

@@ -1,0 +1,4 @@
+*.so
+ref_quat_float.c
+ref_quat_int.c
+build

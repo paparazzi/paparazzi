@@ -64,6 +64,9 @@ extern struct ReferenceSystem reference_acceleration;
 extern struct FloatRates g_est;
 extern bool_t use_adaptive_indi;
 
+extern struct Int32Eulers stab_att_sp_euler; ///< with #INT32_ANGLE_FRAC
+extern struct Int32Quat   stab_att_sp_quat;  ///< with #INT32_QUAT_FRAC
+
 void stabilization_indi_second_order_filter(struct FloatRates *input, struct FloatRates *filter_ddx,
     struct FloatRates *filter_dx, struct FloatRates *filter_x, float omega, float zeta, float omega_r);
 void lms_estimation(void);

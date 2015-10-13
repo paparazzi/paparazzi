@@ -35,4 +35,7 @@
 extern struct FloatAttitudeGains stabilization_gains;
 extern struct FloatEulers stabilization_att_sum_err;
 
+extern struct FloatEulers stab_att_sp_euler;
+extern struct AttRefEulerFloat att_ref_euler_f;
+
 #endif /* STABILIZATION_ATTITUDE_EULER_FLOAT_H */
