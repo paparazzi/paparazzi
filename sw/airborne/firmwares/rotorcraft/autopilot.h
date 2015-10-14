@@ -87,18 +87,6 @@ extern uint16_t autopilot_flight_time;
 #endif
 
 
-#define THRESHOLD_1_PPRZ (MIN_PPRZ / 2)
-#define THRESHOLD_2_PPRZ (MAX_PPRZ / 2)
-
-#define AP_MODE_OF_PPRZ(_rc, _mode) {    \
-    if      (_rc > THRESHOLD_2_PPRZ)     \
-      _mode = autopilot_mode_auto2;      \
-    else if (_rc > THRESHOLD_1_PPRZ)     \
-      _mode = MODE_AUTO1;                \
-    else                                 \
-      _mode = MODE_MANUAL;               \
-  }
-
 #define autopilot_KillThrottle(_kill) { \
     if (_kill)                          \
       autopilot_set_motors_on(FALSE);   \

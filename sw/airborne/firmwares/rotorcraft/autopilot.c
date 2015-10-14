@@ -551,14 +551,63 @@ void autopilot_set_motors_on(bool_t motors_on)
 }
 
 
+#define THRESHOLD_1_PPRZ (MIN_PPRZ / 2)
+#define THRESHOLD_2_PPRZ (MAX_PPRZ / 2)
+
+/** get autopilot mode as set by RADIO_MODE 3-way switch */
+static uint8_t ap_mode_of_3way_switch(void)
+{
+  if (radio_control.values[RADIO_MODE] > THRESHOLD_2_PPRZ) {
+    return autopilot_mode_auto2;
+  }
+  else if (radio_control.values[RADIO_MODE] > THRESHOLD_1_PPRZ) {
+    return MODE_AUTO1;
+  }
+  else {
+    return MODE_MANUAL;
+  }
+}
+
+/**
+ * Get autopilot mode from two 2way switches.
+ * RADIO_MODE switch just selectes between MANUAL and AUTO.
+ * If not MANUAL, the RADIO_AUTO_MODE switch selects between AUTO1 and AUTO2.
+ *
+ * This is mainly a cludge for entry level radios with no three-way switch,
+ * but two available two-way switches which can be used.
+ */
+#if defined RADIO_AUTO_MODE || defined(__DOXYGEN__)
+static uint8_t ap_mode_of_two_switches(void)
+{
+  if (radio_control.values[RADIO_MODE] < THRESHOLD_1_PPRZ) {
+    /* RADIO_MODE in MANUAL position */
+    return MODE_MANUAL;
+  }
+  else {
+    /* RADIO_MODE not in MANUAL position.
+     * Select AUTO mode bassed on RADIO_AUTO_MODE channel
+     */
+    if (radio_control.values[RADIO_AUTO_MODE] > THRESHOLD_2_PPRZ) {
+      return autopilot_mode_auto2;
+    }
+    else
+      return MODE_AUTO1;
+  }
+}
+#endif
+
 void autopilot_on_rc_frame(void)
 {
 
   if (kill_switch_is_on()) {
     autopilot_set_mode(AP_MODE_KILL);
   } else {
-    uint8_t new_autopilot_mode = 0;
-    AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
+#ifdef RADIO_AUTO_MODE
+    INFO("Using RADIO_AUTO_MODE to switch between AUTO1 and AUTO2.")
+    uint8_t new_autopilot_mode = ap_mode_of_two_switches();
+#else
+    uint8_t new_autopilot_mode = ap_mode_of_3way_switch();
+#endif
 
     /* don't enter NAV mode if GPS is lost (this also prevents mode oscillations) */
     if (!(new_autopilot_mode == AP_MODE_NAV && GpsIsLost())) {
