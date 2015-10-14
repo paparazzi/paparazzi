@@ -96,7 +96,7 @@ struct SDCard {
   uint8_t response_counter;                 /**< Response counter used at various locations */
   uint32_t timeout_counter;                 /**< Timeout counter used for initialization checks with ACMD41 */
   enum SDCardType card_type;                /**< Type of SDCard */
-  SDCardCallback read_callback;             /**< Callback to call when read operation finishes */
+  SDCardCallback external_callback;         /**< Callback to call when external operation finishes */
 };
 
 extern struct SDCard sdcard1;
@@ -107,7 +107,7 @@ extern void sdcard_spi_periodic(struct SDCard *sdcard);
 extern void sdcard_spi_write_block(struct SDCard *sdcard, uint32_t addr);
 extern void sdcard_spi_read_block(struct SDCard *sdcard, uint32_t addr, SDCardCallback callback);
 extern void sdcard_spi_multiwrite_start(struct SDCard *sdcard, uint32_t addr);
-extern void sdcard_spi_multiwrite_next(struct SDCard *sdcard);
+extern void sdcard_spi_multiwrite_next(struct SDCard *sdcard, SDCardCallback callback);
 extern void sdcard_spi_multiwrite_stop(struct SDCard *sdcard);
 
 #endif // SDCARD_H_

@@ -35,6 +35,11 @@
  * The following resource was used as implementation reference: http://elm-chan.org/docs/mmc/mmc_e.html
  * The initialization procedure is implemented according to the following diagram. Only the branches for SD ver.2 are currently included.
  * \image html airborne/sdinit.png
+ *
+ * Developed using Test Driven Development.
+ * Test code available at:
+ *   https://github.com/bartslinger/paparazzi-unittest
+ *
  * @todo CRC checksums are not implemented. Fake values of 0xFF are used and they are ignored by the card.
  */
 
@@ -380,8 +385,8 @@ void sdcard_spi_spicallback(struct spi_transaction *t)
       /* Data block received in buffer, process data */
     case SDCard_ReadingDataBlock:
       sdcard1.status = SDCard_Idle;
-      if (sdcard1.read_callback != NULL) {
-        sdcard1.read_callback();
+      if (sdcard1.external_callback != NULL) {
+        sdcard1.external_callback();
       }
       break;
 
@@ -408,6 +413,9 @@ void sdcard_spi_spicallback(struct spi_transaction *t)
     case SDCard_MultiWriteWriting:
       if ((sdcard1.input_buf[SD_BLOCK_SIZE + 3] & 0x0F) == 0x05 /* Data accepted */) {
         sdcard1.status = SDCard_MultiWriteBusy;
+        if(sdcard1.external_callback != NULL) {
+          sdcard1.external_callback();
+        }
       } else {
         sdcard1.status = SDCard_Error;
       }
@@ -576,7 +584,7 @@ void sdcard_spi_read_block(struct SDCard *sdcard, uint32_t addr, SDCardCallback 
   }
 
   /* Set function to be called after the read action has finished. */
-  sdcard->read_callback = callback;
+  sdcard->external_callback = callback;
 
   /* Send command 17 (read block) to the SDCard */
   sdcard_spi_send_cmd(sdcard, 17, addr);
@@ -611,7 +619,7 @@ void sdcard_spi_multiwrite_start(struct SDCard *sdcard, uint32_t addr)
  * Use only after sdcard_spi_multiwrite_start().
  * @param sdcard Pointer to the SDCard.
  */
-void sdcard_spi_multiwrite_next(struct SDCard *sdcard)
+void sdcard_spi_multiwrite_next(struct SDCard *sdcard, SDCardCallback callback)
 {
   /* Can only write next block if card is in multiwrite mode and not currently busy */
   if (sdcard->status != SDCard_MultiWriteIdle) {
@@ -627,6 +635,7 @@ void sdcard_spi_multiwrite_next(struct SDCard *sdcard)
 
   /* Set the callback */
   sdcard->spi_t.after_cb = &sdcard_spi_spicallback;
+  sdcard->external_callback = callback;
 
   /* Submit the spi transaction */
   spi_submit(sdcard->spi_p, &sdcard->spi_t);
