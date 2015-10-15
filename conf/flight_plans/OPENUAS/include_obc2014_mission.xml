@@ -1,5 +1,5 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
-<!-- This is the Flightplan of Team OpenUAS from the Netherlands for use in the
+<!-- This is the Flightplan of Team OpenUAS for use in the 
      Australian UAV Outback Challenge of 2014.
 
      Read about this challenge here:
@@ -52,6 +52,8 @@ TESTS:
 
 //Set Generic options
     #include "autopilot.h"
+//Enable AHRS Health test functions
+    #include "subsystems/ahrs/ahrs_aligner.h"
 //Enable advanced electrical power functions
     #include "subsystems/electrical.h"
 //Enable datalink tests
@@ -184,7 +186,7 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
       <!-- IDEA Close the hatch so not able to insert payload before there is a 3D fix , however maybe not so handy anyhow since we need to wat be fre we can insert-->
       <!--  <set value="NavDropCloseHatch" var="unit"/> -->
       <!-- if no valid fix or gps accuracy> 15m or no AHRS , it a no-go wait-->
-      <while cond="!GpsFixValid() || gps.pacc > 1500 || !(stateIsAttitudeValid())"/>
+      <while cond="!GpsFixValid() || gps.pacc > 1500 || stateIsAttitudeValid()"/>
     </block>
 
 <!-- *********** Set the ground reference height and the home position *********** -->
@@ -315,7 +317,7 @@ to “Airfield Home” and orbit for either a landing or regain of Data Link.
      ***************************************************** -->
 
 <!-- maybe a HelperWaypoint to gettart n return from a mission Tracking to EL1
-      <set value="0" var="ap_state->commands[COMMAND_CAMBER]"/>
+      <set value="0" var="ap_state->commands[COMMAND_CAMBER]"/>-->
 
 <!-- *********** Track to EL-1 *********** -->
     <block name="EntryLane1" strip_button="Joe" strip_icon="lookdown.png" group="Mission">

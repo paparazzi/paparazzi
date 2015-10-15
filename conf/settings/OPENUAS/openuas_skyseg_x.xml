@@ -1,0 +1,12 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+  <dl_settings>
+
+    <dl_settings NAME="SkySegmentation">
+       <dl_setting var="obstacle_avoid_adjust_factor" min="0" step="1" max="255" module="../../../sw/ext/ardrone2_vision/modules/ObstacleAvoidSkySegmentation/sky_seg_avoid" shortname="adjust" />
+       <dl_setting var="avoid_navigation_data.mode" min="0" step="1" max="2"  values="Off|Climb|Lateral" module="../../../sw/ext/ardrone2_vision/modules/ObstacleAvoidSkySegmentation/avoid_navigation" shortname="mode" />
+    </dl_settings>
+
+  </dl_settings>
+</settings>
