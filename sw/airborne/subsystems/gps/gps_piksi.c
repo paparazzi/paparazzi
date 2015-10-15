@@ -48,6 +48,12 @@
 #include <libsbp/settings.h>
 #include <libsbp/piksi.h>
 
+#define SBP_FIX_MODE_SPP 0X00
+#define SBP_FIX_MODE_FLOAT 0X02
+#define SPB_FIX_MODE_FIXED 0X01
+
+#define POS_ECEF_TIMEOUT 1000
+
 /*
  * Set the Piksi GPS antenna (default is Patch, internal)
  */
@@ -93,8 +99,10 @@ sbp_msg_callbacks_node_t tracking_state_dep_a_node;
 
 
 static void gps_piksi_publish(void);
+static uint8_t get_fix_mode(uint8_t flags);
 uint32_t gps_piksi_read(uint8_t *buff, uint32_t n, void *context __attribute__((unused)));
 uint32_t gps_piksi_write(uint8_t *buff, uint32_t n, void *context __attribute__((unused)));
+static uint32_t time_since_last_pos_update;
 
 /*
  * Callback functions to interpret SBP messages.
@@ -106,28 +114,24 @@ static void sbp_pos_ecef_callback(uint16_t sender_id __attribute__((unused)),
                                   uint8_t msg[],
                                   void *context __attribute__((unused)))
 {
-  static uint8_t last_flags = 0;
+  time_since_last_pos_update = get_sys_time_msec();
   msg_pos_ecef_t pos_ecef = *(msg_pos_ecef_t *)msg;
 
   // Check if we got RTK fix (FIXME when libsbp has a nicer way of doing this)
-  if(pos_ecef.flags > 0 ){//|| last_flags == 0) {
-    gps.ecef_pos.x = (int32_t)(pos_ecef.x * 100.0);
-    gps.ecef_pos.y = (int32_t)(pos_ecef.y * 100.0);
-    gps.ecef_pos.z = (int32_t)(pos_ecef.z * 100.0);
-    gps.pacc = (uint32_t)(pos_ecef.accuracy);// FIXME not implemented yet by libswiftnav
-    gps.num_sv = pos_ecef.n_sats;
-    gps.tow = pos_ecef.tow;
-
-    if(pos_ecef.flags == 1)
-      gps.fix = GPS_FIX_RTK;
-    else if(pos_ecef.flags == 2)
-      gps.fix = GPS_FIX_DGPS;
-    else
-      gps.fix = GPS_FIX_3D;
+  gps.fix = get_fix_mode(pos_ecef.flags);
+  // get_fix_mode() will still return fix > 3D even if the current flags are spp so ignore when it is spp
+  if ( ( (gps.fix > GPS_FIX_3D) )
+    && pos_ecef.flags == SBP_FIX_MODE_SPP) {
+    return;
   }
-  last_flags = pos_ecef.flags;
-
-  if(pos_ecef.flags > 0) gps_piksi_publish(); // Only if RTK position
+  
+  gps.ecef_pos.x = (int32_t)(pos_ecef.x * 100.0);
+  gps.ecef_pos.y = (int32_t)(pos_ecef.y * 100.0);
+  gps.ecef_pos.z = (int32_t)(pos_ecef.z * 100.0);
+  gps.pacc = (uint32_t)(pos_ecef.accuracy);// FIXME not implemented yet by libswiftnav
+  gps.num_sv = pos_ecef.n_sats;
+  gps.tow = pos_ecef.tow;
+  gps_piksi_publish(); // Only if RTK position
 }
 
 static void sbp_vel_ecef_callback(uint16_t sender_id __attribute__((unused)),
@@ -258,6 +262,31 @@ static void sbp_tracking_state_dep_a_callback(uint16_t sender_id __attribute__((
 }
 
 /*
+ * Return fix mode based on present and past flags
+ */
+ static uint8_t get_fix_mode(uint8_t flags)
+{
+  static uint8_t n_since_last_rtk = 0;
+  if (flags == SBP_FIX_MODE_SPP) {
+    n_since_last_rtk++;
+    if ( n_since_last_rtk > 2 ) {
+      return GPS_FIX_3D;
+    } else {
+      return gps.fix;
+    }
+  } else if (flags == SBP_FIX_MODE_FLOAT) {
+    n_since_last_rtk = 0;
+    return GPS_FIX_DGPS;
+  } else if (flags == SPB_FIX_MODE_FIXED) {
+    n_since_last_rtk = 0;
+    return GPS_FIX_RTK;
+  } else {
+    return GPS_FIX_NONE;
+  }
+  
+}
+
+/*
  * Initialize the Piksi GPS and write the settings
  */
 void gps_impl_init(void)
@@ -294,7 +323,10 @@ void gps_impl_init(void)
  * Event handler for reading the GPS UART bytes
  */
 void gps_piksi_event(void)
-{
+{ 
+  if ( get_sys_time_msec() - time_since_last_pos_update > POS_ECEF_TIMEOUT ) {
+    gps.fix = GPS_FIX_NONE;
+  }
   // call sbp event function
   if (uart_char_available(&(GPS_LINK)))
     sbp_process(&sbp_state, &gps_piksi_read);
