@@ -28,25 +28,7 @@
 #include "generated/airframe.h"
 
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_euler_float.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_saturate.h"
-
-/* shortcuts for saturation defines */
-#define REF_ACCEL_MAX_P STABILIZATION_ATTITUDE_REF_MAX_PDOT
-#define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_QDOT
-#define REF_ACCEL_MAX_R STABILIZATION_ATTITUDE_REF_MAX_RDOT
-
-#define REF_RATE_MAX_P STABILIZATION_ATTITUDE_REF_MAX_P
-#define REF_RATE_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_Q
-#define REF_RATE_MAX_R STABILIZATION_ATTITUDE_REF_MAX_R
-
-/* shortcuts for ref model parametes used in update */
-#define OMEGA_P   STABILIZATION_ATTITUDE_REF_OMEGA_P
-#define OMEGA_Q   STABILIZATION_ATTITUDE_REF_OMEGA_Q
-#define OMEGA_R   STABILIZATION_ATTITUDE_REF_OMEGA_R
-
-#define ZETA_P    STABILIZATION_ATTITUDE_REF_ZETA_P
-#define ZETA_Q    STABILIZATION_ATTITUDE_REF_ZETA_Q
-#define ZETA_R    STABILIZATION_ATTITUDE_REF_ZETA_R
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_defaults.h"
 
 static inline void reset_psi_ref(struct AttRefEulerFloat *ref, float psi);
 
@@ -61,6 +43,20 @@ void attitude_ref_euler_float_init(struct AttRefEulerFloat *ref)
   FLOAT_EULERS_ZERO(ref->euler);
   FLOAT_RATES_ZERO(ref->rate);
   FLOAT_RATES_ZERO(ref->accel);
+
+  ref->model.omega.p = STABILIZATION_ATTITUDE_REF_OMEGA_P;
+  ref->model.omega.q = STABILIZATION_ATTITUDE_REF_OMEGA_Q;
+  ref->model.omega.r = STABILIZATION_ATTITUDE_REF_OMEGA_R;
+  ref->model.zeta.p = STABILIZATION_ATTITUDE_REF_ZETA_P;
+  ref->model.zeta.q = STABILIZATION_ATTITUDE_REF_ZETA_Q;
+  ref->model.zeta.r = STABILIZATION_ATTITUDE_REF_ZETA_R;
+
+  ref->saturation.max_rate.p = STABILIZATION_ATTITUDE_REF_MAX_P;
+  ref->saturation.max_rate.q = STABILIZATION_ATTITUDE_REF_MAX_Q;
+  ref->saturation.max_rate.r = STABILIZATION_ATTITUDE_REF_MAX_R;
+  ref->saturation.max_accel.p = STABILIZATION_ATTITUDE_REF_MAX_PDOT;
+  ref->saturation.max_accel.q = STABILIZATION_ATTITUDE_REF_MAX_QDOT;
+  ref->saturation.max_accel.r = STABILIZATION_ATTITUDE_REF_MAX_RDOT;
 }
 
 void attitude_ref_euler_float_enter(struct AttRefEulerFloat *ref, float psi)
@@ -90,18 +86,16 @@ void attitude_ref_euler_float_update(struct AttRefEulerFloat *ref, struct FloatE
   /* wrap it in the shortest direction       */
   FLOAT_ANGLE_NORMALIZE(ref_err.psi);
 
-  /* compute reference angular accelerations */
-  ref->accel.p = -2.*ZETA_P * OMEGA_P * ref->rate.p - OMEGA_P * OMEGA_P * ref_err.phi;
-  ref->accel.q = -2.*ZETA_Q * OMEGA_P * ref->rate.q - OMEGA_Q * OMEGA_Q * ref_err.theta;
-  ref->accel.r = -2.*ZETA_R * OMEGA_P * ref->rate.r - OMEGA_R * OMEGA_R * ref_err.psi;
+  /* compute reference angular accelerations -2*zeta*omega*rate - omega*omega*ref_err */
+  ref->accel.p = -2. * ref->model.zeta.p * ref->model.omega.p * ref->rate.p -
+    ref->model.omega.p * ref->model.omega.p * ref_err.phi;
+  ref->accel.q = -2. * ref->model.zeta.q * ref->model.omega.p * ref->rate.q -
+    ref->model.omega.q * ref->model.omega.q * ref_err.theta;
+  ref->accel.r = -2. * ref->model.zeta.r * ref->model.omega.p * ref->rate.r -
+    ref->model.omega.r * ref->model.omega.r * ref_err.psi;
 
   /*  saturate acceleration */
-  const struct FloatRates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
-  const struct FloatRates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
-  RATES_BOUND_BOX(ref->accel, MIN_ACCEL, MAX_ACCEL);
-
-  /* saturate speed and trim accel accordingly */
-  SATURATE_SPEED_TRIM_ACCEL(*ref);
+  attitude_ref_float_saturate_naive(&ref->rate, &ref->accel, &ref->saturation);
 }
 
 /*

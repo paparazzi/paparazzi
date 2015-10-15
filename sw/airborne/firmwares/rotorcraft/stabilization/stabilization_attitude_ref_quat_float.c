@@ -30,21 +30,12 @@
 #include "generated/airframe.h"
 
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_float.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_saturate.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_defaults.h"
 
 /// default to fast but less precise quaternion integration
 #ifndef STABILIZATION_ATTITUDE_REF_QUAT_INFINITESIMAL_STEP
 #define STABILIZATION_ATTITUDE_REF_QUAT_INFINITESIMAL_STEP TRUE
 #endif
-
-/* shortcuts for saturation defines */
-#define REF_ACCEL_MAX_P STABILIZATION_ATTITUDE_REF_MAX_PDOT
-#define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_QDOT
-#define REF_ACCEL_MAX_R STABILIZATION_ATTITUDE_REF_MAX_RDOT
-
-#define REF_RATE_MAX_P STABILIZATION_ATTITUDE_REF_MAX_P
-#define REF_RATE_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_Q
-#define REF_RATE_MAX_R STABILIZATION_ATTITUDE_REF_MAX_R
 
 
 /* parameters used for initialization */
@@ -69,6 +60,13 @@ void attitude_ref_quat_float_init(struct AttRefQuatFloat *ref)
   float_quat_identity(&ref->quat);
   FLOAT_RATES_ZERO(ref->rate);
   FLOAT_RATES_ZERO(ref->accel);
+
+  ref->saturation.max_rate.p = STABILIZATION_ATTITUDE_REF_MAX_P;
+  ref->saturation.max_rate.q = STABILIZATION_ATTITUDE_REF_MAX_Q;
+  ref->saturation.max_rate.r = STABILIZATION_ATTITUDE_REF_MAX_R;
+  ref->saturation.max_accel.p = STABILIZATION_ATTITUDE_REF_MAX_PDOT;
+  ref->saturation.max_accel.q = STABILIZATION_ATTITUDE_REF_MAX_QDOT;
+  ref->saturation.max_accel.r = STABILIZATION_ATTITUDE_REF_MAX_RDOT;
 
   for (int i = 0; i < STABILIZATION_ATTITUDE_GAIN_NB; i++) {
     RATES_ASSIGN(ref->model[i].omega, omega_p[i], omega_q[i], omega_r[i]);
@@ -124,13 +122,8 @@ void attitude_ref_quat_float_update(struct AttRefQuatFloat *ref, struct FloatQua
   ref->accel.r = -2.*ref->model[ref->cur_idx].zeta.r * ref->model[ref->cur_idx].omega.r * ref->rate.r -
     ref->model[ref->cur_idx].two_omega2.r * err.qz;
 
-  /*  saturate acceleration */
-  const struct FloatRates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
-  const struct FloatRates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
-  RATES_BOUND_BOX(ref->accel, MIN_ACCEL, MAX_ACCEL);
-
-  /* saturate angular speed and trim accel accordingly */
-  SATURATE_SPEED_TRIM_ACCEL(*ref);
+  /* saturate */
+  attitude_ref_float_saturate_naive(&ref->rate, &ref->accel, &ref->saturation);
 
   /* compute ref_euler */
   float_eulers_of_quat(&ref->euler, &ref->quat);

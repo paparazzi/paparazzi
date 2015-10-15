@@ -77,8 +77,8 @@ class AttRefParamView(Gtk.Frame):
         self.spin_cfg = {
             'omega': {'range': (0.2, 20., 0.1, 1., 0.), 'r2d': lambda x: x, 'd2r': lambda x: x},
             'xi': {'range': (0.1, 1.5, 0.05, 0.2, 0.), 'r2d': lambda x: x, 'd2r': lambda x: x},
-            'sat_vel': {'range': (1., 200., 1., 5., 0.), 'r2d': pu.deg_of_rad, 'd2r': pu.rad_of_deg},
-            'sat_accel': {'range': (10., 1500., 10., 20., 0.), 'r2d': pu.deg_of_rad, 'd2r': pu.rad_of_deg},
+            'sat_vel': {'range': (1., 500., 1., 5., 0.), 'r2d': pu.deg_of_rad, 'd2r': pu.rad_of_deg},
+            'sat_accel': {'range': (10., 2000., 10., 20., 0.), 'r2d': pu.deg_of_rad, 'd2r': pu.rad_of_deg},
             'sat_jerk': {'range': (10., 7500., 10., 20., 0.), 'r2d': pu.deg_of_rad, 'd2r': pu.rad_of_deg}
         }
         for n, c in self.spin_cfg.iteritems():

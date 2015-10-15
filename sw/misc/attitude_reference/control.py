@@ -45,6 +45,9 @@ class AttitudeReference(object):
         self.omega = kwargs.get('omega', 6.)
         self.xi = kwargs.get('xi', 0.8)
         self.t = kwargs.get('t0', 0.)
+        for key, value in kwargs.iteritems():
+            if hasattr(self, key):
+                setattr(self, key, value)
         for p in ['omega', 'xi']:
             self.ensure_vect(p)
 
@@ -119,8 +122,7 @@ class att_ref_sat_naive(att_ref_default):
         for p in ['sat_vel', 'sat_accel']:
             self.ensure_vect(p)
 
-    def update_quat(self, setpoint, dt):
-        super(att_ref_sat_naive, self).update_quat(setpoint, dt)
+    def saturate_naive(self):
         self.accel = np.clip(self.accel, -self.sat_accel, self.sat_accel)
         for i in range(0, 3):
             if self.vel[i] >= self.sat_vel[i]:
@@ -131,6 +133,10 @@ class att_ref_sat_naive(att_ref_default):
                 self.vel[i] = -self.sat_vel[i]
                 if self.accel[i] < 0:
                     self.accel[i] = 0
+
+    def update_quat(self, setpoint, dt):
+        super(att_ref_sat_naive, self).update_quat(setpoint, dt)
+        self.saturate_naive()
         return self.quat, self.vel, self.accel
 
 
@@ -161,9 +167,11 @@ class att_ref_sat_nested(att_ref_sat_naive):
         # self.K = pc.butterworth(2, self.omega[0])
         omega, xi = self.omega[0], self.xi[0]
         omega_d = omega * math.sqrt(1 - xi ** 2)
+        LOG.debug('omega_d: {}'.format(omega_d))
+        LOG.debug('-omega*xi: {}'.format(-omega * xi))
         coefs = -np.poly([complex(-omega * xi, omega_d), complex(-omega * xi, -omega_d)])[::-1]
         self.K = np.real(coefs[:-1])
-        LOG.debug('sat_nested.__init__  omega: {} K:{} poles:{} '.format(self.omega[0], self.K, pc.poles(self.K)))
+        LOG.debug('sat_nested.__init__  omega: {} coefs:{} K:{} poles:{} '.format(self.omega[0], coefs, self.K, pc.poles(self.K)))
         self.sats = np.array([self.sat_vel, self.sat_accel])
         LOG.debug(' sats:\n{}'.format(self.sats))
         self.M = np.array(self.sats)

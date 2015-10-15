@@ -97,3 +97,25 @@ cdef class RefQuatInt:
                 self.set_omega(omega * np.ones(3))
             else:
                 self.set_omega(omega)
+
+    property sat_vel:
+        def __get__(self):
+            max_rate = [self.ref.saturation.max_rate.p, self.ref.saturation.max_rate.q, self.ref.saturation.max_rate.r]
+            return np.array(max_rate, dtype='d') / (1 << REF_RATE_FRAC)
+        def __set__(self, vel):
+            if type(vel) == float:
+                vel = vel * np.ones(3)
+            ref_quat_int.attitude_ref_quat_int_set_max_p(&self.ref, vel[0])
+            ref_quat_int.attitude_ref_quat_int_set_max_q(&self.ref, vel[1])
+            ref_quat_int.attitude_ref_quat_int_set_max_r(&self.ref, vel[2])
+
+    property sat_accel:
+        def __get__(self):
+            max_accel = [self.ref.saturation.max_accel.p, self.ref.saturation.max_accel.q, self.ref.saturation.max_accel.r]
+            return np.array(max_accel, dtype='d') / (1 << REF_ACCEL_FRAC)
+        def __set__(self, accel):
+            if type(accel) == float:
+                accel = accel * np.ones(3)
+            ref_quat_int.attitude_ref_quat_int_set_max_pdot(&self.ref, accel[0])
+            ref_quat_int.attitude_ref_quat_int_set_max_qdot(&self.ref, accel[1])
+            ref_quat_int.attitude_ref_quat_int_set_max_rdot(&self.ref, accel[2])
