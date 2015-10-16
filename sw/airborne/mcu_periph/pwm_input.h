@@ -41,6 +41,8 @@ extern volatile uint32_t pwm_input_period_tics[PWM_INPUT_NB];
 extern volatile uint8_t pwm_input_period_valid[PWM_INPUT_NB];
 
 extern void pwm_input_init(void);
+extern uint32_t get_pwm_input_duty_in_usec(uint32_t channel);
+extern uint32_t get_pwm_input_period_in_usec(uint32_t channel);
 
 #endif /* USE_PWM_INPUT */
 

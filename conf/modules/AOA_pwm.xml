@@ -33,7 +33,7 @@
   <makefile target="ap">
     <file name="aoa_pwm.c" />
     <define name="AOA_PWM_CHANNEL" value="$(AOA_PWM_CHANNEL)" cond="ifdef AOA_PWM_CHANNEL" />
-    <define name="PWM_INPUT_TICKS_PER_USEC" value="1" />
+    <define name="$(AOA_PWM_CHANNEL)_TICKS_PER_USEC" value="1" />
     <define name="USE_$(AOA_PWM_CHANNEL)" value="PWM_PULSE_TYPE_ACTIVE_LOW" />
   </makefile>
 </module>

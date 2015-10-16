@@ -49,15 +49,13 @@ enum pwm_input_channels {
  *   TIM1 -> 2 * APB2 = 2 * 84MHz = 168MHz
  *   TIM2 -> 2 * APB1 = 2 * 42MHz = 84MHz
  */
-#ifndef PWM_INPUT_TICKS_PER_USEC
-#define PWM_INPUT_TICKS_PER_USEC 6
+#ifndef PWM_INPUT1_TICKS_PER_USEC
+#define PWM_INPUT1_TICKS_PER_USEC 6
 #endif
 
-#define PWM_INPUT_TICKS_OF_USEC(_v)        ((_v)*PWM_INPUT_TICKS_PER_USEC)
-#define PWM_INPUT_SIGNED_TICKS_OF_USEC(_v) (int32_t)((_v)*PWM_INPUT_TICKS_PER_USEC)
-#define USEC_OF_PWM_INPUT_TICKS(_v)        ((_v)/PWM_INPUT_TICKS_PER_USEC)
-
-#include "mcu_periph/pwm_input.h"
+#ifndef PWM_INPUT2_TICKS_PER_USEC
+#define PWM_INPUT2_TICKS_PER_USEC 6
+#endif
 
 #endif /* PWM_INPUT_ARCH_H */
 

@@ -30,3 +30,6 @@ volatile uint32_t pwm_input_duty_tics[PWM_INPUT_NB];
 volatile uint8_t pwm_input_duty_valid[PWM_INPUT_NB];
 volatile uint32_t pwm_input_period_tics[PWM_INPUT_NB];
 volatile uint8_t pwm_input_period_valid[PWM_INPUT_NB];
+
+__attribute__((weak)) uint32_t get_pwm_input_duty_in_usec(uint32_t channel __attribute__((unused))) { return 0; }
+__attribute__((weak)) uint32_t get_pwm_input_period_in_usec(uint32_t channel __attribute__((unused))) { return 0; }
