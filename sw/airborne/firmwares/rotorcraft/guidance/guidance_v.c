@@ -366,7 +366,8 @@ void guidance_v_run(bool_t in_flight)
 /// get the cosine of the angle between thrust vector and gravity vector
 static int32_t get_vertical_thrust_coeff(void)
 {
-  static const int32_t max_bank_coef = BFP_OF_REAL(RadOfDeg(30.), INT32_TRIG_FRAC);
+  // cos(30°) = 0.8660254
+  static const int32_t max_bank_coef = BFP_OF_REAL(0.8660254f, INT32_TRIG_FRAC);
 
   struct Int32RMat *att = stateGetNedToBodyRMat_i();
   /* thrust vector:
