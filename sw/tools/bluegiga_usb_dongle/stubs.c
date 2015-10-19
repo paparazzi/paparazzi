@@ -394,7 +394,7 @@ void ble_rsp_test_debug(const struct ble_msg_test_debug_rsp_t *msg)
 
 void ble_rsp_test_channel_mode(const void *nul)
 {
-}  
+}
 
 void ble_rsp_dfu_reset(const void *nul)
 {

@@ -48,6 +48,7 @@ struct bluegiga_periph bluegiga_p;
 struct spi_transaction bluegiga_spi;
 
 signed char bluegiga_rssi[256];    // values initialized with 127
+unsigned char temlemetry_copy[20];
 
 void bluegiga_transmit(struct bluegiga_periph *p, uint8_t data);
 void bluegiga_receive(struct spi_transaction *trans);
@@ -109,7 +110,7 @@ static void send_bluegiga(struct transport_tx *trans, struct link_device *dev)
 
   if (now_ts > last_ts){
     uint32_t rate = 1000*bluegiga_p.bytes_recvd_since_last/(now_ts - last_ts);
-    pprz_msg_send_BLUEGIGA(trans, dev, AC_ID, &rate);
+    pprz_msg_send_BLUEGIGA(trans, dev, AC_ID, &rate, 20, temlemetry_copy);
 
     bluegiga_p.bytes_recvd_since_last = 0;
     last_ts = now_ts;
@@ -213,6 +214,8 @@ void bluegiga_send(struct bluegiga_periph *p)
       p->work_tx[i] = 0;
     }
 
+    p->work_tx[0] = 1;	// todo for testing only
+
     coms_status = BLUEGIGA_SENDING;
   }
 }
@@ -228,65 +231,90 @@ void bluegiga_receive(struct spi_transaction *trans)
       }
     }
 
-    uint8_t packet_len = trans->input_buf[3];                 // length of transmitted message
+    /*
+     * 0xff communication lost with ground station
+     * 0xfe RSSI value from broadcaster
+     * 0xfd Change in broadcast mode
+     * 0xfc Receive all recorded RSSI
+     * <=20 Data package from ground station
+     */
 
-    if (packet_len > trans->input_length) {
-      // Direct message from Bluegiga
-      // int k_rssi, i;
-      switch (packet_len) {
-        case 0xff:        // Connection lost with ground station!
+    uint8_t packet_len = 0;
+    uint8_t read_offset = 0;
+    switch (trans->input_buf[0])
+    {
+      case 0xff:	// communication lost with ground station
 #ifdef MODEM_LED
-          LED_OFF(MODEM_LED);
+        LED_OFF(MODEM_LED);
 #endif
-          coms_status = BLUEGIGA_UNINIT;
-          gpio_set(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);     // Reset interrupt pin
-          break;
-          /*case 0xfe:        // rssi data
-            k_rssi = trans->input_buf[2];
-            for (i = 0; i < k_rssi; i++) {
-              bluegiga_rssi[i] = trans->input_buf[3 + i];
-            }
-            break;*/
-        case 0xfd:        // interrupt handled on bluegiga
-          gpio_set(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);     // Reset interrupt pin
+	coms_status = BLUEGIGA_UNINIT;
+	gpio_set(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);     // Reset interrupt pin
+	break;
+      case 0xfe:        // RSSI value from broadcaster
+	bluegiga_rssi[trans->input_buf[1]] = trans->input_buf[2];
+	packet_len = trans->input_buf[3];
+	read_offset = 4;
+	break;
+      case 0xfd:	// Change in broadcast mode
+	gpio_set(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);     // Reset interrupt pin
 
-          // fetch scan status
-          if (trans->input_buf[2] == 1) {
-            coms_status = BLUEGIGA_SCANNING;
-          } else {
-            coms_status = BLUEGIGA_UNINIT;
-          }
-          break;
-        default:
-          break;
-      }
+	// fetch scan status
+	if (trans->input_buf[1] == 1) {
+	  coms_status = BLUEGIGA_BROADCASTING;
+	} else {
+	  coms_status = BLUEGIGA_UNINIT;
+	}
+	break;
+      case 0xfc:	// Receive all recorded RSSI
+	for (uint8_t i = 0; i < trans->input_buf[1]; i++)
+	  bluegiga_rssi[trans->input_buf[2] + i] = trans->input_buf[3 + i];
+	break;
+      default:
+	packet_len = trans->input_buf[0];                 // length of transmitted message
+	read_offset = 1;
     }
 
     // handle incoming datalink message
-    else if (packet_len > 0) {
-      bluegiga_rssi[trans->input_buf[1]] = trans->input_buf[2];
+    if (packet_len > 0 && packet_len <= trans->input_length) {
       // Handle received message
       for (uint8_t i = 0; i < packet_len; i++) {
-        bluegiga_p.rx_buf[(bluegiga_p.rx_insert_idx + i) % BLUEGIGA_BUFFER_SIZE] = trans->input_buf[i + 4];
+	bluegiga_p.rx_buf[(bluegiga_p.rx_insert_idx + i) % BLUEGIGA_BUFFER_SIZE] = trans->input_buf[i + read_offset];
       }
       bluegiga_increment_buf(&bluegiga_p.rx_insert_idx, packet_len);
       bluegiga_p.bytes_recvd_since_last += packet_len;
       coms_status = BLUEGIGA_IDLE;
+
+      for (uint8_t i = 0; i < trans->input_length; i++)
+      {
+	temlemetry_copy[i] = trans->input_buf[i];
+      }
     } else {
       coms_status = BLUEGIGA_IDLE;
     }
 
-    // clear rx buffer
-    for (uint8_t i = 0; i < trans->input_length; i++) {
-      trans->input_buf[i] = 0;
-    }
     // register spi slave read for next transaction
     spi_slave_register(&(BLUEGIGA_SPI_DEV), &bluegiga_spi);
   }
 }
 
-/* command bluetooth to switch to active scan mode to get rssi values from neighboring drones */
-void bluegiga_scan(void)
+/* command bluetooth to switch to active scan mode to get rssi values from neighbouring drones */
+void bluegiga_scan(struct bluegiga_periph *p)
 {
+
+  memset(p->work_tx, 0, 20);
+  p->work_tx[0] = 0xfd;		// change broadcast mode header
+
+  // trigger bluegiga to read direct command
+  gpio_clear(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);     // set interrupt
+}
+
+/* Request list of all recorded RSSI */
+void bluegiga_request_all_rssi(struct bluegiga_periph *p)
+{
+
+  memset(p->work_tx, 0, 20);
+  p->work_tx[0] = 0xfc;
+
+  // trigger bluegiga to read direct command
   gpio_clear(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);     // set interrupt
 }
