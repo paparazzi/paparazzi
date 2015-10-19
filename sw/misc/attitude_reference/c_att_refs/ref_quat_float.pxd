@@ -5,12 +5,17 @@ cdef extern from "stabilization/stabilization_attitude_ref_quat_float.h":
         FloatRates omega
         FloatRates zeta
 
+    struct FloatRefSat:
+        FloatRates max_rate
+        FloatRates max_accel
+
     struct AttRefQuatFloat:
         FloatEulers euler
         FloatQuat   quat
         FloatRates  rate
         FloatRates  accel
         FloatRefModel model[1]
+        FloatRefSat saturation
 
     void attitude_ref_quat_float_init(AttRefQuatFloat *ref)
     void attitude_ref_quat_float_enter(AttRefQuatFloat *ref, float psi)

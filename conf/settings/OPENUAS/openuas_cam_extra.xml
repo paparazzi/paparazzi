@@ -1,0 +1,20 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+<settings>
+  <dl_settings name="control">
+    <dl_settings name="dc">
+      <dl_setting max="255" min="0" step="1" module="digital_cam/dc" var="0" handler="send_command" shortname="Shutter">
+       <strip_button name="Photo" icon="digital-camera.png" value="32"   group="imaging" />
+       <!--<strip_button name="Power" icon="off.png" value="111" group="maindc"/>-->
+       <!--<strip_button name="ZoomIn" icon="zoom.png" value="116" group="dczoom"/>-->
+       <!--<strip_button name="ZoomOut" icon="zoom.png" value="119" group="dczoom"/>-->
+      </dl_setting>
+      <dl_setting max="3" min="0" step="1" var="dc_autoshoot" >
+       <strip_button name="Start Autoshoot Periodic" icon="on.png" value="1"  group="imaging" />
+       <strip_button name="Start Autoshoot Distance" icon="on.png" value="2"  group="imaging" />
+       <strip_button name="Stop Autoshoot" icon="off.png" value="0"  group="imaging" />
+      </dl_setting>
+      <dl_setting max="255" min="1" step="1" var="dc_autoshoot_quartersec_period" handler="Periodic4Hz" shortname="Periodic" param="DC_AUTOSHOOT_QUARTERSEC_PERIOD" unit="quarter-sec"/>
+      <dl_setting max="100" min="1" step="1" var="dc_autoshoot_meter_grid" shortname="PeriodicMeter" param="DC_AUTOSHOOT_METER_GRID" unit="meter"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<telemetry>
+  <process name="Ap">
+    <mode name="default">
+      <message name="ESTIMATOR"      period="2."	phase="0."/>
+      <message name="NAVIGATION"     period="2."	phase="0."/>
+      <message name="GPS"	     period="2."	phase="0."/>
+
+      <message name="ATTITUDE"       period="4."	phase="1"/>
+      <message name="DL_VALUE"       period="4."	phase="3"/>
+      <message name="WP_MOVED"       period="4."	phase="3"/>
+
+      <message name="DESIRED"        period="8."	phase="1"/>
+      <!-- Only one of the following is active at the same time: give them same time stamp -->
+      <message name="SEGMENT"        period="8."	phase="5"/>
+      <message name="CIRCLE"         period="8."	phase="5"/>
+      <message name="SURVEY"         period="8."	phase="5"/>
+
+      <message name="ALIVE"          period="16."	phase="1"/>
+      <message name="BAT"            period="16."	phase="1"/>
+      <message name="CALIBRATION"    period="16."	phase="1"/>
+      <message name="DATALINK_REPORT"       period="16."	phase="5"/>
+      <message name="GPS_SOL"        period="16."	phase="5"/>
+      <message name="NAVIGATION_REF" period="16."	phase="9"/>
+      <message name="PPRZ_MODE"      period="16."	phase="9"/>
+    </mode>
+  </process>
+  <process name="Fbw">
+    <mode name="default">
+      <message name="FBW_STATUS"     period="16."	phase="13"/>
+      <message name="COMMANDS"       period="16."	phase="13"/>
+      <message name="ACTUATORS"      period="16."	phase="13"/>
+    </mode>
+  </process>
+</telemetry>

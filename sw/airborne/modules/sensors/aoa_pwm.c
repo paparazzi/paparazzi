@@ -113,7 +113,7 @@ void aoa_pwm_update(void) {
   static float prev_aoa = 0.0f;
 
   // raw duty cycle in usec
-  uint32_t duty_raw = pwm_input_duty_tics[AOA_PWM_CHANNEL] / PWM_INPUT_TICKS_PER_USEC;
+  uint32_t duty_raw = get_pwm_input_duty_in_usec(AOA_PWM_CHANNEL);
 
   // remove some offset if needed
   aoa_pwm.raw = duty_raw - AOA_PWM_OFFSET;

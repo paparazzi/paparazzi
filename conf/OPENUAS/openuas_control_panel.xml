@@ -1,0 +1,647 @@
+<?xml version="1.0"?>
+<control_panel name="OpenUAS control panel">
+  <section name="variables">
+    <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
+    <variable name="fbw_serial_port" value="/dev/ttyS1"/>
+    <variable name="ap_serial_port" value="/dev/ttyS0"/>
+    <variable name="ivy_bus" value="127:2010"/>
+    <variable name="map" value="muret_UTM.xml"/>
+    <variable name="flight_plan" value="flight_plans/muret1.xml"/>
+  </section>
+  
+  <section name="programs">
+    <program name="Server" command="sw/ground_segment/tmtc/server"/>
+    <program name="Data Link" command="sw/ground_segment/tmtc/link">
+      <arg flag="-d" constant="downlink_serial_port"/>
+    </program>
+    <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
+      <arg flag="-speech"/>
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs">
+      <arg flag="-edit"/>
+    </program>
+    <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
+    <program name="Settings" command="sw/ground_segment/tmtc/settings">
+      <arg flag="-ac" constant="@AIRCRAFT"/>
+    </program>
+    <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py"/>
+    <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
+    <program name="Log Plotter" command="sw/logalizer/logplotter"/>
+    <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
+    <program name="Real-time Plotter (Python)" command="sw/ground_segment/python/real_time_plot/messagepicker.py"/>
+    <program name="Log File Player" command="sw/logalizer/play"/>
+    <program name="Simulator" command="sw/simulator/pprzsim-launch"/>
+    <program name="Video Synchronizer" command="sw/ground_segment/misc/video_synchronizer"/>
+    <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
+      <arg flag="-ac" constant="@AIRCRAFT"/>
+      <arg flag="xbox_gamepad.xml"/>
+    </program>
+    <program name="Hardware in the Loop" command="sw/simulator/simhitl"/>
+    <program name="Environment Simulator" command="sw/simulator/gaia"/>
+    <program name="Http Server" command="$python">
+      <arg flag="-m" constant="SimpleHTTPServer"/>
+      <arg flag="8889"/>
+    </program>
+    <program name="Plot Meteo Profile" command="sw/logalizer/plotprofile"/>
+    <program name="Weather Station" command="sw/ground_segment/misc/davis2ivy">
+      <arg flag="-d" constant="/dev/ttyUSB1"/>
+    </program>
+    <program name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
+    <program name="App Server" command="sw/ground_segment/tmtc/app_server"/>
+    <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
+    <program name="Ivy2Nmea" command="sw/ground_segment/tmtc/ivy2nmea">
+      <arg flag="--port" constant="/dev/ttyUSB1"/>
+      <arg flag="--id" constant="1"/>
+    </program>
+
+<!-- mine -->
+    <program name="IvySerialBridge" command="sw/ground_segment/tmtc/ivy_serial_bridge"/>
+    <program name="Photolist" command="sw/tools/photolist/build/photolist | tee photolist.log -a"/>
+    <program name="Ivy2NMEAout" command="sw/ground_segment/misc/ivy2nmeaout">
+      <arg flag="-b" variable="ivy_bus"/>
+      <arg flag="-d" constant="/dev/ttyUSB1"/>
+      <arg flag="-s" constant="9600"/>
+    </program>
+    <program name="Http Server" command="sw/ground_segment/tmtc/boa"/>
+    <program name="HITL classic" command="sw/simulator/simhitl">
+      <arg flag="-fbw" variable="fbw_serial_port"/>
+      <arg flag="-ap" variable="ap_serial_port"/>
+    </program>
+<!-- end mine -->
+
+ </section>
+
+  <section name="sessions">
+
+   <session name="ARDrone2 Flight">
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+    </session>
+
+   <session name="Flight USB-serial@9600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+
+   <session name="Flight USB-serial@57600">
+     <program name="Data Link">
+       <arg flag="-d" constant="/dev/ttyUSB0"/>
+       <arg flag="-s" constant="57600"/>
+     </program>
+     <program name="Server"/>
+     <program name="GCS"/>
+   </session>
+
+   <session name="Flight USB-XBee-API@57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/paparazzi/xbee"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+
+    <session name="HITL">
+      <program name="Hardware in the Loop">
+        <arg flag="-a" constant="HITL"/>
+        <arg flag="-noground"/>
+        <arg flag="-boot"/>
+      </program>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+    </session>
+
+    <session name="Flight USB-serial Redundant">
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-id" constant="1"/>
+        <arg flag="-redlink"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB1"/>
+        <arg flag="-id" constant="2"/>
+        <arg flag="-redlink"/>
+      </program>
+      <program name="Link Combiner"/>
+    </session>
+
+    <session name="SupperBitRF">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyACM0"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Messages"/>
+    </session>
+
+    <session name="SupperBitRF cable telemetry">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyACM1"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Messages"/>
+      <program name="Messages"/>
+    </session>
+
+    <session name="Messages and Settings">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Settings">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+      </program>
+    </session>
+
+    <session name="Raw Sensors">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Messages">
+        <arg flag="-g" constant="300x400+0-220"/>
+      </program>
+      <program name="Settings">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="-g" constant="800x200+0-0"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="1000x250-0+0"/>
+        <arg flag="-t" constant="ACC"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:ax"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:ay"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:az"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+250"/>
+        <arg flag="-t" constant="GYRO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gp"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gq"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gr"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+500"/>
+        <arg flag="-t" constant="MAG"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:mx"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:my"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:mz"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+750"/>
+        <arg flag="-t" constant="BARO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="101325.0"/>
+        <arg flag="-c" constant="*:telemetry:BARO_RAW:abs"/>
+      </program>
+    </session>
+
+    <session name="Scaled Sensors">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Messages">
+        <arg flag="-g" constant="300x400+0-220"/>
+      </program>
+      <program name="Settings">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="-g" constant="800x200+0-0"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="1000x250-0+0"/>
+        <arg flag="-t" constant="ACC"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="9.81"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="-9.81"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ax:0.0009766"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ay:0.0009766"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:az:0.0009766"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+250"/>
+        <arg flag="-t" constant="GYRO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gp:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gq:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gr:0.0139882"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+500"/>
+        <arg flag="-t" constant="MAG"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mx:0.0004883"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:my:0.0004883"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mz:0.0004883"/>
+      </program>
+    </session>
+
+
+<!-- ***************** Mine all mine below, woehahahaha ******************** -->
+
+    <session name="OU Simulation">
+      <program name="Simulator">
+        <arg flag="-a" constant="VivifyMK1"/>
+        <arg flag="-t" constant="sim"/>
+        <arg flag="--boot"/>
+        <arg flag="--norc"/>
+      </program>
+      <program name="GCS"/>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Environment Simulator"/>
+      <program name="Messages"/>
+    </session>
+    <session name="GCS Video">
+      <program name="GCS">
+        <arg flag="-layout" constant="../TUDelft/video.xml"/>
+        <arg flag="-mplayer" constant="tv:// -tv device=/dev/video0:input=1:norm=ntsc"/>
+        <arg flag="-fullscreen"/>
+        <arg flag="-srtm"/>
+        <arg flag="-track_size" constant="200"/>
+      </program>
+    </session>
+    <session name="ARDrone2 Flight Basic">
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-maps_fill"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="100"/>
+        <arg flag="-zoom" constant="2"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+    </session>
+    <session name="ARDrone2 Flight Video Debug Mplayer">
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-layout" constant="ardrone_simpleandvideo_mplayer.xml"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+    </session>
+    <session name="cessna">
+      <program name="GCS">
+        <arg flag="-layout" constant="./TUDelft/cessna.xml"/>
+        <arg flag="-m" constant="./TUDelft/ehwo_gm.xml"/>
+        <arg flag="-zoom" constant="0.03"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-s" constant="57600"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Server"/>
+      <program name="IvySerialBridge">
+        <arg flag="25" constant="/dev/ttyUSB1"/>
+        <arg flag="4"/>
+      </program>
+    </session>
+    <session name="HITL">
+      <program name="Hardware in the Loop">
+        <arg flag="-a" constant="HITL"/>
+        <arg flag="-noground"/>
+        <arg flag="-boot"/>
+      </program>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+    </session>
+<session name="Accelo only Debug Graphs">
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="'Accel"/>
+        <arg flag="RAW'"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-g" constant="'640x600+0+0'"/>
+        <arg flag="-c" constant="'*:telemetry:IMU_ACCEL_RAW:ax'"/>
+        <arg flag="-c" constant="'*:telemetry:IMU_ACCEL_RAW:ay'"/>
+        <arg flag="-c" constant="'*:telemetry:IMU_ACCEL_RAW:az'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="'Accel"/>
+        <arg flag="SCALED'"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-g" constant="'640x600+640+0'"/>
+        <arg flag="-c" constant="'*:telemetry:IMU_ACCEL:ax'"/>
+        <arg flag="-c" constant="'*:telemetry:IMU_ACCEL:ay'"/>
+     <arg flag="-c" constant="'*:telemetry:IMU_ACCEL:az'"/>
+      </program>
+    </session>
+
+    <session name="OpenUAS Simulation with OBC GUI">
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="./OpenUAS/openuas_searchandrescue2014.xml"/>
+        <arg flag="-center" constant="'WGS84"/>
+        <arg flag="51.990" constant="4.378'"/>
+        <arg flag="-ref" constant="'WGS84"/>
+        <arg flag="51.990" constant="4.378'"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="VivfifyMK1"/>
+        <arg flag="-boot"/>
+        <arg flag="-norc"/>
+      </program>
+      <program name="Environment Simulator"/>
+    </session>
+    <session name="USB: BlueTooth @ 57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/rfcomm0"/>
+        <arg flag="-uplink"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-layout" constant="./OPENUAS/gcsHeering.xml"/>
+      </program>
+      <program name="Messages">
+        <arg flag="-c" constant="telemetry"/>
+      </program>
+    </session>
+    <session name="OpenUAS VisionEx">
+      <program name="Vision"/>
+    </session>
+    <session name="VisionResults">
+      <program name="Vision Results"/>
+    </session>
+    <session name="ARDrone2 Magneto Debug Graphs">
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="'MX'"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-g" constant="'640x300+0+0'"/>
+        <arg flag="-c" constant="'*:telemetry:ARDRONE_NAVDATA:mx'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="'MY'"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-g" constant="'640x300+640+0'"/>
+        <arg flag="-c" constant="'*:telemetry:ARDRONE_NAVDATA:my'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="'MZ'"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-g" constant="'640x300+1280+0'"/>
+        <arg flag="-c" constant="'*:telemetry:ARDRONE_NAVDATA:mz'"/>
+      </program>
+      <program name="Messages"/>
+    </session>
+    <session name="ARDrone2 Flight Video Debug 2">
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-plugin" constant="cvlc  --udp-caching=1  --rtp-caching=0 --live-caching=0 --rtsp-caching=0 --clock-jitter=0 --clock-synchro=0 file:///home/n3yh3hnii/paparazzi/sw/ext/ardrone2_vision/ardrone2_gstreamer/sdp/x86_config-mjpeg.sdp --drawable-xid="/>
+        <arg flag="-layout" constant="ardrone_video.xml"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Messages"/>
+    </session>
+    <session name="ARDrone2 Flight Video Debug 2">
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-plugin" constant="cvlc  --udp-caching=1  --rtp-caching=0 --live-caching=0 --rtsp-caching=0 --clock-jitter=0 --clock-synchro=0 file:///home/n3yh3hnii/paparazzi/sw/ext/ardrone2_vision/ardrone2_gstreamer/sdp/x86_config-mjpeg.sdp --drawable-xid="/>
+        <arg flag="-layout" constant="ardrone_video.xml"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Messages"/>
+    </session>
+    <session name="SmartUAV">
+      <program name="Ivy2Udp">
+        <arg flag="-h" constant="127.0.0.1"/>
+        <arg flag="-id" constant="8"/>
+      </program>
+      <program name="SmartUAV">
+        <arg flag="1&>2"/>
+      </program>
+    </session>
+    <session name="OpenUAS Forward AC via UDP">
+      <program name="Ivy2Udp">
+        <arg flag="-b" constant="127:2010"/>
+        <arg flag="-h" constant="192.168.78.1"/>
+        <arg flag="-p" constant="4242"/>
+        <arg flag="-dp" constant="4243"/>
+        <arg flag="-id" constant="16"/>
+      </program>
+    </session>
+    <session name="Debug Graphs">
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="phi"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:ATTITUDE:phi'"/>
+        <arg flag="-c" constant="'*:telemetry:DESIRED:roll'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="theta"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:ATTITUDE:theta'"/>
+        <arg flag="-c" constant="'*:telemetry:DESIRED:pitch'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="speed"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:AIRSPEED:airspeed'"/>
+        <arg flag="-c" constant="'*:telemetry:AIRSPEED:airspeed_sp'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="altitude"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:ESTIMATOR:z'"/>
+        <arg flag="-c" constant="'*:telemetry:DESIRED:altitude'"/>
+      </program>
+    </session>
+
+    <session name="Sony Control">
+      <program name="Sony">
+        <arg flag="-id" constant="22"/>
+      </program>
+    </session>
+    <session name="ARDrone2 Flight">
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-maps_fill"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="300"/>
+        <arg flag="-zoom" constant="0.5"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Real-time Plotter"/>
+    </session>
+    <session name="OpenUAS USB0: Xtend Transparent @9600 with HW flowcontrol">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-uplink"/>
+        <arg flag="-s" constant="9600"/>
+        <arg flag="-hfc"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="./OpenUAS/gcsHeering.xml"/>
+      </program>
+      <program name="Messages"/>
+    </session>
+
+    <session name="AR Simulation GCS layout test">
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="ardrone_simple.xml"/>
+        <arg flag="-maps_fill"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="100"/>
+        <arg flag="-zoom" constant="1"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Psi"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+    </session>
+    <session name="Forward Skywalker to C172 over ttyUSB1">
+      <program name="IvySerialBridge">
+        <arg flag="8" constant="/dev/ttyUSB1"/>
+      </program>
+    </session>
+    <session name="ARDrone2 Flight Basic Layout">
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="ardrone_simple.xml"/>
+        <arg flag="-maps_fill"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="100"/>
+        <arg flag="-zoom" constant="1"/>
+      </program>
+    </session>
+    <session name="ARDrone2 Baro Only Debug Graphs">
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="'Pressure'"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-g" constant="'640x300+0+0'"/>
+        <arg flag="-c" constant="'*:telemetry:ARDRONE_NAVDATA:pressure'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="'Pressure"/>
+        <arg flag="temp'"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-g" constant="'640x300+640+0'"/>
+        <arg flag="-c" constant="'*:telemetry:ARDRONE_NAVDATA:temperature_pressure'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="'Up'"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-g" constant="'640x300+1280+0'"/>
+        <arg flag="-c" constant="'*:telemetry:ROTORCRAFT_FP:up'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="'Baro"/>
+        <arg flag="RAW'"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-g" constant="'640x300+0+300'"/>
+        <arg flag="-c" constant="'*:telemetry:BARO_RAW:abs'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="'Pressure"/>
+        <arg flag="QFE'"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-g" constant="'640x300+640+300'"/>
+        <arg flag="-c" constant="'*:telemetry:INS_REF:baro_qfe'"/>
+      </program>
+    </session>
+    <session name="ARDrone2 Flight n Video">
+      <program name="Server">
+        <arg flag="-no_md5_check"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-plugin" constant="cvlc  --udp-caching=1  --rtp-caching=0 --live-caching=0 --rtsp-caching=0 --clock-jitter=0 --clock-synchro=0 file:///home/n3yh3hnii/paparazzi/sw/ext/ardrone2_vision/ardrone2_gstreamer/sdp/x86_config-mjpeg.sdp --drawable-xid="/>
+        <arg flag="-layout" constant="ardrone_video.xml"/>
+        <arg flag="-speech"/>
+        <arg flag="-maps_fill"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="300"/>
+        <arg flag="-zoom" constant="0.5"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Messages"/>
+    </session>
+  </section>
+</control_panel>
