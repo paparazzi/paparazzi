@@ -101,7 +101,7 @@
   <aircraft
    name="LisaLv11_Aspirinv15_FW"
    ac_id="12"
-   airframe="airframes/TestHardware/LisaL_v1.1_aspirin_v1.5_fw.xml"
+   airframe="airframes/testhardware/LisaL_v1.1_aspirin_v1.5_fw.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/dummy.xml"
@@ -112,7 +112,7 @@
   <aircraft
    name="LisaLv11_Aspirinv15_RC"
    ac_id="11"
-   airframe="airframes/TestHardware/LisaL_v1.1_aspirin_v1.5_rc.xml"
+   airframe="airframes/testhardware/LisaL_v1.1_aspirin_v1.5_rc.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
@@ -123,7 +123,7 @@
   <aircraft
    name="LisaLv11_Booz2v12_FW"
    ac_id="10"
-   airframe="airframes/TestHardware/LisaL_v1.1_b2_v1.2_fw.xml"
+   airframe="airframes/testhardware/LisaL_v1.1_b2_v1.2_fw.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/dummy.xml"
@@ -134,7 +134,7 @@
   <aircraft
    name="LisaLv11_Booz2v12_RC"
    ac_id="9"
-   airframe="airframes/TestHardware/LisaL_v1.1_b2_v1.2_rc.xml"
+   airframe="airframes/testhardware/LisaL_v1.1_b2_v1.2_rc.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
