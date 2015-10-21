@@ -1,15 +1,16 @@
-<!-- this is a quadrocopter frame equiped with Lisa/M 1.0, Aspirin 1.0 and generic china pwm motor controllers -->
+<!-- this is a quadrocopter frame equiped with Lisa/M 2.0, Aspirin 2.1 and generic china pwm motor controllers and PPM input RX on UART1_RX pin -->
 
 <!--
      Applicable configuration:
-     airframe="airframes/esden/quady_lm1a1pwm.xml"
-     radio="radios/cockpitSX.xml"
+     airframe="airframes/ESDEN/quady_lm2a2pwmppm.xml"
+     radio="radios/ESDEN/QS1RX6.xml"
      telemetry="telemetry/default_rotorcraft.xml"
      flight_plan="flight_plans/dummy.xml"
      settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
 -->
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="quady_lm1a1pwm">
+<airframe name="E-QuadyPeach">
 
   <servos driver="Pwm">
     <servo name="FRONT" no="0" min="1000" neutral="1100" max="1950"/>
@@ -45,7 +46,7 @@
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
-  <include href="conf/airframes/esden/calib/asp21-018.xml"/>
+  <include href="conf/airframes/ESDEN/calib/esden_asp21-018.xml"/>
 
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
@@ -152,14 +153,16 @@
 
  <modules main_freq="512">
    <load name="gps_ubx_ucenter.xml"/>
+
+   <load name="led_safety_status.xml">
+     <define name="SAFETY_WARNING_LED" value="5"/>
+   </load>
 </modules>
 
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_m_1.0">
-      <subsystem name="radio_control" type="spektrum">
-        <define name="RADIO_MODE" value="RADIO_FLAP"/>
-        <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
-        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+    <target name="ap" board="lisa_m_2.0">
+      <subsystem name="radio_control" type="ppm">
+        <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
       </subsystem>
     </target>
 
@@ -175,7 +178,7 @@
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v1.0"/>
+    <subsystem name="imu"           type="aspirin_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
