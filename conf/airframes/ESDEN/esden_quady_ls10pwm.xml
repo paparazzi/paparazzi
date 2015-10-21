@@ -2,14 +2,15 @@
 
 <!--
      Applicable configuration:
-     airframe="airframes/esden/quady_ls10pwm.xml"
+     airframe="airframes/ESDEN/quady_ls10pwm.xml"
      radio="radios/cockpitSX.xml"
      telemetry="telemetry/default_rotorcraft.xml"
      flight_plan="flight_plans/dummy.xml"
      settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
 -->
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="quady_ls10pwm">
+<airframe name="E-QuadyOrange">
 
   <servos driver="Pwm">
     <servo name="FRONT" no="0" min="1000" neutral="1100" max="1950"/>
@@ -45,7 +46,7 @@
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
-  <include href="conf/airframes/esden/calib/ls10-default.xml"/>
+  <include href="conf/airframes/ESDEN/calib/esden_ls10-default.xml"/>
 
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
