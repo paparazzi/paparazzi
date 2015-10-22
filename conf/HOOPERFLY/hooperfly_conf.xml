@@ -1,68 +1,68 @@
 <conf>
   <aircraft
-   name="Teensy_Fly_Quad_Elle0"
-   ac_id="217"
-   airframe="airframes/HooperFly/teensyfly_quad_elle0.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml"
-   gui_color="purple"
-  />
-  <aircraft
-   name="Teensy_Fly_Quad"
-   ac_id="218"
-   airframe="airframes/HooperFly/teensyfly_quad_lisa_mx_20.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml"
-   gui_color="white"
-  />
-  <aircraft
-   name="Teensy_Fly_Hexa"
-   ac_id="219"
-   airframe="airframes/HooperFly/teensyfly_hexa_lisa_mx_20.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml"
-   gui_color="red"
-  />
-  <aircraft
-   name="Racer_PEX_Quad"
-   ac_id="220"
-   airframe="airframes/HooperFly/racerpex_quad_lisa_mx_20.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml"
-   gui_color="blue"
-  />
-  <aircraft
    name="Racer_PEX_Hexa"
    ac_id="221"
-   airframe="airframes/HooperFly/racerpex_hexa_lisa_mx_20.xml"
+   airframe="airframes/HOOPERFLY/hooperfly_racerpex_hexa_lisa_mx_20.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
    gui_color="green"
   />
   <aircraft
    name="Racer_PEX_Octo"
    ac_id="222"
-   airframe="airframes/HooperFly/racerpex_octo_lisa_mx_20.xml"
+   airframe="airframes/HOOPERFLY/hooperfly_racerpex_octo_lisa_mx_20.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
    gui_color="yellow"
+  />
+  <aircraft
+   name="Racer_PEX_Quad"
+   ac_id="220"
+   airframe="airframes/HOOPERFLY/hooperfly_racerpex_quad_lisa_mx_20.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="Teensy_Fly_Hexa"
+   ac_id="219"
+   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_hexa_lisa_mx_20.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Teensy_Fly_Quad"
+   ac_id="218"
+   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_lisa_mx_20.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="Teensy_Fly_Quad_Elle0"
+   ac_id="217"
+   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/HOOPERFLY/hooperfly_rotorcraft_multiflight.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   gui_color="purple"
   />
 </conf>
