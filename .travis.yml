@@ -12,7 +12,23 @@ install:
   - sudo apt-get install -y paparazzi-dev paparazzi-jsbsim gcc-arm-embedded libipc-run-perl cmake
 script:
   - arm-none-eabi-gcc --version
-  - make test
+  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then make test; fi
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "QGE7s/sTIX3F4hG8YYbpYjB2x0YsUUo9qHf+Dv5BqNcTtZ2TLO0tHPWxoI5wlRLiMEOOnINNwYk7ooM3oOXa0Fm9urja9k78cFutbbDtvGD6DjUFajwJ0KnwXnLulCgG+l67umGitSazQpyEQE4pvX/8EnB9/pgq706DlmCbkds="
+
+addons:
+  coverity_scan:
+    project:
+      name: "paparazzi/paparazzi"
+      description: "Build submitted via Travis CI"
+    notification_email: paparazzi-builds@nongnu.org
+    build_command_prepend: make ext; cov-configure --comptype gcc --compiler arm-none-eabi-gcc --template
+    build_command: make test
+    branch_pattern: coverity_scan
 
 notifications:
   webhooks:
