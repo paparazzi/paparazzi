@@ -26,7 +26,7 @@ def print_field(field):
 
 def print_message(message):
     label = "{#" + message.get('name') + "}"
-    s = "### {0} (ID {1}) ###\n\n".format(message.get('name'), message.get('id'))
+    s = "## {0} (ID {1}) ## {2}\n\n".format(message.get('name'), message.get('id'), label)
     desc = message.find('description')
     if desc is not None:
         s += desc.text.strip() + "\n\n"
@@ -45,7 +45,7 @@ def print_message(message):
 def print_msg_class(msg_class):
     cls_name = msg_class.get('name').title()
     label = " {#" + msg_class.get('name').upper() + "_CLASS}"
-    s = "## {0} Messages ## {1}\n\n".format(cls_name, label)
+    s = "# {0} Messages # {1}\n\n".format(cls_name, label)
     for m in msg_class.findall("./message"):
         s +=\
             print_message(m)
