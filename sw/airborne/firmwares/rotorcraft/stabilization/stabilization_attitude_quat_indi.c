@@ -66,6 +66,9 @@ struct IndiVariables indi = {
   {0., 0., 0.}
 };
 
+struct Int32Eulers stab_att_sp_euler;
+struct Int32Quat   stab_att_sp_quat;
+
 // Variables for adaptation
 struct FloatRates filtered_rate_estimation = {0., 0., 0.};
 struct FloatRates filtered_rate_deriv_estimation  = {0., 0., 0.};
@@ -73,10 +76,17 @@ struct FloatRates filtered_rate_2deriv_estimation  = {0., 0., 0.};
 struct FloatRates indi_u_estimation  = {0., 0., 0.};
 struct FloatRates udot_estimation  = {0., 0., 0.};
 struct FloatRates udotdot_estimation  = {0., 0., 0.};
-#define SCALE 0.001 //The G values are scaled to avoid numerical problems during the estimation
-struct FloatRates g_est = {STABILIZATION_INDI_G1_P / SCALE, STABILIZATION_INDI_G1_Q / SCALE, STABILIZATION_INDI_G1_R / SCALE};
-float g2_est = STABILIZATION_INDI_G2_R / SCALE;
+#define INDI_EST_SCALE 0.001 //The G values are scaled to avoid numerical problems during the estimation
+struct FloatRates g_est = {STABILIZATION_INDI_G1_P / INDI_EST_SCALE, STABILIZATION_INDI_G1_Q / INDI_EST_SCALE, STABILIZATION_INDI_G1_R / INDI_EST_SCALE};
+float g2_est = STABILIZATION_INDI_G2_R / INDI_EST_SCALE;
 float mu = STABILIZATION_INDI_ADAPTIVE_MU;
+
+#if STABILIZATION_INDI_USE_ADAPTIVE
+#warning "Use caution with adaptive indi. See the wiki for more info"
+bool_t use_adaptive_indi = TRUE;
+#else
+bool_t use_adaptive_indi = FALSE;
+#endif
 
 #ifndef STABILIZATION_INDI_FILT_OMEGA
 #define STABILIZATION_INDI_FILT_OMEGA 50.0
@@ -100,6 +110,11 @@ float mu = STABILIZATION_INDI_ADAPTIVE_MU;
 
 static void send_att_indi(struct transport_tx *trans, struct link_device *dev)
 {
+  //The estimated G values are scaled, so scale them back before sending
+  struct FloatRates g_est_disp;
+  RATES_SMUL(g_est_disp, g_est, INDI_EST_SCALE);
+  float g2_est_disp = g2_est * INDI_EST_SCALE;
+
   pprz_msg_send_STAB_ATTITUDE_INDI(trans, dev, AC_ID,
                                    &indi.filtered_rate_deriv.p,
                                    &indi.filtered_rate_deriv.q,
@@ -107,17 +122,15 @@ static void send_att_indi(struct transport_tx *trans, struct link_device *dev)
                                    &indi.angular_accel_ref.p,
                                    &indi.angular_accel_ref.q,
                                    &indi.angular_accel_ref.r,
-                                   &g_est.p,
-                                   &g_est.q,
-                                   &g_est.r,
-                                   &g2_est);
+                                   &g_est_disp.p,
+                                   &g_est_disp.q,
+                                   &g_est_disp.r,
+                                   &g2_est_disp);
 }
 #endif
 
 void stabilization_attitude_init(void)
 {
-
-  stabilization_attitude_ref_init();
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_INDI", send_att_indi);
@@ -129,8 +142,6 @@ void stabilization_attitude_enter(void)
 
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = stabilization_attitude_get_heading_i();
-
-  stabilization_attitude_ref_enter();
 
   FLOAT_RATES_ZERO(indi.filtered_rate);
   FLOAT_RATES_ZERO(indi.filtered_rate_deriv);
@@ -180,7 +191,7 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
   quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
 }
 
-static void attitude_run_indi(int32_t indi_commands[], struct Int32Quat *att_err, bool_t in_flight)
+static void attitude_run_indi(int32_t indi_commands[], struct Int32Quat *att_err, bool_t in_flight __attribute__((unused)))
 {
   //Calculate required angular acceleration
   struct FloatRates *body_rate = stateGetBodyRates_f();
@@ -228,10 +239,7 @@ static void attitude_run_indi(int32_t indi_commands[], struct Int32Quat *att_err
     FLOAT_RATES_ZERO(indi.udot);
     FLOAT_RATES_ZERO(indi.udotdot);
   } else {
-#if STABILIZATION_INDI_USE_ADAPTIVE
-#warning "Use caution with adaptive indi. See the wiki for more info"
     lms_estimation();
-#endif
   }
 
   /*  INDI feedback */
@@ -311,12 +319,12 @@ void lms_estimation(void)
                                          &filtered_rate_estimation, omega, zeta, omega);
 
   // The inputs are scaled in order to avoid overflows
-  float du = udot_estimation.p * SCALE;
+  float du = udot_estimation.p * INDI_EST_SCALE;
   g_est.p = g_est.p - (g_est.p * du - filtered_rate_2deriv_estimation.p) * du * mu;
-  du = udot_estimation.q * SCALE;
+  du = udot_estimation.q * INDI_EST_SCALE;
   g_est.q = g_est.q - (g_est.q * du - filtered_rate_2deriv_estimation.q) * du * mu;
-  du = udot_estimation.r * SCALE;
-  float ddu = udotdot_estimation.r * SCALE / PERIODIC_FREQUENCY;
+  du = udot_estimation.r * INDI_EST_SCALE;
+  float ddu = udotdot_estimation.r * INDI_EST_SCALE / PERIODIC_FREQUENCY;
   float error = (g_est.r * du + g2_est * ddu - filtered_rate_2deriv_estimation.r);
   g_est.r = g_est.r - error * du * mu / 3;
   g2_est = g2_est - error * 1000 * ddu * mu / 3;
@@ -327,9 +335,11 @@ void lms_estimation(void)
   if (g_est.r < 0.01) { g_est.r = 0.01; }
   if (g2_est < 0.01) { g2_est = 0.01; }
 
-  //Commit the estimated G values and apply the scaling
-  g1.p = g_est.p * SCALE;
-  g1.q = g_est.q * SCALE;
-  g1.r = g_est.r * SCALE;
-  g2 = g2_est * SCALE;
+  if (use_adaptive_indi) {
+    //Commit the estimated G values and apply the scaling
+    g1.p = g_est.p * INDI_EST_SCALE;
+    g1.q = g_est.q * INDI_EST_SCALE;
+    g1.r = g_est.r * INDI_EST_SCALE;
+    g2 = g2_est * INDI_EST_SCALE;
+  }
 }

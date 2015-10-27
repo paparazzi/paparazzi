@@ -7,6 +7,7 @@
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
+      <subsystem name="udp"/>
     </target>
 
     <!--define name="USE_SONAR" value="TRUE"/-->
@@ -30,15 +31,14 @@
     <!--load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </load-->
+    <load name="video_thread.xml">
+      <define name="VIDEO_THREAD_FPS" value="4"/>
+      <define name="VIDEO_THREAD_CAMERA" value="bottom_camera"/>
+      <define name="VIDEO_THREAD_SHOT_PATH" value="/data/ftp/internal_000/images"/>
+    </load>
     <load name="video_rtp_stream.xml">
-      <define name="VIEWVIDEO_FPS" value="60"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-      <define name="VIEWVIDEO_DEVICE" value="/dev/video0"/>
-      <define name="VIEWVIDEO_SUBDEV" value="/dev/v4l-subdev0"/>
-      <define name="VIEWVIDEO_DEVICE_SIZE" value="320,240"/>
-      <define name="VIEWVIDEO_DEVICE_BUFFERS" value="60"/>
-      <define name="VIEWVIDEO_SHOT_PATH" value="/data/ftp/internal_000/images"/>
     </load>
   </modules>
 
@@ -194,6 +194,11 @@
     <define name="PGAIN" value="79"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
+  </section>
+
+  <section name="NAVIGATION" prefix="NAV_">
+    <define  name="CLIMB_VSPEED" value="2.5" />
+    <define  name="DESCEND_VSPEED" value="-1.0" />
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">

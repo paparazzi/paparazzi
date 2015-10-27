@@ -1,14 +1,14 @@
 <!DOCTYPE settings SYSTEM "../settings.dtd">
 
-<settings>
+<settings target="ap|nps|test_ahrs">
   <dl_settings>
 
     <dl_settings NAME="AHRS">
-       <dl_setting var="ahrs_icq.gravity_heuristic_factor" min="0" step="1" max="50" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="g_heuristic" param="AHRS_GRAVITY_HEURISTIC_FACTOR"/>
-       <dl_setting var="ahrs_icq.accel_omega" min="0.02" step="0.02" max="0.2" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="acc_omega" param="AHRS_ACCEL_OMEGA" unit="rad/s" handler="SetAccelOmega"/>
-       <dl_setting var="ahrs_icq.accel_zeta" min="0.7" step="0.05" max="1.5" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="acc_zeta" param="AHRS_ACCEL_ZETA" handler="SetAccelZeta"/>
-       <dl_setting var="ahrs_icq.mag_omega" min="0.02" step="0.01" max="0.1" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="mag_omega" param="AHRS_MAG_OMEGA" unit="rad/s" handler="SetMagOmega"/>
-       <dl_setting var="ahrs_icq.mag_zeta" min="0.7" step="0.05" max="1.5" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="mag_zeta" param="AHRS_MAG_ZETA" handler="SetMagZeta"/>
+       <dl_setting var="ahrs_icq.gravity_heuristic_factor" min="0" step="1" max="50" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="g_heuristic" param="AHRS_GRAVITY_HEURISTIC_FACTOR" type="uint8" persistent="true"/>
+       <dl_setting var="ahrs_icq.accel_omega" min="0.02" step="0.02" max="0.2" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="acc_omega" param="AHRS_ACCEL_OMEGA" unit="rad/s" handler="SetAccelOmega" type="float" persistent="true"/>
+       <dl_setting var="ahrs_icq.accel_zeta" min="0.7" step="0.05" max="1.5" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="acc_zeta" param="AHRS_ACCEL_ZETA" handler="SetAccelZeta" type="float" persistent="true"/>
+       <dl_setting var="ahrs_icq.mag_omega" min="0.02" step="0.01" max="0.1" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="mag_omega" param="AHRS_MAG_OMEGA" unit="rad/s" handler="SetMagOmega" type="float" persistent="true"/>
+       <dl_setting var="ahrs_icq.mag_zeta" min="0.7" step="0.05" max="1.5" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="mag_zeta" param="AHRS_MAG_ZETA" handler="SetMagZeta" type="float" persistent="true"/>
     </dl_settings>
 
   </dl_settings>

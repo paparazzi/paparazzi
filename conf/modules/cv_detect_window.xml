@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="detect_window" dir="computer_vision">
+  <doc>
+    <description>
+    	Detect window
+    	
+    </description>
+  </doc>
+
+  <header>
+    <file name="detect_window.h"/>
+  </header>
+  <init fun="detect_window_init()"/>
+  <makefile target="ap">
+    <file name="detect_window.c"/>
+      </makefile>
+</module>
+

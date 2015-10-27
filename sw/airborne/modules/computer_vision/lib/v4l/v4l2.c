@@ -174,7 +174,9 @@ bool_t v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t 
  * @param[in] buffer_cnt The amount of buffers used for mapping
  * @return The newly create V4L2 device
  */
-struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height, uint8_t buffers_cnt) {
+struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height, uint8_t buffers_cnt,
+                              uint32_t _pixelformat)
+{
   uint8_t i;
   struct v4l2_capability cap;
   struct v4l2_format fmt;
@@ -198,12 +200,12 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
   }
 
   // Check if the device is capable of capturing and streaming
-  if (!(cap.capabilities &V4L2_CAP_VIDEO_CAPTURE)) {
+  if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
     printf("[v4l2] %s is no V4L2 video capturing device\n", device_name);
     close(fd);
     return NULL;
   }
-  if (!(cap.capabilities &V4L2_CAP_STREAMING)) {
+  if (!(cap.capabilities & V4L2_CAP_STREAMING)) {
     printf("[v4l2] %s isn't capable of streaming (TODO: support reading)\n", device_name);
     close(fd);
     return NULL;
@@ -215,7 +217,7 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   fmt.fmt.pix.width = width;
   fmt.fmt.pix.height = height;
-  fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_UYVY;
+  fmt.fmt.pix.pixelformat = _pixelformat;
   fmt.fmt.pix.field = V4L2_FIELD_NONE;
 
   if (ioctl(fd, VIDIOC_S_FMT, &fmt) < 0) {

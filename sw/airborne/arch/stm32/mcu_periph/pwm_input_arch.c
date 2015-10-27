@@ -25,7 +25,7 @@
  *
  * handling of smt32 PWM input using a timer with capture.
  */
-#include "mcu_periph/pwm_input_arch.h"
+#include "mcu_periph/pwm_input.h"
 
 #include BOARD_CONFIG
 #include "generated/airframe.h"
@@ -48,13 +48,18 @@
 #define PWM_INPUT_IRQ_PRIO 2
 #endif
 
-static inline void pwm_input_set_timer(uint32_t tim)
+static const uint32_t pwm_input_ticks_per_usec[] = {
+  PWM_INPUT1_TICKS_PER_USEC,
+  PWM_INPUT2_TICKS_PER_USEC
+};
+
+static inline void pwm_input_set_timer(uint32_t tim, uint32_t ticks_per_usec)
 {
   timer_reset(tim);
   timer_set_mode(tim, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(tim, 0xFFFF);
   uint32_t timer_clk = timer_get_frequency(tim);
-  timer_set_prescaler(tim, (timer_clk / (PWM_INPUT_TICKS_PER_USEC * ONE_MHZ_CLK)) - 1);
+  timer_set_prescaler(tim, (timer_clk / (ticks_per_usec * ONE_MHZ_CLK)) - 1);
   timer_enable_counter(tim);
 }
 
@@ -76,15 +81,27 @@ void pwm_input_init(void)
    */
 #if USE_PWM_INPUT_TIM1
   rcc_periph_clock_enable(RCC_TIM1);
-  pwm_input_set_timer(TIM1);
+  pwm_input_set_timer(TIM1, PWM_INPUT_TIM1_TICKS_PER_USEC);
 #endif
 #if USE_PWM_INPUT_TIM2
   rcc_periph_clock_enable(RCC_TIM2);
-  pwm_input_set_timer(TIM2);
+  pwm_input_set_timer(TIM2, PWM_INPUT_TIM2_TICKS_PER_USEC);
 #endif
 #if USE_PWM_INPUT_TIM3
   rcc_periph_clock_enable(RCC_TIM3);
-  pwm_input_set_timer(TIM3);
+  pwm_input_set_timer(TIM3, PWM_INPUT_TIM3_TICKS_PER_USEC);
+#endif
+#if USE_PWM_INPUT_TIM5
+  rcc_periph_clock_enable(RCC_TIM5);
+  pwm_input_set_timer(TIM5, PWM_INPUT_TIM5_TICKS_PER_USEC);
+#endif
+#if USE_PWM_INPUT_TIM8
+  rcc_periph_clock_enable(RCC_TIM8);
+  pwm_input_set_timer(TIM8, PWM_INPUT_TIM8_TICKS_PER_USEC);
+#endif
+#if USE_PWM_INPUT_TIM9
+  rcc_periph_clock_enable(RCC_TIM9);
+  pwm_input_set_timer(TIM9, PWM_INPUT_TIM9_TICKS_PER_USEC);
 #endif
 
 #ifdef USE_PWM_INPUT1
@@ -165,6 +182,14 @@ void pwm_input_init(void)
 
 }
 
+uint32_t get_pwm_input_duty_in_usec(uint32_t channel) {
+  return pwm_input_duty_tics[channel] / pwm_input_ticks_per_usec[channel];
+}
+
+uint32_t get_pwm_input_period_in_usec(uint32_t channel) {
+  return pwm_input_period_tics[channel] / pwm_input_ticks_per_usec[channel];
+}
+
 #if USE_PWM_INPUT_TIM1
 
 #if defined(STM32F1)
@@ -235,3 +260,76 @@ void tim3_isr(void) {
 }
 
 #endif
+
+#if USE_PWM_INPUT_TIM5
+
+void tim5_isr(void) {
+  if ((TIM5_SR & TIM5_CC_IF_PERIOD) != 0) {
+    timer_clear_flag(TIM5, TIM5_CC_IF_PERIOD);
+    pwm_input_period_tics[TIM5_PWM_INPUT_IDX] = TIM5_CCR_PERIOD;
+    pwm_input_period_valid[TIM5_PWM_INPUT_IDX] = TRUE;
+  }
+  if ((TIM5_SR & TIM5_CC_IF_DUTY) != 0) {
+    timer_clear_flag(TIM5, TIM5_CC_IF_DUTY);
+    pwm_input_duty_tics[TIM5_PWM_INPUT_IDX] = TIM5_CCR_DUTY;
+    pwm_input_duty_valid[TIM5_PWM_INPUT_IDX] = TRUE;
+  }
+  if ((TIM5_SR & TIM_SR_UIF) != 0) {
+    timer_clear_flag(TIM5, TIM_SR_UIF);
+    // FIXME clear overflow interrupt but what else ?
+  }
+}
+
+#endif
+
+#if USE_PWM_INPUT_TIM8
+
+#if defined(STM32F1)
+void tim8_up_isr(void)
+{
+#elif defined(STM32F4)
+void tim8_up_tim13_isr(void) {
+#endif
+  if ((TIM8_SR & TIM_SR_UIF) != 0) {
+    timer_clear_flag(TIM8, TIM_SR_UIF);
+    // FIXME clear overflow interrupt but what else ?
+  }
+}
+
+void tim8_cc_isr(void) {
+  if ((TIM8_SR & TIM8_CC_IF_PERIOD) != 0) {
+    timer_clear_flag(TIM8, TIM8_CC_IF_PERIOD);
+    pwm_input_period_tics[TIM8_PWM_INPUT_IDX] = TIM8_CCR_PERIOD;
+    pwm_input_period_valid[TIM8_PWM_INPUT_IDX] = TRUE;
+  }
+  if ((TIM8_SR & TIM8_CC_IF_DUTY) != 0) {
+    timer_clear_flag(TIM8, TIM8_CC_IF_DUTY);
+    pwm_input_duty_tics[TIM8_PWM_INPUT_IDX] = TIM8_CCR_DUTY;
+    pwm_input_duty_valid[TIM8_PWM_INPUT_IDX] = TRUE;
+  }
+}
+
+#endif
+
+#if USE_PWM_INPUT_TIM9
+
+// TIM1 break interrupt (which we don't care here) and TIM9 global interrupt
+void tim1_brk_tim9_isr(void) {
+  if ((TIM9_SR & TIM9_CC_IF_PERIOD) != 0) {
+    timer_clear_flag(TIM9, TIM9_CC_IF_PERIOD);
+    pwm_input_period_tics[TIM9_PWM_INPUT_IDX] = TIM9_CCR_PERIOD;
+    pwm_input_period_valid[TIM9_PWM_INPUT_IDX] = TRUE;
+  }
+  if ((TIM9_SR & TIM9_CC_IF_DUTY) != 0) {
+    timer_clear_flag(TIM9, TIM9_CC_IF_DUTY);
+    pwm_input_duty_tics[TIM9_PWM_INPUT_IDX] = TIM9_CCR_DUTY;
+    pwm_input_duty_valid[TIM9_PWM_INPUT_IDX] = TRUE;
+  }
+  if ((TIM9_SR & TIM_SR_UIF) != 0) {
+    timer_clear_flag(TIM9, TIM_SR_UIF);
+    // FIXME clear overflow interrupt but what else ?
+  }
+}
+
+#endif
+

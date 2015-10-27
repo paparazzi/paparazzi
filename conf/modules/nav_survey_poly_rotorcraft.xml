@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_survey_poly" dir="nav">
+  <doc>
+    <description>
+Polygon survey from OSAM.
+You can use:
+* nav_survey_poly_osam_setup function for static definitions or
+* nav_survey_poly_osam_setup_towards for a more flexible setup
+    </description>
+    <define name="POLYSURVEY_MAX_POLYGONSIZE" value="10" description="max waypoints usable in polygon survey"/>
+    <define name="POLYSURVEY_DEFAULT_SIZE" value="5" description="default number of waypoints/corners used in polygon survey. Can be changed by telemetry"/>
+    <define name="POLYSURVEY_DEFAULT_DISTANCE" value="120" description="default distance in m between lines. Can be changed by telemetry"/>
+    <define name="POLYSURVEY_ENTRY_DISTANCE" value="4" description="distante between the polygon border and first line.If 0 the distance well be equal to half sweep"/>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="P_Survey">
+        <dl_setting min="0" max="20" step="1" var="Poly_Size" type="uint8_t" shortname="Size" module="modules/nav/nav_survey_poly_rotorcraft"/>
+        <dl_setting min="0" max="500" step="1" var="Poly_Distance" type="float" shortname="Sweep" module="modules/nav/nav_survey_poly_rotorcraft"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="nav_survey_poly_rotorcraft.h"/>
+  </header>
+  <makefile target="ap|nps">
+    <file name="nav_survey_poly_rotorcraft.c"/>
+  </makefile>
+</module>

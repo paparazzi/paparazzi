@@ -1,0 +1,39 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="AOA_pwm" dir="sensors">
+  <doc>
+    <description> Angle of Attack sensor using PWM input</description>
+    <configure name="AOA_PWM_CHANNEL" value="PWM_INPUTX" description="Select PWM input channel for AOA sensor"/>
+    <define name="AOA_SENS" value="(2*3.14)/AOA_PWM_PERIOD" description="sensor sensitivity"/>
+    <define name="AOA_OFFSET" value="0."  description="offset in radian that can be set from settings"/>
+    <define name="AOA_ANGLE_OFFSET" value="3.14"  description="global offset in radian corresponding to the sensor mounting (default: 3.14)"/>
+    <define name="AOA_REVERSE" value="TRUE|FALSE" description="set to TRUE to reverse rotation direction"/>
+    <define name="AOA_PWM_PERIOD" value="4096" description="period in microsec (e.g. 4096 for 12 bits sensor)"/>
+    <define name="AOA_PWM_OFFSET" value="1" description="initial offset on the raw pwm signal if needed (default: 1usec)"/>
+    <define name="SEND_AOA" value="TRUE|FALSE" description="enable telemetry report (default: TRUE)"/>
+    <define name="LOG_AOA" value="TRUE|FALSE" description="enable logging on SD card (default: FALSE)"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="AOA">
+        <dl_setting MAX="180" MIN="-180" STEP="0.1" VAR="aoa_pwm.offset" shortname="AOA_offset" module="modules/sensors/aoa_pwm" param="AOA_OFFSET" unit="rad" alt_unit="deg"/>
+        <dl_setting MAX="0.95" MIN="0" STEP="0.001" VAR="aoa_pwm.filter" shortname="AOA_filter" module="modules/sensors/aoa_pwm" param="AOA_FILTER"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>pwm_meas</depends>
+  <header>
+    <file name="aoa_pwm.h" />
+  </header>
+
+  <init fun="aoa_pwm_init()" />
+  <periodic fun="aoa_pwm_update()" freq="20" />
+
+  <makefile target="ap">
+    <file name="aoa_pwm.c" />
+    <define name="AOA_PWM_CHANNEL" value="$(AOA_PWM_CHANNEL)" cond="ifdef AOA_PWM_CHANNEL" />
+    <define name="$(AOA_PWM_CHANNEL)_TICKS_PER_USEC" value="1" />
+    <define name="USE_$(AOA_PWM_CHANNEL)" value="PWM_PULSE_TYPE_ACTIVE_LOW" />
+  </makefile>
+</module>

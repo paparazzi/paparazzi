@@ -39,6 +39,53 @@
 
 #include "std.h"
 
+#if defined(STM32F4)
+/* untested, should go into libopencm3 */
+const clock_scale_t hse_24mhz_3v3[CLOCK_3V3_END] = {
+	{ /* 48MHz */
+		.pllm = 24,
+		.plln = 96,
+		.pllp = 2,
+		.pllq = 2,
+		.hpre = RCC_CFGR_HPRE_DIV_NONE,
+		.ppre1 = RCC_CFGR_PPRE_DIV_4,
+		.ppre2 = RCC_CFGR_PPRE_DIV_2,
+		.power_save = 1,
+		.flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
+				FLASH_ACR_LATENCY_3WS,
+		.apb1_frequency = 12000000,
+		.apb2_frequency = 24000000,
+	},
+	{ /* 120MHz */
+		.pllm = 24,
+		.plln = 240,
+		.pllp = 2,
+		.pllq = 5,
+		.hpre = RCC_CFGR_HPRE_DIV_NONE,
+		.ppre1 = RCC_CFGR_PPRE_DIV_4,
+		.ppre2 = RCC_CFGR_PPRE_DIV_2,
+		.power_save = 1,
+		.flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
+				FLASH_ACR_LATENCY_3WS,
+		.apb1_frequency = 30000000,
+		.apb2_frequency = 60000000,
+	},
+	{ /* 168MHz */
+		.pllm = 24,
+		.plln = 336,
+		.pllp = 2,
+		.pllq = 7,
+		.hpre = RCC_CFGR_HPRE_DIV_NONE,
+		.ppre1 = RCC_CFGR_PPRE_DIV_4,
+		.ppre2 = RCC_CFGR_PPRE_DIV_2,
+		.flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
+				FLASH_ACR_LATENCY_5WS,
+		.apb1_frequency = 42000000,
+		.apb2_frequency = 84000000,
+	},
+};
+#endif
+
 void mcu_arch_init(void)
 {
 #if LUFTBOOT
@@ -69,6 +116,11 @@ void mcu_arch_init(void)
 #if defined(STM32F4)
   PRINT_CONFIG_MSG("Using 16MHz external clock to PLL it to 168MHz.")
   rcc_clock_setup_hse_3v3(&hse_16mhz_3v3[CLOCK_3V3_168MHZ]);
+#endif
+#elif EXT_CLK == 24000000
+#if defined(STM32F4)
+  PRINT_CONFIG_MSG("Using 24MHz external clock to PLL it to 168MHz.")
+  rcc_clock_setup_hse_3v3(&hse_24mhz_3v3[CLOCK_3V3_168MHZ]);
 #endif
 #elif EXT_CLK == 25000000
 #if defined(STM32F4)

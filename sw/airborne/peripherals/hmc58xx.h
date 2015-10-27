@@ -69,6 +69,7 @@ struct Hmc58xx {
   } data;
   struct Hmc58xxConfig config;
   enum Hmc58xxType type;
+  uint16_t adc_overflow_cnt;          ///< counts number of ADC measurement under/overflows
 };
 
 

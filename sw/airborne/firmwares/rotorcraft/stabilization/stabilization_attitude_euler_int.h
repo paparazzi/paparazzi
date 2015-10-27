@@ -27,4 +27,7 @@
 
 extern struct Int32Eulers stabilization_att_sum_err;
 
+extern struct Int32Eulers stab_att_sp_euler;
+extern struct AttRefEulerInt att_ref_euler_i;
+
 #endif /* STABILIZATION_ATTITUDE_EULER_INT_H */

@@ -80,7 +80,7 @@ static inline void tunnel_event(void)
     tx_time = get_sys_time_msec();
 #endif
     inc = VCOM_getchar();
-    uart_transmit(&USB_TUNNEL_UART, inc);
+    uart_put_byte(&USB_TUNNEL_UART, inc);
   }
 }
 

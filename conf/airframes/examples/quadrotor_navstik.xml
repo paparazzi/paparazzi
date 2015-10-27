@@ -29,8 +29,10 @@
     <subsystem name="telemetry"     type="xbee_api"/>
     <subsystem name="imu"           type="navstik"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <subsystem name="stabilization" type="indi"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+    </subsystem>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
@@ -44,11 +46,11 @@
 
   <modules>
     <load name="gps_ubx_ucenter.xml"/>
-    <load name="airspeed_ms45xx_i2c.xml">
+    <!--load name="airspeed_ms45xx_i2c.xml">
       <define name="MS45XX_I2C_DEV" value="i2c3"/>
       <define name="USE_I2C3"/>
     </load>
-    <load name="direct_memory_logger.xml"/>
+    <load name="direct_memory_logger.xml"/-->
   </modules>
 
   <servos driver="Asctec_v2">
@@ -135,6 +137,37 @@
     <define name="DDGAIN_R" value="300"/>
   </section>
 
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <!-- control effectiveness -->
+    <define name="G1_P" value="0.150"/>
+    <define name="G1_Q" value="0.150"/>
+    <define name="G1_R" value="0.005119"/>
+    <define name="G2_R" value="0.2166"/>
+
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="900.0"/>
+    <define name="REF_ERR_Q" value="900.0"/>
+    <define name="REF_ERR_R" value="500.0"/>
+    <define name="REF_RATE_P" value="38.0"/>
+    <define name="REF_RATE_Q" value="38.0"/>
+    <define name="REF_RATE_R" value="25.0"/>
+
+    <!-- second order filter parameters -->
+    <define name="FILT_OMEGA" value="50.0"/>
+    <define name="FILT_ZETA" value="0.55"/>
+    <define name="FILT_OMEGA_R" value="50.0"/>
+    <define name="FILT_ZETA_R" value="0.55"/>
+
+    <!-- first order actuator dynamics -->
+    <define name="ACT_DYN_P" value="0.2"/>
+    <define name="ACT_DYN_Q" value="0.2"/>
+    <define name="ACT_DYN_R" value="0.2"/>
+
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="ADAPTIVE_MU" value="0.0001"/>
+  </section>
+
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
@@ -194,9 +227,9 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="{&quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;, &quot;nw_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
 
   <section name="AUTOPILOT">

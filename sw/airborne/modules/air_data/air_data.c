@@ -129,7 +129,7 @@ static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, float pr
     air_data.airspeed = eas_from_dynamic_pressure(air_data.differential);
     air_data.tas = tas_from_eas(air_data.airspeed);
 #if USE_AIRSPEED_AIR_DATA
-    stateSetAirspeed_f(&air_data.airspeed);
+    stateSetAirspeed_f(air_data.airspeed);
 #endif
   }
 }

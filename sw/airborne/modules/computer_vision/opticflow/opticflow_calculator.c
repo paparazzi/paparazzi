@@ -35,13 +35,20 @@
 // Own Header
 #include "opticflow_calculator.h"
 
-
 // Computer Vision
 #include "lib/vision/image.h"
 #include "lib/vision/lucas_kanade.h"
 #include "lib/vision/fast_rosten.h"
 
 #include "size_divergence.h"
+#include "linear_flow_fit.h"
+
+// What methods are run to determine divergence, lateral flow, etc.
+// SIZE_DIV looks at line sizes and only calculates divergence
+#define SIZE_DIV 1
+// LINEAR_FIT makes a linear optical flow field fit and extracts a lot of information:
+// relative velocities in x, y, z (divergence / time to contact), the slope of the surface, and the surface roughness.
+#define LINEAR_FIT 1
 
 // Camera parameters (defaults are from an ARDrone 2)
 #ifndef OPTICFLOW_FOV_W
@@ -150,6 +157,9 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // variables for size_divergence:
   float size_divergence; int n_samples;
 
+  // variables for linear flow fit:
+  float error_threshold; int n_iterations_RANSAC, n_samples_RANSAC, success_fit; struct linear_flow_fit_info fit_info;
+
   // Update FPS for information
   result->fps = 1 / (timeval_diff(&opticflow->prev_timestamp, &img->ts) / 1000.);
   memcpy(&opticflow->prev_timestamp, &img->ts, sizeof(struct timeval));
@@ -208,9 +218,32 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
 #endif
 
   // Estimate size divergence:
-  n_samples = 100;
-  size_divergence = get_size_divergence(vectors, result->tracked_cnt, n_samples);
-  result->div_size = size_divergence;
+  if (SIZE_DIV) {
+    n_samples = 100;
+    size_divergence = get_size_divergence(vectors, result->tracked_cnt, n_samples);
+    result->div_size = size_divergence;
+  } else {
+    result->div_size = 0.0f;
+  }
+  if (LINEAR_FIT) {
+    // Linear flow fit (normally derotation should be performed before):
+    error_threshold = 10.0f;
+    n_iterations_RANSAC = 20;
+    n_samples_RANSAC = 5;
+    success_fit = analyze_linear_flow_field(vectors, result->tracked_cnt, error_threshold, n_iterations_RANSAC, n_samples_RANSAC, img->w, img->h, &fit_info);
+
+    if (!success_fit) {
+      fit_info.divergence = 0.0f;
+      fit_info.surface_roughness = 0.0f;
+    }
+
+    result->divergence = fit_info.divergence;
+    result->surface_roughness = fit_info.surface_roughness;
+  } else {
+    result->divergence = 0.0f;
+    result->surface_roughness = 0.0f;
+  }
+
 
   // Get the median flow
   qsort(vectors, result->tracked_cnt, sizeof(struct flow_t), cmp_flow);

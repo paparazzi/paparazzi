@@ -28,11 +28,6 @@
     </subsystem-->
   </firmware>
 
-  <firmware name="setup">
-    <target name="tunnel" 		      board="tiny_2.11" />
-    <target name="setup_actuators" 	board="tiny_2.11" />
-  </firmware>
-
   <modules>
     <load name="infrared_adc.xml"/>
     <load name="ahrs_infrared.xml"/>

@@ -95,9 +95,9 @@ static inline void hackhd_send_shot_position(void)
   int16_t theta = DegOfRad(stateGetNedToBodyEulers_f()->theta * 10.0f);
   int16_t psi = DegOfRad(stateGetNedToBodyEulers_f()->psi * 10.0f);
   // course in decideg
-  int16_t course = DegOfRad(*stateGetHorizontalSpeedDir_f()) * 10;
+  int16_t course = DegOfRad(stateGetHorizontalSpeedDir_f()) * 10;
   // ground speed in cm/s
-  uint16_t speed = (*stateGetHorizontalSpeedNorm_f()) * 10;
+  uint16_t speed = stateGetHorizontalSpeedNorm_f() * 10;
 
   DOWNLINK_SEND_DC_SHOT(DefaultChannel, DefaultDevice,
                         &hackhd.photo_nr,

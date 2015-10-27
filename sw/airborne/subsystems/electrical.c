@@ -30,6 +30,8 @@
 #include "mcu_periph/adc.h"
 #include "subsystems/commands.h"
 
+#include "autopilot.h"
+
 #include "generated/airframe.h"
 #include BOARD_CONFIG
 
@@ -62,12 +64,12 @@ PRINT_CONFIG_VAR(MIN_BAT_LEVEL)
 
 struct Electrical electrical;
 
-#if defined ADC_CHANNEL_VSUPPLY || defined ADC_CHANNEL_CURRENT || defined MILLIAMP_AT_FULL_THROTTLE
+#if defined ADC_CHANNEL_VSUPPLY || (defined ADC_CHANNEL_CURRENT && !defined SITL) || defined MILLIAMP_AT_FULL_THROTTLE
 static struct {
 #ifdef ADC_CHANNEL_VSUPPLY
   struct adc_buf vsupply_adc_buf;
 #endif
-#ifdef ADC_CHANNEL_CURRENT
+#if defined ADC_CHANNEL_CURRENT && !defined SITL
   struct adc_buf current_adc_buf;
 #endif
 #ifdef MILLIAMP_AT_FULL_THROTTLE
@@ -86,6 +88,13 @@ static struct {
 #ifndef CURRENT_ESTIMATION_NONLINEARITY
 #define CURRENT_ESTIMATION_NONLINEARITY 1.2
 #endif
+
+#if defined MILLIAMP_AT_FULL_THROTTLE && !defined MILLIAMP_AT_IDLE_THROTTLE
+  PRINT_CONFIG_MSG("Assuming 0 mA at idle throttle")
+  #define MILLIAMP_AT_IDLE_THROTTLE 0
+#endif
+
+PRINT_CONFIG_VAR(MILLIAMP_AT_IDLE_THROTTLE)
 
 void electrical_init(void)
 {
@@ -138,13 +147,35 @@ void electrical_periodic(void)
    *
    * define CURRENT_ESTIMATION_NONLINEARITY in your airframe file to change the default nonlinearity factor of 1.2
    */
-  float b = (float)MILLIAMP_AT_FULL_THROTTLE;
+  float full_current = (float)MILLIAMP_AT_FULL_THROTTLE;
+  float idle_current = (float)MILLIAMP_AT_IDLE_THROTTLE;
+
   float x = ((float)commands[COMMAND_CURRENT_ESTIMATION]) / ((float)MAX_PPRZ);
+
+  /* Boundary check for x to prevent math errors due to negative numbers in
+   * pow() */
+  if(x > 1.0f) {
+    x = 1.0f;
+  } else if(x < 0.0f) {
+    x = 0.0f;
+  }
+
   /* electrical.current y = ( b^n - (b* x/a)^n )^1/n
    * a=1, n = electrical_priv.nonlin_factor
    */
-  electrical.current = b - pow((pow(b, electrical_priv.nonlin_factor) - pow((b * x), electrical_priv.nonlin_factor)),
-                               (1. / electrical_priv.nonlin_factor));
+#ifndef FBW
+  if(kill_throttle) {
+    // Assume no current when throttle killed (motors off)
+    electrical.current = 0;
+  } else {
+#endif
+    electrical.current = full_current -
+                         pow((pow(full_current - idle_current, electrical_priv.nonlin_factor) -
+                              pow(((full_current - idle_current) * x), electrical_priv.nonlin_factor)),
+                           (1. / electrical_priv.nonlin_factor));
+#ifndef FBW
+  }
+#endif
 #endif /* ADC_CHANNEL_CURRENT */
 
   // mAh = mA * dt (10Hz -> hours)

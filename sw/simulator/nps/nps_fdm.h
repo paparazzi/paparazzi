@@ -27,6 +27,7 @@ extern "C" {
 #endif
 
 #include "std.h"
+#include "../flight_gear.h"
 #include "math/pprz_geodetic_double.h"
 #include "math/pprz_algebra_double.h"
 
@@ -105,12 +106,24 @@ struct NpsFdm {
 
   struct DoubleVect3 wind; ///< velocity in m/s in NED
 
+  // Control surface positions (normalized values)
+  float elevator;
+  float flap;
+  float left_aileron;
+  float right_aileron;
+  float rudder;
+
+  //engine state for first engine
+  uint32_t num_engines;
+  uint32_t eng_state[FG_NET_FDM_MAX_ENGINES];// Engine state (off, cranking, running)
+  float rpm[FG_NET_FDM_MAX_ENGINES];       // Engine RPM rev/min
+
 };
 
 extern struct NpsFdm fdm;
 
 extern void nps_fdm_init(double dt);
-extern void nps_fdm_run_step(bool_t launch, double* commands, int commands_nb);
+extern void nps_fdm_run_step(bool_t launch, double *commands, int commands_nb);
 extern void nps_fdm_set_wind(double speed, double dir);
 extern void nps_fdm_set_wind_ned(double wind_north, double wind_east, double wind_down);
 extern void nps_fdm_set_turbulence(double wind_speed, int turbulence_severity);

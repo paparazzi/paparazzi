@@ -398,10 +398,10 @@ void ahrs_fc_update_mag_2d_dumb(struct Int32Vect3 *mag)
 
 }
 
-void ahrs_fc_update_gps(struct GpsState *gps_s)
+void ahrs_fc_update_gps(struct GpsState *gps_s __attribute__((unused)))
 {
 #if AHRS_GRAVITY_UPDATE_COORDINATED_TURN && USE_GPS
-  if (gps_s->fix == GPS_FIX_3D) {
+  if (gps_s->fix >= GPS_FIX_3D) {
     ahrs_fc.ltp_vel_norm = gps_s->speed_3d / 100.;
     ahrs_fc.ltp_vel_norm_valid = TRUE;
   } else {
@@ -411,7 +411,7 @@ void ahrs_fc_update_gps(struct GpsState *gps_s)
 
 #if AHRS_USE_GPS_HEADING && USE_GPS
   //got a 3d fix, ground speed > 0.5 m/s and course accuracy is better than 10deg
-  if (gps_s->fix == GPS_FIX_3D && gps_s->gspeed >= 500 &&
+  if (gps_s->fix >= GPS_FIX_3D && gps_s->gspeed >= 500 &&
       gps_s->cacc <= RadOfDeg(10 * 1e7)) {
 
     // gps_s->course is in rad * 1e7, we need it in rad

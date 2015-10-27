@@ -292,7 +292,7 @@ static inline void v_ctl_set_airspeed(void)
     BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR / v_ctl_auto_pitch_igain);
   }
 
-  float err_airspeed = v_ctl_auto_airspeed_setpoint - *stateGetAirspeed_f();
+  float err_airspeed = v_ctl_auto_airspeed_setpoint - stateGetAirspeed_f();
   float d_err_airspeed = (err_airspeed - last_err_as) * AIRSPEED_LOOP_PERIOD;
   last_err_as = err_airspeed;
   if (v_ctl_auto_airspeed_throttle_igain > 0.) {
@@ -340,7 +340,7 @@ static inline void v_ctl_set_airspeed(void)
 static inline void v_ctl_set_groundspeed(void)
 {
   // Ground speed control loop (input: groundspeed error, output: airspeed controlled)
-  float err_groundspeed = v_ctl_auto_groundspeed_setpoint - *stateGetHorizontalSpeedNorm_f();
+  float err_groundspeed = v_ctl_auto_groundspeed_setpoint - stateGetHorizontalSpeedNorm_f();
   v_ctl_auto_groundspeed_sum_err += err_groundspeed;
   BoundAbs(v_ctl_auto_groundspeed_sum_err, V_CTL_AUTO_GROUNDSPEED_MAX_SUM_ERR);
   v_ctl_auto_airspeed_setpoint = err_groundspeed * v_ctl_auto_groundspeed_pgain + v_ctl_auto_groundspeed_sum_err *

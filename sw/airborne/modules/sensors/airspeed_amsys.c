@@ -118,12 +118,12 @@ void airspeed_amsys_read_periodic(void)
   }
 
 #if USE_AIRSPEED_AMSYS
-  stateSetAirspeed_f(&airspeed_amsys);
+  stateSetAirspeed_f(airspeed_amsys);
 #endif
 
 #elif !defined USE_NPS
   extern float sim_air_speed;
-  stateSetAirspeed_f(&sim_air_speed);
+  stateSetAirspeed_f(sim_air_speed);
 #endif //SITL
 
 
@@ -208,7 +208,7 @@ void airspeed_amsys_read_event(void)
 
       //New value available
 #if USE_AIRSPEED
-      stateSetAirspeed_f(&airspeed_amsys);
+      stateSetAirspeed_f(airspeed_amsys);
 #endif
 #ifdef AIRSPEED_AMSYS_SYNC_SEND
       airspeed_amsys_downlink();

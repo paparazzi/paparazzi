@@ -70,3 +70,8 @@ int32_t persistent_read(void *ptr, uint32_t size)
   fclose(file);
   return 0;
 }
+
+int32_t persistent_clear(void)
+{
+  return remove(PERSISTENT_SETTINGS_FILE);
+}

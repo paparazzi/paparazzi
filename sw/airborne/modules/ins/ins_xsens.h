@@ -68,7 +68,7 @@ extern struct ImuXsens imu_xsens;
 
 /* use Xsens as a full INS solution */
 #if USE_INS_MODULE
-#define InsEvent(_ins_handler) {  \
+#define InsEvent() {  \
     ins_event_check_and_handle(handle_ins_msg);   \
   }
 #define DefaultInsImpl ins_xsens

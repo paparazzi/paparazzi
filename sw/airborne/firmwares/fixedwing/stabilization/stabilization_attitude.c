@@ -203,17 +203,17 @@ void h_ctl_course_loop(void)
   static float last_err;
 
   // Ground path error
-  float err = *stateGetHorizontalSpeedDir_f() - h_ctl_course_setpoint;
+  float err = stateGetHorizontalSpeedDir_f() - h_ctl_course_setpoint;
   NormRadAngle(err);
 
 #ifdef STRONG_WIND
   // Usefull path speed
   const float reference_advance = (NOMINAL_AIRSPEED / 2.);
-  float advance = cos(err) * (*stateGetHorizontalSpeedNorm_f()) / reference_advance;
+  float advance = cos(err) * stateGetHorizontalSpeedNorm_f() / reference_advance;
 
   if (
     (advance < 1.)  &&                          // Path speed is small
-    ((*stateGetHorizontalSpeedNorm_f()) < reference_advance)  // Small path speed is due to wind (small groundspeed)
+    (stateGetHorizontalSpeedNorm_f() < reference_advance)  // Small path speed is due to wind (small groundspeed)
   ) {
     /*
     // rough crabangle approximation
@@ -282,7 +282,7 @@ void h_ctl_course_loop(void)
   }
 #endif
 
-  float speed_depend_nav = (*stateGetHorizontalSpeedNorm_f()) / NOMINAL_AIRSPEED;
+  float speed_depend_nav = stateGetHorizontalSpeedNorm_f() / NOMINAL_AIRSPEED;
   Bound(speed_depend_nav, 0.66, 1.5);
 
   float cmd = -h_ctl_course_pgain * speed_depend_nav * (err + d_err * h_ctl_course_dgain);
@@ -461,7 +461,7 @@ inline static void h_ctl_pitch_loop(void)
       err = att->theta - h_ctl_pitch_loop_setpoint;
       break;
     case H_CTL_PITCH_MODE_AOA:
-      err = (*stateGetAngleOfAttack_f()) - h_ctl_pitch_loop_setpoint;
+      err = stateGetAngleOfAttack_f() - h_ctl_pitch_loop_setpoint;
       break;
     default:
       err = att->theta - h_ctl_pitch_loop_setpoint;

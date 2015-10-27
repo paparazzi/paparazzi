@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="vertical_ctrl_module_demo" dir="ctrl">
+  <doc>
+    <description>
+        Demo Vertical Control Module.
+        Only for rotorcraft firmware.
+        Example on how to reads the sonar and directly control the thrust.
+    </description>
+    <define name="VERTICAL_CTRL_MODULE_AGL_ID" value="ABI_BROADCAST" description="Sender id of the AGL (sonar) ABI message"/>
+    <section name="VERTICAL_CTRL_MODULE" prefix="VERTICAL_CTRL_MODULE_">
+      <define name="PGAIN" value="1.0" description="P gain on height error"/>
+      <define name="IGAIN" value="0.01" description="I gain on summed height error"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="VertCtrlModDemo">
+        <dl_setting var="v_ctrl.setpoint" min="0" step="0.01" max="10" module="ctrl/vertical_ctrl_module_demo" shortname="height sp"/>
+        <dl_setting var="v_ctrl.pgain" min="0" step="0.01" max="1" module="ctrl/vertical_ctrl_module_demo" shortname="pgain" param="VERTICAL_CTRL_MODULE_PGAIN"/>
+        <dl_setting var="v_ctrl.igain" min="0" step="0.01" max="1" module="ctrl/vertical_ctrl_module_demo" shortname="igain" param="VERTICAL_CTRL_MODULE_IGAIN"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="vertical_ctrl_module_demo.h"/>
+  </header>
+
+  <makefile>
+    <file name="vertical_ctrl_module_demo.c"/>
+  </makefile>
+
+</module>

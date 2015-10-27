@@ -1,0 +1,57 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="video_cam_ctrl" dir="digital_cam">
+  <doc>
+    <description>
+      Digital Photo Camera Triggering (using embedded video)
+
+      This module controls triggering of an embedded digital camera on a linux based autopilot. This particular version triggers the video_rtp_stream.xml module to store jpeg images.
+      It can trigger photos based on GPS distance, time or circle radius in both fixedwings and rotorcraft.
+    </description>
+    <define name="DC_AUTOSHOOT_PERIOD" value="0.5" description="time period for DC_AUTOSHOOT_PERIODIC in seconds"/>
+    <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="grid in meters"/>
+    <define name="DC_SHOT_SYNC_SEND" value="TRUE|FALSE" description="send DC_SHOT message when photo was taken (default: TRUE)"/>
+  </doc>
+  <settings>
+    <dl_settings name="control">
+      <dl_settings name="dc">
+
+        <dl_setting max="255" min="0" step="1" module="digital_cam/dc" var="0" handler="send_command" shortname="Shutter">
+          <strip_button name="Photo" icon="digital-camera.png" value="32" group="dc"/>
+        </dl_setting>
+
+        <dl_setting max="3" min="0" step="1" var="dc_autoshoot" values="STOP|PERIODIC|DISTANCE|EXT_TRIG">
+          <strip_button name="Start Autoshoot" icon="dcstart.png" value="1" group="dc"/>
+          <strip_button name="Stop Autoshoot" icon="dcstop.png" value="0" group="dc"/>
+        </dl_setting>
+
+        <dl_setting max="60" min="0.1" step="0.5" var="dc_autoshoot_period" shortname="Periodic" param="DC_AUTOSHOOT_PERIOD" unit="sec"/>
+        <dl_setting max="255" min="0" step="1" var="dc_distance_interval" shortname="dist" param="DC_AUTOSHOOT_DISTANCE_INTERVAL" unit="meter"/>
+
+        <dl_setting max="250" min="0" step="5" module="digital_cam/dc" var="dc_survey_interval" handler="Survey" shortname="Survey-Interval"/>
+        <dl_setting max="90" min="5" step="5" module="digital_cam/dc" var="dc_circle_interval" handler="Circle" shortname="Circle-Interval"/>
+        <dl_setting max="1" min="0" step="1" var="dc_cam_tracing" shortname="Cam-Tracing"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>video_thread</depends>
+
+  <conflicts>digital_cam,digital_cam_servo,digital_cam_i2c,digital_cam_uart</conflicts>
+
+  <header>
+    <file name="video_cam_ctrl.h"/>
+    <file name="dc.h"/>
+  </header>
+
+  <init fun="digital_cam_video_init()"/>
+
+  <periodic fun="digital_cam_video_periodic()" freq="10" autorun="TRUE"/>
+
+  <makefile target="ap|sim|nps">
+    <define name="DIGITAL_CAM" />
+    <file name="video_cam_ctrl.c"/>
+    <file name="dc.c"/>
+  </makefile>
+
+</module>
+

@@ -1,0 +1,32 @@
+<!-- ARDrone calibration file -->
+
+<airframe>
+  <section name="IMU" prefix="IMU_">
+    <!-- Magneto calibration -->
+<!-- 29 July 2015
+    <define name="MAG_X_NEUTRAL" value="-99"/>
+    <define name="MAG_Y_NEUTRAL" value="-185"/>
+    <define name="MAG_Z_NEUTRAL" value="231"/>
+    <define name="MAG_X_SENS" value="7.34644053151" integer="16"/>
+    <define name="MAG_Y_SENS" value="7.4512906596" integer="16"/>
+    <define name="MAG_Z_SENS" value="7.58830326448" integer="16"/>
+-->
+<!-- 16 Sept 2015 -->
+    <define name="MAG_X_NEUTRAL" value="-103"/>
+    <define name="MAG_Y_NEUTRAL" value="-147"/>
+    <define name="MAG_Z_NEUTRAL" value="199"/>
+    <define name="MAG_X_SENS" value="7.38783607911" integer="16"/>
+    <define name="MAG_Y_SENS" value="7.51958336336" integer="16"/>
+    <define name="MAG_Z_SENS" value="7.57326739805" integer="16"/>
+    <!-- Magneto current calibration -->
+<!--
+    <define name="MAG_X_CURRENT_COEF" value="0.00175105205138"/>
+    <define name="MAG_Y_CURRENT_COEF" value="0.000172518663485"/>
+    <define name="MAG_Z_CURRENT_COEF" value="0.00022802329524"/>
+-->
+    <define name= "MAG_X_CURRENT_COEF" value="-0.00261568295499"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="-0.00130036837045"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="-0.00277466508681"/>
+
+  </section>
+</airframe>

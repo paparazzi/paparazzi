@@ -25,8 +25,8 @@
 MEMORY
 {
 	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
-	/* Leaving 2k of space at the end of rom for stored settings */
-	rom (rx) : ORIGIN = 0x08000000, LENGTH = 1022K
+	/* Reserving 128kb at the end of the flash for persistent settings. */
+	rom (rx) : ORIGIN = 0x08000000, LENGTH = 896K
 }
 
 /* Include the common ld script. */

@@ -19,12 +19,29 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef STABILIZATION_ATTITUDE_FLOAT_REF_EULER_FLOAT_H
-#define STABILIZATION_ATTITUDE_FLOAT_REF_EULER_FLOAT_H
+#ifndef STABILIZATION_ATTITUDE_REF_EULER_FLOAT_H
+#define STABILIZATION_ATTITUDE_REF_EULER_FLOAT_H
 
-#include "stabilization_attitude_ref_float.h"
+#include "math/pprz_algebra_float.h"
+#include "attitude_ref_saturate_naive.h"
 
-void stabilization_attitude_ref_enter(void);
+/** Attitude reference model parameters (float) */
+struct FloatRefModel {
+  struct FloatRates omega;
+  struct FloatRates zeta;
+};
 
+/** Attitude reference state/output (euler float) */
+struct AttRefEulerFloat {
+  struct FloatEulers euler;
+  struct FloatRates  rate;
+  struct FloatRates  accel;
+  struct FloatRefSat saturation;
+  struct FloatRefModel model;
+};
 
-#endif /* STABILIZATION_ATTITUDE_FLOAT_REF_EULER_FLOAT_H */
+extern void attitude_ref_euler_float_init(struct AttRefEulerFloat *ref);
+extern void attitude_ref_euler_float_enter(struct AttRefEulerFloat *ref, float psi);
+extern void attitude_ref_euler_float_update(struct AttRefEulerFloat *ref, struct FloatEulers *sp_eulers, float dt);
+
+#endif /* STABILIZATION_ATTITUDE_REF_EULER_FLOAT_H */

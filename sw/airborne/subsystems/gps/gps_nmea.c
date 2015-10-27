@@ -53,6 +53,12 @@
 #include <stdio.h>
 #endif
 
+/* line parser status */
+#define WAIT          0
+#define GOT_START     1
+#define GOT_CHECKSUM  2
+#define GOT_END       3
+
 struct GpsNmea gps_nmea;
 
 static void nmea_parse_GSA(void);
@@ -106,7 +112,7 @@ void WEAK nmea_parse_prop_msg(void)
 }
 
 /**
- * parse_nmea_char() has a complete line.
+ * nmea_parse_char() has a complete line.
  * Find out what type of message it is and
  * hand it to the parser for that type.
  */
@@ -136,8 +142,8 @@ void nmea_parse_msg(void)
     nmea_parse_prop_msg();
   }
 
-  // reset message-buffer
-  gps_nmea.msg_len = 0;
+  // reset line parser
+  gps_nmea.status = WAIT;
 }
 
 
@@ -149,28 +155,67 @@ void nmea_parse_msg(void)
  */
 void nmea_parse_char(uint8_t c)
 {
-  //reject empty lines
-  if (gps_nmea.msg_len == 0) {
-    if (c == '\r' || c == '\n' || c == '$') {
-      return;
-    }
-  }
 
-  // fill the buffer, unless it's full
-  if (gps_nmea.msg_len < NMEA_MAXLEN - 1) {
+  switch (gps_nmea.status) {
+    case WAIT:
+      gps_nmea.msg_len = 0;
+      /* valid message needs to start with dollar sign */
+      if (c == '$') {
+        gps_nmea.status = GOT_START;
+      }
+      break;
 
-    // messages end with a linefeed
-    //AD: TRUNK:       if (c == '\r' || c == '\n')
-    if (c == '\r' || c == '\n') {
-      gps_nmea.msg_available = TRUE;
-    } else {
-      gps_nmea.msg_buf[gps_nmea.msg_len] = c;
-      gps_nmea.msg_len ++;
-    }
-  }
+    case GOT_START:
+      switch (c) {
+        case '\r':
+        case '\n':
+          if (gps_nmea.msg_len == 0) {
+            //reject empty lines
+            gps_nmea.status = WAIT;
+            break;
+          }
+          else {
+            // TODO: check for CRC before setting msg as available
+            gps_nmea.status = GOT_END;
+            gps_nmea.msg_available = TRUE;
+          }
+          break;
 
-  if (gps_nmea.msg_len >= NMEA_MAXLEN - 1) {
-    gps_nmea.msg_available = TRUE;
+        case '$':
+          // got another dollar sign, msg incomplete: reset
+          gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
+          NMEA_PRINT("nmea_parse_char: skipping incomplete msg: len=%i, \"%s\"\n\r",
+                     gps_nmea.msg_len, gps_nmea.msg_buf);
+          gps_nmea.status = WAIT;
+          break;
+
+        default:
+           // fill the buffer, unless it's full
+          if (gps_nmea.msg_len < NMEA_MAXLEN - 1) {
+            gps_nmea.msg_buf[gps_nmea.msg_len] = c;
+            gps_nmea.msg_len++;
+          }
+          else {
+            gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
+            NMEA_PRINT("nmea_parse_char: msg too long, len=%i, \"%s\"\n\r",
+                       gps_nmea.msg_len, gps_nmea.msg_buf);
+            gps_nmea.status = WAIT;
+          }
+          break;
+      }
+      break;
+
+    case GOT_CHECKSUM:
+      // TODO
+      break;
+
+    case GOT_END:
+      // shouldn't really happen, msg should be parsed and state reset before the next char
+      NMEA_PRINT("nmea_parse_char: this should not happen!");
+      break;
+
+    default:
+      break;
   }
 }
 

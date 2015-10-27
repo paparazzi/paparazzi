@@ -1,11 +1,11 @@
 <!DOCTYPE settings SYSTEM "../settings.dtd">
 
-<settings target="!sim">
+<settings target="ap|nps|test_imu|test_ahrs">
   <dl_settings>
     <dl_settings NAME="body2imu">
-      <dl_setting MAX="90" MIN="-90" STEP="0.5" VAR="imu.body_to_imu.eulers_f.phi" shortname="b2i phi" module="subsystems/imu" param="IMU_BODY_TO_IMU_PHI" unit="rad" alt_unit="deg" handler="SetBodyToImuPhi"/>
-      <dl_setting MAX="90" MIN="-90" STEP="0.5" VAR="imu.body_to_imu.eulers_f.theta" shortname="b2i theta" module="subsystems/imu" param="IMU_BODY_TO_IMU_THETA" unit="rad" alt_unit="deg" handler="SetBodyToImuTheta"/>
-      <dl_setting MAX="180" MIN="-180" STEP="0.5" VAR="imu.body_to_imu.eulers_f.psi" shortname="b2i psi" module="subsystems/imu" param="IMU_BODY_TO_IMU_PSI" unit="rad" alt_unit="deg" handler="SetBodyToImuPsi"/>
+      <dl_setting MAX="90" MIN="-90" STEP="0.5" VAR="imu.body_to_imu.eulers_f.phi" shortname="b2i phi" module="subsystems/imu" param="IMU_BODY_TO_IMU_PHI" unit="rad" alt_unit="deg" handler="SetBodyToImuPhi" type="float" persistent="true"/>
+      <dl_setting MAX="90" MIN="-90" STEP="0.5" VAR="imu.body_to_imu.eulers_f.theta" shortname="b2i theta" module="subsystems/imu" param="IMU_BODY_TO_IMU_THETA" unit="rad" alt_unit="deg" handler="SetBodyToImuTheta" type="float" persistent="true"/>
+      <dl_setting MAX="180" MIN="-180" STEP="0.5" VAR="imu.body_to_imu.eulers_f.psi" shortname="b2i psi" module="subsystems/imu" param="IMU_BODY_TO_IMU_PSI" unit="rad" alt_unit="deg" handler="SetBodyToImuPsi" type="float" persistent="true"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="imu.b2i_set_current" values="FALSE|TRUE" shortname="b2i cur roll/pitch" module="subsystems/imu" handler="SetBodyToImuCurrent"/>
     </dl_settings>
   </dl_settings>

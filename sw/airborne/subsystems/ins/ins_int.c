@@ -214,7 +214,7 @@ void ins_int_init(void)
 void ins_reset_local_origin(void)
 {
 #if USE_GPS
-  if (gps.fix == GPS_FIX_3D) {
+  if (GpsFixValid()) {
     ltp_def_from_ecef_i(&ins_int.ltp_def, &gps.ecef_pos);
     ins_int.ltp_def.lla.alt = gps.lla_pos.alt;
     ins_int.ltp_def.hmsl = gps.hmsl;
@@ -325,7 +325,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 #if USE_GPS
 void ins_int_update_gps(struct GpsState *gps_s)
 {
-  if (gps_s->fix != GPS_FIX_3D) {
+  if (gps_s->fix < GPS_FIX_3D) {
     return;
   }
 

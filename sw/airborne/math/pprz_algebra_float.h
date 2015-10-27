@@ -585,8 +585,8 @@ static inline float float_vect_norm(const float *a, const int n)
 #define MAKE_MATRIX_PTR(_ptr, _mat, _rows) \
   float * _ptr[_rows]; \
   { \
-    int i; \
-    for (i = 0; i < _rows; i++) { _ptr[i] = &_mat[i][0]; } \
+    int __i; \
+    for (__i = 0; __i < _rows; __i++) { _ptr[__i] = &_mat[__i][0]; } \
   }
 
 /** a = 0 */

@@ -37,6 +37,13 @@
       <define name="MS_DIFF_PRESSURE_SCALE" value="1." description="Scale factor of the differential pressure sensor (only used if EEPROM is not used)"/>
     </section>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="MS">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="meteo_stick.reset_dp_offset" shortname="Reset offset" module="modules/meteo/meteo_stick" values="NONE|RESET"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <depends>pwm_meas</depends>
   <header>
     <file name="meteo_stick.h"/>
@@ -59,13 +66,13 @@ MS_SPI_DEV_LOWER=$(shell echo $(MS_SPI_DEV) | tr A-Z a-z)
     <define name="MS_TEMPERATURE_SLAVE_IDX" value="$(MS_TEMPERATURE_SLAVE_IDX)" cond="ifdef MS_TEMPERATURE_SLAVE_IDX"/>
     <define name="MS_EEPROM_SLAVE_IDX" value="$(MS_EEPROM_SLAVE_IDX)" cond="ifdef MS_EEPROM_SLAVE_IDX"/>
     <define name="USE_SPI_SLAVE$(MS_PRESSURE_SLAVE_IDX)" cond="ifdef MS_PRESSURE_SLAVE_IDX"/>
-    <define name="USE_SPI_SLAVE$(MS_DIFF_PRESSURE_SLAVE_IDX)" cond="ifdef MS_PRESSURE_SLAVE_IDX"/>
+    <define name="USE_SPI_SLAVE$(MS_DIFF_PRESSURE_SLAVE_IDX)" cond="ifdef MS_DIFF_PRESSURE_SLAVE_IDX"/>
     <define name="USE_SPI_SLAVE$(MS_TEMPERATURE_SLAVE_IDX)" cond="ifdef MS_TEMPERATURE_SLAVE_IDX"/>
     <define name="USE_SPI_SLAVE$(MS_EEPROM_SLAVE_IDX)" cond="ifdef MS_EEPROM_SLAVE_IDX"/>
     <define name="MS_SPI_DEV" value="$(MS_SPI_DEV_LOWER)"/>
     <define name="MS_HUMIDITY_PWM_INPUT" value="$(MS_HUMIDITY_PWM_INPUT)" cond="ifdef MS_HUMIDITY_PWM_INPUT"/>
-    <define name="PWM_INPUT_TICKS_PER_USEC" value="42" cond="ifdef MS_HUMIDITY_PWM_INPUT"/> <!-- set timer clock to 42 MHz -->
-    <define name="USE_$(MS_HUMIDITY_PWM_INPUT)" value="PWM_PULSE_TYPE_ACTIVE_LOW" cond="ifdef MS_MS_HUMIDITY_PWM_INPUT"/>
+    <define name="$(MS_HUMIDITY_PWM_INPUT)_TICKS_PER_USEC" value="42" cond="ifdef MS_HUMIDITY_PWM_INPUT"/> <!-- set timer clock to 42 MHz -->
+    <define name="USE_$(MS_HUMIDITY_PWM_INPUT)" value="PWM_PULSE_TYPE_ACTIVE_LOW" cond="ifdef MS_HUMIDITY_PWM_INPUT"/>
   </makefile>
 </module>
 

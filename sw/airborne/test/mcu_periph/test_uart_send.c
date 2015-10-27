@@ -70,8 +70,8 @@ static inline void main_periodic(void)
   static uint8_t i = 0;
 
   /* start "packet with zero */
-  //uart_transmit(&TEST_UART, 0);
-  uart_transmit(&TEST_UART, i);
+  //uart_put_byte(&TEST_UART, 0);
+  uart_put_byte(&TEST_UART, i);
   /* print status every x cycles */
   RunOnceEvery(1, printf("%f, transmit: '%d'\n", get_sys_time_float(), i););
 
@@ -80,5 +80,4 @@ static inline void main_periodic(void)
 
 static inline void main_event(void)
 {
-  uart_event();
 }

@@ -10,7 +10,6 @@ Technische Daten
 
 Abmessungen: Ø 28 x 29 mm
 Freie Wellenlänge: 12.5 mm
-Gewicht ca.: 57 g
 Laststrom (5min/120°C): 9 A
 Umdrehung / Volt: 760 Umin/V
 Max.Wirkungsgrad: 76 %
@@ -18,8 +17,8 @@ Laststrom max. (60 Sek.): 10 A
 Zellenzahl: 6-10 NC/NiMH
 Leistung: 110 W
 Wellendurchmesser: 3.17 mm
-Spannung: 7-12 Volt
-LiPo/LiIo-Zellen: 2-3
+Spannung: 12.6 Volt
+LiPo/LiIo-Zellen: 3
 
 -->
 
@@ -32,9 +31,6 @@ LiPo/LiIo-Zellen: 2-3
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1"/>
       <define name="USE_ATTITUDE_REF" value="1" />
       <define name="AHRS_PROPAGATE_LOW_PASS_RATES" value="1" />
-    </target>
-    <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
     </target>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry" type="xbee_api"/>
@@ -68,7 +64,7 @@ LiPo/LiIo-Zellen: 2-3
   <section name="ACTUATORS_MKK_V2" prefix="ACTUATORS_MKK_V2_">
     <define name="NB" value="3"/>
     <define name="ADDR" value="{ 0x52, 0x56, 0x54 }"/>
-    <define name="DEVICE" value="i2c1"/>
+    <define name="I2C_DEV" value="i2c1"/>
   </section>
 
   <servos driver="Mkk_v2">
@@ -210,11 +206,6 @@ LiPo/LiIo-Zellen: 2-3
     <define name="XBEE_INIT" value="&quot;ATID3332\r&quot;"/>
     <define name="FACE_REINJ_1" value="1024"/>
     <define name="VoltageOfAdc(adc)" value="(0.00528*adc)"/>
-  </section>
-
-  <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>
 
   </airframe>

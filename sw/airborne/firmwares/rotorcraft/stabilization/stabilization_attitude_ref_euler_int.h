@@ -29,4 +29,15 @@
 
 #include "stabilization_attitude_ref_int.h"
 
+/** Attitude reference models and state/output (euler int) */
+struct AttRefEulerInt {
+  struct Int32Eulers euler;  ///< with #REF_ANGLE_FRAC
+  struct Int32Rates  rate;   ///< with #REF_RATE_FRAC
+  struct Int32Rates  accel;  ///< with #REF_ACCEL_FRAC
+};
+
+extern void attitude_ref_euler_int_init(struct AttRefEulerInt *ref);
+extern void attitude_ref_euler_int_enter(struct AttRefEulerInt *ref, int32_t psi);
+extern void attitude_ref_euler_int_update(struct AttRefEulerInt *ref, struct Int32Eulers *sp_euler);
+
 #endif /* STABILIZATION_ATTITUDE_REF_EULER_INT_H */

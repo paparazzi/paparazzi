@@ -30,7 +30,8 @@
 
 struct NpsElectrical nps_electrical;
 
-void nps_electrical_init(void) {
+void nps_electrical_init(void)
+{
 
 #ifdef MAX_BAT_LEVEL
   nps_electrical.supply_voltage = MAX_BAT_LEVEL;
@@ -40,7 +41,8 @@ void nps_electrical_init(void) {
 
 }
 
-void nps_electrical_run_step(double time __attribute__ ((unused))) {
+void nps_electrical_run_step(double time __attribute__((unused)))
+{
   // todo: auto-decrease bat voltage
   electrical.vsupply = nps_electrical.supply_voltage * 10;
 }

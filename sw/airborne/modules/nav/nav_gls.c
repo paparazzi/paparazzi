@@ -174,7 +174,7 @@ bool_t gls_run(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
   float final2 = Max(final_x * final_x + final_y * final_y, 1.);
 
   struct EnuCoor_f *pos_enu = stateGetPositionEnu_f();
-  float hspeed = *stateGetHorizontalSpeedNorm_f();
+  float hspeed = stateGetHorizontalSpeedNorm_f();
 
   float nav_final_progress = ((pos_enu->x - WaypointX(_tod)) * final_x +
                               (pos_enu->y - WaypointY(_tod)) * final_y) / final2;

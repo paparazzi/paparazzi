@@ -671,7 +671,7 @@ void monitor_task(void)
   kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
 
   if (!autopilot_flight_time &&
-      *stateGetHorizontalSpeedNorm_f() > MIN_SPEED_FOR_TAKEOFF) {
+      stateGetHorizontalSpeedNorm_f() > MIN_SPEED_FOR_TAKEOFF) {
     autopilot_flight_time = 1;
     launch = TRUE; /* Not set in non auto launch */
 #if DOWNLINK
@@ -689,7 +689,7 @@ void event_task_ap(void)
 
 #ifndef SINGLE_MCU
   /* for SINGLE_MCU done in main_fbw */
-  /* event functions for mcu peripherals, like i2c, uart, etc.. */
+  /* event functions for mcu peripherals: i2c, usb_serial.. */
   mcu_event();
 #endif /* SINGLE_MCU */
 
@@ -699,7 +699,7 @@ void event_task_ap(void)
 
 #ifdef InsEvent
   TODO("calling InsEvent, remove me..")
-  InsEvent(NULL);
+  InsEvent();
 #endif
 
 #if USE_GPS

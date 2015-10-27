@@ -107,7 +107,7 @@ static BOOL _HandleRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
  */
 static void StallControlPipe(U8 bEPStat __attribute__ ((unused)))
 {
-	U8	*pb;
+	U8	*pb __attribute__((unused));
 	int	i;
 
 	USBHwEPStall(0x80, TRUE);

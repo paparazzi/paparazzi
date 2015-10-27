@@ -2,7 +2,7 @@
 
 <!-- this is a quadrotor frame in X-configuration equiped with
      * Autopilot:   Lisa-m 
-     * Actuators:   HobbyKing Avro Slim 20A
+     * Actuators:   HobbyKing Afro Slim 20A with BLHeli 14.0
      * GPS:         Ublox                  http://wiki.paparazziuav.org/wiki/Subsystem/gps
      * RC:          one Spektrum sat       http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#Spektrum
 -->
@@ -29,7 +29,7 @@
     <subsystem name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
     </subsystem>
-    <subsystem name="telemetry"     type="transparent"/>
+    <subsystem name="telemetry"     type="xbee_api"/>
     <subsystem name="imu"           type="aspirin_v2.2"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
@@ -46,10 +46,10 @@
   </modules>
 
   <servos driver="Pwm">
-    <servo name="MOTOR_1" no="0" min="1000" neutral="1100" max="1900"/>
-    <servo name="MOTOR_2" no="1" min="1000" neutral="1100" max="1900"/>
-    <servo name="MOTOR_3" no="2" min="1000" neutral="1100" max="1900"/>
-    <servo name="MOTOR_4" no="3" min="1000" neutral="1100" max="1900"/>
+    <servo name="MOTOR_1" no="0" min="1148" neutral="1200" max="1832"/>
+    <servo name="MOTOR_2" no="1" min="1148" neutral="1200" max="1832"/>
+    <servo name="MOTOR_3" no="2" min="1148" neutral="1200" max="1832"/>
+    <servo name="MOTOR_4" no="3" min="1148" neutral="1200" max="1832"/>
   </servos>
 
   <commands>
@@ -65,10 +65,10 @@
     <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
-    <!-- order (and rotation direction) : NE (CW), SE (CCW), SW (CW), NW (CCW) -->
+    <!-- order (and rotation direction) : NE (CCW), SE (CW), SW (CCW), NW (CW) -->
     <define name="ROLL_COEF"   value="{ -256, -256,  256,  256 }"/>
     <define name="PITCH_COEF"  value="{  256, -256, -256,  256 }"/>
-    <define name="YAW_COEF"    value="{ -256,  256, -256,  256 }"/>
+    <define name="YAW_COEF"    value="{  256, -256,  256, -256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 

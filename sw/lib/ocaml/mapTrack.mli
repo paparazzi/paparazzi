@@ -27,11 +27,14 @@ class track :
   ?icon:string ->
   ?size:int ->
   ?color:string ->
+  ?show_carrot:bool ->
   string ->
   MapCanvas.widget ->
   object
     method add_point : Latlong.geographic -> float -> unit
     method aircraft : GnoCanvas.group
+    method id : string
+    method name : string
     method clear : unit -> unit
     method clear_map2D : unit
     method clear_one : int -> unit
@@ -67,4 +70,5 @@ class track :
     method zoom : float -> unit
     method event : GnoCanvas.item_event -> bool
     method set_event_cb : (string -> unit) -> unit
+    method destroy : unit -> unit
   end

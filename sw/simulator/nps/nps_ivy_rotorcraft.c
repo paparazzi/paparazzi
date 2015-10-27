@@ -20,11 +20,12 @@
 
 
 /* rotorcraft specificDatalink Ivy functions */
-static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
-                          void *user_data __attribute__ ((unused)),
-                          int argc __attribute__ ((unused)), char *argv[]);
+static void on_DL_MOVE_WP(IvyClientPtr app __attribute__((unused)),
+                          void *user_data __attribute__((unused)),
+                          int argc __attribute__((unused)), char *argv[]);
 
-void nps_ivy_init(char* ivy_bus) {
+void nps_ivy_init(char *ivy_bus)
+{
   /* init ivy and bind some messages common to fw and rotorcraft */
   nps_ivy_common_init(ivy_bus);
   IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
@@ -38,11 +39,13 @@ void nps_ivy_init(char* ivy_bus) {
 #include "generated/settings.h"
 #include "dl_protocol.h"
 #include "subsystems/datalink/downlink.h"
-static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
-                          void *user_data __attribute__ ((unused)),
-                          int argc __attribute__ ((unused)), char *argv[]) {
-  if (!autopilot.datalink_enabled)
+static void on_DL_MOVE_WP(IvyClientPtr app __attribute__((unused)),
+                          void *user_data __attribute__((unused)),
+                          int argc __attribute__((unused)), char *argv[])
+{
+  if (!autopilot.datalink_enabled) {
     return;
+  }
 
   if (atoi(argv[2]) == AC_ID) {
     uint8_t wp_id = atoi(argv[1]);

@@ -51,6 +51,7 @@
 #define AP_MODE_CARE_FREE_DIRECT  15
 #define AP_MODE_FORWARD           16
 #define AP_MODE_MODULE            17
+#define AP_MODE_FLIP              18
 
 extern uint8_t autopilot_mode;
 extern uint8_t autopilot_mode_auto2;
@@ -85,18 +86,6 @@ extern uint16_t autopilot_flight_time;
 #define MODE_AUTO2 AP_MODE_NAV
 #endif
 
-
-#define THRESHOLD_1_PPRZ (MIN_PPRZ / 2)
-#define THRESHOLD_2_PPRZ (MAX_PPRZ / 2)
-
-#define AP_MODE_OF_PPRZ(_rc, _mode) {    \
-    if      (_rc > THRESHOLD_2_PPRZ)     \
-      _mode = autopilot_mode_auto2;      \
-    else if (_rc > THRESHOLD_1_PPRZ)     \
-      _mode = MODE_AUTO1;                \
-    else                                 \
-      _mode = MODE_MANUAL;               \
-  }
 
 #define autopilot_KillThrottle(_kill) { \
     if (_kill)                          \
@@ -161,11 +150,20 @@ static inline void DetectGroundEvent(void)
 
 #include "subsystems/settings.h"
 
+/* try to make sure that we don't write to flash while flying */
 static inline void autopilot_StoreSettings(float store)
 {
   if (kill_throttle && store) {
     settings_store_flag = store;
     settings_store();
+  }
+}
+
+static inline void autopilot_ClearSettings(float clear)
+{
+  if (kill_throttle && clear) {
+    settings_clear_flag = clear;
+    settings_clear();
   }
 }
 

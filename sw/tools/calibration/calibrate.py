@@ -93,6 +93,11 @@ def main():
     if options.verbose:
         print("found "+str(len(measurements))+" records")
 
+    # check that values are not all zero
+    if not measurements.any():
+        print("Error: all IMU_"+options.sensor+"_RAW measurements are zero!")
+        sys.exit(1)
+
     # estimate the noise threshold
     # find the median of measurement vector lenght
     if options.auto_threshold:

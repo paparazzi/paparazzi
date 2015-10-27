@@ -130,6 +130,8 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, st
 #define M_OF_MM(_mm) ((_mm)/1e3)
 #define EM7RAD_OF_RAD(_r) ((_r)*1e7)
 #define RAD_OF_EM7RAD(_r) ((_r)/1e7)
+#define EM7DEG_OF_DEG(_r) ((_r)*1e7)
+#define DEG_OF_EM7DEG(_r) ((_r)/1e7)
 #define EM7DEG_OF_RAD(_r) (DegOfRad(_r)*1e7)
 #define RAD_OF_EM7DEG(_r) (RadOfDeg(_r)/1e7)
 

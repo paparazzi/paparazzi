@@ -1,0 +1,14 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+    <dl_settings NAME="agressive">
+       <dl_settings NAME="agr">
+          <dl_setting MAX="1.0" MIN="0." STEP="0.05" VAR="agr_climb_throttle" shortname="climb_throttle" module="guidance/guidance_v" param="AGR_CLIMB_THROTTLE"/>
+          <dl_setting MAX="0.5" MIN="-0.1" STEP="0.05" VAR="agr_climb_pitch" shortname="climb_pitch" module="guidance/guidance_v" param="AGR_CLIMB_PITCH"/>
+          <dl_setting MAX="1.0" MIN="0." STEP="0.1" VAR="agr_climb_nav_ratio" shortname="climb_nav_ratio" module="guidance/guidance_v" param="AGR_CLIMB_NAV_RATIO"/>
+          <dl_setting MAX="1.0" MIN="0." STEP="0.05" VAR="agr_descent_throttle" shortname="descent_throttle" module="guidance/guidance_v" param="AGR_DESCENT_THROTTLE"/>
+          <dl_setting MAX="0.1" MIN="-0.5" STEP="0.05" VAR="agr_descent_pitch" shortname="descent_ptich" module="guidance/guidance_v" param="AGR_DESCENT_PITCH"/>
+          <dl_setting MAX="1.0" MIN="0." STEP="0.1" VAR="agr_descent_nav_ratio" shortname="descent_nav_ratio" module="guidance/guidance_v" param="AGR_DESCENT_NAV_RATIO"/>
+       </dl_settings>
+    </dl_settings>
+</settings>

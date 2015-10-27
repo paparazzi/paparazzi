@@ -355,7 +355,11 @@
 /*
  * PWM input
  */
+// PWM_INPUT1 on TIM1
 #define PWM_INPUT1_TIMER          TIM1
+#ifdef PWM_INPUT1_TICKS_PER_USEC
+#define PWM_INPUT_TIM1_TICKS_PER_USEC PWM_INPUT1_TICKS_PER_USEC
+#endif
 #define PWM_INPUT1_CHANNEL_PERIOD TIM_IC1
 #define PWM_INPUT1_CHANNEL_DUTY   TIM_IC2
 #define PWM_INPUT1_TIMER_INPUT    TIM_IC_IN_TI1
@@ -373,6 +377,35 @@
 #define PWM_INPUT1_GPIO_PORT      GPIOA
 #define PWM_INPUT1_GPIO_PIN       GPIO8
 #define PWM_INPUT1_GPIO_AF        GPIO_AF1
+
+// PWM_INPUT2 on TIM9
+#define PWM_INPUT2_TIMER          TIM9
+#ifdef PWM_INPUT2_TICKS_PER_USEC
+#define PWM_INPUT_TIM9_TICKS_PER_USEC PWM_INPUT2_TICKS_PER_USEC
+#endif
+#define PWM_INPUT2_CHANNEL_PERIOD TIM_IC1
+#define PWM_INPUT2_CHANNEL_DUTY   TIM_IC2
+#define PWM_INPUT2_TIMER_INPUT    TIM_IC_IN_TI1
+#define PWM_INPUT2_SLAVE_TRIG     TIM_SMCR_TS_IT1FP1
+#define PWM_INPUT2_IRQ            NVIC_TIM1_BRK_TIM9_IRQ
+#define PWM_INPUT2_CC_IE          (TIM_DIER_CC3IE | TIM_DIER_CC4IE)
+#ifdef USE_PWM_INPUT2
+#define USE_PWM_INPUT_TIM9        TRUE
+#else
+#define USE_PWM_INPUT_TIM9        FALSE
+#endif
+#define TIM9_PWM_INPUT_IDX        1
+#define TIM9_CC_IF_PERIOD         TIM_SR_CC1IF
+#define TIM9_CC_IF_DUTY           TIM_SR_CC2IF
+#define TIM9_CCR_PERIOD           TIM9_CCR1
+#define TIM9_CCR_DUTY             TIM9_CCR2
+// Servo 1 (aka PA2) is used: not compatible with PWM1 (and should be disabled)
+#if (USE_PWM1 && USE_PWM_INPUT2)
+#error "PW1 and PWM_INPUT2 are not compatible"
+#endif
+#define PWM_INPUT2_GPIO_PORT      GPIOA
+#define PWM_INPUT2_GPIO_PIN       GPIO2
+#define PWM_INPUT2_GPIO_AF        GPIO_AF3
 
 /*
  * Spektrum

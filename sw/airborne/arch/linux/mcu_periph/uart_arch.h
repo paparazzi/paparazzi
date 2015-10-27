@@ -26,6 +26,14 @@
 #ifndef UART_ARCH_H
 #define UART_ARCH_H
 
+// higher default uart buffer sizes on linux
+#ifndef UART_RX_BUFFER_SIZE
+#define UART_RX_BUFFER_SIZE 512
+#endif
+#ifndef UART_TX_BUFFER_SIZE
+#define UART_TX_BUFFER_SIZE 512
+#endif
+
 #include "mcu_periph/uart.h"
 
 // for definition of baud rates
@@ -44,7 +52,9 @@ static inline int uart_speed(int def)
     case B57600: return 57600;
     case B115200: return 115200;
     case B230400: return 230400;
+#ifdef B921600
     case B921600: return 921600;
+#endif
     default: return 9600;
   }
 }

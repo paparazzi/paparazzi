@@ -121,8 +121,8 @@ unit_t nav_drop_update_release(uint8_t wp_target)
   nav_drop_x = 0.;
   nav_drop_y = 0.;
 
-  nav_drop_vx = (*stateGetHorizontalSpeedNorm_f()) * sin((*stateGetHorizontalSpeedDir_f()));
-  nav_drop_vy = (*stateGetHorizontalSpeedNorm_f()) * cos((*stateGetHorizontalSpeedDir_f()));
+  nav_drop_vx = stateGetHorizontalSpeedNorm_f() * sin(stateGetHorizontalSpeedDir_f());
+  nav_drop_vy = stateGetHorizontalSpeedNorm_f() * cos(stateGetHorizontalSpeedDir_f());
   nav_drop_vz = 0.;
 
   integrate(wp_target);
@@ -161,8 +161,8 @@ unit_t nav_drop_compute_approach(uint8_t wp_target, uint8_t wp_start, uint8_t wp
 
   // wind in NED frame
   if (stateIsAirspeedValid()) {
-    nav_drop_vx = x1 **stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->y;
-    nav_drop_vy = y_1 **stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->x;
+    nav_drop_vx = x1 * stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->y;
+    nav_drop_vy = y_1 * stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->x;
   } else {
     // use approximate airspeed, initially set to AIRSPEED_AT_RELEASE
     nav_drop_vx = x1 * airspeed + stateGetHorizontalWindspeed_f()->y;

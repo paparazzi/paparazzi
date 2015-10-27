@@ -1,0 +1,48 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cv_blob_locator" dir="computer_vision">
+  <doc>
+    <description>Find a colored item and track its geo-location and update a waypoint to it</description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="ColorFilter">
+        <dl_setting var="color_lum_min" min="0" step="1" max="255" shortname="y_min" />
+        <dl_setting var="color_lum_max" min="0" step="1" max="255" shortname="y_max" />
+        <dl_setting var="color_cb_min"  min="0" step="1" max="255" shortname="u_min" />
+        <dl_setting var="color_cb_max"  min="0" step="1" max="255" shortname="u_max" />
+        <dl_setting var="color_cr_min"  min="0" step="1" max="255" shortname="v_min" />
+        <dl_setting var="color_cr_max"  min="0" step="1" max="255" shortname="v_max" />
+        <dl_setting var="marker_size"  min="1" step="1" max="20" shortname="marker" />
+        <dl_setting var="geofilter_length"  min="1" step="1" max="100" shortname="filter" />
+        <dl_setting var="record_video"  min="0" step="1" max="1" shortname="record"  values="OFF|ON" />
+        <dl_setting var="cv_blob_locator_reset" max="1" min="0" step="1" module="computer_vision/cv_blob_locator"  handler="GeoReset">
+          <strip_button name="Reset Geoprojection Filter" value="1" icon="resurrect.png" group="cv"/>
+        </dl_setting>
+        <dl_setting var="cv_blob_locator_type" min="0" step="1" max="2" module="computer_vision/cv_blob_locator" values="NONE|BLOB|IMAVMARKER|WINDOW">
+          <strip_button name="CV: None" icon="off.png" value="0" group="cv"/>
+          <strip_button name="CV: Colored Blob" icon="cv_blob.png" value="1" group="cv"/>
+          <strip_button name="CV: Marker" icon="cv_marker.png" value="2" group="cv"/>
+          <strip_button name="CV: Window Finder" icon="cv_window.png" value="3" group="cv"/>
+        </dl_setting>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>video_thread</depends>
+
+  <header>
+    <file name="cv_blob_locator.h"/>
+  </header>
+  <init fun="cv_blob_locator_init()"/>
+  <periodic fun="cv_blob_locator_periodic()" freq="30" start="cv_blob_locator_start()" stop="cv_blob_locator_stop()" autorun="TRUE"/>
+  <event fun="cv_blob_locator_event()"/>
+  <makefile>
+    <file name="cv_blob_locator.c"/>
+    <file name="imavmarker.c" dir="modules/computer_vision/blob" />
+    <file name="blob_finder.c" dir="modules/computer_vision/blob" />
+    <file name="detect_window.c" dir="modules/computer_vision/" />
+    <file name="cv_georeference.c" dir="modules/computer_vision/" />
+  </makefile>
+</module>
+

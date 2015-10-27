@@ -68,13 +68,11 @@ static inline void GpsEvent(void)
 {
   struct link_device *dev = &((GPS_LINK).device);
 
-  if (dev->char_available(dev->periph)) {
-    while (dev->char_available(dev->periph) && !gps_mtk.msg_available) {
-      gps_skytraq_parse(dev->get_byte(dev->periph));
+  while (dev->char_available(dev->periph)) {
+    gps_skytraq_parse(dev->get_byte(dev->periph));
+    if (gps_skytraq.msg_available) {
+      gps_skytraq_msg();
     }
-  }
-  if (gps_skytraq.msg_available) {
-    gps_skytraq_msg();
   }
 }
 
