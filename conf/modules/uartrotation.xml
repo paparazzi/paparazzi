@@ -1,0 +1,23 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="uartrotation">
+  <doc>
+    <description>Writes rotation to the uart bus</description>
+  </doc>
+  <header>
+    <file name="uartrotation.h"/>
+  </header>
+  <init fun="odroid_loc_init()"/>
+  <periodic fun="odroid_loc_periodic()" freq="10" autorun="TRUE"/>
+  <makefile>
+    <file name="uartrotation.c"/>
+    <file name="stereoprotocol.c" dir="subsystems"/>
+	<raw>
+	ODROID_GPS_PORT_LOWER=$(shell echo $(GPS_PORT) | tr A-Z a-z)
+	ap.CFLAGS += -DUSE_$(GPS_PORT) -D$(GPS_PORT)_BAUD=$(GPS_BAUD)
+	ap.CFLAGS += -DUSE_GPS -DGPS_LINK=$(ODROID_GPS_PORT_LOWER)
+	</raw>
+  </makefile>
+
+</module>
+
