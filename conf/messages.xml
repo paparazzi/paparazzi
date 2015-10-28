@@ -2092,7 +2092,9 @@
   </message>
 
   <!-- 245 is free -->
-  <!-- 246 is free -->
+ <message name="SERIALRMAT" id="246">
+  </message>
+
 
   <message name="PPRZ_DEBUG" id="247">
     <field name="module"   type="uint8"/>

@@ -22,7 +22,7 @@
     <subsystem name="actuators" type="ardrone2"/>
     <subsystem name="imu" type="ardrone2"/>
     <!-- gps: "ublox" or change to "sirf" for usage with parrot flight recorder -->
-    <subsystem name="gps" type="ublox"/>
+    <subsystem name="gps" type="datalink"/>
     <subsystem name="stabilization" type="indi"/>
     <subsystem name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
@@ -33,19 +33,11 @@
 
   <modules main_freq="512">
     <load name="bat_voltage_ardrone2.xml"/>
-    <!-- remove the gps_ubx_ucenter module if you use the sirf gps (flight recorder) -->
-    <!--<load name="gps_ubx_ucenter.xml"/>-->
-    <load name="air_data.xml"/>
-    <load name="geo_mag.xml"/>
-
- <load name="video_rtp_stream.xml">
-	<define name="VIEWVIDEO_QUALITY_FACTOR" value="75"/>
-    <define name="VIEWVIDEO_FPS" value="4"/>
-    <define name="VIEWVIDEO_SHOT_PATH" value="/data/video/usb0/images"/>
-    </load>
-  <load name="video_usb_logger.xml">
-
-</load>
+	<load name="uartrotation.xml">
+	<configure name="GPS_PORT" value="UART1"/>
+	<configure name="GPS_LINK" value="UART0"/>
+	<configure name="GPS_BAUD" value="B1000000"/>
+	</load>
   </modules>
 
   <commands>
