@@ -43,34 +43,9 @@ float sonar_meas=0.0;
  static abi_event odroid_agl_ev;
  float lastKnownHeight = 0.0;
  int pleaseResetOdroid = 0;
- #define LENGTH_ODROID_GPS_BUFFER 1024
- char odroid_gps_response[LENGTH_ODROID_GPS_BUFFER];
- //extern int location_odroid_gps_buffer = 0;
  int gps_reset_position = 0;
- int32_t gpsXcm = 0;
- int32_t gpsYcm = 0;
- int32_t gpsVelXcm = 0;
- int32_t gpsVelYcm = 0;
 
  struct link_device *linkdevodroid;
-
- typedef struct {
-   uint8_t len;
-   uint8_t *data;
-   uint8_t data_new;
- } uint8array;
-
- uint8_t msg_buf[256];         // define local data
- uint8array stereocam_data = {.len = 0, .data = msg_buf, .data_new = 0};  // buffer used to contain image without line endings
- uint16_t freq_counter = 0;
- uint16_t frequency = 0;
- uint32_t previous_time = 0;
-
- #ifndef STEREO_BUF_SIZE
- #define STEREO_BUF_SIZE 1024                     // size of circular buffer
- #endif
- uint8_t ser_read_buf[STEREO_BUF_SIZE];           // circular buffer for incoming data
- uint16_t insert_loc, extract_loc, msg_start;   // place holders for buffer read and write
 
 static void write_serial_rot(struct transport_tx *trans, struct link_device *devasdf) {
 
