@@ -37,52 +37,30 @@
 #include "subsystems/gps.h"
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/stereoprotocol.h"
-
+#include "navdata.h"
 int frameNumberSending=0;
-float sonar_meas=0.0;
- static abi_event odroid_agl_ev;
- float lastKnownHeight = 0.0;
- int pleaseResetOdroid = 0;
- #define LENGTH_ODROID_GPS_BUFFER 1024
- char odroid_gps_response[LENGTH_ODROID_GPS_BUFFER];
- //extern int location_odroid_gps_buffer = 0;
- int gps_reset_position = 0;
- int32_t gpsXcm = 0;
- int32_t gpsYcm = 0;
- int32_t gpsVelXcm = 0;
- int32_t gpsVelYcm = 0;
-
- struct link_device *linkdevodroid;
+static abi_event odroid_agl_ev;
+float lastKnownHeight = 0.0;
+int pleaseResetOdroid = 0;
 
 
 static void write_serial_rot(struct transport_tx *trans, struct link_device *devasdf) {
-
-	 	struct Int32RMat *ltp_to_body_mat = stateGetNedToBodyRMat_i();
+	struct Int32RMat *ltp_to_body_mat = stateGetNedToBodyRMat_i();
 	int32_t lengthArrayInformation = 11*sizeof(int32_t);
 	uint8_t ar[lengthArrayInformation];
 	int32_t *pointer = (int32_t*)ar;
 	for(int indexRot = 0; indexRot < 9; indexRot++){
 		pointer[indexRot]=ltp_to_body_mat->m[indexRot];
 	}
-	pointer[9]=(int32_t)(sonar_meas*100);
+	pointer[9]=(int32_t)(state.alt_agl_f*100); //height above ground level in CM. 
 	pointer[10]=frameNumberSending++;
 	printf("Whoo sending serial\n");
 	stereoprot_sendArray( &((GPS_LINK).device),ar, lengthArrayInformation, 1);
 	printf("Whoo sending serial2\n");
 }
 
-struct SerialPort *READING_port;
-speed_t usbInputSpeed = B1000000;
-char *serialResponse;
-int writeLocationInput=0;
 
 void odroid_loc_init() {
-	printf("Init odroid loc");
-	// Open the serial port
-	READING_port = serial_port_new();
-	int lengthBytesImage=50000;
-	serialResponse=malloc(lengthBytesImage*sizeof(char));
-	memset(serialResponse, '0', lengthBytesImage);
 	register_periodic_telemetry(DefaultPeriodic, "SERIALRMAT", write_serial_rot);
  }
 
