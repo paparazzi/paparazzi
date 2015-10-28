@@ -48,7 +48,7 @@ static void send_downlink(struct transport_tx *trans, struct link_device *dev)
     last_ts = now_ts;
     last_nb_bytes = downlink.nb_bytes;
 
-#if defined DATALINK
+#if defined DATALINK || defined SITL
     uint16_t uplink_nb_msgs = datalink_nb_msgs;
 #else
     uint16_t uplink_nb_msgs = 0;
