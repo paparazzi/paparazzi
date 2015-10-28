@@ -13,6 +13,7 @@
       <dl_settings NAME="SD Logger">
         <dl_setting module="loggers/sdlogger_spi_direct" var="sdlogger_spi.status" min="0" max="20" step="1"/>
         <dl_setting module="loggers/sdlogger_spi_direct" var="sdcard1.status" min="0" max="40" step="1"/>
+        <dl_setting module="loggers/sdlogger_spi_direct" var="sdcard1.error_status" min="0" max="15" step="1"/>
         <dl_setting module="loggers/sdlogger_spi_direct" var="sdlogger_spi.last_completed" min="0" max="42" step="1"/>
         <dl_setting module="loggers/sdlogger_spi_direct" var="sdlogger_spi.next_available_address" min="16384" max="4294967295" step="1" />
         <dl_setting module="loggers/sdlogger_spi_direct" var="sdlogger_spi.command" min="1" max="42" step="1" />
