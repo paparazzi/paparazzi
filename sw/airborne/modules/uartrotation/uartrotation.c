@@ -60,19 +60,6 @@ static void write_serial_rot(struct transport_tx *trans, struct link_device *dev
 }
 
 
-void odroid_loc_init() {
+void uart_rotation_init() {
 	register_periodic_telemetry(DefaultPeriodic, "SERIALRMAT", write_serial_rot);
- }
-
-void odroid_loc_periodic() {
-
 }
-
-static void gps_odroid_height(uint8_t sender_id __attribute__((unused)), float distance) {
-	// Update the distance if we got a valid measurement
-	if (distance > 0) {
-		lastKnownHeight = distance;
-	}
-}
-
-

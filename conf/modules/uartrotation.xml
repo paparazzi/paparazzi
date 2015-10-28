@@ -7,8 +7,7 @@
   <header>
     <file name="uartrotation.h"/>
   </header>
-  <init fun="odroid_loc_init()"/>
-  <periodic fun="odroid_loc_periodic()" freq="10" autorun="TRUE"/>
+  <init fun="uart_rotation_init()"/>
   <makefile>
     <file name="uartrotation.c"/>
     <file name="stereoprotocol.c" dir="subsystems"/>
