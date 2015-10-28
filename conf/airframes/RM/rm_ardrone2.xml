@@ -33,11 +33,7 @@
 
   <modules main_freq="512">
     <load name="bat_voltage_ardrone2.xml"/>
-	<load name="uartrotation.xml">
-	<configure name="GPS_PORT" value="UART1"/>
-	<configure name="GPS_LINK" value="UART0"/>
-	<configure name="GPS_BAUD" value="B1000000"/>
-	</load>
+	<load name="uartrotation.xml"/>	
   </modules>
 
   <commands>

@@ -43,9 +43,17 @@ float sonar_meas=0.0;
  static abi_event odroid_agl_ev;
  float lastKnownHeight = 0.0;
  int pleaseResetOdroid = 0;
+ #define LENGTH_ODROID_GPS_BUFFER 1024
+ char odroid_gps_response[LENGTH_ODROID_GPS_BUFFER];
+ //extern int location_odroid_gps_buffer = 0;
  int gps_reset_position = 0;
+ int32_t gpsXcm = 0;
+ int32_t gpsYcm = 0;
+ int32_t gpsVelXcm = 0;
+ int32_t gpsVelYcm = 0;
 
  struct link_device *linkdevodroid;
+
 
 static void write_serial_rot(struct transport_tx *trans, struct link_device *devasdf) {
 
