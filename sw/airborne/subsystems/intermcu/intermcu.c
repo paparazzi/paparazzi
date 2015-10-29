@@ -22,13 +22,11 @@
 
 #include <inttypes.h>
 
-#include "intermcu.h"
+#include "subsystems/intermcu.h"
 
 #include "mcu_periph/uart.h"
 #include "led.h"
 
-#include "subsystems/commands.h"
-#include RADIO_CONTROL_TYPE_H
 
 #if COMMANDS_NB > 8
 #error "INTERMCU UART CAN ONLY SEND 8 COMMANDS OR THE UART WILL BE OVERFILLED"
@@ -255,23 +253,6 @@ restart:
 // USER
 
 
-/** Data structure shared by fbw and ap processes */
-struct fbw_state {
-  pprz_t channels[RADIO_CONTROL_NB_CHANNEL];
-  uint8_t ppm_cpt;
-  uint8_t status;
-  uint8_t nb_err;
-  uint16_t vsupply; ///< 1e-1 V
-  int32_t current;  ///< milliAmps
-  float energy;     ///< mAh
-};
-
-struct ap_state {
-  pprz_t commands[COMMANDS_NB];
-  pprz_t command_roll_trim;
-  pprz_t command_pitch_trim;
-  pprz_t command_yaw_trim;
-};
 
 struct fbw_state from_fbw;
 struct ap_state  from_ap;

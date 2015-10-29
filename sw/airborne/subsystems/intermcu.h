@@ -30,8 +30,31 @@
 
 
 void intermcu_init(void);
-void intermcu_send(void);
 void intermcu_periodic(void);
 void intermcu_event(void);
+
+#include "subsystems/commands.h"
+#include RADIO_CONTROL_TYPE_H
+
+
+/** Data structure shared by fbw and ap processes */
+struct fbw_state {
+  pprz_t channels[RADIO_CONTROL_NB_CHANNEL];
+  uint8_t ppm_cpt;
+  uint8_t status;   ///<
+  uint8_t nb_err;
+  uint16_t vsupply; ///< 1e-1 V
+  int32_t current;  ///< milliAmps
+  float energy;     ///< mAh
+};
+
+struct ap_state {
+  pprz_t commands[COMMANDS_NB];
+  pprz_t command_roll_trim;
+  pprz_t command_pitch_trim;
+  pprz_t command_yaw_trim;
+};
+
+
 
 #endif

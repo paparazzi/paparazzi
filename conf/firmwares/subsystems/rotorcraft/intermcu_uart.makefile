@@ -15,5 +15,5 @@ else
 endif
 
 ifneq ($(TARGET),sim)
-$(TARGET).srcs += ./firmwares/rotorcraft/intermcu.c
+$(TARGET).srcs += ./subsystems/intermcu/intermcu.c
 endif

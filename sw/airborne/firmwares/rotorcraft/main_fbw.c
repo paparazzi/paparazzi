@@ -42,9 +42,10 @@
 
 #include "subsystems/radio_control.h"
 
+#include "subsystems/intermcu.h"
+
 #include "firmwares/rotorcraft/main_fbw.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
-#include "firmwares/rotorcraft/intermcu.h"
 
 //#include "generated/modules.h"
 
