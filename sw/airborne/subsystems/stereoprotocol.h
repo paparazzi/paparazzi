@@ -5,8 +5,8 @@
  *      Author: roland
  */
 
-#ifndef SW_AIRBORNE_SUBSYSTEMS_GPS_STEREOPROTOCOL_H_
-#define SW_AIRBORNE_SUBSYSTEMS_GPS_STEREOPROTOCOL_H_
+#ifndef SW_AIRBORNE_SUBSYSTEMS_STEREOPROTOCOL_H_
+#define SW_AIRBORNE_SUBSYSTEMS_STEREOPROTOCOL_H_
 
 #include <inttypes.h>
 #include "mcu_periph/link_device.h"

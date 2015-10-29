@@ -49,20 +49,19 @@ typedef struct MsgProperties {
   uint8_t width;
   uint8_t height;
 } MsgProperties;
-
-// function primitives
-uint16_t add(uint16_t, uint16_t);
-uint16_t diff(uint16_t, uint16_t);
-uint8_t isEndOfMsg(uint8_t *, uint16_t);
-uint8_t isStartOfMsg(uint8_t *, uint16_t);
-void get_msg_properties(uint8_t *, MsgProperties *, uint16_t);
-static uint8_t handleStereoPackage(void);
-
+//
+//// function primitives
+//uint16_t add(uint16_t, uint16_t);
+//uint16_t diff(uint16_t, uint16_t);
+//uint8_t isEndOfMsg(uint8_t *, uint16_t);
+//uint8_t isStartOfMsg(uint8_t *, uint16_t);
+//void get_msg_properties(uint8_t *, MsgProperties *, uint16_t);
+//static uint8_t handleStereoPackage(void);
+//
 // pervasive local variables
 MsgProperties msgProperties;
 
-uint8_t msg_buf[256];         // define local data
-uint8array stereocam_data = {.len = 0, .data = msg_buf, .fresh = 0};  // buffer used to contain image without line endings
+
 uint16_t freq_counter = 0;
 uint8_t frequency = 0;
 uint32_t previous_time = 0;
@@ -72,111 +71,113 @@ uint32_t previous_time = 0;
 #endif
 uint8_t ser_read_buf[STEREO_BUF_SIZE];           // circular buffer for incoming data
 uint16_t insert_loc, extract_loc, msg_start;   // place holders for buffer read and write
-
-/**
- * Increment circular buffer counter by i
- */
-uint16_t add(uint16_t counter, uint16_t i)
-{
-  return (counter + i) % STEREO_BUF_SIZE;
-}
-
-/**
- * Decrement circular buffer counter by i
- */
-uint16_t diff(uint16_t counter, uint16_t i)
-{
-  return (counter - i + STEREO_BUF_SIZE) % STEREO_BUF_SIZE;
-}
-
-/**
- * Checks if the sequence in the array is equal to 255-0-0-171,
- * as this means that this is the end of an image
- */
-uint8_t isEndOfMsg(uint8_t *stack, uint16_t i)
-{
-  if (stack[i] == 255 && (stack[add(i, 1)] == 0) && (stack[add(i, 2)] == 0) && stack[add(i, 3)] == 171) {
-    return 1;
-  }
-  return 0;
-}
-
-/**
- * Checks if the sequence in the array is equal to 255-0-0-171,
- * as this means a new image is starting from here
- */
-uint8_t isStartOfMsg(uint8_t *stack, uint16_t i)
-{
-  if (stack[i] == 255 && (stack[add(i, 1)] == 0) && (stack[add(i, 2)] == 0) && stack[add(i, 3)] == 175) {
-    return 1;
-  }
-  return 0;
-}
-
-/**
- * Retrieve size of image from message
- */
-void get_msg_properties(uint8_t *raw, MsgProperties *properties, uint16_t start)
-{
-  *properties = (MsgProperties) {start, 0, 0};
-  uint16_t i = start, startOfLine = start;
-  while (1) {
-    // Check the first 3 bytes for the pattern 255-0-0, then check what special byte is encoded next
-    if ((raw[i] == 255) && (raw[add(i, 1)] == 0) && (raw[add(i, 2)] == 0)) {
-      if (raw[add(i, 3)] == 171) { // End of image
-        break;
-      }
-      if (raw[add(i, 3)] == 128) { // Start of line
-        startOfLine = i;
-      }
-      if (raw[add(i, 3)] == 218) { // End of line
-        properties->height++;
-        properties->width = diff(i, startOfLine + 4); // removed 4 for the indication bits at the end of line
-      }
-    }
-    i = add(i, 1);
-  }
-}
-
-/**
- * Get all available data from stereo com link and decode any complete messages.
- * Returns as soon as a complete message is found. Messages placed in msg_buf
- */
-static uint8_t handleStereoPackage(void)
-{
-  // read all data from the stereo com link, check that don't overtake extract
-  while (dev->char_available(dev->periph) && add(insert_loc, 1) != extract_loc) {
-    ser_read_buf[insert_loc] = dev->get_byte(dev->periph);
-    insert_loc = add(insert_loc, 1);
-  }
-
-  // search for complete message in buffer, if found increments read location and returns immediately
-  // stay length of line header behind insert (NB. code can be changed to look back instead of forward)
-  while (diff(insert_loc, extract_loc) > 3) {
-    if (isStartOfMsg(ser_read_buf, extract_loc)) {
-      msg_start = extract_loc;
-    } else if (isEndOfMsg(ser_read_buf, extract_loc)) { // process msg
-      // Find the properties of the image by iterating over the complete image
-      get_msg_properties(ser_read_buf, &msgProperties, msg_start);
-
-      // Copy array to circular buffer and remove all bytes that are indications of start and stop lines
-      uint16_t i = msg_start, j = 0, k = 0, index = 0;
-      for (k = 0; k < msgProperties.height; k++) {
-        i = add(i, 8);    // step over EOL and SOL or SOM and SOL
-        for (j = 0; j < msgProperties.width; j++) {
-          msg_buf[index++] = ser_read_buf[i];
-          i = add(i, 1);
-        }
-      } // continue search for new line
-      stereocam_data.len = msgProperties.width * msgProperties.height;
-      stereocam_data.fresh = 1;
-      extract_loc = add(extract_loc, 4);      // step over EOM string
-      return 1;
-    }
-    extract_loc = add(extract_loc, 1);
-  }
-  return 0;
-}
+uint8_t msg_buf[STEREO_BUF_SIZE];         // define local data
+uint8array stereocam_data = {.len = 0, .data = msg_buf, .fresh = 0};  // buffer used to contain image without line endings
+//
+///**
+// * Increment circular buffer counter by i
+// */
+//uint16_t add(uint16_t counter, uint16_t i)
+//{
+//  return (counter + i) % STEREO_BUF_SIZE;
+//}
+//
+///**
+// * Decrement circular buffer counter by i
+// */
+//uint16_t diff(uint16_t counter, uint16_t i)
+//{
+//  return (counter - i + STEREO_BUF_SIZE) % STEREO_BUF_SIZE;
+//}
+//
+///**
+// * Checks if the sequence in the array is equal to 255-0-0-171,
+// * as this means that this is the end of an image
+// */
+//uint8_t isEndOfMsg(uint8_t *stack, uint16_t i)
+//{
+//  if (stack[i] == 255 && (stack[add(i, 1)] == 0) && (stack[add(i, 2)] == 0) && stack[add(i, 3)] == 171) {
+//    return 1;
+//  }
+//  return 0;
+//}
+//
+///**
+// * Checks if the sequence in the array is equal to 255-0-0-171,
+// * as this means a new image is starting from here
+// */
+//uint8_t isStartOfMsg(uint8_t *stack, uint16_t i)
+//{
+//  if (stack[i] == 255 && (stack[add(i, 1)] == 0) && (stack[add(i, 2)] == 0) && stack[add(i, 3)] == 175) {
+//    return 1;
+//  }
+//  return 0;
+//}
+//
+///**
+// * Retrieve size of image from message
+// */
+//void get_msg_properties(uint8_t *raw, MsgProperties *properties, uint16_t start)
+//{
+//  *properties = (MsgProperties) {start, 0, 0};
+//  uint16_t i = start, startOfLine = start;
+//  while (1) {
+//    // Check the first 3 bytes for the pattern 255-0-0, then check what special byte is encoded next
+//    if ((raw[i] == 255) && (raw[add(i, 1)] == 0) && (raw[add(i, 2)] == 0)) {
+//      if (raw[add(i, 3)] == 171) { // End of image
+//        break;
+//      }
+//      if (raw[add(i, 3)] == 128) { // Start of line
+//        startOfLine = i;
+//      }
+//      if (raw[add(i, 3)] == 218) { // End of line
+//        properties->height++;
+//        properties->width = diff(i, startOfLine + 4); // removed 4 for the indication bits at the end of line
+//      }
+//    }
+//    i = add(i, 1);
+//  }
+//}
+//
+///**
+// * Get all available data from stereo com link and decode any complete messages.
+// * Returns as soon as a complete message is found. Messages placed in msg_buf
+// */
+//static uint8_t handleStereoPackage(void)
+//{
+//  // read all data from the stereo com link, check that don't overtake extract
+//  while (dev->char_available(dev->periph) && add(insert_loc, 1) != extract_loc) {
+//    ser_read_buf[insert_loc] = dev->get_byte(dev->periph);
+//    insert_loc = add(insert_loc, 1);
+//  }
+//
+//  // search for complete message in buffer, if found increments read location and returns immediately
+//  // stay length of line header behind insert (NB. code can be changed to look back instead of forward)
+//  while (diff(insert_loc, extract_loc) > 3) {
+//    if (isStartOfMsg(ser_read_buf, extract_loc)) {
+//      msg_start = extract_loc;
+//    } else if (isEndOfMsg(ser_read_buf, extract_loc)) { // process msg
+//      // Find the properties of the image by iterating over the complete image
+//      get_msg_properties(ser_read_buf, &msgProperties, msg_start);
+//
+//      // Copy array to circular buffer and remove all bytes that are indications of start and stop lines
+//      uint16_t i = msg_start, j = 0, k = 0, index = 0;
+//      for (k = 0; k < msgProperties.height; k++) {
+//        i = add(i, 8);    // step over EOL and SOL or SOM and SOL
+//        for (j = 0; j < msgProperties.width; j++) {
+//          msg_buf[index++] = ser_read_buf[i];
+//          i = add(i, 1);
+//        }
+//      } // continue search for new line
+//      stereocam_data.len = msgProperties.width * msgProperties.height;
+//      stereocam_data.fresh = 1;
+//      extract_loc = add(extract_loc, 4);      // step over EOM string
+//      return 1;
+//    }
+//    extract_loc = add(extract_loc, 1);
+//  }
+//  return 0;
+//}
 
 extern void stereocam_start(void)
 {
@@ -201,15 +202,18 @@ extern void stereocam_stop(void)
 
 extern void stereocam_periodic(void)
 {
-  if (handleStereoPackage()) {
-    freq_counter++;
-    if ((sys_time.nb_tick - previous_time) > sys_time.ticks_per_sec) {  // 1s has past
-      frequency = (uint8_t)((freq_counter * (sys_time.nb_tick - previous_time)) / sys_time.ticks_per_sec);
-      freq_counter = 0;
-      previous_time = sys_time.nb_tick;
-    }
-#if SEND_STEREO
-    DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len, msg_buf);
-#endif
-  }
+	// read all data from the stereo com link, check that don't overtake extract
+	while (dev->char_available(dev->periph) && add(insert_loc, 1) != extract_loc) {
+	  if (handleStereoPackage(  dev->get_byte(dev->periph),STEREO_BUF_SIZE,&insert_loc,&extract_loc,&msg_start,msg_buf,ser_read_buf,&stereocam_data.fresh,&stereocam_data.len)) {
+		freq_counter++;
+		if ((sys_time.nb_tick - previous_time) > sys_time.ticks_per_sec) {  // 1s has past
+		  frequency = (uint8_t)((freq_counter * (sys_time.nb_tick - previous_time)) / sys_time.ticks_per_sec);
+		  freq_counter = 0;
+		  previous_time = sys_time.nb_tick;
+		}
+	#if SEND_STEREO
+		DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len, msg_buf);
+	#endif
+	  }
+	}
 }
