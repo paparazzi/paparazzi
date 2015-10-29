@@ -29,7 +29,7 @@
 #include "stereocam.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/telemetry.h"
-
+#include "subsystems/stereoprotocol.h"
 #ifndef SEND_STEREO
 #define SEND_STEREO TRUE
 #endif
@@ -44,11 +44,11 @@ struct link_device *dev = STEREO_PORT;
 #define StereoSend(_dat,_len) { for (uint8_t i = 0; i< (_len); i++) StereoSend1(_dat[i]); };
 #define StereoUartSetBaudrate(_b) uart_periph_set_baudrate(STEREO_PORT, _b);
 
-typedef struct MsgProperties {
-  uint16_t positionImageStart;
-  uint8_t width;
-  uint8_t height;
-} MsgProperties;
+//typedef struct MsgProperties {
+//  uint16_t positionImageStart;
+//  uint8_t width;
+//  uint8_t height;
+//} MsgProperties;
 
 // pervasive local variables
 MsgProperties msgProperties;
@@ -91,7 +91,7 @@ extern void stereocam_stop(void)
 extern void stereocam_periodic(void)
 {
 	// read all data from the stereo com link, check that don't overtake extract
-	while (dev->char_available(dev->periph) && add(insert_loc, 1) != extract_loc) {
+	while (dev->char_available(dev->periph) && stereoprot_add(insert_loc, 1,STEREO_BUF_SIZE) != extract_loc) {
 	  if (handleStereoPackage( StereoGetch(),STEREO_BUF_SIZE,&insert_loc,&extract_loc,&msg_start,msg_buf,ser_read_buf,&stereocam_data.fresh,&stereocam_data.len)) {
 		freq_counter++;
 		if ((sys_time.nb_tick - previous_time) > sys_time.ticks_per_sec) {  // 1s has past

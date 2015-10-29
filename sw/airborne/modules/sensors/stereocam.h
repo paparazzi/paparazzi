@@ -28,7 +28,7 @@
 #define STEREOCAM_H_
 
 #include <std.h>
-#include "subsystems/stereoprotocol.h"
+
 typedef struct {
   uint8_t len;
   uint8_t *data;
