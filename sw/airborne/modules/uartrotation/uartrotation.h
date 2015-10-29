@@ -18,15 +18,14 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/readlocationfromodroid/readlocationfromodroid.h"
+ * @file "modules/uartrotation/uartrotation.h"
  * @author Roland
- * reads from the odroid
+ * Sends rotation using the stereoboard protocol over the UART.
  */
 
-#ifndef READLOCATIONFROMODROID_H
-#define READLOCATIONFROMODROID_H
+#ifndef UARTROTATION_H
+#define UARTROTATION_H
 #include <inttypes.h>
-extern void odroid_loc_init(void);
-extern void odroid_loc_periodic(void);
+extern void write_serial_rot(void);
 #endif
 

@@ -37,12 +37,7 @@
 // define coms link for stereocam
 #define STEREO_PORT   (&((UART_LINK).device))
 struct link_device *dev = STEREO_PORT;
-
 #define StereoGetch() STEREO_PORT ->get_byte(STEREO_PORT->periph)
-#define StereoSend1(c) STEREO_PORT->put_byte(STEREO_PORT->periph, c)
-#define StereoUartSend1(c) StereoSend1(c)
-#define StereoSend(_dat,_len) { for (uint8_t i = 0; i< (_len); i++) StereoSend1(_dat[i]); };
-#define StereoUartSetBaudrate(_b) uart_periph_set_baudrate(STEREO_PORT, _b);
 
 //typedef struct MsgProperties {
 //  uint16_t positionImageStart;

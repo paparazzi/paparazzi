@@ -46,9 +46,8 @@ struct mavlink_msg_req req;
 static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((unused)))
 {
   optical_flow_available = TRUE;
- // printf("Stabilisation decoded %d %d height: %f \n", optical_flow.flow_x, optical_flow.flow_y,optical_flow.ground_distance);
 
-  // X and Y negated to get to the body of the drone
+  // Y negated to get to the body of the drone
   AbiSendMsgVELOCITY_ESTIMATE(PIX4FLOWSENDER_ID, 0,
                                   (optical_flow.flow_x/optical_flow.ground_distance),
 								  -1.0*(optical_flow.flow_y/optical_flow.ground_distance),

@@ -19,47 +19,37 @@
  */
 /**
  * @file "modules/readlocationfromodroid/readlocationfromodroid.c"
- * @author Roland
- * reads from the odroid and sends information of the drone to the odroid using JSON messages
+ * @author Roland + Kirk
+ * Sends rotation using the stereoboard protocol over the UART.
  */
 
 #include "modules/uartrotation/uartrotation.h"
 #include "subsystems/abi.h"
 #include <serial_port.h>
-#include <stdio.h>
 #include <inttypes.h>
-#include <errno.h>
 #include "state.h"
 #include "subsystems/gps.h"
 #include "subsystems/ins/ins_int.h"
 #include "firmwares/rotorcraft/autopilot.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/gps.h"
-#include "subsystems/datalink/telemetry.h"
 #include "subsystems/stereoprotocol.h"
 #include "navdata.h"
-int frameNumberSending=0;
+static int frame_number_sending=0;
 static abi_event odroid_agl_ev;
 float lastKnownHeight = 0.0;
 int pleaseResetOdroid = 0;
 
+//uart_periph_set_baudrate(UART_LINK, B115200);
 
-static void write_serial_rot(struct transport_tx *trans, struct link_device *devasdf) {
+void write_serial_rot() {
 	struct Int32RMat *ltp_to_body_mat = stateGetNedToBodyRMat_i();
-	int32_t lengthArrayInformation = 11*sizeof(int32_t);
+	static int32_t lengthArrayInformation = 11*sizeof(int32_t);
 	uint8_t ar[lengthArrayInformation];
 	int32_t *pointer = (int32_t*)ar;
 	for(int indexRot = 0; indexRot < 9; indexRot++){
 		pointer[indexRot]=ltp_to_body_mat->m[indexRot];
 	}
 	pointer[9]=(int32_t)(state.alt_agl_f*100); //height above ground level in CM. 
-	pointer[10]=frameNumberSending++;
-	printf("Whoo sending serial\n");
+	pointer[10]=frame_number_sending++;
 	stereoprot_sendArray( &((UART_LINK).device),ar, lengthArrayInformation, 1);
-	printf("Whoo sending serial2\n");
-}
-
-
-void uart_rotation_init() {
-	register_periodic_telemetry(DefaultPeriodic, "SERIALRMAT", write_serial_rot);
 }
