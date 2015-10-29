@@ -37,7 +37,7 @@ struct downlink downlink;
 
 static uint32_t last_down_nb_bytes = 0;  // previous number of bytes sent
 static uint32_t last_up_nb_msgs = 0;  // previous number of received messages
-static uint32_t last_ts = 0;	// timestamp in usec when last message was send
+static uint32_t last_ts = 0;  // timestamp in usec when last message was send
 
 static void send_downlink(struct transport_tx *trans, struct link_device *dev)
 {
@@ -53,11 +53,12 @@ static void send_downlink(struct transport_tx *trans, struct link_device *dev)
     last_down_nb_bytes = downlink.nb_bytes;
     last_up_nb_msgs = datalink_nb_msgs;
 #else
-	last_down_nb_bytes = downlink.nb_bytes;
+    last_down_nb_bytes = downlink.nb_bytes;
     last_up_nb_msgs = datalink_nb_msgs;
 #endif
 
-    pprz_msg_send_DATALINK_REPORT(trans, dev, AC_ID, &datalink_time, &datalink_nb_msgs, &downlink.nb_msgs, &down_rate, &up_rate, &downlink.nb_ovrn);
+    pprz_msg_send_DATALINK_REPORT(trans, dev, AC_ID, &datalink_time, &datalink_nb_msgs, &downlink.nb_msgs, &down_rate,
+                                  &up_rate, &downlink.nb_ovrn);
   }
 }
 #endif
