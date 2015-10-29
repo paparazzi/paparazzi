@@ -378,6 +378,11 @@ void intermcu_on_rc_frame(void)
   InterMcuSend_INTERMCU_RADIO(fbw_state->channels);
 
 }
+void intermcu_send_status(void)
+{
+  // Send Status
+}
+
 #endif
 
 
@@ -386,6 +391,8 @@ struct InterMCU inter_mcu;
 
 void intermcu_periodic(void)
 {
+  RunOnceEvery(25, intermcu_send_status());
+
   if (inter_mcu.time_since_last_frame >= INTERMCU_LOST_CNT) {
     inter_mcu.status = INTERMCU_LOST;
   } else {
