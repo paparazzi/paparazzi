@@ -56,6 +56,8 @@ struct ap_state {
   pprz_t command_yaw_trim;
 };
 
+extern struct ap_state  from_ap;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // InterMCU Watchdog

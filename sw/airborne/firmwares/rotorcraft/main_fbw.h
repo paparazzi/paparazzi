@@ -22,7 +22,15 @@
 /**
  * @file firmwares/rotorcraft/main_fbw.h
  *
- * Rotorcraft main loop.
+ * Fly By Wire:
+ *
+ * Reads Radiocontrol
+ * Reads Intermcu
+ * Sets Actuators
+ *
+ * if no autopilot, but rc, then manual
+ * if no rc but autopilot then RC_LOST_FBW_MODE (define below)
+ * if no ap but rc then AP_LOST_FBW_MODE (define below)
  */
 
 #ifndef MAIN_H
@@ -33,6 +41,17 @@
 #else
 #define STATIC_INLINE static inline
 #endif
+
+/** mode to enter when RC is lost while using a mode with RC input */
+#ifndef RC_LOST_FBW_MODE
+#define RC_LOST_FBW_MODE FBW_MODE_FAILSAFE
+#endif
+
+/** mode to enter when AP is lost while using autopilot */
+#ifndef AP_LOST_FBW_MODE
+#define AP_LOST_FBW_MODE FBW_MODE_FAILSAFE
+#endif
+
 
 STATIC_INLINE void main_init(void);
 STATIC_INLINE void main_event(void);

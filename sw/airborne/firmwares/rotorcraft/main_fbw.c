@@ -159,13 +159,7 @@ static uint8_t fbw_mode_of_3way_switch(void)
   }
 }
 
-/** mode to enter when RC is lost while using a mode with RC input (not AP_MODE_NAV) */
-#ifndef AP_LOST_FBW_MODE
-#define AP_LOST_FBW_MODE FBW_MODE_FAILSAFE
-#endif
-
-void fbw_set_mode(uint8_t new_fbw_mode);
-void fbw_set_mode(uint8_t new_fbw_mode) {
+static void fbw_set_mode(uint8_t new_fbw_mode) {
   if (new_fbw_mode == FBW_MODE_AUTO)
   if ((inter_mcu.status == INTERMCU_LOST) && (new_fbw_mode == FBW_MODE_AUTO))
   {
@@ -178,8 +172,7 @@ void fbw_set_mode(uint8_t new_fbw_mode) {
   }
 }
 
-void autopilot_on_rc_frame(void);
-void autopilot_on_rc_frame(void)
+static void autopilot_on_rc_frame(void)
 {
   uint8_t new_autopilot_mode = fbw_mode_of_3way_switch();
 
@@ -203,16 +196,12 @@ void autopilot_on_rc_frame(void)
   intermcu_on_rc_frame();
 }
 
-void autopilot_on_ap_command(void);
-void autopilot_on_ap_command(void)
+static void autopilot_on_ap_command(void)
 {
-
+  if (fbw_mode != FBW_MODE_MANUAL) {
+    SetCommands(from_ap.commands);
+  }
 }
-
-/** mode to enter when RC is lost while using a mode with RC input (not AP_MODE_NAV) */
-#ifndef RC_LOST_FBW_MODE
-#define RC_LOST_FBW_MODE FBW_MODE_FAILSAFE
-#endif
 
 STATIC_INLINE void failsafe_check(void)
 {
