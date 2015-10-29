@@ -363,31 +363,37 @@ void link_mcu_send(void)
 #endif
 
 #ifdef INTER_MCU_FBW
-// 60 Hz
-static uint8_t FivehundredHzCounter = 0;
 
-void intermcu_periodic(void)
+void intermcu_on_rc_frame(void)
 {
-  FivehundredHzCounter++;
-  if (FivehundredHzCounter >= 10) {
-    // 50.12 Hz
-    FivehundredHzCounter = 0;
-    //TODO
-    //inter_mcu_fill_fbw_state(); /** Prepares the next message for AP */
+  //TODO
+  //inter_mcu_fill_fbw_state(); /** Prepares the next message for AP */
 
-    InterMcuSend_INTERMCU_FBW(
-      fbw_state->ppm_cpt,
-      fbw_state->status,
-      fbw_state->nb_err,
-      fbw_state->vsupply,
-      fbw_state->current);
-    InterMcuSend_INTERMCU_RADIO(fbw_state->channels);
+  InterMcuSend_INTERMCU_FBW(
+    fbw_state->ppm_cpt,
+    fbw_state->status,
+    fbw_state->nb_err,
+    fbw_state->vsupply,
+    fbw_state->current);
+  InterMcuSend_INTERMCU_RADIO(fbw_state->channels);
 
-  }
 }
 #endif
 
-void intermcu_event(void)
+
+struct InterMCU inter_mcu;
+
+
+void intermcu_periodic(void)
+{
+  if (inter_mcu.time_since_last_frame >= INTERMCU_LOST_CNT) {
+    inter_mcu.status = INTERMCU_LOST;
+  } else {
+    inter_mcu.time_since_last_frame++;
+  }
+}
+
+void InterMcuEvent(void (*frame_handler)(void))
 {
   /* A message has been received */
   if (InterMcuLinkChAvailable()) {
@@ -396,6 +402,8 @@ void intermcu_event(void)
       if (intermcu_data.msg_available) {
         parse_mavpilot_msg();
         intermcu_data.msg_available = FALSE;
+        inter_mcu.time_since_last_frame = 0;
+        (*frame_handler)();
       }
     }
   }

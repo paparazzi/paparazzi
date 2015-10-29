@@ -30,8 +30,9 @@
 
 
 void intermcu_init(void);
+void intermcu_on_rc_frame(void);
 void intermcu_periodic(void);
-void intermcu_event(void);
+void InterMcuEvent(void (*frame_handler)(void));
 
 #include "subsystems/commands.h"
 #include RADIO_CONTROL_TYPE_H
@@ -55,6 +56,21 @@ struct ap_state {
   pprz_t command_yaw_trim;
 };
 
+
+///////////////////////////////////////////////////////////////////////////////
+// InterMCU Watchdog
+
+#define INTERMCU_LOST_CNT 25  /* 50ms with a 512Hz timer */
+
+#define INTERMCU_OK          0
+#define INTERMCU_LOST        1
+
+struct InterMCU {
+  uint8_t status;
+  uint8_t time_since_last_frame;
+};
+
+extern struct InterMCU inter_mcu;
 
 
 #endif

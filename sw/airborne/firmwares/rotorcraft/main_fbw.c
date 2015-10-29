@@ -55,7 +55,6 @@
 #define FBW_MODE_FAILSAFE 2
 
 uint8_t fbw_mode;
-bool_t intermcu_realy_lost;
 
 
 /* MODULES_FREQUENCY is defined in generated/modules.h
@@ -88,7 +87,6 @@ STATIC_INLINE void main_init(void)
 {
   // fbw_init
   fbw_mode = FBW_MODE_FAILSAFE;
-  intermcu_realy_lost = TRUE;
 
   mcu_init();
 
@@ -143,7 +141,6 @@ STATIC_INLINE void main_periodic(void)
   // TODO
   //autopilot_periodic();
   /* set actuators     */
-  //actuators_set(autopilot_motors_on);
   SetActuatorsFromCommands(commands, autopilot_mode);
 
   RunOnceEvery(10, LED_PERIODIC());
@@ -170,7 +167,7 @@ static uint8_t fbw_mode_of_3way_switch(void)
 void fbw_set_mode(uint8_t new_fbw_mode);
 void fbw_set_mode(uint8_t new_fbw_mode) {
   if (new_fbw_mode == FBW_MODE_AUTO)
-  if (intermcu_realy_lost && (new_fbw_mode == FBW_MODE_AUTO))
+  if ((inter_mcu.status == INTERMCU_LOST) && (new_fbw_mode == FBW_MODE_AUTO))
   {
     new_fbw_mode = AP_LOST_FBW_MODE;
   }
@@ -195,17 +192,22 @@ void autopilot_on_rc_frame(void)
 
   /* if manual */
   if (fbw_mode == FBW_MODE_MANUAL) {
-
-    /* if not in NAV_MODE set commands from the rc */
 #ifdef SetCommandsFromRC
     SetCommandsFromRC(commands, radio_control.values);
 #else
 #warning "FBW: needs commands from RC in order to be useful."
 #endif
-
   }
+
+  /* Formward radiocontrol to AP */
+  intermcu_on_rc_frame();
 }
 
+void autopilot_on_ap_command(void);
+void autopilot_on_ap_command(void)
+{
+
+}
 
 /** mode to enter when RC is lost while using a mode with RC input (not AP_MODE_NAV) */
 #ifndef RC_LOST_FBW_MODE
@@ -215,16 +217,15 @@ void autopilot_on_rc_frame(void)
 STATIC_INLINE void failsafe_check(void)
 {
   // Loose RC while using RC
-  if (radio_control.status == RC_REALLY_LOST &&
-      fbw_mode != FBW_MODE_AUTO) {
+  if ((radio_control.status == RC_REALLY_LOST) &&
+      (fbw_mode != FBW_MODE_AUTO)) {
     fbw_set_mode(RC_LOST_FBW_MODE);
   }
-/*  // Loose AP while using AP
-  if (intermcu_realy_lost && (fbw_mode == FBW_MODE_AUTO))
-  {
-     fbw_set_mode(AP_LOST_FBW_MODE);
+  // Loose AP while using AP
+  if ((inter_mcu.status == INTERMCU_LOST) &&
+      (fbw_mode == FBW_MODE_AUTO)) {
+    fbw_set_mode(AP_LOST_FBW_MODE);
   }
-*/
 }
 
 
@@ -238,7 +239,7 @@ STATIC_INLINE void main_event(void)
   RadioControlEvent(autopilot_on_rc_frame);
 
   // InterMCU
-  intermcu_event();
+  InterMcuEvent(autopilot_on_ap_command);
 
   // TODO Modules
   //modules_event_task();
