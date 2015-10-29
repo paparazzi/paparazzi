@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 The Paparazzi Team
+ * Copyright (C) 2015 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -17,29 +17,21 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- */
-
-/**
- * @file firmwares/rotorcraft/main_fbw.h
  *
- * Rotorcraft main loop.
  */
 
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef INTERMCU_ROTORCRAFT_H
+#define INTERMCU_ROTORCRAFT_H
 
-#ifdef SITL
-#define STATIC_INLINE extern
-#else
-#define STATIC_INLINE static inline
+
+#include <stdint.h>
+
+#include "subsystems/commands.h"
+
+
+void intermcu_init(void);
+void intermcu_send(void);
+void intermcu_periodic(void);
+void intermcu_event(void);
+
 #endif
-
-STATIC_INLINE void main_init(void);
-STATIC_INLINE void main_event(void);
-STATIC_INLINE void handle_periodic_tasks(void);
-
-STATIC_INLINE void main_periodic(void);
-STATIC_INLINE void failsafe_check(void);
-
-
-#endif /* MAIN_H */

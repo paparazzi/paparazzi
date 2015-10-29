@@ -44,6 +44,7 @@
 
 #include "firmwares/rotorcraft/main_fbw.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
+#include "firmwares/rotorcraft/intermcu.h"
 
 //#include "generated/modules.h"
 
@@ -112,10 +113,6 @@ STATIC_INLINE void main_init(void)
   electrical_tid = sys_time_register_timer(0.1, NULL);
 }
 
-STATIC_INLINE void intermcu_periodic(void) {
-
-}
-
 
 STATIC_INLINE void handle_periodic_tasks(void)
 {
@@ -140,6 +137,7 @@ STATIC_INLINE void handle_periodic_tasks(void)
 STATIC_INLINE void main_periodic(void)
 {
 
+  intermcu_periodic();
   /* run control loops */
   // TODO
   //autopilot_periodic();
@@ -239,6 +237,7 @@ STATIC_INLINE void main_event(void)
   RadioControlEvent(autopilot_on_rc_frame);
 
   // InterMCU
+  intermcu_event();
 
   // TODO Modules
   //modules_event_task();
