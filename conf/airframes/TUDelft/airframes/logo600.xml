@@ -41,7 +41,9 @@
       <define name="RADIO_KILL_SWITCH" value="RADIO_AUX2"/>
     </subsystem>
 
-    <subsystem name="actuators"     type="spektrum"/>
+    <subsystem name="actuators"     type="spektrum">
+      <configure name="ACTUATORS_SPEKTRUM_DEV2" value="UART6"/>
+    </subsystem>
     <define name="RC_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe or to Autopilot on RC loss? -->
     <define name="AP_LOST_FBW_MODE" value="FBW_MODE_MANUAL"/><!-- Switch to Failsafe or to Manual on AP loss? -->
 
