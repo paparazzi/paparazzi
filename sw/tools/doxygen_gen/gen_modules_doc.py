@@ -74,18 +74,19 @@ def modules_overview_page(modules_dict):
 
 def module_page(filename, module):
     (brief, details) = get_module_description(module)
-    keyword = filename[:-4].lower()
-    page_name = "module__" + keyword
+    mname = filename[:-4].lower()
+    page_name = "module__" + mname
     s = dox_new_page(page_name, brief)
     s += "Module XML file: @c " + filename + "\n\n"
     s += details + "\n"
     s += get_xml_example(filename, module)
-    s += module_configuration(module)
-    s += module_functions(module)
+    s += module_configuration(module, mname)
+    s += module_functions(module, mname)
+    s += module_datalink(module, mname)
     s += "@section files Files\n\n"
     s += headers_list(module)
     s += sources_list(module)
-    s += "\n@subsection module_xml__{0} Raw {1} file:\n@include {1}\n".format(keyword, filename)
+    s += "\n@subsection module_xml__{0} Raw {1} file:\n@include {1}\n".format(mname, filename)
     s += "\n */\n\n"
     return s
 
@@ -158,15 +159,17 @@ def get_doc_sections(module):
     return s
 
 
-def module_configuration(module):
+def module_configuration(module, mname):
     doc = get_doc_config_option(module, 'configure')
     doc += get_doc_config_option(module, 'define')
     doc += get_doc_sections(module)
     if doc:
-        return "@section configuration Module configuration options\n\n" + doc
+        return "@section configuration__{0} Module configuration options\n\n".format(mname) + doc
     else:
         return ""
 
+def get_module_name(module):
+    return module.get('name')
 
 def get_module_description(module):
     desc = module.find("./doc/description")
@@ -276,14 +279,24 @@ def get_periodic_functions(module):
     return s
 
 
-def module_functions(module):
+def module_functions(module, mname):
     fdoc = get_init_functions(module)
     fdoc += get_event_functions(module)
     fdoc += get_periodic_functions(module)
     if fdoc:
-        return "@section functions Module functions\n\n" + fdoc + "\n"
+        return "@section functions__{0} Module functions\n\n".format(mname) + fdoc + "\n"
     else:
         return ""
+
+def module_datalink(module, mname):
+    s = ""
+    datalinks = module.findall("./datalink")
+    if datalinks:
+        s += "@section datalink_functions__{0} Datalink Functions\n\n".format(mname)
+        s += "Whenever the specified datalink message is received, the corresponing handler function is called.\n\n"
+        for d in datalinks:
+            s += "- on message @b {0} call {1}\n".format(d.get('message'), d.get('fun'))
+    return s
 
 
 def read_module_file(file):

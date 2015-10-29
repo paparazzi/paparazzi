@@ -49,13 +49,15 @@ static void send_downlink(struct transport_tx *trans, struct link_device *dev)
     uint16_t up_rate = (1000 * ((uint32_t)datalink_nb_msgs - last_up_nb_msgs)) / (now_ts - last_ts);
 
     last_ts = now_ts;
+#if defined DATALINK || defined SITL
     last_down_nb_bytes = downlink.nb_bytes;
     last_up_nb_msgs = datalink_nb_msgs;
+#else
+	last_down_nb_bytes = downlink.nb_bytes;
+    last_up_nb_msgs = datalink_nb_msgs;
+#endif
 
-    pprz_msg_send_DATALINK_REPORT(trans, dev, AC_ID,
-                                  &datalink_time, &datalink_nb_msgs,
-                                  &downlink.nb_msgs, &down_rate, &up_rate,
-				  &downlink.nb_ovrn);
+    pprz_msg_send_DATALINK_REPORT(trans, dev, AC_ID, &datalink_time, &datalink_nb_msgs, &downlink.nb_msgs, &down_rate, &up_rate, &downlink.nb_ovrn);
   }
 }
 #endif

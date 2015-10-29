@@ -272,6 +272,7 @@ paparazzi:
 #
 dox:
 	$(Q)PAPARAZZI_HOME=$(PAPARAZZI_HOME) sw/tools/doxygen_gen/gen_modules_doc.py -pv
+	$(Q)PAPARAZZI_HOME=$(PAPARAZZI_HOME) sw/tools/doxygen_gen/gen_messages_doc.py -pv
 	@echo "Generationg doxygen html documentation in doc/generated/html"
 	$(Q)( cat Doxyfile ; echo "PROJECT_NUMBER=$(./paparazzi_version)"; echo "QUIET=YES") | doxygen -
 	@echo "Done. Open doc/generated/html/index.html in your browser to view it."

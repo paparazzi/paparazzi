@@ -1,3 +1,5 @@
+sudo: required
+dist: trusty
 language: c
 compiler:
   - gcc
@@ -7,7 +9,7 @@ before_install:
   - sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded -y
   - sudo apt-get update -q
 install:
-  - sudo apt-get install paparazzi-dev paparazzi-jsbsim gcc-arm-none-eabi libipc-run-perl
+  - sudo apt-get install -y paparazzi-dev paparazzi-jsbsim gcc-arm-none-eabi libipc-run-perl
 script:
   - make test
 
