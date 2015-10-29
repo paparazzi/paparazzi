@@ -239,6 +239,7 @@
     <field name="uplink_nb_msgs" type="uint16"/>
     <field name="downlink_nb_msgs" type="uint16"/>
     <field name="downlink_rate" type="uint16" unit="bytes/s"/>
+    <field name="uplink_rate" type="uint16" unit="msgs/s"/>
     <field name="downlink_ovrn" type="uint8"/>
   </message>
 
@@ -853,7 +854,11 @@
     <field name="values" type="int16[]" unit="none"/>
   </message>
 
-  <!--106 is free -->
+  <message name="BLUEGIGA" id="106">
+    <field name="data_rate" type="uint32" unit="bytes/s"/>
+    <field name="last_msg" type="uint8[]"/>
+  </message>
+  
   <!--107 is free -->
   <!--108 is free -->
   <!--109 is free -->

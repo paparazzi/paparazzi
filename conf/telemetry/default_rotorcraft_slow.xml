@@ -20,6 +20,7 @@
       <message name="I2C_ERRORS"             period="6.1"/>
       <message name="UART_ERRORS"            period="4.1"/>
       <message name="SUPERBITRF"             period="4"/>
+      <message name="BLUEGIGA"               period="4"/>
       <message name="ENERGY"                 period="3.5"/>
       <message name="DATALINK_REPORT"        period="6.1"/>
       <message name="STATE_FILTER_STATUS"    period="4.2"/>
