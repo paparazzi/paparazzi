@@ -55,7 +55,7 @@ static void write_serial_rot(struct transport_tx *trans, struct link_device *dev
 	pointer[9]=(int32_t)(state.alt_agl_f*100); //height above ground level in CM. 
 	pointer[10]=frameNumberSending++;
 	printf("Whoo sending serial\n");
-	stereoprot_sendArray( &((GPS_LINK).device),ar, lengthArrayInformation, 1);
+	stereoprot_sendArray( &((UART_LINK).device),ar, lengthArrayInformation, 1);
 	printf("Whoo sending serial2\n");
 }
 
