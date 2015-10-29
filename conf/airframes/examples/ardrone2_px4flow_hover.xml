@@ -1,11 +1,10 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 <!-- RM airframe with INDI and video logging-->
 <airframe name="ardrone2_indi">
-
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2">
       <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
-      <configure name="USE_MAGNETOMETER" value="0"/>
+      <configure name="USE_MAGNETOMETER" value="1"/>
       <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
     </target>
 
@@ -33,7 +32,6 @@
 
   <modules main_freq="512">
     <load name="bat_voltage_ardrone2.xml"/>
-	<!--load name="uartrotation.xml"/-->
 	<load name="opticflow_hover.xml"/>
 	<load name="mavlink_decoder.xml">
 		<configure name="MAVLINK_PORT" value="UART1"/>
@@ -230,7 +228,6 @@
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
     <define name="MODE_AUTO2" value="AP_MODE_MODULE"/>
-
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
   </section>
 
