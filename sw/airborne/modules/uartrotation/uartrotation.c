@@ -32,7 +32,7 @@
 #include "subsystems/ins/ins_int.h"
 #include "firmwares/rotorcraft/autopilot.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/stereoprotocol.h"
+#include "stereoprotocol.h"
 #include "navdata.h"
 static int frame_number_sending=0;
 static abi_event odroid_agl_ev;

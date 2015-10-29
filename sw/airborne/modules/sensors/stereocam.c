@@ -29,7 +29,7 @@
 #include "stereocam.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/telemetry.h"
-#include "subsystems/stereoprotocol.h"
+#include "modules/uartrotation/stereoprotocol.h"
 #ifndef SEND_STEREO
 #define SEND_STEREO TRUE
 #endif
