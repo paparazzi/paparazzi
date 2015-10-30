@@ -81,6 +81,8 @@ static inline void intermcu_parse_msg(struct transport_rx * trans, void (*comman
         for(i = 0; i < size; i++)
           intermcu_commands[i] = new_commands[i];
 
+        inter_mcu.status = INTERMCU_OK;
+        inter_mcu.time_since_last_frame = 0;
         commands_frame_handler();
       break;
     }

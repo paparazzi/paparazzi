@@ -54,6 +54,7 @@ void intermcu_periodic(void)
 
 void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode __attribute__((unused)))
 {
+  command_values[1] = 7000;
   pprz_msg_send_IMCU_COMMANDS(&(intermcu_transport.trans_tx), intermcu_device,
     INTERMCU_AP, 0, COMMANDS_NB, command_values); //TODO: Fix status
 }

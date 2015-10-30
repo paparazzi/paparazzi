@@ -24,6 +24,7 @@
 #define INTERMCU_AP_ROTORCRAFT_H
 
 #include "subsystems/intermcu.h"
+#include "generated/airframe.h"
 
 void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode);
 void RadioControlEvent(void (*frame_handler)(void));

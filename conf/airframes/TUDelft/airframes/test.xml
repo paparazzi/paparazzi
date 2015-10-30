@@ -18,14 +18,17 @@
       <subsystem name="fdm" type="jsbsim"/>
     </target>
 
-    <!--subsystem name="telemetry"     type="xbee_api"/-->
+    <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="lisa_m_v2.1"/>
-    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="gps"           type="ublox">
+      <configure name="GPS_PORT" value="UART4"/>
+    </subsystem>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
     <subsystem name="guidance"      type="indi"/>
     <subsystem name="intermcu"      type="uart"/>
+    <define name="REMAP_UART3" value="TRUE"/>
   </firmware>
 
   <firmware name="rotorcraft">
@@ -38,11 +41,11 @@
     <subsystem name="radio_control" type="spektrum">
       <define name="RADIO_CONTROL_NB_CHANNEL" value="7"/>
       <define name="RADIO_CONTROL_SPEKTRUM_NO_SIGN" value="1"/>
-      <define name="RADIO_KILL_SWITCH" value="RADIO_AUX2"/>
     </subsystem>
 
     <subsystem name="actuators"     type="pwm"/>
     <subsystem name="intermcu"      type="uart"/>
+    <define name="REMAP_UART3" value="TRUE"/>
   </firmware>
 
   <modules>
@@ -96,6 +99,7 @@
     <define name="NAV_DESCEND_VSPEED" value="-1.0"/>
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
     <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="TRUE"/>
+    <define name="RADIO_KILL_SWITCH" value="RADIO_AUX2"/>
     <define name="VoltageOfAdc(adc)" value="(0.014355*adc)"/>
   </section>
 
