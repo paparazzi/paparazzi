@@ -23,6 +23,7 @@
 #include <inttypes.h>
 
 #include "subsystems/intermcu.h"
+#include "subsystems/electrical.h"
 
 #include "mcu_periph/uart.h"
 #include "led.h"
@@ -369,18 +370,18 @@ void intermcu_on_rc_frame(void)
   //TODO
   //inter_mcu_fill_fbw_state(); /** Prepares the next message for AP */
 
+  InterMcuSend_INTERMCU_RADIO(fbw_state->channels);
+
+}
+void intermcu_send_status(uint8_t mode)
+{
+  // Send Status
   InterMcuSend_INTERMCU_FBW(
     fbw_state->ppm_cpt,
     fbw_state->status,
     fbw_state->nb_err,
-    fbw_state->vsupply,
+    electrical.vsupply,
     fbw_state->current);
-  InterMcuSend_INTERMCU_RADIO(fbw_state->channels);
-
-}
-void intermcu_send_status(void)
-{
-  // Send Status
 }
 
 #endif
@@ -391,8 +392,6 @@ struct InterMCU inter_mcu;
 
 void intermcu_periodic(void)
 {
-  RunOnceEvery(25, intermcu_send_status());
-
   if (inter_mcu.time_since_last_frame >= INTERMCU_LOST_CNT) {
     inter_mcu.status = INTERMCU_LOST;
   } else {

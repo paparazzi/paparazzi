@@ -52,13 +52,17 @@
 #define AP_LOST_FBW_MODE FBW_MODE_FAILSAFE
 #endif
 
+/** Switching between FBW and autopilot is done with RADIO_FBW_MODE: default is to re-use RADIO_MODE */
+
+#ifndef RADIO_FBW_MODE
+#define RADIO_FBW_MODE RADIO_MODE
+#endif
 
 STATIC_INLINE void main_init(void);
 STATIC_INLINE void main_event(void);
 STATIC_INLINE void handle_periodic_tasks(void);
-
 STATIC_INLINE void main_periodic(void);
-STATIC_INLINE void failsafe_check(void);
+STATIC_INLINE void telemetry_periodic(void);
 
 
 #endif /* MAIN_H */

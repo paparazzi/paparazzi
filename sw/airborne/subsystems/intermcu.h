@@ -31,6 +31,7 @@
 
 void intermcu_init(void);
 void intermcu_on_rc_frame(void);
+void intermcu_send_status(uint8_t mode);
 void intermcu_periodic(void);
 void InterMcuEvent(void (*frame_handler)(void));
 

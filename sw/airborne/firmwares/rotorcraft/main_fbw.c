@@ -50,12 +50,8 @@
 //#include "generated/modules.h"
 
 /** Fly by wire modes */
-#define FBW_MODE_MANUAL   0
-#define FBW_MODE_AUTO     1
-#define FBW_MODE_FAILSAFE 2
-
-uint8_t fbw_mode;
-
+typedef enum {FBW_MODE_MANUAL=0,FBW_MODE_AUTO=1,FBW_MODE_FAILSAFE=2} fbw_mode_enum;
+fbw_mode_enum fbw_mode;
 
 /* MODULES_FREQUENCY is defined in generated/modules.h
  * according to main_freq parameter set for modules in airframe file
@@ -63,8 +59,7 @@ uint8_t fbw_mode;
 //PRINT_CONFIG_VAR(MODULES_FREQUENCY)
 
 tid_t main_periodic_tid; ///< id for main_periodic() timer
-//tid_t modules_tid;       ///< id for modules_periodic_task() timer
-tid_t failsafe_tid;      ///< id for failsafe_check() timer
+//tid_t modules_tid;     ///< id for modules_periodic_task() timer
 tid_t radio_control_tid; ///< id for radio_control_periodic_task() timer
 tid_t electrical_tid;    ///< id for electrical_periodic() timer
 tid_t telemetry_tid;     ///< id for telemetry_periodic() timer
@@ -108,10 +103,13 @@ STATIC_INLINE void main_init(void)
   main_periodic_tid = sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
 //  modules_tid = sys_time_register_timer(1. / MODULES_FREQUENCY, NULL);
   radio_control_tid = sys_time_register_timer((1. / 60.), NULL);
-  failsafe_tid = sys_time_register_timer(0.05, NULL);
   electrical_tid = sys_time_register_timer(0.1, NULL);
+  telemetry_tid = sys_time_register_timer((1. / 20.), NULL);
 }
 
+
+//////////////////////////
+// PERIODIC
 
 STATIC_INLINE void handle_periodic_tasks(void)
 {
@@ -125,58 +123,82 @@ STATIC_INLINE void handle_periodic_tasks(void)
   if (sys_time_check_and_ack_timer(radio_control_tid)) {
     radio_control_periodic_task();
   }
-  if (sys_time_check_and_ack_timer(failsafe_tid)) {
-    failsafe_check();
-  }
   if (sys_time_check_and_ack_timer(electrical_tid)) {
     electrical_periodic();
   }
+  if (sys_time_check_and_ack_timer(telemetry_tid)) {
+    telemetry_periodic();
+  }
+}
+
+STATIC_INLINE void telemetry_periodic(void)  // 60Hz
+{
+  /* Send status to AP */
+  intermcu_send_status(fbw_mode);
+
+  /* Handle Modems */
+  // TODO
+  // Read Telemetry
 }
 
 STATIC_INLINE void main_periodic(void)
 {
-
+  /* Inter-MCU watchdog */
   intermcu_periodic();
-  /* run control loops */
-  // TODO
-  //autopilot_periodic();
-  /* set actuators     */
-  SetActuatorsFromCommands(commands, autopilot_mode);
 
-  RunOnceEvery(10, LED_PERIODIC());
-}
-
-#define THRESHOLD_1_PPRZ (MIN_PPRZ / 2)
-
-/** get autopilot fbw mode as set by RADIO_MODE 3-way switch */
-static uint8_t fbw_mode_of_3way_switch(void)
-{
-  if (radio_control.values[RADIO_MODE] < THRESHOLD_1_PPRZ) {
-    return FBW_MODE_MANUAL;
-  }
-  else {
-    return FBW_MODE_AUTO;
-  }
-}
-
-static void fbw_set_mode(uint8_t new_fbw_mode) {
-  if (new_fbw_mode == FBW_MODE_AUTO)
-  if ((inter_mcu.status == INTERMCU_LOST) && (new_fbw_mode == FBW_MODE_AUTO))
-  {
-    new_fbw_mode = AP_LOST_FBW_MODE;
+  /* Safety logic */
+  bool_t ap_lost = (inter_mcu.status == INTERMCU_LOST);
+  bool_t rc_lost = (radio_control.status == RC_REALLY_LOST);
+  if (rc_lost) {
+    if (ap_lost) {
+      // Both are lost
+      fbw_mode = FBW_MODE_FAILSAFE;
+    } else {
+      if (fbw_mode == FBW_MODE_MANUAL) {
+        fbw_mode = RC_LOST_FBW_MODE;
+      } else {
+        // No change: failsafe stays failsafe, auto stays auto
+      }
+    }
+  } else { // rc_is_good
+    if (fbw_mode == FBW_MODE_AUTO) {
+      if (ap_lost) {
+        fbw_mode = AP_LOST_FBW_MODE;
+      }
+    }
   }
 
-  fbw_mode = new_fbw_mode;
+  /* set failsafe commands     */
   if (fbw_mode == FBW_MODE_FAILSAFE) {
     SetCommands(commands_failsafe);
   }
+
+  /* set actuators     */
+  SetActuatorsFromCommands(commands, autopilot_mode);
+
+  /* blink     */
+  RunOnceEvery(10, LED_PERIODIC());
 }
+
+
+///////////////////////
+// Event
 
 static void autopilot_on_rc_frame(void)
 {
-  uint8_t new_autopilot_mode = fbw_mode_of_3way_switch();
+  /* get autopilot fbw mode as set by RADIO_MODE 3-way switch */
+  if (radio_control.values[RADIO_FBW_MODE] < (MIN_PPRZ / 2)) {
+    fbw_mode = FBW_MODE_MANUAL;
+  }
+  else {
+    fbw_mode = FBW_MODE_AUTO;
+  }
 
-  fbw_set_mode(new_autopilot_mode);
+  /* Trying to switch to auto when AP is lost */
+  if ((inter_mcu.status == INTERMCU_LOST) &&
+      (fbw_mode == FBW_MODE_AUTO)) {
+    fbw_mode = AP_LOST_FBW_MODE;
+  }
 
   /* if there are some commands that should always be set from RC, do it */
 #ifdef SetAutoCommandsFromRC
@@ -202,22 +224,6 @@ static void autopilot_on_ap_command(void)
     SetCommands(from_ap.commands);
   }
 }
-
-STATIC_INLINE void failsafe_check(void)
-{
-  // Loose RC while using RC
-  if ((radio_control.status == RC_REALLY_LOST) &&
-      (fbw_mode != FBW_MODE_AUTO)) {
-    fbw_set_mode(RC_LOST_FBW_MODE);
-  }
-  // Loose AP while using AP
-  if ((inter_mcu.status == INTERMCU_LOST) &&
-      (fbw_mode == FBW_MODE_AUTO)) {
-    fbw_set_mode(AP_LOST_FBW_MODE);
-  }
-}
-
-
 
 STATIC_INLINE void main_event(void)
 {
