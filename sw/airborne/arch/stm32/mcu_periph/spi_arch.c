@@ -100,7 +100,7 @@ struct spi_periph_dma {
   bool_t tx_extra_dummy_dma;       ///< extra tx dummy dma flag for tx_len < rx_len
   uint16_t rx_dummy_buf;           ///< dummy rx buffer for receive only cases
   bool_t rx_extra_dummy_dma;       ///< extra rx dummy dma flag for tx_len > rx_len
-  struct locm3_spi_comm comm;      ///< current communication paramters
+  struct locm3_spi_comm comm;      ///< current communication parameters
   uint8_t  comm_sig;               ///< comm config signature used to check for changes
 };
 
@@ -623,7 +623,7 @@ static void spi_start_dma_transaction(struct spi_periph *periph, struct spi_tran
    * To receive data, the clock must run, so something has to be transmitted.
    * If needed, use a dummy DMA transmitting zeros for the remaining length.
    *
-   * In the reveive only case (output_length == 0),
+   * In the receive only case (output_length == 0),
    * the dummy is used right from the start.
    */
   if (trans->output_length == 0) {
@@ -1204,7 +1204,6 @@ void process_tx_dma_interrupt(struct spi_periph * periph) {
 
 static void process_slave_rx_dma_interrupt(struct spi_periph * periph);
 
-
 // SPI arch slave init
 #if USE_SPI1_SLAVE
 #warning "SPI1 slave: Untested code!"
@@ -1377,13 +1376,12 @@ void spi2_slave_arch_init(void) {
 
 /// receive transferred over DMA
 void dma1_channel4_isr(void) {
-  if ((DMA1_ISR & DMA_ISR_TCIF2) != 0) {
+  if ((DMA1_ISR & DMA_ISR_TCIF4) != 0) {
     // clear int pending bit
-    DMA1_IFCR |= DMA_IFCR_CTCIF2;
+    DMA1_IFCR |= DMA_IFCR_CTCIF4;
   }
   process_slave_rx_dma_interrupt(&spi2);
 }
-
 
 #endif /* USE_SPI2_SLAVE */
 
@@ -1411,9 +1409,13 @@ static void spi_slave_set_config(struct spi_periph * periph, struct spi_transact
   spi_enable((uint32_t)periph->reg_addr);
 }
 
-
-
 //static void spi_start_slave_dma_transaction(struct spi_periph* periph, struct spi_transaction* trans)
+
+/*
+ * Please note: Spi_slave_register will set-up the DMA which will automatically load the first byte of the transmit buffer
+ * Therefore, to ensure that the first byte of your data will be set, you have to set the transmit buffer before you call
+ * this function
+ */
 bool_t spi_slave_register(struct spi_periph * periph, struct spi_transaction * trans) {
   spi_slave_set_config(periph, trans);
 
@@ -1429,16 +1431,6 @@ bool_t spi_slave_register(struct spi_periph * periph, struct spi_transaction * t
   dma = periph->init_struct;
 
   /*
-   * Receive DMA channel configuration ----------------------------------------
-   */
-  spi_configure_dma(dma->dma, dma->rcc_dma, dma->rx_chan, (uint32_t)dma->spidr,
-                    (uint32_t)trans->input_buf, trans->input_length, trans->dss, TRUE);
-
-  dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
-  dma_set_priority(dma->dma, dma->rx_chan, DMA_CCR_PL_VERY_HIGH);
-
-
-  /*
    * Transmit DMA channel configuration ---------------------------------------
    */
   spi_configure_dma(dma->dma, dma->rcc_dma, dma->tx_chan, (uint32_t)dma->spidr,
@@ -1447,16 +1439,25 @@ bool_t spi_slave_register(struct spi_periph * periph, struct spi_transaction * t
   dma_set_read_from_memory(dma->dma, dma->tx_chan);
   dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
 
+  /*
+   * Receive DMA channel configuration ----------------------------------------
+   */
+  spi_configure_dma(dma->dma, dma->rcc_dma, dma->rx_chan, (uint32_t)dma->spidr,
+                    (uint32_t)trans->input_buf, trans->input_length, trans->dss, TRUE);
+
+  dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
+  dma_set_priority(dma->dma, dma->rx_chan, DMA_CCR_PL_VERY_HIGH);
+
   /* Enable DMA transfer complete interrupts. */
   dma_enable_transfer_complete_interrupt(dma->dma, dma->rx_chan);
 
   /* Enable DMA channels */
-  dma_enable_channel(dma->dma, dma->rx_chan);
   dma_enable_channel(dma->dma, dma->tx_chan);
+  dma_enable_channel(dma->dma, dma->rx_chan);
 
   /* Enable SPI transfers via DMA */
-  spi_enable_rx_dma((uint32_t)periph->reg_addr);
   spi_enable_tx_dma((uint32_t)periph->reg_addr);
+  spi_enable_rx_dma((uint32_t)periph->reg_addr);
 
   return TRUE;
 }
@@ -1476,7 +1477,7 @@ void process_slave_rx_dma_interrupt(struct spi_periph * periph) {
 
   /* Run the callback */
   trans->status = SPITransSuccess;
-  //return;
+
   if (trans->after_cb != 0) {
     trans->after_cb(trans);
   }
@@ -1485,7 +1486,6 @@ void process_slave_rx_dma_interrupt(struct spi_periph * periph) {
   dma_enable_channel(dma->dma, dma->rx_chan);
   spi_enable_rx_dma((uint32_t)periph->reg_addr);*/
 }
-
 
 // Slave Select / NSS pin GPIO config
 

@@ -108,7 +108,6 @@ static inline void bluegiga_read_buffer(struct bluegiga_periph *p, struct pprz_t
 #define BlueGigaCheckAndParse(_dev,_trans) {     \
     if (bluegiga_ch_available(&(_dev)))          \
       bluegiga_read_buffer(&(_dev), &(_trans));  \
-    bluegiga_send((&_dev));                      \
   }
 
 #endif /* BLUEGIGA_DATA_LINK_H */
