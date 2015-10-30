@@ -9,6 +9,11 @@
 #define UART1_DEV /dev/ttyUSB0
 #endif
 
+#ifndef UARTSPLIT2_DEV
+#define UARTSPLIT2_DEV /dev/ttyUSB1
+#endif
+
+
 /* Cameras */
 extern struct video_config_t bottom_camera;
 extern struct video_config_t front_camera;

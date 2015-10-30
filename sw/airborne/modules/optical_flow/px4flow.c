@@ -40,7 +40,7 @@ bool_t optical_flow_available;
 
 // request struct for mavlink decoder
 struct mavlink_msg_req req;
-#define PIX4FLOWSENDER_ID 1333
+
 
 // callback function on message reception
 static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((unused)))
@@ -48,7 +48,7 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
   optical_flow_available = TRUE;
 
   // Y negated to get to the body of the drone
-  AbiSendMsgVELOCITY_ESTIMATE(PIX4FLOWSENDER_ID, 0,
+  AbiSendMsgVELOCITY_ESTIMATE(PIX4FLOW_VELOCITY_ID, 0,
                                   (optical_flow.flow_x/optical_flow.ground_distance),
 								  -1.0*(optical_flow.flow_y/optical_flow.ground_distance),
                                   0.0f);
