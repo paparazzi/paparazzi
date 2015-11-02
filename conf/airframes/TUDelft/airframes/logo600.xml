@@ -18,12 +18,19 @@
 
     <subsystem name="telemetry"     type="xbee_api"/>
     <subsystem name="imu"           type="lisa_mx_v2.1"/>
-    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="gps"           type="ublox">
+      <configure name="GPS_PORT" value="UART4"/>
+    </subsystem>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
     <subsystem name="guidance"      type="indi"/>
-    <subsystem name="intermcu"      type="uart"/>
+    <subsystem name="current_sensor">
+      <configure name="ADC_CURRENT_SENSOR" value="ADC_1"/>
+    </subsystem>
+    <subsystem name="intermcu"     type="uart">
+      <define name="REMAP_UART3" value="TRUE"/>
+    </subsystem>
   </firmware>
 
   <firmware name="rotorcraft">
@@ -99,6 +106,7 @@
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
     <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="TRUE"/>
     <define name="VoltageOfAdc(adc)" value="(0.014355*adc)"/>
+    <define name="MilliAmpereOfAdc(adc)" value="(0.00402832*adc)"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
