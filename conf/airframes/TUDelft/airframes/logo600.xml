@@ -28,7 +28,7 @@
     <subsystem name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_1"/>
     </subsystem>
-    <subsystem name="intermcu"     type="uart">
+    <subsystem name="intermcu"      type="uart">
       <define name="REMAP_UART3" value="TRUE"/>
     </subsystem>
   </firmware>
@@ -75,9 +75,8 @@
     <axis name="ROLL"       failsafe_value="0"/>
     <axis name="PITCH"      failsafe_value="0"/>
     <axis name="YAW"        failsafe_value="0"/>
-    <axis name="TAIL_GAIN"  failsafe_value="0"/>
     <axis name="COLLECTIVE" failsafe_value="0"/>
-    <axis name="AUX2"       failsafe_value="0"/>
+    <axis name="TAIL_GAIN"  failsafe_value="0"/>
   </commands>
 
   <rc_commands>
@@ -85,9 +84,8 @@
     <set command="ROLL"       value="@ROLL"/>
     <set command="PITCH"      value="@PITCH"/>
     <set command="YAW"        value="@YAW"/>
-    <set command="TAIL_GAIN"  value="@GEAR"/>
     <set command="COLLECTIVE" value="@FLAP"/>
-    <set command="AUX2"       value="0"/>
+    <set command="TAIL_GAIN"  value="@AUX2"/>
   </rc_commands>
 
   <command_laws>
@@ -95,8 +93,8 @@
     <set servo="ROLL"        value="@ROLL"/>
     <set servo="PITCH"       value="@PITCH"/>
     <set servo="YAW"         value="@YAW"/>
-    <set servo="TAIL_GAIN"   value="@TAIL_GAIN"/>
     <set servo="COLLECTIVE"  value="@COLLECTIVE"/>
+    <set servo="TAIL_GAIN"   value="@TAIL_GAIN"/>
     <set servo="AUX2"        value="0"/>
   </command_laws>
 
