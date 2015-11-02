@@ -27,9 +27,9 @@
 //////////////////////////////////////////////////////////////
 // Multithreaded part
 
-volatile uint32_t lat_em7deg = 0;
-volatile uint32_t lon_em7deg = 0;
-volatile uint32_t alt_mm = 0;
+volatile int32_t lat_em7deg = 0;
+volatile int32_t lon_em7deg = 0;
+volatile int32_t alt_mm = 0;
 
 //////////////////////////////////////////////////////////////
 // Paparazzi part
@@ -203,8 +203,8 @@ int write_exif_jpeg(char *filename, const unsigned char *image_jpg, const unsign
   entry->format = EXIF_FORMAT_RATIONAL;
   entry->components = 3;
   // Degrees
-  uint32_t lat = lat_em7deg;
-  uint32_t lati = lat / 1e7;
+  int32_t lat = lat_em7deg;
+  int32_t lati = lat / 1e7;
   ExifRational loc;
   loc.numerator = lati;
   loc.denominator = 1;
@@ -227,8 +227,8 @@ int write_exif_jpeg(char *filename, const unsigned char *image_jpg, const unsign
   entry->components = 3;
   // Degrees
   // Degrees
-  uint32_t lon = lon_em7deg;
-  uint32_t loni = lon / 1e7;
+  int32_t lon = lon_em7deg;
+  int32_t loni = lon / 1e7;
   loc.numerator = loni;
   loc.denominator = 1;
   exif_set_rational(entry->data, EXIF_BYTE_ORDER_INTEL, loc);
@@ -251,8 +251,13 @@ int write_exif_jpeg(char *filename, const unsigned char *image_jpg, const unsign
   entry->components = 1;
   // Height
   ExifRational alt;
-  alt.numerator = alt_mm;
-  alt.denominator = 1000;
+  if (alt_mm > 0) {
+    alt.numerator = alt_mm;
+    alt.denominator = 1000;
+  } else {
+    alt.numerator = 0;
+    alt.denominator = 1000;
+  }
   exif_set_rational(entry->data, EXIF_BYTE_ORDER_INTEL, alt);
 
 
