@@ -145,6 +145,38 @@ static void send_uart6_err(struct transport_tx *trans, struct link_device *dev)
 
 #endif
 
+#if USE_UART7
+struct uart_periph uart7;
+
+#if PERIODIC_TELEMETRY
+static void send_uart7_err(struct transport_tx *trans, struct link_device *dev)
+{
+  uint16_t ore    = uart7.ore;
+  uint16_t ne_err = uart7.ne_err;
+  uint16_t fe_err = uart7.fe_err;
+  uint8_t _bus7 = 7;
+  pprz_msg_send_UART_ERRORS(trans, dev, AC_ID,
+                            &ore, &ne_err, &fe_err, &_bus7);
+}
+#endif
+#endif
+
+#if USE_UART8
+struct uart_periph uart8;
+
+#if PERIODIC_TELEMETRY
+static void send_uart8_err(struct transport_tx *trans, struct link_device *dev)
+{
+  uint16_t ore    = uart8.ore;
+  uint16_t ne_err = uart8.ne_err;
+  uint16_t fe_err = uart8.fe_err;
+  uint8_t _bus8 = 8;
+  pprz_msg_send_UART_ERRORS(trans, dev, AC_ID,
+                            &ore, &ne_err, &fe_err, &_bus8);
+}
+#endif
+#endif
+
 #if PERIODIC_TELEMETRY
 static void send_uart_err(struct transport_tx *trans __attribute__ ((unused)),
                           struct link_device *dev __attribute__ ((unused)))
@@ -179,10 +211,18 @@ static void send_uart_err(struct transport_tx *trans __attribute__ ((unused)),
     case 6:
       send_uart6_err(trans, dev); break;
 #endif
+#if USE_UART7
+    case 7:
+      send_uart7_err(trans, dev); break;
+#endif
+#if USE_UART8
+    case 8:
+      send_uart8_err(trans, dev); break;
+#endif
     default: break;
   }
   uart_nb_cnt++;
-  if (uart_nb_cnt == 7) {
+  if (uart_nb_cnt == 9) {
     uart_nb_cnt = 0;
   }
 }
