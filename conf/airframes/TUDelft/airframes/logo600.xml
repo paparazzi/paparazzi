@@ -41,7 +41,9 @@
     <define name="RC_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe or to Autopilot on RC loss? -->
     <define name="AP_LOST_FBW_MODE" value="FBW_MODE_MANUAL"/><!-- Switch to Failsafe or to Manual on AP loss? -->
 
-    <subsystem name="intermcu"     type="uart"/>
+    <subsystem name="intermcu"     type="uart">
+      <define name="REMAP_UART3" value="TRUE"/>
+    </subsystem>
   </firmware>
 
   <modules>
