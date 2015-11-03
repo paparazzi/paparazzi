@@ -103,7 +103,7 @@
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
     <!--define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="TRUE"/-->
     <define name="VoltageOfAdc(adc)" value="(0.014355*adc)"/>
-    <define name="MilliAmpereOfAdc(adc)" value="(3470.0f-((float)adc))*100.0f/2482.42f"/>  <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
+    <define name="MilliAmpereOfAdc(adc)" value="(((float)adc)-1990.0f)*40.29f*2.0f"/>  <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
   </section>
 
   <section name="IMU" prefix="IMU_">
