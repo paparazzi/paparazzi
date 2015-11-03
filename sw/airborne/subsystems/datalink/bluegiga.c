@@ -48,8 +48,9 @@ struct bluegiga_periph bluegiga_p;
 struct spi_transaction bluegiga_spi;
 
 signed char bluegiga_rssi[256];    // values initialized with 127
-unsigned char temlemetry_copy[20];
+unsigned char telemetry_copy[20];
 
+void bluegiga_load_tx(struct bluegiga_periph *p);
 void bluegiga_transmit(struct bluegiga_periph *p, uint8_t data);
 void bluegiga_receive(struct spi_transaction *trans);
 
@@ -70,7 +71,7 @@ static void dev_put_byte(struct bluegiga_periph *p, uint8_t byte)
 }
 static void dev_send_message(struct bluegiga_periph *p)
 {
-  bluegiga_send(p);
+  p->end_of_msg = p->tx_insert_idx;
 }
 static int dev_char_available(struct bluegiga_periph *p)
 {
@@ -111,7 +112,7 @@ static void send_bluegiga(struct transport_tx *trans, struct link_device *dev)
 
   if (now_ts > last_ts) {
     uint32_t rate = 1000 * bluegiga_p.bytes_recvd_since_last / (now_ts - last_ts);
-    pprz_msg_send_BLUEGIGA(trans, dev, AC_ID, &rate, 20, temlemetry_copy);
+    pprz_msg_send_BLUEGIGA(trans, dev, AC_ID, &rate, 20, telemetry_copy);
 
     bluegiga_p.bytes_recvd_since_last = 0;
     last_ts = now_ts;
@@ -164,6 +165,7 @@ void bluegiga_init(struct bluegiga_periph *p)
   }
 
   p->bytes_recvd_since_last = 0;
+  p->end_of_msg = p->tx_insert_idx;
 
   // set DRDY interrupt pin for spi master triggered on falling edge
   gpio_setup_output(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);
@@ -188,13 +190,11 @@ void bluegiga_transmit(struct bluegiga_periph *p, uint8_t data)
   }
 }
 
-/* Send data in transmit buffer to spi master */
-void bluegiga_send(struct bluegiga_periph *p)
+/* Load waiting data into tx peripheral buffer */
+void bluegiga_load_tx(struct bluegiga_periph *p)
 {
-  uint8_t packet_len;
-
   // check data available in buffer to send
-  packet_len = ((p->tx_insert_idx - p->tx_extract_idx + BLUEGIGA_BUFFER_SIZE) % BLUEGIGA_BUFFER_SIZE);
+  uint8_t packet_len = ((p->end_of_msg - p->tx_extract_idx + BLUEGIGA_BUFFER_SIZE) % BLUEGIGA_BUFFER_SIZE);
   if (packet_len > 19) {
     packet_len = 19;
   }
@@ -226,6 +226,14 @@ void bluegiga_send(struct bluegiga_periph *p)
 void bluegiga_receive(struct spi_transaction *trans)
 {
   if (trans->status == SPITransSuccess) {
+    // handle successful msg send
+    if (coms_status == BLUEGIGA_SENDING) {
+      // empty transfer buffer
+      for (uint8_t i = 0; i < trans->output_length; i++) {
+        trans->output_buf[i] = 0;
+      }
+    }
+
     /*
      * 0xff communication lost with ground station
      * 0xfe RSSI value from broadcaster
@@ -280,14 +288,14 @@ void bluegiga_receive(struct spi_transaction *trans)
       coms_status = BLUEGIGA_IDLE;
 
       for (uint8_t i = 0; i < trans->input_length; i++) {
-        temlemetry_copy[i] = trans->input_buf[i];
+        telemetry_copy[i] = trans->input_buf[i];
       }
     } else {
       coms_status = BLUEGIGA_IDLE;
     }
 
     // load next message to be sent into work buffer, needs to be loaded before calling spi_slave_register
-    bluegiga_send(&bluegiga_p);
+    bluegiga_load_tx(&bluegiga_p);
 
     // register spi slave read for next transaction
     spi_slave_register(&(BLUEGIGA_SPI_DEV), &bluegiga_spi);
@@ -301,6 +309,8 @@ void bluegiga_scan(struct bluegiga_periph *p)
   memset(p->work_tx, 0, 20);
   p->work_tx[0] = 0xfd;   // change broadcast mode header
 
+  coms_status = BLUEGIGA_SENDING;
+
   // trigger bluegiga to read direct command
   gpio_clear(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);     // set interrupt
 }
@@ -311,6 +321,8 @@ void bluegiga_request_all_rssi(struct bluegiga_periph *p)
 
   memset(p->work_tx, 0, 20);
   p->work_tx[0] = 0xfc;
+
+  coms_status = BLUEGIGA_SENDING;
 
   // trigger bluegiga to read direct command
   gpio_clear(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);     // set interrupt
