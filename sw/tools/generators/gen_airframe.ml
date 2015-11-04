@@ -342,9 +342,10 @@ let hex_to_bin = fun s ->
   b
 
 let _ =
-  if Array.length Sys.argv <> 5 then
-    failwith (Printf.sprintf "Usage: %s A/C_ident A/C_name MD5SUM xml_file" Sys.argv.(0));
+  if Array.length Sys.argv <> 6 then
+    failwith (Printf.sprintf "Usage: %s A/C_ident A/C_name MD5SUM airframe_xml_file" Sys.argv.(0));
   let xml_file = Sys.argv.(4)
+  and par_file = Sys.argv.(5)
   and ac_id = Sys.argv.(1)
   and ac_name = Sys.argv.(2)
   and md5sum = Sys.argv.(3) in
@@ -356,6 +357,12 @@ let _ =
     define "MD5SUM" (sprintf "((uint8_t*)\"%s\")" (hex_to_bin md5sum));
     nl ();
     List.iter (parse_section ac_id) (Xml.children xml);
+    printf "// PARAMETER_FILE_NAME %s" par_file;
+    nl ();
+    let xmlp = Xml.parse_file par_file in
+    (* Xml2h.warning ("PARAMETER: "^ ac_name); *)
+    nl ();
+    List.iter (parse_section ac_id) (Xml.children xmlp);
     finish h_name
   with
       Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1

@@ -1,0 +1,7 @@
+<!DOCTYPE airframe SYSTEM "airframe.dtd">
+
+<airframe>
+  <section name="PARAMETERS" prefix="PARAMETERS_">
+    <define name="VALUE" value="0"/>
+  </section>
+</airframe>

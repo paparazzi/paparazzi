@@ -61,6 +61,12 @@ MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
 AUTOPILOT_DIR=$(AC_GENERATED)/
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
 
+ifeq ($(strip $(PARAMETERS_XML)),)
+PARAMETERS_XMLS=airframes/dummy_parameters.xml
+else
+PARAMETERS_XMLS=$(strip $(PARAMETERS_XML))
+endif
+
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
 	MKTEMP = gmktemp
@@ -154,11 +160,11 @@ flight_plan_ac_h : $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML)
 
 makefile_ac: $(MAKEFILE_AC)
 
-$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
+$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF)/$(PARAMETERS_XMLS) $(CONF_XML) $(AIRCRAFT_MD5)
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE $@ from $(AIRFRAME_XML)
+	@echo GENERATE $@ from $(AIRFRAME_XML) and $(PARAMETERS_XMLS)
 	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $(MD5SUM) $< > $($@_TMP)
+	$(Q)$(GENERATORS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $(MD5SUM) $(CONF)/$(AIRFRAME_XML) $(CONF)/$(PARAMETERS_XMLS)  > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(CONF)/airframes/airframe.dtd $(AIRCRAFT_CONF_DIR)/airframes

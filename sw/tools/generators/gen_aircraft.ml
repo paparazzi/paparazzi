@@ -409,7 +409,7 @@ let () =
 
     (** Calls the Makefile with target and options *)
     let make = fun target options ->
-      let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s TELEMETRY=%s SETTINGS=\"%s\" MD5SUM=\"%s\" %s %s" aircraft (value "ac_id") airframe_file (value "telemetry") settings md5sum options target in
+      let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s PARAMETERS_XML=%s TELEMETRY=%s SETTINGS=\"%s\" MD5SUM=\"%s\" %s %s" aircraft (value "ac_id") airframe_file (value "parameters") (value "telemetry") settings md5sum options target in
       begin (** Quiet is speficied in the Makefile *)
         try if Sys.getenv "Q" <> "@" then raise Not_found with
             Not_found -> prerr_endline c
