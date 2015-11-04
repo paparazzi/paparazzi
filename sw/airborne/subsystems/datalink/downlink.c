@@ -92,7 +92,7 @@ void downlink_init(void)
   pprzlog_transport_init();
 #endif
 
-#if SITL
+#if SITL && !USE_NPS
   ivy_transport_init();
 #endif
 
