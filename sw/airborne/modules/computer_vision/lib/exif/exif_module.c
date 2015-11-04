@@ -198,13 +198,41 @@ int write_exif_jpeg(char *filename, const unsigned char *image_jpg, const unsign
   exif_set_short(entry->data + 4, FILE_BYTE_ORDER, image_jpg_x);
   exif_set_short(entry->data + 6, FILE_BYTE_ORDER, image_jpg_y);
 
+  entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_LATITUDE_REF, 2);
+  entry->format = EXIF_FORMAT_ASCII;
+  entry->components = 1;
+  entry->data[1] = 0;
+  if (lat_em7deg < 0) {
+    entry->data[0] = 'S';
+    // from now on: go positive only
+    lat_em7deg = -lat_em7deg;
+  }
+  else {
+    entry->data[0] = 'N';
+  }
+
+  entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_LONGITUDE_REF, 2);
+  entry->format = EXIF_FORMAT_ASCII;
+  entry->components = 1;
+  entry->data[1] = 0;
+  if (lon_em7deg < 0) {
+    entry->data[0] = 'W';
+    // from now on: go positive only
+    lon_em7deg = -lon_em7deg;
+  }
+  else {
+    entry->data[0] = 'E';
+  }
+
+
+
   entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_LATITUDE, 24);
   // Set the field's format and number of components, this is very important!
   entry->format = EXIF_FORMAT_RATIONAL;
   entry->components = 3;
   // Degrees
-  int32_t lat = lat_em7deg;
-  int32_t lati = lat / 1e7;
+  uint32_t lat = lat_em7deg;
+  uint32_t lati = lat / 1e7;
   ExifRational loc;
   loc.numerator = lati;
   loc.denominator = 1;
@@ -227,8 +255,8 @@ int write_exif_jpeg(char *filename, const unsigned char *image_jpg, const unsign
   entry->components = 3;
   // Degrees
   // Degrees
-  int32_t lon = lon_em7deg;
-  int32_t loni = lon / 1e7;
+  uint32_t lon = lon_em7deg;
+  uint32_t loni = lon / 1e7;
   loc.numerator = loni;
   loc.denominator = 1;
   exif_set_rational(entry->data, EXIF_BYTE_ORDER_INTEL, loc);
