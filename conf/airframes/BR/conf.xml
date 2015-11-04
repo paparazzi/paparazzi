@@ -14,6 +14,7 @@
    name="Bebop_INDI"
    ac_id="21"
    airframe="airframes/BR/bebop_indi.xml"
+   parameters="parameters/TUDELFT/bebop_bart.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_survey.xml"
