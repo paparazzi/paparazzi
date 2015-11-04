@@ -76,7 +76,6 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 {
 
   autopilot.launch = FALSE;
-  autopilot.datalink_enabled = TRUE;
 
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
   nps_electrical_init();
@@ -178,11 +177,6 @@ void nps_autopilot_run_step(double time)
   autopilot.launch = launch && !kill_throttle;
   if (!launch) {
     autopilot.commands[COMMAND_THROTTLE] = 0;
-  }
-
-  // hack to reset datalink_time, since we don't use actual dl_parse_msg
-  if (autopilot.datalink_enabled) {
-    datalink_time = 0;
   }
 }
 
