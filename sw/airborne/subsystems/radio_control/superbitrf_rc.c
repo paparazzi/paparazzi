@@ -47,7 +47,7 @@ static void superbitrf_rc_normalize(int16_t *in, int16_t *out, uint8_t count)
       out[i] = (in[i] + MAX_PPRZ) / 2;
       Bound(out[i], 0, MAX_PPRZ);
     } else {
-      out[i] = -in[i];
+      out[i] = in[i];
       Bound(out[i], MIN_PPRZ, MAX_PPRZ);
     }
   }
