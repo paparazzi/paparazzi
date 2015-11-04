@@ -55,7 +55,7 @@ class IvyMessagesInterface(object):
             return
 
         # first split on array delimiters
-        l = re.split('([|\"][^|]*[|\"])', larg[0])
+        l = re.split('([|\"][^|\"]*[|\"])', larg[0])
         # strip spaces and filter out emtpy strings
         l = [str.strip(s) for s in l if str.strip(s) is not '']
         data = []
