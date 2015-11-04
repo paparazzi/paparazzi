@@ -79,6 +79,9 @@ static void sonar_cb(uint8_t sender_id, float distance);
 #ifndef INS_SONAR_MIN_RANGE
 #define INS_SONAR_MIN_RANGE 0.001
 #endif
+#ifndef INS_SONAR_MAX_RANGE
+#define INS_SONAR_MAX_RANGE 4.0
+#endif
 #define VFF_R_SONAR_0 0.1
 #ifndef VFF_R_SONAR_OF_M
 #define VFF_R_SONAR_OF_M 0.2
