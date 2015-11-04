@@ -64,9 +64,20 @@ EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
 /** Should be called when chars are available in dl_buffer */
 EXTERN void dl_parse_msg(void);
 
+#if USE_NPS
+EXTERN bool_t datalink_enabled;
+#endif
+
 /** Check for new message and parse */
 static inline void DlCheckAndParse(void)
 {
+  // make it possible to disable datalink in NPS sim
+#if USE_NPS
+  if (!datalink_enabled) {
+    return;
+  }
+#endif
+
   if (dl_msg_available) {
     datalink_time = 0;
     datalink_nb_msgs++;

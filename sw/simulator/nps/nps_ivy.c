@@ -27,6 +27,11 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
                          void *user_data __attribute__((unused)),
                          int argc __attribute__((unused)), char *argv[]);
 
+/* Datalink Ivy functions */
+static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
+                          void *user_data __attribute__((unused)),
+                          int argc __attribute__((unused)), char *argv[]);
+
 void nps_ivy_init(char *ivy_bus)
 {
   const char *agent_name = AIRFRAME_NAME"_NPS";
@@ -34,6 +39,9 @@ void nps_ivy_init(char *ivy_bus)
   IvyInit(agent_name, ready_msg, NULL, NULL, NULL, NULL);
 
   IvyBindMsg(on_WORLD_ENV, NULL, "^(\\S*) WORLD_ENV (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+
+  // to be able to change datalink_enabled setting back on
+  IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
 
 #ifdef __APPLE__
   const char *default_ivy_bus = "224.255.255.255";
@@ -76,6 +84,29 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
 #endif
 }
 
+#include "generated/settings.h"
+#include "dl_protocol.h"
+#include "subsystems/datalink/downlink.h"
+static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
+                          void *user_data __attribute__((unused)),
+                          int argc __attribute__((unused)), char *argv[])
+{
+  if (atoi(argv[1]) != AC_ID) {
+    return;
+  }
+
+  /* HACK:
+   * we actually don't want to allow changing settings if datalink is disabled,
+   * but since we currently change this variable via settings we have to allow it
+   * TODO: only allow changing the datalink_enabled setting
+   */
+
+  uint8_t index = atoi(argv[2]);
+  float value = atof(argv[3]);
+  DlSetting(index, value);
+  DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
+  printf("setting %d %f\n", index, value);
+}
 
 void nps_ivy_display(void)
 {

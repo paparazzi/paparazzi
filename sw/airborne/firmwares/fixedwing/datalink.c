@@ -80,6 +80,11 @@ uint8_t joystick_block;
 #define SenderIdOfMsg(x) (x[0])
 #define IdOfMsg(x) (x[1])
 
+#if USE_NPS
+bool_t datalink_enabled = TRUE;
+#endif
+
+
 void dl_parse_msg(void)
 {
   uint8_t msg_id = IdOfMsg(dl_buffer);
