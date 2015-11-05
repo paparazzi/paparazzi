@@ -44,8 +44,8 @@ void RadioControlEvent(void (*frame_handler)(void));
 #ifndef RADIO_MODE
 #define RADIO_MODE       RADIO_GEAR
 #endif
-#ifndef RADIO_KILL_SWITCH
-#define RADIO_KILL_SWITCH       RADIO_FLAP
-#endif
+//#ifndef RADIO_KILL_SWITCH
+//#define RADIO_KILL_SWITCH       RADIO_FLAP
+//#endif
 
 #endif /* INTERMCU_AP_ROTORCRAFT_H */

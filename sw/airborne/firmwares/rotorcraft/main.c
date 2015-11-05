@@ -280,6 +280,8 @@ STATIC_INLINE void main_periodic(void)
 #ifndef INTER_MCU_AP
   SetActuatorsFromCommands(commands, autopilot_mode);
 #else
+#warning ALL IS GOOD
+  commands[COMMAND_THRUST] = radio_control.values[RADIO_THROTTLE];\
   intermcu_set_actuators(commands, autopilot_mode);
 #endif
 

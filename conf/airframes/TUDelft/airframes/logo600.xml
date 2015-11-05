@@ -101,6 +101,7 @@
     <define name="NAV_CLIMB_VSPEED" value="2.5"/>
     <define name="NAV_DESCEND_VSPEED" value="-1.0"/>
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+    <define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/>
     <!--define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="TRUE"/-->
     <define name="VoltageOfAdc(adc)" value="(0.014355*adc)"/>
     <define name="MilliAmpereOfAdc(adc)" value="(((float)adc)-1990.0f)*40.29f*2.0f"/>  <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
@@ -180,13 +181,13 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN" value="100"/>
-    <define name="PHI_DGAIN" value="0"/>
+    <define name="PHI_PGAIN" value="500"/>
+    <define name="PHI_DGAIN" value="100"/>
     <define name="PHI_IGAIN" value="0"/>
-    <define name="THETA_PGAIN" value="100"/>
-    <define name="THETA_DGAIN" value="0"/>
+    <define name="THETA_PGAIN" value="500"/>
+    <define name="THETA_DGAIN" value="100"/>
     <define name="THETA_IGAIN" value="0"/>
-    <define name="PSI_PGAIN" value="100"/>
+    <define name="PSI_PGAIN" value="200"/>
     <define name="PSI_DGAIN" value="0"/>
     <define name="PSI_IGAIN" value="0"/>
 
@@ -224,7 +225,7 @@
   <section name="AUTOPILOT">
     <define name="MODE_MANUAL" value="AP_MODE_RC_DIRECT"/>
     <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_DIRECT"/>
   </section>
 
   <section name="BAT">
