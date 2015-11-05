@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "airframe.dtd">
+<!DOCTYPE airframe SYSTEM "parameters.dtd">
 
 <airframe>
   <section name="PARAMETERS" prefix="PARAMETERS_">

@@ -402,14 +402,20 @@ let () =
 
     let airframe_file = value "airframe" in
 
+    let parameters_xml = try (value "parameters") with _ -> "parameters/dummy.xml" in
+    let parameters_file = if (String.length parameters_xml) = 0 then "parameters/dummy.xml" else parameters_xml in
     let airframe_dir = Filename.dirname airframe_file in
     let var_airframe_dir = aircraft_conf_dir // airframe_dir in
+
+(*    fprintf stderr "\nInfo: Parameters are X'%s'  S'%s'\n\n" parameters_xml parameters_file; *)
+
     mkdir var_airframe_dir;
     assert (Sys.command (sprintf "cp %s %s" (paparazzi_conf // airframe_file) var_airframe_dir) = 0);
+    assert (Sys.command (sprintf "cp %s %s" (paparazzi_conf // parameters_file) var_airframe_dir) = 0);
 
     (** Calls the Makefile with target and options *)
     let make = fun target options ->
-      let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s PARAMETERS_XML=%s TELEMETRY=%s SETTINGS=\"%s\" MD5SUM=\"%s\" %s %s" aircraft (value "ac_id") airframe_file (value "parameters") (value "telemetry") settings md5sum options target in
+      let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s PARAMETERS_XML=%s TELEMETRY=%s SETTINGS=\"%s\" MD5SUM=\"%s\" %s %s" aircraft (value "ac_id") airframe_file parameters_file (value "telemetry") settings md5sum options target in
       begin (** Quiet is speficied in the Makefile *)
         try if Sys.getenv "Q" <> "@" then raise Not_found with
             Not_found -> prerr_endline c
