@@ -163,6 +163,13 @@ def print_imu_scaled(sensor, measurements, attrs):
     print("StDev " + str(measurements[:,1:].std(axis=0)*attrs[0])  + " " + attrs[1])
 
 
+def plot_measurements(sensor, measurements):
+    plt.plot(measurements[:, 0])
+    plt.plot(measurements[:, 1])
+    plt.plot(measurements[:, 2])
+    plt.ylabel('ADC')
+    plt.title("Raw %s measurements" % sensor)
+    plt.show()
 
 def plot_results(sensor, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref, blocking=True):
     """Plot calibration results."""
