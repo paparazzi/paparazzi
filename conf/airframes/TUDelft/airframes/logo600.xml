@@ -62,7 +62,7 @@
   <servos driver="Spektrum">
      <servo name="THRUST"       no="0" min="340" neutral="340"  max="1708"/>
      <servo name="ROLL"         no="1" min="340" neutral="1024" max="1708"/>
-     <servo name="PITCH"        no="2" min="340" neutral="1024" max="1708"/>
+     <servo name="PITCH"        no="2" min="1708" neutral="1024" max="340"/>
      <servo name="YAW"          no="3" min="340" neutral="1024" max="1708"/>
      <servo name="TAIL_GAIN"    no="4" min="340" neutral="1024" max="1708"/>
      <servo name="COLLECTIVE"   no="5" min="340" neutral="1024" max="1708"/>
