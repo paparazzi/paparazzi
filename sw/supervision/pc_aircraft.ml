@@ -377,6 +377,8 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
     | Some s ->
 	if not (correct_ac_name s) then
 	  GToolbox.message_box ~title:"Error on A/C name" "A/C name must contain only letters, digits or underscores"
+    else if (Hashtbl.mem Utils.aircrafts s) then
+      GToolbox.message_box ~title:"Error on A/C name" "A/C name already exists in this conf"
 	else begin
 	  Gtk_tools.add_to_combo ac_combo s;
 	  let a = aircraft_sample s (string_of_int (new_ac_id ())) in
@@ -395,9 +397,13 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
       | Some s ->
 	    if not (correct_ac_name s) then
 	      GToolbox.message_box ~title:"Error on A/C name" "A/C name must contain only letters, digits or underscores"
-	    else begin
+	    else if (Hashtbl.mem Utils.aircrafts s) then
+          GToolbox.message_box ~title:"Error on A/C name" "A/C name already exists in this conf"
+        else begin
 	      Gtk_tools.add_to_combo ac_combo s;
 	      let a = Hashtbl.find Utils.aircrafts selected_ac_name in
+          let a = ExtXml.subst_attrib "name" s a in
+          let a = ExtXml.subst_attrib "ac_id" (string_of_int (new_ac_id ())) a in
 	      Hashtbl.add Utils.aircrafts s a;
 	      update_params s
 	    end
