@@ -143,26 +143,26 @@
     <define name="REF_TAU" value="4"/>
 
     <!-- feedback -->
-    <define name="GAIN_P" value="400"/>
-    <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="350"/>
+    <define name="GAIN_P" value="100"/>
+    <define name="GAIN_Q" value="100"/>
+    <define name="GAIN_R" value="200"/>
 
-    <define name="IGAIN_P" value="75"/>
-    <define name="IGAIN_Q" value="75"/>
-    <define name="IGAIN_R" value="50"/>
+    <define name="IGAIN_P" value="0"/>
+    <define name="IGAIN_Q" value="0"/>
+    <define name="IGAIN_R" value="0"/>
 
     <!-- feedforward -->
-    <define name="DDGAIN_P" value="300"/>
-    <define name="DDGAIN_Q" value="300"/>
-    <define name="DDGAIN_R" value="300"/>
+    <define name="DDGAIN_P" value="0"/>
+    <define name="DDGAIN_Q" value="0"/>
+    <define name="DDGAIN_R" value="0"/>
   </section>
 
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
-    <define name="SP_MAX_PHI" value="65." unit="deg"/>
-    <define name="SP_MAX_THETA" value="65." unit="deg"/>
-    <define name="SP_MAX_R" value="250." unit="deg/s"/>
+    <define name="SP_MAX_PHI" value="45." unit="deg"/>
+    <define name="SP_MAX_THETA" value="45." unit="deg"/>
+    <define name="SP_MAX_R" value="150." unit="deg/s"/>
     <define name="DEADBAND_R" value="200"/>
 
     <!-- reference -->
@@ -180,20 +180,20 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN" value="900"/>
-    <define name="PHI_DGAIN" value="200"/>
-    <define name="PHI_IGAIN" value="200"/>
-    <define name="THETA_PGAIN" value="900"/>
-    <define name="THETA_DGAIN" value="200"/>
-    <define name="THETA_IGAIN" value="200"/>
-    <define name="PSI_PGAIN" value="900"/>
-    <define name="PSI_DGAIN" value="200"/>
-    <define name="PSI_IGAIN" value="10"/>
+    <define name="PHI_PGAIN" value="100"/>
+    <define name="PHI_DGAIN" value="0"/>
+    <define name="PHI_IGAIN" value="0"/>
+    <define name="THETA_PGAIN" value="100"/>
+    <define name="THETA_DGAIN" value="0"/>
+    <define name="THETA_IGAIN" value="0"/>
+    <define name="PSI_PGAIN" value="100"/>
+    <define name="PSI_DGAIN" value="0"/>
+    <define name="PSI_IGAIN" value="0"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN" value=" 200"/>
-    <define name="THETA_DDGAIN" value=" 200"/>
-    <define name="PSI_DDGAIN" value=" 200"/>
+    <define name="PHI_DDGAIN" value="0"/>
+    <define name="THETA_DDGAIN" value="0"/>
+    <define name="PSI_DDGAIN" value="0"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
