@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="swashplate_mixing" dir="helicopter">
+  <doc>
+    <description>Helicopter Swashplate Mixing</description>
+  </doc>
+  <depends>heli_throttle_curve.xml</depends>
+  <header>
+    <file name="swashplate_mixing.h"/>
+  </header>
+  <init fun="swashplate_mixing_init()"/>
+  <makefile>
+    <file name="swashplate_mixing.c"/>
+    <define name="ROTORCRAFT_IS_HELI" value="TRUE"/>
+  </makefile>
+</module>
+

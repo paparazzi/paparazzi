@@ -88,6 +88,17 @@
    gui_color="red"
   />
   <aircraft
+   name="Heli450"
+   ac_id="99"
+   airframe="airframes/TUDelft/airframes/heli450.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/control/rotorcraft_guidance.xml"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/gps_ubx_ucenter.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="Helisa"
    ac_id="114"
    airframe="airframes/TUDelft/airframes/walkera_genius_v2.xml"
