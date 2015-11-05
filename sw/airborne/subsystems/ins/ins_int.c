@@ -133,6 +133,21 @@ static void baro_cb(uint8_t sender_id, float pressure);
 static abi_event accel_ev;
 static abi_event gps_ev;
 
+
+/** ABI binding for VELOCITY_ESTIMATE.
+ * Usually this is coming from opticflow.
+ */
+#ifndef INS_INT_VEL_ID
+#define INS_INT_VEL_ID ABI_BROADCAST
+#endif
+static abi_event vel_est_ev;
+static void vel_est_cb(uint8_t sender_id, uint32_t stamp, float x, float y, float z);
+
+/** measurement noise for velocity estimate */
+#ifndef INS_VFF_R_VEL
+#define INS_VFF_R_VEL 0.5
+#endif
+
 struct InsInt ins_int;
 
 #if PERIODIC_TELEMETRY
@@ -506,6 +521,34 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   ins_int_update_gps(gps_s);
 }
 
+static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
+                       uint32_t stamp __attribute__((unused)),
+                       float x, float y, float z)
+{
+  struct FloatVect3 vel_body = {x, y, z};
+
+  /* rotate velocity estimate to nav/ltp frame */
+  struct FloatQuat q_b2n = *stateGetNedToBodyQuat_f();
+  QUAT_INVERT(q_b2n, q_b2n);
+  struct FloatVect3 vel_ned;
+  float_quat_vmult(&vel_ned, &q_b2n, &vel_body);
+
+#if USE_HFF
+  struct FloatVect2 vel = {vel_ned.x, vel_ned.y};
+  struct FloatVect2 Rvel = {INS_VFF_R_VEL, INS_VFF_R_VEL};
+  b2_hff_update_vel(vel,  Rvel);
+  ins_update_from_hff();
+#else
+  ins_int.ltp_speed.x = SPEED_BFP_OF_REAL(vel_ned.x);
+  ins_int.ltp_speed.y = SPEED_BFP_OF_REAL(vel_ned.y);
+#endif
+
+  ins_ned_to_state();
+
+  /* reset the counter to indicate we just had a measurement update */
+  ins_int.propagation_cnt = 0;
+}
+
 void ins_int_register(void)
 {
   ins_register_impl(ins_int_init);
@@ -515,4 +558,5 @@ void ins_int_register(void)
    */
   AbiBindMsgIMU_ACCEL_INT32(INS_INT_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
+  AbiBindMsgVELOCITY_ESTIMATE(INS_INT_VEL_ID, &vel_est_ev, vel_est_cb);
 }
