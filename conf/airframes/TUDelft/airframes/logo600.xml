@@ -60,7 +60,7 @@
   </modules>
 
   <servos driver="Spektrum">
-     <servo name="THRUST"       no="0" min="340" neutral="340"  max="1708"/>
+     <servo name="THROTTLE"     no="0" min="340" neutral="340"  max="1708"/>
      <servo name="ROLL"         no="1" min="340" neutral="1024" max="1708"/>
      <servo name="PITCH"        no="2" min="1708" neutral="1024" max="340"/>
      <servo name="YAW"          no="3" min="340" neutral="1024" max="1708"/>
@@ -69,8 +69,15 @@
      <servo name="AUX2"         no="6" min="340" neutral="1024" max="1708"/>
   </servos>
 
+  <section name="RADIO">
+    <define name="RADIO_COLLECTIVE" value="RADIO_FLAP"/>
+    <define name="RADIO_TAIL_GAIN" value="RADIO_AUX2"/>
+  </section>
+
   <commands>
-    <axis name="THRUST"     failsafe_value="0"/>
+    <axis name="THRUST"     failsafe_value="0"/><!-- Ignored -->
+
+    <axis name="THROTTLE"   failsafe_value="0"/>
     <axis name="ROLL"       failsafe_value="0"/>
     <axis name="PITCH"      failsafe_value="0"/>
     <axis name="YAW"        failsafe_value="0"/>
@@ -79,16 +86,20 @@
   </commands>
 
   <rc_commands>
-    <set command="THRUST"     value="@THROTTLE"/>
+    <set command="THROTTLE"   value="@THROTTLE"/>
     <set command="ROLL"       value="@ROLL"/>
     <set command="PITCH"      value="@PITCH"/>
     <set command="YAW"        value="@YAW"/>
-    <set command="COLLECTIVE" value="@FLAP"/>
-    <set command="TAIL_GAIN"  value="@AUX2"/>
+    <set command="COLLECTIVE" value="@COLLECTIVE"/>
+    <set command="TAIL_GAIN"  value="@TAIL_GAIN"/>
   </rc_commands>
 
+  <auto_rc_commands>
+   <set command="TAIL_GAIN"   value="@TAIL_GAIN"/>
+  </auto_rc_commands>
+
   <command_laws>
-    <set servo="THRUST"      value="@THRUST"/>
+    <set servo="THROTTLE"    value="@THRUST"/>
     <set servo="ROLL"        value="@ROLL"/>
     <set servo="PITCH"       value="@PITCH"/>
     <set servo="YAW"         value="@YAW"/>
@@ -98,6 +109,7 @@
   </command_laws>
 
   <section name="MISC">
+    <define name="ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED" value="TRUE" />
     <define name="NAV_CLIMB_VSPEED" value="2.5"/>
     <define name="NAV_DESCEND_VSPEED" value="-1.0"/>
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
