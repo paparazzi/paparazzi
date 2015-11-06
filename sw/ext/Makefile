@@ -69,7 +69,9 @@ chibios: chibios.update
 
 fatfs: fatfs.update
 
-mavlink: update_submodules
+mavlink: mavlink.update mavlink.build
+
+mavlink.build:
 	$(Q)PYTHONPATH=$(EXT_DIR)/mavlink python2 $(EXT_DIR)/mavlink/pymavlink/tools/mavgen.py --output $(PAPARAZZI_SRC)/var/include/mavlink --lang C $(EXT_DIR)/mavlink/message_definitions/v1.0/paparazzi.xml --no-validate > /dev/null
 
 libsbp: libsbp.update
@@ -83,4 +85,4 @@ clean:
 	fi
 
 .NOTPARALLEL: libopencm3 luftboot
-.PHONY: all clean update_submodules libopencm3 luftboot chibios fatfs luftboot_flash libopencm3.build luftboot.build
+.PHONY: all clean update_submodules libopencm3 luftboot chibios fatfs luftboot_flash libopencm3.build luftboot.build mavlink.build
