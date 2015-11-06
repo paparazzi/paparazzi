@@ -26,6 +26,8 @@
 #include "superbitrf_rc.h"
 #include "subsystems/radio_control.h"
 
+INFO("Radio-Control now follows PPRZ sign convention: this means you might need to reverese some channels in your transmitter: RollRight / PitchUp / YawRight / FullThrottle / Auto2 are positive deflections")
+
 /**
  * Initialization
  */
