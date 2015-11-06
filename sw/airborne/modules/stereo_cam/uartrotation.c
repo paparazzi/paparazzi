@@ -25,31 +25,22 @@
 
 #include "modules/stereo_cam/uartrotation.h"
 #include "subsystems/abi.h"
-#include <serial_port.h>
-#include <inttypes.h>
 #include "state.h"
-#include "subsystems/gps.h"
-#include "subsystems/ins/ins_int.h"
-#include "firmwares/rotorcraft/autopilot.h"
 #include "mcu_periph/uart.h"
 #include "stereoprotocol.h"
-#include "navdata.h"
-static int frame_number_sending=0;
-static abi_event odroid_agl_ev;
+static int frame_number_sending = 0;
 float lastKnownHeight = 0.0;
 int pleaseResetOdroid = 0;
 
-//uart_periph_set_baudrate(UART_LINK, B115200);
-
 void write_serial_rot() {
 	struct Int32RMat *ltp_to_body_mat = stateGetNedToBodyRMat_i();
-	static int32_t lengthArrayInformation = 11*sizeof(int32_t);
+	static int32_t lengthArrayInformation = 11 * sizeof(int32_t);
 	uint8_t ar[lengthArrayInformation];
-	int32_t *pointer = (int32_t*)ar;
-	for(int indexRot = 0; indexRot < 9; indexRot++){
-		pointer[indexRot]=ltp_to_body_mat->m[indexRot];
+	int32_t *pointer = (int32_t*) ar;
+	for (int indexRot = 0; indexRot < 9; indexRot++) {
+		pointer[indexRot] = ltp_to_body_mat->m[indexRot];
 	}
-	pointer[9]=(int32_t)(state.alt_agl_f*100); //height above ground level in CM. 
-	pointer[10]=frame_number_sending++;
-	stereoprot_sendArray( &((UART_LINK).device),ar, lengthArrayInformation, 1);
+	pointer[9] = (int32_t) (state.alt_agl_f * 100); //height above ground level in CM.
+	pointer[10] = frame_number_sending++;
+	stereoprot_sendArray(&((UART_LINK).device), ar, lengthArrayInformation, 1);
 }
