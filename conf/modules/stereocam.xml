@@ -19,7 +19,7 @@
   </header>
   <periodic fun="stereocam_periodic()" start="stereocam_start()" stop="stereocam_stop()" autorun="TRUE" freq="512"/>
   <makefile>
-    <file name="stereoprotocol.c" dir="modules/uartrotation"/>
+    <file name="stereoprotocol.c" dir="modules/stereo_cam"/>
     <raw>
       STEREO_UART_LOWER=$(shell echo $(STEREO_UART) | tr A-Z a-z)
     </raw>

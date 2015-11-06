@@ -23,7 +23,7 @@
  * Sends rotation using the stereoboard protocol over the UART.
  */
 
-#include "modules/uartrotation/uartrotation.h"
+#include "modules/stereo_cam/uartrotation.h"
 #include "subsystems/abi.h"
 #include <serial_port.h>
 #include <inttypes.h>

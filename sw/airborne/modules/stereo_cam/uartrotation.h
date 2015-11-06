@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/uartrotation/uartrotation.h"
+ * @file "modules/stereo_cam/uartrotation.h"
  * @author Roland
  * Sends rotation using the stereoboard protocol over the UART.
  */

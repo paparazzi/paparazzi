@@ -26,10 +26,10 @@
  *  Parameters STEREO_PORT, STEREO_BAUD, SEND_STEREO and STEREO_BUF_SIZE should be configured with stereocam.xml.
  */
 
-#include "stereocam.h"
+#include "modules/stereo_cam/stereocam.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/telemetry.h"
-#include "modules/uartrotation/stereoprotocol.h"
+#include "modules/stereo_cam/stereoprotocol.h"
 #ifndef SEND_STEREO
 #define SEND_STEREO TRUE
 #endif
