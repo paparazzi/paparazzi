@@ -16,3 +16,6 @@
 [submodule "sw/ext/libsbp"]
 	path = sw/ext/libsbp
 	url = https://github.com/swift-nav/libsbp.git
+[submodule "sw/ext/mavlink"]
+	path = sw/ext/mavlink
+	url = https://github.com/paparazzi/mavlink.git
