@@ -202,11 +202,6 @@ static void autopilot_on_rc_frame(void)
     fbw_mode = AP_LOST_FBW_MODE;
   }
 
-  /* if there are some commands that should always be set from RC, do it */
-#ifdef SetAutoCommandsFromRC
-  SetAutoCommandsFromRC(commands, radio_control.values);
-#endif
-
   /* if manual */
   if (fbw_mode == FBW_MODE_MANUAL) {
 #ifdef SetCommandsFromRC
