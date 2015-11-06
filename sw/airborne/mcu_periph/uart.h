@@ -133,4 +133,14 @@ extern struct uart_periph uart6;
 extern void uart6_init(void);
 #endif // USE_UART6
 
+#if USE_UART7
+extern struct uart_periph uart7;
+extern void uart7_init(void);
+#endif // USE_UART7
+
+#if USE_UART8
+extern struct uart_periph uart8;
+extern void uart8_init(void);
+#endif // USE_UART8
+
 #endif /* MCU_PERIPH_UART_H */

@@ -35,28 +35,30 @@ struct downlink downlink;
 #include "subsystems/datalink/datalink.h"
 #include "mcu_periph/sys_time.h"
 
+static uint32_t last_down_nb_bytes = 0;  // previous number of bytes sent
+static uint32_t last_up_nb_msgs = 0;  // previous number of received messages
+static uint32_t last_ts = 0;  // timestamp in usec when last message was send
+
 static void send_downlink(struct transport_tx *trans, struct link_device *dev)
 {
-  static uint32_t last_nb_bytes = 0;
-  // timestamp in usec when last message was send
-  static uint32_t last_ts = 0.;
   // current timestamp
   uint32_t now_ts = get_sys_time_msec();
   // compute downlink byte rate
   if (now_ts > last_ts) {
-    uint16_t rate = (1000 * ((uint32_t)downlink.nb_bytes - last_nb_bytes)) / (now_ts - last_ts);
-    last_ts = now_ts;
-    last_nb_bytes = downlink.nb_bytes;
+    uint16_t down_rate = (1000 * ((uint32_t)downlink.nb_bytes - last_down_nb_bytes)) / (now_ts - last_ts);
+    uint16_t up_rate = (1000 * ((uint32_t)datalink_nb_msgs - last_up_nb_msgs)) / (now_ts - last_ts);
 
-#if defined DATALINK
-    uint16_t uplink_nb_msgs = datalink_nb_msgs;
+    last_ts = now_ts;
+#if defined DATALINK || defined SITL
+    last_down_nb_bytes = downlink.nb_bytes;
+    last_up_nb_msgs = datalink_nb_msgs;
 #else
-    uint16_t uplink_nb_msgs = 0;
+    last_down_nb_bytes = 0;
+    last_up_nb_msgs = 0;
 #endif
 
-    pprz_msg_send_DATALINK_REPORT(trans, dev, AC_ID,
-                                  &datalink_time, &uplink_nb_msgs,
-                                  &downlink.nb_msgs, &rate, &downlink.nb_ovrn);
+    pprz_msg_send_DATALINK_REPORT(trans, dev, AC_ID, &datalink_time, &datalink_nb_msgs, &downlink.nb_msgs, &down_rate,
+                                  &up_rate, &downlink.nb_ovrn);
   }
 }
 #endif

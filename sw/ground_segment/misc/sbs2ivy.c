@@ -594,7 +594,7 @@ int main(int argc, char **argv)
   IvyBindMsg(on_Attitude, NULL, "^%d ATTITUDE (\\S*) (\\S*) (\\S*)", local_uav.ac_id);
   IvyBindMsg(on_Gps, NULL, "^%d GPS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)",
              local_uav.ac_id);
-  IvyStart("127.255.255.255");
+  IvyStart(options.ivy_bus);
 
   // Add Timer
   gtk_timeout_add(delay / 4, timeout_callback, NULL);

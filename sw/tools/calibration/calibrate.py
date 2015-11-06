@@ -112,7 +112,10 @@ def main():
     if options.verbose:
         print("remaining "+str(len(flt_meas))+" after filtering")
     if len(flt_meas) == 0:
-        print("Error: found zero IMU_"+options.sensor+"_RAW measurements for aircraft with id "+options.ac_id+" in log file after filtering!")
+        print("Error: found zero IMU_" + options.sensor + "_RAW measurements for aircraft with id " + options.ac_id +
+              " in log file after filtering!\nMaybe try the --auto_threshold option.")
+        if options.plot:
+            calibration_utils.plot_measurements(options.sensor, measurements)
         sys.exit(1)
 
     # get an initial min/max guess

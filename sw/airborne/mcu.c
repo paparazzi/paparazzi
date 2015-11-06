@@ -38,7 +38,7 @@
 #include "subsystems/radio_control.h"
 #endif
 #endif
-#if USE_UART0 || USE_UART1 || USE_UART2 || USE_UART3 || USE_UART4 || USE_UART5 || USE_UART6
+#if USE_UART0 || USE_UART1 || USE_UART2 || USE_UART3 || USE_UART4 || USE_UART5 || USE_UART6 || USE_UART7 || USE_UART8
 #define USING_UART 1
 #include "mcu_periph/uart.h"
 #endif
@@ -106,6 +106,12 @@ void mcu_init(void)
 #endif
 #if USE_UART6
   uart6_init();
+#endif
+#if USE_UART7
+  uart7_init();
+#endif
+#if USE_UART8
+  uart8_init();
 #endif
 #if USING_UART
   uart_arch_init();

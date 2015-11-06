@@ -1,3 +1,29 @@
+// Bluegiga ANSI C BGLib command definition source file
+// BLE SDK v1.2.1-91
+//
+// Contact: support@bluegiga.com
+//
+// This is free software distributed under the terms of the MIT license reproduced below.
+//
+// Copyright (c) 2013 Bluegiga Technologies
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 /*****************************************************************************
  *
@@ -7,12 +33,8 @@
  *
  ****************************************************************************/
 
-
-
 #include <stdio.h>
-
 #include "cmd_def.h"
-
 
 void (*bglib_output)(uint8 len1, uint8 *data1, uint16 len2, uint8 *data2) = 0;
 static const struct ble_msg  apis[] = {
@@ -31,9 +53,6 @@ static const struct ble_msg  apis[] = {
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x0, ble_cls_system, ble_cmd_system_whitelist_clear_id}, 0x0, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x2, ble_cls_system, ble_cmd_system_endpoint_rx_id}, 0x22, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x3, ble_cls_system, ble_cmd_system_endpoint_set_watermarks_id}, 0x222, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_system, ble_cmd_system_aes_setkey_id}, 0x8, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_system, ble_cmd_system_aes_encrypt_id}, 0x8, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_system, ble_cmd_system_aes_decrypt_id}, 0x8, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x0, ble_cls_flash, ble_cmd_flash_ps_defrag_id}, 0x0, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x0, ble_cls_flash, ble_cmd_flash_ps_dump_id}, 0x0, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x0, ble_cls_flash, ble_cmd_flash_ps_erase_all_id}, 0x0, (ble_cmd_handler)ble_default},
@@ -41,14 +60,12 @@ static const struct ble_msg  apis[] = {
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x2, ble_cls_flash, ble_cmd_flash_ps_load_id}, 0x4, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x2, ble_cls_flash, ble_cmd_flash_ps_erase_id}, 0x4, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_flash, ble_cmd_flash_erase_page_id}, 0x2, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x5, ble_cls_flash, ble_cmd_flash_write_data_id}, 0x86, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x5, ble_cls_flash, ble_cmd_flash_read_data_id}, 0x26, (ble_cmd_handler)ble_default},
+  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x3, ble_cls_flash, ble_cmd_flash_write_words_id}, 0x84, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x4, ble_cls_attributes, ble_cmd_attributes_write_id}, 0x824, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x4, ble_cls_attributes, ble_cmd_attributes_read_id}, 0x44, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x2, ble_cls_attributes, ble_cmd_attributes_read_type_id}, 0x4, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x3, ble_cls_attributes, ble_cmd_attributes_user_read_response_id}, 0x822, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x2, ble_cls_attributes, ble_cmd_attributes_user_write_response_id}, 0x22, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x4, ble_cls_attributes, ble_cmd_attributes_send_id}, 0x842, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_connection, ble_cmd_connection_disconnect_id}, 0x2, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_connection, ble_cmd_connection_get_rssi_id}, 0x2, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x9, ble_cls_connection, ble_cmd_connection_update_id}, 0x44442, (ble_cmd_handler)ble_default},
@@ -77,7 +94,6 @@ static const struct ble_msg  apis[] = {
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x5, ble_cls_sm, ble_cmd_sm_passkey_entry_id}, 0x62, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x0, ble_cls_sm, ble_cmd_sm_get_bonds_id}, 0x0, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_sm, ble_cmd_sm_set_oob_data_id}, 0x8, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x0, ble_cls_sm, ble_cmd_sm_whitelist_bonds_id}, 0x0, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x2, ble_cls_gap, ble_cmd_gap_set_privacy_flags_id}, 0x22, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x2, ble_cls_gap, ble_cmd_gap_set_mode_id}, 0x22, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_gap, ble_cmd_gap_discover_id}, 0x2, (ble_cmd_handler)ble_default},
@@ -103,13 +119,6 @@ static const struct ble_msg  apis[] = {
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x3, ble_cls_hardware, ble_cmd_hardware_i2c_write_id}, 0x822, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_hardware, ble_cmd_hardware_set_txpower_id}, 0x2, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x5, ble_cls_hardware, ble_cmd_hardware_timer_comparator_id}, 0x4222, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x2, ble_cls_hardware, ble_cmd_hardware_io_port_irq_enable_id}, 0x22, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x2, ble_cls_hardware, ble_cmd_hardware_io_port_irq_direction_id}, 0x22, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_hardware, ble_cmd_hardware_analog_comparator_enable_id}, 0x2, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x0, ble_cls_hardware, ble_cmd_hardware_analog_comparator_read_id}, 0x0, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_hardware, ble_cmd_hardware_analog_comparator_config_irq_id}, 0x2, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_hardware, ble_cmd_hardware_set_rxgain_id}, 0x2, (ble_cmd_handler)ble_default},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_hardware, ble_cmd_hardware_usb_enable_id}, 0x2, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x3, ble_cls_test, ble_cmd_test_phy_tx_id}, 0x222, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x1, ble_cls_test, ble_cmd_test_phy_rx_id}, 0x2, (ble_cmd_handler)ble_default},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_cmd | 0x0, 0x0, ble_cls_test, ble_cmd_test_phy_end_id}, 0x0, (ble_cmd_handler)ble_default},
@@ -136,9 +145,6 @@ static const struct ble_msg  apis[] = {
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_system, ble_cmd_system_whitelist_clear_id}, 0x0, (ble_cmd_handler)ble_rsp_system_whitelist_clear},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x3, ble_cls_system, ble_cmd_system_endpoint_rx_id}, 0x84, (ble_cmd_handler)ble_rsp_system_endpoint_rx},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_system, ble_cmd_system_endpoint_set_watermarks_id}, 0x4, (ble_cmd_handler)ble_rsp_system_endpoint_set_watermarks},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_system, ble_cmd_system_aes_setkey_id}, 0x0, (ble_cmd_handler)ble_rsp_system_aes_setkey},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x1, ble_cls_system, ble_cmd_system_aes_encrypt_id}, 0x8, (ble_cmd_handler)ble_rsp_system_aes_encrypt},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x1, ble_cls_system, ble_cmd_system_aes_decrypt_id}, 0x8, (ble_cmd_handler)ble_rsp_system_aes_decrypt},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_flash, ble_cmd_flash_ps_defrag_id}, 0x0, (ble_cmd_handler)ble_rsp_flash_ps_defrag},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_flash, ble_cmd_flash_ps_dump_id}, 0x0, (ble_cmd_handler)ble_rsp_flash_ps_dump},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_flash, ble_cmd_flash_ps_erase_all_id}, 0x0, (ble_cmd_handler)ble_rsp_flash_ps_erase_all},
@@ -146,14 +152,12 @@ static const struct ble_msg  apis[] = {
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x3, ble_cls_flash, ble_cmd_flash_ps_load_id}, 0x84, (ble_cmd_handler)ble_rsp_flash_ps_load},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_flash, ble_cmd_flash_ps_erase_id}, 0x0, (ble_cmd_handler)ble_rsp_flash_ps_erase},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_flash, ble_cmd_flash_erase_page_id}, 0x4, (ble_cmd_handler)ble_rsp_flash_erase_page},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_flash, ble_cmd_flash_write_data_id}, 0x4, (ble_cmd_handler)ble_rsp_flash_write_data},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x1, ble_cls_flash, ble_cmd_flash_read_data_id}, 0x8, (ble_cmd_handler)ble_rsp_flash_read_data},
+  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_flash, ble_cmd_flash_write_words_id}, 0x0, (ble_cmd_handler)ble_rsp_flash_write_words},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_attributes, ble_cmd_attributes_write_id}, 0x4, (ble_cmd_handler)ble_rsp_attributes_write},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x7, ble_cls_attributes, ble_cmd_attributes_read_id}, 0x8444, (ble_cmd_handler)ble_rsp_attributes_read},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x5, ble_cls_attributes, ble_cmd_attributes_read_type_id}, 0x844, (ble_cmd_handler)ble_rsp_attributes_read_type},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_attributes, ble_cmd_attributes_user_read_response_id}, 0x0, (ble_cmd_handler)ble_rsp_attributes_user_read_response},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_attributes, ble_cmd_attributes_user_write_response_id}, 0x0, (ble_cmd_handler)ble_rsp_attributes_user_write_response},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_attributes, ble_cmd_attributes_send_id}, 0x4, (ble_cmd_handler)ble_rsp_attributes_send},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x3, ble_cls_connection, ble_cmd_connection_disconnect_id}, 0x42, (ble_cmd_handler)ble_rsp_connection_disconnect},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_connection, ble_cmd_connection_get_rssi_id}, 0x32, (ble_cmd_handler)ble_rsp_connection_get_rssi},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x3, ble_cls_connection, ble_cmd_connection_update_id}, 0x42, (ble_cmd_handler)ble_rsp_connection_update},
@@ -182,7 +186,6 @@ static const struct ble_msg  apis[] = {
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_sm, ble_cmd_sm_passkey_entry_id}, 0x4, (ble_cmd_handler)ble_rsp_sm_passkey_entry},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x1, ble_cls_sm, ble_cmd_sm_get_bonds_id}, 0x2, (ble_cmd_handler)ble_rsp_sm_get_bonds},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_sm, ble_cmd_sm_set_oob_data_id}, 0x0, (ble_cmd_handler)ble_rsp_sm_set_oob_data},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x3, ble_cls_sm, ble_cmd_sm_whitelist_bonds_id}, 0x24, (ble_cmd_handler)ble_rsp_sm_whitelist_bonds},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_gap, ble_cmd_gap_set_privacy_flags_id}, 0x0, (ble_cmd_handler)ble_rsp_gap_set_privacy_flags},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_gap, ble_cmd_gap_set_mode_id}, 0x4, (ble_cmd_handler)ble_rsp_gap_set_mode},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_gap, ble_cmd_gap_discover_id}, 0x4, (ble_cmd_handler)ble_rsp_gap_discover},
@@ -208,13 +211,6 @@ static const struct ble_msg  apis[] = {
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x1, ble_cls_hardware, ble_cmd_hardware_i2c_write_id}, 0x2, (ble_cmd_handler)ble_rsp_hardware_i2c_write},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_hardware, ble_cmd_hardware_set_txpower_id}, 0x0, (ble_cmd_handler)ble_rsp_hardware_set_txpower},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_hardware, ble_cmd_hardware_timer_comparator_id}, 0x4, (ble_cmd_handler)ble_rsp_hardware_timer_comparator},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_hardware, ble_cmd_hardware_io_port_irq_enable_id}, 0x4, (ble_cmd_handler)ble_rsp_hardware_io_port_irq_enable},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_hardware, ble_cmd_hardware_io_port_irq_direction_id}, 0x4, (ble_cmd_handler)ble_rsp_hardware_io_port_irq_direction},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_hardware, ble_cmd_hardware_analog_comparator_enable_id}, 0x0, (ble_cmd_handler)ble_rsp_hardware_analog_comparator_enable},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x3, ble_cls_hardware, ble_cmd_hardware_analog_comparator_read_id}, 0x24, (ble_cmd_handler)ble_rsp_hardware_analog_comparator_read},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_hardware, ble_cmd_hardware_analog_comparator_config_irq_id}, 0x4, (ble_cmd_handler)ble_rsp_hardware_analog_comparator_config_irq},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_hardware, ble_cmd_hardware_set_rxgain_id}, 0x0, (ble_cmd_handler)ble_rsp_hardware_set_rxgain},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_hardware, ble_cmd_hardware_usb_enable_id}, 0x4, (ble_cmd_handler)ble_rsp_hardware_usb_enable},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_test, ble_cmd_test_phy_tx_id}, 0x0, (ble_cmd_handler)ble_rsp_test_phy_tx},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x0, ble_cls_test, ble_cmd_test_phy_rx_id}, 0x0, (ble_cmd_handler)ble_rsp_test_phy_rx},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_rsp | 0x0, 0x2, ble_cls_test, ble_cmd_test_phy_end_id}, 0x4, (ble_cmd_handler)ble_rsp_test_phy_end},
@@ -259,7 +255,6 @@ static const struct ble_msg  apis[] = {
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_evt | 0x0, 0x7, ble_cls_hardware, ble_evt_hardware_io_port_status_id}, 0x2226, (ble_cmd_handler)ble_evt_hardware_io_port_status},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_evt | 0x0, 0x1, ble_cls_hardware, ble_evt_hardware_soft_timer_id}, 0x2, (ble_cmd_handler)ble_evt_hardware_soft_timer},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_evt | 0x0, 0x3, ble_cls_hardware, ble_evt_hardware_adc_result_id}, 0x52, (ble_cmd_handler)ble_evt_hardware_adc_result},
-  {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_evt | 0x0, 0x5, ble_cls_hardware, ble_evt_hardware_analog_comparator_status_id}, 0x26, (ble_cmd_handler)ble_evt_hardware_analog_comparator_status},
   {{(uint8)ble_dev_type_ble | (uint8)ble_msg_type_evt | 0x0, 0x4, ble_cls_dfu, ble_evt_dfu_boot_id}, 0x6, (ble_cmd_handler)ble_evt_dfu_boot},
   {{0, 0, 0, 0}, 0, 0}
 };
@@ -307,7 +302,6 @@ void ble_send_message(uint8 msgid, ...)
   uint32 u32;
   uint16 u16;
   uint8  u8;
-
   struct ble_cmd_packet packet;
   uint8 *b = (uint8 *)&packet.payload;
 
@@ -356,14 +350,12 @@ void ble_send_message(uint8 msgid, ...)
         break;
       case 10:/*hwaddr*/
         hw = va_arg(va, uint8 *);
-
         *b++ = *hw++;
         *b++ = *hw++;
         *b++ = *hw++;
         *b++ = *hw++;
         *b++ = *hw++;
         *b++ = *hw++;
-
         break;
       case 11:/*uint16 array*/
         data_len = va_arg(va, int);
@@ -383,7 +375,7 @@ void ble_send_message(uint8 msgid, ...)
   if (bglib_output) { bglib_output(sizeof(struct ble_header) + apis[msgid].hdr.lolen, (uint8 *)&packet, data_len, (uint8 *)data_ptr); }
 }
 
-static const struct ble_msg *const ble_class_system_rsp_handlers[] = {
+static const struct ble_msg *ble_class_system_rsp_handlers[] = {
   &apis[ble_rsp_system_reset_idx],
   &apis[ble_rsp_system_hello_idx],
   &apis[ble_rsp_system_address_get_idx],
@@ -399,11 +391,8 @@ static const struct ble_msg *const ble_class_system_rsp_handlers[] = {
   &apis[ble_rsp_system_whitelist_clear_idx],
   &apis[ble_rsp_system_endpoint_rx_idx],
   &apis[ble_rsp_system_endpoint_set_watermarks_idx],
-  &apis[ble_rsp_system_aes_setkey_idx],
-  &apis[ble_rsp_system_aes_encrypt_idx],
-  &apis[ble_rsp_system_aes_decrypt_idx],
 };
-static const struct ble_msg *const ble_class_system_evt_handlers[] = {
+static const struct ble_msg *ble_class_system_evt_handlers[] = {
   &apis[ble_evt_system_boot_idx],
   &apis[ble_evt_system_debug_idx],
   &apis[ble_evt_system_endpoint_watermark_rx_idx],
@@ -412,7 +401,7 @@ static const struct ble_msg *const ble_class_system_evt_handlers[] = {
   &apis[ble_evt_system_no_license_key_idx],
   &apis[ble_evt_system_protocol_error_idx],
 };
-static const struct ble_msg *const ble_class_flash_rsp_handlers[] = {
+static const struct ble_msg *ble_class_flash_rsp_handlers[] = {
   &apis[ble_rsp_flash_ps_defrag_idx],
   &apis[ble_rsp_flash_ps_dump_idx],
   &apis[ble_rsp_flash_ps_erase_all_idx],
@@ -420,26 +409,24 @@ static const struct ble_msg *const ble_class_flash_rsp_handlers[] = {
   &apis[ble_rsp_flash_ps_load_idx],
   &apis[ble_rsp_flash_ps_erase_idx],
   &apis[ble_rsp_flash_erase_page_idx],
-  &apis[ble_rsp_flash_write_data_idx],
-  &apis[ble_rsp_flash_read_data_idx],
+  &apis[ble_rsp_flash_write_words_idx],
 };
-static const struct ble_msg *const ble_class_flash_evt_handlers[] = {
+static const struct ble_msg *ble_class_flash_evt_handlers[] = {
   &apis[ble_evt_flash_ps_key_idx],
 };
-static const struct ble_msg *const ble_class_attributes_rsp_handlers[] = {
+static const struct ble_msg *ble_class_attributes_rsp_handlers[] = {
   &apis[ble_rsp_attributes_write_idx],
   &apis[ble_rsp_attributes_read_idx],
   &apis[ble_rsp_attributes_read_type_idx],
   &apis[ble_rsp_attributes_user_read_response_idx],
   &apis[ble_rsp_attributes_user_write_response_idx],
-  &apis[ble_rsp_attributes_send_idx],
 };
-static const struct ble_msg *const ble_class_attributes_evt_handlers[] = {
+static const struct ble_msg *ble_class_attributes_evt_handlers[] = {
   &apis[ble_evt_attributes_value_idx],
   &apis[ble_evt_attributes_user_read_request_idx],
   &apis[ble_evt_attributes_status_idx],
 };
-static const struct ble_msg *const ble_class_connection_rsp_handlers[] = {
+static const struct ble_msg *ble_class_connection_rsp_handlers[] = {
   &apis[ble_rsp_connection_disconnect_idx],
   &apis[ble_rsp_connection_get_rssi_idx],
   &apis[ble_rsp_connection_update_idx],
@@ -450,14 +437,14 @@ static const struct ble_msg *const ble_class_connection_rsp_handlers[] = {
   &apis[ble_rsp_connection_get_status_idx],
   &apis[ble_rsp_connection_raw_tx_idx],
 };
-static const struct ble_msg *const ble_class_connection_evt_handlers[] = {
+static const struct ble_msg *ble_class_connection_evt_handlers[] = {
   &apis[ble_evt_connection_status_idx],
   &apis[ble_evt_connection_version_ind_idx],
   &apis[ble_evt_connection_feature_ind_idx],
   &apis[ble_evt_connection_raw_rx_idx],
   &apis[ble_evt_connection_disconnected_idx],
 };
-static const struct ble_msg *const ble_class_attclient_rsp_handlers[] = {
+static const struct ble_msg *ble_class_attclient_rsp_handlers[] = {
   &apis[ble_rsp_attclient_find_by_type_value_idx],
   &apis[ble_rsp_attclient_read_by_group_type_idx],
   &apis[ble_rsp_attclient_read_by_type_idx],
@@ -471,7 +458,7 @@ static const struct ble_msg *const ble_class_attclient_rsp_handlers[] = {
   &apis[ble_rsp_attclient_execute_write_idx],
   &apis[ble_rsp_attclient_read_multiple_idx],
 };
-static const struct ble_msg *const ble_class_attclient_evt_handlers[] = {
+static const struct ble_msg *ble_class_attclient_evt_handlers[] = {
   &apis[ble_evt_attclient_indicated_idx],
   &apis[ble_evt_attclient_procedure_completed_idx],
   &apis[ble_evt_attclient_group_found_idx],
@@ -480,7 +467,7 @@ static const struct ble_msg *const ble_class_attclient_evt_handlers[] = {
   &apis[ble_evt_attclient_attribute_value_idx],
   &apis[ble_evt_attclient_read_multiple_response_idx],
 };
-static const struct ble_msg *const ble_class_sm_rsp_handlers[] = {
+static const struct ble_msg *ble_class_sm_rsp_handlers[] = {
   &apis[ble_rsp_sm_encrypt_start_idx],
   &apis[ble_rsp_sm_set_bondable_mode_idx],
   &apis[ble_rsp_sm_delete_bonding_idx],
@@ -488,16 +475,15 @@ static const struct ble_msg *const ble_class_sm_rsp_handlers[] = {
   &apis[ble_rsp_sm_passkey_entry_idx],
   &apis[ble_rsp_sm_get_bonds_idx],
   &apis[ble_rsp_sm_set_oob_data_idx],
-  &apis[ble_rsp_sm_whitelist_bonds_idx],
 };
-static const struct ble_msg *const ble_class_sm_evt_handlers[] = {
+static const struct ble_msg *ble_class_sm_evt_handlers[] = {
   &apis[ble_evt_sm_smp_data_idx],
   &apis[ble_evt_sm_bonding_fail_idx],
   &apis[ble_evt_sm_passkey_display_idx],
   &apis[ble_evt_sm_passkey_request_idx],
   &apis[ble_evt_sm_bond_status_idx],
 };
-static const struct ble_msg *const ble_class_gap_rsp_handlers[] = {
+static const struct ble_msg *ble_class_gap_rsp_handlers[] = {
   &apis[ble_rsp_gap_set_privacy_flags_idx],
   &apis[ble_rsp_gap_set_mode_idx],
   &apis[ble_rsp_gap_discover_idx],
@@ -510,11 +496,11 @@ static const struct ble_msg *const ble_class_gap_rsp_handlers[] = {
   &apis[ble_rsp_gap_set_adv_data_idx],
   &apis[ble_rsp_gap_set_directed_connectable_mode_idx],
 };
-static const struct ble_msg *const ble_class_gap_evt_handlers[] = {
+static const struct ble_msg *ble_class_gap_evt_handlers[] = {
   &apis[ble_evt_gap_scan_response_idx],
   &apis[ble_evt_gap_mode_changed_idx],
 };
-static const struct ble_msg *const ble_class_hardware_rsp_handlers[] = {
+static const struct ble_msg *ble_class_hardware_rsp_handlers[] = {
   &apis[ble_rsp_hardware_io_port_config_irq_idx],
   &apis[ble_rsp_hardware_set_soft_timer_idx],
   &apis[ble_rsp_hardware_adc_read_idx],
@@ -529,21 +515,13 @@ static const struct ble_msg *const ble_class_hardware_rsp_handlers[] = {
   &apis[ble_rsp_hardware_i2c_write_idx],
   &apis[ble_rsp_hardware_set_txpower_idx],
   &apis[ble_rsp_hardware_timer_comparator_idx],
-  &apis[ble_rsp_hardware_io_port_irq_enable_idx],
-  &apis[ble_rsp_hardware_io_port_irq_direction_idx],
-  &apis[ble_rsp_hardware_analog_comparator_enable_idx],
-  &apis[ble_rsp_hardware_analog_comparator_read_idx],
-  &apis[ble_rsp_hardware_analog_comparator_config_irq_idx],
-  &apis[ble_rsp_hardware_set_rxgain_idx],
-  &apis[ble_rsp_hardware_usb_enable_idx],
 };
-static const struct ble_msg *const ble_class_hardware_evt_handlers[] = {
+static const struct ble_msg *ble_class_hardware_evt_handlers[] = {
   &apis[ble_evt_hardware_io_port_status_idx],
   &apis[ble_evt_hardware_soft_timer_idx],
   &apis[ble_evt_hardware_adc_result_idx],
-  &apis[ble_evt_hardware_analog_comparator_status_idx],
 };
-static const struct ble_msg *const ble_class_test_rsp_handlers[] = {
+static const struct ble_msg *ble_class_test_rsp_handlers[] = {
   &apis[ble_rsp_test_phy_tx_idx],
   &apis[ble_rsp_test_phy_rx_idx],
   &apis[ble_rsp_test_phy_end_idx],
@@ -552,28 +530,28 @@ static const struct ble_msg *const ble_class_test_rsp_handlers[] = {
   &apis[ble_rsp_test_debug_idx],
   &apis[ble_rsp_test_channel_mode_idx],
 };
-static const struct ble_msg *const ble_class_dfu_rsp_handlers[] = {
+static const struct ble_msg *ble_class_dfu_rsp_handlers[] = {
   &apis[ble_rsp_dfu_reset_idx],
   &apis[ble_rsp_dfu_flash_set_address_idx],
   &apis[ble_rsp_dfu_flash_upload_idx],
   &apis[ble_rsp_dfu_flash_upload_finish_idx],
 };
-static const struct ble_msg *const ble_class_dfu_evt_handlers[] = {
+static const struct ble_msg *ble_class_dfu_evt_handlers[] = {
   &apis[ble_evt_dfu_boot_idx],
 };
-const struct ble_class_handler_t ble_class_rsp_handlers[ble_cls_last] = {
-  {ble_class_system_rsp_handlers, 18},
-  {ble_class_flash_rsp_handlers, 9},
-  {ble_class_attributes_rsp_handlers, 6},
+struct ble_class_handler_t ble_class_rsp_handlers[ble_cls_last] = {
+  {ble_class_system_rsp_handlers, 15},
+  {ble_class_flash_rsp_handlers, 8},
+  {ble_class_attributes_rsp_handlers, 5},
   {ble_class_connection_rsp_handlers, 9},
   {ble_class_attclient_rsp_handlers, 12},
-  {ble_class_sm_rsp_handlers, 8},
+  {ble_class_sm_rsp_handlers, 7},
   {ble_class_gap_rsp_handlers, 11},
-  {ble_class_hardware_rsp_handlers, 21},
+  {ble_class_hardware_rsp_handlers, 14},
   {ble_class_test_rsp_handlers, 7},
   {ble_class_dfu_rsp_handlers, 4},
 };
-const struct ble_class_handler_t ble_class_evt_handlers[ble_cls_last] = {
+struct ble_class_handler_t ble_class_evt_handlers[ble_cls_last] = {
   {ble_class_system_evt_handlers, 7},
   {ble_class_flash_evt_handlers, 1},
   {ble_class_attributes_evt_handlers, 3},
@@ -581,7 +559,7 @@ const struct ble_class_handler_t ble_class_evt_handlers[ble_cls_last] = {
   {ble_class_attclient_evt_handlers, 7},
   {ble_class_sm_evt_handlers, 5},
   {ble_class_gap_evt_handlers, 2},
-  {ble_class_hardware_evt_handlers, 4},
+  {ble_class_hardware_evt_handlers, 3},
   {NULL, 0},
   {ble_class_dfu_evt_handlers, 1},
 };
