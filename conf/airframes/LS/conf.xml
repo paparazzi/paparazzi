@@ -11,6 +11,17 @@
    gui_color="#00000000ffff"
   />
   <aircraft
+   name="BebopMavLink"
+   ac_id="4"
+   airframe="airframes/LS/quadrotor_mavlink_bebop.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="BebopSmallGPSMes"
    ac_id="1"
    airframe="airframes/LS/quadrotor_bebop_small_gps_messages.xml"
