@@ -60,8 +60,9 @@ struct bluegiga_periph {
   /** Generic device interface */
   struct link_device device;
 
-  /* some administrative variable */
+  /* some administrative variables */
   uint32_t bytes_recvd_since_last;
+  uint8_t end_of_msg;
 
 };
 
@@ -73,8 +74,6 @@ bool_t bluegiga_ch_available(struct bluegiga_periph *p);
 void bluegiga_increment_buf(uint8_t *buf_idx, uint8_t len);
 
 void bluegiga_init(struct bluegiga_periph *p);
-void bluegiga_send(struct bluegiga_periph *p);
-
 void bluegiga_scan(struct bluegiga_periph *p);
 void bluegiga_request_all_rssi(struct bluegiga_periph *p);
 
@@ -108,7 +107,6 @@ static inline void bluegiga_read_buffer(struct bluegiga_periph *p, struct pprz_t
 #define BlueGigaCheckAndParse(_dev,_trans) {     \
     if (bluegiga_ch_available(&(_dev)))          \
       bluegiga_read_buffer(&(_dev), &(_trans));  \
-    bluegiga_send((&_dev));                      \
   }
 
 #endif /* BLUEGIGA_DATA_LINK_H */
