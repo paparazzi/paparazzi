@@ -469,10 +469,21 @@ static inline void mavlink_send_autopilot_version(void)
 {
   /// TODO: fill in versions correctly, how should they be encoded?
   static uint32_t ver = PPRZ_VERSION_INT;
-  mavlink_msg_autopilot_version_send(MAVLINK_COMM_0,
-                                     0,  // capabilities,
-                                     ver, // version
-                                     custom_version);
+  static uint64_t sha;
+  get_pprz_git_version((uint8_t*)&sha);
+  mavlink_msg_autopilot_version_send( MAVLINK_COMM_0,
+                                      0, //uint64_t capabilities,
+                                      ver, //uint32_t flight_sw_version,
+                                      0, //uint32_t middleware_sw_version,
+                                      0, //uint32_t os_sw_version,
+                                      0, //uint32_t board_version,
+                                      0, //const uint8_t *flight_custom_version,
+                                      0, //const uint8_t *middleware_custom_version,
+                                      0, //const uint8_t *os_custom_version,
+                                      0, //uint16_t vendor_id,
+                                      0, //uint16_t product_id,
+                                      sha //uint64_t uid
+                                      );
 }
 
 static inline void mavlink_send_attitude_quaternion(void)
