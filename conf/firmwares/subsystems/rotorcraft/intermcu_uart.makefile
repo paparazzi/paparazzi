@@ -12,13 +12,12 @@ ifeq ($(TARGET),fbw)
 else
   INTERMCU_PORT ?= UART3
   INTERMCU_PORT_LOWER = $(shell echo $(INTERMCU_PORT) | tr A-Z a-z)
-  ap.CFLAGS += -DINTERMCU_LINK=$(INTERMCU_PORT_LOWER) -DUSE_$(INTERMCU_PORT) -D$(INTERMCU_PORT)_BAUD=B230400
-  ap.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/intermcu/intermcu_ap.h\" -DRADIO_CONTROL
-  ap.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED) -DINTER_MCU_AP
+  ap.CFLAGS += -DINTER_MCU_AP -DINTERMCU_LINK=$(INTERMCU_PORT_LOWER)
+  ap.CFLAGS += -DUSE_$(INTERMCU_PORT) -D$(INTERMCU_PORT)_BAUD=B230400
+  $(TARGET).CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/intermcu/intermcu_ap.h\" -DRADIO_CONTROL
+  $(TARGET).CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
 
-  ifneq ($(TARGET),sim)
-		$(TARGET).srcs += subsystems/intermcu/intermcu_ap.c
-		$(TARGET).srcs += subsystems/radio_control.c
-		$(TARGET).srcs += subsystems/datalink/pprz_transport.c
-	endif
+	ap.srcs += subsystems/intermcu/intermcu_ap.c
+	ap.srcs += subsystems/datalink/pprz_transport.c
+	$(TARGET).srcs += subsystems/radio_control.c
 endif
