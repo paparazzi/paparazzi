@@ -152,7 +152,8 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
  * @param[in] *img The image frame to calculate the optical flow from
  * @param[out] *result The optical flow result
  */
-void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img, struct opticflow_result_t *result)
+void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+                          struct opticflow_result_t *result)
 {
   // variables for size_divergence:
   float size_divergence; int n_samples;
@@ -230,7 +231,8 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
     error_threshold = 10.0f;
     n_iterations_RANSAC = 20;
     n_samples_RANSAC = 5;
-    success_fit = analyze_linear_flow_field(vectors, result->tracked_cnt, error_threshold, n_iterations_RANSAC, n_samples_RANSAC, img->w, img->h, &fit_info);
+    success_fit = analyze_linear_flow_field(vectors, result->tracked_cnt, error_threshold, n_iterations_RANSAC,
+                                            n_samples_RANSAC, img->w, img->h, &fit_info);
 
     if (!success_fit) {
       fit_info.divergence = 0.0f;
@@ -279,6 +281,14 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   result->vel_x = -result->flow_der_x * result->fps * state->agl / opticflow->subpixel_factor * img->w / OPTICFLOW_FX;
   result->vel_y =  result->flow_der_y * result->fps * state->agl / opticflow->subpixel_factor * img->h / OPTICFLOW_FY;
 
+  // Determine quality of noise measurement for state filter
+  //TODO Experiment with multiple noise measurement models
+  if (result->tracked_cnt < 15) {
+    result->noise_measurement = (float)result->tracked_cnt / (float)opticflow->max_track_corners;
+  } else {
+    result->noise_measurement = 1.0;
+  }
+
   // *************************************************************************************
   // Next Loop Preparation
   // *************************************************************************************
@@ -312,7 +322,8 @@ static int cmp_flow(const void *a, const void *b)
 {
   const struct flow_t *a_p = (const struct flow_t *)a;
   const struct flow_t *b_p = (const struct flow_t *)b;
-  return (a_p->flow_x * a_p->flow_x + a_p->flow_y * a_p->flow_y) - (b_p->flow_x * b_p->flow_x + b_p->flow_y * b_p->flow_y);
+  return (a_p->flow_x * a_p->flow_x + a_p->flow_y * a_p->flow_y) - (b_p->flow_x * b_p->flow_x + b_p->flow_y *
+         b_p->flow_y);
 }
 
 

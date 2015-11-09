@@ -70,6 +70,7 @@
       <field name="x" type="float" unit="m/s"/>
       <field name="y" type="float" unit="m/s"/>
       <field name="z" type="float" unit="m/s"/>
+      <field name="noise" type="float"/>
     </message>
 
   </msg_class>

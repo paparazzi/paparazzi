@@ -141,7 +141,7 @@ static abi_event gps_ev;
 #define INS_INT_VEL_ID ABI_BROADCAST
 #endif
 static abi_event vel_est_ev;
-static void vel_est_cb(uint8_t sender_id, uint32_t stamp, float x, float y, float z);
+static void vel_est_cb(uint8_t sender_id, uint32_t stamp, float x, float y, float z, float noise);
 
 /** measurement noise for velocity estimate */
 #ifndef INS_VFF_R_VEL
@@ -238,8 +238,7 @@ void ins_reset_local_origin(void)
     ins_int.ltp_def.hmsl = gps.hmsl;
     ins_int.ltp_initialized = TRUE;
     stateSetLocalOrigin_i(&ins_int.ltp_def);
-  }
-  else {
+  } else {
     ins_int.ltp_initialized = FALSE;
   }
 #else
@@ -306,7 +305,7 @@ void ins_int_propagate(struct Int32Vect3 *accel, float dt)
   ins_ned_to_state();
 
   /* increment the propagation counter, while making sure it doesn't overflow */
-  if (ins_int.propagation_cnt < 100*INS_MAX_PROPAGATION_STEPS) {
+  if (ins_int.propagation_cnt < 100 * INS_MAX_PROPAGATION_STEPS) {
     ins_int.propagation_cnt++;
   }
 }
@@ -523,17 +522,17 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 
 static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
                        uint32_t stamp __attribute__((unused)),
-                       float x, float y, float z)
+                       float x, float y, float z, float noise)
 {
 
-  struct FloatVect3 vel_body = {x, y, 0};
+  struct FloatVect3 vel_body = {x, y, z};
 
   /* rotate velocity estimate to nav/ltp frame */
 
   // from frame coordinates to body coordinates and convert cm/s-> m/s
-  //TODO Do this in the optical flow module already
-  vel_body.x=y/100;
-  vel_body.y=x/100;
+  //TODO Do this in the optical flow module already, but after the guidance opticflow module has disapeared
+  vel_body.x = y / 100;
+  vel_body.y = x / 100;
 
   struct FloatQuat q_b2n = *stateGetNedToBodyQuat_f();
   QUAT_INVERT(q_b2n, q_b2n);
@@ -542,12 +541,7 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
 
 #if USE_HFF
   struct FloatVect2 vel = {vel_ned.x, vel_ned.y};
-  //struct FloatVect2 Rvel = {INS_VFF_R_VEL, INS_VFF_R_VEL};
-  //FIXME this should come out of optical flow module
-  if(z<17)
-      struct FloatVect2 Rvel = {z/25,z/25};
-  else
-	  struct FloatVect2 Rvel = {1.0,1.0};
+  struct FloatVect2 Rvel = {noise, noise};
 
   b2_hff_update_vel(vel,  Rvel);
   ins_update_from_hff();

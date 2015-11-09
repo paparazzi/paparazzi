@@ -98,7 +98,7 @@ struct opticflow_stab_t opticflow_stab = {
 
 
 static void stabilization_opticflow_vel_cb(uint8_t sender_id __attribute__((unused)),
-                                           uint32_t stamp, float vel_x, float vel_y, float vel_z);
+    uint32_t stamp, float vel_x, float vel_y, float vel_z, float noise);
 /**
  * Initialization of horizontal guidance module.
  */
@@ -149,7 +149,7 @@ void guidance_h_module_run(bool_t in_flight)
  * Update the controls on a new VELOCITY_ESTIMATE ABI message.
  */
 static void stabilization_opticflow_vel_cb(uint8_t sender_id __attribute__((unused)),
-                                           uint32_t stamp, float vel_x, float vel_y, float vel_z)
+    uint32_t stamp, float vel_x, float vel_y, float vel_z, float noise)
 {
   /* Check if we are in the correct AP_MODE before setting commands */
   if (autopilot_mode != AP_MODE_MODULE) {

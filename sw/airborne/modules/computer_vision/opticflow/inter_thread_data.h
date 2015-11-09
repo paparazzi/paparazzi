@@ -47,6 +47,8 @@ struct opticflow_result_t {
 
   float surface_roughness; ///< Surface roughness as determined with a linear optical flow fit
   float divergence;       ///< Divergence as determined with a linear flow fit
+
+  float noise_measurement;  ///< noise of measurement, for state filter
 };
 
 /* The state of the drone when it took an image */
