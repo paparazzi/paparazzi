@@ -49,9 +49,9 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
 
   // Y negated to get to the body of the drone
   AbiSendMsgVELOCITY_ESTIMATE(PIX4FLOW_VELOCITY_ID, 0,
-                                  (optical_flow.flow_x/optical_flow.ground_distance),
-								  -1.0*(optical_flow.flow_y/optical_flow.ground_distance),
-                                  0.0f);
+                              (optical_flow.flow_x / optical_flow.ground_distance),
+                              -1.0 * (optical_flow.flow_y / optical_flow.ground_distance),
+                              0.0f);
 }
 
 /** Initialization function

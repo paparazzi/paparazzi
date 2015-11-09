@@ -226,12 +226,8 @@
 #define IMU_MPU60X0_ID 16
 #endif
 
-#ifndef UART_ROTATION_ID 
-#define UART_ROTATION_ID 17
-#endif
-
 #ifndef PIX4FLOW_VELOCITY_ID 
-#define PIX4FLOW_VELOCITY_ID 18
+#define PIX4FLOW_VELOCITY_ID 17
 #endif
 
 
