@@ -288,7 +288,7 @@ dox:
 #
 
 clean:
-	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml
+	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml paparazzi
 	$(Q)rm -f  $(GEN_HEADERS)
 	$(Q)rm -fr $(MAVLINK_DIR)
 	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
