@@ -218,6 +218,9 @@ STATIC_INLINE void main_init(void)
   // send body_to_imu from here for now
   AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
 #endif
+
+  // Do a failsafe check first
+  failsafe_check();
 }
 
 STATIC_INLINE void handle_periodic_tasks(void)
