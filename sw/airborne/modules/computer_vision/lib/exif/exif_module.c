@@ -22,6 +22,7 @@
 
 #include "exif_module.h"
 #include "state.h"
+#include "subsystems/gps.h"
 
 
 //////////////////////////////////////////////////////////////
@@ -39,7 +40,8 @@ void push_gps_to_vision(void)
   struct LlaCoor_i *c = stateGetPositionLla_i();
   lat_em7deg = c->lat;
   lon_em7deg = c->lon;
-  alt_mm = c->alt;
+  // alt_mm = c->alt;
+  alt_mm = gps.hmsl;
 }
 
 /////////////////////////////////////////////////////////////
@@ -273,19 +275,26 @@ int write_exif_jpeg(char *filename, const unsigned char *image_jpg, const unsign
   loc.denominator = 1000;
   exif_set_rational(entry->data + 16, EXIF_BYTE_ORDER_INTEL, loc);
 
+  entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_ALTITUDE_REF, 1);
+  entry->format = EXIF_FORMAT_BYTE;
+  entry->components = 1;
+  if (alt_mm < 0) {
+    entry->data[0] = '1'; // Below MSL
+    // from now on: go positive only
+    alt_mm = -alt_mm;
+  }
+  else {
+    entry->data[0] = '0'; // Above MSL
+  }
+
   entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_ALTITUDE, 8);
   // Set the field's format and number of components, this is very important!
   entry->format = EXIF_FORMAT_RATIONAL;
   entry->components = 1;
   // Height
   ExifRational alt;
-  if (alt_mm > 0) {
-    alt.numerator = alt_mm;
-    alt.denominator = 1000;
-  } else {
-    alt.numerator = 0;
-    alt.denominator = 1000;
-  }
+  alt.numerator = alt_mm;
+  alt.denominator = 1000;
   exif_set_rational(entry->data, EXIF_BYTE_ORDER_INTEL, alt);
 
 
