@@ -20,29 +20,14 @@
  *
  */
 
-#ifndef INTERMCU_ROTORCRAFT_H
-#define INTERMCU_ROTORCRAFT_H
+#ifndef INTERMCU_FBW_ROTORCRAFT_H
+#define INTERMCU_FBW_ROTORCRAFT_H
 
-#include "std.h"
-#include "subsystems/commands.h"
+#include "subsystems/intermcu.h"
 
-#define INTERMCU_AP   0
-#define INTERMCU_FBW  1
+extern pprz_t intermcu_commands[COMMANDS_NB];
+void intermcu_on_rc_frame(void);
+void intermcu_send_status(uint8_t mode);
+void InterMcuEvent(void (*frame_handler)(void));
 
-#define INTERMCU_LOST_CNT 25  /* 50ms with a 512Hz timer TODO fixed value */
-
-enum intermcu_status {
-  INTERMCU_OK,
-  INTERMCU_LOST
-};
-
-struct intermcu_t {
-  enum intermcu_status status;
-  uint8_t time_since_last_frame;
-};
-extern struct intermcu_t inter_mcu;
-
-void intermcu_init(void);
-void intermcu_periodic(void);
-
-#endif
+#endif /* INTERMCU_FBW_ROTORCRAFT_H */

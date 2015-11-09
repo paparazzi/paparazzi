@@ -164,12 +164,19 @@ STATIC_INLINE void main_init(void)
 
   stateInit();
 
+#ifndef INTER_MCU_AP
   actuators_init();
+#else
+  intermcu_init();
+#endif
+
 #if USE_MOTOR_MIXING
   motor_mixing_init();
 #endif
 
+#ifndef INTER_MCU_AP
   radio_control_init();
+#endif
 
 #if USE_BARO_BOARD
   baro_init();
@@ -201,6 +208,10 @@ STATIC_INLINE void main_init(void)
 
 #if DOWNLINK
   downlink_init();
+#endif
+
+#ifdef INTER_MCU_AP
+  intermcu_init();
 #endif
 
   // register the timers for the periodic functions
@@ -266,7 +277,11 @@ STATIC_INLINE void main_periodic(void)
   autopilot_periodic();
   /* set actuators     */
   //actuators_set(autopilot_motors_on);
+#ifndef INTER_MCU_AP
   SetActuatorsFromCommands(commands, autopilot_mode);
+#else
+  intermcu_set_actuators(commands, autopilot_mode);
+#endif
 
   if (autopilot_in_flight) {
     RunOnceEvery(PERIODIC_FREQUENCY, autopilot_flight_time++);

@@ -42,7 +42,7 @@
 
 #include "subsystems/radio_control.h"
 
-#include "subsystems/intermcu.h"
+#include "subsystems/intermcu/intermcu_fbw.h"
 
 #include "firmwares/rotorcraft/main_fbw.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
@@ -98,6 +98,8 @@ STATIC_INLINE void main_init(void)
   //modules_init();
 
   mcu_int_enable();
+
+  intermcu_init();
 
   // register the timers for the periodic functions
   main_periodic_tid = sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
@@ -214,14 +216,14 @@ static void autopilot_on_rc_frame(void)
 #endif
   }
 
-  /* Formward radiocontrol to AP */
+  /* Forward radiocontrol to AP */
   intermcu_on_rc_frame();
 }
 
 static void autopilot_on_ap_command(void)
 {
   if (fbw_mode != FBW_MODE_MANUAL) {
-    SetCommands(from_ap.commands);
+    SetCommands(intermcu_commands);
   }
 }
 

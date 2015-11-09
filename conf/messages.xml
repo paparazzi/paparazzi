@@ -858,7 +858,7 @@
     <field name="data_rate" type="uint32" unit="bytes/s"/>
     <field name="last_msg" type="uint8[]"/>
   </message>
-  
+
   <!--107 is free -->
   <!--108 is free -->
   <!--109 is free -->
@@ -2875,6 +2875,17 @@
     </message>
   </msg_class>
 
+  <msg_class name="intermcu">
+    <message name="IMCU_COMMANDS" id="1">
+      <field name="status" type="uint8"/>
+      <field name="values" type="int16[]"/>
+    </message>
+
+    <message name="IMCU_RADIO_COMMANDS" id="2">
+      <field name="status" type="uint8"/>
+      <field name="values" type="int16[]"/>
+    </message>
+  </msg_class>
 
 
 </protocol>

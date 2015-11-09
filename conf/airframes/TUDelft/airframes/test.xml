@@ -18,20 +18,14 @@
       <subsystem name="fdm" type="jsbsim"/>
     </target>
 
-    <subsystem name="radio_control" type="spektrum">
-      <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
-      <define name="RADIO_CONTROL_SPEKTRUM_NO_SIGN" value="1"/>
-      <define name="RADIO_KILL_SWITCH" value="RADIO_AUX2"/>
-    </subsystem>
-
-    <subsystem name="actuators"     type="pwm"/>
-    <subsystem name="telemetry"     type="xbee_api"/>
+    <!--subsystem name="telemetry"     type="xbee_api"/-->
     <subsystem name="imu"           type="lisa_m_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
     <subsystem name="guidance"      type="indi"/>
+    <subsystem name="intermcu"      type="uart"/>
   </firmware>
 
   <firmware name="rotorcraft">
@@ -48,7 +42,6 @@
     </subsystem>
 
     <subsystem name="actuators"     type="pwm"/>
-
     <subsystem name="intermcu"      type="uart"/>
   </firmware>
 

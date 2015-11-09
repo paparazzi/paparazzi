@@ -20,29 +20,31 @@
  *
  */
 
-#ifndef INTERMCU_ROTORCRAFT_H
-#define INTERMCU_ROTORCRAFT_H
+#ifndef INTERMCU_AP_ROTORCRAFT_H
+#define INTERMCU_AP_ROTORCRAFT_H
 
-#include "std.h"
-#include "subsystems/commands.h"
+#include "subsystems/intermcu.h"
 
-#define INTERMCU_AP   0
-#define INTERMCU_FBW  1
+void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode);
+void RadioControlEvent(void (*frame_handler)(void));
 
-#define INTERMCU_LOST_CNT 25  /* 50ms with a 512Hz timer TODO fixed value */
+/* We need radio defines for the Autopilot */
+#define RADIO_THROTTLE   0
+#define RADIO_ROLL       1
+#define RADIO_PITCH      2
+#define RADIO_YAW        3
+#define RADIO_GEAR       4
+#define RADIO_FLAP       5
+#define RADIO_AUX1       5
+#define RADIO_AUX2       6
+#define RADIO_AUX3       7
+#define RADIO_CONTROL_NB_CHANNEL 8
 
-enum intermcu_status {
-  INTERMCU_OK,
-  INTERMCU_LOST
-};
-
-struct intermcu_t {
-  enum intermcu_status status;
-  uint8_t time_since_last_frame;
-};
-extern struct intermcu_t inter_mcu;
-
-void intermcu_init(void);
-void intermcu_periodic(void);
-
+#ifndef RADIO_MODE
+#define RADIO_MODE       RADIO_GEAR
 #endif
+#ifndef RADIO_KILL_SWITCH
+#define RADIO_KILL_SWITCH       RADIO_FLAP
+#endif
+
+#endif /* INTERMCU_AP_ROTORCRAFT_H */
