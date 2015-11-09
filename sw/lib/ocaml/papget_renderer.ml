@@ -325,13 +325,15 @@ class canvas_mplayer = fun ?(config=[]) canvas_group x y ->
   and height = float_of_string (PC.get_prop "height" config "240.") in
   let socket = GWindow.socket () in
   let group = GnoCanvas.group ~x ~y canvas_group in
-  let _item = GnoCanvas.widget ~width ~height ~widget:socket group in
+  let item = GnoCanvas.widget ~width ~height ~widget:socket group in
 
 object
   method tag = "Mplayer"
   method item = (group :> movable_item)
   method edit = fun (pack:GObj.widget -> unit) -> ()
-  method update = fun (value:string) -> ()
+  method update = fun (value:string) ->
+    let zoom = try float_of_string value with _ -> 1. in
+    item#set [`WIDTH (width /. zoom); `HEIGHT (height /. zoom)]
   method config = fun () ->
     [ PC.property "video_feed" video_feed;
       PC.float_property "width" width;
@@ -351,13 +353,15 @@ class canvas_plugin = fun ?(config=[]) canvas_group x y ->
   and height = float_of_string (PC.get_prop "height" config "240.") in
   let socket = GWindow.socket () in
   let group = GnoCanvas.group ~x ~y canvas_group in
-  let _item = GnoCanvas.widget ~width ~height ~widget:socket group in
+  let item = GnoCanvas.widget ~width ~height ~widget:socket group in
 
 object
   method tag = "Plugin"
   method item = (group :> movable_item)
   method edit = fun (pack:GObj.widget -> unit) -> ()
-  method update = fun (value:string) -> ()
+  method update = fun (value:string) ->
+    let zoom = try float_of_string value with _ -> 1. in
+    item#set [`WIDTH (width /. zoom); `HEIGHT (height /. zoom) ]
   method config = fun () ->
     [ PC.property "command" command;
       PC.float_property "width" width;

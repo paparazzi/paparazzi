@@ -609,7 +609,7 @@ let save_layout = fun filename contents ->
 let listen_dropped_papgets = fun (geomap:G.widget) ->
   let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0 } ] in
   geomap#canvas#drag#dest_set dnd_targets ~actions:[`COPY];
-  ignore (geomap#canvas#drag#connect#data_received ~callback:(Papgets.dnd_data_received geomap#still))
+  ignore (geomap#canvas#drag#connect#data_received ~callback:(Papgets.dnd_data_received geomap#still geomap#zoom_adj))
 
 
 
@@ -716,7 +716,7 @@ let () =
 
   (** packing papgets *)
   let papgets = try find_widget_children "map2d" the_layout with Not_found -> [] in
-  List.iter (Papgets.create geomap#still) papgets;
+  List.iter (Papgets.create geomap#still geomap#zoom_adj) papgets;
   listen_dropped_papgets geomap;
 
   let save_layout = fun () ->

@@ -405,9 +405,11 @@ end
 
 
 (****************************************************************************)
-class canvas_video_plugin_item = fun properties (canvas_renderer:PR.t) ->
-object
+class canvas_video_plugin_item = fun properties (canvas_renderer:PR.t) (adj:GData.adjustment) ->
+object (self)
   inherit canvas_item ~config:properties canvas_renderer as item
+  method update_zoom = fun zoom ->
+    item#update zoom
   method config = fun () ->
     let props = renderer#config () in
     let (x, y) = item#xy in
@@ -416,5 +418,6 @@ object
         "display", String.lowercase item#renderer#tag;
         "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
     Xml.Element ("papget", attrs, properties@props)
+  initializer ignore(adj#connect#value_changed (fun () -> self#update_zoom (string_of_float adj#value)))
 end
 
