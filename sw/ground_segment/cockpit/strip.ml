@@ -32,7 +32,7 @@ type t =
   connect_shift_alt : (float -> unit) -> unit;
   connect_shift_lateral : (float -> unit) -> unit;
   connect_launch : (float -> unit) -> unit;
-  connect_kill : (float -> unit) -> unit;
+  connect_kill : bool -> (float -> unit) -> unit;
   connect_mode : float -> (float -> unit) -> unit;
   connect_mark : (unit -> unit) -> unit;
   connect_flight_time : (float -> unit) -> unit;
@@ -358,13 +358,13 @@ object
         strip#button_right, 5.;
         strip#button_center, 0.]
 
-  method connect_kill = fun callback ->
+  method connect_kill = fun confirm_kill callback ->
     let callback = fun x ->
-      if x = 1. then
+      if x = 1. && confirm_kill then
         match GToolbox.question_box ~title:"Kill throttle" ~buttons:["Kill"; "Cancel"] (sprintf "Kill throttle of A/C %s ?" ac_name) with
             1 -> callback 1.
           | _ -> ()
-      else (* No confirmation for resurrect *)
+      else (* No confirmation for resurrect or confirm_kill = false *)
         callback x
     in
     connect_buttons callback

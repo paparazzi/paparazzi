@@ -341,6 +341,7 @@ and wid = ref None
 and srtm = ref false
 and hide_fp = ref false
 and timestamp = ref false
+and confirm_kill = ref true
 
 let options =
   [
@@ -376,6 +377,7 @@ let options =
     "-auto_hide_fp", Arg.Unit (fun () -> Live.auto_hide_fp true; hide_fp := true), "Automatically hide flight plans of unselected aircraft";
     "-timestamp", Arg.Set timestamp, "Bind on timestampped telemetry messages";
     "-ac_ids", Arg.String (fun s -> Live.filter_ac_ids s), "comma separated list of AC IDs to show in GCS";
+    "-no_confirm_kill", Arg.Unit (fun () -> confirm_kill := false), "Disable kill confirmation from strip button"; 
   ]
 
 
@@ -787,7 +789,7 @@ let () =
     begin
       my_alert#add "Waiting for telemetry...";
       Speech.say "Waiting for telemetry...";
-      Live.listen_acs_and_msgs geomap ac_notebook strips_table my_alert !auto_center_new_ac alt_graph !timestamp
+      Live.listen_acs_and_msgs geomap ac_notebook strips_table !confirm_kill my_alert !auto_center_new_ac alt_graph !timestamp
     end;
 
   (** Display the window *)

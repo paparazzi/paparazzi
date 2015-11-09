@@ -435,7 +435,7 @@ let key_press_event = fun keys do_action ev ->
 
 
 (*****************************************************************************)
-let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (strips:GPack.box) (ac_id:string) config ->
+let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:GPack.notebook) (strips:GPack.box) (ac_id:string) config ->
   let color = Pprz.string_assoc "default_gui_color" config
   and name = Pprz.string_assoc "ac_name" config in
 
@@ -757,7 +757,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (strip
 
           connect "flight_altitude" (fun f -> ac.strip#connect_shift_alt (fun x -> f (ac.target_alt+.x)));
           connect "launch" ~warning:false ac.strip#connect_launch;
-          connect "kill_throttle" ac.strip#connect_kill;
+          connect "kill_throttle" (ac.strip#connect_kill confirm_kill);
           (* try to connect either pprz_mode (fixedwing) or autopilot_mode (rotorcraft) *)
           connect "pprz_mode" ~warning:false (ac.strip#connect_mode 2.);
           connect "autopilot_mode" ~warning:false (ac.strip#connect_mode 13.);
@@ -825,18 +825,18 @@ let tele_bind = fun msg cb timestamp ->
       | x -> fprintf stderr "tele_bind (%s): %s\n%!" msg (Printexc.to_string x) in
   ignore (Tele_Pprz.message_bind ~timestamp msg safe_cb)
 
-let ask_config = fun alert geomap fp_notebook strips ac ->
+let ask_config = fun confirm_kill alert geomap fp_notebook strips ac ->
   let get_config = fun _sender values ->
     if not (Hashtbl.mem aircrafts ac) then
-      create_ac alert geomap fp_notebook strips ac values
+      create_ac ~confirm_kill alert geomap fp_notebook strips ac values
   in
   Ground_Pprz.message_req "gcs" "CONFIG" ["ac_id", Pprz.String ac] get_config
 
 
 
-let one_new_ac = fun alert (geomap:G.widget) fp_notebook strips ac ->
+let one_new_ac = fun confirm_kill alert (geomap:G.widget) fp_notebook strips ac ->
   if (List.length !filter_acs = 0) || (List.mem ac !filter_acs) && not (Hashtbl.mem aircrafts ac) then
-    ask_config alert geomap fp_notebook strips ac
+    ask_config confirm_kill alert geomap fp_notebook strips ac
 
 
 let get_wind_msg = fun (geomap:G.widget) _sender vs ->
@@ -928,10 +928,10 @@ let listen_if_calib_msg = fun () ->
 let listen_telemetry_status = fun a ->
   safe_bind "TELEMETRY_STATUS" (get_telemetry_status a)
 
-let aircrafts_msg = fun alert (geomap:G.widget) fp_notebook strips acs ->
+let aircrafts_msg = fun confirm_kill alert (geomap:G.widget) fp_notebook strips acs ->
   let acs = Pprz.string_assoc "ac_list" acs in
   let acs = Str.split list_separator acs in
-  List.iter (one_new_ac alert geomap fp_notebook strips) acs
+  List.iter (one_new_ac confirm_kill alert geomap fp_notebook strips) acs
 
 
 let listen_dl_value = fun () ->
@@ -1477,14 +1477,14 @@ let listen_intruders = fun (geomap:G.widget) ->
   safe_bind "INTRUDER" (get_intruders geomap)
 
 
-let listen_acs_and_msgs = fun geomap ac_notebook strips my_alert auto_center_new_ac alt_graph timestamp ->
+let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert auto_center_new_ac alt_graph timestamp ->
   (** Probe live A/Cs *)
   let probe = fun () ->
-    message_request "gcs" "AIRCRAFTS" [] (fun _sender vs -> _req_aircrafts := false; aircrafts_msg my_alert geomap ac_notebook strips vs) in
+    message_request "gcs" "AIRCRAFTS" [] (fun _sender vs -> _req_aircrafts := false; aircrafts_msg confirm_kill my_alert geomap ac_notebook strips vs) in
   let _ = GMain.Timeout.add 1000 (fun () -> probe (); !_req_aircrafts) in
 
   (** New aircraft message *)
-  safe_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac my_alert geomap ac_notebook  strips (Pprz.string_assoc "ac_id" vs));
+  safe_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac confirm_kill my_alert geomap ac_notebook  strips (Pprz.string_assoc "ac_id" vs));
 
   (** Listen for all messages on ivy *)
   listen_flight_params geomap auto_center_new_ac my_alert alt_graph;

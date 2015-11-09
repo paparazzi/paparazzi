@@ -29,7 +29,7 @@ type t = <
     connect_shift_alt : (float -> unit) -> unit;
     connect_shift_lateral : (float -> unit) -> unit;
     connect_launch : (float -> unit) -> unit;
-    connect_kill : (float -> unit) -> unit;
+    connect_kill : bool -> (float -> unit) -> unit;
     connect_mode : float -> (float -> unit) -> unit;
     connect_flight_time : (float -> unit) -> unit;
 
