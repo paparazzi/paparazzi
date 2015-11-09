@@ -69,26 +69,22 @@ static void mavlink_update_wp_list(void)
       mavlink_mission_item_t mission_item;
       // waypoint_set_global_flag(i);
       if (waypoint_is_global(i)) {
-        printf("Waypoint(%d): is global\n", i);
+        MAVLINK_DEBUG("Waypoint(%d): is global\n", i);
       } else {
-        printf("Waypoint(%d): is NOT global\n", i);
+        MAVLINK_DEBUG("Waypoint(%d): is NOT global\n", i);
       }
       waypoint_globalize(i);
       mission_item.x = (float)waypoint_get_lla(i)->lat * 1e-7; // lattitude
       mission_item.y = (float)waypoint_get_lla(i)->lon * 1e-7; // longtitude
       mission_item.z = (float)waypoint_get_lla(i)->alt * 1e-3; // altitude
 
-      printf("WP: %f, %f, %f\n", mission_item.x, mission_item.y, mission_item.z);
+      MAVLINK_DEBUG("WP: %f, %f, %f\n", mission_item.x, mission_item.y, mission_item.z);
 
       mission_item.seq = i;
       mission_mgr.waypoints[i] = mission_item;
     }
   } else {
-#if MAVLINK_FLAG_DEBUG_EVENT
-    perror("The waypoint array is empty\n");
-#else
-    // TODO: Fix for stm32 etc.
-#endif
+    MAVLINK_DEBUG("ERROR: The waypoint array is empty\n");
   }
 }
 
@@ -103,9 +99,7 @@ static void mavlink_send_wp_count(void)
   mavlink_msg_mission_count_encode(mavlink_system.sysid, mavlink_system.compid, &msg,
                                    &wp_count); // encode the block count message
 
-#if MAVLINK_FLAG_DEBUG_EVENT
-  printf("Sent WP_COUNT message\n");
-#endif
+  MAVLINK_DEBUG("Sent WP_COUNT message\n");
   mavlink_send_message(&msg);
 }
 
@@ -120,16 +114,10 @@ static void mavlink_send_wp(uint16_t seq)
 
     mavlink_msg_mission_item_encode(mavlink_system.sysid, mavlink_system.compid, &msg, mission_item);
 
-#if MAVLINK_FLAG_DEBUG_EVENT
-    printf("Sent MISSION_ITEM message\n");
-#endif
+    MAVLINK_DEBUG("Sent MISSION_ITEM message\n");
     mavlink_send_message(&msg);
   } else {
-#if MAVLINK_FLAG_DEBUG_EVENT
-    perror("Wp index out of bounds\n");
-#else
-    // TODO: Fix for stm32 etc.
-#endif
+    MAVLINK_DEBUG("ERROR: Wp index out of bounds\n");
   }
 }
 
@@ -142,9 +130,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
 {
   switch (msg->msgid) {
     case MAVLINK_MSG_ID_MISSION_REQUEST_LIST: {
-#if MAVLINK_FLAG_DEBUG_EVENT
-      printf("Received MISSION_REQUEST_LIST message\n");
-#endif
+      MAVLINK_DEBUG("Received MISSION_REQUEST_LIST message\n");
       mavlink_mission_request_list_t mission_request_list_msg;
       mavlink_msg_mission_request_list_decode(msg,
                                               &mission_request_list_msg); // Cast the incoming message to a mission_request_list_msg
@@ -152,9 +138,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
         if (mission_mgr.state == STATE_IDLE) {
           if (NB_WAYPOINT > 0) {
             mission_mgr.state = STATE_SEND_LIST;
-#if MAVLINK_FLAG_DEBUG_EVENT
-            printf("State: %d\n", mission_mgr.state);
-#endif
+            MAVLINK_DEBUG("State: %d\n", mission_mgr.state);
             mission_mgr.seq = 0;
             mission_mgr.rem_sysid = msg->sysid;
             mission_mgr.rem_compid = msg->compid;
@@ -174,9 +158,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
     }
 
     case MAVLINK_MSG_ID_MISSION_REQUEST: {
-#if MAVLINK_FLAG_DEBUG_EVENT
-      printf("Received MISSION_REQUEST message\n");
-#endif
+      MAVLINK_DEBUG("Received MISSION_REQUEST message\n");
       mavlink_mission_request_t mission_request_msg;
       mavlink_msg_mission_request_decode(msg, &mission_request_msg); // Cast the incoming message to a mission_request_msg
       if (mission_request_msg.target_system == mavlink_system.sysid) {
@@ -187,9 +169,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
           sys_time_cancel_timer(mission_mgr.timer_id); // Cancel the timeout timer
 
           mission_mgr.state = STATE_SEND_ITEM;
-#if MAVLINK_FLAG_DEBUG_EVENT
-          printf("State: %d\n", mission_mgr.state);
-#endif
+          MAVLINK_DEBUG("State: %d\n", mission_mgr.state);
           mission_mgr.seq = mission_request_msg.seq;
 
           mavlink_update_wp_list(); // Update the waypoint list
@@ -208,9 +188,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
     }
 
     case MAVLINK_MSG_ID_MISSION_ITEM: {
-#if MAVLINK_FLAG_DEBUG_EVENT
-      printf("Received MISSION_ITEM message\n");
-#endif
+      MAVLINK_DEBUG("Received MISSION_ITEM message\n");
       mavlink_mission_item_t mission_item_msg;
       mavlink_msg_mission_item_decode(msg, &mission_item_msg); // Cast the incoming message to a mission_item_msg
 
@@ -224,9 +202,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
 //                    struct UtmCoor_f utm;
 //                    utm.zone = nav_utm_zone0;
 //                    utm_of_lla_f(&utm, &lla);
-#if MAVLINK_FLAG_DEBUG_EVENT
-          printf("Received WP(%d): %d, %d, %d\n", mission_item_msg.seq, lla.lat, lla.lon, lla.alt);
-#endif
+          MAVLINK_DEBUG("Received WP(%d): %d, %d, %d\n", mission_item_msg.seq, lla.lat, lla.lon, lla.alt);
           // Set the new waypoint
           waypoint_move_lla(mission_item_msg.seq, &lla); // move the waypoint with the id equal to seq, only for rotorcraft
 //                    nav_move_waypoint(mission_item_msg.seq, utm.east, utm.north, utm.alt);

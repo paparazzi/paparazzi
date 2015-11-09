@@ -68,11 +68,7 @@ static inline void timer_cb(uint8_t id)
 {
   sys_time_cancel_timer(id); // Cancel the timer that triggered the timeout event
   mission_mgr.state = STATE_IDLE;
-#if MAVLINK_FLAG_DEBUG
-  perror("Request timed out!");
-#else
-  // TODO: Fix for stm32 etc.
-#endif
+  MAVLINK_DEBUG("ERROR: Request timed out!\n");
   // TODO: Handle timeout retries, for now just assume no retries
 }
 
@@ -85,9 +81,7 @@ static inline void sendMissionAck()
   mission_ack.type = MAV_MISSION_ACCEPTED;
   mavlink_msg_mission_ack_encode(mavlink_system.sysid, mavlink_system.compid, &msg,
                                  &mission_ack); // encode the ack message
-#if MAVLINK_FLAG_DEBUG_EVENT
-  printf("Sent MISSION_ACK message\n");
-#endif
+  MAVLINK_DEBUG("Sent MISSION_ACK message\n");
   mavlink_send_message(&msg);
 }
 

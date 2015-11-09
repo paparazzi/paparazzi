@@ -53,9 +53,6 @@ mavlink_mission_mgr mission_mgr;
  */
 static void mavlink_send_heartbeat(void)
 {
-#ifdef MAVLINK_FLAG_DEBUG_PERIODIC
-  printf("Send heartbeat message\n");
-#endif
   /*
    * The heartbeat message consists of:
    *  - system ID (MAV ID)
@@ -84,9 +81,6 @@ static void mavlink_send_heartbeat(void)
  */
 static void mavlink_send_attitude(void)
 {
-#ifdef MAVLINK_FLAG_DEBUG_PERIODIC
-  printf("Send attitude message\n");
-#endif
   /*
    * The attitude message consists of:
    *  - boot time (ms)
@@ -116,9 +110,6 @@ static void mavlink_send_attitude(void)
  */
 static void mavlink_send_altitude_ground_speed(void)
 {
-#ifdef MAVLINK_FLAG_DEBUG_PERIODIC
-  printf("Send altitude and ground speed message\n");
-#endif
   /*
    * The altitude and ground speed message consists of:
    *  - airspeed (ignored)
@@ -146,9 +137,6 @@ static void mavlink_send_altitude_ground_speed(void)
  */
 static void mavlink_send_battery_status(void)
 {
-#ifdef MAVLINK_FLAG_DEBUG_PERIODIC
-  printf("Send battery status message\n");
-#endif
   /*
    * The battery status message consists of:
    *  - current consumed (ignored)
@@ -184,9 +172,6 @@ static void mavlink_send_battery_status(void)
  */
 static void mavlink_send_gps_status(void)
 {
-#ifdef MAVLINK_FLAG_DEBUG_PERIODIC
-  printf("Send GPS status message\n");
-#endif
   /*
    * The GPS status message consists of:
    *  - satellites visible
@@ -215,9 +200,6 @@ static void mavlink_send_gps_status(void)
  */
 static void mavlink_send_gps_position(void)
 {
-#ifdef MAVLINK_FLAG_DEBUG_PERIODIC
-  printf("Send GPS position message\n");
-#endif
   /*
    * The GPS position message consists of:
    *  - time (ignored)
@@ -266,11 +248,7 @@ int mavlink_send_message(mavlink_message_t *msg)
   size_t bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr *)&rem_addr, sizeof(rem_addr));
   if (bytes_sent != len) {
 #define MAVLINK_BUFFER_SEND_ERROR_LINUX
-#ifdef MAVLINK_BUFFER_SEND_ERROR_LINUX
-    perror("Failed to send current buffer.\n");
-#else
-    // TODO: Fix for linux, stm32 etc.
-#endif
+    MAVLINK_DEBUG("Failed to send current buffer.\n");
   }
 
   return bytes_sent;
@@ -289,11 +267,7 @@ void mavlink_init(void)
   // Create socket
   if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP /* domain, type, protocol */)) < 0) {
 #define MAVLINK_SOCKET_ERROR_LINUX
-#ifdef MAVLINK_SOCKET_ERROR_LINUX
-    perror("Could not create socket.\n");
-#else
-    // TODO: Fix for linux, stm32 etc.
-#endif
+    MAVLINK_DEBUG("ERROR: Could not create socket.\n");
   }
 
   // Initialize the local address struct
@@ -304,13 +278,13 @@ void mavlink_init(void)
 
   // Bind the socket to port PPRZSERVICES_UDP_PORT
   if (bind(sock, (struct sockaddr *)&loc_addr, sizeof(struct sockaddr)) < 0) {
-    perror("Binding of socket to port failed.\n");
+    MAVLINK_DEBUG("ERROR: Binding of socket to port failed.\n");
     close(sock);
   }
 
   // Make the socket non-blocking to avoid freezing up the event loop
   if (fcntl(sock, F_SETFL, O_NONBLOCK | FASYNC) < 0) {
-    perror("Could not make the socket non-blocking.\n");
+    MAVLINK_DEBUG("ERROR: Could not make the socket non-blocking.\n");
     close(sock);
   }
 
@@ -356,16 +330,14 @@ void mavlink_event(void)
   int16_t recsize = recvfrom(sock, (void *)buf, MAVLINK_BUFFER_LENGTH, 0, (struct sockaddr *)&rem_addr,
                              &len); // retreive message from UDP buffer
   if (recsize > 0) {
-    printf("Received %d bytes.\n", recsize);
+    MAVLINK_DEBUG("Received %d bytes.\n", recsize);
     mavlink_message_t msg; // incoming message
     mavlink_status_t status;
     for (uint16_t i = 0; i < recsize; ++i) {
       if (mavlink_parse_char(MAVLINK_COMM_0, buf[i], &msg,
                              &status)) { // parse a single byte at a time and continue if the message could be decoded
         // Packet received
-#ifdef MAVLINK_FLAG_DEBUG
-        printf("Received packet: SYS: %d, COMP: %d, LEN: %d, MSG ID: %d\n\n", msg.sysid, msg.compid, msg.len, msg.msgid);
-#endif
+        MAVLINK_DEBUG("Received packet: SYS: %d, COMP: %d, LEN: %d, MSG ID: %d\n\n", msg.sysid, msg.compid, msg.len, msg.msgid);
         mavlink_mission_message_handler(&msg); // message handler
       }
     }

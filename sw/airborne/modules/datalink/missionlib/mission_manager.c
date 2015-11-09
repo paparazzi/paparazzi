@@ -46,14 +46,10 @@ void mavlink_mission_message_handler(const mavlink_message_t *msg)
 
   switch (msg->msgid) {
     case MAVLINK_MSG_ID_MISSION_ACK: {
-#if MAVLINK_FLAG_DEBUG_EVENT
-      printf("Received MISSION_ACK message\n");
-#endif
+      MAVLINK_DEBUG("Received MISSION_ACK message\n");
       sys_time_cancel_timer(mission_mgr.timer_id); // Cancel the timeout timer
       mission_mgr.state = STATE_IDLE;
-#if MAVLINK_FLAG_DEBUG_EVENT
-      printf("State: %d\n", mission_mgr.state);
-#endif
+      MAVLINK_DEBUG("State: %d\n", mission_mgr.state);
     }
   }
 }

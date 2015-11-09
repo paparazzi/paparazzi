@@ -32,6 +32,16 @@
 #include "mavlink/mavlink_types.h"
 #include "mavlink/paparazzi/mavlink.h"
 
+
+#ifndef MAVLINK_DEBUG
+#define MAVLINK_DEBUG(...) {};
+#endif
+
+#if MAVLINK_DEBUG == printf
+#include <stdio.h>
+#endif
+
+
 #define QUOTE(name) #name
 #define STR(macro) QUOTE(macro)
 
