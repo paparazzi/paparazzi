@@ -2099,6 +2099,7 @@
   <!-- 245 is free -->
   <!-- 246 is free -->
 
+
   <message name="PPRZ_DEBUG" id="247">
     <field name="module"   type="uint8"/>
     <field name="errno"   type="uint8"/>
