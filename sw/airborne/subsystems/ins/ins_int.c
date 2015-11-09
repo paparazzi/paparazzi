@@ -525,9 +525,16 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
                        uint32_t stamp __attribute__((unused)),
                        float x, float y, float z)
 {
-  struct FloatVect3 vel_body = {x, y, z};
+
+  struct FloatVect3 vel_body = {x, y, 0};
 
   /* rotate velocity estimate to nav/ltp frame */
+
+  // from frame coordinates to body coordinates and convert cm/s-> m/s
+  //TODO Do this in the optical flow module already
+  vel_body.x=y/100;
+  vel_body.y=x/100;
+
   struct FloatQuat q_b2n = *stateGetNedToBodyQuat_f();
   QUAT_INVERT(q_b2n, q_b2n);
   struct FloatVect3 vel_ned;
@@ -535,7 +542,13 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
 
 #if USE_HFF
   struct FloatVect2 vel = {vel_ned.x, vel_ned.y};
-  struct FloatVect2 Rvel = {INS_VFF_R_VEL, INS_VFF_R_VEL};
+  //struct FloatVect2 Rvel = {INS_VFF_R_VEL, INS_VFF_R_VEL};
+  //FIXME this should come out of optical flow module
+  if(z<17)
+      struct FloatVect2 Rvel = {z/25,z/25};
+  else
+	  struct FloatVect2 Rvel = {1.0,1.0};
+
   b2_hff_update_vel(vel,  Rvel);
   ins_update_from_hff();
 #else

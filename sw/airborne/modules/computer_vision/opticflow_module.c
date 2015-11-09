@@ -163,11 +163,12 @@ void opticflow_module_run(void)
                            opticflow_result.flow_der_x,
                            quality,
                            opticflow_state.agl);
+    //TODO Find an appropiate quality measure for the noise model in the state filter, for now it is tracked_cnt
     if (opticflow_result.tracked_cnt > 0) {
       AbiSendMsgVELOCITY_ESTIMATE(OPTICFLOW_SENDER_ID, now_ts,
                                   opticflow_result.vel_x,
                                   opticflow_result.vel_y,
-                                  0.0f);
+                                  opticflow_result.tracked_cnt);
     }
     opticflow_got_result = FALSE;
   }
