@@ -56,6 +56,8 @@
     </dl_settings>
   </settings>
 
+  <depends>video_thread</depends>
+
   <header>
     <file name="opticflow_module.h"/>
   </header>
@@ -66,10 +68,6 @@
   <makefile target="ap">
     <!-- Include the needed Computer Vision files -->
     <define name="modules/computer_vision" type="include"/>
-    <file name="image.c" dir="modules/computer_vision/lib/vision"/>
-    <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
-    <file name="rtp.c" dir="modules/computer_vision/lib/encoding"/>
-    <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
 
     <!-- The optical flow module (calculator) -->
     <file name="opticflow_module.c"/>
@@ -79,7 +77,7 @@
     <file name="pprz_algebra_float.c" dir="math"/>
     <file name="pprz_matrix_decomp_float.c" dir="math"/>
 
-    <!-- Main vision calculations -->
+    <!-- Low-level vision calculations -->
     <file name="fast_rosten.c" dir="modules/computer_vision/lib/vision"/>
     <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
   </makefile>
