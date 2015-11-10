@@ -161,13 +161,13 @@ static void stabilization_opticflow_vel_cb(uint8_t sender_id __attribute__((unus
   float err_vy = opticflow_stab.desired_vy - vel_y;
 
   /* Calculate the integrated errors (TODO: bound??) */
-  opticflow_stab.err_vx_int += err_vx / 100;
-  opticflow_stab.err_vy_int += err_vy / 100;
+  opticflow_stab.err_vx_int += err_vx / 512;
+  opticflow_stab.err_vy_int += err_vy / 512;
 
   /* Calculate the commands */
-  opticflow_stab.cmd.phi   = opticflow_stab.phi_pgain * err_vy / 100
+  opticflow_stab.cmd.phi   = opticflow_stab.phi_pgain * err_vy
                              + opticflow_stab.phi_igain * opticflow_stab.err_vy_int;
-  opticflow_stab.cmd.theta = -(opticflow_stab.theta_pgain * err_vx / 100
+  opticflow_stab.cmd.theta = -(opticflow_stab.theta_pgain * err_vx
                                + opticflow_stab.theta_igain * opticflow_stab.err_vx_int);
 
   /* Bound the roll and pitch commands */

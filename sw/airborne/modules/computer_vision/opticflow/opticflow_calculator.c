@@ -281,19 +281,19 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // Right now this formula is under assumption that the flow only exist in the center axis of the camera.
   // TODO Calculate the velocity more sophisticated, taking into account the drone's angle and the slope of the ground plane.
   float vel_hor = result->flow_der_x * result->fps * state->agl / opticflow->subpixel_factor  / OPTICFLOW_FX;
-  float vel_ver =  result->flow_der_y * result->fps * state->agl / opticflow->subpixel_factor  / OPTICFLOW_FY;
+  float vel_ver = result->flow_der_y * result->fps * state->agl / opticflow->subpixel_factor  / OPTICFLOW_FY;
 
   // Velocity calculation: uncomment if focal length of the camera is not known or incorrect.
   //  result->vel_x =  - result->flow_der_x * result->fps * state->agl / opticflow->subpixel_factor * OPTICFLOW_FOV_W / img->w
   //  result->vel_y =  result->flow_der_y * result->fps * state->agl / opticflow->subpixel_factor * OPTICFLOW_FOV_H / img->h
 
   // Rotate velocities from camera frame coordinates to body coordinates.
-  result->vel_x = -vel_ver;
-  result->vel_y = vel_hor;
+  result->vel_x = vel_ver;
+  result->vel_y = - vel_hor;
 
   // Determine quality of noise measurement for state filter
   //TODO Experiment with multiple noise measurement models
-  if (result->tracked_cnt < 15) {
+  if (result->tracked_cnt < 10) {
     result->noise_measurement = (float)result->tracked_cnt / (float)opticflow->max_track_corners;
   } else {
     result->noise_measurement = 1.0;
