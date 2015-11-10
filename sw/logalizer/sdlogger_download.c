@@ -18,6 +18,9 @@ FILE *fp;
 /* File pointer for serial link */
 int fd = 0;
 
+/* Aircraft ID */
+int ac_id = 0;
+
 /* Paths */
 char sd2log[256];
 char pycommand[256];
@@ -277,8 +280,8 @@ void write_command(float value)
   msg[4]  = setting; // setting index
   crc_a += setting; crc_b += crc_a;
 
-  msg[5]  = 114; // AC_ID
-  crc_a += 114; crc_b += crc_a;
+  msg[5]  = ac_id; // AC_ID
+  crc_a += ac_id; crc_b += crc_a;
 
   msg[6]  = pc[0]; // value
   crc_a += msg[6]; crc_b += crc_a;
@@ -541,9 +544,6 @@ int main ( int argc, char** argv)
   /* Serial read buffer */
   int bytes;
   unsigned char buff[32];
-
-  /* Aircraft ID */
-  int ac_id = 114;
 
   /* Parse arguments */
   int c;
