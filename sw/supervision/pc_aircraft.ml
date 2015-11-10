@@ -373,18 +373,19 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
   (* New A/C button *)
   let callback = fun _ ->
     match GToolbox.input_string ~title:"New A/C" ~text:"MYAC" "New A/C name ?" with
-      None -> ()
+    | None -> ()
     | Some s ->
-	if not (correct_ac_name s) then
-	  GToolbox.message_box ~title:"Error on A/C name" "A/C name must contain only letters, digits or underscores"
-    else if (Hashtbl.mem Utils.aircrafts s) then
-      GToolbox.message_box ~title:"Error on A/C name" "A/C name already exists in this conf"
-	else begin
-	  Gtk_tools.add_to_combo ac_combo s;
-	  let a = aircraft_sample s (string_of_int (new_ac_id ())) in
-	  Hashtbl.add Utils.aircrafts s a;
-	  update_params s
-	end
+        if not (correct_ac_name s) then
+          GToolbox.message_box ~title:"Error on A/C name" "A/C name must contain only letters, digits or underscores"
+        else if (Hashtbl.mem Utils.aircrafts s) then
+          GToolbox.message_box ~title:"Error on A/C name" "A/C name already exists in this conf"
+        else begin
+          let a = aircraft_sample s (string_of_int (new_ac_id ())) in
+          (* add to hashtbl before combo to avoid update errors *)
+          Hashtbl.add Utils.aircrafts s a;
+          Gtk_tools.add_to_combo ac_combo s;
+          update_params s
+      end
   in
   ignore (gui#menu_item_new_ac#connect#activate ~callback);
 
@@ -393,20 +394,21 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
     let selected_ac_name = Gtk_tools.combo_value ac_combo in
     if selected_ac_name <> "" then
       match GToolbox.input_string ~title:"Copy A/C" ~text:"MYAC" "New A/C name ?" with
-        None -> ()
+      | None -> ()
       | Some s ->
-	    if not (correct_ac_name s) then
-	      GToolbox.message_box ~title:"Error on A/C name" "A/C name must contain only letters, digits or underscores"
-	    else if (Hashtbl.mem Utils.aircrafts s) then
-          GToolbox.message_box ~title:"Error on A/C name" "A/C name already exists in this conf"
-        else begin
-	      Gtk_tools.add_to_combo ac_combo s;
-	      let a = Hashtbl.find Utils.aircrafts selected_ac_name in
-          let a = ExtXml.subst_attrib "name" s a in
-          let a = ExtXml.subst_attrib "ac_id" (string_of_int (new_ac_id ())) a in
-	      Hashtbl.add Utils.aircrafts s a;
-	      update_params s
-	    end
+          if not (correct_ac_name s) then
+            GToolbox.message_box ~title:"Error on A/C name" "A/C name must contain only letters, digits or underscores"
+          else if (Hashtbl.mem Utils.aircrafts s) then
+            GToolbox.message_box ~title:"Error on A/C name" "A/C name already exists in this conf"
+          else begin
+            let a = Hashtbl.find Utils.aircrafts selected_ac_name in
+            let a = ExtXml.subst_attrib "name" s a in
+            let a = ExtXml.subst_attrib "ac_id" (string_of_int (new_ac_id ())) a in
+            (* add to hashtbl before combo to avoid update errors *)
+            Hashtbl.add Utils.aircrafts s a;
+            Gtk_tools.add_to_combo ac_combo s;
+            update_params s
+        end
   in
   ignore (gui#menu_item_copy_ac#connect#activate ~callback);
 
@@ -415,16 +417,16 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
     let ac_name = Gtk_tools.combo_value ac_combo in
     if ac_name <> "" then
       match GToolbox.question_box ~title:"Delete A/C" ~buttons:["Cancel"; "Delete"] ~default:2 (sprintf "Delete %s ? (no undo after Save)" ac_name) with
-	2 -> begin
-	  begin try Hashtbl.remove Utils.aircrafts ac_name with _ -> () end;
-	  let combo_box = Gtk_tools.combo_widget ac_combo in
-	  match combo_box#active_iter with
-	  | None -> ()
-	  | Some row ->
-	      let (store, _column) = Gtk_tools.combo_model ac_combo in
-	      ignore (store#remove row);
-	      combo_box#set_active 1
-	end
+      | 2 -> begin
+          begin try Hashtbl.remove Utils.aircrafts ac_name with _ -> () end;
+          let combo_box = Gtk_tools.combo_widget ac_combo in
+          match combo_box#active_iter with
+          | None -> ()
+          | Some row ->
+              let (store, _column) = Gtk_tools.combo_model ac_combo in
+              ignore (store#remove row);
+              combo_box#set_active 1
+        end
       | _ -> ()
   in
   ignore (gui#delete_ac_menu_item#connect#activate ~callback);
@@ -432,12 +434,12 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
   (* New Target button *)
   let callback = fun _ ->
     match GToolbox.input_string ~title:"New Target" ~text:"tunnel" "New build target ?" with
-      None -> ()
+    | None -> ()
     | Some s ->
-	let (store, column) = Gtk_tools.combo_model target_combo in
-	let row = store#append () in
-	store#set ~row ~column s;
-	(Gtk_tools.combo_widget target_combo)#set_active_iter (Some row)
+        let (store, column) = Gtk_tools.combo_model target_combo in
+        let row = store#append () in
+        store#set ~row ~column s;
+        (Gtk_tools.combo_widget target_combo)#set_active_iter (Some row)
   in
   ignore (gui#menu_item_new_target#connect#activate ~callback);
 
