@@ -309,7 +309,7 @@ void write_command(float value)
 void parse_single_byte(unsigned char byte)
 {
   switch (parser.state) {
-    printf("GOT BYTE %u\n", byte);
+
     case SearchingPPRZ_STX:
       if (byte == PPRZ_STX) {
         //printf("Got PPRZ_STX\n");
@@ -379,12 +379,12 @@ void parse_single_byte(unsigned char byte)
 
         /* Check what to do next if the command was received */
         if (global_state == WaitingForIndexRequestConfirmation
-            && parser.payload[0] == 60) {
+            && parser.payload[0] == setting) {
           global_state = ReadingIndexBlock;
           index_cnt = 0;
         }
         if (global_state == GotIndex
-            && parser.payload[0] == 60) {
+            && parser.payload[0] == setting) {
           global_state = Downloading;
           new_logfile();
           index_cnt = 0;
@@ -580,10 +580,11 @@ int main ( int argc, char** argv)
   /* Get the setting ID with a python script */
   /* TODO: would be nicer to have a C xml parser */
   FILE *in = NULL;
-  strcat(pycommand, pprz_home);
-  strcat(pycommand, "/sw/logalizer/sdlogger_get_setting_id.py %u sdlogger_spi.command");
+  //strcat(pycommand, pprz_home);
+  //strcat(pycommand, "/sw/logalizer/sdlogger_get_setting_id.py %u sdlogger_spi.command");
   char new_command[256];
-  sprintf(new_command, pycommand, ac_id, "ab");
+  strcat(pycommand, "python sdlogger_get_setting_id.py %u sdlogger_spi.command");
+  sprintf(new_command, pycommand, ac_id);
   strcpy(pycommand, new_command);
 
   char returnvalue[128];
