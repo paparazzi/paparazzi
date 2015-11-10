@@ -50,3 +50,7 @@ class flight_plan :
 
 (** Extracts [lat0] and [Lon0] attributes *)
 val georef_of_xml : Xml.xml -> Latlong.geographic
+
+(** Display a polygon based on a kml file *)
+val display_kml : ?group:GnoCanvas.group -> string -> MapCanvas.widget -> Xml.xml -> unit
+

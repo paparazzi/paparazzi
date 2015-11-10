@@ -202,20 +202,21 @@ let display_kml = fun ?group color geomap xml ->
   try
     let document = ExtXml.child xml "Document" in
     let rec loop = fun child ->
-      match String.lowercase (Xml.tag child) with
-          "placemark" ->
-            let linestring = ExtXml.child child "LineString" in
-            let coordinates = ExtXml.child linestring "coordinates" in
+      let tag = String.lowercase (Xml.tag child) in
+      match tag with
+        | "linestring" | "linearring" ->
+            let coordinates = ExtXml.child child "coordinates" in
             begin
               match Xml.children coordinates with
                   [Xml.PCData text] ->
                     let points = Str.split space_regexp text in
                     let points = List.map wgs84_of_kml_point points in
+                    (* remove a point if polygon (first in this case) since first and last are the same *)
+                    let points = if tag = "linearring" && List.length points > 0 then List.tl points else points in
                     ignore(display_lines ?group color geomap (Array.of_list points))
                 | _ -> failwith "coordinates expected"
             end
-
-        | "folder" ->
+        | "folder" | "placemark" | "polygon" | "outerboundaryis" ->
           List.iter loop (Xml.children child)
         | _ -> () in
     List.iter loop (Xml.children document)

@@ -454,6 +454,7 @@ let create_geomap = fun switch_fullscreen editor_frame ->
   ignore (map_menu_fact#add_item "Map of Region" ~key:GdkKeysyms._R ~callback:(map_from_region geomap));
   ignore (map_menu_fact#add_item "Dump map of Tiles" ~key:GdkKeysyms._T ~callback:(GM.map_from_tiles geomap));
   ignore (map_menu_fact#add_item "Load sector" ~callback:(Sectors.load geomap));
+  ignore (map_menu_fact#add_item "Load KML" ~callback:(Sectors.load_kml geomap));
 
   (** Connect Maps display to view change *)
   geomap#connect_view (fun () -> GM.update geomap);
