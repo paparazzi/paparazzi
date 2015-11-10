@@ -200,6 +200,8 @@
     <define name="MAX_BANK" value="20" unit="deg"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
+    <!-- Hover without RC input-->
+    <define name="GUIDANCE_H_USE_REF" value="FALSE"/>
     <define name="PGAIN" value="79"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
