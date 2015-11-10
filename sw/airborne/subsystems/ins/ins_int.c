@@ -525,14 +525,9 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
                        float x, float y, float z, float noise)
 {
 
-  struct FloatVect3 vel_body = {x, y, z};
+  struct FloatVect3 vel_body = {y, x, z}; // Rotated from camera frame to body frame
 
   /* rotate velocity estimate to nav/ltp frame */
-
-  // from frame coordinates to body coordinates and convert cm/s-> m/s
-  //TODO Do this in the optical flow module already, but after the guidance opticflow module has disapeared
-  vel_body.x = y / 100;
-  vel_body.y = x / 100;
 
   struct FloatQuat q_b2n = *stateGetNedToBodyQuat_f();
   QUAT_INVERT(q_b2n, q_b2n);
