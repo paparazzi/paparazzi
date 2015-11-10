@@ -688,21 +688,25 @@ let add_intruder = fun vs ->
   Hashtbl.add intruders id intruder
 
 let update_intruder = fun logging _sender vs ->
-  let id = Pprz.string_assoc "id" vs in
-  (*prerr_endline (sprintf "update_intruder %s" id);*)
-  if not (Hashtbl.mem intruders id) then
-    add_intruder vs;
-  let i = Hashtbl.find intruders id in
-  let lat = Pprz.int_assoc "lat" vs
-  and lon = Pprz.int_assoc "lon" vs in
-  let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
-  i.Intruder.pos <- geo;
-  i.Intruder.alt <- float (Pprz.int_assoc "alt" vs) /. 1000.;
-  i.Intruder.course <- Pprz.float_assoc "course" vs;
-  i.Intruder.gspeed <- Pprz.float_assoc "speed" vs;
-  i.Intruder.climb <- Pprz.float_assoc "climb" vs;
-  i.Intruder.unix_time <- U.gettimeofday ();
-  log logging "ground" "INTRUDER" vs
+  try
+    let id = Pprz.string_assoc "id" vs in
+    (*prerr_endline (sprintf "update_intruder %s" id);*)
+    if not (Hashtbl.mem intruders id) then
+      add_intruder vs;
+    let i = Hashtbl.find intruders id in
+    let lat = Pprz.int_assoc "lat" vs
+    and lon = Pprz.int_assoc "lon" vs in
+    let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
+    i.Intruder.pos <- geo;
+    i.Intruder.alt <- float (Pprz.int_assoc "alt" vs) /. 1000.;
+    i.Intruder.course <- Pprz.float_assoc "course" vs;
+    i.Intruder.gspeed <- Pprz.float_assoc "speed" vs;
+    i.Intruder.climb <- Pprz.float_assoc "climb" vs;
+    i.Intruder.unix_time <- U.gettimeofday ();
+    log logging "ground" "INTRUDER" vs
+  with
+    Failure msg ->
+      prerr_endline ("Error parsing INTRUDER message: "^msg)
 
 (* listen for intruders and log them *)
 let listen_intruders = fun log ->
