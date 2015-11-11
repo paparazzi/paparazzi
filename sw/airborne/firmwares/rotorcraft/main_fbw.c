@@ -159,7 +159,13 @@ STATIC_INLINE void main_periodic(void)
       if (fbw_mode == FBW_MODE_MANUAL) {
         fbw_mode = RC_LOST_FBW_MODE;
       } else {
-        // No change: failsafe stays failsafe, auto stays auto
+        if (fbw_mode == FBW_MODE_FAILSAFE)
+        {
+          // No change: failsafe stays failsafe
+        } else {
+          // Lost RC while in working Auto mode
+          fbw_mode = RC_LOST_IN_AUTO_FBW_MODE;
+        }
       }
     }
   } else { // rc_is_good

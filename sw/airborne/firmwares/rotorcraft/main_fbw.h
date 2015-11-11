@@ -48,9 +48,16 @@
 #endif
 
 /** mode to enter when AP is lost while using autopilot */
+#ifndef RC_LOST_IN_AUTO_FBW_MODE
+#define RC_LOST_IN_AUTO_FBW_MODE FBW_MODE_AUTO
+#endif
+
+/** mode to enter when AP is lost while using autopilot */
 #ifndef AP_LOST_FBW_MODE
 #define AP_LOST_FBW_MODE FBW_MODE_FAILSAFE
 #endif
+
+
 
 /** Switching between FBW and autopilot is done with RADIO_FBW_MODE: default is to re-use RADIO_MODE */
 
