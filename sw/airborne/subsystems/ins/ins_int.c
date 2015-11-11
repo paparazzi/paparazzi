@@ -143,11 +143,6 @@ static abi_event gps_ev;
 static abi_event vel_est_ev;
 static void vel_est_cb(uint8_t sender_id, uint32_t stamp, float x, float y, float z, float noise);
 
-/** measurement noise for velocity estimate */
-#ifndef INS_VFF_R_VEL
-#define INS_VFF_R_VEL 0.5
-#endif
-
 struct InsInt ins_int;
 
 #if PERIODIC_TELEMETRY
@@ -525,10 +520,9 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
                        float x, float y, float z, float noise)
 {
 
-  struct FloatVect3 vel_body = {x, y, z}; // Rotated from camera frame to body frame
+  struct FloatVect3 vel_body = {x, y, z};
 
   /* rotate velocity estimate to nav/ltp frame */
-
   struct FloatQuat q_b2n = *stateGetNedToBodyQuat_f();
   QUAT_INVERT(q_b2n, q_b2n);
   struct FloatVect3 vel_ned;
