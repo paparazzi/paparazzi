@@ -520,7 +520,7 @@ gboolean timeout_transmit_callback(gpointer data) {
       // printf("ENU Pos: %u (%.2f, %.2f, %.2f)\n", pos_xyz, pos.x, pos.y, pos.z);
 
       uint32_t speed_xy = (((uint32_t)(speed.x*100.0)) & 0x3FF) << 22; // bits 31-22 speed x in cm/s
-      speed_xy |= (((uint32_t)(speed.x*100.0)) & 0x3FF) << 12; // bits 21-12 speed y in cm/s
+      speed_xy |= (((uint32_t)(speed.y*100.0)) & 0x3FF) << 12; // bits 21-12 speed y in cm/s
       speed_xy |= (((uint32_t)(heading*100.0)) & 0x3FF) << 2; // bits 11-2 heading in rad*1e2 (The heading is already subsampled)
       // bits 1 and 0 are free
 
