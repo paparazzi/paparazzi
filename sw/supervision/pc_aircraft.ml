@@ -402,7 +402,23 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
             GToolbox.message_box ~title:"Error on A/C name" "A/C name already exists in this conf"
           else begin
             let a = Hashtbl.find Utils.aircrafts selected_ac_name in
+            let af_old = Env.paparazzi_home // "conf" // (ExtXml.attrib a "airframe") in
+            let af_new =
+              match GToolbox.select_file ~title:"Select an airframe file" ~filename:af_old () with
+              | None -> af_old
+              | Some x -> x
+            in
+            let af_new =
+              if af_old = af_new then af_new
+              else
+                if Sys.command (sprintf "cp -f %s %s" af_old af_new) = 0 then af_new
+                else begin
+                  GToolbox.message_box ~title:"Error on airframe copy" ("Using original airframe " // af_old);
+                  af_old
+                end
+            in
             let a = ExtXml.subst_attrib "name" s a in
+            let a = ExtXml.subst_attrib "airframe" (Env.filter_absolute_path af_new) a in
             let a = ExtXml.subst_attrib "ac_id" (string_of_int (new_ac_id ())) a in
             (* add to hashtbl before combo to avoid update errors *)
             Hashtbl.add Utils.aircrafts s a;
