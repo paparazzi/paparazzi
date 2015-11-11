@@ -404,7 +404,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
             let a = Hashtbl.find Utils.aircrafts selected_ac_name in
             let af_old = Env.paparazzi_home // "conf" // (ExtXml.attrib a "airframe") in
             let af_new =
-              match GToolbox.select_file ~title:"Select an airframe file" ~filename:af_old () with
+              match GToolbox.select_file ~title:"Copy to new airframe file" ~filename:af_old () with
               | None -> af_old
               | Some x -> x
             in
