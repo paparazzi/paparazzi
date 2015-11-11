@@ -89,7 +89,7 @@
   />
   <aircraft
    name="Logo600"
-   ac_id="5"
+   ac_id="111"
    airframe="airframes/TUDelft/airframes/logo600.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
