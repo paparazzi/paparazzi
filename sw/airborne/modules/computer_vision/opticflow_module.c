@@ -131,7 +131,8 @@ void opticflow_module_init(void)
 #endif
 
   /* Try to initialize the video device */
-  opticflow_dev = v4l2_init(STRINGIFY(OPTICFLOW_DEVICE), OPTICFLOW_DEVICE_SIZE, OPTICFLOW_DEVICE_BUFFERS, V4L2_PIX_FMT_UYVY);
+  opticflow_dev = v4l2_init(STRINGIFY(OPTICFLOW_DEVICE), OPTICFLOW_DEVICE_SIZE, OPTICFLOW_DEVICE_BUFFERS,
+                            V4L2_PIX_FMT_UYVY);
   if (opticflow_dev == NULL) {
     printf("[opticflow_module] Could not initialize the video device\n");
   }
@@ -163,11 +164,14 @@ void opticflow_module_run(void)
                            opticflow_result.flow_der_x,
                            quality,
                            opticflow_state.agl);
+    //TODO Find an appropiate quality measure for the noise model in the state filter, for now it is tracked_cnt
     if (opticflow_result.tracked_cnt > 0) {
       AbiSendMsgVELOCITY_ESTIMATE(OPTICFLOW_SENDER_ID, now_ts,
                                   opticflow_result.vel_x,
                                   opticflow_result.vel_y,
-                                  0.0f);
+                                  0.0f,
+                                  opticflow_result.noise_measurement
+                                 );
     }
     opticflow_got_result = FALSE;
   }

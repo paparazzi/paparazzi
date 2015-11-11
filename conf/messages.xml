@@ -1972,8 +1972,8 @@
     <field name="flow_y"      type="int16" unit="subpixels"/>
     <field name="flow_der_x"  type="int16" unit="subpixels"/>
     <field name="flow_der_y"  type="int16" unit="subpixels"/>
-    <field name="vel_x"       type="float" unit="cm/s"/>
-    <field name="vel_y"       type="float" unit="cm/s"/>
+    <field name="vel_x"       type="float" unit="m/s"/>
+    <field name="vel_y"       type="float" unit="m/s"/>
     <field name="div_size"    type="float" unit="1/s"/>
     <field name="surface_roughness"    type="float" unit="1/s"/>
     <field name="divergence"    type="float" unit="1/s"/>
