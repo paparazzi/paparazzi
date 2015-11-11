@@ -99,7 +99,7 @@
   </auto_rc_commands>
 
   <command_laws>
-    <set servo="THROTTLE"    value="@THRUST"/>
+    <set servo="THROTTLE"    value="@THROTTLE"/>
     <set servo="ROLL"        value="@ROLL"/>
     <set servo="PITCH"       value="@PITCH"/>
     <set servo="YAW"         value="@YAW"/>
