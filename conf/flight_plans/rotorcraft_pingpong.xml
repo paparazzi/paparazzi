@@ -16,12 +16,16 @@
     <waypoint name="TD" x="5.6" y="-10.9"/>
   </waypoints>
   <blocks>
+ <block name="Holding point">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
     <block name="Start Engine">
       <call fun="NavResurrect()"/>
-      <attitude pitch="0" roll="0" throttle="0.5" vmode="throttle" until="FALSE"/>
+      <attitude pitch="0" roll="0" throttle="0.1" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-       <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="land here"/>
+       <exception cond="ins_int.baro_z > 1.0" deroute="land here"/>
         <attitude pitch="0" roll="0" vmode="climb" climb="nav_climb_vspeed" until="stage_time>10"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
