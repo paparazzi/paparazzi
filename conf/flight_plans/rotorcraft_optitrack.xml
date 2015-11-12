@@ -31,14 +31,6 @@
       <call fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
     </block>
-    <block name="Geo init">
-      <while cond="LessThan(NavBlockTime(), 1)"/>
-      <call fun="NavSetWaypointHere(WP_HOME)"/>
-      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <call fun="NavSetWaypointHere(WP_STDBY)"/>
-      <call fun="NavSetWaypointHere(WP_TD)"/>
-      <call fun="NavSetAltitudeReferenceHere()"/>
-    </block>
     <block name="Holding point">
       <call fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
@@ -48,9 +40,13 @@
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
-      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+      <exception cond="stage_time > 2" deroute="FLand"/>
+      <attitude pitch="0" roll="0" until="FALSE" climb="nav_climb_vspeed" vmode="climb"/>
+    </block>
+    <block name="FLand" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <attitude pitch="0" roll="0" until="FALSE" climb="nav_descend_vspeed" vmode="climb"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <stay wp="STDBY"/>
