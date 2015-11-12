@@ -30,6 +30,7 @@
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/telemetry.h"
 #include "modules/stereo_cam/stereoprotocol.h"
+#include "mcu_periph/sys_time.h"
 #ifndef SEND_STEREO
 #define SEND_STEREO TRUE
 #endif
