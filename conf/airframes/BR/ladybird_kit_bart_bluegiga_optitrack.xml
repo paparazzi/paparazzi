@@ -67,12 +67,12 @@
     <define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
   </section>
 
-  <include href="conf/airframes/TUDelft/calibrations/ladybird18.xml" />
+  <include href="conf/airframes/TUDelft/calibrations/ladybird18.xml"/>
 
   <section name="IMU" prefix="IMU_">
-    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="-13." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="-13." unit="deg"/>
   </section>
 
  <section name="AUTOPILOT">
@@ -185,19 +185,19 @@
   </section>
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="90"/>
-   <define name="DGAIN" value="50"/>
-   <define name="IGAIN" value="24"/>
-   <define name="REF_MAX_SPEED" value="0.5" />
+   <define name="PGAIN" value="290"/>
+   <define name="DGAIN" value="134"/>
+   <define name="IGAIN" value="0"/>
+   <define name="REF_MAX_SPEED" value="0.8"/>
  </section>
 
   <section name="NAVIGATION" prefix="NAV_">
-    <define  name="CLIMB_VSPEED" value="1.0" />
-    <define  name="DESCEND_VSPEED" value="-0.5" />
+    <define name="CLIMB_VSPEED" value="1.0"/>
+    <define name="DESCEND_VSPEED" value="-0.5"/>
   </section>
 
   <section name="MISC">
-    <define name="ARRIVED_AT_WAYPOINT" value="0.2" />
+    <define name="ARRIVED_AT_WAYPOINT" value="0.2"/>
   </section>
 
  <section name="SIMULATOR" prefix="NPS_">
