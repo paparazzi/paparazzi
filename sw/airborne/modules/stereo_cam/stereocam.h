@@ -20,7 +20,7 @@
  *
  */
 
-/** @file modules/sensors/stereocam.h
+/** @file modules/stereo_cam/stereocam.h
  *  @brief interface to the TU Delft serial stereocam
  */
 
