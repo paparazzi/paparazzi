@@ -34,42 +34,6 @@
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
     </block>
-    <block name="Standby" strip_button="Standby" strip_icon="home.png">
-       <attitude pitch="ref_pitch" roll="ref_roll" until="FALSE"/>
-    </block>
-    <block name="stay_p1">
-      <stay wp="p1"/>
-    </block>
-    <block name="go_p2">
-      <call fun="nav_set_heading_deg(90)"/>
-      <go wp="p2"/>
-      <deroute block="stay_p1"/>
-    </block>
-    <block name="line_p1_p2">
-      <go from="p1" hmode="route" wp="p2"/>
-      <stay wp="p2" until="stage_time>10"/>
-      <go from="p2" hmode="route" wp="p1"/>
-      <deroute block="stay_p1"/>
-    </block>
-    <block name="route">
-      <go from="p1" hmode="route" wp="p3"/>
-      <go from="p3" hmode="route" wp="p4"/>
-      <go from="p4" hmode="route" wp="p1"/>
-      <deroute block="stay_p1"/>
-    </block>
-    <block name="test yaw">
-      <go wp="p1"/>
-      <for var="i" from="1" to="16">
-        <heading alt="WaypointAlt(WP_p1)" course="90 * $i" until="stage_time > 3"/>
-      </for>
-      <deroute block="Standby"/>
-    </block>
-    <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
-      <circle radius="nav_radius" wp="CAM"/>
-    </block>
-    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
-      <call fun="NavSetWaypointHere(WP_TD)"/>
-    </block>
     <block name="land">
       <go wp="TD"/>
     </block>
