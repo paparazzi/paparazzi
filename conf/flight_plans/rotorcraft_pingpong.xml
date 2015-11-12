@@ -16,32 +16,16 @@
     <waypoint name="TD" x="5.6" y="-10.9"/>
   </waypoints>
   <blocks>
-    <block name="Geo init">
-      <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
-      <!--<call fun="NavSetAltitudeReferenceHere()"/>-->
-    </block>
-    <block name="Holding point">
-      <call fun="NavKillThrottle()"/>
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
-    </block>
     <block name="Start Engine">
       <call fun="NavResurrect()"/>
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+      <attitude pitch="0" roll="0" throttle="0.5" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="land"/>
-      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
+       <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="land here"/>
+        <attitude pitch="0" roll="0" vmode="climb" climb="nav_climb_vspeed" until="stage_time>10"/>
     </block>
-    <block name="land">
-      <go wp="TD"/>
-    </block>
-    <block name="flare">
-      <exception cond="NavDetectGround()" deroute="Holding point"/>
-      <exception cond="!nav_is_in_flight()" deroute="landed"/>
-      <call fun="NavStartDetectGround()"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+        <attitude pitch="0" roll="0" throttle="0" vmode="climb" climb="nav_descend_vspeed" until="stage_time>10"/>
     </block>
     <block name="landed">
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>

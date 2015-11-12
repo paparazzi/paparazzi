@@ -165,9 +165,9 @@ void gps_init(void)
 
 void gps_periodic_check(void)
 {
-  if (sys_time.nb_sec - gps.last_msg_time > GPS_TIMEOUT) {
-    gps.fix = GPS_FIX_NONE;
-  }
+  //if (sys_time.nb_sec - gps.last_msg_time > GPS_TIMEOUT) {
+  //  gps.fix = GPS_FIX_NONE;
+  //}
 }
 
 uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks)

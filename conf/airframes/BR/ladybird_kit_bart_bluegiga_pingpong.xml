@@ -182,7 +182,7 @@
  </section>
 
   <section name="NAVIGATION" prefix="NAV_">
-    <define  name="CLIMB_VSPEED" value="1.0" />
+    <define  name="CLIMB_VSPEED" value="2.5" />
     <define  name="DESCEND_VSPEED" value="-0.5" />
   </section>
 
@@ -193,10 +193,6 @@
  </section>
 
  <modules main_freq="512">
-   <load name="gps_ubx_ucenter.xml"/>
-   <load name="send_imu_mag_current.xml"/>
-   <!--load name="stereoavoid.xml"/-->
-   <!--load name="mission_rotorcraft.xml"/-->
    <load name="read_matrix_serial.xml"/>	
 
    <load name="stereocam.xml">
@@ -239,7 +235,7 @@
     <subsystem name="imu" type="lisa_s_v1.0">
       <define name="LISA_S_UPSIDE_DOWN"/> <!-- Upside down is a relative term. :) -->
     </subsystem>
-    <subsystem name="gps" type="ublox"/>
+    <subsystem name="gps" type="vision"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="1"/>
