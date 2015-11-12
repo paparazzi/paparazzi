@@ -29,7 +29,10 @@
 extern void serial_init(void);
 extern void serial_update(void);
 extern void serial_start(void);
+void cal_euler_pingpong(void);
+void nav_cal_vel_vector_pingpong(void);
 extern float ref_roll;
 extern float ref_pitch;
+extern float ref_yaw;
 
 #endif
