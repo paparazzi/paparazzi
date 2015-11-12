@@ -25,42 +25,9 @@
 
 #ifndef READ_MATRIX_SERIAL_H
 #define READ_MATRIX_SERIAL_H
-//
-//#include <stdint.h>
-//
-//extern uint8_t *READimageBuffer;
-//extern float *READimageFilter;
-//extern uint8_t SendREADimageBuffer[36];
-//extern float Xest_new[36*6];
-//
-//void allocateSerialBuffer(int, int);
-//int isEndOfImage(uint8_t*);
-//int isStartOfImage(uint8_t*);
-//void printArray(uint8_t *, int, int);
-//
-//int isImageReady(int, int, int);
+
 extern void serial_init(void);
 extern void serial_update(void);
 extern void serial_start(void);
-
-//
-////Variables CN
-//extern float potential_obst_write;
-//extern float current_heading;
-//extern float obst_angle[10];
-//extern float obst_width[10];
-//extern float b_damp;
-//extern float K_goal;
-//extern float K_obst;
-//extern float c1;
-//extern float c2;
-//extern float c3;
-//extern float c5;
-//extern float kv;
-//extern float epsilon;
-//extern float vmax;
-//extern int32_t cnt_obst[20];
-//extern float heading_goal_f;
-//extern float heading_goal_ref;
 
 #endif
