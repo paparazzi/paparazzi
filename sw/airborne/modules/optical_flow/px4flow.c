@@ -38,6 +38,10 @@ bool_t optical_flow_available;
 // size of the structure
 #define MAVLINK_OPTICAL_FLOW_LEN 26
 
+#ifndef PX4FLOW_NOISE
+#define PX4FLOW_NOISE 0.5
+#endif
+
 // request struct for mavlink decoder
 struct mavlink_msg_req req;
 
@@ -48,10 +52,11 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
   optical_flow_available = TRUE;
 
   // Y negated to get to the body of the drone
-  AbiSendMsgVELOCITY_ESTIMATE(PIX4FLOW_VELOCITY_ID, 0,
+  AbiSendMsgVELOCITY_ESTIMATE(PX4FLOW_VELOCITY_ID, 0,
                               (optical_flow.flow_x / optical_flow.ground_distance),
                               -1.0 * (optical_flow.flow_y / optical_flow.ground_distance),
-                              0.0f);
+                              0.0f,
+                              PX4FLOW_NOISE);
 }
 
 /** Initialization function

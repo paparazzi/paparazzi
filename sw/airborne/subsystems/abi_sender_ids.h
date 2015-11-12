@@ -226,8 +226,8 @@
 #define IMU_MPU60X0_ID 16
 #endif
 
-#ifndef PIX4FLOW_VELOCITY_ID 
-#define PIX4FLOW_VELOCITY_ID 17
+#ifndef PX4FLOW_VELOCITY_ID
+#define PX4FLOW_VELOCITY_ID 17
 #endif
 
 
