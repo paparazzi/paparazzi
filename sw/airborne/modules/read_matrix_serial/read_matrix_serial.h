@@ -29,5 +29,7 @@
 extern void serial_init(void);
 extern void serial_update(void);
 extern void serial_start(void);
+extern float ref_roll;
+extern float ref_pitch;
 
 #endif
