@@ -198,6 +198,17 @@
    gui_color="blue"
   />
   <aircraft
+   name="mavshot"
+   ac_id="5"
+   airframe="airframes/TUDelft/airframes/mavshot.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_indi.xml settings/modules/config_asctec_v2_new.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="quadshot_pylons"
    ac_id="178"
    airframe="airframes/TUDelft/airframes/quadshot_pylons.xml"
