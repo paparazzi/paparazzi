@@ -22,14 +22,15 @@
 
 #include "exif_module.h"
 #include "state.h"
+#include "subsystems/gps.h"
 
 
 //////////////////////////////////////////////////////////////
 // Multithreaded part
 
-volatile uint32_t lat_em7deg = 0;
-volatile uint32_t lon_em7deg = 0;
-volatile uint32_t alt_mm = 0;
+volatile int32_t lat_em7deg = 0;
+volatile int32_t lon_em7deg = 0;
+volatile int32_t alt_mm = 0;
 
 //////////////////////////////////////////////////////////////
 // Paparazzi part
@@ -39,7 +40,8 @@ void push_gps_to_vision(void)
   struct LlaCoor_i *c = stateGetPositionLla_i();
   lat_em7deg = c->lat;
   lon_em7deg = c->lon;
-  alt_mm = c->alt;
+  // alt_mm = c->alt;
+  alt_mm = gps.hmsl;
 }
 
 /////////////////////////////////////////////////////////////
@@ -198,6 +200,34 @@ int write_exif_jpeg(char *filename, const unsigned char *image_jpg, const unsign
   exif_set_short(entry->data + 4, FILE_BYTE_ORDER, image_jpg_x);
   exif_set_short(entry->data + 6, FILE_BYTE_ORDER, image_jpg_y);
 
+  entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_LATITUDE_REF, 2);
+  entry->format = EXIF_FORMAT_ASCII;
+  entry->components = 1;
+  entry->data[1] = 0;
+  if (lat_em7deg < 0) {
+    entry->data[0] = 'S';
+    // from now on: go positive only
+    lat_em7deg = -lat_em7deg;
+  }
+  else {
+    entry->data[0] = 'N';
+  }
+
+  entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_LONGITUDE_REF, 2);
+  entry->format = EXIF_FORMAT_ASCII;
+  entry->components = 1;
+  entry->data[1] = 0;
+  if (lon_em7deg < 0) {
+    entry->data[0] = 'W';
+    // from now on: go positive only
+    lon_em7deg = -lon_em7deg;
+  }
+  else {
+    entry->data[0] = 'E';
+  }
+
+
+
   entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_LATITUDE, 24);
   // Set the field's format and number of components, this is very important!
   entry->format = EXIF_FORMAT_RATIONAL;
@@ -244,6 +274,18 @@ int write_exif_jpeg(char *filename, const unsigned char *image_jpg, const unsign
   loc.numerator = loni;
   loc.denominator = 1000;
   exif_set_rational(entry->data + 16, EXIF_BYTE_ORDER_INTEL, loc);
+
+  entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_ALTITUDE_REF, 1);
+  entry->format = EXIF_FORMAT_BYTE;
+  entry->components = 1;
+  if (alt_mm < 0) {
+    entry->data[0] = '1'; // Below MSL
+    // from now on: go positive only
+    alt_mm = -alt_mm;
+  }
+  else {
+    entry->data[0] = '0'; // Above MSL
+  }
 
   entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_ALTITUDE, 8);
   // Set the field's format and number of components, this is very important!
