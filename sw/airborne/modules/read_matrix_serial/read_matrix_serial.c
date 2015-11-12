@@ -44,6 +44,8 @@ uint16_t matrix_sum[6]={0,0,0,0,0,0};
 uint16_t matrix_sum2[6]={0,0,0,0,0,0};
 uint16_t matrix_sum_treshold = 0;
 float matrix_treshold = 7.0;
+ float ref_roll=0.0;
+ float ref_pitch=0.0;
 
 void serial_init(void) {
 

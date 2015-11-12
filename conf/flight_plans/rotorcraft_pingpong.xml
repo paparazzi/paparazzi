@@ -30,7 +30,7 @@
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="land"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
     </block>
