@@ -35,7 +35,7 @@
       <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
-       <attitude pitch="pingpongpitch" roll="pingpongroll" until="FALSE"/>
+       <attitude pitch="ref_pitch" roll="ref_roll" until="FALSE"/>
     </block>
     <block name="stay_p1">
       <stay wp="p1"/>
