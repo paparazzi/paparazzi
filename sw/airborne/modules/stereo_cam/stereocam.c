@@ -30,7 +30,6 @@
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/telemetry.h"
 #include "modules/stereo_cam/stereoprotocol.h"
-#include "navigation.h"
 #ifndef SEND_STEREO
 #define SEND_STEREO TRUE
 #endif
@@ -88,8 +87,7 @@ extern void stereocam_periodic(void)
 {
   // read all data from the stereo com link, check that don't overtake extract
   while (dev->char_available(dev->periph) && stereoprot_add(insert_loc, 1, STEREO_BUF_SIZE) != extract_loc) {
-    printf("Got package\n");
-	  if (handleStereoPackage(StereoGetch(), STEREO_BUF_SIZE, &insert_loc, &extract_loc, &msg_start, msg_buf, ser_read_buf,
+      if (handleStereoPackage(StereoGetch(), STEREO_BUF_SIZE, &insert_loc, &extract_loc, &msg_start, msg_buf, ser_read_buf,
                             &stereocam_data.fresh, &stereocam_data.len)) {
       freq_counter++;
       if ((sys_time.nb_tick - previous_time) > sys_time.ticks_per_sec) {  // 1s has past
@@ -97,7 +95,6 @@ extern void stereocam_periodic(void)
         freq_counter = 0;
         previous_time = sys_time.nb_tick;
       }
-      nav_set_heading_rad(0);
 #if SEND_STEREO
       DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len, msg_buf);
 #endif
