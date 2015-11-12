@@ -27,6 +27,7 @@
       <message name="AIR_DATA"               period="2.3"/>
       <message name="SURVEY"                 period="4.5"/>
       <message name="OPTIC_FLOW_EST"         period="0.5"/>
+      <message name="STEREO_IMG"         period="0.1"/>
       <message name="VECTORNAV_INFO"      period="0.5"/>
     </mode>
 
