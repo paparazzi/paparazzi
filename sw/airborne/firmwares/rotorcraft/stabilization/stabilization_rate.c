@@ -74,10 +74,6 @@
 #error "ALL control gains have to be positive!!!"
 #endif
 
-#ifndef STABILIZATION_RATE_REF_TAU
-#define STABILIZATION_RATE_REF_TAU 4
-#endif
-
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
 #define OFFSET_AND_ROUND2(_a, _b) (((_a)+(1<<((_b)-1))-((_a)<0?1:0))>>(_b))
 
@@ -191,9 +187,6 @@ void stabilization_rate_read_rc(void)
   } else {
     stabilization_rate_sp.r = 0;
   }
-
-  // Setpoint at ref resolution
-  INT_RATES_LSHIFT(stabilization_rate_sp, stabilization_rate_sp, REF_FRAC - INT32_RATE_FRAC);
 }
 
 //Read rc with roll and yaw sitcks switched if the default orientation is vertical but airplane sticks are desired
@@ -217,9 +210,6 @@ void stabilization_rate_read_rc_switched_sticks(void)
   } else {
     stabilization_rate_sp.p = 0;
   }
-
-  // Setpoint at ref resolution
-  INT_RATES_LSHIFT(stabilization_rate_sp, stabilization_rate_sp, REF_FRAC - INT32_RATE_FRAC);
 }
 
 void stabilization_rate_enter(void)
@@ -230,33 +220,10 @@ void stabilization_rate_enter(void)
 
 void stabilization_rate_run(bool_t in_flight)
 {
-
-  /* reference */
-  struct Int32Rates _r;
-  RATES_DIFF(_r, stabilization_rate_sp, stabilization_rate_ref);
-  RATES_SDIV(stabilization_rate_refdot, _r, STABILIZATION_RATE_REF_TAU);
-  /* integrate ref */
-  const struct Int32Rates _delta_ref = {
-    stabilization_rate_refdot.p >> (F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC),
-    stabilization_rate_refdot.q >> (F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC),
-    stabilization_rate_refdot.r >> (F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC)
-  };
-  RATES_ADD(stabilization_rate_ref, _delta_ref);
-
-  /* compute feed-forward command */
-  RATES_EWMULT_RSHIFT(stabilization_rate_ff_cmd, stabilization_rate_ddgain, stabilization_rate_refdot, 9);
-
-
   /* compute feed-back command */
-  /* error for feedback */
-  const struct Int32Rates _ref_scaled = {
-    OFFSET_AND_ROUND(stabilization_rate_ref.p, (REF_FRAC - INT32_RATE_FRAC)),
-    OFFSET_AND_ROUND(stabilization_rate_ref.q, (REF_FRAC - INT32_RATE_FRAC)),
-    OFFSET_AND_ROUND(stabilization_rate_ref.r, (REF_FRAC - INT32_RATE_FRAC))
-  };
   struct Int32Rates _error;
   struct Int32Rates *body_rate = stateGetBodyRates_i();
-  RATES_DIFF(_error, _ref_scaled, (*body_rate));
+  RATES_DIFF(_error, stabilization_rate_sp, (*body_rate));
   if (in_flight) {
     /* update integrator */
     RATES_ADD(stabilization_rate_sum_err, _error);
@@ -280,9 +247,9 @@ void stabilization_rate_run(bool_t in_flight)
   stabilization_rate_fb_cmd.r = stabilization_rate_fb_cmd.r >> 11;
 
   /* sum to final command */
-  stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_ff_cmd.p + stabilization_rate_fb_cmd.p;
-  stabilization_cmd[COMMAND_PITCH] = stabilization_rate_ff_cmd.q + stabilization_rate_fb_cmd.q;
-  stabilization_cmd[COMMAND_YAW]   = stabilization_rate_ff_cmd.r + stabilization_rate_fb_cmd.r;
+  stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_fb_cmd.p;
+  stabilization_cmd[COMMAND_PITCH] = stabilization_rate_fb_cmd.q;
+  stabilization_cmd[COMMAND_YAW]   = stabilization_rate_fb_cmd.r;
 
   /* bound the result */
   BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
