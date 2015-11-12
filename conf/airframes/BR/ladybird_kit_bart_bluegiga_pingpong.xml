@@ -182,7 +182,7 @@
  </section>
 
   <section name="NAVIGATION" prefix="NAV_">
-    <define  name="CLIMB_VSPEED" value="2.5" />
+    <define  name="CLIMB_VSPEED" value="1.0" />
     <define  name="DESCEND_VSPEED" value="-0.5" />
   </section>
 
@@ -197,7 +197,7 @@
 
    <load name="stereocam.xml">
 	<configure name="STEREO_UART" value="UART1"/>
-	<configure name="STEREO_BAUD" value="1000000"/>
+	<configure name="STEREO_BAUD" value="B115200"/>
 </load>
  </modules>
 

@@ -3,6 +3,7 @@
 <flight_plan alt="152" ground_alt="147" lat0="43 33 50.83" lon0="1 28 52.61" max_dist_from_home="150" name="Rotorcraft Basic (Enac)" security_height="2">
   <header>
 #include "autopilot.h"
+
   </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
@@ -16,7 +17,7 @@
     <waypoint name="TD" x="5.6" y="-10.9"/>
   </waypoints>
   <blocks>
- <block name="Holding point">
+ 	<block name="Holding point">
       <call fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
@@ -24,15 +25,20 @@
       <call fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0.1" vmode="throttle"/>
     </block>
-    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-       <exception cond="ins_int.baro_z > 1.0" deroute="land here"/>
+   
+<block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+       <exception cond="stateGetPositionEnu_f()->z>1.3" deroute="land here"/>
         <attitude pitch="0" roll="0" vmode="climb" climb="nav_climb_vspeed" until="stage_time>10"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
-        <attitude pitch="0" roll="0" throttle="0" vmode="climb" climb="nav_descend_vspeed" until="stage_time>10"/>
+        <attitude pitch="0" roll="0" throttle="0" vmode="climb" climb="nav_descend_vspeed" until="stage_time>3"/>
     </block>
     <block name="landed">
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+ </block>  
+ <block name="perform follow">
+        <attitude pitch="ref_pitch" roll="ref_roll" throttle="0.5" vmode="throttle"/>
+     
     </block>
   </blocks>
 </flight_plan>
