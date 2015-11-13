@@ -65,7 +65,11 @@
 /* reverse some channels to suit Paparazzi conventions          */
 /* the maximum number of channels a Spektrum can transmit is 12 */
 #ifndef RADIO_CONTROL_SPEKTRUM_SIGNS
-#define RADIO_CONTROL_SPEKTRUM_SIGNS {1,-1,-1,-1,1,-1,1,1,1,1,1,1}
+#ifdef RADIO_CONTROL_SPEKTRUM_OLD_SIGNS
+#define RADIO_CONTROL_SPEKTRUM_SIGNS {1,-1,-1,-1,1,-1,1,1,1,1,1,1} // As most transmitters are sold
+#else
+#define RADIO_CONTROL_SPEKTRUM_SIGNS {1,1,1,1,1,1,1,1,1,1,1,1} // PPRZ sign convention
+#endif
 #endif
 
 /* really for a 9 channel transmitter
