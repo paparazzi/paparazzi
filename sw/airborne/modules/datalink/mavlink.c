@@ -325,6 +325,44 @@ void mavlink_event(void)
           break;
 #endif
 
+        /* Paparazzi dialect specific SCRIPT message */
+        /* request for script/block list, answer with number of blocks */
+        case MAVLINK_MSG_ID_SCRIPT_REQUEST_LIST: {
+          mavlink_script_request_list_t req;
+          mavlink_msg_script_request_list_decode(&msg, &req);
+          if (req.target_system == mavlink_system.sysid) {
+            mavlink_msg_script_count_send(MAVLINK_COMM_0, msg.sysid, msg.compid, NB_BLOCK);
+            MAVLinkSendMessage();
+          }
+        }
+          break;
+
+        /* request script/block, answer with SCRIPT_ITEM (block) */
+        case MAVLINK_MSG_ID_SCRIPT_REQUEST: {
+           mavlink_script_request_t req;
+           mavlink_msg_script_request_decode(&msg, &req);
+           if (req.target_system == mavlink_system.sysid && req.seq < NB_BLOCK) {
+             static const char *blocks[] = FP_BLOCKS;
+             char block_name[50];
+             strncpy(block_name, blocks[req.seq], 49); // String containing the name of the block
+             uint8_t len = strlen(blocks[req.seq]); // Length of the block name
+             mavlink_msg_script_item_send(MAVLINK_COMM_0, msg.sysid, msg.compid,
+                                          req.seq, len, block_name);
+             MAVLinkSendMessage();
+           }
+        }
+          break;
+
+        /* got script item, change block */
+        case MAVLINK_MSG_ID_SCRIPT_ITEM: {
+           mavlink_script_item_t block;
+           mavlink_msg_script_item_decode(&msg, &block);
+           if (block.target_system == mavlink_system.sysid && block.seq < NB_BLOCK) {
+             nav_goto_block(block.seq);
+           }
+        }
+          break;
+
         default:
           //Do nothing
           //printf("Received message with id: %d\r\n", msg.msgid);
