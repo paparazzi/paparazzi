@@ -77,6 +77,8 @@ static inline void mavlink_send_gps_raw_int(void);
 static inline void mavlink_send_rc_channels(void);
 static inline void mavlink_send_battery_status(void);
 static inline void mavlink_send_gps_global_origin(void);
+static inline void mavlink_send_gps_status(void);
+static inline void mavlink_send_vfr_hud(void);
 
 
 /// TODO: FIXME
@@ -112,6 +114,8 @@ void mavlink_periodic(void)
   RunOnceEvery(21, mavlink_send_battery_status());
   RunOnceEvery(32, mavlink_send_autopilot_version());
   RunOnceEvery(33, mavlink_send_gps_global_origin());
+  RunOnceEvery(10, mavlink_send_gps_status());
+  RunOnceEvery(10, mavlink_send_vfr_hud());
 }
 
 static int16_t settings_idx_from_param_id(char *param_id)
@@ -527,6 +531,48 @@ static inline void mavlink_send_gps_raw_int(void)
 #endif
 }
 
+/**
+ * Send gps status.
+ * The GPS status message consists of:
+ *  - satellites visible
+ *  - satellite pnr[] (ignored)
+ *  - satellite used[] (ignored)
+ *  - satellite elevation[] (ignored)
+ *  - satellite azimuth[] (ignored)
+ *  - satellite snr[] (ignored)
+ */
+static inline void mavlink_send_gps_status(void)
+{
+#if USE_GPS
+  uint8_t nb_sats = Min(GPS_NB_CHANNELS, 20);
+  uint8_t prn[20];
+  uint8_t used[20];
+  uint8_t elevation[20];
+  uint8_t azimuth[20];
+  uint8_t snr[20];
+  for (uint8_t i=0; i < nb_sats; i++) {
+    prn[i] = gps.svinfos[i].svid;
+    // set sat as used if cno > 0, not quite true though
+    if (gps.svinfos[i].cno > 0) {
+      used[i] = 1;
+    }
+    elevation[i] = gps.svinfos[i].elev;
+    // convert azimuth to unsigned representation: 0: 0 deg, 255: 360 deg.
+    uint8_t azim;
+    if (gps.svinfos[i].azim < 0) {
+      azim = (float)(-gps.svinfos[i].azim + 180) / 360 * 255;
+    }
+    else {
+      azim = (float)gps.svinfos[i].azim / 360 * 255;
+    }
+    azimuth[i] = azim;
+  }
+  mavlink_msg_gps_status_send(MAVLINK_COMM_0,
+                              gps.num_sv, prn, used, elevation, azimuth, snr);
+  MAVLinkSendMessage();
+#endif
+}
+
 #if defined RADIO_CONTROL
 #include "subsystems/radio_control.h"
 // since they really want PPM values, use a hack to check if are using ppm subsystem
@@ -585,5 +631,31 @@ static inline void mavlink_send_battery_status(void)
                                   electrical.consumed,
                                   electrical.energy, // check scaling
                                   -1); // remaining percentage not estimated
+  MAVLinkSendMessage();
+}
+
+#include "subsystems/commands.h"
+/**
+ * Send Metrics typically displayed on a HUD for fixed wing aircraft.
+ */
+static inline void mavlink_send_vfr_hud(void)
+{
+  /* Current heading in degrees, in compass units (0..360, 0=north) */
+  int16_t heading = DegOfRad(stateGetNedToBodyEulers_f()->psi);
+  /* Current throttle setting in integer percent, 0 to 100 */
+  // is a 16bit unsigned int but supposed to be from 0 to 100??
+  uint16_t throttle;
+#ifdef COMMAND_THRUST
+  throttle = commands[COMMAND_THRUST] / (MAX_PPRZ / 100);
+#elif defined COMMAND_THROTTLE
+  throttle = commands[COMMAND_THROTTLE] / (MAX_PPRZ / 100);
+#endif
+  mavlink_msg_vfr_hud_send(MAVLINK_COMM_0,
+                           stateGetAirspeed_f(),
+                           stateGetHorizontalSpeedNorm_f(), // groundspeed
+                           heading,
+                           throttle,
+                           stateGetPositionLla_f()->alt, // altitude, FIXME: should be MSL
+                           stateGetSpeedNed_f()->z); // climb rate
   MAVLinkSendMessage();
 }
