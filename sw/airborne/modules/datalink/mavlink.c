@@ -484,6 +484,7 @@ static inline void mavlink_send_autopilot_version(void)
                                       0, //uint16_t product_id,
                                       sha //uint64_t uid
                                       );
+  MAVLinkSendMessage();
 }
 
 static inline void mavlink_send_attitude_quaternion(void)
@@ -497,6 +498,7 @@ static inline void mavlink_send_attitude_quaternion(void)
                                        stateGetBodyRates_f()->p,
                                        stateGetBodyRates_f()->q,
                                        stateGetBodyRates_f()->r);
+  MAVLinkSendMessage();
 }
 
 #if USE_GPS
@@ -521,6 +523,7 @@ static inline void mavlink_send_gps_raw_int(void)
                                gps.gspeed,
                                course,
                                gps.num_sv);
+  MAVLinkSendMessage();
 #endif
 }
 
@@ -562,6 +565,7 @@ static inline void mavlink_send_rc_channels(void)
                                UINT16_MAX, UINT16_MAX, UINT16_MAX, UINT16_MAX,
                                UINT16_MAX, UINT16_MAX, 255);
 #endif
+  MAVLinkSendMessage();
 }
 
 #include "subsystems/electrical.h"
@@ -581,4 +585,5 @@ static inline void mavlink_send_battery_status(void)
                                   electrical.consumed,
                                   electrical.energy, // check scaling
                                   -1); // remaining percentage not estimated
+  MAVLinkSendMessage();
 }
