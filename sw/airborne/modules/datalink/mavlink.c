@@ -65,6 +65,7 @@ static uint8_t mavlink_params_idx = NB_SETTING; /**< Transmitting parameters ind
 static char mavlink_param_names[NB_SETTING][16+1] = SETTINGS_NAMES_SHORT;
 static uint8_t custom_version[8]; /**< first 8 bytes (16 chars) of GIT SHA1 */
 
+static inline void mavlink_send_mission_ack(void);
 static inline void mavlink_send_heartbeat(void);
 static inline void mavlink_send_sys_status(void);
 static inline void mavlink_send_attitude(void);
@@ -283,6 +284,47 @@ void mavlink_event(void)
         }
           break;
 
+#ifndef AP
+        case MAVLINK_MSG_ID_MISSION_ITEM: {
+          /* change waypoint: only available when using waypoint API (rotorcraft firmware)
+           * This uses the waypoint_set_x functions (opposed to waypoint_move_x),
+           * meaning it doesn't send WP_MOVED Paparazzi messages.
+           */
+          mavlink_mission_item_t mission_item;
+          mavlink_msg_mission_item_decode(&msg, &mission_item);
+
+          if (mission_item.target_system == mavlink_system.sysid) {
+            if (mission_item.seq < NB_WAYPOINT) {
+              if (mission_item.frame == MAV_FRAME_GLOBAL_INT) {
+                struct LlaCoor_i lla;
+                lla.lat = mission_item.x; // lattitude in degrees*1e7
+                lla.lat = mission_item.y; // longitude in degrees*1e7
+                lla.alt = mission_item.z * 1e3; // altitude in millimeters
+                waypoint_set_lla(mission_item.seq, &lla);
+                mavlink_send_mission_ack();
+              }
+              else if (mission_item.frame == MAV_FRAME_GLOBAL) {
+                struct LlaCoor_i lla;
+                lla.lat = mission_item.x * 1e7; // lattitude in degrees*1e7
+                lla.lat = mission_item.y * 1e7; // longitude in degrees*1e7
+                lla.alt = mission_item.z * 1e3; // altitude in millimeters
+                waypoint_set_lla(mission_item.seq, &lla);
+                mavlink_send_mission_ack();
+              }
+              else if (mission_item.frame == MAV_FRAME_LOCAL_ENU) {
+                struct EnuCoor_f enu;
+                enu.x = mission_item.x;
+                enu.y = mission_item.y;
+                enu.z = mission_item.z;
+                waypoint_set_enu(mission_item.seq, &enu);
+                mavlink_send_mission_ack();
+              }
+            }
+          }
+        }
+          break;
+#endif
+
         default:
           //Do nothing
           //printf("Received message with id: %d\r\n", msg.msgid);
@@ -291,6 +333,15 @@ void mavlink_event(void)
     }
 
   }
+}
+
+static inline void mavlink_send_mission_ack(void)
+{
+  mavlink_msg_mission_ack_send(MAVLINK_COMM_0,
+                               mavlink_system.sysid,
+                               mavlink_system.compid,
+                               MAV_MISSION_ACCEPTED);
+  MAVLinkSendMessage();
 }
 
 /**
