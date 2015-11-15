@@ -266,6 +266,8 @@ void mavlink_event(void)
 
           if (req.target_system == mavlink_system.sysid) {
             if (req.seq < NB_WAYPOINT) {
+#ifdef AP
+              /* for fixedwing firmware send as LOCAL_ENU for now */
               mavlink_msg_mission_item_send(MAVLINK_COMM_0,
                                             msg.sysid,
                                             msg.compid,
@@ -278,6 +280,25 @@ void mavlink_event(void)
                                             WaypointX(req.seq),
                                             WaypointY(req.seq),
                                             WaypointAlt(req.seq));
+#else
+              /* for rotorcraft firmware use waypoint API and send as lat/lon */
+              /* sending lat/lon as float is actually a bad idea,
+               *  but it seems that most GCSs don't understand the MISSION_ITEM_INT
+               */
+              struct LlaCoor_i *lla = waypoint_get_lla(req.seq);
+              mavlink_msg_mission_item_send(MAVLINK_COMM_0,
+                                            msg.sysid,
+                                            msg.compid,
+                                            req.seq,
+                                            MAV_FRAME_GLOBAL,
+                                            MAV_CMD_NAV_WAYPOINT,
+                                            0, // current
+                                            0, // autocontinue
+                                            0, 0, 0, 0, // params
+                                            (float)lla->lat / 1e7,
+                                            (float)lla->lon / 1e7,
+                                            (float)lla->alt / 1e3);
+#endif
               MAVLinkSendMessage();
             }
           }
