@@ -27,16 +27,9 @@
 #ifndef MISSIONLIB_BLOCKS_H
 #define MISSIONLIB_BLOCKS_H
 
-// Disable auto-data structures
-#ifndef MAVLINK_NO_DATA
-#define MAVLINK_NO_DATA
-#endif
+#include <mavlink/mavlink_types.h>
 
-#include "generated/flight_plan.h"
-#include "mavlink/paparazzi/mavlink.h"
-
-extern void mavlink_block_init(void);
-extern void mavlink_block_cb(uint16_t current_block);
 extern void mavlink_block_message_handler(const mavlink_message_t *msg);
+extern void mavlink_send_block(uint16_t seq);
 
 #endif // MISSIONLIB_BLOCKS_H

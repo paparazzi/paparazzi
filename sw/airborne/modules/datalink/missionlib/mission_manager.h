@@ -29,28 +29,21 @@
 #ifndef MISSIONLIB_COMMON_H
 #define MISSIONLIB_COMMON_H
 
-#include <stdio.h>
-
-// #include "firmwares/rotorcraft/navigation.h"
-#include "mcu_periph/sys_time.h"
-
-#include "generated/flight_plan.h"
-#include "mavlink/paparazzi/mavlink.h"
+#include <mavlink/mavlink_types.h>
 
 #ifndef MAVLINK_TIMEOUT
 #define MAVLINK_TIMEOUT 15 // as in MAVLink waypoint convention
 #endif
 
-// State machine
+/// State machine
 enum MAVLINK_MISSION_MGR_STATES {
   STATE_IDLE = 0,
   STATE_SEND_LIST,
   STATE_SEND_ITEM,
-  STATE_WRITE_ITEM, // only for updating waypoints
+  STATE_WAYPOINT_WRITE_TRANSACTION
 };
 
 struct mavlink_mission_mgr {
-  mavlink_mission_item_t waypoints[NB_WAYPOINT]; // Array containing the waypoints in global coordinates
   uint8_t current_block; // Counter that holds the index of the current block
   enum MAVLINK_MISSION_MGR_STATES state; // The current state of the mission handler
   uint16_t seq; // Sequence id (position of the current item on the list)
@@ -63,29 +56,14 @@ typedef struct mavlink_mission_mgr mavlink_mission_mgr;
 
 extern mavlink_mission_mgr mission_mgr;
 
-// Timer callback function
-static inline void timer_cb(uint8_t id)
-{
-  sys_time_cancel_timer(id); // Cancel the timer that triggered the timeout event
-  mission_mgr.state = STATE_IDLE;
-  MAVLINK_DEBUG("ERROR: Request timed out!\n");
-  // TODO: Handle timeout retries, for now just assume no retries
-}
 
-static inline void sendMissionAck()
-{
-  mavlink_message_t msg;
-  mavlink_mission_ack_t mission_ack;
-  mission_ack.target_system = mission_mgr.rem_sysid;
-  mission_ack.target_component = mission_mgr.rem_compid;
-  mission_ack.type = MAV_MISSION_ACCEPTED;
-  mavlink_msg_mission_ack_encode(mavlink_system.sysid, mavlink_system.compid, &msg,
-                                 &mission_ack); // encode the ack message
-  MAVLINK_DEBUG("Sent MISSION_ACK message\n");
-  mavlink_send_message(&msg);
-}
-
-extern void mavlink_mission_init(mavlink_mission_mgr *mission_mgr);
+extern void mavlink_mission_init(mavlink_mission_mgr *mgr);
 extern void mavlink_mission_message_handler(const mavlink_message_t *msg);
+extern void mavlink_mission_periodic(void);
+
+extern void mavlink_send_mission_ack(void);
+
+extern void mavlink_mission_set_timer(void);
+extern void mavlink_mission_cancel_timer(void);
 
 #endif

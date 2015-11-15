@@ -24,72 +24,50 @@
  *  @brief PPRZ specific mission block implementation
  */
 
-// Include own header
 #include "modules/datalink/missionlib/blocks.h"
-
-#include <stdio.h>
-#include <string.h>
-
-#include "modules/datalink/mavlink.h"
 #include "modules/datalink/missionlib/mission_manager.h"
+#include "modules/datalink/mavlink.h"
+
+// include mavlink headers, but ignore some warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-default"
+#include "mavlink/paparazzi/mavlink.h"
+#pragma GCC diagnostic pop
 
 #include "subsystems/navigation/common_flight_plan.h"
+#include "generated/flight_plan.h"
 
 static void mavlink_send_block_count(void)
 {
-  mavlink_message_t msg;
-  mavlink_script_count_t block_count;
-  block_count.target_system = mission_mgr.rem_sysid;
-  block_count.target_component = mission_mgr.rem_compid;
-  block_count.count = NB_BLOCK; // From the generated flight plan
-
-  mavlink_msg_script_count_encode(mavlink_system.sysid, mavlink_system.compid, &msg,
-                                  &block_count); // encode the block count message
-
-  MAVLINK_DEBUG("Sent BLOCK_COUNT message\n");
-  mavlink_send_message(&msg);
+  mavlink_msg_script_count_send(MAVLINK_COMM_0, mission_mgr.rem_sysid, mission_mgr.rem_compid, NB_BLOCK);
+  MAVLinkSendMessage();
+  MAVLINK_DEBUG("Sent BLOCK_COUNT message: count %i\n", NB_BLOCK);
 }
 
-static void mavlink_send_block(uint16_t seq)
+void mavlink_send_block(uint16_t seq)
 {
   if (seq < NB_BLOCK) { // Due to indexing
-    mavlink_message_t msg;
-    mavlink_script_item_t block_item;
-    block_item.seq = seq;
-    char *blocks[] = FP_BLOCKS;
-    block_item.len = (uint8_t)strlen(blocks[seq]); // Length of the block name
-    strcpy(block_item.name, blocks[seq]); // String containing the name of the block
-    block_item.target_system = mission_mgr.rem_sysid;
-    block_item.target_component = mission_mgr.rem_compid;
-
-    mavlink_msg_script_item_encode(mavlink_system.sysid, mavlink_system.compid, &msg, &block_item);
-
-    MAVLINK_DEBUG("Sent BLOCK_ITEM message\n");
-    mavlink_send_message(&msg);
+    static const char *blocks[] = FP_BLOCKS;
+    char block_name[50];
+    strncpy(block_name, blocks[seq], 49); // String containing the name of the block
+    uint8_t len = strlen(blocks[seq]); // Length of the block name
+    mavlink_msg_script_item_send(MAVLINK_COMM_0, mission_mgr.rem_sysid, mission_mgr.rem_compid,
+                                 seq, len, block_name);
+    MAVLinkSendMessage();
+    MAVLINK_DEBUG("Sent BLOCK_ITEM message: seq %i, name %s\n", seq, block_name);
   } else {
-    MAVLINK_DEBUG("ERROR: Block index out of bounds\n");
+    MAVLINK_DEBUG("ERROR: Block index %i out of bounds\n", seq);
   }
-}
-
-void mavlink_block_init(void)
-{
-}
-
-void mavlink_block_cb(uint16_t current_block)
-{
-  mavlink_send_block(current_block); // send the current block seq
-
-  mission_mgr.timer_id = sys_time_register_timer(MAVLINK_TIMEOUT, &timer_cb); // wait for ack
 }
 
 void mavlink_block_message_handler(const mavlink_message_t *msg)
 {
   switch (msg->msgid) {
+    /* request for script/block list, answer with number of blocks */
     case MAVLINK_MSG_ID_SCRIPT_REQUEST_LIST: {
       MAVLINK_DEBUG("Received BLOCK_REQUEST_LIST message\n");
       mavlink_script_request_list_t block_request_list_msg;
-      mavlink_msg_script_request_list_decode(msg,
-                                             &block_request_list_msg); // Cast the incoming message to a block_request_list_msg
+      mavlink_msg_script_request_list_decode(msg, &block_request_list_msg);
       if (block_request_list_msg.target_system == mavlink_system.sysid) {
         if (mission_mgr.state == STATE_IDLE) {
           if (NB_BLOCK > 0) {
@@ -101,8 +79,8 @@ void mavlink_block_message_handler(const mavlink_message_t *msg)
           }
           mavlink_send_block_count();
 
-          mission_mgr.timer_id = sys_time_register_timer(MAVLINK_TIMEOUT,
-                                 &timer_cb); // Register the timeout timer (it is continuous so it needs to be cancelled after triggering)
+          // Register the timeout timer (it is continuous so it needs to be cancelled after triggering)
+          mavlink_mission_set_timer();
         } else {
           // TODO: Handle case when the state is not IDLE
         }
@@ -113,16 +91,19 @@ void mavlink_block_message_handler(const mavlink_message_t *msg)
       break;
     }
 
+    /* request script/block, answer with SCRIPT_ITEM (block) */
     case MAVLINK_MSG_ID_SCRIPT_REQUEST: {
       MAVLINK_DEBUG("Received BLOCK_REQUEST message\n");
       mavlink_script_request_t block_request_msg;
-      mavlink_msg_script_request_decode(msg, &block_request_msg); // Cast the incoming message to a block_request_msg
+      mavlink_msg_script_request_decode(msg, &block_request_msg);
       if (block_request_msg.target_system == mavlink_system.sysid) {
-        // Handle only cases in which the entire list is request, the block is sent again, or the next block was sent
+        // Handle only cases in which the entire list is request, the block is sent again,
+        // or the next block was sent
         if ((mission_mgr.state == STATE_SEND_LIST && block_request_msg.seq == 0) ||
             (mission_mgr.state == STATE_SEND_ITEM && (block_request_msg.seq == mission_mgr.seq
                 || block_request_msg.seq == mission_mgr.seq + 1))) {
-          sys_time_cancel_timer(mission_mgr.timer_id); // Cancel the timeout timer
+          // Cancel the timeout timer
+          mavlink_mission_cancel_timer();
 
           mission_mgr.state = STATE_SEND_ITEM;
           MAVLINK_DEBUG("State: %d\n", mission_mgr.state);
@@ -130,7 +111,8 @@ void mavlink_block_message_handler(const mavlink_message_t *msg)
 
           mavlink_send_block(mission_mgr.seq);
 
-          mission_mgr.timer_id = sys_time_register_timer(MAVLINK_TIMEOUT, &timer_cb); // Register the timeout timer
+          // Register the timeout timer
+          mavlink_mission_set_timer();
         } else {
           // TODO: Handle cases for which the above condition does not hold
         }
@@ -141,15 +123,20 @@ void mavlink_block_message_handler(const mavlink_message_t *msg)
       break;
     }
 
+    /* got script item, change block */
     case MAVLINK_MSG_ID_SCRIPT_ITEM: {
       MAVLINK_DEBUG("Received BLOCK_ITEM message\n");
       mavlink_script_item_t block_item_msg;
-      mavlink_msg_script_item_decode(msg, &block_item_msg); // Cast the incoming message to a block_item_msg
+      mavlink_msg_script_item_decode(msg, &block_item_msg);
       if (block_item_msg.target_system == mavlink_system.sysid) {
-        if (mission_mgr.state == STATE_IDLE) { // Only handle incoming block item messages if there a not currently being sent
+        // Only handle incoming block item messages if they a not currently being sent
+        if (mission_mgr.state == STATE_IDLE) {
           nav_goto_block((uint8_t)block_item_msg.seq); // Set the current block
         }
       }
     }
+
+    default:
+      break;
   }
 }

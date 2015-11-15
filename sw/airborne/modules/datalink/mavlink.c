@@ -45,13 +45,7 @@
 #include "subsystems/radio_control.h"
 #endif
 
-// for waypoints, include correct header until we have unified API
-#ifdef AP
-#include "subsystems/navigation/common_nav.h"
-#else
-#include "firmwares/rotorcraft/navigation.h"
-#endif
-#include "generated/flight_plan.h"
+#include "modules/datalink/missionlib/mission_manager.h"
 
 // for UINT16_MAX
 #include <stdint.h>
@@ -65,7 +59,10 @@ static uint8_t mavlink_params_idx = NB_SETTING; /**< Transmitting parameters ind
 static char mavlink_param_names[NB_SETTING][16+1] = SETTINGS_NAMES_SHORT;
 static uint8_t custom_version[8]; /**< first 8 bytes (16 chars) of GIT SHA1 */
 
-static inline void mavlink_send_mission_ack(void);
+mavlink_mission_mgr mission_mgr;
+
+void mavlink_common_message_handler(const mavlink_message_t *msg);
+
 static inline void mavlink_send_heartbeat(void);
 static inline void mavlink_send_sys_status(void);
 static inline void mavlink_send_attitude(void);
@@ -94,6 +91,8 @@ void mavlink_init(void)
   mavlink_system.compid = MAV_COMP_ID_MISSIONPLANNER; // Component/Subsystem ID, 1-255
 
   get_pprz_git_version(custom_version);
+
+  mavlink_mission_init(&mission_mgr);
 }
 
 /**
@@ -117,6 +116,8 @@ void mavlink_periodic(void)
   RunOnceEvery(33, mavlink_send_gps_global_origin());
   RunOnceEvery(10, mavlink_send_gps_status());
   RunOnceEvery(10, mavlink_send_vfr_hud());
+
+  mavlink_mission_periodic();
 }
 
 static int16_t settings_idx_from_param_id(char *param_id)
@@ -158,249 +159,105 @@ void mavlink_event(void)
 
     // When we receive a message
     if (mavlink_parse_char(MAVLINK_COMM_0, test, &msg, &status)) {
-      switch (msg.msgid) {
-        case MAVLINK_MSG_ID_HEARTBEAT:
-          break;
-
-          /* When requesting data streams say we can't send them */
-        case MAVLINK_MSG_ID_REQUEST_DATA_STREAM: {
-          mavlink_request_data_stream_t cmd;
-          mavlink_msg_request_data_stream_decode(&msg, &cmd);
-
-          mavlink_msg_data_stream_send(MAVLINK_COMM_0, cmd.req_stream_id, 0, 0);
-          MAVLinkSendMessage();
-          break;
-        }
-
-        /* Override channels with RC */
-        case MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE: {
-          mavlink_rc_channels_override_t cmd;
-          mavlink_msg_rc_channels_override_decode(&msg, &cmd);
-#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
-          uint8_t thrust = (cmd.chan3_raw - 950) * 127 / 1100;
-          int8_t roll = -(cmd.chan1_raw - 1500) * 255 / 1100 / 2;
-          int8_t pitch = -(cmd.chan2_raw - 1500) * 255 / 1100 / 2;
-          int8_t yaw = -(cmd.chan4_raw - 1500) * 255 / 1100;
-          parse_rc_4ch_datalink(0, thrust, roll, pitch, yaw);
-          //printf("RECEIVED: RC Channel Override for: %d/%d: throttle: %d; roll: %d; pitch: %d; yaw: %d;\r\n",
-          // cmd.target_system, cmd.target_component, thrust, roll, pitch, yaw);
-#endif
-          break;
-        }
-
-        /* When a request is made of the parameters list */
-        case MAVLINK_MSG_ID_PARAM_REQUEST_LIST: {
-          mavlink_params_idx = 0;
-          break;
-        }
-
-        /* When a request os made for a specific parameter */
-        case MAVLINK_MSG_ID_PARAM_REQUEST_READ: {
-          mavlink_param_request_read_t cmd;
-          mavlink_msg_param_request_read_decode(&msg, &cmd);
-
-          // First check param_index and search for the ID if needed
-          if (cmd.param_index == -1) {
-            cmd.param_index = settings_idx_from_param_id(cmd.param_id);
-          }
-
-          mavlink_msg_param_value_send(MAVLINK_COMM_0,
-                                       mavlink_param_names[cmd.param_index],
-                                       settings_get_value(cmd.param_index),
-                                       MAV_PARAM_TYPE_REAL32,
-                                       NB_SETTING,
-                                       cmd.param_index);
-          MAVLinkSendMessage();
-
-          break;
-        }
-
-        case MAVLINK_MSG_ID_PARAM_SET: {
-          mavlink_param_set_t set;
-          mavlink_msg_param_set_decode(&msg, &set);
-
-          // Check if this message is for this system
-          if ((uint8_t) set.target_system == AC_ID) {
-            int16_t idx = settings_idx_from_param_id(set.param_id);
-
-            // setting found
-            if (idx >= 0) {
-              // Only write if new value is NOT "not-a-number"
-              // AND is NOT infinity
-              if (set.param_type == MAV_PARAM_TYPE_REAL32 &&
-                  !isnan(set.param_value) && !isinf(set.param_value)) {
-                DlSetting(idx, set.param_value);
-                // Report back new value
-                mavlink_msg_param_value_send(MAVLINK_COMM_0,
-                                             mavlink_param_names[idx],
-                                             settings_get_value(idx),
-                                             MAV_PARAM_TYPE_REAL32,
-                                             NB_SETTING,
-                                             idx);
-                MAVLinkSendMessage();
-              }
-            }
-          }
-        }
-          break;
-
-        /* request for mission list, answer with number of waypoints */
-        case MAVLINK_MSG_ID_MISSION_REQUEST_LIST: {
-          mavlink_mission_request_list_t req;
-          mavlink_msg_mission_request_list_decode(&msg, &req);
-
-          if (req.target_system == mavlink_system.sysid) {
-            mavlink_msg_mission_count_send(MAVLINK_COMM_0,
-                                           msg.sysid,
-                                           msg.compid,
-                                           NB_WAYPOINT);
-            MAVLinkSendMessage();
-          }
-        }
-          break;
-
-        /* request for mission item, answer with waypoint */
-        case MAVLINK_MSG_ID_MISSION_REQUEST: {
-          mavlink_mission_request_t req;
-          mavlink_msg_mission_request_decode(&msg, &req);
-
-          if (req.target_system == mavlink_system.sysid) {
-            if (req.seq < NB_WAYPOINT) {
-#ifdef AP
-              /* for fixedwing firmware send as LOCAL_ENU for now */
-              mavlink_msg_mission_item_send(MAVLINK_COMM_0,
-                                            msg.sysid,
-                                            msg.compid,
-                                            req.seq,
-                                            MAV_FRAME_LOCAL_ENU,
-                                            MAV_CMD_NAV_WAYPOINT,
-                                            0, // current
-                                            0, // autocontinue
-                                            0, 0, 0, 0, // params
-                                            WaypointX(req.seq),
-                                            WaypointY(req.seq),
-                                            WaypointAlt(req.seq));
-#else
-              /* for rotorcraft firmware use waypoint API and send as lat/lon */
-              /* sending lat/lon as float is actually a bad idea,
-               *  but it seems that most GCSs don't understand the MISSION_ITEM_INT
-               */
-              struct LlaCoor_i *lla = waypoint_get_lla(req.seq);
-              mavlink_msg_mission_item_send(MAVLINK_COMM_0,
-                                            msg.sysid,
-                                            msg.compid,
-                                            req.seq,
-                                            MAV_FRAME_GLOBAL,
-                                            MAV_CMD_NAV_WAYPOINT,
-                                            0, // current
-                                            0, // autocontinue
-                                            0, 0, 0, 0, // params
-                                            (float)lla->lat / 1e7,
-                                            (float)lla->lon / 1e7,
-                                            (float)lla->alt / 1e3);
-#endif
-              MAVLinkSendMessage();
-            }
-          }
-        }
-          break;
-
-#ifndef AP
-        case MAVLINK_MSG_ID_MISSION_ITEM: {
-          /* change waypoint: only available when using waypoint API (rotorcraft firmware)
-           * This uses the waypoint_set_x functions (opposed to waypoint_move_x),
-           * meaning it doesn't send WP_MOVED Paparazzi messages.
-           */
-          mavlink_mission_item_t mission_item;
-          mavlink_msg_mission_item_decode(&msg, &mission_item);
-
-          if (mission_item.target_system == mavlink_system.sysid) {
-            if (mission_item.seq < NB_WAYPOINT) {
-              if (mission_item.frame == MAV_FRAME_GLOBAL_INT) {
-                struct LlaCoor_i lla;
-                lla.lat = mission_item.x; // lattitude in degrees*1e7
-                lla.lon = mission_item.y; // longitude in degrees*1e7
-                lla.alt = mission_item.z * 1e3; // altitude in millimeters
-                waypoint_set_lla(mission_item.seq, &lla);
-                mavlink_send_mission_ack();
-              }
-              else if (mission_item.frame == MAV_FRAME_GLOBAL) {
-                struct LlaCoor_i lla;
-                lla.lat = mission_item.x * 1e7; // lattitude in degrees*1e7
-                lla.lon = mission_item.y * 1e7; // longitude in degrees*1e7
-                lla.alt = mission_item.z * 1e3; // altitude in millimeters
-                waypoint_set_lla(mission_item.seq, &lla);
-                mavlink_send_mission_ack();
-              }
-              else if (mission_item.frame == MAV_FRAME_LOCAL_ENU) {
-                struct EnuCoor_f enu;
-                enu.x = mission_item.x;
-                enu.y = mission_item.y;
-                enu.z = mission_item.z;
-                waypoint_set_enu(mission_item.seq, &enu);
-                mavlink_send_mission_ack();
-              }
-            }
-          }
-        }
-          break;
-#endif
-
-        /* Paparazzi dialect specific SCRIPT message */
-        /* request for script/block list, answer with number of blocks */
-        case MAVLINK_MSG_ID_SCRIPT_REQUEST_LIST: {
-          mavlink_script_request_list_t req;
-          mavlink_msg_script_request_list_decode(&msg, &req);
-          if (req.target_system == mavlink_system.sysid) {
-            mavlink_msg_script_count_send(MAVLINK_COMM_0, msg.sysid, msg.compid, NB_BLOCK);
-            MAVLinkSendMessage();
-          }
-        }
-          break;
-
-        /* request script/block, answer with SCRIPT_ITEM (block) */
-        case MAVLINK_MSG_ID_SCRIPT_REQUEST: {
-           mavlink_script_request_t req;
-           mavlink_msg_script_request_decode(&msg, &req);
-           if (req.target_system == mavlink_system.sysid && req.seq < NB_BLOCK) {
-             static const char *blocks[] = FP_BLOCKS;
-             char block_name[50];
-             strncpy(block_name, blocks[req.seq], 49); // String containing the name of the block
-             uint8_t len = strlen(blocks[req.seq]); // Length of the block name
-             mavlink_msg_script_item_send(MAVLINK_COMM_0, msg.sysid, msg.compid,
-                                          req.seq, len, block_name);
-             MAVLinkSendMessage();
-           }
-        }
-          break;
-
-        /* got script item, change block */
-        case MAVLINK_MSG_ID_SCRIPT_ITEM: {
-           mavlink_script_item_t block;
-           mavlink_msg_script_item_decode(&msg, &block);
-           if (block.target_system == mavlink_system.sysid && block.seq < NB_BLOCK) {
-             nav_goto_block(block.seq);
-           }
-        }
-          break;
-
-        default:
-          //Do nothing
-          //printf("Received message with id: %d\r\n", msg.msgid);
-          break;
-      }
+      mavlink_common_message_handler(&msg);
+      mavlink_mission_message_handler(&msg);
     }
-
   }
 }
 
-static inline void mavlink_send_mission_ack(void)
+void mavlink_common_message_handler(const mavlink_message_t *msg)
 {
-  mavlink_msg_mission_ack_send(MAVLINK_COMM_0,
-                               mavlink_system.sysid,
-                               mavlink_system.compid,
-                               MAV_MISSION_ACCEPTED);
-  MAVLinkSendMessage();
+  switch (msg->msgid) {
+    case MAVLINK_MSG_ID_HEARTBEAT:
+      break;
+
+      /* When requesting data streams say we can't send them */
+    case MAVLINK_MSG_ID_REQUEST_DATA_STREAM: {
+      mavlink_request_data_stream_t cmd;
+      mavlink_msg_request_data_stream_decode(msg, &cmd);
+
+      mavlink_msg_data_stream_send(MAVLINK_COMM_0, cmd.req_stream_id, 0, 0);
+      MAVLinkSendMessage();
+      break;
+    }
+
+      /* Override channels with RC */
+    case MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE: {
+      mavlink_rc_channels_override_t cmd;
+      mavlink_msg_rc_channels_override_decode(msg, &cmd);
+#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
+      uint8_t thrust = (cmd.chan3_raw - 950) * 127 / 1100;
+      int8_t roll = -(cmd.chan1_raw - 1500) * 255 / 1100 / 2;
+      int8_t pitch = -(cmd.chan2_raw - 1500) * 255 / 1100 / 2;
+      int8_t yaw = -(cmd.chan4_raw - 1500) * 255 / 1100;
+      parse_rc_4ch_datalink(0, thrust, roll, pitch, yaw);
+      //printf("RECEIVED: RC Channel Override for: %d/%d: throttle: %d; roll: %d; pitch: %d; yaw: %d;\r\n",
+      // cmd.target_system, cmd.target_component, thrust, roll, pitch, yaw);
+#endif
+      break;
+    }
+
+      /* When a request is made of the parameters list */
+    case MAVLINK_MSG_ID_PARAM_REQUEST_LIST: {
+      mavlink_params_idx = 0;
+      break;
+    }
+
+      /* When a request os made for a specific parameter */
+    case MAVLINK_MSG_ID_PARAM_REQUEST_READ: {
+      mavlink_param_request_read_t cmd;
+      mavlink_msg_param_request_read_decode(msg, &cmd);
+
+      // First check param_index and search for the ID if needed
+      if (cmd.param_index == -1) {
+        cmd.param_index = settings_idx_from_param_id(cmd.param_id);
+      }
+
+      mavlink_msg_param_value_send(MAVLINK_COMM_0,
+                                   mavlink_param_names[cmd.param_index],
+                                   settings_get_value(cmd.param_index),
+                                   MAV_PARAM_TYPE_REAL32,
+                                   NB_SETTING,
+                                   cmd.param_index);
+      MAVLinkSendMessage();
+
+      break;
+    }
+
+    case MAVLINK_MSG_ID_PARAM_SET: {
+      mavlink_param_set_t set;
+      mavlink_msg_param_set_decode(msg, &set);
+
+      // Check if this message is for this system
+      if ((uint8_t) set.target_system == AC_ID) {
+        int16_t idx = settings_idx_from_param_id(set.param_id);
+
+        // setting found
+        if (idx >= 0) {
+          // Only write if new value is NOT "not-a-number"
+          // AND is NOT infinity
+          if (set.param_type == MAV_PARAM_TYPE_REAL32 &&
+              !isnan(set.param_value) && !isinf(set.param_value)) {
+            DlSetting(idx, set.param_value);
+            // Report back new value
+            mavlink_msg_param_value_send(MAVLINK_COMM_0,
+                                         mavlink_param_names[idx],
+                                         settings_get_value(idx),
+                                         MAV_PARAM_TYPE_REAL32,
+                                         NB_SETTING,
+                                         idx);
+            MAVLinkSendMessage();
+          }
+        }
+      }
+    }
+      break;
+
+    default:
+      //Do nothing
+      //MAVLINK_DEBUG("Received message with id: %d\r\n", msg->msgid);
+      break;
+  }
 }
 
 /**

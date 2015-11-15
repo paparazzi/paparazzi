@@ -28,112 +28,75 @@
 
 // Include own header
 #include "modules/datalink/missionlib/waypoints.h"
+#include "modules/datalink/missionlib/mission_manager.h"
+#include "modules/datalink/mavlink.h"
 
-#include <stdio.h>
-#include <string.h>
+// include mavlink headers, but ignore some warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-default"
+#include "mavlink/paparazzi/mavlink.h"
+#pragma GCC diagnostic pop
+
+#include "generated/flight_plan.h"
+
 
 #include "subsystems/navigation/waypoints.h"
 //#include "subsystems/navigation/common_nav.h" // for fixed-wing aircraft
 
-#include "modules/datalink/mavlink.h"
 #include "modules/datalink/missionlib/mission_manager.h"
 
-static void mavlink_update_wp_list(void)
-{
-  // Store the waypoints in a mission item
-  if (NB_WAYPOINT > 0) {
-//        for (uint8_t i = 0; i < NB_WAYPOINT; i++) {
-//            mavlink_mission_item_t mission_item;
-//
-//            /*
-//             * Convert ENU waypoint to UTM
-//             * May be removed, but nav_move_waypoint() uses UTM coordinates in case of fixed-wing aircraft
-//             */
-//            struct UtmCoor_f utm;
-//            utm.east = waypoints[i].x + nav_utm_east0;
-//            utm.north = waypoints[i].y + nav_utm_north0;
-//            utm.alt = waypoints[i].a;
-//            utm.zone = nav_utm_zone0;
-//
-//            // Convert UTM waypoint to LLA
-//            struct LlaCoor_f lla;
-//            lla_of_utm_f(&lla, &utm);
-//            mission_item.x = lla.lat; // lattitude
-//            mission_item.y = lla.lon; // longtitude
-//            mission_item.z = lla.alt; // altitude
-//            mission_item.seq = i;
-//
-//            mission_mgr.waypoints[i] = mission_item;
-//        }
-    for (uint8_t i = 0; i < NB_WAYPOINT; i++) {
-      mavlink_mission_item_t mission_item;
-      // waypoint_set_global_flag(i);
-      if (waypoint_is_global(i)) {
-        MAVLINK_DEBUG("Waypoint(%d): is global\n", i);
-      } else {
-        MAVLINK_DEBUG("Waypoint(%d): is NOT global\n", i);
-      }
-      waypoint_globalize(i);
-      mission_item.x = (float)waypoint_get_lla(i)->lat * 1e-7; // lattitude
-      mission_item.y = (float)waypoint_get_lla(i)->lon * 1e-7; // longtitude
-      mission_item.z = (float)waypoint_get_lla(i)->alt * 1e-3; // altitude
-
-      MAVLINK_DEBUG("WP: %f, %f, %f\n", mission_item.x, mission_item.y, mission_item.z);
-
-      mission_item.seq = i;
-      mission_mgr.waypoints[i] = mission_item;
-    }
-  } else {
-    MAVLINK_DEBUG("ERROR: The waypoint array is empty\n");
-  }
-}
-
-static void mavlink_send_wp_count(void)
-{
-  mavlink_message_t msg;
-  mavlink_mission_count_t wp_count;
-  wp_count.target_system = mission_mgr.rem_sysid;
-  wp_count.target_component = mission_mgr.rem_compid;
-  wp_count.count = NB_WAYPOINT; // From the generated flight plan
-
-  mavlink_msg_mission_count_encode(mavlink_system.sysid, mavlink_system.compid, &msg,
-                                   &wp_count); // encode the block count message
-
-  MAVLINK_DEBUG("Sent WP_COUNT message\n");
-  mavlink_send_message(&msg);
-}
-
-static void mavlink_send_wp(uint16_t seq)
+static void mavlink_send_wp(uint8_t sysid, uint8_t compid, uint16_t seq)
 {
   if (seq < NB_WAYPOINT) { // Due to indexing
-    mavlink_message_t msg;
-    mavlink_mission_item_t *mission_item = &(mission_mgr.waypoints[seq]); // Copy the reference to the mission item
-
-    mission_item->target_system = mission_mgr.rem_sysid;
-    mission_item->target_component = mission_mgr.rem_compid;
-
-    mavlink_msg_mission_item_encode(mavlink_system.sysid, mavlink_system.compid, &msg, mission_item);
-
-    MAVLINK_DEBUG("Sent MISSION_ITEM message\n");
-    mavlink_send_message(&msg);
+#ifdef AP
+    /* for fixedwing firmware send as LOCAL_ENU for now */
+    mavlink_msg_mission_item_send(MAVLINK_COMM_0,
+                                  sysid,
+                                  compid,
+                                  seq,
+                                  MAV_FRAME_LOCAL_ENU,
+                                  MAV_CMD_NAV_WAYPOINT,
+                                  0, // current
+                                  0, // autocontinue
+                                  0, 0, 0, 0, // params
+                                  WaypointX(seq),
+                                  WaypointY(seq),
+                                  WaypointAlt(seq));
+#else
+    /* for rotorcraft firmware use waypoint API and send as lat/lon */
+    /* sending lat/lon as float is actually a bad idea,
+     *  but it seems that most GCSs don't understand the MISSION_ITEM_INT
+     */
+    struct LlaCoor_i *lla = waypoint_get_lla(seq);
+    mavlink_msg_mission_item_send(MAVLINK_COMM_0,
+                                  sysid,
+                                  compid,
+                                  seq,
+                                  MAV_FRAME_GLOBAL,
+                                  MAV_CMD_NAV_WAYPOINT,
+                                  0, // current
+                                  0, // autocontinue
+                                  0, 0, 0, 0, // params
+                                  (float)lla->lat / 1e7,
+                                  (float)lla->lon / 1e7,
+                                  (float)lla->alt / 1e3);
+#endif
+    MAVLinkSendMessage();
+    MAVLINK_DEBUG("Sent MISSION_ITEM message with seq %i\n", seq);
   } else {
-    MAVLINK_DEBUG("ERROR: Wp index out of bounds\n");
+    MAVLINK_DEBUG("ERROR: Wp index %i out of bounds\n", seq);
   }
-}
-
-void mavlink_wp_init(void)
-{
-  mavlink_update_wp_list();
 }
 
 void mavlink_wp_message_handler(const mavlink_message_t *msg)
 {
   switch (msg->msgid) {
+
+    /* request for mission list, answer with number of waypoints */
     case MAVLINK_MSG_ID_MISSION_REQUEST_LIST: {
       MAVLINK_DEBUG("Received MISSION_REQUEST_LIST message\n");
       mavlink_mission_request_list_t mission_request_list_msg;
-      mavlink_msg_mission_request_list_decode(msg,
-                                              &mission_request_list_msg); // Cast the incoming message to a mission_request_list_msg
+      mavlink_msg_mission_request_list_decode(msg, &mission_request_list_msg);
       if (mission_request_list_msg.target_system == mavlink_system.sysid) {
         if (mission_mgr.state == STATE_IDLE) {
           if (NB_WAYPOINT > 0) {
@@ -143,73 +106,163 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
             mission_mgr.rem_sysid = msg->sysid;
             mission_mgr.rem_compid = msg->compid;
           }
-          mavlink_send_wp_count();
+          mavlink_msg_mission_count_send(MAVLINK_COMM_0, msg->sysid, msg->compid, NB_WAYPOINT);
+          MAVLinkSendMessage();
 
-          mission_mgr.timer_id = sys_time_register_timer(MAVLINK_TIMEOUT,
-                                 &timer_cb); // Register the timeout timer (it is continuous so it needs to be cancelled after triggering)
+          // Register the timeout timer (it is continuous so it needs to be cancelled after triggering)
+          mavlink_mission_set_timer();
         } else {
           // TODO: Handle case when the state is not IDLE
         }
-      } else {
-        // TODO: Handle remote system id mismatch
       }
-
       break;
     }
 
+    /* request for mission item, answer with waypoint */
     case MAVLINK_MSG_ID_MISSION_REQUEST: {
-      MAVLINK_DEBUG("Received MISSION_REQUEST message\n");
-      mavlink_mission_request_t mission_request_msg;
-      mavlink_msg_mission_request_decode(msg, &mission_request_msg); // Cast the incoming message to a mission_request_msg
-      if (mission_request_msg.target_system == mavlink_system.sysid) {
-        if ((mission_mgr.state == STATE_SEND_LIST && mission_request_msg.seq == 0) || // Send the first waypoint
-            (mission_mgr.state == STATE_SEND_ITEM && (mission_request_msg.seq == mission_mgr.seq
-                || // Send the current waypoint again
-                mission_request_msg.seq == mission_mgr.seq + 1))) { // Send the next waypoint
-          sys_time_cancel_timer(mission_mgr.timer_id); // Cancel the timeout timer
+      mavlink_mission_request_t req;
+      mavlink_msg_mission_request_decode(msg, &req);
+      MAVLINK_DEBUG("Received MISSION_REQUEST message with seq %i\n", req.seq);
 
-          mission_mgr.state = STATE_SEND_ITEM;
-          MAVLINK_DEBUG("State: %d\n", mission_mgr.state);
-          mission_mgr.seq = mission_request_msg.seq;
-
-          mavlink_update_wp_list(); // Update the waypoint list
-
-          mavlink_send_wp(mission_mgr.seq);
-
-          mission_mgr.timer_id = sys_time_register_timer(MAVLINK_TIMEOUT, &timer_cb); // Register the timeout timer
-        } else {
-          // TODO: Handle cases for which the above condition does not hold
-        }
-      } else {
-        // TODO: Handle remote system id mismatch
+      if (req.target_system != mavlink_system.sysid || req.seq >= NB_WAYPOINT) {
+        return;
       }
+      /* Send if:
+       * - the first waypoint
+       * - current waypoint requested again
+       * - or next waypoint requested
+       */
+      if ((mission_mgr.state == STATE_SEND_LIST && req.seq == 0) ||
+          (mission_mgr.state == STATE_SEND_ITEM && (req.seq == mission_mgr.seq ||
+                                                    req.seq == mission_mgr.seq + 1))) {
+        // Cancel the timeout timer
+        mavlink_mission_cancel_timer();
 
+        mission_mgr.state = STATE_SEND_ITEM;
+        MAVLINK_DEBUG("State: %d\n", mission_mgr.state);
+        mission_mgr.seq = req.seq;
+
+        mavlink_send_wp(msg->sysid, msg->compid, mission_mgr.seq);
+
+        // Register the timeout timer
+        mavlink_mission_set_timer();
+      } else {
+        // TODO: Handle cases for which the above condition does not hold
+      }
       break;
     }
 
-    case MAVLINK_MSG_ID_MISSION_ITEM: {
-      MAVLINK_DEBUG("Received MISSION_ITEM message\n");
-      mavlink_mission_item_t mission_item_msg;
-      mavlink_msg_mission_item_decode(msg, &mission_item_msg); // Cast the incoming message to a mission_item_msg
+#ifndef AP
+    /* change waypoints: only available when using waypoint API (rotorcraft firmware)
+     * This uses the waypoint_set_x functions (opposed to waypoint_move_x),
+     * meaning it doesn't send WP_MOVED Paparazzi messages.
+     */
 
-      if (mission_item_msg.target_system == mavlink_system.sysid) {
-        if (mission_mgr.state == STATE_IDLE) { // Only handle incoming mission item messages if there a not currently being sent
-          struct LlaCoor_i lla;
-          lla.lat = (int32_t)(mission_item_msg.x * 1e7); // lattitude in degrees*1e7
-          lla.lon = (int32_t)(mission_item_msg.y * 1e7); // longitude in degrees*1e7
-          lla.alt = (int32_t)(mission_item_msg.z * 1e3); // altitude in millimeters
-
-//                    struct UtmCoor_f utm;
-//                    utm.zone = nav_utm_zone0;
-//                    utm_of_lla_f(&utm, &lla);
-          MAVLINK_DEBUG("Received WP(%d): %d, %d, %d\n", mission_item_msg.seq, lla.lat, lla.lon, lla.alt);
-          // Set the new waypoint
-          waypoint_move_lla(mission_item_msg.seq, &lla); // move the waypoint with the id equal to seq, only for rotorcraft
-//                    nav_move_waypoint(mission_item_msg.seq, utm.east, utm.north, utm.alt);
-
-          sendMissionAck();
-        }
+    /* initiate mission/waypoint write transaction */
+    case MAVLINK_MSG_ID_MISSION_COUNT: {
+      mavlink_mission_count_t mission_count;
+      mavlink_msg_mission_count_decode(msg, &mission_count);
+      if (mission_count.target_system != mavlink_system.sysid) {
+        return;
       }
+      MAVLINK_DEBUG("Received MISSION_COUNT message with count %i\n", mission_count.count);
+      /* only allow new waypoint update transaction if currently idle */
+      if (mission_mgr.state != STATE_IDLE) {
+        MAVLINK_DEBUG("MISSION_COUNT error: mission manager not idle.\n");
+        return;
+      }
+      if (mission_count.count != NB_WAYPOINT) {
+        MAVLINK_DEBUG("MISSION_COUNT error: request writing %i instead of %i waypoints\n",
+                      mission_count.count, NB_WAYPOINT);
+        return;
+      }
+      /* valid initiation of waypoint write transaction, ask for first waypoint */
+      MAVLINK_DEBUG("MISSION_COUNT: Requesting first waypoint\n");
+      mavlink_msg_mission_request_send(MAVLINK_COMM_0, msg->sysid, msg->compid, 0);
+      MAVLinkSendMessage();
+
+      mission_mgr.seq = 0;
+      mission_mgr.state = STATE_WAYPOINT_WRITE_TRANSACTION;
+
+      // Register the timeout timer
+      mavlink_mission_set_timer();
     }
+      break;
+
+    /* got MISSION_ITEM, update one waypoint if in valid transaction */
+    case MAVLINK_MSG_ID_MISSION_ITEM: {
+      mavlink_mission_item_t mission_item;
+      mavlink_msg_mission_item_decode(msg, &mission_item);
+
+      if (mission_item.target_system != mavlink_system.sysid) {
+        return;
+      }
+
+      MAVLINK_DEBUG("Received MISSION_ITEM message with seq %i and frame %i\n",
+                    mission_item.seq, mission_item.frame);
+
+      /* reject non waypoint updates */
+      if (mission_item.command != MAV_CMD_NAV_WAYPOINT ||
+          mission_item.seq >= NB_WAYPOINT) {
+        MAVLINK_DEBUG("rejected MISSION_ITEM command %i, seq %i\n",
+                      mission_item.command, mission_item.seq);
+        return;
+      }
+
+      /* Only handle mission item if correct sequence */
+      if (mission_mgr.state != STATE_WAYPOINT_WRITE_TRANSACTION) {
+        MAVLINK_DEBUG("got MISSION_ITEM while not in waypoint write transaction\n");
+        // Do we want to handle updating waypoints outside of full transaction?
+      }
+      if (mission_item.seq != mission_mgr.seq) {
+        MAVLINK_DEBUG("MISSION_ITEM, got waypoint seq %i, but requested %i\n",
+                      mission_item.seq, mission_mgr.seq);
+        return;
+      }
+      if (mission_item.frame == MAV_FRAME_GLOBAL) {
+        MAVLINK_DEBUG("MISSION_ITEM, global wp: lat=%f, lon=%f, alt=%f\n",
+                      mission_item.x, mission_item.y, mission_item.z);
+        struct LlaCoor_i lla;
+        lla.lat = mission_item.x * 1e7; // lattitude in degrees*1e7
+        lla.lon = mission_item.y * 1e7; // longitude in degrees*1e7
+        lla.alt = mission_item.z * 1e3; // altitude in millimeters
+        waypoint_set_lla(mission_item.seq, &lla);
+      }
+      else if (mission_item.frame == MAV_FRAME_LOCAL_ENU) {
+        MAVLINK_DEBUG("MISSION_ITEM, local_enu wp: x=%f, y=%f, z=%f\n",
+                      mission_item.x, mission_item.y, mission_item.z);
+        struct EnuCoor_f enu;
+        enu.x = mission_item.x;
+        enu.y = mission_item.y;
+        enu.z = mission_item.z;
+        waypoint_set_enu(mission_item.seq, &enu);
+      }
+      else {
+        MAVLINK_DEBUG("No handler for MISSION_ITEM with frame %i\n", mission_item.frame);
+        return;
+      }
+      // acknowledge transmission of all waypoints or request next waypoint
+      if (mission_item.seq == NB_WAYPOINT -1) {
+        MAVLINK_DEBUG("Acknowledging end of waypoint write transaction\n");
+        mavlink_msg_mission_ack_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
+                                     MAV_MISSION_ACCEPTED);
+        MAVLinkSendMessage();
+        mavlink_mission_cancel_timer();
+        mission_mgr.state = STATE_IDLE;
+      }
+      else {
+        MAVLINK_DEBUG("Requesting waypoint %i\n", mission_item.seq + 1);
+        mavlink_msg_mission_request_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
+                                         mission_item.seq + 1);
+        MAVLinkSendMessage();
+        mission_mgr.seq = mission_item.seq + 1;
+        mavlink_mission_set_timer();
+      }
+      break;
+    }
+#endif // AP
+
+    default:
+      break;
   }
 }
