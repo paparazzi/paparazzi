@@ -298,7 +298,7 @@ void mavlink_event(void)
               if (mission_item.frame == MAV_FRAME_GLOBAL_INT) {
                 struct LlaCoor_i lla;
                 lla.lat = mission_item.x; // lattitude in degrees*1e7
-                lla.lat = mission_item.y; // longitude in degrees*1e7
+                lla.lon = mission_item.y; // longitude in degrees*1e7
                 lla.alt = mission_item.z * 1e3; // altitude in millimeters
                 waypoint_set_lla(mission_item.seq, &lla);
                 mavlink_send_mission_ack();
@@ -306,7 +306,7 @@ void mavlink_event(void)
               else if (mission_item.frame == MAV_FRAME_GLOBAL) {
                 struct LlaCoor_i lla;
                 lla.lat = mission_item.x * 1e7; // lattitude in degrees*1e7
-                lla.lat = mission_item.y * 1e7; // longitude in degrees*1e7
+                lla.lon = mission_item.y * 1e7; // longitude in degrees*1e7
                 lla.alt = mission_item.z * 1e3; // altitude in millimeters
                 waypoint_set_lla(mission_item.seq, &lla);
                 mavlink_send_mission_ack();
