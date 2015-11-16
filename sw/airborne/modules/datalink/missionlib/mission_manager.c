@@ -93,8 +93,6 @@ void mavlink_mission_periodic(void)
   if (mission_mgr.current_block != nav_block) {
     mission_mgr.current_block = nav_block;
     mavlink_send_block(nav_block); // send the current block seq
-    // wait for ack, really?
-    mavlink_mission_set_timer();
   }
   // check if we had a timeout on a transaction
   if (sys_time_check_and_ack_timer(mission_mgr.timer_id)) {
