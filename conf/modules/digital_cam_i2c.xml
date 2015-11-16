@@ -10,6 +10,7 @@
       Using the PAYLOAD_COMMAND, all functions of the camera can be controlled.
       It can trigger photos based on GPS distance, time or circle radius in both fixedwings and rotorcraft.
     </description>
+    <configure name="ATMEGA_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
     <define name="DC_SHOOT_ON_BUTTON_RELEASE" />
     <define name="DC_SHOT_SYNC_SEND" value="TRUE|FALSE" description="send DC_SHOT message when photo was taken (default: TRUE)"/>
   </doc>
@@ -26,10 +27,15 @@
   <datalink message="PAYLOAD_COMMAND" fun="ParseCameraCommand()"/>
 
   <makefile target="ap">
+    <raw>
+      ATMEGA_I2C_DEV ?= i2c0
+      ATMEGA_I2C_DEV_LOWER=$(shell echo $(ATMEGA_I2C_DEV) | tr A-Z a-z)
+      ATMEGA_I2C_DEV_UPPER=$(shell echo $(ATMEGA_I2C_DEV) | tr a-z A-Z)
+    </raw>
+    <define name="USE_$(ATMEGA_I2C_DEV_UPPER)"/>
+    <define name="ATMEGA_I2C_DEV" value="$(ATMEGA_I2C_DEV_LOWER)"/>
     <file name="atmega_i2c_cam_ctrl.c"/>
     <file name="dc.c"/>
-    <define name="ATMEGA_I2C_DEV" value="i2c0"/>
-    <define name="USE_I2C0" value="1"/>
   </makefile>
 
   <makefile target="sim">

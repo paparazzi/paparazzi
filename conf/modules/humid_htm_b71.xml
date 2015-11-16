@@ -3,7 +3,7 @@
 <module name="humid_htm_b71" dir="meteo">
   <doc>
     <description>TronSens HTM-B71 humidity sensor (I2C)</description>
-    <define name="HTM_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
+    <configure name="HTM_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
   </doc>
   <header>
     <file name="humid_htm_b71.h"/>
@@ -13,6 +13,13 @@
   <periodic fun="humid_htm_read()"  freq="4" delay="14"/>
   <event fun="humid_htm_event()"/>
   <makefile target="ap">
+    <raw>
+      HTM_I2C_DEV ?= i2c0
+      HTM_I2C_DEV_LOWER=$(shell echo $(HTM_I2C_DEV) | tr A-Z a-z)
+      HTM_I2C_DEV_UPPER=$(shell echo $(HTM_I2C_DEV) | tr a-z A-Z)
+    </raw>
+    <define name="USE_$(HTM_I2C_DEV_UPPER)"/>
+    <define name="HTM_I2C_DEV" value="$(HTM_I2C_DEV_LOWER)"/>
     <file name="humid_htm_b71.c"/>
   </makefile>
 </module>
