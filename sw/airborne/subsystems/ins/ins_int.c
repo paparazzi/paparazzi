@@ -517,7 +517,8 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 
 static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
                        uint32_t stamp __attribute__((unused)),
-                       float x, float y, float z, float noise)
+                       float x, float y, float z,
+                       float noise __attribute__((unused)))
 {
 
   struct FloatVect3 vel_body = {x, y, z};
