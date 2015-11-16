@@ -57,6 +57,10 @@
 
 #define IdOfMsg(x) (x[1])
 
+#if USE_NPS
+bool_t datalink_enabled = TRUE;
+#endif
+
 void dl_parse_msg(void)
 {
 

@@ -64,7 +64,6 @@ bool_t nps_bypass_ins;
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char *rc_dev)
 {
   autopilot.launch = TRUE;
-  autopilot.datalink_enabled = TRUE;
 
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
   nps_electrical_init();
@@ -142,11 +141,6 @@ void nps_autopilot_run_step(double time)
   /* scale final motor commands to 0-1 for feeding the fdm */
   for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
     autopilot.commands[i] = (double)motor_mixing.commands[i] / MAX_PPRZ;
-  }
-
-  // hack to reset datalink_time, since we don't use actual dl_parse_msg
-  if (autopilot.datalink_enabled) {
-    datalink_time = 0;
   }
 }
 

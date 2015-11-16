@@ -13,15 +13,11 @@
 #include "nps_fdm.h"
 #include "nps_sensors.h"
 #include "nps_atmosphere.h"
-#include "subsystems/ins.h"
-#include "subsystems/navigation/common_flight_plan.h"
+
+//#include "subsystems/navigation/common_flight_plan.h"
 
 #if USE_GPS
 #include "subsystems/gps.h"
-#endif
-
-#ifdef RADIO_CONTROL_TYPE_DATALINK
-#include "subsystems/radio_control.h"
 #endif
 
 #include NPS_SENSORS_PARAMS
@@ -36,29 +32,7 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
                           void *user_data __attribute__((unused)),
                           int argc __attribute__((unused)), char *argv[]);
 
-static void on_DL_GET_SETTING(IvyClientPtr app __attribute__((unused)),
-                              void *user_data __attribute__((unused)),
-                              int argc __attribute__((unused)), char *argv[]);
-
-static void on_DL_PING(IvyClientPtr app __attribute__((unused)),
-                       void *user_data __attribute__((unused)),
-                       int argc __attribute__((unused)), char *argv[]);
-
-static void on_DL_BLOCK(IvyClientPtr app __attribute__((unused)),
-                        void *user_data __attribute__((unused)),
-                        int argc __attribute__((unused)), char *argv[]);
-
-#ifdef RADIO_CONTROL_TYPE_DATALINK
-static void on_DL_RC_3CH(IvyClientPtr app __attribute__((unused)),
-                         void *user_data __attribute__((unused)),
-                         int argc __attribute__((unused)), char *argv[]);
-
-static void on_DL_RC_4CH(IvyClientPtr app __attribute__((unused)),
-                         void *user_data __attribute__((unused)),
-                         int argc __attribute__((unused)), char *argv[]);
-#endif
-
-void nps_ivy_common_init(char *ivy_bus)
+void nps_ivy_init(char *ivy_bus)
 {
   const char *agent_name = AIRFRAME_NAME"_NPS";
   const char *ready_msg = AIRFRAME_NAME"_NPS Ready";
@@ -66,15 +40,8 @@ void nps_ivy_common_init(char *ivy_bus)
 
   IvyBindMsg(on_WORLD_ENV, NULL, "^(\\S*) WORLD_ENV (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
 
-  IvyBindMsg(on_DL_PING, NULL, "^(\\S*) DL_PING");
+  // to be able to change datalink_enabled setting back on
   IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
-  IvyBindMsg(on_DL_GET_SETTING, NULL, "^(\\S*) GET_DL_SETTING (\\S*) (\\S*)");
-  IvyBindMsg(on_DL_BLOCK, NULL,   "^(\\S*) BLOCK (\\S*) (\\S*)");
-
-#ifdef RADIO_CONTROL_TYPE_DATALINK
-  IvyBindMsg(on_DL_RC_3CH, NULL, "^(\\S*) RC_3CH (\\S*) (\\S*) (\\S*) (\\S*)");
-  IvyBindMsg(on_DL_RC_4CH, NULL, "^(\\S*) RC_4CH (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
-#endif
 
 #ifdef __APPLE__
   const char *default_ivy_bus = "224.255.255.255";
@@ -117,11 +84,6 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
 #endif
 }
 
-
-//TODO use datalink parsing from actual fixedwing or rotorcraft firmware,
-// instead of doing it here explicitly
-
-
 #include "generated/settings.h"
 #include "dl_protocol.h"
 #include "subsystems/datalink/downlink.h"
@@ -136,9 +98,8 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
   /* HACK:
    * we actually don't want to allow changing settings if datalink is disabled,
    * but since we currently change this variable via settings we have to allow it
+   * TODO: only allow changing the datalink_enabled setting
    */
-  //if (!autopilot.datalink_enabled)
-  //  return;
 
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
@@ -146,88 +107,6 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
   DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
   printf("setting %d %f\n", index, value);
 }
-
-static void on_DL_GET_SETTING(IvyClientPtr app __attribute__((unused)),
-                              void *user_data __attribute__((unused)),
-                              int argc __attribute__((unused)), char *argv[])
-{
-  if (atoi(argv[1]) != AC_ID) {
-    return;
-  }
-  if (!autopilot.datalink_enabled) {
-    return;
-  }
-
-  uint8_t index = atoi(argv[2]);
-  float value = settings_get_value(index);
-  DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
-  printf("get setting %d %f\n", index, value);
-}
-
-static void on_DL_PING(IvyClientPtr app __attribute__((unused)),
-                       void *user_data __attribute__((unused)),
-                       int argc __attribute__((unused)), char *argv[] __attribute__((unused)))
-{
-  if (!autopilot.datalink_enabled) {
-    return;
-  }
-
-  DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
-}
-
-static void on_DL_BLOCK(IvyClientPtr app __attribute__((unused)),
-                        void *user_data __attribute__((unused)),
-                        int argc __attribute__((unused)), char *argv[])
-{
-  if (atoi(argv[2]) != AC_ID) {
-    return;
-  }
-  if (!autopilot.datalink_enabled) {
-    return;
-  }
-
-  int block = atoi(argv[1]);
-  nav_goto_block(block);
-  printf("goto block %d\n", block);
-}
-
-#ifdef RADIO_CONTROL_TYPE_DATALINK
-static void on_DL_RC_3CH(IvyClientPtr app __attribute__((unused)),
-                         void *user_data __attribute__((unused)),
-                         int argc __attribute__((unused)), char *argv[])
-{
-  if (!autopilot.datalink_enabled) {
-    return;
-  }
-
-  uint8_t throttle_mode = atoi(argv[2]);
-  int8_t roll = atoi(argv[3]);
-  int8_t pitch = atoi(argv[4]);
-  parse_rc_3ch_datalink(throttle_mode, roll, pitch);
-  //printf("rc_3ch: throttle_mode %d, roll %d, pitch %d\n", throttle_mode, roll, pitch);
-}
-
-static void on_DL_RC_4CH(IvyClientPtr app __attribute__((unused)),
-                         void *user_data __attribute__((unused)),
-                         int argc __attribute__((unused)), char *argv[])
-{
-  if (atoi(argv[1]) != AC_ID) {
-    return;
-  }
-  if (!autopilot.datalink_enabled) {
-    return;
-  }
-
-  uint8_t mode = atoi(argv[2]);
-  uint8_t throttle = atoi(argv[3]);
-  int8_t roll = atoi(argv[4]);
-  int8_t pitch = atoi(argv[5]);
-  int8_t yaw = atoi(argv[6]);
-  parse_rc_4ch_datalink(mode, throttle, roll, pitch, yaw);
-  //printf("rc_4ch: mode %d, throttle %d, roll %d, pitch %d, yaw %d\n", mode, throttle, roll, pitch, yaw);
-}
-#endif
-
 
 void nps_ivy_display(void)
 {

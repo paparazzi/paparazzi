@@ -46,13 +46,10 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_radio_control_joystick.c    \
        $(NPSDIR)/nps_radio_control_spektrum.c    \
        $(NPSDIR)/nps_autopilot_fixedwing.c       \
-       $(NPSDIR)/nps_ivy_common.c                \
-       $(NPSDIR)/nps_ivy_fixedwing.c             \
+       $(NPSDIR)/nps_ivy.c                       \
        $(NPSDIR)/nps_flightgear.c                \
 
 
-nps.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp
-nps.srcs += subsystems/datalink/ivy_transport.c
-nps.srcs += subsystems/datalink/downlink.c subsystems/datalink/telemetry.c
+include $(CFG_SHARED)/telemetry_transparent_udp.makefile
 nps.srcs += $(SRC_FIRMWARE)/datalink.c
 nps.srcs += $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c

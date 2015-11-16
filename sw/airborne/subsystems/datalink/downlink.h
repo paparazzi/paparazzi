@@ -36,7 +36,7 @@
 #include "messages.h"
 #include "generated/airframe.h" // AC_ID is required
 
-#if defined SITL
+#if defined SITL && !USE_NPS
 /** Software In The Loop simulation uses IVY bus directly as the transport layer */
 #include "ivy_transport.h"
 

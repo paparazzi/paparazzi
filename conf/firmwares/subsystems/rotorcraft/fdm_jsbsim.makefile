@@ -57,14 +57,12 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_radio_control_joystick.c    \
        $(NPSDIR)/nps_radio_control_spektrum.c    \
        $(NPSDIR)/nps_autopilot_rotorcraft.c      \
-       $(NPSDIR)/nps_ivy_common.c                \
-       $(NPSDIR)/nps_ivy_rotorcraft.c            \
-       $(NPSDIR)/nps_flightgear.c                \
-       $(NPSDIR)/nps_ivy_mission_commands.c
+       $(NPSDIR)/nps_ivy.c                       \
+       $(NPSDIR)/nps_flightgear.c
 
 # for geo mag calculation
 nps.srcs += math/pprz_geodetic_wmm2015.c
 
-include $(CFG_SHARED)/telemetry_ivy.makefile
+include $(CFG_SHARED)/telemetry_transparent_udp.makefile
 nps.srcs += $(SRC_FIRMWARE)/rotorcraft_telemetry.c
 nps.srcs += $(SRC_FIRMWARE)/datalink.c
