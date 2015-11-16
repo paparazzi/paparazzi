@@ -33,7 +33,7 @@
 
 //Check if variables are set and else define them
 #ifndef GPS_UDP_HOST
-#define GPS_UDP_HOST            "192.168.1.2"
+#define GPS_UDP_HOST            192.168.1.2
 #endif
 
 #define GPS_UDP_MSG_LEN         (11*4)
@@ -45,7 +45,7 @@ struct FmsNetwork *gps_network = NULL;
 void gps_impl_init(void)
 {
   gps.fix = GPS_FIX_NONE;
-  gps_network = network_new(GPS_UDP_HOST, 6000 /*out*/, 7000 /*in*/, TRUE);
+  gps_network = network_new(STRINGIFY(GPS_UDP_HOST), 6000 /*out*/, 7000 /*in*/, TRUE);
 }
 
 #define STX 99
