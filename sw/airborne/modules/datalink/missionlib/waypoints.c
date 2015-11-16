@@ -209,16 +209,18 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
         return;
       }
 
-      /* Only handle mission item if correct sequence */
-      if (mission_mgr.state != STATE_WAYPOINT_WRITE_TRANSACTION) {
-        MAVLINK_DEBUG("got MISSION_ITEM while not in waypoint write transaction\n");
-        // Do we want to handle updating waypoints outside of full transaction?
+      /* Only accept mission item in IDLE (update single waypoint) or in write transaction */
+      if (mission_mgr.state != STATE_IDLE && mission_mgr.state != STATE_WAYPOINT_WRITE_TRANSACTION) {
+        MAVLINK_DEBUG("got MISSION_ITEM while not in waypoint write transaction or idle\n");
+        return;
       }
-      if (mission_item.seq != mission_mgr.seq) {
+      /* If in write transaction, only handle mission item if correct sequence */
+      if (mission_mgr.state == STATE_WAYPOINT_WRITE_TRANSACTION && mission_item.seq != mission_mgr.seq) {
         MAVLINK_DEBUG("MISSION_ITEM, got waypoint seq %i, but requested %i\n",
                       mission_item.seq, mission_mgr.seq);
         return;
       }
+
       if (mission_item.frame == MAV_FRAME_GLOBAL) {
         MAVLINK_DEBUG("MISSION_ITEM, global wp: lat=%f, lon=%f, alt=%f\n",
                       mission_item.x, mission_item.y, mission_item.z);
@@ -241,8 +243,16 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
         MAVLINK_DEBUG("No handler for MISSION_ITEM with frame %i\n", mission_item.frame);
         return;
       }
-      // acknowledge transmission of all waypoints or request next waypoint
-      if (mission_item.seq == NB_WAYPOINT -1) {
+      // acknowledge transmission single waypoint update
+      if (mission_mgr.state == STATE_IDLE) {
+        MAVLINK_DEBUG("Acknowledge single waypoint update\n");
+        mavlink_msg_mission_ack_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
+                                     MAV_MISSION_ACCEPTED);
+        MAVLinkSendMessage();
+        mavlink_mission_cancel_timer();
+      }
+      // or end of transaction
+      else if (mission_item.seq == NB_WAYPOINT -1) {
         MAVLINK_DEBUG("Acknowledging end of waypoint write transaction\n");
         mavlink_msg_mission_ack_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
                                      MAV_MISSION_ACCEPTED);
@@ -250,6 +260,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
         mavlink_mission_cancel_timer();
         mission_mgr.state = STATE_IDLE;
       }
+      // or request next waypoint if still in middle of transaction
       else {
         MAVLINK_DEBUG("Requesting waypoint %i\n", mission_item.seq + 1);
         mavlink_msg_mission_request_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
