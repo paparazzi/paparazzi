@@ -26,9 +26,9 @@
         $(error mag_hmc58xx module error: please configure MAG_HMC58XX_I2C_DEV)
       endif
       MAG_HMC58XX_I2C_DEV_UPPER=$(shell echo $(MAG_HMC58XX_I2C_DEV) | tr a-z A-Z)
+      MAG_HMC58XX_I2C_DEV_LOWER=$(shell echo $(MAG_HMC58XX_I2C_DEV) | tr A-Z a-z)
     </raw>
-    <define name="USE_I2C"/>
     <define name="USE_$(MAG_HMC58XX_I2C_DEV_UPPER)"/>
-    <define name="MAG_HMC58XX_I2C_DEV" value="$(MAG_HMC58XX_I2C_DEV)"/>
+    <define name="MAG_HMC58XX_I2C_DEV" value="$(MAG_HMC58XX_I2C_DEV_LOWER)"/>
   </makefile>
 </module>

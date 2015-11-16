@@ -9,8 +9,7 @@
       <!--define name="SENSOR_SYNC_SEND_SONAR"/-->
     </load>
     <!--load name="baro_mpl3115.xml">
-      <define name="MPL3115_I2C_DEV" value="i2c1"/>
-      <define name="USE_I2C1"/>
+      <configure name="MPL3115_I2C_DEV" value="i2c1"/>
       <define name="SENSOR_SYNC_SEND"/>
     </load-->
     <!--load name="mavlink_decoder.xml">

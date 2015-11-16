@@ -3,13 +3,6 @@
 
 #include "std.h"
 
-#ifdef ENOSE
-#if !defined USE_I2C && !defined SITL
-#define USE_I2C
-#endif
-#endif
-
-
 #define ENOSE_NB_SENSOR 3
 
 extern uint8_t enose_heat[ENOSE_NB_SENSOR];

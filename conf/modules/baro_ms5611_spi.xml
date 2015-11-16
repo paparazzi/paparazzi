@@ -6,8 +6,8 @@
       Baro MS5611 (SPI)
       Measurement Specialties MS5611-01BA pressure sensor (SPI)
     </description>
-    <define name="MS5611_SPI_DEV" value="spiX" description="select spi peripheral to use (default spi1)"/>
-    <define name="MS5611_SLAVE_IDX" value="SPI_SLAVE0" description="SPI slave select index"/>
+    <configure name="MS5611_SPI_DEV" value="spiX" description="select spi peripheral to use (default spi1)"/>
+    <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE0" description="SPI slave select index"/>
     <define name="SENSOR_SYNC_SEND" description="flag to enable sending BARO_MS5611 message on every new measurement"/>
   </doc>
   <header>
@@ -18,6 +18,21 @@
   <periodic fun="baro_ms5611_periodic_check()" freq="40"/>
   <event fun="baro_ms5611_event()"/>
   <makefile target="ap">
+    <raw>
+      MS5611_SPI_DEV ?= spi1
+      MS5611_SPI_DEV_LOWER=$(shell echo $(MS5611_SPI_DEV) | tr A-Z a-z)
+      MS5611_SPI_DEV_UPPER=$(shell echo $(MS5611_SPI_DEV) | tr a-z A-Z)
+
+      MS5611_SLAVE_IDX ?= spi_slave0
+      MS5611_SLAVE_IDX_LOWER=$(shell echo $(MS5611_SLAVE_IDX) | tr A-Z a-z)
+      MS5611_SLAVE_IDX_UPPER=$(shell echo $(MS5611_SLAVE_IDX) | tr a-z A-Z)
+
+      include $(CFG_SHARED)/spi_master.makefile
+    </raw>
+    <define name="USE_$(MS5611_SPI_DEV_UPPER)" />
+    <define name="USE_$(MS5611_SLAVE_IDX_UPPER)" />
+    <define name="MS5611_SPI_DEV" value="$(MS5611_SPI_DEV_LOWER)" />
+    <define name="MS5611_SLAVE_IDX" value="$(MS5611_SLAVE_IDX_UPPER)" />
     <file name="baro_ms5611_spi.c"/>
     <file name="ms5611.c" dir="peripherals"/>
     <file name="ms5611_spi.c" dir="peripherals"/>

@@ -25,13 +25,13 @@
       <define name="I2C0_SCLH" value="25"/>
     </load-->
     <!--load name="baro_bmp.xml">
-      <define name="BMP_I2C_DEV" value="i2c1"/>
+      <configure name="BMP_I2C_DEV" value="i2c1"/>
     </load-->
     <!--load name="baro_ms5611_i2c.xml">
-      <define name="MS5611_I2C_DEV" value="i2c0"/>
+      <configure name="MS5611_I2C_DEV" value="i2c0"/>
     </load-->
     <!--load name="baro_mpl3115.xml">
-      <define name="MPL3115_I2C_DEV" value="i2c0"/>
+      <configure name="MPL3115_I2C_DEV" value="i2c0"/>
       <define name="SENSOR_SYNC_SEND"/>
     </load-->
     <!--load name="airspeed_ads1114.xml"/-->
@@ -40,8 +40,6 @@
   </modules>
 
   <firmware name="fixedwing">
-    <define name="USE_I2C0"/>
-    <define name="USE_I2C1"/>
     <!--define name="AGR_CLIMB"/-->
     <define name="USE_AIRSPEED"/>
     <!--define name="LOITER_TRIM"/-->

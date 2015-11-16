@@ -50,7 +50,7 @@ twog_1.0 + aspirin + ETS baro + ETS speed
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
       <define name="AIRSPEED_ETS_SCALE"   value="1.44"/> <!-- default 1.8-->
      <!-- <define name="AIRSPEED_ETS_OFFSET"  value="50"/> --> <!-- default 0 -->
-     <!-- <define name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/> -->
+     <!-- <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/> -->
     </load>
     <load name="baro_ets.xml">
       <define name="BARO_ETS_SCALE" value="40.0"/>
