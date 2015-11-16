@@ -271,6 +271,36 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
       }
       break;
     }
+
+    case MAVLINK_MSG_ID_MISSION_ITEM_INT: {
+      mavlink_mission_item_int_t mission_item;
+      mavlink_msg_mission_item_int_decode(msg, &mission_item);
+
+      if (mission_item.target_system == mavlink_system.sysid) {
+        MAVLINK_DEBUG("Received MISSION_ITEM_INT message with seq %i and frame %i\n",
+                      mission_item.seq, mission_item.frame);
+        if (mission_item.seq >= NB_WAYPOINT) {
+          return;
+        }
+        if (mission_item.frame == MAV_FRAME_GLOBAL_INT) {
+          MAVLINK_DEBUG("MISSION_ITEM_INT, global_int wp: lat=%i, lon=%i, alt=%f\n",
+                        mission_item.x, mission_item.y, mission_item.z);
+          struct LlaCoor_i lla;
+          lla.lat = mission_item.x; // lattitude in degrees*1e7
+          lla.lon = mission_item.y; // longitude in degrees*1e7
+          lla.alt = mission_item.z * 1e3; // altitude in millimeters
+          waypoint_set_lla(mission_item.seq, &lla);
+          mavlink_msg_mission_ack_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
+                                     MAV_MISSION_ACCEPTED);
+          MAVLinkSendMessage();
+        }
+        else {
+          MAVLINK_DEBUG("No handler for MISSION_ITEM_INT with frame %i\n", mission_item.frame);
+        return;
+      }
+      }
+    }
+      break;
 #endif // AP
 
     default:
