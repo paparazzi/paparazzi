@@ -65,6 +65,7 @@ void mavlink_common_message_handler(const mavlink_message_t *msg);
 
 static inline void mavlink_send_heartbeat(void);
 static inline void mavlink_send_sys_status(void);
+static inline void mavlink_send_system_time(void);
 static inline void mavlink_send_attitude(void);
 static inline void mavlink_send_local_position_ned(void);
 static inline void mavlink_send_global_position_int(void);
@@ -103,6 +104,7 @@ void mavlink_periodic(void)
 {
   RunOnceEvery(2, mavlink_send_heartbeat());
   RunOnceEvery(5, mavlink_send_sys_status());
+  RunOnceEvery(20, mavlink_send_system_time());
   RunOnceEvery(10, mavlink_send_attitude());
   RunOnceEvery(5, mavlink_send_attitude_quaternion());
   RunOnceEvery(5, mavlink_send_params());
@@ -351,6 +353,17 @@ static inline void mavlink_send_sys_status(void)
                               0,      // Autopilot specific error 2
                               0,      // Autopilot specific error 3
                               0);     // Autopilot specific error 4
+  MAVLinkSendMessage();
+}
+
+/**
+ * Send SYSTEM_TIME
+ * - time_unix_usec
+ * - time_boot_ms
+ */
+static inline void mavlink_send_system_time(void)
+{
+  mavlink_msg_system_time_send(MAVLINK_COMM_0, 0, get_sys_time_msec());
   MAVLinkSendMessage();
 }
 
