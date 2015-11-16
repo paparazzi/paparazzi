@@ -202,7 +202,6 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
     let get_args = fun simtype ac_name ->
       match simtype with
           "sim" -> sprintf "-a %s -t %s --boot --norc" ac_name simtype
-        | "jsbsim" -> sprintf "-a %s -t %s" ac_name simtype
         | "nps" -> sprintf "-a %s -t %s" ac_name simtype
         | _ -> "none"
     in
@@ -211,7 +210,9 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
     if args <> "none" then begin
       run_and_monitor ?file gui log "Simulator" args;
       run_and_monitor ?file gui log "GCS" "";
-      run_and_monitor ?file gui log "Server" "-n"
+      run_and_monitor ?file gui log "Server" "-n";
+      if sim_type = "nps" then
+        run_and_monitor ?file gui log "Data Link" "-udp"
     end
   in
 
