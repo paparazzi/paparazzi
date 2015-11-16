@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="datalink">
+  <doc>
+    <description>MAVLink interface</description>
+  </doc>
+  <header>
+    <file name="mavlink_app.h"/>
+  </header>
+
+  <init fun="mavlink_init()"/>
+  <periodic fun="mavlink_periodic()" freq="10" autorun="TRUE"/>
+  <event fun="mavlink_event()"/>
+
+  <makefile>
+    <file name="mavlink_app.c"/>
+    <file name="blocks.c" dir="modules/datalink/missionlib"/>
+    <file name="waypoints.c" dir="modules/datalink/missionlib"/>
+    <file name="mission_manager.c" dir="modules/datalink/missionlib"/>
+  </makefile>
+</module>
