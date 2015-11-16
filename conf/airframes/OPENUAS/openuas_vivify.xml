@@ -193,8 +193,8 @@
     <load name="auto1_commands.xml" />
     <!-- Baro altitude -->
     <load name="baro_ms5611_spi.xml" >
-      <define name="MS5611_SPI_DEV" value="spi2"/>
-      <define name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
+      <configure name="MS5611_SPI_DEV" value="spi2"/>
+      <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
     </load>
     <!-- QNH -->
     <load name="air_data.xml">

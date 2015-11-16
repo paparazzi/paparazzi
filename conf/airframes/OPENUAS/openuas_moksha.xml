@@ -3,7 +3,7 @@
      With modified power routing by a cut PCB trace
 
      DEVICES:
-     * CHIMU on SPI 
+     * CHIMU on SPI
      * XBee XSC 868/900Mhz
      * uBlox LEA5H and Sarantel helix GPS antenna flat in wing
      * Eagletree Airspeed sensor via I2C
@@ -12,19 +12,19 @@
      * RPM sensor for brushless measurments on ESC
      * Tilted Infrared sensor for X,Y,Z still on board for fun to compare with CHIIMU values, not for attitude in AP mode
      * DSMX receiver with CPPM out OR615X
-     
+
      * SOON: Magnetometer, ESP8263WiFi telemetry
 
-BUILDLINE 
-make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile 
-     
+BUILDLINE
+make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
+
      NOTES:
      To ins_chimu_spi.c modified a line to this one below, since somehow roll and pitch setting where not getting through correctly:
 
        EstimatorSetAtt(CHIMU_DATA.m_attitude.euler.phi+ins_roll_neutral, CHIMU_DATA.m_attitude.euler.psi, CHIMU_DATA.m_attitude.euler.theta+ins_pitch_neutral);
 
      To test the "hatch" function we use bright lights, easy to spot from the
-     ground, e.g for a droptest without dropping a thing... 
+     ground, e.g for a droptest without dropping a thing...
      Ofcourse, also the log will show where a payload would have been released
      but lights are much more fun, and good for instant human feedback without the payload retrieval walk.
 
@@ -42,7 +42,7 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
 <airframe name="Moksha">
 <!-- ******************************* FIRMWARE ****************************** -->
   <firmware name="fixedwing">
-    <target name="ap" board="twog_1.0"> 
+    <target name="ap" board="twog_1.0">
       <!-- <define name="ADC_CHANNEL_VSUPPLY" value="4"/> -->
       <define name="SENSOR_SYNC_SEND"/>
     <!--  <configure name="PERIODIC_FREQUENCY" value="120"/>-->
@@ -59,8 +59,8 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
       <!--   <define name="USE_BAROMETER" value="TRUE"/> -->
       <configure name="AHRS_ALIGNER_LED" value="1"/>
       <configure name="CPU_LED" value="1"/>
-      <define name="BAT_CHECKER_DELAY" value="80"/><!-- amount of time it take for the bat to check --><!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->      
-      <!-- <define name="LOW_BATTERY_KILL_DELAY" value="80"/>-->      
+      <define name="BAT_CHECKER_DELAY" value="80"/><!-- amount of time it take for the bat to check --><!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
+      <!-- <define name="LOW_BATTERY_KILL_DELAY" value="80"/>-->
       <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80"/>
       <!--  <subsystem name="current_sensor">-->
       <!-- <define name="USE_ADC_1"/>??-->
@@ -88,7 +88,7 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
     <define name="WIND_INFO_RET"/>
 
     <subsystem name="telemetry" type="transparent">
-      <configure name="MODEM_BAUD" value="B9600"/>  
+      <configure name="MODEM_BAUD" value="B9600"/>
       <configure name="MODEM_PORT" value="UART1"/>
     </subsystem>
 
@@ -99,18 +99,18 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
     <subsystem name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B38400"/>
       <configure name="GPS_PORT" value="UART0"/>
-<!-- 
+<!--
       <configure name="GPS_BAUD" value="B115200"/>
       <define name="GPS_UBX_UCENTER_RATE" value="200"/>
       <define name="USE_GPS_UBX_RXM_RAW"/>
       <define name="USE_GPS_UBX_RXM_SFRB"/>
       <define name="LOG_RAW_GPS"/>-->
-    </subsystem>    
+    </subsystem>
     <subsystem name="navigation"/>
   </firmware>
 
   <modules main_freq="120">
-<!-- ******************************* MODULES ******************************* --> 
+<!-- ******************************* MODULES ******************************* -->
     <!-- <load name="gps_ubx_ucenter.xml"/>--> <!-- Disable uCenter in the future, setup the hardware itself -->
     <load name="ahrs_chimu_spi.xml"/>
        <!--    <define name="CHIMU_BIG_ENDIAN"/> -->
@@ -124,19 +124,18 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
     <!--
    <load name="flight_benchmark.xml">
      <define name="BENCHMARK_TOLERANCE_AIRSPEED" value="2" unit="m/s"/>
-     <define name="BENCHMARK_TOLERANCE_ALTITUDE" value="3" unit="m"/> 
-     <define name="BENCHMARK_TOLERANCE_POSITION" value="6" unit="m"/> 
+     <define name="BENCHMARK_TOLERANCE_ALTITUDE" value="3" unit="m"/>
+     <define name="BENCHMARK_TOLERANCE_POSITION" value="6" unit="m"/>
    </load>
    -->
 
     <!-- Airspeed sensor -->
     <load name="airspeed_ets.xml">
-      <!-- <define name="USE_I2C1"/>-->
       <define name="AIRSPEED_ETS_START_DELAY" value="1" unit="s"/>
-      <define name="AIRSPEED_ETS_SYNC_SEND"/> <!-- TODO: SYNCSENDcan be commented out if it all works well no need to send debug data anymore-->      
-      <define name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/>
-      <define name="AIRSPEED_ETS_SCALE" value="1.44"/> <!-- default 1.8 -->    
-      <define name="AIRSPEED_ETS_OFFSET" value="0"/>  <!-- default 0 -->  
+      <define name="AIRSPEED_ETS_SYNC_SEND"/> <!-- TODO: SYNCSENDcan be commented out if it all works well no need to send debug data anymore-->
+      <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/>
+      <define name="AIRSPEED_ETS_SCALE" value="1.44"/> <!-- default 1.8 -->
+      <define name="AIRSPEED_ETS_OFFSET" value="0"/>  <!-- default 0 -->
     </load>
 
 <!--
@@ -162,27 +161,27 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
 
     <!-- Set launch to 1 and place your bets ;) not in use at the moment -->
     <!-- <load name="nav_catapult.xml"/> -->
-  
+
     <load name="baro_sim.xml"/>
   </modules>
 
 <!-- ****************************** ACTUATORS ****************************** -->
-  <servos>  
+  <servos>
     <!-- Define here to which CONNECTOR NUMBER the servo is connected to, on the autopilot cicuit board -->
     <servo name="MOTOR"         no="0" min="1050" neutral="1100" max="1900"/>
     <servo name="ELEVON_LEFT"   no="2" min="1900" neutral="1550" max="1100"/>
     <servo name="ELEVON_RIGHT"  no="6" min="1100" neutral="1460" max="1900"/>
     <!-- hatch is removable in this airframe, also handy if defined for fake drop with blinklight-->
-    <servo name="HATCH"   	    no="7" min="1100" neutral="1110" max="1900"/>    
+    <servo name="HATCH"         no="7" min="1100" neutral="1110" max="1900"/>
     <servo name="LIGHTS"        no="7" min="1100" neutral="1110" max="1900"/>
   </servos>
 
 <!-- ***************************** COMMANDS ******************************** -->
   <commands>
-    <axis name="THROTTLE" 	     failsafe_value="0"/>
-    <axis name="ROLL"     	     failsafe_value="0"/>
-    <axis name="PITCH"    	     failsafe_value="0"/>
-    <axis name="HATCH"    	     failsafe_value="-9599"/>
+    <axis name="THROTTLE"        failsafe_value="0"/>
+    <axis name="ROLL"            failsafe_value="0"/>
+    <axis name="PITCH"           failsafe_value="0"/>
+    <axis name="HATCH"           failsafe_value="-9599"/>
     <axis name="CLICKSHUTTER"    failsafe_value="-9599"/>
     <axis name="ACTIVELIGHTS"    failsafe_value="0"/>
     <!--
@@ -316,7 +315,7 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
     <define name="GYRO_Q_NEUTRAL" value="0"/>
     <define name="GYRO_R_NEUTRAL" value="0"/>-->
     <!-- SENS = 16.4 LSB/(deg/sec) * 57.6 deg/rad = 939.650 LSB/rad/sec / 12bit FRAC: 4096 / 939.65 -->
-    <!--  
+    <!--
       <define name="GYRO_P_SENS" value="4.359" integer="16"/>
       <define name="GYRO_Q_SENS" value="4.359" integer="16"/>
       <define name="GYRO_R_SENS" value="4.359" integer="16"/>
@@ -367,10 +366,10 @@ Psi -109
   </section>-->
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0." unit="deg"/> 
-    <define name="PITCH_NEUTRAL_DEFAULT" value="-3.3" unit="deg"/> 
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0." unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="-3.3" unit="deg"/>
   </section>
- 
+
 <!-- ******************************** GAINS ******************************** -->
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
@@ -378,7 +377,7 @@ Psi -109
     <define name="COURSE_PGAIN" value="0.8"/>
     <define name="COURSE_DGAIN" value="0.15"/>
     <!-- The prebank is an adjustment to the roll setting which is done when the aircraft is trying to do a circle and when it is close to the circumference of the circle. This way it does not fly straight into the circumference but instead it starts to make a roll as the one needed to fly in circles.
-There is a value in the airframe file COURSE_PRE_BANK_CORRECTION which can be used to increase o decrease the effect. If set to 1 then the normal prebank is done. If set to 0.5 then half of the additional roll is done. This causes the aircraft to not roll enough in order to fly the intended circle and it ends up flying in a larger circle.  A value > 1 makes it fly a smaller circle.  
+There is a value in the airframe file COURSE_PRE_BANK_CORRECTION which can be used to increase o decrease the effect. If set to 1 then the normal prebank is done. If set to 0.5 then half of the additional roll is done. This causes the aircraft to not roll enough in order to fly the intended circle and it ends up flying in a larger circle.  A value > 1 makes it fly a smaller circle.
 
 https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/subsystems/nav.c#L132
 -->
@@ -408,7 +407,7 @@ https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/subsystems/nav.c#
     <!--TODO: Describe why we would need it-->
   </section>
 
-  <section name="VERTICAL CONTROL" prefix="V_CTL_">  
+  <section name="VERTICAL CONTROL" prefix="V_CTL_">
 <!-- ******************* VERTICAL CONTROL ********************************** -->
     <define name="POWER_CTL_BAT_NOMINAL" value="11.2" unit="volt"/>
     <!-- HUH to throttle? -->
@@ -426,7 +425,7 @@ https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/subsystems/nav.c#
     <!-- TODO add limit for airspeed based on 13m/s max wind + cameaaspeed max 0.25hz max ans lens  o max GS 21m/s>
     <define name="AIRSPEED_MAX" value="31" unit=""m/s"/> -->
     <!--21+13 -->
-    <!-- TODO add limit 
+    <!-- TODO add limit
     <define name="AIRSPEED_MIN" value="10" unit=""m/s"/> -->
     <!-- Only set to a value in initial flight until airspeed is proven to work well, else set to 0 -->
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0." unit="%/(m/s)"/>
@@ -524,7 +523,7 @@ https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/subsystems/nav.c#
     <!--<define name="ALT_KALMAN_ENABLED" value="TRUE"/>-->
     <define name="DEFAULT_CIRCLE_RADIUS" value="110."/> <!--TODO determine best value -->
     <define name="MIN_CIRCLE_RADIUS" value="80."/><!-- Needed for spiral navigation function--> <!--TODO determine best value -->
-    
+
     <!--UNLOCKED_HOME_MODE if set to TRUE means that HOME mode does not get stuck.
 If not set before when you would enter home mode you had to flip a bit via the GCS to get out. -->
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
@@ -538,7 +537,7 @@ If not set before when you would enter home mode you had to flip a bit via the G
 <!-- ********************* HAND AND CATAPULT LAUNCH ************************ -->
 
   <!-- the "CATAPULT" in some cases is a Human throwing the plane, and to protect the hands agains a prop strike
-we have an option to use glovs, or start up spinning the prop after a throw. If this works out well, let's use it 
+we have an option to use glovs, or start up spinning the prop after a throw. If this works out well, let's use it
  Makes the life of autotakeoff less scary -->
   <!--  <section name="CATAPULT" prefix="NAV_CATAPULT_"> -->
   <!--    <define name="MOTOR_DELAY" value=".1" unit="seconds"/> -->
@@ -566,10 +565,10 @@ we have an option to use glovs, or start up spinning the prop after a throw. If 
     <define name="INTERCEPT_AF_SD" value="80" unit="m"/>
     <define name="TARGET_SPEED" value="13" unit="m/s"/>
   </section>
-  
+
     <section name="SIMU">
     <define name="YAW_RESPONSE_FACTOR" value="0.5"/> <!-- a to low of a value gives bad default build in simulation results -->
-  </section>  
+  </section>
  <!--
 <firmware name="setup">
     <target name="tunnel" board="twog_1.0"/>   <!-  used for Ublox setup via uCenter under WINE ->

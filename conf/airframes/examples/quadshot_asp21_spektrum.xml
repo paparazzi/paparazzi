@@ -226,7 +226,7 @@
 
     <!--Use an airspeed sensor and get the measured airspeed in the messages-->
     <load name="airspeed_ets.xml">
-      <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
+      <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
     </load>
 
@@ -241,9 +241,6 @@
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
         <!--       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/> -->
       </subsystem>
-
-      <!-- To use an airspeed sensor on I2C, enable I2C2-->
-      <define name="USE_I2C2"/>
 
       <define name="USE_AIRSPEED" value="TRUE"/>
 

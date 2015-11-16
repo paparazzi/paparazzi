@@ -61,8 +61,7 @@
     <load name="gps_ubx_ucenter.xml"/>
     <load name="airspeed_ets.xml">
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
-      <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
-      <define name="USE_I2C2"/>
+      <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
     </load>
     <load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
