@@ -16,6 +16,9 @@
 
   <makefile>
     <file name="mavlink.c"/>
+    <file name="mission_manager.c" dir="modules/datalink/missionlib"/>
+    <file name="waypoints.c" dir="modules/datalink/missionlib"/>
+    <file name="blocks.c" dir="modules/datalink/missionlib"/>
     <raw>
       MAVLINK_PORT ?= UART1
       MAVLINK_PORT_UPPER=$(shell echo $(MAVLINK_PORT) | tr a-z A-Z)

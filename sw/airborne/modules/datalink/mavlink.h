@@ -40,6 +40,14 @@
 #endif
 #include "mcu_periph/uart.h"
 
+#ifndef MAVLINK_DEBUG
+#define MAVLINK_DEBUG(...) {}
+#endif
+
+#if MAVLINK_DEBUG == printf
+#include <stdio.h>
+#endif
+
 /*
  * MAVLink description before main MAVLink include
  */
