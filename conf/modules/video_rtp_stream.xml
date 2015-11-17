@@ -10,10 +10,11 @@
        - Possibility to save an image(shot) on internal or external storage space even in full size, best quality
       Example to add to ARdrone2 airframe with extra USB stick plugger in:
     </description>
+    <configure name="VIEWVIDEO_USE_NETCAT" value="FALSE|TRUE" description="Use netcat for transfering images instead of RTP stream (default: FALSE)"/>
+    <configure name="VIEWVIDEO_HOST" value="192.168.1.255" description="GCS IP (default: MODEM_HOST)"/>
     <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4" description="Reduction factor of the video stream"/>
     <define name="VIEWVIDEO_QUALITY_FACTOR" value="50" description="JPEG encoding compression factor [0-99]"/>
-    <define name="VIEWVIDEO_USE_NETCAT" value="FALSE|TRUE" description="Use netcat for transfering images (default: FALSE)"/>
-    <define name="VIEWVIDEO_USE_RTP" value="TRUE|FALSE" description="Use RTP for transfering images (default: TRUE)"/>
+    <define name="VIEWVIDEO_USE_RTP" value="TRUE|FALSE" description="Enable RTP at startup for transfering images (default: TRUE)"/>
   </doc>
   <settings>
     <dl_settings>
@@ -41,13 +42,14 @@
       VIEWVIDEO_HOST        ?= $(MODEM_HOST)
       VIEWVIDEO_PORT_OUT    ?= 5000
       VIEWVIDEO_BROADCAST   ?= $(MODEM_BROADCAST)
+      VIEWVIDEO_USE_NETCAT  ?= FALSE
 
       VIEWVID_CFLAGS  = -DVIEWVIDEO_HOST=$(VIEWVIDEO_HOST) -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT)
-      ifeq ($(VIEWVIDEO_USE_NC),)
+      ifneq (,$(findstring $(VIEWVIDEO_USE_NETCAT),0 FALSE))
         ap.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=$(VIEWVIDEO_BROADCAST)
         nps.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=FALSE
       else
-        $(TARGET).CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_USE_NC
+        $(TARGET).CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_USE_NETCAT
       endif
     </raw>
 

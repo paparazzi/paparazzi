@@ -64,22 +64,32 @@ PRINT_CONFIG_VAR(VIEWVIDEO_QUALITY_FACTOR)
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC)
 
+// Default image folder
+#ifndef VIEWVIDEO_SHOT_PATH
+#ifdef VIDEO_THREAD_SHOT_PATH
+#define VIEWVIDEO_SHOT_PATH (STRINGIFY(VIDEO_THREAD_SHOT_PATH))
+#else
+#define VIEWVIDEO_SHOT_PATH "/data/video/images"
+#endif
+#endif
+PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
+
 // Check if we are using netcat instead of RTP/UDP
 #ifndef VIEWVIDEO_USE_NETCAT
 #define VIEWVIDEO_USE_NETCAT FALSE
 #endif
-#ifndef VIEWVIDEO_USE_RTP
+
+#if !VIEWVIDEO_USE_NETCAT && !(defined VIEWVIDEO_USE_RTP)
 #define VIEWVIDEO_USE_RTP TRUE
 #endif
 
-#if VIEWVIDEO_USE_NETCAT && VIEWVIDEO_USE_RTP
-#error "Can't set VIEWVIDEO_USE_NETCAT and VIEWVIDEO_USE_RTP to true at the same time."
-#endif
-
 #if VIEWVIDEO_USE_NETCAT
+#include <sys/wait.h>
 PRINT_CONFIG_MSG("[viewvideo] Using netcat.")
-#elif VIEWVIDEO_USE_RTP
+#else
+struct UdpSocket video_sock;
 PRINT_CONFIG_MSG("[viewvideo] Using RTP/UDP stream.")
+PRINT_CONFIG_VAR(VIEWVIDEO_USE_RTP)
 #endif
 
 /* These are defined with configure */
@@ -91,14 +101,15 @@ struct viewvideo_t viewvideo = {
   .is_streaming = FALSE,
   .downsize_factor = VIEWVIDEO_DOWNSIZE_FACTOR,
   .quality_factor = VIEWVIDEO_QUALITY_FACTOR,
+#if !VIEWVIDEO_USE_NETCAT
   .use_rtp = VIEWVIDEO_USE_RTP,
+#endif
 };
 
 /**
  * Handles all the video streaming and saving of the image shots
  * This is a sepereate thread, so it needs to be thread safe!
  */
-struct UdpSocket video_sock;
 bool_t viewvideo_function(struct image_t *img);
 bool_t viewvideo_function(struct image_t *img)
 {
@@ -116,7 +127,6 @@ bool_t viewvideo_function(struct image_t *img)
 #if VIEWVIDEO_USE_NETCAT
   char nc_cmd[64];
   sprintf(nc_cmd, "nc %s %d 2>/dev/null", STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT);
-#else
 #endif
 
   if (viewvideo.is_streaming) {
@@ -139,7 +149,7 @@ bool_t viewvideo_function(struct image_t *img)
       // We are the child and want to send the image
       FILE *netcat = popen(nc_cmd, "w");
       if (netcat != NULL) {
-        fwrite(jpegbuf, sizeof(uint8_t), size, netcat);
+        fwrite(img_jpeg.buf, sizeof(uint8_t), img_jpeg.buf_size, netcat);
         pclose(netcat); // Ignore output, because it is too much when not connected
       } else {
         printf("[viewvideo] Failed to open netcat process.\n");
@@ -188,8 +198,6 @@ bool_t viewvideo_function(struct image_t *img)
 void viewvideo_init(void)
 {
   char save_name[512];
-//  struct UdpSocket video_sock;
-  udp_socket_create(&video_sock, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_BROADCAST);
 
   cv_add(viewvideo_function);
 
@@ -197,7 +205,7 @@ void viewvideo_init(void)
 
 #if VIEWVIDEO_USE_NETCAT
   // Create an Netcat receiver file for the streaming
-  sprintf(save_name, "%s/netcat-recv.sh", STRINGIFY(VIEWVIDEO_SHOT_PATH));
+  sprintf(save_name, "%s/netcat-recv.sh", VIEWVIDEO_SHOT_PATH);
   FILE *fp = fopen(save_name, "w");
   if (fp != NULL) {
     fprintf(fp, "i=0\n");
@@ -208,16 +216,23 @@ void viewvideo_init(void)
     fprintf(fp, "\ti=$((i+1))\n");
     fprintf(fp, "done\n");
     fclose(fp);
+  } else {
+    printf("[viewvideo] Failed to create netcat receiver file.\n");
   }
 #else
+  // Open udp socket
+  udp_socket_create(&video_sock, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_BROADCAST);
+
   // Create an SDP file for the streaming
-  sprintf(save_name, "%s/stream.sdp", STRINGIFY(VIEWVIDEO_SHOT_PATH));
+  sprintf(save_name, "%s/stream.sdp", VIEWVIDEO_SHOT_PATH);
   FILE *fp = fopen(save_name, "w");
   if (fp != NULL) {
     fprintf(fp, "v=0\n");
     fprintf(fp, "m=video %d RTP/AVP 26\n", (int)(VIEWVIDEO_PORT_OUT));
     fprintf(fp, "c=IN IP4 0.0.0.0\n");
     fclose(fp);
+  } else {
+    printf("[viewvideo] Failed to create SDP file.\n");
   }
 #endif
 }
