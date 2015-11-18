@@ -195,12 +195,27 @@ static void attitude_run_indi(int32_t indi_commands[], struct Int32Quat *att_err
 {
   //Calculate required angular acceleration
   struct FloatRates *body_rate = stateGetBodyRates_f();
+#if STABILIZATION_INDI_FILTER_ROLL_RATE
+  indi.angular_accel_ref.p = reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
+                             - reference_acceleration.rate_p * indi.filtered_rate.p;
+#else
   indi.angular_accel_ref.p = reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
                              - reference_acceleration.rate_p * body_rate->p;
+#endif
+#if STABILIZATION_INDI_FILTER_PITCH_RATE
+  indi.angular_accel_ref.q = reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err->qy)
+                             - reference_acceleration.rate_q * indi.filtered_rate.q;
+#else
   indi.angular_accel_ref.q = reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err->qy)
                              - reference_acceleration.rate_q * body_rate->q;
+#endif
+#if STABILIZATION_INDI_FILTER_YAW_RATE
+  indi.angular_accel_ref.r = reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz)
+                             - reference_acceleration.rate_r * indi.filtered_rate.r;
+#else
   indi.angular_accel_ref.r = reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz)
                              - reference_acceleration.rate_r * body_rate->r;
+#endif
 
   //Incremented in angular acceleration requires increment in control input
   //G1 is the actuator effectiveness. In the yaw axis, we need something additional: G2.

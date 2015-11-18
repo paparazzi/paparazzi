@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2014 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2014-2015 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -22,7 +22,7 @@
 
 /**
  * @file boards/bebop/actuators.c
- * Actuator driver for the bebop
+ * Actuator driver for the bebop and bebop 2
  */
 
 #include "subsystems/actuators.h"
@@ -84,9 +84,6 @@ void actuators_bebop_commit(void)
   actuators_bebop.rpm_obs[2] = (actuators_bebop.i2c_trans.buf[5] + (actuators_bebop.i2c_trans.buf[4] << 8)) & ~(1<<15);
   actuators_bebop.rpm_obs[3] = (actuators_bebop.i2c_trans.buf[7] + (actuators_bebop.i2c_trans.buf[6] << 8)) & ~(1<<15);
 
-  // Saturate the bebop motors
-  //actuators_bebop_saturate();
-
   // When detected a suicide
   actuators_bebop.i2c_trans.buf[10] = actuators_bebop.i2c_trans.buf[10] & 0x7;
   if (actuators_bebop.i2c_trans.buf[11] == 2 && actuators_bebop.i2c_trans.buf[10] != 1) {
@@ -101,7 +98,12 @@ void actuators_bebop_commit(void)
 
     // Start the motors
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_START_PROP;
-    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1);
+#if BEBOP_VERSION2
+    actuators_bebop.i2c_trans.buf[1] = 0b00000110; // For Bebop version 2 some motors are reversed (FIXME: test final version)
+#else
+    actuators_bebop.i2c_trans.buf[1] = 0b00000000;
+#endif
+    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2);
   }
   // Stop the motors
   else if (actuators_bebop.i2c_trans.buf[10] == 4 && !autopilot_motors_on) {
