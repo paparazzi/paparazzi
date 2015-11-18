@@ -279,12 +279,12 @@ int write_exif_jpeg(char *filename, const unsigned char *image_jpg, const unsign
   entry->format = EXIF_FORMAT_BYTE;
   entry->components = 1;
   if (alt_mm < 0) {
-    entry->data[0] = '1'; // Below MSL
+    entry->data[0] = 1; // Below MSL
     // from now on: go positive only
     alt_mm = -alt_mm;
   }
   else {
-    entry->data[0] = '0'; // Above MSL
+    entry->data[0] = 0; // Above MSL
   }
 
   entry = create_tag(exif, EXIF_IFD_GPS, EXIF_TAG_GPS_ALTITUDE, 8);
