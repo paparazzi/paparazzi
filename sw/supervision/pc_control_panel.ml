@@ -212,7 +212,7 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
       run_and_monitor ?file gui log "GCS" "";
       run_and_monitor ?file gui log "Server" "-n";
       if sim_type = "nps" then
-        run_and_monitor ?file gui log "Data Link" "-udp"
+        run_and_monitor ?file gui log "Data Link" "-udp -udp_broadcast"
     end
   in
 

@@ -62,6 +62,7 @@ let ac_info = ref true
 
 (* Listening on an UDP port *)
 let udp = ref false
+let udp_broadcast = ref false
 let udp_uplink_port = ref 4243
 
 (* Enable trafic statistics on standard output *)
@@ -127,6 +128,12 @@ let update_status = fun ?udp_peername ac_id buf_size is_pong ->
   let status =
     try Hashtbl.find statuss ac_id with Not_found ->
       let s = { initial_status with udp_peername = udp_peername } in
+      begin
+        match s.udp_peername with
+          Some (Unix.ADDR_INET (peername, port)) ->
+            Debug.call 'b' (fun f -> fprintf f "Adding AC %i with udp_peername %s port %i\n" ac_id (Unix.string_of_inet_addr peername) port)
+        | _ -> Debug.call 'b' (fun f -> fprintf f "Adding AC %i\n" ac_id)
+      end;
       Hashtbl.add statuss ac_id s;
       s in
   status.rx_byte <- status.rx_byte + buf_size;
@@ -319,7 +326,9 @@ end (** XBee module *)
 let udp_send = fun fd payload peername ->
   let buf = Pprz.Transport.packet payload in
   let len = String.length buf in
-  let sockaddr = Unix.ADDR_INET (peername, !udp_uplink_port) in
+  let addr = if !udp_broadcast then (Unix.inet_addr_of_string "127.255.255.255") else peername in
+  Debug.call 'u' (fun f -> fprintf f "udp_send to %s port %i\n" (Unix.string_of_inet_addr addr) !udp_uplink_port);
+  let sockaddr = Unix.ADDR_INET (addr, !udp_uplink_port) in
   let n = Unix.sendto fd buf 0 len [] sockaddr in
   assert (n = len)
 
@@ -484,6 +493,7 @@ let () =
       "-udp", Arg.Set udp, "Listen a UDP connection on <udp_port>";
       "-udp_port", Arg.Set_int udp_port, (sprintf "<UDP port> Default is %d" !udp_port);
       "-udp_uplink_port", Arg.Set_int udp_uplink_port, (sprintf "<UDP uplink port> Default is %d" !udp_uplink_port);
+      "-udp_broadcast", Arg.Set udp_broadcast, "Broadcast on 127.255.255.255, e.g. for multiple simulated aircrafts";
       "-uplink", Arg.Set uplink, (sprintf "Deprecated (now default)");
       "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
       "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<nb retries> (%d)" !XB.nb_retries);
@@ -513,6 +523,8 @@ let () =
       if !udp then begin
         let sockaddr = Unix.ADDR_INET (Unix.inet_addr_any, !udp_port)
         and socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
+        if !udp_broadcast then
+          Unix.setsockopt socket Unix.SO_BROADCAST true;
         Unix.bind socket sockaddr;
         socket
       end else if !audio then
