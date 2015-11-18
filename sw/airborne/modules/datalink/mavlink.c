@@ -599,7 +599,7 @@ static inline void mavlink_send_battery_status(void)
 {
   static uint16_t voltages[10];
   // we simply only set one cell for now
-  voltages[0] = electrical.vsupply * 10;
+  voltages[0] = electrical.vsupply * 100;
   /// TODO: check what all these fields are supposed to represent
   mavlink_msg_battery_status_send(MAVLINK_COMM_0,
                                   0, // id
