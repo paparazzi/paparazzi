@@ -63,6 +63,7 @@ let ac_info = ref true
 (* Listening on an UDP port *)
 let udp = ref false
 let udp_broadcast = ref false
+let udp_broadcast_addr = if Os_calls.contains (Os_calls.os_name) "Darwin" then ref "224.255.255.255" else ref "127.255.255.255"
 let udp_uplink_port = ref 4243
 
 (* Enable trafic statistics on standard output *)
@@ -323,10 +324,16 @@ module XB = struct (** XBee module *)
 end (** XBee module *)
 
 
+let local_broadcast_address =
+  if Os_calls.contains (Os_calls.os_name) "Darwin" then
+    (Unix.inet_addr_of_string "224.255.255.255")
+  else
+    (Unix.inet_addr_of_string "127.255.255.255")
+
 let udp_send = fun fd payload peername ->
   let buf = Pprz.Transport.packet payload in
   let len = String.length buf in
-  let addr = if !udp_broadcast then (Unix.inet_addr_of_string "127.255.255.255") else peername in
+  let addr = if !udp_broadcast then (Unix.inet_addr_of_string !udp_broadcast_addr) else peername in
   Debug.call 'u' (fun f -> fprintf f "udp_send to %s port %i\n" (Unix.string_of_inet_addr addr) !udp_uplink_port);
   let sockaddr = Unix.ADDR_INET (addr, !udp_uplink_port) in
   let n = Unix.sendto fd buf 0 len [] sockaddr in
@@ -493,7 +500,8 @@ let () =
       "-udp", Arg.Set udp, "Listen a UDP connection on <udp_port>";
       "-udp_port", Arg.Set_int udp_port, (sprintf "<UDP port> Default is %d" !udp_port);
       "-udp_uplink_port", Arg.Set_int udp_uplink_port, (sprintf "<UDP uplink port> Default is %d" !udp_uplink_port);
-      "-udp_broadcast", Arg.Set udp_broadcast, "Broadcast on 127.255.255.255, e.g. for multiple simulated aircrafts";
+      "-udp_broadcast", Arg.Set udp_broadcast, "Broadcast on <udp_broadcast_addr>, e.g. for multiple simulated aircrafts";
+      "-udp_broadcast_addr", Arg.Set_string udp_broadcast_addr, (sprintf "<addr> Broadcast address. Default is %s" !udp_broadcast_addr);
       "-uplink", Arg.Set uplink, (sprintf "Deprecated (now default)");
       "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
       "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<nb retries> (%d)" !XB.nb_retries);
