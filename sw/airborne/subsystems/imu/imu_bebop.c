@@ -132,7 +132,7 @@ void imu_bebop_event(void)
 
   if (imu_bebop.ak.data_available) {
     //32760 to -32760
-    VECT3_ASSIGN(imu.mag_unscaled, -imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.x, imu_bebop.ak.data.vect.z);
+    VECT3_ASSIGN(imu.mag_unscaled, imu_bebop.ak.data.vect.x, -imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.z);
 
     imu_bebop.ak.data_available = FALSE;
     imu_scale_mag(&imu);

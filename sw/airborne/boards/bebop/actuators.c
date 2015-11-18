@@ -101,7 +101,8 @@ void actuators_bebop_commit(void)
 
     // Start the motors
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_START_PROP;
-    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1);
+    actuators_bebop.i2c_trans.buf[1] = 0b00000110;
+    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2);
   }
   // Stop the motors
   else if (actuators_bebop.i2c_trans.buf[10] == 4 && !autopilot_motors_on) {
