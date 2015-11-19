@@ -38,6 +38,15 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
+#ifndef IMU_APOGEE_CHAN_X
+#define IMU_APOGEE_CHAN_X 0
+#endif
+#ifndef IMU_APOGEE_CHAN_Y
+#define IMU_APOGEE_CHAN_Y 1
+#endif
+#ifndef IMU_APOGEE_CHAN_Z
+#define IMU_APOGEE_CHAN_Z 2
+#endif
 
 #if !defined APOGEE_LOWPASS_FILTER && !defined  APOGEE_SMPLRT_DIV
 #define APOGEE_LOWPASS_FILTER MPU60X0_DLPF_42HZ
@@ -107,10 +116,18 @@ void imu_apogee_event(void)
   // If the itg3200 I2C transaction has succeeded: convert the data
   mpu60x0_i2c_event(&imu_apogee.mpu);
   if (imu_apogee.mpu.data_available) {
-    RATES_ASSIGN(imu.gyro_unscaled, imu_apogee.mpu.data_rates.rates.p, -imu_apogee.mpu.data_rates.rates.q,
-                 -imu_apogee.mpu.data_rates.rates.r);
-    VECT3_ASSIGN(imu.accel_unscaled, imu_apogee.mpu.data_accel.vect.x, -imu_apogee.mpu.data_accel.vect.y,
-                 -imu_apogee.mpu.data_accel.vect.z);
+    struct Int32Rates rates = {
+        (int32_t)( imu_apogee.mpu.data_rates.value[IMU_APOGEE_CHAN_X]),
+        (int32_t)(-imu_apogee.mpu.data_rates.value[IMU_APOGEE_CHAN_Y]),
+        (int32_t)(-imu_apogee.mpu.data_rates.value[IMU_APOGEE_CHAN_Z])
+    };
+    RATES_COPY(imu.gyro_unscaled, rates);
+    struct Int32Vect3 accel = {
+        (int32_t)( imu_apogee.mpu.data_accel.value[IMU_APOGEE_CHAN_X]),
+        (int32_t)(-imu_apogee.mpu.data_accel.value[IMU_APOGEE_CHAN_Y]),
+        (int32_t)(-imu_apogee.mpu.data_accel.value[IMU_APOGEE_CHAN_Z])
+    };
+    VECT3_COPY(imu.accel_unscaled, accel);
     imu_apogee.mpu.data_available = FALSE;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
