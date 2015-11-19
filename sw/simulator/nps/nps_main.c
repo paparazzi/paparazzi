@@ -191,7 +191,7 @@ void nps_set_time_factor(float time_factor)
   if (time_factor < 0.0 || time_factor > 100.0) {
     return;
   }
-  if (abs(nps_main.host_time_factor - time_factor) < 0.01) {
+  if (fabs(nps_main.host_time_factor - time_factor) < 0.01) {
     return;
   }
 

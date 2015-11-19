@@ -267,7 +267,7 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
       //Take v = 9.81/1.3 m/s
       float omega;
       const float max_phi = RadOfDeg(85.0);
-      if (abs(sp->phi) < max_phi) {
+      if (fabsf(sp->phi) < max_phi) {
         omega = 1.3 * tanf(sp->phi);
       } else { //max 60 degrees roll, then take constant omega
         omega = 1.3 * 1.72305 * ((sp->phi > 0) - (sp->phi < 0));

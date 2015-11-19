@@ -510,8 +510,8 @@ void autopilot_check_in_flight(bool_t motors_on)
     if (autopilot_in_flight_counter > 0) {
       /* probably in_flight if thrust, speed and accel above IN_FLIGHT_MIN thresholds */
       if ((stabilization_cmd[COMMAND_THRUST] <= AUTOPILOT_IN_FLIGHT_MIN_THRUST) &&
-          (abs(stateGetSpeedNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_SPEED) &&
-          (abs(stateGetAccelNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_ACCEL)) {
+          (fabsf(stateGetSpeedNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_SPEED) &&
+          (fabsf(stateGetAccelNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_ACCEL)) {
         autopilot_in_flight_counter--;
         if (autopilot_in_flight_counter == 0) {
           autopilot_in_flight = FALSE;
