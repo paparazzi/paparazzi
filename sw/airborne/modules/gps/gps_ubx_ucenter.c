@@ -271,7 +271,16 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
       uart_periph_set_baudrate(&(GPS_LINK), B115200); // Last possible option for ublox
       gps_ubx_ucenter_config_port_poll();
       break;
-    case 7:
+     case 7:
+      if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
+        gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
+        return FALSE;
+      }
+      gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
+      uart_periph_set_baudrate(&(GPS_LINK), B230400); // Last possible option for ublox
+      gps_ubx_ucenter_config_port_poll();
+      break;
+    case 8:
       if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
         gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
         return FALSE;
