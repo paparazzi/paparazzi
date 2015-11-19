@@ -143,7 +143,7 @@ float stabilization_attitude_get_heading_f(void)
 
   float heading;
 
-  if (abs(att->phi) < M_PI / 2) {
+  if (fabsf(att->phi) < M_PI / 2) {
     heading = att->psi - sinf(att->theta) * att->phi;
   } else if (att->theta > 0) {
     heading = att->psi - att->phi;
