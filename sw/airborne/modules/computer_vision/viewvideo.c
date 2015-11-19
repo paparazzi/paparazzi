@@ -67,9 +67,9 @@ PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC)
 // Default image folder
 #ifndef VIEWVIDEO_SHOT_PATH
 #ifdef VIDEO_THREAD_SHOT_PATH
-#define VIEWVIDEO_SHOT_PATH (STRINGIFY(VIDEO_THREAD_SHOT_PATH))
+#define VIEWVIDEO_SHOT_PATH VIDEO_THREAD_SHOT_PATH
 #else
-#define VIEWVIDEO_SHOT_PATH "/data/video/images"
+#define VIEWVIDEO_SHOT_PATH /data/video/images
 #endif
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
@@ -205,7 +205,7 @@ void viewvideo_init(void)
 
 #if VIEWVIDEO_USE_NETCAT
   // Create an Netcat receiver file for the streaming
-  sprintf(save_name, "%s/netcat-recv.sh", VIEWVIDEO_SHOT_PATH);
+  sprintf(save_name, "%s/netcat-recv.sh", STRINGIFY(VIEWVIDEO_SHOT_PATH));
   FILE *fp = fopen(save_name, "w");
   if (fp != NULL) {
     fprintf(fp, "i=0\n");
@@ -224,7 +224,7 @@ void viewvideo_init(void)
   udp_socket_create(&video_sock, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_BROADCAST);
 
   // Create an SDP file for the streaming
-  sprintf(save_name, "%s/stream.sdp", VIEWVIDEO_SHOT_PATH);
+  sprintf(save_name, "%s/stream.sdp", STRINGIFY(VIEWVIDEO_SHOT_PATH));
   FILE *fp = fopen(save_name, "w");
   if (fp != NULL) {
     fprintf(fp, "v=0\n");
