@@ -49,7 +49,7 @@ float ref_roll=0.0;
 float ref_pitch=0.0;
 float ref_yaw=0.0;
 
-uint16_t OA_method_flag = 1;
+uint16_t OA_method_flag = 2;
 struct FloatVect3 Repulsionforce_Kan; 
 struct FloatVect3 Attractforce_goal; 
 int16_t focal = 118*6;
@@ -66,6 +66,7 @@ void serial_start(void)
 void serial_update(void)
 {
 	 if(stereocam_data.fresh){
+		 printf("New data\n");
 	      if(OA_method_flag==1){
 		      cal_euler_pingpong();
 	      }
@@ -73,7 +74,12 @@ void serial_update(void)
 	      if(OA_method_flag==2){
 		     nav_cal_vel_vector_pingpong();
 	      }
+	      stereocam_data.fresh=0;
+	      DOWNLINK_SEND_CLINT_AVOID(DefaultChannel, DefaultDevice, &ref_roll,&ref_pitch,&ref_yaw);
+
 	}
+
+
 
   
 }

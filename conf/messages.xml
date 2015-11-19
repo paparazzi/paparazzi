@@ -858,8 +858,14 @@
     <field name="data_rate" type="uint32" unit="bytes/s"/>
     <field name="last_msg" type="uint8[]"/>
   </message>
-  
-  <!--107 is free -->
+ 
+  <message name="FOLLOWEGG" id="107">
+    <field name="foundheading" type="uint8"/>
+    <field name="headingchange" type="float"/>
+    <field name="foundvalue" type="uint8"/>
+    <field name="sum" type="float"/>
+  </message>
+   
   <!--108 is free -->
   <!--109 is free -->
 
@@ -1948,7 +1954,12 @@
     <field name="AMSL_GPS" type="float" unit="ft" alt_unit="m"/>
   </message>
 
- <!--224 is free -->
+  <message name="CLINT_AVOID" id="224">
+    <field name="roll" type="float"/>
+    <field name="pitch" type="float"/>
+    <field name="yaw" type="float"/>
+  </message>
+
 
   <message name="VIDEO_SYNC" id="225">
     <field name="id" type="uint8"/>
