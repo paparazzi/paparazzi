@@ -50,7 +50,7 @@
 //#include "generated/modules.h"
 
 /** Fly by wire modes */
-typedef enum {FBW_MODE_MANUAL=0,FBW_MODE_AUTO=1,FBW_MODE_FAILSAFE=2} fbw_mode_enum;
+typedef enum {FBW_MODE_MANUAL = 0, FBW_MODE_AUTO = 1, FBW_MODE_FAILSAFE = 2} fbw_mode_enum;
 fbw_mode_enum fbw_mode;
 
 /* MODULES_FREQUENCY is defined in generated/modules.h
@@ -119,8 +119,8 @@ STATIC_INLINE void handle_periodic_tasks(void)
     main_periodic();
   }
   //if (sys_time_check_and_ack_timer(modules_tid)) {
-    // TODO
-    //modules_periodic_task();
+  // TODO
+  //modules_periodic_task();
   //}
   if (sys_time_check_and_ack_timer(radio_control_tid)) {
     radio_control_periodic_task();
@@ -159,8 +159,7 @@ STATIC_INLINE void main_periodic(void)
       if (fbw_mode == FBW_MODE_MANUAL) {
         fbw_mode = RC_LOST_FBW_MODE;
       } else {
-        if (fbw_mode == FBW_MODE_FAILSAFE)
-        {
+        if (fbw_mode == FBW_MODE_FAILSAFE) {
           // No change: failsafe stays failsafe
         } else {
           // Lost RC while in working Auto mode
@@ -197,8 +196,7 @@ static void autopilot_on_rc_frame(void)
   /* get autopilot fbw mode as set by RADIO_MODE 3-way switch */
   if (radio_control.values[RADIO_FBW_MODE] < (MIN_PPRZ / 2)) {
     fbw_mode = FBW_MODE_MANUAL;
-  }
-  else {
+  } else {
     fbw_mode = FBW_MODE_AUTO;
   }
 

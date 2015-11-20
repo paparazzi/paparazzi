@@ -191,7 +191,8 @@ void xbee_init(void)
 #ifdef XBEE_BAUD_ALTERNATE
 
     // Badly configured... try the alternate baudrate:
-    uart_periph_set_baudrate(&(XBEE_UART), XBEE_BAUD_ALTERNATE); // FIXME add set_baudrate to generic device, assuming uart for now
+    uart_periph_set_baudrate(&(XBEE_UART),
+                             XBEE_BAUD_ALTERNATE); // FIXME add set_baudrate to generic device, assuming uart for now
     if (xbee_try_to_enter_api(dev)) {
       // The alternate baudrate worked,
       print_string(dev, XBEE_ATBD_CODE);

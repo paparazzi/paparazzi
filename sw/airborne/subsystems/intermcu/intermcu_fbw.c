@@ -39,7 +39,7 @@ static struct pprz_transport intermcu_transport;
 
 struct intermcu_t inter_mcu;
 pprz_t intermcu_commands[COMMANDS_NB];
-static inline void intermcu_parse_msg(struct transport_rx * trans, void (*commands_frame_handler)(void));
+static inline void intermcu_parse_msg(struct transport_rx *trans, void (*commands_frame_handler)(void));
 
 void intermcu_init(void)
 {
@@ -59,7 +59,7 @@ void intermcu_periodic(void)
 void intermcu_on_rc_frame(void)
 {
   pprz_msg_send_IMCU_RADIO_COMMANDS(&(intermcu_transport.trans_tx), intermcu_device,
-    INTERMCU_FBW, 0, RADIO_CONTROL_NB_CHANNEL, radio_control.values); //TODO: Fix status
+                                    INTERMCU_FBW, 0, RADIO_CONTROL_NB_CHANNEL, radio_control.values); //TODO: Fix status
 }
 
 void intermcu_send_status(uint8_t mode)
@@ -69,21 +69,22 @@ void intermcu_send_status(uint8_t mode)
   //FIXME
 }
 
-static inline void intermcu_parse_msg(struct transport_rx * trans, void (*commands_frame_handler)(void))
+static inline void intermcu_parse_msg(struct transport_rx *trans, void (*commands_frame_handler)(void))
 {
   /* Parse the Inter MCU message */
   uint8_t msg_id = trans->payload[1];
   switch (msg_id) {
     case DL_IMCU_COMMANDS: {
-        uint8_t i;
-        uint8_t size = DL_IMCU_COMMANDS_values_length(trans->payload);
-        int16_t *new_commands = DL_IMCU_COMMANDS_values(trans->payload);
-        for(i = 0; i < size; i++)
-          intermcu_commands[i] = new_commands[i];
+      uint8_t i;
+      uint8_t size = DL_IMCU_COMMANDS_values_length(trans->payload);
+      int16_t *new_commands = DL_IMCU_COMMANDS_values(trans->payload);
+      for (i = 0; i < size; i++) {
+        intermcu_commands[i] = new_commands[i];
+      }
 
-        inter_mcu.status = INTERMCU_OK;
-        inter_mcu.time_since_last_frame = 0;
-        commands_frame_handler();
+      inter_mcu.status = INTERMCU_OK;
+      inter_mcu.time_since_last_frame = 0;
+      commands_frame_handler();
       break;
     }
 
