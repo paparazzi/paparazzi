@@ -37,21 +37,7 @@
 #include "subsystems/radio_control.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 
-#define F_UPDATE_RES 9
-#define REF_DOT_FRAC 11
-#define REF_FRAC  16
-
 #define MAX_SUM_ERR 4000000
-
-#ifndef STABILIZATION_RATE_DDGAIN_P
-#define STABILIZATION_RATE_DDGAIN_P 0
-#endif
-#ifndef STABILIZATION_RATE_DDGAIN_Q
-#define STABILIZATION_RATE_DDGAIN_Q 0
-#endif
-#ifndef STABILIZATION_RATE_DDGAIN_R
-#define STABILIZATION_RATE_DDGAIN_R 0
-#endif
 
 #ifndef STABILIZATION_RATE_IGAIN_P
 #define STABILIZATION_RATE_IGAIN_P 0
@@ -80,14 +66,9 @@
 struct Int32Rates stabilization_rate_sp;
 struct Int32Rates stabilization_rate_gain;
 struct Int32Rates stabilization_rate_igain;
-struct Int32Rates stabilization_rate_ddgain;
-struct Int32Rates stabilization_rate_ref;
-struct Int32Rates stabilization_rate_refdot;
 struct Int32Rates stabilization_rate_sum_err;
 
 struct Int32Rates stabilization_rate_fb_cmd;
-struct Int32Rates stabilization_rate_ff_cmd;
-
 
 #ifndef STABILIZATION_RATE_DEADBAND_P
 #define STABILIZATION_RATE_DEADBAND_P 0
@@ -120,18 +101,9 @@ static void send_rate(struct transport_tx *trans, struct link_device *dev)
                           &stabilization_rate_sp.p,
                           &stabilization_rate_sp.q,
                           &stabilization_rate_sp.r,
-                          &stabilization_rate_ref.p,
-                          &stabilization_rate_ref.q,
-                          &stabilization_rate_ref.r,
-                          &stabilization_rate_refdot.p,
-                          &stabilization_rate_refdot.q,
-                          &stabilization_rate_refdot.r,
                           &stabilization_rate_sum_err.p,
                           &stabilization_rate_sum_err.q,
                           &stabilization_rate_sum_err.r,
-                          &stabilization_rate_ff_cmd.p,
-                          &stabilization_rate_ff_cmd.q,
-                          &stabilization_rate_ff_cmd.r,
                           &stabilization_rate_fb_cmd.p,
                           &stabilization_rate_fb_cmd.q,
                           &stabilization_rate_fb_cmd.r,
@@ -151,14 +123,8 @@ void stabilization_rate_init(void)
   RATES_ASSIGN(stabilization_rate_igain,
                STABILIZATION_RATE_IGAIN_P,
                STABILIZATION_RATE_IGAIN_Q,
-               STABILIZATION_RATE_IGAIN_R);
-  RATES_ASSIGN(stabilization_rate_ddgain,
-               STABILIZATION_RATE_DDGAIN_P,
-               STABILIZATION_RATE_DDGAIN_Q,
-               STABILIZATION_RATE_DDGAIN_R);
+               STABILIZATION_RATE_IGAIN_R);;
 
-  INT_RATES_ZERO(stabilization_rate_ref);
-  INT_RATES_ZERO(stabilization_rate_refdot);
   INT_RATES_ZERO(stabilization_rate_sum_err);
 
 #if PERIODIC_TELEMETRY
@@ -214,7 +180,6 @@ void stabilization_rate_read_rc_switched_sticks(void)
 
 void stabilization_rate_enter(void)
 {
-  RATES_COPY(stabilization_rate_ref, stabilization_rate_sp);
   INT_RATES_ZERO(stabilization_rate_sum_err);
 }
 
@@ -242,14 +207,9 @@ void stabilization_rate_run(bool_t in_flight)
   stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
                                 OFFSET_AND_ROUND2((stabilization_rate_igain.r  * stabilization_rate_sum_err.r), 10);
 
-  stabilization_rate_fb_cmd.p = stabilization_rate_fb_cmd.p >> 11;
-  stabilization_rate_fb_cmd.q = stabilization_rate_fb_cmd.q >> 11;
-  stabilization_rate_fb_cmd.r = stabilization_rate_fb_cmd.r >> 11;
-
-  /* sum to final command */
-  stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_fb_cmd.p;
-  stabilization_cmd[COMMAND_PITCH] = stabilization_rate_fb_cmd.q;
-  stabilization_cmd[COMMAND_YAW]   = stabilization_rate_fb_cmd.r;
+  stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_fb_cmd.p >> 11;
+  stabilization_cmd[COMMAND_PITCH] = stabilization_rate_fb_cmd.q >> 11;
+  stabilization_cmd[COMMAND_YAW]   = stabilization_rate_fb_cmd.r >> 11;
 
   /* bound the result */
   BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
