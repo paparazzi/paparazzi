@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 The Paparazzi Team
+ * Copyright (C) 2015 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -28,8 +28,8 @@
  * Reads Intermcu
  * Sets Actuators
  *
- * if no autopilot, but rc, then manual
  * if no rc but autopilot then RC_LOST_FBW_MODE (define below)
+ * if no rc while in auto mode then RC_LOST_IN_AUTO_FBW_MODE (define below)
  * if no ap but rc then AP_LOST_FBW_MODE (define below)
  */
 

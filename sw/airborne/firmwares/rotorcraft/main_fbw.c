@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 The Paparazzi Team
+ * Copyright (C) 2015 The Paparazzi Team
  *
  * This file is part of Paparazzi.
  *
