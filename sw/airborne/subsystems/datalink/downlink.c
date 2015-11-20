@@ -28,8 +28,6 @@
 
 #include "subsystems/datalink/downlink.h"
 
-struct downlink downlink;
-
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/datalink/datalink.h"
@@ -45,29 +43,30 @@ static void send_downlink(struct transport_tx *trans, struct link_device *dev)
   uint32_t now_ts = get_sys_time_msec();
   // compute downlink byte rate
   if (now_ts > last_ts) {
-    uint16_t down_rate = (1000 * ((uint32_t)downlink.nb_bytes - last_down_nb_bytes)) / (now_ts - last_ts);
+    uint16_t down_rate = (1000 * ((uint32_t)dev->nb_bytes - last_down_nb_bytes)) / (now_ts - last_ts);
     uint16_t up_rate = (1000 * ((uint32_t)datalink_nb_msgs - last_up_nb_msgs)) / (now_ts - last_ts);
 
     last_ts = now_ts;
 #if defined DATALINK || defined SITL
-    last_down_nb_bytes = downlink.nb_bytes;
+    last_down_nb_bytes = dev->nb_bytes;
     last_up_nb_msgs = datalink_nb_msgs;
 #else
     last_down_nb_bytes = 0;
     last_up_nb_msgs = 0;
 #endif
 
-    pprz_msg_send_DATALINK_REPORT(trans, dev, AC_ID, &datalink_time, &datalink_nb_msgs, &downlink.nb_msgs, &down_rate,
-                                  &up_rate, &downlink.nb_ovrn);
+    pprz_msg_send_DATALINK_REPORT(trans, dev, AC_ID, &datalink_time, &datalink_nb_msgs, &dev->nb_msgs, &down_rate,
+                                  &up_rate, &dev->nb_ovrn);
   }
 }
 #endif
 
 void downlink_init(void)
 {
-  downlink.nb_ovrn = 0;
-  downlink.nb_bytes = 0;
-  downlink.nb_msgs = 0;
+  // Set initial counters
+  (DefaultDevice).device.nb_ovrn = 0;
+  (DefaultDevice).device.nb_bytes = 0;
+  (DefaultDevice).device.nb_msgs = 0;
 
 #if defined DATALINK
 

@@ -1,0 +1,51 @@
+/*
+ * Copyright (C) 2015 The Paparazzi Team
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ */
+
+#ifndef INTERMCU_AP_ROTORCRAFT_H
+#define INTERMCU_AP_ROTORCRAFT_H
+
+#include "subsystems/intermcu.h"
+#include "generated/airframe.h"
+
+void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode);
+void RadioControlEvent(void (*frame_handler)(void));
+
+/* We need radio defines for the Autopilot */
+#define RADIO_THROTTLE   0
+#define RADIO_ROLL       1
+#define RADIO_PITCH      2
+#define RADIO_YAW        3
+#define RADIO_GEAR       4
+#define RADIO_FLAP       5
+#define RADIO_AUX1       5
+#define RADIO_AUX2       6
+#define RADIO_AUX3       7
+#define RADIO_CONTROL_NB_CHANNEL 8
+
+#ifndef RADIO_MODE
+#define RADIO_MODE       RADIO_GEAR
+#endif
+//#ifndef RADIO_KILL_SWITCH
+//#define RADIO_KILL_SWITCH       RADIO_FLAP
+//#endif
+
+#endif /* INTERMCU_AP_ROTORCRAFT_H */

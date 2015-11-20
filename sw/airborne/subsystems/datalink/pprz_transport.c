@@ -81,12 +81,12 @@ static uint8_t size_of(struct pprz_transport *trans __attribute__((unused)), uin
 
 static void start_message(struct pprz_transport *trans, struct link_device *dev, uint8_t payload_len)
 {
-  downlink.nb_msgs++;
   dev->put_byte(dev->periph, STX);
   const uint8_t msg_len = size_of(trans, payload_len);
   dev->put_byte(dev->periph, msg_len);
   trans->ck_a_tx = msg_len;
   trans->ck_b_tx = msg_len;
+  dev->nb_msgs++;
 }
 
 static void end_message(struct pprz_transport *trans, struct link_device *dev)
@@ -97,15 +97,15 @@ static void end_message(struct pprz_transport *trans, struct link_device *dev)
 }
 
 static void overrun(struct pprz_transport *trans __attribute__((unused)),
-                    struct link_device *dev __attribute__((unused)))
+                    struct link_device *dev)
 {
-  downlink.nb_ovrn++;
+  dev->nb_ovrn++;
 }
 
 static void count_bytes(struct pprz_transport *trans __attribute__((unused)),
-                        struct link_device *dev __attribute__((unused)), uint8_t bytes)
+                        struct link_device *dev, uint8_t bytes)
 {
-  downlink.nb_bytes += bytes;
+  dev->nb_bytes += bytes;
 }
 
 static int check_available_space(struct pprz_transport *trans __attribute__((unused)), struct link_device *dev,

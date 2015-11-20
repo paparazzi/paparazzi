@@ -81,7 +81,6 @@ static uint8_t size_of(struct xbee_transport *trans __attribute__((unused)), uin
 
 static void start_message(struct xbee_transport *trans, struct link_device *dev, uint8_t payload_len)
 {
-  downlink.nb_msgs++;
   dev->put_byte(dev->periph, XBEE_START);
   const uint16_t len = payload_len + XBEE_API_OVERHEAD;
   dev->put_byte(dev->periph, (len >> 8));
@@ -89,6 +88,7 @@ static void start_message(struct xbee_transport *trans, struct link_device *dev,
   trans->cs_tx = 0;
   const uint8_t header[] = XBEE_TX_HEADER;
   put_bytes(trans, dev, DL_TYPE_UINT8, DL_FORMAT_SCALAR, XBEE_TX_OVERHEAD + 1, header);
+  dev->nb_msgs++;
 }
 
 static void end_message(struct xbee_transport *trans, struct link_device *dev)
@@ -99,15 +99,15 @@ static void end_message(struct xbee_transport *trans, struct link_device *dev)
 }
 
 static void overrun(struct xbee_transport *trans __attribute__((unused)),
-                    struct link_device *dev __attribute__((unused)))
+                    struct link_device *dev)
 {
-  downlink.nb_ovrn++;
+  dev->nb_ovrn++;
 }
 
 static void count_bytes(struct xbee_transport *trans __attribute__((unused)),
-                        struct link_device *dev __attribute__((unused)), uint8_t bytes)
+                        struct link_device *dev, uint8_t bytes)
 {
-  downlink.nb_bytes += bytes;
+  dev->nb_bytes += bytes;
 }
 
 static int check_available_space(struct xbee_transport *trans __attribute__((unused)), struct link_device *dev,
@@ -191,7 +191,8 @@ void xbee_init(void)
 #ifdef XBEE_BAUD_ALTERNATE
 
     // Badly configured... try the alternate baudrate:
-    uart_periph_set_baudrate(&(XBEE_UART), XBEE_BAUD_ALTERNATE); // FIXME add set_baudrate to generic device, assuming uart for now
+    uart_periph_set_baudrate(&(XBEE_UART),
+                             XBEE_BAUD_ALTERNATE); // FIXME add set_baudrate to generic device, assuming uart for now
     if (xbee_try_to_enter_api(dev)) {
       // The alternate baudrate worked,
       print_string(dev, XBEE_ATBD_CODE);

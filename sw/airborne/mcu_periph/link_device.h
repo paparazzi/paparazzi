@@ -48,6 +48,10 @@ struct link_device {
   char_available_t char_available;      ///< check if a new character is available
   get_byte_t get_byte;                  ///< get a new char
   void *periph;                         ///< pointer to parent implementation
+
+  uint16_t nb_msgs;                     ///< The number of messages send
+  uint8_t nb_ovrn;                      ///< The number of overruns
+  uint32_t nb_bytes;                    ///< The number of bytes send
 };
 
 #endif // LINK_DEVICE_H

@@ -383,7 +383,7 @@ let () =
     end;
 
     (** Macros for airborne datalink (receiving) *)
-    if class_name = "datalink" then
+    if class_name = "datalink" || class_name = "intermcu" then
       List.iter (Gen_onboard.print_get_macros h true) messages;
 
     Printf.fprintf h "#endif // _VAR_MESSAGES_%s_H_\n" class_name
