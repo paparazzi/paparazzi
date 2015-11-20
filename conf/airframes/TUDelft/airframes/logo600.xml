@@ -12,9 +12,9 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.1"/>
-    <target name="nps" board="pc">
+    <!--target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
-    </target>
+    </target-->
 
     <subsystem name="telemetry"     type="xbee_api"/>
     <subsystem name="imu"           type="lisa_mx_v2.1"/>
