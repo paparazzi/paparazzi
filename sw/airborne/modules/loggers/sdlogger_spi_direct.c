@@ -30,6 +30,10 @@
 #define PERIODIC_C_LOGGER
 
 #include "modules/loggers/sdlogger_spi_direct.h"
+#include "subsystems/datalink/pprzlog_transport.h"
+#include "subsystems/datalink/telemetry.h"
+#include "subsystems/radio_control.h"
+#include "led.h"
 
 #ifdef LOGGER_LED
 #define LOGGER_LED_ON LED_ON(LOGGER_LED);
@@ -55,9 +59,6 @@
 #endif
 
 struct sdlogger_spi_periph sdlogger_spi;
-
-/* Private function declarations */
-void sdlogger_spi_direct_block_to_uart(void);
 
 /**
  * @brief sdlogger_spi_direct_init

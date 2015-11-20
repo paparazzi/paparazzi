@@ -28,16 +28,8 @@
 
 #define SDLOGGER_BUFFER_SIZE 128
 
-#include "std.h"
 #include "mcu_periph/link_device.h"
-#include "subsystems/radio_control.h"
-#include "subsystems/datalink/pprzlog_transport.h"
-#include "subsystems/datalink/telemetry.h"
 #include "peripherals/sdcard_spi.h"
-#include "mcu_periph/uart.h"
-#include "led.h"
-
-#include "generated/periodic_telemetry.h"
 
 enum SDLoggerStatus {
   SDLogger_UnInit,
