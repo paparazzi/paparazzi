@@ -17,11 +17,12 @@
     <program name="Settings" command="sw/ground_segment/tmtc/settings">
       <arg flag="-ac" constant="@AIRCRAFT"/>
     </program>
-    <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py"/>
+    <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py">
+      <arg flag="--ac_id" constant="@AC_ID"/>
+    </program>
     <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
     <program name="Log Plotter" command="sw/logalizer/logplotter"/>
     <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
-    <program name="Real-time Plotter (Python)" command="sw/ground_segment/python/real_time_plot/messagepicker.py"/>
     <program name="Log File Player" command="sw/logalizer/play"/>
     <program name="Simulator" command="sw/simulator/pprzsim-launch">
       <arg flag="-a" constant="@AIRCRAFT"/>
