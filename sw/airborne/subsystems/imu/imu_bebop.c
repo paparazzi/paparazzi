@@ -133,7 +133,7 @@ void imu_bebop_event(void)
   if (imu_bebop.ak.data_available) {
 #if BEBOP_VERSION2
     // In the second bebop version the magneto is turned 90 degrees
-    VECT3_ASSIGN(imu.mag_unscaled, imu_bebop.ak.data.vect.x, -imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.z);
+    VECT3_ASSIGN(imu.mag_unscaled, -imu_bebop.ak.data.vect.x, -imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.z);
 #else
     VECT3_ASSIGN(imu.mag_unscaled, imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.x, imu_bebop.ak.data.vect.z);
 #endif
