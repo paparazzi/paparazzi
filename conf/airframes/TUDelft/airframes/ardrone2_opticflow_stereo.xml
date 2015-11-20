@@ -95,7 +95,7 @@
     <define name="MAG_Z_CURRENT_COEF" value="0.0"/>
 
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="5." unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
   </section>
 
@@ -201,9 +201,9 @@
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
     <!-- Hover without RC input-->
     <define name="GUIDANCE_H_USE_REF" value="FALSE"/>
-    <define name="PGAIN" value="79"/>
+    <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="100"/>
-    <define name="IGAIN" value="30"/>
+    <define name="IGAIN" value="0"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
@@ -216,9 +216,9 @@
     <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_MODULE"/>
-
- <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
-  <!--  <define name="MODE_AUTO2" value="AP_MODE_HOVER_Z_HOLD"/>-->
+ <!--<define name="MODE_AUTO2" value="AP_MODE_NAV"/>-->
+   <!--<define name="MODE_AUTO2" value="AP_MODE_HOVER_Z_HOLD"/>-->
+<define name="MODE_AUTO2" value="AP_MODE_NAV"/>
     <define name="NO_RC_THRUST_LIMIT"  value="TRUE"/>
   </section>
 

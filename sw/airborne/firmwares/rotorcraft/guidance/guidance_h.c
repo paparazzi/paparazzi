@@ -318,7 +318,7 @@ void guidance_h_read_rc(bool_t  in_flight)
     case GUIDANCE_H_MODE_HOVER:
       stabilization_attitude_read_rc_setpoint_eulers(&guidance_h.rc_sp, in_flight, FALSE, FALSE);
 #if GUIDANCE_H_USE_SPEED_REF
-      read_rc_setpoint_speed_i(&guidance_h.sp.speed, in_flight);
+     // read_rc_setpoint_speed_i(&guidance_h.sp.speed, in_flight);
 #endif
       break;
 
