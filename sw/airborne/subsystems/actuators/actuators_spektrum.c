@@ -39,6 +39,7 @@
 #error Spektrum actuators need at leest a frequency of Hz
 #else
 static uint8_t freq_trig = PERIODIC_FREQUENCY / 90.0 + 0.5; // Round it to nearest value
+#endif
 
 /* Main actuator structure */
 struct ActuatorsSpektrum actuators_spektrum;
@@ -81,6 +82,7 @@ void actuators_spektrum_set(void)
  */
 static inline void actuators_spektrum_send(struct link_device *dev)
 {
+  uint8_t i = 0;
   dev->put_byte(dev->periph, 0x00); // number missed frames
   dev->put_byte(dev->periph, 0x12); // 7 channels, 11 bit, 11ms
 
