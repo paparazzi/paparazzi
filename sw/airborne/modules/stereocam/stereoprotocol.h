@@ -1,8 +1,27 @@
 /*
- * stereoprotocol.h
+ * Copyright (C) 2015 Kirk + Roland
  *
- *  Created on: Sep 23, 2015
- *      Author: Roland + Kirk
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ */
+
+/** @file modules/stereocam/stereoprotocol.h
+ *  @brief standard protocol for TUDelft stereocamera data transfer
  */
 
 #ifndef SW_AIRBORNE_MODULES_STEREO_CAM_STEREOPROTOCOL_H_
@@ -10,6 +29,7 @@
 
 #include <inttypes.h>
 #include "mcu_periph/link_device.h"
+
 struct MsgProperties {
   uint16_t positionImageStart;
   uint8_t width;
@@ -43,6 +63,7 @@ uint8_t stereoprot_isStartOfMsg(uint8_t *stack, uint16_t i, uint16_t buffer_size
 
 void WritePart(struct link_device *, uint8_t *, uint8_t);
 void stereoprot_sendArray(struct link_device *fd, uint8_t *b, uint8_t array_width, uint8_t array_height);
+
 /**
  * Get all available data from stereo com link and decode any complete messages.
  * Returns as soon as a complete message is found. Messages placed in msg_buf

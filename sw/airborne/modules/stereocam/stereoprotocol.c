@@ -1,8 +1,27 @@
 /*
- * stereoprotocol.cpp
+ * Copyright (C) 2015 Kirk + Roland
  *
- *  Created on: Sep 23, 2015
- *      Author: Roland + Kirk
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ */
+
+/** @file modules/stereocam/stereoprotocol.c
+ *  @brief standard protocol for TUDelft stereocamera data transfer
  */
 
 #include "stereoprotocol.h"
@@ -37,8 +56,6 @@ uint8_t stereoprot_isEndOfMsg(uint8_t *stack, uint16_t i, uint16_t buffer_size)
   }
   return 0;
 }
-
-
 
 /**
  * Checks if the sequence in the array is equal to 255-0-0-171,
@@ -141,7 +158,6 @@ uint8_t handleStereoPackage(uint8_t newByte, uint16_t buffer_size, uint16_t *ins
   }
   return 0;
 }
-
 
 
 /**

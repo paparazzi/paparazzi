@@ -18,16 +18,16 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/readlocationfromodroid/readlocationfromodroid.c"
+ * @file "modules/stereocam/state2camera/state2camera.c"
  * @author Roland
  * Sends rotation using the stereoboard protocol over the UART.
  */
 
-#include "modules/stereo_cam/uartrotation.h"
+#include "modules/stereocam/state2camera/state2camera.h"
+#include "modules/stereocam/stereoprotocol.h"
 #include "subsystems/abi.h"
 #include "state.h"
 #include "mcu_periph/uart.h"
-#include "stereoprotocol.h"
 static int frame_number_sending = 0;
 float lastKnownHeight = 0.0;
 int pleaseResetOdroid = 0;
