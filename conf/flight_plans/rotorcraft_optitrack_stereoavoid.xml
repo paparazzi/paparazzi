@@ -4,7 +4,7 @@
   <header>
 #include "autopilot.h"
 #include "subsystems/electrical.h"
-#include "modules/stereoavoid/avoid_navigation.h"
+#include "modules/stereocam/nav_line_avoid/avoid_navigation.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
