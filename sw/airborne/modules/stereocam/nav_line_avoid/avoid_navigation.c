@@ -105,7 +105,7 @@ void run_avoid_navigation_onvision(void)
   avoid_navigation_data.stereo_bin[3] = avoid_navigation_data.mode;
   avoid_navigation_data.stereo_bin[4] = counter;
 
-#if STEREO_LED
+#ifdef STEREO_LED
   if (obstacle_detected) {
     LED_ON(STEREO_LED);
   } else {

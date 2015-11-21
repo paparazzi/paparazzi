@@ -150,7 +150,7 @@ void stereocam_droplet_periodic(void)
       break;
   }
 
-#if STEREO_LED
+#ifdef STEREO_LED
   if (obstacle_detected) {
     LED_ON(STEREO_LED);
   } else {
