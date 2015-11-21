@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/stereoavoid/stereoavoid.c
+ * @file modules/stereocam/nav_line_avoid/stereoavoid.c
  *
  * Parse avoidance messages from stereocamera to use obstacle results in navigation
  */

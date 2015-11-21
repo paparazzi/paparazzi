@@ -19,11 +19,26 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file modules/stereocam/nav_line_avoid/avoid_navigation.h
+ *
+ *  - while flying a route from A -> B
+ *  - when
+ */
+
+
 
 #ifndef AVOID_NAVIGATION_H_
-#define AVOID_NAVIGATION_H_
+#define AVOID_NAVIGATION_H
 
 #include <std.h>
+
+
+#ifndef NAV_LINE_AVOID_SEGMENT_LENGTH
+#define NAV_LINE_AVOID_SEGMENT_LENGTH 3.5
+#endif
+
+
 
 struct AvoidNavigationStruct {
   uint8_t mode; ///< 0 = nothing, 1 =  climb, 2 = sideways, ...
