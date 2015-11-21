@@ -18,17 +18,17 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/nav/constant_forward_flight.c"
+ * @file "modules/stereocam/droplet/stereocam_droplet.c"
  * @author C. DW
  *
  */
 
-#include "modules/nav/constant_forward_flight.h"
+#include "modules/stereocam/droplet/stereocam_droplet.h"
 
 // Know waypoint numbers and blocks
 #include "generated/flight_plan.h"
 
-#include "navigation.h"
+#include "firmwares/rotorcraft/navigation.h"
 
 
 
@@ -69,6 +69,7 @@ struct link_device *xdev = STEREO_PORT;
 struct AvoidNavigationStruct {
   uint8_t mode; ///< 0 = straight, 1 =  right, 2 = left, ...
   uint8_t stereo_bin[8];
+  uint8_t timeout;
 };
 
 struct AvoidNavigationStruct avoid_navigation_data;
@@ -84,16 +85,17 @@ static void stereo_parse(uint8_t c)
 {
   // Protocol is one byte only: store last instance
   avoid_navigation_data.stereo_bin[0] = c;
+  avoid_navigation_data.timeout = 20;
 }
 
 
-void forward_flight_init(void)
+void stereocam_droplet_init(void)
 {
   // Do nothing
   avoid_navigation_data.mode = 0;
-
+  avoid_navigation_data.timeout = 0;
 }
-void forward_flight_periodic(void)
+void stereocam_droplet_periodic(void)
 {
 
   static float heading = 0;
@@ -102,6 +104,11 @@ void forward_flight_periodic(void)
   while (StereoChAvailable()) {
     stereo_parse(StereoGetch());
   }
+
+  if (avoid_navigation_data.timeout <= 0)
+    return;
+
+  avoid_navigation_data.timeout --;
 
   // Results
   DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, 1, avoid_navigation_data.stereo_bin);

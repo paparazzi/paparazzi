@@ -18,18 +18,18 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/nav/constant_forward_flight.h"
+ * @file "modules/stereocam/droplet/stereocam_droplet.h"
  * @author C. DW
  *
  */
 
-#ifndef CONSTANT_FORWARD_FLIGHT_H
-#define CONSTANT_FORWARD_FLIGHT_H
+#ifndef STEREOCAM_DROPLET_H
+#define STEREOCAM_DROPLET_H
 
 
 
-extern void forward_flight_init(void);
-extern void forward_flight_periodic(void);
+extern void stereocam_droplet_init(void);
+extern void stereocam_droplet_periodic(void);
 
 #endif
 

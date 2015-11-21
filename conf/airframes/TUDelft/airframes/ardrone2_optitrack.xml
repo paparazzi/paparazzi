@@ -29,6 +29,7 @@
 
   <modules main_freq="512">
     <load name="bat_voltage_ardrone2.xml"/>
+    <load name="stereocam_droplet.xml" />
   </modules>
 
   <commands>
