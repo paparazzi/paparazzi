@@ -1,0 +1,72 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="logger_sd_spi_direct" dir="loggers">
+  <doc>
+    <description>
+Direct SPI SD Logger that saves pprzlog messages to SD Card.
+
+This module logs data directly to an SD Card which is connected on a SPI port. For now, it is only possible to use a radio switch to start and stop logging.
+
+The values to be logged are defined in the telemetry config file. An example is available in rotorcraft_with_logger.xml. The logmessage is defined as the default message in the process "Logger".
+
+A LOGGER_LED can be enabled which indicates if the logger is writing or reading data.
+
+Downloading of the data occurs over an UART datalink. There is no check to verify that all data is transfered, so it is recommended to use an FTDI cable to the UART port.
+
+Do not use start/stop functionality of the module, the module is not intended to be used like this.
+</description>
+    <configure name="SDLOGGER_DIRECT_SPI" value="SPI1|SPI2|SPI3|SPI4|SPI5|SPI6" description="Port to which the SD Card is connected."/>
+    <configure name="SDLOGGER_DIRECT_SPI_SLAVE" value="SPI_SLAVE1|SPI_SLAVE2|SPI_SLAVE3|SPI_SLAVE4|SPI_SLAVE5|SPI_SLAVE6" description="Port to which the SD Card is connected."/>
+    <configure name="SDLOGGER_DIRECT_CONTROL_SWITCH" value="RADIO_AUX2"/>
+    <configure name="LOGGER_LED" value="none"/>
+  </doc>
+  <settings>
+    <dl_settings NAME="sdlogger">
+      <dl_settings NAME="SD Logger">
+        <dl_setting module="loggers/sdlogger_spi_direct" var="sdlogger_spi.status" min="0" max="20" step="1"/>
+        <dl_setting module="loggers/sdlogger_spi_direct" var="sdcard1.status" min="0" max="40" step="1"/>
+        <dl_setting module="loggers/sdlogger_spi_direct" var="sdcard1.error_status" min="0" max="15" step="1"/>
+        <dl_setting module="loggers/sdlogger_spi_direct" var="sdlogger_spi.command" min="1" max="42" step="1" />
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="sdlogger_spi_direct.h"/>
+  </header>
+  <init fun="sdlogger_spi_direct_init()"/>
+  <periodic fun="sdlogger_spi_direct_periodic()" freq="512" start="sdlogger_spi_direct_start()" stop="sdlogger_spi_direct_stop()" autorun="TRUE"/>
+  <datalink message="SETTING" fun="sdlogger_spi_direct_command()"/>
+  <makefile target="ap">
+
+    <raw>
+        SDLOGGER_DIRECT_SPI ?= spi2
+        SDLOGGER_DIRECT_SPI_LOWER=$(shell echo $(SDLOGGER_DIRECT_SPI) | tr A-Z a-z)
+        SDLOGGER_DIRECT_SPI_UPPER=$(shell echo $(SDLOGGER_DIRECT_SPI) | tr a-z A-Z)
+
+        SDLOGGER_DIRECT_SPI_SLAVE ?= spi_slave2
+        SDLOGGER_DIRECT_SPI_SLAVE_LOWER=$(shell echo $(SDLOGGER_DIRECT_SPI_SLAVE) | tr A-Z a-z)
+        SDLOGGER_DIRECT_SPI_SLAVE_UPPER=$(shell echo $(SDLOGGER_DIRECT_SPI_SLAVE) | tr a-z A-Z)
+
+        SDLOGGER_DIRECT_CONTROL_SWITCH ?= RADIO_AUX2
+
+        LOGGER_LED ?= none
+        ifneq ($(LOGGER_LED),none)
+        ap.CFLAGS += -DLOGGER_LED=$(LOGGER_LED)
+        endif
+
+        ap.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprzlog_transport.c
+
+        include $(CFG_SHARED)/spi_master.makefile
+    </raw>
+
+    <file name="sdcard_spi.c" dir="peripherals"/>
+    <file name="sdlogger_spi_direct.c"/>
+
+    <define name="USE_$(SDLOGGER_DIRECT_SPI_UPPER)" value="1" />
+    <define name="SDLOGGER_SPI_LINK_DEVICE" value="$(SDLOGGER_DIRECT_SPI_LOWER)" />
+    <define name="USE_$(SDLOGGER_DIRECT_SPI_SLAVE_UPPER)" value="1" />
+    <define name="SDLOGGER_SPI_LINK_SLAVE_NUMBER" value="$(SDLOGGER_DIRECT_SPI_SLAVE_UPPER)" />
+    <define name="SDLOGGER_CONTROL_SWITCH" value="$(SDLOGGER_DIRECT_CONTROL_SWITCH)"/>
+  </makefile>
+</module>
+

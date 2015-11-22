@@ -87,6 +87,25 @@ enum SDCardStatus {
   SDCard_MultiWriteStopping,                /**< Busy sending the stop token */
 };
 
+enum SDCardErrorStatus {
+  SDCardError_None,
+  SDCardError_InitializationNoResponse,
+  SDCardError_CardInfoNoResponse,
+  SDCardError_InvalidCardInfo,
+  SDCardError_ACMD41Timeout,
+  SDCardError_ACMD41NoResponse,
+  SDCardError_CMD58NoResponse,
+  SDCardError_CCSBitInvalid,
+  SDCardError_SetBlockSizeNoResponse,
+  SDCardError_WriteBlockNoResponse,
+  SDCardError_SpiDriverError,
+  SDCardError_BlockWriteError,
+  SDCardError_ReadBlockNoResponse,
+  SDCardError_ReadBlockTimeout,
+  SDCardError_MultiWriteNoResponse,
+  SDCardError_MultiWriteError,
+};
+
 struct SDCard {
   struct spi_periph *spi_p;                 /**< The SPI peripheral for the connection */
   struct spi_transaction spi_t;             /**< The SPI transaction used for the writing and reading of registers */
@@ -96,7 +115,8 @@ struct SDCard {
   uint8_t response_counter;                 /**< Response counter used at various locations */
   uint32_t timeout_counter;                 /**< Timeout counter used for initialization checks with ACMD41 */
   enum SDCardType card_type;                /**< Type of SDCard */
-  SDCardCallback read_callback;             /**< Callback to call when read operation finishes */
+  enum SDCardErrorStatus error_status;      /**< Contains information on where the error has occured */
+  SDCardCallback external_callback;         /**< Callback to call when external operation finishes */
 };
 
 extern struct SDCard sdcard1;
@@ -107,7 +127,7 @@ extern void sdcard_spi_periodic(struct SDCard *sdcard);
 extern void sdcard_spi_write_block(struct SDCard *sdcard, uint32_t addr);
 extern void sdcard_spi_read_block(struct SDCard *sdcard, uint32_t addr, SDCardCallback callback);
 extern void sdcard_spi_multiwrite_start(struct SDCard *sdcard, uint32_t addr);
-extern void sdcard_spi_multiwrite_next(struct SDCard *sdcard);
+extern void sdcard_spi_multiwrite_next(struct SDCard *sdcard, SDCardCallback callback);
 extern void sdcard_spi_multiwrite_stop(struct SDCard *sdcard);
 
 #endif // SDCARD_H_

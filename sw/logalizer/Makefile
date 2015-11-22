@@ -30,7 +30,7 @@ LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 XPKG = -package pprz.xlib
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
 
-all: play plotter logplotter sd2log plotprofile openlog2tlm
+all: play plotter logplotter sd2log plotprofile openlog2tlm sdlogger_download
 
 play : log_file.cmo play_core.cmo play.cmo $(LIBPPRZCMA)
 	@echo OL $@
@@ -52,6 +52,9 @@ sd2log : sd2log.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
+sdlogger_download: sdlogger_download.c
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -std=gnu99 -Wno-unused-result -o $@ $^
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
@@ -135,7 +138,7 @@ ctrlstick: ctrlstick.c
 
 
 clean:
-	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrs2fg logplotter plotter gtk_export.ml openlog2tlm disp3d plotprofile tmclient ffjoystick ctrlstick sd2log
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrs2fg logplotter plotter gtk_export.ml openlog2tlm disp3d plotprofile tmclient ffjoystick ctrlstick sd2log sdlogger_download
 
 .PHONY: all clean
 

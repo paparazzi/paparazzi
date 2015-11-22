@@ -88,6 +88,17 @@
    gui_color="red"
   />
   <aircraft
+   name="Helisa"
+   ac_id="114"
+   airframe="airframes/TUDelft/airframes/walkera_genius_v2.xml"
+   radio="radios/FlyElectricRx31_DX6.xml"
+   telemetry="telemetry/rotorcraft_with_logger.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml [settings/superbitrf.xml]"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/logger_sd_spi_direct.xml"
+   gui_color="#063982530000"
+  />
+  <aircraft
    name="Logo600"
    ac_id="111"
    airframe="airframes/TUDelft/airframes/logo600.xml"
@@ -165,28 +176,6 @@
    gui_color="blue"
   />
   <aircraft
-   name="bebop2_22"
-   ac_id="22"
-   airframe="airframes/TUDelft/airframes/bebop2_indi.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_secondary.xml settings/control/stabilization_att_indi.xml [settings/control/stabilization_att_int_quat.xml]"
-   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/gps_ubx_ucenter.xml"
-   gui_color="#ffff0689b7a1"
-  />
-  <aircraft
-   name="bebop2_23"
-   ac_id="23"
-   airframe="airframes/TUDelft/airframes/bebop2_indi.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_secondary.xml settings/control/stabilization_att_indi.xml [settings/control/stabilization_att_int_quat.xml]"
-   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/gps_ubx_ucenter.xml"
-   gui_color="#ffff0689b7a1"
-  />
-  <aircraft
    name="bebop_flip"
    ac_id="3"
    airframe="airframes/TUDelft/airframes/bebop_flip.xml"
@@ -228,17 +217,6 @@
    flight_plan="flight_plans/dummy.xml"
    settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_indi.xml"
    settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/video_rtp_stream.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="mavshot"
-   ac_id="5"
-   airframe="airframes/TUDelft/airframes/mavshot.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_indi.xml settings/modules/config_asctec_v2_new.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml"
    gui_color="blue"
   />
   <aircraft

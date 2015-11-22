@@ -36,6 +36,13 @@ paparazzi.sublime-workspace
 # JetBrains (PyCharm, etc) IDE project files
 .idea
 
+# QtCreator IDE
+*.creator
+*.creator.user
+*.config
+*.files
+*.includes
+
 # Vagrant VM files
 /.vagrant
 
@@ -126,6 +133,7 @@ paparazzi.sublime-workspace
 /sw/logalizer/openlog2tlm
 /sw/logalizer/ahrs2fg
 /sw/logalizer/disp3d
+/sw/logalizer/sdlogger_download
 
 # /sw/simulator/
 /sw/simulator/gaia
