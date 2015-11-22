@@ -75,6 +75,10 @@
     <define name="DESIRED_VY" value="0"/>
    </section>
 
+
+  <section name="MISC">
+    <define name="NAV_CLIMB_VSPEED" value="0.2"/>
+  </section>
   <section name="IMU" prefix="IMU_">
     <!-- Accelero -->
     <define name="ACCEL_X_NEUTRAL" value="2048"/>
