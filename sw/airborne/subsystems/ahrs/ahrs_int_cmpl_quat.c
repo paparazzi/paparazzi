@@ -525,9 +525,11 @@ void ahrs_icq_update_gps(struct GpsState *gps_s __attribute__((unused)))
 #if AHRS_USE_GPS_HEADING && USE_GPS
   // got a 3d fix, ground speed > AHRS_HEADING_UPDATE_GPS_MIN_SPEED (default 5.0 m/s)
   // and course accuracy is better than 10deg
+  static const uint16_t gps_min_speed = AHRS_HEADING_UPDATE_GPS_MIN_SPEED * 100;
+  static const uint32_t max_cacc = RadOfDeg(10 * 1e7);
   if (gps_s->fix >= GPS_FIX_3D &&
-      gps_s->gspeed >= (AHRS_HEADING_UPDATE_GPS_MIN_SPEED * 100) &&
-      gps_s->cacc <= RadOfDeg(10 * 1e7)) {
+      gps_s->gspeed >= gps_min_speed &&
+      gps_s->cacc <= max_cacc) {
 
     // gps_s->course is in rad * 1e7, we need it in rad * 2^INT32_ANGLE_FRAC
     int32_t course = gps_s->course * ((1 << INT32_ANGLE_FRAC) / 1e7);
