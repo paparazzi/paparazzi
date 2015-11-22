@@ -50,10 +50,8 @@ void mavlink_send_block(uint16_t seq)
     static const char *blocks[] = FP_BLOCKS;
     char block_name[50];
     strncpy(block_name, blocks[seq], 49); // String containing the name of the block
-    uint8_t _terminate = strlen(blocks[seq]); // Length of the block name
-    if (_terminate > 49)
-      _terminate = 49;
-    block_name[_terminate] = 0;
+    // make sure the string is null terminated if longer than 49chars
+    block_name[49] = 0;
     mavlink_msg_script_item_send(MAVLINK_COMM_0, mission_mgr.rem_sysid, mission_mgr.rem_compid,
                                  seq, block_name);
     MAVLinkSendMessage();
