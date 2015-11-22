@@ -4,15 +4,16 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2">
-      <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
-      <define name="USE_SONAR" value="0"/>
       <configure name="USE_BARO_BOARD" value="FALSE"/>
-      <configure name="USE_MAGNETOMETER" value="0"/>
     </target>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
     </target>
+
+    <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
+    <define name="USE_SONAR" value="0"/>
+    <configure name="USE_MAGNETOMETER" value="0"/>
 
 	<!-- Subsystem section -->
     <subsystem name="telemetry" type="transparent_udp"/>
