@@ -86,9 +86,14 @@ static inline void mavlink_send_vfr_hud(void);
 /**
  * MAVLink initialization
  */
+
+#ifndef MAVLINK_SYSID
+#define MAVLINK_SYSID AC_ID
+#endif
+
 void mavlink_init(void)
 {
-  mavlink_system.sysid = AC_ID; // System ID, 1-255
+  mavlink_system.sysid = MAVLINK_SYSID; // System ID, 1-255
   mavlink_system.compid = MAV_COMP_ID_MISSIONPLANNER; // Component/Subsystem ID, 1-255
 
   get_pprz_git_version(custom_version);
