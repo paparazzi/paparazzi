@@ -64,13 +64,13 @@ struct periodic_telemetry {
  * @param _pt periodic telemetry structure to register
  * @param _msg message name (string) as defined in telemetry xml file
  * @param _cb callback function, called according to telemetry mode and specified period
- * @return TRUE if message registered with success, FALSE otherwise
+ * @return -1 on failure to register, index of callback otherwise
  */
 #if PERIODIC_TELEMETRY
-extern bool_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb);
+extern int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb);
 #else
-static inline bool_t register_periodic_telemetry(struct periodic_telemetry *_pt __attribute__((unused)),
-    const char *_msg __attribute__((unused)), telemetry_cb _cb __attribute__((unused))) { return FALSE; }
+static inline int8_t register_periodic_telemetry(struct periodic_telemetry *_pt __attribute__((unused)),
+    const char *_msg __attribute__((unused)), telemetry_cb _cb __attribute__((unused))) { return -1; }
 #endif
 
 #if USE_PERIODIC_TELEMETRY_REPORT

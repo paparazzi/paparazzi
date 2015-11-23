@@ -42,9 +42,9 @@ struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs, t
  * @param _pt periodic telemetry structure to register
  * @param _msg message name (string) as defined in telemetry xml file
  * @param _cb callback function, called according to telemetry mode and specified period
- * @return TRUE if message registered with success, FALSE otherwise
+ * @return -1 on failure to register, index of callback otherwise
  */
-bool_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb)
+int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb)
 {
   // return FALSE if NULL is passed as periodic_telemetry
   if (_pt == NULL) { return FALSE; }
@@ -56,15 +56,15 @@ bool_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_
       for (j = 0; j < TELEMETRY_NB_CBS; j++) {
         if (_pt->cbs[i].slots[j] == NULL) {
           _pt->cbs[i].slots[j] = _cb;
-          return TRUE;
+          return j;
         }
       }
       // message matched but no more empty slots available
-      return FALSE;
+      return -1;
     }
   }
   // message name is not in telemetry file
-  return FALSE;
+  return -1;
 }
 
 #if USE_PERIODIC_TELEMETRY_REPORT
