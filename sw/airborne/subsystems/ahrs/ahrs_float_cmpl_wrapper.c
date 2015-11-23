@@ -37,6 +37,7 @@ PRINT_CONFIG_VAR(AHRS_FC_OUTPUT_ENABLED)
 /** if TRUE with push the estimation results to the state interface */
 static bool_t ahrs_fc_output_enabled;
 static uint32_t ahrs_fc_last_stamp;
+static uint8_t ahrs_fc_id = AHRS_COMP_ID_FC;
 
 static void compute_body_orientation_and_rates(void);
 
@@ -58,7 +59,8 @@ static void send_att(struct transport_tx *trans, struct link_device *dev)
                                &euler_i.psi,
                                &(eulers_body->phi),
                                &(eulers_body->theta),
-                               &(eulers_body->psi));
+                               &(eulers_body->psi)
+                               &ahrs_fc_id);
 }
 
 static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
@@ -67,20 +69,15 @@ static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
                         &ahrs_fc.mag_h.x, &ahrs_fc.mag_h.y, &ahrs_fc.mag_h.z);
 }
 
-#ifndef AHRS_FC_FILTER_ID
-#define AHRS_FC_FILTER_ID 5
-#endif
-
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
-  uint8_t id = AHRS_FC_FILTER_ID;
   uint8_t mde = 3;
   uint16_t val = 0;
   if (!ahrs_fc.is_aligned) { mde = 2; }
   uint32_t t_diff = get_sys_time_usec() - ahrs_fc_last_stamp;
   /* set lost if no new gyro measurements for 50ms */
   if (t_diff > 50000) { mde = 5; }
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &id, &mde, &val);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &ahrs_fc_id, &mde, &val);
 }
 #endif
 

@@ -30,6 +30,8 @@ CHIMU_PARSER_DATA CHIMU_DATA;
 INS_FORMAT ins_roll_neutral;
 INS_FORMAT ins_pitch_neutral;
 
+static uint8_t ahrs_chimu_id = AHRS_COMP_ID_CHIMU;
+
 struct AhrsChimu ahrs_chimu;
 
 static bool_t ahrs_chimu_enable_output(bool_t enable)
@@ -104,8 +106,11 @@ void parse_ins_msg(void)
         }
 
 #if CHIMU_DOWNLINK_IMMEDIATE
-        DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &CHIMU_DATA.m_attitude.euler.phi,
-                                 &CHIMU_DATA.m_attitude.euler.theta, &CHIMU_DATA.m_attitude.euler.psi);
+        DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice,
+                                 &CHIMU_DATA.m_attitude.euler.phi,
+                                 &CHIMU_DATA.m_attitude.euler.theta,
+                                 &CHIMU_DATA.m_attitude.euler.psi,
+                                 &ahrs_chimu_id);
 #endif
 
       }

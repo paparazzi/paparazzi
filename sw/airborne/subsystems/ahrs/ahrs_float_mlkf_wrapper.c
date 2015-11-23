@@ -38,6 +38,7 @@ PRINT_CONFIG_VAR(AHRS_MLKF_OUTPUT_ENABLED)
 /** if TRUE with push the estimation results to the state interface */
 static bool_t ahrs_mlkf_output_enabled;
 static uint32_t ahrs_mlkf_last_stamp;
+static uint8_t ahrs_mlkf_id = AHRS_COMP_ID_MLKF;
 
 static void set_body_state_from_quat(void);
 
@@ -51,20 +52,15 @@ static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
                         &ahrs_mlkf.mag_h.x, &ahrs_mlkf.mag_h.y, &ahrs_mlkf.mag_h.z);
 }
 
-#ifndef AHRS_MLKF_FILTER_ID
-#define AHRS_MLKF_FILTER_ID 6
-#endif
-
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
-  uint8_t id = AHRS_MLKF_FILTER_ID;
   uint8_t mde = 3;
   uint16_t val = 0;
   if (!ahrs_mlkf.is_aligned) { mde = 2; }
   uint32_t t_diff = get_sys_time_usec() - ahrs_mlkf_last_stamp;
   /* set lost if no new gyro measurements for 50ms */
   if (t_diff > 50000) { mde = 5; }
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &id, &mde, &val);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &ahrs_mlkf_id, &mde, &val);
 }
 #endif
 

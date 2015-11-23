@@ -194,7 +194,8 @@ void ArduIMU_event(void)
     ardu_ins_trans.status = I2CTransDone;
 
 #ifdef ARDUIMU_SYNC_SEND
-    //RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &arduimu_eulers.phi, &arduimu_eulers.theta, &arduimu_eulers.psi));
+    // uint8_t arduimu_id = 102;
+    //RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &arduimu_eulers.phi, &arduimu_eulers.theta, &arduimu_eulers.psi, &arduimu_id));
     RunOnceEvery(15, DOWNLINK_SEND_IMU_GYRO(DefaultChannel, DefaultDevice, &arduimu_rates.p, &arduimu_rates.q,
                                             &arduimu_rates.r));
     RunOnceEvery(15, DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, DefaultDevice, &arduimu_accel.x, &arduimu_accel.y,

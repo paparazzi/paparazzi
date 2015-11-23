@@ -215,6 +215,7 @@ void IMU_Daten_verarbeiten(void)
   att.psi = 0.;
   imu_daten_angefordert = FALSE;
   stateSetNedToBodyEulers_f(&att);
+  uint8_t arduimu_id = 102;
 
-  RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &att->phi, &att->theta, &att->psi));
+  RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &att->phi, &att->theta, &att->psi, &arduimu_id));
 }
