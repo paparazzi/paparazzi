@@ -20,6 +20,10 @@
  *
  */
 
+/** @file subsystems/intermcu/intermcu_fbw.h
+ *  @brief Rotorcraft Inter-MCU on FlyByWire
+ */
+
 #ifndef INTERMCU_FBW_ROTORCRAFT_H
 #define INTERMCU_FBW_ROTORCRAFT_H
 

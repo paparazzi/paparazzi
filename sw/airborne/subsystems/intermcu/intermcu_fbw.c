@@ -20,6 +20,9 @@
  *
  */
 
+/** @file subsystems/intermcu/intermcu_fbw.c
+ *  @brief Rotorcraft Inter-MCU on FlyByWire
+ */
 
 #include "intermcu_fbw.h"
 #include "intermcu_msg.h"

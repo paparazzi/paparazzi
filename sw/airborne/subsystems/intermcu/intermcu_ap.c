@@ -20,6 +20,10 @@
  *
  */
 
+/** @file subsystems/intermcu/intermcu_ap.c
+ *  @brief Rotorcraft Inter-MCU on the autopilot
+ */
+
 #include "intermcu_ap.h"
 #include "intermcu_msg.h"
 #include "subsystems/radio_control.h"

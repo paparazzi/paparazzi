@@ -20,6 +20,10 @@
  *
  */
 
+/** @file subsystems/intermcu/intermcu_ap.h
+ *  @brief Rotorcraft Inter-MCU on the autopilot
+ */
+
 #ifndef INTERMCU_AP_ROTORCRAFT_H
 #define INTERMCU_AP_ROTORCRAFT_H
 
