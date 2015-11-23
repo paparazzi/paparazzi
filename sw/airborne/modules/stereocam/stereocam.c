@@ -20,16 +20,16 @@
  *
  */
 
-/** @file modules/stereo_cam/stereocam.c
+/** @file modules/stereocam/stereocam.c
  *  @brief interface to TU Delft serial stereocam
  *  Include stereocam.xml to your airframe file.
  *  Parameters STEREO_PORT, STEREO_BAUD, SEND_STEREO and STEREO_BUF_SIZE should be configured with stereocam.xml.
  */
 
-#include "modules/stereo_cam/stereocam.h"
+#include "modules/stereocam/stereocam.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/telemetry.h"
-#include "modules/stereo_cam/stereoprotocol.h"
+#include "modules/stereocam/stereoprotocol.h"
 #ifndef SEND_STEREO
 #define SEND_STEREO TRUE
 #endif
@@ -37,7 +37,7 @@
 // define coms link for stereocam
 #define STEREO_PORT   (&((UART_LINK).device))
 struct link_device *dev = STEREO_PORT;
-#define StereoGetch() STEREO_PORT ->get_byte(STEREO_PORT->periph)
+#define StereoGetch() dev->get_byte(STEREO_PORT->periph)
 
 //typedef struct MsgProperties {
 //  uint16_t positionImageStart;

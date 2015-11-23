@@ -19,6 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file modules/stereocam/nav_line_avoid/avoid_navigation.c
+ *
+ */
+
+
 // Own Header
 #include "avoid_navigation.h"
 
@@ -39,6 +45,8 @@
 #include "subsystems/datalink/downlink.h"
 
 #include "led.h"
+
+
 
 
 
@@ -85,8 +93,8 @@ void run_avoid_navigation_onvision(void)
           struct EnuCoor_i *pos = stateGetPositionEnu_i();
           float sin_heading = sinf(ANGLE_FLOAT_OF_BFP(nav_heading));
           float cos_heading = cosf(ANGLE_FLOAT_OF_BFP(nav_heading));
-          new_coor.x = pos->x + POS_BFP_OF_REAL(sin_heading * 3.5);
-          new_coor.y = pos->y + POS_BFP_OF_REAL(cos_heading * 3.5);
+          new_coor.x = pos->x + POS_BFP_OF_REAL(sin_heading * (NAV_LINE_AVOID_SEGMENT_LENGTH));
+          new_coor.y = pos->y + POS_BFP_OF_REAL(cos_heading * (NAV_LINE_AVOID_SEGMENT_LENGTH));
           new_coor.z = pos->z;
           waypoint_set_xy_i(WP_W1, new_coor.x, new_coor.y);
           obstacle_detected = FALSE;
@@ -105,7 +113,7 @@ void run_avoid_navigation_onvision(void)
   avoid_navigation_data.stereo_bin[3] = avoid_navigation_data.mode;
   avoid_navigation_data.stereo_bin[4] = counter;
 
-#if STEREO_LED
+#ifdef STEREO_LED
   if (obstacle_detected) {
     LED_ON(STEREO_LED);
   } else {

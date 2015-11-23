@@ -18,14 +18,16 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/stereo_cam/uartrotation.h"
+ * @file "modules/stereocam/state2camera/state2camera.h"
  * @author Roland
  * Sends rotation using the stereoboard protocol over the UART.
  */
 
 #ifndef UARTROTATION_H
 #define UARTROTATION_H
+
 #include <inttypes.h>
 extern void write_serial_rot(void);
+
 #endif
 

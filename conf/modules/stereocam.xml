@@ -1,6 +1,6 @@
  <!DOCTYPE module SYSTEM "module.dtd">
 
- <module name="stereocam" dir="stereo_cam">
+ <module name="stereocam" dir="stereocam">
   <doc>
     <description>
       StereoCamera read and decode.

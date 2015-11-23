@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stereocam_droplet" dir="stereocam">
+  <doc>
+    <description></description>
+  </doc>
+  <header>
+    <file name="droplet/stereocam_droplet.h"/>
+  </header>
+  <init fun="stereocam_droplet_init()"/>
+  <periodic fun="stereocam_droplet_periodic()" freq="20" autorun="TRUE"/>
+  <makefile target="ap">
+    <file name="droplet/stereocam_droplet.c"/>
+    <raw>
+      STEREO_UART ?= UART1
+      STEREO_BAUD ?= B9600
+      STEREO_LED ?= 3
+      STEREO_UART_LOWER=$(shell echo $(STEREO_UART) | tr A-Z a-z)
+    </raw>
+    <define name="USE_$(STEREO_UART)"/>
+    <define name="STEREO_UART" value="$(STEREO_UART_LOWER)"/>
+    <define name="$(STEREO_UART)_BAUD" value="$(STEREO_BAUD)"/>
+  </makefile>
+</module>
+

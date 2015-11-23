@@ -1,13 +1,13 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stereoavoid">
+<module name="stereoavoid" dir="stereocam">
   <doc>
-    <description>Read Stereoboard Obstacle Protocol</description>
+    <description>Read Stereoboard Obstacle Protocol and plan around obstacles during nav-line navigation</description>
     <configure name="STEREO_UART" value="UARTX" description="Sets the UART port number of the connected camera (required)"/>
   </doc>
 
   <header>
-    <file name="stereo_avoid.h"/>
+    <file name="nav_line_avoid/stereo_avoid.h"/>
   </header>
 
   <init fun="stereo_avoid_init()"/>
@@ -23,13 +23,13 @@
     <define name="USE_$(STEREO_UART)"/>
     <define name="STEREO_UART" value="$(STEREO_UART_LOWER)"/>
     <define name="$(STEREO_UART)_BAUD" value="$(STEREO_BAUD)"/>
-    <file name="avoid_navigation.c"/>
+    <file name="nav_line_avoid/avoid_navigation.c"/>
   </makefile>
   <makefile  target="ap">
-    <file name="stereo_avoid.c"/>
+    <file name="nav_line_avoid/stereo_avoid.c"/>
   </makefile>
   <makefile  target="nps">
-    <file name="stereo_avoid_sim.c"/>
+    <file name="nav_line_avoid/stereo_avoid_sim.c"/>
   </makefile>
 </module>
 
