@@ -34,6 +34,13 @@
     <load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </load>
+    <load name="mavlink.xml">
+      <define name="UDP1_PORT_OUT" value="5000"/>
+      <define name="UDP1_PORT_IN" value="5000"/>
+      <define name="UDP1_HOST" value="192.168.42.2"/>
+      <configure name="MAVLINK_PORT" value="UDP1"/>
+      <define name="MAVLINK_SYSID" value="1"/>
+    </load>
   </modules>
 
   <commands>
