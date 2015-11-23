@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/stereocam/nav_line_avoid/stereoavoid.h
+ * @file modules/stereocam/nav_line_avoid/stereo_avoid.h
  *
  */
 

@@ -43,7 +43,7 @@ static void fast_make_offsets(int32_t *pixel, uint16_t row_stride, uint8_t pixel
  * @param[in] min_dist The minimum distance in pixels between detections
  * @param[in] x_padding The padding in the x direction to not scan for corners
  * @param[in] y_padding The padding in the y direction to not scan for corners
- * @param[out] *num_corner The amount of corners found
+ * @param[out] *num_corners The amount of corners found
  * @return The corners found
  */
 struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uint16_t x_padding, uint16_t y_padding, uint16_t *num_corners) {

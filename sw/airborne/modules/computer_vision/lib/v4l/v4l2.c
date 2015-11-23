@@ -171,7 +171,7 @@ bool_t v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t 
  * Note that the device must be closed with v4l2_close(dev) at the end.
  * @param[in] device_name The video device name (like /dev/video1)
  * @param[in] width,height The width and height of the images
- * @param[in] buffer_cnt The amount of buffers used for mapping
+ * @param[in] buffers_cnt The amount of buffers used for mapping
  * @return The newly create V4L2 device
  */
 struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height, uint8_t buffers_cnt,

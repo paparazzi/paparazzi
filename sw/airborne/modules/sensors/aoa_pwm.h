@@ -19,7 +19,7 @@
 */
 
 /**
-* @file "modules/sensors/aoa_ppm.h"
+* @file "modules/sensors/aoa_pwm.h"
 * @author Jean-François Erdelyi
 * @brief Angle of Attack sensor on PWM
 *

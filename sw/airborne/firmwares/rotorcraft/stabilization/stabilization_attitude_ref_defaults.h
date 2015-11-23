@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file firmwares/rotorcraft/stabilization/attitude_ref_defaults.h
+/** @file firmwares/rotorcraft/stabilization/stabilization_attitude_ref_defaults.h
  *  Default values for attitude reference saturation.
  */
 

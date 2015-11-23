@@ -19,7 +19,7 @@
  */
 
 /**
- * @file board.c
+ * @file boards/ardrone/board.c
  *
  * ARDrone2 specific board initialization function.
  *

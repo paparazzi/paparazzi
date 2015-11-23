@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/ctrl/vertical_control_module.h
+ * @file modules/ctrl/vertical_ctrl_module_demo.c
  * @brief example vertical controller
  *
  */

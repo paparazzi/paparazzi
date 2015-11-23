@@ -21,7 +21,7 @@
  */
 
 /**
- * @file modules/computer_vision/lib/vision/bayer.c
+ * @file modules/computer_vision/lib/vision/bayer.h
  */
 
 #ifndef Bayer_H

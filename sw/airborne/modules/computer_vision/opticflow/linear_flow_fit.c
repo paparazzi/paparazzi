@@ -22,7 +22,7 @@
  */
 
 /*
- * @file paparazzi/sw/ext/ardrone2_vision/cv/opticflow/linear_flow_fit.c
+ * @file modules/computer_vision/opticflow/linear_flow_fit.c
  * @brief Takes a set of optical flow vectors and extracts information such as relative velocities and surface roughness.
  *
  * A horizontal and vertical linear fit is made with the optical flow vectors, and from the fit parameters information is extracted such as relative velocities (useful for time-to-contact determination), slope angle, and surface roughness.
@@ -53,7 +53,7 @@
 /**
  * Analyze a linear flow field, retrieving information such as divergence, surface roughness, focus of expansion, etc.
  * @param[out] outcome If 0, there were too few vectors for a fit. If 1, the fit was successful.
- * @param[in] flow_t* vectors The optical flow vectors
+ * @param[in] vectors The optical flow vectors
  * @param[in] count The number of optical flow vectors
  * @param[in] error_threshold Error used to determine inliers / outliers.
  * @param[in] n_iterations Number of RANSAC iterations.
@@ -89,7 +89,7 @@ int analyze_linear_flow_field(struct flow_t *vectors, int count, float error_thr
 
 /**
  * Analyze a linear flow field, retrieving information such as divergence, surface roughness, focus of expansion, etc.
- * @param[in] flow_t* vectors The optical flow vectors
+ * @param[in] vectors The optical flow vectors
  * @param[in] count The number of optical flow vectors
  * @param[in] error_threshold Error used to determine inliers / outliers.
  * @param[in] n_iterations Number of RANSAC iterations.

@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/ctrl/vertical_ctrl_module_demo.c
+ * @file modules/ctrl/vertical_ctrl_module_demo.h
  * @brief example vertical
  *
  * Implements an example vertical controller in a module.

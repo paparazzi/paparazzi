@@ -42,12 +42,12 @@
  * @param[in] *new_img The newest grayscale image (TODO: fix YUV422 support)
  * @param[in] *old_img The old grayscale image (TODO: fix YUV422 support)
  * @param[in] *points Points to start tracking from
- * @param[in/out] points_cnt The amount of points and it returns the amount of points tracked
+ * @param[in,out] points_cnt The amount of points and it returns the amount of points tracked
  * @param[in] half_window_size Half the window size (in both x and y direction) to search inside
  * @param[in] subpixel_factor The subpixel factor which calculations should be based on
- * @param[in] max_iteration Maximum amount of iterations to find the new point
+ * @param[in] max_iterations Maximum amount of iterations to find the new point
  * @param[in] step_threshold The threshold at which the iterations should stop
- * @param[in] max_point The maximum amount of points to track, we skip x points and then take a point.
+ * @param[in] max_points The maximum amount of points to track, we skip x points and then take a point.
  * @return The vectors from the original *points in subpixels
  */
 struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, struct point_t *points, uint16_t *points_cnt,

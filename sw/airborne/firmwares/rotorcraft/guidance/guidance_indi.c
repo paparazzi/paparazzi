@@ -20,7 +20,7 @@
  */
 
 /**
- * @file firmwares/rotorcraft/guidance_indi.c
+ * @file firmwares/rotorcraft/guidance/guidance_indi.c
  *
  * A guidance mode based on Incremental Nonlinear Dynamic Inversion
  * Come to ICRA2016 to learn more!

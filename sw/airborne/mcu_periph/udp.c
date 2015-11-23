@@ -75,7 +75,7 @@ void udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in
  * Check if there is enough free space in the transmit buffer.
  * @param p   pointer to UDP peripheral
  * @param len how many bytes of free space to check for
- * @return TRUE if enough space for #len bytes
+ * @return TRUE if enough space for len bytes
  */
 bool_t udp_check_free_space(struct udp_periph *p, uint8_t len)
 {

@@ -48,11 +48,11 @@ extern bool_t nav_survey_poly_setup(uint8_t FirstWP, uint8_t Size, float Sweep, 
  * Computes the sweep orientation angle from the line FirstWP-SecondWP.
  * If you pass zero for Size and/or Sweep it will use the global Poly_Size and
  * Poly_Sweep variables respectively (which can be changed via telemetry/settings).
- * @param FirstWp   first waypoint/corner of the polygon
+ * @param FirstWP   first waypoint/corner of the polygon
  * @param Size      number of waypoints/corners used to define the polygon,
  *                  if zero uses Poly_Size
  * @param Sweep     distance between scan lines, if zero uses Poly_Distance
- * @param SecondWp  second waypoint towards which the sweep orientation is computed
+ * @param SecondWP  second waypoint towards which the sweep orientation is computed
  */
 extern bool_t nav_survey_poly_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP);
 

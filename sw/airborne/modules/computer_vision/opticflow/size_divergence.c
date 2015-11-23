@@ -36,10 +36,10 @@
 
 /**
  * Get divergence from optical flow vectors based on line sizes between corners
- * @param[out] divergence
- * @param[in] flow_t* vectors The optical flow vectors
- * @param[in] count The number of optical flow vectors
- * @param[in] n_samples The number of line segments that will be taken into account. 0 means all line segments will be considered.
+ * @param[in] vectors    The optical flow vectors
+ * @param[in] count      The number of optical flow vectors
+ * @param[in] n_samples  The number of line segments that will be taken into account. 0 means all line segments will be considered.
+ * @return divergence
  */
 float get_size_divergence(struct flow_t *vectors, int count, int n_samples)
 {
@@ -128,9 +128,9 @@ float get_size_divergence(struct flow_t *vectors, int count, int n_samples)
 
 /**
  * Get the sample mean of a vector of floats
- * @param[out] mean
- * @param[in] float* numbers Vector of numbers
- * @param[in] n_elements Number of elements
+ * @param[in] numbers     Vector of numbers
+ * @param[in] n_elements  Number of elements
+ * @return mean
  */
 float get_mean(float *numbers, int n_elements)
 {
