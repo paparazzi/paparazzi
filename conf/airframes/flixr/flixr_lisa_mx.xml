@@ -83,6 +83,8 @@
       <subsystem name="imu" type="aspirin_v2.2"/>
       <subsystem name="ahrs" type="int_cmpl_quat"/>
     </target>
+    <target name="test_module" board="lisa_mx_2.0">
+    </target>
   </firmware>
 
   <autopilot name="rotorcraft_autopilot.xml" freq="512"/>

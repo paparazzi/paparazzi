@@ -473,3 +473,20 @@ test_settings.srcs   += subsystems/settings.c
 test_settings.srcs   += $(SRC_ARCH)/subsystems/settings_arch.c
 test_settings.srcs   += test/subsystems/test_settings.c
 test_settings.CFLAGS += -DUSE_PERSISTENT_SETTINGS
+
+
+#
+# test_module
+#
+# configuration
+#   SYS_TIME_LED
+#   MODEM_PORT
+#   MODEM_BAUD
+#
+test_module.ARCHDIR = $(ARCH)
+test_module.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_module.srcs   += $(COMMON_TEST_SRCS)
+test_module.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_module.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_module.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_module.srcs   += test/test_module.c
