@@ -42,15 +42,21 @@ typedef void (*telemetry_cb)(struct transport_tx *trans, struct link_device *dev
  */
 typedef const char telemetry_msg[64];
 
+/** number of callbacks that can be registered per msg */
+#define TELEMETRY_NB_CBS 4
+
+struct telemetry_cb_slots {
+  telemetry_cb slots[TELEMETRY_NB_CBS];
+};
 
 /** Periodic telemetry structure.
  *  Contains the total number of messages (from generated telemetry file)
  *  and the list of registered callbacks
  */
 struct periodic_telemetry {
-  uint8_t nb;           ///< number of messages
-  telemetry_msg *msgs;  ///< the array of msg names
-  telemetry_cb *cbs;    ///< array of associated callbacks
+  uint8_t nb;                ///< number of messages
+  telemetry_msg *msgs;       ///< the array of msg names
+  struct telemetry_cb_slots *cbs; ///< array of associated callbacks
 };
 
 /** Register a telemetry callback function.

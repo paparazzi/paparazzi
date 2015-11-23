@@ -30,10 +30,11 @@
 #include "subsystems/datalink/telemetry_common.h"
 #include "generated/periodic_telemetry.h"
 
-/* Implement global structures from generated header
+/* Implement global structures from generated header.
+ * Can register up to #TELEMETRY_NB_CBS callbacks per periodic message.
  */
 telemetry_msg telemetry_msgs[TELEMETRY_NB_MSG] = TELEMETRY_MSG_NAMES;
-telemetry_cb telemetry_cbs[TELEMETRY_NB_MSG] = TELEMETRY_CBS_NULL;
+struct telemetry_cb_slots telemetry_cbs[TELEMETRY_NB_MSG] = TELEMETRY_CBS_NULL;
 struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs, telemetry_cbs };
 
 
@@ -48,14 +49,18 @@ bool_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_
   // return FALSE if NULL is passed as periodic_telemetry
   if (_pt == NULL) { return FALSE; }
   // look for message name
-  uint8_t i;
+  uint8_t i, j;
   for (i = 0; i < _pt->nb; i++) {
     if (str_equal(_pt->msgs[i], _msg)) {
-      // register callback if not already done
-      if (_pt->cbs[i] == NULL) {
-        _pt->cbs[i] = _cb;
-        return TRUE;
-      } else { return FALSE; }
+      // register another callback if not all TELEMETRY_NB_CBS slots taken
+      for (j = 0; j < TELEMETRY_NB_CBS; j++) {
+        if (_pt->cbs[i].slots[j] == NULL) {
+          _pt->cbs[i].slots[j] = _cb;
+          return TRUE;
+        }
+      }
+      // message matched but no more empty slots available
+      return FALSE;
     }
   }
   // message name is not in telemetry file

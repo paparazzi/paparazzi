@@ -65,6 +65,8 @@ let output_modes = fun out_h process_name modes freq modules ->
         lprintf out_h "static %s %s = 0; %s++; if (%s>=%d) %s=0;\n" _type v v v m v;
       ) modulos;
 
+      lprintf out_h "uint8_t j;\n";
+
       (** For each message in this mode *)
       let messages = List.sort (fun (_,p) (_,p') -> compare p p') messages in
       let i = ref 0 in (** Basic balancing:1 message every 10Hz *)
@@ -82,12 +84,17 @@ let output_modes = fun out_h process_name modes freq modules ->
           l := (p, !phase) :: !l;
           i := !i + freq/10;
           right ();
-          lprintf out_h "if (telemetry->cbs[TELEMETRY_MSG_%s_ID] != NULL)\n" message_name;
+          lprintf out_h "for (j = 0; j < TELEMETRY_NB_CBS; j++) {\n";
           right ();
-          lprintf out_h "telemetry->cbs[TELEMETRY_MSG_%s_ID](trans, dev);\n" message_name;
+          lprintf out_h "if (telemetry->cbs[TELEMETRY_MSG_%s_ID].slots[j] != NULL)\n" message_name;
+          right ();
+          lprintf out_h "telemetry->cbs[TELEMETRY_MSG_%s_ID].slots[j](trans, dev);\n" message_name;
           left ();
+          lprintf out_h "else break;\n";
+          left ();
+          lprintf out_h "}\n";
           fprintf out_h "#if USE_PERIODIC_TELEMETRY_REPORT\n";
-          lprintf out_h "else periodic_telemetry_err_report(TELEMETRY_PROCESS_%s, telemetry_mode_%s, TELEMETRY_MSG_%s_ID);\n" process_name process_name message_name;
+          lprintf out_h "if (j == 0) periodic_telemetry_err_report(TELEMETRY_PROCESS_%s, telemetry_mode_%s, TELEMETRY_MSG_%s_ID);\n" process_name process_name message_name;
           fprintf out_h "#endif\n";
           left ();
           lprintf out_h "}\n"
@@ -155,8 +162,15 @@ let print_message_table = fun out_h xml ->
   Hashtbl.iter (fun n _ -> fprintf out_h "  \"%s\", \\\n" n) messages;
   fprintf out_h "};\n\n";
   fprintf out_h "#define TELEMETRY_CBS_NULL { \\\n";
-  for i = 1 to (Hashtbl.length messages) do fprintf out_h "  NULL, \\\n" done;
-  fprintf out_h "};\n\n"
+  for i = 1 to (Hashtbl.length messages) do
+    fprintf out_h "  {{";
+    (* TODO: fix hardcoded value of 4 *)
+    for j = 1 to 4 do
+      fprintf out_h "NULL, "
+    done;
+    fprintf out_h "}}, \\\n"
+  done;
+  fprintf out_h "}\n\n"
 
 let print_process_send = fun out_h xml freq modules ->
   (** For each process *)
