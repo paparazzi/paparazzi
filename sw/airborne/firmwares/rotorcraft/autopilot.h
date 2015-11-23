@@ -111,6 +111,15 @@ extern uint16_t autopilot_flight_time;
  *  Limit thrust and/or yaw depending of the in_flight
  *  and motors_on flag status
  */
+#ifdef ROTORCRAFT_IS_HELI
+#define SetRotorcraftCommands(_cmd, _in_flight,  _motor_on) { \
+    commands[COMMAND_ROLL] = _cmd[COMMAND_ROLL];                \
+    commands[COMMAND_PITCH] = _cmd[COMMAND_PITCH];              \
+    commands[COMMAND_YAW] = _cmd[COMMAND_YAW];                  \
+    commands[COMMAND_THRUST] = _cmd[COMMAND_THRUST];            \
+  }
+#else
+
 #ifndef ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED
 #define SetRotorcraftCommands(_cmd, _in_flight,  _motor_on) { \
     if (!(_in_flight)) { _cmd[COMMAND_YAW] = 0; }               \
@@ -128,6 +137,7 @@ extern uint16_t autopilot_flight_time;
     commands[COMMAND_YAW] = _cmd[COMMAND_YAW];                  \
     commands[COMMAND_THRUST] = _cmd[COMMAND_THRUST];            \
   }
+#endif
 #endif
 
 /** Z-acceleration threshold to detect ground in m/s^2 */

@@ -262,6 +262,17 @@ let parse_command = fun command no ->
   let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
   { failsafe_value = failsafe_value; foo = 0}
 
+let parse_heli_curves = fun heli_surves ->
+  let a = fun s -> ExtXml.attrib heli_surves s in
+  match Xml.tag heli_surves with
+      "curve" ->
+        let throttle = a "throttle" in
+        let collective = a "collective" in
+        printf "  {.nb_points = %i, \\\n" (List.length (Str.split (Str.regexp ",") throttle));
+        printf "   .throttle = {%s}, \\\n" throttle;
+        printf "   .collective = {%s}}, \\\n" collective
+    | _ -> xml_error "mixer"
+
 let rec parse_section = fun ac_id s ->
   match Xml.tag s with
       "section" ->
@@ -314,6 +325,16 @@ let rec parse_section = fun ac_id s ->
       printf "  int32_t command_value;\\\n\\\n";
       List.iter parse_command_laws (Xml.children s);
       printf "  AllActuatorsCommit(); \\\n";
+      printf "}\n\n";
+    | "heli_curves" ->
+      let default = ExtXml.attrib_or_default s "default" "0" in
+      let curves = Xml.children s in
+      let nb_points = List.fold_right (fun s m -> Pervasives.max (List.length (Str.split (Str.regexp ",") (ExtXml.attrib s "throttle"))) m) curves 0 in
+      define "THROTTLE_CURVE_MODE_INIT" default;
+      define "THROTTLE_CURVES_NB" (string_of_int (List.length curves));
+      define "THROTTLE_POINTS_NB" (string_of_int nb_points);
+      printf "#define THROTTLE_CURVES { \\\n";
+      List.iter parse_heli_curves curves;
       printf "}\n\n";
     | "include" ->
       let filename = Str.global_replace (Str.regexp "\\$AC_ID") ac_id (ExtXml.attrib s "href") in
