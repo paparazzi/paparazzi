@@ -28,7 +28,7 @@
 
 
 
-#ifndef AVOID_NAVIGATION_H_
+#ifndef AVOID_NAVIGATION_H
 #define AVOID_NAVIGATION_H
 
 #include <std.h>
@@ -54,4 +54,4 @@ void run_avoid_navigation_onvision(void);
 extern void increase_nav_heading(int32_t *heading, int32_t increment);
 
 
-#endif /* AVOID_NAVIGATION_H_ */
+#endif /* AVOID_NAVIGATION_H */
