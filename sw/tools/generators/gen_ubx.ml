@@ -114,7 +114,7 @@ let parse_message = fun class_name m ->
   let param_type = fun f -> c_type (format f) in
   let param_name = fun f ->String.lowercase (field_name f) in
   let param_name_and_type = fun f ->
-    sprintf "%s %s" (param_type f) (param_name f) in
+    sprintf "%s ubx_%s" (param_type f) (param_name f) in
   let rec param_names = fun f r ->
     if Xml.tag f = "field" then
       param_name_and_type f :: r
@@ -130,7 +130,7 @@ let parse_message = fun class_name m ->
           let s = sizeof (format f) in
           let p = param_name f in
           let t = param_type f in
-          fprintf out "  %s _%s = %s; ubx_send_bytes(dev, %d, (uint8_t*)&_%s);\n" t p p s p
+          fprintf out "  %s _%s = ubx_%s; ubx_send_bytes(dev, %d, (uint8_t*)&_%s);\n" t p p s p
       | "block" ->
         List.iter send_one_field (Xml.children f)
       | _ -> assert (false) in
