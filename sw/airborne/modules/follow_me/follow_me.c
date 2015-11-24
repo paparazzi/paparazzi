@@ -1,24 +1,19 @@
 /*
- * Copyright (C) Roland and Sjoerd
+ * Copyright (C) Roland
  *
  * This file is part of paparazzi
  *
  */
 /**
- * @file "modules/follow_egg/follow_egg.c"
- * @author Roland and Sjoerd
- * follows the egg next to the mavlab
+ * @file "modules/follow_me/follow_me.c"
+ * @author Roland
+ * follows based on stereo
  */
 
-#include "modules/follow_egg/follow_egg.h"
+#include "modules/follow_me/follow_me.h"
 #include "modules/stereo_cam/stereocam.h"
 
 #include "subsystems/abi.h"
-#ifndef VISION_VELOCITY_ESTIMATE_ID
-#define VISION_VELOCITY_ESTIMATE_ID ABI_BROADCAST
-#endif
-PRINT_CONFIG_VAR(VISION_VELOCITY_ESTIMATE_ID)
-static abi_event velocity_est_ev;
 
 #include "guidance.h"
 // Paparazzi Data
@@ -29,22 +24,10 @@ static abi_event velocity_est_ev;
 #include "navigation.h"
 #include "modules/computer_vision/opticflow_module.h"
 
-float lastKnownVelX;
-float lastKnownVelY;
 int far_away_threshold = 28;
-static void new_velocity_estimate(uint8_t sender_id __attribute__((unused)),
-    uint32_t stamp, float vel_x, float vel_y, float vel_z, float noise)
-{
-	lastKnownVelX= vel_x;
-	lastKnownVelY= vel_y;
-}
-void follow_egg_init() {
-	printf("Egg follow init");
-	 AbiBindMsgVELOCITY_ESTIMATE(VISION_VELOCITY_ESTIMATE_ID, &velocity_est_ev, new_velocity_estimate);
-
-}
 float lastVelocityReference=0.0;
-
+float ref_pitch=0.0;
+float ref_roll=0.0;
 void setVelocityReference(float velocity){
 	lastVelocityReference=velocity;
 	float sin_heading = sinf(ANGLE_FLOAT_OF_BFP(nav_heading));
@@ -55,6 +38,87 @@ void setVelocityReference(float velocity){
 	navigation_carrot.y=newPosY;
 }
 
+void searchSpaceHeadingDrone(uint8_t* histogram,uint8_t *requiredHeading, uint8_t *valueThere){
+
+    uint8_t x = 5;
+    int maxFound=0;
+    int width=5;
+	 for(x=10; x < 110; x++){
+		 int index=0;
+		 int sumFound=0;
+		 for(index=x; index < x+width; index++){
+			 if(histogram[index]==120){
+				 break;
+			 }
+			 sumFound+= histogram[index];
+
+		 }
+		 if(sumFound>maxFound){
+			 maxFound=sumFound;
+			 *valueThere=histogram[x+1];
+			 *requiredHeading=x+1;
+		 }
+	}
+}
+void follow_me_init() {
+
+}
+void follow_me_periodic() {
+	setVelocityReference(lastVelocityReference);
+
+	if(stereocam_data.fresh){
+		stereocam_data.fresh=0;
+
+		uint8_t headingToFollow=0;
+		uint8_t valueThere=0;
+		 int indexRight;
+			    int highValuesRightCount=0;
+			    for(indexRight=0; indexRight < 120; indexRight++){
+					if(stereocam_data.data[indexRight] > 60){
+						highValuesRightCount++;
+					}
+				}
+
+		searchSpaceHeadingDrone(stereocam_data.data,&headingToFollow,&valueThere);
+		float heading_change = (float) (headingToFollow-65.0)*0.012; // convert pixel location to radians
+		int differenceCenter = headingToFollow-65;
+		if(differenceCenter > 0){
+			ref_roll=0.1*abs(differenceCenter);
+		}
+		else{
+			ref_roll=-0.1*abs(differenceCenter);
+		}
+		//float newHeading =stateGetNedToBodyEulers_f()->psi+heading_change;
+		//nav_set_heading_rad(newHeading);
+		printf("THE CURRENT VALUE AT THE PLACE I WANT TO LOOK AT IS %d with rotation %f %d\n",valueThere,heading_change,headingToFollow);
+		if(fabs(heading_change) < 0.42){
+
+			if(valueThere<40){
+				setVelocityReference(1.1);
+				ref_pitch=-3.0;
+			}
+			else{
+				ref_pitch=3.0;
+				setVelocityReference(-0.5);
+
+			}
+
+		}
+		else{
+			setVelocityReference(0.0);
+			ref_pitch=0.0;
+		}
+		if(highValuesRightCount>20){
+			ref_pitch=5.0;
+		}
+	}
+}
+
+
+
+
+/*
+ *
 int searchSpaceHeadingDrone(uint8_t* histogram){
 
     int x = 5;
@@ -119,5 +183,5 @@ void set_heading_following_egg() {
 			printf("Turn, wait pleaze!\n");
 		}
 	}
-}
+}*/
 

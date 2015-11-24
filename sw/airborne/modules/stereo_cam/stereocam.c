@@ -40,12 +40,6 @@
 struct link_device *dev = STEREO_PORT;
 #define StereoGetch() STEREO_PORT ->get_byte(STEREO_PORT->periph)
 
-//typedef struct MsgProperties {
-//  uint16_t positionImageStart;
-//  uint8_t width;
-//  uint8_t height;
-//} MsgProperties;
-
 // pervasive local variables
 MsgProperties msgProperties;
 
