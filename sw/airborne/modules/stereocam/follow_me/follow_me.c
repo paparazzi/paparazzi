@@ -12,15 +12,8 @@
 
 #include "modules/stereocam/follow_me/follow_me.h"
 #include "modules/stereocam/stereocam.h"
-#include "subsystems/abi.h"
-#include "guidance.h"
-#include "state.h"
-#include "subsystems/datalink/telemetry.h"
-#include "navigation.h"
-#include "modules/computer_vision/opticflow_module.h"
 
 int far_away_threshold = 28;
-float lastVelocityReference = 0.0;
 float ref_pitch = 0.0;
 float ref_roll = 0.0;
 
