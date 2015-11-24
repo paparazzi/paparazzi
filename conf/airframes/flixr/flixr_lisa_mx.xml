@@ -39,9 +39,9 @@
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="float_mlkf"/>
-    <!--subsystem name="ahrs"          type="int_cmpl_quat">
+    <subsystem name="ahrs"          type="int_cmpl_quat">
       <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
-    </subsystem-->
+    </subsystem>
 
     <subsystem name="ins" type="hff"/>
 
