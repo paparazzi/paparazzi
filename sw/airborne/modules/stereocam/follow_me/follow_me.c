@@ -82,7 +82,6 @@ void follow_me_periodic()
       }
 
     } else {
-      setVelocityReference(0.0);
       ref_pitch = 0.0;
     }
     if (highValuesRightCount > 20) {
