@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="follow_me" dir="stereocam/follow_me">
+<module name="stereocam_follow_me" dir="stereocam/follow_me">
   <doc>
     <description>follows based on stereo</description>
   </doc>

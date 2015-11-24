@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="follow_egg" dir="stereocam/follow_egg">
+<module name="stereocam_follow_egg" dir="stereocam/follow_egg">
   <doc>
     <description>follows the egg next to the mavlab</description>
   </doc>
