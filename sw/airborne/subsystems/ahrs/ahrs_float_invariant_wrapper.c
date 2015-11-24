@@ -70,7 +70,7 @@ static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
                         &ahrs_float_inv.mag_h.x,
                         &ahrs_float_inv.mag_h.y,
-                        &ahrs_float_inv.mag_h.z);
+                        &ahrs_float_inv.mag_h.z, &ahrs_finv_id);
 }
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)

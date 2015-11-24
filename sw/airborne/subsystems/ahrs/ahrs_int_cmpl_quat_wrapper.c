@@ -91,7 +91,7 @@ static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
   h_float.y = MAG_FLOAT_OF_BFP(ahrs_icq.mag_h.y);
   h_float.z = MAG_FLOAT_OF_BFP(ahrs_icq.mag_h.z);
   pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
-                        &h_float.x, &h_float.y, &h_float.z);
+                        &h_float.x, &h_float.y, &h_float.z, &ahrs_icq_id);
 }
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
