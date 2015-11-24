@@ -21,6 +21,8 @@
 
 *.aux
 
+*.gdb_history
+
 # Eclipse IDE project files
 *.cproject
 *.project
