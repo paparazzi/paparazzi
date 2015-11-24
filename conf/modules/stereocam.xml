@@ -19,13 +19,14 @@
   </header>
   <periodic fun="stereocam_periodic()" start="stereocam_start()" stop="stereocam_stop()" autorun="TRUE" freq="512"/>
   <makefile>
-    <file name="stereoprotocol.c" dir="modules/stereo_cam"/>
+    <file name="stereoprotocol.c" dir="modules/stereocam"/>
     <raw>
       STEREO_UART_LOWER=$(shell echo $(STEREO_UART) | tr A-Z a-z)
+      STEREO_UART_UPPER=$(shell echo $(STEREO_UART) | tr a-z A-Z)
     </raw>
-    <define name="USE_$(STEREO_UART)"/>
+    <define name="USE_$(STEREO_UART_UPPER)"/>
     <define name="UART_LINK" value="$(STEREO_UART_LOWER)"/>
-    <define name="$(STEREO_UART)_BAUD" value="$(STEREO_BAUD)"/>
+    <define name="$(STEREO_UART_UPPER)_BAUD" value="$(STEREO_BAUD)"/>
     <file name="stereocam.c"/>
   </makefile>
  </module>
