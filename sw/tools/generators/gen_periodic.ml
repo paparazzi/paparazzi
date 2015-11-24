@@ -163,12 +163,8 @@ let print_message_table = fun out_h xml ->
   fprintf out_h "};\n\n";
   fprintf out_h "#define TELEMETRY_CBS_NULL { \\\n";
   for i = 1 to (Hashtbl.length messages) do
-    fprintf out_h "  {{";
-    (* TODO: fix hardcoded value of 4 *)
-    for j = 1 to 4 do
-      fprintf out_h "NULL, "
-    done;
-    fprintf out_h "}}, \\\n"
+    (* use one 0 to init all slots (number TELEMETRY_NB_CBS) to NULL *)
+    fprintf out_h "  {{ NULL }}, \\\n";
   done;
   fprintf out_h "}\n\n"
 

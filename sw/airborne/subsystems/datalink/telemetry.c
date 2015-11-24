@@ -46,8 +46,8 @@ struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs, t
  */
 int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb)
 {
-  // return FALSE if NULL is passed as periodic_telemetry
-  if (_pt == NULL) { return FALSE; }
+  // return if NULL is passed as periodic_telemetry
+  if (_pt == NULL) { return -1; }
   // look for message name
   uint8_t i, j;
   for (i = 0; i < _pt->nb; i++) {
