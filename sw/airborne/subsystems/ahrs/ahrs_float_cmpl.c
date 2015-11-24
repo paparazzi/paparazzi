@@ -94,6 +94,9 @@ void ahrs_fc_init(void)
   /* init ltp_to_imu quaternion as zero/identity rotation */
   float_quat_identity(&ahrs_fc.ltp_to_imu_quat);
 
+  orientationSetIdentity(&ahrs_fc.body_to_imu);
+  orientationSetIdentity(&ahrs_fc.ltp_to_body);
+
   FLOAT_RATES_ZERO(ahrs_fc.imu_rate);
 
   /* set default filter cut-off frequency and damping */
@@ -434,16 +437,14 @@ void ahrs_fc_update_heading(float heading)
 
   FLOAT_ANGLE_NORMALIZE(heading);
 
-  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
-  struct FloatQuat ltp_to_body_quat;
-  float_quat_comp_inv(&ltp_to_body_quat, &ahrs_fc.ltp_to_imu_quat, body_to_imu_quat);
-  struct FloatRMat ltp_to_body_rmat;
-  float_rmat_of_quat(&ltp_to_body_rmat, &ltp_to_body_quat);
+  ahrs_fc_recompute_ltp_to_body();
+  struct FloatRMat *ltp_to_body_rmat = orientationGetRMat_f(&ahrs_fc.ltp_to_body);
+
   // row 0 of ltp_to_body_rmat = body x-axis in ltp frame
   // we only consider x and y
   struct FloatVect2 expected_ltp = {
-    RMAT_ELMT(ltp_to_body_rmat, 0, 0),
-    RMAT_ELMT(ltp_to_body_rmat, 0, 1)
+    RMAT_ELMT(*ltp_to_body_rmat, 0, 0),
+    RMAT_ELMT(*ltp_to_body_rmat, 0, 1)
   };
 
   // expected_heading cross measured_heading
@@ -486,12 +487,11 @@ void ahrs_fc_realign_heading(float heading)
   q_h_new.qz = sinf(heading / 2.0);
   q_h_new.qi = cosf(heading / 2.0);
 
-  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
-  struct FloatQuat ltp_to_body_quat;
-  float_quat_comp_inv(&ltp_to_body_quat, &ahrs_fc.ltp_to_imu_quat, body_to_imu_quat);
+  ahrs_fc_recompute_ltp_to_body();
+  struct FloatQuat *ltp_to_body_quat = orientationGetQuat_f(&ahrs_fc.ltp_to_body);
+
   /* quaternion representing current heading only */
-  struct FloatQuat q_h;
-  QUAT_COPY(q_h, ltp_to_body_quat);
+  struct FloatQuat q_h = *ltp_to_body_quat;
   q_h.qx = 0.;
   q_h.qy = 0.;
   float_quat_normalize(&q_h);
@@ -502,9 +502,10 @@ void ahrs_fc_realign_heading(float heading)
 
   /* correct current heading in body frame */
   struct FloatQuat q;
-  float_quat_comp_norm_shortest(&q, &q_c, &ltp_to_body_quat);
+  float_quat_comp_norm_shortest(&q, &q_c, ltp_to_body_quat);
 
   /* compute ltp to imu rotation quaternion and matrix */
+  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
   float_quat_comp(&ahrs_fc.ltp_to_imu_quat, &q, body_to_imu_quat);
   float_rmat_of_quat(&ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.ltp_to_imu_quat);
 
@@ -525,4 +526,12 @@ void ahrs_fc_set_body_to_imu_quat(struct FloatQuat *q_b2i)
     ahrs_fc.ltp_to_imu_quat = *orientationGetQuat_f(&ahrs_fc.body_to_imu);
     ahrs_fc.ltp_to_imu_rmat = *orientationGetRMat_f(&ahrs_fc.body_to_imu);
   }
+}
+
+void ahrs_fc_recompute_ltp_to_body(void)
+{
+  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
+  struct FloatQuat ltp_to_body_quat;
+  float_quat_comp_inv(&ltp_to_body_quat, &ahrs_fc.ltp_to_imu_quat, body_to_imu_quat);
+  orientationSetQuat_f(&ahrs_fc.ltp_to_body, &ltp_to_body_quat);
 }

@@ -73,22 +73,17 @@ static void send_euler_int(struct transport_tx *trans, struct link_device *dev)
   struct Int32Eulers eulers_imu;
   EULERS_BFP_OF_REAL(eulers_imu, ltp_to_imu_euler);
 
-  /* compute Eulers in int (body frame) */
-  struct FloatQuat ltp_to_body_quat;
-  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
-  float_quat_comp_inv(&ltp_to_body_quat, &ahrs_fc.ltp_to_imu_quat, body_to_imu_quat);
-  struct FloatEulers ltp_to_body_euler;
-  float_eulers_of_quat(&ltp_to_body_euler, &ltp_to_body_quat);
-  struct Int32Eulers eulers_body;
-  EULERS_BFP_OF_REAL(eulers_body, ltp_to_body_euler);
+  /* get Eulers in int (body frame) */
+  ahrs_fc_recompute_ltp_to_body();
+  struct Int32Eulers *eulers_body = orientationGetEulers_i(&ahrs_fc.ltp_to_body);
 
   pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
                                &eulers_imu.phi,
                                &eulers_imu.theta,
                                &eulers_imu.psi,
-                               &eulers_body.phi,
-                               &eulers_body.theta,
-                               &eulers_body.psi,
+                               &eulers_body->phi,
+                               &eulers_body->theta,
+                               &eulers_body->psi,
                                &ahrs_fc_id);
 }
 
@@ -247,12 +242,11 @@ static bool_t ahrs_fc_enable_output(bool_t enable)
 static void compute_body_orientation_and_rates(void)
 {
   if (ahrs_fc_output_enabled) {
-    /* Compute LTP to BODY quaternion */
-    struct FloatQuat ltp_to_body_quat;
-    struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
-    float_quat_comp_inv(&ltp_to_body_quat, &ahrs_fc.ltp_to_imu_quat, body_to_imu_quat);
+    /* recompute LTP to BODY quaternion */
+    ahrs_fc_recompute_ltp_to_body();
+    struct FloatQuat *ltp_to_body_quat = orientationGetQuat_f(&ahrs_fc.ltp_to_body);
     /* Set state */
-    stateSetNedToBodyQuat_f(&ltp_to_body_quat);
+    stateSetNedToBodyQuat_f(ltp_to_body_quat);
 
     /* compute body rates */
     struct FloatRates body_rate;
