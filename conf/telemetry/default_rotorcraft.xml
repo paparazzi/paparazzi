@@ -70,6 +70,7 @@
       <message name="AHRS_GYRO_BIAS_INT" period="0.08"/>
       <message name="AHRS_QUAT_INT"      period=".25"/>
       <message name="AHRS_EULER_INT"     period=".1"/>
+      <message name="AHRS_EULER"         period=".1"/>
 <!--      <message name="AHRS_RMAT_INT"   period=".5"/> -->
     </mode>
 

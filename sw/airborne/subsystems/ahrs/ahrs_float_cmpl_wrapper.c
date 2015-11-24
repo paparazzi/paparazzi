@@ -46,7 +46,26 @@ static void compute_body_orientation_and_rates(void);
 #include "mcu_periph/sys_time.h"
 #include "state.h"
 
-static void send_att(struct transport_tx *trans, struct link_device *dev)
+static void send_euler(struct transport_tx *trans, struct link_device *dev)
+{
+  struct FloatEulers ltp_to_imu_euler;
+  float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_fc.ltp_to_imu_quat);
+  pprz_msg_send_AHRS_EULER(trans, dev, AC_ID,
+                           &ltp_to_imu_euler.phi,
+                           &ltp_to_imu_euler.theta,
+                           &ltp_to_imu_euler.psi,
+                           &ahrs_fc_id);
+}
+
+static void send_bias(struct transport_tx *trans, struct link_device *dev)
+{
+  struct Int32Rates gyro_bias;
+  RATES_BFP_OF_REAL(gyro_bias, ahrs_fc.gyro_bias);
+  pprz_msg_send_AHRS_GYRO_BIAS_INT(trans, dev, AC_ID,
+                                   &gyro_bias.p, &gyro_bias.q, &gyro_bias.r, &ahrs_fc_id);
+}
+
+static void send_euler_int(struct transport_tx *trans, struct link_device *dev)
 {
   struct FloatEulers ltp_to_imu_euler;
   float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_fc.ltp_to_imu_quat);
@@ -251,7 +270,9 @@ void ahrs_fc_register(void)
   AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_att);
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER", send_euler);
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_GYRO_BIAS_INT", send_bias);
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_euler_int);
   register_periodic_telemetry(DefaultPeriodic, "GEO_MAG", send_geo_mag);
   register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
 #endif
