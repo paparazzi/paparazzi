@@ -1101,18 +1101,9 @@
     <field name="sp_p" type="int32"/>
     <field name="sp_q" type="int32"/>
     <field name="sp_r" type="int32"/>
-    <field name="ref_p" type="int32"/>
-    <field name="ref_q" type="int32"/>
-    <field name="ref_r" type="int32"/>
-    <field name="refdot_p" type="int32"/>
-    <field name="refdot_q" type="int32"/>
-    <field name="refdot_r" type="int32"/>
     <field name="sumerr_p" type="int32"/>
     <field name="sumerr_q" type="int32"/>
     <field name="sumerr_r" type="int32"/>
-    <field name="ff_p" type="int32"/>
-    <field name="ff_q" type="int32"/>
-    <field name="ff_r" type="int32"/>
     <field name="fb_p" type="int32"/>
     <field name="fb_q" type="int32"/>
     <field name="fb_r" type="int32"/>
