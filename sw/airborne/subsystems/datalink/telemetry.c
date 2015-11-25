@@ -30,10 +30,11 @@
 #include "subsystems/datalink/telemetry_common.h"
 #include "generated/periodic_telemetry.h"
 
-/* Implement global structures from generated header
+/* Implement global structures from generated header.
+ * Can register up to #TELEMETRY_NB_CBS callbacks per periodic message.
  */
 telemetry_msg telemetry_msgs[TELEMETRY_NB_MSG] = TELEMETRY_MSG_NAMES;
-telemetry_cb telemetry_cbs[TELEMETRY_NB_MSG] = TELEMETRY_CBS_NULL;
+struct telemetry_cb_slots telemetry_cbs[TELEMETRY_NB_MSG] = TELEMETRY_CBS_NULL;
 struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs, telemetry_cbs };
 
 
@@ -41,25 +42,29 @@ struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_msgs, t
  * @param _pt periodic telemetry structure to register
  * @param _msg message name (string) as defined in telemetry xml file
  * @param _cb callback function, called according to telemetry mode and specified period
- * @return TRUE if message registered with success, FALSE otherwise
+ * @return -1 on failure to register, index of callback otherwise
  */
-bool_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb)
+int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb)
 {
-  // return FALSE if NULL is passed as periodic_telemetry
-  if (_pt == NULL) { return FALSE; }
+  // return if NULL is passed as periodic_telemetry
+  if (_pt == NULL) { return -1; }
   // look for message name
-  uint8_t i;
+  uint8_t i, j;
   for (i = 0; i < _pt->nb; i++) {
     if (str_equal(_pt->msgs[i], _msg)) {
-      // register callback if not already done
-      if (_pt->cbs[i] == NULL) {
-        _pt->cbs[i] = _cb;
-        return TRUE;
-      } else { return FALSE; }
+      // register another callback if not all TELEMETRY_NB_CBS slots taken
+      for (j = 0; j < TELEMETRY_NB_CBS; j++) {
+        if (_pt->cbs[i].slots[j] == NULL) {
+          _pt->cbs[i].slots[j] = _cb;
+          return j;
+        }
+      }
+      // message matched but no more empty slots available
+      return -1;
     }
   }
   // message name is not in telemetry file
-  return FALSE;
+  return -1;
 }
 
 #if USE_PERIODIC_TELEMETRY_REPORT
