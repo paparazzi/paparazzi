@@ -97,7 +97,7 @@ static inline float get_pressure(uint32_t raw)
 #if USE_MS_EEPROM
   return mtostk_get_calibrated_value(&meteo_stick.calib, MTOSTK_ABS_PRESS, uncal_abs, meteo_stick.current_temperature);
 #else
-  return (MS_PRESSURE_OFFSET * uncal_abs) + MS_PRESSURE_OFFSET;
+  return (MS_PRESSURE_SCALE * uncal_abs) + MS_PRESSURE_OFFSET;
 #endif
 }
 
