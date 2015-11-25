@@ -118,7 +118,6 @@
     <define name="DEADBAND_P" value="20"/>
     <define name="DEADBAND_Q" value="20"/>
     <define name="DEADBAND_R" value="200"/>
-    <define name="REF_TAU" value="4"/>
 
     <!-- feedback -->
     <define name="GAIN_P" value="1"/>
@@ -128,11 +127,6 @@
     <define name="IGAIN_P" value="0"/>
     <define name="IGAIN_Q" value="0"/>
     <define name="IGAIN_R" value="0"/>
-
-    <!-- feedforward -->
-    <define name="DDGAIN_P" value="0"/>
-    <define name="DDGAIN_Q" value="0"/>
-    <define name="DDGAIN_R" value="0"/>
   </section>
 
 
