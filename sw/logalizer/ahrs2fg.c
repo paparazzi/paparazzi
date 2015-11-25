@@ -179,8 +179,8 @@ int main ( int argc, char** argv) {
 
   IvyInit ("ahrs2fg", "ahrs2fg READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_ATTITUDE, chan, "^%d ATTITUDE (\\S*) (\\S*) (\\S*)", ac_id);
-  IvyBindMsg(on_AHRS_EULER_INT, chan, "^%d AHRS_EULER_INT (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)", ac_id);
-  IvyBindMsg(on_AHRS_QUAT_INT, chan, "^%d AHRS_QUAT_INT (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)", ac_id);
+  IvyBindMsg(on_AHRS_EULER_INT, chan, "^%d AHRS_EULER_INT (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)", ac_id);
+  IvyBindMsg(on_AHRS_QUAT_INT, chan, "^%d AHRS_QUAT_INT (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)", ac_id);
   IvyBindMsg(on_ROTORCRAFT_FP, chan, "^%d ROTORCRAFT_FP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)", ac_id);
   if (verbose) {
     printf("Ivy options: %s\n", IvyBus);

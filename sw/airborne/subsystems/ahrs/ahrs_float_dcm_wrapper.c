@@ -37,6 +37,7 @@ PRINT_CONFIG_VAR(AHRS_DCM_OUTPUT_ENABLED)
 /** if TRUE with push the estimation results to the state interface */
 static bool_t ahrs_dcm_output_enabled;
 static uint32_t ahrs_dcm_last_stamp;
+static uint8_t ahrs_dcm_id = AHRS_COMP_ID_DCM;
 
 static void set_body_orientation_and_rates(void);
 
@@ -44,20 +45,15 @@ static void set_body_orientation_and_rates(void);
 #include "subsystems/datalink/telemetry.h"
 #include "mcu_periph/sys_time.h"
 
-#ifndef AHRS_DCM_FILTER_ID
-#define AHRS_DCM_FILTER_ID 6
-#endif
-
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
-  uint8_t id = AHRS_DCM_FILTER_ID;
   uint8_t mde = 3;
   uint16_t val = 0;
   if (!ahrs_dcm.is_aligned) { mde = 2; }
   uint32_t t_diff = get_sys_time_usec() - ahrs_dcm_last_stamp;
   /* set lost if no new gyro measurements for 50ms */
   if (t_diff > 50000) { mde = 5; }
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &id, &mde, &val);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &ahrs_dcm_id, &mde, &val);
 }
 #endif
 

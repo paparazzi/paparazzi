@@ -37,6 +37,7 @@ PRINT_CONFIG_VAR(AHRS_ICE_OUTPUT_ENABLED)
 /** if TRUE with push the estimation results to the state interface */
 static bool_t ahrs_ice_output_enabled;
 static uint32_t ahrs_ice_last_stamp;
+static uint8_t ahrs_ice_id = AHRS_COMP_ID_ICE;
 
 static void set_body_state_from_euler(void);
 
@@ -62,7 +63,8 @@ static void send_filter(struct transport_tx *trans, struct link_device *dev)
                        &ahrs_ice.residual.psi,
                        &ahrs_ice.gyro_bias.p,
                        &ahrs_ice.gyro_bias.q,
-                       &ahrs_ice.gyro_bias.r);
+                       &ahrs_ice.gyro_bias.r,
+                       &ahrs_ice_id);
 }
 
 static void send_euler(struct transport_tx *trans, struct link_device *dev)
@@ -74,29 +76,26 @@ static void send_euler(struct transport_tx *trans, struct link_device *dev)
                                &ahrs_ice.ltp_to_imu_euler.psi,
                                &(eulers->phi),
                                &(eulers->theta),
-                               &(eulers->psi));
+                               &(eulers->psi),
+                               &ahrs_ice_id);
 }
 
 static void send_bias(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_AHRS_GYRO_BIAS_INT(trans, dev, AC_ID,
-                                   &ahrs_ice.gyro_bias.p, &ahrs_ice.gyro_bias.q, &ahrs_ice.gyro_bias.r);
+                                   &ahrs_ice.gyro_bias.p, &ahrs_ice.gyro_bias.q,
+                                   &ahrs_ice.gyro_bias.r, &ahrs_ice_id);
 }
-
-#ifndef AHRS_ICE_FILTER_ID
-#define AHRS_ICE_FILTER_ID 4
-#endif
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
-  uint8_t id = AHRS_ICE_FILTER_ID;
   uint8_t mde = 3;
   uint16_t val = 0;
   if (!ahrs_ice.is_aligned) { mde = 2; }
   uint32_t t_diff = get_sys_time_usec() - ahrs_ice_last_stamp;
   /* set lost if no new gyro measurements for 50ms */
   if (t_diff > 50000) { mde = 5; }
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &id, &mde, &val);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &ahrs_ice_id, &mde, &val);
 }
 #endif
 

@@ -29,6 +29,18 @@
 
 #include "std.h"
 
+#define AHRS_COMP_ID_NONE    0
+#define AHRS_COMP_ID_GENERIC 1
+#define AHRS_COMP_ID_IR      2
+#define AHRS_COMP_ID_ICQ     3
+#define AHRS_COMP_ID_ICE     4
+#define AHRS_COMP_ID_FC      4
+#define AHRS_COMP_ID_DCM     6
+#define AHRS_COMP_ID_FINV    7
+#define AHRS_COMP_ID_MLKF    8
+#define AHRS_COMP_ID_GX3     9
+#define AHRS_COMP_ID_CHIMU   10
+
 /* include actual (primary) implementation header */
 #ifdef AHRS_TYPE_H
 #include AHRS_TYPE_H

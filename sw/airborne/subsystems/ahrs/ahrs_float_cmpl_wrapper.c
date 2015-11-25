@@ -37,6 +37,7 @@ PRINT_CONFIG_VAR(AHRS_FC_OUTPUT_ENABLED)
 /** if TRUE with push the estimation results to the state interface */
 static bool_t ahrs_fc_output_enabled;
 static uint32_t ahrs_fc_last_stamp;
+static uint8_t ahrs_fc_id = AHRS_COMP_ID_FC;
 
 static void compute_body_orientation_and_rates(void);
 
@@ -45,42 +46,62 @@ static void compute_body_orientation_and_rates(void);
 #include "mcu_periph/sys_time.h"
 #include "state.h"
 
-static void send_att(struct transport_tx *trans, struct link_device *dev)
+static void send_euler(struct transport_tx *trans, struct link_device *dev)
 {
   struct FloatEulers ltp_to_imu_euler;
   float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_fc.ltp_to_imu_quat);
-  struct Int32Eulers euler_i;
-  EULERS_BFP_OF_REAL(euler_i, ltp_to_imu_euler);
-  struct Int32Eulers *eulers_body = stateGetNedToBodyEulers_i();
+  pprz_msg_send_AHRS_EULER(trans, dev, AC_ID,
+                           &ltp_to_imu_euler.phi,
+                           &ltp_to_imu_euler.theta,
+                           &ltp_to_imu_euler.psi,
+                           &ahrs_fc_id);
+}
+
+static void send_bias(struct transport_tx *trans, struct link_device *dev)
+{
+  struct Int32Rates gyro_bias;
+  RATES_BFP_OF_REAL(gyro_bias, ahrs_fc.gyro_bias);
+  pprz_msg_send_AHRS_GYRO_BIAS_INT(trans, dev, AC_ID,
+                                   &gyro_bias.p, &gyro_bias.q, &gyro_bias.r, &ahrs_fc_id);
+}
+
+static void send_euler_int(struct transport_tx *trans, struct link_device *dev)
+{
+  /* compute eulers in int (IMU frame) */
+  struct FloatEulers ltp_to_imu_euler;
+  float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_fc.ltp_to_imu_quat);
+  struct Int32Eulers eulers_imu;
+  EULERS_BFP_OF_REAL(eulers_imu, ltp_to_imu_euler);
+
+  /* get Eulers in int (body frame) */
+  ahrs_fc_recompute_ltp_to_body();
+  struct Int32Eulers *eulers_body = orientationGetEulers_i(&ahrs_fc.ltp_to_body);
+
   pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
-                               &euler_i.phi,
-                               &euler_i.theta,
-                               &euler_i.psi,
-                               &(eulers_body->phi),
-                               &(eulers_body->theta),
-                               &(eulers_body->psi));
+                               &eulers_imu.phi,
+                               &eulers_imu.theta,
+                               &eulers_imu.psi,
+                               &eulers_body->phi,
+                               &eulers_body->theta,
+                               &eulers_body->psi,
+                               &ahrs_fc_id);
 }
 
 static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
-                        &ahrs_fc.mag_h.x, &ahrs_fc.mag_h.y, &ahrs_fc.mag_h.z);
+                        &ahrs_fc.mag_h.x, &ahrs_fc.mag_h.y, &ahrs_fc.mag_h.z, &ahrs_fc_id);
 }
-
-#ifndef AHRS_FC_FILTER_ID
-#define AHRS_FC_FILTER_ID 5
-#endif
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
-  uint8_t id = AHRS_FC_FILTER_ID;
   uint8_t mde = 3;
   uint16_t val = 0;
   if (!ahrs_fc.is_aligned) { mde = 2; }
   uint32_t t_diff = get_sys_time_usec() - ahrs_fc_last_stamp;
   /* set lost if no new gyro measurements for 50ms */
   if (t_diff > 50000) { mde = 5; }
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &id, &mde, &val);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &ahrs_fc_id, &mde, &val);
 }
 #endif
 
@@ -221,12 +242,11 @@ static bool_t ahrs_fc_enable_output(bool_t enable)
 static void compute_body_orientation_and_rates(void)
 {
   if (ahrs_fc_output_enabled) {
-    /* Compute LTP to BODY quaternion */
-    struct FloatQuat ltp_to_body_quat;
-    struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
-    float_quat_comp_inv(&ltp_to_body_quat, &ahrs_fc.ltp_to_imu_quat, body_to_imu_quat);
+    /* recompute LTP to BODY quaternion */
+    ahrs_fc_recompute_ltp_to_body();
+    struct FloatQuat *ltp_to_body_quat = orientationGetQuat_f(&ahrs_fc.ltp_to_body);
     /* Set state */
-    stateSetNedToBodyQuat_f(&ltp_to_body_quat);
+    stateSetNedToBodyQuat_f(ltp_to_body_quat);
 
     /* compute body rates */
     struct FloatRates body_rate;
@@ -254,7 +274,9 @@ void ahrs_fc_register(void)
   AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_att);
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER", send_euler);
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_GYRO_BIAS_INT", send_bias);
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_euler_int);
   register_periodic_telemetry(DefaultPeriodic, "GEO_MAG", send_geo_mag);
   register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
 #endif

@@ -137,6 +137,14 @@ static inline bool_t orienationCheckValid(struct OrientationReps *orientation)
   return (orientation->status);
 }
 
+/// Set to identity orientation.
+static inline void orientationSetIdentity(struct OrientationReps *orientation)
+{
+  int32_quat_identity(&orientation->quat_i);
+  /* clear bits for all attitude representations and only set the new one */
+  orientation->status = (1 << ORREP_QUAT_I);
+}
+
 /// Set vehicle body attitude from quaternion (int).
 static inline void orientationSetQuat_i(struct OrientationReps *orientation, struct Int32Quat *quat)
 {

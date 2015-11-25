@@ -41,6 +41,7 @@ PRINT_CONFIG_VAR(AHRS_INV_OUTPUT_ENABLED)
 static bool_t ahrs_finv_output_enabled;
 /** last gyro msg timestamp */
 static uint32_t ahrs_finv_last_stamp = 0;
+static uint8_t ahrs_finv_id = AHRS_COMP_ID_FINV;
 
 static void compute_body_orientation_and_rates(void);
 
@@ -49,18 +50,29 @@ static void compute_body_orientation_and_rates(void);
 
 static void send_att(struct transport_tx *trans, struct link_device *dev)
 {
+  /* compute eulers in int (IMU frame) */
   struct FloatEulers ltp_to_imu_euler;
   float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_float_inv.state.quat);
-  struct Int32Eulers euler_i;
-  EULERS_BFP_OF_REAL(euler_i, ltp_to_imu_euler);
-  struct Int32Eulers *eulers_body = stateGetNedToBodyEulers_i();
+  struct Int32Eulers eulers_imu;
+  EULERS_BFP_OF_REAL(eulers_imu, ltp_to_imu_euler);
+
+  /* compute Eulers in int (body frame) */
+  struct FloatQuat ltp_to_body_quat;
+  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_float_inv.body_to_imu);
+  float_quat_comp_inv(&ltp_to_body_quat, &ahrs_float_inv.state.quat, body_to_imu_quat);
+  struct FloatEulers ltp_to_body_euler;
+  float_eulers_of_quat(&ltp_to_body_euler, &ltp_to_body_quat);
+  struct Int32Eulers eulers_body;
+  EULERS_BFP_OF_REAL(eulers_body, ltp_to_body_euler);
+
   pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
-                               &euler_i.phi,
-                               &euler_i.theta,
-                               &euler_i.psi,
-                               &(eulers_body->phi),
-                               &(eulers_body->theta),
-                               &(eulers_body->psi));
+                               &eulers_imu.phi,
+                               &eulers_imu.theta,
+                               &eulers_imu.psi,
+                               &eulers_body.phi,
+                               &eulers_body.theta,
+                               &eulers_body.psi,
+                               &ahrs_finv_id);
 }
 
 static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
@@ -68,23 +80,18 @@ static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
                         &ahrs_float_inv.mag_h.x,
                         &ahrs_float_inv.mag_h.y,
-                        &ahrs_float_inv.mag_h.z);
+                        &ahrs_float_inv.mag_h.z, &ahrs_finv_id);
 }
-
-#ifndef AHRS_FINV_FILTER_ID
-#define AHRS_FINV_FILTER_ID 7
-#endif
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
-  uint8_t id = AHRS_FINV_FILTER_ID;
   uint8_t mde = 3;
   uint16_t val = 0;
   if (!ahrs_float_inv.is_aligned) { mde = 2; }
   uint32_t t_diff = get_sys_time_usec() - ahrs_finv_last_stamp;
   /* set lost if no new gyro measurements for 50ms */
   if (t_diff > 50000) { mde = 5; }
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &id, &mde, &val);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &ahrs_finv_id, &mde, &val);
 }
 #endif
 

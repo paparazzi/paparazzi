@@ -37,6 +37,7 @@ PRINT_CONFIG_VAR(AHRS_ICQ_OUTPUT_ENABLED)
 /** if TRUE with push the estimation results to the state interface */
 static bool_t ahrs_icq_output_enabled;
 static uint32_t ahrs_icq_last_stamp;
+static uint8_t ahrs_icq_id = AHRS_COMP_ID_ICQ;
 
 static void set_body_state_from_quat(void);
 
@@ -57,7 +58,8 @@ static void send_quat(struct transport_tx *trans, struct link_device *dev)
                               &(quat->qi),
                               &(quat->qx),
                               &(quat->qy),
-                              &(quat->qz));
+                              &(quat->qz),
+                              &ahrs_icq_id);
 }
 
 static void send_euler(struct transport_tx *trans, struct link_device *dev)
@@ -71,13 +73,15 @@ static void send_euler(struct transport_tx *trans, struct link_device *dev)
                                &ltp_to_imu_euler.psi,
                                &(eulers->phi),
                                &(eulers->theta),
-                               &(eulers->psi));
+                               &(eulers->psi),
+                               &ahrs_icq_id);
 }
 
 static void send_bias(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_AHRS_GYRO_BIAS_INT(trans, dev, AC_ID,
-                                   &ahrs_icq.gyro_bias.p, &ahrs_icq.gyro_bias.q, &ahrs_icq.gyro_bias.r);
+                                   &ahrs_icq.gyro_bias.p, &ahrs_icq.gyro_bias.q,
+                                   &ahrs_icq.gyro_bias.r, &ahrs_icq_id);
 }
 
 static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
@@ -87,23 +91,18 @@ static void send_geo_mag(struct transport_tx *trans, struct link_device *dev)
   h_float.y = MAG_FLOAT_OF_BFP(ahrs_icq.mag_h.y);
   h_float.z = MAG_FLOAT_OF_BFP(ahrs_icq.mag_h.z);
   pprz_msg_send_GEO_MAG(trans, dev, AC_ID,
-                        &h_float.x, &h_float.y, &h_float.z);
+                        &h_float.x, &h_float.y, &h_float.z, &ahrs_icq_id);
 }
-
-#ifndef AHRS_ICQ_FILTER_ID
-#define AHRS_ICQ_FILTER_ID 3
-#endif
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
-  uint8_t id = AHRS_ICQ_FILTER_ID;
   uint8_t mde = 3;
   uint16_t val = 0;
   if (!ahrs_icq.is_aligned) { mde = 2; }
   uint32_t t_diff = get_sys_time_usec() - ahrs_icq_last_stamp;
   /* set lost if no new gyro measurements for 50ms */
   if (t_diff > 50000) { mde = 5; }
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &id, &mde, &val);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &ahrs_icq_id, &mde, &val);
 }
 #endif
 
