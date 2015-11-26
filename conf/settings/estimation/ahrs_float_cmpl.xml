@@ -1,6 +1,6 @@
 <!DOCTYPE settings SYSTEM "../settings.dtd">
 
-<settings>
+<settings target="ap|nps|test_ahrs">
   <dl_settings>
 
     <dl_settings NAME="AHRS">

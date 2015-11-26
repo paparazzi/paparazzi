@@ -1,6 +1,6 @@
 <!DOCTYPE settings SYSTEM "../settings.dtd">
 
-<settings>
+<settings target="ap|nps|test_ahrs">
   <dl_settings>
     <dl_settings NAME="invariant">
       <dl_setting MAX="1" MIN="1" STEP="1" VAR="ahrs_float_inv.reset" shortname="reset"/>
