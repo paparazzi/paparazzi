@@ -40,6 +40,9 @@ let lprintf = fun c f ->
 let output_modes = fun out_h process_name modes freq modules ->
   let min_period = 1./.float freq in
   let max_period = 65536. /. float freq in
+
+  lprintf out_h "uint8_t j;\n";
+
   (** For each mode in this process *)
   List.iter
     (fun mode ->
@@ -64,8 +67,6 @@ let output_modes = fun out_h process_name modes freq modules ->
         let _type = if m >= 256 then "uint16_t" else "uint8_t" in
         lprintf out_h "static %s %s = 0; %s++; if (%s>=%d) %s=0;\n" _type v v v m v;
       ) modulos;
-
-      lprintf out_h "uint8_t j;\n";
 
       (** For each message in this mode *)
       let messages = List.sort (fun (_,p) (_,p') -> compare p p') messages in
