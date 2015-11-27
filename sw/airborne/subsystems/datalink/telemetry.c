@@ -33,8 +33,8 @@
 /* Implement global structures from generated header.
  * Can register up to #TELEMETRY_NB_CBS callbacks per periodic message.
  */
-struct telemetry_cb_slots telemetry_cbs[TELEMETRY_NB_MSG] = TELEMETRY_CBS;
-struct periodic_telemetry pprz_telemetry = { TELEMETRY_NB_MSG, telemetry_cbs };
+struct telemetry_cb_slots telemetry_cbs[TELEMETRY_PPRZ_NB_MSG] = TELEMETRY_PPRZ_CBS;
+struct periodic_telemetry pprz_telemetry = { TELEMETRY_PPRZ_NB_MSG, telemetry_cbs };
 
 
 /** Register a telemetry callback function.

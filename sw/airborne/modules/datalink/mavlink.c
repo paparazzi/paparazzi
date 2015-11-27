@@ -32,6 +32,12 @@
 #include "mavlink/paparazzi/mavlink.h"
 #pragma GCC diagnostic pop
 
+#if PERIODIC_TELEMETRY
+#define PERIODIC_C_MAVLINK
+#include "subsystems/datalink/telemetry_common.h"
+#include "generated/periodic_telemetry.h"
+#endif
+
 #include "generated/airframe.h"
 #include "generated/modules.h"
 #include "generated/settings.h"
@@ -91,6 +97,22 @@ static inline void mavlink_send_vfr_hud(void);
 #define MAVLINK_SYSID AC_ID
 #endif
 
+#if PERIODIC_TELEMETRY
+struct telemetry_cb_slots mavlink_cbs[TELEMETRY_MAVLINK_NB_MSG] = TELEMETRY_MAVLINK_CBS;
+struct periodic_telemetry mavlink_telemetry = { TELEMETRY_MAVLINK_NB_MSG, mavlink_cbs };
+
+static void send_heartbeat(struct transport_tx *trans __attribute__((unused)),
+                          struct link_device *dev __attribute__((unused)))
+{
+  mavlink_send_heartbeat();
+}
+static void send_sys_status(struct transport_tx *trans __attribute__((unused)),
+                            struct link_device *dev __attribute__((unused)))
+{
+  mavlink_send_sys_status();
+}
+#endif
+
 void mavlink_init(void)
 {
   mavlink_system.sysid = MAVLINK_SYSID; // System ID, 1-255
@@ -99,6 +121,11 @@ void mavlink_init(void)
   get_pprz_git_version(custom_version);
 
   mavlink_mission_init(&mission_mgr);
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_HEARTBEAT, send_heartbeat);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_SYS_STATUS, send_sys_status);
+#endif
 }
 
 /**
@@ -107,8 +134,11 @@ void mavlink_init(void)
  */
 void mavlink_periodic(void)
 {
-  RunOnceEvery(2, mavlink_send_heartbeat());
-  RunOnceEvery(5, mavlink_send_sys_status());
+  // transport and device not used here yet...
+  periodic_telemetry_send_Mavlink(&mavlink_telemetry, NULL, NULL);
+
+  //RunOnceEvery(2, mavlink_send_heartbeat());
+  //RunOnceEvery(5, mavlink_send_sys_status());
   RunOnceEvery(20, mavlink_send_system_time());
   RunOnceEvery(10, mavlink_send_attitude());
   RunOnceEvery(5, mavlink_send_attitude_quaternion());

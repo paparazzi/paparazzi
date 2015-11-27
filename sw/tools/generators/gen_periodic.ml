@@ -37,7 +37,7 @@ let lprintf = fun c f ->
   fprintf c "%s" (String.make !margin ' ');
   fprintf c f
 
-let output_modes = fun out_h process_name modes freq modules ->
+let output_modes = fun out_h process_name telem_type modes freq modules ->
   let min_period = 1./.float freq in
   let max_period = 65536. /. float freq in
 
@@ -87,15 +87,15 @@ let output_modes = fun out_h process_name modes freq modules ->
           right ();
           lprintf out_h "for (j = 0; j < TELEMETRY_NB_CBS; j++) {\n";
           right ();
-          lprintf out_h "if (telemetry->cbs[TELEMETRY_MSG_%s_ID].slots[j] != NULL)\n" message_name;
+          lprintf out_h "if (telemetry->cbs[TELEMETRY_%s_MSG_%s_IDX].slots[j] != NULL)\n" telem_type message_name;
           right ();
-          lprintf out_h "telemetry->cbs[TELEMETRY_MSG_%s_ID].slots[j](trans, dev);\n" message_name;
+          lprintf out_h "telemetry->cbs[TELEMETRY_%s_MSG_%s_IDX].slots[j](trans, dev);\n" telem_type message_name;
           left ();
           lprintf out_h "else break;\n";
           left ();
           lprintf out_h "}\n";
           fprintf out_h "#if USE_PERIODIC_TELEMETRY_REPORT\n";
-          lprintf out_h "if (j == 0) periodic_telemetry_err_report(TELEMETRY_PROCESS_%s, telemetry_mode_%s, DL_%s);\n" process_name process_name message_name;
+          lprintf out_h "if (j == 0) periodic_telemetry_err_report(TELEMETRY_PROCESS_%s, telemetry_mode_%s, %s_MSG_ID_%s);\n" process_name process_name telem_type message_name;
           fprintf out_h "#endif\n";
           left ();
           lprintf out_h "}\n"
@@ -138,10 +138,12 @@ let write_settings = fun xml_file out_set telemetry_xml ->
   fprintf out_set "</settings>\n"
 
 let print_message_table = fun out_h xml ->
-  let messages = Hashtbl.create 15 in
-  fprintf out_h "/* Periodic telemetry messages */\n";
+  let telemetry_types = Hashtbl.create 2 in
   (* For each process *)
   List.iter (fun process ->
+    let telem_type = String.uppercase (ExtXml.attrib_or_default process "type" "pprz") in
+    if not (Hashtbl.mem telemetry_types telem_type) then Hashtbl.add telemetry_types telem_type (Hashtbl.create 15);
+    let messages = Hashtbl.find telemetry_types telem_type in
     (** For each mode of this process *)
     List.iter (fun mode ->
       (** For each message in this mode *)
@@ -152,28 +154,33 @@ let print_message_table = fun out_h xml ->
       ) (Xml.children mode)
     ) (Xml.children process)
   ) (Xml.children xml);
-  (* Print ID *)
-  let nb = Hashtbl.fold (fun n _ i ->
-    Xml2h.define (sprintf "TELEMETRY_MSG_%s_ID" n) (sprintf "%d" i);
-    i+1
-  ) messages 0 in
-  Xml2h.define "TELEMETRY_NB_MSG" (sprintf "%d" nb);
-  (* Structure initialization *)
-  fprintf out_h "\n#define TELEMETRY_MSG_NAMES { \\\n";
-  Hashtbl.iter (fun n _ -> fprintf out_h "  \"%s\", \\\n" n) messages;
-  fprintf out_h "}\n\n";
-  fprintf out_h "#define TELEMETRY_CBS { \\\n";
-  Hashtbl.iter (fun n _ -> fprintf out_h "  {.id=DL_%s, .slots={ NULL }}, \\\n" n) messages;
-  fprintf out_h "}\n\n"
+  (* for each telemetry type, print ID and other defines *)
+  Hashtbl.iter (fun telem_type messages ->
+    (* Print ID *)
+    fprintf out_h "/* Periodic telemetry messages of type %s */\n" telem_type;
+    let nb = Hashtbl.fold (fun n _ i ->
+      Xml2h.define (sprintf "TELEMETRY_%s_MSG_%s_IDX" telem_type n) (sprintf "%d" i);
+      i+1
+    ) messages 0 in
+    fprintf out_h "#define TELEMETRY_%s_NB_MSG %d\n" telem_type nb;
+    (* Structure initialization *)
+    fprintf out_h "\n#define TELEMETRY_%s_MSG_NAMES { \\\n" telem_type;
+    Hashtbl.iter (fun n _ -> fprintf out_h "  \"%s\", \\\n" n) messages;
+    fprintf out_h "}\n\n";
+    fprintf out_h "#define TELEMETRY_%s_CBS { \\\n" telem_type;
+    Hashtbl.iter (fun n _ -> fprintf out_h "  {.id=%s_MSG_ID_%s, .slots={ NULL }}, \\\n" telem_type n) messages;
+    fprintf out_h "}\n\n"
+  ) telemetry_types
 
 let print_process_send = fun out_h xml freq modules ->
   (** For each process *)
   List.iter
     (fun process ->
       let process_name = ExtXml.attrib process "name" in
+      let telem_type = String.uppercase (ExtXml.attrib_or_default process "type" "pprz") in
       let modes = Xml.children process in
 
-      fprintf out_h "\n/* Periodic telemetry: %s process */\n" process_name;
+      fprintf out_h "\n/* Periodic telemetry (type %s): %s process */\n" telem_type process_name;
       let p_id = ref 0 in
       Xml2h.define (sprintf "TELEMETRY_PROCESS_%s" process_name) (string_of_int !p_id);
       incr p_id;
@@ -204,7 +211,7 @@ let print_process_send = fun out_h xml freq modules ->
 
       lprintf out_h "static inline void periodic_telemetry_send_%s(struct periodic_telemetry *telemetry, struct transport_tx *trans, struct link_device *dev) {  /* %dHz */\n" process_name freq;
       right ();
-      output_modes out_h process_name modes freq modules;
+      output_modes out_h process_name telem_type modes freq modules;
       left ();
       lprintf out_h "}\n"
     )
