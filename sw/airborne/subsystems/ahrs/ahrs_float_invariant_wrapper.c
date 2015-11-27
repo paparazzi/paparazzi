@@ -237,8 +237,8 @@ void ahrs_float_invariant_register(void)
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, DL_AHRS_EULER_INT, send_att);
-  register_periodic_telemetry(DefaultPeriodic, DL_GEO_MAG, send_geo_mag);
-  register_periodic_telemetry(DefaultPeriodic, DL_STATE_FILTER_STATUS, send_filter_status);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_EULER_INT, send_att);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GEO_MAG, send_geo_mag);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STATE_FILTER_STATUS, send_filter_status);
 #endif
 }

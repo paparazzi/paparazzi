@@ -191,18 +191,18 @@ void autopilot_init(void)
 
 #if PERIODIC_TELEMETRY
   /* register some periodic message */
-  register_periodic_telemetry(DefaultPeriodic, DL_AUTOPILOT_VERSION, send_autopilot_version);
-  register_periodic_telemetry(DefaultPeriodic, DL_ALIVE, send_alive);
-  register_periodic_telemetry(DefaultPeriodic, DL_PPRZ_MODE, send_mode);
-  register_periodic_telemetry(DefaultPeriodic, DL_ATTITUDE, send_attitude);
-  register_periodic_telemetry(DefaultPeriodic, DL_ESTIMATOR, send_estimator);
-  register_periodic_telemetry(DefaultPeriodic, DL_AIRSPEED, send_airspeed);
-  register_periodic_telemetry(DefaultPeriodic, DL_BAT, send_bat);
-  register_periodic_telemetry(DefaultPeriodic, DL_ENERGY, send_energy);
-  register_periodic_telemetry(DefaultPeriodic, DL_DL_VALUE, send_dl_value);
-  register_periodic_telemetry(DefaultPeriodic, DL_DESIRED, send_desired);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AUTOPILOT_VERSION, send_autopilot_version);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ALIVE, send_alive);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PPRZ_MODE, send_mode);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ATTITUDE, send_attitude);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ESTIMATOR, send_estimator);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED, send_airspeed);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BAT, send_bat);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ENERGY, send_energy);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DL_VALUE, send_dl_value);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DESIRED, send_desired);
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
-  register_periodic_telemetry(DefaultPeriodic, DL_RC_SETTINGS, send_rc_settings);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RC_SETTINGS, send_rc_settings);
 #endif
 #endif
 }

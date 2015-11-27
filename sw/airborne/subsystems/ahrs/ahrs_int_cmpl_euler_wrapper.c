@@ -209,9 +209,9 @@ void ahrs_ice_register(void)
   AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, DL_FILTER, send_filter);
-  register_periodic_telemetry(DefaultPeriodic, DL_AHRS_EULER_INT, send_euler);
-  register_periodic_telemetry(DefaultPeriodic, DL_AHRS_GYRO_BIAS_INT, send_bias);
-  register_periodic_telemetry(DefaultPeriodic, DL_STATE_FILTER_STATUS, send_filter_status);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_FILTER, send_filter);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_EULER_INT, send_euler);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_GYRO_BIAS_INT, send_bias);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STATE_FILTER_STATUS, send_filter_status);
 #endif
 }

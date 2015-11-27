@@ -148,8 +148,8 @@ void stabilization_attitude_init(void)
   INT_EULERS_ZERO(stabilization_att_sum_err);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, DL_STAB_ATTITUDE_INT, send_att);
-  register_periodic_telemetry(DefaultPeriodic, DL_STAB_ATTITUDE_REF_INT, send_att_ref);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_INT, send_att);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_REF_INT, send_att_ref);
 #endif
 }
 

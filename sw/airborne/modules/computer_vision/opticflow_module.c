@@ -138,7 +138,7 @@ void opticflow_module_init(void)
   }
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, DL_OPTIC_FLOW_EST, opticflow_telem_send);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_OPTIC_FLOW_EST, opticflow_telem_send);
 #endif
 }
 

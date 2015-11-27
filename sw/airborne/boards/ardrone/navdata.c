@@ -236,7 +236,7 @@ bool_t navdata_init()
   }
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, DL_ARDRONE_NAVDATA, send_navdata);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ARDRONE_NAVDATA, send_navdata);
 #endif
 
   // Set to initialized

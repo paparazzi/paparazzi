@@ -308,20 +308,20 @@ void autopilot_init(void)
   /* set startup mode, propagates through to guidance h/v */
   autopilot_set_mode(MODE_STARTUP);
 
-  register_periodic_telemetry(DefaultPeriodic, DL_AUTOPILOT_VERSION, send_autopilot_version);
-  register_periodic_telemetry(DefaultPeriodic, DL_ALIVE, send_alive);
-  register_periodic_telemetry(DefaultPeriodic, DL_ROTORCRAFT_STATUS, send_status);
-  register_periodic_telemetry(DefaultPeriodic, DL_ATTITUDE, send_attitude);
-  register_periodic_telemetry(DefaultPeriodic, DL_ENERGY, send_energy);
-  register_periodic_telemetry(DefaultPeriodic, DL_ROTORCRAFT_FP, send_fp);
-  register_periodic_telemetry(DefaultPeriodic, DL_ROTORCRAFT_CMD, send_rotorcraft_cmd);
-  register_periodic_telemetry(DefaultPeriodic, DL_DL_VALUE, send_dl_value);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AUTOPILOT_VERSION, send_autopilot_version);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ALIVE, send_alive);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_STATUS, send_status);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ATTITUDE, send_attitude);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ENERGY, send_energy);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_FP, send_fp);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_CMD, send_rotorcraft_cmd);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DL_VALUE, send_dl_value);
 #ifdef ACTUATORS
-  register_periodic_telemetry(DefaultPeriodic, DL_ACTUATORS, send_actuators);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ACTUATORS, send_actuators);
 #endif
 #ifdef RADIO_CONTROL
-  register_periodic_telemetry(DefaultPeriodic, DL_RC, send_rc);
-  register_periodic_telemetry(DefaultPeriodic, DL_ROTORCRAFT_RADIO_CONTROL, send_rotorcraft_rc);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RC, send_rc);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_RADIO_CONTROL, send_rotorcraft_rc);
 #endif
 }
 

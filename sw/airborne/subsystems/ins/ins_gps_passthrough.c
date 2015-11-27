@@ -115,9 +115,9 @@ void ins_gps_passthrough_init(void)
   INT32_VECT3_ZERO(ins_gp.ltp_accel);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, DL_INS, send_ins);
-  register_periodic_telemetry(DefaultPeriodic, DL_INS_Z, send_ins_z);
-  register_periodic_telemetry(DefaultPeriodic, DL_INS_REF, send_ins_ref);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS, send_ins);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_Z, send_ins_z);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_REF, send_ins_ref);
 #endif
 }
 

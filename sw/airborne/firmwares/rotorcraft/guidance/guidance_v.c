@@ -192,8 +192,8 @@ void guidance_v_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, DL_VERT_LOOP, send_vert_loop);
-  register_periodic_telemetry(DefaultPeriodic, DL_TUNE_VERT, send_tune_vert);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_VERT_LOOP, send_vert_loop);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_TUNE_VERT, send_tune_vert);
 #endif
 }
 

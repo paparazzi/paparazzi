@@ -541,12 +541,12 @@ void nav_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, DL_NAVIGATION_REF, send_nav_ref);
-  register_periodic_telemetry(DefaultPeriodic, DL_NAVIGATION, send_nav);
-  register_periodic_telemetry(DefaultPeriodic, DL_WP_MOVED, send_wp_moved);
-  register_periodic_telemetry(DefaultPeriodic, DL_CIRCLE, send_circle);
-  register_periodic_telemetry(DefaultPeriodic, DL_SEGMENT, send_segment);
-  register_periodic_telemetry(DefaultPeriodic, DL_SURVEY, send_survey);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_NAVIGATION_REF, send_nav_ref);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_NAVIGATION, send_nav);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WP_MOVED, send_wp_moved);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CIRCLE, send_circle);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SEGMENT, send_segment);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SURVEY, send_survey);
 #endif
 }
 

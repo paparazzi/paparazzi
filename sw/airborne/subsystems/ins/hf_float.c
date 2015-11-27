@@ -302,10 +302,10 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot)
   b2_hff_lost_limit = HFF_LOST_LIMIT;
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, DL_HFF, send_hff);
-  register_periodic_telemetry(DefaultPeriodic, DL_HFF_DBG, send_hff_debug);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_HFF, send_hff);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_HFF_DBG, send_hff_debug);
 #ifdef GPS_LAG
-  register_periodic_telemetry(DefaultPeriodic, DL_HFF_GPS, send_hff_gps);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_HFF_GPS, send_hff_gps);
 #endif
 #endif
 
