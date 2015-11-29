@@ -169,7 +169,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         a.gspeed  <- sqrt(vnorth*.vnorth +. veast*.veast);
         a.climb   <- foi32value "vup" /. speed_frac;
         a.agl     <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt);
-        a.course  <- norm_course ((Rad>>Deg) (foi32value "psi" /. angle_frac));
+        a.course  <- norm_course (atan2 veast vnorth);
         a.heading <- norm_course (foi32value "psi" /. angle_frac);
         a.roll    <- foi32value "phi" /. angle_frac;
         a.pitch   <- foi32value "theta" /. angle_frac;
