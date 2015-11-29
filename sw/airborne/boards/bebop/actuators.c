@@ -66,7 +66,7 @@ void actuators_bebop_init(void)
   actuators_bebop.led = 0;
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BEBOP_ACTUATORS, send_actuators_bebop);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BEBOP_ACTUATORS, send_bebop_actuators);
 #endif
 }
 
