@@ -39,18 +39,18 @@ struct periodic_telemetry pprz_telemetry = { TELEMETRY_PPRZ_NB_MSG, telemetry_cb
 
 /** Register a telemetry callback function.
  * @param _pt periodic telemetry structure to register
- * @param _msgn message id/number (use DL_<message_name> define)
+ * @param _id message ID (use PPRZ_MSG_ID_<message_name> define)
  * @param _cb callback function, called according to telemetry mode and specified period
  * @return -1 on failure to register, index of callback otherwise
  */
-int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, uint8_t _msgn, telemetry_cb _cb)
+int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, uint8_t _id, telemetry_cb _cb)
 {
   uint8_t i, j;
   // return if NULL is passed as periodic_telemetry
   if (_pt == NULL) { return -1; }
   // check if message with id _msgn has a periodic entery in telemetry file
   for (i = 0; i < _pt->nb; i++) {
-    if (_pt->cbs[i].id == _msgn) {
+    if (_pt->cbs[i].id == _id) {
       // msg found, register another callback if not all TELEMETRY_NB_CBS slots taken
       for (j = 0; j < TELEMETRY_NB_CBS; j++) {
         if (_pt->cbs[i].slots[j] == NULL) {
