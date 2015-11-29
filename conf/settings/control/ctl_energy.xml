@@ -100,6 +100,8 @@
         <dl_setting MAX="2" MIN="1" STEP="1" VAR="nav_mode"/>
         <dl_setting MAX="5" MIN="-5" STEP="0.5" VAR="nav_climb"/>
         <dl_setting MAX="15" MIN="-15" STEP="1" VAR="fp_pitch"/>
+        <dl_setting MAX="1.0" MIN="0.0" STEP="0.01" VAR="fp_throttle"/>
+        <dl_setting MAX="5.0" MIN="-5.0" STEP="0.1" VAR="fp_climb"/>
         <dl_setting MAX="50" MIN="-50" STEP="5" VAR="nav_shift" module="firmwares/fixedwing/nav" handler="IncreaseShift" shortname="inc. shift"/>
         <dl_setting MAX="50" MIN="5" STEP="0.5" VAR="nav_ground_speed_setpoint" shortname="ground speed"/>
         <dl_setting MAX="0.2" MIN="0" STEP="0.01" VAR="nav_ground_speed_pgain" shortname="ground speed pgain"/>

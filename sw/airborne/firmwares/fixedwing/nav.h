@@ -57,6 +57,8 @@ extern pprz_t nav_throttle_setpoint;
 extern float nav_pitch; /* Rad */
 extern float rc_pitch;
 extern float fp_pitch; /* Degrees */
+extern float fp_throttle; /* [0-1] */
+extern float fp_climb; /* m/s */
 
 extern float carrot_x, carrot_y;
 

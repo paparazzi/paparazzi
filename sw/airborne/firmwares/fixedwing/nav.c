@@ -319,6 +319,8 @@ float desired_x, desired_y;
 pprz_t nav_throttle_setpoint;
 float nav_pitch; /* Rad */
 float fp_pitch; /* deg */
+float fp_throttle; /* [0-1] */
+float fp_climb; /* m/s */
 
 
 /** \brief Decide if the UAV is approaching the current waypoint.
@@ -534,6 +536,10 @@ void nav_init(void)
   nav_radius = DEFAULT_CIRCLE_RADIUS;
   nav_survey_shift = 2 * DEFAULT_CIRCLE_RADIUS;
   nav_mode = NAV_MODE_COURSE;
+
+  fp_pitch = 0.f;
+  fp_throttle = 0.f;
+  fp_climb = 0.f;
 
 #ifdef NAV_GROUND_SPEED_PGAIN
   nav_ground_speed_pgain = ABS(NAV_GROUND_SPEED_PGAIN);
