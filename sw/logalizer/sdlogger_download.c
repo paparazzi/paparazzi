@@ -6,7 +6,6 @@
 #include <signal.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <endian.h>
 #include <string.h>
 #include <time.h>
 
@@ -294,7 +293,9 @@ void write_command(float value)
   msg[10] = crc_a;
   msg[11] = crc_b;
 
-  write(fd, msg, length);
+  if (write(fd, msg, length) != length) {
+    fprintf(stderr, "write_command: could not write %d bytes", length);
+  }
 }
 
 /*
@@ -450,7 +451,9 @@ void parse_download_byte(unsigned char byte)
     /* Close temp file */
     close_logfile();
     /* Process data into log format */
-    system(sd2log);
+    if (system(sd2log) != 0) {
+      fprintf(stderr, "Could not run sd2log to process data!\n");
+    }
     /* Remove file */
     remove("temp.tlm");
     /* Reset and get ready for next command */
@@ -589,7 +592,10 @@ int main ( int argc, char** argv)
 
   char returnvalue[128];
   in = popen(pycommand, "r");
-  fgets(returnvalue, 128, in);
+  if (fgets(returnvalue, 128, in) == NULL) {
+    fprintf(stderr, "Aborting: Could not get id from sdlogger_get_setting_id.py\n");
+    exit(0);
+  }
   setting = atoi(returnvalue);
   pclose(in);
   if (setting == 0) {
@@ -637,8 +643,9 @@ int main ( int argc, char** argv)
       need_input = false;
       /* Test user input */
       printf("Command> ");
-      fgets (command, 128, stdin);
-      process_command(command);
+      if (fgets(command, 128, stdin) != NULL) {
+        process_command(command);
+      }
     }
     else {
       bytes = read(fd, (unsigned char*) buff, 32);
