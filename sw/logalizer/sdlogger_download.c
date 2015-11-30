@@ -8,6 +8,11 @@
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
+#if defined(OS_MACOSX)
+#include <machine/endian.h>
+#else
+#include <endian.h>
+#endif
 
 #define PPRZ_STX 0x99
 
@@ -112,15 +117,19 @@ void intHandler(int dummy) {
 
 unsigned int get_baud(unsigned int baud_rate)
 {
-  unsigned int BAUD;
+  unsigned int BAUD = 0;
   switch (baud_rate)
   {
+#ifdef B921600
     case 921600:
       BAUD = B921600;
       break;
+#endif
+#ifdef B460800
     case 460800:
       BAUD = B460800;
       break;
+#endif
     case 230400:
       BAUD = B230400;
       break;
