@@ -36,6 +36,9 @@
 #define PERIODIC_C_MAVLINK
 #include "subsystems/datalink/telemetry_common.h"
 #include "generated/periodic_telemetry.h"
+#ifndef TELEMETRY_MAVLINK_NB_MSG
+#warning Using hardcoded msg periods. To customize specify a <process name="Mavlink" type="mavlink"> in your telemetry file.
+#endif
 #endif
 
 #include "generated/airframe.h"
@@ -62,28 +65,28 @@ static uint8_t mavlink_params_idx = NB_SETTING; /**< Transmitting parameters ind
 /** mavlink parameter names.
  * 16 chars + 1 NULL termination.
  */
-static char mavlink_param_names[NB_SETTING][16+1] = SETTINGS_NAMES_SHORT;
+static char mavlink_param_names[NB_SETTING][16 + 1] = SETTINGS_NAMES_SHORT;
 static uint8_t custom_version[8]; /**< first 8 bytes (16 chars) of GIT SHA1 */
 
 mavlink_mission_mgr mission_mgr;
 
 void mavlink_common_message_handler(const mavlink_message_t *msg);
 
-static inline void mavlink_send_heartbeat(void);
-static inline void mavlink_send_sys_status(void);
-static inline void mavlink_send_system_time(void);
-static inline void mavlink_send_attitude(void);
-static inline void mavlink_send_local_position_ned(void);
-static inline void mavlink_send_global_position_int(void);
-static inline void mavlink_send_params(void);
-static inline void mavlink_send_autopilot_version(void);
-static inline void mavlink_send_attitude_quaternion(void);
-static inline void mavlink_send_gps_raw_int(void);
-static inline void mavlink_send_rc_channels(void);
-static inline void mavlink_send_battery_status(void);
-static inline void mavlink_send_gps_global_origin(void);
-static inline void mavlink_send_gps_status(void);
-static inline void mavlink_send_vfr_hud(void);
+static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_sys_status(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_system_time(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_attitude(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_local_position_ned(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_global_position_int(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_params(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_autopilot_version(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_attitude_quaternion(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_gps_raw_int(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_rc_channels(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_battery_status(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_gps_global_origin(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_gps_status(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_vfr_hud(struct transport_tx *trans, struct link_device *dev);
 
 
 /// TODO: FIXME
@@ -97,20 +100,9 @@ static inline void mavlink_send_vfr_hud(void);
 #define MAVLINK_SYSID AC_ID
 #endif
 
-#if PERIODIC_TELEMETRY
+#if PERIODIC_TELEMETRY && defined TELEMETRY_MAVLINK_NB_MSG
 struct telemetry_cb_slots mavlink_cbs[TELEMETRY_MAVLINK_NB_MSG] = TELEMETRY_MAVLINK_CBS;
 struct periodic_telemetry mavlink_telemetry = { TELEMETRY_MAVLINK_NB_MSG, mavlink_cbs };
-
-static void send_heartbeat(struct transport_tx *trans __attribute__((unused)),
-                          struct link_device *dev __attribute__((unused)))
-{
-  mavlink_send_heartbeat();
-}
-static void send_sys_status(struct transport_tx *trans __attribute__((unused)),
-                            struct link_device *dev __attribute__((unused)))
-{
-  mavlink_send_sys_status();
-}
 #endif
 
 void mavlink_init(void)
@@ -122,9 +114,21 @@ void mavlink_init(void)
 
   mavlink_mission_init(&mission_mgr);
 
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_HEARTBEAT, send_heartbeat);
-  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_SYS_STATUS, send_sys_status);
+#if PERIODIC_TELEMETRY && defined TELEMETRY_MAVLINK_NB_MSG
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_HEARTBEAT, mavlink_send_heartbeat);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_SYS_STATUS, mavlink_send_sys_status);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_SYSTEM_TIME, mavlink_send_system_time);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_ATTITUDE, mavlink_send_attitude);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_ATTITUDE_QUATERNION, mavlink_send_attitude_quaternion);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_LOCAL_POSITION_NED, mavlink_send_local_position_ned);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_GLOBAL_POSITION_INT, mavlink_send_global_position_int);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_GPS_RAW_INT, mavlink_send_gps_raw_int);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_RC_CHANNELS, mavlink_send_rc_channels);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_BATTERY_STATUS, mavlink_send_battery_status);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_AUTOPILOT_VERSION, mavlink_send_autopilot_version);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_GPS_GLOBAL_ORIGIN, mavlink_send_gps_global_origin);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_GPS_STATUS, mavlink_send_gps_status);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_VFR_HUD, mavlink_send_vfr_hud);
 #endif
 }
 
@@ -134,25 +138,30 @@ void mavlink_init(void)
  */
 void mavlink_periodic(void)
 {
+#if PERIODIC_TELEMETRY && defined TELEMETRY_MAVLINK_NB_MSG
+  // send periodic mavlink messages as defined in the Mavlink process of the telemetry xml file
   // transport and device not used here yet...
   periodic_telemetry_send_Mavlink(&mavlink_telemetry, NULL, NULL);
+#else
+  // else use these hardcoded periods
+  RunOnceEvery(2, mavlink_send_heartbeat(NULL, NULL));
+  RunOnceEvery(5, mavlink_send_sys_status(NULL, NULL));
+  RunOnceEvery(20, mavlink_send_system_time(NULL, NULL));
+  RunOnceEvery(10, mavlink_send_attitude(NULL, NULL));
+  RunOnceEvery(5, mavlink_send_attitude_quaternion(NULL, NULL));
+  RunOnceEvery(4, mavlink_send_local_position_ned(NULL, NULL));
+  RunOnceEvery(5, mavlink_send_global_position_int(NULL, NULL));
+  RunOnceEvery(6, mavlink_send_gps_raw_int(NULL, NULL));
+  RunOnceEvery(5, mavlink_send_rc_channels(NULL, NULL));
+  RunOnceEvery(21, mavlink_send_battery_status(NULL, NULL));
+  RunOnceEvery(32, mavlink_send_autopilot_version(NULL, NULL));
+  RunOnceEvery(33, mavlink_send_gps_global_origin(NULL, NULL));
+  RunOnceEvery(10, mavlink_send_gps_status(NULL, NULL));
+  RunOnceEvery(10, mavlink_send_vfr_hud(NULL, NULL));
+#endif
 
-  //RunOnceEvery(2, mavlink_send_heartbeat());
-  //RunOnceEvery(5, mavlink_send_sys_status());
-  RunOnceEvery(20, mavlink_send_system_time());
-  RunOnceEvery(10, mavlink_send_attitude());
-  RunOnceEvery(5, mavlink_send_attitude_quaternion());
-  RunOnceEvery(5, mavlink_send_params());
-  RunOnceEvery(4, mavlink_send_local_position_ned());
-  RunOnceEvery(5, mavlink_send_global_position_int());
-  RunOnceEvery(6, mavlink_send_gps_raw_int());
-  RunOnceEvery(5, mavlink_send_attitude_quaternion());
-  RunOnceEvery(5, mavlink_send_rc_channels());
-  RunOnceEvery(21, mavlink_send_battery_status());
-  RunOnceEvery(32, mavlink_send_autopilot_version());
-  RunOnceEvery(33, mavlink_send_gps_global_origin());
-  RunOnceEvery(10, mavlink_send_gps_status());
-  RunOnceEvery(10, mavlink_send_vfr_hud());
+  // if requested, send params at 5Hz until all sent
+  RunOnceEvery(2, mavlink_send_params(NULL, NULL));
 
   mavlink_mission_periodic();
 }
@@ -218,7 +227,7 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
       break;
     }
 
-      /* Override channels with RC */
+    /* Override channels with RC */
     case MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE: {
       mavlink_rc_channels_override_t cmd;
       mavlink_msg_rc_channels_override_decode(msg, &cmd);
@@ -234,13 +243,13 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
       break;
     }
 
-      /* When a request is made of the parameters list */
+    /* When a request is made of the parameters list */
     case MAVLINK_MSG_ID_PARAM_REQUEST_LIST: {
       mavlink_params_idx = 0;
       break;
     }
 
-      /* When a request os made for a specific parameter */
+    /* When a request os made for a specific parameter */
     case MAVLINK_MSG_ID_PARAM_REQUEST_READ: {
       mavlink_param_request_read_t cmd;
       mavlink_msg_param_request_read_decode(msg, &cmd);
@@ -288,7 +297,7 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
         }
       }
     }
-      break;
+    break;
 
     default:
       //Do nothing
@@ -297,10 +306,14 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
   }
 }
 
+/* ignore the unused-parameter warnings */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 /**
  * Send a heartbeat
  */
-static inline void mavlink_send_heartbeat(void)
+static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t mav_state = MAV_STATE_CALIBRATING;
   uint8_t mav_mode = 0;
@@ -311,10 +324,10 @@ static inline void mavlink_send_heartbeat(void)
       mav_mode |= MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
       break;
     case PPRZ_MODE_AUTO1:
-      mav_mode |= MAV_MODE_FLAG_STABILIZE_ENABLED|MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
+      mav_mode |= MAV_MODE_FLAG_STABILIZE_ENABLED | MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
       break;
     case PPRZ_MODE_AUTO2:
-      mav_mode |= MAV_MODE_FLAG_GUIDED_ENABLED|MAV_MODE_FLAG_AUTO_ENABLED;
+      mav_mode |= MAV_MODE_FLAG_GUIDED_ENABLED | MAV_MODE_FLAG_AUTO_ENABLED;
       break;
     case PPRZ_MODE_HOME:
       mav_mode |= MAV_MODE_FLAG_AUTO_ENABLED;
@@ -342,10 +355,10 @@ static inline void mavlink_send_heartbeat(void)
     case AP_MODE_HOVER_CLIMB:
     case AP_MODE_HOVER_Z_HOLD:
     case AP_MODE_CARE_FREE_DIRECT:
-      mav_mode |= MAV_MODE_FLAG_STABILIZE_ENABLED|MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
+      mav_mode |= MAV_MODE_FLAG_STABILIZE_ENABLED | MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
       break;
     case AP_MODE_NAV:
-      mav_mode |= MAV_MODE_FLAG_GUIDED_ENABLED|MAV_MODE_FLAG_AUTO_ENABLED;
+      mav_mode |= MAV_MODE_FLAG_GUIDED_ENABLED | MAV_MODE_FLAG_AUTO_ENABLED;
       break;
     default:
       break;
@@ -354,8 +367,7 @@ static inline void mavlink_send_heartbeat(void)
   if (stateIsAttitudeValid()) {
     if (kill_throttle) {
       mav_state = MAV_STATE_STANDBY;
-    }
-    else {
+    } else {
       mav_state = MAV_STATE_ACTIVE;
       mav_mode |= MAV_MODE_FLAG_SAFETY_ARMED;
     }
@@ -372,7 +384,7 @@ static inline void mavlink_send_heartbeat(void)
 /**
  * Send the system status
  */
-static inline void mavlink_send_sys_status(void)
+static void mavlink_send_sys_status(struct transport_tx *trans, struct link_device *dev)
 {
   mavlink_msg_sys_status_send(MAVLINK_COMM_0,
                               UAV_SENSORS,  // On-board sensors: present    (bitmap)
@@ -396,7 +408,7 @@ static inline void mavlink_send_sys_status(void)
  * - time_unix_usec
  * - time_boot_ms
  */
-static inline void mavlink_send_system_time(void)
+static void mavlink_send_system_time(struct transport_tx *trans, struct link_device *dev)
 {
   mavlink_msg_system_time_send(MAVLINK_COMM_0, 0, get_sys_time_msec());
   MAVLinkSendMessage();
@@ -405,7 +417,7 @@ static inline void mavlink_send_system_time(void)
 /**
  * Send the attitude
  */
-static inline void mavlink_send_attitude(void)
+static void mavlink_send_attitude(struct transport_tx *trans, struct link_device *dev)
 {
   mavlink_msg_attitude_send(MAVLINK_COMM_0,
                             get_sys_time_msec(),
@@ -418,7 +430,7 @@ static inline void mavlink_send_attitude(void)
   MAVLinkSendMessage();
 }
 
-static inline void mavlink_send_local_position_ned(void)
+static void mavlink_send_local_position_ned(struct transport_tx *trans, struct link_device *dev)
 {
   mavlink_msg_local_position_ned_send(MAVLINK_COMM_0,
                                       get_sys_time_msec(),
@@ -431,7 +443,7 @@ static inline void mavlink_send_local_position_ned(void)
   MAVLinkSendMessage();
 }
 
-static inline void mavlink_send_global_position_int(void)
+static void mavlink_send_global_position_int(struct transport_tx *trans, struct link_device *dev)
 {
   float heading = DegOfRad(stateGetNedToBodyEulers_f()->psi);
   if (heading < 0.) {
@@ -453,7 +465,7 @@ static inline void mavlink_send_global_position_int(void)
   MAVLinkSendMessage();
 }
 
-static inline void mavlink_send_gps_global_origin(void)
+static void mavlink_send_gps_global_origin(struct transport_tx *trans, struct link_device *dev)
 {
   if (state.ned_initialized_i) {
     mavlink_msg_gps_global_origin_send(MAVLINK_COMM_0,
@@ -467,7 +479,7 @@ static inline void mavlink_send_gps_global_origin(void)
 /**
  * Send the parameters
  */
-static inline void mavlink_send_params(void)
+static void mavlink_send_params(struct transport_tx *trans, struct link_device *dev)
 {
   if (mavlink_params_idx >= NB_SETTING) {
     return;
@@ -484,29 +496,29 @@ static inline void mavlink_send_params(void)
   mavlink_params_idx++;
 }
 
-static inline void mavlink_send_autopilot_version(void)
+static void mavlink_send_autopilot_version(struct transport_tx *trans, struct link_device *dev)
 {
   /// TODO: fill in versions correctly, how should they be encoded?
   static uint32_t ver = PPRZ_VERSION_INT;
   static uint64_t sha;
-  get_pprz_git_version((uint8_t*)&sha);
-  mavlink_msg_autopilot_version_send( MAVLINK_COMM_0,
-                                      0, //uint64_t capabilities,
-                                      ver, //uint32_t flight_sw_version,
-                                      0, //uint32_t middleware_sw_version,
-                                      0, //uint32_t os_sw_version,
-                                      0, //uint32_t board_version,
-                                      0, //const uint8_t *flight_custom_version,
-                                      0, //const uint8_t *middleware_custom_version,
-                                      0, //const uint8_t *os_custom_version,
-                                      0, //uint16_t vendor_id,
-                                      0, //uint16_t product_id,
-                                      sha //uint64_t uid
-                                      );
+  get_pprz_git_version((uint8_t *)&sha);
+  mavlink_msg_autopilot_version_send(MAVLINK_COMM_0,
+                                     0, //uint64_t capabilities,
+                                     ver, //uint32_t flight_sw_version,
+                                     0, //uint32_t middleware_sw_version,
+                                     0, //uint32_t os_sw_version,
+                                     0, //uint32_t board_version,
+                                     0, //const uint8_t *flight_custom_version,
+                                     0, //const uint8_t *middleware_custom_version,
+                                     0, //const uint8_t *os_custom_version,
+                                     0, //uint16_t vendor_id,
+                                     0, //uint16_t product_id,
+                                     sha //uint64_t uid
+                                    );
   MAVLinkSendMessage();
 }
 
-static inline void mavlink_send_attitude_quaternion(void)
+static void mavlink_send_attitude_quaternion(struct transport_tx *trans, struct link_device *dev)
 {
   mavlink_msg_attitude_quaternion_send(MAVLINK_COMM_0,
                                        get_sys_time_msec(),
@@ -524,7 +536,7 @@ static inline void mavlink_send_attitude_quaternion(void)
 #include "subsystems/gps.h"
 #endif
 
-static inline void mavlink_send_gps_raw_int(void)
+static void mavlink_send_gps_raw_int(struct transport_tx *trans, struct link_device *dev)
 {
 #if USE_GPS
   int32_t course = DegOfRad(gps.course) / 1e5;
@@ -556,7 +568,7 @@ static inline void mavlink_send_gps_raw_int(void)
  *  - satellite azimuth[] (ignored)
  *  - satellite snr[] (ignored)
  */
-static inline void mavlink_send_gps_status(void)
+static void mavlink_send_gps_status(struct transport_tx *trans, struct link_device *dev)
 {
 #if USE_GPS
   uint8_t nb_sats = Min(GPS_NB_CHANNELS, 20);
@@ -565,7 +577,7 @@ static inline void mavlink_send_gps_status(void)
   uint8_t elevation[20];
   uint8_t azimuth[20];
   uint8_t snr[20];
-  for (uint8_t i=0; i < nb_sats; i++) {
+  for (uint8_t i = 0; i < nb_sats; i++) {
     prn[i] = gps.svinfos[i].svid;
     // set sat as used if cno > 0, not quite true though
     if (gps.svinfos[i].cno > 0) {
@@ -576,8 +588,7 @@ static inline void mavlink_send_gps_status(void)
     uint8_t azim;
     if (gps.svinfos[i].azim < 0) {
       azim = (float)(-gps.svinfos[i].azim + 180) / 360 * 255;
-    }
-    else {
+    } else {
       azim = (float)gps.svinfos[i].azim / 360 * 255;
     }
     azimuth[i] = azim;
@@ -603,7 +614,7 @@ static inline void mavlink_send_gps_status(void)
 #endif
 #endif
 
-static inline void mavlink_send_rc_channels(void)
+static void mavlink_send_rc_channels(struct transport_tx *trans, struct link_device *dev)
 {
 #if defined RADIO_CONTROL
   mavlink_msg_rc_channels_send(MAVLINK_COMM_0,
@@ -630,7 +641,7 @@ static inline void mavlink_send_rc_channels(void)
 }
 
 #include "subsystems/electrical.h"
-static inline void mavlink_send_battery_status(void)
+static void mavlink_send_battery_status(struct transport_tx *trans, struct link_device *dev)
 {
   static uint16_t voltages[10];
   // we simply only set one cell for now
@@ -653,7 +664,7 @@ static inline void mavlink_send_battery_status(void)
 /**
  * Send Metrics typically displayed on a HUD for fixed wing aircraft.
  */
-static inline void mavlink_send_vfr_hud(void)
+static void mavlink_send_vfr_hud(struct transport_tx *trans, struct link_device *dev)
 {
   /* Current heading in degrees, in compass units (0..360, 0=north) */
   int16_t heading = DegOfRad(stateGetNedToBodyEulers_f()->psi);
@@ -674,3 +685,6 @@ static inline void mavlink_send_vfr_hud(void)
                            stateGetSpeedNed_f()->z); // climb rate
   MAVLinkSendMessage();
 }
+
+/* end ignore unused-paramter */
+#pragma GCC diagnostic pop
