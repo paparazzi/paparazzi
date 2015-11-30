@@ -122,7 +122,7 @@ let localize_waypoint = fun rel_utm_of_wgs84 waypoint ->
         waypoint
 
 
-let print_waypoint = fun default_alt waypoint ->
+let print_waypoint_utm = fun default_alt waypoint ->
   let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
   and alt = try sof (float_attrib waypoint "height" +. !ground_alt) with _ -> default_alt in
   let alt = try Xml.attrib waypoint "alt" with _ -> alt in
@@ -891,8 +891,8 @@ let () =
       List.iter (check_distance (hx, hy) mdfh) waypoints;
       define_waypoints_indices waypoints;
 
-      Xml2h.define "WAYPOINTS" "{ \\";
-      List.iter (print_waypoint alt) waypoints;
+      Xml2h.define "WAYPOINTS_UTM" "{ \\";
+      List.iter (print_waypoint_utm alt) waypoints;
       lprintf "};\n";
       Xml2h.define "WAYPOINTS_ENU" "{ \\";
       List.iter (print_waypoint_enu utm0 alt) waypoints;
