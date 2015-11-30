@@ -54,7 +54,7 @@ sd2log : sd2log.cmo $(LIBPPRZCMA)
 
 sdlogger_download: sdlogger_download.c
 	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -std=gnu99 -Wno-unused-result -o $@ $^
+	$(Q)$(CC) $(CFLAGS) -std=gnu99 -o $@ $^
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
