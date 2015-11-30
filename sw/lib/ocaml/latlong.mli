@@ -100,10 +100,11 @@ val of_lambert : lambert_zone -> lambert -> geographic
 val lambert_of : lambert_zone -> geographic -> lambert
 (** Conversions between geographic (in NTF or GRS80) and lambert *)
 
-val utm_of' : geodesic -> geographic -> utm
-val utm_of : geodesic -> geographic -> utm
+val utm_of' : ?zone:int -> geodesic -> geographic -> utm
+val utm_of : ?zone:int -> geodesic -> geographic -> utm
 val of_utm : geodesic -> utm -> geographic
-(** Conversions between geographic and UTM. May raise Invalid_argument. *)
+(** Conversions between geographic and UTM. UTM zone can be forced with a specific value (use with caution).
+ *  May raise Invalid_argument. *)
 
 val utm_distance : utm -> utm -> fmeter
 
