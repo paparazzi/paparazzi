@@ -282,12 +282,13 @@ let utm_of' = fun ?zone geo ->
     if not (valid_geo pos) then
       invalid_arg "Latlong.utm_of";
     let lambda_deg = truncate (floor ((Rad>>Deg)lambda)) in
-    let zone =
+    let zone, lambda_c =
       match zone with
-      | None -> (lambda_deg + 180) / 6 + 1
-      | Some z -> z
+      | None ->
+          (lambda_deg + 180) / 6 + 1,
+          (Deg>>Rad) (float (lambda_deg - ((lambda_deg mod 6)+6)mod 6 + 3))
+      | Some z -> z, (Deg>>Rad) (float ((z - 1)*6 - 180 + 3))
     in
-    let lambda_c = (Deg>>Rad) (float (lambda_deg - ((lambda_deg mod 6)+6)mod 6 + 3)) in
     let ll = latitude_isometrique phi e
     and dl = lambda -. lambda_c in
     let phi' = asin (sin dl /. cosh ll) in
