@@ -827,7 +827,8 @@ let () =
 
     let utm0 = utm_of WGS84 !fp_wgs84 in
     let rel_utm_of_wgs84 = fun wgs84 ->
-      let utm = utm_of WGS84 wgs84 in
+      (* force utm zone to be the same that reference point *)
+      let utm = utm_of ~zone:utm0.utm_zone WGS84 wgs84 in
       (utm.utm_x -. utm0.utm_x, utm.utm_y -. utm0.utm_y) in
     let waypoints =
       List.map (localize_waypoint rel_utm_of_wgs84) waypoints in
