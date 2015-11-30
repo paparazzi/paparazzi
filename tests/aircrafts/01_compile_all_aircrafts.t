@@ -63,14 +63,21 @@ sub get_num_targets
     }
     return $num_targets;
 }
-plan tests => get_num_targets()+1;
+plan tests => get_num_targets()+2;
 
 ok(1, "Parsed the $conf_xml_file configuration file");
+
+my @missing_airframes;
+
 foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
 {
     my $airframe = $conf->{'aircraft'}->{$aircraft}->{'airframe'};
     my $airframe_config = eval { $xmlSimple->XMLin("$ENV{'PAPARAZZI_HOME'}/conf/$airframe") };
-    warn "Skipping aircraft $aircraft: $@" if ($@);
+    if ($@)
+    {
+        warn "Skipping aircraft $aircraft: $@";
+        push @missing_airframes, $airframe;
+    }
     foreach my $process (sort keys %{$airframe_config->{'firmware'}})
     {
         #warn "EX: [$aircraft] ". Dumper($airframe_config->{'firmware'}->{$process}->{'target'});
@@ -108,6 +115,10 @@ foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
         }
     }
 }
+
+# check if we had missing airframe files in conf
+ok(scalar @missing_airframes eq 0, "All airframe files exist.");
+foreach (@missing_airframes) { warn "Missing airframe file '$_'\n" }
 
 done_testing();
 
