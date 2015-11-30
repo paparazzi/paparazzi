@@ -65,7 +65,7 @@ class MessagesFrame(wx.Frame):
         end = book.GetPageCount()
 
         while start < end:
-            if book.GetPageText(start) > name:
+            if book.GetPageText(start) >= name:
                 return start
             start += 1
         return start
