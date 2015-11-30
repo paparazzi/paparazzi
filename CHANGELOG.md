@@ -42,6 +42,10 @@ General
   [#1385] (https://github.com/paparazzi/paparazzi/pull/1385)
 - Docker: fix script to run Docker on OSX (with X-access)
   [#1425] (https://github.com/paparazzi/paparazzi/pull/1425)
+- python: fix messages/settings with wxgtk3.0
+  [#1435] (https://github.com/paparazzi/paparazzi/issues/1435)
+- flight plans for fixedwing: force UTM zone of waypoints to same as ref point to fix waypoints across two UTM zones
+  [#303] (https://github.com/paparazzi/paparazzi/issues/303)
 
 Airborne
 --------
@@ -70,6 +74,10 @@ Airborne
   [#1411] (https://github.com/paparazzi/paparazzi/pull/1411)
 - actuators: new AscTec ESC I2C protocol
   [#1416] (https://github.com/paparazzi/paparazzi/pull/1416)
+- periodic telemetry: possibility to register periodic message multiple times
+  [#1440] (https://github.com/paparazzi/paparazzi/pull/1440)
+- AHRS/messages: add component/filter ID to AHRS messages
+  [#1441] (https://github.com/paparazzi/paparazzi/pull/1441)
 
 Rotorcraft firmware
 -------------------
@@ -87,6 +95,10 @@ Rotorcraft firmware
   [#1375] (https://github.com/paparazzi/paparazzi/pull/1375)
 - support dual-mcu setup with split autopilot (AP) and FlyByWire (FBW)
   [#1423] (https://github.com/paparazzi/paparazzi/pull/1423)
+- support for helicopter/swashplate mixing and throttle curves
+  [#1437] (https://github.com/paparazzi/paparazzi/pull/1437)
+- tmtc/server: set course correctly from east/north velocity for correct ACINFO
+  [#1449] (https://github.com/paparazzi/paparazzi/pull/1449)
 
 Modules
 -------
@@ -102,6 +114,7 @@ Modules
   [#1317] (https://github.com/paparazzi/paparazzi/pull/1317)
   [#1342] (https://github.com/paparazzi/paparazzi/pull/1342)
   [#1362] (https://github.com/paparazzi/paparazzi/pull/1362)
+  [#1433] (https://github.com/paparazzi/paparazzi/pull/1433)
 - digital_cam_video: trigger video_rtp_stream to store JPEG images
   [#1323] (https://github.com/paparazzi/paparazzi/pull/1323)
 - cv_qrcode: read QR code using libzbar
