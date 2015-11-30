@@ -65,7 +65,7 @@ class MessagesFrame(wx.Frame):
         end = book.GetPageCount()
 
         while start < end:
-            if book.GetPageText(start) > name:
+            if book.GetPageText(start) >= name:
                 return start
             start += 1
         return start
@@ -133,8 +133,12 @@ class MessagesFrame(wx.Frame):
             size = value_control.GetSize()
             size.x = LABEL_WIDTH
             value_control.SetMinSize(size)
-            grid_sizer.Add(value_control, 1, wx.ALL|wx.EXPAND, BORDER)
-            grid_sizer.AddGrowableCol(1)
+            grid_sizer.Add(value_control, 1, wx.ALL | wx.EXPAND, BORDER)
+            if wx.MAJOR_VERSION > 2:
+                if grid_sizer.IsColGrowable(1):
+                    grid_sizer.AddGrowableCol(1)
+            else:
+                grid_sizer.AddGrowableCol(1)
             aircraft.messages[name].field_controls.append(value_control)
 
         field_panel.SetAutoLayout(True)

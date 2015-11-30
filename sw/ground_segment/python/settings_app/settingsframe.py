@@ -15,8 +15,8 @@ from settings_tool import IvySettingsInterface
 def create(parent, ac_ids):
     return SettingsFrame(parent, ac_ids)
 
-SLIDER_ID_OFFSET = 250000
-BUTTON_ID_OFFSET = 2 * 250000
+SLIDER_ID_OFFSET = 30000
+BUTTON_ID_OFFSET = 31000
 SLIDER_FACTOR = 100
 
 # Wraps TextCtrl to provide added functionality
