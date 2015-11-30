@@ -8,8 +8,10 @@
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
-#if defined(OS_MACOSX)
-#include <machine/endian.h>
+
+#ifdef __APPLE__
+#include <libkern/OSByteOrder.h>
+#define be32toh(x) OSSwapBigToHostInt32(x)
 #else
 #include <endian.h>
 #endif
