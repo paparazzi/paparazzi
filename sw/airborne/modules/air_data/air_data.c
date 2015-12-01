@@ -207,9 +207,9 @@ void air_data_init(void)
   AbiBindMsgTEMPERATURE(AIR_DATA_TEMPERATURE_ID, &temperature_ev, temperature_cb);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "BARO_RAW", send_baro_raw);
-  register_periodic_telemetry(DefaultPeriodic, "AIR_DATA", send_air_data);
-  register_periodic_telemetry(DefaultPeriodic, "AMSL", send_amsl);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BARO_RAW, send_baro_raw);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIR_DATA, send_air_data);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AMSL, send_amsl);
 #endif
 }
 

@@ -121,9 +121,9 @@ void cam_init(void)
 {
   cam_mode = CAM_MODE0;
 
-  register_periodic_telemetry(DefaultPeriodic, "CAM", send_cam);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CAM, send_cam);
 #ifdef SHOW_CAM_COORDINATES
-  register_periodic_telemetry(DefaultPeriodic, "CAM_POINT", send_cam_point);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CAM_POINT, send_cam_point);
 #endif
 }
 

@@ -6,6 +6,7 @@
 <!ATTLIST telemetry>
 <!ATTLIST process
   name CDATA #REQUIRED
+  type CDATA #IMPLIED
 >
 <!ATTLIST mode
   name CDATA #REQUIRED

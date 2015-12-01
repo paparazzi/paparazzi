@@ -249,7 +249,7 @@ void uart_periph_init(struct uart_periph *p)
 
 #if PERIODIC_TELEMETRY
   // the first to register do it for the others
-  register_periodic_telemetry(DefaultPeriodic, "UART_ERRORS", send_uart_err);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_UART_ERRORS, send_uart_err);
 #endif
 }
 

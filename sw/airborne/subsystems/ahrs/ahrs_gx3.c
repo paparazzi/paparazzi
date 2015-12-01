@@ -210,7 +210,7 @@ void imu_impl_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "GX3_INFO", send_gx3);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GX3_INFO, send_gx3);
 #endif
 }
 

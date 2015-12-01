@@ -82,7 +82,7 @@ void vff_init(float init_z, float init_zdot, float init_bias)
   }
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "VFF", send_vff);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_VFF, send_vff);
 #endif
 }
 
