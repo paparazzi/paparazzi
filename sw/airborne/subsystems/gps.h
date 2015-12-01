@@ -27,16 +27,10 @@
 #ifndef GPS_H
 #define GPS_H
 
-
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 
 #include "mcu_periph/sys_time.h"
-
-/* GPS model specific implementation or sim */
-#ifdef GPS_TYPE_H
-#include GPS_TYPE_H
-#endif
 
 #define GPS_FIX_NONE 0x00     ///< No GPS fix
 #define GPS_FIX_2D   0x02     ///< 2D GPS fix
@@ -47,9 +41,8 @@
 #define GpsFixValid() (gps.fix >= GPS_FIX_3D)
 #define GpsIsLost() !GpsFixValid()
 
-
 #ifndef GPS_NB_CHANNELS
-#define GPS_NB_CHANNELS 1
+#define GPS_NB_CHANNELS 16
 #endif
 
 /** data structure for Space Vehicle Information of a single satellite */
@@ -101,6 +94,11 @@ struct GpsTimeSync {
 
 /** global GPS state */
 extern struct GpsState gps;
+
+/* GPS model specific implementation or sim */
+#ifdef GPS_TYPE_H
+#include GPS_TYPE_H
+#endif
 
 /** initialize the global GPS state */
 extern void gps_init(void);
