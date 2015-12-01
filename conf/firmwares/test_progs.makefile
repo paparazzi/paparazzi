@@ -118,6 +118,9 @@ endif
 ifeq ($(BOARD), cc3d)
 LED_DEFINES = -DLED_BLUE=1
 endif
+ifeq ($(BOARD), naze32)
+LED_DEFINES = -DLED_RED=1 -DLED_GREEN=2
+endif
 LED_DEFINES ?= -DLED_RED=2 -DLED_GREEN=3
 
 test_sys_time_timer.ARCHDIR = $(ARCH)
