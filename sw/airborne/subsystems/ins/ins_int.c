@@ -218,9 +218,9 @@ void ins_int_init(void)
   INT32_VECT3_ZERO(ins_int.ltp_accel);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "INS", send_ins);
-  register_periodic_telemetry(DefaultPeriodic, "INS_Z", send_ins_z);
-  register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_INS, send_ins);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_INS_Z, send_ins_z);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_INS_REF, send_ins_ref);
 #endif
 }
 

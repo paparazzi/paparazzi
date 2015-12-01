@@ -105,7 +105,7 @@ void aoa_pwm_init(void)
   log_started = FALSE;
 #endif
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "AOA", send_aoa);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_AOA, send_aoa);
 #endif
 }
 

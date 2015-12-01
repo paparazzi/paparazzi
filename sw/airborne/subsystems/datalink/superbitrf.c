@@ -258,7 +258,7 @@ void superbitrf_init(void)
   cyrf6936_init(&superbitrf.cyrf6936, &(SUPERBITRF_SPI_DEV), 2, SUPERBITRF_RST_PORT, SUPERBITRF_RST_PIN);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "SUPERBITRF", send_superbit);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_SUPERBITRF, send_superbit);
 #endif
 }
 

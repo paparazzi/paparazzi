@@ -191,10 +191,10 @@ void guidance_h_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "GUIDANCE_H_INT", send_gh);
-  register_periodic_telemetry(DefaultPeriodic, "HOVER_LOOP", send_hover_loop);
-  register_periodic_telemetry(DefaultPeriodic, "GUIDANCE_H_REF", send_href);
-  register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_TUNE_HOVER", send_tune_hover);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_GUIDANCE_H_INT, send_gh);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_HOVER_LOOP, send_hover_loop);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_GUIDANCE_H_REF, send_href);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_ROTORCRAFT_TUNE_HOVER, send_tune_hover);
 #endif
 
 #if GUIDANCE_INDI

@@ -190,7 +190,7 @@ void h_ctl_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "CALIBRATION", send_calibration);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_CALIBRATION, send_calibration);
 #endif
 }
 

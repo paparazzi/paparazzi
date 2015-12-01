@@ -33,6 +33,7 @@
 #include "std.h"
 #include "mcu_periph/link_device.h"
 #include "subsystems/datalink/transport.h"
+#include "messages.h"
 
 /** Telemetry callback definition
  */
@@ -54,9 +55,8 @@ struct telemetry_cb_slots {
  *  and the list of registered callbacks
  */
 struct periodic_telemetry {
-  uint8_t nb;                ///< number of messages
-  telemetry_msg *msgs;       ///< the array of msg names
-  struct telemetry_cb_slots *cbs; ///< array of associated callbacks
+  uint8_t nb;                     ///< number of messages
+  struct telemetry_cb_slots *cbs; ///< array of callbacks defined through TELEMETRY_MSG
 };
 
 /** Register a telemetry callback function.
@@ -67,10 +67,10 @@ struct periodic_telemetry {
  * @return -1 on failure to register, index of callback otherwise
  */
 #if PERIODIC_TELEMETRY
-extern int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, const char *_msg, telemetry_cb _cb);
+extern int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, int8_t _msgn, telemetry_cb _cb);
 #else
 static inline int8_t register_periodic_telemetry(struct periodic_telemetry *_pt __attribute__((unused)),
-    const char *_msg __attribute__((unused)), telemetry_cb _cb __attribute__((unused))) { return -1; }
+    int8_t _msgn __attribute__((unused)), telemetry_cb _cb __attribute__((unused))) { return -1; }
 #endif
 
 #if USE_PERIODIC_TELEMETRY_REPORT

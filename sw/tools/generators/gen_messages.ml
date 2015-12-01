@@ -235,7 +235,11 @@ module Gen_onboard = struct
       if m.id < 0 || m.id > 255 then begin
         fprintf stderr "Error: message %s has id %d but should be between 0 and 255\n" m.name m.id; exit 1;
       end
-      else fprintf h "#define DL_%s %d\n" m.name m.id
+      else begin
+        fprintf h "#define DL_%s %d\n" m.name m.id;
+        if class_ = "telemetry" then
+          fprintf h "#ifndef TELEMETRY_MSG_%s\n#define TELEMETRY_MSG_%s (-1)\n#endif\n" m.name m.name
+      end
     ) messages;
     fprintf h "#define DL_MSG_%s_NB %d\n\n" class_ (List.length messages)
 

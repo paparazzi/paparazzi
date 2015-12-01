@@ -190,6 +190,6 @@ void ahrs_dcm_register(void)
   AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_STATE_FILTER_STATUS, send_filter_status);
 #endif
 }

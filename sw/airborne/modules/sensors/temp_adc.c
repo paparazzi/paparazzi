@@ -120,7 +120,7 @@ void temp_adc_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "TEMP_ADC", temp_adc_downlink);
+  register_periodic_telemetry(DefaultPeriodic, TELEMETRY_MSG_TEMP_ADC, temp_adc_downlink);
 #endif
 }
 

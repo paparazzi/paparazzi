@@ -87,15 +87,15 @@ let output_modes = fun out_h process_name modes freq modules ->
           right ();
           lprintf out_h "for (j = 0; j < TELEMETRY_NB_CBS; j++) {\n";
           right ();
-          lprintf out_h "if (telemetry->cbs[TELEMETRY_MSG_%s_ID].slots[j] != NULL)\n" message_name;
+          lprintf out_h "if (telemetry->cbs[TELEMETRY_MSG_%s].slots[j] != NULL)\n" message_name;
           right ();
-          lprintf out_h "telemetry->cbs[TELEMETRY_MSG_%s_ID].slots[j](trans, dev);\n" message_name;
+          lprintf out_h "telemetry->cbs[TELEMETRY_MSG_%s].slots[j](trans, dev);\n" message_name;
           left ();
           lprintf out_h "else break;\n";
           left ();
           lprintf out_h "}\n";
           fprintf out_h "#if USE_PERIODIC_TELEMETRY_REPORT\n";
-          lprintf out_h "if (j == 0) periodic_telemetry_err_report(TELEMETRY_PROCESS_%s, telemetry_mode_%s, TELEMETRY_MSG_%s_ID);\n" process_name process_name message_name;
+          lprintf out_h "if (j == 0) periodic_telemetry_err_report(TELEMETRY_PROCESS_%s, telemetry_mode_%s, TELEMETRY_MSG_%s);\n" process_name process_name message_name;
           fprintf out_h "#endif\n";
           left ();
           lprintf out_h "}\n"
@@ -154,7 +154,8 @@ let print_message_table = fun out_h xml ->
   ) (Xml.children xml);
   (* Print ID *)
   let nb = Hashtbl.fold (fun n _ i ->
-    Xml2h.define (sprintf "TELEMETRY_MSG_%s_ID" n) (sprintf "%d" i);
+    fprintf out_h "#undef TELEMETRY_MSG_%s\n" n;
+    Xml2h.define (sprintf "TELEMETRY_MSG_%s" n) (sprintf "%d" i);
     i+1
   ) messages 0 in
   Xml2h.define "TELEMETRY_NB_MSG" (sprintf "%d" nb);
