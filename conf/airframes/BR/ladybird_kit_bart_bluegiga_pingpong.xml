@@ -40,6 +40,7 @@
     <servo name="NW" no="3" min="0" neutral="50" max="1000"/>
   </servos>
 
+   <define name="USE_BAROMETER" value="TRUE"/>
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="0"/>
@@ -193,8 +194,7 @@
  </section>
 
  <modules main_freq="512">
-   <load name="read_matrix_serial.xml"/>	
-
+   <load name="follow_me.xml"/>
    <load name="stereocam.xml">
 	<configure name="STEREO_UART" value="UART1"/>
 	<configure name="STEREO_BAUD" value="B115200"/>
@@ -241,6 +241,8 @@
       <configure name="USE_MAGNETOMETER" value="1"/>
       <define name="AHRS_USE_GPS_HEADING" value="0"/>
     </subsystem>
-    <subsystem name="ins"/>
+    <subsystem name="ins">
+	<define name="USE_BAROMETER" value="TRUE"/>
+     </subsystem>
   </firmware>
 </airframe>

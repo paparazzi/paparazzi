@@ -91,7 +91,6 @@ extern void stereocam_periodic(void)
         previous_time = sys_time.nb_tick;
       }
 #if SEND_STEREO
-      printf("Seding stereo img\n");
       DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len, msg_buf);
 #endif
     }

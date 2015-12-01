@@ -7,181 +7,100 @@
 /**
  * @file "modules/follow_me/follow_me.c"
  * @author Roland
- * follows based on stereo
+ * follows a person on the stereo histogram image. It searches for the highest peak and adjusts its roll and pitch to hover at a nice distance.
  */
 
 #include "modules/follow_me/follow_me.h"
 #include "modules/stereo_cam/stereocam.h"
-
-#include "subsystems/abi.h"
-
-#include "guidance.h"
-// Paparazzi Data
 #include "state.h"
+#include "navigation.h"
 
 #include "subsystems/datalink/telemetry.h"
-// Interact with navigation
-#include "navigation.h"
-#include "modules/computer_vision/opticflow_module.h"
 
-int far_away_threshold = 28;
-float lastVelocityReference=0.0;
-float ref_pitch=0.0;
-float ref_roll=0.0;
-void setVelocityReference(float velocity){
-	lastVelocityReference=velocity;
-	float sin_heading = sinf(ANGLE_FLOAT_OF_BFP(nav_heading));
-	float cos_heading = cosf(ANGLE_FLOAT_OF_BFP(nav_heading));
-	int newPosX = POS_BFP_OF_REAL(sin_heading * velocity);
-	int newPosY = POS_BFP_OF_REAL(cos_heading * velocity);
-	navigation_carrot.x=newPosX;
-	navigation_carrot.y=newPosY;
+float selfie_ref_pitch = 0.0;
+float ref_roll = 0.0;
+float selfie_alt = 2.0;
+
+
+void follow_me_init()
+{
+
 }
 
-void searchSpaceHeadingDrone(uint8_t* histogram,uint8_t *requiredHeading, uint8_t *valueThere){
 
-    uint8_t x = 5;
-    int maxFound=0;
-    int width=5;
-	 for(x=10; x < 110; x++){
-		 int index=0;
-		 int sumFound=0;
-		 for(index=x; index < x+width; index++){
-			 if(histogram[index]==120){
-				 break;
-			 }
-			 sumFound+= histogram[index];
+int breaksPoints=0;
+int isRollPhase=0;
+int isYawPhase=0;
+int phaseCounter=0;
+void changeRollYawPhase(int *phaseCounter,int *isRollPhase,int *isYawPhase){
+	(*phaseCounter)++;
 
-		 }
-		 if(sumFound>maxFound){
-			 maxFound=sumFound;
-			 *valueThere=histogram[x+1];
-			 *requiredHeading=x+1;
-		 }
+	if(*isRollPhase){
+		if(*phaseCounter>15){
+			*phaseCounter=0;
+			*isRollPhase=0;
+			*isYawPhase=1;
+		}
 	}
-}
-void follow_me_init() {
-
-}
-void follow_me_periodic() {
-	setVelocityReference(lastVelocityReference);
-
-	if(stereocam_data.fresh){
-		stereocam_data.fresh=0;
-
-		uint8_t headingToFollow=0;
-		uint8_t valueThere=0;
-		 int indexRight;
-			    int highValuesRightCount=0;
-			    for(indexRight=0; indexRight < 120; indexRight++){
-					if(stereocam_data.data[indexRight] > 60){
-						highValuesRightCount++;
-					}
-				}
-
-		searchSpaceHeadingDrone(stereocam_data.data,&headingToFollow,&valueThere);
-		float heading_change = (float) (headingToFollow-65.0)*0.012; // convert pixel location to radians
-		int differenceCenter = headingToFollow-65;
-		if(differenceCenter > 0){
-			ref_roll=0.1*abs(differenceCenter);
-		}
-		else{
-			ref_roll=-0.1*abs(differenceCenter);
-		}
-		//float newHeading =stateGetNedToBodyEulers_f()->psi+heading_change;
-		//nav_set_heading_rad(newHeading);
-		printf("THE CURRENT VALUE AT THE PLACE I WANT TO LOOK AT IS %d with rotation %f %d\n",valueThere,heading_change,headingToFollow);
-		if(fabs(heading_change) < 0.42){
-
-			if(valueThere<40){
-				setVelocityReference(1.1);
-				ref_pitch=-3.0;
-			}
-			else{
-				ref_pitch=3.0;
-				setVelocityReference(-0.5);
-
-			}
-
-		}
-		else{
-			setVelocityReference(0.0);
-			ref_pitch=0.0;
-		}
-		if(highValuesRightCount>20){
-			ref_pitch=5.0;
+	else{
+		if(*phaseCounter>5){
+			*phaseCounter=0;
+			*isRollPhase=1;
+			*isYawPhase=0;
 		}
 	}
 }
-
-
-
-
-/*
- *
-int searchSpaceHeadingDrone(uint8_t* histogram){
-
-    int x = 5;
-    int closeGoodCount=0;
-	 for(x=5; x < 120; x++){
-		if(histogram[x] < far_away_threshold && histogram[x]>0 ){
-			closeGoodCount++;
-			if(closeGoodCount > 3){
-				return x;
-			}
+void follow_me_periodic()
+{
+  if (stereocam_data.fresh) {
+    stereocam_data.fresh = 0;
+    changeRollYawPhase(&phaseCounter,&isRollPhase,&isYawPhase);
+    uint8_t headingToFollow = stereocam_data.data[0];
+	float heading_change = 0.0;
+	if(abs(headingToFollow - 65)>10){
+		if(headingToFollow>65){
+			heading_change=0.25;
 		}
 		else{
-			closeGoodCount=0;
+			heading_change=-0.25;
 		}
 	}
-	return 120;
+	if(isYawPhase){
+//		float heading_change = (float)(headingToFollow - 65.0) * 0.002; // convert pixel location to radians
+		if(abs(nav_heading - stateGetNedToBodyEulers_i()->psi)<150){
+			float turnFactor=2.3;
+			float currentHeading=stateGetNedToBodyEulers_f()->psi;
+			float newHeading2 =currentHeading+turnFactor*heading_change;
+			//printf("Heading now: %f new heading: %f\n",currentHeading,newHeading2);
+			nav_set_heading_rad(newHeading2);
+		}
+		ref_roll=0.0;
+	}
+	else{
+		ref_roll=32*heading_change;
+	}
+
+
+	uint8_t distanceToObject = stereocam_data.data[2];
+	uint8_t heightObject = stereocam_data.data[1];
+
+//	printf("Distance object %d heading to follow: %d height object: %d current heigt: %f\n",distanceToObject,headingToFollow,heightObject,selfie_alt);
+	float heightGain = 3.0;
+	if(heightObject>50 && heightObject !=100){
+		selfie_alt-=heightGain*0.01;
+	}
+	else if(heightObject<20){
+		selfie_alt+=heightGain*0.01;
+	}
+	if (distanceToObject < 55) {
+		selfie_ref_pitch = 13.0;
+	}
+	else if(distanceToObject < 90){
+		selfie_ref_pitch= 3.0;
+	}
+	else{
+		selfie_ref_pitch=0.0;
+	}
+
+  }
 }
-
-void set_heading_following_egg() {
-	setVelocityReference(lastVelocityReference);
-
-	if(stereocam_data.fresh){
-		stereocam_data.fresh=0;
-
-	    int headingToFollow = searchSpaceHeadingDrone(stereocam_data.data);
-
-
-	    int indexRight;
-	    int highValuesRightCount=0;
-	    for(indexRight=40; indexRight < 120; indexRight++){
-			if(stereocam_data.data[indexRight] > 60){
-				highValuesRightCount++;
-			}
-		}
-
-	    int indexAll=0;
-	    int totalSum=0;
-	    int totalSumCount=0;
-	    for(indexAll=0; indexAll < 120; indexAll++){
-	    	if(stereocam_data.data[indexAll]>5 && stereocam_data.data[indexAll] < 110){
-	    		totalSum+=stereocam_data.data[indexAll];
-	    		totalSumCount++;
-	    	}
-		}
-	    float averageClose=0.0;
-	    if(totalSumCount>0){
-	      averageClose=(totalSum/totalSumCount);
-	    }
-
-	    float heading_change = (float) (headingToFollow-55.0)*0.012; // convert pixel location to radians
-	    DOWNLINK_SEND_FOLLOWEGG(DefaultChannel, DefaultDevice, &headingToFollow, &heading_change,&highValuesRightCount,&averageClose);
-
-		float newHeading =stateGetNedToBodyEulers_f()->psi+heading_change;
-		nav_set_heading_rad(newHeading);
-		if(fabs(heading_change) < 0.22){
-			setVelocityReference(1.1);
-			printf("Dont turn %f , let's go!\n",heading_change);
-		}
-		else{
-			setVelocityReference(-0.2);
-
-			printf("Turn, wait pleaze!\n");
-		}
-	}
-}*/
-

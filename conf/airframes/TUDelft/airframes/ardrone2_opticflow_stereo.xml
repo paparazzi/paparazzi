@@ -13,7 +13,7 @@
     <subsystem name="actuators" type="ardrone2"/>
     <subsystem name="imu" type="ardrone2"/>
     <subsystem name="gps" type="datalink"/>
-    <subsystem name="stabilization" type="int_quat"/>
+    <subsystem name="stabilization" type="indi"/>
     <subsystem name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
       <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>

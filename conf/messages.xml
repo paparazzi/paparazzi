@@ -2111,6 +2111,12 @@
   <!-- 246 is free -->
 
 
+  <message name="STEREO_FOLLOW_ME" id="246">
+    <field name="headingToFollow"   type="uint8"/>
+    <field name="valueThere"   type="uint8"/>
+    <field name="highValuesCount"   type="uint8"/>
+  </message>
+
   <message name="PPRZ_DEBUG" id="247">
     <field name="module"   type="uint8"/>
     <field name="errno"   type="uint8"/>
