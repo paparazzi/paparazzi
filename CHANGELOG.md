@@ -46,6 +46,8 @@ General
   [#1435] (https://github.com/paparazzi/paparazzi/issues/1435)
 - flight plans for fixedwing: force UTM zone of waypoints to same as ref point to fix waypoints across two UTM zones
   [#303] (https://github.com/paparazzi/paparazzi/issues/303)
+- realtime plotter: fix issue on Ubuntu with Unity
+  [#1446] (https://github.com/paparazzi/paparazzi/issues/1446)
 
 Airborne
 --------
@@ -78,6 +80,8 @@ Airborne
   [#1440] (https://github.com/paparazzi/paparazzi/pull/1440)
 - AHRS/messages: add component/filter ID to AHRS messages
   [#1441] (https://github.com/paparazzi/paparazzi/pull/1441)
+- peridic telemetry: use msg ID instead of strings for matching (reduces size) and add support for mavlink
+  [#1448] (https://github.com/paparazzi/paparazzi/pull/1448)
 
 Rotorcraft firmware
 -------------------
@@ -99,6 +103,8 @@ Rotorcraft firmware
   [#1437] (https://github.com/paparazzi/paparazzi/pull/1437)
 - tmtc/server: set course correctly from east/north velocity for correct ACINFO
   [#1449] (https://github.com/paparazzi/paparazzi/pull/1449)
+- possibility to use NAV mode without GPS (define NO_GPS_NEEDED_FOR_NAV)
+  [#1451] (https://github.com/paparazzi/paparazzi/issues/1451)
 
 Modules
 -------
