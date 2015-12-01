@@ -69,12 +69,15 @@ void serial_update(void)
 	 if(stereocam_data.fresh){
 		 float distancesMeters[stereocam_data.len];
 		 stereocam_disparity_to_meters(stereocam_data.data,distancesMeters,stereocam_data.len);
+
 		 printf("New data\n");
 		 int x=0;
+		 float sumDistances=0.0;
 		 for(x=0; x < stereocam_data.len; x++){
-			 printf("%f, ",distancesMeters[x]);
+//			 printf("%f, ",distancesMeters[x]);
+			 sumDistances+=distancesMeters[x];
 		 }
-		 printf("\n");
+		 printf("%f\n",(sumDistances/stereocam_data.len));
 	      if(OA_method_flag==1){
 		      cal_euler_pingpong();
 	      }
