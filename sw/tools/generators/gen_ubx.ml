@@ -160,7 +160,11 @@ let _ =
     fprintf out "/* Please DO NOT EDIT */\n\n";
 
     fprintf out "#include \"mcu_periph/link_device.h\"\n\n";
-    fprintf out "#include \"subsystems/gps/gps_ubx.h\"\n\n";
+    fprintf out "#ifdef USE_MULTI_GPS\n";
+    fprintf out "#include \"subsystems/gps/gps_multi/gps_multi_ubx.h\"\n";
+    fprintf out "#else\n";
+    fprintf out "#include \"subsystems/gps/gps_ubx.h\"\n";
+    fprintf out "#endif\n\n";
 
     define "UBX_SYNC1" "0xB5";
     define "UBX_SYNC2" "0x62";
