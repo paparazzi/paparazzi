@@ -38,6 +38,7 @@
 #include "subsystems/datalink/telemetry.h"
 #include "modules/stereo_cam/stereocam.h"
 
+
 int size_matrix[3] = {1, 6, 6};
 
 float ref_pitch_angle = 0.2;
@@ -66,7 +67,14 @@ void serial_start(void)
 void serial_update(void)
 {
 	 if(stereocam_data.fresh){
+		 float distancesMeters[stereocam_data.len];
+		 stereocam_disparity_to_meters(stereocam_data.data,distancesMeters,stereocam_data.len);
 		 printf("New data\n");
+		 int x=0;
+		 for(x=0; x < stereocam_data.len; x++){
+			 printf("%f, ",distancesMeters[x]);
+		 }
+		 printf("\n");
 	      if(OA_method_flag==1){
 		      cal_euler_pingpong();
 	      }

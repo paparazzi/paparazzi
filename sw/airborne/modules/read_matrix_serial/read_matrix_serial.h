@@ -25,7 +25,6 @@
 
 #ifndef READ_MATRIX_SERIAL_H
 #define READ_MATRIX_SERIAL_H
-
 extern void serial_init(void);
 extern void serial_update(void);
 extern void serial_start(void);
