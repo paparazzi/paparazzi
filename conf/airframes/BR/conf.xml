@@ -79,7 +79,7 @@
   <aircraft
    name="LadyLisaBartBluegiga"
    ac_id="233"
-   airframe="airframes/BR/ladybird_kit_bart_bluegiga_pingpong.xml"
+   airframe="airframes/BR/ladybird_kit_bart_bluegiga_selfie.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft_slow.xml"
    flight_plan="flight_plans/rotorcraft_follow_me.xml"

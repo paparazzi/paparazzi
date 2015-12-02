@@ -19,7 +19,7 @@
 
 float selfie_ref_pitch = 0.0;
 float ref_roll = 0.0;
-float selfie_alt = 2.0;
+float selfie_alt = 1.0;
 
 
 void follow_me_init()
@@ -32,6 +32,7 @@ int breaksPoints=0;
 int isRollPhase=0;
 int isYawPhase=0;
 int phaseCounter=0;
+float des_heading;
 void changeRollYawPhase(int *phaseCounter,int *isRollPhase,int *isYawPhase){
 	(*phaseCounter)++;
 
@@ -50,6 +51,8 @@ void changeRollYawPhase(int *phaseCounter,int *isRollPhase,int *isYawPhase){
 		}
 	}
 }
+uint8_t distanceToObject;
+uint8_t heightObject;
 void follow_me_periodic()
 {
   if (stereocam_data.fresh) {
@@ -68,29 +71,33 @@ void follow_me_periodic()
 	if(isYawPhase){
 //		float heading_change = (float)(headingToFollow - 65.0) * 0.002; // convert pixel location to radians
 		if(abs(nav_heading - stateGetNedToBodyEulers_i()->psi)<150){
-			float turnFactor=2.3;
+			float turnFactor=1.3;
 			float currentHeading=stateGetNedToBodyEulers_f()->psi;
 			float newHeading2 =currentHeading+turnFactor*heading_change;
 			//printf("Heading now: %f new heading: %f\n",currentHeading,newHeading2);
 			nav_set_heading_rad(newHeading2);
+			des_heading=newHeading2;
 		}
 		ref_roll=0.0;
 	}
 	else{
-		ref_roll=32*heading_change;
+		//ref_roll=32*heading_change;
+		ref_roll=12*heading_change;
 	}
 
 
-	uint8_t distanceToObject = stereocam_data.data[2];
-	uint8_t heightObject = stereocam_data.data[1];
+  distanceToObject = stereocam_data.data[2];
+	 heightObject = stereocam_data.data[1];
 
 //	printf("Distance object %d heading to follow: %d height object: %d current heigt: %f\n",distanceToObject,headingToFollow,heightObject,selfie_alt);
 	float heightGain = 3.0;
-	if(heightObject>50 && heightObject !=100){
-		selfie_alt-=heightGain*0.01;
-	}
-	else if(heightObject<20){
-		selfie_alt+=heightGain*0.01;
+	if(nav_is_in_flight()){
+		if(heightObject>50 && heightObject !=100){
+			selfie_alt-=heightGain*0.01;
+		}
+		else if(heightObject<20){
+			selfie_alt+=heightGain*0.01;
+		}
 	}
 	if (distanceToObject < 55) {
 		selfie_ref_pitch = 13.0;
@@ -101,6 +108,7 @@ void follow_me_periodic()
 	else{
 		selfie_ref_pitch=0.0;
 	}
-
+	DOWNLINK_SEND_SELFIE_MEASURE(DefaultChannel, DefaultDevice,&distanceToObject,&heightObject,&headingToFollow);
+	DOWNLINK_SEND_SELFIE_ROTOR(DefaultChannel, DefaultDevice,&selfie_ref_pitch,&ref_roll,&des_heading,&selfie_alt);
   }
 }
