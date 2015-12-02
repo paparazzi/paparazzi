@@ -45,8 +45,9 @@
 #define GPS_FIX_RTK  0x05     ///< RTK GPS fix
 
 #define GpsFixValid() (gps.fix >= GPS_FIX_3D)
+#if USE_GPS
 #define GpsIsLost() !GpsFixValid()
-
+#endif
 
 #ifndef GPS_NB_CHANNELS
 #define GPS_NB_CHANNELS 1
