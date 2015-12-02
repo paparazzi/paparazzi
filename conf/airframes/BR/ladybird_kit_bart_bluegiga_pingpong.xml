@@ -32,6 +32,7 @@
 -->
 
 <airframe name="quadrotor_lisa_s">
+<define name="NO_GPS_NEEDED_FOR_NAV" value="TRUE"/>
 
   <servos driver="Pwm">
     <servo name="NE" no="0" min="0" neutral="50" max="1000"/>

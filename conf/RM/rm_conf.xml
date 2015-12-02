@@ -2,13 +2,13 @@
   <aircraft
    name="ardrone2_RM"
    ac_id="201"
-   airframe="airframes/TUDelft/airframes/ardrone2_oa_clint_roland.xml"
+   airframe="airframes/TUDelft/airframes/ardrone2_indi_selfie.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_pingpong_module.xml"
+   flight_plan="flight_plans/rotorcraft_follow_me.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml [settings/control/stabilization_att_indi.xml]"
-   settings_modules="modules/cv_opticflow.xml modules/opticflow_hover.xml"
    gui_color="red"
+   settings_modules="modules/cv_opticflow.xml modules/opticflow_hover.xml"
   />
   <aircraft
    name="bebop"
@@ -20,5 +20,16 @@
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_secondary.xml settings/estimation/ahrs_float_mlkf.xml settings/estimation/ahrs_int_cmpl_quat.xml"
    settings_modules=""
    gui_color="yellow"
+  />
+  <aircraft
+   name="pocketselfie"
+   ac_id="1"
+   airframe="airframes/examples/microjet.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings="settings/fixedwing_basic.xml"
+   settings_modules="modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/infrared_adc.xml modules/tune_airspeed.xml"
+   gui_color="blue"
   />
 </conf>

@@ -29,7 +29,11 @@
       <message name="OPTIC_FLOW_EST"         period="0.5"/>
       <message name="STEREO_IMG"         period="0.1"/>
       <message name="STEREO_FOLLOW_ME"         period="0.1"/>
-      <message name="VECTORNAV_INFO"      period="0.5"/>
+
+      <message name="SELFIE_ROTOR"         period="0.1"/> 
+      <message name="SELFIE_ROTOR_MEASURE"         period="0.1"/> 
+
+     <message name="VECTORNAV_INFO"      period="0.5"/>
     </mode>
 
     <mode name="ppm">

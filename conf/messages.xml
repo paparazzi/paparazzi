@@ -2022,7 +2022,6 @@
      <field name="value" type="uint16"/>
    </message>
 
- <!--233 is free -->
    <message name="PX4FLOW" id="233">
      <!--field name="time_usec" type="uint64"/--> <!-- uint64 not supported yet -->
      <field name="sensor_id" type="uint8"/>
@@ -2110,7 +2109,14 @@
     <field name="vz"   type="float" unit="m/s"/>
   </message>
 
-  <!-- 245 is free -->
+  <message name="SELFIE_ROTOR" id="245">
+    <field name="pitch"   type="float" />
+    <field name="roll"   type="float"/>
+    <field name="yaw"   type="float"/>
+    <field name="alt"   type="float"/>
+  </message>
+
+
   <!-- 246 is free -->
 
 
@@ -2178,7 +2184,13 @@
   </message>
 
   <!-- 251 is free -->
-  <!-- 252 is free -->
+
+  <message name="SELFIE_MEASURE" id="252">
+    <field name="distanceToObj"   type="uint8" />
+    <field name="heightObtj"   type="uint8"/>
+    <field name="heading"   type="uint8"/>
+  </message>
+
 
   <message name="I2C_ERRORS" id="253">
     <field name="wd_reset_cnt"                type="uint16"/>
