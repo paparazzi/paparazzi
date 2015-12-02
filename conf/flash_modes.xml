@@ -82,6 +82,7 @@
       <board name="cc3d"/>
       <board name="elle*"/>
       <board name="naze32*"/>
+      <board name="cjmcu*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (JTAG)">
