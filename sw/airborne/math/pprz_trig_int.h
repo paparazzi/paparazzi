@@ -53,7 +53,7 @@ extern "C" {
 #endif
 
 #define TRIG_INT_SIZE           6434
-#define TRIG_INT_VAL_MAX	14
+#define TRIG_INT_VAL_MAX  14
 #define TREE_SIZE_4             (TRIG_INT_VAL_MAX - 4)
 #define TREE_SIZE_8             (TRIG_INT_VAL_MAX - 8)
 #define TREE_SIZE_12            (TRIG_INT_VAL_MAX - 12)
@@ -83,17 +83,17 @@ uint8_t get_nibble(uint16_t pos);
 int pprz_trig_int_init(void);
 
 #if defined(PPRZ_TRIG_INT_COMPR_HIGHEST)
-void table_encode_4(int16_t val, int16_t val_prev, int16_t cnt, int16_t* tab);
+void table_encode_4(int16_t val, int16_t val_prev, int16_t cnt, int16_t *tab);
 int16_t pprz_trig_int_4(int16_t val);
 #endif
 
 #if defined(PPRZ_TRIG_INT_COMPR_HIGH)
-void table_encode_8(int16_t val, int16_t val_prev, int16_t cnt, int16_t* tab);
+void table_encode_8(int16_t val, int16_t val_prev, int16_t cnt, int16_t *tab);
 int16_t pprz_trig_int_8(int16_t val);
 #endif
 
 #if defined(PPRZ_TRIG_INT_COMPR_LOW)
-void table_encode_12(int16_t val, int16_t val_prev, int16_t cnt, int16_t* tab);
+void table_encode_12(int16_t val, int16_t val_prev, int16_t cnt, int16_t *tab);
 int16_t pprz_trig_int_12(int16_t val);
 #endif
 
