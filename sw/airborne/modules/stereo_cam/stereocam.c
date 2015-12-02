@@ -60,6 +60,8 @@ uint8array stereocam_data = {.len = 0, .data = msg_buf, .fresh = 0, .matrix_widt
 #define BRANDSPUNTSAFSTAND_STEREO 118
 
 extern void stereocam_disparity_to_meters(uint8_t* disparity, float* distanceMeters, int lengthArray){
+	  
+	//TODO 
 	int indexArray=0;
 	for(indexArray=0;indexArray<lengthArray;indexArray++){
 	/*	if(disparity[indexArray]>0){
@@ -70,7 +72,6 @@ extern void stereocam_disparity_to_meters(uint8_t* disparity, float* distanceMet
 
 		}*/
 		distanceMeters[indexArray]=disparity[indexArray];
-
 	}
 }
 

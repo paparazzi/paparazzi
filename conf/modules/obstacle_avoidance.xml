@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="obstacle_avoidance"  dir="obstacle_avoidance">
+  <doc>
+    <description>Pingpings</description>
+  </doc>
+  <header>
+    <file name="obstacle_avoidance.h"/>
+  </header>
+  <init fun="serial_init()"/>
+  <periodic fun="serial_update()" freq="10" start="serial_start()" freq="512"/>
+  <makefile>
+    <file name="obstacle_avoidance.c"/>
+    </makefile> 
+</module>
