@@ -284,7 +284,7 @@ float mtostk_apply_polynomial_temp(Sensors_params *params, float temp, float val
       return mtostk_apply_polynomial(params->coeffs[params->num_temp - 1], params->num_coeff, value);
     } else {
       int i;
-      for (i = 0; i < params->num_temp - 2; i++) {
+      for (i = 0; i <= params->num_temp - 2; i++) {
         const float t1 = params->temps[i];
         const float t2 = params->temps[i + 1];
         if (temp > t1 && temp <= t2) {
