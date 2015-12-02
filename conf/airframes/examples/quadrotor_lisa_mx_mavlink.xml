@@ -24,7 +24,10 @@
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
-      <configure name="MAVLINK_PORT" value="UDP0"/>
+      <configure name="MAVLINK_PORT" value="UDP1"/>
+      <define name="UDP1_PORT_OUT" value="14550"/>
+      <define name="UDP1_PORT_IN" value="14555"/>
+      <define name="MAVLINK_DEBUG" value="printf"/>
     </target>
 
     <subsystem name="radio_control" type="spektrum">

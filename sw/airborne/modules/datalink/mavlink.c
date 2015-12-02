@@ -133,17 +133,26 @@ void mavlink_init(void)
 }
 
 /**
- * Periodic MAVLink calls.
- * Called at MAVLINK_PERIODIC_FREQUENCY (set in module xml to 10Hz)
+ * Send periodic mavlink messages as defined in Mavlink process of telemetry xml file.
+ * Called at TELEMETRY_FREQUENCY
  */
-void mavlink_periodic(void)
+void mavlink_periodic_telemetry(void)
 {
 #if PERIODIC_TELEMETRY && defined TELEMETRY_MAVLINK_NB_MSG
   // send periodic mavlink messages as defined in the Mavlink process of the telemetry xml file
   // transport and device not used here yet...
   periodic_telemetry_send_Mavlink(&mavlink_telemetry, NULL, NULL);
-#else
-  // else use these hardcoded periods
+#endif
+}
+
+/**
+ * Periodic MAVLink calls.
+ * Called at MAVLINK_PERIODIC_FREQ (set in module xml to 10Hz)
+ */
+void mavlink_periodic(void)
+{
+#if !defined (TELEMETRY_MAVLINK_NB_MSG)
+  // use these hardcoded periods if no Mavlink process in telemetry file
   RunOnceEvery(2, mavlink_send_heartbeat(NULL, NULL));
   RunOnceEvery(5, mavlink_send_sys_status(NULL, NULL));
   RunOnceEvery(20, mavlink_send_system_time(NULL, NULL));

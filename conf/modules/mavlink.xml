@@ -12,6 +12,7 @@
 
   <init fun="mavlink_init()"/>
   <periodic fun="mavlink_periodic()" freq="10" autorun="TRUE"/>
+  <periodic fun="mavlink_periodic_telemetry()" freq="$TELEMETRY_FREQUENCY" autorun="TRUE"/>
   <event fun="mavlink_event()"/>
 
   <makefile>
