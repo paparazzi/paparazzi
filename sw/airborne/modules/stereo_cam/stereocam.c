@@ -56,22 +56,19 @@ uint16_t insert_loc, extract_loc, msg_start;   // place holders for buffer read 
 uint8_t msg_buf[STEREO_BUF_SIZE];         // define local data
 uint8array stereocam_data = {.len = 0, .data = msg_buf, .fresh = 0, .matrix_width=0,.matrix_height=0};  // buffer used to contain image without line endings
 
-#define BASELINE_STEREO_MM 60
-#define BRANDSPUNTSAFSTAND_STEREO 118
+#define BASELINE_STEREO_MM 60.0
+#define BRANDSPUNTSAFSTAND_STEREO 118.0*6
 
 extern void stereocam_disparity_to_meters(uint8_t* disparity, float* distanceMeters, int lengthArray){
 	  
-	//TODO 
 	int indexArray=0;
 	for(indexArray=0;indexArray<lengthArray;indexArray++){
-	/*	if(disparity[indexArray]>0){
-			distanceMeters[indexArray]=0.01*(BASELINE_STEREO_MM*BRANDSPUNTSAFSTAND_STEREO)/disparity[indexArray];
-		}
-		else{
-			distanceMeters[indexArray]=0.0;
-
-		}*/
-		distanceMeters[indexArray]=disparity[indexArray];
+	    if(disparity[indexArray]!=0){
+	      distanceMeters[indexArray] = ((BASELINE_STEREO_MM*BRANDSPUNTSAFSTAND_STEREO/(float)disparity[indexArray]-18.0))/1000;
+	    }
+	    else{
+	      distanceMeters[indexArray] = 1000;
+	    }
 	}
 }
 

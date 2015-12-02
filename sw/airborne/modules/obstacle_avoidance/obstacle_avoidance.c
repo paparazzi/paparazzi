@@ -48,9 +48,15 @@ int16_t focal = 118*6;
 float baseline = 60;
 
 //////////////SET BY USER!!!!//////////////////
+
+//sensor info
+uint16_t size_matrix[] = {5,6,6};
+float stereo_fow[2] = {1.0018, 0.7767};//based on FOW of 57.4, by 44.5
+float angle_hor_board[] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472}; 
+
+//tuning info
 float attitude_reference_pitch = 0.2;
 float attitude_reference_roll = 0.2;
-uint16_t size_matrix[] = {6,6,6};
 float dist_treshold = 0.5;
 
 //////////////////////////////////////////////
@@ -64,12 +70,15 @@ void serial_start(void)
 	//printf("serial start\n");
 }
 
-void setAnglesMeasurements(float *anglesMeasurements,float centerRad,float fieldOfViewRad,int horizontalMeasurementsAmount){
-	 int x=0;
-	 for(x=0; x < horizontalMeasurementsAmount; x++){
-		 anglesMeasurements[x]=centerRad-0.5*fieldOfViewRad-+x*(fieldOfViewRad/horizontalMeasurementsAmount);
-	 }
+void setAnglesMeasurements(float *anglesMeasurements,float* centersensorRad, float* fieldOfViewRad, uint16_t* size_matrix){
+
+	 for (int i1=0;i1<size_matrix[0];i1++){	   
+	    for (int i3=0;i3<size_matrix[2];i3++){
+	      anglesMeasurements[i1*size_matrix[0]+i3] = centersensorRad[i1] - 0.5*fieldOfViewRad[0] + fieldOfViewRad[0]/size_matrix[2]/2 + (fieldOfViewRad[0]/size_matrix[2])*i3;
+	      }
+	 }	 
 }
+
 void serial_update(void)
 {
 	 if(stereocam_data.fresh){
@@ -79,7 +88,6 @@ void serial_update(void)
 		 float anglesMeasurements[stereocam_data.matrix_width];
 		 float centerRad = 3.4415926;
 		 float fieldOfViewRadHorizontal=6.282;
-		 setAnglesMeasurements(anglesMeasurements,centerRad,fieldOfViewRadHorizontal,stereocam_data.matrix_width);
 		 int x=0;
 		 float sumDistances=0.0;
 		 
@@ -88,8 +96,15 @@ void serial_update(void)
 		 float forward_speed;
 		 float heading;
 		 
-		 //Calculte distance + sum distances
+		 
+		 //Calculate angles + distances 
+		 setAnglesMeasurements(anglesMeasurements,angle_hor_board,stereo_fow,size_matrix);
+		
+		 
+		 
+		 
 		 stereocam_disparity_to_meters(stereocam_data.data,distancesMeters,stereocam_data.len);
+		 		 
 		 for(x=0; x < stereocam_data.len; x++){
 			 sumDistances+=distancesMeters[x];
 		 }
@@ -114,14 +129,14 @@ void serial_update(void)
 
 }
 
-void matrix_2_pingpong(float* distancesMeters, int* size_matrix, float* distances_hor){
+void matrix_2_pingpong(float* distancesMeters, int16_t* size_matrix, float* distances_hor){
  
-	for(int i_m=0;i_m<size_matrix[1];i_m++){
-	    for(int i_m3=0;i_m3<size_matrix[3];i_m3++){
-	        distances_hor[i_m3] = 10000;
-		for(int i_m2=0;i_m2<size_matrix[2];i_m3++){
-		   if(distancesMeters[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3]<distances_hor[i_m3]){
-		      distances_hor[i_m3] = distancesMeters[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3];
+	for(int i_m=0;i_m<size_matrix[0];i_m++){
+	    for(int i_m3=0;i_m3<size_matrix[2];i_m3++){
+	        distances_hor[i_m*size_matrix[0] + i_m3] = 10000;
+		for(int i_m2=0;i_m2<size_matrix[1];i_m2++){
+		   if(distancesMeters[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3]<distances_hor[i_m*size_matrix[0] + i_m3]){
+		     distances_hor[i_m*size_matrix[0] + i_m3] = distancesMeters[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3];
 		   }     
 		}
 	    }
@@ -131,7 +146,7 @@ void matrix_2_pingpong(float* distancesMeters, int* size_matrix, float* distance
 
 
 void cal_euler_pingpong(float* distances_hor,float *horizontalAnglesMeasurements,int horizontalAmountOfMeasurements, float attitude_reference_pitch, float attitude_reference_roll, float dist_treshold){
-  
+   
 	//init
 	float sumPitch=0.0;
 	float sumRoll=0.0;

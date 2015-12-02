@@ -29,7 +29,7 @@ extern void serial_init(void);
 extern void serial_update(void);
 extern void serial_start(void);
 extern void cal_euler_pingpong(float* distances_hor,float *horizontalAnglesMeasurements,int horizontalAmountOfMeasurements, float attitude_reference_pitch, float attitude_reference_roll, float dist_treshold);
-extern void matrix_2_pingpong(float* distancesMeters, int* size_matrix, float* distances_hor);
+extern void matrix_2_pingpong(float* distancesMeters, int16_t* size_matrix, float* distances_hor);
 void nav_cal_vel_vector_pingpong(float *distancesMeters,float *anglesMeasurements,int lengthMeasurements,float* forward_speed,float *heading);
 extern float ref_roll;
 extern float ref_pitch;
