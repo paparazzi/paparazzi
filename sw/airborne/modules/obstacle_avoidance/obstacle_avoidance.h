@@ -20,7 +20,7 @@
 /**
  * @file "modules/read_matrix_serial/read_matrix_serial.h"
  * @author Roland
- * reads from the serial
+ * reads from the serialad
  */
 
 #ifndef READ_MATRIX_SERIAL_H
