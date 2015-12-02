@@ -669,11 +669,20 @@ void table_encode_12(int16_t val, int16_t val_prev, int16_t cnt, int16_t* tab) {
   else
     data_buf_12[TRIG_INT_SIZE+(cnt/2)] |= (val & 0xF00) >> 4;
 #if USE_REAL_TABLE_12_USE
+  /* USE_REAL_TABLE_12_USE uses the original table instead of unrolled "if".
+   * Unrolling makes it faster but uses slightly more code.
+   * For the higher compressions it is not faster/creates more code.
+   * The option is for debugging/understanding only.
+   */
   /* build tree for 12 bit */
   if (cnt == 0)
     tree_buf_12[(*tab)++] = cnt;
   else if ((val / 0x1000) != (val_prev / 0x1000))
     tree_buf_12[(*tab)++] = cnt;
+#else
+  // suppress unused-parameter warning
+  (void)val_prev;
+  (void)tab;
 #endif
 }
 
