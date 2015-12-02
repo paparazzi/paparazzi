@@ -59,6 +59,7 @@
 #define GUIDANCE_H_MODE_FORWARD     7
 #define GUIDANCE_H_MODE_MODULE      8
 #define GUIDANCE_H_MODE_FLIP        9
+#define GUIDANCE_H_MODE_GUIDED      10
 
 
 struct HorizontalGuidanceSetpoint {
@@ -111,6 +112,18 @@ extern void guidance_h_run(bool_t in_flight);
 
 extern void guidance_h_set_igain(uint32_t igain);
 
+/** Set horizontal position setpoint in GUIDED mode.
+ * @param x North position (local NED frame) in meters.
+ * @param y East position (local NED frame) in meters.
+ * @return TRUE if setpoints were set (currently in GUIDANCE_H_MODE_GUIDED)
+ */
+bool_t guidance_h_set_guided_pos(float x, float y);
+
+/** Set heading setpoint in GUIDED mode.
+ * @param heading Setpoint in radians.
+ * @return TRUE if setpoint was set (currently in GUIDANCE_H_MODE_GUIDED)
+ */
+bool_t guidance_h_set_guided_heading(float heading);
 
 /* Make sure that ref can only be temporarily disabled for testing,
  * but not enabled if GUIDANCE_H_USE_REF was defined to FALSE.

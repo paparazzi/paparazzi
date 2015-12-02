@@ -229,6 +229,7 @@ void guidance_v_mode_changed(uint8_t new_mode)
 
   switch (new_mode) {
     case GUIDANCE_V_MODE_HOVER:
+    case GUIDANCE_V_MODE_GUIDED:
       guidance_v_z_sp = stateGetPositionNed_i()->z; // set current altitude as setpoint
       guidance_v_z_sum_err = 0;
       GuidanceVSetRef(stateGetPositionNed_i()->z, 0, 0);
@@ -309,6 +310,7 @@ void guidance_v_run(bool_t in_flight)
       break;
 
     case GUIDANCE_V_MODE_HOVER:
+    case GUIDANCE_V_MODE_GUIDED:
       guidance_v_zd_sp = 0;
       gv_update_ref_from_z_sp(guidance_v_z_sp);
       run_hover_loop(in_flight);
@@ -446,4 +448,13 @@ static void run_hover_loop(bool_t in_flight)
   /* bound the result */
   Bound(guidance_v_delta_t, 0, MAX_PPRZ);
 
+}
+
+bool_t guidance_v_set_guided_z(float z)
+{
+  if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
+    guidance_v_z_sp = POS_BFP_OF_REAL(z);
+    return TRUE;
+  }
+  return FALSE;
 }
