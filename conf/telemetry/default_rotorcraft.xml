@@ -28,6 +28,8 @@
       <message name="OPTIC_FLOW_EST"         period="0.05"/>
       <message name="STEREO_FOLLOW_ME"         period="0.05"/>
       <message name="VECTORNAV_INFO"      period="0.5"/>
+
+      <message name="MULTIGAZE_METERS"      period="0.5"/>
  <message name="FOLLOWEGG"      period="0.1"/>
     </mode>
 

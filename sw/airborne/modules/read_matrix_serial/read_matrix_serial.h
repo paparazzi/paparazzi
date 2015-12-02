@@ -28,8 +28,8 @@
 extern void serial_init(void);
 extern void serial_update(void);
 extern void serial_start(void);
-void cal_euler_pingpong(void);
-void nav_cal_vel_vector_pingpong(void);
+void cal_euler_pingpong(float* distancesMeters,float *anglesMeasurements,int horizontalAmountOfMeasurements,int verticalAmountOfMeasurements, float *attitude_reference_pitch,float *attitude_reference_roll);
+void nav_cal_vel_vector_pingpong(float *distancesMeters,float *anglesMeasurements,int lengthMeasurements,float* forward_speed,float *heading);
 extern float ref_roll;
 extern float ref_pitch;
 extern float ref_yaw;

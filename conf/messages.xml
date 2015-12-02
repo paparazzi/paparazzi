@@ -889,7 +889,10 @@
     <field name="servo" type="uint16[]"/>
   </message>
 
-  <!--112 is free -->
+
+  <message name="MULTIGAZE_METERS" id="112">
+    <field name="distances" type="float[]"/>
+  </message>
 
   <message name="MLX_SERIAL" id="113">
     <field name="serial0" type="uint32"/>

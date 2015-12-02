@@ -44,7 +44,7 @@
 #define GPS_FIX_DGPS 0x04     ///< DGPS fix
 #define GPS_FIX_RTK  0x05     ///< RTK GPS fix
 
-#define GpsFixValid() (TRUE)
+#define GpsFixValid() (gps.fix >= GPS_FIX_3D)
 #define GpsIsLost() !GpsFixValid()
 
 

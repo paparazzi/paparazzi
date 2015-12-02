@@ -12,14 +12,14 @@
     </target>
 
     <define name="USE_SONAR" value="TRUE"/>
-
+    <!--define name="NO_GPS_NEEDED_FOR_NAV" value="TRUE"/-->
     <!-- Subsystem section -->
     <subsystem name="telemetry" type="transparent_udp"/>
     <subsystem name="radio_control" type="datalink"/>
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators" type="ardrone2"/>
     <subsystem name="imu" type="ardrone2"/>
-    <subsystem name="gps" type="datalink"/>
+    <!--subsystem name="gps" type="datalink"/-->
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
@@ -35,7 +35,7 @@
     <load name="opticflow_hover.xml"/>
     <load name="stereocam.xml">
 	<configure name="STEREO_UART" value="UART1"/>
-	<configure name="STEREO_BAUD" value="B115200"/>
+	<configure name="STEREO_BAUD" value="B1000000"/>
     </load>
     <load name="read_matrix_serial.xml"/>
   </modules>

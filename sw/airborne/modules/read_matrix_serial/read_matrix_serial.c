@@ -39,18 +39,16 @@
 #include "modules/stereo_cam/stereocam.h"
 
 
-int size_matrix[3] = {1, 6, 6};
-
-float ref_pitch_angle = 0.2;
-uint16_t matrix_sum[6]={0,0,0,0,0,0};
+float ref_pitch_angle = 0.1;
+//uint16_t matrix_sum[6]={0,0,0,0,0,0};
 uint16_t matrix_sum2[6]={0,0,0,0,0,0};
 uint16_t matrix_sum_treshold = 0;
-float matrix_treshold = 7.0;
+float matrix_treshold = 1.0;
 float ref_roll=0.0;
 float ref_pitch=0.0;
 float ref_yaw=0.0;
 
-uint16_t OA_method_flag = 2;
+uint16_t OA_method_flag = 1;
 struct FloatVect3 Repulsionforce_Kan; 
 struct FloatVect3 Attractforce_goal; 
 int16_t focal = 118*6;
@@ -64,30 +62,47 @@ void serial_start(void)
 {
 	//printf("serial start\n");
 }
+
+void setAnglesMeasurements(float *anglesMeasurements,float centerRad,float fieldOfViewRad,int horizontalMeasurementsAmount){
+	 int x=0;
+	 for(x=0; x < horizontalMeasurementsAmount; x++){
+		 anglesMeasurements[x]=centerRad-0.5*fieldOfViewRad-+x*(fieldOfViewRad/horizontalMeasurementsAmount);
+	 }
+}
 void serial_update(void)
 {
 	 if(stereocam_data.fresh){
+		 printf("Stereo fresh \n");
+
 		 float distancesMeters[stereocam_data.len];
 		 stereocam_disparity_to_meters(stereocam_data.data,distancesMeters,stereocam_data.len);
+	      DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, stereocam_data.len, distancesMeters);
 
-		 printf("New data\n");
+		 float anglesMeasurements[stereocam_data.matrix_width];
+		 float centerRad = 3.4415926;
+		 float fieldOfViewRadHorizontal=6.282;
+		 setAnglesMeasurements(anglesMeasurements,centerRad,fieldOfViewRadHorizontal,stereocam_data.matrix_width);
 		 int x=0;
 		 float sumDistances=0.0;
 		 for(x=0; x < stereocam_data.len; x++){
-//			 printf("%f, ",distancesMeters[x]);
 			 sumDistances+=distancesMeters[x];
 		 }
-		 printf("%f\n",(sumDistances/stereocam_data.len));
-	      if(OA_method_flag==1){
-		      cal_euler_pingpong();
+		 printf("Distance: %f\n",(sumDistances/stereocam_data.len));
+
+
+		 if(OA_method_flag==1){
+		      cal_euler_pingpong(distancesMeters,anglesMeasurements,stereocam_data.matrix_width,stereocam_data.matrix_height,&ref_pitch,&ref_roll);
 	      }
 		  
 	      if(OA_method_flag==2){
-		     nav_cal_vel_vector_pingpong();
+	    	  float forward_speed;
+	    	  float heading;
+		     nav_cal_vel_vector_pingpong(distancesMeters,anglesMeasurements,stereocam_data.len,&forward_speed,&heading);
+
 	      }
+
 	      stereocam_data.fresh=0;
 	      DOWNLINK_SEND_CLINT_AVOID(DefaultChannel, DefaultDevice, &ref_roll,&ref_pitch,&ref_yaw);
-
 	}
 
 
@@ -95,66 +110,84 @@ void serial_update(void)
   
 }
 
-void cal_euler_pingpong(void){
-  	
-	float oa_pitch_angle[6]={0,0,0,0,0,0};
-	float oa_roll_angle[6]={0,0,0,0,0,0};
-
-	// Do something with: stereocam_data.data;
-	for (int i_m=0;i_m<size_matrix[0];i_m++){
-	    matrix_sum[i_m] = 0;
-	    matrix_sum2[i_m] = 0;
-	    oa_pitch_angle[i_m] = 0;
-	    oa_roll_angle[i_m] = 0;
-
-	      for(int i_m2=0;i_m2<size_matrix[2];i_m2++){
-		    for(int i_m3=0;i_m3<size_matrix[1];i_m3++){
-//						stereocam_data.data[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3] = stereocam_data.data[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3];
-
-			  if(stereocam_data.data[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3]>matrix_treshold){
-			      matrix_sum[i_m] = matrix_sum[i_m] + 1;
-			  }
-// 					if((stereocam_data.data[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3]>(matrix_treshold-1))&& (stereocam_data.data[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3]<=matrix_treshold))
-// 					   matrix_sum2[i_m] = matrix_sum2[i_m] + 1;
-		    }
-	      }
+void cal_euler_pingpong(float* distancesMeters,float *horizontalAnglesMeasurements,int horizontalAmountOfMeasurements,int verticalAmountOfMeasurements, float *attitude_reference_pitch,float *attitude_reference_roll){
+	verticalAmountOfMeasurements=4; // TODO: remove this!!!
+	float oa_pitch_angle[horizontalAmountOfMeasurements];
+	float oa_roll_angle[horizontalAmountOfMeasurements];
+	int matrix_sum[horizontalAmountOfMeasurements];
+	float matrix_total[horizontalAmountOfMeasurements];
+	int indexAngles=0;
+	for(indexAngles=0;indexAngles<horizontalAmountOfMeasurements;indexAngles++){
+		printf("for index %d the angle is: %f\n",indexAngles,horizontalAnglesMeasurements[indexAngles]);
+		oa_pitch_angle[indexAngles]=0.0;
+		oa_roll_angle[indexAngles]=0.0;
+		matrix_sum[indexAngles]=0;
+		matrix_total[indexAngles]=0;
 	}
-
-	if (matrix_sum[0]>matrix_sum_treshold){
-	      oa_pitch_angle[0] = ref_pitch_angle;
-	      oa_roll_angle[0] = 0;
+	// Do something with: stereocam_data.data;
+  for(int vertical_index=0;vertical_index<verticalAmountOfMeasurements;vertical_index++){
+	for(int horizontal_index=0;horizontal_index<horizontalAmountOfMeasurements;horizontal_index++){
+		if(distancesMeters[vertical_index*horizontalAmountOfMeasurements+horizontal_index]>0.0){
+			matrix_total[horizontal_index]+=distancesMeters[vertical_index*horizontalAmountOfMeasurements+horizontal_index];
+			matrix_sum[horizontal_index] = matrix_sum[horizontal_index] + 1;
 	  }
+	}
+  }
+  float sumPitch=0.0;
+  float sumRoll=0.0;
 
-	  //limiter of control action
-	  if((oa_pitch_angle[0] + oa_pitch_angle[1] + oa_pitch_angle[2] + oa_pitch_angle[3]+ oa_pitch_angle[4] + oa_pitch_angle[5])>ref_pitch_angle){
-	    ref_pitch = ref_pitch_angle;
-	  }
-	  else if((oa_pitch_angle[0] + oa_pitch_angle[1] + oa_pitch_angle[2] + oa_pitch_angle[3]+ oa_pitch_angle[4] + oa_pitch_angle[5])<-ref_pitch_angle){
-	    ref_pitch = -ref_pitch_angle;
+  for(int horizontal_index=0;horizontal_index<horizontalAmountOfMeasurements;horizontal_index++){
+
+	  if(matrix_sum[horizontal_index]>1 ){
+		  float average=(matrix_total[horizontal_index]/matrix_sum[horizontal_index]);
+		  printf("%d has average: %f\n",horizontal_index,average);
+
+	  	  if (average<2.0){
+		      oa_pitch_angle[horizontal_index] += cos(horizontalAnglesMeasurements[horizontal_index])*ref_pitch_angle;
+		      oa_roll_angle[horizontal_index] += sin(horizontalAnglesMeasurements[horizontal_index])*ref_pitch_angle;
+		      sumPitch+=oa_pitch_angle[horizontal_index];
+		      sumRoll+=oa_roll_angle[horizontal_index];
+		}
 	  }
 	  else{
-	    ref_pitch = oa_pitch_angle[0] + oa_pitch_angle[1] + oa_pitch_angle[2] + oa_pitch_angle[3]+ oa_pitch_angle[4] + oa_pitch_angle[5];
+
+		  printf("%d has no average: %f\n",horizontal_index);
+
 	  }
+	}
+
+  if(sumPitch>ref_pitch_angle){
+	  ref_pitch=ref_pitch_angle;
+  }
+  else if(sumPitch<-ref_pitch_angle){
+	  ref_pitch=-ref_pitch_angle;
+  }
+  else{
+	  ref_pitch=sumPitch;
+  }
 
 
-	  if((oa_roll_angle[0] + oa_roll_angle[1] + oa_roll_angle[2] + oa_roll_angle[3] + oa_roll_angle[4] + oa_roll_angle[5])>ref_pitch_angle)
-	    {
-	      ref_roll = ref_pitch_angle;
-	    }
-	    else if((oa_roll_angle[0] + oa_roll_angle[1] + oa_roll_angle[2] + oa_roll_angle[3] + oa_roll_angle[4] + oa_roll_angle[5])<-ref_pitch_angle)
-	    {
-	      ref_roll = -ref_pitch_angle;
-	    }
-	  else
-	    {
-	      ref_roll = oa_roll_angle[0] + oa_roll_angle[1] + oa_roll_angle[2] + oa_roll_angle[3] + oa_roll_angle[4] + oa_roll_angle[5];
-	    }
+  if(sumRoll>ref_pitch_angle){
+	  ref_roll=ref_pitch_angle;
+  }
+  else if(sumRoll<-ref_pitch_angle){
+	  ref_roll=-ref_pitch_angle;
+  }
+  else{
+	  ref_roll=sumRoll;
+  }
 
+  ref_pitch=DegOfRad(ref_pitch);
+  ref_roll=DegOfRad(ref_roll);
+
+  printf("DegOfRad data %f %f\n",ref_pitch,ref_roll);
 }
 
 
- void nav_cal_vel_vector_pingpong(void){
-  
+ void nav_cal_vel_vector_pingpong(float *distancesMeters,float *anglesMeasurements,int lengthMeasurements,float* forward_speed,float *heading){
+
+	 int size_matrix[3] = {1, 6, 6};
+
       //follow variables;
       float follow_distance = 1.5;
       int8_t obst_count = 0;

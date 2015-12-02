@@ -49,7 +49,11 @@
 #if USE_GPS
 #include "subsystems/gps.h"
 #else
+#if NO_GPS_NEEDED_FOR_NAV
+#define GpsIsLost() FALSE
+#else
 #define GpsIsLost() TRUE
+#endif
 #endif
 
 #ifdef POWER_SWITCH_GPIO
