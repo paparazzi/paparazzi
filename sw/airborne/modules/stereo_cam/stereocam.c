@@ -59,15 +59,16 @@ uint8array stereocam_data = {.len = 0, .data = msg_buf, .fresh = 0, .matrix_widt
 #define BASELINE_STEREO_MM 60.0
 #define BRANDSPUNTSAFSTAND_STEREO 118.0*6
 
-extern void stereocam_disparity_to_meters(uint8_t* disparity, float* distanceMeters, int lengthArray){
+extern void stereocam_disparity_to_meters(uint8_t* disparity, float* distancesMeters, int lengthArray){
 	  
 	int indexArray=0;
 	for(indexArray=0;indexArray<lengthArray;indexArray++){
 	    if(disparity[indexArray]!=0){
-	      distanceMeters[indexArray] = ((BASELINE_STEREO_MM*BRANDSPUNTSAFSTAND_STEREO/(float)disparity[indexArray]-18.0))/1000;
+	      distancesMeters[indexArray] = ((BASELINE_STEREO_MM*BRANDSPUNTSAFSTAND_STEREO/(float)disparity[indexArray]-18.0))/1000;
+	    //  printf("%i, distanceMeters: %f \n",indexArray,distancesMeters[indexArray]);
 	    }
 	    else{
-	      distanceMeters[indexArray] = 1000;
+	      distancesMeters[indexArray] = 1000;
 	    }
 	}
 }

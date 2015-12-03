@@ -57,7 +57,9 @@ float angle_hor_board[] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472};
 //tuning info
 float attitude_reference_pitch = 0.2;
 float attitude_reference_roll = 0.2;
-float dist_treshold = 0.5;
+float dist_treshold = 0.75;
+
+float distances_hor[36];
 
 //////////////////////////////////////////////
 
@@ -82,7 +84,7 @@ void setAnglesMeasurements(float *anglesMeasurements,float* centersensorRad, flo
 void serial_update(void)
 {
 	 if(stereocam_data.fresh){
-		 printf("Stereo fresh \n");
+		 printf("Stereo fresh: %i \n",stereocam_data.len);
 
 		 float distancesMeters[stereocam_data.len];
 		 float anglesMeasurements[stereocam_data.matrix_width];
@@ -92,23 +94,28 @@ void serial_update(void)
 		 float sumDistances=0.0;
 		 
 		 //OA_method 1
-		 float distances_hor[stereocam_data.matrix_width];
 		 float forward_speed;
 		 float heading;
 		 
 		 
 		 //Calculate angles + distances 
 		 setAnglesMeasurements(anglesMeasurements,angle_hor_board,stereo_fow,size_matrix);
-		
-		 
-		 
-		 
 		 stereocam_disparity_to_meters(stereocam_data.data,distancesMeters,stereocam_data.len);
+		
+		 for(int i_print1=0; i_print1<6; i_print1++){
+		      for(int i_print2=0; i_print2<(stereocam_data.len/6); i_print2++){
+			//  printf("%2.3f,",distancesMeters[i_print1*(stereocam_data.len/6) + i_print2]);
+		      }
+		  //    printf("\n");
+		  }
+		 
+		 
+
 		 		 
 		 for(x=0; x < stereocam_data.len; x++){
 			 sumDistances+=distancesMeters[x];
 		 }
-		 printf("Distance: %f\n",(sumDistances/stereocam_data.len));
+		// printf("Distance: %f\n",(sumDistances/stereocam_data.len));
 
 		 
 		 //calcuate control reference
@@ -133,12 +140,13 @@ void matrix_2_pingpong(float* distancesMeters, int16_t* size_matrix, float* dist
  
 	for(int i_m=0;i_m<size_matrix[0];i_m++){
 	    for(int i_m3=0;i_m3<size_matrix[2];i_m3++){
-	        distances_hor[i_m*size_matrix[0] + i_m3] = 10000;
-		for(int i_m2=0;i_m2<size_matrix[1];i_m2++){
-		   if(distancesMeters[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3]<distances_hor[i_m*size_matrix[0] + i_m3]){
-		     distances_hor[i_m*size_matrix[0] + i_m3] = distancesMeters[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3];
+	        distances_hor[i_m*size_matrix[2] + i_m3] = 10000;
+		for(int i_m2=0;i_m2<4;i_m2++){
+		   if(distancesMeters[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3]<distances_hor[i_m*size_matrix[2] + i_m3]){
+		     distances_hor[i_m*size_matrix[2] + i_m3] = distancesMeters[i_m*size_matrix[1]+i_m2*size_matrix[0]*size_matrix[2] + i_m3];
 		   }     
 		}
+	//    printf("index: %i %i, %f",i_m,i_m3,distances_hor[i_m*size_matrix[2] + i_m3]);	
 	    }
 	}
   
@@ -150,15 +158,17 @@ void cal_euler_pingpong(float* distances_hor,float *horizontalAnglesMeasurements
 	//init
 	float sumPitch=0.0;
 	float sumRoll=0.0;
-	
-	
   
 	float oa_pitch_angle[horizontalAmountOfMeasurements];
 	float oa_roll_angle[horizontalAmountOfMeasurements];
 
         for(int horizontal_index=0;horizontal_index<horizontalAmountOfMeasurements;horizontal_index++){
+	  
+	  //  printf("index: %i,distance %f",horizontal_index, distances_hor[horizontal_index]);
 	    if(distances_hor[horizontal_index]<dist_treshold){
+	              
 	      
+		      
 		      oa_pitch_angle[horizontal_index] = cos(horizontalAnglesMeasurements[horizontal_index])*attitude_reference_pitch;
 		      oa_roll_angle[horizontal_index] = -sin(horizontalAnglesMeasurements[horizontal_index])*attitude_reference_roll;
 		      sumPitch+=oa_pitch_angle[horizontal_index];

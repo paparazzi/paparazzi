@@ -12,7 +12,7 @@
     </target>
 
     <define name="USE_SONAR" value="TRUE"/>
-    <!--define name="NO_GPS_NEEDED_FOR_NAV" value="TRUE"/-->
+    <define name="NO_GPS_NEEDED_FOR_NAV" value="TRUE"/>
     <!-- Subsystem section -->
     <subsystem name="telemetry" type="transparent_udp"/>
     <subsystem name="radio_control" type="datalink"/>
