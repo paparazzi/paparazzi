@@ -27,7 +27,7 @@
 
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="mpu60x0_i2c">
-      <configure name="MPU60X0_I2C_DEV" value="i2c2"/>
+      <configure name="IMU_MPU60X0_I2C_DEV" value="i2c2"/>
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
     </subsystem>
     <subsystem name="stabilization" type="int_quat"/>
