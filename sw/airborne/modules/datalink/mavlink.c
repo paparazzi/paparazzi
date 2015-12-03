@@ -89,9 +89,6 @@ static void mavlink_send_gps_status(struct transport_tx *trans, struct link_devi
 static void mavlink_send_vfr_hud(struct transport_tx *trans, struct link_device *dev);
 
 
-/// TODO: FIXME
-#define UAV_SENSORS (MAV_SYS_STATUS_SENSOR_3D_GYRO|MAV_SYS_STATUS_SENSOR_3D_ACCEL|MAV_SYS_STATUS_SENSOR_3D_MAG|MAV_SYS_STATUS_SENSOR_ABSOLUTE_PRESSURE)
-
 /**
  * MAVLink initialization
  */
@@ -308,9 +305,109 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
     }
     break;
 
+#ifndef AP
+    /* only for rotorcraft */
+    case MAVLINK_MSG_ID_COMMAND_LONG: {
+      mavlink_command_long_t cmd;
+      mavlink_msg_command_long_decode(msg, &cmd);
+      // Check if this message is for this system
+      if ((uint8_t) cmd.target_system == AC_ID) {
+        uint8_t result = MAV_RESULT_UNSUPPORTED;
+        switch (cmd.command) {
+          case MAV_CMD_NAV_GUIDED_ENABLE:
+            MAVLINK_DEBUG("got cmd NAV_GUIDED_ENABLE: %f\n", cmd.param1);
+            result = MAV_RESULT_FAILED;
+            if (cmd.param1 > 0.5) {
+              autopilot_set_mode(AP_MODE_GUIDED);
+              if (autopilot_mode == AP_MODE_GUIDED) {
+                result = MAV_RESULT_ACCEPTED;
+              }
+            }
+            else {
+              // turn guided mode off - to what? maybe NAV? or MODE_AUTO2?
+            }
+            break;
+
+          case MAV_CMD_COMPONENT_ARM_DISARM:
+            /* supposed to use this command to arm or SET_MODE?? */
+            MAVLINK_DEBUG("got cmd COMPONENT_ARM_DISARM: %f\n", cmd.param1);
+            result = MAV_RESULT_FAILED;
+            if (cmd.param1 > 0.5) {
+              autopilot_set_motors_on(TRUE);
+              if (autopilot_motors_on)
+                result = MAV_RESULT_ACCEPTED;
+            }
+            else {
+              autopilot_set_motors_on(FALSE);
+              if (!autopilot_motors_on)
+                result = MAV_RESULT_ACCEPTED;
+            }
+            break;
+
+          default:
+            break;
+        }
+        // confirm command with result
+        mavlink_msg_command_ack_send(MAVLINK_COMM_0, cmd.command, result);
+        MAVLinkSendMessage();
+      }
+      break;
+    }
+
+    case MAVLINK_MSG_ID_SET_MODE: {
+      mavlink_set_mode_t mode;
+      mavlink_msg_set_mode_decode(msg, &mode);
+      if (mode.target_system == AC_ID) {
+        MAVLINK_DEBUG("got SET_MODE: base_mode:%d\n", mode.base_mode);
+        if (mode.base_mode & MAV_MODE_FLAG_SAFETY_ARMED) {
+          autopilot_set_motors_on(TRUE);
+        }
+        else {
+          autopilot_set_motors_on(FALSE);
+        }
+        if (mode.base_mode & MAV_MODE_FLAG_GUIDED_ENABLED) {
+          autopilot_set_mode(AP_MODE_GUIDED);
+        }
+        else if (mode.base_mode & MAV_MODE_FLAG_AUTO_ENABLED) {
+          autopilot_set_mode(AP_MODE_NAV);
+        }
+      }
+      break;
+    }
+
+    case MAVLINK_MSG_ID_SET_POSITION_TARGET_LOCAL_NED: {
+      mavlink_set_position_target_local_ned_t target;
+      mavlink_msg_set_position_target_local_ned_decode(msg, &target);
+      // Check if this message is for this system
+      if (target.target_system == AC_ID) {
+        MAVLINK_DEBUG("SET_POSITION_TARGET_LOCAL_NED, byte_mask: %d\n", target.type_mask);
+        /* only accept inputs where position and yaw bits are not set to ignored */
+        if (!(target.type_mask & 0b1110000000100000)) {
+          switch (target.coordinate_frame) {
+            case MAV_FRAME_LOCAL_NED:
+              MAVLINK_DEBUG("set position target, frame LOCAL_NED\n");
+              autopilot_guided_goto_ned(target.x, target.y, target.z, target.yaw);
+              break;
+            case MAV_FRAME_LOCAL_OFFSET_NED:
+              MAVLINK_DEBUG("set position target, frame LOCAL_OFFSET_NED\n");
+              autopilot_guided_goto_ned_relative(target.x, target.y, target.z, target.yaw);
+              break;
+            case MAV_FRAME_BODY_OFFSET_NED:
+              MAVLINK_DEBUG("set position target, frame BODY_OFFSET_NED\n");
+              autopilot_guided_goto_body_relative(target.x, target.y, target.z, target.yaw);
+              break;
+            default:
+              break;
+          }
+        }
+      }
+      break;
+    }
+#endif
+
     default:
       //Do nothing
-      //MAVLINK_DEBUG("Received message with id: %d\r\n", msg->msgid);
+      MAVLINK_DEBUG("Received message with id: %d\r\n", msg->msgid);
       break;
   }
 }
@@ -336,10 +433,10 @@ static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_devic
       mav_mode |= MAV_MODE_FLAG_STABILIZE_ENABLED | MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
       break;
     case PPRZ_MODE_AUTO2:
-      mav_mode |= MAV_MODE_FLAG_GUIDED_ENABLED | MAV_MODE_FLAG_AUTO_ENABLED;
+      mav_mode |= MAV_MODE_FLAG_AUTO_ENABLED;
       break;
     case PPRZ_MODE_HOME:
-      mav_mode |= MAV_MODE_FLAG_AUTO_ENABLED;
+      mav_mode |= MAV_MODE_FLAG_GUIDED_ENABLED | MAV_MODE_FLAG_AUTO_ENABLED;
       break;
     default:
       break;
@@ -367,8 +464,10 @@ static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_devic
       mav_mode |= MAV_MODE_FLAG_STABILIZE_ENABLED | MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
       break;
     case AP_MODE_NAV:
-      mav_mode |= MAV_MODE_FLAG_GUIDED_ENABLED | MAV_MODE_FLAG_AUTO_ENABLED;
+      mav_mode |= MAV_MODE_FLAG_AUTO_ENABLED;
       break;
+    case AP_MODE_GUIDED:
+      mav_mode = MAV_MODE_FLAG_GUIDED_ENABLED;
     default:
       break;
   }
@@ -395,6 +494,9 @@ static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_devic
  */
 static void mavlink_send_sys_status(struct transport_tx *trans, struct link_device *dev)
 {
+  /// TODO: FIXME
+#define UAV_SENSORS (MAV_SYS_STATUS_SENSOR_3D_GYRO|MAV_SYS_STATUS_SENSOR_3D_ACCEL|MAV_SYS_STATUS_SENSOR_3D_MAG|MAV_SYS_STATUS_SENSOR_ABSOLUTE_PRESSURE)
+
   mavlink_msg_sys_status_send(MAVLINK_COMM_0,
                               UAV_SENSORS,  // On-board sensors: present    (bitmap)
                               UAV_SENSORS,   // On-board sensors: active   (bitmap)
