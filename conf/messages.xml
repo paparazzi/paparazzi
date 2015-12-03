@@ -196,7 +196,16 @@
     <field name="YprU3" 	type="float" 	unit="deg"/>
   </message>
 
-  <!--24 is free -->
+    <!-- ID 24 is free -->
+  <message name ="R_DOT_AND_SPEED" id="24">
+    <field name ="R_DOT_NEW" type="float"/>
+    <field name ="REF_PITCH" type="float"/>
+    <field name ="REF_ROLL" type="float"/>
+    <field name ="R_DOT_NEW_SIN" type="float"/>
+    <field name ="R_DOT_NEW_COS" type="float"/>
+    <field name ="SPEED_POT" type="float"/>
+    <field name ="MATRIX_SUM" type="uint16[]"/>
+  </message>
 
   <message name="SVINFO" id="25">
     <field name="chn" type="uint8"/>
@@ -865,9 +874,15 @@
     <field name="foundvalue" type="uint8"/>
     <field name="sum" type="float"/>
   </message>
-   
-  <!--108 is free -->
-  <!--109 is free -->
+
+  <!--108 is NOT free -->
+   <message name="DISTANCE_MATRIX3" id="108">
+    <field name="imageBuffer" type="uint8[]"/>
+  </message>
+  <!--109 is NOT free -->
+   <message name="DISTANCE_MATRIX4" id="109">
+    <field name="imageBuffer" type="uint8[]"/>
+  </message>
 
   <message name="DC_SHOT" id="110">
     <field name="photo_nr" type="int16"/>
@@ -1908,7 +1923,15 @@
     <field name="g2_r" type="float"/>
   </message>
 
-  <!--217 is free -->
+    <!--217 is NOT free -->
+  <message name="INPUT_CONTROL" id="217">
+    <field name ="ref_pitch" type="float"/>
+    <field name ="ref_roll" type="float"/>
+    <field name ="desired_vx" type="float"/>
+    <field name ="desired_vy" type="float"/>
+    <field name ="err_vx" type="float"/>
+    <field name ="err_vy" type="float"/>
+  </message>
 
   <message name="BEBOP_ACTUATORS" id="218">
     <field name="cmd_thrust" type="int32"/>
@@ -1957,10 +1980,18 @@
     <field name="AMSL_GPS" type="float" unit="ft" alt_unit="m"/>
   </message>
 
-  <message name="CLINT_AVOID" id="224">
-    <field name="roll" type="float"/>
-    <field name="pitch" type="float"/>
-    <field name="yaw" type="float"/>
+ <!--224 is NOT free -->
+   <message name="OA_DATA" id="224">
+       <field name="targetx" type="float"/>
+       <field name="targety" type="float"/>
+       <field name="diffx" type="float"/>
+       <field name="diffy" type="float"/>
+       <field name="ref_pitch" type="float"/>
+       <field name="ref_roll" type="float"/>
+       <field name="Attractforce_goal_sendx" type="float"/>
+       <field name="Attractforce_goal_sendy" type="float"/>
+       <field name="Repulsionforce_Kan_sendx" type="float"/>
+       <field name="Repulsionforce_Kan_sendy" type="float"/>
   </message>
 
 
@@ -1999,7 +2030,14 @@
     <field name="imageBuffer" type="uint8[]"/>
   </message>
 
-  <!--230 is free -->
+  <!--230 is  NOT free -->
+  <message name ="YAW_RATE" id="230">
+    <field name ="YAW_RATE" type="float"/>
+    <field name ="YAW_REF" type="float"/>
+    <field name ="R_DOT_NEW" type="float"/>
+    <field name ="PITCH_REF" type="float"/>
+    <field name ="ROLL_REF" type="float"/>
+  </message> 
 
   <message name="ROTORCRAFT_STATUS" id="231">
     <field name="link_imu_nb_err" type="uint32"/>
@@ -2117,9 +2155,7 @@
   </message>
 
 
-  <!-- 246 is free -->
-
-
+  <!-- 246 is NOT free -->
   <message name="STEREO_FOLLOW_ME" id="246">
     <field name="headingToFollow"   type="uint8"/>
     <field name="valueThere"   type="uint8"/>
@@ -2183,7 +2219,11 @@
       <field name="yaw_c"  type="float"/>
   </message>
 
-  <!-- 251 is free -->
+  <!-- 251 is NOT free -->
+  <message name="DISTANCE_MATRIX" id="251">
+    <field name="line" type="uint8"/>
+    <field name="imageBuffer" type="uint8[]"/>
+  </message>
 
   <message name="SELFIE_MEASURE" id="252">
     <field name="distanceToObj"   type="uint8" />

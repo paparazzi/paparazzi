@@ -31,8 +31,8 @@
 
   <modules main_freq="512">
     <load name="bat_voltage_ardrone2.xml"/>
-    <load name="cv_opticflow.xml"/>
-    <load name="opticflow_hover.xml"/>
+    <!--<load name="cv_opticflow.xml"/>-->
+    <!--<load name="opticflow_hover.xml"/>-->
     <load name="stereocam.xml">
 	<configure name="STEREO_UART" value="UART1"/>
 	<configure name="STEREO_BAUD" value="B1000000"/>

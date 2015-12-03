@@ -3,6 +3,7 @@
 <flight_plan alt="1" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="20" name="Rotorcraft Optitrack (Delft)" security_height="0.3">
   <header>
 #include "autopilot.h"
+#include "obstacle_avoidance/guidance_OA.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>

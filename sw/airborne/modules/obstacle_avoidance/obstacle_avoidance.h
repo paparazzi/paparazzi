@@ -25,14 +25,41 @@
 
 #ifndef READ_MATRIX_SERIAL_H
 #define READ_MATRIX_SERIAL_H
+
 extern void serial_init(void);
 extern void serial_update(void);
 extern void serial_start(void);
-extern void cal_euler_pingpong(float* distances_hor,float *horizontalAnglesMeasurements,int horizontalAmountOfMeasurements, float attitude_reference_pitch, float attitude_reference_roll, float dist_treshold);
+extern void pingpong_euler(float* distances_hor,float *horizontalAnglesMeasurements,int horizontalAmountOfMeasurements, float attitude_reference_pitch, float attitude_reference_roll, float dist_treshold);
 extern void matrix_2_pingpong(float* distancesMeters, int16_t* size_matrix, float* distances_hor);
-void nav_cal_vel_vector_pingpong(float *distancesMeters,float *anglesMeasurements,int lengthMeasurements,float* forward_speed,float *heading);
-extern float ref_roll;
-extern float ref_pitch;
-extern float ref_yaw;
+
+//functions CN
+extern void CN_potential_heading(void);
+extern void CN_potential_velocity(void);
+extern void CN_vector_velocity(void);
+extern void CN_vector_escape_velocity(void);
+extern void CN_escape_velocity(void);
+
+//variables for settings
+//Vector Method
+extern float F1;
+extern float F2;
+extern float Cfreq;  
+extern float Ko;
+extern float Kg;
+extern float Dist_offset;
+extern int8_t dis_treshold;
+extern float dx_ref;
+extern float dy_ref;
+//Potential Method
+extern float K_goal;
+extern float K_obst;
+extern float b_damp; 
+extern float c1_oa;
+extern float c2_oa;
+extern float c3_oa;
+extern float c4_oa;
+extern float c5_oa;
+extern float kv;
+extern float epsilon;
 
 #endif
