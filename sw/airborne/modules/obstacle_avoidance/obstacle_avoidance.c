@@ -48,7 +48,7 @@ float baseline = 60;
 
 //////////////SET BY USER!!!!//////////////////
 //sensor info
-uint16_t size_matrix[] = {5,6,6};
+uint16_t size_matrix[] = {6,6,6};
 float stereo_fow[2] = {1.0018, 0.7767};//based on FOW of 57.4, by 44.5
 float angle_hor_board[] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472}; 
 //tuning info
@@ -87,8 +87,8 @@ float H_kal = 1;
 float Q_kal = 0.05;
 float R_kal = 2;
 float K_gain_send = 0;
-float Pest_new[36*6];
-float Xest_new[36*6];
+float Pest_new[36*6]= {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};//TODO make dependent on input
+float Xest_new[36*6]= {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};//TODO make dependent on input;
 //variables butterworth filter
 struct FloatVect3 filter_repforce_old = {0.0,0.0,0.0};
 struct FloatVect3 Repulsionforce_Kan_old = {0.0,0.0,0.0};
@@ -97,8 +97,8 @@ float butter_old[36*6] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 float F1 =0.1;
 float F2 =0.9;
 float Cfreq = 1;  
-float Ko = 1000;//10000
-float Kg = 100;//100
+float Ko = 60;//1000;//10000
+float Kg = 100;//100;//100
 float Dist_offset = 0;//-0.125;
 int8_t dis_treshold = 2;	
 struct FloatVect3 Repulsionforce_Used; 
@@ -135,17 +135,18 @@ struct FloatVect3 Attractforce_goal_send;
 struct FloatVect3 Repulsionforce_Kan_send; 
 
 //////////////////////////////////////////////
-static void send_distance_matrix(void) {
-	DOWNLINK_SEND_DISTANCE_MATRIX(DefaultChannel, DefaultDevice, &messageArrayLocation,36,SendREADimageBuffer);
-}
-#if PRINT_FULL_MATRIX
+ #if PRINT_FULL_MATRIX
+    static void send_distance_matrix(void) {
+	DOWNLINK_SEND_DISTANCE_MATRIX(DefaultChannel, DefaultDevice, &messageArrayLocation,36,READimageBuffer);
+    }
+
     static void send_distance_matrix1(void) {
 	    DOWNLINK_SEND_DISTANCE_MATRIX1(DefaultChannel, DefaultDevice,36, SendREADimageBuffer1);
     }
 
     static void send_distance_matrix2(void) {
 	    DOWNLINK_SEND_DISTANCE_MATRIX2(DefaultChannel, DefaultDevice,36, SendREADimageBuffer2);
-    }
+    }Attractforce_goal
 
     static void send_distance_matrix3(void) {
 	    DOWNLINK_SEND_DISTANCE_MATRIX3(DefaultChannel, DefaultDevice,36, SendREADimageBuffer3);
@@ -165,8 +166,8 @@ static void send_distance_matrix(void) {
  }
 
 void serial_init(void) {
-        register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX", send_distance_matrix);
-	#if PRINT_FULL_MATRIX
+        #if PRINT_FULL_MATRIX
+	  register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX", send_distance_matrix);
 	  register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX1", send_distance_matrix1);
 	  register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX2", send_distance_matrix2);
 	  register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX3", send_distance_matrix3);
@@ -201,43 +202,57 @@ void serial_update(void)
 		 float fieldOfViewRadHorizontal=6.282;
 		 int x=0;
 		 float sumDistances=0.0;
-		 
-		 //OA_method 1
 		 float forward_speed;
 		 float heading;
-		 
-		 
-		 //Calculate angles + distances 
-		 setAnglesMeasurements(anglesMeasurements,angle_hor_board,stereo_fow,size_matrix);
-		 stereocam_disparity_to_meters(stereocam_data.data,distancesMeters,stereocam_data.len);
 		
+		 READimageBuffer = stereocam_data.data;
+		 //stereocam_disparity_to_meters(stereocam_data.data,distancesMeters,stereocam_data.len);
 		 for(int i_print1=0; i_print1<6; i_print1++){
 		      for(int i_print2=0; i_print2<(stereocam_data.len/6); i_print2++){
-			//  printf("%2.3f,",distancesMeters[i_print1*(stereocam_data.len/6) + i_print2]);
+			  printf("%3d,",READimageBuffer[i_print1*(stereocam_data.len/6) + i_print2]);
 		      }
-		  //    printf("\n");
+		      printf("\n");
 		  }
-		 
-		 		 
-		 for(x=0; x < stereocam_data.len; x++){
-			 sumDistances+=distancesMeters[x];
-		 }
-		// printf("Distance: %f\n",(sumDistances/stereocam_data.len));
-
-		 
-		 //calcuate control reference
+		 	 
+		 ///////////////////calcuate control reference/////////////////////////////////////////////////////
 		 if(OA_method_flag==1){
+		      //Calculate angles + distances 
+		      setAnglesMeasurements(anglesMeasurements,angle_hor_board,stereo_fow,size_matrix);
+		      stereocam_disparity_to_meters(stereocam_data.data,distancesMeters,stereocam_data.len);
+		   
 		      matrix_2_pingpong(distancesMeters, size_matrix, distances_hor);
 		      pingpong_euler(distances_hor, anglesMeasurements, stereocam_data.matrix_width, reference_pitch, reference_roll, dist_treshold);
 	         }
 		  
-		 //if(OA_method_flag==2){
-		 //     nav_cal_vel_vector_pingpong(distancesMeters,anglesMeasurements,stereocam_data.len,&forward_speed,&heading);
-		 //}
+		 if(OA_method_flag==2){
+		      READimageBuffer = stereocam_data.data;
+		      CN_calculate_target();
+		      CN_potential_heading();
+		 }
+		 
+		 if(OA_method_flag==3){
+		      READimageBuffer = stereocam_data.data;
+		      CN_calculate_target();
+		      CN_potential_velocity();
+		 }
+		 
+		 if(OA_method_flag==4){
+		      READimageBuffer = stereocam_data.data;
+		      CN_calculate_target();
+		      CN_vector_velocity();
+		 }
+		 if(OA_method_flag==5){
+		      READimageBuffer = stereocam_data.data;
+		      CN_calculate_target();
+		      CN_vector_escape_velocity();
+		 }
+		 if(OA_method_flag==6){
+		      READimageBuffer = stereocam_data.data;
+		      CN_calculate_target();
+		      CN_escape_velocity();
+		 }
 		 
 		stereocam_data.fresh=0;
-		
-		
 		DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, stereocam_data.len, distancesMeters);
 	}
 
@@ -385,8 +400,6 @@ void pingpong_euler(float* distances_hor,float *horizontalAnglesMeasurements,int
 		ref_roll=sumRoll;
 	}
 
-	ref_pitch=DegOfRad(ref_pitch);
-	ref_roll=DegOfRad(ref_roll);
 
 	printf("DegOfRad data %f %f\n",ref_pitch,ref_roll);
 	
@@ -588,7 +601,8 @@ void CN_vector_velocity(void){
       float A_butter = -0.8541;//-0.7265;
       float B_butter[2] = {0.0730 , 0.0730 };//{0.1367, 0.1367};
       
-      //Initalize
+      //Initalize 
+      int8_t disp_count = 0;
       float escape_angle=0;
       float y_goal_frame;
       //float total_vel;
@@ -661,16 +675,18 @@ void CN_vector_velocity(void){
 		  //TODO  make dependent on speed: total_vel/vref_max
 		  Cv = F1 + F2*Ca;
 		       //printf("i3: %i,%i",i3,READimageBuffer_offset[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3]);
-		    
+		      // printf("Cv: %f, Ca: %f, heading_goal_ref %f \n",Cv,Ca,heading_goal_ref);
 		      if(READimageBuffer[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3]>min_disparity){
 			    Distance_est = (baseline*(float)focal/((float)READimageBuffer[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3])-18.0)/1000;
+			    disp_count++;
 			    //printf("distance: %f, index %i %i %i \n", Distance_est,i1,i2,i3);
 			    //printf("disparity: %i",READimageBuffer_offset[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3]);
 		      
 			   Repulsionforce_Kan.x = Repulsionforce_Kan.x - pow(Cv/(Distance_est+Dist_offset),2)*cos(angle_hor)*cos(angle_ver);
 			   Repulsionforce_Kan.y = Repulsionforce_Kan.y - pow(Cv/(Distance_est+Dist_offset),2)*sin(angle_hor)*cos(angle_ver);
 			   Repulsionforce_Kan.z = Repulsionforce_Kan.z - pow(Cv/(Distance_est+Dist_offset),2)*sin(angle_ver);
-			    
+			   
+			   printf("rep.x  %f index %d %d %d disp: %d cv: %f angle_hor: %f angle_ver: %f \n",Repulsionforce_Kan.x,i1,i2,i3,READimageBuffer[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3],Cv,angle_hor,angle_ver);
 			    
 		      }
 // 		     else {
@@ -694,7 +710,8 @@ void CN_vector_velocity(void){
 
       //Normalize for ammount entries in Matrix
       //Repulsionforce_Kan = Repulsionforce_Kan/(float)(size_matrix[1]*size_matrix[2]);
-      VECT3_SMUL(Repulsionforce_Kan, Repulsionforce_Kan, 1.0/(size_matrix[0]*size_matrix[1]*size_matrix[2])); 
+      VECT3_SMUL(Repulsionforce_Kan, Repulsionforce_Kan, 1.0/(float)disp_count); 
+      printf("After multiplication: %f",Repulsionforce_Kan.x);
       
       if(repulsionforce_filter_flag == 1){
 	  				
@@ -750,10 +767,10 @@ void CN_vector_velocity(void){
 	
       }  
       
-      
+     
       ref_pitch = Total_Kan.x;
       ref_roll = Total_Kan.y;
-      
+       printf("ref_pitch:  %f ref_roll: %f disp_count: %d",ref_pitch,ref_roll,disp_count);
       //set write values for logger 
       //Attractforce_goal_send.x = Attractforce_goal.x; 
       //Attractforce_goal_send.y = Attractforce_goal.y;
@@ -770,6 +787,8 @@ void CN_vector_escape_velocity(void){
       //Parameters for Butterworth filter
       float A_butter = -0.8541;//-0.7265;
       float B_butter[2] = {0.0730 , 0.0730 };//{0.1367, 0.1367};
+      
+      int8_t disp_count = 0;
       //Initalize
       //float fp_angle;
       //float total_vel;
@@ -838,6 +857,7 @@ void CN_vector_escape_velocity(void){
 		    
 		      if(READimageBuffer[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3]>min_disparity){
 			    Distance_est = (baseline*(float)focal/((float)READimageBuffer[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3])-18.0)/1000;
+			    disp_count++;
 			    //printf("distance: %f, index %i %i %i \n", Distance_est,i1,i2,i3);
 			    //printf("disparity: %i",READimageBuffer_offset[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3]);
 		      
@@ -853,7 +873,7 @@ void CN_vector_escape_velocity(void){
       }
 
       //Normalize for ammount entries in Matrix
-      VECT3_SMUL(Repulsionforce_Kan, Repulsionforce_Kan, 1.0/(size_matrix[0]*size_matrix[1]*size_matrix[2])); 
+      VECT3_SMUL(Repulsionforce_Kan, Repulsionforce_Kan, 1.0/(float)disp_count); 
       
       if(repulsionforce_filter_flag == 1){
 	  				

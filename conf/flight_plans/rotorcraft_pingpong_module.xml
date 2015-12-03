@@ -34,7 +34,7 @@
       <call fun="NavSetGroundReferenceHere()"/>
     </block>-->
     <block key="f" name="PingPong" >
-	 <attitude alt="2.0" vmode="alt" roll="ref_roll" pitch="ref_pitch"/>
+	 <attitude alt="2.0" vmode="alt" roll="DegOfRad(ref_roll)" pitch="DegOfRad(ref_pitch)"/>
     </block>
   </blocks>
 </flight_plan>
