@@ -183,6 +183,8 @@
     <define name="H_Z" value="0.92060036"/>
     <define name="USE_GPS_HEADING" value="1"/>
   </section>
+<define name="USE_GPS" value="TRUE"/>
+ <define name="USE_GPS_HEADING" value="TRUE"/>
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
    <define name="PGAIN" value="290"/>
@@ -210,6 +212,10 @@
    <load name="send_imu_mag_current.xml"/>
    <load name="stereoavoid.xml"/>
    <load name="mission_rotorcraft.xml"/>
+ <load name="stereocam.xml">
+	<configure name="STEREO_UART" value="UART1"/>
+	<configure name="STEREO_BAUD" value="B115200"/>
+</load>
  </modules>
 
   <firmware name="rotorcraft">
@@ -246,6 +252,7 @@
     <subsystem name="imu" type="lisa_s_v1.0">
       <define name="LISA_S_UPSIDE_DOWN"/> <!-- Upside down is a relative term. :) -->
     </subsystem>
+	
     <subsystem name="gps" type="datalink"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs" type="int_cmpl_quat"/>

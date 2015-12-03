@@ -71,7 +71,7 @@ void follow_me_periodic()
 	if(isYawPhase){
 //		float heading_change = (float)(headingToFollow - 65.0) * 0.002; // convert pixel location to radians
 		if(abs(nav_heading - stateGetNedToBodyEulers_i()->psi)<150){
-			float turnFactor=1.3;
+			float turnFactor=2.3;
 			float currentHeading=stateGetNedToBodyEulers_f()->psi;
 			float newHeading2 =currentHeading+turnFactor*heading_change;
 			//printf("Heading now: %f new heading: %f\n",currentHeading,newHeading2);
@@ -87,7 +87,7 @@ void follow_me_periodic()
 
 
   distanceToObject = stereocam_data.data[2];
-	 heightObject = stereocam_data.data[1];
+   heightObject = stereocam_data.data[1];
 
 //	printf("Distance object %d heading to follow: %d height object: %d current heigt: %f\n",distanceToObject,headingToFollow,heightObject,selfie_alt);
 	float heightGain = 3.0;
@@ -98,6 +98,9 @@ void follow_me_periodic()
 		else if(heightObject<20){
 			selfie_alt+=heightGain*0.01;
 		}
+	}
+	if(selfie_alt-state.alt_agl_f>1.0){
+		selfie_alt=state.alt_agl_f+1.0;
 	}
 	if (distanceToObject < 55) {
 		selfie_ref_pitch = 13.0;

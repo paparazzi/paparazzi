@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="2" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="20" name="Rotorcraft Optitrack (Delft)" security_height="2">
+<flight_plan alt="1" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="20" name="Rotorcraft Optitrack (Delft)" security_height="2">
   <header>
 #include "autopilot.h"
 #include "subsystems/electrical.h"
@@ -19,7 +19,7 @@
     <waypoint lat="51.9905874" lon="4.3767766" name="FA2"/>
     <waypoint lat="51.9906409" lon="4.3767226" name="FA3"/>
     <waypoint lat="51.9906737" lon="4.3768074" name="FA4"/>
-    <waypoint lat="51.990608" lon="4.376832" name="GOAL"/>
+    <waypoint lat="51.9906125" lon="4.3768214" name="GOAL"/>
   </waypoints>
   <sectors>
     <sector color="red" name="Flight_Area">
@@ -63,7 +63,7 @@
       <exception cond="electrical.bat_low" deroute="land here"/>
       <call fun="nav_set_heading_towards_waypoint(WP_GOAL)"/>
       <call fun="NavSetWaypointHere(WP_route_START)"/>
-      <stay until="stage_time > 2" wp="route_START"/>
+      <stay until="stage_time > 4" wp="route_START"/>
     </block>
     <block name="route_to_GOAL">
       <exception cond="GpsIsLost()" deroute="attitude_land"/>
@@ -74,7 +74,7 @@
       <call fun="NavCopyWaypoint(WP_last_wp,WP_GOAL)"/>
       <deroute block="land here"/>
     </block>
-    <block name="stay_W0" pre_call="increase_nav_heading(&nav_heading, 45)">
+    <block name="stay_W0" pre_call="increase_nav_heading(&nav_heading, 30)">
       <exception cond="obstacle_detected==0" deroute="route_to_W1"/>
       <exception cond="GpsIsLost()" deroute="attitude_land"/>
       <exception cond="electrical.bat_low" deroute="land here"/>

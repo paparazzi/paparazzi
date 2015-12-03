@@ -40,6 +40,7 @@
 
 #include "led.h"
 
+#include "modules/stereo_cam/stereocam.h"
 
 
 struct AvoidNavigationStruct avoid_navigation_data;
@@ -62,7 +63,7 @@ void run_avoid_navigation_onvision(void)
   switch (avoid_navigation_data.mode) {
     case 0:     // Go to Goal and stop at obstacles
       //count 4 subsequent obstacles
-      if (avoid_navigation_data.stereo_bin[0] > 1) {
+      if (stereocam_data.data[0] > 50) {
         counter = counter + 1;
         if (counter > 1) {
           counter = 0;
@@ -75,18 +76,19 @@ void run_avoid_navigation_onvision(void)
       }
       break;
     case 1:     // Turn until clear
-      //count 20 subsequent free frames
-      if (avoid_navigation_data.stereo_bin[0] < 1) {
+      //count subsequent free frames
+      if (stereocam_data.data[0] < 50 ) {
         counter = counter + 1;
-        if (counter > 12) {
+        if (counter > 4) {
           counter = 0;
           //Stop and put waypoint 2.5 m ahead
+          float difDistance=1.0;
           struct EnuCoor_i new_coor;
           struct EnuCoor_i *pos = stateGetPositionEnu_i();
           float sin_heading = sinf(ANGLE_FLOAT_OF_BFP(nav_heading));
           float cos_heading = cosf(ANGLE_FLOAT_OF_BFP(nav_heading));
-          new_coor.x = pos->x + POS_BFP_OF_REAL(sin_heading * 3.5);
-          new_coor.y = pos->y + POS_BFP_OF_REAL(cos_heading * 3.5);
+          new_coor.x = pos->x + POS_BFP_OF_REAL(sin_heading * difDistance);
+          new_coor.y = pos->y + POS_BFP_OF_REAL(cos_heading * difDistance);
           new_coor.z = pos->z;
           waypoint_set_xy_i(WP_W1, new_coor.x, new_coor.y);
           obstacle_detected = FALSE;
