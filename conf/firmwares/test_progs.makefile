@@ -118,6 +118,9 @@ endif
 ifeq ($(BOARD), cc3d)
 LED_DEFINES = -DLED_BLUE=1
 endif
+ifeq ($(BOARD), naze32)
+LED_DEFINES = -DLED_RED=1 -DLED_GREEN=2
+endif
 LED_DEFINES ?= -DLED_RED=2 -DLED_GREEN=3
 
 test_sys_time_timer.ARCHDIR = $(ARCH)
@@ -224,6 +227,21 @@ test_telemetry.srcs   += $(COMMON_TEST_SRCS)
 test_telemetry.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_telemetry.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_telemetry.srcs   += test/test_telemetry.c
+
+#
+# test_math_trig_compressed: Test math trigonometric using compressed data
+#
+# configuration
+#   MODEM_PORT :
+#   MODEM_BAUD :
+#
+test_math_trig_compressed.ARCHDIR = $(ARCH)
+test_math_trig_compressed.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_math_trig_compressed.srcs   += $(COMMON_TEST_SRCS)
+test_math_trig_compressed.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_math_trig_compressed.CFLAGS += -DPPRZ_TRIG_INT_TEST
+test_math_trig_compressed.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_math_trig_compressed.srcs   += test/test_math_trig_compressed.c math/pprz_trig_int.c
 
 
 #

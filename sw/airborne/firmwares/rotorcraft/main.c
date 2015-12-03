@@ -160,6 +160,10 @@ STATIC_INLINE void main_init(void)
 {
   mcu_init();
 
+#if defined(PPRZ_TRIG_INT_COMPR_FLASH)
+  pprz_trig_int_init();
+#endif
+
   electrical_init();
 
   stateInit();

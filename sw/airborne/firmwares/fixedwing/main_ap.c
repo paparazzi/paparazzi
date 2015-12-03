@@ -178,6 +178,10 @@ void init_ap(void)
   mcu_init();
 #endif /* SINGLE_MCU */
 
+#if defined(PPRZ_TRIG_INT_COMPR_FLASH)
+  pprz_trig_int_init();
+#endif
+
   /****** initialize and reset state interface ********/
 
   stateInit();
