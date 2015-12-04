@@ -1,7 +1,7 @@
-Paparazzi 5.7_devel
-======================
+Paparazzi 5.7.0_testing
+=======================
 
-currently ongoing development
+First release candidate for v5.8 stable release.
 
 General
 -------
@@ -82,6 +82,8 @@ Airborne
   [#1441] (https://github.com/paparazzi/paparazzi/pull/1441)
 - peridic telemetry: use msg ID instead of strings for matching (reduces size) and add support for mavlink
   [#1448] (https://github.com/paparazzi/paparazzi/pull/1448)
+- math: possibility to compress sine table for flash and RAM
+  [#1452] (https://github.com/paparazzi/paparazzi/pull/1452)
 
 Rotorcraft firmware
 -------------------
@@ -167,7 +169,6 @@ Drivers/HW support
   [#1318] (https://github.com/paparazzi/paparazzi/pull/1318)
 - apogee: IMU: test_baro_board with IMU
   [#1310] (https://github.com/paparazzi/paparazzi/pull/1310/commits)
-
 - Bebop: bottom camera with VGA resolution
   [#1316] (https://github.com/paparazzi/paparazzi/pull/1316)
 - Parrot drones: easier switching between bottom and front cameras
@@ -176,7 +177,6 @@ Drivers/HW support
   [#1400] (https://github.com/paparazzi/paparazzi/pull/1400)
 - support for Bebop2
   [#1429] (https://github.com/paparazzi/paparazzi/pull/1429)
-
 - Improve Piksi GPS (DGPS, RTK) support
   [#1349] (https://github.com/paparazzi/paparazzi/pull/1349)
   [#1386] (https://github.com/paparazzi/paparazzi/pull/1386)
@@ -184,7 +184,8 @@ Drivers/HW support
   [#1366] (https://github.com/paparazzi/paparazzi/pull/1366)
 - STM32: fix SPI slave initialization
   [#1371] (https://github.com/paparazzi/paparazzi/pull/1371)
-
+- boards: support for naze32, CC3D and CJMCU
+  [#1452] (https://github.com/paparazzi/paparazzi/pull/1452)
 
 Paparazzi 5.6.0_stable
 ======================
