@@ -230,6 +230,15 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
         lla.alt = mission_item.z * 1e3; // altitude in millimeters
         waypoint_set_lla(mission_item.seq, &lla);
       }
+      else if (mission_item.frame == MAV_FRAME_GLOBAL_RELATIVE_ALT) {
+        MAVLINK_DEBUG("MISSION_ITEM, global_rel_alt wp: lat=%f, lon=%f, relative alt=%f\n",
+                      mission_item.x, mission_item.y, mission_item.z);
+        struct LlaCoor_i lla;
+        lla.lat = mission_item.x * 1e7; // lattitude in degrees*1e7
+        lla.lon = mission_item.y * 1e7; // longitude in degrees*1e7
+        lla.alt = state.ned_origin_i.hmsl + mission_item.z * 1e3; // altitude in millimeters
+        waypoint_set_lla(mission_item.seq, &lla);
+      }
       else if (mission_item.frame == MAV_FRAME_LOCAL_ENU) {
         MAVLINK_DEBUG("MISSION_ITEM, local_enu wp: x=%f, y=%f, z=%f\n",
                       mission_item.x, mission_item.y, mission_item.z);
