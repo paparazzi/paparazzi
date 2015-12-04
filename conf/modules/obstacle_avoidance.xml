@@ -54,6 +54,7 @@
   
   <header>
     <file name="obstacle_avoidance.h"/>
+    <file name="guidance_OA.h"/>
   </header>
   
   <init fun="serial_init()"/>

@@ -34,7 +34,7 @@
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_geodetic_int.h"
 #include "subsystems/datalink/telemetry.h"
-#include "modules/stereo_cam/stereocam.h"
+#include "modules/stereocam/stereocam.h"
 #include "modules/obstacle_avoidance/guidance_OA.h"
 #include "modules/obstacle_avoidance/obstacle_avoidance.h"
 
@@ -162,7 +162,7 @@ struct FloatVect3 Repulsionforce_Kan_send;
 #endif
 
  static void send_OA_DATA(void) {
-        DOWNLINK_SEND_OA_DATA(DefaultChannel, DefaultDevice, &target.x, &target.y, &pos_diff.x, &pos_diff.y, &ref_pitch, &ref_roll, &Attractforce_goal_send.x, &Attractforce_goal_send.y, &Repulsionforce_Kan_send.x, &Repulsionforce_Kan_send.y);
+//        DOWNLINK_SEND_OA_DATA(DefaultChannel, DefaultDevice, &target.x, &target.y, &pos_diff.x, &pos_diff.y, &ref_pitch, &ref_roll, &Attractforce_goal_send.x, &Attractforce_goal_send.y, &Repulsionforce_Kan_send.x, &Repulsionforce_Kan_send.y);
  }
 
 void serial_init(void) {
@@ -253,7 +253,7 @@ void serial_update(void)
 		 }
 		 
 		stereocam_data.fresh=0;
-		DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, stereocam_data.len, distancesMeters);
+//		DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, stereocam_data.len, distancesMeters);
 	}
 
 }

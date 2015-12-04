@@ -196,16 +196,7 @@
     <field name="YprU3" 	type="float" 	unit="deg"/>
   </message>
 
-    <!-- ID 24 is free -->
-  <message name ="R_DOT_AND_SPEED" id="24">
-    <field name ="R_DOT_NEW" type="float"/>
-    <field name ="REF_PITCH" type="float"/>
-    <field name ="REF_ROLL" type="float"/>
-    <field name ="R_DOT_NEW_SIN" type="float"/>
-    <field name ="R_DOT_NEW_COS" type="float"/>
-    <field name ="SPEED_POT" type="float"/>
-    <field name ="MATRIX_SUM" type="uint16[]"/>
-  </message>
+  <!--24 is free -->
 
   <message name="SVINFO" id="25">
     <field name="chn" type="uint8"/>
@@ -867,22 +858,10 @@
     <field name="data_rate" type="uint32" unit="bytes/s"/>
     <field name="last_msg" type="uint8[]"/>
   </message>
- 
-  <message name="FOLLOWEGG" id="107">
-    <field name="foundheading" type="uint8"/>
-    <field name="headingchange" type="float"/>
-    <field name="foundvalue" type="uint8"/>
-    <field name="sum" type="float"/>
-  </message>
 
-  <!--108 is NOT free -->
-   <message name="DISTANCE_MATRIX3" id="108">
-    <field name="imageBuffer" type="uint8[]"/>
-  </message>
-  <!--109 is NOT free -->
-   <message name="DISTANCE_MATRIX4" id="109">
-    <field name="imageBuffer" type="uint8[]"/>
-  </message>
+  <!--107 is free -->
+  <!--108 is free -->
+  <!--109 is free -->
 
   <message name="DC_SHOT" id="110">
     <field name="photo_nr" type="int16"/>
@@ -904,10 +883,7 @@
     <field name="servo" type="uint16[]"/>
   </message>
 
-
-  <message name="MULTIGAZE_METERS" id="112">
-    <field name="distances" type="float[]"/>
-  </message>
+  <!--112 is free -->
 
   <message name="MLX_SERIAL" id="113">
     <field name="serial0" type="uint32"/>
@@ -1126,18 +1102,9 @@
     <field name="sp_p" type="int32"/>
     <field name="sp_q" type="int32"/>
     <field name="sp_r" type="int32"/>
-    <field name="ref_p" type="int32"/>
-    <field name="ref_q" type="int32"/>
-    <field name="ref_r" type="int32"/>
-    <field name="refdot_p" type="int32"/>
-    <field name="refdot_q" type="int32"/>
-    <field name="refdot_r" type="int32"/>
     <field name="sumerr_p" type="int32"/>
     <field name="sumerr_q" type="int32"/>
     <field name="sumerr_r" type="int32"/>
-    <field name="ff_p" type="int32"/>
-    <field name="ff_q" type="int32"/>
-    <field name="ff_r" type="int32"/>
     <field name="fb_p" type="int32"/>
     <field name="fb_q" type="int32"/>
     <field name="fb_r" type="int32"/>
@@ -1401,7 +1368,7 @@
     <field name="body_qx" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
     <field name="body_qy" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
     <field name="body_qz" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
-    <field name="comp_id"    type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
+    <field name="comp_id" type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
   </message>
 
   <message name="AHRS_RMAT_INT" id="158">
@@ -1423,7 +1390,7 @@
     <field name="body_m20" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
     <field name="body_m21" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
     <field name="body_m22" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
-    <field name="comp_id"    type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
+    <field name="comp_id"  type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
   </message>
 
   <message name="ROTORCRAFT_NAV_STATUS" id="159">
@@ -1470,7 +1437,7 @@
       <field name="Hx"             type="float"/>
       <field name="Hy"             type="float"/>
       <field name="Hz"             type="float"/>
-      <field name="comp_id" type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
+      <field name="comp_id" type="uint8" values="NONE|GENERIC|GEOM|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
   </message>
 
   <message name="HFF" id="164">
@@ -1480,7 +1447,6 @@
       <field name="yd"             type="float"/>
       <field name="xdd"            type="float"/>
       <field name="ydd"            type="float"/>
-<field name="comp_id"    type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
   </message>
 
   <message name="HFF_DBG" id="165">
@@ -1571,7 +1537,6 @@
     <field name="phi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
     <field name="theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
     <field name="psi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
-    <field name="comp_id" type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
   </message>
 
   <message name="WT" id="175">
@@ -1595,6 +1560,7 @@
     <field name="bp"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
     <field name="bq"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
     <field name="br"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="comp_id" type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
   </message>
 
 
@@ -1931,15 +1897,7 @@
     <field name="g2_r" type="float"/>
   </message>
 
-    <!--217 is NOT free -->
-  <message name="INPUT_CONTROL" id="217">
-    <field name ="ref_pitch" type="float"/>
-    <field name ="ref_roll" type="float"/>
-    <field name ="desired_vx" type="float"/>
-    <field name ="desired_vy" type="float"/>
-    <field name ="err_vx" type="float"/>
-    <field name ="err_vy" type="float"/>
-  </message>
+  <!--217 is free -->
 
   <message name="BEBOP_ACTUATORS" id="218">
     <field name="cmd_thrust" type="int32"/>
@@ -1988,20 +1946,7 @@
     <field name="AMSL_GPS" type="float" unit="ft" alt_unit="m"/>
   </message>
 
- <!--224 is NOT free -->
-   <message name="OA_DATA" id="224">
-       <field name="targetx" type="float"/>
-       <field name="targety" type="float"/>
-       <field name="diffx" type="float"/>
-       <field name="diffy" type="float"/>
-       <field name="ref_pitch" type="float"/>
-       <field name="ref_roll" type="float"/>
-       <field name="Attractforce_goal_sendx" type="float"/>
-       <field name="Attractforce_goal_sendy" type="float"/>
-       <field name="Repulsionforce_Kan_sendx" type="float"/>
-       <field name="Repulsionforce_Kan_sendy" type="float"/>
-  </message>
-
+ <!--224 is free -->
 
   <message name="VIDEO_SYNC" id="225">
     <field name="id" type="uint8"/>
@@ -2038,14 +1983,7 @@
     <field name="imageBuffer" type="uint8[]"/>
   </message>
 
-  <!--230 is  NOT free -->
-  <message name ="YAW_RATE" id="230">
-    <field name ="YAW_RATE" type="float"/>
-    <field name ="YAW_REF" type="float"/>
-    <field name ="R_DOT_NEW" type="float"/>
-    <field name ="PITCH_REF" type="float"/>
-    <field name ="ROLL_REF" type="float"/>
-  </message> 
+  <!--230 is free -->
 
   <message name="ROTORCRAFT_STATUS" id="231">
     <field name="link_imu_nb_err" type="uint32"/>
@@ -2156,20 +2094,9 @@
     <field name="vz"   type="float" unit="m/s"/>
   </message>
 
-  <message name="SELFIE_ROTOR" id="245">
-    <field name="pitch"   type="float" />
-    <field name="roll"   type="float"/>
-    <field name="yaw"   type="float"/>
-    <field name="alt"   type="float"/>
-  </message>
+  <!-- 245 is free -->
+  <!-- 246 is free -->
 
-
-  <!-- 246 is NOT free -->
-  <message name="STEREO_FOLLOW_ME" id="246">
-    <field name="headingToFollow"   type="uint8"/>
-    <field name="valueThere"   type="uint8"/>
-    <field name="highValuesCount"   type="uint8"/>
-  </message>
 
   <message name="PPRZ_DEBUG" id="247">
     <field name="module"   type="uint8"/>
@@ -2228,18 +2155,8 @@
       <field name="yaw_c"  type="float"/>
   </message>
 
-  <!-- 251 is NOT free -->
-  <message name="DISTANCE_MATRIX" id="251">
-    <field name="line" type="uint8"/>
-    <field name="imageBuffer" type="uint8[]"/>
-  </message>
-
-  <message name="SELFIE_MEASURE" id="252">
-    <field name="distanceToObj"   type="uint8" />
-    <field name="heightObtj"   type="uint8"/>
-    <field name="heading"   type="uint8"/>
-  </message>
-
+  <!-- 251 is free -->
+  <!-- 252 is free -->
 
   <message name="I2C_ERRORS" id="253">
     <field name="wd_reset_cnt"                type="uint16"/>
