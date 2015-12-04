@@ -54,7 +54,6 @@
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
     </target>
     <target name="test_actuators_pwm" board="naze32_rev4"/>
-    <target name="test_math_trig_compressed" board="naze32_rev4"/>
   </firmware>
 
   <modules main_freq="512">

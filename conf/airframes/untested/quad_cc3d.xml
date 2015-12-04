@@ -38,10 +38,6 @@
     <define name="PPRZ_TRIG_INT_COMPR_LOW"/>
   </firmware>
 
-  <firmware name="setup">
-    <target name="tunnel" board="cc3d"/>
-  </firmware>
-
   <firmware name="test_progs">
     <target name="test_sys_time_timer" board="cc3d"/>
     <target name="test_sys_time_usleep" board="cc3d"/>
@@ -55,7 +51,6 @@
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
     </target>
     <target name="test_actuators_pwm" board="cc3d"/>
-    <target name="test_math_trig_compressed" board="cc3d"/>
   </firmware>
 
   <modules main_freq="512">
