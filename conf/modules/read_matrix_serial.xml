@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="read_matrix_serial"  dir="read_matrix_serial">
+  <doc>
+    <description>Pingpings</description>
+  </doc>
+  <header>
+    <file name="read_matrix_serial.h"/>
+  </header>
+  <init fun="serial_init()"/>
+  <periodic fun="serial_update()" freq="10" start="serial_start()" freq="512"/>
+  <makefile>
+    <file name="read_matrix_serial.c"/>
+    </makefile> 
+</module>

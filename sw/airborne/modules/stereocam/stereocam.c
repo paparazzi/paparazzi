@@ -37,7 +37,7 @@
 // define coms link for stereocam
 #define STEREO_PORT   (&((UART_LINK).device))
 struct link_device *dev = STEREO_PORT;
-#define StereoGetch() dev->get_byte(STEREO_PORT->periph)
+#define StereoGetch() STEREO_PORT ->get_byte(STEREO_PORT->periph)
 
 //typedef struct MsgProperties {
 //  uint16_t positionImageStart;
@@ -59,8 +59,24 @@ uint32_t previous_time = 0;
 uint8_t ser_read_buf[STEREO_BUF_SIZE];           // circular buffer for incoming data
 uint16_t insert_loc, extract_loc, msg_start;   // place holders for buffer read and write
 uint8_t msg_buf[STEREO_BUF_SIZE];         // define local data
-uint8array stereocam_data = {.len = 0, .data = msg_buf, .fresh = 0};  // buffer used to contain image without line endings
+uint8array stereocam_data = {.len = 0, .data = msg_buf, .fresh = 0, .matrix_width=0,.matrix_height=0};  // buffer used to contain image without line endings
 
+#define BASELINE_STEREO_MM 60.0
+#define BRANDSPUNTSAFSTAND_STEREO 118.0*6
+
+extern void stereocam_disparity_to_meters(uint8_t* disparity, float* distancesMeters, int lengthArray){
+	  
+	int indexArray=0;
+	for(indexArray=0;indexArray<lengthArray;indexArray++){
+	    if(disparity[indexArray]!=0){
+	      distancesMeters[indexArray] = ((BASELINE_STEREO_MM*BRANDSPUNTSAFSTAND_STEREO/(float)disparity[indexArray]-18.0))/1000;
+	    //  printf("%i, distanceMeters: %f \n",indexArray,distancesMeters[indexArray]);
+	    }
+	    else{
+	      distancesMeters[indexArray] = 1000;
+	    }
+	}
+}
 
 extern void stereocam_start(void)
 {

@@ -1,0 +1,16 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="follow_egg">
+  <doc>
+    <description>follows the egg next to the mavlab</description>
+  </doc>
+  <header>
+    <file name="follow_egg.h"/>
+  </header>
+  <init fun="follow_egg_init()"/>
+  <periodic fun="set_heading_following_egg()" freq="512" autorun="TRUE"/>
+  <makefile>
+    <file name="follow_egg.c"/>
+  </makefile>
+</module>
+
