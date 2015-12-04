@@ -52,8 +52,8 @@ uint16_t size_matrix[] = {6,6,6};
 float stereo_fow[2] = {1.0018, 0.7767};//based on FOW of 57.4, by 44.5
 float angle_hor_board[] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472}; 
 //tuning info
-float reference_pitch = 0.2;
-float reference_roll = 0.2;
+float reference_pitch = 0.1;
+float reference_roll = 0.1;
 float dist_treshold = 0.75;
 float distances_hor[36];
 

@@ -96,7 +96,7 @@ struct opticflow_stab_t opticflow_stab = {
 /////////Variables needed to set by user!!!!!/////
 int8_t filter_flag = 0;    //0 =>no filter 1 =>Kalman filter 2 =>Butterworth filter
 int8_t repulsionforce_filter_flag = 0;    //0 =>no filter 1 =>Butterworth filter 
-int8_t OA_method_flag = 4; //0 =>No OA only opticflow 1=pingpong 2=>pot_heading 3=>pot_vel 4=>vector 5=>safetyzone
+int8_t OA_method_flag = 1; //0 =>No OA only opticflow 1=pingpong 2=>pot_heading 3=>pot_vel 4=>vector 5=>safetyzone
 int8_t opti_speed_flag = 1;
 float vref_max = 100;
 /////////////////////////////////////////////////

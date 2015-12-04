@@ -82,7 +82,7 @@ void run_avoid_navigation_onvision(void)
         if (counter > 4) {
           counter = 0;
           //Stop and put waypoint 2.5 m ahead
-          float difDistance=1.0;
+          float difDistance=2.5;
           struct EnuCoor_i new_coor;
           struct EnuCoor_i *pos = stateGetPositionEnu_i();
           float sin_heading = sinf(ANGLE_FLOAT_OF_BFP(nav_heading));

@@ -19,7 +19,7 @@
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators" type="ardrone2"/>
     <subsystem name="imu" type="ardrone2"/>
-    <subsystem name="gps" type="datalink"/>
+    <!--subsystem name="gps" type="datalink"/-->
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
@@ -266,8 +266,7 @@
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
-    <!--<define name="MODE_AUTO2" value="AP_MODE_MODULE"/>-->
-
+    <!--define name="MODE_AUTO2" value="AP_MODE_MODULE"/-->
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
   </section>
 
