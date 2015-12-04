@@ -1110,6 +1110,7 @@
     <field name="bp"               type="int32"/>
     <field name="bq"               type="int32"/>
     <field name="br"               type="int32"/>
+    <field name="comp_id"          type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
   </message>
 
   <message name="FILTER2" id="135">
@@ -1387,6 +1388,7 @@
     <field name="body_phi"   type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
     <field name="body_theta" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
     <field name="body_psi"   type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="comp_id"    type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
   </message>
 
   <message name="AHRS_QUAT_INT" id="157">
@@ -1399,6 +1401,7 @@
     <field name="body_qx" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
     <field name="body_qy" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
     <field name="body_qz" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="comp_id"    type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
   </message>
 
   <message name="AHRS_RMAT_INT" id="158">
@@ -1420,6 +1423,7 @@
     <field name="body_m20" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
     <field name="body_m21" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
     <field name="body_m22" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="comp_id"    type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
   </message>
 
   <message name="ROTORCRAFT_NAV_STATUS" id="159">
@@ -1475,6 +1479,7 @@
       <field name="yd"             type="float"/>
       <field name="xdd"            type="float"/>
       <field name="ydd"            type="float"/>
+<field name="comp_id"    type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3"/>
   </message>
 
   <message name="HFF_DBG" id="165">
@@ -2948,6 +2953,16 @@
     </message>
   </msg_class>
 
+  <msg_class name="intermcu">
+    <message name="IMCU_COMMANDS" id="1">
+      <field name="status" type="uint8"/>
+      <field name="values" type="int16[]"/>
+    </message>
 
+    <message name="IMCU_RADIO_COMMANDS" id="2">
+      <field name="status" type="uint8"/>
+      <field name="values" type="int16[]"/>
+    </message>
+  </msg_class>
 
 </protocol>
