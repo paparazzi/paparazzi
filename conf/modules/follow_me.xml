@@ -1,0 +1,16 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="follow_me">
+  <doc>
+    <description>follows based on stereo</description>
+  </doc>
+  <header>
+    <file name="follow_me.h"/>
+  </header>
+  <init fun="follow_me_init()"/>
+  <periodic fun="follow_me_periodic()" freq="512"/>
+  <makefile>
+    <file name="follow_me.c"/>
+  </makefile>
+</module>
+

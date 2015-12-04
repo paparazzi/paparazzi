@@ -19,12 +19,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file modules/stereocam/nav_line_avoid/avoid_navigation.c
- *
- */
-
-
 // Own Header
 #include "avoid_navigation.h"
 
@@ -46,8 +40,7 @@
 
 #include "led.h"
 
-
-
+#include "modules/stereo_cam/stereocam.h"
 
 
 struct AvoidNavigationStruct avoid_navigation_data;
@@ -70,7 +63,7 @@ void run_avoid_navigation_onvision(void)
   switch (avoid_navigation_data.mode) {
     case 0:     // Go to Goal and stop at obstacles
       //count 4 subsequent obstacles
-      if (avoid_navigation_data.stereo_bin[0] > 1) {
+      if (stereocam_data.data[0] > 50) {
         counter = counter + 1;
         if (counter > 1) {
           counter = 0;
@@ -83,10 +76,10 @@ void run_avoid_navigation_onvision(void)
       }
       break;
     case 1:     // Turn until clear
-      //count 20 subsequent free frames
-      if (avoid_navigation_data.stereo_bin[0] < 1) {
+      //count subsequent free frames
+      if (stereocam_data.data[0] < 50 ) {
         counter = counter + 1;
-        if (counter > 12) {
+        if (counter > 4) {
           counter = 0;
           //Stop and put waypoint 2.5 m ahead
           struct EnuCoor_i new_coor;
@@ -113,7 +106,7 @@ void run_avoid_navigation_onvision(void)
   avoid_navigation_data.stereo_bin[3] = avoid_navigation_data.mode;
   avoid_navigation_data.stereo_bin[4] = counter;
 
-#ifdef STEREO_LED
+#if STEREO_LED
   if (obstacle_detected) {
     LED_ON(STEREO_LED);
   } else {

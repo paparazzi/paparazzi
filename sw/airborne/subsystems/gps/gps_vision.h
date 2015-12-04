@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Kirk Scheper
+ * Copyright (C) 2014 Freek van Tienen
  *
  * This file is part of paparazzi.
  *
@@ -17,31 +17,25 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file gps_datalink.h
+ * @brief GPS system based on datalink
  *
+ * This GPS parses the datalink REMOTE_GPS packet and sets the
+ * GPS structure to the values received.
  */
 
-/** @file modules/stereocam/stereocam.h
- *  @brief interface to the TU Delft serial stereocam
- */
+#ifndef GPS_VISION_H
+#define GPS_VISION_H
 
-#ifndef STEREOCAM_H_
-#define STEREOCAM_H_
+#include "std.h"
+#include "generated/airframe.h"
+#define GPS_NB_CHANNELS 0
 
-#include <std.h>
+extern bool_t gps_available;
 
-typedef struct {
-  uint8_t len;
-  uint8_t *data;
-  uint8_t fresh;
-  uint8_t matrix_width;
-  uint8_t matrix_height;
-} uint8array;
+#define GpsEvent() {}
 
-extern uint8array stereocam_data;
-
-extern void stereocam_disparity_to_meters(uint8_t*, float*, int);
-extern void stereocam_start(void);
-extern void stereocam_stop(void);
-extern void stereocam_periodic(void);
-
-#endif /* STEREOCAM_H_ */
+#endif /* GPS_DATALINK_H */
