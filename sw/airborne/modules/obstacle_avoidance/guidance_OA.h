@@ -51,12 +51,12 @@ struct opticflow_stab_t {
 extern struct opticflow_stab_t opticflow_stab;
 
 extern int8_t filter_flag;
-extern int8_t repulsionforce_filter_flag; 
+extern int8_t repulsionforce_filter_flag;
 extern int8_t OA_method_flag;
 extern int8_t opti_speed_flag;
 extern float vref_max;
 
-//variables form optic flow module 
+//variables form optic flow module
 extern float ref_pitch;
 extern float ref_roll;
 extern float r_dot_new;
@@ -71,4 +71,4 @@ extern void guidance_h_module_run(bool_t in_flight);
 // Update the stabiliztion commands based on a vision result
 extern void OA_update(void);
 
-#endif 
+#endif

@@ -113,7 +113,7 @@ void stereoprot_sendArray(struct link_device *fd, uint8_t *b, uint8_t array_widt
  */
 uint8_t handleStereoPackage(uint8_t newByte, uint16_t buffer_size, uint16_t *insert_loc, int16_t *extract_loc,
                             int16_t *msg_start, uint8_t *msg_buf, uint8_t *ser_read_buf, uint8_t *stereocam_datadata_new,
-                            uint8_t *stereocam_datalen, uint8_t *stereocam_data_matrix_width,uint8_t *stereocam_data_matrix_height)
+                            uint8_t *stereocam_datalen, uint8_t *stereocam_data_matrix_width, uint8_t *stereocam_data_matrix_height)
 {
 
 
@@ -148,8 +148,8 @@ uint8_t handleStereoPackage(uint8_t newByte, uint16_t buffer_size, uint16_t *ins
         i = stereoprot_add(i, 8, buffer_size);   // step over EOL and SOL
       } // continue search for new line
       *stereocam_datalen = msgProperties.width * msgProperties.height;
-      *stereocam_data_matrix_width=msgProperties.width;
-      *stereocam_data_matrix_height=msgProperties.height;
+      *stereocam_data_matrix_width = msgProperties.width;
+      *stereocam_data_matrix_height = msgProperties.height;
 
       *stereocam_datadata_new = 1;
       *extract_loc = stereoprot_add(*extract_loc, 4, buffer_size);     // step over EOM string
