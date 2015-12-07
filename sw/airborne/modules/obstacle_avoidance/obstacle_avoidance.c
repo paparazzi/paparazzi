@@ -40,9 +40,24 @@
 #ifndef AVOIDANCES_DISTANCES_HOR_COUNT
 #define AVOIDANCES_DISTANCES_HOR_COUNT 36
 #endif
+
+
+#ifndef AVOIDANCE_AMOUNT_OF_BOARDS
+#define AVOIDANCE_AMOUNT_OF_BOARDS 6
+#endif
+
+
+
+#ifndef AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES
+#define AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES 1
+#endif
+
+#ifndef AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES
+#define AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES 6
+#endif
 //////////////SET BY USER!!!!//////////////////
 //sensor info
-uint16_t size_matrix[] = {6, 1, 6};
+uint16_t size_matrix[] = {AVOIDANCE_AMOUNT_OF_BOARDS, AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES, AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES};
 float stereo_fow[2] = {1.0018, 0.7767};//based on FOW of 57.4, by 44.5
 float angle_hor_board[] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472};
 int16_t focal = 118 * 6;
