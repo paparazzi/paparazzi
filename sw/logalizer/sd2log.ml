@@ -2,6 +2,7 @@
  * Extraction of .log and .data file from a .TLM airborne SD file
  *
  * Copyright (C) 2009 ENAC, Pascal Brisset
+ * Copyright (C) 2015 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -26,7 +27,7 @@ open Printf
 module U = Unix
 let (//) = Filename.concat
 let var_path = Env.paparazzi_home // "var"
-let logs_path = var_path // "logs"
+let default_logs_path = var_path // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 
 
@@ -51,7 +52,7 @@ let log_xml = fun ac_id ->
       ExtXml.child ~select conf_xml "aircraft"
     with
       Not_found ->
-	failwith (sprintf "Error: A/C %d not found in conf.xml" ac_id)
+        failwith (sprintf "Error: A/C %d not found in conf.xml" ac_id)
   in
   let expanded_conf_ac = Env.expand_ac_xml ~raise_exception:false conf_ac in
   let expanded_conf =
@@ -82,15 +83,15 @@ let string_of_message = fun log_msg ->
   | x -> failwith (sprintf "Unexpected source:%d in log msg" x)
 
 let hex_of_array = function
-    Pprz.Array array ->
+  | Pprz.Array array ->
       let n = Array.length array in
       (* One integer -> 2 chars *)
       let s = String.create (2*n) in
       Array.iteri
-	(fun i dec ->
-	  let hex = sprintf "%02x" (Pprz.int_of_value array.(i)) in
-	  String.blit hex 0 s (2*i) 2)
-	array;
+        (fun i dec ->
+          let hex = sprintf "%02x" (Pprz.int_of_value array.(i)) in
+          String.blit hex 0 s (2*i) 2)
+        array;
       s
   | value ->
       failwith (sprintf "Error: expecting array, found %s" (Pprz.string_of_value value))
@@ -110,16 +111,16 @@ let search_conf = fun md5 ->
   let rec loop = fun i ->
     if i < Array.length files then begin
       if String.length files.(i) > (md5_ofs + md5_len)
-	  && String.sub files.(i) md5_ofs md5_len = md5 then
-	dir // files.(i)
+      && String.sub files.(i) md5_ofs md5_len = md5 then
+        dir // files.(i)
       else
-	loop (i+1)
+        loop (i+1)
     end else
       raise Not_found in
   loop 0
 
 
-let convert_file = fun file ->
+let convert_file = fun ?(output_dir=None) file ->
   let tmp_file = Filename.temp_file "tlm_from_sd" "data" in
 
   let f_in = open_in file
@@ -128,6 +129,11 @@ let convert_file = fun file ->
   let start_unix_time = ref None
   and md5 = ref ""
   and single_ac_id = ref (-1) in
+
+  let logs_path = match output_dir with
+  | None -> default_logs_path
+  | Some x -> x
+  in
 
   let use_payload = fun payload ->
     try
@@ -149,17 +155,17 @@ let convert_file = fun file ->
 
       (** Looking for a date from a GPS message and a md5 from an ALIVE *)
       if log_msg.Logpprz.source = 0 then
-	match msg_descr.Pprz.name with
-	  "GPS" when !start_unix_time = None
-	      && ( Pprz.int_assoc "mode" vs = 3
-		 || Pprz.int_assoc "week" vs > 0) ->
-		     let itow = Pprz.int_assoc "itow" vs / 1000
-		     and week = Pprz.int_assoc "week" vs in
-		     let unix_time = Latlong.unix_time_of_tow ~week itow in
-		     start_unix_time := Some (unix_time -. timestamp)
-	| "ALIVE" when !md5 = "" ->
-	    md5 := hex_of_array (Pprz.assoc "md5sum" vs)
-	| _ -> ()
+        match msg_descr.Pprz.name with
+          "GPS" when !start_unix_time = None
+              && ( Pprz.int_assoc "mode" vs = 3
+                 || Pprz.int_assoc "week" vs > 0) ->
+                     let itow = Pprz.int_assoc "itow" vs / 1000
+                     and week = Pprz.int_assoc "week" vs in
+                     let unix_time = Latlong.unix_time_of_tow ~week itow in
+                     start_unix_time := Some (unix_time -. timestamp)
+        | "ALIVE" when !md5 = "" ->
+            md5 := hex_of_array (Pprz.assoc "md5sum" vs)
+        | _ -> ()
   with _ -> fprintf stderr "Parsing error, skipping message\n"
   in
 
@@ -179,11 +185,11 @@ let convert_file = fun file ->
 
       (* Rename the file according to the GPS time *)
       let start_time, mark =
-	match !start_unix_time with
-	  None ->
-	    fprintf stderr "Warning: not time found in GPS messages; using current date\n";
-	    U.gettimeofday (), "_no_GPS" (* Not found, use now *)
-	| Some u -> u, "" in
+        match !start_unix_time with
+        | None ->
+            fprintf stderr "Warning: not time found in GPS messages; using current date\n";
+            U.gettimeofday (), "_no_GPS" (* Not found, use now *)
+        | Some u -> u, "" in
 
       let d = U.localtime start_time in
       let basename = sprintf "%02d_%02d_%02d__%02d_%02d_%02d_SD%s" (d.U.tm_year mod 100) (d.U.tm_mon+1) (d.U.tm_mday) (d.U.tm_hour) (d.U.tm_min) (d.U.tm_sec) mark in
@@ -199,29 +205,28 @@ let convert_file = fun file ->
       (** Save the corresponding .log file *)
       fprintf stderr "Looking for %s conf...\n%!" !md5;
       let configuration =
-	try xml_parse_compressed_file (search_conf !md5) with
-	  Not_found ->
-	    fprintf stderr "Not found...\n%!";
-	    if !single_ac_id >= 0 then begin
-	      fprintf stderr "Try to rebuild it for A/C %d ...\n%!" !single_ac_id;
-	      try log_xml !single_ac_id with
-		_ ->
-		  fprintf stderr "Failure: A/C %d not found\n%!" !single_ac_id;
-		  Xml.PCData ""
-	    end else
-	      Xml.PCData "" in
+        try xml_parse_compressed_file (search_conf !md5) with
+          Not_found ->
+            fprintf stderr "Not found...\n%!";
+            if !single_ac_id >= 0 then begin
+              fprintf stderr "Try to rebuild it for A/C %d ...\n%!" !single_ac_id;
+              try log_xml !single_ac_id with _ ->
+                fprintf stderr "Failure: A/C %d not found\n%!" !single_ac_id;
+                Xml.PCData ""
+            end else
+              Xml.PCData "" in
 
       if configuration <> Xml.PCData "" then
-	let log =
-	  ExtXml.subst_attrib "time_of_day" (string_of_float start_time)
-	    (ExtXml.subst_attrib "data_file" data_name configuration) in
+        let log =
+          ExtXml.subst_attrib "time_of_day" (string_of_float start_time)
+            (ExtXml.subst_attrib "data_file" data_name configuration) in
 
-	let f = open_out (logs_path // log_name) in
-	output_string f (Xml.to_string_fmt log);
-	close_out f;
-	fprintf stderr "%s file produced\n%!" log_name
+        let f = open_out (logs_path // log_name) in
+        output_string f (Xml.to_string_fmt log);
+        close_out f;
+        fprintf stderr "%s file produced\n%!" log_name
       else
-	fprintf stderr "No .log produced\n";
+        fprintf stderr "No .log produced\n";
 
       (** Save the original binary file *)
       let com = sprintf "cp %s %s" file (logs_path // tlm_name) in
@@ -231,7 +236,9 @@ let convert_file = fun file ->
 let () =
   if Array.length Sys.argv = 2 then
     convert_file Sys.argv.(1)
+  else if Array.length Sys.argv = 3 then
+    convert_file ~output_dir:(Some Sys.argv.(2)) Sys.argv.(1)
   else begin
-    fprintf stderr "Usage: %s <telemetry airborne file>\n" Sys.argv.(0);
+    fprintf stderr "Usage: %s <telemetry airborne file> [<output directory (default in Paparazzi logs folder)>]\n" Sys.argv.(0);
     exit 1;
   end
