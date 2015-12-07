@@ -144,7 +144,7 @@ struct FloatVect3 Repulsionforce_Kan_send;
 void serial_init(void)
 {
 
-  for(int i_fill=0;i_fill<(AVOIDANCE_AMOUNT_OF_BOARDS * AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES);i++){
+  for(int i_fill=0;i_fill<(AVOIDANCE_AMOUNT_OF_BOARDS * AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES);i_fill++){
     Pest_new[i_fill] = 1;
     Xest_new[i_fill] = 1;
     butter_old[i_fill] = 0;
