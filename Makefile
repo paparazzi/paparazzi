@@ -254,7 +254,6 @@ $(INTERMCU_MSG_H) : $(MESSAGES_XML) generators
 	$(Q)chmod a+r $@
 
 $(MAVLINK_PROTOCOL_H) :
-	@echo GENERATE $(MAVLINK_DIR)
 	$(Q)make -C $(PAPARAZZI_HOME)/sw/ext mavlink
 
 #
