@@ -69,7 +69,6 @@ float distances_hor[AVOIDANCES_DISTANCES_HOR_COUNT];
 //////////////Variables CN///////////////////
 //for messages
 //general
-uint8_t *READimageBuffer; //TODO write code such that this variable can be removed
 uint8_t *READimageBuffer_old; //USED for butterworth filter
 float heading_goal_f = 0;
 float heading_goal_ref;
@@ -177,11 +176,10 @@ void serial_update(void)
     float distancesMeters[stereocam_data.len];
     float anglesMeasurements[stereocam_data.matrix_width];
 
-    READimageBuffer = stereocam_data.data;
     //stereocam_disparity_to_meters(stereocam_data.data,distancesMeters,stereocam_data.len);
     for (int i_print1 = 0; i_print1 < AVOIDANCE_AMOUNT_OF_BOARDS; i_print1++) {
       for (int i_print2 = 0; i_print2 < (stereocam_data.len / AVOIDANCE_AMOUNT_OF_BOARDS); i_print2++) {
-        printf("%3d,", READimageBuffer[i_print1 * (stereocam_data.len / AVOIDANCE_AMOUNT_OF_BOARDS) + i_print2]);
+        printf("%3d,", stereocam_data.data[i_print1 * (stereocam_data.len / AVOIDANCE_AMOUNT_OF_BOARDS) + i_print2]);
       }
       printf("\n");
     }
@@ -198,29 +196,24 @@ void serial_update(void)
     }
 
     if (OA_method_flag == POT_HEADING) {
-      READimageBuffer = stereocam_data.data;
       CN_calculate_target();
       CN_potential_heading();
     }
 
     if (OA_method_flag == POT_VEL) {
-      READimageBuffer = stereocam_data.data;
       CN_calculate_target();
       CN_potential_velocity();
     }
 
     if (OA_method_flag == VECTOR) {
-      READimageBuffer = stereocam_data.data;
       CN_calculate_target();
       CN_vector_velocity();
     }
     if (OA_method_flag == SAFETYZONE) {
-      READimageBuffer = stereocam_data.data;
       CN_calculate_target();
       CN_vector_escape_velocity();
     }
     if (OA_method_flag == LOGICBASED) {
-      READimageBuffer = stereocam_data.data;
       CN_calculate_target();
       CN_escape_velocity();
     }
@@ -275,7 +268,7 @@ void CN_matrix_Kalman_filter(void)
     K_gain[i_k] = Ppred_new[i_k] * H_kal * 1.0 / (H_kal * Ppred_new[i_k] * H_kal + R_kal);
 
     //Measurement update
-    Xest_new[i_k] = Xpred_new[i_k] + K_gain[i_k] * (float)(READimageBuffer[i_k] - H_kal * Xpred_new[i_k]);
+    Xest_new[i_k] = Xpred_new[i_k] + K_gain[i_k] * (float)(stereocam_data.data[i_k] - H_kal * Xpred_new[i_k]);
 
     //Covariance matrix of state estimation error
     Pest_new[i_k] = (1 - K_gain[i_k] * H_kal) * Ppred_new[i_k];
@@ -291,18 +284,18 @@ void CN_matrix_butterworth(void)
 
   for (int i_k = 0; i_k < (size_matrix[0] * size_matrix[1] * size_matrix[2]); i_k++) {
 
-    if ((READimageBuffer_old[i_k] - READimageBuffer[i_k]) <= 1 && (READimageBuffer_old[i_k] - READimageBuffer[i_k]) > 0) {
-      READimageBuffer[i_k] = READimageBuffer_old[i_k];
+    if ((READimageBuffer_old[i_k] - stereocam_data.data[i_k]) <= 1 && (READimageBuffer_old[i_k] - stereocam_data.data[i_k]) > 0) {
+    	stereocam_data.data[i_k] = READimageBuffer_old[i_k];
 
     }
 
-    butter[i_k] = B_butter[0] * (float)READimageBuffer[i_k] + B_butter[1] * (float)READimageBuffer_old[i_k] - A_butter *
+    butter[i_k] = B_butter[0] * (float)stereocam_data.data[i_k] + B_butter[1] * (float)READimageBuffer_old[i_k] - A_butter *
                   butter_old[i_k];
     butter_old[i_k] = butter[i_k];
   }
 
   for (int ifill = 0; ifill < (size_matrix[0] * size_matrix[1] * size_matrix[2]); ifill++) {
-    READimageBuffer_old[ifill] = READimageBuffer[ifill];
+    READimageBuffer_old[ifill] = stereocam_data.data[ifill];
   }
 
 }
@@ -444,8 +437,8 @@ void CN_potential_heading(void)
 
       for (int i2 = 0; i2 < 4; i2++) {
 
-        if (READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
-          Distance_est = ((baseline * (float)focal / (float)READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0] *
+        if (stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
+          Distance_est = ((baseline * (float)focal / (float)stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0] *
                            size_matrix[2] + i3] - 18.0)) / 1000;
 
           if (angle_hor < 0) {
@@ -542,8 +535,8 @@ void CN_potential_velocity(void)
 
       for (int i2 = 0; i2 < size_matrix[1]; i2++) {
 
-        if (READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
-          Distance_est = ((baseline * (float)focal / (float)READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0] *
+        if (stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
+          Distance_est = ((baseline * (float)focal / (float)stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0] *
                            size_matrix[2] + i3] - 18.0)) / 1000;
         } else {
           Distance_est = 2000;
@@ -658,15 +651,10 @@ void CN_vector_velocity(void)
 
         //TODO  make dependent on speed: total_vel/vref_max
         Cv = F1 + F2 * Ca;
-        //printf("i3: %i,%i",i3,READimageBuffer_offset[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3]);
-        // printf("Cv: %f, Ca: %f, heading_goal_ref %f \n",Cv,Ca,heading_goal_ref);
-        if (READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
-          Distance_est = (baseline * (float)focal / ((float)READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0] *
+        if (stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
+          Distance_est = (baseline * (float)focal / ((float)stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0] *
                           size_matrix[2] + i3]) - 18.0) / 1000;
           disp_count++;
-          //printf("distance: %f, index %i %i %i \n", Distance_est,i1,i2,i3);
-          //printf("disparity: %i",READimageBuffer_offset[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3]);
-
           Repulsionforce_Kan.x = Repulsionforce_Kan.x - pow(Cv / (Distance_est + Dist_offset),
                                  2) * cos(angle_hor) * cos(angle_ver);
           Repulsionforce_Kan.y = Repulsionforce_Kan.y - pow(Cv / (Distance_est + Dist_offset),
@@ -674,7 +662,7 @@ void CN_vector_velocity(void)
           Repulsionforce_Kan.z = Repulsionforce_Kan.z - pow(Cv / (Distance_est + Dist_offset), 2) * sin(angle_ver);
 
           printf("rep.x  %f index %d %d %d disp: %d cv: %f angle_hor: %f angle_ver: %f \n", Repulsionforce_Kan.x, i1, i2, i3,
-                 READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3], Cv, angle_hor, angle_ver);
+        		  stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3], Cv, angle_hor, angle_ver);
 
         }
 //         else {
@@ -837,15 +825,11 @@ void CN_vector_escape_velocity(void)
 
         //TODO  make dependent on speed: total_vel/vref_max
         Cv = F1 + F2 * Ca;
-        //printf("i3: %i,%i",i3,READimageBuffer_offset[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3]);
 
-        if (READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
-          Distance_est = (baseline * (float)focal / ((float)READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0] *
+        if (stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
+          Distance_est = (baseline * (float)focal / ((float)stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0] *
                           size_matrix[2] + i3]) - 18.0) / 1000;
           disp_count++;
-          //printf("distance: %f, index %i %i %i \n", Distance_est,i1,i2,i3);
-          //printf("disparity: %i",READimageBuffer_offset[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3]);
-
           Repulsionforce_Kan.x = Repulsionforce_Kan.x - pow(Cv / (Distance_est + Dist_offset),
                                  2) * cos(angle_hor) * cos(angle_ver);
           Repulsionforce_Kan.y = Repulsionforce_Kan.y - pow(Cv / (Distance_est + Dist_offset),
@@ -933,7 +917,7 @@ void CN_vector_escape_velocity(void)
     for (int i1 = 0; i1 < size_matrix[0]; i1++) {
       for (int i3 = 0; i3 < size_matrix[2]; i3++) {
         for (int i2 = 0; i2 < 4; i2++) {
-          if (READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
+          if (stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
             //distance_est = (baseline*(float)focal/((float)READimageBuffer_offset[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3])-18.0)/1000;
 
             diff_available_heading[i] = 100;
@@ -1067,8 +1051,8 @@ void CN_escape_velocity(void)
   for (int i1 = 0; i1 < size_matrix[0]; i1++) {
     for (int i3 = 0; i3 < size_matrix[2]; i3++) {
       for (int i2 = 0; i2 < 4; i2++) {
-        if (READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
-          distance_est = (baseline * (float)focal / ((float)READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0] *
+        if (stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
+          distance_est = (baseline * (float)focal / ((float)stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0] *
                           size_matrix[2] + i3]) - 18.0) / 1000;
 
           if (distance_est < distance_heading) {
