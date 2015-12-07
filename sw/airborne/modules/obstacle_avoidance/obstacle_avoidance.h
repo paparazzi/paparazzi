@@ -1,7 +1,7 @@
 /*
- * Copyright (C) ROland
+ * Copyright (C) 2015 Roland + Clint
  *
- * This file is part of paparazzi
+ * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, see
- * <http://www.gnu.org/licenses/>.
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
  */
-/**
- * @file "modules/read_matrix_serial/read_matrix_serial.h"
- * @author Roland
- * reads from the serialad
+
+/** @file modules/obstacle_avoidance/obstacle_avoidance.h
+ *  @brief Obstacle avoidance methods
  */
 
 #ifndef READ_MATRIX_SERIAL_H

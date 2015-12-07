@@ -1,7 +1,7 @@
 /*
- * Copyright (C) ROland
+ * Copyright (C) 2015 Roland + Clint
  *
- * This file is part of paparazzi
+ * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,15 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, see
- * <http://www.gnu.org/licenses/>.
- */
-/**
- * @file "modules/read_matrix_serial/read_matrix_serial.c"
- * @author ROland
- * reads from the serial
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
  */
 
+/** @file modules/obstacle_avoidance/obstacle_avoidance.c
+ *  @brief Obstacle avoidance methods
+ */
 
 #include <stdio.h>
 #include <sys/fcntl.h>
@@ -187,7 +187,7 @@ void serial_update(void)
     }
 
     ///////////////////calcuate control reference/////////////////////////////////////////////////////
-    if (OA_method_flag == 1) {
+    if (OA_method_flag == PINGPONG) {
       //Calculate angles + distances
       setAnglesMeasurements(anglesMeasurements, angle_hor_board, stereo_fow, size_matrix);
       stereocam_disparity_to_meters(stereocam_data.data, distancesMeters, stereocam_data.len);
@@ -197,29 +197,29 @@ void serial_update(void)
                      dist_treshold);
     }
 
-    if (OA_method_flag == 2) {
+    if (OA_method_flag == POT_HEADING) {
       READimageBuffer = stereocam_data.data;
       CN_calculate_target();
       CN_potential_heading();
     }
 
-    if (OA_method_flag == 3) {
+    if (OA_method_flag == POT_VEL) {
       READimageBuffer = stereocam_data.data;
       CN_calculate_target();
       CN_potential_velocity();
     }
 
-    if (OA_method_flag == 4) {
+    if (OA_method_flag == VECTOR) {
       READimageBuffer = stereocam_data.data;
       CN_calculate_target();
       CN_vector_velocity();
     }
-    if (OA_method_flag == 5) {
+    if (OA_method_flag == SAFETYZONE) {
       READimageBuffer = stereocam_data.data;
       CN_calculate_target();
       CN_vector_escape_velocity();
     }
-    if (OA_method_flag == 6) {
+    if (OA_method_flag == LOGICBASED) {
       READimageBuffer = stereocam_data.data;
       CN_calculate_target();
       CN_escape_velocity();
