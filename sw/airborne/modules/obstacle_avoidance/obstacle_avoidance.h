@@ -29,6 +29,9 @@
 extern void serial_init(void);
 extern void serial_update(void);
 extern void serial_start(void);
+void setAnglesMeasurements(float *anglesMeasurements, float *centersensorRad, float *fieldOfViewRad,
+                           uint16_t *size_matrix_local);
+
 extern void pingpong_euler(float *distances_hor, float *horizontalAnglesMeasurements,
                            int horizontalAmountOfMeasurements, float attitude_reference_pitch, float attitude_reference_roll, float dist_treshold);
 extern void matrix_2_pingpong(float *distancesMeters, uint16_t *size_matrix, float *distances_hor);

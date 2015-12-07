@@ -27,20 +27,22 @@
 #include <stdio.h>
 #include <sys/fcntl.h>
 #include <math.h>
-#include <errno.h>
 #include <unistd.h>
 #include <inttypes.h>
 #include "state.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_geodetic_int.h"
 #include "subsystems/datalink/telemetry.h"
-#include "modules/stereo_cam/stereocam.h"
+#include "modules/stereocam/stereocam.h"
 #include "modules/obstacle_avoidance/guidance_OA.h"
 #include "modules/obstacle_avoidance/obstacle_avoidance.h"
 
+#ifndef AVOIDANCES_DISTANCES_HOR_COUNT
+#define AVOIDANCES_DISTANCES_HOR_COUNT 36
+#endif
 //////////////SET BY USER!!!!//////////////////
 //sensor info
-uint16_t size_matrix[] = {6, 1, 128};
+uint16_t size_matrix[] = {6, 1, 6};
 float stereo_fow[2] = {1.0018, 0.7767};//based on FOW of 57.4, by 44.5
 float angle_hor_board[] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472};
 int16_t focal = 118 * 6;
@@ -50,7 +52,7 @@ float ref_yaw = 0.0;
 float reference_pitch = 0.1;
 float reference_roll = 0.1;
 float dist_treshold = 0.75;
-float distances_hor[];
+float distances_hor[AVOIDANCES_DISTANCES_HOR_COUNT];
 //////////////////////////////////////////////
 
 
@@ -73,7 +75,6 @@ struct FloatVect2 pos_diff;
 struct NedCoor_f current_pos;
 struct FloatVect2 target;
 struct FloatVect2 init_target = {0, 0};
-struct FloatVect2 pos_diff;
 float dx_ref = 0;
 float dy_ref = 0;
 //Variables Kalman filter
@@ -165,12 +166,12 @@ static void send_distance_matrix5(void)
 }
 #endif
 
-static void send_OA_DATA(void)
-{
-  DOWNLINK_SEND_OA_DATA(DefaultChannel, DefaultDevice, &target.x, &target.y, &pos_diff.x, &pos_diff.y, &ref_pitch,
-                        &ref_roll, &Attractforce_goal_send.x, &Attractforce_goal_send.y, &Repulsionforce_Kan_send.x,
-                        &Repulsionforce_Kan_send.y);
-}
+//static void send_OA_DATA(void)
+//{
+//  //DOWNLINK_SEND_OA_DATA(DefaultChannel, DefaultDevice, &target.x, &target.y, &pos_diff.x, &pos_diff.y, &ref_pitch,
+////                        &ref_roll, &Attractforce_goal_send.x, &Attractforce_goal_send.y, &Repulsionforce_Kan_send.x,
+////                        &Repulsionforce_Kan_send.y);
+//}
 
 void serial_init(void)
 {
@@ -182,7 +183,7 @@ void serial_init(void)
   register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX4", send_distance_matrix4);
   register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX5", send_distance_matrix5);
 #endif
-  register_periodic_telemetry(DefaultPeriodic, "OA_DATA", send_OA_DATA);
+//  register_periodic_telemetry(DefaultPeriodic, "OA_DATA", send_OA_DATA);
 }
 
 void serial_start(void)
@@ -191,13 +192,13 @@ void serial_start(void)
 }
 
 void setAnglesMeasurements(float *anglesMeasurements, float *centersensorRad, float *fieldOfViewRad,
-                           uint16_t *size_matrix)
+                           uint16_t *size_matrix_local)
 {
 
-  for (int i1 = 0; i1 < size_matrix[0]; i1++) {
-    for (int i3 = 0; i3 < size_matrix[2]; i3++) {
-      anglesMeasurements[i1 * size_matrix[0] + i3] = centersensorRad[i1] - 0.5 * fieldOfViewRad[0] + fieldOfViewRad[0] /
-          size_matrix[2] / 2 + (fieldOfViewRad[0] / size_matrix[2]) * i3;
+  for (int i1 = 0; i1 < size_matrix_local[0]; i1++) {
+    for (int i3 = 0; i3 < size_matrix_local[2]; i3++) {
+      anglesMeasurements[i1 * size_matrix_local[0] + i3] = centersensorRad[i1] - 0.5 * fieldOfViewRad[0] + fieldOfViewRad[0] /
+    		  size_matrix_local[2] / 2 + (fieldOfViewRad[0] / size_matrix_local[2]) * i3;
     }
   }
 }
@@ -259,22 +260,22 @@ void serial_update(void)
     }
 
     stereocam_data.fresh = 0;
-    DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, stereocam_data.len, distancesMeters);
+    //DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, stereocam_data.len, distancesMeters);
   }
 
 }
 
-void matrix_2_pingpong(float *distancesMeters, uint16_t *size_matrix, float *distances_hor)
+void matrix_2_pingpong(float *distancesMeters, uint16_t *size_matrix_local, float *distances_hor_local)
 {
 
-  for (int i_m = 0; i_m < size_matrix[0]; i_m++) {
-    for (int i_m3 = 0; i_m3 < size_matrix[2]; i_m3++) {
-      distances_hor[i_m * size_matrix[2] + i_m3] = 10000;
+  for (int i_m = 0; i_m < size_matrix_local[0]; i_m++) {
+    for (int i_m3 = 0; i_m3 < size_matrix_local[2]; i_m3++) {
+    	distances_hor_local[i_m * size_matrix_local[2] + i_m3] = 10000;
       for (int i_m2 = 0; i_m2 < 4; i_m2++) {
-        if (distancesMeters[i_m * size_matrix[1] + i_m2 * size_matrix[0]*size_matrix[2] + i_m3] <
-            distances_hor[i_m * size_matrix[2] + i_m3]) {
-          distances_hor[i_m * size_matrix[2] + i_m3] = distancesMeters[i_m * size_matrix[1] + i_m2 * size_matrix[0] *
-              size_matrix[2] + i_m3];
+        if (distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0]*size_matrix_local[2] + i_m3] <
+        		distances_hor_local[i_m * size_matrix_local[2] + i_m3]) {
+        	distances_hor_local[i_m * size_matrix_local[2] + i_m3] = distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0] *
+																			 size_matrix_local[2] + i_m3];
         }
       }
       //    printf("index: %i %i, %f",i_m,i_m3,distances_hor[i_m*size_matrix[2] + i_m3]);
@@ -376,8 +377,8 @@ void CN_calculate_target(void)
 
 }
 
-void pingpong_euler(float *distances_hor, float *horizontalAnglesMeasurements, int horizontalAmountOfMeasurements,
-                    float attitude_reference_pitch, float attitude_reference_roll, float dist_treshold)
+void pingpong_euler(float *distances_hor_local, float *horizontalAnglesMeasurements, int horizontalAmountOfMeasurements,
+                    float attitude_reference_pitch, float attitude_reference_roll, float dist_treshold_local)
 {
 
   //init
@@ -390,7 +391,7 @@ void pingpong_euler(float *distances_hor, float *horizontalAnglesMeasurements, i
   for (int horizontal_index = 0; horizontal_index < horizontalAmountOfMeasurements; horizontal_index++) {
 
     //  printf("index: %i,distance %f",horizontal_index, distances_hor[horizontal_index]);
-    if (distances_hor[horizontal_index] < dist_treshold) {
+    if (distances_hor_local[horizontal_index] < dist_treshold_local) {
 
       oa_pitch_angle[horizontal_index] = cos(horizontalAnglesMeasurements[horizontal_index]) * attitude_reference_pitch;
       oa_roll_angle[horizontal_index] = -sin(horizontalAnglesMeasurements[horizontal_index]) * attitude_reference_roll;
