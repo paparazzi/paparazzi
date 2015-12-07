@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2015 Roland Meertens
+ * Copyright (C) ROland
  *
- * This file is part of paparazzi.
+ * This file is part of paparazzi
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,49 +14,46 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
-
-/** @file modules/obstacle_avoidance/obstacle_avoidance.c
- *  @brief Obstacle avoidance functions
- *  Include obstacle_avoidance.xml to your airframe file.
+/**
+ * @file "modules/read_matrix_serial/read_matrix_serial.c"
+ * @author ROland
+ * reads from the serial
  */
 
 
 #include <stdio.h>
 #include <sys/fcntl.h>
 #include <math.h>
+#include <errno.h>
+#include <unistd.h>
 #include <inttypes.h>
 #include "state.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_geodetic_int.h"
 #include "subsystems/datalink/telemetry.h"
-#include "modules/stereocam/stereocam.h"
+#include "modules/stereo_cam/stereocam.h"
 #include "modules/obstacle_avoidance/guidance_OA.h"
 #include "modules/obstacle_avoidance/obstacle_avoidance.h"
 
-
-//TODO: clean variables
-float ref_yaw = 0.0;
-struct FloatVect3 Repulsionforce_Kan;
-struct FloatVect3 Attractforce_goal;
-int16_t focal = 118 * 6;
-float baseline = 60;
-
 //////////////SET BY USER!!!!//////////////////
 //sensor info
-uint16_t size_matrix[] = {6, 6, 6};
+uint16_t size_matrix[] = {6, 1, 128};
 float stereo_fow[2] = {1.0018, 0.7767};//based on FOW of 57.4, by 44.5
 float angle_hor_board[] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472};
+int16_t focal = 118 * 6;
+float baseline = 60;
+float ref_yaw = 0.0;
 //tuning info
 float reference_pitch = 0.1;
 float reference_roll = 0.1;
 float dist_treshold = 0.75;
-
+float distances_hor[];
 //////////////////////////////////////////////
+
+
 //////////////Variables CN///////////////////
 //for messages
 #if PRINT_FULL_MATRIX
@@ -76,13 +73,15 @@ struct FloatVect2 pos_diff;
 struct NedCoor_f current_pos;
 struct FloatVect2 target;
 struct FloatVect2 init_target = {0, 0};
+struct FloatVect2 pos_diff;
 float dx_ref = 0;
 float dy_ref = 0;
 //Variables Kalman filter
 float A_kal = 1;
 float B_kal = 0;
 float H_kal = 1;
-float Q_kal = 0.05;
+float Q_kal = 0.05;//TODO: clean variables
+
 float R_kal = 2;
 float K_gain_send = 0;
 float Pest_new[36 * 6] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; //TODO make dependent on input
@@ -139,8 +138,9 @@ static void send_distance_matrix(void)
   DOWNLINK_SEND_DISTANCE_MATRIX(DefaultChannel, DefaultDevice, &messageArrayLocation, 36, READimageBuffer);
 }
 
-static void send_distance_matrix1(void)
+static void send_distance_matrix1(void)  //TODO: clean variables
 {
+
   DOWNLINK_SEND_DISTANCE_MATRIX1(DefaultChannel, DefaultDevice, 36, SendREADimageBuffer1);
 }
 
@@ -167,7 +167,9 @@ static void send_distance_matrix5(void)
 
 static void send_OA_DATA(void)
 {
-//        DOWNLINK_SEND_OA_DATA(DefaultChannel, DefaultDevice, &target.x, &target.y, &pos_diff.x, &pos_diff.y, &ref_pitch, &ref_roll, &Attractforce_goal_send.x, &Attractforce_goal_send.y, &Repulsionforce_Kan_send.x, &Repulsionforce_Kan_send.y);
+  DOWNLINK_SEND_OA_DATA(DefaultChannel, DefaultDevice, &target.x, &target.y, &pos_diff.x, &pos_diff.y, &ref_pitch,
+                        &ref_roll, &Attractforce_goal_send.x, &Attractforce_goal_send.y, &Repulsionforce_Kan_send.x,
+                        &Repulsionforce_Kan_send.y);
 }
 
 void serial_init(void)
@@ -189,13 +191,13 @@ void serial_start(void)
 }
 
 void setAnglesMeasurements(float *anglesMeasurements, float *centersensorRad, float *fieldOfViewRad,
-                           uint16_t *size_matrix_local)
+                           uint16_t *size_matrix)
 {
 
-  for (int i1 = 0; i1 < size_matrix_local[0]; i1++) {
-    for (int i3 = 0; i3 < size_matrix_local[2]; i3++) {
-      anglesMeasurements[i1 * size_matrix_local[0] + i3] = centersensorRad[i1] - 0.5 * fieldOfViewRad[0] + fieldOfViewRad[0] /
-    		  size_matrix_local[2] / 2 + (fieldOfViewRad[0] / size_matrix_local[2]) * i3;
+  for (int i1 = 0; i1 < size_matrix[0]; i1++) {
+    for (int i3 = 0; i3 < size_matrix[2]; i3++) {
+      anglesMeasurements[i1 * size_matrix[0] + i3] = centersensorRad[i1] - 0.5 * fieldOfViewRad[0] + fieldOfViewRad[0] /
+          size_matrix[2] / 2 + (fieldOfViewRad[0] / size_matrix[2]) * i3;
     }
   }
 }
@@ -222,7 +224,6 @@ void serial_update(void)
       //Calculate angles + distances
       setAnglesMeasurements(anglesMeasurements, angle_hor_board, stereo_fow, size_matrix);
       stereocam_disparity_to_meters(stereocam_data.data, distancesMeters, stereocam_data.len);
-      float distances_hor[36];
 
       matrix_2_pingpong(distancesMeters, size_matrix, distances_hor);
       pingpong_euler(distances_hor, anglesMeasurements, stereocam_data.matrix_width, reference_pitch, reference_roll,
@@ -258,23 +259,25 @@ void serial_update(void)
     }
 
     stereocam_data.fresh = 0;
-//    DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, stereocam_data.len, distancesMeters);
+    DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, stereocam_data.len, distancesMeters);
   }
 
 }
 
-void matrix_2_pingpong(float *distancesMeters, int16_t *size_matrix_local, float *distances_hor)
+void matrix_2_pingpong(float *distancesMeters, uint16_t *size_matrix, float *distances_hor)
 {
 
-  for (int i_m = 0; i_m < size_matrix_local[0]; i_m++) {
-    for (int i_m3 = 0; i_m3 < size_matrix_local[2]; i_m3++) {
-      distances_hor[i_m * size_matrix_local[2] + i_m3] = 10000;
+  for (int i_m = 0; i_m < size_matrix[0]; i_m++) {
+    for (int i_m3 = 0; i_m3 < size_matrix[2]; i_m3++) {
+      distances_hor[i_m * size_matrix[2] + i_m3] = 10000;
       for (int i_m2 = 0; i_m2 < 4; i_m2++) {
-        if (distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0]*size_matrix[2] + i_m3] < distances_hor[i_m *size_matrix_local[2] + i_m3]) {
-          distances_hor[i_m * size_matrix_local[2] + i_m3] = distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0] *
-																			 size_matrix_local[2] + i_m3];
+        if (distancesMeters[i_m * size_matrix[1] + i_m2 * size_matrix[0]*size_matrix[2] + i_m3] <
+            distances_hor[i_m * size_matrix[2] + i_m3]) {
+          distances_hor[i_m * size_matrix[2] + i_m3] = distancesMeters[i_m * size_matrix[1] + i_m2 * size_matrix[0] *
+              size_matrix[2] + i_m3];
         }
       }
+      //    printf("index: %i %i, %f",i_m,i_m3,distances_hor[i_m*size_matrix[2] + i_m3]);
     }
   }
 
@@ -314,7 +317,6 @@ void CN_matrix_Kalman_filter(void)
 
 void CN_matrix_butterworth(void)
 {
-  //TODO implement butterworthfilter
   float butter[size_matrix[0]*size_matrix[1]*size_matrix[2]];
   float A_butter = -0.7265;
   float B_butter[2] = {0.1367, 0.1367};
@@ -345,6 +347,8 @@ void CN_calculate_target(void)
   float psi = stateGetNedToBodyEulers_f()->psi;
   float s_psi = sin(psi);
   float c_psi = cos(psi);
+  float s_waypoint_rot = sin(waypoint_rot);
+  float c_waypoint_rot = cos(waypoint_rot);
   float dx_ref_NED;
   float dy_ref_NED;
 
@@ -360,6 +364,12 @@ void CN_calculate_target(void)
   target.x = init_target.x + dx_ref_NED;
   target.y = init_target.y + dy_ref_NED;
 
+  //apply rotation of waypoint
+  if (OA_method_flag == 6) {
+    target.x = c_waypoint_rot * target.x - s_waypoint_rot * target.y;
+    target.y = s_waypoint_rot * target.x + c_waypoint_rot * target.y;
+  }
+
   pos_diff.x = target.x - current_pos.x;
   pos_diff.y = target.y - current_pos.y;
   heading_goal_f = atan2(pos_diff.y, pos_diff.x);
@@ -367,7 +377,7 @@ void CN_calculate_target(void)
 }
 
 void pingpong_euler(float *distances_hor, float *horizontalAnglesMeasurements, int horizontalAmountOfMeasurements,
-                    float attitude_reference_pitch, float attitude_reference_roll, float dist_treshold_local)
+                    float attitude_reference_pitch, float attitude_reference_roll, float dist_treshold)
 {
 
   //init
@@ -380,7 +390,7 @@ void pingpong_euler(float *distances_hor, float *horizontalAnglesMeasurements, i
   for (int horizontal_index = 0; horizontal_index < horizontalAmountOfMeasurements; horizontal_index++) {
 
     //  printf("index: %i,distance %f",horizontal_index, distances_hor[horizontal_index]);
-    if (distances_hor[horizontal_index] < dist_treshold_local) {
+    if (distances_hor[horizontal_index] < dist_treshold) {
 
       oa_pitch_angle[horizontal_index] = cos(horizontalAnglesMeasurements[horizontal_index]) * attitude_reference_pitch;
       oa_roll_angle[horizontal_index] = -sin(horizontalAnglesMeasurements[horizontal_index]) * attitude_reference_roll;
@@ -415,9 +425,8 @@ void pingpong_euler(float *distances_hor, float *horizontalAnglesMeasurements, i
 
 void CN_potential_heading(void)
 {
-  //TODO
   //float OF_Result_Vy = 0;
-  //float OF_Result_Vx = 0;
+  //float OF_Result_Vx = 0
 
   //Initialize
   float potential_obst = 0;  //define potential field variables
@@ -518,7 +527,6 @@ void CN_potential_heading(void)
 
 void CN_potential_velocity(void)
 {
-  //TODO
   float OF_Result_Vy = 0;
   float OF_Result_Vx = 0;
 
@@ -603,6 +611,8 @@ void CN_potential_velocity(void)
 
 void CN_vector_velocity(void)
 {
+
+  //Constants
   //Parameters for Butterworth filter
   float A_butter = -0.8541;//-0.7265;
   float B_butter[2] = {0.0730 , 0.0730 };//{0.1367, 0.1367};
@@ -633,15 +643,15 @@ void CN_vector_velocity(void)
   int8_t min_disparity = 45;
 
   //Flight plath angle calculation
-// TODO make algorithm dependent on angle of obstacle.....
-//     total_vel = pow((OF_Result_Vy*OF_Result_Vy + OF_Result_Vx*OF_Result_Vx),0.5);
+  // TODO make algorithm dependent on angle of obstacle.....
+  //     total_vel = pow((OF_Result_Vy*OF_Result_Vy + OF_Result_Vx*OF_Result_Vx),0.5);
 
-//       if (total_vel>vmin){
-//    fp_angle = atan2(OF_Result_Vx,OF_Result_Vy);
-//       }
-//       else{
-//    fp_angle = 0;
-//       }
+  //       if (total_vel>vmin){
+  //    fp_angle = atan2(OF_Result_Vx,OF_Result_Vy);
+  //       }
+  //       else{
+  //    fp_angle = 0;
+  //       }
 
   heading_goal_ref = heading_goal_f - stateGetNedToBodyEulers_f()->psi;
   //FLOAT_ANGLE_NORMALIZE(heading_goal_ref);
@@ -795,6 +805,7 @@ void CN_vector_escape_velocity(void)
 {
 
   /////VECTOR METHOD VARIABLES//////
+  //Constants
   //Parameters for Butterworth filter
   float A_butter = -0.8541;//-0.7265;
   float B_butter[2] = {0.0730 , 0.0730 };//{0.1367, 0.1367};
@@ -803,7 +814,6 @@ void CN_vector_escape_velocity(void)
   //Initalize
   //float fp_angle;
   //float total_vel;
-  float Distance_est;
   float Ca;
   float Cv;
   float angle_ver = 0;
@@ -816,10 +826,11 @@ void CN_vector_escape_velocity(void)
   struct FloatVect3 Total_Kan = {0, 0, 0};
   //Tuning variables
   //float force_max = 200;
-  int8_t min_disparity = 45;
 
   /////ESCAPE METHOD VARIABLES//////
   //Constants
+  int8_t min_disparity = 45;
+  int8_t number_of_buffer = 20;
   float bias = 2 * M_PI;
   vref_max = 0.1; //CHECK!
   //init
@@ -828,24 +839,18 @@ void CN_vector_escape_velocity(void)
   float new_heading_diff = 1000;
   float new_heading = 1000;
   int8_t i = 0;
-  int8_t imin = 0;
-  int8_t iplus = 0;
-  int8_t iplus2 = 0;
+  int8_t i_buffer = 0;
+  float Distance_est;
   float V_total = 0;
+  ///////////////////////////////////
 
   heading_goal_ref = heading_goal_f - stateGetNedToBodyEulers_f()->psi;
   //FLOAT_ANGLE_NORMALIZE(heading_goal_ref);
 
-  //Calculate Attractforce_goal size = 1;
-  Attractforce_goal.x = cos(heading_goal_ref) * erf(0.75 * sqrt(VECT2_NORM2(pos_diff)));
-  Attractforce_goal.y = sin(heading_goal_ref) * erf(0.75 * sqrt(VECT2_NORM2(pos_diff)));
+  //Calculate Attractforce_goal
+  Attractforce_goal.x = cos(heading_goal_ref) * erf(0.5 * sqrt(VECT2_NORM2(pos_diff)));
+  Attractforce_goal.y = sin(heading_goal_ref) * erf(0.5 * sqrt(VECT2_NORM2(pos_diff)));
   Attractforce_goal.z = 0;
-  //printf("current_heading, %f heading_goal_f: %f, heading_goal_ref: %f",stateGetNedToBodyEulers_f()->psi, heading_goal_f, heading_goal_ref);
-
-  //Attractforce_goal_send.x = Attractforce_goal.x;
-  //Attractforce_goal_send.y = Attractforce_goal.y;
-  //Attractforce_goal_send.z = Attractforce_goal.z;
-
 
   for (int i1 = 0; i1 < size_matrix[0]; i1++) {
     angle_hor = angle_hor_board[i1] - 0.5 * stereo_fow[0] - stereo_fow[0] / size_matrix[2] + stereo_fow[0] / size_matrix[2]
@@ -964,25 +969,21 @@ void CN_vector_escape_velocity(void)
           if (READimageBuffer[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3] > min_disparity) {
             //distance_est = (baseline*(float)focal/((float)READimageBuffer_offset[i1*size_matrix[1]+i2*size_matrix[0]*size_matrix[2] + i3])-18.0)/1000;
 
-            imin = i - 1;
-            iplus = i + 1;
-            iplus2 = i + 2;
-
-            if (imin < 0) {
-              imin = 35;
-            }
-            if (iplus > 35) {
-              iplus = 0;
-            }
-            if (iplus2 > 35) {
-              iplus2 = iplus2 - 36;
-            }
-
             diff_available_heading[i] = 100;
-            diff_available_heading[iplus] = 100;
+            for (int i_diff = -number_of_buffer; i_diff <= number_of_buffer + 1; i_diff++) {
+              i_buffer = i + i_diff;
 
-            diff_available_heading[imin] = 100;
-            diff_available_heading[iplus2] = 100;
+
+              if (i_buffer < 1) {
+                i_buffer = i_buffer + size_matrix[0] * size_matrix[2];
+              }
+
+              if (i_buffer > size_matrix[0]*size_matrix[2]) {
+                i_buffer = i_buffer - size_matrix[0] * size_matrix[2];
+              }
+
+              diff_available_heading[i_buffer] = 100;
+            }
           }
         }
         i++;
@@ -991,20 +992,20 @@ void CN_vector_escape_velocity(void)
 
     //set bias
     if (set_bias == 1) {
-      for (int i100 = 0; i100 < 36; i100++) {
-        if (diff_available_heading[i100] <= 0 && (diff_available_heading[i100] < M_PI - 5.0 / 360.0 * 2.0 * M_PI)) {
+      for (int i100 = 0; i100 < (size_matrix[0]*size_matrix[2]); i100++) {
+        if (diff_available_heading[i100] <= 0 && (fabs(diff_available_heading[i100]) < M_PI - 5.0 / 360.0 * 2.0 * M_PI)) {
           diff_available_heading[i100] = diff_available_heading[i100] - bias;
         }
       }
     } else if (set_bias == 2) {
-      for (int i100 = 0; i100 < 36; i100++) {
-        if (diff_available_heading[i100] > 0 && (diff_available_heading[i100] < M_PI - 5.0 / 360.0 * 2.0 * M_PI)) {
+      for (int i100 = 0; i100 < (size_matrix[0]*size_matrix[2]); i100++) {
+        if (diff_available_heading[i100] > 0 && (fabs(diff_available_heading[i100]) < M_PI - 5.0 / 360.0 * 2.0 * M_PI)) {
           diff_available_heading[i100] = diff_available_heading[i100] + bias;
         }
       }
     }
 
-    for (int i100 = 0; i100 < 36; i100++) {
+    for (int i100 = 0; i100 < (size_matrix[0]*size_matrix[2]); i100++) {
       if (fabs(diff_available_heading[i100]) < fabs(new_heading_diff)) {
         new_heading_diff = diff_available_heading[i100];
         new_heading = available_heading[i100];
@@ -1061,26 +1062,25 @@ void CN_vector_escape_velocity(void)
 
 void CN_escape_velocity(void)
 {
+
   //Constants
-  float bias = 2 * M_PI;
   int8_t min_disparity = 45;
+  int8_t number_of_buffer = 20;
+  float bias = 2 * M_PI;
   vref_max = 0.1; //CHECK!
 
-  //init
-  float available_heading[36];
-  float diff_available_heading[36];
+  //init variables
+  float angle_hor = 0;
+  float available_heading[size_matrix[0]*size_matrix[2]];
+  float diff_available_heading[size_matrix[0]*size_matrix[2]];
   float new_heading_diff = 1000;
   float new_heading = 1000;
   int8_t i = 0;
-  int8_t imin = 0;
-  int8_t iplus = 0;
-  int8_t iplus2 = 0;
-  float angle_hor = 0;
+  int8_t i_buffer = 0;
   float distance_est;
   float distance_heading = 0;
 
-
-  //set
+  //generate available_headings
   heading_goal_ref = heading_goal_f - stateGetNedToBodyEulers_f()->psi;
 
   for (int i1 = 0; i1 < size_matrix[0]; i1++) {
@@ -1095,6 +1095,7 @@ void CN_escape_velocity(void)
     }
   }
 
+  //set unavailable headings to 100;
   i = 0;
   for (int i1 = 0; i1 < size_matrix[0]; i1++) {
     for (int i3 = 0; i3 < size_matrix[2]; i3++) {
@@ -1107,25 +1108,22 @@ void CN_escape_velocity(void)
             distance_heading = distance_est;
           }
 
-          imin = i - 1;
-          iplus = i + 1;
-          iplus2 = i + 2;
-
-          if (imin < 0) {
-            imin = 35;
-          }
-          if (iplus > 35) {
-            iplus = 0;
-          }
-          if (iplus2 > 35) {
-            iplus2 = iplus2 - 36;
-          }
-
           diff_available_heading[i] = 100;
-          diff_available_heading[iplus] = 100;
+          for (int i_diff = -number_of_buffer; i_diff <= number_of_buffer + 1; i_diff++) {
+            i_buffer = i + i_diff;
 
-          diff_available_heading[imin] = 100;
-          diff_available_heading[iplus2] = 100;
+
+            if (i_buffer < 1) {
+              i_buffer = i_buffer + size_matrix[0] * size_matrix[2];
+            }
+
+            if (i_buffer > size_matrix[0]*size_matrix[2]) {
+              i_buffer = i_buffer - size_matrix[0] * size_matrix[2];
+            }
+
+            diff_available_heading[i_buffer] = 100;
+          }
+
         }
       }
       i++;
@@ -1134,20 +1132,21 @@ void CN_escape_velocity(void)
 
   //set bias
   if (set_bias == 1) {
-    for (int i100 = 0; i100 < 36; i100++) {
-      if (diff_available_heading[i100] <= 0 && (diff_available_heading[i100] < M_PI - 5.0 / 360.0 * 2.0 * M_PI)) {
+    for (int i100 = 0; i100 < (size_matrix[0]*size_matrix[2]); i100++) {
+      if (diff_available_heading[i100] <= 0 && (fabs(diff_available_heading[i100]) < M_PI - 5.0 / 360.0 * 2.0 * M_PI)) {
         diff_available_heading[i100] = diff_available_heading[i100] - bias;
       }
     }
   } else if (set_bias == 2) {
-    for (int i100 = 0; i100 < 36; i100++) {
-      if (diff_available_heading[i100] > 0 && (diff_available_heading[i100] < M_PI - 5.0 / 360.0 * 2.0 * M_PI)) {
+    for (int i100 = 0; i100 < (size_matrix[0]*size_matrix[2]); i100++) {
+      if (diff_available_heading[i100] > 0 && (fabs(diff_available_heading[i100]) < M_PI - 5.0 / 360.0 * 2.0 * M_PI)) {
         diff_available_heading[i100] = diff_available_heading[i100] + bias;
       }
     }
   }
 
-  for (int i100 = 0; i100 < 36; i100++) {
+  // select minimum available heading
+  for (int i100 = 0; i100 < (size_matrix[0]*size_matrix[2]); i100++) {
     if (fabs(diff_available_heading[i100]) < fabs(new_heading_diff)) {
       new_heading_diff = diff_available_heading[i100];
       new_heading = available_heading[i100];
@@ -1167,6 +1166,11 @@ void CN_escape_velocity(void)
     }
   }
 
+  // Rotate waypoint
+  if (fabs(new_heading_diff) >= 0.5 * M_PI) {
+    waypoint_rot = waypoint_rot + direction * 0.25 * M_PI;
+  }
+
   if (fabs(new_heading_diff) <= (2 * M_PI / 36.0)) {
     if (waypoint_rot == 0) {
       obstacle_flag = 0;
@@ -1176,20 +1180,18 @@ void CN_escape_velocity(void)
     }
   }
 
-  if (fabs(new_heading_diff) >= 0.5 * M_PI) {
-    waypoint_rot = waypoint_rot + direction * 0.25 * M_PI;
-  }
-
   //vref_max should be low
   speed_pot = vref_max * erf(0.5 * sqrt(VECT2_NORM2(pos_diff)));
   if (speed_pot <= 0) {
     speed_pot = 0;
   }
 
+  ref_pitch = cos(new_heading) * speed_pot;
+  ref_roll = sin(new_heading) * speed_pot;
   new_heading_old = new_heading;
 
 #if PRINT_STUFF
-  for (int i100 = 0; i100 < 36; i100++) {
+  for (int i100 = 0; i100 < (size_matrix[0]*size_matrix[2]); i100++) {
     printf("%i diff_available_heading: %f available_heading: %f \n", i100, diff_available_heading[i100],
            available_heading[i100]);
   }
@@ -1198,11 +1200,6 @@ void CN_escape_velocity(void)
   printf("set_bias: %i  obstacle_flag: %i", set_bias, obstacle_flag);
 #endif
 
-
-  ref_pitch = cos(new_heading) * speed_pot;
-  ref_roll = sin(new_heading) * speed_pot;
-
 }
-
 
 

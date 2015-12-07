@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2015 Roland + Clint
+ * Copyright (C) ROland
  *
- * This file is part of paparazzi.
+ * This file is part of paparazzi
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,28 +14,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+/**
+ * @file "modules/read_matrix_serial/read_matrix_serial.h"
+ * @author Roland
+ * reads from the serialad
  */
 
-/** @file modules/obstacle_avoidance/obstacleavoidance.h
- *  @brief Collection of obstacle avoidance features
- */
 #ifndef READ_MATRIX_SERIAL_H
 #define READ_MATRIX_SERIAL_H
 
 extern void serial_init(void);
 extern void serial_update(void);
 extern void serial_start(void);
-extern void setAnglesMeasurements(float *anglesMeasurements, float *centersensorRad, float *fieldOfViewRad,
-                           uint16_t *size_matrix);
 extern void pingpong_euler(float *distances_hor, float *horizontalAnglesMeasurements,
                            int horizontalAmountOfMeasurements, float attitude_reference_pitch, float attitude_reference_roll, float dist_treshold);
-extern void matrix_2_pingpong(float *distancesMeters, int16_t *size_matrix, float *distances_hor);
+extern void matrix_2_pingpong(float *distancesMeters, uint16_t *size_matrix, float *distances_hor);
 
 //functions CN
+extern void CN_matrix_Kalman_filter(void);
+extern void CN_matrix_butterworth(void);
+extern void CN_calculate_target(void);
 extern void CN_potential_heading(void);
 extern void CN_potential_velocity(void);
 extern void CN_vector_velocity(void);

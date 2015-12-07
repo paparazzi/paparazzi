@@ -133,7 +133,8 @@ struct FloatVect3 Total_force = {0, 0, 0};
 
 static void send_INPUT_CONTROL(void)
 {
-//  DOWNLINK_SEND_INPUT_CONTROL(DefaultChannel, DefaultDevice, &Total_Kan_x, &Total_Kan_y, &opticflow_stab.desired_vx, &opticflow_stab.desired_vy, &opti_speed_read.x, &opti_speed_read.y);
+  DOWNLINK_SEND_INPUT_CONTROL(DefaultChannel, DefaultDevice, &Total_Kan_x, &Total_Kan_y, &opticflow_stab.desired_vx,
+                              &opticflow_stab.desired_vy, &opti_speed_read.x, &opti_speed_read.y);
 }
 
 void guidance_h_module_init(void)
