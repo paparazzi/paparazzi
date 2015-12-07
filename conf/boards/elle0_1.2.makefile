@@ -1,12 +1,12 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# elle0_1.0.makefile
+# elle0_1.2.makefile
 #
 # http://wiki.paparazziuav.org/wiki/Elle0
 #
 
 BOARD=elle0
-BOARD_VERSION=1.0
+BOARD_VERSION=1.2
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
 ARCH=stm32
@@ -43,10 +43,10 @@ SYS_TIME_LED       ?= 1
 #
 # default uart configuration
 #
-RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   ?= UART1
+RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   ?= UART2
 RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT ?= UART5
 
-MODEM_PORT ?= UART2
+MODEM_PORT ?= UART1
 MODEM_BAUD ?= B57600
 
 GPS_PORT ?= UART3
