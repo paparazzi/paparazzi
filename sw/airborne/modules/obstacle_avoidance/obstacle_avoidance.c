@@ -219,7 +219,14 @@ void serial_update(void)
     }
 
     stereocam_data.fresh = 0;
-    //DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, stereocam_data.len, distancesMeters);
+    if(stereocam_data.len>50){
+    	DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, 50, distancesMeters);
+
+    }
+    else{
+    	DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, stereocam_data.len, distancesMeters);
+
+    }
   }
 
 }
@@ -237,8 +244,7 @@ void matrix_2_pingpong(float *distancesMeters, uint16_t *size_matrix_local, floa
 																			 size_matrix_local[2] + i_m3];
         }
       }
-      //    printf("index: %i %i, %f",i_m,i_m3,distances_hor[i_m*size_matrix[2] + i_m3]);
-    }
+     }
   }
 
 }

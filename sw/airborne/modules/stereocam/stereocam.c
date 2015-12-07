@@ -39,12 +39,6 @@
 struct link_device *dev = STEREO_PORT;
 #define StereoGetch() STEREO_PORT ->get_byte(STEREO_PORT->periph)
 
-//typedef struct MsgProperties {
-//  uint16_t positionImageStart;
-//  uint8_t width;
-//  uint8_t height;
-//} MsgProperties;
-
 // pervasive local variables
 MsgProperties msgProperties;
 
@@ -113,7 +107,14 @@ extern void stereocam_periodic(void)
         previous_time = sys_time.nb_tick;
       }
 #if SEND_STEREO
-      DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len, msg_buf);
+      if(stereocam_data.len>100){
+    	  DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), 100, stereocam_data.data);
+
+      }
+      else{
+    	  DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len, stereocam_data.data);
+
+      }
 #endif
     }
   }
