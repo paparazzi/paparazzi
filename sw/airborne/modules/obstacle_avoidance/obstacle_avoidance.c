@@ -27,8 +27,6 @@
 #include <stdio.h>
 #include <sys/fcntl.h>
 #include <math.h>
-#include <errno.h>
-#include <unistd.h>
 #include <inttypes.h>
 #include "state.h"
 #include "math/pprz_algebra_float.h"
@@ -55,7 +53,6 @@ float angle_hor_board[] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472};
 float reference_pitch = 0.1;
 float reference_roll = 0.1;
 float dist_treshold = 0.75;
-float distances_hor[36];
 
 //////////////////////////////////////////////
 //////////////Variables CN///////////////////
@@ -191,13 +188,13 @@ void serial_start(void)
 }
 
 void setAnglesMeasurements(float *anglesMeasurements, float *centersensorRad, float *fieldOfViewRad,
-                           uint16_t *size_matrix)
+                           uint16_t *size_matrix_local)
 {
 
-  for (int i1 = 0; i1 < size_matrix[0]; i1++) {
-    for (int i3 = 0; i3 < size_matrix[2]; i3++) {
-      anglesMeasurements[i1 * size_matrix[0] + i3] = centersensorRad[i1] - 0.5 * fieldOfViewRad[0] + fieldOfViewRad[0] /
-          size_matrix[2] / 2 + (fieldOfViewRad[0] / size_matrix[2]) * i3;
+  for (int i1 = 0; i1 < size_matrix_local[0]; i1++) {
+    for (int i3 = 0; i3 < size_matrix_local[2]; i3++) {
+      anglesMeasurements[i1 * size_matrix_local[0] + i3] = centersensorRad[i1] - 0.5 * fieldOfViewRad[0] + fieldOfViewRad[0] /
+    		  size_matrix_local[2] / 2 + (fieldOfViewRad[0] / size_matrix_local[2]) * i3;
     }
   }
 }
@@ -209,13 +206,8 @@ void serial_update(void)
 
     float distancesMeters[stereocam_data.len];
     float anglesMeasurements[stereocam_data.matrix_width];
-    float centerRad = 3.4415926;
-    float fieldOfViewRadHorizontal = 6.282;
-    int x = 0;
-    float sumDistances = 0.0;
-    float forward_speed;
-    float heading;
 
+    float sumDistances = 0.0;
     READimageBuffer = stereocam_data.data;
     //stereocam_disparity_to_meters(stereocam_data.data,distancesMeters,stereocam_data.len);
     for (int i_print1 = 0; i_print1 < 6; i_print1++) {
@@ -230,6 +222,7 @@ void serial_update(void)
       //Calculate angles + distances
       setAnglesMeasurements(anglesMeasurements, angle_hor_board, stereo_fow, size_matrix);
       stereocam_disparity_to_meters(stereocam_data.data, distancesMeters, stereocam_data.len);
+      float distances_hor[36];
 
       matrix_2_pingpong(distancesMeters, size_matrix, distances_hor);
       pingpong_euler(distances_hor, anglesMeasurements, stereocam_data.matrix_width, reference_pitch, reference_roll,
@@ -270,20 +263,18 @@ void serial_update(void)
 
 }
 
-void matrix_2_pingpong(float *distancesMeters, int16_t *size_matrix, float *distances_hor)
+void matrix_2_pingpong(float *distancesMeters, int16_t *size_matrix_local, float *distances_hor)
 {
 
-  for (int i_m = 0; i_m < size_matrix[0]; i_m++) {
-    for (int i_m3 = 0; i_m3 < size_matrix[2]; i_m3++) {
-      distances_hor[i_m * size_matrix[2] + i_m3] = 10000;
+  for (int i_m = 0; i_m < size_matrix_local[0]; i_m++) {
+    for (int i_m3 = 0; i_m3 < size_matrix_local[2]; i_m3++) {
+      distances_hor[i_m * size_matrix_local[2] + i_m3] = 10000;
       for (int i_m2 = 0; i_m2 < 4; i_m2++) {
-        if (distancesMeters[i_m * size_matrix[1] + i_m2 * size_matrix[0]*size_matrix[2] + i_m3] < distances_hor[i_m *
-            size_matrix[2] + i_m3]) {
-          distances_hor[i_m * size_matrix[2] + i_m3] = distancesMeters[i_m * size_matrix[1] + i_m2 * size_matrix[0] *
-              size_matrix[2] + i_m3];
+        if (distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0]*size_matrix[2] + i_m3] < distances_hor[i_m *size_matrix_local[2] + i_m3]) {
+          distances_hor[i_m * size_matrix_local[2] + i_m3] = distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0] *
+																			 size_matrix_local[2] + i_m3];
         }
       }
-      //    printf("index: %i %i, %f",i_m,i_m3,distances_hor[i_m*size_matrix[2] + i_m3]);
     }
   }
 
@@ -376,7 +367,7 @@ void CN_calculate_target(void)
 }
 
 void pingpong_euler(float *distances_hor, float *horizontalAnglesMeasurements, int horizontalAmountOfMeasurements,
-                    float attitude_reference_pitch, float attitude_reference_roll, float dist_treshold)
+                    float attitude_reference_pitch, float attitude_reference_roll, float dist_treshold_local)
 {
 
   //init
@@ -389,7 +380,7 @@ void pingpong_euler(float *distances_hor, float *horizontalAnglesMeasurements, i
   for (int horizontal_index = 0; horizontal_index < horizontalAmountOfMeasurements; horizontal_index++) {
 
     //  printf("index: %i,distance %f",horizontal_index, distances_hor[horizontal_index]);
-    if (distances_hor[horizontal_index] < dist_treshold) {
+    if (distances_hor[horizontal_index] < dist_treshold_local) {
 
       oa_pitch_angle[horizontal_index] = cos(horizontalAnglesMeasurements[horizontal_index]) * attitude_reference_pitch;
       oa_roll_angle[horizontal_index] = -sin(horizontalAnglesMeasurements[horizontal_index]) * attitude_reference_roll;
@@ -427,10 +418,6 @@ void CN_potential_heading(void)
   //TODO
   //float OF_Result_Vy = 0;
   //float OF_Result_Vx = 0;
-
-  //Constants
-  float stereo_fow[2] = {1.0018, 0.7767}; //based on FOW of 57.4, by 44.5
-  float angle_hor_board [] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472};
 
   //Initialize
   float potential_obst = 0;  //define potential field variables
@@ -537,8 +524,6 @@ void CN_potential_velocity(void)
 
   //Constants
   float new_heading;
-  float stereo_fow[2] = {1.0018, 0.7767}; //based on FOW of 57.4, by 44.5
-  float angle_hor_board [] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472};
   float alpha_fil = 0.2;
 
   //Initialize
@@ -618,12 +603,6 @@ void CN_potential_velocity(void)
 
 void CN_vector_velocity(void)
 {
-
-  //Constants
-  float stereo_fow[2] = {1.0018, 0.7767};//based on FOW of 57.4, by 44.5
-  float angle_hor_board [] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472}; //init angle values in input matrix in body frame
-  //float angle_hor = - 0.5*stereo_fow[0] - stereo_fow[0]/size_matrix[2] + stereo_fow[0]/size_matrix[2]/2;
-
   //Parameters for Butterworth filter
   float A_butter = -0.8541;//-0.7265;
   float B_butter[2] = {0.0730 , 0.0730 };//{0.1367, 0.1367};
@@ -816,9 +795,6 @@ void CN_vector_escape_velocity(void)
 {
 
   /////VECTOR METHOD VARIABLES//////
-  //Constants
-  float stereo_fow[2] = {1.0018, 0.7767};//based on FOW of 57.4, by 44.5
-  float angle_hor_board [] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472};
   //Parameters for Butterworth filter
   float A_butter = -0.8541;//-0.7265;
   float B_butter[2] = {0.0730 , 0.0730 };//{0.1367, 0.1367};
@@ -1086,8 +1062,6 @@ void CN_vector_escape_velocity(void)
 void CN_escape_velocity(void)
 {
   //Constants
-  float stereo_fow[2] = {1.0018, 0.7767};
-  float angle_hor_board [] = {0, 1.0472, 2.0944, 3.1416, -2.0944, -1.0472};
   float bias = 2 * M_PI;
   int8_t min_disparity = 45;
   vref_max = 0.1; //CHECK!
