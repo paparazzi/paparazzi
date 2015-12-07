@@ -41,12 +41,9 @@
 #define AVOIDANCES_DISTANCES_HOR_COUNT 36
 #endif
 
-
 #ifndef AVOIDANCE_AMOUNT_OF_BOARDS
 #define AVOIDANCE_AMOUNT_OF_BOARDS 6
 #endif
-
-
 
 #ifndef AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES
 #define AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES 1
@@ -68,18 +65,9 @@ float reference_pitch = 0.1;
 float reference_roll = 0.1;
 float dist_treshold = 0.75;
 float distances_hor[AVOIDANCES_DISTANCES_HOR_COUNT];
-//////////////////////////////////////////////
-
 
 //////////////Variables CN///////////////////
 //for messages
-#if PRINT_FULL_MATRIX
-uint8_t SendREADimageBuffer1[36];
-uint8_t SendREADimageBuffer2[36];
-uint8_t SendREADimageBuffer3[36];
-uint8_t SendREADimageBuffer4[36];
-uint8_t SendREADimageBuffer5[36];
-#endif
 //general
 uint8_t *READimageBuffer; //TODO write code such that this variable can be removed
 uint8_t *READimageBuffer_old; //USED for butterworth filter
@@ -97,15 +85,14 @@ float A_kal = 1;
 float B_kal = 0;
 float H_kal = 1;
 float Q_kal = 0.05;//TODO: clean variables
-
 float R_kal = 2;
 float K_gain_send = 0;
-float Pest_new[36 * 6] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; //TODO make dependent on input
-float Xest_new[36 * 6] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; //TODO make dependent on input;
+float Pest_new[AVOIDANCE_AMOUNT_OF_BOARDS * AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES]; 
+float Xest_new[AVOIDANCE_AMOUNT_OF_BOARDS * AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES];
 //variables butterworth filter
 struct FloatVect3 filter_repforce_old = {0.0, 0.0, 0.0};
 struct FloatVect3 Repulsionforce_Kan_old = {0.0, 0.0, 0.0};
-float butter_old[36 * 6] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //TODO make dependent on input
+float butter_old[AVOIDANCE_AMOUNT_OF_BOARDS * AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES];
 //Vector Method
 float F1 = 0.1;
 float F2 = 0.9;
@@ -147,40 +134,6 @@ uint8_t hysteris_flag;
 struct FloatVect3 Attractforce_goal_send;
 struct FloatVect3 Repulsionforce_Kan_send;
 
-//////////////////////////////////////////////
-#if PRINT_FULL_MATRIX
-static void send_distance_matrix(void)
-{
-  DOWNLINK_SEND_DISTANCE_MATRIX(DefaultChannel, DefaultDevice, &messageArrayLocation, 36, READimageBuffer);
-}
-
-static void send_distance_matrix1(void)  //TODO: clean variables
-{
-
-  DOWNLINK_SEND_DISTANCE_MATRIX1(DefaultChannel, DefaultDevice, 36, SendREADimageBuffer1);
-}
-
-static void send_distance_matrix2(void)
-{
-  DOWNLINK_SEND_DISTANCE_MATRIX2(DefaultChannel, DefaultDevice, 36, SendREADimageBuffer2);
-} Attractforce_goal
-
-static void send_distance_matrix3(void)
-{
-  DOWNLINK_SEND_DISTANCE_MATRIX3(DefaultChannel, DefaultDevice, 36, SendREADimageBuffer3);
-}
-
-static void send_distance_matrix4(void)
-{
-  DOWNLINK_SEND_DISTANCE_MATRIX4(DefaultChannel, DefaultDevice, 36, SendREADimageBuffer4);
-}
-
-static void send_distance_matrix5(void)
-{
-  DOWNLINK_SEND_DISTANCE_MATRIX5(DefaultChannel, DefaultDevice, 36, SendREADimageBuffer5);
-}
-#endif
-
 //static void send_OA_DATA(void)
 //{
 //  //DOWNLINK_SEND_OA_DATA(DefaultChannel, DefaultDevice, &target.x, &target.y, &pos_diff.x, &pos_diff.y, &ref_pitch,
@@ -190,14 +143,12 @@ static void send_distance_matrix5(void)
 
 void serial_init(void)
 {
-#if PRINT_FULL_MATRIX
-  register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX", send_distance_matrix);
-  register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX1", send_distance_matrix1);
-  register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX2", send_distance_matrix2);
-  register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX3", send_distance_matrix3);
-  register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX4", send_distance_matrix4);
-  register_periodic_telemetry(DefaultPeriodic, "DISTANCE_MATRIX5", send_distance_matrix5);
-#endif
+
+  for(int i_fill=0;i_fill<(AVOIDANCE_AMOUNT_OF_BOARDS * AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES);i++){
+    Pest_new[i_fill] = 1;
+    Xest_new[i_fill] = 1;
+    butter_old[i_fill] = 0;
+  }
 //  register_periodic_telemetry(DefaultPeriodic, "OA_DATA", send_OA_DATA);
 }
 
@@ -228,9 +179,9 @@ void serial_update(void)
 
     READimageBuffer = stereocam_data.data;
     //stereocam_disparity_to_meters(stereocam_data.data,distancesMeters,stereocam_data.len);
-    for (int i_print1 = 0; i_print1 < 6; i_print1++) {
-      for (int i_print2 = 0; i_print2 < (stereocam_data.len / 6); i_print2++) {
-        printf("%3d,", READimageBuffer[i_print1 * (stereocam_data.len / 6) + i_print2]);
+    for (int i_print1 = 0; i_print1 < AVOIDANCE_AMOUNT_OF_BOARDS; i_print1++) {
+      for (int i_print2 = 0; i_print2 < (stereocam_data.len / AVOIDANCE_AMOUNT_OF_BOARDS); i_print2++) {
+        printf("%3d,", READimageBuffer[i_print1 * (stereocam_data.len / AVOIDANCE_AMOUNT_OF_BOARDS) + i_print2]);
       }
       printf("\n");
     }
@@ -310,7 +261,7 @@ void CN_matrix_Kalman_filter(void)
   float K_gain[size_matrix[0]*size_matrix[1]*size_matrix[2]];
 
   //Kallman filter on disparity matrix
-  for (int i_k = 0; i_k < (6 * 36); i_k++) {
+  for (int i_k = 0; i_k < (size_matrix[0]*size_matrix[1]*size_matrix[2]); i_k++) {
     Pest_old[i_k] = Pest_new[i_k];
     Xest_old[i_k] = Xest_new[i_k];
 
@@ -338,7 +289,7 @@ void CN_matrix_butterworth(void)
   float B_butter[2] = {0.1367, 0.1367};
 
 
-  for (int i_k = 0; i_k < (6 * 36); i_k++) {
+  for (int i_k = 0; i_k < (size_matrix[0] * size_matrix[1] * size_matrix[2]); i_k++) {
 
     if ((READimageBuffer_old[i_k] - READimageBuffer[i_k]) <= 1 && (READimageBuffer_old[i_k] - READimageBuffer[i_k]) > 0) {
       READimageBuffer[i_k] = READimageBuffer_old[i_k];
@@ -350,7 +301,7 @@ void CN_matrix_butterworth(void)
     butter_old[i_k] = butter[i_k];
   }
 
-  for (int ifill = 0; ifill < (6 * 36); ifill++) {
+  for (int ifill = 0; ifill < (size_matrix[0] * size_matrix[1] * size_matrix[2]); ifill++) {
     READimageBuffer_old[ifill] = READimageBuffer[ifill];
   }
 
@@ -850,8 +801,8 @@ void CN_vector_escape_velocity(void)
   float bias = 2 * M_PI;
   vref_max = 0.1; //CHECK!
   //init
-  float available_heading[36];
-  float diff_available_heading[36];
+  float available_heading[size_matrix[0] * size_matrix[2]];
+  float diff_available_heading[size_matrix[0] * size_matrix[2]];
   float new_heading_diff = 1000;
   float new_heading = 1000;
   int8_t i = 0;
@@ -1061,7 +1012,7 @@ void CN_vector_escape_velocity(void)
     new_heading_old = new_heading;
 
 #if PRINT_STUFF
-    for (int i100 = 0; i100 < 36; i100++) {
+    for (int i100 = 0; i100 < (size_matrix[0] * size_matrix[2]); i100++) {
       printf("%i diff_available_heading: %f available_heading: %f \n", i100, diff_available_heading[i100],
              available_heading[i100]);
     }
