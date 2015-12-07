@@ -85,7 +85,7 @@ PRINT_CONFIG_VAR(AHRS_MAG_ZETA)
 
 /** by default use the gravity heuristic to reduce gain */
 #ifndef AHRS_GRAVITY_HEURISTIC_FACTOR
-#define AHRS_GRAVITY_HEURISTIC_FACTOR 30
+#define AHRS_GRAVITY_HEURISTIC_FACTOR 0
 #endif
 
 /** don't update gyro bias if heading deviation is above this threshold in degrees */
