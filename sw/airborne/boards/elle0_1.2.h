@@ -20,9 +20,9 @@
  *
  */
 
-#ifndef CONFIG_ELLE0_1_0_H
-#define CONFIG_ELLE0_1_0_H
+#ifndef CONFIG_ELLE0_1_2_H
+#define CONFIG_ELLE0_1_2_H
 
 #include "boards/elle0_common.h"
 
-#endif /* CONFIG_ELLE0_1_0_H */
+#endif /* CONFIG_ELLE0_1_2_H */

@@ -1,17 +1,17 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- this is a quadrotor frame in X-configuration equiped with
-     * Autopilot:   ELLE0 1.0 with STM32F4    http://wiki.paparazziuav.org/wiki/ELLE0
-     * IMU:         MPU9250 & MS5611          http://wiki.paparazziuav.org/wiki/ELLE0#IMU
+     * Autopilot:   Elle0 1.2 with STM32F4    http://wiki.paparazziuav.org/wiki/Elle0
+     * IMU:         MPU9250 & MS5611          http://wiki.paparazziuav.org/wiki/Elle0#IMU
      * Actuators:   PWM motor controllers     http://wiki.paparazziuav.org/wiki/Subsystem/actuators#PWM
      * GPS:         Ublox                     http://wiki.paparazziuav.org/wiki/Subsystem/gps
      * RC:          two Spektrum sats         http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#Spektrum
 -->
 
-<airframe name="Quadrotor ELLE0 pwm">
+<airframe name="Quadrotor Elle0 pwm">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="elle0_1.0">
+    <target name="ap" board="elle0_1.2">
     </target>
 
     <target name="nps" board="pc">

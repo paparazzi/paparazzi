@@ -2,14 +2,14 @@
 
 <!-- this is a quadrotor frame equiped with ELLE0 and PWM motor controllers -->
 
-<airframe name="setup_elle0_1.0">
+<airframe name="setup_elle0_1.2">
 
   <firmware name="setup">
-    <target name="tunnel"           board="elle0_1.0"/>
-    <target name="usb_tunnel"       board="elle0_1.0">
+    <target name="tunnel"           board="elle0_1.2"/>
+    <target name="usb_tunnel"       board="elle0_1.2">
       <configure name="TUNNEL_PORT" value="UART3"/>
     </target>
-    <target name="setup_actuators"  board="elle0_1.0">
+    <target name="setup_actuators"  board="elle0_1.2">
       <subsystem name="actuators" type="pwm"/>
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
@@ -17,25 +17,25 @@
   </firmware>
 
   <firmware name="test_progs">
-    <target name="test_sys_time_timer"      board="elle0_1.0"/>
-	<target name="test_sys_time_usleep"     board="elle0_1.0"/>
-    <target name="test_telemetry"           board="elle0_1.0"/>
+    <target name="test_sys_time_timer"      board="elle0_1.2"/>
+	<target name="test_sys_time_usleep"     board="elle0_1.2"/>
+    <target name="test_telemetry"           board="elle0_1.2"/>
 
-    <target name="test_actuators_pwm"       board="elle0_1.0">
+    <target name="test_actuators_pwm"       board="elle0_1.2">
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
     </target>
-    <target name="test_actuators_pwm_sin"   board="elle0_1.0">
+    <target name="test_actuators_pwm_sin"   board="elle0_1.2">
       <define name="USE_SERVOS_7AND8"/>
     </target>
-    <target name="test_esc_mkk_simple"      board="elle0_1.0"/>
-    <target name="test_esc_asctecv1_simple" board="elle0_1.0"/>
-    <target name="test_baro_board"          board="elle0_1.0">
+    <target name="test_esc_mkk_simple"      board="elle0_1.2"/>
+    <target name="test_esc_asctecv1_simple" board="elle0_1.2"/>
+    <target name="test_baro_board"          board="elle0_1.2">
       <configure name="BARO_LED" value="2"/>
     </target>
-    <target name="test_adc"                 board="elle0_1.0"/>
-    <target name="test_uart"                board="elle0_1.0">
-      <define name="USE_UART2"/>
+    <target name="test_adc"                 board="elle0_1.2"/>
+    <target name="test_uart"                board="elle0_1.2">
+      <define name="USE_UART1"/>
       <define name="UART2_BAUD" value="B57600"/>
       <define name="USE_UART3"/>
       <define name="UART3_BAUD" value="B57600"/>
