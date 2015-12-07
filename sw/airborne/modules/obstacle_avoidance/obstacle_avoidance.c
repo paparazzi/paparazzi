@@ -76,7 +76,6 @@ struct FloatVect2 pos_diff;
 struct NedCoor_f current_pos;
 struct FloatVect2 target;
 struct FloatVect2 init_target = {0, 0};
-struct FloatVect2 pos_diff;
 float dx_ref = 0;
 float dy_ref = 0;
 //Variables Kalman filter
@@ -209,7 +208,6 @@ void serial_update(void)
     float distancesMeters[stereocam_data.len];
     float anglesMeasurements[stereocam_data.matrix_width];
 
-    float sumDistances = 0.0;
     READimageBuffer = stereocam_data.data;
     //stereocam_disparity_to_meters(stereocam_data.data,distancesMeters,stereocam_data.len);
     for (int i_print1 = 0; i_print1 < 6; i_print1++) {
