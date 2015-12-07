@@ -96,7 +96,9 @@ struct opticflow_stab_t opticflow_stab = {
 /////////Variables needed to set by user!!!!!/////
 int8_t filter_flag = 0;    //0 =>no filter 1 =>Kalman filter 2 =>Butterworth filter
 int8_t repulsionforce_filter_flag = 0;    //0 =>no filter 1 =>Butterworth filter
-int8_t OA_method_flag = 1; //0 =>No OA only opticflow 1=pingpong 2=>pot_heading 3=>pot_vel 4=>vector 5=>safetyzone
+
+typedef enum {NO_OBSTACLE_AVOIDANCE,PINGPONG,POT_HEADING,POT_VEL,VECTOR,SAFETYZONE,LOGICBASED} oa_method;
+oa_method OA_method_flag = PINGPONG; //0 =>No OA only opticflow 1=pingpong 2=>pot_heading 3=>pot_vel 4=>vector 5=>safetyzone
 int8_t opti_speed_flag = 1;
 float vref_max = 100;
 /////////////////////////////////////////////////
@@ -229,7 +231,7 @@ void OA_update()
   } else {
   }
 
-  if (OA_method_flag == 0) {
+  if (OA_method_flag == NO_OBSTACLE_AVOIDANCE) {
     /* Calculate the error if we have enough flow */
     opticflow_stab.desired_vx = 0;
     opticflow_stab.desired_vy = 0;
@@ -252,7 +254,7 @@ void OA_update()
     BoundAbs(opticflow_stab.cmd.theta, CMD_OF_SAT);
   }
 
-  if (OA_method_flag == 1) {
+  if (OA_method_flag == PINGPONG) {
     opticflow_stab.cmd.phi = ANGLE_BFP_OF_REAL(ref_roll);
     opticflow_stab.cmd.theta = ANGLE_BFP_OF_REAL(ref_pitch);
   }
@@ -292,7 +294,7 @@ void OA_update()
     BoundAbs(opticflow_stab.cmd.theta, CMD_OF_SAT);
 
   }
-  if (OA_method_flag == 3) {
+  if (OA_method_flag == POT_HEADING) {
     new_heading = ref_pitch;
 
     opticflow_stab.desired_vx = sin(new_heading) * speed_pot * 100;
@@ -319,7 +321,7 @@ void OA_update()
 
   }
 
-  if (OA_method_flag == 4 || OA_method_flag == 5 || OA_method_flag == 6) {
+  if (OA_method_flag == VECTOR || OA_method_flag == SAFETYZONE || OA_method_flag == LOGICBASED) {
     //vector field method
     float v_desired_total;
 
