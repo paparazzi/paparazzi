@@ -91,6 +91,20 @@
       </for>
       <deroute block="go_HOV_0"/>
     </block>
+    <block group="spin_control" name="go_HOV_spin_clockwise" strip_button="Spin Clockwise" strip_icon="circle-right.png">
+        <call fun="NavSetWaypointHere(WP_HOV)"/>
+        <for var="i" from="1" to="3">
+            <heading alt="WaypointAlt(WP_HOV)" course="120 * $i" until="stage_time > 0"/>
+        </for>
+        <deroute block="go_HOV_0"/>
+    </block>
+    <block group="spin_control" name="go_HOV_spin_counterclockwise" strip_button="Spin Counterclockwise" strip_icon="circle-left.png">
+        <call fun="NavSetWaypointHere(WP_HOV)"/>
+        <for var="i" from="1" to="3">
+            <heading alt="WaypointAlt(WP_HOV)" course="-120 * $i" until="stage_time > 0"/>
+        </for>
+        <deroute block="go_HOV_0"/>
+    </block>
     <block name="line_p1_p2">
       <go from="p1" hmode="route" wp="p2"/>
       <stay until="stage_time>10" wp="p2"/>

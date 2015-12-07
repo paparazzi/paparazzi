@@ -13,7 +13,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.0">
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
-      <configure name="BMP_PORT" value="/dev/cu.usbmodemE2B9BDC1"/>
+      <!-- <configure name="BMP_PORT" value="/dev/cu.usbmodemE2B9BDC1"/> -->
     </target>
 
     <target name="nps" board="pc">

@@ -1,0 +1,121 @@
+# --------------------------------------------------
+#  HooperFly Paprarazzi Section
+# --------------------------------------------------
+
+# List of aircraft instances. These are the names defined in conf.xml
+Aircraft=( 'Teensy_Fly_Quad_Elle0' 'Teensy_Fly_Quad' 'Teensy_Fly_Hexa' 'Racer_PEX_Quad' 'Racer_PEX_Hexa' 'Racer_PEX_Octo' )
+
+# check if running on Linux or OSX
+UNAME=$(uname -s)
+
+# OPAM configuration
+if [ $UNAME == "Darwin" ]; then
+    . /Users/richardaburton/.opam/opam-init/init.sh > /dev/null 2> /dev/null || true
+fi
+
+
+papenv () {
+	cd ~/paparazzi
+    if [ $UNAME == "Darwin" ]; then
+	    eval `opam config env`
+    fi	
+}
+
+paprun () {
+    papenv
+    ./paparazzi &
+}
+
+papplot() {
+    papenv
+    ./sw/logalizer/logplotter &
+}
+
+papload_tfqe () {
+    papenv
+    make AIRCRAFT=Teensy_Fly_Quad_Elle0 clean_ac FLASH_MODE=DFU-UTIL  ap.upload
+}
+
+papload_tfq () {
+    papenv
+    make AIRCRAFT=Teensy_Fly_Quad clean_ac ap.upload BMP_PORT=/dev/bmp-gdb
+}
+
+papload_tfh () {
+    papenv
+    make AIRCRAFT=Teensy_Fly_Hexa clean_ac ap.upload BMP_PORT=/dev/bmp-gdb
+}
+
+papload_rpq () {
+    papenv
+    make AIRCRAFT=Racer_PEX_Quad clean_ac ap.upload BMP_PORT=/dev/bmp-gdb
+}
+
+papload_rph () {
+    papenv
+    make AIRCRAFT=Racer_PEX_Hexa clean_ac ap.upload BMP_PORT=/dev/bmp-gdb
+}
+
+papcaba () {
+    papenv
+    python ./sw/tools/calibration/calibrate.py -s ACCEL -p ./var/logs/$1 
+}
+
+papcabm () {
+    papenv
+    python ./sw/tools/calibration/calibrate.py -s MAG -p ./var/logs/$1 
+}
+
+papcabc () {
+    papenv
+    python ./sw/tools/calibration/calibrate_mag_current.py ./var/logs/$1 
+}
+
+papcomp_ap () {
+    papenv
+	for i in "${Aircraft[@]}"
+	do
+  		#echo "${i}"
+  		make AIRCRAFT=$i clean_ac ap.compile
+	done        
+}
+
+papcomp_nps () {
+    papenv
+	for i in "${Aircraft[@]}"
+	do
+  		#echo "${i}"
+  		make AIRCRAFT=$i clean_ac nps.compile
+	done    
+}
+
+papsim_start () {
+    papenv
+    ./sw/ground_segment/cockpit/gcs  -layout HOOPERFLY/hooperfly_hf_6.xml &
+    ./sw/ground_segment/tmtc/server  -n &
+    ./sw/ground_segment/tmtc/link  -udp -udp_broadcast &
+    for i in "${Aircraft[@]}"
+	do
+  		#echo "${i}"
+  		./sw/simulator/pprzsim-launch  -a $i -t nps &
+	done
+}
+
+papsim_stop() {
+	kill $(jobs -p)
+}
+
+papfetch () {
+	papenv
+	git fetch paparazzi
+}
+
+papmerge () {
+	papenv
+	git merge paparazzi/master
+}
+
+pappush () {
+	papenv
+	git push origin master
+}

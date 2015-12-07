@@ -1,0 +1,485 @@
+<control_panel name="paparazzi control panel">
+  <section name="variables">
+    <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
+    <variable name="fbw_serial_port" value="/dev/ttyS1"/>
+    <variable name="ap_serial_port" value="/dev/ttyS0"/>
+    <variable name="ivy_bus" value="127:2010"/>
+    <variable name="map" value="muret_UTM.xml"/>
+    <variable name="flight_plan" value="flight_plans/muret1.xml"/>
+  </section>
+  <section name="programs">
+    <program name="Server" command="sw/ground_segment/tmtc/server">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Data Link" command="sw/ground_segment/tmtc/link">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs -edit"/>
+    <program name="Messages" command="sw/ground_segment/tmtc/messages">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Messages (Python)" command="sw/ground_segment/python/messages_app/messagesapp.py"/>
+    <program name="Settings" command="sw/ground_segment/tmtc/settings">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py"/>
+    <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
+    <program name="Log Plotter" command="sw/logalizer/plot"/>
+    <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
+    <program name="Real-time Plotter (Python)" command="sw/ground_segment/python/real_time_plot/messagepicker.py"/>
+    <program name="Log File Player" command="sw/logalizer/play">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Simulator" command="sw/simulator/pprzsim-launch">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Video Synchronizer" command="sw/ground_segment/misc/video_synchronizer"/>
+    <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Hardware in the Loop" command="sw/simulator/simhitl">
+      <arg flag="-fbw" variable="fbw_serial_port"/>
+      <arg flag="-ap" variable="ap_serial_port"/>
+    </program>
+    <program name="Environment Simulator" command="sw/simulator/gaia">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Plot Meteo Profile" command="sw/logalizer/plotprofile"/>
+    <program name="Weather Station" command="sw/ground_segment/misc/davis2ivy">
+      <arg flag="-b" variable="ivy_bus"/>
+      <arg flag="-d" constant="/dev/ttyUSB1"/>
+    </program>
+    <program name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
+    <program name="App Server" command="sw/ground_segment/tmtc/app_server"/>
+    <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
+    <program name="Ivy2Nmea" command="sw/ground_segment/tmtc/ivy2nmea">
+      <arg flag="--ivy_bus" variable="ivy_bus"/>
+      <arg flag="--port" constant="/dev/ttyUSB1"/>
+      <arg flag="--id" constant="1"/>
+    </program>
+  </section>
+  <section name="sessions">
+    <session name="HITL">
+      <program name="Hardware in the Loop">
+        <arg flag="-a" constant="HITL"/>
+        <arg flag="-noground"/>
+        <arg flag="-boot"/>
+      </program>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+    </session>
+    <session name="Replay Flight">
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Log File Player">
+        <arg flag="./var/logs/15_02_28__17_02_29.log"/>
+      </program>
+      <program name="GCS"/>
+    </session>
+    <session name="Scaled Sensors">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Settings">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="1000x250-0+0"/>
+        <arg flag="-t" constant="ACC"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="9.81"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="-9.81"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ax:0.0009766"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ay:0.0009766"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:az:0.0009766"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+250"/>
+        <arg flag="-t" constant="GYRO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gp:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gq:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gr:0.0139882"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+500"/>
+        <arg flag="-t" constant="MAG"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mx:0.0004883"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:my:0.0004883"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mz:0.0004883"/>
+      </program>
+    </session>
+    <session name="Multicraft 4">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/tty.SLAB_USBtoUART"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="hf_4.xml"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/tty.usbserial-A4008qHf"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/tty.SLAB_USBtoUART1"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/tty.SLAB_USBtoUART2"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+    </session>
+    <session name="Simulation">
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Hexa"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-layout" constant="large_left_col.xml"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+    </session>
+    <session name="ARDrone2 Flight">
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+    </session>
+    <session name="Flight USB-serial Redundant">
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-id" constant="1"/>
+        <arg flag="-redlink"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB1"/>
+        <arg flag="-id" constant="2"/>
+        <arg flag="-redlink"/>
+      </program>
+      <program name="Link Combiner"/>
+    </session>
+    <session name="TFQuad USB-Xbee@57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/tty.usbserial-FTGSYEO6"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+    <session name="Messages and Settings">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Settings">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+      </program>
+    </session>
+    <session name="Flight USB-serial@9600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+    <session name="TFQuad USB-serial">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/tty.usbmodemE2B9BDC3"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+    <session name="hf_2_sim">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_broadcast"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Quad"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-layout" constant="HOOPERFLY/hooperfly_hf_2.xml"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Quad_Elle0"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+    </session>
+    <session name="Raw Sensors">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Settings">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="1000x250-0+0"/>
+        <arg flag="-t" constant="ACC"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:ax"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:ay"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:az"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+250"/>
+        <arg flag="-t" constant="GYRO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gp"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gq"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gr"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+500"/>
+        <arg flag="-t" constant="MAG"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:mx"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:my"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:mz"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+750"/>
+        <arg flag="-t" constant="BARO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="101325.0"/>
+        <arg flag="-c" constant="*:telemetry:BARO_RAW:abs"/>
+      </program>
+    </session>
+    <session name="hf_4_sim">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_broadcast"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Hexa"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-layout" constant="HOOPERFLY/hooperfly_hf_4.xml"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Quad"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Quad_Elle0"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Racer_PEX_Quad"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+    </session>
+    <session name="hf_3_sim">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_broadcast"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Hexa"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-layout" constant="HOOPERFLY/hooperfly_hf_3.xml"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Quad"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Racer_PEX_Quad"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+    </session>
+    <session name="Flight USB-XBee-API@57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/paparazzi/xbee"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+    <session name="hf_5_sim">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_broadcast"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Hexa"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-layout" constant="HOOPERFLY/hooperfly_hf_5.xml"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Quad"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Racer_PEX_Octo"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Racer_PEX_Hexa"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Racer_PEX_Quad"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+    </session>
+    <session name="TFQuad SIKRadio@57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/tty.usbserial-A4008qHf"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="large_left_col.xml"/>
+      </program>
+    </session>
+    <session name="TFQuad SLABUART@57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/tty.SLAB_USBtoUART"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="large_left_col.xml"/>
+      </program>
+    </session>
+    <session name="Flight USB-serial@57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+    <session name="SupperBitRF">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyACM0"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Messages"/>
+    </session>
+    <session name="SupperBitRF cable telemetry">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyACM1"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Messages"/>
+      <program name="Messages"/>
+    </session>
+    <session name="TFQH-RPQH">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/tty.usbserial-A4008qHf"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="HOOPERFLY/hooperfly_hf_4.xml"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/tty.SLAB_USBtoUART"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/tty.SLAB_USBtoUART19"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/tty.SLAB_USBtoUART20"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+    </session>
+    <session name="hf_6_sim">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_broadcast"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Hexa"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-layout" constant="HOOPERFLY/hooperfly_hf_6.xml"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Quad"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Racer_PEX_Octo"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Racer_PEX_Hexa"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Racer_PEX_Quad"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="Teensy_Fly_Quad_Elle0"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+    </session>
+  </section>
+</control_panel>
