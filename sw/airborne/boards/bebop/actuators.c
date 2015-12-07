@@ -100,10 +100,11 @@ void actuators_bebop_commit(void)
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_START_PROP;
 #if BEBOP_VERSION2
     actuators_bebop.i2c_trans.buf[1] = 0b00000110; // For Bebop version 2 some motors are reversed (FIXME: test final version)
+    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2);
 #else
     actuators_bebop.i2c_trans.buf[1] = 0b00000000;
+    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1);
 #endif
-    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2);
   }
   // Stop the motors
   else if (actuators_bebop.i2c_trans.buf[10] == 4 && !autopilot_motors_on) {
