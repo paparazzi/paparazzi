@@ -253,6 +253,14 @@
 #define SPI_SELECT_SLAVE2_PORT GPIOE
 #define SPI_SELECT_SLAVE2_PIN GPIO3
 
+#define SPI1_GPIO_PORT_NSS GPIOA
+#define SPI1_GPIO_NSS GPIO4
+
+#define SPI2_GPIO_PORT_NSS GPIOB
+#define SPI2_GPIO_NSS GPIO12
+
+#define SPI3_GPIO_PORT_NSS GPIOA
+#define SPI3_GPIO_NSS GPIO15
 
 /***************************************************************************************************/
 /**************************************    I2C     *************************************************/

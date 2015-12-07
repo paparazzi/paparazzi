@@ -22,6 +22,7 @@
 #define SPI_SELECT_SLAVE5_PIN GPIO4
 
 
+
 /*
  * UART pin configuration
  *
