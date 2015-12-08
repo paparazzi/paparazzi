@@ -185,3 +185,5 @@ tests/results/*
 
 *.dSYM
 
+# K-develop
+*.kate-swp

@@ -1,0 +1,74 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="obstacle_avoidance"  dir="obstacle_avoidance">
+
+  <doc>
+    <description>Obstacle avoidance module</description>
+  </doc>
+
+  <settings>
+     <dl_settings NAME="OA_variables">
+
+      <dl_settings NAME="vision_stab">
+        <dl_setting var="opticflow_stab.phi_pgain" module="obstacle_avoidance/guidance_OA" min="0" step="1" max="10000" shortname="kp_v_phi" param="VISION_PHI_PGAIN"/>
+        <dl_setting var="opticflow_stab.phi_igain" module="obstacle_avoidance/guidance_OA" min="0" step="1" max="1000" shortname="ki_v_phi" param="VISION_PHI_IGAIN"/>
+        <dl_setting var="opticflow_stab.theta_pgain" module="obstacle_avoidance/guidance_OA" min="0" step="1" max="10000" shortname="kp_v_theta" param="VISION_THETA_PGAIN"/>
+        <dl_setting var="opticflow_stab.theta_igain" module="obstacle_avoidance/guidance_OA" min="0" step="1" max="1000" shortname="ki_v_theta" param="VISION_THETA_IGAIN"/>
+        <dl_setting var="opticflow_stab.desired_vx" module="obstacle_avoidance/guidance_OA" min="-5" step="0.01" max="5" shortname="desired_vx" param="VISION_DESIRED_VX"/>
+        <dl_setting var="opticflow_stab.desired_vy" module="obstacle_avoidance/guidance_OA" min="-5" step="0.01" max="5" shortname="desired_vy" param="VISION_DESIRED_VY"/>
+      </dl_settings>
+
+          <dl_settings NAME="OA_general">
+        <dl_setting var="OA_method_flag" module="obstacle_avoidance/guidance_OA" min="0" step="1" max="6" shortname="OA_method" param="OA_method"/>
+        <dl_setting var="repulsionforce_filter_flag" module="obstacle_avoidance/guidance_OA" min="0" step="1" max="1" shortname="Obst_force_filter" param="Obst_force_filter"/>
+        <dl_setting var="opti_speed_flag" module="obstacle_avoidance/guidance_OA" min="0" step="1" max="1" shortname="opti_speed_flag" param="opti_speed_flag"/>
+        <dl_setting var="vref_max" module="obstacle_avoidance/guidance_OA" min="0" step="1" max="1000" shortname="vref_max" param="vref_max"/>
+      </dl_settings>
+
+      <dl_settings name="Vector_method">
+        <dl_setting var="F1" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="5" shortname="F1" param="F1"/>
+        <dl_setting var="F2" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="5" shortname="F2" param="F2"/>
+        <dl_setting var="Cfreq" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="5" shortname="Cfreq" param="Cfreq"/>
+        <dl_setting var="Ko" module="obstacle_avoidance/obstacle_avoidance" min="0" step="10" max="50000" shortname="Ko" param="Ko"/>
+        <dl_setting var="Kg" module="obstacle_avoidance/obstacle_avoidance" min="0" step="1" max="250" shortname="Kg" param="Kg"/>
+        <dl_setting var="Dist_offset" module="obstacle_avoidance/obstacle_avoidance" min="-1" step="0.01" max="1" shortname="Dist_offset" param="Dist_offset"/>
+        <dl_setting var="dis_treshold" module="obstacle_avoidance/obstacle_avoidance" min="0" step="1" max="15" shortname="dis_treshold" param="dis_treshold"/>
+        <dl_setting var="dx_ref" module="obstacle_avoidance/obstacle_avoidance" min="-10" step="1" max="10" shortname="dx_ref" param="dx_ref"/>
+        <dl_setting var="dy_ref" module="obstacle_avoidance/obstacle_avoidance" min="-10" step="1" max="10" shortname="dy_ref" param="dy_ref"/>
+      </dl_settings>
+
+      <dl_settings name="Pot_method">
+         <dl_setting var="K_obst" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="10000" shortname="K_obst" param="K_obst"/>
+         <dl_setting var="K_goal" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="1000" shortname="K_goal" param="K_goal"/>
+         <dl_setting var="b_damp" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="1000" shortname="b_damp" param="b_damp"/>
+         <dl_setting var="c1_oa" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="500" shortname="c1" param="c1"/>
+         <dl_setting var="c2_oa" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="500" shortname="c2" param="c2"/>
+         <dl_setting var="c3_oa" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="500" shortname="c3" param="c3"/>
+         <dl_setting var="c4_oa" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="500" shortname="c4" param="c4"/>
+         <dl_setting var="kv" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="500" shortname="kv" param="kv"/>
+         <dl_setting var="epsilon" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.01" max="1" shortname="epsilon" param="epsilon"/>
+      </dl_settings>
+
+     </dl_settings>
+  </settings>
+
+  <header>
+    <file name="obstacle_avoidance.h"/>
+    <file name="guidance_OA.h"/>
+  </header>
+
+  <init fun="serial_init()"/>
+  <periodic fun="serial_update()" start="serial_start()" stop="serial_stop()" freq="512"/>
+
+  <makefile>
+    <file name="obstacle_avoidance.c"/>
+    <file name="guidance_OA.c"/>
+
+    <raw>
+        ap.CFLAGS += -DGUIDANCE_V_MODE_MODULE_SETTING=GUIDANCE_V_MODE_HOVER
+    ap.CFLAGS += -DGUIDANCE_H_MODE_MODULE_SETTING=GUIDANCE_H_MODE_MODULE
+    </raw>
+
+  </makefile>
+
+</module>

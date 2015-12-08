@@ -861,7 +861,11 @@
 
   <!--107 is free -->
   <!--108 is free -->
-  <!--109 is free -->
+
+  <message name="MULTIGAZE_METERS" id="109">
+    <field name="multigaze_meters" type="float[]"/>
+  </message>
+
 
   <message name="DC_SHOT" id="110">
     <field name="photo_nr" type="int16"/>
