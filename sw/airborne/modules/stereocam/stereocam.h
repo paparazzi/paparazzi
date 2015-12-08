@@ -33,10 +33,13 @@ typedef struct {
   uint8_t len;
   uint8_t *data;
   uint8_t fresh;
+  uint8_t matrix_width;
+  uint8_t matrix_height;
 } uint8array;
 
 extern uint8array stereocam_data;
 
+extern void stereocam_disparity_to_meters(uint8_t *, float *, int);
 extern void stereocam_start(void);
 extern void stereocam_stop(void);
 extern void stereocam_periodic(void);
