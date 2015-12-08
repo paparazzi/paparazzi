@@ -134,3 +134,16 @@ void i2c2_hw_init(void)
   ZEROS_ERR_COUNTER(i2c2_errors);
 }
 #endif
+
+#if USE_I2C3
+struct i2c_errors i2c3_errors;
+
+void i2c3_hw_init(void)
+{
+  i2c3.reg_addr = (void *)open("/dev/i2c-3", O_RDWR);
+  i2c3.errors = &i2c3_errors;
+
+  /* zeros error counter */
+  ZEROS_ERR_COUNTER(i2c3_errors);
+}
+#endif

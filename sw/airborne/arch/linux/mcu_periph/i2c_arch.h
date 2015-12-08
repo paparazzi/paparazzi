@@ -45,4 +45,9 @@ extern void i2c2_hw_init(void);
 #endif /* USE_I2C2 */
 
 
+#if USE_I2C3
+extern void i2c3_hw_init(void);
+#endif /* USE_I2C3 */
+
+
 #endif /* LINUX_MCU_PERIPH_I2C_ARCH_H */
