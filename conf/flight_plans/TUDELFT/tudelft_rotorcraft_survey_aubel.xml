@@ -1,0 +1,68 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="175" ground_alt="160" lat0="50.692111" lon0="5.820278" max_dist_from_home="150" name="Survey-Drop-Race" security_height="2">
+  <waypoints>
+    <waypoint name="HOME" x="29.1" y="12.0"/>
+    <waypoint name="CLIMB" x="-32.4" y="-36.2"/>
+    <waypoint name="STDBY" x="34.8" y="0.3"/>
+    <waypoint name="raceA" x="14.5" y="-24.7"/>
+    <waypoint name="raceB" x="52.8" y="-12.7"/>
+    <waypoint name="WG" x="40.0" y="16.7"/>
+    <waypoint name="WD" x="33.9" y="-10.8"/>
+    <waypoint name="DROP" x="27.6" y="16.9"/>
+    <waypoint name="RZ1" x="27.6" y="16.9"/>
+    <waypoint name="RZ2" x="35.5" y="-15.4"/>
+    <waypoint name="RZ3" x="42.6" y="-12.6"/>
+    <waypoint name="FC" x="28.7" y="-18.8"/>
+    <waypoint name="S1" x="-13.2" y="-1.7"/>
+    <waypoint name="S2" x="54.0" y="27.6"/>
+    <waypoint name="S3" x="87.9" y="-36.2"/>
+    <waypoint name="S4" x="21.8" y="-69.6"/>
+    <waypoint name="p1" x="10.9" y="-24.1"/>
+    <waypoint name="p2" x="53.6" y="-9.7"/>
+    <waypoint name="p3" x="55.3" y="-14.0"/>
+    <waypoint name="p4" x="12.6" y="-27.8"/>
+    <waypoint name="CAM" x="-31.6" y="-44.0"/>
+    <waypoint name="CRUISE" x="-31.6" y="-39.9"/>
+    <waypoint height="15" name="TD" x="32.4" y="7.0"/>
+    <waypoint height="15" x="0" y="0" name="ETD"/>
+    <waypoint name="_red1" x="94.0" y="133.0"/>
+    <waypoint name="_red2" x="171.4" y="-26.2"/>
+    <waypoint name="_red3" x="-32.5" y="-127.4"/>
+    <waypoint name="_red4" x="-106.7" y="49.5"/>
+    <waypoint name="_green1A" x="-56.1" y="58.5"/>
+    <waypoint name="_green1B" x="-63.6" y="84.0"/>
+    <waypoint name="_green1C" x="-38.6" y="91.2"/>
+    <waypoint name="_green1D" x="-28.1" y="68.8"/>
+    <waypoint name="_green2A" x="-23.9" y="-102.5"/>
+    <waypoint name="_green2B" x="-77.1" y="30.9"/>
+    <waypoint name="_green2C" x="86.6" y="101.4"/>
+    <waypoint name="_green2D" x="146.0" y="-30.7"/>
+  </waypoints>
+  <sectors>
+    <sector color="red" name="RED">
+      <corner name="_red1"/>
+      <corner name="_red2"/>
+      <corner name="_red3"/>
+      <corner name="_red4"/>
+    </sector>
+    <sector color="green" name="GREEN1">
+      <corner name="_green1A"/>
+      <corner name="_green1B"/>
+      <corner name="_green1C"/>
+      <corner name="_green1D"/>
+    </sector>
+    <sector color="green" name="GREEN2">
+      <corner name="_green2A"/>
+      <corner name="_green2B"/>
+      <corner name="_green2C"/>
+      <corner name="_green2D"/>
+    </sector>
+  </sectors>
+  <includes>
+    <include name="Mission" procedure="tudelft_rotorcraft_survey_mission.xml"/>
+  </includes>
+  <blocks>
+    <block name="Dummy"/>
+  </blocks>
+</flight_plan>

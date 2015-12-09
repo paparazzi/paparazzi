@@ -43,10 +43,10 @@
       <define name="VIDEO_THREAD_SHOT_PATH" value="/data/ftp/internal_000/images"/>
     </load>
     <load name="cv_blob_locator.xml"/>
-    <load name="video_rtp_stream.xml">
+    <!--load name="video_rtp_stream.xml">
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-    </load>
+    </load-->
     <load name="nav_survey_rectangle_rotorcraft.xml">
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
     </load>
@@ -57,6 +57,12 @@
       <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5"/>
     </load>
     <load name="video_exif.xml"/>
+    <load name="mavlink.xml">
+      <define name="UDP1_PORT_OUT" value="5000"/>
+      <define name="UDP1_PORT_IN" value="5000"/>
+      <define name="UDP1_HOST" value="192.168.42.2"/>
+      <configure name="MAVLINK_PORT" value="UDP1"/>
+    </load>
   </modules>
 
   <commands>
