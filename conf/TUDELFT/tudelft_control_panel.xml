@@ -1,0 +1,213 @@
+<control_panel name="paparazzi control panel">
+  <section name="programs">
+    <program name="Server" command="sw/ground_segment/tmtc/server"/>
+    <program name="Data Link" command="sw/ground_segment/tmtc/link">
+      <arg flag="-d" constant="/dev/ttyUSB0"/>
+    </program>
+    <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs"/>
+    <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs">
+      <arg flag="-edit"/>
+    </program>
+    <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
+    <program name="Messages (Python)" command="sw/ground_segment/python/messages_app/messagesapp.py"/>
+    <program name="Settings" command="sw/ground_segment/tmtc/settings">
+      <arg flag="-ac" constant="@AIRCRAFT"/>
+    </program>
+    <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py"/>
+    <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
+    <program name="Log Plotter" command="sw/logalizer/logplotter"/>
+    <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
+    <program name="Real-time Plotter (Python)" command="sw/ground_segment/python/real_time_plot/messagepicker.py"/>
+    <program name="Log File Player" command="sw/logalizer/play"/>
+    <program name="Simulator" command="sw/simulator/pprzsim-launch"/>
+    <program name="Video Synchronizer" command="sw/ground_segment/misc/video_synchronizer"/>
+    <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
+      <arg flag="-ac" constant="@AIRCRAFT"/>
+      <arg flag="xbox_gamepad.xml"/>
+    </program>
+    <program name="Hardware in the Loop" command="sw/simulator/simhitl"/>
+    <program name="Environment Simulator" command="sw/simulator/gaia"/>
+    <program name="Http Server" command="$python">
+      <arg flag="-m" constant="SimpleHTTPServer"/>
+      <arg flag="8889"/>
+    </program>
+    <program name="Plot Meteo Profile" command="sw/logalizer/plotprofile"/>
+    <program name="Weather Station" command="sw/ground_segment/misc/davis2ivy">
+      <arg flag="-d" constant="/dev/ttyUSB1"/>
+    </program>
+    <program name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
+    <program name="App Server" command="sw/ground_segment/tmtc/app_server"/>
+    <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
+    <program name="Ivy2Nmea" command="sw/ground_segment/tmtc/ivy2nmea">
+      <arg flag="--port" constant="/dev/ttyUSB1"/>
+      <arg flag="--id" constant="1"/>
+    </program>
+    <program name="BluegigaUsbDongleScanner" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver">
+      <arg flag="/dev/ttyACM2"/>
+      <arg flag="scan" />
+    </program>
+    <program name="BluegigaUsbDongle" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver">
+      <arg flag="/dev/ttyACM2"/>
+      <arg flag="00:07:00:2d:d6:bb" />
+      <arg flag="4242" />
+      <arg flag="4252" />
+    </program>
+  </section>
+
+  <section name="sessions">
+    <session name="Bluegiga">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_port" constant="4242"/>
+        <arg flag="-udp_uplink_port" constant="4252"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
+      <program name="NatNet">
+        <arg flag="-ac" constant="1"/>
+        <arg flag="12"/>
+        <arg flag="-small"/>
+        <arg flag="-tf" constant="5"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-d" constant="2"/>
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="hobbyking.xml"/>
+      </program>
+    </session>
+    <session name="Flight USB0 @57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
+    </session>
+    <session name="Flight ACM1 @57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyACM1"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
+    </session>
+    <session name="Flight ACM0 @57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyACM0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
+    </session>
+    <session name="Flight XBee @57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/paparazzi/xbee"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
+    </session>
+    <session name="Flight UDP">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+      </program>
+    </session>
+    <session name="Raw Sensors">
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="1000x250-0+0"/>
+        <arg flag="-t" constant="ACC"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:ax"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:ay"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:az"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+250"/>
+        <arg flag="-t" constant="GYRO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gp"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gq"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gr"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+500"/>
+        <arg flag="-t" constant="MAG"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:mx"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:my"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:mz"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+750"/>
+        <arg flag="-t" constant="BARO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="101325.0"/>
+        <arg flag="-c" constant="*:telemetry:BARO_RAW:abs"/>
+      </program>
+    </session>
+    <session name="Scaled Sensors">
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="1000x250-0+0"/>
+        <arg flag="-t" constant="ACC"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="9.81"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="-9.81"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ax:0.0009766"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ay:0.0009766"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:az:0.0009766"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+250"/>
+        <arg flag="-t" constant="GYRO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gp:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gq:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gr:0.0139882"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+500"/>
+        <arg flag="-t" constant="MAG"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mx:0.0004883"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:my:0.0004883"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mz:0.0004883"/>
+      </program>
+    </session>
+    <session name="Messages and Settings">
+      <program name="Messages"/>
+      <program name="Settings">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+      </program>
+    </session>
+    <session name="Joystick Hobbyking">
+      <program name="Joystick">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="hobbyking.xml"/>
+      </program>
+    </session>
+    <session name="Joystick X3D Pro">
+      <program name="Joystick">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="extreme_3d_pro.xml"/>
+      </program>
+    </session>
+  </section>
+</control_panel>

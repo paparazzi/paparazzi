@@ -1,0 +1,90 @@
+<conf>
+  <aircraft
+   name="Ardrone2_182"
+   ac_id="182"
+   airframe="airframes/TUDELFT/IMAV2013/tudelft_ardrone2.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/time_countdown.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Ardrone2_184"
+   ac_id="184"
+   airframe="airframes/TUDELFT/IMAV2013/tudelft_ardrone2.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/time_countdown.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Ardrone2_186"
+   ac_id="186"
+   airframe="airframes/TUDELFT/IMAV2013/tudelft_ardrone2.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/time_countdown.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="ChouChou_LisaS"
+   ac_id="135"
+   airframe="airframes/TUDELFT/IMAV2013/tudelft_chouchou_lisa_s.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/control/rotorcraft_guidance.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="MavRick_LisaS"
+   ac_id="131"
+   airframe="airframes/TUDELFT/IMAV2013/tudelft_mavrick_lisa_s.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="Quadrotor_LisaS"
+   ac_id="132"
+   airframe="airframes/examples/quadrotor_lisa_s.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="Walkera_GeniusV1"
+   ac_id="134"
+   airframe="airframes/TUDELFT/IMAV2013/tudelft_walkera_genius_v1.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
+   gui_color="orange"
+  />
+  <aircraft
+   name="Walkera_V120D02S"
+   ac_id="133"
+   airframe="airframes/TUDELFT/IMAV2013/tudelft_walkera_V120D02S.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
+   gui_color="green"
+  />
+</conf>
