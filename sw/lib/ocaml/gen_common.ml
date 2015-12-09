@@ -126,6 +126,9 @@ let get_module = fun m global_targets ->
         param = Xml.children m; targets = targets }
   | _ -> Xml2h.xml_error "module or load"
 
+(** [test_targets target targets]
+ * Test if [target] is allowed [targets]
+ * Return true if target is allowed, false if target is not in list or rejected (prefixed by !) *)
 let test_targets = fun target targets ->
   List.exists (fun t ->
   let l = String.length t in

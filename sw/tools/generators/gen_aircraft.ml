@@ -88,7 +88,7 @@ let file_xml2mk = fun f ?(arch = false) dir_name target xml ->
     else format_of_string "%s.srcs += %s/%s\n" in
   fprintf f fmt target dir_name name
 
-let module_xml2mk = fun f (*modules*) target m ->
+let module_xml2mk = fun f target m ->
   if not (List.mem target m.targets) then () else
   let name = ExtXml.attrib m.xml "name" in
   let dir = try Xml.attrib m.xml "dir" with Xml.No_attribute _ -> name in
@@ -103,7 +103,11 @@ let module_xml2mk = fun f (*modules*) target m ->
   (* Look for makefile section *)
   ExtXml.iter_tag "makefile"
     (fun section ->
-      (* Look for defines, flags, files, ... *)
+      (* Look for defines, flags, files, ... if target is matching *)
+      let section =
+        let targets = Gen_common.targets_of_field section Env.default_module_targets in
+        if Gen_common.test_targets target targets then section else Xml.Element ("makefile", [], [])
+      in 
       Xml.iter
       (fun field ->
           match String.lowercase (Xml.tag field) with
@@ -170,7 +174,7 @@ let subsystem_xml2mk = fun f firmware s ->
   fprintf f "\tinclude $(CFG_SHARED)/%s\n" s_name;
   fprintf f "endif\n"
 
-let mod_or_subsys_xml2mk = fun f (*modules*) global_targets firmware target xml ->
+let mod_or_subsys_xml2mk = fun f global_targets firmware target xml ->
   try
     let m = Gen_common.get_module xml global_targets in
     module_xml2mk f target m;
