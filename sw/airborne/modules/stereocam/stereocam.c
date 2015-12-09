@@ -36,7 +36,7 @@
 
 // define coms link for stereocam
 #define STEREO_PORT   (&((UART_LINK).device))
-struct link_device *dev = STEREO_PORT;
+struct link_device *linkdev = STEREO_PORT;
 #define StereoGetch() STEREO_PORT ->get_byte(STEREO_PORT->periph)
 
 // pervasive local variables
@@ -97,7 +97,7 @@ extern void stereocam_stop(void)
 extern void stereocam_periodic(void)
 {
   // read all data from the stereo com link, check that don't overtake extract
-  while (dev->char_available(dev->periph) && stereoprot_add(insert_loc, 1, STEREO_BUF_SIZE) != extract_loc) {
+  while (linkdev->char_available(linkdev->periph) && stereoprot_add(insert_loc, 1, STEREO_BUF_SIZE) != extract_loc) {
     if (handleStereoPackage(StereoGetch(), STEREO_BUF_SIZE, &insert_loc, &extract_loc, &msg_start, msg_buf, ser_read_buf,
                             &stereocam_data.fresh, &stereocam_data.len, &stereocam_data.matrix_width, &stereocam_data.matrix_height)) {
       freq_counter++;

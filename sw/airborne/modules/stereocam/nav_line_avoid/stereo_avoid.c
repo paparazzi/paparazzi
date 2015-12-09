@@ -41,16 +41,14 @@ PRINT_CONFIG_VAR(STEREO_UART)
 
 // define coms link for stereocam
 #define STEREO_PORT   (&((STEREO_UART).device))
-struct link_device *dev = STEREO_PORT;
+struct link_device *ldev = STEREO_PORT;
 
-#define StereoGetch() STEREO_PORT ->get_byte(STEREO_PORT->periph)
+#define StereoGetch() STEREO_PORT->get_byte(STEREO_PORT->periph)
 #define StereoSend1(c) STEREO_PORT->put_byte(STEREO_PORT->periph, c)
 #define StereoUartSend1(c) StereoSend1(c)
 #define StereoSend(_dat,_len) { for (uint8_t i = 0; i< (_len); i++) StereoSend1(_dat[i]); };
 #define StereoUartSetBaudrate(_b) uart_periph_set_baudrate(STEREO_PORT, _b);
-#define StereoChAvailable()(dev->char_available(dev->periph))
-
-
+#define StereoChAvailable()(ldev->char_available(ldev->periph))
 
 void stereo_avoid_init(void)
 {
