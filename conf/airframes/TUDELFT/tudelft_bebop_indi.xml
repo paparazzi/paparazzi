@@ -3,14 +3,11 @@
 <airframe name="bebop_indi">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop">
-      <define name="STABILIZATION_INDI_G2_R" value="0.1450"/>
-    </target>
+    <target name="ap" board="bebop"/>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
       <subsystem name="udp"/>
-      <define name="STABILIZATION_INDI_G2_R" value="0.0"/>
     </target>
 
     <!--define name="USE_SONAR" value="TRUE"/-->
@@ -28,6 +25,7 @@
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </subsystem>
     <subsystem name="ins" type="extended"/>
+    <subsystem name="guidance" type="indi"/>
   </firmware>
 
   <modules main_freq="512">
@@ -37,26 +35,6 @@
     <!--load name="logger_file.xml">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </load-->
-    <load name="video_thread.xml">
-      <define name="VIDEO_THREAD_FPS" value="4"/>
-      <define name="VIDEO_THREAD_CAMERA" value="bottom_camera"/>
-      <define name="VIDEO_THREAD_SHOT_PATH" value="/data/ftp/internal_000/images"/>
-    </load>
-    <load name="cv_blob_locator.xml"/>
-    <load name="video_rtp_stream.xml">
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
-      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-    </load>
-    <load name="nav_survey_rectangle_rotorcraft.xml">
-      <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
-    </load>
-    <load name="nav_survey_poly_rotorcraft.xml">
-      <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/>
-    </load>
-    <load name="digital_cam_video.xml">
-      <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5"/>
-    </load>
-    <load name="video_exif.xml"/>
   </modules>
 
   <commands>
@@ -94,7 +72,7 @@
     <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
-  <include href="conf/airframes/TUDELFT/calibrations/bebop5.xml" />
+  <include href="conf/airframes/TUDELFT/calibrations/bebop7.xml" />
 
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
@@ -106,10 +84,6 @@
   <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
   <section name="AHRS" prefix="AHRS_">
     <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
-    <!-- Toulouse -->
-    <!--define name="H_X" value="0.513081"/>
-    <define name="H_Y" value="-0.00242783"/>
-    <define name="H_Z" value="0.858336"/-->
     <!-- Delft -->
     <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
@@ -173,6 +147,7 @@
     <define name="G1_P" value="0.0639"/>
     <define name="G1_Q" value="0.0361"/>
     <define name="G1_R" value="0.0022"/>
+    <define name="G2_R" value="0.1450"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>
@@ -233,6 +208,8 @@
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
   </section>
 
   <section name="BAT">

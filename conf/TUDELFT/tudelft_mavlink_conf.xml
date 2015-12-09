@@ -1,0 +1,13 @@
+<conf>
+  <aircraft
+   name="BebopMavlink"
+   ac_id="1"
+   airframe="airframes/TUDELFT/tudelft_bebop_mavlink.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/TUDELFT/tudelft_rotorcraft_survey_imav2015_competition.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_secondary.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/stabilization_att_indi.xml settings/control/rotorcraft_speed.xml"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/cv_blob_locator.xml modules/nav_survey_rectangle_rotorcraft.xml modules/nav_survey_poly_rotorcraft.xml modules/digital_cam_video.xml"
+   gui_color="#ffff0689b7a1"
+  />
+</conf>
