@@ -48,7 +48,7 @@
       <attitude pitch="0" roll="0" throttle="0" until="stage_time > 1" vmode="throttle"/>
     </block>
     <block name="Takeoff">
-      <exception cond="stateGetPositionEnu_f()->z > 1.5" deroute="Standby"/>
+      <exception cond="stateGetPositionEnu_f()->z > 0.5" deroute="Standby"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
@@ -63,7 +63,7 @@
       <exception cond="electrical.bat_low" deroute="land here"/>
       <call fun="nav_set_heading_towards_waypoint(WP_GOAL)"/>
       <call fun="NavSetWaypointHere(WP_route_START)"/>
-      <stay until="stage_time > 4" wp="route_START"/>
+      <stay until="stage_time > 3" wp="route_START"/>
     </block>
     <block name="route_to_GOAL">
       <exception cond="GpsIsLost()" deroute="attitude_land"/>
