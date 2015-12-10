@@ -18,7 +18,7 @@
   </waypoints>
   <blocks>
     <block name="avoid">
-      <attitude pitch="ref_pitch" roll="ref_roll" alt="2.0" vmode="alt" until="FALSE"/>
+      <attitude pitch="DegOfRad(ref_pitch)" roll="DegOfRad(ref_roll)" alt="2.0" vmode="alt" until="FALSE"/>
     </block>
   </blocks>
 </flight_plan>

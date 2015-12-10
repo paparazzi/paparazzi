@@ -63,7 +63,7 @@ float ref_yaw = 0.0;
 //tuning info
 float reference_pitch = 0.1;
 float reference_roll = 0.1;
-float dist_treshold = 0.75;
+float dist_treshold = 1.25;
 float distances_hor[AVOIDANCES_DISTANCES_HOR_COUNT];
 
 //////////////Variables CN///////////////////
