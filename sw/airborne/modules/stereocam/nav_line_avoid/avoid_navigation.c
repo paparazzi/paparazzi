@@ -37,6 +37,9 @@
 // Know waypoint numbers and blocks
 #include "generated/flight_plan.h"
 
+// To get data from the stereo cam
+#include "modules/stereocam/stereocam.h"
+
 // Downlink
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -70,7 +73,7 @@ void run_avoid_navigation_onvision(void)
   switch (avoid_navigation_data.mode) {
     case 0:     // Go to Goal and stop at obstacles
       //count 4 subsequent obstacles
-      if (avoid_navigation_data.stereo_bin[0] > 1) {
+      if (stereocam_data.data[0] > 60) {
         counter = counter + 1;
         if (counter > 1) {
           counter = 0;
@@ -84,9 +87,9 @@ void run_avoid_navigation_onvision(void)
       break;
     case 1:     // Turn until clear
       //count 20 subsequent free frames
-      if (avoid_navigation_data.stereo_bin[0] < 1) {
+      if (stereocam_data.data[0] < 60) {
         counter = counter + 1;
-        if (counter > 12) {
+        if (counter > 6) {
           counter = 0;
           //Stop and put waypoint 2.5 m ahead
           struct EnuCoor_i new_coor;
@@ -112,14 +115,6 @@ void run_avoid_navigation_onvision(void)
   avoid_navigation_data.stereo_bin[2] = avoid_navigation_data.stereo_bin[0] > 20;
   avoid_navigation_data.stereo_bin[3] = avoid_navigation_data.mode;
   avoid_navigation_data.stereo_bin[4] = counter;
-
-#ifdef STEREO_LED
-  if (obstacle_detected) {
-    LED_ON(STEREO_LED);
-  } else {
-    LED_OFF(STEREO_LED);
-  }
-#endif
 }
 
 void increase_nav_heading(int32_t *heading, int32_t increment)

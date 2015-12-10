@@ -46,7 +46,7 @@
 #endif
 
 #ifndef AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES
-#define AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES 1
+#define AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES 6
 #endif
 
 #ifndef AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES
@@ -230,21 +230,25 @@ void serial_update(void)
   }
 
 }
-
 void matrix_2_pingpong(float *distancesMeters, uint16_t *size_matrix_local, float *distances_hor_local)
 {
+  float distances_hor_local_old[AVOIDANCES_DISTANCES_HOR_COUNT];
+  float distances_hor_local_new[AVOIDANCES_DISTANCES_HOR_COUNT];
 
   for (int i_m = 0; i_m < size_matrix_local[0]; i_m++) {
     for (int i_m3 = 0; i_m3 < size_matrix_local[2]; i_m3++) {
-    	distances_hor_local[i_m * size_matrix_local[2] + i_m3] = 10000;
+        distances_hor_local[i_m * size_matrix_local[2] + i_m3] = 10000;
+    distances_hor_local_new[i_m * size_matrix_local[2] + i_m3] = 10000;
       for (int i_m2 = 0; i_m2 < 4; i_m2++) {
-        if (distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0]*size_matrix_local[2] + i_m3] <
-        		distances_hor_local[i_m * size_matrix_local[2] + i_m3]) {
-        	distances_hor_local[i_m * size_matrix_local[2] + i_m3] = distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0] *
-																			 size_matrix_local[2] + i_m3];
+        if (distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0]*size_matrix_local[2] + i_m3] < distances_hor_local[i_m * size_matrix_local[2] + i_m3]) {
+      distances_hor_local_old[i_m * size_matrix_local[2] + i_m3] = distances_hor_local_new[i_m * size_matrix_local[2] + i_m3];
+      distances_hor_local_new[i_m * size_matrix_local[2] + i_m3] = distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0] * size_matrix_local[2] + i_m3];
+
+      distances_hor_local[i_m * size_matrix_local[2] + i_m3] = (distances_hor_local_old[i_m * size_matrix_local[2] + i_m3]+distances_hor_local_new[i_m * size_matrix_local[2] + i_m3])/2;
         }
       }
-     }
+      //    printf("index: %i %i, %f",i_m,i_m3,distances_hor[i_m*size_matrix[2] + i_m3]);
+    }
   }
 
 }
