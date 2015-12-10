@@ -203,7 +203,7 @@ LiPo/LiIo-Zellen: 3
   </section>
 
   <section name="MISC">
-    <define name="XBEE_INIT" value="&quot;ATID3332\r&quot;"/>
+    <define name="XBEE_INIT" value="ATID3332\r" type="string"/>
     <define name="FACE_REINJ_1" value="1024"/>
     <define name="VoltageOfAdc(adc)" value="(0.00528*adc)"/>
   </section>

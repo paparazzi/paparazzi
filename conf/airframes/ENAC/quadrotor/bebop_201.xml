@@ -33,7 +33,7 @@
     </load>
     <!--load name="send_imu_mag_current.xml"/>
     <load name="file_logger.xml">
-      <define name="FILE_LOGGER_PATH" value="\\&quot;/data/ftp/internal_000/\\&quot;"/>
+      <define name="FILE_LOGGER_PATH" value="\\/data/ftp/internal_000/\\" type="string"/>
     </load-->
     <!--load name="video_rtp_stream.xml">
       <define name="VIEWVIDEO_FPS" value="60"/>

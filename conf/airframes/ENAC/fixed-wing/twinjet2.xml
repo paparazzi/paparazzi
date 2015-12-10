@@ -129,7 +129,7 @@
     <define name="MAXIMUM_AIRSPEED" value="20." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
-<!--    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN1\rATTT80\r&quot;"/> -->
+<!--    <define name="XBEE_INIT" value="ATPL2\rATRN1\rATTT80\r" type="string"/> -->
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
     <define name="LIGHT_LED_NAV" value="3"/>

@@ -198,7 +198,7 @@
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="8." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
-    <define name="XBEE_INIT" value="&quot;ATPL4\rATRN5\rATTT80\r&quot;"/>
+    <define name="XBEE_INIT" value="ATPL4\rATRN5\rATTT80\r" type="string"/>
     <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
     <define name="COMMAND_ROLL_TRIM" value="180"/>

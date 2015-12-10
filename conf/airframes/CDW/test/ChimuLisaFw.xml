@@ -55,7 +55,7 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
+    <define name="XBEE_INIT" value="ATPL2\rATRN5\rATTT80\r" type="string"/>
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
@@ -120,7 +120,7 @@
   </section>
 
   <section name="SIMU">
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
+    <define name="JSBSIM_MODEL" value="Malolo1" type="string"/>
     <define name="JSBSIM_IR_ROLL_NEUTRAL" value="0." unit="deg"/>
     <define name="JSBSIM_IR_PITCH_NEUTRAL" value="0." unit="deg"/>
   </section>

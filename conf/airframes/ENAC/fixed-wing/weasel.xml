@@ -224,8 +224,8 @@
   <section name="SIMU">
     <!--define name="ROLL_RESPONSE_FACTOR" value="10"/>
     <define name="MAX_ROLL_DOT" value="20" unit="rad/s"/-->
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
-    <!--define name="JSBSIM_INIT"	value="&quot;Malolo1-IC&quot;"/-->
+    <define name="JSBSIM_MODEL" value="Malolo1" type="string"/>
+    <!--define name="JSBSIM_INIT"	value="Malolo1-IC"/-->
     <define name="JSBSIM_LAUNCHSPEED" value="15.0"/>
     <define name="JSBSIM_IR_ROLL_NEUTRAL" value="0." unit="deg"/>
     <define name="JSBSIM_IR_PITCH_NEUTRAL" value="0." unit="deg"/>
