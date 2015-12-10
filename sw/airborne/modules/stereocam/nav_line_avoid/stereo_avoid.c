@@ -37,46 +37,20 @@
 
 // Serial Port
 #include "mcu_periph/uart.h"
-PRINT_CONFIG_VAR(STEREO_UART)
 
-// define coms link for stereocam
-#define STEREO_PORT   (&((STEREO_UART).device))
-struct link_device *ldev = STEREO_PORT;
-
-#define StereoGetch() STEREO_PORT->get_byte(STEREO_PORT->periph)
-#define StereoSend1(c) STEREO_PORT->put_byte(STEREO_PORT->periph, c)
-#define StereoUartSend1(c) StereoSend1(c)
-#define StereoSend(_dat,_len) { for (uint8_t i = 0; i< (_len); i++) StereoSend1(_dat[i]); };
-#define StereoUartSetBaudrate(_b) uart_periph_set_baudrate(STEREO_PORT, _b);
-#define StereoChAvailable()(ldev->char_available(ldev->periph))
-
+#include "modules/stereocam/stereocam.h"
 void stereo_avoid_init(void)
 {
   // Navigation Code
   init_avoid_navigation();
 }
 
-static void stereo_parse(uint8_t c);
-static void stereo_parse(uint8_t c)
-{
-  static int cnt = 0;
-  if (c == 0xff) {
-    cnt = 1;
-  } else if (cnt == 1) {
-    avoid_navigation_data.stereo_bin[0] = c;
-    cnt = 2;
-  } else if (cnt == 2) {
-    avoid_navigation_data.stereo_bin[1] = c;
-    run_avoid_navigation_onvision();
-    cnt = 0;
-  } else {
-    cnt = 0;
-  }
-}
 
 void stereo_avoid_run(void)
 {
-  while (StereoChAvailable()) {
-    stereo_parse(StereoGetch());
-  }
+	if(stereocam_data.fresh)
+	{
+		stereocam_data.fresh=0;
+		run_avoid_navigation_onvision();
+	}
 }

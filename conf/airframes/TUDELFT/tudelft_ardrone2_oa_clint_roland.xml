@@ -9,6 +9,7 @@
 
     <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
     <define name="USE_SONAR" value="TRUE"/>
+    <define name="NO_GPS_NEEDED_FOR_NAV" value="TRUE"/>
     <configure name="USE_MAGNETOMETER" value="TRUE"/>
 
 	<!-- Subsystem section -->
@@ -227,7 +228,7 @@
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
     <define name="ARRIVED_AT_WAYPOINT" value="0.15"/>
     <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST" value="1500"/>
-    <!--   <define name="NO_RC_THRUST_LIMIT" value="TRUE"/> -->
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
   </section>
 
   <section name="BAT">
