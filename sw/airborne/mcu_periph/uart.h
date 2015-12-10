@@ -33,10 +33,10 @@
 #include "std.h"
 
 #ifndef UART_RX_BUFFER_SIZE
-#define UART_RX_BUFFER_SIZE 128
+#define UART_RX_BUFFER_SIZE 254
 #endif
 #ifndef UART_TX_BUFFER_SIZE
-#define UART_TX_BUFFER_SIZE 128
+#define UART_TX_BUFFER_SIZE 254
 #endif
 #define UART_DEV_NAME_SIZE 16
 
