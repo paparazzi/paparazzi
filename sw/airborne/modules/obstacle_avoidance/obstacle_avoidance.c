@@ -86,12 +86,15 @@ float H_kal = 1;
 float Q_kal = 0.05;//TODO: clean variables
 float R_kal = 2;
 float K_gain_send = 0;
-float Pest_new[AVOIDANCE_AMOUNT_OF_BOARDS * AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES]; 
-float Xest_new[AVOIDANCE_AMOUNT_OF_BOARDS * AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES];
+float Pest_new[AVOIDANCE_AMOUNT_OF_BOARDS *AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES
+               *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES];
+float Xest_new[AVOIDANCE_AMOUNT_OF_BOARDS *AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES
+               *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES];
 //variables butterworth filter
 struct FloatVect3 filter_repforce_old = {0.0, 0.0, 0.0};
 struct FloatVect3 Repulsionforce_Kan_old = {0.0, 0.0, 0.0};
-float butter_old[AVOIDANCE_AMOUNT_OF_BOARDS * AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES];
+float butter_old[AVOIDANCE_AMOUNT_OF_BOARDS *AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES
+                 *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES];
 //Vector Method
 float F1 = 0.1;
 float F2 = 0.9;
@@ -143,7 +146,9 @@ struct FloatVect3 Repulsionforce_Kan_send;
 void serial_init(void)
 {
 
-  for(int i_fill=0;i_fill<(AVOIDANCE_AMOUNT_OF_BOARDS * AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES *AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES);i_fill++){
+  for (int i_fill = 0;
+       i_fill < (AVOIDANCE_AMOUNT_OF_BOARDS * AVOIDANCE_HEIGHT_IN_MEASUREMENT_VALUES * AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES);
+       i_fill++) {
     Pest_new[i_fill] = 1;
     Xest_new[i_fill] = 1;
     butter_old[i_fill] = 0;
@@ -163,7 +168,7 @@ void setAnglesMeasurements(float *anglesMeasurements, float *centersensorRad, fl
   for (int i1 = 0; i1 < size_matrix_local[0]; i1++) {
     for (int i3 = 0; i3 < size_matrix_local[2]; i3++) {
       anglesMeasurements[i1 * size_matrix_local[0] + i3] = centersensorRad[i1] - 0.5 * fieldOfViewRad[0] + fieldOfViewRad[0] /
-    		  size_matrix_local[2] / 2 + (fieldOfViewRad[0] / size_matrix_local[2]) * i3;
+          size_matrix_local[2] / 2 + (fieldOfViewRad[0] / size_matrix_local[2]) * i3;
     }
   }
 }
@@ -219,12 +224,11 @@ void serial_update(void)
     }
 
     stereocam_data.fresh = 0;
-    if(stereocam_data.len>50){
-    	DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, 50, distancesMeters);
+    if (stereocam_data.len > 50) {
+      DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, 50, distancesMeters);
 
-    }
-    else{
-    	DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, stereocam_data.len, distancesMeters);
+    } else {
+      DOWNLINK_SEND_MULTIGAZE_METERS(DefaultChannel, DefaultDevice, stereocam_data.len, distancesMeters);
 
     }
   }
@@ -237,14 +241,17 @@ void matrix_2_pingpong(float *distancesMeters, uint16_t *size_matrix_local, floa
 
   for (int i_m = 0; i_m < size_matrix_local[0]; i_m++) {
     for (int i_m3 = 0; i_m3 < size_matrix_local[2]; i_m3++) {
-        distances_hor_local[i_m * size_matrix_local[2] + i_m3] = 10000;
-    distances_hor_local_new[i_m * size_matrix_local[2] + i_m3] = 10000;
+      distances_hor_local[i_m * size_matrix_local[2] + i_m3] = 10000;
+      distances_hor_local_new[i_m * size_matrix_local[2] + i_m3] = 10000;
       for (int i_m2 = 0; i_m2 < 4; i_m2++) {
-        if (distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0]*size_matrix_local[2] + i_m3] < distances_hor_local[i_m * size_matrix_local[2] + i_m3]) {
-      distances_hor_local_old[i_m * size_matrix_local[2] + i_m3] = distances_hor_local_new[i_m * size_matrix_local[2] + i_m3];
-      distances_hor_local_new[i_m * size_matrix_local[2] + i_m3] = distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0] * size_matrix_local[2] + i_m3];
+        if (distancesMeters[i_m * size_matrix_local[1] + i_m2 * size_matrix_local[0]*size_matrix_local[2] + i_m3] <
+            distances_hor_local[i_m * size_matrix_local[2] + i_m3]) {
+          distances_hor_local_old[i_m * size_matrix_local[2] + i_m3] = distances_hor_local_new[i_m * size_matrix_local[2] + i_m3];
+          distances_hor_local_new[i_m * size_matrix_local[2] + i_m3] = distancesMeters[i_m * size_matrix_local[1] + i_m2 *
+              size_matrix_local[0] * size_matrix_local[2] + i_m3];
 
-      distances_hor_local[i_m * size_matrix_local[2] + i_m3] = (distances_hor_local_old[i_m * size_matrix_local[2] + i_m3]+distances_hor_local_new[i_m * size_matrix_local[2] + i_m3])/2;
+          distances_hor_local[i_m * size_matrix_local[2] + i_m3] = (distances_hor_local_old[i_m * size_matrix_local[2] + i_m3] +
+              distances_hor_local_new[i_m * size_matrix_local[2] + i_m3]) / 2;
         }
       }
       //    printf("index: %i %i, %f",i_m,i_m3,distances_hor[i_m*size_matrix[2] + i_m3]);
@@ -294,8 +301,9 @@ void CN_matrix_butterworth(void)
 
   for (int i_k = 0; i_k < (size_matrix[0] * size_matrix[1] * size_matrix[2]); i_k++) {
 
-    if ((READimageBuffer_old[i_k] - stereocam_data.data[i_k]) <= 1 && (READimageBuffer_old[i_k] - stereocam_data.data[i_k]) > 0) {
-    	stereocam_data.data[i_k] = READimageBuffer_old[i_k];
+    if ((READimageBuffer_old[i_k] - stereocam_data.data[i_k]) <= 1
+        && (READimageBuffer_old[i_k] - stereocam_data.data[i_k]) > 0) {
+      stereocam_data.data[i_k] = READimageBuffer_old[i_k];
 
     }
 
@@ -672,7 +680,7 @@ void CN_vector_velocity(void)
           Repulsionforce_Kan.z = Repulsionforce_Kan.z - pow(Cv / (Distance_est + Dist_offset), 2) * sin(angle_ver);
 
           printf("rep.x  %f index %d %d %d disp: %d cv: %f angle_hor: %f angle_ver: %f \n", Repulsionforce_Kan.x, i1, i2, i3,
-        		  stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3], Cv, angle_hor, angle_ver);
+                 stereocam_data.data[i1 * size_matrix[1] + i2 * size_matrix[0]*size_matrix[2] + i3], Cv, angle_hor, angle_ver);
 
         }
 //         else {
