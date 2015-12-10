@@ -22,7 +22,7 @@ LiPo/LiIo-Zellen: 3
 
 -->
 
-<airframe name="TriCopter_CDW">
+<airframe name="CDW_TriCopter">
   <!-- ************************* FIRMWARE ************************* -->
 
   <firmware name="rotorcraft">

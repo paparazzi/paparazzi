@@ -1,8 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is an Asctec frame equipped with  Lisa/L v0.9 and Asctec V2 controllers -->
+<!-- this is an MavTec frame -->
 
-<airframe name="asctec_cdw">
+<airframe name="cdw_mavtec">
   <!-- ************************* FIRMWARE ************************* -->
 
   <firmware name="rotorcraft">

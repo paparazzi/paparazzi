@@ -2,7 +2,7 @@
 
 <!-- this is an Asctec frame equipped with  Lisa/L v0.9 and Asctec V2 controllers -->
 
-<airframe name="asctec_cdw">
+<airframe name="cdw_asctec">
   <!-- ************************* FIRMWARE ************************* -->
 
   <firmware name="rotorcraft">
