@@ -2,7 +2,7 @@
   <aircraft
    name="LadyFlixr"
    ac_id="15"
-   airframe="airframes/flixr/ladybird_lisa_s.xml"
+   airframe="airframes/FLIXR/flixr_ladybird_lisa_s.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -35,7 +35,7 @@
   <aircraft
    name="discovery"
    ac_id="9"
-   airframe="airframes/flixr/flixr_discovery.xml"
+   airframe="airframes/FLIXR/flixr_discovery.xml"
    radio="radios/mc20.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/basic.xml"
@@ -46,7 +46,7 @@
   <aircraft
    name="flixr_lisamx"
    ac_id="42"
-   airframe="airframes/flixr/flixr_lisa_mx.xml"
+   airframe="airframes/FLIXR/flixr_lisa_mx.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -57,7 +57,7 @@
   <aircraft
    name="fraser"
    ac_id="11"
-   airframe="airframes/flixr/fraser_lisa_m_rotorcraft.xml"
+   airframe="airframes/FLIXR/flixr_fraser_lisa_m_rotorcraft.xml"
    radio="radios/TGY9x_jeti.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -112,7 +112,7 @@
   <aircraft
    name="zmr250_elle0"
    ac_id="40"
-   airframe="airframes/flixr/zmr250_elle0.xml"
+   airframe="airframes/FLIXR/flixr_zmr250_elle0.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
