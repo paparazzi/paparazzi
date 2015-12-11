@@ -130,6 +130,19 @@
         <arg flag="-ac" constant="@AIRCRAFT"/>
       </program>
     </session>
+    <session name="Ardrone">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="hobbyking.xml"/>
+      </program>
+ 
+    </session>
+ 
     <session name="Flight XBee @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/paparazzi/xbee"/>

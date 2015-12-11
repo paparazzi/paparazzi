@@ -5,33 +5,39 @@
  *
  */
 /**
- * @file "modules/follow_me/follow_me.c"
+ * @file modules/stereocam/stereocam_follow_me/stereocam_follow_me.c
  * @author Roland
- * follows a person on the stereo histogram image. It searches for the highest peak and adjusts its roll and pitch to hover at a nice distance.
+ * follows a person using the reference given by the stereocam.
  */
 
 #include "modules/stereocam/stereocam_follow_me/follow_me.h"
 #include "modules/stereocam/stereocam.h"
 #include "state.h"
 #include "navigation.h"
-
 #include "subsystems/datalink/telemetry.h"
+#include "generated/flight_plan.h"
 
+#ifndef STEREOCAM_FOLLOW_ME_USE_OPTITRACK
+#define STEREOCAM_FOLLOW_ME_USE_OPTITRACK FALSE
+#endif
+
+
+#define HEADING_CHANGE_PER_MEASUREMENT 260
+#define CENTER_IMAGE_HOR 65
+#define MAXIMUM_ALTITUDE_FOLLOWING 3.0
+#define MINIMUM_ALTITUDE_FOLLOWING 1.0
 float ref_pitch = 0.0;
 float ref_roll = 0.0;
 float selfie_alt = 1.0;
-
-
-void follow_me_init()
-{
-
-}
-
-
 int breaksPoints = 0;
 int isRollPhase = 0;
 int isYawPhase = 0;
 int phaseCounter = 0;
+float heightGain = 0.3;
+int amountOfRollPhaseTime = 15;
+int amountOfYawPhaseTime = 15;
+uint8_t distanceToObject;
+uint8_t heightObject;
 
 void changeRollYawPhase(int *phaseCounterArg, int *isRollPhaseArg, int *isYawPhaseArg);
 void changeRollYawPhase(int *phaseCounterArg, int *isRollPhaseArg, int *isYawPhaseArg)
@@ -39,21 +45,19 @@ void changeRollYawPhase(int *phaseCounterArg, int *isRollPhaseArg, int *isYawPha
   (*phaseCounterArg)++;
 
   if (*isRollPhaseArg) {
-    if (*phaseCounterArg > 15) {
+    if (*phaseCounterArg > amountOfRollPhaseTime) {
       *phaseCounterArg = 0;
       *isRollPhaseArg = 0;
       *isYawPhaseArg = 1;
     }
   } else {
-    if (*phaseCounterArg > 15) {
+    if (*phaseCounterArg > amountOfYawPhaseTime) {
       *phaseCounterArg = 0;
       *isRollPhaseArg = 1;
       *isYawPhaseArg = 0;
     }
   }
 }
-uint8_t distanceToObject;
-uint8_t heightObject;
 
 void increase_nav_heading(int32_t *heading, int32_t increment);
 void increase_nav_heading(int32_t *heading, int32_t increment)
@@ -67,19 +71,27 @@ void follow_me_periodic()
     if (stereocam_data.data[0] == 0 || stereocam_data.data[1] == 85 || stereocam_data.data[2] == 0) {
       return;
     }
+
+    // If we don't use GPS we alternate a phase where we roll and where we yaw.
+    // This way we don't drift sideways AND we don't lose the user out of our sight
     changeRollYawPhase(&phaseCounter, &isRollPhase, &isYawPhase);
     uint8_t headingToFollow = stereocam_data.data[0];
+    heightObject = stereocam_data.data[1];
+    distanceToObject = stereocam_data.data[2];
+
+
+    // Change our heading if the user is starting to get out of sight.
     float heading_change = 0.0;
-    int headingChangePerIt = 260;
-    if (abs(headingToFollow - 65) > 10) {
-      if (headingToFollow > 65) {
+    int headingChangePerIt = HEADING_CHANGE_PER_MEASUREMENT;
+    if (abs(headingToFollow - CENTER_IMAGE_HOR) > 10) {
+      if (headingToFollow > CENTER_IMAGE_HOR) {
         heading_change = 0.25;
-        if (isYawPhase) {
+        if (isYawPhase || STEREOCAM_FOLLOW_ME_USE_OPTITRACK) {
           increase_nav_heading(&nav_heading, headingChangePerIt);
         }
-      } else if (headingToFollow < 65) {
+      } else if (headingToFollow < CENTER_IMAGE_HOR) {
         heading_change = -0.25;
-        if (isYawPhase) {
+        if (isYawPhase || STEREOCAM_FOLLOW_ME_USE_OPTITRACK) {
           increase_nav_heading(&nav_heading, -1 * headingChangePerIt);
         }
       } else {
@@ -90,32 +102,36 @@ void follow_me_periodic()
       heading_change = 0.0;
     }
 
-    float turnFactor = 1.3;
-    float currentHeading = stateGetNedToBodyEulers_f()->psi;
-
+    // If we have our roll phase we take the value of the change we need to have in heading and use it to go sideways
     ref_roll = 0.0;
     if (isRollPhase) {
       ref_roll = 30 * heading_change;
     }
 
 
-    distanceToObject = stereocam_data.data[2];
-    heightObject = stereocam_data.data[1];
-    float heightGain = 3.0;
+    // If we are in flight we want to adjust our height based on the place where we see our object
     if (nav_is_in_flight()) {
-      if (heightObject > 50 && heightObject != 100) {
-        selfie_alt -= heightGain * 0.01;
+      if (heightObject > 50) {
+        selfie_alt -= heightGain;
       } else if (heightObject < 20) {
-        selfie_alt += heightGain * 0.01;
+        selfie_alt += heightGain;
       }
-    }/*
-  if(selfie_alt-state.alt_agl_f>0.5){
-    selfie_alt=state.alt_agl_f+0.5;
-  }
-  if(selfie_alt-state.alt_agl_f<-0.5){
-      selfie_alt=state.alt_agl_f-0.5;
-    }*/
-    selfie_alt = 2.5;
+    }
+
+    // Bound the altitude to normal values
+    if (selfie_alt > MAXIMUM_ALTITUDE_FOLLOWING) {
+      selfie_alt = MAXIMUM_ALTITUDE_FOLLOWING;
+    }
+    if (selfie_alt < MINIMUM_ALTITUDE_FOLLOWING) {
+      selfie_alt = MINIMUM_ALTITUDE_FOLLOWING;
+    }
+
+    // If using GPS we set the location of the waypoint to our desired altitude
+#if STEREOCAM_FOLLOW_ME_USE_OPTITRACK
+    waypoint_set_alt(WP_STDBY, selfie_alt);
+#endif
+
+    // Set a pitch if the person we follow is too close
     if (distanceToObject < 35) {
       ref_pitch = 13.0;
     } else if (distanceToObject < 60) {
