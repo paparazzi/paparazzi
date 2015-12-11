@@ -21,12 +21,13 @@
 <!ELEMENT define EMPTY>
 <!ELEMENT linear EMPTY>
 <!ELEMENT makefile (#PCDATA)>
-<!ELEMENT modules (load)*>
+<!ELEMENT modules (load|module)*>
 <!ELEMENT load (configure|define)*>
 <!ELEMENT configure EMPTY>
-<!ELEMENT firmware (target|subsystem|configure|define)*>
-<!ELEMENT target (subsystem|configure|define)*>
+<!ELEMENT firmware (target|subsystem|module|configure|define)*>
+<!ELEMENT target (subsystem|module|configure|define)*>
 <!ELEMENT subsystem (configure|define)*>
+<!ELEMENT module (configure|define)*>
 <!ELEMENT autopilot EMPTY>
 
 <!ATTLIST include
@@ -131,4 +132,9 @@ target CDATA #IMPLIED>
 <!ATTLIST load
 name CDATA #REQUIRED
 target CDATA #IMPLIED
+dir CDATA #IMPLIED>
+
+<!ATTLIST module
+name CDATA #REQUIRED
+type CDATA #IMPLIED
 dir CDATA #IMPLIED>

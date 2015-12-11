@@ -28,58 +28,57 @@ exception Error of string
 
 let sep = Str.regexp "\\."
 
-let child xml ?select c =
+let child = fun xml ?select c ->
   let rec find = function
-  Xml.Element (tag, _attributes, _children) as elt :: elts ->
-    if tag = c then
-      match select with
-          None -> elt
-        | Some p ->
-          if p elt then elt else find elts
-    else
-      find elts
+    | Xml.Element (tag, _attributes, _children) as elt :: elts ->
+	if tag = c then
+	  match select with
+          | None -> elt
+          | Some p -> if p elt then elt else find elts
+	else find elts
     | _ :: elts -> find elts
     | [] -> raise Not_found in
-
 
   let children = Xml.children xml in
 
   (* Let's try with a numeric index *)
-  try (Array.of_list children).(int_of_string c) with
-      Failure "int_of_string" -> (* Bad luck. Go through the children *)
-        find children
+  try (Array.of_list children).(int_of_string c)
+  with Failure "int_of_string" -> (* Bad luck. Go through the children *)
+    find children
 
 
 let get xml path =
   let p = Str.split sep path in
   let rec iter xml = function
-  [] -> failwith "ExtXml.get: empty path"
-    | [x] -> ( try if Xml.tag xml <> x then raise Not_found else xml with _ -> raise Not_found )
-    | x::xs -> iter (child xml x) xs in
+    | [] -> failwith "ExtXml.get: empty path"
+    | [x] -> begin
+	try if Xml.tag xml <> x then raise Not_found else xml
+	with _ -> raise Not_found end
+    | x :: xs -> iter (child xml x) xs in
   iter xml p
 
-let get_attrib xml path attr =
-  Xml.attrib (get xml path) attr
+let get_attrib = fun xml path attr -> Xml.attrib (get xml path) attr
 
 let sprint_fields = fun () l ->
   "<"^
     List.fold_right (fun (a, b) -> (^) (Printf.sprintf "%s=\"%s\" " a b)) l ">"
 
-let attrib = fun x a ->
-  try
-    Xml.attrib x a
-  with
-      Xml.No_attribute _ ->
-        raise (Error (Printf.sprintf "Error: Attribute '%s' expected in <%a>" a sprint_fields (Xml.attribs x)))
+let attrib = fun xml attr ->
+  try Xml.attrib xml attr
+  with Xml.No_attribute _ ->
+    let msg = Printf.sprintf "Error: Attribute '%s' expected in <%a>"
+	attr sprint_fields (Xml.attribs xml) in
+    raise (Error msg)
 
-let tag_is = fun x v ->
-  String.lowercase (Xml.tag x) = String.lowercase v
+let attrib_option = fun xml attr ->
+  try Some (Xml.attrib xml attr)
+  with Xml.No_attribute _ -> None
 
-
+let tag_is = fun x v -> String.lowercase (Xml.tag x) = String.lowercase v
 
 let attrib_or_default = fun x a default ->
-  try Xml.attrib x a with _ -> default
-
+  try Xml.attrib x a
+  with Xml.No_attribute _ | Xml.Not_element _ -> default
 
 (** Code patched from xml.ml from xml-light package: PC Data formatting removed *)
 let tmp = Buffer.create 200
@@ -150,11 +149,11 @@ let my_to_string_fmt = fun tab_attribs x ->
 let to_string_fmt = fun ?(tab_attribs = false) xml ->
   let l = String.lowercase in
   let rec lower = function
-  Xml.PCData _ as x -> x
+    | Xml.PCData _ as x -> x
     | Xml.Element (t, ats, cs) ->
-      Xml.Element(l t,
-                  List.map (fun (a,v) -> (l a, v)) ats,
-                  List.map lower cs) in
+	Xml.Element(l t,
+                    List.map (fun (a,v) -> (l a, v)) ats,
+                    List.map lower cs) in
   my_to_string_fmt tab_attribs (lower xml)
 
 
@@ -162,63 +161,68 @@ let subst_attrib = fun attrib value xml ->
   let u = String.uppercase in
   let uattrib = u attrib in
   match xml with
-      Xml.Element (tag, attrs, children) ->
-        let rec loop = function
-        [] -> [(attrib, value)]
-          | (a,_v) as c::ats ->
+  | Xml.Element (tag, attrs, children) ->
+      let rec loop = function
+          [] -> [(attrib, value)]
+        | (a,_v) as c::ats ->
             if u a = uattrib then loop ats else c::loop ats in
-        Xml.Element (tag,
-                     loop attrs,
-                     children)
-    | Xml.PCData _ -> xml
+      Xml.Element (tag,
+                   loop attrs,
+                   children)
+  | Xml.PCData _ -> xml
 
 
 let subst_child = fun ?(select= fun _ -> true) t x xml ->
   match xml with
-      Xml.Element (tag, attrs, children) ->
-        let found = ref false in
-        let new_children =
-          List.map
-            (fun xml -> if tag_is xml t && select xml then (found := true; x) else xml)
-            children in
-        if !found then
-          Xml.Element (tag, attrs, new_children)
-        else
-          raise Not_found
-    | Xml.PCData _ -> xml
+  | Xml.Element (tag, attrs, children) ->
+      let found = ref false in
+      let new_children =
+        List.map
+          (fun xml -> if tag_is xml t && select xml then (found := true; x) else xml)
+          children in
+      if !found then
+        Xml.Element (tag, attrs, new_children)
+      else
+        raise Not_found
+  | Xml.PCData _ -> xml
 
 
 let subst_or_add_child = fun t x xml ->
   try subst_child t x xml with Not_found ->
     match xml with
-        Xml.Element (tag, attrs, children) ->
-          Xml.Element (tag, attrs, x::children)
-      |  Xml.PCData _ -> xml
+    | Xml.Element (tag, attrs, children) ->
+	Xml.Element (tag, attrs, x :: children)
+    |  Xml.PCData _ -> xml
 
 
 let remove_child = fun ?(select= fun _ -> true) t xml ->
   match xml with
-      Xml.Element (tag, attrs, children) ->
-        Xml.Element (tag,
-                     attrs,
-                     List.fold_right (fun xml rest -> if tag_is xml t && select xml then rest else xml::rest) children [])
-    | Xml.PCData _ -> xml
+  | Xml.Element (tag, attrs, children) ->
+      Xml.Element (tag,
+                   attrs,
+                   List.fold_right (fun xml rest -> if tag_is xml t && select xml then rest else xml::rest) children [])
+  | Xml.PCData _ -> xml
 
 
 let float_attrib = fun xml a ->
   let v = attrib xml a in
-  try
-    float_of_string v
-  with
-      _ -> failwith (Printf.sprintf "Error: float expected in '%s'" v)
+  try float_of_string v
+  with _ -> failwith (Printf.sprintf "Error: float expected in '%s'" v)
 
 let int_attrib = fun xml a ->
   let v = attrib xml a in
-  try
-    int_of_string v
-  with
-      _ -> failwith (Printf.sprintf "Error: integer expected in '%s'" v)
+  try int_of_string v
+  with _ -> failwith (Printf.sprintf "Error: integer expected in '%s'" v)
 
+let iter_tag = fun tag f xml -> Xml.iter (fun x -> if tag_is x tag then f x) xml
+
+let filter_tag = fun tag xml ->
+  Xml.fold (fun acc x -> if tag_is x tag then x :: acc else acc) [] xml
+
+let partition_tag = fun tag xmls ->
+  List.fold_left
+    (fun (yes, no) x -> if tag_is x tag then x :: yes, no else yes, x:: no
+    ) ([], []) xmls
 
 (* When an .xml is coming through http, the dtd is not available. We disable
    the DTD proving feature in this case. FIXME: We should use the resolve
@@ -231,19 +235,17 @@ let my_xml_parse_file =
 
 
 let parse_file = fun ?(noprovedtd = false) file ->
-  try
-    (if noprovedtd then my_xml_parse_file else Xml.parse_file) file
+  try (if noprovedtd then my_xml_parse_file else Xml.parse_file) file
   with
-      Xml.Error e -> failwith (sprintf "%s: %s" file (Xml.error e))
-    | Xml.File_not_found f -> failwith (sprintf "File not found: %s" f)
-    | Dtd.Prove_error e -> failwith (sprintf "%s: %s" file (Dtd.prove_error e))
-    | Dtd.Check_error e -> failwith (sprintf "%s: %s" file (Dtd.check_error e))
-    | Dtd.Parse_error e -> failwith (sprintf "%s: %s" file (Dtd.parse_error e))
+  | Xml.Error e -> failwith (sprintf "%s: %s" file (Xml.error e))
+  | Xml.File_not_found f -> failwith (sprintf "File not found: %s" f)
+  | Dtd.Prove_error e -> failwith (sprintf "%s: %s" file (Dtd.prove_error e))
+  | Dtd.Check_error e -> failwith (sprintf "%s: %s" file (Dtd.check_error e))
+  | Dtd.Parse_error e -> failwith (sprintf "%s: %s" file (Dtd.parse_error e))
 
 
 
-let digest = fun xml ->
-  Digest.string (Xml.to_string xml)
+let digest = fun xml -> Digest.string (Xml.to_string xml)
 
 let predefined_general_entities =
   [ Str.regexp "&amp;", "&";
