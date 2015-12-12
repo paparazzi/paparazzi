@@ -230,5 +230,11 @@
 #define PX4FLOW_VELOCITY_ID 17
 #endif
 
+#ifndef STEREO_VELOCITY_ID
+#define STEREO_VELOCITY_ID 18
+#endif
+
+
+
 
 #endif /* ABI_SENDER_IDS_H */

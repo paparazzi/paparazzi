@@ -18,6 +18,8 @@
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators" type="ardrone2"/>
     <subsystem name="imu" type="ardrone2"/>
+
+    <subsystem name="gps" type="datalink"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs" type="int_cmpl_quat"/>
     <subsystem name="ins" type="extended"/>
@@ -27,9 +29,9 @@
     <load name="bat_voltage_ardrone2.xml"/>
     <load name="stereocam.xml">
 	<configure name="STEREO_UART" value="UART1"/>
-	<configure name="STEREO_BAUD" value="B1000000"/>
+	<configure name="STEREO_BAUD" value="B115200"/>
     </load>
-    <load name="obstacle_avoidance.xml"/>
+    <load name="stereocam_forward_velocity.xml"/>
   </modules>
 
   <commands>

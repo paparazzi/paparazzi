@@ -2,7 +2,10 @@
 
 <module name="stereocam_follow_me" dir="stereocam">
   <doc>
-    <description>follows based on stereo</description>
+    <description> Follows a person using the reference given by the stereocam.
+  This module does so by changing the yaw angle and roll angle alternatively.
+  This way the drone does not drift away, and keeps looking at the person it tries to follow.
+ </description>
   </doc>
   <header>
     <file name="stereocam_follow_me/follow_me.h"/>

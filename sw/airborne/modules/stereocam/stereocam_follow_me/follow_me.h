@@ -5,9 +5,11 @@
  *
  */
 /**
- * @file "modules/stereocam/stereocam_follow_me/stereocam_follow_me.h"
+ * @file modules/stereocam/stereocam_follow_me/stereocam_follow_me.h
  * @author Roland
- * follows a person using the reference given by the stereocam.
+ * Follows a person using the reference given by the stereocam.
+ * This module does so by changing the yaw angle and roll angle alternatively.
+ * This way the drone does not drift away, and keeps looking at the person it tries to follow.
  */
 
 #ifndef FOLLOW_ME_H

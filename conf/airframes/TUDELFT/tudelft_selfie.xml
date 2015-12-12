@@ -8,8 +8,9 @@
     </target>
 
     <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
-    <define name="USE_SONAR" value="TRUE"/>
-    <define name="NO_GPS_NEEDED_FOR_NAV" value="TRUE"/>
+    <define name="USE_SONAR" value="FALSE"/>
+ <define name="USE_GPS_ALT" value="1"/>
+
     <configure name="USE_MAGNETOMETER" value="TRUE"/>
 
 	<!-- Subsystem section -->
