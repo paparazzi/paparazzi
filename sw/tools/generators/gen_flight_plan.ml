@@ -702,7 +702,7 @@ let check_geo_ref = fun wgs84 xml ->
   let max_d = min 1000. (get_float "max_dist_from_home") in
   let check_zone = fun u ->
     if (utm_of WGS84 (of_utm WGS84 u)).utm_zone <> utm0.utm_zone then
-      prerr_endline "Warning: You are close (less than twice the max distance) to an UTM zone border ! The navigation will not work unless the GPS_USE_LATLONG flag is set and the GPS receiver configured to send the POSLLH message." in
+      prerr_endline "Warning: You are close (less than twice the max distance) to an UTM zone border ! The navigation will not work unless the GPS receiver configured to send the POSLLH message." in
   check_zone { utm0 with utm_x = utm0.utm_x +. 2.*.max_d };
   check_zone { utm0 with utm_x = utm0.utm_x -. 2.*.max_d };
 

@@ -35,10 +35,6 @@
 #include "subsystems/abi.h"
 #include "led.h"
 
-/* currently needed to get nav_utm_zone0 */
-#include "subsystems/navigation/common_nav.h"
-#include "math/pprz_geodetic_float.h"
-
 #include "mcu_periph/sys_time.h"
 
 #define MTK_DIY_OUTPUT_RATE MTK_DIY_OUTPUT_4HZ
@@ -196,18 +192,21 @@ void gps_mtk_read_message(void)
       gps_time_sync.t0_tow_frac = 0;
       gps.lla_pos.lat = MTK_DIY14_NAV_LAT(gps_mtk.msg_buf) * 10;
       gps.lla_pos.lon = MTK_DIY14_NAV_LON(gps_mtk.msg_buf) * 10;
+      SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
       // FIXME: with MTK you do not receive vertical speed
       if (sys_time.nb_sec - gps.last_3dfix_time < 2) {
         gps.ned_vel.z  = ((gps.hmsl -
                            MTK_DIY14_NAV_HEIGHT(gps_mtk.msg_buf) * 10) * OUTPUT_RATE) / 10;
       } else { gps.ned_vel.z = 0; }
       gps.hmsl        = MTK_DIY14_NAV_HEIGHT(gps_mtk.msg_buf) * 10;
+      SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
       // FIXME: with MTK you do not receive ellipsoid altitude
       gps.lla_pos.alt = gps.hmsl;
       gps.gspeed      = MTK_DIY14_NAV_GSpeed(gps_mtk.msg_buf);
       // FIXME: with MTK you do not receive speed 3D
       gps.speed_3d    = gps.gspeed;
       gps.course      = (RadOfDeg(MTK_DIY14_NAV_Heading(gps_mtk.msg_buf))) * 10;
+      SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
       gps.num_sv      = MTK_DIY14_NAV_numSV(gps_mtk.msg_buf);
       switch (MTK_DIY14_NAV_GPSfix(gps_mtk.msg_buf)) {
         case MTK_DIY_FIX_3D:
@@ -222,18 +221,6 @@ void gps_mtk_read_message(void)
       gps.tow         = MTK_DIY14_NAV_ITOW(gps_mtk.msg_buf);;
       // FIXME: with MTK DIY 1.4 you do not receive GPS week
       gps.week        = 0;
-      /* Computes from (lat, long) in the referenced UTM zone */
-      struct LlaCoor_f lla_f;
-      LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
-      struct UtmCoor_f utm_f;
-      utm_f.zone = nav_utm_zone0;
-      /* convert to utm */
-      utm_of_lla_f(&utm_f, &lla_f);
-      /* copy results of utm conversion */
-      gps.utm_pos.east = utm_f.east * 100;
-      gps.utm_pos.north = utm_f.north * 100;
-      gps.utm_pos.alt = gps.lla_pos.alt;
-      gps.utm_pos.zone = nav_utm_zone0;
 #ifdef GPS_LED
       if (gps.fix == GPS_FIX_3D) {
         LED_ON(GPS_LED);
@@ -264,12 +251,14 @@ void gps_mtk_read_message(void)
                            MTK_DIY16_NAV_HEIGHT(gps_mtk.msg_buf) * 10) * OUTPUT_RATE) / 10;
       } else { gps.ned_vel.z = 0; }
       gps.hmsl        = MTK_DIY16_NAV_HEIGHT(gps_mtk.msg_buf) * 10;
+      SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
       // FIXME: with MTK you do not receive ellipsoid altitude
       gps.lla_pos.alt = gps.hmsl;
       gps.gspeed      = MTK_DIY16_NAV_GSpeed(gps_mtk.msg_buf);
       // FIXME: with MTK you do not receive speed 3D
       gps.speed_3d    = gps.gspeed;
       gps.course      = (RadOfDeg(MTK_DIY16_NAV_Heading(gps_mtk.msg_buf) * 10000)) * 10;
+      SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
       gps.num_sv      = MTK_DIY16_NAV_numSV(gps_mtk.msg_buf);
       switch (MTK_DIY16_NAV_GPSfix(gps_mtk.msg_buf)) {
         case MTK_DIY_FIX_3D:
@@ -282,18 +271,6 @@ void gps_mtk_read_message(void)
           gps.fix = GPS_FIX_NONE;
       }
       /* HDOP? */
-      /* Computes from (lat, long) in the referenced UTM zone */
-      struct LlaCoor_f lla_f;
-      LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
-      struct UtmCoor_f utm_f;
-      utm_f.zone = nav_utm_zone0;
-      /* convert to utm */
-      utm_of_lla_f(&utm_f, &lla_f);
-      /* copy results of utm conversion */
-      gps.utm_pos.east = utm_f.east * 100;
-      gps.utm_pos.north = utm_f.north * 100;
-      gps.utm_pos.alt = gps.lla_pos.alt;
-      gps.utm_pos.zone = nav_utm_zone0;
 #ifdef GPS_LED
       if (gps.fix == GPS_FIX_3D) {
         LED_ON(GPS_LED);

@@ -79,6 +79,7 @@
 #include "subsystems/navigation/common_nav.h"
 #include "subsystems/gps.h"
 #include "math/pprz_geodetic_float.h"
+#include "state.h"
 
 typedef struct {
   float fx;
@@ -363,10 +364,9 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
         cam_point_distance_from_home = distance_correction * (uint16_t)(sqrt((cam_point_x * cam_point_x) +
                                        (cam_point_y * cam_point_y)));
 
-        struct UtmCoor_f utm;
-        utm.east = gps.utm_pos.east / 100. + sv_cam_projection.fx;
-        utm.north = gps.utm_pos.north / 100. + sv_cam_projection.fy;
-        utm.zone = gps.utm_pos.zone;
+        struct UtmCoor_f utm = *stateGetPositionUtm_f();
+        utm.east += sv_cam_projection.fx;
+        utm.north += sv_cam_projection.fy;
         struct LlaCoor_f lla;
         lla_of_utm_f(&lla, &utm);
         cam_point_lon = lla.lon * (180 / M_PI);

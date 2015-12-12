@@ -12,10 +12,16 @@ ifneq ($(GPS_LED),none)
   ap.CFLAGS += -DGPS_LED=$(GPS_LED)
 endif
 
-ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_skytraq.h\"
 ap.srcs += $(SRC_SUBSYSTEMS)/gps/gps_skytraq.c
 
+$(TARGET).srcs += $(SRC_SUBSYSTEMS)/gps.c
+
+sim.CFLAGS += -DUSE_GPS
+sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
 
 nps.CFLAGS += -DUSE_GPS
 nps.srcs += $(SRC_SUBSYSTEMS)/gps.c
+nps.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"
+nps.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_nps.c

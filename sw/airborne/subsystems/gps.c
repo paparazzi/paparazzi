@@ -134,6 +134,7 @@ static void send_gps_sol(struct transport_tx *trans, struct link_device *dev)
 
 void gps_init(void)
 {
+  gps.valid_fields = 0;
   gps.fix = GPS_FIX_NONE;
   gps.week = 0;
   gps.tow = 0;
