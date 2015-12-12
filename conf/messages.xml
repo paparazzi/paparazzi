@@ -2437,13 +2437,29 @@
     <field name="ac_id" type="uint8"/>
   </message>
 
+  <message name="POSITION_TARGET_LOCAL_NED" id="40" link="forwarded">
+    <description>
+      Set vehicle position or velocity in NED.
+      Frame can be specified with the bits 0-3 in the flags field:
+      0x0: LOCAL_NED
+      0x1: LOCAL_OFFSET_NED
+      0x2: BODY_NED
+      0x3: BODY_OFFSET_NED
+    </description>
+    <field name="ac_id" type="uint8"/>
+    <field name="flags" type="uint8">bits 0-3: frame, bits 4-7: use as velocity?</field>
+    <field name="x" type="float" unit="m">X position/velocity in NED</field>
+    <field name="y" type="float" unit="m">Y position/velocity in NED</field>
+    <field name="z" type="float" unit="m">Z position/velocity in NED (negative altitude)</field>
+    <field name="yaw" type="float" unit="rad" alt_unit="deg">yaw/rate setpoint</field>
+  </message>
 
- <message name="WINDTURBINE_STATUS" id="50" link="broadcasted">
-   <field name="ac_id" type="uint8"/>
-   <field name="tb_id" type="uint8"/>
-   <field name="sync_itow"  type="uint32" unit="ms"/>
-   <field name="cycle_time" type="uint32" unit="ms"/>
- </message>
+  <message name="WINDTURBINE_STATUS" id="50" link="broadcasted">
+    <field name="ac_id" type="uint8"/>
+    <field name="tb_id" type="uint8"/>
+    <field name="sync_itow"  type="uint32" unit="ms"/>
+    <field name="cycle_time" type="uint32" unit="ms"/>
+  </message>
 
   <message name="RC_3CH" id="51" link="broadcasted">
     <field name="throttle_mode" type="uint8" unit="byte_mask"/>
