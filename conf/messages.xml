@@ -887,7 +887,14 @@
     <field name="servo" type="uint16[]"/>
   </message>
 
-  <!--112 is free -->
+
+  <message name="STEREO_VELOCITY" id="112">
+    <field name="disparity" type="uint8"/>
+    <field name="distance" type="float"/>
+    <field name="velocity" type="float"/>
+    <field name="velocitySideways" type="float"/>
+    <field name="velocityUpDown" type="float"/>
+  </message>
 
   <message name="MLX_SERIAL" id="113">
     <field name="serial0" type="uint32"/>
