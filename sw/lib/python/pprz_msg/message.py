@@ -151,7 +151,13 @@ class PprzMessage(object):
     def to_json(self, payload_only=False):
         return json.dumps(self.to_dict(payload_only))
 
-    def payload_to_ivy_string(self):
+    def to_csv(self, payload_only=False):
+        """ return message as CSV string for use with RAW_DATALINK
+        msg_name;field1;field2;
+        """
+        return str(self.name) + ';' + self.payload_to_ivy_string(sep=';')
+
+    def payload_to_ivy_string(self, sep=' '):
         ivy_str = ''
         for idx, t in enumerate(self.fieldtypes):
             if "char[" in t:
@@ -160,7 +166,7 @@ class PprzMessage(object):
                 ivy_str += ','.join([str(x) for x in self.fieldvalues[idx]])
             else:
                 ivy_str += str(self.fieldvalues[idx])
-            ivy_str += ' '
+            ivy_str += sep
         return ivy_str
 
     def payload_to_binary(self):
