@@ -30,30 +30,34 @@
   * parameters
   * extrat targets
   *)
-type module_conf = { xml : Xml.xml; file : string; filename : string; vpath : string option; param : Xml.xml list; extra_targets : string list; }
+type module_conf = { name : string; xml : Xml.xml; file : string; filename : string; vpath : string option; param : Xml.xml list; targets : string list; }
 
 (* Modules directory *)
 val modules_dir : string
 
 (** remove all duplicated elements of a list *)
-val singletonize : 'a list -> 'a list
+val singletonize : ?compare: ('a -> 'a -> int) -> 'a list -> 'a list
 
 (** [targets_of_field] Xml node, default
  * Returns the targets of a makefile node in modules
  * Default "ap|sim" *)
 val targets_of_field : Xml.xml -> string -> string list
 
+exception Subsystem of string
+val module_name : Xml.xml -> string
+val get_module : Xml.xml -> string list -> module_conf
+
 (** [get_modules_of_airframe xml]
  * Returns a list of pair (modules ("load" node), targets) from airframe file *)
-val get_modules_of_airframe : Xml.xml -> module_conf list
+val get_modules_of_airframe : ?target: string -> Xml.xml -> module_conf list
+
+(** [test_targets target targets]
+ * Test if [target] is allowed [targets]
+ * Return true if target is allowed, false if target is not in list or rejected (prefixed by !) *)
+val test_targets : string -> string list -> bool
 
 (** [get_targets_of_module xml] Returns the list of targets of a module *)
-val get_targets_of_module : module_conf -> string list
-
-(** [unload_unused_modules modules ?print_error]
- * Returns a list of [modules] where unused modules are removed
- * If [print_error] is true, a warning is printed *)
-val unload_unused_modules : module_conf list -> bool -> module_conf list
+val get_targets_of_module : Xml.xml -> string list
 
 (** [get_modules_name xml]
  * Returns a list of loaded modules' name *)
@@ -69,8 +73,9 @@ val get_modules_dir : module_conf list -> string list
  * Fail if more than one *)
 val get_autopilot_of_airframe : Xml.xml -> (string * string option)
 
-(** [is_element_unselected target file]
- * Returns True if [target] is supported the element [file],
+(** [is_element_unselected target modules file]
+ * Returns True if [target] is supported in the element [file] and, if it is
+ * a module, that it is loaded,
  * [file] being the file name of an Xml file (module or setting) *)
-val is_element_unselected : ?verbose:bool -> string -> string -> bool
+val is_element_unselected : ?verbose:bool -> string -> module_conf list -> string -> bool
 

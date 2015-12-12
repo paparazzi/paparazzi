@@ -275,8 +275,8 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="JSBSIM_LAUNCHSPEED" value="15"/>
-    <define name="JSBSIM_MODEL" value="&quot;easystar&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_invariant.h&quot;"/>
+    <define name="JSBSIM_MODEL" value="easystar" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_invariant.h" type="string"/>
     <define name="JS_AXIS_MODE" value="4"/>
   </section>
 

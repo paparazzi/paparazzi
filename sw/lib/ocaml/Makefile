@@ -107,6 +107,10 @@ lib-pprz.cmxa: | liblib-pprz.a dlllib-pprz.so
 
 xlib-pprz.cmxa: | libxlib-pprz.a dllxlib-pprz.so
 
+xml_get.cmo : xml_get.ml lib-pprz.cma
+	@echo OC $@
+	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -I . lib-pprz.cma -c $<
+
 xml_get.out : lib-pprz.cma xml_get.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ -package str,xml-light -linkpkg -I . $^

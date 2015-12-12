@@ -1,8 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is an Asctec frame equipped with  Lisa/L v0.9 and Asctec V2 controllers -->
+<!-- this is an MavTec frame -->
 
-<airframe name="asctec_cdw">
+<airframe name="cdw_mavtec">
   <!-- ************************* FIRMWARE ************************* -->
 
   <firmware name="rotorcraft">
@@ -201,9 +201,9 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="{&quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;, &quot;nw_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
 
 </airframe>

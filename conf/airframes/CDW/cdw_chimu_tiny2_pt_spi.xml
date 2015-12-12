@@ -1,51 +1,45 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
+<!--
+YAPA + XSens + XBee
+-->
 
 <airframe name="Yapa v1">
 
   <servos>
-    <servo name="THROTTLE" no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILERON_LEFT" no="1" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILERON_RIGHT" no="2" min="2000" neutral="1500" max="1000"/>
-    <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
-    <servo name="RUDDER" no="4" min="1100" neutral="1500" max="1900"/>
+    <servo name="THROTTLE" no="0" min="1100" neutral="1000" max="1900"/>
+    <servo name="RUDDER" no="2" min="1100" neutral="1500" max="1900"/>
+    <servo name="ELEVATOR" no="6" min="1000" neutral="1500" max="2000"/>
+    <servo name="CAM_TILT" no="7" min="700" neutral="1600" max="2500"/>
+    <servo name="CAM_PAN" no="3" min="800" neutral="1650" max="2500"/>
   </servos>
 
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="0"/>
     <axis name="PITCH" failsafe_value="0"/>
-    <axis name="BRAKE" failsafe_value="0"/>	<!-- both elerons up as butterfly brake ? -->
+    <axis name="CAM_PAN" failsafe_value="0"/>
+    <axis name="CAM_TILT" failsafe_value="0"/>
   </commands>
+
+  <ap_only_commands>
+    <copy command="CAM_PAN"/>
+    <copy command="CAM_TILT"/>
+  </ap_only_commands>
+
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
-    <set command="BRAKE" value="@YAW"/>
   </rc_commands>
 
-  <section name="SERVO_MIXER_GAINS">
-    <define name="AILERON_RATE_UP" value="0.50f"/>
-    <define name="AILERON_RATE_DOWN" value="0.25f"/>
-
-    <define name="AILERON_RATE_UP_BRAKE" value="0.5f"/>
-    <define name="AILERON_RATE_DOWN_BRAKE" value="0.9f"/>
-
-    <define name="PITCH_GAIN" value="0.9f"/>
-
-    <define name="YAW_THRUST" value="0.0f"/>
-    <define name="BRAKE_AILEVON" value="-0.68f"/>
-    <define name="BRAKE_PITCH" value="0.0f"/>
-    <define name="MAX_BRAKE_RATE" value="150"/>
-
-    <define name="LIMIT(X,XL,XH)" value="(    ((X)>(XH))   ?    (XH)    :    ( ((X)>(XL)) ? (X) : (XL) )    )"/>
-  </section>
-
   <command_laws>
+    <set servo="CAM_PAN" value="@CAM_PAN"/>
+    <set servo="CAM_TILT" value="@CAM_TILT"/>
+
     <!-- Differential Aileron Depending on Brake Value -->
-    <set servo="AILERON_LEFT" value="@ROLL"/>
-    <set servo="AILERON_RIGHT" value="@ROLL"/>
+    <set servo="RUDDER" value="@ROLL"/>
 
     <!-- Differential Thurst -->
     <set servo="THROTTLE" value="@THROTTLE"/>
@@ -55,8 +49,8 @@
   </command_laws>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="rad"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="rad"/>
   </section>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -64,23 +58,36 @@
     <define name="MAX_PITCH" value="0.7"/>
   </section>
 
-  <section name="BAT">
-    <define name="MilliAmpereOfAdc(adc)" value="((adc) - 505) * 124.0f"/>
+  <section name="PANTILT" prefix="CAM_">
+    <!-- these are in degrees, either specify both unit and code_unit or none -->
+    <define name="PAN_MIN" value="-45"/>
+    <define name="PAN_NEUTRAL" value="33"/>
+    <define name="PAN_MAX" value="156"/>
+    <define name="PAN0" value="0"/>
+    <define name="TILT_MIN" value="-62" unit="deg" code_unit="deg"/>
+    <define name="TILT_NEUTRAL" value="47" unit="deg" code_unit="deg"/>
+    <define name="TILT_MAX" value="122" unit="deg" code_unit="deg"/>
+    <define name="TILT0" value="90" unit="deg" code_unit="deg"/>
+    <define name="MODE0" value="1"/>
+  </section>
 
-    <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="10" unit="V"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.1" unit="V"/>
+  <section name="BAT">
+    <define name="LOW_BAT_LEVEL" value="7" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="6.5" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="6.0" unit="V"/>
   </section>
 
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="13." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
-    <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
-<!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
+    <!--   <define name="XBEE_INIT" value="ATPL2\rATRN5\rATTT80\r" type="string"/>
+         <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
+    <define name="GLIDE_AIRSPEED" value="10"/>
+    <define name="GLIDE_VSPEED" value="3."/>
+    <define name="GLIDE_PITCH" value="45" unit="deg"/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -109,9 +116,9 @@
     <define name="COURSE_DGAIN" value="0.3"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="0.2"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.9" unit="rad"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.9" unit="radians"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
     <define name="PITCH_PGAIN" value="12000."/>
     <define name="PITCH_DGAIN" value="0"/>
@@ -150,24 +157,29 @@
 
 
   <modules>
-    <load name="ins_chimu_spi.xml" >
-			<define name="CHIMU_BIG_ENDIAN" />
-		</load>
-
+    <load name="ahrs_chimu_spi.xml" >
+      <define name="CHIMU_BIG_ENDIAN" />
+    </load>
+    <load name="cam_point.xml" />
+    <load name="gps_ubx_ucenter.xml"/>
   </modules>
 
   <firmware name="fixedwing">
+
+    <define name="STRONG_WIND"/>
+    <define name="WIND_INFO"/>
+    <define name="WIND_INFO_RET"/>
+    <define name="LOITER_TRIM"/>
+    <define name="POINT_CAM_PITCH_ROLL" />
+
     <target name="ap" board="tiny_2.11">
-      <define name="STRONG_WIND"/>
-      <define name="WIND_INFO"/>
-      <define name="WIND_INFO_RET"/>
-      <define name="LOITER_TRIM"/>
-			<!--      <define name="NB_CHANNELS" value="5" />  -->
     </target>
-    <target name="sim" board="pc"/>
+    <!--    <target name="sim" board="pc"/> -->
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="gps" type="ublox" />
+
+
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api">
       <configure name="MODEM_BAUD" value="B9600"/>
@@ -177,10 +189,9 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="navigation"/>
-<!--    <subsystem name="gps"    type="ublox"/> -->
 
     <subsystem name="spi_slave_hs"/>
-
+    <subsystem name="ins" type="alt_float"/>
   </firmware>
 
 </airframe>

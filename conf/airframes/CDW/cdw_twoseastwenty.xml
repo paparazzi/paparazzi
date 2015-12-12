@@ -4,61 +4,77 @@
   Use settings/tuning_ins.xml
   Use telemetry/default_fixedwing_imu.xml
 
+  3x parallel redundant FBW-boards with DUAL-SBUS
+  1x Lisa-L with XSens Mtig700
 -->
 
 
-<airframe name="LisaMX Dual">
+<airframe name="TwoSeasTwenty">
   <!-- ************************* FIRMWARE ************************* -->
 
   <firmware name="fixedwing">
-
-    <target name="ap" board="lisa_mx_2.0">
+    <define name="RADIO_CONTROL_NB_CHANNEL" value="8" />
+    <target name="ap" board="lisa_l_1.0">
       <configure name="SEPARATE_FBW" value="1"/>
+      <configure name="AHRS_ALIGNER_LED" value="1"/>
+      <configure name="CPU_LED" value="1"/>
       <define name="LINK_MCU_LED" value="4"/>
       <!-- FBW -->
       <subsystem name="actuators" type="dummy"/>
       <subsystem name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART2"/>
       </subsystem>
+      <subsystem name="radio_control" type="sbus_dual">
+        <configure name="SBUS1_PORT" value="UART3"/>
+        <configure name="SBUS2_PORT" value="UART5"/>
+      </subsystem>
       <!-- AP -->
       <subsystem name="control"/>
       <subsystem name="navigation"/>
-      <subsystem name="telemetry" type="transparent"/>
-      <subsystem name="ins" type="alt_float"/>
-      <subsystem name="gps" type="ublox"/>
+      <!-- Communication -->
+      <subsystem name="telemetry" type="xbee_api">
+        <configure name="MODEM_BAUD" value="B9600"/>
+        <configure name="MODEM_PORT" value="UART3"/>
+      </subsystem>
+      <subsystem name="ins" type="xsens700">
+        <configure name="XSENS_UART_NR" value="1"/>
+        <configure name="XSENS_UART_BAUD" value="B230400"/>
+      </subsystem>
     </target>
-
-    <target name="fbw" board="lisa_mx_2.0">
+    <target name="fbw" board="lisa_m_2.0">
       <configure name="SEPARATE_FBW" value="1"/>
       <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="1"/>
       <define name="LINK_MCU_LED" value="1"/>
+      <configure name="HAS_LUFTBOOT" value="0"/>
       <!-- no usb -->
+      <!-- RC -->
+      <subsystem name="radio_control" type="sbus_dual">
+        <configure name="SBUS1_PORT" value="UART3"/>
+        <configure name="SBUS2_PORT" value="UART5"/>
+      </subsystem>
       <!-- FBW <-> AP -->
       <subsystem name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART1"/>
       </subsystem>
       <!-- SERVO'S -->
-      <subsystem name="actuators" type="pwm">
-        <define name="USE_SERVOS_7AND8"/>
-      </subsystem>
-      <!--subsystem name="fbw_datalink"/-->
-      <subsystem name="telemetry" type="transparent"/>
+      <subsystem name="actuators" type="pwm"/>
+      <define name="USE_SERVOS_7AND8"/>
     </target>
-
     <target name="sim" board="pc">
+      <subsystem name="radio_control" type="ppm"/>
       <!-- AP -->
       <subsystem name="control"/>
       <subsystem name="navigation"/>
       <!-- Communication -->
-      <subsystem name="telemetry" type="transparent"/>
-      <subsystem name="ins" type="alt_float"/>
+      <subsystem name="telemetry" type="xbee_api">
+        <configure name="MODEM_BAUD" value="B9600"/>
+        <configure name="MODEM_PORT" value="UART3"/>
+      </subsystem>
+      <subsystem name="ins" type="xsens700">
+        <configure name="XSENS_UART_NR" value="1"/>
+        <configure name="XSENS_UART_BAUD" value="B230400"/>
+      </subsystem>
     </target>
-
-    <!-- common subsystems -->
-    <subsystem name="radio_control" type="spektrum">
-      <define name="RADIO_CONTROL_NB_CHANNEL" value="8" />
-    </subsystem>
-
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
     <define name="TUNE_AGRESSIVE_CLIMB"/>
@@ -78,17 +94,18 @@
       <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
     </load>
     <load name="nav_line.xml"/>
-    <load name="air_data.xml"/>
+    <!--load name="gas_engine_idle.xml"/-->
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->
 
   <servos>
-    <servo name="THROTTLE" no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT" no="1" min="1200" neutral="1500" max="1800"/>
-    <servo name="ELEVATOR" no="2" min="2000" neutral="1500" max="1000"/>
-    <servo name="RUDDER" no="3" min="1100" neutral="1500" max="1900"/>
-    <servo name="AILEVON_RIGHT" no="4" min="1800" neutral="1500" max="1200"/>
+    <servo name="THROTTLE_LEFT" no="3" min="1950" neutral="1850" max="900"/>
+    <servo name="THROTTLE_RIGHT" no="2" min="1950" neutral="1850" max="900"/>
+    <servo name="AILERONS" no="1" min="1800" neutral="1500" max="1120"/>
+    <servo name="ELEVATORS" no="0" max="1000" neutral="1455" min="1900"/>
+    <servo name="RUDDER" no="4" max="1875" neutral="1555" min="1200"/>
+    <servo name="FLAPS" no="5" max="1020" neutral="1335" min="1650"/>
   </servos>
 
   <commands>
@@ -96,6 +113,9 @@
     <axis name="ROLL" failsafe_value="0"/>
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="0"/>
+    <axis name="FLAPS" failsafe_value="-9600"/>
+    <axis name="IDLE1" failsafe_value="0"/>
+    <axis name="IDLE2" failsafe_value="0"/>
   </commands>
 
   <rc_commands>
@@ -103,6 +123,9 @@
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
     <set command="YAW" value="@YAW"/>
+    <set command="FLAPS" value="@FLAPS"/>
+    <set command="IDLE1" value="@GAIN1"/>
+    <set command="IDLE2" value="@GAIN2"/>
   </rc_commands>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -110,12 +133,18 @@
     <define name="MAX_PITCH" value="50" unit="deg"/>
   </section>
 
+  <section name="SERVO_MIXER_GAINS">
+    <define name="MAX_BRAKE_RATE" value="80"/>
+  </section>
+
   <command_laws>
-    <set servo="AILEVON_LEFT" value="@ROLL"/>
-    <set servo="AILEVON_RIGHT" value="-@ROLL"/>
-    <set servo="THROTTLE" value="@THROTTLE"/>
-    <set servo="ELEVATOR" value="@PITCH"/>
+    <ratelimit var="slow_flaps" value="@FLAPS" rate_min="-MAX_BRAKE_RATE" rate_max="MAX_BRAKE_RATE"/>
+    <set servo="THROTTLE_LEFT" value="((@THROTTLE)*0.9f) - ((@IDLE1)*0.1f)"/>
+    <set servo="THROTTLE_RIGHT" value="((@THROTTLE)*0.9f) - ((@IDLE2)*0.1f)"/>
+    <set servo="AILERONS" value="@ROLL"/>
+    <set servo="ELEVATORS" value="@PITCH"/>
     <set servo="RUDDER" value="@YAW"/>
+    <set servo="FLAPS" value="$slow_flaps"/>
   </command_laws>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
@@ -128,25 +157,23 @@
 
   <!-- ************************* SENSORS ************************* -->
 
-  <section name="IMU" prefix="IMU_">
-    <!-- replace this with your own calibration -->
-    <define name="MAG_X_NEUTRAL" value="-179"/>
-    <define name="MAG_Y_NEUTRAL" value="-21"/>
-    <define name="MAG_Z_NEUTRAL" value="79"/>
-    <define name="MAG_X_SENS" value="4.17334785618" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.98885954135" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.40442339014" integer="16"/>
+  <!--
+  <section name="XSENS">
+    <define name="GPS_IMU_LEVER_ARM_X" value="-0.285f"/>
+    <define name="GPS_IMU_LEVER_ARM_Y" value="0.0f"/>
+    <define name="GPS_IMU_LEVER_ARM_Z" value="0.0f"/>
+  </section>
+  -->
 
+  <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
   </section>
 
-  <section name="AHRS" prefix="AHRS_">
-    <!-- Local magnetic field, on 3D fix is update by geo_mag module -->
-    <define name="H_X" value="0.51562740288882"/>
-    <define name="H_Y" value="-0.05707735220832"/>
-    <define name="H_Z" value="0.85490967783446"/>
+  <section name="INS" prefix="INS_">
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
   </section>
 
   <!-- ************************* GAINS ************************* -->
@@ -232,7 +259,7 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
-    <define name="XBEE_INIT" value="&quot;ATPL4\rATRN5\rATTT80\r&quot;"/>
+    <define name="XBEE_INIT" value="ATPL4\rATRN5\rATTT80\r" type="string"/>
     <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="COMMAND_ROLL_TRIM" value="180"/>
     <define name="COMMAND_PITCH_TRIM" value="-194."/>
