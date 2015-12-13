@@ -50,6 +50,18 @@ GPS_BAUD ?= B38400
 
 
 #
+# default PPM input is on PA7 (RC_CH6)
+#
+RADIO_CONTROL_PPM_PIN ?= PA7
+ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_07 PA07 PA7 RC_CH6))
+  PPM_CONFIG=2
+else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_00 PA00 PA0 RC_CH1))
+  PPM_CONFIG=1
+else
+$(error Unknown RADIO_CONTROL_PPM_PIN, configure it to either PA7 or PA0)
+endif
+
+#
 # default actuator configuration
 #
 # you can use different actuators by adding a configure option to your firmware section

@@ -17,13 +17,15 @@ RC_SRCS   += $(SRC_SUBSYSTEMS)/radio_control.c
 RC_SRCS   += $(SRC_SUBSYSTEMS)/radio_control/ppm.c
 RC_SRCS   += $(SRC_ARCH)/subsystems/radio_control/ppm_arch.c
 
+#
+# Some STM32 boards have the option to configure RADIO_CONTROL_PPM_PIN.
+# See the board makefile for configure options of the pins.
+# If they set the PPM_CONFIG makefile variable, add it to the target.
+# The PPM_CONFIG define is then used in the <board>.h file to set the configuration.
+#
 ifeq ($(ARCH),stm32)
-  ifdef RADIO_CONTROL_PPM_PIN
-    ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_10 UART1_RX))
-      $(TARGET).CFLAGS += -DPPM_CONFIG=1
-    else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_01 SERVO6))
-      $(TARGET).CFLAGS += -DPPM_CONFIG=2
-    endif
+  ifdef PPM_CONFIG
+    $(TARGET).CFLAGS += -DPPM_CONFIG=$(PPM_CONFIG)
   endif
 endif
 

@@ -48,6 +48,20 @@ GPS_PORT ?= UART3
 GPS_BAUD ?= B38400
 
 #
+# default PPM input is on PA03 (Aux RX)
+#
+RADIO_CONTROL_PPM_PIN ?= PA03
+ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_10 PA10 UART1_RX))
+  PPM_CONFIG=1
+else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_01 PA01 PA1 SERVO6))
+  PPM_CONFIG=2
+else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_03 PA03 PA3))
+  PPM_CONFIG=3
+else
+$(error Unknown RADIO_CONTROL_PPM_PIN, configure it to either PA01, PA03 or PA10)
+endif
+
+#
 # default actuator configuration
 #
 # you can use different actuators by adding a configure option to your firmware section

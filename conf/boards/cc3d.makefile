@@ -55,6 +55,17 @@ MODEM_BAUD ?= B57600
 GPS_PORT ?= UART3
 GPS_BAUD ?= B38400
 
+#
+# default PPM input is on PA01
+#
+RADIO_CONTROL_PPM_PIN ?= PA01
+ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PB_06 PB06 PB6))
+  PPM_CONFIG=1
+else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_01 PA01 PA1))
+  PPM_CONFIG=2
+else
+$(error Unknown RADIO_CONTROL_PPM_PIN, configure it to either PA01, PB06)
+endif
 
 #
 # default actuator configuration

@@ -83,7 +83,7 @@
 
 /* PPM
  *
- * Default is PPM config 2, input on GPIOB6: RC input pin 8 (S6_IN)
+ * Default is PPM config 2, input on GPIOA1: RC input pin 8 (S6_IN)
  */
 #ifndef PPM_CONFIG
 #define PPM_CONFIG 2

@@ -189,7 +189,7 @@
  */
 
 /*
- * Default is PPM config 2, input on GPIO01 (Servo pin 6)
+ * Default is PPM config 3, input on PA3 (Aux RX pin)
  */
 
 #ifndef PPM_CONFIG

@@ -110,11 +110,6 @@
  */
 
 /*
- * On Lisa/S there is no really dedicated port available. But we could use a
- * bunch of different pins to do PPM Input.
- */
-
-/*
  * Default is PPM config 1, input on PA0
  */
 
