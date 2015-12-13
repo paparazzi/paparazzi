@@ -12,7 +12,6 @@
 <airframe name="Hexcopter Naze32">
 
   <firmware name="rotorcraft">
-    <define name="USE_SERVOS_5AND6"/>
     <define name="PPRZ_TRIG_INT_COMPR_FLASH"/>
     <define name="PPRZ_TRIG_INT_COMPR_HIGHEST"/>
     <target name="ap" board="naze32_rev5">
