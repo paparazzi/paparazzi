@@ -30,6 +30,9 @@
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/spi.h"
 
+// for memset
+#include <string.h>
+
 #ifndef BLUEGIGA_SPI_DEV
 #error "bluegiga: must define a BLUEGIGA_SPI_DEV"
 #endif
