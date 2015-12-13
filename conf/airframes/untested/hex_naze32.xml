@@ -12,7 +12,8 @@
 <airframe name="Hexcopter Naze32">
 
   <firmware name="rotorcraft">
-    <define name="USE_SERVOS_5AND6"/>
+    <!-- configure PPM input to PA7 instead of PA0 to have all 6 servos -->
+    <configure name="RADIO_CONTROL_PPM_PIN" value="PA7"/>
     <define name="PPRZ_TRIG_INT_COMPR_FLASH"/>
     <define name="PPRZ_TRIG_INT_COMPR_HIGHEST"/>
     <target name="ap" board="naze32_rev5">

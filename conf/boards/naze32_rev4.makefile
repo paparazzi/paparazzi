@@ -49,9 +49,10 @@ GPS_PORT ?= UART2
 GPS_BAUD ?= B38400
 
 #
-# default PPM input is on PA7 (RC_CH6)
+# default PPM input is on PA0 (RC_CH1)
+# configuring it to PA7 will also enable servos 1 and 2
 #
-RADIO_CONTROL_PPM_PIN ?= PA7
+RADIO_CONTROL_PPM_PIN ?= PA0
 ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_07 PA07 PA7 RC_CH6))
   PPM_CONFIG=2
 else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_00 PA00 PA0 RC_CH1))
