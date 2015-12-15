@@ -137,19 +137,19 @@ void stabilization_rate_read_rc(void)
 {
 
   if (ROLL_RATE_DEADBAND_EXCEEDED()) {
-    stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
+    stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_ROLL] * RATE_BFP_OF_REAL(STABILIZATION_RATE_SP_MAX_P) / MAX_PPRZ;
   } else {
     stabilization_rate_sp.p = 0;
   }
 
   if (PITCH_RATE_DEADBAND_EXCEEDED()) {
-    stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_PITCH] * STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ;
+    stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_PITCH] * RATE_BFP_OF_REAL(STABILIZATION_RATE_SP_MAX_Q) / MAX_PPRZ;
   } else {
     stabilization_rate_sp.q = 0;
   }
 
   if (YAW_RATE_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN()) {
-    stabilization_rate_sp.r = (int32_t)radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
+    stabilization_rate_sp.r = (int32_t)radio_control.values[RADIO_YAW] * RATE_BFP_OF_REAL(STABILIZATION_RATE_SP_MAX_R) / MAX_PPRZ;
   } else {
     stabilization_rate_sp.r = 0;
   }
@@ -160,19 +160,19 @@ void stabilization_rate_read_rc_switched_sticks(void)
 {
 
   if (ROLL_RATE_DEADBAND_EXCEEDED()) {
-    stabilization_rate_sp.r = (int32_t) - radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
+    stabilization_rate_sp.r = (int32_t) - radio_control.values[RADIO_ROLL] * RATE_BFP_OF_REAL(STABILIZATION_RATE_SP_MAX_P) / MAX_PPRZ;
   } else {
     stabilization_rate_sp.r = 0;
   }
 
   if (PITCH_RATE_DEADBAND_EXCEEDED()) {
-    stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_PITCH] * STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ;
+    stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_PITCH] * RATE_BFP_OF_REAL(STABILIZATION_RATE_SP_MAX_Q) / MAX_PPRZ;
   } else {
     stabilization_rate_sp.q = 0;
   }
 
   if (YAW_RATE_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN()) {
-    stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
+    stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_YAW] * RATE_BFP_OF_REAL(STABILIZATION_RATE_SP_MAX_R) / MAX_PPRZ;
   } else {
     stabilization_rate_sp.p = 0;
   }

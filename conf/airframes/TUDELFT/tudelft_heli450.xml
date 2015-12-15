@@ -115,9 +115,9 @@
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
     <!-- setpoints -->
-    <define name="SP_MAX_P" value="10000"/>
-    <define name="SP_MAX_Q" value="10000"/>
-    <define name="SP_MAX_R" value="10000"/>
+    <define name="SP_MAX_P" unit="deg/s" value="280"/>
+    <define name="SP_MAX_Q" unit="deg/s" value="280"/>
+    <define name="SP_MAX_R" unit="deg/s" value="140"/>
     <define name="DEADBAND_P" value="20"/>
     <define name="DEADBAND_Q" value="20"/>
     <define name="DEADBAND_R" value="200"/>
