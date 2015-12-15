@@ -39,8 +39,9 @@ struct gps_ubx_ucenter_struct {
   uint8_t reply;
   uint8_t cnt;
 
-  uint32_t baud_init; // Initial baudrate of the ublox module
-  uint32_t baud_run;  // Current baudrate of the ublox module
+  uint32_t baud_init;   // Initial baudrate of the ublox module
+  uint32_t baud_run;    // Current baudrate of the ublox module
+  uint32_t baud_target; // Final expected baudrate of the ublox module
 
   uint8_t sw_ver_h;
   uint8_t sw_ver_l;
