@@ -92,9 +92,9 @@
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
 
-    <define name="SP_MAX_P" value="10000"/>
-    <define name="SP_MAX_Q" value="10000"/>
-    <define name="SP_MAX_R" value="10000"/>
+    <define name="SP_MAX_P" value="140" unit="deg/s"/>
+    <define name="SP_MAX_Q" value="140" unit="deg/s"/>
+    <define name="SP_MAX_R" value="140" unit="deg/s"/>
 
     <define name="GAIN_P" value="400"/>
     <define name="GAIN_Q" value="400"/>
