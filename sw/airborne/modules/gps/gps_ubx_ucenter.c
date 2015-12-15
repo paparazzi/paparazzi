@@ -461,7 +461,7 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
       if (gps_ubx_ucenter.reply != GPS_UBX_UCENTER_REPLY_ACK) {
         DEBUG_PRINT("ublox did not acknowledge port configuration.\n");
       } else {
-        DEBUG_PRINT("Changed ublox baudrate to: %u\n", UART_BAUD(gps_ubx_ucenter.baud_target));
+        DEBUG_PRINT("Changed ublox baudrate to: %u\n", UART_SPEED(gps_ubx_ucenter.baud_target));
       }
 #endif
       // Now the GPS baudrate should have changed
