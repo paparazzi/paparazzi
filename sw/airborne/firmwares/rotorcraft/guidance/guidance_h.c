@@ -366,14 +366,17 @@ void guidance_h_run(bool_t  in_flight)
       break;
 
     case GUIDANCE_H_MODE_HOVER:
+      /* set psi command from RC */
+      guidance_h.sp.heading = guidance_h.rc_sp.psi;
+      /* fall trough to GUIDED to update ref, run traj and set final attitude setpoint */
+
+    case GUIDANCE_H_MODE_GUIDED:
+      /* guidance_h.sp.pos and guidance_h.sp.heading need to be set from external source */
       if (!in_flight) {
         guidance_h_hover_enter();
       }
 
       guidance_h_update_reference();
-
-      /* set psi command */
-      guidance_h.sp.heading = guidance_h.rc_sp.psi;
 
 #if GUIDANCE_INDI
       guidance_indi_run(in_flight, guidance_h.sp.heading);
@@ -381,8 +384,7 @@ void guidance_h_run(bool_t  in_flight)
       /* compute x,y earth commands */
       guidance_h_traj_run(in_flight);
       /* set final attitude setpoint */
-      stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
-                                             guidance_h.sp.heading);
+      stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth, guidance_h.sp.heading);
 #endif
       stabilization_attitude_run(in_flight);
       break;
@@ -548,18 +550,17 @@ static void guidance_h_traj_run(bool_t in_flight)
 
 static void guidance_h_hover_enter(void)
 {
-
   /* set horizontal setpoint to current position */
   VECT2_COPY(guidance_h.sp.pos, *stateGetPositionNed_i());
 
   reset_guidance_reference_from_current_position();
 
   guidance_h.rc_sp.psi = stateGetNedToBodyEulers_i()->psi;
+  guidance_h.sp.heading = guidance_h.rc_sp.psi;
 }
 
 static void guidance_h_nav_enter(void)
 {
-
   /* horizontal position setpoint from navigation/flightplan */
   INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_carrot);
 
@@ -615,4 +616,24 @@ void guidance_h_set_igain(uint32_t igain)
 {
   guidance_h.gains.i = igain;
   INT_VECT2_ZERO(guidance_h_trim_att_integrator);
+}
+
+bool_t guidance_h_set_guided_pos(float x, float y)
+{
+  if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
+    guidance_h.sp.pos.x = POS_BFP_OF_REAL(x);
+    guidance_h.sp.pos.y = POS_BFP_OF_REAL(y);
+    return TRUE;
+  }
+  return FALSE;
+}
+
+bool_t guidance_h_set_guided_heading(float heading)
+{
+  if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
+    guidance_h.sp.heading = ANGLE_BFP_OF_REAL(heading);
+    INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
+    return TRUE;
+  }
+  return FALSE;
 }

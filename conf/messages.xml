@@ -1995,11 +1995,11 @@
     <field name="rc_status"    type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="frame_rate"   type="uint8" unit="Hz"/>
     <field name="gps_status"   type="uint8" values="NO_FIX|NA|2D|3D|DGPS|RTK"/>
-    <field name="ap_mode"      type="uint8" values="KILL|FAILSAFE|HOME|RATE_DIRECT|ATTITUDE_DIRECT|RATE_RC_CLIMB|ATTITUDE_RC_CLIMB|ATTITUDE_CLIMB|RATE_Z_HOLD|ATTITUDE_Z_HOLD|HOVER_DIRECT|HOVER_CLIMB|HOVER_Z_HOLD|NAV|RC_DIRECT|CARE_FREE|FORWARD|MODULE|FLIP"/>
+    <field name="ap_mode"      type="uint8" values="KILL|FAILSAFE|HOME|RATE_DIRECT|ATTITUDE_DIRECT|RATE_RC_CLIMB|ATTITUDE_RC_CLIMB|ATTITUDE_CLIMB|RATE_Z_HOLD|ATTITUDE_Z_HOLD|HOVER_DIRECT|HOVER_CLIMB|HOVER_Z_HOLD|NAV|RC_DIRECT|CARE_FREE|FORWARD|MODULE|FLIP|GUIDED"/>
     <field name="ap_in_flight" type="uint8" values="ON_GROUND|IN_FLIGHT"/>
     <field name="ap_motors_on" type="uint8" values="MOTORS_OFF|MOTORS_ON"/>
-    <field name="ap_h_mode"    type="uint8" values="KILL|RATE|ATTITUDE|HOVER|NAV|CF"/>
-    <field name="ap_v_mode"    type="uint8" values="KILL|RC_DIRECT|RC_CLIMB|CLIMB|HOVER|NAV"/>
+    <field name="ap_h_mode"    type="uint8" values="KILL|RATE|ATTITUDE|HOVER|NAV|RC_DIRECT|CF|FORWARD|MODULE|FLIP|GUIDED"/>
+    <field name="ap_v_mode"    type="uint8" values="KILL|RC_DIRECT|RC_CLIMB|CLIMB|HOVER|NAV|MODULE|FLIP|GUIDED"/>
     <field name="vsupply"      type="uint16" unit="decivolt"/>
     <field name="cpu_time"     type="uint16" unit="s"/>
   </message>
@@ -2437,13 +2437,29 @@
     <field name="ac_id" type="uint8"/>
   </message>
 
+  <message name="GUIDED_SETPOINT_NED" id="40" link="forwarded">
+    <description>
+      Set vehicle position or velocity in NED.
+      Frame can be specified with the bits 0-3 in the flags field:
+      0x0: LOCAL_NED
+      0x1: LOCAL_OFFSET_NED
+      0x2: BODY_NED
+      0x3: BODY_OFFSET_NED
+    </description>
+    <field name="ac_id" type="uint8"/>
+    <field name="flags" type="uint8">bits 0-3: frame, bits 4-7: use as velocity?</field>
+    <field name="x" type="float" unit="m">X position/velocity in NED</field>
+    <field name="y" type="float" unit="m">Y position/velocity in NED</field>
+    <field name="z" type="float" unit="m">Z position/velocity in NED (negative altitude)</field>
+    <field name="yaw" type="float" unit="rad" alt_unit="deg">yaw/rate setpoint</field>
+  </message>
 
- <message name="WINDTURBINE_STATUS" id="50" link="broadcasted">
-   <field name="ac_id" type="uint8"/>
-   <field name="tb_id" type="uint8"/>
-   <field name="sync_itow"  type="uint32" unit="ms"/>
-   <field name="cycle_time" type="uint32" unit="ms"/>
- </message>
+  <message name="WINDTURBINE_STATUS" id="50" link="broadcasted">
+    <field name="ac_id" type="uint8"/>
+    <field name="tb_id" type="uint8"/>
+    <field name="sync_itow"  type="uint32" unit="ms"/>
+    <field name="cycle_time" type="uint32" unit="ms"/>
+  </message>
 
   <message name="RC_3CH" id="51" link="broadcasted">
     <field name="throttle_mode" type="uint8" unit="byte_mask"/>

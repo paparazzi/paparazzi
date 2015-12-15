@@ -450,6 +450,9 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
       case AP_MODE_FLIP:
         guidance_h_mode_changed(GUIDANCE_H_MODE_FLIP);
         break;
+      case AP_MODE_GUIDED:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_GUIDED);
+        break;
       default:
         break;
     }
@@ -499,6 +502,9 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
       case AP_MODE_FLIP:
         guidance_v_mode_changed(GUIDANCE_V_MODE_FLIP);
         break;
+      case AP_MODE_GUIDED:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_GUIDED);
+        break;
       default:
         break;
     }
@@ -507,6 +513,41 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
 
 }
 
+bool_t autopilot_guided_goto_ned(float x, float y, float z, float heading)
+{
+  if (autopilot_mode == AP_MODE_GUIDED) {
+    guidance_h_set_guided_pos(x, y);
+    guidance_h_set_guided_heading(heading);
+    guidance_v_set_guided_z(z);
+    return TRUE;
+  }
+  return FALSE;
+}
+
+bool_t autopilot_guided_goto_ned_relative(float dx, float dy, float dz, float dyaw)
+{
+  if (autopilot_mode == AP_MODE_GUIDED && stateIsLocalCoordinateValid()) {
+    float x = stateGetPositionNed_f()->x + dx;
+    float y = stateGetPositionNed_f()->y + dy;
+    float z = stateGetPositionNed_f()->z + dz;
+    float heading = stateGetNedToBodyEulers_f()->psi + dyaw;
+    return autopilot_guided_goto_ned(x, y, z, heading);
+  }
+  return FALSE;
+}
+
+bool_t autopilot_guided_goto_body_relative(float dx, float dy, float dz, float dyaw)
+{
+  if (autopilot_mode == AP_MODE_GUIDED && stateIsLocalCoordinateValid()) {
+    float psi = stateGetNedToBodyEulers_f()->psi;
+    float x = stateGetPositionNed_f()->x + cosf(-psi) * dx + sinf(-psi) * dy;
+    float y = stateGetPositionNed_f()->y - sinf(-psi) * dx + cosf(-psi) * dy;
+    float z = stateGetPositionNed_f()->z + dz;
+    float heading = psi + dyaw;
+    return autopilot_guided_goto_ned(x, y, z, heading);
+  }
+  return FALSE;
+}
 
 void autopilot_check_in_flight(bool_t motors_on)
 {
