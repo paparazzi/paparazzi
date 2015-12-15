@@ -2437,7 +2437,7 @@
     <field name="ac_id" type="uint8"/>
   </message>
 
-  <message name="POSITION_TARGET_LOCAL_NED" id="40" link="forwarded">
+  <message name="GUIDED_SETPOINT_NED" id="40" link="forwarded">
     <description>
       Set vehicle position or velocity in NED.
       Frame can be specified with the bits 0-3 in the flags field:

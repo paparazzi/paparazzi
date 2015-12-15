@@ -187,13 +187,13 @@ void dl_parse_msg(void)
       break;
 #endif
 
-    case DL_POSITION_TARGET_LOCAL_NED:
-      if (DL_POSITION_TARGET_LOCAL_NED_ac_id(dl_buffer) != AC_ID) { break; }
-      uint8_t flags = DL_POSITION_TARGET_LOCAL_NED_flags(dl_buffer);
-      float x = DL_POSITION_TARGET_LOCAL_NED_x(dl_buffer);
-      float y = DL_POSITION_TARGET_LOCAL_NED_y(dl_buffer);
-      float z = DL_POSITION_TARGET_LOCAL_NED_z(dl_buffer);
-      float yaw = DL_POSITION_TARGET_LOCAL_NED_yaw(dl_buffer);
+    case DL_GUIDED_SETPOINT_NED:
+      if (DL_GUIDED_SETPOINT_NED_ac_id(dl_buffer) != AC_ID) { break; }
+      uint8_t flags = DL_GUIDED_SETPOINT_NED_flags(dl_buffer);
+      float x = DL_GUIDED_SETPOINT_NED_x(dl_buffer);
+      float y = DL_GUIDED_SETPOINT_NED_y(dl_buffer);
+      float z = DL_GUIDED_SETPOINT_NED_z(dl_buffer);
+      float yaw = DL_GUIDED_SETPOINT_NED_yaw(dl_buffer);
       switch (flags) {
         case 0x00:
         case 0x02:

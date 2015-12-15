@@ -75,7 +75,7 @@ class Guidance(object):
         """
         goto a local NorthEastDown position in meters (if already in GUIDED mode)
         """
-        msg = PprzMessage("datalink", "POSITION_TARGET_LOCAL_NED")
+        msg = PprzMessage("datalink", "GUIDED_SETPOINT_NED")
         msg['ac_id'] = self.ac_id
         msg['flags'] = 0x00
         msg['x'] = north
@@ -90,7 +90,7 @@ class Guidance(object):
         """
         goto a local NorthEastDown position relative to current position in meters (if already in GUIDED mode)
         """
-        msg = PprzMessage("datalink", "POSITION_TARGET_LOCAL_NED")
+        msg = PprzMessage("datalink", "GUIDED_SETPOINT_NED")
         msg['ac_id'] = self.ac_id
         msg['flags'] = 0x01
         msg['x'] = north
@@ -104,7 +104,7 @@ class Guidance(object):
         """
         goto to a position relative to current position and heading in meters (if already in GUIDED mode)
         """
-        msg = PprzMessage("datalink", "POSITION_TARGET_LOCAL_NED")
+        msg = PprzMessage("datalink", "GUIDED_SETPOINT_NED")
         msg['ac_id'] = self.ac_id
         msg['flags'] = 0x03
         msg['x'] = forward
