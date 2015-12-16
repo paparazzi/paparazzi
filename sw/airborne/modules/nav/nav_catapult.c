@@ -34,8 +34,6 @@
  *            GoTo(climb)
  */
 
-
-#include <stdbool.h>
 #include "generated/airframe.h"
 #include "state.h"
 #include "subsystems/datalink/downlink.h"
@@ -96,7 +94,7 @@ static float nav_catapult_y = 0;
 
 void nav_catapult_highrate_module(void)
 {
-  bool test;
+  bool_t reset_lauch;
   // Only run when
   if (nav_catapult_armed) {
     if (nav_catapult_launch < nav_catapult_heading_delay * NAV_CATAPULT_HIGHRATE_MODULE_FREQ) {
@@ -110,11 +108,11 @@ void nav_catapult_highrate_module(void)
       struct Int32Vect3 accel_meas_body;
       struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
       int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, &imu.accel);
-      test = ACCEL_FLOAT_OF_BFP(accel_meas_body.x)  < (nav_catapult_acceleration_threshold * 9.81);
+      reset_lauch = ACCEL_FLOAT_OF_BFP(accel_meas_body.x)  < (nav_catapult_acceleration_threshold * 9.81);
 #else
-      test = launch != 1;
+      reset_lauch = launch != 1;
 #endif
-      if (test)
+      if (reset_lauch)
       {
         nav_catapult_launch = 0;
       }
