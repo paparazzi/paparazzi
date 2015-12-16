@@ -107,12 +107,33 @@
   </section>
 
   <section name="AHRS" prefix="AHRS_">
+    <!--This airframe vibrates a lot, which causes accel measurements in excess of 1g continuously-->
+    <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
+
     <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
     <define name="H_X" value="0.3770441"/>
     <define name="H_Y" value="0.0193986"/>
     <define name="H_Z" value="0.9259921"/>
   </section>
 
+  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_P" unit="deg/s" value="280"/>
+    <define name="SP_MAX_Q" unit="deg/s" value="280"/>
+    <define name="SP_MAX_R" unit="deg/s" value="140"/>
+    <define name="DEADBAND_P" value="20"/>
+    <define name="DEADBAND_Q" value="20"/>
+    <define name="DEADBAND_R" value="200"/>
+
+    <!-- feedback -->
+    <define name="GAIN_P" value="400"/>
+    <define name="GAIN_Q" value="400"/>
+    <define name="GAIN_R" value="350"/>
+
+    <define name="IGAIN_P" value="75"/>
+    <define name="IGAIN_Q" value="75"/>
+    <define name="IGAIN_R" value="50"/>
+  </section>
 
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
