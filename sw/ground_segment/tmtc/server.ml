@@ -101,20 +101,6 @@ let log_xml = fun timeofday data_file ->
 
 let start_time = U.gettimeofday ()
 
-(* Run a command and return its results as a string. *)
-let read_process command =
-  let buffer_size = 2048 in
-  let buffer = Buffer.create buffer_size in
-  let string = String.create buffer_size in
-  let in_channel = Unix.open_process_in command in
-  let chars_read = ref 1 in
-  while !chars_read <> 0 do
-    chars_read := input in_channel string 0 buffer_size;
-    Buffer.add_substring buffer string 0 !chars_read
-  done;
-  ignore (Unix.close_process_in in_channel);
-  Buffer.contents buffer
-
 (* Opens the log files *)
 let logger = fun () ->
   let d = U.localtime start_time in
@@ -127,11 +113,7 @@ let logger = fun () ->
   and data_name = sprintf "%s.data" basename in
   let f = open_out (logs_path // log_name) in
   (* version string with whitespace/newline at the end stripped *)
-  let version_str =
-    try
-      Str.replace_first (Str.regexp "[ \n]+$") "" (read_process (Env.paparazzi_src ^ "/paparazzi_version"))
-    with _ -> "UNKNOWN" in
-  output_string f ("<!-- logged with runtime paparazzi_version " ^ version_str ^ " -->\n");
+  output_string f ("<!-- logged with runtime paparazzi_version " ^  Env.get_paparazzi_version () ^ " -->\n");
   let build_str =
     try
       let f = open_in (Env.paparazzi_home ^ "/var/build_version.txt") in

@@ -49,10 +49,11 @@ let sprint_float_array = fun l ->
 
 let begin_out = fun xml_file h_name out ->
   fprintf out "/* This file has been generated from %s */\n" xml_file;
+  fprintf out "/* Version %s */\n" (Env.get_paparazzi_version ());
   fprintf out "/* Please DO NOT EDIT */\n\n";
   fprintf out "#ifndef %s\n" h_name;
   fprintf out "#define %s\n\n" h_name
-  
+
 let start_and_begin_out = fun xml_file h_name out ->
   let xml = Xml.parse_file xml_file in
   begin_out xml_file h_name out;
@@ -65,6 +66,7 @@ let start_and_begin = fun xml_file h_name ->
 
 let begin_c_out = fun xml_file name out ->
   fprintf out "/* This file has been generated from %s */\n" xml_file;
+  fprintf out "/* Version %s */\n" (Env.get_paparazzi_version ());
   fprintf out "/* Please DO NOT EDIT */\n\n";
   fprintf out "#include \"%s.h\"\n\n" name
 

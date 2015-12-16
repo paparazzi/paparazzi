@@ -147,19 +147,6 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
     2 -> quit_callback gui ac_combo session_combo target_combo ()
   | _ -> ()
 
-(* Run a command and return its results as a string. *)
-let read_process command =
-  let buffer_size = 2048 in
-  let buffer = Buffer.create buffer_size in
-  let string = String.create buffer_size in
-  let in_channel = Unix.open_process_in command in
-  let chars_read = ref 1 in
-  while !chars_read <> 0 do
-    chars_read := input in_channel string 0 buffer_size;
-    Buffer.add_substring buffer string 0 !chars_read
-  done;
-  ignore (Unix.close_process_in in_channel);
-  Buffer.contents buffer
 
 (************************** Main *********************************************)
 let () =
@@ -181,10 +168,7 @@ let () =
   gui#window#set_icon (Some paparazzi_pixbuf);
 
     (* version string with whitespace/newline at the end stripped *)
-  let version_str =
-    try
-      Str.replace_first (Str.regexp "[ \n]+$") "" (read_process (Env.paparazzi_src ^ "/paparazzi_version"))
-    with _ -> "UNKNOWN" in
+  let version_str = Env.get_paparazzi_version () in
   let build_str =
     try
       let f = open_in (Env.paparazzi_home ^ "/var/build_version.txt") in

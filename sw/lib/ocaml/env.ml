@@ -165,3 +165,22 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
 
   let children = Xml.children ac_conf@optionals in
   make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children
+
+(* Run a command and return its results as a string. *)
+let read_process command =
+  let buffer_size = 2048 in
+  let buffer = Buffer.create buffer_size in
+  let string = String.create buffer_size in
+  let in_channel = Unix.open_process_in command in
+  let chars_read = ref 1 in
+  while !chars_read <> 0 do
+    chars_read := input in_channel string 0 buffer_size;
+    Buffer.add_substring buffer string 0 !chars_read
+  done;
+  ignore (Unix.close_process_in in_channel);
+  Buffer.contents buffer
+
+let get_paparazzi_version = fun () ->
+  try
+    Str.replace_first (Str.regexp "[ \n]+$") "" (read_process (paparazzi_src ^ "/paparazzi_version"))
+  with _ -> "UNKNOWN"
