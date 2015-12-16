@@ -1,3 +1,31 @@
+Paparazzi 5.7.1_testing
+=======================
+
+Second release candidate for v5.8 stable release.
+
+- SPI slave implemented and tested for STM32F4
+  [#1456] (https://github.com/paparazzi/paparazzi/pull/1456)
+- Added support for Elle0 V1.2
+  [#1465] (https://github.com/paparazzi/paparazzi/pull/1465)
+- Bebop: fix motor directions
+  [#1466] (https://github.com/paparazzi/paparazzi/pull/1466)
+  [#1468] (https://github.com/paparazzi/paparazzi/pull/1468)
+  [#1474] (https://github.com/paparazzi/paparazzi/pull/1474)
+- stereo camera modules: obstacle avoidance and follow me
+  [#1462] (https://github.com/paparazzi/paparazzi/pull/1462)
+  [#1472] (https://github.com/paparazzi/paparazzi/pull/1472)
+  [#1473] (https://github.com/paparazzi/paparazzi/pull/1473)
+- fix video_rtp_stream and bebop_front_camera if not using UDP for telemetry
+- modules xml requires doc and description now
+- Modules can be used like subsystems in airframe files
+  [#1471] (https://github.com/paparazzi/paparazzi/pull/1471)
+- rotorcraft rate controller setpoints in deg/s
+  [#1479] (https://github.com/paparazzi/paparazzi/pull/1479)
+- Guided mode for rotorcrafts
+  [#1457] (https://github.com/paparazzi/paparazzi/pull/1457)
+- naze32: PPM input on PA0 by default
+  [#1481] (https://github.com/paparazzi/paparazzi/pull/1481)
+
 Paparazzi 5.7.0_testing
 =======================
 
