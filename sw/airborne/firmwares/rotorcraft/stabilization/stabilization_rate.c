@@ -60,6 +60,7 @@
 #error "ALL control gains have to be positive!!!"
 #endif
 
+// divide by 2^_b and round instead of floor
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
 #define OFFSET_AND_ROUND2(_a, _b) (((_a)+(1<<((_b)-1))-((_a)<0?1:0))>>(_b))
 
@@ -191,7 +192,10 @@ void stabilization_rate_run(bool_t in_flight)
   RATES_DIFF(_error, stabilization_rate_sp, (*body_rate));
   if (in_flight) {
     /* update integrator */
-    RATES_ADD(stabilization_rate_sum_err, _error);
+    //divide the sum_err_increment to make sure it doesn't accumulate to the max too fast
+    struct Int32Rates sum_err_increment;
+    RATES_SDIV(sum_err_increment, _error, 5);
+    RATES_ADD(stabilization_rate_sum_err, sum_err_increment);
     RATES_BOUND_CUBE(stabilization_rate_sum_err, -MAX_SUM_ERR, MAX_SUM_ERR);
   } else {
     INT_RATES_ZERO(stabilization_rate_sum_err);
@@ -199,13 +203,13 @@ void stabilization_rate_run(bool_t in_flight)
 
   /* PI */
   stabilization_rate_fb_cmd.p = stabilization_rate_gain.p * _error.p +
-                                OFFSET_AND_ROUND2((stabilization_rate_igain.p  * stabilization_rate_sum_err.p), 10);
+                                OFFSET_AND_ROUND2((stabilization_rate_igain.p  * stabilization_rate_sum_err.p), 6);
 
   stabilization_rate_fb_cmd.q = stabilization_rate_gain.q * _error.q +
-                                OFFSET_AND_ROUND2((stabilization_rate_igain.q  * stabilization_rate_sum_err.q), 10);
+                                OFFSET_AND_ROUND2((stabilization_rate_igain.q  * stabilization_rate_sum_err.q), 6);
 
   stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
-                                OFFSET_AND_ROUND2((stabilization_rate_igain.r  * stabilization_rate_sum_err.r), 10);
+                                OFFSET_AND_ROUND2((stabilization_rate_igain.r  * stabilization_rate_sum_err.r), 6);
 
   stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_fb_cmd.p >> 11;
   stabilization_cmd[COMMAND_PITCH] = stabilization_rate_fb_cmd.q >> 11;
