@@ -123,7 +123,32 @@
         <arg flag="hobbyking.xml"/>
       </program>
     </session>
-    <session name="A pocket drone demo"/>
+    <session name="A pocket drone demo">
+      <program name="BluegigaUsbDongle" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver">
+      <arg flag="/dev/ttyACM2"/>
+      <arg flag="00:07:80:2d:d6:d7"/>
+      <arg flag="4242"/>
+      <arg flag="4252"/>
+    </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_port" constant="4242"/>
+        <arg flag="-udp_uplink_port" constant="4252"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="GCS"/>
+      <program name="NatNet">
+        <arg flag="-ac" constant="1"/>
+        <arg flag="12"/>
+        <arg flag="-small"/>
+        <arg flag="-tf" constant="5"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="hobbyking.xml"/>
+      </program>
+    </session>
     <session name="Messages and Settings">
       <program name="Messages"/>
       <program name="Settings">
