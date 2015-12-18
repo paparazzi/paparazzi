@@ -67,7 +67,7 @@ plan tests => get_num_targets()+2;
 
 ok(1, "Parsed the $conf_xml_file configuration file");
 
-my @missing_airframes;
+my @invalid_airframes;
 
 foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
 {
@@ -76,7 +76,7 @@ foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
     if ($@)
     {
         warn "Skipping aircraft $aircraft: $@";
-        push @missing_airframes, $airframe;
+        push @invalid_airframes, $airframe;
     }
     foreach my $process (sort keys %{$airframe_config->{'firmware'}})
     {
@@ -116,9 +116,9 @@ foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
     }
 }
 
-# check if we had missing airframe files in conf
-ok(scalar @missing_airframes eq 0, "All airframe files exist.");
-foreach (@missing_airframes) { warn "Missing airframe file '$_'\n" }
+# check if we had missing/invalid airframe files in conf
+ok(scalar @invalid_airframes eq 0, "All airframe files are valid.");
+foreach (@invalid_airframes) { warn "Missing or invalid airframe file '$_'\n" }
 
 done_testing();
 
