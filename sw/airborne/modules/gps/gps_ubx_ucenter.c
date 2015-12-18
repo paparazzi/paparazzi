@@ -57,6 +57,9 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr);
 #define GPS_UBX_UCENTER_REPLY_VERSION     3
 #define GPS_UBX_UCENTER_REPLY_CFG_PRT     4
 
+// Target baudrate for the module
+#define UBX_GPS_BAUD (GPS_LINK).baudrate
+
 // All U-Center data
 struct gps_ubx_ucenter_struct gps_ubx_ucenter;
 
@@ -73,6 +76,7 @@ void gps_ubx_ucenter_init(void)
 
   gps_ubx_ucenter.baud_init = 0;
   gps_ubx_ucenter.baud_run = 0;
+  gps_ubx_ucenter.baud_target = UBX_GPS_BAUD;
 
   gps_ubx_ucenter.sw_ver_h = 0;
   gps_ubx_ucenter.sw_ver_l = 0;
@@ -340,8 +344,10 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
 
 static inline void gps_ubx_ucenter_config_nav(void)
 {
-  //New ublox firmware v5 or higher uses CFG_NAV5 message, CFG_NAV is no longer available
-  if (gps_ubx_ucenter.sw_ver_h < 5 && gps_ubx_ucenter.hw_ver_h < 6) {
+  // New ublox firmware v5 or higher uses CFG_NAV5 message, CFG_NAV is no longer available
+  // If version message couldn't be fetched, default to NAV5
+  if (gps_ubx_ucenter.sw_ver_h < 5 && gps_ubx_ucenter.hw_ver_h < 6 &&
+      gps_ubx_ucenter.sw_ver_h != 0 && gps_ubx_ucenter.hw_ver_h != 0) {
     UbxSend_CFG_NAV(gps_ubx_ucenter.dev,
         NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C,
         0x3C, 0x14, 0x03E8 , 0x0000, 0x0, 0x17, 0x00FA, 0x00FA,
@@ -377,8 +383,6 @@ static inline void gps_ubx_ucenter_config_nav(void)
 #define GPS_PORT_SPI      0x04
 #define GPS_PORT_RESERVED   0x05
 
-#define UBX_GPS_BAUD (GPS_LINK).baudrate
-
 #ifndef GPS_UBX_UCENTER_RATE
 #define GPS_UBX_UCENTER_RATE 0x00FA // In milliseconds. 0x00FA = 250ms = 4Hz
 #endif
@@ -399,7 +403,7 @@ static inline void gps_ubx_ucenter_config_port(void)
     case GPS_PORT_UART2:
       UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
           gps_ubx_ucenter.port_id, 0x0, 0x0,
-          UBX_UART_MODE_MASK, UART_SPEED(UBX_GPS_BAUD), UBX_PROTO_MASK,
+          UBX_UART_MODE_MASK, UART_SPEED(gps_ubx_ucenter.baud_target), UBX_PROTO_MASK,
           UBX_PROTO_MASK, 0x0, 0x0);
       break;
       // USB Interface
@@ -457,12 +461,12 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
       if (gps_ubx_ucenter.reply != GPS_UBX_UCENTER_REPLY_ACK) {
         DEBUG_PRINT("ublox did not acknowledge port configuration.\n");
       } else {
-        DEBUG_PRINT("Changed ublox baudrate to: %u\n", UART_SPEED(UBX_GPS_BAUD));
+        DEBUG_PRINT("Changed ublox baudrate to: %u\n", UART_SPEED(gps_ubx_ucenter.baud_target));
       }
 #endif
       // Now the GPS baudrate should have changed
-      uart_periph_set_baudrate(&(GPS_LINK), UBX_GPS_BAUD);
-      gps_ubx_ucenter.baud_run = UART_SPEED(UBX_GPS_BAUD);
+      uart_periph_set_baudrate(&(GPS_LINK), gps_ubx_ucenter.baud_target);
+      gps_ubx_ucenter.baud_run = UART_SPEED(gps_ubx_ucenter.baud_target);
       UbxSend_MON_GET_VER(gps_ubx_ucenter.dev);
       break;
     case 2:
