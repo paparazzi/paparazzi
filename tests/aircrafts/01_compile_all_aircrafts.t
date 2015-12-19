@@ -37,7 +37,8 @@ use IPC::Run qw( run );
 use Cwd;
 
 $|++;
-my $xmlSimple = XML::Simple->new(ForceArray => 1);
+# make sure that all elements are arrays and only fold arrays on name for aircraft, firmware and target
+my $xmlSimple = XML::Simple->new(ForceArray => 1, KeyAttr => {aircraft => 'name', firmware => 'name', target => 'name'});
 my $conf_xml_file = $ENV{'CONF_XML'};
 if ($conf_xml_file eq "") {
     $conf_xml_file = "$ENV{'PAPARAZZI_HOME'}/conf/conf.xml";
@@ -52,7 +53,7 @@ sub get_num_targets
     {
         my $airframe = $conf->{'aircraft'}->{$aircraft}->{'airframe'};
         my $airframe_config = eval { $xmlSimple->XMLin("$ENV{'PAPARAZZI_HOME'}/conf/$airframe") };
-        warn $@ if ($@);
+        warn "Parsing airframe $airframe: $@" if ($@);
         foreach my $process (sort keys %{$airframe_config->{'firmware'}})
         {
             foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}->{'target'}})
@@ -76,7 +77,7 @@ foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
     if ($@)
     {
         warn "Skipping aircraft $aircraft: $@";
-        push @invalid_airframes, $airframe;
+        push @invalid_airframes, "$airframe: $@";
     }
     foreach my $process (sort keys %{$airframe_config->{'firmware'}})
     {
