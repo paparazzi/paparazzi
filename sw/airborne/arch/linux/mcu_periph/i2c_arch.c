@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 #include <errno.h>
 
@@ -52,13 +53,17 @@ bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
 {
   int file = (int)p->reg_addr;
 
-  // Set the slave address, converted to 7 bit
-  ioctl(file, I2C_SLAVE, t->slave_addr >> 1);
-
+  struct i2c_msg trx_msgs[2];
+  struct i2c_rdwr_ioctl_data trx_data = {
+    .msgs = trx_msgs,
+    .nmsgs = 2
+  };
   // Switch the different transaction types
   switch (t->type) {
       // Just transmitting
     case I2CTransTx:
+      // Set the slave address, converted to 7 bit
+      ioctl(file, I2C_SLAVE, t->slave_addr >> 1);
       if (write(file, (uint8_t *)t->buf, t->len_w) < 0) {
         /* if write failed, increment error counter queue_full_cnt */
         p->errors->queue_full_cnt++;
@@ -68,6 +73,8 @@ bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
       break;
       // Just reading
     case I2CTransRx:
+      // Set the slave address, converted to 7 bit
+      ioctl(file, I2C_SLAVE, t->slave_addr >> 1);
       if (read(file, (uint8_t *)t->buf, t->len_r) < 0) {
         /* if read failed, increment error counter ack_fail_cnt */
         p->errors->ack_fail_cnt++;
@@ -75,10 +82,17 @@ bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
         return TRUE;
       }
       break;
-      // First Transmit and then read
+      // First Transmit and then read with repeated start
     case I2CTransTxRx:
-      if (write(file, (uint8_t *)t->buf, t->len_w) < 0 ||
-          read(file, (uint8_t *)t->buf, t->len_r) < 0) {
+      trx_msgs[0].addr = t->slave_addr >> 1;
+      trx_msgs[0].flags = 0; /* tx */
+      trx_msgs[0].len = t->len_w;
+      trx_msgs[0].buf = (void*) t->buf;
+      trx_msgs[1].addr = t->slave_addr >> 1;
+      trx_msgs[1].flags = I2C_M_RD;
+      trx_msgs[1].len = t->len_r;
+      trx_msgs[1].buf = (void*) t->buf;
+      if (ioctl(file, I2C_RDWR, &trx_data) < 0) {
         /* if write/read failed, increment error counter miss_start_stop_cnt */
         p->errors->miss_start_stop_cnt++;
         t->status = I2CTransFailed;
@@ -132,5 +146,18 @@ void i2c2_hw_init(void)
 
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c2_errors);
+}
+#endif
+
+#if USE_I2C3
+struct i2c_errors i2c3_errors;
+
+void i2c3_hw_init(void)
+{
+  i2c3.reg_addr = (void *)open("/dev/i2c-3", O_RDWR);
+  i2c3.errors = &i2c3_errors;
+
+  /* zeros error counter */
+  ZEROS_ERR_COUNTER(i2c3_errors);
 }
 #endif
