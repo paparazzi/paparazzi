@@ -206,10 +206,9 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
       <subsystem name="radio_control" type="superbitrf_rc">
-	<!-- To store the binding parameters for the superbit radio in your
-             airframe file uncomment the following three lines and set the
-             correct values based on the output of the superbitrf telemetry
-             messages. -->
+	    <!-- To store the binding parameters for the superbit radio in your -->
+        <!-- airframe file uncomment the following three lines and set the -->
+        <!-- correct values based on the output of the superbitrf telemetry messages. -->
         <!--define name="RADIO_TRANSMITTER_ID" value="3028580352"/--> <!-- Esden (1BitSquared) Dx6i: TX 1 -->
         <!--define name="RADIO_TRANSMITTER_CHAN" value="8"/>
         <define name="RADIO_TRANSMITTER_PROTOCOL" value="18"/-->
