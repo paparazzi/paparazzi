@@ -3,9 +3,9 @@
 <module name="stereocam_state2camera" dir="stereocam">
   <doc>
     <description>Writes rotation to the uart bus. Meant for sending the rotation
-	to the ODROID board or to the stereo camera boards. 
-	Can be used to improve vision algorithms. 
-	The protocol that is used is the stereocommunication protocol. 
+    to the ODROID board or to the stereo camera boards.
+    Can be used to improve vision algorithms.
+    The protocol that is used is the stereocommunication protocol.
     </description>
     <configure name="STEREO_UART" value="UARTX" description="Sets the UART port number of the connected camera (required)"/>
     <configure name="STEREO_BAUD" value="BXXXXX" description="Sets the BAUD rate of the connected camera (required: must be same as camera)"/>
@@ -17,13 +17,12 @@
   <makefile>
     <file name="state2camera/state2camera.c"/>
     <file name="stereoprotocol.c" dir="modules/stereocam"/>
-	<raw>
-		STEREO_UART_LOWER=$(shell echo $(STEREO_UART) | tr A-Z a-z)
-		ap.CFLAGS += -DUSE_$(STEREO_UART)
-		ap.CFLAGS += -DUART_LINK=$(STEREO_UART_LOWER)
-		ap.CFLAGS += -D$(STEREO_UART)_BAUD=$(STEREO_BAUD)
-	</raw>
+    <raw>
+        STEREO_UART_LOWER=$(shell echo $(STEREO_UART) | tr A-Z a-z)
+        ap.CFLAGS += -DUSE_$(STEREO_UART)
+        ap.CFLAGS += -DUART_LINK=$(STEREO_UART_LOWER)
+        ap.CFLAGS += -D$(STEREO_UART)_BAUD=$(STEREO_BAUD)
+    </raw>
   </makefile>
 
 </module>
-

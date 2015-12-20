@@ -2,8 +2,12 @@
 
 <module name="stereocam2state" dir="stereocam/stereocam2state">
   <doc>
-    <description>This module sends the data retreived from an external stereocamera modules, to the state filter of the drone. This is done so that the guidance modules can use that information for couadcopter</description>
+    <description>
+      StereoCamera 2 VELOCITY_ESTIMATE.
+      This module sends the data retreived from an external stereocamera modules, to the state filter of the drone. This is done so that the guidance modules can use that information for couadcopter
+    </description>
   </doc>
+   <depends>stereocam</depends>
   <header>
     <file name="stereocam2state.h"/>
   </header>
