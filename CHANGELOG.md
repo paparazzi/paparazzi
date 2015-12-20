@@ -1,3 +1,19 @@
+Paparazzi v5.8.0_stable
+=======================
+
+Stable version release.
+
+- module: nav_catapult: avoid conditional directives
+  [#1454] (https://github.com/paparazzi/paparazzi/pull/1454)
+- module: gps_ubx_ucenter fix autobaud and autoconf for ublox-8
+  [#1480] (https://github.com/paparazzi/paparazzi/pull/1480)
+- module: add stereocam2state which publishes a VELOCITY_ESTIMATE from stereocam
+  [#1486] (https://github.com/paparazzi/paparazzi/pull/1486)
+- arch/linux: I2C: use repeated-start for transceive as required by some sensors
+  [#1469] (https://github.com/paparazzi/paparazzi/pull/1469)
+- remove unused libeknav and fms folder
+  [#1487] (https://github.com/paparazzi/paparazzi/pull/1487)
+
 Paparazzi 5.7.1_testing
 =======================
 
