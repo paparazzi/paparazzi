@@ -23,6 +23,7 @@
     <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
     <program name="Log Plotter" command="sw/logalizer/logplotter"/>
     <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
+    <program name="Real-time Plotter (Python)" command="sw/ground_segment/python/real_time_plot/realtimeplotapp.py"/>
     <program name="Log File Player" command="sw/logalizer/play"/>
     <program name="Simulator" command="sw/simulator/pprzsim-launch">
       <arg flag="-a" constant="@AIRCRAFT"/>
