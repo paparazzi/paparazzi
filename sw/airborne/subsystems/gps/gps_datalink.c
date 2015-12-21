@@ -100,6 +100,7 @@ void parse_gps_datalink_small(uint8_t num_sv, uint32_t pos_xyz, uint32_t speed_x
 
   lla_of_ecef_i(&lla_pos, &ecef_pos);
   gps.lla_pos = lla_pos;
+  SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
 
   enu_speed.x = (int32_t)((speed_xy >> 22) & 0x3FF); // bits 31-22 speed x in cm/s
   if (enu_speed.x & 0x200) {
@@ -114,36 +115,23 @@ void parse_gps_datalink_small(uint8_t num_sv, uint32_t pos_xyz, uint32_t speed_x
   // printf("ENU Speed: %u (%d, %d, %d)\n", speed_xy, enu_speed.x, enu_speed.y, enu_speed.z);
 
   ecef_of_enu_vect_i(&gps.ecef_vel , &tracking_ltp , &enu_speed);
+  SetBit(gps.valid_fields, GPS_VALID_VEL_ECEF_BIT);
 
   gps.hmsl = tracking_ltp.hmsl + enu_pos.z * 10; // TODO: try to compensate for the loss in accuracy
+  SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
 
   gps.course = (int32_t)((speed_xy >> 2) & 0x3FF); // bits 11-2 heading in rad*1e2
   if (gps.course & 0x200) {
     gps.course |= 0xFFFFFC00;  // fix for twos complements
   }
-
   // printf("Heading: %d\n", gps.course);
-
   gps.course *= 1e5;
+  SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
+
   gps.num_sv = num_sv;
   gps.tow = 0; // set time-of-weak to 0
   gps.fix = GPS_FIX_3D; // set 3D fix to true
   gps_available = TRUE; // set GPS available to true
-
-#if GPS_USE_LATLONG
-  // Computes from (lat, long) in the referenced UTM zone
-  struct LlaCoor_f lla_f;
-  LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
-  struct UtmCoor_f utm_f;
-  utm_f.zone = nav_utm_zone0;
-  // convert to utm
-  utm_of_lla_f(&utm_f, &lla_f);
-  // copy results of utm conversion
-  gps.utm_pos.east = utm_f.east * 100;
-  gps.utm_pos.north = utm_f.north * 100;
-  gps.utm_pos.alt = gps.lla_pos.alt;
-  gps.utm_pos.zone = nav_utm_zone0;
-#endif
 
   // publish new GPS data
   uint32_t now_ts = get_sys_time_usec();
@@ -165,36 +153,27 @@ void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, int32_t e
   gps.lla_pos.lat = lat;
   gps.lla_pos.lon = lon;
   gps.lla_pos.alt = alt;
+  SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
+
   gps.hmsl        = hmsl;
+  SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
 
   gps.ecef_pos.x = ecef_x;
   gps.ecef_pos.y = ecef_y;
   gps.ecef_pos.z = ecef_z;
+  SetBit(gps.valid_fields, GPS_VALID_POS_ECEF_BIT);
 
   gps.ecef_vel.x = ecef_xd;
   gps.ecef_vel.y = ecef_yd;
   gps.ecef_vel.z = ecef_zd;
+  SetBit(gps.valid_fields, GPS_VALID_VEL_ECEF_BIT);
 
   gps.course = course;
+  SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
   gps.num_sv = numsv;
   gps.tow = tow;
   gps.fix = GPS_FIX_3D;
   gps_available = TRUE;
-
-#if GPS_USE_LATLONG
-  // Computes from (lat, long) in the referenced UTM zone
-  struct LlaCoor_f lla_f;
-  LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
-  struct UtmCoor_f utm_f;
-  utm_f.zone = nav_utm_zone0;
-  // convert to utm
-  utm_of_lla_f(&utm_f, &lla_f);
-  // copy results of utm conversion
-  gps.utm_pos.east = utm_f.east * 100;
-  gps.utm_pos.north = utm_f.north * 100;
-  gps.utm_pos.alt = gps.lla_pos.alt;
-  gps.utm_pos.zone = nav_utm_zone0;
-#endif
 
   // publish new GPS data
   uint32_t now_ts = get_sys_time_usec();

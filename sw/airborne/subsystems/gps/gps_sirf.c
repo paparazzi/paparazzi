@@ -25,10 +25,6 @@
 #include "subsystems/abi.h"
 #include "led.h"
 
-#if GPS_USE_LATLONG
-/* currently needed to get nav_utm_zone0 */
-#include "subsystems/navigation/common_nav.h"
-#endif
 #include "math/pprz_geodetic_float.h"
 
 #include <inttypes.h>
@@ -121,6 +117,7 @@ void sirf_parse_41(void)
 
   gps.tow = Invert4Bytes(p->tow);
   gps.hmsl = Invert4Bytes(p->alt_msl) * 10;
+  SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
   gps.num_sv = p->num_sat;
   gps.nb_channels = p ->num_sat;
 
@@ -128,24 +125,11 @@ void sirf_parse_41(void)
   gps.lla_pos.lat = Invert4Bytes(p->latitude);
   gps.lla_pos.lon = Invert4Bytes(p->longitude);
   gps.lla_pos.alt = Invert4Bytes(p->alt_ellipsoid) * 10;
-
-#if GPS_USE_LATLONG
-  /* convert to utm */
-  struct LlaCoor_f lla_f;
-  LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
-  struct UtmCoor_f utm_f;
-  utm_f.zone = nav_utm_zone0;
-  utm_of_lla_f(&utm_f, &lla_f);
-
-  /* copy results of utm conversion */
-  gps.utm_pos.east = utm_f.east * 100;
-  gps.utm_pos.north = utm_f.north * 100;
-  gps.utm_pos.alt = gps.lla_pos.alt;
-  gps.utm_pos.zone = nav_utm_zone0;
-#endif
+  SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
 
   gps.sacc = (Invert2Bytes(p->ehve) >> 16);
   gps.course = RadOfDeg(Invert2Bytes(p->cog)) * pow(10, 5);
+  SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
   gps.gspeed = RadOfDeg(Invert2Bytes(p->sog)) * pow(10, 5);
   gps.cacc = RadOfDeg(Invert2Bytes(p->heading_err)) * pow(10, 5);
   gps.pacc = Invert4Bytes(p->ehpe);
@@ -173,10 +157,12 @@ void sirf_parse_2(void)
   gps.ecef_pos.x = Invert4Bytes(p->x_pos) * 100;
   gps.ecef_pos.y = Invert4Bytes(p->y_pos) * 100;
   gps.ecef_pos.z = Invert4Bytes(p->z_pos) * 100;
+  SetBit(gps.valid_fields, GPS_VALID_POS_ECEF_BIT);
 
   gps.ecef_vel.x = (Invert2Bytes(p->vx) >> 16) * 100 / 8;
   gps.ecef_vel.y = (Invert2Bytes(p->vy) >> 16) * 100 / 8;
   gps.ecef_vel.z = (Invert2Bytes(p->vz) >> 16) * 100 / 8;
+  SetBit(gps.valid_fields, GPS_VALID_VEL_ECEF_BIT);
 
   if (gps.fix == GPS_FIX_3D) {
     ticks++;

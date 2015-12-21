@@ -23,12 +23,6 @@
 #include "subsystems/abi.h"
 #include "led.h"
 
-#if GPS_USE_LATLONG
-/* currently needed to get nav_utm_zone0 */
-#include "subsystems/navigation/common_nav.h"
-#include "math/pprz_geodetic_float.h"
-#endif
-
 struct GpsSkytraq gps_skytraq;
 
 /* parser status */
@@ -123,13 +117,21 @@ void gps_skytraq_read_message(void)
     gps.ecef_pos.x  = SKYTRAQ_NAVIGATION_DATA_ECEFX(gps_skytraq.msg_buf);
     gps.ecef_pos.y  = SKYTRAQ_NAVIGATION_DATA_ECEFY(gps_skytraq.msg_buf);
     gps.ecef_pos.z  = SKYTRAQ_NAVIGATION_DATA_ECEFZ(gps_skytraq.msg_buf);
+    SetBit(gps.valid_fields, GPS_VALID_POS_ECEF_BIT);
+
     gps.ecef_vel.x  = SKYTRAQ_NAVIGATION_DATA_ECEFVX(gps_skytraq.msg_buf);
     gps.ecef_vel.y  = SKYTRAQ_NAVIGATION_DATA_ECEFVY(gps_skytraq.msg_buf);
     gps.ecef_vel.z  = SKYTRAQ_NAVIGATION_DATA_ECEFVZ(gps_skytraq.msg_buf);
+    SetBit(gps.valid_fields, GPS_VALID_VEL_ECEF_BIT);
+
     gps.lla_pos.lat = SKYTRAQ_NAVIGATION_DATA_LAT(gps_skytraq.msg_buf);
     gps.lla_pos.lon = SKYTRAQ_NAVIGATION_DATA_LON(gps_skytraq.msg_buf);
     gps.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(gps_skytraq.msg_buf) * 10;
+    SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
+
     gps.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(gps_skytraq.msg_buf) * 10;
+    SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
+
     //   pacc;
     //   sacc;
     gps.pdop        = SKYTRAQ_NAVIGATION_DATA_PDOP(gps_skytraq.msg_buf);
@@ -148,21 +150,6 @@ void gps_skytraq_read_message(void)
         gps.fix = GPS_FIX_NONE;
     }
 
-#if GPS_USE_LATLONG
-    /* Computes from (lat, long) in the referenced UTM zone */
-    struct LlaCoor_f lla_f;
-    LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
-    struct UtmCoor_f utm_f;
-    utm_f.zone = nav_utm_zone0;
-    /* convert to utm */
-    utm_of_lla_f(&utm_f, &lla_f);
-    /* copy results of utm conversion */
-    gps.utm_pos.east = utm_f.east * 100;
-    gps.utm_pos.north = utm_f.north * 100;
-    gps.utm_pos.alt = gps.lla_pos.alt;
-    gps.utm_pos.zone = nav_utm_zone0;
-#endif
-
     if (gps.fix == GPS_FIX_3D) {
       if (distance_too_great(&gps_skytraq.ref_ltp.ecef, &gps.ecef_pos)) {
         // just grab current ecef_pos as reference.
@@ -170,9 +157,11 @@ void gps_skytraq_read_message(void)
       }
       // convert ecef velocity vector to NED vector.
       ned_of_ecef_vect_i(&gps.ned_vel, &gps_skytraq.ref_ltp, &gps.ecef_vel);
+      SetBit(gps.valid_fields, GPS_VALID_VEL_NED_BIT);
 
       // ground course in radians
       gps.course = (atan2f((float)gps.ned_vel.y, (float)gps.ned_vel.x)) * 1e7;
+      SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
       // GT: gps.cacc = ... ? what should course accuracy be?
 
       // ground speed

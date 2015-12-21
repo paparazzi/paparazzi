@@ -53,12 +53,6 @@
 // Abi
 #include "subsystems/abi.h"
 
-#if GPS_USE_LATLONG
-/* currently needed to get nav_utm_zone0 */
-#include "subsystems/navigation/common_nav.h"
-#include "math/pprz_geodetic_float.h"
-#endif
-
 
 #if !defined INS_VN_BODY_TO_IMU_PHI && !defined INS_VN_BODY_TO_IMU_THETA && !defined INS_VN_BODY_TO_IMU_PSI
 #define INS_VN_BODY_TO_IMU_PHI   0

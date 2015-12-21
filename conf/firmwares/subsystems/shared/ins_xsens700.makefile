@@ -55,7 +55,7 @@ $(TARGET).srcs   += $(SRC_SUBSYSTEMS)/ins.c
 $(TARGET).CFLAGS += -DINS_TYPE_H=\"subsystems/ins/ins_gps_passthrough_utm.h\"
 $(TARGET).srcs   += $(SRC_SUBSYSTEMS)/ins/ins_gps_passthrough_utm.c
 
-$(TARGET).CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
+$(TARGET).CFLAGS += -DUSE_GPS
 $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/gps.c

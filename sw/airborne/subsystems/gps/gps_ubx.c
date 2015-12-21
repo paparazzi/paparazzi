@@ -24,12 +24,6 @@
 #include "subsystems/abi.h"
 #include "led.h"
 
-#if GPS_USE_LATLONG
-/* currently needed to get nav_utm_zone0 */
-#include "subsystems/navigation/common_nav.h"
-#include "math/pprz_geodetic_float.h"
-#endif
-
 /** Includes macros generated from ubx.xml */
 #include "ubx_protocol.h"
 
@@ -67,7 +61,6 @@ void gps_impl_init(void)
   gps_ubx.msg_available = FALSE;
   gps_ubx.error_cnt = 0;
   gps_ubx.error_last = GPS_UBX_ERR_NONE;
-  gps_ubx.have_velned = 0;
 }
 
 
@@ -86,10 +79,12 @@ void gps_ubx_read_message(void)
       gps.ecef_pos.x = UBX_NAV_SOL_ECEF_X(gps_ubx.msg_buf);
       gps.ecef_pos.y = UBX_NAV_SOL_ECEF_Y(gps_ubx.msg_buf);
       gps.ecef_pos.z = UBX_NAV_SOL_ECEF_Z(gps_ubx.msg_buf);
+      SetBit(gps.valid_fields, GPS_VALID_POS_ECEF_BIT);
       gps.pacc       = UBX_NAV_SOL_Pacc(gps_ubx.msg_buf);
       gps.ecef_vel.x = UBX_NAV_SOL_ECEFVX(gps_ubx.msg_buf);
       gps.ecef_vel.y = UBX_NAV_SOL_ECEFVY(gps_ubx.msg_buf);
       gps.ecef_vel.z = UBX_NAV_SOL_ECEFVZ(gps_ubx.msg_buf);
+      SetBit(gps.valid_fields, GPS_VALID_VEL_ECEF_BIT);
       gps.sacc       = UBX_NAV_SOL_Sacc(gps_ubx.msg_buf);
       gps.pdop       = UBX_NAV_SOL_PDOP(gps_ubx.msg_buf);
       gps.num_sv     = UBX_NAV_SOL_numSV(gps_ubx.msg_buf);
@@ -104,21 +99,9 @@ void gps_ubx_read_message(void)
       gps.lla_pos.lat = UBX_NAV_POSLLH_LAT(gps_ubx.msg_buf);
       gps.lla_pos.lon = UBX_NAV_POSLLH_LON(gps_ubx.msg_buf);
       gps.lla_pos.alt = UBX_NAV_POSLLH_HEIGHT(gps_ubx.msg_buf);
+      SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
       gps.hmsl        = UBX_NAV_POSLLH_HMSL(gps_ubx.msg_buf);
-#if GPS_USE_LATLONG
-      /* Computes from (lat, long) in the referenced UTM zone */
-      struct LlaCoor_f lla_f;
-      LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
-      struct UtmCoor_f utm_f;
-      utm_f.zone = nav_utm_zone0;
-      /* convert to utm */
-      utm_of_lla_f(&utm_f, &lla_f);
-      /* copy results of utm conversion */
-      gps.utm_pos.east = utm_f.east * 100;
-      gps.utm_pos.north = utm_f.north * 100;
-      gps.utm_pos.alt = gps.lla_pos.alt;
-      gps.utm_pos.zone = nav_utm_zone0;
-#else
+      SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
     } else if (gps_ubx.msg_id == UBX_NAV_POSUTM_ID) {
       gps.utm_pos.east = UBX_NAV_POSUTM_EAST(gps_ubx.msg_buf);
       gps.utm_pos.north = UBX_NAV_POSUTM_NORTH(gps_ubx.msg_buf);
@@ -127,24 +110,30 @@ void gps_ubx_read_message(void)
         gps.utm_pos.north -= 1000000000;  /* Subtract false northing: -10000km */
       }
       gps.utm_pos.alt = UBX_NAV_POSUTM_ALT(gps_ubx.msg_buf) * 10;
-      gps.hmsl = gps.utm_pos.alt;
-      gps.lla_pos.alt = gps.utm_pos.alt; // FIXME: with UTM only you do not receive ellipsoid altitude
       gps.utm_pos.zone = UBX_NAV_POSUTM_ZONE(gps_ubx.msg_buf);
-#endif
+      SetBit(gps.valid_fields, GPS_VALID_POS_UTM_BIT);
+
+      gps.hmsl = gps.utm_pos.alt;
+      SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
+      /* with UTM only you do not receive ellipsoid altitude, so set only if no valid lla */
+      if (!bit_is_set(gps.valid_fields, GPS_VALID_HMSL_BIT)) {
+        gps.lla_pos.alt = gps.utm_pos.alt;
+      }
     } else if (gps_ubx.msg_id == UBX_NAV_VELNED_ID) {
       gps.speed_3d = UBX_NAV_VELNED_Speed(gps_ubx.msg_buf);
       gps.gspeed = UBX_NAV_VELNED_GSpeed(gps_ubx.msg_buf);
       gps.ned_vel.x = UBX_NAV_VELNED_VEL_N(gps_ubx.msg_buf);
       gps.ned_vel.y = UBX_NAV_VELNED_VEL_E(gps_ubx.msg_buf);
       gps.ned_vel.z = UBX_NAV_VELNED_VEL_D(gps_ubx.msg_buf);
+      SetBit(gps.valid_fields, GPS_VALID_VEL_NED_BIT);
       // Ublox gives I4 heading in 1e-5 degrees, apparenty from 0 to 360 degrees (not -180 to 180)
       // I4 max = 2^31 = 214 * 1e5 * 100 < 360 * 1e7: overflow on angles over 214 deg -> casted to -214 deg
       // solution: First to radians, and then scale to 1e-7 radians
       // First x 10 for loosing less resolution, then to radians, then multiply x 10 again
       gps.course = (RadOfDeg(UBX_NAV_VELNED_Heading(gps_ubx.msg_buf) * 10)) * 10;
+      SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
       gps.cacc = (RadOfDeg(UBX_NAV_VELNED_CAcc(gps_ubx.msg_buf) * 10)) * 10;
       gps.tow = UBX_NAV_VELNED_ITOW(gps_ubx.msg_buf);
-      gps_ubx.have_velned = 1;
     } else if (gps_ubx.msg_id == UBX_NAV_SVINFO_ID) {
       gps.nb_channels = Min(UBX_NAV_SVINFO_NCH(gps_ubx.msg_buf), GPS_NB_CHANNELS);
       uint8_t i;
@@ -332,7 +321,7 @@ void gps_ubx_msg(void)
   if (gps_ubx.msg_class == UBX_NAV_ID &&
       (gps_ubx.msg_id == UBX_NAV_VELNED_ID ||
        (gps_ubx.msg_id == UBX_NAV_SOL_ID &&
-        gps_ubx.have_velned == 0))) {
+        !bit_is_set(gps.valid_fields, GPS_VALID_VEL_NED_BIT)))) {
     if (gps.fix == GPS_FIX_3D) {
       gps.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps.last_3dfix_time = sys_time.nb_sec;

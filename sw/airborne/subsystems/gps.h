@@ -53,6 +53,14 @@
 #define GPS_NB_CHANNELS 1
 #endif
 
+#define GPS_VALID_POS_ECEF_BIT 0
+#define GPS_VALID_POS_LLA_BIT  1
+#define GPS_VALID_POS_UTM_BIT  2
+#define GPS_VALID_VEL_ECEF_BIT 3
+#define GPS_VALID_VEL_NED_BIT  4
+#define GPS_VALID_HMSL_BIT     5
+#define GPS_VALID_COURSE_BIT   6
+
 /** data structure for Space Vehicle Information of a single satellite */
 struct SVinfo {
   uint8_t svid;  ///< Satellite ID
@@ -65,6 +73,8 @@ struct SVinfo {
 
 /** data structure for GPS information */
 struct GpsState {
+  uint8_t valid_fields;          ///< bitfield indicating valid fields (GPS_VALID_x_BIT)
+
   struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
   struct LlaCoor_i lla_pos;      ///< position in LLA (lat,lon: deg*1e7; alt: mm over ellipsoid)
   struct UtmCoor_i utm_pos;      ///< position in UTM (north,east: cm; alt: mm over ellipsoid)

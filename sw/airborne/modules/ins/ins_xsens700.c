@@ -490,6 +490,7 @@ void parse_ins_msg(void)
           // Compute geoid (MSL) height
           float geoid_h = wgs84_ellipsoid_to_geoid(lla_f.lat, lla_f.lon);
           gps.hmsl =  gps.utm_pos.alt - (geoid_h * 1000.0f);
+          SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
 
           //gps.tow = geoid_h * 1000.0f; //gps.utm_pos.alt;
         } else if (code2 == 0x40) {
@@ -512,6 +513,7 @@ void parse_ins_msg(void)
           // copy results of utm conversion
           gps.utm_pos.east = utm_f.east * 100;
           gps.utm_pos.north = utm_f.north * 100;
+          SetBit(gps.valid_fields, GPS_VALID_POS_UTM_BIT);
 
           gps_xsens_publish();
         }
@@ -524,6 +526,7 @@ void parse_ins_msg(void)
           gps.ned_vel.x = ins_vx;
           gps.ned_vel.y = ins_vy;
           gps.ned_vel.z = ins_vx;
+          SetBit(gps.valid_fields, GPS_VALID_VEL_NED_BIT);
         }
       }
 

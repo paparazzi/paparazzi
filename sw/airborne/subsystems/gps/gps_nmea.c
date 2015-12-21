@@ -34,10 +34,6 @@
 #include "subsystems/abi.h"
 #include "led.h"
 
-#if GPS_USE_LATLONG
-/* currently needed to get nav_utm_zone0 */
-#include "subsystems/navigation/common_nav.h"
-#endif
 #include "math/pprz_geodetic_float.h"
 
 #include <inttypes.h>
@@ -342,6 +338,7 @@ static void nmea_parse_RMC(void)
   double course = strtod(&gps_nmea.msg_buf[i], NULL);
   gps.course = RadOfDeg(course) * 1e7;
   NMEA_PRINT("p_RMC() - course: %f deg\n\r", course);
+  SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
 }
 
 
@@ -404,6 +401,7 @@ static void nmea_parse_GGA(void)
   lla_f.lon = RadOfDeg(lon);
   gps.lla_pos.lon = lon * 1e7; // convert to fixed-point
   NMEA_PRINT("p_GGA() - lon=%f gps_lon=%f time=%u\n\r", (lon * 1000), lla_f.lon, gps.tow);
+  SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
 
   // get position fix status
   nmea_read_until(&i);
@@ -432,6 +430,7 @@ static void nmea_parse_GGA(void)
   float hmsl = strtof(&gps_nmea.msg_buf[i], NULL);
   gps.hmsl = hmsl * 1000;
   NMEA_PRINT("p_GGA() - gps.hmsl=%i\n\r", gps.hmsl);
+  SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
 
   // get altitude units (always M)
   nmea_read_until(&i);
@@ -451,25 +450,13 @@ static void nmea_parse_GGA(void)
   nmea_read_until(&i);
   // get DGPS station ID
 
-#if GPS_USE_LATLONG
-  /* convert to utm */
-  struct UtmCoor_f utm_f;
-  utm_f.zone = nav_utm_zone0;
-  utm_of_lla_f(&utm_f, &lla_f);
-
-  /* copy results of utm conversion */
-  gps.utm_pos.east = utm_f.east * 100;
-  gps.utm_pos.north = utm_f.north * 100;
-  gps.utm_pos.alt = gps.lla_pos.alt;
-  gps.utm_pos.zone = nav_utm_zone0;
-#endif
-
   /* convert to ECEF */
   struct EcefCoor_f ecef_f;
   ecef_of_lla_f(&ecef_f, &lla_f);
   gps.ecef_pos.x = ecef_f.x * 100;
   gps.ecef_pos.y = ecef_f.y * 100;
   gps.ecef_pos.z = ecef_f.z * 100;
+  SetBit(gps.valid_fields, GPS_VALID_POS_ECEF_BIT);
 }
 
 /**

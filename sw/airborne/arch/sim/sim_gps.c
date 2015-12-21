@@ -22,38 +22,29 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
 {
   gps.fix = (Bool_val(m) ? 3 : 0);
   gps.course = Double_val(c) * 1e7;
+  SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
   gps.hmsl = Double_val(a) * 1000.;
+  SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
   gps.gspeed = Double_val(s) * 100.;
   gps.ned_vel.x = gps.gspeed * cos(Double_val(c));
   gps.ned_vel.y = gps.gspeed * sin(Double_val(c));
   gps.ned_vel.z = -Double_val(cl) * 100.;
+  SetBit(gps.valid_fields, GPS_VALID_VEL_NED_BIT);
   gps.week = 0; // FIXME
   gps.tow = Double_val(t) * 1000.;
 
-  //TODO set alt above ellipsoid and hmsl
-
-#ifdef GPS_USE_LATLONG
   struct LlaCoor_f lla_f;
-  struct UtmCoor_f utm_f;
   lla_f.lat = Double_val(lat);
   lla_f.lon = Double_val(lon);
+  //TODO set alt above ellipsoid, use hmsl for now
   lla_f.alt = Double_val(a);
-  utm_f.zone = nav_utm_zone0;
-  utm_of_lla_f(&utm_f, &lla_f);
   LLA_BFP_OF_REAL(gps.lla_pos, lla_f);
-  gps.utm_pos.east = utm_f.east * 100;
-  gps.utm_pos.north = utm_f.north * 100;
-  gps.utm_pos.zone = nav_utm_zone0;
-  x = y = z; /* Just to get rid of the "unused arg" warning */
-  y = x;     /* Just to get rid of the "unused arg" warning */
-#else // GPS_USE_LATLONG
+  SetBit(gps.valid_fields, GPS_VALID_POS_UTM_BIT);
+
   gps.utm_pos.east = Int_val(x);
   gps.utm_pos.north = Int_val(y);
   gps.utm_pos.zone = Int_val(z);
-  lat = lon; /* Just to get rid of the "unused arg" warning */
-  lon = lat; /* Just to get rid of the "unused arg" warning */
-#endif // GPS_USE_LATLONG
-
+  SetBit(gps.valid_fields, GPS_VALID_POS_UTM_BIT);
 
   /** Space vehicle info simulation */
   gps.nb_channels = 7;
