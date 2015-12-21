@@ -56,7 +56,7 @@ static void stereocam_gps_cb(uint8_t sender_id __attribute__((unused)),
 void stereo_to_state_init(void)
 {
   //subscribe to GPS abi-messages for state measurements
-  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, stereocam_gps_cb);
+  AbiBindMsgGPS(STEREOCAM_GPS_ID, &gps_ev, stereocam_gps_cb);
 
 }
 void stereo_to_state_periodic(void)
