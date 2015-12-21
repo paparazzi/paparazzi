@@ -66,12 +66,12 @@ extern struct AhrsMlkf ahrs_mlkf;
 extern void ahrs_mlkf_init(void);
 extern void ahrs_mlkf_set_body_to_imu(struct OrientationReps *body_to_imu);
 extern void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat *q_b2i);
-extern bool_t ahrs_mlkf_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
-                              struct Int32Vect3 *lp_mag);
-extern void ahrs_mlkf_propagate(struct Int32Rates *gyro, float dt);
-extern void ahrs_mlkf_update_accel(struct Int32Vect3 *accel);
-extern void ahrs_mlkf_update_mag(struct Int32Vect3 *mag);
-extern void ahrs_mlkf_update_mag_2d(struct Int32Vect3 *mag);
-extern void ahrs_mlkf_update_mag_full(struct Int32Vect3 *mag);
+extern bool_t ahrs_mlkf_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
+                              struct FloatVect3 *lp_mag);
+extern void ahrs_mlkf_propagate(struct FloatRates *gyro, float dt);
+extern void ahrs_mlkf_update_accel(struct FloatVect3 *accel);
+extern void ahrs_mlkf_update_mag(struct FloatVect3 *mag);
+extern void ahrs_mlkf_update_mag_2d(struct FloatVect3 *mag);
+extern void ahrs_mlkf_update_mag_full(struct FloatVect3 *mag);
 
 #endif /* AHRS_FLOAT_MLKF_H */

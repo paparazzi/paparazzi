@@ -83,13 +83,16 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
                     uint32_t stamp, struct Int32Rates *gyro)
 {
   ahrs_dcm_last_stamp = stamp;
+  struct FloatRates gyro_f;
+  RATES_FLOAT_OF_BFP(gyro_f, *gyro);
+
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
   PRINT_CONFIG_MSG("Calculating dt for AHRS dcm propagation.")
   /* timestamp in usec when last callback was received */
   static uint32_t last_stamp = 0;
   if (last_stamp > 0 && ahrs_dcm.is_aligned) {
     float dt = (float)(stamp - last_stamp) * 1e-6;
-    ahrs_dcm_propagate(gyro, dt);
+    ahrs_dcm_propagate(&gyro_f, dt);
     set_body_orientation_and_rates();
   }
   last_stamp = stamp;
@@ -98,7 +101,7 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
   PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
   if (ahrs_dcm.is_aligned) {
     const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-    ahrs_dcm_propagate(gyro, dt);
+    ahrs_dcm_propagate(&gyro_f, dt);
     set_body_orientation_and_rates();
   }
 #endif
@@ -109,7 +112,9 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
                      struct Int32Vect3 *accel)
 {
   if (ahrs_dcm.is_aligned) {
-    ahrs_dcm_update_accel(accel);
+    struct FloatVect3 accel_f;
+    ACCELS_FLOAT_OF_BFP(accel_f, *accel);
+    ahrs_dcm_update_accel(&accel_f);
   }
 }
 
@@ -118,7 +123,9 @@ static void mag_cb(uint8_t sender_id __attribute__((unused)),
                    struct Int32Vect3 *mag)
 {
   if (ahrs_dcm.is_aligned) {
-    ahrs_dcm_update_mag(mag);
+    struct FloatVect3 mag_f;
+    MAGS_FLOAT_OF_BFP(mag_f, *mag);
+    ahrs_dcm_update_mag(&mag_f);
   }
 }
 
@@ -128,7 +135,15 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        struct Int32Vect3 *lp_mag)
 {
   if (!ahrs_dcm.is_aligned) {
-    if (ahrs_dcm_align(lp_gyro, lp_accel, lp_mag)) {
+    /* convert to float */
+    struct FloatRates gyro_f;
+    RATES_FLOAT_OF_BFP(gyro_f, *lp_gyro);
+    struct FloatVect3 accel_f;
+    ACCELS_FLOAT_OF_BFP(accel_f, *lp_accel);
+    struct FloatVect3 mag_f;
+    MAGS_FLOAT_OF_BFP(mag_f, *lp_mag);
+    /* set initial body orientation in state interface if alignment was successful */
+    if (ahrs_dcm_align(&gyro_f, &accel_f, &mag_f)) {
       set_body_orientation_and_rates();
     }
   }

@@ -318,17 +318,15 @@ void ins_reset_altitude_ref(void)
 #endif
 }
 
-void ins_float_invariant_align(struct Int32Rates *lp_gyro,
-                               struct Int32Vect3 *lp_accel,
-                               struct Int32Vect3 *lp_mag)
+void ins_float_invariant_align(struct FloatRates *lp_gyro,
+                               struct FloatVect3 *lp_accel,
+                               struct FloatVect3 *lp_mag)
 {
   /* Compute an initial orientation from accel and mag directly as quaternion */
   ahrs_float_get_quat_from_accel_mag(&ins_float_inv.state.quat, lp_accel, lp_mag);
 
   /* use average gyro as initial value for bias */
-  struct FloatRates bias0;
-  RATES_COPY(bias0, *lp_gyro);
-  RATES_FLOAT_OF_BFP(ins_float_inv.state.bias, bias0);
+  ins_float_inv.state.bias = *lp_gyro;
 
   /* push initial values to state interface */
   stateSetNedToBodyQuat_f(&ins_float_inv.state.quat);
@@ -337,7 +335,7 @@ void ins_float_invariant_align(struct Int32Rates *lp_gyro,
   ins_float_inv.is_aligned = TRUE;
 }
 
-void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* accel, float dt)
+void ins_float_invariant_propagate(struct FloatRates* gyro, struct FloatVect3* accel, float dt)
 {
   struct FloatRates body_rates;
 
@@ -349,14 +347,10 @@ void ins_float_invariant_propagate(struct Int32Rates* gyro, struct Int32Vect3* a
     init_invariant_state();
   }
 
-  // fill command vector
-  struct Int32Rates gyro_meas_body;
-  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ins_float_inv.body_to_imu);
-  int32_rmat_transp_ratemult(&gyro_meas_body, body_to_imu_rmat, gyro);
-  RATES_FLOAT_OF_BFP(ins_float_inv.cmd.rates, gyro_meas_body);
-  struct Int32Vect3 accel_meas_body;
-  int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, accel);
-  ACCELS_FLOAT_OF_BFP(ins_float_inv.cmd.accel, accel_meas_body);
+  // fill command vector in body frame
+  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ins_float_inv.body_to_imu);
+  float_rmat_transp_ratemult(&ins_float_inv.cmd.rates, body_to_imu_rmat, gyro);
+  float_rmat_transp_vmult(&ins_float_inv.cmd.accel, body_to_imu_rmat, accel);
 
   // update correction gains
   error_output(&ins_float_inv);
@@ -506,7 +500,7 @@ void ins_float_invariant_update_baro(float pressure)
 // assume mag is dead when values are not moving anymore
 #define MAG_FROZEN_COUNT 30
 
-void ins_float_invariant_update_mag(struct Int32Vect3* mag)
+void ins_float_invariant_update_mag(struct FloatVect3* mag)
 {
   static uint32_t mag_frozen_count = MAG_FROZEN_COUNT;
   static int32_t last_mx = 0;
@@ -520,11 +514,9 @@ void ins_float_invariant_update_mag(struct Int32Vect3* mag)
     }
   } else {
     // values are moving
-    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ins_float_inv.body_to_imu);
-    struct Int32Vect3 mag_meas_body;
+    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ins_float_inv.body_to_imu);
     // new values in body frame
-    int32_rmat_transp_vmult(&mag_meas_body, body_to_imu_rmat, mag);
-    MAGS_FLOAT_OF_BFP(ins_float_inv.meas.mag, mag_meas_body);
+    float_rmat_transp_vmult(&ins_float_inv.meas.mag, body_to_imu_rmat, mag);
     // reset counter
     mag_frozen_count = MAG_FROZEN_COUNT;
   }

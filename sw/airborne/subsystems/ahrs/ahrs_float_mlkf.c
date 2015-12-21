@@ -46,7 +46,7 @@
 #define AHRS_MAG_NOISE_Z 0.2
 #endif
 
-static inline void propagate_ref(struct Int32Rates *gyro, float dt);
+static inline void propagate_ref(struct FloatRates *gyro, float dt);
 static inline void propagate_state(float dt);
 static inline void update_state(const struct FloatVect3 *i_expected,
                                 struct FloatVect3 *b_measured,
@@ -104,33 +104,30 @@ void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat *q_b2i)
 }
 
 
-bool_t ahrs_mlkf_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
-                       struct Int32Vect3 *lp_mag)
+bool_t ahrs_mlkf_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
+                       struct FloatVect3 *lp_mag)
 {
 
   /* Compute an initial orientation from accel and mag directly as quaternion */
   ahrs_float_get_quat_from_accel_mag(&ahrs_mlkf.ltp_to_imu_quat, lp_accel, lp_mag);
 
   /* used averaged gyro as initial value for bias */
-  struct Int32Rates bias0;
-  RATES_COPY(bias0, *lp_gyro);
-  RATES_FLOAT_OF_BFP(ahrs_mlkf.gyro_bias, bias0);
+  ahrs_mlkf.gyro_bias = *lp_gyro;
 
   ahrs_mlkf.is_aligned = TRUE;
 
   return TRUE;
 }
 
-void ahrs_mlkf_propagate(struct Int32Rates *gyro, float dt)
+void ahrs_mlkf_propagate(struct FloatRates *gyro, float dt)
 {
   propagate_ref(gyro, dt);
   propagate_state(dt);
 }
 
-void ahrs_mlkf_update_accel(struct Int32Vect3 *accel)
+void ahrs_mlkf_update_accel(struct FloatVect3 *accel)
 {
-  struct FloatVect3 imu_g;
-  ACCELS_FLOAT_OF_BFP(imu_g, *accel);
+  struct FloatVect3 imu_g = *accel;
   const float alpha = 0.92;
   ahrs_mlkf.lp_accel = alpha * ahrs_mlkf.lp_accel +
                        (1. - alpha) * (float_vect3_norm(&imu_g) - 9.81);
@@ -141,7 +138,7 @@ void ahrs_mlkf_update_accel(struct Int32Vect3 *accel)
   reset_state();
 }
 
-void ahrs_mlkf_update_mag(struct Int32Vect3 *mag)
+void ahrs_mlkf_update_mag(struct FloatVect3 *mag)
 {
 #if AHRS_MAG_UPDATE_ALL_AXES
   ahrs_mlkf_update_mag_full(mag);
@@ -150,39 +147,33 @@ void ahrs_mlkf_update_mag(struct Int32Vect3 *mag)
 #endif
 }
 
-void ahrs_mlkf_update_mag_2d(struct Int32Vect3 *mag)
+void ahrs_mlkf_update_mag_2d(struct FloatVect3 *mag)
 {
-  struct FloatVect3 imu_h;
-  MAGS_FLOAT_OF_BFP(imu_h, *mag);
-  update_state_heading(&ahrs_mlkf.mag_h, &imu_h, &ahrs_mlkf.mag_noise);
+  update_state_heading(&ahrs_mlkf.mag_h, mag, &ahrs_mlkf.mag_noise);
   reset_state();
 }
 
-void ahrs_mlkf_update_mag_full(struct Int32Vect3 *mag)
+void ahrs_mlkf_update_mag_full(struct FloatVect3 *mag)
 {
-  struct FloatVect3 imu_h;
-  MAGS_FLOAT_OF_BFP(imu_h, *mag);
-  update_state(&ahrs_mlkf.mag_h, &imu_h, &ahrs_mlkf.mag_noise);
+  update_state(&ahrs_mlkf.mag_h, mag, &ahrs_mlkf.mag_noise);
   reset_state();
 }
 
 
-static inline void propagate_ref(struct Int32Rates *gyro, float dt)
+static inline void propagate_ref(struct FloatRates *gyro, float dt)
 {
-  /* converts gyro to floating point */
-  struct FloatRates gyro_float;
-  RATES_FLOAT_OF_BFP(gyro_float, *gyro);
+  struct FloatRates rates = *gyro;
 
   /* unbias measurement */
-  RATES_SUB(gyro_float, ahrs_mlkf.gyro_bias);
+  RATES_SUB(rates, ahrs_mlkf.gyro_bias);
 
 #ifdef AHRS_PROPAGATE_LOW_PASS_RATES
   /* lowpass angular rates */
   const float alpha = 0.1;
   FLOAT_RATES_LIN_CMB(ahrs_mlkf.imu_rate, ahrs_mlkf.imu_rate,
-                      (1. - alpha), gyro_float, alpha);
+                      (1. - alpha), rates, alpha);
 #else
-  RATES_COPY(ahrs_mlkf.imu_rate, gyro_float);
+  RATES_COPY(ahrs_mlkf.imu_rate, rates);
 #endif
 
   /* propagate reference quaternion */

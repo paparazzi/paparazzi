@@ -154,23 +154,21 @@ void ahrs_float_invariant_init(void)
   ahrs_float_inv.reset = FALSE;
 }
 
-void ahrs_float_invariant_align(struct Int32Rates *lp_gyro,
-                               struct Int32Vect3 *lp_accel,
-                               struct Int32Vect3 *lp_mag)
+void ahrs_float_invariant_align(struct FloatRates *lp_gyro,
+                                struct FloatVect3 *lp_accel,
+                                struct FloatVect3 *lp_mag)
 {
   /* Compute an initial orientation from accel and mag directly as quaternion */
   ahrs_float_get_quat_from_accel_mag(&ahrs_float_inv.state.quat, lp_accel, lp_mag);
 
   /* use average gyro as initial value for bias */
-  struct FloatRates bias0;
-  RATES_COPY(bias0, *lp_gyro);
-  RATES_FLOAT_OF_BFP(ahrs_float_inv.state.bias, bias0);
+  ahrs_float_inv.state.bias = *lp_gyro;
 
   // ins and ahrs are now running
   ahrs_float_inv.is_aligned = TRUE;
 }
 
-void ahrs_float_invariant_propagate(struct Int32Rates* gyro, float dt)
+void ahrs_float_invariant_propagate(struct FloatRates* gyro, float dt)
 {
   // realign all the filter if needed
   // a complete init cycle is required
@@ -181,10 +179,10 @@ void ahrs_float_invariant_propagate(struct Int32Rates* gyro, float dt)
   }
 
   // fill command vector
-  struct Int32Rates gyro_meas_body;
-  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_float_inv.body_to_imu);
-  int32_rmat_transp_ratemult(&gyro_meas_body, body_to_imu_rmat, gyro);
-  RATES_FLOAT_OF_BFP(ahrs_float_inv.cmd.rates, gyro_meas_body);
+  struct FloatRates gyro_meas_body;
+  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_float_inv.body_to_imu);
+  float_rmat_transp_ratemult(&gyro_meas_body, body_to_imu_rmat, gyro);
+  ahrs_float_inv.cmd.rates = gyro_meas_body;
 
   // update correction gains
   error_output(&ahrs_float_inv);
@@ -231,15 +229,15 @@ void ahrs_float_invariant_propagate(struct Int32Rates* gyro, float dt)
 
 }
 
-void ahrs_float_invariant_update_accel(struct Int32Vect3* accel)
+void ahrs_float_invariant_update_accel(struct FloatVect3* accel)
 {
-  ACCELS_FLOAT_OF_BFP(ahrs_float_inv.meas.accel, *accel);
+  ahrs_float_inv.meas.accel = *accel;
 }
 
 // assume mag is dead when values are not moving anymore
 #define MAG_FROZEN_COUNT 30
 
-void ahrs_float_invariant_update_mag(struct Int32Vect3* mag)
+void ahrs_float_invariant_update_mag(struct FloatVect3* mag)
 {
   static uint32_t mag_frozen_count = MAG_FROZEN_COUNT;
   static int32_t last_mx = 0;
@@ -253,11 +251,9 @@ void ahrs_float_invariant_update_mag(struct Int32Vect3* mag)
     }
   } else {
     // values are moving
-    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_float_inv.body_to_imu);
-    struct Int32Vect3 mag_meas_body;
+    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_float_inv.body_to_imu);
     // new values in body frame
-    int32_rmat_transp_vmult(&mag_meas_body, body_to_imu_rmat, mag);
-    MAGS_FLOAT_OF_BFP(ahrs_float_inv.meas.mag, mag_meas_body);
+    float_rmat_transp_vmult(&ahrs_float_inv.meas.mag, body_to_imu_rmat, mag);
     // reset counter
     mag_frozen_count = MAG_FROZEN_COUNT;
   }

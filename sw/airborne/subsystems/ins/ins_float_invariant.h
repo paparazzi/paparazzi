@@ -123,12 +123,12 @@ extern struct InsFloatInv ins_float_inv;
 
 extern void ins_float_invariant_init(void);
 extern void ins_float_inv_set_body_to_imu_quat(struct FloatQuat *q_b2i);
-extern void ins_float_invariant_align(struct Int32Rates *lp_gyro,
-                                      struct Int32Vect3 *lp_accel,
-                                      struct Int32Vect3 *lp_mag);
-extern void ins_float_invariant_propagate(struct Int32Rates* gyro,
-                                          struct Int32Vect3* accel, float dt);
-extern void ins_float_invariant_update_mag(struct Int32Vect3* mag);
+extern void ins_float_invariant_align(struct FloatRates *lp_gyro,
+                                      struct FloatVect3 *lp_accel,
+                                      struct FloatVect3 *lp_mag);
+extern void ins_float_invariant_propagate(struct FloatRates* gyro,
+                                          struct FloatVect3* accel, float dt);
+extern void ins_float_invariant_update_mag(struct FloatVect3* mag);
 extern void ins_float_invariant_update_baro(float pressure);
 extern void ins_float_invariant_update_gps(struct GpsState *gps_s);
 
