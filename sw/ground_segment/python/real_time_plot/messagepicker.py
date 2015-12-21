@@ -32,7 +32,7 @@ class Aircraft(object):
 
 
 class MessagePicker(wx.Frame):
-    def __init__(self, parent, callback, initIvy = True):
+    def __init__(self, parent, callback, initIvy=True):
         wx.Frame.__init__(self, parent, name="MessagePicker", title=u'Message Picker', size=wx.Size(320,640))
 
         self.aircrafts = {}
@@ -42,7 +42,7 @@ class MessagePicker(wx.Frame):
         self.root = self.tree.AddRoot("Telemetry")
         self.tree.Bind(wx.EVT_LEFT_DCLICK, self.OnDoubleClick)
         self.tree.Bind(wx.EVT_CHAR, self.OnKeyChar)
-        self.Bind( wx.EVT_CLOSE, self.OnClose)
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.message_interface = IvyMessagesInterface(self.msg_recv, initIvy)
 
     def OnClose(self, event):
