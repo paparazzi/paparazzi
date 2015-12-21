@@ -11,9 +11,10 @@
  */
 
 #include "modules/stereocam/stereocam2state/stereocam2state.h"
-#include "modules/stereocam/stereocam.h"
 
 #include "subsystems/abi.h"
+#include "subsystems/datalink/telemetry.h"
+
 //#include "subsystems/gps.h"
 
 #ifndef SENDER_ID
@@ -62,7 +63,7 @@ void stereo_to_state_periodic(void)
 {
 
   if (stereocam_data.fresh) {
-
+    stereocam_data.fresh = 0;
     float phi = stateGetNedToBodyEulers_f()->phi;
     float theta = stateGetNedToBodyEulers_f()->theta;
     float dphi =  phi - prev_phi;
@@ -133,12 +134,17 @@ void stereocam_to_state(float dphi, float dtheta)
 //TODO:: Check out why vel_x_opti is 10 x big as stereocamera's output
   stereocam_data.data[8] = (uint8_t)((vel_x * 10) + 127); // dm/s
   stereocam_data.data[9] = (uint8_t)((vel_y * 10) + 127); // dm/s
-  stereocam_data.data[19] = (uint8_t)(vel_x_opti) * 10 + 127); // dm/s
-  stereocam_data.data[20] = (uint8_t)(vel_y_opti) * 10 + 127); // dm/s
+  stereocam_data.data[19] = (uint8_t)((vel_x_opti) * 10 + 127); // dm/s
+  stereocam_data.data[20] = (uint8_t)((vel_y_opti) * 10 + 127); // dm/s
   stereocam_data.data[21] = (uint8_t)((vel_x_error) * 10 + 127); // dm/s
   stereocam_data.data[22] = (uint8_t)((vel_y_error) * 10 + 127); // dm/s
   stereocam_data.data[23] = (uint8_t)((velocity_rot_state.x) * 10 + 127); // dm/s
   stereocam_data.data[24] = (uint8_t)((velocity_rot_state.y) * 10 + 127); // dm/s
+
+  //Send measurement values in same structure as stereocam message (make sure SEND_STEREO in stereocam.c is FALSE)
+  uint8_t frequency = 0;
+  DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len,
+                           stereocam_data.data);
 #endif
 
   //Send velocity estimate to state
