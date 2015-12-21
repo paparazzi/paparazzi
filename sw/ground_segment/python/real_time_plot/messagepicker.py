@@ -46,8 +46,12 @@ class MessagePicker(wx.Frame):
         self.message_interface = IvyMessagesInterface(self.msg_recv, initIvy)
 
     def OnClose(self, event):
-        self.message_interface.shutdown()
-        self.Destroy()
+        # if we have a parent (like the plotpanel) only hide instead of shutdown
+        if self.GetParent() is not None:
+            self.Hide()
+        else:
+            self.message_interface.shutdown()
+            self.Destroy()
 
     def msg_recv(self, ac_id, msg):
         if msg.msg_class != "telemetry":

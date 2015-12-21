@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 from ivy.std_api import *
+from ivy.ivy import IvyIllegalStateError
 import logging
 import os
 import sys
@@ -30,7 +31,10 @@ class IvyMessagesInterface(object):
 
     def shutdown(self):
         self.stop()
-        IvyStop()
+        try:
+            IvyStop()
+        except IvyIllegalStateError as e:
+            print(e)
 
     def __init__del__(self):
         try:

@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function, division
 
 import wx
 from ivy.std_api import *
+from ivy.ivy import IvyIllegalStateError
 import logging
 from textdroptarget import *
 import math
@@ -10,9 +11,9 @@ import sys
 import os
 import messagepicker
 
-sys.path.append(os.getenv("PAPARAZZI_HOME") + "/sw/lib/python")
+sys.path.append(os.getenv("PAPARAZZI_SRC") + "/sw/lib/python")
 
-import messages_xml_map
+from pprz_msg import messages_xml_map
 
 class plot_data:
     def __init__(self, ivy_msg_id, title, width, color = None):
@@ -181,7 +182,7 @@ class PlotPanel():
         self.scale = 1.0
         self.x_axis = None
 
-        messages_xml_map.ParseMessages()
+        messages_xml_map.parse_messages()
 
         # start the timer
         self.timer = wx.FutureCall( self.plot_interval, self.OnTimer)
@@ -212,7 +213,10 @@ class PlotPanel():
 
     def OnClose(self):
         self.timer.Stop()
-        IvyStop()
+        try:
+            IvyStop()
+        except IvyIllegalStateError as e:
+            print(e)
 
     def OnErase(self, event):
         pass
@@ -242,7 +246,7 @@ class PlotPanel():
             IvyStop()
 
     def OnDropText(self, data):
-        [ac_id, category, message, field] = data.encode('ASCII').split(':')
+        [ac_id, category, message, field, scale] = data.encode('ASCII').split(':')
         self.BindCurve(int(ac_id), message, field)
 
     def OnIvyMsg(self, agent, *larg):
