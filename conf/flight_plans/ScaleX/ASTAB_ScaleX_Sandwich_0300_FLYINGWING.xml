@@ -1,0 +1,92 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<flight_plan alt="650" ground_alt="600" lat0="47.8327400" lon0="11.0592876" max_dist_from_home="500" name="ScaleX_" security_height="30" qfu="90" >
+	
+<header>
+#include "subsystems/datalink/datalink.h"
+</header>
+
+  <waypoints>
+    <waypoint name="HOME" lon="11.0594494" lat="47.8321135" />
+    <waypoint name="home_south" lat="47.8321135" lon="11.0594494" height="50" />
+    <waypoint name="home_north" lat="47.8336904" lon="11.0592431" height="50" />
+
+
+   <!-- BITTE NUR PROFIL UND ANFLUG AENDERN (PROFIL-KOORD. VON UNTEN RAUSKOPIEREN) -->
+    <waypoint name="Profil" lon="11.0608894" lat="47.8321416"/>
+
+    <waypoint name="Anflug" x="0" y="-200" height="20"/>
+
+    <!-- FMN Feuchtemessnetz 3 Profile -->
+<!--    <waypoint name="FMN3_NW" lon="11.05927186" lat="47.83299724"/>
+    <waypoint name="FMN3_S"  lon="11.06109197" lat="47.83162806"/> 
+    <waypoint name="FMN3_NE" lon="11.06223979" lat="47.83313662"/> -->
+
+
+    <waypoint name="Northwest" lon="11.05927186" lat="47.83299724"/>
+    <waypoint name="Northeast"  lon="11.06223979" lat="47.83313662"/>
+    <waypoint name="South"   lon="11.0612714"  lat="47.8308211" />
+
+  </waypoints>
+  <blocks>
+
+    <block name="Waiting for GPS fix">
+      <!-- <set value="1" var="kill_throttle"/> -->
+      <while cond="!GpsFixValid()"/>
+    </block>
+
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <!-- <call fun="NavSetGroundReferenceHere()"/> -->
+    </block>
+
+    <block name="Waiting for Remote Control">
+      <while cond="RCLost()"/> 
+    </block>
+
+    <block name="Unlock throttle">
+      <set value="1" var="launch"/>
+      <set value="0" var="kill_throttle"/>
+      <set value="0" var="autopilot_flight_time"/>
+    </block>
+
+    <block name="Climb">
+<!-- HIER HOEHE EINTRAGEN ! -->
+      <circle wp="Profil" pitch="45" radius="150" throttle="0.80" until="GetPosAlt() > ground_alt+0300" vmode="throttle"/>
+      <deroute block="Stay"/>
+    </block>
+
+    <block name="Stay">
+<!-- HIER HOEHE EINTRAGEN ! -->
+      <circle wp="Profil" radius="150" vmode="alt" alt="ground_alt+300"/>
+<!--      <exception cond="(autopilot_flight_time > 2*60)" deroute="Descent"/> -->
+      <exception cond="(stage_time > 25*60)" deroute="Descent"/>
+      <exception cond="10.8 > PowerVoltage()" deroute="Down"/>
+<!--      <exception cond="14.4 > PowerVoltage()" deroute="Down"/> -->
+    </block>
+
+    <block name="Descent">
+      <circle wp="Profil" climb="-3.0" radius="150" throttle="0.30" pitch="auto" until="ground_alt+20 > GetPosAlt()" vmode="climb"/>
+<!-- HIER HOEHE EINTRAGEN ! -->
+      <exception cond="GetPosAlt() > ground_alt + 0300 + 50 " deroute="Down"/>
+      <deroute block="Landing"/>
+    </block>
+
+    <block name="Down">
+     <circle wp="Profil" radius="-70" until="ground_alt+35 > GetPosAlt()" vmode="alt" alt="ground_alt+40"/>
+      <deroute block="Landing"/>
+    </block>
+
+    <block name="Landing">
+      <while cond="TRUE">
+      <go wp="Anflug" approaching_time="1"/>
+      <go from="Anflug" hmode="route" vmode="glide" wp="HOME" alt="ground_alt+1" approaching_time="1"/>
+      </while>
+      <deroute block="Standby"/>
+    </block>
+
+    <block name="Standby" group="home" key="Ctrl+a" strip_button="Standby" strip_icon="home.png">
+      <circle radius="-70" wp="HOME"/>
+    </block>
+ 
+  </blocks>
+</flight_plan>

@@ -68,6 +68,26 @@ PRINT_CONFIG_VAR(APOGEE_ACCEL_RANGE)
 
 struct ImuApogee imu_apogee;
 
+#ifdef MPU9150_SLV_MAG
+struct Ak8975 ak;
+#endif
+
+#ifdef MPU9150_SLV_BARO
+struct Mpl3115 mpl;
+
+// sd-log
+#if MPU9150_SLV_BARO_SDLOG
+#include "sdLog.h"
+#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "subsystems/gps.h"
+bool_t log_mpu9150_slv_baro_started;
+int count_sd_writes;
+#endif
+
+#endif
+
+
+
 // baro config will be done later in bypass mode
 bool_t configure_baro_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
 
@@ -90,6 +110,51 @@ void imu_impl_init(void)
   imu_apogee.mpu.config.nb_slaves = 1;
   imu_apogee.mpu.config.slaves[0].configure = &configure_baro_slave;
   imu_apogee.mpu.config.i2c_bypass = TRUE;
+
+  
+  
+#ifdef MPU9150_SLV_MAG
+
+  // Status byte, Accel (3x2 bytes), blank byte, Gyros (3x2 bytes) => 14 bytes
+  imu_apogee.mpu.config.nb_bytes = 15;
+
+  // Extended sens bytes :
+  //   Mag: status byte + 3x2 bytes + status byte => 8 bytes
+  imu_apogee.mpu.config.nb_bytes += 8;
+  imu_apogee.mpu.config.nb_slaves = 1; 
+
+  imu_apogee.mpu.config.slaves[MPU_MAG_SLV_NB].configure = &mpu9150_i2c_configure_mag_slave;
+  imu_apogee.mpu.config.slaves[MPU_MAG_SLV_NB].mpu_slave_init_status = 0;
+  imu_apogee.mpu.config.slaves[MPU_MAG_SLV_NB].mpu_slave_privateData = &ak;
+
+  ak8975_init(&ak, &(IMU_APOGEE_I2C_DEV), (AK8975_I2C_SLV_ADDR<<1));
+
+  imu_apogee.mpu.config.i2c_bypass = FALSE;
+
+  imu_apogee.mag_valid = FALSE;
+
+#endif
+
+#ifdef MPU9150_SLV_BARO
+
+  // Extended sens bytes :
+  //  Baro (3 bytes)
+  imu_apogee.mpu.config.nb_bytes += 3;
+  imu_apogee.mpu.config.nb_slaves += 1;
+
+  imu_apogee.mpu.config.slaves[MPU_BARO_SLV_NB].configure = &mpu9150_i2c_configure_baro_slave;
+  imu_apogee.mpu.config.slaves[MPU_BARO_SLV_NB].mpu_slave_init_status = 0;
+  imu_apogee.mpu.config.slaves[MPU_BARO_SLV_NB].mpu_slave_privateData = &mpl;
+
+  mpl3115_init(&mpl, &(IMU_APOGEE_I2C_DEV), MPL3115_I2C_ADDR);
+
+// sd-log
+#if MPU9150_SLV_BARO_SDLOG
+  log_mpu9150_slv_baro_started = FALSE;
+  count_sd_writes=0;
+#endif
+  
+#endif
 }
 
 void imu_periodic(void)
@@ -113,6 +178,13 @@ void imu_apogee_event(void)
 {
   uint32_t now_ts = get_sys_time_usec();
 
+#ifdef MPU9150_SLV_MAG
+   struct Int32Vect3 mag={0,0,0};
+#endif
+#ifdef MPU9150_SLV_BARO
+   float pressure = 0;
+#endif
+
   // If the itg3200 I2C transaction has succeeded: convert the data
   mpu60x0_i2c_event(&imu_apogee.mpu);
   if (imu_apogee.mpu.data_available) {
@@ -133,6 +205,37 @@ void imu_apogee_event(void)
     imu_scale_accel(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
     AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
+
+#ifdef MPU9150_SLV_MAG
+    imu_apogee.mag_valid = mpu9150_i2c_mag_event(&imu_apogee.mpu, &mag);
+    if(imu_apogee.mag_valid) VECT3_COPY(imu.mag_unscaled, mag);
+#endif
+
+#ifdef MPU9150_SLV_BARO
+    mpu9150_i2c_baro_event(&imu_apogee.mpu, &pressure);
+    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
+
+// sd-log
+#if MPU9150_SLV_BARO_SDLOG
+  if (pprzLogFile != -1) {
+    if (!log_mpu9150_slv_baro_started) {
+      sdLogWriteLog(pprzLogFile, "MPU9150_SLV_BARO: Pres(Pa) GPS_fix TOW(ms) Week Lat(1e7rad) Lon(1e7rad) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
+      log_mpu9150_slv_baro_started = TRUE;
+    }
+    if (count_sd_writes == 0) {
+    sdLogWriteLog(pprzLogFile, "mpu9150_baro: %9.4f %d %d %d   %d %d %d   %d %d %d\n",
+		  pressure,
+		  gps.fix, gps.tow, gps.week,
+		  gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
+		  gps.gspeed, gps.course, -gps.ned_vel.z);
+    }
+    count_sd_writes++;
+    if (count_sd_writes > 8) {count_sd_writes=0;}
+  }
+#endif
+
+#endif
+
   }
 }
 

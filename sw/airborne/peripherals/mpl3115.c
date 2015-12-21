@@ -88,6 +88,17 @@ void mpl3115_configure(struct Mpl3115 *mpl)
   }
 }
 
+bool_t mpl3115_mpu_configure(struct Mpl3115 *mpl)
+{
+  if (mpl->init_status == MPL_CONF_UNINIT) mpl->init_status++;
+  if (mpl->initialized == FALSE) {
+    if (mpl->trans.status == I2CTransSuccess || mpl->trans.status == I2CTransDone) {
+      mpl3115_send_config(mpl);
+    }
+  } 
+  return (mpl->initialized);
+}
+
 // Normal reading
 void mpl3115_read(struct Mpl3115 *mpl)
 {
