@@ -538,6 +538,8 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
 #else
   ins_int.ltp_speed.x = SPEED_BFP_OF_REAL(vel_ned.x);
   ins_int.ltp_speed.y = SPEED_BFP_OF_REAL(vel_ned.y);
+  ins_int.ltp_pos.x = ins_int.ltp_pos.x + POS_BFP_OF_REAL(vel_ned.x);
+  ins_int.ltp_pos.y = ins_int.ltp_pos.y + POS_BFP_OF_REAL(vel_ned.y);
 #endif
 
   ins_ned_to_state();
