@@ -525,6 +525,7 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
 
   struct FloatVect3 vel_body = {x, y, z};
   static uint32_t last_stamp = 0;
+  float dt = 0;
 
   /* rotate velocity estimate to nav/ltp frame */
   struct FloatQuat q_b2n = *stateGetNedToBodyQuat_f();
@@ -532,7 +533,15 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
   struct FloatVect3 vel_ned;
   float_quat_vmult(&vel_ned, &q_b2n, &vel_body);
 
+  if (last_stamp > 0) {
+    dt = (float)(stamp - last_stamp) * 1e-6;
+  }
+
+  last_stamp = stamp;
+
 #if USE_HFF
+  (void)dt; //dt is unused variable in this define
+
   struct FloatVect2 vel = {vel_ned.x, vel_ned.y};
   struct FloatVect2 Rvel = {noise, noise};
 
@@ -542,11 +551,9 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
   ins_int.ltp_speed.x = SPEED_BFP_OF_REAL(vel_ned.x);
   ins_int.ltp_speed.y = SPEED_BFP_OF_REAL(vel_ned.y);
   if (last_stamp > 0) {
-    float dt = (float)(stamp - last_stamp) * 1e-6;
     ins_int.ltp_pos.x = ins_int.ltp_pos.x + POS_BFP_OF_REAL(dt * vel_ned.x);
     ins_int.ltp_pos.y = ins_int.ltp_pos.y + POS_BFP_OF_REAL(dt * vel_ned.y);
   }
-  last_stamp = stamp;
 #endif
 
   ins_ned_to_state();
