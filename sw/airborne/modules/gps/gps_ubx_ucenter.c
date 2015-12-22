@@ -67,8 +67,15 @@ struct gps_ubx_ucenter_struct gps_ubx_ucenter;
 /////////////////////////////
 // Init Function
 
+
+uint32_t ubx_desired_baudrate = 115200;
+#define UBX_GPS_BAUD ubx_desired_baudrate
+
 void gps_ubx_ucenter_init(void)
 {
+  // Store the desired baudrate to reset after autobaud
+  ubx_desired_baudrate = (GPS_LINK).baudrate;
+
   // Start UCenter
   gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_AUTOBAUD;
   gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
