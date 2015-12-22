@@ -18,7 +18,7 @@
     <load name="meteo_france_DAQ.xml"/-->
     <load name="flight_recorder.xml"/>
 
-<!-- UNIA START -->
+    <!-- Sensors -->
     <load name="gps_ubx_ucenter.xml"/>
     <load name="humid_sht.xml">
       <define name="SHT_DAT_GPIO" value="GPIOB,GPIO1"/>
@@ -35,7 +35,6 @@
       <define name="TEMOD_I2C_DEV" value="i2c1"/>
       <define name="TEMP_TEMOD_SDLOG" value="TRUE"/>
     </load>
-<!-- UNIA END -->
 
    <load name="nav_line_border.xml"/>
    <load name="nav_line.xml"/>
@@ -51,37 +50,28 @@
 
   <firmware name="fixedwing">
     <target name="ap" board="apogee_1.0_chibios">
-<!-- UNIA START -->
-    <configure name="USE_BARO_BOARD" value="FALSE"/>
-    <define name="MPU9150_SLV_MAG"/>
-    <define name="MPU9150_SLV_BARO"/>
-
+      <configure name="USE_BARO_BOARD" value="FALSE"/>
+      <define name="MPU9150_SLV_MAG"/>
+      <define name="MPU9150_SLV_BARO"/>
       <subsystem name="radio_control" type="ppm"/>
-<!-- UNIA END -->
       <configure name="PERIODIC_FREQUENCY" value="100"/>
     </target>
     <target name="sim" board="pc">
       <subsystem name="radio_control" type="ppm"/>
     </target>
 
-<!-- UNIA START -->
-   <!--  <define name="USE_I2C1"/>-->
    <define name="USE_I2C1"/>
    <define name="USE_I2C2"/>
-<!-- UNIA END -->
     <!--define name="AGR_CLIMB"/-->
     <!--define name="LOITER_TRIM"/-->
     <!--define name="PITCH_TRIM"/-->
 
     <!-- Communication -->
-<!-- UNIA START -->
     <subsystem name="telemetry" type="transparent">
-      <configure name="MODEM_BAUD"  value="B19200"/>
-<!--       <configure name="MODEM_BAUD"  value="B57600"/> -->
+      <configure name="MODEM_BAUD"  value="B57600"/>
       <configure name="MODEM_PORT"  value="UART1"/>
       <define name="TELEMETRY_MODE_FBW" value="2"/>
     </subsystem>
-<!-- UNIA END -->
 
    <!-- <subsystem name="navigation" type="extra"/> -->
 
@@ -101,16 +91,11 @@
     <!--subsystem name="spi_master"/-->
   </firmware>
 
-<!-- commands section -->
+  <!-- commands section -->
   <servos>
     <servo name="MOTOR" no="0" min="1040" neutral="1040" max="2000"/>
-<!-- UNIA START 
-    <servo name="AILEVON_LEFT" no="1" min="1900" neutral="1543" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="2" min="1100" neutral="1561" max="1900"/>
--->
-   <servo name="AILEVON_LEFT" no="1" min="1000" neutral="1500" max="2000"/>
+  <servo name="AILEVON_LEFT" no="1" min="1000" neutral="1500" max="2000"/>
    <servo name="AILEVON_RIGHT" no="2" min="2000" neutral="1500" max="1000"/> 
-<!-- UNIA END -->
   </servos>
 
   <commands>
@@ -139,13 +124,8 @@
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
-<!-- UNIA START
-    <define name="MAX_ROLL" value="0.85"/>
-    <define name="MAX_PITCH" value="0.6"/>
--->
-    <define name="MAX_ROLL"  value="80" unit="deg" />
+   <define name="MAX_ROLL"  value="80" unit="deg" />
     <define name="MAX_PITCH" value="60"  unit="deg" />
-<!-- UNIA END -->
   </section>
 
  <section name="GCS">
@@ -167,7 +147,6 @@
     <define name="BODY_TO_IMU_THETA" value="2" unit="deg"/> <!--pitch-down-->
     <define name="BODY_TO_IMU_PSI" value="0"/>
 
-<!-- UNIA START -->
    <define name="GYRO_P_SIGN" value="1"/>
    <define name="GYRO_Q_SIGN" value="-1"/>
    <define name="GYRO_R_SIGN" value="-1"/>
@@ -175,16 +154,11 @@
    <define name="ACCEL_X_SIGN" value="1"/>
    <define name="ACCEL_Y_SIGN" value="-1"/>
    <define name="ACCEL_Z_SIGN" value="-1"/>
-<!-- UNIA END -->
   </section>
 
   <section name="INS" prefix="INS_">
-<!-- UNIA START
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0." unit="rad"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0.144" unit="rad"/> -->
     <define name="ROLL_NEUTRAL_DEFAULT" value="0.0" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0.0" unit="deg"/>
- <!-- UNIA END -->
   </section>
 
   <section name="BAT">
@@ -193,11 +167,7 @@
   </section>
 
   <section name="MISC">
-<!-- UNIA START
-    <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
--->
-    <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
-<!-- UNIA END -->
+   <define name="NOMINAL_AIRSPEED" value="10." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
 
@@ -214,12 +184,7 @@
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="5."/>
 
-    <!-- Cruise throttle + limits -->
-<!-- UNIA START
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.45"/>
--->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.3"/>
-<!-- UNIA END -->
 
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.05"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
@@ -238,16 +203,8 @@
     <define name="AUTO_PITCH_DGAIN" value="0.04"/> <!-- 0.03 -->
     <define name="AUTO_PITCH_IGAIN" value="0.0"/>
 
-    <!-- UNIA START
-    see http://wiki.paparazziuav.org/wiki/Module/Airspeed_ETS
-    UNIA END -->
-
     <!-- airspeed control -->
-    <!-- UNIA START
-    <define name="AUTO_AIRSPEED_SETPOINT" value="16."/>
-    -->
     <define name="AUTO_AIRSPEED_SETPOINT" value="10."/>
-    <!-- UNIA END -->
     <define name="AUTO_AIRSPEED_THROTTLE_PGAIN" value="0.1"/>
     <define name="AUTO_AIRSPEED_THROTTLE_DGAIN" value="0.12"/>
     <define name="AUTO_AIRSPEED_THROTTLE_IGAIN" value="0.0"/>
@@ -255,18 +212,10 @@
     <define name="AUTO_AIRSPEED_PITCH_DGAIN" value="0.0"/>
     <define name="AUTO_AIRSPEED_PITCH_IGAIN" value="0.042"/>
     <define name="AIRSPEED_MAX" value="30"/>
-    <!-- UNIA START
     <define name="AIRSPEED_MIN" value="10"/>
-    -->
-    <define name="AIRSPEED_MIN" value="10"/>
-    <!-- UNIA END -->
 
     <!-- groundspeed control -->
-    <!-- UNIA START
-    <define name="AUTO_GROUNDSPEED_SETPOINT" value="15"/>
-    -->
     <define name="AUTO_GROUNDSPEED_SETPOINT" value="10."/>
-    <!-- UNIA END -->
     <define name="AUTO_GROUNDSPEED_PGAIN" value="1."/>
     <define name="AUTO_GROUNDSPEED_IGAIN" value="0."/>
 
