@@ -31,6 +31,8 @@ from ivy.std_api import *
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
 sys.path.append(PPRZ_HOME + "/sw/lib/python")
+
+import pprz_env
 from pprz_msg import messages_xml_map
 
 class Circular_Buffer:
@@ -161,7 +163,7 @@ class Link_Combiner:
 
         # starting the bus
         logging.getLogger('Ivy').setLevel(logging.WARN)
-        IvyStart("")
+        IvyStart(pprz_env.IVY_BUS)
         IvyBindMsg(self.onIvyMessage, "^([^ ]+) TELEMETRY_MESSAGE ([^ ]+) ([^ ]+) ([^ ]+)$")
 
     def onIvyMessage(self, agent, *larg):

@@ -9,9 +9,14 @@ import sys
 import threading
 import time
 
-sys.path.append(os.getenv("PAPARAZZI_HOME") + "/sw/lib/python")
+# if PAPARAZZI_SRC not set, then assume the tree containing this
+# file is a reasonable substitute
+PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                    '../../../../')))
+sys.path.append(PPRZ_SRC + "/sw/lib/python")
 
-import messages_xml_map
+import pprz_env
+from pprz_msg import messages_xml_map
 
 PING_PERIOD = 5.0
 STATUS_PERIOD = 1.0
@@ -39,12 +44,13 @@ class DownLinkStatus():
 class IvyUdpLink():
     def __init__(self):
         self.InitIvy()
+        self.ivy_id = 0
         self.status_timer = threading.Timer(STATUS_PERIOD, self.sendStatus)
         self.ping_timer = threading.Timer(STATUS_PERIOD, self.sendPing)
         self.ac_downlink_status = {}
         self.rx_err = 0
 
-        messages_xml_map.ParseMessages()
+        messages_xml_map.parse_messages()
         self.data_types = {'float': ['f', 4],
                            'uint8': ['B', 1],
                            'uint16': ['H', 2],
@@ -53,6 +59,15 @@ class IvyUdpLink():
                            'int16': ['h', 2],
                            'int32': ['l', 4]
                            }
+
+    def __del__(self):
+        self.stop()
+
+    def stop(self):
+        self.status_timer.cancel()
+        self.ping_timer.cancel()
+        IvyUnBindMsg(self.ivy_id)
+        IvyStop()
 
     def Unpack(self, data_fields, type, start, length):
         return struct.unpack(type, "".join(data_fields[start:start + length]))[0]
@@ -68,8 +83,8 @@ class IvyUdpLink():
 
         # starting the bus
         logging.getLogger('Ivy').setLevel(logging.WARN)
-        IvyStart("")
-        IvyBindMsg(self.OnSettingMsg, "(^.* SETTING .*)")
+        IvyStart(pprz_env.IVY_BUS)
+        self.ivy_id = IvyBindMsg(self.OnSettingMsg, "(^.* SETTING .*)")
 
     def calculate_checksum(self, msg):
         ck_a = 0
@@ -227,14 +242,18 @@ class IvyUdpLink():
         self.server.bind(('0.0.0.0', DOWNLINK_PORT))
         self.status_timer.start()
         self.ping_timer.start()
-        while True:
-            (msg, address) = self.server.recvfrom(2048)
-            self.ProcessPacket(msg, address)
+        try:
+            while True:
+                (msg, address) = self.server.recvfrom(2048)
+                self.ProcessPacket(msg, address)
+        except KeyboardInterrupt:
+            print("Stopping server on request")
 
 
 def main():
     udp_interface = IvyUdpLink()
     udp_interface.Run()
+    udp_interface.stop()
 
 
 if __name__ == '__main__':

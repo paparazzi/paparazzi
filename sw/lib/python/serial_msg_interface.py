@@ -39,7 +39,7 @@ class SerialMessagesInterface(threading.Thread):
     def shutdown(self):
         self.stop()
 
-    def __init__del__(self):
+    def __del__(self):
         try:
             self.ser.close()
         except:
