@@ -28,7 +28,7 @@ OBJ= $(addprefix $(BUILDDIR)/,$(SRC:.c=.o))
 LIBNAME=libpprzmath
 
 all:
-	@cat README
+	@cat README.md
 
 shared_lib: $(OBJ)
 	@echo CREATE shared $(LIBNAME)
