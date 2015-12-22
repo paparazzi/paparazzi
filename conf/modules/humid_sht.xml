@@ -8,6 +8,7 @@
     </description>
     <define name="SHT_DAT_GPIO" value="port,pin" description="data GPIO (e.g.: GPIOA,GPIO8)"/>
     <define name="SHT_SCK_GPIO" value="port,pin" description="clock GPIO (e.g.: GPIOA,GPIO9)"/>
+    <define name="SHT_SDLOG" value="TRUE|FALSE" description="start logging to SD card"/>
   </doc>
   <header>
     <file name="humid_sht.h"/>

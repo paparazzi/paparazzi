@@ -6,11 +6,10 @@
 
   <waypoints>
     <waypoint name="HOME" lon="10.892268" lat="48.330464" height="40"/>
-   <!-- BITTE NUR PROFIL UND ANFLUG AENDERN (PROFIL-KOORD. VON UNTEN RAUSKOPIEREN) -->
     <waypoint name="Profil" lon="10.891223" lat="48.331367"/>
     <waypoint name="Anflug" x="-150" y="0" height="30"/>
-
   </waypoints>
+  
   <blocks>
 
     <block name="Waiting for GPS fix">
@@ -34,15 +33,13 @@
     </block>
 
     <block name="Climb">
-<!-- HIER HOEHE EINTRAGEN ! -->
       <circle wp="Profil" pitch="45" radius="-70" throttle="0.80" until="GetPosAlt() > ground_alt+0305" vmode="throttle"/>
       <deroute block="Descent"/>
     </block>
 
     <block name="Descent">
       <circle wp="Profil" climb="-4" radius="-70" throttle="0.40" pitch="auto" until="ground_alt+25 > GetPosAlt()" vmode="climb"/>
-<!-- HIER HOEHE EINTRAGEN ! -->
-      <exception cond="GetPosAlt() > ground_alt + 0300 + 50 " deroute="Down"/>
+      <exception cond="GetPosAlt() > ground_alt + 0305 + 50 " deroute="Down"/>
       <deroute block="Landing"/>
     </block>
 

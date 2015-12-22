@@ -11,6 +11,7 @@
     <description>Hygrosens TEMOD-I2C-Rx temperature sensor</description>
     <define name="SCP_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
     <define name="TEMOD_TYPE" value="type" description="device type (default TEMOD_I2C_R1)"/>
+    <define name="TEMP_TEMOD_SDLOG" value="TRUE|FALSE" description="start logging to SD card"/>
   </doc>
   <header>
     <file name="temp_temod.h"/>
