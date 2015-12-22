@@ -187,8 +187,8 @@
  <define name="USE_GPS_HEADING" value="FALSE"/>
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="40"/>
-   <define name="DGAIN" value="10"/>
+   <define name="PGAIN" value="10"/>
+   <define name="DGAIN" value="40"/>
    <define name="IGAIN" value="0"/>
    <define name="REF_MAX_SPEED" value="0.5"/>
    <define name="USE_REF" value="FALSE"/>
