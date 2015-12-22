@@ -36,7 +36,7 @@
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
       <define name="USE_I2C2"/> 
       <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
-     <!-- <define name="AIRSPEED_ETS_SDLOG" value="TRUE"/> --> <!-- DOES NOT FIND sdlog.h in sim! -->
+      <define name="AIRSPEED_ETS_SDLOG" value="TRUE"/> <!-- DOES NOT FIND sdlog.h in sim! -->
     </load>
     <load name="temp_temod.xml">
       <define name="TEMOD_I2C_DEV" value="i2c1"/>
