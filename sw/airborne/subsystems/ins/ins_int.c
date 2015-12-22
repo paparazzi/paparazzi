@@ -512,7 +512,9 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
                    struct GpsState *gps_s)
 {
+#if use_GPS
   ins_int_update_gps(gps_s);
+#endif
 }
 
 static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
