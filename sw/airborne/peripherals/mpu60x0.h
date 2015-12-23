@@ -68,6 +68,10 @@ typedef bool_t (*Mpu60x0I2cSlaveConfigure)(Mpu60x0ConfigSet mpu_set, void *mpu);
 
 struct Mpu60x0I2cSlave {
   Mpu60x0I2cSlaveConfigure configure;
+#ifdef MPU9150_SLV_MAG
+  int16_t mpu_slave_init_status;
+  void *mpu_slave_privateData;
+#endif
 };
 
 struct Mpu60x0Config {
