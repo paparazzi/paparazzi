@@ -31,7 +31,7 @@ algebra_module = Extension('_algebra',
                                 ],
                            include_dirs=common_inc_dirs)
 
-setup(name='geodetic',
+setup(name='pprz_math',
       version='0.1',
       author="Felix Ruess",
       description="""Pprz math wrappers""",

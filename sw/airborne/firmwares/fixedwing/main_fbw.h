@@ -25,7 +25,6 @@
  * FBW ( FlyByWire ) process API
  *
  */
-
 #ifndef FBW_H
 #define FBW_H
 
@@ -45,4 +44,16 @@ void handle_periodic_tasks_fbw(void);
 void periodic_task_fbw(void);
 void event_task_fbw(void);
 
-#endif
+void radio_control_event(void);
+
+void fbw_datalink_periodic_handle(void);
+void fbw_datalink_event_handle(void);
+
+void radio_control_periodic_handle(void);
+
+void inter_mcu_periodic_handle(void);
+void inter_mcu_event_handle(void);
+
+void periodic_telemetry_handle(void);
+
+#endif /* FBW_H */

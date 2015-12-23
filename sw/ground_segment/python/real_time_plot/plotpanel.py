@@ -16,6 +16,7 @@ import messagepicker
 PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
 
+import pprz_env
 from pprz_msg import messages_xml_map
 
 
@@ -244,7 +245,7 @@ class PlotPanel(object):
         # is given ; this is performed by IvyStart (C)
         try:
             logging.getLogger('Ivy').setLevel(logging.WARN)
-            IvyStart("")
+            IvyStart(pprz_env.IVY_BUS)
             # binding to every message
             # IvyBindMsg(self.OnIvyMsg, "(.*)")
         except:

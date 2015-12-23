@@ -6,22 +6,20 @@ import logging
 import os
 import sys
 import re
+import pprz_env
 
-# if PAPARAZZI_SRC not set, then assume the tree containing this
-# file is a reasonable substitute
-PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                                    '../../../../')))
-sys.path.append(PPRZ_SRC + "/sw/lib/python")
+sys.path.append(pprz_env.PAPARAZZI_SRC + "/sw/lib/python")
 
 from pprz_msg.message import PprzMessage
 from pprz_msg import messages_xml_map
 
 
 class IvyMessagesInterface(object):
-    def __init__(self, callback=None, init=True, verbose=False, bind_regex='(.*)'):
+    def __init__(self, callback=None, init=True, verbose=False, bind_regex='(.*)', ivy_bus=pprz_env.IVY_BUS):
         self.callback = callback
         self.ivy_id = 0
         self.verbose = verbose
+        self.ivy_bus = ivy_bus
         # make sure all messages are parsed before we start creating them in callbacks
         messages_xml_map.parse_messages()
         self.init_ivy(init, bind_regex)
@@ -36,7 +34,7 @@ class IvyMessagesInterface(object):
         except IvyIllegalStateError as e:
             print(e)
 
-    def __init__del__(self):
+    def __del__(self):
         try:
             IvyUnBindMsg(self.ivy_id)
         except:
@@ -46,7 +44,7 @@ class IvyMessagesInterface(object):
         if init:
             IvyInit("Messages %i" % os.getpid(), "READY", 0, lambda x,y: y, lambda x,y: y)
             logging.getLogger('Ivy').setLevel(logging.WARN)
-            IvyStart("")
+            IvyStart(self.ivy_bus)
         self.ivy_id = IvyBindMsg(self.on_ivy_msg, bind_regex)
 
     def on_ivy_msg(self, agent, *larg):
