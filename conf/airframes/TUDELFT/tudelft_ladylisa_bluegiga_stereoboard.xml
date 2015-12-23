@@ -187,7 +187,7 @@
 
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="10"/>
+   <define name="PGAIN" value="120"/>
    <define name="DGAIN" value="40"/>
    <define name="IGAIN" value="0"/>
    <define name="REF_MAX_SPEED" value="0.5"/>
@@ -223,7 +223,7 @@
     <target name="ap" board="lisa_s_1.0">
       <subsystem name="radio_control" type="datalink">
       </subsystem>
-      <configure name="USE_MAGNETOMETER" value="1"/>
+      <configure name="USE_MAGNETOMETER" value="0"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
       <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
     </target>
