@@ -45,8 +45,8 @@ float ftmd_temperature;
 struct i2c_transaction tmd_trans;
 
 
-#ifndef TEMOD_I2C_DEV
-#define TEMOD_I2C_DEV i2c0
+#ifndef TEMOD_DEV
+#define TEMOD_DEV i2c0
 #endif
 
 #ifndef TEMOD_TYPE
@@ -66,7 +66,7 @@ void temod_init(void)
 
 void temod_periodic(void)
 {
-  i2c_receive(&TEMOD_I2C_DEV, &tmd_trans, TEMOD_SLAVE_ADDR, 2);
+  i2c_receive(&TEMOD_DEV, &tmd_trans, TEMOD_SLAVE_ADDR, 2);
 }
 
 void temod_event(void)
