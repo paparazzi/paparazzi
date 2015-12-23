@@ -130,6 +130,9 @@ static void baro_cb(uint8_t sender_id, float pressure);
 #ifndef INS_INT_IMU_ID
 #define INS_INT_IMU_ID ABI_BROADCAST
 #endif
+#ifndef INS_INT_GPS_ID
+#define INS_INT_GPS_ID ABI_BROADCAST
+#endif
 static abi_event accel_ev;
 static abi_event gps_ev;
 
@@ -512,9 +515,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
                    struct GpsState *gps_s)
 {
-#if use_GPS
   ins_int_update_gps(gps_s);
-#endif
 }
 
 static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
@@ -570,6 +571,6 @@ void ins_int_register(void)
    * Subscribe to scaled IMU measurements and attach callbacks
    */
   AbiBindMsgIMU_ACCEL_INT32(INS_INT_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
+  AbiBindMsgGPS(INS_INT_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgVELOCITY_ESTIMATE(INS_INT_VEL_ID, &vel_est_ev, vel_est_cb);
 }

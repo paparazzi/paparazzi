@@ -181,10 +181,10 @@
     <define name="H_X" value="0.39049610"/>
     <define name="H_Y" value="0.00278894"/>
     <define name="H_Z" value="0.92060036"/>
-    <define name="USE_GPS_HEADING" value="1"/>
+    <define name="USE_GPS_HEADING" value="0"/>
   </section>
-<define name="USE_GPS" value="FALSE"/>
- <define name="USE_GPS_HEADING" value="FALSE"/>
+
+
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
    <define name="PGAIN" value="10"/>
@@ -223,7 +223,7 @@
     <target name="ap" board="lisa_s_1.0">
       <subsystem name="radio_control" type="datalink">
       </subsystem>
-      <configure name="USE_MAGNETOMETER" value="0"/>
+      <configure name="USE_MAGNETOMETER" value="1"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
       <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
     </target>
@@ -252,6 +252,8 @@
     <subsystem name="gps" type="datalink"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs" type="int_cmpl_quat"/>
-    <subsystem name="ins" />
+    <subsystem name="ins">
+       <define name="INS_INT_GPS_ID" value="ABI_DISABLE"/>
+    </subsystem>
   </firmware>
 </airframe>
