@@ -15,9 +15,6 @@ IMU_APOGEE_CFLAGS += -DUSE_I2C -DUSE_I2C1
 IMU_APOGEE_CFLAGS += -DIMU_APOGEE_I2C_DEV=$(IMU_APOGEE_I2C_DEV)
 IMU_APOGEE_SRCS += peripherals/mpu60x0.c
 IMU_APOGEE_SRCS += peripherals/mpu60x0_i2c.c
-IMU_APOGEE_SRCS += peripherals/mpu9150_i2c.c
-IMU_APOGEE_SRCS += peripherals/ak8975.c
-IMU_APOGEE_SRCS += peripherals/mpl3115.c
 
 
 # add it for all targets except sim, fbw and nps

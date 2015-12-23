@@ -18,7 +18,7 @@
       - Yellow wire: SDA
       - Brown wire: SCL
     </description>
-    <define name="AIRSPEED_ETS_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c0)"/>
+    <configure name="AIRSPEED_ETS_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c0)"/>
     <define name="AIRSPEED_ETS_OFFSET" value="offset" description="sensor reading offset for sensor in proprietary mode (default: 0)"/>
     <define name="AIRSPEED_ETS_SCALE" value="scale" description="sensor scale factor for sensor in proprietary mode  (default: 1.8)"/>
     <define name="AIRSPEED_ETS_START_DELAY" value="delay" description="set initial start delay in seconds"/>
@@ -35,6 +35,13 @@
   <event fun="AirspeedEtsEvent()"/>
 
   <makefile>
+    <raw>
+      AIRSPEED_ETS_I2C_DEV ?= i2c0
+      AIRSPEED_ETS_I2C_DEV_LOWER=$(shell echo $(AIRSPEED_ETS_I2C_DEV) | tr A-Z a-z)
+      AIRSPEED_ETS_I2C_DEV_UPPER=$(shell echo $(AIRSPEED_ETS_I2C_DEV) | tr a-z A-Z)
+    </raw>
+    <define name="USE_$(AIRSPEED_ETS_I2C_DEV_UPPER)"/>
+    <define name="AIRSPEED_ETS_I2C_DEV" value="$(AIRSPEED_ETS_I2C_DEV_LOWER)"/>
     <file name="airspeed_ets.c"/>
   </makefile>
 

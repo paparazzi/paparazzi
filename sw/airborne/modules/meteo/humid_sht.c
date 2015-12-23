@@ -35,14 +35,6 @@
 #include "subsystems/datalink/downlink.h"
 #include "humid_sht.h"
 
-// sd-log
-#if SHT_SDLOG
-#include "sdLog.h"
-#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
-#include "subsystems/gps.h"
-bool_t log_sht_started;
-#endif
-
 //#include "led.h"
 
 #define noACK           0
@@ -307,11 +299,6 @@ void humid_sht_init(void)
 
   humid_sht_available = FALSE;
   humid_sht_status = SHT_IDLE;
-
-#if SHT_SDLOG
-  log_sht_started = FALSE;
-#endif
-
 }
 
 void humid_sht_periodic(void)
@@ -351,21 +338,6 @@ void humid_sht_periodic(void)
       humid_sht_status = SHT_MEASURING_HUMID;
       DOWNLINK_SEND_SHT_STATUS(DefaultChannel, DefaultDevice, &humidsht, &tempsht, &fhumidsht, &ftempsht);
       humid_sht_available = FALSE;
-
-#if SHT_SDLOG
-  if (pprzLogFile != -1) {
-    if (!log_sht_started) {
-      sdLogWriteLog(pprzLogFile, "SHT75: Humid(pct) Temp(degC) H(usec) GPS_fix TOW(ms) Week Lat(1e7rad) Lon(1e7rad) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
-      log_sht_started = TRUE;
-    }
-    sdLogWriteLog(pprzLogFile, "sht75: %9.4f %9.4f    %d %d %d   %d %d %d   %d %d %d\n",
-		  fhumidsht, ftempsht,
-		  gps.fix, gps.tow, gps.week,
-		  gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
-		  gps.gspeed, gps.course, -gps.ned_vel.z);
-  }
-#endif
-
     }
   }
 }
