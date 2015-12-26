@@ -59,7 +59,7 @@ void config_mkk_v2_periodic_read_status(void)
 }
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 

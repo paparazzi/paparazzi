@@ -34,7 +34,7 @@
 #include "led.h"
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 // In I2C mode we can not inline this function:

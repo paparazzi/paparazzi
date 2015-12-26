@@ -28,7 +28,7 @@
 
 #define SDLOGGER_BUFFER_SIZE 128
 
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 #include "peripherals/sdcard_spi.h"
 
 enum SDLoggerStatus {

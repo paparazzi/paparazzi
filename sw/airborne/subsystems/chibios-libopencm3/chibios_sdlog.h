@@ -30,7 +30,7 @@
 
 #include "ff.h"
 #include "subsystems/chibios-libopencm3/sdLog.h"
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 /*
  what to be done  :

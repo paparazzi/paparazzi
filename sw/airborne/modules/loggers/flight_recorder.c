@@ -28,7 +28,7 @@
 #include "modules/loggers/flight_recorder.h"
 
 #include "subsystems/datalink/telemetry.h"
-#include "subsystems/datalink/pprzlog_transport.h"
+#include "pprzlink/pprzlog_transport.h"
 
 #if FLIGHTRECORDER_SDLOG
 #include "sdLog.h"

@@ -30,7 +30,7 @@
 #define PERIODIC_C_LOGGER
 
 #include "modules/loggers/sdlogger_spi_direct.h"
-#include "subsystems/datalink/pprzlog_transport.h"
+#include "pprzlink/pprzlog_transport.h"
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/radio_control.h"
 #include "led.h"

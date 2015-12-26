@@ -34,7 +34,7 @@ uint8_t mavlink_crc_extra[256] = {50, 124, 137, 0, 237, 217, 104, 119, 0, 0, 0, 
 
 #if MAVLINK_DECODER_DEBUG
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 void mavlink_send_debug(struct mavlink_transport *t)

@@ -47,7 +47,7 @@ void enose_set_heat(uint8_t no_sensor, uint8_t value)
 
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 void enose_periodic(void)

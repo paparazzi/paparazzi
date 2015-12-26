@@ -58,6 +58,7 @@ endif
 #
 LIB=sw/lib
 STATICINCLUDE =$(PAPARAZZI_HOME)/var/include
+MESSAGES_INSTALL =$(PAPARAZZI_HOME)/var
 CONF=$(PAPARAZZI_SRC)/conf
 AIRBORNE=sw/airborne
 SIMULATOR=sw/simulator
@@ -68,6 +69,7 @@ GENERATORS=$(PAPARAZZI_SRC)/sw/tools/generators
 JOYSTICK=sw/ground_segment/joystick
 EXT=sw/ext
 TOOLS=sw/tools
+PPRZLINK_DIR=sw/ext/pprzlink
 
 #
 # build some stuff in subdirs
@@ -103,8 +105,8 @@ INTERMCU_MSG_H=$(STATICINCLUDE)/intermcu_msg.h
 MAVLINK_DIR=$(STATICINCLUDE)/mavlink/
 MAVLINK_PROTOCOL_H=$(MAVLINK_DIR)protocol.h
 
-GEN_HEADERS = $(MESSAGES_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(ABI_MESSAGES_H) $(INTERMCU_MSG_H) $(MAVLINK_PROTOCOL_H)
-
+GEN_HEADERS = $(MESSAGES_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H) $(INTERMCU_MSG_H) $(MAVLINK_PROTOCOL_H)
+#$(DL_PROTOCOL_H) 
 
 all: ground_segment ext lpctools
 
@@ -184,16 +186,17 @@ $(PPRZCENTER): libpprz
 
 $(LOGALIZER): libpprz
 
+pprzlink:
+	@echo BUILD PPRZLINK
+	$(Q)$(MAKE) -C $(PPRZLINK_DIR) generators
 
 static_h: $(GEN_HEADERS)
 
-$(MESSAGES_H) : $(MESSAGES_XML) generators
+$(MESSAGES_H) : $(MESSAGES_XML) pprzlink
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
+	$(Q)test -d $(STATICLIB) || mkdir -p $(STATICLIB)
 	@echo GENERATE $@
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(GENERATORS)/gen_messages.out $< telemetry > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
+	$(Q)MESSAGES_INSTALL=$(MESSAGES_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) pymessages
 
 $(MESSAGES2_H) : $(MESSAGES_XML) generators
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)

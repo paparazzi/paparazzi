@@ -28,7 +28,7 @@
 #include "intermcu_msg.h"
 #include "subsystems/radio_control.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/datalink/pprz_transport.h"
+#include "pprzlink/pprz_transport.h"
 
 #if RADIO_CONTROL_NB_CHANNEL > 8
 #undef RADIO_CONTROL_NB_CHANNEL

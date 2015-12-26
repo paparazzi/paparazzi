@@ -261,7 +261,7 @@ let print_event_functions = fun modules ->
   lprintf out_h "}\n"
 
 let print_datalink_functions = fun modules ->
-  lprintf out_h "\n#include \"messages.h\"\n";
+  lprintf out_h "\n#include \"pprzlink/messages.h\"\n";
   lprintf out_h "#include \"generated/airframe.h\"\n";
   lprintf out_h "static inline void modules_parse_datalink(uint8_t msg_id __attribute__ ((unused))) {\n";
   right ();

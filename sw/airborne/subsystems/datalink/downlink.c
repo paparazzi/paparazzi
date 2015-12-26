@@ -27,6 +27,18 @@
 
 
 #include "subsystems/datalink/downlink.h"
+#include "generated/airframe.h" // AC_ID is required
+
+#if defined SITL && !USE_NPS
+struct ivy_transport ivy_tp;
+#endif
+
+#if DATALINK == PPRZ
+struct pprz_transport pprz_tp;
+#endif
+#if DATALINK == XBEE
+struct xbee_transport xbee_tp;
+#endif
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -76,7 +88,13 @@ void downlink_init(void)
   pprz_transport_init(&pprz_tp);
 #endif
 #if DATALINK == XBEE
-  xbee_init();
+#ifndef XBEE_TYPE
+#define XBEE_TYPE XBEE_24
+#endif
+#ifndef XBEE_INIT
+#define XBEE_INIT ""
+#endif
+  xbee_transport_init(&xbee_tp, &((DefaultDevice).device), AC_ID, XBEE_TYPE, sys_time_usleep, XBEE_INIT);
 #endif
 #if DATALINK == W5100
   w5100_init();
@@ -92,7 +110,7 @@ void downlink_init(void)
 #endif
 
 #if SITL && !USE_NPS
-  ivy_transport_init();
+  ivy_transport_init(&ivy_tp);
 #endif
 
 #if PERIODIC_TELEMETRY

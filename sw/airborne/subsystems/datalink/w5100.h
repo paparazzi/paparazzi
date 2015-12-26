@@ -28,7 +28,7 @@
 #ifndef W5100_H
 #define W5100_H
 
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 #include "generated/airframe.h"
 
 #define W5100_RX_BUFFER_SIZE 80
@@ -74,7 +74,7 @@ bool_t w5100_ch_available(void);
 // W5100 is using pprz_transport
 // FIXME it should not appear here, this will be fixed with the rx improvements some day...
 // W5100 needs a specific read_buffer function
-#include "subsystems/datalink/pprz_transport.h"
+#include "pprzlink/pprz_transport.h"
 
 static inline void w5100_read_buffer(struct pprz_transport *t)
 {

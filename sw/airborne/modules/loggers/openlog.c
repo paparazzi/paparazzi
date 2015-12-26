@@ -29,7 +29,7 @@
  */
 
 #include "openlog.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "mcu_periph/sys_time.h"
 

@@ -40,7 +40,7 @@
 #endif
 
 #include "std.h"
-#include "dl_protocol.h"
+#include "pprzlink/dl_protocol.h"
 
 /** Datalink kinds */
 #define PPRZ 1
@@ -89,14 +89,14 @@ static inline void DlCheckAndParse(void)
 #if defined DATALINK && DATALINK == PPRZ
 
 #define DatalinkEvent() {                       \
-    PprzCheckAndParse(PPRZ_UART, pprz_tp);      \
+    pprz_check_and_parse(&(PPRZ_UART).device, &pprz_tp, dl_buffer, &dl_msg_available);      \
     DlCheckAndParse();                          \
   }
 
 #elif defined DATALINK && DATALINK == XBEE
 
 #define DatalinkEvent() {                       \
-    XBeeCheckAndParse(XBEE_UART, xbee_tp);      \
+    xbee_check_and_parse(&(XBEE_UART).device, &xbee_tp, dl_buffer, &dl_msg_available);      \
     DlCheckAndParse();                          \
   }
 

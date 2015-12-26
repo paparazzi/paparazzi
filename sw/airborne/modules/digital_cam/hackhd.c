@@ -83,7 +83,7 @@ static inline uint16_t pin_of_gpio(uint32_t __attribute__((unused)) port, uint16
 #if HACKHD_SYNC_SEND
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "state.h"
 #include "subsystems/gps.h"

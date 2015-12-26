@@ -4,12 +4,12 @@
 #include "led.h"
 #include "mcu_periph/uart.h"
 
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 #include "subsystems/datalink/datalink.h"
 #include "generated/settings.h"
-#include "dl_protocol.h"
+#include "pprzlink/dl_protocol.h"
 
 #include "i2c.h"
 #include "mb_twi_controller_mkk.h"

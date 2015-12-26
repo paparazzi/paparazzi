@@ -28,7 +28,7 @@
 #define SW_AIRBORNE_MODULES_STEREO_CAM_STEREOPROTOCOL_H_
 
 #include <inttypes.h>
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 struct MsgProperties {
   uint16_t positionImageStart;

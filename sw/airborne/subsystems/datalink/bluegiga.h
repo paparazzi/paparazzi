@@ -27,7 +27,7 @@
 #ifndef BLUEGIGA_DATA_LINK_H
 #define BLUEGIGA_DATA_LINK_H
 
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 /* The different statuses the communication can be in */
 enum BlueGigaStatus {
@@ -80,7 +80,7 @@ void bluegiga_request_all_rssi(struct bluegiga_periph *p);
 // BLUEGIGA is using pprz_transport
 // FIXME it should not appear here, this will be fixed with the rx improvements some day...
 // BLUEGIGA needs a specific read_buffer function
-#include "subsystems/datalink/pprz_transport.h"
+#include "pprzlink/pprz_transport.h"
 #include "led.h"
 static inline void bluegiga_read_buffer(struct bluegiga_periph *p, struct pprz_transport *t)
 {

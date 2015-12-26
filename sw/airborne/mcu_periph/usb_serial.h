@@ -30,7 +30,7 @@
 
 #include <inttypes.h>
 #include "std.h"
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 struct usb_serial_periph {
   /** Generic device interface */

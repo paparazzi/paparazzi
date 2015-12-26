@@ -29,7 +29,7 @@
 #define MAVLINK_DECODER_H
 
 #include "std.h"
-#include "subsystems/datalink/transport.h"
+#include "pprzlink/pprzlink_transport.h"
 #include "mcu_periph/uart.h"
 
 /* MAVLINK Transport

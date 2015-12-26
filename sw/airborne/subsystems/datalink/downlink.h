@@ -30,30 +30,51 @@
 
 #include <inttypes.h>
 
-#ifndef PPRZ_DATALINK_EXPORT
-
 #include "generated/modules.h"
-#include "messages.h"
-#include "generated/airframe.h" // AC_ID is required
+#include "pprzlink/messages.h"
+
+// FIXME tmp hack
+#ifndef PPRZ
+#define PPRZ 1
+#endif
+#ifndef XBEE
+#define XBEE 2
+#endif
+#ifndef SUPERBITRF
+#define SUPERBITRF 3
+#endif
+#ifndef W5100
+#define W5100 4
+#endif
+#ifndef BLUEGIGA
+#define BLUEGIGA 5
+#endif
 
 #if defined SITL && !USE_NPS
 /** Software In The Loop simulation uses IVY bus directly as the transport layer */
-#include "ivy_transport.h"
+#include "pprzlink/ivy_transport.h"
+extern struct ivy_transport ivy_tp;
 
 #else /** SITL */
 
-#include "subsystems/datalink/pprz_transport.h"
-#include "subsystems/datalink/pprzlog_transport.h"
-#include "subsystems/datalink/xbee.h"
-#include "subsystems/datalink/w5100.h"
+#if DATALINK == PPRZ
+#include "pprzlink/pprz_transport.h"
+extern struct pprz_transport pprz_tp;
+#endif
+
+#include "pprzlink/pprzlog_transport.h"
+
+#if DATALINK == XBEE
+#include "pprzlink/xbee_transport.h"
+extern struct xbee_transport xbee_tp;
+#endif
+
+//#include "subsystems/datalink/w5100.h"
 #if DATALINK == BLUEGIGA
-#include "subsystems/datalink/bluegiga.h"
+//#include "subsystems/datalink/bluegiga.h"
 #endif
 #if USE_SUPERBITRF
 #include "subsystems/datalink/superbitrf.h"
-#endif
-#if USE_AUDIO_TELEMETRY
-#include "subsystems/datalink/audio_telemetry.h"
 #endif
 #if USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
@@ -65,15 +86,6 @@
 
 #endif /** !SITL */
 
-#else /* PPRZ_DATALINK_EXPORT defined */
-
-#include "messages.h"
-#include "pprz_transport.h"
-#ifndef AC_ID
-#define AC_ID 0
-#endif
-
-#endif
 
 #ifndef DefaultChannel
 #define DefaultChannel DOWNLINK_TRANSPORT

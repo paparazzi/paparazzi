@@ -31,9 +31,9 @@
 
 #include <inttypes.h>
 #include "std.h"
-#include "mcu_periph/link_device.h"
-#include "subsystems/datalink/transport.h"
-#include "messages.h"
+#include "pprzlink/pprzlink_device.h"
+#include "pprzlink/pprzlink_transport.h"
+#include "pprzlink/messages.h"
 
 /** Telemetry callback definition
  */

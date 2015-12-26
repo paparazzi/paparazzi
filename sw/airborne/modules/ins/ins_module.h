@@ -71,7 +71,7 @@ void handle_ins_msg(void);
 void parse_ins_msg(void);
 void parse_ins_buffer(uint8_t);
 
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 #define InsLinkDevice (&((INS_LINK).device))
 

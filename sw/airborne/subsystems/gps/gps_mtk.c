@@ -397,7 +397,7 @@ restart:
  */
 #ifdef GPS_CONFIGURE
 
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 static void MtkSend_CFG(char *dat)
 {
