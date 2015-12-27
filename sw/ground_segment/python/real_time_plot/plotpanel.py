@@ -175,7 +175,7 @@ class PlotPanel(object):
         self.width = 800
         self.height = 200
         self.margin = min(self.height / 10, 20)
-        self.font = wx.Font(self.margin / 2, wx.DEFAULT, wx.FONTFLAG_DEFAULT, wx.FONTWEIGHT_NORMAL)
+        self.font = wx.Font(self.margin / 2, wx.DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
         self.pixmap = wx.EmptyBitmap(self.width, self.height)
         self.plot_size = self.width
         self.max = -1e32
@@ -383,7 +383,7 @@ class PlotPanel(object):
         self.height = height
         self.plot_size = width
         self.margin = min(self.height / 10, 20)
-        self.font = wx.Font(self.margin / 2, wx.DEFAULT, wx.FONTFLAG_DEFAULT, wx.FONTWEIGHT_NORMAL)
+        self.font = wx.Font(self.margin / 2, wx.DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
 
     def OnTimer(self):
         self.timer.Restart(self.plot_interval)
