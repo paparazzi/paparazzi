@@ -145,7 +145,7 @@ void mpu9250_spi_event(struct Mpu9250_Spi *mpu)
   }
 }
 
-/** @todo: only one slave so far. */
+/** configure the registered I2C slaves */
 bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
 {
   struct Mpu9250_Spi *mpu_spi = (struct Mpu9250_Spi *)(mpu);
@@ -172,8 +172,15 @@ bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
       mpu_spi->slave_init_status++;
       break;
     case MPU9250_SPI_CONF_SLAVES_CONFIGURE:
-      /* configure first slave, only one slave supported so far */
-      if (mpu_spi->config.slaves[0].configure(mpu_set, mpu)) {
+      /* configure each slave until all nb_slaves are done */
+      if (mpu_spi->config.nb_slave_init < mpu_spi->config.nb_slaves) {
+         // proceed to next slave if configure for current one returns true
+        if (mpu_spi->config.slaves[mpu_spi->config.nb_slave_init].configure(mpu_set, mpu)) {
+          mpu_spi->config.nb_slave_init++;
+        }
+      }
+      else {
+        /* all slave devies configured, continue MPU side configuration of I2C slave stuff */
         mpu_spi->slave_init_status++;
       }
       break;

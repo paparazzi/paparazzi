@@ -148,7 +148,7 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
   }
 }
 
-/** @todo: only one slave so far. */
+/** configure the registered I2C slaves */
 bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
 {
   struct Mpu60x0_Spi *mpu_spi = (struct Mpu60x0_Spi *)(mpu);
@@ -175,8 +175,15 @@ bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
       mpu_spi->slave_init_status++;
       break;
     case MPU60X0_SPI_CONF_SLAVES_CONFIGURE:
-      /* configure first slave, only one slave supported so far */
-      if (mpu_spi->config.slaves[0].configure(mpu_set, mpu)) {
+      /* configure each slave until all nb_slaves are done */
+      if (mpu_spi->config.nb_slave_init < mpu_spi->config.nb_slaves) {
+         // proceed to next slave if configure for current one returns true
+        if (mpu_spi->config.slaves[mpu_spi->config.nb_slave_init].configure(mpu_set, mpu)) {
+          mpu_spi->config.nb_slave_init++;
+        }
+      }
+      else {
+        /* all slave devies configured, continue MPU side configuration of I2C slave stuff */
         mpu_spi->slave_init_status++;
       }
       break;
