@@ -30,6 +30,7 @@
 
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
+#include "math/pprz_geodetic_float.h"
 
 #include "mcu_periph/sys_time.h"
 
@@ -161,5 +162,14 @@ extern struct GpsTimeSync gps_time_sync;
  * @return GPS tow in ms
  */
 extern uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks);
+
+/**
+ * Convenience function to get utm position in float from GPS structure.
+ * Beware that altitude is initialized to zero but not set to the correct value
+ * @param[in] gps pointer to the gps structure
+ * @param[in] zone set the utm zone in which the position should be computed, 0 to try to get it automatically from lla position
+ * @return utm position in float
+ */
+extern struct UtmCoor_f utm_float_from_gps(struct GpsState *gps, uint8_t zone);
 
 #endif /* GPS_H */

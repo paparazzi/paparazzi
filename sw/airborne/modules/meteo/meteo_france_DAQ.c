@@ -106,10 +106,12 @@ void mf_daq_send_report(void)
     uint8_t foo = 0;
     int16_t climb = -gps.ned_vel.z;
     int16_t course = (DegOfRad(gps.course) / ((int32_t)1e6));
+    struct UtmCoor_f utm = stateGetPositionEnu_f();
+    int32_t east = utm.east * 100;
+    int32_t north = utm.north * 100;
     DOWNLINK_SEND_GPS(pprzlog_tp, chibios_sdlog, &gps.fix,
-                      &gps.utm_pos.east, &gps.utm_pos.north,
-                      &course, &gps.hmsl, &gps.gspeed, &climb,
-                      &gps.week, &gps.tow, &gps.utm_pos.zone, &foo);
+                      &east, &north, &course, &gps.hmsl, &gps.gspeed, &climb,
+                      &gps.week, &gps.tow, &utm.zone, &foo);
   }
 }
 

@@ -275,10 +275,7 @@ void ins_xsens_register(void)
 
 void ins_xsens_update_gps(struct GpsState *gps_s)
 {
-  struct UtmCoor_f utm;
-  utm.east = gps_s->utm_pos.east / 100.;
-  utm.north = gps_s->utm_pos.north / 100.;
-  utm.zone = nav_utm_zone0;
+  struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
   utm.alt = gps_s->hmsl / 1000.;
 
   // set position

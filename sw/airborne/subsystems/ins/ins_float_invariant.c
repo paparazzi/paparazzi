@@ -273,20 +273,7 @@ void ins_float_invariant_init(void)
 void ins_reset_local_origin(void)
 {
 #if INS_FINV_USE_UTM
-  struct UtmCoor_f utm;
-  if (bit_is_set(gps.valid_fields, GPS_VALID_POS_UTM_BIT)) {
-    utm.zone = gps.utm_pos.zone;
-    utm.east = gps.utm_pos.east / 100.0f;
-    utm.north = gps.utm_pos.north / 100.0f;
-  }
-  else {
-    /* Recompute UTM coordinates in this zone */
-    struct LlaCoor_f lla;
-    LLA_FLOAT_OF_BFP(lla, gps.lla_pos);
-    struct UtmCoor_f utm;
-    utm.zone = (gps.lla_pos.lon / 1e7 + 180) / 6 + 1;
-    utm_of_lla_f(&utm, &lla);
-  }
+  struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
   // ground_alt
   utm.alt = gps.hmsl  / 1000.0f;
   // reset state UTM ref
@@ -441,9 +428,10 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
 
 #if INS_FINV_USE_UTM
     if (state.utm_initialized_f) {
+      struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
       // position (local ned)
-      ins_float_inv.meas.pos_gps.x = (gps_s->utm_pos.north / 100.0f) - state.utm_origin_f.north;
-      ins_float_inv.meas.pos_gps.y = (gps_s->utm_pos.east / 100.0f) - state.utm_origin_f.east;
+      ins_float_inv.meas.pos_gps.x = utm.north - state.utm_origin_f.north;
+      ins_float_inv.meas.pos_gps.y = utm.east - state.utm_origin_f.east;
       ins_float_inv.meas.pos_gps.z = state.utm_origin_f.alt - (gps_s->hmsl / 1000.0f);
       // speed
       ins_float_inv.meas.speed_gps.x = gps_s->ned_vel.x / 100.0f;
