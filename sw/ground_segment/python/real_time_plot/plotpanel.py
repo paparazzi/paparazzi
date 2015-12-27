@@ -38,7 +38,7 @@ class PlotData:
             self.color = color
         else:
             r, g, b = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
-            self.color = wx.Color(r, g, b)
+            self.color = wx.Colour(r, g, b)
 
     def SetRealTime(self, value):
         self.real_time = value
