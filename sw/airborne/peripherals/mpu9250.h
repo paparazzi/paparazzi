@@ -90,6 +90,7 @@ struct Mpu9250Config {
   bool_t i2c_bypass;
 
   uint8_t nb_slaves;                    ///< number of used I2C slaves
+  uint8_t nb_slave_init;                ///< number of already configured/initialized slaves
   struct Mpu9250I2cSlave slaves[5];     ///< I2C slaves
   enum Mpu9250MstClk i2c_mst_clk;       ///< MPU I2C master clock speed
   uint8_t i2c_mst_delay;                ///< MPU I2C slaves delayed sample rate
