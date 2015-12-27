@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import sys
 from os import path, getenv
+from time import sleep
 
 # if PAPARAZZI_SRC not set, then assume the tree containing this
 # file is a reasonable substitute
@@ -12,6 +13,7 @@ sys.path.append(PPRZ_SRC + "/sw/lib/python")
 
 from ivy_msg_interface import IvyMessagesInterface
 from pprz_msg.message import PprzMessage
+
 
 class WaypointMover(object):
     def __init__(self, verbose=False):
@@ -42,5 +44,8 @@ class WaypointMover(object):
 
 if __name__ == '__main__':
     wm = WaypointMover()
+    # sleep shortly in oder to make sure Ivy is up, then message sent before shutting down again
+    sleep(0.1)
     wm.move_waypoint(ac_id=202, wp_id=3, lat=43.563, lon=1.481, alt=172.0)
+    sleep(0.1)
     wm.shutdown()
