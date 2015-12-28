@@ -13,5 +13,5 @@ $(TARGET).CFLAGS += -D$(PPRZ_MODEM_PORT_UPPER)_BAUD=$(MODEM_BAUD)
 
 $(TARGET).CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_DEVICE=$(PPRZ_MODEM_PORT_LOWER) -DPPRZ_UART=$(PPRZ_MODEM_PORT_LOWER)
 $(TARGET).CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ
-$(TARGET).srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c subsystems/datalink/telemetry.c
+$(TARGET).srcs += subsystems/datalink/downlink.c $(PAPARAZZI_HOME)/var/lib/pprzlink/pprz_transport.c subsystems/datalink/telemetry.c
 

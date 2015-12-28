@@ -19,5 +19,5 @@ TELEM_CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ
 
 
 $(TARGET).CFLAGS += $(MODEM_CFLAGS) $(TELEM_CFLAGS)
-$(TARGET).srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c subsystems/datalink/telemetry.c
+$(TARGET).srcs += subsystems/datalink/downlink.c $(PAPARAZZI_HOME)/var/lib/pprzlink/pprz_transport.c subsystems/datalink/telemetry.c
 
