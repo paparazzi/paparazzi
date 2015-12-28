@@ -25,7 +25,7 @@
  */
 
 #include "subsystems/gps.h"
-
+#include "subsystems/navigation/common_nav.h"
 #include "led.h"
 
 #ifdef GPS_POWER_GPIO
@@ -90,10 +90,11 @@ static void send_gps(struct transport_tx *trans, struct link_device *dev)
   uint8_t zero = 0;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course) / ((int32_t)1e6));
+  struct UtmCoor_i utm = utm_int_from_gps(&gps, nav_utm_zone0);
   pprz_msg_send_GPS(trans, dev, AC_ID, &gps.fix,
-                    &gps.utm_pos.east, &gps.utm_pos.north,
+                    &utm.east, &utm.north,
                     &course, &gps.hmsl, &gps.gspeed, &climb,
-                    &gps.week, &gps.tow, &gps.utm_pos.zone, &zero);
+                    &gps.week, &gps.tow, &utm.zone, &zero);
   // send SVINFO for available satellites that have new data
   send_svinfo_available(trans, dev);
 }
@@ -225,6 +226,38 @@ struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
     }
     /* Recompute UTM coordinates in this zone */
     utm_of_lla_f(&utm, &lla);
+  }
+
+  return utm;
+}
+
+struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone)
+{
+  struct UtmCoor_i utm;
+  utm.alt = 0;
+
+  if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
+    // A real UTM position is available, use the correct zone
+    utm.zone = gps_s->utm_pos.zone;
+    utm.east = gps_s->utm_pos.east;
+    utm.north = gps_s->utm_pos.north;
+  }
+  else {
+    struct LlaCoor_f lla;
+    LLA_FLOAT_OF_BFP(lla, gps_s->lla_pos);
+    // Check if zone should be computed
+    if (zone > 0) {
+      utm.zone = zone;
+    } else {
+      utm.zone = (gps_s->lla_pos.lon / 1e7 + 180) / 6 + 1;
+    }
+    /* Recompute UTM coordinates in this zone */
+    struct UtmCoor_f utm_f;
+    utm_f.zone = utm.zone;
+    utm_of_lla_f(&utm_f, &lla);
+    /* convert to fixed point in cm */
+    utm.east = utm_f.east * 100;
+    utm.north = utm_f.north * 100;
   }
 
   return utm;
