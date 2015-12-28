@@ -72,28 +72,21 @@ class IvyMessagesInterface(object):
             return
 
         # check which message class it is
-        # pass non-telemetry messages with ac_id 0
-        if data[0] in ["sim", "ground_dl", "dl"]:
-            if self.verbose:
-                print("ignoring message " + larg[0])
-                sys.stdout.flush()
+        msg_name = data[1]
+        msg_class, msg_name = messages_xml_map.find_msg_by_name(msg_name)
+        if msg_class is None:
+            print("Ignoring unknown message " + larg[0])
             return
-        elif data[0] in ["ground"]:
-            msg_class = data[0]
-            msg_name = data[1]
-            ac_id = 0
-            values = list(filter(None, data[2:]))
-        else:
+        # pass non-telemetry messages with ac_id 0
+        if msg_class == "telemetry":
             try:
                 ac_id = int(data[0])
             except ValueError:
-                if self.verbose:
-                    print("ignoring message " + larg[0])
-                    sys.stdout.flush()
-                return
-            msg_class = "telemetry"
-            msg_name = data[1]
-            values = list(filter(None, data[2:]))
+                print("ignoring message " + larg[0])
+                sys.stdout.flush()
+        else:
+            ac_id = 0
+        values = list(filter(None, data[2:]))
         msg = PprzMessage(msg_class, msg_name)
         msg.set_values(values)
         self.callback(ac_id, msg)
