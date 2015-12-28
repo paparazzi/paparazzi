@@ -72,6 +72,17 @@ def parse_messages(messages_file=''):
                     message_dictionary_coefs[class_name][message_id].append(1.)
 
 
+def find_msg_by_name(name):
+    if not message_dictionary:
+        parse_messages()
+    for msg_class in message_dictionary:
+        if name in message_dictionary[msg_class]:
+            #print("found msg name %s in class %s" % (name, msg_class))
+            return msg_class, name
+    print("Error: msg_name %s not found." % name)
+    return None, None
+
+
 def get_msgs(msg_class):
     if not message_dictionary:
         parse_messages()
