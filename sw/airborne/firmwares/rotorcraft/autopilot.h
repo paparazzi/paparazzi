@@ -210,6 +210,13 @@ extern bool_t autopilot_guided_goto_ned_relative(float dx, float dy, float dz, f
  */
 extern bool_t autopilot_guided_goto_body_relative(float dx, float dy, float dz, float dyaw);
 
-
+/** Set velocity and heading setpoints in GUIDED mode.
+ * @param vx North velocity (local NED frame) in meters/sec.
+ * @param vy East velocity (local NED frame) in meters/sec.
+ * @param vz Down velocity (local NED frame) in meters/sec.
+ * @param heading Setpoint in radians.
+ * @return TRUE if setpoint was set (currently in AP_MODE_GUIDED)
+ */
+extern bool_t autopilot_guided_move(float vx, float vy, float vz, float heading);
 
 #endif /* AUTOPILOT_H */

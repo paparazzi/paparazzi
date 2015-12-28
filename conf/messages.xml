@@ -2445,9 +2445,14 @@
       0x1: LOCAL_OFFSET_NED
       0x2: BODY_NED
       0x3: BODY_OFFSET_NED
+      Bits 4-7 in the flag field can be used to enable velocity control on specifc fields:
+      bit 4: x as velocity
+      bit 5: y as velocity
+      bit 6: z as velocity
+      bit 7: yaw as rate
     </description>
     <field name="ac_id" type="uint8"/>
-    <field name="flags" type="uint8">bits 0-3: frame, bits 4-7: use as velocity?</field>
+    <field name="flags" type="uint8">bits 0-3: frame, bits 4-7: use as velocity</field>
     <field name="x" type="float" unit="m">X position/velocity in NED</field>
     <field name="y" type="float" unit="m">Y position/velocity in NED</field>
     <field name="z" type="float" unit="m">Z position/velocity in NED (negative altitude)</field>

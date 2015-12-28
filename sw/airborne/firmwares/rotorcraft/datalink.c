@@ -208,6 +208,10 @@ void dl_parse_msg(void)
           /* body NED offset position setpoints */
           autopilot_guided_goto_body_relative(x, y, z, yaw);
           break;
+        case 0x70:
+          /* local NED with x/y/z as velocity and yaw as absolute angle */
+          autopilot_guided_move(x, y, z, yaw);
+          break;
         default:
           /* others not handled yet */
           break;
