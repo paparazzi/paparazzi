@@ -28,15 +28,15 @@ class IvyMessagesInterface(object):
         IvyUnBindMsg(self.ivy_id)
 
     def shutdown(self):
-        self.stop()
         try:
             IvyStop()
+            self.stop()
         except IvyIllegalStateError as e:
             print(e)
 
     def __del__(self):
         try:
-            IvyUnBindMsg(self.ivy_id)
+            self.shutdown()
         except:
             pass
 
