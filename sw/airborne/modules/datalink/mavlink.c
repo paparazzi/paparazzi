@@ -381,7 +381,7 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
       // Check if this message is for this system
       if (target.target_system == AC_ID) {
         MAVLINK_DEBUG("SET_POSITION_TARGET_LOCAL_NED, byte_mask: %d\n", target.type_mask);
-        /* only accept inputs where position and yaw bits are not set to ignored */
+        /* if position and yaw bits are not set to ignored, use only position for now */
         if (!(target.type_mask & 0b1110000000100000)) {
           switch (target.coordinate_frame) {
             case MAV_FRAME_LOCAL_NED:
@@ -395,6 +395,17 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
             case MAV_FRAME_BODY_OFFSET_NED:
               MAVLINK_DEBUG("set position target, frame BODY_OFFSET_NED\n");
               autopilot_guided_goto_body_relative(target.x, target.y, target.z, target.yaw);
+              break;
+            default:
+              break;
+          }
+        }
+        else if (!(target.type_mask & 0b0001110000100000)) {
+          /* position is set to ignore, but velocity not */
+          switch (target.coordinate_frame) {
+            case MAV_FRAME_LOCAL_NED:
+              MAVLINK_DEBUG("set velocity target, frame LOCAL_NED\n");
+              autopilot_guided_move_ned(target.vx, target.vy, target.vz, target.yaw);
               break;
             default:
               break;

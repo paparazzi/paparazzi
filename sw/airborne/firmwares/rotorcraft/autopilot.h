@@ -217,6 +217,6 @@ extern bool_t autopilot_guided_goto_body_relative(float dx, float dy, float dz, 
  * @param heading Setpoint in radians.
  * @return TRUE if setpoint was set (currently in AP_MODE_GUIDED)
  */
-extern bool_t autopilot_guided_move(float vx, float vy, float vz, float heading);
+extern bool_t autopilot_guided_move_ned(float vx, float vy, float vz, float heading);
 
 #endif /* AUTOPILOT_H */

@@ -210,7 +210,7 @@ void dl_parse_msg(void)
           break;
         case 0x70:
           /* local NED with x/y/z as velocity and yaw as absolute angle */
-          autopilot_guided_move(x, y, z, yaw);
+          autopilot_guided_move_ned(x, y, z, yaw);
           break;
         default:
           /* others not handled yet */
