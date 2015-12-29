@@ -388,7 +388,7 @@ static inline void copy_from_to_fbw(void)
 /**
  * Function to be called when a message from FBW is available
  */
-static inline void telecommand_task(void)
+void telecommand_task(void)
 {
   uint8_t mode_changed = FALSE;
   copy_from_to_fbw();

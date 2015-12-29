@@ -84,6 +84,7 @@ void vn200_event(struct VNPacket *vnp)
     vn200_read_buffer(vnp);
   }
 }
+#endif /* USE_CHIBIOS_RTOS */
 
 /**
  *  Packet Collection & state machine

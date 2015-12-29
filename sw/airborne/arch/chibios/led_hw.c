@@ -1,5 +1,10 @@
 /*
- * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2013 AggieAir, A Remote Sensing Unmanned Aerial System for Scientific Applications
+ * Utah State University, http://aggieair.usu.edu/
+ *
+ * Michal Podhradsky (michal.podhradsky@aggiemail.usu.edu)
+ * Calvin Coopmans (c.r.coopmans@ieee.org)
+ *
  *
  * This file is part of paparazzi.
  *
@@ -18,26 +23,10 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-
 /**
- * @file firmwares/fixedwing/main_ap.h
- *
- * AP ( AutoPilot ) process API
- *
+ * @file arch/chibios/led_hw.c
+ * Led macro implementation for ChibiOS arch
  */
+#include "led.h"
 
-#ifndef AP_H
-#define AP_H
 
-extern void init_ap(void);
-extern void handle_periodic_tasks_ap(void);
-extern void event_task_ap(void);
-
-extern void telecommand_task(void);
-extern void sensors_task(void);
-extern void navigation_task(void);
-extern void monitor_task(void);
-extern void reporting_task(void);
-extern void attitude_loop(void);
-
-#endif

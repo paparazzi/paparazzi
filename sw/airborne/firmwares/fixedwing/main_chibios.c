@@ -74,7 +74,7 @@ int main(void)
   spawn_threads();
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "CHIBIOS_INFO", send_chibios_info);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CHIBIOS_INFO, send_chibios_info);
 #endif
 
   // increase priority

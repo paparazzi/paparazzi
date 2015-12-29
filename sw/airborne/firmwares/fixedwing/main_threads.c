@@ -34,6 +34,8 @@
 #include "firmwares/fixedwing/main_threads.h"
 #include "firmwares/fixedwing/main_chibios.h"
 
+#include "firmwares/fixedwing/autopilot.h"
+
 /**
  * HeartBeat & System Info
  *
@@ -153,7 +155,7 @@ void thd_radio_event(void *arg)
     chEvtWaitOne(EVENT_MASK(EVT_RADIO_FRAME));
     rc_flags = chEvtGetAndClearFlags(&elRadioEvt);
     if (rc_flags & EVT_RADIO_FRAME) {
-      RadioControlEvent(handle_rc_frame);
+      radio_control_event();
       chEvtBroadcastFlags(&eventRadioData, EVT_RADIO_DATA);
     }
   }
