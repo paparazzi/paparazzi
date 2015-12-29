@@ -53,12 +53,39 @@
 #define RC_SET_POLARITY gpio_set
 #endif
 
+#if USE_CHIBIOS_RTOS
+mutex_t mtx_sbus;
+static THD_WORKING_AREA(wa_thd_sbus_rx, CH_THREAD_AREA_SBUS_RX);
+
+/*
+ * Serial config for SBUS
+ * 100k Baud rate, 2 stop bits, Even parity (default), 8 data bits (default)
+ */
+static const SerialConfig sbus_config =
+{
+  B100000,              /*     BITRATE    */
+  0,                    /*    USART CR1   */
+  USART_CR2_STOP2_BITS, /*    USART CR2   */
+  0                     /*    USART CR3   */
+};
+#endif /* USE_CHIBIOS_RTOS */
 
 void sbus_common_init(struct Sbus *sbus_p, struct uart_periph *dev)
 {
   sbus_p->frame_available = FALSE;
   sbus_p->status = SBUS_STATUS_UNINIT;
 
+#if USE_CHIBIOS_RTOS
+  // init mutex
+  chMtxObjectInit(&mtx_sbus);
+
+  // set serial port to right values
+  sdStop(dev->reg_addr);
+  sdStart(dev->reg_addr, &sbus_config);
+
+  // init thread
+  chThdCreateStatic(wa_thd_sbus_rx, sizeof(wa_thd_sbus_rx), NORMALPRIO, thd_sbus_rx, dev);
+#else /* Classic PPRZ */
   // Set UART parameters (100K, 8 bits, 2 stops, even parity)
   uart_periph_set_bits_stop_parity(dev, UBITS_8, USTOP_2, UPARITY_EVEN);
   uart_periph_set_baudrate(dev, B100000);
@@ -67,7 +94,8 @@ void sbus_common_init(struct Sbus *sbus_p, struct uart_periph *dev)
 #ifdef RC_POLARITY_GPIO_PORT
   gpio_setup_output(RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
   RC_SET_POLARITY(RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
-#endif
+#endif  /* RC_POLARITY_GPIO_PORT */
+#endif  /* USE_CHIBIOS_RTOS */
 
 }
 
@@ -112,6 +140,7 @@ static void decode_sbus_buffer(const uint8_t *src, uint16_t *dst, bool_t *availa
 
 // Decoding event function
 // Reading from UART
+#if !USE_CHIBIOS_RTOS
 void sbus_common_decode_event(struct Sbus *sbus_p, struct uart_periph *dev)
 {
   uint8_t rbyte;
@@ -144,3 +173,69 @@ void sbus_common_decode_event(struct Sbus *sbus_p, struct uart_periph *dev)
     } while (uart_char_available(dev));
   }
 }
+#else /* USE_CHIBIOS_RTOS */
+void sbus_common_decode_event(struct Sbus *sbus_p __attribute__((unused)),
+    struct uart_periph *dev __attribute__((unused))) {}
+
+/**
+ * Parse incoming sbus data
+ * @param c
+ */
+void sbus_parse(uint8_t rbyte) {
+  switch (sbus.status) {
+    case SBUS_STATUS_UNINIT:
+    // Wait for the start byte
+    if (rbyte == SBUS_START_BYTE) {
+      sbus.status++;
+      sbus.idx = 0;
+    }
+    break;
+    case SBUS_STATUS_GOT_START:
+    // Store buffer
+    sbus.buffer[sbus.idx] = rbyte;
+    sbus.idx++;
+    if (sbus.idx == SBUS_BUF_LENGTH) {
+      // Decode if last byte is the correct end byte
+      if (rbyte == SBUS_END_BYTE) {
+        decode_sbus_buffer(sbus.buffer, sbus.pulses, &sbus.frame_available, sbus.ppm);
+      }
+      sbus.status = SBUS_STATUS_UNINIT;
+    }
+    break;
+    default:
+    break;
+  }
+}
+
+/**
+ * Replacement for sbus_decode_event()
+ * @param decode_sbus_buffer - callback to be called once buffer is full
+ * @return
+ */
+void thd_sbus_rx(void* arg) {
+  chRegSetThreadName("sbus_rx");
+  struct uart_periph *dev = (struct uart_periph*)arg;
+
+  // BACKUP version: naive implementation
+  while (TRUE) {
+    sbus_parse(uart_getch(dev));
+    if (sbus.frame_available) {
+      chEvtBroadcastFlags(&eventRadioFrame, EVT_RADIO_FRAME);
+    }
+  }
+/*
+  // Proper event based implementation
+  event_listener_t elSBUSdata;
+  eventflags_t flags;
+  chEvtRegisterMask((event_source_t *)chnGetEventSource((SerialDriver*)dev->reg_addr), &elSBUSdata, EVENT_MASK(1));
+  while (TRUE) {
+    chEvtWaitAny(ALL_EVENTS);
+    flags = chEvtGetAndClearFlags(&elSBUSdata);
+    uart_receive_buffer(dev, flags, &sbus_parse);
+    if (sbus.frame_available) {
+      chEvtBroadcastFlags(&eventRadioFrame, EVT_RADIO_FRAME);
+    }
+  }
+*/
+}
+#endif /* !USE_CHIBIOS_RTOS */

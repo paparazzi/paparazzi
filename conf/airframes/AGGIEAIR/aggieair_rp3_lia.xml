@@ -7,9 +7,11 @@ RP3 Lisa MX
 <airframe name="RP3 Lisa MX">
 
   <firmware name="fixedwing">
-    <define name="CONTROL_FREQUENCY" value="100"/>
-    <configure name="PERIODIC_FREQUENCY" value="100"/>
-    <target name="ap" board="lisa_mx_2.0">
+    <define name="CONTROL_FREQUENCY" value="400"/>
+    <configure name="PERIODIC_FREQUENCY" value="400"/>
+    <define name="SERVO_HZ" value="400"/>
+
+    <target name="ap" board="lisa_mx_2.0_chibios">
       <subsystem name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </subsystem>
@@ -34,11 +36,35 @@ RP3 Lisa MX
     </subsystem>
 
     <define name="AGR_CLIMB" />
+
+    <configure name="RTOS_DEBUG" value="1"/>
+  </firmware>
+  
+  <firmware name="test_chibios">
+    <target name="test_sys_time_timer" board="lisa_mx_2.0_chibios"/> <!-- passed -->
+    <target name="test_sys_time_usleep" board="lisa_mx_2.0_chibios"/> <!-- passed -->
+    <target name="test_sys_gpio" board="lisa_mx_2.0_chibios"/> <!-- passed -->
+    <target name="test_led" board="lisa_mx_2.0_chibios"/> <!-- passed -->
+    <target name="test_shell" board="lisa_mx_2.0_chibios"/> <!-- passed -->
+    <target name="test_serial" board="lisa_mx_2.0_chibios"/> <!-- passed -->
+    <target name="test_telemetry" board="lisa_mx_2.0_chibios"/> <!-- passed -->
+    <target name="test_actuators_pwm_sin" board="lisa_mx_2.0_chibios"/> <!-- passed -->
+    <target name="test_adc" board="lisa_mx_2.0_chibios"/> <!-- passed -->
+    <target name="test_i2c" board="lisa_mx_2.0_chibios"/> <!-- passed -->
+    <target name="test_baro_board" board="lisa_mx_2.0_chibios"/> <!-- passed, waiting for better baro -->
+    <target name="test_imu" board="lisa_mx_2.0_chibios"> <!-- not working yet -->
+      <configure name="PERIODIC_FREQUENCY" value="512"/>
+      <subsystem name="imu" type="lisa_mx_v2.1"/>
+    </target>
   </firmware>
 
   <modules>
     <load name="nav_line.xml"/>
-    <load name="sys_mon.xml"/>
+    <load name="battery_monitor.xml"/>
+    <load name="xgear.xml">
+      <configure name="XGEAR_PORT" value="UART1"/>
+      <configure name="XGEAR_BAUD" value="B3000000"/>
+    </load>
   </modules>
 
   <!-- commands section -->

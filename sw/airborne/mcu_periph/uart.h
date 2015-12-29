@@ -33,10 +33,10 @@
 #include "std.h"
 
 #ifndef UART_RX_BUFFER_SIZE
-#define UART_RX_BUFFER_SIZE 128
+#define UART_RX_BUFFER_SIZE 254
 #endif
 #ifndef UART_TX_BUFFER_SIZE
-#define UART_TX_BUFFER_SIZE 128
+#define UART_TX_BUFFER_SIZE 254
 #endif
 #define UART_DEV_NAME_SIZE 16
 
@@ -88,6 +88,12 @@ extern void uart_periph_set_mode(struct uart_periph *p, bool_t tx_enabled, bool_
 extern void uart_put_byte(struct uart_periph *p, uint8_t data);
 extern bool_t uart_check_free_space(struct uart_periph *p, uint8_t len);
 extern uint8_t uart_getch(struct uart_periph *p);
+extern void uart_transmit_buffer(struct uart_periph *p, uint8_t *data_buffer, uint16_t length);
+
+#if USE_CHIBIOS_RTOS
+/// Unfortunately has to be declared here, if declared in uart_arch.h compiler complains about uart_periph struct
+extern void uart_receive_buffer(struct uart_periph* p, eventflags_t flags, void *on_receive_callback);
+#endif
 
 /**
  * Check UART for available chars in receive buffer.

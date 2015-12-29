@@ -89,7 +89,8 @@ struct InsVectornav {
 
   // Auxilliary data fields
   float timestamp; ///< System time [s]
-  struct FloatEulers attitude; ///< Attitude, float, [degrees], yaw, pitch, roll
+  struct FloatEulers attitude; // Attitude, radians, [degrees], roll, pitch, yaw
+  struct FloatEulers ypr; // Attitude, float, [degrees], yaw, pitch, roll
   // rates -> imu
   double pos_lla[3]; // Lla [deg, deg, m above elipsoid]
   struct NedCoor_f vel_ned; ///< The estimated velocity in the North East Down (NED) frame, given in m/s.
@@ -118,6 +119,13 @@ struct InsVectornav {
 
 // global INS state
 extern struct InsVectornav ins_vn;
+
+#if USE_CHIBIOS_RTOS
+#include "ch.h"
+#define CH_THREAD_AREA_INS 1024
+extern mutex_t mtx_ins;
+void thd_ins_rx(void* arg);
+#endif /* USE_CHIBIOS_RTOS */
 
 extern void ins_vectornav_init(void);
 extern void ins_vectornav_event(void);

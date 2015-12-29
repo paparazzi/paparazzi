@@ -46,11 +46,15 @@
  * sys_time.resolution is set from this define.
  */
 #ifndef SYS_TIME_FREQUENCY
+#if USE_CHIBIOS_RTOS
+#define SYS_TIME_FREQUENCY CH_CFG_ST_FREQUENCY
+#else /* NO RTOS */
 #if defined PERIODIC_FREQUENCY
 #define SYS_TIME_FREQUENCY (2 * PERIODIC_FREQUENCY)
-#else
+#else /* !defined PERIODIC_FREQUENCY */
 #define SYS_TIME_FREQUENCY 1000
 #endif
+#endif /* USE_CHIBIOS_RTOS */
 #endif
 
 
@@ -81,6 +85,10 @@ extern struct sys_time sys_time;
 
 
 extern void sys_time_init(void);
+
+#if USE_CHIBIOS_RTOS
+extern float get_sys_time_float_arch(void);
+#endif
 
 /**
  * Register a new system timer.
@@ -123,7 +131,11 @@ static inline bool_t sys_time_check_and_ack_timer(tid_t id)
  */
 static inline float get_sys_time_float(void)
 {
-  return (float)(sys_time.nb_sec + (float)(sys_time.nb_sec_rem) / sys_time.cpu_ticks_per_sec);
+#if USE_CHIBIOS_RTOS
+  return get_sys_time_float_arch();
+#else /* Non RT */
+  return (float)(sys_time.nb_sec + sys_time.nb_sec_rem * sys_time.resolution_cpu_ticks);
+#endif /* USE_CHIBIOS_RTOS */
 }
 
 
