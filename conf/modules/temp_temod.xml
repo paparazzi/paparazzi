@@ -14,12 +14,12 @@
   <event fun="temod_event()"/>
   <makefile target="ap">
      <raw>
-      TEMOD_DEV ?= i2c0
-      TEMOD_DEV_LOWER=$(shell echo $(TEMOD_DEV) | tr A-Z a-z)
-      TEMOD_DEV_UPPER=$(shell echo $(TEMOD_DEV) | tr a-z A-Z)
+      TEMOD_I2C_DEV ?= i2c0
+      TEMOD_I2C_DEV_LOWER=$(shell echo $(TEMOD_I2C_DEV) | tr A-Z a-z)
+      TEMOD_I2C_DEV_UPPER=$(shell echo $(TEMOD_I2C_DEV) | tr a-z A-Z)
     </raw>
-    <define name="USE_$(TEMOD_DEV_UPPER)"/>
-    <define name="TEMOD_DEV" value="$(TEMOD_DEV_LOWER)"/>
+    <define name="USE_$(TEMOD_I2C_DEV_UPPER)"/>
+    <define name="TEMOD_I2C_DEV" value="$(TEMOD_I2C_DEV_LOWER)"/>
     <file name="temp_temod.c"/>
   </makefile>
 </module>
