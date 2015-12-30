@@ -57,8 +57,7 @@ endif
 # define some paths
 #
 LIB=sw/lib
-STATICINCLUDE =$(PAPARAZZI_HOME)/var/include
-MESSAGES_INSTALL =$(PAPARAZZI_HOME)/var
+STATICINCLUDE=$(PAPARAZZI_HOME)/var/include
 CONF=$(PAPARAZZI_SRC)/conf
 AIRBORNE=sw/airborne
 SIMULATOR=sw/simulator
@@ -69,7 +68,6 @@ GENERATORS=$(PAPARAZZI_SRC)/sw/tools/generators
 JOYSTICK=sw/ground_segment/joystick
 EXT=sw/ext
 TOOLS=sw/tools
-PPRZLINK_DIR=sw/ext/pprzlink
 
 #
 # build some stuff in subdirs
@@ -93,20 +91,17 @@ XSENS_XML = $(CONF)/xsens_MTi-G.xml
 #
 # generated header files
 #
-MESSAGES_H=$(STATICINCLUDE)/messages.h
-MESSAGES2_H=$(STATICINCLUDE)/messages2.h
+MESSAGES_INSTALL=$(PAPARAZZI_HOME)/var
+PPRZLINK_DIR=sw/ext/pprzlink
 UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
 MTK_PROTOCOL_H=$(STATICINCLUDE)/mtk_protocol.h
 XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
-DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
-DL_PROTOCOL2_H=$(STATICINCLUDE)/dl_protocol2.h
 ABI_MESSAGES_H=$(STATICINCLUDE)/abi_messages.h
 INTERMCU_MSG_H=$(STATICINCLUDE)/intermcu_msg.h
 MAVLINK_DIR=$(STATICINCLUDE)/mavlink/
 MAVLINK_PROTOCOL_H=$(MAVLINK_DIR)protocol.h
 
-GEN_HEADERS = $(MESSAGES_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H) $(INTERMCU_MSG_H) $(MAVLINK_PROTOCOL_H)
-#$(DL_PROTOCOL_H) 
+GEN_HEADERS = $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H) $(INTERMCU_MSG_H) $(MAVLINK_PROTOCOL_H)
 
 all: ground_segment ext lpctools
 
@@ -186,25 +181,17 @@ $(PPRZCENTER): libpprz
 
 $(LOGALIZER): libpprz
 
+static_h: pprzlink_protocol $(GEN_HEADERS)
+
 pprzlink:
 	@echo BUILD PPRZLINK
 	$(Q)$(MAKE) -C $(PPRZLINK_DIR) generators
 
-static_h: $(GEN_HEADERS)
-
-$(MESSAGES_H) : $(MESSAGES_XML) pprzlink
+pprzlink_protocol : $(MESSAGES_XML) pprzlink
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	$(Q)test -d $(STATICLIB) || mkdir -p $(STATICLIB)
 	@echo GENERATE $@
 	$(Q)MESSAGES_INSTALL=$(MESSAGES_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) pymessages
-
-$(MESSAGES2_H) : $(MESSAGES_XML) generators
-	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
-	@echo GENERATE $@
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(GENERATORS)/gen_messages2.out $< telemetry > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
 
 $(UBX_PROTOCOL_H) : $(UBX_XML) generators
 	@echo GENERATE $@
@@ -231,13 +218,6 @@ $(DL_PROTOCOL_H) : $(MESSAGES_XML) generators
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(GENERATORS)/gen_messages.out $< datalink > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-
-$(DL_PROTOCOL2_H) : $(MESSAGES_XML) generators
-	@echo GENERATE $@
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(GENERATORS)/gen_messages2.out $< datalink > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
@@ -301,6 +281,7 @@ dox:
 clean:
 	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml paparazzi
 	$(Q)rm -f  $(GEN_HEADERS)
+	$(Q)MESSAGES_INSTALL=$(MESSAGES_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) uninstall
 	$(Q)rm -fr $(MAVLINK_DIR)
 	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)$(MAKE) -C $(EXT) clean
