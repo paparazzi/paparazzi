@@ -33,12 +33,20 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
+// sd-log
+#if TEMP_TEMOD_SDLOG
+#include "sdLog.h"
+#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "subsystems/gps.h"
+bool_t log_temod_started;
+#endif
+
 float ftmd_temperature;
 struct i2c_transaction tmd_trans;
 
 
-#ifndef TEMOD_DEV
-#define TEMOD_DEV i2c0
+#ifndef TEMOD_I2C_DEV
+#define TEMOD_I2C_DEV i2c0
 #endif
 
 #ifndef TEMOD_TYPE
@@ -50,11 +58,16 @@ struct i2c_transaction tmd_trans;
 void temod_init(void)
 {
   tmd_trans.status = I2CTransDone;
+
+#if TEMP_TEMOD_SDLOG
+  log_temod_started = FALSE;
+#endif
 }
 
 void temod_periodic(void)
 {
   i2c_receive(&TEMOD_I2C_DEV, &tmd_trans, TEMOD_SLAVE_ADDR, 2);
+
 }
 
 void temod_event(void)
@@ -72,6 +85,24 @@ void temod_event(void)
 
     DOWNLINK_SEND_TMP_STATUS(DefaultChannel, DefaultDevice, &tmd_temperature, &ftmd_temperature);
     tmd_trans.status = I2CTransDone;
+
+
+#if TEMP_TEMOD_SDLOG
+  if (pprzLogFile != -1) {
+    if (!log_temod_started) {
+      sdLogWriteLog(pprzLogFile, "TEMOD: Temp(degC) H(usec) GPS_fix TOW(ms) Week Lat(1e7rad) Lon(1e7rad) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
+      log_temod_started = TRUE;
+    }
+    else {
+      sdLogWriteLog(pprzLogFile, "temod: %9.4f    %d %d %d   %d %d %d   %d %d %d\n",
+          ftmd_temperature,
+          gps.fix, gps.tow, gps.week,
+          gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
+          gps.gspeed, gps.course, -gps.ned_vel.z);
+    }
+  }
+#endif
+
   }
 }
 
