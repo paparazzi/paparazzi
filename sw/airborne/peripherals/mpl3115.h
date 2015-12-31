@@ -84,7 +84,6 @@ struct Mpl3115 {
 // Functions
 extern void mpl3115_init(struct Mpl3115 *mpl, struct i2c_periph *i2c_p, uint8_t addr);
 extern void mpl3115_configure(struct Mpl3115 *mpl);
-extern bool_t mpl3115_mpu_configure(struct Mpl3115 *mpl);
 extern void mpl3115_read(struct Mpl3115 *mpl);
 extern void mpl3115_event(struct Mpl3115 *mpl);
 extern void mpl3115_periodic(struct Mpl3115 *mpl);

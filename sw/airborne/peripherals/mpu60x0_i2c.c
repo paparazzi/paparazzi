@@ -134,9 +134,6 @@ void mpu60x0_i2c_event(struct Mpu60x0_I2c *mpu)
 bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
 {
   struct Mpu60x0_I2c *mpu_i2c = (struct Mpu60x0_I2c *)(mpu);
-#ifdef MPU9150_SLV_MAG
-    int cpt=0;
-#endif
 
   if (mpu_i2c->slave_init_status == MPU60X0_I2C_CONF_UNINIT) {
     mpu_i2c->slave_init_status++;
@@ -153,19 +150,10 @@ bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
       mpu_i2c->slave_init_status++;
       break;
     case MPU60X0_I2C_CONF_SLAVES_CONFIGURE:
-#ifdef MPU9150_SLV_MAG
-       while(cpt<mpu_i2c->config.nb_slaves) {
-         // waiting for a slave to be configured to proceed on next slave
-         if (mpu_i2c->config.slaves[cpt].configure(mpu_set, mpu)) cpt++;
-         else cpt = (mpu_i2c->config.nb_slaves)+1;
-        }
-       if(cpt == mpu_i2c->config.nb_slaves) mpu_i2c->slave_init_status++;
-#else
       /* configure each slave. TODO: currently only one */
       if (mpu_i2c->config.slaves[0].configure(mpu_set, mpu)) {
         mpu_i2c->slave_init_status++;
       }
-#endif
       break;
     case MPU60X0_I2C_CONF_I2C_BYPASS_DIS:
       if (mpu_i2c->config.i2c_bypass) {
