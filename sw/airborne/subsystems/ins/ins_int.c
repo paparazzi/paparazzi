@@ -130,6 +130,9 @@ static void baro_cb(uint8_t sender_id, float pressure);
 #ifndef INS_INT_IMU_ID
 #define INS_INT_IMU_ID ABI_BROADCAST
 #endif
+#ifndef INS_INT_GPS_ID
+#define INS_INT_GPS_ID ABI_BROADCAST
+#endif
 static abi_event accel_ev;
 static abi_event gps_ev;
 
@@ -516,12 +519,14 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 }
 
 static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
-                       uint32_t stamp __attribute__((unused)),
+                       uint32_t stamp,
                        float x, float y, float z,
                        float noise __attribute__((unused)))
 {
 
   struct FloatVect3 vel_body = {x, y, z};
+  static uint32_t last_stamp = 0;
+  float dt = 0;
 
   /* rotate velocity estimate to nav/ltp frame */
   struct FloatQuat q_b2n = *stateGetNedToBodyQuat_f();
@@ -529,7 +534,15 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
   struct FloatVect3 vel_ned;
   float_quat_vmult(&vel_ned, &q_b2n, &vel_body);
 
+  if (last_stamp > 0) {
+    dt = (float)(stamp - last_stamp) * 1e-6;
+  }
+
+  last_stamp = stamp;
+
 #if USE_HFF
+  (void)dt; //dt is unused variable in this define
+
   struct FloatVect2 vel = {vel_ned.x, vel_ned.y};
   struct FloatVect2 Rvel = {noise, noise};
 
@@ -538,6 +551,10 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
 #else
   ins_int.ltp_speed.x = SPEED_BFP_OF_REAL(vel_ned.x);
   ins_int.ltp_speed.y = SPEED_BFP_OF_REAL(vel_ned.y);
+  if (last_stamp > 0) {
+    ins_int.ltp_pos.x = ins_int.ltp_pos.x + POS_BFP_OF_REAL(dt * vel_ned.x);
+    ins_int.ltp_pos.y = ins_int.ltp_pos.y + POS_BFP_OF_REAL(dt * vel_ned.y);
+  }
 #endif
 
   ins_ned_to_state();
@@ -554,6 +571,6 @@ void ins_int_register(void)
    * Subscribe to scaled IMU measurements and attach callbacks
    */
   AbiBindMsgIMU_ACCEL_INT32(INS_INT_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
+  AbiBindMsgGPS(INS_INT_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgVELOCITY_ESTIMATE(INS_INT_VEL_ID, &vel_est_ev, vel_est_cb);
 }

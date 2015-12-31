@@ -408,7 +408,7 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
       struct UtmCoor_f utm;
       utm.east = nav_utm_east0 + fObjectEast;
       utm.north = nav_utm_north0 + fObjectNorth;
-      utm.zone = gps.utm_pos.zone;
+      utm.zone = nav_utm_zone0;
       struct LlaCoor_f lla;
       lla_of_utm_f(&lla, &utm);
       cam_point_lon = lla.lon * (180 / M_PI);

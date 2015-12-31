@@ -23,6 +23,7 @@
       <board name="lia_.*"/>
       <board name="lisa_[ms]_.*"/>
       <board name="elle*"/>
+      <board name="naze32*"/>
     </boards>
   </mode>
   <mode name="USB (IAP)">

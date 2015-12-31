@@ -21,7 +21,7 @@ from pprz_msg import messages_xml_map
 
 
 class PlotData:
-    def __init__(self, ivy_msg_id, title, width, color=None):
+    def __init__(self, ivy_msg_id, title, width, color=None, scale=1.0):
         self.id = ivy_msg_id
         self.title = title
         self.SetPlotSize(width)
@@ -32,14 +32,14 @@ class PlotData:
         self.std_dev = 0.0
         self.real_time = False
 
-        self.scale = 1.0
+        self.scale = scale
         self.offset = 0.0
 
         if color is not None:
             self.color = color
         else:
             r, g, b = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
-            self.color = wx.Color(r, g, b)
+            self.color = wx.Colour(r, g, b)
 
     def SetRealTime(self, value):
         self.real_time = value
@@ -176,7 +176,7 @@ class PlotPanel(object):
         self.width = 800
         self.height = 200
         self.margin = min(self.height / 10, 20)
-        self.font = wx.Font(self.margin / 2, wx.DEFAULT, wx.FONTFLAG_DEFAULT, wx.FONTWEIGHT_NORMAL)
+        self.font = wx.Font(self.margin / 2, wx.DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
         self.pixmap = wx.EmptyBitmap(self.width, self.height)
         self.plot_size = self.width
         self.max = -1e32
@@ -253,7 +253,7 @@ class PlotPanel(object):
 
     def OnDropText(self, data):
         [ac_id, category, message, field, scale] = data.encode('ASCII').split(':')
-        self.BindCurve(int(ac_id), message, field)
+        self.BindCurve(int(ac_id), message, field, scale=float(scale))
 
     def OnIvyMsg(self, agent, *larg):
         # print(larg[0])
@@ -282,7 +282,7 @@ class PlotPanel(object):
                 plot.index = self.x_axis.index
             plot.AddPoint(point, self.x_axis)
 
-    def BindCurve(self, ac_id, message, field, color=None, use_as_x=False):
+    def BindCurve(self, ac_id, message, field, color=None, use_as_x=False, scale=1.0):
         # -- add this telemetry to our list of things to plot ...
         message_string = _IVY_STRING % (ac_id, message)
         # print('Binding to %s' % message_string)
@@ -300,7 +300,7 @@ class PlotPanel(object):
 
         ivy_id = IvyBindMsg(self.OnIvyMsg, str(message_string))
         title = '%i:%s:%s' % (ac_id, message, field)
-        self.plots[ac_id][message][field] = PlotData(ivy_id, title, self.plot_size, color)
+        self.plots[ac_id][message][field] = PlotData(ivy_id, title, self.plot_size, color, scale)
         self.frame.AddCurve(ivy_id, title, use_as_x)
         if use_as_x:
             self.x_axis = self.plots[ac_id][message][field]
@@ -384,7 +384,7 @@ class PlotPanel(object):
         self.height = height
         self.plot_size = width
         self.margin = min(self.height / 10, 20)
-        self.font = wx.Font(self.margin / 2, wx.DEFAULT, wx.FONTFLAG_DEFAULT, wx.FONTWEIGHT_NORMAL)
+        self.font = wx.Font(self.margin / 2, wx.DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
 
     def OnTimer(self):
         self.timer.Restart(self.plot_interval)
