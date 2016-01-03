@@ -91,8 +91,9 @@ XSENS_XML = $(CONF)/xsens_MTi-G.xml
 #
 # generated header files
 #
-MESSAGES_INSTALL=$(PAPARAZZI_HOME)/var
 PPRZLINK_DIR=sw/ext/pprzlink
+PPRZLINK_INSTALL=$(PAPARAZZI_HOME)/var/lib/ocaml
+MESSAGES_INSTALL=$(PAPARAZZI_HOME)/var
 UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
 MTK_PROTOCOL_H=$(STATICINCLUDE)/mtk_protocol.h
 XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
@@ -136,7 +137,10 @@ ground_segment.opt: ground_segment cockpit.opt tmtc.opt
 
 static: cockpit tmtc generators sim_static joystick static_h
 
-libpprz: _save_build_version
+libpprzlink:
+	DESTDIR=$(PPRZLINK_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) libpprzlink-install
+
+libpprz: libpprzlink _save_build_version
 	$(MAKE) -C $(LIB)/ocaml
 
 multimon:
@@ -183,11 +187,7 @@ $(LOGALIZER): libpprz
 
 static_h: pprzlink_protocol $(GEN_HEADERS)
 
-pprzlink:
-	@echo BUILD PPRZLINK
-	$(Q)$(MAKE) -C $(PPRZLINK_DIR) generators
-
-pprzlink_protocol : $(MESSAGES_XML) pprzlink
+pprzlink_protocol : $(MESSAGES_XML)
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	$(Q)test -d $(STATICLIB) || mkdir -p $(STATICLIB)
 	@echo GENERATE $@
