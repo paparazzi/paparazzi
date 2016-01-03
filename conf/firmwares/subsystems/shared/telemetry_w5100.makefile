@@ -10,7 +10,7 @@ W5100_MULTICAST_PORT ?= "1234"
 $(TARGET).CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_DEVICE=chip0
 $(TARGET).CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=W5100
 $(TARGET).CFLAGS += -DW5100_IP=$(W5100_IP) -DW5100_SUBNET=$(W5100_SUBNET) -DW5100_MULTICAST_IP=$(W5100_MULTICAST_IP) -DW5100_MULTICAST_PORT=$(W5100_MULTICAST_PORT)
-$(TARGET).srcs += subsystems/datalink/downlink.c subsystems/datalink/w5100.c $(PAPARAZZI_HOME)/var/lib/pprzlink/pprz_transport.c subsystems/datalink/telemetry.c
+$(TARGET).srcs += subsystems/datalink/downlink.c subsystems/datalink/w5100.c $(PAPARAZZI_HOME)/var/share/pprzlink/src/pprz_transport.c subsystems/datalink/telemetry.c
 
 ifeq ($(ARCH), lpc21)
 # only an issue of setting the DRDY pin in w5100.c, which is stm32 specific
