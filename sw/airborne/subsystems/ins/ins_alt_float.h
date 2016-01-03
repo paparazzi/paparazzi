@@ -39,6 +39,7 @@ struct InsAltFloat {
   float alt_dot; ///< estimated vertical speed in m/s (positive-up)
 
   bool_t reset_alt_ref;  ///< flag to request reset of altitude reference to current alt
+  bool_t origin_initialized; ///< TRUE if UTM origin was initialized
 
 #if USE_BAROMETER
   float qfe;
