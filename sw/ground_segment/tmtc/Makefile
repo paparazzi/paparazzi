@@ -30,9 +30,9 @@ VAR = ../../../var
 
 INCLUDES= -I ../multimon
 PKG = -package glibivy,pprz
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
 XPKG = -package pprz.xlib
-XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
 
 LIBMULTIMONCMA=../multimon/multimon.cma
 LIBMULTIMONDLL= multimon.cma -dllpath $(PAPARAZZI_SRC)/sw/ground_segment/multimon

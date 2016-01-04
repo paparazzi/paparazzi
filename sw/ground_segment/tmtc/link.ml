@@ -28,20 +28,17 @@ open Latlong
 open Printf
 
 (* Handlers for the modem and Ivy messages *)
-module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
-module Ground_Pprz = Pprz.Messages (struct let name = "ground" end)
-module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
-module PprzTransport = Serial.Transport (Pprz.Transport)
-module PprzTransportExtended = Serial.Transport (Pprz.TransportExtended)
+module Tm_Pprz = PprzLink.Messages (struct let name = "telemetry" end)
+module Ground_Pprz = PprzLink.Messages (struct let name = "ground" end)
+module Dl_Pprz = PprzLink.Messages (struct let name = "datalink" end)
+module PprzTransport = Protocol.Transport (Pprz_transport.Transport)
 
 (* Modem transport layer *)
 type transport =
-    Pprz  (* Paparazzi protocol, with A/C id, message id and CRC *)
-  | Pprz2  (* Paparazzi protocol, with timestamp, A/C id, message id and CRC *)
+  | Pprz  (* Paparazzi protocol, with A/C id, message id and CRC *)
   | XBee  (* Maxstream protocol, API mode *)
 let transport_of_string = function
-    "pprz" -> Pprz
-  | "pprz2" -> Pprz2
+  | "pprz" -> Pprz
   | "xbee" -> XBee
   | x -> invalid_arg (sprintf "transport_of_string: %s" x)
 
@@ -83,7 +80,7 @@ let dead_aircraft_time_ms = ref 5000
 let send_message_over_ivy = fun sender name vs ->
   let timestamp =
     match !add_timestamp with
-        None -> None
+      | None -> None
       | Some start_time -> Some (Unix.gettimeofday () -. start_time) in
   if !red_link then
     Tm_Pprz.message_send ?timestamp ~link_id:!link_id sender name vs
@@ -93,7 +90,7 @@ let send_message_over_ivy = fun sender name vs ->
 let send_ground_over_ivy = fun sender name vs ->
   let timestamp =
     match !add_timestamp with
-        None -> None
+      | None -> None
       | Some start_time -> Some (Unix.gettimeofday () -. start_time) in
   Ground_Pprz.message_send ?timestamp sender name vs
 
@@ -131,7 +128,7 @@ let update_status = fun ?udp_peername ac_id buf_size is_pong ->
       let s = { initial_status with udp_peername = udp_peername } in
       begin
         match s.udp_peername with
-          Some (Unix.ADDR_INET (peername, port)) ->
+        | Some (Unix.ADDR_INET (peername, port)) ->
             Debug.call 'b' (fun f -> fprintf f "Adding AC %i with udp_peername %s port %i\n" ac_id (Unix.string_of_inet_addr peername) port)
         | _ -> Debug.call 'b' (fun f -> fprintf f "Adding AC %i\n" ac_id)
       end;
@@ -175,17 +172,17 @@ let send_status_msg =
       and msg_rate = float (status.rx_msg - status.last_rx_msg) /. dt in
       status.last_rx_msg <- status.rx_msg;
       status.last_rx_byte <- status.rx_byte;
-      let vs = ["ac_id", Pprz.String (string_of_int ac_id);
-                "link_id", Pprz.String (string_of_int !link_id);
-                "run_time", Pprz.Int64 (Int64.of_int t);
-                "rx_lost_time", Pprz.Int64 (Int64.of_int (status.ms_since_last_msg / 1000));
-                "rx_bytes", Pprz.Int64 (Int64.of_int status.rx_byte);
-                "rx_msgs", Pprz.Int64 (Int64.of_int status.rx_msg);
-                "rx_err", Pprz.Int64 (Int64.of_int status.rx_err);
-                "rx_bytes_rate", Pprz.Float byte_rate;
-                "rx_msgs_rate", Pprz.Float msg_rate;
-                "tx_msgs", Pprz.Int64 (Int64.of_int status.tx_msg);
-                "ping_time", Pprz.Float (1000. *. (status.last_pong -. status.last_ping))
+      let vs = ["ac_id", PprzLink.String (string_of_int ac_id);
+                "link_id", PprzLink.String (string_of_int !link_id);
+                "run_time", PprzLink.Int64 (Int64.of_int t);
+                "rx_lost_time", PprzLink.Int64 (Int64.of_int (status.ms_since_last_msg / 1000));
+                "rx_bytes", PprzLink.Int64 (Int64.of_int status.rx_byte);
+                "rx_msgs", PprzLink.Int64 (Int64.of_int status.rx_msg);
+                "rx_err", PprzLink.Int64 (Int64.of_int status.rx_err);
+                "rx_bytes_rate", PprzLink.Float byte_rate;
+                "rx_msgs_rate", PprzLink.Float msg_rate;
+                "tx_msgs", PprzLink.Int64 (Int64.of_int status.tx_msg);
+                "ping_time", PprzLink.Float (1000. *. (status.last_pong -. status.last_ping))
                ] in
       send_ground_over_ivy "link" "LINK_REPORT" vs)
       statuss
@@ -197,14 +194,14 @@ let update_ms_since_last_msg =
       statuss
 
 let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
-  let raw_data_size = match raw_data_size with None -> String.length (Serial.string_of_payload payload) | Some d -> d in
-  let buf = Serial.string_of_payload payload in
+  let raw_data_size = match raw_data_size with None -> String.length (Protocol.string_of_payload payload) | Some d -> d in
+  let buf = Protocol.string_of_payload payload in
   Debug.call 'l' (fun f ->  fprintf f "pprz receiving: %s\n" (Debug.xprint buf));
   try
     let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
     let msg = Tm_Pprz.message_of_id msg_id in
-    send_message_over_ivy (string_of_int ac_id) msg.Pprz.name values;
-    update_status ?udp_peername ac_id raw_data_size (msg.Pprz.name = "PONG")
+    send_message_over_ivy (string_of_int ac_id) msg.PprzLink.name values;
+    update_status ?udp_peername ac_id raw_data_size (msg.PprzLink.name = "PONG")
   with
       exc ->
         prerr_endline (Printexc.to_string exc);
@@ -212,26 +209,6 @@ let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
 
 
 type priority = Null | Low | Normal | High
-
-module Aerocomm = struct
-  let set_command_mode = fun fd ->
-    Serial.set_dtr fd true
-
-  let set_data_mode = fun fd ->
-    Serial.set_dtr fd false
-
-  let write_destination_address = fun fd address ->
-    assert (0 <= address && address <= 0xffffff);
-    let o = Unix.out_channel_of_descr fd in
-    let s = String.create 5 in
-    s.[0] <- Char.chr 0xcc;
-    s.[1] <- Char.chr 0x10;
-    s.[2] <- Char.chr (address lsr 16);
-    s.[3] <- Char.chr ((address lsr 8) land 0xff);
-    s.[4] <- Char.chr (address land 0xff);
-    fprintf o "%s%!" s
-end
-
 
 module XB = struct (** XBee module *)
   let nb_retries = ref 10
@@ -244,16 +221,16 @@ module XB = struct (** XBee module *)
   let switch_to_api = fun device ->
     let o = Unix.out_channel_of_descr device.fd in
     Debug.trace 'x' "config xbee";
-    fprintf o "%s%!" (Xbee.at_set_my !my_addr);
-    fprintf o "%s%!" Xbee.at_api_enable;
-    fprintf o "%s%!" Xbee.at_exit;
+    fprintf o "%s%!" (Xbee_transport.at_set_my !my_addr);
+    fprintf o "%s%!" Xbee_transport.at_api_enable;
+    fprintf o "%s%!" Xbee_transport.at_exit;
     Debug.trace 'x' "end init xbee"
 
   let init = fun device ->
     Debug.trace 'x' "init xbee";
     let o = Unix.out_channel_of_descr device.fd in
     ignore (Glib.Timeout.add at_init_period (fun () ->
-      fprintf o "%s%!" Xbee.at_command_sequence;
+      fprintf o "%s%!" Xbee_transport.at_command_sequence;
       ignore (Glib.Timeout.add at_init_period (fun () -> switch_to_api device; false));
       false))
 
@@ -272,14 +249,14 @@ module XB = struct (** XBee module *)
   let oversize_packet = 4 (* Start + msb_len + lsb_len + cksum *)
 
   let use_message = fun device frame_data ->
-    let frame_data = Serial.string_of_payload frame_data in
+    let frame_data = Protocol.string_of_payload frame_data in
     Debug.trace 'x' (Debug.xprint frame_data);
-    match Xbee.api_parse_frame frame_data with
-        Xbee.Modem_Status x ->
+    match Xbee_transport.api_parse_frame frame_data with
+      | Xbee_transport.Modem_Status x ->
           Debug.trace 'x' (sprintf "getting XBee status %d" x)
-      | Xbee.AT_Command_Response (frame_id, comm, status, value) ->
+      | Xbee_transport.AT_Command_Response (frame_id, comm, status, value) ->
         Debug.trace 'x' (sprintf "getting XBee AT command response: %d %s %d %s" frame_id comm status (Debug.xprint value))
-      | Xbee.TX_Status (frame_id,status) | Xbee.TX868_Status (frame_id,status,_) ->
+      | Xbee_transport.TX_Status (frame_id,status) | Xbee_transport.TX868_Status (frame_id,status,_) ->
         Debug.trace 'x' (sprintf "getting XBee TX status: %d %d" frame_id status);
         if status = 1 then (* no ack, retry *)
           let (packet, nb_prev_retries) = packets.(frame_id) in
@@ -293,27 +270,27 @@ module XB = struct (** XBee module *)
                         false));
           end
 
-      | Xbee.RX_Packet_64 (addr64, rssi, options, data) ->
+      | Xbee_transport.RX_Packet_64 (addr64, rssi, options, data) ->
         Debug.trace 'x' (sprintf "getting XBee RX64: %Lx %d %d %s" addr64 rssi options (Debug.xprint data));
-        use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Serial.payload_of_string data)
-      | Xbee.RX868_Packet (addr64, options, data) ->
+        use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Protocol.payload_of_string data)
+      | Xbee_transport.RX868_Packet (addr64, options, data) ->
         Debug.trace 'x' (sprintf "getting XBee868 RX: %Lx %d %s" addr64 options (Debug.xprint data));
-        use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Serial.payload_of_string data)
-      | Xbee.RX_Packet_16 (addr16, rssi, options, data) ->
+        use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Protocol.payload_of_string data)
+      | Xbee_transport.RX_Packet_16 (addr16, rssi, options, data) ->
         Debug.trace 'x' (sprintf "getting XBee RX16: from=%x %d %d %s" addr16 rssi options (Debug.xprint data));
-        use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Serial.payload_of_string data)
+        use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Protocol.payload_of_string data)
 
 
   let send = fun ?ac_id device rf_data ->
     let ac_id = match ac_id with None -> 0xffff | Some a -> a in
-    let rf_data = Serial.string_of_payload rf_data in
+    let rf_data = Protocol.string_of_payload rf_data in
     let frame_id = gen_frame_id () in
     let frame_data =
-      if !Xbee.mode868 then
-        Xbee.api_tx64 ~frame_id (Int64.of_int ac_id) rf_data
+      if !Xbee_transport.mode868 then
+        Xbee_transport.api_tx64 ~frame_id (Int64.of_int ac_id) rf_data
       else
-        Xbee.api_tx16 ~frame_id ac_id rf_data in
-    let packet = Xbee.Protocol.packet (Serial.payload_of_string frame_data) in
+        Xbee_transport.api_tx16 ~frame_id ac_id rf_data in
+    let packet = Xbee_transport.Transport.packet (Protocol.payload_of_string frame_data) in
 
     (* Store the packet for further retry *)
     packets.(frame_id) <- (packet, 1);
@@ -331,7 +308,7 @@ let local_broadcast_address =
     (Unix.inet_addr_of_string "127.255.255.255")
 
 let udp_send = fun fd payload peername ->
-  let buf = Pprz.Transport.packet payload in
+  let buf = Pprz_transport.Transport.packet payload in
   let len = String.length buf in
   let addr = if !udp_broadcast then (Unix.inet_addr_of_string !udp_broadcast_addr) else peername in
   Debug.call 'u' (fun f -> fprintf f "udp_send to %s port %i\n" (Unix.string_of_inet_addr addr) !udp_uplink_port);
@@ -348,13 +325,13 @@ let send = fun ac_id device payload _priority ->
       ()
     with Not_found -> () in
     match udp_peername ac_id with
-        Some (Unix.ADDR_INET (peername, _port)) ->
+      | Some (Unix.ADDR_INET (peername, _port)) ->
           udp_send device.fd payload peername
       | _ ->
         match device.transport with
-            Pprz | Pprz2 ->
+          | Pprz ->
               let o = Unix.out_channel_of_descr device.fd in
-              let buf = Pprz.Transport.packet payload in
+              let buf = Pprz_transport.Transport.packet payload in
               Printf.fprintf o "%s" buf; flush o;
               Debug.call 's' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
           | XBee ->
@@ -374,37 +351,20 @@ let broadcast = fun device payload _priority ->
       statuss
   else
     match device.transport with
-        Pprz ->
+      | Pprz ->
           let o = Unix.out_channel_of_descr device.fd in
-          let buf = Pprz.Transport.packet payload in
+          let buf = Pprz_transport.Transport.packet payload in
           Printf.fprintf o "%s" buf; flush o;
           Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
-      | Pprz2 ->
-        let o = Unix.out_channel_of_descr device.fd in
-        let buf = Pprz.TransportExtended.packet payload in
-        Printf.fprintf o "%s" buf; flush o;
-        Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
       | XBee ->
         XB.send device payload
 
 
-(*************** Audio *******************************************************)
-module Audio = struct
-  let use_data =
-    let buffer = ref "" in
-    fun data ->
-      let b = !buffer ^ data in
-      let n = PprzTransport.parse use_tele_message b in
-      buffer := String.sub b n (String.length b - n)
-end
-
-
-
 let parser_of_device = fun device ->
   match device.transport with
-      Pprz ->
+    | Pprz ->
         let use = fun s ->
-          let raw_data_size = String.length (Serial.string_of_payload s) + 4 (*stx,len,ck_a, ck_b*) in
+          let raw_data_size = String.length (Protocol.string_of_payload s) + 4 (*stx,len,ck_a, ck_b*) in
           let udp_peername =
             if !udp then
               Some !last_udp_peername
@@ -412,18 +372,8 @@ let parser_of_device = fun device ->
               None in
           use_tele_message ?udp_peername ~raw_data_size s in
         PprzTransport.parse use
-    | Pprz2 ->
-      let use = fun s ->
-        let raw_data_size = String.length (Serial.string_of_payload s) + 8 (*stx,len, timestamp, ck_a, ck_b*) in
-        let udp_peername =
-          if !udp then
-            Some !last_udp_peername
-          else
-            None in
-        use_tele_message ?udp_peername ~raw_data_size s in
-      PprzTransportExtended.parse use
     | XBee ->
-      let module XbeeTransport = Serial.Transport (Xbee.Protocol) in
+      let module XbeeTransport = Protocol.Transport (Xbee_transport.Transport) in
       XbeeTransport.parse (XB.use_message device)
 
 
@@ -436,7 +386,7 @@ let hangup = fun _ ->
 let message_uplink = fun device ->
   let forwarder = fun name _sender vs ->
     Debug.call 'f' (fun f -> fprintf f "forward %s\n" name);
-    let ac_id = Pprz.int_assoc "ac_id" vs in
+    let ac_id = PprzLink.int_assoc "ac_id" vs in
     let msg_id, _ = Dl_Pprz.message_of_name name in
     let s = Dl_Pprz.payload_of_values msg_id my_id vs in
     send ac_id device s High in
@@ -454,9 +404,9 @@ let message_uplink = fun device ->
   (* Set a forwarder or a broadcaster for all messages tagged in messages.xml *)
   Hashtbl.iter
     (fun _m_id msg ->
-      match msg.Pprz.link with
-          Some Pprz.Forwarded -> set_forwarder msg.Pprz.name
-        | Some Pprz.Broadcasted -> if !ac_info then set_broadcaster msg.Pprz.name
+      match msg.PprzLink.link with
+        | Some PprzLink.Forwarded -> set_forwarder msg.PprzLink.name
+        | Some PprzLink.Broadcasted -> if !ac_info then set_broadcaster msg.PprzLink.name
         | _ -> ())
     Dl_Pprz.messages
 
@@ -479,17 +429,12 @@ let () =
   and hw_flow_control = ref false
   and transport = ref "pprz"
   and uplink = ref true
-  and audio = ref false
-  and aerocomm = ref false
   and udp_port = ref 4242 in
 
   (* Parse command line options *)
   let options =
-    [ "-aerocomm", Arg.Set aerocomm, "Set serial Aerocomm data mode";
-      "-audio", Arg.Unit (fun () -> audio := true; port := "/dev/dsp"), (sprintf "Listen a modulated audio signal on <port>. Sets <port> to /dev/dsp (the -d option must used after this one if needed)");
-      "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
+    [ "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
-      "-dtr", Arg.Set aerocomm, "Set serial DTR to false (deprecated)";
       "-fg",  Arg.Set gen_stat_trafic, "Enable trafic statistics on standard output";
       "-noac_info", Arg.Clear ac_info, (sprintf "Disables AC traffic info (uplink).");
       "-nouplink", Arg.Clear uplink, (sprintf "Disables the uplink (from the ground to the aircraft).");
@@ -505,7 +450,7 @@ let () =
       "-uplink", Arg.Set uplink, (sprintf "Deprecated (now default)");
       "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
       "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<nb retries> (%d)" !XB.nb_retries);
-      "-xbee_868", Arg.Set Xbee.mode868, (sprintf "Enables the 868 protocol");
+      "-xbee_868", Arg.Set Xbee_transport.mode868, (sprintf "Enables the 868 protocol");
       "-redlink", Arg.Set red_link, (sprintf "Sets whether the link is a redundant link. Set this flag and the id flag to use multiple links");
       "-id", Arg.Set_int link_id, (sprintf "<id> Sets the link id. If multiple links are used, each must have a unique id. Default is %i" !link_id);
       "-status_period", Arg.Set_int status_msg_period, (sprintf "<period> Sets the period (in ms) of the LINK_REPORT status message. Default is %i" !status_msg_period);
@@ -524,22 +469,22 @@ let () =
   try
     let transport = transport_of_string !transport in
 
-    (** Listen on audio input or on a serial device or on multimon pipe *)
+    (** Listen on a udp port or a serial device or on pipe *)
     let on_serial_device =
       String.length !port >= 4 && String.sub !port 0 4 = "/dev" in (* FIXME *)
     let fd =
-      if !udp then begin
-        let sockaddr = Unix.ADDR_INET (Unix.inet_addr_any, !udp_port)
-        and socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
-        if !udp_broadcast then
-          Unix.setsockopt socket Unix.SO_BROADCAST true;
-        Unix.bind socket sockaddr;
-        socket
-      end else if !audio then
-          Demod.init !port
-        else if on_serial_device then
+      if !udp then
+        begin
+          let sockaddr = Unix.ADDR_INET (Unix.inet_addr_any, !udp_port)
+          and socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
+          if !udp_broadcast then
+            Unix.setsockopt socket Unix.SO_BROADCAST true;
+            Unix.bind socket sockaddr;
+            socket
+        end
+      else if on_serial_device then
           Serial.opendev !port (Serial.speed_of_baudrate !baudrate) !hw_flow_control
-        else
+       else
           Unix.openfile !port [Unix.O_RDWR] 0o640
     in
 
@@ -549,24 +494,18 @@ let () =
 
     (* The function to be called when data is available *)
     let read_fd =
-      if !audio then
-        fun _io_event ->  (* Demodulation *)
-          let (data_left, _data_right) = Demod.get_data () in
-          Audio.use_data data_left;
-          true (* Returns true to be called again *)
-      else (* Buffering and parsing *)
-        let buffered_parser =
-          (* Get the specific parser for the given transport protocol *)
-          let parser = parser_of_device device in
-          let read = if !udp then udp_read else Unix.read in
-          (* Wrap the parser into the buffered bytes reader *)
-          match Serial.input ~read parser with Serial.Closure f -> f in
-        fun _io_event ->
-          begin
-            try buffered_parser fd with
-                exc -> prerr_endline (Printexc.to_string exc)
-          end;
-          true (* Returns true to be called again *)
+      let buffered_parser =
+        (* Get the specific parser for the given transport protocol *)
+        let parser = parser_of_device device in
+        let read = if !udp then udp_read else Unix.read in
+        (* Wrap the parser into the buffered bytes reader *)
+        match Serial.input ~read parser with Serial.Closure f -> f in
+      fun _io_event ->
+        begin
+          try buffered_parser fd with
+          exc -> prerr_endline (Printexc.to_string exc)
+      end;
+      true (* Returns true to be called again *)
     in
     ignore (Glib.Io.add_watch [`HUP] hangup (GMain.Io.channel_of_descr fd));
     ignore (Glib.Io.add_watch [`IN] read_fd (GMain.Io.channel_of_descr fd));
@@ -583,10 +522,8 @@ let () =
         ignore (Glib.Timeout.add !ping_msg_period (fun () -> send_ping_msg device; true));
         false in
       ignore (Glib.Timeout.add status_ping_diff start_ping);
-      if !aerocomm then
-        Aerocomm.set_data_mode fd;
       match transport with
-          XBee ->
+        | XBee ->
             XB.init device
         | _ -> ()
     end;
@@ -598,5 +535,5 @@ let () =
       ignore (Glib.Main.iteration true)
     done
   with
-      Xml.Error e -> prerr_endline (Xml.error e); exit 1
+    | Xml.Error e -> prerr_endline (Xml.error e); exit 1
     | exn -> fprintf stderr "%s\n" (Printexc.to_string exn); exit 1
