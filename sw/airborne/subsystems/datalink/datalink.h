@@ -96,7 +96,7 @@ static inline void DlCheckAndParse(void)
 #elif defined DATALINK && DATALINK == XBEE
 
 #define DatalinkEvent() {                       \
-    xbee_check_and_parse(&(XBEE_UART).device, &xbee_tp, dl_buffer, &dl_msg_available);      \
+    xbee_check_and_parse(&(XBEE_UART).device, &xbee_tp, dl_buffer, (uint8_t*)(&dl_msg_available));      \
     DlCheckAndParse();                          \
   }
 

@@ -62,7 +62,10 @@ extern struct ivy_transport ivy_tp;
 extern struct pprz_transport pprz_tp;
 #endif
 
+#if USE_PPRZLOG
 #include "pprzlink/pprzlog_transport.h"
+extern struct pprzlog_transport pprzlog_tp;
+#endif
 
 #if DATALINK == XBEE
 #include "pprzlink/xbee_transport.h"

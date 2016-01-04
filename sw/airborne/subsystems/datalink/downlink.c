@@ -39,6 +39,9 @@ struct pprz_transport pprz_tp;
 #if DATALINK == XBEE
 struct xbee_transport xbee_tp;
 #endif
+#if USE_PPRZLOG
+struct pprzlog_transport pprzlog_tp;
+#endif
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -106,7 +109,7 @@ void downlink_init(void)
 #endif
 
 #if USE_PPRZLOG
-  pprzlog_transport_init();
+  pprzlog_transport_init(&pprzlog_tp, get_sys_time_usec);
 #endif
 
 #if SITL && !USE_NPS

@@ -54,7 +54,7 @@ Do not use start/stop functionality of the module, the module is not intended to
         ap.CFLAGS += -DLOGGER_LED=$(LOGGER_LED)
         endif
 
-        ap.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprzlog_transport.c
+        ap.srcs += subsystems/datalink/downlink.c $(PAPARAZZI_HOME)/var/share/pprzlink/src/pprzlog_transport.c
 
         include $(CFG_SHARED)/spi_master.makefile
     </raw>
