@@ -152,14 +152,12 @@ void stereocam_to_state(float dphi, float dtheta)
   stereocam_data.data[23] = (uint8_t)((velocity_rot_state.x) * 10 + 127); // dm/s
   stereocam_data.data[24] = (uint8_t)((velocity_rot_state.y) * 10 + 127); // dm/s
 
-  //Send measurement values in same structure as stereocam message for state measurements
-  DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len,
-                           stereocam_data.data);
   //todo: retrieve optitrack in int16
   int16_t vel_x_opti_int = (int16_t)(vel_x_opti * 100);
   int16_t vel_y_opti_int = (int16_t)(vel_y_opti * 100);
-  // Send measurement values for high resolution plots
-  DOWNLINK_SEND_STEREO_VALUES(DefaultChannel, DefaultDevice, &vel_x_int, &vel_y_int, &vel_x_opti_int, &vel_y_opti_int);
+  //Send measurement values in same structure as stereocam message for state measurements
+  //DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), &vel_x_int, &vel_y_int, &vel_x_opti_int, &vel_y_opti_int, stereocam_data.len,
+                          // stereocam_data.data);
 
 #endif
 
