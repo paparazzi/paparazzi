@@ -46,6 +46,11 @@
 /// Default clock: PLL with X gyro reference
 #define MPU60X0_DEFAULT_CLK_SEL 1
 
+// Default number of I2C slaves
+#ifndef MPU60X0_I2C_NB_SLAVES
+#define MPU60X0_I2C_NB_SLAVES 5
+#endif
+
 enum Mpu60x0ConfStatus {
   MPU60X0_CONF_UNINIT,
   MPU60X0_CONF_RESET,
@@ -88,7 +93,7 @@ struct Mpu60x0Config {
 
   uint8_t nb_slaves;                    ///< number of used I2C slaves
   uint8_t nb_slave_init;                ///< number of already configured/initialized slaves
-  struct Mpu60x0I2cSlave slaves[5];     ///< I2C slaves
+  struct Mpu60x0I2cSlave slaves[MPU60X0_I2C_NB_SLAVES];     ///< I2C slaves
   enum Mpu60x0MstClk i2c_mst_clk;       ///< MPU I2C master clock speed
   uint8_t i2c_mst_delay;                ///< MPU I2C slaves delayed sample rate
 };
