@@ -1986,7 +1986,13 @@
     <field name="imageBuffer" type="uint8[]"/>
   </message>
 
-  <!--230 is free -->
+ <message name="STEREO_VALUES" id="230">
+    <field name="vel_x" type="int16" unit="cm/s"/>
+    <field name="vel_y" type="int16" unit="cm/s"/>
+    <field name="vel_x_opti" type="int16" unit="cm/s"/>
+    <field name="vel_y_opti" type="int16" unit="cm/s"/>
+  </message>
+
 
   <message name="ROTORCRAFT_STATUS" id="231">
     <field name="link_imu_nb_err" type="uint32"/>

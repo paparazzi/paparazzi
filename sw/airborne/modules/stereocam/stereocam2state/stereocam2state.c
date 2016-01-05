@@ -78,18 +78,32 @@ void stereo_to_state_periodic(void)
 
 void stereocam_to_state(float dphi, float dtheta)
 {
+  uint8_t frequency = 0;
 
   // Get info from stereocam data
+  // TODO: when ready, remove all floats in this
   float vel_hor = ((float)(stereocam_data.data[8]) - 127) / 100;
   float vel_ver = ((float)(stereocam_data.data[9]) - 127) / 100;
   float vel_x = 0;
   float vel_y = 0;
+  //rotate to body coordinates
+  vel_x = - (vel_ver);
+  vel_y = (vel_hor);
 
+  // Retreive high resolution data from stereocam_data.data
+  int16_t vel_x_int = 0;
+  int16_t vel_y_int = 0;
+  int16_t vel_hor_int = (int16_t)stereocam_data.data[10] << 8;
+  vel_hor_int |= (int16_t)stereocam_data.data[11];
+  int16_t vel_ver_int = (int16_t)stereocam_data.data[12] << 8;
+  vel_ver_int |= (int16_t)stereocam_data.data[13];
+  //rotate to body coordinates
+  vel_x_int = - (vel_ver_int);
+  vel_y_int = (vel_hor_int);
 
   // Calculate derotated velocity
 #if USE_DEROTATION_OPTICFLOW
   float agl_stereo = (float)(stereocam_data.data[4]) / 10;
-
 
   float diff_flow_hor = dtheta * 128 / 1.04;
   float diff_flow_ver = dphi * 96 / 0.785;
@@ -101,9 +115,7 @@ void stereocam_to_state(float dphi, float dtheta)
   vel_y = (vel_hor - diff_vel_hor);
 #endif
 
-  // Derotate velocity and transform from frame to body coordinates
-  vel_x = - (vel_ver);
-  vel_y = (vel_hor);
+
 
 
 #if STATE_MEASURE_OPTICFLOW
@@ -131,7 +143,6 @@ void stereocam_to_state(float dphi, float dtheta)
   float vel_x_error = vel_x_opti - vel_x;
   float vel_y_error = vel_y_opti - vel_y;
 
-//TODO:: Check out why vel_x_opti is 10 x big as stereocamera's output
   stereocam_data.data[8] = (uint8_t)((vel_x * 10) + 127); // dm/s
   stereocam_data.data[9] = (uint8_t)((vel_y * 10) + 127); // dm/s
   stereocam_data.data[19] = (uint8_t)((vel_x_opti) * 10 + 127); // dm/s
@@ -141,10 +152,15 @@ void stereocam_to_state(float dphi, float dtheta)
   stereocam_data.data[23] = (uint8_t)((velocity_rot_state.x) * 10 + 127); // dm/s
   stereocam_data.data[24] = (uint8_t)((velocity_rot_state.y) * 10 + 127); // dm/s
 
-  //Send measurement values in same structure as stereocam message (make sure SEND_STEREO in stereocam.c is FALSE)
-  uint8_t frequency = 0;
+  //Send measurement values in same structure as stereocam message for state measurements
   DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len,
                            stereocam_data.data);
+  //todo: retrieve optitrack in int16
+  int16_t vel_x_opti_int = (int16_t)(vel_x_opti * 100);
+  int16_t vel_y_opti_int = (int16_t)(vel_y_opti * 100);
+  // Send measurement values for high resolution plots
+  DOWNLINK_SEND_STEREO_VALUES(DefaultChannel, DefaultDevice, &vel_x_int, &vel_y_int, &vel_x_opti_int, &vel_y_opti_int);
+
 #endif
 
   //Send velocity estimate to state
