@@ -156,8 +156,9 @@ void stereocam_to_state(float dphi, float dtheta)
   int16_t vel_x_opti_int = (int16_t)(vel_x_opti * 100);
   int16_t vel_y_opti_int = (int16_t)(vel_y_opti * 100);
   //Send measurement values in same structure as stereocam message for state measurements
-  //DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), &vel_x_int, &vel_y_int, &vel_x_opti_int, &vel_y_opti_int, stereocam_data.len,
-                          // stereocam_data.data);
+  DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), &vel_x_int, &vel_y_int,
+                           &vel_x_opti_int, &vel_y_opti_int, stereocam_data.len,
+                           stereocam_data.data);
 
 #endif
 
@@ -165,10 +166,10 @@ void stereocam_to_state(float dphi, float dtheta)
   //TODO:: Make variance dependable on line fit error, after new horizontal filter is made
   uint32_t now_ts = get_sys_time_usec();
 
-  if (!(abs(vel_y) > 0.5 || abs(vel_x) > 0.5) || abs(dphi) > 0.05 || abs(dtheta) > 0.05) {
+  if (!(abs(vel_y_int) > 50 || abs(vel_x_int) > 50) || abs(dphi) > 0.05 || abs(dtheta) > 0.05) {
     AbiSendMsgVELOCITY_ESTIMATE(SENDER_ID, now_ts,
-                                vel_x,
-                                vel_y,
+                                (float)vel_x_int / 100,
+                                (float)vel_y_int / 100,
                                 0.0f,
                                 0.3f
                                );

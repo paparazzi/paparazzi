@@ -41,7 +41,7 @@ struct link_device *linkdev = STEREO_PORT;
 
 // pervasive local variables
 MsgProperties msgProperties;
-
+int16_t vel = 0;
 
 uint16_t freq_counter = 0;
 uint8_t frequency = 0;
@@ -106,13 +106,14 @@ extern void stereocam_periodic(void)
         freq_counter = 0;
         previous_time = sys_time.nb_tick;
       }
-      int16_t vel = 0;
 #if SEND_STEREO
       if (stereocam_data.len > 100) {
-        DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), &vel, &vel, &vel, &vel, 100,  stereocam_data.data);
+        DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), &vel, &vel, &vel, &vel, 100,
+                                 stereocam_data.data);
 
       } else {
-        DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency,  &(stereocam_data.len), &vel, &vel, &vel, &vel, stereocam_data.len,
+        DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency,  &(stereocam_data.len), &vel, &vel, &vel, &vel,
+                                 stereocam_data.len,
                                  stereocam_data.data);
 
       }
