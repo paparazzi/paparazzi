@@ -53,6 +53,18 @@
 #define POS_ECEF_TIMEOUT 1000
 
 /*
+static uint32_t time_since_last_heartbeat;
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+
+static void send_piksi_heartbeat(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_PIKSI_HEARTBEAT(trans, dev, AC_ID,
+                        &time_since_last_heartbeat);
+}
+
+#endif
  * Set the Piksi GPS antenna (default is Patch, internal)
  */
 #if USE_PIKSI_EXT_ANTENNA
@@ -94,6 +106,7 @@ sbp_msg_callbacks_node_t dops_node;
 sbp_msg_callbacks_node_t gps_time_node;
 sbp_msg_callbacks_node_t tracking_state_node;
 sbp_msg_callbacks_node_t tracking_state_dep_a_node;
+sbp_msg_callbacks_node_t heartbeat_node;
 
 
 static void gps_piksi_publish(void);
@@ -298,6 +311,7 @@ void gps_impl_init(void)
   sbp_register_callback(&sbp_state, SBP_MSG_GPS_TIME, &sbp_gps_time_callback, NULL, &gps_time_node);
   sbp_register_callback(&sbp_state, SBP_MSG_TRACKING_STATE, &sbp_tracking_state_callback, NULL, &tracking_state_node);
   sbp_register_callback(&sbp_state, SBP_MSG_TRACKING_STATE_DEP_A, &sbp_tracking_state_dep_a_callback, NULL, &tracking_state_dep_a_node);
+  sbp_register_callback(&sbp_state, SBP_MSG_HEARTBEAT, &spb_heartbeat_callback, NULL, &heartbeat_node);
 
   /* Write settings */
   sbp_send_message(&sbp_state, SBP_MSG_SETTINGS_WRITE, SBP_SENDER_ID, sizeof(SBP_ANT_SET), (u8*)(&SBP_ANT_SET), gps_piksi_write);
@@ -312,6 +326,9 @@ void gps_impl_init(void)
   sbp_send_message(&sbp_state, SBP_MSG_BASE_POS, SBP_SENDER_ID, sizeof(msg_base_pos_t), (u8*)(&base_pos), gps_piksi_write);*/
 
   gps.nb_channels = GPS_NB_CHANNELS;
+  #ifdef PIKSI_HEARTBEAT_MSG
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PIKSI_HEARTBEAT, send_piksi_heartbeat);
+  #endif
 }
 
 /*
