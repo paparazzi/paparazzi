@@ -98,7 +98,6 @@ void parse_gps_datalink_small(uint8_t num_sv, uint32_t pos_xyz, uint32_t speed_x
   ecef_of_enu_vect_i(&gps.ecef_vel , &ltp_def , &enu_speed);
   SetBit(gps.valid_fields, GPS_VALID_VEL_ECEF_BIT);
 
-  // todo check correct
   gps.ned_vel.x = enu_speed.x;
   gps.ned_vel.y = enu_speed.y;
   gps.ned_vel.z = -enu_speed.z;
@@ -111,7 +110,7 @@ void parse_gps_datalink_small(uint8_t num_sv, uint32_t pos_xyz, uint32_t speed_x
   SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
 
   gps.num_sv = num_sv;
-  gps.tow = gps_tow_from_sys_ticks(sys_time.nb_tick); // todo check
+  gps.tow = gps_tow_from_sys_ticks(sys_time.nb_tick);
   gps.fix = GPS_FIX_3D; // set 3D fix to true
   gps_available = TRUE; // set GPS available to true
 
