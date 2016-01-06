@@ -27,13 +27,27 @@
 #ifndef GPS_UBX_H
 #define GPS_UBX_H
 
+#if GPS_SECONDARY_UBX
+#define UBX_GPS_LINK GPS_SECONDARY_PORT
+#define SecondaryGpsImpl ubx
+#else
+#define PrimaryGpsImpl ubx
+#endif
+#if GPS_PRIMARY_UBX
+#define UBX_GPS_LINK GPS_PRIMARY_PORT
+#endif
+
 #ifdef GPS_CONFIGURE
 #warning "Please use gps_ubx_ucenter.xml module instead of GPS_CONFIGURE"
 #endif
 
 #include "mcu_periph/uart.h"
 
-#define GPS_NB_CHANNELS 16
+void ubx_gps_impl_init(void);
+void ubx_gps_event(void);
+extern void ubx_gps_register(void);
+
+//#define GPS_NB_CHANNELS 16
 
 #define GPS_UBX_MAX_PAYLOAD 255
 struct GpsUbx {
@@ -52,6 +66,7 @@ struct GpsUbx {
 
   uint8_t status_flags;
   uint8_t sol_flags;
+
 };
 
 extern struct GpsUbx gps_ubx;
@@ -90,24 +105,6 @@ extern void ubx_send_cfg_rst(struct link_device *dev, uint16_t bbr, uint8_t rese
 extern void gps_ubx_read_message(void);
 extern void gps_ubx_parse(uint8_t c);
 extern void gps_ubx_msg(void);
-
-
-/* Gps callback is called when receiving a VELNED or a SOL message
- * All position/speed messages are sent in one shot and VELNED is the last one on fixedwing
- * For rotorcraft, only SOL message is needed for pos/speed data
- */
-static inline void GpsEvent(void)
-{
-  struct link_device *dev = &((GPS_LINK).device);
-
-  while (dev->char_available(dev->periph)) {
-    gps_ubx_parse(dev->get_byte(dev->periph));
-    if (gps_ubx.msg_available) {
-      gps_ubx_msg();
-    }
-  }
-}
-
 
 /*
  * GPS Reset
