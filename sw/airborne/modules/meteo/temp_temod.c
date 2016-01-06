@@ -90,7 +90,7 @@ void temod_event(void)
 #if TEMP_TEMOD_SDLOG
   if (pprzLogFile != -1) {
     if (!log_temod_started) {
-      sdLogWriteLog(pprzLogFile, "TEMOD: Temp(degC) H(usec) GPS_fix TOW(ms) Week Lat(1e7rad) Lon(1e7rad) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
+      sdLogWriteLog(pprzLogFile, "TEMOD: Temp(degC) GPS_fix TOW(ms) Week Lat(1e7deg) Lon(1e7deg) HMSL(mm) gspeed(cm/s) course(1e7deg) climb(cm/s)\n");
       log_temod_started = TRUE;
     }
     else {
