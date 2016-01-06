@@ -39,7 +39,7 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   //TODO set alt above ellipsoid, use hmsl for now
   lla_f.alt = Double_val(a);
   LLA_BFP_OF_REAL(gps.lla_pos, lla_f);
-  SetBit(gps.valid_fields, GPS_VALID_POS_UTM_BIT);
+  SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
 
   gps.utm_pos.east = Int_val(x);
   gps.utm_pos.north = Int_val(y);
