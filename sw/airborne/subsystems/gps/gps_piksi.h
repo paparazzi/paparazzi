@@ -34,6 +34,7 @@
 
 #define GPS_NB_CHANNELS 10
 
+#define PIKSI_HEARTBEAT_MSG
 extern void gps_piksi_event(void);
 
 /*
