@@ -16,7 +16,7 @@ endif
 
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/gps.c
 
-ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_piksi.h\"
+ap.CFLAGS += -DPRIMARY_GPS_TYPE_H=\"subsystems/gps/gps_piksi.h\"
 ap.srcs   += $(SRC_SUBSYSTEMS)/gps/gps_piksi.c
 
 # libsbp
