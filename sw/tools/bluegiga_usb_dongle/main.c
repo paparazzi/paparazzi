@@ -134,6 +134,7 @@ FUNCTION ANALYSIS:
 
 // uncomment the following line to show outgoing/incoming BGAPI packet data
 //#define DEBUG
+#define DEBUG_BROADCAST
 
 // timeout for serial port read operations
 #define UART_TIMEOUT 1000
@@ -166,7 +167,7 @@ int count[8] = {0, 0, 0, 0, 0, 0, 0, 0}, send_count[8] = {0, 0, 0, 0, 0, 0, 0, 0
 int rssi_count = 0;
 int last0 = 0, last1 = 0;
 
-uint8_t connection_interval = 10; // connection interval in ms
+float connection_interval = 10.; // connection interval in ms
 
 int ac_id[8] = { -1, -1, -1, -1, -1, -1, -1, -1};
 
@@ -182,6 +183,7 @@ unsigned int send_extract_idx[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 int connected_devices = 0;
 //bd_addr found_devices[MAX_DEVICES];
 int connected[] = {0, 0, 0, 0, 0, 0, 0, 0};
+bd_addr connected_addr[MAX_DEVICES];
 
 int connect_all = 0;
 uint8 MAC_ADDR[] = {0x00, 0x00, 0x2d, 0x80, 0x07, 0x00};
@@ -190,6 +192,8 @@ uint8 MAC_ADDR[] = {0x00, 0x00, 0x2d, 0x80, 0x07, 0x00};
 
 // {0x00,0x00,0x2d,0x80,0x07,0x00};   // beginning of all modules adresses
 
+FILE* rssi_fp = NULL;
+
 // list all possible pending actions
 enum actions {
   action_none,
@@ -197,7 +201,8 @@ enum actions {
   action_connect,
   action_info,
   action_connect_all,
-  action_broadcast
+  action_broadcast,
+  action_broadcast_connect
 };
 enum actions action = action_none;
 
@@ -313,6 +318,19 @@ void print_bdaddr(bd_addr bdaddr)
 }
 
 /**
+ * Copy Bluetooth MAC address in hexadecimal notation
+ *
+ * @param dst Bluetooth MAC address, destination
+ * @param src Bluetooth MAC address, source
+ */
+void cpy_bdaddr(uint8_t* dst, const uint8_t* src)
+{
+  uint8_t i = 0;
+  for(i = 0; i < 6; i++)
+    dst[i] = src[i];
+}
+
+/**
  * Display raw BGAPI packet in hexadecimal notation
  *
  * @param data1 Fixed-length portion of BGAPI packet (should always be <len1> bytes long)
@@ -344,7 +362,7 @@ void send_api_packet(uint8 len1, uint8 *data1, uint16 len2, uint8 *data2)
 {
 #ifdef DEBUG
   // display outgoing BGAPI packet
-  print_raw_packet((struct ble_header *)data1, data2, 1);
+//  print_raw_packet((struct ble_header *)data1, data2);
 #endif
   if (uart_tx(len1, data1) || uart_tx(len2, data2)) {
     // uart_tx returns non-zero on failure
@@ -386,7 +404,7 @@ int read_api_packet(int timeout_ms)
 
 #ifdef DEBUG
   // display incoming BGAPI packet
-  print_raw_packet(&hdr, data, 0);
+  print_raw_packet(&hdr, data);
 #endif
 
   if (!msg) {
@@ -446,26 +464,41 @@ void ble_rsp_system_get_info(const struct ble_msg_system_get_info_rsp_t *msg)
  */
 void ble_evt_gap_scan_response(const struct ble_msg_gap_scan_response_evt_t *msg)
 {
-  if (action == action_broadcast) {
-    fprintf(stderr, "advertisement from: ");
-    print_bdaddr(msg->sender);
-    fprintf(stderr, " data: ");
-    int i;
-    for (i = 0; i < msg->data.len; i++) {
+
+#ifdef DEBUG_BROADCAST
+  if(cmp_addr(msg->sender.addr, MAC_ADDR) >= 3 )// && msg->sender.addr[0] == 0xdf)
+  {
+    gettimeofday(&tm, NULL); //Time zone struct is obsolete, hence NULL
+    mytime = (double)tm.tv_sec + (double)tm.tv_usec / 1000000.0;
+    fprintf(stderr, "%f %x %d, ", mytime, msg->sender.addr[0], msg->rssi);
+    uint8_t i = 0;
+    for(i = 0; i < msg->data.len; i++)
       fprintf(stderr, "%02x ", msg->data.data[i]);
-    }
     fprintf(stderr, "\n");
+  }
+#endif
+
+  if(rssi_fp)
+  {
+    fprintf(rssi_fp, "%f %d %d\n", mytime, msg->sender.addr[0], msg->rssi);
+    fflush(rssi_fp);
+  }
+
+  if (action == action_broadcast) {
     if (sock[0])
-      sendto(sock[0], msg->data.data, msg->data.len, MSG_DONTWAIT,
+      sendto(sock[0], msg->data.data+13, msg->data.len-13, MSG_DONTWAIT,
              (struct sockaddr *)&send_addr[0], sizeof(struct sockaddr));
-  } else {
+    //printf("first: %02x, last: %02x\n", msg->data.data[13], msg->data.data[msg->data.len]);
+  }
+
+  if (action != action_broadcast) {
     uint8_t i, j;
     char *name = NULL;
 
     // Check if this device already found, if not add to the list
 
     if (!connect_all) {
-      fprintf(stderr, "New device found: ");
+      //fprintf(stderr, "New device found: ");
 
       // Parse data
       for (i = 0; i < msg->data.len;) {
@@ -535,7 +568,15 @@ void ble_evt_gap_scan_response(const struct ble_msg_gap_scan_response_evt_t *msg
     }
 
     // automatically connect if responding device has appropriate mac address header
-    if (connect_all && cmp_addr(msg->sender.addr, MAC_ADDR) >= 4) {
+    // check if bluegiga drone and connectable
+    if (connect_all && msg->packet_type == 0 && cmp_addr(msg->sender.addr, MAC_ADDR) >= 3) {
+	uint8 i = 0;
+    	while(i++ < MAX_DEVICES)
+    	{
+    	  if (!cmp_addr(msg->sender.addr, connected_addr[i].addr))
+    	    return;
+    	}
+    
       fprintf(stderr, "Trying to connect to "); print_bdaddr(msg->sender); fprintf(stderr, "\n");
       //change_state(state_connecting);
       // connection interval unit 1.25ms
@@ -575,6 +616,7 @@ void ble_evt_connection_status(const struct ble_msg_connection_status_evt_t *msg
   // Connection request completed
   else if (msg->flags & connection_completed) {
     if (msg->connection + 1 > connected_devices) { connected_devices++; }
+    cpy_bdaddr(connected_addr[msg->connection].addr, msg->address.addr);
     //change_state(state_connected);
     connection_interval = msg->conn_interval * 1.25;
     fprintf(stderr, "Connected, nr: %d, connection interval: %d = %fms\n", msg->connection, msg->conn_interval,
@@ -612,13 +654,16 @@ void ble_evt_connection_status(const struct ble_msg_connection_status_evt_t *msg
       change_state(state_listening_measurements);
       enable_indications(msg->connection, drone_handle_configuration);
       if (connect_all) {
-        ble_cmd_gap_discover(gap_discover_generic);
+	      ble_cmd_gap_discover(gap_discover_generic);
       }
     }
     // Find primary services
     else {
       change_state(state_finding_services);
       ble_cmd_attclient_read_by_group_type(msg->connection, FIRST_HANDLE, LAST_HANDLE, 2, primary_service_uuid);
+      if (connect_all) {
+	      ble_cmd_gap_discover(gap_discover_generic);
+      }
     }
   }
 }
@@ -677,9 +722,6 @@ void ble_evt_attclient_procedure_completed(const struct ble_msg_attclient_proced
     else {
       change_state(state_listening_measurements);
       enable_indications(msg->connection, drone_handle_configuration);
-      if (connect_all) {
-        ble_cmd_gap_discover(gap_discover_generic);
-      }
     }
   }
 
@@ -708,6 +750,13 @@ void ble_evt_attclient_find_information_found(const struct ble_msg_attclient_fin
       drone_handle_measurement = msg->chrhandle;
     } else if (uuid == DRONE_BROADCAST_UUID) {
       drone_handle_broadcast = msg->chrhandle;
+
+      // Handle for Drone Data configuration already known
+      if (action == action_broadcast_connect) {
+	      unsigned char var[] = {1};
+	      printf("Request sent: %d\n", var[0]);
+	      ble_cmd_attclient_attribute_write(msg->connection, drone_handle_broadcast, 1, &var);
+      }
     }
   }
 }
@@ -749,6 +798,8 @@ void ble_evt_attclient_attribute_value(const struct ble_msg_attclient_attribute_
   if (sock[msg->connection])
     sendto(sock[msg->connection], msg->value.data, msg->value.len, MSG_DONTWAIT,
            (struct sockaddr *)&send_addr[msg->connection], sizeof(struct sockaddr));
+  //printf("%02x %02x %02x %02x\n", msg->value.data[0], msg->value.data[1], msg->value.data[2], msg->value.data[3]);
+  //printf("%d\n", msg->value.len);
 
 }
 
@@ -824,12 +875,19 @@ void *send_msg()
           //  fprintf(stderr,"Long msg: %d, buff size: %d\n", bt_msg_len, diff);
           //ble_cmd_attclient_attribute_write(device, drone_handle_measurement, bt_msg_len[device], &data_buf[device][extract_idx[device]]);
 
-          ble_cmd_attclient_write_command(device, drone_handle_measurement, bt_msg_len, &data_buf[device][extract_idx[device]]);
-          extract_idx[device] = (extract_idx[device] + bt_msg_len) % BUF_SIZE;
+          uint16_t i = 0;
+          unsigned char buf[19];
+          for (i = 0; i < bt_msg_len; i++)
+          {
+            buf[i] = data_buf[device][extract_idx[device]];
+            extract_idx[device] = (extract_idx[device] + 1) % BUF_SIZE;
+          }
+
+          ble_cmd_attclient_write_command(device, drone_handle_measurement, bt_msg_len, buf);
         }
         device++;
       } // next device
-      usleep(connection_interval * 1000); // send messages at max intervals of the connection interval
+      usleep(connection_interval * 1000*2); // send messages at max intervals of the connection interval, 2 safety factor
     } // repeat
   }
   pthread_exit(NULL);
@@ -858,18 +916,21 @@ void *recv_paparazzi_comms()
           if (connected[device] && sock[device]) {
             bytes_recv = recvfrom(sock[device], recv_data, BUF_SIZE, MSG_DONTWAIT, (struct sockaddr *)&rec_addr[device],
                                   (socklen_t *)&sin_size);
-            if (bytes_recv > 0) { // TODO: can overtake extract!
+            // ensure we don't overtake reading
+            if (bytes_recv > 0 && bytes_recv - 1 <= (extract_idx[device] - insert_idx[device] - 1 + BUF_SIZE) % BUF_SIZE ) {
+              uint16_t i = 0;
+              for (i = 0; i < bytes_recv; i++){
+                data_buf[device][insert_idx[device]] = recv_data[i];
+                insert_idx[device] = (insert_idx[device] + 1) % BUF_SIZE;
+              }
               send_count[device] += bytes_recv;
-              memcpy(&data_buf[device][insert_idx[device]], recv_data, bytes_recv);
-
-              insert_idx[device] = (insert_idx[device] + bytes_recv) % BUF_SIZE;
             }
           }
           device++;
         }
       }
     }
-    usleep(20000);  // assuming connection interval 10ms, give a bit of overhead
+    usleep(connection_interval * 1000 * 2);  // assuming connection interval 10ms, give a bit of overhead
   }
   pthread_exit(NULL);
 }
@@ -918,7 +979,7 @@ int main(int argc, char *argv[])
       action = action_scan;
     } else if (strcmp(argv[CLARG_ACTION], "info") == 0) {
       action = action_info;
-    } else if (strcmp(argv[CLARG_ACTION], "broadcast") == 0) {
+    } else if (strcmp(argv[CLARG_ACTION], "broadcast") == 0 || strcmp(argv[CLARG_ACTION], "broadcast_connect") == 0) {
       action = action_broadcast;
       if (argc > CLARG_ACTION + 2) {
         send_port = atoi(argv[CLARG_ACTION + 1]);
@@ -926,6 +987,10 @@ int main(int argc, char *argv[])
       } else {
         usage(argv[0]);
         return 1;
+      }
+      if (strcmp(argv[CLARG_ACTION], "broadcast_connect") == 0) {
+      	connect_all = 1;
+      	action = action_broadcast_connect;
       }
     } else if (strcmp(argv[CLARG_ACTION], "all") == 0) {
       connect_all = 1;
@@ -968,6 +1033,23 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  size_t i = 0;
+  for (i = 0; i < argc; i++)
+  {
+    if(strcmp(argv[i],"log") == 0){
+      time_t timev;
+      time(&timev);
+      char timedate[256];
+      strftime(timedate, 256, "var/logs/%Y%m%d_%H%M%S.rssilog", localtime(&timev));
+      rssi_fp = fopen(timedate, "w");
+      if (!rssi_fp)
+      {
+	fprintf(stderr,"Unable to open file for logging: %s\n Make sure to run from paparazzi home\n", timedate);
+	return -1;
+      }
+    }
+  }
+
   // set BGLib output function pointer to "send_api_packet" function
   bglib_output = send_api_packet;
 
@@ -1003,8 +1085,12 @@ int main(int argc, char *argv[])
   // get the mac address of the dongle
   ble_cmd_system_address_get();
 
+  // advertise interval scales 625us, min, max, channels (0x07 = 3, 0x03 = 2, 0x04 = 1)
+  if (action == action_broadcast)
+    ble_cmd_gap_set_adv_parameters(0x20, 0x28, 0x07);
+    
   // Execute action
-  if (action == action_scan) {
+  if (action == action_scan || action == action_broadcast || action == action_broadcast_connect) {
     ble_cmd_gap_discover(gap_discover_generic);
   } else if (action == action_info) {
     ble_cmd_system_get_info();
@@ -1012,9 +1098,6 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Trying to connect\n");
     change_state(state_connecting);
     ble_cmd_gap_connect_direct(&connect_addr, gap_address_type_public, 6, 16, 100, 0);
-  } else if (action == action_broadcast) {
-    ble_cmd_gap_set_adv_parameters(0x200, 0x200,
-                                   0x07);    // advertise interval scales 625us, min, max, channels (0x07 = 3, 0x03 = 2, 0x04 = 1)
   }
 
   pthread_create(&threads[0], NULL, send_msg, NULL);
@@ -1032,4 +1115,7 @@ int main(int argc, char *argv[])
   uart_close();
 
   pthread_exit(NULL);
+
+  if (rssi_fp)
+    fclose(rssi_fp);
 }
