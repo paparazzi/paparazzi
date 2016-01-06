@@ -25,7 +25,11 @@
  */
 
 #include "subsystems/gps.h"
+#include "subsystems/abi.h"
 #include "led.h"
+#include "subsystems/settings.h"
+#include "generated/settings.h"
+
 
 #ifdef GPS_POWER_GPIO
 #include "mcu_periph/gpio.h"
@@ -40,6 +44,65 @@
 struct GpsState gps;
 
 struct GpsTimeSync gps_time_sync;
+
+#ifndef GPS_TYPE_H
+
+#ifndef PrimaryGpsImpl
+#warning "PrimaryGpsImpl not set!"
+#else
+PRINT_CONFIG_VAR(PrimaryGpsImpl)
+#endif
+#ifdef USE_MULTI_GPS
+#ifndef SecondaryGpsImpl
+#warning "SecondaryGpsImpl not set!"
+#else
+PRINT_CONFIG_VAR(SecondaryGpsImpl)
+#endif
+#endif
+
+#define __PrimaryGpsRegister(_x) _x ## _gps_register()
+#define _PrimaryGpsRegister(_x) __PrimaryGpsRegister(_x)
+#define PrimaryGpsRegister() _PrimaryGpsRegister(PrimaryGpsImpl)
+
+#define __SecondaryGpsRegister(_x) _x ## _gps_register()
+#define _SecondaryGpsRegister(_x) __SecondaryGpsRegister(_x)
+#define SecondaryGpsRegister() _SecondaryGpsRegister(SecondaryGpsImpl)
+
+#define gps_primary GpsInstances[PRIMARY_GPS_INSTANCE].gps_s
+#define gps_secondary GpsInstances[SECONDARY_GPS_INSTANCE].gps_s
+
+#define TIME_TO_SWITCH 10000 //ten s in ms
+
+static uint8_t current_gps_impl = 0;
+static uint32_t time_since_last_gps_switch;
+// static uint32_t time_since_last_piksi_heartbeat;
+uint8_t multi_gps_mode;
+
+/* gps structs */
+struct GpsInstance {
+  //uint32_t type;
+  ImplGpsInit init;
+  ImplGpsEvent event;
+  struct GpsState *gps_s;
+  struct GpsTimeSync *timesync;
+};
+
+struct GpsInstance GpsInstances[GPS_NUM_INSTANCES];
+
+/*
+ * register gps structs for callback
+ */
+void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, struct GpsState *gps_s, struct GpsTimeSync *timesync, int8_t instance)
+{
+  GpsInstances[instance].init = init;
+  GpsInstances[instance].event = event;
+  GpsInstances[instance].gps_s = gps_s;
+  GpsInstances[instance].timesync = timesync;
+
+  GpsInstances[instance].init();
+}
+
+#endif
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -109,7 +172,8 @@ static void send_gps_int(struct transport_tx *trans, struct link_device *dev)
                         &gps.tow,
                         &gps.pdop,
                         &gps.num_sv,
-                        &gps.fix);
+                        &gps.fix,
+                        &gps.comp_id);
   // send SVINFO for available satellites that have new data
   send_svinfo_available(trans, dev);
 }
@@ -134,6 +198,12 @@ static void send_gps_sol(struct transport_tx *trans, struct link_device *dev)
 
 void gps_init(void)
 {
+
+#ifndef GPS_TYPE_H
+  time_since_last_gps_switch = get_sys_time_msec();
+  multi_gps_mode = MULTI_GPS_MODE;
+#endif
+
   gps.valid_fields = 0;
   gps.fix = GPS_FIX_NONE;
   gps.week = 0;
@@ -154,6 +224,12 @@ void gps_init(void)
 #ifdef GPS_TYPE_H
   gps_impl_init();
 #endif
+#ifdef PrimaryGpsImpl
+  PrimaryGpsRegister();
+#endif
+#ifdef SecondaryGpsImpl
+  SecondaryGpsRegister();
+#endif
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS, send_gps);
@@ -170,6 +246,86 @@ void gps_periodic_check(void)
     gps.fix = GPS_FIX_NONE;
   }
 }
+
+#ifndef GPS_TYPE_H
+/*
+ * publish gps state to gps.c/h and Abi
+ */
+static void gps_multi_publish(struct GpsState *gps_s)
+{
+  uint32_t now_ts = get_sys_time_usec();
+
+  gps = *gps_s;
+  AbiSendMsgGPS(GPS_MULTI_ID, now_ts, &gps);
+}
+
+/*
+ * switching
+ * switch only after a set amount of time so as to not confuse ins
+ */
+ #ifdef USE_MULTI_GPS
+ static uint8_t gps_multi_switch(void)
+ {
+  time_since_last_gps_switch = get_sys_time_msec();
+  if (multi_gps_mode == GPS_MODE_PRIMARY) {
+    return PRIMARY_GPS_INSTANCE;
+  } else if (multi_gps_mode == GPS_MODE_SECONDARY) {
+    return SECONDARY_GPS_INSTANCE;
+  } else {
+
+#ifdef GPS_PRIMARY_PIKSI
+    if (GpsInstances[PRIMARY_GPS_INSTANCE].gps_s->fix > GpsInstances[SECONDARY_GPS_INSTANCE].gps_s->fix) {
+      return PRIMARY_GPS_INSTANCE;
+    } else {
+      return SECONDARY_GPS_INSTANCE;
+    }
+#endif
+#ifdef GPS_SECONDARY_PIKSI
+    if (GpsInstances[SECONDARY_GPS_INSTANCE].gps_s->fix > GpsInstances[PRIMARY_GPS_INSTANCE].gps_s->fix) {
+      return SECONDARY_GPS_INSTANCE;
+    } else {
+      return PRIMARY_GPS_INSTANCE;
+    }
+#endif
+
+    if (GpsInstances[PRIMARY_GPS_INSTANCE].gps_s->fix > GpsInstances[SECONDARY_GPS_INSTANCE].gps_s->fix) {
+        return PRIMARY_GPS_INSTANCE;
+    } else if (GpsInstances[PRIMARY_GPS_INSTANCE].gps_s->fix == GpsInstances[SECONDARY_GPS_INSTANCE].gps_s->fix) {
+      if (GpsInstances[PRIMARY_GPS_INSTANCE].gps_s->pacc > GpsInstances[SECONDARY_GPS_INSTANCE].gps_s->pacc) {
+          return PRIMARY_GPS_INSTANCE;
+      }
+    }
+    return SECONDARY_GPS_INSTANCE;
+  }
+}
+
+#endif
+
+/* 
+ * handle gps switching and updating gps instances 
+ */
+
+void GpsEvent(void) {
+  // run each gps event
+  uint8_t i;
+  for ( i = 0 ; i < GPS_NUM_INSTANCES ; i++) {
+    GpsInstances[i].event();
+  }
+#ifdef USE_MULTI_GPS
+  //switch gps if one has better fix, depending on mode, or if one looses fix altogether
+  if ((get_sys_time_msec() - time_since_last_gps_switch) > TIME_TO_SWITCH || 
+    multi_gps_mode != GPS_MODE_AUTO || 
+    GpsInstances[PRIMARY_GPS_INSTANCE].gps_s->fix == GPS_FIX_NONE ||
+    GpsInstances[SECONDARY_GPS_INSTANCE].gps_s->fix == GPS_FIX_NONE )
+  {
+    current_gps_impl = gps_multi_switch();
+  }
+#endif
+  // update main gps state
+  gps_multi_publish(GpsInstances[current_gps_impl].gps_s);
+}
+
+#endif
 
 uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks)
 {

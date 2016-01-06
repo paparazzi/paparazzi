@@ -34,16 +34,23 @@
 
 #include "mcu_periph/sys_time.h"
 
-/* GPS model specific implementation or sim */
-#ifdef GPS_TYPE_H
-#include GPS_TYPE_H
-#endif
-
 #define GPS_FIX_NONE 0x00     ///< No GPS fix
 #define GPS_FIX_2D   0x02     ///< 2D GPS fix
 #define GPS_FIX_3D   0x03     ///< 3D GPS fix
 #define GPS_FIX_DGPS 0x04     ///< DGPS fix
 #define GPS_FIX_RTK  0x05     ///< RTK GPS fix
+
+#define GPS_UBX_ID        1
+#define GPS_NMEA_ID       2
+#define GPS_SIRF_ID       3
+#define GPS_SKYTRAQ_ID    4
+#define GPS_MTK_ID        5
+#define GPS_PIKSI_ID      6
+#define GPS_XSENS_ID      7
+#define GPS_DATALINK_ID   8
+#define GPS_UDP_ID        9
+#define GPS_ARDRONE2_ID   10
+#define GPS_SIM_ID        11
 
 #define GpsFixValid() (gps.fix >= GPS_FIX_3D)
 #if USE_GPS
@@ -51,7 +58,7 @@
 #endif
 
 #ifndef GPS_NB_CHANNELS
-#define GPS_NB_CHANNELS 1
+#define GPS_NB_CHANNELS 16
 #endif
 
 #define GPS_VALID_POS_ECEF_BIT 0
@@ -61,6 +68,29 @@
 #define GPS_VALID_VEL_NED_BIT  4
 #define GPS_VALID_HMSL_BIT     5
 #define GPS_VALID_COURSE_BIT   6
+
+#ifndef GPS_TYPE_H
+#define PRIMARY_GPS_INSTANCE 0
+#define SECONDARY_GPS_INSTANCE 1
+
+#ifdef USE_MULTI_GPS
+#define GPS_NUM_INSTANCES 2
+#else
+#define GPS_NUM_INSTANCES 1
+#endif
+
+
+#define GPS_MODE_PRIMARY 0
+#define GPS_MODE_SECONDARY 1
+#define GPS_MODE_AUTO 2
+
+#ifndef MULTI_GPS_MODE
+#define MULTI_GPS_MODE GPS_MODE_AUTO
+#endif
+
+extern uint8_t multi_gps_mode;
+#endif
+
 
 /** data structure for Space Vehicle Information of a single satellite */
 struct SVinfo {
@@ -75,6 +105,7 @@ struct SVinfo {
 /** data structure for GPS information */
 struct GpsState {
   uint8_t valid_fields;          ///< bitfield indicating valid fields (GPS_VALID_x_BIT)
+  uint8_t comp_id;               ///< id of current gps
 
   struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
   struct LlaCoor_i lla_pos;      ///< position in LLA (lat,lon: deg*1e7; alt: mm over ellipsoid)
@@ -113,6 +144,27 @@ struct GpsTimeSync {
 
 /** global GPS state */
 extern struct GpsState gps;
+
+typedef void (*ImplGpsInit)(void);
+typedef void (*ImplGpsEvent)(void);
+
+
+/* GPS model specific implementation or sim */
+#ifdef GPS_TYPE_H
+#include GPS_TYPE_H
+#endif
+#ifdef PRIMARY_GPS_TYPE_H
+  void GpsEvent(void);
+  /*
+   * register callbacks and state pointers
+   */ 
+  extern void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, struct GpsState *gps_s, struct GpsTimeSync *timesync, int8_t instance);
+
+#include PRIMARY_GPS_TYPE_H
+#endif
+#ifdef SECONDARY_GPS_TYPE_H
+#include SECONDARY_GPS_TYPE_H
+#endif
 
 /** initialize the global GPS state */
 extern void gps_init(void);
