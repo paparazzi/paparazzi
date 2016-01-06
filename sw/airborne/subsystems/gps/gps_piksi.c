@@ -248,6 +248,14 @@ static void sbp_tracking_state_dep_a_callback(uint16_t sender_id __attribute__((
   }
 }
 
+static void spb_heartbeat_callback(uint16_t sender_id __attribute__((unused)),
+                                  uint8_t len __attribute__((unused)),
+                                  uint8_t msg[],
+                                  void *context __attribute__((unused)))
+{
+  msg_heartbeat_t heartbeat = *(msg_heartbeat_t *)msg;
+  time_since_last_heartbeat = get_sys_time_msec();
+}
 /*
  * Return fix mode based on present and past flags
  */
