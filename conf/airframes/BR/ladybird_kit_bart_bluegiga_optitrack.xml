@@ -159,6 +159,7 @@
 
   <section name="INS" prefix="INS_">
     <define name="USE_GPS_ALT" value="1"/>
+    <define name="USE_GPS_ALT_SPEED" value="1"/>
   </section>
 
  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
