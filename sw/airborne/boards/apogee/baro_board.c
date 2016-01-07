@@ -125,7 +125,7 @@ void apogee_baro_event(void)
 #if APOGEE_BARO_SDLOG
   if (pprzLogFile != -1) {
     if (!log_apogee_baro_started) {
-      sdLogWriteLog(pprzLogFile, "APOGEE_BARO: Pres(Pa) GPS_fix TOW(ms) Week Lat(1e7deg) Lon(1e7deg) HMSL(mm) gpseed(cm/s) course(1e7deg) climb(cm/s)\n");
+      sdLogWriteLog(pprzLogFile, "APOGEE_BARO: Pres(Pa) Temp/degC) GPS_fix TOW(ms) Week Lat(1e7deg) Lon(1e7deg) HMSL(mm) gpseed(cm/s) course(1e7deg) climb(cm/s)\n");
       log_apogee_baro_started = TRUE;
     }
     if (count_sd_writes == 0) {
