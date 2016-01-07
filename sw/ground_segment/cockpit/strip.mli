@@ -61,5 +61,5 @@ type strip_param = {
   icons_theme : string; }
 
 
-val add : Pprz.values -> strip_param -> GPack.box -> t
+val add : PprzLink.values -> strip_param -> GPack.box -> t
 (** [add config params] *)

@@ -81,3 +81,10 @@ val expand_ac_xml : ?raise_exception:bool -> Xml.xml -> Xml.xml
 
 val get_paparazzi_version : unit -> string
 (** read the current paparazzi_version *)
+
+val key_modifiers_of_string : string -> string
+(** Convert key modifiers from Qt style (without '<' or '>', separated with '+')
+ *  to GTK style.
+ *  Supported modifiers are Alt, Ctrl, Shift and Meta
+ *)
+

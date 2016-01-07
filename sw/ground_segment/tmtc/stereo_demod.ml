@@ -28,8 +28,8 @@ open Printf
 let modem_msg_period = 1000 (** ms *)
 
 module Tele_Class = struct let name = "telemetry_ap" end
-module Tele_Pprz = Pprz.Protocol(Tele_Class)
-module PprzTransport = Serial.Transport(Tele_Pprz)
+module Tele_Pprz = PprzLink.Protocol(Tele_Class)
+module PprzTransport = Protocol.Transport(Tele_Pprz)
 
 (** Monitoring of the message reception *)
 type status = {
@@ -51,10 +51,10 @@ let status_right = make_status "modem_right"
 let use_pprz_message = fun status (msg_id, values) ->
   status.rx_msg <- status.rx_msg + 1; (** Monitoring update *)
   let msg = Tele_Pprz.message_of_id msg_id in
-  if msg.Pprz.name = "IDENT" then
-    status.ac_id <- Pprz.string_assoc "id" values;
-  prerr_endline (status.ac_id^":"^msg.Pprz.name);
-  Tele_Pprz.message_send status.ac_id msg.Pprz.name values
+  if msg.PprzLink.name = "IDENT" then
+    status.ac_id <- PprzLink.string_assoc "id" values;
+  prerr_endline (status.ac_id^":"^msg.PprzLink.name);
+  Tele_Pprz.message_send status.ac_id msg.PprzLink.name values
 
 (** Listen on a dsp device *)
 let listen_pprz_modem = fun pprz_message_cb devdsp ->
@@ -64,7 +64,7 @@ let listen_pprz_modem = fun pprz_message_cb devdsp ->
   let use_pprz_buf = fun status buf ->
     status.rx_byte <- status.rx_byte + String.length buf;
     Debug.call 'P' (fun f -> fprintf f "use_pprz: %s\n" (Debug.xprint buf));
-    pprz_message_cb status (Tele_Pprz.values_of_bin buf) in
+    pprz_message_cb status (Tele_PprzLink.values_of_bin buf) in
 
   (** Callback for available chars *)
   let cb = fun status buffer data ->
@@ -99,12 +99,12 @@ let send_modem_msg = fun status ->
     and msg_rate = float (status.rx_msg - !rx_msg) /. dt in
     rx_msg := status.rx_msg;
     rx_byte := status.rx_byte;
-    let vs = ["run_time", Pprz.Int t;
-              "rx_bytes_rate", Pprz.Float byte_rate;
-              "rx_msgs_rate", Pprz.Float msg_rate;
-              "rx_err", Pprz.Int status.rx_err;
-              "rx_bytes", Pprz.Int status.rx_byte;
-              "rx_msgs", Pprz.Int status.rx_msg
+    let vs = ["run_time", PprzLink.Int t;
+              "rx_bytes_rate", PprzLink.Float byte_rate;
+              "rx_msgs_rate", PprzLink.Float msg_rate;
+              "rx_err", PprzLink.Int status.rx_err;
+              "rx_bytes", PprzLink.Int status.rx_byte;
+              "rx_msgs", PprzLink.Int status.rx_msg
              ] in
     Tele_Pprz.message_send status.ac_id "DOWNLINK_STATUS" vs
 

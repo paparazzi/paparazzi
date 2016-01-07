@@ -30,8 +30,8 @@ open Printf
 let msg_period = 500 (* ms *)
 let ac_id = ref 1
 
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
-module Sub_Pprz = Pprz.Messages(struct let name = "DIA" end)
+module Ground_Pprz = PprzLink.Messages(struct let name = "ground" end)
+module Sub_Pprz = PprzLink.Messages(struct let name = "DIA" end)
 
 type state = {
   mutable lat : float;
@@ -55,31 +55,31 @@ let msg_id, _ = Sub_Pprz.message_of_name "NAV_INFO"
 let send_msg = fun () ->
   let t = (Unix.gettimeofday ()) -. 1e9 in
   let vs = [
-    "unix_time", Pprz.Float t;
+    "unix_time", PprzLink.Float t;
 
-    "lat", Pprz.Float state.lat;
-    "long", Pprz.Float state.long;
-    "alt", Pprz.Int state.alt;
+    "lat", PprzLink.Float state.lat;
+    "long", PprzLink.Float state.long;
+    "alt", PprzLink.Int state.alt;
 
-    "course", Pprz.Int state.course;
-    "speed", Pprz.Int state.speed;
+    "course", PprzLink.Int state.course;
+    "speed", PprzLink.Int state.speed;
 
-    "cam_roll", Pprz.Int state.cam_roll;
-    "cam_pitch", Pprz.Int state.cam_pitch
+    "cam_roll", PprzLink.Int state.cam_roll;
+    "cam_pitch", PprzLink.Int state.cam_pitch
   ] in
   let s = Sub_Pprz.payload_of_values msg_id !ac_id vs in
-  Debug.call 'l' (fun f ->  fprintf f "sending: %s\n" (Debug.xprint (Serial.string_of_payload s)));
-  Hdlc.write_data (Serial.string_of_payload s)
+  Debug.call 'l' (fun f ->  fprintf f "sending: %s\n" (Debug.xprint (Protocol.string_of_payload s)));
+  Hdlc.write_data (Protocol.string_of_payload s)
 
 let fp_msg = fun _sender vs ->
-  if int_of_string (Pprz.string_assoc "ac_id" vs) = !ac_id then begin
-    state.lat <- Pprz.float_assoc "lat" vs;
-    state.long <- Pprz.float_assoc "long" vs;
-    state.alt <- truncate (Pprz.float_assoc "alt" vs);
-    state.course <- truncate (Pprz.float_assoc "course" vs);
-    state.speed <- truncate (Pprz.float_assoc "speed" vs *. 100.);
-    state.cam_roll <- truncate (Pprz.float_assoc "roll" vs); (* FIXME *)
-    state.cam_pitch <- truncate (Pprz.float_assoc "pitch" vs); (* FIXME *)
+  if int_of_string (PprzLink.string_assoc "ac_id" vs) = !ac_id then begin
+    state.lat <- PprzLink.float_assoc "lat" vs;
+    state.long <- PprzLink.float_assoc "long" vs;
+    state.alt <- truncate (PprzLink.float_assoc "alt" vs);
+    state.course <- truncate (PprzLink.float_assoc "course" vs);
+    state.speed <- truncate (PprzLink.float_assoc "speed" vs *. 100.);
+    state.cam_roll <- truncate (PprzLink.float_assoc "roll" vs); (* FIXME *)
+    state.cam_pitch <- truncate (PprzLink.float_assoc "pitch" vs); (* FIXME *)
   end
 
 

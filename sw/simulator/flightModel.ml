@@ -111,13 +111,13 @@ module Make(A:Data.MISSION) = struct
     let cu = try ExtXml.attrib t "code_unit" with _ -> "" in
     (* default value for code_unit is rad[/s] when unit is deg[/s] *)
     try match (u, cu) with
-        ("deg", "") -> Pprz.scale_of_units u "rad" (* implicit conversion to rad *)
-      | ("deg/s", "") -> Pprz.scale_of_units u "rad/s" (* implicit conversion to rad/s *)
+        ("deg", "") -> PprzLink.scale_of_units u "rad" (* implicit conversion to rad *)
+      | ("deg/s", "") -> PprzLink.scale_of_units u "rad/s" (* implicit conversion to rad/s *)
       | (_, "") -> failwith "Unit conversion error" (* code unit is not defined and no implicit conversion *)
-      | (_,_) -> Pprz.scale_of_units u cu (* try to convert *)
+      | (_,_) -> PprzLink.scale_of_units u cu (* try to convert *)
     with
-        Pprz.Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
-      | Pprz.Unknown_conversion (su, scu) -> prerr_endline (sprintf "Warning: unknown unit conversion: from %s to %s" su scu); flush stderr; failwith "Unknown unit conversion"
+        PprzLink.Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
+      | PprzLink.Unknown_conversion (su, scu) -> prerr_endline (sprintf "Warning: unknown unit conversion: from %s to %s" su scu); flush stderr; failwith "Unknown unit conversion"
       | _ -> failwith "Unit conversion error"
 
   let code_value = fun section s ->

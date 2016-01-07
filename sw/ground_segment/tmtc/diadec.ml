@@ -24,12 +24,12 @@
 
 open Printf
 
-module Sub_Pprz = Pprz.Messages(struct let name = "DIA" end)
-module PprzTransport = Serial.Transport(Pprz.Transport)
+module Sub_Pprz = PprzLink.Messages(struct let name = "DIA" end)
+module PprzTransport = Protocol.Transport(Pprz_transport.Transport)
 
 
 let use_tele_message = fun buf ->
-  let payload = Serial.payload_of_string buf in
+  let payload = Protocol.payload_of_string buf in
   Debug.call 'l' (fun f ->  fprintf f "pprz receiving: %s\n" (Debug.xprint buf));
   try
     let (msg_id, ac_id, values) = Sub_Pprz.values_of_payload payload in

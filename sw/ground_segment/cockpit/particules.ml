@@ -33,7 +33,7 @@ let list_separator = Str.regexp ","
 
 let listen = fun (geomap:MapCanvas.widget) ->
   let plumes_msg = fun _sender vs ->
-    let split_val = fun tag -> Str.split list_separator (Pprz.string_assoc tag vs) in
+    let split_val = fun tag -> Str.split list_separator (PprzLink.string_assoc tag vs) in
     let ids = split_val "ids"
     and xs = split_val "lats"
     and ys = split_val "longs"

@@ -329,7 +329,7 @@ let () =
     let configuration =
       make_element
         "configuration" []
-        [ make_element "conf" [] [conf_aircraft]; Pprz.messages_xml () ] in
+        [ make_element "conf" [] [conf_aircraft]; PprzLink.messages_xml () ] in
     let conf_aircraft_file = aircraft_conf_dir // "conf_aircraft.xml" in
     let f = open_out conf_aircraft_file in
     Printf.fprintf f "%s\n" (ExtXml.to_string_fmt configuration);

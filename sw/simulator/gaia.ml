@@ -28,7 +28,7 @@ open Latlong
 let my_id = "gaia"
 let sending_period = 5000 (* ms *)
 
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
+module Ground_Pprz = PprzLink.Messages(struct let name = "ground" end)
 
 let ivy_bus = ref Defivybus.default_ivy_bus
 let time_scale = ref 1.
@@ -72,12 +72,12 @@ let _ =
     and wind_north = -. wind_speed *. sin wind_dir_rad in
     let wind_up = wind_up_adj#value in
 
-    [ "wind_east", Pprz.Float wind_east;
-      "wind_north", Pprz.Float wind_north;
-      "wind_up", Pprz.Float wind_up;
-      "ir_contrast", Pprz.Float infrared_contrast_adj#value;
-      "time_scale", Pprz.Float time_scale_adj#value;
-      "gps_availability", Pprz.Int (if gps_sa#active then 0 else 1)
+    [ "wind_east", PprzLink.Float wind_east;
+      "wind_north", PprzLink.Float wind_north;
+      "wind_up", PprzLink.Float wind_up;
+      "ir_contrast", PprzLink.Float infrared_contrast_adj#value;
+      "time_scale", PprzLink.Float time_scale_adj#value;
+      "gps_availability", PprzLink.Int (if gps_sa#active then 0 else 1)
     ] in
   let world_send = fun () ->
     Ground_Pprz.message_send my_id "WORLD_ENV" (world_values []) in

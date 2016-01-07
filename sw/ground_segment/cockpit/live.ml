@@ -27,9 +27,9 @@ open Latlong
 module LL = Latlong
 open Printf
 
-module Tele_Pprz = Pprz.Messages(struct let name = "telemetry" end)
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
-module Alert_Pprz = Pprz.Messages(struct let name = "alert" end)
+module Tele_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
+module Ground_Pprz = PprzLink.Messages(struct let name = "ground" end)
+module Alert_Pprz = PprzLink.Messages(struct let name = "alert" end)
 
 
 let (//) = Filename.concat
@@ -75,7 +75,7 @@ type gps_acc_level = GPS_ACC_HIGH | GPS_ACC_LOW | GPS_ACC_VERY_LOW | GPS_NO_ACC
 type aircraft = {
   ac_name : string;
   ac_speech_name : string;
-  config : Pprz.values;
+  config : PprzLink.values;
   track : MapTrack.track;
   color: color;
   fp_group : MapFP.flight_plan;
@@ -128,7 +128,7 @@ let find_ac = fun ac_id ->
 
 let active_ac = ref ""
 let get_ac = fun vs ->
-  let ac_id = Pprz.string_assoc "ac_id" vs in
+  let ac_id = PprzLink.string_assoc "ac_id" vs in
     find_ac ac_id
 
 let show_fp = fun ac ->
@@ -206,11 +206,11 @@ let resize_track = fun ac track ->
 
 let send_move_waypoint_msg = fun ac i w ->
   let wgs84 = w#pos in
-  let vs = ["ac_id", Pprz.String ac;
-            "wp_id", Pprz.Int i;
-            "lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
-            "long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
-            "alt", Pprz.Float w#alt
+  let vs = ["ac_id", PprzLink.String ac;
+            "wp_id", PprzLink.Int i;
+            "lat", PprzLink.Float ((Rad>>Deg)wgs84.posn_lat);
+            "long", PprzLink.Float ((Rad>>Deg)wgs84.posn_long);
+            "alt", PprzLink.Float w#alt
            ] in
   Ground_Pprz.message_send "gcs" "MOVE_WAYPOINT" vs
 
@@ -243,14 +243,14 @@ let blocks_of_stages = fun stages ->
 
 let jump_to_block = fun ac_id id ->
   Ground_Pprz.message_send "gcs" "JUMP_TO_BLOCK"
-    ["ac_id", Pprz.String ac_id; "block_id", Pprz.Int id]
+    ["ac_id", PprzLink.String ac_id; "block_id", PprzLink.Int id]
 
 let dl_setting = fun ac_id idx value ->
-  let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx;"value", Pprz.Float value] in
+  let vs = ["ac_id", PprzLink.String ac_id; "index", PprzLink.Int idx;"value", PprzLink.Float value] in
   Ground_Pprz.message_send "dl" "DL_SETTING" vs
 
 let get_dl_setting = fun ac_id idx ->
-  let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx] in
+  let vs = ["ac_id", PprzLink.String ac_id; "index", PprzLink.Int idx] in
   Ground_Pprz.message_send "dl" "GET_DL_SETTING" vs
 
 let menu_entry_of_block = fun ac_id (id, name) ->
@@ -304,9 +304,9 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
             let lat = (Rad>>Deg)geo.posn_lat
             and long = (Rad>>Deg)geo.posn_long in
             Tele_Pprz.message_send ac_id "MARK"
-              ["ac_id", Pprz.String ac_id;
-               "lat", Pprz.Float lat;
-               "long", Pprz.Float long];
+              ["ac_id", PprzLink.String ac_id;
+               "lat", PprzLink.Float lat;
+               "long", PprzLink.Float long];
             let frame =
               match plugin_frame with
                   None -> geomap#canvas#coerce
@@ -436,18 +436,18 @@ let key_press_event = fun keys do_action ev ->
 
 (*****************************************************************************)
 let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:GPack.notebook) (strips:GPack.box) (ac_id:string) config ->
-  let color = Pprz.string_assoc "default_gui_color" config
-  and name = Pprz.string_assoc "ac_name" config in
+  let color = PprzLink.string_assoc "default_gui_color" config
+  and name = PprzLink.string_assoc "ac_name" config in
 
   (** Get the flight plan **)
-  let fp_url = Pprz.string_assoc "flight_plan" config in
+  let fp_url = PprzLink.string_assoc "flight_plan" config in
   let fp_file = Http.file_of_url fp_url in
   let fp_xml_dump = ExtXml.parse_file ~noprovedtd:true fp_file in
   let stages = ExtXml.child fp_xml_dump "stages" in
   let blocks = blocks_of_stages stages in
 
   (** Get the airframe file *)
-  let af_url = Pprz.string_assoc "airframe" config in
+  let af_url = PprzLink.string_assoc "airframe" config in
   let af_file =  Http.file_of_url af_url in
   (* do not check dtd if it is a http url *)
   let via_http = Str.string_match (Str.regexp "http") af_url 0 in
@@ -552,7 +552,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
     let id = ExtXml.int_attrib block "no" in
     begin (* Is it a key short cut ? *)
       try
-        let key, modifiers = GtkData.AccelGroup.parse (Pprz.key_modifiers_of_string (Xml.attrib block "key")) in
+        let key, modifiers = GtkData.AccelGroup.parse (Env.key_modifiers_of_string (Xml.attrib block "key")) in
         keys := (key, (modifiers, id)) :: !keys
       with
           _ -> ()
@@ -627,7 +627,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
   ignore (ac_notebook#append_page ~tab_label:misc_label#coerce misc_frame#coerce);
   let misc_page = new Pages.misc ~packing:misc_frame#add misc_frame in
 
-  let settings_url = Pprz.string_assoc "settings" config in
+  let settings_url = PprzLink.string_assoc "settings" config in
   let settings_file = Http.file_of_url settings_url in
   let settings_xml =
     try
@@ -732,7 +732,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
 
         let msg_items = ["WIND_INFO"; ac_id; "42"; wind_east; wind_north;airspeed] in
         let value = String.concat ";" msg_items in
-        let vs = ["ac_id", Pprz.String ac_id; "message", Pprz.String value] in
+        let vs = ["ac_id", PprzLink.String ac_id; "message", PprzLink.String value] in
         Ground_Pprz.message_send "dl" "RAW_DATALINK" vs;
       with
           exc -> log alert ac_id (sprintf "send_wind (%s): %s" ac_id (Printexc.to_string exc))
@@ -810,7 +810,7 @@ let safe_bind = fun msg cb ->
   let safe_cb = fun sender vs ->
     try cb sender vs with
         AC_not_found -> () (* A/C not yet registed; silently ignore *)
-      | x -> fprintf stderr "%s: safe_bind (%s:%a): %s\n%!" Sys.argv.(0) msg (fun c vs -> List.iter (fun (_,v) -> fprintf c "%s " (Pprz.string_of_value v)) vs) vs (Printexc.to_string x) in
+      | x -> fprintf stderr "%s: safe_bind (%s:%a): %s\n%!" Sys.argv.(0) msg (fun c vs -> List.iter (fun (_,v) -> fprintf c "%s " (PprzLink.string_of_value v)) vs) vs (Printexc.to_string x) in
   ignore (Ground_Pprz.message_bind msg safe_cb)
 
 let alert_bind = fun msg cb ->
@@ -830,7 +830,7 @@ let ask_config = fun confirm_kill alert geomap fp_notebook strips ac ->
     if not (Hashtbl.mem aircrafts ac) then
       create_ac ~confirm_kill alert geomap fp_notebook strips ac values
   in
-  Ground_Pprz.message_req "gcs" "CONFIG" ["ac_id", Pprz.String ac] get_config
+  Ground_Pprz.message_req "gcs" "CONFIG" ["ac_id", PprzLink.String ac] get_config
 
 
 
@@ -841,7 +841,7 @@ let one_new_ac = fun confirm_kill alert (geomap:G.widget) fp_notebook strips ac 
 
 let get_wind_msg = fun (geomap:G.widget) _sender vs ->
   let ac = get_ac vs in
-  let value = fun field_name -> Pprz.float_assoc field_name vs in
+  let value = fun field_name -> PprzLink.float_assoc field_name vs in
   let airspeed = value "mean_aspeed" in
   ac.airspeed <- airspeed;
   ac.strip#set_airspeed airspeed;
@@ -852,7 +852,7 @@ let get_wind_msg = fun (geomap:G.widget) _sender vs ->
   ac.misc_page#set_value "Wind speed" (sprintf "%.1f" ac.wind_speed);
   ac.misc_page#set_value "Wind direction" (sprintf "%.1f" deg_dir);
 
-  let ac_id = Pprz.string_assoc "ac_id" vs in
+  let ac_id = PprzLink.string_assoc "ac_id" vs in
   if !active_ac = ac_id && ac.wind_speed > 1. then begin
     geomap#wind_sock#set_color ac.color;
     geomap#wind_sock#item#show ();
@@ -862,32 +862,32 @@ let get_wind_msg = fun (geomap:G.widget) _sender vs ->
 
 let get_fbw_msg = fun alarm _sender vs ->
   let ac = get_ac vs in
-  let status = Pprz.string_assoc "rc_status" vs
-  and rate = (Pprz.int_assoc "rc_rate" vs) / 5 in
+  let status = PprzLink.string_assoc "rc_status" vs
+  and rate = (PprzLink.int_assoc "rc_rate" vs) / 5 in
   (* divide by 5 to have normal values between 0 and 10 *)
   (* RC rate max approx. 50 Hz *)
   ac.strip#set_rc rate status;
-  let mode = Pprz.string_assoc "rc_mode" vs in
+  let mode = PprzLink.string_assoc "rc_mode" vs in
   if mode = "FAILSAFE" then begin
     log_and_say alarm ac.ac_name (sprintf "%s, mayday, AP Failure. Switch to manual." ac.ac_speech_name)
   end
 
 let get_telemetry_status = fun alarm _sender vs ->
   let ac = get_ac vs in
-  let link_id = Pprz.string_assoc "link_id" vs in
+  let link_id = PprzLink.string_assoc "link_id" vs in
   let link_id = try if int_of_string link_id = -1 then "single" else link_id with _ -> link_id in
   (* Update color and lost time in the strip *)
-  let time_lost = Pprz.float_assoc "time_since_last_msg" vs in
+  let time_lost = PprzLink.float_assoc "time_since_last_msg" vs in
   let (links_up, total_links) = ac.link_page#links_ratio () in
   let link_ratio_string =
     if ac.link_page#multiple_links () then sprintf "%i/%i" links_up total_links else "" in
   ac.strip#set_label "telemetry_status" (if time_lost > 2. then sprintf "%.0f" time_lost else link_ratio_string);
   ac.strip#set_color "telemetry_status" (if time_lost > 5. then alert_color else if links_up < total_links then warning_color else ok_color);
   (* Update link page *)
-  let rx_msgs_rate = Pprz.float_assoc "rx_bytes_rate" vs
-  and downlink_bytes_rate = Pprz.int_assoc "downlink_rate" vs
-  and uplink_lost_time = Pprz.int_assoc "uplink_lost_time" vs in
-  let ping_time = Pprz.float_assoc "ping_time" vs in
+  let rx_msgs_rate = PprzLink.float_assoc "rx_bytes_rate" vs
+  and downlink_bytes_rate = PprzLink.int_assoc "downlink_rate" vs
+  and uplink_lost_time = PprzLink.int_assoc "uplink_lost_time" vs in
+  let ping_time = PprzLink.float_assoc "ping_time" vs in
   if (not (ac.link_page#link_exists link_id)) then begin
       ac.link_page#add_link link_id;
       log_and_say alarm ac.ac_name (sprintf "%s, link %s detected" ac.ac_speech_name link_id)
@@ -902,16 +902,16 @@ let get_telemetry_status = fun alarm _sender vs ->
 
 let get_engine_status_msg = fun _sender vs ->
   let ac = get_ac vs in
-  ac.strip#set_throttle ~kill:ac.in_kill_mode (Pprz.float_assoc "throttle" vs);
-  ac.strip#set_bat (Pprz.float_assoc "bat" vs)
+  ac.strip#set_throttle ~kill:ac.in_kill_mode (PprzLink.float_assoc "throttle" vs);
+  ac.strip#set_bat (PprzLink.float_assoc "bat" vs)
 
 let get_if_calib_msg = fun _sender vs ->
   let ac = get_ac vs in
   match ac.rc_settings_page with
       None -> ()
     | Some p ->
-      p#set_rc_setting_mode (Pprz.string_assoc "if_mode" vs);
-      p#set (Pprz.float_assoc "if_value1" vs) (Pprz.float_assoc "if_value2" vs)
+      p#set_rc_setting_mode (PprzLink.string_assoc "if_mode" vs);
+      p#set (PprzLink.float_assoc "if_value1" vs) (PprzLink.float_assoc "if_value2" vs)
 
 let listen_wind_msg = fun (geomap:G.widget) ->
   safe_bind "WIND" (get_wind_msg geomap)
@@ -929,7 +929,7 @@ let listen_telemetry_status = fun a ->
   safe_bind "TELEMETRY_STATUS" (get_telemetry_status a)
 
 let aircrafts_msg = fun confirm_kill alert (geomap:G.widget) fp_notebook strips acs ->
-  let acs = Pprz.string_assoc "ac_list" acs in
+  let acs = PprzLink.string_assoc "ac_list" acs in
   let acs = Str.split list_separator acs in
   List.iter (one_new_ac confirm_kill alert geomap fp_notebook strips) acs
 
@@ -939,7 +939,7 @@ let listen_dl_value = fun () ->
     let ac = get_ac vs in
     match ac.dl_settings_page with
         Some settings ->
-          let csv = Pprz.string_assoc "values" vs in
+          let csv = PprzLink.string_assoc "values" vs in
           let string_value = fun v -> match v with "?" -> None | _ -> Some v in
           let values = Array.map string_value (Array.of_list (Str.split list_separator csv)) in
           ac.dl_values <- values;
@@ -1091,8 +1091,8 @@ module GCS_icon = struct
   let timeout = 10000 (* ms : time before changing to outdated color *)
 
   let display = fun (geomap:G.widget) vs ->
-    let lat = Pprz.float_assoc "lat" vs
-    and lon = Pprz.float_assoc "long" vs in
+    let lat = PprzLink.float_assoc "lat" vs
+    and lon = PprzLink.float_assoc "long" vs in
     let wgs84 = LL.make_geo_deg lat lon in
 
     let item =
@@ -1126,13 +1126,13 @@ end (* module GCS_icon *)
 (******************************** FLIGHT_PARAMS ******************************)
 let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
   let get_fp = fun _sender vs ->
-    let ac_id = Pprz.string_assoc "ac_id" vs in
+    let ac_id = PprzLink.string_assoc "ac_id" vs in
     if ac_id = gcs_id then
       GCS_icon.display geomap vs
     else
       let ac = get_ac vs in
       let pfd_page = ac.pfd_page in
-      let a = fun s -> Pprz.float_assoc s vs in
+      let a = fun s -> PprzLink.float_assoc s vs in
       let alt = a "alt"
       and climb = a "climb"
       and speed = a "speed" in
@@ -1181,16 +1181,16 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
 
   let get_ns = fun _sender vs ->
     let ac = get_ac vs in
-    let a = fun s -> Pprz.float_assoc s vs in
+    let a = fun s -> PprzLink.float_assoc s vs in
     let wgs84 = { posn_lat = (Deg>>Rad)(a "target_lat"); posn_long = (Deg>>Rad)(a "target_long") } in
     ac.track#move_carrot wgs84;
-    let cur_block = Pprz.int_assoc "cur_block" vs
-    and cur_stage = Pprz.int_assoc "cur_stage" vs in
+    let cur_block = PprzLink.int_assoc "cur_block" vs
+    and cur_stage = PprzLink.int_assoc "cur_stage" vs in
     highlight_fp ac cur_block cur_stage;
     let set_label = fun l f ->
-      ac.strip#set_label l (sprintf "%.0fm" (Pprz.float_assoc f vs)) in
+      ac.strip#set_label l (sprintf "%.0fm" (PprzLink.float_assoc f vs)) in
     set_label "target_altitude" "target_alt";
-    let target_alt = Pprz.float_assoc "target_alt" vs in
+    let target_alt = PprzLink.float_assoc "target_alt" vs in
     ac.strip#set_label "diff_target_alt" (sprintf "%+.0fm" (ac.alt -. target_alt));
     ac.target_alt <- target_alt;
     let b = try List.assoc cur_block ac.blocks with Not_found -> failwith (sprintf "Error: unknown block %d for A/C %s" cur_block ac.ac_name) in
@@ -1199,15 +1199,15 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
       ac.last_block_name <- b;
       ac.strip#set_label "block_name" b
     end;
-    let block_time = Int64.to_int (Pprz.uint32_assoc "block_time" vs)
-    and stage_time = Int64.to_int (Pprz.uint32_assoc "stage_time" vs) in
+    let block_time = Int64.to_int (PprzLink.uint32_assoc "block_time" vs)
+    and stage_time = Int64.to_int (PprzLink.uint32_assoc "stage_time" vs) in
     let bt = sprintf "%02d:%02d" (block_time / 60) (block_time mod 60) in
     ac.strip#set_label "block_time" bt;
     let st = sprintf "%02d:%02d" (stage_time / 60) (stage_time mod 60) in
     ac.strip#set_label "stage_time" st;
 
     (* Estimated Time Arrival to next waypoint *)
-    let d = Pprz.float_assoc "dist_to_wp" vs in
+    let d = PprzLink.float_assoc "dist_to_wp" vs in
     let label =
       if d < 0.5 || ac.speed < 0.5 then
         "N/A"
@@ -1238,7 +1238,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
 
   let get_cam_status = fun _sender vs ->
     let ac = get_ac vs in
-    let a = fun s -> Pprz.float_assoc s vs in
+    let a = fun s -> PprzLink.float_assoc s vs in
     let cam_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_lat"); posn_long = (Deg>>Rad)(a "cam_long") }
     and target_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_target_lat"); posn_long = (Deg>>Rad)(a "cam_target_long") } in
 
@@ -1249,16 +1249,16 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
   let get_circle_status = fun _sender vs ->
     let ac = get_ac vs in
     ac.got_track_status_timer <- 0;
-    let a = fun s -> Pprz.float_assoc s vs in
+    let a = fun s -> PprzLink.float_assoc s vs in
     let wgs84 = { posn_lat = (Deg>>Rad)(a "circle_lat"); posn_long = (Deg>>Rad)(a "circle_long") } in
-    ac.track#draw_circle wgs84 (float_of_string (Pprz.string_assoc "radius" vs))
+    ac.track#draw_circle wgs84 (float_of_string (PprzLink.string_assoc "radius" vs))
   in
   safe_bind "CIRCLE_STATUS" get_circle_status;
 
   let get_segment_status = fun _sender vs ->
     let ac = get_ac vs in
     ac.got_track_status_timer <- 0;
-    let a = fun s -> Pprz.float_assoc s vs in
+    let a = fun s -> PprzLink.float_assoc s vs in
     let geo1 = { posn_lat = (Deg>>Rad)(a "segment1_lat"); posn_long = (Deg>>Rad)(a "segment1_long") }
     and geo2 = { posn_lat = (Deg>>Rad)(a "segment2_lat"); posn_long = (Deg>>Rad)(a "segment2_long") } in
     ac.track#draw_segment geo1 geo2;
@@ -1271,7 +1271,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
 
   let get_survey_status = fun _sender vs ->
     let ac = get_ac vs in
-    let a = fun s -> Pprz.float_assoc s vs in
+    let a = fun s -> PprzLink.float_assoc s vs in
     let geo1 = { posn_lat = (Deg>>Rad)(a "south_lat"); posn_long = (Deg>>Rad)(a "west_long") }
     and geo2 = { posn_lat = (Deg>>Rad)(a "north_lat"); posn_long = (Deg>>Rad)(a "east_long") } in
     ac.track#draw_zone geo1 geo2
@@ -1281,14 +1281,14 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
 
   let get_ap_status = fun _sender vs ->
     let ac = get_ac vs in
-    let flight_time = Int64.to_int (Pprz.uint32_assoc "flight_time" vs) in
+    let flight_time = Int64.to_int (PprzLink.uint32_assoc "flight_time" vs) in
     ac.track#update_ap_status (float_of_int flight_time);
     ac.flight_time <- flight_time;
-    let ap_mode = Pprz.string_assoc "ap_mode" vs in
+    let ap_mode = PprzLink.string_assoc "ap_mode" vs in
     if ap_mode <> ac.last_ap_mode then begin
       log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_speech_name ap_mode);
       ac.last_ap_mode <- ap_mode;
-      let label = Pprz.string_assoc "ap_mode" vs in
+      let label = PprzLink.string_assoc "ap_mode" vs in
       ac.strip#set_label "AP" (if label="MANUAL" then "MANU" else label);
       let color =
         match ap_mode with
@@ -1298,17 +1298,17 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
           | _ -> alert_color in
       ac.strip#set_color "AP" color;
     end;
-    let status_filter_mode = Pprz.string_assoc "state_filter_mode" vs in
+    let status_filter_mode = PprzLink.string_assoc "state_filter_mode" vs in
     let gps_mode =
       if (status_filter_mode <> "UNKNOWN") && (status_filter_mode <> "OK") && (status_filter_mode <> "GPS_LOST")
       then status_filter_mode
-      else Pprz.string_assoc "gps_mode" vs in
+      else PprzLink.string_assoc "gps_mode" vs in
     ac.strip#set_label "GPS" gps_mode;
     ac.strip#set_color "GPS" (if gps_mode<>"3D" && gps_mode<>"DGPS" && gps_mode<>"RTK" then alert_color else ok_color);
     let ft =
       sprintf "%02d:%02d:%02d" (flight_time / 3600) ((flight_time / 60) mod 60) (flight_time mod 60) in
     ac.strip#set_label "flight_time" ft;
-    let kill_mode = Pprz.string_assoc "kill_mode" vs in
+    let kill_mode = PprzLink.string_assoc "kill_mode" vs in
     if kill_mode <> "OFF" then  begin
       if not ac.in_kill_mode then
         log_and_say alert ac.ac_name (sprintf "%s, mayday, kill mode" ac.ac_speech_name);
@@ -1327,8 +1327,8 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
 let listen_waypoint_moved = fun () ->
   let get_values = fun _sender vs ->
     let ac = get_ac vs in
-    let wp_id = Pprz.int_assoc "wp_id" vs in
-    let a = fun s -> Pprz.float_assoc s vs in
+    let wp_id = PprzLink.int_assoc "wp_id" vs in
+    let a = fun s -> PprzLink.float_assoc s vs in
     let geo = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") }
     and altitude = a "alt"
     and ground_alt = a "ground_alt" in
@@ -1345,7 +1345,7 @@ let listen_waypoint_moved = fun () ->
 
 let get_alert_bat_low = fun a _sender vs ->
   let ac = get_ac vs in
-  let level = Pprz.string_assoc "level" vs in
+  let level = PprzLink.string_assoc "level" vs in
   let unix_time = Unix.gettimeofday() in
   if unix_time > (ac.last_bat_warn_time +. 10.) then begin
     log_and_say a ac.ac_name (sprintf "%s, %s %s" ac.ac_speech_name "BAT LOW" level);
@@ -1358,10 +1358,10 @@ let listen_alert = fun a ->
 let get_svsinfo = fun alarm _sender vs ->
   let ac = get_ac vs in
   let gps_page = ac.gps_page in
-  let svids = Str.split list_separator (Pprz.string_assoc "svid" vs)
-  and cn0s = Str.split list_separator (Pprz.string_assoc "cno" vs)
-  and flagss = Str.split list_separator (Pprz.string_assoc "flags" vs)
-  and ages = Str.split list_separator (Pprz.string_assoc "msg_age" vs) in
+  let svids = Str.split list_separator (PprzLink.string_assoc "svid" vs)
+  and cn0s = Str.split list_separator (PprzLink.string_assoc "cno" vs)
+  and flagss = Str.split list_separator (PprzLink.string_assoc "flags" vs)
+  and ages = Str.split list_separator (PprzLink.string_assoc "msg_age" vs) in
 
   let a = Array.make (List.length svids) (0,0,0,0) in
   let rec loop = fun i s c f ages ->
@@ -1373,7 +1373,7 @@ let get_svsinfo = fun alarm _sender vs ->
       | _ -> assert false in
   loop 0 svids cn0s flagss ages;
 
-  let pacc = Pprz.int_assoc "pacc" vs in
+  let pacc = PprzLink.int_assoc "pacc" vs in
 
   gps_page#svsinfo pacc a;
 
@@ -1397,10 +1397,10 @@ let message_request = Ground_Pprz.message_req
 
 let mark_dcshot = fun (geomap:G.widget) _sender vs ->
   let ac = find_ac !active_ac in
-  let photonumber = Pprz.string_assoc "photo_nr" vs in
+  let photonumber = PprzLink.string_assoc "photo_nr" vs in
   try
-    let lat = Pprz.int_assoc "lat" vs
-    and lon = Pprz.int_assoc "lon" vs in
+    let lat = PprzLink.int_assoc "lat" vs
+    and lon = PprzLink.int_assoc "lon" vs in
     let wgs84 = LL.make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
     let group = geomap#background in
     let point = geomap#photoprojection ~group ~fill_color:"yellow" ~number:photonumber wgs84 3. in
@@ -1423,22 +1423,22 @@ let listen_dcshot = fun _geom timestamp ->
 
 let listen_error = fun a ->
   let get_error = fun _sender vs ->
-    let msg = Pprz.string_assoc "message" vs in
+    let msg = PprzLink.string_assoc "message" vs in
     log_and_say a "gcs" msg in
   safe_bind "TELEMETRY_ERROR" get_error
 
 let listen_info_msg = fun a timestamp ->
   let get_msg = fun a _sender vs ->
     let ac = find_ac _sender in
-    let msg_array = Pprz.assoc "msg" vs in
-    log_and_say a ac.ac_name (Pprz.string_of_value msg_array) in
+    let msg_array = PprzLink.assoc "msg" vs in
+    log_and_say a ac.ac_name (PprzLink.string_of_value msg_array) in
   tele_bind "INFO_MSG" (get_msg a) timestamp
 
 let listen_autopilot_version_msg = fun a timestamp ->
   let get_msg = fun a _sender vs ->
     let ac = find_ac _sender in
-    let desc_array = Pprz.assoc "desc" vs in
-    let version = Pprz.string_of_value desc_array in
+    let desc_array = PprzLink.assoc "desc" vs in
+    let version = PprzLink.string_of_value desc_array in
     if ac.version <> version then
       log a ac.ac_name (sprintf "%s version:\n%s" ac.ac_name version);
     ac.version <- version in
@@ -1449,7 +1449,7 @@ let listen_tcas = fun a timestamp ->
     let ac = find_ac _sender in
     let other_ac = get_ac vs in
     let resolve = try
-                    match Pprz.int_assoc "resolve" vs with
+                    match PprzLink.int_assoc "resolve" vs with
                         1 -> "=> LEVEL"
                       | 2 -> "=> CLIMB"
                       | 3 -> "=> DESCEND"
@@ -1461,10 +1461,10 @@ let listen_tcas = fun a timestamp ->
   tele_bind "TCAS_RA" (get_alarm_tcas a "TCAS RA") timestamp
 
 let get_intruders = fun (geomap:G.widget) _sender vs ->
-  let f = fun s -> Pprz.float_assoc s vs in
-  let i = fun s -> float (Pprz.int_assoc s vs) in
-  let name = Pprz.string_assoc "name" vs
-  and id = Pprz.string_assoc "id" vs
+  let f = fun s -> PprzLink.float_assoc s vs in
+  let i = fun s -> float (PprzLink.int_assoc s vs) in
+  let name = PprzLink.string_assoc "name" vs
+  and id = PprzLink.string_assoc "id" vs
   and time = Unix.gettimeofday ()
   and lat = (i "lat") /. 1e7
   and lon = (i "lon") /. 1e7 in
@@ -1484,7 +1484,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert au
   let _ = GMain.Timeout.add 1000 (fun () -> probe (); !_req_aircrafts) in
 
   (** New aircraft message *)
-  safe_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac confirm_kill my_alert geomap ac_notebook  strips (Pprz.string_assoc "ac_id" vs));
+  safe_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac confirm_kill my_alert geomap ac_notebook  strips (PprzLink.string_assoc "ac_id" vs));
 
   (** Listen for all messages on ivy *)
   listen_flight_params geomap auto_center_new_ac my_alert alt_graph;

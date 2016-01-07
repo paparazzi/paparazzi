@@ -29,7 +29,7 @@ type gps_acc_level = GPS_ACC_HIGH | GPS_ACC_LOW | GPS_ACC_VERY_LOW | GPS_NO_ACC
 type aircraft = private {
     ac_name : string;
     ac_speech_name : string;
-    config : Pprz.values;
+    config : PprzLink.values;
     track : MapTrack.track;
     color: color;
     fp_group : MapFP.flight_plan;
@@ -71,7 +71,7 @@ type aircraft = private {
 
 val aircrafts : (string, aircraft) Hashtbl.t
 
-val safe_bind : string -> (string -> Pprz.values -> unit) -> unit
+val safe_bind : string -> (string -> PprzLink.values -> unit) -> unit
 
 val track_size : int ref
 (** Default length for A/C tracks on the 2D view *)

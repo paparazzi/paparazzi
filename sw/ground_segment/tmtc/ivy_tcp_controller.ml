@@ -1,8 +1,8 @@
 open Printf
 
-module Tm_Pprz = Pprz.Messages(struct let name = "telemetry" end)
-module Dl_Pprz = Pprz.Messages(struct let name = "datalink" end)
-module PprzTransport = Serial.Transport(Pprz.Transport)
+module Tm_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
+module Dl_Pprz = PprzLink.Messages(struct let name = "datalink" end)
+module PprzTransport = Protocol.Transport(Pprz_transport.Transport)
 
 let () =
   let host = ref "10.31.1.98"
@@ -37,10 +37,10 @@ let () =
         Debug.trace 'x' (Debug.xprint b);
 
         let use_tele_message = fun payload ->
-          Debug.trace 'x' (Debug.xprint (Serial.string_of_payload payload));
+          Debug.trace 'x' (Debug.xprint (Protocol.string_of_payload payload));
           let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
           let msg = Tm_Pprz.message_of_id msg_id in
-          Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values in
+          Tm_Pprz.message_send (string_of_int ac_id) msg.PprzLink.name values in
 
         ignore (PprzTransport.parse use_tele_message b)
       with
@@ -56,9 +56,9 @@ let () =
   let get_ivy_message = fun _ args ->
     try
       let (msg_id, vs) = Dl_Pprz.values_of_string args.(0) in
-      let ac_id = Pprz.int_assoc "ac_id" vs in
+      let ac_id = PprzLink.int_assoc "ac_id" vs in
       let payload = Dl_Pprz.payload_of_values msg_id ac_id vs in
-      let buf = Pprz.Transport.packet payload in
+      let buf = Pprz_transport.Transport.packet payload in
       fprintf o "%s%!" buf
     with exc -> prerr_endline (Printexc.to_string exc) in
   let _b = Ivy.bind get_ivy_message "^ground_dl (.*)" in

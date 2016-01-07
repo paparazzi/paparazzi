@@ -25,7 +25,7 @@
 open Aircraft
 open Latlong
 
-module Alerts_Pprz = Pprz.Messages(struct let name = "alert" end)
+module Alerts_Pprz = PprzLink.Messages(struct let name = "alert" end)
 
 (** computes distance between 2d points                                       *)
 let distance = fun (x1, y1) (x2, y2) ->
