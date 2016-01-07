@@ -30,6 +30,9 @@ SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{produ
 # Recent Digi XBee pro modems (XBP24-PKC-001-UA)
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{product}=="USB <-> Serial", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
 
+# Sparkfun XBee Explorer USB
+SUBSYSTEM=="tty", ATTRS{product}=="FT231X USB UART", ATTRS{serial}=="DA01L3BV", SYMLINK+="paparazzi/xbee", GROUP="plugdev", GOTO="tty_FTDI232_end"
+
 LABEL="tty_FTDI232_end"
 
 SUBSYSTEM!="usb", GOTO="paparazzi_rules_end"
