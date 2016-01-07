@@ -36,8 +36,6 @@
 
 #include "subsystems/abi.h"
 
-#define SENDER_ID 1
-
 // for memset
 #include <string.h>
 
@@ -295,7 +293,7 @@ void bluegiga_receive(struct spi_transaction *trans)
           uint8_t ac_id = SenderIdOfMsg(trans->input_buf);
 
           if (Pprz_StxOfMsg(trans->input_buf) == STX) {
-            AbiSendMsgBLUEGIGA_RSSI(SENDER_ID, ac_id, tx_strength, rssi);
+            AbiSendMsgRSSI(RSSI_BLUEGIGA_ID, ac_id, tx_strength, rssi);
           }
 
           read_offset = 3;
