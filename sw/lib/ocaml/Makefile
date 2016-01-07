@@ -24,13 +24,14 @@
 Q=@
 
 
-OCAMLC=ocamlfind ocamlc
-OCAMLOPT=ocamlfind ocamlopt
-OCAMLDEP=ocamlfind ocamldep
-OCAMLLEX=ocamllex
-OCAMLYACC=ocamlyacc
-OCAMLMKLIB=ocamlmklib
-OCAMLLIBDIR=$(shell $(OCAMLC) -where)
+#OCAMLC=ocamlfind ocamlc
+#OCAMLOPT=ocamlfind ocamlopt
+#OCAMLDEP=ocamlfind ocamldep
+#OCAMLLEX=ocamllex
+#OCAMLYACC=ocamlyacc
+#OCAMLMKLIB=ocamlmklib
+#OCAMLLIBDIR=$(shell $(OCAMLC) -where)
+include ../../Makefile.ocaml
 
 # verbose ocamlmklib: Print commands before executing them
 #VERBOSITY = -verbose

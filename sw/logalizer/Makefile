@@ -26,9 +26,9 @@ Q=@
 include ../Makefile.ocaml
 INCLUDES=
 PKG = -package glibivy,pprz
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
 XPKG = -package pprz.xlib
-XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
 
 all: play plotter logplotter sd2log plotprofile openlog2tlm sdlogger_download
 

@@ -33,7 +33,7 @@ LIBSX=$(LIBS:.cma=.cmxa)
 
 INCLUDES= -I ../multimon
 PKG = -package pprz.xlib
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz.xlib
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
 
 LABLGTK2INIT = $(shell ocamlfind query -p-format lablgtk2.init 2>/dev/null)
 ifeq ($(LABLGTK2INIT),)
