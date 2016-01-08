@@ -97,11 +97,10 @@ UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
 MTK_PROTOCOL_H=$(STATICINCLUDE)/mtk_protocol.h
 XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
 ABI_MESSAGES_H=$(STATICINCLUDE)/abi_messages.h
-INTERMCU_MSG_H=$(STATICINCLUDE)/intermcu_msg.h
 MAVLINK_DIR=$(STATICINCLUDE)/mavlink/
 MAVLINK_PROTOCOL_H=$(MAVLINK_DIR)protocol.h
 
-GEN_HEADERS = $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H) $(INTERMCU_MSG_H) $(MAVLINK_PROTOCOL_H)
+GEN_HEADERS = $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H) $(MAVLINK_PROTOCOL_H)
 
 all: ground_segment ext lpctools
 
@@ -221,14 +220,6 @@ $(ABI_MESSAGES_H) : $(ABI_XML) generators
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(GENERATORS)/gen_abi.out $< airborne > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-
-$(INTERMCU_MSG_H) : $(MESSAGES_XML) generators
-	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
-	@echo GENERATE $@
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(GENERATORS)/gen_messages.out $< intermcu > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 

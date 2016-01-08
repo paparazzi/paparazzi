@@ -25,7 +25,7 @@
  */
 
 #include "intermcu_fbw.h"
-#include "intermcu_msg.h"
+#include "pprzlink/intermcu_msg.h"
 #include "subsystems/radio_control.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/pprz_transport.h"
