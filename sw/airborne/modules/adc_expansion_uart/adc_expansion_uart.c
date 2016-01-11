@@ -53,9 +53,9 @@ void adc_expansion_uart_init() {
 /* Process message with ADC values */
 void adc_expansion_uart_process_msg() {
 
-  uart_adc_values[0] = DL_ADC_DATA_adc_1(dl_buffer);
-  uart_adc_values[1] = DL_ADC_DATA_adc_2(dl_buffer);
-  uart_adc_values[2] = DL_ADC_DATA_adc_3(dl_buffer);
+  adc_uart_values[0] = DL_ADC_DATA_adc_1(dl_buffer);
+  adc_uart_values[1] = DL_ADC_DATA_adc_2(dl_buffer);
+  adc_uart_values[2] = DL_ADC_DATA_adc_3(dl_buffer);
 
 }
 
