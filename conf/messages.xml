@@ -2159,7 +2159,12 @@
       <field name="yaw_c"  type="float"/>
   </message>
 
-  <!-- 251 is free -->
+  <message name="ADC_UART_DEBUG" id="251">
+    <field name="adc_1" type="uint16"/>
+    <field name="adc_2" type="uint16"/>
+    <field name="adc_3" type="uint16"/>
+  </message>
+
   <!-- 252 is free -->
 
   <message name="I2C_ERRORS" id="253">
@@ -2522,6 +2527,12 @@
    <field name="servo_3" type="uint16"/>
    <field name="servo_4" type="uint16"/>
  </message>
+
+  <message name="ADC_DATA" id="140">
+    <field name="adc_1" type="uint16"/>
+    <field name="adc_2" type="uint16"/>
+    <field name="adc_3" type="uint16"/>
+  </message>
 
  <message name="BOOZ2_FMS_COMMAND" id="149" link="forwarded">
    <field name="h_mode" type="uint8" values="KILL|RATE|ATTITUDE|HOVER|NAV"/>

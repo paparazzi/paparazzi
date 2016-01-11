@@ -1,0 +1,16 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="adc_expansion_uart">
+  <doc>
+    <description>Get analog signals from expansion board to main autopilot over uart</description>
+  </doc>
+  <header>
+    <file name="adc_expansion_uart.h"/>
+  </header>
+  <init fun="adc_expansion_uart_init()"/>
+  <datalink message="ADC_DATA" fun="adc_expansion_uart_process_msg()"/>
+  <makefile>
+    <file name="adc_expansion_uart.c"/>
+  </makefile>
+</module>
+

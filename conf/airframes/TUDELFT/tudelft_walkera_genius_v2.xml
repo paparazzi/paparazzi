@@ -191,6 +191,7 @@
      <configure name="LOGGER_CONTROL_SWITCH" value="RADIO_AUX2"/>
      <configure name="LOGGER_LED" value="3"/>
    </load>
+   <load name="adc_expansion_uart.xml"/>
    <!--load name="sys_mon.xml"/-->
  </modules>
 
