@@ -68,6 +68,15 @@ EXTERN void dl_parse_msg(void);
 EXTERN bool_t datalink_enabled;
 #endif
 
+/** Convenience macro to fill dl_buffer */
+#define DatalinkFillDlBuffer(_buf, _len) { \
+  uint8_t _i = 0; \
+  for (_i = 0; _i < _len; _i++) { \
+    dl_buffer[_i] = _buf[_i]; \
+  } \
+  dl_msg_available = TRUE; \
+}
+
 /** Check for new message and parse */
 static inline void DlCheckAndParse(void)
 {

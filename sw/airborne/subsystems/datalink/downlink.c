@@ -33,7 +33,7 @@
 struct ivy_transport ivy_tp;
 #endif
 
-#if DATALINK == PPRZ
+#if DATALINK == PPRZ || DATALINK == SUPERBITRF || DATALINK == W5100 || DATALINK == BLUEGIGA
 struct pprz_transport pprz_tp;
 #endif
 #if DATALINK == XBEE

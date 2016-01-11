@@ -96,7 +96,7 @@ static inline void bluegiga_read_buffer(struct bluegiga_periph *p, struct pprz_t
 #ifdef MODEM_LED
       LED_TOGGLE(MODEM_LED);
 #endif
-      pprz_parse_payload(t);
+      DatalinkFillDlBuffer(t->trans_rx.payload, t->trans_rx.payload_len);
       t->trans_rx.msg_received = FALSE;
     }
     bluegiga_increment_buf(&p->rx_extract_idx, c);

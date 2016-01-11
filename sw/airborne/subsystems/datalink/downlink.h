@@ -58,7 +58,7 @@ extern struct ivy_transport ivy_tp;
 
 #else /** SITL */
 
-#if DATALINK == PPRZ
+#if DATALINK == PPRZ || DATALINK == SUPERBITRF || DATALINK == W5100 || DATALINK == BLUEGIGA
 #include "pprzlink/pprz_transport.h"
 extern struct pprz_transport pprz_tp;
 #endif
@@ -73,10 +73,14 @@ extern struct pprzlog_transport pprzlog_tp;
 extern struct xbee_transport xbee_tp;
 #endif
 
-//#include "subsystems/datalink/w5100.h"
-#if DATALINK == BLUEGIGA
-//#include "subsystems/datalink/bluegiga.h"
+#if DATALINK == W5100
+#include "subsystems/datalink/w5100.h"
 #endif
+
+#if DATALINK == BLUEGIGA
+#include "subsystems/datalink/bluegiga.h"
+#endif
+
 #if USE_SUPERBITRF
 #include "subsystems/datalink/superbitrf.h"
 #endif
