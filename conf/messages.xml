@@ -856,7 +856,6 @@
 
   <message name="BLUEGIGA" id="106">
     <field name="data_rate" type="uint32" unit="bytes/s"/>
-    <field name="last_msg" type="uint8[]"/>
   </message>
 
   <!--107 is free -->
