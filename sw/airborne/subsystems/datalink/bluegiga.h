@@ -28,6 +28,7 @@
 #define BLUEGIGA_DATA_LINK_H
 
 #include "pprzlink/pprzlink_device.h"
+#include "subsystems/datalink/datalink.h"
 
 /* The different statuses the communication can be in */
 enum BlueGigaStatus {

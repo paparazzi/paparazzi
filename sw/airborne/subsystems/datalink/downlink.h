@@ -33,23 +33,8 @@
 #include "generated/airframe.h"
 #include "generated/modules.h"
 #include "pprzlink/messages.h"
+#include "subsystems/datalink/datalink.h"
 
-// FIXME tmp hack
-#ifndef PPRZ
-#define PPRZ 1
-#endif
-#ifndef XBEE
-#define XBEE 2
-#endif
-#ifndef SUPERBITRF
-#define SUPERBITRF 3
-#endif
-#ifndef W5100
-#define W5100 4
-#endif
-#ifndef BLUEGIGA
-#define BLUEGIGA 5
-#endif
 
 #if defined SITL && !USE_NPS
 /** Software In The Loop simulation uses IVY bus directly as the transport layer */

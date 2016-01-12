@@ -29,6 +29,7 @@
 #define W5100_H
 
 #include "pprzlink/pprzlink_device.h"
+#include "subsystems/datalink/datalink.h"
 #include "generated/airframe.h"
 
 #define W5100_RX_BUFFER_SIZE 80
