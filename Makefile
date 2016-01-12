@@ -136,6 +136,7 @@ ground_segment.opt: ground_segment cockpit.opt tmtc.opt
 static: cockpit tmtc generators sim_static joystick static_h
 
 libpprzlink:
+	$(MAKE) -C $(EXT) pprzlink.update
 	DESTDIR=$(PPRZLINK_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) libpprzlink-install
 
 libpprz: libpprzlink _save_build_version
