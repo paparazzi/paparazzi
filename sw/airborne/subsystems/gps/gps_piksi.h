@@ -37,14 +37,21 @@
 #define PIKSI_HEARTBEAT_MSG
 
 #if GPS_SECONDARY_PIKSI
+#ifndef PIKSI_GPS_LINK
 #define PIKSI_GPS_LINK GPS_SECONDARY_PORT
 #define SecondaryGpsImpl piksi
+#endif
 #else
+#ifndef PrimaryGpsImpl
 #define PrimaryGpsImpl piksi
 #endif
+#endif
 #if GPS_PRIMARY_PIKSI
+#ifndef PIKSI_GPS_LINK
 #define PIKSI_GPS_LINK GPS_PRIMARY_PORT
 #endif
+#endif
+
 
 extern void piksi_gps_event(void);
 extern void piksi_gps_impl_init(void);
