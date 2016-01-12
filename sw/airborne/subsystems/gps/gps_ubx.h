@@ -28,13 +28,19 @@
 #define GPS_UBX_H
 
 #if GPS_SECONDARY_UBX
+#ifndef UBX_GPS_LINK
 #define UBX_GPS_LINK GPS_SECONDARY_PORT
 #define SecondaryGpsImpl ubx
+#endif
 #else
+#ifndef PrimaryGpsImpl
 #define PrimaryGpsImpl ubx
 #endif
+#endif
 #if GPS_PRIMARY_UBX
+#ifndef UBX_GPS_LINK
 #define UBX_GPS_LINK GPS_PRIMARY_PORT
+#endif
 #endif
 
 #ifdef GPS_CONFIGURE
