@@ -29,6 +29,10 @@
 #include "subsystems/datalink/downlink.h"
 #include "generated/airframe.h" // AC_ID is required
 
+#if (defined DATALINK) || PERIODIC_TELEMETRY
+#include "subsystems/datalink/datalink.h"
+#endif
+
 #if defined SITL && !USE_NPS
 struct ivy_transport ivy_tp;
 #endif
@@ -45,7 +49,6 @@ struct pprzlog_transport pprzlog_tp;
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
-#include "subsystems/datalink/datalink.h"
 #include "mcu_periph/sys_time.h"
 
 static uint32_t last_down_nb_bytes = 0;  // previous number of bytes sent
