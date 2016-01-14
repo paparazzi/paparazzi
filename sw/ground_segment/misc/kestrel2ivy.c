@@ -362,7 +362,7 @@ void decode_and_send_to_ivy() {
       rel_humidity   = values[RH];
     }
 
-    // format has to match declaration in conf/messages.xml
+    // format has to match declaration in var/messages.xml
     IvySendMsg("%d WEATHER %f %f %f %f %f\n",
 	       ac_id, pstatic_Pa, temp_degC, windspeed_mps, winddir_deg, rel_humidity);
   }

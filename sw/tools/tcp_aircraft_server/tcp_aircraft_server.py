@@ -38,7 +38,7 @@ class Server(ivy.IvyServer):
         print("server listening on {:d}".format(tcp_port))
 
         self.transp = phoenix.pprz_transport.Transport(check_crc=False, debug=False)
-        self.protocol = phoenix.messages.Protocol(path=path.join(home_dir, "conf/messages.xml"), debug=True)
+        self.protocol = phoenix.messages.Protocol(path=path.join(home_dir, "var/messages.xml"), debug=True)
         self.start(bus)
 
         GObject.timeout_add(500, self.periodic, priority=GObject.PRIORITY_HIGH)
