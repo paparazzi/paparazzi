@@ -33,6 +33,9 @@
 #include "std.h"
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
+#if APOGEE_USE_MPU9150
+#include "peripherals/ak8975.h"
+#endif
 
 #include "peripherals/mpu60x0_i2c.h"
 
@@ -96,6 +99,9 @@
 
 struct ImuApogee {
   struct Mpu60x0_I2c mpu;
+#if APOGEE_USE_MPU9150
+  struct Ak8975 ak;
+#endif
 };
 
 extern struct ImuApogee imu_apogee;

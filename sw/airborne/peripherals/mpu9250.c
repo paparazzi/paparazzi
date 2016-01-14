@@ -45,6 +45,7 @@ void mpu9250_set_default_config(struct Mpu9250Config *c)
    */
   c->nb_bytes = 15;
   c->nb_slaves = 0;
+  c->nb_slave_init = 0;
 
   c->i2c_bypass = FALSE;
 }

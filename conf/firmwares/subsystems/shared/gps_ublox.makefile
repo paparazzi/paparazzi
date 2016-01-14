@@ -1,5 +1,5 @@
 # Hey Emacs, this is a -*- makefile -*-
-# UBlox LEA 5H
+# UBlox LEA
 
 GPS_LED ?= none
 UBX_GPS_PORT_LOWER=$(shell echo $(GPS_PORT) | tr A-Z a-z)

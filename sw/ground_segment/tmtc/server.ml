@@ -41,7 +41,7 @@ module Tm_Pprz = PprzLink.Messages (struct let name = "telemetry" end)
 module Alerts_Pprz = PprzLink.Messages(struct let name = "alert" end)
 module Dl_Pprz = PprzLink.Messages (struct let name = "datalink" end)
 
-
+let dl_id = "ground_dl" (* Hack, should be [my_id] *)
 
 let (//) = Filename.concat
 let logs_path = Env.paparazzi_home // "var" // "logs"
@@ -373,7 +373,7 @@ let send_aircraft_msg = fun ac ->
                        "speed", cm_of_m a.gspeed;
                        "climb", cm_of_m a.climb;
                        "itow", PprzLink.Int64 a.itow] in
-        Dl_Pprz.message_send my_id "ACINFO" ac_info;
+        Dl_Pprz.message_send dl_id "ACINFO" ac_info;
       end;
 
     if !Kml.enabled then
@@ -649,7 +649,7 @@ let send_intruder_acinfo = fun id intruder ->
                  "speed", cm_of_m intruder.Intruder.gspeed;
                  "climb", cm_of_m intruder.Intruder.climb;
                  "itow", PprzLink.Int64 intruder.Intruder.itow] in
-  Dl_Pprz.message_send my_id "ACINFO" ac_info
+  Dl_Pprz.message_send dl_id "ACINFO" ac_info
 
 let periodic_handle_intruders = fun () ->
   (* remove old intruders after 10s *)
@@ -736,8 +736,6 @@ let cm_of_m = fun f -> PprzLink.Int (truncate ((100. *. f) +. 0.5))
 
 (** Convert to mm, with rounding *)
 let mm_of_m_32 = fun f -> PprzLink.Int32 (Int32.of_int (truncate ((1000. *. f) +. 0.5)))
-
-let dl_id = "ground_dl" (* Hack, should be [my_id] *)
 
 (** Got a ground.MOVE_WAYPOINT and send a datalink.MOVE_WP *)
 let move_wp = fun logging _sender vs ->

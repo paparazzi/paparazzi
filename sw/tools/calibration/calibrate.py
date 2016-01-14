@@ -44,9 +44,9 @@ def main():
     parser.add_option("-p", "--plot",
                       help="Show resulting plots",
                       action="store_true", dest="plot")
-    parser.add_option("-a", "--auto_threshold",
-                      help="Try to automatically determine noise threshold",
-                      action="store_true", dest="auto_threshold")
+    parser.add_option("--noise_threshold",
+                      help="specify noise threshold instead of automatically determining it",
+                      action="store", dest="noise_threshold", default=0)
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
     (options, args) = parser.parse_args()
@@ -75,7 +75,7 @@ def main():
         sensor_ref = 9.81
         sensor_res = 10
         noise_window = 20
-        noise_threshold = 40
+        noise_threshold = options.noise_threshold
     elif options.sensor == "MAG":
         sensor_ref = 1.
         sensor_res = 11
@@ -98,10 +98,12 @@ def main():
         print("Error: all IMU_"+options.sensor+"_RAW measurements are zero!")
         sys.exit(1)
 
-    # estimate the noise threshold
-    # find the median of measurement vector lenght
-    if options.auto_threshold:
-        meas_median = scipy.median(scipy.array([scipy.linalg.norm(v) for v in measurements]))
+    # estimate the noise threshold if not explicitly given
+    if noise_threshold <= 0:
+        # mean over all measurements (flattended array) as approx neutral value
+        neutral = scipy.mean(measurements)
+        # find the median of measurement vector length after subtracting approximate neutral
+        meas_median = scipy.median(scipy.array([scipy.linalg.norm(v - neutral) for v in measurements]))
         # set noise threshold to be below 10% of that
         noise_threshold = meas_median * 0.1
     if options.verbose:
@@ -113,7 +115,8 @@ def main():
         print("remaining "+str(len(flt_meas))+" after filtering")
     if len(flt_meas) == 0:
         print("Error: found zero IMU_" + options.sensor + "_RAW measurements for aircraft with id " + options.ac_id +
-              " in log file after filtering!\nMaybe try the --auto_threshold option.")
+              " in log file after filtering with noise threshold of " + noise_threshold +
+              "!\nMaybe try specifying manually with the --noise_threshold option.")
         if options.plot:
             calibration_utils.plot_measurements(options.sensor, measurements)
         sys.exit(1)

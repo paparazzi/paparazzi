@@ -262,55 +262,42 @@
  * these directly map to the index number of the 4 adc channels defined above
  * 4th (index 3) is used for bat monitoring by default
  */
+
+#ifndef USE_ADC_1
+#define USE_ADC_1 1
+#endif
+
 #if USE_ADC_1
-#define AD1_1_CHANNEL 13
+#define AD1_1_CHANNEL 14
 #define ADC_1 AD1_1
 #define ADC_1_GPIO_PORT GPIOC
-#define ADC_1_GPIO_PIN GPIO3
+#define ADC_1_GPIO_PIN GPIO4
 #endif
 
 #if USE_ADC_2
-#define AD1_2_CHANNEL 10
+#define AD1_2_CHANNEL 15
 #define ADC_2 AD1_2
 #define ADC_2_GPIO_PORT GPIOC
-#define ADC_2_GPIO_PIN GPIO0
+#define ADC_2_GPIO_PIN GPIO5
 #endif
 
 #if USE_ADC_3
-#define AD1_3_CHANNEL 11
+#define AD1_3_CHANNEL 0
 #define ADC_3 AD1_3
-#define ADC_3_GPIO_PORT GPIOC
-#define ADC_3_GPIO_PIN GPIO1
+#define ADC_3_GPIO_PORT GPIOA
+#define ADC_3_GPIO_PIN GPIO0
 #endif
 
 #if USE_ADC_4
-#define AD2_1_CHANNEL 15
-#define ADC_4 AD2_1
-#define ADC_4_GPIO_PORT GPIOC
-#define ADC_4_GPIO_PIN GPIO5
-#endif
-
-// Internal ADC for battery enabled by default
-#ifndef USE_ADC_5
-#define USE_ADC_5 1
-#endif
-#if USE_ADC_5
-#define AD1_4_CHANNEL 14
-#define ADC_5 AD1_4
-#define ADC_5_GPIO_PORT GPIOC
-#define ADC_5_GPIO_PIN GPIO4
-#endif
-
-#if USE_ADC_6
-#define AD2_2_CHANNEL 12
-#define ADC_6 AD2_2
-#define ADC_6_GPIO_PORT GPIOC
-#define ADC_6_GPIO_PIN GPIO2
+#define AD1_4_CHANNEL 1
+#define ADC_4 AD1_4
+#define ADC_4_GPIO_PORT GPIOA
+#define ADC_4_GPIO_PIN GPIO1
 #endif
 
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
-#define ADC_CHANNEL_VSUPPLY ADC_5
+#define ADC_CHANNEL_VSUPPLY ADC_1
 #endif
 
 #define DefaultVoltageOfAdc(adc) (0.0045*adc)

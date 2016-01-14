@@ -16,9 +16,9 @@ $(TARGET).LDSCRIPT=$(SRC_ARCH)/naze32.ld
 
 # -----------------------------------------------------------------------
 
-# default flash mode is via SWD
+# default flash mode is via SERIAL (USB plug which is connected to cp210x converter)
 # other possibilities: DFU-UTIL, JTAG, SWD, STLINK, SERIAL
-FLASH_MODE ?= SWD
+FLASH_MODE ?= SERIAL
 
 #
 #

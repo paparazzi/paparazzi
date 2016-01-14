@@ -107,7 +107,7 @@ let module_xml2mk = fun f target m ->
       let section =
         let targets = Gen_common.targets_of_field section Env.default_module_targets in
         if Gen_common.test_targets target targets then section else Xml.Element ("makefile", [], [])
-      in 
+      in
       Xml.iter
       (fun field ->
           match String.lowercase (Xml.tag field) with
@@ -163,7 +163,7 @@ let subsystem_xml2mk = fun f firmware s ->
   fprintf f "\n# -subsystem: '%s'\n" name;
   let s_config, rest = ExtXml.partition_tag "configure" (Xml.children s) in
   let s_defines, _ = ExtXml.partition_tag "define" rest in
-  List.iter (configure_xml2mk f) s_config;
+  (*List.iter (configure_xml2mk f) s_config;*)
   List.iter (fun def -> define_xml2mk f def) s_defines;
   (* include subsystem *) (* TODO test if file exists with the generator ? *)
   let s_name = name ^ s_type ^ ".makefile" in
@@ -173,6 +173,10 @@ let subsystem_xml2mk = fun f firmware s ->
   fprintf f "else\n";
   fprintf f "\tinclude $(CFG_SHARED)/%s\n" s_name;
   fprintf f "endif\n"
+
+let subsystem_configure_xml2mk = fun f s ->
+  let s_config, _ = ExtXml.partition_tag "configure" (Xml.children s) in
+  List.iter (configure_xml2mk f) s_config
 
 let mod_or_subsys_xml2mk = fun f global_targets firmware target xml ->
   try
@@ -208,7 +212,11 @@ let parse_firmware = fun makefile_ac ac_xml firmware ->
     end;
     List.iter (configure_xml2mk makefile_ac) config;
     List.iter (configure_xml2mk makefile_ac) t_config;
-    fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib target "board");
+    List.iter (subsystem_configure_xml2mk makefile_ac) subsystems;
+    List.iter (subsystem_configure_xml2mk makefile_ac) t_subsystems;
+    List.iter (subsystem_configure_xml2mk makefile_ac) mods;
+    List.iter (subsystem_configure_xml2mk makefile_ac) t_mods;
+    fprintf makefile_ac "\ninclude $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib target "board");
     fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/firmwares/%s.makefile\n" (Xml.attrib firmware "name");
     List.iter (fun def -> define_xml2mk makefile_ac def) defines;
     List.iter (fun def -> define_xml2mk makefile_ac def) t_defines;

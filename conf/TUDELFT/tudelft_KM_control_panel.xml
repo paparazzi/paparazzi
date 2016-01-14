@@ -68,8 +68,8 @@
         <arg flag="-speech" />
       </program>
       <program name="NatNet">
-        <arg flag="-ac" constant="1"/>
-        <arg flag="12"/>
+        <arg flag="-ac" constant="7"/>
+        <arg flag="114"/>
         <arg flag="-small"/>
         <arg flag="-tf" constant="5"/>
       </program>
