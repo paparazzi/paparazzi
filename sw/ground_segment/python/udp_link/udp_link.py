@@ -14,9 +14,10 @@ import time
 PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                     '../../../../')))
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
+sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 
 import pprz_env
-from pprz_msg import messages_xml_map
+from pprzlink import messages_xml_map
 
 PING_PERIOD = 5.0
 STATUS_PERIOD = 1.0
