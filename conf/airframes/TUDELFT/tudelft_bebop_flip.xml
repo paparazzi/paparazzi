@@ -21,7 +21,6 @@
     <subsystem name="stabilization" type="indi"/>
     <subsystem name="ahrs"          type="float_mlkf"/>
     <subsystem name="ahrs" type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="FALSE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
       <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
     </subsystem>
