@@ -86,13 +86,13 @@ struct IndiVariables {
 };
 
 
-void stabilization_indi_init(void);
-void stabilization_indi_enter(void);
-void stabilization_indi_set_failsafe_setpoint(void);
-void stabilization_indi_set_rpy_setpoint_i(struct Int32Eulers *rpy);
-void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading);
-void stabilization_indi_run(bool_t enable_integrator, bool_t rate_control);
-void stabilization_indi_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn);
+extern void stabilization_indi_init(void);
+extern void stabilization_indi_enter(void);
+extern void stabilization_indi_set_failsafe_setpoint(void);
+extern void stabilization_indi_set_rpy_setpoint_i(struct Int32Eulers *rpy);
+extern void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading);
+extern void stabilization_indi_run(bool_t enable_integrator, bool_t rate_control);
+extern void stabilization_indi_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn);
 
 #endif /* STABILIZATION_INDI_H */
 
