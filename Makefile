@@ -137,7 +137,7 @@ static: cockpit tmtc generators sim_static joystick static_h
 
 libpprzlink:
 	$(MAKE) -C $(EXT) pprzlink.update
-	DESTDIR=$(PPRZLINK_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) libpprzlink-install
+	$(Q)Q=$(Q) DESTDIR=$(PPRZLINK_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) libpprzlink-install
 
 libpprz: libpprzlink _save_build_version
 	$(MAKE) -C $(LIB)/ocaml
@@ -183,11 +183,17 @@ $(LOGALIZER): libpprz
 
 static_h: pprzlink_protocol $(GEN_HEADERS)
 
-pprzlink_protocol : $(MESSAGES_XML)
+pprzlink_protocol :
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	$(Q)test -d $(STATICLIB) || mkdir -p $(STATICLIB)
-	@echo GENERATE $@
-	$(Q)MESSAGES_INSTALL=$(MESSAGES_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) pymessages
+ifeq ("$(wildcard $(MESSAGES_XML))","")
+	@echo GENERATE $@ with default messages
+	$(Q)Q=$(Q) MESSAGES_INSTALL=$(MESSAGES_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) pymessages
+else
+	@echo GENERATE $@ with custome messages from $(MESSAGES_XML)
+	$(Q)Q=$(Q) MESSAGES_XML=$(MESSAGES_XML) MESSAGES_INSTALL=$(MESSAGES_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) pymessages
+endif
+
 
 $(UBX_PROTOCOL_H) : $(UBX_XML) generators
 	@echo GENERATE $@
@@ -207,13 +213,6 @@ $(XSENS_PROTOCOL_H) : $(XSENS_XML) generators
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(GENERATORS)/gen_xsens.out $< > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-
-$(DL_PROTOCOL_H) : $(MESSAGES_XML) generators
-	@echo GENERATE $@
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(GENERATORS)/gen_messages.out $< datalink > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
