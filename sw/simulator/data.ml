@@ -26,14 +26,13 @@ open Printf
 
 let (//) = Filename.concat
 
-(* let pprz_conf_path = Env.paparazzi_src // "conf" *)
 let user_conf_path = Env.paparazzi_home // "conf"
+let user_var_path = Env.paparazzi_home // "var"
 
 let conf_xml = Xml.parse_file (user_conf_path // "conf.xml")
 
 let messages_ap =
-(*  let xml = Xml.parse_file (pprz_conf_path // "messages.xml") in *)
-  let xml = Xml.parse_file (user_conf_path // "messages.xml") in
+  let xml = Xml.parse_file (user_var_path // "messages.xml") in
   try
     ExtXml.child xml ~select:(fun x -> Xml.attrib x "name" = "telemetry") "msg_class"
   with

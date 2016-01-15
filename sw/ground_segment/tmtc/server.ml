@@ -533,7 +533,7 @@ let new_aircraft = fun get_alive_md5sum real_id ->
 
   ignore (Glib.Timeout.add 1000 (fun _ -> update (); true));
 
-  let messages_xml = Xml.parse_file (Env.paparazzi_home // root_dir // "conf" // "messages.xml") in
+  let messages_xml = Xml.parse_file (Env.paparazzi_home // root_dir // "var" // "messages.xml") in
   ac, messages_xml
 
 let check_alerts = fun a ->

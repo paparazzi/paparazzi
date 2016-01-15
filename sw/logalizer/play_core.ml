@@ -83,7 +83,7 @@ let store_conf = fun conf acs ->
   write_xml (replay_dir // "conf" // "conf.xml") orig_conf
 
 let store_messages = fun protocol ->
-  write_xml (replay_dir // "conf" // "messages.xml") protocol
+  write_xml (replay_dir // "var" // "messages.xml") protocol
 
 let time_of = fun (t, _, _) -> t
 

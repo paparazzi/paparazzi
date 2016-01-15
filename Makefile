@@ -81,7 +81,7 @@ SUBDIRS = $(PPRZCENTER) $(MISC) $(LOGALIZER)
 #
 # xml files used as input for header generation
 #
-MESSAGES_XML = $(CONF)/messages.xml
+CUSTOM_MESSAGES_XML = $(CONF)/messages.xml
 ABI_XML = $(CONF)/abi.xml
 UBX_XML = $(CONF)/ubx.xml
 MTK_XML = $(CONF)/mtk.xml
@@ -186,12 +186,12 @@ static_h: pprzlink_protocol $(GEN_HEADERS)
 pprzlink_protocol :
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	$(Q)test -d $(STATICLIB) || mkdir -p $(STATICLIB)
-ifeq ("$(wildcard $(MESSAGES_XML))","")
+ifeq ("$(wildcard $(CUSTOM_MESSAGES_XML))","")
 	@echo GENERATE $@ with default messages
 	$(Q)Q=$(Q) MESSAGES_INSTALL=$(MESSAGES_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) pymessages
 else
-	@echo GENERATE $@ with custome messages from $(MESSAGES_XML)
-	$(Q)Q=$(Q) MESSAGES_XML=$(MESSAGES_XML) MESSAGES_INSTALL=$(MESSAGES_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) pymessages
+	@echo GENERATE $@ with custome messages from $(CUSTOM_MESSAGES_XML)
+	$(Q)Q=$(Q) MESSAGES_XML=$(CUSTOM_MESSAGES_XML) MESSAGES_INSTALL=$(MESSAGES_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) pymessages
 endif
 
 

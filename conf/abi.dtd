@@ -10,7 +10,6 @@
 <!ATTLIST message
   name CDATA #REQUIRED
   id   CDATA #REQUIRED
-  link CDATA #IMPLIED
 >
 
 <!ELEMENT description (#PCDATA)>
@@ -19,10 +18,6 @@
 <!ATTLIST field
   name CDATA #REQUIRED
   type CDATA #REQUIRED
-  format CDATA #IMPLIED
   unit CDATA #IMPLIED
-  values CDATA #IMPLIED
-  alt_unit CDATA #IMPLIED
-  alt_unit_coef CDATA #IMPLIED
 >
 

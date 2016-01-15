@@ -28,9 +28,10 @@ include conf/Makefile.local
 # main directory where the generated files and compilation results for an aircraft are stored
 AIRCRAFT_BUILD_DIR = $(PAPARAZZI_HOME)/var/aircrafts/$(AIRCRAFT)
 CONF=$(PAPARAZZI_HOME)/conf
+VAR=$(PAPARAZZI_HOME)/var
 CONF_XML ?= $(CONF)/conf.xml
 AIRBORNE=sw/airborne
-MESSAGES_XML = $(CONF)/messages.xml
+MESSAGES_XML = $(VAR)/messages.xml
 
 # make sure the TARGET variable is set if needed for current make target
 ifneq (,$(findstring $(MAKECMDGOALS),all_ac_h radio_ac_h flight_plan_ac_h))
