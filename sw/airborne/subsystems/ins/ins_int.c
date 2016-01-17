@@ -94,9 +94,15 @@ PRINT_CONFIG_MSG("INS_SONAR_UPDATE_ON_AGL defaulting to FALSE")
 
 #endif // USE_SONAR
 
+#if USE_GPS
 #ifndef INS_VFF_R_GPS
 #define INS_VFF_R_GPS 2.0
 #endif
+
+#ifndef INS_VFF_VZ_R_GPS
+#define INS_VFF_VZ_R_GPS 2.0
+#endif
+#endif // USE_GPS
 
 /** maximum number of propagation steps without any updates in between */
 #ifndef INS_MAX_PROPAGATION_STEPS
@@ -374,6 +380,9 @@ void ins_int_update_gps(struct GpsState *gps_s)
 
 #if INS_USE_GPS_ALT
   vff_update_z_conf(((float)gps_pos_cm_ned.z) / 100.0, INS_VFF_R_GPS);
+#endif
+#if INS_USE_GPS_ALT_SPEED
+  vff_update_vz_conf(((float)gps_speed_cm_s_ned.z) / 100.0, INS_VFF_VZ_R_GPS);
 #endif
 
 #if USE_HFF
