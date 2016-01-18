@@ -30,69 +30,168 @@
 
 struct InsVectornav ins_vn;
 
+#if USE_CHIBIOS_RTOS
+  mutex_t mtx_ins;
+  static THD_WORKING_AREA(wa_thd_ins_rx, CH_THREAD_AREA_INS);
+#endif
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_ins(struct transport_tx *trans, struct link_device *dev)
 {
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxLock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
+
   pprz_msg_send_INS(trans, dev, AC_ID,
                     &ins_vn.ltp_pos_i.x, &ins_vn.ltp_pos_i.y, &ins_vn.ltp_pos_i.z,
                     &ins_vn.ltp_speed_i.x, &ins_vn.ltp_speed_i.y, &ins_vn.ltp_speed_i.z,
                     &ins_vn.ltp_accel_i.x, &ins_vn.ltp_accel_i.y, &ins_vn.ltp_accel_i.z);
+
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxUnlock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
 }
 
 static void send_ins_z(struct transport_tx *trans, struct link_device *dev)
 {
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxLock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
+
   pprz_msg_send_INS_Z(trans, dev, AC_ID,
                       &ins_vn.baro_z, &ins_vn.ltp_pos_i.z, &ins_vn.ltp_speed_i.z, &ins_vn.ltp_accel_i.z);
+
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxUnlock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
 }
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 {
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxLock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
+
   if (ins_vn.ltp_initialized) {
     pprz_msg_send_INS_REF(trans, dev, AC_ID,
                           &ins_vn.ltp_def.ecef.x, &ins_vn.ltp_def.ecef.y, &ins_vn.ltp_def.ecef.z,
                           &ins_vn.ltp_def.lla.lat, &ins_vn.ltp_def.lla.lon, &ins_vn.ltp_def.lla.alt,
                           &ins_vn.ltp_def.hmsl, &ins_vn.qfe);
   }
+
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxUnlock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
 }
 
 static void send_vn_info(struct transport_tx *trans, struct link_device *dev)
 {
+  static uint16_t last_cnt = 0;
+  static uint16_t sec_cnt = 0;
+
+  sec_cnt = ins_vn.vn_packet.counter -  last_cnt;
+
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxLock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
+
   pprz_msg_send_VECTORNAV_INFO(trans, dev, AC_ID,
                                &ins_vn.timestamp,
                                &ins_vn.vn_packet.chksm_error,
                                &ins_vn.vn_packet.hdr_error,
                                &ins_vn.vn_packet.counter,
+                               &sec_cnt,
                                &ins_vn.mode,
                                &ins_vn.err,
                                &ins_vn.ypr_u.phi,
                                &ins_vn.ypr_u.theta,
-                               &ins_vn.ypr_u.psi);
+                               &ins_vn.ypr_u.psi,
+                               &ins_vn.vn_packet.overrun_error,
+                               &ins_vn.vn_packet.noise_error,
+                               &ins_vn.vn_packet.framing_error);
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxUnlock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
+
+  // update counter
+  last_cnt = ins_vn.vn_packet.counter;
+
+  // reset mode
+  ins_vn.mode = 0;
 }
 
 static void send_accel(struct transport_tx *trans, struct link_device *dev)
 {
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxLock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
+
   pprz_msg_send_IMU_ACCEL(trans, dev, AC_ID,
                           &ins_vn.accel.x, &ins_vn.accel.y, &ins_vn.accel.z);
+
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxUnlock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
 }
 
 static void send_gyro(struct transport_tx *trans, struct link_device *dev)
 {
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxLock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
+
   pprz_msg_send_IMU_GYRO(trans, dev, AC_ID,
                          &ins_vn.gyro.p, &ins_vn.gyro.q, &ins_vn.gyro.r);
+
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxUnlock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
 }
 
 static void send_accel_scaled(struct transport_tx *trans, struct link_device *dev)
 {
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxLock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
+
   pprz_msg_send_IMU_ACCEL_SCALED(trans, dev, AC_ID,
                                  &ins_vn.accel_i.x, &ins_vn.accel_i.y, &ins_vn.accel_i.z);
+
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxUnlock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
 }
 
 static void send_gyro_scaled(struct transport_tx *trans, struct link_device *dev)
 {
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxLock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
+
   pprz_msg_send_IMU_GYRO_SCALED(trans, dev, AC_ID,
                                  &ins_vn.gyro_i.p, &ins_vn.gyro_i.q, &ins_vn.gyro_i.r);
+
+#if USE_CHIBIOS_RTOS
+  // Mutex guard
+  chMtxUnlock(&mtx_ins);
+#endif /* USE_CHIBIOS_RTOS */
 }
 #endif
 
@@ -101,6 +200,125 @@ static void send_gyro_scaled(struct transport_tx *trans, struct link_device *dev
 PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE");
 #endif
 
+#if USE_CHIBIOS_RTOS
+#define EVT_INS_TX 5
+#define EVT_INS_RX 6
+
+static event_source_t eventInsTx;
+static event_source_t eventInsRx;
+
+
+/*
+ * This callback is invoked when a transmission has physically completed.
+ */
+static void txend2(UARTDriver *uartp) {
+  chSysLockFromISR();
+  chEvtBroadcastFlagsI(&eventInsTx, EVT_INS_TX);
+  chSysUnlockFromISR();
+  (void) uartp;
+}
+
+
+/*
+ * This callback is invoked on a receive error, the errors mask is passed
+ * as parameter.
+ *
+ * Since we already detect errors on the line with hdr/checksum errors, this
+ * is not really needed.
+ */
+static void rxerr(UARTDriver *uartp, uartflags_t e) {
+  if (e & UART_OVERRUN_ERROR) {
+    ins_vn.vn_packet.overrun_error++;
+  }
+  if (e & UART_NOISE_ERROR ) {
+    ins_vn.vn_packet.noise_error++;
+  }
+  if (e & UART_FRAMING_ERROR ) {
+    ins_vn.vn_packet.framing_error++;
+  }
+  (void)uartp;
+}
+
+
+/*
+ * This callback is invoked when a receive buffer has been completely written.
+ */
+static void rxend(UARTDriver *uartp) {
+  (void) uartp;
+}
+
+
+/*
+ * This callback is invoked when a character is received but the application
+ * was not ready to receive it, the character is passed as parameter.
+ */
+static void rxchar(UARTDriver *uartp, uint16_t c) {
+  (void)uartp;
+  //vn_packet_parse((uint8_t)c);
+
+  vn200_parse(&(ins_vn.vn_packet), (uint8_t)c);
+  if (ins_vn.vn_packet.msg_available) {
+    chSysLockFromISR();
+    chEvtBroadcastFlagsI(&eventInsRx, EVT_INS_RX);
+    chSysUnlockFromISR();
+    ins_vn.vn_packet.msg_available = FALSE;
+  }
+}
+
+
+/*
+ * UART driver configuration structure.
+ */
+static UARTConfig uart_cfg_vn = {
+  NULL,                                                     /* end of tx_buf  */
+  txend2,                                                   /* physical end tx*/
+  rxend,                                                    /* ex buf filled  */
+  rxchar,                                                   /* char received of RX_IDLE */
+  rxerr,                                                    /* rx error       */
+  VN_BAUD,                                              /*    BITRATE     */
+  0,                                                        /*    USART CR1   */
+  USART_CR2_STOP1_BITS,                                     /*    USART CR2   */
+  0                                                         /*    USART CR3   */
+};
+
+
+/*
+ *  INS Data Receiving Thread
+ *
+ *  Reads data from VectorNav
+ *  Assume Vectornav already configured for a custom message
+ */
+void thd_ins_rx(void *args __attribute__((unused)))
+{
+  chRegSetThreadName("ins_rx");
+
+  // Init event sources
+  chEvtObjectInit(&eventInsTx);
+  chEvtObjectInit(&eventInsRx);
+
+  uartStart(&VN_PORT, &uart_cfg_vn); // only idle rxchar cb
+  uartStopSend(&VN_PORT);
+  uartStopReceive(&VN_PORT);
+
+  // Receive loop
+  event_listener_t elInsEvRx;
+  chEvtRegister(&eventInsRx, &elInsEvRx, EVT_INS_RX);
+  while (TRUE) {
+    chEvtWaitOne(EVENT_MASK(EVT_INS_RX));
+    chEvtGetAndClearFlags(&elInsEvRx);
+    // Mutex guard
+    chMtxLock(&mtx_ins);
+    ins_vectornav_read_message();
+    //ins.status = INS_RUNNING;
+    // Mutex guard
+    chMtxUnlock(&mtx_ins);
+  }
+}
+
+// dummy so it compiles
+void ins_vectornav_event(void){};
+
+#else /* NO RTOS */
 /**
  * Event handling for Vectornav
  */
@@ -115,6 +333,7 @@ void ins_vectornav_event(void)
     ins_vn.vn_packet.msg_available = FALSE;
   }
 }
+#endif /* USE_CHIBIOS_RTOS */
 
 
 /**
@@ -155,6 +374,14 @@ void ins_vectornav_init(void)
   {INS_VN_BODY_TO_IMU_PHI, INS_VN_BODY_TO_IMU_THETA, INS_VN_BODY_TO_IMU_PSI};
   orientationSetEulers_f(&ins_vn.body_to_imu, &body_to_imu_eulers);
 
+#if USE_CHIBIOS_RTOS
+  // init mutex
+  chMtxObjectInit(&mtx_ins);
+  chThdCreateStatic(wa_thd_ins_rx, sizeof(wa_thd_ins_rx),
+        HIGHPRIO, thd_ins_rx, NULL);
+#endif /* USE_CHIBIOS_RTOS */
+
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS, send_ins);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_Z, send_ins_z);
@@ -186,6 +413,7 @@ void ins_vectornav_read_message(void)
 
   //Attitude, float, [degrees], yaw, pitch, roll, NED frame
   memcpy(&ins_vn.attitude, &ins_vn.vn_packet.msg_buf[idx], 3 * sizeof(float));
+  memcpy(&ins_vn.ypr, &ins_vn.vn_packet.msg_buf[idx], 3 * sizeof(float));
   idx += 3 * sizeof(float);
 
   // Rates (imu frame), float, [rad/s]

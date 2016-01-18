@@ -35,6 +35,24 @@
 
 struct State state;
 
+#if USE_CHIBIOS_RTOS
+  void stateMtxLock(void){
+    chMtxLock(&(state.mutex));
+  }
+
+  void stateMtxUnlock(void){
+    chMtxUnlock(&(state.mutex));
+  }
+
+  void stateMtxInit(void){
+    chMtxObjectInit(&(state.mutex));
+  }
+#else /* no RTOS */
+  void stateMtxLock(void){}
+  void stateMtxUnlock(void){}
+  void stateMtxInit(void){}
+#endif /* USE_CHIBIOS_RTOS */
+
 /**
  * @addtogroup state_interface
  * @{
@@ -42,6 +60,7 @@ struct State state;
 
 void stateInit(void)
 {
+  stateMtxInit();
   state.pos_status = 0;
   state.speed_status = 0;
   state.accel_status = 0;

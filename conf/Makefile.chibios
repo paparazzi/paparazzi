@@ -1,0 +1,359 @@
+#
+# Copyright (C) 2015 ENAC
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+
+#
+# This is the common Makefile for target using chibios
+#
+# chibios directory
+CHIBIOS =  $(PAPARAZZI_SRC)/sw/ext/chibios
+
+# directory with board defines for chibios platforms (board specific)
+BOARD_DIR ?= $(BOARD)/chibios
+CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD_DIR)
+
+# directory with board and OS configuration (project specific)
+PROJECT_DIR ?= demo
+CHIBIOS_PROJECT_DIR = $(CHIBIOS_BOARD_DIR)/$(PROJECT_DIR)
+
+# chibos arch directory
+CHIBIOS_ARCH_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios
+
+# Launch with "make Q=''" to get full command display
+Q=@
+
+# Debugging options
+# Default OFF
+# If ON, trigger all debugging flags
+# and disable code optimization
+# If OFF
+# only keep threads profiling ON, 
+# so we can keep track of CPU usage
+RTOS_DEBUG ?= 0
+
+ifeq (,$(findstring $(RTOS_DEBUG),0 FALSE))
+$(info DEBUGGING ON)
+$(TARGET).CFLAGS += \
+  -DCH_DBG_STATISTICS=TRUE \
+	-DCH_DBG_SYSTEM_STATE_CHECK=TRUE \
+	-DCH_DBG_ENABLE_CHECKS=TRUE \
+	-DCH_DBG_ENABLE_ASSERTS=TRUE \
+	-DCH_DBG_ENABLE_TRACE=TRUE \
+	-DCH_DBG_ENABLE_STACK_CHECK=TRUE \
+	-DCH_DBG_FILL_THREADS=TRUE \
+	-DCH_DBG_THREADS_PROFILING=TRUE
+USE_OPT = -std=gnu99 -O0 -ggdb3 -fomit-frame-pointer -falign-functions \
+	 -W -Wall -DUSE_CHIBIOS_RTOS
+else
+$(info DEBUGGING OFF)
+$(TARGET).CFLAGS += -DCH_DBG_THREADS_PROFILING=TRUE
+endif
+
+#
+# General rules
+#
+$(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
+$(TARGET).objso	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)
+$(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
+
+
+##############################################################################
+# Build global options
+# NOTE: Can be overridden externally.
+#
+
+# Compiler options here.
+# Default is max optimization
+# Note that O3 option produce larger code than O2 but the code seems to be
+# a little bit faster (~1%CPU)
+# Since O2 is better tested, keeping it on that.
+# See http://stackoverflow.com/questions/11546075/is-optimisation-level-o3-dangerous-in-g
+# for more info
+ifeq ($(USE_OPT),)
+  USE_OPT = -std=gnu99 -O2 -fomit-frame-pointer -falign-functions \
+  	 -W -Wall -DUSE_CHIBIOS_RTOS
+endif
+
+# C specific options here (added to USE_OPT).
+ifeq ($(USE_COPT),)
+  USE_COPT = 
+endif
+
+# C++ specific options here (added to USE_OPT).
+ifeq ($(USE_CPPOPT),)
+  USE_CPPOPT = -fno-rtti
+endif
+
+# Enable this if you want the linker to remove unused code and data
+ifeq ($(USE_LINK_GC),)
+  USE_LINK_GC = yes
+endif
+
+# Linker extra options here.
+ifeq ($(USE_LDOPT),)
+  USE_LDOPT = 
+endif
+
+# Enable this if you want link time optimizations (LTO)
+ifeq ($(USE_LTO),)
+  USE_LTO = yes
+endif
+
+# If enabled, this option allows to compile the application in THUMB mode.
+ifeq ($(USE_THUMB),)
+  USE_THUMB = yes
+endif
+
+# Enable this if you want to see the full log while compiling.
+ifeq ($(USE_VERBOSE_COMPILE),)
+  ifeq ($(Q),@)
+  USE_VERBOSE_COMPILE = no
+  else
+    USE_VERBOSE_COMPILE = yes
+  endif
+endif
+
+# If enabled, this option makes the build process faster by not compiling
+# modules not used in the current configuration.
+ifeq ($(USE_SMART_BUILD),)
+  USE_SMART_BUILD = no
+endif
+
+#
+# Build global options
+##############################################################################
+
+##############################################################################
+# Architecture or project specific options
+#
+
+# Stack size to be allocated to the Cortex-M process stack. This stack is
+# the stack used by the main() thread.
+ifeq ($(USE_PROCESS_STACKSIZE),)
+  USE_PROCESS_STACKSIZE = 0x400
+endif
+
+# Stack size to the allocated to the Cortex-M main/exceptions stack. This
+# stack is used for processing interrupts and exceptions.
+ifeq ($(USE_EXCEPTIONS_STACKSIZE),)
+  USE_EXCEPTIONS_STACKSIZE = 0x400
+endif
+
+# Enables the use of FPU on Cortex-M4.
+ifeq ($(USE_FPU),)
+  USE_FPU = yes
+endif
+
+#
+# Architecture or project specific options
+##############################################################################
+
+##############################################################################
+# Project, sources and paths
+#
+
+# Project name defined in board makefile
+
+# Imported source files and paths
+# Startup files.
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
+# HAL-OSAL files (optional).
+include $(CHIBIOS)/os/hal/hal.mk
+include $(CHIBIOS_BOARD_DIR)/board.mk
+include $(CHIBIOS)/os/hal/ports/STM32/$(CHIBIOS_BOARD_PLATFORM)
+include $(CHIBIOS)/os/hal/osal/rt/osal.mk
+# RTOS files (optional).
+include $(CHIBIOS)/os/rt/rt.mk
+include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+# Other files (optional).
+ifeq ($(USE_FATFS), TRUE)
+include $(PAPARAZZI_HOME)/conf/chibios/fatfs.mk
+endif
+
+# Add extra test sources if necessary
+ifneq ($(RTOS_TEST),)
+$(info TEST EXTRA ON)
+include $(CHIBIOS)/test/rt/test.mk
+TESTSRC += \
+       $(CHIBIOS)/os/various/evtimer.c \
+       $(CHIBIOS)/os/hal/lib/streams/memstreams.c \
+       $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
+       $(CHIBIOS)/os/various/shell.c
+TESTINC += \
+       $(CHIBIOS)/os/hal/lib/streams $(CHIBIOS)/os/various
+endif
+
+# Define linker script file here
+#LDSCRIPT= $(CHIBIOS_ARCH_DIR)/$(CHIBIOS_BOARD_LINKER)
+LDSCRIPT= $(STARTUPLD)/$(CHIBIOS_BOARD_LINKER)
+
+# C sources that can be compiled in ARM or THUMB mode depending on the global
+# setting.
+CSRC = $(STARTUPSRC) \
+       $(KERNSRC) \
+       $(PORTSRC) \
+       $(OSALSRC) \
+       $(HALSRC) \
+       $(PLATFORMSRC) \
+       $(BOARDSRC) \
+       $(TESTSRC) \
+       $(CHIBIOS_BOARD_MAIN)
+
+ECSRC = $($(TARGET).srcs)
+
+# C++ sources that can be compiled in ARM or THUMB mode depending on the global
+# setting.
+CPPSRC =
+
+# C sources to be compiled in ARM mode regardless of the global setting.
+# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
+#       option that results in lower performance and larger code size.
+ACSRC =
+
+# C++ sources to be compiled in ARM mode regardless of the global setting.
+# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
+#       option that results in lower performance and larger code size.
+ACPPSRC =
+
+# C sources to be compiled in THUMB mode regardless of the global setting.
+# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
+#       option that results in lower performance and larger code size.
+TCSRC =
+
+# C sources to be compiled in THUMB mode regardless of the global setting.
+# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
+#       option that results in lower performance and larger code size.
+TCPPSRC =
+
+# List ASM source files here
+ASMSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
+
+INCDIR = $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
+         $(HALINC) $(PLATFORMINC) $(BOARDINC) $(TESTINC) \
+         $(CHIBIOS)/os/various $(CHIBIOS_BOARD_DIR) $(CHIBIOS_PROJECT_DIR)
+
+# Output directory and files
+BUILDDIR := $(AIRCRAFT_BUILD_DIR)/$(TARGET)
+
+#
+# Project, sources and paths
+##############################################################################
+
+##############################################################################
+# Compiler settings
+#
+MCU  ?= cortex-m4
+
+TRGT = arm-none-eabi-
+CC   = $(TRGT)gcc
+CPPC = $(TRGT)g++
+# Enable loading with g++ only if you need C++ runtime support.
+# NOTE: You can use C++ even without C++ support if you are careful. C++
+#       runtime support makes code size explode.
+LD   = $(TRGT)gcc
+#LD   = $(TRGT)g++
+CP   = $(TRGT)objcopy
+AS   = $(TRGT)gcc -x assembler-with-cpp
+AR   = $(TRGT)ar
+OD   = $(TRGT)objdump
+SZ   = $(TRGT)size
+HEX  = $(CP) -O ihex
+BIN  = $(CP) -O binary
+
+# ARM-specific options here
+AOPT =
+
+# THUMB-specific options here
+TOPT = -mthumb -DTHUMB
+
+# Define C warning options here
+CWARN = -Wall -Wextra -Wstrict-prototypes
+
+# Define C++ warning options here
+CPPWARN = -Wall -Wextra
+
+#
+# Compiler settings
+##############################################################################
+
+##############################################################################
+# Start of user section
+#
+
+# List all user C define here, like -D_DEBUG=1
+UDEFS = $($(TARGET).CFLAGS)
+
+# Define ASM defines here
+UADEFS =
+
+# List all user directories here
+#UINCDIR =
+UINCDIR = $(patsubst -I%,%,$(INCLUDES))
+
+# List the user directory to look for the libraries here
+ULIBDIR =
+
+# List all user libraries here
+ULIBS = -lm
+
+#
+# End of user defines
+##############################################################################
+
+#
+# Include upload rules
+##############################################################################
+# default: assume the luftboot bootloader is used
+# if luftboot is not used define NO_LUFTBOOT to a value != 0
+# this is necessary for Makefile.stm32-upload
+ifdef NO_LUFTBOOT
+ASSUMING_LUFTBOOT = "no"
+else
+ASSUMING_LUFTBOOT = "yes"
+endif
+
+
+# Settings for GDB
+# default port configuration for BMP
+BMP_PORT = /dev/ttyACM0
+GDB = $(shell which arm-none-eabi-gdb)
+
+
+# Settings for OOCD
+$(TARGET).OOCD_INTERFACE=flossjtag
+OOCD_INTERFACE=flossjtag
+OOCD = $(shell which openocd)
+
+ifndef $(TARGET).OOCD_BOARD
+OOCD_BOARD = lisa-m
+else
+OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
+endif
+###############################################################################
+# Upload makefile
+include $(PAPARAZZI_HOME)/conf/Makefile.stm32-upload
+
+###############################################################################
+
+RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
+#include $(RULESPATH)/rules.mk
+
+EXTRA_RULES_INCLUDE_PATH = $(PAPARAZZI_HOME)/conf/chibios/chibios_extra_rules.mk
+include $(PAPARAZZI_HOME)/conf/chibios/chibios_rules.mk

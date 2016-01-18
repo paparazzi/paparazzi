@@ -48,6 +48,16 @@ static bool_t   ppm_data_valid;
 #define RssiValid() TRUE
 #endif
 
+#if USE_CHIBIOS_RTOS
+static inline void chibios_broadcast_ppm_frame() {
+        chSysLockFromISR();
+        chEvtBroadcastFlagsI(&eventRadioFrame, EVT_RADIO_FRAME);
+        chSysUnlockFromISR();
+        }
+#else
+static inline void chibios_broadcast_ppm_frame(void) {}
+#endif
+
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -110,6 +120,7 @@ void ppm_decode_frame(uint32_t ppm_time)
         length < RC_PPM_TICKS_OF_USEC(PPM_SYNC_MAX_LEN)) {
       if (ppm_data_valid && RssiValid()) {
         ppm_frame_available = TRUE;
+        chibios_broadcast_ppm_frame();
         ppm_data_valid = FALSE;
       }
       ppm_cur_pulse = 0;

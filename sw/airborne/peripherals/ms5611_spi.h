@@ -53,6 +53,9 @@ extern void ms5611_spi_start_configure(struct Ms5611_Spi *ms);
 extern void ms5611_spi_start_conversion(struct Ms5611_Spi *ms);
 extern void ms5611_spi_periodic_check(struct Ms5611_Spi *ms);
 extern void ms5611_spi_event(struct Ms5611_Spi *ms);
+#if USE_CHIBIOS_RTOS
+extern void ms5611_spi_synchronous_periodic_check(struct Ms5611_Spi* ms);
+#endif /* USE_CHIBIOS_RTOS */
 
 /** convenience function to trigger new measurement.
  * (or start configuration if not already initialized)

@@ -65,9 +65,30 @@ void baro_init(void)
 void baro_periodic(void)
 {
   if (sys_time.nb_sec > 1) {
+#if USE_CHIBIOS_RTOS
+    ms5611_spi_synchronous_periodic_check(&bb_ms5611);
 
+    if (bb_ms5611.data_available) {
+      float pressure = (float)bb_ms5611.data.pressure;
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
+      bb_ms5611.data_available = FALSE;
+
+#ifdef BARO_LED
+      RunOnceEvery(10,LED_TOGGLE(BARO_LED));
+#endif /* BARO_LED */
+
+#if DEBUG
+      float ftempms = bb_ms5611.data.temperature / 100.;
+      float fbaroms = bb_ms5611.data.pressure / 100.;
+      DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
+                                &bb_ms5611.data.d1, &bb_ms5611.data.d2,
+                                &fbaroms, &ftempms);
+#endif /* DEBUG */
+    }
+#else
     /* call the convenience periodic that initializes the sensor and starts reading*/
     ms5611_spi_periodic(&bb_ms5611);
+#endif /* USE_CHIBIOS_RTOS */
 
 #if DEBUG
     if (bb_ms5611.initialized)

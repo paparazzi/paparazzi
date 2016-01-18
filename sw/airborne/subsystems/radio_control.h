@@ -38,6 +38,14 @@
 /* must be defined by underlying hardware */
 extern void radio_control_impl_init(void);
 
+/* Chibios Defines */
+#if USE_CHIBIOS_RTOS
+#define EVT_RADIO_DATA 0
+#define EVT_RADIO_FRAME 1
+extern event_source_t eventRadioFrame;
+extern event_source_t eventRadioData;
+#endif
+
 /* timeouts - for now assumes 60Hz periodic */
 #define RC_AVG_PERIOD 8  /* TODO remove if IIR filter is used */
 #define RC_LOST_TIME 30  /* 500ms with a 60Hz timer */

@@ -73,6 +73,18 @@
 #endif
 
 /**
+ * ChibiOS defines for RX thread
+ */
+#if USE_CHIBIOS_RTOS
+#include "ch.h"
+#define CH_THREAD_AREA_SBUS_RX 1024
+
+extern mutex_t mtx_sbus;
+void thd_sbus_rx(void* arg);
+void sbus_parse(uint8_t rbyte);
+#endif
+
+/**
  * SBUS structure
  */
 struct Sbus {

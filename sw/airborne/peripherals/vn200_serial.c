@@ -65,7 +65,11 @@ static inline bool verify_chk(unsigned char data[], unsigned int length, uint16_
   }
 }
 
+#if USE_CHIBIOS_RTOS
+static inline void vn200_read_buffer(struct VNPacket *vnp __attribute__((unused))) {}
 
+void vn200_event(struct VNPacket *vnp __attribute__((unused))) {}
+#else /* non-RT */
 static inline void vn200_read_buffer(struct VNPacket *vnp)
 {
   while (uart_char_available(&VN_PORT) && !(vnp->msg_available)) {
@@ -80,6 +84,7 @@ void vn200_event(struct VNPacket *vnp)
     vn200_read_buffer(vnp);
   }
 }
+#endif /* USE_CHIBIOS_RTOS */
 
 /**
  *  Packet Collection & state machine

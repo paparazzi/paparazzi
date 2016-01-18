@@ -130,8 +130,118 @@ void ms5611_spi_periodic_check(struct Ms5611_Spi *ms)
   }
 }
 
-void ms5611_spi_event(struct Ms5611_Spi *ms)
+#if USE_CHIBIOS_RTOS
+/**
+ * Synchronous periodic function to ensure proper delay between readings
+ *
+ * Includes also state machine logic for pressure sensor readings.
+ */
+void ms5611_spi_synchronous_periodic_check(struct Ms5611_Spi *ms)
 {
+  if (ms->initialized) {
+      if (ms->spi_trans.status == SPITransFailed) {
+        ms->status = MS5611_STATUS_IDLE;
+        ms->spi_trans.status = SPITransDone;
+      }
+      switch (ms->status) {
+        case MS5611_STATUS_IDLE:
+          ms->tx_buf[0] = MS5611_START_CONV_D1;
+          spi_submit(ms->spi_p, &(ms->spi_trans));
+          ms->status = MS5611_STATUS_CONV_D1;
+          break;
+        case MS5611_STATUS_CONV_D1:
+          /* read D1 adc */
+          ms->tx_buf[0] = MS5611_ADC_READ;
+          spi_submit(ms->spi_p, &(ms->spi_trans));
+          ms->status = MS5611_STATUS_ADC_D1;
+          break;
+        case MS5611_STATUS_ADC_D1:
+          /* read D1 (pressure) */
+          ms->data.d1 = (ms->rx_buf[1] << 16) |
+                        (ms->rx_buf[2] << 8) |
+                         ms->rx_buf[3];
+          if (ms->data.d1 == 0) {
+            /* if value is zero, it was read to soon and is invalid, back to idle */
+            ms->status = MS5611_STATUS_IDLE;
+          }
+          else {
+            /* start D2 conversion */
+            ms->tx_buf[0] = MS5611_START_CONV_D2;
+            spi_submit(ms->spi_p, &(ms->spi_trans));
+            ms->status = MS5611_STATUS_CONV_D2;
+          }
+          break;
+        case MS5611_STATUS_CONV_D2:
+          /* read D2 adc */
+          ms->tx_buf[0] = MS5611_ADC_READ;
+          spi_submit(ms->spi_p, &(ms->spi_trans));
+          ms->status = MS5611_STATUS_ADC_D2;
+          break;
+        case MS5611_STATUS_ADC_D2:
+          /* read D2 (temperature) */
+          ms->data.d2 = (ms->rx_buf[1] << 16) |
+                        (ms->rx_buf[2] << 8) |
+                         ms->rx_buf[3];
+          if (ms->data.d2 == 0) {
+            /* if value is zero, it was read to soon and is invalid, back to idle */
+            ms->status = MS5611_STATUS_IDLE;
+          }
+          else {
+            /* calculate temp and pressure from measurements */
+            ms5611_calc(&(ms->data));
+            ms->status = MS5611_STATUS_IDLE;
+            ms->data_available = TRUE;
+          }
+          break;
+
+        default:
+          ms->status = MS5611_STATUS_IDLE;
+          break;
+      }
+  }
+  else {
+      switch (ms->status) {
+        case MS5611_STATUS_UNINIT:
+          ms->initialized = FALSE;
+          ms->prom_cnt = 0;
+          ms->tx_buf[0] = MS5611_SOFT_RESET;
+          spi_submit(ms->spi_p, &(ms->spi_trans));
+          ms->status = MS5611_STATUS_PROM;
+          break;
+        case MS5611_STATUS_PROM:
+          if (ms->spi_trans.status != SPITransFailed) {
+              /// No need to wait between EEPROM reads
+              /// TODO: SPI status check after each transaction
+              do {
+                  /* get  prom data */
+                  ms->tx_buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
+                  spi_submit(ms->spi_p, &(ms->spi_trans));
+                  /* read prom data */
+                  ms->data.c[ms->prom_cnt++] = (ms->rx_buf[1] << 8) | ms->rx_buf[2];
+              }
+              while ((ms->prom_cnt < PROM_NB) && (ms->spi_trans.status != SPITransFailed));
+              /* done reading prom, check prom crc */
+              if (ms5611_prom_crc_ok(ms->data.c)) {
+                ms->initialized = TRUE;
+                ms->status = MS5611_STATUS_IDLE;
+              }
+              else {
+                ms->status = MS5611_STATUS_UNINIT;
+              }
+          }
+          else {
+            ms->status = MS5611_STATUS_UNINIT;
+          }
+          break;
+        default:
+          ms->status = MS5611_STATUS_UNINIT;
+          break;
+      }
+  }
+}
+#endif /* USE_CHIBIOS_RTOS */
+
+void ms5611_spi_event(struct Ms5611_Spi *ms) {
   if (ms->initialized) {
     if (ms->spi_trans.status == SPITransFailed) {
       ms->status = MS5611_STATUS_IDLE;

@@ -7,9 +7,6 @@
 [submodule "sw/ext/fatfs"]
 	path = sw/ext/fatfs
 	url = https://github.com/enacuavlab/fatfs.git
-[submodule "sw/ext/chibios"]
-	path = sw/ext/chibios
-	url = https://github.com/mabl/ChibiOS.git
 [submodule "sw/ext/libzbar"]
 	path = sw/ext/libzbar
 	url = https://github.com/paparazzi/libzbar
@@ -19,3 +16,6 @@
 [submodule "sw/ext/mavlink"]
 	path = sw/ext/mavlink
 	url = https://github.com/paparazzi/mavlink.git
+[submodule "sw/ext/chibios"]
+	path = sw/ext/chibios
+	url = https://github.com/ChibiOS/ChibiOS.git

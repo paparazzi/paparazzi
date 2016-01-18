@@ -189,14 +189,23 @@
     <field name="chksm_error" 	type="uint32"/>
     <field name="hdr_error" 	type="uint32"/>
     <field name="counter" type="uint16"/>
+    <field name="rate" type="uint16" unit="packets/s"/>
     <field name="ins_status" type="uint8" values="NoTracking|OutOfSpecs|OK"/>
     <field name="ins_err" type="uint8"/>
     <field name="YprU1" 	type="float" 	unit="deg"/>
     <field name="YprU2" 	type="float" 	unit="deg"/>
     <field name="YprU3" 	type="float" 	unit="deg"/>
+    <field name="overrrun_error" 	type="uint16"/>
+    <field name="noise_error" 	type="uint16"/>
+    <field name="framing_error" 	type="uint16"/>
   </message>
 
-  <!--24 is free -->
+  <message name="CHIBIOS_INFO" id="24">
+    <field name="core_free_memory" type="uint32" unit="bytes"/>
+    <field name="sys_time" type="uint16" unit="s"/>
+    <field name="threads" type="uint8"/>
+    <field name="cpu_load" type="uint8" unit="%"/>
+  </message>
 
   <message name="SVINFO" id="25">
     <field name="chn" type="uint8"/>
