@@ -1983,10 +1983,14 @@
   <message name="STEREO_IMG" id="229">
     <field name="frequency" type="uint8"/>
     <field name="data_size" type="uint8"/>
+    <field name="decoded_value_1" type="int16"/>
+    <field name="decoded_value_2" type="int16"/>
+    <field name="decoded_value_3" type="int16"/>
+    <field name="decoded_value_4" type="int16"/>
     <field name="imageBuffer" type="uint8[]"/>
   </message>
 
-  <!--230 is free -->
+ <!--230 is free -->
 
   <message name="ROTORCRAFT_STATUS" id="231">
     <field name="link_imu_nb_err" type="uint32"/>

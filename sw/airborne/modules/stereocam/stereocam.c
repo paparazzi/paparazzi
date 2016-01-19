@@ -42,6 +42,11 @@ struct link_device *linkdev = STEREO_PORT;
 // pervasive local variables
 MsgProperties msgProperties;
 
+//For decoded values from stereocam array (currently only used in stereocam2state)
+int16_t decoded_value_1 = 0;
+int16_t decoded_value_2 = 0;
+int16_t decoded_value_3 = 0;
+int16_t decoded_value_4 = 0;
 
 uint16_t freq_counter = 0;
 uint8_t frequency = 0;
@@ -108,10 +113,14 @@ extern void stereocam_periodic(void)
       }
 #if SEND_STEREO
       if (stereocam_data.len > 100) {
-        DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), 100, stereocam_data.data);
+        DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), &decoded_value_1,
+                                 &decoded_value_2, &decoded_value_3, &decoded_value_4, 100,
+                                 stereocam_data.data);
 
       } else {
-        DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len,
+        DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency,  &(stereocam_data.len), &decoded_value_1,
+                                 &decoded_value_2, &decoded_value_3, &decoded_value_4,
+                                 stereocam_data.len,
                                  stereocam_data.data);
 
       }

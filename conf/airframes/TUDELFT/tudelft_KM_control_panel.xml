@@ -80,7 +80,7 @@
       </program>
     <program name="BluegigaUsbDongle" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver">
       <arg flag="/dev/ttyACM2"/>
-      <arg flag="00:07:80:2d:e0:4b" />
+      <arg flag="00:07:80:2d:e0:54" />
       <arg flag="4242" />
       <arg flag="4252" />
     </program>
