@@ -91,7 +91,7 @@ if __name__ == '__main__':
     usage = "Usage: %prog [options]" + "\n" + "Run %prog --help to list the options."
     parser = OptionParser(usage)
     parser.add_option("-f", "--file", dest="file",
-                      help="messages file to read [default: PAPARAZZI_HOME/conf/messages.xml]", metavar="MESSAGES.XML")
+                      help="messages file to read [default: PAPARAZZI_HOME/sw/ext/pprzlink/message_definitions/v1.0/messages.xml]", metavar="MESSAGES.XML")
     parser.add_option("-o", "--outputdir", dest="output_dir",
                       help="write output to DIR [default: PAPARAZZI_HOME/doc/manual/generated]", metavar="DIR")
     parser.add_option("-p", "--parents",
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     if options.file:
         messages_file = options.file
     else:
-        messages_file = os.path.join(paparazzi_home, "conf/messages.xml")
+        messages_file = os.path.join(paparazzi_home, "sw/ext/pprzlink/message_definitions/v1.0/messages.xml")
     if not os.path.isfile(messages_file):
         print("Messages file " + messages_file + " not found.")
         sys.exit(1)

@@ -8,7 +8,7 @@ import math
 import pynotify
 import pygame.mixer
 
-sys.path.append(os.getenv("PAPARAZZI_HOME") + "/sw/lib/python")
+sys.path.append(os.getenv("PAPARAZZI_HOME") + "/sw/ext/pprzlink/lib/v1.0/python")
 
 from ivy_msg_interface import IvyMessagesInterface
 

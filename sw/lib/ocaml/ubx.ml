@@ -22,7 +22,7 @@
  *
  *)
 
-module Protocol = struct
+module UbxProtocol = struct
   (** SYNC1 SYNC2 CLASS ID LENGTH(2) UBX_PAYLOAD CK_A CK_B
       LENGTH is the lentgh of UBX_PAYLOAD
       For us, the 'payload' includes also CLASS, ID and the LENGTH *)
@@ -47,10 +47,10 @@ module Protocol = struct
     if len >= offset_length+2 then
       payload_length buf start + 4
     else
-      raise Serial.Not_enough
+      raise Protocol.Not_enough
 
   let payload = fun buf ->
-    Serial.payload_of_string (String.sub buf offset_payload (payload_length buf 0))
+    Protocol.payload_of_string (String.sub buf offset_payload (payload_length buf 0))
 
   let uint8_t = fun x -> x land 0xff
   let (+=) = fun r x -> r := uint8_t (!r + x)
@@ -69,7 +69,7 @@ module Protocol = struct
     ck_a = Char.code buf.[offset_payload+l+1] && ck_b = Char.code buf.[offset_payload+l+2]
 
   let packet = fun payload ->
-    let payload = Serial.string_of_payload payload in
+    let payload = Protocol.string_of_payload payload in
     let n = String.length payload in
     let msg_length = n + 4 in
     let m = String.create msg_length in
@@ -185,4 +185,4 @@ let payload = fun class_name msg_name values ->
   m.[2] <- Char.chr (n land 0xff);
   m.[3] <- Char.chr ((n land 0xff00) lsr 8);
   String.blit u_payload 0 m 4 n;
-  Serial.payload_of_string m
+  Protocol.payload_of_string m

@@ -85,7 +85,7 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
 }
 
 #include "generated/settings.h"
-#include "dl_protocol.h"
+#include "pprzlink/dl_protocol.h"
 #include "subsystems/datalink/downlink.h"
 static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
                           void *user_data __attribute__((unused)),

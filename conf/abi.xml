@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE protocol SYSTEM "messages.dtd">
+<!DOCTYPE protocol SYSTEM "abi.dtd">
 <protocol>
 
   <msg_class name="airborne">

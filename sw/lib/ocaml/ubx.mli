@@ -22,7 +22,7 @@
  *
  *)
 
-module Protocol :  Serial.PROTOCOL
+module UbxProtocol :  Protocol.PROTOCOL
 
 type message_spec
 
@@ -31,4 +31,4 @@ type msg_id = int
 
 val message : string -> string -> class_id*msg_id*message_spec
 val ubx_payload : message_spec -> (string * int) list -> string
-val payload : string -> string -> (string * int) list -> Serial.payload
+val payload : string -> string -> (string * int) list -> Protocol.payload

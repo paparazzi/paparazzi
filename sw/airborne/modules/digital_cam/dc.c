@@ -88,7 +88,7 @@ float dc_autoshoot_period;
 uint16_t dc_photo_nr = 0;
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "state.h"
 #include "subsystems/gps.h"

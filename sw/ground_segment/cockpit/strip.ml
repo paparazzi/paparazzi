@@ -204,7 +204,7 @@ let add = fun config strip_param (strips:GPack.box) ->
   let add_label = fun name value ->
     strip_labels := (name, value) :: !strip_labels in
 
-  let ac_name = Pprz.string_assoc "ac_name" config in
+  let ac_name = PprzLink.string_assoc "ac_name" config in
 
   let file = Env.paparazzi_src // "sw" // "ground_segment" // "cockpit" // "gcs.glade" in
   let strip = new Gtk_strip.eventbox_strip ~file () in

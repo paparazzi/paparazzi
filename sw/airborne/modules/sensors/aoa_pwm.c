@@ -29,7 +29,7 @@
 
 #include "modules/sensors/aoa_pwm.h"
 #include "mcu_periph/pwm_input.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "generated/airframe.h"
 

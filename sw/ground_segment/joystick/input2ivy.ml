@@ -49,8 +49,8 @@ let trim_file_name = ref ""
 let joystick_id = ref (Random.int 255)
 
 (** Messages libraries *)
-module DL = Pprz.Messages(struct let name = "datalink" end)
-module G = Pprz.Messages(struct let name = "ground" end)
+module DL = PprzLink.Messages(struct let name = "datalink" end)
+module G = PprzLink.Messages(struct let name = "ground" end)
 
 (** Syntax for expressions *)
 module Syntax = Expr_syntax
@@ -85,7 +85,7 @@ type input =
 type msg = {
   msg_name : string;
   msg_class : string;
-  fields : (string * Pprz._type * Syntax.expression) list;
+  fields : (string * PprzLink._type * Syntax.expression) list;
   on_event : Syntax.expression option;
   send_always : bool;
   has_ac_id : bool
@@ -178,7 +178,7 @@ let rank = fun x l ->
 let eval_settings_and_blocks = fun field_descr expr ->
   let rec loop = function
   Syntax.Call ("IndexOfEnum", [Syntax.Ident enum]) -> begin
-    try Syntax.Int (rank enum field_descr.Pprz.enum) with
+    try Syntax.Int (rank enum field_descr.PprzLink.enum) with
         Not_found -> failwith (sprintf "IndexOfEnum: unknown value '%s'" enum)
   end
     | Syntax.Call ("IndexOfSetting", [Syntax.Ident var]) -> begin
@@ -220,12 +220,12 @@ let parse_value = fun s ->
 (** Parse a message field and eval *)
 let parse_msg_field = fun msg_descr field ->
   let name = Xml.attrib field "name" in
-  let field_descr = try List.assoc name msg_descr.Pprz.fields with _ ->
+  let field_descr = try List.assoc name msg_descr.PprzLink.fields with _ ->
     Printf.printf "parse_msg_field: field %s not found\n" name;
     raise (Failure "field not found") in
 
   let value = eval_settings_and_blocks field_descr (parse_value (Xml.attrib field "value")) in
-  (name, field_descr.Pprz._type, value)
+  (name, field_descr.PprzLink._type, value)
 
 (** Parse a complete message and build its representation *)
 let parse_msg = fun msg ->
@@ -240,7 +240,7 @@ let parse_msg = fun msg ->
             let msg_descr = get_message msg_class msg_name in
             try
               (List.map (parse_msg_field msg_descr) (Xml.children msg),
-               List.mem_assoc "ac_id" msg_descr.Pprz.fields)
+               List.mem_assoc "ac_id" msg_descr.PprzLink.fields)
             with _ ->
               failwith (sprintf "Couldn't parse message %s" msg_name)
           end
@@ -492,7 +492,7 @@ let execute_action = fun ac_id inputs buttons hat axis variables message ->
     List.map
       (fun (name, _type, expr) ->
         let v = eval_expr buttons hat axis inputs variables expr in
-        (name, Pprz.value _type (sprintf "%d" v))
+        (name, PprzLink.value _type (sprintf "%d" v))
       )
       message.fields
 
@@ -506,10 +506,10 @@ let execute_action = fun ac_id inputs buttons hat axis variables message ->
   if ( ( (on_event, values) <> previous_values ) || message.send_always ) && on_event then begin
     match message.msg_class with
         "datalink" ->
-          let vs = if message.has_ac_id then ("ac_id", Pprz.Int ac_id) :: values else values in
+          let vs = if message.has_ac_id then ("ac_id", PprzLink.Int ac_id) :: values else values in
           DL.message_send "input2ivy" message.msg_name vs
       | "ground" ->
-          let vs = if message.has_ac_id then ("ac_id", Pprz.String (sprintf "%d" ac_id)) :: values else values in
+          let vs = if message.has_ac_id then ("ac_id", PprzLink.String (sprintf "%d" ac_id)) :: values else values in
           G.message_send "input2ivy" message.msg_name vs
       | "trim_plus" -> trim_adjust message.msg_name trim_step inputs
       | "trim_minus" -> trim_adjust message.msg_name (-.trim_step) inputs

@@ -69,12 +69,6 @@ let speed_of_baudrate = fun baudrate ->
     | _ -> invalid_arg "Serial.speed_of_baudrate"
 
 
-type payload = string
-
-let string_of_payload = fun x -> x
-let payload_of_string = fun x -> x
-
-
 external init_serial : string -> speed -> bool -> Unix.file_descr = "c_init_serial"
 external set_dtr : Unix.file_descr -> bool -> unit = "c_set_dtr"
 external set_speed : Unix.file_descr -> speed -> unit = "c_serial_set_baudrate"
@@ -121,56 +115,3 @@ let input = fun ?(read = Unix.read) f ->
     parse 0 n)
 
 
-exception Not_enough
-
-module type PROTOCOL = sig
-  val index_start : string -> int (* raise Not_found *)
-  val length : string -> int -> int (* raise Not_enough *)
-  val checksum : string -> bool
-  val payload : string -> payload
-  val packet : payload -> string
-end
-
-module Transport(Protocol:PROTOCOL) = struct
-  let nb_err = ref 0
-  let discarded_bytes = ref 0
-  let rec parse = fun use buf ->
-    Debug.call 'T' (fun f -> fprintf f "Transport.parse: %s\n" (Debug.xprint buf));
-    (** ref required due to Not_enough exception raised by Protocol.length *)
-    let start = ref 0
-    and n = String.length buf in
-    try
-      (* Looks for the beginning of the frame. May raise Not_found exception *)
-      start := Protocol.index_start buf;
-
-      (* Discards skipped characters *)
-      discarded_bytes := !discarded_bytes + !start;
-
-      (* Get length of the frame (may raise Not_enough exception) *)
-      let length = Protocol.length buf !start in
-      let end_ = !start + length in
-
-      (* Checks if the complete frame is available in the buffer. *)
-      if n < end_ then
-        raise Not_enough;
-
-      (* Extracts the complete frame *)
-      let msg = String.sub buf !start length in
-
-      (* Checks sum *)
-      if Protocol.checksum msg then begin
-        (* Calls the handler with the message *)
-        use (Protocol.payload msg)
-      end else begin
-        (* Reports the error *)
-        incr nb_err;
-        discarded_bytes := !discarded_bytes + length;
-        Debug.call 'T' (fun f -> fprintf f "Transport.chk: %s\n" (Debug.xprint msg))
-      end;
-
-      (* Continues with the rest of the message *)
-      end_ + parse use (String.sub buf end_ (String.length buf - end_))
-    with
-        Not_found -> String.length buf
-      | Not_enough -> !start
-end

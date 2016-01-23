@@ -1,6 +1,6 @@
 open Printf
 
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
+module Ground_Pprz = PprzLink.Messages(struct let name = "ground" end)
 module LL = Latlong
 open LL
 
@@ -72,10 +72,10 @@ let send_on_ivy = fun () ->
   and ys = String.concat "," !ys
   and vs = String.concat "," !vs in
   Ground_Pprz.message_send my_id "PLUMES"
-    [ "ids", Pprz.String ids;
-      "lats", Pprz.String xs;
-      "longs", Pprz.String ys;
-      "values", Pprz.String vs ]
+    [ "ids", PprzLink.String ids;
+      "lats", PprzLink.String xs;
+      "longs", PprzLink.String ys;
+      "values", PprzLink.String vs ]
 
 let debug = let i = ref 0 in fun () ->
   incr i;
@@ -89,17 +89,17 @@ let detect_distance = 20.
 
 
 let flight_param_msg = fun _sender vs ->
-  let lat = Pprz.float_assoc "lat" vs
-  and long = Pprz.float_assoc "long" vs in
+  let lat = PprzLink.float_assoc "lat" vs
+  and long = PprzLink.float_assoc "long" vs in
   let utm_ac = utm_of WGS84 {LL.posn_lat=(Deg>>Rad)lat; posn_long=(Deg>>Rad)long} in
   Hashtbl.iter (fun id plume ->
     let utm_plume = {LL.utm_zone = plume.utm_zone; utm_x = plume.utm_x; utm_y = plume.utm_y } in
     let d = utm_distance utm_ac utm_plume in
     if d < detect_distance then begin
-      let ac_id = Pprz.string_assoc "ac_id" vs in
+      let ac_id = PprzLink.string_assoc "ac_id" vs in
       for i = 0 to 2 do
 	Ground_Pprz.message_send my_id "DL_SETTING"
-	  ["ac_id", Pprz.String ac_id; "index", Pprz.Int i(***FIXME***); "value", Pprz.Float (float plume.value)]
+	  ["ac_id", PprzLink.String ac_id; "index", PprzLink.Int i(***FIXME***); "value", PprzLink.Float (float plume.value)]
       done
     end)
     plumes
@@ -112,9 +112,9 @@ let safe_bind = fun msg cb ->
   ignore (Ground_Pprz.message_bind msg safe_cb)
 
 let gaia = fun time_scale _sender vs ->
-  time_scale#set_value (Pprz.float_assoc "time_scale" vs);
-  wind_x := (Pprz.float_assoc "wind_east" vs);
-  wind_y := (Pprz.float_assoc "wind_north" vs)
+  time_scale#set_value (PprzLink.float_assoc "time_scale" vs);
+  wind_x := (PprzLink.float_assoc "wind_east" vs);
+  wind_y := (PprzLink.float_assoc "wind_north" vs)
 
 
 let _ =

@@ -69,15 +69,15 @@ object
   method type_ = "message_field"
 
   initializer
-  let module P = Pprz.Messages (struct let name = class_name end) in
+  let module P = PprzLink.Messages (struct let name = class_name end) in
   let process_message = fun _sender values ->
     let (field_name, index) = base_and_index field_descr in
     let value =
-      match Pprz.assoc field_name values with
-          Pprz.Array array -> array.(index)
+      match PprzLink.assoc field_name values with
+          PprzLink.Array array -> array.(index)
         | scalar -> scalar in
 
-    last_value <- Pprz.string_of_value value;
+    last_value <- PprzLink.string_of_value value;
 
     List.iter (fun cb -> cb last_value) callbacks in
   ignore (P.message_bind ?sender msg_name process_message)

@@ -184,3 +184,17 @@ let get_paparazzi_version = fun () ->
   try
     Str.replace_first (Str.regexp "[ \n]+$") "" (read_process (paparazzi_src ^ "/paparazzi_version"))
   with _ -> "UNKNOWN"
+
+
+let key_modifiers_of_string = fun key ->
+  let key_split = Str.split (Str.regexp "\\+") key in
+  let keys = List.map (fun k ->
+    match k with
+    | "Ctrl" -> "<Control>"
+    | "Alt" -> "<Alt>"
+    | "Shift" -> "<Shift>"
+    | "Meta" -> "<Meta>"
+    | x -> x
+  ) key_split in
+  String.concat "" keys
+

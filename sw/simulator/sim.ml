@@ -26,7 +26,7 @@ open Printf
 open Stdlib
 open Latlong
 
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
+module Ground_Pprz = PprzLink.Messages(struct let name = "ground" end)
 
 let float_attrib xml a = float_of_string (ExtXml.attrib xml a)
 
@@ -159,12 +159,12 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     and gps_availability = ref 1 in
 
     let world_update = fun _ vs ->
-      gps_availability := Pprz.int_assoc "gps_availability" vs;
-      wind_x := Pprz.float_assoc "wind_east" vs;
-      wind_y := Pprz.float_assoc "wind_north" vs;
-      wind_z := Pprz.float_assoc "wind_up" vs;
-      infrared_contrast := Pprz.float_assoc "ir_contrast" vs;
-      time_scale#set_value (Pprz.float_assoc "time_scale" vs)
+      gps_availability := PprzLink.int_assoc "gps_availability" vs;
+      wind_x := PprzLink.float_assoc "wind_east" vs;
+      wind_y := PprzLink.float_assoc "wind_north" vs;
+      wind_z := PprzLink.float_assoc "wind_up" vs;
+      infrared_contrast := PprzLink.float_assoc "ir_contrast" vs;
+      time_scale#set_value (PprzLink.float_assoc "time_scale" vs)
     in
 
     let ask_for_world_env = fun () ->
@@ -173,7 +173,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
         let gps_sol = compute_gps_state (x,y,z) (FlightModel.get_time !state) in
 
-        let float = fun f -> Pprz.Float f in
+        let float = fun f -> PprzLink.Float f in
         let values = ["east", float x; "north", float y; "up", float z;
                       "lat", float ((Rad>>Deg)gps_sol.Gps.wgs84.posn_lat);
                       "long", float ((Rad>>Deg)gps_sol.Gps.wgs84.posn_long);

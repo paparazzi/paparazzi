@@ -30,7 +30,7 @@
 
 #include "std.h"
 #include "mcu_periph/udp_arch.h"
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 #define UDP_RX_BUFFER_SIZE 256
 #define UDP_TX_BUFFER_SIZE 256

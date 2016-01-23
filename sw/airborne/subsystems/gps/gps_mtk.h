@@ -54,7 +54,7 @@ extern struct GpsMtk gps_mtk;
 /*
  * This part is used by the autopilot to read data from a uart
  */
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 #ifdef GPS_CONFIGURE
 extern bool_t gps_configuring;

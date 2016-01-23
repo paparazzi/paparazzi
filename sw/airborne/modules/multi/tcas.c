@@ -32,7 +32,7 @@
 #include "subsystems/gps.h"
 #include "generated/flight_plan.h"
 
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 float tcas_alt_setpoint;

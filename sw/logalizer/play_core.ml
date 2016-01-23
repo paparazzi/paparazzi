@@ -24,8 +24,8 @@
 
 open Printf
 
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
-module Tm_Pprz = Pprz.Messages(struct let name = "telemetry" end)
+module Ground_Pprz = PprzLink.Messages(struct let name = "ground" end)
+module Tm_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
 
 let (//) = Filename.concat
 let replay_dir = Env.paparazzi_home // "var" // "replay"
@@ -83,7 +83,7 @@ let store_conf = fun conf acs ->
   write_xml (replay_dir // "conf" // "conf.xml") orig_conf
 
 let store_messages = fun protocol ->
-  write_xml (replay_dir // "conf" // "messages.xml") protocol
+  write_xml (replay_dir // "var" // "messages.xml") protocol
 
 let time_of = fun (t, _, _) -> t
 
@@ -163,7 +163,7 @@ let run = fun serial_port log adj i0 speed no_gui ->
             try
               let msg_id, vs = Tm_Pprz.values_of_string m in
               let payload = Tm_Pprz.payload_of_values msg_id (int_of_string ac) vs in
-              let buf = Pprz.Transport.packet payload in
+              let buf = Pprz_transport.Transport.packet payload in
               Debug.call 'o' (fun f -> fprintf f "%s\n" (Debug.xprint buf));
               fprintf channel "%s%!" buf
             with
@@ -220,7 +220,7 @@ let init = fun () ->
   end in
 
   let world_update_time = fun _ vs ->
-    speed#set_value (Pprz.float_assoc "time_scale" vs)
+    speed#set_value (PprzLink.float_assoc "time_scale" vs)
   in
 
   ignore (Ground_Pprz.message_bind "WORLD_ENV" world_update_time);

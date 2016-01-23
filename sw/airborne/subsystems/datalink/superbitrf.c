@@ -863,7 +863,7 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
 
             // When we have a full message
             if (superbitrf.rx_transport.trans_rx.msg_received) {
-              pprz_parse_payload(&superbitrf.rx_transport);
+              DatalinkFillDlBuffer(superbitrf.rx_transport.trans_rx.payload, superbitrf.rx_transport.trans_rx.payload_len);
               superbitrf.rx_transport.trans_rx.msg_received = FALSE;
             }
           }
@@ -923,7 +923,7 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
 
             // When we have a full message
             if (superbitrf.rx_transport.trans_rx.msg_received) {
-              pprz_parse_payload(&superbitrf.rx_transport);
+              DatalinkFillDlBuffer(superbitrf.rx_transport.trans_rx.payload, superbitrf.rx_transport.trans_rx.payload_len);
               superbitrf.rx_transport.trans_rx.msg_received = FALSE;
             }
           }
@@ -1009,7 +1009,7 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
 
             // When we have a full message
             if (superbitrf.rx_transport.trans_rx.msg_received) {
-              pprz_parse_payload(&superbitrf.rx_transport);
+              DatalinkFillDlBuffer(superbitrf.rx_transport.trans_rx.payload, superbitrf.rx_transport.trans_rx.payload_len);
               superbitrf.rx_transport.trans_rx.msg_received = FALSE;
             }
           }

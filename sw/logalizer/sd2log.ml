@@ -31,10 +31,10 @@ let default_logs_path = var_path // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 
 
-module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
-module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
+module Tm_Pprz = PprzLink.Messages (struct let name = "telemetry" end)
+module Dl_Pprz = PprzLink.Messages (struct let name = "datalink" end)
 
-module Parser = Serial.Transport(Logpprz.Transport)
+module Parser = Protocol.Transport(Pprzlog_transport.Transport)
 
 let run_command = fun com ->
   if Sys.command com <> 0 then begin
@@ -60,41 +60,41 @@ let log_xml = fun ac_id ->
   make_element
     "configuration"
     []
-    [expanded_conf; Pprz.messages_xml ()]
+    [expanded_conf; PprzLink.messages_xml ()]
 
 (* AWFUL : modules should be replaced by objects in pprz.ml
    ... or/and "datalink" and "telemetry" classes should be merged *)
 let values_of_payload = fun log_msg ->
-  match log_msg.Logpprz.source with
+  match log_msg.Pprzlog_transport.source with
     0 -> Tm_Pprz.values_of_payload
   | 1 -> Dl_Pprz.values_of_payload
   | x -> failwith (sprintf "Unexpected source:%d in log msg" x)
 
 let message_of_id = fun log_msg ->
-  match log_msg.Logpprz.source with
+  match log_msg.Pprzlog_transport.source with
     0 -> Tm_Pprz.message_of_id
   | 1 -> Dl_Pprz.message_of_id
   | x -> failwith (sprintf "Unexpected source:%d in log msg" x)
 
 let string_of_message = fun log_msg ->
-  match log_msg.Logpprz.source with
+  match log_msg.Pprzlog_transport.source with
     0 -> Tm_Pprz.string_of_message
   | 1 -> Dl_Pprz.string_of_message
   | x -> failwith (sprintf "Unexpected source:%d in log msg" x)
 
 let hex_of_array = function
-  | Pprz.Array array ->
+  | PprzLink.Array array ->
       let n = Array.length array in
       (* One integer -> 2 chars *)
       let s = String.create (2*n) in
       Array.iteri
         (fun i dec ->
-          let hex = sprintf "%02x" (Pprz.int_of_value array.(i)) in
+          let hex = sprintf "%02x" (PprzLink.int_of_value array.(i)) in
           String.blit hex 0 s (2*i) 2)
         array;
       s
   | value ->
-      failwith (sprintf "Error: expecting array, found %s" (Pprz.string_of_value value))
+      failwith (sprintf "Error: expecting array, found %s" (PprzLink.string_of_value value))
 
 
 let xml_parse_compressed_file = fun file ->
@@ -137,34 +137,34 @@ let convert_file = fun ?(output_dir=None) file ->
 
   let use_payload = fun payload ->
     try
-    let log_msg = Logpprz.parse payload in
-    if log_msg.Logpprz.source > 1 then
-      fprintf stderr "Invalid source (%d), skipping message\n" log_msg.Logpprz.source
+    let log_msg = Pprzlog_transport.parse payload in
+    if log_msg.Pprzlog_transport.source > 1 then
+      fprintf stderr "Invalid source (%d), skipping message\n" log_msg.Pprzlog_transport.source
     else
-    let (msg_id, ac_id, vs) = values_of_payload log_msg log_msg.Logpprz.pprz_data in
+    let (msg_id, ac_id, vs) = values_of_payload log_msg log_msg.Pprzlog_transport.pprz_data in
 
-    if log_msg.Logpprz.source = 0 && !single_ac_id < 0 then
+    if log_msg.Pprzlog_transport.source = 0 && !single_ac_id < 0 then
       single_ac_id := ac_id;
 
-    if ac_id <> !single_ac_id && log_msg.Logpprz.source = 0 then
+    if ac_id <> !single_ac_id && log_msg.Pprzlog_transport.source = 0 then
       fprintf stderr "Discarding message with ac_id %d, previous one was %d\n%!" ac_id !single_ac_id
     else
       let msg_descr = message_of_id log_msg msg_id in
-      let timestamp = Int32.to_float log_msg.Logpprz.timestamp /. 1e4 in
+      let timestamp = Int32.to_float log_msg.Pprzlog_transport.timestamp /. 1e4 in
       fprintf f_out "%.4f %d %s\n" timestamp ac_id (string_of_message log_msg msg_descr vs);
 
       (** Looking for a date from a GPS message and a md5 from an ALIVE *)
-      if log_msg.Logpprz.source = 0 then
-        match msg_descr.Pprz.name with
+      if log_msg.Pprzlog_transport.source = 0 then
+        match msg_descr.PprzLink.name with
           "GPS" when !start_unix_time = None
-              && ( Pprz.int_assoc "mode" vs = 3
-                 || Pprz.int_assoc "week" vs > 0) ->
-                     let itow = Pprz.int_assoc "itow" vs / 1000
-                     and week = Pprz.int_assoc "week" vs in
+              && ( PprzLink.int_assoc "mode" vs = 3
+                 || PprzLink.int_assoc "week" vs > 0) ->
+                     let itow = PprzLink.int_assoc "itow" vs / 1000
+                     and week = PprzLink.int_assoc "week" vs in
                      let unix_time = Latlong.unix_time_of_tow ~week itow in
                      start_unix_time := Some (unix_time -. timestamp)
         | "ALIVE" when !md5 = "" ->
-            md5 := hex_of_array (Pprz.assoc "md5sum" vs)
+            md5 := hex_of_array (PprzLink.assoc "md5sum" vs)
         | _ -> ()
   with _ -> fprintf stderr "Parsing error, skipping message\n"
   in

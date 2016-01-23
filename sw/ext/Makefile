@@ -77,6 +77,11 @@ mavlink.build:
 
 libsbp: libsbp.update
 
+pprzlink: pprzlink.update pprzlink.build
+
+pprzlink.build:
+	$(Q)$(MAKE) -C pprzlink
+
 clean:
 	$(Q)if [ -f libopencm3/Makefile ]; then \
 		$(MAKE) -C $(EXT_DIR)/libopencm3 clean; \

@@ -23,8 +23,8 @@
  *)
 open Printf
 
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
-module Tele_Pprz = Pprz.Messages(struct let name = "telemetry" end)
+module Ground_Pprz = PprzLink.Messages(struct let name = "ground" end)
+module Tele_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
 
 let (//) = Filename.concat
 let conf_dir = Env.paparazzi_home // "conf"
@@ -45,9 +45,9 @@ let one_ac = fun (notebook:GPack.notebook) ac_name ->
     (* Call to ivy to set a value *)
     let callback = fun idx value ->
 
-      let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx] in
+      let vs = ["ac_id", PprzLink.String ac_id; "index", PprzLink.Int idx] in
       if classify_float value = FP_normal || classify_float value =FP_zero then
-        let vs' = ("value", Pprz.Float value) :: vs in
+        let vs' = ("value", PprzLink.Float value) :: vs in
         Ground_Pprz.message_send "dl" "DL_SETTING" vs'
       else
         Ground_Pprz.message_send "dl" "GET_DL_SETTING" vs in
@@ -59,7 +59,7 @@ let one_ac = fun (notebook:GPack.notebook) ac_name ->
 
     (* Bind to values updates *)
     let get_dl_value = fun _sender vs ->
-      settings#set (Pprz.int_assoc "index" vs) (Some (string_of_float (Pprz.float_assoc "value" vs)))
+      settings#set (PprzLink.int_assoc "index" vs) (Some (string_of_float (PprzLink.float_assoc "value" vs)))
     in
     ignore (Tele_Pprz.message_bind "DL_VALUE" get_dl_value);
 

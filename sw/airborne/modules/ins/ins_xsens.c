@@ -33,7 +33,7 @@
 #include "generated/airframe.h"
 
 #include "mcu_periph/sys_time.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 
 #if USE_GPS_XSENS
 #if !USE_GPS
@@ -178,7 +178,7 @@ uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 
 // FIXME Debugging Only
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 

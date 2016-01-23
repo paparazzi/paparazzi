@@ -246,6 +246,7 @@ void uart_periph_init(struct uart_periph *p)
   p->device.send_message = (send_message_t)null_function;
   p->device.char_available = (char_available_t)uart_char_available;
   p->device.get_byte = (get_byte_t)uart_getch;
+  p->device.set_baudrate = (set_baudrate_t)uart_periph_set_baudrate;
 
 #if PERIODIC_TELEMETRY
   // the first to register do it for the others

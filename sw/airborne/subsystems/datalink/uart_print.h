@@ -25,7 +25,7 @@
 
 #include "mcu_periph/uart.h"
 #include "mcu_periph/usb_serial.h"
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 #define _PrintString(out_fun, s) {  \
     uint8_t i = 0;                  \

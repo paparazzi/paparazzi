@@ -55,7 +55,7 @@ extern struct GpsNmea gps_nmea;
  */
 
 /** The function to be called when a characted from the device is available */
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 extern void nmea_configure(void);
 extern void nmea_parse_char(uint8_t c);

@@ -34,8 +34,8 @@
 
 #include "generated/settings.h"
 #include "subsystems/datalink/downlink.h"
-#include "messages.h"
-#include "dl_protocol.h"
+#include "pprzlink/messages.h"
+#include "pprzlink/dl_protocol.h"
 #include "mcu_periph/uart.h"
 
 #if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK

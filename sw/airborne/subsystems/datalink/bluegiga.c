@@ -292,7 +292,7 @@ void bluegiga_receive(struct spi_transaction *trans)
           int8_t rssi = RssiOfSender(trans->input_buf);
           uint8_t ac_id = SenderIdOfMsg(trans->input_buf);
 
-          if (Pprz_StxOfMsg(trans->input_buf) == STX) {
+          if (Pprz_StxOfMsg(trans->input_buf) == PPRZ_STX) {
             AbiSendMsgRSSI(RSSI_BLUEGIGA_ID, ac_id, tx_strength, rssi);
           }
 

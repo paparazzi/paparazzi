@@ -15,9 +15,10 @@ import messagepicker
 # file is a reasonable substitute
 PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
+sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 
 import pprz_env
-from pprz_msg import messages_xml_map
+from pprzlink import messages_xml_map
 
 
 class PlotData:

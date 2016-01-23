@@ -32,7 +32,7 @@
 (** FIXME: Get file names with Arg.parse *)
 
 let (//) =  Filename.concat
-let messages_xml = Env.paparazzi_home // "conf" // "messages.xml"
+let messages_xml = Env.paparazzi_home // "var" // "messages.xml"
 
 let nb_msg = 255
 

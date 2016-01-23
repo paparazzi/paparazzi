@@ -508,18 +508,18 @@ class plot = fun ~width ~height ~packing () ->
 
 
 let pprz_float = function
-    Pprz.Int i -> float i
-  | Pprz.Float f -> f
-  | Pprz.Int32 i -> Int32.to_float i
-  | Pprz.Int64 i -> Int64.to_float i
-  | Pprz.String s -> let v = try float_of_string s with _ -> 0. in v
-  | Pprz.Char c -> let v = try float_of_string (String.make 1 c) with _ -> 0. in v
-  | Pprz.Array _ -> 0.
+    PprzLink.Int i -> float i
+  | PprzLink.Float f -> f
+  | PprzLink.Int32 i -> Int32.to_float i
+  | PprzLink.Int64 i -> Int64.to_float i
+  | PprzLink.String s -> let v = try float_of_string s with _ -> 0. in v
+  | PprzLink.Char c -> let v = try float_of_string (String.make 1 c) with _ -> 0. in v
+  | PprzLink.Array _ -> 0.
 
 
 let rec select_gps_values = function
     [] -> []
-  | (m, values)::_ when m.Pprz.name = "GPS" ->
+  | (m, values)::_ when m.PprzLink.name = "GPS" ->
       let xs = List.assoc "utm_east" values
       and ys = List.assoc "utm_north" values
       and zs = List.assoc "utm_zone" values
@@ -536,7 +536,7 @@ let rec select_gps_values = function
 	    l := (t, of_utm WGS84 utm, a) :: !l
       done;
       List.rev !l
-  | (m, values)::_ when m.Pprz.name = "GPS_INT" ->
+  | (m, values)::_ when m.PprzLink.name = "GPS_INT" ->
       let lats = List.assoc "lat" values
       and lons = List.assoc "lon" values
       and alts = List.assoc "hmsl" values in
@@ -613,7 +613,7 @@ let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1
   (* Build the msg menus *)
   List.iter
     (fun (msg, l) ->
-      let msg_name = msg.Pprz.name in
+      let msg_name = msg.PprzLink.name in
       let menu = menu_fact#add_submenu (double__ msg_name) in
       let menu_fact = new GMenu.factory menu in
       (* Build the field menus *)
@@ -623,7 +623,7 @@ let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1
 	    (* Remove the . for an array field name *)
 	    let f' = List.hd (Str.split bracket_regexp f) in
 
-	    let alt_unit_coef =  (List.assoc f' msg.Pprz.fields).Pprz.alt_unit_coef in
+	    let alt_unit_coef =  (List.assoc f' msg.PprzLink.fields).PprzLink.alt_unit_coef in
 	    let name = sprintf "%s:%s:%s:%s" menu_name msg_name f factor#text
 	    and (a, b) = Ocaml_tools.affine_transform factor#text
 	    and (a', b') = Ocaml_tools.affine_transform alt_unit_coef in
@@ -677,7 +677,7 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
   Debug.call 'p' (fun f ->  fprintf f "class_name: %s\n" class_name);
 
   let module M = struct let name = class_name let xml = protocol end in
-  let module P = Pprz.MessagesOfXml(M) in
+  let module P = PprzLink.MessagesOfXml(M) in
 
   let f =
     try
@@ -714,7 +714,7 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 	    List.iter
 	      (fun (f, value) ->
 		match value with
-		  Pprz.Array array ->
+		  PprzLink.Array array ->
 		    Array.iteri
 		      (fun i scalar ->
 			let f = sprintf "%s[%d]" f i in
@@ -724,7 +724,7 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 		    Hashtbl.add fields f (t, scalar))
 	      vs;
 
-	    let msg_name = (P.message_of_id msg_id).Pprz.name in
+	    let msg_name = (P.message_of_id msg_id).PprzLink.name in
 	    raw_msgs := (t, msg_name, vs) :: !raw_msgs
 	  )
       with

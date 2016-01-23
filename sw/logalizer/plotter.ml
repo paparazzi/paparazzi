@@ -34,13 +34,13 @@ let set_float_value = fun (a:GData.adjustment) v ->
   a#set_value v
 
 let pprz_float = function
-    Pprz.Int i -> float i
-  | Pprz.Float f -> f
-  | Pprz.Int32 i -> Int32.to_float i
-  | Pprz.Int64 i -> Int64.to_float i
-  | Pprz.String s -> float_of_string s
-  | Pprz.Char c -> float_of_string (String.make 1 c)
-  | Pprz.Array _ -> 0.
+    PprzLink.Int i -> float i
+  | PprzLink.Float f -> f
+  | PprzLink.Int32 i -> Int32.to_float i
+  | PprzLink.Int64 i -> Int64.to_float i
+  | PprzLink.String s -> float_of_string s
+  | PprzLink.Char c -> float_of_string (String.make 1 c)
+  | PprzLink.Array _ -> 0.
 
 
 let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ]
@@ -496,14 +496,14 @@ let rec plot_window = fun window ->
     let cb = fun _sender values ->
       let (field_name, index) = base_and_index field_descr in
       let value =
-        match Pprz.assoc field_name values with
-          Pprz.Array array -> array.(index)
+        match PprzLink.assoc field_name values with
+          PprzLink.Array array -> array.(index)
         | scalar -> scalar in
       let float = pprz_float value in
       let v = float *. a +. b in
       plot#add_value name v in
 
-    let module P = Pprz.Messages (struct let name = class_name end) in
+    let module P = PprzLink.Messages (struct let name = class_name end) in
     let binding =
       if sender = "*" then
         P.message_bind msg_name cb

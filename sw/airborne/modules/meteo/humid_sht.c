@@ -31,7 +31,7 @@
 #include "std.h"
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "humid_sht.h"
 
