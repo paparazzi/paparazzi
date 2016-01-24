@@ -30,8 +30,6 @@
 #define PERIODIC_C_LOGGER
 
 #include "modules/loggers/sdlogger_spi_direct.h"
-#include "mcu_periph/sys_time.h"
-#include "pprzlink/pprzlog_transport.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/radio_control.h"
@@ -97,8 +95,6 @@ void sdlogger_spi_direct_init(void)
   sdlogger_spi.device.get_byte = (get_byte_t)sdlogger_spi_direct_get_byte;
   sdlogger_spi.device.periph = &sdlogger_spi;
 
-  /* Init pprzlog_tp */
-  pprzlog_transport_init(&pprzlog_tp, get_sys_time_usec);
 }
 
 /**
