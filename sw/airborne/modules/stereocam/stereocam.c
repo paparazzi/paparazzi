@@ -28,6 +28,7 @@
 
 #include "modules/stereocam/stereocam.h"
 #include "mcu_periph/uart.h"
+#include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/telemetry.h"
 #include "modules/stereocam/stereoprotocol.h"
 #ifndef SEND_STEREO
