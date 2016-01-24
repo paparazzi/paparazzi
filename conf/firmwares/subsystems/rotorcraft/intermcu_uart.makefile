@@ -18,6 +18,6 @@ else
   $(TARGET).CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
 
 	ap.srcs += subsystems/intermcu/intermcu_ap.c
-	ap.srcs += (PAPARAZZI_HOME)/var/share/pprzlink/src/pprz_transport.c
+	ap.srcs += $(PAPARAZZI_HOME)/var/share/pprzlink/src/pprz_transport.c
 	$(TARGET).srcs += subsystems/radio_control.c
 endif
