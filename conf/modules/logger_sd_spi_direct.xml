@@ -67,6 +67,7 @@ Do not use start/stop functionality of the module, the module is not intended to
     <define name="USE_$(SDLOGGER_DIRECT_SPI_SLAVE_UPPER)" value="1" />
     <define name="SDLOGGER_SPI_LINK_SLAVE_NUMBER" value="$(SDLOGGER_DIRECT_SPI_SLAVE_UPPER)" />
     <define name="SDLOGGER_CONTROL_SWITCH" value="$(SDLOGGER_DIRECT_CONTROL_SWITCH)"/>
+    <define name="USE_PPRZLOG"/>
   </makefile>
 </module>
 
