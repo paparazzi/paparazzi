@@ -39,7 +39,7 @@
 
 #include "subsystems/abi.h"
 
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 // for datalink_time hack

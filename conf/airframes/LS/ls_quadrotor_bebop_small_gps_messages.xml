@@ -102,13 +102,6 @@
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
   </section>
 
-  <section name="GPS" prefix="GPS_">
-    <define name="USE_DATALINK_SMALL" value="1"/>
-    <define name="LOCAL_ECEF_ORIGIN_X" value="392433200"/>
-    <define name="LOCAL_ECEF_ORIGIN_Y" value="30036200"/>
-    <define name="LOCAL_ECEF_ORIGIN_Z" value="500219700"/>
-  </section>
-
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
     <!-- setpoints -->
     <define name="SP_MAX_P" value="140" unit="deg/s"/>

@@ -43,7 +43,7 @@ PRINT_CONFIG_VAR(DEBUG_VFF_EXTENDED)
 
 #if DEBUG_VFF_EXTENDED
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #endif
 

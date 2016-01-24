@@ -36,11 +36,11 @@ object
     match last_known_value with
     | None -> raise Not_found
     | Some v ->
-        let auc = Pprz.alt_unit_coef_of_xml xml in
+        let auc = PprzLink.alt_unit_coef_of_xml xml in
         let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
         (v -. alt_b) /. alt_a
   method current_value =
-    let auc = Pprz.alt_unit_coef_of_xml xml in
+    let auc = PprzLink.alt_unit_coef_of_xml xml in
     let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
     (float_of_string current_value#text -. alt_b) /. alt_a
   method update = fun s ->
@@ -74,7 +74,7 @@ let search_index = fun value array ->
 
 
 let add_key = fun xml do_change keys ->
-  let key, modifiers = GtkData.AccelGroup.parse (Pprz.key_modifiers_of_string (Xml.attrib xml "key"))
+  let key, modifiers = GtkData.AccelGroup.parse (Env.key_modifiers_of_string (Xml.attrib xml "key"))
   and value = ExtXml.float_attrib xml "value" in
   keys := (key, (modifiers, fun () -> do_change value)) :: !keys
 
@@ -94,7 +94,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) ac_id packing dl_
   let page_incr = step_incr
   and page_size = step_incr
   and show_auto = try ExtXml.attrib dl_setting "auto" = "true" with _ -> false in
-  let auc = Pprz.alt_unit_coef_of_xml dl_setting in
+  let auc = PprzLink.alt_unit_coef_of_xml dl_setting in
   let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
 
   let hbox = GPack.hbox ~packing () in
@@ -345,7 +345,7 @@ object (self)
         | None -> "?", -1
         | Some x ->
           let v = try float_of_string x with _ -> failwith (sprintf "Pages.settings#set:wrong values.(%d) = %s" i x) in
-          let auc = Pprz.alt_unit_coef_of_xml setting#xml in
+          let auc = PprzLink.alt_unit_coef_of_xml setting#xml in
           let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
           let v = alt_a *. v +. alt_b in
           string_of_float v, truncate v

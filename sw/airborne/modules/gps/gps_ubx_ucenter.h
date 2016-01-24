@@ -29,7 +29,7 @@
 #define GPS_UBX_UCENTER_H
 
 #include "std.h"
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 /** U-Center Variables */
 #define GPS_UBX_UCENTER_CONFIG_STEPS    19

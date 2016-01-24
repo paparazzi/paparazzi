@@ -34,8 +34,8 @@
 
 #include "generated/settings.h"
 #include "subsystems/datalink/downlink.h"
-#include "messages.h"
-#include "dl_protocol.h"
+#include "pprzlink/messages.h"
+#include "pprzlink/dl_protocol.h"
 #include "mcu_periph/uart.h"
 
 #if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
@@ -90,7 +90,7 @@ void dl_parse_msg(void)
     }
     break;
 
-#if defined USE_NAVIGATION
+#ifdef USE_NAVIGATION
     case DL_BLOCK : {
       if (DL_BLOCK_ac_id(dl_buffer) != AC_ID) { break; }
       nav_goto_block(DL_BLOCK_block_id(dl_buffer));
@@ -138,21 +138,21 @@ void dl_parse_msg(void)
       }
       break;
 #endif // RADIO_CONTROL_TYPE_DATALINK
-#if defined GPS_DATALINK
-#ifdef GPS_USE_DATALINK_SMALL
-    case DL_REMOTE_GPS_SMALL :
+#if USE_GPS
+#ifdef GPS_DATALINK
+    case DL_REMOTE_GPS_SMALL : {
       // Check if the GPS is for this AC
-      if (DL_REMOTE_GPS_SMALL_ac_id(dl_buffer) != AC_ID) {
-        break;
-      }
+      if (DL_REMOTE_GPS_SMALL_ac_id(dl_buffer) != AC_ID) { break; }
 
       parse_gps_datalink_small(
         DL_REMOTE_GPS_SMALL_numsv(dl_buffer),
         DL_REMOTE_GPS_SMALL_pos_xyz(dl_buffer),
-        DL_REMOTE_GPS_SMALL_speed_xy(dl_buffer));
-      break;
-#endif
-    case DL_REMOTE_GPS :
+        DL_REMOTE_GPS_SMALL_speed_xyz(dl_buffer),
+        DL_REMOTE_GPS_SMALL_heading(dl_buffer));
+    }
+    break;
+
+    case DL_REMOTE_GPS : {
       // Check if the GPS is for this AC
       if (DL_REMOTE_GPS_ac_id(dl_buffer) != AC_ID) { break; }
 
@@ -171,10 +171,11 @@ void dl_parse_msg(void)
         DL_REMOTE_GPS_ecef_zd(dl_buffer),
         DL_REMOTE_GPS_tow(dl_buffer),
         DL_REMOTE_GPS_course(dl_buffer));
-      break;
-#endif
-#if USE_GPS
-    case DL_GPS_INJECT :
+    }
+    break;
+#endif // GPS_DATALINK
+
+    case DL_GPS_INJECT : {
       // Check if the GPS is for this AC
       if (DL_GPS_INJECT_ac_id(dl_buffer) != AC_ID) { break; }
 
@@ -183,9 +184,10 @@ void dl_parse_msg(void)
         DL_GPS_INJECT_packet_id(dl_buffer),
         DL_GPS_INJECT_data_length(dl_buffer),
         DL_GPS_INJECT_data(dl_buffer)
-        );
-      break;
-#endif
+      );
+    }
+    break;
+#endif  // USE_GPS
 
     case DL_GUIDED_SETPOINT_NED:
       if (DL_GUIDED_SETPOINT_NED_ac_id(dl_buffer) != AC_ID) { break; }

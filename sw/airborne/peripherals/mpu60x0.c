@@ -44,6 +44,7 @@ void mpu60x0_set_default_config(struct Mpu60x0Config *c)
    */
   c->nb_bytes = 15;
   c->nb_slaves = 0;
+  c->nb_slave_init = 0;
 
   c->i2c_bypass = FALSE;
 }

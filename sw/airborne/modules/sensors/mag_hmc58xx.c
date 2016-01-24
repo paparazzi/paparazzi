@@ -27,7 +27,7 @@
 
 #include "modules/sensors/mag_hmc58xx.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 #if MODULE_HMC58XX_UPDATE_AHRS

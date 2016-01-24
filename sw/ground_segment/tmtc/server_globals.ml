@@ -18,4 +18,4 @@ let horiz_modes = [|"WAYPOINT";"ROUTE";"CIRCLE";"ATTITUDE"|]
 let if_modes = [|"OFF";"DOWN";"UP"|]
 
 let string_of_values = fun values ->
-  String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values)
+  String.concat " " (List.map (fun (_, v) -> PprzLink.string_of_value v) values)

@@ -45,7 +45,7 @@
 #if FLOAT_DCM_SEND_DEBUG
 // FIXME Debugging Only
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #endif
 

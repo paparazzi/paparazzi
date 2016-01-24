@@ -25,7 +25,7 @@
 open Printf
 open Latlong
 
-module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
+module Tm_Pprz = PprzLink.Messages (struct let name = "telemetry" end)
 
 let width = 200
 let height = width
@@ -134,19 +134,19 @@ let _ =
   let course = ref None in (* deg *)
   let desired_course = ref 0. in (* deg *)
   let get_navigation = fun _ values ->
-    let distance = (try sqrt (Pprz.float_assoc "dist2_wp" values) with _ -> Pprz.float_assoc "dist_wp" values) in
+    let distance = (try sqrt (PprzLink.float_assoc "dist2_wp" values) with _ -> PprzLink.float_assoc "dist_wp" values) in
     draw da !desired_course !course distance in
   ignore (Tm_Pprz.message_bind "NAVIGATION" get_navigation);
   let get_gps = fun _ values ->
     (* if speed < 1m/s, the course information is not relevant *)
     course :=
-      if Pprz.int_assoc "speed" values > 100 then
-        Some (float (Pprz.int_assoc "course" values) /. 10.)
+      if PprzLink.int_assoc "speed" values > 100 then
+        Some (float (PprzLink.int_assoc "course" values) /. 10.)
       else
         None in
   ignore (Tm_Pprz.message_bind "GPS" get_gps);
   let get_desired = fun _ values ->
-    desired_course := (Rad>>Deg) (Pprz.float_assoc "course" values) in
+    desired_course := (Rad>>Deg) (PprzLink.float_assoc "course" values) in
   ignore (Tm_Pprz.message_bind "DESIRED" get_desired);
 
   (** Start the main loop *)

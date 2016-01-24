@@ -32,4 +32,4 @@ ap.CFLAGS += -DMODEM_LED=$(MODEM_LED)
 endif
 
 ap.srcs += $(SRC_SUBSYSTEMS)/datalink/downlink.c $(SRC_SUBSYSTEMS)/datalink/bluegiga.c
-ap.srcs += $(SRC_SUBSYSTEMS)/datalink/pprz_transport.c $(SRC_SUBSYSTEMS)/datalink/telemetry.c
+ap.srcs += $(PAPARAZZI_HOME)/var/share/pprzlink/src/pprz_transport.c $(SRC_SUBSYSTEMS)/datalink/telemetry.c

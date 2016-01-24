@@ -161,9 +161,9 @@ X0=0;
 try
     node=xmlread(fullfile(pp_home,'messages.xml'));
 catch
-    warning('messages.xml not found. trying conf/messages.xml...')
+    warning('messages.xml not found. trying var/messages.xml...')
     try
-        node=xmlread(fullfile(pp_home,'conf/messages.xml'));
+        node=xmlread(fullfile(pp_home,'var/messages.xml'));
     catch
         warning('messages.xml not found. Exiting...');
         close(gcf);

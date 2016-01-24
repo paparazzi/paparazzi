@@ -24,9 +24,9 @@
 
 
 let my_id = 0
-module Tm_Pprz = Pprz.Messages(struct let name = "telemetry" end)
-module Dl_Pprz = Pprz.Messages(struct let name = "datalink" end)
-module PprzTransport = Serial.Transport(Pprz.Transport)
+module Tm_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
+module Dl_Pprz = PprzLink.Messages(struct let name = "datalink" end)
+module PprzTransport = Protocol.Transport(Pprz_transport.Transport)
 
 open Printf
 
@@ -60,7 +60,7 @@ let () =
     try
       let (msg_id, vs) = Tm_Pprz.values_of_string args.(0) in
       let payload = Tm_Pprz.payload_of_values msg_id (int_of_string !id) vs in
-      let buf = Pprz.Transport.packet payload in
+      let buf = Pprz_transport.Transport.packet payload in
       let n = String.length buf in
       let n' = Unix.sendto socket buf 0 n [] sockaddr in
       assert (n = n')
@@ -83,10 +83,10 @@ let () =
         Debug.trace 'x' (Debug.xprint b);
 
         let use_dl_message = fun payload ->
-          Debug.trace 'x' (Debug.xprint (Serial.string_of_payload payload));
+          Debug.trace 'x' (Debug.xprint (Protocol.string_of_payload payload));
           let (msg_id, ac_id, values) = Dl_Pprz.values_of_payload payload in
           let msg = Dl_Pprz.message_of_id msg_id in
-          Dl_Pprz.message_send "ground_dl" msg.Pprz.name values in
+          Dl_Pprz.message_send "ground_dl" msg.PprzLink.name values in
 
         assert (PprzTransport.parse use_dl_message b = n)
       with

@@ -29,7 +29,7 @@
 #define EXTRA_PPRZ_DL_H
 
 #include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/pprz_transport.h"
+#include "pprzlink/pprz_transport.h"
 
 /* PPRZ transport structure */
 extern struct pprz_transport extra_pprz_tp;

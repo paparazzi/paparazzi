@@ -58,7 +58,7 @@ extern struct GpsSkytraq gps_skytraq;
 /*
  * This part is used by the autopilot to read data from a uart
  */
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 extern void gps_skytraq_read_message(void);
 extern void gps_skytraq_parse(uint8_t c);

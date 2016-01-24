@@ -49,6 +49,10 @@
 #warning Please remove the obsolete ALT_KALMAN and ALT_KALMAN_ENABLED defines from your airframe file.
 #endif
 
+#ifndef USE_INS_NAV_INIT
+#define USE_INS_NAV_INIT TRUE
+PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
+#endif
 
 struct InsAltFloat ins_altf;
 
@@ -87,11 +91,15 @@ void ins_alt_float_update_gps(struct GpsState *gps_s);
 
 void ins_alt_float_init(void)
 {
-
+#if USE_INS_NAV_INIT
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, ground_alt, nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
+  ins_altf.origin_initialized = TRUE;
 
   stateSetPositionUtm_f(&utm0);
+#else
+  ins_altf.origin_initialized = FALSE;
+#endif
 
   // set initial body to imu to 0
   struct Int32Eulers b2i0 = { 0, 0, 0 };
@@ -121,6 +129,8 @@ void ins_reset_local_origin(void)
 
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
+
+  ins_altf.origin_initialized = TRUE;
 
   // reset filter flag
   ins_altf.reset_alt_ref = TRUE;
@@ -186,6 +196,14 @@ void ins_alt_float_update_baro(float pressure __attribute__((unused)))
 void ins_alt_float_update_gps(struct GpsState *gps_s)
 {
 #if USE_GPS
+  if (gps_s->fix < GPS_FIX_3D) {
+    return;
+  }
+
+  if (!ins_altf.origin_initialized) {
+    ins_reset_local_origin();
+  }
+
   struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
 
 #if !USE_BAROMETER

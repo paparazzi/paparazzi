@@ -188,7 +188,7 @@ bool_t log_ptu_started;
 
 #if SEND_MS
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/gps.h"
 

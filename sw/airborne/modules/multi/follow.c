@@ -32,8 +32,8 @@
 #include "subsystems/navigation/waypoints.h"
 
 #include "state.h"
-#include "messages.h"
-#include "dl_protocol.h"
+#include "pprzlink/messages.h"
+#include "pprzlink/dl_protocol.h"
 
 #ifndef FOLLOW_OFFSET_X
 #define FOLLOW_OFFSET_X 0.0

@@ -27,14 +27,15 @@
 #ifndef BLUEGIGA_DATA_LINK_H
 #define BLUEGIGA_DATA_LINK_H
 
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
+#include "subsystems/datalink/datalink.h"
 
 /* The different statuses the communication can be in */
 enum BlueGigaStatus {
   BLUEGIGA_UNINIT,                /**< The com isn't initialized */
   BLUEGIGA_IDLE,                  /**< The com is in idle */
   BLUEGIGA_SENDING,               /**< The com is sending */
-  BLUEGIGA_BROADCASTING           /**< The com is switched from data link to rssi scanning */
+  BLUEGIGA_SENDING_BROADCAST      /**< The com is switched from data link to rssi scanning */
 };
 
 #ifndef BLUEGIGA_BUFFER_SIZE
@@ -63,6 +64,7 @@ struct bluegiga_periph {
   /* some administrative variables */
   uint32_t bytes_recvd_since_last;
   uint8_t end_of_msg;
+  uint8_t connected;
 
 };
 
@@ -75,38 +77,6 @@ void bluegiga_increment_buf(uint8_t *buf_idx, uint8_t len);
 
 void bluegiga_init(struct bluegiga_periph *p);
 void bluegiga_scan(struct bluegiga_periph *p);
-void bluegiga_request_all_rssi(struct bluegiga_periph *p);
-
-// BLUEGIGA is using pprz_transport
-// FIXME it should not appear here, this will be fixed with the rx improvements some day...
-// BLUEGIGA needs a specific read_buffer function
-#include "subsystems/datalink/pprz_transport.h"
-#include "led.h"
-static inline void bluegiga_read_buffer(struct bluegiga_periph *p, struct pprz_transport *t)
-{
-  do {
-    uint8_t c = 0;
-    do {
-      parse_pprz(t, p->rx_buf[(p->rx_extract_idx + c++) % BLUEGIGA_BUFFER_SIZE]);
-    } while (((p->rx_extract_idx + c) % BLUEGIGA_BUFFER_SIZE != p->rx_insert_idx)
-             && !(t->trans_rx.msg_received));
-    // reached end of circular read buffer or message received
-    // if received, decode and advance
-    if (t->trans_rx.msg_received) {
-#ifdef MODEM_LED
-      LED_TOGGLE(MODEM_LED);
-#endif
-      pprz_parse_payload(t);
-      t->trans_rx.msg_received = FALSE;
-    }
-    bluegiga_increment_buf(&p->rx_extract_idx, c);
-  } while (bluegiga_ch_available(p)); // continue till all messages read
-}
-
-// transmit previous data in buffer and parse data received
-#define BlueGigaCheckAndParse(_dev,_trans) {     \
-    if (bluegiga_ch_available(&(_dev)))          \
-      bluegiga_read_buffer(&(_dev), &(_trans));  \
-  }
+void bluegiga_broadcast_msg(struct bluegiga_periph *p, char *msg, uint8_t msg_len);
 
 #endif /* BLUEGIGA_DATA_LINK_H */

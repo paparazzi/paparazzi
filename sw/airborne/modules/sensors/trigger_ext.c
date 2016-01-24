@@ -34,7 +34,7 @@
 #include "subsystems/gps.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 

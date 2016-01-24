@@ -165,7 +165,7 @@ static inline void autopilot_ClearSettings(float clear)
 }
 
 #if DOWNLINK
-#include "subsystems/datalink/transport.h"
+#include "pprzlink/pprzlink_transport.h"
 extern void send_autopilot_version(struct transport_tx *trans, struct link_device *dev);
 #endif
 

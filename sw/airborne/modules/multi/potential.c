@@ -6,7 +6,7 @@
 #include <math.h>
 
 #include "subsystems/datalink/downlink.h"
-#include "dl_protocol.h"
+#include "pprzlink/dl_protocol.h"
 
 #include "potential.h"
 #include "state.h"

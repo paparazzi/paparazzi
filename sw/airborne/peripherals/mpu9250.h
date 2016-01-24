@@ -47,6 +47,11 @@
 /// Default clock: PLL with X gyro reference
 #define MPU9250_DEFAULT_CLK_SEL 1
 
+// Default number of I2C slaves
+#ifndef MPU9250_I2C_NB_SLAVES
+#define MPU9250_I2C_NB_SLAVES 5
+#endif
+
 enum Mpu9250ConfStatus {
   MPU9250_CONF_UNINIT,
   MPU9250_CONF_RESET,
@@ -90,7 +95,8 @@ struct Mpu9250Config {
   bool_t i2c_bypass;
 
   uint8_t nb_slaves;                    ///< number of used I2C slaves
-  struct Mpu9250I2cSlave slaves[5];     ///< I2C slaves
+  uint8_t nb_slave_init;                ///< number of already configured/initialized slaves
+  struct Mpu9250I2cSlave slaves[MPU9250_I2C_NB_SLAVES];     ///< I2C slaves
   enum Mpu9250MstClk i2c_mst_clk;       ///< MPU I2C master clock speed
   uint8_t i2c_mst_delay;                ///< MPU I2C slaves delayed sample rate
 };

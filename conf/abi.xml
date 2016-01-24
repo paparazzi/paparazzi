@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE protocol SYSTEM "messages.dtd">
+<!DOCTYPE protocol SYSTEM "abi.dtd">
 <protocol>
 
   <msg_class name="airborne">
@@ -71,6 +71,12 @@
       <field name="y" type="float" unit="m/s"/>
       <field name="z" type="float" unit="m/s"/>
       <field name="noise" type="float"/>
+    </message>
+    
+    <message name="RSSI" id="13">
+      <field name="ac_id" type="uint8_t"/>
+      <field name="source_strength" type="int8_t" unit="dB"/>
+      <field name="rssi" type="int8_t" unit="dB"/>
     </message>
 
   </msg_class>

@@ -14,4 +14,4 @@ $(TARGET).CFLAGS += -D$(XBEE_MODEM_PORT_UPPER)_BAUD=$(MODEM_BAUD) -DXBEE_BAUD=$(
 
 $(TARGET).CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_DEVICE=$(XBEE_MODEM_PORT_LOWER) -DXBEE_UART=$(XBEE_MODEM_PORT_LOWER)
 $(TARGET).CFLAGS += -DDOWNLINK_TRANSPORT=xbee_tp -DDATALINK=XBEE
-$(TARGET).srcs += subsystems/datalink/downlink.c subsystems/datalink/xbee.c subsystems/datalink/telemetry.c
+$(TARGET).srcs += subsystems/datalink/downlink.c $(PAPARAZZI_HOME)/var/share/pprzlink/src/xbee_transport.c subsystems/datalink/telemetry.c

@@ -45,7 +45,7 @@
 #include "math/pprz_algebra_int.h"
 
 #include "subsystems/datalink/downlink.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "mcu_periph/uart.h"
 
 struct EnuCoor_i navigation_target;

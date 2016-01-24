@@ -38,7 +38,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu_periph/i2c.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/datalink/telemetry.h"
 

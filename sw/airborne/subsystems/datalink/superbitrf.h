@@ -29,9 +29,9 @@
 
 #include "mcu_periph/gpio.h"
 #include "peripherals/cyrf6936.h"
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 #include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/pprz_transport.h"
+#include "pprzlink/pprz_transport.h"
 
 /* The timings in microseconds */
 #define SUPERBITRF_BIND_RECV_TIME       10000       /**< The time to wait for a bind packet on a channel in microseconds */
