@@ -549,6 +549,17 @@ bool_t autopilot_guided_goto_body_relative(float dx, float dy, float dz, float d
   return FALSE;
 }
 
+bool_t autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
+{
+  if (autopilot_mode == AP_MODE_GUIDED) {
+    guidance_h_set_guided_vel(vx, vy);
+    guidance_h_set_guided_heading(heading);
+    guidance_v_set_guided_z(vz);
+    return TRUE;
+  }
+  return FALSE;
+}
+
 void autopilot_check_in_flight(bool_t motors_on)
 {
   if (autopilot_in_flight) {
