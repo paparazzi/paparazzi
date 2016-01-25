@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="orange_avoider">
+  <doc>
+    <description>
+	Avoid all objects that are orange!
+	This example module shows how you can use the camera stream and colorfilter to detect orange objects. 
+	By adding this module to your flightplan and flying in the cyberzoo with the flightplan TUDELFT/tudelft_course2016_avoid_orange_cyberzoo.xml you will avoid every obstacle that is orange.
+    </description>
+  </doc>
+  <depends>cv_colorfilter.xml</depends>
+  <header>
+    <file name="orange_avoider.h"/>
+  </header>
+  <init fun="orange_avoider_init()"/>
+  <periodic fun="orange_avoider_periodic()" freq="4"/>
+  <makefile>
+    <file name="orange_avoider.c"/>
+  </makefile>
+</module>
+
