@@ -123,7 +123,6 @@
     <define name="IGAIN_R" value="50"/>
   </section>
 
-
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
     <define name="SP_MAX_PHI"     value="45." unit="deg"/>
