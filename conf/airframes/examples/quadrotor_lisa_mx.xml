@@ -33,6 +33,7 @@
     <subsystem name="imu"           type="lisa_mx_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
+    <subsystem name="stabilization" type="rate"/>
     <subsystem name="ahrs"          type="float_mlkf">
 	    <!-- Uncomment to enable all axis update from the Magnetometer. Do
 		 it only if you have a very well calibrated and tested
@@ -121,7 +122,6 @@
     <define name="IGAIN_Q" value="75"/>
     <define name="IGAIN_R" value="50"/>
   </section>
-
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->

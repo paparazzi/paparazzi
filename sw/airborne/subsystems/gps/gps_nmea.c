@@ -362,8 +362,8 @@ static void nmea_parse_GGA(void)
   // get UTC time [hhmmss.sss]
   // ignored GpsInfo.PosLLA.TimeOfFix.f = strtod(&packet[i], NULL);
   // FIXME: parse UTC time correctly
-  double time = strtod(&gps_nmea.msg_buf[i], NULL);
-  gps.tow = (uint32_t)((time + 1) * 1000);
+  double utc_time = strtod(&gps_nmea.msg_buf[i], NULL);
+  gps.tow = (uint32_t)((utc_time + 1) * 1000);
 
   // get latitude [ddmm.mmmmm]
   nmea_read_until(&i);

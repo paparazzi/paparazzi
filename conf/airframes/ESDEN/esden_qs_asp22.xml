@@ -77,19 +77,6 @@
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
  </section>
 
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-    <define name="SP_MAX_P" value="140" unit="deg/s"/>
-    <define name="SP_MAX_Q" value="140" unit="deg/s"/>
-    <define name="SP_MAX_R" value="140" unit="deg/s"/>
-
-    <define name="GAIN_P" value="350"/>
-    <define name="GAIN_Q" value="250"/>
-    <define name="GAIN_R" value="350"/>
-
-    <define name="IGAIN_P" value="200"/>
-    <define name="IGAIN_Q" value="200"/>
-    <define name="IGAIN_R" value="200"/>
-  </section>
 
   <section name ="GAIN_SETS">
     <define name="NUMBER_OF_GAINSETS" value="2"/>

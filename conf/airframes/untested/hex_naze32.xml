@@ -109,30 +109,6 @@
     <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
   </section>
 
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-    <!-- setpoints -->
-    <define name="SP_MAX_P" value="140" unit="deg/s"/>
-    <define name="SP_MAX_Q" value="140" unit="deg/s"/>
-    <define name="SP_MAX_R" value="140" unit="deg/s"/>
-    <define name="DEADBAND_P" value="20"/>
-    <define name="DEADBAND_Q" value="20"/>
-    <define name="DEADBAND_R" value="200"/>
-    <define name="REF_TAU" value="4"/>
-
-    <!-- feedback -->
-    <define name="GAIN_P" value="400"/>
-    <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="350"/>
-
-    <define name="IGAIN_P" value="75"/>
-    <define name="IGAIN_Q" value="75"/>
-    <define name="IGAIN_R" value="50"/>
-
-    <!-- feedforward -->
-    <define name="DDGAIN_P" value="300"/>
-    <define name="DDGAIN_Q" value="300"/>
-    <define name="DDGAIN_R" value="300"/>
-  </section>
 
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">

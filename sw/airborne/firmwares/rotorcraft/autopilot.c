@@ -41,8 +41,11 @@
 
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_none.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+
+#if USE_STABILIZATION_RATE
+#include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
+#endif
 
 #include "generated/settings.h"
 
@@ -306,7 +309,9 @@ void autopilot_init(void)
 
   stabilization_init();
   stabilization_none_init();
+#if USE_STABILIZATION_RATE
   stabilization_rate_init();
+#endif
   stabilization_attitude_init();
 
   /* set startup mode, propagates through to guidance h/v */
@@ -417,10 +422,12 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
       case AP_MODE_RC_DIRECT:
         guidance_h_mode_changed(GUIDANCE_H_MODE_RC_DIRECT);
         break;
+#if USE_STABILIZATION_RATE
       case AP_MODE_RATE_DIRECT:
       case AP_MODE_RATE_Z_HOLD:
         guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
         break;
+#endif
       case AP_MODE_ATTITUDE_RC_CLIMB:
       case AP_MODE_ATTITUDE_DIRECT:
       case AP_MODE_ATTITUDE_CLIMB:

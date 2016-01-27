@@ -29,7 +29,7 @@
     <subsystem name="gps"           type="ublox">
       <define name="USE_PIKSI_EXT_ANTENNA" value="TRUE"/>
     </subsystem>
-    <subsystem name="stabilization" type="int_quat"/>
+    <subsystem name="stabilization" type="indi"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins" type="hff"/>
   </firmware>
@@ -39,6 +39,10 @@
     <load name="air_data.xml"/>
     <load name="servo_switch.xml"/>
     <load name="gps_ubx_ucenter.xml"/>
+    <load name="logger_spi_link.xml">
+      <configure name="HS_LOG_SPI_DEV" value="SPI1"/>
+      <configure name="HS_LOG_SPI_SLAVE_IDX" value="SPI_SLAVE1"/>
+    </load>
   </modules>
 
   <servos driver="Asctec_v2">
@@ -112,26 +116,6 @@
     <define name="H_Z" value="0.9259921"/>
   </section>
 
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-    <!-- setpoints -->
-    <define name="SP_MAX_P" value="140" unit="deg/s"/>
-    <define name="SP_MAX_Q" value="140" unit="deg/s"/>
-    <define name="SP_MAX_R" value="140" unit="deg/s"/>
-    <define name="DEADBAND_P" value="20"/>
-    <define name="DEADBAND_Q" value="20"/>
-    <define name="DEADBAND_R" value="200"/>
-
-    <!-- feedback -->
-    <define name="GAIN_P" value="400"/>
-    <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="350"/>
-
-    <define name="IGAIN_P" value="75"/>
-    <define name="IGAIN_Q" value="75"/>
-    <define name="IGAIN_R" value="50"/>
-  </section>
-
-
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
     <define name="SP_MAX_PHI" value="65." unit="deg"/>
@@ -168,6 +152,37 @@
     <define name="PHI_DDGAIN" value=" 200"/>
     <define name="THETA_DDGAIN" value=" 200"/>
     <define name="PSI_DDGAIN" value=" 200"/>
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <!-- control effectiveness -->
+    <define name="G1_P" value="0.073"/>
+    <define name="G1_Q" value="0.073"/>
+    <define name="G1_R" value="0.0045"/>
+    <define name="G2_R" value="0.2"/>
+
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="900.0"/>
+    <define name="REF_ERR_Q" value="900.0"/>
+    <define name="REF_ERR_R" value="600.0"/>
+    <define name="REF_RATE_P" value="33.0"/>
+    <define name="REF_RATE_Q" value="33.0"/>
+    <define name="REF_RATE_R" value="28.0"/>
+
+    <!-- second order filter parameters -->
+    <define name="FILT_OMEGA" value="50.0"/>
+    <define name="FILT_ZETA" value="0.7"/>
+    <define name="FILT_OMEGA_R" value="20.0"/>
+    <define name="FILT_ZETA_R" value="0.55"/>
+
+    <!-- first order actuator dynamics -->
+    <define name="ACT_DYN_P" value="0.15"/>
+    <define name="ACT_DYN_Q" value="0.15"/>
+    <define name="ACT_DYN_R" value="0.15"/>
+
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="ADAPTIVE_MU" value="0.0001"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">

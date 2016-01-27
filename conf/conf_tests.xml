@@ -83,7 +83,7 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/superbitrf.xml settings/nps.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/superbitrf.xml settings/nps.xml"
    settings_modules="modules/gps_ubx_ucenter.xml"
    gui_color="white"
   />
@@ -94,7 +94,7 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
    settings_modules="modules/gps_ubx_ucenter.xml"
    gui_color="white"
   />
@@ -116,7 +116,7 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
    settings_modules=""
    gui_color="white"
   />
@@ -248,7 +248,7 @@
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/nps.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/nps.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
    gui_color="white"
   />
@@ -270,7 +270,7 @@
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml [settings/control/stabilization_rate.xml] settings/estimation/ahrs_int_cmpl_quat.xml settings/control/stabilization_att_indi.xml settings/nps.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/nps.xml settings/control/stabilization_indi.xml"
    settings_modules="modules/gps_ubx_ucenter.xml"
    gui_color="#710080"
   />
@@ -347,7 +347,7 @@
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/control/stabilization_att_int_quat.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml settings/nps.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int_quat.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml settings/nps.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml"
    gui_color="red"
   />
@@ -358,7 +358,7 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/control/stabilization_att_int.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/cv_opticflow.xml modules/opticflow_hover.xml"
    gui_color="blue"
   />
@@ -380,7 +380,7 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
+   settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/stabilization_att_int.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml"
    gui_color="blue"
   />

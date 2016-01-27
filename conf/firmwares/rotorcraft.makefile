@@ -99,7 +99,6 @@ include $(CFG_SHARED)/baro_board.makefile
 
 $(TARGET).srcs += $(SRC_FIRMWARE)/stabilization.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
 
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
