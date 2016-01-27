@@ -63,14 +63,8 @@
 #define STABILIZATION_INDI_MAX_RATE 6.0
 #endif
 
-#define STABILIZATION_INDI_FILT_OMEGA2 (STABILIZATION_INDI_FILT_OMEGA*STABILIZATION_INDI_FILT_OMEGA)
-#define STABILIZATION_INDI_FILT_OMEGA2_R (STABILIZATION_INDI_FILT_OMEGA_R*STABILIZATION_INDI_FILT_OMEGA_R)
-
 #if STABILIZATION_INDI_USE_ADAPTIVE
 #warning "Use caution with adaptive indi. See the wiki for more info"
-static bool_t use_adaptive_indi = TRUE;
-#else
-static bool_t use_adaptive_indi = FALSE;
 #endif
 
 struct Int32Eulers stab_att_sp_euler;
@@ -83,7 +77,7 @@ static void stabilization_indi_second_order_filter(struct IndiFilter *filter, st
 static inline void lms_estimation(void);
 
 #define INDI_EST_SCALE 0.001 //The G values are scaled to avoid numerical problems during the estimation
-static struct IndiVariables indi = {
+struct IndiVariables indi = {
   .max_rate = STABILIZATION_INDI_MAX_RATE,
 
   .g1 = {STABILIZATION_INDI_G1_P, STABILIZATION_INDI_G1_Q, STABILIZATION_INDI_G1_R},
@@ -104,7 +98,13 @@ static struct IndiVariables indi = {
       STABILIZATION_INDI_G1_R / INDI_EST_SCALE},
     .g2 = STABILIZATION_INDI_G2_R / INDI_EST_SCALE,
     .mu = STABILIZATION_INDI_ADAPTIVE_MU,
-  }
+  },
+
+#if STABILIZATION_INDI_USE_ADAPTIVE
+  .adaptive = TRUE,
+#else
+  .adaptive = FALSE,
+#endif
 };
 
 #if PERIODIC_TELEMETRY
@@ -360,7 +360,7 @@ static inline void lms_estimation(void)
   if (est->g1.r < 0.01) { est->g1.r = 0.01; }
   if (est->g2   < 0.01) { est->g2 = 0.01; }
 
-  if (use_adaptive_indi) {
+  if (indi.adaptive) {
     //Commit the estimated G values and apply the scaling
     indi.g1.p = est->g1.p * INDI_EST_SCALE;
     indi.g1.q = est->g1.q * INDI_EST_SCALE;

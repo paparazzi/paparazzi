@@ -22,11 +22,9 @@
 /** @file stabilization_rate_indi.c
  *  Rate stabilization for rotorcrafts based on INDI by Ewoud Smeur.
  */
-
-#include "generated/airframe.h"
-
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 
 void stabilization_rate_init(void)
 {

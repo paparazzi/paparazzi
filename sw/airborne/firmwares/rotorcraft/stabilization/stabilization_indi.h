@@ -81,11 +81,13 @@ struct IndiVariables {
 
   struct ReferenceSystem reference_acceleration;
 
+  bool_t adaptive;             ///< Enable adataptive estimation
   float max_rate;            ///< Maximum rate in rate control
   struct IndiEstimation est; ///< Estimation parameters for adaptive INDI
 };
 
 
+extern struct IndiVariables indi;
 extern void stabilization_indi_init(void);
 extern void stabilization_indi_enter(void);
 extern void stabilization_indi_set_failsafe_setpoint(void);
