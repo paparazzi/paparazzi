@@ -100,7 +100,7 @@ void downlink_init(void)
 #ifndef XBEE_INIT
 #define XBEE_INIT ""
 #endif
-  xbee_transport_init(&xbee_tp, &((DefaultDevice).device), AC_ID, XBEE_TYPE, sys_time_usleep, XBEE_INIT);
+  xbee_transport_init(&xbee_tp, &((DefaultDevice).device), AC_ID, XBEE_TYPE, XBEE_BAUD, sys_time_usleep, XBEE_INIT);
 #endif
 #if DATALINK == W5100
   w5100_init();
