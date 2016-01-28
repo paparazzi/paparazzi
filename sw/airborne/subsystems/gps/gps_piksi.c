@@ -339,9 +339,7 @@ void piksi_gps_impl_init(void)
 
   gps_piksi.nb_channels = 10;
 
-  #ifdef PIKSI_HEARTBEAT_MSG
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PIKSI_HEARTBEAT, send_piksi_heartbeat);
-  #endif
 }
 
 /*
