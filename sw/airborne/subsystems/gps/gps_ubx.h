@@ -130,7 +130,7 @@ extern void gps_ubx_msg(void);
     gps_ubx.reset = _val;                                       \
     if (gps_ubx.reset > CFG_RST_BBR_Warmstart)                  \
       gps_ubx.reset = CFG_RST_BBR_Coldstart;                    \
-    ubx_send_cfg_rst(&(GPS_LINK).device, gps_ubx.reset, CFG_RST_Reset_Controlled);   \
+    ubx_send_cfg_rst(&(UBX_GPS_LINK).device, gps_ubx.reset, CFG_RST_Reset_Controlled);   \
   }
 
 #endif /* GPS_UBX_H */
