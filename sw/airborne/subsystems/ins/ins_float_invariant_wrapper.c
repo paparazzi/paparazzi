@@ -94,6 +94,14 @@ PRINT_CONFIG_VAR(INS_FINV_IMU_ID)
 #endif
 PRINT_CONFIG_VAR(INS_FINV_MAG_ID)
 
+/** ABI binding for gps data.
+ * Used for GPS ABI messages.
+ */
+#ifndef INS_FINV_GPS_ID
+#define INS_FINV_GPS_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(INS_FINV_GPS_ID)
+
 static abi_event baro_ev;
 static abi_event mag_ev;
 static abi_event gyro_ev;
@@ -205,7 +213,7 @@ void ins_float_invariant_register(void)
   AbiBindMsgIMU_LOWPASSED(INS_FINV_IMU_ID, &aligner_ev, aligner_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(INS_FINV_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
-  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
+  AbiBindMsgGPS(INS_FINV_GPS_ID, &gps_ev, gps_cb);
 
 #if PERIODIC_TELEMETRY && !INS_FINV_USE_UTM
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_REF, send_ins_ref);
