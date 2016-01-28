@@ -75,7 +75,7 @@ ifeq ($(USE_OPT),)
   USE_OPT = -std=gnu11 -O$(CH_OPT) \
 	-falign-functions=16  -fno-omit-frame-pointer\
 	-W -Wall -Werror -Wno-error=unused-variable -Wno-error=format \
-	-Wno-error=unused-function -Wno-error=unused-parameter \
+	-Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=pragmas \
 	$(PPRZ_DEFINITION)
 endif
 

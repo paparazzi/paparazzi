@@ -221,7 +221,7 @@ void ahrs_dcm_update_accel(struct FloatVect3 *accel)
 void ahrs_dcm_update_mag(struct FloatVect3 *mag)
 {
 #if USE_MAGNETOMETER
-#warning MAGNETOMETER FEEDBACK NOT TESTED YET
+MESSAGE("MAGNETOMETER FEEDBACK NOT TESTED YET")
 
   float cos_roll;
   float sin_roll;
@@ -258,12 +258,12 @@ void ahrs_dcm_update_mag(struct FloatVect3 *mag)
     Heading_Y = sin(Heading);
   */
 
+#if FLOAT_DCM_SEND_DEBUG
   struct FloatVect3 ltp_mag;
 
   ltp_mag.x = MAG_Heading_X;
   ltp_mag.y = MAG_Heading_Y;
 
-#if FLOAT_DCM_SEND_DEBUG
   // Downlink
   RunOnceEvery(10, DOWNLINK_SEND_IMU_MAG(DefaultChannel, DefaultDevice, &ltp_mag.x, &ltp_mag.y, &ltp_mag.z));
 #endif

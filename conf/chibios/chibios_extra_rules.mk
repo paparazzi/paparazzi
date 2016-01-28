@@ -4,7 +4,7 @@
 #
 # Initial directory tree is preserved for the build
 #
-ECOBJS		= $(addprefix $(OBJDIR)/, $(ECSRC:.c=.o))
+ECOBJS		= $(sort $(addprefix $(OBJDIR)/, $(ECSRC:.c=.o)))
 
 $(ECOBJS) : $(OBJDIR)/%.o : %.c Makefile
 ifeq ($(USE_VERBOSE_COMPILE),yes)
