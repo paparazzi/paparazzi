@@ -42,6 +42,8 @@
 #define UBX_GPS_LINK GPS_PRIMARY_PORT
 #endif
 #endif
+ 
+#include "subsystems/gps.h"
 
 #ifdef GPS_CONFIGURE
 #warning "Please use gps_ubx_ucenter.xml module instead of GPS_CONFIGURE"
