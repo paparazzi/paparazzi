@@ -73,6 +73,7 @@ struct GpsUbx {
   uint8_t status_flags;
   uint8_t sol_flags;
 
+  struct GpsState state;
 };
 
 extern struct GpsUbx gps_ubx;
