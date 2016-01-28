@@ -175,7 +175,8 @@ void gps_ubx_read_message(void)
       gps_ubx_raw.week = UBX_RXM_RAW_week(gps_ubx.msg_buf);
       gps_ubx_raw.numSV = UBX_RXM_RAW_numSV(gps_ubx.msg_buf);
       uint8_t i;
-      for (i = 0; i < gps_ubx_raw.numSV; i++) {
+      uint8_t max_SV = Min(gps_ubx_raw.numSV, GPS_UBX_NB_CHANNELS);
+      for (i = 0; i < max_SV; i++) {
         gps_ubx_raw.measures[i].cpMes = UBX_RXM_RAW_cpMes(gps_ubx.msg_buf, i);
         gps_ubx_raw.measures[i].prMes = UBX_RXM_RAW_prMes(gps_ubx.msg_buf, i);
         gps_ubx_raw.measures[i].doMes = UBX_RXM_RAW_doMes(gps_ubx.msg_buf, i);

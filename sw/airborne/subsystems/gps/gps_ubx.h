@@ -53,7 +53,7 @@ void ubx_gps_impl_init(void);
 void ubx_gps_event(void);
 extern void ubx_gps_register(void);
 
-//#define GPS_NB_CHANNELS 16
+#define GPS_UBX_NB_CHANNELS 16
 
 #define GPS_UBX_MAX_PAYLOAD 255
 struct GpsUbx {
@@ -92,7 +92,7 @@ struct GpsUbxRaw {
   int32_t iTOW;
   int16_t week;
   uint8_t numSV;
-  struct GpsUbxRawMes measures[GPS_NB_CHANNELS];
+  struct GpsUbxRawMes measures[GPS_UBX_NB_CHANNELS];
 };
 
 extern struct GpsUbxRaw gps_ubx_raw;
