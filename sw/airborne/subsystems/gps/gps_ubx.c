@@ -20,7 +20,6 @@
  */
 
 
-#include "subsystems/gps.h"
 #include "subsystems/gps/gps_ubx.h"
 #include "subsystems/abi.h"
 #include "led.h"
