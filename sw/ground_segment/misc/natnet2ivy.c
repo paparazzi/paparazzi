@@ -512,25 +512,25 @@ gboolean timeout_transmit_callback(gpointer data)
        * used.
        */
 
-      uint32_t pos_xyz;
+      uint32_t pos_xyz = 0;
       // check if position within limits
-      if (fabs(pos.x * 100) < pow(2, 10)) {
+      if (fabs(pos.x * 100.) < pow(2, 10)) {
         pos_xyz = (((uint32_t)(pos.x * 100.0)) & 0x7FF) << 21;                     // bits 31-21 x position in cm
       } else {
         fprintf(stderr, "Warning!! X position out of maximum range of small message (±%.2fm): %.2f", pow(2, 10) / 100, pos.x);
         pos_xyz = (((uint32_t)(pow(2, 10) * pos.x / fabs(pos.x))) & 0x7FF) << 21;  // bits 31-21 x position in cm
       }
 
-      if (fabs(pos.y * 100) < pow(2, 10)) {
+      if (fabs(pos.y * 100.) < pow(2, 10)) {
         pos_xyz |= (((uint32_t)(pos.y * 100.0)) & 0x7FF) << 10;                    // bits 20-10 y position in cm
       } else {
         fprintf(stderr, "Warning!! Y position out of maximum range of small message (±%.2fm): %.2f", pow(2, 10) / 100, pos.y);
         pos_xyz |= (((uint32_t)(pow(2, 10) * pos.y / fabs(pos.y))) & 0x7FF) << 10; // bits 20-10 y position in cm
       }
 
-      if (pos.z * 100 < pow(2, 10)) {
-        pos_xyz |= (((uint32_t)(pos.z * 100.0)) & 0x3FF);                          // bits 9-0 z position in cm
-      } else {
+      if (pos.z * 100. < pow(2, 10) && pos.z > 0.) {
+        pos_xyz |= (((uint32_t)(fabs(pos.z) * 100.0)) & 0x3FF);                          // bits 9-0 z position in cm
+      } else if (pos.z > 0.) {
         fprintf(stderr, "Warning!! Z position out of maximum range of small message (%.2fm): %.2f", pow(2, 10) / 100, pos.z);
         pos_xyz |= (((uint32_t)(pow(2, 10))) & 0x3FF);                             // bits 9-0 z position in cm
       }
@@ -539,7 +539,7 @@ gboolean timeout_transmit_callback(gpointer data)
       /* The speed is an int32 and the 11 LSBs of the x and y axis and 10 LSBs of z (all signed) are compressed into
        * a single integer.
        */
-      uint32_t speed_xyz;
+      uint32_t speed_xyz = 0;
       // check if speed within limits
       if (fabs(speed.x * 100) < pow(2, 10)) {
         speed_xyz = (((uint32_t)(speed.x * 100.0)) & 0x7FF) << 21;                       // bits 31-21 speed x in cm/s
@@ -555,7 +555,7 @@ gboolean timeout_transmit_callback(gpointer data)
         speed_xyz |= (((uint32_t)(pow(2, 10) * speed.y / fabs(speed.y))) & 0x7FF) << 10; // bits 20-10 speed y in cm/s
       }
 
-      if (fabs(pos.z * 100) < pow(2, 9)) {
+      if (fabs(speed.z * 100) < pow(2, 9)) {
         speed_xyz |= (((uint32_t)(speed.z * 100.0)) & 0x3FF);                            // bits 9-0 speed z in cm/s
       } else {
         fprintf(stderr, "Warning!! Z Speed out of maximum range of small message (±%.2fm/s): %.2f", pow(2, 9) / 100, speed.z);
