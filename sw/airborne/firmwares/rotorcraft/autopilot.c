@@ -561,7 +561,7 @@ bool_t autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
   if (autopilot_mode == AP_MODE_GUIDED) {
     guidance_h_set_guided_vel(vx, vy);
     guidance_h_set_guided_heading(heading);
-    guidance_v_set_guided_z(vz);
+    guidance_v_set_guided_vz(vz);
     return TRUE;
   }
   return FALSE;
