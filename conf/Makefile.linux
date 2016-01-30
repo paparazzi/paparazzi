@@ -55,16 +55,12 @@ CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 #CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 #CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
-CFLAGS += -lm -pthread
-
 # flags only for C
 CFLAGS += -Wstrict-prototypes -Wmissing-declarations
 CFLAGS += -Wmissing-prototypes -Wnested-externs
 CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(USER_CFLAGS)
-
-LDFLAGS += -lm -pthread
 
 CXXFLAGS += -O$(OPT) -fPIC
 CXXFLAGS += $(DEBUG_FLAGS)
@@ -74,11 +70,13 @@ CXXFLAGS += -Wall -Wextra
 CXXFLAGS += $($(TARGET).CXXFLAGS)
 CXXFLAGS += $(USER_CFLAGS)
 
-SRC_C_LINUX  = $($(TARGET).srcs)
-OBJ_C_LINUX = $(SRC_C_LINUX:%.c=$(OBJDIR)/%.o)
+LDFLAGS	+= $($(TARGET).LDFLAGS) -lm -pthread
 
-SRC_CPP_LINUX  = $($(TARGET).cpp_srcs)
-OBJ_CPP_LINUX = $(SRC_CPP_LINUX:%.cpp=$(OBJDIR)/%.o)
+$(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
+$(TARGET).objso	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)
+$(TARGET).objsoxx = $($(TARGET).objso:%.cpp=$(OBJDIR)/%.o)
+$(TARGET).objs	= $($(TARGET).objsoxx:%.S=$(OBJDIR)/%.o)
+
 
 printcommands:
 	@echo ""
@@ -89,6 +87,9 @@ printcommands:
 	@echo ""
 
 all: printcommands build
+
+# depend order only for parallel make
+build: | printcommands
 
 build: $(OBJDIR) elf
 
@@ -101,11 +102,9 @@ elf: $(OBJDIR)/$(TARGET).elf
 # Link: create ELF output file from object files.
 .SECONDARY : $(OBJDIR)/$(TARGET).elf
 .PRECIOUS :   $(OBJ_C_LINUX) $(OBJ_CPP_LINUX)
-%.elf:   $(OBJ_C_LINUX) $(OBJ_CPP_LINUX)
+%.elf: $($(TARGET).objs)
 	@echo LD $@
-	$(Q)if (expr "$($(TARGET).cpp_srcs)"); \
-		  then $(CXX) $(CXXFLAGS) $(OBJ_CPP_LINUX) $(OBJ_C_LINUX) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS); \
-		  else $(CC) $(CFLAGS) $(OBJ_C_LINUX) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS); fi
+	$(Q)$(LD) -o $@ $($(TARGET).objs) $(LDFLAGS)
 
 # Compile: create object files from C source files
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
@@ -122,8 +121,6 @@ $(OBJDIR)/%.o : %.cpp $(OBJDIR)/../Makefile.ac
 
 # Listing of phony targets.
 .PHONY : printcommands all build elf
-
-.NOTPARALLEL: printcommands
 
 #
 # Dependencies
