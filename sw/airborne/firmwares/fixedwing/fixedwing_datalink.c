@@ -20,7 +20,7 @@
  */
 
 /**
- * @file firmwares/fixedwing/datalink.c
+ * @file firmwares/fixedwing/fixedwing_datalink.c
  * Handling of messages coming from ground and other A/Cs.
  *
  */

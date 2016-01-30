@@ -20,7 +20,7 @@
  */
 
 /**
- * @file firmwares/rotorcraft/datalink.c
+ * @file firmwares/rotorcraft/rotorcraft_datalink.c
  * Handling of messages coming from ground and other A/Cs.
  *
  */
