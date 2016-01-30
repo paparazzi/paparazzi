@@ -25,37 +25,27 @@
  *
  */
 
-#define DATALINK_C
-
-#define MODULES_DATALINK_C
-
-#include <inttypes.h>
-#include <string.h>
 #include "subsystems/datalink/datalink.h"
+#include "subsystems/datalink/downlink.h"
 
-#include "generated/modules.h"
-
-#ifdef TRAFFIC_INFO
-#include "subsystems/navigation/traffic_info.h"
-#endif // TRAFFIC_INFO
+#include "pprzlink/messages.h"
+#include "pprzlink/dl_protocol.h"
 
 #if defined NAV || defined WIND_INFO
 #include "state.h"
+#endif
+
+#ifdef NAV
 #include "firmwares/fixedwing/nav.h"
+#include "subsystems/navigation/common_nav.h"
+#include "math/pprz_geodetic_float.h"
 #endif
 
 #ifdef HITL
 #include "subsystems/gps.h"
 #endif
 
-
-#include "subsystems/navigation/common_nav.h"
-#include "generated/settings.h"
-#include "math/pprz_geodetic_float.h"
-
-#include "mcu_periph/uart.h"
-#include "subsystems/datalink/telemetry.h"
-
+#define MOfMM(_x) (((float)(_x))/1000.)
 
 #if USE_JOYSTICK
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
@@ -70,68 +60,21 @@ uint8_t joystick_block;
   }
 #endif
 
-#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
-#include "subsystems/radio_control/rc_datalink.h"
-#endif
-
-#define MOfCm(_x) (((float)(_x))/100.)
-#define MOfMM(_x) (((float)(_x))/1000.)
-
-#define SenderIdOfMsg(x) (x[0])
-#define IdOfMsg(x) (x[1])
-
-#if USE_NPS
-bool_t datalink_enabled = TRUE;
-#endif
-
-
-void dl_parse_msg(void)
+void firmware_parse_msg(void)
 {
-  uint8_t msg_id = IdOfMsg(dl_buffer);
+  uint8_t msg_id = IdOfPprzMsg(dl_buffer);
 
-#if 0 // not ready yet
-  uint8_t sender_id = SenderIdOfMsg(dl_buffer);
-
-  /* parse telemetry messages coming from other AC */
-  if (sender_id != 0) {
-    switch (msg_id) {
-#ifdef TCAS
-      case DL_TCAS_RA: {
-        if (DL_TCAS_RESOLVE_ac_id(dl_buffer) == AC_ID && SenderIdOfMsg(dl_buffer) != AC_ID) {
-          uint8_t ac_id_conflict = SenderIdOfMsg(dl_buffer);
-          tcas_acs_status[the_acs_id[ac_id_conflict]].resolve = DL_TCAS_RA_resolve(dl_buffer);
-        }
-      }
-#endif
-    }
-    return;
-  }
-#endif
-
+  /* parse telemetry messages coming from ground station */
   switch (msg_id) {
 
-    case DL_PING: {
-      DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
-    }
-    break;
-
-#ifdef TRAFFIC_INFO
-    case DL_ACINFO: {
-      if (DL_ACINFO_ac_id(dl_buffer) == AC_ID) { break; }
-      uint8_t id = DL_ACINFO_ac_id(dl_buffer);
-      float ux = MOfCm(DL_ACINFO_utm_east(dl_buffer));
-      float uy = MOfCm(DL_ACINFO_utm_north(dl_buffer));
-      float a = MOfCm(DL_ACINFO_alt(dl_buffer));
-      float c = RadOfDeg(((float)DL_ACINFO_course(dl_buffer)) / 10.);
-      float s = MOfCm(DL_ACINFO_speed(dl_buffer));
-      float cl = MOfCm(DL_ACINFO_climb(dl_buffer));
-      uint32_t t = DL_ACINFO_itow(dl_buffer);
-      SetAcInfo(id, ux, uy, c, a, s, cl, t);
-    }
-    break;
-#endif
-
 #ifdef NAV
+    case DL_BLOCK: {
+      if (DL_BLOCK_ac_id(dl_buffer) != AC_ID) { break; }
+      nav_goto_block(DL_BLOCK_block_id(dl_buffer));
+      SEND_NAVIGATION(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+    }
+    break;
+
     case DL_MOVE_WP: {
       if (DL_MOVE_WP_ac_id(dl_buffer) != AC_ID) { break; }
       uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
@@ -153,15 +96,7 @@ void dl_parse_msg(void)
       DOWNLINK_SEND_WP_MOVED(DefaultChannel, DefaultDevice, &wp_id, &utm.east, &utm.north, &a, &nav_utm_zone0);
     }
     break;
-
-    case DL_BLOCK: {
-      if (DL_BLOCK_ac_id(dl_buffer) != AC_ID) { break; }
-      nav_goto_block(DL_BLOCK_block_id(dl_buffer));
-      SEND_NAVIGATION(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
-    }
-    break;
 #endif /** NAV */
-
 
 #ifdef WIND_INFO
     case DL_WIND_INFO: {
@@ -207,25 +142,6 @@ void dl_parse_msg(void)
     break;
 #endif /* HITL */
 
-#ifdef DlSetting
-    case DL_SETTING: {
-      if (DL_SETTING_ac_id(dl_buffer) != AC_ID) { break; }
-      uint8_t i = DL_SETTING_index(dl_buffer);
-      float val = DL_SETTING_value(dl_buffer);
-      DlSetting(i, val);
-      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
-    }
-    break;
-
-    case DL_GET_SETTING: {
-      if (DL_GET_SETTING_ac_id(dl_buffer) != AC_ID) { break; }
-      uint8_t i = DL_GET_SETTING_index(dl_buffer);
-      float val = settings_get_value(i);
-      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
-    }
-    break;
-#endif /** Else there is no dl_settings section in the flight plan */
-
 #if USE_JOYSTICK
     case DL_JOYSTICK_RAW: {
       if (DL_JOYSTICK_RAW_ac_id(dl_buffer) == AC_ID) {
@@ -236,38 +152,7 @@ void dl_parse_msg(void)
     }
     break;
 #endif // USE_JOYSTICK
-
-#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
-    case DL_RC_3CH: {
-      //if (DL_RC_3CH_ac_id(dl_buffer) != TX_ID) { break; }
-#ifdef RADIO_CONTROL_DATALINK_LED
-      LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
-#endif
-      parse_rc_3ch_datalink(DL_RC_3CH_throttle_mode(dl_buffer),
-                            DL_RC_3CH_roll(dl_buffer),
-                            DL_RC_3CH_pitch(dl_buffer));
-    }
-    break;
-
-    case DL_RC_4CH: {
-      if (DL_RC_4CH_ac_id(dl_buffer) == AC_ID) {
-#ifdef RADIO_CONTROL_DATALINK_LED
-        LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
-#endif
-        parse_rc_4ch_datalink(DL_RC_4CH_mode(dl_buffer),
-                              DL_RC_4CH_throttle(dl_buffer),
-                              DL_RC_4CH_roll(dl_buffer),
-                              DL_RC_4CH_pitch(dl_buffer),
-                              DL_RC_4CH_yaw(dl_buffer));
-      }
-    }
-    break;
-#endif // RC_DATALINK
-
     default:
       break;
   }
-
-  /* Parse modules datalink */
-  modules_parse_datalink(msg_id);
 }

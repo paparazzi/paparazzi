@@ -65,4 +65,4 @@ nps.srcs += math/pprz_geodetic_wmm2015.c
 
 include $(CFG_SHARED)/telemetry_transparent_udp.makefile
 nps.srcs += $(SRC_FIRMWARE)/rotorcraft_telemetry.c
-nps.srcs += $(SRC_FIRMWARE)/datalink.c
+nps.srcs += subsystems/datalink/datalink.c $(SRC_FIRMWARE)/rotorcraft_datalink.c

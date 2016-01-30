@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) Kirk Scheper <kirkscheper@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -20,7 +20,7 @@
  */
 
 /**
- * @file firmwares/rotorcraft/datalink.c
+ * @file subsystems/datalink/datalink.c
  * Handling of messages coming from ground and other A/Cs.
  *
  */
@@ -28,15 +28,14 @@
 #define DATALINK_C
 #define MODULES_DATALINK_C
 
-#include "subsystems/datalink/datalink.h"
+#include "datalink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "generated/modules.h"
-
 #include "generated/settings.h"
-#include "subsystems/datalink/downlink.h"
+
 #include "pprzlink/messages.h"
 #include "pprzlink/dl_protocol.h"
-#include "mcu_periph/uart.h"
 
 #if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
 #include "subsystems/radio_control.h"
@@ -49,14 +48,15 @@
 #include "subsystems/gps/gps_datalink.h"
 #endif
 
-#include "firmwares/rotorcraft/navigation.h"
-#include "firmwares/rotorcraft/autopilot.h"
+#ifdef TRAFFIC_INFO
+#include "subsystems/navigation/traffic_info.h"
+#endif
 
-#include "math/pprz_geodetic_int.h"
-#include "state.h"
+#ifdef RADIO_CONTROL_DATALINK_LED
 #include "led.h"
+#endif
 
-#define IdOfMsg(x) (x[1])
+#define MOfCm(_x) (((float)(_x))/100.)
 
 #if USE_NPS
 bool_t datalink_enabled = TRUE;
@@ -64,10 +64,84 @@ bool_t datalink_enabled = TRUE;
 
 void dl_parse_msg(void)
 {
+  uint8_t sender_id = SenderIdOfPprzMsg(dl_buffer);
+  uint8_t msg_id = IdOfPprzMsg(dl_buffer);
 
-  uint8_t msg_id = IdOfMsg(dl_buffer);
+  /* parse telemetry messages coming from other AC */
+  if (sender_id != 0) {
+    switch (msg_id) {
+#if 0   // TODO waiting for telemetry macros to be made in pprzlink
+#ifdef TRAFFIC_INFO
+      case DL_GPS_SMALL: {
+        uint32_t multiplex_speed = DL_GPS_SMALL_multiplex_speed(dl_buffer);
+
+        // Position in ENU coordinates
+        int16_t course = (int16_t)((multiplex_speed >> 21) & 0x7FF); // bits 31-21 course in decideg
+        if (course & 0x400) {
+          course |= 0xFFFFF800;  // fix for twos complements
+        }
+        int16_t gspeed = (int16_t)((multiplex_speed >> 10) & 0x7FF); // bits 20-10 ground speed cm/s
+        if (gspeed & 0x400) {
+          gspeed |= 0xFFFFF800;  // fix for twos complements
+        }
+        int16_t climb = (int16_t)(multiplex_speed >> 2 & 0x7FF); // bits 9-0 z climb speed in cm/s
+        if (climb & 0x400) {
+          climb |= 0xFFFFF800;  // fix for twos complements
+        }
+
+        SetAcInfo(sender_id,
+          MOfCm(DL_GPS_SMALL_utm_east(dl_buffer)),    /*m*/
+          MOfCm(DL_GPS_SMALL_utm_north(dl_buffer)),   /*m*/
+          RadOfDeg(((float)course) / 10.),            /*rad(CW)*/
+          MOfCm(DL_GPS_SMALL_alt(dl_buffer)),         /*m*/
+          MOfCm(gspeed),                              /*m/s*/
+          MOfCm(climb),                               /*m/s*/
+          gps_tow_from_sys_ticks(sys_time.nb_tick));
+      }
+      break;
+
+      case DL_GPS: {
+        SetAcInfo(sender_id,
+          MOfCm(DL_GPS_utm_east(dl_buffer)),    /*m*/
+          MOfCm(DL_GPS_utm_north(dl_buffer)),   /*m*/
+          RadOfDeg(((float)DL_GPS_course(dl_buffer)) / 10.), /*rad(CW)*/
+          MOfCm(DL_GPS_alt(dl_buffer)),        /*m*/
+          MOfCm(DL_GPS_speed(dl_buffer)),       /*m/s*/
+          MOfCm(DL_GPS_climb(dl_buffer)),       /*m/s*/
+          (uint32_t)DL_GPS_itow(dl_buffer));
+      }
+      break;
+      case DL_GPS_LLA: {
+        SetAcInfoLLA(sender_id,
+          DL_GPS_LLA_lat(dl_buffer),    /*1e7deg*/
+          DL_GPS_LLA_lon(dl_buffer),    /*1e7deg*/
+          DL_GPS_LLA_alt(dl_buffer),    /*mm*/
+          DL_GPS_LLA_course(dl_buffer), /*decideg*/
+          DL_GPS_LLA_speed(dl_buffer),  /*cm/s*/
+          DL_GPS_LLA_climb(dl_buffer),  /*cm/s*/
+          DL_GPS_LLA_itow(dl_buffer));  /*ms*/
+      }
+      break;
+#endif /* TRAFFIC_INFO */
+
+#ifdef TCAS
+      case DL_TCAS_RA: {
+        if (DL_TCAS_RESOLVE_ac_id(dl_buffer) == AC_ID && SenderIdOfMsg(dl_buffer) != AC_ID) {
+          uint8_t ac_id_conflict = SenderIdOfMsg(dl_buffer);
+          tcas_acs_status[the_acs_id[ac_id_conflict]].resolve = DL_TCAS_RA_resolve(dl_buffer);
+        }
+      }
+#endif /* TCAS */
+#endif
+      default: {
+        break;
+      }
+    }
+    return;  // msg was telemetry not datalink so return
+  }
+
+  /* parse telemetry messages coming from ground station */
   switch (msg_id) {
-
     case  DL_PING: {
       DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
     }
@@ -90,31 +164,6 @@ void dl_parse_msg(void)
     }
     break;
 
-#ifdef USE_NAVIGATION
-    case DL_BLOCK : {
-      if (DL_BLOCK_ac_id(dl_buffer) != AC_ID) { break; }
-      nav_goto_block(DL_BLOCK_block_id(dl_buffer));
-    }
-    break;
-
-    case DL_MOVE_WP : {
-      uint8_t ac_id = DL_MOVE_WP_ac_id(dl_buffer);
-      if (ac_id != AC_ID) { break; }
-      if (stateIsLocalCoordinateValid()) {
-        uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
-        struct LlaCoor_i lla;
-        lla.lat = DL_MOVE_WP_lat(dl_buffer);
-        lla.lon = DL_MOVE_WP_lon(dl_buffer);
-        /* WP_alt from message is alt above MSL in mm
-         * lla.alt is above ellipsoid in mm
-         */
-        lla.alt = DL_MOVE_WP_alt(dl_buffer) - state.ned_origin_i.hmsl +
-                  state.ned_origin_i.lla.alt;
-        waypoint_move_lla(wp_id, &lla);
-      }
-    }
-    break;
-#endif /* USE_NAVIGATION */
 #ifdef RADIO_CONTROL_TYPE_DATALINK
     case DL_RC_3CH :
 #ifdef RADIO_CONTROL_DATALINK_LED
@@ -138,6 +187,7 @@ void dl_parse_msg(void)
       }
       break;
 #endif // RADIO_CONTROL_TYPE_DATALINK
+
 #if USE_GPS
 #ifdef GPS_DATALINK
     case DL_REMOTE_GPS_SMALL : {
@@ -189,39 +239,27 @@ void dl_parse_msg(void)
     break;
 #endif  // USE_GPS
 
-    case DL_GUIDED_SETPOINT_NED:
-      if (DL_GUIDED_SETPOINT_NED_ac_id(dl_buffer) != AC_ID) { break; }
-      uint8_t flags = DL_GUIDED_SETPOINT_NED_flags(dl_buffer);
-      float x = DL_GUIDED_SETPOINT_NED_x(dl_buffer);
-      float y = DL_GUIDED_SETPOINT_NED_y(dl_buffer);
-      float z = DL_GUIDED_SETPOINT_NED_z(dl_buffer);
-      float yaw = DL_GUIDED_SETPOINT_NED_yaw(dl_buffer);
-      switch (flags) {
-        case 0x00:
-        case 0x02:
-          /* local NED position setpoints */
-          autopilot_guided_goto_ned(x, y, z, yaw);
-          break;
-        case 0x01:
-          /* local NED offset position setpoints */
-          autopilot_guided_goto_ned_relative(x, y, z, yaw);
-          break;
-        case 0x03:
-          /* body NED offset position setpoints */
-          autopilot_guided_goto_body_relative(x, y, z, yaw);
-          break;
-        case 0x70:
-          /* local NED with x/y/z as velocity and yaw as absolute angle */
-          autopilot_guided_move_ned(x, y, z, yaw);
-          break;
-        default:
-          /* others not handled yet */
-          break;
-      }
-      break;
+#ifdef TRAFFIC_INFO
+    case DL_ACINFO: {
+      if (DL_ACINFO_ac_id(dl_buffer) == AC_ID) { break; }
+      uint8_t id = DL_ACINFO_ac_id(dl_buffer);
+      float ux = MOfCm(DL_ACINFO_utm_east(dl_buffer));
+      float uy = MOfCm(DL_ACINFO_utm_north(dl_buffer));
+      float a = MOfCm(DL_ACINFO_alt(dl_buffer));
+      float c = RadOfDeg(((float)DL_ACINFO_course(dl_buffer)) / 10.);
+      float s = MOfCm(DL_ACINFO_speed(dl_buffer));
+      float cl = MOfCm(DL_ACINFO_climb(dl_buffer));
+      uint32_t t = DL_ACINFO_itow(dl_buffer);
+      SetAcInfo(id, ux, uy, c, a, s, cl, t);
+    }
+    break;
+#endif
     default:
       break;
   }
+  /* Parse firmware specific datalink */
+  firmware_parse_msg();
+
   /* Parse modules datalink */
   modules_parse_datalink(msg_id);
 }

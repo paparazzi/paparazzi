@@ -7,4 +7,4 @@ $(TARGET).CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_DEVICE=superbitrf
 $(TARGET).CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=SUPERBITRF
 
 $(TARGET).srcs += peripherals/cyrf6936.c
-$(TARGET).srcs += subsystems/datalink/downlink.c subsystems/datalink/superbitrf.c $(PAPARAZZI_HOME)/var/share/pprzlink/src/pprz_transport.c subsystems/datalink/telemetry.c
+$(TARGET).srcs += subsystems/datalink/downlink.c subsystems/datalink/datalink.c subsystems/datalink/superbitrf.c $(PAPARAZZI_HOME)/var/share/pprzlink/src/pprz_transport.c subsystems/datalink/telemetry.c

@@ -51,5 +51,5 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
 
 
 include $(CFG_SHARED)/telemetry_transparent_udp.makefile
-nps.srcs += $(SRC_FIRMWARE)/datalink.c
+nps.srcs += subsystems/datalink/datalink.c $(SRC_FIRMWARE)/fixedwing_datalink.c
 nps.srcs += $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c

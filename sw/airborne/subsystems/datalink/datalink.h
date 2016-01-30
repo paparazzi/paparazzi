@@ -42,6 +42,10 @@
 #include "std.h"
 #include "pprzlink/dl_protocol.h"
 
+/* Message id helpers */
+#define SenderIdOfPprzMsg(x) (x[0])
+#define IdOfPprzMsg(x) (x[1])
+
 /** Datalink kinds */
 #define PPRZ 1
 #define XBEE 2
@@ -63,6 +67,9 @@ EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
 
 /** Should be called when chars are available in dl_buffer */
 EXTERN void dl_parse_msg(void);
+
+/** Firmware specfic msg handler */
+EXTERN void firmware_parse_msg(void);
 
 #if USE_NPS
 EXTERN bool_t datalink_enabled;
