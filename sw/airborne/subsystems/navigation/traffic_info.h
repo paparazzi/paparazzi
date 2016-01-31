@@ -80,8 +80,4 @@ extern void set_ac_info(uint8_t id, float utm_east, float utm_north, float cours
 extern void set_ac_info_lla(uint8_t id, int32_t lat, int32_t lon, int32_t alt,
                             int16_t course, uint16_t gspeed, int16_t climb, uint32_t itow);
 
-void set_ac_info_lla(uint8_t _id, int32_t lat/*1e7deg*/, int32_t lon/*1e7deg*/, int32_t alt/*mm*/,
-                  int16_t course/*decideg*/, uint16_t gspeed/*cm/s*/, int16_t climb/*cm/s*/,
-                  uint32_t itow/*ms*/);
-
 #endif
