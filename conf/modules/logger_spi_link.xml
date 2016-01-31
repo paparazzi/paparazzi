@@ -11,7 +11,7 @@
   </header>
   <init fun="high_speed_logger_spi_link_init()"/>
   <periodic fun="high_speed_logger_spi_link_periodic()" autorun="TRUE"/>
-  <makefile>
+  <makefile target="ap">
     <raw>
       HS_LOG_SPI_DEV ?= spi1
       HS_LOG_SPI_DEV_LOWER=$(shell echo $(HS_LOG_SPI_DEV) | tr A-Z a-z)
