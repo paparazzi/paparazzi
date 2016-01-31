@@ -22,7 +22,8 @@
 /**
  * @file subsystems/datalink/datalink.c
  * Handling of messages coming from ground and other A/Cs.
- *
+ * This is common to the fixedwing and rotorcraft firmwares,
+ * other firmwares should provide their own dl_parse_msg().
  */
 
 #define DATALINK_C
