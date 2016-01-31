@@ -89,19 +89,19 @@ void dl_parse_msg(void)
           climb |= 0xFFFFF800;  // fix for twos complements
         }
 
-        SetAcInfo(sender_id,
-          MOfCm(DL_GPS_SMALL_utm_east(dl_buffer)),    /*m*/
-          MOfCm(DL_GPS_SMALL_utm_north(dl_buffer)),   /*m*/
-          RadOfDeg(((float)course) / 10.),            /*rad(CW)*/
-          MOfCm(DL_GPS_SMALL_alt(dl_buffer)),         /*m*/
-          MOfCm(gspeed),                              /*m/s*/
-          MOfCm(climb),                               /*m/s*/
-          gps_tow_from_sys_ticks(sys_time.nb_tick));
+        set_ac_info(sender_id,
+                    MOfCm(DL_GPS_SMALL_utm_east(dl_buffer)),    /*m*/
+                    MOfCm(DL_GPS_SMALL_utm_north(dl_buffer)),   /*m*/
+                    RadOfDeg(((float)course) / 10.),            /*rad(CW)*/
+                    MOfCm(DL_GPS_SMALL_alt(dl_buffer)),         /*m*/
+                    MOfCm(gspeed),                              /*m/s*/
+                    MOfCm(climb),                               /*m/s*/
+                    gps_tow_from_sys_ticks(sys_time.nb_tick));
       }
       break;
 
       case DL_GPS: {
-        SetAcInfo(sender_id,
+        set_ac_info(sender_id,
           MOfCm(DL_GPS_utm_east(dl_buffer)),    /*m*/
           MOfCm(DL_GPS_utm_north(dl_buffer)),   /*m*/
           RadOfDeg(((float)DL_GPS_course(dl_buffer)) / 10.), /*rad(CW)*/
@@ -112,14 +112,14 @@ void dl_parse_msg(void)
       }
       break;
       case DL_GPS_LLA: {
-        SetAcInfoLLA(sender_id,
-          DL_GPS_LLA_lat(dl_buffer),    /*1e7deg*/
-          DL_GPS_LLA_lon(dl_buffer),    /*1e7deg*/
-          DL_GPS_LLA_alt(dl_buffer),    /*mm*/
-          DL_GPS_LLA_course(dl_buffer), /*decideg*/
-          DL_GPS_LLA_speed(dl_buffer),  /*cm/s*/
-          DL_GPS_LLA_climb(dl_buffer),  /*cm/s*/
-          DL_GPS_LLA_itow(dl_buffer));  /*ms*/
+        set_ac_info_lla(sender_id,
+                        DL_GPS_LLA_lat(dl_buffer),    /*1e7deg*/
+                        DL_GPS_LLA_lon(dl_buffer),    /*1e7deg*/
+                        DL_GPS_LLA_alt(dl_buffer),    /*mm*/
+                        DL_GPS_LLA_course(dl_buffer), /*decideg*/
+                        DL_GPS_LLA_speed(dl_buffer),  /*cm/s*/
+                        DL_GPS_LLA_climb(dl_buffer),  /*cm/s*/
+                        DL_GPS_LLA_itow(dl_buffer));  /*ms*/
       }
       break;
 #endif /* TRAFFIC_INFO */
@@ -250,7 +250,7 @@ void dl_parse_msg(void)
       float s = MOfCm(DL_ACINFO_speed(dl_buffer));
       float cl = MOfCm(DL_ACINFO_climb(dl_buffer));
       uint32_t t = DL_ACINFO_itow(dl_buffer);
-      SetAcInfo(id, ux, uy, c, a, s, cl, t);
+      set_ac_info(id, ux, uy, c, a, s, cl, t);
     }
     break;
 #endif

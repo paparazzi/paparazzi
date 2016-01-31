@@ -145,7 +145,7 @@ int formation_flight(void)
     stateGetPositionEnu_f()->y += formation[the_acs_id[AC_ID]].north;
   }
   // set info for this AC
-  SetAcInfo(AC_ID, stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, hspeed_dir,
+  set_ac_info(AC_ID, stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, hspeed_dir,
             stateGetPositionUtm_f()->alt, form_speed, stateGetSpeedEnu_f()->z, gps.tow);
 
   // broadcast info

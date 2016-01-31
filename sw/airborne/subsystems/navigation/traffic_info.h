@@ -36,13 +36,13 @@
 
 struct ac_info_ {
   uint8_t ac_id;
-  float east;   /* m relative to nav_utm_east0 */
-  float north;  /* m relative to nav_utm_north0 */
-  float course; /* rad (CW) */
-  float alt;    /* m */
-  float gspeed; /* m/s */
-  float climb;  /* m/s */
-  uint32_t itow;/* ms */
+  float east;   ///< m relative to nav_utm_east0
+  float north;  ///< m relative to nav_utm_north0
+  float course; ///< rad (CW)
+  float alt;    ///< m
+  float gspeed; ///< m/s
+  float climb;  ///< m/s
+  uint32_t itow;///< ms
 };
 
 extern uint8_t acs_idx;
@@ -50,11 +50,37 @@ extern uint8_t the_acs_id[NB_ACS_ID];
 extern struct ac_info_ the_acs[NB_ACS];
 
 extern void traffic_info_init(void);
-struct ac_info_ *get_ac_info(uint8_t id);
+extern struct ac_info_ *get_ac_info(uint8_t id);
 
-void SetAcInfo(uint8_t _id, float _utm_x /*m*/, float _utm_y /*m*/, float _course/*rad(CW)*/, float _alt/*m*/,
-               float _gspeed/*m/s*/, float _climb, uint32_t _itow/*ms*/);
-void SetAcInfoLLA(uint8_t _id, int32_t lat/*1e7deg*/, int32_t lon/*1e7deg*/, int32_t alt/*mm*/,
+/**
+ * Set Aircraft info.
+ * @param[in] id aircraft id, 0 is reserved for GCS, 1 for this aircraft (id=AC_ID)
+ * @param[in] utm_east UTM east in m relative to nav_utm_east0
+ * @param[in] utm_north UTM north in m relative to nav_utm_north0
+ * @param[in] course Course in rad (CW)
+ * @param[in] alt Altitude in m above MSL
+ * @param[in] gspeed Ground speed in m/s
+ * @param[in] climb Climb rate in m/s
+ * @param[in] itow GPS time of week in ms
+ */
+extern void set_ac_info(uint8_t id, float utm_east, float utm_north, float course, float alt,
+                        float gspeed, float climb, uint32_t itow);
+
+/**
+ * Set Aircraft info.
+ * @param[in] id aircraft id, 0 is reserved for GCS, 1 for this aircraft (id=AC_ID)
+ * @param[in] lat Latitude in 1e7deg
+ * @param[in] lon Longitude in 1e7deg
+ * @param[in] alt Altitude in mm above MSL
+ * @param[in] course Course in decideg (CW)
+ * @param[in] gspeed Ground speed in cm/s
+ * @param[in] climb Climb rate in cm/s
+ * @param[in] itow GPS time of week in ms
+ */
+extern void set_ac_info_lla(uint8_t id, int32_t lat, int32_t lon, int32_t alt,
+                            int16_t course, uint16_t gspeed, int16_t climb, uint32_t itow);
+
+void set_ac_info_lla(uint8_t _id, int32_t lat/*1e7deg*/, int32_t lon/*1e7deg*/, int32_t alt/*mm*/,
                   int16_t course/*decideg*/, uint16_t gspeed/*cm/s*/, int16_t climb/*cm/s*/,
                   uint32_t itow/*ms*/);
 
