@@ -8,6 +8,7 @@ ifeq ($(TARGET),ap)
 include $(CFG_SHARED)/telemetry_superbitrf.makefile
 endif
 
+ap.srcs += subsystems/datalink/datalink.c
 ap.srcs += $(SRC_FIRMWARE)/fixedwing_datalink.c $(SRC_FIRMWARE)/ap_downlink.c
 
 # avoid fbw_telemetry_mode error
