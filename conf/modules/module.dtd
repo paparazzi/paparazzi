@@ -92,6 +92,7 @@ name CDATA #REQUIRED
 
 <!ATTLIST settings
 name CDATA #IMPLIED
+target CDATA #IMPLIED
 >
 
 <!ATTLIST dl_settings

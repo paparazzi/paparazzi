@@ -213,7 +213,18 @@ let is_element_unselected = fun ?(verbose=false) target modules name ->
     | "module" ->
         let unselected = List.for_all (fun m -> m.file <> name) modules in
         if unselected && verbose then
-          begin Printf.printf "Info: module '%s' unloaded for target '%s'\n" name target; flush stdout end;
+          begin Printf.printf "Info: module '%s' unloaded for target '%s'\n" name target; flush stdout end
+        else begin
+          if verbose then
+            (* display possible unloading of settings when the module itself is loaded *)
+            List.iter (fun n ->
+              let tag = Xml.tag n
+              and targets = ExtXml.attrib_or_default n "target" "" in
+              let valid = test_targets target (Str.split (Str.regexp "|") targets) in
+              if tag = "settings" && not (targets = "") && not valid then
+                begin Printf.printf "Info: settings of module '%s' unloaded for target '%s'\n" name target; flush stdout end;
+            ) (Xml.children xml)
+        end;
         unselected
     | _ -> false
   with _ -> false
