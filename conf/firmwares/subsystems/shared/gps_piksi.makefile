@@ -28,6 +28,5 @@ sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
 sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
 
 nps.CFLAGS += -DUSE_GPS
-nps.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"
+nps.CFLAGS += -DPRIMARY_GPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"
 nps.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_nps.c
-
