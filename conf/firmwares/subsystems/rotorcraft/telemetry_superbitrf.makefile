@@ -7,6 +7,5 @@ ifeq ($(TARGET), ap)
 include $(CFG_SHARED)/telemetry_superbitrf.makefile
 endif
 
-ap.srcs += subsystems/datalink/datalink.c
 # add rotorcraft specific files
 ap.srcs += $(SRC_FIRMWARE)/rotorcraft_datalink.c $(SRC_FIRMWARE)/rotorcraft_telemetry.c
