@@ -25,68 +25,82 @@
 #include "nps_sensors.h"
 #include "nps_fdm.h"
 
+struct GpsState gps_nps;
 bool_t gps_has_fix;
 
 void  gps_feed_value()
 {
   // FIXME, set proper time instead of hardcoded to May 2014
-  gps.week = 1794;
-  gps.tow = fdm.time * 1000;
+  gps_nps.week = 1794;
+  gps_nps.tow = fdm.time * 1000;
 
-  gps.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;
-  gps.ecef_pos.y = sensors.gps.ecef_pos.y * 100.;
-  gps.ecef_pos.z = sensors.gps.ecef_pos.z * 100.;
-  SetBit(gps.valid_fields, GPS_VALID_POS_ECEF_BIT);
-  gps.ecef_vel.x = sensors.gps.ecef_vel.x * 100.;
-  gps.ecef_vel.y = sensors.gps.ecef_vel.y * 100.;
-  gps.ecef_vel.z = sensors.gps.ecef_vel.z * 100.;
-  SetBit(gps.valid_fields, GPS_VALID_VEL_ECEF_BIT);
+  gps_nps.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;
+  gps_nps.ecef_pos.y = sensors.gps.ecef_pos.y * 100.;
+  gps_nps.ecef_pos.z = sensors.gps.ecef_pos.z * 100.;
+  SetBit(gps_nps.valid_fields, GPS_VALID_POS_ECEF_BIT);
+  gps_nps.ecef_vel.x = sensors.gps.ecef_vel.x * 100.;
+  gps_nps.ecef_vel.y = sensors.gps.ecef_vel.y * 100.;
+  gps_nps.ecef_vel.z = sensors.gps.ecef_vel.z * 100.;
+  SetBit(gps_nps.valid_fields, GPS_VALID_VEL_ECEF_BIT);
 
   //ecef pos seems to be based on geocentric model, hence we get a very high alt when converted to lla
-  gps.lla_pos.lat = DegOfRad(sensors.gps.lla_pos.lat) * 1e7;
-  gps.lla_pos.lon = DegOfRad(sensors.gps.lla_pos.lon) * 1e7;
-  gps.lla_pos.alt = sensors.gps.lla_pos.alt * 1000.;
-  SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
+  gps_nps.lla_pos.lat = DegOfRad(sensors.gps.lla_pos.lat) * 1e7;
+  gps_nps.lla_pos.lon = DegOfRad(sensors.gps.lla_pos.lon) * 1e7;
+  gps_nps.lla_pos.alt = sensors.gps.lla_pos.alt * 1000.;
+  SetBit(gps_nps.valid_fields, GPS_VALID_POS_LLA_BIT);
 
-  gps.hmsl        = sensors.gps.hmsl * 1000.;
-  SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
+  gps_nps.hmsl        = sensors.gps.hmsl * 1000.;
+  SetBit(gps_nps.valid_fields, GPS_VALID_HMSL_BIT);
 
   /* calc NED speed from ECEF */
   struct LtpDef_d ref_ltp;
   ltp_def_from_ecef_d(&ref_ltp, &sensors.gps.ecef_pos);
   struct NedCoor_d ned_vel_d;
   ned_of_ecef_vect_d(&ned_vel_d, &ref_ltp, &sensors.gps.ecef_vel);
-  gps.ned_vel.x = ned_vel_d.x * 100;
-  gps.ned_vel.y = ned_vel_d.y * 100;
-  gps.ned_vel.z = ned_vel_d.z * 100;
-  SetBit(gps.valid_fields, GPS_VALID_VEL_NED_BIT);
+  gps_nps.ned_vel.x = ned_vel_d.x * 100;
+  gps_nps.ned_vel.y = ned_vel_d.y * 100;
+  gps_nps.ned_vel.z = ned_vel_d.z * 100;
+  SetBit(gps_nps.valid_fields, GPS_VALID_VEL_NED_BIT);
 
   /* horizontal and 3d ground speed in cm/s */
-  gps.gspeed = sqrt(ned_vel_d.x * ned_vel_d.x + ned_vel_d.y * ned_vel_d.y) * 100;
-  gps.speed_3d = sqrt(ned_vel_d.x * ned_vel_d.x + ned_vel_d.y * ned_vel_d.y + ned_vel_d.z * ned_vel_d.z) * 100;
+  gps_nps.gspeed = sqrt(ned_vel_d.x * ned_vel_d.x + ned_vel_d.y * ned_vel_d.y) * 100;
+  gps_nps.speed_3d = sqrt(ned_vel_d.x * ned_vel_d.x + ned_vel_d.y * ned_vel_d.y + ned_vel_d.z * ned_vel_d.z) * 100;
 
   /* ground course in radians * 1e7 */
-  gps.course = atan2(ned_vel_d.y, ned_vel_d.x) * 1e7;
-  SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
+  gps_nps.course = atan2(ned_vel_d.y, ned_vel_d.x) * 1e7;
+  SetBit(gps_nps.valid_fields, GPS_VALID_COURSE_BIT);
 
   if (gps_has_fix) {
-    gps.fix = GPS_FIX_3D;
+    gps_nps.fix = GPS_FIX_3D;
   } else {
-    gps.fix = GPS_FIX_NONE;
+    gps_nps.fix = GPS_FIX_NONE;
   }
 
   // publish gps data
   uint32_t now_ts = get_sys_time_usec();
-  gps.last_msg_ticks = sys_time.nb_sec_rem;
-  gps.last_msg_time = sys_time.nb_sec;
-  if (gps.fix == GPS_FIX_3D) {
-    gps.last_3dfix_ticks = sys_time.nb_sec_rem;
-    gps.last_3dfix_time = sys_time.nb_sec;
+  gps_nps.last_msg_ticks = sys_time.nb_sec_rem;
+  gps_nps.last_msg_time = sys_time.nb_sec;
+  if (gps_nps.fix == GPS_FIX_3D) {
+    gps_nps.last_3dfix_ticks = sys_time.nb_sec_rem;
+    gps_nps.last_3dfix_time = sys_time.nb_sec;
   }
-  AbiSendMsgGPS(GPS_SIM_ID, now_ts, &gps);
+  AbiSendMsgGPS(GPS_SIM_ID, now_ts, &gps_nps);
 }
 
-void gps_impl_init()
+void nps_gps_impl_init()
 {
   gps_has_fix = TRUE;
+}
+
+extern void nps_gps_event(void)
+{
+  return;
+}
+
+/*
+ * register callbacks & structs
+ */
+void nps_gps_register(void)
+{
+  gps_register_impl(nps_gps_impl_init, nps_gps_event, GPS_SIM_ID, 0);
 }
