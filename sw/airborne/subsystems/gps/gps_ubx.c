@@ -328,7 +328,7 @@ void ubx_send_cfg_rst(struct link_device *dev, uint16_t bbr , uint8_t reset_mode
 void gps_ubx_msg(void)
 {
   // current timestamp
-  // uint32_t now_ts = get_sys_time_usec();
+  uint32_t now_ts = get_sys_time_usec();
 
   gps_ubx.state.last_msg_ticks = sys_time.nb_sec_rem;
   gps_ubx.state.last_msg_time = sys_time.nb_sec;
@@ -342,7 +342,7 @@ void gps_ubx_msg(void)
       gps_ubx.state.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps_ubx.state.last_3dfix_time = sys_time.nb_sec;
     }
-    // AbiSendMsgGPS(GPS_UBX_ID, now_ts, &gps);
+    AbiSendMsgGPS(GPS_UBX_ID, now_ts, &gps_ubx.state);
   }
   gps_ubx.msg_available = FALSE;
 }
@@ -350,8 +350,8 @@ void gps_ubx_msg(void)
 void ubx_gps_register(void)
 {
 #ifdef GPS_SECONDARY_UBX
-  gps_register_impl(ubx_gps_impl_init, ubx_gps_event, &gps_ubx.state, &gps_ubx_time_sync, 1);
+  gps_register_impl(ubx_gps_impl_init, ubx_gps_event, GPS_UBX_ID, 1);
 #else
-  gps_register_impl(ubx_gps_impl_init, ubx_gps_event, &gps_ubx.state, &gps_ubx_time_sync, 0);
+  gps_register_impl(ubx_gps_impl_init, ubx_gps_event, GPS_UBX_ID, 0);
 #endif
 }
