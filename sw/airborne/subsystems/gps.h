@@ -34,23 +34,25 @@
 
 #include "mcu_periph/sys_time.h"
 
+#define INS_XSENS700_GPS_ID GPS_MULTI_ID
+#define INS_XSENS_GPS_ID GPS_MULTI_ID
+#define AHRS_CHIMU_GPS_ID GPS_MULTI_ID
+#define STEREOCAM_GPS_ID GPS_MULTI_ID
+#define AHRS_INFRARED_GPS_ID GPS_MULTI_ID
+#define INS_FINV_GPS_ID GPS_MULTI_ID
+#define INS_PTU_GPS_ID GPS_MULTI_ID
+#define INS_PT_GPS_ID GPS_MULTI_ID
+#define INS_INT_GPS_ID GPS_MULTI_ID
+#define INS_ALT_GPS_ID GPS_MULTI_ID
+#define AHRS_DCM_GPS_ID GPS_MULTI_ID
+#define AHRS_FC_GPS_ID GPS_MULTI_ID
+#define AHRS_ICQ_GPS_ID GPS_MULTI_ID
+
 #define GPS_FIX_NONE 0x00     ///< No GPS fix
 #define GPS_FIX_2D   0x02     ///< 2D GPS fix
 #define GPS_FIX_3D   0x03     ///< 3D GPS fix
 #define GPS_FIX_DGPS 0x04     ///< DGPS fix
 #define GPS_FIX_RTK  0x05     ///< RTK GPS fix
-
-#define GPS_UBX_ID        1
-#define GPS_NMEA_ID       2
-#define GPS_SIRF_ID       3
-#define GPS_SKYTRAQ_ID    4
-#define GPS_MTK_ID        5
-#define GPS_PIKSI_ID      6
-#define GPS_XSENS_ID      7
-#define GPS_DATALINK_ID   8
-#define GPS_UDP_ID        9
-#define GPS_ARDRONE2_ID   10
-#define GPS_SIM_ID        11
 
 #define GpsFixValid() (gps.fix >= GPS_FIX_3D)
 #if USE_GPS
@@ -162,7 +164,7 @@ typedef void (*ImplGpsEvent)(void);
   /*
    * register callbacks and state pointers
    */ 
-  extern void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, struct GpsState *gps_s, struct GpsTimeSync *timesync, int8_t instance);
+  extern void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id, int8_t instance);
 
 #include PRIMARY_GPS_TYPE_H
 #endif
