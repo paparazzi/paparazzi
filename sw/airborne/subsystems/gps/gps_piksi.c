@@ -271,10 +271,9 @@ static void sbp_tracking_state_dep_a_callback(uint16_t sender_id __attribute__((
 
 static void spb_heartbeat_callback(uint16_t sender_id __attribute__((unused)),
                                   uint8_t len __attribute__((unused)),
-                                  uint8_t msg[],
+                                  uint8_t msg[] __attribute__((unused)),
                                   void *context __attribute__((unused)))
 {
-  msg_heartbeat_t heartbeat = *(msg_heartbeat_t *)msg;
   time_since_last_heartbeat = get_sys_time_msec();
 }
 
@@ -361,7 +360,7 @@ void piksi_gps_event(void)
 static void gps_piksi_publish(void)
 {
   // current timestamp
-  // uint32_t now_ts = get_sys_time_usec();
+  uint32_t now_ts = get_sys_time_usec();
 
   gps_piksi.last_msg_ticks = sys_time.nb_sec_rem;
   gps_piksi.last_msg_time = sys_time.nb_sec;
@@ -369,7 +368,7 @@ static void gps_piksi_publish(void)
     gps_piksi.last_3dfix_ticks = sys_time.nb_sec_rem;
     gps_piksi.last_3dfix_time = sys_time.nb_sec;
   }
-  // AbiSendMsgGPS(GPS_PIKSI_ID, now_ts, &gps_piksi);
+  AbiSendMsgGPS(GPS_PIKSI_ID, now_ts, &gps_piksi);
 }
 
 /*
@@ -415,8 +414,8 @@ void gps_inject_data(uint8_t packet_id, uint8_t length, uint8_t *data)
 void piksi_gps_register(void)
 {
 #ifdef GPS_SECONDARY_PIKSI
-  gps_register_impl(piksi_gps_impl_init, piksi_gps_event, &gps_piksi, &gps_piksi_time_sync, 1);
+  gps_register_impl(piksi_gps_impl_init, piksi_gps_event, GPS_PIKSI_ID, 1);
 #else
-  gps_register_impl(piksi_gps_impl_init, piksi_gps_event, &gps_piksi, &gps_piksi_time_sync, 0);
+  gps_register_impl(piksi_gps_impl_init, piksi_gps_event, GPS_PIKSI_ID, 0);
 #endif
 }
