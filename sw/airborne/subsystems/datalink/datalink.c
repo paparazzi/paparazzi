@@ -263,3 +263,8 @@ void dl_parse_msg(void)
   /* Parse modules datalink */
   modules_parse_datalink(msg_id);
 }
+
+/* default emtpy WEAK implementation for firmwares without an extra firmware_parse_msg */
+WEAK void firmware_parse_msg(void)
+{
+}
