@@ -31,7 +31,23 @@
 
 #include "std.h"
 
-#define GPS_NB_CHANNELS 16
+#if GPS_SECONDARY_SIRF
+#ifndef SIRF_GPS_LINK
+#define SIRF_GPS_LINK GPS_SECONDARY_PORT
+#define SecondaryGpsImpl sirf
+#endif
+#else
+#ifndef PrimaryGpsImpl
+#define PrimaryGpsImpl sirf
+#endif
+#endif
+#if GPS_PRIMARY_SIRF
+#ifndef SIRF_GPS_LINK
+#define SIRF_GPS_LINK GPS_PRIMARY_PORT
+#endif
+#endif
+
+#define SIRF_GPS_NB_CHANNELS 16
 #define SIRF_MAXLEN 255
 
 //Read states
@@ -46,6 +62,7 @@ struct GpsSirf {
   char msg_buf[SIRF_MAXLEN];  ///< buffer for storing one nmea-line
   int msg_len;
   int read_state;
+  struct GpsState state;
 };
 
 extern struct GpsSirf gps_sirf;
@@ -133,10 +150,12 @@ struct sirf_msg_41 {
 extern void sirf_parse_char(uint8_t c);
 extern void sirf_parse_msg(void);
 extern void gps_sirf_msg(void);
+void sirf_gps_impl_init(void);
+void sirf_gps_register(void);
 
-static inline void GpsEvent(void)
+static inline void sirf_gps_event(void)
 {
-  struct link_device *dev = &((GPS_LINK).device);
+  struct link_device *dev = &((SIRF_GPS_LINK).device);
 
   while (dev->char_available(dev->periph)) {
     sirf_parse_char(dev->get_byte(dev->periph));

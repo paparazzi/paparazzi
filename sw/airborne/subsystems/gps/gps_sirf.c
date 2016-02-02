@@ -36,7 +36,7 @@ struct GpsSirf gps_sirf;
 void sirf_parse_2(void);
 void sirf_parse_41(void);
 
-void gps_impl_init(void)
+void sirf_gps_impl_init(void)
 {
   gps_sirf.msg_available = FALSE;
   gps_sirf.pos_available = FALSE;
@@ -48,13 +48,13 @@ void gps_sirf_msg(void)
 {
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
-  gps.last_msg_ticks = sys_time.nb_sec_rem;
-  gps.last_msg_time = sys_time.nb_sec;
+  gps_sirf.state.last_msg_ticks = sys_time.nb_sec_rem;
+  gps_sirf.state.last_msg_time = sys_time.nb_sec;
   sirf_parse_msg();
   if (gps_sirf.pos_available) {
-    if (gps.fix == GPS_FIX_3D) {
-      gps.last_3dfix_ticks = sys_time.nb_sec_rem;
-      gps.last_3dfix_time = sys_time.nb_sec;
+    if (gps_sirf.state.fix == GPS_FIX_3D) {
+      gps_sirf.state.last_3dfix_ticks = sys_time.nb_sec_rem;
+      gps_sirf.state.last_3dfix_time = sys_time.nb_sec;
     }
     AbiSendMsgGPS(GPS_SIRF_ID, now_ts, &gps);
   }
@@ -115,32 +115,32 @@ void sirf_parse_41(void)
 {
   struct sirf_msg_41 *p = (struct sirf_msg_41 *)&gps_sirf.msg_buf[4];
 
-  gps.tow = Invert4Bytes(p->tow);
-  gps.hmsl = Invert4Bytes(p->alt_msl) * 10;
-  SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
-  gps.num_sv = p->num_sat;
-  gps.nb_channels = p ->num_sat;
+  gps_sirf.state.tow = Invert4Bytes(p->tow);
+  gps_sirf.state.hmsl = Invert4Bytes(p->alt_msl) * 10;
+  SetBit(gps_sirf.state.valid_fields, GPS_VALID_HMSL_BIT);
+  gps_sirf.state.num_sv = p->num_sat;
+  gps_sirf.state.nb_channels = p ->num_sat;
 
   /* read latitude, longitude and altitude from packet */
-  gps.lla_pos.lat = Invert4Bytes(p->latitude);
-  gps.lla_pos.lon = Invert4Bytes(p->longitude);
-  gps.lla_pos.alt = Invert4Bytes(p->alt_ellipsoid) * 10;
-  SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
+  gps_sirf.state.lla_pos.lat = Invert4Bytes(p->latitude);
+  gps_sirf.state.lla_pos.lon = Invert4Bytes(p->longitude);
+  gps_sirf.state.lla_pos.alt = Invert4Bytes(p->alt_ellipsoid) * 10;
+  SetBit(gps_sirf.state.valid_fields, GPS_VALID_POS_LLA_BIT);
 
-  gps.sacc = (Invert2Bytes(p->ehve) >> 16);
-  gps.course = RadOfDeg(Invert2Bytes(p->cog)) * pow(10, 5);
-  SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
-  gps.gspeed = RadOfDeg(Invert2Bytes(p->sog)) * pow(10, 5);
-  gps.cacc = RadOfDeg(Invert2Bytes(p->heading_err)) * pow(10, 5);
-  gps.pacc = Invert4Bytes(p->ehpe);
-  gps.pdop = p->hdop * 20;
+  gps_sirf.state.sacc = (Invert2Bytes(p->ehve) >> 16);
+  gps_sirf.state.course = RadOfDeg(Invert2Bytes(p->cog)) * pow(10, 5);
+  SetBit(gps_sirf.state.valid_fields, GPS_VALID_COURSE_BIT);
+  gps_sirf.state.gspeed = RadOfDeg(Invert2Bytes(p->sog)) * pow(10, 5);
+  gps_sirf.state.cacc = RadOfDeg(Invert2Bytes(p->heading_err)) * pow(10, 5);
+  gps_sirf.state.pacc = Invert4Bytes(p->ehpe);
+  gps_sirf.state.pdop = p->hdop * 20;
 
   if ((p->nav_type >> 8 & 0x7) >= 0x4) {
-    gps.fix = GPS_FIX_3D;
+    gps_sirf.state.fix = GPS_FIX_3D;
   } else if ((p->nav_type >> 8 & 0x7) >= 0x1) {
-    gps.fix = GPS_FIX_2D;
+    gps_sirf.state.fix = GPS_FIX_2D;
   } else {
-    gps.fix = GPS_FIX_NONE;
+    gps_sirf.state.fix = GPS_FIX_NONE;
   }
 
 
@@ -152,24 +152,24 @@ void sirf_parse_2(void)
 {
   struct sirf_msg_2 *p = (struct sirf_msg_2 *)&gps_sirf.msg_buf[4];
 
-  gps.week = Invert2Bytes(p->week);
+  gps_sirf.state.week = Invert2Bytes(p->week);
 
-  gps.ecef_pos.x = Invert4Bytes(p->x_pos) * 100;
-  gps.ecef_pos.y = Invert4Bytes(p->y_pos) * 100;
-  gps.ecef_pos.z = Invert4Bytes(p->z_pos) * 100;
-  SetBit(gps.valid_fields, GPS_VALID_POS_ECEF_BIT);
+  gps_sirf.state.ecef_pos.x = Invert4Bytes(p->x_pos) * 100;
+  gps_sirf.state.ecef_pos.y = Invert4Bytes(p->y_pos) * 100;
+  gps_sirf.state.ecef_pos.z = Invert4Bytes(p->z_pos) * 100;
+  SetBit(gps_sirf.state.valid_fields, GPS_VALID_POS_ECEF_BIT);
 
-  gps.ecef_vel.x = (Invert2Bytes(p->vx) >> 16) * 100 / 8;
-  gps.ecef_vel.y = (Invert2Bytes(p->vy) >> 16) * 100 / 8;
-  gps.ecef_vel.z = (Invert2Bytes(p->vz) >> 16) * 100 / 8;
-  SetBit(gps.valid_fields, GPS_VALID_VEL_ECEF_BIT);
+  gps_sirf.state.ecef_vel.x = (Invert2Bytes(p->vx) >> 16) * 100 / 8;
+  gps_sirf.state.ecef_vel.y = (Invert2Bytes(p->vy) >> 16) * 100 / 8;
+  gps_sirf.state.ecef_vel.z = (Invert2Bytes(p->vz) >> 16) * 100 / 8;
+  SetBit(gps_sirf.state.valid_fields, GPS_VALID_VEL_ECEF_BIT);
 
-  if (gps.fix == GPS_FIX_3D) {
+  if (gps_sirf.state.fix == GPS_FIX_3D) {
     ticks++;
 #if DEBUG_SIRF
     printf("GPS %i %i %i %i\n", ticks, (sys_time.nb_sec - start_time), ticks2, (sys_time.nb_sec - start_time2));
 #endif
-  } else if (sys_time.nb_sec - gps.last_3dfix_time > 10) {
+  } else if (sys_time.nb_sec - gps_sirf.state.last_3dfix_time > 10) {
     start_time = sys_time.nb_sec;
     ticks = 0;
   }
@@ -200,4 +200,16 @@ void sirf_parse_msg(void)
       break;
   }
 
+}
+
+/*
+ * register callbacks & structs
+ */
+void sirf_gps_register(void)
+{
+#ifdef GPS_SECONDARY_SIRF
+  gps_register_impl(sirf_gps_impl_init, sirf_gps_event, GPS_SIRF_ID, 1);
+#else
+  gps_register_impl(sirf_gps_impl_init, sirf_gps_event, GPS_SIRF_ID, 0);
+#endif
 }
