@@ -222,6 +222,7 @@ let parse_firmware = fun makefile_ac ac_xml firmware ->
     List.iter (fun def -> define_xml2mk makefile_ac def) t_defines;
     List.iter (module_xml2mk makefile_ac target_name) modules;
     List.iter (mod_or_subsys_xml2mk makefile_ac [] firmware target_name) mods;
+    List.iter (mod_or_subsys_xml2mk makefile_ac [] firmware target_name) t_mods;
     List.iter (subsystem_xml2mk makefile_ac firmware) t_subsystems;
     List.iter (subsystem_xml2mk makefile_ac firmware) subsystems;
     fprintf makefile_ac "\nendif # end of target '%s'\n\n" target_name
