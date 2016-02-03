@@ -26,6 +26,22 @@
 
 #define SKYTRAQ_ID_NAVIGATION_DATA 0XA8
 
+#if GPS_SECONDARY_SKYTRAQ
+#ifndef SKYTRAQ_GPS_LINK
+#define SKYTRAQ_GPS_LINK GPS_SECONDARY_PORT
+#define SecondaryGpsImpl skytraq
+#endif
+#else
+#ifndef PrimaryGpsImpl
+#define PrimaryGpsImpl skytraq
+#endif
+#endif
+#if GPS_PRIMARY_SKYTRAQ
+#ifndef SKYTRAQ_GPS_LINK
+#define SKYTRAQ_GPS_LINK GPS_PRIMARY_PORT
+#endif
+#endif
+
 /* last error type */
 enum GpsSkytraqError {
   GPS_SKYTRAQ_ERR_NONE = 0,
@@ -50,6 +66,8 @@ struct GpsSkytraq {
   enum GpsSkytraqError error_last;
 
   struct LtpDef_i ref_ltp;
+
+  struct GpsState state;
 };
 
 extern struct GpsSkytraq gps_skytraq;
@@ -63,17 +81,8 @@ extern struct GpsSkytraq gps_skytraq;
 extern void gps_skytraq_read_message(void);
 extern void gps_skytraq_parse(uint8_t c);
 extern void gps_skytraq_msg(void);
-
-static inline void GpsEvent(void)
-{
-  struct link_device *dev = &((GPS_LINK).device);
-
-  while (dev->char_available(dev->periph)) {
-    gps_skytraq_parse(dev->get_byte(dev->periph));
-    if (gps_skytraq.msg_available) {
-      gps_skytraq_msg();
-    }
-  }
-}
+extern void skytraq_gps_register(void);
+void skytraq_gps_impl_init(void);
+void skytraq_gps_event(void);
 
 #endif /* GPS_SKYTRAQ_H */
