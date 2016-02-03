@@ -67,17 +67,6 @@
 #define GPS_VALID_HMSL_BIT     5
 #define GPS_VALID_COURSE_BIT   6
 
-/* GPS model specific implementation or sim */
-#ifdef GPS_TYPE_H
-#include GPS_TYPE_H
-#ifndef GPS_NB_CHANNELS
-#define GPS_NB_CHANNELS 1
-#endif
-
-#endif
-
-#ifndef GPS_TYPE_H
-
 #define PRIMARY_GPS_INSTANCE 0
 #define SECONDARY_GPS_INSTANCE 1
 
@@ -100,8 +89,6 @@
 #endif
 
 extern uint8_t multi_gps_mode;
-#endif
-
 
 /** data structure for Space Vehicle Information of a single satellite */
 struct SVinfo {

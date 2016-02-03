@@ -45,7 +45,6 @@ struct GpsState gps;
 
 struct GpsTimeSync gps_time_sync;
 
-#ifndef GPS_TYPE_H
 
 #ifndef PrimaryGpsImpl
 #warning "PrimaryGpsImpl not set!"
@@ -79,8 +78,6 @@ struct GpsInstance {;
 };
 
 struct GpsInstance GpsInstances[GPS_NUM_INSTANCES];
-
-#endif
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -277,9 +274,6 @@ void gps_init(void)
 #endif
 #ifdef GPS_LED
   LED_OFF(GPS_LED);
-#endif
-#ifdef GPS_TYPE_H
-  gps_impl_init();
 #endif
 #ifdef PrimaryGpsImpl
   PrimaryGpsRegister();
