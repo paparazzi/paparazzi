@@ -24,7 +24,7 @@ ap.CFLAGS += -I$(PAPARAZZI_SRC)/sw/ext/libsbp/c/include
 ap.srcs		+= $(PAPARAZZI_SRC)/sw/ext/libsbp/c/src/sbp.c $(PAPARAZZI_SRC)/sw/ext/libsbp/c/src/edc.c
 
 sim.CFLAGS += -DUSE_GPS
-sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+sim.CFLAGS += -DPRIMARY_GPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
 sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
 
 nps.CFLAGS += -DUSE_GPS

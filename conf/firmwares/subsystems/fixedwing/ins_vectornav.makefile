@@ -19,7 +19,7 @@ sim.CFLAGS += -DINS_TYPE_H=\"subsystems/ins/ins_gps_passthrough_utm.h\"
 sim.srcs   += $(SRC_SUBSYSTEMS)/ins/ins_gps_passthrough_utm.c
 
 sim.CFLAGS += -DUSE_GPS
-sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+sim.CFLAGS += -DPRIMARY_GPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
 sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
 sim.srcs += $(SRC_SUBSYSTEMS)/gps.c
 
