@@ -29,12 +29,34 @@
 
 #ifndef GPS_NMEA_H
 #define GPS_NMEA_H
-
+ 
 #include "mcu_periph/uart.h"
+#include "subsystems/gps.h"
 
-#define GPS_NB_CHANNELS 12
+#define GPS_NMEA_NB_CHANNELS 12
 
 #define NMEA_MAXLEN 255
+
+#if GPS_SECONDARY_NMEA
+#ifndef NMEA_GPS_LINK
+#define NMEA_GPS_LINK GPS_SECONDARY_PORT
+#define SecondaryGpsImpl nmea
+#endif
+#else
+#ifndef PrimaryGpsImpl
+#define PrimaryGpsImpl nmea
+#endif
+#endif
+#if GPS_PRIMARY_NMEA
+#ifndef NMEA_GPS_LINK
+#define NMEA_GPS_LINK GPS_PRIMARY_PORT
+#endif
+#endif
+
+void nmea_gps_impl_init(void);
+void nmea_gps_event(void);
+extern void nmea_gps_register(void);
+void nmea_gps_msg(void);
 
 struct GpsNmea {
   bool_t msg_available;
@@ -45,6 +67,8 @@ struct GpsNmea {
   char msg_buf[NMEA_MAXLEN];  ///< buffer for storing one nmea-line
   int msg_len;
   uint8_t status;             ///< line parser status
+
+  struct GpsState state;
 };
 
 extern struct GpsNmea gps_nmea;
@@ -64,22 +88,6 @@ extern uint8_t nmea_calc_crc(const char *buff, int buff_sz);
 extern void nmea_parse_prop_init(void);
 extern void nmea_parse_prop_msg(void);
 extern void gps_nmea_msg(void);
-
-static inline void GpsEvent(void)
-{
-  struct link_device *dev = &((GPS_LINK).device);
-
-  if (!gps_nmea.is_configured) {
-    nmea_configure();
-    return;
-  }
-  while (dev->char_available(dev->periph)) {
-    nmea_parse_char(dev->get_byte(dev->periph));
-    if (gps_nmea.msg_available) {
-      gps_nmea_msg();
-    }
-  }
-}
 
 /** Read until a certain character, placed here for proprietary includes */
 static inline void nmea_read_until(int *i)
