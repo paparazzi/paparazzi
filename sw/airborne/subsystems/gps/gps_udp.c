@@ -94,3 +94,10 @@ void gps_parse(void)
   }
 }
 
+/*
+ * register callbacks & structs
+ */
+void udp_gps_register(void)
+{
+  gps_register_impl(udp_gps_impl_init, gps_parse, GPS_UDP_ID, 0);
+}
