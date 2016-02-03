@@ -146,13 +146,14 @@ extern struct GpsState gps;
 typedef void (*ImplGpsInit)(void);
 typedef void (*ImplGpsEvent)(void);
 
-#ifdef PRIMARY_GPS_TYPE_H
-  void GpsEvent(void);
-  /*
-   * register callbacks and state pointers
-   */ 
-  extern void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id, int8_t instance);
 
+void GpsEvent(void);
+/*
+ * register callbacks and state pointers
+ */ 
+extern void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id, int8_t instance);
+
+#ifdef PRIMARY_GPS_TYPE_H
 #include PRIMARY_GPS_TYPE_H
 #endif
 #ifdef SECONDARY_GPS_TYPE_H
