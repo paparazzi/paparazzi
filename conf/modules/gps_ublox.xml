@@ -41,6 +41,7 @@
     </raw>
   </makefile>
   <makefile target="sim">
+    <file name="gps.c" dir="subsystems"/>
     <file name="gps_sim.c" dir="subsystems/gps"/>
     <define name="USE_GPS"/>
     <raw>
