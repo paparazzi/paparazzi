@@ -40,7 +40,7 @@ struct EnuCoor_i enu_pos, enu_speed;
 bool_t gps_available;   ///< Is set to TRUE when a new REMOTE_GPS packet is received and parsed
 
 /** GPS initialization */
-void gps_impl_init(void)
+void datalink_gps_impl_init(void)
 {
   gps.fix = GPS_FIX_NONE;
   gps_available = FALSE;
@@ -56,6 +56,10 @@ void gps_impl_init(void)
   struct EcefCoor_i ecef_nav0;
   ecef_of_lla_i(&ecef_nav0, &llh_nav0);
   ltp_def_from_ecef_i(&ltp_def, &ecef_nav0);
+}
+
+void datalink_gps_event(void)
+{
 }
 
 // Parse the REMOTE_GPS_SMALL datalink packet
@@ -173,3 +177,11 @@ void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, int32_t e
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps);
 }
 
+
+/*
+ * register callbacks & structs
+ */
+void datalink_gps_register(void)
+{
+  gps_register_impl(datalink_gps_impl_init, datalink_gps_event, GPS_DATALINK_ID, 0);
+}
