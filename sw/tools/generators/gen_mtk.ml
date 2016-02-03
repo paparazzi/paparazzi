@@ -105,7 +105,8 @@ let parse_message = fun class_name m ->
       if l <> !offset then raise (Length_error (m, l, !offset))
     with
         Xml.No_attribute("length") -> () (** Undefined length authorized *)
-  end
+  end;
+  fprintf out "\n#define MTK_%s_%s_LENGTH %d\n" class_name msg_name !offset
 
 
 let parse_class = fun c ->
