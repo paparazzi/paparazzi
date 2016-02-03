@@ -24,9 +24,10 @@
     <!-- only for fixedwings -->
     <!--define name="GPS_USE_LATLONG"/-->
     <raw>
+      UBX_GPS_PORT_LOWER=$(shell echo $(GPS_PORT) | tr A-Z a-z)
       ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
       ap.CFLAGS += -DUSE_$(GPS_PORT) -D$(GPS_PORT)_BAUD=$(GPS_BAUD)
-      ap.CFLAGS += -DUSE_GPS -DGPS_LINK=$(GPS_PORT)
+      ap.CFLAGS += -DUSE_GPS -DGPS_LINK=$(UBX_GPS_PORT_LOWER)
       GPS_LED ?= none
       ifneq ($(GPS_LED),none)
         ap.CFLAGS += -DGPS_LED=$(GPS_LED)
@@ -42,12 +43,12 @@
     </raw>
   </makefile>
   <makefile target="sim">
+    <file name="gps.c" dir="subsystems"/>
     <file name="gps_sim.c" dir="subsystems/gps"/>
     <define name="USE_GPS"/>
     <define name="GPS_USE_LATLONG"/>
     <raw>
       sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
-      jsbsim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
     </raw>
   </makefile>
 </module>
