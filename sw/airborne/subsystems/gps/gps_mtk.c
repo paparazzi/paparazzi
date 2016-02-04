@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file gps_mtk.h
+/** @file gps_mtk.c
  * @brief Mediatek MT3329 specific code
  *
  * supports:
@@ -139,7 +139,7 @@ void gps_mtk_msg(void)
 }
 
 static void gps_mtk_time2itow(uint32_t  gps_date, uint32_t  gps_time,
-                              int16_t *gps_week, uint32_t *gps_itow)
+                              uint16_t *gps_week, uint32_t *gps_itow)
 {
   /* convert UTC date/time to GPS week/itow, we have no idea about GPS
      leap seconds for now */
