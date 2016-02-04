@@ -830,7 +830,7 @@ let ask_config = fun confirm_kill alert geomap fp_notebook strips ac ->
     if not (Hashtbl.mem aircrafts ac) then
       create_ac ~confirm_kill alert geomap fp_notebook strips ac values
   in
-  Ground_Pprz.message_req "gcs" "CONFIG" ["ac_id", PprzLink.String ac] get_config
+  ignore(Ground_Pprz.message_req "gcs" "CONFIG" ["ac_id", PprzLink.String ac] get_config)
 
 
 
