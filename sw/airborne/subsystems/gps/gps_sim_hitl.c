@@ -24,6 +24,7 @@
  * GPS subsystem simulation from rotorcrafts horizontal/vertical reference system
  */
 
+#include "subsystems/gps/gps_sim_hitl.h"
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
 
@@ -35,12 +36,12 @@
 bool_t gps_available;
 uint32_t gps_sim_hitl_timer;
 
-void gps_impl_init(void)
+void sim_hitl_gps_impl_init(void)
 {
   gps.fix = GPS_FIX_NONE;
 }
 
-void gps_sim_hitl_event(void)
+void sim_hitl_gps_event(void)
 {
   if (SysTimeTimer(gps_sim_hitl_timer) > 100000) {
     SysTimeTimerStart(gps_sim_hitl_timer);
@@ -92,4 +93,12 @@ void gps_sim_hitl_event(void)
     }
     AbiSendMsgGPS(GPS_SIM_ID, now_ts, &gps);
   }
+}
+
+/*
+ * register callbacks & structs
+ */
+void sim_hitl_gps_register(void)
+{
+  gps_register_impl(sim_hitl_gps_impl_init, sim_hitl_gps_event, GPS_SIM_ID, 0);
 }
