@@ -321,7 +321,7 @@ test_sim: all
 	prove tests/sim
 
 .PHONY: all print_build_version _print_building _save_build_version update_google_version init dox ground_segment ground_segment.opt \
-subdirs $(SUBDIRS) conf ext libpprz cockpit cockpit.opt tmtc tmtc.opt generators\
+subdirs $(SUBDIRS) conf ext libpprz libpprzlink cockpit cockpit.opt tmtc tmtc.opt generators\
 static sim_static lpctools commands \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test test_examples test_math test_sim test_all_confs

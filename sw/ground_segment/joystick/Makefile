@@ -73,7 +73,7 @@ test_stick: test_sdl_stick.o
 	@echo BUILD $@
 	$(Q)$(CC) -g -O2 -DSTICK_DBG $(GLIB_CFLAGS) -o $@ $^ sdl_stick.c $(GLIB_LDFLAGS) $(SDL_LDFLAGS)
 
-input2ivy: $(LIBPPRZCMA) $(INPUT2IVY_DEPS)
+input2ivy: $(LIBPPRZCMA) $(LIBPPRZLINKCMA) $(INPUT2IVY_DEPS)
 	@echo OL $@
 	$(Q)$(OCAMLC) -o $@ $(LINKPKG) $^ $(ML_SDL_OCAMLFLAGS) $(ML_SDL_LFLAGS)
 

@@ -45,48 +45,48 @@ opt: server.opt
 clean:
 	$(Q)rm -f link server messages settings *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge app_server gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 c_ivy_client_example_3 ivy2nmea
 
-messages : messages.cmo $(LIBPPRZCMA)
+messages : messages.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
-settings : settings.cmo ../cockpit/page_settings.cmo $(LIBPPRZCMA)
+settings : settings.cmo ../cockpit/page_settings.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo -I ../cockpit gtk_save_settings.cmo saveSettings.cmo page_settings.cmo $<
 
-server : $(SERVERCMO) $(LIBPPRZCMA)
+server : $(SERVERCMO) $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(SERVERCMO)
 
-server.opt :  $(SERVERCMX) $(LIBPPRZCMXA)
+server.opt :  $(SERVERCMX) $(LIBPPRZCMXA) $(LIBPPRZLINKCMXA)
 	@echo OOL $@
 	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ -package glibivy,pprz -linkpkg $(SERVERCMX)
 
-link : link.cmo $(LIBPPRZCMA)
+link : link.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 
-ivy_tcp_aircraft : ivy_tcp_aircraft.cmo $(LIBPPRZCMA)
+ivy_tcp_aircraft : ivy_tcp_aircraft.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 
-ivy_tcp_controller : ivy_tcp_controller.cmo $(LIBPPRZCMA)
+ivy_tcp_controller : ivy_tcp_controller.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 
-broadcaster : broadcaster.cmo $(LIBPPRZCMA)
+broadcaster : broadcaster.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 
-ivy2udp : ivy2udp.cmo $(LIBPPRZCMA)
+ivy2udp : ivy2udp.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 
-150m : 150m.cmo $(LIBPPRZCMA)
+150m : 150m.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 

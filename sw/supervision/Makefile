@@ -45,7 +45,7 @@ PAPARAZZICENTERCMO = gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_control_panel.c
 
 all: paparazzicenter
 
-paparazzicenter : $(PAPARAZZICENTERCMO) $(LIBPPRZCMA) $(XLIBPPRZCMA)
+paparazzicenter : $(PAPARAZZICENTERCMO) $(LIBPPRZCMA) $(LIBPPRZLINKCMA) $(XLIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
