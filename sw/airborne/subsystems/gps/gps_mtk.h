@@ -19,6 +19,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file gps_mtk.h
+ * @brief Mediatek MT3329 specific code
+ *
+ * supports:
+ *   DIYDrones V1.4 protocol (AXN1.30_2278)
+ *   DIYDrones V1.6 protocol (AXN1.30_2389)
+ *
+ * documentation is partly incorrect, see mtk.xml for what seems
+ * to be "real"
+ *
+ */
 
 #ifndef MTK_H
 #define MTK_H
@@ -57,6 +68,8 @@ extern struct GpsMtk gps_mtk;
 #include "pprzlink/pprzlink_device.h"
 
 #ifdef GPS_CONFIGURE
+extern void gps_configure(void);
+extern void gps_configure_uart(void);
 extern bool_t gps_configuring;
 #define GpsConfigure() {            \
     if (gps_configuring)            \
@@ -68,6 +81,7 @@ extern bool_t gps_configuring;
 
 extern void gps_mtk_read_message(void);
 extern void gps_mtk_parse(uint8_t c);
+extern void gps_mtk_msg(void);
 
 static inline void GpsEvent(void)
 {
@@ -81,13 +95,5 @@ static inline void GpsEvent(void)
     GpsConfigure();
   }
 }
-
-/*
- * dynamic GPS configuration
- */
-#ifdef GPS_CONFIGURE
-extern void gps_configure(void);
-extern void gps_configure_uart(void);
-#endif
 
 #endif /* MTK_H */
