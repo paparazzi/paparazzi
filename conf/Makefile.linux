@@ -48,7 +48,8 @@ CFLAGS += -O$(OPT) -fPIC
 CFLAGS += $(DEBUG_FLAGS)
 CFLAGS += -fno-short-enums
 # CFLAGS += -malignment-traps
-CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
+CFLAGS += -Wall -Wcast-qual -Wimplicit
+#CFLAGS += -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 #-Wno-unused-result

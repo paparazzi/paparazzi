@@ -41,6 +41,9 @@ endif
 
 ARCH_CFLAGS ?= -mtune=cortex-a8 -march=armv7-a
 
+# with armv7, unaligned data can still be read
+CFLAGS += -DPPRZLINK_CAST_ALIGN=0
+
 # add ARM specifc flags to CFLAGS, LDFLAGS
 CFLAGS += $(FLOAT_ABI) $(ARCH_CFLAGS)
 LDFLAGS += $(FLOAT_ABI)

@@ -95,7 +95,7 @@ CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 # flags for warnings
 CFLAGS += -Wall -Wextra -Wunused
 #CFLAGS += -Wcast-qual
-CFLAGS += -Wcast-align
+#CFLAGS += -Wcast-align # possible on armv7 and above
 CFLAGS += -Wpointer-arith
 CFLAGS += -Wswitch-default
 CFLAGS += -Wredundant-decls -Wmissing-declarations
@@ -114,6 +114,9 @@ endif
 else
 CFLAGS += -DSTM32F1
 endif
+
+# with armv7, unaligned data can still be read
+CFLAGS += -DPPRZLINK_CAST_ALIGN=0
 
 CFLAGS += $($(TARGET).CFLAGS)
 
