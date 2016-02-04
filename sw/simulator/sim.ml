@@ -178,7 +178,9 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
                       "lat", float ((Rad>>Deg)gps_sol.Gps.wgs84.posn_lat);
                       "long", float ((Rad>>Deg)gps_sol.Gps.wgs84.posn_long);
                       "alt", float gps_sol.Gps.alt ] in
-        Ground_Pprz.message_req "sim" "WORLD_ENV" values world_update
+        let (b, flag) = Ground_Pprz.message_req "sim" "WORLD_ENV" values world_update in
+        (* unbind manually after 1s if no message received *)
+        ignore (GMain.Timeout.add 1000 (fun () -> if !flag then Ivy.unbind b; false))
       with
           exc -> fprintf stderr "Error in sim: %s\n%!" (Printexc.to_string exc)
     in
