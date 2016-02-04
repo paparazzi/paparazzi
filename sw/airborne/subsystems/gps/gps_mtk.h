@@ -34,10 +34,27 @@
 #ifndef MTK_H
 #define MTK_H
 
+#include "subsystems/gps.h"
 #include "mcu_periph/uart.h"
 
 /** Includes macros generated from mtk.xml */
 #include "mtk_protocol.h"
+
+#if GPS_SECONDARY_MTK
+#ifndef MTK_GPS_LINK
+#define MTK_GPS_LINK GPS_SECONDARY_PORT
+#define SecondaryGpsImpl mtk
+#endif
+#else
+#ifndef PrimaryGpsImpl
+#define PrimaryGpsImpl mtk
+#endif
+#endif
+#if GPS_PRIMARY_MTK
+#ifndef MTK_GPS_LINK
+#define MTK_GPS_LINK GPS_PRIMARY_PORT
+#endif
+#endif
 
 #define GPS_MTK_MAX_PAYLOAD 255
 
@@ -57,6 +74,8 @@ struct GpsMtk {
 
   uint8_t status_flags;
   uint8_t sol_flags;
+
+  struct GpsState state;
 };
 
 extern struct GpsMtk gps_mtk;
@@ -83,17 +102,10 @@ extern void gps_mtk_read_message(void);
 extern void gps_mtk_parse(uint8_t c);
 extern void gps_mtk_msg(void);
 
-static inline void GpsEvent(void)
-{
-  struct link_device *dev = &((GPS_LINK).device);
+extern void mtk_gps_event(void);
+extern void mtk_gps_impl_init(void);
+extern void mtk_gps_register(void);
 
-  while (dev->char_available(dev->periph)) {
-    gps_mtk_parse(dev->get_byte(dev->periph));
-    if (gps_mtk.msg_available) {
-      gps_mtk_msg();
-    }
-    GpsConfigure();
-  }
-}
+
 
 #endif /* MTK_H */
