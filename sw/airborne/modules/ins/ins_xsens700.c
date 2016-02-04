@@ -230,7 +230,7 @@ void ins_xsens_update_gps(struct GpsState *gps_s)
 #endif
 
 #if USE_GPS_XSENS
-void gps_impl_init(void)
+void xsens_gps_impl_init(void)
 {
   gps.nb_channels = 0;
 }
@@ -247,6 +247,11 @@ static void gps_xsens_publish(void)
   }
   AbiSendMsgGPS(GPS_XSENS_ID, now_ts, &gps);
 }
+
+void xsens_gps_event(void)
+{
+}
+
 #endif
 
 static void xsens_ask_message_rate(uint8_t c1, uint8_t c2, uint8_t freq)
@@ -623,3 +628,17 @@ restart:
   xsens_status = UNINIT;
   return;
 }
+
+#ifdef USE_GPS_XSENS
+/*
+ * register callbacks & structs
+ */
+void xsens_gps_register(void)
+{
+#ifdef GPS_SECONDARY_XSENS
+  gps_register_impl(xsens_gps_impl_init, xsens_gps_event, GPS_XSENS_ID, 1);
+#else
+  gps_register_impl(xsens_gps_impl_init, xsens_gps_event, GPS_XSENS_ID, 0);
+#endif
+}
+#endif
