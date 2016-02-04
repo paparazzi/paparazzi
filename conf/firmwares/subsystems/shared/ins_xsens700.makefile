@@ -35,7 +35,7 @@ ap.CFLAGS += -DAHRS_TRIGGERED_ATTITUDE_LOOP
 ap.CFLAGS += -DUSE_GPS_XSENS
 ap.CFLAGS += -DGPS_NB_CHANNELS=50
 ap.CFLAGS += -DUSE_GPS
-ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_xsens.h\"
+ap.CFLAGS += -DPRIMARY_GPS_TYPE_H=\"modules/ins/ins_xsens.h\"
 ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 
 
