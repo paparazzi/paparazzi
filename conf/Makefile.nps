@@ -52,6 +52,9 @@ CXXFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 
 LDFLAGS	+= $($(TARGET).LDFLAGS) -pthread
 
+# x86/64 and armv7 allow unaligned access
+CFLAGS += -DPPRZLINK_UNALIGNED_ACCESS=1
+
 #
 # General rules
 #
