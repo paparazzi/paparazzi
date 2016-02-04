@@ -115,6 +115,9 @@ else
 CFLAGS += -DSTM32F1
 endif
 
+# with cortex-m3 and m4 unaligned data can still be read
+CFLAGS += -DPPRZLINK_UNALIGNED_ACCESS=1
+
 CFLAGS += $($(TARGET).CFLAGS)
 
 AFLAGS  = -ahls -mapcs-32
