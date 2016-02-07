@@ -49,7 +49,7 @@ extern "C" {
 
 #include "std.h"
 
-const int8_t pprz_geodetic_wgs84_int[19][36] = {
+static const int8_t pprz_geodetic_wgs84_int[19][36] = {
   {13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13},
   {3, 1, -2, -3, -3, -3, -1, 3, 1, 5, 9, 11, 19, 27, 31, 34, 33, 34, 33, 34, 28, 23, 17, 13, 9, 4, 4, 1, -2, -2, 0, 2, 3, 2, 1, 1},
   {2, 2, 1, -1, -3, -7, -14, -24, -27, -25, -19, 3, 24, 37, 47, 60, 61, 58, 51, 43, 29, 20, 12, 5, -2, -10, -14, -12, -10, -14, -12, -6, -2, 3, 6, 4},
@@ -78,7 +78,7 @@ const int8_t pprz_geodetic_wgs84_int[19][36] = {
  * @param[in] lon Longitude in 1e7deg
  * @return geoid separation in m
  */
-static inline float wgs84_ellipsoid_to_geoid_i(int32_t lat, int32_i lon)
+static inline float wgs84_ellipsoid_to_geoid_i(int32_t lat, int32_t lon)
 {
   float x = (180.0f + (float)lon / 1e7) / 10.0f;
   Bound(x, 0.0f, 35.99999f);
