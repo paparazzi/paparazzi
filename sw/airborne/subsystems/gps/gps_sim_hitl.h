@@ -27,10 +27,14 @@
 #ifndef GPS_SIM_HITL_H
 #define GPS_SIM_HITL_H
 
-#include "std.h"
+#ifndef PrimaryGpsImpl
+#define PrimaryGpsImpl sim_hitl
+#endif
 
-extern void gps_sim_hitl_event(void);
+extern void sim_hitl_gps_event(void);
+extern void sim_hitl_gps_impl_init(void);
+extern void sim_hitl_gps_register(void);
 
-#define GpsEvent gps_sim_hitl_event
+// #define GpsEvent gps_sim_hitl_event
 
 #endif /* GPS_SIM_HITL_H */

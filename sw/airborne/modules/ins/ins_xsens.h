@@ -79,7 +79,12 @@ extern void ins_xsens_register(void);
 
 
 #if USE_GPS_XSENS
-#define GpsEvent() {}
+#ifndef PrimaryGpsImpl
+#define PrimaryGpsImpl xsens
+#endif
+extern void xsens_gps_event(void);
+extern void xsens_gps_impl_init(void);
+extern void xsens_gps_register(void);
 #endif
 
 #endif

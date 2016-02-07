@@ -40,6 +40,13 @@ struct AhrsChimu ahrs_chimu;
 void ahrs_chimu_update_gps(uint8_t gps_fix, uint16_t gps_speed_3d);
 
 #include "subsystems/abi.h"
+/** ABI binding for gps data.
+ * Used for GPS ABI messages.
+ */
+#ifndef AHRS_CHIMU_GPS_ID
+#define AHRS_CHIMU_GPS_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(AHRS_CHIMU_GPS_ID)
 static abi_event gps_ev;
 static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
@@ -58,7 +65,7 @@ void ahrs_chimu_register(void)
 {
   ahrs_chimu_init();
   ahrs_register_impl(ahrs_chimu_enable_output);
-  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
+  AbiBindMsgGPS(AHRS_CHIMU_GPS_ID, &gps_ev, gps_cb);
 }
 
 void ahrs_chimu_init(void)

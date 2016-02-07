@@ -41,7 +41,7 @@ ap.CFLAGS += -DUSE_GPS_XSENS
 ap.CFLAGS += -DUSE_GPS_XSENS_RAW_DATA
 ap.CFLAGS += -DGPS_NB_CHANNELS=16
 ap.CFLAGS += -DUSE_GPS
-ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_xsens.h\"
+ap.CFLAGS += -DPRIMARY_GPS_TYPE_H=\"modules/ins/ins_xsens.h\"
 ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 
 
@@ -62,7 +62,7 @@ $(TARGET).CFLAGS += -DINS_TYPE_H=\"subsystems/ins/ins_gps_passthrough_utm.h\"
 $(TARGET).srcs   += $(SRC_SUBSYSTEMS)/ins/ins_gps_passthrough_utm.c
 
 $(TARGET).CFLAGS += -DUSE_GPS
-$(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+$(TARGET).CFLAGS += -DPRIMARY_GPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/gps.c
 

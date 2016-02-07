@@ -32,9 +32,30 @@
 #ifndef GPS_PIKSI_H
 #define GPS_PIKSI_H
 
-#define GPS_NB_CHANNELS 10
+// #define GPS_NB_CHANNELS 10
 
-extern void gps_piksi_event(void);
+#define PIKSI_HEARTBEAT_MSG
+
+#if GPS_SECONDARY_PIKSI
+#ifndef PIKSI_GPS_LINK
+#define PIKSI_GPS_LINK GPS_SECONDARY_PORT
+#define SecondaryGpsImpl piksi
+#endif
+#else
+#ifndef PrimaryGpsImpl
+#define PrimaryGpsImpl piksi
+#endif
+#endif
+#if GPS_PRIMARY_PIKSI
+#ifndef PIKSI_GPS_LINK
+#define PIKSI_GPS_LINK GPS_PRIMARY_PORT
+#endif
+#endif
+
+
+extern void piksi_gps_event(void);
+extern void piksi_gps_impl_init(void);
+extern void piksi_gps_register(void);
 
 /*
  * Reset base station position
@@ -44,6 +65,6 @@ extern void gps_piksi_set_base_pos(void);
 /*
  * The GPS event
  */
-#define GpsEvent gps_piksi_event
+//#define GpsEvent gps_piksi_event
 
 #endif /* GPS_PIKSI_H */

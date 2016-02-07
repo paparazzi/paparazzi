@@ -71,10 +71,18 @@ PRINT_CONFIG_MSG("USE_BAROMETER is TRUE: Using baro for altitude estimation.")
 #endif
 #endif
 PRINT_CONFIG_VAR(INS_BARO_ID)
+
 abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, float pressure);
 #endif /* USE_BAROMETER */
 
+/** ABI binding for gps data.
+ * Used for GPS ABI messages.
+ */
+#ifndef INS_ALT_GPS_ID
+#define INS_ALT_GPS_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(INS_ALT_GPS_ID)
 static abi_event gps_ev;
 static abi_event accel_ev;
 static abi_event body_to_imu_ev;
@@ -383,7 +391,7 @@ void ins_altf_register(void)
   // Bind to BARO_ABS message
   AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
 #endif
-  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
+  AbiBindMsgGPS(INS_ALT_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgIMU_ACCEL_INT32(INS_ALT_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(INS_ALT_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 }

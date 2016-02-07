@@ -144,6 +144,13 @@ void ins_reset_altitude_ref(void)
 
 
 #include "subsystems/abi.h"
+/** ABI binding for gps data.
+ * Used for GPS ABI messages.
+ */
+#ifndef INS_PT_GPS_ID
+#define INS_PT_GPS_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(INS_PT_GPS_ID)
 static abi_event gps_ev;
 static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
@@ -173,5 +180,5 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 void ins_gps_passthrough_register(void)
 {
   ins_register_impl(ins_gps_passthrough_init);
-  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
+  AbiBindMsgGPS(INS_PT_GPS_ID, &gps_ev, gps_cb);
 }

@@ -26,8 +26,8 @@
  * GPS furuno based NMEA parser
  */
 
-#include "gps_nmea.h"
 #include "subsystems/gps.h"
+#include "gps_nmea.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -57,7 +57,7 @@ static uint8_t furuno_cfg_cnt = 0;
 
 static void nmea_parse_perdcrv(void);
 
-#define GpsLinkDevice (&(GPS_LINK).device)
+#define GpsLinkDevice (&(NMEA_GPS_LINK).device)
 
 /**
  * Configure furuno GPS.
@@ -111,17 +111,17 @@ void nmea_parse_perdcrv(void)
 
   //EAST VEL
   double east_vel = strtod(&gps_nmea.msg_buf[i], NULL);
-  gps.ned_vel.y = east_vel * 100; // in cm/s
+  gps_nmea.state.ned_vel.y = east_vel * 100; // in cm/s
 
   // Ignore reserved
   nmea_read_until(&i);
 
   // NORTH VEL
   double north_vel = strtod(&gps_nmea.msg_buf[i], NULL);
-  gps.ned_vel.x = north_vel * 100; // in cm/s
+  gps_nmea.state.ned_vel.x = north_vel * 100; // in cm/s
 
   //Convert velocity to ecef
   struct LtpDef_i ltp;
-  ltp_def_from_ecef_i(&ltp, &gps.ecef_pos);
-  ecef_of_ned_vect_i(&gps.ecef_vel, &ltp, &gps.ned_vel);
+  ltp_def_from_ecef_i(&ltp, &gps_nmea.state.ecef_pos);
+  ecef_of_ned_vect_i(&gps_nmea.state.ecef_vel, &ltp, &gps_nmea.state.ned_vel);
 }
