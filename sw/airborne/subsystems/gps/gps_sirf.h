@@ -30,6 +30,7 @@
 #define GPS_SIRF_H
 
 #include "std.h"
+#include "subsystems/gps.h"
 
 #ifndef PRIMARY_GPS
 #define PRIMARY_GPS gps_sirf

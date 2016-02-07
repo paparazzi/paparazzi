@@ -2,12 +2,13 @@
 #define GPS_UDP_H
 
 #include "std.h"
-
-#define UDP_GPS_NB_CHANNELS 16
+#include "subsystems/gps.h"
 
 #ifndef PRIMARY_GPS
 #define PRIMARY_GPS gps_udp
 #endif
+
+extern struct GpsState gps_udp;
 
 extern void gps_udp_parse(void);
 extern void gps_udp_init(void);

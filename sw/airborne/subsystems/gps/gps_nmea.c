@@ -548,5 +548,5 @@ static void nmea_parse_GSV(void)
  */
 void gps_nmea_register(void)
 {
-  gps_register_impl(nmea_gps_init, nmea_gps_event, GPS_NMEA_ID);
+  gps_register_impl(gps_nmea_init, gps_nmea_event, GPS_NMEA_ID);
 }

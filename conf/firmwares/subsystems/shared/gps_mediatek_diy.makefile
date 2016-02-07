@@ -17,7 +17,20 @@ ifneq ($(GPS_LED),none)
   ap.CFLAGS += -DGPS_LED=$(GPS_LED)
 endif
 
+ifdef SECONDARY_GPS
+ifneq (,$(findstring $(SECONDARY_GPS), mtk mediatek))
+# this is the secondary GPS
+ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_mtk.h\"
+ap.CFLAGS += -DSECONDARY_GPS=gps_mtk
+else
 ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_mtk.h\"
+ap.CFLAGS += -DPRIMARY_GPS=gps_mtk
+endif
+else
+# plain old single GPS usage
+ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_mtk.h\"
+endif
+
 ap.srcs   += $(SRC_SUBSYSTEMS)/gps/gps_mtk.c
 ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 

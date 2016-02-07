@@ -15,7 +15,20 @@ ifneq ($(GPS_LED),none)
   ap.CFLAGS += -DGPS_LED=$(GPS_LED)
 endif
 
+ifdef SECONDARY_GPS
+ifneq (,$(findstring $(SECONDARY_GPS), skytraq))
+# this is the secondary GPS
+ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_skytraq.h\"
+ap.CFLAGS += -DSECONDARY_GPS=gps_skytraq
+else
 ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_skytraq.h\"
+ap.CFLAGS += -DPRIMARY_GPS=gps_skytraq
+endif
+else
+# plain old single GPS usage
+ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_skytraq.h\"
+endif
+
 ap.srcs += $(SRC_SUBSYSTEMS)/gps/gps_skytraq.c
 ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 

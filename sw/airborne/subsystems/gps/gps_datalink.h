@@ -32,11 +32,13 @@
 
 #include "std.h"
 #include "generated/airframe.h"
-#define DATALINK_GPS_NB_CHANNELS 0
+#include "subsystems/gps.h"
 
 #ifndef PRIMARY_GPS
 #define PRIMARY_GPS gps_datalink
 #endif
+
+extern struct GpsState gps_datalink;
 
 extern void gps_datalink_init(void);
 extern void gps_datalink_register(void);
