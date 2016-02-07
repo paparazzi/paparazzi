@@ -54,8 +54,9 @@
 ## IMU
 
 ap.CFLAGS += -DUSE_IMU
-ap.CFLAGS += -DIMU_TYPE_H=\"modules/ins/ins_xsens.h\"
-ap.srcs   += $(SRC_MODULES)/ins/ins_xsens.c
+ap.CFLAGS += -DIMU_TYPE_H=\"modules/ins/imu_xsens.h\"
+ap.srcs   += $(SRC_MODULES)/ins/xsens.c
+ap.srcs   += $(SRC_MODULES)/ins/imu_xsens.c
 ap.srcs   += $(SRC_SUBSYSTEMS)/imu.c
 
 ifndef XSENS_UART_BAUD
@@ -63,6 +64,6 @@ ifndef XSENS_UART_BAUD
 endif
 
 ap.CFLAGS += -DUSE_UART$(XSENS_UART_NR)
-ap.CFLAGS += -DINS_LINK=uart$(XSENS_UART_NR)
+ap.CFLAGS += -DXSENS_LINK=uart$(XSENS_UART_NR)
 ap.CFLAGS += -DUART$(XSENS_UART_NR)_BAUD=$(XSENS_UART_BAUD)
 ap.CFLAGS += -DXSENS_OUTPUT_MODE=0x1836
