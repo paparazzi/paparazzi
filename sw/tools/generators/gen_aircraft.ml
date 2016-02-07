@@ -178,10 +178,10 @@ let subsystem_configure_xml2mk = fun f s ->
   let s_config, _ = ExtXml.partition_tag "configure" (Xml.children s) in
   List.iter (configure_xml2mk f) s_config
 
-let mod_or_subsys_xml2mk = fun f global_targets firmware target xml ->
+(** if xml node valid module, do notihg, otherwise fall back to subsystem *)
+let fallback_subsys_xml2mk = fun f global_targets firmware target xml ->
   try
-    let m = Gen_common.get_module xml global_targets in
-    module_xml2mk f target m;
+    ignore(Gen_common.get_module xml global_targets)
   with Gen_common.Subsystem _file -> subsystem_xml2mk f firmware xml
 
 let parse_firmware = fun makefile_ac ac_xml firmware ->
@@ -221,8 +221,8 @@ let parse_firmware = fun makefile_ac ac_xml firmware ->
     List.iter (fun def -> define_xml2mk makefile_ac def) defines;
     List.iter (fun def -> define_xml2mk makefile_ac def) t_defines;
     List.iter (module_xml2mk makefile_ac target_name) modules;
-    List.iter (mod_or_subsys_xml2mk makefile_ac [] firmware target_name) mods;
-    List.iter (mod_or_subsys_xml2mk makefile_ac [] firmware target_name) t_mods;
+    List.iter (fallback_subsys_xml2mk makefile_ac [] firmware target_name) mods;
+    List.iter (fallback_subsys_xml2mk makefile_ac [] firmware target_name) t_mods;
     List.iter (subsystem_xml2mk makefile_ac firmware) t_subsystems;
     List.iter (subsystem_xml2mk makefile_ac firmware) subsystems;
     fprintf makefile_ac "\nendif # end of target '%s'\n\n" target_name
