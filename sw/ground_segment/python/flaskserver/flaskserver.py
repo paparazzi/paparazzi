@@ -9,9 +9,10 @@ from flask import Flask
 # file is a reasonable substitute
 PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
+sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 PPRZ_HOME = getenv("PAPARAZZI_HOME", PPRZ_SRC)
 from ivy_msg_interface import IvyMessagesInterface
-from pprz_msg.message import PprzMessage
+from pprzlink.message import PprzMessage
 from flask import Flask,Response
 import json
 app = Flask(__name__)
