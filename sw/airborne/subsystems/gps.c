@@ -45,7 +45,7 @@ PRINT_CONFIG_VAR(SECONDARY_GPS)
 #define RegisterGps(_x) _RegisterGps(_x)
 
 /** maximum number of GPS implementations that can register */
-#if USE_MULTI_GPS
+#if GPS_SECONDARY
 #define GPS_NB_IMPL 2
 #else
 #define GPS_NB_IMPL 1
@@ -69,7 +69,7 @@ struct GpsState gps;
 
 struct GpsTimeSync gps_time_sync;
 
-#if USE_MULTI_GPS
+#if GPS_SECONDARY
 static uint8_t current_gps_id = 0;
 #endif
 
@@ -183,7 +183,7 @@ void gps_periodic_check(void)
   }
 }
 
-#ifdef USE_MULTI_GPS
+#ifdef GPS_SECONDARY
 static uint8_t gps_multi_switch(struct GpsState *gps_s) {
   static uint32_t time_since_last_gps_switch = 0;
 
@@ -210,7 +210,7 @@ static uint8_t gps_multi_switch(struct GpsState *gps_s) {
   }
   return current_gps_id;
 }
-#endif /*USE_MULTI_GPS*/
+#endif /*GPS_SECONDARY*/
 
 static abi_event gps_ev;
 static void gps_cb(uint8_t sender_id,
@@ -221,7 +221,7 @@ static void gps_cb(uint8_t sender_id,
     return;
   }
   uint32_t now_ts = get_sys_time_usec();
-#ifdef USE_MULTI_GPS
+#ifdef GPS_SECONDARY
   current_gps_id = gps_multi_switch(gps_s);
   if (gps_s->comp_id == current_gps_id) {
     gps = *gps_s;
