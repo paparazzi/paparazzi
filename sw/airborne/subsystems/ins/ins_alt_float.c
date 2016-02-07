@@ -80,7 +80,7 @@ static void baro_cb(uint8_t sender_id, float pressure);
  * Used for GPS ABI messages.
  */
 #ifndef INS_ALT_GPS_ID
-#define INS_ALT_GPS_ID ABI_BROADCAST
+#define INS_ALT_GPS_ID GPS_MULTI_ID
 #endif
 PRINT_CONFIG_VAR(INS_ALT_GPS_ID)
 static abi_event gps_ev;

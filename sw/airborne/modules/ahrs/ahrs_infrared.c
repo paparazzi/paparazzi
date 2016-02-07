@@ -53,7 +53,7 @@ static float heading;
 static abi_event gyro_ev;
 
 #ifndef AHRS_INFRARED_GPS_ID
-#define AHRS_INFRARED_GPS_ID ABI_BROADCAST
+#define AHRS_INFRARED_GPS_ID GPS_MULTI_ID
 #endif
 static abi_event gps_ev;
 void ahrs_infrared_update_gps(struct GpsState *gps_s);

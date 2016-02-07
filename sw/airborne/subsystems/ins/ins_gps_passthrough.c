@@ -148,7 +148,7 @@ void ins_reset_altitude_ref(void)
  * Used for GPS ABI messages.
  */
 #ifndef INS_PT_GPS_ID
-#define INS_PT_GPS_ID ABI_BROADCAST
+#define INS_PT_GPS_ID GPS_MULTI_ID
 #endif
 PRINT_CONFIG_VAR(INS_PT_GPS_ID)
 static abi_event gps_ev;

@@ -75,7 +75,7 @@ PRINT_CONFIG_VAR(AHRS_DCM_MAG_ID)
  * Used for GPS ABI messages.
  */
 #ifndef AHRS_DCM_GPS_ID
-#define AHRS_DCM_GPS_ID ABI_BROADCAST
+#define AHRS_DCM_GPS_ID GPS_MULTI_ID
 #endif
 PRINT_CONFIG_VAR(AHRS_DCM_GPS_ID)
 static abi_event gyro_ev;

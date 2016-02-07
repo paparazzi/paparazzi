@@ -263,7 +263,7 @@ void ins_xsens_init(void)
  * Used for GPS ABI messages.
  */
 #ifndef INS_XSENS_GPS_ID
-#define INS_XSENS_GPS_ID ABI_BROADCAST
+#define INS_XSENS_GPS_ID GPS_MULTI_ID
 #endif
 PRINT_CONFIG_VAR(INS_XSENS_GPS_ID)
 static abi_event gps_ev;

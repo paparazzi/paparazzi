@@ -44,7 +44,7 @@ void ahrs_chimu_update_gps(uint8_t gps_fix, uint16_t gps_speed_3d);
  * Used for GPS ABI messages.
  */
 #ifndef AHRS_CHIMU_GPS_ID
-#define AHRS_CHIMU_GPS_ID ABI_BROADCAST
+#define AHRS_CHIMU_GPS_ID GPS_MULTI_ID
 #endif
 PRINT_CONFIG_VAR(AHRS_CHIMU_GPS_ID)
 static abi_event gps_ev;
