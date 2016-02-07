@@ -14,6 +14,7 @@
     </program>
     <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
     <program name="Messages (Python)" command="sw/ground_segment/python/messages_app/messagesapp.py"/>
+    <program name="Flaskserver" command="sw/ground_segment/python/flaskserver/flaskserver.py"/>
     <program name="Settings" command="sw/ground_segment/tmtc/settings">
       <arg flag="-ac" constant="@AIRCRAFT"/>
     </program>

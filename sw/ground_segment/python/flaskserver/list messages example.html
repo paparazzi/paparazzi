@@ -1,0 +1,64 @@
+<html>
+	<head>
+		<title>Aircraft list</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script> 
+		<script>
+            var lastAircraft = 0;
+            function appendMessage(aircraftId,messageName){
+                 $.get( 'http://127.0.0.1:5000/message/'+aircraftId+'/'+messageName, {none:"hello"}, function(data3) {
+                            var element=$('<div>message: '+data3+"</div>");
+                            element.appendTo("#allMessagesClone");
+                 });
+            }
+            function showMessagesFromAircraft(aircraftId){
+                $.get( 'http://127.0.0.1:5000/knownmessages/'+aircraftId, {none:"hello"}, function(data2) {
+                    $("#possibleMessages").html(data2);
+                    $("#allMessagesClone").html("");
+
+                    var array = JSON.parse(data2);
+                    for (var x in array) {
+                       appendMessage(aircraftId,array[x]);
+                    }
+                    $("#allMessages").html("");
+                    $("#allMessagesClone" ).clone().appendTo("allMessages");
+
+
+                });
+            }
+            function updateAircraft() {
+                $.getJSON( 'http://127.0.0.1:5000/knownaircrafts', {none:"hello"
+                  }, function(data) {
+
+                $("#aircrafts").html("");
+                lastElement = 0;
+                for (var x in data) {
+                    var element=$('<div>aircraft ID known: '+data[x]+'</div>');
+                    element.appendTo('#aircrafts');
+                    lastElement = data[x];
+                }
+                lastAircraft = lastElement;
+                showMessagesFromAircraft(lastAircraft);
+            });
+              }
+
+            $(document).ready(function(){
+              setInterval(updateAircraft, 1000); // 1000 miliseconds 
+            }); 
+
+
+
+        </script>
+        <div id="1">something here</div>
+        <div id="aircrafts">Aircrafts here</div>
+        <div id="possibleMessages">Messages here</div>
+        <div id="allMessages">All messages here</div>
+        <div id="allMessagesClone" class="hidden">Cloned here</div>
+    </body>
+</html>
+
