@@ -56,6 +56,7 @@ SETTINGS_XML=$(AIRCRAFT_BUILD_DIR)/settings.xml
 SETTINGS_MODULES=$(AIRCRAFT_BUILD_DIR)/settings_modules.xml
 SETTINGS_TELEMETRY=$(AIRCRAFT_BUILD_DIR)/settings_telemetry.xml
 SETTINGS_AUTOPILOT=$(AIRCRAFT_BUILD_DIR)/settings_autopilot.xml
+SETTINGS_FLIGHTPLAN=$(AIRCRAFT_BUILD_DIR)/settings_flightplan.xml
 MAKEFILE_AC=$(AIRCRAFT_BUILD_DIR)/Makefile.ac
 MODULES_H=$(AC_GENERATED)/modules.h
 MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
@@ -186,7 +187,7 @@ $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(GENERATORS)/gen_flight_p
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@ from $(FLIGHT_PLAN)
 	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_flight_plan.out $< > $($@_TMP)
+	$(Q)$(GENERATORS)/gen_flight_plan.out -settings $(SETTINGS_FLIGHTPLAN) $< > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/flight_plans
@@ -202,7 +203,7 @@ $(SETTINGS_H) : $(SETTINGS_XMLS_DEP) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_TELEMETRY) $(SETTINGS_XMLS) $(SETTINGS_MODULES) > $($@_TMP)
+	$(Q)$(GENERATORS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_TELEMETRY) $(SETTINGS_XMLS) $(SETTINGS_FLIGHTPLAN) $(SETTINGS_MODULES) > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(SETTINGS_XMLS_DEP) $(AIRCRAFT_CONF_DIR)/settings
@@ -222,6 +223,7 @@ autopilot_h : $(CONF)/$(AIRFRAME_XML) $(GENERATORS)/gen_autopilot.out $(CONF)/au
 
 $(SETTINGS_MODULES) : $(MODULES_H)
 $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
+$(SETTINGS_FLIGHTPLAN) : $(FLIGHT_PLAN_H)
 
 %.ac_h : $(GENERATORS)/gen_aircraft.out
 	$(Q)if (expr "$(AIRCRAFT)") > /dev/null; then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi

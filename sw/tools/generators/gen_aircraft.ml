@@ -397,9 +397,9 @@ let () =
 
     (* Get TARGET env, needed to build modules.h according to the target *)
     let t = try Printf.sprintf "TARGET=%s" (Sys.getenv "TARGET") with _ -> "" in
+    make_opt "flight_plan_ac_h" "FLIGHT_PLAN" "flight_plan";
     make "all_ac_h" t;
-    make_opt "radio_ac_h" "RADIO" "radio";
-    make_opt "flight_plan_ac_h" "FLIGHT_PLAN" "flight_plan"
+    make_opt "radio_ac_h" "RADIO" "radio"
   with Failure f ->
     prerr_endline f;
     exit 1

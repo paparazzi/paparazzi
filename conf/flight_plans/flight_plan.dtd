@@ -1,6 +1,6 @@
 <!-- Paparazzi flight plan DTD -->
 
-<!ELEMENT flight_plan (header?,waypoints,sectors?,includes?,exceptions?,blocks)>
+<!ELEMENT flight_plan (header?,waypoints,sectors?,variables?,includes?,exceptions?,blocks)>
 
 <!ELEMENT procedure (param*,header?,waypoints?,sectors?,exceptions?,blocks?)>
 
@@ -13,6 +13,9 @@
 <!ELEMENT sector (corner,corner,corner+)>
 <!ELEMENT corner EMPTY>
 <!ELEMENT kml EMPTY>
+
+<!ELEMENT variables (variable*)>
+<!ELEMENT variable EMPTY>
 
 <!ELEMENT includes (include*)>
 
@@ -85,6 +88,22 @@ name CDATA #REQUIRED>
 
 <!ATTLIST kml
 file CDATA #REQUIRED>
+
+<!ATTLIST variables>
+
+<!ATTLIST variable
+var CDATA #REQUIRED
+type CDATA #IMPLIED
+init CDATA #IMPLIED
+shortname CDATA #IMPLIED
+min CDATA #IMPLIED
+max CDATA #IMPLIED
+step CDATA #IMPLIED
+unit CDATA #IMPLIED
+alt_unit CDATA #IMPLIED
+alt_unit_coef CDATA #IMPLIED
+values CDATA #IMPLIED>
+
 
 <!ATTLIST blocks>
 

@@ -29,6 +29,9 @@
       <corner name="_4"/>
     </sector>
   </sectors>
+  <variables>
+    <variable var="roll_step" init="15." min="0." max="50." step="1.0"/>
+  </variables>
   <exceptions/>
   <blocks>
     <block name="Wait GPS">
@@ -144,6 +147,12 @@
       <while cond="TRUE">
         <attitude alt="250" roll="20.0" until=" stage_time > 3" vmode="alt"/>
         <attitude alt="250" roll="-20.0" until="stage_time > 3" vmode="alt"/>
+      </while>
+    </block>
+    <block name="Steps roll from var">
+      <while cond="TRUE">
+        <attitude alt="250" roll="roll_step" until=" stage_time > 3" vmode="alt"/>
+        <attitude alt="250" roll="-roll_step" until="stage_time > 3" vmode="alt"/>
       </while>
     </block>
     <block name="Steps pitch -10, +10">
