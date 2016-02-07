@@ -22,13 +22,9 @@
 #include "subsystems/gps/gps_sim.h"
 #include "subsystems/abi.h"
 
-void sim_gps_impl_init(void)
+void gps_sim_init(void)
 {
   gps.fix = GPS_FIX_NONE;
-}
-
-void sim_gps_event(void)
-{
 }
 
 void gps_sim_publish(void)
@@ -46,7 +42,7 @@ void gps_sim_publish(void)
 /*
  * register callbacks & structs
  */
-void sim_gps_register(void)
+void gps_sim_register(void)
 {
-  gps_register_impl(sim_gps_impl_init, sim_gps_event, GPS_SIM_ID, 0);
+  gps_register_impl(gps_sim_init, NULL, GPS_SIM_ID);
 }

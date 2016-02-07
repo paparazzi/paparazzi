@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 
 ap.CFLAGS += -DUSE_GPS -DHITL
-ap.CFLAGS += -DPRIMARY_GPS_TYPE=\"subsystems/gps/gps_sim_hitl.h\"
+ap.CFLAGS += -DGPS_TYPE=\"subsystems/gps/gps_sim_hitl.h\"
 ap.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_hitl.c
 
 ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
@@ -12,5 +12,5 @@ endif
 
 nps.CFLAGS += -DUSE_GPS
 nps.srcs += $(SRC_SUBSYSTEMS)/gps.c
-nps.CFLAGS += -DPRIMARY_GPS_TYPE=\"subsystems/gps/gps_sim_nps.h\"
+nps.CFLAGS += -DGPS_TYPE=\"subsystems/gps/gps_sim_nps.h\"
 nps.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_nps.c

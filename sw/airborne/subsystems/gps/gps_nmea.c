@@ -63,7 +63,7 @@ static void nmea_parse_RMC(void);
 static void nmea_parse_GGA(void);
 static void nmea_parse_GSV(void);
 
-void nmea_gps_impl_init(void)
+void gps_nmea_init(void)
 {
   gps_nmea.state.nb_channels = GPS_NMEA_NB_CHANNELS;
   gps_nmea.is_configured = FALSE;
@@ -76,7 +76,7 @@ void nmea_gps_impl_init(void)
   nmea_configure();
 }
 
-void nmea_gps_event(void)
+void gps_nmea_event(void)
 {
   struct link_device *dev = &((NMEA_GPS_LINK).device);
 
@@ -546,11 +546,7 @@ static void nmea_parse_GSV(void)
   /*
  * register callbacks & structs
  */
-void nmea_gps_register(void)
+void gps_nmea_register(void)
 {
-#ifdef GPS_SECONDARY_NMEA
-  gps_register_impl(nmea_gps_impl_init, nmea_gps_event, GPS_NMEA_ID, 1);
-#else
-  gps_register_impl(nmea_gps_impl_init, nmea_gps_event, GPS_NMEA_ID, 0);
-#endif
+  gps_register_impl(nmea_gps_init, nmea_gps_event, GPS_NMEA_ID);
 }

@@ -23,8 +23,7 @@
 #include "subsystems/gps/gps_skytraq.h"
 #include "subsystems/abi.h"
 #include "led.h"
-
-struct GpsSkytraq gps_skytraq;
+#include "pprzlink/pprzlink_device.h"
 
 /* parser status */
 #define UNINIT        0
@@ -49,6 +48,11 @@ struct GpsSkytraq gps_skytraq;
 #define SKYTRAQ_SYNC3 0x0D
 #define SKYTRAQ_SYNC4 0x0A
 
+struct GpsSkytraq gps_skytraq;
+
+void gps_skytraq_read_message(void);
+void gps_skytraq_parse(uint8_t c);
+void gps_skytraq_msg(void);
 
 static inline uint16_t bswap16(uint16_t a)
 {
@@ -86,11 +90,9 @@ static inline uint16_t bswap16(uint16_t a)
 
 static int distance_too_great(struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ecef_pos);
 
-void skytraq_gps_impl_init(void)
+void gps_skytraq_init(void)
 {
-
   gps_skytraq.status = UNINIT;
-
 }
 
 void gps_skytraq_msg(void)
@@ -110,7 +112,7 @@ void gps_skytraq_msg(void)
   gps_skytraq.msg_available = FALSE;
 }
 
-void skytraq_gps_event(void)
+void gps_skytraq_event(void)
 {
   struct link_device *dev = &((SKYTRAQ_GPS_LINK).device);
 
@@ -289,11 +291,7 @@ static int distance_too_great(struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ec
 /*
  * register callbacks & structs
  */
-void skytraq_gps_register(void)
+void gps_skytraq_register(void)
 {
-#ifdef GPS_SECONDARY_PIKSI
-  gps_register_impl(skytraq_gps_impl_init, skytraq_gps_event, GPS_SKYTRAQ_ID, 1);
-#else
-  gps_register_impl(skytraq_gps_impl_init, skytraq_gps_event, GPS_SKYTRAQ_ID, 0);
-#endif
+  gps_register_impl(gps_skytraq_init, gps_skytraq_event, GPS_SKYTRAQ_ID);
 }

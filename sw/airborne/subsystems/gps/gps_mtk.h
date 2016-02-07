@@ -40,22 +40,6 @@
 /** Includes macros generated from mtk.xml */
 #include "mtk_protocol.h"
 
-#if GPS_SECONDARY_MTK
-#ifndef MTK_GPS_LINK
-#define MTK_GPS_LINK GPS_SECONDARY_PORT
-#define SecondaryGpsImpl mtk
-#endif
-#else
-#ifndef PrimaryGpsImpl
-#define PrimaryGpsImpl mtk
-#endif
-#endif
-#if GPS_PRIMARY_MTK
-#ifndef MTK_GPS_LINK
-#define MTK_GPS_LINK GPS_PRIMARY_PORT
-#endif
-#endif
-
 #define GPS_MTK_MAX_PAYLOAD 255
 
 struct GpsMtk {
@@ -80,11 +64,9 @@ struct GpsMtk {
 
 extern struct GpsMtk gps_mtk;
 
-
-/*
- * This part is used by the autopilot to read data from a uart
- */
-#include "pprzlink/pprzlink_device.h"
+extern void gps_mtk_event(void);
+extern void gps_mtk_init(void);
+extern void gps_mtk_register(void);
 
 #ifdef GPS_CONFIGURE
 extern void gps_configure(void);
@@ -97,15 +79,6 @@ extern bool_t gps_configuring;
 #else
 #define GpsConfigure() {}
 #endif
-
-extern void gps_mtk_read_message(void);
-extern void gps_mtk_parse(uint8_t c);
-extern void gps_mtk_msg(void);
-
-extern void mtk_gps_event(void);
-extern void mtk_gps_impl_init(void);
-extern void mtk_gps_register(void);
-
 
 
 #endif /* MTK_H */

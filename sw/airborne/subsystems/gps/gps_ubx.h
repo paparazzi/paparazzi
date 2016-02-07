@@ -27,22 +27,6 @@
 #ifndef GPS_UBX_H
 #define GPS_UBX_H
 
-#if GPS_SECONDARY_UBX
-#ifndef UBX_GPS_LINK
-#define UBX_GPS_LINK GPS_SECONDARY_PORT
-#define SecondaryGpsImpl ubx
-#endif
-#else
-#ifndef PrimaryGpsImpl
-#define PrimaryGpsImpl ubx
-#endif
-#endif
-#if GPS_PRIMARY_UBX
-#ifndef UBX_GPS_LINK
-#define UBX_GPS_LINK GPS_PRIMARY_PORT
-#endif
-#endif
- 
 #include "subsystems/gps.h"
 
 #ifdef GPS_CONFIGURE
@@ -51,9 +35,13 @@
 
 #include "mcu_periph/uart.h"
 
-void ubx_gps_impl_init(void);
-void ubx_gps_event(void);
-extern void ubx_gps_register(void);
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS gps_ubx
+#endif
+
+void gps_ubx_init(void);
+void gps_ubx_event(void);
+extern void gps_ubx_register(void);
 
 #define GPS_UBX_NB_CHANNELS 16
 

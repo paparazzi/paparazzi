@@ -36,12 +36,12 @@
 bool_t gps_available;
 uint32_t gps_sim_hitl_timer;
 
-void sim_hitl_gps_impl_init(void)
+void gps_sim_hitl_init(void)
 {
   gps.fix = GPS_FIX_NONE;
 }
 
-void sim_hitl_gps_event(void)
+void gps_sim_hitl_event(void)
 {
   if (SysTimeTimer(gps_sim_hitl_timer) > 100000) {
     SysTimeTimerStart(gps_sim_hitl_timer);
@@ -98,7 +98,7 @@ void sim_hitl_gps_event(void)
 /*
  * register callbacks & structs
  */
-void sim_hitl_gps_register(void)
+void gps_sim_hitl_register(void)
 {
-  gps_register_impl(sim_hitl_gps_impl_init, sim_hitl_gps_event, GPS_SIM_ID, 0);
+  gps_register_impl(gps_sim_hitl_init, gps_sim_hitl_event, GPS_SIM_ID);
 }

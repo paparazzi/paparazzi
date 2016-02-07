@@ -28,7 +28,7 @@
 struct GpsState gps_nps;
 bool_t gps_has_fix;
 
-void  gps_feed_value()
+void gps_feed_value(void)
 {
   // FIXME, set proper time instead of hardcoded to May 2014
   gps_nps.week = 1794;
@@ -87,20 +87,15 @@ void  gps_feed_value()
   AbiSendMsgGPS(GPS_SIM_ID, now_ts, &gps_nps);
 }
 
-void nps_gps_impl_init()
+void gps_nps_init(void)
 {
   gps_has_fix = TRUE;
-}
-
-extern void nps_gps_event(void)
-{
-  return;
 }
 
 /*
  * register callbacks & structs
  */
-void nps_gps_register(void)
+void gps_nps_register(void)
 {
-  gps_register_impl(nps_gps_impl_init, nps_gps_event, GPS_SIM_ID, 0);
+  gps_register_impl(gps_nps_init, NULL, GPS_SIM_ID);
 }

@@ -26,20 +26,8 @@
 
 #define SKYTRAQ_ID_NAVIGATION_DATA 0XA8
 
-#if GPS_SECONDARY_SKYTRAQ
-#ifndef SKYTRAQ_GPS_LINK
-#define SKYTRAQ_GPS_LINK GPS_SECONDARY_PORT
-#define SecondaryGpsImpl skytraq
-#endif
-#else
-#ifndef PrimaryGpsImpl
-#define PrimaryGpsImpl skytraq
-#endif
-#endif
-#if GPS_PRIMARY_SKYTRAQ
-#ifndef SKYTRAQ_GPS_LINK
-#define SKYTRAQ_GPS_LINK GPS_PRIMARY_PORT
-#endif
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS gps_skytraq
 #endif
 
 /* last error type */
@@ -72,17 +60,8 @@ struct GpsSkytraq {
 
 extern struct GpsSkytraq gps_skytraq;
 
-
-/*
- * This part is used by the autopilot to read data from a uart
- */
-#include "pprzlink/pprzlink_device.h"
-
-extern void gps_skytraq_read_message(void);
-extern void gps_skytraq_parse(uint8_t c);
-extern void gps_skytraq_msg(void);
-extern void skytraq_gps_register(void);
-void skytraq_gps_impl_init(void);
-void skytraq_gps_event(void);
+extern void gps_skytraq_init(void);
+extern void gps_skytraq_event(void);
+extern void gps_skytraq_register(void);
 
 #endif /* GPS_SKYTRAQ_H */

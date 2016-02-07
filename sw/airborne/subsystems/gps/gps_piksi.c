@@ -305,7 +305,7 @@ static void spb_heartbeat_callback(uint16_t sender_id __attribute__((unused)),
 /*
  * Initialize the Piksi GPS and write the settings
  */
-void piksi_gps_impl_init(void)
+void gps_piksi_init(void)
 {
   /* Setup SBP nodes */
   sbp_state_init(&sbp_state);
@@ -346,7 +346,7 @@ void piksi_gps_impl_init(void)
 /*
  * Event handler for reading the GPS UART bytes
  */
-void piksi_gps_event(void)
+void gps_piksi_event(void)
 {
   if ( get_sys_time_msec() - time_since_last_pos_update > POS_ECEF_TIMEOUT ) {
     gps_piksi.fix = GPS_FIX_NONE;
@@ -413,11 +413,7 @@ void gps_inject_data(uint8_t packet_id, uint8_t length, uint8_t *data)
 /*
  * register callbacks & structs
  */
-void piksi_gps_register(void)
+void gps_piksi_register(void)
 {
-#ifdef GPS_SECONDARY_PIKSI
-  gps_register_impl(piksi_gps_impl_init, piksi_gps_event, GPS_PIKSI_ID, 1);
-#else
-  gps_register_impl(piksi_gps_impl_init, piksi_gps_event, GPS_PIKSI_ID, 0);
-#endif
+  gps_register_impl(gps_piksi_init, gps_piksi_event, GPS_PIKSI_ID);
 }

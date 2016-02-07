@@ -5,16 +5,12 @@
 
 #define UDP_GPS_NB_CHANNELS 16
 
-#ifndef PrimaryGpsImpl
-#define PrimaryGpsImpl udp
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS gps_udp
 #endif
 
-
-extern void gps_parse(void);
-extern void udp_gps_impl_init(void);
-extern void udp_gps_register(void);
-
-
-// #define GpsEvent gps_parse
+extern void gps_udp_parse(void);
+extern void gps_udp_init(void);
+extern void gps_udp_register(void);
 
 #endif /* GPS_UDP_H */

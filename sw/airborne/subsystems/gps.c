@@ -30,6 +30,29 @@
 #include "subsystems/settings.h"
 #include "generated/settings.h"
 
+#ifndef PRIMARY_GPS
+#error "PRIMARY_GPS not set!"
+#else
+PRINT_CONFIG_VAR(PRIMARY_GPS)
+#endif
+
+#ifdef SECONDARY_GPS
+PRINT_CONFIG_VAR(SECONDARY_GPS)
+#endif
+
+#define __RegisterGps(_x) _x ## _register()
+#define _RegisterGps(_x) __RegisterGps(_x)
+#define RegisterGps(_x) _RegisterGps(_x)
+
+/** maximum number of GPS implementations that can register */
+#if USE_MULTI_GPS
+#define GPS_NB_IMPL 2
+#else
+#define GPS_NB_IMPL 1
+#endif
+
+#define PRIMARY_GPS_INSTANCE 0
+#define SECONDARY_GPS_INSTANCE 1
 
 #ifdef GPS_POWER_GPIO
 #include "mcu_periph/gpio.h"
@@ -40,44 +63,26 @@
 #endif
 
 #define MSEC_PER_WEEK (1000*60*60*24*7)
+#define TIME_TO_SWITCH 5000 //ten s in ms
 
 struct GpsState gps;
 
 struct GpsTimeSync gps_time_sync;
 
-
-#ifndef PrimaryGpsImpl
-#warning "PrimaryGpsImpl not set!"
-#else
-PRINT_CONFIG_VAR(PrimaryGpsImpl)
-#endif
-#ifdef USE_MULTI_GPS
-#ifndef SecondaryGpsImpl
-#warning "SecondaryGpsImpl not set!"
-#else
-PRINT_CONFIG_VAR(SecondaryGpsImpl)
-#endif
+#if USE_MULTI_GPS
 static uint8_t current_gps_id = 0;
-#endif /*USE_MULTI_GPS*/
-
-#define __PrimaryGpsRegister(_x) _x ## _gps_register()
-#define _PrimaryGpsRegister(_x) __PrimaryGpsRegister(_x)
-#define PrimaryGpsRegister() _PrimaryGpsRegister(PrimaryGpsImpl)
-
-#define __SecondaryGpsRegister(_x) _x ## _gps_register()
-#define _SecondaryGpsRegister(_x) __SecondaryGpsRegister(_x)
-#define SecondaryGpsRegister() _SecondaryGpsRegister(SecondaryGpsImpl)
-#define TIME_TO_SWITCH 5000 //ten s in ms
+#endif
 
 uint8_t multi_gps_mode;
+
 /* gps structs */
-struct GpsInstance {;
+struct GpsInstance {
   ImplGpsInit init;
   ImplGpsEvent event;
   uint8_t id;
 };
 
-struct GpsInstance GpsInstances[GPS_NUM_INSTANCES];
+struct GpsInstance GpsInstances[GPS_NB_IMPL];
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -228,35 +233,38 @@ static void gps_cb(uint8_t sender_id,
 #endif
 }
 
-/* 
- * handle gps switching and updating gps instances 
+/*
+ * handle gps switching and updating gps instances
  */
 void GpsEvent(void) {
   // run each gps event
-  uint8_t i;
-  for ( i = 0 ; i < GPS_NUM_INSTANCES ; i++) {
-    GpsInstances[i].event();
+  for (int i = 0 ; i < GPS_NB_IMPL ; i++) {
+    if (GpsInstances[i].event != NULL) {
+      GpsInstances[i].event();
+    }
   }
 }
 
 /*
  * register gps structs for callback
  */
-void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id, int8_t instance)
+void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id)
 {
-  GpsInstances[instance].init = init;
-  GpsInstances[instance].event = event;
-  GpsInstances[instance].id = id;
+  int i;
+  for (i=0; i < GPS_NB_IMPL; i++) {
+    if (GpsInstances[i].init == NULL) {
+      GpsInstances[i].init = init;
+      GpsInstances[i].event = event;
+      GpsInstances[i].id = id;
+      break;
+    }
+  }
 
-  GpsInstances[instance].init();
 }
 
 void gps_init(void)
 {
-
-// #ifdef USE_MULTI_GPS
   multi_gps_mode = MULTI_GPS_MODE;
-// #endif
 
   gps.valid_fields = 0;
   gps.fix = GPS_FIX_NONE;
@@ -268,6 +276,7 @@ void gps_init(void)
   gps.last_3dfix_time = 0;
   gps.last_msg_ticks = 0;
   gps.last_msg_time = 0;
+
 #ifdef GPS_POWER_GPIO
   gpio_setup_output(GPS_POWER_GPIO);
   GPS_POWER_GPIO_ON(GPS_POWER_GPIO);
@@ -275,12 +284,17 @@ void gps_init(void)
 #ifdef GPS_LED
   LED_OFF(GPS_LED);
 #endif
-#ifdef PrimaryGpsImpl
-  PrimaryGpsRegister();
+
+  RegisterGps(PRIMARY_GPS);
+#ifdef SECONDARY_GPS
+  RegisterGps(SECONDARY_GPS);
 #endif
-#ifdef SecondaryGpsImpl
-  SecondaryGpsRegister();
-#endif
+
+  for (int i=0; i < GPS_NB_IMPL; i++) {
+    if (GpsInstances[i].init != NULL) {
+      GpsInstances[i].init();
+    }
+  }
 
   AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 

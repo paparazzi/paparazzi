@@ -29,7 +29,7 @@
 
 #ifndef GPS_NMEA_H
 #define GPS_NMEA_H
- 
+
 #include "mcu_periph/uart.h"
 #include "subsystems/gps.h"
 
@@ -37,26 +37,13 @@
 
 #define NMEA_MAXLEN 255
 
-#if GPS_SECONDARY_NMEA
-#ifndef NMEA_GPS_LINK
-#define NMEA_GPS_LINK GPS_SECONDARY_PORT
-#define SecondaryGpsImpl nmea
-#endif
-#else
-#ifndef PrimaryGpsImpl
-#define PrimaryGpsImpl nmea
-#endif
-#endif
-#if GPS_PRIMARY_NMEA
-#ifndef NMEA_GPS_LINK
-#define NMEA_GPS_LINK GPS_PRIMARY_PORT
-#endif
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS gps_nmea
 #endif
 
-void nmea_gps_impl_init(void);
-void nmea_gps_event(void);
-extern void nmea_gps_register(void);
-void nmea_gps_msg(void);
+extern void gps_nmea_init(void);
+extern void gps_nmea_event(void);
+extern void gps_nmea_register(void);
 
 struct GpsNmea {
   bool_t msg_available;
@@ -87,7 +74,7 @@ extern void nmea_parse_msg(void);
 extern uint8_t nmea_calc_crc(const char *buff, int buff_sz);
 extern void nmea_parse_prop_init(void);
 extern void nmea_parse_prop_msg(void);
-extern void gps_nmea_msg(void);
+extern void nmea_gps_msg(void);
 
 /** Read until a certain character, placed here for proprietary includes */
 static inline void nmea_read_until(int *i)

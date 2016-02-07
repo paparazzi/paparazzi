@@ -57,7 +57,7 @@ struct GpsUbxRaw gps_ubx_raw;
 
 struct GpsTimeSync gps_ubx_time_sync;
 
-void ubx_gps_impl_init(void)
+void gps_ubx_init(void)
 {
   gps_ubx.status = UNINIT;
   gps_ubx.msg_available = FALSE;
@@ -67,7 +67,7 @@ void ubx_gps_impl_init(void)
   gps_ubx.state.comp_id = GPS_UBX_ID;
 }
 
-void ubx_gps_event(void)
+void gps_ubx_event(void)
 {
   struct link_device *dev = &((UBX_GPS_LINK).device);
 
@@ -347,11 +347,7 @@ void gps_ubx_msg(void)
   gps_ubx.msg_available = FALSE;
 }
 
-void ubx_gps_register(void)
+void gps_ubx_register(void)
 {
-#ifdef GPS_SECONDARY_UBX
-  gps_register_impl(ubx_gps_impl_init, ubx_gps_event, GPS_UBX_ID, 1);
-#else
-  gps_register_impl(ubx_gps_impl_init, ubx_gps_event, GPS_UBX_ID, 0);
-#endif
+  gps_register_impl(gps_ubx_init, gps_ubx_event, GPS_UBX_ID);
 }

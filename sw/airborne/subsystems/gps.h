@@ -34,20 +34,6 @@
 
 #include "mcu_periph/sys_time.h"
 
-#define INS_XSENS700_GPS_ID GPS_MULTI_ID
-#define INS_XSENS_GPS_ID GPS_MULTI_ID
-#define AHRS_CHIMU_GPS_ID GPS_MULTI_ID
-#define STEREOCAM_GPS_ID GPS_MULTI_ID
-#define AHRS_INFRARED_GPS_ID GPS_MULTI_ID
-#define INS_FINV_GPS_ID GPS_MULTI_ID
-#define INS_PTU_GPS_ID GPS_MULTI_ID
-#define INS_PT_GPS_ID GPS_MULTI_ID
-#define INS_INT_GPS_ID GPS_MULTI_ID
-#define INS_ALT_GPS_ID GPS_MULTI_ID
-#define AHRS_DCM_GPS_ID GPS_MULTI_ID
-#define AHRS_FC_GPS_ID GPS_MULTI_ID
-#define AHRS_ICQ_GPS_ID GPS_MULTI_ID
-
 #define GPS_FIX_NONE 0x00     ///< No GPS fix
 #define GPS_FIX_2D   0x02     ///< 2D GPS fix
 #define GPS_FIX_3D   0x03     ///< 3D GPS fix
@@ -67,17 +53,8 @@
 #define GPS_VALID_HMSL_BIT     5
 #define GPS_VALID_COURSE_BIT   6
 
-#define PRIMARY_GPS_INSTANCE 0
-#define SECONDARY_GPS_INSTANCE 1
-
 #ifndef GPS_NB_CHANNELS
 #define GPS_NB_CHANNELS 16
-#endif
-
-#ifdef USE_MULTI_GPS
-#define GPS_NUM_INSTANCES 2
-#else
-#define GPS_NUM_INSTANCES 1
 #endif
 
 #define GPS_MODE_PRIMARY 0
@@ -147,24 +124,22 @@ typedef void (*ImplGpsInit)(void);
 typedef void (*ImplGpsEvent)(void);
 
 
-void GpsEvent(void);
-/*
- * register callbacks and state pointers
- */ 
-extern void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id, int8_t instance);
+extern void GpsEvent(void);
 
-#ifdef PRIMARY_GPS_TYPE_H
-#include PRIMARY_GPS_TYPE_H
+/**
+ * register callbacks and state pointers
+ */
+extern void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id);
+
+#ifdef GPS_TYPE_H
+#include GPS_TYPE_H
 #endif
-#ifdef SECONDARY_GPS_TYPE_H
-#include SECONDARY_GPS_TYPE_H
+#ifdef GPS_SECONDARY_TYPE_H
+#include GPS_SECONDARY_TYPE_H
 #endif
 
 /** initialize the global GPS state */
 extern void gps_init(void);
-
-/** GPS model specific init implementation */
-extern void gps_impl_init(void);
 
 /** GPS packet injection (default empty) */
 extern void gps_inject_data(uint8_t packet_id, uint8_t length, uint8_t *data);

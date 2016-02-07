@@ -31,10 +31,16 @@
  *
  */
 
+#include "gps_mtk.h"
 #include "subsystems/abi.h"
 #include "led.h"
 
 #include "mcu_periph/sys_time.h"
+#include "pprzlink/pprzlink_device.h"
+
+#ifndef MTK_GPS_LINK
+#error "MTK_GPS_LINK not set"
+#endif
 
 #define MTK_DIY_OUTPUT_RATE MTK_DIY_OUTPUT_4HZ
 #define OUTPUT_RATE     4
@@ -98,7 +104,11 @@ bool_t gps_configuring;
 static uint8_t gps_status_config;
 #endif
 
-void mtk_gps_impl_init(void)
+void gps_mtk_read_message(void);
+void gps_mtk_parse(uint8_t c);
+void gps_mtk_msg(void);
+
+void gps_mtk_init(void)
 {
   gps_mtk.status = UNINIT;
   gps_mtk.msg_available = FALSE;
@@ -110,7 +120,7 @@ void mtk_gps_impl_init(void)
 #endif
 }
 
-void mtk_gps_event(void)
+void gps_mtk_event(void)
 {
   struct link_device *dev = &((MTK_GPS_LINK).device);
 
@@ -403,13 +413,9 @@ restart:
 /*
  * register callbacks & structs
  */
-void mtk_gps_register(void)
+void gps_mtk_register(void)
 {
-#ifdef GPS_SECONDARY_MTK
-  gps_register_impl(mtk_gps_impl_init, mtk_gps_event, GPS_MTK_ID, 1);
-#else
-  gps_register_impl(mtk_gps_impl_init, mtk_gps_event, GPS_MTK_ID, 0);
-#endif
+  gps_register_impl(gps_mtk_init, gps_mtk_event, GPS_MTK_ID);
 }
 
 /*
