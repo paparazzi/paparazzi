@@ -3,11 +3,15 @@
 <airframe name="bebop2_indi">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop2"/>
+    <target name="ap" board="bebop2">
+      <define name="STABILIZATION_INDI_G2_R" value="0.20"/>
+    </target>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
       <subsystem name="udp"/>
+      <!-- rotor inertia not modelled in simple_quad JSBSim model, set G2 to zero -->
+      <define name="STABILIZATION_INDI_G2_R" value="0.0"/>
     </target>
 
 	  <!-- Subsystem section -->
@@ -134,7 +138,6 @@
     <define name="G1_P" value="0.05"/>
     <define name="G1_Q" value="0.025"/>
     <define name="G1_R" value="0.0022"/>
-    <define name="G2_R" value="0.20"/>
 
     <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
     <define name="FILTER_ROLL_RATE" value="TRUE"/>
