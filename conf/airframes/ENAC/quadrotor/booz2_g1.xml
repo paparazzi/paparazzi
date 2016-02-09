@@ -1,27 +1,6 @@
 <airframe name="BOOZ2_G1">
 
-  <modules main_freq="512">
-    <load name="servo_switch.xml"/>
-    <load name="rotorcraft_cam.xml"/>
-    <load name="sonar_adc.xml">
-      <configure name="ADC_SONAR" value="ADC_0"/>
-      <define name="USE_SONAR"/>
-      <!--define name="SENSOR_SYNC_SEND_SONAR"/-->
-    </load>
-    <!--load name="baro_mpl3115.xml">
-      <configure name="MPL3115_I2C_DEV" value="i2c1"/>
-      <define name="SENSOR_SYNC_SEND"/>
-    </load-->
-    <!--load name="mavlink_decoder.xml">
-      <configure name="MAVLINK_PORT" value="UART0"/>
-      <configure name="MAVLINK_BAUD" value="B115200"/>
-    </load>
-    <load name="px4flow.xml"/-->
-    <!--load name="adc_generic.xml">
-      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_0"/>
-    </load-->
-    <!--load name="sys_mon.xml"/-->
-  </modules>
+  <modules main_freq="512"/>
 
   <firmware name="rotorcraft">
     <define name="DEBUG_VFF_EXTENDED"/>
@@ -34,23 +13,44 @@
       <define name="ACTUATORS_START_DELAY" value="3"/>
     </target>
     <!--target name="nps" board="pc">
-      <subsystem name="fdm"         type="jsbsim"/>
+      <module name="fdm"         type="jsbsim"/>
     </target-->
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="actuators"     type="asctec"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="actuators"     type="asctec"/>
+    <module name="actuators"     type="pwm">
       <define name="USE_PWM0"/>
       <define name="USE_PWM1"/>
-    </subsystem>
-    <subsystem name="imu"           type="b2_v1.1"/>
-    <subsystem name="gps"           type="ublox">
+    </module>
+    <module name="imu"           type="b2_v1.1"/>
+    <module name="gps"           type="ublox">
       <configure name="GPS_BAUD"    value="B57600"/>
-    </subsystem>
-    <subsystem name="stabilization" type="int_euler"/>
-    <subsystem name="ahrs"          type="int_cmpl_euler"/>
-    <subsystem name="ins"           type="extended"/>
+    </module>
+    <module name="stabilization" type="int_euler"/>
+    <module name="ahrs"          type="int_cmpl_euler"/>
+    <module name="ins"           type="extended"/>
+
+    <module name="servo_switch"/>
+    <module name="rotorcraft_cam"/>
+    <module name="sonar_adc">
+      <configure name="ADC_SONAR" value="ADC_0"/>
+      <define name="USE_SONAR"/>
+      <!--define name="SENSOR_SYNC_SEND_SONAR"/-->
+    </module>
+    <!--module name="baro_mpl3115">
+      <configure name="MPL3115_I2C_DEV" value="i2c1"/>
+      <define name="SENSOR_SYNC_SEND"/>
+    </module-->
+    <!--module name="mavlink_decoder">
+      <configure name="MAVLINK_PORT" value="UART0"/>
+      <configure name="MAVLINK_BAUD" value="B115200"/>
+    </module>
+    <module name="px4flow"/-->
+    <!--module name="adc_generic">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_0"/>
+    </module-->
+    <!--module name="sys_mon"/-->
   </firmware>
 
   <servos driver="Asctec">

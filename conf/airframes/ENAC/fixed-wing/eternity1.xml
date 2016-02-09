@@ -10,9 +10,6 @@
 
 <airframe name="Eternity 1">
 
-  <modules>
-  </modules>
-
   <firmware name="fixedwing">
     <target name="ap" board="umarim_lite_2.0"/>
     <target name="sim" board="pc"/>
@@ -22,17 +19,17 @@
     <define name="USE_I2C0"/>
     <define name="USE_I2C1"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry" type="transparent"/>
-    <subsystem name="imu" type="umarim"/>
-    <subsystem name="ahrs" type="float_dcm"/>
-    <subsystem name="ins"     type="alt_float"/>
-    <subsystem name="control"/>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="navigation"/>
-    <subsystem name="current_sensor">
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry" type="transparent"/>
+    <module name="imu" type="umarim"/>
+    <module name="ahrs" type="float_dcm"/>
+    <module name="ins"     type="alt_float"/>
+    <module name="control"/>
+    <module name="gps" type="ublox"/>
+    <module name="navigation"/>
+    <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_0"/>
-    </subsystem>
+    </module>
 
   </firmware>
 

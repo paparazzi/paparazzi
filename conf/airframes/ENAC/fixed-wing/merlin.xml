@@ -15,23 +15,23 @@
     <target name="ap" 			        board="tiny_2.11"/>
     <target name="sim" 			        board="pc"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="control"/>
-    <subsystem name="ins"           type="alt_float"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="navigation"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="control"/>
+    <module name="infrared"      type="adc"/>
+    <module name="ahrs"          type="infrared"/>
+    <!--module name="ins"         type="vn100"/-->
+    <module name="ins"           type="alt_float"/>
+    <module name="gps"           type="ublox"/>
+    <module name="navigation"/>
 
-    <!--subsystem name="spi">
+    <!--module name="spi">
       <define name="USE_SPI_SLAVE0"/>
       <define name="USE_SPI1"/>
-    </subsystem-->
+    </module-->
   </firmware>
 
   <modules>
-    <load name="infrared_adc.xml"/>
-    <load name="ahrs_infrared.xml"/>
-    <!--load name="ins_vn100.xml"/-->
   </modules>
 
 <!-- commands section -->

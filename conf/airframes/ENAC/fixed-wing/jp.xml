@@ -2,73 +2,70 @@
 
 <airframe name="JP">
 
-  <modules>
-    <load name="mag_hmc58xx.xml">
-      <define name="MODULE_HMC58XX_UPDATE_AHRS"/>
-      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
-    </load>
-    <load name="airspeed_adc.xml">
-      <configure name="ADC_AIRSPEED" value="ADC_1"/>
-      <define name="AIRSPEED_ADC_QUADRATIC_SCALE" value="0.5"/>
-      <define name="AIRSPEED_ADC_BIAS" value="430"/>
-    </load>
-    <load name="gps_ubx_ucenter.xml"/>
-    <!--load name="sys_mon.xml"/-->
-  </modules>
-
   <firmware name="fixedwing">
     <define name="USE_I2C1"/>
     <configure name="PERIODIC_FREQUENCY" value="125"/>
 
     <target name="ap" board="apogee_1.0_chibios">
-      <subsystem name="ins" type="float_invariant">
+      <module name="ins" type="float_invariant">
         <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
         <configure name="AHRS_CORRECT_FREQUENCY" value="125"/>
         <define name="BARO_BOARD_APOGEE_FREQ" value="50"/>
         <define name="MPL3115_OVERSAMPLING" value="2"/>
-      </subsystem>
+      </module>
     </target>
     <target name="sim" board="pc">
-      <subsystem name="ahrs" type="float_dcm"/>
-      <subsystem name="ins" type="alt_float"/>
+      <module name="ahrs" type="float_dcm"/>
+      <module name="ins" type="alt_float"/>
     </target>
     <target name="nps" board="pc">
-      <!-- Note NPS needs the ppm type radio_control subsystem -->
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="ins" type="float_invariant">
+      <!-- Note NPS needs the ppm type radio_control module -->
+      <module name="fdm" type="jsbsim"/>
+      <module name="ins" type="float_invariant">
         <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
         <configure name="AHRS_CORRECT_FREQUENCY" value="125"/>
         <define name="BARO_BOARD_APOGEE_FREQ" value="50"/>
         <define name="MPL3115_OVERSAMPLING" value="2"/>
         <define name="SEND_INVARIANT_FILTER"/>
-      </subsystem>
+      </module>
     </target>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="xbee_api"/>
+    <module name="telemetry" type="xbee_api"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu" type="apogee">
+    <module name="imu" type="apogee">
       <define name="USE_MAGNETOMETER"/>
       <define name="APOGEE_LOWPASS_FILTER" value="MPU60X0_DLPF_20HZ"/>
       <define name="APOGEE_SMPLRT_DIV" value="7"/>
-    </subsystem>
-    <subsystem name="control" type="new"/>
-    <subsystem name="navigation"/>
+    </module>
+    <module name="mag" type="hmc58xx">
+      <define name="MODULE_HMC58XX_UPDATE_AHRS"/>
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
+    </module>
+    <module name="airspeed" type="adc">
+      <configure name="ADC_AIRSPEED" value="ADC_1"/>
+      <define name="AIRSPEED_ADC_QUADRATIC_SCALE" value="0.5"/>
+      <define name="AIRSPEED_ADC_BIAS" value="430"/>
+    </module>
+    <module name="control" type="new"/>
+    <module name="navigation"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox">
+    <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
       <define name="GPS_UBX_UCENTER_RATE" value="200"/>
       <define name="USE_GPS_UBX_RXM_RAW"/>
       <define name="USE_GPS_UBX_RXM_SFRB"/>
       <define name="LOG_RAW_GPS"/>
-    </subsystem>
+    </module>
+    <module name="gps" type="ubx_ucenter"/>
 
-    <subsystem name="current_sensor">
+    <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_2"/>
-    </subsystem>
+    </module>
+    <!--module name="sys_mon"/-->
   </firmware>
 
   <!-- commands section -->
