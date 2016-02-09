@@ -49,9 +49,9 @@
   <modules main_freq="512"/>
 
   <!-- include common control -->
-  <include href="conf/airframes/ENAC/quadrotor/ard2_base_control"/>
+  <include href="conf/airframes/ENAC/quadrotor/ard2_base_control.xml"/>
   <!-- include arframe calibration -->
-  <include href="conf/airframes/ENAC/quadrotor/ard2_$AC_ID"/>
+  <include href="conf/airframes/ENAC/quadrotor/ard2_$AC_ID.xml"/>
 
   <!-- local magnetic field -->
   <!-- http://paparazzi.enac.fr/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
