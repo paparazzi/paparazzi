@@ -100,7 +100,7 @@ let file_xml2mk = fun f ?(arch = false) dir_name target xml ->
     else format_of_string "%s.srcs += %s/%s\n" in
   fprintf f fmt target dir_name name
 
-let module_xml2mk = fun f target m ->
+let module_xml2mk = fun f target firmware m ->
   if not (List.mem target m.targets) then () else
   let name = ExtXml.attrib m.xml "name" in
   let dir = try Xml.attrib m.xml "dir" with Xml.No_attribute _ -> name in
@@ -119,6 +119,13 @@ let module_xml2mk = fun f target m ->
       let section =
         let targets = Gen_common.targets_of_field section Env.default_module_targets in
         if Gen_common.test_targets target targets then section else Xml.Element ("makefile", [], [])
+      in
+      (* keep section if firmware is also matching or not speficied *)
+      let section = begin
+        try
+          if Xml.attrib section "firmware" = firmware then section
+          else Xml.Element ("makefile", [], [])
+        with _ -> section end
       in
       Xml.iter
       (fun field ->
@@ -197,6 +204,7 @@ let fallback_subsys_xml2mk = fun f global_targets firmware target xml ->
   with Gen_common.Subsystem _file -> subsystem_xml2mk f firmware xml
 
 let parse_firmware = fun makefile_ac ac_xml firmware ->
+  let firmware_name = Xml.attrib firmware "name" in
   (* get the configures, targets, subsystems and defines for this firmware *)
   let config, rest = ExtXml.partition_tag "configure" (Xml.children firmware) in
   let targets, rest = ExtXml.partition_tag "target" rest in
@@ -232,7 +240,7 @@ let parse_firmware = fun makefile_ac ac_xml firmware ->
     fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/firmwares/%s.makefile\n" (Xml.attrib firmware "name");
     List.iter (fun def -> define_xml2mk makefile_ac def) defines;
     List.iter (fun def -> define_xml2mk makefile_ac def) t_defines;
-    List.iter (module_xml2mk makefile_ac target_name) modules;
+    List.iter (module_xml2mk makefile_ac target_name firmware_name) modules;
     List.iter (fallback_subsys_xml2mk makefile_ac [] firmware target_name) mods;
     List.iter (fallback_subsys_xml2mk makefile_ac [] firmware target_name) t_mods;
     List.iter (subsystem_xml2mk makefile_ac firmware) t_subsystems;

@@ -55,7 +55,8 @@ message CDATA #REQUIRED
 fun CDATA #REQUIRED>
 
 <!ATTLIST makefile
-target CDATA #IMPLIED>
+target CDATA #IMPLIED
+firmware CDATA #IMPLIED>
 
 <!ATTLIST section
 name CDATA #REQUIRED
