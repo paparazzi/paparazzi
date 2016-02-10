@@ -225,6 +225,7 @@ int bytes = 0;
 unsigned int clock_msb = 0;
 unsigned int clock_lsb_last = 0;
 int log_run = 1;
+int turb_received = 0;
 unsigned char ac_id = 0;
 
 /* SPI0 SLAVE */
@@ -285,7 +286,7 @@ static void SPI0_ISR(void) {
     if ((foo == 0xF1) && (prev == 0x23)) log_run = 1;
     prev = foo;
 
-    S0SPDR = 0x10 | log_run;
+    S0SPDR = 0x10 | log_run | turb_received;
   }
 
   /* clear_it */
@@ -614,6 +615,7 @@ course[2]=0x4567;
         log_buffer[LOG_DATA_OFFSET+2 + 14] = (checksum      ) & 0xFF;
 
         if (ac_id != 0) {
+          turb_received = 2;
           log_payload(2 + 15, LOG_SOURCE_UART0, otf_timestamp);
         }
         else {

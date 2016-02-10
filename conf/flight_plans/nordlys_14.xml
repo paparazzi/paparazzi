@@ -7,8 +7,8 @@
 </header>
   <waypoints>
     <waypoint name="HOME" x="-190" y="-150"/>
-    <waypoint name="1" x="-369.6" y="118.7"/>
-    <waypoint name="2" x="90.2" y="-208.9"/>
+    <waypoint name="1" x="427.1" y="-131.1"/>
+    <waypoint name="2" x="-381.7" y="449.9"/>
     <waypoint name="S1" x="-122.2" y="-366.4"/>
     <waypoint name="S2" x="200.1" y="-153.5"/>
     <waypoint name="MOB" x="39.9" y="-90.3"/>

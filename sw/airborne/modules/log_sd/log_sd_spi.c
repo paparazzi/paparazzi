@@ -68,6 +68,7 @@
 
 uint8_t log_sd_spi_status;
 uint8_t log_sd_spi_run;
+uint8_t log_status = 0;
 
 static void log_sd_spi_req(void);
 static void SPI1_ISR(void) __attribute__((naked));
@@ -111,8 +112,13 @@ void log_sd_spi_event( void ) {
 }
 
 void log_sd_spi_periodic(void) {
+  static unsigned int cntlog = 0;
   if (cpu_time_sec > 1) {
     log_sd_spi_req();
+    if (cntlog++ > 5) {
+      cntlog = 0;
+      DOWNLINK_SEND_BOOZ_DEBUG_FOO(DefaultChannel, DefaultDevice, &log_status);
+    }
   }
 }
 
@@ -133,6 +139,8 @@ void SPI1_ISR(void) {
   uint8_t foo __attribute__ ((unused));
   foo = SSPDR;
   foo = SSPDR;
+ 
+  if ((foo & 0xFC) == 0x10) log_status = (foo & 0x03);
 
   ScpUnselect();
   SpiClearRti();
