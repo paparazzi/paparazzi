@@ -63,7 +63,7 @@ let configure_xml2mk = fun f xml ->
   and case = ExtXml.attrib_or_default xml "case" "" in
   (* Only print variable if value is not empty *)
   if String.length value > 0 then
-    fprintf f "%s =%s %s\n" name default value;
+    fprintf f "%s %s= %s\n" name default value;
   (* also providing lower and upper case version on request *)
   if Str.string_match (Str.regexp ".*lower.*") case 0 then
     fprintf f "%s_LOWER = $(shell echo $(%s) | tr A-Z a-z)\n" name name;
