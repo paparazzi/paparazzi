@@ -38,16 +38,16 @@ VPATH = .
 ifneq ($(MAKECMDGOALS),clean)
   include $(AIRCRAFT_BUILD_DIR)/Makefile.ac
   $(TARGET).srcs += $($(TARGET).EXTRA_SRCS)
-  include ../../conf/Makefile.local
+  include $(PAPARAZZI_HOME)/conf/Makefile.local
 
 # check if ARCHDIR is set
   ifeq ($($(TARGET).ARCHDIR), )
     $(error Architecture not set, maybe you forgot to add the target? e.g. <target name="tunnel" board="twog_1.0"/>)
   else
     ifdef $(TARGET).MAKEFILE
-      include ../../conf/Makefile.$($(TARGET).MAKEFILE)
+      include $(PAPARAZZI_SRC)/conf/Makefile.$($(TARGET).MAKEFILE)
     else
-      include ../../conf/Makefile.$($(TARGET).ARCHDIR)
+      include $(PAPARAZZI_SRC)/conf/Makefile.$($(TARGET).ARCHDIR)
     endif
   endif
 
