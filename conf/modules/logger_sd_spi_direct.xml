@@ -38,22 +38,12 @@ Do not use start/stop functionality of the module, the module is not intended to
   <datalink message="SETTING" fun="sdlogger_spi_direct_command()"/>
   <makefile target="ap">
 
+    <configure name="SDLOGGER_DIRECT_SPI" value="spi2" default="TRUE" case="upper|lower"/>
+    <configure name="SDLOGGER_DIRECT_SPI_SLAVE" value="spi_slave2" default="TRUE" case="upper|lower"/>
+    <configure name="SDLOGGER_DIRECT_CONTROL_SWITCH" value="RADIO_AUX2" default="TRUE"/>
+    <configure name="LOGGER_LED" value="none" default="TRUE"/>
+    <define name="LOGGER_LED" value="$(LOGGER_LED)" cond="ifneq ($(LOGGER_LED),none)"/>
     <raw>
-        SDLOGGER_DIRECT_SPI ?= spi2
-        SDLOGGER_DIRECT_SPI_LOWER=$(shell echo $(SDLOGGER_DIRECT_SPI) | tr A-Z a-z)
-        SDLOGGER_DIRECT_SPI_UPPER=$(shell echo $(SDLOGGER_DIRECT_SPI) | tr a-z A-Z)
-
-        SDLOGGER_DIRECT_SPI_SLAVE ?= spi_slave2
-        SDLOGGER_DIRECT_SPI_SLAVE_LOWER=$(shell echo $(SDLOGGER_DIRECT_SPI_SLAVE) | tr A-Z a-z)
-        SDLOGGER_DIRECT_SPI_SLAVE_UPPER=$(shell echo $(SDLOGGER_DIRECT_SPI_SLAVE) | tr a-z A-Z)
-
-        SDLOGGER_DIRECT_CONTROL_SWITCH ?= RADIO_AUX2
-
-        LOGGER_LED ?= none
-        ifneq ($(LOGGER_LED),none)
-        ap.CFLAGS += -DLOGGER_LED=$(LOGGER_LED)
-        endif
-
         include $(CFG_SHARED)/sdlog.makefile
         include $(CFG_SHARED)/spi_master.makefile
     </raw>

@@ -63,7 +63,9 @@ prefix CDATA #IMPLIED>
 
 <!ATTLIST configure
 name CDATA #REQUIRED
-value CDATA #REQUIRED
+value CDATA #IMPLIED
+case CDATA #IMPLIED
+default CDATA #IMPLIED
 description CDATA #IMPLIED>
 
 <!ATTLIST define

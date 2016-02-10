@@ -15,15 +15,9 @@
   <periodic fun="vn100_report_task()" freq="4"/>
   <event fun="vn100_event_task()"/>
   <makefile>
+    <configure name="VN100_SPI_DEV" value="spi1" default="TRUE" case="upper|lower"/>
+    <configure name="VN100_SLAVE_IDX" value="spi_slave0" default="TRUE" case="upper|lower"/>
     <raw>
-      VN100_SPI_DEV ?= spi1
-      VN100_SPI_DEV_LOWER=$(shell echo $(VN100_SPI_DEV) | tr A-Z a-z)
-      VN100_SPI_DEV_UPPER=$(shell echo $(VN100_SPI_DEV) | tr a-z A-Z)
-
-      VN100_SLAVE_IDX ?= spi_slave0
-      VN100_SLAVE_IDX_LOWER=$(shell echo $(VN100_SLAVE_IDX) | tr A-Z a-z)
-      VN100_SLAVE_IDX_UPPER=$(shell echo $(VN100_SLAVE_IDX) | tr a-z A-Z)
-
       include $(CFG_SHARED)/spi_master.makefile
     </raw>
     <define name="USE_$(VN100_SPI_DEV_UPPER)" />

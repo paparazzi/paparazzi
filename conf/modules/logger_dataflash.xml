@@ -39,19 +39,9 @@ For more informations on how to use this module you can refer to the wiki : http
   <periodic fun="high_speed_logger_direct_memory_periodic()" autorun="TRUE"/>
   <makefile>
 
-    <raw>
-      HS_LOG_UART ?= uart3
-      HS_LOG_UART_LOWER=$(shell echo $(HS_LOG_UART) | tr A-Z a-z)
-      HS_LOG_UART_UPPER=$(shell echo $(HS_LOG_UART) | tr a-z A-Z)
-
-      HS_LOG_SPI ?= spi1
-      HS_LOG_SPI_LOWER=$(shell echo $(HS_LOG_SPI) | tr A-Z a-z)
-      HS_LOG_SPI_UPPER=$(shell echo $(HS_LOG_SPI) | tr a-z A-Z)
-
-      HS_LOG_SPI_SLAVE ?= spi_slave1
-      HS_LOG_SPI_SLAVE_LOWER=$(shell echo $(HS_LOG_SPI_SLAVE) | tr A-Z a-z)
-      HS_LOG_SPI_SLAVE_UPPER=$(shell echo $(HS_LOG_SPI_SLAVE) | tr a-z A-Z)
-    </raw>
+    <configure name="HS_LOG_UART" value="uart3" default="TRUE" case="upper|lower"/>
+    <configure name="HS_LOG_SPI" value="spi1" default="TRUE" case="upper|lower"/>
+    <configure name="HS_LOG_SPI_SLAVE" value="spi_slave1" default="TRUE" case="upper|lower"/>
 
     <define name="SPI_MASTER" value="1" />
     <define name="USE_$(HS_LOG_SPI_UPPER)" value="1" />

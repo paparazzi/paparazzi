@@ -52,10 +52,7 @@
   <periodic fun="meteo_stick_periodic()" freq="10" autorun="TRUE"/>
   <event fun="meteo_stick_event()"/>
   <makefile target="ap">
-    <raw>
-MS_SPI_DEV_UPPER=$(shell echo $(MS_SPI_DEV) | tr a-z A-Z)
-MS_SPI_DEV_LOWER=$(shell echo $(MS_SPI_DEV) | tr A-Z a-z)
-    </raw>
+    <configure name="MS_SPI_DEV" case="upper|lower"/>
     <file name="meteo_stick.c"/>
     <file name="meteo_stick_calib.c"/>
     <file name="ads1220.c" dir="peripherals"/>

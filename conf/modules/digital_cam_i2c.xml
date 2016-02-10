@@ -27,11 +27,7 @@
   <datalink message="PAYLOAD_COMMAND" fun="ParseCameraCommand()"/>
 
   <makefile target="ap">
-    <raw>
-      ATMEGA_I2C_DEV ?= i2c0
-      ATMEGA_I2C_DEV_LOWER=$(shell echo $(ATMEGA_I2C_DEV) | tr A-Z a-z)
-      ATMEGA_I2C_DEV_UPPER=$(shell echo $(ATMEGA_I2C_DEV) | tr a-z A-Z)
-    </raw>
+    <configure name="ATMEGA_I2C_DEV" value="i2c0" default="TRUE" case="upper|lower"/>
     <define name="USE_$(ATMEGA_I2C_DEV_UPPER)"/>
     <define name="ATMEGA_I2C_DEV" value="$(ATMEGA_I2C_DEV_LOWER)"/>
     <file name="atmega_i2c_cam_ctrl.c"/>

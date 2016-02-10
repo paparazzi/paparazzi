@@ -14,15 +14,12 @@
   <periodic fun="stereo_avoid_run()" freq="20" autorun="TRUE"/>
 
   <makefile>
-    <raw>
-      STEREO_UART ?= UART1
-      STEREO_BAUD ?= B9600
-      STEREO_LED ?= 3
-      STEREO_UART_LOWER=$(shell echo $(STEREO_UART) | tr A-Z a-z)
-    </raw>
-    <define name="USE_$(STEREO_UART)"/>
+    <configure name="STEREO_UART" value="uart1" default="TRUE" case="upper|lower"/>
+    <configure name="STEREO_BAUD" value="B9600" default="TRUE"/>
+    <configure name="STEREO_LED" value="3" default="TRUE"/>
+    <define name="USE_$(STEREO_UART_UPPER)"/>
     <define name="STEREO_UART" value="$(STEREO_UART_LOWER)"/>
-    <define name="$(STEREO_UART)_BAUD" value="$(STEREO_BAUD)"/>
+    <define name="$(STEREO_UART_UPPER)_BAUD" value="$(STEREO_BAUD)"/>
     <file name="nav_line_avoid/avoid_navigation.c"/>
   </makefile>
   <makefile  target="ap">

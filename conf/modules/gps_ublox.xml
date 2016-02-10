@@ -21,15 +21,14 @@
     <file name="gps.c" dir="subsystems"/>
     <file name="gps_ubx.c" dir="subsystems/gps"/>
     <define name="USE_GPS"/>
+    <configure name="GPS_PORT" case="upper|lower"/>
+    <define name="USE_$(GPS_PORT_UPPER)"/>
+    <define name="GPS_LINK" value="$(GPS_PORT_LOWER)"/>
+    <define name="$(GPS_PORT_UPPER)_BAUD" value="$(GPS_BAUD)"/>
+    <configure name="GPS_LED" value="none" default="TRUE"/>
+    <define name="GPS_LED" value="$(GPS_LED)" cond="ifneq ($(GPS_LED),none)"/>
     <raw>
-      UBX_GPS_PORT_LOWER=$(shell echo $(GPS_PORT) | tr A-Z a-z)
       ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
-      ap.CFLAGS += -DUSE_$(GPS_PORT) -D$(GPS_PORT)_BAUD=$(GPS_BAUD)
-      ap.CFLAGS += -DUSE_GPS -DGPS_LINK=$(UBX_GPS_PORT_LOWER)
-      GPS_LED ?= none
-      ifneq ($(GPS_LED),none)
-        ap.CFLAGS += -DGPS_LED=$(GPS_LED)
-      endif
     </raw>
   </makefile>
   <makefile target="nps">

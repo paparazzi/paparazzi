@@ -13,15 +13,9 @@
   <periodic fun="max7456_periodic()" freq="20" autorun="TRUE"/>
   <event fun="max7456_event()"/>
   <makefile target="ap">
+    <configure name="MAX7456_SPI_DEV" value="spi2" default="TRUE" case="upper|lower"/>
+    <configure name="MAX7456_SLAVE_IDX" value="spi_slave2" default="TRUE" case="upper|lower"/>
     <raw>
-      MAX7456_SPI_DEV ?= spi2
-      MAX7456_SPI_DEV_LOWER=$(shell echo $(MAX7456_SPI_DEV) | tr A-Z a-z)
-      MAX7456_SPI_DEV_UPPER=$(shell echo $(MAX7456_SPI_DEV) | tr a-z A-Z)
-
-      MAX7456_SLAVE_IDX ?= spi_slave2
-      MAX7456_SLAVE_IDX_LOWER=$(shell echo $(MAX7456_SLAVE_IDX) | tr A-Z a-z)
-      MAX7456_SLAVE_IDX_UPPER=$(shell echo $(MAX7456_SLAVE_IDX) | tr a-z A-Z)
-
       include $(CFG_SHARED)/spi_master.makefile
     </raw>
     <define name="USE_$(MAX7456_SPI_DEV_UPPER)" />
