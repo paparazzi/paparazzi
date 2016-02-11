@@ -16,7 +16,7 @@
   <periodic fun="generic_com_periodic()" period="180" start="start_com()" stop="stop_com()" autorun="TRUE"/>
   <event fun="generic_com_event()"/>
   <makefile>
-    <configure name="GENERIC_COM_I2C_DEV" value="i2c0" default="TRUE" case="upper|lower"/>
+    <configure name="GENERIC_COM_I2C_DEV" default="i2c0" case="upper|lower"/>
     <define name="USE_$(GENERIC_COM_I2C_DEV_UPPER)"/>
     <define name="GENERIC_COM_I2C_DEV" value="$(GENERIC_COM_I2C_DEV_LOWER)"/>
     <file name="generic_com.c"/>

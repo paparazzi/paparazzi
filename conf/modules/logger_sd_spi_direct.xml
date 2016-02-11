@@ -38,10 +38,10 @@ Do not use start/stop functionality of the module, the module is not intended to
   <datalink message="SETTING" fun="sdlogger_spi_direct_command()"/>
   <makefile target="ap">
 
-    <configure name="SDLOGGER_DIRECT_SPI" value="spi2" default="TRUE" case="upper|lower"/>
-    <configure name="SDLOGGER_DIRECT_SPI_SLAVE" value="spi_slave2" default="TRUE" case="upper|lower"/>
-    <configure name="SDLOGGER_DIRECT_CONTROL_SWITCH" value="RADIO_AUX2" default="TRUE"/>
-    <configure name="LOGGER_LED" value="none" default="TRUE"/>
+    <configure name="SDLOGGER_DIRECT_SPI" default="spi2" case="upper|lower"/>
+    <configure name="SDLOGGER_DIRECT_SPI_SLAVE" default="spi_slave2" case="upper|lower"/>
+    <configure name="SDLOGGER_DIRECT_CONTROL_SWITCH" default="RADIO_AUX2"/>
+    <configure name="LOGGER_LED" default="none"/>
     <define name="LOGGER_LED" value="$(LOGGER_LED)" cond="ifneq ($(LOGGER_LED),none)"/>
     <raw>
         include $(CFG_SHARED)/sdlog.makefile

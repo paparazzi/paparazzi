@@ -12,7 +12,7 @@
   <periodic fun="hmc5843_module_periodic()" freq="60"/>
   <event fun="hmc5843_module_event()"/>
   <makefile>
-    <configure name="HMC5843_I2C_DEV" value="i2c0" default="TRUE" case="upper|lower"/>
+    <configure name="HMC5843_I2C_DEV" default="i2c0" case="upper|lower"/>
     <define name="USE_$(HMC5843_I2C_DEV_UPPER)"/>
     <define name="HMC5843_I2C_DEV" value="$(HMC5843_I2C_DEV_LOWER)"/>
     <file name="mag_hmc5843.c"/>

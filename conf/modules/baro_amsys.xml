@@ -30,7 +30,7 @@
   <event fun="BaroAmsysEvent()"/>
 
   <makefile target="ap">
-    <configure name="BARO_AMSYS_I2C_DEV" value="i2c0" default="TRUE" case="upper|lower"/>
+    <configure name="BARO_AMSYS_I2C_DEV" default="i2c0" case="upper|lower"/>
     <define name="USE_$(BARO_AMSYS_I2C_DEV_UPPER)"/>
     <define name="BARO_AMSYS_I2C_DEV" value="$(BARO_AMSYS_I2C_DEV_LOWER)"/>
     <file name="baro_amsys.c"/>

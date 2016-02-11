@@ -20,7 +20,7 @@
     <file name="mission_manager.c" dir="modules/datalink/missionlib"/>
     <file name="waypoints.c" dir="modules/datalink/missionlib"/>
     <file name="blocks.c" dir="modules/datalink/missionlib"/>
-    <configure name="MAVLINK_PORT" value="uart1" default="TRUE" case="upper|lower"/>
+    <configure name="MAVLINK_PORT" default="uart1" case="upper|lower"/>
     <raw>
       ifneq (,$(findstring usb,$(MAVLINK_PORT_LOWER)))
       ap.CFLAGS += -DUSE_USB_SERIAL

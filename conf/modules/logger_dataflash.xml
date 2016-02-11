@@ -39,9 +39,9 @@ For more informations on how to use this module you can refer to the wiki : http
   <periodic fun="high_speed_logger_direct_memory_periodic()" autorun="TRUE"/>
   <makefile>
 
-    <configure name="HS_LOG_UART" value="uart3" default="TRUE" case="upper|lower"/>
-    <configure name="HS_LOG_SPI" value="spi1" default="TRUE" case="upper|lower"/>
-    <configure name="HS_LOG_SPI_SLAVE" value="spi_slave1" default="TRUE" case="upper|lower"/>
+    <configure name="HS_LOG_UART" default="uart3" case="upper|lower"/>
+    <configure name="HS_LOG_SPI" default="spi1" case="upper|lower"/>
+    <configure name="HS_LOG_SPI_SLAVE" default="spi_slave1" case="upper|lower"/>
 
     <define name="SPI_MASTER" value="1" />
     <define name="USE_$(HS_LOG_SPI_UPPER)" value="1" />

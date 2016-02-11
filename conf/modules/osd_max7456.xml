@@ -13,8 +13,8 @@
   <periodic fun="max7456_periodic()" freq="20" autorun="TRUE"/>
   <event fun="max7456_event()"/>
   <makefile target="ap">
-    <configure name="MAX7456_SPI_DEV" value="spi2" default="TRUE" case="upper|lower"/>
-    <configure name="MAX7456_SLAVE_IDX" value="spi_slave2" default="TRUE" case="upper|lower"/>
+    <configure name="MAX7456_SPI_DEV" default="spi2" case="upper|lower"/>
+    <configure name="MAX7456_SLAVE_IDX" default="spi_slave2" case="upper|lower"/>
     <raw>
       include $(CFG_SHARED)/spi_master.makefile
     </raw>

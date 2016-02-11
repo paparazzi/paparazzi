@@ -25,7 +25,7 @@
     <define name="USE_$(GPS_PORT_UPPER)"/>
     <define name="GPS_LINK" value="$(GPS_PORT_LOWER)"/>
     <define name="$(GPS_PORT_UPPER)_BAUD" value="$(GPS_BAUD)"/>
-    <configure name="GPS_LED" value="none" default="TRUE"/>
+    <configure name="GPS_LED" default="none"/>
     <define name="GPS_LED" value="$(GPS_LED)" cond="ifneq ($(GPS_LED),none)"/>
     <raw>
       ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"

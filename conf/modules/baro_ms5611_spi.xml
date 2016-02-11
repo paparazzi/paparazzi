@@ -18,8 +18,8 @@
   <periodic fun="baro_ms5611_periodic_check()" freq="40"/>
   <event fun="baro_ms5611_event()"/>
   <makefile target="ap">
-    <configure name="MS5611_SPI_DEV" value="spi1" default="TRUE" case="upper|lower"/>
-    <configure name="MS5611_SLAVE_IDX" value="spi_slave0" default="TRUE" case="upper|lower"/>
+    <configure name="MS5611_SPI_DEV" default="spi1" case="upper|lower"/>
+    <configure name="MS5611_SLAVE_IDX" default="spi_slave0" case="upper|lower"/>
     <raw>
       include $(CFG_SHARED)/spi_master.makefile
     </raw>

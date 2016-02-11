@@ -13,7 +13,7 @@
   <periodic fun="baro_bmp_periodic()" freq="15"/>
   <event fun="baro_bmp_event()"/>
   <makefile target="ap">
-    <configure name="BMP_I2C_DEV" value="i2c0" default="TRUE" case="upper|lower"/>
+    <configure name="BMP_I2C_DEV" default="i2c0" case="upper|lower"/>
     <define name="USE_$(BMP_I2C_DEV_UPPER)"/>
     <define name="BMP_I2C_DEV" value="$(BMP_I2C_DEV_LOWER)"/>
     <file name="baro_bmp.c"/>

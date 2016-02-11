@@ -14,7 +14,7 @@
   <event fun="ezcurrent_read_event()"/>
 
   <makefile target="ap">
-    <configure name="EZCURRENT_I2C_DEV" value="i2c0" default="TRUE" case="upper|lower"/>
+    <configure name="EZCURRENT_I2C_DEV" default="i2c0" case="upper|lower"/>
     <define name="USE_$(EZCURRENT_I2C_DEV_UPPER)"/>
     <define name="EZCURRENT_I2C_DEV" value="$(EZCURRENT_I2C_DEV_LOWER)"/>
     <file name="ezcurrent.c"/>

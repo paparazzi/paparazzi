@@ -27,9 +27,9 @@
   <periodic fun="direct_memory_logger_periodic()" autorun="TRUE"/>
 
   <makefile target="ap">
-    <configure name="DM_LOG_UART" value="uart1" default="TRUE" case="upper|lower"/>
-    <configure name="DM_LOG_SPI_DEV" value="spi2" default="TRUE" case="upper|lower"/>
-    <configure name="DM_LOG_SPI_SLAVE_IDX" value="spi_slave1" default="TRUE" case="upper|lower"/>
+    <configure name="DM_LOG_UART" default="uart1" case="upper|lower"/>
+    <configure name="DM_LOG_SPI_DEV" default="spi2" case="upper|lower"/>
+    <configure name="DM_LOG_SPI_SLAVE_IDX" default="spi_slave1" case="upper|lower"/>
     <raw>
       include $(CFG_SHARED)/spi_master.makefile
     </raw>
