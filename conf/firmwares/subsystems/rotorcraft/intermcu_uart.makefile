@@ -7,7 +7,7 @@ ifeq ($(TARGET),fbw)
   INTERMCU_PORT_LOWER = $(shell echo $(INTERMCU_PORT) | tr A-Z a-z)
   fbw.CFLAGS += -DINTERMCU_LINK=$(INTERMCU_PORT_LOWER) -DUSE_$(INTERMCU_PORT) -D$(INTERMCU_PORT)_BAUD=B230400
   fbw.CFLAGS += -DINTER_MCU_FBW -DDOWNLINK
-  fbw.srcs += $(PAPARAZZI_HOME)/var/share/pprzlink/src/pprz_transport.c
+  fbw.srcs += pprzlink/src/pprz_transport.c
   fbw.srcs += subsystems/intermcu/intermcu_fbw.c
 else
   INTERMCU_PORT ?= UART3
@@ -18,6 +18,6 @@ else
   $(TARGET).CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
 
 	ap.srcs += subsystems/intermcu/intermcu_ap.c
-	ap.srcs += $(PAPARAZZI_HOME)/var/share/pprzlink/src/pprz_transport.c
+	ap.srcs += pprzlink/src/pprz_transport.c
 	$(TARGET).srcs += subsystems/radio_control.c
 endif

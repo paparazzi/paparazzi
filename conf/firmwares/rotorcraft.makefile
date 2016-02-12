@@ -33,9 +33,10 @@ SRC_ARCH=arch/$(ARCH)
 
 ROTORCRAFT_INC = -I$(SRC_FIRMWARE) -I$(SRC_BOARD)
 
-
 ap.ARCHDIR = $(ARCH)
 
+
+VPATH += $(PAPARAZZI_HOME)/var/share
 
 ######################################################################
 ##

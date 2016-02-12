@@ -26,7 +26,7 @@ nps.LDFLAGS += $(shell sdl-config --libs)
 #
 # add the simulator directory to the make searchpath
 #
-VPATH = $(PAPARAZZI_SRC)/sw/simulator
+VPATH += $(PAPARAZZI_SRC)/sw/simulator
 
 NPSDIR = nps
 nps.srcs += $(NPSDIR)/nps_main.c                 \

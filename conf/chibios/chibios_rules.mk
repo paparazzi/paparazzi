@@ -99,7 +99,7 @@ endif
 CPPFLAGS += -MD -MP -MF .dep/$(@F).d
 
 # Paths where to search for sources
-VPATH     = $(SRCPATHS)
+VPATH     += $(SRCPATHS)
 
 #
 # Include user extra rules if any

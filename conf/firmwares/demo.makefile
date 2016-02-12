@@ -35,6 +35,7 @@ SRC_MODULES=modules
 
 CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
 
+VPATH += $(PAPARAZZI_HOME)/var/share
 
 #
 # common test
