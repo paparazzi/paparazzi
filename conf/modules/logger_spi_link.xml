@@ -12,15 +12,9 @@
   <init fun="high_speed_logger_spi_link_init()"/>
   <periodic fun="high_speed_logger_spi_link_periodic()" autorun="TRUE"/>
   <makefile target="ap">
+    <configure name="HS_LOG_SPI_DEV" default="spi1" case="upper|lower"/>
+    <configure name="HS_LOG_SPI_SLAVE_IDX" default="spi_slave1" case="upper|lower"/>
     <raw>
-      HS_LOG_SPI_DEV ?= spi1
-      HS_LOG_SPI_DEV_LOWER=$(shell echo $(HS_LOG_SPI_DEV) | tr A-Z a-z)
-      HS_LOG_SPI_DEV_UPPER=$(shell echo $(HS_LOG_SPI_DEV) | tr a-z A-Z)
-
-      HS_LOG_SPI_SLAVE_IDX ?= spi_slave1
-      HS_LOG_SPI_SLAVE_IDX_LOWER=$(shell echo $(HS_LOG_SPI_SLAVE_IDX) | tr A-Z a-z)
-      HS_LOG_SPI_SLAVE_IDX_UPPER=$(shell echo $(HS_LOG_SPI_SLAVE_IDX) | tr a-z A-Z)
-
       include $(CFG_SHARED)/spi_master.makefile
     </raw>
 

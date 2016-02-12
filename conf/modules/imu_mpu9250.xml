@@ -17,11 +17,7 @@
   <periodic fun="imu_mpu9250_report()" freq="10" autorun="TRUE"/>
   <event fun="imu_mpu9250_event()"/>
   <makefile>
-    <raw>
-      IMU_MPU9250_I2C_DEV ?= i2c1
-      IMU_MPU9250_I2C_DEV_LOWER=$(shell echo $(IMU_MPU9250_I2C_DEV) | tr A-Z a-z)
-      IMU_MPU9250_I2C_DEV_UPPER=$(shell echo $(IMU_MPU9250_I2C_DEV) | tr a-z A-Z)
-    </raw>
+    <configure name="IMU_MPU9250_I2C_DEV" default="i2c1" case="upper|lower"/>
     <define name="USE_$(IMU_MPU9250_I2C_DEV_UPPER)"/>
     <define name="IMU_MPU9250_I2C_DEV" value="$(IMU_MPU9250_I2C_DEV_LOWER)"/>
     <file name="imu_mpu9250.c"/>

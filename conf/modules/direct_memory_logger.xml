@@ -27,19 +27,10 @@
   <periodic fun="direct_memory_logger_periodic()" autorun="TRUE"/>
 
   <makefile target="ap">
+    <configure name="DM_LOG_UART" default="uart1" case="upper|lower"/>
+    <configure name="DM_LOG_SPI_DEV" default="spi2" case="upper|lower"/>
+    <configure name="DM_LOG_SPI_SLAVE_IDX" default="spi_slave1" case="upper|lower"/>
     <raw>
-      DM_LOG_UART ?= uart1
-      DM_LOG_UART_LOWER=$(shell echo $(DM_LOG_UART) | tr A-Z a-z)
-      DM_LOG_UART_UPPER=$(shell echo $(DM_LOG_UART) | tr a-z A-Z)
-
-      DM_LOG_SPI_DEV ?= spi2
-      DM_LOG_SPI_DEV_LOWER=$(shell echo $(DM_LOG_SPI_DEV) | tr A-Z a-z)
-      DM_LOG_SPI_DEV_UPPER=$(shell echo $(DM_LOG_SPI_DEV) | tr a-z A-Z)
-
-      DM_LOG_SPI_SLAVE_IDX ?= spi_slave1
-      DM_LOG_SPI_SLAVE_IDX_LOWER=$(shell echo $(DM_LOG_SPI_SLAVE_IDX) | tr A-Z a-z)
-      DM_LOG_SPI_SLAVE_IDX_UPPER=$(shell echo $(DM_LOG_SPI_SLAVE_IDX) | tr a-z A-Z)
-
       include $(CFG_SHARED)/spi_master.makefile
     </raw>
 

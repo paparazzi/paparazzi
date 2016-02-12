@@ -25,18 +25,11 @@
 
   <makefile target="ap">
     <file name="hott.c"/>
-
-    <raw>
-      HOTT_PORT ?= UART1
-      HOTT_PORT_LOWER=$(shell echo $(HOTT_PORT) | tr A-Z a-z)
-      HOTT_PORT_UPPER=$(shell echo $(HOTT_PORT) | tr a-z A-Z)
-
-      HOTT_SIM_EAM_SENSOR   ?= 1
-      HOTT_SIM_GAM_SENSOR   ?= 0
-      HOTT_SIM_GPS_SENSOR   ?= 0
-      HOTT_SIM_VARIO_SENSOR ?= 0
-    </raw>
-
+    <configure name="HOTT_PORT" default="uart1" case="upper|lower"/>
+    <configure name="HOTT_SIM_EAM_SENSOR" default="1"/>
+    <configure name="HOTT_SIM_GAM_SENSOR" default="0"/>
+    <configure name="HOTT_SIM_GPS_SENSOR" default="0"/>
+    <configure name="HOTT_SIM_VARIO_SENSOR" default="0"/>
     <define name="HOTT_PORT" value="$(HOTT_PORT_LOWER)"/>
     <define name="USE_$(HOTT_PORT_UPPER)"/>
     <define name="$(HOTT_PORT_UPPER)_BAUD" value="B19200"/>
@@ -44,7 +37,6 @@
     <define name="HOTT_SIM_GAM_SENSOR" value="$(HOTT_SIM_GAM_SENSOR)"/>
     <define name="HOTT_SIM_GPS_SENSOR" value="$(HOTT_SIM_GPS_SENSOR)"/>
     <define name="HOTT_SIM_VARIO_SENSOR" value="$(HOTT_SIM_VARIO_SENSOR)"/>
-
   </makefile>
 </module>
 

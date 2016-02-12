@@ -36,11 +36,7 @@
   <event fun="AirspeedEtsEvent()"/>
 
   <makefile>
-    <raw>
-      AIRSPEED_ETS_I2C_DEV ?= i2c0
-      AIRSPEED_ETS_I2C_DEV_LOWER=$(shell echo $(AIRSPEED_ETS_I2C_DEV) | tr A-Z a-z)
-      AIRSPEED_ETS_I2C_DEV_UPPER=$(shell echo $(AIRSPEED_ETS_I2C_DEV) | tr a-z A-Z)
-    </raw>
+    <configure name="AIRSPEED_ETS_I2C_DEV" default="i2c0" case="upper|lower"/>
     <define name="USE_$(AIRSPEED_ETS_I2C_DEV_UPPER)"/>
     <define name="AIRSPEED_ETS_I2C_DEV" value="$(AIRSPEED_ETS_I2C_DEV_LOWER)"/>
     <file name="airspeed_ets.c"/>

@@ -9,12 +9,11 @@
   </header>
   <makefile>
     <file name="uart_drop.c"/>
-    <raw>
-      UART_DROP_PORT ?= UART1
-      UART_DROP_BAUD ?= B115200
-      UART_DROP_PORT_LOWER = $(shell echo $(UART_DROP_PORT) | tr A-Z a-z)
-      ap.CFLAGS += -DUART_DROP_PORT=$(UART_DROP_PORT_LOWER) -DUSE_$(UART_DROP_PORT) -D$(UART_DROP_PORT)_BAUD=$(UART_DROP_BAUD)
-    </raw>
+    <configure name="UART_DROP_PORT" default="uart1" case="upper|lower"/>
+    <configure name="UART_DROP_BAUD" default="B115200"/>
+    <define name="UART_DROP_PORT" value="$(UART_DROP_PORT_LOWER)"/>
+    <define name="USE_$(UART_DROP_PORT_UPPER)"/>
+    <define name="$(UART_DROP_PORT_UPPER)_BAUD" value="$(UART_DROP_BAUD)"/>
   </makefile>
 </module>
 

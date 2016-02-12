@@ -13,11 +13,7 @@
   <periodic fun="humid_htm_read()"  freq="4" delay="14"/>
   <event fun="humid_htm_event()"/>
   <makefile target="ap">
-    <raw>
-      HTM_I2C_DEV ?= i2c0
-      HTM_I2C_DEV_LOWER=$(shell echo $(HTM_I2C_DEV) | tr A-Z a-z)
-      HTM_I2C_DEV_UPPER=$(shell echo $(HTM_I2C_DEV) | tr a-z A-Z)
-    </raw>
+    <configure name="HTM_I2C_DEV" default="i2c0" case="upper|lower"/>
     <define name="USE_$(HTM_I2C_DEV_UPPER)"/>
     <define name="HTM_I2C_DEV" value="$(HTM_I2C_DEV_LOWER)"/>
     <file name="humid_htm_b71.c"/>

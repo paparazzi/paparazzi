@@ -17,11 +17,7 @@
   <periodic fun="baro_ms5611_periodic_check()" freq="40"/>
   <event fun="baro_ms5611_event()"/>
   <makefile target="ap">
-    <raw>
-      MS5611_I2C_DEV ?= i2c0
-      MS5611_I2C_DEV_LOWER=$(shell echo $(MS5611_I2C_DEV) | tr A-Z a-z)
-      MS5611_I2C_DEV_UPPER=$(shell echo $(MS5611_I2C_DEV) | tr a-z A-Z)
-    </raw>
+    <configure name="MS5611_I2C_DEV" default="i2c0" case="upper|lower"/>
     <define name="USE_$(MS5611_I2C_DEV_UPPER)"/>
     <define name="MS5611_I2C_DEV" value="$(MS5611_I2C_DEV_LOWER)"/>
     <file name="baro_ms5611_i2c.c"/>

@@ -12,11 +12,7 @@
   <periodic fun="hmc5843_module_periodic()" freq="60"/>
   <event fun="hmc5843_module_event()"/>
   <makefile>
-    <raw>
-      HMC5843_I2C_DEV ?= i2c0
-      HMC5843_I2C_DEV_LOWER=$(shell echo $(HMC5843_I2C_DEV) | tr A-Z a-z)
-      HMC5843_I2C_DEV_UPPER=$(shell echo $(HMC5843_I2C_DEV) | tr a-z A-Z)
-    </raw>
+    <configure name="HMC5843_I2C_DEV" default="i2c0" case="upper|lower"/>
     <define name="USE_$(HMC5843_I2C_DEV_UPPER)"/>
     <define name="HMC5843_I2C_DEV" value="$(HMC5843_I2C_DEV_LOWER)"/>
     <file name="mag_hmc5843.c"/>

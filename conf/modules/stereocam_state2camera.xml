@@ -17,12 +17,10 @@
   <makefile>
     <file name="state2camera/state2camera.c"/>
     <file name="stereoprotocol.c" dir="modules/stereocam"/>
-    <raw>
-        STEREO_UART_LOWER=$(shell echo $(STEREO_UART) | tr A-Z a-z)
-        ap.CFLAGS += -DUSE_$(STEREO_UART)
-        ap.CFLAGS += -DUART_LINK=$(STEREO_UART_LOWER)
-        ap.CFLAGS += -D$(STEREO_UART)_BAUD=$(STEREO_BAUD)
-    </raw>
+    <configure name="STEREO_UART" case="upper|lower"/>
+    <define name="USE_$(STEREO_UART_UPPER)"/>
+    <define name="UART_LINK" value="$(STEREO_UART_LOWER)"/>
+    <define name="$(STEREO_UART_UPPER)_BAUD" value="$(STEREO_BAUD)"/>
   </makefile>
 
 </module>

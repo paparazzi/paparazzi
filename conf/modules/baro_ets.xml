@@ -34,11 +34,7 @@
   <event fun="BaroEtsEvent()"/>
 
   <makefile target="ap">
-    <raw>
-      BARO_ETS_I2C_DEV ?= i2c0
-      BARO_ETS_I2C_DEV_LOWER=$(shell echo $(BARO_ETS_I2C_DEV) | tr A-Z a-z)
-      BARO_ETS_I2C_DEV_UPPER=$(shell echo $(BARO_ETS_I2C_DEV) | tr a-z A-Z)
-    </raw>
+    <configure name="BARO_ETS_I2C_DEV" default="i2c0" case="upper|lower"/>
     <define name="USE_$(BARO_ETS_I2C_DEV_UPPER)"/>
     <define name="BARO_ETS_I2C_DEV" value="$(BARO_ETS_I2C_DEV_LOWER)"/>
     <file name="baro_ets.c"/>
