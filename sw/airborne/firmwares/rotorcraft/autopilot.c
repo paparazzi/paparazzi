@@ -242,14 +242,14 @@ static void send_rc(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_RC(trans, dev, AC_ID, RADIO_CONTROL_NB_CHANNEL, radio_control.values);
 }
 
-static void send_rotorcraft_rc(struct transport_tx *trans, struct link_device *dev)
+static void send_rc(struct transport_tx *trans, struct link_device *dev)
 {
 #ifdef RADIO_KILL_SWITCH
   int16_t _kill_switch = radio_control.values[RADIO_KILL_SWITCH];
 #else
   int16_t _kill_switch = 42;
 #endif
-  pprz_msg_send_ROTORCRAFT_RADIO_CONTROL(trans, dev, AC_ID,
+  pprz_msg_send_RADIO_CONTROL(trans, dev, AC_ID,
                                          &radio_control.values[RADIO_ROLL],
                                          &radio_control.values[RADIO_PITCH],
                                          &radio_control.values[RADIO_YAW],
@@ -330,7 +330,7 @@ void autopilot_init(void)
 #endif
 #ifdef RADIO_CONTROL
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RC, send_rc);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_RADIO_CONTROL, send_rotorcraft_rc);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RADIO_CONTROL, send_rc);
 #endif
 }
 
