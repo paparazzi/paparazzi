@@ -32,18 +32,17 @@
 #ifndef GPS_PIKSI_H
 #define GPS_PIKSI_H
 
-#define GPS_NB_CHANNELS 10
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS gps_piksi
+#endif
 
 extern void gps_piksi_event(void);
+extern void gps_piksi_init(void);
+extern void gps_piksi_register(void);
 
 /*
  * Reset base station position
  */
 extern void gps_piksi_set_base_pos(void);
-
-/*
- * The GPS event
- */
-#define GpsEvent gps_piksi_event
 
 #endif /* GPS_PIKSI_H */

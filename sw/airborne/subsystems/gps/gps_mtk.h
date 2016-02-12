@@ -34,6 +34,7 @@
 #ifndef MTK_H
 #define MTK_H
 
+#include "subsystems/gps.h"
 #include "mcu_periph/uart.h"
 
 /** Includes macros generated from mtk.xml */
@@ -57,15 +58,15 @@ struct GpsMtk {
 
   uint8_t status_flags;
   uint8_t sol_flags;
+
+  struct GpsState state;
 };
 
 extern struct GpsMtk gps_mtk;
 
-
-/*
- * This part is used by the autopilot to read data from a uart
- */
-#include "pprzlink/pprzlink_device.h"
+extern void gps_mtk_event(void);
+extern void gps_mtk_init(void);
+extern void gps_mtk_register(void);
 
 #ifdef GPS_CONFIGURE
 extern void gps_configure(void);
@@ -79,21 +80,5 @@ extern bool_t gps_configuring;
 #define GpsConfigure() {}
 #endif
 
-extern void gps_mtk_read_message(void);
-extern void gps_mtk_parse(uint8_t c);
-extern void gps_mtk_msg(void);
-
-static inline void GpsEvent(void)
-{
-  struct link_device *dev = &((GPS_LINK).device);
-
-  while (dev->char_available(dev->periph)) {
-    gps_mtk_parse(dev->get_byte(dev->periph));
-    if (gps_mtk.msg_available) {
-      gps_mtk_msg();
-    }
-    GpsConfigure();
-  }
-}
 
 #endif /* MTK_H */

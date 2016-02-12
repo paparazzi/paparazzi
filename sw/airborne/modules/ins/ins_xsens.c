@@ -259,6 +259,13 @@ void ins_xsens_init(void)
 }
 
 #include "subsystems/abi.h"
+/** ABI binding for gps data.
+ * Used for GPS ABI messages.
+ */
+#ifndef INS_XSENS_GPS_ID
+#define INS_XSENS_GPS_ID GPS_MULTI_ID
+#endif
+PRINT_CONFIG_VAR(INS_XSENS_GPS_ID)
 static abi_event gps_ev;
 static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
@@ -270,7 +277,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 void ins_xsens_register(void)
 {
   ins_register_impl(ins_xsens_init);
-  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
+  AbiBindMsgGPS(INS_XSENS_GPS_ID, &gps_ev, gps_cb);
 }
 
 void ins_xsens_update_gps(struct GpsState *gps_s)
@@ -292,7 +299,7 @@ void ins_xsens_update_gps(struct GpsState *gps_s)
 #endif
 
 #if USE_GPS_XSENS
-void gps_impl_init(void)
+void gps_xsens_init(void)
 {
   gps.nb_channels = 0;
 }
@@ -715,7 +722,6 @@ void parse_ins_msg(void)
 
 }
 
-
 void parse_ins_buffer(uint8_t c)
 {
   ck += c;
@@ -768,3 +774,13 @@ restart:
   xsens_status = UNINIT;
   return;
 }
+
+#ifdef USE_GPS_XSENS
+/*
+ * register callbacks & structs
+ */
+void gps_xsens_register(void)
+{
+  gps_register_impl(gps_xsens_init, NULL, GPS_XSENS_ID);
+}
+#endif

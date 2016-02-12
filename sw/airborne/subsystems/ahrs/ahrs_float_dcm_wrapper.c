@@ -71,6 +71,13 @@ PRINT_CONFIG_VAR(AHRS_DCM_IMU_ID)
 #define AHRS_DCM_MAG_ID AHRS_DCM_IMU_ID
 #endif
 PRINT_CONFIG_VAR(AHRS_DCM_MAG_ID)
+/** ABI binding for gps data.
+ * Used for GPS ABI messages.
+ */
+#ifndef AHRS_DCM_GPS_ID
+#define AHRS_DCM_GPS_ID GPS_MULTI_ID
+#endif
+PRINT_CONFIG_VAR(AHRS_DCM_GPS_ID)
 static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event mag_ev;
@@ -202,7 +209,7 @@ void ahrs_dcm_register(void)
   AbiBindMsgIMU_MAG_INT32(AHRS_DCM_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
-  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
+  AbiBindMsgGPS(AHRS_DCM_GPS_ID, &gps_ev, gps_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STATE_FILTER_STATUS, send_filter_status);

@@ -11,11 +11,10 @@ ifneq ($(GPS_LED),none)
 endif
 
 ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ardrone2.h\"
-ap.srcs   += $(SRC_SUBSYSTEMS)/gps/gps_ardrone2.c
-
-$(TARGET).srcs += $(SRC_SUBSYSTEMS)/gps.c
+ap.srcs += $(SRC_SUBSYSTEMS)/gps/gps_ardrone2.c
+ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 
 nps.CFLAGS += -DUSE_GPS
-nps.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+nps.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"
 nps.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_nps.c
-
+nps.srcs += $(SRC_SUBSYSTEMS)/gps.c

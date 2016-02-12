@@ -32,9 +32,16 @@
 
 #include "std.h"
 #include "generated/airframe.h"
-#define GPS_NB_CHANNELS 0
+#include "subsystems/gps.h"
 
-extern bool_t gps_available;
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS gps_datalink
+#endif
+
+extern struct GpsState gps_datalink;
+
+extern void gps_datalink_init(void);
+extern void gps_datalink_register(void);
 
 extern void parse_gps_datalink_small(uint8_t num_sv, uint32_t pos_xyz, uint32_t speed_xyz, int16_t heading);
 
@@ -43,7 +50,5 @@ extern void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
                                int32_t ecef_xd, int32_t ecef_yd, int32_t ecef_zd,
                                uint32_t tow, int32_t course);
 
-// dummy
-#define GpsEvent() {}
 
 #endif /* GPS_DATALINK_H */

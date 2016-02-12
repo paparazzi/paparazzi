@@ -23,7 +23,7 @@
 
 /** ABI binding for gps messages*/
 #ifndef STEREOCAM_GPS_ID
-#define STEREOCAM_GPS_ID ABI_BROADCAST
+#define STEREOCAM_GPS_ID GPS_MULTI_ID
 #endif
 static abi_event gps_ev;
 

@@ -137,7 +137,7 @@ static void baro_cb(uint8_t sender_id, float pressure);
 #define INS_INT_IMU_ID ABI_BROADCAST
 #endif
 #ifndef INS_INT_GPS_ID
-#define INS_INT_GPS_ID ABI_BROADCAST
+#define INS_INT_GPS_ID GPS_MULTI_ID
 #endif
 static abi_event accel_ev;
 static abi_event gps_ev;

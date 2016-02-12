@@ -31,11 +31,16 @@
  *
  */
 
-#include "subsystems/gps.h"
+#include "gps_mtk.h"
 #include "subsystems/abi.h"
 #include "led.h"
 
 #include "mcu_periph/sys_time.h"
+#include "pprzlink/pprzlink_device.h"
+
+#ifndef MTK_GPS_LINK
+#error "MTK_GPS_LINK not set"
+#endif
 
 #define MTK_DIY_OUTPUT_RATE MTK_DIY_OUTPUT_4HZ
 #define OUTPUT_RATE     4
@@ -99,7 +104,11 @@ bool_t gps_configuring;
 static uint8_t gps_status_config;
 #endif
 
-void gps_impl_init(void)
+void gps_mtk_read_message(void);
+void gps_mtk_parse(uint8_t c);
+void gps_mtk_msg(void);
+
+void gps_mtk_init(void)
 {
   gps_mtk.status = UNINIT;
   gps_mtk.msg_available = FALSE;
@@ -111,29 +120,42 @@ void gps_impl_init(void)
 #endif
 }
 
+void gps_mtk_event(void)
+{
+  struct link_device *dev = &((MTK_GPS_LINK).device);
+
+  while (dev->char_available(dev->periph)) {
+    gps_mtk_parse(dev->get_byte(dev->periph));
+    if (gps_mtk.msg_available) {
+      gps_mtk_msg();
+    }
+    GpsConfigure();
+  }
+}
+
 void gps_mtk_msg(void)
 {
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
 
-  gps.last_msg_ticks = sys_time.nb_sec_rem;
-  gps.last_msg_time = sys_time.nb_sec;
+  gps_mtk.state.last_msg_ticks = sys_time.nb_sec_rem;
+  gps_mtk.state.last_msg_time = sys_time.nb_sec;
   gps_mtk_read_message();
   if (gps_mtk.msg_class == MTK_DIY14_ID &&
       gps_mtk.msg_id == MTK_DIY14_NAV_ID) {
-    if (gps.fix == GPS_FIX_3D) {
-      gps.last_3dfix_ticks = sys_time.nb_sec_rem;
-      gps.last_3dfix_time = sys_time.nb_sec;
+    if (gps_mtk.state.fix == GPS_FIX_3D) {
+      gps_mtk.state.last_3dfix_ticks = sys_time.nb_sec_rem;
+      gps_mtk.state.last_3dfix_time = sys_time.nb_sec;
     }
-    AbiSendMsgGPS(GPS_MTK_ID, now_ts, &gps);
+    AbiSendMsgGPS(GPS_MTK_ID, now_ts, &gps_mtk.state);
   }
   if (gps_mtk.msg_class == MTK_DIY16_ID &&
       gps_mtk.msg_id == MTK_DIY16_NAV_ID) {
-    if (gps.fix == GPS_FIX_3D) {
-      gps.last_3dfix_ticks = sys_time.nb_sec_rem;
-      gps.last_3dfix_time = sys_time.nb_sec;
+    if (gps_mtk.state.fix == GPS_FIX_3D) {
+      gps_mtk.state.last_3dfix_ticks = sys_time.nb_sec_rem;
+      gps_mtk.state.last_3dfix_time = sys_time.nb_sec;
     }
-    AbiSendMsgGPS(GPS_MTK_ID, now_ts, &gps);
+    AbiSendMsgGPS(GPS_MTK_ID, now_ts, &gps_mtk.state);
   }
   gps_mtk.msg_available = FALSE;
 }
@@ -190,39 +212,39 @@ void gps_mtk_read_message(void)
       gps_time_sync.t0_ticks      = sys_time.nb_tick;
       gps_time_sync.t0_tow      = MTK_DIY14_NAV_ITOW(gps_mtk.msg_buf);
       gps_time_sync.t0_tow_frac = 0;
-      gps.lla_pos.lat = MTK_DIY14_NAV_LAT(gps_mtk.msg_buf) * 10;
-      gps.lla_pos.lon = MTK_DIY14_NAV_LON(gps_mtk.msg_buf) * 10;
-      SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
+      gps_mtk.state.lla_pos.lat = MTK_DIY14_NAV_LAT(gps_mtk.msg_buf) * 10;
+      gps_mtk.state.lla_pos.lon = MTK_DIY14_NAV_LON(gps_mtk.msg_buf) * 10;
+      SetBit(gps_mtk.state.valid_fields, GPS_VALID_POS_LLA_BIT);
       // FIXME: with MTK you do not receive vertical speed
-      if (sys_time.nb_sec - gps.last_3dfix_time < 2) {
-        gps.ned_vel.z  = ((gps.hmsl -
+      if (sys_time.nb_sec - gps_mtk.state.last_3dfix_time < 2) {
+        gps_mtk.state.ned_vel.z  = ((gps_mtk.state.hmsl -
                            MTK_DIY14_NAV_HEIGHT(gps_mtk.msg_buf) * 10) * OUTPUT_RATE) / 10;
-      } else { gps.ned_vel.z = 0; }
-      gps.hmsl        = MTK_DIY14_NAV_HEIGHT(gps_mtk.msg_buf) * 10;
-      SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
+      } else { gps_mtk.state.ned_vel.z = 0; }
+      gps_mtk.state.hmsl        = MTK_DIY14_NAV_HEIGHT(gps_mtk.msg_buf) * 10;
+      SetBit(gps_mtk.state.valid_fields, GPS_VALID_HMSL_BIT);
       // FIXME: with MTK you do not receive ellipsoid altitude
-      gps.lla_pos.alt = gps.hmsl;
-      gps.gspeed      = MTK_DIY14_NAV_GSpeed(gps_mtk.msg_buf);
+      gps_mtk.state.lla_pos.alt = gps_mtk.state.hmsl;
+      gps_mtk.state.gspeed      = MTK_DIY14_NAV_GSpeed(gps_mtk.msg_buf);
       // FIXME: with MTK you do not receive speed 3D
-      gps.speed_3d    = gps.gspeed;
-      gps.course      = (RadOfDeg(MTK_DIY14_NAV_Heading(gps_mtk.msg_buf))) * 10;
-      SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
-      gps.num_sv      = MTK_DIY14_NAV_numSV(gps_mtk.msg_buf);
+      gps_mtk.state.speed_3d    = gps_mtk.state.gspeed;
+      gps_mtk.state.course      = (RadOfDeg(MTK_DIY14_NAV_Heading(gps_mtk.msg_buf))) * 10;
+      SetBit(gps_mtk.state.valid_fields, GPS_VALID_COURSE_BIT);
+      gps_mtk.state.num_sv      = MTK_DIY14_NAV_numSV(gps_mtk.msg_buf);
       switch (MTK_DIY14_NAV_GPSfix(gps_mtk.msg_buf)) {
         case MTK_DIY_FIX_3D:
-          gps.fix = GPS_FIX_3D;
+          gps_mtk.state.fix = GPS_FIX_3D;
           break;
         case MTK_DIY_FIX_2D:
-          gps.fix = GPS_FIX_2D;
+          gps_mtk.state.fix = GPS_FIX_2D;
           break;
         default:
-          gps.fix = GPS_FIX_NONE;
+          gps_mtk.state.fix = GPS_FIX_NONE;
       }
-      gps.tow         = MTK_DIY14_NAV_ITOW(gps_mtk.msg_buf);;
+      gps_mtk.state.tow         = MTK_DIY14_NAV_ITOW(gps_mtk.msg_buf);;
       // FIXME: with MTK DIY 1.4 you do not receive GPS week
-      gps.week        = 0;
+      gps_mtk.state.week        = 0;
 #ifdef GPS_LED
-      if (gps.fix == GPS_FIX_3D) {
+      if (gps_mtk.state.fix == GPS_FIX_3D) {
         LED_ON(GPS_LED);
       } else {
         LED_TOGGLE(GPS_LED);
@@ -236,43 +258,43 @@ void gps_mtk_read_message(void)
       uint32_t gps_date, gps_time;
       gps_date = MTK_DIY16_NAV_UTC_DATE(gps_mtk.msg_buf);
       gps_time = MTK_DIY16_NAV_UTC_TIME(gps_mtk.msg_buf);
-      gps_mtk_time2itow(gps_date, gps_time, &gps.week, &gps.tow);
+      gps_mtk_time2itow(gps_date, gps_time, &gps_mtk.state.week, &gps_mtk.state.tow);
 #ifdef GPS_TIMESTAMP
       /* get hardware clock ticks */
-      SysTimeTimerStart(gps.t0);
-      gps.t0_tow      = gps.tow;
-      gps.t0_tow_frac = 0;
+      SysTimeTimerStart(gps_mtk.state.t0);
+      gps_mtk.state.t0_tow      = gps_mtk.state.tow;
+      gps_mtk.state.t0_tow_frac = 0;
 #endif
-      gps.lla_pos.lat = MTK_DIY16_NAV_LAT(gps_mtk.msg_buf) * 10;
-      gps.lla_pos.lon = MTK_DIY16_NAV_LON(gps_mtk.msg_buf) * 10;
+      gps_mtk.state.lla_pos.lat = MTK_DIY16_NAV_LAT(gps_mtk.msg_buf) * 10;
+      gps_mtk.state.lla_pos.lon = MTK_DIY16_NAV_LON(gps_mtk.msg_buf) * 10;
       // FIXME: with MTK you do not receive vertical speed
-      if (sys_time.nb_sec - gps.last_3dfix_time < 2) {
-        gps.ned_vel.z  = ((gps.hmsl -
+      if (sys_time.nb_sec - gps_mtk.state.last_3dfix_time < 2) {
+        gps_mtk.state.ned_vel.z  = ((gps_mtk.state.hmsl -
                            MTK_DIY16_NAV_HEIGHT(gps_mtk.msg_buf) * 10) * OUTPUT_RATE) / 10;
-      } else { gps.ned_vel.z = 0; }
-      gps.hmsl        = MTK_DIY16_NAV_HEIGHT(gps_mtk.msg_buf) * 10;
-      SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
+      } else { gps_mtk.state.ned_vel.z = 0; }
+      gps_mtk.state.hmsl        = MTK_DIY16_NAV_HEIGHT(gps_mtk.msg_buf) * 10;
+      SetBit(gps_mtk.state.valid_fields, GPS_VALID_HMSL_BIT);
       // FIXME: with MTK you do not receive ellipsoid altitude
-      gps.lla_pos.alt = gps.hmsl;
-      gps.gspeed      = MTK_DIY16_NAV_GSpeed(gps_mtk.msg_buf);
+      gps_mtk.state.lla_pos.alt = gps_mtk.state.hmsl;
+      gps_mtk.state.gspeed      = MTK_DIY16_NAV_GSpeed(gps_mtk.msg_buf);
       // FIXME: with MTK you do not receive speed 3D
-      gps.speed_3d    = gps.gspeed;
-      gps.course      = (RadOfDeg(MTK_DIY16_NAV_Heading(gps_mtk.msg_buf) * 10000)) * 10;
-      SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
-      gps.num_sv      = MTK_DIY16_NAV_numSV(gps_mtk.msg_buf);
+      gps_mtk.state.speed_3d    = gps_mtk.state.gspeed;
+      gps_mtk.state.course      = (RadOfDeg(MTK_DIY16_NAV_Heading(gps_mtk.msg_buf) * 10000)) * 10;
+      SetBit(gps_mtk.state.valid_fields, GPS_VALID_COURSE_BIT);
+      gps_mtk.state.num_sv      = MTK_DIY16_NAV_numSV(gps_mtk.msg_buf);
       switch (MTK_DIY16_NAV_GPSfix(gps_mtk.msg_buf)) {
         case MTK_DIY_FIX_3D:
-          gps.fix = GPS_FIX_3D;
+          gps_mtk.state.fix = GPS_FIX_3D;
           break;
         case MTK_DIY_FIX_2D:
-          gps.fix = GPS_FIX_2D;
+          gps_mtk.state.fix = GPS_FIX_2D;
           break;
         default:
-          gps.fix = GPS_FIX_NONE;
+          gps_mtk.state.fix = GPS_FIX_NONE;
       }
       /* HDOP? */
 #ifdef GPS_LED
-      if (gps.fix == GPS_FIX_3D) {
+      if (gps_mtk.state.fix == GPS_FIX_3D) {
         LED_ON(GPS_LED);
       } else {
         LED_TOGGLE(GPS_LED);
@@ -389,6 +411,14 @@ restart:
 
 
 /*
+ * register callbacks & structs
+ */
+void gps_mtk_register(void)
+{
+  gps_register_impl(gps_mtk_init, gps_mtk_event, GPS_MTK_ID);
+}
+
+/*
  *
  *
  * GPS dynamic configuration
@@ -401,7 +431,7 @@ restart:
 
 static void MtkSend_CFG(char *dat)
 {
-  struct link_device *dev = &((GPS_LINK).device);
+  struct link_device *dev = &((MTK_GPS_LINK).device);
   while (*dat != 0) { dev->put_byte(dev->periph, *dat++); }
 }
 

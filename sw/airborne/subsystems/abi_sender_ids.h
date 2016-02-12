@@ -158,7 +158,10 @@
 #define GPS_SIM_ID 11
 #endif
 
-
+#ifndef GPS_MULTI_ID
+#define GPS_MULTI_ID 12
+#endif
+ 
 /*
  * IDs of IMU sensors (accel, gyro)
  */

@@ -30,6 +30,7 @@
  *  Parsing GGA, RMC, GSA and GSV.
  */
 
+#include "gps_nmea.h"
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
 #include "led.h"
@@ -62,10 +63,9 @@ static void nmea_parse_RMC(void);
 static void nmea_parse_GGA(void);
 static void nmea_parse_GSV(void);
 
-
-void gps_impl_init(void)
+void gps_nmea_init(void)
 {
-  gps.nb_channels = GPS_NB_CHANNELS;
+  gps_nmea.state.nb_channels = GPS_NMEA_NB_CHANNELS;
   gps_nmea.is_configured = FALSE;
   gps_nmea.msg_available = FALSE;
   gps_nmea.pos_available = FALSE;
@@ -76,18 +76,34 @@ void gps_impl_init(void)
   nmea_configure();
 }
 
-void gps_nmea_msg(void)
+void gps_nmea_event(void)
+{
+  struct link_device *dev = &((NMEA_GPS_LINK).device);
+
+  if (!gps_nmea.is_configured) {
+    nmea_configure();
+    return;
+  }
+  while (dev->char_available(dev->periph)) {
+    nmea_parse_char(dev->get_byte(dev->periph));
+    if (gps_nmea.msg_available) {
+      nmea_gps_msg();
+    }
+  }
+}
+
+void nmea_gps_msg(void)
 {
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
 
-  gps.last_msg_ticks = sys_time.nb_sec_rem;
-  gps.last_msg_time = sys_time.nb_sec;
+  gps_nmea.state.last_msg_ticks = sys_time.nb_sec_rem;
+  gps_nmea.state.last_msg_time = sys_time.nb_sec;
   nmea_parse_msg();
   if (gps_nmea.pos_available) {
-    if (gps.fix == GPS_FIX_3D) {
-      gps.last_3dfix_ticks = sys_time.nb_sec_rem;
-      gps.last_3dfix_time = sys_time.nb_sec;
+    if (gps_nmea.state.fix == GPS_FIX_3D) {
+      gps_nmea.state.last_3dfix_ticks = sys_time.nb_sec_rem;
+      gps_nmea.state.last_3dfix_time = sys_time.nb_sec;
     }
     AbiSendMsgGPS(GPS_NMEA_ID, now_ts, &gps);
   }
@@ -251,11 +267,11 @@ static void nmea_parse_GSA(void)
 
   // get 2D/3D-fix
   // set gps_mode=3=3d, 2=2d, 1=no fix or 0
-  gps.fix = atoi(&gps_nmea.msg_buf[i]);
-  if (gps.fix == 1) {
-    gps.fix = 0;
+  gps_nmea.state.fix = atoi(&gps_nmea.msg_buf[i]);
+  if (gps_nmea.state.fix == 1) {
+    gps_nmea.state.fix = 0;
   }
-  NMEA_PRINT("p_GSA() - gps.fix=%i (3=3D)\n\r", gps.fix);
+  NMEA_PRINT("p_GSA() - gps_nmea.state.fix=%i (3=3D)\n\r", gps_nmea.state.fix);
   nmea_read_until(&i);
 
   // up to 12 PRNs of satellites used for fix
@@ -266,13 +282,13 @@ static void nmea_parse_GSA(void)
       int prn = atoi(&gps_nmea.msg_buf[i]);
       NMEA_PRINT("p_GSA() - PRN %i=%i\n\r", satcount, prn);
       if (!gps_nmea.have_gsv) {
-        gps.svinfos[prn_cnt].svid = prn;
+        gps_nmea.state.svinfos[prn_cnt].svid = prn;
       }
       satcount++;
     }
     else {
       if (!gps_nmea.have_gsv) {
-        gps.svinfos[prn_cnt].svid = 0;
+        gps_nmea.state.svinfos[prn_cnt].svid = 0;
       }
     }
     nmea_read_until(&i);
@@ -280,7 +296,7 @@ static void nmea_parse_GSA(void)
 
   // PDOP
   float pdop = strtof(&gps_nmea.msg_buf[i], NULL);
-  gps.pdop = pdop * 100;
+  gps_nmea.state.pdop = pdop * 100;
   NMEA_PRINT("p_GSA() - pdop=%f\n\r", pdop);
   nmea_read_until(&i);
 
@@ -330,15 +346,15 @@ static void nmea_parse_RMC(void)
   // get speed
   nmea_read_until(&i);
   double speed = strtod(&gps_nmea.msg_buf[i], NULL);
-  gps.gspeed = speed * 1.852 * 100 / (60 * 60);
-  NMEA_PRINT("p_RMC() - ground-speed=%f knot = %d cm/s\n\r", speed, (gps.gspeed * 1000));
+  gps_nmea.state.gspeed = speed * 1.852 * 100 / (60 * 60);
+  NMEA_PRINT("p_RMC() - ground-speed=%f knot = %d cm/s\n\r", speed, (gps_nmea.state.gspeed * 1000));
 
   // get course
   nmea_read_until(&i);
   double course = strtod(&gps_nmea.msg_buf[i], NULL);
-  gps.course = RadOfDeg(course) * 1e7;
+  gps_nmea.state.course = RadOfDeg(course) * 1e7;
   NMEA_PRINT("p_RMC() - course: %f deg\n\r", course);
-  SetBit(gps.valid_fields, GPS_VALID_COURSE_BIT);
+  SetBit(gps_nmea.state.valid_fields, GPS_VALID_COURSE_BIT);
 }
 
 
@@ -363,7 +379,7 @@ static void nmea_parse_GGA(void)
   // ignored GpsInfo.PosLLA.TimeOfFix.f = strtod(&packet[i], NULL);
   // FIXME: parse UTC time correctly
   double utc_time = strtod(&gps_nmea.msg_buf[i], NULL);
-  gps.tow = (uint32_t)((utc_time + 1) * 1000);
+  gps_nmea.state.tow = (uint32_t)((utc_time + 1) * 1000);
 
   // get latitude [ddmm.mmmmm]
   nmea_read_until(&i);
@@ -380,7 +396,7 @@ static void nmea_parse_GGA(void)
 
   // convert to radians
   lla_f.lat = RadOfDeg(lat);
-  gps.lla_pos.lat = lat * 1e7; // convert to fixed-point
+  gps_nmea.state.lla_pos.lat = lat * 1e7; // convert to fixed-point
   NMEA_PRINT("p_GGA() - lat=%f gps_lat=%f\n\r", (lat * 1000), lla_f.lat);
 
 
@@ -399,9 +415,9 @@ static void nmea_parse_GGA(void)
 
   // convert to radians
   lla_f.lon = RadOfDeg(lon);
-  gps.lla_pos.lon = lon * 1e7; // convert to fixed-point
-  NMEA_PRINT("p_GGA() - lon=%f gps_lon=%f time=%u\n\r", (lon * 1000), lla_f.lon, gps.tow);
-  SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
+  gps_nmea.state.lla_pos.lon = lon * 1e7; // convert to fixed-point
+  NMEA_PRINT("p_GGA() - lon=%f gps_lon=%f time=%u\n\r", (lon * 1000), lla_f.lon, gps_nmea.state.tow);
+  SetBit(gps_nmea.state.valid_fields, GPS_VALID_POS_LLA_BIT);
 
   // get position fix status
   nmea_read_until(&i);
@@ -417,20 +433,20 @@ static void nmea_parse_GGA(void)
 
   // get number of satellites used in GPS solution
   nmea_read_until(&i);
-  gps.num_sv = atoi(&gps_nmea.msg_buf[i]);
-  NMEA_PRINT("p_GGA() - gps_numSatlitesUsed=%i\n\r", gps.num_sv);
+  gps_nmea.state.num_sv = atoi(&gps_nmea.msg_buf[i]);
+  NMEA_PRINT("p_GGA() - gps_numSatlitesUsed=%i\n\r", gps_nmea.state.num_sv);
 
   // get HDOP, but we use PDOP from GSA message
   nmea_read_until(&i);
   //float hdop = strtof(&gps_nmea.msg_buf[i], NULL);
-  //gps.pdop = hdop * 100;
+  //gps_nmea.state.pdop = hdop * 100;
 
   // get altitude (in meters) above geoid (MSL)
   nmea_read_until(&i);
   float hmsl = strtof(&gps_nmea.msg_buf[i], NULL);
-  gps.hmsl = hmsl * 1000;
-  NMEA_PRINT("p_GGA() - gps.hmsl=%i\n\r", gps.hmsl);
-  SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
+  gps_nmea.state.hmsl = hmsl * 1000;
+  NMEA_PRINT("p_GGA() - gps_nmea.state.hmsl=%i\n\r", gps_nmea.state.hmsl);
+  SetBit(gps_nmea.state.valid_fields, GPS_VALID_HMSL_BIT);
 
   // get altitude units (always M)
   nmea_read_until(&i);
@@ -441,8 +457,8 @@ static void nmea_parse_GGA(void)
   NMEA_PRINT("p_GGA() - geoid alt=%f\n\r", geoid);
   // height above ellipsoid
   lla_f.alt = hmsl + geoid;
-  gps.lla_pos.alt = lla_f.alt * 1000;
-  NMEA_PRINT("p_GGA() - gps.alt=%i\n\r", gps.lla_pos.alt);
+  gps_nmea.state.lla_pos.alt = lla_f.alt * 1000;
+  NMEA_PRINT("p_GGA() - gps_nmea.state.alt=%i\n\r", gps_nmea.state.lla_pos.alt);
 
   // get seperations units
   nmea_read_until(&i);
@@ -453,10 +469,10 @@ static void nmea_parse_GGA(void)
   /* convert to ECEF */
   struct EcefCoor_f ecef_f;
   ecef_of_lla_f(&ecef_f, &lla_f);
-  gps.ecef_pos.x = ecef_f.x * 100;
-  gps.ecef_pos.y = ecef_f.y * 100;
-  gps.ecef_pos.z = ecef_f.z * 100;
-  SetBit(gps.valid_fields, GPS_VALID_POS_ECEF_BIT);
+  gps_nmea.state.ecef_pos.x = ecef_f.x * 100;
+  gps_nmea.state.ecef_pos.y = ecef_f.y * 100;
+  gps_nmea.state.ecef_pos.z = ecef_f.z * 100;
+  SetBit(gps_nmea.state.valid_fields, GPS_VALID_POS_ECEF_BIT);
 }
 
 /**
@@ -513,10 +529,10 @@ static void nmea_parse_GSV(void)
     int ch_idx = (cur_sen - 1) * 4 + sat_cnt;
     // don't populate svinfos with GLONASS sats for now
     if (!is_glonass && ch_idx > 0 && ch_idx < 12) {
-      gps.svinfos[ch_idx].svid = prn;
-      gps.svinfos[ch_idx].cno = snr;
-      gps.svinfos[ch_idx].elev = elev;
-      gps.svinfos[ch_idx].azim = azim;
+      gps_nmea.state.svinfos[ch_idx].svid = prn;
+      gps_nmea.state.svinfos[ch_idx].cno = snr;
+      gps_nmea.state.svinfos[ch_idx].elev = elev;
+      gps_nmea.state.svinfos[ch_idx].azim = azim;
     }
     if (is_glonass) {
       NMEA_PRINT("p_GSV() - GLONASS %i PRN=%i elev=%i azim=%i snr=%i\n\r", ch_idx, prn, elev, azim, snr);
@@ -525,4 +541,12 @@ static void nmea_parse_GSV(void)
       NMEA_PRINT("p_GSV() - GPS %i PRN=%i elev=%i azim=%i snr=%i\n\r", ch_idx, prn, elev, azim, snr);
     }
   }
+}
+
+  /*
+ * register callbacks & structs
+ */
+void gps_nmea_register(void)
+{
+  gps_register_impl(gps_nmea_init, gps_nmea_event, GPS_NMEA_ID);
 }

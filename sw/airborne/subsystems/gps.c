@@ -24,8 +24,35 @@
  *
  */
 
+#include "subsystems/abi.h"
 #include "subsystems/gps.h"
 #include "led.h"
+#include "subsystems/settings.h"
+#include "generated/settings.h"
+
+#ifndef PRIMARY_GPS
+#error "PRIMARY_GPS not set!"
+#else
+PRINT_CONFIG_VAR(PRIMARY_GPS)
+#endif
+
+#ifdef SECONDARY_GPS
+PRINT_CONFIG_VAR(SECONDARY_GPS)
+#endif
+
+#define __RegisterGps(_x) _x ## _register()
+#define _RegisterGps(_x) __RegisterGps(_x)
+#define RegisterGps(_x) _RegisterGps(_x)
+
+/** maximum number of GPS implementations that can register */
+#ifdef SECONDARY_GPS
+#define GPS_NB_IMPL 2
+#else
+#define GPS_NB_IMPL 1
+#endif
+
+#define PRIMARY_GPS_INSTANCE 0
+#define SECONDARY_GPS_INSTANCE 1
 
 #ifdef GPS_POWER_GPIO
 #include "mcu_periph/gpio.h"
@@ -36,10 +63,26 @@
 #endif
 
 #define MSEC_PER_WEEK (1000*60*60*24*7)
+#define TIME_TO_SWITCH 5000 //ten s in ms
 
 struct GpsState gps;
 
 struct GpsTimeSync gps_time_sync;
+
+#ifdef SECONDARY_GPS
+static uint8_t current_gps_id = 0;
+#endif
+
+uint8_t multi_gps_mode;
+
+/* gps structs */
+struct GpsInstance {
+  ImplGpsInit init;
+  ImplGpsEvent event;
+  uint8_t id;
+};
+
+struct GpsInstance GpsInstances[GPS_NB_IMPL];
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -109,7 +152,8 @@ static void send_gps_int(struct transport_tx *trans, struct link_device *dev)
                         &gps.tow,
                         &gps.pdop,
                         &gps.num_sv,
-                        &gps.fix);
+                        &gps.fix,
+                        &gps.comp_id);
   // send SVINFO for available satellites that have new data
   send_svinfo_available(trans, dev);
 }
@@ -132,8 +176,96 @@ static void send_gps_sol(struct transport_tx *trans, struct link_device *dev)
 }
 #endif
 
+void gps_periodic_check(void)
+{
+  if (sys_time.nb_sec - gps.last_msg_time > GPS_TIMEOUT) {
+    gps.fix = GPS_FIX_NONE;
+  }
+}
+
+#ifdef SECONDARY_GPS
+static uint8_t gps_multi_switch(struct GpsState *gps_s) {
+  static uint32_t time_since_last_gps_switch = 0;
+
+  if (multi_gps_mode == GPS_MODE_PRIMARY){
+    return GpsInstances[PRIMARY_GPS_INSTANCE].id;
+  } else if (multi_gps_mode == GPS_MODE_SECONDARY){
+    return GpsInstances[SECONDARY_GPS_INSTANCE].id;
+  } else{
+    if (gps_s->fix > gps.fix){
+      return gps_s->comp_id;
+    } else if (gps.fix > gps_s->fix){
+      return gps.comp_id;
+    } else{
+      if (get_sys_time_msec() - time_since_last_gps_switch > TIME_TO_SWITCH) {
+        if (gps_s->num_sv > gps.num_sv) {
+          current_gps_id = gps_s->comp_id;
+          time_since_last_gps_switch = get_sys_time_msec();
+        } else if (gps.num_sv > gps_s->num_sv) {
+          current_gps_id = gps.comp_id;
+          time_since_last_gps_switch = get_sys_time_msec();
+        }
+      }
+    }
+  }
+  return current_gps_id;
+}
+#endif /*SECONDARY_GPS*/
+
+static abi_event gps_ev;
+static void gps_cb(uint8_t sender_id,
+                   uint32_t stamp __attribute__((unused)),
+                   struct GpsState *gps_s)
+{
+  if (sender_id == GPS_MULTI_ID) {
+    return;
+  }
+  uint32_t now_ts = get_sys_time_usec();
+#ifdef SECONDARY_GPS
+  current_gps_id = gps_multi_switch(gps_s);
+  if (gps_s->comp_id == current_gps_id) {
+    gps = *gps_s;
+    AbiSendMsgGPS(GPS_MULTI_ID, now_ts, gps_s);
+  }
+#else
+  gps = *gps_s;
+  AbiSendMsgGPS(GPS_MULTI_ID, now_ts, gps_s);
+#endif
+}
+
+/*
+ * handle gps switching and updating gps instances
+ */
+void GpsEvent(void) {
+  // run each gps event
+  for (int i = 0 ; i < GPS_NB_IMPL ; i++) {
+    if (GpsInstances[i].event != NULL) {
+      GpsInstances[i].event();
+    }
+  }
+}
+
+/*
+ * register gps structs for callback
+ */
+void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id)
+{
+  int i;
+  for (i=0; i < GPS_NB_IMPL; i++) {
+    if (GpsInstances[i].init == NULL) {
+      GpsInstances[i].init = init;
+      GpsInstances[i].event = event;
+      GpsInstances[i].id = id;
+      break;
+    }
+  }
+
+}
+
 void gps_init(void)
 {
+  multi_gps_mode = MULTI_GPS_MODE;
+
   gps.valid_fields = 0;
   gps.fix = GPS_FIX_NONE;
   gps.week = 0;
@@ -144,6 +276,7 @@ void gps_init(void)
   gps.last_3dfix_time = 0;
   gps.last_msg_ticks = 0;
   gps.last_msg_time = 0;
+
 #ifdef GPS_POWER_GPIO
   gpio_setup_output(GPS_POWER_GPIO);
   GPS_POWER_GPIO_ON(GPS_POWER_GPIO);
@@ -151,9 +284,19 @@ void gps_init(void)
 #ifdef GPS_LED
   LED_OFF(GPS_LED);
 #endif
-#ifdef GPS_TYPE_H
-  gps_impl_init();
+
+  RegisterGps(PRIMARY_GPS);
+#ifdef SECONDARY_GPS
+  RegisterGps(SECONDARY_GPS);
 #endif
+
+  for (int i=0; i < GPS_NB_IMPL; i++) {
+    if (GpsInstances[i].init != NULL) {
+      GpsInstances[i].init();
+    }
+  }
+
+  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS, send_gps);
@@ -162,13 +305,6 @@ void gps_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS_SOL, send_gps_sol);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SVINFO, send_svinfo);
 #endif
-}
-
-void gps_periodic_check(void)
-{
-  if (sys_time.nb_sec - gps.last_msg_time > GPS_TIMEOUT) {
-    gps.fix = GPS_FIX_NONE;
-  }
 }
 
 uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks)

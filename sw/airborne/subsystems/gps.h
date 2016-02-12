@@ -34,11 +34,6 @@
 
 #include "mcu_periph/sys_time.h"
 
-/* GPS model specific implementation or sim */
-#ifdef GPS_TYPE_H
-#include GPS_TYPE_H
-#endif
-
 #define GPS_FIX_NONE 0x00     ///< No GPS fix
 #define GPS_FIX_2D   0x02     ///< 2D GPS fix
 #define GPS_FIX_3D   0x03     ///< 3D GPS fix
@@ -50,10 +45,6 @@
 #define GpsIsLost() !GpsFixValid()
 #endif
 
-#ifndef GPS_NB_CHANNELS
-#define GPS_NB_CHANNELS 1
-#endif
-
 #define GPS_VALID_POS_ECEF_BIT 0
 #define GPS_VALID_POS_LLA_BIT  1
 #define GPS_VALID_POS_UTM_BIT  2
@@ -61,6 +52,20 @@
 #define GPS_VALID_VEL_NED_BIT  4
 #define GPS_VALID_HMSL_BIT     5
 #define GPS_VALID_COURSE_BIT   6
+
+#ifndef GPS_NB_CHANNELS
+#define GPS_NB_CHANNELS 16
+#endif
+
+#define GPS_MODE_PRIMARY 0
+#define GPS_MODE_SECONDARY 1
+#define GPS_MODE_AUTO 2
+
+#ifndef MULTI_GPS_MODE
+#define MULTI_GPS_MODE GPS_MODE_AUTO
+#endif
+
+extern uint8_t multi_gps_mode;
 
 /** data structure for Space Vehicle Information of a single satellite */
 struct SVinfo {
@@ -75,6 +80,7 @@ struct SVinfo {
 /** data structure for GPS information */
 struct GpsState {
   uint8_t valid_fields;          ///< bitfield indicating valid fields (GPS_VALID_x_BIT)
+  uint8_t comp_id;               ///< id of current gps
 
   struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
   struct LlaCoor_i lla_pos;      ///< position in LLA (lat,lon: deg*1e7; alt: mm over ellipsoid)
@@ -114,11 +120,26 @@ struct GpsTimeSync {
 /** global GPS state */
 extern struct GpsState gps;
 
+typedef void (*ImplGpsInit)(void);
+typedef void (*ImplGpsEvent)(void);
+
+
+extern void GpsEvent(void);
+
+/**
+ * register callbacks and state pointers
+ */
+extern void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id);
+
+#ifdef GPS_TYPE_H
+#include GPS_TYPE_H
+#endif
+#ifdef GPS_SECONDARY_TYPE_H
+#include GPS_SECONDARY_TYPE_H
+#endif
+
 /** initialize the global GPS state */
 extern void gps_init(void);
-
-/** GPS model specific init implementation */
-extern void gps_impl_init(void);
 
 /** GPS packet injection (default empty) */
 extern void gps_inject_data(uint8_t packet_id, uint8_t length, uint8_t *data);

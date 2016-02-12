@@ -19,10 +19,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "subsystems/gps.h"
+#include "subsystems/gps/gps_sim.h"
 #include "subsystems/abi.h"
 
-void gps_impl_init(void)
+void gps_sim_init(void)
 {
   gps.fix = GPS_FIX_NONE;
 }
@@ -37,4 +37,12 @@ void gps_sim_publish(void)
     gps.last_3dfix_time = sys_time.nb_sec;
   }
   AbiSendMsgGPS(GPS_SIM_ID, now_ts, &gps);
+}
+
+/*
+ * register callbacks & structs
+ */
+void gps_sim_register(void)
+{
+  gps_register_impl(gps_sim_init, NULL, GPS_SIM_ID);
 }
