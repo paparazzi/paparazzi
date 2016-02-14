@@ -37,7 +37,7 @@
 struct LtpDef_i ltp_def;
 struct EnuCoor_i enu_pos, enu_speed;
 
-struct GpsDatalink gps_datalink;
+struct GpsState gps_datalink;
 
 /** GPS initialization */
 void gps_datalink_init(void)
@@ -117,7 +117,7 @@ void parse_gps_datalink_small(uint8_t num_sv, uint32_t pos_xyz, uint32_t speed_x
     gps_datalink.last_3dfix_ticks = sys_time.nb_sec_rem;
     gps_datalink.last_3dfix_time = sys_time.nb_sec;
   }
-  AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink.state);
+  AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
 }
 
 /** Parse the REMOTE_GPS datalink packet */
@@ -167,7 +167,7 @@ void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, int32_t e
     gps_datalink.last_3dfix_ticks = sys_time.nb_sec_rem;
     gps_datalink.last_3dfix_time = sys_time.nb_sec;
   }
-  AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink.state);
+  AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
 }
 
 
