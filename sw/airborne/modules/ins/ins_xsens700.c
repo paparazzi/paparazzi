@@ -230,7 +230,7 @@ void ins_xsens_update_gps(struct GpsState *gps_s)
 #endif
 
 #if USE_GPS_XSENS
-void gps_xsens_impl_init(void)
+void gps_xsens_init(void)
 {
   gps.nb_channels = 0;
 }
