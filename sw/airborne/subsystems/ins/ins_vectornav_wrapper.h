@@ -37,8 +37,12 @@
 
 #define InsEvent ins_vectornav_event
 
-#define GpsEvent() {}
-
 extern void ins_vectornav_register(void);
+
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS gps_vectornav
+#endif
+extern void gps_vectornav_init(void);
+extern void gps_vectornav_register(void);
 
 #endif /* INS_VECTORNAV_WRAPPER_H */

@@ -161,7 +161,11 @@
 #ifndef GPS_MULTI_ID
 #define GPS_MULTI_ID 12
 #endif
- 
+
+#ifndef GPS_VECTORNAV_ID
+#define GPS_VECTORNAV_ID 13
+#endif
+
 /*
  * IDs of IMU sensors (accel, gyro)
  */
