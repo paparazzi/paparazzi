@@ -67,7 +67,7 @@ inline int32_t update_median_filter(struct MedianFilterInt *filter, int32_t new_
   for (i = 1; i <= (MEDIAN_DATASIZE - 1); i++) {
     temp = filter->sortData[i];
     j = i - 1;
-    while (temp < filter->sortData[j] && j >= 0) {
+    while (j >= 0 && temp < filter->sortData[j]) {
       filter->sortData[j + 1] = filter->sortData[j];
       j = j - 1;
     }
