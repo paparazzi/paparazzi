@@ -343,7 +343,7 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
 #define RESERVED 0
 
 static inline void gps_ubx_ucenter_config_nav(void)
-{ 
+{
   // New ublox firmware v5 or higher uses CFG_NAV5 message, CFG_NAV is no longer available
   // If version message couldn't be fetched, default to NAV5
   if (gps_ubx_ucenter.sw_ver_h < 5 && gps_ubx_ucenter.hw_ver_h < 6 &&
@@ -393,7 +393,7 @@ static inline void gps_ubx_ucenter_config_port(void)
       // I2C Interface
     case GPS_PORT_DDC:
 #ifdef GPS_I2C
-      UbxSend_CFG_PRT(gps_ubx_ucenter.dev, gps_ubx_ucenter.port_id, 0x0, 0x0, GPS_I2C_SLAVE_ADDR, 0x0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+      UbxSend_CFG_PRT(gps_ubx_ucenter.dev, gps_ubx_ucenter.port_id, 0x0, 0x0, GPS_I2C_SLAVE_ADDR, 0x0, UBX_PROTO_MASK | NMEA_PROTO_MASK, UBX_PROTO_MASK| NMEA_PROTO_MASK, 0x0, 0x0);
 #else
       DEBUG_PRINT("WARNING: Please include the gps_i2c module.\n");
 #endif
@@ -403,14 +403,14 @@ static inline void gps_ubx_ucenter_config_port(void)
     case GPS_PORT_UART2:
       UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
           gps_ubx_ucenter.port_id, 0x0, 0x0,
-          UBX_UART_MODE_MASK, UART_SPEED(gps_ubx_ucenter.baud_target), UBX_PROTO_MASK,
-          UBX_PROTO_MASK, 0x0, 0x0);
+          UBX_UART_MODE_MASK, UART_SPEED(gps_ubx_ucenter.baud_target), UBX_PROTO_MASK | NMEA_PROTO_MASK,
+          UBX_PROTO_MASK| NMEA_PROTO_MASK, 0x0, 0x0);
       break;
       // USB Interface
     case GPS_PORT_USB:
       UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
           gps_ubx_ucenter.port_id, 0x0, 0x0, 0x0, 0x0,
-          UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+          UBX_PROTO_MASK | NMEA_PROTO_MASK, UBX_PROTO_MASK| NMEA_PROTO_MASK, 0x0, 0x0);
       break;
     case GPS_PORT_SPI:
       DEBUG_PRINT("WARNING: ublox SPI port is currently not supported.\n");
