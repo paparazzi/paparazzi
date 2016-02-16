@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="110" ground_alt="10" lat0="78.202961" lon0="15.8310" max_dist_from_home="800" name="Nordlysstasjonen" qfu="270" security_height="60">
+<flight_plan alt="110" ground_alt="10" lat0="78.202961" lon0="15.8310" max_dist_from_home="5000" name="Nordlysstasjonen" qfu="270" security_height="60">
   <header>
 #include "subsystems/navigation/nav_line.h"
 #include "subsystems/datalink/datalink.h"
@@ -17,23 +17,56 @@
     <waypoint alt="110.0" name="_BASELEG" x="10.2" y="-220.3"/>
     <waypoint alt="65.0" name="AF" x="-252.3" y="24.8"/>
     <waypoint alt="10.0" name="TD" x="-106.8" y="26.6"/>
-    <waypoint name="PROF_LAND" x="-180" y="-170"/>
+    <waypoint alt="500.0" name="PROF_LAND_1" x="-241.1" y="-52.0"/>
+    <waypoint alt="500.0" name="PROF_LAND_2" x="-746.0" y="796.4"/>
+    <waypoint alt="500.0" name="PROF_LAND_3" x="-1360.8" y="1627.1"/>
+    <waypoint alt="500.0" name="PROF_LAND_4" x="-1972.8" y="2301.4"/>
   </waypoints>
   <exceptions>
-    <exception cond="estimator_z > 150" deroute="wait"/>
+    <exception cond="estimator_z > 550" deroute="wait"/>
     <exception cond="datalink_time > 140" deroute="wait"/>
     <exception cond="9.5 > PowerVoltage()" deroute="wait"/>
   </exceptions>
   <blocks>
     <block name="start">
-      <attitude pitch="20" roll="0" throttle="0.7" until="(estimator_flight_time > 3)" vmode="throttle"/>
+      <attitude pitch="20" roll="0" throttle="0.99" until="(estimator_flight_time > 3)" vmode="throttle"/>
       <go wp="START"/>
     </block>
     <block name="wait" strip_button="wait">
       <circle radius="nav_radius" wp="CR"/>
     </block>
-    <block name="prof" strip_button="prof">
-      <circle radius="nav_radius" wp="PROF_LAND"/>
+    <block name="prof1" strip_button="prof1">
+      <set value="50" var="waypoints[WP_PROF_LAND_1].a"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 1" wp="PROF_LAND_1"/>
+      <set value="800" var="waypoints[WP_PROF_LAND_1].a"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 3" wp="PROF_LAND_1"/>
+      <set value="50" var="waypoints[WP_PROF_LAND_1].a"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 3" wp="PROF_LAND_1"/>
+    </block>
+    <block name="prof2" strip_button="prof2">
+      <set value="50" var="waypoints[WP_PROF_LAND_2].a"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 1" wp="PROF_LAND_2"/>
+      <set value="500" var="waypoints[WP_PROF_LAND_2].a"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 3" wp="PROF_LAND_2"/>
+      <set value="50" var="waypoints[WP_PROF_LAND_2].a"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 3" wp="PROF_LAND_2"/>
+    </block>
+    <block name="prof3" strip_button="prof3">
+      <set value="50" var="waypoints[WP_PROF_LAND_3].a"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 1" wp="PROF_LAND_3"/>
+      <set value="500" var="waypoints[WP_PROF_LAND_3].a"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 3" wp="PROF_LAND_3"/>
+      <set value="50" var="waypoints[WP_PROF_LAND_3].a"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 3" wp="PROF_LAND_3"/>
+    </block>
+    <block name="prof4" strip_button="prof4">
+      <set value="50" var="waypoints[WP_PROF_LAND_4].a"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 1" wp="PROF_LAND_4"/>
+      <set value="500" var="waypoints[WP_PROF_LAND_4].a"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 3" wp="PROF_LAND_4"/>
+      <set value="50" var="waypoints[WP_PROF_LAND_4].a"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 3" wp="PROF_LAND_4"/>
+      <deroute block="wait"/>
     </block>
     <block name="down" strip_button="Down" strip_icon="downdown.png">
       <set value="LATERAL_MODE_ROLL" var="lateral_mode"/>
@@ -72,8 +105,8 @@
     </block>
     <block name="profile" strip_button="Profile Up Land" strip_icon="up_profile.png">
       <for from="0" to="2" var="i">
-        <set value="10+30+40*$i" var="waypoints[WP_PROF_LAND].a"/>
-        <circle radius="nav_radius" until="NavCircleCount() > 3" wp="PROF_LAND"/>
+        <set value="10+30+40*$i" var="waypoints[WP_PROF_LAND_1].a"/>
+        <circle radius="nav_radius" until="NavCircleCount() > 3" wp="PROF_LAND_1"/>
       </for>
       <deroute block="profile"/>
     </block>
