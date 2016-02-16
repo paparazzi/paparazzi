@@ -22,10 +22,10 @@ ifdef SECONDARY_GPS
 ifneq (,$(findstring $(SECONDARY_GPS), vectornav))
 # this is the secondary GPS
 VN_CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/ins_vectornav_wrapper.h\"
-VN_CFLAGS += -DSECONDARY_GPS=gps_ubx
+VN_CFLAGS += -DSECONDARY_GPS=gps_vectornav
 else
 VN_CFLAGS += -DGPS_TYPE_H=\"subsystems/ins/ins_vectornav_wrapper.h\"
-VN_CFLAGS += -DPRIMARY_GPS=gps_ubx
+VN_CFLAGS += -DPRIMARY_GPS=gps_vectornav
 endif
 else
 # plain old single GPS usage
