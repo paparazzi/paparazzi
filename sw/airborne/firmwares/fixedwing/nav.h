@@ -45,6 +45,10 @@
 #define Square(_x) ((_x)*(_x))
 #define DistanceSquare(p1_x, p1_y, p2_x, p2_y) (Square(p1_x-p2_x)+Square(p1_y-p2_y))
 
+#define PowerVoltage() (vsupply/10.)
+#define RcRoll(travel) (fbw_state->channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
+
+
 enum oval_status { OR12, OC2, OR21, OC1 };
 
 extern float cur_pos_x;
@@ -68,6 +72,8 @@ extern bool_t nav_in_circle;
 extern bool_t nav_in_segment;
 extern float nav_circle_x, nav_circle_y, nav_circle_radius; /* m */
 extern float nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2; /* m */
+
+extern uint8_t last_wp __attribute__((unused));
 
 extern int nav_mode;
 #define NAV_MODE_ROLL 1
@@ -108,13 +114,20 @@ extern float nav_survey_shift;
 extern float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
 extern bool_t nav_survey_active;
 
-void nav_periodic_task(void);
-void nav_home(void);
-void nav_init(void);
-void nav_without_gps(void);
+extern void nav_periodic_task(void);
+extern void nav_home(void);
+extern void nav_init(void);
+extern void nav_without_gps(void);
 
 extern float nav_circle_trigo_qdr; /** Angle from center to mobile */
 extern void nav_circle_XY(float x, float y, float radius);
+
+extern float baseleg_out_qdr;
+extern bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius);
+extern bool_t nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide);
+
+extern void nav_glide(uint8_t start_wp, uint8_t wp);
+#define NavGlide(_start_wp, _wp) nav_glide(_start_wp, _wp)
 
 #define NavCircleWaypoint(wp, radius) \
   nav_circle_XY(waypoints[wp].x, waypoints[wp].y, radius)
