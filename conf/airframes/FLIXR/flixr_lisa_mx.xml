@@ -21,29 +21,41 @@
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
 
-    <subsystem name="radio_control" type="spektrum">
+    <module name="radio_control" type="spektrum">
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
         <define name="RADIO_KILL_SWITCH" value="RADIO_AUX2"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.2"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="float_mlkf"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat">
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="aspirin_v2.2"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="float_mlkf"/>
+    <module name="ahrs"          type="int_cmpl_quat">
       <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="ins" type="hff"/>
+    <module name="ins" type="hff"/>
+
+    <module name="adc_generic.xml">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
+      <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
+    </module>
+    <module name="gps_ubx_ucenter"/>
+    <module name="geo_mag"/>
+    <module name="sys_mon"/>
+    <module name="air_data">
+      <define name="AIR_DATA_TEMPERATURE_ID" value="IMU_ASPIRIN2_ID"/>
+    </module>
+    <module name="mission_rotorcraft"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
     <!--define name="FAILSAFE_ON_BAT_CRITICAL" value="TRUE"/-->
@@ -56,7 +68,7 @@
       <configure name="TUNNEL_BAUD" value="B38400"/>
     </target>
     <target name="setup_actuators"  board="lisa_mx_2.0">
-      <subsystem name="actuators" type="pwm"/>
+      <module name="actuators" type="pwm"/>
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
     </target>
@@ -70,38 +82,24 @@
       <configure name="BARO_LED" value="5"/>
     </target>
     <target name="test_radio_control" board="lisa_mx_2.0">
-      <subsystem name="radio_control" type="spektrum">
+      <module name="radio_control" type="spektrum">
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
         <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="0"/>
-      </subsystem>
+      </module>
     </target>
     <target name="test_imu" board="lisa_mx_2.0">
-      <!--subsystem name="spi_master"/-->
-      <subsystem name="imu" type="aspirin_v2.2"/>
+      <!--module name="spi_master"/-->
+      <module name="imu" type="aspirin_v2.2"/>
     </target>
     <target name="test_ahrs" board="lisa_mx_2.0">
-      <subsystem name="imu" type="aspirin_v2.2"/>
-      <subsystem name="ahrs" type="int_cmpl_quat"/>
+      <module name="imu" type="aspirin_v2.2"/>
+      <module name="ahrs" type="int_cmpl_quat"/>
     </target>
     <target name="test_module" board="lisa_mx_2.0">
     </target>
   </firmware>
 
   <autopilot name="rotorcraft_autopilot.xml" freq="512"/>
-
-  <modules>
-    <load name="adc_generic.xml">
-      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
-      <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
-    </load>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="geo_mag.xml"/>
-    <load name="sys_mon.xml"/>
-    <load name="air_data.xml">
-      <define name="AIR_DATA_TEMPERATURE_ID" value="IMU_ASPIRIN2_ID"/>
-    </load>
-    <load name="mission_rotorcraft.xml"/>
-  </modules>
 
   <servos driver="Pwm">
     <servo name="FL" no="0" min="1000" neutral="1100" max="1900"/>

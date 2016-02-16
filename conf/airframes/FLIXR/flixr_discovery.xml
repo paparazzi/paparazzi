@@ -28,28 +28,33 @@
     <define name="WIND_INFO"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent"/>
-    <subsystem name="radio_control" type="ppm"/>
-    <!--subsystem name="settings" type="rc"/-->
+    <module name="telemetry" type="transparent"/>
+    <module name="radio_control" type="ppm"/>
+    <!--module name="settings" type="rc"/-->
 
     <!-- Control -->
-    <subsystem name="control" type="new"/>
-    <subsystem name="navigation"/>
+    <module name="control" type="new"/>
+    <module name="navigation"/>
 
-    <subsystem name="ahrs" type="int_cmpl_quat">
+    <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="0"/>
       <define name="AHRS_USE_GPS_HEADING" value="1"/>
-    </subsystem>
-    <subsystem name="ins" type="alt_float"/>
+    </module>
+    <module name="ins" type="alt_float"/>
 
     <!-- Sensors -->
-    <subsystem name="imu" type="b2_v1.0">
+    <module name="imu" type="b2_v1.0">
       <configure name="NO_MAG" value="1"/>
-    </subsystem>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="current_sensor">
+    </module>
+    <module name="gps" type="ublox"/>
+    <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
-    </subsystem>
+    </module>
+    <module name="servo_switch"/>
+    <module name="sys_mon"/>
+    <module name="adc_generic">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_4"/> <!-- voltage sensor -->
+    </module>
   </firmware>
 
 
@@ -67,19 +72,6 @@
     <target name="test_telemetry" board="twog_1.0"/>
   </firmware>
 
-
-<!-- ******************* MODULES ********************************** -->
-  <modules main_freq="60">
-    <load name="servo_switch.xml"/>
-    <load name="sys_mon.xml"/>
-    <load name="adc_generic.xml">
-      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_4"/> <!-- voltage sensor -->
-    </load>
-    <!--load name="airspeed_ets.xml">
-      <define name="AIRSPEED_ETS_SYNC_SEND"/>
-      <define name="USE_AIRSPEED"/>
-    </load-->
-  </modules>
 
 <!-- Define here to which CONNECTOR NUMBER the servo is connected to, on the autopilot cicuit board -->
   <servos>

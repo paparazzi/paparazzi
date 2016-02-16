@@ -16,16 +16,16 @@
       <configure name="SEPARATE_FBW" value="1"/>
       <define name="LINK_MCU_LED" value="4"/>
       <!-- FBW -->
-      <subsystem name="actuators" type="dummy"/>
-      <subsystem name="intermcu" type="uart">
+      <module name="actuators" type="dummy"/>
+      <module name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART2"/>
-      </subsystem>
+      </module>
       <!-- AP -->
-      <subsystem name="control"/>
-      <subsystem name="navigation"/>
-      <subsystem name="telemetry" type="transparent"/>
-      <subsystem name="ins" type="alt_float"/>
-      <subsystem name="gps" type="ublox"/>
+      <module name="control"/>
+      <module name="navigation"/>
+      <module name="telemetry" type="transparent"/>
+      <module name="ins" type="alt_float"/>
+      <module name="gps" type="ublox"/>
     </target>
 
     <target name="fbw" board="lisa_mx_2.0">
@@ -34,30 +34,40 @@
       <define name="LINK_MCU_LED" value="1"/>
       <!-- no usb -->
       <!-- FBW <-> AP -->
-      <subsystem name="intermcu" type="uart">
+      <module name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART1"/>
-      </subsystem>
+      </module>
       <!-- SERVO'S -->
-      <subsystem name="actuators" type="pwm">
+      <module name="actuators" type="pwm">
         <define name="USE_SERVOS_7AND8"/>
-      </subsystem>
-      <!--subsystem name="fbw_datalink"/-->
-      <subsystem name="telemetry" type="transparent"/>
+      </module>
+      <!--module name="fbw_datalink"/-->
+      <module name="telemetry" type="transparent"/>
     </target>
 
     <target name="sim" board="pc">
       <!-- AP -->
-      <subsystem name="control"/>
-      <subsystem name="navigation"/>
+      <module name="control"/>
+      <module name="navigation"/>
       <!-- Communication -->
-      <subsystem name="telemetry" type="transparent"/>
-      <subsystem name="ins" type="alt_float"/>
+      <module name="telemetry" type="transparent"/>
+      <module name="ins" type="alt_float"/>
     </target>
 
-    <!-- common subsystems -->
-    <subsystem name="radio_control" type="spektrum">
+    <!-- common modules -->
+    <module name="radio_control" type="spektrum">
       <define name="RADIO_CONTROL_NB_CHANNEL" value="8" />
-    </subsystem>
+    </module>
+
+    <!-- extra modules -->
+    <module name="light">
+      <define name="LIGHT_LED_STROBE" value="6"/>
+      <!--      <define name="LIGHT_LED_NAV" value="2"/> -->
+      <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
+      <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
+    </module>
+    <module name="nav_line"/>
+    <module name="air_data"/>
 
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
@@ -67,19 +77,6 @@
     <define name="WIND_INFO_RET"/>
     <define name="RADIO_CONTROL_AUTO1"/>
   </firmware>
-
-  <!-- ************************* MODULES ************************* -->
-
-  <modules>
-    <load name="light.xml">
-      <define name="LIGHT_LED_STROBE" value="6"/>
-      <!--      <define name="LIGHT_LED_NAV" value="2"/> -->
-      <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
-      <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
-    </load>
-    <load name="nav_line.xml"/>
-    <load name="air_data.xml"/>
-  </modules>
 
   <!-- ************************* ACTUATORS ************************* -->
 
