@@ -593,37 +593,37 @@ gboolean timeout_transmit_callback(gpointer data)
                  (int)(rigidBodies[i].ecef_vel.z * 100.0), //int32 ECEF velocity Z in m/s
                  0,
                  (int)(heading * 10000000.0));           //int32 Course in rad*1e7
+    }
+    if (must_log) {
+      if (log_exists == 0) {
+        fp = fopen(nameOfLogfile, "w");
+        log_exists = 1;
+      }
 
-      if (must_log) {
-        if (log_exists == 0) {
-          fp = fopen(nameOfLogfile, "w");
-          log_exists = 1;
-        }
-
-        if (fp == NULL) {
-          printf("I couldn't open file for writing.\n");
-          exit(0);
-        } else {
-          struct timeval cur_time;
-          gettimeofday(&cur_time, NULL);
-          fprintf(fp, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", aircrafts[rigidBodies[i].id].ac_id,
-                  rigidBodies[i].nMarkers,                //uint8 Number of markers (sv_num)
-                  (int)(ecef_pos.x * 100.0),              //int32 ECEF X in CM
-                  (int)(ecef_pos.y * 100.0),              //int32 ECEF Y in CM
-                  (int)(ecef_pos.z * 100.0),              //int32 ECEF Z in CM
-                  (int)(DegOfRad(lla_pos.lat) * 1e7),     //int32 LLA latitude in deg*1e7
-                  (int)(DegOfRad(lla_pos.lon) * 1e7),     //int32 LLA longitude in deg*1e7
-                  (int)(rigidBodies[i].z * 1000.0),       //int32 LLA altitude in mm above elipsoid
-                  (int)(rigidBodies[i].z * 1000.0),       //int32 HMSL height above mean sea level in mm
-                  (int)(rigidBodies[i].ecef_vel.x * 100.0), //int32 ECEF velocity X in cm/s
-                  (int)(rigidBodies[i].ecef_vel.y * 100.0), //int32 ECEF velocity Y in cm/s
-                  (int)(rigidBodies[i].ecef_vel.z * 100.0), //int32 ECEF velocity Z in cm/s
-                  (int)(heading * 10000000.0),            //int32 Course in rad*1e7
-                  (int)cur_time.tv_sec,
-                  (int)cur_time.tv_usec);
-        }
+      if (fp == NULL) {
+        printf("I couldn't open file for writing.\n");
+        exit(0);
+      } else {
+        struct timeval cur_time;
+        gettimeofday(&cur_time, NULL);
+        fprintf(fp, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", aircrafts[rigidBodies[i].id].ac_id,
+                rigidBodies[i].nMarkers,                //uint8 Number of markers (sv_num)
+                (int)(ecef_pos.x * 100.0),              //int32 ECEF X in CM
+                (int)(ecef_pos.y * 100.0),              //int32 ECEF Y in CM
+                (int)(ecef_pos.z * 100.0),              //int32 ECEF Z in CM
+                (int)(DegOfRad(lla_pos.lat) * 1e7),     //int32 LLA latitude in deg*1e7
+                (int)(DegOfRad(lla_pos.lon) * 1e7),     //int32 LLA longitude in deg*1e7
+                (int)(rigidBodies[i].z * 1000.0),       //int32 LLA altitude in mm above elipsoid
+                (int)(rigidBodies[i].z * 1000.0),       //int32 HMSL height above mean sea level in mm
+                (int)(rigidBodies[i].ecef_vel.x * 100.0), //int32 ECEF velocity X in cm/s
+                (int)(rigidBodies[i].ecef_vel.y * 100.0), //int32 ECEF velocity Y in cm/s
+                (int)(rigidBodies[i].ecef_vel.z * 100.0), //int32 ECEF velocity Z in cm/s
+                (int)(heading * 10000000.0),            //int32 Course in rad*1e7
+                (int)cur_time.tv_sec,
+                (int)cur_time.tv_usec);
       }
     }
+
 
 
 
