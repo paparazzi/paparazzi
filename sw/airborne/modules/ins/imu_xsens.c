@@ -27,6 +27,7 @@
 
 #include "imu_xsens.h"
 #include "xsens.h"
+#include "xsens_common.h"
 
 #include "generated/airframe.h"
 

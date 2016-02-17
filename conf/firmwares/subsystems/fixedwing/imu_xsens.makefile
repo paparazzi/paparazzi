@@ -56,6 +56,7 @@
 ap.CFLAGS += -DUSE_IMU
 ap.CFLAGS += -DIMU_TYPE_H=\"modules/ins/imu_xsens.h\"
 ap.srcs   += $(SRC_MODULES)/ins/xsens.c
+ap.srcs   += $(SRC_MODULES)/ins/xsens_common.c
 ap.srcs   += $(SRC_MODULES)/ins/imu_xsens.c
 ap.srcs   += $(SRC_SUBSYSTEMS)/imu.c
 

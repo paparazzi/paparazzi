@@ -25,6 +25,7 @@
  */
 
 #include "ins_xsens.h"
+#include "xsens_common.h"
 #include "subsystems/ins.h"
 
 #include "generated/airframe.h"
@@ -110,7 +111,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 #if USE_GPS_XSENS
 void gps_xsens_init(void)
 {
-  gps.nb_channels = 0;
+  xsens.gps.nb_channels = 0;
 }
 
 static void gps_xsens_publish(void)
@@ -123,8 +124,6 @@ static void gps_xsens_publish(void)
     xsens.gps.last_3dfix_ticks = sys_time.nb_sec_rem;
     xsens.gps.last_3dfix_time = sys_time.nb_sec;
   }
-  // still update the global gps struct for now
-  gps = xsens.gps;
   AbiSendMsgGPS(GPS_XSENS_ID, now_ts, &xsens.gps);
 }
 #endif

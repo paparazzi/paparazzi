@@ -11,19 +11,19 @@
 #########################################
 ## ATTITUDE
 
-ap.CFLAGS += -DUSE_INS_MODULE
-
 # AHRS Results
-ap.CFLAGS += -DINS_TYPE_H=\"modules/ins/ins_xsens.h\"
+ap.CFLAGS += -DINS_TYPE_H=\"modules/ins/ins_xsens700.h\"
 
 ifndef XSENS_UART_BAUD
 	XSENS_UART_BAUD = B115200
 endif
 
 ap.CFLAGS += -DUSE_UART$(XSENS_UART_NR)
-ap.CFLAGS += -DINS_LINK=uart$(XSENS_UART_NR)
+ap.CFLAGS += -DXSENS_LINK=uart$(XSENS_UART_NR)
 ap.CFLAGS += -DUART$(XSENS_UART_NR)_BAUD=$(XSENS_UART_BAUD)
 ap.CFLAGS += -DXSENS_OUTPUT_MODE=0x1836
+ap.srcs   += $(SRC_MODULES)/ins/xsens700.c
+ap.srcs   += $(SRC_MODULES)/ins/xsens_common.c
 ap.srcs   += $(SRC_SUBSYSTEMS)/ins.c
 ap.srcs   += $(SRC_MODULES)/ins/ins_xsens700.c
 ap.CFLAGS += -DAHRS_TRIGGERED_ATTITUDE_LOOP
@@ -35,7 +35,7 @@ ap.CFLAGS += -DAHRS_TRIGGERED_ATTITUDE_LOOP
 ap.CFLAGS += -DUSE_GPS_XSENS
 ap.CFLAGS += -DGPS_NB_CHANNELS=50
 ap.CFLAGS += -DUSE_GPS
-ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_xsens.h\"
+ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_xsens700.h\"
 ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 
 

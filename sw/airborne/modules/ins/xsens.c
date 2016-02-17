@@ -24,6 +24,9 @@
  */
 
 #include "xsens.h"
+#include "xsens_common.h"
+
+#include "generated/airframe.h"
 
 #if USE_GPS_XSENS
 #include "math/pprz_geodetic_wgs84.h"
@@ -34,34 +37,6 @@
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
-volatile uint8_t xsens_msg_received;
-
-#define XsensLinkDevice (&((XSENS_LINK).device))
-
-#define XsensInitCheksum() { send_ck = 0; }
-#define XsensUpdateChecksum(c) { send_ck += c; }
-
-#define XsensUartSend1(c) XsensLinkDevice->put_byte(XsensLinkDevice->periph, c)
-#define XsensSend1(c) { uint8_t i8=c; XsensUartSend1(i8); XsensUpdateChecksum(i8); }
-#define XsensSend1ByAddr(x) { XsensSend1(*x); }
-#define XsensSend2ByAddr(x) { XsensSend1(*(x+1)); XsensSend1(*x); }
-#define XsensSend4ByAddr(x) { XsensSend1(*(x+3)); XsensSend1(*(x+2)); XsensSend1(*(x+1)); XsensSend1(*x); }
-
-#define XsensHeader(msg_id, len) {              \
-    XsensUartSend1(XSENS_START);                  \
-    XsensInitCheksum();                         \
-    XsensSend1(XSENS_BID);                      \
-    XsensSend1(msg_id);                         \
-    XsensSend1(len);                            \
-  }
-#define XsensTrailer() { uint8_t i8=0x100-send_ck; XsensUartSend1(i8); }
-
-/** Includes macros generated from xsens_MTi-G.xml */
-#include "xsens_protocol.h"
-
-
-#define XSENS_MAX_PAYLOAD 254
-uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 
 /* output mode : calibrated, orientation, position, velocity, status
  * -----------
@@ -117,15 +92,6 @@ uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 #define XSENS_OUTPUT_SETTINGS 0x80000C05
 #endif
 
-#define UNINIT        0
-#define GOT_START     1
-#define GOT_BID       2
-#define GOT_MID       3
-#define GOT_LEN       4
-#define GOT_DATA      5
-#define GOT_CHECKSUM  6
-
-
 uint8_t xsens_errorcode;
 uint8_t xsens_msg_status;
 uint16_t xsens_time_stamp;
@@ -137,13 +103,6 @@ float xsens_declination = 0;
 float xsens_gps_arm_x = 0;
 float xsens_gps_arm_y = 0;
 float xsens_gps_arm_z = 0;
-
-static uint8_t xsens_id;
-static uint8_t xsens_status;
-static uint8_t xsens_len;
-static uint8_t xsens_msg_idx;
-static uint8_t ck;
-uint8_t send_ck;
 
 volatile int xsens_configured = 0;
 
@@ -160,16 +119,6 @@ void xsens_init(void)
   xsens_time_stamp = 0;
   xsens_output_mode = XSENS_OUTPUT_MODE;
   xsens_output_settings = XSENS_OUTPUT_SETTINGS;
-}
-
-void xsens_event(void)
-{
-  struct link_device *dev = &((XSENS_LINK).device);
-  if (dev->char_available(dev->periph)) {
-    while (dev->char_available(dev->periph) && !xsens_msg_received) {
-      parse_xsens_buffer(dev->get_byte(dev->periph));
-    }
-  }
 }
 
 void xsens_periodic(void)
@@ -421,58 +370,4 @@ void parse_xsens_msg(void)
     }
   }
 
-}
-
-
-void parse_xsens_buffer(uint8_t c)
-{
-  ck += c;
-  switch (xsens_status) {
-    case UNINIT:
-      if (c != XSENS_START) {
-        goto error;
-      }
-      xsens_status++;
-      ck = 0;
-      break;
-    case GOT_START:
-      if (c != XSENS_BID) {
-        goto error;
-      }
-      xsens_status++;
-      break;
-    case GOT_BID:
-      xsens_id = c;
-      xsens_status++;
-      break;
-    case GOT_MID:
-      xsens_len = c;
-      if (xsens_len > XSENS_MAX_PAYLOAD) {
-        goto error;
-      }
-      xsens_msg_idx = 0;
-      xsens_status++;
-      break;
-    case GOT_LEN:
-      xsens_msg_buf[xsens_msg_idx] = c;
-      xsens_msg_idx++;
-      if (xsens_msg_idx >= xsens_len) {
-        xsens_status++;
-      }
-      break;
-    case GOT_DATA:
-      if (ck != 0) {
-        goto error;
-      }
-      xsens_msg_received = TRUE;
-      goto restart;
-      break;
-    default:
-      break;
-  }
-  return;
-error:
-restart:
-  xsens_status = UNINIT;
-  return;
 }

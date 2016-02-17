@@ -20,12 +20,12 @@
  *
  */
 
-/** @file modules/ins/xsens.h
+/** @file modules/ins/xsens_700.h
  * Parser for the Xsens protocol.
  */
 
-#ifndef XSENS_H
-#define XSENS_H
+#ifndef XSENS700_H
+#define XSENS700_H
 
 #include "std.h"
 #include "math/pprz_algebra_float.h"
@@ -73,10 +73,10 @@ struct Xsens {
 #endif
 };
 
-extern struct Xsens xsens;
+extern struct Xsens xsens700;
 
-extern void xsens_init(void);
-extern void xsens_periodic(void);
-extern void parse_xsens_msg(void);
+extern void xsens700_init(void);
+extern void xsens700_periodic(void);
+extern void parse_xsens700_msg(void);
 
-#endif /* XSENS_H */
+#endif /* XSENS700_H */
