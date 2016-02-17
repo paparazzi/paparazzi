@@ -407,7 +407,6 @@ let () =
     let modules =
       try
         let target = Sys.getenv "TARGET" in
-        prerr_endline fp_file;
         (GC.get_modules_of_airframe ~target xml) @ (GC.get_modules_of_flight_plan (Xml.parse_file fp_file))
       with
       | Not_found -> failwith "TARTGET env needs to be specified to generate modules files"
@@ -415,7 +414,7 @@ let () =
     (* Extract modules names (file name and module name) *)
     let modules_name =
       (List.map (fun m -> try Xml.attrib m.GC.xml "name" with _ -> "") modules) @
-      (List.map (fun m -> prerr_endline m.GC.filename; m.GC.filename) modules) in
+      (List.map (fun m -> m.GC.filename) modules) in
     (* Extract xml modules nodes *)
     let modules_list = List.map (fun m -> m.GC.xml) modules in
     check_dependencies modules_list modules_name;
