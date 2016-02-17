@@ -1,6 +1,6 @@
 <!-- Paparazzi flight plan DTD -->
 
-<!ELEMENT flight_plan (header?,waypoints,sectors?,variables?,includes?,exceptions?,blocks)>
+<!ELEMENT flight_plan (header?,waypoints,sectors?,variables?,modules?,includes?,exceptions?,blocks)>
 
 <!ELEMENT procedure (param*,header?,waypoints?,sectors?,exceptions?,blocks?)>
 
@@ -16,6 +16,9 @@
 
 <!ELEMENT variables (variable*)>
 <!ELEMENT variable EMPTY>
+
+<!ELEMENT modules (module*)>
+<!ELEMENT module EMPTY>
 
 <!ELEMENT includes (include*)>
 
@@ -104,6 +107,11 @@ alt_unit CDATA #IMPLIED
 alt_unit_coef CDATA #IMPLIED
 values CDATA #IMPLIED>
 
+<!ATTLIST modules>
+
+<!ATTLIST module
+name CDATA #REQUIRED
+type CDATA #IMPLIED>
 
 <!ATTLIST blocks>
 

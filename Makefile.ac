@@ -208,11 +208,11 @@ $(SETTINGS_H) : $(SETTINGS_XMLS_DEP) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_
 	$(Q)chmod a+r $@
 	$(Q)cp $(SETTINGS_XMLS_DEP) $(AIRCRAFT_CONF_DIR)/settings
 
-$(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(GENERATORS)/gen_modules.out $(CONF)/modules/*.xml
+$(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(FLIGHT_PLAN_XML) $(GENERATORS)/gen_modules.out $(CONF)/modules/*.xml
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_modules.out $(SETTINGS_MODULES) $(DEFAULT_MODULES_FREQUENCY) $< > $($@_TMP)
+	$(Q)$(GENERATORS)/gen_modules.out $(SETTINGS_MODULES) $(DEFAULT_MODULES_FREQUENCY) $(FLIGHT_PLAN_XML) $< > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 

@@ -179,6 +179,26 @@ let rec get_modules_of_airframe = fun ?target xml ->
   | None -> modules
   | Some t -> List.filter (fun m -> test_targets t m.targets) modules
 
+
+(** [get_modules_of_flight_plan xml]
+ * Returns a list of module configuration from flight plan file *)
+let get_modules_of_flight_plan = fun xml ->
+  let rec iter_modules = fun targets modules xml ->
+    match xml with
+    | Xml.PCData _ -> modules
+    | Xml.Element (tag, _attrs, children) when tag = "module" ->
+        begin try
+          let m = get_module xml targets in
+          List.fold_left
+            (fun acc xml -> iter_modules targets acc xml)
+            (m :: modules) children
+        with _ -> modules end
+    | Xml.Element (tag, _attrs, children) ->
+        List.fold_left
+          (fun acc xml -> iter_modules targets acc xml) modules children in
+  iter_modules [] [] xml
+
+
 (** [get_modules_name xml]
     * Returns a list of loaded modules' name *)
 let get_modules_name = fun xml ->

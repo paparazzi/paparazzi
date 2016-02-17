@@ -51,6 +51,10 @@ val get_module : Xml.xml -> string list -> module_conf
  * Returns a list of pair (modules ("load" node), targets) from airframe file *)
 val get_modules_of_airframe : ?target: string -> Xml.xml -> module_conf list
 
+(** [get_modules_of_flight_plan xml]
+ * Returns a list of module configuration from flight plan file *)
+val get_modules_of_flight_plan : Xml.xml -> module_conf list
+
 (** [test_targets target targets]
  * Test if [target] is allowed [targets]
  * Return true if target is allowed, false if target is not in list or rejected (prefixed by !) *)

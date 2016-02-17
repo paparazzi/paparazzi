@@ -33,6 +33,20 @@
       <corner name="S5"/>
     </sector>
   </sectors>
+  <modules>
+    <!-- extra navigation routines -->
+    <module name="nav" type="bungee_takeoff"/>
+    <module name="nav" type="line"/>
+    <module name="nav" type="line_border"/>
+    <module name="nav" type="line_osam"/>
+    <module name="nav" type="flower"/>
+    <module name="nav" type="smooth"/>
+    <module name="nav" type="survey_polygon"/>
+    <module name="nav" type="survey_poly_osam"/>
+    <module name="nav" type="survey_zamboni"/>
+    <module name="nav" type="vertical_raster"/>
+    <module name="nav" type="spiral"/>
+  </modules>
   <exceptions/>
   <blocks>
     <block name="Wait GPS">
