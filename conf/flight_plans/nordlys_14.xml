@@ -13,6 +13,7 @@
     <waypoint name="S2" x="200.1" y="-153.5"/>
     <waypoint name="MOB" x="39.9" y="-90.3"/>
     <waypoint alt="110.0" name="CR" x="-173.5" y="-138.9"/>
+    <waypoint alt="110.0" name="XC" x="-193.5" y="-118.9"/>
     <waypoint alt="110.0" name="START" x="-5.8" y="-181.6"/>
     <waypoint alt="110.0" name="_BASELEG" x="10.2" y="-220.3"/>
     <waypoint alt="65.0" name="AF" x="-252.3" y="24.8"/>
@@ -23,7 +24,7 @@
     <waypoint alt="500.0" name="PROF_LAND_4" x="-1972.8" y="2301.4"/>
   </waypoints>
   <exceptions>
-    <exception cond="estimator_z > 550" deroute="wait"/>
+    <exception cond="estimator_z > 6000" deroute="wait"/>
     <exception cond="datalink_time > 140" deroute="wait"/>
     <exception cond="9.5 > PowerVoltage()" deroute="wait"/>
   </exceptions>
@@ -34,6 +35,9 @@
     </block>
     <block name="wait" strip_button="wait">
       <circle radius="nav_radius" wp="CR"/>
+    </block>
+    <block name="circle" strip_button="wait">
+      <circle radius="nav_radius" wp="XC"/>
     </block>
     <block name="prof1" strip_button="prof1">
       <set value="50" var="waypoints[WP_PROF_LAND_1].a"/>
