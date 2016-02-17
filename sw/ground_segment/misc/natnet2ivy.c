@@ -19,14 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
- /** \file natnet2ivy.c
- *  \brief NatNet (GPS) to ivy forwarder
- *
- *   This receives aircraft position information through the Optitrack system
- * NatNet UDP stream and forwards it to the ivy bus. An aircraft with the gps
- * subsystem "datalink" is then able to parse the GPS position and use it to
- * navigate inside the Optitrack system.
- */
+/** \file natnet2ivy.c
+*  \brief NatNet (GPS) to ivy forwarder
+*
+*   This receives aircraft position information through the Optitrack system
+* NatNet UDP stream and forwards it to the ivy bus. An aircraft with the gps
+* subsystem "datalink" is then able to parse the GPS position and use it to
+* navigate inside the Optitrack system.
+*/
 
 #include <glib.h>
 #include <stdio.h>
@@ -60,7 +60,7 @@ uint8_t natnet_minor            = 7;
 FILE *fp;
 char *nameOfLogfile             = "natnet_log.dat";
 bool_t log_exists = 0;
-bool_t must_log = 0; 
+bool_t must_log = 0;
 
 /** Ivy Bus default */
 #ifdef __APPLE__
@@ -131,8 +131,9 @@ double tracking_offset_angle;       ///< The offset from the tracking system to 
 float natnet_latency;
 
 /** Parse the packet from NatNet */
-void natnet_parse(unsigned char *in) {
-  int i,j,k;
+void natnet_parse(unsigned char *in)
+{
+  int i, j, k;
 
   // Create a pointer to go trough the packet
   char *ptr = (char *)in;
@@ -148,8 +149,7 @@ void natnet_parse(unsigned char *in) {
   memcpy(&nBytes, ptr, 2); ptr += 2;
   printf_natnet("Byte count : %d\n", nBytes);
 
-  if(MessageID == NAT_FRAMEOFDATA)      // FRAME OF MOCAP DATA packet
-  {
+  if (MessageID == NAT_FRAMEOFDATA) {   // FRAME OF MOCAP DATA packet
     // Frame number
     int frameNumber = 0; memcpy(&frameNumber, ptr, 4); ptr += 4;
     printf_natnet("Frame # : %d\n", frameNumber);
@@ -159,8 +159,7 @@ void natnet_parse(unsigned char *in) {
     int nMarkerSets = 0; memcpy(&nMarkerSets, ptr, 4); ptr += 4;
     printf_natnet("Marker Set Count : %d\n", nMarkerSets);
 
-    for (i=0; i < nMarkerSets; i++)
-    {
+    for (i = 0; i < nMarkerSets; i++) {
       // Markerset name
       char szName[256];
       strcpy(szName, ptr);
@@ -172,24 +171,22 @@ void natnet_parse(unsigned char *in) {
       int nMarkers = 0; memcpy(&nMarkers, ptr, 4); ptr += 4;
       printf_natnet("Marker Count : %d\n", nMarkers);
 
-      for(j=0; j < nMarkers; j++)
-      {
+      for (j = 0; j < nMarkers; j++) {
         float x = 0; memcpy(&x, ptr, 4); ptr += 4;
         float y = 0; memcpy(&y, ptr, 4); ptr += 4;
         float z = 0; memcpy(&z, ptr, 4); ptr += 4;
-        printf_natnet("\tMarker %d : [x=%3.2f,y=%3.2f,z=%3.2f]\n",j,x,y,z);
+        printf_natnet("\tMarker %d : [x=%3.2f,y=%3.2f,z=%3.2f]\n", j, x, y, z);
       }
     }
 
     // Unidentified markers
     int nOtherMarkers = 0; memcpy(&nOtherMarkers, ptr, 4); ptr += 4;
     printf_natnet("Unidentified Marker Count : %d\n", nOtherMarkers);
-    for(j=0; j < nOtherMarkers; j++)
-    {
+    for (j = 0; j < nOtherMarkers; j++) {
       float x = 0.0f; memcpy(&x, ptr, 4); ptr += 4;
       float y = 0.0f; memcpy(&y, ptr, 4); ptr += 4;
       float z = 0.0f; memcpy(&z, ptr, 4); ptr += 4;
-      printf_natnet("\tMarker %d : pos = [%3.2f,%3.2f,%3.2f]\n",j,x,y,z);
+      printf_natnet("\tMarker %d : pos = [%3.2f,%3.2f,%3.2f]\n", j, x, y, z);
     }
 
     // ========== RIGID BODIES ==========
@@ -199,13 +196,14 @@ void natnet_parse(unsigned char *in) {
     printf_natnet("Rigid Body Count : %d\n", nRigidBodies);
 
     // Check if there ie enough space for the rigid bodies
-    if(nRigidBodies > MAX_RIGIDBODIES) {
-      fprintf(stderr, "Could not sample all the rigid bodies because the amount of rigid bodies is bigger then %d (MAX_RIGIDBODIES).\r\n", MAX_RIGIDBODIES);
+    if (nRigidBodies > MAX_RIGIDBODIES) {
+      fprintf(stderr,
+              "Could not sample all the rigid bodies because the amount of rigid bodies is bigger then %d (MAX_RIGIDBODIES).\r\n",
+              MAX_RIGIDBODIES);
       exit(EXIT_FAILURE);
     }
 
-    for (j=0; j < nRigidBodies; j++)
-    {
+    for (j = 0; j < nRigidBodies; j++) {
       // rigid body pos/ori
       struct RigidBody old_rigid;
       memcpy(&old_rigid, &rigidBodies[j], sizeof(struct RigidBody));
@@ -219,15 +217,17 @@ void natnet_parse(unsigned char *in) {
       memcpy(&rigidBodies[j].qy, ptr, 4); ptr += 4;  //qz --> QY
       memcpy(&rigidBodies[j].qw, ptr, 4); ptr += 4;  //qw --> QW
       printf_natnet("ID (%d) : %d\n", j, rigidBodies[j].id);
-      printf_natnet("pos: [%3.2f,%3.2f,%3.2f]\n", rigidBodies[j].x,rigidBodies[j].y,rigidBodies[j].z);
-      printf_natnet("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", rigidBodies[j].qx,rigidBodies[j].qy,rigidBodies[j].qz,rigidBodies[j].qw);
+      printf_natnet("pos: [%3.2f,%3.2f,%3.2f]\n", rigidBodies[j].x, rigidBodies[j].y, rigidBodies[j].z);
+      printf_natnet("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", rigidBodies[j].qx, rigidBodies[j].qy, rigidBodies[j].qz,
+                    rigidBodies[j].qw);
 
       // Differentiate the position to get the speed (TODO: crossreference with labeled markers for occlussion)
       rigidBodies[j].totalVelocitySamples++;
-      if(old_rigid.x != rigidBodies[j].x || old_rigid.y != rigidBodies[j].y || old_rigid.z != rigidBodies[j].z
-        || old_rigid.qx != rigidBodies[j].qx || old_rigid.qy != rigidBodies[j].qy || old_rigid.qz != rigidBodies[j].qz || old_rigid.qw != rigidBodies[j].qw) {
+      if (old_rigid.x != rigidBodies[j].x || old_rigid.y != rigidBodies[j].y || old_rigid.z != rigidBodies[j].z
+          || old_rigid.qx != rigidBodies[j].qx || old_rigid.qy != rigidBodies[j].qy || old_rigid.qz != rigidBodies[j].qz
+          || old_rigid.qw != rigidBodies[j].qw) {
 
-        if(old_rigid.posSampled) {
+        if (old_rigid.posSampled) {
           rigidBodies[j].vel_x += (rigidBodies[j].x - old_rigid.x);
           rigidBodies[j].vel_y += (rigidBodies[j].y - old_rigid.y);
           rigidBodies[j].vel_z += (rigidBodies[j].z - old_rigid.z);
@@ -236,12 +236,12 @@ void natnet_parse(unsigned char *in) {
 
         rigidBodies[j].nSamples++;
         rigidBodies[j].posSampled = TRUE;
-      }
-      else
+      } else {
         rigidBodies[j].posSampled = FALSE;
+      }
 
       // When marker id changed, reset the velocity
-      if(old_rigid.id != rigidBodies[j].id) {
+      if (old_rigid.id != rigidBodies[j].id) {
         rigidBodies[j].vel_x = 0;
         rigidBodies[j].vel_y = 0;
         rigidBodies[j].vel_z = 0;
@@ -254,71 +254,67 @@ void natnet_parse(unsigned char *in) {
       // Associated marker positions
       memcpy(&rigidBodies[j].nMarkers, ptr, 4); ptr += 4;
       printf_natnet("Marker Count: %d\n", rigidBodies[j].nMarkers);
-      int nBytes = rigidBodies[j].nMarkers*3*sizeof(float);
-      float* markerData = (float*)malloc(nBytes);
+      int nBytes = rigidBodies[j].nMarkers * 3 * sizeof(float);
+      float *markerData = (float *)malloc(nBytes);
       memcpy(markerData, ptr, nBytes);
       ptr += nBytes;
 
-      if(natnet_major >= 2)
-      {
+      if (natnet_major >= 2) {
         // Associated marker IDs
-        nBytes = rigidBodies[j].nMarkers*sizeof(int);
-        int* markerIDs = (int*)malloc(nBytes);
+        nBytes = rigidBodies[j].nMarkers * sizeof(int);
+        int *markerIDs = (int *)malloc(nBytes);
         memcpy(markerIDs, ptr, nBytes);
         ptr += nBytes;
 
         // Associated marker sizes
-        nBytes = rigidBodies[j].nMarkers*sizeof(float);
-        float* markerSizes = (float*)malloc(nBytes);
+        nBytes = rigidBodies[j].nMarkers * sizeof(float);
+        float *markerSizes = (float *)malloc(nBytes);
         memcpy(markerSizes, ptr, nBytes);
         ptr += nBytes;
 
-        for(k=0; k < rigidBodies[j].nMarkers; k++)
-        {
-          printf_natnet("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n", k, markerIDs[k], markerSizes[k], markerData[k*3], markerData[k*3+1],markerData[k*3+2]);
+        for (k = 0; k < rigidBodies[j].nMarkers; k++) {
+          printf_natnet("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n", k, markerIDs[k], markerSizes[k],
+                        markerData[k * 3], markerData[k * 3 + 1], markerData[k * 3 + 2]);
         }
 
-        if(markerIDs)
+        if (markerIDs) {
           free(markerIDs);
-        if(markerSizes)
+        }
+        if (markerSizes) {
           free(markerSizes);
+        }
 
-      }
-      else
-      {
-        for(k=0; k < rigidBodies[j].nMarkers; k++)
-        {
-          printf_natnet("\tMarker %d: pos = [%3.2f,%3.2f,%3.2f]\n", k, markerData[k*3], markerData[k*3+1],markerData[k*3+2]);
+      } else {
+        for (k = 0; k < rigidBodies[j].nMarkers; k++) {
+          printf_natnet("\tMarker %d: pos = [%3.2f,%3.2f,%3.2f]\n", k, markerData[k * 3], markerData[k * 3 + 1],
+                        markerData[k * 3 + 2]);
         }
       }
-      if(markerData)
+      if (markerData) {
         free(markerData);
+      }
 
-      if(natnet_major >= 2)
-      {
+      if (natnet_major >= 2) {
         // Mean marker error
         memcpy(&rigidBodies[j].error, ptr, 4); ptr += 4;
         printf_natnet("Mean marker error: %3.8f\n", rigidBodies[j].error);
       }
 
       // 2.6 and later
-      if( ((natnet_major == 2)&&(natnet_minor >= 6)) || (natnet_major > 2) || (natnet_major == 0) )
-      {
-          // params
-          short params = 0; memcpy(&params, ptr, 2); ptr += 2;
+      if (((natnet_major == 2) && (natnet_minor >= 6)) || (natnet_major > 2) || (natnet_major == 0)) {
+        // params
+        short params = 0; memcpy(&params, ptr, 2); ptr += 2;
 //           bool bTrackingValid = params & 0x01; // 0x01 : rigid body was successfully tracked in this frame
       }
     } // next rigid body
 
     // ========== SKELETONS ==========
     // Skeletons (version 2.1 and later)
-    if(((natnet_major == 2) && (natnet_minor>0)) || (natnet_major>2))
-    {
+    if (((natnet_major == 2) && (natnet_minor > 0)) || (natnet_major > 2)) {
       int nSkeletons = 0;
       memcpy(&nSkeletons, ptr, 4); ptr += 4;
       printf_natnet("Skeleton Count : %d\n", nSkeletons);
-      for (j=0; j < nSkeletons; j++)
-      {
+      for (j = 0; j < nSkeletons; j++) {
         // Skeleton id
         int skeletonID = 0;
         memcpy(&skeletonID, ptr, 4); ptr += 4;
@@ -326,8 +322,7 @@ void natnet_parse(unsigned char *in) {
         int nRigidBodies = 0;
         memcpy(&nRigidBodies, ptr, 4); ptr += 4;
         printf_natnet("Rigid Body Count : %d\n", nRigidBodies);
-        for (j=0; j < nRigidBodies; j++)
-        {
+        for (j = 0; j < nRigidBodies; j++) {
           // Rigid body pos/ori
           int ID = 0; memcpy(&ID, ptr, 4); ptr += 4;
           float x = 0.0f; memcpy(&x, ptr, 4); ptr += 4;
@@ -338,32 +333,32 @@ void natnet_parse(unsigned char *in) {
           float qz = 0; memcpy(&qz, ptr, 4); ptr += 4;
           float qw = 0; memcpy(&qw, ptr, 4); ptr += 4;
           printf_natnet("ID : %d\n", ID);
-          printf_natnet("pos: [%3.2f,%3.2f,%3.2f]\n", x,y,z);
-          printf_natnet("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx,qy,qz,qw);
+          printf_natnet("pos: [%3.2f,%3.2f,%3.2f]\n", x, y, z);
+          printf_natnet("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
 
           // Sssociated marker positions
           int nRigidMarkers = 0;  memcpy(&nRigidMarkers, ptr, 4); ptr += 4;
           printf_natnet("Marker Count: %d\n", nRigidMarkers);
-          int nBytes = nRigidMarkers*3*sizeof(float);
-          float* markerData = (float*)malloc(nBytes);
+          int nBytes = nRigidMarkers * 3 * sizeof(float);
+          float *markerData = (float *)malloc(nBytes);
           memcpy(markerData, ptr, nBytes);
           ptr += nBytes;
 
           // Associated marker IDs
-          nBytes = nRigidMarkers*sizeof(int);
-          int* markerIDs = (int*)malloc(nBytes);
+          nBytes = nRigidMarkers * sizeof(int);
+          int *markerIDs = (int *)malloc(nBytes);
           memcpy(markerIDs, ptr, nBytes);
           ptr += nBytes;
 
           // Associated marker sizes
-          nBytes = nRigidMarkers*sizeof(float);
-          float* markerSizes = (float*)malloc(nBytes);
+          nBytes = nRigidMarkers * sizeof(float);
+          float *markerSizes = (float *)malloc(nBytes);
           memcpy(markerSizes, ptr, nBytes);
           ptr += nBytes;
 
-          for(k=0; k < nRigidMarkers; k++)
-          {
-            printf_natnet("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n", k, markerIDs[k], markerSizes[k], markerData[k*3], markerData[k*3+1],markerData[k*3+2]);
+          for (k = 0; k < nRigidMarkers; k++) {
+            printf_natnet("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n", k, markerIDs[k], markerSizes[k],
+                          markerData[k * 3], markerData[k * 3 + 1], markerData[k * 3 + 2]);
           }
 
           // Mean marker error
@@ -371,25 +366,26 @@ void natnet_parse(unsigned char *in) {
           printf_natnet("Mean marker error: %3.2f\n", fError);
 
           // Release resources
-          if(markerIDs)
+          if (markerIDs) {
             free(markerIDs);
-          if(markerSizes)
+          }
+          if (markerSizes) {
             free(markerSizes);
-          if(markerData)
+          }
+          if (markerData) {
             free(markerData);
+          }
         } // next rigid body
       } // next skeleton
     }
 
     // ========== LABELED MARKERS ==========
     // Labeled markers (version 2.3 and later)
-    if( ((natnet_major == 2)&&(natnet_minor>=3)) || (natnet_major>2))
-    {
+    if (((natnet_major == 2) && (natnet_minor >= 3)) || (natnet_major > 2)) {
       int nLabeledMarkers = 0;
       memcpy(&nLabeledMarkers, ptr, 4); ptr += 4;
       printf_natnet("Labeled Marker Count : %d\n", nLabeledMarkers);
-      for (j=0; j < nLabeledMarkers; j++)
-      {
+      for (j = 0; j < nLabeledMarkers; j++) {
         int ID = 0; memcpy(&ID, ptr, 4); ptr += 4;
         float x = 0.0f; memcpy(&x, ptr, 4); ptr += 4;
         float y = 0.0f; memcpy(&y, ptr, 4); ptr += 4;
@@ -397,7 +393,7 @@ void natnet_parse(unsigned char *in) {
         float size = 0.0f; memcpy(&size, ptr, 4); ptr += 4;
 
         printf_natnet("ID  : %d\n", ID);
-        printf_natnet("pos : [%3.2f,%3.2f,%3.2f]\n", x,y,z);
+        printf_natnet("pos : [%3.2f,%3.2f,%3.2f]\n", x, y, z);
         printf_natnet("size: [%3.2f]\n", size);
       }
     }
@@ -414,45 +410,47 @@ void natnet_parse(unsigned char *in) {
     // End of data tag
     int eod = 0; memcpy(&eod, ptr, 4); ptr += 4;
     printf_natnet("End Packet\n-------------\n");
-  }
-  else
-  {
+  } else {
     printf("Error: Unrecognized packet type from Optitrack NatNet.\n");
   }
 }
 
 /** The transmitter periodic function */
-gboolean timeout_transmit_callback(gpointer data) {
+gboolean timeout_transmit_callback(gpointer data)
+{
   int i;
 
   // Loop trough all the available rigidbodies (TODO: optimize)
-  for(i = 0; i < MAX_RIGIDBODIES; i++) {
+  for (i = 0; i < MAX_RIGIDBODIES; i++) {
     // Check if ID's are correct
-    if(rigidBodies[i].id >= MAX_RIGIDBODIES) {
-      fprintf(stderr, "Could not parse rigid body %d from NatNet, because ID is higher then or equal to %d (MAX_RIGIDBODIES-1).\r\n", rigidBodies[i].id, MAX_RIGIDBODIES-1);
+    if (rigidBodies[i].id >= MAX_RIGIDBODIES) {
+      fprintf(stderr,
+              "Could not parse rigid body %d from NatNet, because ID is higher then or equal to %d (MAX_RIGIDBODIES-1).\r\n",
+              rigidBodies[i].id, MAX_RIGIDBODIES - 1);
       exit(EXIT_FAILURE);
     }
 
     // Check if we want to transmit (follow) this rigid
-    if(aircrafts[rigidBodies[i].id].ac_id == 0)
+    if (aircrafts[rigidBodies[i].id].ac_id == 0) {
       continue;
+    }
 
     // When we don track anymore and timeout or start tracking
-    if(rigidBodies[i].nSamples < 1
-      && aircrafts[rigidBodies[i].id].connected
-      && (natnet_latency - aircrafts[rigidBodies[i].id].lastSample) > CONNECTION_TIMEOUT) {
+    if (rigidBodies[i].nSamples < 1
+        && aircrafts[rigidBodies[i].id].connected
+        && (natnet_latency - aircrafts[rigidBodies[i].id].lastSample) > CONNECTION_TIMEOUT) {
       aircrafts[rigidBodies[i].id].connected = FALSE;
       fprintf(stderr, "#error Lost tracking rigid id %d, aircraft id %d.\n",
-        rigidBodies[i].id, aircrafts[rigidBodies[i].id].ac_id);
-    }
-    else if(rigidBodies[i].nSamples > 0 && !aircrafts[rigidBodies[i].id].connected) {
+              rigidBodies[i].id, aircrafts[rigidBodies[i].id].ac_id);
+    } else if (rigidBodies[i].nSamples > 0 && !aircrafts[rigidBodies[i].id].connected) {
       fprintf(stderr, "#pragma message: Now tracking rigid id %d, aircraft id %d.\n",
-        rigidBodies[i].id, aircrafts[rigidBodies[i].id].ac_id);
+              rigidBodies[i].id, aircrafts[rigidBodies[i].id].ac_id);
     }
 
     // Check if we still track the rigid
-    if(rigidBodies[i].nSamples < 1)
+    if (rigidBodies[i].nSamples < 1) {
       continue;
+    }
 
     // Update the last tracked
     aircrafts[rigidBodies[i].id].connected = TRUE;
@@ -471,15 +469,15 @@ gboolean timeout_transmit_callback(gpointer data) {
     pos.z = rigidBodies[i].z;
 
     // Convert the position to ecef and lla based on the Optitrack LTP
-    ecef_of_enu_point_d(&ecef_pos ,&tracking_ltp ,&pos);
+    ecef_of_enu_point_d(&ecef_pos , &tracking_ltp , &pos);
     lla_of_ecef_d(&lla_pos, &ecef_pos);
 
     // Check if we have enough samples to estimate the velocity
     rigidBodies[i].nVelocityTransmit++;
-    if(rigidBodies[i].nVelocitySamples >= min_velocity_samples) {
+    if (rigidBodies[i].nVelocitySamples >= min_velocity_samples) {
       // Calculate the derevative of the sum to get the correct velocity     (1 / freq_transmit) * (samples / total_samples)
       double sample_time = //((double)rigidBodies[i].nVelocitySamples / (double)rigidBodies[i].totalVelocitySamples) /
-                              ((double)rigidBodies[i].nVelocityTransmit / (double)freq_transmit);
+        ((double)rigidBodies[i].nVelocityTransmit / (double)freq_transmit);
       rigidBodies[i].vel_x = rigidBodies[i].vel_x / sample_time;
       rigidBodies[i].vel_y = rigidBodies[i].vel_y / sample_time;
       rigidBodies[i].vel_z = rigidBodies[i].vel_z / sample_time;
@@ -490,7 +488,7 @@ gboolean timeout_transmit_callback(gpointer data) {
       speed.z = rigidBodies[i].vel_z;
 
       // Conver the speed to ecef based on the Optitrack LTP
-      ecef_of_enu_vect_d(&rigidBodies[i].ecef_vel ,&tracking_ltp ,&speed);
+      ecef_of_enu_vect_d(&rigidBodies[i].ecef_vel , &tracking_ltp , &speed);
     }
 
     // Copy the quaternions and convert to euler angles for the heading
@@ -501,31 +499,34 @@ gboolean timeout_transmit_callback(gpointer data) {
     double_eulers_of_quat(&orient_eulers, &orient);
 
     // Calculate the heading by adding the Natnet offset angle and normalizing it
-    double heading = -orient_eulers.psi+90.0/57.6 - tracking_offset_angle; //the optitrack axes are 90 degrees rotated wrt ENU
+    double heading = -orient_eulers.psi + 90.0 / 57.6 -
+                     tracking_offset_angle; //the optitrack axes are 90 degrees rotated wrt ENU
     NormRadAngle(heading);
 
-    printf_debug("[%d -> %d]Samples: %d\t%d\t\tTiming: %3.3f latency\n", rigidBodies[i].id, aircrafts[rigidBodies[i].id].ac_id
-      , rigidBodies[i].nSamples, rigidBodies[i].nVelocitySamples, natnet_latency);
+    printf_debug("[%d -> %d]Samples: %d\t%d\t\tTiming: %3.3f latency\n", rigidBodies[i].id,
+                 aircrafts[rigidBodies[i].id].ac_id
+                 , rigidBodies[i].nSamples, rigidBodies[i].nVelocitySamples, natnet_latency);
     printf_debug("    Heading: %f\t\tPosition: %f\t%f\t%f\t\tVelocity: %f\t%f\t%f\n", DegOfRad(heading),
-      rigidBodies[i].x, rigidBodies[i].y, rigidBodies[i].z,
-      rigidBodies[i].ecef_vel.x, rigidBodies[i].ecef_vel.y, rigidBodies[i].ecef_vel.z);
+                 rigidBodies[i].x, rigidBodies[i].y, rigidBodies[i].z,
+                 rigidBodies[i].ecef_vel.x, rigidBodies[i].ecef_vel.y, rigidBodies[i].ecef_vel.z);
     // Transmit the REMOTE_GPS packet on the ivy bus (either small or big)
-    if(small_packets) {
+    if (small_packets) {
       /* The GPS messages are most likely too large to be send over either the datalink
-       * The local position is an int32 and the 10 LSBs of the x and y axis are compressed into 
+       * The local position is an int32 and the 10 LSBs of the x and y axis are compressed into
        * a single integer. The z axis is considered unsigned and only the latter 10 LSBs are
        * used.
        */
-      uint32_t pos_xyz = (((uint32_t)(pos.x*100.0)) & 0x3FF) << 22; // bits 31-22 x position in cm
-      pos_xyz |= (((uint32_t)(pos.y*100.0)) & 0x3FF) << 12; // bits 21-12 y position in cm
-      pos_xyz |= (((uint32_t)(pos.z*100.0)) & 0x3FF) << 2; // bits 11-2 z position in cm
+      uint32_t pos_xyz = (((uint32_t)(pos.x * 100.0)) & 0x3FF) << 22; // bits 31-22 x position in cm
+      pos_xyz |= (((uint32_t)(pos.y * 100.0)) & 0x3FF) << 12; // bits 21-12 y position in cm
+      pos_xyz |= (((uint32_t)(pos.z * 100.0)) & 0x3FF) << 2; // bits 11-2 z position in cm
       // bits 1 and 0 are free
 
       // printf("ENU Pos: %u (%.2f, %.2f, %.2f)\n", pos_xyz, pos.x, pos.y, pos.z);
 
-      uint32_t speed_xy = (((uint32_t)(speed.x*100.0)) & 0x3FF) << 22; // bits 31-22 speed x in cm/s
-      speed_xy |= (((uint32_t)(speed.y*100.0)) & 0x3FF) << 12; // bits 21-12 speed y in cm/s
-      speed_xy |= (((uint32_t)(heading*100.0)) & 0x3FF) << 2; // bits 11-2 heading in rad*1e2 (The heading is already subsampled)
+      uint32_t speed_xy = (((uint32_t)(speed.x * 100.0)) & 0x3FF) << 22; // bits 31-22 speed x in cm/s
+      speed_xy |= (((uint32_t)(speed.y * 100.0)) & 0x3FF) << 12; // bits 21-12 speed y in cm/s
+      speed_xy |= (((uint32_t)(heading * 100.0)) & 0x3FF) <<
+                  2; // bits 11-2 heading in rad*1e2 (The heading is already subsampled)
       // bits 1 and 0 are free
 
       // printf("ENU Vel: %u (%.2f, %.2f, 0.0)\n", speed_xy, speed.x, speed.y);
@@ -533,61 +534,59 @@ gboolean timeout_transmit_callback(gpointer data) {
       // printf("Heading: %.2f\n", heading);
 
       IvySendMsg("0 REMOTE_GPS_SMALL %d %d %d %d", aircrafts[rigidBodies[i].id].ac_id, // uint8 rigid body ID (1 byte)
-        (uint8_t)rigidBodies[i].nMarkers, // status (1 byte)
-        pos_xyz, //uint32 ENU X, Y and Z in CM (4 bytes)
-        speed_xy); //uint32 ENU velocity X, Y in cm/s and heading in rad*1e2 (4 bytes)   
-    }
-    else {
+                 (uint8_t)rigidBodies[i].nMarkers, // status (1 byte)
+                 pos_xyz, //uint32 ENU X, Y and Z in CM (4 bytes)
+                 speed_xy); //uint32 ENU velocity X, Y in cm/s and heading in rad*1e2 (4 bytes)
+    } else {
       IvySendMsg("0 REMOTE_GPS %d %d %d %d %d %d %d %d %d %d %d %d %d %d", aircrafts[rigidBodies[i].id].ac_id,
-        rigidBodies[i].nMarkers,                //uint8 Number of markers (sv_num)
-        (int)(ecef_pos.x*100.0),                //int32 ECEF X in CM
-        (int)(ecef_pos.y*100.0),                //int32 ECEF Y in CM
-        (int)(ecef_pos.z*100.0),                //int32 ECEF Z in CM
-        (int)(lla_pos.lat*10000000.0),          //int32 LLA latitude in rad*1e7
-        (int)(lla_pos.lon*10000000.0),          //int32 LLA longitude in rad*1e7
-        (int)(rigidBodies[i].z*1000.0),         //int32 LLA altitude in mm above elipsoid
-        (int)(rigidBodies[i].z*1000.0),         //int32 HMSL height above mean sea level in mm
-        (int)(rigidBodies[i].ecef_vel.x*100.0), //int32 ECEF velocity X in m/s
-        (int)(rigidBodies[i].ecef_vel.y*100.0), //int32 ECEF velocity Y in m/s
-        (int)(rigidBodies[i].ecef_vel.z*100.0), //int32 ECEF velocity Z in m/s
-        0,
-        (int)(heading*10000000.0));             //int32 Course in rad*1e7
+                 rigidBodies[i].nMarkers,                //uint8 Number of markers (sv_num)
+                 (int)(ecef_pos.x * 100.0),              //int32 ECEF X in CM
+                 (int)(ecef_pos.y * 100.0),              //int32 ECEF Y in CM
+                 (int)(ecef_pos.z * 100.0),              //int32 ECEF Z in CM
+                 (int)(lla_pos.lat * 10000000.0),        //int32 LLA latitude in rad*1e7
+                 (int)(lla_pos.lon * 10000000.0),        //int32 LLA longitude in rad*1e7
+                 (int)(rigidBodies[i].z * 1000.0),       //int32 LLA altitude in mm above elipsoid
+                 (int)(rigidBodies[i].z * 1000.0),       //int32 HMSL height above mean sea level in mm
+                 (int)(rigidBodies[i].ecef_vel.x * 100.0), //int32 ECEF velocity X in m/s
+                 (int)(rigidBodies[i].ecef_vel.y * 100.0), //int32 ECEF velocity Y in m/s
+                 (int)(rigidBodies[i].ecef_vel.z * 100.0), //int32 ECEF velocity Z in m/s
+                 0,
+                 (int)(heading * 10000000.0));           //int32 Course in rad*1e7
 
 
-      if(must_log){
-        if(log_exists == 0) {
+      if (must_log) {
+        if (log_exists == 0) {
           fp = fopen(nameOfLogfile, "w");
           log_exists = 1;
         }
 
         if (fp == NULL) {
-           printf("I couldn't open file for writing.\n");
-           exit(0);
-        }
-        else {
+          printf("I couldn't open file for writing.\n");
+          exit(0);
+        } else {
           struct timeval cur_time;
-          gettimeofday(&cur_time,NULL);
-          fprintf(fp,"%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", aircrafts[rigidBodies[i].id].ac_id,
-            rigidBodies[i].nMarkers,                //uint8 Number of markers (sv_num)
-            (int)(ecef_pos.x*100.0),                //int32 ECEF X in CM
-            (int)(ecef_pos.y*100.0),                //int32 ECEF Y in CM
-            (int)(ecef_pos.z*100.0),                //int32 ECEF Z in CM
-            (int)(DegOfRad(lla_pos.lat)*1e7),       //int32 LLA latitude in deg*1e7
-            (int)(DegOfRad(lla_pos.lon)*1e7),       //int32 LLA longitude in deg*1e7
-            (int)(rigidBodies[i].z*1000.0),         //int32 LLA altitude in mm above elipsoid
-            (int)(rigidBodies[i].z*1000.0),         //int32 HMSL height above mean sea level in mm
-            (int)(rigidBodies[i].ecef_vel.x*100.0), //int32 ECEF velocity X in cm/s
-            (int)(rigidBodies[i].ecef_vel.y*100.0), //int32 ECEF velocity Y in cm/s
-            (int)(rigidBodies[i].ecef_vel.z*100.0), //int32 ECEF velocity Z in cm/s
-            (int)(heading*10000000.0),              //int32 Course in rad*1e7
-            (int)cur_time.tv_sec,
-            (int)cur_time.tv_usec);
-	}
+          gettimeofday(&cur_time, NULL);
+          fprintf(fp, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", aircrafts[rigidBodies[i].id].ac_id,
+                  rigidBodies[i].nMarkers,                //uint8 Number of markers (sv_num)
+                  (int)(ecef_pos.x * 100.0),              //int32 ECEF X in CM
+                  (int)(ecef_pos.y * 100.0),              //int32 ECEF Y in CM
+                  (int)(ecef_pos.z * 100.0),              //int32 ECEF Z in CM
+                  (int)(DegOfRad(lla_pos.lat) * 1e7),     //int32 LLA latitude in deg*1e7
+                  (int)(DegOfRad(lla_pos.lon) * 1e7),     //int32 LLA longitude in deg*1e7
+                  (int)(rigidBodies[i].z * 1000.0),       //int32 LLA altitude in mm above elipsoid
+                  (int)(rigidBodies[i].z * 1000.0),       //int32 HMSL height above mean sea level in mm
+                  (int)(rigidBodies[i].ecef_vel.x * 100.0), //int32 ECEF velocity X in cm/s
+                  (int)(rigidBodies[i].ecef_vel.y * 100.0), //int32 ECEF velocity Y in cm/s
+                  (int)(rigidBodies[i].ecef_vel.z * 100.0), //int32 ECEF velocity Z in cm/s
+                  (int)(heading * 10000000.0),            //int32 Course in rad*1e7
+                  (int)cur_time.tv_sec,
+                  (int)cur_time.tv_usec);
+        }
       }
     }
 
     // Reset the velocity differentiator if we calculated the velocity
-    if(rigidBodies[i].nVelocitySamples >= min_velocity_samples) {
+    if (rigidBodies[i].nVelocitySamples >= min_velocity_samples) {
       rigidBodies[i].vel_x = 0;
       rigidBodies[i].vel_y = 0;
       rigidBodies[i].vel_z = 0;
@@ -603,7 +602,8 @@ gboolean timeout_transmit_callback(gpointer data) {
 }
 
 /** The NatNet sampler periodic function */
-static gboolean sample_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
+static gboolean sample_data(GIOChannel *chan, GIOCondition cond, gpointer data)
+{
   static unsigned char buffer_data[MAX_PACKETSIZE];
   static int bytes_data = 0;
 
@@ -611,7 +611,7 @@ static gboolean sample_data(GIOChannel *chan, GIOCondition cond, gpointer data) 
   bytes_data += udp_socket_recv(&natnet_data, buffer_data, MAX_PACKETSIZE);
 
   // Parse NatNet data
-  if(bytes_data >= 2 && bytes_data >= buffer_data[1]) {
+  if (bytes_data >= 2 && bytes_data >= buffer_data[1]) {
     natnet_parse(buffer_data);
     bytes_data = 0;
   }
@@ -621,7 +621,8 @@ static gboolean sample_data(GIOChannel *chan, GIOCondition cond, gpointer data) 
 
 
 /** Print the program help */
-void print_help(char* filename) {
+void print_help(char *filename)
+{
   static const char *usage =
     "Usage: %s [options]\n"
     " Options :\n"
@@ -649,8 +650,9 @@ void print_help(char* filename) {
 }
 
 /** Check the amount of arguments */
-void check_argcount(int argc, char** argv, int i, int expected) {
-  if(i+expected >= argc) {
+void check_argcount(int argc, char **argv, int i, int expected)
+{
+  if (i + expected >= argc) {
     fprintf(stderr, "Option %s expected %d arguments\r\n\r\n", argv[i], expected);
     print_help(argv[0]);
     exit(0);
@@ -658,58 +660,58 @@ void check_argcount(int argc, char** argv, int i, int expected) {
 }
 
 /** Parse the options from the commandline */
-static void parse_options(int argc, char** argv) {
+static void parse_options(int argc, char **argv)
+{
   int i, count_ac = 0;
-  for(i = 1; i < argc; ++i) {
+  for (i = 1; i < argc; ++i) {
 
     // Print help
-    if(strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+    if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
       print_help(argv[0]);
       exit(0);
     }
     // Set the verbosity level
-    if(strcmp(argv[i], "--verbosity") == 0 || strcmp(argv[i], "-v") == 0) {
+    if (strcmp(argv[i], "--verbosity") == 0 || strcmp(argv[i], "-v") == 0) {
       check_argcount(argc, argv, i, 1);
 
       verbose = atoi(argv[++i]);
     }
 
     // Set an rigid body to ivy ac_id
-    else if(strcmp(argv[i], "-ac") == 0) {
+    else if (strcmp(argv[i], "-ac") == 0) {
       check_argcount(argc, argv, i, 2);
 
       int rigid_id = atoi(argv[++i]);
       uint8_t ac_id = atoi(argv[++i]);
 
-      if(rigid_id >= MAX_RIGIDBODIES) {
+      if (rigid_id >= MAX_RIGIDBODIES) {
         fprintf(stderr, "Rigid body ID must be less then %d (MAX_RIGIDBODIES)\n\n", MAX_RIGIDBODIES);
         print_help(argv[0]);
         exit(EXIT_FAILURE);
       }
       aircrafts[rigid_id].ac_id = ac_id;
       count_ac++;
-    }
-    else if(strcmp(argv[i], "-log") == 0) {
+    } else if (strcmp(argv[i], "-log") == 0) {
       check_argcount(argc, argv, i, 1);
 
       nameOfLogfile = argv[++i];
-      must_log = 1; 
+      must_log = 1;
     }
 
     // Set the NatNet multicast address
-    else if(strcmp(argv[i], "-multicast_addr") == 0) {
+    else if (strcmp(argv[i], "-multicast_addr") == 0) {
       check_argcount(argc, argv, i, 1);
 
       natnet_multicast_addr = argv[++i];
     }
     // Set the NatNet server ip address
-    else if(strcmp(argv[i], "-server") == 0) {
+    else if (strcmp(argv[i], "-server") == 0) {
       check_argcount(argc, argv, i, 1);
 
       natnet_addr = argv[++i];
     }
     // Set the NatNet server version
-    else if(strcmp(argv[i], "-version") == 0) {
+    else if (strcmp(argv[i], "-version") == 0) {
       check_argcount(argc, argv, i, 1);
 
       float version = atof(argv[++i]);
@@ -717,13 +719,13 @@ static void parse_options(int argc, char** argv) {
       natnet_minor = (uint8_t)(version * 10.0) % 10;
     }
     // Set the NatNet server data port
-    else if(strcmp(argv[i], "-data_port") == 0) {
+    else if (strcmp(argv[i], "-data_port") == 0) {
       check_argcount(argc, argv, i, 1);
 
       natnet_data_port = atoi(argv[++i]);
     }
     // Set the NatNet server command port
-    else if(strcmp(argv[i], "-cmd_port") == 0) {
+    else if (strcmp(argv[i], "-cmd_port") == 0) {
       check_argcount(argc, argv, i, 1);
 
       natnet_cmd_port = atoi(argv[++i]);
@@ -752,31 +754,31 @@ static void parse_options(int argc, char** argv) {
       ltp_def_from_ecef_d(&tracking_ltp, &tracking_ecef);
     }
     // Set the tracking system offset angle in degrees
-    else if(strcmp(argv[i], "-offset_angle") == 0) {
+    else if (strcmp(argv[i], "-offset_angle") == 0) {
       check_argcount(argc, argv, i, 1);
 
       tracking_offset_angle = atof(argv[++i]);
     }
 
     // Set the transmit frequency
-    else if(strcmp(argv[i], "-tf") == 0) {
+    else if (strcmp(argv[i], "-tf") == 0) {
       check_argcount(argc, argv, i, 1);
 
       freq_transmit = atoi(argv[++i]);
     }
     // Set the minimum amount of velocity samples for the differentiator
-    else if(strcmp(argv[i], "-vel_samples") == 0) {
+    else if (strcmp(argv[i], "-vel_samples") == 0) {
       check_argcount(argc, argv, i, 1);
 
       min_velocity_samples = atoi(argv[++i]);
     }
     // Set to use small packets
-    else if(strcmp(argv[i], "-small") == 0) {
+    else if (strcmp(argv[i], "-small") == 0) {
       small_packets = TRUE;
     }
 
     // Set the ivy bus
-    else if(strcmp(argv[i], "-ivy_bus") == 0) {
+    else if (strcmp(argv[i], "-ivy_bus") == 0) {
       check_argcount(argc, argv, i, 1);
 
       ivy_bus = argv[++i];
@@ -791,14 +793,14 @@ static void parse_options(int argc, char** argv) {
   }
 
   // Check if at least one aircraft is set
-  if(count_ac < 1) {
+  if (count_ac < 1) {
     fprintf(stderr, "You must specify at least one aircraft (-ac <rigid_id> <ac_id>)\n\n");
     print_help(argv[0]);
     exit(EXIT_FAILURE);
   }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   // Set the default tracking system position and angle
   struct EcefCoor_d tracking_ecef;
@@ -810,10 +812,12 @@ int main(int argc, char** argv)
 
   // Parse the options from cmdline
   parse_options(argc, argv);
-  printf_debug("Tracking system Latitude: %f Longitude: %f Offset to North: %f degrees\n", DegOfRad(tracking_ltp.lla.lat), DegOfRad(tracking_ltp.lla.lon), DegOfRad(tracking_offset_angle));
+  printf_debug("Tracking system Latitude: %f Longitude: %f Offset to North: %f degrees\n", DegOfRad(tracking_ltp.lla.lat),
+               DegOfRad(tracking_ltp.lla.lon), DegOfRad(tracking_offset_angle));
 
   // Create the network connections
-  printf_debug("Starting NatNet listening (multicast address: %s, data port: %d, version: %d.%d)\n", natnet_multicast_addr, natnet_data_port, natnet_major, natnet_minor);
+  printf_debug("Starting NatNet listening (multicast address: %s, data port: %d, version: %d.%d)\n",
+               natnet_multicast_addr, natnet_data_port, natnet_major, natnet_minor);
   udp_socket_create(&natnet_data, "", -1, natnet_data_port, 0); // Only receiving
   udp_socket_subscribe_multicast(&natnet_data, natnet_multicast_addr);
   udp_socket_set_recvbuf(&natnet_data, 0x100000); // 1MB
@@ -829,8 +833,8 @@ int main(int argc, char** argv)
 
   // Create the main timers
   printf_debug("Starting transmitting and sampling timeouts (transmitting frequency: %dHz, minimum velocity samples: %d)\n",
-    freq_transmit, min_velocity_samples);
-  g_timeout_add(1000/freq_transmit, timeout_transmit_callback, NULL);
+               freq_transmit, min_velocity_samples);
+  g_timeout_add(1000 / freq_transmit, timeout_transmit_callback, NULL);
 
   GIOChannel *sk = g_io_channel_unix_new(natnet_data.sockfd);
   g_io_add_watch(sk, G_IO_IN | G_IO_NVAL | G_IO_HUP,
