@@ -26,6 +26,9 @@
  */
 
 #include <math.h>
+#include "std.h"
+
+static unit_t unit __attribute__((unused));
 
 #define NAV_C
 #include "firmwares/fixedwing/nav.h"
@@ -37,8 +40,6 @@
 
 #include "generated/flight_plan.h"
 
-
-#define RCLost() bit_is_set(fbw_state->status, STATUS_RADIO_REALLY_LOST)
 
 enum oval_status oval_status;
 
@@ -195,13 +196,6 @@ void nav_glide(uint8_t start_wp, uint8_t wp)
   }
 
 
-#define NavFollow(_ac_id, _distance, _height)   \
-  nav_follow(_ac_id, _distance, _height);
-
-
-static unit_t unit __attribute__((unused));
-
-static inline void nav_follow(uint8_t _ac_id, float _distance, float _height);
 
 #ifdef NAV_GROUND_SPEED_PGAIN
 /** \brief Computes cruise throttle from ground speed setpoint
@@ -292,7 +286,7 @@ static inline bool_t compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float g
 
 
 
-static inline void nav_follow(uint8_t _ac_id, float _distance, float _height)
+void nav_follow(uint8_t _ac_id, float _distance, float _height)
 {
   struct ac_info_ * ac = get_ac_info(_ac_id);
   NavVerticalAutoThrottleMode(0.);
