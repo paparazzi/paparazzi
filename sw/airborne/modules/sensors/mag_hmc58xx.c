@@ -30,10 +30,6 @@
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#if MODULE_HMC58XX_UPDATE_AHRS
-#include "subsystems/imu.h"
-#include "subsystems/abi.h"
-
 #ifndef HMC58XX_CHAN_X
 #define HMC58XX_CHAN_X 0
 #endif
@@ -44,6 +40,9 @@
 #define HMC58XX_CHAN_Z 2
 #endif
 
+#if MODULE_HMC58XX_UPDATE_AHRS
+#include "subsystems/imu.h"
+#include "subsystems/abi.h"
 #endif
 
 struct Hmc58xx mag_hmc58xx;
