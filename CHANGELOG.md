@@ -1,3 +1,18 @@
+Paparazzi v5.8.1_stable
+=======================
+
+Maintenance release.
+
+- ground segment: python tools fixes
+- module: stereocam2state improvements/fixes
+  [#1490] (https://github.com/paparazzi/paparazzi/pull/1490)
+- module: fix gps_ublox
+- boards: naze32: default to SERIAL (USB) flash mode
+- generators: always put configure options at beginning
+  [#1517] (https://github.com/paparazzi/paparazzi/pull/1517)
+- generators: varous fixes for loading of modules and subsystems
+- drivers: fix regression of wrong magnetometer axis on Parrot Bebop
+
 Paparazzi v5.8.0_stable
 =======================
 
