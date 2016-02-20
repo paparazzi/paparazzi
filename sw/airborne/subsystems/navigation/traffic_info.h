@@ -39,7 +39,7 @@ struct ac_info_ {
   float east;   ///< m relative to nav_utm_east0
   float north;  ///< m relative to nav_utm_north0
   float course; ///< rad (CW)
-  float alt;    ///< m
+  float alt;    ///< m above Mean Sea Level (geoid)
   float gspeed; ///< m/s
   float climb;  ///< m/s
   uint32_t itow;///< ms
