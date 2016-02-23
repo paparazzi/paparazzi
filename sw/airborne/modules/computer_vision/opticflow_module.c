@@ -256,9 +256,10 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
 
     // Do the optical flow calculation
     struct opticflow_result_t temp_result;
-    opticflow_calc_frame(&opticflow, &temp_state, &img, &temp_result);
+    //opticflow_calc_frame(&opticflow, &temp_state, &img, &temp_result);
+    edgeflow_calc_frame(&opticflow, &temp_state, &img, &temp_result);
 
-    test_function(&img,&img_gray);
+    //test_function(&img,&img_gray);
 	//image_to_grayscale(&img, &img_gray);
 
     // Copy the result if finished
@@ -268,7 +269,7 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
     pthread_mutex_unlock(&opticflow_mutex);
 
 #if OPTICFLOW_DEBUG
-    jpeg_encode_image(&img_gray, &img_jpeg, 70, FALSE);
+    jpeg_encode_image(&img, &img_jpeg, 70, FALSE);
     rtp_frame_send(
       &video_sock,           // UDP device
       &img_jpeg,
