@@ -196,8 +196,32 @@ let get_modules_of_flight_plan = fun xml ->
     | Xml.Element (tag, _attrs, children) ->
         List.fold_left
           (fun acc xml -> iter_modules targets acc xml) modules children in
-  iter_modules [] [] xml
+  List.rev (iter_modules [] [] xml)
 
+(** [singletonize_modules xml]
+ * Returns a list of singletonized modules were options are merged
+ *)
+let singletonize_modules = fun xml ->
+  let rec loop = fun l ->
+    match l with
+    | [] | [_] -> l
+    | x::xs ->
+        let (duplicates, rest) = List.partition (fun m -> m.file = x.file) xs in
+        let m = { name = x.name; xml = x.xml; file = x.file; filename = x.filename;
+        vpath = x.vpath; param = List.flatten (List.map (fun m -> m.param) ([x] @ duplicates));
+        targets = singletonize (List.flatten (List.map (fun m -> m.targets) ([x] @ duplicates))) } in
+        m::loop rest
+  in
+  loop xml
+
+(** [get_modules_of_config ?target flight_plan airframe]
+ * Returns a list of pair (modules ("load" node), targets) from airframe file and flight plan.
+ * The modules are singletonized and options are merged *)
+let get_modules_of_config = fun ?target af_xml fp_xml ->
+  let af_modules = get_modules_of_airframe ?target af_xml
+  and fp_modules = get_modules_of_flight_plan fp_xml in
+  (* singletonize modules list *)
+  singletonize_modules (af_modules @ fp_modules)
 
 (** [get_modules_name xml]
     * Returns a list of loaded modules' name *)

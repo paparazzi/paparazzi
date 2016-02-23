@@ -146,8 +146,7 @@ let module_xml2mk = fun f target firmware m ->
     ) m.xml
 
 let modules_xml2mk = fun f target xml fp ->
-  let modules = Gen_common.get_modules_of_airframe ~target xml in
-  let modules = (modules @ Gen_common.get_modules_of_flight_plan fp) in
+  let modules = Gen_common.get_modules_of_config ~target xml fp in
   (* print modules directories and includes for all targets *)
   fprintf f "\n# include modules directory for all targets\n";
   (* get dir list *)
@@ -337,8 +336,7 @@ let () =
     mkdir (aircraft_conf_dir // "telemetry");
 
     let target = try Sys.getenv "TARGET" with _ -> "" in
-    let modules = Gen_common.get_modules_of_airframe ~target (Xml.parse_file abs_airframe_file) in
-    let modules = (modules @ Gen_common.get_modules_of_flight_plan (Xml.parse_file abs_flight_plan_file)) in
+    let modules = Gen_common.get_modules_of_config ~target (Xml.parse_file abs_airframe_file) (Xml.parse_file abs_flight_plan_file) in
     (* normal settings *)
     let settings = try Env.filter_settings (value "settings") with _ -> "" in
     (* remove settings if not supported for the current target *)
