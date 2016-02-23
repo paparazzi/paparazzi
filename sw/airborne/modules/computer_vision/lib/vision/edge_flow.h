@@ -14,7 +14,8 @@
 #include "lib/vision/image.h"
 #include "lib/v4l/v4l2.h"
 #include "opticflow/opticflow_calculator.h"
-
+#include <string.h>
+#include <stdlib.h>
 
 #define MAX_HORIZON 10
 #define IMAGE_HEIGHT 240
@@ -28,10 +29,29 @@ struct edge_hist_t {
 	int16_t roll;
 	int16_t pitch;
 };
+
+struct edgeflow_displacement_t {
+	int32_t horizontal[IMAGE_WIDTH];
+	int32_t vertical[IMAGE_HEIGHT];
+};
+
+struct edge_flow_t {
+	int32_t horizontal_flow;
+	int32_t horizontal_div;
+	int32_t vertical_flow;
+	int32_t vertical_div;
+};
+
+
+void line_fit(int32_t *displacement, int32_t *divergence, int32_t *flow, uint32_t size, uint32_t border,
+		uint16_t RES);
 void test_function(struct image_t *image,struct image_t *image_gray);
 void edgeflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
                           struct opticflow_result_t *result);
 void calculate_edge_histogram(struct image_t *img, int32_t edge_histogram[],
 		char direction, uint16_t edge_threshold);
+void calculate_edge_displacement(int32_t *edge_histogram, int32_t *edge_histogram_prev, int32_t *displacement,
+		uint16_t size, uint8_t window, uint8_t disp_range, int32_t der_shift);
+uint32_t getMinimum(uint32_t *a, uint32_t n);
 
 #endif /* EDGE_FLOW_H_ */

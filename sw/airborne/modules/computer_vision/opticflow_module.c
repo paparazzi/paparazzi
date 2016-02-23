@@ -269,12 +269,12 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
     pthread_mutex_unlock(&opticflow_mutex);
 
 #if OPTICFLOW_DEBUG
-    jpeg_encode_image(&img, &img_jpeg, 70, FALSE);
+    jpeg_encode_image(&img, &img_jpeg, 50, FALSE);
     rtp_frame_send(
       &video_sock,           // UDP device
       &img_jpeg,
       0,                        // Format 422
-      70, // Jpeg-Quality
+     50, // Jpeg-Quality
       0,                        // DRI Header
       0                         // 90kHz time increment
     );
