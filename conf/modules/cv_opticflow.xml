@@ -82,7 +82,26 @@
     <!-- Main vision calculations -->
     <file name="fast_rosten.c" dir="modules/computer_vision/lib/vision"/>
     <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="edge_flow.c" dir="modules/computer_vision/lib/vision"/>
+  <raw>
+      include $(CFG_SHARED)/udp.makefile
+
+      VIEWVIDEO_HOST        ?= $(MODEM_HOST)
+      VIEWVIDEO_PORT_OUT    ?= 5000
+      VIEWVIDEO_BROADCAST   ?= TRUE
+      VIEWVIDEO_USE_NETCAT  ?= FALSE
+
+      VIEWVID_CFLAGS  = -DVIEWVIDEO_HOST=$(VIEWVIDEO_HOST) -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT)
+      ifneq (,$(findstring $(VIEWVIDEO_USE_NETCAT),0 FALSE))
+        ap.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=$(VIEWVIDEO_BROADCAST)
+        nps.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=FALSE
+      else
+        $(TARGET).CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_USE_NETCAT
+      endif
+    </raw>
+
   </makefile>
+
 
 </module>
 

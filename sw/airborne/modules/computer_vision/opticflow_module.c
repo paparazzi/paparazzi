@@ -36,6 +36,8 @@
 #include "lib/v4l/v4l2.h"
 #include "lib/encoding/jpeg.h"
 #include "lib/encoding/rtp.h"
+#include "lib/vision/edge_flow.h"
+
 
 /* Default sonar/agl to use in opticflow visual_estimator */
 #ifndef OPTICFLOW_AGL_ID
@@ -76,6 +78,8 @@ static abi_event opticflow_agl_ev;                 ///< The altitude ABI event
 static pthread_t opticflow_calc_thread;            ///< The optical flow calculation thread
 static bool_t opticflow_got_result;                ///< When we have an optical flow calculation
 static pthread_mutex_t opticflow_mutex;            ///< Mutex lock fo thread safety
+
+struct UdpSocket video_sock;
 
 /* Static functions */
 static void *opticflow_module_calc(void *data);                   ///< The main optical flow calculation thread
@@ -139,6 +143,12 @@ void opticflow_module_init(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_OPTIC_FLOW_EST, opticflow_telem_send);
+#endif
+
+#if OPTICFLOW_DEBUG
+
+  udp_socket_create(&video_sock, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_BROADCAST);
+
 #endif
 }
 
@@ -224,8 +234,13 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
 #if OPTICFLOW_DEBUG
   // Create a new JPEG image
   struct image_t img_jpeg;
+
   image_create(&img_jpeg, opticflow_dev->w, opticflow_dev->h, IMAGE_JPEG);
 #endif
+
+  struct image_t img_gray;
+  image_create(&img_gray, opticflow_dev->w, opticflow_dev->h, IMAGE_YUV422);
+
 
   /* Main loop of the optical flow calculation */
   while (TRUE) {
@@ -243,6 +258,9 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
     struct opticflow_result_t temp_result;
     opticflow_calc_frame(&opticflow, &temp_state, &img, &temp_result);
 
+    test_function(&img,&img_gray);
+	//image_to_grayscale(&img, &img_gray);
+
     // Copy the result if finished
     pthread_mutex_lock(&opticflow_mutex);
     memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
@@ -250,9 +268,9 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
     pthread_mutex_unlock(&opticflow_mutex);
 
 #if OPTICFLOW_DEBUG
-    jpeg_encode_image(&img, &img_jpeg, 70, FALSE);
+    jpeg_encode_image(&img_gray, &img_jpeg, 70, FALSE);
     rtp_frame_send(
-      &VIEWVIDEO_DEV,           // UDP device
+      &video_sock,           // UDP device
       &img_jpeg,
       0,                        // Format 422
       70, // Jpeg-Quality
@@ -267,6 +285,7 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
 
 #if OPTICFLOW_DEBUG
   image_free(&img_jpeg);
+  image_free(&img_gray);
 #endif
 }
 
