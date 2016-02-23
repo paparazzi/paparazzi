@@ -29,8 +29,8 @@
     <load name="send_imu_mag_current.xml"/>
     <load name="logger_file.xml"/>
     <load name="cv_opticflow.xml">
-      <define name="OPTICFLOW_DEBUG" value = "TRUE"/>
-      <define name="OPTICFLOW_SHOW_FLOW" value = "TRUE"/>
+      <define name="OPTICFLOW_DEBUG" value = "FALSE"/>
+      <define name="OPTICFLOW_SHOW_FLOW" value = "FALSE"/>
     </load>
     <load name="video_thread.xml">
         <define name="VIDEO_THREAD_CAMERA" value="front_camera"/>

@@ -16,16 +16,26 @@
 #include "opticflow/opticflow_calculator.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+
+#include "mcu_periph/sys_time.h"
 
 #define MAX_HORIZON 10
 #define IMAGE_HEIGHT 240
 #define IMAGE_WIDTH 320
 #define DISP_RANGE_MAX 20
+#ifndef OPTICFLOW_FOV_W
+#define OPTICFLOW_FOV_W 0.89360857702
+#endif
+
+#ifndef OPTICFLOW_FOV_H
+#define OPTICFLOW_FOV_H 0.67020643276
+#endif
 
 struct edge_hist_t {
 	int32_t horizontal[IMAGE_WIDTH];
 	int32_t vertical[IMAGE_HEIGHT];
-	int32_t frame_time;
+	struct timeval frame_time;
 	int16_t roll;
 	int16_t pitch;
 };
