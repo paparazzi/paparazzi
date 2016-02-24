@@ -36,8 +36,8 @@ struct edge_hist_t {
 	int32_t horizontal[IMAGE_WIDTH];
 	int32_t vertical[IMAGE_HEIGHT];
 	struct timeval frame_time;
-	int16_t roll;
-	int16_t pitch;
+	float roll;
+	float pitch;
 };
 
 struct edgeflow_displacement_t {
@@ -63,5 +63,6 @@ void calculate_edge_histogram(struct image_t *img, int32_t edge_histogram[],
 void calculate_edge_displacement(int32_t *edge_histogram, int32_t *edge_histogram_prev, int32_t *displacement,
 		uint16_t size, uint8_t window, uint8_t disp_range, int32_t der_shift);
 uint32_t getMinimum(uint32_t *a, uint32_t n);
+void draw_edgeflow_img(struct image_t *img, struct edge_flow_t edgeflow, struct edgeflow_displacement_t displacement, int32_t *edge_hist_x);
 
 #endif /* EDGE_FLOW_H_ */

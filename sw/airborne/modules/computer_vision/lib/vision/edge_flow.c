@@ -6,6 +6,7 @@
  */
 #include <lib/vision/edge_flow.h>
 
+static uint32_t timeval_diff2(struct timeval *starttime, struct timeval *finishtime);
 
 void test_function(struct image_t *img,struct image_t *img_gray)
 {
@@ -210,67 +211,82 @@ void line_fit(int32_t *displacement, int32_t *divergence, int32_t *flow, uint32_
 
 	//return total_error / size;
 }
-/**
- * Calculate the difference from start till finish
- * @param[in] *starttime The start time to calculate the difference from
- * @param[in] *finishtime The finish time to calculate the difference from
- * @return The difference in milliseconds
- */
- uint32_t timeval_diff2(struct timeval *starttime, struct timeval *finishtime)
+void draw_edgeflow_img(struct image_t *img, struct edge_flow_t edgeflow, struct edgeflow_displacement_t displacement, int32_t *edge_hist_x)
 {
-	uint32_t msec;
-	msec = (finishtime->tv_sec - starttime->tv_sec) * 1000;
-	msec += (finishtime->tv_usec - starttime->tv_usec) / 1000;
-	return msec;
-}
+	struct point_t point1;
+	struct point_t point2;
+	struct point_t point1_prev;
+	struct point_t point2_prev;
+	struct point_t point1_extra;
+	struct point_t point2_extra;
+	uint16_t i;
 
+	for(i = 120; i<240;i++)
+	{
+		point1.y = -(uint16_t)edge_hist_x[i]/100 + img->h/3;
+		point1.x = i;
+		point2.y = -(uint16_t)edge_hist_x[i+1]/100 + img->h/3;
+		point2.x = i+1;
+
+		point1_prev.y = -(uint16_t)displacement.horizontal[i]*5 + img->h*2/3;
+		point1_prev.x = i;
+		point2_prev.y = -(uint16_t)displacement.horizontal[i+1]*5 + img->h*2/3;
+		point2_prev.x = i+1;
+
+		image_draw_line(img, &point1,&point2);
+		image_draw_line(img, &point1_prev,&point2_prev);
+	}
+
+	point1_extra.y = (edgeflow.horizontal_flow+edgeflow.horizontal_div * -180 )/ 100+ img->h/2;
+	point1_extra.x = 0;
+	point2_extra.y = (edgeflow.horizontal_flow+edgeflow.horizontal_div * 180 )/ 100 + img->h/2;
+	point2_extra.x = 360;
+	image_draw_line(img, &point1_extra,&point2_extra);
+}
 void edgeflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
 		struct opticflow_result_t *result)
 {
-
+	// Define Static Variables
 	static struct edge_hist_t edge_hist[MAX_HORIZON];
-	static uint8_t current_frame_nr = 1;
-	struct edge_flow_t edgeflow;
-	static uint8_t previous_frame_offset[2] = {0,0};
-	static uint8_t counter_check = 0;
+	static uint8_t current_frame_nr = 0;
+	static struct edge_flow_t edgeflow;
+	static uint8_t previous_frame_offset[2] = {1,1};
 
-	/*static uint32_t previous_time = 0;//sys_time.nb_tick;
-	static uint16_t freq_counter = 0;
-	static uint8_t  frequency = 0;
-
-    freq_counter++;
-    if ((sys_time.nb_tick - previous_time) > sys_time.ticks_per_sec) {  // 1s has past
-      frequency = (uint8_t)((freq_counter * (sys_time.nb_tick - previous_time)) / sys_time.ticks_per_sec);
-      freq_counter = 0;
-      previous_time = sys_time.nb_tick;
-    }
-    printf("freq %d\n",frequency);*/
-
-
-
-   // printf("freq %d\n",frequency);
+	// Define Normal variables
+	struct edgeflow_displacement_t displacement;
 	uint8_t disp_range = DISP_RANGE_MAX;
+	uint16_t RES = 100;
 
+	// Calculate current frame's edge histogram
 	int32_t *edge_hist_x = edge_hist[current_frame_nr].horizontal;
 	int32_t *edge_hist_y = edge_hist[current_frame_nr].vertical;
-
 	calculate_edge_histogram(img, edge_hist_x, 'x',0);
 	calculate_edge_histogram(img, edge_hist_y, 'y',0);
 
-	//edge_hist[current_frame_nr].frame_time = img->ts;
-
+	// Copy frame time and angles of image to calculated edge histogram
 	memcpy(&edge_hist[current_frame_nr].frame_time, &img->ts, sizeof(struct timeval));
+	edge_hist[current_frame_nr].pitch = state->theta;
+    edge_hist[current_frame_nr].roll = state->phi;
+
+    // Adaptive Time Horizon:
+    // if the flow measured in previous frame is small,
+    // the algorithm will choose an frame further away back from the
+    // current frame to detect subpixel flow
 
 	if (MAX_HORIZON > 2) {
-		uint32_t flow_mag_x, flow_mag_y;
-		flow_mag_x = abs(result->flow_x);
-		flow_mag_y = abs(result->flow_y);
 
+		uint32_t flow_mag_x, flow_mag_y;
+		flow_mag_x = abs(edgeflow.horizontal_flow);
+		flow_mag_y = abs(edgeflow.vertical_flow);
 		uint32_t min_flow = 3;
-		uint32_t max_flow = disp_range - 3;
+		uint32_t max_flow = disp_range*RES - 3*RES;
+
 		uint8_t previous_frame_offset_x = previous_frame_offset[0];
 		uint8_t previous_frame_offset_y = previous_frame_offset[1];
 
+		// IF statements which will decrement the previous frame offset
+		// if the measured flow of last loop is higher than max value (higher flow measured)
+		// and visa versa
 		if (flow_mag_x > max_flow && previous_frame_offset_x > 1)
 			previous_frame_offset[0] = previous_frame_offset_x - 1;
 		if (flow_mag_x < min_flow && previous_frame_offset_x < MAX_HORIZON - 1)
@@ -281,24 +297,28 @@ void edgeflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t
 			previous_frame_offset[1] = previous_frame_offset_y + 1;
 	}
 
-
+	//Wrap index previous frame offset from current frame nr.
 	uint8_t previous_frame_x = (current_frame_nr - previous_frame_offset[0] + MAX_HORIZON) %
-			MAX_HORIZON; // wrap index
+			MAX_HORIZON;
 	uint8_t previous_frame_y = (current_frame_nr - previous_frame_offset[1] + MAX_HORIZON) %
-			MAX_HORIZON; // wrap index
+			MAX_HORIZON;
 
+	//Select edge histogram from the previous frame nr
 	int32_t *prev_edge_histogram_x = edge_hist[previous_frame_x].horizontal;
 	int32_t *prev_edge_histogram_y = edge_hist[previous_frame_y].vertical;
 
-	struct edgeflow_displacement_t displacement;
+	//Calculate the corrosponding derotation of the two frames
+ 	int16_t der_shift_x = -(int16_t)((edge_hist[previous_frame_x].roll - edge_hist[current_frame_nr].roll) * (float)img->w / ( OPTICFLOW_FOV_W));
+ 	int16_t der_shift_y = -(int16_t)((edge_hist[previous_frame_x].pitch - edge_hist[current_frame_nr].pitch) * (float)img->h / ( OPTICFLOW_FOV_H));
+
+    // Estimate pixel wise displacement of the edge histograms for x and y direction
 	calculate_edge_displacement(edge_hist_x, prev_edge_histogram_x,
 			displacement.horizontal, img->w,
-			opticflow->window_size, disp_range, 0);
+			opticflow->window_size, disp_range,  der_shift_x);
 	calculate_edge_displacement(edge_hist_y, prev_edge_histogram_y,
 			displacement.vertical, img->h,
-			opticflow->window_size, disp_range, 0);
+			opticflow->window_size, disp_range, der_shift_y);
 
-	uint16_t RES = 100;
 	line_fit(displacement.horizontal, &edgeflow.horizontal_div,
 			&edgeflow.horizontal_flow, img->w,
 			opticflow->window_size + disp_range, RES);
@@ -306,71 +326,44 @@ void edgeflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t
 			&edgeflow.vertical_flow, img->h,
 			opticflow->window_size + disp_range, RES);
 
-	uint16_t i;
-
 	result->flow_x = (int16_t)edgeflow.horizontal_flow/(previous_frame_offset[0]*RES);
 	result->flow_y = (int16_t)edgeflow.vertical_flow/(previous_frame_offset[1]*RES);
 
-
 	float fps_x = 0;
 	float fps_y = 0;
-	if(counter_check>MAX_HORIZON)
-	{
-		printf("%d\n",img->ts.tv_sec);
-		printf("%d %d %d %d \n",current_frame_nr,previous_frame_x, img->ts.tv_usec, edge_hist[previous_frame_x].frame_time.tv_usec);
-		printf("1: %d\n",timeval_diff2(&edge_hist[previous_frame_x].frame_time, &img->ts));
-		printf("2: %d\n",timeval_diff2(&edge_hist[previous_frame_y].frame_time, &img->ts));
+	float time_diff_x = (float)(timeval_diff2(&edge_hist[previous_frame_x].frame_time, &img->ts)) / 1000.;
+	float time_diff_y = (float)(timeval_diff2(&edge_hist[previous_frame_y].frame_time, &img->ts)) / 1000.;
+	fps_x = 1/(time_diff_x);
+	fps_y = 1/(time_diff_y);
 
-		float time_diff_x = (float)(timeval_diff2(&edge_hist[previous_frame_x].frame_time, &edge_hist[current_frame_nr].frame_time)) / 1000;
-		float time_diff_y = (float)(timeval_diff2(&edge_hist[previous_frame_y].frame_time, &edge_hist[current_frame_nr].frame_time)) / 1000;
-
-		fps_x = 1/(time_diff_x);
-		fps_y= 1/(time_diff_x);
-		result->fps = (fps_x + fps_y)/ 2;
-	}
-	else
-		counter_check++;
-
+	result->fps = fps_x;
 	float vel_hor = edgeflow.horizontal_flow * fps_x* state->agl * OPTICFLOW_FOV_W / (img->w * RES);
 	float vel_ver = edgeflow.vertical_flow * fps_y * state->agl * OPTICFLOW_FOV_H / (img->h * RES);
 
 	result->vel_x = vel_ver;
 	result->vel_y = - vel_hor;
 
-	struct point_t point1;
-	struct point_t point2;
-	struct point_t point1_prev;
-	struct point_t point2_prev;
-	struct point_t point1_extra;
-	struct point_t point2_extra;
-
-	for(i = 120; i<240;i++)
-	{
-		point1.y = -(uint16_t)edge_hist_x[i]/100 + img->h/3;
-		point1.x = i;
-		point2.y = -(uint16_t)edge_hist_x[i+1]/100 + img->h/3;
-		point2.x = i+1;
-
-
-		point1_prev.y = -(uint16_t)displacement.horizontal[i]*5 + img->h*2/3;
-		point1_prev.x = i;
-		point2_prev.y = -(uint16_t)displacement.horizontal[i+1]*5 + img->h*2/3;
-		point2_prev.x = i+1;
-
-		image_draw_line(img, &point1,&point2);
-		image_draw_line(img, &point1_prev,&point2_prev);
-
-	}
-
-	point1_extra.y = (edgeflow.horizontal_flow+edgeflow.horizontal_div * -180 )/ 100+ img->h/2;
-	point1_extra.x = 0;
-	point2_extra.y = (edgeflow.horizontal_flow+edgeflow.horizontal_div * 180 )/ 100 + img->h/2;
-	point2_extra.x = 360;
-	image_draw_line(img, &point1_extra,&point2_extra);
-
+#if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_FLOW
+	draw_edgeflow_img(img, edgeflow,displacement, *edge_hist_x)
+#endif
 
 	current_frame_nr = (current_frame_nr + 1) % MAX_HORIZON;
+
+
 }
 
 
+/**
+ * Calculate the difference from start till finish
+ * @param[in] *starttime The start time to calculate the difference from
+ * @param[in] *finishtime The finish time to calculate the difference from
+ * @return The difference in milliseconds
+ */
+static uint32_t timeval_diff2(struct timeval *starttime, struct timeval *finishtime)
+{
+	uint32_t msec;
+	msec = (finishtime->tv_sec - starttime->tv_sec) * 1000;
+	msec += (finishtime->tv_usec - starttime->tv_usec) / 1000;
+	return msec;
+}
 
