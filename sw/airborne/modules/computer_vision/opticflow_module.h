@@ -29,6 +29,7 @@
 
 // Include opticflow calculator
 #include "opticflow/opticflow_calculator.h"
+#include "opticflow/edge_flow.h"
 
 // Needed for settings
 extern struct opticflow_t opticflow;

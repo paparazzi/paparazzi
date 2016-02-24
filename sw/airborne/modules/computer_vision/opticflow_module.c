@@ -36,7 +36,6 @@
 #include "lib/v4l/v4l2.h"
 #include "lib/encoding/jpeg.h"
 #include "lib/encoding/rtp.h"
-#include "lib/vision/edge_flow.h"
 
 
 /* Default sonar/agl to use in opticflow visual_estimator */
@@ -68,6 +67,16 @@ PRINT_CONFIG_MSG("OPTICFLOW_DEVICE_SIZE = " _SIZE_HELPER(OPTICFLOW_DEVICE_SIZE))
 #define OPTICFLOW_DEVICE_BUFFERS 15       ///< The video device buffers (the amount of V4L2 buffers)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_DEVICE_BUFFERS)
+
+#ifndef USE_EDGEFLOW
+#define USE_EDGEFLOW FALSE
+#endif
+PRINT_CONFIG_VAR(USE_EDGEFLOW)
+
+#ifndef USE_LK
+#define USE_LK TRUE       ///< The video device buffers (the amount of V4L2 buffers)
+#endif
+PRINT_CONFIG_VAR(USE_LK)
 
 /* The main opticflow variables */
 struct opticflow_t opticflow;                      ///< Opticflow calculations
@@ -177,8 +186,8 @@ void opticflow_module_run(void)
     //TODO Find an appropiate quality measure for the noise model in the state filter, for now it is tracked_cnt
     if (opticflow_result.tracked_cnt > 0) {
       AbiSendMsgVELOCITY_ESTIMATE(OPTICFLOW_SENDER_ID, now_ts,
-                                  opticflow_result.vel_x,
-                                  opticflow_result.vel_y,
+                                  opticflow_result.vel_body_x,
+                                  opticflow_result.vel_body_y,
                                   0.0f,
                                   opticflow_result.noise_measurement
                                  );
@@ -256,11 +265,16 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
 
     // Do the optical flow calculation
     struct opticflow_result_t temp_result;
-    //opticflow_calc_frame(&opticflow, &temp_state, &img, &temp_result);
-    edgeflow_calc_frame(&opticflow, &temp_state, &img, &temp_result);
 
-    //test_function(&img,&img_gray);
-	//image_to_grayscale(&img, &img_gray);
+#if USE_LK
+    opticflow_calc_frame(&opticflow, &temp_state, &img, &temp_result);
+#else
+#if USE_EDGEFLOW
+    edgeflow_calc_frame(&opticflow, &temp_state, &img, &temp_result);
+#else
+    PRINT_CONFIG_MSG("Both edgeflow and Lukas kanade is not turned on. Define either USE_LK or use_EDGEFLOW on TRUE!");
+#endif
+#endif
 
     // Copy the result if finished
     pthread_mutex_lock(&opticflow_mutex);
@@ -274,7 +288,7 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
       &video_sock,           // UDP device
       &img_jpeg,
       0,                        // Format 422
-     50, // Jpeg-Quality
+      50, // Jpeg-Quality
       0,                        // DRI Header
       0                         // 90kHz time increment
     );
