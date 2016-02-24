@@ -37,10 +37,6 @@
     <module name="ins"           type="hff"/>
 
     <module name="send_imu_mag_current.xml"/>
-    <module name="adc_generic.xml">
-      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
-      <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
-    </module>
     <module name="gps_ubx_ucenter.xml"/>
     <module name="geo_mag.xml"/>
     <module name="air_data.xml"/>
@@ -53,10 +49,10 @@
 
 
   <servos driver="Pwm">
-    <servo name="FRONT_LEFT"  no="0" min="1000" neutral="1100" max="1900"/>
-    <servo name="FRONT_RIGHT" no="1" min="1000" neutral="1100" max="1900"/>
-    <servo name="BACK_RIGHT"  no="2" min="1000" neutral="1100" max="1900"/>
-    <servo name="BACK_LEFT"   no="3" min="1000" neutral="1100" max="1900"/>
+    <servo name="FRONT_LEFT"  no="0" min="1000" neutral="1100" max="2000"/>
+    <servo name="FRONT_RIGHT" no="1" min="1000" neutral="1100" max="2000"/>
+    <servo name="BACK_RIGHT"  no="2" min="1000" neutral="1100" max="2000"/>
+    <servo name="BACK_LEFT"   no="3" min="1000" neutral="1100" max="2000"/>
   </servos>
 
   <commands>
@@ -209,9 +205,9 @@
   <section name="BAT">
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="3920" />
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="39200"/>
-    <define name="CATASTROPHIC_BAT_LEVEL"    value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL"          value="9.9" unit="V"/>
-    <define name="LOW_BAT_LEVEL"             value="10.5" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL"    value="9.3"  unit="V"/>
+    <define name="CRITIC_BAT_LEVEL"          value="9.6"  unit="V"/>
+    <define name="LOW_BAT_LEVEL"             value="10.1" unit="V"/>
     <define name="MAX_BAT_LEVEL"             value="12.4" unit="V"/>
   </section>
 

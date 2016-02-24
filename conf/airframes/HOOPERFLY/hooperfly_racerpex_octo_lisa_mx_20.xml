@@ -54,14 +54,14 @@
 
 
   <servos driver="Pwm">
-    <servo name="FL_1"  no="0" min="1000" neutral="1100" max="1900"/>
-    <servo name="FR_2"  no="1" min="1000" neutral="1100" max="1900"/>
-    <servo name="FR_3"  no="2" min="1000" neutral="1100" max="1900"/>
-    <servo name="BR_4"  no="3" min="1000" neutral="1100" max="1900"/>
-    <servo name="BR_5"  no="4" min="1000" neutral="1100" max="1900"/>
-    <servo name="BL_6"  no="5" min="1000" neutral="1100" max="1900"/>
-    <servo name="BL_7"  no="6" min="1000" neutral="1100" max="1900"/>
-    <servo name="FL_8"  no="7" min="1000" neutral="1100" max="1900"/>
+    <servo name="FL_1"  no="0" min="1000" neutral="1100" max="2000"/>
+    <servo name="FR_2"  no="1" min="1000" neutral="1100" max="2000"/>
+    <servo name="FR_3"  no="2" min="1000" neutral="1100" max="2000"/>
+    <servo name="BR_4"  no="3" min="1000" neutral="1100" max="2000"/>
+    <servo name="BR_5"  no="4" min="1000" neutral="1100" max="2000"/>
+    <servo name="BL_6"  no="5" min="1000" neutral="1100" max="2000"/>
+    <servo name="BL_7"  no="6" min="1000" neutral="1100" max="2000"/>
+    <servo name="FL_8"  no="7" min="1000" neutral="1100" max="2000"/>
   </servos>
 
   <commands>
@@ -204,9 +204,9 @@
   </section>
 
   <section name="BAT">
-    <define name="CATASTROPHIC_BAT_LEVEL"    value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL"          value="9.9" unit="V"/>
-    <define name="LOW_BAT_LEVEL"             value="10.5" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL"    value="9.3"  unit="V"/>
+    <define name="CRITIC_BAT_LEVEL"          value="9.6"  unit="V"/>
+    <define name="LOW_BAT_LEVEL"             value="10.1" unit="V"/>
     <define name="MAX_BAT_LEVEL"             value="12.4" unit="V"/>
   </section>
 
