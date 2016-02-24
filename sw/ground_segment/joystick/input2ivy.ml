@@ -241,8 +241,8 @@ let parse_msg = fun msg ->
             try
               (List.map (parse_msg_field msg_descr) (Xml.children msg),
                List.mem_assoc "ac_id" msg_descr.PprzLink.fields)
-            with _ ->
-              failwith (sprintf "Couldn't parse message %s" msg_name)
+            with Failure e ->
+              failwith (sprintf "Couldn't parse message %s (%s)" msg_name e)
           end
       | "Trim" -> ([], false)
       | _ -> failwith ("Unknown message class type") in
