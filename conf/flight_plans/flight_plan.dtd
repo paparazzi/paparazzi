@@ -18,7 +18,9 @@
 <!ELEMENT variable EMPTY>
 
 <!ELEMENT modules (module*)>
-<!ELEMENT module EMPTY>
+<!ELEMENT module  (configure|define)*>
+<!ELEMENT configure EMPTY>
+<!ELEMENT define EMPTY>
 
 <!ELEMENT includes (include*)>
 
@@ -112,6 +114,14 @@ values CDATA #IMPLIED>
 <!ATTLIST module
 name CDATA #REQUIRED
 type CDATA #IMPLIED>
+
+<!ATTLIST define
+name CDATA #REQUIRED
+value CDATA #IMPLIED>
+
+<!ATTLIST configure
+name CDATA #REQUIRED
+value CDATA #REQUIRED>
 
 <!ATTLIST blocks>
 

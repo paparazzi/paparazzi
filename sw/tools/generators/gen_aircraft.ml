@@ -146,7 +146,7 @@ let module_xml2mk = fun f target firmware m ->
     ) m.xml
 
 let modules_xml2mk = fun f target xml fp ->
-  let modules = Gen_common.get_modules_of_config ~target xml fp in
+  let modules = Gen_common.get_modules_of_config ~target ~verbose:true xml fp in
   (* print modules directories and includes for all targets *)
   fprintf f "\n# include modules directory for all targets\n";
   (* get dir list *)

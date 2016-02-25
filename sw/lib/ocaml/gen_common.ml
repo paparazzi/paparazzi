@@ -201,12 +201,26 @@ let get_modules_of_flight_plan = fun xml ->
 (** [singletonize_modules xml]
  * Returns a list of singletonized modules were options are merged
  *)
-let singletonize_modules = fun xml ->
+let singletonize_modules = fun ?(verbose=false) ?target xml ->
   let rec loop = fun l ->
     match l with
     | [] | [_] -> l
     | x::xs ->
         let (duplicates, rest) = List.partition (fun m -> m.file = x.file) xs in
+        if List.length duplicates > 0 && verbose then begin
+          (* print info message on stderr *)
+          let t = match target with None -> "" | Some t -> Printf.sprintf " for target %s" t in
+          Printf.eprintf "Info: module '%s' has been loaded several times%s, merging options\n" x.filename t;
+          List.iter (fun opt ->
+            let name = Xml.attrib opt "name" in
+            List.iter (fun d ->
+              List.iter (fun d_opt ->
+                if Xml.attrib d_opt "name" = name then
+                  Printf.eprintf "Warning: - option '%s' is defined multiple times, this may cause compilation errors\n" name
+              ) d.param;
+            ) duplicates;
+          ) x.param;
+        end;
         let m = { name = x.name; xml = x.xml; file = x.file; filename = x.filename;
         vpath = x.vpath; param = List.flatten (List.map (fun m -> m.param) ([x] @ duplicates));
         targets = singletonize (List.flatten (List.map (fun m -> m.targets) ([x] @ duplicates))) } in
@@ -217,11 +231,11 @@ let singletonize_modules = fun xml ->
 (** [get_modules_of_config ?target flight_plan airframe]
  * Returns a list of pair (modules ("load" node), targets) from airframe file and flight plan.
  * The modules are singletonized and options are merged *)
-let get_modules_of_config = fun ?target af_xml fp_xml ->
+let get_modules_of_config = fun ?target ?verbose af_xml fp_xml ->
   let af_modules = get_modules_of_airframe ?target af_xml
   and fp_modules = get_modules_of_flight_plan fp_xml in
   (* singletonize modules list *)
-  singletonize_modules (af_modules @ fp_modules)
+  singletonize_modules ?verbose ?target (af_modules @ fp_modules)
 
 (** [get_modules_name xml]
     * Returns a list of loaded modules' name *)
