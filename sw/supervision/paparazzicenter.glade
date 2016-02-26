@@ -118,38 +118,35 @@
                     <property name="can_focus">False</property>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_item_new_ac">
-                        <property name="label">gtk-new</property>
+                        <property name="label">New</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="use_stock">False</property>
                         <signal name="activate" handler="on_menu_item_new_ac_activate"/>
-                        <accelerator key="N" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_item_copy_ac">
-                        <property name="label">gtk-copy</property>
+                        <property name="label">Copy</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="use_stock">False</property>
                         <signal name="activate" handler="on_menu_item_copy_ac_activate"/>
-                        <accelerator key="C" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="delete_ac_menu_item">
-                        <property name="label">gtk-delete</property>
+                        <property name="label">Delete</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="use_stock">False</property>
                         <signal name="activate" handler="on_delete_a/c2_activate"/>
-                        <accelerator key="X" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>
