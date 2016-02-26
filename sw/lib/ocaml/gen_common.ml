@@ -216,7 +216,7 @@ let singletonize_modules = fun ?(verbose=false) ?target xml ->
             List.iter (fun d ->
               List.iter (fun d_opt ->
                 if Xml.attrib d_opt "name" = name then
-                  Printf.eprintf "Warning: - option '%s' is defined multiple times, this may cause compilation errors\n" name
+                  Printf.eprintf "Warning: - option '%s' is defined multiple times, this may cause unwanted behavior or compilation errors\n" name
               ) d.param;
             ) duplicates;
           ) x.param;
