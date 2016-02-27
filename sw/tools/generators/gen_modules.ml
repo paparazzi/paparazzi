@@ -378,9 +378,10 @@ let write_settings = fun xml_file out_set modules ->
 let h_name = "MODULES_H"
 
 let () =
-  if Array.length Sys.argv <> 4 then
-    failwith (Printf.sprintf "Usage: %s out_settings_file default_freq xml_file" Sys.argv.(0));
-  let xml_file = Sys.argv.(3)
+  if Array.length Sys.argv <> 5 then
+    failwith (Printf.sprintf "Usage: %s out_settings_file default_freq fp_file xml_file" Sys.argv.(0));
+  let xml_file = Sys.argv.(4)
+  and fp_file = Sys.argv.(3)
   and default_freq = int_of_string(Sys.argv.(2))
   and out_set = open_out Sys.argv.(1) in
   try
@@ -406,14 +407,14 @@ let () =
     let modules =
       try
         let target = Sys.getenv "TARGET" in
-        GC.get_modules_of_airframe ~target xml
+        GC.get_modules_of_config ~target xml (Xml.parse_file fp_file)
       with
       | Not_found -> failwith "TARTGET env needs to be specified to generate modules files"
     in
     (* Extract modules names (file name and module name) *)
     let modules_name =
       (List.map (fun m -> try Xml.attrib m.GC.xml "name" with _ -> "") modules) @
-        (List.map (fun m -> m.GC.filename) modules) in
+      (List.map (fun m -> m.GC.filename) modules) in
     (* Extract xml modules nodes *)
     let modules_list = List.map (fun m -> m.GC.xml) modules in
     check_dependencies modules_list modules_name;

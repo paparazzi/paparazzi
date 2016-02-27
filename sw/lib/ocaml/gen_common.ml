@@ -179,6 +179,64 @@ let rec get_modules_of_airframe = fun ?target xml ->
   | None -> modules
   | Some t -> List.filter (fun m -> test_targets t m.targets) modules
 
+
+(** [get_modules_of_flight_plan xml]
+ * Returns a list of module configuration from flight plan file *)
+let get_modules_of_flight_plan = fun xml ->
+  let rec iter_modules = fun targets modules xml ->
+    match xml with
+    | Xml.PCData _ -> modules
+    | Xml.Element (tag, _attrs, children) when tag = "module" ->
+        begin try
+          let m = get_module xml targets in
+          List.fold_left
+            (fun acc xml -> iter_modules targets acc xml)
+            (m :: modules) children
+        with _ -> modules end
+    | Xml.Element (tag, _attrs, children) ->
+        List.fold_left
+          (fun acc xml -> iter_modules targets acc xml) modules children in
+  List.rev (iter_modules [] [] xml)
+
+(** [singletonize_modules xml]
+ * Returns a list of singletonized modules were options are merged
+ *)
+let singletonize_modules = fun ?(verbose=false) ?target xml ->
+  let rec loop = fun l ->
+    match l with
+    | [] | [_] -> l
+    | x::xs ->
+        let (duplicates, rest) = List.partition (fun m -> m.file = x.file) xs in
+        if List.length duplicates > 0 && verbose then begin
+          (* print info message on stderr *)
+          let t = match target with None -> "" | Some t -> Printf.sprintf " for target %s" t in
+          Printf.eprintf "Info: module '%s' has been loaded several times%s, merging options\n" x.filename t;
+          List.iter (fun opt ->
+            let name = Xml.attrib opt "name" in
+            List.iter (fun d ->
+              List.iter (fun d_opt ->
+                if Xml.attrib d_opt "name" = name then
+                  Printf.eprintf "Warning: - option '%s' is defined multiple times, this may cause unwanted behavior or compilation errors\n" name
+              ) d.param;
+            ) duplicates;
+          ) x.param;
+        end;
+        let m = { name = x.name; xml = x.xml; file = x.file; filename = x.filename;
+        vpath = x.vpath; param = List.flatten (List.map (fun m -> m.param) ([x] @ duplicates));
+        targets = singletonize (List.flatten (List.map (fun m -> m.targets) ([x] @ duplicates))) } in
+        m::loop rest
+  in
+  loop xml
+
+(** [get_modules_of_config ?target flight_plan airframe]
+ * Returns a list of pair (modules ("load" node), targets) from airframe file and flight plan.
+ * The modules are singletonized and options are merged *)
+let get_modules_of_config = fun ?target ?verbose af_xml fp_xml ->
+  let af_modules = get_modules_of_airframe ?target af_xml
+  and fp_modules = get_modules_of_flight_plan fp_xml in
+  (* singletonize modules list *)
+  singletonize_modules ?verbose ?target (af_modules @ fp_modules)
+
 (** [get_modules_name xml]
     * Returns a list of loaded modules' name *)
 let get_modules_name = fun xml ->
