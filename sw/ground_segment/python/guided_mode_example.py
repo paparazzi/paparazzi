@@ -35,16 +35,13 @@ class Guidance(object):
         except Exception as e:
             print(e)
             print("auto2 setting not found, mode change not possible.")
-        self._interface = IvyMessagesInterface(self.message_recv)
-
-    def message_recv(self, ac_id, msg):
-        if self.verbose:
-            print("Got msg %s" % msg.name)
+        self._interface = IvyMessagesInterface("guided mode example")
 
     def shutdown(self):
         if self._interface is not None:
             print("Shutting down ivy interface...")
             self._interface.shutdown()
+            self._interface = None
 
     def __del__(self):
         self.shutdown()

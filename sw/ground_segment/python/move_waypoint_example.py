@@ -18,11 +18,7 @@ from pprzlink.message import PprzMessage
 class WaypointMover(object):
     def __init__(self, verbose=False):
         self.verbose = verbose
-        self._interface = IvyMessagesInterface(self.message_recv)
-
-    def message_recv(self, ac_id, msg):
-        if self.verbose:
-            print("Got msg %s" % msg.name)
+        self._interface = IvyMessagesInterface("WaypointMover")
 
     def shutdown(self):
         print("Shutting down ivy interface...")

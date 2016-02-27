@@ -24,7 +24,8 @@ server = None
 class Ivy2RedisServer():
     def __init__(self, redishost, redisport, verbose=False):
         self.verbose = verbose
-        self.interface = IvyMessagesInterface(self.message_recv)
+        self.interface = IvyMessagesInterface("Ivy2Redis")
+        self.interface.subscribe(self.message_recv)
         self.r = redis.StrictRedis(host=redishost, port=redisport, db=0)
         self.keep_running = True
         print("Connected to redis server %s on port %i" % (redishost, redisport))

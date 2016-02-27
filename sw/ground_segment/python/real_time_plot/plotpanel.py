@@ -19,7 +19,8 @@ sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 
 import pprz_env
 from pprzlink import messages_xml_map
-
+from ivy_msg_interface import IvyMessagesInterface
+from pprzlink.message import PprzMessage
 
 class PlotData:
     def __init__(self, ivy_msg_id, title, width, color=None, scale=1.0):
@@ -172,7 +173,6 @@ class PlotPanel(object):
         self.frame = frame  # the frame owns any controls we might need to update
 
         parent.SetDropTarget(TextDropTarget(self))  # calls self.OnDropText when drag and drop complete
-        self.InitIvy()
 
         self.width = 800
         self.height = 200
@@ -190,6 +190,8 @@ class PlotPanel(object):
         self.x_axis = None
 
         messages_xml_map.parse_messages()
+
+        self.ivy_interface = IvyMessagesInterface(_IVY_APPNAME)
 
         # start the timer
         self.timer = wx.FutureCall(self.plot_interval, self.OnTimer)
@@ -229,28 +231,8 @@ class PlotPanel(object):
         pass
 
     def ShowMessagePicker(self, parent):
-        frame = messagepicker.MessagePicker(parent, self.BindCurve, False)
+        frame = messagepicker.MessagePicker(parent, self.BindCurve, self.ivy_interface)
         frame.Show()
-
-    def InitIvy(self):
-        # initialising the bus
-        IvyInit(_IVY_APPNAME,  # application name for Ivy
-                "",  # "[%s is ready]" % IVYAPPNAME,       # ready message
-                0,  # main loop is local (ie. using IvyMainloop)
-                lambda x, y: y,  # handler called on connection/deconnection
-                lambda x, y: y  # handler called when a diemessage is received
-                )
-
-        # starting the bus
-        # Note: env variable IVYBUS will be used if no parameter or empty string
-        # is given ; this is performed by IvyStart (C)
-        try:
-            logging.getLogger('Ivy').setLevel(logging.WARN)
-            IvyStart(pprz_env.IVY_BUS)
-            # binding to every message
-            # IvyBindMsg(self.OnIvyMsg, "(.*)")
-        except:
-            IvyStop()
 
     def OnDropText(self, data):
         [ac_id, category, message, field, scale] = data.encode('ASCII').split(':')
@@ -299,7 +281,7 @@ class PlotPanel(object):
                                                                random.randint(0, 255))
             return
 
-        ivy_id = IvyBindMsg(self.OnIvyMsg, str(message_string))
+        ivy_id = self.ivy_interface.bind_raw(self.OnIvyMsg, str(message_string))
         title = '%i:%s:%s' % (ac_id, message, field)
         self.plots[ac_id][message][field] = PlotData(ivy_id, title, self.plot_size, color, scale)
         self.frame.AddCurve(ivy_id, title, use_as_x)
@@ -336,7 +318,7 @@ class PlotPanel(object):
         if (self.x_axis is not None) and (self.x_axis.id == ivy_id):
             self.x_axis = None
 
-        IvyUnBindMsg(ivy_id)
+        self.ivy_interface.unbind(ivy_id)
         del self.plots[ac_id][msg][field]
         if len(self.plots[ac_id][msg]) == 0:
             del self.plots[ac_id][msg]
