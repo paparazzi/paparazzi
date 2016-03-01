@@ -68,7 +68,7 @@ struct HorizontalGuidanceSetpoint {
    *  accuracy 0.0039, range 8388km
    */
   struct Int32Vect2 pos;
-  struct Int32Vect2 speed;  ///< only used if GUIDANCE_H_USE_SPEED_REF
+  struct Int32Vect2 speed;  ///< only used in HOVER mode if GUIDANCE_H_USE_SPEED_REF or in GUIDED mode
   int32_t heading;          ///< with #INT32_ANGLE_FRAC
   uint8_t mask;             ///< bit 4: vx, bit 5: vy, bit 6: vz, bit 7: vyaw
 };

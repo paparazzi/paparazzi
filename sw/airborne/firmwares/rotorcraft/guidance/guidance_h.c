@@ -324,6 +324,9 @@ void guidance_h_read_rc(bool_t  in_flight)
       stabilization_attitude_read_rc_setpoint_eulers(&guidance_h.rc_sp, in_flight, FALSE, FALSE);
 #if GUIDANCE_H_USE_SPEED_REF
       read_rc_setpoint_speed_i(&guidance_h.sp.speed, in_flight);
+      /* enable x,y velocity setpoints */
+      SetBit(guidance_h.sp.mask, 4);
+      SetBit(guidance_h.sp.mask, 5);
 #endif
       break;
 
@@ -448,12 +451,11 @@ static void guidance_h_update_reference(void)
 {
   /* compute reference even if usage temporarily disabled via guidance_h_use_ref */
 #if GUIDANCE_H_USE_REF
-#if GUIDANCE_H_USE_SPEED_REF
   if (bit_is_set(guidance_h.sp.mask, 4) && bit_is_set(guidance_h.sp.mask, 5)) {
     gh_update_ref_from_speed_sp(guidance_h.sp.speed);
-  } else
-#endif
+  } else {
     gh_update_ref_from_pos_sp(guidance_h.sp.pos);
+  }
 #endif
 
   /* either use the reference or simply copy the pos setpoint */
@@ -557,6 +559,9 @@ static void guidance_h_traj_run(bool_t in_flight)
 
 static void guidance_h_hover_enter(void)
 {
+  /* disable horizontal velocity setpoints,
+   * might still be activated in guidance_h_read_rc if GUIDANCE_H_USE_SPEED_REF
+   */
   ClearBit(guidance_h.sp.mask, 4);
   ClearBit(guidance_h.sp.mask, 5);
 
