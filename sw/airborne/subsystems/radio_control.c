@@ -64,7 +64,11 @@ void radio_control_periodic_task(void)
     radio_control.time_since_last_frame++;
   }
 
-#if defined RADIO_CONTROL_LED
+#ifndef RADIO_CONTROL_LED
+  #define RADIO_CONTROL_LED none
+#endif
+
+#if RADIO_CONTROL_LED != none
   if (radio_control.status == RC_OK) {
     LED_ON(RADIO_CONTROL_LED);
   } else {

@@ -2,7 +2,7 @@
 #
 # px4fmu_2.4.makefile
 #
-# This is for the main MCU (STM32F427) on the pixhawk board
+# This is for the main MCU (STM32F427) on the PX4 board
 # See https://pixhawk.org/modules/pixhawk for details
 #
 
@@ -19,10 +19,12 @@ $(TARGET).LDSCRIPT=$(SRC_ARCH)/px4fmu_2.4.ld
 
 HARD_FLOAT=yes
 
-# default flash mode is via usb dfu bootloader
-# possibilities: DFU, SWD
-FLASH_MODE ?= SWD
-
+# default flash mode is the PX4 bootloader
+# possibilities: DFU, SWD, PX4 bootloader
+FLASH_MODE ?= PX4_BOOTLOADER
+PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/px4fmu-v2.prototype"
+PX4_BL_PORT ?= "/dev/serial/by-id/usb-3D_Robotics*,/dev/serial/by-id/pci-3D_Robotics*"
+$(TARGET).MAKEFILE = px4
 
 #
 # default LED configuration
@@ -40,11 +42,9 @@ SYS_TIME_LED       ?= 1
 MODEM_PORT ?= UART2
 MODEM_BAUD ?= B57600
 
+#The GPS serial on px4 is called serial 3, but connected to uart4 on the f4
 GPS_PORT ?= UART4
 GPS_BAUD ?= B38400
-
-RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT ?= UART2
-
 
 #
 # default actuator configuration

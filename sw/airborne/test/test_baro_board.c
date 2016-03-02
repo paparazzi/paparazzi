@@ -85,6 +85,8 @@ tid_t baro_tid;
 
 int main(void)
 {
+
+
   main_init();
 
   while (1) {

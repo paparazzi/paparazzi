@@ -83,7 +83,7 @@ void mcu_init(void)
   led_init();
 #endif
   /* for now this means using spektrum */
-#if defined RADIO_CONTROL & defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT & defined RADIO_CONTROL_BIND_IMPL_FUNC
+#if defined RADIO_CONTROL & defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT & defined RADIO_CONTROL_BIND_IMPL_FUNC & defined SPEKTRUM_BIND_PIN_PORT
   RADIO_CONTROL_BIND_IMPL_FUNC();
 #endif
 #if USE_UART0

@@ -55,7 +55,7 @@ struct w5100_periph {
   volatile uint16_t tx_extract_idx[W5100_BUFFER_NUM];
   volatile uint8_t work_tx[4];
   volatile uint8_t work_rx[4];
-  uint8_t tx_running;
+  volatile uint8_t tx_running;
   /** Generic device interface */
   struct link_device device;
 };

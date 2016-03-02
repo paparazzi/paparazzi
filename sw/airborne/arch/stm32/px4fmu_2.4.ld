@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Felix Ruess
+ * Copyright (C) 2016 The Paparazzi Team>
  *
  * This file is part of Paparazzi.
  *
@@ -19,15 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* Linker script for Pixhawk PX4FMU v2.4 (STM32F427, 2048K flash, 256K RAM). */
+/* Linker script for Pixhawk PX4FMU v2.4 (STM32F427, 1024K flash, 192K RAM). */
 
 /* Define memory regions. */
 MEMORY
 {
-	/* only 192K (SRAM1 and SRAM2) are accessible by all AHB masters. */
-	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 192K
+    ram (rwx) : ORIGIN = 0x20000000, LENGTH = 192K
     /* Reserving 128kb flash for persistent settings. */
-    rom (rx) : ORIGIN = 0x08000000, LENGTH = 1920K
+    rom (rx) : ORIGIN = 0x08004000, LENGTH = 1008K
 }
 
 /* Include the common ld script. */
