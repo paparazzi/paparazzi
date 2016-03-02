@@ -35,6 +35,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 
+
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
@@ -296,6 +297,7 @@ STATIC_INLINE void main_periodic(void)
 #endif
 
   RunOnceEvery(10, LED_PERIODIC());
+
 }
 
 STATIC_INLINE void telemetry_periodic(void)

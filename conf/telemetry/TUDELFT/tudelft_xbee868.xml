@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<!DOCTYPE telemetry SYSTEM "../telemetry.dtd">
 <telemetry>
   <process name="Ap">
     <mode name="default">

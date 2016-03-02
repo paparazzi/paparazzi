@@ -97,6 +97,13 @@
       <board name="elle*"/>
     </boards>
   </mode>
+    <mode name="Px4 bootloader">
+    <variable name="FLASH_MODE" value="PX4_BOOTLOADER"/>
+    <boards>
+      <board name="px4fmu_.*"/>
+      <board name="px4io_.*"/>
+    </boards>
+  </mode>
   <mode name="JTAG (OpenOCD)">
     <variable name="FLASH_MODE" value="JTAG"/>
     <boards>

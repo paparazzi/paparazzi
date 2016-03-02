@@ -230,6 +230,23 @@ test_telemetry.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_telemetry.srcs   += test/test_telemetry.c
 
 #
+# test_datalink : Sends ALIVE and pong telemetry messages
+#
+# configuration
+#   MODEM_PORT :
+#   MODEM_BAUD :
+#
+test_datalink.ARCHDIR = $(ARCH)
+test_datalink.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_datalink.srcs   += $(COMMON_TEST_SRCS)
+test_datalink.CFLAGS += $(COMMON_DATALINK_CFLAGS)
+test_datalink.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_datalink.srcs   += $(COMMON_DATALINK_SRCS)
+test_datalink.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_datalink.srcs   += test/test_datalink.c
+
+
+#
 # test_math_trig_compressed: Test math trigonometric using compressed data
 #
 # configuration

@@ -79,5 +79,7 @@
 #endif
 
 extern void RadioControlEventImp(void (*_received_frame_handler)(void));
+/* initialise the uarts used by the parser */
+void SpektrumUartInit(void);
 
 #endif /* RADIO_CONTROL_SPEKTRUM_ARCH_H */

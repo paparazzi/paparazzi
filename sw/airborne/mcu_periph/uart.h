@@ -66,7 +66,7 @@ struct uart_periph {
   uint8_t tx_buf[UART_TX_BUFFER_SIZE];
   uint16_t tx_insert_idx;
   uint16_t tx_extract_idx;
-  uint8_t tx_running;
+  volatile uint8_t tx_running;
   /** UART Register */
   void *reg_addr;
   /** UART Baudrate */
