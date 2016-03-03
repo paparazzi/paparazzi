@@ -37,6 +37,7 @@ val icon_octorotor_template    : icon
 val icon_quadrotor_x_template  : icon
 val icon_hexarotor_x_template  : icon
 val icon_octorotor_x_template  : icon
+val icon_quadrotor_xi_template : icon
 val icon_home_template         : icon
 val icon_intruder_template     : icon
 
