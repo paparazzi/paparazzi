@@ -42,7 +42,6 @@
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
 #include "subsystems/gps.h"
 bool_t log_apogee_baro_started;
-int count_sd_writes;
 #endif
 
 
@@ -85,7 +84,6 @@ void baro_init(void)
 
 #if APOGEE_BARO_SDLOG
   log_apogee_baro_started = FALSE;
-  count_sd_writes=0;
 #endif
 
 }
@@ -125,18 +123,14 @@ void apogee_baro_event(void)
 #if APOGEE_BARO_SDLOG
   if (pprzLogFile != -1) {
     if (!log_apogee_baro_started) {
-      sdLogWriteLog(pprzLogFile, "APOGEE_BARO: Pres(Pa) Temp/degC) GPS_fix TOW(ms) Week Lat(1e7deg) Lon(1e7deg) HMSL(mm) gpseed(cm/s) course(1e7deg) climb(cm/s)\n");
+      sdLogWriteLog(pprzLogFile, "APOGEE_BARO: Pres(Pa) Temp(degC) GPS_fix TOW(ms) Week Lat(1e7deg) Lon(1e7deg) HMSL(mm) gpseed(cm/s) course(1e7deg) climb(cm/s)\n");
       log_apogee_baro_started = TRUE;
     }
-    if (count_sd_writes == 0) {
     sdLogWriteLog(pprzLogFile, "apogee_baro: %9.4f %9.4f %d %d %d   %d %d %d   %d %d %d\n",
 		  pressure,temp,
 		  gps.fix, gps.tow, gps.week,
 		  gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
 		  gps.gspeed, gps.course, -gps.ned_vel.z);
-    }
-    count_sd_writes++;
-    if (count_sd_writes > 8) {count_sd_writes=0;}
   }
 #endif
 
