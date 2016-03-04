@@ -36,7 +36,12 @@
 #define UART_RX_BUFFER_SIZE 128
 #endif
 #ifndef UART_TX_BUFFER_SIZE
+#ifdef STM32F4  //the F4 has enough memory, and the PX4 bootloader needs more then 128
+#define UART_TX_BUFFER_SIZE 256
+#else
 #define UART_TX_BUFFER_SIZE 128
+#endif
+
 #endif
 #define UART_DEV_NAME_SIZE 16
 

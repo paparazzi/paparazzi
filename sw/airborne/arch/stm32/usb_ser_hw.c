@@ -39,11 +39,14 @@
 
 #include "mcu_periph/usb_serial.h"
 
+#include "mcu_periph/sys_time_arch.h"
 
 /* Max packet size for USB transfer */
 #define MAX_PACKET_SIZE          64
 /* Max fifo size for storing data */
-#define VCOM_FIFO_SIZE          128
+#define VCOM_FIFO_SIZE          256
+
+#define TX_TIMEOUT_CNT 20 //TODO, make dynamic with event period
 
 typedef struct {
   int         head;
@@ -62,7 +65,7 @@ bool_t fifo_put(fifo_t *fifo, uint8_t c);
 bool_t fifo_get(fifo_t *fifo, uint8_t *pc);
 int  fifo_avail(fifo_t *fifo);
 int  fifo_free(fifo_t *fifo);
-
+int tx_timeout;
 
 usbd_device *my_usbd_dev;
 
@@ -387,10 +390,13 @@ int VCOM_putchar(int c)
     if (VCOM_check_free_space(2)) {
       // if yes, add char
       fifo_put(&txfifo, c);
+      tx_timeout = TX_TIMEOUT_CNT;
     } else {
       // less than 2 bytes available, add byte and send data now
       fifo_put(&txfifo, c);
+      sys_time_usleep(10); //far from optimal, increase fifo size to prevent this problem
       VCOM_send_message();
+      tx_timeout = TX_TIMEOUT_CNT;
     }
     return c;
   }
@@ -433,7 +439,19 @@ int VCOM_check_available(void)
  */
 void VCOM_event(void)
 {
+  if (tx_timeout == 1) { // send a remaining bytes that still hangs arround in the tx fifo, after a timeout
+    if (fifo_avail(&txfifo)) {
+      VCOM_send_message();
+      tx_timeout = TX_TIMEOUT_CNT;
+    } else {
+      tx_timeout = 0;
+    }
+  } else if (tx_timeout > 1) {
+    tx_timeout--;
+  }
+
   usbd_poll(my_usbd_dev);
+
 }
 
 /**
@@ -443,6 +461,7 @@ void VCOM_event(void)
 void VCOM_send_message(void)
 {
   if (usb_connected) {
+
     uint8_t buf[MAX_PACKET_SIZE];
     uint8_t i;
     for (i = 0; i < MAX_PACKET_SIZE; i++) {
@@ -450,7 +469,10 @@ void VCOM_send_message(void)
         break;
       }
     }
+
+    while (usbd_ep_stall_get(my_usbd_dev, 0x82)) {};
     usbd_ep_write_packet(my_usbd_dev, 0x82, buf, i);
+
   }
 }
 
@@ -532,4 +554,6 @@ void VCOM_init(void)
   usb_serial.device.send_message = (send_message_t) usb_serial_send;
   usb_serial.device.char_available = (char_available_t) usb_serial_char_available;
   usb_serial.device.get_byte = (get_byte_t) usb_serial_getch;
+
+  tx_timeout = -1;
 }

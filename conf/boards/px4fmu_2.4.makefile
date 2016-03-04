@@ -22,6 +22,7 @@ HARD_FLOAT=yes
 # default flash mode is the PX4 bootloader
 # possibilities: DFU, SWD, PX4 bootloader
 FLASH_MODE ?= PX4_BOOTLOADER
+PX4_TARGET = "ap"
 PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/px4fmu-v2.prototype"
 PX4_BL_PORT ?= "/dev/serial/by-id/usb-3D_Robotics*,/dev/serial/by-id/pci-3D_Robotics*"
 
@@ -33,7 +34,7 @@ RADIO_CONTROL_LED  ?= none
 BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= none
 GPS_LED            ?= none
-SYS_TIME_LED       ?= 1
+SYS_TIME_LED       ?= none
 
 #
 # default UART configuration (modem, gps, spektrum)

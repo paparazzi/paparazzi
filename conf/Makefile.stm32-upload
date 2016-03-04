@@ -158,7 +158,7 @@ else ifeq ($(FLASH_MODE),PX4_BOOTLOADER)
 	# Program the device and start it.
 upload: $(OBJDIR)/$(TARGET).bin
 	$(PAPARAZZI_SRC)/sw/tools/px4/px_mkfw.py --prototype $(PX4_PROTOTYPE) --image $(OBJDIR)/$(TARGET).bin > $(OBJDIR)/$(TARGET).px4
-	$(PAPARAZZI_SRC)/sw/tools/px4/print_message.py
+	$(PAPARAZZI_SRC)/sw/tools/px4/set_target.py $(PX4_TARGET)
 	$(PAPARAZZI_SRC)/sw/tools/px4/px_uploader.py --port $(PX4_BL_PORT) $(OBJDIR)/$(TARGET).px4
 
 #
