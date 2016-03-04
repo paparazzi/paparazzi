@@ -19,6 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file test_datalink.c
+ *
+ * Periodically sends ALIVE (10Hz) and ping/pong (every 5s) telemetry messages.
+ */
 #define DATALINK_C
 
 #include BOARD_CONFIG
@@ -50,6 +55,7 @@ static inline void main_init(void)
 {
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
+  downlink_init();
 }
 
 static inline void main_periodic(void)
@@ -74,3 +80,4 @@ void dl_parse_msg(void)
     break;
   }
 }
+
