@@ -30,56 +30,60 @@
 #define LSM303DLHC_H
 
 #include "std.h"
-#include "mcu_periph/i2c.h"
+#include "mcu_periph/spi.h"
 #include "math/pprz_algebra_int.h"
 
 /* Address and register definitions */
 #include "peripherals/lsm303dlhc_regs.h"
 
 struct Lsm303dlhcAccConfig {
-  uint8_t rate;    ///< Data Output Rate Bits(6 -> 50Hz with HMC5843, 75Hz with HMC5883)
-  uint8_t lp_mode; ///< Low power mode
-  uint8_t scale;   ///< full scale selection
-  uint8_t hres;    ///< high resolution output mode
+  uint8_t rate;    ///< Data Output Rate (Hz)
+  uint8_t scale;   ///< full scale selection (m/s²)
 };
 
 struct Lsm303dlhcMagConfig {
-  uint8_t rate;  ///< Data Output Rate Bits(6 -> 50Hz with HMC5843, 75Hz with HMC5883)
-  uint8_t gain;  ///< Gain configuration (1 -> +- 1 Gauss)
+  uint8_t rate;  ///< Data Output Rate Bits (Hz)
+  uint8_t scale;  ///< Full scale gain configuration (Gauss)
   uint8_t mode;  ///< Measurement mode
 };
 
 /** config status states */
-enum Lsm303dlhcAccConfStatus {
-  LSM_CONF_ACC_UNINIT,
-  LSM_CONF_ACC_CTRL_REG4_A,
-  LSM_CONF_ACC_CTRL_REG1_A,
-  LSM_CONF_ACC_CTRL_REG3_A,
-  LSM_CONF_ACC_DONE
+enum Lsm303dlhcConfStatus {
+  LSM_CONF_UNINIT,
+  LSM_CONF_WHO_AM_I,
+  LSM_CONF_CTRL_REG1,
+  LSM_CONF_CTRL_REG2,
+  LSM_CONF_CTRL_REG3,
+  LSM_CONF_CTRL_REG4,
+  LSM_CONF_CTRL_REG5,
+  LSM_CONF_CTRL_REG6,
+  LSM_CONF_CTRL_REG7,
+  LSM_CONF_DONE
 };
 
-/** config status states */
-enum Lsm303dlhcMagConfStatus {
-  LSM_CONF_MAG_UNINIT,
-  LSM_CONF_MAG_CRA_REG_M,
-  LSM_CONF_MAG_CRB_REG_M,
-  LSM_CONF_MAG_MR_REG_M,
-  LSM_CONF_MAG_DONE
+enum Lsm303dlhcTarget {
+  LSM_TARGET_ACC,
+  LSM_TARGET_MAG
 };
 
-struct Lsm303dlhc {
-  struct i2c_periph *i2c_p;
-  struct i2c_transaction i2c_trans;
-  bool initialized;                 ///< config done flag
-  union {
-    enum Lsm303dlhcAccConfStatus acc; ///< init status
-    enum Lsm303dlhcMagConfStatus mag; ///< init status
-  } init_status;
-  volatile bool data_available;     ///< data ready flag
+struct Lsm303dlhc_Spi {
+  struct spi_periph *spi_p;
+  struct spi_transaction spi_trans;
+  bool_t initialized;                 ///< config done flag
+  enum Lsm303dlhcTarget target;
+  volatile uint8_t tx_buf[2];
+  volatile uint8_t rx_buf[8];
+  enum Lsm303dlhcConfStatus init_status;
+  volatile bool_t data_available_acc;     ///< data ready flag accelero
+  volatile bool_t data_available_mag;     ///< data ready flag magneto
   union {
     struct Int16Vect3 vect;           ///< data vector in acc coordinate system
     int16_t value[3];                 ///< data values accessible by channel index
-  } data;
+  } data_accel;
+  union {
+    struct Int16Vect3 vect;           ///< data vector in mag coordinate system
+    int16_t value[3];                 ///< data values accessible by channel index
+  } data_mag;
   union {
     struct Lsm303dlhcAccConfig acc;
     struct Lsm303dlhcMagConfig mag;
@@ -91,18 +95,19 @@ struct Lsm303dlhc {
 // TODO IRQ handling
 
 // Functions
-extern void lsm303dlhc_init(struct Lsm303dlhc *lsm, struct i2c_periph *i2c_p, uint8_t addr);
-extern void lsm303dlhc_start_configure(struct Lsm303dlhc *lsm);
-extern void lsm303dlhc_read(struct Lsm303dlhc *lsm);
-extern void lsm303dlhc_event(struct Lsm303dlhc *lsm);
+extern void lsm303dlhc_spi_init(struct Lsm303dlhc_Spi *lsm, struct spi_periph *spi_p, uint8_t slave_idx,
+                                enum Lsm303dlhcTarget target);
+extern void lsm303dlhc_spi_start_configure(struct Lsm303dlhc_Spi *lsm);
+extern void lsm303dlhc_spi_read(struct Lsm303dlhc_Spi *lsm);
+extern void lsm303dlhc_spi_event(struct Lsm303dlhc_Spi *lsm);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void lsm303dlhc_periodic(struct Lsm303dlhc *lsm)
+static inline void lsm303dlhc_spi_periodic(struct Lsm303dlhc_Spi *lsm)
 {
   if (lsm->initialized) {
-    lsm303dlhc_read(lsm);
+    lsm303dlhc_spi_read(lsm);
   } else {
-    lsm303dlhc_start_configure(lsm);
+    lsm303dlhc_spi_start_configure(lsm);
   }
 }
 

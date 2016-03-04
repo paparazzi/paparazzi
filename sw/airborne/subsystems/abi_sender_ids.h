@@ -237,6 +237,10 @@
 #define PX4FLOW_VELOCITY_ID 17
 #endif
 
+#ifndef IMU_PX4
+#define IMU_PX4_ID 18
+#endif
+
 /*
  * IDs of RSSI measurements (message 13)
  */
