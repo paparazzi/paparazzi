@@ -55,7 +55,7 @@ struct w5100_periph {
   volatile uint16_t tx_extract_idx[W5100_BUFFER_NUM];
   volatile uint8_t work_tx[4];
   volatile uint8_t work_rx[4];
-  uint8_t tx_running;
+  volatile uint8_t tx_running;
   /** Generic device interface */
   struct link_device device;
 };
@@ -90,7 +90,8 @@ static inline void w5100_read_buffer(struct pprz_transport *t)
 
 #define W5100CheckAndParse(_dev, _trans) w5100_check_and_parse(&(_dev).device, &(_trans))
 
-static inline void w5100_check_and_parse(struct link_device *dev, struct pprz_transport *trans) {
+static inline void w5100_check_and_parse(struct link_device *dev, struct pprz_transport *trans)
+{
   if (dev->char_available(dev->periph)) {
     w5100_read_buffer(trans);
     if (trans->trans_rx.msg_received) {

@@ -30,6 +30,17 @@
 #include "mcu_periph/uart.h"
 #include "pprzlink/pprz_transport.h"
 
+#ifdef BOARD_PX4IO
+#include "libopencm3/cm3/scb.h"
+#include "led.h"
+#include "mcu_periph/sys_time.h"
+static uint8_t px4RebootSequence[] = {0x41, 0xd7, 0x32, 0x0a, 0x46, 0x39};
+static uint8_t px4RebootSequenceCount = 0;
+static bool_t px4RebootTimeout = FALSE;
+uint8_t autopilot_motors_on = FALSE;
+tid_t px4bl_tid; ///< id for time out of the px4 bootloader reset
+#endif
+
 #if RADIO_CONTROL_NB_CHANNEL > 8
 #undef RADIO_CONTROL_NB_CHANNEL
 #define RADIO_CONTROL_NB_CHANNEL 8
@@ -43,10 +54,15 @@ static struct pprz_transport intermcu_transport;
 struct intermcu_t inter_mcu;
 pprz_t intermcu_commands[COMMANDS_NB];
 static inline void intermcu_parse_msg(struct transport_rx *trans, void (*commands_frame_handler)(void));
+static inline void checkPx4RebootCommand(unsigned char b);
 
 void intermcu_init(void)
 {
   pprz_transport_init(&intermcu_transport);
+#ifdef BOARD_PX4IO
+  px4bl_tid = sys_time_register_timer(20.0, NULL);
+#endif
+
 }
 
 void intermcu_periodic(void)

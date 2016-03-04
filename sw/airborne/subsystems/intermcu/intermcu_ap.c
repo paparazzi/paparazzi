@@ -56,10 +56,20 @@ void intermcu_periodic(void)
   }
 }
 
+static bool_t disable_comm;
+void disable_inter_comm(bool_t value)
+{
+  disable_comm = value;
+}
+
 void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode __attribute__((unused)))
 {
-  pprz_msg_send_IMCU_COMMANDS(&(intermcu_transport.trans_tx), intermcu_device,
-                              INTERMCU_AP, 0, COMMANDS_NB, command_values); //TODO: Fix status
+  if (!disable_comm) {
+    pprz_msg_send_IMCU_COMMANDS(&(intermcu_transport.trans_tx), intermcu_device,
+                                INTERMCU_AP, &autopilot_motors_on, COMMANDS_NB, command_values); //TODO: Append more status
+  }
+}
+
 }
 
 static inline void intermcu_parse_msg(struct transport_rx *trans, void (*rc_frame_handler)(void))
@@ -92,14 +102,16 @@ static inline void intermcu_parse_msg(struct transport_rx *trans, void (*rc_fram
 
 void RadioControlEvent(void (*frame_handler)(void))
 {
-  /* Parse incoming bytes */
-  if (intermcu_device->char_available(intermcu_device->periph)) {
-    while (intermcu_device->char_available(intermcu_device->periph) && !intermcu_transport.trans_rx.msg_received) {
-      parse_pprz(&intermcu_transport, intermcu_device->get_byte(intermcu_device->periph));
-    }
+  if (!disable_comm) {
+    /* Parse incoming bytes */
+    if (intermcu_device->char_available(intermcu_device->periph)) {
+      while (intermcu_device->char_available(intermcu_device->periph) && !intermcu_transport.trans_rx.msg_received) {
+        parse_pprz(&intermcu_transport, intermcu_device->get_byte(intermcu_device->periph));
+      }
 
-    if (intermcu_transport.trans_rx.msg_received) {
-      intermcu_parse_msg(&(intermcu_transport.trans_rx), frame_handler);
+      if (intermcu_transport.trans_rx.msg_received) {
+        intermcu_parse_msg(&(intermcu_transport.trans_rx), frame_handler);
+      }
     }
   }
 }
