@@ -30,6 +30,10 @@
 #include "pprzlink/pprz_transport.h"
 #include "mcu_periph/uart.h"
 
+#include "subsystems/datalink/telemetry.h"
+#include "subsystems/electrical.h"
+#include "autopilot.h"
+
 #if COMMANDS_NB > 8
 #error "INTERMCU UART CAN ONLY SEND 8 COMMANDS OR THE UART WILL BE OVERFILLED"
 #endif
@@ -70,6 +74,11 @@ void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode __attribute_
   }
 }
 
+void intermcu_send_spektrum_bind(void)
+{
+  if (!disable_comm) {
+    pprz_msg_send_IMCU_SPEKTRUM_SOFT_BIND(&(intermcu_transport.trans_tx), intermcu_device, INTERMCU_AP);
+  }
 }
 
 static inline void intermcu_parse_msg(struct transport_rx *trans, void (*rc_frame_handler)(void))

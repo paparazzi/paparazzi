@@ -29,6 +29,7 @@
 #include "subsystems/radio_control.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/pprz_transport.h"
+#include "modules/spektrum_soft_bind/spektrum_soft_bind_fbw.h"
 
 #ifdef BOARD_PX4IO
 #include "libopencm3/cm3/scb.h"
@@ -97,6 +98,8 @@ static inline void intermcu_parse_msg(struct transport_rx *trans, void (*command
       uint8_t i;
       uint8_t size = DL_IMCU_COMMANDS_values_length(trans->payload);
       int16_t *new_commands = DL_IMCU_COMMANDS_values(trans->payload);
+      uint8_t status = DL_IMCU_COMMANDS_status(trans->payload);
+      autopilot_motors_on = status & 0x1;
       for (i = 0; i < size; i++) {
         intermcu_commands[i] = new_commands[i];
       }
@@ -107,6 +110,11 @@ static inline void intermcu_parse_msg(struct transport_rx *trans, void (*command
       break;
     }
 
+#if defined(SPEKTRUM_HAS_SOFT_BIND_PIN) //TODO: make subscribable module parser
+    case DL_IMCU_SPEKTRUM_SOFT_BIND:
+      received_spektrum_soft_bind();
+      break;
+#endif
     default:
       break;
   }
@@ -117,10 +125,15 @@ static inline void intermcu_parse_msg(struct transport_rx *trans, void (*command
 
 void InterMcuEvent(void (*frame_handler)(void))
 {
+
   /* Parse incoming bytes */
   if (intermcu_device->char_available(intermcu_device->periph)) {
     while (intermcu_device->char_available(intermcu_device->periph) && !intermcu_transport.trans_rx.msg_received) {
-      parse_pprz(&intermcu_transport, intermcu_device->get_byte(intermcu_device->periph));
+      unsigned char b = intermcu_device->get_byte(intermcu_device->periph);
+#ifdef BOARD_PX4IO
+      checkPx4RebootCommand(b);
+#endif
+      parse_pprz(&intermcu_transport, b);
     }
 
     if (intermcu_transport.trans_rx.msg_received) {
@@ -128,3 +141,44 @@ void InterMcuEvent(void (*frame_handler)(void))
     }
   }
 }
+#ifdef BOARD_PX4IO
+static inline void checkPx4RebootCommand(unsigned char b)
+{
+  if (!px4RebootTimeout) {
+
+
+    if (sys_time_check_and_ack_timer(px4bl_tid)) {
+      //time out the possibility to reboot to the px4 bootloader, to prevent unwanted restarts during flight
+      px4RebootTimeout = true;
+      sys_time_cancel_timer(px4bl_tid);
+      return;
+    }
+
+    LED_ON(SYS_TIME_LED);
+
+    if (b == px4RebootSequence[px4RebootSequenceCount]) {
+      px4RebootSequenceCount++;
+    } else {
+      px4RebootSequenceCount = 0;
+    }
+
+    if (px4RebootSequenceCount >= 6) { // 6 = length of rebootSequence + 1
+      px4RebootSequenceCount = 0; // should not be necessary...
+
+      //send some magic back
+      //this is the same as the Pixhawk IO code would send
+      intermcu_device->put_byte(intermcu_device->periph, 0x00);
+      intermcu_device->put_byte(intermcu_device->periph, 0xe5);
+      intermcu_device->put_byte(intermcu_device->periph, 0x32);
+      intermcu_device->put_byte(intermcu_device->periph, 0x0a);
+      intermcu_device->put_byte(intermcu_device->periph,
+                                0x66); // dummy byte, seems to be necessary otherwise one byte is missing at the fmu side...
+
+      while (((struct uart_periph *)(intermcu_device->periph))->tx_running) {LED_TOGGLE(SYS_TIME_LED);}  // tx_running is volatile now, so LED_TOGGLE not necessary anymore
+
+      LED_OFF(SYS_TIME_LED);
+      scb_reset_system();
+    }
+  }
+}
+#endif
