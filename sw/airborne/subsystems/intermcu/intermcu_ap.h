@@ -40,18 +40,12 @@ void disable_inter_comm(bool_t value);
 #define RADIO_ROLL       1
 #define RADIO_PITCH      2
 #define RADIO_YAW        3
-#define RADIO_GEAR       4
-#define RADIO_FLAP       5
+#define RADIO_MODE       4
+#define RADIO_KILL_SWITCH 5
 #define RADIO_AUX1       5
 #define RADIO_AUX2       6
 #define RADIO_AUX3       7
 #define RADIO_CONTROL_NB_CHANNEL 8
 
-#ifndef RADIO_MODE
-#define RADIO_MODE       RADIO_GEAR
-#endif
-//#ifndef RADIO_KILL_SWITCH
-//#define RADIO_KILL_SWITCH       RADIO_FLAP
-//#endif
 
 #endif /* INTERMCU_AP_ROTORCRAFT_H */

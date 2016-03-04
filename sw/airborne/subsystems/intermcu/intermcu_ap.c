@@ -45,9 +45,21 @@ static struct pprz_transport intermcu_transport;
 struct intermcu_t inter_mcu;
 static inline void intermcu_parse_msg(struct transport_rx *trans, void (*rc_frame_handler)(void));
 
+
+
+static void send_status(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_FBW_STATUS(trans, dev, AC_ID,
+                           &(radio_control.status), &(radio_control.frame_rate), &(inter_mcu.status), &electrical.vsupply,
+                           &electrical.current); // due to limitation of GCS, send the electrical from ap as if it comes from fbw...
+}
+
 void intermcu_init(void)
 {
   pprz_transport_init(&intermcu_transport);
+
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_FBW_STATUS, send_status);
+
 }
 
 void intermcu_periodic(void)
@@ -81,6 +93,7 @@ void intermcu_send_spektrum_bind(void)
   }
 }
 
+
 static inline void intermcu_parse_msg(struct transport_rx *trans, void (*rc_frame_handler)(void))
 {
   /* Parse the Inter MCU message */
@@ -89,6 +102,7 @@ static inline void intermcu_parse_msg(struct transport_rx *trans, void (*rc_fram
     case DL_IMCU_RADIO_COMMANDS: {
       uint8_t i;
       uint8_t size = DL_IMCU_RADIO_COMMANDS_values_length(trans->payload);
+      inter_mcu.status = DL_IMCU_RADIO_COMMANDS_status(trans->payload);
       int16_t *rc_values = DL_IMCU_RADIO_COMMANDS_values(trans->payload);
       for (i = 0; i < size; i++) {
         radio_control.values[i] = rc_values[i];
