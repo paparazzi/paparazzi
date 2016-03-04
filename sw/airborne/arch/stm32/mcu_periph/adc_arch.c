@@ -147,7 +147,7 @@ PRINT_CONFIG_MSG("Analog to Digital Coverter 2 active")
 #if USE_AD3
 PRINT_CONFIG_MSG("Analog to Digital Coverter 3 active")
 #endif
-#if !USE_AD1 && !USE_AD2 && !USE_AD3
+#if !USE_AD1 && !USE_AD2 && !USE_AD3 && !defined FBW
 #warning ALL ADC CONVERTERS INACTIVE
 #endif
 
@@ -222,11 +222,12 @@ static struct {
 
 void adc_init(void)
 {
-
+#if USE_AD1 || USE_AD2 || USE_AD3
   uint8_t x = 0;
 
   // ADC channel mapping
   uint8_t adc_channel_map[4];
+#endif
 
   /* Init GPIO ports for ADC operation
    */
@@ -582,9 +583,11 @@ void adc1_2_isr(void)
 void adc_isr(void)
 #endif
 {
+#if USE_AD1 || USE_AD2 || USE_AD3
   uint8_t channel = 0;
   uint16_t value  = 0;
   struct adc_buf *buf;
+#endif
 
 #if USE_ADC_WATCHDOG
   /*
