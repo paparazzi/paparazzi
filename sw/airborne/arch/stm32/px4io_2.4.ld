@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2016 The Paparazzi Team>
+ * Hey Emacs, this is a -*- makefile -*-
+ *
+ * Copyright (C) 2016 Kevin van Hecke
  *
  * This file is part of Paparazzi.
  *
@@ -19,15 +21,16 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* Linker script for Pixhawk PX4FMU v2.4 (STM32F427, 1024K flash, 192K RAM). */
+/* Linker script for the PX4IO (STM32F103c8t6 medium density, 64 Kbytes Flash). */
 
 /* Define memory regions. */
 MEMORY
 {
-    ram (rwx) : ORIGIN = 0x20000000, LENGTH = 192K
-    /* Pixhawk seems to have had a bad badge of f4's, so only use the first 1mb */
-    rom (rx) : ORIGIN = 0x08004000, LENGTH = 1008K
+	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 8K
+	/* Leaving 2k of space at the end of rom for stored settings */
+	rom (rx) : ORIGIN = 0x08001000, LENGTH = 60K
 }
 
 /* Include the common ld script. */
-INCLUDE libopencm3_stm32f4.ld
+INCLUDE libopencm3_stm32f1.ld
+

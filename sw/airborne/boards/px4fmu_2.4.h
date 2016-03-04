@@ -4,14 +4,14 @@
 #define BOARD_PX4FMU_v2
 
 /* Pixhawk board (PX4FMUv2 has a 24MHz external clock and 168MHz internal. */
+//STM32F4
 #define EXT_CLK 24000000
 #define AHB_CLK 168000000
-
 
 /*
  * Onboard LEDs
  */
-/* red/amber , on PE12 */
+/* red, on PE12 */
 #ifndef USE_LED_1
 #define USE_LED_1 1
 #endif
@@ -23,13 +23,6 @@
 
 /*
  * UART
- */
-/*
-#define UART1_GPIO_AF GPIO_AF7
-#define UART1_GPIO_PORT_RX GPIOA
-#define UART1_GPIO_RX GPIO9
-#define UART1_GPIO_PORT_TX GPIOA
-#define UART1_GPIO_TX GPIO10
 */
 
 //OK // conector telem1
@@ -156,24 +149,19 @@
 // SDIO_CMD pd2
 
 /* Onboard ADCs */
-#define USE_AD_TIM4 1
-
-#define BOARD_ADC_CHANNEL_1 11
-#define BOARD_ADC_CHANNEL_2 12
-#define BOARD_ADC_CHANNEL_3 13
-#define BOARD_ADC_CHANNEL_4 10
+#define USE_AD_TIM5 1
 
 /* provide defines that can be used to access the ADC_x in the code or airframe file
  * these directly map to the index number of the 4 adc channels defined above
  * 4th (index 3) is used for bat monitoring by default
  */
 
-#if USE_ADC_1
-#define AD1_1_CHANNEL 11
-#define ADC_1 AD1_1
-#define ADC_1_GPIO_PORT GPIOC
-#define ADC_1_GPIO_PIN GPIO1
-#endif
+//#if USE_ADC_1
+//#define AD1_1_CHANNEL 11
+//#define ADC_1 AD1_1
+//#define ADC_1_GPIO_PORT GPIOC
+//#define ADC_1_GPIO_PIN GPIO1
+//#endif
 /*
 #if USE_ADC_2
 #define AD1_2_CHANNEL 12
@@ -185,18 +173,19 @@
 
 //OK   current sens
 #if USE_ADC_3
-#define AD1_3_CHANNEL 13
+#define AD1_3_CHANNEL 3
 #define ADC_3 AD1_3
 #define ADC_3_GPIO_PORT GPIOA
 #define ADC_3_GPIO_PIN GPIO3
 #endif
+#define MilliAmpereOfAdc(adc)((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)
 
 // Internal ADC for battery enabled by default
 #ifndef USE_ADC_4
 #define USE_ADC_4 1
 #endif
 #if USE_ADC_4
-#define AD1_4_CHANNEL 10
+#define AD1_4_CHANNEL 2
 #define ADC_4 AD1_4
 #define ADC_4_GPIO_PORT GPIOA
 #define ADC_4_GPIO_PIN GPIO2
@@ -206,7 +195,7 @@
 #ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY ADC_4
 #endif
-#define DefaultVoltageOfAdc(adc) (0.006185*adc)
+#define DefaultVoltageOfAdc(adc) (0.00975f*adc) // value comes from px4 code sensors.cpp _parameters.battery_voltage_scaling = 0.0082f; Manual calib on iris = 0.0096...
 
 
 /*
@@ -228,45 +217,6 @@
 #define I2C3_GPIO_PORT_SDA GPIOC
 #define I2C3_GPIO_SDA GPIO9
 */
-
-/*
- * PPM
- */
-
-
-#define USE_PPM_TIM1 1
-
-#define PPM_CHANNEL         TIM_IC1
-#define PPM_TIMER_INPUT     TIM_IC_IN_TI1
-#define PPM_IRQ             NVIC_TIM1_CC_IRQ
-#define PPM_IRQ2            NVIC_TIM1_UP_TIM10_IRQ
-// Capture/Compare InteruptEnable and InterruptFlag
-#define PPM_CC_IE           TIM_DIER_CC1IE
-#define PPM_CC_IF           TIM_SR_CC1IF
-#define PPM_GPIO_PORT       GPIOA
-#define PPM_GPIO_PIN        GPIO10
-#define PPM_GPIO_AF         GPIO_AF1
-
-/*
- * Spektrum
- */
-/* The line that is pulled low at power up to initiate the bind process */
-/* GPIO_EXT1 on PX4FMU */
-
-/*
-#define SPEKTRUM_BIND_PIN GPIO4
-#define SPEKTRUM_BIND_PIN_PORT GPIOC
-*/
-/*
-#define SPEKTRUM_UART2_RCC RCC_USART2
-#define SPEKTRUM_UART2_BANK GPIOA
-#define SPEKTRUM_UART2_PIN GPIO3
-#define SPEKTRUM_UART2_AF GPIO_AF7
-#define SPEKTRUM_UART2_IRQ NVIC_USART2_IRQ
-#define SPEKTRUM_UART2_ISR usart2_isr
-#define SPEKTRUM_UART2_DEV USART2
-*/
-
 
 /* Activate onboard baro by default */
 #ifndef USE_BARO_BOARD
@@ -290,6 +240,7 @@
 #define USE_PWM4 1
 #define USE_PWM5 1
 #define USE_PWM6 1
+//#define USE_BUZZER 1
 
 // Servo numbering on the PX4 starts with 1
 // PWM_SERVO_x is the index of the servo in the actuators_pwm_values array
@@ -372,8 +323,7 @@
 #define PWM_SERVO_6_OC_BIT 0
 #endif
 
-//Buzzer
-/*
+//Buzzer (alarm)
 #if USE_BUZZER
 #define PWM_BUZZER
 #define PWM_BUZZER_TIMER TIM2
@@ -385,11 +335,9 @@
 #else
 #define PWM_BUZZER_OC_BIT 0
 #endif
-*/
-
 
 #define PWM_TIM1_CHAN_MASK (PWM_SERVO_1_OC_BIT|PWM_SERVO_2_OC_BIT|PWM_SERVO_3_OC_BIT|PWM_SERVO_4_OC_BIT)
-//#define PWM_TIM2_CHAN_MASK (PWM_BUZZER_OC_BIT)
+#define PWM_TIM2_CHAN_MASK (PWM_BUZZER_OC_BIT)
 #define PWM_TIM4_CHAN_MASK (PWM_SERVO_5_OC_BIT|PWM_SERVO_6_OC_BIT)
 
 #endif /* CONFIG_PX4FMU_2_4_H */

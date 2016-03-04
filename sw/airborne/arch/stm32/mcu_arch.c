@@ -42,48 +42,113 @@
 #if defined(STM32F4)
 /* untested, should go into libopencm3 */
 const clock_scale_t hse_24mhz_3v3[CLOCK_3V3_END] = {
-	{ /* 48MHz */
-		.pllm = 24,
-		.plln = 96,
-		.pllp = 2,
-		.pllq = 2,
-		.hpre = RCC_CFGR_HPRE_DIV_NONE,
-		.ppre1 = RCC_CFGR_PPRE_DIV_4,
-		.ppre2 = RCC_CFGR_PPRE_DIV_2,
-		.power_save = 1,
-		.flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
-				FLASH_ACR_LATENCY_3WS,
-		.apb1_frequency = 12000000,
-		.apb2_frequency = 24000000,
-	},
-	{ /* 120MHz */
-		.pllm = 24,
-		.plln = 240,
-		.pllp = 2,
-		.pllq = 5,
-		.hpre = RCC_CFGR_HPRE_DIV_NONE,
-		.ppre1 = RCC_CFGR_PPRE_DIV_4,
-		.ppre2 = RCC_CFGR_PPRE_DIV_2,
-		.power_save = 1,
-		.flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
-				FLASH_ACR_LATENCY_3WS,
-		.apb1_frequency = 30000000,
-		.apb2_frequency = 60000000,
-	},
-	{ /* 168MHz */
-		.pllm = 24,
-		.plln = 336,
-		.pllp = 2,
-		.pllq = 7,
-		.hpre = RCC_CFGR_HPRE_DIV_NONE,
-		.ppre1 = RCC_CFGR_PPRE_DIV_4,
-		.ppre2 = RCC_CFGR_PPRE_DIV_2,
-		.flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
-				FLASH_ACR_LATENCY_5WS,
-		.apb1_frequency = 42000000,
-		.apb2_frequency = 84000000,
-	},
+  { /* 48MHz */
+    .pllm = 24,
+    .plln = 96,
+    .pllp = 2,
+    .pllq = 2,
+    .hpre = RCC_CFGR_HPRE_DIV_NONE,
+    .ppre1 = RCC_CFGR_PPRE_DIV_4,
+    .ppre2 = RCC_CFGR_PPRE_DIV_2,
+    .power_save = 1,
+    .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
+    FLASH_ACR_LATENCY_3WS,
+    .apb1_frequency = 12000000,
+    .apb2_frequency = 24000000,
+  },
+  { /* 120MHz */
+    .pllm = 24,
+    .plln = 240,
+    .pllp = 2,
+    .pllq = 5,
+    .hpre = RCC_CFGR_HPRE_DIV_NONE,
+    .ppre1 = RCC_CFGR_PPRE_DIV_4,
+    .ppre2 = RCC_CFGR_PPRE_DIV_2,
+    .power_save = 1,
+    .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
+    FLASH_ACR_LATENCY_3WS,
+    .apb1_frequency = 30000000,
+    .apb2_frequency = 60000000,
+  },
+  { /* 168MHz */
+    .pllm = 24,
+    .plln = 336,
+    .pllp = 2,
+    .pllq = 7,
+    .hpre = RCC_CFGR_HPRE_DIV_NONE,
+    .ppre1 = RCC_CFGR_PPRE_DIV_4,
+    .ppre2 = RCC_CFGR_PPRE_DIV_2,
+    .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
+    FLASH_ACR_LATENCY_5WS,
+    .apb1_frequency = 42000000,
+    .apb2_frequency = 84000000,
+  },
 };
+#endif
+
+#if defined(STM32F1)
+/*---------------------------------------------------------------------------*/
+/** @brief RCC Set System Clock HSE at 24MHz from HSE at 24MHz
+
+*/
+void rcc_clock_setup_in_hse_24mhz_out_24mhz_pprz(void);
+void rcc_clock_setup_in_hse_24mhz_out_24mhz_pprz(void)
+{
+  /* Enable internal high-speed oscillator. */
+  rcc_osc_on(HSI);
+  rcc_wait_for_osc_ready(HSI);
+
+  /* Select HSI as SYSCLK source. */
+  rcc_set_sysclk_source(RCC_CFGR_SW_SYSCLKSEL_HSICLK);
+
+  /* Enable external high-speed oscillator 24MHz. */
+  rcc_osc_on(HSE);
+  rcc_wait_for_osc_ready(HSE);
+  rcc_set_sysclk_source(RCC_CFGR_SW_SYSCLKSEL_HSECLK);
+
+  /*
+   * Set prescalers for AHB, ADC, ABP1, ABP2.
+   * Do this before touching the PLL (TODO: why?).
+   */
+  rcc_set_hpre(RCC_CFGR_HPRE_SYSCLK_NODIV);    /* Set. 24MHz Max. 72MHz */
+  rcc_set_adcpre(RCC_CFGR_ADCPRE_PCLK2_DIV2);  /* Set. 12MHz Max. 14MHz */
+  rcc_set_ppre1(RCC_CFGR_PPRE1_HCLK_NODIV);    /* Set. 24MHz Max. 36MHz */
+  rcc_set_ppre2(RCC_CFGR_PPRE2_HCLK_NODIV);    /* Set. 24MHz Max. 72MHz */
+
+  /*
+   * Sysclk runs with 24MHz -> 0 waitstates.
+   * 0WS from 0-24MHz
+   * 1WS from 24-48MHz
+   * 2WS from 48-72MHz
+   */
+  flash_set_ws(FLASH_ACR_LATENCY_0WS);
+
+  /*
+   * Set the PLL multiplication factor to 2.
+   * 24MHz (external) * 2 (multiplier) / 2 (RCC_CFGR_PLLXTPRE_HSE_CLK_DIV2) = 24MHz
+   */
+  rcc_set_pll_multiplication_factor(RCC_CFGR_PLLMUL_PLL_CLK_MUL2);
+
+  /* Select HSE as PLL source. */
+  rcc_set_pll_source(RCC_CFGR_PLLSRC_HSE_CLK);
+
+  /*
+   * External frequency divide by 2 before entering PLL
+   * (only valid/needed for HSE).
+   */
+  rcc_set_pllxtpre(RCC_CFGR_PLLXTPRE_HSE_CLK_DIV2);
+
+  rcc_osc_on(PLL);
+  rcc_wait_for_osc_ready(PLL);
+
+  /* Select PLL as SYSCLK source. */
+  rcc_set_sysclk_source(RCC_CFGR_SW_SYSCLKSEL_PLLCLK);
+
+  /* Set the peripheral clock frequencies used */
+  rcc_ahb_frequency = 24000000;
+  rcc_apb1_frequency = 24000000;
+  rcc_apb2_frequency = 24000000;
+}
 #endif
 
 void mcu_arch_init(void)
@@ -121,6 +186,8 @@ void mcu_arch_init(void)
 #if defined(STM32F4)
   PRINT_CONFIG_MSG("Using 24MHz external clock to PLL it to 168MHz.")
   rcc_clock_setup_hse_3v3(&hse_24mhz_3v3[CLOCK_3V3_168MHZ]);
+#elif defined(STM32F1)
+  rcc_clock_setup_in_hse_24mhz_out_24mhz_pprz();
 #endif
 #elif EXT_CLK == 25000000
 #if defined(STM32F4)
@@ -142,6 +209,7 @@ void mcu_arch_init(void)
 }
 
 #if defined(STM32F1)
+
 #define RCC_CFGR_PPRE2_SHIFT      11
 #define RCC_CFGR_PPRE2        (7 << RCC_CFGR_PPRE2_SHIFT)
 
@@ -191,8 +259,7 @@ uint32_t timer_get_frequency(uint32_t timer_peripheral)
 #ifdef TIM11
     case TIM11:
 #endif
-      if (!rcc_get_ppre2())
-      {
+      if (!rcc_get_ppre2()) {
         /* without APB2 prescaler, runs at APB2 freq */
         return rcc_apb2_frequency;
       } else {
@@ -216,8 +283,7 @@ uint32_t timer_get_frequency(uint32_t timer_peripheral)
 #ifdef TIM14
     case TIM14:
 #endif
-      if (!rcc_get_ppre1())
-      {
+      if (!rcc_get_ppre1()) {
         /* without APB1 prescaler, runs at APB1 freq */
         return rcc_apb1_frequency;
       } else {
