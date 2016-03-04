@@ -20,6 +20,9 @@ SUBSYSTEM=="tty", ATTRS{product}=="FT232R USB UART", SYMLINK+="ftdi-serial", GRO
 # Paparazzi STM32 Autopilot board USB CDC serial device
 SUBSYSTEM=="tty", ATTRS{manufacturer}=="Paparazzi UAV", ATTRS{product}=="CDC Serial STM32", SYMLINK+="paparazzi/stm32-usb-serial"
 
+# Paparazzi 3dr radio
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", SYMLINK+="paparazzi/link", GROUP="plugdev"
+
 # MaxStream xbee pro box
 SUBSYSTEM=="tty", ATTRS{product}=="MaxStream PKG-U", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
 
