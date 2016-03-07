@@ -204,9 +204,19 @@ void sim_overwrite_ahrs(void)
 void sim_overwrite_ins(void)
 {
 
-  struct NedCoor_f ltp_pos;
-  VECT3_COPY(ltp_pos, fdm.ltpprz_pos);
-  stateSetPositionNed_f(&ltp_pos);
+  if (state.ned_initialized_i || state.ned_initialized_f) {
+    struct NedCoor_f ltp_pos;
+    VECT3_COPY(ltp_pos, fdm.ltpprz_pos);
+    stateSetPositionNed_f(&ltp_pos);
+  }
+  else if (state.utm_initialized_f) {
+    struct LlaCoor_f lla;
+    LLA_COPY(lla, fdm.lla_pos);
+    struct UtmCoor_f utm;
+    utm.zone = (lla.lon / 1e7 + 180) / 6 + 1;
+    utm_of_lla_f(&utm, &lla);
+    stateSetPositionUtm_f(&utm);
+  }
 
   struct NedCoor_f ltp_speed;
   VECT3_COPY(ltp_speed, fdm.ltpprz_ecef_vel);
