@@ -25,7 +25,7 @@
   <init fun="airspeed_adc_init()"/>
   <periodic fun="airspeed_adc_update()" />
 
-  <makefile>
+  <makefile target="ap|sim">
     <file name="airspeed_adc.c"/>
   </makefile>
   <makefile target="ap">
