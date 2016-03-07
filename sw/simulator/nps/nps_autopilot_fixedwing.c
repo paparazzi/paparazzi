@@ -127,6 +127,14 @@ void nps_autopilot_run_step(double time)
     Ap(event_task);
   }
 
+#if USE_AIRSPEED
+  if (nps_sensors_airspeed_available()) {
+    stateSetAirspeed_f((float)sensors.airspeed.value);
+    Fbw(event_task);
+    Ap(event_task);
+  }
+#endif
+
   if (nps_sensors_gps_available()) {
     gps_feed_value();
     Fbw(event_task);
