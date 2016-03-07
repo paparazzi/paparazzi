@@ -17,6 +17,7 @@ void nps_sensors_init(double time)
   nps_sensor_mag_init(&sensors.mag, time);
   nps_sensor_baro_init(&sensors.baro, time);
   nps_sensor_gps_init(&sensors.gps, time);
+  nps_sensor_sonar_init(&sensors.sonar, time);
 
 }
 
