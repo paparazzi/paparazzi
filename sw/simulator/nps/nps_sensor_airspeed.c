@@ -67,14 +67,8 @@ void nps_sensor_airspeed_run_step(struct NpsSensorAirspeed *airspeed, double tim
     return;
   }
 
-  /* super simple approximation for now:
-   * airspeed = ground speed + wind
-   */
-  struct DoubleVect3 ltp_air_vel;
-  VECT3_SUM(ltp_air_vel, fdm.ltpprz_ecef_vel, fdm.wind);
-  double speed = double_vect3_norm(&ltp_air_vel);
-  /* sensor offset */
-  airspeed->value = speed + airspeed->offset;
+  /* equivalent airspeed + sensor offset */
+  airspeed->value = fdm.airspeed + airspeed->offset;
   /* add noise with std dev meters/second */
   airspeed->value += get_gaussian_noise() * airspeed->noise_std_dev;
   /* can't be negative, min is zero */
