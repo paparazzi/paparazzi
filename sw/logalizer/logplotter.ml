@@ -533,7 +533,7 @@ let rec select_gps_values = function
 	    and x = snd xs.(i) /. 100.
 	    and y = snd ys.(i) /. 100. in
 	    let utm = { utm_x = x; utm_y = y; utm_zone = z } in
-	    l := (t, of_utm WGS84 utm, a) :: !l
+            l := try (t, of_utm WGS84 utm, a) :: !l with _ -> !l
       done;
       List.rev !l
   | (m, values)::_ when m.PprzLink.name = "GPS_INT" ->
