@@ -40,7 +40,7 @@
 #include "lib/vision/image.h"
 #include "lib/vision/lucas_kanade.h"
 #include "lib/vision/fast_rosten.h"
-#include "edge_flow.h"
+#include "lib/vision/edge_flow.h"
 #include "size_divergence.h"
 #include "linear_flow_fit.h"
 

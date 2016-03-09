@@ -4,7 +4,7 @@
  *  Created on: Feb 22, 2016
  *      Author: knmcguire
  */
-#include <opticflow/edge_flow.h>
+#include <lib/vision/edge_flow.h>
 
 
 /**
