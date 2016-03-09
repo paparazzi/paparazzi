@@ -42,20 +42,20 @@
 
 // weird that these below are not in protocol.h, which is from the firmware px4 repo
 // below is copied from qgroundcontrol:
-#define PROTO_INSYNC            0x12 //< 'in sync' byte sent before status
-#define PROTO_EOC               0x20 //< end of command
+#define PROTO_INSYNC            0x12 ///< 'in sync' byte sent before status
+#define PROTO_EOC               0x20 ///< end of command
 // Reply bytes
-#define PROTO_OK                0x10 //< INSYNC/OK      - 'ok' response
-#define PROTO_FAILED            0x11 //< INSYNC/FAILED  - 'fail' response
-#define PROTO_INVALID           0x13 //< INSYNC/INVALID - 'invalid' response for bad commands
+#define PROTO_OK                0x10 ///< INSYNC/OK      - 'ok' response
+#define PROTO_FAILED            0x11 ///< INSYNC/FAILED  - 'fail' response
+#define PROTO_INVALID           0x13 ///< INSYNC/INVALID - 'invalid' response for bad commands
 // Command bytes
-#define PROTO_GET_SYNC          0x21 //< NOP for re-establishing sync
-#define PROTO_GET_DEVICE        0x22 //< get device ID bytes
-#define PROTO_CHIP_ERASE        0x23 //< erase program area and reset program address
-#define PROTO_LOAD_ADDRESS      0x24 //< set next programming address
-#define PROTO_PROG_MULTI        0x27 //< write bytes at program address and increment
-#define PROTO_GET_CRC           0x29 //< compute & return a CRC
-#define PROTO_BOOT              0x30 //< boot the application
+#define PROTO_GET_SYNC          0x21 ///< NOP for re-establishing sync
+#define PROTO_GET_DEVICE        0x22 ///< get device ID bytes
+#define PROTO_CHIP_ERASE        0x23 ///< erase program area and reset program address
+#define PROTO_LOAD_ADDRESS      0x24 ///< set next programming address
+#define PROTO_PROG_MULTI        0x27 ///< write bytes at program address and increment
+#define PROTO_GET_CRC           0x29 ///< compute & return a CRC
+#define PROTO_BOOT              0x30 ///< boot the application
 
 bool_t setToBootloaderMode;
 
