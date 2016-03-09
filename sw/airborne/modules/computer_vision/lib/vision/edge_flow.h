@@ -1,8 +1,30 @@
 /*
- * edge_flow.h
+ * Copyright (C) 2016 Kimberly McGuire <k.n.mcguire@tudelft.nl
  *
- *  Created on: Feb 22, 2016
- *      Author: knmcguire
+ * This file is part of Paparazzi.
+ *
+ * Paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file modules/computer_vision/lib/vision/edge_flow.ch
+ * @brief calculate optical flow with EdgeFlow
+ *
+ * Edge-histogram matching, implementation by K. N. McGuire
+ * Publication: Local Histogram Matching for Efficient Optical Flow Computation Applied to Velocity Estimation on Pocket Drones
+ * by K.N. McGuire et al. (2016), ICRA 2016
  */
 
 #ifndef EDGE_FLOW_H_
@@ -61,11 +83,12 @@ struct edge_flow_t {
   int32_t div_y;
 };
 
-void edgeflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
-                         struct opticflow_result_t *result);
+
 // Local functions of the EDGEFLOW algorithm
 void draw_edgeflow_img(struct image_t *img, struct edge_flow_t edgeflow, struct edgeflow_displacement_t displacement,
                        int32_t *edge_hist_x);
+void calc_previous_frame_nr(struct opticflow_result_t *result, struct opticflow_t *opticflow, uint8_t current_frame_nr,
+                            uint8_t *previous_frame_offset, uint8_t *previous_frame_nr);
 void calculate_edge_histogram(struct image_t *img, int32_t edge_histogram[],
                               char direction, uint16_t edge_threshold);
 void calculate_edge_displacement(int32_t *edge_histogram, int32_t *edge_histogram_prev, int32_t *displacement,

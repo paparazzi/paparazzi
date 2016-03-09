@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2014 Hann Woei Ho
  *               2015 Freek van Tienen <freek.v.tienen@gmail.com>
+ *               2016 Kimberly McGuire <k.n.mcguire@tudelft.nl
  *
  * This file is part of Paparazzi.
  *
@@ -333,8 +334,8 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
  * @param[in] *img The image frame to calculate the optical flow from
  * @param[out] *result The optical flow result
  */
-void calc_edgeflow(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
-                   struct opticflow_result_t *result)
+void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+                       struct opticflow_result_t *result)
 {
   // Define Static Variables
   static struct edge_hist_t edge_hist[MAX_HORIZON];
@@ -374,52 +375,18 @@ void calc_edgeflow(struct opticflow_t *opticflow, struct opticflow_state_t *stat
   edge_hist[current_frame_nr].pitch = state->theta;
   edge_hist[current_frame_nr].roll = state->phi;
 
-  // Adaptive Time Horizon:
-  // if the flow measured in previous frame is small,
-  // the algorithm will choose an frame further away back from the
-  // current frame to detect subpixel flow
-  if (MAX_HORIZON > 2) {
-
-    uint32_t flow_mag_x, flow_mag_y;
-    flow_mag_x = abs(edgeflow.flow_x);
-    flow_mag_y = abs(edgeflow.flow_y);
-    uint32_t min_flow = 3;
-    uint32_t max_flow = disp_range * RES - 3 * RES;
-
-    uint8_t previous_frame_offset_x = previous_frame_offset[0];
-    uint8_t previous_frame_offset_y = previous_frame_offset[1];
-
-    // IF statements which will decrement the previous frame offset
-    // if the measured flow of last loop is higher than max value (higher flow measured)
-    // and visa versa
-    if (flow_mag_x > max_flow && previous_frame_offset_x > 1) {
-      previous_frame_offset[0] = previous_frame_offset_x - 1;
-    }
-    if (flow_mag_x < min_flow && previous_frame_offset_x < MAX_HORIZON - 1) {
-      previous_frame_offset[0] = previous_frame_offset_x + 1;
-    }
-    if (flow_mag_y > max_flow && previous_frame_offset_y > 1) {
-      previous_frame_offset[1] = previous_frame_offset_y - 1;
-    }
-    if (flow_mag_y < min_flow && previous_frame_offset_y < MAX_HORIZON - 1) {
-      previous_frame_offset[1] = previous_frame_offset_y + 1;
-    }
-  }
-
-  //Wrap index previous frame offset from current frame nr.
-  uint8_t previous_frame_x = (current_frame_nr - previous_frame_offset[0] + MAX_HORIZON) %
-                             MAX_HORIZON;
-  uint8_t previous_frame_y = (current_frame_nr - previous_frame_offset[1] + MAX_HORIZON) %
-                             MAX_HORIZON;
+  // Calculate which previous edge_hist to compare with the current
+  uint8_t previous_frame_nr[2];
+  calc_previous_frame_nr(result, opticflow, current_frame_nr, previous_frame_offset, previous_frame_nr);
 
   //Select edge histogram from the previous frame nr
-  int32_t *prev_edge_histogram_x = edge_hist[previous_frame_x].x;
-  int32_t *prev_edge_histogram_y = edge_hist[previous_frame_y].y;
+  int32_t *prev_edge_histogram_x = edge_hist[previous_frame_nr[0]].x;
+  int32_t *prev_edge_histogram_y = edge_hist[previous_frame_nr[1]].y;
 
   //Calculate the corrosponding derotation of the two frames
-  int16_t der_shift_x = -(int16_t)((edge_hist[previous_frame_x].roll - edge_hist[current_frame_nr].roll) *
+  int16_t der_shift_x = -(int16_t)((edge_hist[previous_frame_nr[0]].roll - edge_hist[current_frame_nr].roll) *
                                    (float)img->w / (OPTICFLOW_FOV_W));
-  int16_t der_shift_y = -(int16_t)((edge_hist[previous_frame_x].pitch - edge_hist[current_frame_nr].pitch) *
+  int16_t der_shift_y = -(int16_t)((edge_hist[previous_frame_nr[1]].pitch - edge_hist[current_frame_nr].pitch) *
                                    (float)img->h / (OPTICFLOW_FOV_H));
 
   // Estimate pixel wise displacement of the edge histograms for x and y direction
@@ -470,8 +437,8 @@ void calc_edgeflow(struct opticflow_t *opticflow, struct opticflow_state_t *stat
   */
   float fps_x = 0;
   float fps_y = 0;
-  float time_diff_x = (float)(timeval_diff(&edge_hist[previous_frame_x].frame_time, &img->ts)) / 1000.;
-  float time_diff_y = (float)(timeval_diff(&edge_hist[previous_frame_y].frame_time, &img->ts)) / 1000.;
+  float time_diff_x = (float)(timeval_diff(&edge_hist[previous_frame_nr[0]].frame_time, &img->ts)) / 1000.;
+  float time_diff_y = (float)(timeval_diff(&edge_hist[previous_frame_nr[1]].frame_time, &img->ts)) / 1000.;
   fps_x = 1 / (time_diff_x);
   fps_y = 1 / (time_diff_y);
 
@@ -513,7 +480,7 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
     calc_fast9_lukas_kanade(opticflow, state, img, result);
   } else {
     if (opticflow->method == 1) {
-      calc_edgeflow(opticflow, state, img, result);
+      calc_edgeflow_tot(opticflow, state, img, result);
     } else {
       PRINT_CONFIG_MSG("Both edgeflow and Lukas kanade is not turned on. Define either USE_LK or use_EDGEFLOW on TRUE!");
     }

@@ -1,11 +1,82 @@
 /*
- * edge_flow.c
+ * Copyright (C) 2016 Kimberly McGuire <k.n.mcguire@tudelft.nl
  *
- *  Created on: Feb 22, 2016
- *      Author: knmcguire
+ * This file is part of Paparazzi.
+ *
+ * Paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
-#include <lib/vision/edge_flow.h>
 
+/**
+ * @file modules/computer_vision/lib/vision/edge_flow.ch
+ * @brief calculate optical flow with EdgeFlow
+ *
+ * Edge-histogram matching, implementation by K. N. McGuire
+ * Publication: Local Histogram Matching for Efficient Optical Flow Computation Applied to Velocity Estimation on Pocket Drones
+ * by K.N. McGuire et al. (2016), ICRA 2016
+ */
+
+#include <lib/vision/edge_flow.h>
+/**
+ * Calc_previous_frame_nr; adaptive Time Horizon
+ * @param[in] *opticflow The opticalflow structure
+ * @param[in] *result The optical flow result
+ * @param[in] *current_frame_nr: The current frame number of the circular array of the edge_hist struct
+ * @param[in] *previous_frame_offset: previous frame offset of how far the method should compare the edgehistogram
+ * @param[out] *previous_frame_nr: previous frame index of the edgehist struct
+ */
+void  calc_previous_frame_nr(struct opticflow_result_t *result, struct opticflow_t *opticflow, uint8_t current_frame_nr,
+                             uint8_t *previous_frame_offset, uint8_t *previous_frame_nr)
+{
+  // Adaptive Time Horizon:
+  // if the flow measured in previous frame is small,
+  // the algorithm will choose an frame further away back from the
+  // current frame to detect subpixel flow
+  if (MAX_HORIZON > 2) {
+
+    uint32_t flow_mag_x, flow_mag_y;
+    flow_mag_x = abs(result->flow_x);
+    flow_mag_y = abs(result->flow_y);
+    uint32_t min_flow = 3;
+    uint32_t max_flow = opticflow->search_distance - 3;
+
+    uint8_t previous_frame_offset_x = previous_frame_offset[0];
+    uint8_t previous_frame_offset_y = previous_frame_offset[1];
+
+    // IF statements which will decrement the previous frame offset
+    // if the measured flow of last loop is higher than max value (higher flow measured)
+    // and visa versa
+    if (flow_mag_x > max_flow && previous_frame_offset_x > 1) {
+      previous_frame_offset[0] = previous_frame_offset_x - 1;
+    }
+    if (flow_mag_x < min_flow && previous_frame_offset_x < MAX_HORIZON - 1) {
+      previous_frame_offset[0] = previous_frame_offset_x + 1;
+    }
+    if (flow_mag_y > max_flow && previous_frame_offset_y > 1) {
+      previous_frame_offset[1] = previous_frame_offset_y - 1;
+    }
+    if (flow_mag_y < min_flow && previous_frame_offset_y < MAX_HORIZON - 1) {
+      previous_frame_offset[1] = previous_frame_offset_y + 1;
+    }
+  }
+
+  //Wrap index previous frame offset from current frame nr.
+  previous_frame_nr[0] = (current_frame_nr - previous_frame_offset[0] + MAX_HORIZON) %
+                         MAX_HORIZON;
+  previous_frame_nr[1] = (current_frame_nr - previous_frame_offset[1] + MAX_HORIZON) %
+                         MAX_HORIZON;
+}
 
 /**
  * Calculate a edge/gradient histogram for each dimension of the image
