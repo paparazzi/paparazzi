@@ -8,6 +8,7 @@
 #include "nps_sensor_baro.h"
 #include "nps_sensor_gps.h"
 #include "nps_sensor_sonar.h"
+#include "nps_sensor_airspeed.h"
 
 struct NpsSensors {
   struct DoubleRMat body_to_imu_rmat;
@@ -17,6 +18,7 @@ struct NpsSensors {
   struct NpsSensorBaro  baro;
   struct NpsSensorGps   gps;
   struct NpsSensorSonar sonar;
+  struct NpsSensorAirspeed airspeed;
 };
 
 extern struct NpsSensors sensors;
@@ -29,6 +31,7 @@ extern bool_t nps_sensors_mag_available();
 extern bool_t nps_sensors_baro_available();
 extern bool_t nps_sensors_gps_available();
 extern bool_t nps_sensors_sonar_available();
+extern bool_t nps_sensors_airspeed_available();
 
 
 #endif /* NPS_SENSORS_H */

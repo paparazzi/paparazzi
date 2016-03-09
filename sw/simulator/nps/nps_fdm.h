@@ -106,6 +106,12 @@ struct NpsFdm {
 
   struct DoubleVect3 wind; ///< velocity in m/s in NED
 
+  double airspeed;         ///< equivalent airspeed in m/s
+  double pressure;         ///< current (static) atmospheric pressure in Pascal
+  double total_pressure;   ///< total atmospheric pressure in Pascal
+  double dynamic_pressure; ///< dynamic pressure in Pascal
+  double temperature;      ///< current temperature in degrees Celcius
+
   // Control surface positions (normalized values)
   float elevator;
   float flap;

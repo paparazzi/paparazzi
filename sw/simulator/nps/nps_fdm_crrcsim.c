@@ -120,6 +120,10 @@ void nps_fdm_init(double dt)
   fdm.init_dt = dt;
   fdm.curr_dt = dt;
   fdm.nan_count = 0;
+  fdm.pressure = -1;
+  fdm.total_pressure = -1;
+  fdm.dynamic_pressure = -1;
+  fdm.temperature = -1;
 
   init_ltp();
 
@@ -384,6 +388,13 @@ static void decode_gpspacket(struct NpsFdm *fdm, byte *buffer)
   vel.z = (double)LongOfBuf(buffer, 11) * 1.0e-2;
   fdm->ltp_ecef_vel = vel;
   ecef_of_ned_vect_d(&fdm->ecef_ecef_vel, &ltpdef, &vel);
+
+  /* No airspeed from CRRCSIM?
+   * use ground speed for now, since we also don't know wind
+   */
+  struct DoubleVect3 ltp_airspeed;
+  VECT3_COPY(ltp_airspeed, vel);
+  fdm.airspeed = double_vect3_norm(&ltp_airspeed);
 
   /* gps position (1e7 deg to rad and 1e3 m to m) */
   struct LlaCoor_d pos;

@@ -61,7 +61,7 @@
   <init fun="digital_cam_uart_init()"/>
   <periodic fun="digital_cam_uart_periodic()" freq="10" autorun="TRUE"/>
   <event fun="digital_cam_uart_event()"/>
-  <makefile target="sim">
+  <makefile target="sim|nps">
     <file name="catia/serial.c"/>
     <define name="UART5_DEV" value="ttyUSB0"/>
   </makefile>

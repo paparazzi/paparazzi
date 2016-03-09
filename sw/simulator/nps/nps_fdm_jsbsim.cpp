@@ -40,6 +40,8 @@
 #include <models/FGPropulsion.h>
 #include <models/FGGroundReactions.h>
 #include <models/FGAccelerations.h>
+#include <models/FGAuxiliary.h>
+#include <models/FGAtmosphere.h>
 #include <models/FGFCS.h>
 #include <models/atmosphere/FGWinds.h>
 
@@ -66,6 +68,9 @@
 /// Macro to convert from feet to metres
 #define MetersOfFeet(_f) ((_f)/3.2808399)
 #define FeetOfMeters(_m) ((_m)*3.2808399)
+
+#define PascalOfPsf(_p) ((_p) * 47.8802588889)
+#define CelsiusOfRankine(_r) (((_r) - 491.67) / 1.8)
 
 /** Name of the JSBSim model.
  *  Defaults to the AIRFRAME_NAME
@@ -435,6 +440,15 @@ static void fetch_state(void)
    */
   const FGColumnVector3 &fg_wind_ned = FDMExec->GetWinds()->GetTotalWindNED();
   jsbsimvec_to_vec(&fdm.wind, &fg_wind_ned);
+
+  /*
+   * Equivalent Airspeed, atmospheric pressure and temperature.
+   */
+  fdm.airspeed = MetersOfFeet(FDMExec->GetAuxiliary()->GetVequivalentFPS());
+  fdm.pressure = PascalOfPsf(FDMExec->GetAtmosphere()->GetPressure());
+  fdm.total_pressure = PascalOfPsf(FDMExec->GetAuxiliary()->GetTotalPressure());
+  fdm.dynamic_pressure = PascalOfPsf(FDMExec->GetAuxiliary()->Getqbar());
+  fdm.temperature = CelsiusOfRankine(FDMExec->GetAtmosphere()->GetTemperature());
 
   /*
    * Control surface positions
