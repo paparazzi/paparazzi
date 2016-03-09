@@ -31,7 +31,8 @@ ifneq ($(TOOLCHAIN_FOUND),1)
 endif
 
 CC   = $(PREFIX)-gcc
-LD   = $(PREFIX)-gcc
+CXX  = $(PREFIX)-g++
+LD   = $(PREFIX)-g++
 AR   = $(PREFIX)-ar
 CP   = $(PREFIX)-objcopy
 DMP  = $(PREFIX)-objdump
