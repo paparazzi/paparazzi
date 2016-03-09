@@ -48,4 +48,6 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
 # for geo mag calculation
 nps.srcs += math/pprz_geodetic_wmm2015.c
 
+ifeq ($(TARGET), nps)
 include $(CFG_SHARED)/telemetry_transparent_udp.makefile
+endif
