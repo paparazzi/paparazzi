@@ -41,7 +41,7 @@
 
 #if defined(STM32F4)
 /* untested, should go into libopencm3 */
-const clock_scale_t hse_24mhz_3v3[CLOCK_3V3_END] = {
+const struct rcc_clock_scale rcc_hse_24mhz_3v3[RCC_CLOCK_3V3_END] = {
   { /* 48MHz */
     .pllm = 24,
     .plln = 96,
@@ -51,10 +51,24 @@ const clock_scale_t hse_24mhz_3v3[CLOCK_3V3_END] = {
     .ppre1 = RCC_CFGR_PPRE_DIV_4,
     .ppre2 = RCC_CFGR_PPRE_DIV_2,
     .power_save = 1,
-    .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
-    FLASH_ACR_LATENCY_3WS,
+    .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE | FLASH_ACR_LATENCY_3WS,
+    .ahb_frequency  = 48000000,
     .apb1_frequency = 12000000,
     .apb2_frequency = 24000000,
+  },
+  { /* 84MHz */
+    .pllm = 24,
+    .plln = 336,
+    .pllp = 4,
+    .pllq = 7,
+    .hpre = RCC_CFGR_HPRE_DIV_NONE,
+    .ppre1 = RCC_CFGR_PPRE_DIV_2,
+    .ppre2 = RCC_CFGR_PPRE_DIV_NONE,
+    .power_save = 1,
+    .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE | FLASH_ACR_LATENCY_2WS,
+    .ahb_frequency  = 84000000,
+    .apb1_frequency = 42000000,
+    .apb2_frequency = 84000000,
   },
   { /* 120MHz */
     .pllm = 24,
@@ -65,8 +79,8 @@ const clock_scale_t hse_24mhz_3v3[CLOCK_3V3_END] = {
     .ppre1 = RCC_CFGR_PPRE_DIV_4,
     .ppre2 = RCC_CFGR_PPRE_DIV_2,
     .power_save = 1,
-    .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
-    FLASH_ACR_LATENCY_3WS,
+    .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE | FLASH_ACR_LATENCY_3WS,
+    .ahb_frequency  = 120000000,
     .apb1_frequency = 30000000,
     .apb2_frequency = 60000000,
   },
@@ -78,8 +92,8 @@ const clock_scale_t hse_24mhz_3v3[CLOCK_3V3_END] = {
     .hpre = RCC_CFGR_HPRE_DIV_NONE,
     .ppre1 = RCC_CFGR_PPRE_DIV_4,
     .ppre2 = RCC_CFGR_PPRE_DIV_2,
-    .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
-    FLASH_ACR_LATENCY_5WS,
+    .flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE | FLASH_ACR_LATENCY_5WS,
+    .ahb_frequency  = 168000000,
     .apb1_frequency = 42000000,
     .apb2_frequency = 84000000,
   },
@@ -95,15 +109,15 @@ void rcc_clock_setup_in_hse_24mhz_out_24mhz_pprz(void);
 void rcc_clock_setup_in_hse_24mhz_out_24mhz_pprz(void)
 {
   /* Enable internal high-speed oscillator. */
-  rcc_osc_on(HSI);
-  rcc_wait_for_osc_ready(HSI);
+  rcc_osc_on(RCC_HSI);
+  rcc_wait_for_osc_ready(RCC_HSI);
 
   /* Select HSI as SYSCLK source. */
   rcc_set_sysclk_source(RCC_CFGR_SW_SYSCLKSEL_HSICLK);
 
   /* Enable external high-speed oscillator 24MHz. */
-  rcc_osc_on(HSE);
-  rcc_wait_for_osc_ready(HSE);
+  rcc_osc_on(RCC_HSE);
+  rcc_wait_for_osc_ready(RCC_HSE);
   rcc_set_sysclk_source(RCC_CFGR_SW_SYSCLKSEL_HSECLK);
 
   /*
@@ -138,8 +152,8 @@ void rcc_clock_setup_in_hse_24mhz_out_24mhz_pprz(void)
    */
   rcc_set_pllxtpre(RCC_CFGR_PLLXTPRE_HSE_CLK_DIV2);
 
-  rcc_osc_on(PLL);
-  rcc_wait_for_osc_ready(PLL);
+  rcc_osc_on(RCC_PLL);
+  rcc_wait_for_osc_ready(RCC_PLL);
 
   /* Select PLL as SYSCLK source. */
   rcc_set_sysclk_source(RCC_CFGR_SW_SYSCLKSEL_PLLCLK);
@@ -167,7 +181,7 @@ void mcu_arch_init(void)
   rcc_clock_setup_in_hse_8mhz_out_72mhz();
 #elif defined(STM32F4)
   PRINT_CONFIG_MSG("Using 8MHz external clock to PLL it to 168MHz.")
-  rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
+  rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 #endif
 #elif EXT_CLK == 12000000
 #if defined(STM32F1)
@@ -175,24 +189,24 @@ void mcu_arch_init(void)
   rcc_clock_setup_in_hse_12mhz_out_72mhz();
 #elif defined(STM32F4)
   PRINT_CONFIG_MSG("Using 12MHz external clock to PLL it to 168MHz.")
-  rcc_clock_setup_hse_3v3(&hse_12mhz_3v3[CLOCK_3V3_168MHZ]);
+  rcc_clock_setup_hse_3v3(&rcc_hse_12mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 #endif
 #elif EXT_CLK == 16000000
 #if defined(STM32F4)
   PRINT_CONFIG_MSG("Using 16MHz external clock to PLL it to 168MHz.")
-  rcc_clock_setup_hse_3v3(&hse_16mhz_3v3[CLOCK_3V3_168MHZ]);
+  rcc_clock_setup_hse_3v3(&rcc_hse_16mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 #endif
 #elif EXT_CLK == 24000000
 #if defined(STM32F4)
   PRINT_CONFIG_MSG("Using 24MHz external clock to PLL it to 168MHz.")
-  rcc_clock_setup_hse_3v3(&hse_24mhz_3v3[CLOCK_3V3_168MHZ]);
+  rcc_clock_setup_hse_3v3(&rcc_hse_24mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 #elif defined(STM32F1)
   rcc_clock_setup_in_hse_24mhz_out_24mhz_pprz();
 #endif
 #elif EXT_CLK == 25000000
 #if defined(STM32F4)
   PRINT_CONFIG_MSG("Using 25MHz external clock to PLL it to 168MHz.")
-  rcc_clock_setup_hse_3v3(&hse_25mhz_3v3[CLOCK_3V3_168MHZ]);
+  rcc_clock_setup_hse_3v3(&rcc_hse_25mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
 #endif
 #else
 #error EXT_CLK is either set to an unsupported frequency or not defined at all. Please check!
@@ -209,7 +223,6 @@ void mcu_arch_init(void)
 }
 
 #if defined(STM32F1)
-
 #define RCC_CFGR_PPRE2_SHIFT      11
 #define RCC_CFGR_PPRE2        (7 << RCC_CFGR_PPRE2_SHIFT)
 
