@@ -21,7 +21,7 @@ static uint32_t timeval_diff2(struct timeval *starttime, struct timeval *finisht
 static uint32_t getMinimum(uint32_t *a, uint32_t n);
 void line_fit(int32_t *displacement, int32_t *divergence, int32_t *flow, uint32_t size, uint32_t border,
               uint16_t RES);
-
+uint32_t getAmountPeaks(int32_t *edgehist, uint32_t median, int32_t size);
 /**
  * Run the optical flow with EDGEFLOW on a new image frame
  * @param[in] *opticflow The opticalflow structure that keeps track of previous images
@@ -29,6 +29,8 @@ void line_fit(int32_t *displacement, int32_t *divergence, int32_t *flow, uint32_
  * @param[in] *img The image frame to calculate the optical flow from
  * @param[out] *result The optical flow result
  */
+
+
 void edgeflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
                          struct opticflow_result_t *result)
 {
@@ -40,8 +42,24 @@ void edgeflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t
 
   // Define Normal variables
   struct edgeflow_displacement_t displacement;
-  uint8_t disp_range = DISP_RANGE_MAX;
-  uint16_t RES = 100;
+  uint16_t disp_range;
+  if (opticflow->search_distance < DISP_RANGE_MAX) {
+    disp_range = opticflow->search_distance;
+  } else {
+    disp_range = DISP_RANGE_MAX;
+  }
+
+  uint16_t window_size;
+
+  if (opticflow->window_size < MAX_WINDOW_SIZE) {
+    window_size = opticflow->window_size;
+  } else {
+    window_size = MAX_WINDOW_SIZE;
+  }
+
+  uint16_t RES = opticflow->subpixel_factor;
+
+  //......................Calculating EdgeFlow..................... //
 
   // Calculate current frame's edge histogram
   int32_t *edge_hist_x = edge_hist[current_frame_nr].x;
@@ -105,45 +123,71 @@ void edgeflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t
   // Estimate pixel wise displacement of the edge histograms for x and y direction
   calculate_edge_displacement(edge_hist_x, prev_edge_histogram_x,
                               displacement.x, img->w,
-                              opticflow->window_size, disp_range,  der_shift_x);
+                              window_size, disp_range,  der_shift_x);
   calculate_edge_displacement(edge_hist_y, prev_edge_histogram_y,
                               displacement.y, img->h,
-                              opticflow->window_size, disp_range, der_shift_y);
+                              window_size, disp_range, der_shift_y);
 
   // Fit a line on the pixel displacement to estimate
   // the global pixel flow and divergence (RES is resolution)
   line_fit(displacement.x, &edgeflow.div_x,
            &edgeflow.flow_x, img->w,
-           opticflow->window_size + disp_range, RES);
+           window_size + disp_range, RES);
   line_fit(displacement.y, &edgeflow.div_y,
            &edgeflow.flow_y, img->h,
-           opticflow->window_size + disp_range, RES);
+           window_size + disp_range, RES);
 
-  // Save Resulting flow in results
-  result->flow_x = (int16_t)edgeflow.flow_x / (previous_frame_offset[0] * RES);
-  result->flow_y = (int16_t)edgeflow.flow_y / (previous_frame_offset[1] * RES);
+  /* Save Resulting flow in results
+   * Warning: The flow detected here is different in sign
+   * and size, therefore this will be multiplied with
+   * the same subpixel factor and -1 to make it on par with
+   * the LK algorithm of t opticalflow_calculator.c
+   * */
+  edgeflow.flow_x = -1 * edgeflow.flow_x;
+  edgeflow.flow_y = -1 * edgeflow.flow_y;
 
-  // VELOCITY //
+  result->flow_x = (int16_t)edgeflow.flow_x / previous_frame_offset[0];
+  result->flow_y = (int16_t)edgeflow.flow_y / previous_frame_offset[1];
 
-  //Estimate fps per direction
+  //Fill up the results optic flow to be on par with LK_fast9
+  result->flow_der_x =  result->flow_x;
+  result->flow_der_y =  result->flow_y;
+  result->corner_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
+  result->tracked_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
+  result->divergence = (float)edgeflow.flow_x / RES;
+  result->div_size = 0.0f;
+  result->noise_measurement = 0.0f;
+  result->surface_roughness = 0.0f;
+
+  //......................Calculating VELOCITY ..................... //
+
+  /*Estimate fps per direction
+   * This is the fps with adaptive horizon for subpixel flow, which is not similar
+   * to the loop speed of the algorithm. The faster the quadcopter flies
+   * the higher it becomes
+  */
   float fps_x = 0;
   float fps_y = 0;
   float time_diff_x = (float)(timeval_diff2(&edge_hist[previous_frame_x].frame_time, &img->ts)) / 1000.;
   float time_diff_y = (float)(timeval_diff2(&edge_hist[previous_frame_y].frame_time, &img->ts)) / 1000.;
   fps_x = 1 / (time_diff_x);
   fps_y = 1 / (time_diff_y);
+
   result->fps = fps_x;
 
-  //Calculate velocity
+  // Calculate velocity
   float vel_x = edgeflow.flow_x * fps_x * state->agl * OPTICFLOW_FOV_W / (img->w * RES);
   float vel_y = edgeflow.flow_y * fps_y * state->agl * OPTICFLOW_FOV_H / (img->h * RES);
   result->vel_x = vel_x;
   result->vel_y = vel_y;
 
-  // Rotate velocities from camera frame coordinates to body coordinates.
-  // IMPORTANT since these values are used for control! This the case on the ARDrone and bebop, but on other systems this might be different!
-  result->vel_body_x = vel_y;
-  result->vel_body_y = - vel_x;
+  /* Rotate velocities from camera frame coordinates to body coordinates.
+  * IMPORTANT This frame to body orientation should bethe case for the parrot
+  * ARdrone and Bebop, however this can be different for other quadcopters
+  * ALWAYS double check!
+  */
+  result->vel_body_x = - vel_y;
+  result->vel_body_y = vel_x;
 
 #if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_FLOW
   draw_edgeflow_img(img, edgeflow, displacement, *edge_hist_x)
@@ -270,8 +314,6 @@ void calculate_edge_displacement(int32_t *edge_histogram, int32_t *edge_histogra
   if (border[0] >= border[1] || abs(der_shift) >= 10) {
     SHIFT_TOO_FAR = 1;
   }
-
-
   {
     // TODO: replace with arm offset subtract
     for (x = border[0]; x < border[1]; x++) {
@@ -420,5 +462,22 @@ void draw_edgeflow_img(struct image_t *img, struct edge_flow_t edgeflow, struct 
   image_draw_line(img, &point1_extra, &point2_extra);
 }
 
+/**
+ * getAmountPeaks, calculates the amount of peaks in a edge histogram
+ * @param[in] *edgehist Horizontal edge_histogram
+ * @param[in] thres The threshold from which a peak is considered significant peak or not
+ * @param[in] size  Size of the array
+ * @param[return] amount of peaks
+ */
+uint32_t getAmountPeaks(int32_t *edgehist, uint32_t thres, int32_t size)
+{
+  uint32_t  amountPeaks = 0;
+  uint32_t i = 0;
 
-
+  for (i = 1; i < size + 1;  i ++) {
+    if (edgehist[i - 1] < edgehist[i] && edgehist[i] > edgehist[i + 1] && edgehist[i] > thres) {
+      amountPeaks ++;
+    }
+  }
+  return amountPeaks;
+}

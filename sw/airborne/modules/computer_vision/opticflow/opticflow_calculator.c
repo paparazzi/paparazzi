@@ -82,8 +82,13 @@ PRINT_CONFIG_VAR(OPTICFLOW_MAX_TRACK_CORNERS)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_WINDOW_SIZE)
 
+#ifndef OPTICFLOW_MAX_SEARCH_DISTANCE
+#define OPTICFLOW_MAX_SEARCH_DISTANCE 20
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_MAX_SEARCH_DISTANCE)
+
 #ifndef OPTICFLOW_SUBPIXEL_FACTOR
-#define OPTICFLOW_SUBPIXEL_FACTOR 10
+#define OPTICFLOW_SUBPIXEL_FACTOR 100
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_SUBPIXEL_FACTOR)
 
@@ -112,6 +117,13 @@ PRINT_CONFIG_VAR(OPTICFLOW_FAST9_THRESHOLD)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_MIN_DISTANCE)
 
+#ifndef OPTICFLOW_METHOD
+#define OPTICFLOW_METHOD 0
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_METHOD)
+
+
+
 /* Functions only used here */
 static uint32_t timeval_diff(struct timeval *starttime, struct timeval *finishtime);
 static int cmp_flow(const void *a, const void *b);
@@ -134,8 +146,11 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->prev_theta = 0.0;
 
   /* Set the default values */
-  opticflow->max_track_corners = OPTICFLOW_MAX_TRACK_CORNERS;
+  opticflow->method = 0; //0 = LK_fast9, 1 = Edgeflow
   opticflow->window_size = OPTICFLOW_WINDOW_SIZE;
+  opticflow->search_distance = OPTICFLOW_MAX_SEARCH_DISTANCE;
+
+  opticflow->max_track_corners = OPTICFLOW_MAX_TRACK_CORNERS;
   opticflow->subpixel_factor = OPTICFLOW_SUBPIXEL_FACTOR;
   opticflow->max_iterations = OPTICFLOW_MAX_ITERATIONS;
   opticflow->threshold_vec = OPTICFLOW_THRESHOLD_VEC;
@@ -143,6 +158,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE;
   opticflow->fast9_threshold = OPTICFLOW_FAST9_THRESHOLD;
   opticflow->fast9_min_distance = OPTICFLOW_FAST9_MIN_DISTANCE;
+
 }
 
 /**

@@ -42,20 +42,25 @@ struct opticflow_t {
   struct image_t prev_img_gray;     ///< Previous gray image frame
   struct timeval prev_timestamp;    ///< Timestamp of the previous frame, used for FPS calculation
 
-  uint8_t max_track_corners;        ///< Maximum amount of corners Lucas Kanade should track
-  uint16_t window_size;             ///< Window size of the Lucas Kanade calculation (needs to be even)
+  uint8_t method;           ///< Method to use to calculate the optical flow
+  uint16_t window_size;             ///< Window size for the blockmatching algorithm (general value for all methods)
+  uint16_t search_distance;         ///< Search distance for blockmatchin alg. (
+
   uint8_t subpixel_factor;          ///< The amount of subpixels per pixel
   uint8_t max_iterations;           ///< The maximum amount of iterations the Lucas Kanade algorithm should do
   uint8_t threshold_vec;            ///< The threshold in x, y subpixels which the algorithm should stop
 
+  uint8_t max_track_corners;        ///< Maximum amount of corners Lucas Kanade should track
   bool_t fast9_adaptive;            ///< Whether the FAST9 threshold should be adaptive
   uint8_t fast9_threshold;          ///< FAST9 corner detection threshold
   uint16_t fast9_min_distance;      ///< Minimum distance in pixels between corners
+
 };
 
 
 void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h);
-void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img, struct opticflow_result_t *result);
+void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+                          struct opticflow_result_t *result);
 
 #endif /* OPTICFLOW_CALCULATOR_H */
 

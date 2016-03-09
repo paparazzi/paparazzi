@@ -23,7 +23,10 @@
 #define MAX_HORIZON 10
 #endif
 #ifndef DISP_RANGE_MAX
-#define DISP_RANGE_MAX 20
+#define DISP_RANGE_MAX 50
+#endif
+#ifndef MAX_WINDOW_SIZE
+#define MAX_WINDOW_SIZE 20
 #endif
 #ifndef IMAGE_HEIGHT
 #define IMAGE_HEIGHT 240
