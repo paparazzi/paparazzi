@@ -39,7 +39,7 @@ endif
 #
 VPATH += $(PAPARAZZI_SRC)/sw/simulator
 
-NPSDIR = nps
+NPSDIR = $(VPATH)/nps
 nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_fdm_jsbsim.cpp              \
        $(NPSDIR)/nps_random.c                    \

@@ -41,6 +41,12 @@ override TARGET=ap
 endif
 endif
 
+# Enable QT
+PAPARAZZI_QT_GEN?=
+ifneq (,$(findstring qt,$(MAKECMDGOALS)))
+PAPARAZZI_QT_GEN=1
+endif
+
 AIRCRAFT_CONF_DIR = $(AIRCRAFT_BUILD_DIR)/conf
 AC_GENERATED = $(AIRCRAFT_BUILD_DIR)/$(TARGET)/generated
 
@@ -49,6 +55,7 @@ PERIODIC_H=$(AC_GENERATED)/periodic_telemetry.h
 RADIO_H=$(AC_GENERATED)/radio.h
 FLIGHT_PLAN_H=$(AC_GENERATED)/flight_plan.h
 FLIGHT_PLAN_XML=$(AIRCRAFT_BUILD_DIR)/flight_plan.xml
+SRCS_LIST=$(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
 SETTINGS_H=$(AC_GENERATED)/settings.h
 SETTINGS_XMLS=$(patsubst %,$(CONF)/%,$(SETTINGS))
 SETTINGS_XMLS_DEP=$(filter-out %~,$(SETTINGS_XMLS))
@@ -123,7 +130,8 @@ Q=@
 # include the generated airframe makefile
 #
 ifeq ($(MAKECMDGOALS),all_ac_h)
--include $(MAKEFILE_AC)
+
+-include $(AIRBORNE)/Makefile
 
 ifdef PERIODIC_FREQUENCY
 # telemetry and module periodic frequency default to PERIODIC_FREQUENCY
@@ -143,12 +151,24 @@ print_version:
 	@echo "Paparazzi version" $(GIT_DESC)$(VERSION_MATCH)
 	@echo "-----------------------------------------------------------------------"
 
+all_ac_h: $(SRCS_LIST) qt_project autopilot_h
 
-all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H) autopilot_h
-	@echo "TARGET: " $(TARGET)"\n" > $(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
-	@echo "CFLAGS: " $($(TARGET).CFLAGS)"\n"  >> $(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
-	@echo "LDFLAGS: " $($(TARGET).LDFLAGS)"\n"  >> $(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
-	@echo "srcs: " $($(TARGET).srcs) >> $(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
+$(SRCS_LIST) : $(CONF_XML) $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
+	@echo "TARGET: " $(TARGET) > $(SRCS_LIST)
+	@echo "CFLAGS: " $(CFLAGS) >> $(SRCS_LIST)
+	@echo "LDFLAGS: " $($(TARGET).LDFLAGS) >> $(SRCS_LIST)
+	@echo "srcs: " $($(TARGET).srcs) >> $(SRCS_LIST)
+	@echo -n "headers:  " >> $(SRCS_LIST)
+ifeq (,$(findstring cpp,$($(TARGET).srcs)))
+	$(Q)cd $(AIRBORNE); $(CC) -MM  $(CFLAGS) $($(TARGET).srcs) | tr '\n' ' ' | sed -e 's/[^ ]+\.o: //g' -e 's/\\//g' -e 's/\s\s*/ /g' -e 's/[^ ]\.c //g' | sort -u >> $(SRCS_LIST)
+else
+	$(Q)cd $(AIRBORNE); $(CXX) -MM  $(CXXFLAGS) $($(TARGET).srcs) | tr '\n' ' ' | sed -e 's/[^ ]+\.o: //g' -e 's/\\//g' -e 's/\s\s*/ /g' -e 's/[^ ]\.c //g' | sort -u >> $(SRCS_LIST)
+endif
+
+qt_project : $(SRCS_LIST)
+ifneq ($(PAPARAZZI_QT_GEN),)
+	$(Q)./sw/tools/qt_project.py $(AIRCRAFT) $(CONF_XML) $(SRCS_LIST)
+endif
 
 radio_ac_h : $(RADIO_H)
 
@@ -230,7 +250,10 @@ $(SETTINGS_FLIGHTPLAN) : $(FLIGHT_PLAN_H)
 	@echo "#######################################"
 	@echo "# BUILD AIRCRAFT=$(AIRCRAFT), TARGET $*"
 	@echo "#######################################"
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(GENERATORS)/gen_aircraft.out $(AIRCRAFT) $(CONF_XML)
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) PAPARAZZI_QT_GEN=$(PAPARAZZI_QT_GEN) TARGET=$* Q=$(Q) $(GENERATORS)/gen_aircraft.out $(AIRCRAFT) $(CONF_XML)
+
+%.qt: %.ac_h
+	@echo "GENERATED Qt project"
 
 %.compile: %.ac_h | print_version
 	cd $(AIRBORNE); $(MAKE) -j$(NPROCS) TARGET=$* all
