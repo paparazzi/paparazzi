@@ -39,8 +39,6 @@
       <define name="FAST9_ADAPTIVE" value="TRUE" description="Whether we should use and adapative FAST9 crner detection threshold"/>
       <define name="FAST9_THRESHOLD" value="20" description="FAST9 default threshold"/>
       <define name="FAST9_MIN_DISTANCE" value="10" description="The amount of pixels between corners that should be detected"/>
-
-
     </section>
   </doc>
 
@@ -62,7 +60,6 @@
         <dl_setting var="opticflow.fast9_adaptive" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="TRUE|FALSE" shortname="fast9_adaptive" param="OPTICFLOW_FAST9_ADAPTIVE"/>
         <dl_setting var="opticflow.fast9_threshold" module="computer_vision/opticflow_module" min="0" step="1" max="255" shortname="fast9_threshold" param="OPTICFLOW_FAST9_THRESHOLD"/>
         <dl_setting var="opticflow.fast9_min_distance" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="fast9_min_distance" param="OPTICFLOW_FAST9_MIN_DISTANCE"/>
-
       </dl_settings>
     </dl_settings>
   </settings>
@@ -94,24 +91,6 @@
     <file name="fast_rosten.c" dir="modules/computer_vision/lib/vision"/>
     <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
     <file name="edge_flow.c" dir="modules/computer_vision/lib/vision"/>
-
-  <raw>
-      include $(CFG_SHARED)/udp.makefile
-
-      VIEWVIDEO_HOST        ?= $(MODEM_HOST)
-      VIEWVIDEO_PORT_OUT    ?= 5000
-      VIEWVIDEO_BROADCAST   ?= TRUE
-      VIEWVIDEO_USE_NETCAT  ?= FALSE
-
-      VIEWVID_CFLAGS  = -DVIEWVIDEO_HOST=$(VIEWVIDEO_HOST) -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT)
-      ifneq (,$(findstring $(VIEWVIDEO_USE_NETCAT),0 FALSE))
-        ap.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=$(VIEWVIDEO_BROADCAST)
-        nps.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=FALSE
-      else
-        $(TARGET).CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_USE_NETCAT
-      endif
-    </raw>
-
   </makefile>
 
 

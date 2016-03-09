@@ -161,7 +161,13 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->fast9_min_distance = OPTICFLOW_FAST9_MIN_DISTANCE;
 
 }
-
+/**
+ * Run the optical flow with fast9 and lukaskanade on a new image frame
+ * @param[in] *opticflow The opticalflow structure that keeps track of previous images
+ * @param[in] *state The state of the drone
+ * @param[in] *img The image frame to calculate the optical flow from
+ * @param[out] *result The optical flow result
+ */
 void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
                              struct opticflow_result_t *result)
 {

@@ -68,16 +68,6 @@ PRINT_CONFIG_MSG("OPTICFLOW_DEVICE_SIZE = " _SIZE_HELPER(OPTICFLOW_DEVICE_SIZE))
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_DEVICE_BUFFERS)
 
-#ifndef USE_EDGEFLOW
-#define USE_EDGEFLOW FALSE
-#endif
-PRINT_CONFIG_VAR(USE_EDGEFLOW)
-
-#ifndef USE_LK
-#define USE_LK TRUE       ///< The video device buffers (the amount of V4L2 buffers)
-#endif
-PRINT_CONFIG_VAR(USE_LK)
-
 /* The main opticflow variables */
 struct opticflow_t opticflow;                      ///< Opticflow calculations
 static struct opticflow_result_t opticflow_result; ///< The opticflow result
