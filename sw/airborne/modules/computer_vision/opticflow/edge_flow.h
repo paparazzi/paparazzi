@@ -63,5 +63,22 @@ struct edge_flow_t {
 
 void edgeflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
                          struct opticflow_result_t *result);
+// Local functions of the EDGEFLOW algorithm
+void draw_edgeflow_img(struct image_t *img, struct edge_flow_t edgeflow, struct edgeflow_displacement_t displacement,
+                       int32_t *edge_hist_x);
+void calculate_edge_histogram(struct image_t *img, int32_t edge_histogram[],
+                              char direction, uint16_t edge_threshold);
+void calculate_edge_displacement(int32_t *edge_histogram, int32_t *edge_histogram_prev, int32_t *displacement,
+                                 uint16_t size,
+                                 uint8_t window, uint8_t disp_range, int32_t der_shift);
+
+// Local assisting functions (only used here)
+// TODO: find a way to incorperate/find these functions in paparazzi
+uint32_t timeval_diff2(struct timeval *starttime, struct timeval *finishtime);
+uint32_t getMinimum(uint32_t *a, uint32_t n);
+void line_fit(int32_t *displacement, int32_t *divergence, int32_t *flow, uint32_t size, uint32_t border,
+              uint16_t RES);
+uint32_t getAmountPeaks(int32_t *edgehist, uint32_t median, int32_t size);
+
 
 #endif /* EDGE_FLOW_H_ */

@@ -35,11 +35,12 @@
 // Own Header
 #include "opticflow_calculator.h"
 
+
 // Computer Vision
 #include "lib/vision/image.h"
 #include "lib/vision/lucas_kanade.h"
 #include "lib/vision/fast_rosten.h"
-
+#include "edge_flow.h"
 #include "size_divergence.h"
 #include "linear_flow_fit.h"
 
@@ -82,8 +83,8 @@ PRINT_CONFIG_VAR(OPTICFLOW_MAX_TRACK_CORNERS)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_WINDOW_SIZE)
 
-#ifndef OPTICFLOW_MAX_SEARCH_DISTANCE
-#define OPTICFLOW_MAX_SEARCH_DISTANCE 20
+#ifndef OPTICFLOW_SEARCH_DISTANCE
+#define OPTICFLOW_SEARCH_DISTANCE 20
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_MAX_SEARCH_DISTANCE)
 
@@ -148,7 +149,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   /* Set the default values */
   opticflow->method = 0; //0 = LK_fast9, 1 = Edgeflow
   opticflow->window_size = OPTICFLOW_WINDOW_SIZE;
-  opticflow->search_distance = OPTICFLOW_MAX_SEARCH_DISTANCE;
+  opticflow->search_distance = OPTICFLOW_SEARCH_DISTANCE;
 
   opticflow->max_track_corners = OPTICFLOW_MAX_TRACK_CORNERS;
   opticflow->subpixel_factor = OPTICFLOW_SUBPIXEL_FACTOR;
@@ -161,15 +162,8 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
 
 }
 
-/**
- * Run the optical flow on a new image frame
- * @param[in] *opticflow The opticalflow structure that keeps track of previous images
- * @param[in] *state The state of the drone
- * @param[in] *img The image frame to calculate the optical flow from
- * @param[out] *result The optical flow result
- */
-void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
-                          struct opticflow_result_t *result)
+void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+                             struct opticflow_result_t *result)
 {
   // variables for size_divergence:
   float size_divergence; int n_samples;
@@ -324,6 +318,201 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   free(corners);
   free(vectors);
   image_switch(&opticflow->img_gray, &opticflow->prev_img_gray);
+}
+
+/**
+ * Run the optical flow with EDGEFLOW on a new image frame
+ * @param[in] *opticflow The opticalflow structure that keeps track of previous images
+ * @param[in] *state The state of the drone
+ * @param[in] *img The image frame to calculate the optical flow from
+ * @param[out] *result The optical flow result
+ */
+void calc_edgeflow(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+                   struct opticflow_result_t *result)
+{
+  // Define Static Variables
+  static struct edge_hist_t edge_hist[MAX_HORIZON];
+  static uint8_t current_frame_nr = 0;
+  static struct edge_flow_t edgeflow;
+  static uint8_t previous_frame_offset[2] = {1, 1};
+
+  // Define Normal variables
+  struct edgeflow_displacement_t displacement;
+  uint16_t disp_range;
+  if (opticflow->search_distance < DISP_RANGE_MAX) {
+    disp_range = opticflow->search_distance;
+  } else {
+    disp_range = DISP_RANGE_MAX;
+  }
+
+  uint16_t window_size;
+
+  if (opticflow->window_size < MAX_WINDOW_SIZE) {
+    window_size = opticflow->window_size;
+  } else {
+    window_size = MAX_WINDOW_SIZE;
+  }
+
+  uint16_t RES = opticflow->subpixel_factor;
+
+  //......................Calculating EdgeFlow..................... //
+
+  // Calculate current frame's edge histogram
+  int32_t *edge_hist_x = edge_hist[current_frame_nr].x;
+  int32_t *edge_hist_y = edge_hist[current_frame_nr].y;
+  calculate_edge_histogram(img, edge_hist_x, 'x', 0);
+  calculate_edge_histogram(img, edge_hist_y, 'y', 0);
+
+  // Copy frame time and angles of image to calculated edge histogram
+  memcpy(&edge_hist[current_frame_nr].frame_time, &img->ts, sizeof(struct timeval));
+  edge_hist[current_frame_nr].pitch = state->theta;
+  edge_hist[current_frame_nr].roll = state->phi;
+
+  // Adaptive Time Horizon:
+  // if the flow measured in previous frame is small,
+  // the algorithm will choose an frame further away back from the
+  // current frame to detect subpixel flow
+  if (MAX_HORIZON > 2) {
+
+    uint32_t flow_mag_x, flow_mag_y;
+    flow_mag_x = abs(edgeflow.flow_x);
+    flow_mag_y = abs(edgeflow.flow_y);
+    uint32_t min_flow = 3;
+    uint32_t max_flow = disp_range * RES - 3 * RES;
+
+    uint8_t previous_frame_offset_x = previous_frame_offset[0];
+    uint8_t previous_frame_offset_y = previous_frame_offset[1];
+
+    // IF statements which will decrement the previous frame offset
+    // if the measured flow of last loop is higher than max value (higher flow measured)
+    // and visa versa
+    if (flow_mag_x > max_flow && previous_frame_offset_x > 1) {
+      previous_frame_offset[0] = previous_frame_offset_x - 1;
+    }
+    if (flow_mag_x < min_flow && previous_frame_offset_x < MAX_HORIZON - 1) {
+      previous_frame_offset[0] = previous_frame_offset_x + 1;
+    }
+    if (flow_mag_y > max_flow && previous_frame_offset_y > 1) {
+      previous_frame_offset[1] = previous_frame_offset_y - 1;
+    }
+    if (flow_mag_y < min_flow && previous_frame_offset_y < MAX_HORIZON - 1) {
+      previous_frame_offset[1] = previous_frame_offset_y + 1;
+    }
+  }
+
+  //Wrap index previous frame offset from current frame nr.
+  uint8_t previous_frame_x = (current_frame_nr - previous_frame_offset[0] + MAX_HORIZON) %
+                             MAX_HORIZON;
+  uint8_t previous_frame_y = (current_frame_nr - previous_frame_offset[1] + MAX_HORIZON) %
+                             MAX_HORIZON;
+
+  //Select edge histogram from the previous frame nr
+  int32_t *prev_edge_histogram_x = edge_hist[previous_frame_x].x;
+  int32_t *prev_edge_histogram_y = edge_hist[previous_frame_y].y;
+
+  //Calculate the corrosponding derotation of the two frames
+  int16_t der_shift_x = -(int16_t)((edge_hist[previous_frame_x].roll - edge_hist[current_frame_nr].roll) *
+                                   (float)img->w / (OPTICFLOW_FOV_W));
+  int16_t der_shift_y = -(int16_t)((edge_hist[previous_frame_x].pitch - edge_hist[current_frame_nr].pitch) *
+                                   (float)img->h / (OPTICFLOW_FOV_H));
+
+  // Estimate pixel wise displacement of the edge histograms for x and y direction
+  calculate_edge_displacement(edge_hist_x, prev_edge_histogram_x,
+                              displacement.x, img->w,
+                              window_size, disp_range,  der_shift_x);
+  calculate_edge_displacement(edge_hist_y, prev_edge_histogram_y,
+                              displacement.y, img->h,
+                              window_size, disp_range, der_shift_y);
+
+  // Fit a line on the pixel displacement to estimate
+  // the global pixel flow and divergence (RES is resolution)
+  line_fit(displacement.x, &edgeflow.div_x,
+           &edgeflow.flow_x, img->w,
+           window_size + disp_range, RES);
+  line_fit(displacement.y, &edgeflow.div_y,
+           &edgeflow.flow_y, img->h,
+           window_size + disp_range, RES);
+
+  /* Save Resulting flow in results
+   * Warning: The flow detected here is different in sign
+   * and size, therefore this will be multiplied with
+   * the same subpixel factor and -1 to make it on par with
+   * the LK algorithm of t opticalflow_calculator.c
+   * */
+  edgeflow.flow_x = -1 * edgeflow.flow_x;
+  edgeflow.flow_y = -1 * edgeflow.flow_y;
+
+  result->flow_x = (int16_t)edgeflow.flow_x / previous_frame_offset[0];
+  result->flow_y = (int16_t)edgeflow.flow_y / previous_frame_offset[1];
+
+  //Fill up the results optic flow to be on par with LK_fast9
+  result->flow_der_x =  result->flow_x;
+  result->flow_der_y =  result->flow_y;
+  result->corner_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
+  result->tracked_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
+  result->divergence = (float)edgeflow.flow_x / RES;
+  result->div_size = 0.0f;
+  result->noise_measurement = 0.0f;
+  result->surface_roughness = 0.0f;
+
+  //......................Calculating VELOCITY ..................... //
+
+  /*Estimate fps per direction
+   * This is the fps with adaptive horizon for subpixel flow, which is not similar
+   * to the loop speed of the algorithm. The faster the quadcopter flies
+   * the higher it becomes
+  */
+  float fps_x = 0;
+  float fps_y = 0;
+  float time_diff_x = (float)(timeval_diff(&edge_hist[previous_frame_x].frame_time, &img->ts)) / 1000.;
+  float time_diff_y = (float)(timeval_diff(&edge_hist[previous_frame_y].frame_time, &img->ts)) / 1000.;
+  fps_x = 1 / (time_diff_x);
+  fps_y = 1 / (time_diff_y);
+
+  result->fps = fps_x;
+
+  // Calculate velocity
+  float vel_x = edgeflow.flow_x * fps_x * state->agl * OPTICFLOW_FOV_W / (img->w * RES);
+  float vel_y = edgeflow.flow_y * fps_y * state->agl * OPTICFLOW_FOV_H / (img->h * RES);
+  result->vel_x = vel_x;
+  result->vel_y = vel_y;
+
+  /* Rotate velocities from camera frame coordinates to body coordinates.
+  * IMPORTANT This frame to body orientation should bethe case for the parrot
+  * ARdrone and Bebop, however this can be different for other quadcopters
+  * ALWAYS double check!
+  */
+  result->vel_body_x = - vel_y;
+  result->vel_body_y = vel_x;
+
+#if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_FLOW
+  draw_edgeflow_img(img, edgeflow, displacement, *edge_hist_x)
+#endif
+  // Increment and wrap current time frame
+  current_frame_nr = (current_frame_nr + 1) % MAX_HORIZON;
+}
+
+
+/**
+ * Run the optical flow on a new image frame
+ * @param[in] *opticflow The opticalflow structure that keeps track of previous images
+ * @param[in] *state The state of the drone
+ * @param[in] *img The image frame to calculate the optical flow from
+ * @param[out] *result The optical flow result
+ */
+void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+                          struct opticflow_result_t *result)
+{
+  if (opticflow->method == 0) {
+    calc_fast9_lukas_kanade(opticflow, state, img, result);
+  } else {
+    if (opticflow->method == 1) {
+      calc_edgeflow(opticflow, state, img, result);
+    } else {
+      PRINT_CONFIG_MSG("Both edgeflow and Lukas kanade is not turned on. Define either USE_LK or use_EDGEFLOW on TRUE!");
+    }
+  }
+
 }
 
 /**

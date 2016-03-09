@@ -265,14 +265,8 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
 
     // Do the optical flow calculation
     struct opticflow_result_t temp_result;
+    opticflow_calc_frame(&opticflow, &temp_state, &img, &temp_result);
 
-    if (opticflow.method == 0) {
-      opticflow_calc_frame(&opticflow, &temp_state, &img, &temp_result);
-    } else {
-      if (opticflow.method == 1) {
-        edgeflow_calc_frame(&opticflow, &temp_state, &img, &temp_result);
-      } else { PRINT_CONFIG_MSG("Both edgeflow and Lukas kanade is not turned on. Define either USE_LK or use_EDGEFLOW on TRUE!"); }
-    }
     // Copy the result if finished
     pthread_mutex_lock(&opticflow_mutex);
     memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
