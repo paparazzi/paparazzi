@@ -231,3 +231,16 @@ fbw.srcs 		+= $(fbw_srcs) $(ns_srcs)
 
 ap.CFLAGS 		+= $(ap_CFLAGS) $(ns_CFLAGS)
 ap.srcs 		+= $(ap_srcs) $(ns_srcs)
+
+######################################################################
+##
+## include firmware independent nps makefile and add fixedwing specifics
+##
+include $(CFG_SHARED)/nps.makefile
+nps.srcs += nps/nps_autopilot_fixedwing.c
+nps.srcs += subsystems/datalink/datalink.c $(SRC_FIRMWARE)/fixedwing_datalink.c
+nps.srcs += $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c
+
+# add normal ap and fbw sources
+nps.CFLAGS  += $(fbw_CFLAGS) $(ap_CFLAGS)
+nps.srcs    += $(fbw_srcs) $(ap_srcs)

@@ -202,3 +202,12 @@ ap.CFLAGS 		+= $(ns_CFLAGS)
 ap.srcs 		+= $(ns_srcs)
 fbw.CFLAGS 		+= $(ns_CFLAGS)
 fbw.srcs 		+= $(ns_srcs)
+
+######################################################################
+##
+## include firmware independent nps makefile and add rotorcraft specifics
+##
+include $(CFG_SHARED)/nps.makefile
+nps.srcs += nps/nps_autopilot_rotorcraft.c
+nps.srcs += $(SRC_FIRMWARE)/rotorcraft_telemetry.c
+nps.srcs += subsystems/datalink/datalink.c $(SRC_FIRMWARE)/rotorcraft_datalink.c
