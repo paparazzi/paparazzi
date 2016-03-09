@@ -1,7 +1,6 @@
 #include "nps_sensor_baro.h"
 
 #include "generated/airframe.h"
-#include "math/pprz_isa.h"
 
 #include "std.h"
 #include "nps_fdm.h"
@@ -28,7 +27,7 @@ void nps_sensor_baro_run_step(struct NpsSensorBaro *baro, double time)
   }
 
   /* pressure in Pascal */
-  baro->value = pprz_isa_pressure_of_altitude(fdm.hmsl);
+  baro->value = fdm.pressure;
   /* add noise with std dev Pascal */
   baro->value += get_gaussian_noise() * baro->noise_std_dev;
 

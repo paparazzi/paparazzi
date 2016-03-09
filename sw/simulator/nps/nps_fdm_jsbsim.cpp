@@ -278,6 +278,11 @@ void nps_fdm_set_turbulence(double wind_speed, int turbulence_severity)
   Winds->SetProbabilityOfExceedence(turbulence_severity);
 }
 
+void nps_fdm_set_temperature(double temp, double h)
+{
+  FDMExec->GetAtmosphere()->SetTemperature(temp, h, FGAtmosphere::eCelsius);
+}
+
 /**
  * Feed JSBSim with the latest actuator commands.
  *
@@ -446,6 +451,7 @@ static void fetch_state(void)
    */
   fdm.airspeed = MetersOfFeet(FDMExec->GetAuxiliary()->GetVequivalentFPS());
   fdm.pressure = PascalOfPsf(FDMExec->GetAtmosphere()->GetPressure());
+  fdm.pressure_sl = PascalOfPsf(FDMExec->GetAtmosphere()->GetPressureSL());
   fdm.total_pressure = PascalOfPsf(FDMExec->GetAuxiliary()->GetTotalPressure());
   fdm.dynamic_pressure = PascalOfPsf(FDMExec->GetAuxiliary()->Getqbar());
   fdm.temperature = CelsiusOfRankine(FDMExec->GetAtmosphere()->GetTemperature());

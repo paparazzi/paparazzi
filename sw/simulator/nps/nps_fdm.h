@@ -111,6 +111,7 @@ struct NpsFdm {
   double total_pressure;   ///< total atmospheric pressure in Pascal
   double dynamic_pressure; ///< dynamic pressure in Pascal
   double temperature;      ///< current temperature in degrees Celcius
+  double pressure_sl;      ///< pressure at sea level in Pascal
 
   // Control surface positions (normalized values)
   float elevator;
@@ -133,6 +134,8 @@ extern void nps_fdm_run_step(bool_t launch, double *commands, int commands_nb);
 extern void nps_fdm_set_wind(double speed, double dir);
 extern void nps_fdm_set_wind_ned(double wind_north, double wind_east, double wind_down);
 extern void nps_fdm_set_turbulence(double wind_speed, int turbulence_severity);
+/** Set temperature in degrees Celcius at given height h above MSL */
+extern void nps_fdm_set_temperature(double temp, double h);
 
 #ifdef __cplusplus
 } /* extern "C" */

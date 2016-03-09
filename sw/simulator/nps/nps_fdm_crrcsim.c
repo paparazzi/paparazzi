@@ -44,6 +44,7 @@
 #include "math/pprz_geodetic_float.h"
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
+#include "math/pprz_isa.h"
 
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
@@ -121,6 +122,7 @@ void nps_fdm_init(double dt)
   fdm.curr_dt = dt;
   fdm.nan_count = 0;
   fdm.pressure = -1;
+  fdm.pressure_sl = PPRZ_ISA_SEA_LEVEL_PRESSURE;
   fdm.total_pressure = -1;
   fdm.dynamic_pressure = -1;
   fdm.temperature = -1;
@@ -409,6 +411,8 @@ static void decode_gpspacket(struct NpsFdm *fdm, byte *buffer)
   fdm->lla_pos = pos;
   ecef_of_lla_d(&fdm->ecef_pos, &pos);
   fdm->hmsl = pos.alt - NAV_MSL0 / 1000.;
+
+  fdm->pressure = pprz_isa_pressure_of_altitude(fdm->hmsl);
 
   /* gps time */
   fdm->time = (double)UShortOfBuf(buffer, 27);

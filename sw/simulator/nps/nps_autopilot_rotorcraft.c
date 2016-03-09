@@ -111,6 +111,16 @@ void nps_autopilot_run_step(double time)
     main_event();
   }
 
+  if (nps_sensors_temperature_available()) {
+    AbiSendMsgTEMPERATURE(BARO_SIM_SENDER_ID, (float)sensors.temp.value);
+  }
+
+#if USE_AIRSPEED
+  if (nps_sensors_airspeed_available()) {
+    stateSetAirspeed_f((float)sensors.airspeed.value);
+  }
+#endif
+
 #if USE_SONAR
   if (nps_sensors_sonar_available()) {
     float dist = (float) sensors.sonar.value;
