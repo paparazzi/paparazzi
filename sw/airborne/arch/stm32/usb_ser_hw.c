@@ -46,8 +46,6 @@
 /* Max fifo size for storing data */
 #define VCOM_FIFO_SIZE          128
 
-#define TX_TIMEOUT_CNT 20 //TODO, make dynamic with event period
-
 typedef struct {
   int         head;
   int         tail;
@@ -65,7 +63,6 @@ bool_t fifo_put(fifo_t *fifo, uint8_t c);
 bool_t fifo_get(fifo_t *fifo, uint8_t *pc);
 int  fifo_avail(fifo_t *fifo);
 int  fifo_free(fifo_t *fifo);
-int tx_timeout;
 
 usbd_device *my_usbd_dev;
 
@@ -389,14 +386,11 @@ int VCOM_putchar(int c)
     // check if there are at least two more bytes left in queue
     if (VCOM_check_free_space(2)) {
       // if yes, add char
-      fifo_put(&txfifo, c);
-      tx_timeout = TX_TIMEOUT_CNT;
+      fifo_put(&txfifo, c);      
     } else {
       // less than 2 bytes available, add byte and send data now
-      fifo_put(&txfifo, c);
-      sys_time_usleep(10); //far from optimal, increase fifo size to prevent this problem
-      VCOM_send_message();
-      tx_timeout = TX_TIMEOUT_CNT;
+      fifo_put(&txfifo, c);  
+      VCOM_send_message();      
     }
     return c;
   }
@@ -439,15 +433,8 @@ int VCOM_check_available(void)
  */
 void VCOM_event(void)
 {
-  if (tx_timeout == 1) { // send a remaining bytes that still hangs arround in the tx fifo, after a timeout
-    if (fifo_avail(&txfifo)) {
-      VCOM_send_message();
-      tx_timeout = TX_TIMEOUT_CNT;
-    } else {
-      tx_timeout = 0;
-    }
-  } else if (tx_timeout > 1) {
-    tx_timeout--;
+  if (fifo_avail(&txfifo)) {
+    VCOM_send_message();
   }
 
   usbd_poll(my_usbd_dev);
@@ -555,5 +542,4 @@ void VCOM_init(void)
   usb_serial.device.char_available = (char_available_t) usb_serial_char_available;
   usb_serial.device.get_byte = (get_byte_t) usb_serial_getch;
 
-  tx_timeout = -1;
 }
