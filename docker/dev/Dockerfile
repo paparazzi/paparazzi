@@ -40,3 +40,5 @@ WORKDIR $HOME
 
 # set gtk theme
 RUN echo include \"/usr/share/themes/Ambiance/gtk-2.0/gtkrc\" > $HOME/.gtkrc-2.0
+
+CMD ["bash"]
