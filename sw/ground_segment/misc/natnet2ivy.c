@@ -586,7 +586,7 @@ gboolean timeout_transmit_callback(gpointer data)
                  (int)(ecef_pos.z * 100.0),              //int32 ECEF Z in CM
                  (int)(lla_pos.lat * 10000000.0),        //int32 LLA latitude in rad*1e7
                  (int)(lla_pos.lon * 10000000.0),        //int32 LLA longitude in rad*1e7
-                 (int)(rigidBodies[i].z * 1000.0),       //int32 LLA altitude in mm above elipsoid
+                 (int)(lla_pos.alt*1000.0),              //int32 LLA altitude in mm above elipsoid
                  (int)(rigidBodies[i].z * 1000.0),       //int32 HMSL height above mean sea level in mm
                  (int)(rigidBodies[i].ecef_vel.x * 100.0), //int32 ECEF velocity X in m/s
                  (int)(rigidBodies[i].ecef_vel.y * 100.0), //int32 ECEF velocity Y in m/s
@@ -613,7 +613,7 @@ gboolean timeout_transmit_callback(gpointer data)
                 (int)(ecef_pos.z * 100.0),              //int32 ECEF Z in CM
                 (int)(DegOfRad(lla_pos.lat) * 1e7),     //int32 LLA latitude in deg*1e7
                 (int)(DegOfRad(lla_pos.lon) * 1e7),     //int32 LLA longitude in deg*1e7
-                (int)(rigidBodies[i].z * 1000.0),       //int32 LLA altitude in mm above elipsoid
+                (int)(lla_pos.alt*1000.0),              //int32 LLA altitude in mm above elipsoid
                 (int)(rigidBodies[i].z * 1000.0),       //int32 HMSL height above mean sea level in mm
                 (int)(rigidBodies[i].ecef_vel.x * 100.0), //int32 ECEF velocity X in cm/s
                 (int)(rigidBodies[i].ecef_vel.y * 100.0), //int32 ECEF velocity Y in cm/s
@@ -849,9 +849,10 @@ int main(int argc, char **argv)
 {
   // Set the default tracking system position and angle
   struct EcefCoor_d tracking_ecef;
-  tracking_ecef.x = 3924332;
-  tracking_ecef.y = 300362;
-  tracking_ecef.z = 5002197;
+  //alt 45 m because of ellipsoid altitude in Delft
+  tracking_ecef.x = 3924331.5;
+  tracking_ecef.y = 300361.7;
+  tracking_ecef.z = 5002197.1;
   tracking_offset_angle = 33.0 / 57.6;
   ltp_def_from_ecef_d(&tracking_ltp, &tracking_ecef);
 
