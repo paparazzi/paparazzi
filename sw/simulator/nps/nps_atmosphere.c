@@ -26,6 +26,7 @@
 
 #include "nps_atmosphere.h"
 #include "nps_fdm.h"
+#include "nps_ivy.h"
 
 #ifndef NPS_QNH
 #define NPS_QNH 101325.0
@@ -43,6 +44,10 @@
 #define NPS_TURBULENCE_SEVERITY 0
 #endif
 
+#ifndef NPS_WORLD_ENV_UPDATE
+#define NPS_WORLD_ENV_UPDATE 1.0
+#endif
+
 struct NpsAtmosphere nps_atmosphere;
 
 void nps_atmosphere_init(void)
@@ -52,6 +57,7 @@ void nps_atmosphere_init(void)
   nps_atmosphere_set_wind_speed(NPS_WIND_SPEED);
   nps_atmosphere_set_wind_dir(NPS_WIND_DIR);
   nps_atmosphere.turbulence_severity = NPS_TURBULENCE_SEVERITY;
+  nps_atmosphere.last_world_env_req = 0.;
 }
 
 void nps_atmosphere_set_wind_speed(double speed)
@@ -89,8 +95,15 @@ void nps_atmosphere_set_wind_ned(double wind_north, double wind_east, double win
   nps_atmosphere.wind_dir = dir;
 }
 
-void nps_atmosphere_update(double dt __attribute__((unused)))
+void nps_atmosphere_update(double dt)
 {
+  static double req_time = 0.;
+  req_time += dt;
+  if (req_time - nps_atmosphere.last_world_env_req >= NPS_WORLD_ENV_UPDATE) {
+    nps_atmosphere.last_world_env_req = req_time;
+    nps_ivy_send_WORLD_ENV_REQ();
+  }
+
   nps_fdm_set_wind_ned(nps_atmosphere.wind.x, nps_atmosphere.wind.y, nps_atmosphere.wind.z);
   nps_fdm_set_turbulence(nps_atmosphere.wind_speed, nps_atmosphere.turbulence_severity);
 }

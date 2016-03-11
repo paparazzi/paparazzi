@@ -49,6 +49,7 @@ static struct {
   double display_time;
   char *fg_host;
   unsigned int fg_port;
+  unsigned int fg_port_in;
   unsigned int fg_time_offset;
   int fg_fdm;
   char *js_dev;
@@ -143,9 +144,9 @@ static void nps_main_init(void)
   }
   nps_autopilot_init(rc_type, nps_main.rc_script, rc_dev);
 
-  if (nps_main.fg_host) {
-    nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_time_offset);
-  }
+  if (nps_main.fg_host)
+    nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
+
 
 #if DEBUG_NPS_TIME
   printf("host_time_factor,host_time_elapsed,host_time_now,scaled_initial_time,sim_time_before,display_time_before,sim_time_after,display_time_after\n");
@@ -176,6 +177,7 @@ static void nps_main_display(void)
 {
   //  printf("display at %f\n", nps_main.display_time);
   nps_ivy_display();
+
   if (nps_main.fg_host) {
     if (nps_main.fg_fdm) {
       nps_flightgear_send_fdm();
@@ -183,6 +185,7 @@ static void nps_main_display(void)
       nps_flightgear_send();
     }
   }
+  nps_flightgear_receive();
 }
 
 
@@ -296,6 +299,7 @@ static bool_t nps_main_parse_options(int argc, char **argv)
 
   nps_main.fg_host = NULL;
   nps_main.fg_port = 5501;
+  nps_main.fg_port_in = 5502;
   nps_main.fg_time_offset = 0;
   nps_main.js_dev = NULL;
   nps_main.spektrum_dev = NULL;
@@ -310,6 +314,7 @@ static bool_t nps_main_parse_options(int argc, char **argv)
     "   -h                                     Display this help\n"
     "   --fg_host <flight gear host>           e.g. 127.0.0.1\n"
     "   --fg_port <flight gear port>           e.g. 5501\n"
+    "   --fg_port_in <flight gear in port>     e.g. 5502\n"
     "   --fg_time_offset <offset in seconds>   e.g. 21600 for 6h\n"
     "   -j --js_dev <optional joystick index>  e.g. 1 (default 0)\n"
     "   --spektrum_dev <spektrum device>       e.g. /dev/ttyUSB0\n"
@@ -331,6 +336,7 @@ static bool_t nps_main_parse_options(int argc, char **argv)
       {"ivy_bus", 1, NULL, 0},
       {"time_factor", 1, NULL, 0},
       {"fg_fdm", 0, NULL, 0},
+      {"fg_port_in", 1, NULL, 0},
       {0, 0, 0, 0}
     };
     int option_index = 0;
@@ -362,8 +368,9 @@ static bool_t nps_main_parse_options(int argc, char **argv)
           case 7:
             nps_main.host_time_factor = atof(optarg); break;
           case 8:
-            nps_main.fg_fdm = 1;
-            break;
+            nps_main.fg_fdm = 1; break;
+	  case 9:
+            nps_main.fg_port_in = atoi(optarg); break;
         }
         break;
 

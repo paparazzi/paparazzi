@@ -66,6 +66,9 @@ def main():
     nps_opts.add_option("-p", "--fg_port", dest="fg_port", metavar="PORT",
                         type="int", default=5501, action="store",
                         help="Port on FlightGear host to connect to (Default: %default)")
+    nps_opts.add_option("-P", "--fg_port_in", dest="fg_port_in", metavar="PORT_IN",
+                        type="int", default=5502, action="store",
+                        help="Port to receive from FlightGear host (Default: %default)")
     nps_opts.add_option("--fg_time_offset", type="int", action="store", metavar="SEC",
                         help="FlightGear time offset in seconds (e.g. 21600 for 6h)")
     nps_opts.add_option("-j", "--js_dev", dest="js_dev", metavar="IDX",
@@ -135,6 +138,8 @@ def main():
             simargs.append(options.fg_host)
             simargs.append("--fg_port")
             simargs.append(str(options.fg_port))
+            simargs.append("--fg_port_in")
+            simargs.append(str(options.fg_port_in))
             if options.fg_time_offset:
                 simargs.append("--fg_time_offset")
                 simargs.append(str(options.fg_time_offset))

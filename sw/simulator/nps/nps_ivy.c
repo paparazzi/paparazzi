@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
@@ -38,6 +40,7 @@ void nps_ivy_init(char *ivy_bus)
   const char *ready_msg = AIRFRAME_NAME"_NPS Ready";
   IvyInit(agent_name, ready_msg, NULL, NULL, NULL, NULL);
 
+  // bind on a general WORLD_ENV (not a reply to request)
   IvyBindMsg(on_WORLD_ENV, NULL, "^(\\S*) WORLD_ENV (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
 
   // to be able to change datalink_enabled setting back on
@@ -83,6 +86,36 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
   gps_has_fix = atoi(argv[6]); // gps_availability
 #endif
 }
+
+/*
+ * Send a WORLD_ENV_REQ message
+ */
+static MsgRcvPtr ivyPtr = NULL;
+static int seq = 1;
+
+void nps_ivy_send_WORLD_ENV_REQ(void)
+{
+  // First unbind from previous request if needed
+  if (ivyPtr != NULL) {
+    IvyUnbindMsg(ivyPtr);
+    ivyPtr = NULL;
+  }
+
+  int pid = (int)getpid();
+  // Bind to the reply
+  ivyPtr = IvyBindMsg(on_WORLD_ENV, NULL, "^%d-%d (\\S*) WORLD_ENV (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)", pid, seq);
+  // Send actual request
+  IvySendMsg("nps %d-%d WORLD_ENV_REQ %f %f %f %f %f %f",
+      pid, seq,
+      DegOfRad(fdm.lla_pos_pprz.lat),
+      DegOfRad(fdm.lla_pos_pprz.lon),
+      (fdm.hmsl),
+      (fdm.ltpprz_pos.x),
+      (fdm.ltpprz_pos.y),
+      (fdm.ltpprz_pos.z));
+  seq++;
+}
+
 
 #include "generated/settings.h"
 #include "pprzlink/dl_protocol.h"

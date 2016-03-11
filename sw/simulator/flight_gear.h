@@ -292,6 +292,20 @@ struct FGNetGUI {
 #endif /*FG_2_4*/
 
 
+#define FG_ENVIRONMENT_FOOTER_MAGIC 0x12345678
+// described in file fg_environment.xml (generic protocol)
+struct FGEnvironment{
+  double elapsed_sec;       // elapsed sim seconds
+  float wind_from_north;    // wind from north in m/s
+  float wind_from_east;     // wind from east in m/s
+  float wind_from_down;     // wind from down in m/s
+  float wind_from_heading;  // wind N-E heading in degrees
+  float wind_speed;         // wind N-E speed in m/s
+  uint32_t footer_magic;    // magic footer 0x12345678
+};
+
+
+
 extern void net_fdm_dump (struct FGNetFDM* fdm);
 extern void net_fdm_ntoh (struct FGNetFDM* fdm);
 extern void net_fdm_init (struct FGNetFDM* fdm);
