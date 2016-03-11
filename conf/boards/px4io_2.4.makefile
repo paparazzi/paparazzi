@@ -1,29 +1,25 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# px4fmu_2.4.makefile
+# px4io_2.4.makefile
 #
 # This is for the main MCU (STM32F427) on the PX4 board
 # See https://pixhawk.org/modules/pixhawk for details
 #
 
-BOARD=px4fmu
+BOARD=px4io
 BOARD_VERSION=2.4
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
 ARCH=stm32
-ARCH_L=f4
-ARCH_DIR=stm32
-SRC_ARCH=arch/$(ARCH_DIR)
 $(TARGET).ARCHDIR = $(ARCH)
-$(TARGET).LDSCRIPT=$(SRC_ARCH)/px4fmu_2.4.ld
+$(TARGET).LDSCRIPT=$(SRC_ARCH)/px4io_2.4.ld
 
-HARD_FLOAT=yes
+# default flash mode is via usb dfu bootloader
+# possibilities: DFU, SWD, PX4_BOOTLOADER
+PX4_BL_PORT ?= "/dev/serial/by-id/usb-FTDI_*"
+PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/px4io-v2.prototype"
 
-# default flash mode is the PX4 bootloader
-# possibilities: DFU, SWD, PX4 bootloader
 FLASH_MODE ?= PX4_BOOTLOADER
-PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/px4fmu-v2.prototype"
-PX4_BL_PORT ?= "/dev/serial/by-id/usb-3D_Robotics*,/dev/serial/by-id/pci-3D_Robotics*"
 $(TARGET).MAKEFILE = stm32
 
 #
@@ -34,17 +30,12 @@ BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= none
 GPS_LED            ?= none
 SYS_TIME_LED       ?= 1
+FBW_MODE_LED	     ?= 3
 
 #
 # default UART configuration (modem, gps, spektrum)
 #
-
-MODEM_PORT ?= UART2
-MODEM_BAUD ?= B57600
-
-#The GPS serial on px4 is called serial 3, but connected to uart4 on the f4
-GPS_PORT ?= UART4
-GPS_BAUD ?= B38400
+RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   ?= UART1
 
 #
 # default actuator configuration

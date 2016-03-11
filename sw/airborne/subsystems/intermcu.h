@@ -33,7 +33,9 @@
 #define INTERMCU_AP   0
 #define INTERMCU_FBW  1
 
+#ifndef INTERMCU_LOST_CNT
 #define INTERMCU_LOST_CNT 25  /* 50ms with a 512Hz timer TODO fixed value */
+#endif
 
 enum intermcu_status {
   INTERMCU_OK,

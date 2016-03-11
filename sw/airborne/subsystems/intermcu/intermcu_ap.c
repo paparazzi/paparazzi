@@ -30,6 +30,10 @@
 #include "pprzlink/pprz_transport.h"
 #include "mcu_periph/uart.h"
 
+#include "subsystems/datalink/telemetry.h"
+#include "subsystems/electrical.h"
+#include "autopilot.h"
+
 #if COMMANDS_NB > 8
 #error "INTERMCU UART CAN ONLY SEND 8 COMMANDS OR THE UART WILL BE OVERFILLED"
 #endif
@@ -41,9 +45,21 @@ static struct pprz_transport intermcu_transport;
 struct intermcu_t inter_mcu;
 static inline void intermcu_parse_msg(struct transport_rx *trans, void (*rc_frame_handler)(void));
 
+
+
+static void send_status(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_FBW_STATUS(trans, dev, AC_ID,
+                           &(radio_control.status), &(radio_control.frame_rate), &(inter_mcu.status), &electrical.vsupply,
+                           &electrical.current); // due to limitation of GCS, send the electrical from ap as if it comes from fbw...
+}
+
 void intermcu_init(void)
 {
   pprz_transport_init(&intermcu_transport);
+
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_FBW_STATUS, send_status);
+
 }
 
 void intermcu_periodic(void)
@@ -56,11 +72,27 @@ void intermcu_periodic(void)
   }
 }
 
+static bool_t disable_comm;
+void disable_inter_comm(bool_t value)
+{
+  disable_comm = value;
+}
+
 void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode __attribute__((unused)))
 {
-  pprz_msg_send_IMCU_COMMANDS(&(intermcu_transport.trans_tx), intermcu_device,
-                              INTERMCU_AP, 0, COMMANDS_NB, command_values); //TODO: Fix status
+  if (!disable_comm) {
+    pprz_msg_send_IMCU_COMMANDS(&(intermcu_transport.trans_tx), intermcu_device,
+                                INTERMCU_AP, &autopilot_motors_on, COMMANDS_NB, command_values); //TODO: Append more status
+  }
 }
+
+void intermcu_send_spektrum_bind(void)
+{
+  if (!disable_comm) {
+    pprz_msg_send_IMCU_SPEKTRUM_SOFT_BIND(&(intermcu_transport.trans_tx), intermcu_device, INTERMCU_AP);
+  }
+}
+
 
 static inline void intermcu_parse_msg(struct transport_rx *trans, void (*rc_frame_handler)(void))
 {
@@ -70,6 +102,7 @@ static inline void intermcu_parse_msg(struct transport_rx *trans, void (*rc_fram
     case DL_IMCU_RADIO_COMMANDS: {
       uint8_t i;
       uint8_t size = DL_IMCU_RADIO_COMMANDS_values_length(trans->payload);
+      inter_mcu.status = DL_IMCU_RADIO_COMMANDS_status(trans->payload);
       int16_t *rc_values = DL_IMCU_RADIO_COMMANDS_values(trans->payload);
       for (i = 0; i < size; i++) {
         radio_control.values[i] = rc_values[i];
@@ -92,14 +125,16 @@ static inline void intermcu_parse_msg(struct transport_rx *trans, void (*rc_fram
 
 void RadioControlEvent(void (*frame_handler)(void))
 {
-  /* Parse incoming bytes */
-  if (intermcu_device->char_available(intermcu_device->periph)) {
-    while (intermcu_device->char_available(intermcu_device->periph) && !intermcu_transport.trans_rx.msg_received) {
-      parse_pprz(&intermcu_transport, intermcu_device->get_byte(intermcu_device->periph));
-    }
+  if (!disable_comm) {
+    /* Parse incoming bytes */
+    if (intermcu_device->char_available(intermcu_device->periph)) {
+      while (intermcu_device->char_available(intermcu_device->periph) && !intermcu_transport.trans_rx.msg_received) {
+        parse_pprz(&intermcu_transport, intermcu_device->get_byte(intermcu_device->periph));
+      }
 
-    if (intermcu_transport.trans_rx.msg_received) {
-      intermcu_parse_msg(&(intermcu_transport.trans_rx), frame_handler);
+      if (intermcu_transport.trans_rx.msg_received) {
+        intermcu_parse_msg(&(intermcu_transport.trans_rx), frame_handler);
+      }
     }
   }
 }

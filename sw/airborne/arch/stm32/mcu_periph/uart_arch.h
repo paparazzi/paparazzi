@@ -40,6 +40,7 @@
 #define B115200  115200
 #define B230400  230400
 #define B921600  921600
+#define B1500000  1500000
 #define UART_SPEED(_def) _def
 
 #endif /* STM32_UART_ARCH_H */
