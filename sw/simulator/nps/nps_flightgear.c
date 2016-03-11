@@ -2,12 +2,14 @@
 
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <errno.h>
 #include <time.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
 
 #include "std.h"
@@ -17,6 +19,7 @@
 static struct  {
   int socket;
   struct sockaddr_in addr;
+  int socket_in;
   unsigned int initial_time;
   unsigned int time_offset;
 } flightgear;
@@ -41,16 +44,39 @@ float htonf(float x)
 }
 
 
-void nps_flightgear_init(const char *host,  unsigned int port, unsigned int time_offset)
+void nps_flightgear_init(const char *host,  unsigned int port, unsigned int port_in, unsigned int time_offset)
 {
   int so_reuseaddr = 1;
   struct protoent *pte = getprotobyname("UDP");
   flightgear.socket = socket(PF_INET, SOCK_DGRAM, pte->p_proto);
   setsockopt(flightgear.socket, SOL_SOCKET, SO_REUSEADDR,
-             &so_reuseaddr, sizeof(so_reuseaddr));
+      &so_reuseaddr, sizeof(so_reuseaddr));
   flightgear.addr.sin_family = PF_INET;
   flightgear.addr.sin_port = htons(port);
   flightgear.addr.sin_addr.s_addr = inet_addr(host);
+
+  // incoming flight gear socket
+  // only bind to socket if port_in is not zero
+  if (port_in > 0) {
+    struct sockaddr_in addr_in;
+    flightgear.socket_in = socket(PF_INET, SOCK_DGRAM, pte->p_proto);
+    setsockopt(flightgear.socket_in, SOL_SOCKET, SO_REUSEADDR,
+        &so_reuseaddr, sizeof(so_reuseaddr));
+    addr_in.sin_family = PF_INET;
+    addr_in.sin_port = htons(port_in);
+    addr_in.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    if (bind(flightgear.socket_in, (struct sockaddr*)&addr_in, sizeof(addr_in)) == -1) {
+      perror("nps_flightgear_init bind()");
+      exit(errno);
+    }
+    else{
+      printf("Bount to port %u to receive from\n", port_in);
+    }
+  }
+  else {
+    flightgear.socket_in = -1;
+  }
 
   // get current time to use as inital when computing cur_time for FG
   time_t t = time(NULL);
@@ -166,7 +192,6 @@ void nps_flightgear_send()
   gui.course_deviation_deg = 0.;
   gui.gs_deviation_deg = 0.;
 
-
   if (sendto(flightgear.socket, (char *)(&gui), sizeof(gui), 0,
              (struct sockaddr *)&flightgear.addr, sizeof(flightgear.addr)) == -1) {
     fprintf(stderr, "error sending to FlightGear\n");
@@ -174,3 +199,46 @@ void nps_flightgear_send()
   }
 
 }
+
+
+/**
+ * Receive Flight Gear environment messages
+ */
+void nps_flightgear_receive() {
+
+  if (flightgear.socket_in != -1) {
+    // socket is correctly opened
+
+    struct FGEnvironment env;
+    size_t s_env = sizeof(env);
+    int bytes_read;
+
+    //read first message
+    memset(&env, 0, s_env);
+    bytes_read = recvfrom(flightgear.socket_in, (char*)(&env), s_env, MSG_DONTWAIT, NULL, NULL);
+    while (bytes_read != -1) { // while we read a message (empty buffer)
+      if (bytes_read == (int)s_env){
+        // Update wind info
+        nps_atmosphere_set_wind_ned(
+            (double)env.wind_from_north,
+            (double)env.wind_from_east,
+            (double)env.wind_from_down);
+      }
+      else {
+        //error
+        printf("WARNING : ignoring packet with size %d (%d expected)", bytes_read, (int)sbuf);
+      }
+
+      //read next message
+      memset(&env, 0, s_env);
+      bytes_read = recvfrom(flightgear.socket_in, (char*)(&env), s_env, MSG_DONTWAIT, NULL, NULL);
+    }
+
+    if ((errno & (EAGAIN | EWOULDBLOCK)) == 0) {
+      perror("nps_flightgear_receive recvfrom()");
+    }
+  }
+
+}
+
+
