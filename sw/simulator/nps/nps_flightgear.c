@@ -15,6 +15,7 @@
 #include "std.h"
 #include "../flight_gear.h"
 #include "nps_fdm.h"
+#include "nps_atmosphere.h"
 
 static struct  {
   int socket;
@@ -226,7 +227,7 @@ void nps_flightgear_receive() {
       }
       else {
         //error
-        printf("WARNING : ignoring packet with size %d (%d expected)", bytes_read, (int)sbuf);
+        printf("WARNING : ignoring packet with size %d (%d expected)", bytes_read, (int)s_env);
       }
 
       //read next message
