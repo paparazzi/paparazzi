@@ -24,7 +24,7 @@ HARD_FLOAT=yes
 FLASH_MODE ?= PX4_BOOTLOADER
 PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/px4fmu-v2.prototype"
 PX4_BL_PORT ?= "/dev/serial/by-id/usb-3D_Robotics*,/dev/serial/by-id/pci-3D_Robotics*"
-$(TARGET).MAKEFILE = stm32
+
 
 #
 # default LED configuration

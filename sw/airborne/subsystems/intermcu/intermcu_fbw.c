@@ -182,7 +182,9 @@ static inline void checkPx4RebootCommand(unsigned char b)
       return;
     }
 
+#ifdef SYS_TIME_LED
     LED_ON(SYS_TIME_LED);
+#endif
 
     if (b == px4RebootSequence[px4RebootSequenceCount]) {
       px4RebootSequenceCount++;
@@ -202,9 +204,16 @@ static inline void checkPx4RebootCommand(unsigned char b)
       intermcu_device->put_byte(intermcu_device->periph,
                                 0x66); // dummy byte, seems to be necessary otherwise one byte is missing at the fmu side...
 
-      while (((struct uart_periph *)(intermcu_device->periph))->tx_running) {LED_TOGGLE(SYS_TIME_LED);}  // tx_running is volatile now, so LED_TOGGLE not necessary anymore
+      while (((struct uart_periph *)(intermcu_device->periph))->tx_running) {
+        // tx_running is volatile now, so LED_TOGGLE not necessary anymore
+#ifdef SYS_TIME_LED
+        LED_TOGGLE(SYS_TIME_LED);
+#endif
+      }
 
+#ifdef SYS_TIME_LED
       LED_OFF(SYS_TIME_LED);
+#endif
       scb_reset_system();
     }
   }

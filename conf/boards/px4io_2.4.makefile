@@ -20,7 +20,7 @@ PX4_BL_PORT ?= "/dev/serial/by-id/usb-FTDI_*"
 PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/px4io-v2.prototype"
 
 FLASH_MODE ?= PX4_BOOTLOADER
-$(TARGET).MAKEFILE = stm32
+
 
 #
 # default LED configuration
