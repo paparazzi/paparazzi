@@ -18,15 +18,15 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/px4io_flash/px4io_flash.c"
+ * @file "modules/px4_flash/px4_flash.c"
  * @author Kevin van Hecke
  * Flashes the px4io f1 through the px4 bootloader, or resets the f4 to be flashed directly.
  * Assumes the flash port on the Pixhawk is configured as the usb.
  */
 
-#include "modules/px4io_flash/px4io_flash.h"
+#include "modules/px4_flash/px4_flash.h"
 //#include "subsystems/datalink/downlink.h"
-#include "modules/px4io_flash/protocol.h"
+#include "modules/px4_flash/protocol.h"
 #include "mcu_periph/sys_time_arch.h"
 #include "subsystems/intermcu/intermcu_ap.h"
 
@@ -65,14 +65,14 @@ tid_t px4iobl_tid; ///< id for time out of the px4 bootloader reset
 bool_t setToBootloaderMode;
 bool_t px4ioRebootTimeout;
 
-void px4ioflash_init(void)
+void px4flash_init(void)
 {
   setToBootloaderMode = FALSE;
   px4ioRebootTimeout = FALSE;
   px4iobl_tid = sys_time_register_timer(15.0, NULL); //20 (fbw pprz bl timeout)-5 (px4 fmu bl timeout)
 }
 
-void px4ioflash_event(void)
+void px4flash_event(void)
 {
   if (PX4IO_PORT->char_available(PX4IO_PORT->periph)) {
     if (!setToBootloaderMode) {

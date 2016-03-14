@@ -1,19 +1,19 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="px4io_flash">
+<module name="px4_flash">
   <doc>
-    <description>Flashes the px4io f1 through the px4 bootloader.</description>
+    <description>Flashes the px4 f1 through the px4 bootloader, or resets the f4 to be flashed directly by the f4' PX4 bootloader.</description>
   </doc>
   <header>
-    <file name="px4io_flash.h"/>
+    <file name="px4_flash.h"/>
   </header>
-  <init fun="px4ioflash_init()"/>
-  <event fun="px4ioflash_event()"/>
+  <init fun="px4flash_init()"/>
+  <event fun="px4flash_event()"/>
   <makefile target="ap">
     <raw>
 
     </raw>
-    <file name="px4io_flash.c"/>
+    <file name="px4_flash.c"/>
     <file name="usb_ser_hw.c"  dir="arch/stm32"/>
     <configure name="PX4IO_UART" default="uart6" case="upper|lower"/>
     <configure name="PX4IO_BAUD" default="B1500000"/>
