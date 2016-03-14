@@ -49,6 +49,8 @@ if mode == 1 :
       pass
 
   print("Uploading using Paparazzi firmware...")
+  if target == "ap" :
+    print("If the uploading does not start within a few seconds, please replug the usb (power cycle the board).")
   sys.exit(0)
 
 if mode == -1 : #no pprz cdc was found, look for PX4
@@ -74,4 +76,4 @@ if mode == -1 : #no pprz cdc was found, look for PX4
       sys.exit(1)
     else :
       print("Uploading AP using original PX4 firmware...")
-
+      print("If the uploading does not start within a few seconds, please replug the usb (power cycle the board).")
