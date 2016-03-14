@@ -38,32 +38,38 @@
 
 #include "libopencm3/cm3/scb.h"
 
+#include "mcu_periph/sys_time.h"
+tid_t px4iobl_tid; ///< id for time out of the px4 bootloader reset
+
 // define coms link for px4io f1
 #define PX4IO_PORT   (&((PX4IO_UART).device))
 #define TELEM2_PORT   (&((TELEM2_UART).device))
 
 // weird that these below are not in protocol.h, which is from the firmware px4 repo
 // below is copied from qgroundcontrol:
-#define PROTO_INSYNC            0x12 //< 'in sync' byte sent before status
-#define PROTO_EOC               0x20 //< end of command
+#define PROTO_INSYNC            0x12 ///< 'in sync' byte sent before status
+#define PROTO_EOC               0x20 ///< end of command
 // Reply bytes
-#define PROTO_OK                0x10 //< INSYNC/OK      - 'ok' response
-#define PROTO_FAILED            0x11 //< INSYNC/FAILED  - 'fail' response
-#define PROTO_INVALID           0x13 //< INSYNC/INVALID - 'invalid' response for bad commands
+#define PROTO_OK                0x10 ///< INSYNC/OK      - 'ok' response
+#define PROTO_FAILED            0x11 ///< INSYNC/FAILED  - 'fail' response
+#define PROTO_INVALID           0x13 ///< INSYNC/INVALID - 'invalid' response for bad commands
 // Command bytes
-#define PROTO_GET_SYNC          0x21 //< NOP for re-establishing sync
-#define PROTO_GET_DEVICE        0x22 //< get device ID bytes
-#define PROTO_CHIP_ERASE        0x23 //< erase program area and reset program address
-#define PROTO_LOAD_ADDRESS      0x24 //< set next programming address
-#define PROTO_PROG_MULTI        0x27 //< write bytes at program address and increment
-#define PROTO_GET_CRC           0x29 //< compute & return a CRC
-#define PROTO_BOOT              0x30 //< boot the application
+#define PROTO_GET_SYNC          0x21 ///< NOP for re-establishing sync
+#define PROTO_GET_DEVICE        0x22 ///< get device ID bytes
+#define PROTO_CHIP_ERASE        0x23 ///< erase program area and reset program address
+#define PROTO_LOAD_ADDRESS      0x24 ///< set next programming address
+#define PROTO_PROG_MULTI        0x27 ///< write bytes at program address and increment
+#define PROTO_GET_CRC           0x29 ///< compute & return a CRC
+#define PROTO_BOOT              0x30 ///< boot the application
 
 bool_t setToBootloaderMode;
+bool_t px4ioRebootTimeout;
 
 void px4ioflash_init(void)
 {
   setToBootloaderMode = FALSE;
+  px4ioRebootTimeout = FALSE;
+  px4iobl_tid = sys_time_register_timer(15.0, NULL); //20 (fbw pprz bl timeout)-5 (px4 fmu bl timeout)
 }
 
 void px4ioflash_event(void)
@@ -120,6 +126,29 @@ void px4ioflash_event(void)
 
     } else { // target fbw
       //the target is the fbw, so reboot the fbw and switch to relay mode
+
+      //first check if the bootloader has not timeout:
+      if (sys_time_check_and_ack_timer(px4iobl_tid) || px4ioRebootTimeout) {
+        px4ioRebootTimeout= TRUE;
+        sys_time_cancel_timer(px4iobl_tid);
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'T');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'I');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'M');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'E');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'O');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'U');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'T'); // use 7 chars as answer        
+        return;
+      }  { // FBW OK OK hollay hollay :)
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'F');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'B');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'W');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'O');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'K');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'O');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'K'); // use 7 chars as answer
+      }
+
 
       //stop all intermcu communication:
       disable_inter_comm(true);
@@ -222,6 +251,13 @@ void px4ioflash_event(void)
         }
       } else {
         TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'E'); //TODO: find out what the PX4 protocol for error feedback is...
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'R');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'R');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'O');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'R');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, '!');
+        TELEM2_PORT->put_byte(TELEM2_PORT->periph, ' '); // use 7 chars as answer
+
       }
     }
   } else if (TELEM2_PORT->char_available(TELEM2_PORT->periph)) {

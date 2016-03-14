@@ -21,7 +21,6 @@ PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/px4io-v2.prototype"
 PX4_TARGET = "fbw"
 FLASH_MODE ?= PX4_BOOTLOADER
 
-
 #
 # default LED configuration
 #
