@@ -20,8 +20,8 @@
 /**
  * @file "modules/px4io_flash/px4io_flash.c"
  * @author Kevin van Hecke
- * Flashes the px4io f1 through the px4 bootloader.
- * Assumes the telem2 port on the Pixhawk is connected to a ttyACM device (blackmagic probe)
+ * Flashes the px4io f1 through the px4 bootloader, or resets the f4 to be flashed directly.
+ * Assumes the flash port on the Pixhawk is configured as the usb.
  */
 
 #include "modules/px4io_flash/px4io_flash.h"
@@ -43,7 +43,7 @@ tid_t px4iobl_tid; ///< id for time out of the px4 bootloader reset
 
 // define coms link for px4io f1
 #define PX4IO_PORT   (&((PX4IO_UART).device))
-#define TELEM2_PORT   (&((TELEM2_UART).device))
+#define FLASH_PORT   (&((FLASH_UART).device))
 
 // weird that these below are not in protocol.h, which is from the firmware px4 repo
 // below is copied from qgroundcontrol:
@@ -81,24 +81,24 @@ void px4ioflash_event(void)
       //relay everything from IO to the laptop
       while (PX4IO_PORT->char_available(PX4IO_PORT->periph)) {
         unsigned char b = PX4IO_PORT->get_byte(PX4IO_PORT->periph);
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, b);
+        FLASH_PORT->put_byte(FLASH_PORT->periph, b);
       }
     }
   }
 
   //TODO: check if bootloader timeout was surpassed
-  if (TELEM2_PORT->char_available(TELEM2_PORT->periph) && !setToBootloaderMode) {
+  if (FLASH_PORT->char_available(FLASH_PORT->periph) && !setToBootloaderMode) {
     // TMP TEST
-    //    while (TELEM2_PORT->char_available(TELEM2_PORT->periph)) {
-    //      unsigned char bla = TELEM2_PORT->get_byte(TELEM2_PORT->periph);
-    //      TELEM2_PORT->put_byte(TELEM2_PORT->periph,bla);
+    //    while (FLASH_PORT->char_available(FLASH_PORT->periph)) {
+    //      unsigned char bla = FLASH_PORT->get_byte(FLASH_PORT->periph);
+    //      FLASH_PORT->put_byte(FLASH_PORT->periph,bla);
     //    }
     //    return;
 
     //check whether this is flash related communication, and for who (ap/fbw)
     int state = 0;
-    while (state < 4 && TELEM2_PORT->char_available(TELEM2_PORT->periph)) {
-      unsigned char b = TELEM2_PORT->get_byte(TELEM2_PORT->periph);
+    while (state < 4 && FLASH_PORT->char_available(FLASH_PORT->periph)) {
+      unsigned char b = FLASH_PORT->get_byte(FLASH_PORT->periph);
       switch (state) {
       case (0) :
         if (b == 'p') { state++; } else { return; }
@@ -119,7 +119,7 @@ void px4ioflash_event(void)
 
     if (state != 4) {return;}
     //TODO: check if/how this interferes with flashing original PX4 firmware
-    unsigned char target = TELEM2_PORT->get_byte(TELEM2_PORT->periph);
+    unsigned char target = FLASH_PORT->get_byte(FLASH_PORT->periph);
     if (target == '1') { //target ap
       //the target is the ap, so reboot to PX4 bootloader
       scb_reset_system();
@@ -131,22 +131,22 @@ void px4ioflash_event(void)
       if (sys_time_check_and_ack_timer(px4iobl_tid) || px4ioRebootTimeout) {
         px4ioRebootTimeout= TRUE;
         sys_time_cancel_timer(px4iobl_tid);
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'T');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'I');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'M');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'E');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'O');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'U');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'T'); // use 7 chars as answer        
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'T');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'I');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'M');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'E');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'O');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'U');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'T'); // use 7 chars as answer
         return;
       }  { // FBW OK OK hollay hollay :)
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'F');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'B');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'W');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'O');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'K');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'O');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'K'); // use 7 chars as answer
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'F');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'B');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'W');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'O');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'K');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'O');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'K'); // use 7 chars as answer
       }
 
 
@@ -250,20 +250,20 @@ void px4ioflash_event(void)
           while (PX4IO_PORT->char_available(PX4IO_PORT->periph)) {PX4IO_PORT->get_byte(PX4IO_PORT->periph);}
         }
       } else {
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'E'); //TODO: find out what the PX4 protocol for error feedback is...
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'R');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'R');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'O');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, 'R');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, '!');
-        TELEM2_PORT->put_byte(TELEM2_PORT->periph, ' '); // use 7 chars as answer
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'E'); //TODO: find out what the PX4 protocol for error feedback is...
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'R');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'R');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'O');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'R');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, '!');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, ' '); // use 7 chars as answer
 
       }
     }
-  } else if (TELEM2_PORT->char_available(TELEM2_PORT->periph)) {
+  } else if (FLASH_PORT->char_available(FLASH_PORT->periph)) {
     //already in bootloader mode, just directly relay data
-    while (TELEM2_PORT->char_available(TELEM2_PORT->periph)) {
-      unsigned char b = TELEM2_PORT->get_byte(TELEM2_PORT->periph);
+    while (FLASH_PORT->char_available(FLASH_PORT->periph)) {
+      unsigned char b = FLASH_PORT->get_byte(FLASH_PORT->periph);
       PX4IO_PORT->put_byte(PX4IO_PORT->periph, b);
     }
   }

@@ -21,11 +21,11 @@
     <define name="PX4IO_UART" value="$(PX4IO_UART_LOWER)"/>
     <define name="$(PX4IO_UART_UPPER)_BAUD" value="$(PX4IO_BAUD)"/>
 
-    <configure name="TELEM2_UART" default="usb_serial" case="upper|lower"/>
-    <configure name="TELEM2_BAUD" default="B115200"/>
-    <define name="USE_$(TELEM2_UART_UPPER)"/>
-    <define name="TELEM2_UART" value="$(TELEM2_UART_LOWER)"/>
-    <define name="$(TELEM2_UART_UPPER)_BAUD" value="$(TELEM2_BAUD)"/>
+    <configure name="FLASH_UART" default="usb_serial" case="upper|lower"/>
+    <configure name="FLASH_BAUD" default="B115200"/>
+    <define name="USE_$(FLASH_UART_UPPER)"/>
+    <define name="FLASH_UART" value="$(FLASH_UART_LOWER)"/>
+    <define name="$(FLASH_UART_UPPER)_BAUD" value="$(FLASH_BAUD)"/>
 
   </makefile>
 </module>
