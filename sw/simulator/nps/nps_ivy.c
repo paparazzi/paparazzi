@@ -105,7 +105,7 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
   // Bind to the reply
   ivyPtr = IvyBindMsg(on_WORLD_ENV, NULL, "^%d_%d (\\S*) WORLD_ENV (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)", pid, seq);
   // Send actual request
-  IvySendMsg("nps %d-%d WORLD_ENV_REQ %f %f %f %f %f %f",
+  IvySendMsg("nps %d_%d WORLD_ENV_REQ %f %f %f %f %f %f",
       pid, seq,
       DegOfRad(fdm.lla_pos_pprz.lat),
       DegOfRad(fdm.lla_pos_pprz.lon),
