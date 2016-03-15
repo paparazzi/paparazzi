@@ -96,6 +96,7 @@ paparazzi.sublime-workspace
 /sw/ground_segment/tmtc/broadcaster
 /sw/ground_segment/tmtc/dia
 /sw/ground_segment/tmtc/ivy2udp
+/sw/ground_segment/tmtc/ivy2serial
 /sw/ground_segment/tmtc/server
 /sw/ground_segment/tmtc/server.opt
 /sw/ground_segment/tmtc/diadec
