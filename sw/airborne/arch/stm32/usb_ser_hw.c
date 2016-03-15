@@ -65,7 +65,7 @@ bool_t fifo_put(fifo_t *fifo, uint8_t c);
 bool_t fifo_get(fifo_t *fifo, uint8_t *pc);
 int  fifo_avail(fifo_t *fifo);
 int  fifo_free(fifo_t *fifo);
-int tx_timeout;
+int tx_timeout; // tmp work around for usbd_ep_stall_get from, this function does not always seem to work
 
 usbd_device *my_usbd_dev;
 
@@ -390,13 +390,17 @@ int VCOM_putchar(int c)
     if (VCOM_check_free_space(2)) {
       // if yes, add char
       fifo_put(&txfifo, c);
-      tx_timeout = TX_TIMEOUT_CNT;
+      /*c is not send until VCOM_send_message is called. This only happens in three cases:
+       * i)   after a timeout (giving the chance to add more data to the fifo before sending)
+       * ii)  if the fifo is filled, at which point the data is send immidiately
+       * iii) VCOM_send_message is called externally
+      */
+      tx_timeout = TX_TIMEOUT_CNT; // set timeout
     } else {
       // less than 2 bytes available, add byte and send data now
       fifo_put(&txfifo, c);
       sys_time_usleep(10); //far from optimal, increase fifo size to prevent this problem
       VCOM_send_message();
-      tx_timeout = TX_TIMEOUT_CNT;
     }
     return c;
   }
@@ -438,15 +442,13 @@ int VCOM_check_available(void)
  * VCOM_event() should be called from main/module event function
  */
 void VCOM_event(void)
-{
-  if (tx_timeout == 1) { // send a remaining bytes that still hangs arround in the tx fifo, after a timeout
+{  
+  if (tx_timeout == 1) { // send any remaining bytes that still hang arround in the tx fifo, after a timeout
     if (fifo_avail(&txfifo)) {
       VCOM_send_message();
-      tx_timeout = TX_TIMEOUT_CNT;
-    } else {
-      tx_timeout = 0;
     }
-  } else if (tx_timeout > 1) {
+  }
+  if (tx_timeout > 0) {
     tx_timeout--;
   }
 
@@ -470,7 +472,12 @@ void VCOM_send_message(void)
       }
     }
 
+    // wait until the line is free to write
+    // this however seems buggy, sometimes data gets lost even for the stall to clear
+    // so do not call this function continously without additional safe guards
     while (usbd_ep_stall_get(my_usbd_dev, 0x82)) {};
+
+    // send the data over usb
     usbd_ep_write_packet(my_usbd_dev, 0x82, buf, i);
 
   }
@@ -555,5 +562,5 @@ void VCOM_init(void)
   usb_serial.device.char_available = (char_available_t) usb_serial_char_available;
   usb_serial.device.get_byte = (get_byte_t) usb_serial_getch;
 
-  tx_timeout = -1;
+  tx_timeout = 0;
 }
