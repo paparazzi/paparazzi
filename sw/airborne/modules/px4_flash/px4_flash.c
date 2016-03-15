@@ -20,7 +20,7 @@
 /**
  * @file "modules/px4_flash/px4_flash.c"
  * @author Kevin van Hecke
- * Flashes the px4io f1 through the px4 bootloader, or resets the f4 to be flashed directly.
+ * Enables to flashes the px4 FBW and AP through the original px4 bootloader.
  * Assumes the flash port on the Pixhawk is configured as the usb.
  */
 
@@ -100,20 +100,20 @@ void px4flash_event(void)
     while (state < 4 && FLASH_PORT->char_available(FLASH_PORT->periph)) {
       unsigned char b = FLASH_PORT->get_byte(FLASH_PORT->periph);
       switch (state) {
-      case (0) :
-        if (b == 'p') { state++; } else { return; }
-        break;
-      case (1) :
-        if (b == 'p') { state++; } else { return; }
-        break;
-      case (2) :
-        if (b == 'r') { state++; } else { return; }
-        break;
-      case (3) :
-        if (b == 'z') { state++; } else { return; }
-        break;
-      default :
-        break;
+        case (0) :
+          if (b == 'p') { state++; } else { return; }
+          break;
+        case (1) :
+          if (b == 'p') { state++; } else { return; }
+          break;
+        case (2) :
+          if (b == 'r') { state++; } else { return; }
+          break;
+        case (3) :
+          if (b == 'z') { state++; } else { return; }
+          break;
+        default :
+          break;
       }
     }
 
@@ -129,7 +129,7 @@ void px4flash_event(void)
 
       //first check if the bootloader has not timeout:
       if (sys_time_check_and_ack_timer(px4iobl_tid) || px4ioRebootTimeout) {
-        px4ioRebootTimeout= TRUE;
+        px4ioRebootTimeout = TRUE;
         sys_time_cancel_timer(px4iobl_tid);
         FLASH_PORT->put_byte(FLASH_PORT->periph, 'T');
         FLASH_PORT->put_byte(FLASH_PORT->periph, 'I');
@@ -202,20 +202,20 @@ void px4flash_event(void)
 
         unsigned char b = PX4IO_PORT->get_byte(PX4IO_PORT->periph);
         switch (state) {
-        case (0) :
-          if (b == PKT_CODE_SUCCESS) { state++; } else { state = 0; }
-          break;
-        case (1) :
-          if (b == 0xe5) { state++; } else { state = 0; }
-          break;
-        case (2) :
-          if (b == 0x32) { state++; } else { state = 0; }
-          break;
-        case (3) :
-          if (b == 0x0a) { state++; } else { state = 0; }
-          break;
-        default :
-          break;
+          case (0) :
+            if (b == PKT_CODE_SUCCESS) { state++; } else { state = 0; }
+            break;
+          case (1) :
+            if (b == 0xe5) { state++; } else { state = 0; }
+            break;
+          case (2) :
+            if (b == 0x32) { state++; } else { state = 0; }
+            break;
+          case (3) :
+            if (b == 0x0a) { state++; } else { state = 0; }
+            break;
+          default :
+            break;
         }
       }
 #else

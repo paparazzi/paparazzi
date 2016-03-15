@@ -20,7 +20,7 @@
 /**
  * @file "modules/px4_flash/px4_flash.h"
  * @author Kevin van Hecke
- * Flashes the px4io f1 through the px4 bootloader, or resets the f4 to be flashed directly.
+ * Enables to flashes the px4 FBW and AP through the original px4 bootloader.
  * Assumes the flash port on the Pixhawk is configured as the usb.
  */
 

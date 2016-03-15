@@ -2,7 +2,7 @@
 
 <module name="px4_flash">
   <doc>
-    <description>Flashes the px4 f1 through the px4 bootloader, or resets the f4 to be flashed directly by the f4' PX4 bootloader.</description>
+    <description>Enables to flashes the px4 FBW and AP through the original px4 bootloader.</description>
   </doc>
   <header>
     <file name="px4_flash.h"/>
