@@ -124,6 +124,14 @@ PRINT_CONFIG_VAR(OPTICFLOW_FAST9_MIN_DISTANCE)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_METHOD)
 
+#if OPTICFLOW_METHOD > 1
+#error WARNING: Both Lukas Kanade and EdgeFlow are NOT selected
+#endif
+
+#ifndef OPTICFLOW_DEROTATION
+#define OPTICFLOW_DEROTATION 1
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
 
 
 /* Functions only used here */
@@ -151,6 +159,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->method = 0; //0 = LK_fast9, 1 = Edgeflow
   opticflow->window_size = OPTICFLOW_WINDOW_SIZE;
   opticflow->search_distance = OPTICFLOW_SEARCH_DISTANCE;
+  opticflow->derotation = OPTICFLOW_DEROTATION; //0 = OFF, 1 = ON
 
   opticflow->max_track_corners = OPTICFLOW_MAX_TRACK_CORNERS;
   opticflow->subpixel_factor = OPTICFLOW_SUBPIXEL_FACTOR;
@@ -287,8 +296,14 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   }
 
   // Flow Derotation
-  float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
-  float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;
+  float diff_flow_x = 0;
+  float diff_flow_y = 0;
+
+  if (opticflow->derotation) {
+    diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
+    diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;
+  }
+
   result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor;
   result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor;
   opticflow->prev_phi = state->phi;
@@ -383,11 +398,16 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   int32_t *prev_edge_histogram_x = edge_hist[previous_frame_nr[0]].x;
   int32_t *prev_edge_histogram_y = edge_hist[previous_frame_nr[1]].y;
 
-  //Calculate the corrosponding derotation of the two frames
-  int16_t der_shift_x = -(int16_t)((edge_hist[previous_frame_nr[0]].roll - edge_hist[current_frame_nr].roll) *
-                                   (float)img->w / (OPTICFLOW_FOV_W));
-  int16_t der_shift_y = -(int16_t)((edge_hist[previous_frame_nr[1]].pitch - edge_hist[current_frame_nr].pitch) *
-                                   (float)img->h / (OPTICFLOW_FOV_H));
+  //Calculate the corresponding derotation of the two frames
+  int16_t der_shift_x = 0;
+  int16_t der_shift_y = 0;
+
+  if (opticflow->derotation) {
+    der_shift_x = -(int16_t)((edge_hist[previous_frame_nr[0]].roll - edge_hist[current_frame_nr].roll) *
+                             (float)img->w / (OPTICFLOW_FOV_W));
+    der_shift_y = -(int16_t)((edge_hist[previous_frame_nr[1]].pitch - edge_hist[current_frame_nr].pitch) *
+                             (float)img->h / (OPTICFLOW_FOV_H));
+  }
 
   // Estimate pixel wise displacement of the edge histograms for x and y direction
   calculate_edge_displacement(edge_hist_x, prev_edge_histogram_x,
@@ -451,7 +471,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   result->vel_y = vel_y;
 
   /* Rotate velocities from camera frame coordinates to body coordinates.
-  * IMPORTANT This frame to body orientation should bethe case for the parrot
+  * IMPORTANT This frame to body orientation should be the case for the Parrot
   * ARdrone and Bebop, however this can be different for other quadcopters
   * ALWAYS double check!
   */
@@ -481,11 +501,8 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   } else {
     if (opticflow->method == 1) {
       calc_edgeflow_tot(opticflow, state, img, result);
-    } else {
-      PRINT_CONFIG_MSG("Both edgeflow and Lukas kanade is not turned on. Define either USE_LK or use_EDGEFLOW on TRUE!");
-    }
+    } else {}
   }
-
 }
 
 /**

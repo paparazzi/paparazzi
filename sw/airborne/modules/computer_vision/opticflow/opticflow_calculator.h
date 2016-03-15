@@ -43,9 +43,10 @@ struct opticflow_t {
   struct image_t prev_img_gray;     ///< Previous gray image frame
   struct timeval prev_timestamp;    ///< Timestamp of the previous frame, used for FPS calculation
 
-  uint8_t method;           ///< Method to use to calculate the optical flow
+  uint8_t method;               ///< Method to use to calculate the optical flow
   uint16_t window_size;             ///< Window size for the blockmatching algorithm (general value for all methods)
-  uint16_t search_distance;         ///< Search distance for blockmatchin alg. (
+  uint16_t search_distance;         ///< Search distance for blockmatching alg.
+  uint8_t derotation;             ///< Derotation switched on or off (depended on the quality of the gyroscope measurement)
 
   uint8_t subpixel_factor;          ///< The amount of subpixels per pixel
   uint8_t max_iterations;           ///< The maximum amount of iterations the Lucas Kanade algorithm should do
