@@ -147,6 +147,9 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
     2 -> quit_callback gui ac_combo session_combo target_combo ()
   | _ -> ()
 
+let quit_window_callback = fun gui ac_combo session_combo target_combo _ ->
+  quit_button_callback gui ac_combo session_combo target_combo ();
+  true
 
 (************************** Main *********************************************)
 let () =
@@ -255,7 +258,7 @@ let () =
   (* Quit button *)
   ignore (gui#menu_item_quit#connect#activate ~callback:(quit_button_callback gui ac_combo session_combo target_combo));
 
-  ignore (gui#window#event#connect#delete ~callback:(quit_callback gui ac_combo session_combo target_combo));
+  ignore (gui#window#event#connect#delete ~callback:(quit_window_callback gui ac_combo session_combo target_combo));
 
   (* Fullscreen menu entry *)
   let callback = fun () ->
