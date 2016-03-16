@@ -76,7 +76,7 @@ PPRZCENTER=sw/supervision
 MISC=sw/ground_segment/misc
 LOGALIZER=sw/logalizer
 
-SUBDIRS = $(PPRZCENTER) $(MISC) $(LOGALIZER)
+SUBDIRS = $(PPRZCENTER) $(MISC) $(LOGALIZER) sw/tools
 
 #
 # xml files used as input for header generation
