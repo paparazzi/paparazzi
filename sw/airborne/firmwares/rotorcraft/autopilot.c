@@ -30,6 +30,7 @@
 #include "firmwares/rotorcraft/autopilot.h"
 
 #include "mcu_periph/uart.h"
+#include "mcu_periph/sys_time.h"
 #include "subsystems/radio_control.h"
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
