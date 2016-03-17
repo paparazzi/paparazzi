@@ -210,6 +210,16 @@ else ifeq ($(BOARD), opa_ap)
   BARO_BOARD_SRCS += peripherals/ms5611.c
   BARO_BOARD_SRCS += peripherals/ms5611_spi.c
   BARO_BOARD_SRCS += boards/baro_board_ms5611_spi.c
+
+# OpenPilot Revo
+else ifeq ($(BOARD), openpilot_revo)
+  BARO_BOARD_CFLAGS += -DBARO_BOARD=BARO_MS5611_I2C
+  BARO_BOARD_CFLAGS += -DUSE_I2C1
+  BARO_BOARD_CFLAGS += -DBB_MS5611_I2C_DEV=i2c1
+  BARO_BOARD_SRCS += peripherals/ms5611.c
+  BARO_BOARD_SRCS += peripherals/ms5611_i2c.c
+  BARO_BOARD_SRCS += boards/baro_board_ms5611_i2c.c
+
 endif # check board
 
 BARO_LED ?= none
