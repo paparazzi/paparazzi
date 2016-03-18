@@ -83,11 +83,13 @@ PRINT_CONFIG_VAR(AIRSPEED_ETS_I2C_DEV)
 #endif
 PRINT_CONFIG_VAR(AIRSPEED_ETS_START_DELAY)
 
+#ifndef SITL
 #if AIRSPEED_ETS_SDLOG
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
 #include "subsystems/gps.h"
 bool_t log_airspeed_ets_started;
+#endif
 #endif
 
 
@@ -131,8 +133,10 @@ void airspeed_ets_init(void)
   airspeed_ets_delay_done = FALSE;
   SysTimeTimerStart(airspeed_ets_delay_time);
 
+#ifndef SITL
 #if AIRSPEED_ETS_SDLOG
   log_airspeed_ets_started = FALSE;
+#endif
 #endif
 }
 
@@ -234,9 +238,10 @@ void airspeed_ets_read_event(void)
 
 
 #if AIRSPEED_ETS_SDLOG
+#ifndef SITL
   if (pprzLogFile != -1) {
     if (!log_airspeed_ets_started) {
-      sdLogWriteLog(pprzLogFile, "AIRSPEED_ETS: raw offset airspeed(m/s) GPS_fix TOW(ms) Week Lat(1e7rad) Lon(1e7rad) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
+      sdLogWriteLog(pprzLogFile, "AIRSPEED_ETS: raw offset airspeed(m/s) GPS_fix TOW(ms) Week Lat(1e7deg) Lon(1e7deg) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
       log_airspeed_ets_started = TRUE;
     }
     sdLogWriteLog(pprzLogFile, "airspeed_ets: %d %d %8.4f   %d %d %d   %d %d %d   %d %d %d\n",
@@ -245,6 +250,7 @@ void airspeed_ets_read_event(void)
 		  gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
 		  gps.gspeed, gps.course, -gps.ned_vel.z);
   }
+#endif
 #endif
 
 

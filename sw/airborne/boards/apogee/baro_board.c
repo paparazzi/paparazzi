@@ -36,6 +36,15 @@
 #include "subsystems/abi.h"
 #include "led.h"
 
+// sd-log
+#if APOGEE_BARO_SDLOG
+#include "sdLog.h"
+#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "subsystems/gps.h"
+bool_t log_apogee_baro_started;
+#endif
+
+
 /** Normal frequency with the default settings
  *
  * the baro read function should be called at 5 Hz
@@ -72,6 +81,11 @@ void baro_init(void)
   LED_OFF(BARO_LED);
 #endif
   startup_cnt = BARO_STARTUP_COUNTER;
+
+#if APOGEE_BARO_SDLOG
+  log_apogee_baro_started = FALSE;
+#endif
+
 }
 
 void baro_periodic(void)
@@ -105,6 +119,22 @@ void apogee_baro_event(void)
     float temp = apogee_baro.temperature / 16.0f;
     AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
     apogee_baro.data_available = FALSE;
+
+#if APOGEE_BARO_SDLOG
+  if (pprzLogFile != -1) {
+    if (!log_apogee_baro_started) {
+      sdLogWriteLog(pprzLogFile, "APOGEE_BARO: Pres(Pa) Temp(degC) GPS_fix TOW(ms) Week Lat(1e7deg) Lon(1e7deg) HMSL(mm) gpseed(cm/s) course(1e7deg) climb(cm/s)\n");
+      log_apogee_baro_started = TRUE;
+    }
+    sdLogWriteLog(pprzLogFile, "apogee_baro: %9.4f %9.4f %d %d %d   %d %d %d   %d %d %d\n",
+		  pressure,temp,
+		  gps.fix, gps.tow, gps.week,
+		  gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
+		  gps.gspeed, gps.course, -gps.ned_vel.z);
+  }
+#endif
+
+
   }
 }
 
