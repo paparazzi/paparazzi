@@ -114,14 +114,14 @@ compass : compass.ml
 
 
 clean:
-	$(Q)rm -f *~* *.cm* *.o *.out *.opt map2d gcs .depend gtk_strip.ml gtk_setting_time.ml gtk_save_settings.ml compass ant_track ant_track_pmm test_enose actuators
+	$(Q)rm -f *~* *.cm* *.o *.out *.opt map2d gcs .depend gtk_strip.ml gtk_setting_time.ml gtk_save_settings.ml compass ant_track ant_track_pmm actuators
 
 .PHONY: all opt clean
 
 
 CC = gcc
 CFLAGS=-g -O2 -Wall $(shell pkg-config gtk+-2.0 --cflags) -fPIC
-LDFLAGS=$(shell pkg-config gtk+-2.0 --libs) -s -lglibivy
+LDFLAGS=$(shell pkg-config gtk+-2.0 --libs) -s -lglibivy -lm -lpcre
 
 
 ant_track : ant_track.c
@@ -129,9 +129,6 @@ ant_track : ant_track.c
 
 ant_track_pmm : ant_track_pmm.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
-
-test_enose : test_enose.c sliding_plot.c
-	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS) -lgtkdatabox
 
 actuators : actuators.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
