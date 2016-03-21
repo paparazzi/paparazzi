@@ -111,6 +111,8 @@ extern bool_t nav_set_heading_current(void);
 #define NavSetWaypointHere(_wp) ({ waypoint_set_here_2d(_wp); FALSE; })
 #define NavCopyWaypoint(_wp1, _wp2) ({ waypoint_copy(_wp1, _wp2); FALSE; })
 #define NavCopyWaypointPositionOnly(_wp1, _wp2) ({ waypoint_position_copy(_wp1, _wp2); FALSE; })
+#define NavSetWaypointPos(_wp, _enu_x, _enu_y) ({ waypoint_set_xy(_wp, _enu_x, _enu_y); FALSE; })
+#define NavSetWaypointAlt(_wp, _alt)           ({ waypoint_set_alt(_wp, _alt); FALSE; })
 
 /** Normalize a degree angle between 0 and 359 */
 #define NormCourse(x) { \
@@ -133,11 +135,19 @@ extern void nav_circle(struct EnuCoor_i *wp_center, int32_t radius);
   }
 
 #define NavCircleCount() ((float)abs(nav_circle_radians) / INT32_ANGLE_2_PI)
-#define NavCircleQdr() ({ int32_t qdr = INT32_DEG_OF_RAD(INT32_ANGLE_2_PI_2 - nav_circle_qdr) >> INT32_ANGLE_FRAC; NormCourse(qdr); qdr; })
+#define NavCircleQdr() ({ int32_t qdr = INT32_DEG_OF_RAD(INT32_ANGLE_PI_2 - nav_circle_qdr) >> INT32_ANGLE_FRAC; NormCourse(qdr); qdr; })
 
+#define CloseDegAngles(_c1, _c2) ({ int32_t _diff = _c1 - _c2; NormCourse(_diff); 350 < _diff || _diff < 10; })
 /** True if x (in degrees) is close to the current QDR (less than 10 degrees)*/
-#define NavQdrCloseTo(x) {}
+#define NavQdrCloseTo(x) CloseDegAngles(((x) >> INT32_ANGLE_FRAC), NavCircleQdr())
 #define NavCourseCloseTo(x) {}
+
+enum oval_status { OR12, OC2, OR21, OC1 };
+
+extern void nav_oval_init(void);
+extern void nav_oval(uint8_t, uint8_t, float);
+extern uint8_t nav_oval_count;
+#define Oval(a, b, c) nav_oval((b), (a), (c))
 
 /*********** Navigation along a line *************************************/
 extern void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end);
