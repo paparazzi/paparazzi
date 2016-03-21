@@ -85,5 +85,12 @@
       <arg flag="4252" />
     </program>
     </session>
+   <session name="Flight UDP/WiFi">
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+    </session>
   </section>
 </control_panel>

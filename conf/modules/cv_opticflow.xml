@@ -24,10 +24,15 @@
       <define name="FX" value="343.1211" description="Field in the x direction of the camera (Defaults are from an ARDrone 2)"/>
       <define name="FY" value="348.5053" description="Field in the y direction of the camera (Defaults are from an ARDrone 2)"/>
 
+      <!-- General optical flow calculation parameters -->
+      <define name="METHOD" value="0" description="Method used to calculate optical flow"/>
+      <define name="WINDOW_SIZE" value="10" description="Window size used for block matching (pixels)"/>
+      <define name="SEARCH_DISTANCE" value="10" description="Maximum search distance for blockmatching (pixels)"/>
+      <define name="SUBPIXEL_FACTOR" value="100" description="Amount of subpixels per pixel, used for more precise (subpixel) calculations of the flow"/>
+      <define name="DEROTATION" value="1" description="Derotation either turned on or off (depended on gyroscope measurements)"/>
+
       <!-- Lucas Kanade optical flow calculation parameters -->
       <define name="MAX_TRACK_CORNERS" value="25" description="The maximum amount of corners the Lucas Kanade algorithm is tracking between two frames"/>
-      <define name="WINDOW_SIZE" value="10" description="Window size used in Lucas Kanade algorithm"/>
-      <define name="SUBPIXEL_FACTOR" value="10" description="Amount of subpixels per pixel, used for more precise (subpixel) calculations of the flow"/>
       <define name="MAX_ITERATIONS" value="10" description="Maximum number of iterations the Lucas Kanade algorithm should take"/>
       <define name="THRESHOLD_VEC" value="2" description="TThreshold in subpixels when the iterations of Lucas Kanade should stop"/>
 
@@ -41,11 +46,16 @@
   <settings>
 	<dl_settings NAME="Vision stabilization">
 
-      <!-- Optical flow calculations parameters for Lucas Kanade and FAST9 -->
+      	<!-- Optical flow calculations parameters -->
       <dl_settings name="vision_calc">
-        <dl_setting var="opticflow.max_track_corners" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="max_trck_corners" param="OPTICFLOW_MAX_TRACK_CORNERS"/>
-        <dl_setting var="opticflow.window_size" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="window_size" param="OPTICFLOW_WINDOW_SIZE"/>
+      <dl_setting var="opticflow.method" min="0" step="1" max="1" module="computer_vision/opticflow_module" shortname="method" values="LK_Fast9|EdgeFlow" param="METHOD"/>
+        <dl_setting var="opticflow.window_size" module="computer_vision/opticflow_module" min="0" step="1" max="20" shortname="window_size" param="OPTICFLOW_WINDOW_SIZE"/>
+        <dl_setting var="opticflow.search_distance" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="search_distance" param="SEARCH_DISTANCE"/>
         <dl_setting var="opticflow.subpixel_factor" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="subpixel_factor" param="OPTICFLOW_SUBPIXEL_FACTOR"/>
+        <dl_setting var="opticflow.derotation" min="0" step="1" max="1" module="computer_vision/opticflow_module" values="OFF|ON" shortname="derotation" param="OPTICFLOW_DEROTATION"/>
+
+	<!-- Specifically for Lucas Kanade and FAST9 -->
+        <dl_setting var="opticflow.max_track_corners" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="max_trck_corners" param="OPTICFLOW_MAX_TRACK_CORNERS"/>
         <dl_setting var="opticflow.max_iterations" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="max_iterations" param="OPTICFLOW_MAX_ITERATIONS"/>
         <dl_setting var="opticflow.threshold_vec" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="threshold_vec" param="OPTICFLOW_THRESHOLD_VEC"/>
 
@@ -82,7 +92,9 @@
     <!-- Main vision calculations -->
     <file name="fast_rosten.c" dir="modules/computer_vision/lib/vision"/>
     <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="edge_flow.c" dir="modules/computer_vision/lib/vision"/>
   </makefile>
+
 
 </module>
 

@@ -37,6 +37,7 @@
 #include "lib/encoding/jpeg.h"
 #include "lib/encoding/rtp.h"
 
+
 /* Default sonar/agl to use in opticflow visual_estimator */
 #ifndef OPTICFLOW_AGL_ID
 #define OPTICFLOW_AGL_ID ABI_BROADCAST    ///< Default sonar/agl to use in opticflow visual_estimator
@@ -76,6 +77,8 @@ static abi_event opticflow_agl_ev;                 ///< The altitude ABI event
 static pthread_t opticflow_calc_thread;            ///< The optical flow calculation thread
 static bool_t opticflow_got_result;                ///< When we have an optical flow calculation
 static pthread_mutex_t opticflow_mutex;            ///< Mutex lock fo thread safety
+
+struct UdpSocket video_sock;
 
 /* Static functions */
 static void *opticflow_module_calc(void *data);                   ///< The main optical flow calculation thread
@@ -140,6 +143,12 @@ void opticflow_module_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_OPTIC_FLOW_EST, opticflow_telem_send);
 #endif
+
+#if OPTICFLOW_DEBUG
+
+  udp_socket_create(&video_sock, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_BROADCAST);
+
+#endif
 }
 
 /**
@@ -167,8 +176,8 @@ void opticflow_module_run(void)
     //TODO Find an appropiate quality measure for the noise model in the state filter, for now it is tracked_cnt
     if (opticflow_result.tracked_cnt > 0) {
       AbiSendMsgVELOCITY_ESTIMATE(OPTICFLOW_SENDER_ID, now_ts,
-                                  opticflow_result.vel_x,
-                                  opticflow_result.vel_y,
+                                  opticflow_result.vel_body_x,
+                                  opticflow_result.vel_body_y,
                                   0.0f,
                                   opticflow_result.noise_measurement
                                  );
@@ -224,8 +233,13 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
 #if OPTICFLOW_DEBUG
   // Create a new JPEG image
   struct image_t img_jpeg;
+
   image_create(&img_jpeg, opticflow_dev->w, opticflow_dev->h, IMAGE_JPEG);
 #endif
+
+  struct image_t img_gray;
+  image_create(&img_gray, opticflow_dev->w, opticflow_dev->h, IMAGE_YUV422);
+
 
   /* Main loop of the optical flow calculation */
   while (TRUE) {
@@ -250,12 +264,12 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
     pthread_mutex_unlock(&opticflow_mutex);
 
 #if OPTICFLOW_DEBUG
-    jpeg_encode_image(&img, &img_jpeg, 70, FALSE);
+    jpeg_encode_image(&img, &img_jpeg, 50, FALSE);
     rtp_frame_send(
-      &VIEWVIDEO_DEV,           // UDP device
+      &video_sock,           // UDP device
       &img_jpeg,
       0,                        // Format 422
-      70, // Jpeg-Quality
+      50, // Jpeg-Quality
       0,                        // DRI Header
       0                         // 90kHz time increment
     );
@@ -267,6 +281,7 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
 
 #if OPTICFLOW_DEBUG
   image_free(&img_jpeg);
+  image_free(&img_gray);
 #endif
 }
 

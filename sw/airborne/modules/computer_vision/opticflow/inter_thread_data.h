@@ -40,8 +40,11 @@ struct opticflow_result_t {
   int16_t flow_der_x;     ///< The derotated flow calculation in the x direction (in subpixels)
   int16_t flow_der_y;     ///< The derotated flow calculation in the y direction (in subpixels)
 
-  float vel_x;            ///< The velocity in the x direction
-  float vel_y;            ///< The velocity in the y direction
+  float vel_x;            ///< The velocity in the x direction (image coordinates)
+  float vel_y;            ///< The velocity in the y direction (image coordinates)
+
+  float vel_body_x;     ///< The velocity in the x direction (body fixed coordinates)
+  float vel_body_y;     ///< The velocity in the y direction (body fixed coordinates)
 
   float div_size;         ///< Divergence as determined with the size_divergence script
 
