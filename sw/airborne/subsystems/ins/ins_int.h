@@ -72,7 +72,7 @@ extern struct InsInt ins_int;
 
 extern void ins_int_init(void);
 extern void ins_int_propagate(struct Int32Vect3 *accel, float dt);
-extern void ins_int_update_gps(struct GpsState *gps_s);
+extern void ins_int_update_gps(struct GpsState *gps_s, float dt);
 
 
 #ifndef DefaultInsImpl
