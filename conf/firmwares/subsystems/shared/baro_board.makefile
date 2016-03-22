@@ -168,11 +168,14 @@ else ifeq ($(BOARD), krooz)
 
 # PX4FMU
 else ifeq ($(BOARD),$(filter $(BOARD),px4fmu))
-	BARO_BOARD_CFLAGS += -DUSE_I2C2
-  BARO_BOARD_CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
+
+  BARO_BOARD_CFLAGS += -DUSE_SPI1 -DUSE_SPI_SLAVE3
+  BARO_BOARD_CFLAGS += -DBB_MS5611_SPI_DEV=spi1
+  BARO_BOARD_CFLAGS += -DBB_MS5611_SLAVE_IDX=SPI_SLAVE3
+
   BARO_BOARD_SRCS += peripherals/ms5611.c
-  BARO_BOARD_SRCS += peripherals/ms5611_i2c.c
-  BARO_BOARD_SRCS += boards/baro_board_ms5611_i2c.c
+  BARO_BOARD_SRCS += peripherals/ms5611_spi.c
+  BARO_BOARD_SRCS += boards/baro_board_ms5611_spi.c
 
 # apogee baro
 else ifeq ($(BOARD), apogee)
