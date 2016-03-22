@@ -85,10 +85,10 @@ float h_ctl_course_dgain;
 float h_ctl_roll_max_setpoint;
 
 /* roll and pitch disabling */
-bool_t h_ctl_disabled;
+bool h_ctl_disabled;
 
 /* AUTO1 rate mode */
-bool_t h_ctl_auto1_rate;
+bool h_ctl_auto1_rate;
 
 struct HCtlAdaptRef {
   float roll_angle;
@@ -196,7 +196,7 @@ float h_ctl_aileron_of_throttle;
 float h_ctl_elevator_of_roll;
 float h_ctl_pitch_of_roll; // Should be used instead of elevator_of_roll
 
-bool_t use_airspeed_ratio;
+bool use_airspeed_ratio;
 float airspeed_ratio2;
 #define AIRSPEED_RATIO_MIN 0.5
 #define AIRSPEED_RATIO_MAX 2.

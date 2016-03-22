@@ -31,7 +31,7 @@
 #include "subsystems/abi.h"
 
 struct mavlink_optical_flow optical_flow;
-bool_t optical_flow_available;
+bool optical_flow_available;
 
 // message ID in Mavlink (v1.0)
 #define MAVLINK_OPTICAL_FLOW_MSG_ID 100

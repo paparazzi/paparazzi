@@ -37,7 +37,7 @@
 #include <caml/mlvalues.h>
 #endif
 
-static bool_t spektrum_available;
+static bool spektrum_available;
 
 void radio_control_spektrum_try_bind(void) {}
 

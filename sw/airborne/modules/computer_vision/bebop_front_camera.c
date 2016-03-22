@@ -70,7 +70,7 @@ struct bebopfrontcamera_t bebop_front_camera = {
   .shot_number = 0
 };
 
-void bebop_front_camera_take_shot(bool_t take)
+void bebop_front_camera_take_shot(bool take)
 {
   bebop_front_camera.take_shot = TRUE;
 }

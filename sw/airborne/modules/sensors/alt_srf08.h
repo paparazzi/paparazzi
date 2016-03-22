@@ -107,7 +107,7 @@ extern void srf08_initiate_ranging(void);
 extern void srf08_receive(void);
 
 extern uint16_t srf08_range;
-extern bool_t srf08_received, srf08_got;
+extern bool srf08_received, srf08_got;
 /** Read values on the bus */
 extern void srf08_read(void);
 /** Copy the I2C buffer */

@@ -34,11 +34,11 @@
 
 #if USE_BARO_MS5534A
 
-extern bool_t spi_message_received;
-extern bool_t baro_MS5534A_available;
+extern bool spi_message_received;
+extern bool baro_MS5534A_available;
 extern uint32_t baro_MS5534A_pressure;
 extern uint16_t baro_MS5534A_temp;
-extern bool_t alt_baro_enabled;
+extern bool alt_baro_enabled;
 extern uint32_t baro_MS5534A_ground_pressure;
 extern float baro_MS5534A_r;
 extern float baro_MS5534A_sigma2;

@@ -492,7 +492,7 @@ static void nmea_parse_GSV(void)
   // check what satellites this messages contains
   // GPGSV -> GPS
   // GLGSV -> GLONASS
-  bool_t is_glonass = FALSE;
+  bool is_glonass = FALSE;
   if (!strncmp(&gps_nmea.msg_buf[0] , "GL", 2)) {
     is_glonass = TRUE;
   }

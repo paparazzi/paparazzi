@@ -22,7 +22,7 @@
 #include "subsystems/imu.h"
 #include "subsystems/abi.h"
 
-volatile bool_t ADS8344_available;
+volatile bool ADS8344_available;
 uint16_t ADS8344_values[ADS8344_NB_CHANNELS];
 
 void imu_impl_init(void)

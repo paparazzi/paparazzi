@@ -56,22 +56,22 @@
 
 extern uint8_t autopilot_mode;
 extern uint8_t autopilot_mode_auto2;
-extern bool_t autopilot_motors_on;
-extern bool_t autopilot_in_flight;
-extern bool_t kill_throttle;
-extern bool_t autopilot_rc;
+extern bool autopilot_motors_on;
+extern bool autopilot_in_flight;
+extern bool kill_throttle;
+extern bool autopilot_rc;
 
-extern bool_t autopilot_power_switch;
+extern bool autopilot_power_switch;
 
 extern void autopilot_init(void);
 extern void autopilot_periodic(void);
 extern void autopilot_on_rc_frame(void);
 extern void autopilot_set_mode(uint8_t new_autopilot_mode);
-extern void autopilot_set_motors_on(bool_t motors_on);
-extern void autopilot_check_in_flight(bool_t motors_on);
+extern void autopilot_set_motors_on(bool motors_on);
+extern void autopilot_check_in_flight(bool motors_on);
 
-extern bool_t autopilot_ground_detected;
-extern bool_t autopilot_detect_ground_once;
+extern bool autopilot_ground_detected;
+extern bool autopilot_detect_ground_once;
 
 extern uint16_t autopilot_flight_time;
 
@@ -190,7 +190,7 @@ extern void send_autopilot_version(struct transport_tx *trans, struct link_devic
  * @param heading Setpoint in radians.
  * @return TRUE if setpoint was set (currently in AP_MODE_GUIDED)
  */
-extern bool_t autopilot_guided_goto_ned(float x, float y, float z, float heading);
+extern bool autopilot_guided_goto_ned(float x, float y, float z, float heading);
 
 /** Set position and heading setpoints wrt. current position in GUIDED mode.
  * @param dx Offset relative to current north position (local NED frame) in meters.
@@ -199,7 +199,7 @@ extern bool_t autopilot_guided_goto_ned(float x, float y, float z, float heading
  * @param dyaw Offset relative to current heading setpoint in radians.
  * @return TRUE if setpoint was set (currently in AP_MODE_GUIDED)
  */
-extern bool_t autopilot_guided_goto_ned_relative(float dx, float dy, float dz, float dyaw);
+extern bool autopilot_guided_goto_ned_relative(float dx, float dy, float dz, float dyaw);
 
 /** Set position and heading setpoints wrt. current position AND heading in GUIDED mode.
  * @param dx relative position (body frame, forward) in meters.
@@ -208,7 +208,7 @@ extern bool_t autopilot_guided_goto_ned_relative(float dx, float dy, float dz, f
  * @param dyaw Offset relative to current heading setpoint in radians.
  * @return TRUE if setpoint was set (currently in AP_MODE_GUIDED)
  */
-extern bool_t autopilot_guided_goto_body_relative(float dx, float dy, float dz, float dyaw);
+extern bool autopilot_guided_goto_body_relative(float dx, float dy, float dz, float dyaw);
 
 /** Set velocity and heading setpoints in GUIDED mode.
  * @param vx North velocity (local NED frame) in meters/sec.
@@ -217,6 +217,6 @@ extern bool_t autopilot_guided_goto_body_relative(float dx, float dy, float dz, 
  * @param heading Setpoint in radians.
  * @return TRUE if setpoint was set (currently in AP_MODE_GUIDED)
  */
-extern bool_t autopilot_guided_move_ned(float vx, float vy, float vz, float heading);
+extern bool autopilot_guided_move_ned(float vx, float vy, float vz, float heading);
 
 #endif /* AUTOPILOT_H */

@@ -168,7 +168,7 @@ uint32_t current_unerased_addr = 0x00000000;
 ///The address at wich we will read next time
 uint32_t current_reading_addr = 0x00000000;
 ///Flag stating if the memory is being used
-static volatile bool_t memory_ready = TRUE;
+static volatile bool memory_ready = TRUE;
 ///Structure used for general comunication with the memory
 struct spi_transaction memory_transaction;
 ///Structure used for sending values to the memory

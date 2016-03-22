@@ -101,7 +101,7 @@ struct ImuAspirin2Spi imu_aspirin2;
 
 void mpu_wait_slave4_ready(void);
 void mpu_wait_slave4_ready_cb(struct spi_transaction *t);
-bool_t imu_aspirin2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
+bool imu_aspirin2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
 
 void imu_impl_init(void)
 {
@@ -256,7 +256,7 @@ static inline void mpu_set_and_wait(Mpu60x0ConfigSet mpu_set, void *mpu, uint8_t
 /** function to configure hmc5883 mag
  * @return TRUE if mag configuration finished
  */
-bool_t imu_aspirin2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu)
+bool imu_aspirin2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu)
 {
   // wait before starting the configuration of the HMC58xx mag
   // doing to early may void the mode configuration

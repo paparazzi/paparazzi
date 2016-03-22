@@ -35,7 +35,7 @@ void cmd_execute(void);
 
 char cmd_buf[64];
 uint8_t cmd_idx;
-bool_t cmd_avail;
+bool cmd_avail;
 uint8_t prompt = '$';
 
 /**

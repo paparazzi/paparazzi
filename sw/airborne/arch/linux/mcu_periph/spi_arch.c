@@ -45,7 +45,7 @@ void spi_init_slaves(void)
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
-bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
+bool spi_submit(struct spi_periph *p, struct spi_transaction *t)
 {
   int fd = (int)p->reg_addr;
 
@@ -102,13 +102,13 @@ bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
 }
 #pragma GCC diagnostic pop
 
-bool_t spi_lock(struct spi_periph *p, uint8_t slave)
+bool spi_lock(struct spi_periph *p, uint8_t slave)
 {
   // not implemented
   return FALSE;
 }
 
-bool_t spi_resume(struct spi_periph *p, uint8_t slave)
+bool spi_resume(struct spi_periph *p, uint8_t slave)
 {
   // not implemented
   return FALSE;

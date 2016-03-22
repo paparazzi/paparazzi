@@ -102,20 +102,20 @@ PRINT_CONFIG_VAR(BARO_ETS_START_DELAY)
 // Global variables
 uint16_t baro_ets_adc;
 uint16_t baro_ets_offset;
-bool_t baro_ets_valid;
+bool baro_ets_valid;
 float baro_ets_altitude;
-bool_t baro_ets_enabled;
+bool baro_ets_enabled;
 float baro_ets_r;
 float baro_ets_sigma2;
 
 struct i2c_transaction baro_ets_i2c_trans;
 
 // Local variables
-bool_t   baro_ets_offset_init;
+bool   baro_ets_offset_init;
 uint32_t baro_ets_offset_tmp;
 uint16_t baro_ets_cnt;
 uint32_t baro_ets_delay_time;
-bool_t   baro_ets_delay_done;
+bool   baro_ets_delay_done;
 
 void baro_ets_init(void)
 {

@@ -31,7 +31,7 @@
 
 
 void ms5611_spi_init(struct Ms5611_Spi *ms, struct spi_periph *spi_p, uint8_t slave_idx,
-                     bool_t is_ms5607)
+                     bool is_ms5607)
 {
   /* set spi_peripheral */
   ms->spi_p = spi_p;

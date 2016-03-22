@@ -503,7 +503,7 @@ gint delete_event(GtkWidget *widget,
 }
 
 
-static bool_t parse_options(int argc, char **argv, struct Opts *opts)
+static bool parse_options(int argc, char **argv, struct Opts *opts)
 {
   opts->ac_id = 0;
   opts->host = "localhost";

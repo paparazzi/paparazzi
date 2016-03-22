@@ -64,9 +64,9 @@ const float max_dist_from_home = MAX_DIST_FROM_HOME;
 const float max_dist2_from_home = MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME;
 float failsafe_mode_dist2 = FAILSAFE_MODE_DISTANCE * FAILSAFE_MODE_DISTANCE;
 float dist2_to_home;
-bool_t too_far_from_home;
+bool too_far_from_home;
 
-bool_t exception_flag[10] = {0}; //exception flags that can be used in the flight plan
+bool exception_flag[10] = {0}; //exception flags that can be used in the flight plan
 
 float dist2_to_wp;
 
@@ -78,7 +78,7 @@ int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
 int32_t nav_leg_progress;
 uint32_t nav_leg_length;
 
-bool_t nav_survey_active;
+bool nav_survey_active;
 
 int32_t nav_roll, nav_pitch;
 int32_t nav_heading;
@@ -300,7 +300,7 @@ void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end)
   dist2_to_wp = get_dist2_to_point(wp_end);
 }
 
-bool_t nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t approaching_time)
+bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t approaching_time)
 {
   int32_t dist_to_point;
   struct Int32Vect2 diff;
@@ -343,12 +343,12 @@ bool_t nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_
   return FALSE;
 }
 
-bool_t nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
+bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
 {
   uint16_t time_at_wp;
   uint32_t dist_to_point;
   static uint16_t wp_entry_time = 0;
-  static bool_t wp_reached = FALSE;
+  static bool wp_reached = FALSE;
   static struct EnuCoor_i wp_last = { 0, 0, 0 };
   struct Int32Vect2 diff;
 
@@ -452,14 +452,14 @@ void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int
                                               &(waypoints[wp].enu_i.z)));
 }
 
-bool_t nav_detect_ground(void)
+bool nav_detect_ground(void)
 {
   if (!autopilot_ground_detected) { return FALSE; }
   autopilot_ground_detected = FALSE;
   return TRUE;
 }
 
-bool_t nav_is_in_flight(void)
+bool nav_is_in_flight(void)
 {
   return autopilot_in_flight;
 }
@@ -506,7 +506,7 @@ void compute_dist2_to_home(void)
 }
 
 /** Set nav_heading in degrees. */
-bool_t nav_set_heading_rad(float rad)
+bool nav_set_heading_rad(float rad)
 {
   nav_heading = ANGLE_BFP_OF_REAL(rad);
   INT32_COURSE_NORMALIZE(nav_heading);
@@ -514,13 +514,13 @@ bool_t nav_set_heading_rad(float rad)
 }
 
 /** Set nav_heading in degrees. */
-bool_t nav_set_heading_deg(float deg)
+bool nav_set_heading_deg(float deg)
 {
   return nav_set_heading_rad(RadOfDeg(deg));
 }
 
 /** Set heading to point towards x,y position in local coordinates */
-bool_t nav_set_heading_towards(float x, float y)
+bool nav_set_heading_towards(float x, float y)
 {
   struct FloatVect2 target = {x, y};
   struct FloatVect2 pos_diff;
@@ -536,13 +536,13 @@ bool_t nav_set_heading_towards(float x, float y)
 }
 
 /** Set heading in the direction of a waypoint */
-bool_t nav_set_heading_towards_waypoint(uint8_t wp)
+bool nav_set_heading_towards_waypoint(uint8_t wp)
 {
   return nav_set_heading_towards(WaypointX(wp), WaypointY(wp));
 }
 
 /** Set heading to the current yaw angle */
-bool_t nav_set_heading_current(void)
+bool nav_set_heading_current(void)
 {
   nav_heading = stateGetNedToBodyEulers_i()->psi;
   return FALSE;

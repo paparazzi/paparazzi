@@ -33,9 +33,9 @@
 #include "mcu_periph/i2c.h"
 
 extern struct Infrared_raw ir_i2c;
-extern bool_t ir_i2c_data_hor_available, ir_i2c_data_ver_available;
+extern bool ir_i2c_data_hor_available, ir_i2c_data_ver_available;
 extern uint8_t ir_i2c_conf_word;
-extern bool_t ir_i2c_conf_hor_done, ir_i2c_conf_ver_done;
+extern bool ir_i2c_conf_hor_done, ir_i2c_conf_ver_done;
 
 extern struct i2c_transaction irh_trans, irv_trans;
 

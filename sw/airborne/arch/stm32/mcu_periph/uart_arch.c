@@ -89,7 +89,7 @@ void uart_periph_set_bits_stop_parity(struct uart_periph *p, uint8_t bits, uint8
   }
 }
 
-void uart_periph_set_mode(struct uart_periph *p, bool_t tx_enabled, bool_t rx_enabled, bool_t hw_flow_control)
+void uart_periph_set_mode(struct uart_periph *p, bool tx_enabled, bool rx_enabled, bool hw_flow_control)
 {
   uint32_t mode = 0;
   if (tx_enabled) {

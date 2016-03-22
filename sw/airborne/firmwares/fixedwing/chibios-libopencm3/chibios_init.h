@@ -31,7 +31,7 @@
 #include "std.h"
 
 extern Thread *pprzThdPtr;
-extern bool_t chibios_init(void);
+extern bool chibios_init(void);
 extern void launch_pprz_thd (int32_t (*thd) (void *arg));
 
 #endif

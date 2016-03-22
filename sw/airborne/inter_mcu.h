@@ -78,14 +78,14 @@ struct ap_state {
 extern struct fbw_state *fbw_state;
 extern struct ap_state  *ap_state;
 
-extern volatile bool_t inter_mcu_received_fbw;
-extern volatile bool_t inter_mcu_received_ap;
+extern volatile bool inter_mcu_received_fbw;
+extern volatile bool inter_mcu_received_ap;
 
 
 #ifdef FBW
 
 extern uint8_t time_since_last_ap;
-extern bool_t ap_ok;
+extern bool ap_ok;
 
 #define AP_STALLED_TIME        30  // 500ms with a 60Hz timer
 

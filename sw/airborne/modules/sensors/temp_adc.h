@@ -29,7 +29,7 @@
 #include "std.h"
 
 /// flag to enable sending every new measurement via telemetry
-bool_t temp_adc_sync_send;
+bool temp_adc_sync_send;
 
 float calc_ntc(int16_t raw_temp);
 float calc_lm35(int16_t raw_temp);

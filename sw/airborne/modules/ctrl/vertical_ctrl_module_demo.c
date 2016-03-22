@@ -54,7 +54,7 @@ struct VerticalCtrlDemo v_ctrl;
 
 
 void vertical_ctrl_module_init(void);
-void vertical_ctrl_module_run(bool_t in_flight);
+void vertical_ctrl_module_run(bool in_flight);
 
 void vertical_ctrl_module_init(void)
 {
@@ -69,7 +69,7 @@ void vertical_ctrl_module_init(void)
 }
 
 
-void vertical_ctrl_module_run(bool_t in_flight)
+void vertical_ctrl_module_run(bool in_flight)
 {
   if (!in_flight) {
     // Reset integrators
@@ -104,7 +104,7 @@ void guidance_v_module_enter(void)
   v_ctrl.sum_err = 0.0f;
 }
 
-void guidance_v_module_run(bool_t in_flight)
+void guidance_v_module_run(bool in_flight)
 {
   vertical_ctrl_module_run(in_flight);
 }

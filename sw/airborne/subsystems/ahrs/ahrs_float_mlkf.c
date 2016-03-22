@@ -104,7 +104,7 @@ void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat *q_b2i)
 }
 
 
-bool_t ahrs_mlkf_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
+bool ahrs_mlkf_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
                        struct FloatVect3 *lp_mag)
 {
 

@@ -46,9 +46,9 @@
 #endif
 
 struct Infrared_raw ir_i2c;
-bool_t ir_i2c_data_hor_available, ir_i2c_data_ver_available;
+bool ir_i2c_data_hor_available, ir_i2c_data_ver_available;
 uint8_t ir_i2c_conf_word;
-bool_t ir_i2c_conf_hor_done, ir_i2c_conf_ver_done;
+bool ir_i2c_conf_hor_done, ir_i2c_conf_ver_done;
 
 // Local variables
 #define IR_I2C_IDLE             0

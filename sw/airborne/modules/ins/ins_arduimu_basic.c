@@ -68,15 +68,15 @@ float ins_pitch_neutral;
 
 // Ask the arduimu to recalibrate the gyros and accels neutrals
 // After calibration, values are store in the arduimu eeprom
-bool_t arduimu_calibrate_neutrals;
+bool arduimu_calibrate_neutrals;
 
 // High Accel Flag
 #define HIGH_ACCEL_LOW_SPEED 15.0
 #define HIGH_ACCEL_LOW_SPEED_RESUME 4.0 // Hysteresis
 #define HIGH_ACCEL_HIGH_THRUST (0.8*MAX_PPRZ)
 #define HIGH_ACCEL_HIGH_THRUST_RESUME (0.1*MAX_PPRZ) // Hysteresis
-bool_t high_accel_done;
-bool_t high_accel_flag;
+bool high_accel_done;
+bool high_accel_flag;
 
 void ArduIMU_init(void)
 {

@@ -96,12 +96,12 @@ struct Int32Vect2  guidance_h_cmd_earth;
 
 static void guidance_h_update_reference(void);
 #if !GUIDANCE_INDI
-static void guidance_h_traj_run(bool_t in_flight);
+static void guidance_h_traj_run(bool in_flight);
 #endif
 static void guidance_h_hover_enter(void);
 static void guidance_h_nav_enter(void);
 static inline void transition_run(void);
-static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool_t in_flight);
+static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool in_flight);
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -292,7 +292,7 @@ void guidance_h_mode_changed(uint8_t new_mode)
 }
 
 
-void guidance_h_read_rc(bool_t  in_flight)
+void guidance_h_read_rc(bool  in_flight)
 {
 
   switch (guidance_h.mode) {
@@ -352,7 +352,7 @@ void guidance_h_read_rc(bool_t  in_flight)
 
 }
 
-void guidance_h_run(bool_t  in_flight)
+void guidance_h_run(bool  in_flight)
 {
   switch (guidance_h.mode) {
 
@@ -490,7 +490,7 @@ static void guidance_h_update_reference(void)
 #define GH_GAIN_SCALE 2
 
 #if !GUIDANCE_INDI
-static void guidance_h_traj_run(bool_t in_flight)
+static void guidance_h_traj_run(bool in_flight)
 {
   /* maximum bank angle: default 20 deg, max 40 deg*/
   static const int32_t traj_max_bank = Min(BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC),
@@ -600,7 +600,7 @@ static inline void transition_run(void)
 }
 
 /// read speed setpoint from RC
-static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool_t in_flight)
+static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool in_flight)
 {
   if (in_flight) {
     // negative pitch is forward
@@ -636,7 +636,7 @@ void guidance_h_set_igain(uint32_t igain)
   INT_VECT2_ZERO(guidance_h_trim_att_integrator);
 }
 
-bool_t guidance_h_set_guided_pos(float x, float y)
+bool guidance_h_set_guided_pos(float x, float y)
 {
   if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
     ClearBit(guidance_h.sp.mask, 4);
@@ -648,7 +648,7 @@ bool_t guidance_h_set_guided_pos(float x, float y)
   return FALSE;
 }
 
-bool_t guidance_h_set_guided_heading(float heading)
+bool guidance_h_set_guided_heading(float heading)
 {
   if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
     ClearBit(guidance_h.sp.mask, 7);
@@ -659,7 +659,7 @@ bool_t guidance_h_set_guided_heading(float heading)
   return FALSE;
 }
 
-bool_t guidance_h_set_guided_vel(float vx, float vy)
+bool guidance_h_set_guided_vel(float vx, float vy)
 {
   if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
     SetBit(guidance_h.sp.mask, 4);

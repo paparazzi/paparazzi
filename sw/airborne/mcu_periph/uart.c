@@ -254,7 +254,7 @@ void uart_periph_init(struct uart_periph *p)
 #endif
 }
 
-bool_t uart_check_free_space(struct uart_periph *p, uint8_t len)
+bool uart_check_free_space(struct uart_periph *p, uint8_t len)
 {
   int16_t space = p->tx_extract_idx - p->tx_insert_idx;
   if (space <= 0) {

@@ -119,7 +119,7 @@ void ahrs_fc_init(void)
   ahrs_fc.mag_cnt = 0;
 }
 
-bool_t ahrs_fc_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
+bool ahrs_fc_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
                      struct FloatVect3 *lp_mag)
 {
 

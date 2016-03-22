@@ -72,8 +72,8 @@ void intermcu_periodic(void)
   }
 }
 
-static bool_t disable_comm;
-void disable_inter_comm(bool_t value)
+static bool disable_comm;
+void disable_inter_comm(bool value)
 {
   disable_comm = value;
 }

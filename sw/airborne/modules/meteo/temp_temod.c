@@ -38,7 +38,7 @@
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
 #include "subsystems/gps.h"
-bool_t log_temod_started;
+bool log_temod_started;
 #endif
 
 float ftmd_temperature;

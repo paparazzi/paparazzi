@@ -108,8 +108,8 @@
 #endif
 
 struct ImuKrooz {
-  volatile bool_t mpu_eoc;
-  volatile bool_t hmc_eoc;
+  volatile bool mpu_eoc;
+  volatile bool hmc_eoc;
   struct Mpu60x0_I2c mpu;
   struct spi_transaction ad7689_trans;
   volatile uint8_t ad7689_spi_tx_buffer[2];

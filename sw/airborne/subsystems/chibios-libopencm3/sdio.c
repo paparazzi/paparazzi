@@ -52,7 +52,7 @@ static enum {STOP, CONNECT} cnxState = STOP;
 
 
 
-bool_t sdioConnect (void)
+bool sdioConnect (void)
 {
   if (!sdc_lld_is_card_inserted (NULL)) {
     return FALSE;
@@ -89,7 +89,7 @@ bool_t sdioConnect (void)
 }
 
 
-bool_t sdioDisconnect (void)
+bool sdioDisconnect (void)
 {
   if (cnxState == STOP)
     return TRUE;
@@ -101,7 +101,7 @@ bool_t sdioDisconnect (void)
   return TRUE;
 }
 
-bool_t isCardInserted  (void)
+bool isCardInserted  (void)
 {
   return sdc_lld_is_card_inserted (NULL);
 }
@@ -152,7 +152,7 @@ static uint8_t  inbuf[MMCSD_BLOCK_SIZE * SDC_BURST_SIZE + 1];
  *                      read.
  * @retval SDC_FAILED   operation failed, the state of the buffer is uncertain.
  */
-bool_t badblocks(uint32_t start, uint32_t end, uint32_t blockatonce, uint8_t pattern){
+bool badblocks(uint32_t start, uint32_t end, uint32_t blockatonce, uint8_t pattern){
   uint32_t position = 0;
   uint32_t i = 0;
 
@@ -209,7 +209,7 @@ void fillbuffers(uint8_t pattern){
 void cmd_sdiotest(void) {
   uint32_t i = 0;
   FRESULT err = 0;
-  bool_t format = FALSE;
+  bool format = FALSE;
 
 
   chThdSleepMilliseconds(100);

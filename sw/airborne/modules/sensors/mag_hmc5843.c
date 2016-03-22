@@ -27,7 +27,7 @@
 
 
 int32_t mag_x, mag_y, mag_z;
-bool_t mag_valid;
+bool mag_valid;
 
 
 

@@ -18,7 +18,7 @@ uint16_t enose_PID_val;
 #define ENOSE_HEAT_INIT 237
 
 static uint8_t enose_conf_requested;
-static volatile bool_t enose_i2c_done;
+static volatile bool enose_i2c_done;
 static struct adc_buf buf_PID;
 
 

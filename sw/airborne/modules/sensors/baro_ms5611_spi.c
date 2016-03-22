@@ -49,8 +49,8 @@ struct Ms5611_Spi baro_ms5611;
 
 float fbaroms, ftempms;
 float baro_ms5611_alt;
-bool_t baro_ms5611_alt_valid;
-bool_t baro_ms5611_enabled;
+bool baro_ms5611_alt_valid;
+bool baro_ms5611_enabled;
 
 float baro_ms5611_r;
 float baro_ms5611_sigma2;

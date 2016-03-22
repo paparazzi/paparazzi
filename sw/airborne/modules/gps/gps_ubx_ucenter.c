@@ -44,9 +44,9 @@
 //
 // UCENTER: init, periodic and event
 #ifndef GPS_I2C
-static bool_t gps_ubx_ucenter_autobaud(uint8_t nr);
+static bool gps_ubx_ucenter_autobaud(uint8_t nr);
 #endif
-static bool_t gps_ubx_ucenter_configure(uint8_t nr);
+static bool gps_ubx_ucenter_configure(uint8_t nr);
 
 #define GPS_UBX_UCENTER_STATUS_STOPPED    0
 #define GPS_UBX_UCENTER_STATUS_AUTOBAUD   1
@@ -247,7 +247,7 @@ static inline void gps_ubx_ucenter_enable_msg(uint8_t class, uint8_t id, uint8_t
  * @return FALSE when completed
  */
 #ifndef GPS_I2C
-static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
+static bool gps_ubx_ucenter_autobaud(uint8_t nr)
 {
   switch (nr) {
     case 0:
@@ -463,7 +463,7 @@ static inline void gps_ubx_ucenter_config_sbas(void)
 // Text Telemetry for Debugging
 #undef GOT_PAYLOAD
 
-static bool_t gps_ubx_ucenter_configure(uint8_t nr)
+static bool gps_ubx_ucenter_configure(uint8_t nr)
 {
   DEBUG_PRINT("gps_ubx_ucenter_configure nr: %u\n", nr);
 

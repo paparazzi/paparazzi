@@ -152,8 +152,8 @@ STATIC_INLINE void main_periodic(void)
   intermcu_periodic();
 
   /* Safety logic */
-  bool_t ap_lost = (inter_mcu.status == INTERMCU_LOST);
-  bool_t rc_lost = (radio_control.status == RC_REALLY_LOST);
+  bool ap_lost = (inter_mcu.status == INTERMCU_LOST);
+  bool rc_lost = (radio_control.status == RC_REALLY_LOST);
   if (rc_lost) {
     if (ap_lost) {
       // Both are lost

@@ -35,7 +35,7 @@
 #define ADS8344Select()   SetBit(ADS8344_SS_IOCLR,ADS8344_SS_PIN)
 #define ADS8344Unselect() SetBit(ADS8344_SS_IOSET,ADS8344_SS_PIN)
 
-bool_t ADS8344_available;
+bool ADS8344_available;
 uint16_t ADS8344_values[NB_CHANNELS];
 
 #define POWER_MODE (1 << 1 | 1)

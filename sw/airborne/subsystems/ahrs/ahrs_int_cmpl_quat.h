@@ -55,8 +55,8 @@ struct AhrsIntCmplQuat {
   struct Int32Vect3  mag_h;
 
   int32_t ltp_vel_norm;
-  bool_t ltp_vel_norm_valid;
-  bool_t heading_aligned;
+  bool ltp_vel_norm_valid;
+  bool heading_aligned;
   float weight;
   float accel_inv_kp;
   float accel_inv_ki;
@@ -65,7 +65,7 @@ struct AhrsIntCmplQuat {
 
   /* parameters/options that can be changed */
   /** enable gravity vector correction by removing centrifugal acceleration */
-  bool_t correct_gravity;
+  bool correct_gravity;
 
   /** sets how strongly the gravity heuristic reduces accel correction.
    * Set to zero in order to disable gravity heuristic.
@@ -101,7 +101,7 @@ struct AhrsIntCmplQuat {
   struct OrientationReps body_to_imu;
 
   enum AhrsICQStatus status; ///< status of the AHRS, AHRS_ICQ_UNINIT or AHRS_ICQ_RUNNING
-  bool_t is_aligned;
+  bool is_aligned;
 };
 
 extern struct AhrsIntCmplQuat ahrs_icq;
@@ -109,7 +109,7 @@ extern struct AhrsIntCmplQuat ahrs_icq;
 extern void ahrs_icq_init(void);
 extern void ahrs_icq_set_body_to_imu(struct OrientationReps *body_to_imu);
 extern void ahrs_icq_set_body_to_imu_quat(struct FloatQuat *q_b2i);
-extern bool_t ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
+extern bool ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
                              struct Int32Vect3 *lp_mag);
 extern void ahrs_icq_propagate(struct Int32Rates *gyro, float dt);
 extern void ahrs_icq_update_accel(struct Int32Vect3 *accel, float dt);

@@ -48,7 +48,7 @@
 
 uint32_t flip_counter;
 uint8_t flip_state;
-bool_t flip_rollout;
+bool flip_rollout;
 int32_t heading_save;
 uint8_t autopilot_mode_old;
 struct Int32Vect2 flip_cmd_earth;

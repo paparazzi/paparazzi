@@ -5,7 +5,7 @@
 
 #include "led.h"
 
-bool_t  mb_twi_controller_asctech_command;
+bool  mb_twi_controller_asctech_command;
 uint8_t mb_twi_controller_asctech_command_type;
 
 #define MB_TWI_CONTROLLER_ASCTECH_ADDR_FRONT 0

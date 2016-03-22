@@ -45,7 +45,7 @@ static int intPow(int a, int b)
 }
 
 
-static bool_t writeBufferWithinSize (char **buffer, const char c, size_t *size)
+static bool writeBufferWithinSize (char **buffer, const char c, size_t *size)
 {
   if (*size) {
     **buffer = c;
@@ -133,7 +133,7 @@ static char *ftoa(char *p, double num, uint32_t precision) {
 void chvprintf(BaseSequentialStream *chp, const char *fmt, va_list ap) {
   char *p, *s, c, filler;
   int i, precision, width;
-  bool_t is_long, left_align;
+  bool is_long, left_align;
   long l;
 #if CHPRINTF_USE_FLOAT
   double d;
@@ -292,7 +292,7 @@ unsigned_common:
 void chvsnprintf(char *buffer, size_t size, const char *fmt, va_list ap) {
   char *p, *s, c, filler;
   int i, precision, width;
-  bool_t is_long, left_align;
+  bool is_long, left_align;
   long l;
 #if CHPRINTF_USE_FLOAT
   double d;

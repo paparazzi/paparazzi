@@ -38,11 +38,11 @@
 #include "state.h"
 
 
-bool_t baro_MS5534A_do_reset;
+bool baro_MS5534A_do_reset;
 uint32_t baro_MS5534A_pressure;
 uint16_t baro_MS5534A_temp;
-bool_t baro_MS5534A_available;
-bool_t alt_baro_enabled;
+bool baro_MS5534A_available;
+bool alt_baro_enabled;
 uint32_t baro_MS5534A_ground_pressure;
 float baro_MS5534A_r;
 float baro_MS5534A_sigma2;
@@ -58,7 +58,7 @@ float baro_MS5534A_z;
 #define STATUS_RESET               6
 
 static uint8_t status;
-static bool_t status_read_data;
+static bool status_read_data;
 static uint16_t words[4];
 
 #define InitStatus() (status <= STATUS_INIT4)

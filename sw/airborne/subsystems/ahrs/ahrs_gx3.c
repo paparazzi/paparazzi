@@ -46,7 +46,7 @@
  */
 struct AhrsGX3 ahrs_gx3;
 
-static inline bool_t gx3_verify_chk(volatile uint8_t *buff_add);
+static inline bool gx3_verify_chk(volatile uint8_t *buff_add);
 static inline float bef(volatile uint8_t *c);
 
 /* Big Endian to Float */
@@ -62,7 +62,7 @@ static inline float bef(volatile uint8_t *c)
   return f;
 }
 
-static inline bool_t gx3_verify_chk(volatile uint8_t *buff_add)
+static inline bool gx3_verify_chk(volatile uint8_t *buff_add)
 {
   uint16_t i, chk_calc;
   chk_calc = 0;

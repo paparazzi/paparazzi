@@ -51,7 +51,7 @@
 #include AHRS_SECONDARY_TYPE_H
 #endif
 
-typedef bool_t (*AhrsEnableOutput)(bool_t);
+typedef bool (*AhrsEnableOutput)(bool);
 
 /* for settings when using secondary AHRS */
 extern uint8_t ahrs_output_idx;

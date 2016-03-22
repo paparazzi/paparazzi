@@ -59,7 +59,7 @@ extern void autopilot_init(void);
    (pprz > THRESHOLD1 ? PPRZ_MODE_AUTO1 : PPRZ_MODE_MANUAL))
 
 extern uint8_t pprz_mode;
-extern bool_t kill_throttle;
+extern bool kill_throttle;
 extern uint8_t  mcu1_status;
 
 /** flight time in seconds. */
@@ -98,9 +98,9 @@ extern int32_t current; // milliAmpere
  */
 extern float energy;
 
-extern bool_t launch;
+extern bool launch;
 
-extern bool_t gps_lost;
+extern bool gps_lost;
 
 /** Assignment, returning _old_value != _value
  * Using GCC expression statements */
@@ -115,7 +115,7 @@ extern void autopilot_send_mode(void);
 
 /** Power switch control.
  */
-extern bool_t power_switch;
+extern bool power_switch;
 
 #ifdef POWER_SWITCH_GPIO
 #include "mcu_periph/gpio.h"

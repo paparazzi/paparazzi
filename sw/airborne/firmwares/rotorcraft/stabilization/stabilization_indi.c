@@ -75,7 +75,7 @@ struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
 
 static int32_t stabilization_att_indi_cmd[COMMANDS_NB];
-static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct Int32Quat *att_err, bool_t rate_control);
+static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct Int32Quat *att_err, bool rate_control);
 static void stabilization_indi_second_order_filter_init(struct IndiFilter *filter, float omega, float zeta, float omega_r);
 static void stabilization_indi_second_order_filter(struct IndiFilter *filter, struct FloatRates *input);
 static inline void lms_estimation(void);
@@ -200,7 +200,7 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
   quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
 }
 
-static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct Int32Quat *att_err, bool_t rate_control)
+static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct Int32Quat *att_err, bool rate_control)
 {
   /* Propagate the second order filter on the gyroscopes */
   struct FloatRates *body_rates = stateGetBodyRates_f();
@@ -283,7 +283,7 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
   indi_commands[COMMAND_YAW] = indi.u_in.r;
 }
 
-void stabilization_indi_run(bool_t enable_integrator __attribute__((unused)), bool_t rate_control)
+void stabilization_indi_run(bool enable_integrator __attribute__((unused)), bool rate_control)
 {
   /* attitude error                          */
   struct Int32Quat att_err;
@@ -308,7 +308,7 @@ void stabilization_indi_run(bool_t enable_integrator __attribute__((unused)), bo
 }
 
 // This function reads rc commands
-void stabilization_indi_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn)
+void stabilization_indi_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)
 {
   struct FloatQuat q_sp;
 #if USE_EARTH_BOUND_RC_SETPOINT

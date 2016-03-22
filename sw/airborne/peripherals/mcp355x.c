@@ -27,7 +27,7 @@
 #include "peripherals/mcp355x.h"
 #include "mcu_periph/spi.h"
 
-bool_t mcp355x_data_available;
+bool mcp355x_data_available;
 int32_t mcp355x_data;
 uint8_t mcp355x_val[4];
 

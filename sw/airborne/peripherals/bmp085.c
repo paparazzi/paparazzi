@@ -64,7 +64,7 @@ static int32_t bmp085_compensated_pressure(struct Bmp085Calib *calib, int32_t ra
  * Dummy function to always return TRUE on EndOfConversion check.
  * Ensure proper timing trough frequency of bmp085_periodic instead!
  */
-static bool_t bmp085_eoc_true(void)
+static bool bmp085_eoc_true(void)
 {
   return TRUE;
 }

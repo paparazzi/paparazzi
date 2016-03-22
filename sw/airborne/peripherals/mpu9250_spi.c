@@ -146,7 +146,7 @@ void mpu9250_spi_event(struct Mpu9250_Spi *mpu)
 }
 
 /** configure the registered I2C slaves */
-bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
+bool mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
 {
   struct Mpu9250_Spi *mpu_spi = (struct Mpu9250_Spi *)(mpu);
 

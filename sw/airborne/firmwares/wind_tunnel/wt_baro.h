@@ -30,7 +30,7 @@
 extern uint8_t buf_input[3];
 extern uint8_t buf_output[3];
 
-extern bool_t wt_baro_available;
+extern bool wt_baro_available;
 extern uint32_t wt_baro_pressure;
 
 extern void wt_baro_init(void);

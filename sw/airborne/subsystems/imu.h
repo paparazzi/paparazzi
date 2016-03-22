@@ -55,7 +55,7 @@ struct Imu {
   /** flag for adjusting body_to_imu via settings.
    * if FALSE, reset to airframe values, if TRUE set current roll/pitch
    */
-  bool_t b2i_set_current;
+  bool b2i_set_current;
 };
 
 /** global IMU state */

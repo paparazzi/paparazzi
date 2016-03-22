@@ -71,7 +71,7 @@ enum Mpu9250ConfStatus {
 typedef void (*Mpu9250ConfigSet)(void *mpu, uint8_t _reg, uint8_t _val);
 
 /// function prototype for configuration of a single I2C slave
-typedef bool_t (*Mpu9250I2cSlaveConfigure)(Mpu9250ConfigSet mpu_set, void *mpu);
+typedef bool (*Mpu9250I2cSlaveConfigure)(Mpu9250ConfigSet mpu_set, void *mpu);
 
 struct Mpu9250I2cSlave {
   Mpu9250I2cSlaveConfigure configure;
@@ -83,16 +83,16 @@ struct Mpu9250Config {
   enum Mpu9250DLPFGyro dlpf_gyro_cfg;   ///< Digital Low Pass Filter for gyroscope
   enum Mpu9250GyroRanges gyro_range;    ///< deg/s Range
   enum Mpu9250AccelRanges accel_range;  ///< g Range
-  bool_t drdy_int_enable;               ///< Enable Data Ready Interrupt
+  bool drdy_int_enable;               ///< Enable Data Ready Interrupt
   uint8_t clk_sel;                      ///< Clock select
   uint8_t nb_bytes;                     ///< number of bytes to read starting with MPU9250_REG_INT_STATUS
   enum Mpu9250ConfStatus init_status;   ///< init status
-  bool_t initialized;                   ///< config done flag
+  bool initialized;                   ///< config done flag
 
   /** Bypass MPU I2C.
    * Only effective if using the I2C implementation.
    */
-  bool_t i2c_bypass;
+  bool i2c_bypass;
 
   uint8_t nb_slaves;                    ///< number of used I2C slaves
   uint8_t nb_slave_init;                ///< number of already configured/initialized slaves
@@ -113,6 +113,6 @@ extern void mpu9250_send_config(Mpu9250ConfigSet mpu_set, void *mpu, struct Mpu9
  * @param mpu Mpu9250Spi or Mpu9250I2c peripheral
  * @return TRUE when all slaves are configured
  */
-extern bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu);
+extern bool mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu);
 
 #endif // MPU9250_H

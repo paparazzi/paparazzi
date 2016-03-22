@@ -74,4 +74,4 @@ void video_thread_periodic(void)
 
 void video_thread_start(void) {}
 void video_thread_stop(void) {}
-void video_thread_take_shot(bool_t take __attribute__((unused))) {}
+void video_thread_take_shot(bool take __attribute__((unused))) {}

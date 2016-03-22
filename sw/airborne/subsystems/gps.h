@@ -149,9 +149,9 @@ extern void gps_inject_data(uint8_t packet_id, uint8_t length, uint8_t *data);
 #define GPS_TIMEOUT 2
 #endif
 
-static inline bool_t gps_has_been_good(void)
+static inline bool gps_has_been_good(void)
 {
-  static bool_t gps_had_valid_fix = FALSE;
+  static bool gps_had_valid_fix = FALSE;
   if (GpsFixValid()) {
     gps_had_valid_fix = TRUE;
   }

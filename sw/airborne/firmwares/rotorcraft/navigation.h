@@ -60,7 +60,7 @@ extern float nav_climb_vspeed, nav_descend_vspeed;
 extern int32_t nav_leg_progress;
 extern uint32_t nav_leg_length;
 
-extern bool_t nav_survey_active;
+extern bool nav_survey_active;
 
 extern uint8_t vertical_mode;
 extern uint32_t nav_throttle;  ///< direct throttle from 0:MAX_PPRZ, used in VERTICAL_MODE_MANUAL
@@ -71,7 +71,7 @@ extern float flight_altitude;
 #define VERTICAL_MODE_ALT         2
 
 extern float dist2_to_home;      ///< squared distance to home waypoint
-extern bool_t too_far_from_home;
+extern bool too_far_from_home;
 extern float failsafe_mode_dist2; ///< maximum squared distance to home wp before going to failsafe mode
 
 extern float dist2_to_wp;       ///< squared distance to next waypoint
@@ -84,17 +84,17 @@ extern void nav_home(void);
 unit_t nav_reset_reference(void) __attribute__((unused));
 unit_t nav_reset_alt(void) __attribute__((unused));
 void nav_periodic_task(void);
-bool_t nav_detect_ground(void);
-bool_t nav_is_in_flight(void);
+bool nav_detect_ground(void);
+bool nav_is_in_flight(void);
 
-extern bool_t exception_flag[10];
+extern bool exception_flag[10];
 extern void set_exception_flag(uint8_t flag_num);
 
-extern bool_t nav_set_heading_rad(float rad);
-extern bool_t nav_set_heading_deg(float deg);
-extern bool_t nav_set_heading_towards(float x, float y);
-extern bool_t nav_set_heading_towards_waypoint(uint8_t wp);
-extern bool_t nav_set_heading_current(void);
+extern bool nav_set_heading_rad(float rad);
+extern bool nav_set_heading_deg(float deg);
+extern bool nav_set_heading_towards(float x, float y);
+extern bool nav_set_heading_towards_waypoint(uint8_t wp);
+extern bool nav_set_heading_current(void);
 
 /** default approaching_time for a wp */
 #ifndef CARROT
@@ -155,12 +155,12 @@ extern void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end);
   }
 
 /** Proximity tests on approaching a wp */
-bool_t nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t approaching_time);
+bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t approaching_time);
 #define NavApproaching(wp, time) nav_approaching_from(&waypoints[wp].enu_i, NULL, time)
 #define NavApproachingFrom(wp, from, time) nav_approaching_from(&waypoints[wp].enu_i, &waypoints[from].enu_i, time)
 
 /** Check the time spent in a radius of 'ARRIVED_AT_WAYPOINT' around a wp  */
-bool_t nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
+bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
 #define NavCheckWaypointTime(wp, time) nav_check_wp_time(&waypoints[wp].enu_i, time)
 
 /** Set the climb control to auto-throttle with the specified pitch

@@ -490,7 +490,7 @@ void spi1_arch_init(void)
 #endif
 
 
-bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
+bool spi_submit(struct spi_periph *p, struct spi_transaction *t)
 {
   //unsigned cpsr;
 
@@ -560,7 +560,7 @@ void spi_slave_unselect(uint8_t slave)
   SpiSlaveUnselect(slave);
 }
 
-bool_t spi_lock(struct spi_periph *p, uint8_t slave)
+bool spi_lock(struct spi_periph *p, uint8_t slave)
 {
   uint8_t *vic = (uint8_t *)(p->init_struct);
   VICIntEnClear = VIC_BIT(*vic);
@@ -573,7 +573,7 @@ bool_t spi_lock(struct spi_periph *p, uint8_t slave)
   return FALSE;
 }
 
-bool_t spi_resume(struct spi_periph *p, uint8_t slave)
+bool spi_resume(struct spi_periph *p, uint8_t slave)
 {
   uint8_t *vic = (uint8_t *)(p->init_struct);
   VICIntEnClear = VIC_BIT(*vic);
@@ -676,7 +676,7 @@ void spi1_slave_arch_init(void)
 #endif
 
 /** Register one (and only one) transaction to use spi as slave */
-bool_t spi_slave_register(struct spi_periph *p, struct spi_transaction *t)
+bool spi_slave_register(struct spi_periph *p, struct spi_transaction *t)
 {
 
   if (p->trans_insert_idx >= 1) {
@@ -700,7 +700,7 @@ bool_t spi_slave_register(struct spi_periph *p, struct spi_transaction *t)
   return TRUE;
 }
 
-bool_t spi_slave_wait(struct spi_periph *p)
+bool spi_slave_wait(struct spi_periph *p)
 {
   if (p->trans_insert_idx == 0) {
     // no transaction registered

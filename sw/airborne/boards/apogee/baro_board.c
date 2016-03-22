@@ -41,7 +41,7 @@
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
 #include "subsystems/gps.h"
-bool_t log_apogee_baro_started;
+bool log_apogee_baro_started;
 #endif
 
 

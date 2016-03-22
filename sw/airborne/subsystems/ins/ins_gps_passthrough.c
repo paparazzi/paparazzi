@@ -47,7 +47,7 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 
 struct InsGpsPassthrough {
   struct LtpDef_i  ltp_def;
-  bool_t           ltp_initialized;
+  bool           ltp_initialized;
 
   /* output LTP NED */
   struct NedCoor_i ltp_pos;

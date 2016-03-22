@@ -122,7 +122,7 @@ void electrical_periodic(void)
 {
   static uint32_t bat_low_counter = 0;
   static uint32_t bat_critical_counter = 0;
-  static bool_t vsupply_check_started = FALSE;
+  static bool vsupply_check_started = FALSE;
 
 #if defined(ADC_CHANNEL_VSUPPLY) && !defined(SITL)
   electrical.vsupply = 10 * VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum /

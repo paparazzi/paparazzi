@@ -43,7 +43,7 @@
 #define GPS_MTK_MAX_PAYLOAD 255
 
 struct GpsMtk {
-  bool_t msg_available;
+  bool msg_available;
   uint8_t msg_buf[GPS_MTK_MAX_PAYLOAD] __attribute__((aligned));
   uint8_t msg_id;
   uint8_t msg_class;
@@ -71,7 +71,7 @@ extern void gps_mtk_register(void);
 #ifdef GPS_CONFIGURE
 extern void gps_configure(void);
 extern void gps_configure_uart(void);
-extern bool_t gps_configuring;
+extern bool gps_configuring;
 #define GpsConfigure() {            \
     if (gps_configuring)            \
       gps_configure();              \

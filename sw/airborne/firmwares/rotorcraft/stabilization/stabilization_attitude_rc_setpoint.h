@@ -33,15 +33,15 @@
 extern void stabilization_attitude_reset_care_free_heading(void);
 extern int32_t stabilization_attitude_get_heading_i(void);
 extern float stabilization_attitude_get_heading_f(void);
-extern void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight, bool_t in_carefree,
-    bool_t coordinated_turn);
-extern void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bool_t in_flight,
-    bool_t in_carefree, bool_t coordinated_turn);
+extern void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool in_flight, bool in_carefree,
+    bool coordinated_turn);
+extern void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bool in_flight,
+    bool in_carefree, bool coordinated_turn);
 extern void stabilization_attitude_read_rc_roll_pitch_quat_f(struct FloatQuat *q);
 extern void stabilization_attitude_read_rc_roll_pitch_earth_quat_f(struct FloatQuat *q);
-extern void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQuat *q_sp, bool_t in_flight, bool_t in_carefree,
-    bool_t coordinated_turn);
-extern void stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(struct FloatQuat *q_sp, bool_t in_flight,
-    bool_t in_carefree, bool_t coordinated_turn);
+extern void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQuat *q_sp, bool in_flight, bool in_carefree,
+    bool coordinated_turn);
+extern void stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(struct FloatQuat *q_sp, bool in_flight,
+    bool in_carefree, bool coordinated_turn);
 
 #endif /* STABILIZATION_ATTITUDE_RC_SETPOINT_H */

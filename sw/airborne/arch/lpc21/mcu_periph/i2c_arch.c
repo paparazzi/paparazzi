@@ -85,7 +85,7 @@ __attribute__((always_inline)) static inline void I2cSendByte(void *reg, uint8_t
   ((i2cRegs_t *)reg)->dat = b;
 }
 
-__attribute__((always_inline)) static inline void I2cReceive(void *reg, bool_t ack)
+__attribute__((always_inline)) static inline void I2cReceive(void *reg, bool ack)
 {
   if (ack) { ((i2cRegs_t *)reg)->conset = _BV(AA); }
   else { ((i2cRegs_t *)reg)->conclr = _BV(AAC); }
@@ -341,12 +341,12 @@ void i2c1_hw_init(void)
 #endif /* USE_I2C1 */
 
 
-bool_t i2c_idle(struct i2c_periph *p)
+bool i2c_idle(struct i2c_periph *p)
 {
   return p->status == I2CIdle;
 }
 
-bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
+bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
 {
 
   uint8_t idx;

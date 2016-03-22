@@ -29,9 +29,9 @@
 #include "spi.h"
 
 uint32_t wt_baro_pressure;
-bool_t wt_baro_available;
+bool wt_baro_available;
 
-static bool_t status_read_data;
+static bool status_read_data;
 
 #define CMD_INIT_1      0x24 // set chanel AIN1/AIN2 and next operation on filter high
 #define CMD_INIT_2      0xCF // set unipolar mode, 24 bits, no boost, filter high

@@ -27,7 +27,7 @@
 
 #define ADS8344_NB_CHANNELS 8
 extern uint16_t ADS8344_values[ADS8344_NB_CHANNELS];
-extern volatile bool_t ADS8344_available;
+extern volatile bool ADS8344_available;
 
 /* underlying architecture */
 #include "subsystems/imu/imu_crista_arch.h"

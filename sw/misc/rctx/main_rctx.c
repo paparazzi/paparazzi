@@ -108,7 +108,7 @@ void periodic_task_rctx( void );
 #define IdOfMsg(x) (x[1])
 
 uint8_t dl_buffer[MSG_SIZE]  __attribute__ ((aligned));
-bool_t dl_msg_available;
+bool dl_msg_available;
 uint16_t datalink_time;
 
 void dl_parse_msg(void) {

@@ -23,7 +23,7 @@
 #include "generated/airframe.h"
 #include "subsystems/actuators.h"
 
-bool_t servo_switch_on;
+bool servo_switch_on;
 
 // One level of macro stack to allow redefinition of the default servo
 #define _ServoSwitch(_n, _v) ActuatorSet(_n, _v)

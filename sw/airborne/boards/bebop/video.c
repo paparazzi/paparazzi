@@ -59,7 +59,7 @@ struct video_config_t front_camera = {
   .filters = VIDEO_FILTER_DEBAYER
 };
 
-static bool_t write_reg(int fd, char *addr_val, uint8_t cnt)
+static bool write_reg(int fd, char *addr_val, uint8_t cnt)
 {
   char resp[cnt - 2];
   uint8_t i;
@@ -82,7 +82,7 @@ static bool_t write_reg(int fd, char *addr_val, uint8_t cnt)
   return TRUE;
 }
 
-static bool_t _write(int fd, char *data, uint8_t cnt)
+static bool _write(int fd, char *data, uint8_t cnt)
 {
   if (write(fd, data, cnt) != cnt) {
     printf("Failed!\n");

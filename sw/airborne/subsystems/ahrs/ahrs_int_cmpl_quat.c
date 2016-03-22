@@ -148,7 +148,7 @@ void ahrs_icq_init(void)
 }
 
 
-bool_t ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
+bool ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
                       struct Int32Vect3 *lp_mag)
 {
 

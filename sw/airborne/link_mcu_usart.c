@@ -140,7 +140,7 @@
 
 #define INTERMCU_MAX_PAYLOAD 255
 struct InterMcuData {
-  bool_t msg_available;
+  bool msg_available;
   uint8_t msg_buf[INTERMCU_MAX_PAYLOAD] __attribute__((aligned));
   uint8_t msg_id;
   uint8_t msg_class;

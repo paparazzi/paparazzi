@@ -361,7 +361,7 @@ static void configure_socket(uint8_t _s, uint8_t _flag, uint16_t _lport, uint16_
   w5100_sock_set(_s, SOCK_CR, SOCK_OPEN);
 }
 
-bool_t w5100_ch_available()
+bool w5100_ch_available()
 {
   if (w5100_rx_size(CMD_SOCKET) > 0) {
     return TRUE;

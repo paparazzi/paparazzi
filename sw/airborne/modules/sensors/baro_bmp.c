@@ -51,7 +51,7 @@
 
 struct Bmp085 baro_bmp;
 
-bool_t baro_bmp_enabled;
+bool baro_bmp_enabled;
 float baro_bmp_r;
 float baro_bmp_sigma2;
 int32_t baro_bmp_alt;

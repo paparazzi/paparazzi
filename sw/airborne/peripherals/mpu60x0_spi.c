@@ -149,7 +149,7 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
 }
 
 /** configure the registered I2C slaves */
-bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
+bool mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
 {
   struct Mpu60x0_Spi *mpu_spi = (struct Mpu60x0_Spi *)(mpu);
 

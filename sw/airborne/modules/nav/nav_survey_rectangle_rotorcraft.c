@@ -52,16 +52,16 @@
 #include "state.h"
 
 float sweep = RECTANGLE_SURVEY_DEFAULT_SWEEP;
-static bool_t nav_survey_rectangle_active = FALSE;
+static bool nav_survey_rectangle_active = FALSE;
 uint16_t rectangle_survey_sweep_num;
-bool_t nav_in_segment = FALSE;
-bool_t nav_in_circle = FALSE;
-bool_t interleave = USE_INTERLEAVE;
+bool nav_in_segment = FALSE;
+bool nav_in_circle = FALSE;
+bool interleave = USE_INTERLEAVE;
 
 static struct EnuCoor_f survey_from, survey_to;
 static struct EnuCoor_i survey_from_i, survey_to_i;
 
-static bool_t survey_uturn __attribute__((unused)) = FALSE;
+static bool survey_uturn __attribute__((unused)) = FALSE;
 static survey_orientation_t survey_orientation = NS;
 
 float nav_survey_shift;
@@ -96,7 +96,7 @@ void nav_survey_rectangle_rotorcraft_init(void)
 #endif
 }
 
-bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so)
+bool nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so)
 {
   rectangle_survey_sweep_num = 0;
   nav_survey_west = Min(WaypointX(wp1), WaypointX(wp2));
@@ -155,9 +155,9 @@ bool_t nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float gri
 }
 
 
-bool_t nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
+bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
 {
-  static bool_t is_last_half = FALSE;
+  static bool is_last_half = FALSE;
   static float survey_radius;
   nav_survey_active = TRUE;
 

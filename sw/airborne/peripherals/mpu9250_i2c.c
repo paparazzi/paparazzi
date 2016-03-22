@@ -27,7 +27,7 @@
 
 #include "peripherals/mpu9250_i2c.h"
 
-bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set __attribute__((unused)),
+bool imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set __attribute__((unused)),
                                        void *mpu __attribute__((unused)));
 
 void mpu9250_i2c_init(struct Mpu9250_I2c *mpu, struct i2c_periph *i2c_p, uint8_t addr)
@@ -151,7 +151,7 @@ void mpu9250_i2c_event(struct Mpu9250_I2c *mpu)
 /** callback function to configure ak8963 mag
  * @return TRUE if mag configuration finished
  */
-bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set __attribute__((unused)), void *mpu)
+bool imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set __attribute__((unused)), void *mpu)
 {
   struct Mpu9250_I2c *mpu_i2c = (struct Mpu9250_I2c *)(mpu);
 
@@ -164,7 +164,7 @@ bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set __attribute__((u
 }
 
 /** configure the registered I2C slaves */
-bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
+bool mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
 {
   struct Mpu9250_I2c *mpu_i2c = (struct Mpu9250_I2c *)(mpu);
 

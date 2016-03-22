@@ -46,7 +46,7 @@ float slider_1_val, slider_2_val;
 #include "generated/settings.h"
 
 
-void rc_settings(bool_t mode_changed __attribute__((unused)))
+void rc_settings(bool mode_changed __attribute__((unused)))
 {
   RCSettings(mode_changed);
 }

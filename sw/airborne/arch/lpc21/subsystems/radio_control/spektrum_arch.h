@@ -34,7 +34,7 @@
 #define RC_SPK_STA_GOT_SYNC_1 1
 #define RC_SPK_STA_GOT_SYNC_2 2
 
-extern bool_t   rc_spk_parser_status;
+extern bool   rc_spk_parser_status;
 extern uint8_t  rc_spk_parser_idx;
 extern uint8_t  rc_spk_parser_buf[RADIO_CONTROL_NB_CHANNEL * 2];
 

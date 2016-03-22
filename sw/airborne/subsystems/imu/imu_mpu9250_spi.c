@@ -116,7 +116,7 @@ struct ImuMpu9250 imu_mpu9250;
 
 void mpu_wait_slave4_ready(void);
 void mpu_wait_slave4_ready_cb(struct spi_transaction *t);
-bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu);
+bool imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu);
 
 void imu_impl_init(void)
 {
@@ -227,7 +227,7 @@ static inline void mpu_set_and_wait(Mpu9250ConfigSet mpu_set, void *mpu, uint8_t
 /** function to configure akm8963 mag
  * @return TRUE if mag configuration finished
  */
-bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu)
+bool imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu)
 {
   // wait before starting the configuration of the mag
   // doing to early may void the mode configuration

@@ -53,12 +53,12 @@ enum Ak8963Status {
 struct Ak8963 {
   struct i2c_periph *i2c_p;           ///< peripheral used for communcation
   struct i2c_transaction i2c_trans;   ///< i2c transaction used for communication with the ak8936
-  bool_t initialized;                 ///< config done flag
+  bool initialized;                 ///< config done flag
 
   enum Ak8963Status status;           ///< main status
   enum Ak8963ConfStatus init_status;  ///< init status
 
-  volatile bool_t data_available;     ///< data ready flag
+  volatile bool data_available;     ///< data ready flag
   union {
     struct Int16Vect3 vect;           ///< data vector in mag coordinate system
     int16_t value[3];                 ///< data values accessible by channel index

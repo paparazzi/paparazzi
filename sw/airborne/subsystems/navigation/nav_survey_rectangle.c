@@ -32,7 +32,7 @@
 
 static struct point survey_from;
 static struct point survey_to;
-static bool_t survey_uturn __attribute__((unused)) = FALSE;
+static bool survey_uturn __attribute__((unused)) = FALSE;
 static survey_orientation_t survey_orientation = NS;
 
 #define SurveyGoingNorth() ((survey_orientation == NS) && (survey_to.y > survey_from.y))

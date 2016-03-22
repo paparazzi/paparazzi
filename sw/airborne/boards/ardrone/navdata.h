@@ -112,7 +112,7 @@ struct bmp180_calib_t {
 
 /* Main navdata structure */
 struct navdata_t {
-  bool_t is_initialized;                  ///< Check if the navdata board is initialized
+  bool is_initialized;                  ///< Check if the navdata board is initialized
   int fd;                                 ///< The navdata file pointer
 
   uint32_t totalBytesRead;
@@ -124,14 +124,14 @@ struct navdata_t {
   struct navdata_measure_t measure;       ///< Main navdata packet receieved from navboard
   struct bmp180_calib_t bmp180_calib;     ///< BMP180 calibration receieved from navboard
 
-  bool_t baro_calibrated;                 ///< Whenever the baro is calibrated
-  bool_t baro_available;                  ///< Whenever the baro is available
-  bool_t imu_lost;                        ///< Whenever the imu is lost
+  bool baro_calibrated;                 ///< Whenever the baro is calibrated
+  bool baro_available;                  ///< Whenever the baro is available
+  bool imu_lost;                        ///< Whenever the imu is lost
 };
 extern struct navdata_t navdata;
 
 
-bool_t navdata_init(void);
+bool navdata_init(void);
 void navdata_update(void);
 int16_t navdata_height(void);
 

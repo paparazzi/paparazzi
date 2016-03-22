@@ -43,12 +43,12 @@ enum Adxl345ConfStatus {
 };
 
 struct Adxl345Config {
-  bool_t drdy_int_enable;   ///< Enable Data Ready Interrupt
-  bool_t int_invert;        ///< Invert Interrupt FALSE: active high, TRUE: active low
-  bool_t full_res;          ///< Full Resolution: FALSE: 10bit, TRUE: full with 4mg/LSB
-  bool_t justify_msb;       ///< justify: FALSE: right with sign-extension, TRUE: MSB (left)
-  bool_t self_test;         ///< Enable self-test-force causing shift in output data.
-  bool_t spi_3_wire;        ///< Set 3-wire SPI mode, if FALSE: 4-wire SPI mode
+  bool drdy_int_enable;   ///< Enable Data Ready Interrupt
+  bool int_invert;        ///< Invert Interrupt FALSE: active high, TRUE: active low
+  bool full_res;          ///< Full Resolution: FALSE: 10bit, TRUE: full with 4mg/LSB
+  bool justify_msb;       ///< justify: FALSE: right with sign-extension, TRUE: MSB (left)
+  bool self_test;         ///< Enable self-test-force causing shift in output data.
+  bool spi_3_wire;        ///< Set 3-wire SPI mode, if FALSE: 4-wire SPI mode
   enum Adxl345Ranges range; ///< g Range
   enum Adxl345Rates rate;   ///< Data Output Rate
 };

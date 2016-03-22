@@ -58,7 +58,7 @@ extern void ppm_arch_init(void);
 #define PPM_PULSE_TYPE_NEGATIVE 1
 
 extern uint16_t ppm_pulses[RADIO_CTL_NB];
-extern volatile bool_t ppm_frame_available;
+extern volatile bool ppm_frame_available;
 
 /**
  * RC event function with handler callback.

@@ -51,7 +51,7 @@
 /* Internal used functions */
 static void *navdata_read(void *data __attribute__((unused)));
 static void navdata_cmd_send(uint8_t cmd);
-static bool_t navdata_baro_calib(void);
+static bool navdata_baro_calib(void);
 static void mag_freeze_check(void);
 static void baro_update_logic(void);
 
@@ -61,7 +61,7 @@ struct navdata_t navdata;
 /** Buffer filled in the thread (maximum one navdata packet) */
 static uint8_t navdata_buffer[NAVDATA_PACKET_SIZE];
 /** flag to indicate new packet is available in buffer */
-static bool_t navdata_available = FALSE;
+static bool navdata_available = FALSE;
 
 /* syncronization variables */
 static pthread_mutex_t navdata_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -168,7 +168,7 @@ static void send_navdata(struct transport_tx *trans, struct link_device *dev)
 /**
  * Initialize the navdata board
  */
-bool_t navdata_init()
+bool navdata_init()
 {
   assert(sizeof(struct navdata_measure_t) == NAVDATA_PACKET_SIZE);
 
@@ -413,7 +413,7 @@ static void navdata_cmd_send(uint8_t cmd)
 /**
  * Try to receive the baro calibration from the navdata board
  */
-static bool_t navdata_baro_calib(void)
+static bool navdata_baro_calib(void)
 {
   /* Start baro calibration acquisition */
   navdata_cmd_send(NAVDATA_CMD_BARO_CALIB);

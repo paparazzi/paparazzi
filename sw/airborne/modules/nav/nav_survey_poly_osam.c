@@ -69,9 +69,9 @@
 
 uint8_t Poly_Size = POLY_OSAM_DEFAULT_SIZE;
 float Poly_Sweep = POLY_OSAM_DEFAULT_SWEEP;
-bool_t use_full_circle = POLY_OSAM_USE_FULL_CIRCLE;
+bool use_full_circle = POLY_OSAM_USE_FULL_CIRCLE;
 
-bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
+bool nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
 {
   float dx = waypoints[SecondWP].x - waypoints[FirstWP].x;
   float dy = waypoints[SecondWP].y - waypoints[FirstWP].y;
@@ -127,7 +127,7 @@ uint16_t PolySurveySweepNum;
 uint16_t PolySurveySweepBackNum;
 float EntryRadius;
 
-bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
+bool nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
 {
   SmallestCorner.x = 0;
   SmallestCorner.y = 0;
@@ -332,7 +332,7 @@ bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float
   return FALSE;
 }
 
-bool_t nav_survey_poly_osam_run(void)
+bool nav_survey_poly_osam_run(void)
 {
   struct Point2D C;
   struct Point2D ToP;
@@ -340,8 +340,8 @@ bool_t nav_survey_poly_osam_run(void)
   float ys;
   static struct Point2D LastPoint;
   int i;
-  bool_t LastHalfSweep;
-  static bool_t HalfSweep = FALSE;
+  bool LastHalfSweep;
+  static bool HalfSweep = FALSE;
   float XIntercept1 = 0;
   float XIntercept2 = 0;
   float DInt1 = 0;

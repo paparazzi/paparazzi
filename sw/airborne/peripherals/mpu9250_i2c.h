@@ -55,7 +55,7 @@ enum Mpu9250I2cSlaveInitStatus {
 struct Mpu9250_I2c {
   struct i2c_periph *i2c_p;
   struct i2c_transaction i2c_trans;
-  volatile bool_t data_available;     ///< data ready flag
+  volatile bool data_available;     ///< data ready flag
   union {
     struct Int16Vect3 vect;           ///< accel data vector in accel coordinate system
     int16_t value[3];                 ///< accel data values accessible by channel index

@@ -75,7 +75,7 @@ static struct opticflow_state_t opticflow_state;   ///< State of the drone to co
 static struct v4l2_device *opticflow_dev;          ///< The opticflow camera V4L2 device
 static abi_event opticflow_agl_ev;                 ///< The altitude ABI event
 static pthread_t opticflow_calc_thread;            ///< The optical flow calculation thread
-static bool_t opticflow_got_result;                ///< When we have an optical flow calculation
+static bool opticflow_got_result;                ///< When we have an optical flow calculation
 static pthread_mutex_t opticflow_mutex;            ///< Mutex lock fo thread safety
 
 struct UdpSocket video_sock;

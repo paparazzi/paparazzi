@@ -42,7 +42,7 @@ enum LisaBaroStatus {
 
 struct BaroBoard {
   enum LisaBaroStatus status;
-  bool_t running;
+  bool running;
 };
 
 

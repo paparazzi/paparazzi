@@ -77,7 +77,7 @@ extern struct FloatEulers UM6_eulers;
 extern struct FloatQuat UM6_quat;
 
 struct UM6Packet {
-  bool_t  msg_available;
+  bool  msg_available;
   uint32_t chksm_error;
   uint32_t hdr_error;
   uint8_t msg_buf[IMU_UM6_BUFFER_LENGTH];

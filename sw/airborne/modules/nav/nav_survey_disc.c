@@ -46,7 +46,7 @@ struct DiscSurvey {
 static struct DiscSurvey disc_survey;
 
 
-bool_t nav_survey_disc_setup(float grid)
+bool nav_survey_disc_setup(float grid)
 {
   nav_survey_shift = grid;
   disc_survey.status = DOWNWIND;
@@ -56,7 +56,7 @@ bool_t nav_survey_disc_setup(float grid)
   return FALSE;
 }
 
-bool_t nav_survey_disc_run(uint8_t center_wp, float radius)
+bool nav_survey_disc_run(uint8_t center_wp, float radius)
 {
   struct FloatVect2 *wind = stateGetHorizontalWindspeed_f();
   float wind_dir = atan2(wind->x, wind->y) + M_PI;

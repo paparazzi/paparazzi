@@ -136,7 +136,7 @@ void guidance_h_module_read_rc(void)
  * Main guidance loop
  * @param[in] in_flight Whether we are in flight or not
  */
-void guidance_h_module_run(bool_t in_flight)
+void guidance_h_module_run(bool in_flight)
 {
   /* Update the setpoint */
   stabilization_attitude_set_rpy_setpoint_i(&opticflow_stab.cmd);

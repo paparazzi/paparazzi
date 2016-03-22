@@ -42,14 +42,14 @@ void i2c_setbitrate(struct i2c_periph *p  __attribute__((unused)), int bitrate _
 {
 }
 
-bool_t i2c_idle(struct i2c_periph *p __attribute__((unused)))
+bool i2c_idle(struct i2c_periph *p __attribute__((unused)))
 {
   return TRUE;
 }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
-bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
+bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
 {
   int file = (int)p->reg_addr;
 

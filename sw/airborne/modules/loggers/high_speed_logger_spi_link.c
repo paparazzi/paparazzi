@@ -28,7 +28,7 @@
 struct high_speed_logger_spi_link_data high_speed_logger_spi_link_data;
 struct spi_transaction high_speed_logger_spi_link_transaction;
 
-static volatile bool_t high_speed_logger_spi_link_ready = TRUE;
+static volatile bool high_speed_logger_spi_link_ready = TRUE;
 
 static void high_speed_logger_spi_link_trans_cb(struct spi_transaction *trans);
 

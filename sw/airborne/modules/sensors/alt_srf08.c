@@ -40,7 +40,7 @@
 #endif
 
 /* Global Variables */
-bool_t srf08_received, srf08_got;
+bool srf08_received, srf08_got;
 struct i2c_transaction srf_trans;
 uint16_t srf08_range;
 

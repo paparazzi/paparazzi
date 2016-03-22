@@ -72,9 +72,9 @@ uint16_t pBaroRaw;
 uint16_t tBaroRaw;
 uint16_t baro_amsys_adc;
 float baro_amsys_offset;
-bool_t baro_amsys_valid;
+bool baro_amsys_valid;
 float baro_amsys_altitude;
-bool_t baro_amsys_enabled;
+bool baro_amsys_enabled;
 float baro_amsys_r;
 float baro_amsys_sigma2;
 float baro_amsys_temp;
@@ -90,7 +90,7 @@ float baro_old;
 struct i2c_transaction baro_amsys_i2c_trans;
 
 // Local variables
-bool_t baro_amsys_offset_init;
+bool baro_amsys_offset_init;
 double baro_amsys_offset_tmp;
 uint16_t baro_amsys_cnt;
 

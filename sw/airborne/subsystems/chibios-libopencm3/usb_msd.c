@@ -184,7 +184,7 @@ void msdConfigureHookI(USBMassStorageDriver *msdp)
  * @retval TRUE         Message handled internally.
  * @retval FALSE        Message not handled.
  */
-bool_t msdRequestsHook(USBDriver *usbp) {
+bool msdRequestsHook(USBDriver *usbp) {
 
   /* check that the request is of type Class / Interface */
   if (((usbp->setup[0] & USB_RTYPE_TYPE_MASK) == USB_RTYPE_TYPE_CLASS) &&
@@ -291,7 +291,7 @@ static inline void msd_scsi_set_sense(USBMassStorageDriver *msdp, uint8_t key, u
 /**
  * @brief Processes an INQUIRY SCSI command
  */
-bool_t msd_scsi_process_inquiry(USBMassStorageDriver *msdp) {
+bool msd_scsi_process_inquiry(USBMassStorageDriver *msdp) {
 
   msd_cbw_t *cbw = &(msdp->cbw);
 
@@ -333,7 +333,7 @@ bool_t msd_scsi_process_inquiry(USBMassStorageDriver *msdp) {
 /**
  * @brief Processes a REQUEST_SENSE SCSI command
  */
-bool_t msd_scsi_process_request_sense(USBMassStorageDriver *msdp) {
+bool msd_scsi_process_request_sense(USBMassStorageDriver *msdp) {
 
   msd_start_transmit(msdp, (const uint8_t *)&msdp->sense, sizeof(msdp->sense));
   msdp->result = TRUE;
@@ -348,7 +348,7 @@ bool_t msd_scsi_process_request_sense(USBMassStorageDriver *msdp) {
 /**
  * @brief Processes a READ_CAPACITY_10 SCSI command
  */
-bool_t msd_scsi_process_read_capacity_10(USBMassStorageDriver *msdp) {
+bool msd_scsi_process_read_capacity_10(USBMassStorageDriver *msdp) {
 
   static msd_scsi_read_capacity_10_response_t response;
 
@@ -365,7 +365,7 @@ bool_t msd_scsi_process_read_capacity_10(USBMassStorageDriver *msdp) {
 /**
  * @brief Processes a SEND_DIAGNOSTIC SCSI command
  */
-bool_t msd_scsi_process_send_diagnostic(USBMassStorageDriver *msdp) {
+bool msd_scsi_process_send_diagnostic(USBMassStorageDriver *msdp) {
 
   msd_cbw_t *cbw = &(msdp->cbw);
 
@@ -389,7 +389,7 @@ bool_t msd_scsi_process_send_diagnostic(USBMassStorageDriver *msdp) {
 /**
  * @brief Processes a READ_WRITE_10 SCSI command
  */
-bool_t msd_scsi_process_start_read_write_10(USBMassStorageDriver *msdp) {
+bool msd_scsi_process_start_read_write_10(USBMassStorageDriver *msdp) {
 
   msd_cbw_t *cbw = &(msdp->cbw);
 
@@ -509,7 +509,7 @@ bool_t msd_scsi_process_start_read_write_10(USBMassStorageDriver *msdp) {
 /**
  * @brief Processes a START_STOP_UNIT SCSI command
  */
-bool_t msd_scsi_process_start_stop_unit(USBMassStorageDriver *msdp) {
+bool msd_scsi_process_start_stop_unit(USBMassStorageDriver *msdp) {
 
   if ((msdp->cbw.scsi_cmd_data[4] & 0x03) == 0x02) {
     /* device has been ejected */
@@ -526,7 +526,7 @@ bool_t msd_scsi_process_start_stop_unit(USBMassStorageDriver *msdp) {
 /**
  * @brief Processes a MODE_SENSE_6 SCSI command
  */
-bool_t msd_scsi_process_mode_sense_6(USBMassStorageDriver *msdp) {
+bool msd_scsi_process_mode_sense_6(USBMassStorageDriver *msdp) {
 
   static uint8_t response[4] = {
     0x03, /* number of bytes that follow                    */
@@ -545,7 +545,7 @@ bool_t msd_scsi_process_mode_sense_6(USBMassStorageDriver *msdp) {
 /**
  * @brief Processes a READ_FORMAT_CAPACITIES SCSI command
  */
-bool_t msd_scsi_process_read_format_capacities(USBMassStorageDriver *msdp) {
+bool msd_scsi_process_read_format_capacities(USBMassStorageDriver *msdp) {
 
   msd_scsi_read_format_capacities_response_t response;
   response.capacity_list_length = 1;
@@ -562,7 +562,7 @@ bool_t msd_scsi_process_read_format_capacities(USBMassStorageDriver *msdp) {
 /**
  * @brief Processes a TEST_UNIT_READY SCSI command
  */
-bool_t msd_scsi_process_test_unit_ready(USBMassStorageDriver *msdp) {
+bool msd_scsi_process_test_unit_ready(USBMassStorageDriver *msdp) {
 
   if (blkIsInserted(msdp->config->bbdp)) {
     /* device inserted and ready */
@@ -583,7 +583,7 @@ bool_t msd_scsi_process_test_unit_ready(USBMassStorageDriver *msdp) {
 /**
  * @brief Waits for a new command block
  */
-bool_t msd_wait_for_command_block(USBMassStorageDriver *msdp) {
+bool msd_wait_for_command_block(USBMassStorageDriver *msdp) {
 
   msd_start_receive(msdp, (uint8_t *)&msdp->cbw, sizeof(msdp->cbw));
   msdp->state = MSD_READ_COMMAND_BLOCK;
@@ -595,7 +595,7 @@ bool_t msd_wait_for_command_block(USBMassStorageDriver *msdp) {
 /**
  * @brief Reads a newly received command block
  */
-bool_t msd_read_command_block(USBMassStorageDriver *msdp) {
+bool msd_read_command_block(USBMassStorageDriver *msdp) {
 
   msd_cbw_t *cbw = &(msdp->cbw);
 
@@ -619,7 +619,7 @@ bool_t msd_read_command_block(USBMassStorageDriver *msdp) {
     return FALSE;
   }
 
-  bool_t sleep = FALSE;
+  bool sleep = FALSE;
 
   /* check the command */
   switch (cbw->scsi_cmd_data[0]) {
@@ -730,7 +730,7 @@ static msg_t mass_storage_thread(void *arg) {
 
   chRegSetThreadName("USB-MSD");
 
-  bool_t wait_for_isr = FALSE;
+  bool wait_for_isr = FALSE;
 
   /* wait for the usb to be initialised */
   msd_wait_for_isr(msdp);

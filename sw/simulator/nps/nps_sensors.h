@@ -28,13 +28,13 @@ extern struct NpsSensors sensors;
 extern void nps_sensors_init(double time);
 extern void nps_sensors_run_step(double time);
 
-extern bool_t nps_sensors_gyro_available();
-extern bool_t nps_sensors_mag_available();
-extern bool_t nps_sensors_baro_available();
-extern bool_t nps_sensors_gps_available();
-extern bool_t nps_sensors_sonar_available();
-extern bool_t nps_sensors_airspeed_available();
-extern bool_t nps_sensors_temperature_available();
+extern bool nps_sensors_gyro_available();
+extern bool nps_sensors_mag_available();
+extern bool nps_sensors_baro_available();
+extern bool nps_sensors_gps_available();
+extern bool nps_sensors_sonar_available();
+extern bool nps_sensors_airspeed_available();
+extern bool nps_sensors_temperature_available();
 
 
 #endif /* NPS_SENSORS_H */

@@ -113,7 +113,7 @@ void stereocam_droplet_periodic(void)
   // Results
   DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, 1, avoid_navigation_data.stereo_bin);
 
-  volatile bool_t once = TRUE;
+  volatile bool once = TRUE;
   // Move waypoint with constant speed in current direction
   if (
     (avoid_navigation_data.stereo_bin[0] == 97) ||

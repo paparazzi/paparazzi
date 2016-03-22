@@ -54,7 +54,7 @@ static void on_rc_frame(void);
 tid_t main_periodic_tid; ///< id for main_periodic() timer
 tid_t radio_control_tid; ///< id for radio_control_periodic_task() timer
 
-bool_t autopilot_motors_on;
+bool autopilot_motors_on;
 
 int main(void)
 {

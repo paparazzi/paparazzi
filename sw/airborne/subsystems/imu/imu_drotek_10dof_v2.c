@@ -162,7 +162,7 @@ void imu_drotek2_event(void)
 /** callback function to configure hmc5883 mag
  * @return TRUE if mag configuration finished
  */
-bool_t imu_drotek2_configure_mag_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)),
+bool imu_drotek2_configure_mag_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)),
                                        void *mpu __attribute__((unused)))
 {
   hmc58xx_start_configure(&imu_drotek2.hmc);

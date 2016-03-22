@@ -33,8 +33,8 @@
 
 extern uint16_t baro_amsys_adc;
 // extern float baro_amsys_offset;
-extern bool_t baro_amsys_valid;
-extern bool_t baro_amsys_enabled;
+extern bool baro_amsys_valid;
+extern bool baro_amsys_enabled;
 extern float baro_amsys_altitude;
 extern float baro_amsys_r;
 extern float baro_amsys_sigma2;

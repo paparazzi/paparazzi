@@ -1283,9 +1283,9 @@ static inline void i2c_scl_toggle(uint32_t i2c)
 #endif
 }
 
-static inline bool_t i2c_sda_get(uint32_t i2c)
+static inline bool i2c_sda_get(uint32_t i2c)
 {
-  bool_t res = FALSE;
+  bool res = FALSE;
 #if USE_I2C1
   if (i2c == I2C1) {
     res = gpio_get(I2C1_GPIO_PORT, I2C1_GPIO_SDA);
@@ -1415,7 +1415,7 @@ void i2c_event(void)
 /////////////////////////////////////////////////////////
 // Implement Interface Functions
 
-bool_t i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
+bool i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
 {
   if (periph->watchdog > WD_DELAY) {
     return FALSE;
@@ -1465,7 +1465,7 @@ bool_t i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
   return TRUE;
 }
 
-bool_t i2c_idle(struct i2c_periph *periph)
+bool i2c_idle(struct i2c_periph *periph)
 {
   // This is actually a difficult function:
   // -simply reading the status flags can clear bits and corrupt the transaction

@@ -174,7 +174,7 @@ void motor_mixing_run_spinup(uint32_t counter, uint32_t max_counter)
   }
 }
 
-void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[])
+void motor_mixing_run(bool motors_on, bool override_on, pprz_t in_cmd[])
 {
   uint8_t i;
 #if !HITL

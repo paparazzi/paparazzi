@@ -35,9 +35,9 @@ struct PersistentSettings pers_settings;
  * Also settings still need a variable,
  * pure function call not possible yet.
  */
-bool_t settings_store_flag;
+bool settings_store_flag;
 
-bool_t settings_clear_flag;
+bool settings_clear_flag;
 
 
 void settings_init(void)

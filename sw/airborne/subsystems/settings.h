@@ -34,8 +34,8 @@ extern void settings_init(void);
 extern int32_t settings_store(void);
 extern int32_t settings_clear(void);
 
-extern bool_t settings_store_flag;
-extern bool_t settings_clear_flag;
+extern bool settings_store_flag;
+extern bool settings_clear_flag;
 
 #define settings_StoreSettings(_v) { settings_store_flag = _v; settings_store(); }
 #define settings_ClearSettings(_v) { settings_clear_flag = _v; settings_clear(); }

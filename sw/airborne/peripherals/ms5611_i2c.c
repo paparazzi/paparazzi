@@ -31,7 +31,7 @@
 
 
 void ms5611_i2c_init(struct Ms5611_I2c *ms, struct i2c_periph *i2c_p, uint8_t addr,
-                     bool_t is_ms5607)
+                     bool is_ms5607)
 {
   /* set i2c_peripheral */
   ms->i2c_p = i2c_p;

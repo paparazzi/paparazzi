@@ -55,7 +55,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   ahrs_chimu_update_gps(gps_s->fix, gps_s->speed_3d);
 }
 
-static bool_t ahrs_chimu_enable_output(bool_t enable)
+static bool ahrs_chimu_enable_output(bool enable)
 {
   ahrs_chimu.is_enabled = enable;
   return ahrs_chimu.is_enabled;

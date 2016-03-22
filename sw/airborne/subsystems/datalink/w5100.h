@@ -69,7 +69,7 @@ void w5100_transmit(uint8_t data);
 uint16_t w5100_receive(uint8_t *buf, uint16_t len);
 void w5100_send(void);
 uint16_t w5100_rx_size(uint8_t _s);
-bool_t w5100_ch_available(void);
+bool w5100_ch_available(void);
 
 
 // W5100 is using pprz_transport

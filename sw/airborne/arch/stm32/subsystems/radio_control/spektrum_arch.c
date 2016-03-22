@@ -324,7 +324,7 @@ void radio_control_impl_init(void)
 *
 *****************************************************************************/
 
-static inline void SpektrumParser(uint8_t _c, SpektrumStateType *spektrum_state, bool_t secondary_receiver)
+static inline void SpektrumParser(uint8_t _c, SpektrumStateType *spektrum_state, bool secondary_receiver)
 {
 
 

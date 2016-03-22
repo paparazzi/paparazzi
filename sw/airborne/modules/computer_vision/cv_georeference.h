@@ -43,7 +43,7 @@ struct camera_frame_t {
 };
 
 void georeference_project(struct camera_frame_t *tar, int wp);
-void georeference_filter(bool_t kalman, int wp, int length);
+void georeference_filter(bool kalman, int wp, int length);
 
 
 #endif

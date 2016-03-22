@@ -44,7 +44,7 @@
 #include "modules/datalink/extra_pprz_dl.h"
 
 struct MF_DAQ mf_daq;
-bool_t log_started;
+bool log_started;
 
 #ifndef MF_DAQ_POWER_INIT
 #define MF_DAQ_POWER_INIT TRUE

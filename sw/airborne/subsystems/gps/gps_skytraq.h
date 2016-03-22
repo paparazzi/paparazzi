@@ -43,7 +43,7 @@ enum GpsSkytraqError {
 #define GPS_SKYTRAQ_MAX_PAYLOAD 255
 struct GpsSkytraq {
   uint8_t msg_buf[GPS_SKYTRAQ_MAX_PAYLOAD];
-  bool_t  msg_available;
+  bool  msg_available;
   uint8_t msg_id;
 
   uint8_t status;

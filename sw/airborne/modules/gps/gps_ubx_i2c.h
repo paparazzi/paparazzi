@@ -70,7 +70,7 @@ struct GpsUbxI2C
   uint16_t rx_buf_idx;                  ///< rx buf index
   uint16_t tx_buf_idx;                  ///< tx buf index
 
-  bool_t tx_rdy;                        ///< are we ready to transmit
+  bool tx_rdy;                        ///< are we ready to transmit
 
   struct i2c_transaction trans;         ///< i2c transaction
 
@@ -91,7 +91,7 @@ extern void gps_ubx_i2c_periodic(void);
 extern void gps_ubx_i2c_read_event(void);
 /** is driver ready to send a message
  */
-extern bool_t gps_i2c_tx_is_ready(void);
+extern bool gps_i2c_tx_is_ready(void);
 /** config is done, begin reading messages
  */
 extern void gps_i2c_begin(void);

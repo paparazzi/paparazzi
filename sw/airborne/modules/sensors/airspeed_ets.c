@@ -88,7 +88,7 @@ PRINT_CONFIG_VAR(AIRSPEED_ETS_START_DELAY)
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
 #include "subsystems/gps.h"
-bool_t log_airspeed_ets_started;
+bool log_airspeed_ets_started;
 #endif
 #endif
 
@@ -96,7 +96,7 @@ bool_t log_airspeed_ets_started;
 // Global variables
 uint16_t airspeed_ets_raw;
 uint16_t airspeed_ets_offset;
-bool_t airspeed_ets_valid;
+bool airspeed_ets_valid;
 float airspeed_ets;
 int airspeed_ets_buffer_idx;
 float airspeed_ets_buffer[AIRSPEED_ETS_NBSAMPLES_AVRG];
@@ -104,12 +104,12 @@ float airspeed_ets_buffer[AIRSPEED_ETS_NBSAMPLES_AVRG];
 struct i2c_transaction airspeed_ets_i2c_trans;
 
 // Local variables
-volatile bool_t airspeed_ets_i2c_done;
-bool_t airspeed_ets_offset_init;
+volatile bool airspeed_ets_i2c_done;
+bool airspeed_ets_offset_init;
 uint32_t airspeed_ets_offset_tmp;
 uint16_t airspeed_ets_cnt;
 uint32_t airspeed_ets_delay_time;
-bool_t   airspeed_ets_delay_done;
+bool   airspeed_ets_delay_done;
 
 void airspeed_ets_init(void)
 {

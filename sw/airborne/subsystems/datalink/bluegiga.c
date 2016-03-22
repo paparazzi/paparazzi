@@ -110,7 +110,7 @@ static void trans_cb(struct spi_transaction *trans)
 }
 
 /* check if character available in receive buffer */
-bool_t bluegiga_ch_available(struct bluegiga_periph *p)
+bool bluegiga_ch_available(struct bluegiga_periph *p)
 {
   return (p->rx_extract_idx != p->rx_insert_idx);
 }

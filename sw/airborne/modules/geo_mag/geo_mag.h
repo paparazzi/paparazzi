@@ -34,8 +34,8 @@
 
 struct GeoMag {
   struct DoubleVect3 vect;
-  bool_t calc_once;
-  bool_t ready;
+  bool calc_once;
+  bool ready;
 };
 
 extern void geo_mag_init(void);

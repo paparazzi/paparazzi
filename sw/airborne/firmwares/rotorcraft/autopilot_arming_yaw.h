@@ -65,7 +65,7 @@ static inline void autopilot_arming_init(void)
 
 /** Update the status of the check_motors state machine.
  */
-static inline void autopilot_arming_set(bool_t motors_on)
+static inline void autopilot_arming_set(bool motors_on)
 {
   if (motors_on) {
     autopilot_check_motor_status = STATUS_MOTORS_ON;

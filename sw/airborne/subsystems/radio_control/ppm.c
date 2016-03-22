@@ -29,14 +29,14 @@
 #include "subsystems/radio_control/ppm.h"
 
 uint16_t ppm_pulses[RADIO_CTL_NB];
-volatile bool_t ppm_frame_available;
+volatile bool ppm_frame_available;
 
 /*
  * State machine for decoding ppm frames
  */
 static uint8_t  ppm_cur_pulse;
 static uint32_t ppm_last_pulse_time;
-static bool_t   ppm_data_valid;
+static bool   ppm_data_valid;
 
 /**
  * RssiValid test macro.

@@ -46,8 +46,8 @@ extern FileDes pprzLogFile;
 extern FileDes flightRecorderLogFile;
 #endif
 
-extern bool_t chibios_logInit(void);
-extern void chibios_logFinish(bool_t flush);
+extern bool chibios_logInit(void);
+extern void chibios_logFinish(bool flush);
 
 struct chibios_sdlog {
   FileDes *file;

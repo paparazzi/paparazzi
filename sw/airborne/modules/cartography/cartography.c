@@ -96,7 +96,7 @@ uint16_t camera_snapshot_image_number = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-bool_t survey_losange_uturn;//this flag indicates if the aircraft is turning between 2 rails (1) or if it is flying straight forward in the rail direction (0)
+bool survey_losange_uturn;//this flag indicates if the aircraft is turning between 2 rails (1) or if it is flying straight forward in the rail direction (0)
 
 int railnumber;  //indicate the number of the rail being acquired
 int numberofrailtodo;
@@ -130,7 +130,7 @@ float normBM, normAM, distancefromrail;
 float course_next_rail;
 float angle_between;
 
-bool_t ProjectionInsideLimitOfRail;
+bool ProjectionInsideLimitOfRail;
 
 
 
@@ -165,13 +165,13 @@ void stop_carto(void)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-bool_t nav_survey_Inc_railnumberSinceBoot(void)
+bool nav_survey_Inc_railnumberSinceBoot(void)
 {
   railnumberSinceBoot++;
   return FALSE;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
-bool_t nav_survey_Snapshoot(void)
+bool nav_survey_Snapshoot(void)
 {
   camera_snapshot_image_number = railnumberSinceBoot;
   PRTDEBSTR(SNAPSHOT)
@@ -180,7 +180,7 @@ bool_t nav_survey_Snapshoot(void)
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
-bool_t nav_survey_Snapshoot_Continu(void)
+bool nav_survey_Snapshoot_Continu(void)
 {
   camera_snapshot_image_number = railnumberSinceBoot;
   PRTDEBSTR(SNAPSHOT)
@@ -189,7 +189,7 @@ bool_t nav_survey_Snapshoot_Continu(void)
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
-bool_t nav_survey_StopSnapshoot(void)
+bool nav_survey_StopSnapshoot(void)
 {
   camera_snapshot_image_number = 0;
   PRTDEBSTR(STOP SNAPSHOT)
@@ -199,7 +199,7 @@ bool_t nav_survey_StopSnapshoot(void)
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-bool_t nav_survey_computefourth_corner(uint8_t wp1, uint8_t wp2,  uint8_t wp3, uint8_t wp4)
+bool nav_survey_computefourth_corner(uint8_t wp1, uint8_t wp2,  uint8_t wp3, uint8_t wp4)
 {
   waypoints[wp4].x = waypoints[wp2].x + waypoints[wp3].x - waypoints[wp1].x;
   waypoints[wp4].y = waypoints[wp2].y + waypoints[wp3].y - waypoints[wp1].y;
@@ -211,11 +211,11 @@ bool_t nav_survey_computefourth_corner(uint8_t wp1, uint8_t wp2,  uint8_t wp3, u
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-bool_t  nav_survey_ComputeProjectionOnLine(struct point pointAf, struct point pointBf, float pos_xf, float pos_yf,
+bool  nav_survey_ComputeProjectionOnLine(struct point pointAf, struct point pointBf, float pos_xf, float pos_yf,
     float *normAMf, float *normBMf, float *distancefromrailf);
 
 
-bool_t  nav_survey_ComputeProjectionOnLine(struct point pointAf, struct point pointBf, float pos_xf, float pos_yf,
+bool  nav_survey_ComputeProjectionOnLine(struct point pointAf, struct point pointBf, float pos_xf, float pos_yf,
     float *normAMf, float *normBMf, float *distancefromrailf)
 //return if the projection of the estimator on the AB line is located inside the AB interval
 {
@@ -310,7 +310,7 @@ bool_t  nav_survey_ComputeProjectionOnLine(struct point pointAf, struct point po
 ///////////////////////////////////////////////////////////////////////////
 //if distrailinit = 0, the aircraft travel from  wp1 -> wp2 then do the inverse travel passing through  the wp3,
 //This mode could be use to register bands of images aquired in a first nav_survey_losange_carto, done perpendicularly
-bool_t nav_survey_losange_carto_init(uint8_t wp1, uint8_t wp2,  uint8_t wp3, float distrailinit, float distplusinit)
+bool nav_survey_losange_carto_init(uint8_t wp1, uint8_t wp2,  uint8_t wp3, float distrailinit, float distplusinit)
 {
   //PRTDEBSTR(nav_survey_losange_carto_init)
   survey_losange_uturn = FALSE;
@@ -411,7 +411,7 @@ bool_t nav_survey_losange_carto_init(uint8_t wp1, uint8_t wp2,  uint8_t wp3, flo
   //          NextStageAndBreak();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
-bool_t nav_survey_losange_carto(void)
+bool nav_survey_losange_carto(void)
 {
   //test pour modifier en vol la valeur distrail
 

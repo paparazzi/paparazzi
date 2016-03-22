@@ -159,9 +159,9 @@ void ak8975_event(struct Ak8975 *ak)
         //     1 byte
 
         // Read status and error bytes
-        const bool_t dr = ak->i2c_trans.buf[0] & 0x01; // data ready
-        const bool_t de = ak->i2c_trans.buf[7] & 0x04; // data error
-        const bool_t mo = ak->i2c_trans.buf[7] & 0x08; // mag overflow
+        const bool dr = ak->i2c_trans.buf[0] & 0x01; // data ready
+        const bool de = ak->i2c_trans.buf[7] & 0x04; // data error
+        const bool mo = ak->i2c_trans.buf[7] & 0x08; // mag overflow
         if (de || !dr) {
           // read error or data not ready, keep reading
           break;

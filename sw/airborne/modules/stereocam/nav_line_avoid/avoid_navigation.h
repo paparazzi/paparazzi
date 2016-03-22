@@ -47,7 +47,7 @@ struct AvoidNavigationStruct {
 
 /** global VIDEO state */
 extern struct AvoidNavigationStruct avoid_navigation_data;
-extern bool_t obstacle_detected;
+extern bool obstacle_detected;
 
 void init_avoid_navigation(void);
 void run_avoid_navigation_onvision(void);

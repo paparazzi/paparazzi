@@ -57,7 +57,7 @@ static float Flowerradius;
 static uint8_t Center;
 static uint8_t Edge;
 
-bool_t nav_flower_setup(uint8_t CenterWP, uint8_t EdgeWP)
+bool nav_flower_setup(uint8_t CenterWP, uint8_t EdgeWP)
 {
   Center = CenterWP;
   Edge = EdgeWP;
@@ -88,13 +88,13 @@ bool_t nav_flower_setup(uint8_t CenterWP, uint8_t EdgeWP)
   return FALSE;
 }
 
-bool_t nav_flower_run(void)
+bool nav_flower_run(void)
 {
   TransCurrentX = stateGetPositionEnu_f()->x - WaypointX(Center);
   TransCurrentY = stateGetPositionEnu_f()->y - WaypointY(Center);
   DistanceFromCenter = sqrtf(TransCurrentX * TransCurrentX + TransCurrentY * TransCurrentY);
 
-  bool_t InCircle = TRUE;
+  bool InCircle = TRUE;
   float CircleTheta;
 
   if (DistanceFromCenter > Flowerradius) {

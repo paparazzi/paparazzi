@@ -53,7 +53,7 @@ void actuators_asctec_init(void)
   actuators_asctec.nb_err = 0;
 }
 
-void actuators_asctec_set(bool_t motors_on)
+void actuators_asctec_set(bool motors_on)
 {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {

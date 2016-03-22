@@ -48,9 +48,9 @@ int record_video = 0;
 
 volatile uint32_t blob_locator = 0;
 
-volatile bool_t blob_enabled = FALSE;
-volatile bool_t marker_enabled = FALSE;
-volatile bool_t window_enabled = FALSE;
+volatile bool blob_enabled = FALSE;
+volatile bool marker_enabled = FALSE;
+volatile bool window_enabled = FALSE;
 
 // Computer vision thread
 struct image_t* cv_marker_func(struct image_t *img);

@@ -53,7 +53,7 @@
 
 // Global variables
 uint16_t pBaroRaw;
-bool_t baro_hca_valid;
+bool baro_hca_valid;
 float baro_hca_p;
 
 

@@ -46,7 +46,7 @@
  * @param[in]  broadcast if TRUE enable broadcasting
  * @return -1 on error, otherwise 0
  */
-int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port_in, bool_t broadcast)
+int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port_in, bool broadcast)
 {
   if (sock == NULL) {
     return -1;

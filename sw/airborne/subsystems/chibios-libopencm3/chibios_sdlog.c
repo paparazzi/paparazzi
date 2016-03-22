@@ -92,7 +92,7 @@ void chibios_sdlog_init(struct chibios_sdlog *sdlog, FileDes *file)
 
 }
 
-bool_t chibios_logInit(void)
+bool chibios_logInit(void)
 {
   nvicSetSystemHandlerPriority(HANDLER_PENDSV,
              CORTEX_PRIORITY_MASK(15));
@@ -122,7 +122,7 @@ error:
 }
 
 
-void chibios_logFinish(bool_t flush)
+void chibios_logFinish(bool flush)
 {
   if (pprzLogFile != -1) {
     sdLogCloseAllLogs(flush);

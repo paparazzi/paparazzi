@@ -26,8 +26,8 @@ float SquareSumErr_position;
 float ToleranceAispeed;
 float ToleranceAltitude;
 float TolerancePosition;
-bool_t benchm_reset;
-bool_t benchm_go;
+bool benchm_reset;
+bool benchm_go;
 
 
 //uint8_t numOfCount;

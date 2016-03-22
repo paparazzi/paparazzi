@@ -39,4 +39,4 @@ void viewvideo_init(void) {}
 void viewvideo_periodic(void) {}
 void viewvideo_start(void) {}
 void viewvideo_stop(void) {}
-void viewvideo_take_shot(bool_t take __attribute__((unused))) {}
+void viewvideo_take_shot(bool take __attribute__((unused))) {}

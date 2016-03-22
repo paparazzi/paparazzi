@@ -40,7 +40,7 @@
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
 #include "subsystems/gps.h"
-bool_t log_sht_started;
+bool log_sht_started;
 #endif
 
 //#include "led.h"
@@ -86,7 +86,7 @@ bool_t log_sht_started;
 
 uint16_t humidsht, tempsht;
 float fhumidsht, ftempsht;
-bool_t humid_sht_available;
+bool humid_sht_available;
 uint8_t humid_sht_status;
 
 uint8_t s_write_byte(uint8_t value);

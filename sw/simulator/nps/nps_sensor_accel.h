@@ -15,7 +15,7 @@ struct NpsSensorAccel {
   struct DoubleVect3  noise_std_dev;
   struct DoubleVect3  bias;
   double       next_update;
-  bool_t       data_available;
+  bool       data_available;
 };
 
 

@@ -95,7 +95,7 @@ typedef struct {
 
 float cam_theta;
 float cam_phi;
-bool_t heading_positive = 0;
+bool heading_positive = 0;
 float  memory_x, memory_y, memory_z;
 #if defined(SHOW_CAM_COORDINATES)
 float   cam_point_x;

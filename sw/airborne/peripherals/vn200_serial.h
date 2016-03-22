@@ -53,7 +53,7 @@ enum VNMsgStatus {
 };
 
 struct VNPacket {
-  bool_t  msg_available;
+  bool  msg_available;
   uint32_t chksm_error;
   uint32_t hdr_error;
   uint8_t msg_buf[VN_BUFFER_SIZE];

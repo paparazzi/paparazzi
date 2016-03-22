@@ -34,7 +34,7 @@
 extern float max_dist_from_home;
 extern float dist2_to_home;
 extern float dist2_to_wp;
-extern bool_t too_far_from_home;
+extern bool too_far_from_home;
 
 struct point {
   float x;

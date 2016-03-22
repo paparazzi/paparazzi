@@ -61,8 +61,8 @@ static fifo_t txfifo;
 static fifo_t rxfifo;
 
 void fifo_init(fifo_t *fifo, uint8_t *buf);
-bool_t fifo_put(fifo_t *fifo, uint8_t c);
-bool_t fifo_get(fifo_t *fifo, uint8_t *pc);
+bool fifo_put(fifo_t *fifo, uint8_t c);
+bool fifo_get(fifo_t *fifo, uint8_t *pc);
 int  fifo_avail(fifo_t *fifo);
 int  fifo_free(fifo_t *fifo);
 int tx_timeout; // tmp work around for usbd_ep_stall_get from, this function does not always seem to work
@@ -286,7 +286,7 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 }
 
 // store USB connection status
-static bool_t usb_connected;
+static bool usb_connected;
 
 // use suspend callback to detect disconnect
 static void suspend_cb(void)
@@ -326,7 +326,7 @@ void fifo_init(fifo_t *fifo, uint8_t *buf)
 
 
 
-bool_t fifo_put(fifo_t *fifo, uint8_t c)
+bool fifo_put(fifo_t *fifo, uint8_t c)
 {
   int next;
 
@@ -344,7 +344,7 @@ bool_t fifo_put(fifo_t *fifo, uint8_t c)
 }
 
 
-bool_t fifo_get(fifo_t *fifo, uint8_t *pc)
+bool fifo_get(fifo_t *fifo, uint8_t *pc)
 {
   int next;
 
@@ -423,7 +423,7 @@ int VCOM_getchar(void)
  * Checks if buffer free in VCOM buffer
  *  @returns TRUE if len bytes are free
  */
-bool_t VCOM_check_free_space(uint8_t len)
+bool VCOM_check_free_space(uint8_t len)
 {
   return (fifo_free(&txfifo) >= len ? TRUE : FALSE);
 }

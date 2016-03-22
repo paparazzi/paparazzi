@@ -361,7 +361,7 @@ static inline uint8_t mcu1_status_update(void)
 {
   uint8_t new_status = fbw_state->status;
   if (mcu1_status != new_status) {
-    bool_t changed = ((mcu1_status & MASK_FBW_CHANGED) != (new_status & MASK_FBW_CHANGED));
+    bool changed = ((mcu1_status & MASK_FBW_CHANGED) != (new_status & MASK_FBW_CHANGED));
     mcu1_status = new_status;
     return changed;
   }
@@ -408,10 +408,10 @@ static inline void telecommand_task(void)
     }
   }
   if (bit_is_set(fbw_state->status, AVERAGED_CHANNELS_SENT)) {
-    bool_t pprz_mode_changed = pprz_mode_update();
+    bool pprz_mode_changed = pprz_mode_update();
     mode_changed |= pprz_mode_changed;
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
-    bool_t calib_mode_changed = RcSettingsModeUpdate(fbw_state->channels);
+    bool calib_mode_changed = RcSettingsModeUpdate(fbw_state->channels);
     rc_settings(calib_mode_changed || pprz_mode_changed);
     mode_changed |= calib_mode_changed;
 #endif

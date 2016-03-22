@@ -55,7 +55,7 @@ char *serial_device   = "/dev/ttyUSB0";
 uint32_t serial_baud  = B115200;
 
 /** Debugging options */
-bool_t verbose = FALSE;
+bool verbose = FALSE;
 #define printf_debug    if(verbose == TRUE) printf
 
 /** Ivy Bus default */

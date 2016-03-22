@@ -70,8 +70,8 @@ struct ZamboniSurvey {
 };
 
 
-extern bool_t nav_survey_zamboni_setup(uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing,
+extern bool nav_survey_zamboni_setup(uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing,
                                        int sweep_lines, float altitude);
-extern bool_t nav_survey_zamboni_run(void);
+extern bool nav_survey_zamboni_run(void);
 
 #endif //ZAMBONI_SURVEY_H

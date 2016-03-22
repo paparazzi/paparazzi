@@ -84,7 +84,7 @@ void booz_fms_impl_periodic(void)
   }
 }
 
-void booz_fms_impl_set_enabled(bool_t enabled)
+void booz_fms_impl_set_enabled(bool enabled)
 {
   if (enabled) {
     fms_test_signal.counter = 0;

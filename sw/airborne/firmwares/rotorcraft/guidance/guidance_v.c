@@ -101,8 +101,8 @@ int32_t guidance_v_fb_cmd;
 int32_t guidance_v_delta_t;
 
 float guidance_v_nominal_throttle;
-bool_t guidance_v_adapt_throttle_enabled;
-bool_t guidance_v_guided_vel_enabled;
+bool guidance_v_adapt_throttle_enabled;
+bool guidance_v_guided_vel_enabled;
 
 /** Direct throttle from radio control.
  *  range 0:#MAX_PPRZ
@@ -138,7 +138,7 @@ int32_t guidance_v_thrust_coeff;
   }
 
 static int32_t get_vertical_thrust_coeff(void);
-static void run_hover_loop(bool_t in_flight);
+static void run_hover_loop(bool in_flight);
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -262,7 +262,7 @@ void guidance_v_mode_changed(uint8_t new_mode)
 
 }
 
-void guidance_v_notify_in_flight(bool_t in_flight)
+void guidance_v_notify_in_flight(bool in_flight)
 {
   if (in_flight) {
     gv_adapt_init();
@@ -270,7 +270,7 @@ void guidance_v_notify_in_flight(bool_t in_flight)
 }
 
 
-void guidance_v_run(bool_t in_flight)
+void guidance_v_run(bool in_flight)
 {
 
   // FIXME... SATURATIONS NOT TAKEN INTO ACCOUNT
@@ -406,7 +406,7 @@ static int32_t get_vertical_thrust_coeff(void)
 
 #define FF_CMD_FRAC 18
 
-static void run_hover_loop(bool_t in_flight)
+static void run_hover_loop(bool in_flight)
 {
 
   /* convert our reference to generic representation */
@@ -460,7 +460,7 @@ static void run_hover_loop(bool_t in_flight)
 
 }
 
-bool_t guidance_v_set_guided_z(float z)
+bool guidance_v_set_guided_z(float z)
 {
   if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
     guidance_v_guided_vel_enabled = FALSE;
@@ -470,7 +470,7 @@ bool_t guidance_v_set_guided_z(float z)
   return FALSE;
 }
 
-bool_t guidance_v_set_guided_vz(float vz)
+bool guidance_v_set_guided_vz(float vz)
 {
   if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
     guidance_v_guided_vel_enabled = TRUE;

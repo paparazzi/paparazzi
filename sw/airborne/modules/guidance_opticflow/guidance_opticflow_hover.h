@@ -52,6 +52,6 @@ extern struct opticflow_stab_t opticflow_stab;
 extern void guidance_h_module_init(void);
 extern void guidance_h_module_enter(void);
 extern void guidance_h_module_read_rc(void);
-extern void guidance_h_module_run(bool_t in_flight);
+extern void guidance_h_module_run(bool in_flight);
 
 #endif /* GUIDANCE_OPTICFLOW_HOVER_H_ */

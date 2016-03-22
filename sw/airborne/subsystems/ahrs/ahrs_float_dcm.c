@@ -116,7 +116,7 @@ void ahrs_dcm_init(void)
   ahrs_dcm.gps_age = 100;
 }
 
-bool_t ahrs_dcm_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
+bool ahrs_dcm_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
                       struct FloatVect3 *lp_mag)
 {
   /* Compute an initial orientation using euler angles */

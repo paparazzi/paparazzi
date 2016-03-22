@@ -47,8 +47,8 @@
 
 
 static int32_t pprz_thd(void *arg);
-static bool_t sdlogOk ;
-bool_t pprzReady = FALSE;
+static bool sdlogOk ;
+bool pprzReady = FALSE;
 
 int main(void)
 {

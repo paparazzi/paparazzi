@@ -82,7 +82,7 @@ void guidance_indi_enter(void) {
   FLOAT_VECT3_ZERO(filt_accel_ned_dd);
 }
 
-void guidance_indi_run(bool_t in_flight, int32_t heading) {
+void guidance_indi_run(bool in_flight, int32_t heading) {
 
   //filter accel to get rid of noise
   //filter attitude to synchronize with accel
@@ -184,7 +184,7 @@ void guidance_indi_calcG(struct FloatMat33 *Gmat) {
   RMAT_ELMT(*Gmat, 2, 2) = cphi*ctheta;
 }
 
-void stabilization_attitude_set_setpoint_rp_quat_f(bool_t in_flight, int32_t heading)
+void stabilization_attitude_set_setpoint_rp_quat_f(bool in_flight, int32_t heading)
 {
   struct FloatQuat q_rp_cmd;
   float_quat_of_eulers(&q_rp_cmd, &guidance_euler_cmd); //TODO this is a quaternion without yaw! add the desired yaw before you use it!

@@ -60,16 +60,16 @@ struct Xsens {
   struct FloatQuat quat;
   struct FloatEulers euler;
 
-  volatile bool_t msg_received;
-  volatile bool_t new_attitude;
+  volatile bool msg_received;
+  volatile bool new_attitude;
 
-  bool_t gyro_available;
-  bool_t accel_available;
-  bool_t mag_available;
+  bool gyro_available;
+  bool accel_available;
+  bool mag_available;
 
 #if USE_GPS_XSENS
   struct GpsState gps;
-  bool_t gps_available;
+  bool gps_available;
 #endif
 };
 

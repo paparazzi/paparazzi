@@ -36,7 +36,7 @@
 
 struct Bmp085 baro_bmp085;
 
-static bool_t baro_eoc(void)
+static bool baro_eoc(void)
 {
   return gpio_get(GPIOB, GPIO0);
 }

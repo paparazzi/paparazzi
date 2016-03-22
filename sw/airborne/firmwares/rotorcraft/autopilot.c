@@ -69,18 +69,18 @@
 uint8_t  autopilot_mode;
 uint8_t  autopilot_mode_auto2;
 
-bool_t   autopilot_in_flight;
+bool   autopilot_in_flight;
 uint32_t autopilot_in_flight_counter;
 uint16_t autopilot_flight_time;
 
-bool_t   autopilot_motors_on;
-bool_t   kill_throttle;
+bool   autopilot_motors_on;
+bool   kill_throttle;
 
-bool_t   autopilot_rc;
-bool_t   autopilot_power_switch;
+bool   autopilot_rc;
+bool   autopilot_power_switch;
 
-bool_t   autopilot_ground_detected;
-bool_t   autopilot_detect_ground_once;
+bool   autopilot_ground_detected;
+bool   autopilot_detect_ground_once;
 
 /** time steps for in_flight detection (at 20Hz, so 20=1second) */
 #ifndef AUTOPILOT_IN_FLIGHT_TIME
@@ -194,12 +194,13 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
 #else
   uint8_t fix = 0;
 #endif
+  uint8_t in_flight = autopilot_in_flight;
+  uint8_t motors_on = autopilot_motors_on;
   uint16_t time_sec = sys_time.nb_sec;
   pprz_msg_send_ROTORCRAFT_STATUS(trans, dev, AC_ID,
                                   &imu_nb_err, &_motor_nb_err,
                                   &radio_control.status, &radio_control.frame_rate,
-                                  &fix, &autopilot_mode,
-                                  &autopilot_in_flight, &autopilot_motors_on,
+                                  &fix, &autopilot_mode, &in_flight, &motors_on,
                                   &guidance_h.mode, &guidance_v_mode,
                                   &electrical.vsupply, &time_sec);
 }
@@ -521,7 +522,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
 
 }
 
-bool_t autopilot_guided_goto_ned(float x, float y, float z, float heading)
+bool autopilot_guided_goto_ned(float x, float y, float z, float heading)
 {
   if (autopilot_mode == AP_MODE_GUIDED) {
     guidance_h_set_guided_pos(x, y);
@@ -532,7 +533,7 @@ bool_t autopilot_guided_goto_ned(float x, float y, float z, float heading)
   return FALSE;
 }
 
-bool_t autopilot_guided_goto_ned_relative(float dx, float dy, float dz, float dyaw)
+bool autopilot_guided_goto_ned_relative(float dx, float dy, float dz, float dyaw)
 {
   if (autopilot_mode == AP_MODE_GUIDED && stateIsLocalCoordinateValid()) {
     float x = stateGetPositionNed_f()->x + dx;
@@ -544,7 +545,7 @@ bool_t autopilot_guided_goto_ned_relative(float dx, float dy, float dz, float dy
   return FALSE;
 }
 
-bool_t autopilot_guided_goto_body_relative(float dx, float dy, float dz, float dyaw)
+bool autopilot_guided_goto_body_relative(float dx, float dy, float dz, float dyaw)
 {
   if (autopilot_mode == AP_MODE_GUIDED && stateIsLocalCoordinateValid()) {
     float psi = stateGetNedToBodyEulers_f()->psi;
@@ -557,7 +558,7 @@ bool_t autopilot_guided_goto_body_relative(float dx, float dy, float dz, float d
   return FALSE;
 }
 
-bool_t autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
+bool autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
 {
   if (autopilot_mode == AP_MODE_GUIDED) {
     guidance_h_set_guided_vel(vx, vy);
@@ -568,7 +569,7 @@ bool_t autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
   return FALSE;
 }
 
-void autopilot_check_in_flight(bool_t motors_on)
+void autopilot_check_in_flight(bool motors_on)
 {
   if (autopilot_in_flight) {
     if (autopilot_in_flight_counter > 0) {
@@ -603,7 +604,7 @@ void autopilot_check_in_flight(bool_t motors_on)
 }
 
 
-void autopilot_set_motors_on(bool_t motors_on)
+void autopilot_set_motors_on(bool motors_on)
 {
   if (autopilot_mode != AP_MODE_KILL && ahrs_is_aligned() && motors_on) {
     autopilot_motors_on = TRUE;

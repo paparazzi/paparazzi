@@ -105,8 +105,8 @@
 #endif
 
 struct ImuKrooz {
-  volatile bool_t mpu_eoc;
-  volatile bool_t hmc_eoc;
+  volatile bool mpu_eoc;
+  volatile bool hmc_eoc;
   struct Mpu60x0_I2c mpu;
   struct Hmc58xx hmc;
   struct Int32Rates rates_sum;

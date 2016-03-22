@@ -32,7 +32,7 @@
 #define RGB                     4
 
 /* JPEG encode an image */
-void jpeg_encode_image(struct image_t *in, struct image_t *out, uint32_t quality_factor, bool_t add_dri_header);
+void jpeg_encode_image(struct image_t *in, struct image_t *out, uint32_t quality_factor, bool add_dri_header);
 
 /* Create an SVS header */
 int jpeg_create_svs_header(unsigned char *buf, int32_t size, int w);

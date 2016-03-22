@@ -33,7 +33,7 @@
 #include "guidance/guidance_v.h"
 #include "firmwares/rotorcraft/autopilot.h"
 
-bool_t gps_available;
+bool gps_available;
 uint32_t gps_sim_hitl_timer;
 
 void gps_sim_hitl_init(void)

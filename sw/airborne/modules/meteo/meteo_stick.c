@@ -175,7 +175,7 @@ static inline float get_humidity(uint32_t raw)
 #if LOG_MS
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
-bool_t log_ptu_started;
+bool log_ptu_started;
 #endif
 
 /* Includes and function to send over telemetry

@@ -63,6 +63,6 @@ extern float h_ctl_yaw_ny_igain;
     h_ctl_pitch_igain = _gain; \
   }
 
-extern bool_t use_airspeed_ratio;
+extern bool use_airspeed_ratio;
 
 #endif /* FW_H_CTL_A_H */

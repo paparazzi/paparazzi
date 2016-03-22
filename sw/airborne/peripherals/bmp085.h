@@ -57,15 +57,15 @@ struct Bmp085Calib {
   int32_t b5;
 };
 
-typedef bool_t (*Bmp085EOC)(void);
+typedef bool (*Bmp085EOC)(void);
 
 struct Bmp085 {
   struct i2c_periph *i2c_p;
   struct i2c_transaction i2c_trans;
   Bmp085EOC eoc;                      ///< function to check End Of Conversion
   enum Bmp085Status status;           ///< state machine status
-  bool_t initialized;                 ///< config done flag
-  volatile bool_t data_available;     ///< data ready flag
+  bool initialized;                 ///< config done flag
+  volatile bool data_available;     ///< data ready flag
   struct Bmp085Calib calib;
   int32_t ut;                         ///< uncompensated temperature
   int32_t up;                         ///< uncompensated pressure

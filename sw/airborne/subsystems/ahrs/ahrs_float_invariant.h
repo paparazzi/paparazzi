@@ -96,13 +96,13 @@ struct AhrsFloatInv {
   struct inv_correction_gains corr;   ///< correction gains
   struct inv_gains gains;             ///< tuning gains
 
-  bool_t reset;                       ///< flag to request reset/reinit the filter
+  bool reset;                       ///< flag to request reset/reinit the filter
 
   /** body_to_imu rotation */
   struct OrientationReps body_to_imu;
 
   struct FloatVect3 mag_h;
-  bool_t is_aligned;
+  bool is_aligned;
 };
 
 extern struct AhrsFloatInv ahrs_float_inv;

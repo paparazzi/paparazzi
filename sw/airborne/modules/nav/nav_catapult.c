@@ -51,7 +51,7 @@
 #include "subsystems/datalink/datalink.h"
 
 
-static bool_t nav_catapult_armed = FALSE;
+static bool nav_catapult_armed = FALSE;
 static uint16_t nav_catapult_launch = 0;
 
 #ifndef NAV_CATAPULT_ACCELERATION_THRESHOLD
@@ -94,7 +94,7 @@ static float nav_catapult_y = 0;
 
 void nav_catapult_highrate_module(void)
 {
-  bool_t reset_lauch;
+  bool reset_lauch;
   // Only run when
   if (nav_catapult_armed) {
     if (nav_catapult_launch < nav_catapult_heading_delay * NAV_CATAPULT_HIGHRATE_MODULE_FREQ) {
@@ -131,7 +131,7 @@ void nav_catapult_highrate_module(void)
 //###############################################################################################
 // Code that runs in 4Hz Nav
 
-bool_t nav_catapult_setup(void)
+bool nav_catapult_setup(void)
 {
 
   nav_catapult_armed = TRUE;
@@ -142,7 +142,7 @@ bool_t nav_catapult_setup(void)
 
 
 
-bool_t nav_catapult_run(uint8_t _to, uint8_t _climb)
+bool nav_catapult_run(uint8_t _to, uint8_t _climb)
 {
   float alt = WaypointAlt(_climb);
 
@@ -195,7 +195,7 @@ bool_t nav_catapult_run(uint8_t _to, uint8_t _climb)
 
 }
 
-bool_t nav_select_touch_down(uint8_t _td)
+bool nav_select_touch_down(uint8_t _td)
 {
   WaypointX(_td) = stateGetPositionEnu_f()->x;
   WaypointY(_td) = stateGetPositionEnu_f()->y;

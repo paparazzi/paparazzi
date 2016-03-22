@@ -44,7 +44,7 @@ void mission_init(void)
 
 
 // Insert element
-bool_t mission_insert(enum MissionInsertMode insert, struct _mission_element *element)
+bool mission_insert(enum MissionInsertMode insert, struct _mission_element *element)
 {
   uint8_t tmp;
   // convert element if needed, return FALSE if failed
@@ -84,7 +84,7 @@ bool_t mission_insert(enum MissionInsertMode insert, struct _mission_element *el
 
 
 // Weak implementation of mission_element_convert (leave element unchanged)
-bool_t __attribute__((weak)) mission_element_convert(struct _mission_element *el __attribute__((unused))) { return TRUE; }
+bool __attribute__((weak)) mission_element_convert(struct _mission_element *el __attribute__((unused))) { return TRUE; }
 
 
 // Get element

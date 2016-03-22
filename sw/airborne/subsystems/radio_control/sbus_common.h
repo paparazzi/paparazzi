@@ -78,7 +78,7 @@
 struct Sbus {
   uint16_t pulses[SBUS_NB_CHANNEL]; ///< decoded values
   uint16_t ppm[SBUS_NB_CHANNEL];    ///< decoded and converted values
-  bool_t frame_available;           ///< new frame available
+  bool frame_available;           ///< new frame available
   uint8_t buffer[SBUS_BUF_LENGTH];  ///< input buffer
   uint8_t idx;                      ///< input index
   uint8_t status;                   ///< decoder state machine status

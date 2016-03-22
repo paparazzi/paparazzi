@@ -56,9 +56,9 @@ struct FloatQuat UM6_quat;
 inline void UM6_imu_align(void);
 inline void UM6_send_packet(uint8_t *packet_buffer, uint8_t packet_length);
 inline uint16_t UM6_calculate_checksum(uint8_t packet_buffer[], uint8_t packet_length);
-inline bool_t UM6_verify_chk(uint8_t packet_buffer[], uint8_t packet_length);
+inline bool UM6_verify_chk(uint8_t packet_buffer[], uint8_t packet_length);
 
-inline bool_t UM6_verify_chk(uint8_t packet_buffer[], uint8_t packet_length)
+inline bool UM6_verify_chk(uint8_t packet_buffer[], uint8_t packet_length)
 {
   chk_rec = (packet_buffer[packet_length - 2] << 8) | packet_buffer[packet_length - 1];
   chk_calc = UM6_calculate_checksum(packet_buffer, packet_length - 2);

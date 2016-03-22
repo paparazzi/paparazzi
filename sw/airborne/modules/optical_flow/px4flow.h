@@ -48,7 +48,7 @@ struct mavlink_optical_flow {
 };
 
 extern struct mavlink_optical_flow optical_flow;
-extern bool_t optical_flow_available;
+extern bool optical_flow_available;
 
 extern void px4flow_init(void);
 extern void px4flow_downlink(void);

@@ -124,7 +124,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
     // (a * Ax + (1-a) * Ax+1)  - (a * Bx + (1-a) * Bx+1)
 
     // (4) iterate over taking steps in the image to minimize the error:
-    bool_t tracked = TRUE;
+    bool tracked = TRUE;
     for (uint8_t it = 0; it < max_iterations; it++) {
       struct point_t new_point =  {
         vectors[new_p].pos.x + vectors[new_p].flow_x,

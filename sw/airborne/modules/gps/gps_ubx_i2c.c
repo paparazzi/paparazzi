@@ -49,7 +49,7 @@ PRINT_CONFIG_VAR(GPS_UBX_I2C_DEV)
 struct GpsUbxI2C gps_i2c;
 
 // Local variables
-bool_t   gps_ubx_i2c_ucenter_done;      ///< ucenter finished configuring flag
+bool   gps_ubx_i2c_ucenter_done;      ///< ucenter finished configuring flag
 uint16_t gps_ubx_i2c_bytes_to_read;     ///< ublox bytes to read
 
 /** null function
@@ -114,7 +114,7 @@ uint8_t gps_i2c_char_available(struct GpsUbxI2C *p __attribute__((unused)))
   return (((int)gps_i2c.rx_buf_avail - (int)gps_i2c.rx_buf_idx) > 0);
 }
 
-bool_t gps_i2c_tx_is_ready(void)
+bool gps_i2c_tx_is_ready(void)
 {
   return gps_i2c.tx_rdy;
 }

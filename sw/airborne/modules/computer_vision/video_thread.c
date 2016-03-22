@@ -305,7 +305,7 @@ void video_thread_stop(void)
  * Take a shot and save it
  * This will only work when the streaming is enabled
  */
-void video_thread_take_shot(bool_t take)
+void video_thread_take_shot(bool take)
 {
   video_thread.take_shot = take;
 }

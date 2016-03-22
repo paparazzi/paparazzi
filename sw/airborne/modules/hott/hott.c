@@ -51,20 +51,20 @@
 #define HOTT_TELEMETRY_VARIO_SENSOR_ID  0x89
 
 static uint32_t hott_event_timer; // 1ms software timer
-static bool_t hott_telemetry_is_sending = FALSE;
+static bool hott_telemetry_is_sending = FALSE;
 static uint16_t hott_telemetry_sendig_msgs_id = 0;
 
 #if HOTT_SIM_GPS_SENSOR
-bool_t  HOTT_REQ_UPDATE_GPS = FALSE;
+bool  HOTT_REQ_UPDATE_GPS = FALSE;
 #endif
 #if HOTT_SIM_EAM_SENSOR
-bool_t  HOTT_REQ_UPDATE_EAM = FALSE;
+bool  HOTT_REQ_UPDATE_EAM = FALSE;
 #endif
 #if HOTT_SIM_VARIO_SENSOR
-bool_t  HOTT_REQ_UPDATE_VARIO = FALSE;
+bool  HOTT_REQ_UPDATE_VARIO = FALSE;
 #endif
 #if HOTT_SIM_GAM_SENSOR
-bool_t  HOTT_REQ_UPDATE_GAM  = FALSE;
+bool  HOTT_REQ_UPDATE_GAM  = FALSE;
 #endif
 
 // HoTT serial send buffer pointer

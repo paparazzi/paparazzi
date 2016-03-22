@@ -18,7 +18,7 @@ static void last_plume_was_here(void)
   last_plume.y = stateGetPositionEnu_f()->y;
 }
 
-bool_t nav_anemotaxis_downwind(uint8_t c, float radius)
+bool nav_anemotaxis_downwind(uint8_t c, float radius)
 {
   struct FloatVect2 *wind = stateGetHorizontalWindspeed_f();
   float wind_dir = atan2(wind->x, wind->y);
@@ -27,7 +27,7 @@ bool_t nav_anemotaxis_downwind(uint8_t c, float radius)
   return FALSE;
 }
 
-bool_t nav_anemotaxis_init(uint8_t c)
+bool nav_anemotaxis_init(uint8_t c)
 {
   status = UTURN;
   sign = 1;
@@ -39,7 +39,7 @@ bool_t nav_anemotaxis_init(uint8_t c)
   return FALSE;
 }
 
-bool_t nav_anemotaxis(uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume)
+bool nav_anemotaxis(uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume)
 {
   if (chemo_sensor) {
     last_plume_was_here();

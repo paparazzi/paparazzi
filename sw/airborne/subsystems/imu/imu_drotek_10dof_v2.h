@@ -81,7 +81,7 @@ struct ImuDrotek2 {
 extern struct ImuDrotek2 imu_drotek2;
 
 extern void imu_drotek2_event(void);
-extern bool_t imu_drotek2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
+extern bool imu_drotek2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
 
 #define ImuEvent imu_drotek2_event
 

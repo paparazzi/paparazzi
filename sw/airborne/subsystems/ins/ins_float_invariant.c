@@ -55,7 +55,7 @@
 #if LOG_INVARIANT_FILTER
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
-bool_t log_started = FALSE;
+bool log_started = FALSE;
 #endif
 
 /*------------- =*= Invariant Observers =*= -------------*
@@ -146,10 +146,10 @@ static const struct FloatVect3 A = { 0.f, 0.f, 9.81f };
 #define B ins_float_inv.mag_h
 
 /* barometer */
-bool_t ins_baro_initialized;
+bool ins_baro_initialized;
 
 /* gps */
-bool_t ins_gps_fix_once;
+bool ins_gps_fix_once;
 
 /* error computation */
 static inline void error_output(struct InsFloatInv *_ins);

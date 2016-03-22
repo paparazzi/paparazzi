@@ -47,7 +47,7 @@
 
 struct NavSpiral nav_spiral;
 
-bool_t nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, float radius_inc, float segments)
+bool nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, float radius_inc, float segments)
 {
   VECT2_COPY(nav_spiral.center, waypoints[center_wp]);    // center of the helix
   nav_spiral.center.z = waypoints[center_wp].a;
@@ -84,7 +84,7 @@ bool_t nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, 
   return FALSE;
 }
 
-bool_t nav_spiral_run(void)
+bool nav_spiral_run(void)
 {
   struct EnuCoor_f pos_enu = *stateGetPositionEnu_f();
 

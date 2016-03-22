@@ -17,7 +17,7 @@ struct NpsSensorGyro {
   struct DoubleVect3  bias_random_walk_std_dev;
   struct DoubleVect3  bias_random_walk_value;
   double       next_update;
-  bool_t       data_available;
+  bool       data_available;
 };
 
 

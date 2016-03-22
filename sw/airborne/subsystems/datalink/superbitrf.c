@@ -70,9 +70,9 @@ PRINT_CONFIG_VAR(SUPERBITRF_FORCE_DSM2)
 struct SuperbitRF superbitrf;
 
 /* The internal functions */
-static inline void superbitrf_radio_to_channels(uint8_t *data, uint8_t nb_channels, bool_t is_11bit, int16_t *channels);
-static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, uint8_t packet[]);
-static inline void superbitrf_send_packet_cb(bool_t error);
+static inline void superbitrf_radio_to_channels(uint8_t *data, uint8_t nb_channels, bool is_11bit, int16_t *channels);
+static inline void superbitrf_receive_packet_cb(bool error, uint8_t status, uint8_t packet[]);
+static inline void superbitrf_send_packet_cb(bool error);
 static inline void superbitrf_gen_dsmx_channels(void);
 
 /* The startup configuration for the cyrf6936 */
@@ -201,7 +201,7 @@ static void send_superbit(struct transport_tx *trans, struct link_device *dev)
 #endif
 
 // Functions for the generic device API
-static bool_t superbitrf_check_free_space(struct SuperbitRF *p, uint8_t len)
+static bool superbitrf_check_free_space(struct SuperbitRF *p, uint8_t len)
 {
   int16_t space = p->tx_extract_idx - p->tx_insert_idx;
   if (space <= 0) {
@@ -289,7 +289,7 @@ void superbitrf_event(void)
 {
   uint8_t i, pn_row, data_code[16];
   static uint8_t packet_size, tx_packet[16];
-  static bool_t start_transfer = TRUE;
+  static bool start_transfer = TRUE;
 
 #ifdef RADIO_CONTROL_LED
   static uint32_t slowLedCpt = 0;
@@ -755,7 +755,7 @@ void superbitrf_event(void)
 /**
  * When we receive a packet this callback is called
  */
-static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, uint8_t packet[])
+static inline void superbitrf_receive_packet_cb(bool error, uint8_t status, uint8_t packet[])
 {
   int i;
   uint16_t sum;
@@ -1026,7 +1026,7 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
   }
 }
 
-static inline void superbitrf_send_packet_cb(bool_t error __attribute__((unused)))
+static inline void superbitrf_send_packet_cb(bool error __attribute__((unused)))
 {
   /* Switch on the status of the superbitRF */
   switch (superbitrf.status) {
@@ -1057,7 +1057,7 @@ static inline void superbitrf_send_packet_cb(bool_t error __attribute__((unused)
 /**
  * Parse a radio channel packet
  */
-static inline void superbitrf_radio_to_channels(uint8_t *data, uint8_t nb_channels, bool_t is_11bit, int16_t *channels)
+static inline void superbitrf_radio_to_channels(uint8_t *data, uint8_t nb_channels, bool is_11bit, int16_t *channels)
 {
   int i;
   uint8_t bit_shift = (is_11bit) ? 11 : 10;

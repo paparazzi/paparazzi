@@ -116,8 +116,8 @@
 struct ads1114_periph {
   struct i2c_transaction trans;
   uint8_t i2c_addr;
-  bool_t config_done;
-  bool_t data_available;
+  bool config_done;
+  bool data_available;
 };
 
 #if USE_ADS1114_1

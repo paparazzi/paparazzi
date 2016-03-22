@@ -191,7 +191,7 @@ unit_t nav_drop_shoot(void)
 }
 
 /* Compute start and end waypoints to be aligned on w1-w2 */
-bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t wp_before, uint8_t wp_after, float d_before, float d_after)
+bool compute_alignment(uint8_t w1, uint8_t w2, uint8_t wp_before, uint8_t wp_after, float d_before, float d_after)
 {
   float x_0 = waypoints[w2].x - waypoints[w1].x;
   float y_0 = waypoints[w2].y - waypoints[w1].y;

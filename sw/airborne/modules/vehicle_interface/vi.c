@@ -64,7 +64,7 @@ void vi_periodic(void)
   vi_impl_periodic();
 }
 
-void vi_set_enabled(bool_t enabled)
+void vi_set_enabled(bool enabled)
 {
   vi_impl_set_enabled(enabled);
 

@@ -54,7 +54,7 @@ float app_angle;
 float app_intercept_rate;
 float app_distance_af_sd;
 
-bool_t init = TRUE;
+bool init = TRUE;
 
 #ifndef APP_TARGET_SPEED
 #define APP_TARGET_SPEED NOMINAL_AIRSPEED
@@ -79,7 +79,7 @@ float sd_intercept;
 float sd_tod_x;
 float sd_tod_y;
 
-static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
+static inline bool gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
 {
 
   if ((WaypointX(_af) == WaypointX(_td)) && (WaypointY(_af) == WaypointY(_td))) {
@@ -132,7 +132,7 @@ static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uin
 } /* end of gls_copute_TOD */
 
 
-bool_t gls_start(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
+bool gls_start(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
 {
 
   init = TRUE;
@@ -156,7 +156,7 @@ bool_t gls_start(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
 }  /* end of gls_init() */
 
 
-bool_t gls_run(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
+bool gls_run(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
 {
 
 

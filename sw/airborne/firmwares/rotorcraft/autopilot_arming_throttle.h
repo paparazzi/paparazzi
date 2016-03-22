@@ -44,7 +44,7 @@ enum arming_throttle_state {
 
 enum arming_throttle_state autopilot_arming_state;
 uint8_t autopilot_arming_delay_counter;
-bool_t autopilot_unarmed_in_auto;
+bool autopilot_unarmed_in_auto;
 
 static inline void autopilot_arming_init(void)
 {
@@ -53,7 +53,7 @@ static inline void autopilot_arming_init(void)
   autopilot_unarmed_in_auto = FALSE;
 }
 
-static inline void autopilot_arming_set(bool_t motors_on)
+static inline void autopilot_arming_set(bool motors_on)
 {
   if (motors_on) {
     autopilot_arming_state = STATE_MOTORS_ON;

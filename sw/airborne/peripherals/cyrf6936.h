@@ -56,7 +56,7 @@ struct Cyrf6936 {
   uint8_t buffer_length;                    /**< The length of the buffer used for MULTIWRITE */
   uint8_t buffer_idx;                       /**< The index of the buffer used for MULTIWRITE and used as sub-status for other statuses */
 
-  bool_t has_irq;                           /**< When the CYRF6936 is done reading the irq */
+  bool has_irq;                           /**< When the CYRF6936 is done reading the irq */
   uint8_t mfg_id[6];                        /**< The manufacturer id of the CYRF6936 chip */
   uint8_t tx_irq_status;                    /**< The last send interrupt status */
   uint8_t rx_irq_status;                    /**< The last receive interrupt status */
@@ -69,11 +69,11 @@ extern void cyrf6936_init(struct Cyrf6936 *cyrf, struct spi_periph *spi_p, const
                           const uint32_t rst_port, const uint16_t rst_pin);
 void cyrf6936_event(struct Cyrf6936 *cyrf);
 
-bool_t cyrf6936_write(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data);
-bool_t cyrf6936_multi_write(struct Cyrf6936 *cyrf, const uint8_t data[][2], const uint8_t length);
-bool_t cyrf6936_write_chan_sop_data_crc(struct Cyrf6936 *cyrf, const uint8_t chan, const uint8_t sop_code[],
+bool cyrf6936_write(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data);
+bool cyrf6936_multi_write(struct Cyrf6936 *cyrf, const uint8_t data[][2], const uint8_t length);
+bool cyrf6936_write_chan_sop_data_crc(struct Cyrf6936 *cyrf, const uint8_t chan, const uint8_t sop_code[],
                                         const uint8_t data_code[], const uint16_t crc_seed);
-bool_t cyrf6936_read_rx_irq_status_packet(struct Cyrf6936 *cyrf);
-bool_t cyrf6936_send(struct Cyrf6936 *cyrf, const uint8_t data[], const uint8_t length);
+bool cyrf6936_read_rx_irq_status_packet(struct Cyrf6936 *cyrf);
+bool cyrf6936_send(struct Cyrf6936 *cyrf, const uint8_t data[], const uint8_t length);
 
 #endif /* CYRF6936_H */

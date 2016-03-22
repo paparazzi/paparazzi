@@ -38,7 +38,7 @@
 #define BUFFER_ZONE_DIST 10
 
 /// Utility function: converts lla (int) to local point (float)
-bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
+bool mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
 {
   // return FALSE if there is no valid local coordinate system
   if (!state.ned_initialized_i) {
@@ -76,7 +76,7 @@ bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
 }
 
 //Function that converts target wp from float point versions to int
-bool_t mission_element_convert(struct _mission_element *el)
+bool mission_element_convert(struct _mission_element *el)
 {
   struct _mission_element tmp_element = *el;
   uint8_t i = 0;
@@ -114,7 +114,7 @@ struct EnuCoor_i last_mission_wp = { 0., 0., 0. };
 
 /** Navigation function to a single waypoint
 */
-static inline bool_t mission_nav_wp(struct _mission_element *el)
+static inline bool mission_nav_wp(struct _mission_element *el)
 {
   struct EnuCoor_i *target_wp = &(el->element.mission_wp.wp.wp_i);
 
@@ -138,7 +138,7 @@ static inline bool_t mission_nav_wp(struct _mission_element *el)
 
 /** Navigation function on a circle
 */
-static inline bool_t mission_nav_circle(struct _mission_element *el)
+static inline bool mission_nav_circle(struct _mission_element *el)
 {
   struct EnuCoor_i *center_wp = &(el->element.mission_circle.center.center_i);
   int32_t radius = el->element.mission_circle.radius;
@@ -158,7 +158,7 @@ static inline bool_t mission_nav_circle(struct _mission_element *el)
 
 /** Navigation function along a segment
 */
-static inline bool_t mission_nav_segment(struct _mission_element *el)
+static inline bool mission_nav_segment(struct _mission_element *el)
 {
   struct EnuCoor_i *from_wp = &(el->element.mission_segment.from.from_i);
   struct EnuCoor_i *to_wp   = &(el->element.mission_segment.to.to_i);
@@ -184,7 +184,7 @@ static inline bool_t mission_nav_segment(struct _mission_element *el)
 
 /** Navigation function along a path
 */
-static inline bool_t mission_nav_path(struct _mission_element *el)
+static inline bool mission_nav_path(struct _mission_element *el)
 {
   if (el->element.mission_path.nb == 0) {
     return FALSE; // nothing to do
@@ -230,7 +230,7 @@ int mission_run()
     return FALSE; // end of mission
   }
 
-  bool_t el_running = FALSE;
+  bool el_running = FALSE;
   switch (el->type) {
     case MissionWP:
       el_running = mission_nav_wp(el);

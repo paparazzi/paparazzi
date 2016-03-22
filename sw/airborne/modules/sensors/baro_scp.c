@@ -24,7 +24,7 @@
 uint8_t  baro_scp_status;
 uint32_t baro_scp_pressure;
 uint16_t baro_scp_temperature;
-bool_t baro_scp_available;
+bool baro_scp_available;
 
 static void baro_scp_start_high_res_measurement(void);
 static void baro_scp_read(void);

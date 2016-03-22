@@ -52,7 +52,7 @@ static void nav_points(struct FloatVect2 start, struct FloatVect2 end)
  * @param x, y            first line is defined by point x and y (goes through this points)
  * @param a1, a2, b1, b2  second line by coordinates a1/a2, b1/b2
  */
-static bool_t intercept_two_lines(struct FloatVect2 *p, struct FloatVect2 x, struct FloatVect2 y, float a1, float a2,
+static bool intercept_two_lines(struct FloatVect2 *p, struct FloatVect2 x, struct FloatVect2 y, float a1, float a2,
                                   float b1, float b2)
 {
   float divider, fac;
@@ -75,7 +75,7 @@ static bool_t intercept_two_lines(struct FloatVect2 *p, struct FloatVect2 x, str
  *  @param x, y     intersection points
  *  @param a, b     define the line to intersection
  */
-static bool_t get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, struct FloatVect2 a, struct FloatVect2 b)
+static bool get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, struct FloatVect2 a, struct FloatVect2 b)
 {
   int i, count = 0;
   struct FloatVect2 tmp;
@@ -132,7 +132,7 @@ static bool_t get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, str
  *  @param min_rad       minimal radius when navigating
  *  @param altitude      the altitude that must be reached before the flyover starts
  **/
-bool_t nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
+bool nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
                                 float min_rad, float altitude)
 {
   int i;
@@ -232,7 +232,7 @@ bool_t nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, flo
  * Position and stage and navigates accordingly.
  * @returns True until the survey is finished
  */
-bool_t nav_survey_polygon_run(void)
+bool nav_survey_polygon_run(void)
 {
   NavVerticalAutoThrottleMode(0.0);
   NavVerticalAltitudeMode(survey.psa_altitude, 0.0);

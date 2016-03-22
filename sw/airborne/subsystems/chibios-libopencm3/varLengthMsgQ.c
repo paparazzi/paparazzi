@@ -30,18 +30,18 @@ void		varLenMsgDynamicInit   (VarLenMsgQueue* que)
   que->sparseChunkNumber=0;
 }
 
-bool_t		varLenMsgQueueIsFull (VarLenMsgQueue* que)
+bool		varLenMsgQueueIsFull (VarLenMsgQueue* que)
 {
   varLenMsgQueueLock (que);
-  bool_t retVal = ringBufferIsFull (&que->circBuf) || chMBGetFreeCountI (&que->mb) <= 0;
+  bool retVal = ringBufferIsFull (&que->circBuf) || chMBGetFreeCountI (&que->mb) <= 0;
   varLenMsgQueueUnlock ();
   return retVal;
 }
 
-bool_t 		varLenMsgQueueIsEmpty (VarLenMsgQueue* que)
+bool 		varLenMsgQueueIsEmpty (VarLenMsgQueue* que)
 {
   varLenMsgQueueLock (que);
-  bool_t retVal = ringBufferIsEmpty (&que->circBuf) && chMBGetUsedCountI (&que->mb) <= 0;
+  bool retVal = ringBufferIsEmpty (&que->circBuf) && chMBGetUsedCountI (&que->mb) <= 0;
   varLenMsgQueueUnlock ();
   return retVal;
 }
@@ -391,9 +391,9 @@ static uint16_t popSparseChunkMap (VarLenMsgQueue* que, const uint16_t  mplAddr)
   return associatedLen;
 }
 
-bool_t varLenMsgQueueTestIntegrityIfEmpty(VarLenMsgQueue* que)
+bool varLenMsgQueueTestIntegrityIfEmpty(VarLenMsgQueue* que)
 {
-  bool_t retVal = TRUE;
+  bool retVal = TRUE;
   varLenMsgQueueLock(que);
   int32_t status;
 

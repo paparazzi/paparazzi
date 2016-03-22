@@ -130,7 +130,7 @@ struct Ads1220Config {
   enum Ads1220ConfStatus status;  ///< config status
   enum Ads1220Mux mux;            ///< input multiplexer
   enum Ads1220Gain gain;          ///< gain
-  bool_t pga_bypass;              ///< bypass PGA (PGA enabled = 0)
+  bool pga_bypass;              ///< bypass PGA (PGA enabled = 0)
   enum Ads1220SampleRate rate;    ///< data output rate
   enum Ads1220ConvMode conv;      ///< conversion mode
   enum Ads1220VRef vref;          ///< voltage ref
@@ -158,7 +158,7 @@ struct Ads1220 {
   struct Ads1220Config config;                  ///< configuration
   // Data
   uint32_t data;                                ///< raw ADC value
-  volatile bool_t data_available;               ///< data ready flag
+  volatile bool data_available;               ///< data ready flag
 };
 
 // Functions

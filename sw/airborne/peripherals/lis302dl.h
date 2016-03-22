@@ -42,13 +42,13 @@ enum Lis302dlConfStatus {
 };
 
 struct Lis302dlConfig {
-  bool_t int_invert;        ///< Invert Interrupt FALSE: active high, TRUE: active low
-  bool_t spi_3_wire;        ///< Set 3-wire SPI mode, if FALSE: 4-wire SPI mode
+  bool int_invert;        ///< Invert Interrupt FALSE: active high, TRUE: active low
+  bool spi_3_wire;        ///< Set 3-wire SPI mode, if FALSE: 4-wire SPI mode
 
   /** Filtered Data Selection.
    * FALSE: internal filter bypassed;
    * TRUE: data from internal filter sent to output register */
-  bool_t filt_data;
+  bool filt_data;
   enum Lis302dlRanges range; ///< g Range
   enum Lis302dlRates rate;   ///< Data Output Rate
 };

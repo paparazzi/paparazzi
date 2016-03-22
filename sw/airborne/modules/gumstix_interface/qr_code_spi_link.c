@@ -32,7 +32,7 @@
 //struct qr_code_spi_link_data qr_code_spi_link_data;
 struct spi_transaction qr_code_spi_link_transaction;
 
-static volatile bool_t qr_code_spi_data_available = FALSE;
+static volatile bool qr_code_spi_data_available = FALSE;
 
 uint8_t testDataOut[3] = {1, 2, 3};
 uint8_t testDataIn[3] = {9, 9, 9};

@@ -51,7 +51,7 @@ extern void gps_ubx_register(void);
 
 #define GPS_UBX_MAX_PAYLOAD 255
 struct GpsUbx {
-  bool_t msg_available;
+  bool msg_available;
   uint8_t msg_buf[GPS_UBX_MAX_PAYLOAD] __attribute__((aligned));
   uint8_t msg_id;
   uint8_t msg_class;

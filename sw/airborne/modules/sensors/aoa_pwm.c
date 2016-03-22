@@ -36,7 +36,7 @@
 #if LOG_AOA
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
-bool_t log_started;
+bool log_started;
 #endif
 
 #ifndef AOA_PWM_CHANNEL

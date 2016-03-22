@@ -47,7 +47,7 @@
 
 struct i2c_transaction com_trans;
 
-bool_t active_com;
+bool active_com;
 
 void generic_com_init(void)
 {

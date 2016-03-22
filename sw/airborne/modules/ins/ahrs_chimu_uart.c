@@ -32,7 +32,7 @@ INS_FORMAT ins_pitch_neutral;
 
 struct AhrsChimu ahrs_chimu;
 
-static bool_t ahrs_chimu_enable_output(bool_t enable)
+static bool ahrs_chimu_enable_output(bool enable)
 {
   ahrs_chimu.is_enabled = enable;
   return ahrs_chimu.is_enabled;

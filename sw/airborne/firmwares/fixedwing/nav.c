@@ -65,8 +65,8 @@ static float nav_carrot_leg_progress;
 /** length of the current leg (m) */
 static float nav_leg_length;
 
-bool_t nav_in_circle = FALSE;
-bool_t nav_in_segment = FALSE;
+bool nav_in_circle = FALSE;
+bool nav_in_segment = FALSE;
 float nav_circle_x, nav_circle_y, nav_circle_radius;
 float nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2;
 uint8_t horizontal_mode;
@@ -87,7 +87,7 @@ float nav_ground_speed_setpoint, nav_ground_speed_pgain;
 /* Used in nav_survey_rectangle. Defined here for downlink and uplink */
 float nav_survey_shift;
 float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
-bool_t nav_survey_active;
+bool nav_survey_active;
 
 int nav_mode;
 
@@ -216,7 +216,7 @@ static void nav_ground_speed_loop(void)
 #endif
 
 float baseleg_out_qdr;
-bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius)
+bool nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius)
 {
   nav_radius = radius;
 
@@ -239,7 +239,7 @@ bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, flo
   return FALSE;
 }
 
-bool_t nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide)
+bool nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide)
 {
 
   float x_0 = waypoints[wp_td].x - waypoints[wp_af].x;
@@ -262,7 +262,7 @@ bool_t nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide)
 /* For a landing UPWIND.
    Computes Top Of Descent waypoint from Touch Down and Approach Fix
    waypoints, using glide airspeed, glide vertical speed and wind */
-static inline bool_t compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float glide_airspeed, float glide_vspeed)
+static inline bool compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float glide_airspeed, float glide_vspeed)
 {
   struct FloatVect2 *wind = stateGetHorizontalWindspeed_f();
   float td_af_x = WaypointX(_af) - WaypointX(_td);
@@ -321,7 +321,7 @@ float fp_climb; /* m/s */
  *
  *  @return true if the position (x, y) is reached
  */
-bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float approaching_time)
+bool nav_approaching_xy(float x, float y, float from_x, float from_y, float approaching_time)
 {
   /** distance to waypoint in x */
   float pw_x = x - stateGetPositionEnu_f()->x;
@@ -481,7 +481,7 @@ static void send_wp_moved(struct transport_tx *trans, struct link_device *dev)
   DownlinkSendWp(trans, dev, i);
 }
 
-bool_t DownlinkSendWpNr(uint8_t _wp)
+bool DownlinkSendWpNr(uint8_t _wp)
 {
   DownlinkSendWp(&(DefaultChannel).trans_tx, &(DefaultDevice).device, _wp);
   return FALSE;

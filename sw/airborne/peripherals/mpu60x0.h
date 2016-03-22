@@ -69,7 +69,7 @@ enum Mpu60x0ConfStatus {
 typedef void (*Mpu60x0ConfigSet)(void *mpu, uint8_t _reg, uint8_t _val);
 
 /// function prototype for configuration of a single I2C slave
-typedef bool_t (*Mpu60x0I2cSlaveConfigure)(Mpu60x0ConfigSet mpu_set, void *mpu);
+typedef bool (*Mpu60x0I2cSlaveConfigure)(Mpu60x0ConfigSet mpu_set, void *mpu);
 
 struct Mpu60x0I2cSlave {
   Mpu60x0I2cSlaveConfigure configure;
@@ -80,16 +80,16 @@ struct Mpu60x0Config {
   enum Mpu60x0DLPF dlpf_cfg;            ///< Digital Low Pass Filter
   enum Mpu60x0GyroRanges gyro_range;    ///< deg/s Range
   enum Mpu60x0AccelRanges accel_range;  ///< g Range
-  bool_t drdy_int_enable;               ///< Enable Data Ready Interrupt
+  bool drdy_int_enable;               ///< Enable Data Ready Interrupt
   uint8_t clk_sel;                      ///< Clock select
   uint8_t nb_bytes;                     ///< number of bytes to read starting with MPU60X0_REG_INT_STATUS
   enum Mpu60x0ConfStatus init_status;   ///< init status
-  bool_t initialized;                   ///< config done flag
+  bool initialized;                   ///< config done flag
 
   /** Bypass MPU I2C.
    * Only effective if using the I2C implementation.
    */
-  bool_t i2c_bypass;
+  bool i2c_bypass;
 
   uint8_t nb_slaves;                    ///< number of used I2C slaves
   uint8_t nb_slave_init;                ///< number of already configured/initialized slaves
@@ -110,6 +110,6 @@ extern void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void *mpu, struct Mpu6
  * @param mpu Mpu60x0Spi or Mpu60x0I2c peripheral
  * @return TRUE when all slaves are configured
  */
-extern bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu);
+extern bool mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu);
 
 #endif // MPU60X0_H

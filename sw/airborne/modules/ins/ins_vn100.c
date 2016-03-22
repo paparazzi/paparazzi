@@ -106,7 +106,7 @@ void vn100_init(void)
 
 }
 
-static inline bool_t ins_configure(void)
+static inline bool ins_configure(void)
 {
   // nothing to receive during conf
   vn100_trans.input_length = 0;

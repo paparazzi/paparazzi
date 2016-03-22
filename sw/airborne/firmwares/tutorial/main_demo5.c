@@ -58,7 +58,7 @@ static inline void main_event_task(void)
 
 uint16_t foo;
 
-bool_t dl_msg_available;
+bool dl_msg_available;
 
 #define MSG_SIZE 128
 uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));

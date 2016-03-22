@@ -14,7 +14,7 @@
 extern uint8_t  baro_scp_status;
 extern uint32_t baro_scp_pressure;
 extern uint16_t baro_scp_temperature;
-extern bool_t baro_scp_available;
+extern bool baro_scp_available;
 
 void baro_scp_init(void);
 void baro_scp_periodic(void);

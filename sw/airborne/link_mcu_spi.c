@@ -31,7 +31,7 @@ struct link_mcu_msg link_mcu_from_fbw_msg;
 
 struct spi_transaction link_mcu_trans;
 
-bool_t link_mcu_received;
+bool link_mcu_received;
 
 static uint16_t crc = 0;
 

@@ -54,7 +54,7 @@
 
 
 struct AvoidNavigationStruct avoid_navigation_data;
-bool_t obstacle_detected = FALSE;
+bool obstacle_detected = FALSE;
 int32_t counter = 0;
 
 // Called once on paparazzi autopilot start

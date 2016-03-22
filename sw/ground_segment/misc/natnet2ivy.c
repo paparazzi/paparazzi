@@ -60,8 +60,8 @@ uint8_t natnet_minor            = 7;
 /** Logging */
 FILE *fp;
 char *nameOfLogfile             = "natnet_log.dat";
-bool_t log_exists = 0;
-bool_t must_log = 0;
+bool log_exists = 0;
+bool must_log = 0;
 
 /** Ivy Bus default */
 #ifdef __APPLE__

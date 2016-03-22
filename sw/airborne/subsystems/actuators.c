@@ -33,7 +33,7 @@
 int16_t actuators[ACTUATORS_NB];
 
 uint32_t actuators_delay_time;
-bool_t   actuators_delay_done;
+bool   actuators_delay_done;
 
 void actuators_init(void)
 {

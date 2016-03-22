@@ -81,8 +81,8 @@ PRINT_CONFIG_VAR(APOGEE_MAG_FREQ)
 PRINT_CONFIG_VAR(MAG_PRESCALER)
 
 // mag config will be done later in bypass mode
-bool_t configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
-bool_t configure_mag_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)), void *mpu __attribute__((unused)))
+bool configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
+bool configure_mag_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)), void *mpu __attribute__((unused)))
 {
   return TRUE;
 }
@@ -92,8 +92,8 @@ bool_t configure_mag_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)), voi
 struct ImuApogee imu_apogee;
 
 // baro config will be done later in bypass mode
-bool_t configure_baro_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
-bool_t configure_baro_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)), void *mpu __attribute__((unused)))
+bool configure_baro_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
+bool configure_baro_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)), void *mpu __attribute__((unused)))
 {
   return TRUE;
 }
