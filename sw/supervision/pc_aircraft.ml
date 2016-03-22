@@ -53,7 +53,7 @@ let write_conf_xml = fun ?(user_save = false) () ->
   let l = Hashtbl.fold (fun _ a r -> a::r) Utils.aircrafts [] in
   let l = List.sort (fun ac1 ac2 -> compare (Xml.attrib ac1 "name") (Xml.attrib ac2 "name")) l in
   let c = Xml.Element ("conf", [], l) in
-  if c <> Xml.parse_file Utils.conf_xml_file then begin
+  if c <> ExtXml.parse_file Utils.conf_xml_file then begin
     if not (Sys.file_exists Utils.backup_xml_file) then
       ignore (Sys.command (sprintf "cp %s %s" Utils.conf_xml_file Utils.backup_xml_file));
     let f = open_out Utils.conf_xml_file in
@@ -234,7 +234,7 @@ let parse_ac_targets = fun target_combo ac_file (log:string->unit) ->
   store#clear ();
   (* add targets *)
   try
-    let af_xml = Xml.parse_file (Env.paparazzi_home // "conf" // ac_file) in
+    let af_xml = ExtXml.parse_file (Env.paparazzi_home // "conf" // ac_file) in
     let targets = get_targets_list af_xml in
     if List.length targets > 0 then
       List.iter (fun t -> Gtk_tools.add_to_combo target_combo (Xml.attrib t "name")) targets
@@ -256,7 +256,7 @@ let parse_ac_flash = fun target flash_combo ac_file ->
   store#clear ();
   Gtk_tools.add_to_combo flash_combo "Default";
   try
-    let af_xml = Xml.parse_file (Env.paparazzi_home // "conf" // ac_file) in
+    let af_xml = ExtXml.parse_file (Env.paparazzi_home // "conf" // ac_file) in
     let targets = get_targets_list af_xml in
     let board = Xml.attrib (List.find (fun t -> Xml.attrib t "name" = target) targets) "board" in
     (* board names as regexp *)
@@ -317,7 +317,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
           Xml.Element ("airframe", [], []);
       in
       let fp_file = (Env.paparazzi_home // "conf" // (Xml.attrib aircraft "flight_plan")) in
-      let fp_xml = Xml.parse_file fp_file in
+      let fp_xml = ExtXml.parse_file fp_file in
       let settings_modules = try
         get_settings_modules af_xml fp_xml (ExtXml.attrib_or_default aircraft "settings_modules" "")
       with

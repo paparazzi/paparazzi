@@ -39,7 +39,7 @@ let print_targets = fun outfile xml ->
 
 
 let parse_firmware_xml = fun firmware_xml firmware_wiki ->
-  let xml = Xml.parse_file firmware_xml in
+  let xml = ExtXml.parse_file firmware_xml in
   let f = open_out firmware_wiki in
   fprintf f " This file has been generated from %s\n" firmware_xml;
   if ExtXml.tag_is xml "firmware" then begin

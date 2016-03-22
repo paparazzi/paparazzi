@@ -344,7 +344,7 @@ let rec parse_section = fun ac_id s ->
       printf "}\n\n";
     | "include" ->
       let filename = Str.global_replace (Str.regexp "\\$AC_ID") ac_id (ExtXml.attrib s "href") in
-      let subxml = Xml.parse_file filename in
+      let subxml = ExtXml.parse_file filename in
       printf "/* XML %s */" filename;
       nl ();
       List.iter (parse_section ac_id) (Xml.children subxml)

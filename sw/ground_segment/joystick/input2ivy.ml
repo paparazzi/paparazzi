@@ -129,7 +129,7 @@ let get_message = fun class_name msg_name ->
 
 (** Get the A/C id from its name in conf/conf.xml *)
 let ac_id_of_name = fun ac_name ->
-  let conf_xml = Xml.parse_file (conf_dir // "conf.xml") in
+  let conf_xml = ExtXml.parse_file (conf_dir // "conf.xml") in
   try
     let aircraft = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = ac_name) conf_xml "aircraft" in
     ExtXml.int_attrib aircraft "ac_id"
@@ -140,7 +140,7 @@ let ac_id_of_name = fun ac_name ->
 (** Fill the index_of_settings table from var/AC/settings.xml *)
 let hash_index_of_settings = fun ac_name ->
   let xml_file = Env.paparazzi_home // "var" // "aircrafts" // ac_name // "settings.xml" in
-  let xml = Xml.parse_file xml_file in
+  let xml = ExtXml.parse_file xml_file in
   let index = ref 0 in
   let rec loop = fun xml ->
     if Xml.tag xml = "dl_settings" then
@@ -155,7 +155,7 @@ let hash_index_of_settings = fun ac_name ->
 (** Fill the index_of_blocks table from var/aircrafts/AC/flight_plan.xml *)
 let hash_index_of_blocks = fun ac_name ->
   let xml_file = Env.paparazzi_home // "var" // "aircrafts" // ac_name // "flight_plan.xml" in
-  let dump = Xml.parse_file xml_file in
+  let dump = ExtXml.parse_file xml_file in
   let flight_plan = ExtXml.child dump "flight_plan" in
   let blocks = ExtXml.child flight_plan "blocks" in
   List.iter (fun block ->
@@ -305,7 +305,7 @@ let trim_set = fun inputs value ->
 (** Input the trim file if it exists *)
 let parse_trim_file = fun trim_file_name inputs ->
   if Sys.file_exists trim_file_name then begin
-    let trim = Xml.parse_file trim_file_name in
+    let trim = ExtXml.parse_file trim_file_name in
     let trim_values = List.map
       (fun x ->
         let axis = ExtXml.attrib x "axis"
@@ -318,7 +318,7 @@ let parse_trim_file = fun trim_file_name inputs ->
 (** Parse the complete (input and messages) XML desxription
     Also parses the trim xml file if it exists *)
 let parse_descr = fun xml_file trim_file ->
-  let xml = Xml.parse_file xml_file in
+  let xml = ExtXml.parse_file xml_file in
 
   let inputs = parse_input (ExtXml.child xml "input")
   and messages_xml = ExtXml.child xml "messages"

@@ -116,7 +116,7 @@ let new_fp = fun geomap editor_frame accel_group () ->
     createfp#grab_default ();
     ignore(createfp#connect#clicked ~callback:
              begin fun _ ->
-               let xml = Xml.parse_file fp_example in
+               let xml = ExtXml.parse_file fp_example in
                let s = ExtXml.subst_attrib in
                let wgs84 = Latlong.of_string latlong#text in
                let xml = s "lat0" (deg_string_of_rad wgs84.posn_lat) xml in

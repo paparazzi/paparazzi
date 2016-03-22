@@ -93,7 +93,7 @@ let filter_modules_target = fun module_file ->
     | [f; n] -> f, n
     | _ -> module_file, ""
   in
-  let module_xml = Xml.parse_file xml_file in
+  let module_xml = ExtXml.parse_file xml_file in
   if Xml.tag module_xml = "module"
   then
     begin

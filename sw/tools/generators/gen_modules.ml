@@ -407,7 +407,7 @@ let () =
     let modules =
       try
         let target = Sys.getenv "TARGET" in
-        GC.get_modules_of_config ~target xml (Xml.parse_file fp_file)
+        GC.get_modules_of_config ~target xml (ExtXml.parse_file fp_file)
       with
       | Not_found -> failwith "TARTGET env needs to be specified to generate modules files"
     in

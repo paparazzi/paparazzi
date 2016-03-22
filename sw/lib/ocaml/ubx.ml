@@ -88,7 +88,7 @@ type msg_id = int
 let (//) = Filename.concat
 
 let ubx_xml =
-  lazy (Xml.parse_file (Env.paparazzi_src // "conf" // "ubx.xml"))
+  lazy (ExtXml.parse_file (Env.paparazzi_src // "conf" // "ubx.xml"))
 
 let ubx_get_class = fun name ->
   let ubx_xml = Lazy.force ubx_xml in

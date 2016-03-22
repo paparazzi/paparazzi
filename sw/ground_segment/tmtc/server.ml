@@ -45,7 +45,7 @@ let dl_id = "ground_dl" (* Hack, should be [my_id] *)
 
 let (//) = Filename.concat
 let logs_path = Env.paparazzi_home // "var" // "logs"
-let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
+let conf_xml = ExtXml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 let srtm_path = Env.paparazzi_home // "data" // "srtm"
 
 let get_indexed_value = fun t i ->
@@ -451,7 +451,7 @@ let send_aircraft_msg = fun ac ->
 let replayed = fun ac_id ->
   let n = String.length ac_id in
   if n > 6 && String.sub ac_id 0 6 = "replay" then
-    (true, String.sub ac_id 6 (n - 6), "/var/replay/",  Xml.parse_file (Env.paparazzi_home // "var/replay/conf/conf.xml"))
+    (true, String.sub ac_id 6 (n - 6), "/var/replay/", ExtXml.parse_file (Env.paparazzi_home // "var/replay/conf/conf.xml"))
   else
     (false, ac_id, "", conf_xml)
 
@@ -516,11 +516,11 @@ let new_aircraft = fun get_alive_md5sum real_id ->
   end;
 
   let fp_file =  var_aircraft_dir // "flight_plan.xml" in
-  let xml_fp = ExtXml.child (Xml.parse_file fp_file) "flight_plan" in
+  let xml_fp = ExtXml.child (ExtXml.parse_file fp_file) "flight_plan" in
 
   let aircraft_conf_dir = var_aircraft_dir // "conf" in
   let airframe_file =  aircraft_conf_dir // ExtXml.attrib conf "airframe" in
-  let airframe_xml = Xml.parse_file airframe_file in
+  let airframe_xml = ExtXml.parse_file airframe_file in
 
   if not is_replayed then
     check_md5sum real_id (get_alive_md5sum ()) aircraft_conf_dir;
@@ -533,7 +533,7 @@ let new_aircraft = fun get_alive_md5sum real_id ->
 
   ignore (Glib.Timeout.add 1000 (fun _ -> update (); true));
 
-  let messages_xml = Xml.parse_file (Env.paparazzi_home // root_dir // "var" // "messages.xml") in
+  let messages_xml = ExtXml.parse_file (Env.paparazzi_home // root_dir // "var" // "messages.xml") in
   ac, messages_xml
 
 let check_alerts = fun a ->

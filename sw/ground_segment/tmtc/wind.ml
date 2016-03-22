@@ -50,7 +50,7 @@
 type id = string
 
 let (//) = Filename.concat
-let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
+let conf_xml = ExtXml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 
 open Geometry_2d
 

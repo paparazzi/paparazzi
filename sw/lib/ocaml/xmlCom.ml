@@ -31,7 +31,7 @@ Nethtml.Element (_tag, _params, children) -> children
 
 (** Translate <tag .../> to <tag ...></tag> and parse  *)
 let parse_file = fun file ->
-  ignore (Xml.parse_file file);
+  ignore (ExtXml.parse_file file);
   let buff = Buffer.create 5
   and lookup = Buffer.create 5
   and name = Buffer.create 5

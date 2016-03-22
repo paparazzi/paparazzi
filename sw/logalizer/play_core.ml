@@ -95,7 +95,7 @@ let get_log_bounds = fun () ->
 
 
 let load_log = fun xml_file ->
-  let xml = Xml.parse_file xml_file in
+  let xml = ExtXml.parse_file xml_file in
   let data_file =  ExtXml.attrib xml "data_file" in
 
   let f = Ocaml_tools.find_file [Filename.dirname xml_file] data_file in

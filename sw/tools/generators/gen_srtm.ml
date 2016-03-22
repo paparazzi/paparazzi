@@ -35,7 +35,7 @@ let () =
   (* reading file function *)
   let read_file_and_print = fun out area ->
     try
-      let xml = Xml.parse_file (srtm_tmp_dir // area) in
+      let xml = ExtXml.parse_file (srtm_tmp_dir // area) in
       prerr_endline (Printf.sprintf "parsing file %s" area);
       let body = ExtXml.child xml "body" in
       let ul = ExtXml.child body "ul" in

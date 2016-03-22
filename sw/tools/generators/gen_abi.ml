@@ -65,7 +65,7 @@ module Syntax = struct
 
   (** Translates one class of a XML message file into a list of messages *)
   let read = fun filename class_ ->
-    let xml = Xml.parse_file filename in
+    let xml = ExtXml.parse_file filename in
     try
       let xml_class = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = class_) xml "msg_class" in
       let msgs = List.map struct_of_xml (Xml.children xml_class) in

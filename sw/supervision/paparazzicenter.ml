@@ -39,7 +39,7 @@ let get_entry_value = fun xml name ->
   Xml.attrib e "value"
 
 let read_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) (session_combo:Gtk_tools.combo) (target_combo:Gtk_tools.combo) ->
-  let xml = Xml.parse_file file in
+  let xml = ExtXml.parse_file file in
 
   let read_one = fun name use ->
     try
@@ -81,7 +81,7 @@ let add_entry = fun xml name value ->
 
 
 let write_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) (session_combo:Gtk_tools.combo) (target_combo:Gtk_tools.combo) ->
-  let xml = if Sys.file_exists file then Xml.parse_file file else Xml.Element ("gconf", [], []) in
+  let xml = if Sys.file_exists file then ExtXml.parse_file file else Xml.Element ("gconf", [], []) in
 
   (* Save A/C name *)
   let xml =

@@ -55,12 +55,12 @@ let begin_out = fun xml_file h_name out ->
   fprintf out "#define %s\n\n" h_name
 
 let start_and_begin_out = fun xml_file h_name out ->
-  let xml = Xml.parse_file xml_file in
+  let xml = ExtXml.parse_file xml_file in
   begin_out xml_file h_name out;
   xml
 
 let start_and_begin = fun xml_file h_name ->
-  let xml = Xml.parse_file xml_file in
+  let xml = ExtXml.parse_file xml_file in
   begin_out xml_file h_name stdout;
   xml
 
@@ -71,7 +71,7 @@ let begin_c_out = fun xml_file name out ->
   fprintf out "#include \"%s.h\"\n\n" name
 
 let start_and_begin_c = fun xml_file name ->
-  let xml = Xml.parse_file xml_file in
+  let xml = ExtXml.parse_file xml_file in
   begin_c_out xml_file name stdout;
   xml
 
