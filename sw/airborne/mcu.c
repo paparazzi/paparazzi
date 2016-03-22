@@ -65,17 +65,20 @@
 
 void WEAK board_init(void)
 {
-  // default board init function does nothing...
+  /* default board init function does nothing... */
 }
 
 void mcu_init(void)
 {
-
-  mcu_arch_init();
   /* If we have a board specific init function, call it.
    * Otherwise it will simply call the empty weak function.
+   *
+   * For example the ARDrone2 has this implemented to prevent stray data of IMU
+   * from OEM program still running and also accessing AC sensors
    */
   board_init();
+
+  mcu_arch_init();
 
 #ifdef PERIPHERALS_AUTO_INIT
   sys_time_init();
