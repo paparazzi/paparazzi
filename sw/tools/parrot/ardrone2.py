@@ -163,7 +163,7 @@ def ardrone2_status():
     print('Version:\t\t' + parrot_utils.check_version(tn, '/firmware'))
     print('Host:\t\t\t' + args.host + ' (' + read_from_config('static_ip_address_base', config_ini) +
           read_from_config('static_ip_address_probe', config_ini) + ' after boot)')
-    print('Currently running:\t' + parrot_utils.check_running(tn))
+
     print('Serial number:\t\t' + read_from_config('drone_serial', config_ini))
     print('Network id:\t\t' + read_from_config('ssid_single_player', config_ini))
     print('Motor software:\t\t' +
@@ -172,7 +172,9 @@ def ardrone2_status():
     print('Motor hardware:\t\t' +
           read_from_config('motor1_hard', config_ini) + '\t' + read_from_config('motor2_hard', config_ini) + '\t' +
           read_from_config('motor3_hard', config_ini) + '\t' + read_from_config('motor4_hard', config_ini))
-
+    
+    sleep(2.0) #Wait running process reporting back lag
+    print('Currently running:\t' + parrot_utils.check_running(tn))
     autorun = {'': 'Native', '0': 'Native', '1': 'Paparazzi'}
     if check_autoboot():
         print('Autorun at start:\tInstalled booting ' + autorun[read_from_config('start_paparazzi', config_ini)])
@@ -260,7 +262,7 @@ elif args.command == 'reboot':
 
 # Kill a program
 elif args.command == 'kill':
-    parrot_utils.execute_command(tn,'killall -9 ' + args.program)
+    parrot_utils.execute_command(tn,'killall -9 ' + args.program + ' &')
     print('Program "' + args.program + '" is now killed')
 
 # Start a program
@@ -400,15 +402,16 @@ elif args.command == 'upload_file_and_run':
     f = parrot_utils.split_into_path_and_file(args.file)
 
     print("Kill running " + f[1] + " and make folder " + args.folder)
-    parrot_utils.execute_command(tn,"killall -9 " + f[1])
+    parrot_utils.execute_command(tn,"killall -9 " + f[1] + ' &')
     sleep(1)
     parrot_utils.execute_command(tn, "mkdir -p /data/video/" + args.folder)
     print('Uploading \'' + f[1] + "\' from " + f[0] + " to " + args.folder)
+    print("#pragma message: Please wait, uploading can take some time...")
     parrot_utils.uploadfile(ftp, args.folder + "/" + f[1], file(args.file, "rb"))
     sleep(0.5)
     parrot_utils.execute_command(tn, "chmod 777 /data/video/" + args.folder + "/" + f[1])
     parrot_utils.execute_command(tn, "/data/video/" + args.folder + "/" + f[1] + " > /dev/null 2>&1 &")
-    print("#pragma message: Upload and Start of ap.elf to ARDrone2 Succes!")
+    print("#pragma message: Upload to, and start of Autopilot on, ARDrone2 successful !")
 
 elif args.command == 'upload_file':
     # Split filename and path
@@ -417,7 +420,7 @@ elif args.command == 'upload_file':
     parrot_utils.execute_command(tn,"mkdir -p /data/video/" + args.folder)
     print('Uploading \'' + f[1] + "\' from " + f[0] + " to /data/video/" + args.folder)
     parrot_utils.uploadfile(ftp, args.folder + "/" + f[1], file(args.file, "rb"))
-    print("#pragma message: Upload of " + f[1] + " to ARDrone2 Succes!")
+    print("#pragma message: Upload of " + f[1] + " to ARDrone2 successful !")
 
 elif args.command == 'download_file':
     # Split filename and path
@@ -427,7 +430,7 @@ elif args.command == 'download_file':
         file = open(args.file, 'wb')
         print('Downloading \'' + f[1] + "\' from " + args.folder + " to " + f[0])
         ftp.retrbinary("RETR " + args.folder + "/" + f[1], file.write)
-        print("#pragma message: Download of " + f[1] + " from ARDrone2 Succes!")
+        print("#pragma message: Download of " + f[1] + " from ARDrone2 successful !")
     except IOError:
         print("#pragma message: Fail to open file " + args.file)
     except:
@@ -462,7 +465,7 @@ elif args.command == 'download_dir':
 
 elif args.command == 'rm_dir':
     # Split filename and path
-    print("Deleting folder /data/video/" + args.folder + " from ARDrone2")
+    print("Deleting folder /data/video/" + args.folder + " from ARDrone2...")
     print(parrot_utils.execute_command(tn, 'rm -r /data/video/' + args.folder))
 
 

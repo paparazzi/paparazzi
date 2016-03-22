@@ -1,37 +1,39 @@
 /*
- * Copyright (C) 2013 Dino Hensen, Vincent van Hoek
- *               2015 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2016 The Paparazzi Team
  *
- * This file is part of Paparazzi.
+ * This file is part of paparazzi.
  *
- * Paparazzi is free software; you can redistribute it and/or modify
+ * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *
- * Paparazzi is distributed in the hope that it will be useful,
+ * paparazzi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
+
+/* Thanks to TU Delft by assigning students Dino Hensen, Vincent van Hoek for
+ * their inital work and later improvements made in 2015 by Freek van Tienen
+*/
 
 /**
  * @file boards/ardrone/navdata.c
- * ardrone2 navdata aquisition driver.
+ * ARDrone2 navdata aquisition driver.
  *
- * The ardrone2 provides a navdata stream of packets
+ * The ADRrone2 provides a navdata stream of packets
  * containing info about all sensors at a rate of 200Hz.
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <termios.h>   // for baud rates and options
+#include <termios.h>   /* for baud rates and options */
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
@@ -170,28 +172,28 @@ bool_t navdata_init()
 {
   assert(sizeof(struct navdata_measure_t) == NAVDATA_PACKET_SIZE);
 
-  // Check if the FD isn't already initialized
+  /* Check if the FD isn't already initialized */
   if (navdata.fd <= 0) {
-    navdata.fd = open("/dev/ttyO1", O_RDWR | O_NOCTTY); //O_NONBLOCK doesn't work
+    navdata.fd = open("/dev/ttyO1", O_RDWR | O_NOCTTY); /* O_NONBLOCK doesn't work */
 
     if (navdata.fd < 0) {
       printf("[navdata] Unable to open navdata board connection(/dev/ttyO1)\n");
       return FALSE;
     }
 
-    // Update the settings of the UART connection
-    fcntl(navdata.fd, F_SETFL, 0); //read calls are non blocking
-    //set port options
+    /* Update the settings of the UART connection */
+    fcntl(navdata.fd, F_SETFL, 0); /* read calls are non blocking */
+    /* set port options */
     struct termios options;
-    //Get the current options for the port
+    /* Get the current options for the port */
     tcgetattr(navdata.fd, &options);
-    //Set the baud rates to 460800
+    /* Set the baud rates to 460800 */
     cfsetispeed(&options, B460800);
     cfsetospeed(&options, B460800);
 
-    options.c_cflag |= (CLOCAL | CREAD); //Enable the receiver and set local mode
-    options.c_iflag = 0; //clear input options
-    options.c_lflag = 0; //clear local options
+    options.c_cflag |= (CLOCAL | CREAD); /* Enable the receiver and set local mode */
+    options.c_iflag = 0; /* clear input options */
+    options.c_lflag = 0; /* clear local options */
     options.c_oflag &= ~OPOST; //clear output options (raw output)
 
     //Set the new options for the port
@@ -211,24 +213,24 @@ bool_t navdata_init()
   navdata.packetsRead = 0;
   navdata.last_packet_number = 0;
 
-  // Stop acquisition
+  /* Stop acquisition */
   navdata_cmd_send(NAVDATA_CMD_STOP);
 
-  // Read the baro calibration(blocking)
+  /* Read the baro calibration(blocking) */
   if (!navdata_baro_calib()) {
     printf("[navdata] Could not acquire baro calibration!\n");
     return FALSE;
   }
   navdata.baro_calibrated = TRUE;
 
-  // Start acquisition
+  /* Start acquisition */
   navdata_cmd_send(NAVDATA_CMD_START);
 
-  // Set navboard gpio control
+  /* Set navboard gpio control */
   gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
   gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
 
-  // Start navdata reading thread
+  /* Start navdata reading thread */
   pthread_t navdata_thread;
   if (pthread_create(&navdata_thread, NULL, navdata_read, NULL) != 0) {
     printf("[navdata] Could not create navdata reading thread!\n");
@@ -239,7 +241,7 @@ bool_t navdata_init()
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ARDRONE_NAVDATA, send_navdata);
 #endif
 
-  // Set to initialized
+  /* Set to initialized */
   navdata.is_initialized = TRUE;
   return TRUE;
 }
@@ -256,30 +258,30 @@ static void *navdata_read(void *data __attribute__((unused)))
 
   while (TRUE) {
 
-    // Wait until we are notified to read next data,
-    // i.e. buffer has been copied in navdata_update
+    /* Wait until we are notified to read next data,
+       i.e. buffer has been copied in navdata_update */
     pthread_mutex_lock(&navdata_mutex);
     while (navdata_available) {
       pthread_cond_wait(&navdata_cond, &navdata_mutex);
     }
     pthread_mutex_unlock(&navdata_mutex);
 
-    // Read new bytes
+    /* Read new bytes */
     int newbytes = read(navdata.fd, navdata_buffer + buffer_idx, NAVDATA_PACKET_SIZE - buffer_idx);
 
-    // When there was no signal interrupt
+    /* When there was no signal interrupt */
     if (newbytes > 0) {
       buffer_idx += newbytes;
       navdata.totalBytesRead += newbytes;
     }
 
-    // If we got a full packet
+    /* If we got a full packet */
     if (buffer_idx >= NAVDATA_PACKET_SIZE) {
-      // check if the start byte is correct
+      /* check if the start byte is correct */
       if (navdata_buffer[0] != NAVDATA_START_BYTE) {
         uint8_t *pint = memchr(navdata_buffer, NAVDATA_START_BYTE, buffer_idx);
 
-        // Check if we found the start byte in the read data
+        /* Check if we found the start byte in the read data */
         if (pint != NULL) {
           memmove(navdata_buffer, pint, NAVDATA_PACKET_SIZE - (pint - navdata_buffer));
           buffer_idx = pint - navdata_buffer;
@@ -293,7 +295,7 @@ static void *navdata_read(void *data __attribute__((unused)))
       /* full packet read with startbyte at the beginning, reset insert index */
       buffer_idx = 0;
 
-      // Calculating the checksum
+      /* Calculate the checksum */
       uint16_t checksum = 0;
       for (int i = 2; i < NAVDATA_PACKET_SIZE - 2; i += 2) {
         checksum += navdata_buffer[i] + (navdata_buffer[i + 1] << 8);
@@ -301,7 +303,7 @@ static void *navdata_read(void *data __attribute__((unused)))
 
       struct navdata_measure_t *new_measurement = (struct navdata_measure_t *)navdata_buffer;
 
-      // Check if the checksum is ok
+      /* Check if the checksum is OK */
       if (new_measurement->chksum != checksum) {
         fprintf(stderr, "[navdata] Checksum error [calculated: %d] [packet: %d] [diff: %d]\n",
                 checksum, new_measurement->chksum, checksum - new_measurement->chksum);
@@ -309,7 +311,7 @@ static void *navdata_read(void *data __attribute__((unused)))
         continue;
       }
 
-      // set flag that we have new valid navdata
+      /* Set flag that we have new valid navdata */
       pthread_mutex_lock(&navdata_mutex);
       navdata_available = TRUE;
       pthread_mutex_unlock(&navdata_mutex);
@@ -339,7 +341,7 @@ static void navdata_publish_imu(void)
  */
 void navdata_update()
 {
-  // Check if initialized
+  /* Check if initialized */
   if (!navdata.is_initialized) {
     navdata_init();
     mag_freeze_check();
@@ -347,19 +349,19 @@ void navdata_update()
   }
 
   pthread_mutex_lock(&navdata_mutex);
-  // If we got a new navdata packet
+  /* If we got a new navdata packet */
   if (navdata_available) {
 
-    // Copy the navdata packet
+    /* Copy the navdata packet */
     memcpy(&navdata.measure, navdata_buffer, NAVDATA_PACKET_SIZE);
 
-    // reset the flag
+    /* reset the flag */
     navdata_available = FALSE;
-    // signal that we copied the buffer and new packet can be read
+    /* signal that we copied the buffer and new packet can be read */
     pthread_cond_signal(&navdata_cond);
     pthread_mutex_unlock(&navdata_mutex);
 
-    // Check if we missed a packet (our counter and the one from the navdata)
+    /* Check if we missed a packet (our counter and the one from the navdata) */
     navdata.last_packet_number++;
     if (navdata.last_packet_number != navdata.measure.nu_trame) {
       fprintf(stderr, "[navdata] Lost frame: %d should have been %d\n",
@@ -368,7 +370,7 @@ void navdata_update()
     }
     navdata.last_packet_number = navdata.measure.nu_trame;
 
-    // Invert byte order so that TELEMETRY works better
+    /* Invert byte order so that TELEMETRY works better */
     uint8_t tmp;
     uint8_t *p = (uint8_t *) & (navdata.measure.pressure);
     tmp = p[0];
@@ -383,7 +385,7 @@ void navdata_update()
     mag_freeze_check();
 
 #ifdef USE_SONAR
-    // Check if there is a new sonar measurement and update the sonar
+    /* Check if there is a new sonar measurement and update the sonar */
     if (navdata.measure.ultrasound >> 15) {
       float sonar_meas = (float)((navdata.measure.ultrasound & 0x7FFF) - SONAR_OFFSET) * SONAR_SCALE;
       AbiSendMsgAGL(AGL_SONAR_ARDRONE2_ID, sonar_meas);
@@ -394,7 +396,7 @@ void navdata_update()
 
     navdata.packetsRead++;
   } else {
-    // no new packet available, still unlock mutex again
+    /* no new packet available, still unlock mutex again */
     pthread_mutex_unlock(&navdata_mutex);
   }
 }
@@ -413,17 +415,17 @@ static void navdata_cmd_send(uint8_t cmd)
  */
 static bool_t navdata_baro_calib(void)
 {
-  // Start baro calibration acquisition
+  /* Start baro calibration acquisition */
   navdata_cmd_send(NAVDATA_CMD_BARO_CALIB);
 
-  // Receive the calibration (blocking)
+  /* Receive the calibration (blocking) */
   uint8_t calibBuffer[22];
   if (full_read(navdata.fd, calibBuffer, sizeof calibBuffer) < 0) {
     printf("[navdata] Could not read calibration data.");
     return FALSE;
   }
 
-  //Convert the read bytes
+  /* Convert the read bytes */
   navdata.bmp180_calib.ac1 = calibBuffer[0]  << 8 | calibBuffer[1];
   navdata.bmp180_calib.ac2 = calibBuffer[2]  << 8 | calibBuffer[3];
   navdata.bmp180_calib.ac3 = calibBuffer[4]  << 8 | calibBuffer[5];
@@ -445,42 +447,42 @@ static bool_t navdata_baro_calib(void)
  */
 static void mag_freeze_check(void)
 {
-  // Thanks to Daren.G.Lee for initial fix on 20140530
+  /* Thanks to Daren.G.Lee for initial fix on 20140530 */
   static int16_t LastMagValue = 0;
   static int MagFreezeCounter = 0;
 
   if (LastMagValue == navdata.measure.mx) {
     MagFreezeCounter++;
 
-    // has to have at least 30 times the same value to consider it a frozen magnetometer value
+    /* Has to have at least 30 times the exact same value to consider it a frozen magnetometer value */
     if (MagFreezeCounter > 30) {
       fprintf(stderr, "mag freeze detected, resetting!\n");
 
-      // set imu_lost flag
+      /* set imu_lost flag */
       navdata.imu_lost = TRUE;
       navdata.lost_imu_frames++;
 
-      // Stop acquisition
+      /* Stop acquisition */
       navdata_cmd_send(NAVDATA_CMD_STOP);
 
-      // Reset the hardware of the navboard
+      /* Reset the hardware of the navboard */
       gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
       usleep(20000);
       gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
 
-      // Wait for 40ms for it to boot
+      /* Wait for 40ms for it to boot */
       usleep(40000);
 
-      // Start the navdata again and reset the counter
+      /* Start the navdata again and reset the counter */
       navdata_cmd_send(NAVDATA_CMD_START);
-      MagFreezeCounter = 0; // reset counter back to zero
+      MagFreezeCounter = 0; /* reset counter back to zero */
     }
   } else {
     navdata.imu_lost = FALSE;
-    // Reset counter if value _does_ change
+    /* Reset counter if value _does_ change */
     MagFreezeCounter = 0;
   }
-  // set last value
+  /* set last value */
   LastMagValue = navdata.measure.mx;
 }
 
@@ -496,52 +498,52 @@ static void baro_update_logic(void)
   static int32_t lastpressval_nospike = 0;
   static uint16_t lasttempval_nospike = 0;
   static uint8_t temp_or_press_was_updated_last =
-    0; // 0 = press, so we now wait for temp, 1 = temp so we now wait for press
+    0; /* 0 = press, so we now wait for temp, 1 = temp so we now wait for press */
 
   static int sync_errors = 0;
   static int spike_detected = 0;
 
-  if (temp_or_press_was_updated_last == 0) { // Last update was press so we are now waiting for temp
-    // temp was updated
+  if (temp_or_press_was_updated_last == 0) { /* Last update was press so we are now waiting for temp */
+    /* temp was updated */
     temp_or_press_was_updated_last = TRUE;
 
-    // This means that press must remain constant
+    /* This means that press must remain constant */
     if (lastpressval != 0) {
-      // If pressure was updated: this is a sync error
+      /* If pressure was updated: this is a sync error */
       if (lastpressval != navdata.measure.pressure) {
-        // wait for temp again
+        /* wait for temp again */
         temp_or_press_was_updated_last = FALSE;
         sync_errors++;
         //printf("Baro-Logic-Error (expected updated temp, got press)\n");
       }
     }
   } else {
-    // press was updated
+    /* press was updated */
     temp_or_press_was_updated_last = FALSE;
 
-    // This means that temp must remain constant
+    /* This means that temp must remain constant */
     if (lasttempval != 0) {
-      // If temp was updated: this is a sync error
+      /* If temp was updated: this is a sync error */
       if (lasttempval != navdata.measure.temperature_pressure) {
-        // wait for press again
+        /* wait for press again */
         temp_or_press_was_updated_last = TRUE;
         sync_errors++;
         //printf("Baro-Logic-Error (expected updated press, got temp)\n");
 
       } else {
-        // We now got valid pressure and temperature
+        /* We now got valid pressure and temperature */
         navdata.baro_available = TRUE;
       }
     }
   }
 
-  // Detected a pressure switch
+  /* Detected a pressure swap */
   if (lastpressval != 0 && lasttempval != 0
       && ABS(lastpressval - navdata.measure.pressure) > ABS(lasttempval - navdata.measure.pressure)) {
     navdata.baro_available = FALSE;
   }
 
-  // Detected a temprature switch
+  /* Detected a temprature swap */
   if (lastpressval != 0 && lasttempval != 0
       && ABS(lasttempval - navdata.measure.temperature_pressure) > ABS(lastpressval - navdata.measure.temperature_pressure)) {
     navdata.baro_available = FALSE;
@@ -589,22 +591,22 @@ static void baro_update_logic(void)
 
    */
 
-  // if press and temp are same and temp has jump: neglect the next frame
+  /* If press and temp are same and temp has jump: neglect the next frame */
   if (navdata.measure.temperature_pressure ==
       navdata.measure.pressure) { // && (abs((int32_t)navdata.temperature_pressure - (int32_t)lasttempval) > 40))
-    // dont use next 3 packets
+    /* dont use the next 3 packets */
     spike_detected = 3;
   }
 
   if (spike_detected > 0) {
-    // disable kalman filter use
+    /* disable kalman filter use */
     navdata.baro_available = FALSE;
 
     // override both to last good
     navdata.measure.pressure = lastpressval_nospike;
     navdata.measure.temperature_pressure = lasttempval_nospike;
 
-    // Countdown
+    /* Countdown */
     spike_detected--;
   } else { // both are good
     lastpressval_nospike = navdata.measure.pressure;

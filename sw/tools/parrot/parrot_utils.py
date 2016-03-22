@@ -55,12 +55,13 @@ def check_running(tn):
     ps_aux = execute_command(tn, 'ps')
     running = ""
 
-    if 'program.elf' in ps_aux:
-        running += ' Native (program.elf),'
+
     if 'dragon-prog' in ps_aux:
         running += ' Native (dragon-prog),'
     if 'ap.elf' in ps_aux:
         running += ' Paparazzi (ap.elf),'
+    if 'program.elf' in ps_aux:
+        running += ' Native (program.elf),'
     if 'gst-launch' in ps_aux:
         running += ' GStreamer (gst-launch)'
     return running[1:]
