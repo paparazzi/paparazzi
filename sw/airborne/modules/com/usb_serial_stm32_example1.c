@@ -81,8 +81,8 @@ void usb_serial_parse_packet(int data)
  */
 static inline void ReadUsbBuffer(void)
 {
-  while (UsbSChAvailable() && !cmd_avail) {
-    usb_serial_parse_packet(UsbSGetch());
+  while (VCOM_check_available() && !cmd_avail) {
+    usb_serial_parse_packet(VCOM_getchar());
   }
 }
 
@@ -126,7 +126,7 @@ void cmd_execute(void)
 void event_usb_serial(void)
 {
   VCOM_event();
-  if (UsbSChAvailable()) {
+  if (VCOM_check_available()) {
     ReadUsbBuffer();
   }
   if (cmd_avail) {

@@ -91,7 +91,7 @@ void usb_serial_parse_packet(int data)
 void event_usb_serial(void)
 {
   VCOM_event();
-  if (UsbSChAvailable()) {
-    usb_serial_parse_packet(UsbSGetch());
+  if (VCOM_check_available()) {
+    usb_serial_parse_packet(VCOM_getchar());
   }
 }
