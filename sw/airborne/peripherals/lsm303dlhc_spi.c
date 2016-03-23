@@ -29,40 +29,6 @@
 #include "peripherals/lsm303dlhc_spi.h"
 #include "std.h"
 
-/* LSM303DLHC default conf */
-#ifndef LSM303DLHC_DEFAULT_AODR
-#define LSM303DLHC_DEFAULT_AODR (0x01 << 4) //acc 3125 Hz
-#endif
-
-#ifndef LSM303DLHC_DEFAULT_AFS
-#define LSM303DLHC_DEFAULT_AFS (0x04 <<3) // acc +- 16G
-#endif
-
-#ifndef LSM303DLHC_DEFAULT_MODR
-#define LSM303DLHC_DEFAULT_MODR (0x5 << 2) // Magneto Data Output Rate (100Hz)
-#endif
-
-#ifndef LSM303DLHC_DEFAULT_MFS
-#define LSM303DLHC_DEFAULT_MFS (0x0 << 5) // Magneto gain configuration (+/- 2 Gauss)
-#endif
-
-#ifndef LSM303DLHC_DEFAULT_MD
-#define LSM303DLHC_DEFAULT_MD (0x00 << 0) // Magneto continious conversion mode
-#endif
-
-static void lsm303dlhc_acc_set_default_config(struct Lsm303dlhcAccConfig *c)
-{
-  c->rate = LSM303DLHC_DEFAULT_AODR;
-  c->scale = LSM303DLHC_DEFAULT_AFS;
-}
-
-static void lsm303dlhc_mag_set_default_config(struct Lsm303dlhcMagConfig *c)
-{
-  c->rate = LSM303DLHC_DEFAULT_MODR;
-  c->scale = LSM303DLHC_DEFAULT_MFS;
-  c->mode = LSM303DLHC_DEFAULT_MD;
-}
-
 void lsm303dlhc_spi_init(struct Lsm303dlhc_Spi *lsm, struct spi_periph *spi_p, uint8_t slave_idx,
                          enum Lsm303dlhcTarget target)
 {

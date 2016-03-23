@@ -32,39 +32,7 @@
 #include "std.h"
 #include "mcu_periph/spi.h"
 #include "math/pprz_algebra_int.h"
-
-/* Address and register definitions */
-#include "peripherals/lsm303dlhc_regs.h"
-
-struct Lsm303dlhcAccConfig {
-  uint8_t rate;    ///< Data Output Rate (Hz)
-  uint8_t scale;   ///< full scale selection (m/s²)
-};
-
-struct Lsm303dlhcMagConfig {
-  uint8_t rate;  ///< Data Output Rate Bits (Hz)
-  uint8_t scale;  ///< Full scale gain configuration (Gauss)
-  uint8_t mode;  ///< Measurement mode
-};
-
-/** config status states */
-enum Lsm303dlhcConfStatus {
-  LSM_CONF_UNINIT,
-  LSM_CONF_WHO_AM_I,
-  LSM_CONF_CTRL_REG1,
-  LSM_CONF_CTRL_REG2,
-  LSM_CONF_CTRL_REG3,
-  LSM_CONF_CTRL_REG4,
-  LSM_CONF_CTRL_REG5,
-  LSM_CONF_CTRL_REG6,
-  LSM_CONF_CTRL_REG7,
-  LSM_CONF_DONE
-};
-
-enum Lsm303dlhcTarget {
-  LSM_TARGET_ACC,
-  LSM_TARGET_MAG
-};
+#include "peripherals/lsm303dlhc.h"
 
 struct Lsm303dlhc_Spi {
   struct spi_periph *spi_p;
@@ -89,8 +57,6 @@ struct Lsm303dlhc_Spi {
     struct Lsm303dlhcMagConfig mag;
   } config;
 };
-
-
 
 // TODO IRQ handling
 

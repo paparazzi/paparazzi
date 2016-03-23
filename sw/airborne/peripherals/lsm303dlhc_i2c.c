@@ -24,54 +24,11 @@
  * @file peripherals/lsm303dlhc_i2c.c
  *
  * Driver for ST LSM303DLHC 3D accelerometer and magnetometer.
+ * UNTESTED
  */
 
 #include "peripherals/lsm303dlhc_i2c.h"
 #include "std.h"
-
-/* LSM303DLHC default conf */
-#ifndef LSM303DLHC_DEFAULT_ODR
-#define LSM303DLHC_DEFAULT_ODR 0x90 //90 //normal 1.344khz, low power 5.376khz
-#endif
-
-#ifndef LSM303DLHC_DEFAULT_LP
-#define LSM303DLHC_DEFAULT_LP 0x00 //low power disabled
-#endif
-
-#ifndef LSM303DLHC_DEFAULT_FS
-#define LSM303DLHC_DEFAULT_FS 0x00 // +- 2G
-#endif
-
-#ifndef LSM303DLHC_DEFAULT_HR
-#define LSM303DLHC_DEFAULT_HR 0x04 // high res enabled
-#endif
-
-#ifndef LSM303DLHC_DEFAULT_DO
-#define LSM303DLHC_DEFAULT_DO (0x6 << 2) // Data Output Rate (75Hz)
-#endif
-
-#ifndef LSM303DLHC_DEFAULT_GN
-#define LSM303DLHC_DEFAULT_GN (0x1 << 5) // Gain configuration (1 -> +- 1.3 Gauss)
-#endif
-
-#ifndef LSM303DLHC_DEFAULT_MD
-#define LSM303DLHC_DEFAULT_MD 0x00 // Continious conversion mode
-#endif
-
-static void lsm303dlhc_acc_set_default_config(struct Lsm303dlhcAccConfig *c)
-{
-  c->rate = LSM303DLHC_DEFAULT_ODR;
-  c->lp_mode = LSM303DLHC_DEFAULT_LP;
-  c->scale = LSM303DLHC_DEFAULT_FS;
-  c->hres = LSM303DLHC_DEFAULT_HR;
-}
-
-static void lsm303dlhc_mag_set_default_config(struct Lsm303dlhcMagConfig *c)
-{
-  c->rate = (LSM303DLHC_DEFAULT_DO & LSM303DLHC_DO0_MASK);
-  c->gain = (LSM303DLHC_DEFAULT_GN & LSM303DLHC_GN_MASK);
-  c->mode = (LSM303DLHC_DEFAULT_MD & LSM303DLHC_MD_MASK);
-}
 
 /**
  * Initialize Lsm303dlhc struct and set default config options.
