@@ -80,7 +80,7 @@ enum L3gd20FullScale {
   L3GD20_FS_250dps = 0,
   L3GD20_FS_500dps = 1,
   L3GD20_FS_2000dps = 2,
-  L3GD20_FS_2000dps2 = 3,
+  L3GD20_FS_2000dps2 = 3, //yep, the same as L3GD20_FS_2000dps
 };
 
 

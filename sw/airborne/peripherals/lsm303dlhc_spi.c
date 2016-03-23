@@ -35,7 +35,7 @@
 #endif
 
 #ifndef LSM303DLHC_DEFAULT_AFS
-#define LSM303DLHC_DEFAULT_AFS 0x00 // acc +- 2G
+#define LSM303DLHC_DEFAULT_AFS (0x04 <<3) // acc +- 16G
 #endif
 
 #ifndef LSM303DLHC_DEFAULT_MODR

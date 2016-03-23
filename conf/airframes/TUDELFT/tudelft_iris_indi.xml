@@ -26,7 +26,11 @@
     <subsystem name="stabilization" type="indi" />
     <subsystem name="ahrs" type="int_cmpl_quat" >
       <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />         <!-- Meaning the lsm303 and l3g -->
-      <define name="AHRS_ICQ_MAG_ID" value="IMU_MPU6000_HMC_ID" /> <!-- Meaning the external magnetometer -->
+      <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
+
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
+      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+
     </subsystem>
     <subsystem name="ins" type="extended" />
     <subsystem name="current_sensor">
@@ -80,23 +84,33 @@
     <load name="air_data.xml" />
     <load name="send_imu_mag_current.xml" />
     <load name="gps_ubx_ucenter.xml" />
+    <load name="mag_hmc58xx.xml">
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
+      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
+    </load>
     <!--  <load name="spektrum_soft_bind.xml"/>-->
   </modules>
+
   <section name="MISC">
     <define name="MilliAmpereOfAdc(adc)" value="((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)" />
     <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
   </section>
   <section name="IMU" prefix="IMU_">
     <!-- replace this with your own calibration -->
-    <define name="MAG_X_NEUTRAL" value="14" />
-    <define name="MAG_Y_NEUTRAL" value="116" />
-    <define name="MAG_Z_NEUTRAL" value="119" />
-    <define name="MAG_X_SENS" value="5.09245681612" integer="16" />
-    <define name="MAG_Y_SENS" value="5.29702744632" integer="16" />
-    <define name="MAG_Z_SENS" value="5.65287938992" integer="16" />
-    <define name="BODY_TO_IMU_PHI" value="180." unit="deg" />
-    <define name="BODY_TO_IMU_THETA" value="180." unit="deg" />
-    <define name="BODY_TO_IMU_PSI" value="90." unit="deg" />
+    <define name="ACCEL_X_NEUTRAL" value="274"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-43"/>
+    <define name="ACCEL_Z_NEUTRAL" value="1112"/>
+    <define name="ACCEL_X_SENS" value="0.625515268183" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.609477051286" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.62150684522" integer="16"/>
+
+    <define name="MAG_X_NEUTRAL" value="-151"/>
+    <define name="MAG_Y_NEUTRAL" value="-288"/>
+    <define name="MAG_Z_NEUTRAL" value="-3949"/>
+    <define name="MAG_X_SENS" value="0.420984584445" integer="16"/>
+    <define name="MAG_Y_SENS" value="0.447747800597" integer="16"/>
+    <define name="MAG_Z_SENS" value="0.431245648647" integer="16"/>
+
   </section>
   <commands>
     <axis name="PITCH" failsafe_value="0" />

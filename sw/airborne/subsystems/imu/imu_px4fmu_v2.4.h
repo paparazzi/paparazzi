@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2013-2016 the paparazzi team
  *
  * This file is part of paparazzi.
  *
@@ -20,10 +20,9 @@
  */
 
 /**
- * @file subsystems/imu/imu_mpu6000.h
+ * @file subsystems/imu/imu_px4fmu_v2.4.h
  * Driver for pixhawk IMU's.
- * On with spi: L3GD20H + LSM303D and the MPU6000.
- * On i2c: external HMC5883L (through 3dr gps).
+ * L3GD20H + LSM303D (both on spi)
  */
 
 #ifndef IMU_PX4FMUV24_H
@@ -33,16 +32,12 @@
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
 
-#include "subsystems/imu/imu_mpu60x0_defaults.h"
-#include "peripherals/mpu60x0_spi.h"
-#include "peripherals/hmc58xx.h"
+#include "subsystems/imu/imu_px4_defaults.h"
 #include "peripherals/l3gd20_spi.h"
 #include "peripherals/lsm303dlhc_spi.h"
 
 
 struct ImuPX4 {
-  struct Mpu60x0_Spi mpu;
-  struct Hmc58xx hmc;
   struct L3gd20_Spi l3g;
   struct Lsm303dlhc_Spi lsm_acc;
   struct Lsm303dlhc_Spi lsm_mag;
