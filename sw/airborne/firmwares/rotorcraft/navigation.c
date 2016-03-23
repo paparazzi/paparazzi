@@ -149,15 +149,16 @@ static void send_wp_moved(struct transport_tx *trans, struct link_device *dev)
   i++;
   if (i >= nb_waypoint) { i = 0; }
   struct EnuCoor_i wp_i;
+  /*
+   * if #INT32_POS_FRAC differs from the default (= 8)
+   * ensure to send ENU in resolution 2^-8 as defined in messages.xml, though.
+   */
   VECT3_SDIV(wp_i, waypoints[i].enu_i, 1<<(INT32_POS_FRAC-8));
   pprz_msg_send_WP_MOVED_ENU(trans, dev, AC_ID,
                              &i,
                              &wp_i.x,
                              &wp_i.y,
                              &wp_i.z);
-//                             &(waypoints[i].enu_i.x),
-//                             &(waypoints[i].enu_i.y),
-//                             &(waypoints[i].enu_i.z));
 }
 #endif
 
