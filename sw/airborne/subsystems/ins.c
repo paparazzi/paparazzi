@@ -33,6 +33,8 @@
 #include "state.h"
 #endif
 
+#include "generated/flight_plan.h"
+
 #ifndef DefaultInsImpl
 #warning "DefaultInsImpl not set!"
 #else
@@ -64,6 +66,22 @@ void ins_init(void)
 #ifdef DefaultInsImpl
   DefaultInsRegister();
 #endif
+}
+
+void ins_init_origin_i_from_flightplan(struct LtpDef_i *ltp_def)
+{
+  struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
+  llh_nav0.lat = NAV_LAT0;
+  llh_nav0.lon = NAV_LON0;
+  /* NAV_ALT0 = ground alt above msl, NAV_MSL0 = geoid-height (msl) over ellipsoid */
+  llh_nav0.alt = NAV_ALT0 + NAV_MSL0;
+
+  struct EcefCoor_i ecef_nav0;
+  ecef_of_lla_i(&ecef_nav0, &llh_nav0);
+
+  ltp_def_from_ecef_i(ltp_def, &ecef_nav0);
+  ltp_def->hmsl = NAV_ALT0;
+  stateSetLocalOrigin_i(ltp_def);
 }
 
 
@@ -102,4 +120,3 @@ void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
 #else
 void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm __attribute__((unused))) {}
 #endif
-

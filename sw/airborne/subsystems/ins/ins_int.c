@@ -54,8 +54,6 @@
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_isa.h"
 
-#include "generated/flight_plan.h"
-
 
 #if USE_SONAR
 #if !USE_VFF_EXTENDED
@@ -182,7 +180,6 @@ static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 }
 #endif
 
-static void ins_init_origin_from_flightplan(void);
 static void ins_ned_to_state(void);
 static void ins_update_from_vff(void);
 #if USE_HFF
@@ -194,7 +191,7 @@ void ins_int_init(void)
 {
 
 #if USE_INS_NAV_INIT
-  ins_init_origin_from_flightplan();
+  ins_init_origin_i_from_flightplan(&ins_int.ltp_def);
   ins_int.ltp_initialized = true;
 #else
   ins_int.ltp_initialized  = false;
@@ -450,26 +447,6 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, float distance)
   ins_int.propagation_cnt = 0;
 }
 #endif // USE_SONAR
-
-
-/** initialize the local origin (ltp_def) from flight plan position */
-static void ins_init_origin_from_flightplan(void)
-{
-
-  struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
-  llh_nav0.lat = NAV_LAT0;
-  llh_nav0.lon = NAV_LON0;
-  /* NAV_ALT0 = ground alt above msl, NAV_MSL0 = geoid-height (msl) over ellipsoid */
-  llh_nav0.alt = NAV_ALT0 + NAV_MSL0;
-
-  struct EcefCoor_i ecef_nav0;
-  ecef_of_lla_i(&ecef_nav0, &llh_nav0);
-
-  ltp_def_from_ecef_i(&ins_int.ltp_def, &ecef_nav0);
-  ins_int.ltp_def.hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(&ins_int.ltp_def);
-
-}
 
 /** copy position and speed to state interface */
 static void ins_ned_to_state(void)

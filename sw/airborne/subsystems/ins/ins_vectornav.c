@@ -145,7 +145,7 @@ void ins_vectornav_init(void)
   FLOAT_VECT3_ZERO(ins_vn.vel_body);
 
 #if USE_INS_NAV_INIT
-  ins_init_origin_from_flightplan();
+  ins_init_origin_i_from_flightplan(&ins_vn.ltp_def);
   ins_vn.ltp_initialized = true;
 #else
   ins_vn.ltp_initialized  = false;
@@ -421,24 +421,4 @@ void ins_vectornav_propagate()
   AbiSendMsgGPS(GPS_UBX_ID, now_ts, &gps);
   AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN_ID, now_ts, &ins_vn.gyro_i);
   AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN_ID, now_ts, &ins_vn.accel_i);
-}
-
-
-/**
- * initialize the local origin (ltp_def) from flight plan position
- */
-void ins_init_origin_from_flightplan(void)
-{
-  struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
-  llh_nav0.lat = NAV_LAT0;
-  llh_nav0.lon = NAV_LON0;
-  /* NAV_ALT0 = ground alt above msl, NAV_MSL0 = geoid-height (msl) over ellipsoid */
-  llh_nav0.alt = NAV_ALT0 + NAV_MSL0;
-
-  struct EcefCoor_i ecef_nav0;
-  ecef_of_lla_i(&ecef_nav0, &llh_nav0);
-
-  ltp_def_from_ecef_i(&ins_vn.ltp_def, &ecef_nav0);
-  ins_vn.ltp_def.hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(&ins_vn.ltp_def);
 }
