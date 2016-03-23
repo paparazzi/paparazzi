@@ -564,6 +564,13 @@ bool_t nav_set_heading_current(void)
     Initial state is the route along the desired segment (OC2).
 */
 
+#ifndef LINE_START_FUNCTION
+#define LINE_START_FUNCTION {}
+#endif
+#ifndef LINE_STOP_FUNCTION
+#define LINE_STOP_FUNCTION {}
+#endif
+
 enum oval_status oval_status;
 uint8_t nav_oval_count;
 
@@ -620,7 +627,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius)
       if (NavQdrCloseTo(INT32_DEG_OF_RAD(qdr_out_1) - qdr_anticipation)) {
         oval_status = OR12;
         InitStage();
-//        LINE_START_FUNCTION;
+        LINE_START_FUNCTION;
       }
       return;
 
@@ -630,7 +637,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius)
         oval_status = OC2;
         nav_oval_count++;
         InitStage();
-//        LINE_STOP_FUNCTION;
+        LINE_STOP_FUNCTION;
       }
       return;
 
@@ -639,7 +646,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius)
       if (NavQdrCloseTo(INT32_DEG_OF_RAD(qdr_out_2) - qdr_anticipation)) {
         oval_status = OR21;
         InitStage();
-//        LINE_START_FUNCTION;
+        LINE_START_FUNCTION;
       }
       return;
 
@@ -648,7 +655,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius)
       if (nav_approaching_from(&waypoints[p1].enu_i, &waypoints[p2].enu_i, CARROT)) {
         oval_status = OC1;
         InitStage();
-//        LINE_STOP_FUNCTION;
+        LINE_STOP_FUNCTION;
       }
       return;
 
