@@ -18,16 +18,17 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/px4io_flash/px4io_flash.h"
+ * @file "modules/px4_flash/px4_flash.h"
  * @author Kevin van Hecke
- * Flashes the px4io f1 through the px4 bootloader.
+ * Enables to flashes the px4 FBW and AP through the original px4 bootloader.
+ * Assumes the flash port on the Pixhawk is configured as the usb.
  */
 
-#ifndef PX4IO_FLASH_H
-#define PX4IO_FLASH_H
+#ifndef PX4_FLASH_H
+#define PX4_FLASH_H
 
-extern void px4ioflash_init(void);
-extern void px4ioflash_event(void);
+extern void px4flash_init(void);
+extern void px4flash_event(void);
 
 #endif
 

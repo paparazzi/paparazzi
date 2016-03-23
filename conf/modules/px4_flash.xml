@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="px4_flash">
+  <doc>
+    <description>Enables to flashes the px4 FBW and AP through the original px4 bootloader.</description>
+  </doc>
+  <header>
+    <file name="px4_flash.h"/>
+  </header>
+  <init fun="px4flash_init()"/>
+  <event fun="px4flash_event()"/>
+  <makefile target="ap">
+    <raw>
+
+    </raw>
+    <file name="px4_flash.c"/>
+    <file name="usb_ser_hw.c"  dir="arch/stm32"/>
+    <configure name="PX4IO_UART" default="uart6" case="upper|lower"/>
+    <configure name="PX4IO_BAUD" default="B1500000"/>
+    <define name="USE_$(PX4IO_UART_UPPER)"/>
+    <define name="PX4IO_UART" value="$(PX4IO_UART_LOWER)"/>
+    <define name="$(PX4IO_UART_UPPER)_BAUD" value="$(PX4IO_BAUD)"/>
+
+    <configure name="FLASH_UART" default="usb_serial" case="upper|lower"/>
+    <configure name="FLASH_BAUD" default="B115200"/>
+    <define name="USE_$(FLASH_UART_UPPER)"/>
+    <define name="FLASH_UART" value="$(FLASH_UART_LOWER)"/>
+    <define name="$(FLASH_UART_UPPER)_BAUD" value="$(FLASH_BAUD)"/>
+
+  </makefile>
+</module>
+

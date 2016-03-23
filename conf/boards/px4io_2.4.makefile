@@ -16,11 +16,10 @@ $(TARGET).LDSCRIPT=$(SRC_ARCH)/px4io_2.4.ld
 
 # default flash mode is via usb dfu bootloader
 # possibilities: DFU, SWD, PX4_BOOTLOADER
-PX4_BL_PORT ?= "/dev/serial/by-id/usb-FTDI_*"
+PX4_BL_PORT ?= "/dev/serial/by-id/usb-Paparazzi_UAV_CDC_Serial_STM32_*"
 PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/px4io-v2.prototype"
-
+PX4_TARGET = "fbw"
 FLASH_MODE ?= PX4_BOOTLOADER
-
 
 #
 # default LED configuration

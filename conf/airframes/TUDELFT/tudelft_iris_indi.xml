@@ -76,7 +76,7 @@
     <target name="test_datalink" board="px4fmu_2.4" />
   </firmware>
   <modules main_freq="512">
-    <load name="px4io_flash.xml" />
+    <load name="px4_flash.xml" />
     <load name="geo_mag.xml" />
     <load name="air_data.xml" />
     <load name="send_imu_mag_current.xml" />
