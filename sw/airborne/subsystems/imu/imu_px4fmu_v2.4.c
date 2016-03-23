@@ -49,7 +49,7 @@ void imu_impl_init(void)
 
   /* LSM303dlhc acc + magneto init */
   lsm303dlhc_spi_init(&imu_px4.lsm_acc, &IMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM_TARGET_ACC);
-#if MODULE_HMC58XX_UPDATE_AHRS
+#if !MODULE_HMC58XX_UPDATE_AHRS
   lsm303dlhc_spi_init(&imu_px4.lsm_mag, &IMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM_TARGET_MAG);
 #endif
 
@@ -60,7 +60,7 @@ void imu_periodic(void)
   l3gd20_spi_periodic(&imu_px4.l3g);
   lsm303dlhc_spi_periodic(&imu_px4.lsm_acc);
 
-#if MODULE_HMC58XX_UPDATE_AHRS
+#if !MODULE_HMC58XX_UPDATE_AHRS
   /* Read magneto's every 10 times of main freq
    * at ~50Hz (main loop for rotorcraft: 512Hz)
    */
@@ -93,7 +93,7 @@ void imu_px4_event(void)
     imu_scale_accel(&imu);
     AbiSendMsgIMU_ACCEL_INT32(IMU_PX4_ID, now_ts, &imu.accel);
   }
-#if MODULE_HMC58XX_UPDATE_AHRS
+#if !MODULE_HMC58XX_UPDATE_AHRS
   lsm303dlhc_spi_event(&imu_px4.lsm_mag);
   if (imu_px4.lsm_mag.data_available_mag) {
     VECT3_COPY(imu.mag_unscaled, imu_px4.lsm_mag.data_mag.vect);

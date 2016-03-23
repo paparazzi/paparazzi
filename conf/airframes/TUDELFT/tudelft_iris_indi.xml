@@ -97,20 +97,19 @@
   </section>
   <section name="IMU" prefix="IMU_">
     <!-- replace this with your own calibration -->
-    <define name="ACCEL_X_NEUTRAL" value="274"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-43"/>
-    <define name="ACCEL_Z_NEUTRAL" value="1112"/>
-    <define name="ACCEL_X_SENS" value="0.625515268183" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="0.609477051286" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="0.62150684522" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="248"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-21"/>
+    <define name="ACCEL_Z_NEUTRAL" value="1123"/>
+    <define name="ACCEL_X_SENS" value="0.62584356013" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.609921478775" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.619923942578" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="-151"/>
-    <define name="MAG_Y_NEUTRAL" value="-288"/>
-    <define name="MAG_Z_NEUTRAL" value="-3949"/>
-    <define name="MAG_X_SENS" value="0.420984584445" integer="16"/>
-    <define name="MAG_Y_SENS" value="0.447747800597" integer="16"/>
-    <define name="MAG_Z_SENS" value="0.431245648647" integer="16"/>
-
+    <define name="MAG_X_NEUTRAL" value="21"/>
+    <define name="MAG_Y_NEUTRAL" value="-93"/>
+    <define name="MAG_Z_NEUTRAL" value="-15"/>
+    <define name="MAG_X_SENS" value="5.1784060163" integer="16"/>
+    <define name="MAG_Y_SENS" value="5.55867516912" integer="16"/>
+    <define name="MAG_Z_SENS" value="5.06809390796" integer="16"/>
   </section>
   <commands>
     <axis name="PITCH" failsafe_value="0" />
