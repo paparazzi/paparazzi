@@ -42,7 +42,12 @@ void cv_add(cvFunction func)
 
 void cv_run(struct image_t *img)
 {
+  struct image_t* temp_image = img;
   for (int i = 0; i < cv_func_cnt; i++) {
-    cv_func[i](img);
+    struct image_t* new_image = cv_func[i](temp_image);
+    if (new_image != 0)
+    {
+      temp_image = new_image;
+    }
   }
 }
