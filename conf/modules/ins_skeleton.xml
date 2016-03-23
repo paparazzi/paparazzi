@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_skeleton" dir="ins">
+  <doc>
+    <description>
+      INS module skeleton.
+      This module is meant to be used with an additional module which implements any of the following
+        - ins_module_init()
+        - ins_module_propagate(struct Int32Vect3 *accel, float dt)
+        - ins_module_update_gps(struct GpsState *gps_s, float dt)
+        - ins_module_update_baro(float pressure)
+        - ins_module_reset_local_origin(void)
+
+      In each of those functions the updated estimate has to be written to the ins_module struct,
+      which is then used to update the state interface.
+    </description>
+    <define name="INS_MODULE_IMU_ID" value="ABI_BROADCAST" description="ABI sender id of IMU messages to subscribe to"/>
+    <define name="INS_MODULE_BARO_ID" value="ABI_BROADCAST" description="ABI sender id of BARO_ABS messages to subscribe to"/>
+    <define name="INS_MODULE_GPS_ID" value="GPS_MULTI_ID" description="ABI sender id of GPS messages to subscribe to"/>
+  </doc>
+  <header>
+    <file name="ins_skeleton.h"/>
+  </header>
+  <makefile target="ap|nps">
+    <raw>
+      ap.CFLAGS += -DINS_TYPE_H=\"modules/ins/ins_skeleton.h\"
+      nps.CFLAGS += -DINS_TYPE_H=\"modules/ins/ins_skeleton.h\"
+    </raw>
+    <file name="ins.c" dir="subsystems"/>
+    <file name="ins_skeleton.c"/>
+  </makefile>
+</module>
