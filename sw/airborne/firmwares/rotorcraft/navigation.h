@@ -111,8 +111,6 @@ extern bool_t nav_set_heading_current(void);
 #define NavSetWaypointHere(_wp) ({ waypoint_set_here_2d(_wp); FALSE; })
 #define NavCopyWaypoint(_wp1, _wp2) ({ waypoint_copy(_wp1, _wp2); FALSE; })
 #define NavCopyWaypointPositionOnly(_wp1, _wp2) ({ waypoint_position_copy(_wp1, _wp2); FALSE; })
-#define NavSetWaypointPos(_wp, _enu_x, _enu_y) ({ waypoint_set_xy(_wp, _enu_x, _enu_y); FALSE; })
-#define NavSetWaypointAlt(_wp, _alt)           ({ waypoint_set_alt(_wp, _alt); FALSE; })
 
 /** Normalize a degree angle between 0 and 359 */
 #define NormCourse(x) { \
