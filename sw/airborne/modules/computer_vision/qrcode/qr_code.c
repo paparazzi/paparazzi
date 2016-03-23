@@ -41,7 +41,7 @@ void qrcode_init(void)
 
 zbar_image_scanner_t *scanner = 0;
 
-bool_t qrscan(struct image_t *img)
+struct image_t* qrscan(struct image_t *img)
 {
   int i, j;
 
@@ -98,4 +98,6 @@ bool_t qrscan(struct image_t *img)
 // clean up
   zbar_image_destroy(image);
   //zbar_image_scanner_destroy(scanner);
+
+  return 0; // QRCode is not returning a new image.
 }

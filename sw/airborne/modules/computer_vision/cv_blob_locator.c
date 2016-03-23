@@ -122,7 +122,7 @@ bool_t cv_blob_locator_func(struct image_t *img);
 bool_t cv_blob_locator_func(struct image_t *img) {
 
   if (!blob_enabled)
-    return FALSE;
+    return 0;
 
 
   // Color Filter
@@ -209,7 +209,7 @@ bool_t cv_blob_locator_func(struct image_t *img) {
 
   image_free(&dst);
 
-  return FALSE;
+  return 0; // No new image is available for follow up modules
 }
 
 #include "modules/computer_vision/cv_georeference.h"

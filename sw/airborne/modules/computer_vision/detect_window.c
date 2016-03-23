@@ -53,7 +53,7 @@ extern bool_t detect_window(struct image_t *img)
   printf("Response = %d\n", response);
 
   image_free(&gray);
-  return 1;
+  return 0; // No new image was created
 }
 
 

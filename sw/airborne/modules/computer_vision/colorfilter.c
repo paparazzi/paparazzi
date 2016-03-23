@@ -41,8 +41,8 @@ uint8_t color_cr_max  = 255;
 int color_count = 0;
 
 // Function
-bool_t colorfilter_func(struct image_t* img);
-bool_t colorfilter_func(struct image_t* img)
+struct image_t* colorfilter_func(struct image_t* img);
+struct image_t* colorfilter_func(struct image_t* img)
 {
   // Filter
   color_count = image_yuv422_colorfilt(img,img,
@@ -51,7 +51,7 @@ bool_t colorfilter_func(struct image_t* img)
       color_cr_min,color_cr_max
       );
 
-  return FALSE;
+  return img; // Colorfilter did not make a new image
 }
 
 void colorfilter_init(void)
