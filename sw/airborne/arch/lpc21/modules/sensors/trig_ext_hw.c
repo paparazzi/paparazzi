@@ -19,7 +19,7 @@ void TRIG_ISR()
   if (msec_of_cpu_ticks(delta_t0_temp) > 10) {
     delta_t0 = delta_t0_temp;
     last = trigger_t0;
-    trig_ext_valid = TRUE;
+    trig_ext_valid = true;
   }
 }
 
@@ -35,6 +35,6 @@ void trig_ext_init(void)
 #else
 #error "trig_ext_hw.h: Unknown PULSE_TYPE"
 #endif
-  trig_ext_valid = FALSE;
+  trig_ext_valid = false;
 }
 

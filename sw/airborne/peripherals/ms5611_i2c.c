@@ -41,8 +41,8 @@ void ms5611_i2c_init(struct Ms5611_I2c *ms, struct i2c_periph *i2c_p, uint8_t ad
   /* set initial status: Success or Done */
   ms->i2c_trans.status = I2CTransDone;
 
-  ms->data_available = FALSE;
-  ms->initialized = FALSE;
+  ms->data_available = false;
+  ms->initialized = false;
   ms->status = MS5611_STATUS_UNINIT;
   ms->prom_cnt = 0;
   ms->is_ms5607 = is_ms5607;
@@ -51,7 +51,7 @@ void ms5611_i2c_init(struct Ms5611_I2c *ms, struct i2c_periph *i2c_p, uint8_t ad
 void ms5611_i2c_start_configure(struct Ms5611_I2c *ms)
 {
   if (ms->status == MS5611_STATUS_UNINIT) {
-    ms->initialized = FALSE;
+    ms->initialized = false;
     ms->prom_cnt = 0;
     ms->i2c_trans.buf[0] = MS5611_SOFT_RESET;
     i2c_transmit(ms->i2c_p, &(ms->i2c_trans), ms->i2c_trans.slave_addr, 1);
@@ -191,7 +191,7 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms)
           } else {
             /* done reading prom, check prom crc */
             if (ms5611_prom_crc_ok(ms->data.c)) {
-              ms->initialized = TRUE;
+              ms->initialized = true;
               ms->status = MS5611_STATUS_IDLE;
             } else {
               /* checksum error, try again */

@@ -65,10 +65,10 @@ static void send_ppm(struct transport_tx *trans, struct link_device *dev)
 
 void radio_control_impl_init(void)
 {
-  ppm_frame_available = FALSE;
+  ppm_frame_available = false;
   ppm_last_pulse_time = 0;
   ppm_cur_pulse = RADIO_CTL_NB;
-  ppm_data_valid = FALSE;
+  ppm_data_valid = false;
 
   ppm_arch_init();
 
@@ -89,7 +89,7 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
       NormalizePpmIIR(ppm_pulses, radio_control);
       _received_frame_handler();
     }
-    ppm_frame_available = FALSE;
+    ppm_frame_available = false;
   }
 }
 
@@ -109,12 +109,12 @@ void ppm_decode_frame(uint32_t ppm_time)
     if (length > RC_PPM_TICKS_OF_USEC(PPM_SYNC_MIN_LEN) &&
         length < RC_PPM_TICKS_OF_USEC(PPM_SYNC_MAX_LEN)) {
       if (ppm_data_valid && RssiValid()) {
-        ppm_frame_available = TRUE;
-        ppm_data_valid = FALSE;
+        ppm_frame_available = true;
+        ppm_data_valid = false;
       }
       ppm_cur_pulse = 0;
     } else {
-      ppm_data_valid = FALSE;
+      ppm_data_valid = false;
     }
   } else {
     if (length > RC_PPM_TICKS_OF_USEC(PPM_DATA_MIN_LEN) &&
@@ -122,11 +122,11 @@ void ppm_decode_frame(uint32_t ppm_time)
       ppm_pulses[ppm_cur_pulse] = length;
       ppm_cur_pulse++;
       if (ppm_cur_pulse == RADIO_CTL_NB) {
-        ppm_data_valid = TRUE;
+        ppm_data_valid = true;
       }
     } else {
       ppm_cur_pulse = RADIO_CTL_NB;
-      ppm_data_valid = FALSE;
+      ppm_data_valid = false;
     }
   }
 }

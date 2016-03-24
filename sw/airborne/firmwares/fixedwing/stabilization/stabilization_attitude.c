@@ -145,7 +145,7 @@ void h_ctl_init(void)
   h_ctl_pitch_mode = 0;
 #endif
 
-  h_ctl_disabled = FALSE;
+  h_ctl_disabled = false;
 
   h_ctl_roll_setpoint = 0.;
 #ifdef H_CTL_ROLL_PGAIN

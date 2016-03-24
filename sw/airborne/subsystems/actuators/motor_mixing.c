@@ -102,7 +102,7 @@ void motor_mixing_init(void)
       roll_coef[i]  * MOTOR_MIXING_TRIM_ROLL +
       pitch_coef[i] * MOTOR_MIXING_TRIM_PITCH +
       yaw_coef[i]   * MOTOR_MIXING_TRIM_YAW;
-    motor_mixing.override_enabled[i] = FALSE;
+    motor_mixing.override_enabled[i] = false;
     motor_mixing.override_value[i] = MOTOR_MIXING_STOP_MOTOR;
   }
   motor_mixing.nb_failure = 0;

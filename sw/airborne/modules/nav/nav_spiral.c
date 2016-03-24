@@ -81,7 +81,7 @@ bool nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, fl
   if (nav_spiral.dist_from_center > nav_spiral.radius) {
     nav_spiral.status = SpiralOutside;
   }
-  return FALSE;
+  return false;
 }
 
 bool nav_spiral_run(void)
@@ -166,5 +166,5 @@ bool nav_spiral_run(void)
   NavVerticalAutoThrottleMode(0.); /* No pitch */
   NavVerticalAltitudeMode(nav_spiral.center.z, 0.); /* No preclimb */
 
-  return TRUE;
+  return true;
 }

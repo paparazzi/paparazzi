@@ -74,7 +74,7 @@ void gps_sim_hitl_event(void)
       gps.fix = GPS_FIX_3D;
       gps.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps.last_3dfix_time = sys_time.nb_sec;
-      gps_available = TRUE;
+      gps_available = true;
     }
     else {
       struct Int32Vect2 zero_vector;

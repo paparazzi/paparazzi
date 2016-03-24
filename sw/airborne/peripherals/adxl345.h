@@ -55,12 +55,12 @@ struct Adxl345Config {
 
 static inline void adxl345_set_default_config(struct Adxl345Config *c)
 {
-  c->drdy_int_enable = FALSE;
-  c->int_invert = TRUE;
-  c->full_res = TRUE;
-  c->justify_msb = FALSE;
-  c->self_test = FALSE;
-  c->spi_3_wire = FALSE;
+  c->drdy_int_enable = false;
+  c->int_invert = true;
+  c->full_res = true;
+  c->justify_msb = false;
+  c->self_test = false;
+  c->spi_3_wire = false;
 
   c->rate = ADXL345_RATE_100HZ;
   c->range = ADXL345_RANGE_16G;

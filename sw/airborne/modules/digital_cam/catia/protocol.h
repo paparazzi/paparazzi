@@ -38,6 +38,7 @@
 #define MORA_TRANSPORT_H
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include "std.h"
 
 /////////////////////////////////////////////////////////////////////
@@ -131,7 +132,7 @@ struct mora_transport {
   uint8_t payload[256];
   uint8_t error;
   uint8_t msg_id;
-  uint8_t msg_received;
+  bool    msg_received;
   uint8_t payload_len;
   // specific pprz transport variables
   uint8_t status;

@@ -95,7 +95,7 @@ int potential_task(void)
       ++nb;
     }
   }
-  if (nb == 0) { return TRUE; }
+  if (nb == 0) { return true; }
   //potential_force.east /= nb;
   //potential_force.north /= nb;
   //potential_force.alt /= nb;
@@ -126,6 +126,6 @@ int potential_task(void)
   DOWNLINK_SEND_POTENTIAL(DefaultChannel, DefaultDevice, &potential_force.east, &potential_force.north,
                           &potential_force.alt, &potential_force.speed, &potential_force.climb);
 
-  return TRUE;
+  return true;
 }
 

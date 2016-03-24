@@ -70,7 +70,7 @@ static inline void main_event_task(void)
   // spi baro
   if (spi_message_received) {
     /* Got a message on SPI. */
-    spi_message_received = FALSE;
+    spi_message_received = false;
     wt_baro_event();
     uint16_t temp = 0;
     float alt = 0.;

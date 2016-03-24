@@ -643,9 +643,9 @@ bool guidance_h_set_guided_pos(float x, float y)
     ClearBit(guidance_h.sp.mask, 5);
     guidance_h.sp.pos.x = POS_BFP_OF_REAL(x);
     guidance_h.sp.pos.y = POS_BFP_OF_REAL(y);
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 bool guidance_h_set_guided_heading(float heading)
@@ -654,9 +654,9 @@ bool guidance_h_set_guided_heading(float heading)
     ClearBit(guidance_h.sp.mask, 7);
     guidance_h.sp.heading = ANGLE_BFP_OF_REAL(heading);
     INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 bool guidance_h_set_guided_vel(float vx, float vy)
@@ -666,7 +666,7 @@ bool guidance_h_set_guided_vel(float vx, float vy)
     SetBit(guidance_h.sp.mask, 5);
     guidance_h.sp.speed.x = SPEED_BFP_OF_REAL(vx);
     guidance_h.sp.speed.y = SPEED_BFP_OF_REAL(vy);
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }

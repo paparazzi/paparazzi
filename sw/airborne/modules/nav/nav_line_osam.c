@@ -161,13 +161,13 @@ bool nav_line_osam_run(uint8_t From_WP, uint8_t To_WP, float radius, float Space
     case FLFinished:
       CFLStatus = FLInitialize;
       nav_init_stage();
-      return FALSE;
+      return false;
       break;
 
     default:
       break;
   }
-  return TRUE;
+  return true;
 
 }
 
@@ -182,7 +182,7 @@ bool nav_line_osam_block_run(uint8_t First_WP, uint8_t Last_WP, float radius, fl
       FLBlockCount++;
       if (First_WP + FLBlockCount >= Last_WP) {
         FLBlockCount = 0;
-        return FALSE;
+        return false;
       }
     }
   } else {
@@ -192,10 +192,10 @@ bool nav_line_osam_block_run(uint8_t First_WP, uint8_t Last_WP, float radius, fl
       FLBlockCount++;
       if (First_WP - FLBlockCount <= Last_WP) {
         FLBlockCount = 0;
-        return FALSE;
+        return false;
       }
     }
   }
 
-  return TRUE;
+  return true;
 }

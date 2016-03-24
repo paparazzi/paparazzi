@@ -65,7 +65,7 @@ char osd_str_buf[OSD_STRING_SIZE];
 char osd_char = ' ';
 uint8_t step = 0;
 uint16_t osd_char_address = 0;
-uint8_t  osd_attr = FALSE;
+uint8_t  osd_attr = false;
 
 enum max7456_osd_status_codes {
   OSD_UNINIT,
@@ -87,10 +87,10 @@ enum osd_attributes {
 };
 
 uint8_t max7456_osd_status = OSD_UNINIT;
-uint8_t osd_enable = TRUE;
+uint8_t osd_enable = true;
 uint8_t osd_enable_val = OSD_IMAGE_ENABLE;
 uint8_t osd_stat_reg = 0;
-bool  osd_stat_reg_valid = FALSE;
+bool  osd_stat_reg_valid = false;
 
 void max7456_init(void)
 {
@@ -234,7 +234,7 @@ void max7456_event(void)
         break;
       case (OSD_READ_STATUS):
         osd_stat_reg = max7456_trans.input_buf[0];
-        osd_stat_reg_valid = TRUE;
+        osd_stat_reg_valid = true;
         max7456_osd_status = OSD_FINISHED;
         break;
       case (OSD_S_STEP1):

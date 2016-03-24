@@ -71,8 +71,8 @@ void wt_baro_init(void)
   send1_on_spi(CMD_INIT_5);
   send1_on_spi(CMD_INIT_6);
 
-  status_read_data = FALSE;
-  wt_baro_available = FALSE;
+  status_read_data = false;
+  wt_baro_available = false;
 
 }
 
@@ -110,7 +110,7 @@ void wt_baro_event(void)
     data = Uint24(buf_input);
     /* Compute pressure */
     wt_baro_pressure = data;
-    wt_baro_available = TRUE;
+    wt_baro_available = true;
   } /* else nothing to read */
 
   status_read_data = !status_read_data;

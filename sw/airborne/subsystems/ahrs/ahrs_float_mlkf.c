@@ -62,7 +62,7 @@ struct AhrsMlkf ahrs_mlkf;
 void ahrs_mlkf_init(void)
 {
 
-  ahrs_mlkf.is_aligned = FALSE;
+  ahrs_mlkf.is_aligned = false;
 
   /* init ltp_to_imu quaternion as zero/identity rotation */
   float_quat_identity(&ahrs_mlkf.ltp_to_imu_quat);
@@ -114,9 +114,9 @@ bool ahrs_mlkf_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
   /* used averaged gyro as initial value for bias */
   ahrs_mlkf.gyro_bias = *lp_gyro;
 
-  ahrs_mlkf.is_aligned = TRUE;
+  ahrs_mlkf.is_aligned = true;
 
-  return TRUE;
+  return true;
 }
 
 void ahrs_mlkf_propagate(struct FloatRates *gyro, float dt)

@@ -356,7 +356,7 @@ bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
     /* queue full */
     p->errors->queue_full_cnt++;
     t->status = I2CTransFailed;
-    return FALSE;
+    return false;
   }
   t->status = I2CTransPending;
 
@@ -378,7 +378,7 @@ bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
   //VICIntEnable = VIC_BIT(*vic);
   enableIRQ();
 
-  return TRUE;
+  return true;
 }
 
 void i2c_event(void) { }

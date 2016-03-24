@@ -121,8 +121,8 @@ void sirf_parse_41(void);
 
 void gps_sirf_init(void)
 {
-  gps_sirf.msg_available = FALSE;
-  gps_sirf.pos_available = FALSE;
+  gps_sirf.msg_available = false;
+  gps_sirf.pos_available = false;
   gps_sirf.msg_len = 0;
   gps_sirf.read_state = 0;
 }
@@ -141,7 +141,7 @@ void gps_sirf_msg(void)
     }
     AbiSendMsgGPS(GPS_SIRF_ID, now_ts, &gps);
   }
-  gps_sirf.msg_available = FALSE;
+  gps_sirf.msg_available = false;
 }
 
 void sirf_parse_char(uint8_t c)
@@ -175,7 +175,7 @@ void sirf_parse_char(uint8_t c)
       if (c == 0xB3) {
         gps_sirf.msg_buf[gps_sirf.msg_len] = c;
         gps_sirf.msg_len++;
-        gps_sirf.msg_available = TRUE;
+        gps_sirf.msg_available = true;
       } else {
         goto restart;
       }
@@ -228,7 +228,7 @@ void sirf_parse_41(void)
 
 
   //Let gps_sirf know we have a position update
-  gps_sirf.pos_available = TRUE;
+  gps_sirf.pos_available = true;
 }
 
 void sirf_parse_2(void)
@@ -262,7 +262,7 @@ void sirf_parse_2(void)
 void sirf_parse_msg(void)
 {
   //Set position available to false and check if it is a valid message
-  gps_sirf.pos_available = FALSE;
+  gps_sirf.pos_available = false;
   if (gps_sirf.msg_len < 8) {
     return;
   }

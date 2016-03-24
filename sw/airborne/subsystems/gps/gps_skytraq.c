@@ -109,7 +109,7 @@ void gps_skytraq_msg(void)
     }
     AbiSendMsgGPS(GPS_SKYTRAQ_ID, now_ts, &gps);
   }
-  gps_skytraq.msg_available = FALSE;
+  gps_skytraq.msg_available = false;
 }
 
 void gps_skytraq_event(void)
@@ -256,7 +256,7 @@ void gps_skytraq_parse(uint8_t c)
       gps_skytraq.status = GOT_SYNC3;
       break;
     case GOT_SYNC3:
-      gps_skytraq.msg_available = TRUE;
+      gps_skytraq.msg_available = true;
       goto restart;
     default:
       gps_skytraq.error_last = GPS_SKYTRAQ_ERR_UNEXPECTED;
@@ -274,18 +274,18 @@ static int distance_too_great(struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ec
 {
   int32_t xdiff = abs(ecef_ref->x - ecef_pos->x);
   if (xdiff > MAX_DISTANCE) {
-    return TRUE;
+    return true;
   }
   int32_t ydiff = abs(ecef_ref->y - ecef_pos->y);
   if (ydiff > MAX_DISTANCE) {
-    return TRUE;
+    return true;
   }
   int32_t zdiff = abs(ecef_ref->z - ecef_pos->z);
   if (zdiff > MAX_DISTANCE) {
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }
 
 /*

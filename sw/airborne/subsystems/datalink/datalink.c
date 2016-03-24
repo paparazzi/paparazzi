@@ -59,7 +59,7 @@
 #define MOfCm(_x) (((float)(_x))/100.)
 
 #if USE_NPS
-bool datalink_enabled = TRUE;
+bool datalink_enabled = true;
 #endif
 
 void dl_parse_msg(void)

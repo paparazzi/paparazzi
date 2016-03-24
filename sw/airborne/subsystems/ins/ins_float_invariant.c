@@ -55,7 +55,7 @@
 #if LOG_INVARIANT_FILTER
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
-bool log_started = FALSE;
+bool log_started = false;
 #endif
 
 /*------------- =*= Invariant Observers =*= -------------*
@@ -182,8 +182,8 @@ static inline void init_invariant_state(void)
   ins_float_inv.meas.baro_alt = 0.0f;
 
   // init baro
-  ins_baro_initialized = FALSE;
-  ins_gps_fix_once = FALSE;
+  ins_baro_initialized = false;
+  ins_gps_fix_once = false;
 }
 
 #if SEND_INVARIANT_FILTER || PERIODIC_TELEMETRY
@@ -261,8 +261,8 @@ void ins_float_invariant_init(void)
   ins_float_inv.gains.rh   = INS_INV_RH;
   ins_float_inv.gains.sh   = INS_INV_SH;
 
-  ins_float_inv.is_aligned = FALSE;
-  ins_float_inv.reset = FALSE;
+  ins_float_inv.is_aligned = false;
+  ins_float_inv.reset = false;
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INV_FILTER, send_inv_filter);
@@ -319,7 +319,7 @@ void ins_float_invariant_align(struct FloatRates *lp_gyro,
   stateSetNedToBodyQuat_f(&ins_float_inv.state.quat);
 
   // ins and ahrs are now running
-  ins_float_inv.is_aligned = TRUE;
+  ins_float_inv.is_aligned = true;
 }
 
 void ins_float_invariant_propagate(struct FloatRates* gyro, struct FloatVect3* accel, float dt)
@@ -329,8 +329,8 @@ void ins_float_invariant_propagate(struct FloatRates* gyro, struct FloatVect3* a
   // realign all the filter if needed
   // a complete init cycle is required
   if (ins_float_inv.reset) {
-    ins_float_inv.reset = FALSE;
-    ins_float_inv.is_aligned = FALSE;
+    ins_float_inv.reset = false;
+    ins_float_inv.is_aligned = false;
     init_invariant_state();
   }
 
@@ -380,7 +380,7 @@ void ins_float_invariant_propagate(struct FloatRates* gyro, struct FloatVect3* a
       // log file header
       sdLogWriteLog(pprzLogFile,
                     "p q r ax ay az gx gy gz gvx gvy gvz mx my mz b qi qx qy qz bp bq br vx vy vz px py pz hb as\n");
-      log_started = TRUE;
+      log_started = true;
     } else {
       sdLogWriteLog(pprzLogFile,
                     "%.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f\n",
@@ -424,7 +424,7 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
 {
 
   if (gps_s->fix >= GPS_FIX_3D && ins_float_inv.is_aligned) {
-    ins_gps_fix_once = TRUE;
+    ins_gps_fix_once = true;
 
 #if INS_FINV_USE_UTM
     if (state.utm_initialized_f) {
@@ -473,11 +473,11 @@ void ins_float_invariant_update_baro(float pressure)
     // test stop condition
     if (fabs(alpha) < 0.005f) {
       ins_qfe = baro_moy;
-      ins_baro_initialized = TRUE;
+      ins_baro_initialized = true;
     }
     if (i == 250) {
       ins_qfe = pressure;
-      ins_baro_initialized = TRUE;
+      ins_baro_initialized = true;
     }
     i++;
   } else { /* normal update with baro measurement */

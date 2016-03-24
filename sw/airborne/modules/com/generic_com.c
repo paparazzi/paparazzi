@@ -51,7 +51,7 @@ bool active_com;
 
 void generic_com_init(void)
 {
-  active_com = FALSE;
+  active_com = false;
   com_trans.status = I2CTransDone;
 }
 
@@ -99,13 +99,13 @@ void generic_com_event(void)
 
 void start_com(void)
 {
-  active_com = TRUE;
+  active_com = true;
   com_trans.status = I2CTransDone;
 }
 
 void stop_com(void)
 {
-  active_com = FALSE;
+  active_com = false;
   com_trans.buf[0] = active_com;
   i2c_transmit(&GENERIC_COM_I2C_DEV, &com_trans, GENERIC_COM_SLAVE_ADDR, 1);
 }

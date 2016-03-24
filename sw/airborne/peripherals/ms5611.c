@@ -54,9 +54,9 @@ bool ms5611_prom_crc_ok(uint16_t *prom)
   }
   prom[7] |= crc;
   if (crc == ((res >> 12) & 0xF)) {
-    return TRUE;
+    return true;
   } else {
-    return FALSE;
+    return false;
   }
 }
 
@@ -97,9 +97,9 @@ bool ms5611_calc(struct Ms5611Data *ms)
     /* temperature in deg Celsius with 0.01 degC resolultion */
     ms->temperature = (int32_t)tempms;
     ms->pressure = p;
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 /**
@@ -140,7 +140,7 @@ bool ms5607_calc(struct Ms5611Data *ms)
     /* temperature in deg Celsius with 0.01 degC resolultion */
     ms->temperature = (int32_t)tempms;
     ms->pressure = p;
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }

@@ -184,7 +184,7 @@ void guidance_v_init(void)
 
   guidance_v_nominal_throttle = GUIDANCE_V_NOMINAL_HOVER_THROTTLE;
   guidance_v_adapt_throttle_enabled = GUIDANCE_V_ADAPT_THROTTLE_ENABLED;
-  guidance_v_guided_vel_enabled = FALSE;
+  guidance_v_guided_vel_enabled = false;
 
   gv_adapt_init();
 
@@ -311,7 +311,7 @@ void guidance_v_run(bool in_flight)
       break;
 
     case GUIDANCE_V_MODE_HOVER:
-      guidance_v_guided_vel_enabled = FALSE;
+      guidance_v_guided_vel_enabled = false;
     case GUIDANCE_V_MODE_GUIDED:
       if (guidance_v_guided_vel_enabled) {
         gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
@@ -463,19 +463,19 @@ static void run_hover_loop(bool in_flight)
 bool guidance_v_set_guided_z(float z)
 {
   if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
-    guidance_v_guided_vel_enabled = FALSE;
+    guidance_v_guided_vel_enabled = false;
     guidance_v_z_sp = POS_BFP_OF_REAL(z);
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 bool guidance_v_set_guided_vz(float vz)
 {
   if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
-    guidance_v_guided_vel_enabled = TRUE;
+    guidance_v_guided_vel_enabled = true;
     guidance_v_zd_sp = SPEED_BFP_OF_REAL(vz);
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }

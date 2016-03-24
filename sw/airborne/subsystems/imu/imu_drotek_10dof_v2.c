@@ -100,7 +100,7 @@ void imu_impl_init(void)
   imu_drotek2.mpu.config.slaves[0].configure = &imu_drotek2_configure_mag_slave;
 
   // use hmc mag via passthrough
-  imu_drotek2.mpu.config.i2c_bypass = TRUE;
+  imu_drotek2.mpu.config.i2c_bypass = true;
 }
 
 void imu_periodic(void)
@@ -136,7 +136,7 @@ void imu_drotek2_event(void)
     VECT3_COPY(imu.accel_unscaled, imu_drotek2.mpu.data_accel.vect);
 #endif
 
-    imu_drotek2.mpu.data_available = FALSE;
+    imu_drotek2.mpu.data_available = false;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_DROTEK_ID, now_ts, &imu.gyro);
@@ -153,7 +153,7 @@ void imu_drotek2_event(void)
 #else
     VECT3_COPY(imu.mag_unscaled, imu_drotek2.hmc.data.vect);
 #endif
-    imu_drotek2.hmc.data_available = FALSE;
+    imu_drotek2.hmc.data_available = false;
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_DROTEK_ID, now_ts, &imu.mag);
   }
@@ -167,8 +167,8 @@ bool imu_drotek2_configure_mag_slave(Mpu60x0ConfigSet mpu_set __attribute__((unu
 {
   hmc58xx_start_configure(&imu_drotek2.hmc);
   if (imu_drotek2.hmc.initialized) {
-    return TRUE;
+    return true;
   } else {
-    return FALSE;
+    return false;
   }
 }

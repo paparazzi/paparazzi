@@ -155,7 +155,7 @@ bool nav_bungee_takeoff_setup(uint8_t bungee_wp)
   CTakeoffStatus = Launch;
   kill_throttle = 1;
 
-  return FALSE;
+  return false;
 }
 
 bool nav_bungee_takeoff_run(void)
@@ -208,15 +208,15 @@ bool nav_bungee_takeoff_run(void)
 #endif
           ) {
         CTakeoffStatus = Finished;
-        return FALSE;
+        return false;
       } else {
-        return TRUE;
+        return true;
       }
       break;
     default:
       // Invalid status or Finished, end function
-      return FALSE;
+      return false;
   }
-  return TRUE;
+  return true;
 }
 

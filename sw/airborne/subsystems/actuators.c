@@ -39,10 +39,10 @@ void actuators_init(void)
 {
 
 #if defined ACTUATORS_START_DELAY && ! defined SITL
-  actuators_delay_done = FALSE;
+  actuators_delay_done = false;
   SysTimeTimerStart(actuators_delay_time);
 #else
-  actuators_delay_done = TRUE;
+  actuators_delay_done = true;
   actuators_delay_time = 0;
 #endif
 

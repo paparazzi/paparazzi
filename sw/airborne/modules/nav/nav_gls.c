@@ -54,7 +54,7 @@ float app_angle;
 float app_intercept_rate;
 float app_distance_af_sd;
 
-bool init = TRUE;
+bool init = true;
 
 #ifndef APP_TARGET_SPEED
 #define APP_TARGET_SPEED NOMINAL_AIRSPEED
@@ -128,14 +128,14 @@ static inline bool gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8
     WaypointX(_af) = WaypointX(_sd) + td_af_x / td_af * app_distance_af_sd;
     WaypointY(_af) = WaypointY(_sd) + td_af_y / td_af * app_distance_af_sd;
   }
-  return FALSE;
+  return false;
 } /* end of gls_copute_TOD */
 
 
 bool gls_start(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
 {
 
-  init = TRUE;
+  init = true;
 
   //struct FloatVect2* wind = stateGetHorizontalWindspeed_f();
   //float wind_additional = sqrtf(wind->x*wind->x + wind->y*wind->y); // should be gusts only!
@@ -152,7 +152,7 @@ bool gls_start(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
   // calculate Top Of Decent
   gls_compute_TOD(_af, _sd, _tod, _td);
 
-  return FALSE;
+  return false;
 }  /* end of gls_init() */
 
 
@@ -165,7 +165,7 @@ bool gls_run(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
 #if USE_AIRSPEED
     v_ctl_auto_airspeed_setpoint = target_speed;
 #endif
-    init = FALSE;
+    init = false;
   }
 
   // calculate distance tod_td
@@ -229,5 +229,5 @@ bool gls_run(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
   NavVerticalAutoThrottleMode(0);   // throttle   mode
   NavSegment(_af, _td);     // horizontal mode (stay on localiser)
 
-  return TRUE;
+  return true;
 } // end of gls()

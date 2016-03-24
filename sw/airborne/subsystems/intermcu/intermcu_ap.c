@@ -120,7 +120,7 @@ static inline void intermcu_parse_msg(struct transport_rx *trans, void (*rc_fram
   }
 
   // Set to receive another message
-  trans->msg_received = FALSE;
+  trans->msg_received = false;
 }
 
 void RadioControlEvent(void (*frame_handler)(void))

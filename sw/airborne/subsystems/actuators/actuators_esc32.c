@@ -290,10 +290,10 @@ static bool actuators_esc32_play_melody(uint32_t tt, uint8_t tid, uint32_t *stat
     }
     *status_sub = *status_sub + (1 << 24);
   } else if (counter == length && SysTimeTimer(timer) > timeout) {
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }
 
 /** When the CAN bus receives a message */

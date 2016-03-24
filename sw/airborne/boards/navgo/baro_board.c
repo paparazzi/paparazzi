@@ -88,6 +88,6 @@ void navgo_baro_event(void)
       float pressure = NAVGO_BARO_SENS * (mcp355x_data + NAVGO_BARO_OFFSET);
       AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
     }
-    mcp355x_data_available = FALSE;
+    mcp355x_data_available = false;
   }
 }

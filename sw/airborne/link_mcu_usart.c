@@ -218,7 +218,7 @@ void intermcu_parse(uint8_t c)
       if (c != intermcu_data.ck_b) {
         goto error;
       }
-      intermcu_data.msg_available = TRUE;
+      intermcu_data.msg_available = true;
       goto restart;
       break;
     default:
@@ -283,7 +283,7 @@ static void send_fbw_status(struct transport_tx *trans, struct link_device *dev)
 void link_mcu_init(void)
 {
   intermcu_data.status = LINK_MCU_UNINIT;
-  intermcu_data.msg_available = FALSE;
+  intermcu_data.msg_available = false;
   intermcu_data.error_cnt = 0;
 #ifdef AP
 #if PERIODIC_TELEMETRY
@@ -309,7 +309,7 @@ void parse_mavpilot_msg(void)
 #ifdef LINK_MCU_LED
       LED_TOGGLE(LINK_MCU_LED);
 #endif
-      inter_mcu_received_ap = TRUE;
+      inter_mcu_received_ap = true;
     } else if (intermcu_data.msg_id == MSG_INTERMCU_RADIO_ID) {
 #if RADIO_CONTROL_NB_CHANNEL > 10
 #error "INTERMCU UART CAN ONLY SEND 10 RADIO CHANNELS OR THE UART WILL BE OVERFILLED"
@@ -331,7 +331,7 @@ void parse_mavpilot_msg(void)
 #ifdef LINK_MCU_LED
       LED_TOGGLE(LINK_MCU_LED);
 #endif
-      inter_mcu_received_fbw = TRUE;
+      inter_mcu_received_fbw = true;
     }
   }
 }
@@ -379,7 +379,7 @@ void link_mcu_event_task(void)
       intermcu_parse(InterMcuUartGetch());
       if (intermcu_data.msg_available) {
         parse_mavpilot_msg();
-        intermcu_data.msg_available = FALSE;
+        intermcu_data.msg_available = false;
       }
     }
   }

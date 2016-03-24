@@ -66,7 +66,7 @@ extern uint8_t  mcu1_status;
 extern uint16_t autopilot_flight_time;
 
 #define autopilot_ResetFlightTimeAndLaunch(_) { \
-    autopilot_flight_time = 0; launch = FALSE; \
+    autopilot_flight_time = 0; launch = false; \
   }
 
 

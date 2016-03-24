@@ -60,7 +60,7 @@ struct GpsTimeSync gps_ubx_time_sync;
 void gps_ubx_init(void)
 {
   gps_ubx.status = UNINIT;
-  gps_ubx.msg_available = FALSE;
+  gps_ubx.msg_available = false;
   gps_ubx.error_cnt = 0;
   gps_ubx.error_last = GPS_UBX_ERR_NONE;
 
@@ -263,7 +263,7 @@ void gps_ubx_parse(uint8_t c)
         gps_ubx.error_last = GPS_UBX_ERR_CHECKSUM;
         goto error;
       }
-      gps_ubx.msg_available = TRUE;
+      gps_ubx.msg_available = true;
       goto restart;
       break;
     default:
@@ -344,7 +344,7 @@ void gps_ubx_msg(void)
     }
     AbiSendMsgGPS(GPS_UBX_ID, now_ts, &gps_ubx.state);
   }
-  gps_ubx.msg_available = FALSE;
+  gps_ubx.msg_available = false;
 }
 
 void gps_ubx_register(void)

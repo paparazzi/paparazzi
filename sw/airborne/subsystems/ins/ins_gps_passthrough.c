@@ -105,9 +105,9 @@ void ins_gps_passthrough_init(void)
   ins_gp.ltp_def.hmsl = NAV_ALT0;
   stateSetLocalOrigin_i(&ins_gp.ltp_def);
 
-  ins_gp.ltp_initialized = TRUE;
+  ins_gp.ltp_initialized = true;
 #else
-  ins_gp.ltp_initialized  = FALSE;
+  ins_gp.ltp_initialized  = false;
 #endif
 
   INT32_VECT3_ZERO(ins_gp.ltp_pos);
@@ -127,7 +127,7 @@ void ins_reset_local_origin(void)
   ins_gp.ltp_def.lla.alt = gps.lla_pos.alt;
   ins_gp.ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ins_gp.ltp_def);
-  ins_gp.ltp_initialized = TRUE;
+  ins_gp.ltp_initialized = true;
 }
 
 void ins_reset_altitude_ref(void)

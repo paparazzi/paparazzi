@@ -55,11 +55,11 @@ static enum {STOP, CONNECT} cnxState = STOP;
 bool sdioConnect (void)
 {
   if (!sdc_lld_is_card_inserted (NULL)) {
-    return FALSE;
+    return false;
   }
 
   if (cnxState == CONNECT) {
-    return TRUE;
+    return true;
   }
 
   /*
@@ -85,20 +85,20 @@ bool sdioConnect (void)
   }
 
   cnxState = CONNECT;
-  return TRUE;
+  return true;
 }
 
 
 bool sdioDisconnect (void)
 {
   if (cnxState == STOP)
-    return TRUE;
+    return true;
   if (sdcDisconnect(&SDCD1)) {
-    return FALSE;
+    return false;
   }
   sdcStop (&SDCD1);
   cnxState = STOP;
-  return TRUE;
+  return true;
 }
 
 bool isCardInserted  (void)
@@ -179,10 +179,10 @@ bool badblocks(uint32_t start, uint32_t end, uint32_t blockatonce, uint8_t patte
       goto ERROR;
     position += blockatonce;
   }
-  return FALSE;
+  return false;
 
 ERROR:
-  return TRUE;
+  return true;
 }
 
 /**
@@ -209,7 +209,7 @@ void fillbuffers(uint8_t pattern){
 void cmd_sdiotest(void) {
   uint32_t i = 0;
   FRESULT err = 0;
-  bool format = FALSE;
+  bool format = false;
 
 
   chThdSleepMilliseconds(100);

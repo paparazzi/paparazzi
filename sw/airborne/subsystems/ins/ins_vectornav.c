@@ -112,7 +112,7 @@ void ins_vectornav_event(void)
   // read message
   if (ins_vn.vn_packet.msg_available) {
     ins_vectornav_read_message();
-    ins_vn.vn_packet.msg_available = FALSE;
+    ins_vn.vn_packet.msg_available = false;
   }
 }
 
@@ -129,7 +129,7 @@ void ins_vectornav_init(void)
   // Initialize packet
   ins_vn.vn_packet.status = VNMsgSync;
   ins_vn.vn_packet.msg_idx = 0;
-  ins_vn.vn_packet.msg_available = FALSE;
+  ins_vn.vn_packet.msg_available = false;
   ins_vn.vn_packet.chksm_error = 0;
   ins_vn.vn_packet.hdr_error = 0;
   ins_vn.vn_packet.overrun_error = 0;
@@ -146,9 +146,9 @@ void ins_vectornav_init(void)
 
 #if USE_INS_NAV_INIT
   ins_init_origin_from_flightplan();
-  ins_vn.ltp_initialized = TRUE;
+  ins_vn.ltp_initialized = true;
 #else
-  ins_vn.ltp_initialized  = FALSE;
+  ins_vn.ltp_initialized  = false;
 #endif
 
   struct FloatEulers body_to_imu_eulers =

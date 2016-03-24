@@ -71,7 +71,7 @@ void ads1220_init(struct Ads1220 *ads, struct spi_periph *spi_p, uint8_t slave_i
   ads->spi_trans.status = SPITransDone;
 
   ads->data = 0;
-  ads->data_available = FALSE;
+  ads->data_available = false;
   ads->config.status = ADS1220_UNINIT;
 }
 
@@ -135,7 +135,7 @@ void ads1220_event(struct Ads1220 *ads)
     } else if (ads->spi_trans.status == SPITransSuccess) {
       // Successfull reading of 24bits adc
       ads->data = (uint32_t)(((uint32_t)(ads->rx_buf[0]) << 16) | ((uint32_t)(ads->rx_buf[1]) << 8) | (ads->rx_buf[2]));
-      ads->data_available = TRUE;
+      ads->data_available = true;
       ads->spi_trans.status = SPITransDone;
     }
   } else if (ads->config.status == ADS1220_SEND_RESET) { // Reset ads1220 before configuring

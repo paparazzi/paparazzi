@@ -140,29 +140,29 @@ void baro_MS5534A_init(void)
   words[3] = BARO_MS5534A_W4;
 
   status = STATUS_MEASURE_PRESSURE;
-  status_read_data = FALSE;
+  status_read_data = false;
 
   calibration();
 #else
   status = STATUS_INIT1;
-  status_read_data = FALSE;
+  status_read_data = false;
 #endif
 
 
 
-  baro_MS5534A_available = FALSE;
-  alt_baro_enabled = FALSE;
+  baro_MS5534A_available = false;
+  alt_baro_enabled = false;
 
   baro_MS5534A_ground_pressure = 101300;
   baro_MS5534A_r = 20.;
   baro_MS5534A_sigma2 = 1;
-  baro_MS5534A_do_reset = FALSE;
+  baro_MS5534A_do_reset = false;
 }
 
 void baro_MS5534A_reset(void)
 {
   status = STATUS_INIT1;
-  status_read_data = FALSE;
+  status_read_data = false;
 }
 
 /* To be called not faster than 30Hz */
@@ -240,7 +240,7 @@ void baro_MS5534A_event_task(void)
         uint16_t x = (sens * (d1 - 7168)) / (1 << 14) - off;
         // baro_MS5534A = ((x*10)>>5) + 250*10;
         baro_MS5534A_pressure = ((x * 100) >> 5) + 250 * 100;
-        baro_MS5534A_available = TRUE;
+        baro_MS5534A_available = true;
 
         break;
       case STATUS_RESET:
@@ -264,10 +264,10 @@ void baro_MS5534A_event(void)
 {
   if (spi_message_received) {
     /* Got a message on SPI. */
-    spi_message_received = FALSE;
+    spi_message_received = false;
     baro_MS5534A_event_task();
     if (baro_MS5534A_available) {
-      baro_MS5534A_available = FALSE;
+      baro_MS5534A_available = false;
       baro_MS5534A_z = ground_alt + ((float)baro_MS5534A_ground_pressure - baro_MS5534A_pressure) * 0.084;
 #if SENSO_SYNC_SEND
       DOWNLINK_SEND_BARO_MS5534A(DefaultChannel, DefaultDevice, &baro_MS5534A_pressure, &baro_MS5534A_temp, &baro_MS5534A_z);

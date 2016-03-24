@@ -54,7 +54,7 @@
 
 
 struct AvoidNavigationStruct avoid_navigation_data;
-bool obstacle_detected = FALSE;
+bool obstacle_detected = false;
 int32_t counter = 0;
 
 // Called once on paparazzi autopilot start
@@ -78,7 +78,7 @@ void run_avoid_navigation_onvision(void)
         if (counter > 1) {
           counter = 0;
           //Obstacle detected, go to turn until clear mode
-          obstacle_detected = TRUE;
+          obstacle_detected = true;
           avoid_navigation_data.mode = 1;
         }
       } else {
@@ -100,7 +100,7 @@ void run_avoid_navigation_onvision(void)
           new_coor.y = pos->y + POS_BFP_OF_REAL(cos_heading * (NAV_LINE_AVOID_SEGMENT_LENGTH));
           new_coor.z = pos->z;
           waypoint_set_xy_i(WP_W1, new_coor.x, new_coor.y);
-          obstacle_detected = FALSE;
+          obstacle_detected = false;
           avoid_navigation_data.mode = 0;
         }
       } else {

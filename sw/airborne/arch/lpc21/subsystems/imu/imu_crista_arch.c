@@ -114,7 +114,7 @@ void SPI1_ISR(void)
   channel++;
   if (channel > 7 - 1) {
     channel = 0;
-    ADS8344_available = TRUE;
+    ADS8344_available = true;
     ADS8344Unselect();
   } else {
     send_request();

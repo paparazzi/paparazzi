@@ -452,15 +452,15 @@ static inline void stateSetLocalOrigin_i(struct LtpDef_i *ltp_def)
   ClearBit(state.accel_status, ACCEL_NED_I);
   ClearBit(state.accel_status, ACCEL_NED_F);
 
-  state.ned_initialized_i = TRUE;
-  state.ned_initialized_f = TRUE;
+  state.ned_initialized_i = true;
+  state.ned_initialized_f = true;
 }
 
 /// Set the local (flat earth) coordinate frame origin from UTM (float).
 static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f *utm_def)
 {
   state.utm_origin_f = *utm_def;
-  state.utm_initialized_f = TRUE;
+  state.utm_initialized_f = true;
 
   /* clear bits for all local frame representations */
   state.pos_status &= ~(POS_LOCAL_COORD);

@@ -111,10 +111,10 @@ extern void sys_time_update_timer(tid_t id, float duration);
 static inline bool sys_time_check_and_ack_timer(tid_t id)
 {
   if (sys_time.timer[id].elapsed) {
-    sys_time.timer[id].elapsed = FALSE;
-    return TRUE;
+    sys_time.timer[id].elapsed = false;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 /**

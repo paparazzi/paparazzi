@@ -91,7 +91,7 @@ static inline void main_init(void)
   // just to make it usable in a standard rotorcraft airframe file
   // with <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
   // in the command_laws section
-  autopilot_motors_on = TRUE;
+  autopilot_motors_on = true;
 }
 
 static inline void main_periodic(void)

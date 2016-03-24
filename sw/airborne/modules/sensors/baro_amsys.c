@@ -103,9 +103,9 @@ void baro_amsys_init(void)
   baro_amsys_p = 0.0;
   baro_amsys_offset = 0;
   baro_amsys_offset_tmp = 0;
-  baro_amsys_valid = TRUE;
-  baro_amsys_offset_init = FALSE;
-  baro_amsys_enabled = TRUE;
+  baro_amsys_valid = true;
+  baro_amsys_offset_init = false;
+  baro_amsys_enabled = true;
   baro_scale = BARO_AMSYS_SCALE;
   baro_amsys_cnt = BARO_AMSYS_OFFSET_NBSAMPLES_INIT + BARO_AMSYS_OFFSET_NBSAMPLES_AVRG;
   baro_amsys_r = BARO_AMSYS_R;
@@ -150,9 +150,9 @@ void baro_amsys_read_event(void)
 #endif
   // Check if this is valid altimeter
   if (pBaroRaw == 0) {
-    baro_amsys_valid = FALSE;
+    baro_amsys_valid = false;
   } else {
-    baro_amsys_valid = TRUE;
+    baro_amsys_valid = true;
   }
 
   baro_amsys_adc = pBaroRaw;
@@ -181,7 +181,7 @@ void baro_amsys_read_event(void)
         // Calculate average
         baro_amsys_offset = (float)(baro_amsys_offset_tmp / BARO_AMSYS_OFFSET_NBSAMPLES_AVRG);
         ref_alt_init = GROUND_ALT;
-        baro_amsys_offset_init = TRUE;
+        baro_amsys_offset_init = true;
 
         // hight over Sea level at init point
         //baro_amsys_offset_altitude = 288.15 / 0.0065 * (1 - pow((baro_amsys_p)/1013.25 , 1/5.255));

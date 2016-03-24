@@ -153,8 +153,8 @@ static inline void DetectGroundEvent(void)
     struct NedCoor_f *accel = stateGetAccelNed_f();
     if (accel->z < -THRESHOLD_GROUND_DETECT ||
         accel->z > THRESHOLD_GROUND_DETECT) {
-      autopilot_ground_detected = TRUE;
-      autopilot_detect_ground_once = FALSE;
+      autopilot_ground_detected = true;
+      autopilot_detect_ground_once = false;
     }
   }
 }

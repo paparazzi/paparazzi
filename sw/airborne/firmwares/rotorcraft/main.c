@@ -300,14 +300,14 @@ STATIC_INLINE void main_periodic(void)
 
 STATIC_INLINE void telemetry_periodic(void)
 {
-  static uint8_t boot = TRUE;
+  static uint8_t boot = true;
 
   /* initialisation phase during boot */
   if (boot) {
 #if DOWNLINK
     send_autopilot_version(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
-    boot = FALSE;
+    boot = false;
   }
   /* then report periodicly */
   else {

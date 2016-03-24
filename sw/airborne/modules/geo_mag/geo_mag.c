@@ -44,15 +44,15 @@ struct GeoMag geo_mag;
 
 void geo_mag_init(void)
 {
-  geo_mag.calc_once = FALSE;
-  geo_mag.ready = FALSE;
+  geo_mag.calc_once = false;
+  geo_mag.ready = false;
 }
 
 void geo_mag_periodic(void)
 {
   //FIXME: kill_throttle has no place  in a geomag module
   if (!geo_mag.ready && GpsFixValid() && kill_throttle) {
-    geo_mag.calc_once = TRUE;
+    geo_mag.calc_once = true;
   }
 }
 
@@ -86,7 +86,7 @@ void geo_mag_event(void)
     float_vect3_normalize(&h);
     AbiSendMsgGEO_MAG(GEO_MAG_SENDER_ID, &h);
 
-    geo_mag.ready = TRUE;
+    geo_mag.ready = true;
   }
-  geo_mag.calc_once = FALSE;
+  geo_mag.calc_once = false;
 }

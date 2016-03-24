@@ -103,6 +103,6 @@ void ardrone_baro_event(void)
       float pressure = (float)press_pascal;
       AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
     }
-    navdata.baro_available = FALSE;
+    navdata.baro_available = false;
   }
 }

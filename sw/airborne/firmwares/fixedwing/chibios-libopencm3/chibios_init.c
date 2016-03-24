@@ -56,7 +56,7 @@ Thread *pprzThdPtr = NULL;
 
 static WORKING_AREA(wa_thd_heartbeat, 2048);
 void chibios_launch_heartbeat (void);
-bool sdOk = FALSE;
+bool sdOk = false;
 
 
 

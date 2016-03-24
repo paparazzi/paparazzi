@@ -96,7 +96,7 @@ static inline void w5100_check_and_parse(struct link_device *dev, struct pprz_tr
     w5100_read_buffer(trans);
     if (trans->trans_rx.msg_received) {
       DatalinkFillDlBuffer(trans->trans_rx.payload, trans->trans_rx.payload_len);
-      trans->trans_rx.msg_received = FALSE;
+      trans->trans_rx.msg_received = false;
     }
   }
 }

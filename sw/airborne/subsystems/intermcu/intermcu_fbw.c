@@ -37,8 +37,8 @@
 #include "mcu_periph/sys_time.h"
 static uint8_t px4RebootSequence[] = {0x41, 0xd7, 0x32, 0x0a, 0x46, 0x39};
 static uint8_t px4RebootSequenceCount = 0;
-static bool px4RebootTimeout = FALSE;
-uint8_t autopilot_motors_on = FALSE;
+static bool px4RebootTimeout = false;
+uint8_t autopilot_motors_on = false;
 tid_t px4bl_tid; ///< id for time out of the px4 bootloader reset
 #endif
 
@@ -150,7 +150,7 @@ static void intermcu_parse_msg(struct transport_rx *trans, void (*commands_frame
   }
 
   // Set to receive another message
-  trans->msg_received = FALSE;
+  trans->msg_received = false;
 }
 
 void InterMcuEvent(void (*frame_handler)(void))

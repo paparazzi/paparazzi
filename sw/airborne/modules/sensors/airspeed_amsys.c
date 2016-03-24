@@ -96,9 +96,9 @@ void airspeed_amsys_init(void)
   airspeed_amsys_p = 0.0;
   airspeed_amsys_offset = 0;
   airspeed_amsys_offset_tmp = 0;
-  airspeed_amsys_i2c_done = TRUE;
-  airspeed_amsys_valid = TRUE;
-  airspeed_amsys_offset_init = FALSE;
+  airspeed_amsys_i2c_done = true;
+  airspeed_amsys_valid = true;
+  airspeed_amsys_offset_init = false;
   airspeed_scale = AIRSPEED_AMSYS_SCALE;
   airspeed_filter = AIRSPEED_AMSYS_FILTER;
   airspeed_amsys_i2c_trans.status = I2CTransDone;
@@ -157,9 +157,9 @@ void airspeed_amsys_read_event(void)
 
   // Check if this is valid airspeed
   if (airspeed_amsys_raw == 0) {
-    airspeed_amsys_valid = FALSE;
+    airspeed_amsys_valid = false;
   } else {
-    airspeed_amsys_valid = TRUE;
+    airspeed_amsys_valid = true;
   }
 
   // Continue only if a new airspeed value was received
@@ -185,7 +185,7 @@ void airspeed_amsys_read_event(void)
       if (airspeed_amsys_cnt == 0) {
         // Calculate average
         airspeed_amsys_offset = airspeed_amsys_offset_tmp / AIRSPEED_AMSYS_OFFSET_NBSAMPLES_AVRG;
-        airspeed_amsys_offset_init = TRUE;
+        airspeed_amsys_offset_init = true;
       }
       // Check if averaging needs to continue
       else if (airspeed_amsys_cnt <= AIRSPEED_AMSYS_OFFSET_NBSAMPLES_AVRG) {

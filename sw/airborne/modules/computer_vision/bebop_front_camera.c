@@ -72,7 +72,7 @@ struct bebopfrontcamera_t bebop_front_camera = {
 
 void bebop_front_camera_take_shot(bool take)
 {
-  bebop_front_camera.take_shot = TRUE;
+  bebop_front_camera.take_shot = true;
 }
 /**
  * Handles all the video streaming and saving of the image shots
@@ -99,7 +99,7 @@ static void *bebop_front_camera_thread(void *data __attribute__((unused)))
   }
 
   // Start streaming
-  bebop_front_camera.is_streaming = TRUE;
+  bebop_front_camera.is_streaming = true;
   while (bebop_front_camera.is_streaming) {
     // Wait for a new frame (blocking)
     struct image_t img;
@@ -110,7 +110,7 @@ static void *bebop_front_camera_thread(void *data __attribute__((unused)))
     if (bebop_front_camera.take_shot) {
       // Save the image
       bebop_front_camera_save_shot(&img_color, &img_jpeg, &img);
-      bebop_front_camera.take_shot = FALSE;
+      bebop_front_camera.take_shot = false;
     }
 
     jpeg_encode_image(&img_color, &img_jpeg, 80, 0);
@@ -190,7 +190,7 @@ void bebop_front_camera_stop(void)
   }
 
   // Stop the streaming thread
-  bebop_front_camera.is_streaming = FALSE;
+  bebop_front_camera.is_streaming = false;
 
   // Stop the capturing
   if (!v4l2_stop_capture(bebop_front_camera.dev)) {

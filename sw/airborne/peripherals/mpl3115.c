@@ -39,12 +39,12 @@ void mpl3115_init(struct Mpl3115 *mpl, struct i2c_periph *i2c_p, uint8_t addr)
 
   mpl->trans.status = I2CTransDone;
   mpl->req_trans.status = I2CTransDone;
-  mpl->initialized = FALSE;
+  mpl->initialized = false;
   mpl->init_status = MPL_CONF_UNINIT;
 
   /* by default disable raw mode and set pressure mode */
-  mpl->raw_mode = FALSE;
-  mpl->alt_mode = FALSE;
+  mpl->raw_mode = false;
+  mpl->alt_mode = false;
 
   mpl->pressure = 0;
   mpl->temperature = 0;
@@ -69,7 +69,7 @@ static void mpl3115_send_config(struct Mpl3115 *mpl)
       mpl->init_status++;
       break;
     case MPL_CONF_DONE:
-      mpl->initialized = TRUE;
+      mpl->initialized = true;
       mpl->trans.status = I2CTransDone;
       break;
     default:
@@ -130,7 +130,7 @@ void mpl3115_event(struct Mpl3115 *mpl)
           tmp = ((int16_t)mpl->trans.buf[4] << 8) | mpl->trans.buf[5];
           mpl->temperature = (tmp >> 4);
         }
-        mpl->data_available = TRUE;
+        mpl->data_available = true;
       }
       mpl->trans.status = I2CTransDone;
     }

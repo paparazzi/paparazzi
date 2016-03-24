@@ -118,7 +118,7 @@ void imu_ppzuav_event(void)
     imu.accel_unscaled.x = -imu_ppzuav.acc_adxl.data.vect.x;
     imu.accel_unscaled.y =  imu_ppzuav.acc_adxl.data.vect.y;
     imu.accel_unscaled.z = -imu_ppzuav.acc_adxl.data.vect.z;
-    imu_ppzuav.acc_adxl.data_available = FALSE;
+    imu_ppzuav.acc_adxl.data_available = false;
     imu_scale_accel(&imu);
     AbiSendMsgIMU_ACCEL_INT32(IMU_PPZUAV_ID, now_ts, &imu.accel);
   }
@@ -129,7 +129,7 @@ void imu_ppzuav_event(void)
     imu.gyro_unscaled.p = -imu_ppzuav.gyro_itg.data.rates.p;
     imu.gyro_unscaled.q =  imu_ppzuav.gyro_itg.data.rates.q;
     imu.gyro_unscaled.r = -imu_ppzuav.gyro_itg.data.rates.r;
-    imu_ppzuav.gyro_itg.data_available = FALSE;
+    imu_ppzuav.gyro_itg.data_available = false;
     imu_scale_gyro(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_PPZUAV_ID, now_ts, &imu.gyro);
   }
@@ -140,7 +140,7 @@ void imu_ppzuav_event(void)
     imu.mag_unscaled.x = -imu_ppzuav.mag_hmc.data.vect.y;
     imu.mag_unscaled.y = -imu_ppzuav.mag_hmc.data.vect.x;
     imu.mag_unscaled.z = -imu_ppzuav.mag_hmc.data.vect.z;
-    imu_ppzuav.mag_hmc.data_available = FALSE;
+    imu_ppzuav.mag_hmc.data_available = false;
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_PPZUAV_ID, now_ts, &imu.mag);
   }

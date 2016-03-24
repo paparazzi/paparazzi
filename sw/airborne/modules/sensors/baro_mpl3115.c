@@ -70,7 +70,7 @@ void baro_mpl3115_read_event(void)
 #ifdef SENSOR_SYNC_SEND
     DOWNLINK_SEND_MPL3115_BARO(DefaultChannel, DefaultDevice, &baro_mpl.pressure, &baro_mpl.temperature, &baro_mpl.alt);
 #endif
-    baro_mpl.data_available = FALSE;
+    baro_mpl.data_available = false;
   }
 }
 

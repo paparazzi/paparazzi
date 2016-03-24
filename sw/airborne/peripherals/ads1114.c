@@ -43,8 +43,8 @@ void ads1114_init(void)
   ads1114_1.trans.buf[1] = ADS1114_1_CONFIG_MSB;
   ads1114_1.trans.buf[2] = ADS1114_1_CONFIG_LSB;
   i2c_transmit(&ADS1114_I2C_DEV, &ads1114_1.trans, ADS1114_1_I2C_ADDR, 3);
-  ads1114_1.config_done = FALSE;
-  ads1114_1.data_available = FALSE;
+  ads1114_1.config_done = false;
+  ads1114_1.data_available = false;
 #endif
 
   /* configure the ads1114_2 */
@@ -54,8 +54,8 @@ void ads1114_init(void)
   ads1114_2.trans.buf[1] = ADS1114_2_CONFIG_MSB;
   ads1114_2.trans.buf[2] = ADS1114_2_CONFIG_LSB;
   i2c_transmit(&ADS1114_I2C_DEV, &ads1114_2.trans, ADS1114_2_I2C_ADDR, 3);
-  ads1114_2.config_done = FALSE;
-  ads1114_2.data_available = FALSE;
+  ads1114_2.config_done = false;
+  ads1114_2.data_available = false;
 #endif
 }
 

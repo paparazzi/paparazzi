@@ -55,9 +55,9 @@ struct Lis302dlConfig {
 
 static inline void lis302dl_set_default_config(struct Lis302dlConfig *c)
 {
-  c->int_invert = TRUE;
-  c->filt_data = FALSE;
-  c->spi_3_wire = FALSE;
+  c->int_invert = true;
+  c->filt_data = false;
+  c->spi_3_wire = false;
 
   c->rate = LIS302DL_RATE_100HZ;
   c->range = LIS302DL_RANGE_2G;

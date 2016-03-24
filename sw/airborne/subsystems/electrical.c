@@ -102,8 +102,8 @@ void electrical_init(void)
   electrical.current = 0;
   electrical.energy = 0;
 
-  electrical.bat_low = FALSE;
-  electrical.bat_critical = FALSE;
+  electrical.bat_low = false;
+  electrical.bat_critical = false;
 
 #if defined ADC_CHANNEL_VSUPPLY
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &electrical_priv.vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
@@ -122,7 +122,7 @@ void electrical_periodic(void)
 {
   static uint32_t bat_low_counter = 0;
   static uint32_t bat_critical_counter = 0;
-  static bool vsupply_check_started = FALSE;
+  static bool vsupply_check_started = false;
 
 #if defined(ADC_CHANNEL_VSUPPLY) && !defined(SITL)
   electrical.vsupply = 10 * VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum /
@@ -183,7 +183,7 @@ void electrical_periodic(void)
 
   /*if valid voltage is seen then start checking. Set min level to 0 to always start*/
   if (electrical.vsupply >= MIN_BAT_LEVEL * 10) {
-    vsupply_check_started = TRUE;
+    vsupply_check_started = true;
   }
 
   if (vsupply_check_started) {
@@ -192,12 +192,12 @@ void electrical_periodic(void)
         bat_low_counter--;
       }
       if (bat_low_counter == 0) {
-        electrical.bat_low = TRUE;
+        electrical.bat_low = true;
       }
     } else {
       // reset battery low status and counter
       bat_low_counter = BAT_CHECKER_DELAY * ELECTRICAL_PERIODIC_FREQ;
-      electrical.bat_low = FALSE;
+      electrical.bat_low = false;
     }
 
     if (electrical.vsupply < CRITIC_BAT_LEVEL * 10) {
@@ -205,12 +205,12 @@ void electrical_periodic(void)
         bat_critical_counter--;
       }
       if (bat_critical_counter == 0) {
-        electrical.bat_critical = TRUE;
+        electrical.bat_critical = true;
       }
     } else {
       // reset battery critical status and counter
       bat_critical_counter = BAT_CHECKER_DELAY * ELECTRICAL_PERIODIC_FREQ;
-      electrical.bat_critical = FALSE;
+      electrical.bat_critical = false;
     }
   }
 

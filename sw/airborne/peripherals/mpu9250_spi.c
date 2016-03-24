@@ -55,8 +55,8 @@ void mpu9250_spi_init(struct Mpu9250_Spi *mpu, struct spi_periph *spi_p, uint8_t
   /* set default MPU9250 config options */
   mpu9250_set_default_config(&(mpu->config));
 
-  mpu->data_available = FALSE;
-  mpu->config.initialized = FALSE;
+  mpu->data_available = false;
+  mpu->config.initialized = false;
   mpu->config.init_status = MPU9250_CONF_UNINIT;
 
   mpu->slave_init_status = MPU9250_SPI_CONF_UNINIT;
@@ -124,7 +124,7 @@ void mpu9250_spi_event(struct Mpu9250_Spi *mpu)
 #pragma GCC diagnostic pop
         }
 
-        mpu->data_available = TRUE;
+        mpu->data_available = true;
       }
       mpu->spi_trans.status = SPITransDone;
     }
@@ -185,9 +185,9 @@ bool mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
       }
       break;
     case MPU9250_SPI_CONF_DONE:
-      return TRUE;
+      return true;
     default:
       break;
   }
-  return FALSE;
+  return false;
 }

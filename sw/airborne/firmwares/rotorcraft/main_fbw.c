@@ -221,7 +221,7 @@ static void autopilot_on_rc_frame(void)
 
   /* if manual */
   if (fbw_mode == FBW_MODE_MANUAL) {
-    autopilot_motors_on = TRUE;
+    autopilot_motors_on = true;
 #ifdef SetCommandsFromRC
     SetCommandsFromRC(commands, radio_control.values);
 #else
@@ -238,7 +238,7 @@ static void autopilot_on_ap_command(void)
   if (fbw_mode != FBW_MODE_MANUAL) {
     SetCommands(intermcu_commands);
   } else {
-    autopilot_motors_on = TRUE;
+    autopilot_motors_on = true;
   }
 }
 

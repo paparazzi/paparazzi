@@ -94,7 +94,7 @@ static inline void autopilot_arming_check_motors_on(void)
       case STATUS_MOTORS_AUTOMATICALLY_OFF: // Motors were disarmed externally
         //(possibly due to crash)
         //wait extra delay before enabling the normal arming state machine
-        autopilot_motors_on = FALSE;
+        autopilot_motors_on = false;
         autopilot_motors_on_counter = 0;
         if (THROTTLE_STICK_DOWN() && YAW_STICK_CENTERED()) { // stick released
           autopilot_check_motor_status = STATUS_MOTORS_AUTOMATICALLY_OFF_SAFETY_WAIT;
@@ -107,14 +107,14 @@ static inline void autopilot_arming_check_motors_on(void)
           }
         break;
       case STATUS_MOTORS_OFF:
-        autopilot_motors_on = FALSE;
+        autopilot_motors_on = false;
         autopilot_motors_on_counter = 0;
         if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) { // stick pushed
           autopilot_check_motor_status = STATUS_M_OFF_STICK_PUSHED;
         }
         break;
       case STATUS_M_OFF_STICK_PUSHED:
-        autopilot_motors_on = FALSE;
+        autopilot_motors_on = false;
         autopilot_motors_on_counter++;
         if (autopilot_motors_on_counter >= MOTOR_ARMING_DELAY) {
           autopilot_check_motor_status = STATUS_START_MOTORS;
@@ -123,21 +123,21 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATUS_START_MOTORS:
-        autopilot_motors_on = TRUE;
+        autopilot_motors_on = true;
         autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
         if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) { // wait until stick released
           autopilot_check_motor_status = STATUS_MOTORS_ON;
         }
         break;
       case STATUS_MOTORS_ON:
-        autopilot_motors_on = TRUE;
+        autopilot_motors_on = true;
         autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
         if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) { // stick pushed
           autopilot_check_motor_status = STATUS_M_ON_STICK_PUSHED;
         }
         break;
       case STATUS_M_ON_STICK_PUSHED:
-        autopilot_motors_on = TRUE;
+        autopilot_motors_on = true;
         autopilot_motors_on_counter--;
         if (autopilot_motors_on_counter == 0) {
           autopilot_check_motor_status = STATUS_STOP_MOTORS;
@@ -146,7 +146,7 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATUS_STOP_MOTORS:
-        autopilot_motors_on = FALSE;
+        autopilot_motors_on = false;
         autopilot_motors_on_counter = 0;
         if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) { // wait until stick released
           autopilot_check_motor_status = STATUS_MOTORS_OFF;

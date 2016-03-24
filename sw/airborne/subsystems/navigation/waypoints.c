@@ -57,7 +57,7 @@ bool waypoint_is_global(uint8_t wp_id)
   if (wp_id < nb_waypoint) {
     return bit_is_set(waypoints[wp_id].flags, WP_FLAG_GLOBAL);
   }
-  return FALSE;
+  return false;
 }
 
 void waypoint_set_global_flag(uint8_t wp_id)

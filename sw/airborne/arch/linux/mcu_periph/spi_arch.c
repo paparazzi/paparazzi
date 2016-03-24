@@ -89,7 +89,7 @@ bool spi_submit(struct spi_periph *p, struct spi_transaction *t)
 
   if (ioctl(fd, SPI_IOC_MESSAGE(1), &xfer) < 0) {
     t->status = SPITransFailed;
-    return FALSE;
+    return false;
   }
 
   /* copy recieved data if we had to use an extra rx_buffer */
@@ -98,20 +98,20 @@ bool spi_submit(struct spi_periph *p, struct spi_transaction *t)
   }
 
   t->status = SPITransSuccess;
-  return TRUE;
+  return true;
 }
 #pragma GCC diagnostic pop
 
 bool spi_lock(struct spi_periph *p, uint8_t slave)
 {
   // not implemented
-  return FALSE;
+  return false;
 }
 
 bool spi_resume(struct spi_periph *p, uint8_t slave)
 {
   // not implemented
-  return FALSE;
+  return false;
 }
 
 

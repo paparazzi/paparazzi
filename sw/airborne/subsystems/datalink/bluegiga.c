@@ -77,10 +77,10 @@ static int dev_check_free_space(struct bluegiga_periph *p, uint8_t len)
   // check if there is enough space for message
   // NB if BLUEGIGA_BUFFER_SIZE is smaller than 256 then an additional check is needed that len < BLUEGIGA_BUFFER_SIZE
   if (len - 1 <= ((p->tx_extract_idx - p->tx_insert_idx - 1 + BLUEGIGA_BUFFER_SIZE) % BLUEGIGA_BUFFER_SIZE)) {
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }
 static void dev_put_byte(struct bluegiga_periph *p, uint8_t byte)
 {

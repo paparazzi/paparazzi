@@ -114,7 +114,7 @@ bool snav_init(uint8_t a, float desired_course_rad, float radius)
   wp_ta.a = wp_ca.a;
   ground_speed_timer = 0;
 
-  return FALSE;
+  return false;
 }
 
 

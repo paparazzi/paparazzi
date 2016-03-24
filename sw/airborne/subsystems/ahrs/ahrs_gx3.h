@@ -108,7 +108,7 @@ static inline void ImuEvent(void)
   if (ahrs_gx3.packet.msg_available) {
     gx3_packet_read_message();
     ahrs_gx3_publish_imu();
-    ahrs_gx3.packet.msg_available = FALSE;
+    ahrs_gx3.packet.msg_available = false;
   }
 }
 

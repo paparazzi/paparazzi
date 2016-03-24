@@ -140,7 +140,7 @@ void imu_impl_init(void)
   // Initialize packet
   UM6_packet.status = UM6PacketWaiting;
   UM6_packet.msg_idx = 0;
-  UM6_packet.msg_available = FALSE;
+  UM6_packet.msg_available = false;
   UM6_packet.chksm_error = 0;
   UM6_packet.hdr_error = 0;
 
@@ -345,9 +345,9 @@ void UM6_packet_parse(uint8_t c)
       UM6_packet.msg_idx++;
       if (UM6_packet.msg_idx == PacketLength) {
         if (UM6_verify_chk(UM6_packet.msg_buf, PacketLength)) {
-          UM6_packet.msg_available = TRUE;
+          UM6_packet.msg_available = true;
         } else {
-          UM6_packet.msg_available = FALSE;
+          UM6_packet.msg_available = false;
           UM6_packet.chksm_error++;
         }
         UM6_packet.status = UM6PacketWaiting;

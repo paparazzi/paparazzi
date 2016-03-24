@@ -66,10 +66,10 @@ static void nmea_parse_GSV(void);
 void gps_nmea_init(void)
 {
   gps_nmea.state.nb_channels = GPS_NMEA_NB_CHANNELS;
-  gps_nmea.is_configured = FALSE;
-  gps_nmea.msg_available = FALSE;
-  gps_nmea.pos_available = FALSE;
-  gps_nmea.have_gsv = FALSE;
+  gps_nmea.is_configured = false;
+  gps_nmea.msg_available = false;
+  gps_nmea.pos_available = false;
+  gps_nmea.have_gsv = false;
   gps_nmea.gps_nb_ovrn = 0;
   gps_nmea.msg_len = 0;
   nmea_parse_prop_init();
@@ -107,12 +107,12 @@ void nmea_gps_msg(void)
     }
     AbiSendMsgGPS(GPS_NMEA_ID, now_ts, &gps);
   }
-  gps_nmea.msg_available = FALSE;
+  gps_nmea.msg_available = false;
 }
 
 void WEAK nmea_configure(void)
 {
-  gps_nmea.is_configured = TRUE;
+  gps_nmea.is_configured = true;
 }
 
 void WEAK nmea_parse_prop_init(void)
@@ -145,7 +145,7 @@ void nmea_parse_msg(void)
     nmea_parse_GSA();
   } else if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "GSV", 3)) {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
-    gps_nmea.have_gsv = TRUE;
+    gps_nmea.have_gsv = true;
     NMEA_PRINT("GSV: \"%s\" \n\r", gps_nmea.msg_buf);
     nmea_parse_GSV();
   } else {
@@ -189,7 +189,7 @@ void nmea_parse_char(uint8_t c)
           else {
             // TODO: check for CRC before setting msg as available
             gps_nmea.status = GOT_END;
-            gps_nmea.msg_available = TRUE;
+            gps_nmea.msg_available = true;
           }
           break;
 
@@ -424,10 +424,10 @@ static void nmea_parse_GGA(void)
   // 0 = Invalid, 1 = Valid SPS, 2 = Valid DGPS, 3 = Valid PPS
   // check for good position fix
   if ((gps_nmea.msg_buf[i] != '0') && (gps_nmea.msg_buf[i] != ','))  {
-    gps_nmea.pos_available = TRUE;
+    gps_nmea.pos_available = true;
     NMEA_PRINT("p_GGA() - POS_AVAILABLE == TRUE\n\r");
   } else {
-    gps_nmea.pos_available = FALSE;
+    gps_nmea.pos_available = false;
     NMEA_PRINT("p_GGA() - gps_pos_available == false\n\r");
   }
 
@@ -492,9 +492,9 @@ static void nmea_parse_GSV(void)
   // check what satellites this messages contains
   // GPGSV -> GPS
   // GLGSV -> GLONASS
-  bool is_glonass = FALSE;
+  bool is_glonass = false;
   if (!strncmp(&gps_nmea.msg_buf[0] , "GL", 2)) {
-    is_glonass = TRUE;
+    is_glonass = true;
   }
 
   // total sentences

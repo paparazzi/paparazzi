@@ -309,7 +309,7 @@ void h_ctl_init(void)
   h_ctl_course_dgain = H_CTL_COURSE_DGAIN;
   h_ctl_roll_max_setpoint = H_CTL_ROLL_MAX_SETPOINT;
 
-  h_ctl_disabled = FALSE;
+  h_ctl_disabled = false;
 
   h_ctl_roll_setpoint = 0.;
   h_ctl_roll_attitude_gain = H_CTL_ROLL_ATTITUDE_GAIN;
@@ -349,7 +349,7 @@ void h_ctl_init(void)
   h_ctl_pitch_of_roll = H_CTL_PITCH_OF_ROLL;
 #endif
 
-  use_airspeed_ratio = FALSE;
+  use_airspeed_ratio = false;
   airspeed_ratio2 = 1.;
 
 #if USE_PITCH_TRIM

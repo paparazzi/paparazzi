@@ -66,7 +66,7 @@ static void launchBatterySurveyThread (void)
 // Functions for the generic device API
 static int sdlog_check_free_space(struct chibios_sdlog* p __attribute__((unused)), uint8_t len __attribute__((unused)))
 {
-  return TRUE;
+  return true;
 }
 
 static void sdlog_transmit(struct chibios_sdlog* p, uint8_t byte)
@@ -115,10 +115,10 @@ bool chibios_logInit(void)
 
   launchBatterySurveyThread ();
 
-  return TRUE;
+  return true;
 
 error:
-  return FALSE;
+  return false;
 }
 
 

@@ -66,11 +66,11 @@ static bool write_reg(int fd, char *addr_val, uint8_t cnt)
 
   if (write(fd, addr_val, cnt) != cnt) {
     printf("Write failed!\n");
-    return FALSE;
+    return false;
   }
   if (write(fd, addr_val, 2) != 2) {
     printf("Write2 failed!\n");
-    return FALSE;
+    return false;
   }
   while (read(fd, resp, cnt - 2) != cnt - 2) { ; }
   for (i = 0; i < cnt - 2; i++) {
@@ -79,7 +79,7 @@ static bool write_reg(int fd, char *addr_val, uint8_t cnt)
       return write_reg(fd, addr_val, cnt);
     }
   }
-  return TRUE;
+  return true;
 }
 
 static bool _write(int fd, char *data, uint8_t cnt)
@@ -87,7 +87,7 @@ static bool _write(int fd, char *data, uint8_t cnt)
   if (write(fd, data, cnt) != cnt) {
     printf("Failed!\n");
   }
-  return TRUE;
+  return true;
 }
 
 #pragma GCC diagnostic push

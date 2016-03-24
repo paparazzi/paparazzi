@@ -49,7 +49,7 @@ struct L3gd20Config {
 
 static inline void l3gd20_set_default_config(struct L3gd20Config *c)
 {
-  c->spi_3_wire = FALSE;
+  c->spi_3_wire = false;
 
   c->drbw = L3GD20_DRBW_760Hz_100BW;
   c->full_scale = L3GD20_FS_2000dps2;

@@ -153,7 +153,7 @@ unsigned char CHIMU_Parse(
   CHIMU_PARSER_DATA   *pstData)   /* resulting data           */
 {
 
-  char           bUpdate = FALSE;
+  unsigned char bUpdate = 0;
 
   switch (pstData->m_State) {
     case CHIMU_STATE_MACHINE_START:  // Waiting for start character 0xAE
@@ -164,7 +164,7 @@ unsigned char CHIMU_Parse(
       } else {
         ;;
       }
-      bUpdate = FALSE;
+      bUpdate = 0;
       break;
     case CHIMU_STATE_MACHINE_HEADER2:  // Waiting for second header character 0xAE
       if (btData == 0xAE) {
@@ -214,14 +214,14 @@ unsigned char CHIMU_Parse(
                                                (unsigned long)(pstData->m_MsgLen) + 5)) & 0xFF);
         pstData->m_State = CHIMU_STATE_MACHINE_XSUM;
       } else {
-        return FALSE;
+        return 0;
       }
       break;
     case CHIMU_STATE_MACHINE_XSUM:  // Verify
       pstData->m_ReceivedChecksum = btData;
       pstData->m_FullMessage[pstData->m_Index++] = btData;
       if (pstData->m_Checksum != pstData->m_ReceivedChecksum) {
-        bUpdate = FALSE;
+        bUpdate = 0;
         //BuiltInTest(BIT_COM_UART_RECEIPTFAIL, BIT_FAIL);
       } else {
         //Xsum passed, go parse it.
@@ -283,7 +283,7 @@ static CHIMU_attitude_data GetEulersFromQuat(CHIMU_attitude_data attitude)
 static unsigned char BitTest(unsigned char input, unsigned char n)
 {
   //Test a bit in n and return TRUE or FALSE
-  if (input & (1 << n)) { return TRUE; } else { return FALSE; }
+  if (input & (1 << n)) { return 1; } else { return 0; }
 }
 unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID __attribute__((unused)), unsigned char *pPayloadData,
                                    CHIMU_PARSER_DATA *pstData)
@@ -307,7 +307,7 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID __attribute__((unused))
       pstData->gCHIMU_SW_SerialNumber = (pPayloadData[CHIMU_index] << 8) & (0x0000FF00); CHIMU_index++;
       pstData->gCHIMU_SW_SerialNumber += pPayloadData[CHIMU_index]; CHIMU_index++;
 
-      return TRUE;
+      return 1;
       break;
     case CHIMU_Msg_1_IMU_Raw:
       break;
@@ -334,7 +334,7 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID __attribute__((unused))
       memmove(&pstData->m_sensor.spare1, &pPayloadData[CHIMU_index], sizeof(pstData->m_sensor.spare1));
       CHIMU_index += (sizeof(pstData->m_sensor.spare1));
       pstData->m_sensor.spare1 = FloatSwap(pstData->m_sensor.spare1);
-      return TRUE;
+      return 1;
       break;
     case CHIMU_Msg_3_IMU_Attitude:
       //Attitude message data from CHIMU
@@ -410,7 +410,7 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID __attribute__((unused))
         //TODO:  Log BIT that indicates IMU message incoming failed (maybe SPI error?)
       }
 
-      return TRUE;
+      return 1;
       break;
     case CHIMU_Msg_4_BiasSF:
     case CHIMU_Msg_5_BIT:
@@ -426,8 +426,8 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID __attribute__((unused))
     case CHIMU_Msg_15_SFCheck:
       break;
     default:
-      return FALSE;
+      return 0;
       break;
   }
-  return FALSE;
+  return 0;
 }

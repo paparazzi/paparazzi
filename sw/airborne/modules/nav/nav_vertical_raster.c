@@ -43,7 +43,7 @@ static enum line_status line_status;
 bool nav_vertical_raster_setup(void)
 {
   line_status = LR12;
-  return FALSE;
+  return false;
 }
 
 bool nav_vertical_raster_run(uint8_t l1, uint8_t l2, float radius, float AltSweep)
@@ -156,5 +156,5 @@ bool nav_vertical_raster_run(uint8_t l1, uint8_t l2, float radius, float AltSwee
     default:
       break;
   }
-  return TRUE; /* This pattern never ends */
+  return true; /* This pattern never ends */
 }

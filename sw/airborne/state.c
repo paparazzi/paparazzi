@@ -48,9 +48,9 @@ void stateInit(void)
   state.ned_to_body_orientation.status = 0;
   state.rate_status = 0;
   state.wind_air_status = 0;
-  state.ned_initialized_i = FALSE;
-  state.ned_initialized_f = FALSE;
-  state.utm_initialized_f = FALSE;
+  state.ned_initialized_i = false;
+  state.ned_initialized_f = false;
+  state.utm_initialized_f = false;
 }
 
 

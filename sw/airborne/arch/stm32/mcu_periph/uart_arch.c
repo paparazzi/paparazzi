@@ -125,7 +125,7 @@ void uart_put_byte(struct uart_periph *p, uint8_t data)
     p->tx_buf[p->tx_insert_idx] = data;
     p->tx_insert_idx = temp;
   } else { // no, set running flag and write to output register
-    p->tx_running = TRUE;
+    p->tx_running = true;
     usart_send((uint32_t)p->reg_addr, data);
   }
 
@@ -144,7 +144,7 @@ static inline void usart_isr(struct uart_periph *p)
       p->tx_extract_idx++;
       p->tx_extract_idx %= UART_TX_BUFFER_SIZE;
     } else {
-      p->tx_running = FALSE;   // clear running flag
+      p->tx_running = false;   // clear running flag
       USART_CR1((uint32_t)p->reg_addr) &= ~USART_CR1_TXEIE; // Disable TX interrupt
     }
   }

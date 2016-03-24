@@ -499,7 +499,7 @@ bool spi_submit(struct spi_periph *p, struct spi_transaction *t)
   if (idx >= SPI_TRANSACTION_QUEUE_LEN) { idx = 0; }
   if (idx == p->trans_extract_idx) {
     t->status = SPITransFailed;
-    return FALSE; /* queue full */
+    return false; /* queue full */
   }
   t->status = SPITransPending;
 
@@ -521,7 +521,7 @@ bool spi_submit(struct spi_periph *p, struct spi_transaction *t)
   //VICIntEnable = VIC_BIT(*vic);
   //restoreIRQ(cpsr);                                   // restore global interrupts
   enableIRQ();
-  return TRUE;
+  return true;
 }
 
 
@@ -567,10 +567,10 @@ bool spi_lock(struct spi_periph *p, uint8_t slave)
   if (slave < 254 && p->suspend == 0) {
     p->suspend = slave + 1; // 0 is reserved for unlock state
     VICIntEnable = VIC_BIT(*vic);
-    return TRUE;
+    return true;
   }
   VICIntEnable = VIC_BIT(*vic);
-  return FALSE;
+  return false;
 }
 
 bool spi_resume(struct spi_periph *p, uint8_t slave)
@@ -584,10 +584,10 @@ bool spi_resume(struct spi_periph *p, uint8_t slave)
       SpiStart(p, p->trans[p->trans_extract_idx]);
     }
     VICIntEnable = VIC_BIT(*vic);
-    return TRUE;
+    return true;
   }
   VICIntEnable = VIC_BIT(*vic);
-  return FALSE;
+  return false;
 }
 
 #endif /* SPI_MASTER */
@@ -681,7 +681,7 @@ bool spi_slave_register(struct spi_periph *p, struct spi_transaction *t)
 
   if (p->trans_insert_idx >= 1) {
     t->status = SPITransFailed;
-    return FALSE;
+    return false;
   }
   t->status = SPITransPending;
   p->status = SPIIdle;
@@ -697,18 +697,18 @@ bool spi_slave_register(struct spi_periph *p, struct spi_transaction *t)
 
   SpiSetDataSize(p, t->dss);
 
-  return TRUE;
+  return true;
 }
 
 bool spi_slave_wait(struct spi_periph *p)
 {
   if (p->trans_insert_idx == 0) {
     // no transaction registered
-    return FALSE;
+    return false;
   }
   // Start waiting
   SpiSlaveStart(p, p->trans[p->trans_extract_idx]);
-  return TRUE;
+  return true;
 }
 
 #endif /* SPI_SLAVE */

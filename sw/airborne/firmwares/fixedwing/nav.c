@@ -65,8 +65,8 @@ static float nav_carrot_leg_progress;
 /** length of the current leg (m) */
 static float nav_leg_length;
 
-bool nav_in_circle = FALSE;
-bool nav_in_segment = FALSE;
+bool nav_in_circle = false;
+bool nav_in_segment = false;
 float nav_circle_x, nav_circle_y, nav_circle_radius;
 float nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2;
 uint8_t horizontal_mode;
@@ -98,8 +98,8 @@ void nav_init_stage(void)
   stage_time = 0;
   nav_circle_radians = 0;
   nav_circle_radians_no_rewind = 0;
-  nav_in_circle = FALSE;
-  nav_in_segment = FALSE;
+  nav_in_circle = false;
+  nav_in_segment = false;
   nav_shift = 0;
 }
 
@@ -149,7 +149,7 @@ void nav_circle_XY(float x, float y, float radius)
   }
   fly_to_xy(x + cosf(alpha_carrot)*radius_carrot,
             y + sinf(alpha_carrot)*radius_carrot);
-  nav_in_circle = TRUE;
+  nav_in_circle = true;
   nav_circle_x = x;
   nav_circle_y = y;
   nav_circle_radius = radius;
@@ -236,7 +236,7 @@ bool nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float
     baseleg_out_qdr += M_PI;
   }
 
-  return FALSE;
+  return false;
 }
 
 bool nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide)
@@ -255,7 +255,7 @@ bool nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide)
   waypoints[wp_af].y = waypoints[wp_td].y + y_1 * h_0 * glide;
   waypoints[wp_af].a = waypoints[wp_af].a;
 
-  return FALSE;
+  return false;
 }
 
 
@@ -273,7 +273,7 @@ static inline bool compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float gli
   WaypointX(_tod) = WaypointX(_td) + td_af_x / td_af * td_tod;
   WaypointY(_tod) = WaypointY(_td) + td_af_y / td_af * td_tod;
   WaypointAlt(_tod) = WaypointAlt(_af);
-  return FALSE;
+  return false;
 }
 
 
@@ -341,7 +341,7 @@ bool nav_approaching_xy(float x, float y, float from_x, float from_y, float appr
     dist2_to_wp = pw_x * pw_x + pw_y * pw_y;
     float min_dist = approaching_time * stateGetHorizontalSpeedNorm_f();
     if (dist2_to_wp < min_dist * min_dist) {
-      return TRUE;
+      return true;
     }
     float scal_prod = (x - from_x) * pw_x + (y - from_y) * pw_y;
     return (scal_prod < 0.);
@@ -392,7 +392,7 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y)
   float carrot = CARROT * NOMINAL_AIRSPEED;
 
   nav_carrot_leg_progress = nav_leg_progress + Max(carrot / nav_leg_length, 0.);
-  nav_in_segment = TRUE;
+  nav_in_segment = true;
   nav_segment_x_1 = last_wp_x;
   nav_segment_y_1 = last_wp_y;
   nav_segment_x_2 = wp_x;
@@ -438,7 +438,7 @@ void nav_home(void)
  */
 void nav_periodic_task(void)
 {
-  nav_survey_active = FALSE;
+  nav_survey_active = false;
 
   compute_dist2_to_home();
   dist2_to_wp = 0.;
@@ -484,7 +484,7 @@ static void send_wp_moved(struct transport_tx *trans, struct link_device *dev)
 bool DownlinkSendWpNr(uint8_t _wp)
 {
   DownlinkSendWp(&(DefaultChannel).trans_tx, &(DefaultDevice).device, _wp);
-  return FALSE;
+  return false;
 }
 
 

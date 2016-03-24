@@ -201,7 +201,7 @@ void viewvideo_init(void)
 
   cv_add(viewvideo_function);
 
-  viewvideo.is_streaming = TRUE;
+  viewvideo.is_streaming = true;
 
 #if VIEWVIDEO_USE_NETCAT
   // Create an Netcat receiver file for the streaming

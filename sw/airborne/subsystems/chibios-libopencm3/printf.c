@@ -52,7 +52,7 @@ static bool writeBufferWithinSize (char **buffer, const char c, size_t *size)
     (*buffer)++;
     return (--(*size) == 0);
   } else {
-    return TRUE;
+    return true;
   }
 }
 
@@ -154,10 +154,10 @@ void chvprintf(BaseSequentialStream *chp, const char *fmt, va_list ap) {
     }
     p = tmpbuf;
     s = tmpbuf;
-    left_align = FALSE;
+    left_align = false;
     if (*fmt == '-') {
       fmt++;
-      left_align = TRUE;
+      left_align = true;
     }
     filler = ' ';
     if (*fmt == '.') {
@@ -198,7 +198,7 @@ void chvprintf(BaseSequentialStream *chp, const char *fmt, va_list ap) {
     }
     /* Long modifier.*/
     if (c == 'l' || c == 'L') {
-      is_long = TRUE;
+      is_long = true;
       if (*fmt)
         c = *fmt++;
     }
@@ -314,10 +314,10 @@ void chvsnprintf(char *buffer, size_t size, const char *fmt, va_list ap) {
     }
     p = tmpbuf;
     s = tmpbuf;
-    left_align = FALSE;
+    left_align = false;
     if (*fmt == '-') {
       fmt++;
-      left_align = TRUE;
+      left_align = true;
     }
     filler = ' ';
     if (*fmt == '.') {
@@ -357,7 +357,7 @@ void chvsnprintf(char *buffer, size_t size, const char *fmt, va_list ap) {
     }
     /* Long modifier.*/
     if (c == 'l' || c == 'L') {
-      is_long = TRUE;
+      is_long = true;
       if (*fmt)
         c = *fmt++;
     }

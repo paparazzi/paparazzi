@@ -168,7 +168,7 @@ bool nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float O
   CSurveyStatus = Init;
 
   if (Size == 0) {
-    return TRUE;
+    return true;
   }
 
   //Don't initialize if Polygon is too big or if the orientation is not between 0 and 90
@@ -329,7 +329,7 @@ bool nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float O
     LINE_STOP_FUNCTION;
   }
 
-  return FALSE;
+  return false;
 }
 
 bool nav_survey_poly_osam_run(void)
@@ -341,7 +341,7 @@ bool nav_survey_poly_osam_run(void)
   static struct Point2D LastPoint;
   int i;
   bool LastHalfSweep;
-  static bool HalfSweep = FALSE;
+  static bool HalfSweep = false;
   float XIntercept1 = 0;
   float XIntercept2 = 0;
   float DInt1 = 0;
@@ -412,10 +412,10 @@ bool nav_survey_poly_osam_run(void)
           if (LastPoint.y + (dSweep / 2) >= MaxY || LastPoint.y + (dSweep / 2) <= 0) { //Sweep back
             dSweep = -dSweep;
             if (LastHalfSweep) {
-              HalfSweep = FALSE;
+              HalfSweep = false;
               ys = LastPoint.y + (dSweep);
             } else {
-              HalfSweep = TRUE;
+              HalfSweep = true;
               ys = LastPoint.y + (dSweep / 2);
             }
 
@@ -433,13 +433,13 @@ bool nav_survey_poly_osam_run(void)
             } else {
               SurveyCircleQdr = 180 - DegOfRad(SurveyTheta);
             }
-            HalfSweep = TRUE;
+            HalfSweep = true;
           }
 
 
         } else { // Normal sweep
           //Find y value of the first sweep
-          HalfSweep = FALSE;
+          HalfSweep = false;
           ys = LastPoint.y + dSweep;
         }
 
@@ -547,11 +547,11 @@ bool nav_survey_poly_osam_run(void)
       }
       break;
     case Init:
-      return FALSE;
+      return false;
     default:
-      return FALSE;
+      return false;
   }
-  return TRUE;
+  return true;
 }
 
 

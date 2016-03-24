@@ -206,7 +206,7 @@ bool compute_alignment(uint8_t w1, uint8_t w2, uint8_t wp_before, uint8_t wp_aft
   waypoints[wp_after].x = waypoints[w2].x + d_after * x_0;
   waypoints[wp_after].y = waypoints[w2].y + d_after * y_0;
 
-  return FALSE;
+  return false;
 }
 
 #endif /* WP_RELEASE */

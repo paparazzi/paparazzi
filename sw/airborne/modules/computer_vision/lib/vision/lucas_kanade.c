@@ -124,7 +124,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
     // (a * Ax + (1-a) * Ax+1)  - (a * Bx + (1-a) * Bx+1)
 
     // (4) iterate over taking steps in the image to minimize the error:
-    bool tracked = TRUE;
+    bool tracked = true;
     for (uint8_t it = 0; it < max_iterations; it++) {
       struct point_t new_point =  {
         vectors[new_p].pos.x + vectors[new_p].flow_x,
@@ -133,7 +133,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
       // If the pixel is outside ROI, do not track it
       if (new_point.x / subpixel_factor < half_window_size || (old_img->w - new_point.x / subpixel_factor) < half_window_size
           || new_point.y / subpixel_factor < half_window_size || (old_img->h - new_point.y / subpixel_factor) < half_window_size) {
-        tracked = FALSE;
+        tracked = false;
         break;
       }
 
@@ -143,7 +143,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
       //     [b] determine the image difference between the two neighborhoods
       uint32_t error = image_difference(&window_I, &window_J, &window_diff);
       if (error > error_threshold && it > max_iterations / 2) {
-        tracked = FALSE;
+        tracked = false;
         break;
       }
 

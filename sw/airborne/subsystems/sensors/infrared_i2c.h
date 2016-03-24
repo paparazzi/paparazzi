@@ -52,8 +52,8 @@ extern void infrared_i2c_ver_event(void);
 #define infrared_i2cDownlink() DOWNLINK_SEND_DEBUG_IR_I2C(DefaultChannel, DefaultDevice, &ir_i2c.ir1, &ir_i2c.ir2, &ir_i2c.ir3)
 
 #define infrared_i2c_SetConfWord(_v) { \
-    ir_i2c_conf_hor_done = FALSE; \
-    ir_i2c_conf_ver_done = FALSE; \
+    ir_i2c_conf_hor_done = false; \
+    ir_i2c_conf_ver_done = false; \
     ir_i2c_conf_word = _v; \
   }
 

@@ -24,7 +24,7 @@ bool nav_anemotaxis_downwind(uint8_t c, float radius)
   float wind_dir = atan2(wind->x, wind->y);
   waypoints[c].x = waypoints[WP_HOME].x + radius * cos(wind_dir);
   waypoints[c].y = waypoints[WP_HOME].y + radius * sin(wind_dir);
-  return FALSE;
+  return false;
 }
 
 bool nav_anemotaxis_init(uint8_t c)
@@ -36,7 +36,7 @@ bool nav_anemotaxis_init(uint8_t c)
   waypoints[c].x = stateGetPositionEnu_f()->x + DEFAULT_CIRCLE_RADIUS * cos(wind_dir + M_PI);
   waypoints[c].y = stateGetPositionEnu_f()->y + DEFAULT_CIRCLE_RADIUS * sin(wind_dir + M_PI);
   last_plume_was_here();
-  return FALSE;
+  return false;
 }
 
 bool nav_anemotaxis(uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume)
@@ -104,5 +104,5 @@ bool nav_anemotaxis(uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume)
       break;
   }
   chemo_sensor = 0;
-  return TRUE;
+  return true;
 }

@@ -88,7 +88,7 @@ void ins_xsens700_event(void)
   if (xsens700.msg_received) {
     parse_xsens700_msg();
     handle_ins_msg();
-    xsens700.msg_received = FALSE;
+    xsens700.msg_received = false;
   }
 }
 
@@ -170,8 +170,8 @@ void handle_ins_msg(void)
   update_state_interface();
 
   if (xsens700.new_attitude) {
-    new_ins_attitude = TRUE;
-    xsens700.new_attitude = FALSE;
+    new_ins_attitude = true;
+    xsens700.new_attitude = false;
   }
 
 #if USE_GPS_XSENS
@@ -189,7 +189,7 @@ void handle_ins_msg(void)
     SetBit(xsens700.gps.valid_fields, GPS_VALID_COURSE_BIT);
 
     gps_xsens700_publish();
-    xsens700.gps_available = FALSE;
+    xsens700.gps_available = false;
   }
 #endif // USE_GPS_XSENS
 }

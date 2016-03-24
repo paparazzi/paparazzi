@@ -60,7 +60,7 @@ void temod_init(void)
   tmd_trans.status = I2CTransDone;
 
 #if TEMP_TEMOD_SDLOG
-  log_temod_started = FALSE;
+  log_temod_started = false;
 #endif
 }
 
@@ -91,7 +91,7 @@ void temod_event(void)
   if (pprzLogFile != -1) {
     if (!log_temod_started) {
       sdLogWriteLog(pprzLogFile, "TEMOD: Temp(degC) GPS_fix TOW(ms) Week Lat(1e7deg) Lon(1e7deg) HMSL(mm) gspeed(cm/s) course(1e7deg) climb(cm/s)\n");
-      log_temod_started = TRUE;
+      log_temod_started = true;
     }
     else {
       sdLogWriteLog(pprzLogFile, "temod: %9.4f    %d %d %d   %d %d %d   %d %d %d\n",

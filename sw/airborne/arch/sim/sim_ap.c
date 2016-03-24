@@ -138,7 +138,7 @@ value set_datalink_message(value s)
     dl_buffer[i] = ss[i];
   }
 
-  dl_msg_available = TRUE;
+  dl_msg_available = true;
   DlCheckAndParse();
 
   return Val_unit;

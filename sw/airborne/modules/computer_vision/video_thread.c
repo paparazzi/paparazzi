@@ -175,7 +175,7 @@ static void *video_thread_function(void *data)
   clock_gettime(CLOCK_MONOTONIC, &time_prev);
 
   // Start streaming
-  video_thread.is_running = TRUE;
+  video_thread.is_running = true;
   while (video_thread.is_running) {
 
     // get time in us since last run
@@ -212,7 +212,7 @@ static void *video_thread_function(void *data)
     // Check if we need to take a shot
     if (video_thread.take_shot) {
       video_thread_save_shot(img_final, &img_jpeg);
-      video_thread.take_shot = FALSE;
+      video_thread.take_shot = false;
     }
 
     // Run processing if required
@@ -290,7 +290,7 @@ void video_thread_stop(void)
   }
 
   // Stop the streaming thread
-  video_thread.is_running = FALSE;
+  video_thread.is_running = false;
 
   // Stop the capturing
   if (!v4l2_stop_capture(video_thread.dev)) {

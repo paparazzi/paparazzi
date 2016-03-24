@@ -118,7 +118,7 @@ bool nav_survey_zamboni_setup(uint8_t center_wp, uint8_t dir_wp, float sweep_len
 
   zs.stage = Z_ENTRY;
 
-  return FALSE;
+  return false;
 }
 
 /**
@@ -211,8 +211,8 @@ bool nav_survey_zamboni_run(void)
 #ifdef DIGITAL_CAM
     LINE_STOP_FUNCTION;
 #endif
-    return FALSE;
+    return false;
   } else {
-    return TRUE;
+    return true;
   }
 }

@@ -101,16 +101,16 @@ extern bool nav_set_heading_current(void);
 #define CARROT 0
 #endif
 
-#define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); } FALSE; })
-#define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); } FALSE; })
+#define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); } false; })
+#define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); } false; })
 
 
-#define NavSetGroundReferenceHere() ({ nav_reset_reference(); FALSE; })
-#define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); FALSE; })
+#define NavSetGroundReferenceHere() ({ nav_reset_reference(); false; })
+#define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); false; })
 
-#define NavSetWaypointHere(_wp) ({ waypoint_set_here_2d(_wp); FALSE; })
-#define NavCopyWaypoint(_wp1, _wp2) ({ waypoint_copy(_wp1, _wp2); FALSE; })
-#define NavCopyWaypointPositionOnly(_wp1, _wp2) ({ waypoint_position_copy(_wp1, _wp2); FALSE; })
+#define NavSetWaypointHere(_wp) ({ waypoint_set_here_2d(_wp); false; })
+#define NavCopyWaypoint(_wp1, _wp2) ({ waypoint_copy(_wp1, _wp2); false; })
+#define NavCopyWaypointPositionOnly(_wp1, _wp2) ({ waypoint_position_copy(_wp1, _wp2); false; })
 
 /** Normalize a degree angle between 0 and 359 */
 #define NormCourse(x) { \
@@ -200,7 +200,7 @@ bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
     nav_roll = ANGLE_BFP_OF_REAL(_roll); \
   }
 
-#define NavStartDetectGround() ({ autopilot_detect_ground_once = TRUE; FALSE; })
+#define NavStartDetectGround() ({ autopilot_detect_ground_once = true; false; })
 #define NavDetectGround() nav_detect_ground()
 
 #define nav_IncreaseShift(x) {}

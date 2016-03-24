@@ -150,7 +150,7 @@ void gsm_init(void)
     //
     //  Send_AT();
     //  gsm_status = STATUS_SEND_AT;
-    //  gsm_gsm_init_status = FALSE;
+    //  gsm_gsm_init_status = false;
   }
   gcs_index = 0;
   gcs_index_max = 0;
@@ -170,7 +170,7 @@ void gsm_init_report(void)   /* Second call */
 
     Send_AT();
     gsm_status = STATUS_SEND_AT;
-    gsm_gsm_init_report_status = FALSE;
+    gsm_gsm_init_report_status = false;
   }
 }
 

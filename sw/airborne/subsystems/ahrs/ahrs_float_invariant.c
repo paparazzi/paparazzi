@@ -150,8 +150,8 @@ void ahrs_float_invariant_init(void)
   ahrs_float_inv.gains.n   = AHRS_INV_N;
   ahrs_float_inv.gains.o   = AHRS_INV_O;
 
-  ahrs_float_inv.is_aligned = FALSE;
-  ahrs_float_inv.reset = FALSE;
+  ahrs_float_inv.is_aligned = false;
+  ahrs_float_inv.reset = false;
 }
 
 void ahrs_float_invariant_align(struct FloatRates *lp_gyro,
@@ -165,7 +165,7 @@ void ahrs_float_invariant_align(struct FloatRates *lp_gyro,
   ahrs_float_inv.state.bias = *lp_gyro;
 
   // ins and ahrs are now running
-  ahrs_float_inv.is_aligned = TRUE;
+  ahrs_float_inv.is_aligned = true;
 }
 
 void ahrs_float_invariant_propagate(struct FloatRates* gyro, float dt)
@@ -173,8 +173,8 @@ void ahrs_float_invariant_propagate(struct FloatRates* gyro, float dt)
   // realign all the filter if needed
   // a complete init cycle is required
   if (ahrs_float_inv.reset) {
-    ahrs_float_inv.reset = FALSE;
-    ahrs_float_inv.is_aligned = FALSE;
+    ahrs_float_inv.reset = false;
+    ahrs_float_inv.is_aligned = false;
     init_invariant_state();
   }
 

@@ -113,13 +113,13 @@ void stereocam_droplet_periodic(void)
   // Results
   DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, 1, avoid_navigation_data.stereo_bin);
 
-  volatile bool once = TRUE;
+  volatile bool once = true;
   // Move waypoint with constant speed in current direction
   if (
     (avoid_navigation_data.stereo_bin[0] == 97) ||
     (avoid_navigation_data.stereo_bin[0] == 100)
   ) {
-    once = TRUE;
+    once = true;
     struct EnuCoor_f enu;
     enu.x = waypoint_get_x(WP_GOAL);
     enu.y = waypoint_get_y(WP_GOAL);
@@ -133,10 +133,10 @@ void stereocam_droplet_periodic(void)
     // STOP!!!
     if (once) {
       NavSetWaypointHere(WP_GOAL);
-      once = FALSE;
+      once = false;
     }
   } else {
-    once = TRUE;
+    once = true;
   }
 
 

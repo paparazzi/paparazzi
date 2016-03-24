@@ -89,10 +89,10 @@ void pwm_input_isr1(void)
     T0CCR &= ~TCCR_CR3_F;
 #if USE_PWM_INPUT1 == PWM_PULSE_TYPE_ACTIVE_HIGH
     pwm_input_duty_tics[0] = t_fall - t_rise;
-    pwm_input_duty_valid[0] = TRUE;
+    pwm_input_duty_valid[0] = true;
 #elif USE_PWM_INPUT1 == PWM_PULSE_TYPE_ACTIVE_LOW
     pwm_input_period_tics[0] = t_fall - t_oldfall;
-    pwm_input_period_valid[0] = TRUE;
+    pwm_input_period_valid[0] = true;
     t_oldfall = t_fall;
 #endif //ACTIVE_HIGH
   } else if (T0CCR & TCCR_CR3_R) {
@@ -101,10 +101,10 @@ void pwm_input_isr1(void)
     T0CCR &= ~TCCR_CR3_R;
 #if USE_PWM_INPUT1 == PWM_PULSE_TYPE_ACTIVE_LOW
     pwm_input_duty_tics[0] = t_rise - t_fall;
-    pwm_input_duty_valid[0] = TRUE;
+    pwm_input_duty_valid[0] = true;
 #elif USE_PWM_INPUT1 == PWM_PULSE_TYPE_ACTIVE_HIGH
     pwm_input_period_tics[0] = t_rise - t_oldrise;
-    pwm_input_period_valid[0] = TRUE;
+    pwm_input_period_valid[0] = true;
     t_oldrise = t_rise;
 #endif //ACTIVE_LOW
   }
@@ -128,10 +128,10 @@ void pwm_input_isr2(void)
     T0CCR &= ~TCCR_CR0_F;
 #if USE_PWM_INPUT2 == PWM_PULSE_TYPE_ACTIVE_HIGH
     pwm_input_duty_tics[1] = t_fall - t_rise;
-    pwm_input_duty_valid[1] = TRUE;
+    pwm_input_duty_valid[1] = true;
 #elif USE_PWM_INPUT2 == PWM_PULSE_TYPE_ACTIVE_LOW
     pwm_input_period_tics[1] = t_fall - t_oldfall;
-    pwm_input_period_valid[1] = TRUE;
+    pwm_input_period_valid[1] = true;
     t_oldfall = t_fall;
 #endif //ACTIVE_HIGH
   } else if (T0CCR & TCCR_CR0_R) {
@@ -140,10 +140,10 @@ void pwm_input_isr2(void)
     T0CCR &= ~TCCR_CR0_R;
 #if USE_PWM_INPUT2 == PWM_PULSE_TYPE_ACTIVE_LOW
     pwm_input_duty_tics[1] = t_rise - t_fall;
-    pwm_input_duty_valid[1] = TRUE;
+    pwm_input_duty_valid[1] = true;
 #elif USE_PWM_INPUT2 == PWM_PULSE_TYPE_ACTIVE_HIGH
     pwm_input_period_tics[1] = t_rise - t_oldrise;
-    pwm_input_period_valid[1] = TRUE;
+    pwm_input_period_valid[1] = true;
     t_oldrise = t_rise;
 #endif //ACTIVE_LOW
   }

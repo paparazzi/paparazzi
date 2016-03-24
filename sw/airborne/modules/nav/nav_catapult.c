@@ -51,7 +51,7 @@
 #include "subsystems/datalink/datalink.h"
 
 
-static bool nav_catapult_armed = FALSE;
+static bool nav_catapult_armed = false;
 static uint16_t nav_catapult_launch = 0;
 
 #ifndef NAV_CATAPULT_ACCELERATION_THRESHOLD
@@ -134,10 +134,10 @@ void nav_catapult_highrate_module(void)
 bool nav_catapult_setup(void)
 {
 
-  nav_catapult_armed = TRUE;
+  nav_catapult_armed = true;
   nav_catapult_launch = 0;
 
-  return FALSE;
+  return false;
 }
 
 
@@ -191,7 +191,7 @@ bool nav_catapult_run(uint8_t _to, uint8_t _climb)
   }
 
 
-  return TRUE;
+  return true;
 
 }
 
@@ -200,6 +200,6 @@ bool nav_select_touch_down(uint8_t _td)
   WaypointX(_td) = stateGetPositionEnu_f()->x;
   WaypointY(_td) = stateGetPositionEnu_f()->y;
   WaypointAlt(_td) = stateGetPositionUtm_f()->alt;
-  return FALSE;
+  return false;
 }
 

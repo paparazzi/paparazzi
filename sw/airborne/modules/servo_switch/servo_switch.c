@@ -31,7 +31,7 @@ bool servo_switch_on;
 
 void servo_switch_init(void)
 {
-  servo_switch_on = FALSE;
+  servo_switch_on = false;
   servo_switch_periodic();
 }
 

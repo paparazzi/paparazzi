@@ -75,7 +75,7 @@ EXTERN bool datalink_enabled;
   for (_i = 0; _i < _len; _i++) { \
     dl_buffer[_i] = _buf[_i]; \
   } \
-  dl_msg_available = TRUE; \
+  dl_msg_available = true; \
 }
 
 /** Check for new message and parse */
@@ -92,7 +92,7 @@ static inline void DlCheckAndParse(void)
     datalink_time = 0;
     datalink_nb_msgs++;
     dl_parse_msg();
-    dl_msg_available = FALSE;
+    dl_msg_available = false;
   }
 }
 
@@ -106,7 +106,7 @@ static inline void DlCheckAndParse(void)
 #elif defined DATALINK && DATALINK == XBEE
 
 #define DatalinkEvent() {                       \
-    xbee_check_and_parse(&(XBEE_UART).device, &xbee_tp, dl_buffer, (uint8_t*)(&dl_msg_available));      \
+    xbee_check_and_parse(&(XBEE_UART).device, &xbee_tp, dl_buffer, &dl_msg_available);      \
     DlCheckAndParse();                          \
   }
 

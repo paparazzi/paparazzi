@@ -79,16 +79,16 @@ void link_mcu_event_task(void)
 
     /* A message has been received */
     ComputeChecksum(link_mcu_from_ap_msg);
-    link_mcu_received = TRUE;
+    link_mcu_received = true;
     if (link_mcu_from_ap_msg.checksum == crc) {
-      inter_mcu_received_ap = TRUE;
+      inter_mcu_received_ap = true;
     } else {
       fbw_state->nb_err++;
     }
   }
   if (link_mcu_trans.status == SPITransFailed) {
     link_mcu_trans.status = SPITransDone;
-    link_mcu_received = TRUE;
+    link_mcu_received = true;
     fbw_state->nb_err++;
   }
 }
@@ -153,14 +153,14 @@ void link_mcu_event_task(void)
     /* A message has been received */
     ComputeChecksum(link_mcu_from_fbw_msg);
     if (link_mcu_from_fbw_msg.checksum == crc) {
-      inter_mcu_received_fbw = TRUE;
+      inter_mcu_received_fbw = true;
     } else {
       link_mcu_nb_err++;
     }
   }
   if (link_mcu_trans.status == SPITransFailed) {
     link_mcu_trans.status = SPITransDone;
-    link_mcu_received = TRUE;
+    link_mcu_received = true;
     link_mcu_nb_err++;
   }
 }

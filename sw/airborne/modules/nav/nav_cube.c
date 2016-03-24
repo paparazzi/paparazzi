@@ -138,7 +138,7 @@ bool nav_cube_setup(uint8_t center, uint8_t tb, uint8_t te)
   nav_cube.nline_x--;
   nav_cube.nline_z--;
 
-  return FALSE;
+  return false;
 }
 
 bool nav_cube_run(int8_t j, int8_t i,
@@ -147,10 +147,10 @@ bool nav_cube_run(int8_t j, int8_t i,
 {
 
   if (i > nav_cube.nline_x) {
-    return FALSE;
+    return false;
   }
   if (j > nav_cube.nline_z) {
-    return FALSE;
+    return false;
   }
 
   waypoints[dest_b].x = waypoints[src_b + i].x;
@@ -169,5 +169,5 @@ bool nav_cube_run(int8_t j, int8_t i,
     waypoints[dest_e].a = ground_alt + SECURITY_HEIGHT;
   }
 
-  return FALSE;
+  return false;
 }

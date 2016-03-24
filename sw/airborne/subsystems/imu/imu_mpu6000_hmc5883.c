@@ -104,7 +104,7 @@ void imu_mpu_hmc_event(void)
   if (imu_mpu_hmc.mpu.data_available) {
     RATES_COPY(imu.gyro_unscaled, imu_mpu_hmc.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_mpu_hmc.mpu.data_accel.vect);
-    imu_mpu_hmc.mpu.data_available = FALSE;
+    imu_mpu_hmc.mpu.data_available = false;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_MPU6000_HMC_ID, now_ts, &imu.gyro);
@@ -118,7 +118,7 @@ void imu_mpu_hmc_event(void)
     imu.mag_unscaled.x =  imu_mpu_hmc.hmc.data.vect.y;
     imu.mag_unscaled.y = -imu_mpu_hmc.hmc.data.vect.x;
     imu.mag_unscaled.z =  imu_mpu_hmc.hmc.data.vect.z;
-    imu_mpu_hmc.hmc.data_available = FALSE;
+    imu_mpu_hmc.hmc.data_available = false;
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_MPU6000_HMC_ID, now_ts, &imu.mag);
   }

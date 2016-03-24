@@ -53,7 +53,7 @@ bool nav_survey_disc_setup(float grid)
   disc_survey.sign = 1;
   disc_survey.c1.x = stateGetPositionEnu_f()->x;
   disc_survey.c1.y = stateGetPositionEnu_f()->y;
-  return FALSE;
+  return false;
 }
 
 bool nav_survey_disc_run(uint8_t center_wp, float radius)
@@ -120,5 +120,5 @@ bool nav_survey_disc_run(uint8_t center_wp, float radius)
   NavVerticalAutoThrottleMode(0.); /* No pitch */
   NavVerticalAltitudeMode(WaypointAlt(center_wp), 0.); /* No preclimb */
 
-  return TRUE;
+  return true;
 }

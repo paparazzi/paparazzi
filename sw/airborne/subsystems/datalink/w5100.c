@@ -169,7 +169,7 @@ static inline uint16_t w5100_sock_get16(uint8_t _sock, uint16_t _reg)
 }
 
 // Functions for the generic device API
-static int true_function(struct w5100_periph *p __attribute__((unused)), uint8_t len __attribute__((unused))) { return TRUE; }
+static int true_function(struct w5100_periph *p __attribute__((unused)), uint8_t len __attribute__((unused))) { return true; }
 static void dev_transmit(struct w5100_periph *p __attribute__((unused)), uint8_t byte) {  w5100_transmit(byte); }
 static void dev_send(struct w5100_periph *p __attribute__((unused))) { w5100_send(); }
 static int dev_char_available(struct w5100_periph *p __attribute__((unused))) { return w5100_ch_available; }
@@ -364,9 +364,9 @@ static void configure_socket(uint8_t _s, uint8_t _flag, uint16_t _lport, uint16_
 bool w5100_ch_available()
 {
   if (w5100_rx_size(CMD_SOCKET) > 0) {
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 uint16_t w5100_receive(uint8_t *buf, uint16_t len __attribute__((unused)))

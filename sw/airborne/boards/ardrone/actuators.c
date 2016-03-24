@@ -169,7 +169,7 @@ int actuators_ardrone_cmd(uint8_t cmd, uint8_t *reply, int replylen)
 void actuators_ardrone_motor_status(void);
 void actuators_ardrone_motor_status(void)
 {
-  static bool last_motor_on = FALSE;
+  static bool last_motor_on = false;
 
   // Reset Flipflop sequence
   static bool reset_flipflop_counter = 0;

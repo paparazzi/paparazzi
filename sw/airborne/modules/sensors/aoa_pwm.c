@@ -102,7 +102,7 @@ void aoa_pwm_init(void)
   aoa_pwm.angle = 0.0f;
   aoa_pwm.raw = 0.0f;
 #if LOG_AOA
-  log_started = FALSE;
+  log_started = false;
 #endif
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AOA, send_aoa);
@@ -136,7 +136,7 @@ void aoa_pwm_update(void) {
   if(pprzLogFile != -1) {
     if (!log_started) {
       sdLogWriteLog(pprzLogFile, "AOA_PWM: ANGLE(deg) RAW(int16)\n");
-      log_started = TRUE;
+      log_started = true;
     } else {
       float angle = DegOfRad(aoa_pwm.angle);
       sdLogWriteLog(pprzLogFile, "AOA_PWM: %.3f %d\n", angle, aoa_pwm.raw);

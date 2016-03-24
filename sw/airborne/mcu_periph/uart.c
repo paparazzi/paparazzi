@@ -236,7 +236,7 @@ void uart_periph_init(struct uart_periph *p)
   p->rx_extract_idx = 0;
   p->tx_insert_idx = 0;
   p->tx_extract_idx = 0;
-  p->tx_running = FALSE;
+  p->tx_running = false;
   p->ore = 0;
   p->ne_err = 0;
   p->fe_err = 0;

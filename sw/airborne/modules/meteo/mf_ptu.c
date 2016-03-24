@@ -89,7 +89,7 @@ void mf_ptu_init(void)
   humid_period = 0;
 
 #if LOG_PTU
-  log_ptu_started = FALSE;
+  log_ptu_started = false;
 #endif
 }
 
@@ -107,7 +107,7 @@ void mf_ptu_periodic(void)
     if (!log_ptu_started) {
       sdLogWriteLog(pprzLogFile,
                     "P(adc) T(adc) H(usec) GPS_fix TOW(ms) Week Lat(1e7rad) Lon(1e7rad) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
-      log_ptu_started = TRUE;
+      log_ptu_started = true;
     } else {
       sdLogWriteLog(pprzLogFile, "%d %d %d %d %d %d %d %d %d %d %d %d\n",
                     pressure_adc, temp_adc, humid_period,

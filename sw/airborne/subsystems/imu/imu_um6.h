@@ -106,7 +106,7 @@ static inline void imu_um6_event(void)
       UM6_packet_parse(uart_getch(&(UM6_LINK)));
     }
     if (UM6_packet.msg_available) {
-      UM6_packet.msg_available = FALSE;
+      UM6_packet.msg_available = false;
       UM6_packet_read_message();
       imu_um6_publish();
     }

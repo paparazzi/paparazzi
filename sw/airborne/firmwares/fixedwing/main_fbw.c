@@ -71,7 +71,7 @@ pprz_t command_yaw_trim;
 
 volatile uint8_t fbw_new_actuators = 0;
 
-uint8_t ap_has_been_ok = FALSE;
+uint8_t ap_has_been_ok = false;
 
 tid_t fbw_periodic_tid;  ///< id for periodic_task_fbw() timer
 tid_t electrical_tid;   ///< id for electrical_periodic() timer
@@ -211,7 +211,7 @@ void post_inter_mcu_received_ap(void) {};
 void pre_inter_mcu_received_ap(void)
 {
   if (ap_ok) {
-    ap_has_been_ok = TRUE;
+    ap_has_been_ok = true;
   }
   if ((ap_has_been_ok) && (!ap_ok)) {
     commands[COMMAND_FORCECRASH] = 9600;
@@ -275,7 +275,7 @@ void inter_mcu_event_handle(void)
   pre_inter_mcu_received_ap();
 
   if (inter_mcu_received_ap) {
-    inter_mcu_received_ap = FALSE;
+    inter_mcu_received_ap = false;
     inter_mcu_event_task();
     command_roll_trim = ap_state->command_roll_trim;
     command_pitch_trim = ap_state->command_pitch_trim;
@@ -303,7 +303,7 @@ void inter_mcu_event_handle(void)
 
 #ifdef MCU_SPI_LINK
   if (link_mcu_received) {
-    link_mcu_received = FALSE;
+    link_mcu_received = false;
     inter_mcu_fill_fbw_state(); /** Prepares the next message for AP */
     link_mcu_restart(); /** Prepares the next SPI communication */
   }

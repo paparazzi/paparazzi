@@ -146,7 +146,7 @@ void imu_impl_init(void)
   imu_aspirin2.wait_slave4_trans.output_buf = &(imu_aspirin2.wait_slave4_tx_buf[0]);
 
   imu_aspirin2.wait_slave4_trans.status = SPITransDone;
-  imu_aspirin2.slave4_ready = FALSE;
+  imu_aspirin2.slave4_ready = false;
 #endif
 }
 
@@ -233,7 +233,7 @@ void imu_aspirin2_event(void)
 #endif
 #endif
 
-    imu_aspirin2.mpu.data_available = FALSE;
+    imu_aspirin2.mpu.data_available = false;
 
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
@@ -261,7 +261,7 @@ bool imu_aspirin2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu)
   // wait before starting the configuration of the HMC58xx mag
   // doing to early may void the mode configuration
   if (get_sys_time_float() < ASPIRIN_2_MAG_STARTUP_DELAY) {
-    return FALSE;
+    return false;
   }
 
   mpu_set_and_wait(mpu_set, mpu, MPU60X0_REG_I2C_SLV4_ADDR, (HMC58XX_ADDR >> 1));
@@ -290,7 +290,7 @@ bool imu_aspirin2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu)
                    (1 << 7) |    // Slave 0 enable
                    (6 << 0));    // Read 6 bytes
 
-  return TRUE;
+  return true;
 }
 
 void mpu_wait_slave4_ready(void)
@@ -306,9 +306,9 @@ void mpu_wait_slave4_ready(void)
 void mpu_wait_slave4_ready_cb(struct spi_transaction *t)
 {
   if (bit_is_set(t->input_buf[1], MPU60X0_I2C_SLV4_DONE)) {
-    imu_aspirin2.slave4_ready = TRUE;
+    imu_aspirin2.slave4_ready = true;
   } else {
-    imu_aspirin2.slave4_ready = FALSE;
+    imu_aspirin2.slave4_ready = false;
   }
   t->status = SPITransDone;
 }

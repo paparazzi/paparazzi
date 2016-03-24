@@ -263,7 +263,7 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
     case 3:
       if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
         gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
-        return FALSE;
+        return false;
       }
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B9600); // Maybe the factory default?
@@ -272,7 +272,7 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
     case 4:
       if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
         gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
-        return FALSE;
+        return false;
       }
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B57600); // The high-rate default?
@@ -281,7 +281,7 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
     case 5:
       if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
         gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
-        return FALSE;
+        return false;
       }
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B4800); // Default NMEA baudrate?
@@ -290,7 +290,7 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
     case 6:
       if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
         gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
-        return FALSE;
+        return false;
       }
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B115200); // Last possible option for ublox
@@ -299,7 +299,7 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
      case 7:
       if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
         gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
-        return FALSE;
+        return false;
       }
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B230400); // Last possible option for ublox
@@ -308,18 +308,18 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
     case 8:
       if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
         gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
-        return FALSE;
+        return false;
       }
 
       // Autoconfig Failed... let's setup the failsafe baudrate
       // Should we try even a different baudrate?
       gps_ubx_ucenter.baud_init = 0; // Set as zero to indicate that we couldn't verify the baudrate
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B9600);
-      return FALSE;
+      return false;
     default:
       break;
   }
-  return TRUE;
+  return true;
 }
 #endif /* GPS_I2C */
 /////////////////////////////////////
@@ -574,11 +574,11 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
         DEBUG_PRINT("%u\n", gps_ubx_ucenter.replies[i]);
       }
 #endif
-      return FALSE;
+      return false;
     default:
       break;
   }
 
   gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
-  return TRUE; // Continue, except for the last case
+  return true; // Continue, except for the last case
 }

@@ -175,15 +175,15 @@ void autopilot_send_mode(void)
 void autopilot_init(void)
 {
   pprz_mode = PPRZ_MODE_AUTO2;
-  kill_throttle = FALSE;
-  launch = FALSE;
+  kill_throttle = false;
+  launch = false;
   autopilot_flight_time = 0;
 
   lateral_mode = LATERAL_MODE_MANUAL;
 
-  gps_lost = FALSE;
+  gps_lost = false;
 
-  power_switch = FALSE;
+  power_switch = false;
 #ifdef POWER_SWITCH_GPIO
   gpio_setup_output(POWER_SWITCH_GPIO);
   gpio_clear(POWER_SWITCH_GPIO);

@@ -22,7 +22,7 @@ bool nav_chemotaxis_init(uint8_t c, uint8_t plume)
   sign = 1;
   waypoints[plume].x = waypoints[c].x;
   waypoints[plume].y = waypoints[c].y;
-  return FALSE;
+  return false;
 }
 
 bool nav_chemotaxis(uint8_t c, uint8_t plume)
@@ -53,5 +53,5 @@ bool nav_chemotaxis(uint8_t c, uint8_t plume)
   }
 
   NavCircleWaypoint(c, radius);
-  return TRUE;
+  return true;
 }

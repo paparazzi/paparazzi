@@ -182,7 +182,7 @@ void nav_init(void)
   nav_leg_progress = 0;
   nav_leg_length = 1;
 
-  too_far_from_home = FALSE;
+  too_far_from_home = false;
   dist2_to_home = 0;
   dist2_to_wp = 0;
 
@@ -328,7 +328,7 @@ bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t 
 
   /* return TRUE if we have arrived */
   if (dist_to_point < BFP_OF_REAL(ARRIVED_AT_WAYPOINT, INT32_POS_FRAC / 2)) {
-    return TRUE;
+    return true;
   }
 
   /* if coming from a valid waypoint */
@@ -340,7 +340,7 @@ bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t 
     return (diff.x * from_diff.x + diff.y * from_diff.y < 0);
   }
 
-  return FALSE;
+  return false;
 }
 
 bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
@@ -348,12 +348,12 @@ bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
   uint16_t time_at_wp;
   uint32_t dist_to_point;
   static uint16_t wp_entry_time = 0;
-  static bool wp_reached = FALSE;
+  static bool wp_reached = false;
   static struct EnuCoor_i wp_last = { 0, 0, 0 };
   struct Int32Vect2 diff;
 
   if ((wp_last.x != wp->x) || (wp_last.y != wp->y)) {
-    wp_reached = FALSE;
+    wp_reached = false;
     wp_last = *wp;
   }
   VECT2_DIFF(diff, *wp, *stateGetPositionEnu_i());
@@ -361,7 +361,7 @@ bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
   dist_to_point = int32_vect2_norm(&diff);
   if (dist_to_point < BFP_OF_REAL(ARRIVED_AT_WAYPOINT, INT32_POS_FRAC / 2)) {
     if (!wp_reached) {
-      wp_reached = TRUE;
+      wp_reached = true;
       wp_entry_time = autopilot_flight_time;
       time_at_wp = 0;
     } else {
@@ -369,13 +369,13 @@ bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
     }
   } else {
     time_at_wp = 0;
-    wp_reached = FALSE;
+    wp_reached = false;
   }
   if (time_at_wp > stay_time) {
     INT_VECT3_ZERO(wp_last);
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 static inline void nav_set_altitude(void)
@@ -417,7 +417,7 @@ void nav_periodic_task(void)
 {
   RunOnceEvery(NAV_FREQ, { stage_time++;  block_time++; });
 
-  nav_survey_active = FALSE;
+  nav_survey_active = false;
 
   dist2_to_wp = 0;
 
@@ -454,9 +454,9 @@ void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int
 
 bool nav_detect_ground(void)
 {
-  if (!autopilot_ground_detected) { return FALSE; }
-  autopilot_ground_detected = FALSE;
-  return TRUE;
+  if (!autopilot_ground_detected) { return false; }
+  autopilot_ground_detected = false;
+  return true;
 }
 
 bool nav_is_in_flight(void)
@@ -510,7 +510,7 @@ bool nav_set_heading_rad(float rad)
 {
   nav_heading = ANGLE_BFP_OF_REAL(rad);
   INT32_COURSE_NORMALIZE(nav_heading);
-  return FALSE;
+  return false;
 }
 
 /** Set nav_heading in degrees. */
@@ -532,7 +532,7 @@ bool nav_set_heading_towards(float x, float y)
   }
   // return false so it can be called from the flightplan
   // meaning it will continue to the next stage
-  return FALSE;
+  return false;
 }
 
 /** Set heading in the direction of a waypoint */
@@ -545,5 +545,5 @@ bool nav_set_heading_towards_waypoint(uint8_t wp)
 bool nav_set_heading_current(void)
 {
   nav_heading = stateGetNedToBodyEulers_i()->psi;
-  return FALSE;
+  return false;
 }

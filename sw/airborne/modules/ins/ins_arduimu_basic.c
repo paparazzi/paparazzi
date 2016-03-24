@@ -89,10 +89,10 @@ void ArduIMU_init(void)
 
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-  arduimu_calibrate_neutrals = FALSE;
+  arduimu_calibrate_neutrals = false;
 
-  high_accel_done = FALSE;
-  high_accel_flag = FALSE;
+  high_accel_done = false;
+  high_accel_flag = false;
 }
 
 #define FillBufWith32bit(_buf, _index, _value) {  \
@@ -113,14 +113,14 @@ void ArduIMU_periodicGPS(void)
   //  - high thrust
   float speed = stateGetHorizontalSpeedNorm_f();
   if (speed < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
-    high_accel_flag = TRUE;
+    high_accel_flag = true;
   } else {
-    high_accel_flag = FALSE;
+    high_accel_flag = false;
     if (speed > HIGH_ACCEL_LOW_SPEED && !high_accel_done) {
-      high_accel_done = TRUE; // After takeoff, don't use high accel before landing (GS small, Throttle small)
+      high_accel_done = true; // After takeoff, don't use high accel before landing (GS small, Throttle small)
     }
     if (speed < HIGH_ACCEL_HIGH_THRUST_RESUME && ap_state->commands[COMMAND_THROTTLE] < HIGH_ACCEL_HIGH_THRUST_RESUME) {
-      high_accel_done = FALSE; // Activate high accel after landing
+      high_accel_done = false; // Activate high accel after landing
     }
   }
 #endif
@@ -135,7 +135,7 @@ void ArduIMU_periodicGPS(void)
   i2c_transmit(&ARDUIMU_I2C_DEV, &ardu_gps_trans, ArduIMU_SLAVE_ADDR, 15);
 
   // Reset calibration flag
-  if (arduimu_calibrate_neutrals) { arduimu_calibrate_neutrals = FALSE; }
+  if (arduimu_calibrate_neutrals) { arduimu_calibrate_neutrals = false; }
 }
 
 void ArduIMU_periodic(void)

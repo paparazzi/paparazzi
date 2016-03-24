@@ -120,7 +120,7 @@ void opticflow_module_init(void)
 
   // Initialize the opticflow calculation
   opticflow_calc_init(&opticflow, 320, 240);
-  opticflow_got_result = FALSE;
+  opticflow_got_result = false;
 
 #ifdef OPTICFLOW_SUBDEV
   PRINT_CONFIG_MSG("[opticflow_module] Configuring a subdevice!")
@@ -182,7 +182,7 @@ void opticflow_module_run(void)
                                   opticflow_result.noise_measurement
                                  );
     }
-    opticflow_got_result = FALSE;
+    opticflow_got_result = false;
   }
   pthread_mutex_unlock(&opticflow_mutex);
 }
@@ -262,7 +262,7 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
     // Copy the result if finished
     pthread_mutex_lock(&opticflow_mutex);
     memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
-    opticflow_got_result = TRUE;
+    opticflow_got_result = true;
     pthread_mutex_unlock(&opticflow_mutex);
 
 #if OPTICFLOW_DEBUG

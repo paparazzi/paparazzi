@@ -85,7 +85,7 @@ bool nav_flower_setup(uint8_t CenterWP, uint8_t EdgeWP)
 
   CircleX = 0;
   CircleY = 0;
-  return FALSE;
+  return false;
 }
 
 bool nav_flower_run(void)
@@ -94,11 +94,11 @@ bool nav_flower_run(void)
   TransCurrentY = stateGetPositionEnu_f()->y - WaypointY(Center);
   DistanceFromCenter = sqrtf(TransCurrentX * TransCurrentX + TransCurrentY * TransCurrentY);
 
-  bool InCircle = TRUE;
+  bool InCircle = true;
   float CircleTheta;
 
   if (DistanceFromCenter > Flowerradius) {
-    InCircle = FALSE;
+    InCircle = false;
   }
 
   NavVerticalAutoThrottleMode(0); /* No pitch */
@@ -150,5 +150,5 @@ bool nav_flower_run(void)
     default:
       break;
   }
-  return TRUE;
+  return true;
 }

@@ -44,7 +44,7 @@ void i2c_setbitrate(struct i2c_periph *p  __attribute__((unused)), int bitrate _
 
 bool i2c_idle(struct i2c_periph *p __attribute__((unused)))
 {
-  return TRUE;
+  return true;
 }
 
 #pragma GCC diagnostic push
@@ -68,7 +68,7 @@ bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
         /* if write failed, increment error counter queue_full_cnt */
         p->errors->queue_full_cnt++;
         t->status = I2CTransFailed;
-        return TRUE;
+        return true;
       }
       break;
       // Just reading
@@ -79,7 +79,7 @@ bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
         /* if read failed, increment error counter ack_fail_cnt */
         p->errors->ack_fail_cnt++;
         t->status = I2CTransFailed;
-        return TRUE;
+        return true;
       }
       break;
       // First Transmit and then read with repeated start
@@ -96,7 +96,7 @@ bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
         /* if write/read failed, increment error counter miss_start_stop_cnt */
         p->errors->miss_start_stop_cnt++;
         t->status = I2CTransFailed;
-        return TRUE;
+        return true;
       }
       break;
     default:
@@ -105,7 +105,7 @@ bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
 
   // Successfull transfer
   t->status = I2CTransSuccess;
-  return TRUE;
+  return true;
 }
 #pragma GCC diagnostic pop
 

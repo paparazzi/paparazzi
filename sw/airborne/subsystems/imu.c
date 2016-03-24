@@ -192,7 +192,7 @@ void imu_SetBodyToImuCurrent(float set)
       AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
     } else {
       // indicate that we couldn't set to current roll/pitch
-      imu.b2i_set_current = FALSE;
+      imu.b2i_set_current = false;
     }
   } else {
     // reset to BODY_TO_IMU as defined in airframe file

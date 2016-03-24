@@ -62,12 +62,12 @@ int32_t settings_store(void)
     persistent_settings_store();
     if (!persistent_write((void *)&pers_settings, sizeof(struct PersistentSettings))) {
       /* persistent write was successful */
-      settings_store_flag = TRUE;
+      settings_store_flag = true;
       return 0;
     }
   }
 #endif
-  settings_store_flag = FALSE;
+  settings_store_flag = false;
   return -1;
 }
 
@@ -80,11 +80,11 @@ int32_t settings_clear(void)
   if (settings_clear_flag) {
     if (!persistent_clear()) {
       /* clearing all persistent settings was successful */
-      settings_clear_flag = TRUE;
+      settings_clear_flag = true;
       return 0;
     }
   }
 #endif
-  settings_clear_flag = FALSE;
+  settings_clear_flag = false;
   return -1;
 }

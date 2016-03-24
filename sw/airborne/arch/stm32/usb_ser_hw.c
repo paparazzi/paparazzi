@@ -291,7 +291,7 @@ static bool usb_connected;
 // use suspend callback to detect disconnect
 static void suspend_cb(void)
 {
-  usb_connected = FALSE;
+  usb_connected = false;
 }
 
 /**
@@ -312,7 +312,7 @@ static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
                                  cdcacm_control_request);
 
   // use config and suspend callback to detect connect
-  usb_connected = TRUE;
+  usb_connected = true;
   usbd_register_suspend_callback(usbd_dev, suspend_cb);
 }
 
@@ -334,13 +334,13 @@ bool fifo_put(fifo_t *fifo, uint8_t c)
   next = (fifo->head + 1) % VCOM_FIFO_SIZE;
   if (next == fifo->tail) {
     // full
-    return FALSE;
+    return false;
   }
 
   fifo->buf[fifo->head] = c;
   fifo->head = next;
 
-  return TRUE;
+  return true;
 }
 
 
@@ -350,7 +350,7 @@ bool fifo_get(fifo_t *fifo, uint8_t *pc)
 
   // check if FIFO has data
   if (fifo->head == fifo->tail) {
-    return FALSE;
+    return false;
   }
 
   next = (fifo->tail + 1) % VCOM_FIFO_SIZE;
@@ -358,7 +358,7 @@ bool fifo_get(fifo_t *fifo, uint8_t *pc)
   *pc = fifo->buf[fifo->tail];
   fifo->tail = next;
 
-  return TRUE;
+  return true;
 }
 
 
@@ -552,7 +552,7 @@ void VCOM_init(void)
   usbd_register_set_config_callback(my_usbd_dev, cdcacm_set_config);
 
   // disconnected by default
-  usb_connected = FALSE;
+  usb_connected = false;
 
   // Configure generic device
   usb_serial.device.periph = (void *)(&usb_serial);

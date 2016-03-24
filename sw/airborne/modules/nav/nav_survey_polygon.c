@@ -58,15 +58,15 @@ static bool intercept_two_lines(struct FloatVect2 *p, struct FloatVect2 x, struc
   float divider, fac;
 
   divider = (((b2 - a2) * (y.x - x.x)) + ((x.y - y.y) * (b1 - a1)));
-  if (divider == 0) { return FALSE; }
+  if (divider == 0) { return false; }
   fac = ((y.x * (x.y - a2)) + (x.x * (a2 - y.y)) + (a1 * (y.y - x.y))) / divider;
-  if (fac > 1.0) { return FALSE; }
-  if (fac < 0.0) { return FALSE; }
+  if (fac > 1.0) { return false; }
+  if (fac < 0.0) { return false; }
 
   p->x = a1 + fac * (b1 - a1);
   p->y = a2 + fac * (b2 - a2);
 
-  return TRUE;
+  return true;
 }
 
 /**
@@ -103,7 +103,7 @@ static bool get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, struc
   }
 
   if (count != 2) {
-    return FALSE;
+    return false;
   }
 
   //change points
@@ -119,7 +119,7 @@ static bool get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, struc
     *y = tmp;
   }
 
-  return TRUE;
+  return true;
 }
 
 /**
@@ -212,7 +212,7 @@ bool nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float
 
   if (!get_two_intersects(&survey.seg_start, &survey.seg_end, survey.seg_start, survey.seg_end)) {
     survey.stage = ERR;
-    return FALSE;
+    return false;
   }
 
   //center of the entry circle
@@ -224,7 +224,7 @@ bool nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float
 
   survey.stage = ENTRY;
 
-  return FALSE;
+  return false;
 }
 
 /**
@@ -269,7 +269,7 @@ bool nav_survey_polygon_run(void)
       VECT2_SUM(sum_start_sweep, survey.seg_start, survey.sweep_vec);
       VECT2_SUM(sum_end_sweep, survey.seg_end, survey.sweep_vec);
       if (!get_two_intersects(&survey.seg_start, &survey.seg_end, sum_start_sweep, sum_end_sweep)) {
-        return FALSE;
+        return false;
       }
 
       survey.ret_end.x = survey.seg_start.x - survey.sweep_vec.x - 2 * survey.rad_vec.x;
@@ -309,5 +309,5 @@ bool nav_survey_polygon_run(void)
     }
   }
 
-  return TRUE;
+  return true;
 }

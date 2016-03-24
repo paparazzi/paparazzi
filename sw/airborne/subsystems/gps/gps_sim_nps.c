@@ -89,7 +89,7 @@ void gps_feed_value(void)
 
 void gps_nps_init(void)
 {
-  gps_has_fix = TRUE;
+  gps_has_fix = true;
 }
 
 /*

@@ -87,7 +87,7 @@ void imu_impl_init(void)
   // set the data rate
   imu_aspirin.acc_adxl.config.rate = ASPIRIN_ACCEL_RATE;
   /// @todo drdy int handling for adxl345
-  //imu_aspirin.acc_adxl.config.drdy_int_enable = TRUE;
+  //imu_aspirin.acc_adxl.config.drdy_int_enable = true;
 
   // With CS tied high to VDD I/O, the ADXL345 is in I2C mode
 #ifdef ASPIRIN_I2C_CS_PORT
@@ -133,7 +133,7 @@ void imu_aspirin_i2c_event(void)
   adxl345_i2c_event(&imu_aspirin.acc_adxl);
   if (imu_aspirin.acc_adxl.data_available) {
     VECT3_COPY(imu.accel_unscaled, imu_aspirin.acc_adxl.data.vect);
-    imu_aspirin.acc_adxl.data_available = FALSE;
+    imu_aspirin.acc_adxl.data_available = false;
     imu_scale_accel(&imu);
     AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN_ID, now_ts, &imu.accel);
   }
@@ -142,7 +142,7 @@ void imu_aspirin_i2c_event(void)
   itg3200_event(&imu_aspirin.gyro_itg);
   if (imu_aspirin.gyro_itg.data_available) {
     RATES_COPY(imu.gyro_unscaled, imu_aspirin.gyro_itg.data.rates);
-    imu_aspirin.gyro_itg.data_available = FALSE;
+    imu_aspirin.gyro_itg.data_available = false;
     imu_scale_gyro(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN_ID, now_ts, &imu.gyro);
   }
@@ -157,7 +157,7 @@ void imu_aspirin_i2c_event(void)
     imu.mag_unscaled.y = -imu_aspirin.mag_hmc.data.vect.x;
     imu.mag_unscaled.z =  imu_aspirin.mag_hmc.data.vect.z;
 #endif
-    imu_aspirin.mag_hmc.data_available = FALSE;
+    imu_aspirin.mag_hmc.data_available = false;
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_ASPIRIN_ID, now_ts, &imu.mag);
   }

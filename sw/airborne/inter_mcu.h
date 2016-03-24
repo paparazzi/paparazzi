@@ -95,7 +95,7 @@ static inline void inter_mcu_init(void)
   fbw_state->status = 0;
   fbw_state->nb_err = 0;
 
-  ap_ok = FALSE;
+  ap_ok = false;
 }
 
 
@@ -127,7 +127,7 @@ static inline void inter_mcu_fill_fbw_state(void)
   fbw_state->energy = electrical.energy;
 #if defined SINGLE_MCU
   /**Directly set the flag indicating to AP that shared buffer is available*/
-  inter_mcu_received_fbw = TRUE;
+  inter_mcu_received_fbw = true;
 #endif
 }
 
@@ -135,14 +135,14 @@ static inline void inter_mcu_fill_fbw_state(void)
 static inline void inter_mcu_event_task(void)
 {
   time_since_last_ap = 0;
-  ap_ok = TRUE;
+  ap_ok = true;
 }
 
 /** Monitors AP. Set ::ap_ok to false if AP is down for a long time. */
 static inline void inter_mcu_periodic_task(void)
 {
   if (time_since_last_ap >= AP_STALLED_TIME) {
-    ap_ok = FALSE;
+    ap_ok = false;
 #ifdef SINGLE_MCU
     // Keep filling the buffer even if no AP commands are received
     inter_mcu_fill_fbw_state();
