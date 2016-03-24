@@ -24,7 +24,6 @@
     </subsystem>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="gps"           type="ublox"/>
     <subsystem name="imu"           type="mpu6000"/>
     <subsystem name="ahrs"          type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
@@ -52,9 +51,6 @@
     </target>
     <target name="test_actuators_pwm" board="cc3d"/>
   </firmware>
-
-  <modules main_freq="512">
-  </modules>
 
   <servos driver="Pwm">
     <servo name="FL"   no="0" min="1000" neutral="1100" max="2000"/>
