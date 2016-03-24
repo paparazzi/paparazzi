@@ -110,8 +110,8 @@ struct viewvideo_t viewvideo = {
  * Handles all the video streaming and saving of the image shots
  * This is a sepereate thread, so it needs to be thread safe!
  */
-bool_t viewvideo_function(struct image_t *img);
-bool_t viewvideo_function(struct image_t *img)
+struct image_t* viewvideo_function(struct image_t *img);
+struct image_t* viewvideo_function(struct image_t *img)
 {
   // Resize image if needed
   struct image_t img_small;
