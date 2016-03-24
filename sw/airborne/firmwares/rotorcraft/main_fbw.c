@@ -184,11 +184,13 @@ STATIC_INLINE void main_periodic(void)
   /* set failsafe commands     */
   if (fbw_mode == FBW_MODE_FAILSAFE) {
     SetCommands(commands_failsafe);
+#ifdef FBW_MODE_LED
     if (!(dv++ % (PERIODIC_FREQUENCY / 20))) { LED_TOGGLE(FBW_MODE_LED);}
   } else if (fbw_mode == FBW_MODE_MANUAL) {
     if (!(dv++ % (PERIODIC_FREQUENCY))) { LED_TOGGLE(FBW_MODE_LED);}
   } else if (fbw_mode == FBW_MODE_AUTO) {
     LED_TOGGLE(FBW_MODE_LED); // toggle instead of on, because then it is still visible when fbw_mode switches very fast
+#endif // FWB_MODE_LED
   }
 
   /* set actuators     */
