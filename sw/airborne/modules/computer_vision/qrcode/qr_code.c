@@ -99,5 +99,5 @@ struct image_t* qrscan(struct image_t *img)
   zbar_image_destroy(image);
   //zbar_image_scanner_destroy(scanner);
 
-  return 0; // QRCode is not returning a new image.
+  return NULL; // QRCode is not returning a new image.
 }

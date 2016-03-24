@@ -53,11 +53,11 @@ volatile bool_t marker_enabled = FALSE;
 volatile bool_t window_enabled = FALSE;
 
 // Computer vision thread
-bool_t cv_marker_func(struct image_t *img);
-bool_t cv_marker_func(struct image_t *img) {
+struct image_t* cv_marker_func(struct image_t *img);
+struct image_t* cv_marker_func(struct image_t *img) {
 
   if (!marker_enabled)
-    return FALSE;
+    return NULL;
 
   struct marker_deviation_t m = marker(img, marker_size);
 
@@ -66,18 +66,18 @@ bool_t cv_marker_func(struct image_t *img) {
   temp += m.y;
   blob_locator = temp;
 
-  return FALSE;
+  return NULL;
 }
 
 #define Img(X,Y)(((uint8_t*)img->buf)[(Y)*img->w*2+(X)*2])
 
 
 // Computer vision thread
-bool_t cv_window_func(struct image_t *img);
-bool_t cv_window_func(struct image_t *img) {
+struct image_t* cv_window_func(struct image_t *img);
+struct image_t* cv_window_func(struct image_t *img) {
 
   if (!window_enabled)
-    return FALSE;
+    return NULL;
 
 
   uint16_t coordinate[2] = {0,0};
@@ -114,15 +114,15 @@ bool_t cv_window_func(struct image_t *img) {
 
   }
 
-  return FALSE;
+  return NULL;
 }
 
 
-bool_t cv_blob_locator_func(struct image_t *img);
-bool_t cv_blob_locator_func(struct image_t *img) {
+struct image_t* cv_blob_locator_func(struct image_t *img);
+struct image_t* cv_blob_locator_func(struct image_t *img) {
 
   if (!blob_enabled)
-    return 0;
+    return NULL;
 
 
   // Color Filter
@@ -209,7 +209,7 @@ bool_t cv_blob_locator_func(struct image_t *img) {
 
   image_free(&dst);
 
-  return 0; // No new image is available for follow up modules
+  return NULL; // No new image is available for follow up modules
 }
 
 #include "modules/computer_vision/cv_georeference.h"
