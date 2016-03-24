@@ -79,7 +79,7 @@ let group = fun l ->
 (* MAIN *)
 let () =
   (* reading files *)
-  let xml = Xml.parse_file messages_xml in
+  let xml = ExtXml.parse_file messages_xml in
   let messages =
     List.map (fun c -> ((Xml.attrib c "name"), Xml.children c)) (Xml.children xml)
   in

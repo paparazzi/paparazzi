@@ -299,7 +299,7 @@ let join_xml_files = fun xml_files ->
     | [f; n] -> f, n
     | _ -> xml_file, ""
     in
-    let xml = Xml.parse_file xml_file in
+    let xml = ExtXml.parse_file xml_file in
     let these_rc_settings =
       try Xml.children (ExtXml.child xml "rc_settings") with
           Not_found -> [] in

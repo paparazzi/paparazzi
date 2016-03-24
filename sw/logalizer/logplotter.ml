@@ -565,7 +565,7 @@ let write_kml = fun plot log_name values ->
 
   let l = List.filter (fun (t,_,_) -> t_min <= t && t < t_max) values in
 
-  let xml = Xml.parse_file sample_kml in
+  let xml = ExtXml.parse_file sample_kml in
   let doc = ExtXml.child xml "Document" in
   let place = ExtXml.child doc "Placemark" in
   let line = ExtXml.child place "LineString" in
@@ -657,7 +657,7 @@ let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1
 
 let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) curves_fact xml_file ->
   Debug.call 'p' (fun f ->  fprintf f "load_log: %s\n" xml_file);
-  let xml = Xml.parse_file xml_file in
+  let xml = ExtXml.parse_file xml_file in
   let data_file =  ExtXml.attrib xml "data_file" in
 
   Debug.call 'p' (fun f ->  fprintf f "data_file: %s\n" data_file);

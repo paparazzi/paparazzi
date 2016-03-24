@@ -259,7 +259,7 @@ let get_modules_dir = fun modules ->
 let is_element_unselected = fun ?(verbose=false) target modules name ->
   try
     let name = (Env.paparazzi_home // "conf" // name) in
-    let xml = Xml.parse_file name in
+    let xml = ExtXml.parse_file name in
     match Xml.tag xml with
     | "settings" ->
         let targets = Xml.attrib xml "target" in

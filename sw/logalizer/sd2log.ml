@@ -28,7 +28,7 @@ module U = Unix
 let (//) = Filename.concat
 let var_path = Env.paparazzi_home // "var"
 let default_logs_path = var_path // "logs"
-let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
+let conf_xml = ExtXml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 
 
 module Tm_Pprz = PprzLink.Messages (struct let name = "telemetry" end)

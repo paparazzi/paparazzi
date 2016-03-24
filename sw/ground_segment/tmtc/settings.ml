@@ -28,7 +28,7 @@ module Tele_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
 
 let (//) = Filename.concat
 let conf_dir = Env.paparazzi_home // "conf"
-let conf_xml = Xml.parse_file (conf_dir // "conf.xml")
+let conf_xml = ExtXml.parse_file (conf_dir // "conf.xml")
 
 
 
@@ -53,7 +53,7 @@ let one_ac = fun (notebook:GPack.notebook) ac_name ->
         Ground_Pprz.message_send "dl" "GET_DL_SETTING" vs in
 
     (* Build the buttons and sliders *)
-    let xml = Xml.parse_file xml_file in
+    let xml = ExtXml.parse_file xml_file in
     let xmls = Xml.children (ExtXml.child xml "dl_settings") in
     let settings = new Page_settings.settings xmls callback ac_id Env.gcs_default_icons_theme (fun _ _ -> ()) in
 
