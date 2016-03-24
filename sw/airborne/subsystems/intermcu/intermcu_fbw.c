@@ -54,8 +54,10 @@ static struct pprz_transport intermcu_transport;
 
 struct intermcu_t inter_mcu;
 pprz_t intermcu_commands[COMMANDS_NB];
-static inline void intermcu_parse_msg(struct transport_rx *trans, void (*commands_frame_handler)(void));
-static inline void checkPx4RebootCommand(unsigned char b);
+static void intermcu_parse_msg(struct transport_rx *trans, void (*commands_frame_handler)(void));
+#ifdef BOARD_PX4IO
+static void checkPx4RebootCommand(unsigned char b);
+#endif
 
 void intermcu_init(void)
 {
@@ -117,7 +119,7 @@ void intermcu_send_status(uint8_t mode)
   //FIXME
 }
 
-static inline void intermcu_parse_msg(struct transport_rx *trans, void (*commands_frame_handler)(void))
+static void intermcu_parse_msg(struct transport_rx *trans, void (*commands_frame_handler)(void))
 {
   /* Parse the Inter MCU message */
   uint8_t msg_id = trans->payload[1];
@@ -170,7 +172,7 @@ void InterMcuEvent(void (*frame_handler)(void))
   }
 }
 #ifdef BOARD_PX4IO
-static inline void checkPx4RebootCommand(unsigned char b)
+static void checkPx4RebootCommand(unsigned char b)
 {
   if (!px4RebootTimeout) {
 
