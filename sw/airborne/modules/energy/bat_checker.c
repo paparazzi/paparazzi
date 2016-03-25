@@ -31,28 +31,56 @@
 #include "generated/airframe.h"
 #include "generated/modules.h"
 #include "subsystems/electrical.h"
+#include "mcu_periph/gpio.h"
 #include "led.h"
 
-#ifndef BAT_CHECKER_LED
-#error You must define BAT_CHECKER_LED in your airframe file.
+#if (!defined BAT_CHECKER_GPIO && !defined BAT_CHECKER_LED)
+#error You must define BAT_CHECKER_GPIO or BAT_CHECKER_LED in your airframe file.
 #endif
 
+// in case GPIO logic is inverted
+#ifndef BAT_CHECKER_GPIO_ON
+#define BAT_CHECKER_GPIO_ON gpio_set
+#endif
+#ifndef BAT_CHECKER_GPIO_OFF
+#define BAT_CHECKER_GPIO_OFF gpio_clear
+#endif
 
 void init_bat_checker(void)
 {
+#ifdef BAT_CHECKER_LED
   LED_INIT(BAT_CHECKER_LED);
   LED_OFF(BAT_CHECKER_LED);
+#endif
+#ifdef BAT_CHECKER_GPIO
+  gpio_setup_output(BAT_CHECKER_GPIO);
+#endif
 }
 
 void bat_checker_periodic(void)
 {
 
   if (electrical.bat_critical) {
+#ifdef BAT_CHECKER_LED
     LED_ON(BAT_CHECKER_LED);
+#endif
+#ifdef BAT_CHECKER_GPIO
+    BAT_CHECKER_GPIO_ON(BAT_CHECKER_GPIO);
+#endif
   } else if (electrical.bat_low) {
+#ifdef BAT_CHECKER_LED
     LED_TOGGLE(BAT_CHECKER_LED);
+#endif
+#ifdef BAT_CHECKER_GPIO
+    gpio_toggle(BAT_CHECKER_GPIO);
+#endif
   } else {
+#ifdef BAT_CHECKER_LED
     LED_OFF(BAT_CHECKER_LED);
+#endif
+#ifdef BAT_CHECKER_GPIO
+    BAT_CHECKER_GPIO_OFF(BAT_CHECKER_GPIO);
+#endif
   }
 
 }
