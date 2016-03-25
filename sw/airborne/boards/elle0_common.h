@@ -310,12 +310,24 @@
 #define PWM_USE_TIM3 1
 #define PWM_USE_TIM5 1
 
+#ifndef USE_PWM1
 #define USE_PWM1 1
+#endif
+#ifndef USE_PWM2
 #define USE_PWM2 1
+#endif
+#ifndef USE_PWM3
 #define USE_PWM3 1
+#endif
+#ifndef USE_PWM4
 #define USE_PWM4 1
+#endif
+#ifndef USE_PWM5
 #define USE_PWM5 1
+#endif
+#ifndef USE_PWM6
 #define USE_PWM6 1
+#endif
 
 #if USE_SERVOS_7AND8
 #if USE_I2C1
