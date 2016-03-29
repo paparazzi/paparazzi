@@ -110,7 +110,7 @@ PRINT_CONFIG_VAR(OPTICFLOW_THRESHOLD_VEC)
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_ADAPTIVE)
 
 #ifndef OPTICFLOW_FAST9_THRESHOLD
-#define OPTICFLOW_FAST9_THRESHOLD 20
+#define OPTICFLOW_FAST9_THRESHOLD 10
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_THRESHOLD)
 
@@ -206,7 +206,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
 
   // FAST corner detection (TODO: non fixed threshold)
   struct point_t *corners = fast9_detect(img, opticflow->fast9_threshold, opticflow->fast9_min_distance,
-                                         20, 20, &result->corner_cnt);
+                                         0, 0, &result->corner_cnt);
 
   // Adaptive threshold
   if (opticflow->fast9_adaptive) {
@@ -238,7 +238,8 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   result->tracked_cnt = result->corner_cnt;
   struct flow_t *vectors = opticFlowLK(&opticflow->img_gray, &opticflow->prev_img_gray, corners, &result->tracked_cnt,
                                        opticflow->window_size / 2, opticflow->subpixel_factor, opticflow->max_iterations,
-                                       opticflow->threshold_vec, opticflow->max_track_corners);
+                                       opticflow->threshold_vec, opticflow->max_track_corners, 3);
+
 
 #if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_FLOW
   image_show_flow(img, vectors, result->tracked_cnt, opticflow->subpixel_factor);
@@ -298,6 +299,10 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   // Flow Derotation
   float diff_flow_x = 0;
   float diff_flow_y = 0;
+
+  // Flow Derotation TODO:
+  float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
+  float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;
 
   if (opticflow->derotation) {
     diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
