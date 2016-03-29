@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009  ENAC, Pascal Brisset, Michel Gorraz,Gautier Hattenberger
+ * Copyright (C) 2016 Michael Sierra <sierramichael.a@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -19,132 +19,211 @@
  * Boston, MA 02111-1307, USA.
  *
  */
-
-#include "modules/gps/gps_i2c.h"
+ 
 #include "mcu_periph/i2c.h"
-#include "subsystems/gps.h"
+#include "mcu_periph/uart.h"
+#include "mcu_periph/sys_time.h"
+#include "pprzlink/messages.h"
+#include "subsystems/datalink/downlink.h"
+#include <math.h>
 
-struct i2c_transaction i2c_gps_trans;
+// ublox i2c address
+#define GPS_I2C_SLAVE_ADDR (0x42 << 1)
 
-
-uint8_t gps_i2c_rx_buf[GPS_I2C_BUF_SIZE];
-uint8_t gps_i2c_rx_insert_idx, gps_i2c_rx_extract_idx;
-uint8_t gps_i2c_tx_buf[GPS_I2C_BUF_SIZE];
-uint8_t gps_i2c_tx_insert_idx, gps_i2c_tx_extract_idx;
-bool_t gps_i2c_done, gps_i2c_data_ready_to_transmit;
-
-/* u-blox5 protocole, page 4 */
-#define GPS_I2C_ADDR_NB_AVAIL_BYTES 0xFD
-#define GPS_I2C_ADDR_DATA 0xFF
-
-#define GPS_I2C_STATUS_IDLE                   0
-#define GPS_I2C_STATUS_ASKING_DATA            1
-#define GPS_I2C_STATUS_ASKING_NB_AVAIL_BYTES  2
-#define GPS_I2C_STATUS_READING_NB_AVAIL_BYTES 3
-#define GPS_I2C_STATUS_READING_DATA           4
-
-#define gps_i2c_AddCharToRxBuf(_x) { \
-    gps_i2c_rx_buf[gps_i2c_rx_insert_idx] = _x; \
-    gps_i2c_rx_insert_idx++; /* size=256, No check for buf overflow */ \
-  }
-
-static uint8_t gps_i2c_status;
-//static uint16_t gps_i2c_nb_avail_bytes; /* size buffer =~ 12k */
-//static uint8_t data_buf_len;
-
-void gps_i2c_init(void)
-{
-  gps_i2c_status = GPS_I2C_STATUS_IDLE;
-  gps_i2c_done = TRUE;
-  gps_i2c_data_ready_to_transmit = FALSE;
-  gps_i2c_rx_insert_idx = 0;
-  gps_i2c_rx_extract_idx = 0;
-  gps_i2c_tx_insert_idx = 0;
-#ifdef GPS_CONFIGURE
-  /* The call in main_ap.c is made before the modules init (too early) */
-  gps_configure_uart();
+#ifndef GPS_UBX_I2C_DEV
+#define GPS_UBX_I2C_DEV i2c2
 #endif
+PRINT_CONFIG_VAR(GPS_UBX_I2C_DEV)
+
+#define GPS_I2C_ADDR_NB_AVAIL_BYTES 0xFD    // number of bytes available register
+#define GPS_I2C_ADDR_DATA 0xFF            // data stream register
+
+// Global variables
+struct GpsUbxI2C gps_i2c;
+
+// Local variables
+bool_t   gps_ubx_i2c_ucenter_done;
+uint16_t gps_ubx_i2c_bytes_to_read;
+
+static void null_function(struct GpsUbxI2C *p __attribute__((unused))) {}
+void gps_i2c_put_byte(struct GpsUbxI2C *p, uint8_t data);
+void gps_i2c_msg_ready(struct GpsUbxI2C *p);
+uint8_t gps_i2c_char_available(struct GpsUbxI2C *p);
+uint8_t gps_i2c_getch(struct GpsUbxI2C *p);
+
+void gps_ubx_i2c_init(void)
+{
+  gps_ubx_i2c_ucenter_done = FALSE;
+  gps_i2c.read_state = gps_i2c_read_standby;
+  gps_i2c.write_state = gps_i2c_write_standby;
+
+  gps_i2c.trans.status = I2CTransDone;
+  gps_i2c.rx_buf_avail = 0;
+  gps_i2c.rx_buf_idx = 0;
+  gps_i2c.tx_buf_idx = 0;
+  gps_i2c.tx_rdy = TRUE;
+
+  gps_i2c.device.periph = (void *)&gps_i2c;
+  gps_i2c.device.check_free_space = (check_free_space_t)null_function;        ///< check if transmit buffer is not full
+  gps_i2c.device.put_byte = (put_byte_t)gps_i2c_put_byte;                     ///< put one byte
+  gps_i2c.device.send_message = (send_message_t)gps_i2c_msg_ready;             ///< send completed buffer
+  gps_i2c.device.char_available = (char_available_t)gps_i2c_char_available;   ///< check if a new character is available
+  gps_i2c.device.get_byte = (get_byte_t)gps_i2c_getch;                        ///< get a new char
+  gps_i2c.device.set_baudrate = (set_baudrate_t)null_function;                ///< set device baudrate
 }
 
-void gps_i2c_periodic(void)
+/*
+ *  put byte into transmit buffer
+ */
+void gps_i2c_put_byte(struct GpsUbxI2C *p __attribute__((unused)), uint8_t data)
 {
-  /*
-    if (gps_i2c_done && gps_i2c_status == GPS_I2C_STATUS_IDLE) {
-      i2c0_buf[0] = GPS_I2C_ADDR_NB_AVAIL_BYTES;
-      i2c0_transmit_no_stop(GPS_I2C_SLAVE_ADDR, 1, &gps_i2c_done);
-      gps_i2c_done = FALSE;
-      gps_i2c_status = GPS_I2C_STATUS_ASKING_NB_AVAIL_BYTES;
-    }
-  */
-
+  gps_i2c.tx_buf[gps_i2c.tx_buf_idx++] = data;
 }
 
-void gps_i2c_event(void)
+/*
+ * send buffer when ready
+ */
+void gps_i2c_msg_ready(struct GpsUbxI2C *p __attribute__((unused)))
 {
-  /*
-   *  switch (gps_i2c_status) {
-    case GPS_I2C_STATUS_IDLE:
-      if (gps_i2c_data_ready_to_transmit) {
-        // Copy data from our buffer to the i2c buffer
-        uint8_t data_size = Min(gps_i2c_tx_insert_idx-gps_i2c_tx_extract_idx, I2C0_BUF_LEN);
-        uint8_t i;
-        for(i = 0; i < data_size; i++, gps_i2c_tx_extract_idx++)
-          i2c0_buf[i] = gps_i2c_tx_buf[gps_i2c_tx_extract_idx];
+  gps_i2c.write_state = gps_i2c_write_cfg;
+  gps_i2c.tx_rdy = FALSE;
+}
 
-        // Start i2c transmit
-        i2c0_transmit(GPS_I2C_SLAVE_ADDR, data_size, &gps_i2c_done);
-        gps_i2c_done = FALSE;
+/*
+ * send message and get reply
+ */
+void gps_i2c_send(void)
+{
+  memcpy(&gps_i2c.trans.buf, gps_i2c.tx_buf, gps_i2c.tx_buf_idx);
+  i2c_transmit(&GPS_UBX_I2C_DEV, &gps_i2c.trans, GPS_I2C_SLAVE_ADDR, gps_i2c.tx_buf_idx);
+  gps_i2c.tx_buf_idx = 0;
+  gps_i2c.read_state = gps_i2c_read_standby;
+  gps_i2c.write_state = gps_i2c_write_request_size;
+}
 
-        // Reset flag if finished
-        if (gps_i2c_tx_extract_idx >= gps_i2c_tx_insert_idx) {
-          gps_i2c_data_ready_to_transmit = FALSE;
-          gps_i2c_tx_insert_idx = 0;
+/*
+ * is driver ready to send a message
+ */
+bool_t gps_i2c_tx_is_ready(void)
+{
+  return gps_i2c.tx_rdy;
+}
+
+/*
+ * config is done, begin reading messages
+ */
+void gps_i2c_begin(void)
+{
+  gps_ubx_i2c_ucenter_done = TRUE;
+}
+
+/*
+ * check if a new character is available
+ */
+uint8_t gps_i2c_char_available(struct GpsUbxI2C *p __attribute__((unused)))
+{
+  return (((int)gps_i2c.rx_buf_avail - (int)gps_i2c.rx_buf_idx) > 0);
+}
+
+/*
+ * get a new char
+ */
+uint8_t gps_i2c_getch(struct GpsUbxI2C *p __attribute__((unused)))
+{
+  return gps_i2c.rx_buf[gps_i2c.rx_buf_idx++];
+}
+
+/*
+ * handle message sending
+ */
+void gps_ubx_i2c_periodic(void)
+{
+  if (gps_i2c.trans.status == I2CTransDone)
+  {
+    switch(gps_i2c.write_state)
+    {
+      case gps_i2c_write_standby:
+      if (!gps_i2c_char_available(&gps_i2c))
+      {
+        if (gps_ubx_i2c_bytes_to_read > GPS_I2C_BUF_SIZE || gps_ubx_i2c_ucenter_done)
+        {
+          gps_i2c.write_state = gps_i2c_write_request_size;
+        } else {
+          gps_i2c.tx_rdy = TRUE;
         }
       }
       break;
 
-    case GPS_I2C_STATUS_ASKING_NB_AVAIL_BYTES:
-      i2c0_receive(GPS_I2C_SLAVE_ADDR, 2, &gps_i2c_done);
-      gps_i2c_done = FALSE;
-      gps_i2c_status = GPS_I2C_STATUS_READING_NB_AVAIL_BYTES;
+      case gps_i2c_write_request_size:
+        gps_i2c.trans.buf[0] = GPS_I2C_ADDR_NB_AVAIL_BYTES;
+        i2c_transceive(&GPS_UBX_I2C_DEV, &gps_i2c.trans, GPS_I2C_SLAVE_ADDR, 1, 2);
+        gps_i2c.write_state = gps_i2c_write_standby;
+        gps_i2c.read_state = gps_i2c_read_sizeof;
       break;
 
-    case GPS_I2C_STATUS_READING_NB_AVAIL_BYTES:
-      gps_i2c_nb_avail_bytes = (i2c0_buf[0]<<8) | i2c0_buf[1];
-
-      if (gps_i2c_nb_avail_bytes)
-        goto continue_reading;
-      else
-        gps_i2c_status = GPS_I2C_STATUS_IDLE;
+      case gps_i2c_write_cfg:
+        gps_i2c_send();
       break;
 
-    continue_reading:
-
-    case GPS_I2C_STATUS_ASKING_DATA:
-      data_buf_len = Min(gps_i2c_nb_avail_bytes, I2C0_BUF_LEN);
-      gps_i2c_nb_avail_bytes -= data_buf_len;
-
-      i2c0_receive(GPS_I2C_SLAVE_ADDR, data_buf_len, &gps_i2c_done);
-      gps_i2c_done = FALSE;
-      gps_i2c_status = GPS_I2C_STATUS_READING_DATA;
+      default:
       break;
+    }
+  }
+}
 
-    case GPS_I2C_STATUS_READING_DATA: {
-      uint8_t i;
-      for(i = 0; i < data_buf_len; i++) {
-        gps_i2c_AddCharToRxBuf(i2c0_buf[i]);
+/*
+ * handle message reception
+ */
+void gps_ubx_i2c_read_event(void)
+{
+  switch(gps_i2c.read_state)
+  {
+    case gps_i2c_read_standby:
+      break;
+    break;
+
+    // how many bytes are available
+    case gps_i2c_read_sizeof:
+      gps_ubx_i2c_bytes_to_read = ((uint16_t)(gps_i2c.trans.buf[0]) << 7) | (uint16_t)(gps_i2c.trans.buf[1]);
+      gps_i2c.trans.status = I2CTransDone;
+      if (gps_ubx_i2c_bytes_to_read == 0xFFFF || gps_ubx_i2c_bytes_to_read == 0x0000)
+      {
+        gps_i2c.write_state = gps_i2c_write_request_size;
+        return;
+      } else if (gps_ubx_i2c_bytes_to_read > GPS_I2C_BUF_SIZE)
+      {
+        gps_i2c.trans.buf[0] = GPS_I2C_ADDR_DATA;
+        i2c_transceive(&GPS_UBX_I2C_DEV, &gps_i2c.trans, GPS_I2C_SLAVE_ADDR, 1, GPS_I2C_BUF_SIZE);
+        gps_i2c.read_state = gps_i2c_read_data;
+      } else
+      {
+        gps_i2c.trans.buf[0] = GPS_I2C_ADDR_DATA;
+        i2c_transceive(&GPS_UBX_I2C_DEV, &gps_i2c.trans, GPS_I2C_SLAVE_ADDR, 1, gps_ubx_i2c_bytes_to_read);
+        gps_i2c.read_state = gps_i2c_read_data;
+        return;
+      }
+    break;
+    case gps_i2c_read_data:
+      if (gps_ubx_i2c_bytes_to_read > GPS_I2C_BUF_SIZE)
+      {
+        memcpy(&gps_i2c.rx_buf, &gps_i2c.trans.buf, GPS_I2C_BUF_SIZE);
+        gps_i2c.rx_buf_idx = 0;
+        gps_i2c.rx_buf_avail = GPS_I2C_BUF_SIZE;
+      } else
+      {
+        memcpy(&gps_i2c.rx_buf, &gps_i2c.trans.buf, gps_ubx_i2c_bytes_to_read);
+        gps_i2c.rx_buf_idx = 0;
+        gps_i2c.rx_buf_avail = gps_ubx_i2c_bytes_to_read;
       }
 
-      if (gps_i2c_nb_avail_bytes)
-       goto continue_reading;
-      else
-        gps_i2c_status = GPS_I2C_STATUS_IDLE;
-      break;
-    }
+      gps_i2c.write_state = gps_i2c_write_standby;
+      gps_i2c.read_state = gps_i2c_read_standby;
+    break;
 
     default:
-      return;
-    }
-  */
+    break;
+  }
 
+  // Transaction has been read
+  gps_i2c.trans.status = I2CTransDone;
 }

@@ -43,13 +43,15 @@
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // UCENTER: init, periodic and event
-
+#ifndef GPS_I2C
 static bool_t gps_ubx_ucenter_autobaud(uint8_t nr);
+#endif
 static bool_t gps_ubx_ucenter_configure(uint8_t nr);
 
 #define GPS_UBX_UCENTER_STATUS_STOPPED    0
 #define GPS_UBX_UCENTER_STATUS_AUTOBAUD   1
 #define GPS_UBX_UCENTER_STATUS_CONFIG     2
+#define GPS_UBX_UCENTER_STATUS_WAITING    3
 
 #define GPS_UBX_UCENTER_REPLY_NONE        0
 #define GPS_UBX_UCENTER_REPLY_ACK         1
@@ -101,8 +103,13 @@ void gps_ubx_ucenter_periodic(void)
       // Save processing time inflight
     case GPS_UBX_UCENTER_STATUS_STOPPED:
       return;
+    break;
       // Automatically Determine Current Baudrate
     case GPS_UBX_UCENTER_STATUS_AUTOBAUD:
+#ifdef GPS_I2C
+      gps_ubx_ucenter.cnt = 0;
+      gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_CONFIG;
+#else
       if (gps_ubx_ucenter_autobaud(gps_ubx_ucenter.cnt) == FALSE) {
         gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_CONFIG;
         gps_ubx_ucenter.cnt = 0;
@@ -116,16 +123,29 @@ void gps_ubx_ucenter_periodic(void)
       } else {
         gps_ubx_ucenter.cnt++;
       }
+#endif /* GPS_I2C */
       break;
       // Send Configuration
     case GPS_UBX_UCENTER_STATUS_CONFIG:
       if (gps_ubx_ucenter_configure(gps_ubx_ucenter.cnt) == FALSE) {
         gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_STOPPED;
+#ifdef GPS_I2C
+        gps_i2c_begin();
+#endif
         gps_ubx_ucenter.cnt = 0;
       } else {
         gps_ubx_ucenter.cnt++;
+#ifdef GPS_I2C
+        gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_WAITING;
       }
       break;
+    case GPS_UBX_UCENTER_STATUS_WAITING:
+      if (gps_i2c_tx_is_ready())
+      {
+        gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_CONFIG;
+#endif /*GPS_I2C*/
+      }
+    break;
     default:
       // stop this module now...
       // todo
@@ -147,10 +167,10 @@ void gps_ubx_ucenter_event(void)
   // Read Configuration Reply's
   switch (gps_ubx.msg_class) {
     case UBX_ACK_ID:
-      if (gps_ubx.msg_id == UBX_ACK_ACK_ID) {
+      if (gps_ubx.msg_id & UBX_ACK_ACK_ID) {
         gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_ACK;
         DEBUG_PRINT("ACK\n");
-      } else {
+      } else if (gps_ubx.msg_id & UBX_ACK_NAK_ID) {
         gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NACK;
         DEBUG_PRINT("NACK\n");
       }
@@ -226,6 +246,7 @@ static inline void gps_ubx_ucenter_enable_msg(uint8_t class, uint8_t id, uint8_t
  * @param nr Autobaud step number to perform
  * @return FALSE when completed
  */
+#ifndef GPS_I2C
 static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
 {
   switch (nr) {
@@ -300,7 +321,7 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
   }
   return TRUE;
 }
-
+#endif /* GPS_I2C */
 /////////////////////////////////////
 // UBlox internal Navigation Solution
 
@@ -393,7 +414,7 @@ static inline void gps_ubx_ucenter_config_port(void)
       // I2C Interface
     case GPS_PORT_DDC:
 #ifdef GPS_I2C
-      UbxSend_CFG_PRT(gps_ubx_ucenter.dev, gps_ubx_ucenter.port_id, 0x0, 0x0, GPS_I2C_SLAVE_ADDR, 0x0, UBX_PROTO_MASK | NMEA_PROTO_MASK, UBX_PROTO_MASK| NMEA_PROTO_MASK, 0x0, 0x0);
+      UbxSend_CFG_PRT(gps_ubx_ucenter.dev, gps_ubx_ucenter.port_id, 0x0, 0x0, (0x42<<1), 0x0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
 #else
       DEBUG_PRINT("WARNING: Please include the gps_i2c module.\n");
 #endif
@@ -457,6 +478,7 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
       gps_ubx_ucenter_config_port();
       break;
     case 1:
+#ifndef GPS_I2C
 #if PRINT_DEBUG_GPS_UBX_UCENTER
       if (gps_ubx_ucenter.reply != GPS_UBX_UCENTER_REPLY_ACK) {
         DEBUG_PRINT("ublox did not acknowledge port configuration.\n");
@@ -467,6 +489,7 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
       // Now the GPS baudrate should have changed
       uart_periph_set_baudrate(&(UBX_GPS_LINK), gps_ubx_ucenter.baud_target);
       gps_ubx_ucenter.baud_run = UART_SPEED(gps_ubx_ucenter.baud_target);
+#endif /*GPS_I2C*/
       UbxSend_MON_GET_VER(gps_ubx_ucenter.dev);
       break;
     case 2:

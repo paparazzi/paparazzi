@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009  ENAC, Pascal Brisset, Michel Gorraz,Gautier Hattenberger
+ * Copyright (C) 2016 Michael Sierra <sierramichael.a@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -20,38 +20,71 @@
  *
  */
 
-#ifndef GPS_I2C
-#define GPS_I2C
+#ifndef GPS_UBX_I2C_H
+#define GPS_UBX_I2C_H
 
 #include "std.h"
+#include "mcu_periph/i2c.h"
+#include "pprzlink/pprzlink_device.h"
 
-/// Default address for u-blox (and others?)
-#define GPS_I2C_SLAVE_ADDR (0x42 << 1)
+#define GPS_I2C_BUF_SIZE 255
 
-#define GPS_I2C_BUF_SIZE 256
-extern uint8_t gps_i2c_rx_buf[GPS_I2C_BUF_SIZE];
-extern uint8_t gps_i2c_rx_insert_idx, gps_i2c_rx_extract_idx;
-extern uint8_t gps_i2c_tx_buf[GPS_I2C_BUF_SIZE];
-extern uint8_t gps_i2c_tx_insert_idx, gps_i2c_tx_extract_idx;
+typedef enum GpsI2cReadState
+{
+  gps_i2c_read_standby,
+  gps_i2c_read_sizeof,
+  gps_i2c_read_data,
+  gps_i2c_read_ack
+} GpsI2cReadState;
+ 
+typedef enum GpsI2cWriteState
+{
+  gps_i2c_write_standby,
+  gps_i2c_write_request_size,
+  gps_i2c_write_cfg,
+  gps_i2c_write_get_ack
+} GpsI2cWriteState;
 
-extern bool_t gps_i2c_done, gps_i2c_data_ready_to_transmit;
+struct GpsUbxI2C
+{
+  GpsI2cReadState read_state;
+  GpsI2cWriteState write_state;
 
-void gps_i2c_init(void);
-void gps_i2c_event(void);
-void gps_i2c_periodic(void);
+  uint8_t rx_buf[GPS_I2C_BUF_SIZE];
+  uint8_t tx_buf[GPS_I2C_BUF_SIZE];
 
-#define gps_i2cEvent() { if (gps_i2c_done) gps_i2c_event(); }
-#define gps_i2cChAvailable() (gps_i2c_rx_insert_idx != gps_i2c_rx_extract_idx)
-#define gps_i2cGetch() (gps_i2c_rx_buf[gps_i2c_rx_extract_idx++])
-#define gps_i2cTransmit(_char) {             \
-    if (! gps_i2c_data_ready_to_transmit)  /* Else transmitting, overrun*/     \
-      gps_i2c_tx_buf[gps_i2c_tx_insert_idx++] = _char; \
+  uint16_t rx_buf_avail;
+  uint16_t rx_buf_idx;
+  uint16_t tx_buf_idx;
+
+  bool_t tx_rdy;
+
+  uint16_t bytes_to_read;
+
+  struct i2c_transaction trans;
+
+  int baudrate; //not actually used duhh
+
+  struct link_device device;
+};
+
+extern struct GpsUbxI2C gps_i2c;
+
+void gps_i2c_send(void);
+extern void gps_ubx_i2c_init(void);
+extern void gps_ubx_i2c_periodic(void);
+extern void gps_ubx_i2c_read_event(void);
+extern bool_t gps_i2c_tx_is_ready(void);
+extern void gps_i2c_begin(void);
+
+static inline void GpsUbxi2cEvent(void)
+{
+  if (gps_i2c.trans.status == I2CTransSuccess) {
+    gps_ubx_i2c_read_event();
+  } else if (gps_i2c.trans.status == I2CTransFailed) {
+    // if transaction failed, mark as done so can be retried
+    gps_i2c.trans.status = I2CTransDone;
   }
-#define gps_i2cSendMessage() {           \
-    gps_i2c_data_ready_to_transmit = TRUE; \
-    gps_i2c_tx_extract_idx = 0;            \
-  }
-// #define gps_i2cTxRunning (gps_i2c_data_ready_to_transmit)
-// #define gps_i2cInitParam(_baud, _uart_prm1, _uart_prm2) {}
+}
 
-#endif // GPS_I2C
+#endif // GPS_UBX_I2C_H
