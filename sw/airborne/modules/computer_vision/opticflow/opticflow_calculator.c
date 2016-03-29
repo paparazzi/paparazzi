@@ -297,8 +297,8 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   }
 
   // Flow Derotation
-  float diff_flow_x = 0;
-  float diff_flow_y = 0;
+  //float diff_flow_x = 0;
+  //float diff_flow_y = 0;
 
   // Flow Derotation TODO:
   float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
