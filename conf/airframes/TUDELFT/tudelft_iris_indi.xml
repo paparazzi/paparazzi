@@ -87,6 +87,12 @@
     <load name="mag_hmc58xx.xml">
       <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
       <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
+      <define name="HMC58XX_CHAN_X" value="1"/>
+      <define name="HMC58XX_CHAN_Y" value="0"/>
+      <define name="HMC58XX_CHAN_Z" value="2"/>
+      <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
+      <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
+      <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
     </load>
     <!--  <load name="spektrum_soft_bind.xml"/>-->
   </modules>
@@ -104,12 +110,12 @@
     <define name="ACCEL_Y_SENS" value="0.609921478775" integer="16"/>
     <define name="ACCEL_Z_SENS" value="0.619923942578" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="21"/>
-    <define name="MAG_Y_NEUTRAL" value="-93"/>
+    <define name="MAG_X_NEUTRAL" value="92"/>
+    <define name="MAG_Y_NEUTRAL" value="35"/>
     <define name="MAG_Z_NEUTRAL" value="-15"/>
-    <define name="MAG_X_SENS" value="5.1784060163" integer="16"/>
-    <define name="MAG_Y_SENS" value="5.55867516912" integer="16"/>
-    <define name="MAG_Z_SENS" value="5.06809390796" integer="16"/>
+    <define name="MAG_X_SENS" value="5.52543569751" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.91233764159" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.99453775296" integer="16"/>
   </section>
   <commands>
     <axis name="PITCH" failsafe_value="0" />
