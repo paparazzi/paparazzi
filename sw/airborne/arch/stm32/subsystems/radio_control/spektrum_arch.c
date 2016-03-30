@@ -530,6 +530,8 @@ void RadioControlEventImp(void (*frame_handler)(void))
        */
       for (int i = 0; i < Min(RADIO_CONTROL_NB_CHANNEL, (MaxChannelNum + 1)); i++) {
         radio_control.values[i] = SpektrumBuf[i];
+        //Only values between +-MAX_PPRZ are allowed
+        Bound(radio_control.values[i], -MAX_PPRZ, MAX_PPRZ);
         if (i == RADIO_THROTTLE) {
           radio_control.values[i] += MAX_PPRZ;
           radio_control.values[i] /= 2;
