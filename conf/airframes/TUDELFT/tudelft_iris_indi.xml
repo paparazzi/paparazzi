@@ -35,7 +35,7 @@
     </subsystem>
     <subsystem name="intermcu" type="uart">
       <configure name="INTERMCU_PORT" value="UART6" />
-      <configure name="INTERMCU_BAUD" value="B1500000" />
+      <configure name="INTERMCU_BAUD" value="B1500000" /> <!-- This is only during first 10s start up, afterwards it is set to 230400-->
     </subsystem>
   </firmware>
   <firmware name="rotorcraft">
@@ -58,7 +58,7 @@
     <define name="RC_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE" />
     <!-- Switch to Failsafe or to Autopilot on RC loss? -->
     <define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_AUTO" />
-    <define name="AP_LOST_FBW_MODE" value="FBW_MODE_MANUAL" />
+    <define name="AP_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE" />
     <!-- Switch to Failsafe or to Manual on AP loss? -->
     <define name="INTERMCU_LOST_CNT" value="100" />
     <subsystem name="intermcu" type="uart">

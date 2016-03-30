@@ -37,16 +37,29 @@
 #define INTERMCU_LOST_CNT 25  /* 50ms with a 512Hz timer TODO fixed value */
 #endif
 
+#include BOARD_CONFIG
+
 enum intermcu_status {
   INTERMCU_OK,
   INTERMCU_LOST
 };
 
+enum intermcu_PX4_baud_status {
+  PX4_BAUD,
+  CHANGING_BAUD,
+  PPRZ_BAUD
+};
+
 struct intermcu_t {
   enum intermcu_status status;
   uint8_t time_since_last_frame;
+#ifdef BOARD_PX4IO
+  enum intermcu_PX4_baud_status stable_px4_baud;
+#endif
 };
 extern struct intermcu_t inter_mcu;
+
+
 
 void intermcu_init(void);
 void intermcu_periodic(void);

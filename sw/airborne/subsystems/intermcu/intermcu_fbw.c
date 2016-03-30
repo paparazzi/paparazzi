@@ -31,13 +31,13 @@
 #include "pprzlink/pprz_transport.h"
 #include "modules/spektrum_soft_bind/spektrum_soft_bind_fbw.h"
 
+#include BOARD_CONFIG
 #ifdef BOARD_PX4IO
 #include "libopencm3/cm3/scb.h"
 #include "led.h"
 #include "mcu_periph/sys_time.h"
 static uint8_t px4RebootSequence[] = {0x41, 0xd7, 0x32, 0x0a, 0x46, 0x39};
 static uint8_t px4RebootSequenceCount = 0;
-static bool px4RebootTimeout = false;
 uint8_t autopilot_motors_on = false;
 tid_t px4bl_tid; ///< id for time out of the px4 bootloader reset
 #endif
@@ -63,7 +63,7 @@ void intermcu_init(void)
 {
   pprz_transport_init(&intermcu_transport);
 #ifdef BOARD_PX4IO
-  px4bl_tid = sys_time_register_timer(20.0, NULL);
+  px4bl_tid = sys_time_register_timer(10.0, NULL);
 #endif
 
 }
@@ -117,6 +117,19 @@ void intermcu_send_status(uint8_t mode)
   // Send Status
   (void)mode;
   //FIXME
+}
+
+
+void intermcu_blink_fbw_led(uint16_t dv)
+{
+  static uint16_t idv = 0;
+  if (!autopilot_motors_on) {
+    if (!(dv % (PERIODIC_FREQUENCY))) {
+      if (!(idv++ % 3)) { LED_OFF(FBW_MODE_LED);} else {LED_TOGGLE(FBW_MODE_LED);}
+    }
+  } else {
+    LED_TOGGLE(FBW_MODE_LED); // toggle makes random blinks if intermcu comm problem!
+  }
 }
 
 static void intermcu_parse_msg(struct transport_rx *trans, void (*commands_frame_handler)(void))
@@ -174,13 +187,22 @@ void InterMcuEvent(void (*frame_handler)(void))
 #ifdef BOARD_PX4IO
 static void checkPx4RebootCommand(unsigned char b)
 {
-  if (!px4RebootTimeout) {
-
+  if (inter_mcu.stable_px4_baud == CHANGING_BAUD && sys_time_check_and_ack_timer(px4bl_tid)) {
+    //to prevent a short intermcu comm loss, give some time to changing the baud
+    sys_time_cancel_timer(px4bl_tid);
+    inter_mcu.stable_px4_baud = PPRZ_BAUD;
+  } else if (inter_mcu.stable_px4_baud == PX4_BAUD) {
 
     if (sys_time_check_and_ack_timer(px4bl_tid)) {
       //time out the possibility to reboot to the px4 bootloader, to prevent unwanted restarts during flight
-      px4RebootTimeout = true;
       sys_time_cancel_timer(px4bl_tid);
+      //for unknown reasons, 1500000 baud does not work reliably after prolonged times.
+      //I suspect a temperature related issue, combined with the fbw f1 crystal which is out of specs
+      //After a initial period on 1500000, revert to 230400
+      //We still start at 1500000 to remain compatible with original PX4 firmware. (which always runs at 1500000)
+      uart_periph_set_baudrate(intermcu_device->periph, B230400);
+      inter_mcu.stable_px4_baud = CHANGING_BAUD;
+      px4bl_tid = sys_time_register_timer(1.0, NULL);
       return;
     }
 
