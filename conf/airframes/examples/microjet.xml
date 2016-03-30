@@ -180,7 +180,7 @@
     <module name="imu"       type="analog">
       <configure name="GYRO_P" value="ADC_3"/>
     </module>
-    <module name="gps"       type="ublox_utm"/>
+    <module name="gps"       type="ublox"/>
     <module name="infrared_adc"/>
     <module name="ahrs" type="infrared"/>
     <module name="ins" type="alt_float"/>
