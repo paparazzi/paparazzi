@@ -12,11 +12,12 @@
 <!ELEMENT event (handler*)>
 <!ELEMENT handler EMPTY>
 <!ELEMENT datalink EMPTY>
-<!ELEMENT makefile (configure|define|flag|file|file_arch|raw)*>
+<!ELEMENT makefile (configure|define|include|flag|file|file_arch|raw)*>
 <!ELEMENT section (define|configure)*>
 <!ELEMENT description (#PCDATA)>
 <!ELEMENT configure EMPTY>
 <!ELEMENT define EMPTY>
+<!ELEMENT include EMPTY>
 <!ELEMENT flag EMPTY>
 <!ELEMENT file EMPTY>
 <!ELEMENT file_arch EMPTY>
@@ -75,6 +76,10 @@ value CDATA #IMPLIED
 unit CDATA #IMPLIED
 type CDATA #IMPLIED
 description CDATA #IMPLIED
+cond CDATA #IMPLIED>
+
+<!ATTLIST include
+name CDATA #REQUIRED
 cond CDATA #IMPLIED>
 
 <!ATTLIST flag

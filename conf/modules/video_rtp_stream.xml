@@ -36,7 +36,7 @@
 
     <file name="viewvideo.c"/>
     <!-- Include the needed Computer Vision files -->
-    <define name="modules/computer_vision" type="include"/>
+    <include name="modules/computer_vision"/>
     <file name="rtp.c" dir="modules/computer_vision/lib/encoding"/>
 
     <!-- Define the network connection to send images over -->

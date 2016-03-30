@@ -43,8 +43,8 @@
     <file name="img_scanner.c" dir="$(LIBZBAR)/zbar"/>
 
     <!-- libexif flags -->
-    <define name="$(LIBZBAR)/zbar" type="include"/>
-    <define name="$(LIBZBAR)/include" type="include"/>
+    <include name="$(LIBZBAR)/zbar"/>
+    <include name="$(LIBZBAR)/include"/>
 
     <!--define name="DEBUG_QR_FINDER" value="1"/-->
 

@@ -32,7 +32,7 @@
     <file name="bebop_front_camera.c"/>
 
     <!-- Include the needed Computer Vision files -->
-    <define name="modules/computer_vision" type="include"/>
+    <include name="modules/computer_vision"/>
     <file name="image.c" dir="modules/computer_vision/lib/vision"/>
     <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
     <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>

@@ -78,7 +78,7 @@
 
   <makefile target="ap">
     <!-- Include the needed Computer Vision files -->
-    <define name="modules/computer_vision" type="include"/>
+    <include name="modules/computer_vision"/>
     <file name="image.c" dir="modules/computer_vision/lib/vision"/>
     <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
     <file name="rtp.c" dir="modules/computer_vision/lib/encoding"/>

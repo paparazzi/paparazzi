@@ -71,17 +71,27 @@ let configure_xml2mk = fun f xml ->
     fprintf f "%s_LOWER = $(shell echo $(%s) | tr A-Z a-z)\n" name name;
   if Str.string_match (Str.regexp ".*upper.*") case 0 then
     fprintf f "%s_UPPER = $(shell echo $(%s) | tr a-z A-Z)\n" name name
-  
 
-let define_xml2mk = fun f ?(target="$(TARGET)") ?(vpath=None) xml ->
+let include_xml2mk = fun f ?(target="$(TARGET)") ?(vpath=None) xml ->
   let name = Xml.attrib xml "name"
-  and value = try "=" ^ Xml.attrib xml "value" with _ -> "" in
-  let flag_type = match ExtXml.attrib_or_default xml "type" "define" with
-  | "define" | "D" -> "D"
-  | "include" | "I" -> "I" ^ (match vpath with Some vp -> vp ^ "/" | None -> "")
-  | "raw" -> ""
-  | _ -> "D" in
-  let flag = sprintf "%s.CFLAGS += -%s%s%s" target flag_type name value in
+  and path = match vpath with Some vp -> vp ^ "/" | None -> "" in
+  let flag = sprintf "%s.CFLAGS += -I%s%s" target path name in
+  try
+    (* TODO: add condition in xml syntax ? *)
+    let cond = Xml.attrib xml "cond" in
+    fprintf f "%s\n%s\nendif\n" cond flag
+  with Xml.No_attribute _ -> fprintf f "%s\n" flag
+
+let define_xml2mk = fun f ?(target="$(TARGET)") xml ->
+  let name = Xml.attrib xml "name"
+  and value = try Some (Xml.attrib xml "value") with _ -> None in
+  let flag_type = fun s ->
+    match ExtXml.attrib_or_default xml "type" "raw", value with
+    | "string", Some v -> "=\\\""^v^"\\\""
+    | _, Some v -> "="^v
+    | _, _ -> ""
+  in
+  let flag = sprintf "%s.CFLAGS += -D%s%s" target name (flag_type value) in
   try
     (* TODO: add condition in xml syntax ? *)
     let cond = Xml.attrib xml "cond" in
@@ -132,7 +142,8 @@ let module_xml2mk = fun f target firmware m ->
       (fun field ->
           match String.lowercase (Xml.tag field) with
           | "configure" -> configure_xml2mk f field
-          | "define" -> define_xml2mk f ~target ~vpath:m.vpath field
+          | "define" -> define_xml2mk f ~target field
+          | "include" -> include_xml2mk f ~target ~vpath:m.vpath field
           | "flag" ->
               let value = Xml.attrib field "value"
               and name = Xml.attrib field "name" in
