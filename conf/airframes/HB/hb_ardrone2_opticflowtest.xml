@@ -18,9 +18,12 @@
     <subsystem name="actuators" type="ardrone2"/>
     <subsystem name="imu" type="ardrone2"/>
     <!-- gps: "ublox" or change to "sirf" for usage with parrot flight recorder -->
-    <subsystem name="gps" type="ublox"/>
+    <subsystem name="gps" type="datalink"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
+    <subsystem name="ahrs" type="int_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="FALSE"/> <!-- Heading is from Optitrack, in reguler outside flight case one would use and Magnetometer-->
+      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
+    </subsystem>
     <subsystem name="ins" type="extended"/>
   </firmware>
 
@@ -98,19 +101,17 @@
   <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
   <section name="AHRS" prefix="AHRS_">
     <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
-    <!-- Toulouse -->
-    <define name="H_X" value="0.513081"/>
-    <define name="H_Y" value="-0.00242783"/>
-    <define name="H_Z" value="0.858336"/>
     <!-- Delft -->
-    <!--define name="H_X" value="0.3892503"/>
+    <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
-    <define name="H_Z" value="0.9211303"/ -->
+    <define name="H_Z" value="0.9211303"/>
   </section>
 
-  <section name="INS" prefix="INS_">
+<section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
+    <define name="USE_GPS_ALT" value="TRUE"/>
+    <define name="VFF_R_GPS" value="0.01"/>
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
@@ -186,7 +187,7 @@
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <!-- Good weather -->
-    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="MAX_BANK" value="12" unit="deg"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
     <define name="PGAIN" value="79"/>
@@ -210,8 +211,8 @@
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="9.7" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.8" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.4" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 </airframe>
