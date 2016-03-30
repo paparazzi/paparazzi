@@ -24,7 +24,7 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "mcu_periph/sys_time.h"
-#include "pprzlink/messages.h"
+#include "modules/gps/gps_ubx_i2c.h"
 #include "subsystems/datalink/downlink.h"
 #include <math.h>
 

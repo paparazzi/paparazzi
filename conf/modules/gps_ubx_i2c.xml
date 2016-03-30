@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_i2c" dir="gps">
+<module name="gps_ubx_i2c" dir="gps">
   <doc>
     <description>
       U-blox GPS (I2C)
@@ -9,7 +9,7 @@
   </doc>
 
   <header>
-    <file name="gps_i2c.h"/>
+    <file name="gps_ubx_i2c.h"/>
   </header>
   <init fun="gps_ubx_i2c_init()"/>
   <periodic fun="gps_ubx_i2c_periodic()" freq="10."/>
@@ -21,7 +21,7 @@
     <define name="GPS_UBX_I2C_DEV" value="$(GPS_UBX_I2C_DEV_LOWER)"/>
     <define name="GPS_I2C"/>
     <define name="I2C_BUF_LEN" value="255"/>
-    <file name="gps_i2c.c"/>
+    <file name="gps_ubx_i2c.c"/>
   </makefile>
 
 </module>
