@@ -37,10 +37,10 @@
 
   <servos driver="Pwm">
     <servo name="THROTTLE"   no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="FRONT"      no="1" min="2100" neutral="1500" max="900"/>
-    <servo name="RIGHTBACK"  no="2" min="900"  neutral="1500" max="2100"/>
-    <servo name="LEFTBACK"   no="3" min="2100" neutral="1500" max="900"/>
-    <servo name="TAIL"       no="4" min="1100" neutral="1450" max="1800"/>
+    <servo name="BACK"      no="1" min="1050" neutral="1500" max="1950"/>
+    <servo name="LEFTFRONT"  no="2" min="1050"  neutral="1500" max="1950"/>
+    <servo name="RIGHTFRONT"   no="3" min="1950" neutral="1500" max="1050"/>
+    <servo name="TAIL"       no="4" min="1850" neutral="1600" max="1350"/>
   </servos>
 
   <commands>
@@ -61,7 +61,7 @@
 
   <section name="MIXING" prefix="SW_MIXING_">
     <!-- front left (CW), front right (CCW), back right (CW), back left (CCW) -->
-    <define name="TYPE" value="H120"/>
+    <define name="TYPE" value="HR120"/>
     <define name="TRIM_ROLL"  value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_COLL"  value="0"/>
@@ -71,9 +71,9 @@
     <call fun="throttle_curve_run(autopilot_motors_on, values)"/>
     <call fun="swashplate_mixing_run(values)"/>
     <set servo="THROTTLE"    value="throttle_curve.throttle"/>
-    <set servo="FRONT"       value="swashplate_mixing.commands[SW_FRONT]"/>
-    <set servo="RIGHTBACK"   value="swashplate_mixing.commands[SW_RIGHTBACK]"/>
-    <set servo="LEFTBACK"    value="swashplate_mixing.commands[SW_LEFTBACK]"/>
+    <set servo="BACK"        value="swashplate_mixing.commands[SW_BACK]"/>
+    <set servo="LEFTFRONT"   value="swashplate_mixing.commands[SW_LEFTFRONT]"/>
+    <set servo="RIGHTFRONT"  value="swashplate_mixing.commands[SW_RIGHTFRONT]"/>
     <set servo="TAIL"        value="@YAW + throttle_curve.throttle*2800/7000"/>
   </command_laws>
 
