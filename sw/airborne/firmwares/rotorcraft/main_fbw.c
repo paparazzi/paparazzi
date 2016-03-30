@@ -37,18 +37,16 @@
 #include "subsystems/actuators/motor_mixing.h"
 #endif
 
-
 #include "subsystems/electrical.h"
-
 #include "subsystems/radio_control.h"
-
 #include "subsystems/intermcu/intermcu_fbw.h"
-
 #include "firmwares/rotorcraft/main_fbw.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 
 #define MODULES_C
 #include "generated/modules.h"
+
+
 
 /** Fly by wire modes */
 typedef enum {FBW_MODE_MANUAL = 0, FBW_MODE_AUTO = 1, FBW_MODE_FAILSAFE = 2} fbw_mode_enum;
@@ -178,18 +176,31 @@ STATIC_INLINE void main_periodic(void)
     }
   }
 
+#ifdef BOARD_PX4IO
+  //due to a baud rate issue on PX4, for a few seconds the baud is 1500000 however this may result in package loss, causing the motors to spin at random
+  //to prevent this situation:
+  if (inter_mcu.stable_px4_baud != PPRZ_BAUD) {
+    fbw_mode = FBW_MODE_FAILSAFE;
+    autopilot_motors_on = false;
+    //signal to user whether fbw can be flashed:
+#ifdef FBW_MODE_LED
+    LED_OFF(FBW_MODE_LED); // causes really fast blinking
+#endif
+  }
+#endif
 
   static uint16_t dv = 0;
   // TODO make module out of led blink?
   /* set failsafe commands     */
   if (fbw_mode == FBW_MODE_FAILSAFE) {
+    autopilot_motors_on = false;
     SetCommands(commands_failsafe);
 #ifdef FBW_MODE_LED
     if (!(dv++ % (PERIODIC_FREQUENCY / 20))) { LED_TOGGLE(FBW_MODE_LED);}
   } else if (fbw_mode == FBW_MODE_MANUAL) {
     if (!(dv++ % (PERIODIC_FREQUENCY))) { LED_TOGGLE(FBW_MODE_LED);}
   } else if (fbw_mode == FBW_MODE_AUTO) {
-    LED_TOGGLE(FBW_MODE_LED); // toggle instead of on, because then it is still visible when fbw_mode switches very fast
+    intermcu_blink_fbw_led(dv++);
 #endif // FWB_MODE_LED
   }
 
@@ -208,7 +219,10 @@ static void autopilot_on_rc_frame(void)
 {
   /* get autopilot fbw mode as set by RADIO_MODE 3-way switch */
   if (radio_control.values[RADIO_FBW_MODE] < (MIN_PPRZ / 2)) {
-    fbw_mode = FBW_MODE_MANUAL;
+    //TODO, check whether the aircraft can actually be flown in manual mode
+    //most rotory aircraft can't, at least not without additional IMU aid
+    //for now, just turn set to failsafe instead of manual mode.
+    fbw_mode = FBW_MODE_FAILSAFE;
   } else {
     fbw_mode = FBW_MODE_AUTO;
   }
@@ -222,6 +236,7 @@ static void autopilot_on_rc_frame(void)
   /* if manual */
   if (fbw_mode == FBW_MODE_MANUAL) {
     autopilot_motors_on = true;
+    SetCommands(commands_failsafe);
 #ifdef SetCommandsFromRC
     SetCommandsFromRC(commands, radio_control.values);
 #else
@@ -237,8 +252,10 @@ static void autopilot_on_ap_command(void)
 {
   if (fbw_mode != FBW_MODE_MANUAL) {
     SetCommands(intermcu_commands);
-  } else {
+  } else if (fbw_mode == FBW_MODE_AUTO) {
     autopilot_motors_on = true;
+  } else {
+    autopilot_motors_on = false;
   }
 }
 
