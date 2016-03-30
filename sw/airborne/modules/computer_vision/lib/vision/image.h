@@ -52,8 +52,8 @@ struct image_t {
 
 /* Image point structure */
 struct point_t {
-  uint32_t x;             ///< The x coordinate of the point // CHANGED 16 -> 32
-  uint32_t y;             ///< The y coordinate of the point // CHANGED 16 -> 32
+  uint32_t x;             ///< The x coordinate of the point
+  uint32_t y;             ///< The y coordinate of the point
 };
 
 /* Vector structure for point differences */

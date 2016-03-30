@@ -104,6 +104,11 @@ PRINT_CONFIG_VAR(OPTICFLOW_MAX_ITERATIONS)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_THRESHOLD_VEC)
 
+#ifndef OPTICFLOW_PYRAMID_LVL
+#define OPTICFLOW_PYRAMID_LVL 3
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_PYRAMID_LVL)
+
 #ifndef OPTICFLOW_FAST9_ADAPTIVE
 #define OPTICFLOW_FAST9_ADAPTIVE TRUE
 #endif
@@ -165,6 +170,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->subpixel_factor = OPTICFLOW_SUBPIXEL_FACTOR;
   opticflow->max_iterations = OPTICFLOW_MAX_ITERATIONS;
   opticflow->threshold_vec = OPTICFLOW_THRESHOLD_VEC;
+  opticflow->pyramid_lvl = OPTICFLOW_PYRAMID_LVL;
 
   opticflow->fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE;
   opticflow->fast9_threshold = OPTICFLOW_FAST9_THRESHOLD;
@@ -238,8 +244,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   result->tracked_cnt = result->corner_cnt;
   struct flow_t *vectors = opticFlowLK(&opticflow->img_gray, &opticflow->prev_img_gray, corners, &result->tracked_cnt,
                                        opticflow->window_size / 2, opticflow->subpixel_factor, opticflow->max_iterations,
-                                       opticflow->threshold_vec, opticflow->max_track_corners, 3);
-
+                                       opticflow->threshold_vec, opticflow->max_track_corners, opticflow->pyramid_lvl);
 
 #if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_FLOW
   image_show_flow(img, vectors, result->tracked_cnt, opticflow->subpixel_factor);
@@ -297,12 +302,12 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   }
 
   // Flow Derotation
-  //float diff_flow_x = 0;
-  //float diff_flow_y = 0;
+  float diff_flow_x = 0;
+  float diff_flow_y = 0;
 
-  // Flow Derotation TODO:
+  /*// Flow Derotation TODO:
   float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
-  float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;
+  float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;*/
 
   if (opticflow->derotation) {
     diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;

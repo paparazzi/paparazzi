@@ -244,6 +244,7 @@ void image_yuv422_downsample(struct image_t *input, struct image_t *output, uint
  */
 void image_add_border(struct image_t *input, struct image_t *output, uint8_t border_size)
 {
+	// Create padded image based on input
 	image_create(output, input->w + 2 * border_size, input->h + 2 * border_size, input->type);
 
 	uint8_t *input_buf = (uint8_t *)input->buf;
@@ -273,8 +274,9 @@ void image_add_border(struct image_t *input, struct image_t *output, uint8_t bor
 
 /**
  * This function takes previous padded pyramid level and outputs next level of pyramid without padding.
- * For calculating new pixel value 5x5 filter matrix suggested by Bouguet is used in decimal number form:
+ * For calculating new pixel value 5x5 filter matrix suggested by Bouguet is used:
  * [1/16 1/8 3/4 1/8 1/16]' x [1/16 1/8 3/4 1/8 1/16]
+ * To avoid decimal numbers, all coefficients are multiplied by 10000.
  *
  * @param[in]  *input  - input image (grayscale only)
  * @param[out] *output - the output image

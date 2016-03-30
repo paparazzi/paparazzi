@@ -44,9 +44,10 @@
 
 
 /**
- * Compute the optical flow of several points using the Lucas-Kanade algorithm by Yves Bouguet
+ * Compute the optical flow of several points using the pyramidal Lucas-Kanade algorithm by Yves Bouguet
  * The initial fixed-point implementation is done by G. de Croon and is adapted by
  * Freek van Tienen for the implementation in Paparazzi.
+ * Pyramids implementation and related development done by Hrvoje Brezak.
  * @param[in] *new_img The newest grayscale image (TODO: fix YUV422 support)
  * @param[in] *old_img The old grayscale image (TODO: fix YUV422 support)
  * @param[in] *points Points to start tracking from
@@ -60,19 +61,22 @@
  * @return The vectors from the original *points in subpixels
  */
 struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, struct point_t *points, uint16_t *points_cnt, uint16_t half_window_size,
-		uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold, uint8_t max_points, uint8_t pyramid_level) {
+		uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold, uint8_t max_points, uint8_t pyramid_lvl) {
 
 
 	// Pyramidal implementation of Lucas-Kanade feature tracker.
-	// For all points:
-	// (1) determine the subpixel neighborhood in the old image
-	// (2) get the x- and y- gradients
-	// (3) determine the 'G'-matrix [sum(Axx) sum(Axy); sum(Axy) sum(Ayy)], where sum is over the window
-	// (4) iterate over taking steps in the image to minimize the error:
-	//     [a] get the subpixel neighborhood in the new image
-	//     [b] determine the image difference between the two neighborhoods
-	//     [c] calculate the 'b'-vector
-	//     [d] calculate the additional flow step and possibly terminate the iteration
+	// Uses input images to build pyramid of padded images.
+	// For every pyramid level:
+	// 		For all points:
+	// 			(1) determine the subpixel neighborhood in the old image
+	// 			(2) get the x- and y- gradients
+	// 			(3) determine the 'G'-matrix [sum(Axx) sum(Axy); sum(Axy) sum(Ayy)], where sum is over the window
+	// 			(4) iterate over taking steps in the image to minimize the error:
+	//     			[a] get the subpixel neighborhood in the new image
+	//     			[b] determine the image difference between the two neighborhoods
+	//     			[c] calculate the 'b'-vector
+	//     			[d] calculate the additional flow step and possibly terminate the iteration
+	//			(5) use calculated flow as initial flow estimation for next level of pyramid
 
 	// Allocate some memory for returning the vectors
 	struct flow_t *vectors = malloc(sizeof(struct flow_t) * max_points);
@@ -81,16 +85,16 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 	uint16_t patch_size = 2 * half_window_size + 1;
 	uint32_t error_threshold = (25 * 25) * (patch_size * patch_size);
 	uint16_t padded_patch_size = patch_size + 2;
-	uint8_t border_size = padded_patch_size / 2 + 2;
+	uint8_t border_size = padded_patch_size / 2 + 2; // amount of padding added to images
 	step_threshold = step_threshold*(subpixel_factor/100);
 
 	// Allocate memory for image pyramids
-	struct image_t *pyramid_old = malloc(sizeof(struct image_t) * (pyramid_level+1));
-	struct image_t *pyramid_new = malloc(sizeof(struct image_t) * (pyramid_level+1));
+	struct image_t *pyramid_old = malloc(sizeof(struct image_t) * (pyramid_lvl + 1));
+	struct image_t *pyramid_new = malloc(sizeof(struct image_t) * (pyramid_lvl + 1));
 
 	// Build pyramid levels
-	pyramid_build(old_img, pyramid_old, pyramid_level, border_size);
-	pyramid_build(new_img, pyramid_new, pyramid_level, border_size);
+	pyramid_build(old_img, pyramid_old, pyramid_lvl, border_size);
+	pyramid_build(new_img, pyramid_new, pyramid_lvl, border_size);
 
 	// Create the window images
 	struct image_t window_I, window_J, window_DX, window_DY, window_diff;
@@ -101,12 +105,12 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 	image_create(&window_diff, patch_size, patch_size, IMAGE_GRADIENT);
 
 	// Iterate through pyramid levels
-	for (int8_t LVL = pyramid_level; LVL != -1; LVL--) {
+	for (int8_t LVL = pyramid_lvl; LVL != -1; LVL--) {
 		uint16_t points_orig = *points_cnt;
 		*points_cnt = 0;
 		uint16_t new_p = 0;
 
-		// Calculate the amount of points to skip - disabled until needed
+		// Calculate the amount of points to skip
 		float skip_points =	(points_orig > max_points) ? (float)points_orig / max_points : 1;
 
 		// Go through all points
@@ -114,23 +118,23 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 		{
 			uint16_t p = i * skip_points;
 
-			if (LVL == pyramid_level)
+			if (LVL == pyramid_lvl)
 			{
-				// Convert the point to a subpixel coordinate on the top pyramid level
-				vectors[new_p].pos.x = (points[p].x * subpixel_factor) >> pyramid_level;
-				vectors[new_p].pos.y = (points[p].y * subpixel_factor) >> pyramid_level;
+				// Convert point position on original image to a subpixel coordinate on the top pyramid level
+				vectors[new_p].pos.x = (points[p].x * subpixel_factor) >> pyramid_lvl;
+				vectors[new_p].pos.y = (points[p].y * subpixel_factor) >> pyramid_lvl;
 				vectors[new_p].flow_x = 0;
 				vectors[new_p].flow_y = 0;
 
 			} else {
-				// Convert last pyramid level flow into this pyramid level flow guess
+				// (5) use calculated flow as initial flow estimation for next level of pyramid
 				vectors[new_p].pos.x = vectors[p].pos.x << 1;
 				vectors[new_p].pos.y = vectors[p].pos.y << 1;
 				vectors[new_p].flow_x = vectors[p].flow_x << 1;
 				vectors[new_p].flow_y = vectors[p].flow_y << 1;
 			}
 
-			// If the pixel is outside ROI, do not track it
+			// If the pixel is outside original image, do not track it
 			if ((((int32_t) vectors[new_p].pos.x + vectors[new_p].flow_x) < 0)
 					|| ((vectors[new_p].pos.x + vectors[new_p].flow_x) > ((pyramid_new[LVL].w - 1 - 2 * border_size)* subpixel_factor))
 					|| (((int32_t) vectors[new_p].pos.y + vectors[new_p].flow_y) < 0)
@@ -166,7 +170,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 											 vectors[new_p].pos.y + vectors[new_p].flow_y };
 
 
-				// If the pixel is outside ROI, do not track it
+				// If the pixel is outside original image, do not track it
 				if ( (( (int32_t)vectors[new_p].pos.x  + vectors[new_p].flow_x) < 0)
 						|| ( new_point.x > ((pyramid_new[LVL].w - 1 - 2*border_size)*subpixel_factor))
 						|| (((int32_t)vectors[new_p].pos.y  + vectors[new_p].flow_y) < 0)
@@ -220,7 +224,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 	image_free(&window_DY);
 	image_free(&window_diff);
 
-	for (int8_t i = pyramid_level; i!= -1; i--){
+	for (int8_t i = pyramid_lvl; i!= -1; i--){
 		image_free(&pyramid_old[i]);
 		image_free(&pyramid_new[i]);
 	}
