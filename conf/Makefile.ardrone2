@@ -19,31 +19,11 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux-toolchain
+#
+# This Makefile uses the generic Makefile.arm-linux and adds upload rules for the ARDrone2
+#
 
-# Define OMAP A8 ARDrone2 specifc flags
-
-FLOAT_ABI ?= -mfloat-abi=softfp
-#FLOAT_ABI ?= -mfloat-abi=hard
-
-# ARCH_CFLAGS ?= -O3 -marm  -funsafe-math-optimizations -mcpu=cortex-a8 -mtune=cortex-a8 -march=armv7-a -mfpu=neon -ftree-vectorize -ftree-vectorizer-verbose=1 -ffast-math -fomit-frame-pointer -funroll-loops
-ARCH_CFLAGS ?= -O3 -marm -mstructure-size-boundary=32 -funsafe-math-optimizations -mcpu=cortex-a8 -mtune=cortex-a8 -march=armv7-a -mfpu=neon -ftree-vectorize -ftree-vectorizer-verbose=1 -funroll-loops -ffast-math 
-# When -pg is used this cannot -fomit-frame-pointer
-
-# -ffast-math is added in generic Makefile.linux later on..
-
-# TODO: arm{?}strip -R .comment -R .note -R .note.ABI-tag ap.elf
-
-# with armv7, unaligned data can still be read
-CFLAGS += -DPPRZLINK_UNALIGNED_ACCESS=1
-
-# add ARM specifc flags to CFLAGS, LDFLAGS
-CFLAGS += $(FLOAT_ABI) $(ARCH_CFLAGS) -pg
-LDFLAGS += $(FLOAT_ABI) -pg
-CXXFLAGS += $(FLOAT_ABI) $(ARCH_CFLAGS) -pg
-
-# include the common linux Makefile (common CFLAGS, actual targets)
-include $(PAPARAZZI_SRC)/conf/Makefile.linux
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux
 
 DRONE = $(PAPARAZZI_SRC)/sw/tools/parrot/ardrone2.py
 

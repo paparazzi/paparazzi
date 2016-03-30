@@ -60,177 +60,176 @@
  * @param[in] pyramid_level Level of pyramid used in computation (0 == no pyramids used)
  * @return The vectors from the original *points in subpixels
  */
-struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, struct point_t *points, uint16_t *points_cnt, uint16_t half_window_size,
-		uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold, uint8_t max_points, uint8_t pyramid_lvl) {
+struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, struct point_t *points,
+                           uint16_t *points_cnt, uint16_t half_window_size,
+                           uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold, uint8_t max_points, uint8_t pyramid_lvl)
+{
 
 
-	// Pyramidal implementation of Lucas-Kanade feature tracker.
-	// Uses input images to build pyramid of padded images.
-	// For every pyramid level:
-	// 		For all points:
-	// 			(1) determine the subpixel neighborhood in the old image
-	// 			(2) get the x- and y- gradients
-	// 			(3) determine the 'G'-matrix [sum(Axx) sum(Axy); sum(Axy) sum(Ayy)], where sum is over the window
-	// 			(4) iterate over taking steps in the image to minimize the error:
-	//     			[a] get the subpixel neighborhood in the new image
-	//     			[b] determine the image difference between the two neighborhoods
-	//     			[c] calculate the 'b'-vector
-	//     			[d] calculate the additional flow step and possibly terminate the iteration
-	//			(5) use calculated flow as initial flow estimation for next level of pyramid
+  // Pyramidal implementation of Lucas-Kanade feature tracker.
+  // Uses input images to build pyramid of padded images.
+  // For every pyramid level:
+  //    For all points:
+  //      (1) determine the subpixel neighborhood in the old image
+  //      (2) get the x- and y- gradients
+  //      (3) determine the 'G'-matrix [sum(Axx) sum(Axy); sum(Axy) sum(Ayy)], where sum is over the window
+  //      (4) iterate over taking steps in the image to minimize the error:
+  //          [a] get the subpixel neighborhood in the new image
+  //          [b] determine the image difference between the two neighborhoods
+  //          [c] calculate the 'b'-vector
+  //          [d] calculate the additional flow step and possibly terminate the iteration
+  //      (5) use calculated flow as initial flow estimation for next level of pyramid
 
-	// Allocate some memory for returning the vectors
-	struct flow_t *vectors = malloc(sizeof(struct flow_t) * max_points);
+  // Allocate some memory for returning the vectors
+  struct flow_t *vectors = malloc(sizeof(struct flow_t) * max_points);
 
-	// Determine patch sizes and initialize neighborhoods
-	uint16_t patch_size = 2 * half_window_size + 1;
-	uint32_t error_threshold = (25 * 25) * (patch_size * patch_size);
-	uint16_t padded_patch_size = patch_size + 2;
-	uint8_t border_size = padded_patch_size / 2 + 2; // amount of padding added to images
-	step_threshold = step_threshold*(subpixel_factor/100);
+  // Determine patch sizes and initialize neighborhoods
+  uint16_t patch_size = 2 * half_window_size + 1;
+  uint32_t error_threshold = (25 * 25) * (patch_size * patch_size);
+  uint16_t padded_patch_size = patch_size + 2;
+  uint8_t border_size = padded_patch_size / 2 + 2; // amount of padding added to images
+  step_threshold = step_threshold * (subpixel_factor / 100);
 
-	// Allocate memory for image pyramids
-	struct image_t *pyramid_old = malloc(sizeof(struct image_t) * (pyramid_lvl + 1));
-	struct image_t *pyramid_new = malloc(sizeof(struct image_t) * (pyramid_lvl + 1));
+  // Allocate memory for image pyramids
+  struct image_t *pyramid_old = malloc(sizeof(struct image_t) * (pyramid_lvl + 1));
+  struct image_t *pyramid_new = malloc(sizeof(struct image_t) * (pyramid_lvl + 1));
 
-	// Build pyramid levels
-	pyramid_build(old_img, pyramid_old, pyramid_lvl, border_size);
-	pyramid_build(new_img, pyramid_new, pyramid_lvl, border_size);
+  // Build pyramid levels
+  pyramid_build(old_img, pyramid_old, pyramid_lvl, border_size);
+  pyramid_build(new_img, pyramid_new, pyramid_lvl, border_size);
 
-	// Create the window images
-	struct image_t window_I, window_J, window_DX, window_DY, window_diff;
-	image_create(&window_I, padded_patch_size, padded_patch_size, IMAGE_GRAYSCALE);
-	image_create(&window_J, patch_size, patch_size, IMAGE_GRAYSCALE);
-	image_create(&window_DX, patch_size, patch_size, IMAGE_GRADIENT);
-	image_create(&window_DY, patch_size, patch_size, IMAGE_GRADIENT);
-	image_create(&window_diff, patch_size, patch_size, IMAGE_GRADIENT);
+  // Create the window images
+  struct image_t window_I, window_J, window_DX, window_DY, window_diff;
+  image_create(&window_I, padded_patch_size, padded_patch_size, IMAGE_GRAYSCALE);
+  image_create(&window_J, patch_size, patch_size, IMAGE_GRAYSCALE);
+  image_create(&window_DX, patch_size, patch_size, IMAGE_GRADIENT);
+  image_create(&window_DY, patch_size, patch_size, IMAGE_GRADIENT);
+  image_create(&window_diff, patch_size, patch_size, IMAGE_GRADIENT);
 
-	// Iterate through pyramid levels
-	for (int8_t LVL = pyramid_lvl; LVL != -1; LVL--) {
-		uint16_t points_orig = *points_cnt;
-		*points_cnt = 0;
-		uint16_t new_p = 0;
+  // Iterate through pyramid levels
+  for (int8_t LVL = pyramid_lvl; LVL != -1; LVL--) {
+    uint16_t points_orig = *points_cnt;
+    *points_cnt = 0;
+    uint16_t new_p = 0;
 
-		// Calculate the amount of points to skip
-		float skip_points =	(points_orig > max_points) ? (float)points_orig / max_points : 1;
+    // Calculate the amount of points to skip
+    float skip_points = (points_orig > max_points) ? (float)points_orig / max_points : 1;
 
-		// Go through all points
-		for (uint16_t i = 0; i < max_points && i < points_orig; i++)
-		{
-			uint16_t p = i * skip_points;
+    // Go through all points
+    for (uint16_t i = 0; i < max_points && i < points_orig; i++) {
+      uint16_t p = i * skip_points;
 
-			if (LVL == pyramid_lvl)
-			{
-				// Convert point position on original image to a subpixel coordinate on the top pyramid level
-				vectors[new_p].pos.x = (points[p].x * subpixel_factor) >> pyramid_lvl;
-				vectors[new_p].pos.y = (points[p].y * subpixel_factor) >> pyramid_lvl;
-				vectors[new_p].flow_x = 0;
-				vectors[new_p].flow_y = 0;
+      if (LVL == pyramid_lvl) {
+        // Convert point position on original image to a subpixel coordinate on the top pyramid level
+        vectors[new_p].pos.x = (points[p].x * subpixel_factor) >> pyramid_lvl;
+        vectors[new_p].pos.y = (points[p].y * subpixel_factor) >> pyramid_lvl;
+        vectors[new_p].flow_x = 0;
+        vectors[new_p].flow_y = 0;
 
-			} else {
-				// (5) use calculated flow as initial flow estimation for next level of pyramid
-				vectors[new_p].pos.x = vectors[p].pos.x << 1;
-				vectors[new_p].pos.y = vectors[p].pos.y << 1;
-				vectors[new_p].flow_x = vectors[p].flow_x << 1;
-				vectors[new_p].flow_y = vectors[p].flow_y << 1;
-			}
+      } else {
+        // (5) use calculated flow as initial flow estimation for next level of pyramid
+        vectors[new_p].pos.x = vectors[p].pos.x << 1;
+        vectors[new_p].pos.y = vectors[p].pos.y << 1;
+        vectors[new_p].flow_x = vectors[p].flow_x << 1;
+        vectors[new_p].flow_y = vectors[p].flow_y << 1;
+      }
 
-			// If the pixel is outside original image, do not track it
-			if ((((int32_t) vectors[new_p].pos.x + vectors[new_p].flow_x) < 0)
-					|| ((vectors[new_p].pos.x + vectors[new_p].flow_x) > ((pyramid_new[LVL].w - 1 - 2 * border_size)* subpixel_factor))
-					|| (((int32_t) vectors[new_p].pos.y + vectors[new_p].flow_y) < 0)
-					|| ((vectors[new_p].pos.y + vectors[new_p].flow_y) > ((pyramid_new[LVL].h - 1 - 2 * border_size)* subpixel_factor)))
-			{
-				continue;
-			}
+      // If the pixel is outside original image, do not track it
+      if ((((int32_t) vectors[new_p].pos.x + vectors[new_p].flow_x) < 0)
+          || ((vectors[new_p].pos.x + vectors[new_p].flow_x) > ((pyramid_new[LVL].w - 1 - 2 * border_size)* subpixel_factor))
+          || (((int32_t) vectors[new_p].pos.y + vectors[new_p].flow_y) < 0)
+          || ((vectors[new_p].pos.y + vectors[new_p].flow_y) > ((pyramid_new[LVL].h - 1 - 2 * border_size)* subpixel_factor))) {
+        continue;
+      }
 
 
-			// (1) determine the subpixel neighborhood in the old image
-			image_subpixel_window(&pyramid_old[LVL], &window_I, &vectors[new_p].pos, subpixel_factor, border_size);
+      // (1) determine the subpixel neighborhood in the old image
+      image_subpixel_window(&pyramid_old[LVL], &window_I, &vectors[new_p].pos, subpixel_factor, border_size);
 
-			// (2) get the x- and y- gradients
-			image_gradients(&window_I, &window_DX, &window_DY);
+      // (2) get the x- and y- gradients
+      image_gradients(&window_I, &window_DX, &window_DY);
 
-			// (3) determine the 'G'-matrix [sum(Axx) sum(Axy); sum(Axy) sum(Ayy)], where sum is over the window
-			int32_t G[4];
-			image_calculate_g(&window_DX, &window_DY, G);
+      // (3) determine the 'G'-matrix [sum(Axx) sum(Axy); sum(Axy) sum(Ayy)], where sum is over the window
+      int32_t G[4];
+      image_calculate_g(&window_DX, &window_DY, G);
 
-			// calculate G's determinant in subpixel units:
-			int32_t Det = ( G[0] * G[3] - G[1] * G[2]);
+      // calculate G's determinant in subpixel units:
+      int32_t Det = (G[0] * G[3] - G[1] * G[2]);
 
-			// Check if the determinant is bigger than 1
-			if (Det < 1) {
-				continue;
-			}
+      // Check if the determinant is bigger than 1
+      if (Det < 1) {
+        continue;
+      }
 
-			// (4) iterate over taking steps in the image to minimize the error:
-			bool_t tracked = TRUE;
+      // (4) iterate over taking steps in the image to minimize the error:
+      bool_t tracked = TRUE;
 
-			for (uint8_t it = max_iterations; it--; ) {
-				struct point_t new_point = { vectors[new_p].pos.x  + vectors[new_p].flow_x,
-											 vectors[new_p].pos.y + vectors[new_p].flow_y };
-
-
-				// If the pixel is outside original image, do not track it
-				if ( (( (int32_t)vectors[new_p].pos.x  + vectors[new_p].flow_x) < 0)
-						|| ( new_point.x > ((pyramid_new[LVL].w - 1 - 2*border_size)*subpixel_factor))
-						|| (((int32_t)vectors[new_p].pos.y  + vectors[new_p].flow_y) < 0)
-						|| ( new_point.y > ((pyramid_new[LVL].h - 1 - 2*border_size)*subpixel_factor)) )
-				{
-					tracked = FALSE;
-					break;
-				}
-
-				//     [a] get the subpixel neighborhood in the new image
-				image_subpixel_window(&pyramid_new[LVL], &window_J, &new_point, subpixel_factor, border_size);
-
-				//     [b] determine the image difference between the two neighborhoods
-				uint32_t error = image_difference(&window_I, &window_J, &window_diff);
-
-				if (error > error_threshold && it < max_iterations / 2) {
-					tracked = FALSE;
-					break;
-				}
-
-				int32_t b_x = image_multiply(&window_diff, &window_DX, NULL) / 255;
-				int32_t b_y = image_multiply(&window_diff, &window_DY, NULL) / 255;
+      for (uint8_t it = max_iterations; it--;) {
+        struct point_t new_point = { vectors[new_p].pos.x  + vectors[new_p].flow_x,
+                 vectors[new_p].pos.y + vectors[new_p].flow_y
+        };
 
 
-				//     [d] calculate the additional flow step and possibly terminate the iteration
-				int16_t step_x = (( (int64_t) G[3] * b_x - G[1] * b_y) * subpixel_factor) / Det;
-				int16_t step_y = (( (int64_t) G[0] * b_y - G[2] * b_x) * subpixel_factor) / Det;
+        // If the pixel is outside original image, do not track it
+        if ((((int32_t)vectors[new_p].pos.x  + vectors[new_p].flow_x) < 0)
+            || (new_point.x > ((pyramid_new[LVL].w - 1 - 2 * border_size)*subpixel_factor))
+            || (((int32_t)vectors[new_p].pos.y  + vectors[new_p].flow_y) < 0)
+            || (new_point.y > ((pyramid_new[LVL].h - 1 - 2 * border_size)*subpixel_factor))) {
+          tracked = FALSE;
+          break;
+        }
 
-				vectors[new_p].flow_x = vectors[new_p].flow_x + step_x;
-				vectors[new_p].flow_y = vectors[new_p].flow_y + step_y;
+        //     [a] get the subpixel neighborhood in the new image
+        image_subpixel_window(&pyramid_new[LVL], &window_J, &new_point, subpixel_factor, border_size);
 
-				// Check if we exceeded the treshold CHANGED made this better for 0.03
-				if ((abs(step_x) + abs(step_y)) < step_threshold) {
-					break;
-				}
-			} // lucas kanade step iteration
+        //     [b] determine the image difference between the two neighborhoods
+        uint32_t error = image_difference(&window_I, &window_J, &window_diff);
 
-			// If we tracked the point we update the index and the count
-			if (tracked) {
-				new_p++;
-				(*points_cnt)++;
-			}
-		} // go through all points
+        if (error > error_threshold && it < max_iterations / 2) {
+          tracked = FALSE;
+          break;
+        }
 
-	} // LVL of pyramid
+        int32_t b_x = image_multiply(&window_diff, &window_DX, NULL) / 255;
+        int32_t b_y = image_multiply(&window_diff, &window_DY, NULL) / 255;
 
-	// Free the images
-	image_free(&window_I);
-	image_free(&window_J);
-	image_free(&window_DX);
-	image_free(&window_DY);
-	image_free(&window_diff);
 
-	for (int8_t i = pyramid_lvl; i!= -1; i--){
-		image_free(&pyramid_old[i]);
-		image_free(&pyramid_new[i]);
-	}
-	pyramid_old = NULL;
-	pyramid_new = NULL;
+        //     [d] calculate the additional flow step and possibly terminate the iteration
+        int16_t step_x = (((int64_t) G[3] * b_x - G[1] * b_y) * subpixel_factor) / Det;
+        int16_t step_y = (((int64_t) G[0] * b_y - G[2] * b_x) * subpixel_factor) / Det;
 
-	// Return the vectors
-	return vectors;
+        vectors[new_p].flow_x = vectors[new_p].flow_x + step_x;
+        vectors[new_p].flow_y = vectors[new_p].flow_y + step_y;
+
+        // Check if we exceeded the treshold CHANGED made this better for 0.03
+        if ((abs(step_x) + abs(step_y)) < step_threshold) {
+          break;
+        }
+      } // lucas kanade step iteration
+
+      // If we tracked the point we update the index and the count
+      if (tracked) {
+        new_p++;
+        (*points_cnt)++;
+      }
+    } // go through all points
+
+  } // LVL of pyramid
+
+  // Free the images
+  image_free(&window_I);
+  image_free(&window_J);
+  image_free(&window_DX);
+  image_free(&window_DY);
+  image_free(&window_diff);
+
+  for (int8_t i = pyramid_lvl; i != -1; i--) {
+    image_free(&pyramid_old[i]);
+    image_free(&pyramid_new[i]);
+  }
+  pyramid_old = NULL;
+  pyramid_new = NULL;
+
+  // Return the vectors
+  return vectors;
 }

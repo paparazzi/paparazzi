@@ -51,7 +51,7 @@ struct opticflow_t {
   uint16_t subpixel_factor;          ///< The amount of subpixels per pixel
   uint8_t max_iterations;           ///< The maximum amount of iterations the Lucas Kanade algorithm should do
   uint8_t threshold_vec;            ///< The threshold in x, y subpixels which the algorithm should stop
-  uint8_t pyramid_lvl;				///< Number of pyramid levels used in Lucas Kanade algorithm (0 == no pyramids used)
+  uint8_t pyramid_lvl;        ///< Number of pyramid levels used in Lucas Kanade algorithm (0 == no pyramids used)
 
   uint8_t max_track_corners;        ///< Maximum amount of corners Lucas Kanade should track
   bool_t fast9_adaptive;            ///< Whether the FAST9 threshold should be adaptive
@@ -62,7 +62,8 @@ struct opticflow_t {
 
 
 void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h);
-void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img, struct opticflow_result_t *result);
+void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+                          struct opticflow_result_t *result);
 
 void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
                              struct opticflow_result_t *result);

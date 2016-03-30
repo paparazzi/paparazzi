@@ -240,36 +240,40 @@ void image_yuv422_downsample(struct image_t *input, struct image_t *output, uint
  * @param[in]  *input  - input image (grayscale only)
  * @param[out] *output - the output image
  * @param[in]  border_size  - amount of padding around image. Padding is made by reflecting image elements at the edge
- * 						      Example: f e d c b a | a b c d e f | f e d c b a
+ *                  Example: f e d c b a | a b c d e f | f e d c b a
  */
 void image_add_border(struct image_t *input, struct image_t *output, uint8_t border_size)
 {
-	// Create padded image based on input
-	image_create(output, input->w + 2 * border_size, input->h + 2 * border_size, input->type);
+  // Create padded image based on input
+  image_create(output, input->w + 2 * border_size, input->h + 2 * border_size, input->type);
 
-	uint8_t *input_buf = (uint8_t *)input->buf;
-	uint8_t *output_buf = (uint8_t *)output->buf;
+  uint8_t *input_buf = (uint8_t *)input->buf;
+  uint8_t *output_buf = (uint8_t *)output->buf;
 
-	// Skip first `border_size` rows, iterate through next input->h rows
-	for (uint16_t i = border_size; i != (output->h - border_size); i++){
+  // Skip first `border_size` rows, iterate through next input->h rows
+  for (uint16_t i = border_size; i != (output->h - border_size); i++) {
 
-		// Mirror first `border_size` columns
-		for (uint8_t j = 0; j != border_size; j++)
-			output_buf[i * output->w + (border_size - 1 - j)] = input_buf[(i - border_size) * input->w + j];
+    // Mirror first `border_size` columns
+    for (uint8_t j = 0; j != border_size; j++) {
+      output_buf[i * output->w + (border_size - 1 - j)] = input_buf[(i - border_size) * input->w + j];
+    }
 
-		// Copy corresponding row values from input image
-		memcpy(&output_buf[i * output->w + border_size], &input_buf[(i - border_size) * input->w], sizeof(uint8_t) * input->w);
+    // Copy corresponding row values from input image
+    memcpy(&output_buf[i * output->w + border_size], &input_buf[(i - border_size) * input->w], sizeof(uint8_t) * input->w);
 
-		// Mirror last `border_size` columns
-		for (uint8_t j = 0; j != border_size; j++)
-			output_buf[i * output->w + output->w - border_size + j] = output_buf[i * output->w + output->w - border_size -1 - j];
-	}
+    // Mirror last `border_size` columns
+    for (uint8_t j = 0; j != border_size; j++) {
+      output_buf[i * output->w + output->w - border_size + j] = output_buf[i * output->w + output->w - border_size - 1 - j];
+    }
+  }
 
-	// Mirror first `border_size` and last `border_size` rows
-	for (uint8_t i = 0; i != border_size; i++){
-		memcpy(&output_buf[(border_size - 1) * output->w - i * output->w], &output_buf[border_size * output->w + i * output->w], sizeof(uint8_t) * output->w);
-		memcpy(&output_buf[(output->h - border_size) * output->w + i * output->w], &output_buf[(output->h - border_size - 1) * output->w - i * output->w], sizeof(uint8_t) * output->w);
-	}
+  // Mirror first `border_size` and last `border_size` rows
+  for (uint8_t i = 0; i != border_size; i++) {
+    memcpy(&output_buf[(border_size - 1) * output->w - i * output->w], &output_buf[border_size * output->w + i * output->w],
+           sizeof(uint8_t) * output->w);
+    memcpy(&output_buf[(output->h - border_size) * output->w + i * output->w],
+           &output_buf[(output->h - border_size - 1) * output->w - i * output->w], sizeof(uint8_t) * output->w);
+  }
 }
 
 /**
@@ -281,37 +285,43 @@ void image_add_border(struct image_t *input, struct image_t *output, uint8_t bor
  * @param[in]  *input  - input image (grayscale only)
  * @param[out] *output - the output image
  * @param[in]  border_size  - amount of padding around image. Padding is made by reflecting image elements at the edge
- * 						      Example: f e d c b a | a b c d e f | f e d c b a
+ *                  Example: f e d c b a | a b c d e f | f e d c b a
  */
 void pyramid_next_level(struct image_t *input, struct image_t *output, uint8_t border_size)
 {
-	// Create output image, new image size is half the size of input image without padding (border)
-	image_create(output, (input->w + 1 - 2 * border_size) / 2, (input->h + 1 - 2 * border_size ) / 2, input->type);
+  // Create output image, new image size is half the size of input image without padding (border)
+  image_create(output, (input->w + 1 - 2 * border_size) / 2, (input->h + 1 - 2 * border_size) / 2, input->type);
 
-	uint8_t *input_buf = (uint8_t *)input->buf;
-	uint8_t *output_buf = (uint8_t *)output->buf;
+  uint8_t *input_buf = (uint8_t *)input->buf;
+  uint8_t *output_buf = (uint8_t *)output->buf;
 
-	uint16_t row, col; // coordinates of the central pixel; pixel being calculated in input matrix; center of filer matrix
-	uint16_t w = input->w;
-	int32_t sum = 0;
+  uint16_t row, col; // coordinates of the central pixel; pixel being calculated in input matrix; center of filer matrix
+  uint16_t w = input->w;
+  int32_t sum = 0;
 
-	for (uint16_t i = 0; i != output->h; i++){
+  for (uint16_t i = 0; i != output->h; i++) {
 
-		for (uint16_t j = 0; j != output->w; j++){
-			row = border_size + 2 * i; // First skip border, then every second pixel
-			col = border_size + 2 * j;
+    for (uint16_t j = 0; j != output->w; j++) {
+      row = border_size + 2 * i; // First skip border, then every second pixel
+      col = border_size + 2 * j;
 
-			sum =    39 * ( input_buf[(row -2)*w + (col -2)] + input_buf[(row -2)*w + (col +2)] + input_buf[(row +2)*w + (col -2)] + input_buf[(row +2)*w + (col +2)]);
-			sum +=  156 * ( input_buf[(row -2)*w + (col -1)] + input_buf[(row -2)*w + (col +1)] + input_buf[(row -1)*w + (col +2)] + input_buf[(row +1)*w + (col -2)]
-							 + input_buf[(row +1)*w + (col +2)] + input_buf[(row +2)*w + (col -1)] + input_buf[(row +2)*w + (col +1)] + input_buf[(row -1)*w + (col -2)]);
-			sum +=  234 * ( input_buf[(row -2)*w + (col)] + input_buf[(row)*w    + (col -2)] + input_buf[(row)*w    + (col +2)] + input_buf[(row +2)*w + (col)]);
-			sum +=  625 * ( input_buf[(row -1)*w + (col -1)] + input_buf[(row -1)*w + (col +1)] + input_buf[(row +1)*w + (col -1)] + input_buf[(row +1)*w + (col +1)]);
-			sum +=  938 * ( input_buf[(row -1)*w + (col)] + input_buf[(row)*w    + (col -1)] + input_buf[(row)*w    + (col +1)] + input_buf[(row +1)*w + (col)]);
-			sum += 1406 * input_buf[(row)*w    + (col)];
+      sum =    39 * (input_buf[(row - 2) * w + (col - 2)] + input_buf[(row - 2) * w + (col + 2)] +
+                     input_buf[(row + 2) * w + (col - 2)] + input_buf[(row + 2) * w + (col + 2)]);
+      sum +=  156 * (input_buf[(row - 2) * w + (col - 1)] + input_buf[(row - 2) * w + (col + 1)] +
+                     input_buf[(row - 1) * w + (col + 2)] + input_buf[(row + 1) * w + (col - 2)]
+                     + input_buf[(row + 1) * w + (col + 2)] + input_buf[(row + 2) * w + (col - 1)] + input_buf[(row + 2) * w + (col + 1)] +
+                     input_buf[(row - 1) * w + (col - 2)]);
+      sum +=  234 * (input_buf[(row - 2) * w + (col)] + input_buf[(row) * w    + (col - 2)] +
+                     input_buf[(row) * w    + (col + 2)] + input_buf[(row + 2) * w + (col)]);
+      sum +=  625 * (input_buf[(row - 1) * w + (col - 1)] + input_buf[(row - 1) * w + (col + 1)] +
+                     input_buf[(row + 1) * w + (col - 1)] + input_buf[(row + 1) * w + (col + 1)]);
+      sum +=  938 * (input_buf[(row - 1) * w + (col)] + input_buf[(row) * w    + (col - 1)] +
+                     input_buf[(row) * w    + (col + 1)] + input_buf[(row + 1) * w + (col)]);
+      sum += 1406 * input_buf[(row) * w    + (col)];
 
-			output_buf[i*output->w + j] = sum / 10000;
-		}
-	}
+      output_buf[i * output->w + j] = sum / 10000;
+    }
+  }
 }
 
 
@@ -322,21 +332,21 @@ void pyramid_next_level(struct image_t *input, struct image_t *output, uint8_t b
  *                       followed by `pyr_level` of pyramid.
  * @param[in]  pyr_level  - number of pyramids to be built. If 0, original image is padded and outputed.
  * @param[in]  border_size  - amount of padding around image. Padding is made by reflecting image elements at the edge
- * 						      Example: f e d c b a | a b c d e f | f e d c b a
+ *                  Example: f e d c b a | a b c d e f | f e d c b a
  */
 void pyramid_build(struct image_t *input, struct image_t *output_array, uint8_t pyr_level, uint8_t border_size)
 {
-	// Pad input image and save it as '0' pyramid level
-	image_add_border(input, &output_array[0], border_size);
+  // Pad input image and save it as '0' pyramid level
+  image_add_border(input, &output_array[0], border_size);
 
-	// Temporary holds 'i' level version of original image to be padded and saved as 'i' pyramid level
-	struct image_t temp;
+  // Temporary holds 'i' level version of original image to be padded and saved as 'i' pyramid level
+  struct image_t temp;
 
-	for (uint8_t i = 1; i != pyr_level + 1; i++){
-		pyramid_next_level(&output_array[i-1], &temp, border_size);
-		image_add_border(&temp, &output_array[i], border_size);
-		image_free(&temp);
-	}
+  for (uint8_t i = 1; i != pyr_level + 1; i++) {
+    pyramid_next_level(&output_array[i - 1], &temp, border_size);
+    image_add_border(&temp, &output_array[i], border_size);
+    image_free(&temp);
+  }
 }
 
 /**
@@ -348,9 +358,10 @@ void pyramid_build(struct image_t *input, struct image_t *output_array, uint8_t 
  * @param[in] *center Center point in subpixel coordinates
  * @param[in] subpixel_factor The subpixel factor per pixel
  * @param[in]  border_size  - amount of padding around image. Padding is made by reflecting image elements at the edge
- * 						      Example: f e d c b a | a b c d e f | f e d c b a
+ *                  Example: f e d c b a | a b c d e f | f e d c b a
  */
-void image_subpixel_window(struct image_t *input, struct image_t *output, struct point_t *center, uint32_t subpixel_factor, uint8_t border_size)
+void image_subpixel_window(struct image_t *input, struct image_t *output, struct point_t *center,
+                           uint32_t subpixel_factor, uint8_t border_size)
 {
   uint8_t *input_buf = (uint8_t *)input->buf;
   uint8_t *output_buf = (uint8_t *)output->buf;
@@ -418,7 +429,8 @@ void image_gradients(struct image_t *input, struct image_t *dx, struct image_t *
   for (uint16_t x = 1; x < input->w - 1; x++) {
     for (uint16_t y = 1; y < input->h - 1; y++) {
       dx_buf[(y - 1)*dx->w + (x - 1)] = (int16_t)input_buf[y * input->w + x + 1] - (int16_t)input_buf[y * input->w + x - 1];
-      dy_buf[(y - 1)*dy->w + (x - 1)] = (int16_t)input_buf[(y + 1) * input->w + x] - (int16_t)input_buf[(y - 1) * input->w + x];
+      dy_buf[(y - 1)*dy->w + (x - 1)] = (int16_t)input_buf[(y + 1) * input->w + x] - (int16_t)
+                                        input_buf[(y - 1) * input->w + x];
     }
   }
 }
@@ -617,7 +629,8 @@ void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *
   else { distance = delta_y * 20; }
 
   /* draw the line */
-  for (uint16_t t = 0; /* starty >= 0 && */ starty < img->h && /* startx >= 0 && */ startx < img->w && t <= distance + 1; t++) {
+  for (uint16_t t = 0; /* starty >= 0 && */ starty < img->h && /* startx >= 0 && */ startx < img->w
+       && t <= distance + 1; t++) {
     img_buf[img->w * pixel_width * starty + startx * pixel_width] = (t <= 3) ? 0 : 255;
 
     if (img->type == IMAGE_YUV422) {
