@@ -37,10 +37,10 @@
 #include "mcu_periph/sys_time.h"
 static uint8_t px4RebootSequence[] = {0x41, 0xd7, 0x32, 0x0a, 0x46, 0x39};
 static uint8_t px4RebootSequenceCount = 0;
-static bool px4RebootTimeout = false;
-uint8_t autopilot_motors_on = false;
+static bool_t px4RebootTimeout = false;
 tid_t px4bl_tid; ///< id for time out of the px4 bootloader reset
 #endif
+uint8_t autopilot_motors_on = false;
 
 #if RADIO_CONTROL_NB_CHANNEL > 8
 #undef RADIO_CONTROL_NB_CHANNEL
