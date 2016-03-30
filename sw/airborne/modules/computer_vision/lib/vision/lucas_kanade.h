@@ -36,6 +36,6 @@
 
 struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, struct point_t *points,
                            uint16_t *points_cnt, uint16_t half_window_size,
-                           uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold, uint8_t max_points, uint8_t pyramid_lvl);
+                           uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold, uint8_t max_points, uint8_t pyramid_level);
 
 #endif /* OPTIC_FLOW_INT_H */
