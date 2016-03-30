@@ -30,8 +30,6 @@
  */
 
 #include "mcu_periph/i2c.h"
-#include "mcu_periph/uart.h"
-#include "mcu_periph/sys_time.h"
 #include "modules/gps/gps_ubx_i2c.h"
 #include "subsystems/datalink/downlink.h"
 #include <math.h>
@@ -57,7 +55,7 @@ uint16_t gps_ubx_i2c_bytes_to_read;     ///< ublox bytes to read
 /** null function
  * @param p unused
  */
-void null_function(struct GpsUbxI2C *p __attribute__((unused))) {}
+void null_function(struct GpsUbxI2C *p);
 /** Put byte into transmit buffer.
  * @param p unused
  * @param data byte to put in buffer
@@ -97,6 +95,8 @@ void gps_ubx_i2c_init(void)
   gps_i2c.device.get_byte = (get_byte_t)gps_i2c_getch;                        ///< get a new char
   gps_i2c.device.set_baudrate = (set_baudrate_t)null_function;                ///< set device baudrate
 }
+
+void null_function(struct GpsUbxI2C *p __attribute__((unused))) {}
 
 void gps_i2c_put_byte(struct GpsUbxI2C *p __attribute__((unused)), uint8_t data)
 {
