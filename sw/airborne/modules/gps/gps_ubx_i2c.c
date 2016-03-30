@@ -21,6 +21,14 @@
  *
  */
  
+/**
+ * @file modules/gps/gps_ubx_i2c.c
+ * pprz link device for Ublox over I2C 
+ *
+ * This module adds i2c functionality for the ublox using existing
+ * driver 
+ */
+
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "mcu_periph/sys_time.h"
@@ -36,20 +44,37 @@
 #endif
 PRINT_CONFIG_VAR(GPS_UBX_I2C_DEV)
 
-#define GPS_I2C_ADDR_NB_AVAIL_BYTES 0xFD    // number of bytes available register
-#define GPS_I2C_ADDR_DATA 0xFF            // data stream register
+#define GPS_I2C_ADDR_NB_AVAIL_BYTES 0xFD    ///< number of bytes available register
+#define GPS_I2C_ADDR_DATA 0xFF            ///< data stream register
 
 // Global variables
 struct GpsUbxI2C gps_i2c;
 
 // Local variables
-bool_t   gps_ubx_i2c_ucenter_done;
-uint16_t gps_ubx_i2c_bytes_to_read;
+bool_t   gps_ubx_i2c_ucenter_done;      ///< ucenter finished configuring flag
+uint16_t gps_ubx_i2c_bytes_to_read;     ///< ublox bytes to read
 
-static void null_function(struct GpsUbxI2C *p __attribute__((unused))) {}
+/** null function
+ * @param p unused
+ */
+void null_function(struct GpsUbxI2C *p __attribute__((unused))) {}
+/** Put byte into transmit buffer.
+ * @param p unused
+ * @param data byte to put in buffer
+ */
 void gps_i2c_put_byte(struct GpsUbxI2C *p, uint8_t data);
+
+/** send buffer when ready
+ * @param p unused
+ */
 void gps_i2c_msg_ready(struct GpsUbxI2C *p);
+/** check if a new character is available
+ * @param p unused
+ */
 uint8_t gps_i2c_char_available(struct GpsUbxI2C *p);
+/** get a new char
+ * @param p unused
+ */
 uint8_t gps_i2c_getch(struct GpsUbxI2C *p);
 
 void gps_ubx_i2c_init(void)
@@ -67,76 +92,43 @@ void gps_ubx_i2c_init(void)
   gps_i2c.device.periph = (void *)&gps_i2c;
   gps_i2c.device.check_free_space = (check_free_space_t)null_function;        ///< check if transmit buffer is not full
   gps_i2c.device.put_byte = (put_byte_t)gps_i2c_put_byte;                     ///< put one byte
-  gps_i2c.device.send_message = (send_message_t)gps_i2c_msg_ready;             ///< send completed buffer
+  gps_i2c.device.send_message = (send_message_t)gps_i2c_msg_ready;            ///< send completed buffer
   gps_i2c.device.char_available = (char_available_t)gps_i2c_char_available;   ///< check if a new character is available
   gps_i2c.device.get_byte = (get_byte_t)gps_i2c_getch;                        ///< get a new char
   gps_i2c.device.set_baudrate = (set_baudrate_t)null_function;                ///< set device baudrate
 }
 
-/*
- *  put byte into transmit buffer
- */
 void gps_i2c_put_byte(struct GpsUbxI2C *p __attribute__((unused)), uint8_t data)
 {
   gps_i2c.tx_buf[gps_i2c.tx_buf_idx++] = data;
 }
 
-/*
- * send buffer when ready
- */
 void gps_i2c_msg_ready(struct GpsUbxI2C *p __attribute__((unused)))
 {
   gps_i2c.write_state = gps_i2c_write_cfg;
   gps_i2c.tx_rdy = FALSE;
 }
 
-/*
- * send message and get reply
- */
-void gps_i2c_send(void)
-{
-  memcpy(&gps_i2c.trans.buf, gps_i2c.tx_buf, gps_i2c.tx_buf_idx);
-  i2c_transmit(&GPS_UBX_I2C_DEV, &gps_i2c.trans, GPS_I2C_SLAVE_ADDR, gps_i2c.tx_buf_idx);
-  gps_i2c.tx_buf_idx = 0;
-  gps_i2c.read_state = gps_i2c_read_standby;
-  gps_i2c.write_state = gps_i2c_write_request_size;
-}
-
-/*
- * is driver ready to send a message
- */
-bool_t gps_i2c_tx_is_ready(void)
-{
-  return gps_i2c.tx_rdy;
-}
-
-/*
- * config is done, begin reading messages
- */
-void gps_i2c_begin(void)
-{
-  gps_ubx_i2c_ucenter_done = TRUE;
-}
-
-/*
- * check if a new character is available
- */
 uint8_t gps_i2c_char_available(struct GpsUbxI2C *p __attribute__((unused)))
 {
   return (((int)gps_i2c.rx_buf_avail - (int)gps_i2c.rx_buf_idx) > 0);
 }
 
-/*
- * get a new char
- */
+bool_t gps_i2c_tx_is_ready(void)
+{
+  return gps_i2c.tx_rdy;
+}
+
+void gps_i2c_begin(void)
+{
+  gps_ubx_i2c_ucenter_done = TRUE;
+}
+
 uint8_t gps_i2c_getch(struct GpsUbxI2C *p __attribute__((unused)))
 {
   return gps_i2c.rx_buf[gps_i2c.rx_buf_idx++];
 }
 
-/*
- * handle message sending
- */
 void gps_ubx_i2c_periodic(void)
 {
   if (gps_i2c.trans.status == I2CTransDone)
@@ -163,7 +155,11 @@ void gps_ubx_i2c_periodic(void)
       break;
 
       case gps_i2c_write_cfg:
-        gps_i2c_send();
+        memcpy(&gps_i2c.trans.buf, gps_i2c.tx_buf, gps_i2c.tx_buf_idx);
+        i2c_transmit(&GPS_UBX_I2C_DEV, &gps_i2c.trans, GPS_I2C_SLAVE_ADDR, gps_i2c.tx_buf_idx);
+        gps_i2c.tx_buf_idx = 0;
+        gps_i2c.read_state = gps_i2c_read_standby;
+        gps_i2c.write_state = gps_i2c_write_request_size;
       break;
 
       default:
@@ -172,9 +168,6 @@ void gps_ubx_i2c_periodic(void)
   }
 }
 
-/*
- * handle message reception
- */
 void gps_ubx_i2c_read_event(void)
 {
   switch(gps_i2c.read_state)
