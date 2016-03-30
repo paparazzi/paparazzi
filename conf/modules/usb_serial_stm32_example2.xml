@@ -1,17 +1,17 @@
- <!DOCTYPE module SYSTEM "module.dtd">
+<!DOCTYPE module SYSTEM "module.dtd">
 
- <module name="usb_serial_stm32_example1" dir="com">
+<module name="usb_serial_stm32_example1" dir="com">
   <doc>
-   <description>
-     STM32 USB-serial example.
-     Example of USB-serial module on STM32 architecture, using libopencm3 library.
-     This example tests the capability of USB-serial port by sending a lots of data.
-     To be used with Lisa M/MX 2.1
-   </description>
+    <description>
+      STM32 USB-serial example.
+      Example of USB-serial module on STM32 architecture, using libopencm3 library.
+      This example tests the capability of USB-serial port by sending a lots of data.
+      To be used with Lisa M/MX 2.1
+    </description>
   </doc>
 
   <header>
-   <file name="usb_serial_stm32.h"/>
+    <file name="usb_serial_stm32.h"/>
   </header>
 
   <init fun="init_usb_serial()"/>
@@ -20,11 +20,9 @@
 
   <event fun="event_usb_serial()"/>
 
-  <makefile target="ap">
-   <raw>
-   ap.srcs += $(SRC_ARCH)/usb_ser_hw.c
-   </raw>
-   <define name="USE_USB_SERIAL"/>
-   <file name="usb_serial_stm32_example2.c"/>
+  <makefile target="!nps|sim">
+    <file_arch name="usb_ser_hw.c" dir=""/>
+    <define name="USE_USB_SERIAL"/>
+    <file name="usb_serial_stm32_example2.c"/>
   </makefile>
- </module>
+</module>

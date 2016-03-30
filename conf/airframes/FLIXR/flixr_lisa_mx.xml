@@ -96,6 +96,7 @@
       <module name="ahrs" type="int_cmpl_quat"/>
     </target>
     <target name="test_module" board="lisa_mx_2.0">
+      <module name="usb_serial_stm32_example1"/>
     </target>
   </firmware>
 
