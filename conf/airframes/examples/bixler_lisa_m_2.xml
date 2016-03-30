@@ -22,19 +22,19 @@
     <target name="sim"          board="pc"/>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
 
     <define name="USE_MAGNETOMETER" value="FALSE"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry" type="transparent"/>
-    <subsystem name="control"/>
-    <subsystem name="imu" type="aspirin_v2.1"/>
-    <subsystem name="ahrs" type="float_dcm"/>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry" type="transparent"/>
+    <module name="control"/>
+    <module name="imu" type="aspirin_v2.1"/>
+    <module name="ahrs" type="float_dcm"/>
+    <module name="gps" type="ublox"/>
+    <module name="navigation"/>
+    <module name="ins" type="alt_float"/>
   </firmware>
 
   <modules>

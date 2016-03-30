@@ -10,7 +10,7 @@
       <configure name="TUNNEL_PORT" value="UART3"/>
     </target>
     <target name="setup_actuators"  board="lisa_m_2.0">
-      <subsystem name="actuators" type="pwm"/>
+      <module name="actuators" type="pwm"/>
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
     </target>

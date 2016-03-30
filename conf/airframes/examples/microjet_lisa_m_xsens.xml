@@ -15,10 +15,10 @@
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="transparent"/>
+    <module name="telemetry" 	type="transparent"/>
 
     <!-- Sensors -->
     <module name="ins" type="xsens">
@@ -26,8 +26,8 @@
       <configure name="XSENS_BAUD" value="B115200"/>
     </module>
 
-    <subsystem name="control"/>
-    <subsystem name="navigation"/>
+    <module name="control"/>
+    <module name="navigation"/>
   </firmware>
 
   <modules>

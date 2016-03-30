@@ -15,12 +15,12 @@
 
     <define name="LOITER_TRIM"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry" type="transparent"/>
-    <subsystem name="control"/>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry" type="transparent"/>
+    <module name="control"/>
+    <module name="gps" type="ublox"/>
+    <module name="navigation"/>
+    <module name="ins" type="alt_float"/>
   </firmware>
 
   <firmware name="setup">

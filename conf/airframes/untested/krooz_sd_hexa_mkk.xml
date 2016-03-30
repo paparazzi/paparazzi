@@ -5,18 +5,18 @@
   <firmware name="rotorcraft">
     <target name="ap" board="krooz_sd"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="mkk">
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="mkk">
       <define name="I2C_TRANSACTION_QUEUE_LEN" value="10"/>
       <define name="I2C1_CLOCK_SPEED" value="42000"/>
-    </subsystem>
-    <subsystem name="stabilization" type="int_euler"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="imu"           type="krooz_sd"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <subsystem name="ins"           type="hff"/>
+    </module>
+    <module name="stabilization" type="int_euler"/>
+    <module name="gps"           type="ublox"/>
+    <module name="imu"           type="krooz_sd"/>
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="ins"           type="hff"/>
 
     <define name="NO_RC_THRUST_LIMIT"/>
     <define name="FAILSAFE_GROUND_DETECT" value="1"/>

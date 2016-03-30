@@ -17,19 +17,19 @@
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="transparent"/>
+    <module name="telemetry" 	type="transparent"/>
     <define name="USE_JOYSTICK" value="TRUE"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="control"/>
+    <module name="control"/>
     <!-- Sensors -->
-    <subsystem name="gps" 		    type="ublox"/>
+    <module name="gps" 		    type="ublox"/>
 
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="gps_passthrough"/>
+    <module name="navigation"/>
+    <module name="ins" type="gps_passthrough"/>
   </firmware>
 
   <modules>

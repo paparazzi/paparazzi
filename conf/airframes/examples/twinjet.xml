@@ -17,15 +17,15 @@
     <define name="LOITER_TRIM"/>
     <define name="AGR_CLIMB"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="control"/>
-    <subsystem name="imu"       type="analog">
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="control"/>
+    <module name="imu"       type="analog">
       <configure name="GYRO_P" value="ADC_3"/>
-    </subsystem>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="gps_passthrough"/>
+    </module>
+    <module name="gps"           type="ublox"/>
+    <module name="navigation"/>
+    <module name="ins" type="gps_passthrough"/>
   </firmware>
 
   <firmware name="setup">

@@ -10,26 +10,26 @@
       <configure name="MODEM_PORT" value="UART3"/>
       <configure name="GPS_PORT" value="UART2"/>
       <!--      <define name="ACTUATORS_START_DELAY" value="1"/> -->
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="radio_control" type="ppm"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_EXTRA1"/>
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1"/>
       <define name="USE_I2C_ACTUATORS_REBOOT_HACK"/>
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators" type="asctec_v2"/>
+    <module name="motor_mixing"/>
+    <module name="actuators" type="asctec_v2"/>
 
-    <subsystem name="telemetry" type="xbee_api"/>
-    <subsystem name="imu" type="aspirin_v2.1"/>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="stabilization" type="int_euler"/>
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
-    <subsystem name="ins" type="hff"/>
+    <module name="telemetry" type="xbee_api"/>
+    <module name="imu" type="aspirin_v2.1"/>
+    <module name="gps" type="ublox"/>
+    <module name="stabilization" type="int_euler"/>
+    <module name="ahrs" type="int_cmpl_quat"/>
+    <module name="ins" type="hff"/>
   </firmware>
 
   <section name="AUTOPILOT">

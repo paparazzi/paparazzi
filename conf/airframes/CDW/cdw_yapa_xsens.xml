@@ -16,15 +16,15 @@
     <define name="LOITER_TRIM"/>
     <define name="TUNE_AGRESSIVE_CLIMB"/>
     <define name="AGR_CLIMB"/>
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
     <!-- Communication -->
-    <subsystem name="telemetry" type="xbee_api">
+    <module name="telemetry" type="xbee_api">
       <configure name="MODEM_BAUD" value="B9600"/>
-    </subsystem>
+    </module>
     <!-- Actuators -->
-    <subsystem name="control"/>
+    <module name="control"/>
     <!-- Sensors -->
-    <subsystem name="navigation"/>
+    <module name="navigation"/>
     <module name="ins" type="xsens">
       <configure name="XSENS_PORT" value="uart0"/>
       <configure name="XSENS_BAUD" value="B230400"/>

@@ -12,27 +12,27 @@
     <firmware name="rotorcraft">
         <target name="ap" board="lisa_l_1.1">
             <!--define name="NO_RC_THRUST_LIMIT"/-->
-            <subsystem name="radio_control" type="spektrum"/>
+            <module name="radio_control" type="spektrum"/>
             <define name="RADIO_MODE" value="RADIO_AUX1"/>
             <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
             <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
         </target>
 
         <target name="nps" board="pc">
-            <subsystem name="fdm"           type="jsbsim"/>
-            <subsystem name="radio_control" type="ppm"/>
+            <module name="fdm"           type="jsbsim"/>
+            <module name="radio_control" type="ppm"/>
         </target>
 
-        <subsystem name="motor_mixing"/>
-        <subsystem name="actuators"     type="mkk"/>
-        <subsystem name="telemetry"     type="transparent"/>
-        <subsystem name="imu"           type="b2_v1.2"/>
-        <subsystem name="gps"           type="ublox">
+        <module name="motor_mixing"/>
+        <module name="actuators"     type="mkk"/>
+        <module name="telemetry"     type="transparent"/>
+        <module name="imu"           type="b2_v1.2"/>
+        <module name="gps"           type="ublox">
             <configure name="GPS_BAUD"    value="B57600"/>
-        </subsystem>
-        <subsystem name="stabilization"   type="int_euler"/>
-        <subsystem name="ahrs"            type="int_cmpl_quat"/>
-        <subsystem name="ins"/>
+        </module>
+        <module name="stabilization"   type="int_euler"/>
+        <module name="ahrs"            type="int_cmpl_quat"/>
+        <module name="ins"/>
         <define name="PRINT_CONFIG"/>
     </firmware>
 

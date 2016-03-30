@@ -9,10 +9,10 @@
 
   <firmware name="demo">
     <target name="demo_ahrs_actuators" board="cc3d">
-      <subsystem name="telemetry" type="transparent"/>
-      <subsystem name="actuators" type="pwm"/>
-      <subsystem name="imu" type="mpu6000"/>
-      <subsystem name="ahrs" type="int_cmpl_quat"/>
+      <module name="telemetry" type="transparent"/>
+      <module name="actuators" type="pwm"/>
+      <module name="imu" type="mpu6000"/>
+      <module name="ahrs" type="int_cmpl_quat"/>
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
     </target>
     <!--define name="USE_PERSISTENT_SETTINGS" value="TRUE"/-->
@@ -24,11 +24,11 @@
     <target name="test_sys_time_usleep" board="cc3d"/>
     <target name="test_telemetry" board="cc3d"/>
     <target name="test_imu" board="cc3d">
-      <subsystem name="imu" type="mpu6000"/>
+      <module name="imu" type="mpu6000"/>
     </target>
     <target name="test_ahrs" board="cc3d">
-      <subsystem name="imu" type="mpu6000"/>
-      <subsystem name="ahrs" type="int_cmpl_quat"/>
+      <module name="imu" type="mpu6000"/>
+      <module name="ahrs" type="int_cmpl_quat"/>
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
     </target>
     <target name="test_actuators_pwm" board="cc3d"/>

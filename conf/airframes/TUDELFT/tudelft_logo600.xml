@@ -13,44 +13,44 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.1"/>
     <!--target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target-->
 
-    <subsystem name="telemetry"     type="xbee_api"/>
-    <subsystem name="imu"           type="lisa_mx_v2.1"/>
-    <subsystem name="gps"           type="ublox">
+    <module name="telemetry"     type="xbee_api"/>
+    <module name="imu"           type="lisa_mx_v2.1"/>
+    <module name="gps"           type="ublox">
       <configure name="GPS_PORT" value="UART4"/>
-    </subsystem>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <subsystem name="ins"           type="hff"/>
-    <subsystem name="guidance"      type="indi"/>
-    <subsystem name="current_sensor">
+    </module>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="ins"           type="hff"/>
+    <module name="guidance"      type="indi"/>
+    <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
-    </subsystem>
-    <subsystem name="intermcu"      type="uart">
+    </module>
+    <module name="intermcu"      type="uart">
       <define name="REMAP_UART3" value="TRUE"/>
-    </subsystem>
+    </module>
   </firmware>
 
   <firmware name="rotorcraft">
     <target name="fbw" board="lisa_mx_2.1"/>
 
-    <subsystem name="radio_control" type="spektrum">
+    <module name="radio_control" type="spektrum">
       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
       <define name="RADIO_CONTROL_SPEKTRUM_NO_SIGN" value="1"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="actuators"     type="spektrum">
+    <module name="actuators"     type="spektrum">
       <configure name="ACTUATORS_SPEKTRUM_DEV2" value="UART6"/>
-    </subsystem>
+    </module>
     <define name="RC_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe or to Autopilot on RC loss? -->
     <define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe with a working autopilot on RC loss? -->
     <define name="AP_LOST_FBW_MODE" value="FBW_MODE_MANUAL"/><!-- Switch to Failsafe or to Manual on AP loss? -->
 
-    <subsystem name="intermcu"     type="uart">
+    <module name="intermcu"     type="uart">
       <define name="REMAP_UART3" value="TRUE"/>
-    </subsystem>
+    </module>
   </firmware>
 
   <modules>

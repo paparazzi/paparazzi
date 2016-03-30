@@ -31,18 +31,18 @@ twog_1.0 + aspirin + ETS baro + ETS speed
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
 
-    <subsystem name="radio_control" type="ppm"/>          <!-- Radio -->
-    <subsystem name="gps" type="ublox"/>                  <!-- GPS -->
-    <subsystem name="telemetry"     type="transparent"/>  <!-- Communication -->
-    <subsystem name="imu"	type="aspirin_i2c_v1.5">      <!-- IMU -->
+    <module name="radio_control" type="ppm"/>          <!-- Radio -->
+    <module name="gps" type="ublox"/>                  <!-- GPS -->
+    <module name="telemetry"     type="transparent"/>  <!-- Communication -->
+    <module name="imu"	type="aspirin_i2c_v1.5">      <!-- IMU -->
       <configure name="ASPIRIN_I2C_DEV" value="i2c0"/>
-    </subsystem>
-    <subsystem name="ahrs"      type="int_cmpl_quat"/>
-    <subsystem name="ins"	type="alt_float">
+    </module>
+    <module name="ahrs"      type="int_cmpl_quat"/>
+    <module name="ins"	type="alt_float">
       <define name="USE_BAROMETER"/>
-    </subsystem>
-    <subsystem name="control" type="energyadaptive"/>
-    <subsystem name="navigation"/>
+    </module>
+    <module name="control" type="energyadaptive"/>
+    <module name="navigation"/>
 </firmware>
 
   <modules>

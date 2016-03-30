@@ -176,17 +176,17 @@
   <firmware name="rotorcraft">
     <target name="ap" board="booz_1.0"/>
     <target name="nps" board="pc">
-      <subsystem name="fdm"         type="jsbsim"/>
+      <module name="fdm"         type="jsbsim"/>
     </target>
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="mkk"/>
-    <subsystem name="imu"           type="b2_v1.0"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization"   type="int_euler"/>
-    <subsystem name="ahrs"          type="int_cmpl_euler"/>
-    <subsystem name="ins"           type="hff"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="mkk"/>
+    <module name="imu"           type="b2_v1.0"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization"   type="int_euler"/>
+    <module name="ahrs"          type="int_cmpl_euler"/>
+    <module name="ins"           type="hff"/>
   </firmware>
 
 

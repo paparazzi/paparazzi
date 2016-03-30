@@ -28,7 +28,7 @@ main.srcs += mcu_periph/uart.c
 main.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=uart0
 
-main.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
+main.srcs += modules/datalink/downlink.c modules/datalink/pprz_transport.c
 
   </makefile>
 

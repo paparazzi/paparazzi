@@ -10,7 +10,7 @@ Lisa/S v1.0 board (http://wiki.paparazziuav.org/wiki/Lisa/S)
     <target name="ap" board="lisa_s_1.0">
       <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
 
-      <subsystem name="radio_control" type="superbitrf_rc">
+      <module name="radio_control" type="superbitrf_rc">
         <!-- TUDelft Dx6i: TX 4 1974942194, TX 5 692352099, the superbitrf dongle : 2008496626 -->
         <!-- graupner (orange RX) : 3327503026, graupner (spektrum 9) : 4095452533 -->
         <!-- use 0x for the hex version -->
@@ -20,7 +20,7 @@ Lisa/S v1.0 board (http://wiki.paparazziuav.org/wiki/Lisa/S)
         <!--<define name="RADIO_TRANSMITTER_PROTOCOL" value="0x01"/>--> <!-- DSM_DSM2_1 -->
         <define name="RADIO_TRANSMITTER_CHAN" value="6"/>
         <define name="RADIO_MODE" value="RADIO_GEAR"/>  <!-- RADIO_FLAP -->
-      </subsystem>
+      </module>
 
       <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
 
@@ -32,8 +32,8 @@ Lisa/S v1.0 board (http://wiki.paparazziuav.org/wiki/Lisa/S)
     </target>
     <target name="sim" board="pc"/>
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
     </target>
 
     <define name="LOITER_TRIM"/>
@@ -44,39 +44,39 @@ Lisa/S v1.0 board (http://wiki.paparazziuav.org/wiki/Lisa/S)
     <define name="USE_BAROMETER" value="TRUE"/>
 
     <!-- Communication -->
-    <!--<subsystem name="telemetry" type="transparent">-->
+    <!--<module name="telemetry" type="transparent">-->
     <!--<configure name="MODEM_BAUD" value="B57600"/>
     <configure name="MODEM_PORT" value="UART1"/>-->
-    <!--</subsystem>-->
+    <!--</module>-->
 
-    <subsystem name="telemetry" type="superbitrf"/>
+    <module name="telemetry" type="superbitrf"/>
 
 
     <!-- Sensors -->
-    <subsystem name="imu" type="lisa_s_v1.0"/>   <!-- lisa_s_v1.0 -->
-    <subsystem name="gps" type="ublox">
+    <module name="imu" type="lisa_s_v1.0"/>   <!-- lisa_s_v1.0 -->
+    <module name="gps" type="ublox">
       <configure name="GPS_PORT" value="UART3"/>
       <configure name="GPS_BAUD" value="B38400"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="actuators" type="pwm">
+    <module name="actuators" type="pwm">
       <define name="SERVO_HZ" value="8000"/>
       <define name="USE_SERVOS_1AND2"/>
-    </subsystem>
+    </module>
 
-    <!--<subsystem name="ahrs" type="float_dcm"/>-->
-    <!--<subsystem name="ahrs" type="int_cmpl_quat"/>-->
-    <subsystem name="ahrs" type="int_cmpl_quat">
+    <!--<module name="ahrs" type="float_dcm"/>-->
+    <!--<module name="ahrs" type="int_cmpl_quat"/>-->
+    <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <configure name="AHRS_USE_GPS_HEADING" value="FALSE"/>
-    </subsystem>
+    </module>
 
-    <!--<subsystem name="stabilization" type="int_quat"/>-->
+    <!--<module name="stabilization" type="int_quat"/>-->
 
-    <subsystem name="control"/>
-    <subsystem name="navigation"/>
+    <module name="control"/>
+    <module name="navigation"/>
 
-    <subsystem name="ins" type="alt_float"/>
+    <module name="ins" type="alt_float"/>
   </firmware>
 
   <modules main_freq="512"> <!-- NEW (512hz) -->

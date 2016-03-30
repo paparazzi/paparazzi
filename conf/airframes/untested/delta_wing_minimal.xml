@@ -14,12 +14,12 @@
     <target name="sim" 			board="pc"/>
     <target name="ap" 			board="tiny_2.11"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry" 	type="transparent"/>
-    <subsystem name="control"/>
-    <subsystem name="gps" 		    type="ublox"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="gps_passthrough"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry" 	type="transparent"/>
+    <module name="control"/>
+    <module name="gps" 		    type="ublox"/>
+    <module name="navigation"/>
+    <module name="ins" type="gps_passthrough"/>
   </firmware>
 
   <modules>

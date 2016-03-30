@@ -12,23 +12,23 @@
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm"           type="jsbsim"/>
+      <module name="fdm"           type="jsbsim"/>
     </target>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="radio_control" type="ppm"/>
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
-    </subsystem>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="imu"           type="mpu60x0_i2c"/>
+    </module>
+    <module name="telemetry"     type="transparent"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="gps"           type="ublox"/>
+    <module name="imu"           type="mpu60x0_i2c"/>
       <configure name="IMU_MPU60X0_I2C_DEV" value="i2c2"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat">
+    <module name="ahrs"          type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
-    </subsystem>
-    <subsystem name="ins"/>
+    </module>
+    <module name="ins"/>
 
     <!-- compress trig tables so it fits in board -->
     <define name="PPRZ_TRIG_INT_COMPR_FLASH"/>
@@ -44,13 +44,13 @@
     <target name="test_sys_time_usleep" board="naze32_rev4"/>
     <target name="test_telemetry" board="naze32_rev4"/>
     <target name="test_imu" board="naze32_rev4">
-      <subsystem name="imu" type="mpu60x0_i2c"/>
+      <module name="imu" type="mpu60x0_i2c"/>
       <configure name="IMU_MPU60X0_I2C_DEV" value="i2c2"/>
     </target>
     <target name="test_ahrs" board="naze32_rev4">
-      <subsystem name="imu" type="mpu60x0_i2c"/>
+      <module name="imu" type="mpu60x0_i2c"/>
       <configure name="IMU_MPU60X0_I2C_DEV" value="i2c2"/>
-      <subsystem name="ahrs" type="int_cmpl_quat"/>
+      <module name="ahrs" type="int_cmpl_quat"/>
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
     </target>
     <target name="test_actuators_pwm" board="naze32_rev4"/>

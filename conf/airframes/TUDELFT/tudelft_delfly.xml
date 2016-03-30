@@ -9,11 +9,11 @@
 
   <firmware name="fixedwing">
     <target name="ap"   board="lisa_s_1.0">
-      <subsystem name="radio_control" type="spektrum">
+      <module name="radio_control" type="spektrum">
         <define name="RADIO_MODE" value="RADIO_FLAP"/>
         <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
         <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="0"/>
-      </subsystem>
+      </module>
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
@@ -23,30 +23,30 @@
     <define name="STRONG_WIND"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="transparent">
+    <module name="telemetry" 	type="transparent">
       <!--<configure name="MODEM_BAUD" value="B57600"/>
       <configure name="MODEM_PORT" value="UART1"/>-->
-    </subsystem>
+    </module>
 
     <!-- Sensors -->
-    <subsystem name="imu"           type="lisa_s_v1.0"/>
-    <subsystem name="gps"           type="ublox"/>
+    <module name="imu"           type="lisa_s_v1.0"/>
+    <module name="gps"           type="ublox"/>
 
-    <subsystem name="actuators" type="pwm">
+    <module name="actuators" type="pwm">
       <define name="SERVO_HZ" value="50"/>
       <define name="USE_SERVOS_1AND2"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="actuators" type="dualpwm">
+    <module name="actuators" type="dualpwm">
       <define name="DUAL_PWM_ON"/>
-    </subsystem>
+    </module>
 
-    <!--<subsystem name="ahrs"          type="int_cmpl_quat"/>-->
-    <subsystem name="control"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float">
+    <!--<module name="ahrs"          type="int_cmpl_quat"/>-->
+    <module name="control"/>
+    <module name="navigation"/>
+    <module name="ins" type="alt_float">
       <define name="USE_BAROMETER" value="TRUE"/>
-    </subsystem>
+    </module>
 
     <!--<configure name="SYS_TIME_LED" value="none"/>-->
   </firmware>

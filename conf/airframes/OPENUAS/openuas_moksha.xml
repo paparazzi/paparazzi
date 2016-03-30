@@ -62,20 +62,20 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
       <define name="BAT_CHECKER_DELAY" value="80"/><!-- amount of time it take for the bat to check --><!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
       <!-- <define name="LOW_BATTERY_KILL_DELAY" value="80"/>-->
       <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80"/>
-      <!--  <subsystem name="current_sensor">-->
+      <!--  <module name="current_sensor">-->
       <!-- <define name="USE_ADC_1"/>??-->
       <!--  <configure name="ADC_CURRENT_SENSOR" value="ADC_1"/>-->
-      <!--</subsystem>-->
-      <subsystem name="radio_control" type="ppm">
+      <!--</module>-->
+      <module name="radio_control" type="ppm">
         <!-- for debugging PPM value the one below -->
          <!--<define name="TELEMETRY_MODE_FBW" value="1"/> -->
-      </subsystem>
+      </module>
    </target>
 
     <!-- ****************************** SIM *********************************-->
 <!--
     <target name="sim" board="pc">
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="radio_control" type="ppm"/>
     </target>
 -->
     <!-- **************************** set for all *******************************-->
@@ -87,16 +87,16 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
 
-    <subsystem name="telemetry" type="transparent">
+    <module name="telemetry" type="transparent">
       <configure name="MODEM_BAUD" value="B9600"/>
       <configure name="MODEM_PORT" value="UART1"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="control" type="energy"/>
-    <subsystem name="spi_slave_hs"/>
+    <module name="control" type="energy"/>
+    <module name="spi_slave_hs"/>
 
-    <subsystem name="ins" type="alt_float"/>
-    <subsystem name="gps" type="ublox">
+    <module name="ins" type="alt_float"/>
+    <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B38400"/>
       <configure name="GPS_PORT" value="UART0"/>
 <!--
@@ -105,8 +105,8 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
       <define name="USE_GPS_UBX_RXM_RAW"/>
       <define name="USE_GPS_UBX_RXM_SFRB"/>
       <define name="LOG_RAW_GPS"/>-->
-    </subsystem>
-    <subsystem name="navigation"/>
+    </module>
+    <module name="navigation"/>
   </firmware>
 
   <modules main_freq="120">
@@ -379,7 +379,7 @@ Psi -109
     <!-- The prebank is an adjustment to the roll setting which is done when the aircraft is trying to do a circle and when it is close to the circumference of the circle. This way it does not fly straight into the circumference but instead it starts to make a roll as the one needed to fly in circles.
 There is a value in the airframe file COURSE_PRE_BANK_CORRECTION which can be used to increase o decrease the effect. If set to 1 then the normal prebank is done. If set to 0.5 then half of the additional roll is done. This causes the aircraft to not roll enough in order to fly the intended circle and it ends up flying in a larger circle.  A value > 1 makes it fly a smaller circle.
 
-https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/subsystems/nav.c#L132
+https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/modules/nav.c#L132
 -->
     <define name="COURSE_PRE_BANK_CORRECTION" value="1.0"/>
     <!-- TODO: Tune value -->

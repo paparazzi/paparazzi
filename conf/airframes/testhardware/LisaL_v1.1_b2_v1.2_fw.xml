@@ -14,18 +14,18 @@
             <configure name="PERIODIC_FREQUENCY" value="120"/>
 		</target>
 
-		<subsystem name="radio_control" type="ppm"/>
-        <subsystem name="telemetry"     type="xbee_api">
+		<module name="radio_control" type="ppm"/>
+        <module name="telemetry"     type="xbee_api">
             <configure name="MODEM_BAUD" value="B38400"/>
-        </subsystem>
-        <subsystem name="control"/>
-        <subsystem name="imu"           type="b2_v1.2"/>
-        <subsystem name="gps"           type="ublox">
+        </module>
+        <module name="control"/>
+        <module name="imu"           type="b2_v1.2"/>
+        <module name="gps"           type="ublox">
             <configure name="GPS_BAUD"    value="B57600"/>
-        </subsystem>
-        <subsystem name="ahrs" type="float_dcm"/>
-        <subsystem name="ins" type="alt_float"/>
-        <subsystem name="navigation"/>
+        </module>
+        <module name="ahrs" type="float_dcm"/>
+        <module name="ins" type="alt_float"/>
+        <module name="navigation"/>
     </firmware>
 
     <servos>

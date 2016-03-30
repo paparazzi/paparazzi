@@ -29,7 +29,7 @@ main.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
 main.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
 main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=usb_serial
 
-main.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
+main.srcs += modules/datalink/downlink.c modules/datalink/pprz_transport.c
 
   </makefile>
 

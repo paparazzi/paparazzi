@@ -242,14 +242,14 @@
       <configure name="CPU_LED" value="1"/>
       <define name="LINK_MCU_LED" value="4"/>
 
-      <!-- split of ap/fbw specific subsystems for ap -->
-      <subsystem name="actuators" type="dummy"/>
-      <subsystem name="intermcu" type="uart">
+      <!-- split of ap/fbw specific modules for ap -->
+      <module name="actuators" type="dummy"/>
+      <module name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART5"/>
-      </subsystem>
+      </module>
 
-      <subsystem name="control"/>
-      <subsystem name="navigation"/>
+      <module name="control"/>
+      <module name="navigation"/>
     </target>
 
     <target name="fbw" board="lisa_m_2.0">
@@ -262,16 +262,16 @@
       <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="1"/>
       <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE" value="1"/>
 
-      <!-- split of ap/fbw specific subsystems for fbw -->
-      <subsystem name="actuators" type="pwm"/>
-      <subsystem name="intermcu" type="uart">
+      <!-- split of ap/fbw specific modules for fbw -->
+      <module name="actuators" type="pwm"/>
+      <module name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART2"/>
-      </subsystem>
+      </module>
     </target>
 
     <target name="sim" board="pc">
-      <subsystem name="control"/>
-      <subsystem name="navigation"/>
+      <module name="control"/>
+      <module name="navigation"/>
     </target>
 
     <configure name="FLASH_MODE" value="JTAG"/>
@@ -284,24 +284,24 @@
     <define name="WIND_INFO_RET"/>
     <define name="RADIO_CONTROL_AUTO1"/>
 
-    <subsystem name="radio_control" type="spektrum">
+    <module name="radio_control" type="spektrum">
       <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
-    </subsystem>
+    </module>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent">
+    <module name="telemetry" type="transparent">
       <configure name="MODEM_BAUD" value="B9600"/>
       <configure name="MODEM_PORT" value="UART2"/>
-    </subsystem>
+    </module>
 
     <!-- Sensors -->
-    <subsystem name="imu" type="aspirin_v2.1"/>
-    <subsystem name="gps" type="ublox">
+    <module name="imu" type="aspirin_v2.1"/>
+    <module name="gps" type="ublox">
       <configure name="GPS_PORT" value="UART1"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="ahrs" type="float_dcm"/>
-    <subsystem name="ins" type="alt_float"/>
+    <module name="ahrs" type="float_dcm"/>
+    <module name="ins" type="alt_float"/>
 
   </firmware>
 

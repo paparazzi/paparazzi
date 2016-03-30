@@ -150,34 +150,34 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-      <subsystem name="radio_control" type="spektrum">
+      <module name="radio_control" type="spektrum">
         <define name="RADIO_MODE" value="RADIO_FLAP"/>
         <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
         <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
-      </subsystem>
+      </module>
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm"           type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="fdm"           type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.1"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="aspirin_v2.1"/>
     <define name="LISA_M_LONGITUDINAL_X"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <subsystem name="ins"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="ins"/>
     <!--define name="USE_INS_NAV_INIT"/-->
-    <!--subsystem name="stabilization"   type="int_euler"/>
-    <subsystem name="ahrs"          type="int_cmpl_euler"/-->
+    <!--module name="stabilization"   type="int_euler"/>
+    <module name="ahrs"          type="int_cmpl_euler"/-->
   </firmware>
 
 </airframe>

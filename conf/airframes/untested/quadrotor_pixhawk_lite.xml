@@ -14,26 +14,26 @@
     <target name="ap" board="px4fmu_2.4"/>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="mpu6000">
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="mpu6000">
         <configure name="IMU_MPU_SPI_DEV" value="spi1"/>
         <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
-      </subsystem>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat">
+      </module>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC" value="TRUE"/>
-    </subsystem>
-    <subsystem name="ins"/>
+    </module>
+    <module name="ins"/>
   </firmware>
 
   <firmware name="test_progs">
@@ -52,11 +52,11 @@
       <!--configure name="MODEM_BAUD" value="B9600"/-->
     </target>
     <target name="test_imu"                 board="px4fmu_2.4">
-      <subsystem name="imu" type="mpu6000">
+      <module name="imu" type="mpu6000">
         <configure name="IMU_MPU_SPI_DEV" value="spi1"/>
         <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
-      </subsystem>
-      <!--subsystem name="imu" type="px4fmu_v2.4"/-->
+      </module>
+      <!--module name="imu" type="px4fmu_v2.4"/-->
       <configure name="PERIODIC_FREQUENCY" value="60"/>
     </target>
     <target name="test_actuators_pwm"       board="px4fmu_2.4">

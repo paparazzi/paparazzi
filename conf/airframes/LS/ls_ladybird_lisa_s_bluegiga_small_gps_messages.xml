@@ -192,7 +192,7 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
-      <subsystem name="radio_control" type="datalink">
+      <module name="radio_control" type="datalink">
 	<!-- To store the binding parameters for the superbit radio in your
              airframe file uncomment the following three lines and set the
              correct values based on the output of the superbitrf telemetry
@@ -200,19 +200,19 @@
         <!--define name="RADIO_TRANSMITTER_ID" value="1335259868"/--> <!-- Esden (1BitSquared) Dx6i: TX 1 -->
         <!--define name="RADIO_TRANSMITTER_CHAN" value="6"/-->
         <!--define name="RADIO_TRANSMITTER_PROTOCOL" value="0x01"/-->
-      </subsystem>
+      </module>
       <configure name="USE_MAGNETOMETER" value="0"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
       <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators" type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators" type="pwm">
       <!-- This airframe is using the servo PWM outputs directly to drive mosfets, which in turn directly drive brushed motors.
            With the following settings we will be driving the motors with a 36KHz signal that should be well above anyone's hearing range.
            If we went with the 500Hz that woul be the default we would be hearing a very annoying high pitched sound coming from the motors.
@@ -222,18 +222,18 @@
       <!-- Setting the PWM interval to 36KHz -->
       <define name="SERVO_HZ" value="36000"/>
       <define name="USE_SERVOS_1AND2"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry" type="bluegiga"/>
+    <module name="telemetry" type="bluegiga"/>
     <!-- Comment the previous line and uncomment the following one if you need
          to use the debug serial interface for telemetry. -->
-    <!--subsystem name="telemetry" type="transparent"/-->
-    <subsystem name="imu" type="lisa_s_v1.0">
+    <!--module name="telemetry" type="transparent"/-->
+    <module name="imu" type="lisa_s_v1.0">
       <define name="LISA_S_UPSIDE_DOWN"/> <!-- Upside down is a relative term. :) -->
-    </subsystem>
-    <subsystem name="gps" type="datalink"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
-    <subsystem name="ins"/>
+    </module>
+    <module name="gps" type="datalink"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs" type="int_cmpl_quat"/>
+    <module name="ins"/>
   </firmware>
 </airframe>

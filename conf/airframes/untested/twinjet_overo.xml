@@ -20,12 +20,12 @@
     <define name="LOITER_TRIM"/>
     <define name="AGR_CLIMB"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="control"/>
-    <subsystem name="gps"           type="ublox_hitl"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins"           type="gps_passthrough"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="control"/>
+    <module name="gps"           type="ublox_hitl"/>
+    <module name="navigation"/>
+    <module name="ins"           type="gps_passthrough"/>
     <define name="USE_JOYSTICK" value="TRUE"/>
   </firmware>
 

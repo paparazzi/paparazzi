@@ -18,35 +18,35 @@
 
     <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
 
-    <subsystem name="radio_control" type="ppm">
+    <module name="radio_control" type="ppm">
         <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
-    </subsystem>
+    </module>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm"         type="jsbsim"/>
+      <module name="fdm"         type="jsbsim"/>
     </target>
 
-    <subsystem name="gps"           type="ublox"/>
+    <module name="gps"           type="ublox"/>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.1"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="aspirin_v2.1"/>
 
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat">
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
-    </subsystem>
+    </module>
 
       <configure name="GPS_LED" value="4"/>
       <configure name="RADIO_CONTROL_LED" value="3"/>
       <configure name="AHRS_ALIGNER_LED" value="2"/>
 
-      <subsystem name="ins"/>
+      <module name="ins"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>

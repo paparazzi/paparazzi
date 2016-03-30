@@ -160,19 +160,19 @@
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="transparent">
+    <module name="telemetry" 	type="transparent">
       <configure name="MODEM_BAUD" 		value="B9600"/>
-    </subsystem>
+    </module>
 
     <!-- Actuators are automatically chosen according to board -->
-    <subsystem name="control"/>
+    <module name="control"/>
     <!-- Sensors -->
-    <subsystem name="gps" 		    type="ublox_utm"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float"/>
+    <module name="gps" 		    type="ublox_utm"/>
+    <module name="navigation"/>
+    <module name="ins" type="alt_float"/>
   </firmware>
 
   <firmware name="setup">

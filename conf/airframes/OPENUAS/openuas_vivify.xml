@@ -54,10 +54,10 @@
       <!-- amount of time it take for the bat to check -->
       <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
       <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80"/><!-- in seconds-->
-      <!--  <subsystem name="current_sensor">-->
+      <!--  <module name="current_sensor">-->
       <!-- <define name="USE_ADC_1"/>??-->
       <!--  <configure name="ADC_CURRENT_SENSOR" value="ADC_1"/>-->
-      <!--</subsystem>-->
+      <!--</module>-->
 
       <define name="USE_AIRSPEED"/>
       <define name="AGR_CLIMB"/>
@@ -66,36 +66,36 @@
       <define name="STRONG_WIND"/>
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
-      <subsystem name="imu" type="aspirin_v2.2"/>
-      <subsystem name="ahrs" type="int_cmpl_quat">
+      <module name="imu" type="aspirin_v2.2"/>
+      <module name="ahrs" type="int_cmpl_quat">
         <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
         <!-- * no need? since already set by default * -->
         <define name="USE_MAGNETOMETER" value="FALSE"/>
         <!-- TRUE by default but better set it to be sure if you want to use it -->
-      </subsystem>
+      </module>
 
-      <subsystem name="actuators" type="dummy"/>
-      <subsystem name="intermcu" type="can"/>
+      <module name="actuators" type="dummy"/>
+      <module name="intermcu" type="can"/>
 
       <!-- * Communication * -->
-      <subsystem name="telemetry" type="transparent">
+      <module name="telemetry" type="transparent">
         <!-- or use type="xbee_api"> -->
         <configure name="MODEM_BAUD" value="B9600"/>
         <!--  <configure name="MODEM_BAUD" value="B57600"/>-->
         <configure name="MODEM_PORT" value="UART2"/>
-      </subsystem>
+      </module>
 
-      <subsystem name="control" type="energy"/>
+      <module name="control" type="energy"/>
 
       <!-- * Sensors * -->
-      <subsystem name="gps" type="ublox">
+      <module name="gps" type="ublox">
         <configure name="GPS_PORT" value="UART3"/>
         <configure name="GPS_BAUD" value="B38400"/>
-      </subsystem>
+      </module>
 
       <!-- * Add Navigation routines -->
-      <subsystem name="navigation"/>
-      <subsystem name="ins" type="alt_float"/>
+      <module name="navigation"/>
+      <module name="ins" type="alt_float"/>
 
     </target>
 
@@ -110,22 +110,22 @@
 
       <configure name="PERIODIC_FREQUENCY" value="120"/>
 
-      <subsystem name="fbw_datalink">
+      <module name="fbw_datalink">
         <configure name="AUTOPILOT_PORT" value="UART2"/>
         <configure name="MODEM_PORT" value="UART3"/>
         <configure name="MODEM_BAUD" value="B9600"/>
-      </subsystem>
+      </module>
 
       <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="FALSE"/>
       <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE" value="FALSE"/>
       <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_NO_AP_MUST_FAILSAFE" value="FALSE"/>
 
-      <subsystem name="actuators" type="pwm"/>
-      <subsystem name="intermcu" type="can"/>
+      <module name="actuators" type="pwm"/>
+      <module name="intermcu" type="can"/>
     </target>
 
-    <subsystem name="radio_control" type="spektrum">
-      <!-- spektrum models have fixed names for the channels/functions: https://github.com/paparazzi/paparazzi/blob/v4.0/sw/airborne/arch/stm32/subsystems/radio_control/spektrum_arch.h -->
+    <module name="radio_control" type="spektrum">
+      <!-- spektrum models have fixed names for the channels/functions: https://github.com/paparazzi/paparazzi/blob/v4.0/sw/airborne/arch/stm32/modules/radio_control/spektrum_arch.h -->
       <!--
         RADIO_THROTTLE   0
         RADIO_ROLL       1
@@ -152,27 +152,27 @@
       <!-- <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER"/> -->
       <!-- If you want to reverse a channel change the sign of the channel you want to reverse -->
       <!-- <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,-1,-1,-1,1,-1,1,1,1,1,1,1\}"/> -->
-    </subsystem>
+    </module>
 
 
     <!-- ****************************** SIM *********************************-->
     <target name="sim" board="pc">
       <define name="INS_BARO_ID" value="BARO_SIM_SENDER_ID"/>
-      <subsystem name="telemetry" 	type="xbee_api">
+      <module name="telemetry" 	type="xbee_api">
         <configure name="MODEM_BAUD" 		value="B9600"/>
-      </subsystem>
-      <subsystem name="control" type="energy"/>
-      <subsystem name="imu" type="aspirin_v2.2"/>
-      <subsystem name="ahrs" type="int_cmpl_quat">
+      </module>
+      <module name="control" type="energy"/>
+      <module name="imu" type="aspirin_v2.2"/>
+      <module name="ahrs" type="int_cmpl_quat">
         <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
         <!-- * no need? since already set by default * -->
         <define name="USE_MAGNETOMETER" value="FALSE"/>
         <!-- TRUE by default but better set it to be sure if you want to use it -->
-      </subsystem>
-      <subsystem name="gps"       type="ublox"/>
-      <subsystem name="navigation"/>
-      <subsystem name="ins" type="alt_float"/>
-      <subsystem name="uart"/>
+      </module>
+      <module name="gps"       type="ublox"/>
+      <module name="navigation"/>
+      <module name="ins" type="alt_float"/>
+      <module name="uart"/>
     </target>
 
     <!-- **************************** set for all *******************************-->
@@ -457,7 +457,7 @@
     <!-- The prebank is an adjustment to the roll setting which is done when the aircraft is trying to do a circle and when it is close to the circumference of the circle. This way it does not fly straight into the circumference but instead it starts to make a roll as the one needed to fly in circles.
 There is a value in the airframe file COURSE_PRE_BANK_CORRECTION which can be used to increase o decrease the effect. If set to 1 then the normal prebank is done. If set to 0.5 then half of the additional roll is done. This causes the aircraft to not roll enough in order to fly the intended circle and it ends up flying in a larger circle.  A value > 1 makes it fly a smaller circle.
 
-https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/subsystems/nav.c#L132
+https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/modules/nav.c#L132
 -->
     <define name="COURSE_PRE_BANK_CORRECTION" value="1.0"/>
     <!-- TODO: Tune value -->

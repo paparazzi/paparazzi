@@ -187,35 +187,35 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
-      <!--subsystem name="radio_control" type="superbitrf_rc"-->
+      <!--module name="radio_control" type="superbitrf_rc"-->
         <!--<define name="RADIO_TRANSMITTER_ID" value="2008496626"/>-->   <!-- TUDelft Dx6i: TX 4 -->
         <!--<define name="RADIO_TRANSMITTER_CHAN" value="6"/>-->
         <!--<define name="RADIO_TRANSMITTER_PROTOCOL" value="0x01"/>-->
 
-	  <subsystem name="radio_control" type="ppm">
+	  <module name="radio_control" type="ppm">
         <configure name="RADIO_CONTROL_PPM_PIN" value="SERVO6"/>
-      </subsystem>
+      </module>
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
       <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
     </target>
 
-    <subsystem name="actuators" type="pwm">
+    <module name="actuators" type="pwm">
       <define name="TIM5_SERVO_HZ" value="2000"/>
       <define name="SERVO_HZ" value="300"/>
       <define name="USE_SERVOS_1AND2"/>
-    </subsystem>
+    </module>
 
-	<subsystem name="telemetry" type="transparent">
+	<module name="telemetry" type="transparent">
 	  <configure name="MODEM_BAUD" value="B115200"/>
 	  <configure name="MODEM_PORT" value="UART1"/>
-	</subsystem>
-    <!--subsystem name="telemetry" type="superbitrf" /-->
-    <subsystem name="imu" type="lisa_s_v1.0"/>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <!--subsystem name="rpm_sensor" type="eagletree"/-->
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
-    <subsystem name="ins"/>
+	</module>
+    <!--module name="telemetry" type="superbitrf" /-->
+    <module name="imu" type="lisa_s_v1.0"/>
+    <module name="gps" type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <!--module name="rpm_sensor" type="eagletree"/-->
+    <module name="ahrs" type="int_cmpl_quat"/>
+    <module name="ins"/>
   </firmware>
 </airframe>
