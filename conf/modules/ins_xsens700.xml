@@ -1,24 +1,24 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins_xsens" dir="ins">
+<module name="ins_xsens700" dir="ins">
   <doc>
     <description>
-      XSens Mti-G INS
+      XSens Mti-G 700 INS
     </description>
     <configure name="XSENS_PORT" value="uart1" description="The (uart) port the XSens is connected to"/>
     <configure name="XSENS_BAUD" value="B115200" description="UART baud rate"/>
   </doc>
   <header>
-    <file name="ins_xsens.h"/>
+    <file name="ins_xsens700.h"/>
   </header>
   <!-- ins_init is still called explicitly in main -->
   <!--init fun="ins_init()"/-->
-  <periodic fun="xsens_periodic()" freq="60"/>
-  <event fun="ins_xsens_event()"/>
+  <periodic fun="xsens700_periodic()" freq="60"/>
+  <event fun="ins_xsens700_event()"/>
   <makefile target="ap">
-    <file name="xsens.c"/>
+    <file name="xsens700.c"/>
     <file name="xsens_common.c"/>
-    <file name="ins_xsens.c"/>
+    <file name="ins_xsens700.c"/>
     <file name="ins.c" dir="subsystems"/>
     <configure name="XSENS_PORT" default="uart1" case="upper|lower"/>
     <configure name="XSENS_BAUD" default="B115200"/>
@@ -31,10 +31,9 @@
     <file name="gps.c" dir="subsystems"/>
     <define name="USE_GPS"/>
     <define name="USE_GPS_XSENS"/>
-    <define name="USE_GPS_XSENS_RAW_DATA"/>
-    <define name="GPS_NB_CHANNELS" value="16"/>
+    <define name="GPS_NB_CHANNELS" value="50"/>
     <raw>
-      ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_xsens.h\"
+      ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_xsens700.h\"
     </raw>
   </makefile>
 

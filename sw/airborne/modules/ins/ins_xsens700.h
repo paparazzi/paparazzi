@@ -21,18 +21,16 @@
  */
 
 /**
- * @file modules/ins/ins_xsens.h
- * Xsens as a full INS solution
+ * @file modules/ins/ins_xsens700.h
+ * Xsens700 as a full INS solution
  */
 
-#ifndef INS_XSENS_H
-#define INS_XSENS_H
+#ifndef INS_XSENS700_H
+#define INS_XSENS700_H
 
 #include "std.h"
 
-// hack to not use this in sim/nps
-#ifndef SITL
-#include "xsens.h"
+#include "xsens700.h"
 
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
 extern volatile uint8_t new_ins_attitude;
@@ -41,25 +39,18 @@ extern volatile uint8_t new_ins_attitude;
 extern float ins_pitch_neutral;
 extern float ins_roll_neutral;
 
-#define DefaultInsImpl ins_xsens
+#define DefaultInsImpl ins_xsens700
 
-extern void ins_xsens_init(void);
-extern void ins_xsens_register(void);
-extern void ins_xsens_event(void);
+extern void ins_xsens700_init(void);
+extern void ins_xsens700_register(void);
+extern void ins_xsens700_event(void);
 
 #if USE_GPS_XSENS
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS gps_xsens
+#define PRIMARY_GPS gps_xsens700
 #endif
-extern void gps_xsens_init(void);
-extern void gps_xsens_register(void);
-#endif
-
-#else // SITL
-
-static inline void xsens_periodic(void) {}
-static inline void ins_xsens_event(void) {}
-
+extern void gps_xsens700_init(void);
+extern void gps_xsens700_register(void);
 #endif
 
 #endif

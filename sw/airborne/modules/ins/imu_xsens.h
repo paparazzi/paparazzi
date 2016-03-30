@@ -21,45 +21,25 @@
  */
 
 /**
- * @file modules/ins/ins_xsens.h
- * Xsens as a full INS solution
+ * @file modules/ins/imu_xsens.h
+ *
+ * XSENS to just provide IMU measurements.
+ * For use with an external AHRS algorithm.
  */
 
-#ifndef INS_XSENS_H
-#define INS_XSENS_H
+#ifndef IMU_XSENS_H
+#define IMU_XSENS_H
 
 #include "std.h"
 
-// hack to not use this in sim/nps
-#ifndef SITL
+#include "subsystems/imu.h"
 #include "xsens.h"
 
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-extern volatile uint8_t new_ins_attitude;
-#endif
+extern void imu_xsens_init(void);
+extern void imu_xsens_event(void);
 
-extern float ins_pitch_neutral;
-extern float ins_roll_neutral;
-
-#define DefaultInsImpl ins_xsens
-
-extern void ins_xsens_init(void);
-extern void ins_xsens_register(void);
-extern void ins_xsens_event(void);
-
-#if USE_GPS_XSENS
-#ifndef PRIMARY_GPS
-#define PRIMARY_GPS gps_xsens
-#endif
-extern void gps_xsens_init(void);
-extern void gps_xsens_register(void);
-#endif
-
-#else // SITL
-
-static inline void xsens_periodic(void) {}
-static inline void ins_xsens_event(void) {}
-
-#endif
+#define ImuEvent imu_xsens_event
+#define imu_impl_init imu_xsens_init
+#define imu_periodic xsens_periodic
 
 #endif
