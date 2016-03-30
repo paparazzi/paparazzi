@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2016 Michael Sierra <sierramichael.a@gmail.com>
+ * Copyright (C) 2009  ENAC, Pascal Brisset, Michel Gorraz,Gautier Hattenberger,
+ *               2016 Michael Sierra <sierramichael.a@gmail.com>
  *
  * This file is part of paparazzi.
  *
