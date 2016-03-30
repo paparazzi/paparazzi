@@ -40,8 +40,8 @@ extern float ins_pitch_neutral;
 extern float ins_roll_neutral;
 
 #define DefaultInsImpl ins_xsens
-#define InsPeriodic xsens_periodic
-#define InsEvent ins_xsens_event
+//#define InsPeriodic xsens_periodic
+//#define InsEvent ins_xsens_event
 extern void ins_xsens_init(void);
 extern void ins_xsens_register(void);
 extern void ins_xsens_event(void);

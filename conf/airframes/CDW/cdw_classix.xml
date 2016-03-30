@@ -216,9 +216,9 @@
       <configure name="MODEM_BAUD" value="B9600"/>
     </subsystem>
 
-    <subsystem name="ins" type="xsens">
-      <configure name="XSENS_UART_NR" value="1"/>
-    </subsystem>
+    <module name="ins" type="xsens">
+      <configure name="XSENS_PORT" value="uart1"/>
+    </module>
 
   </firmware>
 
