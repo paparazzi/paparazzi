@@ -36,10 +36,10 @@
         <configure name="MODEM_BAUD" value="B9600"/>
         <configure name="MODEM_PORT" value="UART3"/>
       </subsystem>
-      <subsystem name="ins" type="xsens700">
-        <configure name="XSENS_UART_NR" value="1"/>
-        <configure name="XSENS_UART_BAUD" value="B230400"/>
-      </subsystem>
+      <module name="ins" type="xsens700">
+        <configure name="XSENS_PORT" value="uart1"/>
+        <configure name="XSENS_BAUD" value="B230400"/>
+      </module>
     </target>
     <target name="fbw" board="lisa_m_2.0">
       <configure name="SEPARATE_FBW" value="1"/>
@@ -70,10 +70,10 @@
         <configure name="MODEM_BAUD" value="B9600"/>
         <configure name="MODEM_PORT" value="UART3"/>
       </subsystem>
-      <subsystem name="ins" type="xsens700">
-        <configure name="XSENS_UART_NR" value="1"/>
-        <configure name="XSENS_UART_BAUD" value="B230400"/>
-      </subsystem>
+      <module name="ins" type="xsens700">
+        <configure name="XSENS_PORT" value="uart1"/>
+        <configure name="XSENS_BAUD" value="B230400"/>
+      </module>
     </target>
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
