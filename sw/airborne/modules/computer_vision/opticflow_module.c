@@ -210,13 +210,12 @@ void opticflow_module_start(void)
  */
 void opticflow_module_stop(void)
 {
-  // Stop the capturing
-  v4l2_stop_capture(opticflow_dev);
-
   // Cancel the opticalflow calculation thread
   if (pthread_cancel(opticflow_calc_thread) != 0) {
     printf("Thread cancel did not work\n");
   }
+  // Stop the capturing
+  v4l2_stop_capture(opticflow_dev);
 }
 
 /**
