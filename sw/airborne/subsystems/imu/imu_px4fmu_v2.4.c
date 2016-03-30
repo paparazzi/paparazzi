@@ -36,7 +36,7 @@
 /* SPI defaults set in subsystem makefile, can be configured from airframe file */
 PRINT_CONFIG_VAR(IMU_LSM_SPI_SLAVE_IDX)
 PRINT_CONFIG_VAR(IMU_L3G_SPI_SLAVE_IDX)
-PRINT_CONFIG_VAR(IMU_SPI_DEV)
+PRINT_CONFIG_VAR(IMU_PX4FMU_SPI_DEV)
 
 struct ImuPX4 imu_px4;
 
@@ -45,12 +45,12 @@ void imu_impl_init(void)
 
   /* L3GD20 gyro init */
   /* initialize gyro and set default options */
-  l3gd20_spi_init(&imu_px4.l3g, &IMU_SPI_DEV, IMU_L3G_SPI_SLAVE_IDX);
+  l3gd20_spi_init(&imu_px4.l3g, &IMU_PX4FMU_SPI_DEV, IMU_L3G_SPI_SLAVE_IDX);
 
   /* LSM303dlhc acc + magneto init */
-  lsm303dlhc_spi_init(&imu_px4.lsm_acc, &IMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM_TARGET_ACC);
+  lsm303dlhc_spi_init(&imu_px4.lsm_acc, &IMU_PX4FMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM_TARGET_ACC);
 #if !MODULE_HMC58XX_UPDATE_AHRS
-  lsm303dlhc_spi_init(&imu_px4.lsm_mag, &IMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM_TARGET_MAG);  
+  lsm303dlhc_spi_init(&imu_px4.lsm_mag, &IMU_PX4FMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM_TARGET_MAG);
 #endif
 
 }

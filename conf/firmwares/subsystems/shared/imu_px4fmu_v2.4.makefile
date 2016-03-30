@@ -7,43 +7,42 @@
 include $(CFG_SHARED)/spi_master.makefile
 
 IMU_PX4FMU_CFLAGS += -DIMU_TYPE_H=\"imu/imu_px4fmu_v2.4.h\"
-IMU_CFLAGS  = -DIMU_TYPE_H=\"imu/imu_px4fmu_v2.4.h\"
-IMU_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
-IMU_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_px4fmu_v2.4.c
+IMU_PX4FMU_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
+IMU_PX4FMU_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_px4fmu_v2.4.c
 
 #L3GD20 gyro
-IMU_SRCS   += peripherals/l3gd20_spi.c
+IMU_PX4FMU_SRCS   += peripherals/l3gd20_spi.c
 
 #LSM303D accelero + magneto
-IMU_SRCS   += peripherals/lsm303dlhc_spi.c
+IMU_PX4FMU_SRCS   += peripherals/lsm303dlhc_spi.c
 
 # for fixedwing firmware and ap only
 ifeq ($(TARGET), ap)
-  IMU_CFLAGS  += -DUSE_IMU
+  IMU_PX4FMU_CFLAGS  += -DUSE_IMU
 endif
 
 # set default SPI device
-IMU_SPI_DEV ?= spi1
+IMU_PX4FMU_SPI_DEV ?= spi1
 # convert spix to upper/lower case
-IMU_SPI_DEV_UPPER=$(shell echo $(IMU_SPI_DEV) | tr a-z A-Z)
-IMU_SPI_DEV_LOWER=$(shell echo $(IMU_SPI_DEV) | tr A-Z a-z)
-IMU_CFLAGS += -DIMU_SPI_DEV=$(IMU_SPI_DEV_LOWER)
-IMU_CFLAGS += -DUSE_$(IMU_SPI_DEV_UPPER)
+IMU_PX4FMU_SPI_DEV_UPPER=$(shell echo $(IMU_PX4FMU_SPI_DEV) | tr a-z A-Z)
+IMU_PX4FMU_SPI_DEV_LOWER=$(shell echo $(IMU_PX4FMU_SPI_DEV) | tr A-Z a-z)
+IMU_PX4FMU_CFLAGS += -DIMU_PX4FMU_SPI_DEV=$(IMU_PX4FMU_SPI_DEV_LOWER)
+IMU_PX4FMU_CFLAGS += -DUSE_$(IMU_PX4FMU_SPI_DEV_UPPER)
 
 #********** L3GD20 ***********
 IMU_L3G_SPI_SLAVE_IDX ?= SPI_SLAVE0
-IMU_CFLAGS += -DIMU_L3G_SPI_SLAVE_IDX=$(IMU_L3G_SPI_SLAVE_IDX)
-IMU_CFLAGS += -DUSE_$(IMU_L3G_SPI_SLAVE_IDX)
+IMU_PX4FMU_CFLAGS += -DIMU_L3G_SPI_SLAVE_IDX=$(IMU_L3G_SPI_SLAVE_IDX)
+IMU_PX4FMU_CFLAGS += -DUSE_$(IMU_L3G_SPI_SLAVE_IDX)
 
 #********** LSM303dlhc ***********
 IMU_LSM_SPI_SLAVE_IDX ?= SPI_SLAVE1
-IMU_CFLAGS += -DIMU_LSM_SPI_SLAVE_IDX=$(IMU_LSM_SPI_SLAVE_IDX)
-IMU_CFLAGS += -DUSE_$(IMU_LSM_SPI_SLAVE_IDX)
+IMU_PX4FMU_CFLAGS += -DIMU_LSM_SPI_SLAVE_IDX=$(IMU_LSM_SPI_SLAVE_IDX)
+IMU_PX4FMU_CFLAGS += -DUSE_$(IMU_LSM_SPI_SLAVE_IDX)
 
 # add it for all targets except sim, fbw and nps
 ifeq (,$(findstring $(TARGET),sim fbw nps))
-$(TARGET).CFLAGS += $(IMU_CFLAGS)
-$(TARGET).srcs += $(IMU_SRCS)
+$(TARGET).CFLAGS += $(IMU_PX4FMU_CFLAGS)
+$(TARGET).srcs += $(IMU_PX4FMU_SRCS)
 endif
 
 #
