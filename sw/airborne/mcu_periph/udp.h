@@ -49,7 +49,7 @@ struct udp_periph {
   struct link_device device;
 };
 
-extern void     udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast);
+extern void     udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool broadcast);
 extern bool     udp_check_free_space(struct udp_periph *p, long *fd, uint16_t len);
 extern void     udp_put_byte(struct udp_periph *p, long fd, uint8_t data);
 extern uint16_t udp_char_available(struct udp_periph *p);
