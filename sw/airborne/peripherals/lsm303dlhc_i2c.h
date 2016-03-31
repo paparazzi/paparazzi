@@ -36,7 +36,7 @@
 
 #include "peripherals/lsm303dlhc.h"
 
-
+#warning "The Lsm303dlhc I2C driver has not been tested. Use with caution."
 
 struct Lsm303dlhc_i2c {
   struct i2c_periph *i2c_p;
