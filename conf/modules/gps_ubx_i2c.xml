@@ -4,12 +4,6 @@
   <doc>
     <description>
       U-blox GPS (I2C)
-      This module provides an I2C interface that can then be used in the gps_ublox module:
-@verbatim
-<module name="gps_ublox">
-  <configure name="UBX_GPS_PORT" value="gps_i2c"/>
-</module>
-@endverbatim
     </description>
     <configure name="GPS_UBX_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c1)"/>
   </doc>

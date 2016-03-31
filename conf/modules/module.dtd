@@ -14,7 +14,7 @@
 <!ELEMENT datalink EMPTY>
 <!ELEMENT makefile (configure|define|flag|file|file_arch|raw)*>
 <!ELEMENT section (define|configure)*>
-<!ELEMENT description (#CDATA)>
+<!ELEMENT description (#PCDATA)>
 <!ELEMENT configure EMPTY>
 <!ELEMENT define EMPTY>
 <!ELEMENT flag EMPTY>
