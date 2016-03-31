@@ -57,7 +57,7 @@ def bebop_status():
 
 
 # Parse the arguments
-parser = argparse.ArgumentParser(description='Bebop python helper. Use bebop.py -h for help')
+parser = argparse.ArgumentParser(description='Bebop helper tool. Use bebop.py -h for help')
 parser.add_argument('--host', metavar='HOST', default='192.168.42.1',
                     help='the ip address of bebop')
 subparsers = parser.add_subparsers(title='Command to execute', metavar='command', dest='command')
@@ -131,7 +131,7 @@ elif args.command == 'upload_file_and_run':
     sleep(0.5)
     parrot_utils.execute_command(tn, "chmod 777 /data/ftp/" + args.folder + "/" + f[1])
     parrot_utils.execute_command(tn, "/data/ftp/" + args.folder + "/" + f[1] + " > /dev/null 2>&1 &")
-    print("#pragma message: Upload and Start of ap.elf to Bebop Succes!")
+    print("#pragma message: Upload and Start of ap.elf to Bebop succesful !")
 
 elif args.command == 'upload_file':
     # Split filename and path
@@ -140,7 +140,7 @@ elif args.command == 'upload_file':
     parrot_utils.execute_command(tn, "mkdir -p /data/ftp/" + args.folder)
     print('Uploading \'' + f[1] + "\' from " + f[0] + " to /data/ftp/" + args.folder)
     parrot_utils.uploadfile(ftp, args.folder + "/" + f[1], file(args.file, "rb"))
-    print("#pragma message: Upload of " + f[1] + " to Bebop Succes!")
+    print("#pragma message: Upload of " + f[1] + " to Bebop succesful !")
 
 elif args.command == 'download_file':
     # Split filename and path

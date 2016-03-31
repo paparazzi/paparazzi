@@ -79,10 +79,10 @@ def uploadfile(ftp, filename, content):
     try:
         ftp.storbinary("STOR " + filename, content)
     except ftplib.error_temp:
-        print("FTP UPLOAD ERROR: Uploading FAILED: Probably your ARDrone memory is full.")
+        print("FTP UPLOAD ERROR: Uploading FAILED: Probably your drone onboard storage memory is full. Remove old JPG or other data?")
         sys.exit()
     except:
-        print("FTP UPLOAD ERROR: Maybe your ARDrone memory is full?", sys.exc_info()[0])
+        print("FTP UPLOAD ERROR: Maybe your drone onboard storage memory is full? Remove old JPG or other data?)", sys.exc_info()[0])
         sys.exit()
 
 
