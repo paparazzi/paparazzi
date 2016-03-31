@@ -15,7 +15,7 @@ In the flight plan, the survey blocks call init and run functions:
   - min_rad       minimal radius when navigating
   - altitude      the altitude that must be reached before the flyover starts
 2. Run the survey with nav_survey_polygon_run()
-<!--
+
 Block example:
 @verbatim
 <block name="Poly Survey" strip_button="Poly Survey">
@@ -23,7 +23,6 @@ Block example:
   <call fun="nav_survey_polygon_run()"/>
 </block>
 @endverbatim
--->
     </description>
   </doc>
   <header>

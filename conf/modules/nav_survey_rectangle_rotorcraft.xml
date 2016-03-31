@@ -13,7 +13,7 @@ In the flight plan, the survey blocks call init and run functions:
   - sweep_width   distance between the sweeps
   - angle         NS or WE orientation
 2. Run the survey with nav_survey_rectangle_rotorcraft_run(WP1,WP2)
-<!--
+
 Block example:
 @verbatim
 <block name="Poly Survey" strip_button="Poly Survey">
@@ -25,12 +25,11 @@ or using flightplan primitive
   <survey_rectangle grid="30" orientation="NS" wp1="S1" wp2="S2"/>
 </block>
 @endverbatim
--->
     </description>
     <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="25" description="default sweep distance when using dinamic setup"/>
   </doc>
-  
-    <settings>
+
+  <settings>
     <dl_settings>
       <dl_settings NAME="Ret_Survey">
         <dl_setting min="10" max="500" step="1" var="sweep" type="float" shortname="Distance" module="modules/nav/nav_survey_rectangle_rotorcraft"/>

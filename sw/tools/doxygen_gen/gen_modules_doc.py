@@ -171,14 +171,28 @@ def module_configuration(module, mname):
 def get_module_name(module):
     return module.get('name')
 
+def remove_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text
+
+def remove_postfix(text, postfix):
+    if text.endswith(postfix):
+        return text[:-len(postfix)]
+    return text
+
 def get_module_description(module):
     desc = module.find("./doc/description")
     details = "No detailed description...\n"
     if desc is None or desc.text is None:
         brief = module.get('name').replace('_', ' ').title()
     else:
+        # use tostring instead of desc.text to allow xml stuff in description
+        text = ET.tostring(desc, method="xml").strip()
+        text = remove_prefix(text, "<description>")
+        text = remove_postfix(text, "</description>")
         # treat first line until dot as brief
-        d = re.split(r'\.|\n', desc.text.strip(), 1)
+        d = re.split(r'\.|\n', text.strip(), 1)
         brief = d[0].strip()
         if len(d) > 1:
             details = d[1].strip()+"\n"
