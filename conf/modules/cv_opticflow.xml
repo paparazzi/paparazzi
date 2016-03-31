@@ -51,7 +51,7 @@
       <dl_setting var="opticflow.method" min="0" step="1" max="1" module="computer_vision/opticflow_module" shortname="method" values="LK_Fast9|EdgeFlow" param="METHOD"/>
         <dl_setting var="opticflow.window_size" module="computer_vision/opticflow_module" min="0" step="1" max="20" shortname="window_size" param="OPTICFLOW_WINDOW_SIZE"/>
         <dl_setting var="opticflow.search_distance" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="search_distance" param="SEARCH_DISTANCE"/>
-        <dl_setting var="opticflow.subpixel_factor" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="subpixel_factor" param="OPTICFLOW_SUBPIXEL_FACTOR"/>
+        <dl_setting var="opticflow.subpixel_factor" module="computer_vision/opticflow_module" min="0" step="10" max="1000" shortname="subpixel_factor" param="OPTICFLOW_SUBPIXEL_FACTOR"/>
         <dl_setting var="opticflow.derotation" min="0" step="1" max="1" module="computer_vision/opticflow_module" values="OFF|ON" shortname="derotation" param="OPTICFLOW_DEROTATION"/>
 
 	<!-- Specifically for Lucas Kanade and FAST9 -->
@@ -62,6 +62,9 @@
         <dl_setting var="opticflow.fast9_adaptive" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="TRUE|FALSE" shortname="fast9_adaptive" param="OPTICFLOW_FAST9_ADAPTIVE"/>
         <dl_setting var="opticflow.fast9_threshold" module="computer_vision/opticflow_module" min="0" step="1" max="255" shortname="fast9_threshold" param="OPTICFLOW_FAST9_THRESHOLD"/>
         <dl_setting var="opticflow.fast9_min_distance" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="fast9_min_distance" param="OPTICFLOW_FAST9_MIN_DISTANCE"/>
+	<!-- Changes pyramid level of lucas kanade optical flow. -->
+        <dl_setting var="opticflow.pyramid_level" module="computer_vision/opticflow_module" min="0" step="1" max="10" shortname="pyramid_level" param="OPTICFLOW_PYRAMID_LEVEL"/>
+
       </dl_settings>
     </dl_settings>
   </settings>
