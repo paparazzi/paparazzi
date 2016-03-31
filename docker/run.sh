@@ -107,6 +107,8 @@ docker run \
     ${SHARE_PAPARAZZI_HOME_OPTS} \
     --rm $args
 
+# remember exit status
+EXIT_STATUS=$?
 
 ############################################################
 # cleanup after exiting from docker container
@@ -119,3 +121,5 @@ rm -f $XAUTH
 if [ $UNAME == "Darwin" ]; then
     pkill -f "$TCPPROXY"
 fi
+
+exit $EXIT_STATUS
