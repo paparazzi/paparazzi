@@ -22,8 +22,6 @@
     <file name="ahrs_chimu_uart.c"/>
     <file name="imu_chimu.c"/>
     <file name="ahrs.c" dir="subsystems"/>
-    <raw>
-      ap.CFLAGS += -DAHRS_TYPE_H=\"modules/ins/ahrs_chimu.h\"
-    </raw>
+    <define name="AHRS_TYPE_H" value="modules/ins/ahrs_chimu.h" type="string"/>
   </makefile>
 </module>

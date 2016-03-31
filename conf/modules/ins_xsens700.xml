@@ -32,27 +32,23 @@
     <define name="USE_GPS"/>
     <define name="USE_GPS_XSENS"/>
     <define name="GPS_NB_CHANNELS" value="50"/>
-    <raw>
-      ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_xsens700.h\"
-    </raw>
+    <define name="GPS_TYPE_H" value="modules/ins/ins_xsens700.h" type="string"/>
   </makefile>
 
   <makefile target="sim">
     <file name="ahrs.c" dir="subsystems"/>
     <file name="ahrs_sim.c" dir="subsystems/ahrs"/>
     <define name="USE_AHRS"/>
+    <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_sim.h" type="string"/>
 
     <file name="ins.c" dir="subsystems"/>
     <file name="ins_gps_passthrough_utm.c" dir="subsystems/ins"/>
+    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough_utm.h" type="string"/>
 
     <file name="gps.c" dir="subsystems"/>
     <file name="gps_sim.c" dir="subsystems/gps"/>
     <define name="USE_GPS"/>
-    <raw>
-      sim.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_sim.h\"
-      sim.CFLAGS += -DINS_TYPE_H=\"subsystems/ins/ins_gps_passthrough_utm.h\"
-      sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
-    </raw>
+    <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim.h" type="string"/>
   </makefile>
 
   <makefile target="nps">
@@ -63,14 +59,12 @@
 
     <file name="ins.c" dir="subsystems"/>
     <file name="ins_gps_passthrough_utm.c" dir="subsystems/ins"/>
+    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough_utm.h" type="string"/>
 
     <file name="gps.c" dir="subsystems"/>
     <file name="gps_sim_nps.c" dir="subsystems/gps"/>
     <define name="USE_GPS"/>
-    <raw>
-      nps.CFLAGS += -DINS_TYPE_H=\"subsystems/ins/ins_gps_passthrough_utm.h\"
-      nps.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"
-    </raw>
+    <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim_nps.h" type="string"/>
   </makefile>
 </module>
 
