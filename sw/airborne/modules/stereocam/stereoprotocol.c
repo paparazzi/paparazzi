@@ -76,9 +76,10 @@ uint8_t stereoprot_isStartOfMsg(uint8_t *stack, uint16_t i, uint16_t buffer_size
 
 void WritePart(struct link_device *dev, uint8_t *code, uint8_t length)
 {
-  if (dev->check_free_space(dev->periph, length)) {
+  long fd = 0;
+  if (dev->check_free_space(dev->periph, &fd, length)) {
     for (uint8_t index = 0; index < length; index++) {
-      dev->put_byte(dev->periph, code[index]);
+      dev->put_byte(dev->periph, fd, code[index]);
     }
   }
 }

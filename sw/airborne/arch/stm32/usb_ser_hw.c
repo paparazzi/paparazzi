@@ -500,17 +500,30 @@ struct usb_serial_periph usb_serial;
 
 // Functions for the generic device API
 static int usb_serial_check_free_space(struct usb_serial_periph *p __attribute__((unused)),
+                                       long *fd __attribute__((unused)),
                                        uint8_t len)
 {
   return (int)VCOM_check_free_space(len);
 }
 
-static void usb_serial_transmit(struct usb_serial_periph *p __attribute__((unused)), uint8_t byte)
+static void usb_serial_transmit(struct usb_serial_periph *p __attribute__((unused)),
+                                long fd __attribute__((unused)),
+                                uint8_t byte)
 {
   VCOM_putchar(byte);
 }
 
-static void usb_serial_send(struct usb_serial_periph *p __attribute__((unused)))
+static void usb_serial_transmit_buffer(struct usb_serial_periph *p __attribute__((unused)),
+                                       long fd __attribute__((unused)),
+                                       uint8_t *data, uint16_t len)
+{
+  int i;
+  for (i = 0; i < len; i++) {
+    VCOM_putchar(data[i]);
+  }
+}
+
+static void usb_serial_send(struct usb_serial_periph *p __attribute__((unused)), long fd __attribute__((unused)))
 {
   VCOM_send_message();
 }
@@ -558,9 +571,11 @@ void VCOM_init(void)
   usb_serial.device.periph = (void *)(&usb_serial);
   usb_serial.device.check_free_space = (check_free_space_t) usb_serial_check_free_space;
   usb_serial.device.put_byte = (put_byte_t) usb_serial_transmit;
+  usb_serial.device.put_buffer = (put_buffer_t) usb_serial_transmit_buffer;
   usb_serial.device.send_message = (send_message_t) usb_serial_send;
   usb_serial.device.char_available = (char_available_t) usb_serial_char_available;
   usb_serial.device.get_byte = (get_byte_t) usb_serial_getch;
 
   tx_timeout = 0;
 }
+

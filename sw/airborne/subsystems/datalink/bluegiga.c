@@ -72,7 +72,7 @@ void bluegiga_transmit(struct bluegiga_periph *p, uint8_t data);
 void bluegiga_receive(struct spi_transaction *trans);
 
 // Functions for the generic link device device API
-static int dev_check_free_space(struct bluegiga_periph *p, uint8_t len)
+static int dev_check_free_space(struct bluegiga_periph *p, long *fd __attribute__((unused)), uint16_t len)
 {
   // check if there is enough space for message
   // NB if BLUEGIGA_BUFFER_SIZE is smaller than 256 then an additional check is needed that len < BLUEGIGA_BUFFER_SIZE
@@ -82,11 +82,18 @@ static int dev_check_free_space(struct bluegiga_periph *p, uint8_t len)
 
   return false;
 }
-static void dev_put_byte(struct bluegiga_periph *p, uint8_t byte)
+static void dev_put_buffer(struct bluegiga_periph *p, long fd __attribute__((unused)), uint8_t *data, uint16_t len)
+{
+  int i;
+  for (i = 0; i < len; i++) {
+    bluegiga_transmit(p, data[i]);
+  }
+}
+static void dev_put_byte(struct bluegiga_periph *p, long fd __attribute__((unused)), uint8_t byte)
 {
   bluegiga_transmit(p, byte);
 }
-static void dev_send_message(struct bluegiga_periph *p)
+static void dev_send_message(struct bluegiga_periph *p, long fd __attribute__((unused)))
 {
   p->end_of_msg = p->tx_insert_idx;
 }
@@ -163,6 +170,7 @@ void bluegiga_init(struct bluegiga_periph *p)
   p->device.periph            = (void *)(p);
   p->device.check_free_space  = (check_free_space_t) dev_check_free_space;
   p->device.put_byte          = (put_byte_t) dev_put_byte;
+  p->device.put_buffer        = (put_buffer_t) dev_put_buffer;
   p->device.send_message      = (send_message_t) dev_send_message;
   p->device.char_available    = (char_available_t) dev_char_available;
   p->device.get_byte          = (get_byte_t) dev_get_byte;
@@ -199,7 +207,8 @@ void bluegiga_init(struct bluegiga_periph *p)
 /* Add one byte to the end of tx circular buffer */
 void bluegiga_transmit(struct bluegiga_periph *p, uint8_t data)
 {
-  if (dev_check_free_space(p, 1) && coms_status != BLUEGIGA_UNINIT) {
+  long fd = 0;
+  if (dev_check_free_space(p, &fd, 1) && coms_status != BLUEGIGA_UNINIT) {
     p->tx_buf[p->tx_insert_idx] = data;
     bluegiga_increment_buf(&p->tx_insert_idx, 1);
   }

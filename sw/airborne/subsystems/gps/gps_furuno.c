@@ -71,11 +71,12 @@ void nmea_configure(void)
   for (i = furuno_cfg_cnt; i < GPS_FURUNO_SETTINGS_NB; i++) {
     len = strlen(gps_furuno_settings[i]);
     // Check if there is enough space to send the config msg
-    if (GpsLinkDevice->check_free_space(GpsLinkDevice->periph, len + 6)) {
+    long fd = 0;
+    if (GpsLinkDevice->check_free_space(GpsLinkDevice->periph, &fd, len + 6)) {
       crc = nmea_calc_crc(gps_furuno_settings[i], len);
       sprintf(buf, "$%s*%02X\r\n", gps_furuno_settings[i], crc);
       for (j = 0; j < len + 6; j++) {
-        GpsLinkDevice->put_byte(GpsLinkDevice->periph, buf[j]);
+        GpsLinkDevice->put_byte(GpsLinkDevice->periph, fd, buf[j]);
       }
       furuno_cfg_cnt++;
     } else {
