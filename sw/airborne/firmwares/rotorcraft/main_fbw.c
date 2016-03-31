@@ -183,7 +183,9 @@ STATIC_INLINE void main_periodic(void)
     fbw_mode = FBW_MODE_FAILSAFE;
     autopilot_motors_on = false;
     //signal to user whether fbw can be flashed:
+#ifdef FBW_MODE_LED
     LED_OFF(FBW_MODE_LED); // causes really fast blinking
+#endif
   }
 #endif
 

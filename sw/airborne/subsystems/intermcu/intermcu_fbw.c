@@ -122,6 +122,7 @@ void intermcu_send_status(uint8_t mode)
 
 void intermcu_blink_fbw_led(uint16_t dv)
 {
+#ifdef FBW_MODE_LED
   static uint16_t idv = 0;
   if (!autopilot_motors_on) {
     if (!(dv % (PERIODIC_FREQUENCY))) {
@@ -130,6 +131,7 @@ void intermcu_blink_fbw_led(uint16_t dv)
   } else {
     LED_TOGGLE(FBW_MODE_LED); // toggle makes random blinks if intermcu comm problem!
   }
+#endif
 }
 
 static void intermcu_parse_msg(struct transport_rx *trans, void (*commands_frame_handler)(void))
