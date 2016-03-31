@@ -71,7 +71,7 @@
   </servos>
 
   <section name="RADIO">
-    <define name="RADIO_COLLECTIVE" value="RADIO_FLAP"/>
+    <define name="RADIO_COLLECTIVE" value="RADIO_AUX1"/>
     <define name="RADIO_TAIL_GAIN" value="RADIO_AUX2"/>
   </section>
 
