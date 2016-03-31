@@ -81,8 +81,9 @@ void disable_inter_comm(bool value)
 void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode __attribute__((unused)))
 {
   if (!disable_comm) {
+    uint8_t autopilot_motors_on_tmp = autopilot_motors_on;
     pprz_msg_send_IMCU_COMMANDS(&(intermcu_transport.trans_tx), intermcu_device,
-                                INTERMCU_AP, &autopilot_motors_on, COMMANDS_NB, command_values); //TODO: Append more status
+                                INTERMCU_AP, &autopilot_motors_on_tmp, COMMANDS_NB, command_values); //TODO: Append more status
   }
 }
 

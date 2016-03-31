@@ -37,13 +37,13 @@
 struct Lsm303dlhc_Spi {
   struct spi_periph *spi_p;
   struct spi_transaction spi_trans;
-  bool_t initialized;                 ///< config done flag
+  bool initialized;                 ///< config done flag
   enum Lsm303dlhcTarget target;
   volatile uint8_t tx_buf[2];
   volatile uint8_t rx_buf[8];
   enum Lsm303dlhcConfStatus init_status;
-  volatile bool_t data_available_acc;     ///< data ready flag accelero
-  volatile bool_t data_available_mag;     ///< data ready flag magneto
+  volatile bool data_available_acc;     ///< data ready flag accelero
+  volatile bool data_available_mag;     ///< data ready flag magneto
   union {
     struct Int16Vect3 vect;           ///< data vector in acc coordinate system
     int16_t value[3];                 ///< data values accessible by channel index
