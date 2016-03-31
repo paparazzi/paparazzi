@@ -30,6 +30,8 @@
 
 #include "std.h"
 
+// hack to not use this in sim/nps
+#ifndef SITL
 #include "xsens700.h"
 
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
@@ -51,6 +53,13 @@ extern void ins_xsens700_event(void);
 #endif
 extern void gps_xsens700_init(void);
 extern void gps_xsens700_register(void);
+#endif
+
+#else // SITL
+
+static inline void xsens700_periodic(void) {}
+static inline void ins_xsens700_event(void) {}
+
 #endif
 
 #endif
