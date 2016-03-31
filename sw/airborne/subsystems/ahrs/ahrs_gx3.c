@@ -156,10 +156,10 @@ void imu_impl_init(void)
   uart_put_byte(&GX3_PORT, 0, ACC_FILT_DIV);
   uart_put_byte(&GX3_PORT, 0, MAG_FILT_DIV); //mag window filter size == 33hz
   uart_put_byte(&GX3_PORT, 0, 0x00);
-  uart_put_byte(&GX3_PORT, 10); // Up Compensation in secs, 0, def=10s
+  uart_put_byte(&GX3_PORT, 0, 10); // Up Compensation in secs, def=10s
   uart_put_byte(&GX3_PORT, 0, 0x00);
   uart_put_byte(&GX3_PORT, 0, 10); // North Compensation in secs
-  uart_put_byte(&GX3_PORT, 0x00); //power setting = 0, 0, high power/bw
+  uart_put_byte(&GX3_PORT, 0, 0x00); //power setting = 0, high power/bw
   uart_put_byte(&GX3_PORT, 0, 0x00); //rest of the bytes are 0
   uart_put_byte(&GX3_PORT, 0, 0x00);
   uart_put_byte(&GX3_PORT, 0, 0x00);
@@ -196,14 +196,14 @@ void imu_impl_init(void)
   uart_put_byte(&GX3_PORT, 0, 0xD6);
   uart_put_byte(&GX3_PORT, 0, 0xC6);
   uart_put_byte(&GX3_PORT, 0, 0x6B);
-  uart_put_byte(&GX3_PORT, 0xc8); // accel, gyro, 0, R
+  uart_put_byte(&GX3_PORT, 0, 0xc8); // accel, gyro, R
 #endif
 
   //4 byte command for Continous Mode
   uart_put_byte(&GX3_PORT, 0, 0xc4);
   uart_put_byte(&GX3_PORT, 0, 0xc1);
   uart_put_byte(&GX3_PORT, 0, 0x29);
-  uart_put_byte(&GX3_PORT, 0xc8); // accel,gyro, 0,R
+  uart_put_byte(&GX3_PORT, 0, 0xc8); // accel,gyro, R
 
   // Reset gyros to zero
   ahrs_gx3_align();
@@ -218,7 +218,7 @@ void imu_impl_init(void)
 void imu_periodic(void)
 {
   /* IF IN NON-CONTINUOUS MODE, REQUEST DATA NOW
-     uart_put_byte(&GX3_PORT, 0xc8); // accel,gyro, 0,R
+     uart_put_byte(&GX3_PORT, 0, 0xc8); // accel,gyro, R
   */
 }
 
