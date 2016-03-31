@@ -90,8 +90,8 @@ struct HorizontalGuidanceGains {
 struct HorizontalGuidance {
   uint8_t mode;
   /* configuration options */
-  bool_t use_ref;
-  bool_t approx_force_by_thrust;
+  bool use_ref;
+  bool approx_force_by_thrust;
   /* gains */
   struct HorizontalGuidanceGains gains;
 
@@ -108,8 +108,8 @@ extern int32_t transition_theta_offset;
 
 extern void guidance_h_init(void);
 extern void guidance_h_mode_changed(uint8_t new_mode);
-extern void guidance_h_read_rc(bool_t in_flight);
-extern void guidance_h_run(bool_t in_flight);
+extern void guidance_h_read_rc(bool in_flight);
+extern void guidance_h_run(bool in_flight);
 
 extern void guidance_h_set_igain(uint32_t igain);
 
@@ -118,20 +118,20 @@ extern void guidance_h_set_igain(uint32_t igain);
  * @param y East position (local NED frame) in meters.
  * @return TRUE if setpoints were set (currently in GUIDANCE_H_MODE_GUIDED)
  */
-extern bool_t guidance_h_set_guided_pos(float x, float y);
+extern bool guidance_h_set_guided_pos(float x, float y);
 
 /** Set heading setpoint in GUIDED mode.
  * @param heading Setpoint in radians.
  * @return TRUE if setpoint was set (currently in GUIDANCE_H_MODE_GUIDED)
  */
-extern bool_t guidance_h_set_guided_heading(float heading);
+extern bool guidance_h_set_guided_heading(float heading);
 
 /** Set horizontal velocity setpoint in GUIDED mode.
  * @param x North velocity (local NED frame) in meters/sec.
  * @param y East velocity (local NED frame) in meters/sec.
  * @return TRUE if setpoints were set (currently in GUIDANCE_H_MODE_GUIDED)
  */
-extern bool_t guidance_h_set_guided_vel(float vx, float vy);
+extern bool guidance_h_set_guided_vel(float vx, float vy);
 
 /* Make sure that ref can only be temporarily disabled for testing,
  * but not enabled if GUIDANCE_H_USE_REF was defined to FALSE.

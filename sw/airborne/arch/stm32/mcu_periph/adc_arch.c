@@ -596,7 +596,7 @@ void adc_isr(void)
     at least 500 hz, but we inject adc value in sampling buffer only at 50hz
    */
   const uint32_t timeStampDiff = get_sys_time_msec() - adc_watchdog.timeStamp;
-  const bool_t shouldAccumulateValue = timeStampDiff > 20;
+  const bool shouldAccumulateValue = timeStampDiff > 20;
   if (shouldAccumulateValue) {
     adc_watchdog.timeStamp = get_sys_time_msec();
   }

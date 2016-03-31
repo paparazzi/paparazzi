@@ -34,7 +34,7 @@
 
 extern uint16_t humidsht, tempsht;
 extern float fhumidsht, ftempsht;
-extern bool_t humid_sht_available;
+extern bool humid_sht_available;
 extern uint8_t humid_sht_status;
 
 void humid_sht_init(void);

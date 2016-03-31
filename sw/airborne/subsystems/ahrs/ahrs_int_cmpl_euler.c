@@ -63,7 +63,7 @@ static inline void get_psi_measurement_from_mag(int32_t *psi_meas, int32_t phi_e
 void ahrs_ice_init(void)
 {
   ahrs_ice.status = AHRS_ICE_UNINIT;
-  ahrs_ice.is_aligned = FALSE;
+  ahrs_ice.is_aligned = false;
 
   /* init ltp_to_imu to zero */
   INT_EULERS_ZERO(ahrs_ice.ltp_to_imu_euler)
@@ -75,7 +75,7 @@ void ahrs_ice_init(void)
   ahrs_ice.mag_offset = AHRS_MAG_OFFSET;
 }
 
-bool_t ahrs_ice_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
+bool ahrs_ice_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
                       struct Int32Vect3 *lp_mag)
 {
 
@@ -94,9 +94,9 @@ bool_t ahrs_ice_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
   RATES_COPY(ahrs_ice.gyro_bias, *lp_gyro);
 
   ahrs_ice.status = AHRS_ICE_RUNNING;
-  ahrs_ice.is_aligned = TRUE;
+  ahrs_ice.is_aligned = true;
 
-  return TRUE;
+  return true;
 }
 
 //#define USE_NOISE_CUT 1
@@ -105,21 +105,21 @@ bool_t ahrs_ice_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
 
 #if USE_NOISE_CUT
 #include "led.h"
-static inline bool_t cut_rates(struct Int32Rates i1, struct Int32Rates i2, int32_t threshold)
+static inline bool cut_rates(struct Int32Rates i1, struct Int32Rates i2, int32_t threshold)
 {
   struct Int32Rates diff;
   RATES_DIFF(diff, i1, i2);
   if (diff.p < -threshold || diff.p > threshold ||
       diff.q < -threshold || diff.q > threshold ||
       diff.r < -threshold || diff.r > threshold) {
-    return TRUE;
+    return true;
   } else {
-    return FALSE;
+    return false;
   }
 }
 #define RATE_CUT_THRESHOLD RATE_BFP_OF_REAL(1)
 
-static inline bool_t cut_accel(struct Int32Vect3 i1, struct Int32Vect3 i2, int32_t threshold)
+static inline bool cut_accel(struct Int32Vect3 i1, struct Int32Vect3 i2, int32_t threshold)
 {
   struct Int32Vect3 diff;
   VECT3_DIFF(diff, i1, i2);
@@ -127,10 +127,10 @@ static inline bool_t cut_accel(struct Int32Vect3 i1, struct Int32Vect3 i2, int32
       diff.y < -threshold || diff.y > threshold ||
       diff.z < -threshold || diff.z > threshold) {
     LED_ON(4);
-    return TRUE;
+    return true;
   } else {
     LED_OFF(4);
-    return FALSE;
+    return false;
   }
 }
 #define ACCEL_CUT_THRESHOLD ACCEL_BFP_OF_REAL(20)

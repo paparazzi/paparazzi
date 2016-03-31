@@ -163,7 +163,7 @@ SdioError sdLogFinish (void)
 
 #ifdef SDLOG_NEED_QUEUE
 SdioError sdLogOpenLog (FileDes *fd, const char* directoryName, const char* prefix,
-    bool_t appendTagAtClose)
+    bool appendTagAtClose)
 {
   FRESULT rc; /* fatfs result code */
   SdioError sde; /* sdio result code */

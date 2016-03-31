@@ -58,7 +58,7 @@ static struct {
   char *ivy_bus;
 } nps_main;
 
-static bool_t nps_main_parse_options(int argc, char **argv);
+static bool nps_main_parse_options(int argc, char **argv);
 static void nps_main_init(void);
 static void nps_main_display(void);
 static void nps_main_run_sim_step(void);
@@ -294,7 +294,7 @@ static gboolean nps_main_periodic(gpointer data __attribute__((unused)))
 }
 
 
-static bool_t nps_main_parse_options(int argc, char **argv)
+static bool nps_main_parse_options(int argc, char **argv)
 {
 
   nps_main.fg_host = NULL;

@@ -64,7 +64,7 @@
 // Ins implementation state (fixed point)
 struct InsVectornav {
   struct LtpDef_i  ltp_def; // initial position
-  bool_t           ltp_initialized; // status indicator
+  bool           ltp_initialized; // status indicator
 
   // output LTP NED for telemetry messages
   struct NedCoor_i ltp_pos_i;

@@ -118,7 +118,7 @@ void imu_navstik_event(void)
     RATES_COPY(imu.gyro_unscaled, imu_navstik.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_navstik.mpu.data_accel.vect);
 
-    imu_navstik.mpu.data_available = FALSE;
+    imu_navstik.mpu.data_available = false;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
@@ -131,7 +131,7 @@ void imu_navstik_event(void)
     imu.mag_unscaled.x =  imu_navstik.hmc.data.vect.y;
     imu.mag_unscaled.y = -imu_navstik.hmc.data.vect.x;
     imu.mag_unscaled.z =  imu_navstik.hmc.data.vect.z;
-    imu_navstik.hmc.data_available = FALSE;
+    imu_navstik.hmc.data_available = false;
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }

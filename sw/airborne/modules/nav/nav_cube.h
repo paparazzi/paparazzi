@@ -122,8 +122,8 @@ struct NavCube {
 
 extern struct NavCube nav_cube;
 
-extern bool_t nav_cube_setup(uint8_t turb, uint8_t tb, uint8_t te);
-bool_t nav_cube_run(int8_t j, int8_t i,
+extern bool nav_cube_setup(uint8_t turb, uint8_t tb, uint8_t te);
+bool nav_cube_run(int8_t j, int8_t i,
                     uint8_t dest_b, uint8_t dest_e,
                     uint8_t src_b, uint8_t src_e);
 

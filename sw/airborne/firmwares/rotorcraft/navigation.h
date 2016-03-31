@@ -60,7 +60,7 @@ extern float nav_climb_vspeed, nav_descend_vspeed;
 extern int32_t nav_leg_progress;
 extern uint32_t nav_leg_length;
 
-extern bool_t nav_survey_active;
+extern bool nav_survey_active;
 
 extern uint8_t vertical_mode;
 extern uint32_t nav_throttle;  ///< direct throttle from 0:MAX_PPRZ, used in VERTICAL_MODE_MANUAL
@@ -71,7 +71,7 @@ extern float flight_altitude;
 #define VERTICAL_MODE_ALT         2
 
 extern float dist2_to_home;      ///< squared distance to home waypoint
-extern bool_t too_far_from_home;
+extern bool too_far_from_home;
 extern float failsafe_mode_dist2; ///< maximum squared distance to home wp before going to failsafe mode
 
 extern float dist2_to_wp;       ///< squared distance to next waypoint
@@ -84,33 +84,33 @@ extern void nav_home(void);
 unit_t nav_reset_reference(void) __attribute__((unused));
 unit_t nav_reset_alt(void) __attribute__((unused));
 void nav_periodic_task(void);
-bool_t nav_detect_ground(void);
-bool_t nav_is_in_flight(void);
+bool nav_detect_ground(void);
+bool nav_is_in_flight(void);
 
-extern bool_t exception_flag[10];
+extern bool exception_flag[10];
 extern void set_exception_flag(uint8_t flag_num);
 
-extern bool_t nav_set_heading_rad(float rad);
-extern bool_t nav_set_heading_deg(float deg);
-extern bool_t nav_set_heading_towards(float x, float y);
-extern bool_t nav_set_heading_towards_waypoint(uint8_t wp);
-extern bool_t nav_set_heading_current(void);
+extern bool nav_set_heading_rad(float rad);
+extern bool nav_set_heading_deg(float deg);
+extern bool nav_set_heading_towards(float x, float y);
+extern bool nav_set_heading_towards_waypoint(uint8_t wp);
+extern bool nav_set_heading_current(void);
 
 /** default approaching_time for a wp */
 #ifndef CARROT
 #define CARROT 0
 #endif
 
-#define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); } FALSE; })
-#define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); } FALSE; })
+#define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); } false; })
+#define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); } false; })
 
 
-#define NavSetGroundReferenceHere() ({ nav_reset_reference(); FALSE; })
-#define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); FALSE; })
+#define NavSetGroundReferenceHere() ({ nav_reset_reference(); false; })
+#define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); false; })
 
-#define NavSetWaypointHere(_wp) ({ waypoint_set_here_2d(_wp); FALSE; })
-#define NavCopyWaypoint(_wp1, _wp2) ({ waypoint_copy(_wp1, _wp2); FALSE; })
-#define NavCopyWaypointPositionOnly(_wp1, _wp2) ({ waypoint_position_copy(_wp1, _wp2); FALSE; })
+#define NavSetWaypointHere(_wp) ({ waypoint_set_here_2d(_wp); false; })
+#define NavCopyWaypoint(_wp1, _wp2) ({ waypoint_copy(_wp1, _wp2); false; })
+#define NavCopyWaypointPositionOnly(_wp1, _wp2) ({ waypoint_position_copy(_wp1, _wp2); false; })
 
 /** Normalize a degree angle between 0 and 359 */
 #define NormCourse(x) { \
@@ -133,11 +133,19 @@ extern void nav_circle(struct EnuCoor_i *wp_center, int32_t radius);
   }
 
 #define NavCircleCount() ((float)abs(nav_circle_radians) / INT32_ANGLE_2_PI)
-#define NavCircleQdr() ({ int32_t qdr = INT32_DEG_OF_RAD(INT32_ANGLE_2_PI_2 - nav_circle_qdr) >> INT32_ANGLE_FRAC; NormCourse(qdr); qdr; })
+#define NavCircleQdr() ({ int32_t qdr = INT32_DEG_OF_RAD(INT32_ANGLE_PI_2 - nav_circle_qdr) >> INT32_ANGLE_FRAC; NormCourse(qdr); qdr; })
 
+#define CloseDegAngles(_c1, _c2) ({ int32_t _diff = _c1 - _c2; NormCourse(_diff); 350 < _diff || _diff < 10; })
 /** True if x (in degrees) is close to the current QDR (less than 10 degrees)*/
-#define NavQdrCloseTo(x) {}
+#define NavQdrCloseTo(x) CloseDegAngles(((x) >> INT32_ANGLE_FRAC), NavCircleQdr())
 #define NavCourseCloseTo(x) {}
+
+enum oval_status { OR12, OC2, OR21, OC1 };
+
+extern void nav_oval_init(void);
+extern void nav_oval(uint8_t, uint8_t, float);
+extern uint8_t nav_oval_count;
+#define Oval(a, b, c) nav_oval((b), (a), (c))
 
 /*********** Navigation along a line *************************************/
 extern void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end);
@@ -155,12 +163,12 @@ extern void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end);
   }
 
 /** Proximity tests on approaching a wp */
-bool_t nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t approaching_time);
+bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t approaching_time);
 #define NavApproaching(wp, time) nav_approaching_from(&waypoints[wp].enu_i, NULL, time)
 #define NavApproachingFrom(wp, from, time) nav_approaching_from(&waypoints[wp].enu_i, &waypoints[from].enu_i, time)
 
 /** Check the time spent in a radius of 'ARRIVED_AT_WAYPOINT' around a wp  */
-bool_t nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
+bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
 #define NavCheckWaypointTime(wp, time) nav_check_wp_time(&waypoints[wp].enu_i, time)
 
 /** Set the climb control to auto-throttle with the specified pitch
@@ -200,7 +208,7 @@ bool_t nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
     nav_roll = ANGLE_BFP_OF_REAL(_roll); \
   }
 
-#define NavStartDetectGround() ({ autopilot_detect_ground_once = TRUE; FALSE; })
+#define NavStartDetectGround() ({ autopilot_detect_ground_once = true; false; })
 #define NavDetectGround() nav_detect_ground()
 
 #define nav_IncreaseShift(x) {}

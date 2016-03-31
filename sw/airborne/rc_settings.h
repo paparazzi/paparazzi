@@ -53,7 +53,7 @@ extern uint8_t rc_settings_mode;
 
 extern float slider_1_val, slider_2_val;
 
-void rc_settings(bool_t mode_changed);
+void rc_settings(bool mode_changed);
 
 #define RcSettingsOff() (rc_settings_mode==RC_SETTINGS_MODE_NONE)
 

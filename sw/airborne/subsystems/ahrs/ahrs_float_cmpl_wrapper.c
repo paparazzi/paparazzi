@@ -35,7 +35,7 @@
 PRINT_CONFIG_VAR(AHRS_FC_OUTPUT_ENABLED)
 
 /** if TRUE with push the estimation results to the state interface */
-static bool_t ahrs_fc_output_enabled;
+static bool ahrs_fc_output_enabled;
 static uint32_t ahrs_fc_last_stamp;
 static uint8_t ahrs_fc_id = AHRS_COMP_ID_FC;
 
@@ -254,7 +254,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   compute_body_orientation_and_rates();
 }
 
-static bool_t ahrs_fc_enable_output(bool_t enable)
+static bool ahrs_fc_enable_output(bool enable)
 {
   ahrs_fc_output_enabled = enable;
   return ahrs_fc_output_enabled;

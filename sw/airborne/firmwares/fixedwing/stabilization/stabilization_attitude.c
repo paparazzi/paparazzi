@@ -44,10 +44,10 @@ float h_ctl_course_dgain;
 float h_ctl_roll_max_setpoint;
 
 /* roll and pitch disabling */
-bool_t h_ctl_disabled;
+bool h_ctl_disabled;
 
 /* AUTO1 rate mode */
-bool_t h_ctl_auto1_rate;
+bool h_ctl_auto1_rate;
 
 
 /* inner roll loop parameters */
@@ -145,7 +145,7 @@ void h_ctl_init(void)
   h_ctl_pitch_mode = 0;
 #endif
 
-  h_ctl_disabled = FALSE;
+  h_ctl_disabled = false;
 
   h_ctl_roll_setpoint = 0.;
 #ifdef H_CTL_ROLL_PGAIN

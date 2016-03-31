@@ -41,7 +41,7 @@ enum L3gd20ConfStatus {
 };
 
 struct L3gd20Config {
-  bool_t spi_3_wire;        ///< Set 3-wire SPI mode, if FALSE: 4-wire SPI mode
+  bool spi_3_wire;        ///< Set 3-wire SPI mode, if FALSE: 4-wire SPI mode
 
   enum L3gd20FullScale full_scale; ///< gyro full scale
   enum L3gd20DRBW drbw;   ///< Data rate and bandwidth
@@ -49,7 +49,7 @@ struct L3gd20Config {
 
 static inline void l3gd20_set_default_config(struct L3gd20Config *c)
 {
-  c->spi_3_wire = FALSE;
+  c->spi_3_wire = false;
 
   c->drbw = L3GD20_DRBW_760Hz_100BW;
   c->full_scale = L3GD20_FS_2000dps2;

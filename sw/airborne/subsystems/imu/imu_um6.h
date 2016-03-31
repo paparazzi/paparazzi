@@ -77,7 +77,7 @@ extern struct FloatEulers UM6_eulers;
 extern struct FloatQuat UM6_quat;
 
 struct UM6Packet {
-  bool_t  msg_available;
+  bool  msg_available;
   uint32_t chksm_error;
   uint32_t hdr_error;
   uint8_t msg_buf[IMU_UM6_BUFFER_LENGTH];
@@ -106,7 +106,7 @@ static inline void imu_um6_event(void)
       UM6_packet_parse(uart_getch(&(UM6_LINK)));
     }
     if (UM6_packet.msg_available) {
-      UM6_packet.msg_available = FALSE;
+      UM6_packet.msg_available = false;
       UM6_packet_read_message();
       imu_um6_publish();
     }

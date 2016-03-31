@@ -72,9 +72,9 @@ uint16_t pBaroRaw;
 uint16_t tBaroRaw;
 uint16_t baro_amsys_adc;
 float baro_amsys_offset;
-bool_t baro_amsys_valid;
+bool baro_amsys_valid;
 float baro_amsys_altitude;
-bool_t baro_amsys_enabled;
+bool baro_amsys_enabled;
 float baro_amsys_r;
 float baro_amsys_sigma2;
 float baro_amsys_temp;
@@ -90,7 +90,7 @@ float baro_old;
 struct i2c_transaction baro_amsys_i2c_trans;
 
 // Local variables
-bool_t baro_amsys_offset_init;
+bool baro_amsys_offset_init;
 double baro_amsys_offset_tmp;
 uint16_t baro_amsys_cnt;
 
@@ -103,9 +103,9 @@ void baro_amsys_init(void)
   baro_amsys_p = 0.0;
   baro_amsys_offset = 0;
   baro_amsys_offset_tmp = 0;
-  baro_amsys_valid = TRUE;
-  baro_amsys_offset_init = FALSE;
-  baro_amsys_enabled = TRUE;
+  baro_amsys_valid = true;
+  baro_amsys_offset_init = false;
+  baro_amsys_enabled = true;
   baro_scale = BARO_AMSYS_SCALE;
   baro_amsys_cnt = BARO_AMSYS_OFFSET_NBSAMPLES_INIT + BARO_AMSYS_OFFSET_NBSAMPLES_AVRG;
   baro_amsys_r = BARO_AMSYS_R;
@@ -150,9 +150,9 @@ void baro_amsys_read_event(void)
 #endif
   // Check if this is valid altimeter
   if (pBaroRaw == 0) {
-    baro_amsys_valid = FALSE;
+    baro_amsys_valid = false;
   } else {
-    baro_amsys_valid = TRUE;
+    baro_amsys_valid = true;
   }
 
   baro_amsys_adc = pBaroRaw;
@@ -181,7 +181,7 @@ void baro_amsys_read_event(void)
         // Calculate average
         baro_amsys_offset = (float)(baro_amsys_offset_tmp / BARO_AMSYS_OFFSET_NBSAMPLES_AVRG);
         ref_alt_init = GROUND_ALT;
-        baro_amsys_offset_init = TRUE;
+        baro_amsys_offset_init = true;
 
         // hight over Sea level at init point
         //baro_amsys_offset_altitude = 288.15 / 0.0065 * (1 - pow((baro_amsys_p)/1013.25 , 1/5.255));

@@ -24,7 +24,7 @@
 uint8_t  baro_scp_status;
 uint32_t baro_scp_pressure;
 uint16_t baro_scp_temperature;
-bool_t baro_scp_available;
+bool baro_scp_available;
 
 static void baro_scp_start_high_res_measurement(void);
 static void baro_scp_read(void);
@@ -132,7 +132,7 @@ void SPI1_ISR(void)
     baro_scp_pressure += SSPDR;
     baro_scp_pressure += datard8;
     baro_scp_pressure *= 25;
-    baro_scp_available = TRUE;
+    baro_scp_available = true;
     foo1 = foo2;
     foo0 = foo2;
   }
@@ -193,6 +193,6 @@ void baro_scp_event(void)
 #ifdef SENSOR_SYNC_SEND
     DOWNLINK_SEND_SCP_STATUS(DefaultChannel, DefaultDevice, &baro_scp_pressure, &baro_scp_temperature);
 #endif
-    baro_scp_available = FALSE;
+    baro_scp_available = false;
   }
 }

@@ -86,10 +86,10 @@ struct AhrsFloatCmpl ahrs_fc;
 void ahrs_fc_init(void)
 {
   ahrs_fc.status = AHRS_FC_UNINIT;
-  ahrs_fc.is_aligned = FALSE;
+  ahrs_fc.is_aligned = false;
 
-  ahrs_fc.ltp_vel_norm_valid = FALSE;
-  ahrs_fc.heading_aligned = FALSE;
+  ahrs_fc.ltp_vel_norm_valid = false;
+  ahrs_fc.heading_aligned = false;
 
   /* init ltp_to_imu quaternion as zero/identity rotation */
   float_quat_identity(&ahrs_fc.ltp_to_imu_quat);
@@ -106,9 +106,9 @@ void ahrs_fc_init(void)
   ahrs_fc.mag_zeta = AHRS_MAG_ZETA;
 
 #if AHRS_GRAVITY_UPDATE_COORDINATED_TURN
-  ahrs_fc.correct_gravity = TRUE;
+  ahrs_fc.correct_gravity = true;
 #else
-  ahrs_fc.correct_gravity = FALSE;
+  ahrs_fc.correct_gravity = false;
 #endif
 
   ahrs_fc.gravity_heuristic_factor = AHRS_GRAVITY_HEURISTIC_FACTOR;
@@ -119,18 +119,18 @@ void ahrs_fc_init(void)
   ahrs_fc.mag_cnt = 0;
 }
 
-bool_t ahrs_fc_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
+bool ahrs_fc_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
                      struct FloatVect3 *lp_mag)
 {
 
 #if USE_MAGNETOMETER
   /* Compute an initial orientation from accel and mag directly as quaternion */
   ahrs_float_get_quat_from_accel_mag(&ahrs_fc.ltp_to_imu_quat, lp_accel, lp_mag);
-  ahrs_fc.heading_aligned = TRUE;
+  ahrs_fc.heading_aligned = true;
 #else
   /* Compute an initial orientation from accel and just set heading to zero */
   ahrs_float_get_quat_from_accel(&ahrs_fc.ltp_to_imu_quat, lp_accel);
-  ahrs_fc.heading_aligned = FALSE;
+  ahrs_fc.heading_aligned = false;
 #endif
 
   /* Convert initial orientation from quat to rotation matrix representations. */
@@ -140,9 +140,9 @@ bool_t ahrs_fc_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
   ahrs_fc.gyro_bias = *lp_gyro;
 
   ahrs_fc.status = AHRS_FC_RUNNING;
-  ahrs_fc.is_aligned = TRUE;
+  ahrs_fc.is_aligned = true;
 
-  return TRUE;
+  return true;
 }
 
 
@@ -395,9 +395,9 @@ void ahrs_fc_update_gps(struct GpsState *gps_s __attribute__((unused)))
 #if AHRS_GRAVITY_UPDATE_COORDINATED_TURN && USE_GPS
   if (gps_s->fix >= GPS_FIX_3D) {
     ahrs_fc.ltp_vel_norm = gps_s->speed_3d / 100.;
-    ahrs_fc.ltp_vel_norm_valid = TRUE;
+    ahrs_fc.ltp_vel_norm_valid = true;
   } else {
-    ahrs_fc.ltp_vel_norm_valid = FALSE;
+    ahrs_fc.ltp_vel_norm_valid = false;
   }
 #endif
 
@@ -498,7 +498,7 @@ void ahrs_fc_realign_heading(float heading)
   float_quat_comp(&ahrs_fc.ltp_to_imu_quat, &q, body_to_imu_quat);
   float_rmat_of_quat(&ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.ltp_to_imu_quat);
 
-  ahrs_fc.heading_aligned = TRUE;
+  ahrs_fc.heading_aligned = true;
 }
 
 void ahrs_fc_set_body_to_imu(struct OrientationReps *body_to_imu)

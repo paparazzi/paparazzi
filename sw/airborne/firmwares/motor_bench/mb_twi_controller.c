@@ -13,7 +13,7 @@ uint8_t mb_twi_i2c_done;
 void mb_twi_controller_init(void)
 {
   mb_twi_nb_overun = 0;
-  mb_twi_i2c_done = TRUE;
+  mb_twi_i2c_done = true;
 }
 
 void mb_twi_controller_set(float throttle)

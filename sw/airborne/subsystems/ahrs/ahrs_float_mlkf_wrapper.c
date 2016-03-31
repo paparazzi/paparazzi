@@ -36,7 +36,7 @@
 PRINT_CONFIG_VAR(AHRS_MLKF_OUTPUT_ENABLED)
 
 /** if TRUE with push the estimation results to the state interface */
-static bool_t ahrs_mlkf_output_enabled;
+static bool ahrs_mlkf_output_enabled;
 static uint32_t ahrs_mlkf_last_stamp;
 static uint8_t ahrs_mlkf_id = AHRS_COMP_ID_MLKF;
 
@@ -190,7 +190,7 @@ static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVe
   ahrs_mlkf.mag_h = *h;
 }
 
-static bool_t ahrs_mlkf_enable_output(bool_t enable)
+static bool ahrs_mlkf_enable_output(bool enable)
 {
   ahrs_mlkf_output_enabled = enable;
   return ahrs_mlkf_output_enabled;

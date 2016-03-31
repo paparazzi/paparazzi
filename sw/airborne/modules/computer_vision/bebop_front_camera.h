@@ -38,12 +38,12 @@
 struct bebopfrontcamera_t {
   struct v4l2_device *dev;        ///< The V4L2 device that is used for the video stream
   uint8_t fps;                    ///< The amount of frames per second
-  volatile bool_t take_shot;      ///< Wether to take an image
+  volatile bool take_shot;      ///< Wether to take an image
   uint16_t shot_number;           ///< The last shot number
-  volatile bool_t is_streaming;   ///< When the device is streaming
+  volatile bool is_streaming;   ///< When the device is streaming
   uint8_t downsize_factor;        ///< Downsize factor during the stream
   uint8_t quality_factor;         ///< Quality factor during the stream
-  bool_t use_rtp;                 ///< Stream over RTP
+  bool use_rtp;                 ///< Stream over RTP
 };
 extern struct bebopfrontcamera_t bebop_front_camera;
 
@@ -52,7 +52,7 @@ extern void bebop_front_camera_init(void);
 extern void bebop_front_camera_periodic(void); ///< A dummy for now
 extern void bebop_front_camera_start(void);
 extern void bebop_front_camera_stop(void);
-extern void bebop_front_camera_take_shot(bool_t take);
+extern void bebop_front_camera_take_shot(bool take);
 
 #endif /* BEBOP_FRONT_CAMERA_H */
 

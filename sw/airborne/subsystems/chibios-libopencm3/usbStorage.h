@@ -28,4 +28,4 @@
 void   usbStorageStartPolling (void);
 void   usbStorageStop  (void);
 void   usbStorageWaitForDeconnexion (void);
-bool_t usbStorageIsItRunning (void);
+bool usbStorageIsItRunning (void);

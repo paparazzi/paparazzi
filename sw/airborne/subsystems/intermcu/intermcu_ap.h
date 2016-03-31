@@ -33,7 +33,7 @@
 void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode);
 void RadioControlEvent(void (*frame_handler)(void));
 void intermcu_send_spektrum_bind(void);
-void disable_inter_comm(bool_t value);
+void disable_inter_comm(bool value);
 
 /* We need radio defines for the Autopilot */
 #define RADIO_THROTTLE   0

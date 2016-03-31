@@ -39,10 +39,10 @@
 #include "pprz_version.h"
 
 uint8_t pprz_mode;
-bool_t kill_throttle;
+bool kill_throttle;
 uint8_t  mcu1_status;
 
-bool_t launch;
+bool launch;
 
 /** flight time in seconds. */
 uint16_t autopilot_flight_time;
@@ -53,9 +53,9 @@ uint16_t vsupply;
 int32_t current;
 float energy;
 
-bool_t gps_lost;
+bool gps_lost;
 
-bool_t power_switch;
+bool power_switch;
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -175,15 +175,15 @@ void autopilot_send_mode(void)
 void autopilot_init(void)
 {
   pprz_mode = PPRZ_MODE_AUTO2;
-  kill_throttle = FALSE;
-  launch = FALSE;
+  kill_throttle = false;
+  launch = false;
   autopilot_flight_time = 0;
 
   lateral_mode = LATERAL_MODE_MANUAL;
 
-  gps_lost = FALSE;
+  gps_lost = false;
 
-  power_switch = FALSE;
+  power_switch = false;
 #ifdef POWER_SWITCH_GPIO
   gpio_setup_output(POWER_SWITCH_GPIO);
   gpio_clear(POWER_SWITCH_GPIO);

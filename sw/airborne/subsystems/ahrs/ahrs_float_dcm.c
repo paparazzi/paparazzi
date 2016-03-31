@@ -99,7 +99,7 @@ static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat)
 void ahrs_dcm_init(void)
 {
   ahrs_dcm.status = AHRS_DCM_UNINIT;
-  ahrs_dcm.is_aligned = FALSE;
+  ahrs_dcm.is_aligned = false;
 
   /* init ltp_to_imu euler with zero */
   FLOAT_EULERS_ZERO(ahrs_dcm.ltp_to_imu_euler);
@@ -112,11 +112,11 @@ void ahrs_dcm_init(void)
   ahrs_dcm.gps_speed = 0;
   ahrs_dcm.gps_acceleration = 0;
   ahrs_dcm.gps_course = 0;
-  ahrs_dcm.gps_course_valid = FALSE;
+  ahrs_dcm.gps_course_valid = false;
   ahrs_dcm.gps_age = 100;
 }
 
-bool_t ahrs_dcm_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
+bool ahrs_dcm_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
                       struct FloatVect3 *lp_mag)
 {
   /* Compute an initial orientation using euler angles */
@@ -133,9 +133,9 @@ bool_t ahrs_dcm_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
   ahrs_dcm.gyro_bias = *lp_gyro;
 
   ahrs_dcm.status = AHRS_DCM_RUNNING;
-  ahrs_dcm.is_aligned = TRUE;
+  ahrs_dcm.is_aligned = true;
 
-  return TRUE;
+  return true;
 }
 
 
@@ -177,9 +177,9 @@ void ahrs_dcm_update_gps(struct GpsState *gps_s)
 
     if (gps_s->gspeed >= 500) { //got a 3d fix and ground speed is more than 5.0 m/s
       ahrs_dcm.gps_course = ((float)gps_s->course) / 1.e7;
-      ahrs_dcm.gps_course_valid = TRUE;
+      ahrs_dcm.gps_course_valid = true;
     } else {
-      ahrs_dcm.gps_course_valid = FALSE;
+      ahrs_dcm.gps_course_valid = false;
     }
   } else {
     ahrs_dcm.gps_age = 100;
@@ -282,7 +282,7 @@ void Normalize(void)
   float error = 0;
   float temporary[3][3];
   float renorm = 0;
-  uint8_t problem = FALSE;
+  uint8_t problem = false;
 
   // Find the non-orthogonality of X wrt Y
   error = -Vector_Dot_Product(&DCM_Matrix[0][0], &DCM_Matrix[1][0]) * .5; //eq.19
@@ -309,7 +309,7 @@ void Normalize(void)
     renorm_sqrt_count++;
 #endif
   } else {
-    problem = TRUE;
+    problem = true;
 #if PERFORMANCE_REPORTING == 1
     renorm_blowup_count++;
 #endif
@@ -326,7 +326,7 @@ void Normalize(void)
     renorm_sqrt_count++;
 #endif
   } else {
-    problem = TRUE;
+    problem = true;
 #if PERFORMANCE_REPORTING == 1
     renorm_blowup_count++;
 #endif
@@ -343,7 +343,7 @@ void Normalize(void)
     renorm_sqrt_count++;
 #endif
   } else {
-    problem = TRUE;
+    problem = true;
 #if PERFORMANCE_REPORTING == 1
     renorm_blowup_count++;
 #endif
@@ -353,7 +353,7 @@ void Normalize(void)
   // Reset on trouble
   if (problem) {                // Our solution is blowing up and we will force back to initial condition.  Hope we are not upside down!
     set_dcm_matrix_from_rmat(orientationGetRMat_f(&ahrs_dcm.body_to_imu));
-    problem = FALSE;
+    problem = false;
   }
 }
 

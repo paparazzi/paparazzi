@@ -511,7 +511,7 @@
 #define SYSTEM_TICK_EVENT_HOOK() {                                          \
   /* System tick event code here.*/                                         \
   void sys_tick_handler (void);						    \
-  extern bool_t pprzReady;						    \
+  extern bool pprzReady;						    \
   if (pprzReady == TRUE) sys_tick_handler ();				    \
 }
 #endif

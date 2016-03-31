@@ -27,7 +27,7 @@ struct NpsSensorGps {
   GSList *lla_history;
   GSList *speed_history;
   double next_update;
-  bool_t data_available;
+  bool data_available;
 };
 
 

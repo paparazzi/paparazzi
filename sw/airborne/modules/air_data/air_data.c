@@ -109,13 +109,13 @@ static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, float pre
     }
     float h = stateGetPositionLla_f()->alt - geoid_separation;
     air_data.qnh = pprz_isa_ref_pressure_of_height_full(air_data.pressure, h) / 100.f;
-    air_data.calc_qnh_once = FALSE;
+    air_data.calc_qnh_once = false;
   }
 
   if (air_data.calc_amsl_baro && air_data.qnh > 0) {
     air_data.amsl_baro = pprz_isa_height_of_pressure_full(air_data.pressure,
                          air_data.qnh * 100.f);
-    air_data.amsl_baro_valid = TRUE;
+    air_data.amsl_baro_valid = true;
   }
 
   /* reset baro health counter */
@@ -180,8 +180,8 @@ void air_data_init(void)
   air_data.calc_tas_factor = AIR_DATA_CALC_TAS_FACTOR;
   air_data.calc_amsl_baro = AIR_DATA_CALC_AMSL_BARO;
   air_data.tas_factor = AIR_DATA_TAS_FACTOR;
-  air_data.calc_qnh_once = TRUE;
-  air_data.amsl_baro_valid = FALSE;
+  air_data.calc_qnh_once = true;
+  air_data.amsl_baro_valid = false;
 
   /* initialize the output variables
    * pressure, qnh, temperature and airspeed to invalid values,
@@ -229,7 +229,7 @@ void air_data_periodic(void)
   if (baro_health_counter > 0) {
     baro_health_counter--;
   } else {
-    air_data.amsl_baro_valid = FALSE;
+    air_data.amsl_baro_valid = false;
   }
 }
 

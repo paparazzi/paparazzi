@@ -747,7 +747,7 @@ let print_inside_polygon = fun pts ->
 
 let print_inside_polygon_global = fun pts ->
   lprintf "uint8_t i, j;\n";
-  lprintf "bool_t c = FALSE;\n";
+  lprintf "bool c = false;\n";
   (* build array of wp id *)
   let (ids, _) = List.split pts in
   lprintf "const uint8_t nb_pts = %d;\n" (List.length pts);
@@ -769,7 +769,7 @@ let print_inside_polygon_global = fun pts ->
 type sector_type = StaticSector | DynamicSector
 
 let print_inside_sector = fun t (s, pts) ->
-  lprintf "static inline bool_t %s(float _x, float _y) {\n" (inside_function s);
+  lprintf "static inline bool %s(float _x, float _y) {\n" (inside_function s);
   right ();
   begin
     match t with

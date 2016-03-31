@@ -43,7 +43,7 @@
 #define RADIO_MODE      4
 
 extern int8_t rc_dl_values[ RC_DL_NB_CHANNEL ];
-extern volatile bool_t rc_dl_frame_available;
+extern volatile bool rc_dl_frame_available;
 
 /**
  * Decode datalink message to get rc values with RC_3CH message

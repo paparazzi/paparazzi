@@ -92,7 +92,7 @@ void imu_mpu_spi_event(void)
     uint32_t now_ts = get_sys_time_usec();
     RATES_COPY(imu.gyro_unscaled, imu_mpu_spi.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_mpu_spi.mpu.data_accel.vect);
-    imu_mpu_spi.mpu.data_available = FALSE;
+    imu_mpu_spi.mpu.data_available = false;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_MPU6000_ID, now_ts, &imu.gyro);

@@ -45,7 +45,7 @@ void spi_init_slaves(void)
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
-bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
+bool spi_submit(struct spi_periph *p, struct spi_transaction *t)
 {
   int fd = (int)p->reg_addr;
 
@@ -89,7 +89,7 @@ bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
 
   if (ioctl(fd, SPI_IOC_MESSAGE(1), &xfer) < 0) {
     t->status = SPITransFailed;
-    return FALSE;
+    return false;
   }
 
   /* copy recieved data if we had to use an extra rx_buffer */
@@ -98,20 +98,20 @@ bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
   }
 
   t->status = SPITransSuccess;
-  return TRUE;
+  return true;
 }
 #pragma GCC diagnostic pop
 
-bool_t spi_lock(struct spi_periph *p, uint8_t slave)
+bool spi_lock(struct spi_periph *p, uint8_t slave)
 {
   // not implemented
-  return FALSE;
+  return false;
 }
 
-bool_t spi_resume(struct spi_periph *p, uint8_t slave)
+bool spi_resume(struct spi_periph *p, uint8_t slave)
 {
   // not implemented
-  return FALSE;
+  return false;
 }
 
 

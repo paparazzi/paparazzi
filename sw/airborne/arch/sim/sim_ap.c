@@ -35,8 +35,8 @@
 uint8_t ir_estim_mode;
 uint8_t vertical_mode;
 uint8_t inflight_calib_mode;
-bool_t rc_event_1, rc_event_2;
-bool_t launch;
+bool rc_event_1, rc_event_2;
+bool launch;
 uint8_t gps_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
 float alt_roll_pgain;
 float roll_rate_pgain;
@@ -138,7 +138,7 @@ value set_datalink_message(value s)
     dl_buffer[i] = ss[i];
   }
 
-  dl_msg_available = TRUE;
+  dl_msg_available = true;
   DlCheckAndParse();
 
   return Val_unit;

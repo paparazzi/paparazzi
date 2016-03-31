@@ -1,0 +1,30 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gps_ubx_i2c" dir="gps">
+  <doc>
+    <description>
+      U-blox GPS (I2C)
+    </description>
+    <configure name="GPS_UBX_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c1)"/>
+  </doc>
+
+  <depends>gps_ublox</depends>
+
+  <header>
+    <file name="gps_ubx_i2c.h"/>
+  </header>
+  <init fun="gps_ubx_i2c_init()"/>
+  <periodic fun="gps_ubx_i2c_periodic()" freq="10."/>
+  <event fun="GpsUbxi2cEvent()"/>
+
+  <makefile>
+    <configure name="GPS_UBX_I2C_DEV" default="i2c1" case="upper|lower"/>
+    <define name="USE_$(GPS_UBX_I2C_DEV_UPPER)"/>
+    <define name="GPS_UBX_I2C_DEV" value="$(GPS_UBX_I2C_DEV_LOWER)"/>
+    <define name="GPS_I2C"/>
+    <define name="I2C_BUF_LEN" value="255"/>
+    <file name="gps_ubx_i2c.c"/>
+  </makefile>
+
+</module>
+

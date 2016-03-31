@@ -68,7 +68,7 @@ static void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float tra
 }
 
 
-bool_t nav_line_osam_run(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Before, float Space_After)
+bool nav_line_osam_run(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Before, float Space_After)
 {
   struct Point2D V;
   struct Point2D P;
@@ -161,19 +161,19 @@ bool_t nav_line_osam_run(uint8_t From_WP, uint8_t To_WP, float radius, float Spa
     case FLFinished:
       CFLStatus = FLInitialize;
       nav_init_stage();
-      return FALSE;
+      return false;
       break;
 
     default:
       break;
   }
-  return TRUE;
+  return true;
 
 }
 
 static uint8_t FLBlockCount = 0;
 
-bool_t nav_line_osam_block_run(uint8_t First_WP, uint8_t Last_WP, float radius, float Space_Before, float Space_After)
+bool nav_line_osam_block_run(uint8_t First_WP, uint8_t Last_WP, float radius, float Space_Before, float Space_After)
 {
   if (First_WP < Last_WP) {
     nav_line_osam_run(First_WP + FLBlockCount, First_WP + FLBlockCount + 1, radius, Space_Before, Space_After);
@@ -182,7 +182,7 @@ bool_t nav_line_osam_block_run(uint8_t First_WP, uint8_t Last_WP, float radius, 
       FLBlockCount++;
       if (First_WP + FLBlockCount >= Last_WP) {
         FLBlockCount = 0;
-        return FALSE;
+        return false;
       }
     }
   } else {
@@ -192,10 +192,10 @@ bool_t nav_line_osam_block_run(uint8_t First_WP, uint8_t Last_WP, float radius, 
       FLBlockCount++;
       if (First_WP - FLBlockCount <= Last_WP) {
         FLBlockCount = 0;
-        return FALSE;
+        return false;
       }
     }
   }
 
-  return TRUE;
+  return true;
 }

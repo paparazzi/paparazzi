@@ -63,7 +63,7 @@ void parse_mora(struct mora_transport *t, uint8_t c)
       if (c != t->ck_b) {
         goto error;
       }
-      t->msg_received = TRUE;
+      t->msg_received = true;
       goto restart;
     default:
       goto error;

@@ -70,12 +70,12 @@ enum Lsm303dlhcMagConfStatus {
 struct Lsm303dlhc {
   struct i2c_periph *i2c_p;
   struct i2c_transaction i2c_trans;
-  bool_t initialized;                 ///< config done flag
+  bool initialized;                 ///< config done flag
   union {
     enum Lsm303dlhcAccConfStatus acc; ///< init status
     enum Lsm303dlhcMagConfStatus mag; ///< init status
   } init_status;
-  volatile bool_t data_available;     ///< data ready flag
+  volatile bool data_available;     ///< data ready flag
   union {
     struct Int16Vect3 vect;           ///< data vector in acc coordinate system
     int16_t value[3];                 ///< data values accessible by channel index

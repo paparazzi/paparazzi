@@ -119,7 +119,7 @@ SdioError sdLogFinish (void);
  *		files.
  */
 SdioError sdLogOpenLog (FileDes *fileObject, const char* directoryName, const char* fileName,
-			bool_t appendTagAtClose);
+			bool appendTagAtClose);
 
 
 /**

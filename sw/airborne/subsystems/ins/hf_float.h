@@ -47,7 +47,7 @@ struct HfilterFloat {
   float xP[HFF_STATE_SIZE][HFF_STATE_SIZE];
   float yP[HFF_STATE_SIZE][HFF_STATE_SIZE];
   uint8_t lag_counter;
-  bool_t rollback;
+  bool rollback;
 };
 
 extern struct HfilterFloat b2_hff_state;

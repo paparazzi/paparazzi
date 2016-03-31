@@ -68,8 +68,8 @@ extern float carrot_x, carrot_y;
 
 extern float nav_circle_radians; /* Cumulated */
 extern float nav_circle_radians_no_rewind; /* Cumulated */
-extern bool_t nav_in_circle;
-extern bool_t nav_in_segment;
+extern bool nav_in_circle;
+extern bool nav_in_segment;
 extern float nav_circle_x, nav_circle_y, nav_circle_radius; /* m */
 extern float nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2; /* m */
 
@@ -112,7 +112,7 @@ extern float nav_ground_speed_pgain, nav_ground_speed_setpoint;
 
 extern float nav_survey_shift;
 extern float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
-extern bool_t nav_survey_active;
+extern bool nav_survey_active;
 
 extern void nav_periodic_task(void);
 extern void nav_home(void);
@@ -123,8 +123,8 @@ extern float nav_circle_trigo_qdr; /** Angle from center to mobile */
 extern void nav_circle_XY(float x, float y, float radius);
 
 extern float baseleg_out_qdr;
-extern bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius);
-extern bool_t nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide);
+extern bool nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius);
+extern bool nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide);
 
 #define RCLost() bit_is_set(fbw_state->status, STATUS_RADIO_REALLY_LOST)
 
@@ -160,7 +160,7 @@ extern void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_
 #define NavSegment(_start, _end) \
   nav_route_xy(waypoints[_start].x, waypoints[_start].y, waypoints[_end].x, waypoints[_end].y)
 
-bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float approaching_time);
+bool nav_approaching_xy(float x, float y, float from_x, float from_y, float approaching_time);
 #define NavApproaching(wp, time) nav_approaching_xy(waypoints[wp].x, waypoints[wp].y, last_x, last_y, time)
 #define NavApproachingFrom(wp, from, time) nav_approaching_xy(waypoints[wp].x, waypoints[wp].y, waypoints[from].x, waypoints[from].y, time)
 
@@ -230,7 +230,7 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
     pprz_msg_send_NAVIGATION(_trans, _dev, AC_ID, &nav_block, &nav_stage, &(pos->x), &(pos->y), &dist_wp, &dist_home, &_circle_count, &nav_oval_count); \
   }
 
-extern bool_t DownlinkSendWpNr(uint8_t _wp);
+extern bool DownlinkSendWpNr(uint8_t _wp);
 
 #define DownlinkSendWp(_trans, _dev, i) {    \
     float x = nav_utm_east0 +  waypoints[i].x; \

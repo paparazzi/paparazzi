@@ -89,7 +89,7 @@ uint8_t cam_target_ac;
 #define CAM_MODE0 CAM_MODE_OFF
 #endif
 uint8_t cam_mode;
-bool_t cam_lock;
+bool cam_lock;
 
 int16_t cam_pan_command;
 int16_t cam_tilt_command;

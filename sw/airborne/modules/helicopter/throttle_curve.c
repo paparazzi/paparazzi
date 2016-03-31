@@ -49,7 +49,7 @@ void throttle_curve_init(void)
  * Run the throttle curve and generate the output throttle and pitch
  * This depends on the FMODE(flight mode) and TRHUST command
  */
-void throttle_curve_run(bool_t motors_on, pprz_t in_cmd[])
+void throttle_curve_run(bool motors_on, pprz_t in_cmd[])
 {
   // Calculate the mode value from the switch
   int8_t mode = ((float)(in_cmd[COMMAND_FMODE] + MAX_PPRZ) / THROTTLE_CURVE_SWITCH_VAL);

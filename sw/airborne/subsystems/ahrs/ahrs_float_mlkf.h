@@ -58,7 +58,7 @@ struct AhrsMlkf {
   struct OrientationReps body_to_imu;
 
   enum AhrsMlkfStatus status;
-  bool_t is_aligned;
+  bool is_aligned;
 };
 
 extern struct AhrsMlkf ahrs_mlkf;
@@ -66,7 +66,7 @@ extern struct AhrsMlkf ahrs_mlkf;
 extern void ahrs_mlkf_init(void);
 extern void ahrs_mlkf_set_body_to_imu(struct OrientationReps *body_to_imu);
 extern void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat *q_b2i);
-extern bool_t ahrs_mlkf_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
+extern bool ahrs_mlkf_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
                               struct FloatVect3 *lp_mag);
 extern void ahrs_mlkf_propagate(struct FloatRates *gyro, float dt);
 extern void ahrs_mlkf_update_accel(struct FloatVect3 *accel);

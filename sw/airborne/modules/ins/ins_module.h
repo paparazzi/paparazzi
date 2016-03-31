@@ -97,7 +97,7 @@ static inline void ins_event_check_and_handle(void (* handler)(void))
   if (ins_msg_received) {
     parse_ins_msg();
     handler();
-    ins_msg_received = FALSE;
+    ins_msg_received = false;
   }
 }
 

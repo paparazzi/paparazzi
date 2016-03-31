@@ -58,7 +58,7 @@ void trigger_ext_periodic(void)
                                       &turb_id,
                                       &sync_itow,
                                       &cycle_time);
-    trig_ext_valid = FALSE;
+    trig_ext_valid = false;
   }
 }
 

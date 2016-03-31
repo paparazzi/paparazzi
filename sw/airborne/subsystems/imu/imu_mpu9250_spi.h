@@ -77,7 +77,7 @@ struct ImuMpu9250 {
   struct spi_transaction wait_slave4_trans;
   volatile uint8_t wait_slave4_tx_buf[1];
   volatile uint8_t wait_slave4_rx_buf[2];
-  volatile bool_t slave4_ready;
+  volatile bool slave4_ready;
 };
 
 extern struct ImuMpu9250 imu_mpu9250;

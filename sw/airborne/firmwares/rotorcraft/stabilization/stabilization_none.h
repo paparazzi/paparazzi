@@ -33,7 +33,7 @@
 
 extern void stabilization_none_init(void);
 extern void stabilization_none_read_rc(void);
-extern void stabilization_none_run(bool_t in_flight);
+extern void stabilization_none_run(bool in_flight);
 extern void stabilization_none_enter(void);
 
 extern struct Int32Rates stabilization_none_rc_cmd;

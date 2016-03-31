@@ -15,7 +15,7 @@ struct FloatVect3 arduimu_accel;
 
 float ins_roll_neutral;
 float ins_pitch_neutral;
-bool_t arduimu_calibrate_neutrals;
+bool arduimu_calibrate_neutrals;
 
 // Updates from Ocaml sim
 extern float sim_phi;

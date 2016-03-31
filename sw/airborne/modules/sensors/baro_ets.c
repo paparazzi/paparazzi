@@ -102,20 +102,20 @@ PRINT_CONFIG_VAR(BARO_ETS_START_DELAY)
 // Global variables
 uint16_t baro_ets_adc;
 uint16_t baro_ets_offset;
-bool_t baro_ets_valid;
+bool baro_ets_valid;
 float baro_ets_altitude;
-bool_t baro_ets_enabled;
+bool baro_ets_enabled;
 float baro_ets_r;
 float baro_ets_sigma2;
 
 struct i2c_transaction baro_ets_i2c_trans;
 
 // Local variables
-bool_t   baro_ets_offset_init;
+bool   baro_ets_offset_init;
 uint32_t baro_ets_offset_tmp;
 uint16_t baro_ets_cnt;
 uint32_t baro_ets_delay_time;
-bool_t   baro_ets_delay_done;
+bool   baro_ets_delay_done;
 
 void baro_ets_init(void)
 {
@@ -123,16 +123,16 @@ void baro_ets_init(void)
   baro_ets_altitude = 0.0;
   baro_ets_offset = 0;
   baro_ets_offset_tmp = 0;
-  baro_ets_valid = FALSE;
-  baro_ets_offset_init = FALSE;
-  baro_ets_enabled = TRUE;
+  baro_ets_valid = false;
+  baro_ets_offset_init = false;
+  baro_ets_enabled = true;
   baro_ets_cnt = BARO_ETS_OFFSET_NBSAMPLES_INIT + BARO_ETS_OFFSET_NBSAMPLES_AVRG;
   baro_ets_r = BARO_ETS_R;
   baro_ets_sigma2 = BARO_ETS_SIGMA2;
 
   baro_ets_i2c_trans.status = I2CTransDone;
 
-  baro_ets_delay_done = FALSE;
+  baro_ets_delay_done = false;
   SysTimeTimerStart(baro_ets_delay_time);
 }
 
@@ -141,7 +141,7 @@ void baro_ets_read_periodic(void)
   // Initiate next read
   if (!baro_ets_delay_done) {
     if (SysTimeTimer(baro_ets_delay_time) < USEC_OF_SEC(BARO_ETS_START_DELAY)) { return; }
-    else { baro_ets_delay_done = TRUE; }
+    else { baro_ets_delay_done = true; }
   }
   if (baro_ets_i2c_trans.status == I2CTransDone) {
     i2c_receive(&BARO_ETS_I2C_DEV, &baro_ets_i2c_trans, BARO_ETS_ADDR, 2);
@@ -154,9 +154,9 @@ void baro_ets_read_event(void)
   baro_ets_adc = ((uint16_t)(baro_ets_i2c_trans.buf[1]) << 8) | (uint16_t)(baro_ets_i2c_trans.buf[0]);
   // Check if this is valid altimeter
   if (baro_ets_adc == 0) {
-    baro_ets_valid = FALSE;
+    baro_ets_valid = false;
   } else {
-    baro_ets_valid = TRUE;
+    baro_ets_valid = true;
   }
 
   // Continue only if a new altimeter value was received
@@ -175,7 +175,7 @@ void baro_ets_read_event(void)
         if (baro_ets_offset > BARO_ETS_OFFSET_MAX) {
           baro_ets_offset = BARO_ETS_OFFSET_MAX;
         }
-        baro_ets_offset_init = TRUE;
+        baro_ets_offset_init = true;
       }
       // Check if averaging needs to continue
       else if (baro_ets_cnt <= BARO_ETS_OFFSET_NBSAMPLES_AVRG) {

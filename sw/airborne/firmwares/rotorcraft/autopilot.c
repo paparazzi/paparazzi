@@ -69,18 +69,18 @@
 uint8_t  autopilot_mode;
 uint8_t  autopilot_mode_auto2;
 
-bool_t   autopilot_in_flight;
+bool   autopilot_in_flight;
 uint32_t autopilot_in_flight_counter;
 uint16_t autopilot_flight_time;
 
-bool_t   autopilot_motors_on;
-bool_t   kill_throttle;
+bool   autopilot_motors_on;
+bool   kill_throttle;
 
-bool_t   autopilot_rc;
-bool_t   autopilot_power_switch;
+bool   autopilot_rc;
+bool   autopilot_power_switch;
 
-bool_t   autopilot_ground_detected;
-bool_t   autopilot_detect_ground_once;
+bool   autopilot_ground_detected;
+bool   autopilot_detect_ground_once;
 
 /** time steps for in_flight detection (at 20Hz, so 20=1second) */
 #ifndef AUTOPILOT_IN_FLIGHT_TIME
@@ -111,7 +111,7 @@ static inline int ahrs_is_aligned(void)
 PRINT_CONFIG_MSG("Using AUTOPILOT_DISABLE_AHRS_KILL")
 static inline int ahrs_is_aligned(void)
 {
-  return TRUE;
+  return true;
 }
 #endif
 
@@ -194,12 +194,13 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
 #else
   uint8_t fix = 0;
 #endif
+  uint8_t in_flight = autopilot_in_flight;
+  uint8_t motors_on = autopilot_motors_on;
   uint16_t time_sec = sys_time.nb_sec;
   pprz_msg_send_ROTORCRAFT_STATUS(trans, dev, AC_ID,
                                   &imu_nb_err, &_motor_nb_err,
                                   &radio_control.status, &radio_control.frame_rate,
-                                  &fix, &autopilot_mode,
-                                  &autopilot_in_flight, &autopilot_motors_on,
+                                  &fix, &autopilot_mode, &in_flight, &motors_on,
                                   &guidance_h.mode, &guidance_v_mode,
                                   &electrical.vsupply, &time_sec);
 }
@@ -287,16 +288,16 @@ void autopilot_init(void)
 {
   /* mode is finally set at end of init if MODE_STARTUP is not KILL */
   autopilot_mode = AP_MODE_KILL;
-  autopilot_motors_on = FALSE;
+  autopilot_motors_on = false;
   kill_throttle = ! autopilot_motors_on;
-  autopilot_in_flight = FALSE;
+  autopilot_in_flight = false;
   autopilot_in_flight_counter = 0;
   autopilot_mode_auto2 = MODE_AUTO2;
-  autopilot_ground_detected = FALSE;
-  autopilot_detect_ground_once = FALSE;
+  autopilot_ground_detected = false;
+  autopilot_detect_ground_once = false;
   autopilot_flight_time = 0;
-  autopilot_rc = TRUE;
-  autopilot_power_switch = FALSE;
+  autopilot_rc = true;
+  autopilot_power_switch = false;
 #ifdef POWER_SWITCH_GPIO
   gpio_setup_output(POWER_SWITCH_GPIO);
   gpio_clear(POWER_SWITCH_GPIO); // POWER OFF
@@ -379,8 +380,8 @@ void autopilot_periodic(void)
   /* Reset ground detection _after_ running flight plan
    */
   if (!autopilot_in_flight) {
-    autopilot_ground_detected = FALSE;
-    autopilot_detect_ground_once = FALSE;
+    autopilot_ground_detected = false;
+    autopilot_detect_ground_once = false;
   }
 
   /* Set fixed "failsafe" commands from airframe file if in KILL mode.
@@ -416,7 +417,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
         break;
 #endif
       case AP_MODE_KILL:
-        autopilot_in_flight = FALSE;
+        autopilot_in_flight = false;
         autopilot_in_flight_counter = 0;
         guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
         break;
@@ -521,18 +522,18 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
 
 }
 
-bool_t autopilot_guided_goto_ned(float x, float y, float z, float heading)
+bool autopilot_guided_goto_ned(float x, float y, float z, float heading)
 {
   if (autopilot_mode == AP_MODE_GUIDED) {
     guidance_h_set_guided_pos(x, y);
     guidance_h_set_guided_heading(heading);
     guidance_v_set_guided_z(z);
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
-bool_t autopilot_guided_goto_ned_relative(float dx, float dy, float dz, float dyaw)
+bool autopilot_guided_goto_ned_relative(float dx, float dy, float dz, float dyaw)
 {
   if (autopilot_mode == AP_MODE_GUIDED && stateIsLocalCoordinateValid()) {
     float x = stateGetPositionNed_f()->x + dx;
@@ -541,10 +542,10 @@ bool_t autopilot_guided_goto_ned_relative(float dx, float dy, float dz, float dy
     float heading = stateGetNedToBodyEulers_f()->psi + dyaw;
     return autopilot_guided_goto_ned(x, y, z, heading);
   }
-  return FALSE;
+  return false;
 }
 
-bool_t autopilot_guided_goto_body_relative(float dx, float dy, float dz, float dyaw)
+bool autopilot_guided_goto_body_relative(float dx, float dy, float dz, float dyaw)
 {
   if (autopilot_mode == AP_MODE_GUIDED && stateIsLocalCoordinateValid()) {
     float psi = stateGetNedToBodyEulers_f()->psi;
@@ -554,21 +555,21 @@ bool_t autopilot_guided_goto_body_relative(float dx, float dy, float dz, float d
     float heading = psi + dyaw;
     return autopilot_guided_goto_ned(x, y, z, heading);
   }
-  return FALSE;
+  return false;
 }
 
-bool_t autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
+bool autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
 {
   if (autopilot_mode == AP_MODE_GUIDED) {
     guidance_h_set_guided_vel(vx, vy);
     guidance_h_set_guided_heading(heading);
     guidance_v_set_guided_vz(vz);
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
-void autopilot_check_in_flight(bool_t motors_on)
+void autopilot_check_in_flight(bool motors_on)
 {
   if (autopilot_in_flight) {
     if (autopilot_in_flight_counter > 0) {
@@ -578,7 +579,7 @@ void autopilot_check_in_flight(bool_t motors_on)
           (fabsf(stateGetAccelNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_ACCEL)) {
         autopilot_in_flight_counter--;
         if (autopilot_in_flight_counter == 0) {
-          autopilot_in_flight = FALSE;
+          autopilot_in_flight = false;
         }
       } else { /* thrust, speed or accel not above min threshold, reset counter */
         autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
@@ -593,7 +594,7 @@ void autopilot_check_in_flight(bool_t motors_on)
       if (stabilization_cmd[COMMAND_THRUST] > AUTOPILOT_IN_FLIGHT_MIN_THRUST) {
         autopilot_in_flight_counter++;
         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME) {
-          autopilot_in_flight = TRUE;
+          autopilot_in_flight = true;
         }
       } else { /* currently not in_flight and thrust below threshold, reset counter */
         autopilot_in_flight_counter = 0;
@@ -603,12 +604,12 @@ void autopilot_check_in_flight(bool_t motors_on)
 }
 
 
-void autopilot_set_motors_on(bool_t motors_on)
+void autopilot_set_motors_on(bool motors_on)
 {
   if (autopilot_mode != AP_MODE_KILL && ahrs_is_aligned() && motors_on) {
-    autopilot_motors_on = TRUE;
+    autopilot_motors_on = true;
   } else {
-    autopilot_motors_on = FALSE;
+    autopilot_motors_on = false;
   }
   kill_throttle = ! autopilot_motors_on;
   autopilot_arming_set(autopilot_motors_on);

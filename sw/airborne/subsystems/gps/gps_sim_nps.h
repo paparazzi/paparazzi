@@ -7,7 +7,7 @@
 #define PRIMARY_GPS gps_nps
 #endif
 
-extern bool_t gps_has_fix;
+extern bool gps_has_fix;
 
 extern void gps_feed_value();
 

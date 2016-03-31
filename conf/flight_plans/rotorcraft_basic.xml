@@ -61,6 +61,9 @@
       <go from="p4" hmode="route" wp="p1"/>
       <deroute block="stay_p1"/>
     </block>
+    <block name="Oval">
+      <oval p1="p1" p2="p2" radius="-1"/>
+    </block>
     <block name="test yaw">
       <go wp="p1"/>
       <for var="i" from="1" to="16">

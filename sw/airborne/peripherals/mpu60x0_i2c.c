@@ -41,8 +41,8 @@ void mpu60x0_i2c_init(struct Mpu60x0_I2c *mpu, struct i2c_periph *i2c_p, uint8_t
   /* set default MPU60X0 config options */
   mpu60x0_set_default_config(&(mpu->config));
 
-  mpu->data_available = FALSE;
-  mpu->config.initialized = FALSE;
+  mpu->data_available = false;
+  mpu->config.initialized = false;
   mpu->config.init_status = MPU60X0_CONF_UNINIT;
 
   mpu->slave_init_status = MPU60X0_I2C_CONF_UNINIT;
@@ -109,7 +109,7 @@ void mpu60x0_i2c_event(struct Mpu60x0_I2c *mpu)
 #pragma GCC diagnostic pop
         }
 
-        mpu->data_available = TRUE;
+        mpu->data_available = true;
       }
       mpu->i2c_trans.status = I2CTransDone;
     }
@@ -131,7 +131,7 @@ void mpu60x0_i2c_event(struct Mpu60x0_I2c *mpu)
 }
 
 /** configure the registered I2C slaves */
-bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
+bool mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
 {
   struct Mpu60x0_I2c *mpu_i2c = (struct Mpu60x0_I2c *)(mpu);
 
@@ -194,9 +194,9 @@ bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
       mpu_i2c->slave_init_status++;
       break;
     case MPU60X0_I2C_CONF_DONE:
-      return TRUE;
+      return true;
     default:
       break;
   }
-  return FALSE;
+  return false;
 }

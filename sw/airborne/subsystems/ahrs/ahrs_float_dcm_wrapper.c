@@ -35,7 +35,7 @@
 PRINT_CONFIG_VAR(AHRS_DCM_OUTPUT_ENABLED)
 
 /** if TRUE with push the estimation results to the state interface */
-static bool_t ahrs_dcm_output_enabled;
+static bool ahrs_dcm_output_enabled;
 static uint32_t ahrs_dcm_last_stamp;
 static uint8_t ahrs_dcm_id = AHRS_COMP_ID_DCM;
 
@@ -169,7 +169,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   ahrs_dcm_update_gps(gps_s);
 }
 
-static bool_t ahrs_dcm_enable_output(bool_t enable)
+static bool ahrs_dcm_enable_output(bool enable)
 {
   ahrs_dcm_output_enabled = enable;
   return ahrs_dcm_output_enabled;

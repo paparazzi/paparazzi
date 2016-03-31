@@ -37,7 +37,7 @@ void waypoints_init(void)
   struct EnuCoor_f wp_tmp_float[NB_WAYPOINT] = WAYPOINTS_ENU;
   struct LlaCoor_i wp_tmp_lla_i[NB_WAYPOINT] = WAYPOINTS_LLA_WGS84;
   /* element in array is TRUE if absolute/global waypoint */
-  bool_t is_global[NB_WAYPOINT] = WAYPOINTS_GLOBAL;
+  bool is_global[NB_WAYPOINT] = WAYPOINTS_GLOBAL;
   uint8_t i = 0;
   for (i = 0; i < nb_waypoint; i++) {
     /* clear all flags */
@@ -52,12 +52,12 @@ void waypoints_init(void)
   }
 }
 
-bool_t waypoint_is_global(uint8_t wp_id)
+bool waypoint_is_global(uint8_t wp_id)
 {
   if (wp_id < nb_waypoint) {
     return bit_is_set(waypoints[wp_id].flags, WP_FLAG_GLOBAL);
   }
-  return FALSE;
+  return false;
 }
 
 void waypoint_set_global_flag(uint8_t wp_id)

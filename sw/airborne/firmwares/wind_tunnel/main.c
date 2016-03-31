@@ -23,7 +23,7 @@ static inline void main_event_task(void);
 
 uint16_t motor_power;
 uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
-bool_t dl_msg_available;
+bool dl_msg_available;
 uint16_t datalink_time;
 
 int main(void)
@@ -70,7 +70,7 @@ static inline void main_event_task(void)
   // spi baro
   if (spi_message_received) {
     /* Got a message on SPI. */
-    spi_message_received = FALSE;
+    spi_message_received = false;
     wt_baro_event();
     uint16_t temp = 0;
     float alt = 0.;

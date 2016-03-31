@@ -93,7 +93,7 @@ void imu_mpu_i2c_event(void)
   if (imu_mpu_i2c.mpu.data_available) {
     RATES_COPY(imu.gyro_unscaled, imu_mpu_i2c.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_mpu_i2c.mpu.data_accel.vect);
-    imu_mpu_i2c.mpu.data_available = FALSE;
+    imu_mpu_i2c.mpu.data_available = false;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_MPU60X0_ID, now_ts, &imu.gyro);

@@ -72,8 +72,8 @@ void intermcu_periodic(void)
   }
 }
 
-static bool_t disable_comm;
-void disable_inter_comm(bool_t value)
+static bool disable_comm;
+void disable_inter_comm(bool value)
 {
   disable_comm = value;
 }
@@ -120,7 +120,7 @@ static inline void intermcu_parse_msg(struct transport_rx *trans, void (*rc_fram
   }
 
   // Set to receive another message
-  trans->msg_received = FALSE;
+  trans->msg_received = false;
 }
 
 void RadioControlEvent(void (*frame_handler)(void))

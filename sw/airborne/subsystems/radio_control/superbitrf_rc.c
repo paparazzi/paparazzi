@@ -67,6 +67,6 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
     superbitrf_rc_normalize(superbitrf.rc_values, radio_control.values,
                             superbitrf.num_channels);
     _received_frame_handler();
-    superbitrf.rc_frame_available = FALSE;
+    superbitrf.rc_frame_available = false;
   }
 }

@@ -32,7 +32,7 @@ uint32_t mb_tacho_get_duration(void)
   if (got_one_pulse) {
     my_duration = mb_tacho_duration;
   }
-  got_one_pulse = FALSE;
+  got_one_pulse = false;
   mcu_int_enable();
   return my_duration;
 }

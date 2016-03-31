@@ -32,5 +32,5 @@
 
 uint32_t trigger_t0;
 uint32_t trigger_delta_t0;
-volatile bool_t trigger_ext_valid;
+volatile bool trigger_ext_valid;
 

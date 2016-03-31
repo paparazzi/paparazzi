@@ -30,18 +30,18 @@ void		varLenMsgDynamicInit   (VarLenMsgQueue* que)
   que->sparseChunkNumber=0;
 }
 
-bool_t		varLenMsgQueueIsFull (VarLenMsgQueue* que)
+bool		varLenMsgQueueIsFull (VarLenMsgQueue* que)
 {
   varLenMsgQueueLock (que);
-  bool_t retVal = ringBufferIsFull (&que->circBuf) || chMBGetFreeCountI (&que->mb) <= 0;
+  bool retVal = ringBufferIsFull (&que->circBuf) || chMBGetFreeCountI (&que->mb) <= 0;
   varLenMsgQueueUnlock ();
   return retVal;
 }
 
-bool_t 		varLenMsgQueueIsEmpty (VarLenMsgQueue* que)
+bool 		varLenMsgQueueIsEmpty (VarLenMsgQueue* que)
 {
   varLenMsgQueueLock (que);
-  bool_t retVal = ringBufferIsEmpty (&que->circBuf) && chMBGetUsedCountI (&que->mb) <= 0;
+  bool retVal = ringBufferIsEmpty (&que->circBuf) && chMBGetUsedCountI (&que->mb) <= 0;
   varLenMsgQueueUnlock ();
   return retVal;
 }
@@ -152,7 +152,7 @@ int32_t varLenMsgQueuePopTimeout (VarLenMsgQueue* que, void* msg,
     // OUT OF BAND CONDITION
     pushSparseChunkMap (que, mpl);
     //    DebugTrace ("pushSparseChunkMap (ptr=%d len=%d)", mpl.ptr, mpl.len);
-    //    oobCondition=TRUE;
+    //    oobCondition=true;
     const uint16_t sizeToCopy = msgLen < mpl.len ? msgLen : mpl.len;
     retVal =  ringBufferCopyFromAddr(&que->circBuf, mpl.ptr, msg, sizeToCopy);
   } else {
@@ -391,33 +391,33 @@ static uint16_t popSparseChunkMap (VarLenMsgQueue* que, const uint16_t  mplAddr)
   return associatedLen;
 }
 
-bool_t varLenMsgQueueTestIntegrityIfEmpty(VarLenMsgQueue* que)
+bool varLenMsgQueueTestIntegrityIfEmpty(VarLenMsgQueue* que)
 {
-  bool_t retVal = TRUE;
+  bool retVal = true;
   varLenMsgQueueLock(que);
   int32_t status;
 
   if ((status = chMBGetUsedCountI (&que->mb)) > 0) {
     DebugTrace ("Error: mailbox not empty : [%d]", status);
-    retVal=FALSE;
+    retVal=false;
     goto unlockAndExit;
   }
 
   if (! ringBufferIsEmpty (&que->circBuf)) {
     DebugTrace ("Error: circular buffer not empty");
-    retVal=FALSE;
+    retVal=false;
     goto unlockAndExit;
   }
 
   if (que->sparseChunkNumber != 0) {
     DebugTrace ("Error: sparseChunkNumber not NULL");
-    retVal=FALSE;
+    retVal=false;
     goto unlockAndExit;
   }
 
   if (que->mbReservedSlot != 0) {
     DebugTrace ("Error: mbReservedSlot not NULL");
-    retVal=FALSE;
+    retVal=false;
     goto unlockAndExit;
   }
 
@@ -425,7 +425,7 @@ bool_t varLenMsgQueueTestIntegrityIfEmpty(VarLenMsgQueue* que)
   for (uint16_t i=0; i< que->mbAndSparseChunkSize; i++)  {
     if (que->sparseChunkMap[i].len != 0) {
       DebugTrace ("Error: sparseChunkMap not erased");
-      retVal=FALSE;
+      retVal=false;
       goto unlockAndExit;
     }
   }

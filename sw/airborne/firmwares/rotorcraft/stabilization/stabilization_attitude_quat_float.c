@@ -292,7 +292,7 @@ static void attitude_run_fb(float fb_commands[], struct FloatAttitudeGains *gain
 #endif
 }
 
-void stabilization_attitude_run(bool_t enable_integrator)
+void stabilization_attitude_run(bool enable_integrator)
 {
 
   /*
@@ -358,7 +358,7 @@ void stabilization_attitude_run(bool_t enable_integrator)
   BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 }
 
-void stabilization_attitude_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn)
+void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)
 {
 
   stabilization_attitude_read_rc_setpoint_quat_f(&stab_att_sp_quat, in_flight, in_carefree, coordinated_turn);

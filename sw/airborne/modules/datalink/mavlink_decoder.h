@@ -216,7 +216,7 @@ static inline void parse_mavlink(struct mavlink_transport *t, uint8_t c)
       if (c != (t->checksum >> 8)) {
         goto error;
       }
-      t->trans.msg_received = TRUE;
+      t->trans.msg_received = true;
       goto restart;
     default:
       goto error;
@@ -259,7 +259,7 @@ static inline void mavlink_check_and_parse(struct link_device *dev, struct mavli
     }
     if (trans->trans.msg_received) {
       mavlink_parse_payload(trans);
-      trans->trans.msg_received = FALSE;
+      trans->trans.msg_received = false;
     }
   }
 }

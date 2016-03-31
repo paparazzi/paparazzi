@@ -35,7 +35,7 @@ void cmd_execute(void);
 
 char cmd_buf[64];
 uint8_t cmd_idx;
-bool_t cmd_avail;
+bool cmd_avail;
 uint8_t prompt = '$';
 
 /**
@@ -45,7 +45,7 @@ void init_usb_serial(void)
 {
   VCOM_init();
   cmd_idx = 0;
-  cmd_avail = FALSE;
+  cmd_avail = false;
 }
 
 
@@ -62,7 +62,7 @@ void usb_serial_parse_packet(int data)
 
   if (c == '\r' || c == '\n') {
     // command complete
-    cmd_avail = TRUE;
+    cmd_avail = true;
     // add termination characters and the prompt into buffer
     VCOM_putchar('\r');
     VCOM_putchar('\n');
@@ -131,6 +131,6 @@ void event_usb_serial(void)
   }
   if (cmd_avail) {
     cmd_execute();
-    cmd_avail = FALSE;
+    cmd_avail = false;
   }
 }

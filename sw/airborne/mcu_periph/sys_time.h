@@ -58,9 +58,9 @@ typedef uint8_t tid_t; ///< sys_time timer id type
 typedef void (*sys_time_cb)(uint8_t id);
 
 struct sys_time_timer {
-  bool_t          in_use;
+  bool          in_use;
   sys_time_cb     cb;
-  volatile bool_t elapsed;
+  volatile bool elapsed;
   uint32_t        end_time; ///< in SYS_TIME_TICKS
   uint32_t        duration; ///< in SYS_TIME_TICKS
 };
@@ -108,13 +108,13 @@ extern void sys_time_update_timer(tid_t id, float duration);
  * @param id Timer id
  * @return TRUE if timer has elapsed
  */
-static inline bool_t sys_time_check_and_ack_timer(tid_t id)
+static inline bool sys_time_check_and_ack_timer(tid_t id)
 {
   if (sys_time.timer[id].elapsed) {
-    sys_time.timer[id].elapsed = FALSE;
-    return TRUE;
+    sys_time.timer[id].elapsed = false;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 /**

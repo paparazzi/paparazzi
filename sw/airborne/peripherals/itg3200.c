@@ -55,7 +55,7 @@ void itg3200_init(struct Itg3200 *itg, struct i2c_periph *i2c_p, uint8_t addr)
   itg->i2c_trans.status = I2CTransDone;
   /* set default config options */
   itg3200_set_default_config(&(itg->config));
-  itg->initialized = FALSE;
+  itg->initialized = false;
   itg->init_status = ITG_CONF_UNINIT;
 }
 
@@ -90,7 +90,7 @@ static void itg3200_send_config(struct Itg3200 *itg)
       itg->init_status++;
       break;
     case ITG_CONF_DONE:
-      itg->initialized = TRUE;
+      itg->initialized = true;
       itg->i2c_trans.status = I2CTransDone;
       break;
     default:
@@ -135,7 +135,7 @@ void itg3200_event(struct Itg3200 *itg)
         itg->data.rates.p = Int16FromBuf(itg->i2c_trans.buf, 3);
         itg->data.rates.q = Int16FromBuf(itg->i2c_trans.buf, 5);
         itg->data.rates.r = Int16FromBuf(itg->i2c_trans.buf, 7);
-        itg->data_available = TRUE;
+        itg->data_available = true;
       }
       itg->i2c_trans.status = I2CTransDone;
     }

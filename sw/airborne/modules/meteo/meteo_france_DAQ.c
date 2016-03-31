@@ -44,7 +44,7 @@
 #include "modules/datalink/extra_pprz_dl.h"
 
 struct MF_DAQ mf_daq;
-bool_t log_started;
+bool log_started;
 
 #ifndef MF_DAQ_POWER_INIT
 #define MF_DAQ_POWER_INIT TRUE
@@ -62,7 +62,7 @@ void init_mf_daq(void)
   gpio_setup_output(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN);
 #endif
   meteo_france_DAQ_SetPower(mf_daq.power);
-  log_started = FALSE;
+  log_started = false;
 }
 
 void mf_daq_send_state(void)
@@ -100,7 +100,7 @@ void mf_daq_send_report(void)
     if (log_started == FALSE) {
       // Log MD5SUM once
       DOWNLINK_SEND_ALIVE(pprzlog_tp, chibios_sdlog, 16, MD5SUM);
-      log_started = TRUE;
+      log_started = true;
     }
     // Log GPS for time reference
     uint8_t foo = 0;

@@ -136,7 +136,7 @@ static void sys_tick_handler(void)
     if (sys_time.timer[i].in_use &&
         sys_time.nb_tick >= sys_time.timer[i].end_time) {
       sys_time.timer[i].end_time += sys_time.timer[i].duration;
-      sys_time.timer[i].elapsed = TRUE;
+      sys_time.timer[i].elapsed = true;
       /* call registered callbacks, WARNING: they will be executed in the sys_time thread! */
       if (sys_time.timer[i].cb) {
         sys_time.timer[i].cb(i);

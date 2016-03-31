@@ -102,11 +102,11 @@ void ins_alt_float_init(void)
 #if USE_INS_NAV_INIT
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, ground_alt, nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
-  ins_altf.origin_initialized = TRUE;
+  ins_altf.origin_initialized = true;
 
   stateSetPositionUtm_f(&utm0);
 #else
-  ins_altf.origin_initialized = FALSE;
+  ins_altf.origin_initialized = false;
 #endif
 
   // set initial body to imu to 0
@@ -117,10 +117,10 @@ void ins_alt_float_init(void)
 
 #if USE_BAROMETER
   ins_altf.qfe = 0.0f;
-  ins_altf.baro_initialized = FALSE;
+  ins_altf.baro_initialized = false;
   ins_altf.baro_alt = 0.0f;
 #endif
-  ins_altf.reset_alt_ref = FALSE;
+  ins_altf.reset_alt_ref = false;
 
   // why do we have this here?
   alt_kalman(0.0f, 0.1);
@@ -138,10 +138,10 @@ void ins_reset_local_origin(void)
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
 
-  ins_altf.origin_initialized = TRUE;
+  ins_altf.origin_initialized = true;
 
   // reset filter flag
-  ins_altf.reset_alt_ref = TRUE;
+  ins_altf.reset_alt_ref = true;
 }
 
 void ins_reset_altitude_ref(void)
@@ -152,7 +152,7 @@ void ins_reset_altitude_ref(void)
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
   // reset filter flag
-  ins_altf.reset_alt_ref = TRUE;
+  ins_altf.reset_alt_ref = true;
 }
 
 #if USE_BAROMETER
@@ -171,10 +171,10 @@ void ins_alt_float_update_baro(float pressure)
 
   if (!ins_altf.baro_initialized) {
     ins_altf.qfe = pressure;
-    ins_altf.baro_initialized = TRUE;
+    ins_altf.baro_initialized = true;
   }
   if (ins_altf.reset_alt_ref) {
-    ins_altf.reset_alt_ref = FALSE;
+    ins_altf.reset_alt_ref = false;
     ins_altf.alt = ground_alt;
     ins_altf.alt_dot = 0.0f;
     ins_altf.qfe = pressure;
@@ -232,7 +232,7 @@ void ins_alt_float_update_gps(struct GpsState *gps_s)
 
   float falt = gps_s->hmsl / 1000.0f;
   if (ins_altf.reset_alt_ref) {
-    ins_altf.reset_alt_ref = FALSE;
+    ins_altf.reset_alt_ref = false;
     ins_altf.alt = falt;
     ins_altf.alt_dot = 0.0f;
     alt_kalman_reset();

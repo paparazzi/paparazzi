@@ -41,7 +41,7 @@ extern uint16_t PolySurveySweepBackNum;
  * @param Sweep        distance between scan lines
  * @param Orientation  angle of scan lines in degrees (CCW, east)
  */
-extern bool_t nav_survey_poly_osam_setup(uint8_t FirstWP, uint8_t Size, float Sweep, float Orientation);
+extern bool nav_survey_poly_osam_setup(uint8_t FirstWP, uint8_t Size, float Sweep, float Orientation);
 
 /**
  * Setup "dynamic" polygon survey with sweep orientation towards a waypoint.
@@ -54,9 +54,9 @@ extern bool_t nav_survey_poly_osam_setup(uint8_t FirstWP, uint8_t Size, float Sw
  * @param Sweep     distance between scan lines, if zero uses Poly_Sweep
  * @param SecondWP  second waypoint towards which the sweep orientation is computed
  */
-extern bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP);
+extern bool nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP);
 
 /** Run polygon survey */
-extern bool_t nav_survey_poly_osam_run(void);
+extern bool nav_survey_poly_osam_run(void);
 
 #endif

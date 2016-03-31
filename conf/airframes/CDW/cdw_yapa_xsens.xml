@@ -25,10 +25,10 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="navigation"/>
-    <subsystem name="ins" type="xsens">
-      <configure name="XSENS_UART_NR" value="0"/>
-      <configure name="XSENS_UART_BAUD" value="B230400"/>
-    </subsystem>
+    <module name="ins" type="xsens">
+      <configure name="XSENS_PORT" value="uart0"/>
+      <configure name="XSENS_BAUD" value="B230400"/>
+    </module>
   </firmware>
 
   <!-- ************************* MODULES ************************* -->

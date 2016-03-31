@@ -55,7 +55,7 @@ PRINT_CONFIG_VAR(UDP2_BROADCAST)
 /**
  * Initialize the UDP peripheral
  */
-void udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast)
+void udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool broadcast)
 {
   p->rx_insert_idx = 0;
   p->rx_extract_idx = 0;
@@ -77,7 +77,7 @@ void udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in
  * @param len how many bytes of free space to check for
  * @return TRUE if enough space for len bytes
  */
-bool_t udp_check_free_space(struct udp_periph *p, uint8_t len)
+bool udp_check_free_space(struct udp_periph *p, uint8_t len)
 {
   return (UDP_TX_BUFFER_SIZE - p->tx_insert_idx) >= len;
 }

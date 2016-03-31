@@ -55,8 +55,8 @@ void lis302dl_spi_init(struct Lis302dl_Spi *lis, struct spi_periph *spi_p, uint8
   /* set default LIS302DL config options */
   lis302dl_set_default_config(&(lis->config));
 
-  lis->initialized = FALSE;
-  lis->data_available = FALSE;
+  lis->initialized = false;
+  lis->data_available = false;
   lis->init_status = LIS_CONF_UNINIT;
 }
 
@@ -107,7 +107,7 @@ static void lis302dl_spi_send_config(struct Lis302dl_Spi *lis)
       lis->init_status++;
       break;
     case LIS_CONF_DONE:
-      lis->initialized = TRUE;
+      lis->initialized = true;
       lis->spi_trans.status = SPITransDone;
       break;
     default:
@@ -148,7 +148,7 @@ void lis302dl_spi_event(struct Lis302dl_Spi *lis)
         lis->data.vect.x = lis->rx_buf[3];
         lis->data.vect.y = lis->rx_buf[5];
         lis->data.vect.z = lis->rx_buf[7];
-        lis->data_available = TRUE;
+        lis->data_available = true;
       }
       lis->spi_trans.status = SPITransDone;
     }

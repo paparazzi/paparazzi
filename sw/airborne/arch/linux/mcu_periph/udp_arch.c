@@ -66,7 +66,7 @@ void udp_arch_init(void)
  * Initialize the UDP peripheral.
  * Allocate UdpSocket struct and create and bind the UDP socket.
  */
-void udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast)
+void udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool broadcast)
 {
   struct UdpSocket *sock = malloc(sizeof(struct UdpSocket));
   udp_socket_create(sock, host, port_out, port_in, broadcast);

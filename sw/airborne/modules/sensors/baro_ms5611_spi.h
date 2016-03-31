@@ -40,8 +40,8 @@ extern float baro_ms5611_r;
 extern float baro_ms5611_sigma2;
 
 extern float baro_ms5611_alt;
-extern bool_t baro_ms5611_alt_valid;
-extern bool_t baro_ms5611_enabled;
+extern bool baro_ms5611_alt_valid;
+extern bool baro_ms5611_enabled;
 
 extern struct Ms5611_Spi baro_ms5611;
 

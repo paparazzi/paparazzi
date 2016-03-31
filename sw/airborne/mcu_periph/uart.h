@@ -94,9 +94,9 @@ struct uart_periph {
 extern void uart_periph_init(struct uart_periph *p);
 extern void uart_periph_set_baudrate(struct uart_periph *p, uint32_t baud);
 extern void uart_periph_set_bits_stop_parity(struct uart_periph *p, uint8_t bits, uint8_t stop, uint8_t parity);
-extern void uart_periph_set_mode(struct uart_periph *p, bool_t tx_enabled, bool_t rx_enabled, bool_t hw_flow_control);
+extern void uart_periph_set_mode(struct uart_periph *p, bool tx_enabled, bool rx_enabled, bool hw_flow_control);
 extern void uart_put_byte(struct uart_periph *p, uint8_t data);
-extern bool_t uart_check_free_space(struct uart_periph *p, uint8_t len);
+extern bool uart_check_free_space(struct uart_periph *p, uint8_t len);
 extern uint8_t uart_getch(struct uart_periph *p);
 
 /**

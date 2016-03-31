@@ -38,10 +38,10 @@
 #define STRINGIFY(s) _STRINGIFY(s)
 
 #ifndef FALSE
-#define FALSE 0
+#define FALSE false
 #endif
 #ifndef TRUE
-#define TRUE (!FALSE)
+#define TRUE true
 #endif
 
 #ifndef NULL
@@ -50,17 +50,6 @@
 #else
 #define NULL ((void *)0)
 #endif
-#endif
-
-/* Boolean values */
-#ifdef RTOS_IS_CHIBIOS
-/* make bool_t an alias to bool instead of uint8_t dor chibios port
-  probably a bad idea since sizeof(bool) is 4, and this will break
-  message coding/decoding **** FIX NEEDEED ****
-*/
-typedef bool bool_t;
-#else
-typedef uint8_t bool_t;
 #endif
 
 /* Unit (void) values */
@@ -224,7 +213,7 @@ typedef uint8_t unit_t;
     }									\
   }
 
-static inline bool_t str_equal(const char * a, const char * b) {
+static inline bool str_equal(const char * a, const char * b) {
   int i = 0;
   while (!(a[i] == 0 && b[i] == 0)) {
     if (a[i] != b[i]) return FALSE;

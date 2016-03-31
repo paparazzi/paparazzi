@@ -15,17 +15,17 @@ static uint8_t last_plume_value;
 static float radius;
 static int8_t sign;
 
-bool_t nav_chemotaxis_init(uint8_t c, uint8_t plume)
+bool nav_chemotaxis_init(uint8_t c, uint8_t plume)
 {
   radius = MAX_RADIUS;
   last_plume_value = 0;
   sign = 1;
   waypoints[plume].x = waypoints[c].x;
   waypoints[plume].y = waypoints[c].y;
-  return FALSE;
+  return false;
 }
 
-bool_t nav_chemotaxis(uint8_t c, uint8_t plume)
+bool nav_chemotaxis(uint8_t c, uint8_t plume)
 {
 
   if (chemo_sensor > last_plume_value) {
@@ -53,5 +53,5 @@ bool_t nav_chemotaxis(uint8_t c, uint8_t plume)
   }
 
   NavCircleWaypoint(c, radius);
-  return TRUE;
+  return true;
 }

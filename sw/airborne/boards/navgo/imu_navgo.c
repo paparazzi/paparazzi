@@ -128,7 +128,7 @@ void imu_navgo_event(void)
 #if NAVGO_USE_MEDIAN_FILTER
     UpdateMedianFilterRatesInt(median_gyro, imu.gyro_unscaled);
 #endif
-    imu_navgo.itg.data_available = FALSE;
+    imu_navgo.itg.data_available = false;
     imu_scale_gyro(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
   }
@@ -140,7 +140,7 @@ void imu_navgo_event(void)
 #if NAVGO_USE_MEDIAN_FILTER
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
 #endif
-    imu_navgo.adxl.data_available = FALSE;
+    imu_navgo.adxl.data_available = false;
     imu_scale_accel(&imu);
     AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
@@ -152,7 +152,7 @@ void imu_navgo_event(void)
 #if NAVGO_USE_MEDIAN_FILTER
     UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
 #endif
-    imu_navgo.hmc.data_available = FALSE;
+    imu_navgo.hmc.data_available = false;
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }

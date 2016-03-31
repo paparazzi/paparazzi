@@ -26,6 +26,6 @@
 
 void trigger_ext_init(void)
 {
-  trigger_ext_valid = FALSE;
+  trigger_ext_valid = false;
 }
 

@@ -37,7 +37,7 @@ void nps_sensors_run_step(double time)
 }
 
 
-bool_t nps_sensors_gyro_available(void)
+bool nps_sensors_gyro_available(void)
 {
   if (sensors.gyro.data_available) {
     sensors.gyro.data_available = FALSE;
@@ -46,7 +46,7 @@ bool_t nps_sensors_gyro_available(void)
   return FALSE;
 }
 
-bool_t nps_sensors_mag_available(void)
+bool nps_sensors_mag_available(void)
 {
   if (sensors.mag.data_available) {
     sensors.mag.data_available = FALSE;
@@ -55,7 +55,7 @@ bool_t nps_sensors_mag_available(void)
   return FALSE;
 }
 
-bool_t nps_sensors_baro_available(void)
+bool nps_sensors_baro_available(void)
 {
   if (sensors.baro.data_available) {
     sensors.baro.data_available = FALSE;
@@ -64,7 +64,7 @@ bool_t nps_sensors_baro_available(void)
   return FALSE;
 }
 
-bool_t nps_sensors_gps_available(void)
+bool nps_sensors_gps_available(void)
 {
   if (sensors.gps.data_available) {
     sensors.gps.data_available = FALSE;
@@ -73,7 +73,7 @@ bool_t nps_sensors_gps_available(void)
   return FALSE;
 }
 
-bool_t nps_sensors_sonar_available(void)
+bool nps_sensors_sonar_available(void)
 {
   if (sensors.sonar.data_available) {
     sensors.sonar.data_available = FALSE;
@@ -82,7 +82,7 @@ bool_t nps_sensors_sonar_available(void)
   return FALSE;
 }
 
-bool_t nps_sensors_airspeed_available(void)
+bool nps_sensors_airspeed_available(void)
 {
   if (sensors.airspeed.data_available) {
     sensors.airspeed.data_available = FALSE;
@@ -91,7 +91,7 @@ bool_t nps_sensors_airspeed_available(void)
   return FALSE;
 }
 
-bool_t nps_sensors_temperature_available(void)
+bool nps_sensors_temperature_available(void)
 {
   if (sensors.temp.data_available) {
     sensors.temp.data_available = FALSE;

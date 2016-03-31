@@ -69,7 +69,7 @@ void actuators_mkk_v2_set(void)
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
     if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) { return; }
-    else { actuators_delay_done = TRUE; }
+    else { actuators_delay_done = true; }
   }
 #endif
 

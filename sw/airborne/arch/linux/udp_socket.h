@@ -46,7 +46,7 @@ struct UdpSocket {
  * @param[in]  broadcast if TRUE enable broadcasting
  * @return -1 on error, otherwise 0
  */
-extern int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port_in, bool_t broadcast);
+extern int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port_in, bool broadcast);
 
 /**
  * Send a packet from buffer, blocking.

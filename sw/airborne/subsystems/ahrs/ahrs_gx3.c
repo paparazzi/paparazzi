@@ -46,7 +46,7 @@
  */
 struct AhrsGX3 ahrs_gx3;
 
-static inline bool_t gx3_verify_chk(volatile uint8_t *buff_add);
+static inline bool gx3_verify_chk(volatile uint8_t *buff_add);
 static inline float bef(volatile uint8_t *c);
 
 /* Big Endian to Float */
@@ -62,7 +62,7 @@ static inline float bef(volatile uint8_t *c)
   return f;
 }
 
-static inline bool_t gx3_verify_chk(volatile uint8_t *buff_add)
+static inline bool gx3_verify_chk(volatile uint8_t *buff_add)
 {
   uint16_t i, chk_calc;
   chk_calc = 0;
@@ -74,7 +74,7 @@ static inline bool_t gx3_verify_chk(volatile uint8_t *buff_add)
 
 void ahrs_gx3_align(void)
 {
-  ahrs_gx3.is_aligned = FALSE;
+  ahrs_gx3.is_aligned = false;
 
   //make the gyros zero, takes 10s (specified in Byte 4 and 5)
   uart_put_byte(&GX3_PORT, 0xcd);
@@ -83,7 +83,7 @@ void ahrs_gx3_align(void)
   uart_put_byte(&GX3_PORT, 0x27);
   uart_put_byte(&GX3_PORT, 0x10);
 
-  ahrs_gx3.is_aligned = TRUE;
+  ahrs_gx3.is_aligned = true;
 }
 
 #if PERIODIC_TELEMETRY
@@ -106,12 +106,12 @@ static void send_gx3(struct transport_tx *trans, struct link_device *dev)
 void imu_impl_init(void)
 {
   // Initialize variables
-  ahrs_gx3.is_aligned = FALSE;
+  ahrs_gx3.is_aligned = false;
 
   // Initialize packet
   ahrs_gx3.packet.status = GX3PacketWaiting;
   ahrs_gx3.packet.msg_idx = 0;
-  ahrs_gx3.packet.msg_available = FALSE;
+  ahrs_gx3.packet.msg_available = false;
   ahrs_gx3.packet.chksm_error = 0;
   ahrs_gx3.packet.hdr_error = 0;
 
@@ -309,9 +309,9 @@ void gx3_packet_parse(uint8_t c)
       ahrs_gx3.packet.msg_idx++;
       if (ahrs_gx3.packet.msg_idx == GX3_MSG_LEN) {
         if (gx3_verify_chk(ahrs_gx3.packet.msg_buf)) {
-          ahrs_gx3.packet.msg_available = TRUE;
+          ahrs_gx3.packet.msg_available = true;
         } else {
-          ahrs_gx3.packet.msg_available = FALSE;
+          ahrs_gx3.packet.msg_available = false;
           ahrs_gx3.packet.chksm_error++;
         }
         ahrs_gx3.packet.status = 0;
@@ -334,7 +334,7 @@ void ahrs_gx3_init(void)
 #else
   ahrs_gx3.mag_offset = 0.0;
 #endif
-  ahrs_gx3.is_aligned = FALSE;
+  ahrs_gx3.is_aligned = false;
 }
 
 void ahrs_gx3_register(void)

@@ -48,7 +48,7 @@ void stabilization_rate_enter(void)
   stabilization_indi_enter();
 }
 
-void stabilization_rate_run(bool_t in_flight)
+void stabilization_rate_run(bool in_flight)
 {
   stabilization_indi_run(in_flight, TRUE);
 }

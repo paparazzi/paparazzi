@@ -116,7 +116,7 @@ struct ImuMpu9250 imu_mpu9250;
 
 void mpu_wait_slave4_ready(void);
 void mpu_wait_slave4_ready_cb(struct spi_transaction *t);
-bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu);
+bool imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu);
 
 void imu_impl_init(void)
 {
@@ -162,7 +162,7 @@ void imu_impl_init(void)
   imu_mpu9250.wait_slave4_trans.output_buf = &(imu_mpu9250.wait_slave4_tx_buf[0]);
 
   imu_mpu9250.wait_slave4_trans.status = SPITransDone;
-  imu_mpu9250.slave4_ready = FALSE;
+  imu_mpu9250.slave4_ready = false;
 }
 
 void imu_periodic(void)
@@ -207,7 +207,7 @@ void imu_mpu9250_event(void)
     }
 #endif
 
-    imu_mpu9250.mpu.data_available = FALSE;
+    imu_mpu9250.mpu.data_available = false;
 
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
@@ -227,12 +227,12 @@ static inline void mpu_set_and_wait(Mpu9250ConfigSet mpu_set, void *mpu, uint8_t
 /** function to configure akm8963 mag
  * @return TRUE if mag configuration finished
  */
-bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu)
+bool imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu)
 {
   // wait before starting the configuration of the mag
   // doing to early may void the mode configuration
   if (get_sys_time_float() < IMU_MPU9250_MAG_STARTUP_DELAY) {
-    return FALSE;
+    return false;
   }
 
   //config AK8963 soft reset
@@ -259,7 +259,7 @@ bool_t imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu)
                    (1 << 7) |    // Slave 0 enable
                    (7 << 0));    // Read 7 bytes (mag x,y,z + status)
 
-  return TRUE;
+  return true;
 }
 
 void mpu_wait_slave4_ready(void)
@@ -275,9 +275,9 @@ void mpu_wait_slave4_ready(void)
 void mpu_wait_slave4_ready_cb(struct spi_transaction *t)
 {
   if (bit_is_set(t->input_buf[1], MPU9250_I2C_SLV4_DONE)) {
-    imu_mpu9250.slave4_ready = TRUE;
+    imu_mpu9250.slave4_ready = true;
   } else {
-    imu_mpu9250.slave4_ready = FALSE;
+    imu_mpu9250.slave4_ready = false;
   }
   t->status = SPITransDone;
 }

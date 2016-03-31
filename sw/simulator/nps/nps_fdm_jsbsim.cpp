@@ -188,11 +188,11 @@ void nps_fdm_init(double dt)
 
 }
 
-void nps_fdm_run_step(bool_t launch __attribute__((unused)), double *commands, int commands_nb)
+void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int commands_nb)
 {
 
 #ifdef NPS_JSBSIM_LAUNCHSPEED
-  static bool_t already_launched = FALSE;
+  static bool already_launched = FALSE;
 
   if (launch && !already_launched) {
     printf("Launching with speed of %.1f m/s!\n", (float)NPS_JSBSIM_LAUNCHSPEED);

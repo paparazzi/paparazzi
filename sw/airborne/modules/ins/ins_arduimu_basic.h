@@ -35,7 +35,7 @@ extern struct FloatVect3 arduimu_accel;
 
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
-extern bool_t arduimu_calibrate_neutrals;
+extern bool arduimu_calibrate_neutrals;
 
 void ArduIMU_init(void);
 void ArduIMU_periodic(void);

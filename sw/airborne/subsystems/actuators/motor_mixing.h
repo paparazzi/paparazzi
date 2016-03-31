@@ -36,7 +36,7 @@
 struct MotorMixing {
   int32_t commands[MOTOR_MIXING_NB_MOTOR];
   int32_t trim[MOTOR_MIXING_NB_MOTOR];
-  bool_t override_enabled[MOTOR_MIXING_NB_MOTOR];
+  bool override_enabled[MOTOR_MIXING_NB_MOTOR];
   int32_t override_value[MOTOR_MIXING_NB_MOTOR];
   uint32_t nb_saturation;
   uint32_t nb_failure;
@@ -45,7 +45,7 @@ struct MotorMixing {
 extern struct MotorMixing motor_mixing;
 
 extern void motor_mixing_init(void);
-extern void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[]);
+extern void motor_mixing_run(bool motors_on, bool override_on, pprz_t in_cmd[]);
 extern void motor_mixing_run_spinup(uint32_t counter, uint32_t max_counter);
 
 #endif /* MOTOR_MIXING_H */

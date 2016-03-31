@@ -48,9 +48,9 @@ int record_video = 0;
 
 volatile uint32_t blob_locator = 0;
 
-volatile bool_t blob_enabled = FALSE;
-volatile bool_t marker_enabled = FALSE;
-volatile bool_t window_enabled = FALSE;
+volatile bool blob_enabled = false;
+volatile bool marker_enabled = false;
+volatile bool window_enabled = false;
 
 // Computer vision thread
 struct image_t* cv_marker_func(struct image_t *img);
@@ -255,24 +255,24 @@ void cv_blob_locator_event(void) {
   switch (cv_blob_locator_type)
   {
   case 1:
-    blob_enabled = TRUE;
-    marker_enabled = FALSE;
-    window_enabled = FALSE;
+    blob_enabled = true;
+    marker_enabled = false;
+    window_enabled = false;
     break;
   case 2:
-    blob_enabled = FALSE;
-    marker_enabled = TRUE;
-    window_enabled = FALSE;
+    blob_enabled = false;
+    marker_enabled = true;
+    window_enabled = false;
     break;
   case 3:
-    blob_enabled = FALSE;
-    marker_enabled = FALSE;
-    window_enabled = TRUE;
+    blob_enabled = false;
+    marker_enabled = false;
+    window_enabled = true;
     break;
   default:
-    blob_enabled = FALSE;
-    marker_enabled = FALSE;
-    window_enabled = FALSE;
+    blob_enabled = false;
+    marker_enabled = false;
+    window_enabled = false;
     break;
   }
   if (blob_locator != 0) {

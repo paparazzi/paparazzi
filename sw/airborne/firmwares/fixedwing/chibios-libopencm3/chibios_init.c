@@ -56,14 +56,14 @@ Thread *pprzThdPtr = NULL;
 
 static WORKING_AREA(wa_thd_heartbeat, 2048);
 void chibios_launch_heartbeat (void);
-bool_t sdOk = FALSE;
+bool sdOk = false;
 
 
 
 /*
  * Init ChibiOS HAL and Sys
  */
-bool_t chibios_init(void) {
+bool chibios_init(void) {
   halInit();
   chSysInit();
 

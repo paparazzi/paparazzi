@@ -142,7 +142,7 @@ static void compute_points_from_bungee(void)
   VECT2_SUM(throttle_point, bungee_point, throttle_point);
 }
 
-bool_t nav_bungee_takeoff_setup(uint8_t bungee_wp)
+bool nav_bungee_takeoff_setup(uint8_t bungee_wp)
 {
   // Store bungee point (from WP id, altitude should be ground alt)
   // FIXME use current alt instead ?
@@ -155,10 +155,10 @@ bool_t nav_bungee_takeoff_setup(uint8_t bungee_wp)
   CTakeoffStatus = Launch;
   kill_throttle = 1;
 
-  return FALSE;
+  return false;
 }
 
-bool_t nav_bungee_takeoff_run(void)
+bool nav_bungee_takeoff_run(void)
 {
   float cross = 0.;
 
@@ -208,15 +208,15 @@ bool_t nav_bungee_takeoff_run(void)
 #endif
           ) {
         CTakeoffStatus = Finished;
-        return FALSE;
+        return false;
       } else {
-        return TRUE;
+        return true;
       }
       break;
     default:
       // Invalid status or Finished, end function
-      return FALSE;
+      return false;
   }
-  return TRUE;
+  return true;
 }
 

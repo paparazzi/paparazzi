@@ -39,7 +39,7 @@ struct NpsSensorSonar {
   double offset;         ///< offset in meters
   double noise_std_dev;  ///< noise standard deviation
   double next_update;
-  bool_t data_available;
+  bool data_available;
 };
 
 

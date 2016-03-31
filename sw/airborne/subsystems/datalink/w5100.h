@@ -69,7 +69,7 @@ void w5100_transmit(uint8_t data);
 uint16_t w5100_receive(uint8_t *buf, uint16_t len);
 void w5100_send(void);
 uint16_t w5100_rx_size(uint8_t _s);
-bool_t w5100_ch_available(void);
+bool w5100_ch_available(void);
 
 
 // W5100 is using pprz_transport
@@ -96,7 +96,7 @@ static inline void w5100_check_and_parse(struct link_device *dev, struct pprz_tr
     w5100_read_buffer(trans);
     if (trans->trans_rx.msg_received) {
       DatalinkFillDlBuffer(trans->trans_rx.payload, trans->trans_rx.payload_len);
-      trans->trans_rx.msg_received = FALSE;
+      trans->trans_rx.msg_received = false;
     }
   }
 }

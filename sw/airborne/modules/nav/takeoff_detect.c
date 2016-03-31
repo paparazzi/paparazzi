@@ -97,7 +97,7 @@ void takeoff_detect_periodic(void)
       }
       // if timer is finished, start launching
       if (takeoff_detect.timer > (int)(TAKEOFF_DETECT_PERIODIC_FREQ * TAKEOFF_DETECT_TIMER)) {
-        launch = TRUE;
+        launch = true;
         takeoff_detect.state = TO_DETECT_LAUNCHING;
         takeoff_detect.timer = 0;
       }
@@ -107,7 +107,7 @@ void takeoff_detect_periodic(void)
       if (stateGetNedToBodyEulers_f()->theta < TAKEOFF_DETECT_ABORT_PITCH
           || pprz_mode != PPRZ_MODE_AUTO2) {
         // back to ARMED state
-        launch = FALSE;
+        launch = false;
         takeoff_detect.state = TO_DETECT_ARMED;
       }
       // increment timer and disable detection after some time

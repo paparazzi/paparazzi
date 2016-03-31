@@ -22,13 +22,13 @@
 #include "subsystems/imu.h"
 #include "subsystems/abi.h"
 
-volatile bool_t ADS8344_available;
+volatile bool ADS8344_available;
 uint16_t ADS8344_values[ADS8344_NB_CHANNELS];
 
 void imu_impl_init(void)
 {
 
-  ADS8344_available = FALSE;
+  ADS8344_available = false;
 
   imu_crista_arch_init();
 
@@ -79,7 +79,7 @@ static inline void ImuMagEvent(void)
     imu.mag_unscaled.x = hmc5843.data.value[IMU_MAG_X_CHAN];
     imu.mag_unscaled.y = hmc5843.data.value[IMU_MAG_Y_CHAN];
     imu.mag_unscaled.z = hmc5843.data.value[IMU_MAG_Z_CHAN];
-    hmc5843.data_available = FALSE;
+    hmc5843.data_available = false;
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_CRISTA_ID, now_ts, &imu.mag);
   }
@@ -91,7 +91,7 @@ static inline void ImuMagEvent(void)
 void imu_christa_event(void)
 {
   if (ADS8344_available) {
-    ADS8344_available = FALSE;
+    ADS8344_available = false;
     imu.gyro_unscaled.p = ADS8344_values[IMU_GYRO_P_CHAN];
     imu.gyro_unscaled.q = ADS8344_values[IMU_GYRO_Q_CHAN];
     imu.gyro_unscaled.r = ADS8344_values[IMU_GYRO_R_CHAN];

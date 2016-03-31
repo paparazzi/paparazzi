@@ -120,7 +120,7 @@ void imu_bebop_event(void)
     VECT3_ASSIGN(imu.accel_unscaled, imu_bebop.mpu.data_accel.vect.x, -imu_bebop.mpu.data_accel.vect.y,
                  -imu_bebop.mpu.data_accel.vect.z);
 
-    imu_bebop.mpu.data_available = FALSE;
+    imu_bebop.mpu.data_available = false;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
@@ -138,7 +138,7 @@ void imu_bebop_event(void)
     VECT3_ASSIGN(imu.mag_unscaled, -imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.x, imu_bebop.ak.data.vect.z);
 #endif
 
-    imu_bebop.ak.data_available = FALSE;
+    imu_bebop.ak.data_available = false;
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }

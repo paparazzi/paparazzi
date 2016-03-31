@@ -29,9 +29,9 @@
 #include "spi.h"
 
 uint32_t wt_baro_pressure;
-bool_t wt_baro_available;
+bool wt_baro_available;
 
-static bool_t status_read_data;
+static bool status_read_data;
 
 #define CMD_INIT_1      0x24 // set chanel AIN1/AIN2 and next operation on filter high
 #define CMD_INIT_2      0xCF // set unipolar mode, 24 bits, no boost, filter high
@@ -71,8 +71,8 @@ void wt_baro_init(void)
   send1_on_spi(CMD_INIT_5);
   send1_on_spi(CMD_INIT_6);
 
-  status_read_data = FALSE;
-  wt_baro_available = FALSE;
+  status_read_data = false;
+  wt_baro_available = false;
 
 }
 
@@ -110,7 +110,7 @@ void wt_baro_event(void)
     data = Uint24(buf_input);
     /* Compute pressure */
     wt_baro_pressure = data;
-    wt_baro_available = TRUE;
+    wt_baro_available = true;
   } /* else nothing to read */
 
   status_read_data = !status_read_data;

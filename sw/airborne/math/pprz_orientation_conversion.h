@@ -132,7 +132,7 @@ extern void orientationCalcEulers_f(struct OrientationReps *orientation);
 
 /*********************** validity test functions ******************/
 /// Test if orientations are valid.
-static inline bool_t orienationCheckValid(struct OrientationReps *orientation)
+static inline bool orienationCheckValid(struct OrientationReps *orientation)
 {
   return (orientation->status);
 }

@@ -184,7 +184,7 @@ void stabilization_rate_enter(void)
   INT_RATES_ZERO(stabilization_rate_sum_err);
 }
 
-void stabilization_rate_run(bool_t in_flight)
+void stabilization_rate_run(bool in_flight)
 {
   /* compute feed-back command */
   struct Int32Rates _error;

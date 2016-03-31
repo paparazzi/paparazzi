@@ -256,7 +256,7 @@ extern void spi_init_slaves(void);
  * @param t spi transaction
  * @return TRUE if insertion to the transaction queue succeeded
  */
-extern bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t);
+extern bool spi_submit(struct spi_periph *p, struct spi_transaction *t);
 
 /** Select a slave.
  * @param slave slave id
@@ -276,7 +276,7 @@ extern void spi_slave_unselect(uint8_t slave);
  * @param slave slave id
  * @return true if correctly locked
  */
-extern bool_t spi_lock(struct spi_periph *p, uint8_t slave);
+extern bool spi_lock(struct spi_periph *p, uint8_t slave);
 
 /** Resume the SPI fifo.
  * Only the slave that locks the fifo can unlock it.
@@ -284,7 +284,7 @@ extern bool_t spi_lock(struct spi_periph *p, uint8_t slave);
  * @param slave slave id
  * @return true if correctly unlocked
  */
-extern bool_t spi_resume(struct spi_periph *p, uint8_t slave);
+extern bool spi_resume(struct spi_periph *p, uint8_t slave);
 
 #endif /* SPI_MASTER */
 
@@ -349,7 +349,7 @@ extern void spi_slave_init(struct spi_periph *p);
  * @param t spi transaction
  * @return return true if registered with success
  */
-extern bool_t spi_slave_register(struct spi_periph *p, struct spi_transaction *t);
+extern bool spi_slave_register(struct spi_periph *p, struct spi_transaction *t);
 
 /** Initialized and wait for the next transaction.
  * If a transaction is registered for this peripheral, the spi will be
@@ -357,7 +357,7 @@ extern bool_t spi_slave_register(struct spi_periph *p, struct spi_transaction *t
  * @param p spi peripheral to be used
  * @return return true if a transaction was register for this peripheral
  */
-extern bool_t spi_slave_wait(struct spi_periph *p);
+extern bool spi_slave_wait(struct spi_periph *p);
 
 #endif /* SPI_SLAVE */
 

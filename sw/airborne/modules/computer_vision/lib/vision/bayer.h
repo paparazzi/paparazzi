@@ -77,18 +77,18 @@ void BayerToYUV(struct image_t *in, struct image_t *out,
         uint16_t R2 = ii[i + j * in->w + 1] / 2;
         uint16_t B2 = ii[i + (j + 1) * in->w] / 2;
 
-        uint32_t u, y1, v, y2;
+        uint32_t u, my1, v, my2;
 
-        y1 = (0.256788 * R1 + 0.504129 * G1 + 0.097906 * B1) / 128 +  16;
-        y2 = (0.256788 * R2 + 0.504129 * G2 + 0.097906 * B2) / 128 +  16;
+        my1 = (0.256788 * R1 + 0.504129 * G1 + 0.097906 * B1) / 128 +  16;
+        my2 = (0.256788 * R2 + 0.504129 * G2 + 0.097906 * B2) / 128 +  16;
         u = (-0.148223 * (R1 + R2) - 0.290993 * (G1 + G2) + 0.439216 * (B1 + B2)) / 256 + 128;
         v = (0.439216 * (R1 + R2) - 0.367788 * (G1 + G2) - 0.071427 * (B1 + B2)) / 256 + 128;
 
 
         oi[(x + y * out->w) * 2] = clip(u);
-        oi[(x + y * out->w) * 2 + 1] = clip(y1);
+        oi[(x + y * out->w) * 2 + 1] = clip(my1);
         oi[(x + y * out->w) * 2 + 2] = clip(v);
-        oi[(x + y * out->w) * 2 + 3] = clip(y2);
+        oi[(x + y * out->w) * 2 + 3] = clip(my2);
       } else {
         oi[(x + y * out->w) * 2] = 0;
         oi[(x + y * out->w) * 2 + 1] = 0;

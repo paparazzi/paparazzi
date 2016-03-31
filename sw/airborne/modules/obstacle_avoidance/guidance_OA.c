@@ -172,7 +172,7 @@ void guidance_h_module_read_rc(void)
  * Main guidance loop
  * @param[in] in_flight Whether we are in flight or not
  */
-void guidance_h_module_run(bool_t in_flight)
+void guidance_h_module_run(bool in_flight)
 {
   OA_update();
   /* Update the setpoint */

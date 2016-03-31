@@ -128,7 +128,7 @@ static inline void ImuMagEvent(void)
     imu.mag_unscaled.z = hmc5843.data.value[IMU_MAG_Z_CHAN];
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_B2_ID, get_sys_time_usec(), &imu.mag);
-    hmc5843.data_available = FALSE;
+    hmc5843.data_available = false;
   }
 }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
@@ -141,7 +141,7 @@ static inline void ImuMagEvent(void)
     imu.mag_unscaled.z = imu_b2.mag_hmc.data.value[IMU_MAG_Z_CHAN];
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_B2_ID, get_sys_time_usec(), &imu.mag);
-    imu_b2.mag_hmc.data_available = FALSE;
+    imu_b2.mag_hmc.data_available = false;
   }
 }
 #else

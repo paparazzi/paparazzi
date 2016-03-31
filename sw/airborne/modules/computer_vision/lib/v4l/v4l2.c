@@ -127,7 +127,7 @@ static void *v4l2_capture_thread(void *data)
  * @param[in] width,height The width and height of the images
  * @return Whether the subdevice was successfully initialized
  */
-bool_t v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t code, uint16_t width, uint16_t height)
+bool v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t code, uint16_t width, uint16_t height)
 {
   struct v4l2_subdev_format sfmt;
   CLEAR(sfmt);
@@ -136,14 +136,14 @@ bool_t v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t 
   int fd = open(subdev_name, O_RDWR, 0);
   if (fd < 0) {
     printf("[v4l2] Cannot open subdevice '%s': %d, %s\n", subdev_name, errno, strerror(errno));
-    return FALSE;
+    return false;
   }
 
   // Try to get the subdevice data format settings
   if (ioctl(fd, VIDIOC_SUBDEV_G_FMT, &sfmt) < 0) {
     printf("[v4l2] Could not get subdevice data format settings of %s\n", subdev_name);
     close(fd);
-    return FALSE;
+    return false;
   }
 
   // Set the new settings
@@ -158,12 +158,12 @@ bool_t v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t 
   if (ioctl(fd, VIDIOC_SUBDEV_S_FMT, &sfmt) < 0) {
     printf("[v4l2] Could not set subdevice data format settings of %s\n", subdev_name);
     close(fd);
-    return FALSE;
+    return false;
   }
 
   // Close the device
   close(fd);
-  return TRUE;
+  return true;
 }
 
 /**
@@ -329,7 +329,7 @@ void v4l2_image_get(struct v4l2_device *dev, struct image_t *img)
  * @param[out] *img The image that we got from the video device
  * @return Whether we got an image or not
  */
-bool_t v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img)
+bool v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img)
 {
   uint16_t img_idx = V4L2_IMG_NONE;
 
@@ -343,7 +343,7 @@ bool_t v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img)
 
   // Check if we really got an image
   if (img_idx == V4L2_IMG_NONE) {
-    return FALSE;
+    return false;
   } else {
     // Set the image
     img->type = IMAGE_YUV422;
@@ -353,7 +353,7 @@ bool_t v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img)
     img->buf_size = dev->buffers[img_idx].length;
     img->buf = dev->buffers[img_idx].buf;
     memcpy(&img->ts, &dev->buffers[img_idx].timestamp, sizeof(struct timeval));
-    return TRUE;
+    return true;
   }
 }
 
@@ -384,7 +384,7 @@ void v4l2_image_free(struct v4l2_device *dev, struct image_t *img)
  * but keep in mind that if it is already started it will
  * return FALSE.
  */
-bool_t v4l2_start_capture(struct v4l2_device *dev)
+bool v4l2_start_capture(struct v4l2_device *dev)
 {
   uint8_t i;
   enum v4l2_buf_type type;
@@ -392,7 +392,7 @@ bool_t v4l2_start_capture(struct v4l2_device *dev)
   // Check if not already running
   if (dev->thread != (pthread_t)NULL) {
     printf("[v4l2] There is already a capturing thread running for %s\n", dev->name);
-    return FALSE;
+    return false;
   }
 
   // Enqueue all buffers
@@ -406,7 +406,7 @@ bool_t v4l2_start_capture(struct v4l2_device *dev)
     buf.index = i;
     if (ioctl(dev->fd, VIDIOC_QBUF, &buf) < 0) {
       printf("[v4l2] Could not enqueue buffer %d during start capture for %s\n", i, dev->name);
-      return FALSE;
+      return false;
     }
   }
 
@@ -414,7 +414,7 @@ bool_t v4l2_start_capture(struct v4l2_device *dev)
   type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if (ioctl(dev->fd, VIDIOC_STREAMON, &type) < 0) {
     printf("[v4l2] Could not start stream of %s, %d %s\n", dev->name, errno, strerror(errno));
-    return FALSE;
+    return false;
   }
 
   //Start the capturing thread
@@ -430,10 +430,10 @@ bool_t v4l2_start_capture(struct v4l2_device *dev)
 
     // Reset the thread
     dev->thread = (pthread_t) NULL;
-    return FALSE;
+    return false;
   }
 
-  return TRUE;
+  return true;
 }
 
 /**
@@ -443,33 +443,33 @@ bool_t v4l2_start_capture(struct v4l2_device *dev)
  * @return TRUE if it successfully stopped capturing. Note that it also returns FALSE
  * when the capturing is already stopped.
  */
-bool_t v4l2_stop_capture(struct v4l2_device *dev)
+bool v4l2_stop_capture(struct v4l2_device *dev)
 {
   enum v4l2_buf_type type;
 
   // First check if still running
   if (dev->thread == (pthread_t) NULL) {
     printf("[v4l2] Already stopped capture for %s\n", dev->name);
-    return FALSE;
+    return false;
   }
 
   // Stop the stream
   type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if (ioctl(dev->fd, VIDIOC_STREAMOFF, &type) < 0) {
     printf("[v4l2] Could not stop stream of %s\n", dev->name);
-    return FALSE;
+    return false;
   }
 
   // Stop the thread
   if (pthread_cancel(dev->thread) < 0) {
     printf("[v4l2] Could not cancel thread for %s\n", dev->name);
-    return FALSE;
+    return false;
   }
 
   // Wait for the thread to be finished
   pthread_join(dev->thread, NULL);
   dev->thread = (pthread_t) NULL;
-  return TRUE;
+  return true;
 }
 
 /**

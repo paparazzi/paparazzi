@@ -195,9 +195,9 @@ void ins_int_init(void)
 
 #if USE_INS_NAV_INIT
   ins_init_origin_from_flightplan();
-  ins_int.ltp_initialized = TRUE;
+  ins_int.ltp_initialized = true;
 #else
-  ins_int.ltp_initialized  = FALSE;
+  ins_int.ltp_initialized  = false;
 #endif
 
   /* we haven't had any measurement updates yet, so set the counter to max */
@@ -205,7 +205,7 @@ void ins_int_init(void)
 
   // Bind to BARO_ABS message
   AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
-  ins_int.baro_initialized = FALSE;
+  ins_int.baro_initialized = false;
 
 #if USE_SONAR
   ins_int.update_on_agl = INS_SONAR_UPDATE_ON_AGL;
@@ -213,8 +213,8 @@ void ins_int_init(void)
   AbiBindMsgAGL(INS_SONAR_ID, &sonar_ev, sonar_cb);
 #endif
 
-  ins_int.vf_reset = FALSE;
-  ins_int.hf_realign = FALSE;
+  ins_int.vf_reset = false;
+  ins_int.hf_realign = false;
 
   /* init vertical and horizontal filters */
   vff_init_zero();
@@ -240,19 +240,19 @@ void ins_reset_local_origin(void)
     ltp_def_from_ecef_i(&ins_int.ltp_def, &gps.ecef_pos);
     ins_int.ltp_def.lla.alt = gps.lla_pos.alt;
     ins_int.ltp_def.hmsl = gps.hmsl;
-    ins_int.ltp_initialized = TRUE;
+    ins_int.ltp_initialized = true;
     stateSetLocalOrigin_i(&ins_int.ltp_def);
   } else {
-    ins_int.ltp_initialized = FALSE;
+    ins_int.ltp_initialized = false;
   }
 #else
-  ins_int.ltp_initialized = FALSE;
+  ins_int.ltp_initialized = false;
 #endif
 
 #if USE_HFF
-  ins_int.hf_realign = TRUE;
+  ins_int.hf_realign = true;
 #endif
-  ins_int.vf_reset = TRUE;
+  ins_int.vf_reset = true;
 }
 
 void ins_reset_altitude_ref(void)
@@ -267,7 +267,7 @@ void ins_reset_altitude_ref(void)
   ins_int.ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ins_int.ltp_def);
 #endif
-  ins_int.vf_reset = TRUE;
+  ins_int.vf_reset = true;
 }
 
 void ins_int_propagate(struct Int32Vect3 *accel, float dt)
@@ -319,12 +319,12 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
   if (!ins_int.baro_initialized && pressure > 1e-7) {
     // wait for a first positive value
     ins_int.qfe = pressure;
-    ins_int.baro_initialized = TRUE;
+    ins_int.baro_initialized = true;
   }
 
   if (ins_int.baro_initialized) {
     if (ins_int.vf_reset) {
-      ins_int.vf_reset = FALSE;
+      ins_int.vf_reset = false;
       ins_int.qfe = pressure;
       vff_realign(0.);
       ins_update_from_vff();
@@ -397,7 +397,7 @@ void ins_int_update_gps(struct GpsState *gps_s)
   VECT2_SDIV(gps_speed_m_s_ned, gps_speed_m_s_ned, 100.);
 
   if (ins_int.hf_realign) {
-    ins_int.hf_realign = FALSE;
+    ins_int.hf_realign = false;
     const struct FloatVect2 zero = {0.0f, 0.0f};
     b2_hff_realign(gps_pos_m_ned, zero);
   }

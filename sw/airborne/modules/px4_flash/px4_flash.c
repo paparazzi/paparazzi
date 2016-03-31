@@ -62,13 +62,13 @@ tid_t px4iobl_tid; ///< id for time out of the px4 bootloader reset
 #define PROTO_GET_CRC           0x29 ///< compute & return a CRC
 #define PROTO_BOOT              0x30 ///< boot the application
 
-bool_t setToBootloaderMode;
-bool_t px4ioRebootTimeout;
+bool setToBootloaderMode;
+bool px4ioRebootTimeout;
 
 void px4flash_init(void)
 {
-  setToBootloaderMode = FALSE;
-  px4ioRebootTimeout = FALSE;
+  setToBootloaderMode = false;
+  px4ioRebootTimeout = false;
   px4iobl_tid = sys_time_register_timer(15.0, NULL); //20 (fbw pprz bl timeout)-5 (px4 fmu bl timeout)
 }
 
@@ -129,7 +129,7 @@ void px4flash_event(void)
 
       //first check if the bootloader has not timeout:
       if (sys_time_check_and_ack_timer(px4iobl_tid) || px4ioRebootTimeout) {
-        px4ioRebootTimeout = TRUE;
+        px4ioRebootTimeout = true;
         sys_time_cancel_timer(px4iobl_tid);
         FLASH_PORT->put_byte(FLASH_PORT->periph, 'T');
         FLASH_PORT->put_byte(FLASH_PORT->periph, 'I');

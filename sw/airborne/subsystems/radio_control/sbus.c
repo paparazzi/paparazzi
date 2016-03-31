@@ -76,6 +76,6 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
       NormalizePpmIIR(sbus.pulses, radio_control);
       _received_frame_handler();
     }
-    sbus.frame_available = FALSE;
+    sbus.frame_available = false;
   }
 }

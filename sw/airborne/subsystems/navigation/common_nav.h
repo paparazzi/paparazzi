@@ -34,7 +34,7 @@
 extern float max_dist_from_home;
 extern float dist2_to_home;
 extern float dist2_to_wp;
-extern bool_t too_far_from_home;
+extern bool too_far_from_home;
 
 struct point {
   float x;
@@ -68,21 +68,21 @@ unit_t nav_update_waypoints_alt(void) __attribute__((unused));
 void common_nav_periodic_task_4Hz(void);
 
 
-#define NavSetGroundReferenceHere() ({ nav_reset_reference(); nav_update_waypoints_alt(); FALSE; })
+#define NavSetGroundReferenceHere() ({ nav_reset_reference(); nav_update_waypoints_alt(); false; })
 
-#define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); nav_update_waypoints_alt(); FALSE; })
+#define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); nav_update_waypoints_alt(); false; })
 
 #define NavSetWaypointHere(_wp) ({ \
     waypoints[_wp].x = stateGetPositionEnu_f()->x; \
     waypoints[_wp].y = stateGetPositionEnu_f()->y; \
-    FALSE; \
+    false; \
   })
 
 #define NavSetWaypointPosAndAltHere(_wp) ({ \
     waypoints[_wp].x = stateGetPositionEnu_f()->x; \
     waypoints[_wp].y = stateGetPositionEnu_f()->y; \
     waypoints[_wp].a = stateGetPositionEnu_f()->z + ground_alt; \
-    FALSE; \
+    false; \
   })
 
 #endif /* COMMON_NAV_H */

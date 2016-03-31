@@ -41,8 +41,8 @@ struct L3gd20_Spi {
   volatile uint8_t tx_buf[2];
   volatile uint8_t rx_buf[8];
   enum L3gd20ConfStatus init_status; ///< init status
-  bool_t initialized;                  ///< config done flag
-  volatile bool_t data_available;      ///< data ready flag
+  bool initialized;                  ///< config done flag
+  volatile bool data_available;      ///< data ready flag
   union {
     struct Int16Rates rates;           ///< data vector in accel coordinate system
     int16_t value[3];                 ///< data values accessible by channel index

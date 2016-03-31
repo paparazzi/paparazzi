@@ -54,7 +54,7 @@ static void on_rc_frame(void);
 tid_t main_periodic_tid; ///< id for main_periodic() timer
 tid_t radio_control_tid; ///< id for radio_control_periodic_task() timer
 
-bool_t autopilot_motors_on;
+bool autopilot_motors_on;
 
 int main(void)
 {
@@ -91,7 +91,7 @@ static inline void main_init(void)
   // just to make it usable in a standard rotorcraft airframe file
   // with <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
   // in the command_laws section
-  autopilot_motors_on = TRUE;
+  autopilot_motors_on = true;
 }
 
 static inline void main_periodic(void)

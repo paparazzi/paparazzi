@@ -21,7 +21,8 @@
  */
 
 /**
- * \brief Library for the XSENS AHRS
+ * @file modules/ins/ins_xsens.h
+ * Xsens as a full INS solution
  */
 
 #ifndef INS_XSENS_H
@@ -29,54 +30,22 @@
 
 #include "std.h"
 
-#include "ins_module.h"
+// hack to not use this in sim/nps
+#ifndef SITL
+#include "xsens.h"
 
-struct XsensTime {
-  int8_t hour;
-  int8_t min;
-  int8_t sec;
-  int32_t nanosec;
-  int16_t year;
-  int8_t month;
-  int8_t day;
-};
-
-extern struct XsensTime xsens_time;
-
-extern uint8_t xsens_msg_status;
-extern uint16_t xsens_time_stamp;
-
-extern void xsens_periodic(void);
-
-/* To use Xsens to just provide IMU measurements
- * for use with an external AHRS algorithm
- */
-#if USE_IMU
-#include "subsystems/imu.h"
-#include "subsystems/abi.h"
-
-struct ImuXsens {
-  bool_t gyro_available;
-  bool_t accel_available;
-  bool_t mag_available;
-};
-extern struct ImuXsens imu_xsens;
-
-#define ImuEvent() {}
-#endif /* USE_IMU */
-
-
-/* use Xsens as a full INS solution */
-#if USE_INS_MODULE
-#define InsEvent() {  \
-    ins_event_check_and_handle(handle_ins_msg);   \
-  }
-#define DefaultInsImpl ins_xsens
-#define InsPeriodic xsens_periodic
-extern void ins_xsens_init(void);
-extern void ins_xsens_register(void);
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+extern volatile uint8_t new_ins_attitude;
 #endif
 
+extern float ins_pitch_neutral;
+extern float ins_roll_neutral;
+
+#define DefaultInsImpl ins_xsens
+
+extern void ins_xsens_init(void);
+extern void ins_xsens_register(void);
+extern void ins_xsens_event(void);
 
 #if USE_GPS_XSENS
 #ifndef PRIMARY_GPS
@@ -84,6 +53,13 @@ extern void ins_xsens_register(void);
 #endif
 extern void gps_xsens_init(void);
 extern void gps_xsens_register(void);
+#endif
+
+#else // SITL
+
+static inline void xsens_periodic(void) {}
+static inline void ins_xsens_event(void) {}
+
 #endif
 
 #endif

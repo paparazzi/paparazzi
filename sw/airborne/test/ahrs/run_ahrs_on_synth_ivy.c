@@ -73,7 +73,7 @@ gboolean timeout_callback(gpointer data)
              DegOfRad(aos.gyro_bias.q),
              DegOfRad(aos.gyro_bias.r));
 
-  return TRUE;
+  return true;
 }
 
 

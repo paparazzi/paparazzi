@@ -35,7 +35,7 @@
 PRINT_CONFIG_VAR(AHRS_ICE_OUTPUT_ENABLED)
 
 /** if TRUE with push the estimation results to the state interface */
-static bool_t ahrs_ice_output_enabled;
+static bool ahrs_ice_output_enabled;
 static uint32_t ahrs_ice_last_stamp;
 static uint8_t ahrs_ice_id = AHRS_COMP_ID_ICE;
 
@@ -166,7 +166,7 @@ static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
   ahrs_ice_set_body_to_imu_quat(q_b2i_f);
 }
 
-static bool_t ahrs_ice_enable_output(bool_t enable)
+static bool ahrs_ice_enable_output(bool enable)
 {
   ahrs_ice_output_enabled = enable;
   return ahrs_ice_output_enabled;

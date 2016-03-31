@@ -1,3 +1,1 @@
-include $(CFG_SHARED)/gps_ublox.makefile
-
-$(info Please replace <subsystem name="gps" type="ublox_utm"/> with <subsystem name="gps" type="ublox"/>)
+$(error Please replace <subsystem name="gps" type="ublox_utm"/> with <module name="gps" type="ublox"/>)

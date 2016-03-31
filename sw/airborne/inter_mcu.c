@@ -37,11 +37,11 @@ struct fbw_state *fbw_state = &link_mcu_from_fbw_msg.payload.from_fbw;
 struct ap_state  *ap_state = &link_mcu_from_ap_msg.payload.from_ap;
 #endif /* ! SINGLE_MCU */
 
-volatile bool_t inter_mcu_received_fbw = FALSE;
-volatile bool_t inter_mcu_received_ap  = FALSE;
+volatile bool inter_mcu_received_fbw = false;
+volatile bool inter_mcu_received_ap  = false;
 
 #ifdef FBW
 /** Variables for monitoring AP communication status */
-bool_t ap_ok;
+bool ap_ok;
 uint8_t time_since_last_ap;
 #endif

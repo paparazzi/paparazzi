@@ -222,7 +222,7 @@ extern void   i2c_init(struct i2c_periph *p);
  * @param p i2c peripheral to be used
  * @return TRUE if idle
  */
-extern bool_t i2c_idle(struct i2c_periph *p);
+extern bool i2c_idle(struct i2c_periph *p);
 
 /** Submit a I2C transaction.
  * Must be implemented by the underlying architecture
@@ -230,7 +230,7 @@ extern bool_t i2c_idle(struct i2c_periph *p);
  * @param t i2c transaction
  * @return TRUE if insertion to the transaction queue succeded
  */
-extern bool_t i2c_submit(struct i2c_periph *p, struct i2c_transaction *t);
+extern bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t);
 
 /** Set I2C bitrate.
  * @param p i2c peripheral to be used
@@ -255,7 +255,7 @@ extern void   i2c_event(void);
  * @param len number of bytes to transmit
  * @return TRUE if insertion to the transaction queue succeded
  */
-extern bool_t i2c_transmit(struct i2c_periph *p, struct i2c_transaction *t,
+extern bool i2c_transmit(struct i2c_periph *p, struct i2c_transaction *t,
                            uint8_t s_addr, uint8_t len);
 
 /** Submit a read only transaction.
@@ -267,7 +267,7 @@ extern bool_t i2c_transmit(struct i2c_periph *p, struct i2c_transaction *t,
  * @param len number of bytes to receive
  * @return TRUE if insertion to the transaction queue succeded
  */
-extern bool_t i2c_receive(struct i2c_periph *p, struct i2c_transaction *t,
+extern bool i2c_receive(struct i2c_periph *p, struct i2c_transaction *t,
                           uint8_t s_addr, uint16_t len);
 
 /** Submit a write/read transaction.
@@ -280,7 +280,7 @@ extern bool_t i2c_receive(struct i2c_periph *p, struct i2c_transaction *t,
  * @param len_r number of bytes to receive
  * @return TRUE if insertion to the transaction queue succeded
  */
-extern bool_t i2c_transceive(struct i2c_periph *p, struct i2c_transaction *t,
+extern bool i2c_transceive(struct i2c_periph *p, struct i2c_transaction *t,
                              uint8_t s_addr, uint8_t len_w, uint16_t len_r);
 
 /** @}*/

@@ -406,7 +406,7 @@ int VCOM_getchar(void)
 
   @returns TRUE if len bytes are free
  */
-bool_t VCOM_check_free_space(uint8_t len)
+bool VCOM_check_free_space(uint8_t len)
 {
   return (fifo_free(&txfifo) >= len ? TRUE : FALSE);
 }

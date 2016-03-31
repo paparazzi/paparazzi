@@ -38,9 +38,9 @@ void ak8963_init(struct Ak8963 *ak, struct i2c_periph *i2c_p, uint8_t addr)
   /* set i2c address */
   ak->i2c_trans.slave_addr = addr;
   ak->i2c_trans.status = I2CTransDone;
-  ak->initialized = FALSE;
+  ak->initialized = false;
   ak->init_status = AK_CONF_UNINIT;
-  ak->data_available = FALSE;
+  ak->data_available = false;
 }
 
 void ak8963_configure(struct Ak8963 *ak)
@@ -75,7 +75,7 @@ void ak8963_configure(struct Ak8963 *ak)
 
       // Initialization done
     default:
-      ak->initialized = TRUE;
+      ak->initialized = true;
       break;
   }
 }
@@ -114,7 +114,7 @@ void ak8963_event(struct Ak8963 *ak)
         ak->data.vect.x = Int16FromBuf(ak->i2c_trans.buf, 0);
         ak->data.vect.y = Int16FromBuf(ak->i2c_trans.buf, 2);
         ak->data.vect.z = Int16FromBuf(ak->i2c_trans.buf, 4);
-        ak->data_available = TRUE;
+        ak->data_available = true;
 
         // Read second status register to be ready for reading again
         ak->i2c_trans.buf[0] = AK8963_REG_ST2;
@@ -132,9 +132,9 @@ void ak8963_event(struct Ak8963 *ak)
         ak->status = AK_STATUS_IDLE;
         // check overrun
         //if (bit_is_set(ak->i2c_trans.buf[0], 3)) {
-        //  ak->data_available = FALSE;
+        //  ak->data_available = false;
         //} else {
-        //  ak->data_available = TRUE;
+        //  ak->data_available = true;
         //}
       }
       break;

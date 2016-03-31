@@ -33,9 +33,9 @@
 #include "mcu_periph/i2c.h"
 
 extern struct Infrared_raw ir_i2c;
-extern bool_t ir_i2c_data_hor_available, ir_i2c_data_ver_available;
+extern bool ir_i2c_data_hor_available, ir_i2c_data_ver_available;
 extern uint8_t ir_i2c_conf_word;
-extern bool_t ir_i2c_conf_hor_done, ir_i2c_conf_ver_done;
+extern bool ir_i2c_conf_hor_done, ir_i2c_conf_ver_done;
 
 extern struct i2c_transaction irh_trans, irv_trans;
 
@@ -52,8 +52,8 @@ extern void infrared_i2c_ver_event(void);
 #define infrared_i2cDownlink() DOWNLINK_SEND_DEBUG_IR_I2C(DefaultChannel, DefaultDevice, &ir_i2c.ir1, &ir_i2c.ir2, &ir_i2c.ir3)
 
 #define infrared_i2c_SetConfWord(_v) { \
-    ir_i2c_conf_hor_done = FALSE; \
-    ir_i2c_conf_ver_done = FALSE; \
+    ir_i2c_conf_hor_done = false; \
+    ir_i2c_conf_ver_done = false; \
     ir_i2c_conf_word = _v; \
   }
 

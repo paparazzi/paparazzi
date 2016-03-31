@@ -71,7 +71,7 @@ void link_mcu_on_can_msg(uint32_t id, uint8_t *data, int len)
 #ifdef LINK_MCU_LED
     LED_TOGGLE(LINK_MCU_LED);
 #endif
-    inter_mcu_received_ap = TRUE;
+    inter_mcu_received_ap = true;
   }
 
   if (id ==  MSG_INTERMCU_COMMAND_EXTRA_ID) {
@@ -108,7 +108,7 @@ void link_mcu_on_can_msg(uint32_t id, uint8_t *data, int len)
 #ifdef LINK_MCU_LED
     LED_TOGGLE(LINK_MCU_LED);
 #endif
-    inter_mcu_received_fbw = TRUE;
+    inter_mcu_received_fbw = true;
   }
 }
 

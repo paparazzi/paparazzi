@@ -160,7 +160,7 @@ void dma1_c4_irq_handler(void)
   ADS8344_values[channel] = (buf_in[1] << 8 | buf_in[2]) << 1 | buf_in[3] >> 7;
   channel++;
   if (channel > 6) {
-    ADS8344_available = TRUE;
+    ADS8344_available = true;
     ADS8344Unselect();
     DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
     /* Disable SPI_2 Rx and TX request */

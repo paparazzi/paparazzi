@@ -344,15 +344,15 @@ void sdlogger_spi_direct_command(void)
   sdlogger_spi.command = 0;
 }
 
-bool_t sdlogger_spi_direct_check_free_space(struct sdlogger_spi_periph *p, uint8_t len)
+bool sdlogger_spi_direct_check_free_space(struct sdlogger_spi_periph *p, uint8_t len)
 {
   if (p->status == SDLogger_Logging) {
     /* Calculating free space in both buffers */
     if ( (513 - p->sdcard_buf_idx) + (SDLOGGER_BUFFER_SIZE - p->idx) >= len) {
-      return TRUE;
+      return true;
     }
   }
-  return FALSE;
+  return false;
 }
 
 void sdlogger_spi_direct_put_byte(struct sdlogger_spi_periph *p, uint8_t data)

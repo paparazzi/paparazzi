@@ -422,7 +422,7 @@ void MakeTables(int q)
  * @param[in] quality_factor Quality factor of the encoding (0-99)
  * @param[in] add_dri_header Add the DRI header (needed for full JPEG)
  */
-void jpeg_encode_image(struct image_t *in, struct image_t *out, uint32_t quality_factor, bool_t add_dri_header)
+void jpeg_encode_image(struct image_t *in, struct image_t *out, uint32_t quality_factor, bool add_dri_header)
 {
   uint16_t i, j;
   uint8_t *output_ptr = out->buf;

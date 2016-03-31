@@ -86,7 +86,7 @@ void pbn_init(void)
   pbn.airspeed_offset = 0;
   pbn.airspeed_adc = 0;
   pbn.altitude_adc = 0;
-  pbn.data_valid = TRUE;
+  pbn.data_valid = true;
   offset_cnt = OFFSET_NBSAMPLES_AVRG;
   pbn.airspeed = 0.;
   pbn.altitude = 0.;
@@ -119,9 +119,9 @@ void pbn_read_event(void)
 
   // Consider 0 as a wrong value
   if (pbn.airspeed_adc == 0 || pbn.altitude_adc == 0) {
-    pbn.data_valid = FALSE;
+    pbn.data_valid = false;
   } else {
-    pbn.data_valid = TRUE;
+    pbn.data_valid = true;
 
     if (offset_cnt > 0) {
       // IIR filter to compute an initial offset

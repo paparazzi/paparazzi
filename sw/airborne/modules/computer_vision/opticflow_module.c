@@ -75,7 +75,7 @@ static struct opticflow_state_t opticflow_state;   ///< State of the drone to co
 static struct v4l2_device *opticflow_dev;          ///< The opticflow camera V4L2 device
 static abi_event opticflow_agl_ev;                 ///< The altitude ABI event
 static pthread_t opticflow_calc_thread;            ///< The optical flow calculation thread
-static bool_t opticflow_got_result;                ///< When we have an optical flow calculation
+static bool opticflow_got_result;                ///< When we have an optical flow calculation
 static pthread_mutex_t opticflow_mutex;            ///< Mutex lock fo thread safety
 
 struct UdpSocket video_sock;
@@ -120,7 +120,7 @@ void opticflow_module_init(void)
 
   // Initialize the opticflow calculation
   opticflow_calc_init(&opticflow, 320, 240);
-  opticflow_got_result = FALSE;
+  opticflow_got_result = false;
 
 #ifdef OPTICFLOW_SUBDEV
   PRINT_CONFIG_MSG("[opticflow_module] Configuring a subdevice!")
@@ -182,7 +182,7 @@ void opticflow_module_run(void)
                                   opticflow_result.noise_measurement
                                  );
     }
-    opticflow_got_result = FALSE;
+    opticflow_got_result = false;
   }
   pthread_mutex_unlock(&opticflow_mutex);
 }
@@ -210,13 +210,12 @@ void opticflow_module_start(void)
  */
 void opticflow_module_stop(void)
 {
-  // Stop the capturing
-  v4l2_stop_capture(opticflow_dev);
-
   // Cancel the opticalflow calculation thread
   if (pthread_cancel(opticflow_calc_thread) != 0) {
     printf("Thread cancel did not work\n");
   }
+  // Stop the capturing
+  v4l2_stop_capture(opticflow_dev);
 }
 
 /**
@@ -263,7 +262,7 @@ static void *opticflow_module_calc(void *data __attribute__((unused)))
     // Copy the result if finished
     pthread_mutex_lock(&opticflow_mutex);
     memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
-    opticflow_got_result = TRUE;
+    opticflow_got_result = true;
     pthread_mutex_unlock(&opticflow_mutex);
 
 #if OPTICFLOW_DEBUG

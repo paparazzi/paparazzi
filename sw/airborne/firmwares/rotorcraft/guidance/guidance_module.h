@@ -36,12 +36,12 @@
  * - void guidance_h_module_init(void);
  * - void guidance_h_module_enter(void);
  * - void guidance_h_module_read_rc(void);
- * - void guidance_h_module_run(bool_t in_flight);
+ * - void guidance_h_module_run(bool in_flight);
  *
  *
  * b) Implement own Vertical loops when GUIDANCE_V_MODE_MODULE_SETTING is set to GUIDANCE_V_MODE_MODULE
  * - void guidance_v_module_enter(void);
- * - void guidance_v_module_run(bool_t in_flight);
+ * - void guidance_v_module_run(bool in_flight);
  *
  * If the module implements both V and H mode, take into account that the H is called first and later V
  *

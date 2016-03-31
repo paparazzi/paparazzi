@@ -56,8 +56,8 @@
 #include "subsystems/datalink/datalink.h"
 
 struct NpsAutopilot autopilot;
-bool_t nps_bypass_ahrs;
-bool_t nps_bypass_ins;
+bool nps_bypass_ahrs;
+bool nps_bypass_ins;
 
 #ifndef NPS_BYPASS_AHRS
 #define NPS_BYPASS_AHRS FALSE

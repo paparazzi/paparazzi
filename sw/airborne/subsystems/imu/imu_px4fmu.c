@@ -102,7 +102,7 @@ void imu_px4fmu_event(void)
                  imu_px4fmu.mpu.data_accel.vect.y,
                  imu_px4fmu.mpu.data_accel.vect.x,
                  -imu_px4fmu.mpu.data_accel.vect.z);
-    imu_px4fmu.mpu.data_available = FALSE;
+    imu_px4fmu.mpu.data_available = false;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
@@ -115,7 +115,7 @@ void imu_px4fmu_event(void)
     imu.mag_unscaled.x =  imu_px4fmu.hmc.data.vect.y;
     imu.mag_unscaled.y =  imu_px4fmu.hmc.data.vect.x;
     imu.mag_unscaled.z = -imu_px4fmu.hmc.data.vect.z;
-    imu_px4fmu.hmc.data_available = FALSE;
+    imu_px4fmu.hmc.data_available = false;
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }

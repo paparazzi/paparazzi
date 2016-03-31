@@ -26,13 +26,13 @@
 
 struct NpsAutopilot {
   double commands[NPS_COMMANDS_NB];
-  bool_t launch;
+  bool launch;
 };
 
 extern struct NpsAutopilot autopilot;
 
-extern bool_t nps_bypass_ahrs;
-extern bool_t nps_bypass_ins;
+extern bool nps_bypass_ahrs;
+extern bool nps_bypass_ins;
 extern void sim_overwrite_ahrs(void);
 extern void sim_overwrite_ins(void);
 

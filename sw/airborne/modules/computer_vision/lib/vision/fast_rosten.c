@@ -67,13 +67,13 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
     for (x = 3 + x_padding; x < img->w - 3 - x_padding; x++) {
       // First check if we aren't in range vertical (TODO: fix less intensive way)
       if (min_dist > 0) {
-        bool_t need_skip = FALSE;
+        bool need_skip = false;
 
         // Go trough all the previous corners
         for (i = 0; i < corner_cnt; i++) {
           if (x - min_dist < ret_corners[i].x && ret_corners[i].x < x + min_dist
               && y - min_dist < ret_corners[i].y && ret_corners[i].y < y + min_dist) {
-            need_skip = TRUE;
+            need_skip = true;
             break;
           }
         }

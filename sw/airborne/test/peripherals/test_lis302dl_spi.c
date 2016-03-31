@@ -98,7 +98,7 @@ static inline void main_event_task(void)
   if (lis302.data_available) {
     struct Int32Vect3 accel;
     VECT3_COPY(accel, lis302.data.vect);
-    lis302.data_available = FALSE;
+    lis302.data_available = false;
 
     RunOnceEvery(10, {
       DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,

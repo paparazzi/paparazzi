@@ -109,10 +109,10 @@ void ahrs_icq_init(void)
 {
 
   ahrs_icq.status = AHRS_ICQ_UNINIT;
-  ahrs_icq.is_aligned = FALSE;
+  ahrs_icq.is_aligned = false;
 
-  ahrs_icq.ltp_vel_norm_valid = FALSE;
-  ahrs_icq.heading_aligned = FALSE;
+  ahrs_icq.ltp_vel_norm_valid = false;
+  ahrs_icq.heading_aligned = false;
 
   /* init ltp_to_imu quaternion as zero/identity rotation */
   int32_quat_identity(&ahrs_icq.ltp_to_imu_quat);
@@ -135,9 +135,9 @@ void ahrs_icq_init(void)
   ahrs_icq.gravity_heuristic_factor = AHRS_GRAVITY_HEURISTIC_FACTOR;
 
 #if AHRS_GRAVITY_UPDATE_COORDINATED_TURN
-  ahrs_icq.correct_gravity = TRUE;
+  ahrs_icq.correct_gravity = true;
 #else
-  ahrs_icq.correct_gravity = FALSE;
+  ahrs_icq.correct_gravity = false;
 #endif
 
   VECT3_ASSIGN(ahrs_icq.mag_h, MAG_BFP_OF_REAL(AHRS_H_X),
@@ -148,7 +148,7 @@ void ahrs_icq_init(void)
 }
 
 
-bool_t ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
+bool ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
                       struct Int32Vect3 *lp_mag)
 {
 
@@ -156,11 +156,11 @@ bool_t ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
   /* Compute an initial orientation from accel and mag directly as quaternion */
   ahrs_int_get_quat_from_accel_mag(&ahrs_icq.ltp_to_imu_quat,
                                    lp_accel, lp_mag);
-  ahrs_icq.heading_aligned = TRUE;
+  ahrs_icq.heading_aligned = true;
 #else
   /* Compute an initial orientation from accel and just set heading to zero */
   ahrs_int_get_quat_from_accel(&ahrs_icq.ltp_to_imu_quat, lp_accel);
-  ahrs_icq.heading_aligned = FALSE;
+  ahrs_icq.heading_aligned = false;
   // supress unused arg warning
   lp_mag = lp_mag;
 #endif
@@ -171,9 +171,9 @@ bool_t ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
   INT_RATES_LSHIFT(ahrs_icq.high_rez_bias, ahrs_icq.high_rez_bias, 28);
 
   ahrs_icq.status = AHRS_ICQ_RUNNING;
-  ahrs_icq.is_aligned = TRUE;
+  ahrs_icq.is_aligned = true;
 
-  return TRUE;
+  return true;
 }
 
 
@@ -516,9 +516,9 @@ void ahrs_icq_update_gps(struct GpsState *gps_s __attribute__((unused)))
 #if AHRS_GRAVITY_UPDATE_COORDINATED_TURN && USE_GPS
   if (gps_s->fix >= GPS_FIX_3D) {
     ahrs_icq.ltp_vel_norm = SPEED_BFP_OF_REAL(gps_s->speed_3d / 100.);
-    ahrs_icq.ltp_vel_norm_valid = TRUE;
+    ahrs_icq.ltp_vel_norm_valid = true;
   } else {
-    ahrs_icq.ltp_vel_norm_valid = FALSE;
+    ahrs_icq.ltp_vel_norm_valid = false;
   }
 #endif
 
@@ -641,7 +641,7 @@ void ahrs_icq_realign_heading(int32_t heading)
   /* compute ltp to imu rotations */
   int32_quat_comp(&ahrs_icq.ltp_to_imu_quat, &ltp_to_body_quat, body_to_imu_quat);
 
-  ahrs_icq.heading_aligned = TRUE;
+  ahrs_icq.heading_aligned = true;
 }
 
 void ahrs_icq_set_body_to_imu(struct OrientationReps *body_to_imu)

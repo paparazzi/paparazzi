@@ -78,18 +78,18 @@ int formation_init(void)
   form_mode = FORM_MODE;
   old_cruise = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
   old_alt = GROUND_ALT + SECURITY_HEIGHT;
-  return FALSE;
+  return false;
 }
 
 int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a)
 {
-  if (_id != AC_ID && the_acs_id[_id] == 0) { return FALSE; } // no info for this AC
+  if (_id != AC_ID && the_acs_id[_id] == 0) { return false; } // no info for this AC
   DOWNLINK_SEND_FORMATION_SLOT_TM(DefaultChannel, DefaultDevice, &_id, &form_mode, &slot_e, &slot_n, &slot_a);
   formation[the_acs_id[_id]].status = IDLE;
   formation[the_acs_id[_id]].east = slot_e;
   formation[the_acs_id[_id]].north = slot_n;
   formation[the_acs_id[_id]].alt = slot_a;
-  return FALSE;
+  return false;
 }
 
 int start_formation(void)
@@ -104,7 +104,7 @@ int start_formation(void)
   // store current cruise and alt
   old_cruise = v_ctl_auto_throttle_cruise_throttle;
   old_alt = nav_altitude;
-  return FALSE;
+  return false;
 }
 
 int stop_formation(void)
@@ -121,7 +121,7 @@ int stop_formation(void)
   old_cruise = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
   nav_altitude = old_alt;
   old_alt = GROUND_ALT + SECURITY_HEIGHT;
-  return FALSE;
+  return false;
 }
 
 
@@ -159,14 +159,14 @@ int formation_flight(void)
                                     &formation[the_acs_id[AC_ID]].north,
                                     &formation[the_acs_id[AC_ID]].alt);
   }
-  if (formation[the_acs_id[AC_ID]].status != ACTIVE) { return FALSE; } // AC not ready
+  if (formation[the_acs_id[AC_ID]].status != ACTIVE) { return false; } // AC not ready
 
   // get leader info
   struct ac_info_ * leader = get_ac_info(leader_id);
   if (formation[the_acs_id[leader_id]].status == UNSET ||
       formation[the_acs_id[leader_id]].status == IDLE) {
     // leader not ready or not in formation
-    return FALSE;
+    return false;
   }
 
   // compute slots in the right reference frame
@@ -255,7 +255,7 @@ int formation_flight(void)
     Bound(cruise, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
     v_ctl_auto_throttle_cruise_throttle = cruise;
   }
-  return TRUE;
+  return true;
 }
 
 void formation_pre_call(void)

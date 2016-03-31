@@ -38,7 +38,7 @@
 PRINT_CONFIG_VAR(AHRS_INV_OUTPUT_ENABLED)
 
 /** if TRUE with push the estimation results to the state interface */
-static bool_t ahrs_finv_output_enabled;
+static bool ahrs_finv_output_enabled;
 /** last gyro msg timestamp */
 static uint32_t ahrs_finv_last_stamp = 0;
 static uint8_t ahrs_finv_id = AHRS_COMP_ID_FINV;
@@ -204,7 +204,7 @@ static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVe
   ahrs_float_inv.mag_h = *h;
 }
 
-static bool_t ahrs_float_invariant_enable_output(bool_t enable)
+static bool ahrs_float_invariant_enable_output(bool enable)
 {
   ahrs_finv_output_enabled = enable;
   return ahrs_finv_output_enabled;

@@ -130,14 +130,23 @@ let get_module = fun m global_targets ->
  * Test if [target] is allowed [targets]
  * Return true if target is allowed, false if target is not in list or rejected (prefixed by !) *)
 let test_targets = fun target targets ->
-  List.exists (fun t ->
-  let l = String.length t in
-  (* test for inverted selection *)
-  if l > 0 && t.[0] = '!' then
-  not ((String.sub t 1 (l-1)) = target)
-  else
-  t = target
-  ) targets
+  (* test for inverted selection
+   * FIXME: only the first target should have the invert sign ('!')
+   *)
+  let inv =
+    try
+      let hd = List.hd targets in
+      if String.get hd 0 = '!' then not
+      else (fun x -> x)
+    with _ -> (fun x -> x)
+  in
+  (* return inverted result if needed *)
+  inv (List.exists (fun t ->
+    let l = String.length t in
+    (* remove first char if invert sign *)
+    let t = if l > 0 && t.[0] = '!' then String.sub t 1 (l-1) else t in
+    t = target
+  ) targets)
 
 (** [get_modules_of_airframe xml]
  * Returns a list of module configuration from airframe file *)
@@ -250,7 +259,7 @@ let get_modules_name = fun xml ->
     * Returns the list of modules directories *)
 let get_modules_dir = fun modules ->
   let dir = List.map (fun m -> try Xml.attrib m.xml "dir" with _ -> ExtXml.attrib m.xml "name") modules in
-  singletonize (List.sort compare dir)
+  singletonize dir
 
 (** [is_element_unselected target modules file]
  * Returns True if [target] is supported in the element [file] and, if it is

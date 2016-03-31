@@ -123,10 +123,10 @@ void vn200_parse(struct VNPacket *vnp, uint8_t c)
       vnp->msg_idx++;
       if (vnp->msg_idx == (vnp->datalength + 2)) {
         if (verify_chk(vnp->msg_buf, vnp->datalength, &(vnp->calc_chk), &(vnp->rec_chk))) {
-          vnp->msg_available = TRUE;
+          vnp->msg_available = true;
           vnp->counter++;
         } else {
-          vnp->msg_available = FALSE;
+          vnp->msg_available = false;
           vnp->chksm_error++;
         }
         vnp->status = VNMsgSync;

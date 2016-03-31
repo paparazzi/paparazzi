@@ -102,8 +102,8 @@
 #define IMU_ACCEL_Z_NEUTRAL 0
 #endif
 
-extern volatile bool_t gyr_valid;
-extern volatile bool_t acc_valid;
+extern volatile bool gyr_valid;
+extern volatile bool acc_valid;
 
 struct ImuUmarim {
   struct Itg3200 itg;

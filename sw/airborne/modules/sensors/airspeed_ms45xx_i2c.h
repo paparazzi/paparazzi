@@ -35,7 +35,7 @@ struct AirspeedMs45xx {
   float airspeed_scale;  ///< quadratic scale factor to convert differential pressure to airspeed
   float pressure_scale;  ///< scaling factor from raw measurement to Pascal
   float pressure_offset; ///< offset in Pascal
-  bool_t sync_send;      ///< flag to enable sending every new measurement via telemetry
+  bool sync_send;      ///< flag to enable sending every new measurement via telemetry
 };
 
 extern struct AirspeedMs45xx ms45xx;

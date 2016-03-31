@@ -66,7 +66,7 @@ static void launchBatterySurveyThread (void)
 // Functions for the generic device API
 static int sdlog_check_free_space(struct chibios_sdlog* p __attribute__((unused)), uint8_t len __attribute__((unused)))
 {
-  return TRUE;
+  return true;
 }
 
 static void sdlog_transmit(struct chibios_sdlog* p, uint8_t byte)
@@ -92,7 +92,7 @@ void chibios_sdlog_init(struct chibios_sdlog *sdlog, FileDes *file)
 
 }
 
-bool_t chibios_logInit(void)
+bool chibios_logInit(void)
 {
   nvicSetSystemHandlerPriority(HANDLER_PENDSV,
              CORTEX_PRIORITY_MASK(15));
@@ -115,14 +115,14 @@ bool_t chibios_logInit(void)
 
   launchBatterySurveyThread ();
 
-  return TRUE;
+  return true;
 
 error:
-  return FALSE;
+  return false;
 }
 
 
-void chibios_logFinish(bool_t flush)
+void chibios_logFinish(bool flush)
 {
   if (pprzLogFile != -1) {
     sdLogCloseAllLogs(flush);

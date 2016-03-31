@@ -53,10 +53,10 @@ void ak8975_init(struct Ak8975 *ak, struct i2c_periph *i2c_p, uint8_t addr)
 
   ak->i2c_trans.status = I2CTransDone;
 
-  ak->initialized = FALSE;
+  ak->initialized = false;
   ak->status = AK_STATUS_IDLE;
   ak->init_status = AK_CONF_UNINIT;
-  ak->data_available = FALSE;
+  ak->data_available = false;
 }
 
 // Configure
@@ -102,7 +102,7 @@ void ak8975_configure(struct Ak8975 *ak)
       break;
 
     case AK_CONF_REQUESTED:
-      ak->initialized = TRUE;
+      ak->initialized = true;
       break;
 
     default:
@@ -159,9 +159,9 @@ void ak8975_event(struct Ak8975 *ak)
         //     1 byte
 
         // Read status and error bytes
-        const bool_t dr = ak->i2c_trans.buf[0] & 0x01; // data ready
-        const bool_t de = ak->i2c_trans.buf[7] & 0x04; // data error
-        const bool_t mo = ak->i2c_trans.buf[7] & 0x08; // mag overflow
+        const bool dr = ak->i2c_trans.buf[0] & 0x01; // data ready
+        const bool de = ak->i2c_trans.buf[7] & 0x04; // data error
+        const bool mo = ak->i2c_trans.buf[7] & 0x08; // mag overflow
         if (de || !dr) {
           // read error or data not ready, keep reading
           break;
@@ -178,7 +178,7 @@ void ak8975_event(struct Ak8975 *ak)
         ak->data.vect.y = Int16FromRaw(val);
         val = RawFromBuf(ak->i2c_trans.buf, 5);
         ak->data.vect.z = Int16FromRaw(val);
-        ak->data_available = TRUE;
+        ak->data_available = true;
         // End reading, back to idle
         ak->status = AK_STATUS_IDLE;
         break;

@@ -56,7 +56,7 @@
 
 void sbus_common_init(struct Sbus *sbus_p, struct uart_periph *dev)
 {
-  sbus_p->frame_available = FALSE;
+  sbus_p->frame_available = false;
   sbus_p->status = SBUS_STATUS_UNINIT;
 
   // Set UART parameters (100K, 8 bits, 2 stops, even parity)
@@ -73,7 +73,7 @@ void sbus_common_init(struct Sbus *sbus_p, struct uart_periph *dev)
 
 
 /** Decode the raw buffer */
-static void decode_sbus_buffer(const uint8_t *src, uint16_t *dst, bool_t *available,
+static void decode_sbus_buffer(const uint8_t *src, uint16_t *dst, bool *available,
                                uint16_t *dstppm)
 {
   // reset counters

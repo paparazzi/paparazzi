@@ -66,7 +66,7 @@ uint8_t Poly_Size = POLYSURVEY_DEFAULT_SIZE;
 float Poly_Distance = POLYSURVEY_DEFAULT_DISTANCE;
 
 
-bool_t nav_survey_poly_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
+bool nav_survey_poly_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
 {
   float dx = waypoints[SecondWP].enu_f.x - waypoints[FirstWP].enu_f.x;
   float dy = waypoints[SecondWP].enu_f.y - waypoints[FirstWP].enu_f.y;
@@ -128,7 +128,7 @@ uint16_t PolySurveySweepBackNum;
 float EntryRadius;
 
 //=========================================================================================================================
-bool_t nav_survey_poly_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
+bool nav_survey_poly_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
 {
   SmallestCorner.x = 0;
   SmallestCorner.y = 0;
@@ -162,7 +162,7 @@ bool_t nav_survey_poly_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orie
   CSurveyStatus = Init;
 
   if (Size == 0) {
-    return TRUE;
+    return true;
   }
 
   //Don't initialize if Polygon is too big or if the orientation is not between 0 and 90
@@ -309,11 +309,11 @@ bool_t nav_survey_poly_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orie
 
   }
 
-  return FALSE;
+  return false;
 }
 
 //=========================================================================================================================
-bool_t nav_survey_poly_run(void)
+bool nav_survey_poly_run(void)
 {
 
   struct EnuCoor_f C;
@@ -322,8 +322,8 @@ bool_t nav_survey_poly_run(void)
   float ys = 0;
   static struct EnuCoor_f LastPoint;
   int i;
-  bool_t LastHalfSweep;
-  static bool_t HalfSweep = FALSE;
+  bool LastHalfSweep;
+  static bool HalfSweep = false;
   float XIntercept1 = 0;
   float XIntercept2 = 0;
   float DInt1 = 0;
@@ -392,10 +392,10 @@ bool_t nav_survey_poly_run(void)
           }
 
           if (LastHalfSweep) {
-            HalfSweep = FALSE;
+            HalfSweep = false;
             ys = LastPoint.y + (dSweep);
           } else {
-            HalfSweep = TRUE;
+            HalfSweep = true;
             ys = LastPoint.y + (dSweep / 2);
           }
 
@@ -403,7 +403,7 @@ bool_t nav_survey_poly_run(void)
           //fprintf(stderr,"cabe interiro\n");
 
           //Find y value of the first sweep
-          HalfSweep = FALSE;
+          HalfSweep = false;
           ys = LastPoint.y + dSweep;
         }
 
@@ -490,12 +490,12 @@ bool_t nav_survey_poly_run(void)
 
       break;
     case Init:
-      return FALSE;
+      return false;
     default:
-      return FALSE;
+      return false;
   }
 
-  return TRUE;
+  return true;
 
 }
 

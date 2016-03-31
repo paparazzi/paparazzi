@@ -83,7 +83,7 @@ void nmea_configure(void)
       return;
     }
   }
-  gps_nmea.is_configured = TRUE;
+  gps_nmea.is_configured = true;
 }
 
 void nmea_parse_prop_init(void)

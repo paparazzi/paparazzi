@@ -81,10 +81,10 @@ PRINT_CONFIG_VAR(APOGEE_MAG_FREQ)
 PRINT_CONFIG_VAR(MAG_PRESCALER)
 
 // mag config will be done later in bypass mode
-bool_t configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
-bool_t configure_mag_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)), void *mpu __attribute__((unused)))
+bool configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
+bool configure_mag_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)), void *mpu __attribute__((unused)))
 {
-  return TRUE;
+  return true;
 }
 
 #endif
@@ -92,10 +92,10 @@ bool_t configure_mag_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)), voi
 struct ImuApogee imu_apogee;
 
 // baro config will be done later in bypass mode
-bool_t configure_baro_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
-bool_t configure_baro_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)), void *mpu __attribute__((unused)))
+bool configure_baro_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
+bool configure_baro_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)), void *mpu __attribute__((unused)))
 {
-  return TRUE;
+  return true;
 }
 
 void imu_impl_init(void)
@@ -111,7 +111,7 @@ void imu_impl_init(void)
   // set MPU in bypass mode for the baro
   imu_apogee.mpu.config.nb_slaves = 1;
   imu_apogee.mpu.config.slaves[0].configure = &configure_baro_slave;
-  imu_apogee.mpu.config.i2c_bypass = TRUE;
+  imu_apogee.mpu.config.i2c_bypass = true;
 #if APOGEE_USE_MPU9150
   // if using MPU9150, internal mag needs to be configured
   ak8975_init(&imu_apogee.ak, &(IMU_APOGEE_I2C_DEV), AK8975_I2C_SLV_ADDR);
@@ -161,7 +161,7 @@ void imu_apogee_event(void)
         (int32_t)(-imu_apogee.mpu.data_accel.value[IMU_APOGEE_CHAN_Z])
     };
     VECT3_COPY(imu.accel_unscaled, accel);
-    imu_apogee.mpu.data_available = FALSE;
+    imu_apogee.mpu.data_available = false;
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
     AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
@@ -177,7 +177,7 @@ void imu_apogee_event(void)
         (int32_t)( imu_apogee.ak.data.value[IMU_APOGEE_CHAN_Z])
     };
     VECT3_COPY(imu.mag_unscaled, mag);
-    imu_apogee.ak.data_available = FALSE;
+    imu_apogee.ak.data_available = false;
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }

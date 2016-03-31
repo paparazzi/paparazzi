@@ -156,7 +156,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   image_create(&opticflow->prev_img_gray, w, h, IMAGE_GRAYSCALE);
 
   /* Set the previous values */
-  opticflow->got_first_img = FALSE;
+  opticflow->got_first_img = false;
   opticflow->prev_phi = 0.0;
   opticflow->prev_theta = 0.0;
 
@@ -203,7 +203,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   // Copy to previous image if not set
   if (!opticflow->got_first_img) {
     image_copy(&opticflow->img_gray, &opticflow->prev_img_gray);
-    opticflow->got_first_img = TRUE;
+    opticflow->got_first_img = true;
   }
 
   // *************************************************************************************

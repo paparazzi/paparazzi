@@ -52,7 +52,7 @@ void stabilization_none_enter(void)
   INT_RATES_ZERO(stabilization_none_rc_cmd);
 }
 
-void stabilization_none_run(bool_t in_flight __attribute__((unused)))
+void stabilization_none_run(bool in_flight __attribute__((unused)))
 {
   /* just directly pass rc commands through */
   stabilization_cmd[COMMAND_ROLL]  = stabilization_none_rc_cmd.p;

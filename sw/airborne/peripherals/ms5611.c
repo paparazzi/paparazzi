@@ -33,7 +33,7 @@
  * Check if CRC of PROM data is OK.
  * @return TRUE if OK, FALSE otherwise
  */
-bool_t ms5611_prom_crc_ok(uint16_t *prom)
+bool ms5611_prom_crc_ok(uint16_t *prom)
 {
   int32_t i, j;
   uint32_t res = 0;
@@ -54,9 +54,9 @@ bool_t ms5611_prom_crc_ok(uint16_t *prom)
   }
   prom[7] |= crc;
   if (crc == ((res >> 12) & 0xF)) {
-    return TRUE;
+    return true;
   } else {
-    return FALSE;
+    return false;
   }
 }
 
@@ -64,7 +64,7 @@ bool_t ms5611_prom_crc_ok(uint16_t *prom)
  * Calculate temperature and compensated pressure for MS5611.
  * @return TRUE if measurement was valid, FALSE otherwise
  */
-bool_t ms5611_calc(struct Ms5611Data *ms)
+bool ms5611_calc(struct Ms5611Data *ms)
 {
   int64_t dt, tempms, off, sens, t2, off2, sens2;
 
@@ -97,9 +97,9 @@ bool_t ms5611_calc(struct Ms5611Data *ms)
     /* temperature in deg Celsius with 0.01 degC resolultion */
     ms->temperature = (int32_t)tempms;
     ms->pressure = p;
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 /**
@@ -107,7 +107,7 @@ bool_t ms5611_calc(struct Ms5611Data *ms)
  * MS5607 basically has half the resolution of the MS5611.
  * @return TRUE if measurement was valid, FALSE otherwise
  */
-bool_t ms5607_calc(struct Ms5611Data *ms)
+bool ms5607_calc(struct Ms5611Data *ms)
 {
   int64_t dt, tempms, off, sens, t2, off2, sens2;
 
@@ -140,7 +140,7 @@ bool_t ms5607_calc(struct Ms5611Data *ms)
     /* temperature in deg Celsius with 0.01 degC resolultion */
     ms->temperature = (int32_t)tempms;
     ms->pressure = p;
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }

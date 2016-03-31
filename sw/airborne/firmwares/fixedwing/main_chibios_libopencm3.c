@@ -47,8 +47,8 @@
 
 
 static int32_t pprz_thd(void *arg);
-static bool_t sdlogOk ;
-bool_t pprzReady = FALSE;
+static bool sdlogOk ;
+bool pprzReady = false;
 
 int main(void)
 {
@@ -65,7 +65,7 @@ int main(void)
   chibios_chThdSleepMilliseconds(100);
 
   launch_pprz_thd(&pprz_thd);
-  pprzReady = TRUE;
+  pprzReady = true;
   // Call PPRZ periodic and event functions
   while (TRUE) {
     chibios_chThdSleepMilliseconds(1000);

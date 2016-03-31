@@ -28,12 +28,12 @@
 #include "subsystems/radio_control.h"
 
 int8_t rc_dl_values[ RC_DL_NB_CHANNEL ];
-volatile bool_t rc_dl_frame_available;
+volatile bool rc_dl_frame_available;
 
 
 void radio_control_impl_init(void)
 {
-  rc_dl_frame_available = FALSE;
+  rc_dl_frame_available = false;
 }
 
 
@@ -50,7 +50,7 @@ void parse_rc_3ch_datalink(uint8_t throttle_mode,
   rc_dl_values[RADIO_MODE] = (int8_t)mode;
   rc_dl_values[RADIO_YAW] = 0;
 
-  rc_dl_frame_available = TRUE;
+  rc_dl_frame_available = true;
 }
 
 void parse_rc_4ch_datalink(
@@ -66,7 +66,7 @@ void parse_rc_4ch_datalink(
   rc_dl_values[RADIO_PITCH] = pitch;
   rc_dl_values[RADIO_YAW] = yaw;
 
-  rc_dl_frame_available = TRUE;
+  rc_dl_frame_available = true;
 }
 
 /**
@@ -95,6 +95,6 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
     radio_control.status = RC_OK;
     rc_datalink_normalize(rc_dl_values, radio_control.values);
     _received_frame_handler();
-    rc_dl_frame_available = FALSE;
+    rc_dl_frame_available = false;
   }
 }

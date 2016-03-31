@@ -21,12 +21,13 @@
  */
 
 /** @file stabilization_attitude_quat_indi.c
- * MAVLab Delft University of Technology
+ * @brief MAVLab Delft University of Technology
  * This control algorithm is Incremental Nonlinear Dynamic Inversion (INDI)
  *
- * This is a simplified implementation of the (soon to be) publication in the
+ * This is a simplified implementation of the publication in the
  * journal of Control Guidance and Dynamics: Adaptive Incremental Nonlinear
  * Dynamic Inversion for Attitude Control of Micro Aerial Vehicles
+ * http://arc.aiaa.org/doi/pdf/10.2514/1.G001490
  */
 
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
@@ -43,6 +44,8 @@
 #error You have to define the first order time constant of the actuator dynamics!
 #endif
 
+// these parameters are used in the filtering of the angular acceleration
+// define them in the airframe file if different values are required
 #ifndef STABILIZATION_INDI_FILT_OMEGA
 #define STABILIZATION_INDI_FILT_OMEGA 50.0
 #endif
@@ -51,6 +54,7 @@
 #define STABILIZATION_INDI_FILT_ZETA 0.55
 #endif
 
+// the yaw sometimes requires more filtering
 #ifndef STABILIZATION_INDI_FILT_OMEGA_R
 #define STABILIZATION_INDI_FILT_OMEGA_R STABILIZATION_INDI_FILT_OMEGA
 #endif
@@ -71,7 +75,7 @@ struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
 
 static int32_t stabilization_att_indi_cmd[COMMANDS_NB];
-static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct Int32Quat *att_err, bool_t rate_control);
+static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct Int32Quat *att_err, bool rate_control);
 static void stabilization_indi_second_order_filter_init(struct IndiFilter *filter, float omega, float zeta, float omega_r);
 static void stabilization_indi_second_order_filter(struct IndiFilter *filter, struct FloatRates *input);
 static inline void lms_estimation(void);
@@ -196,7 +200,7 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
   quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
 }
 
-static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct Int32Quat *att_err, bool_t rate_control)
+static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct Int32Quat *att_err, bool rate_control)
 {
   /* Propagate the second order filter on the gyroscopes */
   struct FloatRates *body_rates = stateGetBodyRates_f();
@@ -231,8 +235,8 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
     indi.angular_accel_ref.r =  indi.reference_acceleration.rate_r * ((float)radio_control.values[RADIO_YAW]   / MAX_PPRZ * indi.max_rate - body_rates->r);
   }
 
-  //Incremented in angular acceleration requires increment in control input
-  //G1 is the actuator effectiveness. In the yaw axis, we need something additional: G2.
+  //Increment in angular acceleration requires increment in control input
+  //G1 is the control effectiveness. In the yaw axis, we need something additional: G2.
   //It takes care of the angular acceleration caused by the change in rotation rate of the propellers
   //(they have significant inertia, see the paper mentioned in the header for more explanation)
   indi.du.p = 1.0 / indi.g1.p * (indi.angular_accel_ref.p - indi.rate.dx.p);
@@ -259,6 +263,8 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
   stabilization_indi_second_order_filter(&indi.u, &indi.u_act_dyn);
 
   //Don't increment if thrust is off
+  //TODO: this should be something more elegant, but without this the inputs will increment to the maximum before
+  //even getting in the air.
   if (stabilization_cmd[COMMAND_THRUST] < 300) {
     FLOAT_RATES_ZERO(indi.du);
     FLOAT_RATES_ZERO(indi.u_act_dyn);
@@ -267,6 +273,7 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
     FLOAT_RATES_ZERO(indi.u.dx);
     FLOAT_RATES_ZERO(indi.u.ddx);
   } else {
+    // only run the estimation if the commands are not zero.
     lms_estimation();
   }
 
@@ -276,7 +283,7 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
   indi_commands[COMMAND_YAW] = indi.u_in.r;
 }
 
-void stabilization_indi_run(bool_t enable_integrator __attribute__((unused)), bool_t rate_control)
+void stabilization_indi_run(bool enable_integrator __attribute__((unused)), bool rate_control)
 {
   /* attitude error                          */
   struct Int32Quat att_err;
@@ -301,7 +308,7 @@ void stabilization_indi_run(bool_t enable_integrator __attribute__((unused)), bo
 }
 
 // This function reads rc commands
-void stabilization_indi_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn)
+void stabilization_indi_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)
 {
   struct FloatQuat q_sp;
 #if USE_EARTH_BOUND_RC_SETPOINT

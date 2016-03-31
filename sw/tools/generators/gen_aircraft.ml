@@ -103,7 +103,6 @@ let file_xml2mk = fun f ?(arch = false) dir_name target xml ->
   fprintf f fmt target dir_name name
 
 let module_xml2mk = fun f target firmware m ->
-  if not (List.mem target m.targets) then () else
   let name = ExtXml.attrib m.xml "name" in
   let dir = try Xml.attrib m.xml "dir" with Xml.No_attribute _ -> name in
   let dir_name = String.uppercase dir ^ "_DIR" in

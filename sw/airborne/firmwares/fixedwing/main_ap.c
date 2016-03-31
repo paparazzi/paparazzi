@@ -347,13 +347,13 @@ static inline uint8_t pprz_mode_update(void)
     }
 #endif // RADIO_AUTO_MODE
   } else {
-    return FALSE;
+    return false;
   }
 }
 #else // not RADIO_CONTROL
 static inline uint8_t pprz_mode_update(void)
 {
-  return FALSE;
+  return false;
 }
 #endif
 
@@ -361,11 +361,11 @@ static inline uint8_t mcu1_status_update(void)
 {
   uint8_t new_status = fbw_state->status;
   if (mcu1_status != new_status) {
-    bool_t changed = ((mcu1_status & MASK_FBW_CHANGED) != (new_status & MASK_FBW_CHANGED));
+    bool changed = ((mcu1_status & MASK_FBW_CHANGED) != (new_status & MASK_FBW_CHANGED));
     mcu1_status = new_status;
     return changed;
   }
-  return FALSE;
+  return false;
 }
 
 
@@ -390,7 +390,7 @@ static inline void copy_from_to_fbw(void)
  */
 static inline void telecommand_task(void)
 {
-  uint8_t mode_changed = FALSE;
+  uint8_t mode_changed = false;
   copy_from_to_fbw();
 
   /* really_lost is true if we lost RC in MANUAL or AUTO1 */
@@ -400,18 +400,18 @@ static inline void telecommand_task(void)
   if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch) {
     if (too_far_from_home) {
       pprz_mode = PPRZ_MODE_HOME;
-      mode_changed = TRUE;
+      mode_changed = true;
     }
     if (really_lost) {
       pprz_mode = RC_LOST_MODE;
-      mode_changed = TRUE;
+      mode_changed = true;
     }
   }
   if (bit_is_set(fbw_state->status, AVERAGED_CHANNELS_SENT)) {
-    bool_t pprz_mode_changed = pprz_mode_update();
+    bool pprz_mode_changed = pprz_mode_update();
     mode_changed |= pprz_mode_changed;
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
-    bool_t calib_mode_changed = RcSettingsModeUpdate(fbw_state->channels);
+    bool calib_mode_changed = RcSettingsModeUpdate(fbw_state->channels);
     rc_settings(calib_mode_changed || pprz_mode_changed);
     mode_changed |= calib_mode_changed;
 #endif
@@ -455,7 +455,7 @@ static inline void telecommand_task(void)
 #ifndef SITL
   if (!autopilot_flight_time) {
     if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
-      launch = TRUE;
+      launch = true;
     }
   }
 #endif
@@ -471,14 +471,14 @@ static inline void telecommand_task(void)
  */
 void reporting_task(void)
 {
-  static uint8_t boot = TRUE;
+  static uint8_t boot = true;
 
   /* initialisation phase during boot */
   if (boot) {
 #if DOWNLINK
     send_autopilot_version(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
-    boot = FALSE;
+    boot = false;
   }
   /* then report periodicly */
   else {
@@ -511,12 +511,12 @@ void navigation_task(void)
         last_pprz_mode = pprz_mode;
         pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
         autopilot_send_mode();
-        gps_lost = TRUE;
+        gps_lost = true;
       }
     } else if (gps_lost) { /* GPS is ok */
       /** If aircraft was in failsafe mode, come back in previous mode */
       pprz_mode = last_pprz_mode;
-      gps_lost = FALSE;
+      gps_lost = false;
       autopilot_send_mode();
     }
   }
@@ -550,7 +550,7 @@ void navigation_task(void)
       || pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER) {
 #ifdef H_CTL_RATE_LOOP
     /* Be sure to be in attitude mode, not roll */
-    h_ctl_auto1_rate = FALSE;
+    h_ctl_auto1_rate = false;
 #endif
     if (lateral_mode >= LATERAL_MODE_COURSE) {
       h_ctl_course_loop();  /* aka compute nav_desired_roll */
@@ -607,7 +607,7 @@ void attitude_loop(void)
   link_mcu_send();
 #elif defined INTER_MCU && defined SINGLE_MCU
   /**Directly set the flag indicating to FBW that shared buffer is available*/
-  inter_mcu_received_ap = TRUE;
+  inter_mcu_received_ap = true;
 #endif
 
 }
@@ -677,7 +677,7 @@ void monitor_task(void)
   if (!autopilot_flight_time &&
       stateGetHorizontalSpeedNorm_f() > MIN_SPEED_FOR_TAKEOFF) {
     autopilot_flight_time = 1;
-    launch = TRUE; /* Not set in non auto launch */
+    launch = true; /* Not set in non auto launch */
 #if DOWNLINK
     uint16_t time_sec = sys_time.nb_sec;
     DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &time_sec);
@@ -723,7 +723,7 @@ void event_task_ap(void)
 
   if (inter_mcu_received_fbw) {
     /* receive radio control task from fbw */
-    inter_mcu_received_fbw = FALSE;
+    inter_mcu_received_fbw = false;
     telecommand_task();
   }
 

@@ -66,9 +66,9 @@ extern void gpio_setup_input_pulldown(uint32_t port, uint16_t gpios);
  * This is an STM32 specific helper funtion and should only be used in stm32 arch code.
  */
 #if defined(STM32F1)
-extern void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint32_t af, bool_t is_output);
+extern void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint32_t af, bool is_output);
 #else
-extern void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output);
+extern void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool is_output);
 #endif
 
 /**

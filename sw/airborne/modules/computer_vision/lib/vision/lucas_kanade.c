@@ -1,11 +1,4 @@
 /*
- * lucas_kanade.c
- *
- *  Created on: Jan 11, 2016
- *      Author: hrvoje
- */
-
-/*
  * Copyright (C) 2014 G. de Croon
  *               2015 Freek van Tienen <freek.v.tienen@gmail.com>
  *               2016 Hrvoje Brezak <hrvoje.brezak@gmail.com>
@@ -44,6 +37,8 @@
 
 
 /**
+ * @file lucas_kanade.c
+ *
  * Compute the optical flow of several points using the pyramidal Lucas-Kanade algorithm by Yves Bouguet
  * The initial fixed-point implementation is done by G. de Croon and is adapted by
  * Freek van Tienen for the implementation in Paparazzi.
@@ -59,27 +54,26 @@
  * @param[in] max_points The maximum amount of points to track, we skip x points and then take a point.
  * @param[in] pyramid_level Level of pyramid used in computation (0 == no pyramids used)
  * @return The vectors from the original *points in subpixels
+ *
+ * Pyramidal implementation of Lucas-Kanade feature tracker.
+ *
+ * Uses input images to build pyramid of padded images.
+ * <p>For every pyramid level:</p>
+ * <p>  For all points:</p>
+ * - (1) determine the subpixel neighborhood in the old image
+ * - (2) get the x- and y- gradients
+ * - (3) determine the 'G'-matrix [sum(Axx) sum(Axy); sum(Axy) sum(Ayy)], where sum is over the window
+ * - (4) iterate over taking steps in the image to minimize the error:
+ *   + [a] get the subpixel neighborhood in the new image
+ *   + [b] determine the image difference between the two neighborhoods
+ *   + [c] calculate the 'b'-vector
+ *   + [d] calculate the additional flow step and possibly terminate the iteration
+ * - (5) use calculated flow as initial flow estimation for next level of pyramid
  */
 struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, struct point_t *points,
                            uint16_t *points_cnt, uint16_t half_window_size,
                            uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold, uint8_t max_points, uint8_t pyramid_level)
 {
-
-
-  // Pyramidal implementation of Lucas-Kanade feature tracker.
-  // Uses input images to build pyramid of padded images.
-  // For every pyramid level:
-  //    For all points:
-  //      (1) determine the subpixel neighborhood in the old image
-  //      (2) get the x- and y- gradients
-  //      (3) determine the 'G'-matrix [sum(Axx) sum(Axy); sum(Axy) sum(Ayy)], where sum is over the window
-  //      (4) iterate over taking steps in the image to minimize the error:
-  //          [a] get the subpixel neighborhood in the new image
-  //          [b] determine the image difference between the two neighborhoods
-  //          [c] calculate the 'b'-vector
-  //          [d] calculate the additional flow step and possibly terminate the iteration
-  //      (5) use calculated flow as initial flow estimation for next level of pyramid
-
   // Allocate some memory for returning the vectors
   struct flow_t *vectors = malloc(sizeof(struct flow_t) * max_points);
 
@@ -162,7 +156,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
       }
 
       // (4) iterate over taking steps in the image to minimize the error:
-      bool_t tracked = TRUE;
+      bool tracked = true;
 
       for (uint8_t it = max_iterations; it--;) {
         struct point_t new_point = { vectors[new_p].pos.x  + vectors[new_p].flow_x,
@@ -175,7 +169,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
             || (new_point.x > ((pyramid_new[LVL].w - 1 - 2 * border_size)*subpixel_factor))
             || (((int32_t)vectors[new_p].pos.y  + vectors[new_p].flow_y) < 0)
             || (new_point.y > ((pyramid_new[LVL].h - 1 - 2 * border_size)*subpixel_factor))) {
-          tracked = FALSE;
+          tracked = false;
           break;
         }
 
@@ -186,7 +180,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
         uint32_t error = image_difference(&window_I, &window_J, &window_diff);
 
         if (error > error_threshold && it < max_iterations / 2) {
-          tracked = FALSE;
+          tracked = false;
           break;
         }
 

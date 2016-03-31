@@ -136,7 +136,7 @@ void firmware_parse_msg(void)
         uint8_t l = DL_HITL_UBX_ubx_payload_length(dl_buffer);
         uint8_t *ubx_payload = DL_HITL_UBX_ubx_payload(dl_buffer);
         memcpy(ubx_msg_buf, ubx_payload, l);
-        gps_msg_received = TRUE;
+        gps_msg_received = true;
       }
     }
     break;

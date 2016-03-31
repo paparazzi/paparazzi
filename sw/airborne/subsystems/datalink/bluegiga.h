@@ -72,7 +72,7 @@ struct bluegiga_periph {
 extern struct bluegiga_periph bluegiga_p;
 extern signed char bluegiga_rssi[];    // values initialized with 127
 
-bool_t bluegiga_ch_available(struct bluegiga_periph *p);
+bool bluegiga_ch_available(struct bluegiga_periph *p);
 void bluegiga_increment_buf(uint8_t *buf_idx, uint8_t len);
 
 void bluegiga_init(struct bluegiga_periph *p);

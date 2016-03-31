@@ -97,9 +97,9 @@ struct spi_periph_dma {
   uint8_t  rx_nvic_irq;            ///< receive interrupt
   uint8_t  tx_nvic_irq;            ///< transmit interrupt
   uint16_t tx_dummy_buf;           ///< dummy tx buffer for receive only cases
-  bool_t tx_extra_dummy_dma;       ///< extra tx dummy dma flag for tx_len < rx_len
+  bool tx_extra_dummy_dma;       ///< extra tx dummy dma flag for tx_len < rx_len
   uint16_t rx_dummy_buf;           ///< dummy rx buffer for receive only cases
-  bool_t rx_extra_dummy_dma;       ///< extra rx dummy dma flag for tx_len > rx_len
+  bool rx_extra_dummy_dma;       ///< extra rx dummy dma flag for tx_len > rx_len
   struct locm3_spi_comm comm;      ///< current communication parameters
   uint8_t  comm_sig;               ///< comm config signature used to check for changes
 };
@@ -121,7 +121,7 @@ static struct spi_periph_dma spi3_dma;
 static void spi_start_dma_transaction(struct spi_periph *periph, struct spi_transaction *_trans);
 static void spi_next_transaction(struct spi_periph *periph);
 static void spi_configure_dma(uint32_t dma, uint32_t rcc_dma, uint8_t chan, uint32_t periph_addr, uint32_t buf_addr,
-                              uint16_t len, enum SPIDataSizeSelect dss, bool_t increment);
+                              uint16_t len, enum SPIDataSizeSelect dss, bool increment);
 static void __attribute__((unused)) process_rx_dma_interrupt(struct spi_periph *periph);
 static void __attribute__((unused)) process_tx_dma_interrupt(struct spi_periph *periph);
 static void spi_arch_int_enable(struct spi_periph *spi);
@@ -260,14 +260,14 @@ void spi_init_slaves(void)
  * Implementation of the generic SPI functions
  *
  *****************************************************************************/
-bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
+bool spi_submit(struct spi_periph *p, struct spi_transaction *t)
 {
   uint8_t idx;
   idx = p->trans_insert_idx + 1;
   if (idx >= SPI_TRANSACTION_QUEUE_LEN) { idx = 0; }
   if ((idx == p->trans_extract_idx) || ((t->input_length == 0) && (t->output_length == 0))) {
     t->status = SPITransFailed;
-    return FALSE; /* queue full or input_length and output_length both 0 */
+    return false; /* queue full or input_length and output_length both 0 */
     // TODO can't tell why it failed here if it does
   }
 
@@ -287,22 +287,22 @@ bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
   }
   //FIXME
   spi_arch_int_enable(p);
-  return TRUE;
+  return true;
 }
 
-bool_t spi_lock(struct spi_periph *p, uint8_t slave)
+bool spi_lock(struct spi_periph *p, uint8_t slave)
 {
   spi_arch_int_disable(p);
   if (slave < 254 && p->suspend == 0) {
     p->suspend = slave + 1; // 0 is reserved for unlock state
     spi_arch_int_enable(p);
-    return TRUE;
+    return true;
   }
   spi_arch_int_enable(p);
-  return FALSE;
+  return false;
 }
 
-bool_t spi_resume(struct spi_periph *p, uint8_t slave)
+bool spi_resume(struct spi_periph *p, uint8_t slave)
 {
   spi_arch_int_disable(p);
   if (p->suspend == slave + 1) {
@@ -312,10 +312,10 @@ bool_t spi_resume(struct spi_periph *p, uint8_t slave)
       spi_start_dma_transaction(p, p->trans[p->trans_extract_idx]);
     }
     spi_arch_int_enable(p);
-    return TRUE;
+    return true;
   }
   spi_arch_int_enable(p);
-  return FALSE;
+  return false;
 }
 
 
@@ -456,7 +456,7 @@ static void set_comm_from_transaction(struct locm3_spi_comm *c, struct spi_trans
  *
  *****************************************************************************/
 static void spi_configure_dma(uint32_t dma, uint32_t rcc_dma, uint8_t chan, uint32_t periph_addr, uint32_t buf_addr,
-                              uint16_t len, enum SPIDataSizeSelect dss, bool_t increment)
+                              uint16_t len, enum SPIDataSizeSelect dss, bool increment)
 {
   rcc_periph_clock_enable(rcc_dma);
 #ifdef STM32F1
@@ -603,7 +603,7 @@ static void spi_start_dma_transaction(struct spi_periph *periph, struct spi_tran
     /* use dummy rx dma for the rest */
     if (trans->output_length > trans->input_length) {
       /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
-      dma->rx_extra_dummy_dma = TRUE;
+      dma->rx_extra_dummy_dma = true;
     }
   }
 #ifdef STM32F1
@@ -634,7 +634,7 @@ static void spi_start_dma_transaction(struct spi_periph *periph, struct spi_tran
                       (uint32_t)trans->output_buf, trans->output_length, trans->dss, TRUE);
     if (trans->input_length > trans->output_length) {
       /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
-      dma->tx_extra_dummy_dma = TRUE;
+      dma->tx_extra_dummy_dma = true;
     }
   }
 #ifdef STM32F1
@@ -696,9 +696,9 @@ void spi1_arch_init(void)
   spi1_dma.tx_nvic_irq = NVIC_DMA2_STREAM5_IRQ;
 #endif
   spi1_dma.tx_dummy_buf = 0;
-  spi1_dma.tx_extra_dummy_dma = FALSE;
+  spi1_dma.tx_extra_dummy_dma = false;
   spi1_dma.rx_dummy_buf = 0;
-  spi1_dma.rx_extra_dummy_dma = FALSE;
+  spi1_dma.rx_extra_dummy_dma = false;
 
   // set the default configuration
   set_default_comm_config(&spi1_dma.comm);
@@ -784,9 +784,9 @@ void spi2_arch_init(void)
   spi2_dma.tx_nvic_irq = NVIC_DMA1_STREAM4_IRQ;
 #endif
   spi2_dma.tx_dummy_buf = 0;
-  spi2_dma.tx_extra_dummy_dma = FALSE;
+  spi2_dma.tx_extra_dummy_dma = false;
   spi2_dma.rx_dummy_buf = 0;
-  spi2_dma.rx_extra_dummy_dma = FALSE;
+  spi2_dma.rx_extra_dummy_dma = false;
 
   // set the default configuration
   set_default_comm_config(&spi2_dma.comm);
@@ -873,9 +873,9 @@ void spi3_arch_init(void)
   spi3_dma.tx_nvic_irq = NVIC_DMA1_STREAM5_IRQ;
 #endif
   spi3_dma.tx_dummy_buf = 0;
-  spi3_dma.tx_extra_dummy_dma = FALSE;
+  spi3_dma.tx_extra_dummy_dma = false;
   spi3_dma.rx_dummy_buf = 0;
-  spi3_dma.rx_extra_dummy_dma = FALSE;
+  spi3_dma.rx_extra_dummy_dma = false;
 
   // set the default configuration
   set_default_comm_config(&spi3_dma.comm);
@@ -1087,7 +1087,7 @@ void process_rx_dma_interrupt(struct spi_periph * periph) {
      */
 
     /* Reset the flag so this only happens once in a transaction */
-    dma->rx_extra_dummy_dma = FALSE;
+    dma->rx_extra_dummy_dma = false;
 
     /* Use the difference in length between rx and tx */
     uint16_t len_remaining = trans->output_length - trans->input_length;
@@ -1161,7 +1161,7 @@ void process_tx_dma_interrupt(struct spi_periph * periph) {
      */
 
     /* Reset the flag so this only happens once in a transaction */
-    dma->tx_extra_dummy_dma = FALSE;
+    dma->tx_extra_dummy_dma = false;
 
     /* Use the difference in length between tx and rx */
     uint16_t len_remaining = trans->input_length - trans->output_length;
@@ -1236,9 +1236,9 @@ void spi1_slave_arch_init(void) {
   spi1_dma.tx_nvic_irq = NVIC_DMA2_STREAM5_IRQ;
 #endif
   spi1_dma.tx_dummy_buf = 0;
-  spi1_dma.tx_extra_dummy_dma = FALSE;
+  spi1_dma.tx_extra_dummy_dma = false;
   spi1_dma.rx_dummy_buf = 0;
-  spi1_dma.rx_extra_dummy_dma = FALSE;
+  spi1_dma.rx_extra_dummy_dma = false;
 
   // set the default configuration
   set_default_comm_config(&spi1_dma.comm);
@@ -1362,9 +1362,9 @@ void spi2_slave_arch_init(void) {
   spi2_dma.tx_nvic_irq = NVIC_DMA1_STREAM4_IRQ;
 #endif
   spi2_dma.tx_dummy_buf = 0;
-  spi2_dma.tx_extra_dummy_dma = FALSE;
+  spi2_dma.tx_extra_dummy_dma = false;
   spi2_dma.rx_dummy_buf = 0;
-  spi2_dma.rx_extra_dummy_dma = FALSE;
+  spi2_dma.rx_extra_dummy_dma = false;
 
   // set the default configuration
   set_default_comm_config(&spi2_dma.comm);
@@ -1491,9 +1491,9 @@ void spi3_slave_arch_init(void) {
   spi3_dma.tx_nvic_irq = NVIC_DMA1_STREAM5_IRQ;
 #endif
   spi3_dma.tx_dummy_buf = 0;
-  spi3_dma.tx_extra_dummy_dma = FALSE;
+  spi3_dma.tx_extra_dummy_dma = false;
   spi3_dma.rx_dummy_buf = 0;
-  spi3_dma.rx_extra_dummy_dma = FALSE;
+  spi3_dma.rx_extra_dummy_dma = false;
 
   // set the default configuration
   set_default_comm_config(&spi3_dma.comm);
@@ -1621,7 +1621,7 @@ static void spi_slave_set_config(struct spi_periph * periph, struct spi_transact
  * Therefore, to ensure that the first byte of your data will be set, you have to set the transmit buffer before you call
  * this function
  */
-bool_t spi_slave_register(struct spi_periph * periph, struct spi_transaction * trans) {
+bool spi_slave_register(struct spi_periph * periph, struct spi_transaction * trans) {
   struct spi_periph_dma *dma = periph->init_struct;
 
   /* Store local copy to notify of the results */
@@ -1687,7 +1687,7 @@ bool_t spi_slave_register(struct spi_periph * periph, struct spi_transaction * t
   /* enable dma interrupt */
   spi_arch_int_enable(periph);
 
-  return TRUE;
+  return true;
 }
 
 void process_slave_rx_dma_interrupt(struct spi_periph * periph) {

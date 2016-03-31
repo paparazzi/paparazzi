@@ -48,7 +48,7 @@
 #define BLUEGIGA 5
 
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
-EXTERN bool_t dl_msg_available;
+EXTERN bool dl_msg_available;
 
 /** time in seconds since last datalink message was received */
 EXTERN uint16_t datalink_time;
@@ -66,7 +66,7 @@ EXTERN void dl_parse_msg(void);
 EXTERN void firmware_parse_msg(void);
 
 #if USE_NPS
-EXTERN bool_t datalink_enabled;
+EXTERN bool datalink_enabled;
 #endif
 
 /** Convenience macro to fill dl_buffer */
@@ -75,7 +75,7 @@ EXTERN bool_t datalink_enabled;
   for (_i = 0; _i < _len; _i++) { \
     dl_buffer[_i] = _buf[_i]; \
   } \
-  dl_msg_available = TRUE; \
+  dl_msg_available = true; \
 }
 
 /** Check for new message and parse */
@@ -92,7 +92,7 @@ static inline void DlCheckAndParse(void)
     datalink_time = 0;
     datalink_nb_msgs++;
     dl_parse_msg();
-    dl_msg_available = FALSE;
+    dl_msg_available = false;
   }
 }
 
@@ -106,7 +106,7 @@ static inline void DlCheckAndParse(void)
 #elif defined DATALINK && DATALINK == XBEE
 
 #define DatalinkEvent() {                       \
-    xbee_check_and_parse(&(XBEE_UART).device, &xbee_tp, dl_buffer, (uint8_t*)(&dl_msg_available));      \
+    xbee_check_and_parse(&(XBEE_UART).device, &xbee_tp, dl_buffer, &dl_msg_available);      \
     DlCheckAndParse();                          \
   }
 
@@ -127,7 +127,7 @@ static inline void DlCheckAndParse(void)
 #elif defined DATALINK && DATALINK == BLUEGIGA
 
 #define DatalinkEvent() {                       \
-    pprz_check_and_parse(&(DOWNLINK_DEVICE).device, &pprz_tp, dl_buffer, (uint8_t*)(&dl_msg_available));      \
+    pprz_check_and_parse(&(DOWNLINK_DEVICE).device, &pprz_tp, dl_buffer, &dl_msg_available);      \
     DlCheckAndParse();                          \
   }
 

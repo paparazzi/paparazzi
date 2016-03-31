@@ -37,7 +37,7 @@
 #define FBW_MODE_OF_PPRZ(mode) ((mode) < THRESHOLD_MANUAL_PPRZ ? FBW_MODE_MANUAL : FBW_MODE_AUTO)
 
 extern uint8_t fbw_mode;
-extern bool_t failsafe_mode;
+extern bool failsafe_mode;
 
 void init_fbw(void);
 void handle_periodic_tasks_fbw(void);

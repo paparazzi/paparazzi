@@ -51,7 +51,7 @@
 /* Internal used functions */
 static void *navdata_read(void *data __attribute__((unused)));
 static void navdata_cmd_send(uint8_t cmd);
-static bool_t navdata_baro_calib(void);
+static bool navdata_baro_calib(void);
 static void mag_freeze_check(void);
 static void baro_update_logic(void);
 
@@ -61,7 +61,7 @@ struct navdata_t navdata;
 /** Buffer filled in the thread (maximum one navdata packet) */
 static uint8_t navdata_buffer[NAVDATA_PACKET_SIZE];
 /** flag to indicate new packet is available in buffer */
-static bool_t navdata_available = FALSE;
+static bool navdata_available = false;
 
 /* syncronization variables */
 static pthread_mutex_t navdata_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -168,7 +168,7 @@ static void send_navdata(struct transport_tx *trans, struct link_device *dev)
 /**
  * Initialize the navdata board
  */
-bool_t navdata_init()
+bool navdata_init()
 {
   assert(sizeof(struct navdata_measure_t) == NAVDATA_PACKET_SIZE);
 
@@ -178,7 +178,7 @@ bool_t navdata_init()
 
     if (navdata.fd < 0) {
       printf("[navdata] Unable to open navdata board connection(/dev/ttyO1)\n");
-      return FALSE;
+      return false;
     }
 
     /* Update the settings of the UART connection */
@@ -201,10 +201,10 @@ bool_t navdata_init()
   }
 
   // Reset available flags
-  navdata_available = FALSE;
-  navdata.baro_calibrated = FALSE;
-  navdata.baro_available = FALSE;
-  navdata.imu_lost = FALSE;
+  navdata_available = false;
+  navdata.baro_calibrated = false;
+  navdata.baro_available = false;
+  navdata.imu_lost = false;
 
   // Set all statistics to 0
   navdata.checksum_errors = 0;
@@ -219,9 +219,9 @@ bool_t navdata_init()
   /* Read the baro calibration(blocking) */
   if (!navdata_baro_calib()) {
     printf("[navdata] Could not acquire baro calibration!\n");
-    return FALSE;
+    return false;
   }
-  navdata.baro_calibrated = TRUE;
+  navdata.baro_calibrated = true;
 
   /* Start acquisition */
   navdata_cmd_send(NAVDATA_CMD_START);
@@ -234,7 +234,7 @@ bool_t navdata_init()
   pthread_t navdata_thread;
   if (pthread_create(&navdata_thread, NULL, navdata_read, NULL) != 0) {
     printf("[navdata] Could not create navdata reading thread!\n");
-    return FALSE;
+    return false;
   }
 
 #if PERIODIC_TELEMETRY
@@ -242,8 +242,8 @@ bool_t navdata_init()
 #endif
 
   /* Set to initialized */
-  navdata.is_initialized = TRUE;
-  return TRUE;
+  navdata.is_initialized = true;
+  return true;
 }
 
 
@@ -313,7 +313,7 @@ static void *navdata_read(void *data __attribute__((unused)))
 
       /* Set flag that we have new valid navdata */
       pthread_mutex_lock(&navdata_mutex);
-      navdata_available = TRUE;
+      navdata_available = true;
       pthread_mutex_unlock(&navdata_mutex);
     }
   }
@@ -356,7 +356,7 @@ void navdata_update()
     memcpy(&navdata.measure, navdata_buffer, NAVDATA_PACKET_SIZE);
 
     /* reset the flag */
-    navdata_available = FALSE;
+    navdata_available = false;
     /* signal that we copied the buffer and new packet can be read */
     pthread_cond_signal(&navdata_cond);
     pthread_mutex_unlock(&navdata_mutex);
@@ -413,7 +413,7 @@ static void navdata_cmd_send(uint8_t cmd)
 /**
  * Try to receive the baro calibration from the navdata board
  */
-static bool_t navdata_baro_calib(void)
+static bool navdata_baro_calib(void)
 {
   /* Start baro calibration acquisition */
   navdata_cmd_send(NAVDATA_CMD_BARO_CALIB);
@@ -422,7 +422,7 @@ static bool_t navdata_baro_calib(void)
   uint8_t calibBuffer[22];
   if (full_read(navdata.fd, calibBuffer, sizeof calibBuffer) < 0) {
     printf("[navdata] Could not read calibration data.");
-    return FALSE;
+    return false;
   }
 
   /* Convert the read bytes */
@@ -438,7 +438,7 @@ static bool_t navdata_baro_calib(void)
   navdata.bmp180_calib.mc  = calibBuffer[18] << 8 | calibBuffer[19];
   navdata.bmp180_calib.md  = calibBuffer[20] << 8 | calibBuffer[21];
 
-  return TRUE;
+  return true;
 }
 
 /**
@@ -459,7 +459,7 @@ static void mag_freeze_check(void)
       fprintf(stderr, "mag freeze detected, resetting!\n");
 
       /* set imu_lost flag */
-      navdata.imu_lost = TRUE;
+      navdata.imu_lost = true;
       navdata.lost_imu_frames++;
 
       /* Stop acquisition */
@@ -478,7 +478,7 @@ static void mag_freeze_check(void)
       MagFreezeCounter = 0; /* reset counter back to zero */
     }
   } else {
-    navdata.imu_lost = FALSE;
+    navdata.imu_lost = false;
     /* Reset counter if value _does_ change */
     MagFreezeCounter = 0;
   }
@@ -505,34 +505,34 @@ static void baro_update_logic(void)
 
   if (temp_or_press_was_updated_last == 0) { /* Last update was press so we are now waiting for temp */
     /* temp was updated */
-    temp_or_press_was_updated_last = TRUE;
+    temp_or_press_was_updated_last = true;
 
     /* This means that press must remain constant */
     if (lastpressval != 0) {
       /* If pressure was updated: this is a sync error */
       if (lastpressval != navdata.measure.pressure) {
         /* wait for temp again */
-        temp_or_press_was_updated_last = FALSE;
+        temp_or_press_was_updated_last = false;
         sync_errors++;
         //printf("Baro-Logic-Error (expected updated temp, got press)\n");
       }
     }
   } else {
     /* press was updated */
-    temp_or_press_was_updated_last = FALSE;
+    temp_or_press_was_updated_last = false;
 
     /* This means that temp must remain constant */
     if (lasttempval != 0) {
       /* If temp was updated: this is a sync error */
       if (lasttempval != navdata.measure.temperature_pressure) {
         /* wait for press again */
-        temp_or_press_was_updated_last = TRUE;
+        temp_or_press_was_updated_last = true;
         sync_errors++;
         //printf("Baro-Logic-Error (expected updated press, got temp)\n");
 
       } else {
         /* We now got valid pressure and temperature */
-        navdata.baro_available = TRUE;
+        navdata.baro_available = true;
       }
     }
   }
@@ -540,13 +540,13 @@ static void baro_update_logic(void)
   /* Detected a pressure swap */
   if (lastpressval != 0 && lasttempval != 0
       && ABS(lastpressval - navdata.measure.pressure) > ABS(lasttempval - navdata.measure.pressure)) {
-    navdata.baro_available = FALSE;
+    navdata.baro_available = false;
   }
 
   /* Detected a temprature swap */
   if (lastpressval != 0 && lasttempval != 0
       && ABS(lasttempval - navdata.measure.temperature_pressure) > ABS(lastpressval - navdata.measure.temperature_pressure)) {
-    navdata.baro_available = FALSE;
+    navdata.baro_available = false;
   }
 
   lasttempval = navdata.measure.temperature_pressure;
@@ -600,7 +600,7 @@ static void baro_update_logic(void)
 
   if (spike_detected > 0) {
     /* disable kalman filter use */
-    navdata.baro_available = FALSE;
+    navdata.baro_available = false;
 
     // override both to last good
     navdata.measure.pressure = lastpressval_nospike;

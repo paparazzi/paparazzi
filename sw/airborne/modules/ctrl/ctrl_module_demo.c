@@ -43,7 +43,7 @@ float ctrl_module_demo_y_ff_gain = 0.4f;   // Yaw
 float ctrl_module_demo_y_d_gain = 0.05f;
 
 void ctrl_module_init(void);
-void ctrl_module_run(bool_t in_flight);
+void ctrl_module_run(bool in_flight);
 
 void ctrl_module_init(void)
 {
@@ -54,7 +54,7 @@ void ctrl_module_init(void)
 }
 
 // simple rate control without reference model nor attitude
-void ctrl_module_run(bool_t in_flight)
+void ctrl_module_run(bool in_flight)
 {
   if (!in_flight) {
     // Reset integrators
@@ -96,7 +96,7 @@ void guidance_h_module_read_rc(void)
   ctrl_module_demo.rc_z = radio_control.values[RADIO_YAW];
 }
 
-void guidance_h_module_run(bool_t in_flight)
+void guidance_h_module_run(bool in_flight)
 {
   // Call full inner-/outerloop / horizontal-/vertical controller:
   ctrl_module_run(in_flight);
@@ -113,7 +113,7 @@ void guidance_v_module_enter(void)
   // your code that should be executed when entering this vertical mode goes here
 }
 
-void guidance_v_module_run(UNUSED bool_t in_flight)
+void guidance_v_module_run(UNUSED bool in_flight)
 {
   // your vertical controller goes here
 }

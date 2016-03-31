@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     // Parse serial commands
     if (mora_protocol.msg_received) {
       // Process Only Once
-      mora_protocol.msg_received = FALSE;
+      mora_protocol.msg_received = false;
 
       // Shoot an image if not busy
       if (mora_protocol.msg_id == MORA_SHOOT) {

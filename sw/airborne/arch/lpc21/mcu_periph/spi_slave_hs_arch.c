@@ -107,7 +107,7 @@ static void SSP_ISR(void) __attribute__((naked));
 // Functions for the generic device API
 static int spi_slave_hs_check_free_space(struct spi_slave_hs *p __attribute__((unused)), uint8_t len __attribute__((unused)))
 {
-  return TRUE;
+  return true;
 }
 
 static void spi_slave_hs_transmit(struct spi_slave_hs *p __attribute__((unused)), uint8_t byte)

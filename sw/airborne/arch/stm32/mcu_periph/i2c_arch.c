@@ -1283,9 +1283,9 @@ static inline void i2c_scl_toggle(uint32_t i2c)
 #endif
 }
 
-static inline bool_t i2c_sda_get(uint32_t i2c)
+static inline bool i2c_sda_get(uint32_t i2c)
 {
-  bool_t res = FALSE;
+  bool res = false;
 #if USE_I2C1
   if (i2c == I2C1) {
     res = gpio_get(I2C1_GPIO_PORT, I2C1_GPIO_SDA);
@@ -1415,10 +1415,10 @@ void i2c_event(void)
 /////////////////////////////////////////////////////////
 // Implement Interface Functions
 
-bool_t i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
+bool i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
 {
   if (periph->watchdog > WD_DELAY) {
-    return FALSE;
+    return false;
   }
 
   uint8_t temp;
@@ -1428,7 +1428,7 @@ bool_t i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
     // queue full
     periph->errors->queue_full_cnt++;
     t->status = I2CTransFailed;
-    return FALSE;
+    return false;
   }
 
   t->status = I2CTransPending;
@@ -1462,10 +1462,10 @@ bool_t i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
   /* else it will be started by the interrupt handler when the previous transactions completes */
   __enable_irq();
 
-  return TRUE;
+  return true;
 }
 
-bool_t i2c_idle(struct i2c_periph *periph)
+bool i2c_idle(struct i2c_periph *periph)
 {
   // This is actually a difficult function:
   // -simply reading the status flags can clear bits and corrupt the transaction
@@ -1475,7 +1475,7 @@ bool_t i2c_idle(struct i2c_periph *periph)
 #ifdef I2C_DEBUG_LED
 #if USE_I2C1
   if (periph == &i2c1) {
-    return TRUE;
+    return true;
   }
 #endif
 #endif
@@ -1484,6 +1484,6 @@ bool_t i2c_idle(struct i2c_periph *periph)
   if (periph->status == I2CIdle) {
     return !(BIT_X_IS_SET_IN_REG(I2C_SR2_BUSY, I2C_SR2(i2c)));
   } else {
-    return FALSE;
+    return false;
   }
 }

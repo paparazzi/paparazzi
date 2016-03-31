@@ -46,9 +46,9 @@
 #endif
 
 struct Infrared_raw ir_i2c;
-bool_t ir_i2c_data_hor_available, ir_i2c_data_ver_available;
+bool ir_i2c_data_hor_available, ir_i2c_data_ver_available;
 uint8_t ir_i2c_conf_word;
-bool_t ir_i2c_conf_hor_done, ir_i2c_conf_ver_done;
+bool ir_i2c_conf_hor_done, ir_i2c_conf_ver_done;
 
 // Local variables
 #define IR_I2C_IDLE             0
@@ -86,12 +86,12 @@ void infrared_event(void)
  */
 void infrared_i2c_init(void)
 {
-  ir_i2c_data_hor_available = FALSE;
-  ir_i2c_data_ver_available = FALSE;
+  ir_i2c_data_hor_available = false;
+  ir_i2c_data_ver_available = false;
   ir_i2c_hor_status = IR_I2C_IDLE;
   ir_i2c_conf_word = IR_I2C_DEFAULT_CONF;
-  ir_i2c_conf_hor_done = FALSE;
-  ir_i2c_conf_ver_done = FALSE;
+  ir_i2c_conf_hor_done = false;
+  ir_i2c_conf_ver_done = false;
   irh_trans.status = I2CTransDone;
   irv_trans.status = I2CTransDone;
 
@@ -110,7 +110,7 @@ void infrared_i2c_update(void)
     } else {
       // Read next values
       i2c_receive(&i2c0, &irh_trans, IR_HOR_I2C_ADDR, 3);
-      ir_i2c_data_hor_available = FALSE;
+      ir_i2c_data_hor_available = false;
       ir_i2c_hor_status = IR_I2C_READ_IR1;
     }
   }
@@ -122,7 +122,7 @@ void infrared_i2c_update(void)
     } else {
       // Read next values
       i2c_receive(&i2c0, &irv_trans, IR_VER_I2C_ADDR, 2);
-      ir_i2c_data_ver_available = FALSE;
+      ir_i2c_data_ver_available = false;
     }
   }
 #endif /* SITL || HITL */
@@ -166,11 +166,11 @@ void infrared_i2c_hor_event(void)
       ir2 = ir2 - (IR_I2C_IR2_NEUTRAL << ir_i2c_conf_word);
       ir_i2c.ir2 = FilterIR(ir_i2c.ir2, ir2);
       // Update estimator
-      ir_i2c_data_hor_available = TRUE;
+      ir_i2c_data_hor_available = true;
 #ifndef IR_I2C_READ_ONLY
       if (ir_i2c_data_ver_available) {
-        ir_i2c_data_hor_available = FALSE;
-        ir_i2c_data_ver_available = FALSE;
+        ir_i2c_data_hor_available = false;
+        ir_i2c_data_ver_available = false;
         UpdateIRValue(ir_i2c);
       }
 #endif
@@ -185,7 +185,7 @@ void infrared_i2c_hor_event(void)
       break;
     case IR_I2C_CONFIGURE_HOR :
       // End conf cycle
-      ir_i2c_conf_hor_done = TRUE;
+      ir_i2c_conf_hor_done = true;
       ir_i2c_hor_status = IR_I2C_IDLE;
       break;
   }
@@ -201,17 +201,17 @@ void infrared_i2c_ver_event(void)
     int16_t ir3 = (irv_trans.buf[0] << 8) | irv_trans.buf[1];
     ir3 = ir3 - (IR_I2C_TOP_NEUTRAL << ir_i2c_conf_word);
     ir_i2c.ir3 = FilterIR(ir_i2c.ir3, ir3);
-    ir_i2c_data_ver_available = TRUE;
+    ir_i2c_data_ver_available = true;
 #ifndef IR_I2C_READ_ONLY
     if (ir_i2c_data_hor_available) {
-      ir_i2c_data_hor_available = FALSE;
-      ir_i2c_data_ver_available = FALSE;
+      ir_i2c_data_hor_available = false;
+      ir_i2c_data_ver_available = false;
       UpdateIRValue(ir_i2c);
     }
 #endif
   }
   if (irv_trans.type == I2CTransTx) {
-    ir_i2c_conf_ver_done = TRUE;
+    ir_i2c_conf_ver_done = true;
   }
 #endif /* !SITL && !HITL */
 }

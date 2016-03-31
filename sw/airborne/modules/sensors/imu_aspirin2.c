@@ -228,7 +228,7 @@ void aspirin2_subsystem_event(void)
       VECT3_ASSIGN(imu.accel_unscaled, -x, y, -z);
   #endif
 
-      acc_valid = TRUE;
+      acc_valid = true;
       ppzuavimu_adxl345.status = I2CTransDone;
     }
 
@@ -245,7 +245,7 @@ void aspirin2_subsystem_event(void)
       VECT3_ASSIGN(imu.mag_unscaled, -y, -x, -z);
   #endif
 
-      mag_valid = TRUE;
+      mag_valid = true;
       ppzuavimu_hmc5843.status = I2CTransDone;
     }
   */

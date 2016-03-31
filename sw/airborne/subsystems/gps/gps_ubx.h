@@ -33,6 +33,10 @@
 #warning "Please use gps_ubx_ucenter.xml module instead of GPS_CONFIGURE"
 #endif
 
+#ifdef GPS_I2C
+#include "modules/gps/gps_ubx_i2c.h"
+#endif
+
 #include "mcu_periph/uart.h"
 
 #ifndef PRIMARY_GPS
@@ -47,7 +51,7 @@ extern void gps_ubx_register(void);
 
 #define GPS_UBX_MAX_PAYLOAD 255
 struct GpsUbx {
-  bool_t msg_available;
+  bool msg_available;
   uint8_t msg_buf[GPS_UBX_MAX_PAYLOAD] __attribute__((aligned));
   uint8_t msg_id;
   uint8_t msg_class;

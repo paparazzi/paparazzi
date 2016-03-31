@@ -94,7 +94,7 @@ void lsm303dlhc_init(struct Lsm303dlhc *lsm, struct i2c_periph *i2c_p, uint8_t a
     lsm303dlhc_mag_set_default_config(&(lsm->config.mag));
     lsm->init_status.mag = LSM_CONF_MAG_UNINIT;
   }
-  lsm->initialized = FALSE;
+  lsm->initialized = false;
 }
 
 static void lsm303dlhc_i2c_tx_reg(struct Lsm303dlhc *lsm, uint8_t reg, uint8_t val)
@@ -130,7 +130,7 @@ static void lsm303dlhc_send_config(struct Lsm303dlhc *lsm)
         lsm->init_status.acc++;
         break;
       case LSM_CONF_ACC_DONE:
-        lsm->initialized = TRUE;
+        lsm->initialized = true;
         lsm->i2c_trans.status = I2CTransDone;
         lsm303dlhc_read(lsm);
         break;
@@ -152,7 +152,7 @@ static void lsm303dlhc_send_config(struct Lsm303dlhc *lsm)
         lsm->init_status.mag++;
         break;
       case LSM_CONF_MAG_DONE:
-        lsm->initialized = TRUE;
+        lsm->initialized = true;
         lsm->i2c_trans.status = I2CTransDone;
         break;
       default:
@@ -215,7 +215,7 @@ void lsm303dlhc_event(struct Lsm303dlhc *lsm)
       lsm->data.vect.x = Int16FromBuf(lsm->i2c_trans.buf, 0);
       lsm->data.vect.y = Int16FromBuf(lsm->i2c_trans.buf, 2);
       lsm->data.vect.z = Int16FromBuf(lsm->i2c_trans.buf, 4);
-      lsm->data_available = TRUE;
+      lsm->data_available = true;
       lsm->i2c_trans.status = I2CTransDone;
     } else {
     }

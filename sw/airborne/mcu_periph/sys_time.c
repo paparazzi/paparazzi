@@ -41,10 +41,10 @@ int sys_time_register_timer(float duration, sys_time_cb cb)
   for (int i = 0; i < SYS_TIME_NB_TIMER; i++) {
     if (!sys_time.timer[i].in_use) {
       sys_time.timer[i].cb         = cb;
-      sys_time.timer[i].elapsed    = FALSE;
+      sys_time.timer[i].elapsed    = false;
       sys_time.timer[i].end_time   = start_time + sys_time_ticks_of_sec(duration);
       sys_time.timer[i].duration   = sys_time_ticks_of_sec(duration);
-      sys_time.timer[i].in_use     = TRUE;
+      sys_time.timer[i].in_use     = true;
       return i;
     }
   }
@@ -54,9 +54,9 @@ int sys_time_register_timer(float duration, sys_time_cb cb)
 
 void sys_time_cancel_timer(tid_t id)
 {
-  sys_time.timer[id].in_use     = FALSE;
+  sys_time.timer[id].in_use     = false;
   sys_time.timer[id].cb         = NULL;
-  sys_time.timer[id].elapsed    = FALSE;
+  sys_time.timer[id].elapsed    = false;
   sys_time.timer[id].end_time   = 0;
   sys_time.timer[id].duration   = 0;
 }
@@ -80,9 +80,9 @@ void sys_time_init(void)
   sys_time.resolution = 1.0 / sys_time.ticks_per_sec;
 
   for (unsigned int i = 0; i < SYS_TIME_NB_TIMER; i++) {
-    sys_time.timer[i].in_use     = FALSE;
+    sys_time.timer[i].in_use     = false;
     sys_time.timer[i].cb         = NULL;
-    sys_time.timer[i].elapsed    = FALSE;
+    sys_time.timer[i].elapsed    = false;
     sys_time.timer[i].end_time   = 0;
     sys_time.timer[i].duration   = 0;
   }

@@ -95,7 +95,7 @@ typedef struct {
 
 float cam_theta;
 float cam_phi;
-bool_t heading_positive = 0;
+bool heading_positive = 0;
 float  memory_x, memory_y, memory_z;
 #if defined(SHOW_CAM_COORDINATES)
 float   cam_point_x;
@@ -341,8 +341,8 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
       vMultiplyMatrixByVector(&sv_cam_projection, smRotation, sv_cam_projection_buf);
 
 #if defined(RADIO_CAM_LOCK)
-      if ((float)(*fbw_state).channels[RADIO_CAM_LOCK] > MAX_PPRZ / 2)) && pprz_mode == PPRZ_MODE_AUTO2) { cam_lock = TRUE; }
-      if ((float)(*fbw_state).channels[RADIO_CAM_LOCK] < MIN_PPRZ / 2 && pprz_mode == PPRZ_MODE_AUTO2) { cam_lock = FALSE; }
+      if ((float)(*fbw_state).channels[RADIO_CAM_LOCK] > MAX_PPRZ / 2)) && pprz_mode == PPRZ_MODE_AUTO2) { cam_lock = true; }
+      if ((float)(*fbw_state).channels[RADIO_CAM_LOCK] < MIN_PPRZ / 2 && pprz_mode == PPRZ_MODE_AUTO2) { cam_lock = false; }
 #endif
     // When the variable "cam_lock" is set then the last calculated position is set as the target waypoint.
     if (cam_lock == FALSE) {

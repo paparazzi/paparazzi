@@ -51,6 +51,6 @@ extern struct throttle_curve_t throttle_curve;
 
 /* External functions */
 extern void throttle_curve_init(void);
-void throttle_curve_run(bool_t motors_on, pprz_t in_cmd[]);
+void throttle_curve_run(bool motors_on, pprz_t in_cmd[]);
 
 #endif
