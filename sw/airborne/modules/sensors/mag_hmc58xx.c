@@ -30,8 +30,6 @@
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#include BOARD_CONFIG
-
 #ifndef HMC58XX_CHAN_X
 #define HMC58XX_CHAN_X 0
 #endif
