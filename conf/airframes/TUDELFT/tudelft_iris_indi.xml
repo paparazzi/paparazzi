@@ -40,6 +40,9 @@
       <configure name="INTERMCU_PORT" value="UART6" />
       <configure name="INTERMCU_BAUD" value="B1500000" /> <!-- This is only during first 10s start up, afterwards it is set to 230400-->
     </subsystem>
+    <subsystem name="actuators" type="pwm"> <!-- gimbal and buzzer--->
+      <define name="SERVO_HZ" value="400" />
+    </subsystem>
   </firmware>
   <firmware name="rotorcraft">
     <target name="fbw" board="px4io_2.4" />
@@ -80,6 +83,7 @@
   </firmware>
   <modules main_freq="512">
     <load name="px4_flash.xml" />
+    <load name="px4_gimbal.xml" />
     <load name="geo_mag.xml" />
     <load name="air_data.xml" />
     <load name="send_imu_mag_current.xml" />
