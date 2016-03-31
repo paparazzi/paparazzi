@@ -547,7 +547,7 @@ static void USBFrameHandler(U16 wFrame __attribute__((unused)))
 struct usb_serial_periph usb_serial;
 
 // Functions for the generic device API
-static int usb_serial_check_free_space(struct usb_serial_periph *p __attribute__((unused)), long *fd __attribute__((unused)), uint8_t len)
+static int usb_serial_check_free_space(struct usb_serial_periph *p __attribute__((unused)), long *fd __attribute__((unused)), uint16_t len)
 {
   return (int)VCOM_check_free_space(len);
 }
