@@ -51,7 +51,7 @@ struct L3gd20_Spi {
 };
 
 // Functions
-extern void l3gd20_spi_init(struct L3gd20_Spi *l3g, struct spi_periph *spi_p, uint8_t addr);
+extern void l3gd20_spi_init(struct L3gd20_Spi *l3g, struct spi_periph *spi_p, uint8_t slave_idx);
 extern void l3gd20_spi_start_configure(struct L3gd20_Spi *l3g);
 extern void l3gd20_spi_read(struct L3gd20_Spi *l3g);
 extern void l3gd20_spi_event(struct L3gd20_Spi *l3g);

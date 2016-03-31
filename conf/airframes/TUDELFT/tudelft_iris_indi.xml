@@ -3,8 +3,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- this is a quadrotor frame equiped with
 * Autopilot:   3dr Pixhawk 2.4
-* IMU:         MPU6000 +  L3GD20 +  LSM303D
-* Actuators:   PWM motor controllers?
+* IMU:         L3GD20 +  LSM303D + MPU6000 + external HMC58XX
+* Actuators:   PWM motor controllers
 * GPS:         Ublox                  http://wiki.paparazziuav.org/wiki/Subsystem/gps
 * RC:          PPM
 -->
@@ -21,14 +21,17 @@
       <subsystem name="udp" />
     </target>
     <subsystem name="telemetry" type="transparent" />
-<!--    <subsystem name="imu" type="px4fmu_v2.4">-->
-    <subsystem name="imu" type="mpu6000">
-      <configure name="IMU_MPU_SPI_DEV" value="spi1" />
-      <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE2" />
-    </subsystem>
+    <subsystem name="imu" type="px4fmu_v2.4"/>
     <subsystem name="gps" type="ublox" />
     <subsystem name="stabilization" type="indi" />
-    <subsystem name="ahrs" type="int_cmpl_quat" />
+    <subsystem name="ahrs" type="int_cmpl_quat" >
+      <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />         <!-- Meaning the lsm303 and l3g -->
+      <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
+
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
+      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+
+    </subsystem>
     <subsystem name="ins" type="extended" />
     <subsystem name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3" />
@@ -81,23 +84,38 @@
     <load name="air_data.xml" />
     <load name="send_imu_mag_current.xml" />
     <load name="gps_ubx_ucenter.xml" />
+    <load name="mag_hmc58xx.xml">
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
+      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
+      <define name="HMC58XX_CHAN_X" value="1"/>
+      <define name="HMC58XX_CHAN_Y" value="0"/>
+      <define name="HMC58XX_CHAN_Z" value="2"/>
+      <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
+      <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
+      <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
+    </load>
     <!--  <load name="spektrum_soft_bind.xml"/>-->
   </modules>
+
   <section name="MISC">
     <define name="MilliAmpereOfAdc(adc)" value="((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)" />
     <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
   </section>
   <section name="IMU" prefix="IMU_">
     <!-- replace this with your own calibration -->
-    <define name="MAG_X_NEUTRAL" value="14" />
-    <define name="MAG_Y_NEUTRAL" value="116" />
-    <define name="MAG_Z_NEUTRAL" value="119" />
-    <define name="MAG_X_SENS" value="5.09245681612" integer="16" />
-    <define name="MAG_Y_SENS" value="5.29702744632" integer="16" />
-    <define name="MAG_Z_SENS" value="5.65287938992" integer="16" />
-    <define name="BODY_TO_IMU_PHI" value="180." unit="deg" />
-    <define name="BODY_TO_IMU_THETA" value="180." unit="deg" />
-    <define name="BODY_TO_IMU_PSI" value="90." unit="deg" />
+    <define name="ACCEL_X_NEUTRAL" value="248"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-21"/>
+    <define name="ACCEL_Z_NEUTRAL" value="1123"/>
+    <define name="ACCEL_X_SENS" value="0.62584356013" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.609921478775" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.619923942578" integer="16"/>
+
+    <define name="MAG_X_NEUTRAL" value="92"/>
+    <define name="MAG_Y_NEUTRAL" value="35"/>
+    <define name="MAG_Z_NEUTRAL" value="-15"/>
+    <define name="MAG_X_SENS" value="5.52543569751" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.91233764159" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.99453775296" integer="16"/>
   </section>
   <commands>
     <axis name="PITCH" failsafe_value="0" />
