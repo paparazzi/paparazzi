@@ -36,6 +36,13 @@
 #include "peripherals/l3gd20_spi.h"
 #include "peripherals/lsm303dlhc_spi.h"
 
+#ifndef IMU_PX4_DISABLE_MAG
+#if MODULE_HMC58XX_UPDATE_AHRS
+#define IMU_PX4_DISABLE_MAG TRUE
+#else
+#define IMU_PX4_DISABLE_MAG FALSE
+#endif
+#endif
 
 struct ImuPX4 {
   struct L3gd20_Spi l3g;
