@@ -17,7 +17,7 @@
     <define name="USE_$(EXTRA_DL_PORT_UPPER)"/>
     <define name="$(EXTRA_DL_PORT_UPPER)_BAUD" value="$(EXTRA_DL_BAUD)"/>
     <file name="extra_pprz_dl.c"/>
-    <file name="pprz_transport.c" dir="subsystems/datalink"/>
+    <file name="pprz_transport.c" dir="$(PAPARAZZI_HOME)/var/share/pprzlink/src"/>
   </makefile>
 </module>
 

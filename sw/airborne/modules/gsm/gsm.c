@@ -73,7 +73,7 @@ Receiving:
 #define GSMLinkDev (&(GSM_LINK).device)
 
 #define GSMLinkChAvailable() GSMLinkDev->check_available(GSMLinkDev->periph)
-#define GSMLinkTransmit(_c) GSMLinkDev->put_byte(GSMLinkDev->periph, _c)
+#define GSMLinkTransmit(_c) GSMLinkDev->put_byte(GSMLinkDev->periph, 0, _c)
 #define GSMLinkGetch() GSMLinkDev->get_byte(GSMLinkDev->periph)
 #define ReadGSMBuffer() { while (GSMLinkChAvailable&&!gsm_line_received) gsm_parse(GSMLinkGetch()); }
 
