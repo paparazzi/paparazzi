@@ -83,12 +83,12 @@ void actuators_spektrum_set(void)
 static inline void actuators_spektrum_send(struct link_device *dev)
 {
   uint8_t i = 0;
-  dev->put_byte(dev->periph, 0x00); // number missed frames
-  dev->put_byte(dev->periph, 0x12); // 7 channels, 11 bit, 11ms
+  dev->put_byte(dev->periph, 0, 0x00); // number missed frames
+  dev->put_byte(dev->periph, 0x12); // 7 channels, 11 bit, 0, 11ms
 
   /* Transmit all channels */
   for (i = 0; i < ACTUATORS_SPEKTRUM_MAX_NB; i++) {
-    dev->put_byte(dev->periph, i << 3 | actuators_spektrum.cmds[i] >> 8);
-    dev->put_byte(dev->periph, actuators_spektrum.cmds[i] & 0xFF);
+    dev->put_byte(dev->periph, 0, i << 3 | actuators_spektrum.cmds[i] >> 8);
+    dev->put_byte(dev->periph, 0, actuators_spektrum.cmds[i] & 0xFF);
   }
 }

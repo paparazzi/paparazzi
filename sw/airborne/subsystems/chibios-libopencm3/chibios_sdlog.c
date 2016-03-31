@@ -64,17 +64,22 @@ static void launchBatterySurveyThread (void)
 }
 
 // Functions for the generic device API
-static int sdlog_check_free_space(struct chibios_sdlog* p __attribute__((unused)), uint8_t len __attribute__((unused)))
+static int sdlog_check_free_space(struct chibios_sdlog* p __attribute__((unused)), long *fd __attribute__((unused)), uint16_t len __attribute__((unused)))
 {
-  return true;
+  return 1;
 }
 
-static void sdlog_transmit(struct chibios_sdlog* p, uint8_t byte)
+static void sdlog_transmit(struct chibios_sdlog* p, long fd __attribute__((unused)), uint8_t byte)
 {
   sdLogWriteByte(*p->file, byte);
 }
 
-static void sdlog_send(struct chibios_sdlog* p __attribute__((unused))) { }
+static void sdlog_transmit_buffer(struct chibios_sdlog* p, long fd __attribute__((unused)), uint8_t *data, uint16_t len)
+{
+  sdLogWriteRaw(*p->file, data, len);
+}
+
+static void sdlog_send(struct chibios_sdlog* p __attribute__((unused)), long fd __attribute__((unused))) { }
 
 static int null_function(struct chibios_sdlog *p __attribute__((unused))) { return 0; }
 
@@ -86,6 +91,7 @@ void chibios_sdlog_init(struct chibios_sdlog *sdlog, FileDes *file)
   sdlog->device.periph = (void *)(sdlog);
   sdlog->device.check_free_space = (check_free_space_t) sdlog_check_free_space;
   sdlog->device.put_byte = (put_byte_t) sdlog_transmit;
+  sdlog->device.put_buffer = (put_buffer_t) sdlog_transmit_buffer;
   sdlog->device.send_message = (send_message_t) sdlog_send;
   sdlog->device.char_available = (char_available_t) null_function; // write only
   sdlog->device.get_byte = (get_byte_t) null_function; // write only

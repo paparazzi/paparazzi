@@ -90,6 +90,7 @@ void sdlogger_spi_direct_init(void)
   /* Set function pointers in link_device to the logger functions */
   sdlogger_spi.device.check_free_space = (check_free_space_t)sdlogger_spi_direct_check_free_space;
   sdlogger_spi.device.put_byte = (put_byte_t)sdlogger_spi_direct_put_byte;
+  sdlogger_spi.device.put_buffer = (put_buffer_t)sdlogger_spi_direct_put_buffer;
   sdlogger_spi.device.send_message = (send_message_t)sdlogger_spi_direct_send_message;
   sdlogger_spi.device.char_available = (char_available_t)sdlogger_spi_direct_char_available;
   sdlogger_spi.device.get_byte = (get_byte_t)sdlogger_spi_direct_get_byte;
@@ -177,8 +178,9 @@ void sdlogger_spi_direct_periodic(void)
       if (sdcard1.status == SDCard_Idle) {
         /* Put bytes to the buffer until all is written or buffer is full */
         for (uint16_t i = sdlogger_spi.sdcard_buf_idx; i < SD_BLOCK_SIZE; i++) {
-          if(uart_check_free_space(&(DOWNLINK_DEVICE), 1)) {
-            uart_put_byte(&(DOWNLINK_DEVICE), sdcard1.input_buf[i]);
+          long fd = 0;
+          if (uart_check_free_space(&(DOWNLINK_DEVICE), &fd, 1)) {
+            uart_put_byte(&(DOWNLINK_DEVICE), fd, sdcard1.input_buf[i]);
           }
           else {
             /* No free space left, abort for-loop */
@@ -344,7 +346,7 @@ void sdlogger_spi_direct_command(void)
   sdlogger_spi.command = 0;
 }
 
-bool sdlogger_spi_direct_check_free_space(struct sdlogger_spi_periph *p, uint8_t len)
+bool sdlogger_spi_direct_check_free_space(struct sdlogger_spi_periph *p, long *fd __attribute__((unused)), uint16_t len)
 {
   if (p->status == SDLogger_Logging) {
     /* Calculating free space in both buffers */
@@ -355,7 +357,7 @@ bool sdlogger_spi_direct_check_free_space(struct sdlogger_spi_periph *p, uint8_t
   return false;
 }
 
-void sdlogger_spi_direct_put_byte(struct sdlogger_spi_periph *p, uint8_t data)
+void sdlogger_spi_direct_put_byte(struct sdlogger_spi_periph *p, long fd __attribute__((unused)), uint8_t data)
 {
   /* SD Buffer full, write in logger buffer */
   if (p->sdcard_buf_idx > 512) {
@@ -375,7 +377,15 @@ void sdlogger_spi_direct_put_byte(struct sdlogger_spi_periph *p, uint8_t data)
   }
 }
 
-void sdlogger_spi_direct_send_message(void *p)
+void sdlogger_spi_direct_put_buffer(struct sdlogger_spi_periph *p, long fd, uint8_t *data, uint16_t len)
+{
+  int i;
+  for (i = 0; i < len; i++) {
+    sdlogger_spi_direct_put_byte(p, fd, data[i]);
+  }
+}
+
+void sdlogger_spi_direct_send_message(void *p, long fd __attribute__((unused)))
 {
   (void) p;
 }

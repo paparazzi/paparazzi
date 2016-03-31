@@ -53,19 +53,19 @@ static inline void main_periodic(void)
   char ch;
 
 #if USE_UART1
-  uart_put_byte(&uart1, 'a');
+  uart_put_byte(&uart1, 0, 'a');
 #endif
 #if USE_UART2
-  uart_put_byte(&uart2, 'b');
+  uart_put_byte(&uart2, 0, 'b');
 #endif
 #if USE_UART3
-  uart_put_byte(&uart3, 'c');
+  uart_put_byte(&uart3, 0, 'c');
 #endif
 #if USE_UART4
-  uart_put_byte(&uart4, 'd');
+  uart_put_byte(&uart4, 0, 'd');
 #endif
 #if USE_UART5
-  uart_put_byte(&uart5, 'e');
+  uart_put_byte(&uart5, 0, 'e');
 #endif
 
   LED_OFF(1);

@@ -105,12 +105,12 @@ static void SSP_ISR(void) __attribute__((naked));
 
 
 // Functions for the generic device API
-static int spi_slave_hs_check_free_space(struct spi_slave_hs *p __attribute__((unused)), uint8_t len __attribute__((unused)))
+static int spi_slave_hs_check_free_space(struct spi_slave_hs *p __attribute__((unused)), long *fd __attribute__((unused)), uint16_t len __attribute__((unused)))
 {
   return true;
 }
 
-static void spi_slave_hs_transmit(struct spi_slave_hs *p __attribute__((unused)), uint8_t byte)
+static void spi_slave_hs_transmit(struct spi_slave_hs *p __attribute__((unused)), long fd __attribute__((unused)), uint8_t byte)
 {
   uint8_t temp = (spi_slave_hs_tx_insert_idx + 1) % SPI_SLAVE_HS_TX_BUFFER_SIZE;
   if (temp != spi_slave_hs_tx_extract_idx)  /* there is room left */
@@ -120,7 +120,15 @@ static void spi_slave_hs_transmit(struct spi_slave_hs *p __attribute__((unused))
   }
 }
 
-static void spi_slave_hs_send(struct spi_slave_hs *p __attribute__((unused))) { }
+static void spi_slave_hs_transmit_buffer(struct spi_slave_hs *p __attribute__((unused)), long fd, uint8_t *data, uint16_t len)
+{
+  int i;
+  for (i = 0; i < len; i++) {
+    spi_slave_hs_transmit(p, fd, data[i]);
+  }
+}
+
+static void spi_slave_hs_send(struct spi_slave_hs *p __attribute__((unused)), long fd __attribute__((unused))) { }
 
 static int spi_slave_hs_char_available(struct spi_slave_hs *p __attribute__((unused)))
 {
@@ -164,6 +172,7 @@ void spi_slave_hs_init(void)
   spi_slave_hs.device.periph = (void *)(&spi_slave_hs);
   spi_slave_hs.device.check_free_space = (check_free_space_t) spi_slave_hs_check_free_space;
   spi_slave_hs.device.put_byte = (put_byte_t) spi_slave_hs_transmit;
+  spi_slave_hs.device.put_buffer = (put_buffer_t) spi_slave_hs_transmit_buffer;
   spi_slave_hs.device.send_message = (send_message_t) spi_slave_hs_send;
   spi_slave_hs.device.char_available = (char_available_t) spi_slave_hs_char_available;
   spi_slave_hs.device.get_byte = (get_byte_t) spi_slave_hs_getch;
