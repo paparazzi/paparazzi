@@ -176,6 +176,10 @@ let quit_window_callback = fun gui ac_combo session_combo target_combo _ ->
   quit_button_callback gui ac_combo session_combo target_combo ~confirm_quit:false ();
   true
 
+let keep_changes_callback = fun gui _ ->
+  always_keep_changes := gui#menu_item_always_keep_changes#active;
+  ()
+
 (************************** Main *********************************************)
 let () =
   let session = ref ""
@@ -280,6 +284,9 @@ let () =
 
   let session_combo, execute_session = CP.supervision ~file gui log ac_combo target_combo in
 
+  (* Autosave on quit check box *)
+  ignore (gui#menu_item_always_keep_changes#connect#toggled ~callback:(keep_changes_callback gui));
+
   (* Quit button *)
   ignore (gui#menu_item_quit#connect#activate ~callback:(quit_button_callback gui ac_combo session_combo target_combo));
 
@@ -341,6 +348,8 @@ let () =
   if Sys.file_exists Env.gconf_file then begin
     read_preferences gui Env.gconf_file ac_combo session_combo target_combo
   end;
+
+  gui#menu_item_always_keep_changes#set_active !always_keep_changes;
 
   (* Run the command line session *)
   if !session <> "" then begin

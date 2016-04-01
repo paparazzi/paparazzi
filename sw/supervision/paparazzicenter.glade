@@ -161,6 +161,15 @@
                       </widget>
                     </child>
                     <child>
+                      <widget class="GtkCheckMenuItem" id="menu_item_always_keep_changes">
+                        <property name="label">Autosave on quit</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_action_appearance">False</property>
+                        <signal name="activate" handler="on_keep_changes_activate"/>
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkImageMenuItem" id="menu_item_new_target">
                         <property name="label">New build target</property>
                         <property name="visible">True</property>
