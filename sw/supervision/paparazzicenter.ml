@@ -127,7 +127,7 @@ let quit_callback = fun gui ac_combo session_combo target_combo _ ->
   write_preferences gui Env.gconf_file ac_combo session_combo target_combo;
   exit 0
 
-let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
+let quit_button_callback = fun gui ac_combo session_combo target_combo ?(confirm_quit = true) () ->
   if Sys.file_exists Utils.backup_xml_file then begin
     let rec question_box = fun () ->
       match GToolbox.question_box ~title:"Quit" ~buttons:["Save changes"; "Discard changes"; "View changes"; "Cancel"] ~default:1 "Configuration changes have not been saved" with
@@ -143,12 +143,15 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
       | _ -> () in
     question_box ()
   end else
-    match GToolbox.question_box ~title:"Quit" ~buttons:["Cancel"; "Quit"] ~default:2 "Quit ?" with
-    2 -> quit_callback gui ac_combo session_combo target_combo ()
-  | _ -> ()
+    if confirm_quit then
+      match GToolbox.question_box ~title:"Quit" ~buttons:["Cancel"; "Quit"] ~default:2 "Quit ?" with
+        2 -> quit_callback gui ac_combo session_combo target_combo ()
+      | _ -> ()
+    else
+      quit_callback gui ac_combo session_combo target_combo ()
 
 let quit_window_callback = fun gui ac_combo session_combo target_combo _ ->
-  quit_button_callback gui ac_combo session_combo target_combo ();
+  quit_button_callback gui ac_combo session_combo target_combo ~confirm_quit:false ();
   true
 
 (************************** Main *********************************************)
