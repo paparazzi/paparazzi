@@ -138,14 +138,15 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo ?(confirm
     let rec question_box = fun () ->
       match GToolbox.question_box ~title:"Quit" ~buttons:["Save changes"; "Discard changes"; "View changes"; "Cancel"] ~default:1 "Configuration changes have not been saved" with
       | 2 ->
-	  Sys.rename Utils.backup_xml_file Utils.conf_xml_file;
-	  quit_callback gui ac_combo session_combo target_combo ()
+        ignore (Sys.command (sprintf "cp %s %s" Utils.backup_xml_file Utils.conf_xml_file));
+	    Sys.remove Utils.backup_xml_file;
+	    quit_callback gui ac_combo session_combo target_combo ()
       | 3 ->
-	  ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file));
-	  question_box ()
+	    ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file));
+	    question_box ()
       | 1 ->
-	  Sys.remove Utils.backup_xml_file;
-	  quit_callback gui ac_combo session_combo target_combo ()
+	    Sys.remove Utils.backup_xml_file;
+	    quit_callback gui ac_combo session_combo target_combo ()
       | _ -> () in
     question_box ()
   end else begin
