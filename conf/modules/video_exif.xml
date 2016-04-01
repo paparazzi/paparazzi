@@ -37,8 +37,8 @@
 
 
     <!-- libexif flags -->
-    <define name="$(EXTSW)" type="include"/>
-    <define name="$(LIBEXIF)" type="include"/>
+    <include name="$(EXTSW)"/>
+    <include name="$(LIBEXIF)"/>
     <define name="NO_VERBOSE_TAG_DATA"/>
     <define name="NO_VERBOSE_TAG_STRINGS"/>
     <define name="JPEG_WITH_EXIF_HEADER" value="1"/>

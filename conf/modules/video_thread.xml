@@ -54,7 +54,7 @@
   <makefile target="nps">
     <file name="video_thread_nps.c"/>
     <file name="cv.c"/>
-    <define name="modules/computer_vision" type="include"/>
+    <include name="modules/computer_vision"/>
     <file name="image.c" dir="modules/computer_vision/lib/vision"/>
     <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
     <flag name="LDFLAGS" value="lpthread"/>
