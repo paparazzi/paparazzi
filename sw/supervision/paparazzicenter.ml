@@ -136,7 +136,7 @@ let quit_callback = fun gui ac_combo session_combo target_combo _ ->
 let quit_button_callback = fun gui ac_combo session_combo target_combo ?(confirm_quit = true) () ->
   if backup_file_differs () then begin
     let rec question_box = fun () ->
-      match GToolbox.question_box ~title:"Quit" ~buttons:["Save changes"; "Discard changes"; "View changes"; "Cancel"] ~default:1 "Configuration changes have not been saved" with
+      match GToolbox.question_box ~title:"Quit" ~buttons:["Keep changes"; "Restore old version"; "View changes"; "Cancel"] ~default:1 "Configuration has been changed since startup but not saved" with
       | 2 ->
         ignore (Sys.command (sprintf "cp %s %s" Utils.backup_xml_file Utils.conf_xml_file));
 	    Sys.remove Utils.backup_xml_file;
