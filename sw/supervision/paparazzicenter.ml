@@ -34,6 +34,8 @@ let soi = string_of_int
 
 (*********************** Preferences handling **************************)
 
+let always_keep_changes = ref false
+
 let get_entry_value = fun xml name ->
   let e = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = name) xml "entry" in
   Xml.attrib e "value"
@@ -63,8 +65,14 @@ let read_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) (
 
   (*********** Left pane size *)
   read_one "left_pane_width"
-    (fun width -> gui#vbox_left_pane#misc#set_size_request ~width:(ios width) ())
+    (fun width -> gui#vbox_left_pane#misc#set_size_request ~width:(ios width) ());
 
+  (*********** Left pane size *)
+  read_one "always keep changes"
+    (fun keep_changes ->
+      match keep_changes with
+      | "true" -> always_keep_changes := true
+      | _ -> always_keep_changes := false)
 
 
 let gconf_entry = fun name value ->
@@ -102,6 +110,10 @@ let write_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) 
       add_entry xml "last target" name
     with _ -> xml) in
 
+  (* save always_keep_changes choice *)
+  let xml =
+    add_entry xml "always keep changes" (string_of_bool !always_keep_changes) in
+
   let xml =
     try
       (* Save window size *)
@@ -134,7 +146,7 @@ let quit_callback = fun gui ac_combo session_combo target_combo _ ->
   exit 0
 
 let quit_button_callback = fun gui ac_combo session_combo target_combo ?(confirm_quit = true) () ->
-  if backup_file_differs () then begin
+  if (not !always_keep_changes) && backup_file_differs () then begin
     let rec question_box = fun () ->
       match GToolbox.question_box ~title:"Quit" ~buttons:["Keep changes"; "Restore old version"; "View changes"; "Cancel"] ~default:1 "Configuration has been changed since startup but not saved" with
       | 2 ->
