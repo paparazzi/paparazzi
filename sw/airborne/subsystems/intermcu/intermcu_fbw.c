@@ -30,6 +30,7 @@
 #include "subsystems/electrical.h"
 #include "mcu_periph/uart.h"
 
+
 #include "modules/spektrum_soft_bind/spektrum_soft_bind_fbw.h"
 
 #include BOARD_CONFIG
@@ -150,8 +151,12 @@ static void intermcu_parse_msg(void (*commands_frame_handler)(void))
       uint8_t i;
       uint8_t size = DL_IMCU_COMMANDS_values_length(imcu_msg_buf);
       int16_t *new_commands = DL_IMCU_COMMANDS_values(imcu_msg_buf);
-      uint8_t status = DL_IMCU_COMMANDS_status(imcu_msg_buf);
-      autopilot_motors_on = status & 0x1;
+      intermcu.cmd_status |= DL_IMCU_COMMANDS_status(imcu_msg_buf);
+
+      // read the autopilot status and then clear it
+      autopilot_motors_on = intermcu.cmd_status & (1 << 0);
+      intermcu.cmd_status &= ~(1 << 0);
+
       for (i = 0; i < size; i++) {
         intermcu_commands[i] = new_commands[i];
       }

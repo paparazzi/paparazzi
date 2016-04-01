@@ -41,7 +41,7 @@
 struct intermcu_t intermcu = {
   .device = (&((INTERMCU_LINK).device)),
   .enabled = true,
-  .msg_available = false
+  .msg_available = false,
 };
 uint8_t imcu_msg_buf[128] __attribute__((aligned));  ///< The InterMCU message buffer
 static struct fbw_status_t fbw_status;
@@ -91,8 +91,10 @@ void intermcu_set_enabled(bool value)
 void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode __attribute__((unused)))
 {
   if (intermcu.enabled) {
+    intermcu.cmd_status |= (autopilot_motors_on & 0x1) << 0;
     pprz_msg_send_IMCU_COMMANDS(&(intermcu.transport.trans_tx), intermcu.device,
-                                INTERMCU_AP, &autopilot_motors_on, COMMANDS_NB, command_values); //TODO: Append more status
+                                INTERMCU_AP, &intermcu.cmd_status, COMMANDS_NB, command_values); //TODO: Append more status
+    intermcu.cmd_status = 0;
   }
 }
 

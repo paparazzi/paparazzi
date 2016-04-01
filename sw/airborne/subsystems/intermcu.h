@@ -58,6 +58,7 @@ struct intermcu_t {
   uint8_t time_since_last_frame;    ///< Time since last frame
   bool enabled;                     ///< If the InterMCU communication is enabled
   bool msg_available;               ///< If we have an InterMCU message
+  uint8_t cmd_status;               ///< The status information that needs to be transfered
 
 #ifdef BOARD_PX4IO
   enum intermcu_PX4_baud_status stable_px4_baud;
