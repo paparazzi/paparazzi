@@ -43,7 +43,7 @@ extern uint8_t send_ck;
 #define XsensInitCheksum() { send_ck = 0; }
 #define XsensUpdateChecksum(c) { send_ck += c; }
 
-#define XsensUartSend1(c) XsensLinkDevice->put_byte(XsensLinkDevice->periph, c)
+#define XsensUartSend1(c) XsensLinkDevice->put_byte(XsensLinkDevice->periph, 0, c)
 #define XsensSend1(c) { uint8_t i8=c; XsensUartSend1(i8); XsensUpdateChecksum(i8); }
 #define XsensSend1ByAddr(x) { XsensSend1(*x); }
 #define XsensSend2ByAddr(x) { XsensSend1(*(x+1)); XsensSend1(*x); }

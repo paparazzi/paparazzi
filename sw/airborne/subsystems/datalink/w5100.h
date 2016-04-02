@@ -66,6 +66,7 @@ extern struct w5100_periph chip0;
 
 void w5100_init(void);
 void w5100_transmit(uint8_t data);
+void w5100_transmit_buffer(uint8_t *data, uint16_t len);
 uint16_t w5100_receive(uint8_t *buf, uint16_t len);
 void w5100_send(void);
 uint16_t w5100_rx_size(uint8_t _s);

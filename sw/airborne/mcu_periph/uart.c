@@ -228,8 +228,6 @@ static void send_uart_err(struct transport_tx *trans __attribute__ ((unused)),
 }
 #endif
 
-static void null_function(struct uart_periph *p __attribute__((unused))) {}
-
 void uart_periph_init(struct uart_periph *p)
 {
   p->rx_insert_idx = 0;
@@ -241,12 +239,13 @@ void uart_periph_init(struct uart_periph *p)
   p->ne_err = 0;
   p->fe_err = 0;
   p->device.periph = (void *)p;
-  p->device.check_free_space = (check_free_space_t)uart_check_free_space;
-  p->device.put_byte = (put_byte_t)uart_put_byte;
-  p->device.send_message = (send_message_t)null_function;
-  p->device.char_available = (char_available_t)uart_char_available;
-  p->device.get_byte = (get_byte_t)uart_getch;
-  p->device.set_baudrate = (set_baudrate_t)uart_periph_set_baudrate;
+  p->device.check_free_space = (check_free_space_t) uart_check_free_space;
+  p->device.put_byte = (put_byte_t) uart_put_byte;
+  p->device.put_buffer = (put_buffer_t) uart_put_buffer;
+  p->device.send_message = (send_message_t) uart_send_message;
+  p->device.char_available = (char_available_t) uart_char_available;
+  p->device.get_byte = (get_byte_t) uart_getch;
+  p->device.set_baudrate = (set_baudrate_t) uart_periph_set_baudrate;
 
 #if PERIODIC_TELEMETRY
   // the first to register do it for the others
@@ -254,13 +253,27 @@ void uart_periph_init(struct uart_periph *p)
 #endif
 }
 
-bool uart_check_free_space(struct uart_periph *p, uint8_t len)
+bool WEAK uart_check_free_space(struct uart_periph *p, long *fd __attribute__((unused)), uint16_t len)
 {
   int16_t space = p->tx_extract_idx - p->tx_insert_idx;
   if (space <= 0) {
     space += UART_TX_BUFFER_SIZE;
   }
   return (uint16_t)(space - 1) >= len;
+}
+
+// Weak implementation of put_buffer, byte by byte
+void WEAK uart_put_buffer(struct uart_periph *p, long fd, const uint8_t *data, uint16_t len)
+{
+  int i = 0;
+  for (i = 0; i < len; i++) {
+    uart_put_byte(p, fd, data[i]);
+  }
+}
+
+// Weak implementation of send_message, not needed for stream operation
+void WEAK uart_send_message(struct uart_periph *p __attribute__((unused)), long fd __attribute__((unused)))
+{
 }
 
 uint8_t WEAK uart_getch(struct uart_periph *p)
@@ -282,3 +295,4 @@ uint16_t WEAK uart_char_available(struct uart_periph *p)
 void WEAK uart_arch_init(void)
 {
 }
+

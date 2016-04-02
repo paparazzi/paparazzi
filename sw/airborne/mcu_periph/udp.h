@@ -50,13 +50,13 @@ struct udp_periph {
 };
 
 extern void     udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool broadcast);
-extern bool   udp_check_free_space(struct udp_periph *p, uint8_t len);
-extern void     udp_put_byte(struct udp_periph *p, uint8_t data);
+extern bool     udp_check_free_space(struct udp_periph *p, long *fd, uint16_t len);
+extern void     udp_put_byte(struct udp_periph *p, long fd, uint8_t data);
 extern uint16_t udp_char_available(struct udp_periph *p);
 extern uint8_t  udp_getch(struct udp_periph *p);
 extern void     udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool broadcast);
-extern void     udp_send_message(struct udp_periph *p);
-extern void     udp_send_raw(struct udp_periph *p, uint8_t *buffer, uint16_t size);
+extern void     udp_send_message(struct udp_periph *p, long fd);
+extern void     udp_send_raw(struct udp_periph *p, long fd, uint8_t *buffer, uint16_t size);
 extern void     udp_receive(struct udp_periph *p);
 
 #if USE_UDP0
