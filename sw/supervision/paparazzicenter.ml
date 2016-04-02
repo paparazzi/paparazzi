@@ -147,20 +147,30 @@ let quit_callback = fun gui ac_combo session_combo target_combo _ ->
 
 let quit_button_callback = fun gui ac_combo session_combo target_combo ?(confirm_quit = true) () ->
   if (not !always_keep_changes) && backup_file_differs () then begin
-    let rec question_box = fun () ->
-      match GToolbox.question_box ~title:"Quit" ~buttons:["Keep changes"; "Restore old version"; "View changes"; "Cancel"] ~default:1 "Configuration has been changed since startup but not saved" with
-      | 2 ->
-        ignore (Sys.command (sprintf "cp %s %s" Utils.backup_xml_file Utils.conf_xml_file));
-	    Sys.remove Utils.backup_xml_file;
+    let dialog = GWindow.dialog ~title:"Quit" ~modal:true () in
+    dialog#add_button "Keep changes" `APPLY;
+    dialog#add_button "Restore old version" `REJECT;
+    dialog#add_button "View changes" `HELP;
+    dialog#add_button "Cancel" `CANCEL;
+    let _ = GMisc.label ~text:"Configuration has been changed since startup but not saved" ~packing:dialog#vbox#pack () in
+    let checkbox = GButton.check_button ~label:"Always keep changes" ~active:!always_keep_changes ~packing:dialog#vbox#pack () in
+    ignore (checkbox#connect#toggled (fun () ->
+      always_keep_changes := checkbox#active;
+      gui#menu_item_always_keep_changes#set_active checkbox#active;));
+
+    match dialog#run () with
+      `APPLY ->
+        Sys.remove Utils.backup_xml_file;
 	    quit_callback gui ac_combo session_combo target_combo ()
-      | 3 ->
-	    ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file));
-	    question_box ()
-      | 1 ->
-	    Sys.remove Utils.backup_xml_file;
-	    quit_callback gui ac_combo session_combo target_combo ()
-      | _ -> () in
-    question_box ()
+    | `REJECT ->
+      ignore (Sys.command (sprintf "cp %s %s" Utils.backup_xml_file Utils.conf_xml_file));
+	  Sys.remove Utils.backup_xml_file;
+	  quit_callback gui ac_combo session_combo target_combo ()
+    | `HELP ->
+      ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file))
+    | `CANCEL ->
+      dialog#destroy ()
+    | _ -> ()
   end else begin
     if Sys.file_exists Utils.backup_xml_file then
       Sys.remove Utils.backup_xml_file;
