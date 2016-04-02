@@ -58,6 +58,7 @@ extern void     udp_arch_periph_init(struct udp_periph *p, char *host, int port_
 extern void     udp_send_message(struct udp_periph *p, long fd);
 extern void     udp_send_raw(struct udp_periph *p, long fd, uint8_t *buffer, uint16_t size);
 extern void     udp_receive(struct udp_periph *p);
+extern void     udp_put_buffer(struct udp_periph *p, long fd, const uint8_t *data, uint16_t len);
 
 #if USE_UDP0
 extern struct udp_periph udp0;
