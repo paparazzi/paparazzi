@@ -139,7 +139,7 @@ void udp_receive(struct udp_periph *p)
 /**
  * Send a message
  */
-void udp_send_message(struct udp_periph *p, long fd __attribute__((unused)))
+void udp_send_message(struct udp_periph *p)
 {
   if (p == NULL) return;
   if (p->network == NULL) return;
@@ -165,7 +165,7 @@ void udp_send_message(struct udp_periph *p, long fd __attribute__((unused)))
 /**
  * Send a packet from another buffer
  */
-void udp_send_raw(struct udp_periph *p, long fd __attribute__((unused)), uint8_t *buffer, uint16_t size)
+void udp_send_raw(struct udp_periph *p, uint8_t *buffer, uint16_t size)
 {
   if (p == NULL) return;
   if (p->network == NULL) return;

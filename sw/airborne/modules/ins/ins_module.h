@@ -79,7 +79,7 @@ void parse_ins_buffer(uint8_t);
 #include "mcu_periph/uart.h"
 #include "mcu_periph/spi.h"
 
-#define InsSend1(c) InsLinkDevice->put_byte(InsLinkDevice->periph, 0, c)
+#define InsSend1(c) InsLinkDevice->put_byte(InsLinkDevice->periph, c)
 #define InsUartSend1(c) InsSend1(c)
 #define InsSend(_dat,_len) { for (uint8_t i = 0; i< (_len); i++) InsSend1(_dat[i]); };
 #define InsUartSetBaudrate(_b) uart_periph_set_baudrate(INS_LINK, _b)

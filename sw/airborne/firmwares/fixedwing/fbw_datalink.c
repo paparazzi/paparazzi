@@ -36,12 +36,12 @@
 
 static inline void autopilot_parse(char c)
 {
-  ModemLinkDevice->put_byte(ModemLinkDevice->periph, 0, c);
+  ModemLinkDevice->put_byte(ModemLinkDevice->periph, c);
 }
 
 static inline void modem_parse(char c)
 {
-  AutopilotLinkDevice->put_byte(AutopilotLinkDevice->periph, 0, c);
+  AutopilotLinkDevice->put_byte(AutopilotLinkDevice->periph, c);
 }
 
 void fbw_datalink_periodic(void)

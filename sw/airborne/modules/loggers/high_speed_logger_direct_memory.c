@@ -740,11 +740,10 @@ void send_buffer_to_uart(void)
 
   uint8_t msg_size = memory_transaction.input_length;
   static uint8_t i = MEMORY_READ_LATTENCY;
-  long fd = 0;
 
   if (sending_buffer_to_uart) {
 
-    while (uart_check_free_space(&HS_LOG_UART, &fd, 1)) {
+    while (uart_check_free_space(&HS_LOG_UART, 1)) {
 
       if (i >= msg_size) {
 
@@ -757,7 +756,7 @@ void send_buffer_to_uart(void)
         }
         break;
       }
-      uart_put_byte(&HS_LOG_UART, fd, uart_read_buff[i]);
+      uart_put_byte(&HS_LOG_UART, uart_read_buff[i]);
       i++;
     }
 

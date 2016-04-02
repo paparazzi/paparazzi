@@ -397,7 +397,7 @@ uint32_t gps_piksi_write(uint8_t *buff, uint32_t n, void *context __attribute__(
 {
   uint32_t i = 0;
   for (i = 0; i < n; i++) {
-    uart_put_byte(&(PIKSI_GPS_LINK), 0, buff[i]);
+    uart_put_byte(&(PIKSI_GPS_LINK), buff[i]);
   }
   return n;
 }

@@ -223,11 +223,11 @@ static void checkPx4RebootCommand(unsigned char b)
 
       //send some magic back
       //this is the same as the Pixhawk IO code would send
-      intermcu_device->put_byte(intermcu_device->periph, 0, 0x00);
-      intermcu_device->put_byte(intermcu_device->periph, 0, 0xe5);
-      intermcu_device->put_byte(intermcu_device->periph, 0, 0x32);
-      intermcu_device->put_byte(intermcu_device->periph, 0, 0x0a);
-      intermcu_device->put_byte(intermcu_device->periph, 0,
+      intermcu_device->put_byte(intermcu_device->periph, 0x00);
+      intermcu_device->put_byte(intermcu_device->periph, 0xe5);
+      intermcu_device->put_byte(intermcu_device->periph, 0x32);
+      intermcu_device->put_byte(intermcu_device->periph, 0x0a);
+      intermcu_device->put_byte(intermcu_device->periph,
                                 0x66); // dummy byte, seems to be necessary otherwise one byte is missing at the fmu side...
 
       while (((struct uart_periph *)(intermcu_device->periph))->tx_running) {

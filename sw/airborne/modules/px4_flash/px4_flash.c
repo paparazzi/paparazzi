@@ -90,7 +90,7 @@ void px4flash_event(void)
       //relay everything from IO to the laptop
       while (PX4IO_PORT->char_available(PX4IO_PORT->periph)) {
         unsigned char b = PX4IO_PORT->get_byte(PX4IO_PORT->periph);
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, b);
+        FLASH_PORT->put_byte(FLASH_PORT->periph, b);
       }
     }
   }
@@ -100,7 +100,7 @@ void px4flash_event(void)
     // TMP TEST
     //    while (FLASH_PORT->char_available(FLASH_PORT->periph)) {
     //      unsigned char bla = FLASH_PORT->get_byte(FLASH_PORT->periph);
-    //      FLASH_PORT->put_byte(FLASH_PORT->periph, 0,bla);
+    //      FLASH_PORT->put_byte(FLASH_PORT->periph,bla);
     //    }
     //    return;
 
@@ -138,22 +138,22 @@ void px4flash_event(void)
 
       //first check if the bootloader has not timeout:
       if (px4ioRebootTimeout) {
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'T');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'I');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'M');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'E');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'O');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'U');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'T'); // use 7 chars as answer
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'T');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'I');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'M');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'E');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'O');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'U');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'T'); // use 7 chars as answer
         return;
       }  { // FBW OK OK hollay hollay :)
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'F');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'B');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'W');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'O');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'K');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'O');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'K'); // use 7 chars as answer
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'F');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'B');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'W');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'O');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'K');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'O');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'K'); // use 7 chars as answer
       }
 
 
@@ -186,12 +186,12 @@ void px4flash_event(void)
       dma_packet.crc = crc_packet(&dma_packet);
       struct IOPacket *pkt = &dma_packet;
       uint8_t *p = (uint8_t *)pkt;
-      PX4IO_PORT->put_byte(PX4IO_PORT->periph, 0, p[0]);
-      PX4IO_PORT->put_byte(PX4IO_PORT->periph, 0, p[1]);
-      PX4IO_PORT->put_byte(PX4IO_PORT->periph, 0, p[2]);
-      PX4IO_PORT->put_byte(PX4IO_PORT->periph, 0, p[3]);
-      PX4IO_PORT->put_byte(PX4IO_PORT->periph, 0, p[4]);
-      PX4IO_PORT->put_byte(PX4IO_PORT->periph, 0, p[5]);
+      PX4IO_PORT->put_byte(PX4IO_PORT->periph, p[0]);
+      PX4IO_PORT->put_byte(PX4IO_PORT->periph, p[1]);
+      PX4IO_PORT->put_byte(PX4IO_PORT->periph, p[2]);
+      PX4IO_PORT->put_byte(PX4IO_PORT->periph, p[3]);
+      PX4IO_PORT->put_byte(PX4IO_PORT->periph, p[4]);
+      PX4IO_PORT->put_byte(PX4IO_PORT->periph, p[5]);
 
       sys_time_usleep(5000); // this seems to be close to the minimum delay necessary to process this packet at the IO side
       //the pixhawk IO chip should respond with:
@@ -235,8 +235,8 @@ void px4flash_event(void)
           sys_time_usleep(10000);
 
           //send a get_sync command in order to keep the io in bootloader mode
-          PX4IO_PORT->put_byte(PX4IO_PORT->periph, 0, PROTO_GET_SYNC);
-          PX4IO_PORT->put_byte(PX4IO_PORT->periph, 0, PROTO_EOC);
+          PX4IO_PORT->put_byte(PX4IO_PORT->periph, PROTO_GET_SYNC);
+          PX4IO_PORT->put_byte(PX4IO_PORT->periph, PROTO_EOC);
 
           //get_sync should be replied with, so check if that happens and
           //all other bytes are discarded, hopefully those were not important
@@ -256,13 +256,13 @@ void px4flash_event(void)
           while (PX4IO_PORT->char_available(PX4IO_PORT->periph)) {PX4IO_PORT->get_byte(PX4IO_PORT->periph);}
         }
       } else {
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'E'); //TODO: find out what the PX4 protocol for error feedback is...
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'R');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'R');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'O');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'R');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, '!');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, ' '); // use 7 chars as answer
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'E'); //TODO: find out what the PX4 protocol for error feedback is...
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'R');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'R');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'O');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 'R');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, '!');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, ' '); // use 7 chars as answer
 
       }
     }
@@ -270,7 +270,7 @@ void px4flash_event(void)
     //already in bootloader mode, just directly relay data
     while (FLASH_PORT->char_available(FLASH_PORT->periph)) {
       unsigned char b = FLASH_PORT->get_byte(FLASH_PORT->periph);
-      PX4IO_PORT->put_byte(PX4IO_PORT->periph, 0, b);
+      PX4IO_PORT->put_byte(PX4IO_PORT->periph, b);
     }
   }
 }

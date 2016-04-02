@@ -31,7 +31,7 @@ static uint8_t drop_string[] = "<Drop_Paintball_Now";
 
 void drop_ball(uint8_t number) {
   for(uint8_t i = 0; i < DROP_STRINGLEN; i++)
-    uart_put_byte(&UART_DROP_PORT, 0, drop_string[i]);
+    uart_put_byte(&UART_DROP_PORT, drop_string[i]);
 
   uint8_t last = '>';
   if(number == 1) {
@@ -43,5 +43,5 @@ void drop_ball(uint8_t number) {
   } else if(number == 4) {
     last = '4';
   }
-  uart_put_byte(&UART_DROP_PORT, 0, last);
+  uart_put_byte(&UART_DROP_PORT, last);
 }

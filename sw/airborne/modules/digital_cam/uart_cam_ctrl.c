@@ -47,7 +47,7 @@
 
 
 #define CameraLinkDev (&((CAMERA_LINK).device))
-#define CameraLinkTransmit(c) CameraLinkDev->put_byte(CameraLinkDev->periph, 0, c)
+#define CameraLinkTransmit(c) CameraLinkDev->put_byte(CameraLinkDev->periph, c)
 #define CameraLinkChAvailable() CameraLinkDev->char_available(CameraLinkDev->periph)
 #define CameraLinkGetch() CameraLinkDev->get_byte(CameraLinkDev->periph)
 

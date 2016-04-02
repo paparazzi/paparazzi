@@ -39,7 +39,7 @@ static inline void print_string(struct link_device *dev, char *s)
 {
   uint8_t i = 0;
   while (s[i]) {
-    dev->put_byte(dev->periph, 0, s[i]);
+    dev->put_byte(dev->periph, s[i]);
     i++;
   }
 }
@@ -60,8 +60,8 @@ static inline void print_hex(struct link_device *dev, uint8_t c)
     '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
   uint8_t high = (c & 0xF0)>>4;
   uint8_t low  = c & 0x0F;
-  dev->put_byte(dev->periph, 0, hex[high]);
-  dev->put_byte(dev->periph, 0, hex[low]);
+  dev->put_byte(dev->periph, hex[high]);
+  dev->put_byte(dev->periph, hex[low]);
 }
 
 #define _PrintHex16(out_fun, c ) {    \

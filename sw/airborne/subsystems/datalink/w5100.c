@@ -169,10 +169,9 @@ static inline uint16_t w5100_sock_get16(uint8_t _sock, uint16_t _reg)
 }
 
 // Functions for the generic device API
-static int true_function(struct w5100_periph *p __attribute__((unused)), long *fd __attribute__((unused)), uint16_t len __attribute__((unused))) { return true; }
-static void dev_transmit(struct w5100_periph *p __attribute__((unused)), long fd __attribute__((unused)), uint8_t byte) {  w5100_transmit(byte); }
-static void dev_transmit_buffer(struct w5100_periph *p __attribute__((unused)), long fd __attribute__((unused)), uint8_t *data, uint16_t len) {  w5100_transmit_buffer(data, len); }
-static void dev_send(struct w5100_periph *p __attribute__((unused)), long fd __attribute__((unused))) { w5100_send(); }
+static int true_function(struct w5100_periph *p __attribute__((unused)), uint8_t len __attribute__((unused))) { return true; }
+static void dev_transmit(struct w5100_periph *p __attribute__((unused)), uint8_t byte) {  w5100_transmit(byte); }
+static void dev_send(struct w5100_periph *p __attribute__((unused))) { w5100_send(); }
 static int dev_char_available(struct w5100_periph *p __attribute__((unused))) { return w5100_ch_available; }
 static uint8_t dev_getch(struct w5100_periph *p __attribute__((unused)))
 {
@@ -253,7 +252,6 @@ void w5100_init(void)
   chip0.device.periph = (void *)(&chip0);
   chip0.device.check_free_space = (check_free_space_t) true_function;
   chip0.device.put_byte = (put_byte_t) dev_transmit;
-  chip0.device.put_buffer = (put_buffer_t) dev_transmit_buffer;
   chip0.device.send_message = (send_message_t) dev_send;
   chip0.device.char_available = (char_available_t) dev_char_available;
   chip0.device.get_byte = (get_byte_t) dev_getch;
@@ -272,14 +270,6 @@ void w5100_transmit(uint8_t data)
   // check if in process of sending data
   chip0.tx_buf[ chip0.curbuf ][ chip0.tx_insert_idx[ chip0.curbuf ] ] = data;
   chip0.tx_insert_idx[ chip0.curbuf ] = temp;
-}
-
-void w5100_transmit_buffer(uint8_t *data, uint16_t len)
-{
-  int i;
-  for (i = 0; i < len; i++) {
-    w5100_transmit(data[i]);
-  }
 }
 
 void w5100_send()

@@ -23,10 +23,10 @@
 
 /**
  * @file modules/gps/gps_ubx_i2c.h
- * pprz link device for Ublox over I2C
+ * pprz link device for Ublox over I2C 
  *
  * This module adds i2c functionality for the ublox using existing
- * driver
+ * driver 
  */
 
 #ifndef GPS_UBX_I2C_H
@@ -46,7 +46,7 @@ typedef enum GpsI2CReadState
   gps_i2c_read_sizeof,      ///< read size of ubx buffer
   gps_i2c_read_data         ///< read data from ubx buffer
 } GpsI2CReadState;
-
+ 
 /** write states
  */
 typedef enum GpsI2CWriteState

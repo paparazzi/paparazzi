@@ -201,7 +201,7 @@ static void send_superbit(struct transport_tx *trans, struct link_device *dev)
 #endif
 
 // Functions for the generic device API
-static bool superbitrf_check_free_space(struct SuperbitRF *p, long *fd __attribute__((unused)), uint16_t len)
+static bool superbitrf_check_free_space(struct SuperbitRF *p, uint8_t len)
 {
   int16_t space = p->tx_extract_idx - p->tx_insert_idx;
   if (space <= 0) {
@@ -210,21 +210,13 @@ static bool superbitrf_check_free_space(struct SuperbitRF *p, long *fd __attribu
   return (uint16_t)(space - 1) >= len;
 }
 
-static void superbitrf_transmit(struct SuperbitRF *p, long fd __attribute__((unused)), uint8_t byte)
+static void superbitrf_transmit(struct SuperbitRF *p, uint8_t byte)
 {
   p->tx_buffer[p->tx_insert_idx] = byte;
   p->tx_insert_idx = (p->tx_insert_idx + 1) % SUPERBITRF_TX_BUFFER_SIZE;
 }
 
-static void superbitrf_transmit_buffer(struct SuperbitRF *p, long fd, uint8_t *data, uint16_t len)
-{
-  int i;
-  for (i = 0; i < len; i++) {
-    superbitrf_transmit(p, fd, data[i]);
-  }
-}
-
-static void superbitrf_send(struct SuperbitRF *p __attribute__((unused)), long fd __attribute__((unused))) { }
+static void superbitrf_send(struct SuperbitRF *p __attribute__((unused))) { }
 
 static int null_function(struct SuperbitRF *p __attribute__((unused))) { return 0; }
 
@@ -252,7 +244,6 @@ void superbitrf_init(void)
   superbitrf.device.periph = (void *)(&superbitrf);
   superbitrf.device.check_free_space = (check_free_space_t) superbitrf_check_free_space;
   superbitrf.device.put_byte = (put_byte_t) superbitrf_transmit;
-  superbitrf.device.put_buffer = (put_buffer_t) superbitrf_transmit_buffer;
   superbitrf.device.send_message = (send_message_t) superbitrf_send;
   superbitrf.device.char_available = (char_available_t) null_function; // not needed
   superbitrf.device.get_byte = (get_byte_t) null_function; // not needed
