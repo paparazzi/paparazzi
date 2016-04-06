@@ -237,6 +237,7 @@ let my_xml_parse_file =
 let parse_file = fun ?(noprovedtd = false) file ->
   try (if noprovedtd then my_xml_parse_file else Xml.parse_file) file
   with
+  | Sys_error e -> failwith (sprintf "Error loading xml file %s: %s" file e)
   | Xml.Error e -> failwith (sprintf "XML error in %s: %s" file (Xml.error e))
   | Xml.File_not_found f -> failwith (sprintf "File not found: %s" f)
   | Dtd.Prove_error e -> failwith (sprintf "DTD prove error in %s: %s" file (Dtd.prove_error e))
