@@ -369,7 +369,7 @@ void v_ctl_climb_loop(void)
 #ifndef SITL
   /* convert last imu accel measurement to float */
   struct FloatVect3 accel_imu_f;
-  ACCELS_BFP_OF_REAL(accel_imu_f, accel_imu_meas);
+  ACCELS_FLOAT_OF_BFP(accel_imu_f, accel_imu_meas);
   /* rotate from imu to body frame */
   struct FloatVect3 accel_meas_body;
   float_quat_vmult(&accel_meas_body, &imu_to_body_quat, &accel_imu_f);
