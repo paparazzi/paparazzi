@@ -31,6 +31,7 @@ type ac_cam = {
 type rc_status = string (** OK, LOST, REALLY_LOST *)
 type rc_mode = string (** MANUAL, AUTO, FAILSAFE *)
 type fbw = {
+  mutable fbw_bat : float;
   mutable rc_status : rc_status;
   mutable rc_mode : rc_mode;
   mutable rc_rate : int;
@@ -215,7 +216,7 @@ let new_aircraft = fun id name fp airframe ->
     gps_mode = 0; gps_Pacc = 0; periodic_callbacks = [];
     state_filter_mode = 0;
     cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
-    fbw = { rc_status = "???"; rc_mode = "???"; rc_rate=0; pprz_mode_msgs_since_last_fbw_status_msg=0 };
+    fbw = { rc_status = "???"; rc_mode = "???"; rc_rate=0; fbw_bat=0.; pprz_mode_msgs_since_last_fbw_status_msg=0 };
     svinfo = svsinfo_init;
     dl_setting_values = Array.make max_nb_dl_setting_values None;
     nb_dl_setting_values = 0;
