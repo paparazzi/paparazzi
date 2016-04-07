@@ -128,6 +128,7 @@
       <program name="Server"/>
       <program name="GCS">
         <arg flag="-speech" />
+        <arg flag="-layout"  constant="bottom_settings.xml" />
       </program>
     </session>
     <session name="Flight UDP">
