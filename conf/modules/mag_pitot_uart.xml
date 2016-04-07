@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mag_pitot_uart" dir="sensors">
+  <doc>
+    <description>Remotely located magnetometer and pitot tube over uart (RS232) communication</description>
+  </doc>
+  <header>
+    <file name="mag_pitot_uart.h"/>
+  </header>
+  <init fun="mag_pitot_init()"/>
+  <event fun="mag_pitot_event()"/>
+  <makefile>
+    <configure name="MAG_PITOT_PORT" default="uart5" case="upper|lower"/>
+    <define name="USE_$(MAG_PITOT_PORT_UPPER)"/>
+    <define name="USE_$(MAG_PITOT_PORT_UPPER)_TX" value="FALSE"/>
+    <define name="$(MAG_PITOT_PORT_UPPER)_BAUD" value="$(MAG_PITOT_BAUD)"/>
+    <define name="MAG_PITOT_PORT" value="$(MAG_PITOT_PORT_LOWER)"/>
+    <file name="mag_pitot_uart.c"/>
+    <file name="pprz_transport.c" dir="pprzlink/src"/>
+  </makefile>
+</module>
+
