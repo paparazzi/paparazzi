@@ -158,7 +158,7 @@ void px4flash_event(void)
 
 
       //stop all intermcu communication:
-      disable_inter_comm(true);
+      intermcu_set_enabled(FALSE);
 
       px4iobl_tid = sys_time_register_timer(5.0, NULL); //10 (fbw pprz bl timeout)-5 (px4 fmu bl timeout)
       /*

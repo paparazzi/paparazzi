@@ -29,6 +29,7 @@
 
 #include "std.h"
 #include "subsystems/commands.h"
+#include "pprzlink/pprz_transport.h"
 
 #define INTERMCU_AP   0
 #define INTERMCU_FBW  1
@@ -51,13 +52,18 @@ enum intermcu_PX4_baud_status {
 };
 
 struct intermcu_t {
-  enum intermcu_status status;
-  uint8_t time_since_last_frame;
+  struct link_device *device;       ///< Device used for communication
+  struct pprz_transport transport;  ///< Transport over communication line (PPRZ)
+  enum intermcu_status status;      ///< Status of the INTERMCU
+  uint8_t time_since_last_frame;    ///< Time since last frame
+  bool enabled;                     ///< If the InterMCU communication is enabled
+  bool msg_available;               ///< If we have an InterMCU message
+
 #ifdef BOARD_PX4IO
   enum intermcu_PX4_baud_status stable_px4_baud;
 #endif
 };
-extern struct intermcu_t inter_mcu;
+extern struct intermcu_t intermcu;
 
 
 
