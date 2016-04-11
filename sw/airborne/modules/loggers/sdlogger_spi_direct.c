@@ -223,13 +223,16 @@ void sdlogger_spi_direct_index_received(void)
     case SDLogger_RetreivingIndex:
       sdlogger_spi.next_available_address = 0x00004000;
       sdlogger_spi.last_completed = 0;
-      /* Save data for later use
+      // Save data for later use
       sdlogger_spi.next_available_address = (sdcard1.input_buf[0] << 24) |
                                             (sdcard1.input_buf[1] << 16) |
                                             (sdcard1.input_buf[2] << 8) |
                                             (sdcard1.input_buf[3]);
       sdlogger_spi.last_completed = sdcard1.input_buf[4];
-      */
+
+      if(sdlogger_spi.next_available_address < 0x00004000) {
+        sdlogger_spi.next_available_address = 0x00004000;
+      }
 
       /* Ready to start logging */
       sdlogger_spi.status = SDLogger_Ready;
