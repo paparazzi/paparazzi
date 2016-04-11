@@ -32,7 +32,6 @@
 #include "modules/loggers/sdlogger_spi_direct.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/datalink/telemetry.h"
-#include "subsystems/radio_control.h"
 #include "led.h"
 
 #ifdef LOGGER_LED
@@ -86,6 +85,7 @@ void sdlogger_spi_direct_init(void)
   sdlogger_spi.download_id = 0;
   sdlogger_spi.download_address = 0;
   sdlogger_spi.download_length = 0;
+  sdlogger_spi.do_log = 0;
 
   /* Set function pointers in link_device to the logger functions */
   sdlogger_spi.device.check_free_space = (check_free_space_t)sdlogger_spi_direct_check_free_space;
@@ -115,7 +115,7 @@ void sdlogger_spi_direct_periodic(void)
       break;
 
     case SDLogger_Ready:
-      if (radio_control.values[SDLOGGER_CONTROL_SWITCH] > 0 &&
+      if ((sdlogger_spi.do_log == 1) &&
           sdcard1.status == SDCard_Idle) {
         LOGGER_LED_ON;
         sdcard_spi_multiwrite_start(&sdcard1, sdlogger_spi.next_available_address);
@@ -136,7 +136,7 @@ void sdlogger_spi_direct_periodic(void)
         sdcard_spi_multiwrite_next(&sdcard1, &sdlogger_spi_direct_multiwrite_written);
       }
       /* Check if switch is flipped to stop logging */
-      if (radio_control.values[SDLOGGER_CONTROL_SWITCH] < 0) {
+      if (sdlogger_spi.do_log == 0) {
         sdlogger_spi.status = SDLogger_LoggingFinalBlock;
       }
       break;

@@ -35,9 +35,7 @@
       <!--module name="geo_mag"/-->
       <module name="air_data"/>
       <module name="temp_adc"/>
-      <module name="logger_sd_spi_direct">
-        <define name="SDLOGGER_DIRECT_CONTROL_SWITCH" value="AUX3"/>
-      </module>
+      <module name="logger_sd_spi_direct"/>
       <module name="gps_ubx_ucenter"/>
       <module name="heli_throttle_curve"/>
       <define name="ROTORCRAFT_IS_HELI" value="TRUE" />
