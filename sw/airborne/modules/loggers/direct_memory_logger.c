@@ -159,7 +159,7 @@ void direct_memory_logger_periodic(void)
       }
 
       for (i = 5; i < end_idx; i++) {
-        uart_put_byte(&DM_LOG_UART, dml.buffer[i]);
+        uart_put_byte(&DM_LOG_UART, 0, dml.buffer[i]);
       }
 
       // Read next bytes
