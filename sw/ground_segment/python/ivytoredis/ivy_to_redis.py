@@ -16,7 +16,7 @@ PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirn
 PPRZ_LIB_PYTHON = os.path.join(PPRZ_SRC, "sw/lib/python")
 sys.path.append(PPRZ_LIB_PYTHON)
 
-from ivy_msg_interface import IvyMessagesInterface
+from pprzlink.ivy import IvyMessagesInterface
 
 server = None
 

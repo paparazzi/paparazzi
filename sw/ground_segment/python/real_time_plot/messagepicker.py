@@ -12,7 +12,7 @@ from os import path, getenv
 PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 
-from ivy_msg_interface import IvyMessagesInterface
+from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
 

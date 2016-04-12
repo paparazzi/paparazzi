@@ -14,7 +14,7 @@ sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 
 PPRZ_HOME = getenv("PAPARAZZI_HOME", PPRZ_SRC)
 
-from ivy_msg_interface import IvyMessagesInterface
+from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
 WIDTH = 450

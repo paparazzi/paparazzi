@@ -11,7 +11,7 @@ PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abs
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
 sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 
-from ivy_msg_interface import IvyMessagesInterface
+from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 from settings_xml_parse import PaparazziACSettings
 

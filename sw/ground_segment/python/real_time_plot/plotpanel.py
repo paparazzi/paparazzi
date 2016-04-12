@@ -19,7 +19,7 @@ sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 
 import pprz_env
 from pprzlink import messages_xml_map
-from ivy_msg_interface import IvyMessagesInterface
+from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
 class PlotData:

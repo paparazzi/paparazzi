@@ -10,7 +10,7 @@ import pygame.mixer
 
 sys.path.append(os.getenv("PAPARAZZI_HOME") + "/sw/ext/pprzlink/lib/v1.0/python")
 
-from ivy_msg_interface import IvyMessagesInterface
+from pprzlink.ivy import IvyMessagesInterface
 
 WIDTH = 150
 HEIGHT = 40
