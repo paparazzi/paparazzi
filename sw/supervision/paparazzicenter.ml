@@ -34,6 +34,8 @@ let soi = string_of_int
 
 (*********************** Preferences handling **************************)
 
+let always_keep_changes = ref false
+
 let get_entry_value = fun xml name ->
   let e = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = name) xml "entry" in
   Xml.attrib e "value"
@@ -63,8 +65,14 @@ let read_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) (
 
   (*********** Left pane size *)
   read_one "left_pane_width"
-    (fun width -> gui#vbox_left_pane#misc#set_size_request ~width:(ios width) ())
+    (fun width -> gui#vbox_left_pane#misc#set_size_request ~width:(ios width) ());
 
+  (*********** Left pane size *)
+  read_one "always keep changes"
+    (fun keep_changes ->
+      match keep_changes with
+      | "true" -> always_keep_changes := true
+      | _ -> always_keep_changes := false)
 
 
 let gconf_entry = fun name value ->
@@ -102,6 +110,10 @@ let write_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) 
       add_entry xml "last target" name
     with _ -> xml) in
 
+  (* save always_keep_changes choice *)
+  let xml =
+    add_entry xml "always keep changes" (string_of_bool !always_keep_changes) in
+
   let xml =
     try
       (* Save window size *)
@@ -122,31 +134,61 @@ let write_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) 
   Printf.fprintf f "%s\n" (ExtXml.to_string_fmt xml);
   close_out f
 
+let backup_file_differs = fun () ->
+  if Sys.file_exists Utils.backup_xml_file then
+    ExtXml.parse_file Utils.backup_xml_file <> ExtXml.parse_file Utils.conf_xml_file
+  else
+    false
+
 let quit_callback = fun gui ac_combo session_combo target_combo _ ->
   CP.close_programs gui;
   write_preferences gui Env.gconf_file ac_combo session_combo target_combo;
   exit 0
 
-let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
-  if Sys.file_exists Utils.backup_xml_file then begin
-    let rec question_box = fun () ->
-      match GToolbox.question_box ~title:"Quit" ~buttons:["Save changes"; "Discard changes"; "View changes"; "Cancel"] ~default:1 "Configuration changes have not been saved" with
-      | 2 ->
-	  Sys.rename Utils.backup_xml_file Utils.conf_xml_file;
-	  quit_callback gui ac_combo session_combo target_combo ()
-      | 3 ->
-	  ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file));
-	  question_box ()
-      | 1 ->
+let quit_button_callback = fun gui ac_combo session_combo target_combo ?(confirm_quit = true) () ->
+  if (not !always_keep_changes) && backup_file_differs () then begin
+    let dialog = GWindow.dialog ~title:"Quit" ~modal:true () in
+    dialog#add_button "Keep changes" `APPLY;
+    dialog#add_button "Restore old version" `REJECT;
+    dialog#add_button "View changes" `HELP;
+    dialog#add_button "Cancel" `CANCEL;
+    let _ = GMisc.label ~text:"Configuration has been changed since startup but not saved" ~packing:dialog#vbox#pack () in
+    let checkbox = GButton.check_button ~label:"Always keep changes" ~active:!always_keep_changes ~packing:dialog#vbox#pack () in
+    ignore (checkbox#connect#toggled (fun () ->
+      always_keep_changes := checkbox#active;
+      gui#menu_item_always_keep_changes#set_active checkbox#active;));
+
+    match dialog#run () with
+      `APPLY ->
+        Sys.remove Utils.backup_xml_file;
+	    quit_callback gui ac_combo session_combo target_combo ()
+    | `REJECT ->
+      ignore (Sys.command (sprintf "cp %s %s" Utils.backup_xml_file Utils.conf_xml_file));
 	  Sys.remove Utils.backup_xml_file;
 	  quit_callback gui ac_combo session_combo target_combo ()
-      | _ -> () in
-    question_box ()
-  end else
-    match GToolbox.question_box ~title:"Quit" ~buttons:["Cancel"; "Quit"] ~default:2 "Quit ?" with
-    2 -> quit_callback gui ac_combo session_combo target_combo ()
-  | _ -> ()
+    | `HELP ->
+      ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file))
+    | `CANCEL ->
+      dialog#destroy ()
+    | _ -> ()
+  end else begin
+    if Sys.file_exists Utils.backup_xml_file then
+      Sys.remove Utils.backup_xml_file;
+    if confirm_quit then
+      match GToolbox.question_box ~title:"Quit" ~buttons:["Cancel"; "Quit"] ~default:2 "Quit ?" with
+        2 -> quit_callback gui ac_combo session_combo target_combo ()
+      | _ -> ()
+    else
+      quit_callback gui ac_combo session_combo target_combo ()
+  end
 
+let quit_window_callback = fun gui ac_combo session_combo target_combo _ ->
+  quit_button_callback gui ac_combo session_combo target_combo ~confirm_quit:false ();
+  true
+
+let keep_changes_callback = fun gui _ ->
+  always_keep_changes := gui#menu_item_always_keep_changes#active;
+  ()
 
 (************************** Main *********************************************)
 let () =
@@ -252,10 +294,13 @@ let () =
 
   let session_combo, execute_session = CP.supervision ~file gui log ac_combo target_combo in
 
+  (* Autosave on quit check box *)
+  ignore (gui#menu_item_always_keep_changes#connect#toggled ~callback:(keep_changes_callback gui));
+
   (* Quit button *)
   ignore (gui#menu_item_quit#connect#activate ~callback:(quit_button_callback gui ac_combo session_combo target_combo));
 
-  ignore (gui#window#event#connect#delete ~callback:(quit_callback gui ac_combo session_combo target_combo));
+  ignore (gui#window#event#connect#delete ~callback:(quit_window_callback gui ac_combo session_combo target_combo));
 
   (* Fullscreen menu entry *)
   let callback = fun () ->
@@ -313,6 +358,8 @@ let () =
   if Sys.file_exists Env.gconf_file then begin
     read_preferences gui Env.gconf_file ac_combo session_combo target_combo
   end;
+
+  gui#menu_item_always_keep_changes#set_active !always_keep_changes;
 
   (* Run the command line session *)
   if !session <> "" then begin
