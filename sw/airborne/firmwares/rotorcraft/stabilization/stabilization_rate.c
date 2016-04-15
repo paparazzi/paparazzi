@@ -211,9 +211,9 @@ void stabilization_rate_run(bool in_flight)
   stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
                                 OFFSET_AND_ROUND2((stabilization_rate_igain.r  * stabilization_rate_sum_err.r), 6);
 
-  stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_fb_cmd.p >> 11;
-  stabilization_cmd[COMMAND_PITCH] = stabilization_rate_fb_cmd.q >> 11;
-  stabilization_cmd[COMMAND_YAW]   = stabilization_rate_fb_cmd.r >> 11;
+  stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_fb_cmd.p >> 12;
+  stabilization_cmd[COMMAND_PITCH] = stabilization_rate_fb_cmd.q >> 12;
+  stabilization_cmd[COMMAND_YAW]   = stabilization_rate_fb_cmd.r >> 12;
 
   /* bound the result */
   BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
