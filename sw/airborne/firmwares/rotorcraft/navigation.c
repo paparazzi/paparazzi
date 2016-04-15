@@ -479,6 +479,20 @@ void nav_home(void)
   nav_run();
 }
 
+/** Set manual roll, pitch and yaw without stabilization
+ *
+ * @param[in] roll The angle in radians (float)
+ * @param[in] pitch The angle in radians (float)
+ * @param[in] yaw The angle in radians (float)
+ */
+void nav_set_manual(float roll, float pitch, float yaw)
+{
+  horizontal_mode = HORIZONTAL_MODE_MANUAL;
+  nav_roll = ANGLE_BFP_OF_REAL(roll);
+  nav_pitch = ANGLE_BFP_OF_REAL(pitch);
+  nav_heading = ANGLE_BFP_OF_REAL(yaw);
+}
+
 /** Returns squared horizontal distance to given point */
 float get_dist2_to_point(struct EnuCoor_i *p)
 {

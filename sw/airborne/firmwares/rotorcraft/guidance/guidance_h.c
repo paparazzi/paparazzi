@@ -404,12 +404,18 @@ void guidance_h_run(bool  in_flight)
         guidance_h_nav_enter();
       }
 
-      if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
+      if(horizontal_mode == HORIZONTAL_MODE_MANUAL) {
+        stabilization_cmd[COMMAND_ROLL]  = nav_roll;
+        stabilization_cmd[COMMAND_PITCH] = nav_pitch;
+        stabilization_cmd[COMMAND_YAW]   = nav_heading;
+      }
+      else if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
         struct Int32Eulers sp_cmd_i;
         sp_cmd_i.phi = nav_roll;
         sp_cmd_i.theta = nav_pitch;
         sp_cmd_i.psi = nav_heading;
         stabilization_attitude_set_rpy_setpoint_i(&sp_cmd_i);
+        stabilization_attitude_run(in_flight);
       } else {
         INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_carrot);
 
@@ -427,8 +433,8 @@ void guidance_h_run(bool  in_flight)
         stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
                                                guidance_h.sp.heading);
 #endif
+        stabilization_attitude_run(in_flight);
       }
-      stabilization_attitude_run(in_flight);
       break;
 
 #if GUIDANCE_H_MODE_MODULE_SETTING == GUIDANCE_H_MODE_MODULE

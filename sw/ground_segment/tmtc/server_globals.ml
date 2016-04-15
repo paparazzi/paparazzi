@@ -14,7 +14,7 @@ let gps_modes = [|"NOFIX";"NA";"2D";"3D";"DGPS";"RTK"|]
 let state_filter_modes = [|"UNKNOWN";"INIT";"ALIGN";"OK";"GPS_LOST";"IMU_LOST";"COV_ERR";"IR_CONTRAST";"ERROR"|]
 let _3D = 3
 let gps_hybrid_modes = [|"OFF";"ON"|]
-let horiz_modes = [|"WAYPOINT";"ROUTE";"CIRCLE";"ATTITUDE"|]
+let horiz_modes = [|"WAYPOINT";"ROUTE";"CIRCLE";"ATTITUDE";"MANUAL"|]
 let if_modes = [|"OFF";"DOWN";"UP"|]
 
 let string_of_values = fun values ->
