@@ -275,6 +275,17 @@
    gui_color="#ffff9027e8ad"
   />
   <aircraft
+   name="quadshot"
+   ac_id="6"
+   airframe="airframes/examples/quadshot_asp21_spektrum.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="quadshot_pylons"
    ac_id="178"
    airframe="airframes/TUDELFT/tudelft_quadshot_pylons.xml"

@@ -243,7 +243,7 @@
       <define name="USE_SERVOS_7AND8"/>
     </subsystem>
 
-    <subsystem name="telemetry"     type="transparent"/>
+    <subsystem name="telemetry"     type="xbee_api"/>
     <subsystem name="imu"           type="aspirin_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>

@@ -44,7 +44,6 @@
       <stay wp="p1"/>
     </block>
     <block name="go_p2">
-      <call fun="nav_set_heading_deg(90)"/>
       <go wp="p2"/>
       <deroute block="stay_p1"/>
     </block>
