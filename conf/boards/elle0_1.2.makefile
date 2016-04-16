@@ -60,8 +60,10 @@ ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_10 PA10 UART
   PPM_CONFIG=1
 else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_01 PA01 PA1 SERVO6))
   PPM_CONFIG=2
+else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PB_07 PB07 PB7 SERVO8))
+  PPM_CONFIG=3
 else
-$(error Unknown RADIO_CONTROL_PPM_PIN, configure it to either PA01, PA10)
+$(error Unknown RADIO_CONTROL_PPM_PIN, configure it to either PA01, PA10, PB07)
 endif
 
 

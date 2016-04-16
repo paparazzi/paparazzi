@@ -187,6 +187,22 @@
 #endif
 #define USE_AD_TIM1 1
 
+#elif PPM_CONFIG == 3
+#if USE_SERVOS_7AND8
+#error "You cannot USE_SERVOS_7AND8 and PPM input on PB07 (SERVO8) at the same time"
+#endif
+/* input on PB07 (Servo 8 pin) */
+#define USE_PPM_TIM4 1
+#define PPM_CHANNEL         TIM_IC2
+#define PPM_TIMER_INPUT     TIM_IC_IN_TI2
+#define PPM_IRQ             NVIC_TIM4_IRQ
+// Capture/Compare InteruptEnable and InterruptFlag
+#define PPM_CC_IE           TIM_DIER_CC2IE
+#define PPM_CC_IF           TIM_SR_CC2IF
+#define PPM_GPIO_PORT       GPIOB
+#define PPM_GPIO_PIN        GPIO7
+#define PPM_GPIO_AF         GPIO_AF2
+
 #else
 #error "Unknown PPM config"
 
