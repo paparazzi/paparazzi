@@ -30,7 +30,4 @@
     <file name="mission_common.c"/>
     <file name="mission_rotorcraft_nav.c"/>
   </makefile>
-  <makefile target="nps">
-    <define name="USE_MISSION_COMMANDS_IN_NPS"/>
-  </makefile>
 </module>
