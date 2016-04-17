@@ -40,7 +40,7 @@
       <configure name="INTERMCU_PORT" value="UART6" />
       <configure name="INTERMCU_BAUD" value="B1500000" /> <!-- This is only during first 10s start up, afterwards it is set to 230400-->
     </subsystem>
-    <subsystem name="actuators" type="pwm"> <!-- gimbal and buzzer--->
+    <subsystem name="actuators" type="pwm"> <!-- gimbal and buzzer -->
       <define name="SERVO_HZ" value="400" />
     </subsystem>
   </firmware>
