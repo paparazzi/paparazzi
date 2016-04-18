@@ -187,10 +187,10 @@
  </section>
 
  <modules main_freq="512">
-<load name="geo_mag.xml"/>
-<load name="air_data.xml"/>
-   <load name="gps_ubx_ucenter.xml"/>
-   <load name="send_imu_mag_current.xml"/>
+<module name="geo_mag"/>
+<module name="air_data"/>
+   <module name="gps" type="ubx_ucenter"/>
+   <module name="send_imu_mag_current"/>
  </modules>
 
   <firmware name="rotorcraft">

@@ -31,8 +31,8 @@
   </firmware>
 
   <modules>
-    <load name="sys_mon.xml"/>
-    <load name="nav_line.xml"/>
+    <module name="sys_mon"/>
+    <module name="nav" type="line"/>
   </modules>
 
   <servos>

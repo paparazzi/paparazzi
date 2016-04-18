@@ -29,12 +29,12 @@
   </firmware>
 
   <modules main_freq="512">
-    <load name="geo_mag.xml"/>
-    <load name="air_data.xml"/>
-    <load name="send_imu_mag_current.xml"/>
-    <load name="logger_file.xml">
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+    <module name="send_imu_mag_current"/>
+    <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
-    </load>
+    </module>
   </modules>
 
   <commands>

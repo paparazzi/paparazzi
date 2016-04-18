@@ -150,9 +150,9 @@
 
 
   <modules>
-    <load name="ins_chimu_spi.xml" >
+    <module name="ins_chimu_spi" >
 <!--			<define name="CHIMU_BIG_ENDIAN" />  -->
-		</load>
+		</module>
 
   </modules>
 

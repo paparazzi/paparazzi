@@ -123,18 +123,18 @@
     <!-- This will automatically configure your UBLOX GPS on startup. No need
 	 for manual configuration.
       -->
-    <load name="gps_ubx_ucenter.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
 
     <!-- Uncomment the following module if you want to update the normalized
 	 magnetic field at startup using GPS fix.
       -->
-    <!--load name="geo_mag.xml"/-->
+    <!--module name="geo_mag"/-->
 
     <!-- Uncomment the following line if you want to calculate the motor
 	 current to magnetic field distortion curve.
 	 http://wiki.paparazziuav.org/wiki/ImuCalibration#Calibrating_for_Current
       -->
-    <!--load name="send_imu_mag_current.xml"/-->
+    <!--module name="send_imu_mag_current"/-->
   </modules>
 
   <section name="INS" prefix="INS_">

@@ -29,10 +29,10 @@
   </firmware>
 
   <modules main_freq="512">
-    <load name="bat_voltage_ardrone2.xml"/>
-    <load name="send_imu_mag_current.xml"/>
-    <load name="air_data.xml"/>
-    <load name="logger_file.xml"/>
+    <module name="bat_voltage_ardrone2"/>
+    <module name="send_imu_mag_current"/>
+    <module name="air_data"/>
+    <module name="logger_file"/>
   </modules>
 
   <commands>

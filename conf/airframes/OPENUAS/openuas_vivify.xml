@@ -190,39 +190,39 @@
 
   <!-- ************************* MODULES ************************* -->
   <modules>
-    <load name="auto1_commands.xml" />
+    <module name="auto1_commands" />
     <!-- Baro altitude -->
-    <load name="baro_ms5611_spi.xml" >
+    <module name="baro_ms5611_spi" >
       <configure name="MS5611_SPI_DEV" value="spi2"/>
       <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
-    </load>
+    </module>
     <!-- QNH -->
-    <load name="air_data.xml">
+    <module name="air_data">
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE" />
-    </load>
-    <!-- CDW: load name="obc2014.xml"/-->
+    </module>
+    <!-- CDW: module name="obc2014"/-->
     <!-- GPS -->
-    <load name="gps_ubx_ucenter.xml"/><!-- WARNING: make sure to disable SBAS for Australia -->
+    <module name="gps" type="ubx_ucenter"/><!-- WARNING: make sure to disable SBAS for Australia -->
     <!-- Load -->
-    <!-- load name="sys_mon.xml"/> -->
+    <!-- module name="sys_mon"/> -->
     <!--
-    <load name="flight_benchmark.xml">
+    <module name="flight_benchmark">
       <define name="BENCHMARK_TOLERANCE_AIRSPEED" value="2" unit="m/s"/>
       <define name="BENCHMARK_TOLERANCE_ALTITUDE" value="4" unit="m"/>
       <define name="BENCHMARK_TOLERANCE_POSITION" value="6" unit="m"/>
-    </load>
+    </module>
     -->
     <!-- Airspeed sensor -->
-    <load name="airspeed_adc.xml">
+    <module name="airspeed_adc">
       <configure name="ADC_AIRSPEED" value="ADC_1"/>
       <define name="ADC_CHANNEL_AIRSPEED_NB_SAMPLES" value="16"/>
       <define name="AIRSPEED_ADC_QUADRATIC_SCALE" value="0.355"/>
       <define name="AIRSPEED_ADC_BIAS" value="413"/>
-    </load>
+    </module>
 
-    <load name="tune_airspeed.xml" />
+    <module name="tune_airspeed" />
 
-    <load name="adc_generic.xml">
+    <module name="adc_generic">
       <!-- If we want to read the voltage of battery voltage main engine over AP board via V_BATT -->
       <!-- To display the value,e.g. make a papget scale to 0.0048? and set 8.7 min 12.6max for a 3cell -->
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_5"/><!-- Airspeed -->
@@ -236,42 +236,42 @@
       <!-- If an External analog Voltage and Amps sensor is connected use this -->
       <!--  <configure name="ADC_CHANNEL_GENERIC1" value="ADC_3"/>-->
       <!--   <configure name="ADC_CHANNEL_GENERIC2" value="ADC_4"/>-->
-    </load>
-    <load name="photogrammetry_calculator.xml"/>
-    <!-- <load name="nav_catapult.xml"/> -->
-    <!-- <load name="geo_mag.xml"/> --> <!-- simplify the setup of magneto in various part of the world TODO needs fixing now aircarft in flight (strange)rule-->
+    </module>
+    <module name="photogrammetry_calculator"/>
+    <!-- <module name="nav" type="catapult"/> -->
+    <!-- <module name="geo_mag"/> --> <!-- simplify the setup of magneto in various part of the world TODO needs fixing now aircarft in flight (strange)rule-->
 
-    <load name="digital_cam_uart.xml">
+    <module name="digital_cam_uart">
       <define name="DC_AUTOSHOOT_PERIOD" value="5.0" unit="sec"/>
       <configure name="CAMERA_PORT" value="UART5"/>
-    </load>
+    </module>
 
-    <load name="baro_sim.xml"/>
+    <module name="baro_sim"/>
     <!-- Navigation modules-->
-    <load name="nav_line.xml"/>
+    <module name="nav" type="line"/>
 
     <!-- **************************** DROP STORE ******************************* -->
-    <load name="nav_drop.xml">
+    <module name="nav" type="drop">
       <define name="TRIGGER_DELAY" value="3.0" unit="s"/> <!--TODO get correct value;  time it take from shoot command till actual release of payload -->
       <define name="VELOCITY_AT_RELEASE" value="14" unit="m/s"/><!-- TODO not implemented - to set to min airspeed-->
       <define name="ALPHA" value="44.18e-4"/><!-- TODO: adjust it for the 500ML bottle -->
       <define name="MASS" value="5.00e-3" unit="KG"/>
       <define name="SAFE_CLIMB" value="10" unit="m"/>
       <define name="CLIMB_TIME" value="3" unit="s"/>
-    </load>
+    </module>
 
     <!-- needed to be able to survey an area -->
-    <load name="nav_survey_polygon.xml"/>
-    <load name="nav_survey_poly_osam.xml"/>
+    <module name="nav" type="survey_polygon"/>
+    <module name="nav" type="survey_poly_osam"/>
 
     <!-- addedto test various nav routines-->
-    <load name="nav_smooth.xml"/>
-    <load name="nav_vertical_raster.xml"/>
-    <load name="nav_line_border.xml"/>
-    <load name="nav_line_osam.xml"/>
-    <load name="nav_line_border.xml"/>
-    <load name="nav_flower.xml"/>
-    <load name="nav_bungee_takeoff.xml"/>
+    <module name="nav" type="smooth"/>
+    <module name="nav" type="vertical_raster"/>
+    <module name="nav" type="line_border"/>
+    <module name="nav" type="line_osam"/>
+    <module name="nav" type="line_border"/>
+    <module name="nav" type="flower"/>
+    <module name="nav" type="bungee_takeoff"/>
   </modules>
 
   <!-- ***************************** ACTUATORS ***************************** -->

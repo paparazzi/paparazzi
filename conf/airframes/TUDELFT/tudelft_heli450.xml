@@ -28,11 +28,11 @@
   </firmware>
 
   <modules>
-    <load name="geo_mag.xml"/>
-    <load name="air_data.xml"/>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="heli_swashplate_mixing.xml"/>
-    <load name="heli_throttle_curve.xml"/>
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="heli_swashplate_mixing"/>
+    <module name="heli_throttle_curve"/>
   </modules>
 
   <servos driver="Pwm">

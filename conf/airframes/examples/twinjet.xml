@@ -36,12 +36,12 @@
   </firmware>
 
   <modules>
-    <load name="adc_generic.xml">
+    <module name="adc_generic">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_7" />
-    </load>
-    <load name="infrared_adc.xml"/>
-    <load name="ahrs_infrared.xml"/>
-    <load name="nav_line.xml"/>
+    </module>
+    <module name="infrared_adc"/>
+    <module name="ahrs_infrared"/>
+    <module name="nav" type="line"/>
   </modules>
 
 

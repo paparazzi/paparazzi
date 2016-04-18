@@ -9,15 +9,15 @@
 <airframe name="EasyStar">
 
   <modules>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="pwm_meas.xml"/>
-    <load name="meteo_stick.xml">
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="pwm_meas"/>
+    <module name="meteo_stick">
       <configure name="MS_SPI_DEV" value="SPI1"/>
       <configure name="MS_PRESSURE_SLAVE_IDX" value="0"/>
       <configure name="MS_DIFF_PRESSURE_SLAVE_IDX" value="3"/>
       <configure name="MS_TEMPERATURE_SLAVE_IDX" value="2"/>
       <configure name="MS_HUMIDITY_PWM_INPUT" value="PWM_INPUT1"/>
-    </load>
+    </module>
   </modules>
 
   <firmware name="fixedwing">

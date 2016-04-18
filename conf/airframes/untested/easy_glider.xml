@@ -180,11 +180,11 @@
   </firmware>
 
   <modules>
-    <load name="adc_generic.xml">
+    <module name="adc_generic">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_7"/> <!-- current sensor -->
-    </load>
-    <load name="infrared_adc.xml"/>
-    <load name="ahrs_infrared.xml"/>
+    </module>
+    <module name="infrared_adc"/>
+    <module name="ahrs_infrared"/>
   </modules>
 
 </airframe>

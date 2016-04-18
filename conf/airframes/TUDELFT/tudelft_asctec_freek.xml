@@ -35,11 +35,11 @@
   </firmware>
 
   <modules>
-    <load name="geo_mag.xml"/>
-    <load name="air_data.xml"/>
-    <load name="servo_switch.xml"/>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="logger_spi_link.xml"/>
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+    <module name="servo_switch"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="logger_spi_link"/>
   </modules>
 
   <servos driver="Asctec_v2">

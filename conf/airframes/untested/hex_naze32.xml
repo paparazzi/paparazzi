@@ -55,11 +55,11 @@
   </firmware>
 
   <modules>
-    <load name="mag_hmc58xx.xml">
+    <module name="mag" type="hmc58xx">
       <define name="MODULE_HMC58XX_UPDATE_AHRS"/>
       <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
-    </load>
-    <load name="gps_ubx_ucenter.xml"/>
+    </module>
+    <module name="gps" type="ubx_ucenter"/>
   </modules>
 
   <servos driver="Pwm">

@@ -159,11 +159,11 @@
  </section>
 
  <modules main_freq="512">
-   <load name="gps_ubx_ucenter.xml"/>
-   <load name="led_safety_status.xml">
+   <module name="gps" type="ubx_ucenter"/>
+   <module name="led_safety_status">
      <define name="USE_LED_BODY" value="1"/>
      <define name="SAFETY_WARNING_LED" value="5"/>
-   </load>
+   </module>
  </modules>
 
   <firmware name="rotorcraft">

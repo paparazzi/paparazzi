@@ -55,8 +55,8 @@ LiPo/LiIo-Zellen: 3
   <!-- ************************* MODULES ************************* -->
 
   <modules>
-    <load name="configure_actuators_mkk_v2.xml"/>
-    <load name="imu_quality_assessment.xml"/>
+    <module name="configure_actuators_mkk_v2"/>
+    <module name="imu_quality_assessment"/>
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->

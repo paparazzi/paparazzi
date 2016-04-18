@@ -157,11 +157,11 @@ YAPA + XSens + XBee
 
 
   <modules>
-    <load name="ahrs_chimu_spi.xml" >
+    <module name="ahrs_chimu_spi" >
       <define name="CHIMU_BIG_ENDIAN" />
-    </load>
-    <load name="cam_point.xml" />
-    <load name="gps_ubx_ucenter.xml"/>
+    </module>
+    <module name="cam_point" />
+    <module name="gps" type="ubx_ucenter"/>
   </modules>
 
   <firmware name="fixedwing">

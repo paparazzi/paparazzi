@@ -31,7 +31,7 @@
   </firmware>
 
   <modules main_freq="512">
-    <load name="sys_mon.xml"/>
+    <module name="sys_mon"/>
   </modules>
 
   <servos driver="Pwm">

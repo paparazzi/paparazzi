@@ -3,13 +3,13 @@
 <airframe name="Blender">
 
   <modules main_freq="512">
-    <load name="servo_switch.xml"/>
-    <load name="rotorcraft_cam.xml"/>
-    <load name="digital_cam.xml">
+    <module name="servo_switch"/>
+    <module name="rotorcraft_cam"/>
+    <module name="digital_cam">
       <!-- AUX1 -->
       <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO7"/>
-    </load>
-    <load name="nav_survey_rectangle_rotorcraft.xml"/>
+    </module>
+    <module name="nav" type="survey_rectangle_rotorcraft"/>
   </modules>
 
   <firmware name="rotorcraft">

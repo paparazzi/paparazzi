@@ -37,16 +37,16 @@
   </firmware>
 
   <modules main_freq="60">
-    <load name="cam_point.xml">
+    <module name="cam_point">
       <define name="POINT_CAM_YAW_PITCH"  value="1"/>
       <define name="SHOW_CAM_COORDINATES" value="1"/>
-    </load>
-    <load name="digital_cam.xml">
+    </module>
+    <module name="digital_cam">
       <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO23"/>
-    </load>
-    <load name="sys_mon.xml"/>
-    <load name="infrared_adc.xml"/>
-    <load name="ahrs_infrared.xml"/>
+    </module>
+    <module name="sys_mon"/>
+    <module name="infrared_adc"/>
+    <module name="ahrs_infrared"/>
   </modules>
 
 <!-- commands section -->

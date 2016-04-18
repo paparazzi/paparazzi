@@ -28,10 +28,10 @@
   </firmware>
 
   <modules>
-    <load name="ahrs_chimu_spi.xml" >
+    <module name="ahrs_chimu_spi" >
       <define name="CHIMU_BIG_ENDIAN" />
-    </load>
-    <load name="nav_line.xml"/>
+    </module>
+    <module name="nav" type="line"/>
   </modules>
 
   <servos>

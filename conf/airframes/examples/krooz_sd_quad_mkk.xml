@@ -34,10 +34,10 @@
   </firmware>
 
   <modules main_freq="512">
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="geo_mag.xml"/>
-    <load name="osd_max7456.xml"/>
-    <load name="hott_telemetry.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="geo_mag"/>
+    <module name="osd_max7456"/>
+    <module name="hott_telemetry"/>
   </modules>
 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">

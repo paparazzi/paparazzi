@@ -33,7 +33,7 @@
   </firmware>
 
   <modules>
-    <load name="sys_mon.xml"/>
+    <module name="sys_mon"/>
   </modules>
 
   <servos>

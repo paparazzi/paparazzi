@@ -223,15 +223,15 @@
   </firmware>
 
   <modules>
-    <load name="digital_cam.xml">
+    <module name="digital_cam">
       <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO15"/>
-   </load>
-   <load name="adc_generic.xml">
+   </module>
+   <module name="adc_generic">
       <define name="ADC_CHANNEL_GENERIC_NB_SAMPLES" value="32"/>
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_6"/> <!-- e.g. current sensor -->
-   </load>
-   <load name="photogrammetry_calculator.xml" />
-    <load name="nav_line.xml"/>
+   </module>
+   <module name="photogrammetry_calculator" />
+    <module name="nav" type="line"/>
   </modules>
 
 <!--+-+-+-+-+-+-+- PHOTOGRAMMETRY -+-+-+-+-+-+-+-->

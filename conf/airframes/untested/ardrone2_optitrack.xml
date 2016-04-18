@@ -27,7 +27,7 @@
   </firmware>
 
   <modules main_freq="512">
-    <load name="bat_voltage_ardrone2.xml"/>
+    <module name="bat_voltage_ardrone2"/>
   </modules>
 
   <commands>

@@ -52,9 +52,9 @@
   </firmware>
 
   <modules>
-    <load name="baro_sim.xml"/>
-    <load name="servo_switch.xml"/>
-    <load name="gps_ubx_ucenter.xml"/>
+    <module name="baro_sim"/>
+    <module name="servo_switch"/>
+    <module name="gps" type="ubx_ucenter"/>
   </modules>
 
   <servos driver="Pwm">

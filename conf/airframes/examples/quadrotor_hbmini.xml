@@ -29,7 +29,7 @@
   </firmware>
 
   <modules main_freq="512">
-    <load name="gps_ubx_ucenter.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
   </modules>
 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">

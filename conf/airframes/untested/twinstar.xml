@@ -31,8 +31,8 @@
   </firmware>
 
   <modules>
-    <load name="infrared_adc.xml"/>
-    <load name="ahrs_infrared.xml"/>
+    <module name="infrared_adc"/>
+    <module name="ahrs_infrared"/>
   </modules>
 
 <!-- commands section -->

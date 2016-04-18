@@ -111,39 +111,39 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
 
   <modules main_freq="120">
 <!-- ******************************* MODULES ******************************* -->
-    <!-- <load name="gps_ubx_ucenter.xml"/>--> <!-- Disable uCenter in the future, setup the hardware itself -->
-    <load name="ahrs_chimu_spi.xml"/>
+    <!-- <module name="gps" type="ubx_ucenter"/>--> <!-- Disable uCenter in the future, setup the hardware itself -->
+    <module name="ahrs_chimu_spi"/>
        <!--    <define name="CHIMU_BIG_ENDIAN"/> -->
-   <!--  </load>-->
+   <!--  </module>-->
     <!-- Navigation modules-->
-    <load name="nav_drop.xml"/>
-    <load name="nav_survey_polygon.xml"/>
-    <load name="nav_line.xml"/>
+    <module name="nav" type="drop"/>
+    <module name="nav" type="survey_polygon"/>
+    <module name="nav" type="line"/>
     <!-- to test, analyze performance etc.-->
-    <!-- load name="sys_mon.xml"/> -->
+    <!-- module name="sys_mon"/> -->
     <!--
-   <load name="flight_benchmark.xml">
+   <module name="flight_benchmark">
      <define name="BENCHMARK_TOLERANCE_AIRSPEED" value="2" unit="m/s"/>
      <define name="BENCHMARK_TOLERANCE_ALTITUDE" value="3" unit="m"/>
      <define name="BENCHMARK_TOLERANCE_POSITION" value="6" unit="m"/>
-   </load>
+   </module>
    -->
 
     <!-- Airspeed sensor -->
-    <load name="airspeed_ets.xml">
+    <module name="airspeed_ets">
       <define name="AIRSPEED_ETS_START_DELAY" value="1" unit="s"/>
       <define name="AIRSPEED_ETS_SYNC_SEND"/> <!-- TODO: SYNCSENDcan be commented out if it all works well no need to send debug data anymore-->
       <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/>
       <define name="AIRSPEED_ETS_SCALE" value="1.44"/> <!-- default 1.8 -->
       <define name="AIRSPEED_ETS_OFFSET" value="0"/>  <!-- default 0 -->
-    </load>
+    </module>
 
 <!--
-    <load name="baro_board.xml">
+    <module name="baro_board">
       <define name="BARO_ABS_EVENT" value="BaroEtsUpdate"/>
-    </load>
+    </module>
 -->
-    <!--  <load name="adc_generic.xml">-->
+    <!--  <module name="adc_generic">-->
     <!-- If we want to read the voltage of battery voltage main engine over AP board via V_BATT -->
     <!-- To display the value,e.g. make a papget scale to 0.0048? and set 8.7 min 12.6max for a 3cell -->
     <!-- <configure name="ADC_CHANNEL_GENERIC1" value="4"/>-->
@@ -157,12 +157,12 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
     <!-- If an External analog Voltage and Amps sensor is connected use this -->
     <!--  <configure name="ADC_CHANNEL_GENERIC1" value="ADC_3"/>-->
     <!--   <configure name="ADC_CHANNEL_GENERIC2" value="ADC_4"/>-->
-    <!--    </load>-->
+    <!--    </module>-->
 
     <!-- Set launch to 1 and place your bets ;) not in use at the moment -->
-    <!-- <load name="nav_catapult.xml"/> -->
+    <!-- <module name="nav" type="catapult"/> -->
 
-    <load name="baro_sim.xml"/>
+    <module name="baro_sim"/>
   </modules>
 
 <!-- ****************************** ACTUATORS ****************************** -->

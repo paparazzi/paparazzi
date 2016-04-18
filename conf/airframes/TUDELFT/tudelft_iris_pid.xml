@@ -76,12 +76,12 @@
     <target name="test_datalink" board="px4fmu_2.4" />
   </firmware>
   <modules main_freq="512">
-    <load name="px4_flash.xml" />
-    <load name="geo_mag.xml" />
-    <load name="air_data.xml" />
-    <load name="send_imu_mag_current.xml" />
-    <load name="gps_ubx_ucenter.xml" />
-    <!--  <load name="spektrum_soft_bind.xml"/>-->
+    <module name="px4_flash" />
+    <module name="geo_mag" />
+    <module name="air_data" />
+    <module name="send_imu_mag_current" />
+    <module name="gps" type="ubx_ucenter" />
+    <!--  <module name="spektrum_soft_bind"/>-->
   </modules>
   <section name="MISC">
     <define name="MilliAmpereOfAdc(adc)" value="((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)" />

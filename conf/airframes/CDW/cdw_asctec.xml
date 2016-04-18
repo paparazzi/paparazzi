@@ -41,9 +41,9 @@
   <!-- ************************* MODULES ************************* -->
 
   <modules main_freq="512">
-    <!--   <load name="logger_spi_link.xml"/> -->
-    <load name="imu_quality_assessment.xml"/>
-    <load name="gps_ubx_ucenter.xml" />
+    <!--   <module name="logger_spi_link"/> -->
+    <module name="imu_quality_assessment"/>
+    <module name="gps" type="ubx_ucenter" />
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->

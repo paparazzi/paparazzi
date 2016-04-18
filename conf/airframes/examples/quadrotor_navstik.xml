@@ -45,11 +45,11 @@
   </firmware>
 
   <modules>
-    <load name="gps_ubx_ucenter.xml"/>
-    <!--load name="airspeed_ms45xx_i2c.xml">
+    <module name="gps" type="ubx_ucenter"/>
+    <!--module name="airspeed_ms45xx_i2c">
       <configure name="MS45XX_I2C_DEV" value="i2c3"/>
-    </load>
-    <load name="direct_memory_logger.xml"/-->
+    </module>
+    <module name="direct_memory_logger"/-->
   </modules>
 
   <servos driver="Asctec_v2">

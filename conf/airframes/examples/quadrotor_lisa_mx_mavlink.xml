@@ -55,7 +55,7 @@
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
       <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
     </module>
-    <module name="gps_ubx_ucenter"/>
+    <module name="gps" type="ubx_ucenter"/>
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="mavlink">

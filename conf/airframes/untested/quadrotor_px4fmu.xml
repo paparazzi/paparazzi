@@ -34,8 +34,8 @@
   </firmware>
 
   <modules main_freq="512">
-    <load name="sys_mon.xml"/>
-    <load name="gps_ubx_ucenter.xml"/>
+    <module name="sys_mon"/>
+    <module name="gps" type="ubx_ucenter"/>
   </modules>
 
   <servos driver="Pwm">

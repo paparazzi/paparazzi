@@ -33,7 +33,7 @@
   </firmware>
 
   <modules>
-    <load name="gps_ubx_ucenter.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
   </modules>
 
   <servos driver="Pwm">

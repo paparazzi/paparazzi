@@ -131,9 +131,9 @@
   </section>
 
   <modules>
-    <load name="ins_chimu_uart.xml">
+    <module name="ins_chimu_uart">
       <configure name="CHIMU_UART_NR" value="3"/>
-    </load>
+    </module>
   </modules>
 
   <firmware name="fixedwing">

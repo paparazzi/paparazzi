@@ -56,28 +56,28 @@
   <!-- ************************* MODULES ************************* -->
 
   <modules>
-    <load name="air_data.xml"/>
-    <load name="geo_mag.xml"/>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="airspeed_ets.xml">
+    <module name="air_data"/>
+    <module name="geo_mag"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="airspeed_ets">
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
       <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
-    </load>
-    <load name="adc_generic.xml">
+    </module>
+    <module name="adc_generic">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
       <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
-    </load>
-    <load name="light.xml">
+    </module>
+    <module name="light">
       <define name="LIGHT_LED_STROBE" value="2"/>
       <define name="LIGHT_LED_NAV" value="3"/>
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
-    </load>
-    <load name="digital_cam.xml">
+    </module>
+    <module name="digital_cam">
       <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
-    </load>
-    <!-- load name="nav_catapult.xml"/-->
-    <load name="nav_line.xml"/>
+    </module>
+    <!-- module name="nav" type="catapult"/-->
+    <module name="nav" type="line"/>
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->

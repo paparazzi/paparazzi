@@ -26,9 +26,9 @@
   </firmware>
 
   <modules>
-    <load name="ahrs_chimu_uart.xml">
+    <module name="ahrs_chimu_uart">
       <configure name="CHIMU_UART_NR" value="3"/>
-    </load>
+    </module>
   </modules>
 
   <servos>

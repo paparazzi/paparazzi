@@ -204,22 +204,22 @@
   </section>
 
   <modules main_freq="512">
-    <load name="gps_ubx_ucenter.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
 
     <!-- The the led_safety_status module will make the Quadshot LEDs blink in certain patterns when there are safety violations-->
-    <load name="led_safety_status.xml">
+    <module name="led_safety_status">
       <define name="USE_LED_BODY" value="1"/>
       <define name="SAFETY_WARNING_LED" value="BODY"/>
-    </load>
+    </module>
 
     <!--Use an airspeed sensor and get the measured airspeed in the messages-->
-    <load name="airspeed_ets.xml">
+    <module name="airspeed_ets">
       <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
-    </load>
+    </module>
 
     <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section -->
-    <!--load name="gain_scheduling.xml"/-->
+    <!--module name="gain_scheduling"/-->
   </modules>
 
   <firmware name="rotorcraft">

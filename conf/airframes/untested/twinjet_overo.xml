@@ -34,15 +34,15 @@
   </firmware>
 
   <modules>
-    <load name="twog_extra_dl.xml"/>
-    <load name="adc_generic.xml">
+    <module name="twog_extra_dl"/>
+    <module name="adc_generic">
       <flag name="ADC_CHANNEL_GENERIC1" value="ADC_3"/>
       <flag name="ADC_CHANNEL_GENERIC2" value="ADC_5"/>
       <flag name="USE_ADC_3"/>
       <flag name="USE_ADC_5"/>
-    </load>
-    <load name="infrared_adc.xml"/>
-    <load name="ahrs_infrared.xml"/>
+    </module>
+    <module name="infrared_adc"/>
+    <module name="ahrs_infrared"/>
   </modules>
 
   <servos>

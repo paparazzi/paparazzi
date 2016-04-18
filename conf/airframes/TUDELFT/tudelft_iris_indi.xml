@@ -82,13 +82,13 @@
     <target name="test_datalink" board="px4fmu_2.4" />
   </firmware>
   <modules main_freq="512">
-    <load name="px4_flash.xml" />
-    <load name="px4_gimbal.xml" />
-    <load name="geo_mag.xml" />
-    <load name="air_data.xml" />
-    <load name="send_imu_mag_current.xml" />
-    <load name="gps_ubx_ucenter.xml" />
-    <load name="mag_hmc58xx.xml">
+    <module name="px4_flash" />
+    <module name="px4_gimbal" />
+    <module name="geo_mag" />
+    <module name="air_data" />
+    <module name="send_imu_mag_current" />
+    <module name="gps" type="ubx_ucenter" />
+    <module name="mag" type="hmc58xx">
       <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
       <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
       <define name="HMC58XX_CHAN_X" value="1"/>
@@ -97,8 +97,8 @@
       <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
       <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
       <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
-    </load>
-    <!--  <load name="spektrum_soft_bind.xml"/>-->
+    </module>
+    <!--  <module name="spektrum_soft_bind"/>-->
   </modules>
 
   <section name="MISC">

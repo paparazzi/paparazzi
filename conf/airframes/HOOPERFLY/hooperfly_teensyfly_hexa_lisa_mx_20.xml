@@ -38,15 +38,15 @@
     <module name="ahrs"          type="int_cmpl_quat"/>
     <module name="ins"           type="hff"/>
 
-    <module name="send_imu_mag_current.xml"/>
-    <module name="adc_generic.xml">
+    <module name="send_imu_mag_current"/>
+    <module name="adc_generic">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
       <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
     </module>
-    <module name="gps_ubx_ucenter.xml"/>
-    <module name="geo_mag.xml"/>
-    <module name="air_data.xml"/>
-    <module name="nav_survey_rectangle_rotorcraft.xml">
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+    <module name="nav" type="survey_rectangle_rotorcraft">
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
     </module>
 

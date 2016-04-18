@@ -31,13 +31,13 @@
   </firmware>
 
   <modules main_freq="512">
-    <load name="bat_voltage_ardrone2.xml"/>
-	<load name="opticflow_hover.xml"/>
-	<load name="mavlink_decoder.xml">
+    <module name="bat_voltage_ardrone2"/>
+	<module name="opticflow_hover"/>
+	<module name="mavlink_decoder">
 		<configure name="MAVLINK_PORT" value="UART1"/>
 		<configure name="MAVLINK_BAUD" value="B115200"/>
-	</load>
-	<load name="px4flow.xml"/>
+	</module>
+	<module name="px4flow"/>
   </modules>
 
   <commands>

@@ -38,7 +38,7 @@
   </firmware>
 
   <modules>
-    <load name="nav_line.xml"/>
+    <module name="nav" type="line"/>
   </modules>
 
   <!-- commands section -->

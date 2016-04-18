@@ -45,15 +45,15 @@
   </firmware>
 
   <modules>
-    <load name="sys_mon.xml"/>
-    <load name="baro_sim.xml"/>
-    <load name="air_data.xml">
+    <module name="sys_mon"/>
+    <module name="baro_sim"/>
+    <module name="air_data">
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
-    </load>
+    </module>
 
-    <load name="digital_cam_servo.xml">
+    <module name="digital_cam_servo">
       <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />
-    </load>
+    </module>
   </modules>
 
   <servos>

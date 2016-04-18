@@ -47,15 +47,15 @@
   </firmware>
 
   <modules>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="infrared_adc.xml"/>
-    <load name="ahrs_infrared.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="infrared_adc"/>
+    <module name="ahrs_infrared"/>
 <!--
-    <load name="sys_mon.xml"/>
+    <module name="sys_mon"/>
 -->
 
 <!--
-    <load name="adc_generic.xml">
+    <module name="adc_generic">
 -->
 <!-- Voltage measuring sensor -->
 <!--
@@ -68,7 +68,7 @@
 <!-- Current measuring sensor -->
 <!--
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_7"/>
-    </load>
+    </module>
 -->
   </modules>
 

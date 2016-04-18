@@ -37,8 +37,8 @@ RP3 Lisa MX
   </firmware>
 
   <modules>
-    <load name="nav_line.xml"/>
-    <load name="sys_mon.xml"/>
+    <module name="nav" type="line"/>
+    <module name="sys_mon"/>
   </modules>
 
   <!-- commands section -->

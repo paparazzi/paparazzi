@@ -87,14 +87,14 @@
   <!-- ************************* MODULES ************************* -->
 
   <modules>
-    <load name="light.xml">
+    <module name="light">
       <define name="LIGHT_LED_STROBE" value="6"/>
       <!--      <define name="LIGHT_LED_NAV" value="2"/> -->
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
-    </load>
-    <load name="nav_line.xml"/>
-    <!--load name="gas_engine_idle.xml"/-->
+    </module>
+    <module name="nav" type="line"/>
+    <!--module name="gas_engine_idle"/-->
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->

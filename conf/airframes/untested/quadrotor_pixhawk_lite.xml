@@ -77,9 +77,9 @@
   </firmware>
 
   <modules>
-    <load name="sys_mon.xml"/>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="air_data.xml"/>
+    <module name="sys_mon"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="air_data"/>
   </modules>
 
   <servos driver="Pwm">

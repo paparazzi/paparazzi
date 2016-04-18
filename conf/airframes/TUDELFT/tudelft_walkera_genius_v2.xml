@@ -176,13 +176,13 @@
  </section>
 
  <modules main_freq="512">
-   <load name="gps_ubx_ucenter.xml"/>
-   <load name="send_imu_mag_current.xml"/>
-   <load name="logger_sd_spi_direct.xml">
+   <module name="gps" type="ubx_ucenter"/>
+   <module name="send_imu_mag_current"/>
+   <module name="logger_sd_spi_direct">
      <configure name="LOGGER_CONTROL_SWITCH" value="RADIO_AUX2"/>
      <configure name="LOGGER_LED" value="3"/>
-   </load>
-   <!--load name="sys_mon.xml"/-->
+   </module>
+   <!--module name="sys_mon"/-->
  </modules>
 
   <firmware name="rotorcraft">

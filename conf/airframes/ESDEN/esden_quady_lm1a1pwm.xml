@@ -141,7 +141,7 @@
  </section>
 
  <modules main_freq="512">
-   <load name="gps_ubx_ucenter.xml"/>
+   <module name="gps" type="ubx_ucenter"/>
 </modules>
 
   <firmware name="rotorcraft">
