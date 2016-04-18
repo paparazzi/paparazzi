@@ -232,7 +232,7 @@ void WEAK imu_scale_accel(struct Imu *_imu)
                    IMU_ACCEL_Z_SENS_NUM) / IMU_ACCEL_Z_SENS_DEN;
 }
 
-#if defined IMU_MAG_X_CURRENT_COEF && defined IMU_MAG_Y_CURRENT_COEF && defined IMU_MAG_Z_CURRENT_COEF
+#if !defined SITL && defined IMU_MAG_X_CURRENT_COEF && defined IMU_MAG_Y_CURRENT_COEF && defined IMU_MAG_Z_CURRENT_COEF
 #include "subsystems/electrical.h"
 void WEAK imu_scale_mag(struct Imu *_imu)
 {
