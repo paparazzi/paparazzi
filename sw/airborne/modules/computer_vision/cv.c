@@ -29,14 +29,26 @@
 
 #define MAX_CV_FUNC 10
 
+int cv_current_thread = 0;
+
 int cv_func_cnt = 0;
 cvFunction cv_func[MAX_CV_FUNC];
+int cv_func_cnt2 = 0;
+cvFunction cv_func2[MAX_CV_FUNC];
 
 void cv_add(cvFunction func)
 {
-  if (cv_func_cnt < (MAX_CV_FUNC - 1)) {
-    cv_func[cv_func_cnt] = func;
-    cv_func_cnt++;
+  if (cv_current_thread == 1) {
+    if (cv_func_cnt < (MAX_CV_FUNC - 1)) {
+      cv_func[cv_func_cnt] = func;
+      cv_func_cnt++;
+    }
+  } 
+  if (cv_current_thread == 2) {
+    if (cv_func_cnt2 < (MAX_CV_FUNC - 1)) {
+      cv_func2[cv_func_cnt2] = func;
+      cv_func_cnt2++;
+    }
   }
 }
 
@@ -45,6 +57,19 @@ void cv_run(struct image_t *img)
   struct image_t* temp_image = img;
   for (int i = 0; i < cv_func_cnt; i++) {
     struct image_t* new_image = cv_func[i](temp_image);
+    if (new_image != 0)
+    {
+      temp_image = new_image;
+    }
+  }
+}
+
+
+void cv_run2(struct image_t *img)
+{
+  struct image_t* temp_image = img;
+  for (int i = 0; i < cv_func_cnt2; i++) {
+    struct image_t* new_image = cv_func2[i](temp_image);
     if (new_image != 0)
     {
       temp_image = new_image;
