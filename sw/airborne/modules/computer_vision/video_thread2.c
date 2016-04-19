@@ -60,7 +60,7 @@
 #ifndef VIDEO_THREAD2_DEVICE_BUFFERS
 #define VIDEO_THREAD2_DEVICE_BUFFERS 10
 #endif
-PRINT_CONFIG_VAR(VIDEO_THREAD_DEVICE_BUFFERS)
+PRINT_CONFIG_VAR(VIDEO_THREAD2_DEVICE_BUFFERS)
 #ifndef VIDEO_THREAD2_SUBDEV
 #define VIDEO_THREAD2_SUBDEV NULL
 #endif
@@ -70,7 +70,7 @@ PRINT_CONFIG_VAR(VIDEO_THREAD_DEVICE_BUFFERS)
 struct video_config_t custom_camera = {
   .w = VIDEO_THREAD2_VIDEO_WIDTH,
   .h = VIDEO_THREAD2_VIDEO_HEIGHT,
-  .dev_name = STRINGIFY(VIDEO_THREAD_DEVICE),
+  .dev_name = STRINGIFY(VIDEO_THREAD2_DEVICE),
   .subdev_name = VIDEO_THREAD2_SUBDEV,
   .buf_cnt = VIDEO_THREAD2_DEVICE_BUFFERS,
   .filters = VIDEO_THREAD2_FILTERS
@@ -110,7 +110,7 @@ static void video_thread2_save_shot(struct image_t *img, struct image_t *img_jpe
   // Search for a file where we can write to
   char save_name[128];
   for (; video_thread2.shot_number < 99999; video_thread2.shot_number++) {
-    sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_THREAD_SHOT_PATH), video_thread2.shot_number);
+    sprintf(save_name, "%s/img2_%05d.jpg", STRINGIFY(VIDEO_THREAD2_SHOT_PATH), video_thread2.shot_number);
     // Check if file exists or not
     if (access(save_name, F_OK) == -1) {
 
@@ -143,7 +143,7 @@ static void video_thread2_save_shot(struct image_t *img, struct image_t *img_jpe
  */
 static void *video_thread2_function(void *data)
 {
-  struct video_config_t *vid = (struct video_config_t *)&(VIDEO_THREAD_CAMERA);
+  struct video_config_t *vid = (struct video_config_t *)&(VIDEO_THREAD2_CAMERA);
 
   struct image_t img_jpeg;
   struct image_t img_color;
@@ -232,7 +232,7 @@ static void *video_thread2_function(void *data)
  */
 void video_thread2_init(void)
 {
-  struct video_config_t *vid = (struct video_config_t *)&(VIDEO_THREAD_CAMERA);
+  struct video_config_t *vid = (struct video_config_t *)&(VIDEO_THREAD2_CAMERA);
 
   cv_current_thread = 2;
 
@@ -254,9 +254,9 @@ void video_thread2_init(void)
 
   // Create the shot directory
   char save_name[128];
-  sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
+  sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_THREAD2_SHOT_PATH));
   if (system(save_name) != 0) {
-    printf("[video_thread2] Could not create shot directory %s.\n", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
+    printf("[video_thread2] Could not create shot directory %s.\n", STRINGIFY(VIDEO_THREAD2_SHOT_PATH));
     return;
   }
 }
@@ -273,7 +273,7 @@ void video_thread2_start(void)
 
   // Start the streaming thread
   pthread_t tid;
-  if (pthread_create(&tid, NULL, video_thread2_function, (void*)(&VIDEO_THREAD_CAMERA)) != 0) {
+  if (pthread_create(&tid, NULL, video_thread2_function, (void*)(&VIDEO_THREAD2_CAMERA)) != 0) {
     printf("[vievideo] Could not create streaming thread.\n");
     return;
   }
@@ -306,7 +306,7 @@ void video_thread2_stop(void)
  * Take a shot and save it
  * This will only work when the streaming is enabled
  */
-void video_thread2_take_shot(bool_t take)
+void video_thread2_take_shot2(bool_t take)
 {
   video_thread2.take_shot = take;
 }
