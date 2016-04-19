@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="rpm_sensor" dir="sensors">
+  <doc>
+    <description>RPM sensor based on time difference between pulses
+      It uses an PWM input to measure the period between pulses.
+    </description>
+    <configure name="RPM_PWM_CHANNEL" value="PWM_INPUTX" description="Select PWM input channel for RPM sensor"/>
+  </doc>
+  <depends>pwm_meas</depends>
+  <header>
+    <file name="rpm_sensor.h"/>
+  </header>
+  <init fun="rpm_sensor_init()"/>
+  <makefile>
+    <file name="rpm_sensor.c"/>
+
+    <configure name="RPM_PWM_CHANNEL" default="PWM_INPUT1"/>
+    <define name="RPM_PWM_CHANNEL" value="$(RPM_PWM_CHANNEL)"/>
+    <define name="$(RPM_PWM_CHANNEL)_TICKS_PER_USEC" value="1" />
+    <define name="USE_$(RPM_PWM_CHANNEL)" value="PWM_PULSE_TYPE_ACTIVE_HIGH" />
+  </makefile>
+</module>
+
