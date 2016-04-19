@@ -25,7 +25,7 @@ ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=uart0
-ap.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
+ap.srcs += modules/datalink/downlink.c modules/datalink/pprz_transport.c
 
 ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=uart0
 #ap.srcs += $(BOOZ)/booz_datalink.c
@@ -55,7 +55,7 @@ mb.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
 mb.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 mb.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=uart0
-mb.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
+mb.srcs += modules/datalink/downlink.c modules/datalink/pprz_transport.c
 
 mb.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=uart0
 

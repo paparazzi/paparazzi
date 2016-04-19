@@ -20,22 +20,22 @@
       <configure name="CPU_LED" value="1"/>
       <define name="LINK_MCU_LED" value="4"/>
       <!-- FBW -->
-      <subsystem name="actuators" type="dummy"/>
-      <subsystem name="intermcu" type="uart">
+      <module name="actuators" type="dummy"/>
+      <module name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART2"/>
-      </subsystem>
-      <subsystem name="radio_control" type="sbus_dual">
+      </module>
+      <module name="radio_control" type="sbus_dual">
         <configure name="SBUS1_PORT" value="UART3"/>
         <configure name="SBUS2_PORT" value="UART5"/>
-      </subsystem>
+      </module>
       <!-- AP -->
-      <subsystem name="control"/>
-      <subsystem name="navigation"/>
+      <module name="control"/>
+      <module name="navigation"/>
       <!-- Communication -->
-      <subsystem name="telemetry" type="xbee_api">
+      <module name="telemetry" type="xbee_api">
         <configure name="MODEM_BAUD" value="B9600"/>
         <configure name="MODEM_PORT" value="UART3"/>
-      </subsystem>
+      </module>
       <module name="ins" type="xsens700">
         <configure name="XSENS_PORT" value="uart1"/>
         <configure name="XSENS_BAUD" value="B230400"/>
@@ -48,28 +48,28 @@
       <configure name="HAS_LUFTBOOT" value="0"/>
       <!-- no usb -->
       <!-- RC -->
-      <subsystem name="radio_control" type="sbus_dual">
+      <module name="radio_control" type="sbus_dual">
         <configure name="SBUS1_PORT" value="UART3"/>
         <configure name="SBUS2_PORT" value="UART5"/>
-      </subsystem>
+      </module>
       <!-- FBW <-> AP -->
-      <subsystem name="intermcu" type="uart">
+      <module name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART1"/>
-      </subsystem>
+      </module>
       <!-- SERVO'S -->
-      <subsystem name="actuators" type="pwm"/>
+      <module name="actuators" type="pwm"/>
       <define name="USE_SERVOS_7AND8"/>
     </target>
     <target name="sim" board="pc">
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="radio_control" type="ppm"/>
       <!-- AP -->
-      <subsystem name="control"/>
-      <subsystem name="navigation"/>
+      <module name="control"/>
+      <module name="navigation"/>
       <!-- Communication -->
-      <subsystem name="telemetry" type="xbee_api">
+      <module name="telemetry" type="xbee_api">
         <configure name="MODEM_BAUD" value="B9600"/>
         <configure name="MODEM_PORT" value="UART3"/>
-      </subsystem>
+      </module>
       <module name="ins" type="xsens700">
         <configure name="XSENS_PORT" value="uart1"/>
         <configure name="XSENS_BAUD" value="B230400"/>
@@ -87,14 +87,14 @@
   <!-- ************************* MODULES ************************* -->
 
   <modules>
-    <load name="light.xml">
+    <module name="light">
       <define name="LIGHT_LED_STROBE" value="6"/>
       <!--      <define name="LIGHT_LED_NAV" value="2"/> -->
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
-    </load>
-    <load name="nav_line.xml"/>
-    <!--load name="gas_engine_idle.xml"/-->
+    </module>
+    <module name="nav" type="line"/>
+    <!--module name="gas_engine_idle"/-->
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->

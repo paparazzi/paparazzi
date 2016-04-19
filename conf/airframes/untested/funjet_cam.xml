@@ -17,18 +17,18 @@
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="transparent"/>
+    <module name="telemetry" 	type="transparent"/>
     <define name="USE_JOYSTICK" value="TRUE"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="control"/>
+    <module name="control"/>
     <!-- Sensors -->
-    <subsystem name="gps" 		  type="ublox"/>
-    <subsystem name="ins"         type="gps_passthrough"/>
-    <subsystem name="navigation"/>
+    <module name="gps" 		  type="ublox"/>
+    <module name="ins"         type="gps_passthrough"/>
+    <module name="navigation"/>
   </firmware>
 
 
@@ -37,16 +37,16 @@
   </firmware>
 
   <modules main_freq="60">
-    <load name="cam_point.xml">
+    <module name="cam_point">
       <define name="POINT_CAM_YAW_PITCH"  value="1"/>
       <define name="SHOW_CAM_COORDINATES" value="1"/>
-    </load>
-    <load name="digital_cam.xml">
+    </module>
+    <module name="digital_cam">
       <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO23"/>
-    </load>
-    <load name="sys_mon.xml"/>
-    <load name="infrared_adc.xml"/>
-    <load name="ahrs_infrared.xml"/>
+    </module>
+    <module name="sys_mon"/>
+    <module name="infrared_adc"/>
+    <module name="ahrs_infrared"/>
   </modules>
 
 <!-- commands section -->

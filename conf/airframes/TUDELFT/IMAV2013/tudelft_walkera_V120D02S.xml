@@ -143,31 +143,31 @@
  </section>
 
  <modules main_freq="512">
-   <load name="gps_ubx_ucenter.xml"/>
+   <module name="gps" type="ubx_ucenter"/>
  </modules>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
-      <subsystem name="radio_control" type="superbitrf_rc">
+      <module name="radio_control" type="superbitrf_rc">
         <define name="RADIO_TRANSMITTER_ID" value="2008496626"/> <!-- TUDelft Dx6i: TX 4 -->
         <define name="RADIO_TRANSMITTER_CHAN" value="6"/>
         <define name="RADIO_TRANSMITTER_PROTOCOL" value="0x01"/>
         <define name="RADIO_KILL_SWITCH" value="RADIO_FLAP"/>
-      </subsystem>
+      </module>
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
 
-    <subsystem name="actuators" type="pwm">
+    <module name="actuators" type="pwm">
       <define name="SERVO_HZ" value="50"/>
       <define name="USE_SERVOS_1AND2"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry" type="superbitrf"/>
-    <subsystem name="imu" type="lisa_s_v1.0"/>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
-    <subsystem name="ins"/>
+    <module name="telemetry" type="superbitrf"/>
+    <module name="imu" type="lisa_s_v1.0"/>
+    <module name="gps" type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs" type="int_cmpl_quat"/>
+    <module name="ins"/>
   </firmware>
 </airframe>

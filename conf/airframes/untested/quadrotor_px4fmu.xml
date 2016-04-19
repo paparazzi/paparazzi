@@ -14,28 +14,28 @@
     <target name="ap" board="px4fmu_1.7"/>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="px4fmu_v1.7"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat">
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="px4fmu_v1.7"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC" value="TRUE"/>
-    </subsystem>
-    <subsystem name="ins"/>
+    </module>
+    <module name="ins"/>
   </firmware>
 
   <modules main_freq="512">
-    <load name="sys_mon.xml"/>
-    <load name="gps_ubx_ucenter.xml"/>
+    <module name="sys_mon"/>
+    <module name="gps" type="ubx_ucenter"/>
   </modules>
 
   <servos driver="Pwm">

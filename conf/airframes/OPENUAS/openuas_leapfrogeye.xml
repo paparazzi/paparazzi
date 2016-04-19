@@ -6,56 +6,56 @@
     <target name="ap" board="bebop"/>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="udp"/>
+      <module name="fdm" type="jsbsim"/>
+      <module name="udp"/>
     </target>
 
     <!--define name="USE_SONAR" value="TRUE"/-->
 
 	<!-- Subsystem section -->
-    <subsystem name="telemetry" type="transparent_udp"/>
-    <subsystem name="radio_control" type="datalink"/>
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators" type="bebop"/>
-    <subsystem name="imu" type="bebop"/>
-    <subsystem name="gps" type="furuno"/>
-    <subsystem name="stabilization" type="indi"/>
-    <subsystem name="ahrs" type="int_cmpl_quat">
+    <module name="telemetry" type="transparent_udp"/>
+    <module name="radio_control" type="datalink"/>
+    <module name="motor_mixing"/>
+    <module name="actuators" type="bebop"/>
+    <module name="imu" type="bebop"/>
+    <module name="gps" type="furuno"/>
+    <module name="stabilization" type="indi"/>
+    <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
-    </subsystem>
-    <subsystem name="ins" type="extended"/>
-    <subsystem name="guidance" type="indi"/>
+    </module>
+    <module name="ins" type="extended"/>
+    <module name="guidance" type="indi"/>
   </firmware>
 
   <modules main_freq="512">
-    <load name="geo_mag.xml"/>
-    <load name="air_data.xml"/>
+    <module name="geo_mag"/>
+    <module name="air_data"/>
     <!-- only for calibration once-->
-    <load name="send_imu_mag_current.xml"/>
-    <!--load name="logger_file.xml">
+    <module name="send_imu_mag_current"/>
+    <!--module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
-    </load-->
-    <load name="video_thread.xml">
+    </module-->
+    <module name="video_thread">
       <define name="VIDEO_THREAD_FPS" value="4"/>
       <define name="VIDEO_THREAD_CAMERA" value="bottom_camera"/>
       <define name="VIDEO_THREAD_SHOT_PATH" value="/data/ftp/internal_000/images"/>
-    </load>
-    <load name="cv_blob_locator.xml"/>
-    <load name="video_rtp_stream.xml">
+    </module>
+    <module name="cv_blob_locator"/>
+    <module name="video_rtp_stream">
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-    </load>
-    <load name="nav_survey_rectangle_rotorcraft.xml">
+    </module>
+    <module name="nav" type="survey_rectangle_rotorcraft">
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
-    </load>
-    <load name="nav_survey_poly_rotorcraft.xml">
+    </module>
+    <module name="nav" type="survey_poly_rotorcraft">
       <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/>
-    </load>
-    <load name="digital_cam_video.xml">
+    </module>
+    <module name="digital_cam_video">
       <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5"/>
-    </load>
-    <load name="video_exif.xml"/>
+    </module>
+    <module name="video_exif"/>
   </modules>
 
   <commands>

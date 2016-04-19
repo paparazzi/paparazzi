@@ -20,12 +20,12 @@
     <define name="LOITER_TRIM"/>
     <define name="AGR_CLIMB"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="control"/>
-    <subsystem name="gps"           type="ublox_hitl"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins"           type="gps_passthrough"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="control"/>
+    <module name="gps"           type="ublox_hitl"/>
+    <module name="navigation"/>
+    <module name="ins"           type="gps_passthrough"/>
     <define name="USE_JOYSTICK" value="TRUE"/>
   </firmware>
 
@@ -34,15 +34,15 @@
   </firmware>
 
   <modules>
-    <load name="twog_extra_dl.xml"/>
-    <load name="adc_generic.xml">
+    <module name="twog_extra_dl"/>
+    <module name="adc_generic">
       <flag name="ADC_CHANNEL_GENERIC1" value="ADC_3"/>
       <flag name="ADC_CHANNEL_GENERIC2" value="ADC_5"/>
       <flag name="USE_ADC_3"/>
       <flag name="USE_ADC_5"/>
-    </load>
-    <load name="infrared_adc.xml"/>
-    <load name="ahrs_infrared.xml"/>
+    </module>
+    <module name="infrared_adc"/>
+    <module name="ahrs_infrared"/>
   </modules>
 
   <servos>

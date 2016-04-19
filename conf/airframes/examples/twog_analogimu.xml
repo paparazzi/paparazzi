@@ -187,15 +187,15 @@
 
     <define name="LOITER_TRIM"/>
 
-    <subsystem name="radio_control"     type="ppm"/>
+    <module name="radio_control"     type="ppm"/>
     <!-- Communication -->
-    <subsystem name="telemetry"     type="transparent">
+    <module name="telemetry"     type="transparent">
       <configure name="MODEM_BAUD"      value="B9600"/>
-    </subsystem>
+    </module>
     <!-- Actuators are automatically chosen according to the board-->
-    <subsystem name="control"/>
+    <module name="control"/>
     <!-- Sensors -->
-    <subsystem name="imu"       type="analog">
+    <module name="imu"       type="analog">
       <configure name="GYRO_P" value="ADC_0"/>
       <configure name="GYRO_Q" value="ADC_1"/>
       <configure name="GYRO_R" value="ADC_2"/>
@@ -203,16 +203,16 @@
       <configure name="ACCEL_Y" value="ADC_6"/>
       <configure name="ACCEL_Z" value="ADC_7"/>
       <configure name="ADC_ACCEL_NB_SAMPLES" value="32"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="ahrs"  type="float_dcm"/>
-    <subsystem name="gps"       type="ublox"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float"/>
+    <module name="ahrs"  type="float_dcm"/>
+    <module name="gps"       type="ublox"/>
+    <module name="navigation"/>
+    <module name="ins" type="alt_float"/>
   </firmware>
 
   <modules>
-    <load name="nav_line.xml"/>
+    <module name="nav" type="line"/>
   </modules>
 
 </airframe>

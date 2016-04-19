@@ -7,18 +7,18 @@
     <!--define name="USE_SONAR" value="TRUE"/-->  <!-- As we have a height from Optitrack we dont need to use the sonar -->
 
 	<!-- Subsystem section -->
-    <subsystem name="telemetry" type="transparent_udp"/>
-    <subsystem name="radio_control" type="datalink"/> <!-- We control the bebop through wifi -->
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators" type="bebop"/>
-    <subsystem name="imu" type="bebop"/>
-    <subsystem name="gps" type="datalink"/> <!-- The GPS information also comes over this wifi, as we are sitting in the cyberzoo all the time --> 
-    <subsystem name="stabilization" type="indi"/>
-    <subsystem name="ahrs" type="int_cmpl_quat">
+    <module name="telemetry" type="transparent_udp"/>
+    <module name="radio_control" type="datalink"/> <!-- We control the bebop through wifi -->
+    <module name="motor_mixing"/>
+    <module name="actuators" type="bebop"/>
+    <module name="imu" type="bebop"/>
+    <module name="gps" type="datalink"/> <!-- The GPS information also comes over this wifi, as we are sitting in the cyberzoo all the time -->
+    <module name="stabilization" type="indi"/>
+    <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
       <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
-    </subsystem>
-    <subsystem name="ins" type="extended"/>
+    </module>
+    <module name="ins" type="extended"/>
   </firmware>
 
 <!-- This is the place where you add all your modules -->
@@ -26,24 +26,24 @@
 <!-- Note that for vision the order in which modules are loaded is important -->
 <!-- If you place cv_colorfilter before your own module your own module will only get the filtered image-->
   <modules main_freq="512">
-    <load name="geo_mag.xml"/>
-    <load name="air_data.xml"/>
-    <load name="send_imu_mag_current.xml"/>
-    <load name="video_thread.xml">
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+    <module name="send_imu_mag_current"/>
+    <module name="video_thread">
       <define name="VIDEO_THREAD_FPS" value="4"/>
       <define name="VIDEO_THREAD_CAMERA" value="front_camera"/>
       <define name="VIDEO_THREAD_SHOT_PATH" value="/data/ftp/internal_000/images"/>
-    </load>
-    <load name="cv_colorfilter.xml">
-    </load>
+    </module>
+    <module name="cv_colorfilter">
+    </module>
 	
-    <load name="orange_avoider.xml">
-    </load>
+    <module name="orange_avoider">
+    </module>
 	
-    <load name="video_rtp_stream.xml">
+    <module name="video_rtp_stream">
      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
      <define name="VIEWVIDEO_QUALITY_FACTOR" value="70"/>
-    </load>
+    </module>
   </modules>
 
   <commands>

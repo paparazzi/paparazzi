@@ -16,33 +16,33 @@
     <define name="AGR_CLIMB" />
     <target name="ap" board="lisa_s_1.0"/>
 
-    <subsystem name="radio_control" type="superbitrf_rc">
+    <module name="radio_control" type="superbitrf_rc">
       <define name="RADIO_TRANSMITTER_ID" value="2008496626"/> <!-- TUDelft Dx6i: TX 4 -->
       <define name="RADIO_TRANSMITTER_CHAN" value="6"/>
       <define name="RADIO_TRANSMITTER_PROTOCOL" value="0x01"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_FLAP"/>
-    </subsystem>
+    </module>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="superbitrf"/>
+    <module name="telemetry" type="superbitrf"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu"     type="lisa_s_v1.0"/>
-    <subsystem name="ahrs"    type="float_dcm"/>
+    <module name="imu"     type="lisa_s_v1.0"/>
+    <module name="ahrs"    type="float_dcm"/>
       <define name="LISA_S_UPSIDE_DOWN"/>
-    <subsystem name="control"/>
-    <subsystem name="navigation"/>
+    <module name="control"/>
+    <module name="navigation"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="ins" type="alt_float"/>
+    <module name="gps" type="ublox"/>
+    <module name="ins" type="alt_float"/>
 
-    <subsystem name="actuators" type="dualpwm">
+    <module name="actuators" type="dualpwm">
       <define name="DUAL_PWM_ON"/>
-    </subsystem>
+    </module>
   </firmware>
 
  <modules>
-   <load name="gps_ubx_ucenter.xml"/>
+   <module name="gps" type="ubx_ucenter"/>
  </modules>
 
 <!-- commands section -->

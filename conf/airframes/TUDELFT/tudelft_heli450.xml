@@ -13,26 +13,26 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0"/>
 
-    <subsystem name="radio_control" type="spektrum">
+    <module name="radio_control" type="spektrum">
       <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
       <define name="RADIO_MODE" value="RADIO_GEAR"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="actuators"     type="pwm"/>
-    <subsystem name="telemetry"     type="xbee_api"/>
-    <subsystem name="imu"           type="aspirin_v2.2"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <subsystem name="ins"           type="hff"/>
+    <module name="actuators"     type="pwm"/>
+    <module name="telemetry"     type="xbee_api"/>
+    <module name="imu"           type="aspirin_v2.2"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="ins"           type="hff"/>
   </firmware>
 
   <modules>
-    <load name="geo_mag.xml"/>
-    <load name="air_data.xml"/>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="heli_swashplate_mixing.xml"/>
-    <load name="heli_throttle_curve.xml"/>
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="heli_swashplate_mixing"/>
+    <module name="heli_throttle_curve"/>
   </modules>
 
   <servos driver="Pwm">

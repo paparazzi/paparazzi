@@ -5,27 +5,27 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="stm32f4_discovery">
-      <subsystem name="radio_control" type="spektrum">
+      <module name="radio_control" type="spektrum">
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
-      </subsystem>
+      </module>
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <!--define name="SERVO_HZ" value="400"/-->
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.1">
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="aspirin_v2.1">
       <configure name="ASPIRIN_2_SPI_DEV" value="spi1"/>
       <configure name="ASPIRIN_2_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>
-    </subsystem>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat">
+    </module>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
-    </subsystem>
-    <subsystem name="ins"/>
+    </module>
+    <module name="ins"/>
   </firmware>
 
   <firmware name="test_progs">

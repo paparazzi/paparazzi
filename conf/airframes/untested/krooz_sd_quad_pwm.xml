@@ -7,22 +7,22 @@
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
     </target>
 
-    <subsystem name="actuators"     type="pwm">
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="krooz_sd"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_euler"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <subsystem name="ins"           type="hff"/>
-    <subsystem name="motor_mixing"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="krooz_sd"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_euler"/>
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="ins"           type="hff"/>
+    <module name="motor_mixing"/>
 
     <define name="NO_RC_THRUST_LIMIT"/>
     <define name="USE_RC_FP_BLOCK_SWITCHING"/>
@@ -30,10 +30,10 @@
   </firmware>
 
   <modules main_freq="512">
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="geo_mag.xml"/>
-    <load name="osd_max7456.xml"/>
-    <load name="hott_telemetry.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="geo_mag"/>
+    <module name="osd_max7456"/>
+    <module name="hott_telemetry"/>
   </modules>
 
   <servos driver="Pwm">

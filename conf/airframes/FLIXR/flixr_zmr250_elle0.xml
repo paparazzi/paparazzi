@@ -39,7 +39,7 @@
 	    <!--define name="AHRS_MAG_UPDATE_ALL_AXES" value="1"/-->
     </module>
     <module name="ins" type="hff"/>
-    <module name="gps_ubx_ucenter"/>
+    <module name="gps" type="ubx_ucenter"/>
     <module name="geo_mag"/>
     <module name="air_data"/>
 

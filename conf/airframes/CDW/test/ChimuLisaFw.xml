@@ -131,9 +131,9 @@
   </section>
 
   <modules>
-    <load name="ins_chimu_uart.xml">
+    <module name="ins_chimu_uart">
       <configure name="CHIMU_UART_NR" value="3"/>
-    </load>
+    </module>
   </modules>
 
   <firmware name="fixedwing">
@@ -144,17 +144,17 @@
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="transparent">
+    <module name="telemetry" 	type="transparent">
       <configure name="MODEM_BAUD" 		value="B9600"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="control"/>
+    <module name="control"/>
     <!-- Sensors -->
-    <subsystem name="gps" 		    type="ublox_utm"/>
-    <subsystem name="navigation"/>
+    <module name="gps" 		    type="ublox_utm"/>
+    <module name="navigation"/>
   </firmware>
 
 

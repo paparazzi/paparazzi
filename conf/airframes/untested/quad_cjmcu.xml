@@ -35,17 +35,17 @@
     <define name="PPRZ_TRIG_INT_COMPR_FLASH"/>
     <define name="PPRZ_TRIG_INT_COMPR_HIGHEST"/>
     <target name="ap" board="cjmcu">
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="radio_control" type="ppm"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators" type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators" type="pwm">
       <!-- This airframe is using the servo PWM outputs directly to drive mosfets, which in turn directly drive brushed motors.
            With the following settings we will be driving the motors with a 36KHz signal that should be well above anyone's hearing range.
            If we went with the 500Hz that woul be the default we would be hearing a very annoying high pitched sound coming from the motors.
@@ -55,22 +55,22 @@
       <!-- Setting the PWM interval to 36KHz -->
       <define name="SERVO_HZ" value="36000"/>
       <!--define name="USE_SERVOS_1AND2"/-->
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry" type="transparent"/>
-    <subsystem name="imu"           type="mpu60x0_i2c">
+    <module name="telemetry" type="transparent"/>
+    <module name="imu"           type="mpu60x0_i2c">
       <configure name="IMU_MPU60X0_I2C_DEV" value="i2c1"/>
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
-    </subsystem>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
-    <subsystem name="ins"/>
+    </module>
+    <module name="gps" type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs" type="int_cmpl_quat"/>
+    <module name="ins"/>
   </firmware>
 
   <modules main_freq="512">
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="send_imu_mag_current.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="send_imu_mag_current"/>
   </modules>
 
   <servos driver="Pwm">

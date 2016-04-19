@@ -11,7 +11,7 @@
   <firmware name="fixedwing">
     <target name="sim" 	board="pc"/>
     <target name="nps"   board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
     <target name="ap"   board="lisa_m_2.0">
       <!-- baro board options for Lisa/M 2.0: BARO_BOARD_BMP085, BARO_MS5611_I2C, BARO_MS5611_SPI (default) -->
@@ -27,33 +27,33 @@
     <define name="LOITER_TRIM"/>
     <define name="STRONG_WIND"/>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="transparent"/>
+    <module name="telemetry" 	type="transparent"/>
 
     <!-- Sensors -->
-    <subsystem name="imu"           type="aspirin_v2.2"/>
-    <subsystem name="gps"           type="ublox"/>
+    <module name="imu"           type="aspirin_v2.2"/>
+    <module name="gps"           type="ublox"/>
 
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <subsystem name="control"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float">
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="control"/>
+    <module name="navigation"/>
+    <module name="ins" type="alt_float">
       <define name="USE_BAROMETER" value="TRUE"/>
-    </subsystem>
+    </module>
   </firmware>
 
   <modules>
-    <load name="sys_mon.xml"/>
-    <load name="baro_sim.xml"/>
-    <load name="air_data.xml">
+    <module name="sys_mon"/>
+    <module name="baro_sim"/>
+    <module name="air_data">
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
-    </load>
+    </module>
 
-    <load name="digital_cam_servo.xml">
+    <module name="digital_cam_servo">
       <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />
-    </load>
+    </module>
   </modules>
 
   <servos>

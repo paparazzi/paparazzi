@@ -38,7 +38,7 @@
     </module>
     <module name="air_data"/>
     <module name="geo_mag"/>
-    <module name="gps_ubx_ucenter"/>
+    <module name="gps" type="ubx_ucenter"/>
   </firmware>
 
   <firmware name="setup">

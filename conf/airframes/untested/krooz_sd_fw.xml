@@ -12,17 +12,17 @@
     <define name="LOITER_TRIM"/>
     <define name="AGR_CLIMB"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry" type="transparent"/>
-    <subsystem name="imu" type="krooz_sd">
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry" type="transparent"/>
+    <module name="imu" type="krooz_sd">
       <define name="KROOZ_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_500"/>
-    </subsystem>
-    <subsystem name="ahrs" type="float_dcm">
-    <subsystem name="ins"     type="alt_float"/>
-    <subsystem name="control"/>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="navigation"/>
-    <subsystem name="actuators"     type="pwm"/>
+    </module>
+    <module name="ahrs" type="float_dcm">
+    <module name="ins"     type="alt_float"/>
+    <module name="control"/>
+    <module name="gps" type="ublox"/>
+    <module name="navigation"/>
+    <module name="actuators"     type="pwm"/>
 
     <configure name="PERIODIC_FREQUENCY" value="120"/>
     <configure name="AHRS_PROPAGATE_FREQUENCY" value="120"/>

@@ -7,27 +7,27 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.1">
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="radio_control" type="ppm"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_EXTRA1"/>
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1"/>
       <define name="USE_I2C_ACTUATORS_REBOOT_HACK"/>
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators" type="asctec_v2"/>
-    <subsystem name="actuators" type="pwm"/>
+    <module name="motor_mixing"/>
+    <module name="actuators" type="asctec_v2"/>
+    <module name="actuators" type="pwm"/>
 
-    <subsystem name="telemetry" type="xbee_api"/>
-    <subsystem name="imu" type="lisa_mx_v2.1"/>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs" type="float_mlkf"/>
-    <subsystem name="ins" type="hff"/>
+    <module name="telemetry" type="xbee_api"/>
+    <module name="imu" type="lisa_mx_v2.1"/>
+    <module name="gps" type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs" type="float_mlkf"/>
+    <module name="ins" type="hff"/>
   </firmware>
 
   <section name="AUTOPILOT">
@@ -40,14 +40,14 @@
   <!-- ************************* MODULES ************************* -->
 
   <modules main_freq="512">
-    <!--   <load name="logger_spi_link.xml"/>
-    <load name="imu_quality_assessment.xml"/> -->
-    <load name="servo_switch.xml"/>
-    <load name="send_imu_mag_current.xml"/>
-    <load name="gps_ubx_ucenter.xml" />
-    <load name="nav_survey_rectangle_rotorcraft.xml"/>
-    <load name="nav_survey_poly_rotorcraft.xml"/>
-    <load name="geo_mag.xml"/>
+    <!--   <module name="logger_spi_link"/>
+    <module name="imu_quality_assessment"/> -->
+    <module name="servo_switch"/>
+    <module name="send_imu_mag_current"/>
+    <module name="gps" type="ubx_ucenter" />
+    <module name="nav" type="survey_rectangle_rotorcraft"/>
+    <module name="nav" type="survey_poly_rotorcraft"/>
+    <module name="geo_mag"/>
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->

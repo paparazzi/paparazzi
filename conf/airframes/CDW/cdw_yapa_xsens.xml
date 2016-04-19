@@ -16,15 +16,15 @@
     <define name="LOITER_TRIM"/>
     <define name="TUNE_AGRESSIVE_CLIMB"/>
     <define name="AGR_CLIMB"/>
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
     <!-- Communication -->
-    <subsystem name="telemetry" type="xbee_api">
+    <module name="telemetry" type="xbee_api">
       <configure name="MODEM_BAUD" value="B9600"/>
-    </subsystem>
+    </module>
     <!-- Actuators -->
-    <subsystem name="control"/>
+    <module name="control"/>
     <!-- Sensors -->
-    <subsystem name="navigation"/>
+    <module name="navigation"/>
     <module name="ins" type="xsens">
       <configure name="XSENS_PORT" value="uart0"/>
       <configure name="XSENS_BAUD" value="B230400"/>
@@ -34,18 +34,18 @@
   <!-- ************************* MODULES ************************* -->
 
   <modules>
-    <load name="light.xml">
+    <module name="light">
       <define name="LIGHT_LED_STROBE" value="1"/>
       <!--      <define name="LIGHT_LED_NAV" value="2"/> -->
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
-    </load>
-    <!--    <load name="digital_cam_i2c.xml"/>  -->
-    <!--    <load name="ins_ppzuavimu.xml"/>  -->
-    <load name="digital_cam.xml">
+    </module>
+    <!--    <module name="digital_cam_i2c"/>  -->
+    <!--    <module name="ins_ppzuavimu"/>  -->
+    <module name="digital_cam">
       <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO16"/>
-    </load>
-    <load name="nav_line.xml"/>
+    </module>
+    <module name="nav" type="line"/>
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->

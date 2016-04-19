@@ -27,35 +27,35 @@
 
     <define name="USE_I2C0"/>
 
-    <subsystem name="radio_control" type="ppm">
+    <module name="radio_control" type="ppm">
        <!-- for debugging PPM value the one below -->
        <!-- <define name="TELEMETRY_MODE_FBW" value="1"/> -->
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry" type="transparent">
+    <module name="telemetry" type="transparent">
       <configure name="MODEM_BAUD" value="B9600"/>
       <configure name="MODEM_PORT" value="UART1"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="control"/>
-    <subsystem name="ins"           type="alt_float"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="navigation"/>
+    <module name="control"/>
+    <module name="ins"           type="alt_float"/>
+    <module name="gps"           type="ublox"/>
+    <module name="navigation"/>
     <!-- for setting values e.g. IR tuning via RC Tranmitter -->
-    <!-- <subsystem name="settings" type="rc"/>-->
+    <!-- <module name="settings" type="rc"/>-->
 
   </firmware>
 
   <modules>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="infrared_adc.xml"/>
-    <load name="ahrs_infrared.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="infrared_adc"/>
+    <module name="ahrs_infrared"/>
 <!--
-    <load name="sys_mon.xml"/>
+    <module name="sys_mon"/>
 -->
 
 <!--
-    <load name="adc_generic.xml">
+    <module name="adc_generic">
 -->
 <!-- Voltage measuring sensor -->
 <!--
@@ -68,7 +68,7 @@
 <!-- Current measuring sensor -->
 <!--
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_7"/>
-    </load>
+    </module>
 -->
   </modules>
 

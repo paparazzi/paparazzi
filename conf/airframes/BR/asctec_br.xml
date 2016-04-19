@@ -13,30 +13,30 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0"/>
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
 
-    <subsystem name="radio_control" type="spektrum">
+    <module name="radio_control" type="spektrum">
       <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
       <define name="RADIO_MODE" value="RADIO_GEAR"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="asctec_v2"/>
-    <subsystem name="actuators"     type="pwm"/>
-    <subsystem name="telemetry"     type="xbee_api"/>
-    <subsystem name="imu"           type="aspirin_v2.1"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <subsystem name="ins" type="extended"/>
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="asctec_v2"/>
+    <module name="actuators"     type="pwm"/>
+    <module name="telemetry"     type="xbee_api"/>
+    <module name="imu"           type="aspirin_v2.1"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="ins" type="extended"/>
   </firmware>
 
   <modules>
-    <load name="geo_mag.xml"/>
-    <load name="air_data.xml"/>
-    <load name="servo_switch.xml"/>
-    <load name="gps_ubx_ucenter.xml"/>
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+    <module name="servo_switch"/>
+    <module name="gps" type="ubx_ucenter"/>
   </modules>
 
   <servos driver="Asctec_v2">

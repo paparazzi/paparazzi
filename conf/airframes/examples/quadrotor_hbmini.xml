@@ -12,24 +12,24 @@
       <define name="ACTUATORS_START_DELAY" value="3"/>
     </target>
     <target name="nps" board="pc">
-      <subsystem name="fdm"         type="jsbsim"/>
+      <module name="fdm"         type="jsbsim"/>
     </target>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="actuators"     type="mkk">
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="actuators"     type="mkk">
       <define name="MKK_I2C_SCL_TIME" value="25"/>
-    </subsystem>
-    <subsystem name="motor_mixing"/>
-    <subsystem name="imu"           type="hbmini"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_euler"/>
-    <subsystem name="ahrs"          type="float_cmpl_rmat"/>
-    <subsystem name="ins"           type="hff"/>
+    </module>
+    <module name="motor_mixing"/>
+    <module name="imu"           type="hbmini"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_euler"/>
+    <module name="ahrs"          type="float_cmpl_rmat"/>
+    <module name="ins"           type="hff"/>
   </firmware>
 
   <modules main_freq="512">
-    <load name="gps_ubx_ucenter.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
   </modules>
 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">

@@ -26,18 +26,18 @@
 
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
 
-    <subsystem name="imu"    type="aspirin_v1.5"/>
-    <subsystem name="ahrs"   type="float_dcm"/>
-    <subsystem name="ins"    type="alt_float"/>
-    <subsystem name="gps"    type="ublox"/>
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry" 	type="transparent"/>
-    <subsystem name="control"/>
-    <subsystem name="navigation"/>
+    <module name="imu"    type="aspirin_v1.5"/>
+    <module name="ahrs"   type="float_dcm"/>
+    <module name="ins"    type="alt_float"/>
+    <module name="gps"    type="ublox"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry" 	type="transparent"/>
+    <module name="control"/>
+    <module name="navigation"/>
   </firmware>
 
   <modules>
-    <load name="sys_mon.xml"/>
+    <module name="sys_mon"/>
   </modules>
 
   <servos>

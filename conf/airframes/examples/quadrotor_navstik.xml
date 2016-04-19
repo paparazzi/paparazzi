@@ -17,23 +17,23 @@
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
 
-    <subsystem name="radio_control" type="spektrum">
+    <module name="radio_control" type="spektrum">
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <define name="RADIO_MODE" value="RADIO_AUX1"/>
-    </subsystem>
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="asctec_v2"/>
-    <subsystem name="telemetry"     type="xbee_api"/>
-    <subsystem name="imu"           type="navstik"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="indi"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat">
+    </module>
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="asctec_v2"/>
+    <module name="telemetry"     type="xbee_api"/>
+    <module name="imu"           type="navstik"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="indi"/>
+    <module name="ahrs"          type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
-    </subsystem>
-    <subsystem name="ins"           type="hff"/>
+    </module>
+    <module name="ins"           type="hff"/>
   </firmware>
 
   <firmware name="test_progs">
@@ -45,11 +45,11 @@
   </firmware>
 
   <modules>
-    <load name="gps_ubx_ucenter.xml"/>
-    <!--load name="airspeed_ms45xx_i2c.xml">
+    <module name="gps" type="ubx_ucenter"/>
+    <!--module name="airspeed_ms45xx_i2c">
       <configure name="MS45XX_I2C_DEV" value="i2c3"/>
-    </load>
-    <load name="direct_memory_logger.xml"/-->
+    </module>
+    <module name="direct_memory_logger"/-->
   </modules>
 
   <servos driver="Asctec_v2">

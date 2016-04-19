@@ -14,24 +14,24 @@
     <configure name="USE_MAGNETOMETER" value="TRUE"/>
 
 	<!-- Subsystem section -->
-    <subsystem name="telemetry" type="transparent_udp"/>
-    <subsystem name="radio_control" type="datalink"/>
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators" type="ardrone2"/>
-    <subsystem name="imu" type="ardrone2"/>
- <subsystem name="gps" type="datalink"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
-    <subsystem name="ins" type="extended"/>
+    <module name="telemetry" type="transparent_udp"/>
+    <module name="radio_control" type="datalink"/>
+    <module name="motor_mixing"/>
+    <module name="actuators" type="ardrone2"/>
+    <module name="imu" type="ardrone2"/>
+ <module name="gps" type="datalink"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs" type="int_cmpl_quat"/>
+    <module name="ins" type="extended"/>
   </firmware>
 
   <modules main_freq="512">
-    <load name="bat_voltage_ardrone2.xml"/>
-    <load name="stereocam.xml">
+    <module name="bat_voltage_ardrone2"/>
+    <module name="stereocam">
 	<configure name="STEREO_UART" value="UART1"/>
 	<configure name="STEREO_BAUD" value="B115200"/>
-    </load>
-    <load name="stereocam_follow_me.xml"/>
+    </module>
+    <module name="stereocam_follow_me"/>
   </modules>
 
   <commands>

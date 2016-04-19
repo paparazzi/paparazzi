@@ -10,7 +10,7 @@
       <configure name="TUNNEL_PORT" value="UART6"/>
     </target>
     <target name="setup_actuators"  board="apogee_1.0">
-      <subsystem name="actuators" type="pwm"/>
+      <module name="actuators" type="pwm"/>
     </target>
   </firmware>
 
@@ -25,11 +25,11 @@
     <target name="test_actuators_pwm_sin"   board="apogee_1.0">
     </target>
     <target name="test_baro_board"          board="apogee_1.0">
-      <subsystem name="imu" type="apogee"/>
+      <module name="imu" type="apogee"/>
       <configure name="IMU_INIT" value="1"/>
     </target>
     <target name="test_imu" board="apogee_1.0">
-      <subsystem name="imu" type="apogee"/>
+      <module name="imu" type="apogee"/>
     </target>
     <target name="test_adc"                 board="apogee_1.0"/>
     <target name="test_uart"                board="apogee_1.0">
@@ -40,8 +40,8 @@
     </target>
 
     <!-- Communication -->
-    <subsystem name="radio_control" type="ppm">
-    </subsystem>
+    <module name="radio_control" type="ppm">
+    </module>
   </firmware>
 
   <servos>

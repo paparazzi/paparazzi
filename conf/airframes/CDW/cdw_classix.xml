@@ -184,8 +184,8 @@
       <define name="USE_AD0_3"/>
       <define name="ADC_6" value="AdcBank0\(3\)"/>
 
-      <subsystem name="control"/>
-      <subsystem name="navigation"/>
+      <module name="control"/>
+      <module name="navigation"/>
     </target>
 
     <target name="fbw" board="classix">
@@ -198,8 +198,8 @@
     </target>
 
     <target name="sim" board="pc">
-      <subsystem name="control"/>
-      <subsystem name="navigation"/>
+      <module name="control"/>
+      <module name="navigation"/>
     </target>
 
     <define name="DC_IMAGE_BUFFER" value="65000" />
@@ -209,12 +209,12 @@
     <define name="LOITER_TRIM"/>
     <define name="RADIO_CONTROL_AUTO1"/>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
-    <subsystem name="telemetry" type="xbee_api">
+    <module name="telemetry" type="xbee_api">
       <configure name="MODEM_PORT" value="UART0"/>
       <configure name="MODEM_BAUD" value="B9600"/>
-    </subsystem>
+    </module>
 
     <module name="ins" type="xsens">
       <configure name="XSENS_PORT" value="uart1"/>
@@ -223,15 +223,15 @@
   </firmware>
 
   <modules>
-    <load name="digital_cam.xml">
+    <module name="digital_cam">
       <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO15"/>
-   </load>
-   <load name="adc_generic.xml">
+   </module>
+   <module name="adc_generic">
       <define name="ADC_CHANNEL_GENERIC_NB_SAMPLES" value="32"/>
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_6"/> <!-- e.g. current sensor -->
-   </load>
-   <load name="photogrammetry_calculator.xml" />
-    <load name="nav_line.xml"/>
+   </module>
+   <module name="photogrammetry_calculator" />
+    <module name="nav" type="line"/>
   </modules>
 
 <!--+-+-+-+-+-+-+- PHOTOGRAMMETRY -+-+-+-+-+-+-+-->

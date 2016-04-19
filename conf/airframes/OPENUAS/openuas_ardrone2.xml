@@ -24,43 +24,43 @@
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
 
     <define name="USE_SONAR" value="TRUE"/>
 
     <!-- Subsystem section -->
-    <subsystem name="telemetry" type="transparent_udp"/>
-    <subsystem name="radio_control" type="datalink"/>
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators" type="ardrone2"/>
-    <subsystem name="imu" type="ardrone2"/>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="stabilization" type="indi"/>
-    <subsystem name="ahrs" type="int_cmpl_quat">
+    <module name="telemetry" type="transparent_udp"/>
+    <module name="radio_control" type="datalink"/>
+    <module name="motor_mixing"/>
+    <module name="actuators" type="ardrone2"/>
+    <module name="imu" type="ardrone2"/>
+    <module name="gps" type="ublox"/>
+    <module name="stabilization" type="indi"/>
+    <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
-    </subsystem>
-    <subsystem name="ins" type="extended"/>
+    </module>
+    <module name="ins" type="extended"/>
   </firmware>
 
   <modules main_freq="512">
-    <load name="bat_voltage_ardrone2.xml"/>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="air_data.xml"/>
-    <load name="geo_mag.xml"/>
+    <module name="bat_voltage_ardrone2"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="air_data"/>
+    <module name="geo_mag"/>
      <!-- ************************* PHOTOGRAMMETRY ****************************** -->
-     <!-- <load name="photogrammetry_calculator.xml"/> -->
-    <!--<load name="video_rtp_stream.xml">
+     <!-- <module name="photogrammetry_calculator"/> -->
+    <!--<module name="video_rtp_stream">
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="75"/>
       <define name="VIEWVIDEO_FPS" value="4"/>
       <define name="VIEWVIDEO_SHOT_PATH" value="/data/video/usb0/myphotos"/>
-    </load>-->
-    <!--<load name="video_usb_logger.xml"/>
+    </module>-->
+    <!--<module name="video_usb_logger"/>
       <define name="LOG_ON_USB" value="TRUE"/>
       <define name="VIDEO_USB_LOGGER_PATH" value="/data/video/usb0/myphotologs"/>
-    </load>--> 
-    <!--<load name="find_joe.xml"> -->
+    </module>--> 
+    <!--<module name="find_joe"> -->
   </modules>
 
   <commands>

@@ -10,29 +10,29 @@
     <firmware name="rotorcraft">
         <target name="ap" board="lisa_l_1.1">
             <!--define name="NO_RC_THRUST_LIMIT"/-->
-            <subsystem name="radio_control" type="spektrum"/>
+            <module name="radio_control" type="spektrum"/>
             <define name="RADIO_MODE" value="RADIO_AUX1"/>
             <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
             <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
         </target>
 
         <target name="nps" board="pc">
-            <subsystem name="fdm"           type="jsbsim"/>
-            <subsystem name="radio_control" type="ppm"/>
+            <module name="fdm"           type="jsbsim"/>
+            <module name="radio_control" type="ppm"/>
         </target>
 
-        <subsystem name="telemetry"     type="xbee_api">
+        <module name="telemetry"     type="xbee_api">
             <configure name="MODEM_BAUD" value="B38400"/>
-        </subsystem>
-        <subsystem name="motor_mixing"/>
-        <subsystem name="actuators"     type="mkk"/>
-        <subsystem name="imu"           type="aspirin_v1.5"/>
-        <subsystem name="gps"           type="ublox">
+        </module>
+        <module name="motor_mixing"/>
+        <module name="actuators"     type="mkk"/>
+        <module name="imu"           type="aspirin_v1.5"/>
+        <module name="gps"           type="ublox">
             <configure name="GPS_BAUD"    value="B57600"/>
-        </subsystem>
-        <subsystem name="stabilization"   type="int_euler"/>
-        <subsystem name="ahrs"            type="int_cmpl_quat"/>
-        <subsystem name="ins"/>
+        </module>
+        <module name="stabilization"   type="int_euler"/>
+        <module name="ahrs"            type="int_cmpl_quat"/>
+        <module name="ins"/>
     </firmware>
 
     <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">

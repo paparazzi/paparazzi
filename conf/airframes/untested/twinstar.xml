@@ -18,12 +18,12 @@
     <define name="LOITER_TRIM"/>
     <define name="AGR_CLIMB"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="control"/>
-    <subsystem name="gps"           type="ublox_utm"/>
-    <subsystem name="ins"           type="gps_passthrough"/>
-    <subsystem name="navigation"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="control"/>
+    <module name="gps"           type="ublox_utm"/>
+    <module name="ins"           type="gps_passthrough"/>
+    <module name="navigation"/>
   </firmware>
 
   <firmware name="setup">
@@ -31,8 +31,8 @@
   </firmware>
 
   <modules>
-    <load name="infrared_adc.xml"/>
-    <load name="ahrs_infrared.xml"/>
+    <module name="infrared_adc"/>
+    <module name="ahrs_infrared"/>
   </modules>
 
 <!-- commands section -->

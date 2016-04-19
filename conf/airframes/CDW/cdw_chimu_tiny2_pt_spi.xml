@@ -157,11 +157,11 @@ YAPA + XSens + XBee
 
 
   <modules>
-    <load name="ahrs_chimu_spi.xml" >
+    <module name="ahrs_chimu_spi" >
       <define name="CHIMU_BIG_ENDIAN" />
-    </load>
-    <load name="cam_point.xml" />
-    <load name="gps_ubx_ucenter.xml"/>
+    </module>
+    <module name="cam_point" />
+    <module name="gps" type="ubx_ucenter"/>
   </modules>
 
   <firmware name="fixedwing">
@@ -176,22 +176,22 @@ YAPA + XSens + XBee
     </target>
     <!--    <target name="sim" board="pc"/> -->
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="gps" type="ublox" />
+    <module name="radio_control" type="ppm"/>
+    <module name="gps" type="ublox" />
 
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="xbee_api">
+    <module name="telemetry" type="xbee_api">
       <configure name="MODEM_BAUD" value="B9600"/>
-    </subsystem>
+    </module>
 
     <!-- Actuators -->
-    <subsystem name="control"/>
+    <module name="control"/>
     <!-- Sensors -->
-    <subsystem name="navigation"/>
+    <module name="navigation"/>
 
-    <subsystem name="spi_slave_hs"/>
-    <subsystem name="ins" type="alt_float"/>
+    <module name="spi_slave_hs"/>
+    <module name="ins" type="alt_float"/>
   </firmware>
 
 </airframe>
