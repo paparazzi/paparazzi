@@ -24,7 +24,7 @@
     <file name="downlink.c" dir="subsystems/datalink"/>
     <file name="datalink.c" dir="subsystems/datalink"/>
     <file name="telemetry.c" dir="subsystems/datalink"/>
-    <file name="pprz_transport.c" dir="$(PAPARAZZI_HOME)/var/share/pprzlink/src"/>
+    <file name="pprz_transport.c" dir="pprzlink/src"/>
   </makefile>
   <makefile target="ap" firmware="fixedwing">
     <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>
