@@ -20,11 +20,11 @@
 */
 
 /**
- * @file modules/computer_vision/video_thread.c
+ * @file modules/computer_vision/video_thread2.c
  */
 
 // Own header
-#include "modules/computer_vision/video_thread.h"
+#include "modules/computer_vision/video_thread2.h"
 #include "modules/computer_vision/cv.h"
 
 #include <stdlib.h>
@@ -37,7 +37,6 @@
 // Video
 #include "lib/v4l/v4l2.h"
 #include "lib/vision/image.h"
-#include "lib/vision/bayer.h"
 #include "lib/encoding/jpeg.h"
 #include "peripherals/video_device.h"
 
@@ -55,63 +54,63 @@
 #include "rt_priority.h"
 
 /// The camera video config (usually bottom_camera or front_camera)
-#ifndef VIDEO_THREAD_CAMERA
+#ifndef VIDEO_THREAD2_CAMERA
 #warning "Are you sure you don't want to use the bottom_camera or front_camera?"
 // The video device buffers (the amount of V4L2 buffers)
-#ifndef VIDEO_THREAD_DEVICE_BUFFERS
-#define VIDEO_THREAD_DEVICE_BUFFERS 10
+#ifndef VIDEO_THREAD2_DEVICE_BUFFERS
+#define VIDEO_THREAD2_DEVICE_BUFFERS 10
 #endif
-PRINT_CONFIG_VAR(VIDEO_THREAD_DEVICE_BUFFERS)
-#ifndef VIDEO_THREAD_SUBDEV
-#define VIDEO_THREAD_SUBDEV NULL
+PRINT_CONFIG_VAR(VIDEO_THREAD2_DEVICE_BUFFERS)
+#ifndef VIDEO_THREAD2_SUBDEV
+#define VIDEO_THREAD2_SUBDEV NULL
 #endif
-#ifndef VIDEO_THREAD_FILTERS
-#define VIDEO_THREAD_FILTERS 0
+#ifndef VIDEO_THREAD2_FILTERS
+#define VIDEO_THREAD2_FILTERS 0
 #endif
 struct video_config_t custom_camera = {
-  .w = VIDEO_THREAD_VIDEO_WIDTH,
-  .h = VIDEO_THREAD_VIDEO_HEIGHT,
-  .dev_name = STRINGIFY(VIDEO_THREAD_DEVICE),
-  .subdev_name = VIDEO_THREAD_SUBDEV,
-  .buf_cnt = VIDEO_THREAD_DEVICE_BUFFERS,
-  .filters = VIDEO_THREAD_FILTERS
+  .w = VIDEO_THREAD2_VIDEO_WIDTH,
+  .h = VIDEO_THREAD2_VIDEO_HEIGHT,
+  .dev_name = STRINGIFY(VIDEO_THREAD2_DEVICE),
+  .subdev_name = VIDEO_THREAD2_SUBDEV,
+  .buf_cnt = VIDEO_THREAD2_DEVICE_BUFFERS,
+  .filters = VIDEO_THREAD2_FILTERS
 };
-#define VIDEO_THREAD_CAMERA custom_camera
+#define VIDEO_THREAD2_CAMERA custom_camera
 #endif
 PRINT_CONFIG_VAR(VIDEO_THREAD_CAMERA)
 
 
 // Frames Per Seconds
-#ifndef VIDEO_THREAD_FPS
-#define VIDEO_THREAD_FPS 4
+#ifndef VIDEO_THREAD2_FPS
+#define VIDEO_THREAD2_FPS 4
 #endif
-PRINT_CONFIG_VAR(VIDEO_THREAD_FPS)
+PRINT_CONFIG_VAR(VIDEO_THREAD2_FPS)
 
 // The place where the shots are saved (without slash on the end)
-#ifndef VIDEO_THREAD_SHOT_PATH
-#define VIDEO_THREAD_SHOT_PATH "/data/video/images"
+#ifndef VIDEO_THREAD2_SHOT_PATH
+#define VIDEO_THREAD2_SHOT_PATH "/data/video/images"
 #endif
-PRINT_CONFIG_VAR(VIDEO_THREAD_SHOT_PATH)
+PRINT_CONFIG_VAR(VIDEO_THREAD2_SHOT_PATH)
 
 // Main thread
-static void *video_thread_function(void *data);
-void video_thread_periodic(void) { }
+static void *video_thread2_function(void *data);
+void video_thread2_periodic(void) { }
 
-// Initialize the video_thread structure with the defaults
-struct video_thread_t video_thread = {
+// Initialize the video_thread2 structure with the defaults
+struct video_thread_t video_thread2 = {
   .is_running = FALSE,
-  .fps = VIDEO_THREAD_FPS,
+  .fps = VIDEO_THREAD2_FPS,
   .take_shot = FALSE,
   .shot_number = 0
 };
 
-static void video_thread_save_shot(struct image_t *img, struct image_t *img_jpeg)
+static void video_thread2_save_shot(struct image_t *img, struct image_t *img_jpeg)
 {
 
   // Search for a file where we can write to
   char save_name[128];
-  for (; video_thread.shot_number < 99999; video_thread.shot_number++) {
-    sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_THREAD_SHOT_PATH), video_thread.shot_number);
+  for (; video_thread2.shot_number < 99999; video_thread2.shot_number++) {
+    sprintf(save_name, "%s/img2_%05d.jpg", STRINGIFY(VIDEO_THREAD2_SHOT_PATH), video_thread2.shot_number);
     // Check if file exists or not
     if (access(save_name, F_OK) == -1) {
 
@@ -123,7 +122,7 @@ static void video_thread_save_shot(struct image_t *img, struct image_t *img_jpeg
 #else
       FILE *fp = fopen(save_name, "w");
       if (fp == NULL) {
-        printf("[video_thread-thread] Could not write shot %s.\n", save_name);
+        printf("[video_thread2-thread] Could not write shot %s.\n", save_name);
       } else {
         // Save it to the file and close it
         fwrite(img_jpeg->buf, sizeof(uint8_t), img_jpeg->buf_size, fp);
@@ -142,9 +141,9 @@ static void video_thread_save_shot(struct image_t *img, struct image_t *img_jpeg
  * Handles all the video streaming and saving of the image shots
  * This is a sepereate thread, so it needs to be thread safe!
  */
-static void *video_thread_function(void *data)
+static void *video_thread2_function(void *data)
 {
-  struct video_config_t *vid = (struct video_config_t *)&(VIDEO_THREAD_CAMERA);
+  struct video_config_t *vid = (struct video_config_t *)&(VIDEO_THREAD2_CAMERA);
 
   struct image_t img_jpeg;
   struct image_t img_color;
@@ -161,8 +160,8 @@ static void *video_thread_function(void *data)
   }
 
   // Start the streaming of the V4L2 device
-  if (!v4l2_start_capture(video_thread.dev)) {
-    printf("[video_thread-thread] Could not start capture of %s.\n", video_thread.dev->name);
+  if (!v4l2_start_capture(video_thread2.dev)) {
+    printf("[video_thread2-thread] Could not start capture of %s.\n", video_thread2.dev->name);
     return 0;
   }
 
@@ -175,8 +174,8 @@ static void *video_thread_function(void *data)
   clock_gettime(CLOCK_MONOTONIC, &time_prev);
 
   // Start streaming
-  video_thread.is_running = true;
-  while (video_thread.is_running) {
+  video_thread2.is_running = TRUE;
+  while (video_thread2.is_running) {
 
     // get time in us since last run
     clock_gettime(CLOCK_MONOTONIC, &time_now);
@@ -184,18 +183,18 @@ static void *video_thread_function(void *data)
     time_prev = time_now;
 
     // sleep remaining time to limit to specified fps
-    uint32_t fps_period_us = (uint32_t)(1000000. / (float)video_thread.fps);
+    uint32_t fps_period_us = (uint32_t)(1000000. / (float)video_thread2.fps);
     if (dt_us < fps_period_us) {
       usleep(fps_period_us - dt_us);
     }
     else {
-      fprintf(stderr, "video_thread: desired %i fps, only managing %.1f fps\n",
-              video_thread.fps, 1000000.f / dt_us);
+      fprintf(stderr, "video_thread2: desired %i fps, only managing %.1f fps\n",
+              video_thread2.fps, 1000000.f / dt_us);
     }
 
     // Wait for a new frame (blocking)
     struct image_t img;
-    v4l2_image_get(video_thread.dev, &img);
+    v4l2_image_get(video_thread2.dev, &img);
 
     // pointer to the final image to pass for saving and further processing
     struct image_t *img_final = &img;
@@ -210,16 +209,16 @@ static void *video_thread_function(void *data)
     }
 
     // Check if we need to take a shot
-    if (video_thread.take_shot) {
-      video_thread_save_shot(img_final, &img_jpeg);
-      video_thread.take_shot = false;
+    if (video_thread2.take_shot) {
+      video_thread2_save_shot(img_final, &img_jpeg);
+      video_thread2.take_shot = FALSE;
     }
 
     // Run processing if required
-    cv_run(img_final);
+    cv_run2(img_final);
 
     // Free the image
-    v4l2_image_free(video_thread.dev, &img);
+    v4l2_image_free(video_thread2.dev, &img);
   }
 
   image_free(&img_jpeg);
@@ -231,33 +230,33 @@ static void *video_thread_function(void *data)
 /**
  * Initialize the view video
  */
-void video_thread_init(void)
+void video_thread2_init(void)
 {
-  struct video_config_t *vid = (struct video_config_t *)&(VIDEO_THREAD_CAMERA);
+  struct video_config_t *vid = (struct video_config_t *)&(VIDEO_THREAD2_CAMERA);
 
-  cv_current_thread = 1;
+  cv_current_thread = 2;
 
   // Initialize the V4L2 subdevice if needed
   if (vid->subdev_name != NULL) {
     // FIXME! add subdev format to config, only needed on bebop front camera so far
     if (!v4l2_init_subdev(vid->subdev_name, 0, 0, V4L2_MBUS_FMT_SGBRG10_1X10, vid->w, vid->h)) {
-      printf("[video_thread] Could not initialize the %s subdevice.\n", vid->subdev_name);
+      printf("[video_thread2] Could not initialize the %s subdevice.\n", vid->subdev_name);
       return;
     }
   }
 
   // Initialize the V4L2 device
-  video_thread.dev = v4l2_init(vid->dev_name, vid->w, vid->h, vid->buf_cnt, vid->format);
-  if (video_thread.dev == NULL) {
-    printf("[video_thread] Could not initialize the %s V4L2 device.\n", vid->dev_name);
+  video_thread2.dev = v4l2_init(vid->dev_name, vid->w, vid->h, vid->buf_cnt, vid->format);
+  if (video_thread2.dev == NULL) {
+    printf("[video_thread2] Could not initialize the %s V4L2 device.\n", vid->dev_name);
     return;
   }
 
   // Create the shot directory
   char save_name[128];
-  sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
+  sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_THREAD2_SHOT_PATH));
   if (system(save_name) != 0) {
-    printf("[video_thread] Could not create shot directory %s.\n", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
+    printf("[video_thread2] Could not create shot directory %s.\n", STRINGIFY(VIDEO_THREAD2_SHOT_PATH));
     return;
   }
 }
@@ -265,16 +264,16 @@ void video_thread_init(void)
 /**
  * Start with streaming
  */
-void video_thread_start(void)
+void video_thread2_start(void)
 {
   // Check if we are already running
-  if (video_thread.is_running) {
+  if (video_thread2.is_running) {
     return;
   }
 
   // Start the streaming thread
   pthread_t tid;
-  if (pthread_create(&tid, NULL, video_thread_function, (void*)(&VIDEO_THREAD_CAMERA)) != 0) {
+  if (pthread_create(&tid, NULL, video_thread2_function, (void*)(&VIDEO_THREAD2_CAMERA)) != 0) {
     printf("[vievideo] Could not create streaming thread.\n");
     return;
   }
@@ -284,19 +283,19 @@ void video_thread_start(void)
  * Stops the streaming
  * This could take some time, because the thread is stopped asynchronous.
  */
-void video_thread_stop(void)
+void video_thread2_stop(void)
 {
   // Check if not already stopped streaming
-  if (!video_thread.is_running) {
+  if (!video_thread2.is_running) {
     return;
   }
 
   // Stop the streaming thread
-  video_thread.is_running = false;
+  video_thread2.is_running = FALSE;
 
   // Stop the capturing
-  if (!v4l2_stop_capture(video_thread.dev)) {
-    printf("[video_thread] Could not stop capture of %s.\n", video_thread.dev->name);
+  if (!v4l2_stop_capture(video_thread2.dev)) {
+    printf("[video_thread2] Could not stop capture of %s.\n", video_thread2.dev->name);
     return;
   }
 
@@ -307,7 +306,7 @@ void video_thread_stop(void)
  * Take a shot and save it
  * This will only work when the streaming is enabled
  */
-void video_thread_take_shot(bool take)
+void video_thread2_take_shot2(bool_t take)
 {
-  video_thread.take_shot = take;
+  video_thread2.take_shot = take;
 }

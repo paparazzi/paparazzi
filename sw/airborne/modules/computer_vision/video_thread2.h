@@ -20,25 +20,28 @@
  */
 
 /**
- * @file modules/computer_vision/cv.h
+ * @file modules/computer_vision/video_thread2.h
  *
- * Computer vision framework for onboard processing
+ * Start a Video thread and grab images
+ *
+ * Works on Linux platforms
  */
 
-
-#ifndef CV_H_
-#define CV_H_
+#ifndef VIDEO_THREAD2_H
+#define VIDEO_THREAD2_H
 
 #include "std.h"
-#include "lib/vision/image.h"
+#include "modules/computer_vision/video_thread.h"
 
-extern int cv_current_thread;
+// Main video_thread structure
+extern struct video_thread_t video_thread2;
 
+// Module functions
+extern void video_thread2_init(void);
+extern void video_thread2_periodic(void); ///< A dummy for now
+extern void video_thread2_start(void);
+extern void video_thread2_stop(void);
+extern void video_thread2_take_shot2(bool_t take);
 
-typedef struct image_t* (*cvFunction)(struct image_t *img);
+#endif /* VIDEO_THREAD_H */
 
-extern void cv_add(cvFunction func);
-extern void cv_run(struct image_t *img);
-extern void cv_run2(struct image_t *img);
-
-#endif /* CV_H_ */
