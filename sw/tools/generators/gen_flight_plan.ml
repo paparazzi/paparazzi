@@ -303,7 +303,7 @@ let rec index_stage = fun x ->
         let l = List.map index_stage (Xml.children x) in
         incr stage; (* To count the loop stage *)
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
-      | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "home"
+      | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "call_once" | "home"
       | "heading" | "attitude" | "manual" | "go" | "stay" | "xyz" | "set" | "circle" ->
         incr stage;
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
@@ -579,6 +579,18 @@ let rec print_stage = fun index_of_waypoints x ->
             end;
         | _ -> failwith "FP: 'call' loop attribute must be TRUE or FALSE"
         end
+      | "call_once" ->
+        (* call_once is an alias for <call fun="x" loop="false"/> *)
+        stage ();
+        let statement = ExtXml.attrib  x "fun" in
+        (* by default, go to next stage immediately *)
+        let break = String.uppercase (ExtXml.attrib_or_default x "break" "FALSE") in
+        lprintf "%s;\n" statement;
+        begin match break with
+        | "TRUE" -> lprintf "NextStageAndBreak();\n";
+        | "FALSE" -> lprintf "NextStage();\n";
+        | _ -> failwith "FP: 'call_once' break attribute must be TRUE or FALSE";
+        end;
       | "survey_rectangle" ->
         let grid = parsed_attrib x "grid"
         and wp1 = get_index_waypoint (ExtXml.attrib x "wp1") index_of_waypoints
