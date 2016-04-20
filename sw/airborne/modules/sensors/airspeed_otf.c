@@ -30,10 +30,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
+#include <ctype.h>
 
 #include "met_module.h"
 #include "airspeed_otf.h"
@@ -52,17 +52,17 @@
 
 /* workaround for newlib */
 void *_sbrk(int);
-void *_sbrk(int a) {return 0;}
+void *_sbrk(int a __attribute__((unused))) {return 0;}
 
 /* airspeed_otf_parse */
 void airspeed_otf_parse(char c)
 {
-  static unsigned char otf_status = OTF_UNINIT, otf_idx = 0, otf_crs_idx;
+  static uint8_t otf_status = OTF_UNINIT, otf_idx = 0, otf_crs_idx;
   static char otf_inp[64];
-  static unsigned int counter;
-  static short course[3];
-  static unsigned int altitude;
-  static unsigned char checksum;
+  static uint32_t counter;
+  static int16_t course[3];
+  static int32_t altitude;
+  static uint8_t checksum;
 
   switch (otf_status) {
 
