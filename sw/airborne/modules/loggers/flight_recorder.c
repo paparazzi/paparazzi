@@ -33,7 +33,7 @@
 #if FLIGHTRECORDER_SDLOG
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
-static struct chibios_sdlog flightrecorder_sdlog;
+struct chibios_sdlog flightrecorder_sdlog;
 #ifndef FLIGHTRECORDER_DEVICE
 #define FLIGHTRECORDER_DEVICE flightrecorder_sdlog
 #else

@@ -26,6 +26,11 @@
 #ifndef FLIGHT_RECORDER_H
 #define FLIGHT_RECORDER_H
 
+#if FLIGHTRECORDER_SDLOG
+#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+extern struct chibios_sdlog flightrecorder_sdlog;
+#endif
+
 /** Init function
  */
 extern void flight_recorder_init(void);
