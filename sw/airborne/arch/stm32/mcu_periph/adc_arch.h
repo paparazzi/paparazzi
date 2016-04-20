@@ -32,6 +32,11 @@
 
 #include BOARD_CONFIG
 
+/* Set the correct ADC resolution */
+#ifndef ADC_RESOLUTION
+#define ADC_RESOLUTION 4096
+#endif
+
 enum adc1_channels {
 #ifdef AD1_1_CHANNEL
   AD1_1,

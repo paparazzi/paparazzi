@@ -45,15 +45,6 @@
  microcontroller architecture.
 */
 
-/* Set the correct ADC resolution */
-#ifndef ADC_RESOLUTION
-#if defined(STM32F1) || defined(STM32F4)
-#define ADC_RESOLUTION 4096
-#else
-#define ADC_RESOLUTION 1024
-#endif
-#endif
-
 /**
     Struct to collect samples from ADC and building an average
     over MAX_AV_NB_SAMPLE values.
