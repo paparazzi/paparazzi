@@ -38,11 +38,3 @@ void gps_sim_publish(void)
   }
   AbiSendMsgGPS(GPS_SIM_ID, now_ts, &gps);
 }
-
-/*
- * register callbacks & structs
- */
-void gps_sim_register(void)
-{
-  gps_register_impl(gps_sim_init, NULL, GPS_SIM_ID);
-}

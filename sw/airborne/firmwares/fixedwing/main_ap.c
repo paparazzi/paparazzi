@@ -719,10 +719,6 @@ void event_task_ap(void)
   InsEvent();
 #endif
 
-#if USE_GPS
-  GpsEvent();
-#endif /* USE_GPS */
-
 #if USE_BARO_BOARD
   BaroEvent();
 #endif

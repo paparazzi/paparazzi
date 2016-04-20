@@ -166,12 +166,3 @@ void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, int32_t e
 
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
 }
-
-
-/*
- * register callbacks & structs
- */
-void gps_datalink_register(void)
-{
-  gps_register_impl(gps_datalink_init, NULL, GPS_DATALINK_ID);
-}

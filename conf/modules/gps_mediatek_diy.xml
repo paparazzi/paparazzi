@@ -13,10 +13,9 @@
   <header>
     <file name="gps.h" dir="subsystems"/>
   </header>
-  <!-- uncomment these when not called explicitly from main anymore -->
-  <!--init fun="gps_init()"/-->
+  <init fun="gps_mtk_init()"/>
   <!--periodic fun="gps_periodic_check()" freq="1." autorun="TRUE"/-->
-  <!--event fun="GpsEvent()"/-->
+  <event fun="gps_mtk_event()"/>
   <makefile target="ap">
     <configure name="MTK_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
     <configure name="MTK_GPS_BAUD" default="$(GPS_BAUD)"/>
@@ -35,10 +34,10 @@
       ifneq (,$(findstring $(SECONDARY_GPS), mtk mediatek))
       # this is the secondary GPS
       ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_mtk.h\"
-      ap.CFLAGS += -DSECONDARY_GPS=gps_mtk
+      ap.CFLAGS += -DSECONDARY_GPS=GPS_MTK
       else
       ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_mtk.h\"
-      ap.CFLAGS += -DPRIMARY_GPS=gps_mtk
+      ap.CFLAGS += -DPRIMARY_GPS=GPS_MTK
       endif
       else
       # plain old single GPS usage

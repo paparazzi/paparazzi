@@ -295,12 +295,3 @@ void gps_sirf_event(void)
     }
   }
 }
-
-
-/*
- * register callbacks & structs
- */
-void gps_sirf_register(void)
-{
-  gps_register_impl(gps_sirf_init, gps_sirf_event, GPS_SIRF_ID);
-}

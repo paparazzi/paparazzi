@@ -93,11 +93,3 @@ void gps_udp_parse(void)
     memset(&gps_udp_read_buffer[0], 0, sizeof(gps_udp_read_buffer));
   }
 }
-
-/*
- * register callbacks & structs
- */
-void gps_udp_register(void)
-{
-  gps_register_impl(gps_udp_init, gps_udp_parse, GPS_UDP_ID);
-}

@@ -38,12 +38,12 @@
 #define NMEA_MAXLEN 255
 
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS gps_nmea
+#define PRIMARY_GPS GPS_NMEA
 #endif
 
 extern void gps_nmea_init(void);
 extern void gps_nmea_event(void);
-extern void gps_nmea_register(void);
+
 
 struct GpsNmea {
   bool msg_available;       ///< flag set to TRUE if a new msg/sentence is available to be parsed

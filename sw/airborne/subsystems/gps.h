@@ -120,17 +120,6 @@ struct GpsTimeSync {
 /** global GPS state */
 extern struct GpsState gps;
 
-typedef void (*ImplGpsInit)(void);
-typedef void (*ImplGpsEvent)(void);
-
-
-extern void GpsEvent(void);
-
-/**
- * register callbacks and state pointers
- */
-extern void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id);
-
 #ifdef GPS_TYPE_H
 #include GPS_TYPE_H
 #endif

@@ -383,10 +383,6 @@ STATIC_INLINE void main_event(void)
   BaroEvent();
 #endif
 
-#if USE_GPS
-  GpsEvent();
-#endif
-
 #if FAILSAFE_GROUND_DETECT || KILL_ON_GROUND_DETECT
   DetectGroundEvent();
 #endif

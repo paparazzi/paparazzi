@@ -346,7 +346,3 @@ void gps_ubx_msg(void)
   gps_ubx.msg_available = false;
 }
 
-void gps_ubx_register(void)
-{
-  gps_register_impl(gps_ubx_init, gps_ubx_event, GPS_UBX_ID);
-}

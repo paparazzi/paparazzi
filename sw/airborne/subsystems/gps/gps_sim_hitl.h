@@ -28,11 +28,10 @@
 #define GPS_SIM_HITL_H
 
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS gps_sim_hitl
+#define PRIMARY_GPS GPS_SIM
 #endif
 
 extern void gps_sim_hitl_event(void);
-extern void gps_sim_hitl_impl_init(void);
-extern void gps_sim_hitl_register(void);
+extern void gps_sim_hitl_init(void);
 
 #endif /* GPS_SIM_HITL_H */

@@ -40,12 +40,11 @@
 #include "mcu_periph/uart.h"
 
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS gps_ubx
+#define PRIMARY_GPS GPS_UBX
 #endif
 
-void gps_ubx_init(void);
-void gps_ubx_event(void);
-extern void gps_ubx_register(void);
+extern void gps_ubx_init(void);
+extern void gps_ubx_event(void);
 
 #define GPS_UBX_NB_CHANNELS 16
 

@@ -12,10 +12,8 @@
   <header>
     <file name="gps.h" dir="subsystems"/>
   </header>
-  <!-- uncomment these when not called explicitly from main anymore -->
-  <!--init fun="gps_init()"/-->
+  <init fun="gps_udp_init()"/>
   <!--periodic fun="gps_periodic_check()" freq="1." autorun="TRUE"/-->
-  <!--event fun="GpsEvent()"/-->
   <makefile target="ap">
     <configure name="GPS_LED" default="none"/>
 
@@ -29,10 +27,10 @@
       ifneq (,$(findstring $(SECONDARY_GPS), udp))
       # this is the secondary GPS
       ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_udp.h\"
-      ap.CFLAGS += -DSECONDARY_GPS=gps_udp
+      ap.CFLAGS += -DSECONDARY_GPS=GPS_UDP
       else
       ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_udp.h\"
-      ap.CFLAGS += -DPRIMARY_GPS=gps_udp
+      ap.CFLAGS += -DPRIMARY_GPS=GPS_UDP
       endif
       else
       # plain old single GPS usage

@@ -14,9 +14,9 @@
     <file name="gps.h" dir="subsystems"/>
   </header>
   <!-- uncomment these when not called explicitly from main anymore -->
-  <!--init fun="gps_init()"/-->
+  <init fun="gps_piksi_init()"/>
   <!--periodic fun="gps_periodic_check()" freq="1." autorun="TRUE"/-->
-  <!--event fun="GpsEvent()"/-->
+  <event fun="gps_piksi_event()"/>
   <makefile target="ap">
     <configure name="PIKSI_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
     <configure name="PIKSI_GPS_BAUD" default="B115200"/>
@@ -38,10 +38,10 @@
       ifneq (,$(findstring $(SECONDARY_GPS), piksi))
       # this is the secondary GPS
       ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_piksi.h\"
-      ap.CFLAGS += -DSECONDARY_GPS=gps_piksi
+      ap.CFLAGS += -DSECONDARY_GPS=GPS_PIKSI
       else
       ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_piksi.h\"
-      ap.CFLAGS += -DPRIMARY_GPS=gps_piksi
+      ap.CFLAGS += -DPRIMARY_GPS=GPS_PIKSI
       endif
       else
       # plain old single GPS usage
