@@ -105,7 +105,7 @@ STATIC_INLINE void main_init(void)
   modules_tid = sys_time_register_timer(1. / MODULES_FREQUENCY, NULL);
   radio_control_tid = sys_time_register_timer((1. / 60.), NULL);
   electrical_tid = sys_time_register_timer(0.1, NULL);
-  telemetry_tid = sys_time_register_timer((1. / 20.), NULL);
+  telemetry_tid = sys_time_register_timer((1. / 10.), NULL);
 }
 
 
@@ -150,7 +150,7 @@ STATIC_INLINE void main_periodic(void)
   intermcu_periodic();
 
   /* Safety logic */
-  bool ap_lost = (inter_mcu.status == INTERMCU_LOST);
+  bool ap_lost = (intermcu.status == INTERMCU_LOST);
   bool rc_lost = (radio_control.status == RC_REALLY_LOST);
   if (rc_lost) {
     if (ap_lost) {
@@ -189,13 +189,14 @@ STATIC_INLINE void main_periodic(void)
   }
 #endif
 
-  static uint16_t dv = 0;
   // TODO make module out of led blink?
   /* set failsafe commands     */
   if (fbw_mode == FBW_MODE_FAILSAFE) {
     autopilot_motors_on = false;
     SetCommands(commands_failsafe);
+
 #ifdef FBW_MODE_LED
+    static uint16_t dv = 0;
     if (!(dv++ % (PERIODIC_FREQUENCY / 20))) { LED_TOGGLE(FBW_MODE_LED);}
   } else if (fbw_mode == FBW_MODE_MANUAL) {
     if (!(dv++ % (PERIODIC_FREQUENCY))) { LED_TOGGLE(FBW_MODE_LED);}
@@ -228,7 +229,7 @@ static void autopilot_on_rc_frame(void)
   }
 
   /* Trying to switch to auto when AP is lost */
-  if ((inter_mcu.status == INTERMCU_LOST) &&
+  if ((intermcu.status == INTERMCU_LOST) &&
       (fbw_mode == FBW_MODE_AUTO)) {
     fbw_mode = AP_LOST_FBW_MODE;
   }
