@@ -58,17 +58,16 @@
 
 struct GpsNmea gps_nmea;
 
-static void nmea_parse_GSA(void);
-static void nmea_parse_RMC(void);
-static void nmea_parse_GGA(void);
-static void nmea_parse_GSV(void);
+static bool nmea_parse_GSA(void);
+static bool nmea_parse_RMC(void);
+static bool nmea_parse_GGA(void);
+static bool nmea_parse_GSV(void);
 
 void gps_nmea_init(void)
 {
   gps_nmea.state.nb_channels = GPS_NMEA_NB_CHANNELS;
   gps_nmea.is_configured = false;
   gps_nmea.msg_available = false;
-  gps_nmea.pos_available = false;
   gps_nmea.have_gsv = false;
   gps_nmea.gps_nb_ovrn = 0;
   gps_nmea.msg_len = 0;
@@ -88,6 +87,7 @@ void gps_nmea_event(void)
     nmea_parse_char(dev->get_byte(dev->periph));
     if (gps_nmea.msg_available) {
       nmea_gps_msg();
+      gps_nmea.msg_available = false;
     }
   }
 }
@@ -99,15 +99,15 @@ void nmea_gps_msg(void)
 
   gps_nmea.state.last_msg_ticks = sys_time.nb_sec_rem;
   gps_nmea.state.last_msg_time = sys_time.nb_sec;
-  nmea_parse_msg();
-  if (gps_nmea.pos_available) {
+
+  /* if a message was a valid/supported sentence, send update */
+  if (nmea_parse_msg()) {
     if (gps_nmea.state.fix == GPS_FIX_3D) {
       gps_nmea.state.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps_nmea.state.last_3dfix_time = sys_time.nb_sec;
     }
     AbiSendMsgGPS(GPS_NMEA_ID, now_ts, &gps_nmea.state);
   }
-  gps_nmea.msg_available = false;
 }
 
 void WEAK nmea_configure(void)
@@ -119,43 +119,49 @@ void WEAK nmea_parse_prop_init(void)
 {
 }
 
-void WEAK nmea_parse_prop_msg(void)
+bool WEAK nmea_parse_prop_msg(void)
 {
+  return false;
 }
 
 /**
  * nmea_parse_char() has a complete line.
  * Find out what type of message it is and
  * hand it to the parser for that type.
+ * @return true if msg was valid and gps_nmea.state updated
  */
-void nmea_parse_msg(void)
+bool nmea_parse_msg(void)
 {
+  bool msg_valid = false;
 
   if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "RMC", 3)) {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
     NMEA_PRINT("RMC: \"%s\" \n\r", gps_nmea.msg_buf);
-    nmea_parse_RMC();
+    msg_valid = nmea_parse_RMC();
   } else if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "GGA", 3)) {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
     NMEA_PRINT("GGA: \"%s\" \n\r", gps_nmea.msg_buf);
-    nmea_parse_GGA();
+    msg_valid = nmea_parse_GGA();
   } else if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "GSA", 3)) {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
     NMEA_PRINT("GSA: \"%s\" \n\r", gps_nmea.msg_buf);
-    nmea_parse_GSA();
+    msg_valid = nmea_parse_GSA();
   } else if (gps_nmea.msg_len > 5 && !strncmp(&gps_nmea.msg_buf[2] , "GSV", 3)) {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
     gps_nmea.have_gsv = true;
     NMEA_PRINT("GSV: \"%s\" \n\r", gps_nmea.msg_buf);
-    nmea_parse_GSV();
+    msg_valid = nmea_parse_GSV();
   } else {
     gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
     NMEA_PRINT("Other/propriarty message: len=%i \n\r \"%s\" \n\r", gps_nmea.msg_len, gps_nmea.msg_buf);
-    nmea_parse_prop_msg();
+    msg_valid = nmea_parse_prop_msg();
   }
 
   // reset line parser
   gps_nmea.status = WAIT;
+
+  /* indicate if msg was valid/supported and gps_nmea.state updated */
+  return msg_valid;
 }
 
 
@@ -250,15 +256,16 @@ uint8_t nmea_calc_crc(const char *buff, int buff_sz)
  * Parse GSA NMEA messages.
  * GPS DOP and active satellites.
  * Msg stored in gps_nmea.msg_buf.
+ * @return true if msg was valid and gps_nmea.state updated
  */
-static void nmea_parse_GSA(void)
+static bool nmea_parse_GSA(void)
 {
   int i = 6;     // current position in the message, start after: GPGSA,
 
   // attempt to reject empty packets right away
   if (gps_nmea.msg_buf[i] == ',' && gps_nmea.msg_buf[i + 1] == ',') {
     NMEA_PRINT("p_GSA() - skipping empty message\n\r");
-    return;
+    return false;
   }
 
   // get auto2D/3D
@@ -310,21 +317,24 @@ static void nmea_parse_GSA(void)
   NMEA_PRINT("p_GSA() - vdop=%f\n\r", vdop);
   nmea_read_until(&i);
 
+  /* indicate that msg was valid and gps_nmea.state updated */
+  return true;
 }
 
 /**
  * Parse RMC NMEA messages.
  * Recommended minimum GPS sentence.
  * Msg stored in gps_nmea.msg_buf.
+ * @return true if msg was valid and gps_nmea.state updated
  */
-static void nmea_parse_RMC(void)
+static bool nmea_parse_RMC(void)
 {
   int i = 6;     // current position in the message, start after: GPRMC,
 
   // attempt to reject empty packets right away
   if (gps_nmea.msg_buf[i] == ',' && gps_nmea.msg_buf[i + 1] == ',') {
     NMEA_PRINT("p_RMC() - skipping empty message\n\r");
-    return;
+    return false;
   }
   // First read time (ignored)
 
@@ -355,6 +365,9 @@ static void nmea_parse_RMC(void)
   gps_nmea.state.course = RadOfDeg(course) * 1e7;
   NMEA_PRINT("p_RMC() - course: %f deg\n\r", course);
   SetBit(gps_nmea.state.valid_fields, GPS_VALID_COURSE_BIT);
+
+  /* indicate that msg was valid and gps_nmea.state updated */
+  return true;
 }
 
 
@@ -362,8 +375,9 @@ static void nmea_parse_RMC(void)
  * Parse GGA NMEA messages.
  * GGA has essential fix data providing 3D location and HDOP.
  * Msg stored in gps_nmea.msg_buf.
+ * @return true if msg was valid and gps_nmea.state updated
  */
-static void nmea_parse_GGA(void)
+static bool nmea_parse_GGA(void)
 {
   int i = 6;     // current position in the message, start after: GPGGA,
   double degrees, minutesfrac;
@@ -372,7 +386,7 @@ static void nmea_parse_GGA(void)
   // attempt to reject empty packets right away
   if (gps_nmea.msg_buf[i] == ',' && gps_nmea.msg_buf[i + 1] == ',') {
     NMEA_PRINT("p_GGA() - skipping empty message\n\r");
-    return;
+    return false;
   }
 
   // get UTC time [hhmmss.sss]
@@ -424,10 +438,8 @@ static void nmea_parse_GGA(void)
   // 0 = Invalid, 1 = Valid SPS, 2 = Valid DGPS, 3 = Valid PPS
   // check for good position fix
   if ((gps_nmea.msg_buf[i] != '0') && (gps_nmea.msg_buf[i] != ','))  {
-    gps_nmea.pos_available = true;
     NMEA_PRINT("p_GGA() - POS_AVAILABLE == TRUE\n\r");
   } else {
-    gps_nmea.pos_available = false;
     NMEA_PRINT("p_GGA() - gps_pos_available == false\n\r");
   }
 
@@ -473,20 +485,24 @@ static void nmea_parse_GGA(void)
   gps_nmea.state.ecef_pos.y = ecef_f.y * 100;
   gps_nmea.state.ecef_pos.z = ecef_f.z * 100;
   SetBit(gps_nmea.state.valid_fields, GPS_VALID_POS_ECEF_BIT);
+
+  /* indicate that msg was valid and gps_nmea.state updated */
+  return true;
 }
 
 /**
  * Parse GSV-nmea-messages.
  * Msg stored in gps_nmea.msg_buf.
+ * @return true if msg was valid and gps_nmea.state updated
  */
-static void nmea_parse_GSV(void)
+static bool nmea_parse_GSV(void)
 {
   int i = 6;     // current position in the message, start after: GxGSA,
 
   // attempt to reject empty packets right away
   if (gps_nmea.msg_buf[i] == ',' && gps_nmea.msg_buf[i + 1] == ',') {
     NMEA_PRINT("p_GSV() - skipping empty message\n\r");
-    return;
+    return false;
   }
 
   // check what satellites this messages contains
@@ -541,6 +557,9 @@ static void nmea_parse_GSV(void)
       NMEA_PRINT("p_GSV() - GPS %i PRN=%i elev=%i azim=%i snr=%i\n\r", ch_idx, prn, elev, azim, snr);
     }
   }
+
+  /* indicate that msg was valid and gps_nmea.state updated */
+  return true;
 }
 
   /*

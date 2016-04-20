@@ -55,7 +55,7 @@ static const char *gps_furuno_settings[GPS_FURUNO_SETTINGS_NB] = {
 
 static uint8_t furuno_cfg_cnt = 0;
 
-static void nmea_parse_perdcrv(void);
+static bool nmea_parse_perdcrv(void);
 
 #define GpsLinkDevice (&(NMEA_GPS_LINK).device)
 
@@ -93,14 +93,15 @@ void nmea_parse_prop_init(void)
 }
 
 
-void nmea_parse_prop_msg(void)
+bool nmea_parse_prop_msg(void)
 {
   if (gps_nmea.msg_len > 5 && !strncmp(gps_nmea.msg_buf , "PERDCRV", 7)) {
-    nmea_parse_perdcrv();
+    return nmea_parse_perdcrv();
   }
+  return false;
 }
 
-void nmea_parse_perdcrv(void)
+bool nmea_parse_perdcrv(void)
 {
   int i = 8;
 
@@ -125,4 +126,7 @@ void nmea_parse_perdcrv(void)
   struct LtpDef_i ltp;
   ltp_def_from_ecef_i(&ltp, &gps_nmea.state.ecef_pos);
   ecef_of_ned_vect_i(&gps_nmea.state.ecef_vel, &ltp, &gps_nmea.state.ned_vel);
+
+  /* indicate that msg was valid and gps_nmea.state updated */
+  return true;
 }
