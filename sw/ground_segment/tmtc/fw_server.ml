@@ -200,7 +200,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.block_time <- ivalue "block_time";
       a.energy <- ivalue "energy"
     | "FBW_STATUS" ->
-      a.bat <- fvalue "vsupply" /. 10.;
+      a.fbw.fbw_bat <- fvalue "vsupply" /. 10.;
       a.fbw.pprz_mode_msgs_since_last_fbw_status_msg <- 0;
       a.fbw.rc_rate <- ivalue "frame_rate";
       let fbw_rc_mode = ivalue "rc_status" in

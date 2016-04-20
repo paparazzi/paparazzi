@@ -36,7 +36,7 @@ type inflight_calib = {
 
 type rc_status = string
 type rc_mode = string
-type fbw = { mutable rc_status : rc_status; mutable rc_mode : rc_mode; mutable rc_rate : int; mutable pprz_mode_msgs_since_last_fbw_status_msg : int; }
+type fbw = { mutable fbw_bat : float; mutable rc_status : rc_status; mutable rc_mode : rc_mode; mutable rc_rate : int; mutable pprz_mode_msgs_since_last_fbw_status_msg : int; }
 val gps_nb_channels : int
 type svinfo = {
     svid : int;
