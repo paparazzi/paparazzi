@@ -139,7 +139,7 @@ void gps_sirf_msg(void)
       gps_sirf.state.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps_sirf.state.last_3dfix_time = sys_time.nb_sec;
     }
-    AbiSendMsgGPS(GPS_SIRF_ID, now_ts, &gps);
+    AbiSendMsgGPS(GPS_SIRF_ID, now_ts, &gps_sirf.state);
   }
   gps_sirf.msg_available = false;
 }

@@ -105,7 +105,7 @@ void nmea_gps_msg(void)
       gps_nmea.state.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps_nmea.state.last_3dfix_time = sys_time.nb_sec;
     }
-    AbiSendMsgGPS(GPS_NMEA_ID, now_ts, &gps);
+    AbiSendMsgGPS(GPS_NMEA_ID, now_ts, &gps_nmea.state);
   }
   gps_nmea.msg_available = false;
 }

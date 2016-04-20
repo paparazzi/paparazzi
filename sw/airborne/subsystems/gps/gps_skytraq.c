@@ -107,7 +107,7 @@ void gps_skytraq_msg(void)
       gps_skytraq.state.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps_skytraq.state.last_3dfix_time = sys_time.nb_sec;
     }
-    AbiSendMsgGPS(GPS_SKYTRAQ_ID, now_ts, &gps);
+    AbiSendMsgGPS(GPS_SKYTRAQ_ID, now_ts, &gps_skytraq.state);
   }
   gps_skytraq.msg_available = false;
 }
