@@ -1,13 +1,13 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_ublox">
+<module name="gps_piksi">
   <doc>
     <description>
-      U-blox GPS (UART)
-      Driver for u-blox GPS modules parsing the binary UBX protocol.
+      Swift-Nav Piksi RTK GPS.
+      Driver for Swift-Nav Piksi RTK GPS connected via UART.
     </description>
-    <configure name="UBX_GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
-    <configure name="UBX_GPS_BAUD" value="B38400" description="UART baud rate"/>
+    <configure name="PIKSI_GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
+    <configure name="PIKSI_GPS_BAUD" value="B115200" description="UART baud rate"/>
     <configure name="GPS_LED" value="2" description="LED number to indicate fix or none"/>
   </doc>
   <header>
@@ -18,31 +18,34 @@
   <!--periodic fun="gps_periodic_check()" freq="1." autorun="TRUE"/-->
   <!--event fun="GpsEvent()"/-->
   <makefile target="ap">
-    <configure name="UBX_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
-    <configure name="UBX_GPS_BAUD" default="$(GPS_BAUD)"/>
+    <configure name="PIKSI_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
+    <configure name="PIKSI_GPS_BAUD" default="B115200"/>
     <configure name="GPS_LED" default="none"/>
 
     <file name="gps.c" dir="subsystems"/>
-    <file name="gps_ubx.c" dir="subsystems/gps"/>
+    <file name="gps_piksi.c" dir="subsystems/gps"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/libsbp/c/include"/>
+    <file name="sbp.c" dir="$(PAPARAZZI_SRC)/sw/ext/libsbp/c/src"/>
+    <file name="edc.c" dir="$(PAPARAZZI_SRC)/sw/ext/libsbp/c/src"/>
 
     <define name="USE_GPS"/>
-    <define name="USE_$(UBX_GPS_PORT_UPPER)"/>
-    <define name="UBX_GPS_LINK" value="$(UBX_GPS_PORT_LOWER)"/>
-    <define name="$(UBX_GPS_PORT_UPPER)_BAUD" value="$(UBX_GPS_BAUD)"/>
+    <define name="USE_$(PIKSI_GPS_PORT_UPPER)"/>
+    <define name="PIKSI_GPS_LINK" value="$(PIKSI_GPS_PORT_LOWER)"/>
+    <define name="$(PIKSI_GPS_PORT_UPPER)_BAUD" value="$(PIKSI_GPS_BAUD)"/>
     <define name="GPS_LED" value="$(GPS_LED)" cond="ifneq ($(GPS_LED),none)"/>
     <raw>
       ifdef SECONDARY_GPS
-      ifneq (,$(findstring $(SECONDARY_GPS), ublox))
+      ifneq (,$(findstring $(SECONDARY_GPS), piksi))
       # this is the secondary GPS
-      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_ubx.h\"
-      ap.CFLAGS += -DSECONDARY_GPS=gps_ubx
+      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_piksi.h\"
+      ap.CFLAGS += -DSECONDARY_GPS=gps_piksi
       else
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
-      ap.CFLAGS += -DPRIMARY_GPS=gps_ubx
+      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_piksi.h\"
+      ap.CFLAGS += -DPRIMARY_GPS=gps_piksi
       endif
       else
       # plain old single GPS usage
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
+      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_piksi.h\"
       endif
     </raw>
   </makefile>
@@ -59,4 +62,3 @@
     <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim.h" type="string"/>
   </makefile>
 </module>
-
