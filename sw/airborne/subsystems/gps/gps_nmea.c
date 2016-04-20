@@ -100,7 +100,8 @@ void nmea_gps_msg(void)
   gps_nmea.state.last_msg_ticks = sys_time.nb_sec_rem;
   gps_nmea.state.last_msg_time = sys_time.nb_sec;
   nmea_parse_msg();
-  if (gps_nmea.pos_available) {
+  //if (gps_nmea.pos_available)
+  {
     if (gps_nmea.state.fix == GPS_FIX_3D) {
       gps_nmea.state.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps_nmea.state.last_3dfix_time = sys_time.nb_sec;
