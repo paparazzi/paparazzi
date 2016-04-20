@@ -47,7 +47,7 @@
 
 struct GpsSirf {
   bool msg_available;
-  bool pos_available;
+  bool msg_valid;
   char msg_buf[SIRF_MAXLEN];  ///< buffer for storing one nmea-line
   int msg_len;
   int read_state;

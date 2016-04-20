@@ -122,7 +122,7 @@ void sirf_parse_41(void);
 void gps_sirf_init(void)
 {
   gps_sirf.msg_available = false;
-  gps_sirf.pos_available = false;
+  gps_sirf.msg_valid = false;
   gps_sirf.msg_len = 0;
   gps_sirf.read_state = 0;
 }
@@ -134,14 +134,14 @@ void gps_sirf_msg(void)
   gps_sirf.state.last_msg_ticks = sys_time.nb_sec_rem;
   gps_sirf.state.last_msg_time = sys_time.nb_sec;
   sirf_parse_msg();
-  if (gps_sirf.pos_available) {
+  if (gps_sirf.msg_valid) {
     if (gps_sirf.state.fix == GPS_FIX_3D) {
       gps_sirf.state.last_3dfix_ticks = sys_time.nb_sec_rem;
       gps_sirf.state.last_3dfix_time = sys_time.nb_sec;
     }
     AbiSendMsgGPS(GPS_SIRF_ID, now_ts, &gps_sirf.state);
   }
-  gps_sirf.msg_available = false;
+  gps_sirf.msg_valid = false;
 }
 
 void sirf_parse_char(uint8_t c)
@@ -226,9 +226,7 @@ void sirf_parse_41(void)
     gps_sirf.state.fix = GPS_FIX_NONE;
   }
 
-
-  //Let gps_sirf know we have a position update
-  gps_sirf.pos_available = true;
+  gps_sirf.msg_valid = true;
 }
 
 void sirf_parse_2(void)
@@ -257,12 +255,13 @@ void sirf_parse_2(void)
     ticks = 0;
   }
 
+  gps_sirf.msg_valid = true;
 }
 
 void sirf_parse_msg(void)
 {
-  //Set position available to false and check if it is a valid message
-  gps_sirf.pos_available = false;
+  //Set msg_valid to false and check if it is a valid message
+  gps_sirf.msg_valid = false;
   if (gps_sirf.msg_len < 8) {
     return;
   }
