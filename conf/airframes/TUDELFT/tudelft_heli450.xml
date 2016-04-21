@@ -23,6 +23,7 @@
     <module name="imu"           type="aspirin_v2.2"/>
     <module name="gps"           type="ublox"/>
     <module name="stabilization" type="int_quat"/>
+    <module name="stabilization" type="rate"/>
     <module name="ahrs"          type="int_cmpl_quat"/>
     <module name="ins"           type="hff"/>
   </firmware>
@@ -130,9 +131,9 @@
     <define name="GAIN_Q" value="800"/>
     <define name="GAIN_R" value="700"/>
 
-    <define name="IGAIN_P" value="150"/>
-    <define name="IGAIN_Q" value="150"/>
-    <define name="IGAIN_R" value="100"/>
+    <define name="IGAIN_P" value="240"/>
+    <define name="IGAIN_Q" value="240"/>
+    <define name="IGAIN_R" value="160"/>
   </section>
 
 

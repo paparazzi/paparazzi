@@ -121,9 +121,9 @@
     <define name="GAIN_Q" value="800"/>
     <define name="GAIN_R" value="700"/>
 
-    <define name="IGAIN_P" value="150"/>
-    <define name="IGAIN_Q" value="150"/>
-    <define name="IGAIN_R" value="100"/>
+    <define name="IGAIN_P" value="240"/>
+    <define name="IGAIN_Q" value="240"/>
+    <define name="IGAIN_R" value="160"/>
   </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
