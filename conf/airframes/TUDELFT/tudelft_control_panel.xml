@@ -131,6 +131,19 @@
         <arg flag="-layout"  constant="bottom_settings.xml" />
       </program>
     </session>
+    <session name="Flight XBee USB0 @57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech" />
+        <arg flag="-layout"  constant="bottom_settings.xml" />
+      </program>
+      <program name="Messages"/>
+    </session>
     <session name="Flight UDP">
       <program name="Data Link">
         <arg flag="-udp"/>
@@ -138,7 +151,9 @@
       <program name="Server"/>
       <program name="GCS">
         <arg flag="-speech" />
+        <arg flag="-layout"  constant="bottom_settings.xml" />
       </program>
+      <program name="Messages"/>
     </session>
     <session name="Raw Sensors">
       <program name="Real-time Plotter">
