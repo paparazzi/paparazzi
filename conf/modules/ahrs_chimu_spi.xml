@@ -3,7 +3,9 @@
 <module name="ahrs_chimu_spi" dir="ins">
   <doc>
     <description>CHimu (SPI)</description>
+    <define name="CHIMU_BIG_ENDIAN" value="TRUE" description="For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN"/>
   </doc>
+  <depends>spi_slave_hs</depends>
   <header>
     <file name="ins_module.h"/>
   </header>

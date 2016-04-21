@@ -2,15 +2,13 @@
 
 <module name="ahrs_chimu_uart" dir="ins">
   <doc>
-    <description>
-      CHimu (UART)
-      For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN
-    </description>
+    <description>CHimu (UART)</description>
+    <configure name="CHIMU_UART_NR" value="3" description="UART"/>
+    <define name="CHIMU_BIG_ENDIAN" value="TRUE" description="For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN"/>
   </doc>
   <header>
     <file name="ins_module.h"/>
   </header>
-  <!--<periodic fun="ins_periodic()" freq="60"/>-->
   <event fun="parse_ins_msg()"/>
   <makefile target="ap">
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
