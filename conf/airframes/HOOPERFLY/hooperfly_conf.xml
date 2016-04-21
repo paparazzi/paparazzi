@@ -5,10 +5,10 @@
    airframe="airframes/HOOPERFLY/hooperfly_racerpex_hexa_lisa_mx_20.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/HOOPERFLY/hooperfly_rotorcraft_multiflight.xml"
+   flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_int_cmpl_quat.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
-   gui_color="green"
+   gui_color="blue"
   />
   <aircraft
    name="Racer_PEX_Octo"
@@ -16,10 +16,10 @@
    airframe="airframes/HOOPERFLY/hooperfly_racerpex_octo_lisa_mx_20.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/HOOPERFLY/hooperfly_rotorcraft_multiflight.xml"
+   flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_int_cmpl_quat.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
-   gui_color="yellow"
+   gui_color="purple"
   />
   <aircraft
    name="Racer_PEX_Quad"
@@ -27,10 +27,10 @@
    airframe="airframes/HOOPERFLY/hooperfly_racerpex_quad_lisa_mx_20.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/HOOPERFLY/hooperfly_rotorcraft_multiflight.xml"
+   flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_int_cmpl_quat.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
-   gui_color="blue"
+   gui_color="green"
   />
   <aircraft
    name="Teensy_Fly_Hexa"
@@ -38,7 +38,7 @@
    airframe="airframes/HOOPERFLY/hooperfly_teensyfly_hexa_lisa_mx_20.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/HOOPERFLY/hooperfly_rotorcraft_multiflight.xml"
+   flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_int_cmpl_quat.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
    gui_color="red"
@@ -49,10 +49,10 @@
    airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_lisa_mx_20.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/HOOPERFLY/hooperfly_rotorcraft_multiflight.xml"
+   flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_int_cmpl_quat.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
-   gui_color="white"
+   gui_color="lime"
   />
   <aircraft
    name="Teensy_Fly_Quad_Elle0"
@@ -60,9 +60,86 @@
    airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/HOOPERFLY/hooperfly_rotorcraft_multiflight.xml"
+   flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_int_cmpl_quat.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
    gui_color="cyan"
+  />
+  <aircraft
+   name="Teensy_Fly_Quad_Elle0_v1_2_A"
+   ac_id="216"
+   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2a.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_int_cmpl_quat.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   gui_color="yellow"
+  />
+  <aircraft
+   name="Teensy_Fly_Quad_Elle0_v1_2_B"
+   ac_id="215"
+   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2b.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_int_cmpl_quat.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   gui_color="orange"
+  />
+  <aircraft
+   name="setup_elle0"
+   ac_id="15"
+   airframe="airframes/examples/setup_elle0.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/dummy.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/setup_actuators.xml"
+   settings_modules=""
+   gui_color="blue"
+  />
+  <aircraft
+   name="setup_elle0_v1_2"
+   ac_id="14"
+   airframe="airframes/examples/setup_elle0.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/dummy.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/setup_actuators.xml"
+   settings_modules=""
+   gui_color="blue"
+  />
+  <aircraft
+   name="setup_lisam2"
+   ac_id="16"
+   airframe="airframes/examples/setup_lisam2.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/dummy.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/setup_actuators.xml"
+   settings_modules=""
+   gui_color="blue"
+  />
+  <aircraft
+   name="setup_lisamx"
+   ac_id="18"
+   airframe="airframes/examples/setup_lisamx.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/dummy.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/setup_actuators.xml"
+   settings_modules=""
+   gui_color="blue"
+  />
+  <aircraft
+   name="setup_lisamx_20"
+   ac_id="17"
+   airframe="airframes/examples/setup_lisamx_20.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/dummy.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/setup_actuators.xml"
+   settings_modules=""
+   gui_color="blue"
   />
 </conf>
