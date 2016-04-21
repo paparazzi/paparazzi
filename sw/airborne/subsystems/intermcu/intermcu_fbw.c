@@ -212,11 +212,11 @@ void InterMcuEvent(void (*frame_handler)(void))
 #ifdef BOARD_PX4IO
 static void checkPx4RebootCommand(uint8_t b)
 {
-  if (inter_mcu.stable_px4_baud == CHANGING_BAUD && sys_time_check_and_ack_timer(px4bl_tid)) {
+  if (intermcu.stable_px4_baud == CHANGING_BAUD && sys_time_check_and_ack_timer(px4bl_tid)) {
     //to prevent a short intermcu comm loss, give some time to changing the baud
     sys_time_cancel_timer(px4bl_tid);
-    inter_mcu.stable_px4_baud = PPRZ_BAUD;
-  } else if (inter_mcu.stable_px4_baud == PX4_BAUD) {
+    intermcu.stable_px4_baud = PPRZ_BAUD;
+  } else if (intermcu.stable_px4_baud == PX4_BAUD) {
 
     if (sys_time_check_and_ack_timer(px4bl_tid)) {
       //time out the possibility to reboot to the px4 bootloader, to prevent unwanted restarts during flight
@@ -226,7 +226,7 @@ static void checkPx4RebootCommand(uint8_t b)
       //After a initial period on 1500000, revert to 230400
       //We still start at 1500000 to remain compatible with original PX4 firmware. (which always runs at 1500000)
       uart_periph_set_baudrate(intermcu_device->periph, B230400);
-      inter_mcu.stable_px4_baud = CHANGING_BAUD;
+      intermcu.stable_px4_baud = CHANGING_BAUD;
       px4bl_tid = sys_time_register_timer(1.0, NULL);
       return;
     }
