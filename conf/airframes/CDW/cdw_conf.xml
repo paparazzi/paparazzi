@@ -7,8 +7,8 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/modules/config_asctec_v2.xml"
-   gui_color="white"
    settings_modules="modules/imu_quality_assessment.xml modules/gps_ubx_ucenter.xml"
+   gui_color="white"
   />
   <aircraft
    name="Bebop"
