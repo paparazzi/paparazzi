@@ -7,8 +7,8 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int_quat.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml"
-   gui_color="#ffffd633d633"
    settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml"
+   gui_color="#ffffd633d633"
   />
   <aircraft
    name="ARDrone2_flip"
@@ -251,17 +251,6 @@
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_indi.xml settings/control/rotorcraft_speed.xml"
    settings_modules="[modules/geo_mag.xml] modules/air_data.xml modules/video_thread.xml modules/cv_blob_locator.xml modules/video_rtp_stream.xml [modules/nav_survey_rectangle_rotorcraft.xml] modules/nav_survey_poly_rotorcraft.xml modules/digital_cam_video.xml"
    gui_color="#68f5eb116e0c"
-  />
-  <aircraft
-   name="frog2"
-   ac_id="26"
-   airframe="airframes/BR/bebop_indi_frog2.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_rotorcraft_survey_imav2015_competition.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_indi.xml settings/control/rotorcraft_speed.xml"
-   settings_modules="[modules/geo_mag.xml] modules/air_data.xml modules/video_thread.xml modules/cv_blob_locator.xml modules/video_rtp_stream.xml [modules/nav_survey_rectangle_rotorcraft.xml] modules/nav_survey_poly_rotorcraft.xml modules/digital_cam_video.xml"
-   gui_color="#ffff957fcc75"
   />
   <aircraft
    name="frog_flip"
