@@ -80,10 +80,26 @@ void mcu_init(void)
 
   mcu_arch_init();
 
+  /* First enable the power of the MCU if needed */
+#if defined MCU_PWR
+  gpio_setup_output(MCU_PWR, MCU_PWR_PIN);
+#if defined BTN_ON
+  if(!gpio_get(BTN_ON, BTN_ON_PIN))
+#endif
+  {
+  MCU_PWR_ON(MCU_PWR, MCU_PWR_PIN);
+  }
+#endif
+
 #ifdef PERIPHERALS_AUTO_INIT
   sys_time_init();
 #ifdef USE_LED
   led_init();
+#endif
+  /* First enable power of RC */
+#if defined RADIO_CONTROL_POWER
+  gpio_setup_output(RADIO_CONTROL_POWER, RADIO_CONTROL_POWER_PIN);
+  RADIO_CONTROL_POWER_ON(RADIO_CONTROL_POWER, RADIO_CONTROL_POWER_PIN);
 #endif
   /* for now this means using spektrum */
 #if defined RADIO_CONTROL & defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT & defined RADIO_CONTROL_BIND_IMPL_FUNC & defined SPEKTRUM_BIND_PIN_PORT
