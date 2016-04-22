@@ -8,7 +8,7 @@
     <file name="throttle_curve.h"/>
   </header>
   <init fun="throttle_curve_init()"/>
-  <makefile>
+  <makefile target="ap|fbw">
     <file name="throttle_curve.c"/>
   </makefile>
 </module>

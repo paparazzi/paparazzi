@@ -209,6 +209,17 @@
    gui_color="white"
   />
   <aircraft
+   name="Outback"
+   ac_id="6"
+   airframe="airframes/TUDELFT/tudelft_outback.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/rotorcraft_with_logger.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/control/rotorcraft_guidance.xml"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/temp_adc.xml modules/logger_sd_spi_direct.xml modules/gps_ubx_ucenter.xml"
+   gui_color="#ffffdffac31f"
+  />
+  <aircraft
    name="Quad_Navstik"
    ac_id="50"
    airframe="airframes/examples/quadrotor_navstik.xml"
@@ -342,7 +353,7 @@
   />
   <aircraft
    name="quadshot"
-   ac_id="6"
+   ac_id="7"
    airframe="airframes/examples/quadshot_asp21_spektrum.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
