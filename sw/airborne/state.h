@@ -45,6 +45,8 @@
  * position, velocity, attitude, etc. It handles coordinate system and
  * fixed-/floating-point conversion on the fly when needed.
  *
+ * <b>IMPORTANT: Don't access the members of the #state struct directly, use the stateSet* and stateGet* functions!</b>
+ *
  * You can set e.g. the position in any coordinate system you wish:
  * stateSetPositionNed_i() to set the position in fixed-point NED coordinates.
  * If you need to read the position somewhere else in a different representation,
