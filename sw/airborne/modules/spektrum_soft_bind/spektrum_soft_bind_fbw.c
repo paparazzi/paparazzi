@@ -29,22 +29,20 @@
 #include "subsystems/radio_control.h"
 #include "mcu_periph/sys_time_arch.h"
 
-#include "led.h"
 #include "mcu_periph/gpio.h"
 
 void spektrum_soft_bind_init(void)
 {
-  gpio_setup_output(SPEKTRUM_POWER_PIN_PORT, SPEKTRUM_POWER_PIN);
-  gpio_set(SPEKTRUM_POWER_PIN_PORT, SPEKTRUM_POWER_PIN);
+
 }
 
 void received_spektrum_soft_bind(void)
 {
 
   //power cycle the spektrum
-  gpio_clear(SPEKTRUM_POWER_PIN_PORT, SPEKTRUM_POWER_PIN);
+  RADIO_CONTROL_POWER_OFF(RADIO_CONTROL_POWER, RADIO_CONTROL_POWER_PIN);
   sys_time_usleep(100000);
-  gpio_set(SPEKTRUM_POWER_PIN_PORT, SPEKTRUM_POWER_PIN);
+  RADIO_CONTROL_POWER_ON(RADIO_CONTROL_POWER, RADIO_CONTROL_POWER_PIN);
 
   //put to bind mode
   RADIO_CONTROL_BIND_IMPL_FUNC();    //basically  = radio_control_spektrum_try_bind()
