@@ -32,6 +32,7 @@ struct RadioControl radio_control;
 void radio_control_init(void)
 {
   uint8_t i;
+  /* Setup default values */
   for (i = 0; i < RADIO_CONTROL_NB_CHANNEL; i++) {
     radio_control.values[i] = 0;
   }
@@ -40,6 +41,14 @@ void radio_control_init(void)
   radio_control.radio_ok_cpt = 0;
   radio_control.frame_rate = 0;
   radio_control.frame_cpt = 0;
+
+  /* First enable power of RC */
+#if defined RADIO_CONTROL_POWER
+  gpio_setup_output(RADIO_CONTROL_POWER, RADIO_CONTROL_POWER_PIN);
+  RADIO_CONTROL_POWER_ON(RADIO_CONTROL_POWER, RADIO_CONTROL_POWER_PIN);
+#endif
+
+  /* Initialize specific radio control for architecture */
   radio_control_impl_init();
 }
 

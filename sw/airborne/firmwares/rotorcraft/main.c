@@ -169,8 +169,6 @@ STATIC_INLINE void main_init(void)
 
 #ifndef INTER_MCU_AP
   actuators_init();
-#else
-  intermcu_init();
 #endif
 
 #if USE_MOTOR_MIXING

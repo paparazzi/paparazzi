@@ -39,8 +39,6 @@
 
 static bool spektrum_available;
 
-void radio_control_spektrum_try_bind(void) {}
-
 void radio_control_impl_init(void)
 {
   spektrum_available = false;

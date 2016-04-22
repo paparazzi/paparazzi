@@ -81,13 +81,20 @@ endif
 #
 ifneq ($(TARGET), fbw)
 $(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c math/pprz_algebra_int.c math/pprz_algebra_float.c math/pprz_algebra_double.c
-
-$(TARGET).srcs += subsystems/settings.c
-$(TARGET).srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 endif
 
+#
+# Settings
+#
+$(TARGET).srcs += subsystems/settings.c
+$(TARGET).srcs += $(SRC_ARCH)/subsystems/settings_arch.c
+
+#
+# Actuators / commands
+#
 $(TARGET).srcs += subsystems/actuators.c
 $(TARGET).srcs += subsystems/commands.c
+
 
 ifneq ($(TARGET), fbw)
 $(TARGET).srcs += state.c
@@ -109,9 +116,6 @@ $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_flip.c
 
 include $(CFG_ROTORCRAFT)/navigation.makefile
-else
-$(TARGET).CFLAGS += -DFBW=1
-endif
 
 #
 # Main
@@ -123,6 +127,7 @@ ifneq ($(TARGET), fbw)
 $(TARGET).srcs += $(SRC_FIRMWARE)/main.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot.c
 else
+$(TARGET).CFLAGS += -DFBW=1
 $(TARGET).srcs += $(SRC_FIRMWARE)/main_fbw.c
 endif # TARGET == fbw
 endif # RTOS == ChibiOS
