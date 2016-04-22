@@ -64,6 +64,11 @@
 #define UPARITY_ODD   1
 #define UPARITY_EVEN  2
 
+struct uart_periph;
+
+/* Callback when a byte is received */
+typedef void (*UARTCallback)(struct uart_periph *p);
+
 /**
  * UART peripheral
  */
@@ -88,6 +93,8 @@ struct uart_periph {
   volatile uint16_t ore;    ///< overrun error counter
   volatile uint16_t ne_err; ///< noise error counter
   volatile uint16_t fe_err; ///< framing error counter
+  /** Callback when a byte is received */
+  UARTCallback recv_cb;
   /** Generic device interface */
   struct link_device device;
 };
