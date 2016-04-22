@@ -212,14 +212,11 @@ sim.srcs        += $(SRC_ARCH)/sim_ahrs.c $(SRC_ARCH)/sim_ir.c
 # SINGLE MCU / DUAL MCU
 #
 
-ifeq ($(BOARD),classix)
-  include $(CFG_FIXEDWING)/intermcu_spi.makefile
-else
-  # Single MCU's run both
-  ifeq ($(SEPARATE_FBW),)
-    ap.CFLAGS 		+= $(fbw_CFLAGS)
-    ap.srcs 		+= $(fbw_srcs)
-  endif
+
+# Single MCU's run both
+ifeq ($(SEPARATE_FBW),)
+  ap.CFLAGS 		+= $(fbw_CFLAGS)
+  ap.srcs 		+= $(fbw_srcs)
 endif
 
 #
