@@ -5,7 +5,7 @@
     <description>
         Optical flow landing.
         
-        This module implements optical flow landings in which the divergence is kept constant. When using a fixed gain for control, the covariance between thrust and divergence is tracked, so that the drone knows when it has arrived close to the landing surface. Then, a final landing procedure is triggered. It can also be set to adaptive gain control, where the goal is to continuously gauge the distance to the landing surface. In this mode, the drone will oscillate all the way down to the surface. 
+        This module implements optical flow landings in which the divergence is kept constant (for rotorcraft). When using a fixed gain for control, the covariance between thrust and divergence is tracked, so that the drone knows when it has arrived close to the landing surface. Then, a final landing procedure is triggered. It can also be set to adaptive gain control, where the goal is to continuously gauge the distance to the landing surface. In this mode, the drone will oscillate all the way down to the surface. 
   
  de Croon, G.C.H.E. (2016). Monocular distance estimation with optical flow maneuvers and efference copies: a stability-based strategy. Bioinspiration and Biomimetics, 11(1), 016004. 
 
@@ -46,7 +46,7 @@
     <file name="optical_flow_landing.h"/>
   </header>
 
-  <makefile>
+  <makefile target="ap">
     <file name="optical_flow_landing.c"/>
   </makefile>
 

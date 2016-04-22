@@ -235,7 +235,6 @@ void vertical_ctrl_module_run(bool in_flight)
   long delta_t = new_time - previous_time;
   dt += ((float)delta_t) / 1000.0f;
   if (dt > 10.0f) {
-    printf("WAITED LONGER than 10 seconds\n");
     dt = 0.0f;
     return;
   }
@@ -282,12 +281,8 @@ void vertical_ctrl_module_run(bool in_flight)
           if (fabs(divergence_vision_dt) > 1E-5) {
             div_factor = divergence / divergence_vision_dt;
           }
-          //printf("divergence optitrack: %f, divergence vision: %f, factor = %f, dt = %f\n", divergence, divergence_vision/dt, div_factor, dt);
-          //printf("div = %f, vel = %f, agl_lp = %f\n", divergence, of_landing_ctrl.vel, of_landing_ctrl.agl_lp);
         } else {
           divergence = 1000.0f;
-          //printf("agl = %f, agl_lp = %f, vel = %f, divergence = %f, dt = %f.\n",  of_landing_ctrl.agl, of_landing_ctrl.agl_lp, of_landing_ctrl.vel, divergence, (float) dt);
-
           // perform no control with this value (keeping thrust the same)
           return;
         }
@@ -301,16 +296,12 @@ void vertical_ctrl_module_run(bool in_flight)
         div_factor = -1.28f; // magic number comprising field of view etc.
         float new_divergence = (divergence_vision * div_factor) / dt;
 
-        // deal with outliers:
         if (fabs(new_divergence - divergence) > 0.20) {
-          printf("OUTLIER: div = %f", new_divergence);
           if (new_divergence < divergence) { new_divergence = divergence - 0.10f; }
           else { new_divergence = divergence + 0.10f; }
-          printf("corrected to div = %f\n", new_divergence);
         }
         // low-pass filter the divergence:
         divergence = divergence * of_landing_ctrl.lp_factor + (new_divergence * (1.0f - of_landing_ctrl.lp_factor));
-        // printf("Vision divergence = %f, dt = %f\n", divergence_vision, dt);
         previous_message_nr = vision_message_nr;
         dt = 0.0f;
       } else {
@@ -372,7 +363,6 @@ void vertical_ctrl_module_run(bool in_flight)
         if (ind_hist >= COV_WINDOW_SIZE && fabs(cov_div) > of_landing_ctrl.cov_limit) {
           // land by setting 90% nominal thrust:
           landing = 1;
-          printf("START LANDING!\n");
           thrust = 0.90 * nominal_throttle;
         }
         stabilization_cmd[COMMAND_THRUST] = thrust;
@@ -417,10 +407,8 @@ void vertical_ctrl_module_run(bool in_flight)
             cov_div = get_cov(thrust_history, divergence_history, COV_WINDOW_SIZE);
           } else {
             cov_div = get_cov(past_divergence_history, divergence_history, COV_WINDOW_SIZE);
-            printf("Cov_div = %f\n", cov_div);
           }
         } else {
-          printf("cov_div not enough history\n");
           cov_div = of_landing_ctrl.cov_set_point;
         }
 
@@ -433,7 +421,6 @@ void vertical_ctrl_module_run(bool in_flight)
       }
     } else {
       // land with 90% nominal thrust:
-      printf("Landing!!\n");
       int32_t thrust = 0.90 * nominal_throttle;
       Bound(thrust, 0.6 * nominal_throttle, 0.9 * MAX_PPRZ);
       stabilization_cmd[COMMAND_THRUST] = thrust;
@@ -488,7 +475,6 @@ float get_cov(float *a, float *b, int n_elements)
 // Reading from "sensors":
 static void vertical_ctrl_agl_cb(uint8_t sender_id, float distance)
 {
-  //printf("distance = %f\n", distance);
   of_landing_ctrl.agl = distance;
 }
 static void vertical_ctrl_optical_flow_cb(uint8_t sender_id, uint32_t stamp, int16_t flow_x, int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, uint8_t quality, float size_divergence, float dist)
@@ -496,7 +482,6 @@ static void vertical_ctrl_optical_flow_cb(uint8_t sender_id, uint32_t stamp, int
   divergence_vision = size_divergence;
   vision_message_nr++;
   if (vision_message_nr > 10) { vision_message_nr = 0; }
-  //printf("Received divergence: %f\n", divergence_vision);
 }
 
 
@@ -513,7 +498,6 @@ void guidance_v_module_init(void)
 void guidance_v_module_enter(void)
 {
   int i;
-  printf("ENTERING!");
   // reset integrator
   of_landing_ctrl.sum_err = 0.0f;
   landing = 0;
