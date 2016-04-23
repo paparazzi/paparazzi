@@ -121,7 +121,7 @@ void udp_receive(struct udp_periph *p)
   }
 
   socklen_t slen = sizeof(struct sockaddr_in);
-  ssize_t byte_read = recvfrom(sock->sockfd, buf, UDP_RX_BUFFER_SIZE, MSG_DONTWAIT,
+  ssize_t byte_read = recvfrom(sock->sockfd, buf, available, MSG_DONTWAIT,
                                (struct sockaddr *)&sock->addr_in, &slen);
 
   pthread_mutex_lock(&udp_mutex);
