@@ -1,0 +1,52 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="optical_flow_landing" dir="ctrl">
+  <doc>
+    <description>
+      Optical flow landing.
+
+      This module implements optical flow landings in which the divergence is kept constant (for rotorcraft). When using a fixed gain for control, the covariance between thrust and divergence is tracked, so that the drone knows when it has arrived close to the landing surface. Then, a final landing procedure is triggered. It can also be set to adaptive gain control, where the goal is to continuously gauge the distance to the landing surface. In this mode, the drone will oscillate all the way down to the surface.
+
+      de Croon, G.C.H.E. (2016). Monocular distance estimation with optical flow maneuvers and efference copies: a stability-based strategy. Bioinspiration and Biomimetics, 11(1), 016004.
+    </description>
+    <define name="OPTICAL_FLOW_LANDING_AGL_ID" value="ABI_BROADCAST" description="Sender id of the AGL (sonar) ABI message"/>
+    <section name="OPTICAL_FLOW_LANDING" prefix="OPTICAL_FLOW_LANDING_">
+      <define name="PGAIN" value="0.40" description="P gain on height error"/>
+      <define name="IGAIN" value="0.00" description="I gain on summed height error"/>
+      <define name="DGAIN" value="0.00" description="D gain on summed height error"/>
+      <define name="VISION_METHOD" value="1" description="0 = fake vision, 1 = real vision"/>
+      <define name="CONTROL_METHOD" value="0" description="0 = fixed gain control, 1 = adaptive gain control"/>
+      <define name="COV_METHOD" value="0" description="0 = cov(uz, div), 1 = cov(div_past, div)"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="OpticalFlowLanding">
+        <dl_setting var="of_landing_ctrl.nominal_thrust" min="0" step="0.001" max="1" module="ctrl/optical_flow_landing" shortname="nominal_thrust"/>
+        <dl_setting var="of_landing_ctrl.lp_factor" min="0" step="0.01" max="1" module="ctrl/optical_flow_landing" shortname="lp_factor"/>
+        <dl_setting var="of_landing_ctrl.divergence_setpoint" min="-1" step="0.01" max="1" module="ctrl/optical_flow_landing" shortname="div sp"/>
+        <dl_setting var="of_landing_ctrl.cov_set_point" min="-0.50" step="0.0001" max="0.50" module="ctrl/optical_flow_landing" shortname="cov_set_point"/>
+        <dl_setting var="of_landing_ctrl.cov_limit" min="0" step="0.0001" max="3" module="ctrl/optical_flow_landing" shortname="cov_limit"/>
+        <dl_setting var="of_landing_ctrl.pgain" min="0" step="0.001" max="6" module="ctrl/optical_flow_landing" shortname="pgain" param="OPTICAL_FLOW_LANDING_PGAIN"/>
+        <dl_setting var="of_landing_ctrl.igain" min="0" step="0.001" max="1" module="ctrl/optical_flow_landing" shortname="igain" param="OPTICAL_FLOW_LANDING_IGAIN"/>
+        <dl_setting var="of_landing_ctrl.dgain" min="0" step="0.001" max="1" module="ctrl/optical_flow_landing" shortname="dgain" param="OPTICAL_FLOW_LANDING_DGAIN"/>
+        <dl_setting var="of_landing_ctrl.VISION_METHOD" min="0" step="1" max="1" module="ctrl/optical_flow_landing" shortname="VISION_METHOD" param="OPTICAL_FLOW_LANDING_VISION_METHOD"/>
+        <dl_setting var="of_landing_ctrl.CONTROL_METHOD" min="0" step="1" max="1" module="ctrl/optical_flow_landing" shortname="CONTROL_METHOD" param="OPTICAL_FLOW_LANDING_CONTROL_METHOD"/>
+        <dl_setting var="of_landing_ctrl.COV_METHOD" min="0" step="1" max="1" module="ctrl/optical_flow_landing" shortname="COV_METHOD" param="OPTICAL_FLOW_LANDING_COV_METHOD"/>
+        <dl_setting var="of_landing_ctrl.delay_steps" min="0" step="1" max="60" module="ctrl/optical_flow_landing" shortname="delay_steps"/>
+        <dl_setting var="of_landing_ctrl.pgain_adaptive" min="0" step="0.1" max="20.0" module="ctrl/optical_flow_landing" shortname="pgain_adaptive"/>
+        <dl_setting var="of_landing_ctrl.igain_adaptive" min="0" step="0.01" max="1.0" module="ctrl/optical_flow_landing" shortname="igain_adaptive"/>
+        <dl_setting var="of_landing_ctrl.dgain_adaptive" min="0" step="0.01" max="5.0" module="ctrl/optical_flow_landing" shortname="dgain_adaptive"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="optical_flow_landing.h"/>
+  </header>
+
+  <makefile target="ap">
+    <file name="optical_flow_landing.c"/>
+  </makefile>
+
+</module>
