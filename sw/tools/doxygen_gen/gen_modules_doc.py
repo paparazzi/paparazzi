@@ -10,6 +10,7 @@ import glob
 import re
 import copy
 import string
+import inspect
 
 
 def dox_new_page(name, title):
@@ -181,7 +182,7 @@ def get_module_description(module):
         d = re.split(r'\.|\n', desc.text.strip(), 1)
         brief = d[0].strip()
         if len(d) > 1:
-            details = d[1].strip()+"\n"
+            details = inspect.cleandoc(d[1]) + "\n"
     return brief, details
 
 
