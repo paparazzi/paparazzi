@@ -9,7 +9,7 @@
     <file name="swashplate_mixing.h"/>
   </header>
   <init fun="swashplate_mixing_init()"/>
-  <makefile>
+  <makefile target="ap|fbw">
     <file name="swashplate_mixing.c"/>
     <define name="ROTORCRAFT_IS_HELI" value="TRUE"/>
   </makefile>

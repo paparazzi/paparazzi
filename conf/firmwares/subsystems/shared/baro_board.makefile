@@ -194,15 +194,25 @@ else ifeq ($(BOARD), umarim)
 
 # Naze32
 else ifeq ($(BOARD), naze32)
-    BARO_BOARD_CFLAGS += -DBARO_BOARD=BARO_MS5611_I2C
-    BARO_BOARD_CFLAGS += -DUSE_I2C2
-    BARO_BOARD_CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
-    BARO_BOARD_SRCS += peripherals/ms5611.c
-    BARO_BOARD_SRCS += peripherals/ms5611_i2c.c
-    BARO_BOARD_SRCS += boards/baro_board_ms5611_i2c.c
+  BARO_BOARD_CFLAGS += -DBARO_BOARD=BARO_MS5611_I2C
+  BARO_BOARD_CFLAGS += -DUSE_I2C2
+  BARO_BOARD_CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
+  BARO_BOARD_SRCS += peripherals/ms5611.c
+  BARO_BOARD_SRCS += peripherals/ms5611_i2c.c
+  BARO_BOARD_SRCS += boards/baro_board_ms5611_i2c.c
 
+# OPA (AP)
+else ifeq ($(BOARD), opa_ap)
+  include $(CFG_SHARED)/spi_master.makefile
+  BARO_BOARD_CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE2
+  BARO_BOARD_CFLAGS += -DBB_MS5611_SPI_DEV=spi2
+  BARO_BOARD_CFLAGS += -DBB_MS5611_SLAVE_IDX=SPI_SLAVE2
+  BARO_BOARD_SRCS += peripherals/ms5611.c
+  BARO_BOARD_SRCS += peripherals/ms5611_spi.c
+  BARO_BOARD_SRCS += boards/baro_board_ms5611_spi.c
 endif # check board
 
+BARO_LED ?= none
 ifneq ($(BARO_LED),none)
 BARO_BOARD_CFLAGS += -DBARO_LED=$(BARO_LED)
 endif
