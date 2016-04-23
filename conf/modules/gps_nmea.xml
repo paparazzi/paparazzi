@@ -45,16 +45,4 @@
       endif
     </raw>
   </makefile>
-  <makefile target="nps">
-    <file name="gps.c" dir="subsystems"/>
-    <file name="gps_sim_nps.c" dir="subsystems/gps"/>
-    <define name="USE_GPS"/>
-    <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim_nps.h" type="string"/>
-  </makefile>
-  <makefile target="sim">
-    <file name="gps.c" dir="subsystems"/>
-    <file name="gps_sim.c" dir="subsystems/gps"/>
-    <define name="USE_GPS"/>
-    <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim.h" type="string"/>
-  </makefile>
 </module>

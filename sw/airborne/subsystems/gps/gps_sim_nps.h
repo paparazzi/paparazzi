@@ -11,6 +11,6 @@ extern bool gps_has_fix;
 
 extern void gps_feed_value();
 
-extern void gps_nps_impl_init();
+extern void gps_nps_init();
 
 #endif /* GPS_SIM_NPS_H */

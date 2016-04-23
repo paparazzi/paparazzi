@@ -17,6 +17,7 @@
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
+      <module name="gps" type="nps"/>
     </target>
 
     <module name="radio_control" type="spektrum">
