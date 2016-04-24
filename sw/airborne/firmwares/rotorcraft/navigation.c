@@ -504,7 +504,7 @@ void compute_dist2_to_home(void)
   too_far_from_home = dist2_to_home > max_dist2_from_home;
 }
 
-/** Set nav_heading in degrees. */
+/** Set nav_heading in radians. */
 bool nav_set_heading_rad(float rad)
 {
   nav_heading = ANGLE_BFP_OF_REAL(rad);

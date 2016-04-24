@@ -59,7 +59,7 @@ extern void ins_reset_local_origin(void);
 extern void ins_reset_altitude_ref(void);
 
 /** INS utm zone reset.
- *  Reset UTM zone according te the actual position.
+ *  Reset UTM zone according the the actual position.
  *  Only used with fixedwing firmware.
  *  Can be overwritte by specifc INS implementation.
  *  @param utm initial utm zone, returns the corrected utm position
