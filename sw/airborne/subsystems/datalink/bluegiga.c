@@ -39,8 +39,6 @@
 // for memset
 #include <string.h>
 
-#include "generated/periodic_telemetry.h"
-
 #ifndef BLUEGIGA_SPI_DEV
 #error "bluegiga: must define a BLUEGIGA_SPI_DEV"
 #endif
