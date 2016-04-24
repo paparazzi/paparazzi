@@ -351,3 +351,59 @@ void vff_realign(float z_meas)
   //vff.offset = 0.;
   vff_init(z_meas, 0., 0., 0.);
 }
+
+/*
+  H = [0 1 0 0];
+  R = 0.1;
+  // state residual
+  yd = vzd - H * Xm;
+  // covariance residual
+  S = H*Pm*H' + R;
+  // kalman gain
+  K = Pm*H'*inv(S);
+  // update state
+  Xp = Xm + K*yd;
+  // update covariance
+  Pp = Pm - K*H*Pm;
+*/
+static inline void update_vz_conf(float vz, float conf)
+{
+  const float yd = vz - vff.zdot;
+  const float S = vff.P[1][1] + conf;
+  const float K0 = vff.P[0][1] * 1 / S;
+  const float K1 = vff.P[1][1] * 1 / S;
+  const float K2 = vff.P[2][1] * 1 / S;
+  const float K3 = vff.P[3][1] * 1 / S;
+
+  vff.z       = vff.z       + K0 * yd;
+  vff.zdot    = vff.zdot    + K1 * yd;
+  vff.bias    = vff.bias    + K2 * yd;
+  vff.offset  = vff.offset  + K3 * yd;
+
+  const float P0 = vff.P[1][0];
+  const float P1 = vff.P[1][1];
+  const float P2 = vff.P[1][2];
+  const float P3 = vff.P[1][3];
+
+  vff.P[0][0] -= K0 * P0;
+  vff.P[0][1] -= K0 * P1;
+  vff.P[0][2] -= K0 * P2;
+  vff.P[0][3] -= K0 * P3;
+  vff.P[1][0] -= K1 * P0;
+  vff.P[1][1] -= K1 * P1;
+  vff.P[1][2] -= K1 * P2;
+  vff.P[1][3] -= K1 * P3;
+  vff.P[2][0] -= K2 * P0;
+  vff.P[2][1] -= K2 * P1;
+  vff.P[2][2] -= K2 * P2;
+  vff.P[2][3] -= K2 * P3;
+  vff.P[3][0] -= K3 * P0;
+  vff.P[3][1] -= K3 * P1;
+  vff.P[3][2] -= K3 * P2;
+  vff.P[3][3] -= K3 * P3;
+}
+
+void vff_update_vz_conf(float vz_meas, float conf)
+{
+  update_vz_conf(vz_meas, conf);
+}
