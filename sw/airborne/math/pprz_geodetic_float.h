@@ -110,7 +110,7 @@ extern void ned_of_ecef_vect_f(struct NedCoor_f *ned, struct LtpDef_f *def, stru
 extern void enu_of_lla_point_f(struct EnuCoor_f *enu, struct LtpDef_f *def, struct LlaCoor_f *lla);
 extern void ned_of_lla_point_f(struct NedCoor_f *ned, struct LtpDef_f *def, struct LlaCoor_f *lla);
 
-/*  not enought precision with floats - used the double version */
+/*  not enough precision with floats - used the double version */
 extern void ecef_of_enu_point_f(struct EcefCoor_f *ecef, struct LtpDef_f *def, struct EnuCoor_f *enu);
 extern void ecef_of_ned_point_f(struct EcefCoor_f *ecef, struct LtpDef_f *def, struct NedCoor_f *ned);
 extern void ecef_of_enu_vect_f(struct EcefCoor_f *ecef, struct LtpDef_f *def, struct EnuCoor_f *enu);
