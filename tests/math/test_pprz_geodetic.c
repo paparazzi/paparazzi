@@ -198,7 +198,7 @@ static void test_enu_of_ecef_int(void)
 
 static void test_lla_of_utm(void)
 {
-  note("--- test lla_of_utm (double and float)");
+  note("--- test lla_of_utm (double, float and int)");
 
   struct UtmCoor_d utm_d = { .east=348805.71, .north=4759354.89, .zone=31 };
   note("UTM input: east: %.2f m, north: %.2f m, zone: %d", utm_d.east, utm_d.north, utm_d.zone);
@@ -212,19 +212,20 @@ static void test_lla_of_utm(void)
   struct LlaCoor_d lla_d;
   lla_of_utm_d(&lla_d, &utm_d);
 
-  const double max_err_rad = RadOfDeg(0.0001);
+  const double max_err_deg = 0.00001;
+  const double max_err_rad = RadOfDeg(max_err_deg);
 
   double lat_d_err = fabs(l_ref_d.lat - lla_d.lat);
   double lon_d_err = fabs(l_ref_d.lon - lla_d.lon);
   if (lat_d_err < max_err_rad && lon_d_err < max_err_rad) {
     note("    lla_d.lat=%.12f deg    lla_d.lon=%.12f deg",
          DegOfRad(lla_d.lat), DegOfRad(lla_d.lon));
-    pass("lla_of_utm_d error is below 1e-4 deg");
+    pass("lla_of_utm_d error is below 1e-5 deg");
   }
   else {
     note("    lat=%.16f     lon=%.16f\nref_lat=%.16f ref_lon=%.16f\n",
          lla_d.lat, lla_d.lon, l_ref_d.lat, l_ref_d.lon);
-    fail("lla_of_utm_d error is NOT below 1e-4 deg");
+    fail("lla_of_utm_d error is NOT below 1e-5 deg");
   }
 
   struct UtmCoor_f utm_f = { .east=348805.71, .north=4759354.89, .zone=31 };
@@ -235,7 +236,8 @@ static void test_lla_of_utm(void)
 
   float lat_f_err = fabs(l_ref_d.lat - lla_f.lat);
   float lon_f_err = fabs(l_ref_d.lon - lla_f.lon);
-  if (lat_f_err < max_err_rad && lon_f_err < max_err_rad) {
+  /* float is not as correct as double and int */
+  if (lat_f_err < max_err_rad*10 && lon_f_err < max_err_rad*10) {
     note("    lla_f.lat=%.12f deg    lla_f.lon=%.12f deg",
          DegOfRad(lla_f.lat), DegOfRad(lla_f.lon));
     pass("lla_of_utm_f error is below 1e-4 deg");
@@ -244,6 +246,25 @@ static void test_lla_of_utm(void)
     note("    lat=%.16f     lon=%.16f\nref_lat=%.16f ref_lon=%.16f\n",
          lla_f.lat, lla_f.lon, l_ref_f.lat, l_ref_f.lon);
     fail("lla_of_utm_f error is NOT below 1e-4 deg");
+  }
+
+  struct UtmCoor_i utm_i = { .east=34880571, .north=475935489, .zone=31 };
+  struct LlaCoor_i lla_i;
+  struct LlaCoor_i l_ref_i = {.lat=DegOfRad(0.749999999392454875)*1e7,
+                              .lon=DegOfRad(0.019999999054505127)*1e7};
+  lla_of_utm_i(&lla_i, &utm_i);
+
+  float lat_i_err = abs(l_ref_i.lat - lla_i.lat)/1e7;
+  float lon_i_err = abs(l_ref_i.lon - lla_i.lon)/1e7;
+  if (lat_i_err < max_err_deg && lon_i_err < max_err_deg) {
+    note("    lla_i.lat=%.12f deg    lla_i.lon=%.12f deg",
+         lla_i.lat/1e7, lla_i.lon/1e7);
+    pass("lla_of_utm_i error is below 1e-5 deg");
+  }
+  else {
+    note("    lat=%.16f     lon=%.16f\nref_lat=%.16f ref_lon=%.16f\n",
+         lla_i.lat/1e7, lla_i.lon/1e7, l_ref_i.lat/1e7, l_ref_i.lon/1e7);
+    fail("lla_of_utm_i error is NOT below 1e-5 deg");
   }
 }
 
@@ -349,7 +370,7 @@ static void test_lla_of_ecef(void)
   struct LlaCoor_i lla_i;
   lla_of_ecef_i(&lla_i, &ecef_ref_i);
 
-  /* compare LLA computed in fixed point with reference (convered from double) */
+  /* compare LLA computed in fixed point with reference (converted from double) */
   cmp_ok(lla_i.lat, "==", lla_ref_i.lat, "latitude (int) matches reference");
   cmp_ok(lla_i.lon, "==", lla_ref_i.lon, "longitude (int) matches reference");
   cmp_ok(lla_i.alt, "==", lla_ref_i.alt, "altitude (int) matches reference");
@@ -358,7 +379,7 @@ static void test_lla_of_ecef(void)
 int main()
 {
   note("runing geodetic math tests");
-  plan(12);
+  plan(13);
 
   test_ecef_of_ned_int();
   test_enu_of_ecef_int();
