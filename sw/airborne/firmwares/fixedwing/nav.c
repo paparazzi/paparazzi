@@ -35,7 +35,6 @@ static unit_t unit __attribute__((unused));
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/autopilot.h"
 #include "inter_mcu.h"
-#include "subsystems/navigation/traffic_info.h"
 #include "subsystems/gps.h"
 
 #include "generated/flight_plan.h"
@@ -284,6 +283,8 @@ static inline bool compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float gli
 #define LINE_STOP_FUNCTION {}
 #endif
 
+#ifdef TRAFFIC_INFO
+#include "modules/multi/traffic_info.h"
 
 
 void nav_follow(uint8_t _ac_id, float _distance, float _height)
@@ -302,6 +303,11 @@ void nav_follow(uint8_t _ac_id, float _distance, float _height)
   nav_ground_speed_loop();
 #endif
 }
+#else
+void nav_follow(uint8_t  __attribute__((unused)) _ac_id, float  __attribute__((unused)) distance, float  __attribute__((unused)) height){}
+#endif // TRAFFIC_INFO
+
+
 
 float nav_altitude = GROUND_ALT + MIN_HEIGHT_CARROT;
 float desired_x, desired_y;
