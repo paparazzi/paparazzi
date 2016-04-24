@@ -8,7 +8,7 @@
 #define FORMATION_H
 
 #include "firmwares/fixedwing/nav.h"
-#include "subsystems/navigation/traffic_info.h"
+#include "modules/multi/traffic_info.h"
 
 #define FORM_MODE_GLOBAL 0
 #define FORM_MODE_COURSE 1
@@ -34,12 +34,12 @@ extern int formation_init(void);
 extern int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a);
 
 #define UpdateSlot(_id, _se, _sn, _sa) { \
-    formation[the_acs_id[_id]].east = _se; \
-    formation[the_acs_id[_id]].north = _sn; \
-    formation[the_acs_id[_id]].alt = _sa; \
+    formation[ti_acs_id[_id]].east = _se; \
+    formation[ti_acs_id[_id]].north = _sn; \
+    formation[ti_acs_id[_id]].alt = _sa; \
   }
 
-#define UpdateFormationStatus(_id,_status) { formation[the_acs_id[_id]].status = _status; }
+#define UpdateFormationStatus(_id,_status) { formation[ti_acs_id[_id]].status = _status; }
 
 #define ParseFormationStatus() { \
     uint8_t ac_id = DL_FORMATION_STATUS_ac_id(dl_buffer); \

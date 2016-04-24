@@ -231,8 +231,11 @@ static void gps_cb(uint8_t sender_id,
   gps = *gps_s;
   AbiSendMsgGPS(GPS_MULTI_ID, now_ts, gps_s);
 #endif
-  gps_time_sync.t0_ticks = sys_time.nb_tick;
-  gps_time_sync.t0_tow = gps.tow;
+  if (gps.tow != gps_time_sync.t0_tow)
+  {
+    gps_time_sync.t0_ticks = sys_time.nb_tick;
+    gps_time_sync.t0_tow = gps.tow;
+  }
 }
 
 /*

@@ -40,6 +40,13 @@ struct ac_info_ {
   uint32_t itow;   ///< ms
 };
 
+#ifndef NB_ACS_ID
+#define NB_ACS_ID 256
+#endif
+#ifndef NB_ACS
+#define NB_ACS 24
+#endif
+
 extern uint8_t ti_acs_idx;
 extern uint8_t ti_acs_id[];
 extern struct ac_info_ ti_acs[];

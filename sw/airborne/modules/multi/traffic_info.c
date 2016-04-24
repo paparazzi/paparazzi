@@ -39,13 +39,6 @@
 
 #include "subsystems/gps.h"
 
-#ifndef NB_ACS_ID
-#define NB_ACS_ID 256
-#endif
-#ifndef NB_ACS
-#define NB_ACS 24
-#endif
-
 uint8_t ti_acs_idx;
 uint8_t ti_acs_id[NB_ACS_ID];
 struct ac_info_ ti_acs[NB_ACS];

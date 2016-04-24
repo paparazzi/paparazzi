@@ -308,9 +308,9 @@ void cam_waypoint_target(void)
 void cam_ac_target(void)
 {
   struct ac_info_ * ac = get_ac_info(cam_target_ac);
-  cam_target_x = ac->east;
-  cam_target_y = ac->north;
-  cam_target_alt = ac->alt;
+  cam_target_x = ac->utm.east/100.;
+  cam_target_y = ac->utm.north/100.;
+  cam_target_alt = ac->utm.alt/1000.;
   cam_target();
 }
 #else 

@@ -73,25 +73,25 @@ extern "C" {
 #define ENU_OF_UTM_DIFF(_pos, _utm1, _utm2) {   \
     (_pos).x = (_utm1).east - (_utm2).east;     \
     (_pos).y = (_utm1).north - (_utm2).north;   \
-    (_pos).z = ((_utm1).alt - (_utm2).alt)/10;  \
+    (_pos).z = (_utm1).alt - (_utm2).alt;       \
   }
 
 #define NED_OF_UTM_DIFF(_pos, _utm1, _utm2) {   \
     (_pos).x = (_utm1).north - (_utm2).north;   \
     (_pos).y = (_utm1).east - (_utm2).east;     \
-    (_pos).z = (-(_utm1).alt + (_utm2).alt)/10; \
+    (_pos).z = -(_utm1).alt + (_utm2).alt;      \
   }
 
 #define UTM_OF_ENU_ADD(_utm, _pos, _utm0) {    \
     (_utm).east = (_utm0).east + (_pos).x;     \
     (_utm).north = (_utm0).north + (_pos).y;   \
-    (_utm).alt = (_utm0).alt + 10*(_pos).z;    \
+    (_utm).alt = (_utm0).alt + (_pos).z;       \
   }
 
 #define UTM_OF_NED_ADD(_utm, _pos, _utm0) {    \
     (_utm).east = (_utm0).east + (_pos).y;     \
     (_utm).north = (_utm0).north + (_pos).x;   \
-    (_utm).alt = (_utm0).alt - 10*(_pos).z;    \
+    (_utm).alt = (_utm0).alt - (_pos).z;       \
   }
 
 #define ENU_SUM(_res, _pos1, _pos2) {  \

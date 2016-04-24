@@ -291,11 +291,11 @@ void nav_follow(uint8_t _ac_id, float _distance, float _height)
 {
   struct ac_info_ * ac = get_ac_info(_ac_id);
   NavVerticalAutoThrottleMode(0.);
-  NavVerticalAltitudeMode(Max(ac->alt + _height, ground_alt + SECURITY_HEIGHT), 0.);
+  NavVerticalAltitudeMode(Max(ac->utm.alt + _height, ground_alt + SECURITY_HEIGHT), 0.);
   float alpha = M_PI / 2 - ac->course;
   float ca = cosf(alpha), sa = sinf(alpha);
-  float x = ac->east - _distance * ca;
-  float y = ac->north - _distance * sa;
+  float x = ac->utm.east/100. - _distance * ca;
+  float y = ac->utm.north/100. - _distance * sa;
   fly_to_xy(x, y);
 #ifdef NAV_FOLLOW_PGAIN
   float s = (stateGetPositionEnu_f()->x - x) * ca + (stateGetPositionEnu_f()->y - y) * sa;

@@ -81,7 +81,7 @@ struct EnuCoor_f {
 struct UtmCoor_f {
   float north; ///< in meters
   float east; ///< in meters
-  float alt; ///< in meters above WGS84 reference ellipsoid
+  float alt; ///< in meters above MSL
   uint8_t zone; ///< UTM zone number
 };
 
