@@ -39,8 +39,6 @@
 // for memset
 #include <string.h>
 
-//#include "subsystems/datalink/telemetry_common.h"
-//#include "subsystems/datalink/telemetry.h"
 #include "generated/periodic_telemetry.h"
 
 #ifndef BLUEGIGA_SPI_DEV
@@ -59,7 +57,7 @@
 #define TxStrengthOfSender(x) (x[1])
 #define RssiOfSender(x)       (x[2])
 #define Pprz_StxOfMsg(x)      (x[3])
-#define SenderIdOfMsg(x)      (x[5])
+#define SenderIdOfBGMsg(x)    (x[5])
 
 enum BlueGigaStatus coms_status;
 struct bluegiga_periph bluegiga_p;
@@ -128,6 +126,7 @@ void bluegiga_increment_buf(uint8_t *buf_idx, uint8_t len)
   *buf_idx = (*buf_idx + len) % BLUEGIGA_BUFFER_SIZE;
 }
 
+uint32_t a2a_msgs = 0;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
@@ -138,8 +137,10 @@ static void send_bluegiga(struct transport_tx *trans, struct link_device *dev)
 
   if (now_ts > last_ts) {
     uint32_t rate = 1000 * bluegiga_p.bytes_recvd_since_last / (now_ts - last_ts);
-    pprz_msg_send_BLUEGIGA(trans, dev, AC_ID, &rate);
+    uint32_t a2a_rate = 1000 * a2a_msgs / (now_ts - last_ts);
+    pprz_msg_send_BLUEGIGA(trans, dev, AC_ID, &rate, &a2a_rate);
 
+    a2a_msgs = 0;
     bluegiga_p.bytes_recvd_since_last = 0;
     last_ts = now_ts;
   }
@@ -297,12 +298,20 @@ void bluegiga_receive(struct spi_transaction *trans)
         } else if (trans->input_buf[0] > 0xff - trans->input_length) { // broadcast mode
           packet_len = 0xff - trans->input_buf[0];
 
-          int8_t tx_strength = TxStrengthOfSender(trans->input_buf);
-          int8_t rssi = RssiOfSender(trans->input_buf);
-          uint8_t ac_id = SenderIdOfMsg(trans->input_buf);
+          if (packet_len > 3)
+          {
+#ifdef MODEM_LED
+            LED_TOGGLE(MODEM_LED);
+#endif
 
-          if (Pprz_StxOfMsg(trans->input_buf) == PPRZ_STX) {
-            AbiSendMsgRSSI(RSSI_BLUEGIGA_ID, ac_id, tx_strength, rssi);
+            int8_t tx_strength = TxStrengthOfSender(trans->input_buf);
+            int8_t rssi = RssiOfSender(trans->input_buf);
+            uint8_t ac_id = SenderIdOfBGMsg(trans->input_buf);
+
+            if (Pprz_StxOfMsg(trans->input_buf) == PPRZ_STX) {
+              AbiSendMsgRSSI(RSSI_BLUEGIGA_ID, ac_id, tx_strength, rssi);
+            }
+            a2a_msgs++;
           }
 
           read_offset = 3;
@@ -311,9 +320,9 @@ void bluegiga_receive(struct spi_transaction *trans)
 
     // handle incoming datalink message
     if (packet_len > 0 && packet_len <= trans->input_length - read_offset) {
-#ifdef MODEM_LED
-      LED_TOGGLE(MODEM_LED);
-#endif
+//#ifdef MODEM_LED
+//      LED_TOGGLE(MODEM_LED);
+//#endif
       // Handle received message
       for (uint8_t i = 0; i < packet_len; i++) {
         bluegiga_p.rx_buf[(bluegiga_p.rx_insert_idx + i) % BLUEGIGA_BUFFER_SIZE] = trans->input_buf[i + read_offset];
