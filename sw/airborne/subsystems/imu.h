@@ -44,8 +44,8 @@ struct Imu {
   struct Int32Vect3 mag;              ///< magnetometer measurements scaled to 1 in BFP with #INT32_MAG_FRAC
   struct Int32Rates gyro_prev;        ///< previous gyroscope measurements
   struct Int32Vect3 accel_prev;       ///< previous accelerometer measurements
-  struct Int32Rates gyro_neutral;     ///< gyroscope bias
-  struct Int32Vect3 accel_neutral;    ///< accelerometer bias
+  struct Int32Rates gyro_neutral;     ///< static gyroscope bias from calibration
+  struct Int32Vect3 accel_neutral;    ///< static accelerometer bias from calibration
   struct Int32Vect3 mag_neutral;      ///< magnetometer neutral readings (bias)
   struct Int32Rates gyro_unscaled;    ///< unscaled gyroscope measurements
   struct Int32Vect3 accel_unscaled;   ///< unscaled accelerometer measurements
