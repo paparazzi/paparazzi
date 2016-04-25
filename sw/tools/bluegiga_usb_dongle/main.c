@@ -590,7 +590,7 @@ void ble_evt_gap_scan_response(const struct ble_msg_gap_scan_response_evt_t *msg
       //  - 48 = 16*1.25ms = 20ms maximum connection interval
       //  - 100 = 100*10ms = 1000ms supervision timeout
       //  - 9 = 9 connection interval max slave latency
-      ble_cmd_gap_connect_direct(&msg->sender.addr, gap_address_type_public, 6, 16, 100, 0);
+      ble_cmd_gap_connect_direct(&msg->sender.addr, gap_address_type_public, 8, 16, 100, 0);
     }
   }
 }
@@ -653,17 +653,17 @@ void ble_evt_connection_status(const struct ble_msg_connection_status_evt_t *msg
     if (drone_handle_configuration) {
       change_state(state_listening_measurements);
       enable_indications(msg->connection, drone_handle_configuration);
-      if (connect_all) {
+      //if (connect_all) {
 	      ble_cmd_gap_discover(gap_discover_generic);
-      }
+      //}
     }
     // Find primary services
     else {
       change_state(state_finding_services);
       ble_cmd_attclient_read_by_group_type(msg->connection, FIRST_HANDLE, LAST_HANDLE, 2, primary_service_uuid);
-      if (connect_all) {
+      //if (connect_all) {
 	      ble_cmd_gap_discover(gap_discover_generic);
-      }
+      //}
     }
   }
 }
@@ -821,7 +821,7 @@ void ble_evt_connection_disconnected(const struct ble_msg_connection_disconnecte
   //change_state(state_disconnected);
   fprintf(stderr, "Connection %d terminated\n" , msg->connection);
   if (!connect_all) {
-    ble_cmd_gap_connect_direct(&connect_addr, gap_address_type_public, 6, 16, 100, 0);
+    ble_cmd_gap_connect_direct(&connect_addr, gap_address_type_public, 8, 16, 100, 0);
     fprintf(stderr, "Trying to reconnection to ");
     print_bdaddr(connect_addr);
   }
@@ -887,7 +887,7 @@ void *send_msg()
         }
         device++;
       } // next device
-      usleep(connection_interval * 1000*2); // send messages at max intervals of the connection interval, 2 safety factor
+      usleep(connection_interval * 1000 * 1.5); // send messages at max intervals of the connection interval, 2 safety factor
     } // repeat
   }
   pthread_exit(NULL);
@@ -930,7 +930,7 @@ void *recv_paparazzi_comms()
         }
       }
     }
-    usleep(connection_interval * 1000 * 2);  // assuming connection interval 10ms, give a bit of overhead
+    usleep(connection_interval * 1000 * 1.5);  // read data from pprz slower than we can send it
   }
   pthread_exit(NULL);
 }
@@ -1097,7 +1097,7 @@ int main(int argc, char *argv[])
   } else if (action == action_connect) {
     fprintf(stderr, "Trying to connect\n");
     change_state(state_connecting);
-    ble_cmd_gap_connect_direct(&connect_addr, gap_address_type_public, 6, 16, 100, 0);
+    ble_cmd_gap_connect_direct(&connect_addr, gap_address_type_public, 8, 16, 100, 0);
   }
 
   pthread_create(&threads[0], NULL, send_msg, NULL);
