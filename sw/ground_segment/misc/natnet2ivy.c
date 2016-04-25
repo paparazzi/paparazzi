@@ -38,6 +38,7 @@
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 #include <time.h>
+#include <sys/time.h>
 
 #include "std.h"
 #include "arch/linux/udp_socket.h"
@@ -46,8 +47,8 @@
 
 /** Debugging options */
 uint8_t verbose = 0;
-#define printf_natnet   if(verbose > 1) printf
-#define printf_debug    if(verbose > 0) printf
+#define printf_natnet(...)   if(verbose > 1) fprintf (stderr, __VA_ARGS__)
+#define printf_debug(...)    if(verbose > 0) fprintf (stderr, __VA_ARGS__)
 
 /** NatNet defaults */
 char *natnet_addr               = "255.255.255.255";
@@ -511,6 +512,14 @@ gboolean timeout_transmit_callback(gpointer data)
                  rigidBodies[i].x, rigidBodies[i].y, rigidBodies[i].z,
                  rigidBodies[i].ecef_vel.x, rigidBodies[i].ecef_vel.y, rigidBodies[i].ecef_vel.z);
 
+
+    /* Construct time of time of week (tow) */
+    time_t now;
+    time(&now);
+    struct tm *ts = localtime(&now);
+    
+    uint32_t tow = (ts->tm_wday - 1)*(24*60*60*1000) + ts->tm_hour*(60*60*1000) + ts->tm_min*(60*1000) + ts->tm_sec*1000;
+
     // Transmit the REMOTE_GPS packet on the ivy bus (either small or big)
     if (small_packets) {
       /* The local position is an int32 and the 11 LSBs of the (signed) x and y axis are compressed into
@@ -568,15 +577,16 @@ gboolean timeout_transmit_callback(gpointer data)
         speed_xyz |= (((uint32_t)(pow(2, 9) * speed.z / fabs(speed.z))) & 0x3FF);       // bits 9-0 speed z in cm/s
       }
 
-      // printf("ENU Vel: %u (%.2f, %.2f, 0.0)\n", speed_xy, speed.x, speed.y);
-
-      // printf("Heading: %.2f\n", heading);
-
-      IvySendMsg("0 REMOTE_GPS_SMALL %d %d %d %d %d", aircrafts[rigidBodies[i].id].ac_id, // uint8 rigid body ID (1 byte)
-                 (uint8_t)rigidBodies[i].nMarkers, // uint8 Number of markers (sv_num) (1 byte)
-                 pos_xyz,                          // uint32 ENU X, Y and Z in CM (4 bytes)
-                 speed_xyz,                        // uint32 ENU velocity X, Y, Z in cm/s (4 bytes)
-                 (int16_t)(heading * 10000));      // int6_t heading in rad*1e4 (2 bytes)
+      /* The gps_small msg should always be less than 20 bytes including the pprz header of 6 bytes
+       * This is primarily due to the maximum packet size of the bluetooth msgs of 19 bytes
+       * increases the probability that a complete message will be accepted
+       */
+      IvySendMsg("0 REMOTE_GPS_SMALL %d %d %d %d %d",
+                (int16_t)(heading * 10000),       // int16_t heading in rad*1e4 (2 bytes)
+                pos_xyz,                          // uint32 ENU X, Y and Z in CM (4 bytes)
+                speed_xyz,                        // uint32 ENU velocity X, Y, Z in cm/s (4 bytes)
+                tow,                              // uint32_t time of day
+                aircrafts[rigidBodies[i].id].ac_id); // uint8 rigid body ID (1 byte)
 
     } else {
       IvySendMsg("0 REMOTE_GPS %d %d %d %d %d %d %d %d %d %d %d %d %d %d", aircrafts[rigidBodies[i].id].ac_id,
@@ -584,14 +594,14 @@ gboolean timeout_transmit_callback(gpointer data)
                  (int)(ecef_pos.x * 100.0),              //int32 ECEF X in CM
                  (int)(ecef_pos.y * 100.0),              //int32 ECEF Y in CM
                  (int)(ecef_pos.z * 100.0),              //int32 ECEF Z in CM
-                 (int)(lla_pos.lat * 10000000.0),        //int32 LLA latitude in rad*1e7
-                 (int)(lla_pos.lon * 10000000.0),        //int32 LLA longitude in rad*1e7
-                 (int)(lla_pos.alt*1000.0),              //int32 LLA altitude in mm above elipsoid
+                 (int)(DegOfRad(lla_pos.lat) * 10000000.0),        //int32 LLA latitude in deg*1e7
+                 (int)(DegOfRad(lla_pos.lon) * 10000000.0),        //int32 LLA longitude in deg*1e7
+                 (int)(lla_pos.alt * 1000.0),            //int32 LLA altitude in mm above elipsoid
                  (int)(rigidBodies[i].z * 1000.0),       //int32 HMSL height above mean sea level in mm
-                 (int)(rigidBodies[i].ecef_vel.x * 100.0), //int32 ECEF velocity X in m/s
-                 (int)(rigidBodies[i].ecef_vel.y * 100.0), //int32 ECEF velocity Y in m/s
-                 (int)(rigidBodies[i].ecef_vel.z * 100.0), //int32 ECEF velocity Z in m/s
-                 0,
+                 (int)(rigidBodies[i].ecef_vel.x * 100.0), //int32 ECEF velocity X in cm/s
+                 (int)(rigidBodies[i].ecef_vel.y * 100.0), //int32 ECEF velocity Y in cm/s
+                 (int)(rigidBodies[i].ecef_vel.z * 100.0), //int32 ECEF velocity Z in cm/s
+                 tow,
                  (int)(heading * 10000000.0));           //int32 Course in rad*1e7
     }
     if (must_log) {
@@ -790,13 +800,11 @@ static void parse_options(int argc, char **argv)
     else if (strcmp(argv[i], "-lla") == 0) {
       check_argcount(argc, argv, i, 3);
 
-      struct EcefCoor_d tracking_ecef;
       struct LlaCoor_d tracking_lla;
       tracking_lla.lat  = atof(argv[++i]);
       tracking_lla.lon  = atof(argv[++i]);
       tracking_lla.alt  = atof(argv[++i]);
-      ecef_of_lla_d(&tracking_ecef, &tracking_lla);
-      ltp_def_from_ecef_d(&tracking_ltp, &tracking_ecef);
+      ltp_def_from_lla_d(&tracking_ltp, &tracking_lla);
     }
     // Set the tracking system offset angle in degrees
     else if (strcmp(argv[i], "-offset_angle") == 0) {
@@ -848,13 +856,12 @@ static void parse_options(int argc, char **argv)
 int main(int argc, char **argv)
 {
   // Set the default tracking system position and angle
-  struct EcefCoor_d tracking_ecef;
-  //alt 45 m because of ellipsoid altitude in Delft
-  tracking_ecef.x = 3924331.5;
-  tracking_ecef.y = 300361.7;
-  tracking_ecef.z = 5002197.1;
+  struct LlaCoor_d tracking_lla;
+  tracking_lla.lat = RadOfDeg(51.9906340);
+  tracking_lla.lon = RadOfDeg(4.3767889);
+  tracking_lla.alt = 45.103;
   tracking_offset_angle = 33.0 / 57.6;
-  ltp_def_from_ecef_d(&tracking_ltp, &tracking_ecef);
+  ltp_def_from_lla_d(&tracking_ltp, &tracking_lla);
 
   // Parse the options from cmdline
   parse_options(argc, argv);
