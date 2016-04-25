@@ -31,14 +31,18 @@
 #include "subsystems/datalink/datalink.h"
 #include "pprzlink/pprz_transport.h"
 
+#if USE_UDP
+#include "mcu_periph/udp.h"
+#endif
+
 /* PPRZ transport structure */
 extern struct pprz_transport extra_pprz_tp;
 
 /* Datalink Event */
 
-#define ExtraDatalinkEvent() {                        \
-    PprzCheckAndParse(EXTRA_DOWNLINK_DEVICE, extra_pprz_tp); \
-    DlCheckAndParse();                                  \
+#define ExtraDatalinkEvent() {                            \
+    pprz_check_and_parse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp, dl_buffer, &dl_msg_available); \
+    DlCheckAndParse();                                    \
   }
 
 /** Init function */
