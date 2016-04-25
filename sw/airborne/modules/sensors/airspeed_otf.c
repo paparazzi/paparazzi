@@ -134,8 +134,9 @@ void airspeed_otf_parse(char c)
           otf_inp[otf_idx] = 0;
           checksum = strtol(otf_inp, NULL, 16);
           otf_idx = 0;
-          DOWNLINK_SEND_FLOW_AP_OTF(DefaultChannel, DefaultDevice, &counter, &course[0], &course[1], &course[2], &altitude,
-                                    &checksum);
+          int32_t foo = 0;
+          DOWNLINK_SEND_AEROPROBE(DefaultChannel, DefaultDevice, &counter, &course[0], &course[1], &course[2],
+              &altitude, &foo, &foo, &checksum);
         }
         otf_status = OTF_UNINIT;
       }
