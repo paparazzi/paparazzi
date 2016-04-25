@@ -26,11 +26,7 @@ VPATH += $(PAPARAZZI_HOME)/var/share
 include $(CFG_FIXEDWING)/autopilot.makefile
 
 # automatically include correct actuators for the ap target
-ifeq ($(BOARD),classix)
-  ACTUATOR_TARGET = fbw
-else
-  ACTUATOR_TARGET = ap
-endif
+ACTUATOR_TARGET = ap
 
 ifeq ($(TARGET),$(ACTUATOR_TARGET))
 
