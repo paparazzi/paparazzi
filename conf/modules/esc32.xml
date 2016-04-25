@@ -1,0 +1,37 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="esc32">
+  <doc>
+    <description>
+      Driver for the ESC32v3 speed controller
+
+      Motor is controlled with PWM.
+      Data (voltage, current, RPM) are received from the serial link.
+
+      The driver should work with v2 and v3.
+
+      TBD:
+        - send commands to change ESC settings through serial link.
+        - support multiple ESC
+
+      For more information see:
+        - http://autoquad.org/esc32/
+        - https://github.com/svn2github/esc32
+    </description>
+    <configure name="ESC32_PORT" value="UARTX" description="UART use to get ESC data"/>
+  </doc>
+  <header>
+    <file name="esc32.h"/>
+  </header>
+  <init fun="esc32_init()"/>
+  <periodic fun="esc32_periodic()" freq="10" autorun="TRUE"/>
+  <event fun="esc32_event()"/>
+  <makefile target="ap">
+    <configure name="ESC32_PORT" case="upper|lower"/>
+    <define name="USE_$(ESC32_PORT_UPPER)"/>
+    <define name="ESC32_DEV" value="$(ESC32_PORT_LOWER)"/>
+    <define name="$(ESC32_PORT_UPPER)_BAUD" value="B230400"/>
+    <file name="esc32.c"/>
+  </makefile>
+</module>
+
