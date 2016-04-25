@@ -1,0 +1,39 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="swarm_nn" dir="multi">
+  <doc>
+    <description>
+      This module implements a neural network based swarming algorithm
+      for a swarm of homogeneous drones.
+      The default values in the module result in an autonomous formation
+      of a triangular formation of side 0.7, 0.9 and 1.3m. 
+    </description>
+    <section name="SWARMING">
+      <define name="MAX_HOR_SPEED" value="0.5" description="Maximum horizontal velocity in each axis direction"/>
+      <define name="MAX_VERT_SPEED" value="0.5" description="Maximum vertical speed"/>
+      <define name="USE_HEIGHT" value="0" description="Use height in distance computation and actuation"/>
+    </section>
+  </doc>
+    <settings>
+	<dl_settings NAME="Swarm Potential">
+      <!-- Swarm potential parameters and gains -->
+      <dl_settings name="swarm_params">
+        <dl_setting var="max_hor_speed" module="multi/swarm_nn" min="0" step="0.05" max="3" shortname="max_h_speed" param="MAX_HOR_SPEED"/>
+        <dl_setting var="max_vert_speed" module="multi/swarm_nn" min="0" step="0.05" max="3" shortname="max_v_speed" param="MAX_VERT_SPEED"/>
+        <dl_setting var="use_height" module="multi/swarm_nn" min="0" step="1" max="1" param="USE_HEIGHT"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>traffic_info</depends>
+
+  <header>
+    <file name="swarm_nn.h"/>
+  </header>
+  <init fun="swarm_nn_init()"/>
+  <periodic fun="swarm_nn_periodic()" freq="5" autorun="TRUE"/>
+  <makefile>
+    <file name="swarm_nn.c"/>
+  </makefile>
+
+</module>
