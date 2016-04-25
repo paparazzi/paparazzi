@@ -33,8 +33,7 @@
 
 void ltp_def_from_ecef_d(struct LtpDef_d *def, struct EcefCoor_d *ecef)
 {
-
-  /* store the origin of the tangeant plane       */
+  /* store the origin of the tangent plane       */
   VECT3_COPY(def->ecef, *ecef);
   /* compute the lla representation of the origin */
   lla_of_ecef_d(&def->lla, &def->ecef);
@@ -53,6 +52,31 @@ void ltp_def_from_ecef_d(struct LtpDef_d *def, struct EcefCoor_d *ecef)
   def->ltp_of_ecef.m[7] =  cos_lat * sin_lon;
   def->ltp_of_ecef.m[8] =  sin_lat;
 
+}
+
+void ltp_def_from_lla_d(struct LtpDef_d *def, struct LlaCoor_d *lla)
+{
+  /* store the origin of the tangent plane */
+  LLA_COPY(def->lla, *lla);
+  /* compute the ecef representation of the origin */
+  ecef_of_lla_d(&def->ecef, &def->lla);
+
+  /* store the rotation matrix                    */
+  const double sin_lat = sin(def->lla.lat);
+  const double cos_lat = cos(def->lla.lat);
+  const double sin_lon = sin(def->lla.lon);
+  const double cos_lon = cos(def->lla.lon);
+
+  def->ltp_of_ecef.m[0] = -sin_lon;
+  def->ltp_of_ecef.m[1] =  cos_lon;
+  /* this element is always zero http://en.wikipedia.org/wiki/Geodetic_system#From_ECEF_to_ENU */
+  def->ltp_of_ecef.m[2] = 0.;
+  def->ltp_of_ecef.m[3] = -sin_lat * cos_lon;
+  def->ltp_of_ecef.m[4] = -sin_lat * sin_lon;
+  def->ltp_of_ecef.m[5] =  cos_lat;
+  def->ltp_of_ecef.m[6] =  cos_lat * cos_lon;
+  def->ltp_of_ecef.m[7] =  cos_lat * sin_lon;
+  def->ltp_of_ecef.m[8] =  sin_lat;
 }
 
 /* http://en.wikipedia.org/wiki/Geodetic_system */
@@ -196,7 +220,7 @@ double gc_of_gd_lat_d(double gd_lat, double hmsl)
 
 #include "math/pprz_geodetic_utm.h"
 
-static inline double UNUSED isometric_latitude_d(double phi, double e)
+static inline double isometric_latitude_d(double phi, double e)
 {
   return log(tan(M_PI_4 + phi / 2.0)) - e / 2.0 * log((1.0 + e * sin(phi)) / (1.0 - e * sin(phi)));
 }
@@ -224,48 +248,80 @@ static inline double inverse_isometric_latitude_d(double lat, double e, double e
 }
 
 #define CI(v) {         \
-    double tmp = v.x;       \
+    double tmp = v.x;   \
     v.x = -v.y;         \
     v.y = tmp;          \
   }
 
 #define CExp(v) {       \
-    double e = exp(v.x);      \
-    v.x = e*cosf(v.y);        \
-    v.y = e*sinf(v.y);        \
+    double e = exp(v.x);\
+    v.x = e*cos(v.y);   \
+    v.y = e*sin(v.y);   \
   }
 
 #define CSin(v) {       \
-    CI(v);          \
+    CI(v);              \
     struct DoubleVect2 vstar = {-v.x, -v.y};  \
-    CExp(v);          \
+    CExp(v);            \
     CExp(vstar);        \
-    VECT2_SUB(v, vstar);      \
+    VECT2_SUB(v, vstar);\
     VECT2_SMUL(v, v, -0.5);     \
-    CI(v);          \
+    CI(v);              \
   }
+
+void utm_of_lla_d(struct UtmCoor_d *utm, struct LlaCoor_d *lla)
+{
+  // compute zone if not initialised
+  if (utm->zone == 0) {
+    utm->zone = UtmZoneOfLlaLonRad(lla->lon);
+  }
+
+  double lambda_c = LambdaOfUtmZone(utm->zone);
+  double ll = isometric_latitude_d(lla->lat , E);
+  double dl = lla->lon - lambda_c;
+  double phi_ = asin(sin(dl) / cosh(ll));
+  double ll_ = isometric_latitude_fast_d(phi_);
+  double lambda_ = atan(sinh(ll) / cos(dl));
+  struct DoubleVect2 z_ = { lambda_,  ll_ };
+  VECT2_SMUL(z_, z_, serie_coeff_proj_mercator[0]);
+  int8_t k;
+  for (k = 1; k < 3; k++) {
+    struct DoubleVect2 z = { lambda_,  ll_ };
+    VECT2_SMUL(z, z, 2.*k);
+    CSin(z);
+    VECT2_SMUL(z, z, serie_coeff_proj_mercator[k]);
+    VECT2_ADD(z_, z);
+  }
+  VECT2_SMUL(z_, z_, N);
+  utm->east = DELTA_EAST + z_.y;
+  utm->north = DELTA_NORTH + z_.x;
+
+  // copy alt above reference ellipsoid
+  utm->alt = lla->alt;
+}
 
 void lla_of_utm_d(struct LlaCoor_d *lla, struct UtmCoor_d *utm)
 {
-
-  struct DoubleVect2 v = {utm->north - DELTA_NORTH, utm->east - DELTA_EAST};
+  struct DoubleVect2 z = {utm->north - DELTA_NORTH, utm->east - DELTA_EAST};
   double scale = 1 / N / serie_coeff_proj_mercator[0];
-  VECT2_SMUL(v, v, scale);
+  VECT2_SMUL(z, z, scale);
 
-  // first order taylor serie of something ?
-  struct DoubleVect2 v1;
-  VECT2_SMUL(v1, v, 2.);
-  CSin(v1);
-  VECT2_SMUL(v1, v1, serie_coeff_proj_mercator[1]);
-  VECT2_SUB(v, v1);
+  int8_t k;
+  for(k = 1; k<2; k++)
+  {
+    struct DoubleVect2 z_;
+    VECT2_SMUL(z_, z, 2.*k);
+    CSin(z_);
+    VECT2_SMUL(z_, z_, serie_coeff_proj_mercator_inverse[k]);
+    VECT2_SUB(z, z_);
+  }
 
   double lambda_c = LambdaOfUtmZone(utm->zone);
-  lla->lon = lambda_c + atan(sinh(v.y) / cos(v.x));
-  double phi = asin(sin(v.x) / cosh(v.y));
+  lla->lon = lambda_c + atan(sinh(z.y) / cos(z.x));
+  double phi = asin(sin(z.x) / cosh(z.y));
   double il = isometric_latitude_fast_d(phi);
   lla->lat = inverse_isometric_latitude_d(il, E, 1e-8);
 
   // copy alt above reference ellipsoid
   lla->alt = utm->alt;
-
 }

@@ -52,6 +52,10 @@ void gps_feed_value(void)
   gps_nps.hmsl        = sensors.gps.hmsl * 1000.;
   SetBit(gps_nps.valid_fields, GPS_VALID_HMSL_BIT);
 
+  utm_of_lla_i(&gps_nps.utm_pos, &gps_nps.lla_pos);
+  gps_nps.utm_pos.alt = gps_nps.hmsl;
+  SetBit(gps_nps.valid_fields, GPS_VALID_POS_UTM_BIT);
+
   /* calc NED speed from ECEF */
   struct LtpDef_d ref_ltp;
   ltp_def_from_ecef_d(&ref_ltp, &sensors.gps.ecef_pos);

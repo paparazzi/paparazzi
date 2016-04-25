@@ -35,7 +35,6 @@ static unit_t unit __attribute__((unused));
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/autopilot.h"
 #include "inter_mcu.h"
-#include "subsystems/navigation/traffic_info.h"
 #include "subsystems/gps.h"
 
 #include "generated/flight_plan.h"
@@ -284,17 +283,19 @@ static inline bool compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float gli
 #define LINE_STOP_FUNCTION {}
 #endif
 
+#ifdef TRAFFIC_INFO
+#include "modules/multi/traffic_info.h"
 
 
 void nav_follow(uint8_t _ac_id, float _distance, float _height)
 {
   struct ac_info_ * ac = get_ac_info(_ac_id);
   NavVerticalAutoThrottleMode(0.);
-  NavVerticalAltitudeMode(Max(ac->alt + _height, ground_alt + SECURITY_HEIGHT), 0.);
+  NavVerticalAltitudeMode(Max(ac->utm.alt + _height, ground_alt + SECURITY_HEIGHT), 0.);
   float alpha = M_PI / 2 - ac->course;
   float ca = cosf(alpha), sa = sinf(alpha);
-  float x = ac->east - _distance * ca;
-  float y = ac->north - _distance * sa;
+  float x = ac->utm.east/100. - _distance * ca;
+  float y = ac->utm.north/100. - _distance * sa;
   fly_to_xy(x, y);
 #ifdef NAV_FOLLOW_PGAIN
   float s = (stateGetPositionEnu_f()->x - x) * ca + (stateGetPositionEnu_f()->y - y) * sa;
@@ -302,6 +303,11 @@ void nav_follow(uint8_t _ac_id, float _distance, float _height)
   nav_ground_speed_loop();
 #endif
 }
+#else
+void nav_follow(uint8_t  __attribute__((unused)) _ac_id, float  __attribute__((unused)) distance, float  __attribute__((unused)) height){}
+#endif // TRAFFIC_INFO
+
+
 
 float nav_altitude = GROUND_ALT + MIN_HEIGHT_CARROT;
 float desired_x, desired_y;

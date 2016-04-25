@@ -231,6 +231,11 @@ static void gps_cb(uint8_t sender_id,
   gps = *gps_s;
   AbiSendMsgGPS(GPS_MULTI_ID, now_ts, gps_s);
 #endif
+  if (gps.tow != gps_time_sync.t0_tow)
+  {
+    gps_time_sync.t0_ticks = sys_time.nb_tick;
+    gps_time_sync.t0_tow = gps.tow;
+  }
 }
 
 /*
@@ -342,25 +347,20 @@ void WEAK gps_inject_data(uint8_t packet_id __attribute__((unused)), uint8_t len
 struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
   struct UtmCoor_f utm;
-  utm.alt = 0.f;
+  utm.zone = zone;
 
   if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
     // A real UTM position is available, use the correct zone
     utm.zone = gps_s->utm_pos.zone;
     utm.east = gps_s->utm_pos.east / 100.0f;
     utm.north = gps_s->utm_pos.north / 100.0f;
+    utm.alt = gps_s->utm_pos.alt / 1000.f;
   }
   else {
-    struct LlaCoor_f lla;
-    LLA_FLOAT_OF_BFP(lla, gps_s->lla_pos);
-    // Check if zone should be computed
-    if (zone > 0) {
-      utm.zone = zone;
-    } else {
-      utm.zone = (gps_s->lla_pos.lon / 1e7 + 180) / 6 + 1;
-    }
-    /* Recompute UTM coordinates in this zone */
-    utm_of_lla_f(&utm, &lla);
+    struct UtmCoor_i utm_i;
+
+    utm_of_lla_i(&utm_i, &gps_s->lla_pos);
+    UTM_FLOAT_OF_BFP(utm, utm_i);
   }
 
   return utm;
@@ -369,30 +369,18 @@ struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
   struct UtmCoor_i utm;
-  utm.alt = 0;
+  utm.zone = zone;
 
   if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
     // A real UTM position is available, use the correct zone
     utm.zone = gps_s->utm_pos.zone;
     utm.east = gps_s->utm_pos.east;
     utm.north = gps_s->utm_pos.north;
+    utm.alt = gps_s->utm_pos.alt;
   }
   else {
-    struct LlaCoor_f lla;
-    LLA_FLOAT_OF_BFP(lla, gps_s->lla_pos);
-    // Check if zone should be computed
-    if (zone > 0) {
-      utm.zone = zone;
-    } else {
-      utm.zone = (gps_s->lla_pos.lon / 1e7 + 180) / 6 + 1;
-    }
     /* Recompute UTM coordinates in this zone */
-    struct UtmCoor_f utm_f;
-    utm_f.zone = utm.zone;
-    utm_of_lla_f(&utm_f, &lla);
-    /* convert to fixed point in cm */
-    utm.east = utm_f.east * 100;
-    utm.north = utm_f.north * 100;
+    utm_of_lla_i(&utm, &gps_s->lla_pos);
   }
 
   return utm;

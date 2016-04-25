@@ -67,9 +67,6 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include CTRL_TYPE_H
 #include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"
-#ifdef TRAFFIC_INFO
-#include "subsystems/navigation/traffic_info.h"
-#endif
 
 // datalink & telemetry
 #if DATALINK || SITL
@@ -253,12 +250,6 @@ void init_ap(void)
 #if defined AEROCOMM_DATA_PIN
   IO0DIR |= _BV(AEROCOMM_DATA_PIN);
   IO0SET = _BV(AEROCOMM_DATA_PIN);
-#endif
-
-  /************ Multi-uavs status ***************/
-
-#ifdef TRAFFIC_INFO
-  traffic_info_init();
 #endif
 
   /* set initial trim values.

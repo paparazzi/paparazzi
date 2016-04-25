@@ -47,8 +47,6 @@ else
   $(TARGET).CFLAGS 	+= -DWIND_INFO
 endif
 
-$(TARGET).CFLAGS 	+= -DTRAFFIC_INFO
-
 #
 # frequencies
 #

@@ -32,8 +32,6 @@
 #include "subsystems/navigation/waypoints.h"
 
 #include "state.h"
-#include "pprzlink/messages.h"
-#include "pprzlink/dl_protocol.h"
 
 #ifndef FOLLOW_OFFSET_X
 #define FOLLOW_OFFSET_X 0.0
@@ -47,32 +45,44 @@
 #define FOLLOW_OFFSET_Z 0.0
 #endif
 
-void follow_init(void)
+#ifndef FOLLOW_AC_ID
+#error "Please define FOLLOW_AC_ID"
+#endif
+
+#ifndef FOLLOW_WAYPOINT_ID
+#error "Please define FOLLOW_WAYPOINT_ID"
+#endif
+
+void follow_init(void){}
+
+/*
+ * follow_wp(void)
+ * updates the FOLLOW_WAYPOINT_ID to a fixed offset from the last received location
+ * of other aircraft with id FOLLOW_AC_ID
+ */
+void follow_wp(void)
 {
+  struct ac_info_ * ac = get_ac_info(FOLLOW_AC_ID);
 
-}
+  // todo replace with stateGet function when they are working for utm pos
+  struct UtmCoor_f my_pos = utm_float_from_gps(&gps, 0);
+  my_pos.alt = gps.hmsl / 1000.;
 
-void follow_change_wp(unsigned char *buffer)
-{
-  struct EcefCoor_i new_pos;
-  struct EnuCoor_i enu;
-  new_pos.x = DL_REMOTE_GPS_ecef_x(buffer);
-  new_pos.y = DL_REMOTE_GPS_ecef_y(buffer);
-  new_pos.z = DL_REMOTE_GPS_ecef_z(buffer);
-
-  // Translate to ENU
-  enu_of_ecef_point_i(&enu, &state.ned_origin_i, &new_pos);
-  INT32_VECT3_SCALE_2(enu, enu, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
+  // get the distance to the other vehicle to be followed
+  struct EnuCoor_f enu = stateGetPositionEnu_f();
+  enu.x += ac->utm.east/100. - my_pos.east;
+  enu.y += ac->utm.north/100. - my_pos.north;
+  enu.z += ac->utm.alt/1000. - my_pos.alt;
 
   // TODO: Add the angle to the north
 
   // Update the offsets
-  enu.x += POS_BFP_OF_REAL(FOLLOW_OFFSET_X);
-  enu.y += POS_BFP_OF_REAL(FOLLOW_OFFSET_Y);
-  enu.z += POS_BFP_OF_REAL(FOLLOW_OFFSET_Z);
+  enu.x += FOLLOW_OFFSET_X;
+  enu.y += FOLLOW_OFFSET_Y;
+  enu.z += FOLLOW_OFFSET_Z;
 
   // TODO: Remove the angle to the north
 
   // Move the waypoint
-  waypoint_set_enu_i(FOLLOW_WAYPOINT_ID, &enu);
+  waypoint_set_enu(FOLLOW_WAYPOINT_ID, &enu);
 }
