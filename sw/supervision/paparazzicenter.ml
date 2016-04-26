@@ -224,8 +224,8 @@ let () =
 
   if Sys.file_exists Utils.backup_xml_file then begin
     let rec question_box = fun () ->
-      let message = "Configuration changes to conf/conf.xml were not saved during the last session.\nYou can either keep the current version or restore the auto-saved backup from the last session to discard the changes.\nIf you made any manual changes to conf/conf.xml and choose [Restore auto-backup] you will lose these." in
-      match GToolbox.question_box ~title:"Backup" ~buttons:["Keep current"; "Restore auto-backup"; "View changes"] ~default:2 message with
+      let message = "Your conf/conf.xml is different than the last automatic backup.\n(e.g. forgot to press save, manually edited conf.xml, or changed git branch).\n" in
+      match GToolbox.question_box ~title:"Warning: unsaved conf changes detected" ~buttons:["Use conf.xml (as is)"; "Discard local changes"; "View changes"] ~default:1 message with
       | 2 -> Sys.rename Utils.backup_xml_file Utils.conf_xml_file
       | 3 -> ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file)); question_box ()
       | _ -> Sys.remove Utils.backup_xml_file in
