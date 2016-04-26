@@ -46,6 +46,8 @@ void potential_init(void)
   potential_force.east = 0.;
   potential_force.north = 0.;
   potential_force.alt = 0.;
+  potential_force.speed = 0.;
+  potential_force.climb = 0.;
 
   force_pos_gain = FORCE_POS_GAIN;
   force_speed_gain = FORCE_SPEED_GAIN;

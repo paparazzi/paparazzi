@@ -1,0 +1,40 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="swarm_potential" dir="multi">
+  <doc>
+    <description>
+      Potential fields swarm flocking.
+    </description>
+    <section name="SWARMING">
+      <define name="FORCE_HOR_GAIN" value="0.5" description="Potential gain for speed in horizontal plane"/>
+      <define name="FORCE_CLIMB_GAIN" value="0.5" description="Potential gain for speed in vertical"/>
+      <define name="TARGET_DIST3" value="1" description="Target separation distance of individuals from each other [m]"/>
+      <define name="USE_WAYPOINT" value="0" description="Go to a target waypoint"/>
+      <define name="SP_WP" value="WP_STDBY" description="Target waypoint"/>
+    </section>
+  </doc>
+    <settings>
+	<dl_settings NAME="Swarm Potential">
+      <!-- Swarm potential parameters and gains -->
+      <dl_settings name="swarm_params">
+        <dl_setting var="force_hor_gain" module="multi/swarm_potential" min="0" step="0.05" max="3" shortname="pot_h_gain" param="FORCE_HOR_GAIN"/>
+        <dl_setting var="force_climb_gain" module="multi/swarm_potential" min="0" step="0.05" max="3" shortname="pot_v_gain" param="FORCE_CLIMB_GAIN"/>
+        <dl_setting var="target_dist3" module="multi/swarm_potential" min="0.5" step="0.5" max="3" shortname="swarm_dist" param="TARGET_DIST3"/>
+        <dl_setting var="use_waypoint" module="multi/swarm_potential" min="0" step="1" max="1" shortname="go_waypoint" param="USE_WAYPOINT"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>traffic_info</depends>
+
+  <header>
+    <file name="swarm_potential.h"/>
+  </header>
+  <init fun="swarm_potential_init()"/>
+  <periodic fun="swarm_potential_periodic()" freq="5" autorun="TRUE"/>
+  <periodic fun="swarm_potential_task()" freq="10" autorun="TRUE"/>
+  <makefile>
+    <file name="swarm_potential.c"/>
+  </makefile>
+
+</module>
