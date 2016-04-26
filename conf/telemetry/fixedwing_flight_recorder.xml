@@ -136,6 +136,7 @@
       <message name="NAVIGATION"          period="1.0"/>
       <message name="DATALINK_REPORT"     period="1.0"/>
       <message name="ESC"                 period="0.1"/>
+      <message name="ADC_GENERIC"         period="0.05"/>
     </mode>
   </process>
 </telemetry>

@@ -2,9 +2,14 @@
 
 <module name="adc_generic" dir="adcs">
   <doc>
-    <description>Generic ADC</description>
+    <description>
+      Generic ADC
+      This module can be used to read one or two values from the ADC channels in a generic way.
+      Data is reported through the default telemetry channel (by default) or can be redirected to an other one (alternate telemetry, datalogger) at a frequency defined in the telemetry xml file.
+    </description>
     <configure name="ADC_CHANNEL_GENERIC1" value="ADCX" description="choose which ADC is used for input 1"/>
     <configure name="ADC_CHANNEL_GENERIC2" value="ADCX" description="choose which ADC is used for input 2"/>
+    <define name="ADC_GENERIC_PERIODIC_SEND" value="TRUE|FALSE" description="enable or disable periodic report on standard telemetry channel (default: TRUE)"/>
   </doc>
   <header>
     <file name="adc_generic.h"/>
@@ -13,16 +18,9 @@
   <periodic fun="adc_generic_periodic()" freq="4"/>
   <makefile target="ap">
     <file name="adc_generic.c"/>
-    <raw>
-
-ifneq ($(ADC_CHANNEL_GENERIC1),)
-ap.CFLAGS += -DADC_CHANNEL_GENERIC1=$(ADC_CHANNEL_GENERIC1) -DUSE_$(ADC_CHANNEL_GENERIC1)
-endif
-
-ifneq ($(ADC_CHANNEL_GENERIC2),)
-ap.CFLAGS += -DADC_CHANNEL_GENERIC2=$(ADC_CHANNEL_GENERIC2) -DUSE_$(ADC_CHANNEL_GENERIC2)
-endif
-
-    </raw>
+    <define name="USE_${ADC_CHANNEL_GENERIC1}" cond="ifneq ($(ADC_CHANNEL_GENERIC1),)"/>
+    <define name="ADC_CHANNEL_GENERIC1" value="$(ADC_CHANNEL_GENERIC1)" cond="ifneq ($(ADC_CHANNEL_GENERIC1),)"/>
+    <define name="USE_${ADC_CHANNEL_GENERIC2}" cond="ifneq ($(ADC_CHANNEL_GENERIC2),)"/>
+    <define name="ADC_CHANNEL_GENERIC2" value="$(ADC_CHANNEL_GENERIC2)" cond="ifneq ($(ADC_CHANNEL_GENERIC2),)"/>
   </makefile>
 </module>
