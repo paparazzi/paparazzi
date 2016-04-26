@@ -203,7 +203,7 @@ let rec get_modules_of_airframe = fun ?target xml ->
   let modules = List.rev (ap_modules @ modules) in
   match target with
   | None -> modules
-  | Some t -> List.filter (fun m -> prerr_endline m.filename; test_targets t m.targets) modules
+  | Some t -> List.filter (fun m -> test_targets t m.targets) modules
 
 
 (** [get_modules_of_flight_plan xml]
