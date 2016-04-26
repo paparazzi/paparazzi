@@ -27,17 +27,18 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path)*>
+<!ELEMENT block (exception|while|heading|attitude|manual|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
-<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT while (exception|while|heading|attitude|manual|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT for (exception|while|heading|attitude|manual|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
+<!ELEMENT manual EMPTY>
 <!ELEMENT go EMPTY>
 <!ELEMENT xyz EMPTY>
 <!ELEMENT set EMPTY>
@@ -125,7 +126,7 @@ value CDATA #REQUIRED>
 
 <!ATTLIST blocks>
 
-<!ATTLIST block 
+<!ATTLIST block
 name CDATA #REQUIRED
 pre_call CDATA #IMPLIED
 post_call CDATA #IMPLIED
@@ -146,7 +147,7 @@ var CDATA #REQUIRED
 from CDATA #REQUIRED
 to CDATA #REQUIRED>
 
-<!ATTLIST heading 
+<!ATTLIST heading
 course CDATA #REQUIRED
 vmode CDATA #IMPLIED
 alt CDATA #IMPLIED
@@ -166,7 +167,18 @@ climb CDATA #IMPLIED
 pitch CDATA #IMPLIED
 until CDATA #IMPLIED>
 
-<!ATTLIST go 
+<!ATTLIST manual
+pitch CDATA #REQUIRED
+roll CDATA #REQUIRED
+yaw CDATA #REQUIRED
+vmode CDATA #IMPLIED
+alt CDATA #IMPLIED
+height CDATA #IMPLIED
+throttle CDATA #IMPLIED
+climb CDATA #IMPLIED
+until CDATA #IMPLIED>
+
+<!ATTLIST go
 wp CDATA #REQUIRED
 wp_qdr CDATA #IMPLIED
 wp_dist CDATA #IMPLIED

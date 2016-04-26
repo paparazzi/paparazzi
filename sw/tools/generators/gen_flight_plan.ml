@@ -213,12 +213,16 @@ let pprz_throttle = fun s ->
 (********************* Vertical control ********************************************)
 let output_vmode = fun stage_xml wp last_wp ->
   let pitch = try Xml.attrib stage_xml "pitch" with _ -> "0.0" in
-  if pitch = "auto"
+  if String.lowercase (Xml.tag stage_xml) <> "manual"
   then begin
-    lprintf "NavVerticalAutoPitchMode(%s);\n" (pprz_throttle (parsed_attrib stage_xml "throttle"))
-  end else begin
-    lprintf "NavVerticalAutoThrottleMode(RadOfDeg(%s));\n" (parse pitch);
+    if pitch = "auto"
+    then begin
+      lprintf "NavVerticalAutoPitchMode(%s);\n" (pprz_throttle (parsed_attrib stage_xml "throttle"))
+    end else begin
+      lprintf "NavVerticalAutoThrottleMode(RadOfDeg(%s));\n" (parse pitch);
+    end
   end;
+
   let vmode = try ExtXml.attrib stage_xml "vmode" with _ -> "alt" in
   begin
     match vmode with
@@ -300,7 +304,7 @@ let rec index_stage = fun x ->
         incr stage; (* To count the loop stage *)
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
       | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "home"
-      | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" ->
+      | "heading" | "attitude" | "manual" | "go" | "stay" | "xyz" | "set" | "circle" ->
         incr stage;
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
       | "survey_rectangle" | "eight" | "oval"->
@@ -393,6 +397,20 @@ let rec print_stage = fun index_of_waypoints x ->
         end;
         right ();
         lprintf "NavAttitude(RadOfDeg(%s));\n" (parsed_attrib x "roll");
+        ignore (output_vmode x "" "");
+        left (); lprintf "}\n";
+        lprintf "break;\n"
+      | "manual" ->
+        stage ();
+        begin
+          try
+            let until = parsed_attrib x "until" in
+            lprintf "if (%s) NextStageAndBreak() else {\n" until;
+          with ExtXml.Error _ ->
+            lprintf "{\n"
+        end;
+        right ();
+        lprintf "NavSetManual(%s, %s, %s);\n" (parsed_attrib x "roll") (parsed_attrib x "pitch") (parsed_attrib x "yaw");
         ignore (output_vmode x "" "");
         left (); lprintf "}\n";
         lprintf "break;\n"

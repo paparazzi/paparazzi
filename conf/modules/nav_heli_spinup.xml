@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_heli_spinup" dir="nav">
+  <doc>
+    <description>Helicopter Rotor spinup
+      This module controls the spinup of the main rotor from a Helicopter.
+      - First make sure you are in the correct throttle curve
+      - Next call nav_heli_spinup_setup with a duration and end throttle level
+      - Then call nav_heli_spinup_run
+    </description>
+  </doc>
+  <header>
+    <file name="nav_heli_spinup.h"/>
+  </header>
+  <makefile>
+    <file name="nav_heli_spinup.c"/>
+  </makefile>
+</module>
+
