@@ -225,7 +225,7 @@ static void checkPx4RebootCommand(uint8_t b)
       //I suspect a temperature related issue, combined with the fbw f1 crystal which is out of specs
       //After a initial period on 1500000, revert to 230400
       //We still start at 1500000 to remain compatible with original PX4 firmware. (which always runs at 1500000)
-      uart_periph_set_baudrate(intermcu_device->periph, B230400);
+      uart_periph_set_baudrate(intermcu.device->periph, B230400);
       intermcu.stable_px4_baud = CHANGING_BAUD;
       px4bl_tid = sys_time_register_timer(1.0, NULL);
       return;
@@ -246,14 +246,14 @@ static void checkPx4RebootCommand(uint8_t b)
 
       //send some magic back
       //this is the same as the Pixhawk IO code would send
-      intermcu_device->put_byte(intermcu_device->periph, 0, 0x00);
-      intermcu_device->put_byte(intermcu_device->periph, 0, 0xe5);
-      intermcu_device->put_byte(intermcu_device->periph, 0, 0x32);
-      intermcu_device->put_byte(intermcu_device->periph, 0, 0x0a);
-      intermcu_device->put_byte(intermcu_device->periph, 0,
+      intermcu.device->put_byte(intermcu.device->periph, 0, 0x00);
+      intermcu.device->put_byte(intermcu.device->periph, 0, 0xe5);
+      intermcu.device->put_byte(intermcu.device->periph, 0, 0x32);
+      intermcu.device->put_byte(intermcu.device->periph, 0, 0x0a);
+      intermcu.device->put_byte(intermcu.device->periph, 0,
                                 0x66); // dummy byte, seems to be necessary otherwise one byte is missing at the fmu side...
 
-      while (((struct uart_periph *)(intermcu_device->periph))->tx_running) {
+      while (((struct uart_periph *)(intermcu.device->periph))->tx_running) {
         // tx_running is volatile now, so LED_TOGGLE not necessary anymore
 #ifdef SYS_TIME_LED
         LED_TOGGLE(SYS_TIME_LED);
