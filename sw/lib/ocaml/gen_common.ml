@@ -24,6 +24,31 @@
 
 open Printf
 
+(** simple boolean expressions *)
+type bool_expr =
+  | Var of string
+  | Not of bool_expr
+  | And of bool_expr * bool_expr
+  | Or of bool_expr * bool_expr
+
+(** evaluate a boolean expression for a given value *)
+let rec eval_bool v = function
+  | Var x -> v = x
+  | Not e -> not (eval_bool v e)
+  | And (e1, e2) -> eval_bool v e1 && eval_bool v e2
+  | Or (e1, e2) -> eval_bool v e1 || eval_bool v e2
+
+(** pretty print boolean expression *)
+let print_bool = fun v e ->
+  let rec print_b v = function
+    | Var x -> eprintf "Var ( %s =? %s ) " x v
+    | Not e -> eprintf "Not ( "; (print_b v e); eprintf ") "
+    | And (e1, e2) -> eprintf "And ( "; print_b v e1; print_b v e2; eprintf ") "
+    | Or (e1, e2) -> eprintf "Or ( "; print_b v e1; print_b v e2; eprintf ") "
+  in
+  print_b v e; eprintf "\n"
+
+
 type module_conf = {
     name: string;
     xml: Xml.xml;
@@ -31,7 +56,7 @@ type module_conf = {
     filename: string;
     vpath: string option;(* this field should be removed after transition phase *)
     param: Xml.xml list;
-    targets: string list
+    targets: bool_expr
   }
 
 let (//) = Filename.concat
@@ -55,12 +80,21 @@ let union = fun l1 l2 -> singletonize (l1 @ l2)
 let union_of_lists = fun l -> singletonize (List.flatten l)
 
 (** [targets_of_field]
-    * Returns the targets of a makefile node in modules
-    * Default "ap|sim" *)
+ * Returns the targets expression of a makefile node in modules
+ * Default "ap|sim" *)
 let targets_of_field =
+  let rec expr_of_targets op = function
+    | [] -> Var ""
+    | [e] -> Var e
+    | l::ls -> op (Var l) (expr_of_targets op ls)
+  in
   let pipe = Str.regexp "|" in
   fun field default ->
-    Str.split pipe (ExtXml.attrib_or_default field "target" default)
+    let f = ExtXml.attrib_or_default field "target" default in
+    if String.length f > 0 && String.get f 0 = '!' then
+      Not (expr_of_targets (fun x y -> Or(x,y)) (Str.split pipe (String.sub f 1 ((String.length f) - 1))))
+    else
+      expr_of_targets (fun x y -> Or(x,y)) (Str.split pipe f)
 
 (** [get_autopilot_of_airframe xml]
     * Returns (autopilot xml, main freq) from airframe xml file *)
@@ -77,15 +111,14 @@ let get_autopilot_of_airframe = fun xml ->
     | _ -> failwith "Error: you have more than one 'autopilot' section in your airframe file"
 
 (** [get_targets_of_module xml]
-    * Returns the list of targets of a module *)
+ * Returns the boolean expression of targets of a module *)
 let get_targets_of_module = fun xml ->
-  let targets = Xml.map
-      (fun x ->
-        match String.lowercase (Xml.tag x) with
-        | "makefile" -> targets_of_field x Env.default_module_targets
-        | _ -> []
-      ) xml in
-  singletonize (List.flatten targets)
+  Xml.fold (fun a x ->
+    match String.lowercase (Xml.tag x) with
+    | "makefile" when a = Var "" -> targets_of_field x Env.default_module_targets
+    | "makefile" -> Or (a, targets_of_field x Env.default_module_targets)
+    | _ -> a
+  ) (Var "") xml
 
 let module_name = fun xml ->
   let name = ExtXml.attrib xml "name" in
@@ -103,7 +136,7 @@ let get_module = fun m global_targets ->
       if not (Sys.file_exists file) then raise (Subsystem file) else
       let xml = ExtXml.parse_file file in
       let targets = get_targets_of_module xml in
-      let targets = union global_targets targets in
+      let targets = Or (global_targets, targets) in
       { name = name; xml = xml; file = file; filename = filename; vpath = None;
         param = Xml.children m; targets = targets }
   | "load" -> (* this case should be removed after transition phase *)
@@ -120,8 +153,8 @@ let get_module = fun m global_targets ->
       let file = dir // filename in
       let xml = ExtXml.parse_file file in
       let targets = get_targets_of_module xml in
-      let extra_targets = global_targets @ targets_of_field m "" in
-      let targets = singletonize (extra_targets @ targets) in
+      let extra_targets = Or (global_targets, targets_of_field m "") in
+      let targets = Or (extra_targets, targets) in
       { name = name; xml = xml; file = file; filename = filename; vpath = vpath;
         param = Xml.children m; targets = targets }
   | _ -> Xml2h.xml_error "module or load"
@@ -130,23 +163,7 @@ let get_module = fun m global_targets ->
  * Test if [target] is allowed [targets]
  * Return true if target is allowed, false if target is not in list or rejected (prefixed by !) *)
 let test_targets = fun target targets ->
-  (* test for inverted selection
-   * FIXME: only the first target should have the invert sign ('!')
-   *)
-  let inv =
-    try
-      let hd = List.hd targets in
-      if String.get hd 0 = '!' then not
-      else (fun x -> x)
-    with _ -> (fun x -> x)
-  in
-  (* return inverted result if needed *)
-  inv (List.exists (fun t ->
-    let l = String.length t in
-    (* remove first char if invert sign *)
-    let t = if l > 0 && t.[0] = '!' then String.sub t 1 (l-1) else t in
-    t = target
-  ) targets)
+  eval_bool target targets
 
 (** [get_modules_of_airframe xml]
  * Returns a list of module configuration from airframe file *)
@@ -177,16 +194,16 @@ let rec get_modules_of_airframe = fun ?target xml ->
           if tag = "modules" then targets_of_field xml "" else targets in
         List.fold_left
           (fun acc xml -> iter_modules targets acc xml) modules children in
-  let modules = iter_modules [] [] xml in
+  let modules = iter_modules (Var "") [] xml in
   let ap_modules =
     try
       let ap_file = fst (get_autopilot_of_airframe xml) in
-      iter_modules [] [] (ExtXml.parse_file ap_file)
+      iter_modules (Var "") [] (ExtXml.parse_file ap_file)
     with _ -> [] in
   let modules = List.rev (ap_modules @ modules) in
   match target with
   | None -> modules
-  | Some t -> List.filter (fun m -> test_targets t m.targets) modules
+  | Some t -> List.filter (fun m -> prerr_endline m.filename; test_targets t m.targets) modules
 
 
 (** [get_modules_of_flight_plan xml]
@@ -205,7 +222,7 @@ let get_modules_of_flight_plan = fun xml ->
     | Xml.Element (tag, _attrs, children) ->
         List.fold_left
           (fun acc xml -> iter_modules targets acc xml) modules children in
-  List.rev (iter_modules [] [] xml)
+  List.rev (iter_modules (Var "") [] xml)
 
 (** [singletonize_modules xml]
  * Returns a list of singletonized modules were options are merged
@@ -232,7 +249,11 @@ let singletonize_modules = fun ?(verbose=false) ?target xml ->
         end;
         let m = { name = x.name; xml = x.xml; file = x.file; filename = x.filename;
         vpath = x.vpath; param = List.flatten (List.map (fun m -> m.param) ([x] @ duplicates));
-        targets = singletonize (List.flatten (List.map (fun m -> m.targets) ([x] @ duplicates))) } in
+        targets = List.fold_left (fun a x ->
+          match a with
+          | Var "" -> x.targets
+          | _ -> Or (a, x.targets)
+        ) (Var "") ([x] @ duplicates) } in
         m::loop rest
   in
   loop xml
@@ -247,7 +268,7 @@ let get_modules_of_config = fun ?target ?verbose af_xml fp_xml ->
   singletonize_modules ?verbose ?target (af_modules @ fp_modules)
 
 (** [get_modules_name xml]
-    * Returns a list of loaded modules' name *)
+ * Returns a list of loaded modules' name *)
 let get_modules_name = fun xml ->
   let target = try Sys.getenv "TARGET" with _ -> "" in
   (* extract all modules sections for a given target *)
@@ -271,8 +292,7 @@ let is_element_unselected = fun ?(verbose=false) target modules name ->
     let xml = ExtXml.parse_file name in
     match Xml.tag xml with
     | "settings" ->
-        let targets = Xml.attrib xml "target" in
-        let target_list = Str.split (Str.regexp "|") targets in
+        let target_list = targets_of_field xml "" in
         let unselected = not (test_targets target target_list) in
         if unselected && verbose then
           begin Printf.printf "Info: settings '%s' unloaded for target '%s'\n" name target; flush stdout end;
@@ -285,10 +305,10 @@ let is_element_unselected = fun ?(verbose=false) target modules name ->
           if verbose then
             (* display possible unloading of settings when the module itself is loaded *)
             List.iter (fun n ->
-              let tag = Xml.tag n
-              and targets = ExtXml.attrib_or_default n "target" "" in
-              let valid = test_targets target (Str.split (Str.regexp "|") targets) in
-              if tag = "settings" && not (targets = "") && not valid then
+              let tag = Xml.tag n in
+              let target_list = targets_of_field n "" in
+              let valid = test_targets target target_list in
+              if tag = "settings" && not (ExtXml.attrib_or_default n "target" "" = "") && not valid then
                 begin Printf.printf "Info: settings of module '%s' unloaded for target '%s'\n" name target; flush stdout end;
             ) (Xml.children xml)
         end;
