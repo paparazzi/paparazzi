@@ -346,7 +346,7 @@ let () =
     mkdir (aircraft_conf_dir // "telemetry");
 
     let target = try Sys.getenv "TARGET" with _ -> "" in
-    let modules = Gen_common.get_modules_of_config ~target (ExtXml.parse_file abs_airframe_file) (ExtXml.parse_file abs_flight_plan_file) in
+    let modules = Gen_common.get_modules_of_config (ExtXml.parse_file abs_airframe_file) (ExtXml.parse_file abs_flight_plan_file) in
     (* normal settings *)
     let settings = try Env.filter_settings (value "settings") with _ -> "" in
     (* remove settings if not supported for the current target *)

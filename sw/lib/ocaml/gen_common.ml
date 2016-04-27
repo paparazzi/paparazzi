@@ -323,9 +323,9 @@ let is_element_unselected = fun ?(verbose=false) target modules name ->
     | "settings" ->
         let target_list = targets_of_field xml "" in
         let unselected = not (test_targets target target_list) in
-        if unselected && verbose then
+        if unselected && not (target_list = Var ("")) && verbose then
           begin Printf.printf "Info: settings '%s' unloaded for target '%s'\n" name target; flush stdout end;
-        unselected
+        unselected && not (target_list = Var (""))
     | "module" ->
         let unselected = List.for_all (fun m -> m.file <> name) modules in
         if unselected && verbose then
