@@ -62,6 +62,10 @@ def main():
     if not filename.endswith(".data"):
         parser.error("Please specify a *.data log file")
 
+    if os.path.getsize(filename) == 0:
+        print("File specified has no data.")
+        sys.exit(1)
+
     ac_ids = calibration_utils.get_ids_in_log(filename)
     if options.ac_id is None:
         if len(ac_ids) == 1:
