@@ -199,7 +199,7 @@ let rec get_modules_of_airframe = fun ?target xml ->
             (m :: modules) children
         with Subsystem _file -> modules end
     | Xml.Element (tag, _attrs, children) when tag = "firmware" ->
-        let name = List.assoc "name" _attrs in
+        let name = Xml.attrib xml "name" in
         begin match firmware with
         | Some f when f = name ->
             List.fold_left (fun acc xml ->
