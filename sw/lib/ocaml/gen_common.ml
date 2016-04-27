@@ -165,10 +165,29 @@ let get_module = fun m global_targets ->
 let test_targets = fun target targets ->
   eval_bool target targets
 
+exception Firmware_Found of string
 (** [get_modules_of_airframe xml]
  * Returns a list of module configuration from airframe file *)
 let rec get_modules_of_airframe = fun ?target xml ->
   let is_module = fun tag -> List.mem tag [ "module"; "load" ] in
+  (* first, find firmware related to the target *)
+  let firmware =
+    match target with
+    | None -> None
+    | Some t -> begin try
+        Xml.iter (fun x ->
+          if Xml.tag x = "firmware" then begin
+            let name = ExtXml.attrib x "name" in
+            Xml.iter (fun x ->
+              if Xml.tag x = "target" then begin
+                if Xml.attrib x "name" = t then raise (Firmware_Found name)
+              end) x
+          end) xml;
+          None
+        with Firmware_Found f -> Some f | _ -> None
+    end
+  in
+  (* extract modules from xml tree *)
   let rec iter_modules = fun targets modules xml ->
     match xml with
     | Xml.PCData _ -> modules
@@ -179,6 +198,16 @@ let rec get_modules_of_airframe = fun ?target xml ->
             (fun acc xml -> iter_modules targets acc xml)
             (m :: modules) children
         with Subsystem _file -> modules end
+    | Xml.Element (tag, _attrs, children) when tag = "firmware" ->
+        let name = List.assoc "name" _attrs in
+        begin match firmware with
+        | Some f when f = name ->
+            List.fold_left (fun acc xml ->
+              iter_modules targets acc xml) modules children
+        | None ->
+            List.fold_left (fun acc xml ->
+              iter_modules targets acc xml) modules children
+        | _ -> modules end (* skip wrong firmware *)
     | Xml.Element (tag, _attrs, children) when tag = "target" ->
         let target_name = Xml.attrib xml "name" in
         begin match target with
