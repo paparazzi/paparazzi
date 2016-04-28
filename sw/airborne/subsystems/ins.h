@@ -66,4 +66,8 @@ extern void ins_reset_altitude_ref(void);
  */
 extern void ins_reset_utm_zone(struct UtmCoor_f *utm);
 
+/** initialize the local origin (ltp_def in fixed point) from flight plan position */
+extern void ins_init_origin_i_from_flightplan(struct LtpDef_i *ltp_def);
+
+
 #endif /* INS_H */

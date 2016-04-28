@@ -179,7 +179,7 @@ STATIC_INLINE void main_periodic(void)
 #ifdef BOARD_PX4IO
   //due to a baud rate issue on PX4, for a few seconds the baud is 1500000 however this may result in package loss, causing the motors to spin at random
   //to prevent this situation:
-  if (inter_mcu.stable_px4_baud != PPRZ_BAUD) {
+  if (intermcu.stable_px4_baud != PPRZ_BAUD) {
     fbw_mode = FBW_MODE_FAILSAFE;
     autopilot_motors_on = false;
     //signal to user whether fbw can be flashed:
@@ -190,13 +190,15 @@ STATIC_INLINE void main_periodic(void)
 #endif
 
   // TODO make module out of led blink?
+#ifdef FBW_MODE_LED
+  static uint16_t dv = 0;
+#endif
   /* set failsafe commands     */
   if (fbw_mode == FBW_MODE_FAILSAFE) {
     autopilot_motors_on = false;
     SetCommands(commands_failsafe);
 
 #ifdef FBW_MODE_LED
-    static uint16_t dv = 0;
     if (!(dv++ % (PERIODIC_FREQUENCY / 20))) { LED_TOGGLE(FBW_MODE_LED);}
   } else if (fbw_mode == FBW_MODE_MANUAL) {
     if (!(dv++ % (PERIODIC_FREQUENCY))) { LED_TOGGLE(FBW_MODE_LED);}

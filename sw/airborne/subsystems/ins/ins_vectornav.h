@@ -45,7 +45,6 @@
 
 // Generated
 #include "generated/airframe.h"
-#include "generated/flight_plan.h"
 
 // Systime
 #include "mcu_periph/sys_time.h"
@@ -128,6 +127,5 @@ extern void ins_vectornav_set_sacc(void);
 extern void ins_vectornav_set_pacc(void);
 extern void ins_vectornav_propagate(void);
 extern void ins_vectornav_yaw_pitch_roll_to_attitude(struct FloatEulers *vn_attitude);
-extern void ins_init_origin_from_flightplan(void);
 
 #endif /* INS_VECTORNAV_H */

@@ -149,10 +149,10 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo ?(confirm
   if (not !always_keep_changes) && backup_file_differs () then begin
     let dialog = GWindow.dialog ~title:"Quit" ~modal:true () in
     dialog#add_button "Keep changes" `APPLY;
-    dialog#add_button "Restore old version" `REJECT;
+    dialog#add_button "Revert" `REJECT;
     dialog#add_button "View changes" `HELP;
     dialog#add_button "Cancel" `CANCEL;
-    let _ = GMisc.label ~text:"Configuration has been changed since startup but not saved" ~packing:dialog#vbox#pack () in
+    let _ = GMisc.label ~text:"Configuration has been changed since startup.\nIf you want to undo the changes choose [Revert]" ~packing:dialog#vbox#pack () in
     let checkbox = GButton.check_button ~label:"Always keep changes" ~active:!always_keep_changes ~packing:dialog#vbox#pack () in
     ignore (checkbox#connect#toggled (fun () ->
       always_keep_changes := checkbox#active;
@@ -224,8 +224,8 @@ let () =
 
   if Sys.file_exists Utils.backup_xml_file then begin
     let rec question_box = fun () ->
-      let message = "Configuration changes to conf/conf.xml were not saved during the last session.\nYou can either keep the current version or restore the auto-saved backup from the last session to discard the changes.\nIf you made any manual changes to conf/conf.xml and choose [Restore auto-backup] you will lose these." in
-      match GToolbox.question_box ~title:"Backup" ~buttons:["Keep current"; "Restore auto-backup"; "View changes"] ~default:2 message with
+      let message = "Seems that Paparazzi Center wasn't quit cleanly.\nFound an older copy of conf.xml, do you want to restore it?" in
+      match GToolbox.question_box ~title:"Backup" ~buttons:["Keep current"; "Restore"; "View changes"] ~default:1 message with
       | 2 -> Sys.rename Utils.backup_xml_file Utils.conf_xml_file
       | 3 -> ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file)); question_box ()
       | _ -> Sys.remove Utils.backup_xml_file in
