@@ -230,7 +230,10 @@ $(SETTINGS_FLIGHTPLAN) : $(FLIGHT_PLAN_H)
 	@echo "#######################################"
 	@echo "# BUILD AIRCRAFT=$(AIRCRAFT), TARGET $*"
 	@echo "#######################################"
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(GENERATORS)/gen_aircraft.out $(AIRCRAFT) $(CONF_XML)
+	$(eval CMDLINE_ARGS = PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q))
+	$(CMDLINE_ARGS) $(GENERATORS)/gen_aircraft.out $(AIRCRAFT) $(CONF_XML) || (echo "\n\n"\
+	  "Generation of required build files failed.\n - is $(CONF_XML) valid XML?\n"\
+	  " - are all the referenced files correctly named?\n\n" && exit 1)
 
 %.compile: %.ac_h | print_version
 	cd $(AIRBORNE); $(MAKE) -j$(NPROCS) TARGET=$* all
