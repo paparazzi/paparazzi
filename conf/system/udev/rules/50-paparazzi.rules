@@ -38,7 +38,7 @@ LABEL="tty_FTDI232_end"
 SUBSYSTEM!="usb", GOTO="paparazzi_rules_end"
 ENV{DEVTYPE}!="usb_device", GOTO="paparazzi_rules_end"
 
-ATTR{product}=="Lisa/M (Upgrade)*", GROUP="plugdev"
+ATTR{product}=="Lisa/M *(Upgrade)*", GROUP="plugdev"
 
 #SUBSYSTEMS=="usb", ATTRS{serial}=="*_fbw", NAME="test_fbw", SYMLINK+="paparazzi/%s{serial}", MODE="0666"
 
