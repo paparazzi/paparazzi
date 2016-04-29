@@ -253,8 +253,8 @@ let parse_firmware = fun makefile_ac ac_xml firmware fp ->
     List.iter (fun def -> define_xml2mk makefile_ac def) defines;
     List.iter (fun def -> define_xml2mk makefile_ac def) t_defines;
     List.iter (module_xml2mk makefile_ac target_name firmware_name) modules;
-    List.iter (fallback_subsys_xml2mk makefile_ac [] firmware target_name) mods;
-    List.iter (fallback_subsys_xml2mk makefile_ac [] firmware target_name) t_mods;
+    List.iter (fallback_subsys_xml2mk makefile_ac (Gen_common.Var "") firmware target_name) mods;
+    List.iter (fallback_subsys_xml2mk makefile_ac (Gen_common.Var "") firmware target_name) t_mods;
     List.iter (subsystem_xml2mk makefile_ac firmware) t_subsystems;
     List.iter (subsystem_xml2mk makefile_ac firmware) subsystems;
     fprintf makefile_ac "\nendif # end of target '%s'\n\n" target_name
