@@ -103,7 +103,7 @@ CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
 CFLAGS += -Wshadow
 CFLAGS += -Wnested-externs
 
-CFLAGS += $(USER_CFLAGS)
+CFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 
 #CFLAGS += -fno-diagnostics-show-caret
 
@@ -126,6 +126,7 @@ AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst)
 
 LDFLAGS += -L../ext/libopencm3/lib
 LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -mcpu=$(MCU)
+LDFLAGS += $(BOARD_LDFLAGS)
 
 ifeq ($(ARCH_L), )
 LDFLAGS += -mfix-cortex-m3-ldrd -msoft-float

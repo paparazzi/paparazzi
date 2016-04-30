@@ -60,7 +60,7 @@ CFLAGS += -Wstrict-prototypes -Wmissing-declarations
 CFLAGS += -Wmissing-prototypes -Wnested-externs
 CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)
-CFLAGS += $(USER_CFLAGS)
+CFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 
 CXXFLAGS += -O$(OPT) -fPIC
 CXXFLAGS += $(DEBUG_FLAGS)
@@ -68,9 +68,10 @@ CXXFLAGS += -pipe -fshow-column -ffast-math
 CXXFLAGS += -g -ffunction-sections -fdata-sections
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += $($(TARGET).CXXFLAGS)
-CXXFLAGS += $(USER_CFLAGS)
+CXXFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 
 LDFLAGS	+= $($(TARGET).LDFLAGS) -lm -pthread
+LDFLAGS += $(BOARD_LDFLAGS)
 
 $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
 $(TARGET).objso	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)

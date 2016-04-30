@@ -14,6 +14,9 @@ ARCH=stm32
 $(TARGET).ARCHDIR = $(ARCH)
 $(TARGET).LDSCRIPT=$(SRC_ARCH)/naze32.ld
 
+BOARD_CFLAGS = -flto
+BOARD_LDFLAGS = -flto
+
 # -----------------------------------------------------------------------
 
 # default flash mode is via SERIAL (USB plug which is connected to cp210x converter)
