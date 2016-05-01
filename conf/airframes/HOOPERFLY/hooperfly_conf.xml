@@ -131,26 +131,4 @@
    settings_modules=""
    gui_color="blue"
   />
-  <aircraft
-   name="setup_lisamx"
-   ac_id="18"
-   airframe="airframes/examples/setup_lisamx.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/dummy.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/setup_actuators.xml"
-   settings_modules=""
-   gui_color="blue"
-  />
-  <aircraft
-   name="setup_lisamx_20"
-   ac_id="17"
-   airframe="airframes/examples/setup_lisamx_20.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/dummy.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/setup_actuators.xml"
-   settings_modules=""
-   gui_color="blue"
-  />
 </conf>
