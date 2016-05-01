@@ -100,7 +100,7 @@ CFLAGS += -Wshadow
 CFLAGS += -Wnested-externs
 
 CFLAGS += $(CSTANDARD)
-CFLAGS += $($(TARGET).CFLAGS) $(USER_CFLAGS)
+CFLAGS += $($(TARGET).CFLAGS) $(USER_CFLAGS) $(BOARD_CFLAGS)
 # on old lpc, avoid using double precision in some geodetic functions
 CFLAGS += -DUSE_SINGLE_PRECISION_LLA_ECEF
 
@@ -120,6 +120,7 @@ LDFLAGS += $(MATH_LIB)
 LDFLAGS += -lc -lgcc
 LDFLAGS += $(CPLUSPLUS_LIB)
 LDFLAGS += -Wl,--gc-sections
+LDFLAGS += $(BOARD_LDFLAGS)
 
 ifndef LDSCRIPT
 ifeq ($(FLASH_MODE),ISP)

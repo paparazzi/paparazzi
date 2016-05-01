@@ -283,7 +283,7 @@ DLIBS = -lm -lopencm3_stm32f4
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = $($(TARGET).CFLAGS) $(USER_CFLAGS) -DUSE_OCM3_SYSTICK_INIT=0
+UDEFS = $($(TARGET).CFLAGS) $(USER_CFLAGS) $(BOARD_CFLAGS) -DUSE_OCM3_SYSTICK_INIT=0
 
 # Define ASM defines here
 UADEFS =
@@ -296,7 +296,7 @@ UINCDIR = $(patsubst -I%,%,$(INCLUDES))
 ULIBDIR =
 
 # List all user libraries here
-ULIBS =
+ULIBS = $(BOARD_LDFLAGS)
 
 #
 # End of user defines
