@@ -28,6 +28,7 @@
 #include "std.h"
 #include "mt9f002.h"
 
+
 #include <stdio.h>
 #include <time.h>
 #include <fcntl.h>
@@ -46,7 +47,8 @@ struct video_config_t bottom_camera = {
   .subdev_name = NULL,
   .format = V4L2_PIX_FMT_UYVY,
   .buf_cnt = 60,
-  .filters = 0
+  .filters = 0,
+  .firstListener=NULL
 };
 
 struct video_config_t front_camera = {
@@ -56,7 +58,8 @@ struct video_config_t front_camera = {
   .subdev_name = "/dev/v4l-subdev1",
   .format = V4L2_PIX_FMT_SGBRG10,
   .buf_cnt = 10,
-  .filters = VIDEO_FILTER_DEBAYER
+  .filters = VIDEO_FILTER_DEBAYER,
+  .firstListener=NULL
 };
 
 static bool write_reg(int fd, char *addr_val, uint8_t cnt)

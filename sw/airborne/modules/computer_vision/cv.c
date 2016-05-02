@@ -39,7 +39,12 @@ void cv_add(cvFunction func)
     cv_func_cnt++;
   }
 }
-
+void cv_add_to_device(struct video_config_t device,cvFunction func){
+	struct video_listener toAdd;
+	toAdd.func = func;
+	toAdd.next=NULL;
+	device.firstListener=toAdd;
+}
 void cv_run(struct image_t *img)
 {
   struct image_t* temp_image = img;
@@ -51,3 +56,5 @@ void cv_run(struct image_t *img)
     }
   }
 }
+
+

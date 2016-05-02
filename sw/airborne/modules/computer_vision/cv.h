@@ -31,10 +31,28 @@
 
 #include "std.h"
 #include "lib/vision/image.h"
+#include "../../peripherals/video_device.h"
 
 typedef struct image_t* (*cvFunction)(struct image_t *img);
 
+struct video_listener{
+	struct video_listener *next;
+	cvFunction func;
+};
+/** V4L2 device settings */
+struct video_config_t {
+  int w;              ///< Width
+  int h;              ///< Height
+  char* dev_name;     ///< path to device
+  char* subdev_name;  ///< path to sub device
+  uint32_t format;    ///< Video format
+  uint8_t buf_cnt;    ///< Amount of V4L2 video device buffers
+  uint8_t filters;    ///< filters to use (bitfield with VIDEO_FILTER_x)
+  struct video_listener firstListener; ///< The first listener for this video device
+};
+
 extern void cv_add(cvFunction func);
+extern void cv_add_to_device(struct video_config_t device,cvFunction func);
 extern void cv_run(struct image_t *img);
 
 #endif /* CV_H_ */

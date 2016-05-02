@@ -144,7 +144,7 @@ static void video_thread_save_shot(struct image_t *img, struct image_t *img_jpeg
  */
 static void *video_thread_function(void *data)
 {
-  struct video_config_t *vid = (struct video_config_t *)&(VIDEO_THREAD_CAMERA);
+  struct video_config_t *vid = (struct video_config_t *)&(data);
 
   struct image_t img_jpeg;
   struct image_t img_color;
