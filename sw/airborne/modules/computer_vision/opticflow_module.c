@@ -50,26 +50,6 @@ PRINT_CONFIG_VAR(OPTICFLOW_AGL_ID)
 #define OPTICFLOW_SENDER_ID 1
 #endif
 
-/* The video device */
-#ifndef OPTICFLOW_DEVICE
-#define OPTICFLOW_DEVICE /dev/video2      ///< The video device
-#endif
-PRINT_CONFIG_VAR(OPTICFLOW_DEVICE)
-
-/* The video device size (width, height) */
-#ifndef OPTICFLOW_DEVICE_SIZE
-#define OPTICFLOW_DEVICE_SIZE 320,240     ///< The video device size (width, height)
-#endif
-#define __SIZE_HELPER(x, y) #x", "#y
-#define _SIZE_HELPER(x) __SIZE_HELPER(x)
-PRINT_CONFIG_MSG("OPTICFLOW_DEVICE_SIZE = " _SIZE_HELPER(OPTICFLOW_DEVICE_SIZE))
-
-/* The video device buffers (the amount of V4L2 buffers) */
-#ifndef OPTICFLOW_DEVICE_BUFFERS
-#define OPTICFLOW_DEVICE_BUFFERS 15       ///< The video device buffers (the amount of V4L2 buffers)
-#endif
-PRINT_CONFIG_VAR(OPTICFLOW_DEVICE_BUFFERS)
-
 /* The main opticflow variables */
 struct opticflow_t opticflow;                      ///< Opticflow calculations
 static struct opticflow_result_t opticflow_result; ///< The opticflow result
@@ -77,11 +57,9 @@ static struct opticflow_state_t opticflow_state;   ///< State of the drone to co
 static abi_event opticflow_agl_ev;                 ///< The altitude ABI event
 static bool opticflow_got_result;                ///< When we have an optical flow calculation
 
-struct UdpSocket video_sock;
-
 /* Static functions */
-struct image_t *opticflow_module_calc(struct image_t *img);  		///< The main optical flow calculation thread
-static void opticflow_agl_cb(uint8_t sender_id, float distance);  	///< Callback function of the ground altitude
+struct image_t *opticflow_module_calc(struct image_t *img);     ///< The main optical flow calculation thread
+static void opticflow_agl_cb(uint8_t sender_id, float distance);    ///< Callback function of the ground altitude
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -125,11 +103,6 @@ void opticflow_module_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_OPTIC_FLOW_EST, opticflow_telem_send);
 #endif
 
-#if OPTICFLOW_DEBUG
-
-  udp_socket_create(&video_sock, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_BROADCAST);
-
-#endif
 }
 
 /**
@@ -175,12 +148,6 @@ void opticflow_module_run(void)
 struct image_t *opticflow_module_calc(struct image_t *img)
 {
 
-#if OPTICFLOW_DEBUG
-  // Create a new JPEG image
-  struct image_t img_jpeg;
-  image_create(&img_jpeg, opticflow_dev->w, opticflow_dev->h, IMAGE_JPEG);
-#endif
-
   struct opticflow_state_t temp_state;
   memcpy(&temp_state, &opticflow_state, sizeof(struct opticflow_state_t));
 
@@ -192,25 +159,7 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
   opticflow_got_result = true;
 
-#if OPTICFLOW_DEBUG
-  jpeg_encode_image(&img, &img_jpeg, 50, FALSE);
-  rtp_frame_send(
-    &video_sock,           // UDP device
-    &img_jpeg,
-    0,                        // Format 422
-    50, // Jpeg-Quality
-    0,                        // DRI Header
-    0                         // 90kHz time increment
-  );
-#endif
-
-
-#if OPTICFLOW_DEBUG
-image_free(&img_jpeg);
-image_free(&img_gray);
-#endif
-
-return img;
+  return img;
 }
 
 /**

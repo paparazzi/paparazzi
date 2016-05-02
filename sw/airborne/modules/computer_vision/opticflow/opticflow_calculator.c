@@ -225,7 +225,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
     }
   }
 
-#if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_CORNERS
+#if OPTICFLOW_SHOW_CORNERS
   image_show_points(img, corners, result->corner_cnt);
 #endif
 
@@ -246,7 +246,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
                                        opticflow->window_size / 2, opticflow->subpixel_factor, opticflow->max_iterations,
                                        opticflow->threshold_vec, opticflow->max_track_corners, opticflow->pyramid_level);
 
-#if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_FLOW
+#if OPTICFLOW_SHOW_FLOW
   image_show_flow(img, vectors, result->tracked_cnt, opticflow->subpixel_factor);
 #endif
 
@@ -488,7 +488,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   result->vel_body_x = - vel_y;
   result->vel_body_y = vel_x;
 
-#if OPTICFLOW_DEBUG && OPTICFLOW_SHOW_FLOW
+#if OPTICFLOW_SHOW_FLOW
   draw_edgeflow_img(img, edgeflow, displacement, *edge_hist_x)
 #endif
   // Increment and wrap current time frame
