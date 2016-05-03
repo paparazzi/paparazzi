@@ -31,7 +31,8 @@
 
 #include "std.h"
 #include "lib/vision/image.h"
-#include "../../peripherals/video_device.h"
+
+#define VIDEO_FILTER_DEBAYER 0x01
 
 typedef struct image_t *(*cvFunction)(struct image_t *img);
 

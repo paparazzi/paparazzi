@@ -39,7 +39,6 @@
 #include "lib/vision/image.h"
 #include "lib/vision/bayer.h"
 #include "lib/encoding/jpeg.h"
-#include "peripherals/video_device.h"
 
 #include "mcu_periph/sys_time.h"
 
