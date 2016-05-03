@@ -161,7 +161,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->prev_theta = 0.0;
 
   /* Set the default values */
-  opticflow->method = 0; //0 = LK_fast9, 1 = Edgeflow
+  opticflow->method = OPTICFLOW_METHOD; //0 = LK_fast9, 1 = Edgeflow
   opticflow->window_size = OPTICFLOW_WINDOW_SIZE;
   opticflow->search_distance = OPTICFLOW_SEARCH_DISTANCE;
   opticflow->derotation = OPTICFLOW_DEROTATION; //0 = OFF, 1 = ON
@@ -489,7 +489,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   result->vel_body_y = vel_x;
 
 #if OPTICFLOW_SHOW_FLOW
-  draw_edgeflow_img(img, edgeflow, displacement, *edge_hist_x)
+  draw_edgeflow_img(img, edgeflow, prev_edge_histogram_x, edge_hist_x);
 #endif
   // Increment and wrap current time frame
   current_frame_nr = (current_frame_nr + 1) % MAX_HORIZON;

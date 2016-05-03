@@ -152,11 +152,10 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   memcpy(&temp_state, &opticflow_state, sizeof(struct opticflow_state_t));
 
   // Do the optical flow calculation
-  struct opticflow_result_t temp_result;
-  opticflow_calc_frame(&opticflow, &temp_state, img, &temp_result);
+  opticflow_calc_frame(&opticflow, &temp_state, img, &opticflow_result);
 
   // Copy the result if finished
-  memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
+// memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
   opticflow_got_result = true;
 
   return img;
