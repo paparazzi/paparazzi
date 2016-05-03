@@ -94,9 +94,8 @@ void opticflow_module_init(void)
   opticflow_state.agl = 0;
 
   // Initialize the opticflow calculation
-  // TODO: make it independable on img size!
-  opticflow_calc_init(&opticflow, 640, 480);
   opticflow_got_result = false;
+  opticflow.got_first_img = 1;
   cv_add(opticflow_module_calc);
 
 #if PERIODIC_TELEMETRY
@@ -152,7 +151,7 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   memcpy(&temp_state, &opticflow_state, sizeof(struct opticflow_state_t));
 
   // Do the optical flow calculation
-  opticflow_calc_frame(&opticflow, &temp_state, img, &opticflow_result);
+  opticflow_calc_frame(&opticflow, &opticflow_state, img, &opticflow_result);
 
   // Copy the result if finished
 // memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
@@ -171,5 +170,7 @@ static void opticflow_agl_cb(uint8_t sender_id __attribute__((unused)), float di
   // Update the distance if we got a valid measurement
   if (distance > 0) {
     opticflow_state.agl = distance;
+
+
   }
 }

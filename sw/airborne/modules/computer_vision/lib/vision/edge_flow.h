@@ -43,18 +43,16 @@
 
 #ifndef MAX_HORIZON
 #define MAX_HORIZON 10
+#else
+#if MAX_HORIZON < 2
+#define MAX_HORIZON 2
+#endif
 #endif
 #ifndef DISP_RANGE_MAX
 #define DISP_RANGE_MAX 50
 #endif
 #ifndef MAX_WINDOW_SIZE
 #define MAX_WINDOW_SIZE 20
-#endif
-#ifndef IMAGE_HEIGHT
-#define IMAGE_HEIGHT 240
-#endif
-#ifndef IMAGE_WIDTH
-#define IMAGE_WIDTH  360
 #endif
 #ifndef OPTICFLOW_FOV_W
 #define OPTICFLOW_FOV_W 0.89360857702
@@ -64,16 +62,16 @@
 #endif
 
 struct edge_hist_t {
-  int32_t x[IMAGE_WIDTH];
-  int32_t y[IMAGE_HEIGHT];
+  int32_t *x;
+  int32_t *y;
   struct timeval frame_time;
   float roll;
   float pitch;
 };
 
 struct edgeflow_displacement_t {
-  int32_t x[IMAGE_WIDTH];
-  int32_t y[IMAGE_HEIGHT];
+  int32_t *x;
+  int32_t *y;
 };
 
 struct edge_flow_t {
@@ -86,7 +84,7 @@ struct edge_flow_t {
 
 // Local functions of the EDGEFLOW algorithm
 void draw_edgeflow_img(struct image_t *img, struct edge_flow_t edgeflow, int32_t *edge_hist_x_prev
-                       ,int32_t *edge_hist_x);
+                       , int32_t *edge_hist_x);
 void calc_previous_frame_nr(struct opticflow_result_t *result, struct opticflow_t *opticflow, uint8_t current_frame_nr,
                             uint8_t *previous_frame_offset, uint8_t *previous_frame_nr);
 void calculate_edge_histogram(struct image_t *img, int32_t edge_histogram[],

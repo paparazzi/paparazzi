@@ -187,6 +187,10 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
 void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
                              struct opticflow_result_t *result)
 {
+  if (opticflow->just_switched_method == 1) {
+    opticflow_calc_init(opticflow, img->w, img->h);
+  }
+
   // variables for size_divergence:
   float size_divergence; int n_samples;
 
@@ -365,11 +369,26 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   // Define Static Variables
   static struct edge_hist_t edge_hist[MAX_HORIZON];
   static uint8_t current_frame_nr = 0;
-  static struct edge_flow_t edgeflow;
+  struct edge_flow_t edgeflow;
   static uint8_t previous_frame_offset[2] = {1, 1};
 
   // Define Normal variables
   struct edgeflow_displacement_t displacement;
+  displacement.x = malloc(sizeof(int32_t) * img->w);
+  displacement.y = malloc(sizeof(int32_t) * img->h);
+
+  // If the methods just switched to this one, reintialize the
+  // array of edge_hist structure.
+  if (opticflow->just_switched_method == 1) {
+    int i;
+    for (i = 0; i < MAX_HORIZON; i++) {
+      edge_hist[i].x = malloc(sizeof(int32_t) * img->w);
+      edge_hist[i].y = malloc(sizeof(int32_t) * img->h);
+      edge_hist[i].roll = 0.0f;
+      edge_hist[i].pitch = 0.0f;
+    }
+  }
+
   uint16_t disp_range;
   if (opticflow->search_distance < DISP_RANGE_MAX) {
     disp_range = opticflow->search_distance;
@@ -394,6 +413,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   int32_t *edge_hist_y = edge_hist[current_frame_nr].y;
   calculate_edge_histogram(img, edge_hist_x, 'x', 0);
   calculate_edge_histogram(img, edge_hist_y, 'y', 0);
+
 
   // Copy frame time and angles of image to calculated edge histogram
   memcpy(&edge_hist[current_frame_nr].frame_time, &img->ts, sizeof(struct timeval));
@@ -506,6 +526,14 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
 void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
                           struct opticflow_result_t *result)
 {
+  static int8_t switch_counter = OPTICFLOW_METHOD;
+  if (switch_counter != opticflow->method || opticflow->got_first_img) {
+    opticflow->just_switched_method = 1;
+    switch_counter = opticflow->method;
+  } else {
+    opticflow->just_switched_method = 0;
+  }
+
   if (opticflow->method == 0) {
     calc_fast9_lukas_kanade(opticflow, state, img, result);
   } else {
@@ -513,6 +541,11 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
       calc_edgeflow_tot(opticflow, state, img, result);
     } else {}
   }
+
+  if (opticflow->got_first_img == 1) {
+    opticflow->got_first_img = 0;
+  }
+
 }
 
 /**
