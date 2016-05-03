@@ -26,9 +26,6 @@
 // Own header
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/colorfilter.h"
-
-#include "boards/bebop.h"
-
 #include <stdio.h>
 #ifndef COLORFILTER_CAMERA
 #warning "USING THE FRONT CAMERA! Use the setting COLORFILTER_CAMERA to change this"
