@@ -1,0 +1,13 @@
+<conf>
+  <aircraft
+   name="bebop2"
+   ac_id="51"
+   airframe="airframes/DB/db_bebop2_indi.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/DB/db_default_rotorcraft.xml"
+   flight_plan="flight_plans/DB/db_cyberzoo.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/rotorcraft_speed.xml settings/control/stabilization_indi.xml"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml"
+   gui_color="red"
+  />
+</conf>
