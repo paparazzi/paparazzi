@@ -3,8 +3,6 @@
 
 #define BOARD_ARDRONE2
 
-#include "peripherals/video_device.h"
-
 #ifndef UART1_DEV
 #define UART1_DEV /dev/ttyUSB0
 #endif
