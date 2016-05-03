@@ -35,8 +35,6 @@
 
 #include "modules/computer_vision/video_thread.h"
 
-#include "boards/bebop.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -49,10 +47,19 @@
 #include "lib/encoding/jpeg.h"
 #include "lib/encoding/rtp.h"
 #include "udp_socket.h"
+
 #ifndef VIEWVIDEO_CAMERA
 #warning "USING THE FRONT CAMERA! Use the setting VIEWVIDEO_CAMERA to change this"
 #define VIEWVIDEO_CAMERA front_camera
 #endif
+
+
+#ifndef CAMERA_INCLUDE
+#warning "ASSUMING YOU ARE USING A BEBOP! Use the setting CAMERA_INCLUDE to change this"
+#define CAMERA_INCLUDE "boards/bebop.h"
+#endif
+#include CAMERA_INCLUDE
+
 // Downsize factor for video stream
 #ifndef VIEWVIDEO_DOWNSIZE_FACTOR
 #define VIEWVIDEO_DOWNSIZE_FACTOR 4

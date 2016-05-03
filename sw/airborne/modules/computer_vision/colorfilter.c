@@ -31,6 +31,12 @@
 #warning "USING THE FRONT CAMERA! Use the setting COLORFILTER_CAMERA to change this"
 #define COLORFILTER_CAMERA front_camera
 #endif
+
+#ifndef CAMERA_INCLUDE
+#warning "ASSUMING YOU ARE USING A BEBOP! Use the setting CAMERA_INCLUDE to change this"
+#define CAMERA_INCLUDE "boards/bebop.h"
+#endif
+#include CAMERA_INCLUDE
 // Filter Settings
 uint8_t color_lum_min = 105;
 uint8_t color_lum_max = 205;
