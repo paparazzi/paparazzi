@@ -27,8 +27,13 @@
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/colorfilter.h"
 
-#include <stdio.h>
+#include "boards/bebop.h"
 
+#include <stdio.h>
+#ifndef COLORFILTER_CAMERA
+#warning "USING THE FRONT CAMERA! Use the setting COLORFILTER_CAMERA to change this"
+#define COLORFILTER_CAMERA front_camera
+#endif
 // Filter Settings
 uint8_t color_lum_min = 105;
 uint8_t color_lum_max = 205;
@@ -41,21 +46,21 @@ uint8_t color_cr_max  = 255;
 int color_count = 0;
 
 // Function
-struct image_t* colorfilter_func(struct image_t* img);
-struct image_t* colorfilter_func(struct image_t* img)
+struct image_t *colorfilter_func(struct image_t *img);
+struct image_t *colorfilter_func(struct image_t *img)
 {
   // Filter
-  color_count = image_yuv422_colorfilt(img,img,
-      color_lum_min,color_lum_max,
-      color_cb_min,color_cb_max,
-      color_cr_min,color_cr_max
-      );
+  color_count = image_yuv422_colorfilt(img, img,
+                                       color_lum_min, color_lum_max,
+                                       color_cb_min, color_cb_max,
+                                       color_cr_min, color_cr_max
+                                      );
 
   return img; // Colorfilter did not make a new image
 }
 
 void colorfilter_init(void)
 {
-  cv_add(colorfilter_func);
+  cv_add_to_device(&COLORFILTER_CAMERA, colorfilter_func);
 }
 

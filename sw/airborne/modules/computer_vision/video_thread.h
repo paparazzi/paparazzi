@@ -31,18 +31,7 @@
 #define VIDEO_THREAD_H
 
 #include "std.h"
-
-// Main video_thread structure
-struct video_thread_t {
-  volatile bool is_running;   ///< When the device is running
-  struct v4l2_device *dev;        ///< The V4L2 device that is used for the video stream
-  uint8_t fps;                    ///< The amount of frames per second
-
-  volatile bool take_shot;      ///< Wether to take an image
-  uint16_t shot_number;           ///< The last shot number
-};
-extern struct video_thread_t video_thread;
-
+#include "modules/computer_vision/cv.h"
 // Module functions
 extern void video_thread_init(void);
 extern void video_thread_periodic(void); ///< A dummy for now

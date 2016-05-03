@@ -33,6 +33,10 @@
 #include "modules/computer_vision/viewvideo.h"
 #include "modules/computer_vision/cv.h"
 
+#include "modules/computer_vision/video_thread.h"
+
+#include "boards/bebop.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -45,7 +49,10 @@
 #include "lib/encoding/jpeg.h"
 #include "lib/encoding/rtp.h"
 #include "udp_socket.h"
-
+#ifndef VIEWVIDEO_CAMERA
+#warning "USING THE FRONT CAMERA! Use the setting VIEWVIDEO_CAMERA to change this"
+#define VIEWVIDEO_CAMERA front_camera
+#endif
 // Downsize factor for video stream
 #ifndef VIEWVIDEO_DOWNSIZE_FACTOR
 #define VIEWVIDEO_DOWNSIZE_FACTOR 4
@@ -110,8 +117,8 @@ struct viewvideo_t viewvideo = {
  * Handles all the video streaming and saving of the image shots
  * This is a sepereate thread, so it needs to be thread safe!
  */
-struct image_t* viewvideo_function(struct image_t *img);
-struct image_t* viewvideo_function(struct image_t *img)
+struct image_t *viewvideo_function(struct image_t *img);
+struct image_t *viewvideo_function(struct image_t *img)
 {
   // Resize image if needed
   struct image_t img_small;
@@ -199,7 +206,7 @@ void viewvideo_init(void)
 {
   char save_name[512];
 
-  cv_add(viewvideo_function);
+  cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function);
 
   viewvideo.is_streaming = true;
 

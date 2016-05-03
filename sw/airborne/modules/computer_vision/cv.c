@@ -27,34 +27,33 @@
 
 #include "cv.h"
 
-#define MAX_CV_FUNC 10
-
-int cv_func_cnt = 0;
-cvFunction cv_func[MAX_CV_FUNC];
-
-void cv_add(cvFunction func)
+void cv_add_to_device(struct video_config_t *device, cvFunction func)
 {
-  if (cv_func_cnt < (MAX_CV_FUNC - 1)) {
-    cv_func[cv_func_cnt] = func;
-    cv_func_cnt++;
-  }
-}
-void cv_add_to_device(struct video_config_t device,cvFunction func){
-	struct video_listener toAdd;
-	toAdd.func = func;
-	toAdd.next=NULL;
-	device.firstListener=toAdd;
-}
-void cv_run(struct image_t *img)
-{
-  struct image_t* temp_image = img;
-  for (int i = 0; i < cv_func_cnt; i++) {
-    struct image_t* new_image = cv_func[i](temp_image);
-    if (new_image != 0)
-    {
-      temp_image = new_image;
+
+  if (device->pointerToFirstListener == NULL) {
+    struct video_listener *newListener = (struct videoListener *)malloc(sizeof(struct video_listener));
+    newListener->next = NULL;
+    newListener->func = func;
+    device->pointerToFirstListener = newListener;
+  } else {
+    struct video_listener *pointingTo = device->pointerToFirstListener;
+    while (pointingTo->next != NULL) {
+      pointingTo = pointingTo->next;
     }
+    struct video_listener *newListener = (struct videoListener *)malloc(sizeof(struct video_listener));
+    newListener->next = NULL;
+    newListener->func = func;
+    pointingTo->next = newListener;
   }
 }
 
+void cv_run_device(struct video_config_t *device, struct image_t *img)
+{
 
+  struct video_listener *pointingTo = device->pointerToFirstListener;
+  while (pointingTo != NULL) {
+    pointingTo->func(img);
+    pointingTo = pointingTo->next;
+  }
+
+}
