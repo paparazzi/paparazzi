@@ -26,12 +26,13 @@
  */
 
 #include "cv.h"
+#include <stdlib.h> // for malloc
 
 void cv_add_to_device(struct video_config_t *device, cvFunction func)
 {
 
   if (device->pointerToFirstListener == NULL) {
-    struct video_listener *newListener = (struct videoListener *)malloc(sizeof(struct video_listener));
+    struct video_listener *newListener = malloc(sizeof(struct video_listener));
     newListener->next = NULL;
     newListener->func = func;
     device->pointerToFirstListener = newListener;
@@ -40,7 +41,7 @@ void cv_add_to_device(struct video_config_t *device, cvFunction func)
     while (pointingTo->next != NULL) {
       pointingTo = pointingTo->next;
     }
-    struct video_listener *newListener = (struct videoListener *)malloc(sizeof(struct video_listener));
+    struct video_listener *newListener = malloc(sizeof(struct video_listener));
     newListener->next = NULL;
     newListener->func = func;
     pointingTo->next = newListener;
