@@ -95,8 +95,9 @@ void opticflow_module_init(void)
 
   // Initialize the opticflow calculation
   opticflow_got_result = false;
-  opticflow.got_first_img = 1;
   cv_add(opticflow_module_calc);
+
+
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_OPTIC_FLOW_EST, opticflow_telem_send);
@@ -122,7 +123,7 @@ void opticflow_module_run(void)
                            opticflow_result.flow_x,
                            opticflow_result.flow_y,
                            opticflow_result.flow_der_x,
-                           opticflow_result.flow_der_x,
+                           opticflow_result.flow_der_y,
                            quality,
                            opticflow_result.div_size,
                            opticflow_state.agl);
@@ -142,7 +143,9 @@ void opticflow_module_run(void)
 /**
  * The main optical flow calculation thread
  * This thread passes the images trough the optical flow
- * calculator based on Lucas Kanade
+ * calculator
+ * @param[in] *img The image_t structure of the captured image
+ * @return *img The processed image structure
  */
 struct image_t *opticflow_module_calc(struct image_t *img)
 {
@@ -154,8 +157,20 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   opticflow_calc_frame(&opticflow, &opticflow_state, img, &opticflow_result);
 
   // Copy the result if finished
-// memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
   opticflow_got_result = true;
+
+  /* Rotate velocities from camera frame coordinates to body coordinates for control
+  * IMPORTANT!!! This frame to body orientation should be the case for the Parrot
+  * ARdrone and Bebop, however this can be different for other quadcopters
+  * ALWAYS double check!
+  */
+#if CAMERA_ROTATED_180 == 0 //Case for ARDrone 2.0
+  result->vel_body_x = result->vel_y;
+  result->vel_body_y = - result ->vel_x;
+#else   // Case for Bebop 2
+  result->vel_body_x = - result->vel_y;
+  result->vel_body_y = result ->vel_x;
+#endif
 
   return img;
 }
@@ -170,7 +185,5 @@ static void opticflow_agl_cb(uint8_t sender_id __attribute__((unused)), float di
   // Update the distance if we got a valid measurement
   if (distance > 0) {
     opticflow_state.agl = distance;
-
-
   }
 }

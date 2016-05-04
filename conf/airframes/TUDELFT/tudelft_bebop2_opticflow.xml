@@ -40,14 +40,10 @@
 	<define name="VIDEO_THREAD_SHOT_PATH" value="/data/ftp/internal_000/images"/>
     </load>
     <load name="cv_opticflow.xml">
-	<define name="OPTICFLOW_METHOD" value="1"/>
-	<define name="OPTICFLOW_SHOW_FLOW" value="1"/>
 	<define name="MAX_HORIZON" value="2"/>
+        <define name = "CAMERA_ROTATED_180" value="1"/> 
     </load>
-    <!--load name="video_rtp_stream.xml">
-	<define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-	<define name="VIEWVIDEO_QUALITY_FACTOR" value="70"/>
-    </load-->
+    <load name="sonar_bebop.xml"/> <!-- Needed for opticflow velocity measurement-->
   </modules>
 
   <commands>

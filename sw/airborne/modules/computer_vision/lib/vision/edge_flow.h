@@ -42,7 +42,7 @@
 
 
 #ifndef MAX_HORIZON
-#define MAX_HORIZON 10
+#define MAX_HORIZON 2
 #else
 #if MAX_HORIZON < 2
 #define MAX_HORIZON 2
