@@ -27,10 +27,13 @@
 
 #include "cv.h"
 #include <stdlib.h> // for malloc
-
+#include "video_thread.h"
 void cv_add_to_device(struct video_config_t *device, cvFunction func)
 {
+  // Initialise the device that we want our function to use
+  video_thread_initialise_device(device);
 
+  // Check if we already have this listener for this device
   if (device->pointerToFirstListener == NULL) {
     struct video_listener *newListener = malloc(sizeof(struct video_listener));
     newListener->next = NULL;
@@ -41,6 +44,8 @@ void cv_add_to_device(struct video_config_t *device, cvFunction func)
     while (pointingTo->next != NULL) {
       pointingTo = pointingTo->next;
     }
+
+    // The device is not yet sending the image to this function. Add it
     struct video_listener *newListener = malloc(sizeof(struct video_listener));
     newListener->next = NULL;
     newListener->func = func;
@@ -50,7 +55,7 @@ void cv_add_to_device(struct video_config_t *device, cvFunction func)
 
 void cv_run_device(struct video_config_t *device, struct image_t *img)
 {
-
+  // For each function added to a device, run this function with the image that was taken
   struct video_listener *pointingTo = device->pointerToFirstListener;
   while (pointingTo != NULL) {
     pointingTo->func(img);

@@ -69,10 +69,16 @@ PRINT_CONFIG_VAR(VIDEO_THREAD_SHOT_PATH)
 static void *video_thread_function(void *data);
 void video_thread_periodic(void) { }
 
+// We keep track of each camera device in a linked list
+struct device_linked_list {
+  struct device_linked_list *next;
+  struct video_config_t *camera;
+};
+
+struct device_linked_list initialisedDevices;
 static void video_thread_save_shot(struct video_thread_t threadToSaveShotFrom, struct image_t *img,
                                    struct image_t *img_jpeg)
 {
-
   // Search for a file where we can write to
   char save_name[128];
   for (; threadToSaveShotFrom.shot_number < 99999; threadToSaveShotFrom.shot_number++) {
@@ -191,113 +197,132 @@ static void *video_thread_function(void *data)
   return 0;
 }
 
+void initialise_camera(struct video_config_t *camera);
+void initialise_camera(struct video_config_t *camera)
+{
+  camera->thread.fps = VIDEO_THREAD_FPS;
+  // Initialize the V4L2 subdevice if needed
+  if (camera->subdev_name != NULL) {
+    // FIXME! add subdev format to config, only needed on bebop front camera so far
+    if (!v4l2_init_subdev(camera->subdev_name, 0, 0, V4L2_MBUS_FMT_SGBRG10_1X10, camera->w, camera->h)) {
+      printf("[video_thread] Could not initialize the %s subdevice.\n", camera->subdev_name);
+      return;
+    }
+  }
+  // Initialize the V4L2 device
+  camera->thread.dev = v4l2_init(camera->dev_name, camera->w, camera->h, camera->buf_cnt, camera->format);
+  if (camera->thread.dev == NULL) {
+    printf("[video_thread] Could not initialize the %s V4L2 device.\n", camera->dev_name);
+    return;
+  }
+}
+
+
+void start_video_thread(struct video_config_t *camera);
+void start_video_thread(struct video_config_t *camera)
+{
+  if (!camera->thread.is_running) {
+    // Start the streaming thread for a camera
+    pthread_t tid;
+    if (pthread_create(&tid, NULL, video_thread_function, (void *)(camera)) != 0) {
+      printf("[viewvideo] Could not create streaming thread for camera %s.\n", camera->dev_name);
+      return;
+    }
+  }
+}
+
+void stop_video_thread(struct video_config_t *device);
+void stop_video_thread(struct video_config_t *device)
+{
+  if (device->thread.is_running) {
+    // Stop the streaming thread
+    device->thread.is_running = false;
+
+    // Stop the capturing
+    if (!v4l2_stop_capture(device->thread.dev)) {
+      printf("[video_thread] Could not stop capture of %s.\n", device->thread.dev->name);
+      return;
+    }
+  }
+
+}
+
+void video_thread_initialise_device(struct video_config_t *device)
+{
+  struct device_linked_list *currentIndex = &initialisedDevices;
+
+  // Check if we already initialised this camera device
+  while (currentIndex != NULL) {
+    if (currentIndex->camera == device) {
+      printf("Device %s already intialised\n", device->dev_name);
+      return;
+    }
+    currentIndex = currentIndex->next;
+  }
+
+  // Device is not initialised yet, add the device
+  currentIndex = &initialisedDevices;
+  if (currentIndex->camera == NULL && currentIndex->next == NULL) {
+    // Start the first element of the list
+    currentIndex->camera = device;
+  } else {
+    // Go to the end of the list
+    while (currentIndex->next != NULL) {
+      currentIndex = currentIndex->next;
+    }
+    // Add a new device at the end of the list
+    struct device_linked_list *newElement = malloc(sizeof(struct device_linked_list));
+    newElement->next = NULL;
+    newElement->camera = device;
+    currentIndex->next = newElement;
+
+  }
+
+  // Now that it is in our list, lets initialise the camera itself.
+  initialise_camera(device);
+}
 /**
  * Initialize the view video
  */
 void video_thread_init(void)
 {
-  // Initialise the front camera
-  struct video_config_t *vid = (struct video_config_t *) & (front_camera);
-  vid->thread.fps = VIDEO_THREAD_FPS;
-  // Initialize the V4L2 subdevice if needed
-  if (vid->subdev_name != NULL) {
-    // FIXME! add subdev format to config, only needed on bebop front camera so far
-    if (!v4l2_init_subdev(vid->subdev_name, 0, 0, V4L2_MBUS_FMT_SGBRG10_1X10, vid->w, vid->h)) {
-      printf("[video_thread] Could not initialize the %s subdevice.\n", vid->subdev_name);
-      return;
-    }
+  // Initialise the list of camera devices as an empty list
+  initialisedDevices.camera = NULL;
+  initialisedDevices.next = NULL;
 
-  }
-  // Initialize the V4L2 device
-  vid->thread.dev = v4l2_init(vid->dev_name, vid->w, vid->h, vid->buf_cnt, vid->format);
-  if (vid->thread.dev == NULL) {
-    printf("[video_thread] Could not initialize the %s V4L2 device.\n", vid->dev_name);
-    return;
-  }
-
-  // Create the shot directory for the front camera
+  // Create the shot directory
   char save_name[128];
   sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
   if (system(save_name) != 0) {
     printf("[video_thread] Could not create shot directory %s.\n", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
     return;
   }
-
-
-  // Initialise the bottom camera
-  struct video_config_t *vid2 = (struct video_config_t *) & (bottom_camera);
-  vid2->thread.fps = VIDEO_THREAD_FPS;
-  // Initialize the V4L2 subdevice if needed
-  if (vid2->subdev_name != NULL) {
-    // FIXME! add subdev format to config, only needed on bebop front camera so far
-    if (!v4l2_init_subdev(vid2->subdev_name, 0, 0, V4L2_MBUS_FMT_SGBRG10_1X10, vid2->w, vid2->h)) {
-      printf("[video_thread] Could not initialize the %s subdevice.\n", vid2->subdev_name);
-      return;
-    }
-  }
-
-  // Initialize the V4L2 device
-  vid2->thread.dev = v4l2_init(vid2->dev_name, vid2->w, vid2->h, vid2->buf_cnt, vid2->format);
-  if (vid2->thread.dev == NULL) {
-    printf("[video_thread] Could not initialize the %s V4L2 device.\n", vid->dev_name);
-    return;
-  }
 }
 
 /**
- * Start with streaming
+ * Starts the streaming of a all cameras
  */
-void video_thread_start(void)
+void video_thread_start()
 {
-  // Check if we are already running the front camera
-  if (!front_camera.thread.is_running) {
-    // Start the streaming thread for the front camera
-    pthread_t tid;
-    if (pthread_create(&tid, NULL, video_thread_function, (void *)(&front_camera)) != 0) {
-      printf("[vievideo] Could not create streaming thread for the front camera.\n");
-      return;
-    }
+  // Start every known camera device
+  struct device_linked_list *currentIndex = &initialisedDevices;
+  while (currentIndex != NULL) {
+    start_video_thread(currentIndex->camera);
+    currentIndex = currentIndex->next;
   }
 
-  if (!bottom_camera.thread.is_running) {
-    pthread_t tid2;
-
-    if (pthread_create(&tid2, NULL, video_thread_function, (void *)(&bottom_camera)) != 0) {
-      printf("[vievideo] Could not create streaming thread for the bottom camera.\n");
-      return;
-    }
-  }
 }
-
 /**
- * Stops the streaming
+ * Stops the streaming of all cameras
  * This could take some time, because the thread is stopped asynchronous.
  */
-void video_thread_stop(void)
+void video_thread_stop()
 {
 
-  if (front_camera.thread.is_running) {
-
-    // Stop the streaming thread
-    front_camera.thread.is_running = false;
-
-    // Stop the capturing
-    if (!v4l2_stop_capture(front_camera.thread.dev)) {
-      printf("[video_thread] Could not stop capture of %s.\n", front_camera.thread.dev->name);
-      return;
-    }
-  }
-
-  if (bottom_camera.thread.is_running) {
-
-    // Stop the streaming thread
-    bottom_camera.thread.is_running = false;
-
-    // Stop the capturing
-    if (!v4l2_stop_capture(bottom_camera.thread.dev)) {
-      printf("[video_thread] Could not stop capture of %s.\n", bottom_camera.thread.dev->name);
-      return;
-    }
+  struct device_linked_list *currentIndex = &initialisedDevices;
+  while (currentIndex != NULL) {
+    stop_video_thread(currentIndex->camera);
+    currentIndex = currentIndex->next;
   }
   // TODO: wait for the thread to finish to be able to start the thread again!
 }
@@ -308,5 +333,7 @@ void video_thread_stop(void)
  */
 void video_thread_take_shot(bool take)
 {
-  front_camera.thread.take_shot = take;
+  if (initialisedDevices.camera != NULL) {
+    initialisedDevices.camera->thread.take_shot = take;
+  }
 }

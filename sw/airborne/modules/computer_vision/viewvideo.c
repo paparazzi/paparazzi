@@ -53,12 +53,7 @@
 #define VIEWVIDEO_CAMERA front_camera
 #endif
 
-
-#ifndef CAMERA_INCLUDE
-#warning "ASSUMING YOU ARE USING A BEBOP! Use the setting CAMERA_INCLUDE to change this"
-#define CAMERA_INCLUDE "boards/bebop.h"
-#endif
-#include CAMERA_INCLUDE
+#include BOARD_CONFIG
 
 // Downsize factor for video stream
 #ifndef VIEWVIDEO_DOWNSIZE_FACTOR
