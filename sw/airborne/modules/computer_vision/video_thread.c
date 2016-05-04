@@ -75,14 +75,14 @@ struct device_linked_list {
   struct video_config_t *camera;
 };
 
-struct device_linked_list initialisedDevices;
-static void video_thread_save_shot(struct video_thread_t threadToSaveShotFrom, struct image_t *img,
+struct device_linked_list initialised_devices;
+static void video_thread_save_shot(struct video_thread_t thread_to_save_shot_from, struct image_t *img,
                                    struct image_t *img_jpeg)
 {
   // Search for a file where we can write to
   char save_name[128];
-  for (; threadToSaveShotFrom.shot_number < 99999; threadToSaveShotFrom.shot_number++) {
-    sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_THREAD_SHOT_PATH), threadToSaveShotFrom.shot_number);
+  for (; thread_to_save_shot_from.shot_number < 99999; thread_to_save_shot_from.shot_number++) {
+    sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_THREAD_SHOT_PATH), thread_to_save_shot_from.shot_number);
     // Check if file exists or not
     if (access(save_name, F_OK) == -1) {
 
@@ -249,32 +249,32 @@ void stop_video_thread(struct video_config_t *device)
 
 void video_thread_initialise_device(struct video_config_t *device)
 {
-  struct device_linked_list *currentIndex = &initialisedDevices;
+  struct device_linked_list *current_index = &initialised_devices;
 
   // Check if we already initialised this camera device
-  while (currentIndex != NULL) {
-    if (currentIndex->camera == device) {
+  while (current_index != NULL) {
+    if (current_index->camera == device) {
       printf("Device %s already intialised\n", device->dev_name);
       return;
     }
-    currentIndex = currentIndex->next;
+    current_index = current_index->next;
   }
 
   // Device is not initialised yet, add the device
-  currentIndex = &initialisedDevices;
-  if (currentIndex->camera == NULL && currentIndex->next == NULL) {
+  current_index = &initialised_devices;
+  if (current_index->camera == NULL && current_index->next == NULL) {
     // Start the first element of the list
-    currentIndex->camera = device;
+    current_index->camera = device;
   } else {
     // Go to the end of the list
-    while (currentIndex->next != NULL) {
-      currentIndex = currentIndex->next;
+    while (current_index->next != NULL) {
+      current_index = current_index->next;
     }
     // Add a new device at the end of the list
-    struct device_linked_list *newElement = malloc(sizeof(struct device_linked_list));
-    newElement->next = NULL;
-    newElement->camera = device;
-    currentIndex->next = newElement;
+    struct device_linked_list *new_element = malloc(sizeof(struct device_linked_list));
+    new_element->next = NULL;
+    new_element->camera = device;
+    current_index->next = new_element;
 
   }
 
@@ -287,8 +287,8 @@ void video_thread_initialise_device(struct video_config_t *device)
 void video_thread_init(void)
 {
   // Initialise the list of camera devices as an empty list
-  initialisedDevices.camera = NULL;
-  initialisedDevices.next = NULL;
+  initialised_devices.camera = NULL;
+  initialised_devices.next = NULL;
 
   // Create the shot directory
   char save_name[128];
@@ -305,10 +305,10 @@ void video_thread_init(void)
 void video_thread_start()
 {
   // Start every known camera device
-  struct device_linked_list *currentIndex = &initialisedDevices;
-  while (currentIndex != NULL) {
-    start_video_thread(currentIndex->camera);
-    currentIndex = currentIndex->next;
+  struct device_linked_list *current_index = &initialised_devices;
+  while (current_index != NULL) {
+    start_video_thread(current_index->camera);
+    current_index = current_index->next;
   }
 
 }
@@ -319,10 +319,10 @@ void video_thread_start()
 void video_thread_stop()
 {
 
-  struct device_linked_list *currentIndex = &initialisedDevices;
-  while (currentIndex != NULL) {
-    stop_video_thread(currentIndex->camera);
-    currentIndex = currentIndex->next;
+  struct device_linked_list *current_index = &initialised_devices;
+  while (current_index != NULL) {
+    stop_video_thread(current_index->camera);
+    current_index = current_index->next;
   }
   // TODO: wait for the thread to finish to be able to start the thread again!
 }
@@ -333,7 +333,7 @@ void video_thread_stop()
  */
 void video_thread_take_shot(bool take)
 {
-  if (initialisedDevices.camera != NULL) {
-    initialisedDevices.camera->thread.take_shot = take;
+  if (initialised_devices.camera != NULL) {
+    initialised_devices.camera->thread.take_shot = take;
   }
 }

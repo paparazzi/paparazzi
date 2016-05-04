@@ -62,7 +62,7 @@ struct video_config_t {
   uint8_t buf_cnt;    ///< Amount of V4L2 video device buffers
   uint8_t filters;    ///< filters to use (bitfield with VIDEO_FILTER_x)
   struct video_thread_t thread; ///< Information about the thread this camera is running on
-  struct video_listener *pointerToFirstListener; ///< The first listener in the linked list for this video device
+  struct video_listener *pointer_to_first_listener; ///< The first listener in the linked list for this video device
 };
 
 extern void cv_add_to_device(struct video_config_t *device, cvFunction func);
