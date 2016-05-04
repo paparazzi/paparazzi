@@ -347,7 +347,6 @@ void WEAK gps_inject_data(uint8_t packet_id __attribute__((unused)), uint8_t len
 struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
   struct UtmCoor_f utm;
-  utm.zone = zone;
 
   if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
     // A real UTM position is available, use the correct zone
@@ -358,7 +357,7 @@ struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
   }
   else {
     struct UtmCoor_i utm_i;
-
+    utm_i.zone = zone;
     utm_of_lla_i(&utm_i, &gps_s->lla_pos);
     UTM_FLOAT_OF_BFP(utm, utm_i);
   }
