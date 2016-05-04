@@ -65,14 +65,36 @@ PRINT_CONFIG_VAR(VIDEO_THREAD_FPS)
 #endif
 PRINT_CONFIG_VAR(VIDEO_THREAD_SHOT_PATH)
 
+#ifndef VIDEO_THREAD_SETTINGS_CAMERA1
+#define VIDEO_THREAD_SETTINGS_CAMERA1 dummy_camera;
+#endif
+
+#ifndef VIDEO_THREAD_SETTINGS_CAMERA2
+#define VIDEO_THREAD_SETTINGS_CAMERA2 dummy_camera;
+#endif
+
+
+
 // Main thread
 static void *video_thread_function(void *data);
 void video_thread_periodic(void) { }
+
 
 // We keep track of each camera device in a linked list
 struct device_linked_list {
   struct device_linked_list *next;
   struct video_config_t *camera;
+};
+
+struct video_config_t dummy_camera = {
+ .w = 1,
+ .h = 1,
+ .dev_name = "dummy",
+ .subdev_name = NULL,
+ .format = V4L2_PIX_FMT_UYVY,
+ .buf_cnt = 60,
+ .filters = 0,
+ .pointer_to_first_listener=NULL
 };
 
 struct device_linked_list initialised_devices;
