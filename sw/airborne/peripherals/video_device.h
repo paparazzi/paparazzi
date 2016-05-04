@@ -2,7 +2,8 @@
 
 #ifndef VIDEO_DEVICE_H
 #define VIDEO_DEVICE_H
-
+#include <stdbool.h>
+#include <inttypes.h>
 #define VIDEO_FILTER_DEBAYER 0x01
 
 typedef struct image_t *(*cvFunction)(struct image_t *img);
