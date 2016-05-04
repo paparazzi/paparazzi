@@ -9,7 +9,7 @@
 
       - Possibility to save an image(shot) on the internal memory (JPEG, full size, best quality)
     </description>
-    <define name="VIDEO_THREAD_CAMERA" value="bottom_camera|front_camera" description="which camera video config to use"/>
+    <define name="VIDEO_THREAD_SETTINGS_CAMERA" value="bottom_camera|front_camera" description="which camera to use for the shot and settings"/>
     <define name="VIDEO_THREAD_FPS" value="4" description="Video stream frame rate"/>
     <define name="VIDEO_THREAD_SHOT_PATH" value="/data/video/images" description="Path where the images should be saved"/>
     <define name="VIDEO_THREAD_DEVICE" value="/dev/video1" description="The video device to capture from (only if VIDEO_THREAD_CAMERA is not defined)"/>
@@ -21,11 +21,10 @@
   <settings>
     <dl_settings>
       <dl_settings name="video">
-        <dl_setting var="front_camera.thread.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/video_thread" handler="take_shot">
+        <dl_setting var="VIDEO_THREAD_SETTINGS_CAMERA.thread.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/video_thread" handler="take_shot">
           <strip_button name="Videothread Save Jpeg" icon="digital-camera.png" value="1" group="cv"/>
         </dl_setting>
-        <dl_setting var="front_camera.thread.fps" min="1" step="1" max="25" shortname="frontfps" module="computer_vision/video_thread" param="FRONT_CAMERA_FPS"/>
-	<dl_setting var="bottom_camera.thread.fps" min="1" step="1" max="25" shortname="bottomfps" module="computer_vision/video_thread" param="BOTTOM_CAMERA_FPS"/>    
+        <dl_setting var="VIDEO_THREAD_SETTINGS_CAMERA.thread.fps" min="1" step="1" max="25" shortname="frontfps" module="computer_vision/video_thread" param="CAMERA_FPS"/>
       </dl_settings>
     </dl_settings>
   </settings>
