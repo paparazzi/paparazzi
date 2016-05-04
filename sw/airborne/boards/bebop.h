@@ -27,7 +27,7 @@
 
 #include "std.h"
 #include "modules/computer_vision/lib/v4l/v4l2.h"
-#include "modules/computer_vision/cv.h"
+#include "peripherals/video_device.h"
 
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1

@@ -11,6 +11,7 @@
 #define UARTSPLIT2_DEV /dev/ttyUSB1
 #endif
 
+#include "peripherals/video_device.h"
 
 /* Cameras */
 extern struct video_config_t bottom_camera;
