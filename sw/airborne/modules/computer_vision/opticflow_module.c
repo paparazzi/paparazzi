@@ -165,11 +165,11 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   * ALWAYS double check!
   */
 #if CAMERA_ROTATED_180 == 0 //Case for ARDrone 2.0
-  result->vel_body_x = result->vel_y;
-  result->vel_body_y = - result ->vel_x;
+  opticflow_result.vel_body_x = opticflow_result.vel_y;
+  opticflow_result.vel_body_y = - opticflow_result.vel_x;
 #else   // Case for Bebop 2
-  result->vel_body_x = - result->vel_y;
-  result->vel_body_y = result ->vel_x;
+  opticflow_result.vel_body_x = - opticflow_result.vel_y;
+  opticflow_result.vel_body_y = opticflow_result.vel_x;
 #endif
 
   return img;
