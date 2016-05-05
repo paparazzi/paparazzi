@@ -34,10 +34,12 @@ RP3 Lisa MX
     </module>
 
     <define name="AGR_CLIMB" />
+    <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
   </firmware>
 
   <modules>
     <module name="nav" type="line"/>
+    <module name="nav" type="survey_poly_osam"/>
     <module name="sys_mon"/>
   </modules>
 
