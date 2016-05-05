@@ -67,7 +67,7 @@ void video_thread_periodic(void)
   video_thread.is_running = ! video_thread.is_running;
 #endif
 
-  cv_run(&img);
+  cv_run_device(NULL,&img);
 
   image_free(&img);
 }
@@ -75,3 +75,4 @@ void video_thread_periodic(void)
 void video_thread_start(void) {}
 void video_thread_stop(void) {}
 void video_thread_take_shot(bool take __attribute__((unused))) {}
+void video_thread_initialise_device(struct video_config_t *device){}

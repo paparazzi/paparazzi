@@ -35,7 +35,6 @@
 
 
 // Module functions
-extern struct video_config_t dummy_camera;
 
 extern void video_thread_initialise_device(struct video_config_t *device);
 extern void video_thread_init(void);

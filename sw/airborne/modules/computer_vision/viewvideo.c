@@ -47,6 +47,9 @@
 #include "lib/encoding/jpeg.h"
 #include "lib/encoding/rtp.h"
 #include "udp_socket.h"
+#include "peripherals/video_device.h"
+
+struct video_config_t dummy_camera;
 
 #ifndef VIEWVIDEO_CAMERA
 #warning "USING THE FRONT CAMERA! Use the setting VIEWVIDEO_CAMERA to change this"

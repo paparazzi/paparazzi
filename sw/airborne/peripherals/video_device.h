@@ -36,4 +36,7 @@ struct video_config_t {
   struct video_thread_t thread; ///< Information about the thread this camera is running on
   struct video_listener *pointer_to_first_listener; ///< The first listener in the linked list for this video device
 };
+extern struct video_config_t dummy_camera;
+
+
 #endif
