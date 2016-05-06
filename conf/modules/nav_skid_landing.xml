@@ -1,0 +1,16 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_skid_landing" dir="nav">
+  <doc>
+    <description>
+    Landing on skidpads
+    </description>
+  </doc>
+  <header>
+    <file name="nav_skid_landing.h"/>
+  </header>
+  <makefile target="ap|sim|nps">
+    <file name="nav_skid_landing.c"/>
+  </makefile>
+</module>
+
