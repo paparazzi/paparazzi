@@ -108,7 +108,7 @@ static float launch_circle_alt;
 static float launch_line_x;
 static float launch_line_y;
 
-bool_t nav_launcher_setup(void)
+bool nav_launcher_setup(void)
 {
   launch_x = stateGetPositionEnu_f()->x;
   launch_y = stateGetPositionEnu_f()->y;
@@ -125,7 +125,7 @@ bool_t nav_launcher_setup(void)
   return FALSE;
 }
 
-bool_t nav_launcher_run(void)
+bool nav_launcher_run(void)
 {
   //Find distance from laucher
   float dist_x = stateGetPositionEnu_f()->x - launch_x;
