@@ -444,8 +444,9 @@ inline static float loiter(void)
 
 inline static void h_ctl_pitch_loop(void)
 {
-  static float last_err;
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
+  struct FloatRates *body_rate = stateGetBodyRates_f();
+
   /* sanity check */
   if (h_ctl_elevator_of_roll < 0.) {
     h_ctl_elevator_of_roll = 0.;
@@ -477,9 +478,8 @@ inline static void h_ctl_pitch_loop(void)
 #endif
 
 
-  float d_err = err - last_err;
-  last_err = err;
-  float cmd = -h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err);
+
+  float cmd = -1*(h_ctl_pitch_pgain * err + h_ctl_pitch_dgain * body_rate->q);
 #ifdef LOITER_TRIM
   cmd += loiter();
 #endif
