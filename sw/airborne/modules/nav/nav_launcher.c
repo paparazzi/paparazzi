@@ -130,7 +130,10 @@ bool nav_launcher_run(void)
   //Find distance from laucher
   float dist_x = stateGetPositionEnu_f()->x - launch_x;
   float dist_y = stateGetPositionEnu_f()->y - launch_y;
-  float launch_dist = sqrt(dist_x * dist_x + dist_y * dist_y);
+  float launch_dist = sqrtf(dist_x * dist_x + dist_y * dist_y);
+  if (launch_dist <= 0.0) {
+    launch_dist = 0.01;
+  }
 
   switch (CLaunch_Status) {
     case L_Pitch_Nav:
