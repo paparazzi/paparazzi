@@ -34,10 +34,15 @@ RP3 Lisa MX
     </module>
 
     <define name="AGR_CLIMB" />
+    <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
   </firmware>
 
   <modules>
     <module name="nav" type="line"/>
+    <module name="nav" type="flower"/>
+    <module name="nav" type="survey_poly_osam"/>
+    <module name="nav" type="launcher"/>
+    <module name="nav" type="skid_landing"/>
     <module name="sys_mon"/>
   </modules>
 
@@ -197,19 +202,19 @@ RP3 Lisa MX
   </section>
 
   <!-- Launcher Takeoff Configuration -->
-  <section name="Takeoff" prefix="Takeoff_">
-    <define name="Pitch" value="0.23" unit="rad"/>
-    <define name="Height" value="70" unit="m"/>
-    <define name="Speed" value="8" unit="m/s"/>
-    <define name="Distance" value="30" unit="m"/>
-    <define name="MinSpeed" value="5" unit="m/s"/>
+  <section name="LAUNCHER" prefix="LAUNCHER_TAKEOFF_">
+    <define name="PITCH" value="0.23" unit="rad"/>
+    <define name="HEIGHT" value="70" unit="m"/>
+    <define name="MIN_SPEED_CIRCLE" value="8" unit="m/s"/>
+    <define name="DISTANCE" value="30" unit="m"/>
+    <define name="MIN_SPEED_LINE" value="5" unit="m/s"/>
   </section>
 
   <!-- Skid Landing Configuration -->
-  <section name="Landing" prefix="Landing_">
-    <define name="AFHeight" value="50" unit="m"/>
-    <define name="FinalHeight" value="50" unit="m"/>
-    <define name="FinalStageTime" value="10" unit="s"/>
+  <section name="LANDING" prefix="SKID_LANDING_">
+    <define name="AF_HEIGHT" value="50" unit="m"/>
+    <define name="FINAL_HEIGHT" value="50" unit="m"/>
+    <define name="FINAL_STAGE_TIME" value="10" unit="s"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
