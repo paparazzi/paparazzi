@@ -131,7 +131,7 @@ bool nav_launcher_run(void)
   float dist_x = stateGetPositionEnu_f()->x - launch_x;
   float dist_y = stateGetPositionEnu_f()->y - launch_y;
   float launch_dist = sqrtf(dist_x * dist_x + dist_y * dist_y);
-  if (launch_dist <= 0.0) {
+  if (launch_dist <= 0.1) {
     launch_dist = 0.01;
   }
 
@@ -140,7 +140,7 @@ bool nav_launcher_run(void)
       //Follow Launch Line
       NavVerticalAltitudeMode(launch_alt, 0);
       NavVerticalAutoThrottleMode(LAUNCHER_TAKEOFF_PITCH);
-      NavVerticalThrottleMode(9600 * (1));
+      NavVerticalThrottleMode(MAX_PPRZ * (1));
       NavAttitude(0);
 
       kill_throttle = 0;
@@ -159,7 +159,7 @@ bool nav_launcher_run(void)
       //Follow Launch Line
       NavVerticalAltitudeMode(launch_alt, 0);
       NavVerticalAutoThrottleMode(LAUNCHER_TAKEOFF_PITCH);
-      NavVerticalThrottleMode(9600 * (1));
+      NavVerticalThrottleMode(MAX_PPRZ * (1));
       nav_route_xy(launch_x, launch_y, launch_line_x, launch_line_y);
       kill_throttle = 0;
 
