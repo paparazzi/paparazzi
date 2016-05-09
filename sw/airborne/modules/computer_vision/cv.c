@@ -28,10 +28,10 @@
 #include "cv.h"
 #include <stdlib.h> // for malloc
 #include "video_thread.h"
-void cv_add_to_device(struct video_config_t *device, cvFunction func)
+void cv_add_to_device(struct video_config_t *device, cvFunction func,struct video_settings* settings_pointer)
 {
   // Initialise the device that we want our function to use
-  video_thread_initialise_device(device);
+  video_thread_initialise_device(device,settings_pointer);
 
   // Check if we already have this listener for this device
   if (device->pointer_to_first_listener == NULL) {

@@ -35,8 +35,12 @@
 
 
 // Module functions
+struct video_settings camera1_settings;
+struct video_settings camera2_settings;
+struct video_settings camera3_settings;
+struct video_settings camera4_settings;
 
-extern void video_thread_initialise_device(struct video_config_t *device);
+extern void video_thread_initialise_device(struct video_config_t *device,struct video_settings* settings_pointer);
 extern void video_thread_init(void);
 extern void video_thread_periodic(void); ///< A dummy for now
 extern void video_thread_start(void);

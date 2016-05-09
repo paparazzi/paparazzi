@@ -20,18 +20,28 @@
 
   </doc>
   <settings>
- <!--   <dl_settings>
+    <dl_settings>
       <dl_settings name="video">
-        <dl_setting var="VIDEO_THREAD_SETTINGS_CAMERA1.thread.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/video_thread" handler="take_shot">
+        <dl_setting var="camera1_settings.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/video_thread">
           <strip_button name="Videothread Save Jpeg" icon="digital-camera.png" value="1" group="cv"/>
         </dl_setting>
-        <dl_setting var="VIDEO_THREAD_SETTINGS_CAMERA2.thread.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/video_thread" handler="take_shot">
+        
+        <dl_setting var="camera1_settings.fps" min="1" step="1" max="25" shortname="frontfps" module="computer_vision/video_thread" param="CAMERA_FPS"/>
+        <dl_setting var="camera2_settings.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/video_thread">
           <strip_button name="Videothread Save Jpeg" icon="digital-camera.png" value="1" group="cv"/>
         </dl_setting>
-        <dl_setting var="VIDEO_THREAD_SETTINGS_CAMERA1.thread.fps" min="1" step="1" max="25" shortname="frontfps" module="computer_vision/video_thread" param="CAMERA_FPS"/>
-        <dl_setting var="VIDEO_THREAD_SETTINGS_CAMERA2.thread.fps" min="1" step="1" max="25" shortname="frontfps" module="computer_vision/video_thread" param="CAMERA_FPS"/>
+        <dl_setting var="camera2_settings.fps" min="1" step="1" max="25" shortname="frontfps" module="computer_vision/video_thread" param="CAMERA_FPS"/>
+     
+      <dl_setting var="camera3_settings.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/video_thread">
+          <strip_button name="Videothread Save Jpeg" icon="digital-camera.png" value="1" group="cv"/>
+        </dl_setting>
+        <dl_setting var="camera3_settings.fps" min="1" step="1" max="25" shortname="frontfps" module="computer_vision/video_thread" param="CAMERA_FPS"/>
+       <dl_setting var="camera4_settings.take_shot" min="0" step="1" max="1" shortname="take_shot" module="computer_vision/video_thread">
+          <strip_button name="Videothread Save Jpeg" icon="digital-camera.png" value="1" group="cv"/>
+        </dl_setting>
+        <dl_setting var="camera4_settings.fps" min="1" step="1" max="25" shortname="frontfps" module="computer_vision/video_thread" param="CAMERA_FPS"/>
       </dl_settings>
-    </dl_settings>-->
+    </dl_settings>
   </settings>
 
   <header>

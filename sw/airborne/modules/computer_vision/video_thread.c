@@ -65,16 +65,6 @@ PRINT_CONFIG_VAR(VIDEO_THREAD_FPS)
 #endif
 PRINT_CONFIG_VAR(VIDEO_THREAD_SHOT_PATH)
 
-#ifndef VIDEO_THREAD_SETTINGS_CAMERA1
-#define VIDEO_THREAD_SETTINGS_CAMERA1 dummy_camera;
-#endif
-
-#ifndef VIDEO_THREAD_SETTINGS_CAMERA2
-#define VIDEO_THREAD_SETTINGS_CAMERA2 dummy_camera;
-#endif
-
-
-
 // Main thread
 static void *video_thread_function(void *data);
 void video_thread_periodic(void) { }
@@ -103,8 +93,8 @@ static void video_thread_save_shot(struct video_thread_t thread_to_save_shot_fro
 {
   // Search for a file where we can write to
   char save_name[128];
-  for (; thread_to_save_shot_from.shot_number < 99999; thread_to_save_shot_from.shot_number++) {
-    sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_THREAD_SHOT_PATH), thread_to_save_shot_from.shot_number);
+  for (; thread_to_save_shot_from.settings->shot_number < 99999; thread_to_save_shot_from.settings->shot_number++) {
+    sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_THREAD_SHOT_PATH), thread_to_save_shot_from.settings->shot_number);
     // Check if file exists or not
     if (access(save_name, F_OK) == -1) {
 
@@ -176,14 +166,15 @@ static void *video_thread_function(void *data)
     time_prev = time_now;
 
     // sleep remaining time to limit to specified fps
-    uint32_t fps_period_us = (uint32_t)(1000000. / (float)vid->thread.fps);
-    if (dt_us < fps_period_us) {
-      usleep(fps_period_us - dt_us);
-    } else {
-      fprintf(stderr, "video_thread with size %d %d: desired %i fps, only managing %.1f fps\n",
-              vid->w, vid->h, vid->thread.fps, 1000000.f / dt_us);
+    if(vid->thread.settings !=NULL){
+		uint32_t fps_period_us = (uint32_t)(1000000. / (float)vid->thread.settings->fps);
+		if (dt_us < fps_period_us) {
+		  usleep(fps_period_us - dt_us);
+		} else {
+		  fprintf(stderr, "video_thread with size %d %d: desired %i fps, only managing %.1f fps\n",
+				  vid->w, vid->h, vid->thread.settings->fps, 1000000.f / dt_us);
+		}
     }
-
     // Wait for a new frame (blocking)
     struct image_t img;
     v4l2_image_get(vid->thread.dev, &img);
@@ -201,9 +192,9 @@ static void *video_thread_function(void *data)
     }
 
     // Check if we need to take a shot
-    if (vid->thread.take_shot) {
-      video_thread_save_shot(vid->thread, img_final, &img_jpeg);
-      vid->thread.take_shot = false;
+    if (vid->thread.settings != NULL ){//&& vid->thread.settings->take_shot) {
+    //  video_thread_save_shot(vid->thread, img_final, &img_jpeg);
+     // vid->thread.take_shot = false;
     }
 
     // Run processing if required
@@ -219,11 +210,11 @@ static void *video_thread_function(void *data)
   return 0;
 }
 
-void initialise_camera(struct video_config_t *camera);
-void initialise_camera(struct video_config_t *camera)
+void initialise_camera(struct video_config_t *camera, struct video_settings* settings_pointer1);
+void initialise_camera(struct video_config_t *camera, struct video_settings* settings_pointer1)
 {
-  camera->thread.fps = VIDEO_THREAD_FPS;
-  // Initialize the V4L2 subdevice if needed
+	camera->thread.settings = settings_pointer1;
+    // Initialize the V4L2 subdevice if needed
   if (camera->subdev_name != NULL) {
     // FIXME! add subdev format to config, only needed on bebop front camera so far
     if (!v4l2_init_subdev(camera->subdev_name, 0, 0, V4L2_MBUS_FMT_SGBRG10_1X10, camera->w, camera->h)) {
@@ -268,9 +259,7 @@ void stop_video_thread(struct video_config_t *device)
   }
 
 }
-
-void video_thread_initialise_device(struct video_config_t *device)
-{
+void video_thread_initialise_device(struct video_config_t *device,struct video_settings* settings_pointer){
   struct device_linked_list *current_index = &initialised_devices;
 
   // Check if we already initialised this camera device
@@ -301,7 +290,7 @@ void video_thread_initialise_device(struct video_config_t *device)
   }
 
   // Now that it is in our list, lets initialise the camera itself.
-  initialise_camera(device);
+  initialise_camera(device,&camera1_settings);
 }
 /**
  * Initialize the view video
@@ -311,6 +300,12 @@ void video_thread_init(void)
   // Initialise the list of camera devices as an empty list
   initialised_devices.camera = NULL;
   initialised_devices.next = NULL;
+
+  // Set every camera settings to default
+  camera1_settings.fps=VIDEO_THREAD_FPS;
+  camera2_settings.fps=VIDEO_THREAD_FPS;
+  camera3_settings.fps=VIDEO_THREAD_FPS;
+  camera4_settings.fps=VIDEO_THREAD_FPS;
 
   // Create the shot directory
   char save_name[128];
@@ -356,6 +351,6 @@ void video_thread_stop()
 void video_thread_take_shot(bool take)
 {
   if (initialised_devices.camera != NULL) {
-    initialised_devices.camera->thread.take_shot = take;
+    initialised_devices.camera->thread.settings->take_shot = take;
   }
 }
