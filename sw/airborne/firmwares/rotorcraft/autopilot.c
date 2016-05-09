@@ -139,17 +139,17 @@ PRINT_CONFIG_MSG("Using 2 sec yaw for motor arming")
 #endif
 
 #ifndef MODE_STARTUP
-#define MODE_STARTUP AP_MODE_KILL
-PRINT_CONFIG_MSG("Using default AP_MODE_KILL as MODE_STARTUP")
+#define MODE_STARTUP AP_MODE_INIT
+PRINT_CONFIG_MSG("Using default AP_MODE_INIT as MODE_STARTUP")
 #endif
 
 #ifndef UNLOCKED_HOME_MODE
-#if MODE_AUTO1 == AP_MODE_HOME
+#if MODE_AUTO1 == AP_MODE_STDBY
 #define UNLOCKED_HOME_MODE TRUE
-PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO1 is AP_MODE_HOME")
-#elif MODE_AUTO2 == AP_MODE_HOME
+PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO1 is AP_MODE_STDBY")
+#elif MODE_AUTO2 == AP_MODE_STDBY
 #define UNLOCKED_HOME_MODE TRUE
-PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO2 is AP_MODE_HOME")
+PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO2 is AP_MODE_STDBY")
 #else
 #define UNLOCKED_HOME_MODE FALSE
 #endif
@@ -344,17 +344,17 @@ void autopilot_periodic(void)
   RunOnceEvery(NAV_PRESCALER, compute_dist2_to_home());
 
   if (autopilot_in_flight && autopilot_mode == AP_MODE_NAV) {
-    if (too_far_from_home) {
+    if (too_far_from_home || (datalink_time>30) || (GetPosAlt() > MAX_ALTITUDE)) {
       if (dist2_to_home > failsafe_mode_dist2) {
         autopilot_set_mode(FAILSAFE_MODE_TOO_FAR_FROM_HOME);
       } else {
-        autopilot_set_mode(AP_MODE_HOME);
+        autopilot_set_mode(AP_MODE_STDBY);
       }
     }
   }
 
-  if (autopilot_mode == AP_MODE_HOME) {
-    RunOnceEvery(NAV_PRESCALER, nav_home());
+  if (autopilot_mode == AP_MODE_STDBY) {
+    RunOnceEvery(NAV_PRESCALER, nav_stdby());
   } else {
     // otherwise always call nav_periodic_task so that carrot is always updated in GCS for other modes
     RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
@@ -450,7 +450,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
       case AP_MODE_HOVER_Z_HOLD:
         guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
         break;
-      case AP_MODE_HOME:
+      case AP_MODE_STDBY:
       case AP_MODE_NAV:
         guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
         break;
@@ -502,7 +502,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
       case AP_MODE_HOVER_Z_HOLD:
         guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
         break;
-      case AP_MODE_HOME:
+      case AP_MODE_STDBY:
       case AP_MODE_NAV:
         guidance_v_mode_changed(GUIDANCE_V_MODE_NAV);
         break;
@@ -684,8 +684,8 @@ void autopilot_on_rc_frame(void)
       if (new_autopilot_mode == MODE_MANUAL) {
         autopilot_set_mode(new_autopilot_mode);
       }
-      /* if in HOME mode, don't allow switching to non-manual modes */
-      else if ((autopilot_mode != AP_MODE_HOME)
+      /* if in HOME/STDBY mode, don't allow switching to non-manual modes */
+      else if ((autopilot_mode != AP_MODE_STDBY) && (autopilot_mode != AP_MODE_INIT)
 #if UNLOCKED_HOME_MODE
                /* Allowed to leave home mode when UNLOCKED_HOME_MODE */
                || !too_far_from_home
@@ -705,7 +705,7 @@ void autopilot_on_rc_frame(void)
   }
 
   /* if not in FAILSAFE or HOME mode, read RC and set commands accordingly */
-  if (autopilot_mode != AP_MODE_FAILSAFE && autopilot_mode != AP_MODE_HOME) {
+  if (autopilot_mode != AP_MODE_FAILSAFE && autopilot_mode != AP_MODE_STDBY) {
 
     /* if there are some commands that should always be set from RC, do it */
 #ifdef SetAutoCommandsFromRC

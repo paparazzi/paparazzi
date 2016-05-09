@@ -179,7 +179,8 @@ void waypoint_set_lla(uint8_t wp_id, struct LlaCoor_i *lla)
 
 void waypoint_move_lla(uint8_t wp_id, struct LlaCoor_i *lla)
 {
-  if (wp_id >= nb_waypoint) {
+  // don't move if we are moving WP_STDBY
+  if ((wp_id >= nb_waypoint) || wp_id == WP_STDBY) {
     return;
   }
   waypoint_set_lla(wp_id, lla);

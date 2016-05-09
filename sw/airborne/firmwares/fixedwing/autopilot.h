@@ -50,9 +50,10 @@ extern void autopilot_init(void);
 #define  PPRZ_MODE_MANUAL 0
 #define  PPRZ_MODE_AUTO1 1
 #define  PPRZ_MODE_AUTO2 2
-#define  PPRZ_MODE_HOME 3
+#define  PPRZ_MODE_STDBY 3
 #define  PPRZ_MODE_GPS_OUT_OF_ORDER 4
-#define  PPRZ_MODE_NB 5
+#define  PPRZ_MODE_INIT 5
+#define  PPRZ_MODE_NB 6
 
 #define PPRZ_MODE_OF_PULSE(pprz) \
   (pprz > THRESHOLD2 ? PPRZ_MODE_AUTO2 : \

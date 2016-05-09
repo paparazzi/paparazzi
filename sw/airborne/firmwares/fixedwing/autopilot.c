@@ -174,7 +174,7 @@ void autopilot_send_mode(void)
 
 void autopilot_init(void)
 {
-  pprz_mode = PPRZ_MODE_AUTO2;
+  pprz_mode = PPRZ_MODE_INIT;
   kill_throttle = false;
   launch = false;
   autopilot_flight_time = 0;

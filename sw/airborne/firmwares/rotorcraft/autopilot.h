@@ -35,7 +35,7 @@
 
 #define AP_MODE_KILL              0
 #define AP_MODE_FAILSAFE          1
-#define AP_MODE_HOME              2
+#define AP_MODE_STDBY             2
 #define AP_MODE_RATE_DIRECT       3
 #define AP_MODE_ATTITUDE_DIRECT   4
 #define AP_MODE_RATE_RC_CLIMB     5
@@ -53,6 +53,7 @@
 #define AP_MODE_MODULE            17
 #define AP_MODE_FLIP              18
 #define AP_MODE_GUIDED            19
+#define AP_MODE_INIT              20
 
 extern uint8_t autopilot_mode;
 extern uint8_t autopilot_mode_auto2;

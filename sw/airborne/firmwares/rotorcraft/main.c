@@ -326,7 +326,7 @@ STATIC_INLINE void failsafe_check(void)
 {
   if (radio_control.status == RC_REALLY_LOST &&
       autopilot_mode != AP_MODE_KILL &&
-      autopilot_mode != AP_MODE_HOME &&
+      autopilot_mode != AP_MODE_STDBY &&
       autopilot_mode != AP_MODE_FAILSAFE &&
       autopilot_mode != AP_MODE_NAV) {
     autopilot_set_mode(RC_LOST_MODE);
@@ -350,7 +350,7 @@ STATIC_INLINE void failsafe_check(void)
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
 
-  if (autopilot_mode == AP_MODE_HOME &&
+  if (autopilot_mode == AP_MODE_STDBY &&
       autopilot_motors_on && GpsIsLost()) {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }

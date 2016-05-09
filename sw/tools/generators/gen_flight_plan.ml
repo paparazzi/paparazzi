@@ -186,7 +186,8 @@ let print_exception = fun x ->
 let element = fun a b c -> Xml.Element (a, b, c)
 let goto l = element "goto" ["name",l] []
 let exit_block = element "exit_block" [] []
-let home_block = Xml.parse_string "<block name=\"HOME\"><home/></block>"
+let home_block = Xml.parse_string "<block name=\"STANDBY\"><home/></block>"
+(* let home_block = Xml.parse_string "<block name=\"STANDBY\" strip_button=\"Standby\" strip_icon=\"home.png\"><stay wp=\"STDBY\"/></block>" *)
 
 let stage = ref 0
 
@@ -484,7 +485,7 @@ let rec print_stage = fun index_of_waypoints x ->
         lprintf "break;\n"
       | "home" ->
         stage ();
-        lprintf "nav_home();\n";
+        lprintf "nav_stdby();\n";
         lprintf "break;\n"
       | "circle" ->
         stage ();
@@ -692,11 +693,11 @@ let define_waypoints_indices = fun wpts ->
     incr i)
     wpts
 
-let home = fun waypoints ->
+let standby = fun waypoints ->
   let rec loop i = function
-  [] -> failwith "Waypoint 'HOME' required"
+  [] -> failwith "Waypoint 'STDBY' required"
     | w::ws ->
-      if name_of w = "HOME" then
+      if name_of w = "STDBY" then
         (float_attrib w "x", float_attrib w "y")
       else
         loop (i+1) ws in
@@ -916,7 +917,9 @@ let () =
 
       let get_float = fun x -> float_attrib xml x in
       let qfu = try get_float "qfu" with Xml.No_attribute "qfu" -> 0.
+      (* Remove max_dist_from_home, check whether wp's are inside flight area instead'*)
       and mdfh = get_float "max_dist_from_home"
+      and malt = get_float "max_altitude"
       and alt = ExtXml.attrib xml "alt" in
       security_height := get_float "security_height";
       ground_alt := get_float "ground_alt";
@@ -971,6 +974,7 @@ let () =
       Xml2h.define "SECURITY_ALT" (sof (!security_height +. !ground_alt));
       Xml2h.define "HOME_MODE_HEIGHT" (sof home_mode_height);
       Xml2h.define "MAX_DIST_FROM_HOME" (sof mdfh);
+      Xml2h.define "MAX_ALTITUDE" (sof malt);
 
       (* output settings file if needed *)
       begin
