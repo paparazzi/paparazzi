@@ -131,7 +131,7 @@ bool nav_launcher_run(void)
   float dist_x = stateGetPositionEnu_f()->x - launch_x;
   float dist_y = stateGetPositionEnu_f()->y - launch_y;
   float launch_dist = sqrtf(dist_x * dist_x + dist_y * dist_y);
-  if (launch_dist <= 0.1) {
+  if (launch_dist <= 0.01) {
     launch_dist = 0.01;
   }
 
