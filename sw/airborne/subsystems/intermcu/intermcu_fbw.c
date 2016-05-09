@@ -153,9 +153,9 @@ static void intermcu_parse_msg(void (*commands_frame_handler)(void))
       int16_t *new_commands = DL_IMCU_COMMANDS_values(imcu_msg_buf);
       intermcu.cmd_status |= DL_IMCU_COMMANDS_status(imcu_msg_buf);
 
-      // read the autopilot status and then clear it
-      autopilot_motors_on = intermcu.cmd_status & (1 << 0);
-      intermcu.cmd_status &= ~(1 << 0);
+      // Read the autopilot status and then clear it
+      autopilot_motors_on = INTERMCU_GET_CMD_STATUS(INTERMCU_CMD_MOTORS_ON);
+      INTERMCU_CLR_CMD_STATUS(INTERMCU_CMD_MOTORS_ON)
 
       for (i = 0; i < size; i++) {
         intermcu_commands[i] = new_commands[i];

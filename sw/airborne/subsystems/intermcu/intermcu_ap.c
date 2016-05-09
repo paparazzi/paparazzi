@@ -90,12 +90,19 @@ void intermcu_set_enabled(bool value)
 /* Send the actuators to the FBW */
 void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode __attribute__((unused)))
 {
-  if (intermcu.enabled) {
-    intermcu.cmd_status |= (autopilot_motors_on & 0x1) << 0;
-    pprz_msg_send_IMCU_COMMANDS(&(intermcu.transport.trans_tx), intermcu.device,
-                                INTERMCU_AP, &intermcu.cmd_status, COMMANDS_NB, command_values); //TODO: Append more status
-    intermcu.cmd_status = 0;
+  if (!intermcu.enabled) {
+    return;
   }
+
+  // Set the autopilot motors on status
+  if (autopilot_motors_on) {
+    INTERMCU_SET_CMD_STATUS(INTERMCU_CMD_MOTORS_ON);
+  }
+
+  // Send the message and reset cmd_status
+  pprz_msg_send_IMCU_COMMANDS(&(intermcu.transport.trans_tx), intermcu.device,
+                              INTERMCU_AP, &intermcu.cmd_status, COMMANDS_NB, command_values); //TODO: Append more status
+  intermcu.cmd_status = 0;
 }
 
 /* Send the spektrum Bind message */

@@ -32,7 +32,7 @@ bool opa_controller_vision_power = false;
 bool opa_controller_ftd_disarm = false;
 
 void opa_controller_ap_disarm(bool action) {
-  intermcu.cmd_status |= 1 << 1;
+  INTERMCU_SET_CMD_STATUS(INTERMCU_CMD_DISARM);
   opa_controller_ftd_disarm = action;
 }
 

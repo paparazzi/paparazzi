@@ -78,11 +78,11 @@ void opa_controller_periodic(void) {
   }
 
   /* AP soft disarm */
-  if (intermcu.cmd_status & (1 << 1)) {
+  if (INTERMCU_GET_CMD_STATUS(INTERMCU_CMD_DISARM)) {
     MAIN_PWR_OFF(MAIN_PWR, MAIN_PWR_PIN);
     BAL_PWR_OFF(BAL_PWR, BAL_PWR_PIN);
     arming_led = false;
-    intermcu.cmd_status &= ~(1 << 1);
+    INTERMCU_CLR_CMD_STATUS(INTERMCU_CMD_DISARM);
   }
 
   /* Check On/Off button and disable if pressed for 3 seconds */

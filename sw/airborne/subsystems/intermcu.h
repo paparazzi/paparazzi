@@ -40,17 +40,31 @@
 
 #include BOARD_CONFIG
 
+/* Different states the InterMCU can be in */
 enum intermcu_status {
-  INTERMCU_OK,
-  INTERMCU_LOST
+  INTERMCU_OK,                      ///< InterMCU communication is OK
+  INTERMCU_LOST                     ///< No interMCU communication anymore
 };
 
+/* InterMCU baudrate protection for PX4 */
 enum intermcu_PX4_baud_status {
   PX4_BAUD,
   CHANGING_BAUD,
   PPRZ_BAUD
 };
 
+/* InterMCU command status bits */
+enum intermcu_cmd_status {
+  INTERMCU_CMD_MOTORS_ON,           ///< The status of autopilot_motors_on
+  INTERMCU_CMD_DISARM,              ///< Whether or not to dis-arm the FBW
+};
+
+/* Easy accessible defines for cmd_status bits */
+#define INTERMCU_SET_CMD_STATUS(_bit) { intermcu.cmd_status |= (1 << _bit);  }
+#define INTERMCU_CLR_CMD_STATUS(_bit) { intermcu.cmd_status &= ~(1 << _bit); }
+#define INTERMCU_GET_CMD_STATUS(_bit) (intermcu.cmd_status & (1 << _bit))
+
+/* Main InterMCU structure */
 struct intermcu_t {
   struct link_device *device;       ///< Device used for communication
   struct pprz_transport transport;  ///< Transport over communication line (PPRZ)
@@ -58,7 +72,7 @@ struct intermcu_t {
   uint8_t time_since_last_frame;    ///< Time since last frame
   bool enabled;                     ///< If the InterMCU communication is enabled
   bool msg_available;               ///< If we have an InterMCU message
-  uint8_t cmd_status;               ///< The status information that needs to be transfered
+  uint8_t cmd_status;               ///< Command status information that is transfered (intermcu_cmd_status)
 
 #ifdef BOARD_PX4IO
   enum intermcu_PX4_baud_status stable_px4_baud;
@@ -66,8 +80,7 @@ struct intermcu_t {
 };
 extern struct intermcu_t intermcu;
 
-
-
+/* Functions defined in XML */
 void intermcu_init(void);
 void intermcu_periodic(void);
 
