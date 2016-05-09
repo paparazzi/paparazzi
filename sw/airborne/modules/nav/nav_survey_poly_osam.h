@@ -33,6 +33,8 @@ extern uint8_t Poly_Size;
 extern float Poly_Sweep;
 extern uint16_t PolySurveySweepNum;
 extern uint16_t PolySurveySweepBackNum;
+extern bool Half_Sweep_Enabled;
+extern bool Reset_Sweep;
 
 /**
  * Setup polygon survey.
@@ -59,4 +61,6 @@ extern bool nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, fl
 /** Run polygon survey */
 extern bool nav_survey_poly_osam_run(void);
 
+/** Reset sweep number */
+extern void nav_survey_poly_osam_ResetSweepNumber(bool rst);
 #endif

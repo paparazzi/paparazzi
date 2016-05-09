@@ -67,9 +67,16 @@
 #define POLY_OSAM_USE_FULL_CIRCLE TRUE
 #endif
 
+// use half sweep at the end of polygon
+#ifndef POLY_OSAM_HALF_SWEEP_ENABLED
+#define POLY_OSAM_HALF_SWEEP_ENABLED TRUE
+#endif
+
 uint8_t Poly_Size = POLY_OSAM_DEFAULT_SIZE;
 float Poly_Sweep = POLY_OSAM_DEFAULT_SWEEP;
 bool use_full_circle = POLY_OSAM_USE_FULL_CIRCLE;
+bool Half_Sweep_Enabled = POLY_OSAM_HALF_SWEEP_ENABLED;
+bool Reset_Sweep = FALSE;
 
 bool nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
 {
@@ -90,6 +97,14 @@ static void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float tra
 static void RotateAndTranslateToWorld(struct Point2D *p, float Zrot, float transX, float transY);
 static void FindInterceptOfTwoLines(float *x, float *y, struct Line L1, struct Line L2);
 static float EvaluateLineForX(float y, struct Line L);
+
+void nav_survey_poly_osam_ResetSweepNumber(bool rst)
+{
+  if (rst) {
+    PolySurveySweepBackNum = 0;
+    Reset_Sweep = FALSE;
+  }
+}
 
 #define PolygonSize POLY_OSAM_POLYGONSIZE
 #define MaxFloat   1000000000
@@ -409,7 +424,8 @@ bool nav_survey_poly_osam_run(void)
         LastPoint.y = SurveyToWP.y;
 
         if (LastPoint.y + dSweep >= MaxY || LastPoint.y + dSweep <= 0) { //Your out of the Polygon so Sweep Back or Half Sweep
-          if (LastPoint.y + (dSweep / 2) >= MaxY || LastPoint.y + (dSweep / 2) <= 0) { //Sweep back
+
+          if (LastPoint.y + (dSweep / 2) >= MaxY || LastPoint.y + (dSweep / 2) <= 0 || !Half_Sweep_Enabled) { //Sweep back
             dSweep = -dSweep;
             if (LastHalfSweep) {
               HalfSweep = false;
