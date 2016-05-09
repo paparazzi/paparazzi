@@ -35,7 +35,7 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
   <command_laws>
-    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,cmd_values)"/>
     <set servo="TOUW1" value="+@ROLL-@PITCH+@YAW"/>
     <set servo="TOUW2" value="-@ROLL-@PITCH-@YAW"/>
     <set servo="TOUW3" value="@PITCH-@ROLL+@YAW"/>
@@ -44,7 +44,7 @@
   </command_laws>
 <!--
   <command_laws>
-    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,cmd_values)"/>
     <set servo="TOUW1" value="motor_mixing.commands[0]"/>
     <set servo="TOUW2" value="motor_mixing.commands[1]"/>
     <set servo="TOUW3" value="motor_mixing.commands[2]"/>
