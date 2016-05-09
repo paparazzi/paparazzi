@@ -28,12 +28,12 @@
 #include "video_thread.h"
 #include "cv.h"
 
+// Module functions
+struct video_settings camera1_settings;
+
 // Initialize the video_thread structure with the defaults
 struct video_thread_t video_thread = {
-  .is_running = FALSE,
-  .fps = 30,
-  .take_shot = FALSE,
-  .shot_number = 0
+  .is_running = FALSE
 };
 
 // All dummy functions
@@ -75,4 +75,4 @@ void video_thread_periodic(void)
 void video_thread_start(void) {}
 void video_thread_stop(void) {}
 void video_thread_take_shot(bool take __attribute__((unused))) {}
-void video_thread_initialise_device(struct video_config_t *device){}
+void video_thread_initialise_device(struct video_config_t *device,struct video_settings* settings_pointer){}

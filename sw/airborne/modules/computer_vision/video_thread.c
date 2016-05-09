@@ -192,9 +192,9 @@ static void *video_thread_function(void *data)
     }
 
     // Check if we need to take a shot
-    if (vid->thread.settings != NULL ){//&& vid->thread.settings->take_shot) {
-    //  video_thread_save_shot(vid->thread, img_final, &img_jpeg);
-     // vid->thread.take_shot = false;
+    if (vid->thread.settings != NULL && vid->thread.settings->take_shot) {
+      video_thread_save_shot(vid->thread, img_final, &img_jpeg);
+      vid->thread.settings->take_shot = false;
     }
 
     // Run processing if required
