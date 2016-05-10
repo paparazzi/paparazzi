@@ -89,15 +89,14 @@ struct opticflow_stab_t opticflow_stab = {
   .desired_vy = VISION_DESIRED_VY
 };
 
-/////////Variables needed to set by user!!!!!/////
+//variables to be set by user
 int8_t filter_flag = 0;    //0 =>no filter 1 =>Kalman filter 2 =>Butterworth filter
-int8_t repulsionforce_filter_flag = 0;    //0 =>no filter 1 =>Butterworth filter
 
 oa_method OA_method_flag =
   PINGPONG; //0 =>No OA only opticflow 1=pingpong 2=>pot_heading 3=>pot_vel 4=>vector 5=>safetyzone
 int8_t opti_speed_flag = 1;
 float vref_max = 100;
-/////////////////////////////////////////////////
+
 
 //variables set by OA
 float ref_pitch = 0.0;
@@ -306,7 +305,7 @@ void OA_update()
 
   }
 
-  if (OA_method_flag == VECTOR || OA_method_flag == SAFETYZONE || OA_method_flag == LOGICBASED) {
+  if (OA_method_flag == VECTOR_FIELD || OA_method_flag == LOGIC_BASED || OA_method_flag == LOGIC_AND_VECTOR) {
     //vector field method
     float v_desired_total;
 
