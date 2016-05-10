@@ -56,6 +56,7 @@ static struct opticflow_result_t opticflow_result; ///< The opticflow result
 static struct opticflow_state_t opticflow_state;   ///< State of the drone to communicate with the opticflow
 static abi_event opticflow_agl_ev;                 ///< The altitude ABI event
 static bool opticflow_got_result;                ///< When we have an optical flow calculation
+static pthread_mutex_t opticflow_mutex;            ///< Mutex lock fo thread safety
 
 /* Static functions */
 struct image_t *opticflow_module_calc(struct image_t *img);     ///< The main optical flow calculation thread
@@ -70,6 +71,7 @@ static void opticflow_agl_cb(uint8_t sender_id, float distance);    ///< Callbac
  */
 static void opticflow_telem_send(struct transport_tx *trans, struct link_device *dev)
 {
+  pthread_mutex_lock(&opticflow_mutex);
   pprz_msg_send_OPTIC_FLOW_EST(trans, dev, AC_ID,
                                &opticflow_result.fps, &opticflow_result.corner_cnt,
                                &opticflow_result.tracked_cnt, &opticflow_result.flow_x,
@@ -77,6 +79,7 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
                                &opticflow_result.flow_der_y, &opticflow_result.vel_x,
                                &opticflow_result.vel_y, &opticflow_result.div_size,
                                &opticflow_result.surface_roughness, &opticflow_result.divergence);
+  pthread_mutex_unlock(&opticflow_mutex);
 }
 #endif
 
@@ -112,6 +115,7 @@ void opticflow_module_init(void)
 void opticflow_module_run(void)
 {
   // Send Updated data to thread
+  pthread_mutex_lock(&opticflow_mutex);
   opticflow_state.phi = stateGetNedToBodyEulers_f()->phi;
   opticflow_state.theta = stateGetNedToBodyEulers_f()->theta;
 
@@ -138,6 +142,7 @@ void opticflow_module_run(void)
     }
     opticflow_got_result = false;
   }
+  pthread_mutex_unlock(&opticflow_mutex);
 }
 
 /**
@@ -150,14 +155,22 @@ void opticflow_module_run(void)
 struct image_t *opticflow_module_calc(struct image_t *img)
 {
 
+  // Copy the state
+
+  pthread_mutex_lock(&opticflow_mutex);
   struct opticflow_state_t temp_state;
   memcpy(&temp_state, &opticflow_state, sizeof(struct opticflow_state_t));
+  pthread_mutex_unlock(&opticflow_mutex);
 
   // Do the optical flow calculation
-  opticflow_calc_frame(&opticflow, &opticflow_state, img, &opticflow_result);
+  struct opticflow_result_t temp_result;
+  opticflow_calc_frame(&opticflow, &temp_state, img, &temp_result);
 
   // Copy the result if finished
+  pthread_mutex_lock(&opticflow_mutex);
+  memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
   opticflow_got_result = true;
+  pthread_mutex_unlock(&opticflow_mutex);
 
   /* Rotate velocities from camera frame coordinates to body coordinates for control
   * IMPORTANT!!! This frame to body orientation should be the case for the Parrot
