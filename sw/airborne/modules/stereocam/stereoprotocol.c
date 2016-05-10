@@ -104,7 +104,7 @@ void stereoprot_sendArray(struct link_device *fd, uint8_t *b, uint8_t array_widt
     WritePart(fd, code, 4);
   }
 
-  code[3] = 0xAB;
+  code[3] = 0xAB; //171
   WritePart(fd, code, 4);
 }
 

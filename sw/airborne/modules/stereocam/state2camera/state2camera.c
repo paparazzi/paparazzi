@@ -32,8 +32,14 @@ static int frame_number_sending = 0;
 float lastKnownHeight = 0.0;
 int pleaseResetOdroid = 0;
 
+#ifndef STATE2CAMERA_SEND_DATA_TYPE
+#define STATE2CAMERA_SEND_DATA_TYPE 0
+#endif
+
 void write_serial_rot()
 {
+#if STATE2CAMERA_SEND_DATA_TYPE == 0
+
   struct Int32RMat *ltp_to_body_mat = stateGetNedToBodyRMat_i();
   static int32_t lengthArrayInformation = 11 * sizeof(int32_t);
   uint8_t ar[lengthArrayInformation];
@@ -44,4 +50,18 @@ void write_serial_rot()
   pointer[9] = (int32_t)(state.alt_agl_f * 100);  //height above ground level in CM.
   pointer[10] = frame_number_sending++;
   stereoprot_sendArray(&((UART_LINK).device), ar, lengthArrayInformation, 1);
+#endif
+
+#if STATE2CAMERA_SEND_DATA_TYPE == 1
+  static int16_t lengthArrayInformation = 6 * sizeof(int16_t);
+  uint8_t ar[lengthArrayInformation];
+  int16_t *pointer = (int16_t *) ar;
+  pointer[0] =   (int16_t)(stateGetNedToBodyEulers_f()->theta*100);
+  pointer[1] =    (int16_t)(stateGetNedToBodyEulers_f()->phi*100);
+  pointer[2] =    (int16_t)(stateGetNedToBodyEulers_f()->psi*100);
+
+  stereoprot_sendArray(&((UART_LINK).device), ar,lengthArrayInformation, 1);
+
+#endif
+
 }

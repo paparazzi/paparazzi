@@ -56,8 +56,8 @@ void stereocam_to_state(void)
   int16_t flow_y = (int16_t)stereocam_data.data[6] << 8;
   flow_y |= (int16_t)stereocam_data.data[7];
 
-  int8_t fps = stereocam_data.data[8];
-  int8_t agl = stereocam_data.data[9]; // in cm
+  float fps = (float)stereocam_data.data[9];
+  int8_t agl = stereocam_data.data[8]; // in cm
 
   // velocity
   int16_t vel_x_int = (int16_t)stereocam_data.data[10] << 8;
