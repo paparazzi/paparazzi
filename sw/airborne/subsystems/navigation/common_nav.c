@@ -54,8 +54,8 @@ void compute_dist2_to_home(void)
   float ph_y = waypoints[WP_HOME].y - pos->y;
   dist2_to_home = ph_x * ph_x + ph_y * ph_y;
   too_far_from_home = dist2_to_home > (MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME);
-#if defined InAirspace
-  too_far_from_home = too_far_from_home || !(InAirspace(pos_x, pos_y));
+#if defined AIRSPACE
+  too_far_from_home = too_far_from_home || !(InsideAirspace(pos->x, pos->y));
 #endif
 }
 

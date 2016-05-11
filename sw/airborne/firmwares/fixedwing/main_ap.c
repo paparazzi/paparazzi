@@ -108,6 +108,11 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #define COMMAND_YAW_TRIM 0
 #endif
 
+/* Datalink lost time exception [s] */
+#ifndef DATALINK_LOST_TIME
+#define DATALINK_LOST_TIME 30
+#endif
+
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
@@ -398,13 +403,13 @@ static inline void telecommand_task(void)
     (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
 
   if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch) {
-    if (too_far_from_home) {
+    if (too_far_from_home || (datalink_time>DATALINK_LOST_TIME) || (GetPosAlt() > MAX_ALTITUDE)) {
       pprz_mode = PPRZ_MODE_HOME;
-      mode_changed = true;
+      mode_changed = TRUE;
     }
     if (really_lost) {
       pprz_mode = RC_LOST_MODE;
-      mode_changed = true;
+      mode_changed = TRUE;
     }
   }
   if (bit_is_set(fbw_state->status, AVERAGED_CHANNELS_SENT)) {
