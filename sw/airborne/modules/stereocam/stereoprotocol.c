@@ -74,14 +74,16 @@ uint8_t stereoprot_isStartOfMsg(uint8_t *stack, uint16_t i, uint16_t buffer_size
 //void stereoprot_get_msg_properties(uint8_t *, MsgProperties *, uint16_t,uint16_t);
 
 
-void WritePart(struct link_device *dev, uint8_t *code, uint8_t length)
+uint8_t WritePart(struct link_device *dev, uint8_t *code, uint8_t length)
 {
   long fd = 0;
   if (dev->check_free_space(dev->periph, &fd, length)) {
     for (uint8_t index = 0; index < length; index++) {
       dev->put_byte(dev->periph, fd, code[index]);
     }
+    return 1;
   }
+  return 0;
 }
 void stereoprot_sendArray(struct link_device *fd, uint8_t *b, uint8_t array_width, uint8_t array_height)
 {
@@ -91,21 +93,26 @@ void stereoprot_sendArray(struct link_device *fd, uint8_t *b, uint8_t array_widt
   code[1] = 0x00;
   code[2] = 0x00;
   code[3] = 0xAF; // 175
-  WritePart(fd, code, 4);
+  while (WritePart(fd, code, 4) == 0)
+    ;
 
 
   int horizontalLine = 0;
   for (horizontalLine = 0; horizontalLine < array_height; horizontalLine++) {
     code[3] = 0x80;//128
-    WritePart(fd, code, 4);
-    WritePart(fd, b + array_width * horizontalLine, array_width);
+    while (WritePart(fd, code, 4) == 0)
+      ;
+    while (WritePart(fd, b + array_width * horizontalLine, array_width) == 0)
+      ;
 
     code[3] = 0xDA;//218
-    WritePart(fd, code, 4);
+    while (WritePart(fd, code, 4) == 0)
+      ;
   }
 
   code[3] = 0xAB; //171
-  WritePart(fd, code, 4);
+  while (WritePart(fd, code, 4) == 0)
+    ;
 }
 
 /**
