@@ -76,17 +76,6 @@ struct device_linked_list {
   struct video_config_t *camera;
 };
 
-struct video_config_t dummy_camera = {
- .w = 1,
- .h = 1,
- .dev_name = "dummy",
- .subdev_name = NULL,
- .format = V4L2_PIX_FMT_UYVY,
- .buf_cnt = 60,
- .filters = 0,
- .pointer_to_first_listener=NULL
-};
-
 struct device_linked_list initialised_devices;
 static void video_thread_save_shot(struct video_thread_t thread_to_save_shot_from, struct image_t *img,
                                    struct image_t *img_jpeg)
