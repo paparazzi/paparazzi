@@ -34,9 +34,6 @@
     <!--module name="logger_file"/-->
     <!--
     <module name="video_thread">
-        <define name="VIDEO_THREAD_SETTINGS_CAMERA1" value="dummy_camera"/>
-        <define name="VIDEO_THREAD_SETTINGS_CAMERA2" value="dummy_camera"/>
-        <define name="VIDEO_THREAD_SETTINGS_CAMERA" value="front_camera"/>
     </module>
     -->
     <!--module name="video_rtp_stream">

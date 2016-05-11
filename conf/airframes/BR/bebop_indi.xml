@@ -40,7 +40,6 @@
 
     <module name="video_thread">
       <define name="VIDEO_THREAD_FPS" value="4"/>
-      <define name="VIDEO_THREAD_SETTINGS_CAMERA" value="front_camera"/>
       <define name="VIDEO_THREAD_SHOT_PATH" value="/data/ftp/internal_000/images"/>
     </module>
     <module name="cv_blob_locator"/>
