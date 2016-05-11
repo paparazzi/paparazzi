@@ -50,13 +50,7 @@ float max_dist_from_home = MAX_DIST_FROM_HOME;
 void compute_dist2_to_home(void)
 {
   struct EnuCoor_f *pos = stateGetPositionEnu_f();
-  float ph_x = waypoints[WP_HOME].x - pos->x;
-  float ph_y = waypoints[WP_HOME].y - pos->y;
-  dist2_to_home = ph_x * ph_x + ph_y * ph_y;
-  too_far_from_home = dist2_to_home > (MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME);
-#if defined InAirspace
-  too_far_from_home = too_far_from_home || !(InAirspace(pos_x, pos_y));
-#endif
+  too_far_from_home = !InsideFlightArea(pos->x, pos->y);
 }
 
 
@@ -134,7 +128,7 @@ void common_nav_periodic_task_4Hz()
  */
 void nav_move_waypoint(uint8_t wp_id, float ux, float uy, float alt)
 {
-  if (wp_id < nb_waypoint) {
+  if (wp_id < nb_waypoint || wp_id == WP_STDBY) {
     float dx, dy;
     dx = ux - nav_utm_east0 - waypoints[WP_HOME].x;
     dy = uy - nav_utm_north0 - waypoints[WP_HOME].y;

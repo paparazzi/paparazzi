@@ -115,7 +115,7 @@ extern float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_sout
 extern bool nav_survey_active;
 
 extern void nav_periodic_task(void);
-extern void nav_home(void);
+extern void nav_stdby(void);
 extern void nav_init(void);
 extern void nav_without_gps(void);
 

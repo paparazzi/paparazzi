@@ -390,7 +390,8 @@ void init_fbw(void)
   link_mcu_restart();
 #endif /* MCU_SPI_LINK */
 
-  fbw_mode = FBW_MODE_FAILSAFE;
+  // start as AUTO by default
+  fbw_mode = FBW_MODE_AUTO;
 
   /**** start timers for periodic functions *****/
   fbw_periodic_tid = sys_time_register_timer((1. / 60.), NULL);

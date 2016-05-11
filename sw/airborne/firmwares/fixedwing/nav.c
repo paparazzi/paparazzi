@@ -420,13 +420,13 @@ static void nav_set_altitude(void)
 }
 
 /** \brief Home mode navigation (circle around HOME) */
-void nav_home(void)
+void nav_stdby(void)
 {
-  NavCircleWaypoint(WP_HOME, FAILSAFE_HOME_RADIUS);
+  NavCircleWaypoint(WP_STDBY, nav_radius);
   /** Nominal speed */
   nav_pitch = 0.;
   v_ctl_mode = V_CTL_MODE_AUTO_ALT;
-  nav_altitude = ground_alt + HOME_MODE_HEIGHT;
+  nav_altitude = waypoints[WP_STDBY].a;
   compute_dist2_to_home();
   dist2_to_wp = dist2_to_home;
   nav_set_altitude();

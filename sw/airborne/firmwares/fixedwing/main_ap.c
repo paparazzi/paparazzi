@@ -321,7 +321,7 @@ void handle_periodic_tasks_ap(void)
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 static inline uint8_t pprz_mode_update(void)
 {
-  if ((pprz_mode != PPRZ_MODE_HOME &&
+  if ((pprz_mode != PPRZ_MODE_STDBY &&
        pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
 #ifdef UNLOCKED_HOME_MODE
       || TRUE
@@ -397,9 +397,9 @@ static inline void telecommand_task(void)
   uint8_t really_lost = bit_is_set(fbw_state->status, STATUS_RADIO_REALLY_LOST) &&
     (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
 
-  if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch) {
-    if (too_far_from_home) {
-      pprz_mode = PPRZ_MODE_HOME;
+  if (pprz_mode != PPRZ_MODE_STDBY && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch) {
+    if (too_far_from_home || (datalink_time>30) || (GetPosAlt() > MAX_ALTITUDE)) {
+      pprz_mode = PPRZ_MODE_STDBY;
       mode_changed = true;
     }
     if (really_lost) {
@@ -507,7 +507,7 @@ void navigation_task(void)
       PPRZ_MODE_GPS_OUT_OF_ORDER mode (Failsafe) if we lost the GPS */
   if (launch) {
     if (GpsTimeoutError) {
-      if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
+      if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_STDBY) {
         last_pprz_mode = pprz_mode;
         pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
         autopilot_send_mode();
@@ -523,8 +523,8 @@ void navigation_task(void)
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
 
   common_nav_periodic_task_4Hz();
-  if (pprz_mode == PPRZ_MODE_HOME) {
-    nav_home();
+  if (pprz_mode == PPRZ_MODE_STDBY) {
+    nav_stdby();
   } else if (pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER) {
     nav_without_gps();
   } else {
@@ -546,7 +546,7 @@ void navigation_task(void)
     v_ctl_altitude_loop();
   }
 
-  if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME
+  if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_STDBY
       || pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER) {
 #ifdef H_CTL_RATE_LOOP
     /* Be sure to be in attitude mode, not roll */
@@ -647,7 +647,7 @@ void sensors_task(void)
 
 /** Maximum distance from HOME waypoint before going into kill mode */
 #ifndef KILL_MODE_DISTANCE
-#define KILL_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
+#define KILL_MODE_DISTANCE 500
 #endif
 
 /** Default minimal speed for takeoff in m/s */
