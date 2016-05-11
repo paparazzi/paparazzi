@@ -110,7 +110,7 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 
 /* Datalink lost time exception [s] */
 #ifndef DATALINK_LOST_TIME
-#define DATALINK_LOST_TIME 65535 // 45 days - i.e. no exception
+#define DATALINK_LOST_TIME 65534 // 45 days - i.e. no exception
 #endif
 
 /* if PRINT_CONFIG is defined, print some config options */
