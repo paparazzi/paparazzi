@@ -74,7 +74,7 @@
   </header>
 
   <init fun="opticflow_module_init()"/>
-  <periodic fun="opticflow_module_run()" start="opticflow_module_start()" stop="opticflow_module_stop()" autorun="TRUE"/>
+  <periodic fun="opticflow_module_run()" autorun="TRUE"/>
 
   <makefile target="ap">
     <!-- Include the needed Computer Vision files -->
