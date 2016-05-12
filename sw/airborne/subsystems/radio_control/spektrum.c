@@ -59,14 +59,14 @@ static struct spektrum_t spektrum = {
 };
 
 /* Channel masks for detection */
-static int16_t spektrum_det_masks[][2] = {
-  {0x003F, 0x003F}, /* 6 channels (DX6) */
-  {0x007F, 0x007F}, /* 7 channels (DX7) */
-  {0x007F, 0x0080}, /* 8 channels (DX8) */
-  {0x007F, 0x0180}, /* 9 channels (DX9) */
-  {0x007F, 0x0380}, /* 10 channels (DX10) */
-  {0x007F, 0x1F80}, /* 13 channels (DX10t) */
-  {0x007F, 0x7F80}, /* 14 channels (DX10) */
+static int16_t spektrum_det_masks[] = {
+  0x3f, /* 6 channels (DX6) */
+  0x7f, /* 7 channels (DX7) */
+  0xff, /* 8 channels (DX8) */
+  0x1ff,  /* 9 channels (DX9, etc.) */
+  0x3ff,  /* 10 channels (DX10) */
+  0x1fff, /* 13 channels (DX10t) */
+  0x3fff  /* 18 channels (DX10) */
 };
 
 static void spektrum_bind(void);
@@ -143,13 +143,13 @@ static inline void spektrum_guess_type(struct spektrum_sat_t *sat, uint16_t chan
     uint8_t is_10bit = 0;
     uint8_t is_11bit = 0;
     bool is_2packet = false;
-    for(uint8_t i = 0; i < (sizeof(spektrum_det_masks) / (sizeof(int16_t)*2)); i++) {
+    for(uint8_t i = 0; i < (sizeof(spektrum_det_masks) / sizeof(int16_t)); i++) {
       // Is a 10 bit packet
-      if(spektrum_det_masks[i][0] == sat->values[1] && spektrum_det_masks[i][1] == sat->values[2]) {
+      if(spektrum_det_masks[i] == (sat->values[1] | sat->values[2])) {
         is_10bit++;
         is_2packet = (sat->values[1] != sat->values[2]);
       }
-      if(spektrum_det_masks[i][0] == sat->values[3] && spektrum_det_masks[i][1] == sat->values[4]) {
+      if(spektrum_det_masks[i] == (sat->values[3] | sat->values[4])) {
         is_11bit++;
         is_2packet = (sat->values[3] != sat->values[4]);
       }
