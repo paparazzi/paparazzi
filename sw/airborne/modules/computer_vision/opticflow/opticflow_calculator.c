@@ -192,7 +192,6 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
                              struct opticflow_result_t *result)
 {
   if (opticflow->just_switched_method) {
-    printf("OPTICALFLOW: switched to fast9 Lukas Kanade\n");
     opticflow_calc_init(opticflow, img->w, img->h);
   }
 
@@ -384,7 +383,6 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   // If the methods just switched to this one, reintialize the
   // array of edge_hist structure.
   if (opticflow->just_switched_method == 1) {
-    printf("OPTICALFLOW: switched to EdgeFlow\n");
     int i;
     for (i = 0; i < MAX_HORIZON; i++) {
       edge_hist[i].x = malloc(sizeof(int32_t) * img->w);
