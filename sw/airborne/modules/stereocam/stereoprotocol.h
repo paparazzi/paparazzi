@@ -61,7 +61,7 @@ uint8_t stereoprot_isEndOfMsg(uint8_t *stack, uint16_t i, uint16_t buffer_size);
 uint8_t stereoprot_isStartOfMsg(uint8_t *stack, uint16_t i, uint16_t buffer_size);
 //void stereoprot_get_msg_properties(uint8_t *, MsgProperties *, uint16_t,uint16_t);
 
-void WritePart(struct link_device *, uint8_t *, uint8_t);
+uint8_t WritePart(struct link_device *, uint8_t *, uint8_t);
 void stereoprot_sendArray(struct link_device *fd, uint8_t *b, uint8_t array_width, uint8_t array_height);
 
 /**
