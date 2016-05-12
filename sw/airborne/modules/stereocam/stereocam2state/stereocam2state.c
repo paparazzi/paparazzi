@@ -57,7 +57,7 @@ void stereocam_to_state(void)
   flow_y |= (int16_t)stereocam_data.data[7];
 
   float fps = (float)stereocam_data.data[9];
-  int8_t agl = stereocam_data.data[8]; // in cm
+  //int8_t agl = stereocam_data.data[8]; // in cm
 
   // velocity
   int16_t vel_x_int = (int16_t)stereocam_data.data[10] << 8;
@@ -89,10 +89,14 @@ void stereocam_to_state(void)
                                 0.3f
                                );
   }
-  int8_t dummy_int = 0;
+
+  // Reusing the OPTIC_FLOW_EST telemetry messages, with some values replaced by 0
+
+  uint16_t dummy_uint16 = 0;
+  int16_t dummy_int16 = 0;
   float dummy_float = 0;
 
-  DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice, &fps, &dummy_int, &dummy_int, &flow_x, &flow_y, &dummy_int, &dummy_int,
+  DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice, &fps, &dummy_uint16, &dummy_uint16, &flow_x, &flow_y, &dummy_int16, &dummy_int16,
 		  &vel_x, &vel_y,&dummy_float, &dummy_float, &dummy_float);
 
 #endif
