@@ -108,10 +108,30 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #define COMMAND_YAW_TRIM 0
 #endif
 
-/* Datalink lost time exception [s] */
-#ifndef DATALINK_LOST_TIME
-#define DATALINK_LOST_TIME 65534 // 45 days - i.e. no exception
+
+#ifdef DATALINK_LOST_TIME
+/*
+ * from the airfame config file:
+ * go to HOME mode if datalink lost for DATALINK_MAX_LOST_TIME
+ */
+bool DatalinkLost(void){
+  return (datalink_time>DATALINK_LOST_TIME);
+}
+#else // dont trigger this exception
+bool DatalinkLost(void){
+  return false;
+}
 #endif
+
+#ifdef MAX_ALTITUDE // user defined max_altitude in the flight plan
+bool HigherThanMaxAltitude(void){
+  return (GetPosAlt() > MAX_ALTITUDE);
+}
+#else // we dont have max altitude specified, so the condition is never true
+bool HigherThanMaxAltitude(void){
+  return false;
+}
+#endif /* MAX_ALTITUDE */
 
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
@@ -329,7 +349,7 @@ static inline uint8_t pprz_mode_update(void)
   if ((pprz_mode != PPRZ_MODE_HOME &&
        pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
 #ifdef UNLOCKED_HOME_MODE
-      || TRUE
+      || true
 #endif
      ) {
 #ifndef RADIO_AUTO_MODE
@@ -403,13 +423,13 @@ static inline void telecommand_task(void)
     (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
 
   if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch) {
-    if (too_far_from_home || (datalink_time>DATALINK_LOST_TIME) || (GetPosAlt() > MAX_ALTITUDE)) {
+    if (too_far_from_home || DatalinkLost() || HigherThanMaxAltitude()) {
       pprz_mode = PPRZ_MODE_HOME;
-      mode_changed = TRUE;
+      mode_changed = true;
     }
     if (really_lost) {
       pprz_mode = RC_LOST_MODE;
-      mode_changed = TRUE;
+      mode_changed = true;
     }
   }
   if (bit_is_set(fbw_state->status, AVERAGED_CHANNELS_SENT)) {

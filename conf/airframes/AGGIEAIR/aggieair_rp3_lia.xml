@@ -35,7 +35,6 @@ RP3 Lisa MX
 
     <define name="AGR_CLIMB" />
     <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
-    <define name="AIRSPACE"/>
     <define name="DATALINK_LOST_TIME" value="45"/>
   </firmware>
 

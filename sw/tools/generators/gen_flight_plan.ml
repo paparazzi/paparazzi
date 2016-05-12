@@ -933,10 +933,12 @@ let () =
       security_height := get_float "security_height";
       ground_alt := get_float "ground_alt";
       (* Absolute Max altitude that can be reached *)
+      (* 
       let max_alt = 30000.0 in
       let max_altitude_height = try
         min (get_float "max_altitude") max_alt
         with _ -> max_alt in
+        *)
       let home_mode_height = try
                                max (get_float "home_mode_height") !security_height
         with _ -> !security_height in
@@ -988,7 +990,15 @@ let () =
       Xml2h.define "SECURITY_ALT" (sof (!security_height +. !ground_alt));
       Xml2h.define "HOME_MODE_HEIGHT" (sof home_mode_height);
       Xml2h.define "MAX_DIST_FROM_HOME" (sof mdfh);
-      Xml2h.define "MAX_ALTITUDE" (sof max_altitude_height);
+      begin
+        try
+          let max_altitude = 
+             get_float "max_altitude" in
+             Xml2h.define "MAX_ALTITUDE" (sof max_altitude);
+        with
+            _ -> ()
+      end;
+
 
       (* output settings file if needed *)
       begin

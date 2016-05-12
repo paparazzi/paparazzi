@@ -67,7 +67,8 @@ security_height CDATA #REQUIRED
 alt CDATA #REQUIRED
 qfu CDATA #IMPLIED
 home_mode_height CDATA #IMPLIED
-max_altitude CDATA #IMPLIED>
+max_altitude CDATA #IMPLIED
+airspace CDATA #IMPLIED>
 
 <!ATTLIST waypoints
 utm_x0 CDATA #IMPLIED
