@@ -28,6 +28,7 @@
       <module name="guidance"      type="indi"/>
       <module name="intermcu"      type="uart"/>
       <module name="current_sensor"/>
+      <module name="opa_controller"/>
 
       <module name="geo_mag"/>
       <module name="air_data"/>
@@ -48,6 +49,7 @@
 
       <module name="actuators"     type="pwm"/>
       <module name="intermcu"      type="uart"/>
+      <module name="opa_controller"/>
       <module name="heli_throttle_curve"/>
       <module name="heli_swashplate_mixing"/>
 
