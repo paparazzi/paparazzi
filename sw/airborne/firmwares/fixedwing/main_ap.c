@@ -108,6 +108,7 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #define COMMAND_YAW_TRIM 0
 #endif
 
+bool DatalinkLost(void);
 
 #ifdef DATALINK_LOST_TIME
 /*
@@ -121,8 +122,9 @@ bool DatalinkLost(void){
 bool DatalinkLost(void){
   return false;
 }
-#endif
+#endif /* DATALINK_LOST_TIME */
 
+bool HigherThanMaxAltitude(void);
 #ifdef MAX_ALTITUDE // user defined max_altitude in the flight plan
 bool HigherThanMaxAltitude(void){
   return (GetPosAlt() > MAX_ALTITUDE);
