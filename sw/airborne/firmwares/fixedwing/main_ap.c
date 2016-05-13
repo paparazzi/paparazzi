@@ -110,30 +110,30 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 
 bool DatalinkLost(void);
 
-#ifdef DATALINK_LOST_TIME
+#ifdef HOME_MODE_DATALINK_LOST_TIME
 /*
  * from the airfame config file:
- * go to HOME mode if datalink lost for DATALINK_MAX_LOST_TIME
+ * go to HOME mode if datalink lost for HOME_MODE_DATALINK_LOST_TIME
  */
 bool DatalinkLost(void){
-  return (datalink_time>DATALINK_LOST_TIME);
+  return (datalink_time>HOME_MODE_DATALINK_LOST_TIME);
 }
 #else // dont trigger this exception
 bool DatalinkLost(void){
   return false;
 }
-#endif /* DATALINK_LOST_TIME */
+#endif /* HOME_MODE_DATALINK_LOST_TIME */
 
 bool HigherThanMaxAltitude(void);
-#ifdef MAX_ALTITUDE // user defined max_altitude in the flight plan
+#ifdef HOME_MODE_MAX_ALTITUDE // user defined max_altitude in the flight plan
 bool HigherThanMaxAltitude(void){
-  return (GetPosAlt() > MAX_ALTITUDE);
+  return (GetPosAlt() > HOME_MODE_MAX_ALTITUDE);
 }
 #else // we dont have max altitude specified, so the condition is never true
 bool HigherThanMaxAltitude(void){
   return false;
 }
-#endif /* MAX_ALTITUDE */
+#endif /* HOME_MODE_MAX_ALTITUDE */
 
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)

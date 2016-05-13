@@ -932,13 +932,6 @@ let () =
       and alt = ExtXml.attrib xml "alt" in
       security_height := get_float "security_height";
       ground_alt := get_float "ground_alt";
-      (* Absolute Max altitude that can be reached *)
-      (* 
-      let max_alt = 30000.0 in
-      let max_altitude_height = try
-        min (get_float "max_altitude") max_alt
-        with _ -> max_alt in
-        *)
       let home_mode_height = try
                                max (get_float "home_mode_height") !security_height
         with _ -> !security_height in
@@ -992,9 +985,9 @@ let () =
       Xml2h.define "MAX_DIST_FROM_HOME" (sof mdfh);
       begin
         try
-          let max_altitude = 
-             get_float "max_altitude" in
-             Xml2h.define "MAX_ALTITUDE" (sof max_altitude);
+          let home_mode_max_alt = 
+             get_float "home_mode_max_alt" in
+             Xml2h.define "HOME_MODE_MAX_ALTITUDE" (sof home_mode_max_alt);
         with
             _ -> ()
       end;
@@ -1043,8 +1036,8 @@ let () =
 
       begin
         try
-          let airspace = Xml.attrib xml "airspace" in
-          lprintf "#define InAirspace(_x, _y) %s(_x, _y)\n" (inside_function airspace)
+          let home_mode_sector = Xml.attrib xml "home_mode_sector" in
+          lprintf "#define InHomeModeSector(_x, _y) %s(_x, _y)\n" (inside_function home_mode_sector)
         with
             _ -> ()
       end;
