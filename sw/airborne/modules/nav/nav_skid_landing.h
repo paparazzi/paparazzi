@@ -1,6 +1,8 @@
 /*
  *
- * Copyright (C) 2016, Michal Podhradsky
+ * Copyright (C) 2016, Michal Podhradsky, Thomas Fisher
+ *
+ * AggieAir, Utah State University
  *
  * This file is part of paparazzi.
  *
