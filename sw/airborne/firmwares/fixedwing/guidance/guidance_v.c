@@ -332,7 +332,7 @@ void v_ctl_landing_loop(void)
     land_alt_i_err += land_alt_err / CONTROL_FREQUENCY;  // integrator land_alt_err, divide by control frequency
     BoundAbs(land_alt_i_err, 50);  // integrator sat limits
 
-    // set pitch based on airspeed error
+    // set pitch based on ground speed error
     nav_pitch -= land_speed_err * v_ctl_landing_pitch_pgain / 1000
         + land_speed_i_err * v_ctl_landing_pitch_igain / 1000;  // 1000 is a multiplier to get more reasonable gains for ctl_basic
     Bound(nav_pitch, -v_ctl_landing_pitch_limits, v_ctl_landing_pitch_limits);  //max pitch authority for landing
