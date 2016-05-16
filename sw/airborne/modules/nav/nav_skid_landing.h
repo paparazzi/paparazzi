@@ -24,7 +24,7 @@
  */
 
 /**
- * @file modules/nav/nav_skid_landiungr.h
+ * @file modules/nav/nav_skid_landing.h
  * @brief Landing on skidpads
  * See video of the landing: https://www.youtube.com/watch?v=aYrB7s3oeX4
  * Standard landing procedure:
@@ -46,9 +46,9 @@
 #include "std.h"
 #include "paparazzi.h"
 
-extern bool nav_skid_landing_setup(uint8_t AFWP, uint8_t TDWP, float radius);
+extern bool nav_skid_landing_setup(uint8_t afwp, uint8_t tdwp, float radius);
 extern bool nav_skid_landing_run(void);
 
-void nav_skid_landing_glide(uint8_t From_WP, uint8_t To_WP);
+void nav_skid_landing_glide(uint8_t from_wp, uint8_t to_wp);
 
 #endif /* NAV_SKID_LANDING_H */

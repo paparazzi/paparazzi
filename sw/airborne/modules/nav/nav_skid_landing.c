@@ -24,7 +24,7 @@
  */
 
 /**
- * @file modules/nav/nav_skid_landiung.c
+ * @file modules/nav/nav_skid_landing.c
  * @brief Landing on skidpads
  * See video of the landing: https://www.youtube.com/watch?v=aYrB7s3oeX4
  * Standard landing procedure:
@@ -47,25 +47,20 @@
 #include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 
-struct Point2D
-{
-  float x;
-  float y;
-};
 enum LandingStatus
 {
   CircleDown, LandingWait, Final, Approach
 };
-static enum LandingStatus CLandingStatus;
-static uint8_t AFWaypoint;
-static uint8_t TDWaypoint;
-static float LandRadius;
-static struct Point2D LandCircle;
-static float LandAppAlt;
-static float LandCircleQDR;
-static float ApproachQDR;
-static float FinalLandAltitude;
-static uint8_t FinalLandCount;
+static enum LandingStatus skid_landing_status;
+static uint8_t aw_waypoint;
+static uint8_t td_waypoint;
+static float land_radius;
+static struct FloatVect2 land_circle;
+static float land_app_alt;
+static float land_circle_quadrant;
+static float approach_quadrant;
+static float final_land_altitude;
+static uint8_t final_land_count;
 
 #ifndef SKID_LANDING_AF_HEIGHT //> AF height [m]
 #define SKID_LANDING_AF_HEIGHT 50
@@ -77,41 +72,41 @@ static uint8_t FinalLandCount;
 #define SKID_LANDING_FINAL_STAGE_TIME 5
 #endif
 
-static inline float distance_equation(struct Point2D p1,struct Point2D p2)
+static inline float distance_equation(struct FloatVect2 p1,struct FloatVect2 p2)
 {
   return sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
 }
 
-bool nav_skid_landing_setup(uint8_t AFWP, uint8_t TDWP, float radius)
+bool nav_skid_landing_setup(uint8_t afwp, uint8_t tdwp, float radius)
 {
-  AFWaypoint = AFWP;
-  TDWaypoint = TDWP;
-  CLandingStatus = CircleDown;
-  LandRadius = radius;
-  LandAppAlt = stateGetPositionUtm_f()->alt;
-  FinalLandAltitude = SKID_LANDING_FINAL_HEIGHT;
-  FinalLandCount = 1;
+  aw_waypoint = afwp;
+  td_waypoint = tdwp;
+  skid_landing_status = CircleDown;
+  land_radius = radius;
+  land_app_alt = stateGetPositionUtm_f()->alt;
+  final_land_altitude = SKID_LANDING_FINAL_HEIGHT;
+  final_land_count = 1;
 
-  float x_0 = waypoints[TDWaypoint].x - waypoints[AFWaypoint].x;
-  float y_0 = waypoints[TDWaypoint].y - waypoints[AFWaypoint].y;
+  float x_0 = waypoints[td_waypoint].x - waypoints[aw_waypoint].x;
+  float y_0 = waypoints[td_waypoint].y - waypoints[aw_waypoint].y;
 
   /* Unit vector from AF to TD */
   float d = sqrt(x_0 * x_0 + y_0 * y_0);
   float x_1 = x_0 / d;
   float y_1 = y_0 / d;
 
-  LandCircle.x = waypoints[AFWaypoint].x + y_1 * LandRadius;
-  LandCircle.y = waypoints[AFWaypoint].y - x_1 * LandRadius;
+  land_circle.x = waypoints[aw_waypoint].x + y_1 * land_radius;
+  land_circle.y = waypoints[aw_waypoint].y - x_1 * land_radius;
 
-  LandCircleQDR = atan2(waypoints[AFWaypoint].x - LandCircle.x,
-      waypoints[AFWaypoint].y - LandCircle.y);
+  land_circle_quadrant = atan2(waypoints[aw_waypoint].x - land_circle.x,
+      waypoints[aw_waypoint].y - land_circle.y);
 
-  if (LandRadius > 0) {
-    ApproachQDR = LandCircleQDR - RadOfDeg(90);
-    LandCircleQDR = LandCircleQDR - RadOfDeg(45);
+  if (land_radius > 0) {
+    approach_quadrant = land_circle_quadrant - RadOfDeg(90);
+    land_circle_quadrant = land_circle_quadrant - RadOfDeg(45);
   } else {
-    ApproachQDR = LandCircleQDR + RadOfDeg(90);
-    LandCircleQDR = LandCircleQDR + RadOfDeg(45);
+    approach_quadrant = land_circle_quadrant + RadOfDeg(90);
+    land_circle_quadrant = land_circle_quadrant + RadOfDeg(45);
   }
 
   return FALSE;
@@ -119,14 +114,14 @@ bool nav_skid_landing_setup(uint8_t AFWP, uint8_t TDWP, float radius)
 
 bool nav_skid_landing_run(void)
 {
-  switch (CLandingStatus) {
+  switch (skid_landing_status) {
     case CircleDown:
       NavVerticalAutoThrottleMode(0);  // No pitch
-      NavVerticalAltitudeMode(waypoints[AFWaypoint].a, 0);
-      nav_circle_XY(LandCircle.x, LandCircle.y, LandRadius);
+      NavVerticalAltitudeMode(waypoints[aw_waypoint].a, 0);
+      nav_circle_XY(land_circle.x, land_circle.y, land_radius);
 
-      if (stateGetPositionUtm_f()->alt < waypoints[AFWaypoint].a + 5) {
-        CLandingStatus = LandingWait;
+      if (stateGetPositionUtm_f()->alt < waypoints[aw_waypoint].a + 5) {
+        skid_landing_status = LandingWait;
         nav_init_stage();
       }
 
@@ -134,35 +129,35 @@ bool nav_skid_landing_run(void)
 
     case LandingWait:
       NavVerticalAutoThrottleMode(0);  // No pitch
-      NavVerticalAltitudeMode(waypoints[AFWaypoint].a, 0);
-      nav_circle_XY(LandCircle.x, LandCircle.y, LandRadius);
+      NavVerticalAltitudeMode(waypoints[aw_waypoint].a, 0);
+      nav_circle_XY(land_circle.x, land_circle.y, land_radius);
 
-      if (NavCircleCount() > 0.5 && NavQdrCloseTo(DegOfRad(ApproachQDR))) {
-        CLandingStatus = Approach;
+      if (NavCircleCount() > 0.5 && NavQdrCloseTo(DegOfRad(approach_quadrant))) {
+        skid_landing_status = Approach;
         nav_init_stage();
       }
       break;
 
     case Approach:
       NavVerticalAutoThrottleMode(0);  // No pitch
-      NavVerticalAltitudeMode(waypoints[AFWaypoint].a, 0);
-      nav_circle_XY(LandCircle.x, LandCircle.y, LandRadius);
+      NavVerticalAltitudeMode(waypoints[aw_waypoint].a, 0);
+      nav_circle_XY(land_circle.x, land_circle.y, land_radius);
 
-      if (NavQdrCloseTo(DegOfRad(LandCircleQDR))) {
-        CLandingStatus = Final;
+      if (NavQdrCloseTo(DegOfRad(land_circle_quadrant))) {
+        skid_landing_status = Final;
         nav_init_stage();
       }
       break;
 
     case Final:
-      if ((stateGetPositionUtm_f()->alt - waypoints[TDWaypoint].a)
+      if ((stateGetPositionUtm_f()->alt - waypoints[td_waypoint].a)
           < v_ctl_landing_alt_throttle_kill) {
         kill_throttle = 1;
       }
-      nav_skid_landing_glide(AFWaypoint, TDWaypoint);
+      nav_skid_landing_glide(aw_waypoint, td_waypoint);
       if (!kill_throttle) {
-        nav_route_xy(waypoints[AFWaypoint].x, waypoints[AFWaypoint].y,
-            waypoints[TDWaypoint].x, waypoints[TDWaypoint].y);
+        nav_route_xy(waypoints[aw_waypoint].x, waypoints[aw_waypoint].y,
+            waypoints[td_waypoint].x, waypoints[td_waypoint].y);
       }
       break;
 
@@ -174,9 +169,9 @@ bool nav_skid_landing_run(void)
 
 void nav_skid_landing_glide(uint8_t From_WP, uint8_t To_WP)
 {
-  struct Point2D p_from;
-  struct Point2D p_to;
-  struct Point2D now;
+  struct FloatVect2 p_from;
+  struct FloatVect2 p_to;
+  struct FloatVect2 now;
 
   float start_alt = waypoints[From_WP].a;
   float diff_alt = waypoints[To_WP].a - start_alt;
@@ -187,12 +182,12 @@ void nav_skid_landing_glide(uint8_t From_WP, uint8_t To_WP)
   now.x = stateGetPositionEnu_f()->x;
   now.y = stateGetPositionEnu_f()->y;
 
-  float EndDist = distance_equation(p_from,p_to);
-  float HereDist = distance_equation(p_from,now);
-  float EndHereDist = distance_equation(p_to,now);
-  float alt = start_alt + (HereDist/EndDist) * diff_alt;
+  float end_dist = distance_equation(p_from,p_to);
+  float here_dist = distance_equation(p_from,now);
+  float end_here_dist = distance_equation(p_to,now);
+  float alt = start_alt + (here_dist/end_dist) * diff_alt;
 
-  if (EndDist < EndHereDist){
+  if (end_dist < end_here_dist){
   alt = start_alt;
   }
    v_ctl_mode = V_CTL_MODE_LANDING;

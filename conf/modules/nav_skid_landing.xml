@@ -4,6 +4,24 @@
   <doc>
     <description>
     Landing on skidpads
+    See video of the landing: https://www.youtube.com/watch?v=aYrB7s3oeX4
+    Standard landing procedure:
+    1) circle down passing AF waypoint (from left or right)
+    2) once low enough follow line to TD waypoint
+    3) once low enough flare
+
+   Use this in your airfame config file:
+<!--
+Block example:
+@verbatim
+     <section name="LANDING" prefix="SKID_LANDING_">
+       <define name="AF_HEIGHT" value="50" unit="m"/>
+       <define name="FINAL_HEIGHT" value="50" unit="m"/>
+       <define name="FINAL_STAGE_TIME" value="10" unit="s"/>
+     </section>
+</block>
+@endverbatim
+-->
     </description>
   </doc>
   <header>
