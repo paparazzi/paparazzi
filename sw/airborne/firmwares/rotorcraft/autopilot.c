@@ -82,31 +82,7 @@ bool   autopilot_power_switch;
 bool   autopilot_ground_detected;
 bool   autopilot_detect_ground_once;
 
-bool DatalinkLost(void);
-#ifdef DATALINK_LOST_TIME
-/*
- * from the airfame config file:
- * go to HOME mode if datalink lost for DATALINK_MAX_LOST_TIME
- */
-bool DatalinkLost(void){
-  return (datalink_time>DATALINK_LOST_TIME);
-}
-#else // dont trigger this exception
-bool DatalinkLost(void){
-  return false;
-}
-#endif /* DATALINK_LOST_TIME */
-
-bool HigherThanMaxAltitude(void);
-#ifdef MAX_ALTITUDE // user defined max_altitude in the flight plan
-bool HigherThanMaxAltitude(void){
-  return (GetPosAlt() > MAX_ALTITUDE);
-}
-#else // we dont have max altitude specified, so the condition is never true
-bool HigherThanMaxAltitude(void){
-  return false;
-}
-#endif /* MAX_ALTITUDE */
+#include "modules/nav/nav_home_mode.h"
 
 /** time steps for in_flight detection (at 20Hz, so 20=1second) */
 #ifndef AUTOPILOT_IN_FLIGHT_TIME
@@ -370,7 +346,7 @@ void autopilot_periodic(void)
   RunOnceEvery(NAV_PRESCALER, compute_dist2_to_home());
 
   if (autopilot_in_flight && autopilot_mode == AP_MODE_NAV) {
-    if (too_far_from_home || DatalinkLost() || HigherThanMaxAltitude()) {
+    if (too_far_from_home || datalink_lost() || higher_than_max_altitude()) {
       if (dist2_to_home > failsafe_mode_dist2) {
         autopilot_set_mode(FAILSAFE_MODE_TOO_FAR_FROM_HOME);
       } else {
