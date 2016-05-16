@@ -30,30 +30,34 @@
  * HOME_MODE_DATALINK_LOST_TIME is defined in the airframe config file
  */
 
-bool datalink_lost(void);
-bool higher_than_max_altitude(void);
+static inline  bool datalink_lost(void);
+static inline bool higher_than_max_altitude(void);
 
 #ifdef HOME_MODE_DATALINK_LOST_TIME
 /*
  * from the airfame config file:
  * go to HOME mode if datalink lost for HOME_MODE_DATALINK_LOST_TIME
  */
-bool datalink_lost(void){
-  return (datalink_time>HOME_MODE_DATALINK_LOST_TIME);
+static inline bool datalink_lost(void)
+{
+  return (datalink_time > HOME_MODE_DATALINK_LOST_TIME);
 }
 #else // dont trigger this exception
-bool datalink_lost(void){
+static inline bool datalink_lost(void)
+{
   return false;
 }
 #endif /* HOME_MODE_DATALINK_LOST_TIME */
 
 
 #ifdef HOME_MODE_MAX_ALTITUDE // user defined max_altitude in the flight plan
-bool higher_than_max_altitude(void){
+static inline bool higher_than_max_altitude(void)
+{
   return (GetPosAlt() > HOME_MODE_MAX_ALTITUDE);
 }
 #else // we dont have max altitude specified, so the condition is never true
-bool higher_than_max_altitude(void){
+static inline bool higher_than_max_altitude(void)
+{
   return false;
 }
 #endif /* HOME_MODE_MAX_ALTITUDE */
