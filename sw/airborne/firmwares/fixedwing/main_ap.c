@@ -565,12 +565,22 @@ void attitude_loop(void)
 {
 
   if (pprz_mode >= PPRZ_MODE_AUTO2) {
-    if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE) {
-      v_ctl_throttle_setpoint = nav_throttle_setpoint;
-      v_ctl_pitch_setpoint = nav_pitch;
-    } else if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB) {
-      v_ctl_climb_loop();
-    }
+#if CTRL_VERTICAL_LANDING
+    if (v_ctl_mode == V_CTL_MODE_LANDING) {
+      v_ctl_landing_loop();
+    } else {
+#endif
+      if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE) {
+        v_ctl_throttle_setpoint = nav_throttle_setpoint;
+        v_ctl_pitch_setpoint = nav_pitch;
+      } else {
+        if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB) {
+          v_ctl_climb_loop();
+        } /* v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB */
+      } /* v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE */
+#if CTRL_VERTICAL_LANDING
+    } /* v_ctl_mode == V_CTL_MODE_LANDING */
+#endif
 
 #if defined V_CTL_THROTTLE_IDLE
     Bound(v_ctl_throttle_setpoint, TRIM_PPRZ(V_CTL_THROTTLE_IDLE * MAX_PPRZ), MAX_PPRZ);

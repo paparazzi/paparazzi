@@ -30,6 +30,7 @@
 #include "firmwares/fixedwing/nav.h"
 #include "generated/airframe.h"
 #include "firmwares/fixedwing/autopilot.h"
+#include "firmwares/fixedwing/stabilization/stabilization_attitude.h" //> allow for roll control during landing final flare
 
 /* mode */
 uint8_t v_ctl_mode;
@@ -118,11 +119,67 @@ float v_ctl_auto_groundspeed_sum_err;
 #define V_CTL_ALTITUDE_PRE_CLIMB_CORRECTION 1.0f
 #endif
 
+#ifndef V_CTL_LANDING_THROTTLE_PGAIN
+#define V_CTL_LANDING_THROTTLE_PGAIN 600.
+#endif
+#ifndef V_CTL_LANDING_THROTTLE_IGAIN
+#define V_CTL_LANDING_THROTTLE_IGAIN 10.
+#endif
+#ifndef V_CTL_LANDING_THROTTLE_MAX
+#define V_CTL_LANDING_THROTTLE_MAX 0.65
+#endif
+#ifndef V_CTL_LANDING_DESIRED_SPEED
+#define V_CTL_LANDING_DESIRED_SPEED 18.
+#endif
+
+
+#ifndef V_CTL_LANDING_PITCH_PGAIN
+#define V_CTL_LANDING_PITCH_PGAIN 0.1
+#endif
+#ifndef V_CTL_LANDING_PITCH_IGAIN
+#define V_CTL_LANDING_PITCH_IGAIN 0.1
+#endif
+#ifndef V_CTL_LANDING_PITCH_LIMITS
+#define V_CTL_LANDING_PITCH_LIMITS 0.2
+#endif
+#ifndef V_CTL_LANDING_PITCH_FLARE
+#define V_CTL_LANDING_PITCH_FLARE 0.060000
+#endif
+#ifndef V_CTL_LANDING_ALT_THROTTLE_KILL
+#define V_CTL_LANDING_ALT_THROTTLE_KILL 15
+#endif
+#ifndef V_CTL_LANDING_ALT_FLARE
+#define V_CTL_LANDING_ALT_FLARE 5
+#endif
+
+float v_ctl_landing_throttle_pgain;
+float v_ctl_landing_throttle_igain;
+float v_ctl_landing_throttle_max;
+float v_ctl_landing_desired_speed;
+float v_ctl_landing_pitch_pgain;
+float v_ctl_landing_pitch_igain;
+float v_ctl_landing_pitch_limits;
+float v_ctl_landing_pitch_flare;
+float v_ctl_landing_alt_throttle_kill; //> must be greater than alt_flare
+float v_ctl_landing_alt_flare;
+
 
 void v_ctl_init(void)
 {
   /* mode */
   v_ctl_mode = V_CTL_MODE_MANUAL;
+
+  /* improved landing routine */
+  v_ctl_landing_throttle_pgain = V_CTL_LANDING_THROTTLE_PGAIN;
+  v_ctl_landing_throttle_igain = V_CTL_LANDING_THROTTLE_IGAIN;
+  v_ctl_landing_throttle_max = V_CTL_LANDING_THROTTLE_MAX;
+  v_ctl_landing_desired_speed = V_CTL_LANDING_DESIRED_SPEED;
+  v_ctl_landing_pitch_pgain = V_CTL_LANDING_PITCH_PGAIN;
+  v_ctl_landing_pitch_igain = V_CTL_LANDING_PITCH_IGAIN;
+  v_ctl_landing_pitch_limits = V_CTL_LANDING_PITCH_LIMITS;
+  v_ctl_landing_pitch_flare = V_CTL_LANDING_PITCH_FLARE;
+  v_ctl_landing_alt_throttle_kill = V_CTL_LANDING_ALT_THROTTLE_KILL;
+  v_ctl_landing_alt_flare = V_CTL_LANDING_ALT_FLARE;
 
   /* outer loop */
   v_ctl_altitude_setpoint = 0.;
@@ -249,6 +306,50 @@ void v_ctl_climb_loop(void)
       break;
 #endif
   }
+}
+
+void v_ctl_landing_loop(void)
+{
+  static float land_speed_i_err;
+  static float land_alt_i_err;
+  static float kill_alt;
+  float land_speed_err = v_ctl_landing_desired_speed - stateGetHorizontalSpeedNorm_f();
+  float land_alt_err = v_ctl_altitude_setpoint - stateGetPositionUtm_f()->alt;
+
+  if (kill_throttle
+      && (kill_alt - v_ctl_altitude_setpoint)
+          > (v_ctl_landing_alt_throttle_kill - v_ctl_landing_alt_flare)) {
+    v_ctl_throttle_setpoint = 0.0;  // Throttle is already in KILL (command redundancy)
+    nav_pitch = v_ctl_landing_pitch_flare;  // desired final flare pitch
+    lateral_mode = LATERAL_MODE_ROLL;  //override course correction during flare - eliminate possibility of catching wing tip due to course correction
+    h_ctl_roll_setpoint = 0.0;  // command zero roll during flare
+  } else {
+    // set throttle based on altitude error
+    v_ctl_throttle_setpoint = land_alt_err * v_ctl_landing_throttle_pgain
+        + land_alt_i_err * v_ctl_landing_throttle_igain;
+    Bound(v_ctl_throttle_setpoint, 0, v_ctl_landing_throttle_max * MAX_PPRZ);  // cut off throttle cmd at specified MAX
+
+    land_alt_i_err += land_alt_err / CONTROL_FREQUENCY;  // integrator land_alt_err, divide by control frequency
+    BoundAbs(land_alt_i_err, 50);  // integrator sat limits
+
+    // set pitch based on ground speed error
+    nav_pitch -= land_speed_err * v_ctl_landing_pitch_pgain / 1000
+        + land_speed_i_err * v_ctl_landing_pitch_igain / 1000;  // 1000 is a multiplier to get more reasonable gains for ctl_basic
+    Bound(nav_pitch, -v_ctl_landing_pitch_limits, v_ctl_landing_pitch_limits);  //max pitch authority for landing
+
+    land_speed_i_err += land_speed_err / CONTROL_FREQUENCY;  // integrator land_speed_err, divide by control frequency
+    BoundAbs(land_speed_i_err, .2);  // integrator sat limits
+
+    // update kill_alt until final kill throttle is initiated - allows for mode switch to first part of if statement above
+    // eliminates the need for knowing the altitude of TD
+    if (!kill_throttle) {
+      kill_alt = v_ctl_altitude_setpoint;  //
+      if (land_alt_err > 0.0) {
+        nav_pitch = 0.01;  //  if below desired alt close to ground command level pitch
+      }
+    }
+  }
+
 }
 
 /**
