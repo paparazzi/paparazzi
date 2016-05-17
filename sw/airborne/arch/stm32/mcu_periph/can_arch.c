@@ -80,17 +80,17 @@ void can_hw_init(void)
 
 #elif STM32F4
 
-/* Enable peripheral clocks. */
-rcc_periph_clock_enable(RCC_GPIOB);
-rcc_periph_clock_enable(RCC_CAN1);
+  /* Enable peripheral clocks. */
+  rcc_periph_clock_enable(RCC_GPIOB);
+  rcc_periph_clock_enable(RCC_CAN1);
 
-/* set up pins for CAN1TX & CAN1RX alternate function */
-gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO8 | GPIO9);
-gpio_set_af(GPIOB, GPIO_AF9, GPIO8 | GPIO9);
+  /* set up pins for CAN1TX & CAN1RX alternate function */
+  gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO8 | GPIO9);
+  gpio_set_af(GPIOB, GPIO_AF9, GPIO8 | GPIO9);
 
-/* enable interrupts on RX0 FIFO */
-nvic_enable_irq(NVIC_CAN1_RX0_IRQ);
-nvic_set_priority(NVIC_CAN1_RX0_IRQ, NVIC_CAN1_RX_IRQ_PRIO);
+  /* enable interrupts on RX0 FIFO */
+  nvic_enable_irq(NVIC_CAN1_RX0_IRQ);
+  nvic_set_priority(NVIC_CAN1_RX0_IRQ, NVIC_CAN1_RX_IRQ_PRIO);
 
 #endif
   /* Reset CAN. */
