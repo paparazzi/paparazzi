@@ -74,7 +74,7 @@ static uint8_t final_land_count;
 
 static inline float distance_equation(struct FloatVect2 p1,struct FloatVect2 p2)
 {
-  return sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
+  return sqrtf((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
 }
 
 bool nav_skid_landing_setup(uint8_t afwp, uint8_t tdwp, float radius)
@@ -91,7 +91,7 @@ bool nav_skid_landing_setup(uint8_t afwp, uint8_t tdwp, float radius)
   float y_0 = waypoints[td_waypoint].y - waypoints[aw_waypoint].y;
 
   /* Unit vector from AF to TD */
-  float d = sqrt(x_0 * x_0 + y_0 * y_0);
+  float d = sqrtf(x_0 * x_0 + y_0 * y_0);
   float x_1 = x_0 / d;
   float y_1 = y_0 / d;
 
