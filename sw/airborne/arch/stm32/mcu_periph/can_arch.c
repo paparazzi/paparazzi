@@ -40,14 +40,12 @@
 
 #include "led.h"
 
-#ifndef STM32F1
-#error "CAN is currently only implemented for STM32F1"
-#endif
 
 #ifdef RTOS_PRIO
 #define NVIC_USB_LP_CAN_RX0_IRQ_PRIO RTOS_PRIO+1
 #else
 #define NVIC_USB_LP_CAN_RX0_IRQ_PRIO 1
+#define NVIC_CAN1_RX_IRQ_PRIO 1
 #endif
 
 void _can_run_rx_callback(uint32_t id, uint8_t *buf, uint8_t len);
@@ -57,6 +55,8 @@ bool can_initialized = false;
 void can_hw_init(void)
 {
 
+
+#ifdef STM32F1
   /* Enable peripheral clocks. */
   rcc_periph_clock_enable(RCC_AFIO);
   rcc_periph_clock_enable(RCC_GPIOB);
@@ -78,6 +78,21 @@ void can_hw_init(void)
   nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
   nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, NVIC_USB_LP_CAN_RX0_IRQ_PRIO);
 
+#elif STM32F4
+
+/* Enable peripheral clocks. */
+rcc_periph_clock_enable(RCC_GPIOB);
+rcc_periph_clock_enable(RCC_CAN1);
+
+/* set up pins for CAN1TX & CAN1RX alternate function */
+gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO8 | GPIO9);
+gpio_set_af(GPIOB, GPIO_AF9, GPIO8 | GPIO9);
+
+/* enable interrupts on RX0 FIFO */
+nvic_enable_irq(NVIC_CAN1_RX0_IRQ);
+nvic_set_priority(NVIC_CAN1_RX0_IRQ, NVIC_CAN1_RX_IRQ_PRIO);
+
+#endif
   /* Reset CAN. */
   can_reset(CAN1);
 
@@ -114,9 +129,15 @@ void can_hw_init(void)
                false,           /* NART: No automatic retransmission? */
                false,           /* RFLM: Receive FIFO locked mode? */
                false,           /* TXFP: Transmit FIFO priority? */
+#ifdef STM32F1
                CAN_BTR_SJW_1TQ,
                CAN_BTR_TS1_10TQ,
                CAN_BTR_TS2_7TQ,
+#elif STM32F4
+               CAN_BTR_SJW_1TQ,
+               CAN_BTR_TS1_14TQ,
+               CAN_BTR_TS2_6TQ,
+#endif
                2,               /* BRP+1: Baud rate prescaler */
                false,           /* loopback mode */
                false)) {        /* silent mode */
@@ -172,7 +193,7 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
                       len,   /* DLC: Data length */
                       (uint8_t *)buf);
 }
-
+#ifdef STM32F1
 void usb_lp_can_rx0_isr(void)
 {
   uint32_t id, fmi;
@@ -193,4 +214,24 @@ void usb_lp_can_rx0_isr(void)
 
   can_fifo_release(CAN1, 0);
 }
+#elif STM32F4
+void can1_rx0_isr(void){
+  uint32_t id, fmi;
+  bool ext, rtr;
+  uint8_t length, data[8];
 
+  can_receive(CAN1,
+              0,     /* FIFO: 0 */
+              false, /* Release */
+              &id,
+              &ext,
+              &rtr,
+              &fmi,
+              &length,
+              data);
+
+  _can_run_rx_callback(id, data, length);
+
+  can_fifo_release(CAN1, 0);
+}
+#endif
