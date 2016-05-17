@@ -46,6 +46,22 @@ uint32_t int32_sqrt(uint32_t in)
   }
 }
 
+/*
+ * Simple GCD (Greatest common divider algorithm)
+ */
+uint32_t int32_gcd(uint32_t a, uint32_t b)
+{
+  uint32_t temp;
+  while (b != 0)
+  {
+      temp = a % b;
+
+      a = b;
+      b = temp;
+  }
+  return a;
+}
+
 
 /*
  *

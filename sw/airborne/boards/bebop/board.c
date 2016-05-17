@@ -30,6 +30,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "mt9v117.h"
+#include "mt9f002.h"
 #include "mcu.h"
 
 static int kill_gracefull(char *process_name)
@@ -86,5 +87,35 @@ void board_init(void)
 
   // We also try to initialize the video CMOS chips here (Bottom and front)
   mt9v117_init();
-  //mt9f002_init();
+
+  /* Initialize MT9F002 chipset */
+  struct mt9f002_t mt9f002 = {
+    // Precomputed values to go from InputCLK of (26/2)MHz to 96MH
+    .interface = MT9F002_PARALLEL,
+    .input_clk_freq = (26 / 2),
+    .vt_pix_clk_div = 7,
+    .vt_sys_clk_div = 1,
+    .pre_pll_clk_div = 1,
+    .pll_multiplier = 59,
+    .op_pix_clk_div = 8,
+    .op_sys_clk_div = 1,
+    .shift_vt_pix_clk_div = 1,
+    .rowSpeed_2_0 = 1,
+    .row_speed_10_8 = 1,
+
+    // Initial values
+    .target_fps = 30,
+    .target_exposure = 30,
+    .gain_green1 = 2.0,
+    .gain_blue = 2.0,
+    .gain_red = 2.0,
+    .gain_green2 = 2.0,
+    .output_width = 640,
+    .output_height = 480,
+    .output_scaler = 1.0,
+    .offset_x = 0,
+    .offset_y = 0
+  };
+
+  mt9f002_init(&mt9f002);
 }

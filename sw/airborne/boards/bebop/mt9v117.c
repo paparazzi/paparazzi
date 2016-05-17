@@ -51,6 +51,7 @@ struct video_config_t bottom_camera = {
 
 
 /* Patch lines */
+//I2C_BUF_LEN must be higher then size of these patch lines
 #define MT9V117_PATCH_LINE_NUM 13
 static uint8_t patch_line1[] = {
     0xf0, 0x00, 0x72, 0xcf, 0xff, 0x00, 0x3e, 0xd0, 0x92, 0x00,
