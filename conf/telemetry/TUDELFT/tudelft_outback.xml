@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<!DOCTYPE telemetry SYSTEM "../telemetry.dtd">
 <telemetry>
 
 
@@ -29,6 +29,7 @@
       <message name="VECTORNAV_INFO"         period="0.5"/>
       <message name="TEMP_ADC"               period="3.0"/>
       <message name="FBW_STATUS"             period="2.0"/>
+      <message name="MOTOR"                  period="0.5"/>
     </mode>
 
     <mode name="ppm">
@@ -151,11 +152,11 @@
     <mode name="default">
       <message name="ROTORCRAFT_STATUS"      period="1.2"/>
       <message name="DL_VALUE"               period="0.5"/>
-      <message name="ALIVE"                  period="2.1"/>
       <message name="IMU_GYRO_SCALED"        period=".002"/>
-      <message name="IMU_ACCEL_SCALED"       period=".002"/>
       <message name="IMU_MAG_SCALED"         period=".1"/>
+      <message name="ROTORCRAFT_CMD"         period=".002"/>
     </mode>
   </process>
 
 </telemetry>
+

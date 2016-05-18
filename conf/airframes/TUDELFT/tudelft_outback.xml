@@ -23,7 +23,7 @@
       <module name="imu"           type="mpu6000"/>
       <module name="gps"           type="ublox"/>
       <module name="stabilization" type="int_quat"/>
-       <module name="stabilization" type="rate"/>
+      <module name="stabilization" type="rate"/>
       <module name="ahrs"          type="int_cmpl_quat"/>
       <module name="ins"           type="hff"/>
       <module name="guidance"      type="indi"/>
