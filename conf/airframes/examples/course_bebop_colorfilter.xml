@@ -31,8 +31,6 @@
     <module name="send_imu_mag_current"/>
 
     <module name="video_thread">
-      <define name="USE_VIDEO1"/>
-      <define name="USE_VIDEO2"/>
     </module>
 
     <module name="cv_colorfilter">
