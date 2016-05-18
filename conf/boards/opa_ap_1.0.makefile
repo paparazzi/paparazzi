@@ -56,6 +56,14 @@ IMU_MPU_SPI_SLAVE_IDX ?= SPI_SLAVE1
 
 # See baro_board.makefile
 
+
+#
+# Remote Magneto
+#
+
+MAG_PITOT_PORT ?= UART5
+MAG_PITOT_BAUD ?= 125000
+
 #
 # default SPI logger configuration
 #
