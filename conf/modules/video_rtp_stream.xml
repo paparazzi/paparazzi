@@ -40,6 +40,7 @@
     <include name="modules/computer_vision"/>
     <file name="rtp.c" dir="modules/computer_vision/lib/encoding"/>
 
+    <define name="USE_($VIEWVIDEO_CAMERA)"/>
     <!-- Define the network connection to send images over -->
     <raw>
       include $(CFG_SHARED)/udp.makefile
