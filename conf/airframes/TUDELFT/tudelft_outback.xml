@@ -92,9 +92,7 @@
     <set command="ROLL"     value="@ROLL"/>
     <set command="PITCH"    value="@PITCH"/>
     <set command="YAW"      value="@YAW"/>
-    <set command="MODE"     value="@MODE"/>
     <set command="FMODE"    value="@FMODE"/>
-    <set command="TH_HOLD"  value="@TH_HOLD"/>
   </rc_commands>
 
   <commands>
@@ -103,11 +101,11 @@
     <axis name="PITCH"      failsafe_value="0"/>
     <axis name="YAW"        failsafe_value="0"/>
     <axis name="FMODE"      failsafe_value="-9600"/>
-    <axis name="MODE"       failsafe_value="-9600"/>
     <axis name="TH_HOLD"    failsafe_value="-9600"/>
+    <axis name="MODE"       failsafe_value="-9600"/>
   </commands>
 
-  <section name="MIXING"      prefix="SW_MIXING_">
+  <section name="MIXING" prefix="SW_MIXING_">
     <define name="TYPE"       value="HR120"/>
     <define name="TRIM_ROLL"  value="0"/>
     <define name="TRIM_PITCH" value="0"/>
@@ -115,18 +113,21 @@
   </section>
 
   <command_laws>
-    <call fun="throttle_curve_run(autopilot_motors_on, values)"/>
+    <call fun="throttle_curve_run(fbw_motors_on, values)"/>
     <call fun="swashplate_mixing_run(values)"/>
-    <set servo="THROTTLE"       value="(((@TH_HOLD) > 4800)? throttle_curve.throttle :-9600)"/>
+    <let var="th_hold"          value="(RadioControlValues(RADIO_TH_HOLD) < -4800)"/>
+    <let var="man_mode"         value="(RadioControlValues(RADIO_MODE) < -4800)"/>
+
+    <set servo="THROTTLE"       value="($th_hold? -9600 : throttle_curve.throttle)"/>
     <set servo="SW_BACK"        value="swashplate_mixing.commands[SW_BACK]"/>
     <set servo="SW_LEFTFRONT"   value="swashplate_mixing.commands[SW_LEFTFRONT]"/>
     <set servo="SW_RIGHTFRONT"  value="swashplate_mixing.commands[SW_RIGHTFRONT]"/>
-    <set servo="TAIL_LEFT"      value="(((@TH_HOLD) > 4800)? (-@YAW - throttle_curve.throttle*0.5) : 0)"/>
-    <set servo="TAIL_RIGHT"     value="(((@TH_HOLD) > 4800)? (-@YAW - throttle_curve.throttle*0.5) : 0)"/>
-    <set servo="AIL_LEFTLOW"    value="((-4800 > @MODE)? (@PITCH - @ROLL) : 0)"/>
-    <set servo="AIL_RIGHTLOW"   value="((-4800 > @MODE)? (-@PITCH - @ROLL) : 0)"/>
-    <set servo="AIL_LEFTUP"     value="((-4800 > @MODE)? (@PITCH - @ROLL) : 0)"/>
-    <set servo="AIL_RIGHTUP"    value="((-4800 > @MODE)? (-@PITCH - @ROLL) : 0)"/>
+    <set servo="TAIL_LEFT"      value="($th_hold? 0 : (-@YAW - throttle_curve.throttle*0.5) )"/>
+    <set servo="TAIL_RIGHT"     value="($th_hold? 0 : (-@YAW - throttle_curve.throttle*0.5) )"/>
+    <set servo="AIL_LEFTLOW"    value="($man_mode? ( @PITCH - @ROLL) : 0)"/>
+    <set servo="AIL_RIGHTLOW"   value="($man_mode? (-@PITCH - @ROLL) : 0)"/>
+    <set servo="AIL_LEFTUP"     value="($man_mode? ( @PITCH - @ROLL) : 0)"/>
+    <set servo="AIL_RIGHTUP"    value="($man_mode? (-@PITCH - @ROLL) : 0)"/>
   </command_laws>
 
 

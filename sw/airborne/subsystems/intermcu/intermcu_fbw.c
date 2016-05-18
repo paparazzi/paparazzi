@@ -125,22 +125,6 @@ void intermcu_send_status(uint8_t mode)
                                 &electrical.current);
 }
 
-void intermcu_blink_fbw_led(uint16_t dv)
-{
-#ifdef FBW_MODE_LED
-  static uint16_t idv = 0;
-  if (!autopilot_motors_on) {
-    if (!(dv % (PERIODIC_FREQUENCY))) {
-      if (!(idv++ % 3)) { LED_OFF(FBW_MODE_LED);} else {LED_TOGGLE(FBW_MODE_LED);}
-    }
-  } else {
-    LED_TOGGLE(FBW_MODE_LED); // toggle makes random blinks if intermcu comm problem!
-  }
-#else
-  (void)dv;
-#endif
-}
-
 #pragma GCC diagnostic ignored "-Wcast-align"
 static void intermcu_parse_msg(void (*commands_frame_handler)(void))
 {
