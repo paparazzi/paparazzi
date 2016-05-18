@@ -3,6 +3,11 @@
 <module name="mag_pitot_uart" dir="sensors">
   <doc>
     <description>Remotely located magnetometer and pitot tube over uart (RS232) communication</description>
+    <configure name="MAG_PITOT_PORT" value="UART5" description="select which uart it is connected to"/>
+    <configure name="MAG_PITOT_BAUD" value="125000" description="set the baudrate of the uart"/>
+    <define name="IMU_TO_MAG_PHI" value="0" description="rotation of magneto compared to the magneto in roll axis"/>
+    <define name="IMU_TO_MAG_THETA" value="0" description="rotation of magneto compared to the magneto in pitch axis"/>
+    <define name="IMU_TO_MAG_PSI" value="0" description="rotation of magneto compared to the magneto in yaw axis"/>
   </doc>
   <header>
     <file name="mag_pitot_uart.h"/>
@@ -10,11 +15,17 @@
   <init fun="mag_pitot_init()"/>
   <event fun="mag_pitot_event()"/>
   <makefile>
-    <configure name="MAG_PITOT_PORT" default="uart5" case="upper|lower"/>
+    <!-- Configure default UART port and baudrate -->
+    <configure name="MAG_PITOT_PORT" default="UART5" case="upper|lower"/>
+    <configure name="MAG_PITOT_BAUD" default="125000"/>
+
+    <!-- Enable UART and set baudrate -->
     <define name="USE_$(MAG_PITOT_PORT_UPPER)"/>
     <define name="USE_$(MAG_PITOT_PORT_UPPER)_TX" value="FALSE"/>
     <define name="$(MAG_PITOT_PORT_UPPER)_BAUD" value="$(MAG_PITOT_BAUD)"/>
     <define name="MAG_PITOT_PORT" value="$(MAG_PITOT_PORT_LOWER)"/>
+
+    <!-- Sources and PPRZLink for transport -->
     <file name="mag_pitot_uart.c"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
   </makefile>

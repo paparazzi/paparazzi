@@ -80,9 +80,9 @@ static inline void mag_pitot_parse_msg(void)
     struct Int32Vect3 raw_mag;
 
     // Read the raw magneto information
-    raw_mag.y = - DL_IMCU_REMOTE_MAG_mag_x(mp_msg_buf);
-    raw_mag.x = DL_IMCU_REMOTE_MAG_mag_y(mp_msg_buf);
-    raw_mag.z = - DL_IMCU_REMOTE_MAG_mag_z(mp_msg_buf);
+    raw_mag.x = DL_IMCU_REMOTE_MAG_mag_x(mp_msg_buf);
+    raw_mag.y = DL_IMCU_REMOTE_MAG_mag_y(mp_msg_buf);
+    raw_mag.z = DL_IMCU_REMOTE_MAG_mag_z(mp_msg_buf);
 
     // Rotate the magneto
     struct Int32RMat *imu_to_mag_rmat = orientationGetRMat_i(&mag_pitot.imu_to_mag);

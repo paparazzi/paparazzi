@@ -147,9 +147,15 @@
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
 
+    <!-- Rotate magneto compared to imu -90 degress -->
     <define name="TO_MAG_PHI"   value="0." unit="deg"/>
     <define name="TO_MAG_THETA" value="0." unit="deg"/>
-    <define name="TO_MAG_PSI"   value="0." unit="deg"/>
+    <define name="TO_MAG_PSI"   value="-90." unit="deg"/>
+
+    <!-- Change sign to fix axis -->
+    <define name="MAG_X_SIGN" value="1"/>
+    <define name="MAG_Y_SIGN" value="1"/>
+    <define name="MAG_Z_SIGN" value="-1"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">
