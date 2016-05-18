@@ -14,7 +14,7 @@
     <file name="gps.h" dir="subsystems"/>
   </header>
   <init fun="gps_skytraq_init()"/>
-  <!--periodic fun="gps_periodic_check()" freq="1." autorun="TRUE"/-->
+  <periodic fun="gps_periodic_check(&gps_skytraq.state)" freq="1." autorun="TRUE"/>
   <event fun="gps_skytraq_event()"/>
   <makefile target="ap">
     <configure name="SKYTRAQ_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>

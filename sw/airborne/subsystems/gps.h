@@ -151,7 +151,7 @@ static inline bool gps_has_been_good(void)
 /** Periodic GPS check.
  * Marks GPS as lost when no GPS message was received for GPS_TIMEOUT seconds
  */
-extern void gps_periodic_check(void);
+extern void gps_periodic_check(struct GpsState *gps_s);
 
 /**
  * GPS Reset

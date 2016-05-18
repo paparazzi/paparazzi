@@ -12,7 +12,6 @@
     <file name="gps.h" dir="subsystems"/>
   </header>
   <init fun="gps_sim_hitl_init()"/>
-  <!--periodic fun="gps_periodic_check()" freq="1." autorun="TRUE"/-->
   <event fun="gps_sim_hitl_event()"/>
   <makefile target="ap" firmware="rotorcraft">
     <configure name="GPS_LED" default="none"/>

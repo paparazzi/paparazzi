@@ -638,10 +638,6 @@ void sensors_task(void)
   update_ahrs_from_sim();
 #endif
 
-#if USE_GPS
-  gps_periodic_check();
-#endif
-
   //FIXME: temporary hack, remove me
 #ifdef InsPeriodic
   InsPeriodic();

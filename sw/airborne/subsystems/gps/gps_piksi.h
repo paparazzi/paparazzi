@@ -36,6 +36,8 @@
 #define PRIMARY_GPS GPS_PIKSI
 #endif
 
+extern struct GpsState gps_piksi;
+
 extern void gps_piksi_event(void);
 extern void gps_piksi_init(void);
 

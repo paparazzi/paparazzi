@@ -14,7 +14,7 @@
     <file name="gps.h" dir="subsystems"/>
   </header>
   <init fun="gps_nmea_init()"/>
-  <!--periodic fun="gps_periodic_check()" freq="1." autorun="TRUE"/-->
+  <periodic fun="gps_periodic_check(&gps_nmea.state)" freq="1." autorun="TRUE"/>
   <event fun="gps_nmea_event()"/>
   <makefile target="ap">
     <configure name="FURUNO_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>

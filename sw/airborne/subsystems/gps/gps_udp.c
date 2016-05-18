@@ -37,6 +37,8 @@
 unsigned char gps_udp_read_buffer[256];
 struct FmsNetwork *gps_network = NULL;
 
+struct GpsState gps_udp;
+
 void gps_udp_init(void)
 {
   gps_udp.fix = GPS_FIX_NONE;
