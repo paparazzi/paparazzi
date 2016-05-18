@@ -16,9 +16,9 @@
     <file name="cv_opencvdemo.c"/>
     <file name="opencv_example.cpp"/>
 
-    <flag name="CXXFLAGS" value="I$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install/include"/>
+    <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install/include"/>
 
-  	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install/lib" />
+  	<flag name="LDFLAGS" value="L$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install/lib" />
 	<flag name="LDFLAGS" value="lopencv_imgcodecs" />
 	<flag name="LDFLAGS" value="lopencv_imgproc" />
 	<flag name="LDFLAGS" value="lopencv_core" />
