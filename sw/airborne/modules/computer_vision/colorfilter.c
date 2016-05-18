@@ -28,17 +28,10 @@
 #include "modules/computer_vision/colorfilter.h"
 #include <stdio.h>
 #include "video_thread.h"
-#ifndef COLORFILTER_CAMERA
-#warning "USING THE FRONT CAMERA! Use the setting COLORFILTER_CAMERA to change this"
-#define COLORFILTER_CAMERA front_camera
-#endif
-
-#ifndef CAMERA_SETTINGS
-#warning "USING SETTINGS camera1_settings! Use the setting CAMERA_SETTINGS to change this"
-#define CAMERA_SETTINGS camera1_settings
-#endif
 
 #include BOARD_CONFIG
+
+
 // Filter Settings
 uint8_t color_lum_min = 105;
 uint8_t color_lum_max = 205;
@@ -66,6 +59,5 @@ struct image_t *colorfilter_func(struct image_t *img)
 
 void colorfilter_init(void)
 {
-  cv_add_to_device(&COLORFILTER_CAMERA, colorfilter_func,&CAMERA_SETTINGS);
+  cv_add_to_device(&COLORFILTER_CAMERA, colorfilter_func);
 }
-

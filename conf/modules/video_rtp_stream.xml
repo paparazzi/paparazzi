@@ -10,6 +10,7 @@
        - Possibility to save an image(shot) on internal or external storage space even in full size, best quality
       Example to add to ARdrone2 airframe with extra USB stick plugger in:
     </description>
+    <configure name="VIEWVIDEO_CAMERA" value="VIDEO1|VIDEO2" description="Video device to use"/>
     <configure name="VIEWVIDEO_USE_NETCAT" value="FALSE|TRUE" description="Use netcat for transfering images instead of RTP stream (default: FALSE)"/>
     <configure name="VIEWVIDEO_HOST" value="192.168.1.255" description="GCS IP (default: MODEM_HOST)"/>
     <configure name="VIEWVIDEO_PORT_OUT" value="5000" description="Port (default: 5000)"/>

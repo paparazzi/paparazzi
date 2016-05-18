@@ -49,18 +49,8 @@
 #include "udp_socket.h"
 #include "peripherals/video_device.h"
 
-#ifndef VIEWVIDEO_CAMERA
-#warning "USING THE FRONT CAMERA! Use the setting VIEWVIDEO_CAMERA to change this"
-#define VIEWVIDEO_CAMERA front_camera
-#endif
-
-
-#ifndef CAMERA_SETTINGS
-#warning "USING SETTINGS camera1_settings! Use the setting CAMERA_SETTINGS to change this"
-#define CAMERA_SETTINGS camera1_settings
-#endif
-
 #include BOARD_CONFIG
+
 
 // Downsize factor for video stream
 #ifndef VIEWVIDEO_DOWNSIZE_FACTOR
@@ -215,7 +205,7 @@ void viewvideo_init(void)
 {
   char save_name[512];
 
-  cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function,&CAMERA_SETTINGS);
+  cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function);
 
   viewvideo.is_streaming = true;
 

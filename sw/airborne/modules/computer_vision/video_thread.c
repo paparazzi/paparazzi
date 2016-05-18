@@ -303,6 +303,15 @@ void video_thread_init(void)
     printf("[video_thread] Could not create shot directory %s.\n", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
     return;
   }
+
+#ifdef USE_VIDEO1
+  initialise_camera(&VIDEO1, NULL);
+#endif
+
+#ifdef USE_VIDEO2
+  initialise_camera(&VIDEO2, NULL);
+#endif
+
 }
 
 /**
@@ -310,12 +319,14 @@ void video_thread_init(void)
  */
 void video_thread_start()
 {
-  // Start every known camera device
-  struct device_linked_list *current_index = &initialised_devices;
-  while (current_index != NULL) {
-    start_video_thread(current_index->camera);
-    current_index = current_index->next;
-  }
+
+#ifdef USE_VIDEO1
+  start_video_thread(&VIDEO1);
+#endif
+
+#ifdef USE_VIDEO2
+  start_video_thread(&VIDEO2);
+#endif
 
 }
 /**
@@ -325,11 +336,14 @@ void video_thread_start()
 void video_thread_stop()
 {
 
-  struct device_linked_list *current_index = &initialised_devices;
-  while (current_index != NULL) {
-    stop_video_thread(current_index->camera);
-    current_index = current_index->next;
-  }
+#ifdef USE_VIDEO1
+  stop_video_thread(&VIDEO1);
+#endif
+
+#ifdef USE_VIDEO2
+  stop_video_thread(&VIDEO2);
+#endif
+
   // TODO: wait for the thread to finish to be able to start the thread again!
 }
 
