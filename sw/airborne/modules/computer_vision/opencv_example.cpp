@@ -34,29 +34,29 @@ using namespace std;
 using namespace cv;
 
 
-int opencv_example(char* img, int width, int height)
+int opencv_example(char *img, int width, int height)
 {
-	// Create a new image, using the original bebop image.
-	Mat M(width,height, CV_8UC2, img);
-	Mat image;
-	// If you want a color image, uncomment this line
-	// cvtColor(M, image, CV_YUV2RGB_Y422);
-	// For a grayscale image, use this one
-	cvtColor(M, image, CV_YUV2GRAY_Y422);
+  // Create a new image, using the original bebop image.
+  Mat M(width, height, CV_8UC2, img);
+  Mat image;
+  // If you want a color image, uncomment this line
+  // cvtColor(M, image, CV_YUV2RGB_Y422);
+  // For a grayscale image, use this one
+  cvtColor(M, image, CV_YUV2GRAY_Y422);
 
-	// Blur it, because we can
-	blur(image, image, Size(5,5));
+  // Blur it, because we can
+  blur(image, image, Size(5, 5));
 
-	// Canny edges, only works with grayscale image
-	int edgeThresh=35;
-	Canny(image, image, edgeThresh, edgeThresh*3);
+  // Canny edges, only works with grayscale image
+  int edgeThresh = 35;
+  Canny(image, image, edgeThresh, edgeThresh * 3);
 
-	// Convert back to YUV422, and put it in place of the original image
-	for (int row=0; row <height; row++){
-		for (int col=0; col <width; col++){
-			img[(row*width+col)*2+1] = image.at<uint8_t>(row,col);
-			img[(row*width+col)*2] = 127;
-		}
-	}
-	return 0;
+  // Convert back to YUV422, and put it in place of the original image
+  for (int row = 0; row < height; row++) {
+    for (int col = 0; col < width; col++) {
+      img[(row * width + col) * 2 + 1] = image.at<uint8_t>(row, col);
+      img[(row * width + col) * 2] = 127;
+    }
+  }
+  return 0;
 }
