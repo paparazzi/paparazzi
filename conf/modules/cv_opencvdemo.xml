@@ -2,7 +2,11 @@
 
 <module name="cv_opencvdemo" dir="computer_vision">
   <doc>
-    <description>opencv</description>
+    <description>This example shows how opencv can be used on (for example) the Bebop drone.
+	Important to know is that sw/ext/opencv_bebop must be downloaded, and made. 
+	After this is done the folder sw/ext/opencv_bebop/install has a opencv.xml file. 
+	The LDFLAGS in this file should be the same as in this conf file.
+    </description>
   </doc>
   <header>
     <file name="cv_opencvdemo.h"/>
