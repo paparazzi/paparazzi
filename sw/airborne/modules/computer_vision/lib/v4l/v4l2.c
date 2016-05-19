@@ -187,10 +187,12 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
   struct v4l2_format fmt;
   struct v4l2_requestbuffers req;
   struct v4l2_fmtdesc fmtdesc;
+  struct v4l2_crop crop;
   CLEAR(cap);
   CLEAR(fmt);
   CLEAR(req);
   CLEAR(fmtdesc);
+  CLEAR(crop);
 
   // Try to open the device
   int fd = open(device_name, O_RDWR | O_NONBLOCK, 0);
@@ -221,7 +223,13 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
   fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   while (ioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) == 0) {
     fmtdesc.index++;
-    printf("[v4l2] Pixelformat: %d (wanted: %d)\r\n", fmtdesc.pixelformat, _pixelformat);
+    if(fmtdesc.pixelformat == _pixelformat)
+      break;
+  }
+
+  if(fmtdesc.pixelformat != _pixelformat) {
+    printf("[v4l2] Pixelformat not available on device %s (wanted: %d)\r\n", device_name, _pixelformat);
+    return NULL;
   }
 
   // TODO: Read video cropping and scaling information VIDIOC_CROPCAP
@@ -235,6 +243,19 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
 
   if (ioctl(fd, VIDIOC_S_FMT, &fmt) < 0) {
     printf("[v4l2] Could not set data format settings of %s\n", device_name);
+    close(fd);
+    return NULL;
+  }
+
+  // Set the corpping window
+  crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  crop.c.top = 0;
+  crop.c.left = 0;
+  crop.c.width = 240;
+  crop.c.height = 240;
+
+  if (ioctl(fd, VIDIOC_S_CROP, &crop) < 0) {
+    printf("[v4l2] Could not set crop window of %s\n", device_name);
     close(fd);
     return NULL;
   }

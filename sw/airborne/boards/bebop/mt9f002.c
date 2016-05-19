@@ -64,7 +64,7 @@ static void write_reg(struct mt9f002_t *mt, uint16_t addr, uint32_t val, uint8_t
   }
 
   // Transmit the buffer
-  i2c_transmit(mt->i2c_periph, &mt->i2c_trans, mt->i2c_trans.slave_addr, len + 2);
+  i2c_transmit(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, len + 2);
 }
 
 /**
@@ -77,7 +77,7 @@ static uint32_t read_reg(struct mt9f002_t *mt, uint16_t addr, uint8_t len)
   mt->i2c_trans.buf[1] = addr & 0xFF;
 
   // Transmit the buffer and receive back
-  i2c_transceive(mt->i2c_periph, &mt->i2c_trans, mt->i2c_trans.slave_addr, 2, len);
+  i2c_transceive(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, 2, len);
 
   /* Fix sigdness */
   for(uint8_t i =0; i < len; i++) {
@@ -89,7 +89,7 @@ static uint32_t read_reg(struct mt9f002_t *mt, uint16_t addr, uint8_t len)
 /**
  * Configure stage 1 for both MiPi and HiSPi connection
  */
-static void mt9f002_mipi_stage1(struct mt9f002_t *mt)
+static inline void mt9f002_mipi_stage1(struct mt9f002_t *mt)
 {
   write_reg(mt, MT9F002_RESET_REGISTER, 0x0118, 2);
   write_reg(mt, MT9F002_MODE_SELECT, 0x00, 1);
@@ -346,7 +346,7 @@ static void mt9f002_mipi_stage1(struct mt9f002_t *mt)
 /**
  * Configure stage 2 for both MiPi and HiSPi connection
  */
-static void mt9f002_mipi_stage2(struct mt9f002_t *mt)
+static inline void mt9f002_mipi_stage2(struct mt9f002_t *mt)
 {
   write_reg(mt, MT9F002_SMIA_TEST, 0x0045, 2);
 }
@@ -354,7 +354,7 @@ static void mt9f002_mipi_stage2(struct mt9f002_t *mt)
 /**
  * Configure stage 3 for both MiPi and HiSPi connection
  */
-static void mt9f002_mipi_stage3(struct mt9f002_t *mt)
+static inline void mt9f002_mipi_stage3(struct mt9f002_t *mt)
 {
   write_reg(mt, MT9F002_EXTRA_DELAY      , 0x0000, 2);
   write_reg(mt, MT9F002_RESET_REGISTER   , 0x0118, 2);
@@ -365,7 +365,7 @@ static void mt9f002_mipi_stage3(struct mt9f002_t *mt)
 /**
  * Configure stage 1 for parallel connection
  */
-static void mt9f002_parallel_stage1(struct mt9f002_t *mt)
+static inline void mt9f002_parallel_stage1(struct mt9f002_t *mt)
 {
   write_reg(mt, MT9F002_RESET_REGISTER , 0x0010, 2);
   write_reg(mt, MT9F002_GLOBAL_GAIN    , 0x1430, 2);
@@ -462,7 +462,7 @@ static void mt9f002_parallel_stage1(struct mt9f002_t *mt)
 /**
  * Configure stage 2 for parallel connection
  */
-static void mt9f002_parallel_stage2(struct mt9f002_t *mt)
+static inline void mt9f002_parallel_stage2(struct mt9f002_t *mt)
 {
   write_reg(mt, MT9F002_ANALOG_CONTROL4, 0x8000, 2);
   write_reg(mt, MT9F002_READ_MODE, 0x0041, 2);
@@ -503,7 +503,7 @@ static void mt9f002_parallel_stage2(struct mt9f002_t *mt)
 /**
  * Set the PLL registers based on config
  */
-static void mt9f002_set_pll(struct mt9f002_t *mt)
+static inline void mt9f002_set_pll(struct mt9f002_t *mt)
 {
   // Update registers
   write_reg(mt, MT9F002_VT_PIX_CLK_DIV , mt->vt_pix_clk_div, 2);
@@ -689,7 +689,7 @@ static void mt9f002_set_exposure(struct mt9f002_t *mt)
 /**
  *  Calculate the gain based on value of 1.0 -> 63.50
  */
-static inline uint16_t mt9f002_calc_gain(float gain) {
+static uint16_t mt9f002_calc_gain(float gain) {
   // Check if gain is valid
   if(gain < 1.0) {
     gain = 1.0;
@@ -763,7 +763,6 @@ void mt9f002_init(struct mt9f002_t *mt)
   //TODO???
 
   /* Setup i2c transaction */
-  mt->i2c_trans.slave_addr = MT9F002_ADDRESS;
   mt->i2c_trans.status = I2CTransDone;
 
   /* Software reset */

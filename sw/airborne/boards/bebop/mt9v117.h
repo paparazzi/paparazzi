@@ -27,6 +27,16 @@
 #ifndef MT9V117_H
 #define MT9V117_H
 
-void mt9v117_init(void);
+#include "std.h"
+#include "mcu_periph/i2c.h"
+
+struct mt9v117_t {
+
+
+  struct i2c_periph *i2c_periph;      ///< I2C peripheral used to communicate over
+  struct i2c_transaction i2c_trans;   ///< I2C transaction for comminication with CMOS chip
+};
+
+void mt9v117_init(struct mt9v117_t *mt);
 
 #endif /* MT9V117_H */

@@ -1,7 +1,7 @@
 #ifndef MT9V117_REGS_H
 #define MT9V117_REGS_H
 
-#define MT9V117_ADDRESS           0x5D      ///< The i2c address of the chip
+#define MT9V117_ADDRESS           0xBA      ///< The i2c address of the chip
 
 /* Registers */
 #define MT9V117_CHIP_ID                       0x0000      ///< Request the chip ID

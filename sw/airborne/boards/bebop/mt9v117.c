@@ -37,15 +37,15 @@
 //FIXMEE!
 #include "boards/bebop.h"
 struct video_config_t bottom_camera = {
-  .w = 64,
-  .h = 64,
+  .w = 128,
+  .h = 128,
   .sensor_w = 320,
   .sensor_h = 240,
   .dev_name = "/dev/video0",
   .subdev_name = "/dev/v4l-subdev0",
   .format = V4L2_PIX_FMT_UYVY,
   .subdev_format = V4L2_MBUS_FMT_UYVY8_2X8,
-  .buf_cnt = 8,
+  .buf_cnt = 120,
   .filters = 0
 };
 
@@ -176,118 +176,112 @@ const static struct mt9v117_patch_t mt9v117_patch_lines[MT9V117_PATCH_LINE_NUM] 
     {patch_line13, sizeof(patch_line13)}
 };
 
-/* Write multiple bytes to a single register */
-static void write_reg(int fd, uint16_t addr, uint32_t val, uint8_t len)
+/**
+ * Write multiple bytes to a single register
+ */
+static void write_reg(struct mt9v117_t *mt, uint16_t addr, uint32_t val, uint16_t len)
 {
-  uint8_t buf[len + 2];
-  buf[0] = addr >> 8;
-  buf[1] = addr & 0xFF;
+  mt->i2c_trans.buf[0] = addr >> 8;
+  mt->i2c_trans.buf[1] = addr & 0xFF;
 
   // Fix sigdness based on length
   if(len == 1) {
-    buf[2] = val & 0xFF;
+    mt->i2c_trans.buf[2] = val & 0xFF;
   }
   else if(len == 2) {
-    buf[2] = (val >> 8) & 0xFF;
-    buf[3] = val & 0xFF;
+    mt->i2c_trans.buf[2] = (val >> 8) & 0xFF;
+    mt->i2c_trans.buf[3] = val & 0xFF;
   }
   else if(len == 4) {
-    buf[2] = (val >> 24) & 0xFF;
-    buf[3] = (val >> 16) & 0xFF;
-    buf[4] = (val >> 8) & 0xFF;
-    buf[5] = val & 0xFF;
+    mt->i2c_trans.buf[2] = (val >> 24) & 0xFF;
+    mt->i2c_trans.buf[3] = (val >> 16) & 0xFF;
+    mt->i2c_trans.buf[4] = (val >> 8) & 0xFF;
+    mt->i2c_trans.buf[5] = val & 0xFF;
   }
   else {
     printf("[MT9V117] write_reg with incorrect length %d\r\n", len);
   }
 
   // Transmit the buffer
-  if (write(fd, buf, len + 2) != (len + 2)) {
-    printf("[MT9V117] write_reg failed (fd: %d, addr: %d, len:%d)\r\n", fd, addr, len);
-  }
+  i2c_transmit(mt->i2c_periph, &mt->i2c_trans, MT9V117_ADDRESS, len + 2);
 }
 
-/* Read multiple bytes from a register */
-static uint32_t read_reg(int fd, uint16_t addr, uint8_t len)
+/**
+ * Read multiple bytes from a register
+ */
+static uint32_t read_reg(struct mt9v117_t *mt, uint16_t addr, uint16_t len)
 {
   uint32_t ret = 0;
-  uint8_t val[len];
-  uint8_t buf[2];
-  buf[0] = addr >> 8;
-  buf[1] = addr & 0xFF;
+  mt->i2c_trans.buf[0] = addr >> 8;
+  mt->i2c_trans.buf[1] = addr & 0xFF;
 
-  /* First transmit the address */
-  if (write(fd, buf, 2) != 2) {
-    printf("[MT9V117] read_reg failed, because of writing (fd: %d, addr: %d, len:%d)\r\n", fd, addr, len);
-    return ret;
-  }
-
-  /* Actually read the register */
-  if (read(fd, val, len) != len) {
-    printf("[MT9V117] read_reg failed, because of reading (fd: %d, addr: %d, len:%d)\r\n", fd, addr, len);
-    return ret;
-  }
+  // Transmit the buffer and receive back
+  i2c_transceive(mt->i2c_periph, &mt->i2c_trans, MT9V117_ADDRESS, 2, len);
 
   /* Fix sigdness */
   for(uint8_t i =0; i < len; i++) {
-    ret |= val[len-i-1] << (8*i);
+    ret |= mt->i2c_trans.buf[len-i-1] << (8*i);
   }
   return ret;
 }
 
 /* Write a byte to a var */
-static void write_var(int fd, uint16_t var, uint16_t offset, uint32_t val, uint8_t len)
+static void write_var(struct mt9v117_t *mt, uint16_t var, uint16_t offset, uint32_t val, uint16_t len)
 {
   uint16_t addr = 0x8000 | (var << 10) | offset;
-  write_reg(fd, addr, val, len);
+  write_reg(mt, addr, val, len);
 }
 
 /* Read a byte from a var */
-static uint32_t read_var(int fd, uint16_t var, uint16_t offset, uint8_t len)
+static uint32_t read_var(struct mt9v117_t *mt, uint16_t var, uint16_t offset, uint16_t len)
 {
   uint16_t addr = 0x8000 | (var << 10) | offset;
-  return read_reg(fd, addr, len);
+  return read_reg(mt, addr, len);
 }
 
-static inline void mt9v117_write_patch(int fd)
+static inline void mt9v117_write_patch(struct mt9v117_t *mt)
 {
   /* Errata item 2 */
-  write_reg(fd, 0x301a, 0x10d0, 2);
-  write_reg(fd, 0x31c0, 0x1404, 2);
-  write_reg(fd, 0x3ed8, 0x879c, 2);
-  write_reg(fd, 0x3042, 0x20e1, 2);
-  write_reg(fd, 0x30d4, 0x8020, 2);
-  write_reg(fd, 0x30c0, 0x0026, 2);
-  write_reg(fd, 0x301a, 0x10d4, 2);
+  write_reg(mt, 0x301a, 0x10d0, 2);
+  write_reg(mt, 0x31c0, 0x1404, 2);
+  write_reg(mt, 0x3ed8, 0x879c, 2);
+  write_reg(mt, 0x3042, 0x20e1, 2);
+  write_reg(mt, 0x30d4, 0x8020, 2);
+  write_reg(mt, 0x30c0, 0x0026, 2);
+  write_reg(mt, 0x301a, 0x10d4, 2);
 
   /* Errata item 6 */
-  write_var(fd, MT9V117_AE_TRACK_VAR, 0x0002, 0x00d3, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, 0x0078, 0x00a0, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, 0x0076, 0x0140, 2);
+  write_var(mt, MT9V117_AE_TRACK_VAR, 0x0002, 0x00d3, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, 0x0078, 0x00a0, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, 0x0076, 0x0140, 2);
 
   /* Errata item 8 */
-  write_var(fd, MT9V117_LOW_LIGHT_VAR, 0x0004, 0x00fc, 2);
-  write_var(fd, MT9V117_LOW_LIGHT_VAR, 0x0038, 0x007f, 2);
-  write_var(fd, MT9V117_LOW_LIGHT_VAR, 0x003a, 0x007f, 2);
-  write_var(fd, MT9V117_LOW_LIGHT_VAR, 0x003c, 0x007f, 2);
-  write_var(fd, MT9V117_LOW_LIGHT_VAR, 0x0004, 0x00f4, 2);
+  write_var(mt, MT9V117_LOW_LIGHT_VAR, 0x0004, 0x00fc, 2);
+  write_var(mt, MT9V117_LOW_LIGHT_VAR, 0x0038, 0x007f, 2);
+  write_var(mt, MT9V117_LOW_LIGHT_VAR, 0x003a, 0x007f, 2);
+  write_var(mt, MT9V117_LOW_LIGHT_VAR, 0x003c, 0x007f, 2);
+  write_var(mt, MT9V117_LOW_LIGHT_VAR, 0x0004, 0x00f4, 2);
 
   /* Patch 0403; Critical; Sensor optimization */
-  write_reg(fd, MT9V117_ACCESS_CTL_STAT, 0x0001, 2);
-  write_reg(fd, MT9V117_PHYSICAL_ADDRESS_ACCESS, 0x7000, 2);
+  write_reg(mt, MT9V117_ACCESS_CTL_STAT, 0x0001, 2);
+  write_reg(mt, MT9V117_PHYSICAL_ADDRESS_ACCESS, 0x7000, 2);
 
   /* Write patch */
-  for (uint8_t i = 0; i < MT9V117_PATCH_LINE_NUM; i++) {
-    if(write(fd, mt9v117_patch_lines[i].data, mt9v117_patch_lines[i].len) != mt9v117_patch_lines[i].len) {
-      printf("[MT9V117] Failed to write patch line %d\r\n", i);
+  for (uint8_t i = 0; i < MT9V117_PATCH_LINE_NUM; ++i) {
+    // Copy buffer
+    for(uint8_t j = 0; j < mt9v117_patch_lines[i].len; ++j) {
+      mt->i2c_trans.buf[j] = mt9v117_patch_lines[i].data[j];
     }
+
+    // Transmit the buffer
+    i2c_transmit(mt->i2c_periph, &mt->i2c_trans, mt->i2c_trans.slave_addr, mt9v117_patch_lines[i].len);
   }
 
-  write_reg(fd, MT9V117_LOGICAL_ADDRESS_ACCESS, 0x0000, 2);
-  write_var(fd, MT9V117_PATCHLDR_VAR, MT9V117_PATCHLDR_LOADER_ADDRESS_OFFSET, 0x05d8, 2);
-  write_var(fd, MT9V117_PATCHLDR_VAR, MT9V117_PATCHLDR_PATCH_ID_OFFSET, 0x0403, 2);
-  write_var(fd, MT9V117_PATCHLDR_VAR, MT9V117_PATCHLDR_FIRMWARE_ID_OFFSET, 0x00430104, 4);
-  write_reg(fd, MT9V117_COMMAND, MT9V117_COMMAND_OK | MT9V117_COMMAND_APPLY_PATCH, 2);
+  write_reg(mt, MT9V117_LOGICAL_ADDRESS_ACCESS, 0x0000, 2);
+  write_var(mt, MT9V117_PATCHLDR_VAR, MT9V117_PATCHLDR_LOADER_ADDRESS_OFFSET, 0x05d8, 2);
+  write_var(mt, MT9V117_PATCHLDR_VAR, MT9V117_PATCHLDR_PATCH_ID_OFFSET, 0x0403, 2);
+  write_var(mt, MT9V117_PATCHLDR_VAR, MT9V117_PATCHLDR_FIRMWARE_ID_OFFSET, 0x00430104, 4);
+  write_reg(mt, MT9V117_COMMAND, MT9V117_COMMAND_OK | MT9V117_COMMAND_APPLY_PATCH, 2);
 
   /* Wait for command OK */
   for(uint8_t retries = 100; retries > 0; retries--) {
@@ -295,7 +289,7 @@ static inline void mt9v117_write_patch(int fd)
     usleep(10000);
 
     /* Check the command */
-    uint16_t cmd = read_reg(fd, MT9V117_COMMAND, 2);
+    uint16_t cmd = read_reg(mt, MT9V117_COMMAND, 2);
     if((cmd & MT9V117_COMMAND_APPLY_PATCH) == 0) {
       if((cmd & MT9V117_COMMAND_OK) == 0) {
         printf("[MT9V117] Applying patch failed (No OK)\r\n");
@@ -308,51 +302,51 @@ static inline void mt9v117_write_patch(int fd)
 }
 
 /* Configure the sensor */
-static void mt9v117_config(int fd) {
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_X_ADDR_START_OFFSET, 16, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_X_ADDR_END_OFFSET, 663, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_Y_ADDR_START_OFFSET, 8, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_Y_ADDR_END_OFFSET,  501, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_CPIPE_LAST_ROW_OFFSET, 243, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_FRAME_LENGTH_LINES_OFFSET, 283, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CONTROL_READ_MODE_OFFSET,
+static inline void mt9v117_config(struct mt9v117_t *mt) {
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_X_ADDR_START_OFFSET, 16, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_X_ADDR_END_OFFSET, 663, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_Y_ADDR_START_OFFSET, 8, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_Y_ADDR_END_OFFSET,  501, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_CPIPE_LAST_ROW_OFFSET, 243, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_FRAME_LENGTH_LINES_OFFSET, 283, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CONTROL_READ_MODE_OFFSET,
                MT9V117_CAM_SENSOR_CONTROL_Y_SKIP_EN, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_MAX_FDZONE_60_OFFSET, 1, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_TARGET_FDZONE_60_OFFSET, 1, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_MAX_FDZONE_60_OFFSET, 1, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_SENSOR_CFG_TARGET_FDZONE_60_OFFSET, 1, 2);
 
-  write_reg(fd, MT9V117_AE_TRACK_JUMP_DIVISOR, 0x03, 1);
-  write_reg(fd, MT9V117_CAM_AET_SKIP_FRAMES, 0x02, 1);
+  write_reg(mt, MT9V117_AE_TRACK_JUMP_DIVISOR, 0x03, 1);
+  write_reg(mt, MT9V117_CAM_AET_SKIP_FRAMES, 0x02, 1);
 
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_OUTPUT_WIDTH_OFFSET, 320, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_OUTPUT_HEIGHT_OFFSET, 240, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_OUTPUT_WIDTH_OFFSET, 320, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_OUTPUT_HEIGHT_OFFSET, 240, 2);
 
   /* Set gain metric for 111.2 fps
    * The final fps depends on the input clock
    * (89.2fps on bebop) so a modification may be needed here */
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_LL_START_GAIN_METRIC_OFFSET, 0x03e8, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_LL_STOP_GAIN_METRIC_OFFSET, 0x1770, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_LL_START_GAIN_METRIC_OFFSET, 0x03e8, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_LL_STOP_GAIN_METRIC_OFFSET, 0x1770, 2);
 
   /* set crop window */
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_XOFFSET_OFFSET, 0, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_YOFFSET_OFFSET, 0, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_WIDTH_OFFSET, 640, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_HEIGHT_OFFSET, 240, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_XOFFSET_OFFSET, 0, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_YOFFSET_OFFSET, 0, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_WIDTH_OFFSET, 640, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_HEIGHT_OFFSET, 240, 2);
 
   /* Enable auto-stats mode */
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_MODE_OFFSET, 3, 1);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AWB_HG_WINDOW_XEND_OFFSET, 319, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AWB_HG_WINDOW_YEND_OFFSET, 239, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_XSTART_OFFSET, 2, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_YSTART_OFFSET, 2, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_XEND_OFFSET, 65, 2);
-  write_var(fd, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_YEND_OFFSET, 49, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_MODE_OFFSET, 3, 1);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AWB_HG_WINDOW_XEND_OFFSET, 319, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AWB_HG_WINDOW_YEND_OFFSET, 239, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_XSTART_OFFSET, 2, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_YSTART_OFFSET, 2, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_XEND_OFFSET, 65, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_YEND_OFFSET, 49, 2);
 }
 
 /**
  * Initialisation of the Aptina MT9V117 CMOS sensor
  * (1/6 inch VGA, bottom camera)
  */
-void mt9v117_init(void)
+void mt9v117_init(struct mt9v117_t *mt)
 {
   /* Reset the device */
   //PWM PIN 129 /sys/class/gpio/gpio129/value
@@ -368,54 +362,44 @@ void mt9v117_init(void)
   /* Wait 50ms */
   usleep(50000);
 
-  /* We open i2c-0 */
-  int dev = open("/dev/i2c-0", O_RDWR);
-  if (dev < 0) {
-    printf("[MT9V117] Could not open i2c-0\r\n");
-    return;
-  }
-  if (ioctl(dev, I2C_SLAVE, MT9V117_ADDRESS) < 0) {
-    printf("[MT9V117] Could not change the i2c address to 0x%02X\r\n", MT9V117_ADDRESS);
-    close(dev);
-    return;
-  }
+  /* Setup i2c transaction */
+  mt->i2c_trans.status = I2CTransDone;
 
   /* See if the device is there and correct */
-  uint16_t chip_id = read_reg(dev, MT9V117_CHIP_ID, 2);
+  uint16_t chip_id = read_reg(mt, MT9V117_CHIP_ID, 2);
   if(chip_id != MT9V117_CHIP_ID_RESP) {
     printf("[MT9V117] Didn't get correct response from CHIP_ID (expected: 0x%04X, got: 0x%04X)\r\n", MT9V117_CHIP_ID_RESP, chip_id);
-    close(dev);
     return;
   }
 
   /* Reset the device with software */
-  write_reg(dev, MT9V117_RESET_MISC_CTRL, MT9V117_RESET_SOC_I2C, 2);
-  write_reg(dev, MT9V117_RESET_MISC_CTRL, 0, 2);
+  write_reg(mt, MT9V117_RESET_MISC_CTRL, MT9V117_RESET_SOC_I2C, 2);
+  write_reg(mt, MT9V117_RESET_MISC_CTRL, 0, 2);
 
   /* Wait 50ms */
   usleep(50000);
 
   /* Apply MT9V117 software patch */
-  mt9v117_write_patch(dev);
+  mt9v117_write_patch(mt);
 
   /* Set basic settings */
-  write_var(dev, MT9V117_AWB_VAR, MT9V117_AWB_PIXEL_THRESHOLD_COUNT_OFFSET, 50000, 4);
-  write_var(dev, MT9V117_AE_RULE_VAR, MT9V117_AE_RULE_ALGO_OFFSET, MT9V117_AE_RULE_ALGO_AVERAGE, 2);
+  write_var(mt, MT9V117_AWB_VAR, MT9V117_AWB_PIXEL_THRESHOLD_COUNT_OFFSET, 50000, 4);
+  write_var(mt, MT9V117_AE_RULE_VAR, MT9V117_AE_RULE_ALGO_OFFSET, MT9V117_AE_RULE_ALGO_AVERAGE, 2);
 
   /* Set pixclk pad slew to 6 and data out pad slew to 1 */
-  write_reg(dev, MT9V117_PAD_SLEW, read_reg(dev, MT9V117_PAD_SLEW, 2) | 0x0600 | 0x0001, 2);
+  write_reg(mt, MT9V117_PAD_SLEW, read_reg(mt, MT9V117_PAD_SLEW, 2) | 0x0600 | 0x0001, 2);
 
   /* Configure the MT9V117 sensor */
-  mt9v117_config(dev);
+  mt9v117_config(mt);
 
   /* Enable ITU656 */
-  write_var(dev, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_OUTPUT_FORMAT_OFFSET,
-                 read_var(dev, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_OUTPUT_FORMAT_OFFSET, 2) |
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_OUTPUT_FORMAT_OFFSET,
+                 read_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_OUTPUT_FORMAT_OFFSET, 2) |
                  MT9V117_CAM_OUTPUT_FORMAT_BT656_ENABLE, 2);
 
   /* Apply the configuration */
-  write_var(dev, MT9V117_SYSMGR_VAR, MT9V117_SYSMGR_NEXT_STATE_OFFSET, MT9V117_SYS_STATE_ENTER_CONFIG_CHANGE, 1);
-  write_reg(dev, MT9V117_COMMAND, MT9V117_COMMAND_OK | MT9V117_COMMAND_SET_STATE, 2);
+  write_var(mt, MT9V117_SYSMGR_VAR, MT9V117_SYSMGR_NEXT_STATE_OFFSET, MT9V117_SYS_STATE_ENTER_CONFIG_CHANGE, 1);
+  write_reg(mt, MT9V117_COMMAND, MT9V117_COMMAND_OK | MT9V117_COMMAND_SET_STATE, 2);
 
   /* Wait for command OK */
   for(uint8_t retries = 100; retries > 0; retries--) {
@@ -423,20 +407,16 @@ void mt9v117_init(void)
     usleep(10000);
 
     /* Check the command */
-    uint16_t cmd = read_reg(dev, MT9V117_COMMAND, 2);
+    uint16_t cmd = read_reg(mt, MT9V117_COMMAND, 2);
     if((cmd & MT9V117_COMMAND_SET_STATE) == 0) {
       if((cmd & MT9V117_COMMAND_OK) == 0) {
         printf("[MT9V117] Switching config failed (No OK)\r\n");
       }
 
-      printf("[MT9V117] Done configuring!\r\n");
-      close(dev);
+      // Successfully configured!
       return;
     }
   }
 
   printf("[MT9V117] Could not switch to new config\r\n");
-
-  /* Close the device */
-  close(dev);
 }
