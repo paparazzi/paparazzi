@@ -115,8 +115,8 @@
   <command_laws>
     <call fun="throttle_curve_run(fbw_motors_on, values)"/>
     <call fun="swashplate_mixing_run(values)"/>
-    <let var="th_hold"          value="(RadioControlValues(RADIO_TH_HOLD) < -4800)"/>
-    <let var="man_mode"         value="(RadioControlValues(RADIO_MODE) < -4800)"/>
+    <let var="th_hold"          value="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
+    <let var="man_mode"         value="LessThan(RadioControlValues(RADIO_MODE), -4800)"/>
 
     <set servo="THROTTLE"       value="($th_hold? -9600 : throttle_curve.throttle)"/>
     <set servo="SW_BACK"        value="swashplate_mixing.commands[SW_BACK]"/>
