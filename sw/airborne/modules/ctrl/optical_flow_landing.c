@@ -293,6 +293,7 @@ void vertical_ctrl_module_run(bool in_flight)
       // USE REAL VISION OUTPUTS:
 
       if (vision_message_nr != previous_message_nr && dt > 1E-5 && ind_hist > 1) {
+        // TODO: this div_factor depends on the subpixel-factor (automatically adapt?)
         div_factor = -1.28f; // magic number comprising field of view etc.
         float new_divergence = (divergence_vision * div_factor) / dt;
 

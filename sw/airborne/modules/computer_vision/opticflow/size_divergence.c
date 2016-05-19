@@ -41,7 +41,7 @@
  * @param[in] n_samples  The number of line segments that will be taken into account. 0 means all line segments will be considered.
  * @return divergence
  */
-float get_size_divergence(struct flow_t *vectors, int count, int n_samples, uint16_t subpixel_factor)
+float get_size_divergence(struct flow_t *vectors, int count, int n_samples)
 {
   float distance_1;
   float distance_2;
@@ -68,13 +68,13 @@ float get_size_divergence(struct flow_t *vectors, int count, int n_samples, uint
     for (i = 0; i < count; i++) {
       for (j = i + 1; j < count; j++) {
         // distance in previous image:
-        dx = vectors[i].pos.x - vectors[j].pos.x;
-        dy = vectors[i].pos.y - vectors[j].pos.y;
+        dx = (float)vectors[i].pos.x - (float)vectors[j].pos.x;
+        dy = (float)vectors[i].pos.y - (float)vectors[j].pos.y;
         distance_1 = sqrt(dx * dx + dy * dy);
 
         // distance in current image:
-        dx = vectors[i].pos.x + vectors[i].flow_x - vectors[j].pos.x - vectors[j].flow_x;
-        dy = vectors[i].pos.y + vectors[i].flow_y - vectors[j].pos.y - vectors[j].flow_y;
+        dx = (float)vectors[i].pos.x + (float)vectors[i].flow_x - (float)vectors[j].pos.x - (float)vectors[j].flow_x;
+        dy = (float)vectors[i].pos.y + (float)vectors[i].flow_y - (float)vectors[j].pos.y - (float)vectors[j].flow_y;
         distance_2 = sqrt(dx * dx + dy * dy);
 
         // calculate divergence for this sample:
@@ -92,7 +92,6 @@ float get_size_divergence(struct flow_t *vectors, int count, int n_samples, uint
     // vector that will contain individual divergence estimates:
     divs = (float *) malloc(sizeof(float) * n_samples);
 
-    printf("************************\n");
     // take random samples:
     for (sample = 0; sample < n_samples; sample++) {
       // take two random indices:
@@ -103,34 +102,23 @@ float get_size_divergence(struct flow_t *vectors, int count, int n_samples, uint
         j = rand() % count;
       }
 
-      //printf("************************\n");  
-      //printf("Sample %d / %d\n", sample, n_samples);
       // distance in previous image:
-      dx = (float)vectors[i].pos.x - (float)vectors[j].pos.x;
+      dx = ((float)vectors[i].pos.x) - ((float)vectors[j].pos.x);
       dy = (float)vectors[i].pos.y - (float)vectors[j].pos.y;
-      //printf("(dx, dy) = (%f, %f)\n", dx, dy);
       distance_1 = sqrt(dx * dx + dy * dy);
 
       // distance in current image:
       dx = (float)vectors[i].pos.x + (float)vectors[i].flow_x - (float)vectors[j].pos.x - (float)vectors[j].flow_x;
       dy = (float)vectors[i].pos.y + (float)vectors[i].flow_y - (float)vectors[j].pos.y - (float)vectors[j].flow_y;
-      //printf("(dx, dy) = (%f, %f)\n", dx, dy);
       distance_2 = sqrt(dx * dx + dy * dy);
 
-      //printf("subpixel factor = %d\n", subpixel_factor);
-      //printf("(%d, %d) and (%d,%d)\n", vectors[i].pos.x, vectors[i].pos.y, vectors[j].pos.x, vectors[j].pos.y);
-      //printf("to: (%d, %d) and (%d,%d)\n", vectors[i].pos.x + vectors[i].flow_x, vectors[i].pos.y + vectors[i].flow_y, 
-      //    vectors[j].pos.x + vectors[j].flow_x, vectors[j].pos.y + vectors[j].flow_y);
-      //printf("dist1 = %f, dist2 = %f\n", distance_1, distance_2);
+          
       // calculate divergence for this sample:
       divs[sample] = (distance_2 - distance_1) / distance_1;
-      printf("DIV = %f\n", divs[sample]);
     }
 
     // calculate the mean divergence:
     mean_divergence = get_mean(divs, n_samples);
-    printf("MEAN DIV = %f\n", mean_divergence);    
-
     // free the memory of divs:
     free(divs);
   }

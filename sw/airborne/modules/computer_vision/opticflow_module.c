@@ -78,7 +78,7 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
                                &opticflow_result.flow_y, &opticflow_result.flow_der_x,
                                &opticflow_result.flow_der_y, &opticflow_result.vel_x,
                                &opticflow_result.vel_y, &opticflow_result.div_size,
-                               &opticflow_result.surface_roughness, &opticflow_result.divergence);
+                               &opticflow_result.surface_roughness, &opticflow_result.divergence); // TODO: no noise measurement here...
   pthread_mutex_unlock(&opticflow_mutex);
 }
 #endif
@@ -163,7 +163,7 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   pthread_mutex_unlock(&opticflow_mutex);
 
   // Do the optical flow calculation
-  struct opticflow_result_t temp_result;
+  struct opticflow_result_t temp_result = {}; // new initialization
   opticflow_calc_frame(&opticflow, &temp_state, img, &temp_result);
 
   // Copy the result if finished
@@ -171,6 +171,8 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
   opticflow_got_result = true;
   pthread_mutex_unlock(&opticflow_mutex);
+
+  // TODO: why is there a mutex above and not below when changing opticflow_result?
 
   /* Rotate velocities from camera frame coordinates to body coordinates for control
   * IMPORTANT!!! This frame to body orientation should be the case for the Parrot
