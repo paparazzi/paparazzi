@@ -36,7 +36,6 @@
 // Own Header
 #include "opticflow_calculator.h"
 
-
 // Computer Vision
 #include "lib/vision/image.h"
 #include "lib/vision/lucas_kanade.h"
@@ -45,12 +44,16 @@
 #include "size_divergence.h"
 #include "linear_flow_fit.h"
 
+// whether to show the flow and corners:
+#define OPTICFLOW_SHOW_FLOW 0
+#define OPTICFLOW_SHOW_CORNERS 0
+
 // What methods are run to determine divergence, lateral flow, etc.
 // SIZE_DIV looks at line sizes and only calculates divergence
 #define SIZE_DIV 1
 // LINEAR_FIT makes a linear optical flow field fit and extracts a lot of information:
 // relative velocities in x, y, z (divergence / time to contact), the slope of the surface, and the surface roughness.
-#define LINEAR_FIT 1
+#define LINEAR_FIT 0
 
 // Camera parameters (defaults are from an ARDrone 2)
 #ifndef OPTICFLOW_FOV_W
@@ -258,13 +261,14 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
                                        opticflow->threshold_vec, opticflow->max_track_corners, opticflow->pyramid_level);
 
 #if OPTICFLOW_SHOW_FLOW
+  printf("show: n tracked = %d\n", result->tracked_cnt);
   image_show_flow(img, vectors, result->tracked_cnt, opticflow->subpixel_factor);
 #endif
 
   // Estimate size divergence:
   if (SIZE_DIV) {
     n_samples = 100;
-    size_divergence = get_size_divergence(vectors, result->tracked_cnt, n_samples);
+    size_divergence = get_size_divergence(vectors, result->tracked_cnt, n_samples, opticflow->subpixel_factor);
     result->div_size = size_divergence;
   } else {
     result->div_size = 0.0f;
