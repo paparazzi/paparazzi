@@ -46,6 +46,10 @@
 #define MODULES_C
 #include "generated/modules.h"
 
+/* So one can use these in command_laws section */
+#define LessThan(_x, _y) ((_x) < (_y))
+#define MoreThan(_x, _y) ((_x) > (_y))
+
 
 /** Fly by wire modes */
 typedef enum {FBW_MODE_MANUAL = 0, FBW_MODE_AUTO = 1, FBW_MODE_FAILSAFE = 2} fbw_mode_enum;
