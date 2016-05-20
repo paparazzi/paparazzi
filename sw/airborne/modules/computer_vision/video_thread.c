@@ -70,13 +70,6 @@ static void *video_thread_function(void *data);
 void video_thread_periodic(void) { }
 
 
-// We keep track of each camera device in a linked list
-struct device_linked_list {
-  struct device_linked_list *next;
-  struct video_config_t *camera;
-};
-
-struct device_linked_list initialised_devices;
 static void video_thread_save_shot(struct video_thread_t thread_to_save_shot_from, struct image_t *img,
                                    struct image_t *img_jpeg)
 {
@@ -248,54 +241,12 @@ void stop_video_thread(struct video_config_t *device)
   }
 
 }
-void video_thread_initialise_device(struct video_config_t *device,struct video_settings* settings_pointer){
-  struct device_linked_list *current_index = &initialised_devices;
 
-  // Check if we already initialised this camera device
-  while (current_index != NULL) {
-    if (current_index->camera == device) {
-      printf("Device %s already intialised\n", device->dev_name);
-      return;
-    }
-    current_index = current_index->next;
-  }
-
-  // Device is not initialised yet, add the device
-  current_index = &initialised_devices;
-  if (current_index->camera == NULL && current_index->next == NULL) {
-    // Start the first element of the list
-    current_index->camera = device;
-  } else {
-    // Go to the end of the list
-    while (current_index->next != NULL) {
-      current_index = current_index->next;
-    }
-    // Add a new device at the end of the list
-    struct device_linked_list *new_element = malloc(sizeof(struct device_linked_list));
-    new_element->next = NULL;
-    new_element->camera = device;
-    current_index->next = new_element;
-
-  }
-
-  // Now that it is in our list, lets initialise the camera itself.
-  initialise_camera(device,&camera1_settings);
-}
 /**
  * Initialize the view video
  */
 void video_thread_init(void)
 {
-  // Initialise the list of camera devices as an empty list
-  initialised_devices.camera = NULL;
-  initialised_devices.next = NULL;
-
-  // Set every camera settings to default
-  camera1_settings.fps=VIDEO_THREAD_FPS;
-  camera2_settings.fps=VIDEO_THREAD_FPS;
-  camera3_settings.fps=VIDEO_THREAD_FPS;
-  camera4_settings.fps=VIDEO_THREAD_FPS;
-
   // Create the shot directory
   char save_name[128];
   sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
@@ -353,7 +304,9 @@ void video_thread_stop()
  */
 void video_thread_take_shot(bool take)
 {
-  if (initialised_devices.camera != NULL) {
-    initialised_devices.camera->thread.settings->take_shot = take;
-  }
+
+#ifdef USE_VIDEO1
+  VIDEO1.thread.settings->take_shot = take;
+#endif
+
 }
