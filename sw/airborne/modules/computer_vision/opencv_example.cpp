@@ -34,6 +34,33 @@ using namespace std;
 using namespace cv;
 
 
+void convertBackFromRGB(Mat image, char* img, int width, int height){
+
+ //Turn the opencv RGB colored image back in a YUV colored image for the drone
+  for (int row = 0; row < height; row++) {
+    for (int col = 0; col < width; col++) {
+      cv::Vec3b pixelHere = image.at<cv::Vec3b>(row, col);
+      img[(row * width + col) * 2 + 1] = 0.299 * pixelHere[0] + 0.587 * pixelHere[1] + 0.114 * pixelHere[2];
+      if (col % 2 == 0) { // U
+        img[(row * width + col) * 2] = 0.492 * (pixelHere[2] - img[(row * width + col) * 2 + 1] + 127);
+      } else { // V
+        img[(row * width + col) * 2] = 0.877 * (pixelHere[0] - img[(row * width + col) * 2 + 1] + 127);
+      }
+    }
+  }
+}
+
+
+void convertBackFromGrayscale(Mat image, char* img, int width, int height){
+   for (int row = 0; row < height; row++) {
+       for (int col = 0; col < width; col++) {
+
+         img[(row * width + col) * 2 + 1] =   image.at<uint8_t>(row, col);
+         img[(row * width + col) * 2 ]=127;
+       }
+     }
+}
+
 int opencv_example(char *img, int width, int height)
 {
   // Create a new image, using the original bebop image.
@@ -52,11 +79,6 @@ int opencv_example(char *img, int width, int height)
   Canny(image, image, edgeThresh, edgeThresh * 3);
 
   // Convert back to YUV422, and put it in place of the original image
-  for (int row = 0; row < height; row++) {
-    for (int col = 0; col < width; col++) {
-      img[(row * width + col) * 2 + 1] = image.at<uint8_t>(row, col);
-      img[(row * width + col) * 2] = 127;
-    }
-  }
+  convertBackFromGrayscale(image,img,width,height);
   return 0;
 }
