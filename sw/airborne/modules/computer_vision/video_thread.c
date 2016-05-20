@@ -53,18 +53,6 @@
 #include <pthread.h>
 #include "rt_priority.h"
 
-// Frames Per Seconds
-#ifndef VIDEO_THREAD_FPS
-#define VIDEO_THREAD_FPS 4
-#endif
-PRINT_CONFIG_VAR(VIDEO_THREAD_FPS)
-
-// The place where the shots are saved (without slash on the end)
-#ifndef VIDEO_THREAD_SHOT_PATH
-#define VIDEO_THREAD_SHOT_PATH "/data/video/images"
-#endif
-PRINT_CONFIG_VAR(VIDEO_THREAD_SHOT_PATH)
-
 // Main thread
 static void *video_thread_function(void *data);
 void video_thread_periodic(void) { }
