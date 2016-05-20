@@ -76,4 +76,5 @@ void video_thread_periodic(void)
 void video_thread_start(void) {}
 void video_thread_stop(void) {}
 void video_thread_take_shot(bool take __attribute__((unused))) {}
-void video_thread_initialise_device(struct video_config_t *device,struct video_settings* settings_pointer){}
+void video_thread_initialise_device(struct video_config_t *device __attribute__((unused)),
+                                    struct video_settings* settings_pointer __attribute__((unused))){}
