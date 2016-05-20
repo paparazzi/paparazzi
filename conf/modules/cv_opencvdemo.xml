@@ -15,7 +15,7 @@
   <makefile>
     <file name="cv_opencvdemo.c"/>
     <file name="opencv_example.cpp"/>
-
+    <file name="opencv_image_functions.cpp"/>
     <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install/include"/>
 
   	<flag name="LDFLAGS" value="L$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install/lib" />
