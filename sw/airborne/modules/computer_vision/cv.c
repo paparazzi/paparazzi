@@ -30,24 +30,29 @@
 
 void cv_add_to_device(struct video_config_t *device, cvFunction func)
 {
-  // Check if we already have this listener for this device
+  // Create a new video listener
+  struct video_listener *new_listener = malloc(sizeof(struct video_listener));
+
+  // Assign function to listener
+  new_listener->next = NULL;
+  new_listener->func = func;
+
+  // Check if device already has a listener
   if (device->pointer_to_first_listener == NULL) {
-    struct video_listener *new_listener = malloc(sizeof(struct video_listener));
-    new_listener->next = NULL;
-    new_listener->func = func;
+    // Add as first listener
     device->pointer_to_first_listener = new_listener;
   } else {
-    struct video_listener *pointing_to = device->pointer_to_first_listener;
-    while (pointing_to->next != NULL) {
-      pointing_to = pointing_to->next;
-    }
+    // Create pointer to first listener
+    struct video_listener *listener = device->pointer_to_first_listener;
 
-    // The device is not yet sending the image to this function. Add it
-    struct video_listener *new_listener = malloc(sizeof(struct video_listener));
-    new_listener->next = NULL;
-    new_listener->func = func;
-    pointing_to->next = new_listener;
+    // Loop through linked list to last listener
+    while (listener->next != NULL)
+      listener = listener->next;
+
+    // Add listener to end
+    listener->next = new_listener;
   }
+
 }
 
 void cv_run_device(struct video_config_t *device, struct image_t *img)
