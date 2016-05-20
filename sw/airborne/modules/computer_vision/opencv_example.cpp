@@ -34,9 +34,10 @@ using namespace std;
 using namespace cv;
 
 
-void convertBackFromRGB(Mat image, char* img, int width, int height){
+void color_opencv_to_yuv422(Mat image, char *img, int width, int height)
+{
 
- //Turn the opencv RGB colored image back in a YUV colored image for the drone
+//Turn the opencv RGB colored image back in a YUV colored image for the drone
   for (int row = 0; row < height; row++) {
     for (int col = 0; col < width; col++) {
       cv::Vec3b pixelHere = image.at<cv::Vec3b>(row, col);
@@ -51,14 +52,15 @@ void convertBackFromRGB(Mat image, char* img, int width, int height){
 }
 
 
-void convertBackFromGrayscale(Mat image, char* img, int width, int height){
-   for (int row = 0; row < height; row++) {
-       for (int col = 0; col < width; col++) {
+void grayscale_opencv_to_yuv422(Mat image, char *img, int width, int height)
+{
+  for (int row = 0; row < height; row++) {
+    for (int col = 0; col < width; col++) {
 
-         img[(row * width + col) * 2 + 1] =   image.at<uint8_t>(row, col);
-         img[(row * width + col) * 2 ]=127;
-       }
-     }
+      img[(row * width + col) * 2 + 1] =   image.at<uint8_t>(row, col);
+      img[(row * width + col) * 2 ] = 127;
+    }
+  }
 }
 
 int opencv_example(char *img, int width, int height)
@@ -79,6 +81,6 @@ int opencv_example(char *img, int width, int height)
   Canny(image, image, edgeThresh, edgeThresh * 3);
 
   // Convert back to YUV422, and put it in place of the original image
-  convertBackFromGrayscale(image,img,width,height);
+  grayscale_opencv_to_yuv422(image, img, width, height);
   return 0;
 }
