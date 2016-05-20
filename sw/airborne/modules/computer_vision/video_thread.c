@@ -53,6 +53,18 @@
 #include <pthread.h>
 #include "rt_priority.h"
 
+// Frames Per Seconds
+#ifndef VIDEO_THREAD_FPS
+#define VIDEO_THREAD_FPS 30
+#endif
+PRINT_CONFIG_VAR(VIDEO_THREAD_FPS)
+
+// The place where the shots are saved (without slash on the end)
+#ifndef VIDEO_THREAD_SHOT_PATH
+#define VIDEO_THREAD_SHOT_PATH "/data/video/images"
+#endif
+PRINT_CONFIG_VAR(VIDEO_THREAD_SHOT_PATH)
+
 // Main thread
 static void *video_thread_function(void *data);
 void video_thread_periodic(void) { }
@@ -183,8 +195,10 @@ static void *video_thread_function(void *data)
 void initialise_camera(struct video_config_t *camera, struct video_settings* settings_pointer1);
 void initialise_camera(struct video_config_t *camera, struct video_settings* settings_pointer1)
 {
-	camera->thread.settings = settings_pointer1;
-    // Initialize the V4L2 subdevice if needed
+  camera->thread.settings = malloc(sizeof(struct video_settings));
+  camera->thread.settings->fps = VIDEO_THREAD_FPS;
+
+  // Initialize the V4L2 subdevice if needed
   if (camera->subdev_name != NULL) {
     // FIXME! add subdev format to config, only needed on bebop front camera so far
     if (!v4l2_init_subdev(camera->subdev_name, 0, 0, V4L2_MBUS_FMT_SGBRG10_1X10, camera->w, camera->h)) {
@@ -192,6 +206,7 @@ void initialise_camera(struct video_config_t *camera, struct video_settings* set
       return;
     }
   }
+
   // Initialize the V4L2 device
   camera->thread.dev = v4l2_init(camera->dev_name, camera->w, camera->h, camera->buf_cnt, camera->format);
   if (camera->thread.dev == NULL) {

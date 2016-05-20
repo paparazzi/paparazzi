@@ -7,7 +7,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/TUDELFT/tudelft_course2016_avoid_orange_cyberzoo.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml ../conf/modules/cv_colorfilter.xml"
-   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/cv_colorfilter.xml"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/cv_colorfilter.xml"
    gui_color="#db67fffffaeb"
   />
   <aircraft
