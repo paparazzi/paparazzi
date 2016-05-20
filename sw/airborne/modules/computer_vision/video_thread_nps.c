@@ -27,6 +27,7 @@
 // Own header
 #include "video_thread.h"
 #include "cv.h"
+#include "lib/vision/image.h"
 
 // Module functions
 struct video_settings camera1_settings;
