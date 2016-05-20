@@ -28,7 +28,7 @@
   <init fun="colorfilter_init()"/>
   <makefile>
     <file name="colorfilter.c"/>
-    <define name="USE_($COLORFILTER_CAMERA)"/>
+    <define name="USE_$(COLORFILTER_CAMERA)"/>
   </makefile>
 </module>
 
