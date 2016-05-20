@@ -111,6 +111,10 @@
 #define MAG_HMC58XX_SENDER_ID 2
 #endif
 
+#ifndef IMU_MAG_PITOT_ID
+#define IMU_MAG_PITOT_ID 50
+#endif
+
 /*
  * IDs of GPS sensors
  */

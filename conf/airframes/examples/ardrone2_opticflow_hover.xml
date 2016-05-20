@@ -28,7 +28,12 @@
     <module name="gps" type="ubx_ucenter"/>
     <module name="send_imu_mag_current"/>
     <module name="logger_file"/>
-    <module name="cv_opticflow"/>
+    <load name="video_thread.xml">
+	<define name="VIDEO_THREAD_FPS" value="30"/>
+	<define name="VIDEO_THREAD_CAMERA" value="bottom_camera"/>
+	<define name="VIDEO_THREAD_SHOT_PATH" value="/data/ftp/internal_000/images"/>
+    </load>
+    <load name="cv_opticflow.xml"/>
     <module name="opticflow_hover"/>
   </modules>
 

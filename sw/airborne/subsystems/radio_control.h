@@ -60,9 +60,8 @@ struct RadioControl {
 
 extern struct RadioControl radio_control;
 
-
+#define RadioControlValues(_chan) radio_control.values[_chan]  ///< For easy access in command_laws
 extern void radio_control_init(void);
-
 extern void radio_control_periodic_task(void);
 
 // Event implemented in radio_control/*.h

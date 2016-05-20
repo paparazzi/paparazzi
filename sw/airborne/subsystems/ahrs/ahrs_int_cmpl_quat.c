@@ -100,6 +100,17 @@ PRINT_CONFIG_VAR(AHRS_MAG_ZETA)
 #define AHRS_HEADING_UPDATE_GPS_MIN_SPEED 5.0
 #endif
 
+/** Default Rate filter Low pass */
+#ifdef AHRS_PROPAGATE_LOW_PASS_RATES
+#ifndef AHRS_PROPAGATE_LOW_PASS_RATES_MUL
+#define AHRS_PROPAGATE_LOW_PASS_RATES_MUL 2
+#endif
+
+#ifndef AHRS_PROPAGATE_LOW_PASS_RATES_DIV
+#define AHRS_PROPAGATE_LOW_PASS_RATES_DIV 3
+#endif
+#endif
+
 struct AhrsIntCmplQuat ahrs_icq;
 
 static inline void UNUSED ahrs_icq_update_mag_full(struct Int32Vect3 *mag, float dt);
@@ -187,9 +198,9 @@ void ahrs_icq_propagate(struct Int32Rates *gyro, float dt)
 
   /* low pass rate */
 #ifdef AHRS_PROPAGATE_LOW_PASS_RATES
-  RATES_SMUL(ahrs_icq.imu_rate, ahrs_icq.imu_rate, 2);
+  RATES_SMUL(ahrs_icq.imu_rate, ahrs_icq.imu_rate, AHRS_PROPAGATE_LOW_PASS_RATES_MUL);
   RATES_ADD(ahrs_icq.imu_rate, omega);
-  RATES_SDIV(ahrs_icq.imu_rate, ahrs_icq.imu_rate, 3);
+  RATES_SDIV(ahrs_icq.imu_rate, ahrs_icq.imu_rate, AHRS_PROPAGATE_LOW_PASS_RATES_DIV);
 #else
   RATES_COPY(ahrs_icq.imu_rate, omega);
 #endif

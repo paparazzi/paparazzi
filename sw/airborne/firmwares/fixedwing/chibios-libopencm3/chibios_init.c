@@ -77,7 +77,7 @@ bool chibios_init(void) {
   return RDY_OK;
 }
 
-static WORKING_AREA(pprzThd, 4096);
+static WORKING_AREA(pprzThd, 16384); // 16 Kb
 void launch_pprz_thd (int32_t (*thd) (void *arg))
 {
   pprzThdPtr = chThdCreateStatic(pprzThd, sizeof(pprzThd), NORMALPRIO+1, thd, NULL);

@@ -194,11 +194,25 @@ let get_simtype = fun (target_combo : Gtk_tools.combo) ->
       | choice -> List.nth targets (choice-1)
 
 let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo : Gtk_tools.combo) ->
+  let get_program_args = fun program ->
+    let args = ref "" in
+    List.iter
+	  (fun arg ->
+	    let constant =
+          match try double_quote (Xml.attrib arg "constant") with _ -> "" with
+            "@AIRCRAFT" -> (Gtk_tools.combo_value ac_combo)
+          | "@AC_ID" -> gui#entry_ac_id#text
+          | const -> const in
+	    args := sprintf "%s %s %s" !args (ExtXml.attrib arg "flag") constant)
+	  (Xml.children program);
+    !args
+  in
+
   let run_gcs = fun () ->
-    run_and_monitor ?file gui log "GCS" ""
-  and run_server = fun args ->
-    run_and_monitor ?file gui log "Server" args
-  and choose_and_run_sitl = fun ac_name ->
+    let args = get_program_args (Hashtbl.find programs "GCS") in
+    run_and_monitor ?file gui log "GCS" args in
+  let run_server = fun args -> run_and_monitor ?file gui log "Server" args in
+  let choose_and_run_sitl = fun ac_name ->
     let get_args = fun simtype ac_name ->
       match simtype with
           "sim" -> sprintf "-a %s -t %s --boot --norc" ac_name simtype
@@ -209,8 +223,8 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
     let args = get_args sim_type ac_name in
     if args <> "none" then begin
       run_and_monitor ?file gui log "Simulator" args;
-      run_and_monitor ?file gui log "GCS" "";
-      run_and_monitor ?file gui log "Server" "-n";
+      run_gcs ();
+      run_server "-n";
       if sim_type = "nps" then
         run_and_monitor ?file gui log "Data Link" "-udp -udp_broadcast"
     end
@@ -237,21 +251,6 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
 
   register_custom_sessions ();
   Gtk_tools.select_in_combo session_combo "Simulation";
-
-  let get_program_args = fun program ->
-    let args = ref "" in
-    List.iter
-	  (fun arg ->
-	    let constant =
-          match try double_quote (Xml.attrib arg "constant") with _ -> "" with
-            "@AIRCRAFT" -> (Gtk_tools.combo_value ac_combo)
-          | "@AC_ID" -> gui#entry_ac_id#text
-          | const -> const in
-	    args := sprintf "%s %s %s" !args (ExtXml.attrib arg "flag") constant)
-	  (Xml.children program);
-    !args
-  in
-
 
   let execute_custom = fun session_name ->
     let session = try Hashtbl.find sessions session_name with Not_found -> failwith (sprintf "Unknown session: %s" session_name) in

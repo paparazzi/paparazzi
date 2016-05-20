@@ -62,9 +62,11 @@ float previous_cov_err;
 long previous_time;
 
 // sending the divergence message to the ground station:
-static void send_divergence(void)
+static void send_divergence(struct transport_tx *trans, struct link_device *dev)
 {
-  DOWNLINK_SEND_DIVERGENCE(DefaultChannel, DefaultDevice, &divergence, &divergence_vision_dt, &normalized_thrust, &cov_div, &pstate, &pused, &(of_landing_ctrl.agl));
+  pprz_msg_send_DIVERGENCE(trans, dev, AC_ID,
+                           &divergence, &divergence_vision_dt, &normalized_thrust,
+                           &cov_div, &pstate, &pused, &(of_landing_ctrl.agl));
 }
 
 #include "modules/ctrl/optical_flow_landing.h"
@@ -183,7 +185,7 @@ void vertical_ctrl_module_init(void)
   // Subscribe to the optical flow estimator:
   AbiBindMsgOPTICAL_FLOW(OPTICAL_FLOW_LANDING_OPTICAL_FLOW_ID, &optical_flow_ev, vertical_ctrl_optical_flow_cb);
 
-  register_periodic_telemetry(DefaultPeriodic, "DIVERGENCE", send_divergence);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DIVERGENCE, send_divergence);
 }
 
 /**

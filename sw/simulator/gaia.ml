@@ -93,7 +93,7 @@ let _ =
 
   let hbox = GPack.hbox ~packing:vbox#pack () in
   let _ =  GMisc.label ~text:"Time scale:" ~packing:hbox#pack () in
-  let _ts = GEdit.spin_button ~adjustment:time_scale_adj ~packing:hbox#add () in
+  let _ts = GEdit.spin_button ~digits:1 ~adjustment:time_scale_adj ~packing:hbox#add () in
 
   let hbox = GPack.hbox ~packing:vbox#pack () in
   ignore (GMisc.label ~text:"Wind dir:" ~packing:hbox#pack ());

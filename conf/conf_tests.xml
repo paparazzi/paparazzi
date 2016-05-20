@@ -264,6 +264,17 @@
    gui_color="#710080"
   />
   <aircraft
+   name="Quad_Revolution"
+   ac_id="3"
+   airframe="airframes/examples/quadrotor_revo.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int_quat.xml settings/nps.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="Twinjet"
    ac_id="6"
    airframe="airframes/examples/twinjet.xml"

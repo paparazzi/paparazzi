@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_launcher" dir="nav">
+  <doc>
+    <description>
+      Launcher.
+      A pneumatic launching system.
+      - Phase 1: Zero Roll, Takeoff Pitch, Full Throttle(once you enter the block!)
+      - Phase 2: After detecting lauch (ground speed) and travelling enough distance from the launch point
+                 follow launch line: Auto roll, Takeoff pitch,  Full Throttle
+      - Phase 3: If the aircraft is above a specific alt, greater than a specific speed or too far away, circle up
+                 with takeoff circle radius, until you reach desired takeoff altitude
+    </description>
+  </doc>
+  <header>
+    <file name="nav_launcher.h"/>
+  </header>
+  <makefile target="ap|sim|nps">
+    <file name="nav_launcher.c"/>
+  </makefile>
+</module>
+
