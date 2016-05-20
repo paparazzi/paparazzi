@@ -27,7 +27,7 @@
 
 #include "cv.h"
 #include <stdlib.h> // for malloc
-#include "video_thread.h"
+
 void cv_add_to_device(struct video_config_t *device, cvFunction func)
 {
   // Check if we already have this listener for this device

@@ -33,8 +33,6 @@
 #include "modules/computer_vision/viewvideo.h"
 #include "modules/computer_vision/cv.h"
 
-#include "modules/computer_vision/video_thread.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -47,7 +45,6 @@
 #include "lib/encoding/jpeg.h"
 #include "lib/encoding/rtp.h"
 #include "udp_socket.h"
-#include "peripherals/video_device.h"
 
 #include BOARD_CONFIG
 

@@ -30,7 +30,6 @@
 #define CV_H_
 
 #include "std.h"
-#include "lib/vision/image.h"
 #include "peripherals/video_device.h"
 
 extern void cv_add_to_device(struct video_config_t *device, cvFunction func);
