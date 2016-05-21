@@ -1,0 +1,32 @@
+<airframe>
+
+  <section name="IMU" prefix="IMU_">
+
+    <!-- Accelerometer calibration -->
+    <define name="ACCEL_X_NEUTRAL" value="-105"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-71"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-329"/>
+    <define name="ACCEL_X_SENS" value="2.44835524329" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.4507612688" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.41133261482" integer="16"/>
+
+    <!-- Magnetometer calibration -->
+    <define name="MAG_X_NEUTRAL" value="-28"/>
+    <define name="MAG_Y_NEUTRAL" value="-243"/>
+    <define name="MAG_Z_NEUTRAL" value="176"/>
+    <define name="MAG_X_SENS" value="9.48837576047" integer="16"/>
+    <define name="MAG_Y_SENS" value="8.84361654773" integer="16"/>
+    <define name="MAG_Z_SENS" value="7.59864656662" integer="16"/>
+
+    <!-- Magnetometer current calibration -->
+    <define name= "MAG_X_CURRENT_COEF" value="-0.002616138231"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="0.00334020213634"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="0.00758478782222"/>
+
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+    
+  </section>
+
+</airframe>
