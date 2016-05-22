@@ -30,24 +30,39 @@
 #define NAV_CATAPULT_H
 
 #include "std.h"
-#include "paparazzi.h"
 
-extern float nav_catapult_motor_delay;
-extern float nav_catapult_acceleration_threshold;
-extern float nav_catapult_heading_delay;
-extern float nav_catapult_initial_pitch;
-extern float nav_catapult_initial_throttle;
+// Take off state machine
+enum nav_catapult_state {
+  NAV_CATAPULT_UNINIT,
+  NAV_CATAPULT_ARMED,
+  NAV_CATAPULT_WAIT_ACCEL,
+  NAV_CATAPULT_MOTOR_ON,
+  NAV_CATAPULT_MOTOR_CLIMB,
+  NAV_CATAPULT_DISARM,
+};
+
+// Internal structure
+struct nav_catapult_struct {
+  enum nav_catapult_state status; ///< current procedure state
+  uint32_t timer;                 ///< internal timer
+  struct FloatVect3 pos;          ///< catapult position
+  float accel_threshold;          ///< acceleration threshold for launch detection (in g)
+  float motor_delay;              ///< delay to start motor after launch detection (in seconds)
+  float heading_delay;            ///< delay to estimate initial heading after launch (in seconds)
+  float initial_pitch;            ///< pitch angle during first take-off phase (in radian)
+  float initial_throttle;         ///< throttle during first take-off phase (in radian)
+};
+
+extern struct nav_catapult_struct nav_catapult;
+
+// Init
+extern void nav_catapult_init(void);
 
 // Module Code
-void nav_catapult_highrate_module(void);
+extern void nav_catapult_highrate_module(void);
 
 // Flightplan Code
-extern bool nav_catapult_setup(void);
-
-extern bool nav_catapult_arm(void);
-extern bool nav_catapult_run(uint8_t _to, uint8_t _climb);
-extern bool nav_catapult_disarm(void);
-
-extern bool nav_select_touch_down(uint8_t _td);
+extern bool nav_catapult_run(uint8_t _climb);
 
 #endif
+
