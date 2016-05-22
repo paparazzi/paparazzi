@@ -1,6 +1,6 @@
 /*
- *
  * Copyright (C) 2012, Christophe De Wagter
+ * Copyright (C) 2016, Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -15,21 +15,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  *
  */
 
 /**
  * @file modules/nav/nav_catapult.h
  * @brief catapult launch timing system
+ *
+ *
+ * - Phase 1: Zero Roll, Climb Pitch, Zero Throttle
+ * - Phase 2: After detecting the Start Acceleration\n
+ *            Zero Roll, Climb Pitch, Full Throttle
+ * - Phase 3: After getting the GPS heading (time based)\n
+ *            Place climb in front of us\n
+ *            GoTo(climb)
  */
 
 #ifndef NAV_CATAPULT_H
 #define NAV_CATAPULT_H
 
 #include "std.h"
+#include "math/pprz_algebra_float.h"
 
 // Take off state machine
 enum nav_catapult_state {
