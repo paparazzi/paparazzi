@@ -20,7 +20,7 @@
 /**
  * @file "modules/computer_vision/opencv_example.cpp"
  * @author C. De Wagter
- * opencv
+ * A simple module showing what you can do with opencv on the bebop.
  */
 
 
@@ -32,7 +32,7 @@ using namespace std;
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 using namespace cv;
-
+#include "opencv_image_functions.h"
 
 int opencv_example(char *img, int width, int height)
 {
@@ -52,11 +52,6 @@ int opencv_example(char *img, int width, int height)
   Canny(image, image, edgeThresh, edgeThresh * 3);
 
   // Convert back to YUV422, and put it in place of the original image
-  for (int row = 0; row < height; row++) {
-    for (int col = 0; col < width; col++) {
-      img[(row * width + col) * 2 + 1] = image.at<uint8_t>(row, col);
-      img[(row * width + col) * 2] = 127;
-    }
-  }
+  grayscale_opencv_to_yuv422(image, img, width, height);
   return 0;
 }
