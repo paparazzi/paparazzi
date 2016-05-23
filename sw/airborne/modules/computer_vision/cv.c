@@ -52,16 +52,23 @@ void cv_add_to_device(struct video_config_t *device, cvFunction func)
     // Add listener to end
     listener->next = new_listener;
   }
-
 }
 
 void cv_run_device(struct video_config_t *device, struct image_t *img)
 {
   // For each function added to a device, run this function with the image that was taken
   struct video_listener *pointing_to = device->pointer_to_first_listener;
+
+  // Loop through computer vision pipeline
   while (pointing_to != NULL) {
-    pointing_to->func(img);
+    // Execute the cvFunction and catch result
+    struct image_t *result = pointing_to->func(img);
+
+    // If result gives an image pointer, use it in the next stage
+    if (result != NULL)
+      img = result;
+
+    // Move forward in the pipeline
     pointing_to = pointing_to->next;
   }
-
 }
