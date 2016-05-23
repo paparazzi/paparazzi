@@ -20,7 +20,7 @@
 /**
  * @file "modules/computer_vision/opencv_example.cpp"
  * @author C. De Wagter
- * opencv
+ * A simple module showing what you can do with opencv on the bebop.
  */
 
 
