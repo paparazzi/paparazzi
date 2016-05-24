@@ -34,10 +34,10 @@
 
     <module name="video_thread">
     </module>
-
+<!--
     <module name="video_rtp_stream">
         <define name="VIEWVIDEO_CAMERA" value="VIDEO1"/>
-    </module>
+    </module>-->
 
   </modules>
 

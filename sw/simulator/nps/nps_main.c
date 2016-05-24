@@ -35,11 +35,11 @@
 #include "nps_autopilot.h"
 #include "nps_ivy.h"
 #include "nps_flightgear.h"
-
 #include "mcu_periph/sys_time.h"
 #define SIM_DT     (1./SYS_TIME_FREQUENCY)
 #define DISPLAY_DT (1./30.)
 #define HOST_TIMEOUT_MS 40
+
 
 static struct {
   double real_initial_time;

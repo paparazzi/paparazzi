@@ -46,8 +46,13 @@
 #include "lib/encoding/rtp.h"
 #include "udp_socket.h"
 
-#include BOARD_CONFIG
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
 
+#warning STR(BOARD_CONFIG)
+#pragma message "content of AAA: " STR(BOARD_CONFIG)
+
+#include BOARD_CONFIG
 
 // Downsize factor for video stream
 #ifndef VIEWVIDEO_DOWNSIZE_FACTOR
