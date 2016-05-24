@@ -65,16 +65,13 @@ PRINT_CONFIG_VAR(VIDEO_THREAD_FPS)
 #endif
 PRINT_CONFIG_VAR(VIDEO_THREAD_SHOT_PATH)
 
+// The amount of cameras we can have
+#ifndef VIDEO_THREAD_MAX_CAMERAS
+#define VIDEO_THREAD_MAX_CAMERAS 4
+#endif
+PRINT_CONFIG_VAR(VIDEO_THREAD_MAX_CAMERAS)
 
-
-
-// We keep track of each camera device in a linked list
-struct device_linked_list {
-  struct device_linked_list *next;
-  struct video_config_t *camera;
-};
-
-struct device_linked_list initialised_devices;
+struct video_config_t *cameras[VIDEO_THREAD_MAX_CAMERAS];
 
 // Main thread
 static void *video_thread_function(void *data);
@@ -267,10 +264,10 @@ void stop_video_thread(struct video_config_t *device)
  */
 void video_thread_init(void)
 {
-  // Initialise the list of camera devices as an empty list
-  initialised_devices.camera = NULL;
-  initialised_devices.next = NULL;
-
+  // Initialise all camera pointers to be NULL
+  for (int indexCameras = 0; indexCameras < VIDEO_THREAD_MAX_CAMERAS; indexCameras++) {
+    cameras[indexCameras] = NULL;
+  }
   // Create the shot directory
   char save_name[128];
   sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
@@ -287,13 +284,14 @@ void video_thread_init(void)
 void video_thread_start()
 {
   // Start every known camera device
-  struct device_linked_list *current_index = &initialised_devices;
-  while (current_index != NULL) {
-    start_video_thread(current_index->camera);
-    current_index = current_index->next;
+  for (int indexCameras = 0; indexCameras < VIDEO_THREAD_MAX_CAMERAS; indexCameras++) {
+    if (cameras[indexCameras] != NULL) {
+      start_video_thread(cameras[indexCameras]);
+    }
   }
-
 }
+
+
 /**
  * Stops the streaming of all cameras
  * This could take some time, because the thread is stopped asynchronous.
@@ -301,11 +299,13 @@ void video_thread_start()
 void video_thread_stop()
 {
 
-  struct device_linked_list *current_index = &initialised_devices;
-  while (current_index != NULL) {
-    stop_video_thread(current_index->camera);
-    current_index = current_index->next;
+  for (int indexCameras = 0; indexCameras < VIDEO_THREAD_MAX_CAMERAS; indexCameras++) {
+    if (cameras[indexCameras] != NULL) {
+      stop_video_thread(cameras[indexCameras]);
+    }
   }
+
+
   // TODO: wait for the thread to finish to be able to start the thread again!
 }
 
@@ -315,8 +315,8 @@ void video_thread_stop()
  */
 void video_thread_take_shot(bool take)
 {
-
-  if (initialised_devices.camera != NULL) {
-    initialised_devices.camera->thread.settings->take_shot = take;
+// TODO now assuming the first camera
+  if (cameras[0] != NULL) {
+    cameras[0]->thread.settings->take_shot = take;
   }
 }
