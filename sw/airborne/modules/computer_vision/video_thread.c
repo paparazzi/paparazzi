@@ -65,6 +65,17 @@ PRINT_CONFIG_VAR(VIDEO_THREAD_FPS)
 #endif
 PRINT_CONFIG_VAR(VIDEO_THREAD_SHOT_PATH)
 
+
+
+
+// We keep track of each camera device in a linked list
+struct device_linked_list {
+  struct device_linked_list *next;
+  struct video_config_t *camera;
+};
+
+struct device_linked_list initialised_devices;
+
 // Main thread
 static void *video_thread_function(void *data);
 void video_thread_periodic(void) { }
@@ -192,8 +203,10 @@ static void *video_thread_function(void *data)
   return 0;
 }
 
-void initialise_camera(struct video_config_t *camera, struct video_settings* settings_pointer1);
-void initialise_camera(struct video_config_t *camera, struct video_settings* settings_pointer1)
+
+
+void initialise_camera(struct video_config_t *camera);
+void initialise_camera(struct video_config_t *camera)
 {
   camera->thread.settings = malloc(sizeof(struct video_settings));
   camera->thread.settings->fps = VIDEO_THREAD_FPS;
@@ -215,7 +228,9 @@ void initialise_camera(struct video_config_t *camera, struct video_settings* set
   }
 }
 
-
+void video_thread_initialise_device(struct video_config_t *device){
+	initialise_camera(device);
+}
 void start_video_thread(struct video_config_t *camera);
 void start_video_thread(struct video_config_t *camera)
 {
@@ -250,6 +265,10 @@ void stop_video_thread(struct video_config_t *device)
  */
 void video_thread_init(void)
 {
+  // Initialise the list of camera devices as an empty list
+  initialised_devices.camera = NULL;
+  initialised_devices.next = NULL;
+
   // Create the shot directory
   char save_name[128];
   sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
@@ -258,14 +277,6 @@ void video_thread_init(void)
     return;
   }
 
-#ifdef USE_VIDEO1
-  initialise_camera(&VIDEO1, NULL);
-#endif
-
-#ifdef USE_VIDEO2
-  initialise_camera(&VIDEO2, NULL);
-#endif
-
 }
 
 /**
@@ -273,14 +284,12 @@ void video_thread_init(void)
  */
 void video_thread_start()
 {
-
-#ifdef USE_VIDEO1
-  start_video_thread(&VIDEO1);
-#endif
-
-#ifdef USE_VIDEO2
-  start_video_thread(&VIDEO2);
-#endif
+  // Start every known camera device
+  struct device_linked_list *current_index = &initialised_devices;
+  while (current_index != NULL) {
+	start_video_thread(current_index->camera);
+	current_index = current_index->next;
+  }
 
 }
 /**
@@ -290,14 +299,11 @@ void video_thread_start()
 void video_thread_stop()
 {
 
-#ifdef USE_VIDEO1
-  stop_video_thread(&VIDEO1);
-#endif
-
-#ifdef USE_VIDEO2
-  stop_video_thread(&VIDEO2);
-#endif
-
+  struct device_linked_list *current_index = &initialised_devices;
+  while (current_index != NULL) {
+	stop_video_thread(current_index->camera);
+	current_index = current_index->next;
+  }
   // TODO: wait for the thread to finish to be able to start the thread again!
 }
 
@@ -308,8 +314,7 @@ void video_thread_stop()
 void video_thread_take_shot(bool take)
 {
 
-#ifdef USE_VIDEO1
-  VIDEO1.thread.settings->take_shot = take;
-#endif
-
+  if (initialised_devices.camera != NULL) {
+	initialised_devices.camera->thread.settings->take_shot = take;
+  }
 }
