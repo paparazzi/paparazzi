@@ -573,6 +573,40 @@ bool autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
   return false;
 }
 
+bool autopilot_guided_set_vertical_velocity(float vz)
+{
+  if (autopilot_mode == AP_MODE_GUIDED) {
+    guidance_v_set_guided_vz(vz);
+    return true;
+  }
+  return false;
+}
+
+
+bool autopilot_guided_set_horizontal_velocity_ned(float vx, float vy)
+{
+  if (autopilot_mode == AP_MODE_GUIDED) {
+    guidance_h_set_guided_vel(vx, vy);
+    return true;
+  }
+  return false;
+}
+
+extern bool autopilot_guided_set_horizontal_velocity_body_relative(float vx, float vy)
+{
+  if (autopilot_mode == AP_MODE_GUIDED) {
+    float psi = stateGetNedToBodyEulers_f()->psi;
+    float x = cosf(-psi) * vx + sinf(-psi) * vy;
+    float y = -sinf(-psi) * vx + cosf(-psi) * vy;
+    guidance_h_set_guided_vel(x, y);
+    return true;
+  }
+  return false;
+}
+
+
+
+
 void autopilot_check_in_flight(bool motors_on)
 {
   if (autopilot_in_flight) {
@@ -628,11 +662,9 @@ static uint8_t ap_mode_of_3way_switch(void)
 {
   if (radio_control.values[RADIO_MODE] > THRESHOLD_2_PPRZ) {
     return autopilot_mode_auto2;
-  }
-  else if (radio_control.values[RADIO_MODE] > THRESHOLD_1_PPRZ) {
+  } else if (radio_control.values[RADIO_MODE] > THRESHOLD_1_PPRZ) {
     return MODE_AUTO1;
-  }
-  else {
+  } else {
     return MODE_MANUAL;
   }
 }
@@ -651,16 +683,15 @@ static uint8_t ap_mode_of_two_switches(void)
   if (radio_control.values[RADIO_MODE] < THRESHOLD_1_PPRZ) {
     /* RADIO_MODE in MANUAL position */
     return MODE_MANUAL;
-  }
-  else {
+  } else {
     /* RADIO_MODE not in MANUAL position.
      * Select AUTO mode bassed on RADIO_AUTO_MODE channel
      */
     if (radio_control.values[RADIO_AUTO_MODE] > THRESHOLD_2_PPRZ) {
       return autopilot_mode_auto2;
-    }
-    else
+    } else {
       return MODE_AUTO1;
+    }
   }
 }
 #endif

@@ -318,8 +318,7 @@ void guidance_v_run(bool in_flight)
         run_hover_loop(in_flight);
         /* update z sp for telemetry/debuging */
         guidance_v_z_sp = guidance_v_z_ref;
-      }
-      else {
+      } else {
         guidance_v_zd_sp = 0;
         gv_update_ref_from_z_sp(guidance_v_z_sp);
         run_hover_loop(in_flight);

@@ -219,4 +219,23 @@ extern bool autopilot_guided_goto_body_relative(float dx, float dy, float dz, fl
  */
 extern bool autopilot_guided_move_ned(float vx, float vy, float vz, float heading);
 
+/** Set horizontal velocity and setpoints in GUIDED mode.
+ * @param vx North velocity (local NED frame) in meters/sec.
+ * @param vy East velocity (local NED frame) in meters/sec.
+ * @return TRUE if setpoint was set (currently in AP_MODE_GUIDED)
+ */
+extern bool autopilot_guided_set_horizontal_velocity_ned(float vx, float vy);
+
+/** Set horizontal velocity and setpoints in GUIDED mode with a body reference
+ * @param vx North velocity (local NED frame) in meters/sec.
+ * @param vy East velocity (local NED frame) in meters/sec.
+ * @return TRUE if setpoint was set (currently in AP_MODE_GUIDED)
+ */
+extern bool autopilot_guided_set_horizontal_velocity_body_relative(float vx, float vy);
+
+/** Set vertical velocity and setpoint in GUIDED mode.
+ * @param vz Down velocity (local NED frame) in meters/sec.
+ * @return TRUE if setpoint was set (currently in AP_MODE_GUIDED)
+ */
+extern bool autopilot_guided_set_vertical_velocity(float vz);
 #endif /* AUTOPILOT_H */

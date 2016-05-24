@@ -94,6 +94,20 @@ void firmware_parse_msg(void)
           /* local NED with x/y/z as velocity and yaw as absolute angle */
           autopilot_guided_move_ned(x, y, z, yaw);
           break;
+        case 0x71:
+          /* local NED with x/y/z as velocity and yaw as absolute angle */
+          autopilot_guided_set_vertical_velocity(z);
+          break;
+        case 0x72:
+          /* local NED with x/y/z as velocity and yaw as absolute angle */
+          autopilot_guided_set_vertical_velocity(z);
+          break;
+        case 0x73:
+          autopilot_guided_set_horizontal_velocity_ned(x, y);
+          break;
+        case 0x74:
+          autopilot_guided_set_horizontal_velocity_body_relative(x, y);
+          break;
         default:
           /* others not handled yet */
           break;

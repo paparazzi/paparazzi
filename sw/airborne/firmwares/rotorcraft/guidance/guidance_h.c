@@ -228,6 +228,13 @@ void guidance_h_mode_changed(uint8_t new_mode)
     case GUIDANCE_H_MODE_RC_DIRECT:
       stabilization_none_enter();
       break;
+    case GUIDANCE_H_MODE_GUIDED: ;
+      // Set the guided heading to the current heading
+      float newpsi = stateGetNedToBodyEulers_f()->psi;
+      ClearBit(guidance_h.sp.mask, 7);
+      guidance_h.sp.heading = ANGLE_BFP_OF_REAL(newpsi);
+      INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
+      break;
 
 #if USE_STABILIZATION_RATE
     case GUIDANCE_H_MODE_RATE:
@@ -378,7 +385,7 @@ void guidance_h_run(bool  in_flight)
     case GUIDANCE_H_MODE_HOVER:
       /* set psi command from RC */
       guidance_h.sp.heading = guidance_h.rc_sp.psi;
-      /* fall trough to GUIDED to update ref, run traj and set final attitude setpoint */
+    /* fall trough to GUIDED to update ref, run traj and set final attitude setpoint */
 
     case GUIDANCE_H_MODE_GUIDED:
       /* guidance_h.sp.pos and guidance_h.sp.heading need to be set from external source */
@@ -404,12 +411,11 @@ void guidance_h_run(bool  in_flight)
         guidance_h_nav_enter();
       }
 
-      if(horizontal_mode == HORIZONTAL_MODE_MANUAL) {
+      if (horizontal_mode == HORIZONTAL_MODE_MANUAL) {
         stabilization_cmd[COMMAND_ROLL]  = nav_roll;
         stabilization_cmd[COMMAND_PITCH] = nav_pitch;
         stabilization_cmd[COMMAND_YAW]   = nav_heading;
-      }
-      else if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
+      } else if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
         struct Int32Eulers sp_cmd_i;
         sp_cmd_i.phi = nav_roll;
         sp_cmd_i.theta = nav_pitch;
@@ -521,11 +527,13 @@ static void guidance_h_traj_run(bool in_flight)
     ((guidance_h.gains.p * guidance_h_pos_err.y) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h.gains.d * (guidance_h_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2));
   guidance_h_cmd_earth.x = pd_x +
-    ((guidance_h.gains.v * guidance_h.ref.speed.x) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE)) + /* speed feedforward gain */
-    ((guidance_h.gains.a * guidance_h.ref.accel.x) >> (INT32_ACCEL_FRAC - GH_GAIN_SCALE));   /* acceleration feedforward gain */
+                           ((guidance_h.gains.v * guidance_h.ref.speed.x) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE)) + /* speed feedforward gain */
+                           ((guidance_h.gains.a * guidance_h.ref.accel.x) >> (INT32_ACCEL_FRAC -
+                               GH_GAIN_SCALE));   /* acceleration feedforward gain */
   guidance_h_cmd_earth.y = pd_y +
-    ((guidance_h.gains.v * guidance_h.ref.speed.y) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE)) + /* speed feedforward gain */
-    ((guidance_h.gains.a * guidance_h.ref.accel.y) >> (INT32_ACCEL_FRAC - GH_GAIN_SCALE));   /* acceleration feedforward gain */
+                           ((guidance_h.gains.v * guidance_h.ref.speed.y) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE)) + /* speed feedforward gain */
+                           ((guidance_h.gains.a * guidance_h.ref.accel.y) >> (INT32_ACCEL_FRAC -
+                               GH_GAIN_SCALE));   /* acceleration feedforward gain */
 
   /* trim max bank angle from PD */
   VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
@@ -539,10 +547,11 @@ static void guidance_h_traj_run(bool in_flight)
     guidance_h_trim_att_integrator.x += (guidance_h.gains.i * pd_x);
     guidance_h_trim_att_integrator.y += (guidance_h.gains.i * pd_y);
     /* saturate it  */
-    VECT2_STRIM(guidance_h_trim_att_integrator, -(traj_max_bank << (INT32_ANGLE_FRAC + GH_GAIN_SCALE*2)), (traj_max_bank << (INT32_ANGLE_FRAC + GH_GAIN_SCALE*2)));
+    VECT2_STRIM(guidance_h_trim_att_integrator, -(traj_max_bank << (INT32_ANGLE_FRAC + GH_GAIN_SCALE * 2)),
+                (traj_max_bank << (INT32_ANGLE_FRAC + GH_GAIN_SCALE * 2)));
     /* add it to the command */
-    guidance_h_cmd_earth.x += (guidance_h_trim_att_integrator.x >> (INT32_ANGLE_FRAC + GH_GAIN_SCALE*2));
-    guidance_h_cmd_earth.y += (guidance_h_trim_att_integrator.y >> (INT32_ANGLE_FRAC + GH_GAIN_SCALE*2));
+    guidance_h_cmd_earth.x += (guidance_h_trim_att_integrator.x >> (INT32_ANGLE_FRAC + GH_GAIN_SCALE * 2));
+    guidance_h_cmd_earth.y += (guidance_h_trim_att_integrator.y >> (INT32_ANGLE_FRAC + GH_GAIN_SCALE * 2));
   } else {
     INT_VECT2_ZERO(guidance_h_trim_att_integrator);
   }

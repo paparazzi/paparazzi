@@ -180,7 +180,7 @@
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="USE_SPEED_REF" value="TRUE"/>
-    <define name="REF_MAX_SPEED" value="0.5" unit="m/s"/>
+    <define name="REF_MAX_SPEED" value="1.5" unit="m/s"/>
     <define name="MAX_BANK" value="20" unit="deg"/>
     <define name="PGAIN" value="9"/>
     <define name="DGAIN" value="25"/>
