@@ -6,6 +6,7 @@
       It uses an PWM input to measure the period between pulses.
     </description>
     <configure name="RPM_PWM_CHANNEL" value="PWM_INPUTX" description="Select PWM input channel for RPM sensor"/>
+    <define name="RPM_PULSE_PER_RND" value="14" description="Amount of pulses per round"/>
   </doc>
   <depends>pwm_meas</depends>
   <header>
