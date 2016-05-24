@@ -94,22 +94,23 @@ def module_page(filename, module):
 
 def get_xml_example(filename, module):
     opts = module.findall(".doc/define") + module.findall(".doc/configure")
+    deps = module.findall(".depends")
     s = "\n@section module_load_example__{0} Example for airframe file\n".format(filename[:-4].lower())
     if opts:
         s += "This example contains all possible configuration options, not all of them are mandatory!\n"
     s += "@code{.xml}\n"
-    s += "<modules>\n"
+    for d in deps:
+        s += '<module name="{0}"/>\n'.format(d)
     if opts:
-        s += '  <load name="{0}">\n'.format(filename)
+        s += '<module name="{0}">\n'.format(filename)
         for o in opts:
             e = copy.deepcopy(o)
             if 'description' in e.attrib:
                 del e.attrib['description']
-            s += "    " + string.strip(ET.tostring(e)) + "\n"
-        s += "  </load>\n"
+            s += "  " + string.strip(ET.tostring(e)) + "\n"
+        s += "</module>\n"
     else:
-        s += '  <load name="{0}"/>\n'.format(filename)
-    s += "</modules>\n"
+        s += '<module name="{0}"/>\n'.format(filename)
     s += "@endcode\n"
     return s
 
