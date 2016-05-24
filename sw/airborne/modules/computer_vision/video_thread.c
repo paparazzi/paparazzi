@@ -87,7 +87,8 @@ static void video_thread_save_shot(struct video_thread_t thread_to_save_shot_fro
   // Search for a file where we can write to
   char save_name[128];
   for (; thread_to_save_shot_from.settings->shot_number < 99999; thread_to_save_shot_from.settings->shot_number++) {
-    sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_THREAD_SHOT_PATH), thread_to_save_shot_from.settings->shot_number);
+    sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_THREAD_SHOT_PATH),
+            thread_to_save_shot_from.settings->shot_number);
     // Check if file exists or not
     if (access(save_name, F_OK) == -1) {
 
@@ -159,14 +160,14 @@ static void *video_thread_function(void *data)
     time_prev = time_now;
 
     // sleep remaining time to limit to specified fps
-    if(vid->thread.settings !=NULL){
-		uint32_t fps_period_us = (uint32_t)(1000000. / (float)vid->thread.settings->fps);
-		if (dt_us < fps_period_us) {
-		  usleep(fps_period_us - dt_us);
-		} else {
-		  fprintf(stderr, "video_thread with size %d %d: desired %i fps, only managing %.1f fps\n",
-				  vid->w, vid->h, vid->thread.settings->fps, 1000000.f / dt_us);
-		}
+    if (vid->thread.settings != NULL) {
+      uint32_t fps_period_us = (uint32_t)(1000000. / (float)vid->thread.settings->fps);
+      if (dt_us < fps_period_us) {
+        usleep(fps_period_us - dt_us);
+      } else {
+        fprintf(stderr, "video_thread with size %d %d: desired %i fps, only managing %.1f fps\n",
+                vid->w, vid->h, vid->thread.settings->fps, 1000000.f / dt_us);
+      }
     }
     // Wait for a new frame (blocking)
     struct image_t img;
@@ -228,8 +229,9 @@ void initialise_camera(struct video_config_t *camera)
   }
 }
 
-void video_thread_initialise_device(struct video_config_t *device){
-	initialise_camera(device);
+void video_thread_initialise_device(struct video_config_t *device)
+{
+  initialise_camera(device);
 }
 void start_video_thread(struct video_config_t *camera);
 void start_video_thread(struct video_config_t *camera)
@@ -287,8 +289,8 @@ void video_thread_start()
   // Start every known camera device
   struct device_linked_list *current_index = &initialised_devices;
   while (current_index != NULL) {
-	start_video_thread(current_index->camera);
-	current_index = current_index->next;
+    start_video_thread(current_index->camera);
+    current_index = current_index->next;
   }
 
 }
@@ -301,8 +303,8 @@ void video_thread_stop()
 
   struct device_linked_list *current_index = &initialised_devices;
   while (current_index != NULL) {
-	stop_video_thread(current_index->camera);
-	current_index = current_index->next;
+    stop_video_thread(current_index->camera);
+    current_index = current_index->next;
   }
   // TODO: wait for the thread to finish to be able to start the thread again!
 }
@@ -315,6 +317,6 @@ void video_thread_take_shot(bool take)
 {
 
   if (initialised_devices.camera != NULL) {
-	initialised_devices.camera->thread.settings->take_shot = take;
+    initialised_devices.camera->thread.settings->take_shot = take;
   }
 }
