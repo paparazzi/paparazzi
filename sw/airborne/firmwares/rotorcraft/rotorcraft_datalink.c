@@ -76,12 +76,27 @@ void firmware_parse_msg(void)
       float y = DL_GUIDED_SETPOINT_NED_y(dl_buffer);
       float z = DL_GUIDED_SETPOINT_NED_z(dl_buffer);
       float yaw = DL_GUIDED_SETPOINT_NED_yaw(dl_buffer);
-      switch (flags) {
-        case 0x00:
-        case 0x02:
-          /* local NED position setpoints */
-          autopilot_guided_goto_ned(x, y, z, yaw);
-          break;
+
+
+      bool in_body_frame = bit_is_set(flags,0);
+      bool use_offset = bit_is_set(flags,1);
+      bool set_velocity = bit_is_set(flags,2);
+      bool use_x = bit_is_set(flags,4);
+      bool use_y = bit_is_set(flags,5);
+      bool use_z = bit_is_set(flags,6);
+      bool use_yaw = bit_is_set(flags,7);
+
+      if(in_body_frame){
+          /* body NED position setpoints */
+          autopilot_guided_goto_ned_optional(x, y, z, yaw,use_x,use_y,use_z,use_yaw);
+      }
+      else{
+    	   /* local NED position setpoints */
+    	  autopilot_guided_goto_ned_optional(x, y, z, yaw,use_x,use_y,use_z,use_yaw);
+      }
+
+
+      if()
         case 0x01:
           /* local NED offset position setpoints */
           autopilot_guided_goto_ned_relative(x, y, z, yaw);

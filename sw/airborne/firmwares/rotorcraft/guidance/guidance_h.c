@@ -651,6 +651,26 @@ void guidance_h_set_igain(uint32_t igain)
   INT_VECT2_ZERO(guidance_h_trim_att_integrator);
 }
 
+bool guidance_h_set_guided_x(float x)
+{
+  if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
+    ClearBit(guidance_h.sp.mask, 4);
+    guidance_h.sp.pos.x = POS_BFP_OF_REAL(x);
+    return true;
+  }
+  return false;
+}
+
+bool guidance_h_set_guided_y(float y)
+{
+  if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
+    ClearBit(guidance_h.sp.mask, 5);
+    guidance_h.sp.pos.y = POS_BFP_OF_REAL(y);
+    return true;
+  }
+  return false;
+}
+
 bool guidance_h_set_guided_pos(float x, float y)
 {
   if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {

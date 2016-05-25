@@ -526,6 +526,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
 
 }
 
+
 bool autopilot_guided_goto_ned(float x, float y, float z, float heading)
 {
   if (autopilot_mode == AP_MODE_GUIDED) {
@@ -533,6 +534,26 @@ bool autopilot_guided_goto_ned(float x, float y, float z, float heading)
     guidance_h_set_guided_heading(heading);
     guidance_v_set_guided_z(z);
     return true;
+  }
+  return false;
+}
+
+bool autopilot_guided_goto_ned_optional(float x, float y, float z, float heading, bool use_x, bool use_y, bool use_z, bool use_yaw)
+{
+  if (autopilot_mode == AP_MODE_GUIDED) {
+	if(use_x){
+		guidance_h_set_guided_x(x);
+	}
+	if(use_y){
+		guidance_h_set_guided_y(y);
+	}
+	if(use_yaw){
+		guidance_h_set_guided_heading(heading);
+	}
+	if(use_z){
+		guidance_v_set_guided_z(z);
+	}
+	return true;
   }
   return false;
 }

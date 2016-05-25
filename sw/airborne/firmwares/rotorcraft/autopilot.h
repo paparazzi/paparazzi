@@ -192,6 +192,19 @@ extern void send_autopilot_version(struct transport_tx *trans, struct link_devic
  */
 extern bool autopilot_guided_goto_ned(float x, float y, float z, float heading);
 
+/** Set position and heading setpoints in GUIDED mode.
+ * @param x North position (local NED frame) in meters.
+ * @param y East position (local NED frame) in meters.
+ * @param z Down position (local NED frame) in meters.
+ * @param heading Setpoint in radians.
+ * @param use_x Whether to set x.
+ * @param use_y Whether to set y.
+ * @param use_z Whether to set z.
+ * @param use_yaw Whether to set yaw.
+ * @return TRUE if setpoint was set (currently in AP_MODE_GUIDED)
+ */
+extern bool autopilot_guided_goto_ned_optional(float x, float y, float z, float heading, bool use_x, bool use_y, bool use_z, bool use_yaw);
+
 /** Set position and heading setpoints wrt. current position in GUIDED mode.
  * @param dx Offset relative to current north position (local NED frame) in meters.
  * @param dy Offset relative to current east position (local NED frame) in meters.
