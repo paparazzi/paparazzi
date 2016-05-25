@@ -75,7 +75,11 @@ struct video_config_t *cameras[VIDEO_THREAD_MAX_CAMERAS];
 
 // Main thread
 static void *video_thread_function(void *data);
-void video_thread_periodic(void) { }
+
+
+void video_thread_periodic(void) {
+  /* currently no direct periodic functionality */
+}
 
 
 static void video_thread_save_shot(struct video_thread_t thread_to_save_shot_from, struct image_t *img,
@@ -202,7 +206,6 @@ static void *video_thread_function(void *data)
 }
 
 
-
 void initialise_camera(struct video_config_t *camera);
 void initialise_camera(struct video_config_t *camera)
 {
@@ -230,6 +233,7 @@ void video_thread_initialise_device(struct video_config_t *device)
 {
   initialise_camera(device);
 }
+
 void start_video_thread(struct video_config_t *camera);
 void start_video_thread(struct video_config_t *camera)
 {
