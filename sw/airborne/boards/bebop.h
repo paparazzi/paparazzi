@@ -42,9 +42,6 @@
 extern struct video_config_t bottom_camera;
 extern struct video_config_t front_camera;
 
-#define VIDEO1 bottom_camera
-#define VIDEO2 front_camera
-
 /* by default activate onboard baro */
 #ifndef USE_BARO_BOARD
 #define USE_BARO_BOARD 1
