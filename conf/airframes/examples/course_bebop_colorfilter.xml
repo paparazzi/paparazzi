@@ -33,13 +33,13 @@
     <module name="video_thread"/>
 
     <module name="cv_colorfilter">
-      <define name="COLORFILTER_CAMERA" value="front_camera"/>
+      <define name="COLORFILTER_CAMERA" value="bottom_camera"/>
     </module>
 
     <module name="video_rtp_stream">
-      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+      <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="20"/>
     </module>
 
   </modules>
