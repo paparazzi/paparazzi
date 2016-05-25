@@ -33,7 +33,7 @@
 #include "std.h"
 #include "modules/computer_vision/cv.h"
 
-extern void video_thread_initialise_device(struct video_config_t *device);
+extern bool video_thread_initialise_device(struct video_config_t *device);
 extern void video_thread_init(void);
 extern void video_thread_periodic(void); ///< A dummy for now
 extern void video_thread_start(void);

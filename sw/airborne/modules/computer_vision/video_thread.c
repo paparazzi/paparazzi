@@ -206,18 +206,15 @@ static void *video_thread_function(void *data)
 }
 
 
-void initialise_camera(struct video_config_t *camera);
-void initialise_camera(struct video_config_t *camera)
+bool initialise_camera(struct video_config_t *camera);
+bool initialise_camera(struct video_config_t *camera)
 {
-  camera->thread.settings = malloc(sizeof(struct video_settings));
-  camera->thread.settings->fps = VIDEO_THREAD_FPS;
-
   // Initialize the V4L2 subdevice if needed
   if (camera->subdev_name != NULL) {
     // FIXME! add subdev format to config, only needed on bebop front camera so far
     if (!v4l2_init_subdev(camera->subdev_name, 0, 0, V4L2_MBUS_FMT_SGBRG10_1X10, camera->w, camera->h)) {
       printf("[video_thread] Could not initialize the %s subdevice.\n", camera->subdev_name);
-      return;
+      return false;
     }
   }
 
@@ -225,13 +222,39 @@ void initialise_camera(struct video_config_t *camera)
   camera->thread.dev = v4l2_init(camera->dev_name, camera->w, camera->h, camera->buf_cnt, camera->format);
   if (camera->thread.dev == NULL) {
     printf("[video_thread] Could not initialize the %s V4L2 device.\n", camera->dev_name);
-    return;
+    return false;
   }
+
+  // Initialize OK
+  return true;
 }
 
-void video_thread_initialise_device(struct video_config_t *device)
+
+bool video_thread_initialise_device(struct video_config_t *device)
 {
-  initialise_camera(device);
+  // Loop over camera array
+  for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS; ++i) {
+    // If device is already registered, break
+    if (cameras[i] == device) break;
+
+    // If camera slot is already used, continue
+    if (cameras[i] != NULL) continue;
+
+    // Initialize the camera
+    if (!initialise_camera(device)) return false;
+
+    // Store device pointer
+    cameras[i] = device;
+
+    // Debug statement
+    printf("[video_thread] Added %s to camera array.\n", device->dev_name);
+
+    // Successfully initialized
+    return true;
+  }
+
+  // Camera array is full
+  return false;
 }
 
 void start_video_thread(struct video_config_t *camera);
