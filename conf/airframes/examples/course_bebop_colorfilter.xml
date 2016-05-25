@@ -30,17 +30,14 @@
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
 
-    <module name="video_thread">
-      <define name="USE_VIDEO1"/>
-      <define name="USE_VIDEO2"/>
-    </module>
+    <module name="video_thread"/>
 
     <module name="cv_colorfilter">
-      <define name="COLORFILTER_CAMERA" value="VIDEO1"/>
+      <define name="COLORFILTER_CAMERA" value="front_camera"/>
     </module>
 
     <module name="video_rtp_stream">
-      <define name="VIEWVIDEO_CAMERA" value="VIDEO1"/>
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
     </module>
