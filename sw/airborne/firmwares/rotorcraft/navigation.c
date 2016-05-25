@@ -516,9 +516,9 @@ void compute_dist2_to_home(void)
 {
   dist2_to_home = get_dist2_to_waypoint(WP_HOME);
   too_far_from_home = dist2_to_home > max_dist2_from_home;
-#ifdef InHomeModeSector
+#ifdef InGeofenceSector
   struct EnuCoor_f *pos = stateGetPositionEnu_f();
-  too_far_from_home = too_far_from_home || !(InHomeModeSector(pos->x, pos->y));
+  too_far_from_home = too_far_from_home || !(InGeofenceSector(pos->x, pos->y));
 #endif
 }
 

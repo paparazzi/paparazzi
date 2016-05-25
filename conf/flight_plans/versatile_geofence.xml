@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="260" ground_alt="185" lat0="43.4622" lon0="1.2729" max_dist_from_home="1500" name="Versatile" qfu="270" security_height="25" home_mode_height="50">
+<flight_plan alt="260" ground_alt="185" lat0="43.4622" lon0="1.2729" max_dist_from_home="1500" name="Versatile" qfu="270" security_height="25" home_mode_height="50" geofence_max_alt="300" geofence_sector="Airspace">
   <header>
 #include "subsystems/datalink/datalink.h"
 </header>
@@ -19,6 +19,10 @@
     <waypoint name="_2" x="-100" y="200"/>
     <waypoint name="_3" x="100" y="200"/>
     <waypoint name="_4" x="100" y="0"/>
+    <waypoint name="_A1" x="500" y="500"/>
+    <waypoint name="_A2" x="500" y="-500"/>
+    <waypoint name="_A3" x="-500" y="-500"/>
+    <waypoint name="_A4" x="-500" y="500"/>
     <waypoint name="CLIMB" x="-122.5" y="35.4"/>
   </waypoints>
   <sectors>
@@ -27,6 +31,12 @@
       <corner name="_2"/>
       <corner name="_3"/>
       <corner name="_4"/>
+    </sector>
+    <sector name="Airspace">
+      <corner name="_A1"/>
+      <corner name="_A2"/>
+      <corner name="_A3"/>
+      <corner name="_A4"/>
     </sector>
   </sectors>
   <variables>

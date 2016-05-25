@@ -985,9 +985,12 @@ let () =
       Xml2h.define "MAX_DIST_FROM_HOME" (sof mdfh);
       begin
         try
-          let home_mode_max_alt = 
-             get_float "home_mode_max_alt" in
-             Xml2h.define "HOME_MODE_MAX_ALTITUDE" (sof home_mode_max_alt);
+          let geofence_max_alt = 
+             get_float "geofence_max_alt" in
+             if geofence_max_alt > (!ground_alt +. !security_height) then
+             Xml2h.define "GEOFENCE_MAX_ALTITUDE" (sof geofence_max_alt)
+             else fprintf stderr "\nWarning: Geofence max altitude below security height (%.0f<(%.0f+%.0f))\n" geofence_max_alt !ground_alt !security_height;
+             fprintf stderr "\nWarning: Using Geofence_max_altitude of  %.0f\n" geofence_max_alt;
         with
             _ -> ()
       end;
@@ -1036,8 +1039,8 @@ let () =
 
       begin
         try
-          let home_mode_sector = Xml.attrib xml "home_mode_sector" in
-          lprintf "#define InHomeModeSector(_x, _y) %s(_x, _y)\n" (inside_function home_mode_sector)
+          let geofence_sector = Xml.attrib xml "geofence_sector" in
+          lprintf "#define InGeofenceSector(_x, _y) %s(_x, _y)\n" (inside_function geofence_sector)
         with
             _ -> ()
       end;

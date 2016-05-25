@@ -35,7 +35,7 @@ RP3 Lisa MX
 
     <define name="AGR_CLIMB" />
     <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
-    <define name="HOME_MODE_DATALINK_LOST_TIME" value="45"/>
+    <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
   </firmware>
 
   <modules>

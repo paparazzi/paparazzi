@@ -82,7 +82,8 @@ bool   autopilot_power_switch;
 bool   autopilot_ground_detected;
 bool   autopilot_detect_ground_once;
 
-#include "modules/nav/nav_home_mode.h"
+/* Geofence exceptions */
+#include "modules/nav/nav_geofence.h"
 
 /** time steps for in_flight detection (at 20Hz, so 20=1second) */
 #ifndef AUTOPILOT_IN_FLIGHT_TIME

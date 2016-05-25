@@ -20,44 +20,44 @@
  */
 
 /**
- * @file modules/nav/nav_home_mode.h
+ * @file modules/nav/nav_geofence.h
  *
  * Optional exceptions triggeringg HOME_MODE
- * 1) HOME_MODE_DATALINK_LOST_TIME: go to HOME mode if datalink lost for HOME_MODE_DATALINK_LOST_TIME
- * 2) HOME_MODE_MAX_ALTITUDE: go HOME if airplane higher than the max altitude
+ * 1) GEOFENCE_DATALINK_LOST_TIME: go to HOME mode if datalink lost for GEOFENCE_DATALINK_LOST_TIME
+ * 2) GEOFENCE_MAX_ALTITUDE: go HOME if airplane higher than the max altitude
  *
  * home_mode_max_alt is (optionally) defined in the flight plan
- * HOME_MODE_DATALINK_LOST_TIME is defined in the airframe config file
+ * GEOFENCE_DATALINK_LOST_TIME is defined in the airframe config file
  */
 
 static inline  bool datalink_lost(void);
 static inline bool higher_than_max_altitude(void);
 
-#ifdef HOME_MODE_DATALINK_LOST_TIME
+#ifdef GEOFENCE_DATALINK_LOST_TIME
 /*
  * from the airfame config file:
- * go to HOME mode if datalink lost for HOME_MODE_DATALINK_LOST_TIME
+ * go to HOME mode if datalink lost for GEOFENCE_DATALINK_LOST_TIME
  */
 static inline bool datalink_lost(void)
 {
-  return (datalink_time > HOME_MODE_DATALINK_LOST_TIME);
+  return (datalink_time > GEOFENCE_DATALINK_LOST_TIME);
 }
 #else // dont trigger this exception
 static inline bool datalink_lost(void)
 {
   return false;
 }
-#endif /* HOME_MODE_DATALINK_LOST_TIME */
+#endif /* GEOFENCE_DATALINK_LOST_TIME */
 
 
-#ifdef HOME_MODE_MAX_ALTITUDE // user defined max_altitude in the flight plan
+#ifdef GEOFENCE_MAX_ALTITUDE// user defined max_altitude/above_ground_level in the flight plan
 static inline bool higher_than_max_altitude(void)
 {
-  return (GetPosAlt() > HOME_MODE_MAX_ALTITUDE);
+  return (GetPosAlt() > GEOFENCE_MAX_ALTITUDE);
 }
 #else // we dont have max altitude specified, so the condition is never true
 static inline bool higher_than_max_altitude(void)
 {
   return false;
 }
-#endif /* HOME_MODE_MAX_ALTITUDE */
+#endif /* GEOFENCE_MAX_ALTITUDE */

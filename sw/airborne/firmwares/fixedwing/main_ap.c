@@ -108,7 +108,8 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #define COMMAND_YAW_TRIM 0
 #endif
 
-#include "modules/nav/nav_home_mode.h"
+/* Geofence exceptions */
+#include "modules/nav/nav_geofence.h"
 
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
