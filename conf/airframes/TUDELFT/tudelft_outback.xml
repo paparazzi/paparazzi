@@ -31,6 +31,8 @@
       <module name="current_sensor"/>
       <module name="opa_controller"/>
       <module name="mag_pitot_uart" />
+      <module name="pwm_meas"/>
+      <module name="rpm_sensor"/>
 
       <!--module name="geo_mag"/-->
       <module name="air_data"/>

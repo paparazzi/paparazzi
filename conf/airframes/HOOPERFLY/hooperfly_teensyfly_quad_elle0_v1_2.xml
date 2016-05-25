@@ -21,7 +21,7 @@
     <module name="radio_control" type="spektrum">
       <define name="RADIO_MODE"        value="RADIO_FLAP"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
-      	<configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
     </module>
 
     <module name="motor_mixing"/>
@@ -83,33 +83,8 @@
     <set servo="BACK_LEFT"   value="motor_mixing.commands[3]"/>
   </command_laws>
 
-  <section name="IMU" prefix="IMU_">
-
-    <!-- Accelerometer calibration -->
-    <define name="ACCEL_X_NEUTRAL" value="-54"/>
-    <define name="ACCEL_Y_NEUTRAL" value="64"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-63"/>
-    <define name="ACCEL_X_SENS" value="2.45160788954" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="2.44726332903" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="2.44708055795" integer="16"/>
-
-    <!-- Magnetometer calibration -->
-    <define name="MAG_X_NEUTRAL" value="-166"/>
-    <define name="MAG_Y_NEUTRAL" value="-264"/>
-    <define name="MAG_Z_NEUTRAL" value="42"/>
-    <define name="MAG_X_SENS" value="7.07470334279" integer="16"/>
-    <define name="MAG_Y_SENS" value="7.10785179117" integer="16"/>
-    <define name="MAG_Z_SENS" value="6.84586545929" integer="16"/>
-
-    <!-- Magnetometer current calibration -->
-    <define name= "MAG_X_CURRENT_COEF" value="-0.00211511755236"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="0.00139744019375"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="0.00102508387905"/>
-
-    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
-  </section>
+  <!-- include airframe calibration -->
+  <include href="conf/airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2_$AC_ID.xml"/>
 
   <section name="AHRS" prefix="AHRS_">
     <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
@@ -117,7 +92,6 @@
     <define name="H_Y" value="0.10300471"/>
     <define name="H_Z" value="0.9238937"/>
   </section>
-
 
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
@@ -216,7 +190,7 @@
     <define name="ALT_SHIFT_PLUS_PLUS" value="30"/>
     <define name="ALT_SHIFT_PLUS"      value="10"/>
     <define name="ALT_SHIFT_MINUS"     value="-10"/>
-    <define name="SPEECH_NAME"         value="Teensy Fly Quad Elle0 v1_2"/>
+    <define name="SPEECH_NAME"         value="Teensy Fly Quad Elle0 v1_2 $(AC_ID)"/>
     <define name="AC_ICON"             value="quadrotor_x"/>
   </section>
 

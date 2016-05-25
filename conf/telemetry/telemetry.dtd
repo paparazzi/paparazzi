@@ -16,5 +16,4 @@
   name CDATA #REQUIRED
   period CDATA #REQUIRED
   phase CDATA #IMPLIED
-  module CDATA #IMPLIED
 >

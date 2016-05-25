@@ -66,9 +66,9 @@
    gui_color="cyan"
   />
   <aircraft
-   name="Teensy_Fly_Quad_Elle0_v1_2_A"
+   name="Teensy_Fly_Quad_Elle0_v1_2_216"
    ac_id="216"
-   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2a.xml"
+   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
@@ -77,9 +77,9 @@
    gui_color="yellow"
   />
   <aircraft
-   name="Teensy_Fly_Quad_Elle0_v1_2_B"
+   name="Teensy_Fly_Quad_Elle0_v1_2_215"
    ac_id="215"
-   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2b.xml"
+   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
@@ -88,9 +88,9 @@
    gui_color="orange"
   />
   <aircraft
-   name="Teensy_Fly_Quad_Elle0_v1_2_C"
+   name="Teensy_Fly_Quad_Elle0_v1_2_214"
    ac_id="214"
-   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2c.xml"
+   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"

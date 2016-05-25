@@ -1,5 +1,5 @@
 /*
- * Copyright (C) C. De Wagter
+ * Copyright (C) Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi
  *
@@ -18,23 +18,22 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/computer_vision/cv_opencvdemo.h"
- * @author C. De Wagter
- * A simple module showing what you can do with opencv on the bebop.
+ * @file "modules/sensors/rpm_sensor.h"
+ * @author Freek van Tienen <freek.v.tienen@gmail.com>
+ * RPM sensor based on time difference between pulses
  */
 
-#ifndef OPENCV_EXAMPLE_H
-#define OPENCV_EXAMPLE_H
+#ifndef RPM_SENSOR_H
+#define RPM_SENSOR_H
 
-#ifdef __cplusplus
-extern "C" {
+#include "std.h"
+
+/* Default pulses per round */
+#ifndef RPM_PULSE_PER_RND
+#define RPM_PULSE_PER_RND 14
 #endif
 
-int opencv_example(char *img, int width, int height);
-
-#ifdef __cplusplus
-}
-#endif
+extern void rpm_sensor_init(void);
 
 #endif
 
