@@ -206,8 +206,8 @@ static void *video_thread_function(void *data)
 }
 
 
-bool initialise_camera(struct video_config_t *camera);
-bool initialise_camera(struct video_config_t *camera)
+bool initialize_camera(struct video_config_t *camera);
+bool initialize_camera(struct video_config_t *camera)
 {
   // Initialize the V4L2 subdevice if needed
   if (camera->subdev_name != NULL) {
@@ -230,7 +230,7 @@ bool initialise_camera(struct video_config_t *camera)
 }
 
 
-bool video_thread_initialise_device(struct video_config_t *device)
+bool video_thread_initialize_device(struct video_config_t *device)
 {
   // Loop over camera array
   for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS; ++i) {
@@ -241,7 +241,7 @@ bool video_thread_initialise_device(struct video_config_t *device)
     if (cameras[i] != NULL) continue;
 
     // Initialize the camera
-    if (!initialise_camera(device)) return false;
+    if (!initialize_camera(device)) return false;
 
     // Store device pointer
     cameras[i] = device;
