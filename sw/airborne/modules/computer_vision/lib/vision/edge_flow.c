@@ -178,7 +178,7 @@ void calculate_edge_displacement(int32_t *edge_histogram, int32_t *edge_histogra
 
 
   uint8_t SHIFT_TOO_FAR = 0;
-  memset(displacement, 0, size);
+  memset(displacement, 0, sizeof(int32_t)*size);
 
   int32_t border[2];
 
@@ -299,8 +299,8 @@ void line_fit(int32_t *displacement, int32_t *divergence, int32_t *flow, uint32_
  * @param[in] Displacement Pixel wise Displacement array
  * @param[in] *edge_hist_x Horizontal edge_histogram
  */
-void draw_edgeflow_img(struct image_t *img, struct edge_flow_t edgeflow, struct edgeflow_displacement_t displacement,
-                       int32_t *edge_hist_x)
+void draw_edgeflow_img(struct image_t *img, struct edge_flow_t edgeflow, int32_t *edge_hist_x_prev
+                       , int32_t *edge_hist_x)
 {
   struct point_t point1;
   struct point_t point2;
@@ -310,25 +310,25 @@ void draw_edgeflow_img(struct image_t *img, struct edge_flow_t edgeflow, struct 
   struct point_t point2_extra;
   uint16_t i;
 
-  for (i = 120; i < 240; i++) {
+  for (i = 1; i < img->w - 1; i++) {
     point1.y = -(uint16_t)edge_hist_x[i] / 100 + img->h / 3;
     point1.x = i;
     point2.y = -(uint16_t)edge_hist_x[i + 1] / 100 + img->h / 3;
     point2.x = i + 1;
 
-    point1_prev.y = -(uint16_t)displacement.x[i] * 5 + img->h * 2 / 3;
+    point1_prev.y = -(uint16_t)edge_hist_x_prev[i] / 100  + img->h * 2 / 3;
     point1_prev.x = i;
-    point2_prev.y = -(uint16_t)displacement.x[i + 1] * 5 + img->h * 2 / 3;
+    point2_prev.y = -(uint16_t)edge_hist_x_prev[i + 1] / 100 + img->h * 2 / 3;
     point2_prev.x = i + 1;
 
     image_draw_line(img, &point1, &point2);
     image_draw_line(img, &point1_prev, &point2_prev);
   }
 
-  point1_extra.y = (edgeflow.flow_x + edgeflow.div_x * -180) / 100 + img->h / 2;
+  point1_extra.y = (edgeflow.flow_x + edgeflow.div_x * img->w / 2) / 100 + img->h / 2;
   point1_extra.x = 0;
-  point2_extra.y = (edgeflow.flow_x + edgeflow.div_x * 180) / 100 + img->h / 2;
-  point2_extra.x = 360;
+  point2_extra.y = (edgeflow.flow_x + edgeflow.div_x * img->w / 2) / 100 + img->h / 2;
+  point2_extra.x = img->w;
   image_draw_line(img, &point1_extra, &point2_extra);
 }
 

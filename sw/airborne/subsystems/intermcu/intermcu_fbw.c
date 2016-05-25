@@ -30,6 +30,7 @@
 #include "subsystems/electrical.h"
 #include "mcu_periph/uart.h"
 
+
 #include "modules/spektrum_soft_bind/spektrum_soft_bind_fbw.h"
 
 #include BOARD_CONFIG
@@ -124,22 +125,6 @@ void intermcu_send_status(uint8_t mode)
                                 &electrical.current);
 }
 
-void intermcu_blink_fbw_led(uint16_t dv)
-{
-#ifdef FBW_MODE_LED
-  static uint16_t idv = 0;
-  if (!autopilot_motors_on) {
-    if (!(dv % (PERIODIC_FREQUENCY))) {
-      if (!(idv++ % 3)) { LED_OFF(FBW_MODE_LED);} else {LED_TOGGLE(FBW_MODE_LED);}
-    }
-  } else {
-    LED_TOGGLE(FBW_MODE_LED); // toggle makes random blinks if intermcu comm problem!
-  }
-#else
-  (void)dv;
-#endif
-}
-
 #pragma GCC diagnostic ignored "-Wcast-align"
 static void intermcu_parse_msg(void (*commands_frame_handler)(void))
 {
@@ -150,8 +135,12 @@ static void intermcu_parse_msg(void (*commands_frame_handler)(void))
       uint8_t i;
       uint8_t size = DL_IMCU_COMMANDS_values_length(imcu_msg_buf);
       int16_t *new_commands = DL_IMCU_COMMANDS_values(imcu_msg_buf);
-      uint8_t status = DL_IMCU_COMMANDS_status(imcu_msg_buf);
-      autopilot_motors_on = status & 0x1;
+      intermcu.cmd_status |= DL_IMCU_COMMANDS_status(imcu_msg_buf);
+
+      // Read the autopilot status and then clear it
+      autopilot_motors_on = INTERMCU_GET_CMD_STATUS(INTERMCU_CMD_MOTORS_ON);
+      INTERMCU_CLR_CMD_STATUS(INTERMCU_CMD_MOTORS_ON)
+
       for (i = 0; i < size; i++) {
         intermcu_commands[i] = new_commands[i];
       }

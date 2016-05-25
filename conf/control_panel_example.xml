@@ -8,7 +8,9 @@
       <arg flag="-d" constant="/dev/ttyUSB0"/>
     </program>
     <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
-    <program name="GCS" command="sw/ground_segment/cockpit/gcs"/>
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
+      <arg flag="-layout" constant="large_left_col.xml"/>
+    </program>
     <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-edit"/>
     </program>

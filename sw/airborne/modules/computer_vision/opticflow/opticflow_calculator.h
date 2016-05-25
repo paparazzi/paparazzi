@@ -37,6 +37,7 @@
 
 struct opticflow_t {
   bool got_first_img;             ///< If we got a image to work with
+  bool just_switched_method;
   float prev_phi;                   ///< Phi from the previous image frame
   float prev_theta;                 ///< Theta from the previous image frame
   struct image_t img_gray;          ///< Current gray image frame
