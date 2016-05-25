@@ -20,5 +20,4 @@
 #endif
 extern struct video_config_t webcam;
 
-#define VIDEO1 webcam
 #endif /* CONFIG_PC_SIM_H */
