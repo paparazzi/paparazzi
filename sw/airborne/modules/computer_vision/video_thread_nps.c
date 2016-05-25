@@ -29,8 +29,6 @@
 #include "cv.h"
 #include "lib/vision/image.h"
 
-// Module functions
-struct video_settings camera1_settings;
 
 // Initialize the video_thread structure with the defaults
 struct video_thread_t video_thread = {
