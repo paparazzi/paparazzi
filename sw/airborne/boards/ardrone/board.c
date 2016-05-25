@@ -49,7 +49,8 @@ struct video_config_t front_camera = {
   .format = V4L2_PIX_FMT_UYVY,
   .buf_cnt = 10,
   .filters = 0,
-  .pointer_to_first_listener=NULL
+  .pointer_to_first_listener=NULL,
+  .fps = 0
 };
 
 
@@ -61,7 +62,8 @@ struct video_config_t bottom_camera = {
   .format = V4L2_PIX_FMT_UYVY,
   .buf_cnt = 10,
   .filters = 0,
-  .pointer_to_first_listener=NULL
+  .pointer_to_first_listener=NULL,
+  .fps = 0
 };
 
 int KillGracefully(char *process_name);

@@ -38,16 +38,10 @@ struct video_listener {
   cvFunction func;
 };
 
-struct video_settings {
-	uint8_t fps;                    ///< The amount of frames per second
-	uint16_t shot_number;           ///< The last shot number
-};
-
 // Main video_thread structure
 struct video_thread_t {
   volatile bool is_running;   ///< When the device is running
   struct v4l2_device *dev;        ///< The V4L2 device that is used for the video stream
-  struct video_settings *settings;
 };
 
 /** V4L2 device settings */
@@ -61,6 +55,7 @@ struct video_config_t {
   uint8_t filters;    ///< filters to use (bitfield with VIDEO_FILTER_x)
   struct video_thread_t thread; ///< Information about the thread this camera is running on
   struct video_listener *pointer_to_first_listener; ///< The first listener in the linked list for this video device
+  int fps;
 };
 extern struct video_config_t dummy_camera;
 
