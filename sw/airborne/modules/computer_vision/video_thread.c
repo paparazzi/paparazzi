@@ -59,12 +59,6 @@
 #endif
 PRINT_CONFIG_VAR(VIDEO_THREAD_FPS)
 
-// The place where the shots are saved (without slash on the end)
-#ifndef VIDEO_THREAD_SHOT_PATH
-#define VIDEO_THREAD_SHOT_PATH "/data/video/images"
-#endif
-PRINT_CONFIG_VAR(VIDEO_THREAD_SHOT_PATH)
-
 // The amount of cameras we can have
 #ifndef VIDEO_THREAD_MAX_CAMERAS
 #define VIDEO_THREAD_MAX_CAMERAS 4
@@ -82,40 +76,6 @@ void video_thread_periodic(void) {
 }
 
 
-static void video_thread_save_shot(struct video_thread_t thread_to_save_shot_from, struct image_t *img,
-                                   struct image_t *img_jpeg)
-{
-  // Search for a file where we can write to
-  char save_name[128];
-  for (; thread_to_save_shot_from.settings->shot_number < 99999; thread_to_save_shot_from.settings->shot_number++) {
-    sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_THREAD_SHOT_PATH),
-            thread_to_save_shot_from.settings->shot_number);
-    // Check if file exists or not
-    if (access(save_name, F_OK) == -1) {
-
-      // Create a high quality image (99% JPEG encoded)
-      jpeg_encode_image(img, img_jpeg, 99, TRUE);
-
-#if JPEG_WITH_EXIF_HEADER
-      write_exif_jpeg(save_name, img_jpeg->buf, img_jpeg->buf_size, img_jpeg->w, img_jpeg->h);
-#else
-      FILE *fp = fopen(save_name, "w");
-      if (fp == NULL) {
-        printf("[video_thread-thread] Could not write shot %s.\n", save_name);
-      } else {
-        // Save it to the file and close it
-        fwrite(img_jpeg->buf, sizeof(uint8_t), img_jpeg->buf_size, fp);
-        fclose(fp);
-      }
-#endif
-
-      // We don't need to seek for a next index anymore
-      break;
-    }
-  }
-}
-
-
 /**
  * Handles all the video streaming and saving of the image shots
  * This is a sepereate thread, so it needs to be thread safe!
@@ -124,7 +84,6 @@ static void *video_thread_function(void *data)
 {
   struct video_config_t *vid = (struct video_config_t *)data;
 
-  struct image_t img_jpeg;
   struct image_t img_color;
 
   // create the images
@@ -132,9 +91,6 @@ static void *video_thread_function(void *data)
     // fixme: don't hardcode size, works for bebop front camera for now
 #define IMG_FLT_SIZE 272
     image_create(&img_color, IMG_FLT_SIZE, IMG_FLT_SIZE, IMAGE_YUV422);
-    image_create(&img_jpeg, IMG_FLT_SIZE, IMG_FLT_SIZE, IMAGE_JPEG);
-  } else {
-    image_create(&img_jpeg, vid->w, vid->h, IMAGE_JPEG);
   }
 
   // Start the streaming of the V4L2 device
@@ -186,12 +142,6 @@ static void *video_thread_function(void *data)
       img_final = &img_color;
     }
 
-    // Check if we need to take a shot
-    if (vid->thread.settings != NULL && vid->thread.settings->take_shot) {
-      video_thread_save_shot(vid->thread, img_final, &img_jpeg);
-      vid->thread.settings->take_shot = false;
-    }
-
     // Run processing if required
     cv_run_device(vid, img_final);
 
@@ -199,7 +149,6 @@ static void *video_thread_function(void *data)
     v4l2_image_free(vid->thread.dev, &img);
   }
 
-  image_free(&img_jpeg);
   image_free(&img_color);
 
   return 0;
@@ -334,16 +283,4 @@ void video_thread_stop()
 
 
   // TODO: wait for the thread to finish to be able to start the thread again!
-}
-
-/**
- * Take a shot and save it
- * This will only work when the streaming is enabled
- */
-void video_thread_take_shot(bool take)
-{
-// TODO now assuming the first camera
-  if (cameras[0] != NULL) {
-    cameras[0]->thread.settings->take_shot = take;
-  }
 }

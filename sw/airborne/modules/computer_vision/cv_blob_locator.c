@@ -244,9 +244,7 @@ void cv_blob_locator_init(void) {
 }
 
 void cv_blob_locator_periodic(void) {
-  if (record_video == 1) {
-    video_thread_take_shot(TRUE);
-  }
+
 }
 
 

@@ -38,7 +38,6 @@ extern void video_thread_init(void);
 extern void video_thread_periodic(void); ///< A dummy for now
 extern void video_thread_start(void);
 extern void video_thread_stop(void);
-extern void video_thread_take_shot(bool take);
 
 #endif /* VIDEO_THREAD_H */
 

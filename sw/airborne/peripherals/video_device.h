@@ -40,7 +40,6 @@ struct video_listener {
 
 struct video_settings {
 	uint8_t fps;                    ///< The amount of frames per second
-	volatile bool take_shot;      ///< Whether to take an image
 	uint16_t shot_number;           ///< The last shot number
 };
 
