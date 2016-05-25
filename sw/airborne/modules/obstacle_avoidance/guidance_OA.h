@@ -46,14 +46,14 @@ struct opticflow_stab_t {
 };
 extern struct opticflow_stab_t opticflow_stab;
 
-extern int8_t filter_flag;
-extern int8_t repulsionforce_filter_flag;
-
-typedef enum {NO_OBSTACLE_AVOIDANCE, PINGPONG, POT_HEADING, POT_VEL, VECTOR, SAFETYZONE, LOGICBASED} oa_method;
-extern oa_method OA_method_flag; //0 =>No OA only opticflow 1=pingpong 2=>pot_heading 3=>pot_vel 4=>vector 5=>safetyzone
-
+typedef enum {NO_OBSTACLE_AVOIDANCE, PINGPONG, POT_HEADING, VECTOR_FIELD, LOGIC_BASED, LOGIC_AND_VECTOR} oa_method;
+//OA Generalsettigns
+extern oa_method OA_method_flag; //0 =>No OA 1=pingpong 2=>pot_heading 3=>vector_field 4=>logic_based 5=>logic+vector
 extern int8_t opti_speed_flag;
 extern float vref_max;
+
+//filter flag
+extern int8_t filter_flag;
 
 //variables form optic flow module
 extern float ref_pitch;

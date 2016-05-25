@@ -20,9 +20,10 @@
 
           <dl_settings NAME="OA_general">
         <dl_setting var="OA_method_flag" module="obstacle_avoidance/guidance_OA" min="0" step="1" max="6" shortname="OA_method" param="OA_method"/>
-        <dl_setting var="repulsionforce_filter_flag" module="obstacle_avoidance/guidance_OA" min="0" step="1" max="1" shortname="Obst_force_filter" param="Obst_force_filter"/>
         <dl_setting var="opti_speed_flag" module="obstacle_avoidance/guidance_OA" min="0" step="1" max="1" shortname="opti_speed_flag" param="opti_speed_flag"/>
         <dl_setting var="vref_max" module="obstacle_avoidance/guidance_OA" min="0" step="1" max="1000" shortname="vref_max" param="vref_max"/>
+	<dl_setting var="dx_ref" module="obstacle_avoidance/obstacle_avoidance" min="-10" step="1" max="10" shortname="dx_ref" param="dx_ref"/>
+        <dl_setting var="dy_ref" module="obstacle_avoidance/obstacle_avoidance" min="-10" step="1" max="10" shortname="dy_ref" param="dy_ref"/>
       </dl_settings>
 
       <dl_settings name="Vector_method">
@@ -33,8 +34,6 @@
         <dl_setting var="Kg" module="obstacle_avoidance/obstacle_avoidance" min="0" step="1" max="250" shortname="Kg" param="Kg"/>
         <dl_setting var="Dist_offset" module="obstacle_avoidance/obstacle_avoidance" min="-1" step="0.01" max="1" shortname="Dist_offset" param="Dist_offset"/>
         <dl_setting var="dis_treshold" module="obstacle_avoidance/obstacle_avoidance" min="0" step="1" max="15" shortname="dis_treshold" param="dis_treshold"/>
-        <dl_setting var="dx_ref" module="obstacle_avoidance/obstacle_avoidance" min="-10" step="1" max="10" shortname="dx_ref" param="dx_ref"/>
-        <dl_setting var="dy_ref" module="obstacle_avoidance/obstacle_avoidance" min="-10" step="1" max="10" shortname="dy_ref" param="dy_ref"/>
       </dl_settings>
 
       <dl_settings name="Pot_method">
@@ -45,6 +44,7 @@
          <dl_setting var="c2_oa" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="500" shortname="c2" param="c2"/>
          <dl_setting var="c3_oa" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="500" shortname="c3" param="c3"/>
          <dl_setting var="c4_oa" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="500" shortname="c4" param="c4"/>
+	 <dl_setting var="c5_oa" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="500" shortname="c5" param="c5"/>
          <dl_setting var="kv" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.1" max="500" shortname="kv" param="kv"/>
          <dl_setting var="epsilon" module="obstacle_avoidance/obstacle_avoidance" min="0" step="0.01" max="1" shortname="epsilon" param="epsilon"/>
       </dl_settings>
