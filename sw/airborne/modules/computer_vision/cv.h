@@ -34,6 +34,8 @@
 
 #include BOARD_CONFIG
 
+extern bool add_video_device(struct video_config_t *device);
+
 extern void cv_add_to_device(struct video_config_t *device, cvFunction func);
 extern void cv_run_device(struct video_config_t *device, struct image_t *img);
 

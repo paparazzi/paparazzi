@@ -180,7 +180,7 @@ bool initialize_camera(struct video_config_t *camera)
 }
 
 
-bool video_thread_initialize_device(struct video_config_t *device)
+bool add_video_device(struct video_config_t *device)
 {
   // Loop over camera array
   for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS; ++i) {

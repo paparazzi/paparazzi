@@ -31,7 +31,7 @@
 void cv_add_to_device(struct video_config_t *device, cvFunction func)
 {
   // Initialise the device that we want our function to use
-  video_thread_initialize_device(device);
+  add_video_device(device);
 
   // Create a new video listener
   struct video_listener *new_listener = malloc(sizeof(struct video_listener));
