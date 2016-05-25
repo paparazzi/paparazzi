@@ -3,6 +3,8 @@
 <module name="cv_blob_locator" dir="computer_vision">
   <doc>
     <description>Find a colored item and track its geo-location and update a waypoint to it</description>
+
+    <define name="BLOB_LOCATOR_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
   </doc>
   <settings>
     <dl_settings>

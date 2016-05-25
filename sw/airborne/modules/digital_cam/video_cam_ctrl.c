@@ -52,7 +52,7 @@ void dc_send_command(uint8_t cmd)
   switch (cmd) {
     case DC_SHOOT:
 #ifndef SITL
-      video_thread_take_shot(TRUE);
+//      video_thread_take_shot(TRUE);
 #endif
       dc_send_shot_position();
       break;
