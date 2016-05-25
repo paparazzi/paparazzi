@@ -29,6 +29,7 @@
 #include "subsystems/radio_control.h"
 #include "subsystems/electrical.h"
 #include "mcu_periph/uart.h"
+#include "modules/telemetry/telemetry_intermcu.h"
 
 
 #include "modules/spektrum_soft_bind/spektrum_soft_bind_fbw.h"
@@ -148,6 +149,13 @@ static void intermcu_parse_msg(void (*commands_frame_handler)(void))
       intermcu.status = INTERMCU_OK;
       intermcu.time_since_last_frame = 0;
       commands_frame_handler();
+      break;
+    }
+    case DL_IMCU_TELEMETRY: {
+      uint8_t id = DL_IMCU_TELEMETRY_msg_id(imcu_msg_buf);
+      uint8_t size = DL_IMCU_TELEMETRY_msg_length(imcu_msg_buf);
+      uint8_t *msg = DL_IMCU_TELEMETRY_msg(imcu_msg_buf);
+      telemetry_intermcu_on_msg(id, msg, size);
       break;
     }
 
