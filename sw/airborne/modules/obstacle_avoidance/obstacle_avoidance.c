@@ -54,14 +54,6 @@
 #define AVOIDANCE_WIDTH_IN_MEASUREMENT_VALUES 6
 #endif
 
-//#ifndef PRINT_MATRIX
-//#define PRINT_MATRIX
-//#endif
-
-//#ifndef SEND_OA_DATA
-//#define SEND_OA_DATA
-//#endif
-
 //Initialize variables which can be changed in settings
 //OA_general
 float dx_ref = 0;
@@ -362,8 +354,8 @@ void pingpong_euler(float *distances_hor_local, float *horizontalAnglesMeasureme
   float dist_treshold = 1.25;
   
   //init
-  float sumPitch = 0.0;
-  float sumRoll = 0.0;
+  float sum_pitch = 0.0;
+  float sum_roll = 0.0;
 
   float oa_pitch_angle[horizontalAmountOfMeasurements];
   float oa_roll_angle[horizontalAmountOfMeasurements];
@@ -375,27 +367,27 @@ void pingpong_euler(float *distances_hor_local, float *horizontalAnglesMeasureme
 
       oa_pitch_angle[horizontal_index] = cos(horizontalAnglesMeasurements[horizontal_index]) * reference_pitch;
       oa_roll_angle[horizontal_index] = -sin(horizontalAnglesMeasurements[horizontal_index]) * reference_roll;
-      sumPitch += oa_pitch_angle[horizontal_index];
-      sumRoll += oa_roll_angle[horizontal_index];
+      sum_pitch += oa_pitch_angle[horizontal_index];
+      sum_roll += oa_roll_angle[horizontal_index];
 
     }
   }
 
-  if (sumPitch > reference_pitch) {
+  if (sum_pitch > reference_pitch) {
     ref_pitch = reference_pitch;
-  } else if (sumPitch < -reference_pitch) {
+  } else if (sum_pitch < -reference_pitch) {
     ref_pitch = -reference_pitch;
   } else {
-    ref_pitch = sumPitch;
+    ref_pitch = sum_pitch;
   }
 
 
-  if (sumRoll > reference_roll) {
+  if (sum_roll > reference_roll) {
     ref_roll = reference_roll;
-  } else if (sumRoll < -reference_roll) {
+  } else if (sum_roll < -reference_roll) {
     ref_roll = -reference_roll;
   } else {
-    ref_roll = sumRoll;
+    ref_roll = sum_roll;
   }
 
 
@@ -790,10 +782,7 @@ void vector_and_logic_velocity(float *distancesMeters, float *anglesMeasurements
   else if (V_total > v_max && obstacle_flag == 0) {
     escape_flag = 0;
   }
-  //printf("V_total: %f", V_total);
-  //printf("escape_flag: %i, obstacle_flag: %i, set_bias: %i", escape_flag, obstacle_flag, set_bias);
-  //printf("escape_flag: %i, obstacle_flag: %i, set_bias: %i", escape_flag, obstacle_flag, set_bias);
-
+ 
   if (escape_flag == 0) {
     ref_pitch = Total_Kan.x;
     ref_roll = Total_Kan.y;

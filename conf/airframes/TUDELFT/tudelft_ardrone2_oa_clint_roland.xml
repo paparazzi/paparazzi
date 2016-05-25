@@ -31,6 +31,7 @@
 	<configure name="STEREO_UART" value="UART1"/>
 	<configure name="STEREO_BAUD" value="B115200"/>
     </module>
+    <load name="obstacle_avoidance.xml"/>
   </modules>
 
   <commands>
