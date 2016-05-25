@@ -119,37 +119,42 @@ float v_ctl_auto_groundspeed_sum_err;
 #define V_CTL_ALTITUDE_PRE_CLIMB_CORRECTION 1.0f
 #endif
 
+#if CTRL_VERTICAL_LANDING
 #ifndef V_CTL_LANDING_THROTTLE_PGAIN
-#define V_CTL_LANDING_THROTTLE_PGAIN 600.
+#error "V_CTL_LANDING_THROTTLE_PGAIN undefined, please define it in your airfame config file"
 #endif
 #ifndef V_CTL_LANDING_THROTTLE_IGAIN
-#define V_CTL_LANDING_THROTTLE_IGAIN 10.
+#error "V_CTL_LANDING_THROTTLE_IGAIN undefined, please define it in your airfame config file"
 #endif
 #ifndef V_CTL_LANDING_THROTTLE_MAX
-#define V_CTL_LANDING_THROTTLE_MAX 0.65
+INFO("V_CTL_LANDING_THROTTLE_MAX undefined, using V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE instead")
+#define V_CTL_LANDING_THROTTLE_MAX V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE
 #endif
 #ifndef V_CTL_LANDING_DESIRED_SPEED
-#define V_CTL_LANDING_DESIRED_SPEED 18.
+#error "V_CTL_LANDING_DESIRED_SPEED undefined, please define it in your airfame config file"
 #endif
 
 
 #ifndef V_CTL_LANDING_PITCH_PGAIN
-#define V_CTL_LANDING_PITCH_PGAIN 0.1
+INFO("V_CTL_LANDING_PITCH_PGAIN undefined, using V_CTL_AUTO_PITCH_PGAIN instead")
+#define V_CTL_LANDING_PITCH_PGAIN V_CTL_AUTO_PITCH_PGAIN
 #endif
 #ifndef V_CTL_LANDING_PITCH_IGAIN
-#define V_CTL_LANDING_PITCH_IGAIN 0.1
+INFO("V_CTL_LANDING_PITCH_IGAIN undefined, using V_CTL_AUTO_PITCH_IGAIN instead")
+#define V_CTL_LANDING_PITCH_IGAIN V_CTL_AUTO_PITCH_IGAIN
 #endif
 #ifndef V_CTL_LANDING_PITCH_LIMITS
-#define V_CTL_LANDING_PITCH_LIMITS 0.2
+INFO("V_CTL_LANDING_PITCH_LIMITS undefined, using V_CTL_AUTO_PITCH_MAX_PITCH instead")
+#define V_CTL_LANDING_PITCH_LIMITS V_CTL_AUTO_PITCH_MAX_PITCH
 #endif
 #ifndef V_CTL_LANDING_PITCH_FLARE
-#define V_CTL_LANDING_PITCH_FLARE 0.060000
+#error "V_CTL_LANDING_PITCH_FLARE undefined, please define it in your airfame config file"
 #endif
 #ifndef V_CTL_LANDING_ALT_THROTTLE_KILL
-#define V_CTL_LANDING_ALT_THROTTLE_KILL 15
+#error "V_CTL_LANDING_ALT_THROTTLE_KILL undefined, please define it in your airfame config file"
 #endif
 #ifndef V_CTL_LANDING_ALT_FLARE
-#define V_CTL_LANDING_ALT_FLARE 5
+#error "V_CTL_LANDING_ALT_FLARE undefined, please define it in your airfame config file"
 #endif
 
 float v_ctl_landing_throttle_pgain;
@@ -162,13 +167,14 @@ float v_ctl_landing_pitch_limits;
 float v_ctl_landing_pitch_flare;
 float v_ctl_landing_alt_throttle_kill; //> must be greater than alt_flare
 float v_ctl_landing_alt_flare;
-
+#endif /* CTRL_VERTICAL_LANDING */
 
 void v_ctl_init(void)
 {
   /* mode */
   v_ctl_mode = V_CTL_MODE_MANUAL;
 
+#if CTRL_VERTICAL_LANDING
   /* improved landing routine */
   v_ctl_landing_throttle_pgain = V_CTL_LANDING_THROTTLE_PGAIN;
   v_ctl_landing_throttle_igain = V_CTL_LANDING_THROTTLE_IGAIN;
@@ -180,6 +186,7 @@ void v_ctl_init(void)
   v_ctl_landing_pitch_flare = V_CTL_LANDING_PITCH_FLARE;
   v_ctl_landing_alt_throttle_kill = V_CTL_LANDING_ALT_THROTTLE_KILL;
   v_ctl_landing_alt_flare = V_CTL_LANDING_ALT_FLARE;
+#endif /* CTRL_VERTICAL_LANDING */
 
   /* outer loop */
   v_ctl_altitude_setpoint = 0.;
@@ -310,6 +317,7 @@ void v_ctl_climb_loop(void)
 
 void v_ctl_landing_loop(void)
 {
+#if CTRL_VERTICAL_LANDING
   static float land_speed_i_err;
   static float land_alt_i_err;
   static float kill_alt;
@@ -349,7 +357,7 @@ void v_ctl_landing_loop(void)
       }
     }
   }
-
+#endif /* CTRL_VERTICAL_LANDING */
 }
 
 /**

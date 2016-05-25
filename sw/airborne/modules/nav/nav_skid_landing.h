@@ -38,6 +38,20 @@
  *     <define name="FINAL_HEIGHT" value="50" unit="m"/>
  *     <define name="FINAL_STAGE_TIME" value="10" unit="s"/>
  *   </section>
+  *
+ *   Also define:
+ *    V_CTL_LANDING_THROTTLE_PGAIN - landing throttle P gain
+ *    V_CTL_LANDING_THROTTLE_IGAIN - landing throttle I gain
+ *    V_CTL_LANDING_THROTTLE_MAX - max landing throttle
+ *    V_CTL_LANDING_DESIRED_SPEED - desired landing speed
+ *    V_CTL_LANDING_PITCH_PGAIN - landing P gain
+ *    V_CTL_LANDING_PITCH_IGAIN - landing I gain
+ *    V_CTL_LANDING_PITCH_LIMITS - pitch limits during landing
+ *    V_CTL_LANDING_PITCH_FLARE - flare P gain
+ *    V_CTL_LANDING_ALT_THROTTLE_KILL - AGL to kill throttle during landing
+ *    V_CTL_LANDING_ALT_FLARE - AGL to initiate final flare
+ *
+ *  to properly use landing control loop
  */
 
 #ifndef NAV_SKID_LANDING_H

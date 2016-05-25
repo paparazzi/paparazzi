@@ -166,6 +166,18 @@ RP3 Lisa MX
     <define name="AUTO_PITCH_IGAIN"             value="0.025"/>
     <define name="AUTO_PITCH_MAX_PITCH"             value="0.31415"     unit="rad"/>
     <define name="AUTO_PITCH_MIN_PITCH"             value="-0.31415"    unit="rad"/>
+
+    <!-- landing control loop -->
+    <define name="LANDING_THROTTLE_PGAIN"           value="600.0"/>
+    <define name="LANDING_THROTTLE_IGAIN"           value="10.0"/>
+    <define name="LANDING_THROTTLE_MAX"           value="0.65"/>
+    <define name="LANDING_DESIRED_SPEED"           value="18" unit="m/s"/>
+    <define name="LANDING_PITCH_PGAIN"           value="0.1"/>
+    <define name="LANDING_PITCH_IGAIN"           value="0.1"/>
+    <define name="LANDING_PITCH_LIMITS"           value="0.2" unit="rad"/>
+    <define name="LANDING_PITCH_FLARE"           value="0.06"/>
+    <define name="LANDING_ALT_THROTTLE_KILL"           value="15" unit="m"/>
+    <define name="LANDING_ALT_FLARE"           value="5" unit="m"/>
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
