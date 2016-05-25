@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="telemetry_intermcu" dir="telemetry">
+  <doc>
+    <description>Telemetry over InterMCU
+      This module transmits Telemetry of the process "InterMCU" from AP to FBW. The FBW then transmits this telemetry further through PPRZ over an UART.
+    </description>
+    <configure name="TELEMETRY_INTERMCU_DEV" value="UART3" description="Device used to communicate the telemetry over on the FBW side"/>
+  </doc>
+  <!-- <depends>intermcu</depends> -->
+  <header>
+    <file name="telemetry_intermcu.h"/>
+  </header>
+  <init fun="telemetry_intermcu_init()"/>
+  <periodic fun="telemetry_intermcu_periodic()"/>
+  <makefile target="ap">
+    <file name="telemetry_intermcu_ap.c"/>
+    <file name="short_transport.c" dir="pprzlink/src"/>
+  </makefile>
+  <makefile target="fbw">
+    <file name="telemetry_intermcu_fbw.c"/>
+    <file name="pprz_transport.c" dir="pprzlink/src"/>
+
+    <configure name="TELEMETRY_INTERMCU_DEV" default="UART3" case="upper|lower"/>
+    <configure name="TELEMETRY_INTERMCU_BAUD" default="B19200"/>
+    <define name="USE_$(TELEMETRY_INTERMCU_DEV_UPPER)"/>
+    <define name="$(TELEMETRY_INTERMCU_DEV_UPPER)_BAUD" value="$(TELEMETRY_INTERMCU_BAUD)"/>
+    <define name="TELEMETRY_INTERMCU_DEV" value="$(TELEMETRY_INTERMCU_DEV_LOWER)"/>
+  </makefile>
+</module>
+

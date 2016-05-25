@@ -28,6 +28,7 @@
       <module name="ins"           type="hff"/>
       <module name="guidance"      type="indi"/>
       <module name="intermcu"      type="uart"/>
+      <module name="telemetry"     type="intermcu"/>
       <module name="current_sensor"/>
       <module name="opa_controller"/>
       <module name="mag_pitot_uart" />
@@ -55,6 +56,7 @@
 
       <module name="actuators"     type="pwm"/>
       <module name="intermcu"      type="uart"/>
+      <module name="telemetry"     type="intermcu"/>
       <module name="opa_controller"/>
       <module name="heli_throttle_curve"/>
       <module name="heli_swashplate_mixing"/>
