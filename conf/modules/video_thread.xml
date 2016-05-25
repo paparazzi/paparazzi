@@ -9,9 +9,6 @@
 
       - Possibility to save an image(shot) on the internal memory (JPEG, full size, best quality)
     </description>
-
-    <define name="VIDEO_THREAD_FPS" value="30" description="Video stream frame rate"/>
-    <define name="VIDEO_THREAD_SHOT_PATH" value="/data/video/images" description="Path where the images should be saved"/>
   </doc>
 
   <header>

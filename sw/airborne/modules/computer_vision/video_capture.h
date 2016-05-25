@@ -20,21 +20,18 @@
  */
 
 /**
- * @file modules/computer_vision/cv.h
- *
- * Computer vision framework for onboard processing
+ * @file modules/computer_vision/video_capture.h
  */
 
+#ifndef VIDEO_CAPTURE_H_
+#define VIDEO_CAPTURE_H_
 
-#ifndef CV_H_
-#define CV_H_
+#include <stdbool.h>
 
-#include "std.h"
-#include "peripherals/video_device.h"
+// Module settings
+extern bool video_capture_take_shot;
 
-#include BOARD_CONFIG
+// Module functions
+extern void video_capture_init(void);
 
-extern void cv_add_to_device(struct video_config_t *device, cvFunction func);
-extern void cv_run_device(struct video_config_t *device, struct image_t *img);
-
-#endif /* CV_H_ */
+#endif /* VIDEO_CAPTURE_H_ */

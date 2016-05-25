@@ -20,21 +20,34 @@
  */
 
 /**
- * @file modules/computer_vision/cv.h
- *
- * Computer vision framework for onboard processing
+ * @file modules/computer_vision/video_capture.c
  */
 
 
-#ifndef CV_H_
-#define CV_H_
+#include "modules/computer_vision/video_capture.h"
+#include "modules/computer_vision/cv.h"
 
-#include "std.h"
-#include "peripherals/video_device.h"
+#define VIDEO_CAPTURE_JPEG_QUALITY 99
 
-#include BOARD_CONFIG
+// Module settings
+bool video_capture_take_shot = false;
 
-extern void cv_add_to_device(struct video_config_t *device, cvFunction func);
-extern void cv_run_device(struct video_config_t *device, struct image_t *img);
+// Forward function declarations
+struct image_t *video_capture_func(struct image_t *img);
 
-#endif /* CV_H_ */
+
+void video_capture_init(void) {
+    cv_add_to_device(&VIDEO_CAPTURE_CAMERA, video_capture_func);
+}
+
+
+struct image_t *video_capture_func(struct image_t *img)
+{
+    if (video_capture_take_shot) {
+        // TODO: save img to VIDEO_CAPTURE_PATH
+
+        video_capture_take_shot = false;
+    }
+
+    return NULL;
+}

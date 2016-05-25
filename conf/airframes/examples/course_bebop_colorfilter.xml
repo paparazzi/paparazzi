@@ -42,6 +42,11 @@
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="20"/>
     </module>
 
+    <module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
+      <define name="VIDEO_CAPTURE_PATH" value="/data/video/images"/>
+    </module>
+
   </modules>
 
   <commands>
