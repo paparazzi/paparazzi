@@ -39,7 +39,10 @@ RP3 Lisa MX
 
   <modules>
     <module name="nav" type="line"/>
+    <module name="nav" type="flower"/>
     <module name="nav" type="survey_poly_osam"/>
+    <module name="nav" type="launcher"/>
+    <module name="nav" type="skid_landing"/>
     <module name="sys_mon"/>
   </modules>
 
@@ -163,6 +166,18 @@ RP3 Lisa MX
     <define name="AUTO_PITCH_IGAIN"             value="0.025"/>
     <define name="AUTO_PITCH_MAX_PITCH"             value="0.31415"     unit="rad"/>
     <define name="AUTO_PITCH_MIN_PITCH"             value="-0.31415"    unit="rad"/>
+
+    <!-- landing control loop -->
+    <define name="LANDING_THROTTLE_PGAIN"           value="600.0"/>
+    <define name="LANDING_THROTTLE_IGAIN"           value="10.0"/>
+    <define name="LANDING_THROTTLE_MAX"           value="0.65"/>
+    <define name="LANDING_DESIRED_SPEED"           value="18" unit="m/s"/>
+    <define name="LANDING_PITCH_PGAIN"           value="0.1"/>
+    <define name="LANDING_PITCH_IGAIN"           value="0.1"/>
+    <define name="LANDING_PITCH_LIMITS"           value="0.2" unit="rad"/>
+    <define name="LANDING_PITCH_FLARE"           value="0.06"/>
+    <define name="LANDING_ALT_THROTTLE_KILL"           value="15" unit="m"/>
+    <define name="LANDING_ALT_FLARE"           value="5" unit="m"/>
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
@@ -199,19 +214,19 @@ RP3 Lisa MX
   </section>
 
   <!-- Launcher Takeoff Configuration -->
-  <section name="Takeoff" prefix="Takeoff_">
-    <define name="Pitch" value="0.23" unit="rad"/>
-    <define name="Height" value="70" unit="m"/>
-    <define name="Speed" value="8" unit="m/s"/>
-    <define name="Distance" value="30" unit="m"/>
-    <define name="MinSpeed" value="5" unit="m/s"/>
+  <section name="LAUNCHER" prefix="LAUNCHER_TAKEOFF_">
+    <define name="PITCH" value="0.23" unit="rad"/>
+    <define name="HEIGHT" value="70" unit="m"/>
+    <define name="MIN_SPEED_CIRCLE" value="8" unit="m/s"/>
+    <define name="DISTANCE" value="30" unit="m"/>
+    <define name="MIN_SPEED_LINE" value="5" unit="m/s"/>
   </section>
 
   <!-- Skid Landing Configuration -->
-  <section name="Landing" prefix="Landing_">
-    <define name="AFHeight" value="50" unit="m"/>
-    <define name="FinalHeight" value="50" unit="m"/>
-    <define name="FinalStageTime" value="10" unit="s"/>
+  <section name="LANDING" prefix="SKID_LANDING_">
+    <define name="AF_HEIGHT" value="50" unit="m"/>
+    <define name="FINAL_HEIGHT" value="50" unit="m"/>
+    <define name="FINAL_STAGE_TIME" value="10" unit="s"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">

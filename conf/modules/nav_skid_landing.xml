@@ -1,0 +1,72 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_skid_landing" dir="nav">
+  <doc>
+    <description>
+    Landing on skidpads
+    See video of the landing: https://www.youtube.com/watch?v=aYrB7s3oeX4
+    Standard landing procedure:
+    1) circle down passing AF waypoint (from left or right)
+    2) once low enough follow line to TD waypoint
+    3) once low enough flare
+
+   Use this in your airfame config file:
+<!--
+Block example:
+@verbatim
+     <section name="LANDING" prefix="SKID_LANDING_">
+       <define name="AF_HEIGHT" value="50" unit="m"/>
+       <define name="FINAL_HEIGHT" value="50" unit="m"/>
+       <define name="FINAL_STAGE_TIME" value="10" unit="s"/>
+     </section>
+@endverbatim
+-->
+
+Also define 
+<!--
+Block example:
+@verbatim:
+  <section name="VERTICAL CONTROL" prefix="V_CTL_">
+    <define name="LANDING_THROTTLE_PGAIN"           value="600.0"/>
+    <define name="LANDING_THROTTLE_IGAIN"           value="10.0"/>
+    <define name="LANDING_THROTTLE_MAX"           value="0.65"/>
+    <define name="LANDING_DESIRED_SPEED"           value="18" unit="m/s"/>
+    <define name="LANDING_PITCH_PGAIN"           value="0.1"/>
+    <define name="LANDING_PITCH_IGAIN"           value="0.1"/>
+    <define name="LANDING_PITCH_LIMITS"           value="0.2" unit="rad"/>
+    <define name="LANDING_PITCH_FLARE"           value="0.06"/>
+    <define name="LANDING_ALT_THROTTLE_KILL"     value="15" unit="m"/>
+    <define name="LANDING_ALT_FLARE"           value="5" unit="m"/>
+  </section>
+@endverbatim
+-->
+to properly use landing control loop
+    </description>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="NavSkidLanding">
+        <dl_setting var="v_ctl_landing_throttle_pgain" min="0" step="1" max="1000" shortname="throttle_pgain"/>
+        <dl_setting var="v_ctl_landing_throttle_igain" min="0" step="0.1" max="100" shortname="throttle_igain"/>
+        <dl_setting var="v_ctl_landing_throttle_max" min="0" step="0.01" max="1" shortname="throttle_max"/>
+        <dl_setting var="v_ctl_landing_desired_speed" min="1" step="1" max="50" shortname="landing_speed"/>
+        <dl_setting var="v_ctl_landing_pitch_pgain" min="0" step="0.01" max="10" shortname="pitch_pgain"/>
+        <dl_setting var="v_ctl_landing_pitch_igain" min="0" step="0.01" max="10" shortname="pitch_igain"/>
+        <dl_setting var="v_ctl_landing_pitch_limits" min="0" step="0.01" max="1" shortname="pitch_limits"/>
+        <dl_setting var="v_ctl_landing_pitch_flare" min="0" step="0.01" max="1" shortname="flare_pgain"/>
+        <dl_setting var="v_ctl_landing_alt_throttle_kill" min="0" step="1" max="30" shortname="motor_kill_alt"/>
+        <dl_setting var="v_ctl_landing_alt_flare" min="0" step="1" max="30" shortname="flare_alt"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="nav_skid_landing.h"/>
+  </header>
+  <makefile target="ap|sim|nps">
+    <file name="nav_skid_landing.c"/>
+    <define name="CTRL_VERTICAL_LANDING" value="1"/>
+  </makefile>
+</module>
+
