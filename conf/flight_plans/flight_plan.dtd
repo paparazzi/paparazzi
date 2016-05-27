@@ -66,7 +66,9 @@ ground_alt CDATA #REQUIRED
 security_height CDATA #REQUIRED
 alt CDATA #REQUIRED
 qfu CDATA #IMPLIED
-home_mode_height CDATA #IMPLIED>
+home_mode_height CDATA #IMPLIED
+geofence_max_alt CDATA #IMPLIED
+geofence_sector CDATA #IMPLIED>
 
 <!ATTLIST waypoints
 utm_x0 CDATA #IMPLIED
