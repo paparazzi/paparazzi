@@ -40,14 +40,10 @@
 
 #include "led.h"
 
-#ifndef STM32F1
-#error "CAN is currently only implemented for STM32F1"
-#endif
-
 #ifdef RTOS_PRIO
-#define NVIC_USB_LP_CAN_RX0_IRQ_PRIO RTOS_PRIO+1
+#define NVIC_CAN1_RX0_IRQ_PRIO RTOS_PRIO+1
 #else
-#define NVIC_USB_LP_CAN_RX0_IRQ_PRIO 1
+#define NVIC_CAN1_RX0_IRQ_PRIO 1
 #endif
 
 void _can_run_rx_callback(uint32_t id, uint8_t *buf, uint8_t len);
@@ -58,9 +54,11 @@ void can_hw_init(void)
 {
 
   /* Enable peripheral clocks. */
+  rcc_periph_clock_enable(RCC_CAN1);
+
+#if defined STM32F1
   rcc_periph_clock_enable(RCC_AFIO);
   rcc_periph_clock_enable(RCC_GPIOB);
-  rcc_periph_clock_enable(RCC_CAN1);
 
   /* Remap the gpio pin if necessary. */
   AFIO_MAPR |= AFIO_MAPR_CAN1_REMAP_PORTB;
@@ -76,7 +74,18 @@ void can_hw_init(void)
 
   /* NVIC setup. */
   nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
-  nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, NVIC_USB_LP_CAN_RX0_IRQ_PRIO);
+  nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, NVIC_CAN1_RX0_IRQ_PRIO);
+
+#elif defined STM32F4
+  /* Configure CAN pin. */
+  gpio_setup_pin_af(CAN1_GPIO_PORT_RX, CAN1_GPIO_RX, GPIO_AF9, FALSE);
+  gpio_setup_pin_af(CAN1_GPIO_PORT_TX, CAN1_GPIO_TX, GPIO_AF9, TRUE);
+
+  /* NVIC setup. */
+  nvic_enable_irq(NVIC_CAN1_RX0_IRQ);
+  nvic_set_priority(NVIC_CAN1_RX0_IRQ, NVIC_CAN1_RX0_IRQ_PRIO);
+
+#endif
 
   /* Reset CAN. */
   can_reset(CAN1);
@@ -173,7 +182,11 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
                       (uint8_t *)buf);
 }
 
+#if defined STM32F1
 void usb_lp_can_rx0_isr(void)
+#elif defined STM32F4
+void can1_rx0_isr(void)
+#endif
 {
   uint32_t id, fmi;
   bool ext, rtr;
