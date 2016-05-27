@@ -30,6 +30,7 @@
     <module name="telemetry"     type="transparent"/>
     <module name="stabilization" type="float_euler"/>
     <module name="ins" type="vectornav"/>
+    <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
   </firmware>
 
 
