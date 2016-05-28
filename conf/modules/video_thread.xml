@@ -47,9 +47,10 @@
     <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
 
     <!-- Random flags -->
-    <!-- <define name="__USE_GNU"/> -->
-    <!-- <flag name="LDFLAGS" value="lrt"/> -->
-    <!-- <flag name="LDFLAGS" value="static-libgcc"/> -->
+    <!-- Does this influence the compilation of fast9? -->
+    <define name="__USE_GNU"/>
+    <flag name="LDFLAGS" value="lrt"/>
+    <flag name="LDFLAGS" value="static-libgcc"/>
   </makefile>
   <makefile target="nps">
     <file name="video_thread_nps.c"/>
