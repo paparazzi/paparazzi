@@ -74,7 +74,6 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
         x_min = x - min_dist;
         x_max = x + min_dist;
         y_min = y - min_dist;
-        y_max = y + min_dist;
 
         // Go through the previous corners until y goes out of range
         for (i = corner_cnt-1; i >= 0 ; i--) {
