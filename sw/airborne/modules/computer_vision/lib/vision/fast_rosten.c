@@ -50,9 +50,9 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
   uint32_t corner_cnt = 0;
   uint16_t rsize = 512;
   int pixel[16];
-  uint16_t x, y, i;
+  uint16_t x, y, i, x_min, x_max, y_min, y_max;
   struct point_t *ret_corners = malloc(sizeof(struct point_t) * rsize);
-
+  uint8_t need_skip; 
   // Set the pixel size
   uint8_t pixel_size = 1;
   if (img->type == IMAGE_YUV422) {
@@ -67,13 +67,21 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
     for (x = 3 + x_padding; x < img->w - 3 - x_padding; x++) {
       // First check if we aren't in range vertical (TODO: fix less intensive way)
       if (min_dist > 0) {
-        bool need_skip = false;
 
-        // Go trough all the previous corners
+        printf(".");
+
+        need_skip = 0;
+
+        x_min = x - min_dist;
+        x_max = x + min_dist;
+        y_min = y - min_dist;
+        y_max = y + min_dist;
+
+        // Go through all the previous corners
         for (i = 0; i < corner_cnt; i++) {
-          if (x - min_dist < ret_corners[i].x && ret_corners[i].x < x + min_dist
-              && y - min_dist < ret_corners[i].y && ret_corners[i].y < y + min_dist) {
-            need_skip = true;
+          if (x_min < ret_corners[i].x && ret_corners[i].x < x_max
+              && y_min < ret_corners[i].y && ret_corners[i].y < y_max) {
+            need_skip = 1;
             break;
           }
         }
