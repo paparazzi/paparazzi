@@ -53,7 +53,7 @@
 #define SIZE_DIV 1
 // LINEAR_FIT makes a linear optical flow field fit and extracts a lot of information:
 // relative velocities in x, y, z (divergence / time to contact), the slope of the surface, and the surface roughness.
-#define LINEAR_FIT 0
+#define LINEAR_FIT 1
 
 // Camera parameters (defaults are from an ARDrone 2)
 #ifndef OPTICFLOW_FOV_W
