@@ -103,7 +103,7 @@ float get_size_divergence(struct flow_t *vectors, int count, int n_samples)
       }
 
       // distance in previous image:
-      dx = ((float)vectors[i].pos.x) - ((float)vectors[j].pos.x);
+      dx = (float)vectors[i].pos.x - (float)vectors[j].pos.x;
       dy = (float)vectors[i].pos.y - (float)vectors[j].pos.y;
       distance_1 = sqrt(dx * dx + dy * dy);
 

@@ -3,36 +3,51 @@
 <module name="nav_catapult" dir="nav">
   <doc>
     <description>
-      Catapult.
-      A catapult launch timing system.
+      Catapult launch timing system.
       - Phase 1: Zero Roll, Climb Pitch, Zero Throttle
       - Phase 2: After detecting the Start Acceleration\n
                  Zero Roll, Climb Pitch, Full Throttle
       - Phase 3: After getting the GPS heading (time based)\n
                  Place climb 300m in front of us\n
                  GoTo(climb)\n
+<!--
+Block example:
+@verbatim
+<block name="Catapult Take-Off">
+  <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
+  <set value="0" var="kill_throttle"/>
+  <set value="0" var="autopilot_flight_time"/>
+  <call fun="nav_catapult_run(WP_CLIMB)"/>
+</block>
+@endverbatim
+-->
     </description>
-    <define name="NAV_CATAPULT_ACCELERATION_THRESHOLD" value="1.5" description="acceleration threshold in multiples of g"/>
-    <define name="NAV_CATAPULT_MOTOR_DELAY" value="0.75" description="delay until motor is turned on in seconds"/>
-    <define name="NAV_CATAPULT_HEADING_DELAY" value="3.0" description="delay until heading is unlocked in seconds"/>
-    <define name="NAV_CATAPULT_INITAL_PITCH" value="0.175" description="inital pitch in radians (default 10deg)"/>
-    <define name="NAV_CATAPULT_INITIAL_THROTTLE" value="1.0" description="initial throttle (0.0 to 1.0)"/>
+    <section name="CATAPULT" prefix="NAV_CATAPULT_">
+      <define name="ACCELERATION_THRESHOLD" value="1.5" description="acceleration threshold in multiples of g" unit="g"/>
+      <define name="ACCELERATION_DETECTION" value="5" description="number acceleration measurments above threshold for launch detection"/>
+      <define name="MOTOR_DELAY" value="0.75" description="delay until motor is turned on in seconds" unit="s"/>
+      <define name="HEADING_DELAY" value="3.0" description="delay until heading is unlocked in seconds" unit="s"/>
+      <define name="INITAL_PITCH" value="0.175" description="inital pitch in radians (default 10deg)" unit="rad"/>
+      <define name="INITIAL_THROTTLE" value="1.0" description="initial throttle (0.0 to 1.0)" unit="%"/>
+      <define name="CLIMB_DISTANCE" value="300" description="distance of the climb waypoint in front of the catapult" unit="m"/>
+      <define name="TIMEOUT" value="30." description="timeout to disarm the high freq module" unit="s"/>
+    </section>
   </doc>
   <settings>
     <dl_settings name="control">
       <dl_settings name="catapult">
-        <dl_setting max="5.0" min="0.05" step="0.05" module="nav/nav_catapult" var="nav_catapult_motor_delay" shortname="Motor Delay" param="NAV_CATAPULT_MOTOR_DELAY" unit="seconds"/>
-        <dl_setting max="3.0" min="-3.0" step="0.1" var="nav_catapult_acceleration_threshold" shortname="G-Threshold" param="NAV_CATAPULT_ACCELERATION_THRESHOLD" unit="g"/>
-        <dl_setting max="10." min="0.25" step="0.05" var="nav_catapult_heading_delay" shortname="Heading-Delay" param="NAV_CATAPULT_HEADING_DELAY" unit="seconds"/>
-        <dl_setting max="40" min="-20" step="0.5" var="nav_catapult_initial_pitch" shortname="TO Pitch" param="NAV_CATAPULT_INITIAL_PITCH" unit="rad" alt_unit="deg"/>
-        <dl_setting max="1.0" min="0.0" step="0.01" var="nav_catapult_initial_throttle" shortname="TO Gas" param="NAV_CATAPULT_INITIAL_THROTTLE" unit="percent"/>
+        <dl_setting max="5.0" min="0.05" step="0.05" module="nav/nav_catapult" var="nav_catapult.motor_delay" shortname="Motor Delay" param="NAV_CATAPULT_MOTOR_DELAY" unit="seconds"/>
+        <dl_setting max="3.0" min="-3.0" step="0.1" var="nav_catapult.accel_threshold" shortname="G-Threshold" param="NAV_CATAPULT_ACCELERATION_THRESHOLD" unit="g"/>
+        <dl_setting max="10." min="0.25" step="0.05" var="nav_catapult.heading_delay" shortname="Heading-Delay" param="NAV_CATAPULT_HEADING_DELAY" unit="seconds"/>
+        <dl_setting max="40" min="-20" step="0.5" var="nav_catapult.initial_pitch" shortname="TO Pitch" param="NAV_CATAPULT_INITIAL_PITCH" unit="rad" alt_unit="deg"/>
+        <dl_setting max="1.0" min="0.0" step="0.01" var="nav_catapult.initial_throttle" shortname="TO Gas" param="NAV_CATAPULT_INITIAL_THROTTLE" unit="percent"/>
       </dl_settings>
     </dl_settings>
   </settings>
   <header>
     <file name="nav_catapult.h"/>
   </header>
-  <init fun="nav_catapult_setup()"/>
+  <init fun="nav_catapult_init()"/>
   <!-- Run High Rate Lauch Detector -->
   <periodic fun="nav_catapult_highrate_module()" autorun="TRUE"/>
   <makefile target="ap|sim|nps">

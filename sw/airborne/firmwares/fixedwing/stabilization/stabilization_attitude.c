@@ -451,7 +451,12 @@ inline static void h_ctl_pitch_loop(void)
     h_ctl_elevator_of_roll = 0.;
   }
 
-  h_ctl_pitch_loop_setpoint =  h_ctl_pitch_setpoint + h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(att->phi);
+  if (v_ctl_mode == V_CTL_MODE_LANDING) {
+    h_ctl_pitch_loop_setpoint =  h_ctl_pitch_setpoint;
+  }
+  else {
+    h_ctl_pitch_loop_setpoint =  h_ctl_pitch_setpoint + h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(att->phi);
+  }
 
   float err = 0;
 

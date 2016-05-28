@@ -59,6 +59,7 @@ struct sdlogger_spi_periph{
   uint32_t download_address;
   uint32_t download_length;
   struct link_device device;
+  uint8_t do_log;
 };
 
 extern struct sdlogger_spi_periph sdlogger_spi;

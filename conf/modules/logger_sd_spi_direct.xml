@@ -27,6 +27,7 @@ Do not use start/stop functionality of the module, the module is not intended to
         <dl_setting module="loggers/sdlogger_spi_direct" var="sdcard1.status" min="0" max="40" step="1"/>
         <dl_setting module="loggers/sdlogger_spi_direct" var="sdcard1.error_status" min="0" max="15" step="1"/>
         <dl_setting module="loggers/sdlogger_spi_direct" var="sdlogger_spi.command" min="1" max="42" step="1" />
+        <dl_setting module="loggers/sdlogger_spi_direct" var="sdlogger_spi.do_log" min="0" max="1" step="1" values="Off|On"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -40,7 +41,6 @@ Do not use start/stop functionality of the module, the module is not intended to
 
     <configure name="SDLOGGER_DIRECT_SPI" default="spi2" case="upper|lower"/>
     <configure name="SDLOGGER_DIRECT_SPI_SLAVE" default="spi_slave2" case="upper|lower"/>
-    <configure name="SDLOGGER_DIRECT_CONTROL_SWITCH" default="RADIO_AUX2"/>
     <configure name="LOGGER_LED" default="none"/>
     <define name="LOGGER_LED" value="$(LOGGER_LED)" cond="ifneq ($(LOGGER_LED),none)"/>
     <raw>
@@ -55,7 +55,6 @@ Do not use start/stop functionality of the module, the module is not intended to
     <define name="SDLOGGER_SPI_LINK_DEVICE" value="$(SDLOGGER_DIRECT_SPI_LOWER)" />
     <define name="USE_$(SDLOGGER_DIRECT_SPI_SLAVE_UPPER)" value="1" />
     <define name="SDLOGGER_SPI_LINK_SLAVE_NUMBER" value="$(SDLOGGER_DIRECT_SPI_SLAVE_UPPER)" />
-    <define name="SDLOGGER_CONTROL_SWITCH" value="$(SDLOGGER_DIRECT_CONTROL_SWITCH)"/>
   </makefile>
 </module>
 

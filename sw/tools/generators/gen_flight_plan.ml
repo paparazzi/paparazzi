@@ -303,7 +303,7 @@ let rec index_stage = fun x ->
         let l = List.map index_stage (Xml.children x) in
         incr stage; (* To count the loop stage *)
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
-      | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "home"
+      | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "call_once" | "home"
       | "heading" | "attitude" | "manual" | "go" | "stay" | "xyz" | "set" | "circle" ->
         incr stage;
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
@@ -579,6 +579,18 @@ let rec print_stage = fun index_of_waypoints x ->
             end;
         | _ -> failwith "FP: 'call' loop attribute must be TRUE or FALSE"
         end
+      | "call_once" ->
+        (* call_once is an alias for <call fun="x" loop="false"/> *)
+        stage ();
+        let statement = ExtXml.attrib  x "fun" in
+        (* by default, go to next stage immediately *)
+        let break = String.uppercase (ExtXml.attrib_or_default x "break" "FALSE") in
+        lprintf "%s;\n" statement;
+        begin match break with
+        | "TRUE" -> lprintf "NextStageAndBreak();\n";
+        | "FALSE" -> lprintf "NextStage();\n";
+        | _ -> failwith "FP: 'call_once' break attribute must be TRUE or FALSE";
+        end;
       | "survey_rectangle" ->
         let grid = parsed_attrib x "grid"
         and wp1 = get_index_waypoint (ExtXml.attrib x "wp1") index_of_waypoints
@@ -971,6 +983,18 @@ let () =
       Xml2h.define "SECURITY_ALT" (sof (!security_height +. !ground_alt));
       Xml2h.define "HOME_MODE_HEIGHT" (sof home_mode_height);
       Xml2h.define "MAX_DIST_FROM_HOME" (sof mdfh);
+      begin
+        try
+          let geofence_max_alt = 
+             get_float "geofence_max_alt" in
+             if geofence_max_alt > (!ground_alt +. !security_height) then
+             Xml2h.define "GEOFENCE_MAX_ALTITUDE" (sof geofence_max_alt)
+             else fprintf stderr "\nWarning: Geofence max altitude below security height (%.0f<(%.0f+%.0f))\n" geofence_max_alt !ground_alt !security_height;
+             fprintf stderr "\nWarning: Using Geofence_max_altitude of  %.0f\n" geofence_max_alt;
+        with
+            _ -> ()
+      end;
+
 
       (* output settings file if needed *)
       begin
@@ -1015,8 +1039,8 @@ let () =
 
       begin
         try
-          let airspace = Xml.attrib xml "airspace" in
-          lprintf "#define InAirspace(_x, _y) %s(_x, _y)\n" (inside_function airspace)
+          let geofence_sector = Xml.attrib xml "geofence_sector" in
+          lprintf "#define InGeofenceSector(_x, _y) %s(_x, _y)\n" (inside_function geofence_sector)
         with
             _ -> ()
       end;

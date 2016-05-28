@@ -57,6 +57,7 @@
       <board name="li[s]?a_mx_.*"/>
       <board name="navstik_.*"/>
       <board name="elle*"/>
+      <board name="openpilot_revo.*"/>
     </boards>
   </mode>
   <mode name="STLink (SWD)">
@@ -68,6 +69,7 @@
       <board name="cc3d"/>
       <board name="elle*"/>
       <board name="naze32*"/>
+      <board name="openpilot_revo.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD)">
@@ -82,6 +84,7 @@
       <board name="elle*"/>
       <board name="naze32*"/>
       <board name="cjmcu*"/>
+      <board name="openpilot_revo.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (JTAG)">

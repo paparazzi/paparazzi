@@ -37,7 +37,8 @@
 #define V_CTL_MODE_AUTO_THROTTLE 1
 #define V_CTL_MODE_AUTO_CLIMB    2
 #define V_CTL_MODE_AUTO_ALT      3
-#define V_CTL_MODE_NB            4
+#define V_CTL_MODE_LANDING       4
+#define V_CTL_MODE_NB            5
 extern uint8_t v_ctl_mode;
 
 /* Inner loop */
@@ -69,6 +70,7 @@ extern float v_ctl_pitch_setpoint;
 extern void v_ctl_init(void);
 extern void v_ctl_altitude_loop(void);
 extern void v_ctl_climb_loop(void);
+extern void v_ctl_landing_loop(void);
 
 /** Computes throttle_slewed from throttle_setpoint */
 extern void v_ctl_throttle_slew(void);

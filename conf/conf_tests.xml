@@ -1,7 +1,18 @@
 <conf>
   <aircraft
+   name="Ark_Quad"
+   ac_id="41"
+   airframe="airframes/AGGIEAIR/aggieair_ark_quad_lisa_mx.xml"
+   radio="radios/AGGIEAIR/aggieair_taranis.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/nps.xml settings/control/stabilization_att_float_euler.xml"
+   settings_modules=""
+   gui_color="#ffff954c0000"
+  />
+  <aircraft
    name="BOOZ2"
-   ac_id="150"
+   ac_id="1"
    airframe="airframes/examples/booz2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -12,7 +23,7 @@
   />
   <aircraft
    name="Bixler"
-   ac_id="24"
+   ac_id="2"
    airframe="airframes/examples/bixler_lisa_m_2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
@@ -23,7 +34,7 @@
   />
   <aircraft
    name="DualBoard_AP_FBW"
-   ac_id="31"
+   ac_id="3"
    airframe="airframes/examples/separate_fbw_ap.xml"
    radio="radios/R6107SP_7ch.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
@@ -34,7 +45,7 @@
   />
   <aircraft
    name="EasyStar_ETS"
-   ac_id="8"
+   ac_id="4"
    airframe="airframes/examples/easystar_ets.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing.xml"
@@ -45,7 +56,7 @@
   />
   <aircraft
    name="Hexa_LisaL"
-   ac_id="153"
+   ac_id="5"
    airframe="airframes/examples/h_hex.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -56,7 +67,7 @@
   />
   <aircraft
    name="JP"
-   ac_id="40"
+   ac_id="6"
    airframe="airframes/ENAC/fixed-wing/jp.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
@@ -67,7 +78,7 @@
   />
   <aircraft
    name="LadyLisa"
-   ac_id="164"
+   ac_id="7"
    airframe="airframes/examples/ladybird_lisa_s.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -78,7 +89,7 @@
   />
   <aircraft
    name="LadyLisaBluetooth"
-   ac_id="166"
+   ac_id="8"
    airframe="airframes/examples/ladybird_lisa_s_bluegiga.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -89,7 +100,7 @@
   />
   <aircraft
    name="LisaLv11_Aspirinv15_FW"
-   ac_id="12"
+   ac_id="9"
    airframe="airframes/testhardware/LisaL_v1.1_aspirin_v1.5_fw.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing.xml"
@@ -100,7 +111,7 @@
   />
   <aircraft
    name="LisaLv11_Aspirinv15_RC"
-   ac_id="11"
+   ac_id="10"
    airframe="airframes/testhardware/LisaL_v1.1_aspirin_v1.5_rc.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -111,7 +122,7 @@
   />
   <aircraft
    name="LisaLv11_Booz2v12_FW"
-   ac_id="10"
+   ac_id="11"
    airframe="airframes/testhardware/LisaL_v1.1_b2_v1.2_fw.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing.xml"
@@ -122,7 +133,7 @@
   />
   <aircraft
    name="LisaLv11_Booz2v12_RC"
-   ac_id="9"
+   ac_id="12"
    airframe="airframes/testhardware/LisaL_v1.1_b2_v1.2_rc.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -133,7 +144,7 @@
   />
   <aircraft
    name="MentorEnergy"
-   ac_id="77"
+   ac_id="13"
    airframe="airframes/examples/MentorEnergy.xml"
    radio="radios/R6107SP_7ch.xml"
    telemetry="telemetry/default_fixedwing_imu_9k6.xml"
@@ -144,7 +155,7 @@
   />
   <aircraft
    name="Microjet"
-   ac_id="5"
+   ac_id="14"
    airframe="airframes/examples/microjet.xml"
    radio="radios/cockpitMM.xml"
    telemetry="telemetry/default_fixedwing.xml"
@@ -155,7 +166,7 @@
   />
   <aircraft
    name="Microjet_LisaM"
-   ac_id="4"
+   ac_id="15"
    airframe="airframes/examples/microjet_lisa_m.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
@@ -166,7 +177,7 @@
   />
   <aircraft
    name="Microjet_Twog_Aspirin"
-   ac_id="46"
+   ac_id="16"
    airframe="airframes/examples/microjet_twog_aspirin.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
@@ -177,7 +188,7 @@
   />
   <aircraft
    name="Microjet_xsens_imu"
-   ac_id="45"
+   ac_id="17"
    airframe="airframes/examples/microjet_imu_xsens.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
@@ -188,7 +199,7 @@
   />
   <aircraft
    name="Microjet_xsens_ins"
-   ac_id="44"
+   ac_id="18"
    airframe="airframes/examples/microjet_lisa_m_xsens.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
@@ -198,8 +209,19 @@
    gui_color="blue"
   />
   <aircraft
+   name="Minion_Lia"
+   ac_id="42"
+   airframe="airframes/AGGIEAIR/aggieair_rp3_lia.xml"
+   radio="radios/AGGIEAIR/aggieair_taranis.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/AGGIEAIR/BasicTuning_Launcher.xml"
+   settings="settings/fixedwing_basic.xml settings/nps.xml settings/control/ctl_basic.xml"
+   settings_modules="modules/nav_survey_poly_osam.xml modules/nav_skid_landing.xml"
+   gui_color="#00009e93ffff"
+  />
+  <aircraft
    name="Quad_Elle0"
-   ac_id="165"
+   ac_id="19"
    airframe="airframes/examples/quadrotor_elle0.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -210,7 +232,7 @@
   />
   <aircraft
    name="Quad_HBMini"
-   ac_id="152"
+   ac_id="20"
    airframe="airframes/examples/quadrotor_hbmini.xml"
    radio="radios/dx6iCHNI.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -221,7 +243,7 @@
   />
   <aircraft
    name="Quad_LisaMX"
-   ac_id="30"
+   ac_id="21"
    airframe="airframes/examples/quadrotor_lisa_mx.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -232,7 +254,7 @@
   />
   <aircraft
    name="Quad_LisaM_2"
-   ac_id="162"
+   ac_id="22"
    airframe="airframes/examples/quadrotor_lisa_m_2_pwm_spektrum.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -243,7 +265,7 @@
   />
   <aircraft
    name="Quad_NavGo"
-   ac_id="151"
+   ac_id="23"
    airframe="airframes/examples/quadrotor_navgo.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -254,7 +276,7 @@
   />
   <aircraft
    name="Quad_Navstik"
-   ac_id="180"
+   ac_id="24"
    airframe="airframes/examples/quadrotor_navstik.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -264,8 +286,19 @@
    gui_color="#710080"
   />
   <aircraft
+   name="Quad_Revolution"
+   ac_id="43"
+   airframe="airframes/examples/quadrotor_revo.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int_quat.xml settings/nps.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="Twinjet"
-   ac_id="6"
+   ac_id="25"
    airframe="airframes/examples/twinjet.xml"
    radio="radios/cockpitMM.xml"
    telemetry="telemetry/default_fixedwing.xml"
@@ -276,7 +309,7 @@
   />
   <aircraft
    name="Twinstar_energyadaptive"
-   ac_id="13"
+   ac_id="26"
    airframe="airframes/examples/Twinstar_energyadaptive.xml"
    radio="radios/Corona_24_DIY.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
@@ -287,7 +320,7 @@
   />
   <aircraft
    name="Twog_IMU"
-   ac_id="7"
+   ac_id="27"
    airframe="airframes/examples/twog_analogimu.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
@@ -298,7 +331,7 @@
   />
   <aircraft
    name="Umarim_Lite"
-   ac_id="20"
+   ac_id="28"
    airframe="airframes/examples/umarim_lite_v2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
@@ -309,7 +342,7 @@
   />
   <aircraft
    name="Yapa2_XSens"
-   ac_id="32"
+   ac_id="29"
    airframe="airframes/TUDELFT/tudelft_yapa_xsens.xml"
    radio="radios/R6107SP_7ch.xml"
    telemetry="telemetry/default_fixedwing_imu_9k6.xml"
@@ -320,18 +353,18 @@
   />
   <aircraft
    name="apogee_chibios"
-   ac_id="14"
+   ac_id="30"
    airframe="airframes/ENAC/fixed-wing/apogee.xml"
    radio="radios/T10CG_SBUS.xml"
    telemetry="telemetry/fixedwing_flight_recorder.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml"
-   gui_color="blue"
    settings_modules=""
+   gui_color="blue"
   />
   <aircraft
    name="ardrone2"
-   ac_id="201"
+   ac_id="31"
    airframe="airframes/examples/ardrone2.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -342,7 +375,7 @@
   />
   <aircraft
    name="ardrone2_opticflow"
-   ac_id="2"
+   ac_id="32"
    airframe="airframes/examples/ardrone2_opticflow_hover.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -353,7 +386,7 @@
   />
   <aircraft
    name="bebop"
-   ac_id="202"
+   ac_id="33"
    airframe="airframes/examples/bebop.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -364,7 +397,7 @@
   />
   <aircraft
    name="krooz_quad"
-   ac_id="23"
+   ac_id="34"
    airframe="airframes/examples/krooz_sd_quad_mkk.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -375,7 +408,7 @@
   />
   <aircraft
    name="lisa_l_chimu"
-   ac_id="28"
+   ac_id="35"
    airframe="airframes/examples/lisa_l_chimu.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
@@ -386,7 +419,7 @@
   />
   <aircraft
    name="quad_mavlink"
-   ac_id="1"
+   ac_id="36"
    airframe="airframes/examples/quadrotor_lisa_mx_mavlink.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft_mavlink.xml"
@@ -397,7 +430,7 @@
   />
   <aircraft
    name="quadshot"
-   ac_id="19"
+   ac_id="37"
    airframe="airframes/examples/quadshot_asp21_spektrum.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
@@ -408,7 +441,7 @@
   />
   <aircraft
    name="setup_lisam2"
-   ac_id="16"
+   ac_id="38"
    airframe="airframes/examples/setup_lisam2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/dummy.xml"
@@ -419,7 +452,7 @@
   />
   <aircraft
    name="test_settings"
-   ac_id="29"
+   ac_id="39"
    airframe="airframes/test_settings.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/dummy.xml"
@@ -430,7 +463,7 @@
   />
   <aircraft
    name="yapa_chimu_spi"
-   ac_id="27"
+   ac_id="40"
    airframe="airframes/examples/yapaChimuSpi.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"

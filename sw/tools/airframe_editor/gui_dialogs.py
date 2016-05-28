@@ -32,6 +32,7 @@ def filechooser(pathname):
     elif response == gtk.RESPONSE_CANCEL:
         print("No file selected")
 
+    dialog.destroy()
     return filename
 
 

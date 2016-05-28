@@ -108,6 +108,9 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #define COMMAND_YAW_TRIM 0
 #endif
 
+/* Geofence exceptions */
+#include "modules/nav/nav_geofence.h"
+
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
@@ -324,7 +327,7 @@ static inline uint8_t pprz_mode_update(void)
   if ((pprz_mode != PPRZ_MODE_HOME &&
        pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
 #ifdef UNLOCKED_HOME_MODE
-      || TRUE
+      || true
 #endif
      ) {
 #ifndef RADIO_AUTO_MODE
@@ -398,7 +401,7 @@ static inline void telecommand_task(void)
     (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
 
   if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch) {
-    if (too_far_from_home) {
+    if (too_far_from_home || datalink_lost() || higher_than_max_altitude()) {
       pprz_mode = PPRZ_MODE_HOME;
       mode_changed = true;
     }
@@ -565,12 +568,22 @@ void attitude_loop(void)
 {
 
   if (pprz_mode >= PPRZ_MODE_AUTO2) {
-    if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE) {
-      v_ctl_throttle_setpoint = nav_throttle_setpoint;
-      v_ctl_pitch_setpoint = nav_pitch;
-    } else if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB) {
-      v_ctl_climb_loop();
-    }
+#if CTRL_VERTICAL_LANDING
+    if (v_ctl_mode == V_CTL_MODE_LANDING) {
+      v_ctl_landing_loop();
+    } else {
+#endif
+      if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE) {
+        v_ctl_throttle_setpoint = nav_throttle_setpoint;
+        v_ctl_pitch_setpoint = nav_pitch;
+      } else {
+        if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB) {
+          v_ctl_climb_loop();
+        } /* v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB */
+      } /* v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE */
+#if CTRL_VERTICAL_LANDING
+    } /* v_ctl_mode == V_CTL_MODE_LANDING */
+#endif
 
 #if defined V_CTL_THROTTLE_IDLE
     Bound(v_ctl_throttle_setpoint, TRIM_PPRZ(V_CTL_THROTTLE_IDLE * MAX_PPRZ), MAX_PPRZ);

@@ -83,4 +83,17 @@ extern float v_ctl_auto_groundspeed_igain;
 extern float v_ctl_auto_groundspeed_sum_err;
 #endif
 
+#if CTRL_VERTICAL_LANDING
+extern float v_ctl_landing_throttle_pgain;
+extern float v_ctl_landing_throttle_igain;
+extern float v_ctl_landing_throttle_max;
+extern float v_ctl_landing_desired_speed;
+extern float v_ctl_landing_pitch_pgain;
+extern float v_ctl_landing_pitch_igain;
+extern float v_ctl_landing_pitch_limits;
+extern float v_ctl_landing_pitch_flare;
+extern float v_ctl_landing_alt_throttle_kill;
+extern float v_ctl_landing_alt_flare;
+#endif
+
 #endif /* FW_V_CTL_H */

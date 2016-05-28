@@ -27,14 +27,14 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|manual|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path)*>
+<!ELEMENT block (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (exception|while|heading|attitude|manual|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
-<!ELEMENT for (exception|while|heading|attitude|manual|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT while (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT for (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
@@ -43,6 +43,7 @@
 <!ELEMENT xyz EMPTY>
 <!ELEMENT set EMPTY>
 <!ELEMENT call EMPTY>
+<!ELEMENT call_once EMPTY>
 <!ELEMENT circle EMPTY>
 <!ELEMENT home EMPTY>
 <!ELEMENT eight EMPTY>
@@ -65,7 +66,9 @@ ground_alt CDATA #REQUIRED
 security_height CDATA #REQUIRED
 alt CDATA #REQUIRED
 qfu CDATA #IMPLIED
-home_mode_height CDATA #IMPLIED>
+home_mode_height CDATA #IMPLIED
+geofence_max_alt CDATA #IMPLIED
+geofence_sector CDATA #IMPLIED>
 
 <!ATTLIST waypoints
 utm_x0 CDATA #IMPLIED
@@ -214,6 +217,10 @@ value CDATA #REQUIRED>
 fun CDATA #REQUIRED
 until CDATA #IMPLIED
 loop CDATA #IMPLIED
+break CDATA #IMPLIED>
+
+<!ATTLIST call_once
+fun CDATA #REQUIRED
 break CDATA #IMPLIED>
 
 <!ATTLIST follow

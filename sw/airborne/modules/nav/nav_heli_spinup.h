@@ -27,6 +27,8 @@
 #define NAV_HELI_SPINUP_H
 
 #include "std.h"
+#include "paparazzi.h"
+#include "modules/helicopter/throttle_curve.h"
 
 struct nav_heli_spinup_t {
   uint16_t duration;        ///< The duration in seconds to reach the final throttle
