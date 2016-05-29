@@ -1,0 +1,39 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cv_textons" dir="computer_vision">
+  <doc>
+    <description>Represent the appearance (texture, color) of an image by means of a texton histogram.</description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Textons">
+        <dl_setting var="load_dictionary" min="0" step="1" max="1" module="computer_vision/textons" shortname="load dict." values="NO|YES"/>
+        <dl_setting var="n_textons" min="1" step="1" max="255" shortname="n_textons" />
+        <dl_setting var="patch_size" min="1" step="1" max="50" shortname="p_size" />
+        <dl_setting var="FULL_SAMPLING"  min="0" step="1" max="1" shortname="full_sam" values="NO|YES"/>
+        <dl_setting var="dictionary_number"  min="0" step="1" max="20" shortname="dict_num" />
+        <dl_setting var="n_samples_image"  min="0" step="10" max="1000" shortname="n_samples" />
+        <dl_setting var="n_learning_samples"  min="1" step="100" max="250000" shortname="n_l_samples" />
+        <dl_setting var="alpha" min="0" step="1" max="255" shortname="alpha" />
+        <dl_setting var="border_width"  min="0" step="1" max="200" shortname="b_w" />
+        <dl_setting var="border_height"  min="0" step="1" max="200" shortname="b_h" />
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <!-- <depends>video_thread</depends> -->
+
+  <header>
+    <file name="textons.h"/>
+  </header>
+  <init fun="textons_init()"/>
+  <!-- <periodic fun="cv_blob_locator_periodic()" freq="30" start="cv_blob_locator_start()" stop="cv_blob_locator_stop()" autorun="TRUE"/>
+       <event fun="cv_blob_locator_event()"/>
+  -->
+  <makefile>
+    <file name="textons.c"/>
+    <file name="image.c" dir="modules/computer_vision/lib/vision"/>
+    <!-- <file name="cv.c" dir="modules/computer_vision/"/> -->
+  </makefile>
+</module>
+
