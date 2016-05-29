@@ -64,7 +64,10 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
   fast_make_offsets(pixel, img->w, pixel_size);
 
   // Go trough all the pixels (minus the borders)
-  for (y = 3 + y_padding; y < img->h - 3 - y_padding; y++)
+  for (y = 3 + y_padding; y < img->h - 3 - y_padding; y++) {
+    
+    if (min_dist > 0) y_min = y - min_dist;
+
     for (x = 3 + x_padding; x < img->w - 3 - x_padding; x++) {
       // First check if we aren't in range vertical (TODO: fix less intensive way)
       if (min_dist > 0) {
@@ -73,10 +76,11 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
 
         x_min = x - min_dist;
         x_max = x + min_dist;
-        y_min = y - min_dist;
+
 
         // Go through the previous corners until y goes out of range
-        for (i = corner_cnt-1; i >= 0 ; i--) {
+        i = corner_cnt-1;
+        while( i >= 0) {
 
           // corners are stored with increasing y, 
           // so if we go from the last to the first, then their y-coordinate will go out of range
@@ -87,6 +91,8 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
             need_skip = 1;
             break;
           }
+
+          i--;
         }
 
         // Skip the box if we found a pixel nearby
@@ -3643,7 +3649,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
       // Skip some in the width direction
       x += min_dist;
     }
-
+  }
   *num_corners = corner_cnt;
   return ret_corners;
 }
