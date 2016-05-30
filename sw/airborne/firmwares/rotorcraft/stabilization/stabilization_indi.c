@@ -71,6 +71,10 @@
 #warning "Use caution with adaptive indi. See the wiki for more info"
 #endif
 
+#ifndef STABILIZATION_INDI_MAX_R
+#define STABILIZATION_INDI_MAX_R STABILIZATION_ATTITUDE_SP_MAX_R
+#endif
+
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
 
@@ -83,6 +87,7 @@ static inline void lms_estimation(void);
 #define INDI_EST_SCALE 0.001 //The G values are scaled to avoid numerical problems during the estimation
 struct IndiVariables indi = {
   .max_rate = STABILIZATION_INDI_MAX_RATE,
+  .attitude_max_yaw_rate = STABILIZATION_INDI_MAX_R,
 
   .g1 = {STABILIZATION_INDI_G1_P, STABILIZATION_INDI_G1_Q, STABILIZATION_INDI_G1_R},
   .g2 = STABILIZATION_INDI_G2_R,
@@ -206,27 +211,32 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
   struct FloatRates *body_rates = stateGetBodyRates_f();
   stabilization_indi_second_order_filter(&indi.rate, body_rates);
 
+  //The rates used for feedback are by default the measured rates. If needed they can be filtered (see below)
+  struct FloatRates rates_for_feedback;
+  RATES_COPY(rates_for_feedback, (*body_rates));
+
+  //If there is a lot of noise on the gyroscope, it might be good to use the filtered value for feedback.
+  //Note that due to the delay, the PD controller can not be as aggressive.
 #if STABILIZATION_INDI_FILTER_ROLL_RATE
-  indi.angular_accel_ref.p = indi.reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
-                             - indi.reference_acceleration.rate_p * indi.rate.x.p;
-#else
-  indi.angular_accel_ref.p = indi.reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
-                             - indi.reference_acceleration.rate_p * body_rates->p;
+  rates_for_feedback.p = indi.rate.x.p;
 #endif
 #if STABILIZATION_INDI_FILTER_PITCH_RATE
-  indi.angular_accel_ref.q = indi.reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err->qy)
-                             - indi.reference_acceleration.rate_q * indi.rate.x.q;
-#else
-  indi.angular_accel_ref.q = indi.reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err->qy)
-                             - indi.reference_acceleration.rate_q * body_rates->q;
+  rates_for_feedback.q = indi.rate.x.q;
 #endif
 #if STABILIZATION_INDI_FILTER_YAW_RATE
-  indi.angular_accel_ref.r = indi.reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz)
-                             - indi.reference_acceleration.rate_r * indi.rate.x.r;
-#else
-  indi.angular_accel_ref.r = indi.reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz)
-                             - indi.reference_acceleration.rate_r * body_rates->r;
+  rates_for_feedback.r = indi.rate.x.r;
 #endif
+
+  indi.angular_accel_ref.p = indi.reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
+                             - indi.reference_acceleration.rate_p * rates_for_feedback.p;
+
+  indi.angular_accel_ref.q = indi.reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err->qy)
+                             - indi.reference_acceleration.rate_q * rates_for_feedback.q;
+
+  //This separates the P and D controller and lets you impose a maximum yaw rate.
+  float rate_ref_r = indi.reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz)/indi.reference_acceleration.rate_r;
+  BoundAbs(rate_ref_r, indi.attitude_max_yaw_rate);
+  indi.angular_accel_ref.r = indi.reference_acceleration.rate_r * (rate_ref_r - rates_for_feedback.r);
 
   /* Check if we are running the rate controller and overwrite */
   if(rate_control) {
