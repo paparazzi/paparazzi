@@ -53,7 +53,7 @@ extern uint8_t dictionary_number;
 // status variables
 extern uint8_t dictionary_ready;
 extern float alpha;
-extern float ****dictionary;
+extern float ** **dictionary;
 extern uint32_t learned_samples;
 extern uint8_t dictionary_initialized;
 
