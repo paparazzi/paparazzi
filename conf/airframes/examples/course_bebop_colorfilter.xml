@@ -47,6 +47,7 @@
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
     </module>
 
+    <module name="digital_cam_video"/>
   </modules>
 
   <commands>

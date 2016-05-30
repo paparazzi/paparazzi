@@ -59,6 +59,13 @@ struct image_t *video_capture_func(struct image_t *img) {
     return NULL;
 }
 
+
+void video_capture_shoot(void) {
+    // Set take_shot bool to true
+    video_capture_take_shot = true;
+}
+
+
 void video_capture_save(struct image_t *img) {
     // Declare storage for image location
     char save_name[128];
