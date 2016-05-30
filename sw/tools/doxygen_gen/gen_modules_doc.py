@@ -94,15 +94,17 @@ def module_page(filename, module):
 
 def get_xml_example(filename, module):
     opts = module.findall(".doc/define") + module.findall(".doc/configure")
-    deps = module.findall(".depends")
+    deps = module.find(".depends")
+    deps = deps.text.split(',') if deps is not None else []
     s = "\n@section module_load_example__{0} Example for airframe file\n".format(filename[:-4].lower())
+    s += "Add to your firmware section:\n"
     if opts:
         s += "This example contains all possible configuration options, not all of them are mandatory!\n"
     s += "@code{.xml}\n"
     for d in deps:
         s += '<module name="{0}"/>\n'.format(d)
     if opts:
-        s += '<module name="{0}">\n'.format(filename)
+        s += '<module name="{0}">\n'.format(filename[:-4])
         for o in opts:
             e = copy.deepcopy(o)
             if 'description' in e.attrib:
