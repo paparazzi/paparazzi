@@ -49,16 +49,25 @@ ifeq ($(LABLGTK2GNOMECANVAS),)
 LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2.gnomecanvas 2>/dev/null)
 endif
 
+CAMLP4_DEFS ?=
 NETCLIENT_VER := $(shell ocamlfind query -format '%v' netclient)
 NETCLIENT_MAJOR := $(shell echo $(NETCLIENT_VER) | cut -f1 -d.)
 ifeq ($(shell test $(NETCLIENT_MAJOR) -ge 4; echo $$?),0)
-CAMLP4_DEFS = -DNETCLIENT_V_4
+CAMLP4_DEFS += -DNETCLIENT_V_4
 endif
-CAMLP4_DEFS ?=
+OCAMLC_VER := $(shell ocamlc -version)
+OCAMLC_MAJOR := $(shell echo $(OCAMLC_VER) | cut -f1 -d.)
+OCAMLC_MINOR := $(shell echo $(OCAMLC_VER) | cut -f2 -d.)
+ifeq ($(shell test $(OCAMLC_MAJOR) -ge 4; echo $$?),0)
+ifeq ($(shell test $(OCAMLC_MINOR) -ge 2; echo $$?),0)
+# the Bytes module is available since OCaml 4.02.0
+CAMLP4_DEFS += -DHAS_BYTES_MODULE
+endif
+endif
 PP_OPTS = -pp "camlp4o pa_macro.cmo $(CAMLP4_DEFS)"
 
 # which source files to run through caml4p
-PP_SRC = http.ml
+PP_SRC = http.ml compat.ml
 PP_CMO = $(PP_SRC:.ml=.cmo)
 PP_CMX = $(PP_SRC:.ml=.cmx)
 
@@ -67,7 +76,7 @@ PKGCOMMON=pprzlink,xml-light,netclient,glibivy,lablgtk2
 XINCLUDES=
 XPKGCOMMON=pprzlink,xml-light,glibivy,$(LABLGTK2GNOMECANVAS),lablgtk2.glade
 
-SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o ubx.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml fp_proc.ml gen_common.ml
+SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o ubx.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml fp_proc.ml gen_common.ml compat.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 

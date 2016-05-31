@@ -23,6 +23,7 @@
  *)
 
 open Printf
+open Compat
 
 let (//) = Filename.concat
 let space_regexp = Str.regexp "[ \t]+"
@@ -170,7 +171,7 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
 let read_process command =
   let buffer_size = 2048 in
   let buffer = Buffer.create buffer_size in
-  let string = String.create buffer_size in
+  let string = Compat.bytes_create buffer_size in
   let in_channel = Unix.open_process_in command in
   let chars_read = ref 1 in
   while !chars_read <> 0 do
