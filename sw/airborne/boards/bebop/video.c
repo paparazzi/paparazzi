@@ -28,7 +28,6 @@
 #include "std.h"
 #include "mt9f002.h"
 
-
 #include <stdio.h>
 #include <time.h>
 #include <fcntl.h>
@@ -39,6 +38,7 @@
 #include <linux/types.h>
 
 #include "boards/bebop.h"
+#include "modules/computer_vision/lib/v4l/v4l2.h"
 
 /** V4L2 devices with their settings */
 struct video_config_t bottom_camera = {

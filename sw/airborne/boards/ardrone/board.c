@@ -31,9 +31,7 @@
 #include <unistd.h>
 #include "mcu.h"
 
-#include "std.h"
 #include "modules/computer_vision/lib/v4l/v4l2.h"
-#include "modules/computer_vision/cv.h"
 
 /* Check if the bat_voltage_ardrone2 module is loaded */
 #include "generated/modules.h"
