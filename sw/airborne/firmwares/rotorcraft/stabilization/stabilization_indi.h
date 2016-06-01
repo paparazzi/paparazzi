@@ -82,7 +82,8 @@ struct IndiVariables {
   struct ReferenceSystem reference_acceleration;
 
   bool adaptive;             ///< Enable adataptive estimation
-  float max_rate;            ///< Maximum rate in rate control
+  float max_rate;            ///< Maximum rate in rate control in rad/s
+  float attitude_max_yaw_rate; ///< Maximum yaw rate in atttiude control in rad/s
   struct IndiEstimation est; ///< Estimation parameters for adaptive INDI
 };
 

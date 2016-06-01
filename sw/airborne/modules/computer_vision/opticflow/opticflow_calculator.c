@@ -36,7 +36,6 @@
 // Own Header
 #include "opticflow_calculator.h"
 
-
 // Computer Vision
 #include "lib/vision/image.h"
 #include "lib/vision/lucas_kanade.h"
@@ -44,6 +43,10 @@
 #include "lib/vision/edge_flow.h"
 #include "size_divergence.h"
 #include "linear_flow_fit.h"
+
+// whether to show the flow and corners:
+#define OPTICFLOW_SHOW_FLOW 0
+#define OPTICFLOW_SHOW_CORNERS 0
 
 // What methods are run to determine divergence, lateral flow, etc.
 // SIZE_DIV looks at line sizes and only calculates divergence
@@ -90,7 +93,7 @@ PRINT_CONFIG_VAR(OPTICFLOW_WINDOW_SIZE)
 PRINT_CONFIG_VAR(OPTICFLOW_MAX_SEARCH_DISTANCE)
 
 #ifndef OPTICFLOW_SUBPIXEL_FACTOR
-#define OPTICFLOW_SUBPIXEL_FACTOR 100
+#define OPTICFLOW_SUBPIXEL_FACTOR 10
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_SUBPIXEL_FACTOR)
 
@@ -105,7 +108,7 @@ PRINT_CONFIG_VAR(OPTICFLOW_MAX_ITERATIONS)
 PRINT_CONFIG_VAR(OPTICFLOW_THRESHOLD_VEC)
 
 #ifndef OPTICFLOW_PYRAMID_LEVEL
-#define OPTICFLOW_PYRAMID_LEVEL 3
+#define OPTICFLOW_PYRAMID_LEVEL 0
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_PYRAMID_LEVEL)
 
@@ -115,14 +118,23 @@ PRINT_CONFIG_VAR(OPTICFLOW_PYRAMID_LEVEL)
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_ADAPTIVE)
 
 #ifndef OPTICFLOW_FAST9_THRESHOLD
-#define OPTICFLOW_FAST9_THRESHOLD 10
+#define OPTICFLOW_FAST9_THRESHOLD 20
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_THRESHOLD)
 
 #ifndef OPTICFLOW_FAST9_MIN_DISTANCE
-#define OPTICFLOW_FAST9_MIN_DISTANCE 0
+#define OPTICFLOW_FAST9_MIN_DISTANCE 10
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_MIN_DISTANCE)
+
+#ifndef OPTICFLOW_FAST9_PADDING
+#define OPTICFLOW_FAST9_PADDING 20
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_FAST9_MIN_DISTANCE)
+
+// thresholds FAST9 that are currently not set from the GCS:
+#define FAST9_LOW_THRESHOLD 5
+#define FAST9_HIGH_THRESHOLD 60
 
 #ifndef OPTICFLOW_METHOD
 #define OPTICFLOW_METHOD 0
@@ -179,6 +191,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE;
   opticflow->fast9_threshold = OPTICFLOW_FAST9_THRESHOLD;
   opticflow->fast9_min_distance = OPTICFLOW_FAST9_MIN_DISTANCE;
+  opticflow->fast9_padding = OPTICFLOW_FAST9_PADDING;
 
 }
 /**
@@ -204,6 +217,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   // Update FPS for information
   result->fps = 1 / (timeval_diff(&opticflow->prev_timestamp, &img->ts) / 1000.);
   memcpy(&opticflow->prev_timestamp, &img->ts, sizeof(struct timeval));
+  printf("FPS = %f\n", result->fps);
 
   // Convert image to grayscale
   image_to_grayscale(img, &opticflow->img_gray);
@@ -214,24 +228,23 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
     opticflow->got_first_img = true;
   }
 
+
   // *************************************************************************************
   // Corner detection
   // *************************************************************************************
 
   // FAST corner detection
-  // TODO: non fixed threshold
   // TODO: There is something wrong with fast9_detect destabilizing FPS. This problem is reduced with putting min_distance
   // to 0 (see defines), however a more permanent solution should be considered
   struct point_t *corners = fast9_detect(img, opticflow->fast9_threshold, opticflow->fast9_min_distance,
-                                         0, 0, &result->corner_cnt);
+                                         opticflow->fast9_padding, opticflow->fast9_padding, &result->corner_cnt);
 
   // Adaptive threshold
   if (opticflow->fast9_adaptive) {
-
     // Decrease and increase the threshold based on previous values
-    if (result->corner_cnt < 40 && opticflow->fast9_threshold > 5) {
+    if (result->corner_cnt < 40 && opticflow->fast9_threshold > FAST9_LOW_THRESHOLD) { // TODO: Replace 40 with OPTICFLOW_MAX_TRACK_CORNERS / 2
       opticflow->fast9_threshold--;
-    } else if (result->corner_cnt > 50 && opticflow->fast9_threshold < 60) {
+    } else if (result->corner_cnt > OPTICFLOW_MAX_TRACK_CORNERS * 2 && opticflow->fast9_threshold < FAST9_HIGH_THRESHOLD) {
       opticflow->fast9_threshold++;
     }
   }
@@ -240,7 +253,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   image_show_points(img, corners, result->corner_cnt);
 #endif
 
-  // Check if we found some corners to track
+  // Check if we found some corners to track 
   if (result->corner_cnt < 1) {
     free(corners);
     image_copy(&opticflow->img_gray, &opticflow->prev_img_gray);
@@ -258,6 +271,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
                                        opticflow->threshold_vec, opticflow->max_track_corners, opticflow->pyramid_level);
 
 #if OPTICFLOW_SHOW_FLOW
+  printf("show: n tracked = %d\n", result->tracked_cnt);
   image_show_flow(img, vectors, result->tracked_cnt, opticflow->subpixel_factor);
 #endif
 

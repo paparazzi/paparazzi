@@ -105,6 +105,8 @@ docker run \
     ${PULSE_AUDIO_OPTS} \
     ${USB_OPTS} \
     ${SHARE_PAPARAZZI_HOME_OPTS} \
+    -e LOCAL_USER_ID=`id -u` \
+    -e LOCAL_GROUP_ID=`id -g` \
     --rm $args
 
 # remember exit status

@@ -4,7 +4,7 @@
 # docker export pprz-dep | gzip -c > pprz-dep.tgz
 # docker import pprz-dep < pprz-dep.tgz
 
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 MAINTAINER Felix Ruess <felix.ruess@gmail.com>
 
 # Add Tini
@@ -16,18 +16,15 @@ RUN chmod +x /tini
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 
-# Set the env variable DEBIAN_FRONTEND to noninteractive
-ENV DEBIAN_FRONTEND noninteractive
-
 # add Paparazzi PPA
-RUN apt-get update && apt-get install -y software-properties-common
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y software-properties-common
 RUN add-apt-repository ppa:paparazzi-uav/ppa
-RUN add-apt-repository ppa:terry.guo/gcc-arm-embedded
+RUN add-apt-repository ppa:team-gcc-arm-embedded/ppa
 
 # install paparazzi-dev which pull in the dependencies
 # also install cross compiler and some stuff for X
-RUN apt-get update && apt-get install -y \
-    gcc-arm-none-eabi \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
+    gcc-arm-embedded \
     libcanberra-gtk-module \
     paparazzi-dev \
     paparazzi-jsbsim \
