@@ -20,9 +20,7 @@
  */
 
 /**
- * @file modules/computer_vision/cv.h
- *
- * Computer vision framework for onboard processing
+ * @file modules/computer_vision/video_device.h
  */
 
 #ifndef VIDEO_DEVICE_H
