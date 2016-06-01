@@ -55,6 +55,9 @@
     <module name="nav" type="survey_poly_rotorcraft">
       <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/>
     </module>
+    <module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
+    </module>
     <module name="digital_cam_video">
       <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5"/>
     </module>
