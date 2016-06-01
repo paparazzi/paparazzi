@@ -249,8 +249,6 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
     }
   }
 
-  return;
-
 #if OPTICFLOW_SHOW_CORNERS
   image_show_points(img, corners, result->corner_cnt);
 #endif
