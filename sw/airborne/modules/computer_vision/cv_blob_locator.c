@@ -238,15 +238,13 @@ void cv_blob_locator_init(void) {
 
   georeference_init();
 
-  cv_add(cv_blob_locator_func);
-  cv_add(cv_marker_func);
-  cv_add(cv_window_func);
+  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_blob_locator_func);
+  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_marker_func);
+  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_window_func);
 }
 
 void cv_blob_locator_periodic(void) {
-  if (record_video == 1) {
-    video_thread_take_shot(TRUE);
-  }
+
 }
 
 

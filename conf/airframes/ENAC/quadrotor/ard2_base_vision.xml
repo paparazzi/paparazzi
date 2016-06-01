@@ -34,10 +34,9 @@
     <module name="agl_dist">
       <define name="USE_SONAR"/>
     </module>
-    <module name="video_thread">
-      <define name="VIDEO_THREAD_CAMERA" value="front_camera"/>
-    </module>
+    <module name="video_thread"/>
     <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
       <define name="VIDEO_SOCK_OUT_OFFSET" value="$(AC_ID)"/>
       <define name="VIDEO_DOWNSIZE_FACTOR" value="2"/>
       <define name="VIDEO_QUALITY_FACTOR" value="80"/>

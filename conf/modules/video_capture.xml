@@ -1,0 +1,37 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="video_capture" dir="computer_vision">
+  <doc>
+    <description>
+      Capture images from video device on the internal memory (JPEG, full size, best quality)
+    </description>
+
+    <define name="VIDEO_CAPTURE_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
+    <define name="VIDEO_CAPTURE_PATH" value="/data/video/images" description="Location to save images"/>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings name="video">
+        <dl_setting var="video_capture_take_shot" min="0" step="1" max="1" shortname="take_shot"
+                    module="computer_vision/video_capture">
+          <strip_button name="Video Save Image" icon="digital-camera.png" value="1" group="cv"/>
+        </dl_setting>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>video_thread</depends>
+
+  <header>
+    <file name="video_capture.h"/>
+  </header>
+
+  <init fun="video_capture_init()"/>
+
+  <makefile>
+    <file name="video_capture.c"/>
+  </makefile>
+
+</module>
+

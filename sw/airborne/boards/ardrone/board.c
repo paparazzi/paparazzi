@@ -31,13 +31,13 @@
 #include <unistd.h>
 #include "mcu.h"
 
+#include "modules/computer_vision/lib/v4l/v4l2.h"
+
 /* Check if the bat_voltage_ardrone2 module is loaded */
 #include "generated/modules.h"
 #ifndef BAT_VOLTAGE_ARDRONE2_PERIODIC_FREQ
 #warning No battery voltage measurement available! Please add <load name="bat_voltage_ardrone2.xml"/> to your modules section in aircraft file.
 #endif
-
-#include "peripherals/video_device.h"
 
 struct video_config_t front_camera = {
   .w = 1280,
@@ -46,8 +46,11 @@ struct video_config_t front_camera = {
   .subdev_name = NULL,
   .format = V4L2_PIX_FMT_UYVY,
   .buf_cnt = 10,
-  .filters = 0
+  .filters = 0,
+  .pointer_to_first_listener=NULL,
+  .fps = 0
 };
+
 
 struct video_config_t bottom_camera = {
   .w = 320,
@@ -56,7 +59,9 @@ struct video_config_t bottom_camera = {
   .subdev_name = NULL,
   .format = V4L2_PIX_FMT_UYVY,
   .buf_cnt = 10,
-  .filters = 0
+  .filters = 0,
+  .pointer_to_first_listener=NULL,
+  .fps = 0
 };
 
 int KillGracefully(char *process_name);

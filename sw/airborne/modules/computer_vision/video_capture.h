@@ -20,23 +20,19 @@
  */
 
 /**
- * @file modules/computer_vision/video_thread.h
- *
- * Start a Video thread and grab images
- *
- * Works on Linux platforms
+ * @file modules/computer_vision/video_capture.h
  */
 
-#ifndef VIDEO_THREAD_H
-#define VIDEO_THREAD_H
+#ifndef VIDEO_CAPTURE_H_
+#define VIDEO_CAPTURE_H_
 
-#include "std.h"
-#include "modules/computer_vision/cv.h"
+#include <stdbool.h>
 
-extern void video_thread_init(void);
-extern void video_thread_periodic(void); ///< A dummy for now
-extern void video_thread_start(void);
-extern void video_thread_stop(void);
+// Module settings
+extern bool video_capture_take_shot;
 
-#endif /* VIDEO_THREAD_H */
+// Module functions
+extern void video_capture_init(void);
+extern void video_capture_shoot(void);
 
+#endif /* VIDEO_CAPTURE_H_ */

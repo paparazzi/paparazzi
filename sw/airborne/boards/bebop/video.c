@@ -38,7 +38,9 @@
 #include <linux/types.h>
 
 #include "boards/bebop.h"
+#include "modules/computer_vision/lib/v4l/v4l2.h"
 
+/** V4L2 devices with their settings */
 struct video_config_t bottom_camera = {
   .w = 640,
   .h = 480,
@@ -46,7 +48,9 @@ struct video_config_t bottom_camera = {
   .subdev_name = NULL,
   .format = V4L2_PIX_FMT_UYVY,
   .buf_cnt = 60,
-  .filters = 0
+  .filters = 0,
+  .pointer_to_first_listener=NULL,
+  .fps = 0
 };
 
 struct video_config_t front_camera = {
@@ -56,7 +60,9 @@ struct video_config_t front_camera = {
   .subdev_name = "/dev/v4l-subdev1",
   .format = V4L2_PIX_FMT_SGBRG10,
   .buf_cnt = 10,
-  .filters = VIDEO_FILTER_DEBAYER
+  .filters = VIDEO_FILTER_DEBAYER,
+  .pointer_to_first_listener=NULL,
+  .fps = 0
 };
 
 static bool write_reg(int fd, char *addr_val, uint8_t cnt)

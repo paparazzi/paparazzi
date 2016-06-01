@@ -34,10 +34,12 @@
     <!--module name="logger_file"/-->
     <!--
     <module name="video_thread">
-        <define name="VIDEO_THREAD_CAMERA" value="front_camera"/>
     </module>
     -->
-    <!--module name="video_rtp_stream"/-->
+    <!--module name="video_rtp_stream">
+        <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+    </module>
+    -->
   </modules>
 
   <commands>

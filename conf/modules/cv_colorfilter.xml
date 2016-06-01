@@ -3,6 +3,7 @@
 <module name="ColorFilter" dir="computer_vision">
   <doc>
     <description>ColorFilter</description>
+    <define name="COLORFILTER_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
   </doc>
 
   <settings>
