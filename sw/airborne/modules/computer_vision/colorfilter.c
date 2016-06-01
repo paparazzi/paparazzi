@@ -27,9 +27,8 @@
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/colorfilter.h"
 #include <stdio.h>
-#include "video_thread.h"
 
-#include BOARD_CONFIG
+#include "modules/computer_vision/lib/vision/image.h"
 
 
 // Filter Settings
