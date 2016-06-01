@@ -75,4 +75,4 @@ void video_thread_start(void) {}
 void video_thread_stop(void) {}
 void video_thread_take_shot(bool take __attribute__((unused))) {}
 
-bool add_video_device(struct video_config_t *device __attribute__((unused))){}
+bool add_video_device(struct video_config_t *device __attribute__((unused))){ return true; }
