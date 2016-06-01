@@ -30,8 +30,7 @@
  * GEOFENCE_DATALINK_LOST_TIME is defined in the airframe config file
  */
 
-static inline  bool datalink_lost(void);
-static inline bool higher_than_max_altitude(void);
+#include <stdbool.h>
 
 #ifdef GEOFENCE_DATALINK_LOST_TIME
 /*
@@ -50,7 +49,7 @@ static inline bool datalink_lost(void)
 #endif /* GEOFENCE_DATALINK_LOST_TIME */
 
 
-#ifdef GEOFENCE_MAX_ALTITUDE// user defined max_altitude/above_ground_level in the flight plan
+#ifdef GEOFENCE_MAX_ALTITUDE// user defined geofence_max_altitude in the flight plan
 static inline bool higher_than_max_altitude(void)
 {
   return (GetPosAlt() > GEOFENCE_MAX_ALTITUDE);
