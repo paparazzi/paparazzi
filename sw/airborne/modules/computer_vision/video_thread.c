@@ -38,16 +38,11 @@
 #include "lib/v4l/v4l2.h"
 #include "lib/vision/image.h"
 #include "lib/vision/bayer.h"
-#include "lib/encoding/jpeg.h"
 
 #include "mcu_periph/sys_time.h"
 
 // include board for bottom_camera and front_camera on ARDrone2 and Bebop
 #include BOARD_CONFIG
-
-#if JPEG_WITH_EXIF_HEADER
-#include "lib/exif/exif_module.h"
-#endif
 
 // Threaded computer vision
 #include <pthread.h>
