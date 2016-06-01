@@ -28,7 +28,7 @@
 
 #include <stdbool.h>
 #include <inttypes.h>
-#include "lib/vision/image.h"
+#include "modules/computer_vision/lib/vision/image.h"
 
 #define VIDEO_FILTER_DEBAYER 0x01
 
