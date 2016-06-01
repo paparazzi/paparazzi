@@ -42,65 +42,70 @@ struct image_t *video_capture_func(struct image_t *img);
 void video_capture_save(struct image_t *img);
 
 
-void video_capture_init(void) {
-    // Add function to computer vision pipeline
-    cv_add_to_device(&VIDEO_CAPTURE_CAMERA, video_capture_func);
+void video_capture_init(void)
+{
+  // Add function to computer vision pipeline
+  cv_add_to_device(&VIDEO_CAPTURE_CAMERA, video_capture_func);
 }
 
 
-struct image_t *video_capture_func(struct image_t *img) {
-    // If take_shot bool is set, save the image
-    if (video_capture_take_shot) {
-        video_capture_save(img);
-        video_capture_take_shot = false;
+struct image_t *video_capture_func(struct image_t *img)
+{
+  // If take_shot bool is set, save the image
+  if (video_capture_take_shot) {
+    video_capture_save(img);
+    video_capture_take_shot = false;
+  }
+
+  // No modification to image
+  return NULL;
+}
+
+
+void video_capture_shoot(void)
+{
+  // Set take_shot bool to true
+  video_capture_take_shot = true;
+}
+
+
+void video_capture_save(struct image_t *img)
+{
+  // Declare storage for image location
+  char save_name[128];
+
+  // Simple shot counter to find first available image location
+  for (/* no init */; video_capture_index < 9999; ++video_capture_index) {
+    // Generate image location
+    sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_CAPTURE_PATH), video_capture_index);
+
+    // Continue with next number if file exists already
+    if (access(save_name, F_OK) != -1) {
+      continue;
     }
 
-    // No modification to image
-    return NULL;
-}
+    printf("[video_capture] Saving image to %s.\n", save_name);
 
-
-void video_capture_shoot(void) {
-    // Set take_shot bool to true
-    video_capture_take_shot = true;
-}
-
-
-void video_capture_save(struct image_t *img) {
-    // Declare storage for image location
-    char save_name[128];
-
-    // Simple shot counter to find first available image location
-    for (/* no init */; video_capture_index < 9999; ++video_capture_index) {
-        // Generate image location
-        sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_CAPTURE_PATH), video_capture_index);
-
-        // Continue with next number if file exists already
-        if (access(save_name, F_OK) != -1)
-            continue;
-
-        printf("[video_capture] Saving image to %s.\n", save_name);
-
-        // Open file
-        FILE *fp = fopen(save_name, "w");
-        if (fp == NULL) {
-            printf("[video_capture] Could not write shot %s.\n", save_name);
-            break;
-        }
-
-        // Create jpg image from raw frame
-        struct image_t img_jpeg;
-        image_create(&img_jpeg, img->w, img->h, IMAGE_JPEG);
-        jpeg_encode_image(img, &img_jpeg, VIDEO_CAPTURE_JPEG_QUALITY, true);
-
-        // Save it to the file and close it
-        fwrite(img_jpeg.buf, sizeof(uint8_t), img_jpeg.buf_size, fp);
-        fclose(fp);
-
-        // Free image
-        image_free(&img_jpeg);
-
-        // End loop here
-        break;
+    // Open file
+    FILE *fp = fopen(save_name, "w");
+    if (fp == NULL) {
+      printf("[video_capture] Could not write shot %s.\n", save_name);
+      break;
     }
+
+    // Create jpg image from raw frame
+    struct image_t img_jpeg;
+    image_create(&img_jpeg, img->w, img->h, IMAGE_JPEG);
+    jpeg_encode_image(img, &img_jpeg, VIDEO_CAPTURE_JPEG_QUALITY, true);
+
+    // Save it to the file and close it
+    fwrite(img_jpeg.buf, sizeof(uint8_t), img_jpeg.buf_size, fp);
+    fclose(fp);
+
+    // Free image
+    image_free(&img_jpeg);
+
+    // End loop here
+    break;
+  }
 }

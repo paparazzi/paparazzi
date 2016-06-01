@@ -71,7 +71,8 @@ struct video_config_t *cameras[VIDEO_THREAD_MAX_CAMERAS];
 static void *video_thread_function(void *data);
 
 
-void video_thread_periodic(void) {
+void video_thread_periodic(void)
+{
   /* currently no direct periodic functionality */
 }
 
@@ -185,13 +186,19 @@ bool add_video_device(struct video_config_t *device)
   // Loop over camera array
   for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS; ++i) {
     // If device is already registered, break
-    if (cameras[i] == device) break;
+    if (cameras[i] == device) {
+      break;
+    }
 
     // If camera slot is already used, continue
-    if (cameras[i] != NULL) continue;
+    if (cameras[i] != NULL) {
+      continue;
+    }
 
     // Initialize the camera
-    if (!initialize_camera(device)) return false;
+    if (!initialize_camera(device)) {
+      return false;
+    }
 
     // Store device pointer
     cameras[i] = device;
