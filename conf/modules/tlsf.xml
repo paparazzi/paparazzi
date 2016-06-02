@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="tlsf">
+  <doc>
+    <description>
+      Dynamic memory allocator
+      Can be used as a replacement of malloc with a O(1) allocation time
+    </description>
+    <configure name="TLSF_MAX_FLI" value="16" description="limit buffer size to 2^TLSF_MAX_FLI (e.g. 64Ko for MAX_FLI of 16"/>
+  </doc>
+  <header>
+    <file name="tlsf_malloc.h" />
+  </header>
+  <init fun="tlsf_init_heaps()"/>
+  <makefile>
+    <configure name="TLSF_MAX_FLI" default="16"/>
+    <define name="MAX_FLI" value="$(TLSF_MAX_FLI)"/>
+    <file_arch name="tlsf_malloc_arch.c"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/tlsf"/>
+    <file name="tlsf.c" dir="$(PAPARAZZI_SRC)/sw/ext/tlsf"/>
+  </makefile>
+</module>
