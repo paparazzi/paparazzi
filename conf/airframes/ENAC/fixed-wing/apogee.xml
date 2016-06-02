@@ -7,6 +7,8 @@
 <airframe name="Apogee">
 
   <firmware name="fixedwing">
+    <configure name="RTOS_DEBUG" value="1"/>
+
     <target name="ap" board="apogee_1.0_chibios">
       <module name="radio_control" type="sbus"/>
       <configure name="PERIODIC_FREQUENCY" value="100"/>
@@ -23,7 +25,10 @@
 
     <!-- Communication -->
     <module name="telemetry" type="xbee_api"/>
+    <module name="tlsf"/>
     <module name="sdlog"/>
+    <module name="logger" type="sd_chibios"/>
+    <module name="flight_recorder"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <module name="imu"     type="apogee"/>
@@ -34,7 +39,7 @@
     <!-- Sensors -->
     <module name="gps" type="ublox"/>
 
-    <!--module name="sys_mon"/-->
+    <!--module name="rtos_mon"/-->
 
     <!--module name="spi_master"/-->
     <!-- <module name="mcp355x"> -->
@@ -45,7 +50,12 @@
       <configure name="EXTRA_DL_BAUD" value="B57600"/>
     </module>
     <module name="meteo_france_DAQ"/-->
-    <module name="flight_recorder"/>
+  </firmware>
+
+  <firmware name="test_chibios">
+    <target name="test_sys_time_timer"  board="apogee_1.0_chibios"/>
+    <target name="test_led"             board="apogee_1.0_chibios"/>
+    <target name="test_sys_gpio"        board="apogee_1.0_chibios"/>
   </firmware>
 
 <!-- commands section -->

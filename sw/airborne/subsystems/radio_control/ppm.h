@@ -70,12 +70,21 @@ extern void radio_control_impl_event(void (* _received_frame_handler)(void));
 
 
 /**
- * Decode a PPM frame.
+ * Decode a PPM frame from global timer value.
  * A valid ppm frame:
  * - synchro blank
  * - correct number of channels
  * - synchro blank
  */
 extern void ppm_decode_frame(uint32_t ppm_time);
+
+/**
+ * Decode a PPM frame from last width.
+ * A valid ppm frame:
+ * - synchro blank
+ * - correct number of channels
+ * - synchro blank
+ */
+extern void ppm_decode_frame_width(uint32_t ppm_width);
 
 #endif /* RC_PPM_H */

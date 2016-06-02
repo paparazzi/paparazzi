@@ -53,8 +53,7 @@
 #endif
 
 #if LOG_INVARIANT_FILTER
-#include "sdLog.h"
-#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "modules/loggers/sdlog_chibios.h"
 bool log_started = false;
 #endif
 

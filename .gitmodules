@@ -9,7 +9,7 @@
 	url = https://github.com/enacuavlab/fatfs.git
 [submodule "sw/ext/chibios"]
 	path = sw/ext/chibios
-	url = https://github.com/mabl/ChibiOS.git
+	url = https://github.com/ChibiOS/ChibiOS.git
 [submodule "sw/ext/libzbar"]
 	path = sw/ext/libzbar
 	url = https://github.com/paparazzi/libzbar

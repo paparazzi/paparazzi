@@ -440,6 +440,17 @@
    gui_color="blue"
   />
   <aircraft
+   name="rt_chibios_test"
+   ac_id="3"
+   airframe="airframes/examples/rt_chibios_test.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/dummy.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/dummy.xml"
+   settings_modules=""
+   gui_color="blue"
+  />
+  <aircraft
    name="setup_lisam2"
    ac_id="38"
    airframe="airframes/examples/setup_lisam2.xml"

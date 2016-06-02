@@ -65,7 +65,7 @@
     <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_2"/>
     </module>
-    <!--module name="sys_mon"/-->
+    <!--module name="rtos_mon"/-->
   </firmware>
 
   <!-- commands section -->

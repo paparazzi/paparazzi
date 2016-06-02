@@ -173,8 +173,7 @@ static inline float get_humidity(uint32_t raw)
 #endif
 
 #if LOG_MS
-#include "sdLog.h"
-#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "modules/loggers/sdlog_chibios.h"
 bool log_ptu_started;
 #endif
 

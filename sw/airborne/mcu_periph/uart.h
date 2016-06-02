@@ -81,6 +81,8 @@ struct uart_periph {
   void *reg_addr;
   /** UART Baudrate */
   int baudrate;
+  /** User init struct */
+  void *init_struct;
   /** UART Dev (linux) */
   char dev[UART_DEV_NAME_SIZE];
   volatile uint16_t ore;    ///< overrun error counter
