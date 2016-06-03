@@ -32,6 +32,7 @@
 #include "mcu.h"
 
 #include "modules/computer_vision/lib/v4l/v4l2.h"
+#include "peripherals/video_device.h"
 
 /* Check if the bat_voltage_ardrone2 module is loaded */
 #include "generated/modules.h"
