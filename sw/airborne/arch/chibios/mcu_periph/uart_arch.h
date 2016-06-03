@@ -49,5 +49,6 @@
 #define B921600  921600
 #define B100000  100000
 #define B3000000 3000000
+#define UART_SPEED(_def) _def
 
-#endif /* STM32_UART_ARCH_H */
+#endif /* CHIBIOS_UART_ARCH_H */
