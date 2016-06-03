@@ -12,7 +12,7 @@
     <file name="tlsf_malloc.h" />
   </header>
   <init fun="tlsf_init_heaps()"/>
-  <makefile>
+  <makefile target="ap">
     <configure name="TLSF_MAX_FLI" default="16"/>
     <define name="MAX_FLI" value="$(TLSF_MAX_FLI)"/>
     <file_arch name="tlsf_malloc_arch.c"/>

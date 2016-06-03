@@ -472,15 +472,4 @@
    settings_modules=""
    gui_color="blue"
   />
-  <aircraft
-   name="rt_chibios_test"
-   ac_id="41"
-   airframe="airframes/examples/rt_chibios_test.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/dummy.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/dummy.xml"
-   settings_modules=""
-   gui_color="blue"
-  />
 </conf>
