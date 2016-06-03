@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/computer_vision/video_device.h
+ * @file peripherals/video_device.h
  */
 
 #ifndef VIDEO_DEVICE_H
