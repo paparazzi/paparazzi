@@ -67,7 +67,7 @@ endif
 PP_OPTS = -pp "camlp4o pa_macro.cmo $(CAMLP4_DEFS)"
 
 # which source files to run through caml4p
-PP_SRC = http.ml compat.ml
+PP_SRC =  http.ml compat.ml
 PP_CMO = $(PP_SRC:.ml=.cmo)
 PP_CMX = $(PP_SRC:.ml=.cmx)
 
@@ -76,7 +76,7 @@ PKGCOMMON=pprzlink,xml-light,netclient,glibivy,lablgtk2
 XINCLUDES=
 XPKGCOMMON=pprzlink,xml-light,glibivy,$(LABLGTK2GNOMECANVAS),lablgtk2.glade
 
-SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o ubx.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml fp_proc.ml gen_common.ml compat.ml
+SRC = http.ml compat.ml fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o ubx.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml fp_proc.ml gen_common.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
@@ -142,12 +142,12 @@ ml_gtk_drag.o : ml_gtk_drag.c
 
 # bit of a hack: only run some specifc files through caml4p
 $(PP_CMO) : $(PP_SRC)
-	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) $(PP_OPTS) -package $(PKGCOMMON) -c $<
+	@echo OC $(PP_SRC)
+	@$(foreach name,$(PP_SRC), $(OCAMLC) $(INCLUDES) $(PP_OPTS) -package $(PKGCOMMON) -c $(name);)
 
 $(PP_CMX) : $(PP_SRC)
-	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(INCLUDES) $(PP_OPTS) -package $(PKGCOMMON) -c $<
+	@echo OOC $(PP_SRC)
+	@$(foreach name,$(PP_SRC), $(OCAMLOPT) $(INCLUDES) $(PP_OPTS) -package $(PKGCOMMON) -c $(name);)
 
 %.cmo : %.ml
 	@echo OC $<

@@ -22,9 +22,11 @@
  *
  *)
 
+ IFDEF HAS_BYTES_MODULE THEN
+ module BYTES = Bytes
+ ELSE
+ module BYTES = String
+ END
+
 let bytes_create = fun len ->
-  IFDEF HAS_BYTES_MODULE THEN
-    Bytes.create len
-  ELSE
-    String.create len
-  END
+  BYTES.create len
