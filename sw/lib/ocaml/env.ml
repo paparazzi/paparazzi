@@ -81,8 +81,8 @@ let filter_absolute_path = fun path ->
 (* filter settings and keep the ones without brackets *)
 let filter_settings = fun settings ->
   let sl = Str.split (Str.regexp "[ ]+") settings in
-  let sl = List.filter (fun s -> not (s.[0] = '[' && s.[String.length s - 1] = ']')) sl in
-  String.concat " " sl
+  let sl = List.filter (fun s -> not (s.[0] = '[' && s.[Compat.bytes_length s - 1] = ']')) sl in
+  Compat.bytes_concat " " sl
 
 (* filter on modules based on target *)
 let filter_modules_target = fun module_file ->
@@ -197,5 +197,4 @@ let key_modifiers_of_string = fun key ->
     | "Meta" -> "<Meta>"
     | x -> x
   ) key_split in
-  String.concat "" keys
-
+  Compat.bytes_concat "" keys

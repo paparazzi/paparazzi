@@ -8,9 +8,11 @@ ELSE
 module H = Http_client
 END
 
+open Compat
+
 let file_of_url = fun ?dest url ->
-  if String.sub url 0 7 = "file://" then
-    String.sub url 7 (String.length url - 7)
+  if Compat.bytes_sub url 0 7 = "file://" then
+    Compat.bytes_sub url 7 (Compat.bytes_length url - 7)
   else
     let tmp_file =
       match dest with

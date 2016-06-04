@@ -23,6 +23,7 @@
  *)
 
 open Printf
+open Compat
 
 (** simple boolean expressions *)
 type bool_expr =
@@ -91,8 +92,8 @@ let targets_of_field =
   let pipe = Str.regexp "|" in
   fun field default ->
     let f = ExtXml.attrib_or_default field "target" default in
-    if String.length f > 0 && String.get f 0 = '!' then
-      Not (expr_of_targets (fun x y -> Or(x,y)) (Str.split pipe (String.sub f 1 ((String.length f) - 1))))
+    if Compat.bytes_length f > 0 && Compat.bytes_get f 0 = '!' then
+      Not (expr_of_targets (fun x y -> Or(x,y)) (Str.split pipe (Compat.bytes_sub f 1 ((Compat.bytes_length f) - 1))))
     else
       expr_of_targets (fun x y -> Or(x,y)) (Str.split pipe f)
 
@@ -114,7 +115,7 @@ let get_autopilot_of_airframe = fun xml ->
  * Returns the boolean expression of targets of a module *)
 let get_targets_of_module = fun xml ->
   Xml.fold (fun a x ->
-    match String.lowercase (Xml.tag x) with
+    match Compat.bytes_lowercase (Xml.tag x) with
     | "makefile" when a = Var "" -> targets_of_field x Env.default_module_targets
     | "makefile" -> Or (a, targets_of_field x Env.default_module_targets)
     | _ -> a
@@ -344,4 +345,3 @@ let is_element_unselected = fun ?(verbose=false) target modules name ->
         unselected
     | _ -> false
   with _ -> false
-

@@ -21,6 +21,7 @@
  * Boston, MA 02111-1307, USA.
  *
  *)
+open Compat
 
 module UbxProtocol = struct
   (** SYNC1 SYNC2 CLASS ID LENGTH(2) UBX_PAYLOAD CK_A CK_B
@@ -32,8 +33,8 @@ module UbxProtocol = struct
   let offset_length=4
   let index_start = fun buf ->
     let rec loop = fun i ->
-      let i' = String.index_from buf i sync1 in
-      if String.length buf > i'+1 && buf.[i'+1] = sync2 then
+      let i' = Compat.bytes_index_from buf i sync1 in
+      if Compat.bytes_length buf > i'+1 && buf.[i'+1] = sync2 then
         i'
       else
         loop (i'+1) in
@@ -43,20 +44,20 @@ module UbxProtocol = struct
     Char.code buf.[start+5] lsl 8 + Char.code buf.[start+4] + 4
 
   let length = fun buf start ->
-    let len = String.length buf - start in
+    let len = Compat.bytes_length buf - start in
     if len >= offset_length+2 then
       payload_length buf start + 4
     else
       raise Protocol.Not_enough
 
   let payload = fun buf ->
-    Protocol.payload_of_string (String.sub buf offset_payload (payload_length buf 0))
+    Protocol.payload_of_string (Compat.bytes_sub buf offset_payload (payload_length buf 0))
 
   let uint8_t = fun x -> x land 0xff
   let (+=) = fun r x -> r := uint8_t (!r + x)
   let compute_checksum = fun buf ->
     let ck_a = ref 0 and ck_b = ref 0 in
-    let l = String.length buf in
+    let l = Compat.bytes_length buf in
     for i = offset_payload to l - 1 - 4 do
       ck_a += Char.code buf.[i];
       ck_b += !ck_a
@@ -70,12 +71,12 @@ module UbxProtocol = struct
 
   let packet = fun payload ->
     let payload = Protocol.string_of_payload payload in
-    let n = String.length payload in
+    let n = Compat.bytes_length payload in
     let msg_length = n + 4 in
-    let m = String.create msg_length in
+    let m = Compat.bytes_create msg_length in
     m.[0] <- sync1;
     m.[1] <- sync2;
-    String.blit payload 0 m 2 n;
+    Compat.bytes_blit payload 0 m 2 n;
     let (ck_a, ck_b) = compute_checksum m in
     m.[msg_length-2] <- Char.chr ck_a;
     m.[msg_length-1] <- Char.chr ck_b;
@@ -134,7 +135,7 @@ type message_spec = Xml.xml
 
 let ubx_payload = fun msg_xml values ->
   let n = int_of_string (ExtXml.attrib msg_xml "length") in
-  let p = String.make n '#' in
+  let p = Compat.bytes_make n '#' in
   let fields = Xml.children msg_xml in
   List.iter
     (fun (label, value) ->
@@ -176,13 +177,13 @@ let message = fun class_name msg_name ->
 let payload = fun class_name msg_name values ->
   let class_id, msg_id, msg = message class_name msg_name in
   let u_payload = ubx_payload msg values in
-  let n = String.length u_payload in
+  let n = Compat.bytes_length u_payload in
 
   (** Just add CLASS_ID, MSG_ID and LENGTH(2) to the ubx payload *)
-  let m = String.create (n+4) in
+  let m = Compat.bytes_create (n+4) in
   m.[0] <- Char.chr class_id;
   m.[1] <- Char.chr msg_id;
   m.[2] <- Char.chr (n land 0xff);
   m.[3] <- Char.chr ((n land 0xff00) lsr 8);
-  String.blit u_payload 0 m 4 n;
+  Compat.bytes_blit u_payload 0 m 4 n;
   Protocol.payload_of_string m

@@ -1,12 +1,13 @@
 (******** Sectors **********************************************************)
 
 open Printf
+open Compat
 
 let (//) = Filename.concat
 
 let rec display = fun (geomap:MapCanvas.widget) r ->
 
-  match String.lowercase (Xml.tag r) with
+  match Compat.bytes_lowercase (Xml.tag r) with
       "disc" ->
         let rad = float_of_string (ExtXml.attrib r "radius")
         and geo = Latlong.of_string (ExtXml.attrib (ExtXml.child r "point") "pos") in

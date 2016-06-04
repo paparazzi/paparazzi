@@ -28,6 +28,8 @@
 (** Exception raised when there's an attempt to encode a chunk incorrectly *)
 exception Invalid_encode_chunk of int
 
+open Compat
+
 (** The character map of all base64 characters *)
 
 let char_map = [|
@@ -48,7 +50,7 @@ let encode_chunk chars =
   let llength = List.length chars in
   if(llength = 0 || llength > 3) then
     raise (Invalid_encode_chunk(llength));
-  let chunk = String.make 4 '=' in
+  let chunk = Compat.bytes_make 4 '=' in
   let a = List.hd chars in
   let tmpa = (((Char.code a) land 3) lsl 4) in
   chunk.[0] <- char_map.( (Char.code a) lsr 2);
@@ -200,7 +202,7 @@ let decode_string s = decode_to_string (Stream.of_string s)
 (** Simple test function. *)
 
 let test() =
-  let wordlist = ["A";"AB";"ABC";"Dustin";String.create 128] in
+  let wordlist = ["A";"AB";"ABC";"Dustin";Compat.bytes_create 128] in
   print_endline("String:");
   List.iter (fun x -> print_endline(encode_string x))
     wordlist;

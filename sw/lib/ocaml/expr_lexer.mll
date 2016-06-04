@@ -1,6 +1,6 @@
-(* 
- * Lexical tokens à la C
- *  
+(*
+ * Lexical tokens ï¿½ la C
+ *
  * Copyright (C) 2003-2010 Antoine Drouin, Pascal Brisset, ENAC
  *
  * This file is part of paparazzi.
@@ -22,6 +22,7 @@
  *)
 {
 open Expr_parser
+open Compat
 }
 rule token = parse
     [' ' '\t' '\n'] { token lexbuf}
@@ -29,7 +30,7 @@ rule token = parse
   | ['0'-'9']+ { INT (int_of_string (Lexing.lexeme lexbuf)) }
   | ['0'-'9']+'.'['0'-'9']* { FLOAT (float_of_string (Lexing.lexeme lexbuf)) }
   | '$'?['a'-'z' '_' 'A'-'Z'] (['a'-'z' 'A'-'Z' '_' '0'-'9']*) { IDENT (Lexing.lexeme lexbuf) }
-  | '\''[^'\'']+'\'' { let s = Lexing.lexeme lexbuf in IDENT (String.sub s 1 (String.length s - 2)) }
+  | '\''[^'\'']+'\'' { let s = Lexing.lexeme lexbuf in IDENT (Compat.bytes_sub s 1 (Compat.bytes_length s - 2)) }
   | ',' { COMMA }
   | '.' { DOT }
   | ';' { SEMICOLON }
@@ -38,7 +39,7 @@ rule token = parse
   | ')' { RP }
   | '{' { LC }
   | '}' { RC }
-  | '[' { LB } 
+  | '[' { LB }
   | ']' { RB }
   | "->" { DEREF }
   | "==" { EQ }

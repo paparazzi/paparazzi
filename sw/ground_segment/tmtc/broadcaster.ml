@@ -1,3 +1,4 @@
+open Compat
 open Printf
 
 let () =
@@ -24,12 +25,12 @@ let () =
 
     (* Forward telemetry on Ivy *)
     let buffer_size = 256 in
-    let buffer = String.create buffer_size in
+    let buffer = Compat.bytes_create buffer_size in
     let get_tcp = fun _ ->
       begin
         try
           let n = input i buffer 0 buffer_size in
-          let data = String.sub buffer 0 n in
+          let data = Compat.bytes_sub buffer 0 n in
 
           Ivy.send (sprintf "%s %s" !ivy_to (Base64.encode_string data))
         with

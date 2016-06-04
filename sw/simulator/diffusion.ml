@@ -1,3 +1,4 @@
+open Compat
 open Printf
 
 module Ground_Pprz = PprzLink.Messages(struct let name = "ground" end)
@@ -67,10 +68,10 @@ let send_on_ivy = fun () ->
     ys := sprintf "%.6f" ((Rad>>Deg)wgs84.posn_long) :: !ys;
     vs := sprintf "%d" plume.value :: !vs)
     plumes ;
-  let ids = String.concat "," !ids
-  and xs = String.concat "," !xs
-  and ys = String.concat "," !ys
-  and vs = String.concat "," !vs in
+  let ids = Compat.bytes_concat "," !ids
+  and xs = Compat.bytes_concat "," !xs
+  and ys = Compat.bytes_concat "," !ys
+  and vs = Compat.bytes_concat "," !vs in
   Ground_Pprz.message_send my_id "PLUMES"
     [ "ids", PprzLink.String ids;
       "lats", PprzLink.String xs;
