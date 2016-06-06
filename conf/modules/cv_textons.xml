@@ -41,7 +41,7 @@
   </header>
   <init fun="textons_init()"/>
 
-  <makefile>
+  <makefile target="ap">
     <file name="textons.c"/>
     <file name="image.c" dir="modules/computer_vision/lib/vision"/>
   </makefile>

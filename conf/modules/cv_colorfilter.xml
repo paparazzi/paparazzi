@@ -26,7 +26,7 @@
   </header>
 
   <init fun="colorfilter_init()"/>
-  <makefile>
+  <makefile target="ap">
     <file name="colorfilter.c"/>
   </makefile>
 </module>

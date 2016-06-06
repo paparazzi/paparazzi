@@ -39,7 +39,7 @@
   <init fun="cv_blob_locator_init()"/>
   <periodic fun="cv_blob_locator_periodic()" freq="30" start="cv_blob_locator_start()" stop="cv_blob_locator_stop()" autorun="TRUE"/>
   <event fun="cv_blob_locator_event()"/>
-  <makefile>
+  <makefile target="ap">
     <file name="cv_blob_locator.c"/>
     <file name="imavmarker.c" dir="modules/computer_vision/blob" />
     <file name="blob_finder.c" dir="modules/computer_vision/blob" />

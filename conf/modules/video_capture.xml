@@ -29,7 +29,7 @@
 
   <init fun="video_capture_init()"/>
 
-  <makefile>
+  <makefile target="ap">
     <file name="video_capture.c"/>
   </makefile>
 
