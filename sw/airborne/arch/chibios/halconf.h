@@ -71,6 +71,7 @@
 #else
 #define HAL_USE_CAN                 FALSE
 #endif
+#endif
 
 
 /**
