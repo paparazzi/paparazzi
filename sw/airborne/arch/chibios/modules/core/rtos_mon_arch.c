@@ -100,6 +100,7 @@ void rtos_mon_periodic_arch(void)
 
 static uint16_t get_stack_free(const thread_t *tp)
 {
+#if defined STM32F4
   int32_t index = 0;
   // FIXME this is for STM32F4 only
   const uint8_t *max_ram_addr = (uint8_t*) (0x20000000 + (128*1024));
@@ -122,5 +123,9 @@ static uint16_t get_stack_free(const thread_t *tp)
     ret = (uint16_t) free_bytes;
   }
   return ret;
+#else
+  (void)tp;
+  return 0;
+#endif
 }
 
