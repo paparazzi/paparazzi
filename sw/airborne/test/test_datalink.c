@@ -77,7 +77,8 @@ void dl_parse_msg(void)
     case  DL_PING: {
       DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
     }
-    break;
+    default:
+      break;
   }
 }
 
