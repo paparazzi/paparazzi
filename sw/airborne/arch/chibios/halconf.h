@@ -66,6 +66,9 @@
  * @brief   Enables the CAN subsystem.
  */
 #if !defined(HAL_USE_CAN) || defined(__DOXYGEN__)
+#if USE_CAN1 || USE_CAN2
+#define HAL_USE_CAN                 TRUE
+#else
 #define HAL_USE_CAN                 FALSE
 #endif
 
