@@ -25,12 +25,12 @@ $(TARGET).CFLAGS += -DSTM32F4 -DPPRZLINK_ENABLE_FD
 #
 # Define project name here (target)
 PROJECT = $(TARGET)
-PROJECT_DIR=
 
 # Project specific files and paths (see Makefile.chibios for details)
 CHIBIOS_BOARD_PLATFORM = STM32F4xx/platform.mk
 CHIBIOS_BOARD_PORT = ARMCMx/STM32F4xx/port.mk
 CHIBIOS_BOARD_LINKER = STM32F407xG_ccm.ld
+CHIBIOS_BOARD_STARTUP = startup_stm32f4xx.mk
 
 ##############################################################################
 # Compiler settings
@@ -76,13 +76,3 @@ SBUS_PORT ?= UART2
 #
 ACTUATORS ?= actuators_pwm
 
-
-## FIXME disable debug for now, no idea why it doesn't work
-#$(TARGET).CFLAGS += \
-#	-DCH_DBG_SYSTEM_STATE_CHECK=FALSE \
-#	-DCH_DBG_ENABLE_CHECKS=FALSE \
-#	-DCH_DBG_ENABLE_ASSERTS=FALSE \
-#	-DCH_DBG_ENABLE_TRACE=FALSE \
-#	-DCH_DBG_ENABLE_STACK_CHECK=FALSE \
-#	-DCH_DBG_FILL_THREADS=FALSE \
-#	-DCH_DBG_THREADS_PROFILING=FALSE

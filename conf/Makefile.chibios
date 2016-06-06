@@ -29,10 +29,6 @@ CHIBIOS =  $(PAPARAZZI_SRC)/sw/ext/chibios
 BOARD_DIR ?= $(BOARD)/chibios
 CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD_DIR)
 
-# directory with board and OS configuration (project specific)
-PROJECT_DIR ?= demo
-CHIBIOS_PROJECT_DIR = $(CHIBIOS_BOARD_DIR)/$(PROJECT_DIR)
-
 # chibos arch directory
 CHIBIOS_ARCH_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios
 
@@ -40,7 +36,7 @@ CHIBIOS_ARCH_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios
 Q=@
 
 # Debugging options
-RTOS_DEBUG ?= 1
+RTOS_DEBUG ?= 0
 
 ifeq (,$(findstring $(RTOS_DEBUG),0 FALSE))
 $(info DEBUGGING ON)
@@ -55,6 +51,7 @@ $(TARGET).CFLAGS += \
 	-DCH_DBG_THREADS_PROFILING=TRUE
 else
 $(info DEBUGGING OFF)
+$(TARGET).CFLAGS += -DCH_DBG_THREADS_PROFILING=TRUE
 endif
 
 #
@@ -81,7 +78,7 @@ ifeq ($(USE_OPT),)
 ifeq (,$(findstring $(RTOS_DEBUG),0 FALSE))
   CH_OPT ?= 0 -g -ggdb3 -fno-inline
 else
-  CH_OPT ?= 2 -gdb
+  CH_OPT ?= 2 -ggdb
 endif
 
   USE_OPT = -std=gnu99 -O$(CH_OPT) \
@@ -172,7 +169,7 @@ endif
 
 # Imported source files and paths
 # Startup files.
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/$(CHIBIOS_BOARD_STARTUP)
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/$(CHIBIOS_BOARD_PLATFORM)

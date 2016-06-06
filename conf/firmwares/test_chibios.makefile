@@ -40,6 +40,9 @@ SRC_MODULES=modules
 
 CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
 
+# Enable debug mode by default for test programs
+RTOS_DEBUG ?= 1
+
 #
 # common test
 #
