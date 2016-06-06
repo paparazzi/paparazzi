@@ -99,7 +99,6 @@ static void thd_pprz(void *arg)
     Fbw(event_task);
     Ap(event_task);
     chThdSleepMicroseconds(500);
-    //chThdYield();
   }
 
   chThdExit(0);
