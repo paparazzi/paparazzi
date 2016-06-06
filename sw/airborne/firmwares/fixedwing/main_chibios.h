@@ -25,5 +25,7 @@
 
 #pragma once
 
+#include <ch.h>
+
 extern thread_t *pprzThdPtr;
 
