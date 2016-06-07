@@ -790,7 +790,7 @@ let raw_datalink = fun logging _sender vs ->
   let ac_id = PprzLink.string_assoc "ac_id" vs
   and m = PprzLink.string_assoc "message" vs in
   for i = 0 to Compat.bytes_length m - 1 do
-    if m.[i] = ';' then m.[i] <- ' '
+    if m.[i] = ';' then Compat.bytes_set m i ' '
   done;
   let msg_id, vs = Dl_Pprz.values_of_string m in
   let msg = Dl_Pprz.message_of_id msg_id in

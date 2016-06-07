@@ -362,7 +362,7 @@ let hex_to_bin = fun s ->
   assert(n mod 2 = 0);
   let b = Compat.bytes_make (2*n) 'x' in
   for i = 0 to n/2 - 1 do
-    b.[4*i] <- '\\';
+    Compat.bytes_set b (4*i) '\\';
     Scanf.sscanf (Compat.bytes_sub s (2*i) 2) "%2x"
       (fun x ->
         Compat.bytes_blit (sprintf "%03o" x) 0 b (4*i+1) 3)

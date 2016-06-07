@@ -22,6 +22,7 @@
  *
  *)
 
+open Compat
 open Printf
 module Utils = Pc_common
 
@@ -44,7 +45,7 @@ let program_command = fun x ->
     if cmd.[0] = '/' then
       cmd
     else if cmd.[0] = '$' then
-      String.sub cmd 1 ((String.length cmd) - 1)
+      Compat.bytes_sub cmd 1 ((Compat.bytes_length cmd) - 1)
     else
       Env.paparazzi_src // cmd
   with Not_found ->
@@ -76,7 +77,7 @@ let flash_modes =
     let options = List.map (fun o ->
       sprintf "%s=%s" (Xml.attrib o "name") (Xml.attrib o "value")
       ) (List.filter (fun t -> Xml.tag t = "variable") (Xml.children m)) in
-    let options = String.concat " " options in
+    let options = Compat.bytes_concat " " options in
     (* add to hash tables *)
     Hashtbl.add modes mode options;
     List.iter (fun b ->
@@ -117,9 +118,9 @@ let parse_process_args = fun (name, args) ->
   (* Mark spaces into args *)
   let marked_space = Char.chr 0 in
   let in_quotes = ref false in
-  for i = 0 to String.length args - 1 do
+  for i = 0 to Compat.bytes_length args - 1 do
     match args.[i] with
-      ' ' when !in_quotes -> args.[i] <- marked_space
+      ' ' when !in_quotes -> Compat.bytes_set args i marked_space
     | '"' -> in_quotes := not !in_quotes
     | _ -> ()
   done;
@@ -127,19 +128,19 @@ let parse_process_args = fun (name, args) ->
   let args = Str.split (Str.regexp "[ ]+") args in
   (* Restore spaces and remove quotes *)
   let restore_spaces = fun s ->
-    let n = String.length s in
+    let n = Compat.bytes_length s in
     for i = 0 to n - 1 do
-      if s.[i] = marked_space then s.[i] <- ' '
+      if s.[i] = marked_space then Compat.bytes_set s i ' '
     done;
     if n >= 2 && s.[0] = '"' then
-      String.sub s 1 (n-2)
+      Compat.bytes_sub s 1 (n-2)
     else
       s in
   let args = List.map restore_spaces args in
   (* Remove the first "arg" which is the command *)
   let args = List.tl args in
   (* Build the XML arg list *)
-  let is_option = fun s -> String.length s > 0 && s.[0] = '-' in
+  let is_option = fun s -> Compat.bytes_length s > 0 && s.[0] = '-' in
   let rec xml_args = function
       [] -> []
     | option::value::l when not (is_option value) ->
@@ -173,7 +174,7 @@ let save_session = fun gui session_combo ->
       name
 
 let double_quote = fun s ->
-  if String.contains s ' ' then
+  if Compat.bytes_contains s ' ' then
     sprintf "\"%s\"" s
   else
     s
@@ -245,7 +246,7 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
     Gtk_tools.add_to_combo session_combo Gtk_tools.combo_separator;
     let strings = ref [] in
     Hashtbl.iter (fun name _session -> strings := name :: !strings) sessions;
-    let ordered = List.sort String.compare !strings in
+    let ordered = List.sort Compat.bytes_compare !strings in
     List.iter (fun name -> Gtk_tools.add_to_combo session_combo name) ordered
   in
 
@@ -336,4 +337,3 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
   in
   ignore (gui#menu_item_delete_session#connect#activate ~callback);
   session_combo, execute_custom
-

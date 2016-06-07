@@ -61,7 +61,7 @@ let format_string_field = fun s ->
   let s = Compat.bytes_copy s in
   for i = 0 to Compat.bytes_length s - 1 do
     match s.[i] with
-        ' ' -> s.[i] <- '_'
+        ' ' ->  Compat.bytes_set s i '_'
       | _ -> ()
   done;
   s

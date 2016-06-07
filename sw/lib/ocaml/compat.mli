@@ -36,3 +36,5 @@ val bytes_concat : string -> string list -> string
 val bytes_index_from : string -> int -> char -> int
 val bytes_get : string -> int -> char
 val bytes_compare : string -> string -> int
+val bytes_set : string -> int -> char -> unit
+val bytes_iter : (char -> unit) -> string -> unit

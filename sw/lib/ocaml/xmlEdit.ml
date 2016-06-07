@@ -137,10 +137,10 @@ let recode_crs = fun s ->
   let i = ref 0 and j = ref 0 in
   while !i < n do
     if !i < n-1 && s.[!i] == '\\' && s.[!i+1] == 'n' then begin
-      s'.[!j] <- '\n';
+      Compat.bytes_set s' (!j)  '\n';
       incr i
     end else
-      s'.[!j] <- s.[!i];
+      Compat.bytes_set s' (!j) s.[!i];
     incr i; incr j
   done;
   Compat.bytes_sub s' 0 !j

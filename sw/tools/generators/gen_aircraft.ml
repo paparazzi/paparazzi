@@ -22,6 +22,7 @@
  *
  *)
 
+open Compat
 open Printf
 module U = Unix
 
@@ -57,14 +58,14 @@ let check_unique_id_and_name = fun conf conf_xml ->
 
 let configure_xml2mk = fun f xml ->
   (* all makefiles variables are forced to uppercase *)
-  let name = String.uppercase (ExtXml.attrib xml "name")
+  let name = Compat.bytes_uppercase (ExtXml.attrib xml "name")
   and value = ExtXml.attrib_or_default xml "value" ""
   and default = ExtXml.attrib_or_default xml "default" ""
   and case = ExtXml.attrib_or_default xml "case" "" in
   (* Only print variable if value is not empty *)
-  if String.length value > 0 then
+  if Compat.bytes_length value > 0 then
     fprintf f "%s = %s\n" name value
-  else if String.length default > 0 then
+  else if Compat.bytes_length default > 0 then
     fprintf f "%s ?= %s\n" name default;
   (* also providing lower and upper case version on request *)
   if Str.string_match (Str.regexp ".*lower.*") case 0 then
@@ -115,11 +116,11 @@ let file_xml2mk = fun f ?(arch = false) dir_name target xml ->
 let module_xml2mk = fun f target firmware m ->
   let name = ExtXml.attrib m.xml "name" in
   let dir = try Xml.attrib m.xml "dir" with Xml.No_attribute _ -> name in
-  let dir_name = String.uppercase dir ^ "_DIR" in
+  let dir_name = Compat.bytes_uppercase dir ^ "_DIR" in
   (* print global flags as compilation defines and flags *)
   fprintf f "\n# makefile for module %s in modules/%s\n" name dir;
   List.iter (fun flag ->
-    match String.lowercase (Xml.tag flag) with
+    match Compat.bytes_lowercase (Xml.tag flag) with
     | "configure" -> configure_xml2mk f flag
     | "define" -> define_xml2mk f ~target flag
     | _ -> ()) m.param;
@@ -140,7 +141,7 @@ let module_xml2mk = fun f target firmware m ->
       in
       Xml.iter
       (fun field ->
-          match String.lowercase (Xml.tag field) with
+          match Compat.bytes_lowercase (Xml.tag field) with
           | "configure" -> configure_xml2mk f field
           | "define" -> define_xml2mk f ~target field
           | "include" -> include_xml2mk f ~target ~vpath:m.vpath field
@@ -164,7 +165,7 @@ let modules_xml2mk = fun f target xml fp ->
   (** include modules directory for ALL targets, not just the defined ones **)
   fprintf f "$(TARGET).CFLAGS += -Imodules -Iarch/$(ARCH)/modules\n";
   List.iter
-    (fun dir -> fprintf f "%s_DIR = modules/%s\n" (String.uppercase dir) dir
+    (fun dir -> fprintf f "%s_DIR = modules/%s\n" (Compat.bytes_uppercase dir) dir
     ) dir_list;
   (* add vpath for external modules *)
   List.iter
@@ -198,7 +199,7 @@ let subsystem_xml2mk = fun f firmware s ->
   List.iter (fun def -> define_xml2mk f def) s_defines;
   (* include subsystem *) (* TODO test if file exists with the generator ? *)
   let s_name = name ^ s_type ^ ".makefile" in
-  let s_dir = "CFG_" ^ String.uppercase (Xml.attrib firmware "name") in
+  let s_dir = "CFG_" ^ Compat.bytes_uppercase (Xml.attrib firmware "name") in
   fprintf f "ifneq ($(strip $(wildcard $(%s)/%s)),)\n" s_dir s_name;
   fprintf f "\tinclude $(%s)/%s\n" s_dir s_name;
   fprintf f "else\n";
@@ -352,13 +353,13 @@ let () =
     (* remove settings if not supported for the current target *)
     let settings = List.fold_left (fun l s -> if Gen_common.is_element_unselected ~verbose:true target modules s then l else l @ [s]) [] (Str.split (Str.regexp " ") settings) in
     (* update aircraft_xml *)
-    let aircraft_xml = ExtXml.subst_attrib "settings" (String.concat " " settings) aircraft_xml in
+    let aircraft_xml = ExtXml.subst_attrib "settings" (Compat.bytes_concat " " settings) aircraft_xml in
     (* add modules settings *)
     let settings_modules = try Env.filter_settings (value "settings_modules") with _ -> "" in
     (* remove settings if not supported for the current target *)
     let settings_modules = List.fold_left (fun l s -> if Gen_common.is_element_unselected ~verbose:true target modules s then l else l @ [s]) [] (Str.split (Str.regexp " ") settings_modules) in
     (* update aircraft_xml *)
-    let aircraft_xml = ExtXml.subst_attrib "settings_modules" (String.concat " " settings_modules) aircraft_xml in
+    let aircraft_xml = ExtXml.subst_attrib "settings_modules" (Compat.bytes_concat " " settings_modules) aircraft_xml in
     (* finally, concat all settings *)
     let settings = settings @ settings_modules in
     let settings = if List.length settings = 0 then
@@ -366,7 +367,7 @@ let () =
         fprintf stderr "\nInfo: No 'settings' attribute specified for A/C '%s', using 'settings/dummy.xml'\n\n%!" aircraft;
         "settings/dummy.xml"
       end
-      else String.concat " " settings
+      else Compat.bytes_concat " " settings
     in
 
     (** Expands the configuration of the A/C into one single file *)

@@ -74,12 +74,12 @@ module UbxProtocol = struct
     let n = Compat.bytes_length payload in
     let msg_length = n + 4 in
     let m = Compat.bytes_create msg_length in
-    m.[0] <- sync1;
-    m.[1] <- sync2;
+    Compat.bytes_set m 0 sync1;
+    Compat.bytes_set m 1 sync2;
     Compat.bytes_blit payload 0 m 2 n;
     let (ck_a, ck_b) = compute_checksum m in
-    m.[msg_length-2] <- Char.chr ck_a;
-    m.[msg_length-1] <- Char.chr ck_b;
+    Compat.bytes_set m (msg_length-2) (Char.chr ck_a);
+    Compat.bytes_set m (msg_length-1) (Char.chr ck_b);
     m
 end
 
@@ -148,19 +148,19 @@ let ubx_payload = fun msg_xml values ->
       match fmt with
         | "U1" ->
           assert(value >= 0 && value < 0x100);
-          p.[pos] <- byte value
+          Compat.bytes_set p (pos) (byte value)
         | "I1" ->
           assert(value >= -0x80 && value <= 0x80);
-          p.[pos] <- byte value
+          Compat.bytes_set p pos (byte value)
         | "I4" | "U4" ->
           assert(fmt <> "U4" || value >= 0);
-          p.[pos+3] <- byte (value asr 24);
-          p.[pos+2] <- byte (value lsr 16);
-          p.[pos+1] <- byte (value lsr 8);
-          p.[pos+0] <- byte value
+          Compat.bytes_set p (pos+3) (byte (value asr 24));
+          Compat.bytes_set p (pos+2) (byte (value lsr 16));
+          Compat.bytes_set p (pos+1) (byte (value lsr 8));
+          Compat.bytes_set p (pos+0) (byte value)
         | "U2" | "I2" ->
-          p.[pos+1] <- byte (value lsr 8);
-          p.[pos+0] <- byte value
+          Compat.bytes_set p (pos+1) (byte (value lsr 8));
+          Compat.bytes_set p (pos+0) (byte value)
         | _ -> failwith (Printf.sprintf "Ubx.make_payload: unknown format '%s'" fmt)
     )
     values;
@@ -181,9 +181,9 @@ let payload = fun class_name msg_name values ->
 
   (** Just add CLASS_ID, MSG_ID and LENGTH(2) to the ubx payload *)
   let m = Compat.bytes_create (n+4) in
-  m.[0] <- Char.chr class_id;
-  m.[1] <- Char.chr msg_id;
-  m.[2] <- Char.chr (n land 0xff);
-  m.[3] <- Char.chr ((n land 0xff00) lsr 8);
+  Compat.bytes_set m 0 (Char.chr class_id);
+  Compat.bytes_set m 1 (Char.chr msg_id);
+  Compat.bytes_set m 2 (Char.chr (n land 0xff));
+  Compat.bytes_set m 3 (Char.chr ((n land 0xff00) lsr 8));
   Compat.bytes_blit u_payload 0 m 4 n;
   Protocol.payload_of_string m

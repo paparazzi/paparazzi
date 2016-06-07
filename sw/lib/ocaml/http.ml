@@ -21,9 +21,9 @@ let file_of_url = fun ?dest url ->
     let call = new H.get url in
     call#set_response_body_storage (`File (fun () -> tmp_file));
     let pipeline = new H.pipeline in
-    pipeline#set_proxy_from_environment ();
-    pipeline#add call;
-    pipeline#run ();
+    pipeline # set_proxy_from_environment ();
+    pipeline # add call;
+    pipeline # run ();
     match call#status with
       | `Successful ->
         (* prerr_endline (Printf.sprintf "file sucessfull: %s, '%s'" tmp_file url); *)

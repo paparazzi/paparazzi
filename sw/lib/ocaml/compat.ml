@@ -69,3 +69,9 @@ let bytes_get = fun s n->
 
 let bytes_compare = fun s1 s2->
 	BYTES.compare s1 s2
+
+let bytes_set = fun s n c->
+	BYTES.set s n c
+
+let bytes_iter = fun f s->
+  BYTES.iter f s

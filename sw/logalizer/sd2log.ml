@@ -24,6 +24,7 @@
  *)
 
 open Printf
+open Compat
 module U = Unix
 let (//) = Filename.concat
 let var_path = Env.paparazzi_home // "var"
@@ -86,11 +87,11 @@ let hex_of_array = function
   | PprzLink.Array array ->
       let n = Array.length array in
       (* One integer -> 2 chars *)
-      let s = String.create (2*n) in
+      let s = Compat.bytes_create (2*n) in
       Array.iteri
         (fun i dec ->
           let hex = sprintf "%02x" (PprzLink.int_of_value array.(i)) in
-          String.blit hex 0 s (2*i) 2)
+          Compat.bytes_blit hex 0 s (2*i) 2)
         array;
       s
   | value ->
@@ -110,8 +111,8 @@ let search_conf = fun md5 ->
   let files = Sys.readdir dir in
   let rec loop = fun i ->
     if i < Array.length files then begin
-      if String.length files.(i) > (md5_ofs + md5_len)
-      && String.sub files.(i) md5_ofs md5_len = md5 then
+      if Compat.bytes_length files.(i) > (md5_ofs + md5_len)
+      && Compat.bytes_sub files.(i) md5_ofs md5_len = md5 then
         dir // files.(i)
       else
         loop (i+1)

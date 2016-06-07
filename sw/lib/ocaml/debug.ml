@@ -41,7 +41,7 @@ let xprint = fun s ->
   let a = Compat.bytes_make (3*n) ' ' in
   for i = 0 to n - 1 do
     let x = Printf.sprintf "%02x" (Char.code s.[i]) in
-    a.[3*i] <- x.[0];
-    a.[3*i+1] <- x.[1]
+    Compat.bytes_set a (3*i) x.[0];
+    Compat.bytes_set a (3*i+1) x.[1]
   done;
   a
