@@ -10,6 +10,7 @@
     <define name="VIDEO_USBLOG_CAMERA" value="front_camera|bottom_camera" description="Video device to log"/>
     <define name="VIDEO_LOG_WIDTH" value="272" description="Size of the to log images"/>
     <define name="VIDEO_LOG_HEIGHTH" value="272" description="Size of the to log images"/>
+    <define name="JPEG_WITH_EXIF_HEADER" value="TRUE" description="Whether to store data in the exif header or not"/>
   </doc>
   <depends>video_rtp_stream</depends>
   <header>
