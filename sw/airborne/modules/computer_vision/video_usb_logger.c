@@ -108,7 +108,7 @@ struct image_t *log_image(struct image_t *img);
 struct image_t *log_image(struct image_t *img)
 {
   save_shot(img, &img_jpeg);
-  return FALSE;
+  return img;
 }
 
 /** Start the file logger and open a new file */
