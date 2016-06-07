@@ -58,14 +58,18 @@
       <define name="GPS_UBX_UCENTER_RATE" value="200"/>
       <define name="USE_GPS_UBX_RXM_RAW"/>
       <define name="USE_GPS_UBX_RXM_SFRB"/>
-      <define name="LOG_RAW_GPS"/>
+      <!--define name="LOG_RAW_GPS"/-->
     </module>
     <module name="gps" type="ubx_ucenter"/>
+    <!-- logging -->
+    <!--module name="tlsf"/>
+    <module name="sdlog"/>
+    <module name="logger" type="sd_chibios"/-->
 
     <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_2"/>
     </module>
-    <!--module name="sys_mon"/-->
+    <!--module name="rtos_mon"/-->
   </firmware>
 
   <!-- commands section -->

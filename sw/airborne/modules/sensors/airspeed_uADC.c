@@ -38,8 +38,7 @@
 #if FLIGHTRECORDER_SDLOG
 #include "subsystems/datalink/telemetry.h"
 #include "pprzlink/pprzlog_transport.h"
-#include "sdLog.h"
-#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "modules/loggers/sdlog_chibios.h"
 #endif
 
 #define uADC_UNINIT         0

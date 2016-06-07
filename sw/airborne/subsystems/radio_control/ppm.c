@@ -94,20 +94,28 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
 }
 
 /**
- * Decode a PPM frame.
- * A valid ppm frame:
- * - synchro blank
- * - correct number of channels
- * - synchro blank
+ * Decode a PPM frame from global timer value.
  */
 void ppm_decode_frame(uint32_t ppm_time)
 {
   uint32_t length = ppm_time - ppm_last_pulse_time;
   ppm_last_pulse_time = ppm_time;
 
+  ppm_decode_frame_width(length);
+}
+
+/**
+ * Decode a PPM frame from last width.
+ * A valid ppm frame:
+ * - synchro blank
+ * - correct number of channels
+ * - synchro blank
+ */
+void ppm_decode_frame_width(uint32_t ppm_width)
+{
   if (ppm_cur_pulse == RADIO_CTL_NB) {
-    if (length > RC_PPM_TICKS_OF_USEC(PPM_SYNC_MIN_LEN) &&
-        length < RC_PPM_TICKS_OF_USEC(PPM_SYNC_MAX_LEN)) {
+    if (ppm_width > RC_PPM_TICKS_OF_USEC(PPM_SYNC_MIN_LEN) &&
+        ppm_width < RC_PPM_TICKS_OF_USEC(PPM_SYNC_MAX_LEN)) {
       if (ppm_data_valid && RssiValid()) {
         ppm_frame_available = true;
         ppm_data_valid = false;
@@ -117,9 +125,9 @@ void ppm_decode_frame(uint32_t ppm_time)
       ppm_data_valid = false;
     }
   } else {
-    if (length > RC_PPM_TICKS_OF_USEC(PPM_DATA_MIN_LEN) &&
-        length < RC_PPM_TICKS_OF_USEC(PPM_DATA_MAX_LEN)) {
-      ppm_pulses[ppm_cur_pulse] = length;
+    if (ppm_width > RC_PPM_TICKS_OF_USEC(PPM_DATA_MIN_LEN) &&
+        ppm_width < RC_PPM_TICKS_OF_USEC(PPM_DATA_MAX_LEN)) {
+      ppm_pulses[ppm_cur_pulse] = ppm_width;
       ppm_cur_pulse++;
       if (ppm_cur_pulse == RADIO_CTL_NB) {
         ppm_data_valid = true;
