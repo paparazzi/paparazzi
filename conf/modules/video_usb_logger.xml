@@ -7,12 +7,14 @@
       Logs attitude and position to a csv and images to jpeg files (only for linux).
     </description>
     <define name="VIDEO_USB_LOGGER_PATH" description="Logging path"/>
+    <define name="VIDEO_USBLOG_CAMERA" value="front_camera|bottom_camera" description="Video device to log"/>
   </doc>
   <depends>video_rtp_stream</depends>
   <header>
     <file name="video_usb_logger.h"/>
   </header>
-  <periodic fun="video_usb_logger_periodic()" start="video_usb_logger_start()" stop="video_usb_logger_stop()" autorun="FALSE"/>
+  
+  <periodic fun="video_usb_logger_periodic()" start="video_usb_logger_start()" stop="video_usb_logger_stop()" autorun="TRUE"/>
   <makefile target="ap">
     <file name="video_usb_logger.c"/>
 
