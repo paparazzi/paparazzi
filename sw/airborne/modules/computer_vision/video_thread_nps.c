@@ -27,13 +27,12 @@
 // Own header
 #include "video_thread.h"
 #include "cv.h"
+#include "lib/vision/image.h"
+
 
 // Initialize the video_thread structure with the defaults
 struct video_thread_t video_thread = {
-  .is_running = FALSE,
-  .fps = 30,
-  .take_shot = FALSE,
-  .shot_number = 0
+  .is_running = FALSE
 };
 
 // All dummy functions
@@ -67,7 +66,7 @@ void video_thread_periodic(void)
   video_thread.is_running = ! video_thread.is_running;
 #endif
 
-  cv_run(&img);
+  cv_run_device(NULL,&img);
 
   image_free(&img);
 }
@@ -75,3 +74,5 @@ void video_thread_periodic(void)
 void video_thread_start(void) {}
 void video_thread_stop(void) {}
 void video_thread_take_shot(bool take __attribute__((unused))) {}
+
+bool add_video_device(struct video_config_t *device __attribute__((unused))){ return true; }

@@ -225,10 +225,18 @@ bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
     nav_flight_altitude = POS_BFP_OF_REAL(flight_altitude - state.ned_origin_f.hmsl); \
   }
 
-
+/// Get current x (east) position in local coordinates
 #define GetPosX() (stateGetPositionEnu_f()->x)
+/// Get current y (north) position in local coordinates
 #define GetPosY() (stateGetPositionEnu_f()->y)
+/// Get current altitude above MSL
 #define GetPosAlt() (stateGetPositionEnu_f()->z+state.ned_origin_f.hmsl)
+/**
+ * Get current altitude reference for local coordinates.
+ * This is the ground_alt from the flight plan at first,
+ * but might be updated later through a call to NavSetGroundReferenceHere() or
+ * NavSetAltitudeReferenceHere(), e.g. in the GeoInit flight plan block.
+ */
 #define GetAltRef() (state.ned_origin_f.hmsl)
 
 

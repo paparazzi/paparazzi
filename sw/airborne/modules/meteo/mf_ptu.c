@@ -62,8 +62,7 @@ uint16_t temp_adc;
 uint32_t humid_period;
 
 #if LOG_PTU
-#include "sdLog.h"
-#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "modules/loggers/sdlog_chibios.h"
 bool log_ptu_started;
 #endif
 

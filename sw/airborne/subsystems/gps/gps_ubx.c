@@ -189,8 +189,7 @@ void gps_ubx_read_message(void)
 }
 
 #if LOG_RAW_GPS
-#include "sdLog.h"
-#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "modules/loggers/sdlog_chibios.h"
 #endif
 
 /* UBX parsing */

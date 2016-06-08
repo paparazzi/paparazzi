@@ -26,28 +26,52 @@
  */
 
 #include "cv.h"
+#include <stdlib.h> // for malloc
 
-#define MAX_CV_FUNC 10
-
-int cv_func_cnt = 0;
-cvFunction cv_func[MAX_CV_FUNC];
-
-void cv_add(cvFunction func)
+void cv_add_to_device(struct video_config_t *device, cvFunction func)
 {
-  if (cv_func_cnt < (MAX_CV_FUNC - 1)) {
-    cv_func[cv_func_cnt] = func;
-    cv_func_cnt++;
+  // Initialise the device that we want our function to use
+  add_video_device(device);
+
+  // Create a new video listener
+  struct video_listener *new_listener = malloc(sizeof(struct video_listener));
+
+  // Assign function to listener
+  new_listener->next = NULL;
+  new_listener->func = func;
+
+  // Check if device already has a listener
+  if (device->pointer_to_first_listener == NULL) {
+    // Add as first listener
+    device->pointer_to_first_listener = new_listener;
+  } else {
+    // Create pointer to first listener
+    struct video_listener *listener = device->pointer_to_first_listener;
+
+    // Loop through linked list to last listener
+    while (listener->next != NULL)
+      listener = listener->next;
+
+    // Add listener to end
+    listener->next = new_listener;
   }
 }
 
-void cv_run(struct image_t *img)
+void cv_run_device(struct video_config_t *device, struct image_t *img)
 {
-  struct image_t* temp_image = img;
-  for (int i = 0; i < cv_func_cnt; i++) {
-    struct image_t* new_image = cv_func[i](temp_image);
-    if (new_image != 0)
-    {
-      temp_image = new_image;
-    }
+  // For each function added to a device, run this function with the image that was taken
+  struct video_listener *pointing_to = device->pointer_to_first_listener;
+
+  // Loop through computer vision pipeline
+  while (pointing_to != NULL) {
+    // Execute the cvFunction and catch result
+    struct image_t *result = pointing_to->func(img);
+
+    // If result gives an image pointer, use it in the next stage
+    if (result != NULL)
+      img = result;
+
+    // Move forward in the pipeline
+    pointing_to = pointing_to->next;
   }
 }

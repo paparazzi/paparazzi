@@ -37,8 +37,7 @@
 #include "autopilot.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
-#include "subsystems/chibios-libopencm3/sdLog.h"
-#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "modules/loggers/sdlog_chibios.h"
 
 #include "subsystems/gps.h"
 #include "modules/datalink/extra_pprz_dl.h"

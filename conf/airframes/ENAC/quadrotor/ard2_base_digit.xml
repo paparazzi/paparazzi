@@ -34,10 +34,9 @@
     <module name="agl_dist">
       <define name="USE_SONAR"/>
     </module>
-    <module name="video_thread">
-      <define name="VIDEO_THREAD_CAMERA" value="front_camera"/>
-    </module>
+   <module name="video_thread"/>
     <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
       <configure name="VIEWVIDEO_USE_NETCAT" value="FALSE"/>
     </module>
     <module name="rotorcraft_cam"/>

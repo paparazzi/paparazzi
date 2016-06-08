@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="rtos_mon" dir="core">
+  <doc>
+    <description>
+      RTOS monitoring tool
+
+      Reports:
+      - CPU load
+      - core and heap free memory
+      - number of threads, their load and free stack.
+
+      Can be used with ChibiOS implementation
+    </description>
+  </doc>
+  <header>
+    <file name="rtos_mon.h"/>
+  </header>
+  <init fun="rtos_mon_init()"/>
+  <periodic fun="rtos_mon_periodic()" freq="1" autorun="TRUE"/>
+  <makefile>
+    <file name="rtos_mon.c"/>
+    <file_arch name="rtos_mon_arch.c"/>
+  </makefile>
+</module>
+

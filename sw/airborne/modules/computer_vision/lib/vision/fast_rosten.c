@@ -51,9 +51,9 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
   uint16_t rsize = 512;
   int pixel[16];
   int16_t i;
-  uint16_t x, y, x_min, x_max, y_min, y_max;
+  uint16_t x, y, x_min, x_max, y_min;
   struct point_t *ret_corners = malloc(sizeof(struct point_t) * rsize);
-  uint8_t need_skip; 
+  uint8_t need_skip;
   // Set the pixel size
   uint8_t pixel_size = 1;
   if (img->type == IMAGE_YUV422) {
@@ -65,7 +65,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
 
   // Go trough all the pixels (minus the borders)
   for (y = 3 + y_padding; y < img->h - 3 - y_padding; y++) {
-    
+
     if (min_dist > 0) y_min = y - min_dist;
 
     for (x = 3 + x_padding; x < img->w - 3 - x_padding; x++) {
@@ -82,7 +82,7 @@ struct point_t *fast9_detect(struct image_t *img, uint8_t threshold, uint16_t mi
         i = corner_cnt-1;
         while( i >= 0) {
 
-          // corners are stored with increasing y, 
+          // corners are stored with increasing y,
           // so if we go from the last to the first, then their y-coordinate will go out of range
           if(ret_corners[i].y < y_min)
             break;

@@ -38,8 +38,7 @@
 
 // sd-log
 #if APOGEE_BARO_SDLOG
-#include "sdLog.h"
-#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "modules/loggers/sdlog_chibios.h"
 #include "subsystems/gps.h"
 bool log_apogee_baro_started;
 #endif
