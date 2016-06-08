@@ -28,7 +28,7 @@
 (** Exception raised when there's an attempt to encode a chunk incorrectly *)
 exception Invalid_encode_chunk of int
 
-open Compat
+
 
 (** The character map of all base64 characters *)
 

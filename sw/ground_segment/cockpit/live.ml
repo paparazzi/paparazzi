@@ -26,7 +26,7 @@ module G = MapCanvas
 open Latlong
 module LL = Latlong
 open Printf
-open Compat
+
 
 module Tele_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
 module Ground_Pprz = PprzLink.Messages(struct let name = "ground" end)

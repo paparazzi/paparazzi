@@ -23,7 +23,7 @@
  *)
 
 open Printf
-open Compat
+
 
 let (//) = Filename.concat
 let space_regexp = Str.regexp "[ \t]+"

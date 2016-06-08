@@ -26,7 +26,7 @@ let array_forall = fun f a ->
   Array.fold_right (fun x r -> f x && r) a true
 
 open Printf
-open Compat
+
 
 module LL = Latlong
 

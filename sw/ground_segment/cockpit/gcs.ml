@@ -25,7 +25,7 @@
 module G = MapCanvas
 open Printf
 open Latlong
-open Compat
+
 
 let locale = GtkMain.Main.init ~setlocale:false ()
 

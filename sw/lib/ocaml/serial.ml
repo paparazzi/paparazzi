@@ -23,7 +23,7 @@
  *)
 
 open Printf
-open Compat
+
 
 type speed =
     B0

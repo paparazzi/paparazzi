@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  *
  *)
-open Compat
+
 
 let default_background = "white"
 

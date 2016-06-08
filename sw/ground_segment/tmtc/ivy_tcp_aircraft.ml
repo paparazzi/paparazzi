@@ -3,7 +3,7 @@ module Tm_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
 module Dl_Pprz = PprzLink.Messages(struct let name = "datalink" end)
 module PprzTransport = Protocol.Transport(Pprz_transport.Transport)
 
-open Compat
+
 open Printf
 let () =
   let ivy_bus = ref Defivybus.default_ivy_bus  in

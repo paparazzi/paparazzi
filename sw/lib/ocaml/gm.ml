@@ -26,7 +26,7 @@ let (//) = Filename.concat
 
 open Latlong
 open Printf
-open Compat
+
 
 let tile_size = 256, 256
 let zoom_max = 22

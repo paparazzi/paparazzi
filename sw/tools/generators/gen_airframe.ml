@@ -24,7 +24,7 @@
 
 let max_pprz = 9600. (* !!!! MAX_PPRZ From paparazzi.h !!!! *)
 
-open Compat
+
 open Printf
 open Xml2h
 

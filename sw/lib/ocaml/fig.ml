@@ -23,7 +23,7 @@
 (** Creating FIG files ({{:http://www.xfig.org/userman/fig-format.html}format 3.2}) *)
 
 open Printf
-open Compat
+
 
 let version = "3.2"
 

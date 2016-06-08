@@ -1,4 +1,4 @@
-open Compat
+
 open Printf
 
 let () =

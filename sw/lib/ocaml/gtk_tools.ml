@@ -24,7 +24,7 @@
 
 (** GTK utilities
 *)
-open Compat
+
 
 class pixmap_in_drawin_area = fun ?drawing_area ?width ?height ?packing () ->
   let da =

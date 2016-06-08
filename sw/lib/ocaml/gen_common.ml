@@ -23,7 +23,7 @@
  *)
 
 open Printf
-open Compat
+
 
 (** simple boolean expressions *)
 type bool_expr =

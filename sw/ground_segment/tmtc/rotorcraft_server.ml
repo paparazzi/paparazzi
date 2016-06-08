@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  *
  *)
-open Compat
+
 open Printf
 open Server_globals
 open Aircraft

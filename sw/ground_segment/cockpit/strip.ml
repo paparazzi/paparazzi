@@ -23,7 +23,7 @@
  *)
 
 open Printf
-open Compat
+
 module LL=Latlong
 
 let (//) = Filename.concat

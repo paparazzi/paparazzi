@@ -22,7 +22,7 @@
  *
  *)
 
-open Compat
+
 open Printf
 open Server_globals
 open Aircraft

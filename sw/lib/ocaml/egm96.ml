@@ -23,7 +23,7 @@
  *)
 
 open Latlong
-open Compat
+
 
 let (//) = Filename.concat
 

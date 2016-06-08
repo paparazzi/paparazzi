@@ -8,7 +8,7 @@ ELSE
 module H = Http_client
 END
 
-open Compat
+
 
 let file_of_url = fun ?dest url ->
   if Compat.bytes_sub url 0 7 = "file://" then

@@ -24,7 +24,7 @@
  *)
 
 open Printf
-open Compat
+
 module U = Unix
 let (//) = Filename.concat
 let var_path = Env.paparazzi_home // "var"

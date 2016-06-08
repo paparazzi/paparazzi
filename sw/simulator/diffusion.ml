@@ -1,4 +1,4 @@
-open Compat
+
 open Printf
 
 module Ground_Pprz = PprzLink.Messages(struct let name = "ground" end)

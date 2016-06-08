@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  *
  *)
-open Compat
+
 
 let default_ivy_bus = Compat.bytes_copy (
   try (Sys.getenv "IVY_BUS" )

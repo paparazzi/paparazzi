@@ -41,37 +41,37 @@ let bytes_make = fun n c->
   BYTES.make n c
 
 let bytes_copy = fun s->
-	BYTES.copy s
+  BYTES.copy s
 
 let bytes_lowercase = fun s->
-	BYTES.lowercase s
+  BYTES.lowercase s
 
 let bytes_uppercase = fun s->
-	BYTES.uppercase s
+  BYTES.uppercase s
 
 let bytes_blit = fun src srcoff dst dstoff len->
-	BYTES.blit src srcoff dst dstoff len
+  BYTES.blit src srcoff dst dstoff len
 
 let bytes_sub = fun s start len->
-	BYTES.sub s start len
+  BYTES.sub s start len
 
 let bytes_index = fun c s ->
-	BYTES.index c s
+  BYTES.index c s
 
 let bytes_concat = fun sep sl->
-	BYTES.concat sep sl
+  BYTES.concat sep sl
 
 let bytes_index_from = fun s i c ->
-	BYTES.index_from s i c
+  BYTES.index_from s i c
 
 let bytes_get = fun s n->
-	BYTES.get s n
+  BYTES.get s n
 
 let bytes_compare = fun s1 s2->
-	BYTES.compare s1 s2
+  BYTES.compare s1 s2
 
 let bytes_set = fun s n c->
-	BYTES.set s n c
+  BYTES.set s n c
 
 let bytes_iter = fun f s->
   BYTES.iter f s

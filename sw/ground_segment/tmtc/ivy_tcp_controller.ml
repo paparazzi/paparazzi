@@ -1,4 +1,4 @@
-open Compat
+
 open Printf
 
 module Tm_Pprz = PprzLink.Messages(struct let name = "telemetry" end)

@@ -27,7 +27,7 @@ let gps_mode_3D = 3
 let no_md5_check = ref false
 let replay_old_log = ref false
 
-open Compat
+
 open Printf
 open Latlong
 open Server_globals

@@ -22,7 +22,7 @@
  *
  *)
 
-open Compat
+
 open Printf
 
 module Protocol = struct

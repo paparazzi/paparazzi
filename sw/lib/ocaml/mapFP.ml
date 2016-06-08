@@ -24,7 +24,7 @@
 
 open Printf
 open Latlong
-open Compat
+
 let (//) = Filename.concat
 
 let sof = string_of_float

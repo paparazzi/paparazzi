@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  *
  *)
-open Compat
+
 
 let current_os = ref "not_set"
 

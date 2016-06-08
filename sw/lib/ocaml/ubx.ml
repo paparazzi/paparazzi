@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  *
  *)
-open Compat
+
 
 module UbxProtocol = struct
   (** SYNC1 SYNC2 CLASS ID LENGTH(2) UBX_PAYLOAD CK_A CK_B

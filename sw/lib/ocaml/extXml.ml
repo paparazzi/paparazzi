@@ -23,7 +23,7 @@
  *)
 
 open Printf
-open Compat
+
 
 exception Error of string
 

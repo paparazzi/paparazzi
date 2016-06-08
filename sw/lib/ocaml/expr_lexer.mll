@@ -22,7 +22,7 @@
  *)
 {
 open Expr_parser
-open Compat
+
 }
 rule token = parse
     [' ' '\t' '\n'] { token lexbuf}

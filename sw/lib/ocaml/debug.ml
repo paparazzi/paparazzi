@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  *
  *)
-open Compat
+
 
 let level = ref (try Sys.getenv "PPRZ_DEBUG" with Not_found -> "")
 let log = ref stderr

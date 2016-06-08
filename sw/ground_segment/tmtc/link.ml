@@ -24,7 +24,7 @@
     the Ivy software bus.
 *)
 
-open Compat
+
 open Latlong
 open Printf
 

@@ -23,7 +23,7 @@
  *)
 
 open Printf
-open Compat
+
 module PC = Papget_common
 module PR = Papget_renderer
 module E = Expr_syntax

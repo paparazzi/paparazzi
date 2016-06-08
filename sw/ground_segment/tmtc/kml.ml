@@ -22,7 +22,7 @@
  *
  *)
 
-open Compat
+
 open Aircraft
 open Latlong
 open Printf

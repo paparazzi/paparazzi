@@ -1,6 +1,6 @@
 exception Telemetry_error of string * string
 
-open Compat
+
 (* options for serving xml config files and kml via http *)
 let hostname = ref "localhost"
 let port = ref 8889
