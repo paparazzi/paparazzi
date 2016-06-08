@@ -50,7 +50,8 @@
 
 // Frames Per Seconds
 #ifndef VIDEO_THREAD_FPS
-#define VIDEO_THREAD_FPS 30
+// #define VIDEO_THREAD_FPS 30
+#define VIDEO_THREAD_FPS 4 // Peng
 #endif
 PRINT_CONFIG_VAR(VIDEO_THREAD_FPS)
 
