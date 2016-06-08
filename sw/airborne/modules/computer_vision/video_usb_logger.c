@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2015 Christophe De Wagter
  * Copyright (C) 2016 Roland Meertens
  *
  * This file is part of paparazzi.
@@ -41,12 +42,12 @@
 #define VIDEO_USB_LOGGER_PATH /data/video/usb
 #endif
 
-#ifndef VIDEO_LOG_WIDTH
-#define VIDEO_LOG_WIDTH 272
+#ifndef VIDEO_USB_LOGGER_WIDTH
+#define VIDEO_USB_LOGGER_WIDTH 272
 #endif
 
-#ifndef VIDEO_LOG_HEIGHT
-#define VIDEO_LOG_HEIGHT 272
+#ifndef VIDEO_USB_LOGGER_HEIGHT
+#define VIDEO_USB_LOGGER_HEIGHT 272
 #endif
 
 /** The file pointer */
@@ -70,7 +71,7 @@ void save_shot(struct image_t *img, struct image_t *img_jpeg)
     // Create a high quality image (99% JPEG encoded)
     jpeg_encode_image(img, img_jpeg, 99, TRUE);
 
-#if JPEG_WITH_EXIF_HEADER
+#if VIDEO_USB_LOGGER_JPEG_WITH_EXIF_HEADER
     write_exif_jpeg(save_name, img_jpeg->buf, img_jpeg->buf_size, img_jpeg->w, img_jpeg->h);
 #else
     FILE *fp = fopen(save_name, "w");
@@ -115,7 +116,7 @@ struct image_t *log_image(struct image_t *img)
 void video_usb_logger_start(void)
 {
   // Create the jpeg image used later
-  image_create(&img_jpeg, VIDEO_LOG_WIDTH, VIDEO_LOG_HEIGHT, IMAGE_JPEG);
+  image_create(&img_jpeg, VIDEO_USB_LOGGER_WIDTH, VIDEO_USB_LOGGER_HEIGHT, IMAGE_JPEG);
 
   uint32_t counter = 0;
   char filename[512];
@@ -139,7 +140,7 @@ void video_usb_logger_start(void)
   }
 
   // Subscribe to a camera
-  cv_add_to_device(&VIDEO_USBLOG_CAMERA, log_image);
+  cv_add_to_device(&VIDEO_USB_LOGGER_CAMERA, log_image);
 }
 
 /** Stop the logger an nicely close the file */
