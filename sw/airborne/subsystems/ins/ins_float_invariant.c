@@ -439,9 +439,11 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
     }
 #else
     if (state.ned_initialized_f) {
-      struct EcefCoor_f ecef_pos, ecef_vel;
-      ECEF_FLOAT_OF_BFP(ecef_pos, gps_s->ecef_pos);
-      ned_of_ecef_point_f(&ins_float_inv.meas.pos_gps, &state.ned_origin_f, &ecef_pos);
+      struct NedCoor_i gps_pos_cm_ned, ned_pos;
+      ned_of_ecef_point_i(&gps_pos_cm_ned, &state.ned_origin_i, &gps_s->ecef_pos);
+      INT32_VECT3_SCALE_2(ned_pos, gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
+      NED_FLOAT_OF_BFP(ins_float_inv.meas.pos_gps, ned_pos);
+      struct EcefCoor_f ecef_vel;
       ECEF_FLOAT_OF_BFP(ecef_vel, gps_s->ecef_vel);
       ned_of_ecef_vect_f(&ins_float_inv.meas.speed_gps, &state.ned_origin_f, &ecef_vel);
     }
