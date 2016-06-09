@@ -70,7 +70,8 @@ struct HorizontalGuidanceSetpoint {
   struct Int32Vect2 pos;
   struct Int32Vect2 speed;  ///< only used in HOVER mode if GUIDANCE_H_USE_SPEED_REF or in GUIDED mode
   int32_t heading;          ///< with #INT32_ANGLE_FRAC
-  uint8_t mask;             ///< bit 4: vx, bit 5: vy, bit 6: vz, bit 7: vyaw
+  int32_t heading_rate;     ///< with #INT32_RATE_FRAC
+  uint8_t mask;             ///< bit 5: vx & vy, bit 6: vz, bit 7: vyaw
 };
 
 struct HorizontalGuidanceReference {
@@ -132,6 +133,12 @@ extern bool guidance_h_set_guided_heading(float heading);
  * @return TRUE if setpoints were set (currently in GUIDANCE_H_MODE_GUIDED)
  */
 extern bool guidance_h_set_guided_vel(float vx, float vy);
+
+/** Set heading rate setpoint in GUIDED mode.
+ * @param rate Heading rate in radians.
+ * @return TRUE if setpoints were set (currently in GUIDANCE_H_MODE_GUIDED)
+ */
+extern bool guidance_h_set_guided_heading_rate(float rate);
 
 /* Make sure that ref can only be temporarily disabled for testing,
  * but not enabled if GUIDANCE_H_USE_REF was defined to FALSE.

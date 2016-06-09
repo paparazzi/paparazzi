@@ -91,7 +91,7 @@ class Guidance(object):
         """
         msg = PprzMessage("datalink", "GUIDED_SETPOINT_NED")
         msg['ac_id'] = self.ac_id
-        msg['flags'] = 0x01
+        msg['flags'] = 0x0C
         msg['x'] = north
         msg['y'] = east
         msg['z'] = down
@@ -105,7 +105,7 @@ class Guidance(object):
         """
         msg = PprzMessage("datalink", "GUIDED_SETPOINT_NED")
         msg['ac_id'] = self.ac_id
-        msg['flags'] = 0x03
+        msg['flags'] = 0x0E
         msg['x'] = forward
         msg['y'] = right
         msg['z'] = down
@@ -113,23 +113,37 @@ class Guidance(object):
         print("goto body relative: %s" % msg)
         self._interface.send_raw_datalink(msg)
 
-    def move_at_vel(self, north=0.0, east=0.0, down=0.0, yaw=0.0):
+    def move_at_ned_vel(self, north=0.0, east=0.0, down=0.0, yaw=0.0):
         """
         move at specified velocity in meters/sec with absolute heading (if already in GUIDED mode)
         """
         msg = PprzMessage("datalink", "GUIDED_SETPOINT_NED")
         msg['ac_id'] = self.ac_id
-        msg['flags'] = 0x70
+        msg['flags'] = 0x60
         msg['x'] = north
         msg['y'] = east
         msg['z'] = down
         msg['yaw'] = yaw
         print("move at vel NED: %s" % msg)
         self._interface.send_raw_datalink(msg)
+        
+    def move_at_body_vel(self, forward=0.0, right=0.0, down=0.0, yaw=0.0):
+        """
+        move at specified velocity in meters/sec with absolute heading (if already in GUIDED mode)
+        """
+        msg = PprzMessage("datalink", "GUIDED_SETPOINT_NED")
+        msg['ac_id'] = self.ac_id
+        msg['flags'] = 0x62
+        msg['x'] = forward
+        msg['y'] = right
+        msg['z'] = down
+        msg['yaw'] = yaw
+        print("move at vel body: %s" % msg)
+        self._interface.send_raw_datalink(msg)
 
 
 if __name__ == '__main__':
-    ac_id = 40
+    ac_id = 33
     try:
         g = Guidance(ac_id)
         sleep(0.1)
@@ -139,9 +153,9 @@ if __name__ == '__main__':
         sleep(10)
         g.goto_ned_relative(north=-5.0, east=-5.0, down=-2.0, yaw=-radians(45))
         sleep(10)
-        g.goto_body_relative(forward=0.0, right=5.0, down=2.0)
+        g.goto_body_relative(forward=1.0, right=0.0, down=0.0)
         sleep(10)
-        g.move_at_vel(north=3.0)
+        g.move_at_body_vel(forward=3.0)
         sleep(10)
         g.set_nav_mode()
         sleep(0.2)
