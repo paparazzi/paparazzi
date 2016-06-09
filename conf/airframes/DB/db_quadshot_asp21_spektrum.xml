@@ -49,8 +49,8 @@
     <let var="forward_right" value="aileron_gain*$aileron_feedback_right+elevator_gain*$elevator_feedback_right"/>-->
 
 <!--     if using PID with gain scheduling -->
-    <let var="forward_left"  value="15*$aileron_feedback_left + 15*$elevator_feedback_left"/>
-    <let var="forward_right" value="15*$aileron_feedback_right + 15*$elevator_feedback_right"/>
+    <let var="forward_left"  value="5*$aileron_feedback_left + 4*$elevator_feedback_left"/>
+    <let var="forward_right" value="5*$aileron_feedback_right + 4*$elevator_feedback_right"/>
 
     <!-- This statement tells the autopilot to use the hover feedback if in mode attitude direct and to use the forward feedback in all other cases-->
     <set servo="ELEVON_LEFT"    value="AP_MODE == AP_MODE_ATTITUDE_DIRECT ? $hover_left  : $forward_left" />
@@ -90,12 +90,19 @@
     <define name="ACCEL_Y_SENS" value="4.89957269597" integer="16"/>
     <define name="ACCEL_Z_SENS" value="4.82616398266" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="104"/>
-    <define name="MAG_Y_NEUTRAL" value="9"/>
-    <define name="MAG_Z_NEUTRAL" value="15"/>
-    <define name="MAG_X_SENS" value="3.57880347067" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.54049742843" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.0620533034" integer="16"/>
+<!--     <define name="MAG_X_NEUTRAL" value="104"/> -->
+<!--     <define name="MAG_Y_NEUTRAL" value="9"/> -->
+<!--     <define name="MAG_Z_NEUTRAL" value="15"/> -->
+<!--     <define name="MAG_X_SENS" value="3.57880347067" integer="16"/> -->
+<!--     <define name="MAG_Y_SENS" value="3.54049742843" integer="16"/> -->
+<!--     <define name="MAG_Z_SENS" value="4.0620533034" integer="16"/> -->
+
+	<define name="MAG_X_NEUTRAL" value="-86"/>
+	<define name="MAG_Y_NEUTRAL" value="-36"/>
+	<define name="MAG_Z_NEUTRAL" value="35"/>
+	<define name="MAG_X_SENS" value="3.98639595061" integer="16"/>
+	<define name="MAG_Y_SENS" value="4.00632407649" integer="16"/>
+	<define name="MAG_Z_SENS" value="4.17946082997" integer="16"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -107,7 +114,7 @@
   <section name="AUTOPILOT">
     <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_FORWARD"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
 
 <!--     <define name="USE_YAW_FOR_MOTOR_ARMING" value="TRUE"/> -->
   </section>
@@ -336,9 +343,9 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
     <subsystem name="radio_control" type="spektrum">
-      <define name="RADIO_KILL_SWITCH" value="6"/>
+      <define name="RADIO_KILL_SWITCH" value="5"/>
       <!-- Put the mode on channel AUX1-->
-<!--      <define name="RADIO_MODE" value="RADIO_AUX1"/>-->
+      <define name="RADIO_MODE" value="6"/>
 <!--       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/> -->
     </subsystem>
 
@@ -352,6 +359,7 @@
 
       <!-- If using aspirin 2.2, make sure to uncomment the following barometer configuration: -->
       <!--       <configure name="LISA_M_BARO" value="BARO_MS5611_SPI"/> -->
+      <configure name="LISA_M_BARO" value="BARO_BOARD_BMP085"/>
     </target>
 
     <subsystem name="motor_mixing"/>

@@ -1,5 +1,3 @@
-<!DOCTYPE layout SYSTEM "../layout.dtd">
-
 <layout width="1301" height="744">
   <columns>
     <rows SIZE="400">
@@ -17,20 +15,6 @@
           <property name="size" value="15."/>
           <property name="color" value="yellow"/>
         </papget>
-        <papget type="message_field" display="text" x="756" y="315">
-          <property name="scale" value="0.01"/>
-          <property name="field" value="GPS_INT:pacc"/>
-          <property name="format" value="GPS Acc %.2f m"/>
-          <property name="size" value="15."/>
-          <property name="color" value="yellow"/>
-        </papget>
-        <papget type="message_field" display="text" x="644" y="317">
-          <property name="scale" value="1."/>
-          <property name="field" value="GPS_INT:numsv"/>
-          <property name="format" value="GPS SV %.0f"/>
-          <property name="size" value="15."/>
-          <property name="color" value="yellow"/>
-        </papget>
         <papget type="message_field" display="gauge" x="41" y="291">
           <property name="scale" value="1."/>
           <property name="field" value="ROTORCRAFT_FP:thrust"/>
@@ -43,6 +27,34 @@
           <property name="scale" value="0.0139882"/>
           <property name="field" value="ROTORCRAFT_FP:psi"/>
           <property name="format" value="Body Heading %.2f deg"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="756" y="315">
+          <property name="scale" value="0.01"/>
+          <property name="field" value="GPS_INT:pacc"/>
+          <property name="format" value="GPS Acc %.2f m"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="786" y="100">
+          <property name="scale" value="0.0039063"/>
+          <property name="field" value="ROTORCRAFT_FP:up"/>
+          <property name="format" value="Up %.2f m"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="644" y="317">
+          <property name="scale" value="1."/>
+          <property name="field" value="GPS_INT:numsv"/>
+          <property name="format" value="GPS SV %.0f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="727" y="72">
+          <property name="scale" value="0.001"/>
+          <property name="field" value="GPS_INT:hmsl"/>
+          <property name="format" value="GPS HMSL %.2f m"/>
           <property name="size" value="15."/>
           <property name="color" value="yellow"/>
         </papget>
