@@ -219,4 +219,25 @@ extern bool autopilot_guided_goto_body_relative(float dx, float dy, float dz, fl
  */
 extern bool autopilot_guided_move_ned(float vx, float vy, float vz, float heading);
 
+/** Set guided setpoints using flag mask in GUIDED mode.
+ * @param flags Bits 0-3 are used to determine the axis system to be used.
+ * If bits 0 and 1 are clear then the coordinates are set in absolute NE coordinates.
+ * If bit 1 is set bit 0 is ignored.
+ * Bits 5-7 define whether the setpoints should be used as position or velocity.
+ * Bit flags are defined as follows:
+      bit 0: x,y as offset coordinates
+      bit 1: x,y in body coordinates
+      bit 2: z as offset coordinates
+      bit 3: yaw as offset coordinates
+      bit 4: free
+      bit 5: x,y as vel
+      bit 6: z as vel
+      bit 7: yaw as rate
+ * @param x North position/velocity in meters or meters/sec.
+ * @param y East position/velocity in meters or meters/sec.
+ * @param z Down position/velocity in meters or meters/sec.
+ * @param yaw Heading or heading rate setpoint in radians or radians/sec.
+ */
+extern void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw);
+
 #endif /* AUTOPILOT_H */
