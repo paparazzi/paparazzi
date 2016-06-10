@@ -88,6 +88,7 @@ if __name__ == '__main__':
     viewer = RtpViewer("rtp_viewer.sdp")
 
     if not viewer.cap.isOpened():
+        viewer.cleanup()
         sys.exit("Can't open video stream")
 
     viewer.run()
