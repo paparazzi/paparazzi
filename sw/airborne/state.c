@@ -954,10 +954,11 @@ void stateCalcAccelNed_i(void)
   }
 
   int errno = 0;
-  if (state.ned_initialized_i) {
-    if (bit_is_set(state.accel_status, ACCEL_NED_F)) {
-      ACCELS_BFP_OF_REAL(state.ned_accel_i, state.ned_accel_f);
-    } else if (bit_is_set(state.accel_status, ACCEL_ECEF_I)) {
+  if (bit_is_set(state.accel_status, ACCEL_NED_F)) {
+    ACCELS_BFP_OF_REAL(state.ned_accel_i, state.ned_accel_f);
+  }
+  else if (state.ned_initialized_i) {
+    if (bit_is_set(state.accel_status, ACCEL_ECEF_I)) {
       ned_of_ecef_vect_i(&state.ned_accel_i, &state.ned_origin_i, &state.ecef_accel_i);
     } else if (bit_is_set(state.accel_status, ACCEL_ECEF_F)) {
       /* transform ecef_f -> ecef_i -> ned_i , set status bits */
@@ -984,20 +985,26 @@ void stateCalcAccelEcef_i(void)
     return;
   }
 
+  int errno = 0;
   if (bit_is_set(state.accel_status, ACCEL_ECEF_F)) {
     ACCELS_BFP_OF_REAL(state.ecef_accel_i, state.ecef_accel_f);
-  } else if (bit_is_set(state.accel_status, ACCEL_NED_I)) {
-    ecef_of_ned_vect_i(&state.ecef_accel_i, &state.ned_origin_i, &state.ned_accel_i);
-  } else if (bit_is_set(state.accel_status, ACCEL_NED_F)) {
-    /* transform ned_f -> ned_i -> ecef_i , set status bits */
-    ACCELS_BFP_OF_REAL(state.ned_accel_i, state.ned_accel_f);
-    SetBit(state.accel_status, ACCEL_NED_I);
-    ecef_of_ned_vect_i(&state.ecef_accel_i, &state.ned_origin_i, &state.ned_accel_i);
-  } else {
-    /* could not get this representation,  set errno */
-    //struct EcefCoor_i _ecef_zero = {0};
-    //return _ecef_zero;
   }
+  else if (state.ned_initialized_i) {
+    if (bit_is_set(state.accel_status, ACCEL_NED_I)) {
+      ecef_of_ned_vect_i(&state.ecef_accel_i, &state.ned_origin_i, &state.ned_accel_i);
+    } else if (bit_is_set(state.accel_status, ACCEL_NED_F)) {
+      /* transform ned_f -> ned_i -> ecef_i , set status bits */
+      ACCELS_BFP_OF_REAL(state.ned_accel_i, state.ned_accel_f);
+      SetBit(state.accel_status, ACCEL_NED_I);
+      ecef_of_ned_vect_i(&state.ecef_accel_i, &state.ned_origin_i, &state.ned_accel_i);
+    } else {
+      /* could not get this representation,  set errno */
+      errno = 1;
+    }
+  } else { /* ned coordinate system not initialized,  set errno */
+    errno = 2;
+  }
+  if (errno) {}
   /* set bit to indicate this representation is computed */
   SetBit(state.accel_status, ACCEL_ECEF_I);
 }
@@ -1009,10 +1016,11 @@ void stateCalcAccelNed_f(void)
   }
 
   int errno = 0;
-  if (state.ned_initialized_f) {
-    if (bit_is_set(state.accel_status, ACCEL_NED_I)) {
-      ACCELS_FLOAT_OF_BFP(state.ned_accel_f, state.ned_accel_i);
-    } else if (bit_is_set(state.accel_status, ACCEL_ECEF_F)) {
+  if (bit_is_set(state.accel_status, ACCEL_NED_I)) {
+    ACCELS_FLOAT_OF_BFP(state.ned_accel_f, state.ned_accel_i);
+  }
+  else if (state.ned_initialized_f) {
+    if (bit_is_set(state.accel_status, ACCEL_ECEF_F)) {
       ned_of_ecef_vect_f(&state.ned_accel_f, &state.ned_origin_f, &state.ecef_accel_f);
     } else if (bit_is_set(state.accel_status, ACCEL_ECEF_I)) {
       /* transform ecef_i -> ecef_f -> ned_f , set status bits */
@@ -1039,20 +1047,26 @@ void stateCalcAccelEcef_f(void)
     return;
   }
 
+  int errno = 0;
   if (bit_is_set(state.accel_status, ACCEL_ECEF_I)) {
     ACCELS_FLOAT_OF_BFP(state.ecef_accel_f, state.ned_accel_i);
-  } else if (bit_is_set(state.accel_status, ACCEL_NED_F)) {
-    ecef_of_ned_vect_f(&state.ecef_accel_f, &state.ned_origin_f, &state.ned_accel_f);
-  } else if (bit_is_set(state.accel_status, ACCEL_NED_I)) {
-    /* transform ned_f -> ned_i -> ecef_i , set status bits */
-    ACCELS_FLOAT_OF_BFP(state.ned_accel_f, state.ned_accel_i);
-    SetBit(state.accel_status, ACCEL_NED_F);
-    ecef_of_ned_vect_f(&state.ecef_accel_f, &state.ned_origin_f, &state.ned_accel_f);
-  } else {
-    /* could not get this representation,  set errno */
-    //struct EcefCoor_f _ecef_zero = {0.0f};
-    //return _ecef_zero;
   }
+  else if (state.ned_initialized_f) {
+    if (bit_is_set(state.accel_status, ACCEL_NED_F)) {
+      ecef_of_ned_vect_f(&state.ecef_accel_f, &state.ned_origin_f, &state.ned_accel_f);
+    } else if (bit_is_set(state.accel_status, ACCEL_NED_I)) {
+      /* transform ned_f -> ned_i -> ecef_i , set status bits */
+      ACCELS_FLOAT_OF_BFP(state.ned_accel_f, state.ned_accel_i);
+      SetBit(state.accel_status, ACCEL_NED_F);
+      ecef_of_ned_vect_f(&state.ecef_accel_f, &state.ned_origin_f, &state.ned_accel_f);
+    } else {
+      /* could not get this representation,  set errno */
+      errno = 1;
+    }
+  } else { /* ned coordinate system not initialized,  set errno */
+    errno = 2;
+  }
+  if (errno) {}
   /* set bit to indicate this representation is computed */
   SetBit(state.accel_status, ACCEL_ECEF_F);
 }
