@@ -36,17 +36,18 @@ using namespace cv;
 
 void color_opencv_to_yuv422(Mat image, char *img, int width, int height)
 {
+  // Convert to YUV color space
+  cvtColor(image, image, COLOR_BGR2YUV);
 
-//Turn the opencv RGB colored image back in a YUV colored image for the drone
   for (int row = 0; row < height; row++) {
     for (int col = 0; col < width; col++) {
-      cv::Vec3b pixelHere = image.at<cv::Vec3b>(row, col);
-      img[(row * width + col) * 2 + 1] = 0.299 * pixelHere[0] + 0.587 * pixelHere[1] + 0.114 * pixelHere[2];
-      if (col % 2 == 0) { // U
-        img[(row * width + col) * 2] = 0.492 * (pixelHere[2] - img[(row * width + col) * 2 + 1] + 127);
-      } else { // V
-        img[(row * width + col) * 2] = 0.877 * (pixelHere[0] - img[(row * width + col) * 2 + 1] + 127);
-      }
+      // Extract pixel color from image
+      cv::Vec3b &c = image.at<cv::Vec3b>(row, col);
+
+      // Set image buffer values
+      int i = row * width + col;
+      img[2 * i + 1] = c[0]; // y;
+      img[2 * i] = col % 2 ? c[1] : c[2]; // u or v
     }
   }
 }
