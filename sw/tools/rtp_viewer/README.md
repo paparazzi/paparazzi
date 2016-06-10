@@ -9,4 +9,5 @@ The file can be modified to change the stream port, in conjunction with the vide
 VIEWVIDEO_PORT_OUT.
 
 rtp_stream.py opens the stream and displays the frames in a window. OpenCV can be further be used to
-post-process the stream.
+post-process the stream. One can select a region of interest in the viewer to send a VIDEO_ROI message to the
+datalink. While dragging a region, the right mouse button will cancel the selection.
