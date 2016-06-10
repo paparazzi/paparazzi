@@ -41,7 +41,7 @@ def on_mouse(event, x, y, flags, param):
 
         mouse_begin = None
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("rtp_viewer.sdp")
 
 if not cap.isOpened():
     sys.exit("Can't open video stream")
