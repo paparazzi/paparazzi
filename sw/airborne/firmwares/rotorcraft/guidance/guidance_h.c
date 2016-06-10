@@ -677,6 +677,14 @@ bool guidance_h_set_guided_heading(float heading)
   return false;
 }
 
+bool guidance_h_set_guided_body_vel(float vx, float vy)
+{
+  float psi = stateGetNedToBodyEulers_f()->psi;
+  vx =  cosf(-psi) * vx + sinf(-psi) * vy;
+  vy = -sinf(-psi) * vx + cosf(-psi) * vy;
+  return guidance_h_set_guided_vel(vx, vy);
+}
+
 bool guidance_h_set_guided_vel(float vx, float vy)
 {
   if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {

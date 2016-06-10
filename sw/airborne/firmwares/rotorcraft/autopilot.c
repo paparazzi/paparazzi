@@ -598,9 +598,7 @@ void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw
   // handle x,y
   if (bit_is_set(flags, 5)) { // velocity setpoint
     if (bit_is_set(flags, 1)) { // set velocity in body frame
-      float psi = stateGetNedToBodyEulers_f()->psi;
-      x =  cosf(-psi) * x + sinf(-psi) * y;
-      y = -sinf(-psi) * x + cosf(-psi) * y;
+      guidance_h_set_guided_body_vel(x, y);
     }
     guidance_h_set_guided_vel(x, y);
   } else {  // position setpoint
