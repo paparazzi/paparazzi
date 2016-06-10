@@ -81,8 +81,8 @@ static void integrate(uint8_t wp_target)
   int i = 0;
   while (nav_drop_z > 0. && i < MAX_STEPS) {
     /* relative wind experienced by the ball (wind in NED frame) */
-    float airx = -nav_drop_vx + stateGetHorizontalWindspeed_f()->y;
-    float airy = -nav_drop_vy + stateGetHorizontalWindspeed_f()->x;
+    float airx = -nav_drop_vx + stateGetHorizontalWindspeed_f().y;
+    float airy = -nav_drop_vy + stateGetHorizontalWindspeed_f().x;
     float airz = -nav_drop_vz;
 
     /* alpha / m * air */
@@ -161,12 +161,12 @@ unit_t nav_drop_compute_approach(uint8_t wp_target, uint8_t wp_start, uint8_t wp
 
   // wind in NED frame
   if (stateIsAirspeedValid()) {
-    nav_drop_vx = x1 * stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->y;
-    nav_drop_vy = y_1 * stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->x;
+    nav_drop_vx = x1 * stateGetAirspeed_f() + stateGetHorizontalWindspeed_f().y;
+    nav_drop_vy = y_1 * stateGetAirspeed_f() + stateGetHorizontalWindspeed_f().x;
   } else {
     // use approximate airspeed, initially set to AIRSPEED_AT_RELEASE
-    nav_drop_vx = x1 * airspeed + stateGetHorizontalWindspeed_f()->y;
-    nav_drop_vy = y_1 * airspeed + stateGetHorizontalWindspeed_f()->x;
+    nav_drop_vx = x1 * airspeed + stateGetHorizontalWindspeed_f().y;
+    nav_drop_vy = y_1 * airspeed + stateGetHorizontalWindspeed_f().x;
   }
   nav_drop_vz = 0.;
 

@@ -66,6 +66,7 @@ void init_mf_daq(void)
 
 void mf_daq_send_state(void)
 {
+  struct FloatVect2 wind = stateGetHorizontalWindspeed_f();
   // Send aircraft state to DAQ board
   DOWNLINK_SEND_MF_DAQ_STATE(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,
                              &autopilot_flight_time,
@@ -84,8 +85,7 @@ void mf_daq_send_state(void)
                              &stateGetPositionLla_f()->lat,
                              &stateGetPositionLla_f()->lon,
                              &stateGetPositionLla_f()->alt,
-                             &stateGetHorizontalWindspeed_f()->y,
-                             &stateGetHorizontalWindspeed_f()->x);
+                             &wind.y, &wind.x);
 }
 
 void mf_daq_send_report(void)
@@ -105,7 +105,7 @@ void mf_daq_send_report(void)
     uint8_t foo = 0;
     int16_t climb = -gps.ned_vel.z;
     int16_t course = (DegOfRad(gps.course) / ((int32_t)1e6));
-    struct UtmCoor_f utm = stateGetPositionEnu_f();
+    struct UtmCoor_f utm = *stateGetPositionUtm_f();
     int32_t east = utm.east * 100;
     int32_t north = utm.north * 100;
     DOWNLINK_SEND_GPS(pprzlog_tp, chibios_sdlog, &gps.fix,
@@ -123,6 +123,7 @@ void parse_mf_daq_msg(void)
     float *buf = (float*)(dl_buffer+3);
     memcpy(mf_daq.values, buf, mf_daq.nb * sizeof(float));
     // Log on SD card
+    struct FloatVect2 wind = stateGetHorizontalWindspeed_f();
     if (log_started) {
       DOWNLINK_SEND_PAYLOAD_FLOAT(pprzlog_tp, chibios_sdlog, mf_daq.nb, mf_daq.values);
       DOWNLINK_SEND_MF_DAQ_STATE(pprzlog_tp, chibios_sdlog,
@@ -142,8 +143,7 @@ void parse_mf_daq_msg(void)
                                  &stateGetPositionLla_f()->lat,
                                  &stateGetPositionLla_f()->lon,
                                  &stateGetPositionLla_f()->alt,
-                                 &stateGetHorizontalWindspeed_f()->y,
-                                 &stateGetHorizontalWindspeed_f()->x);
+                                 &wind.y, &wind.x);
     }
   }
 }

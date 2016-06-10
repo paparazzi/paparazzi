@@ -45,11 +45,11 @@
     <!-- <module name="mcp355x"> -->
     <!--   <define name="USE_SPI1"/> -->
     <!-- </module> -->
-    <!--module name="extra_dl">
+    <module name="extra_dl">
       <configure name="EXTRA_DL_PORT" value="UART6"/>
       <configure name="EXTRA_DL_BAUD" value="B57600"/>
     </module>
-    <module name="meteo_france_DAQ"/-->
+    <module name="meteo_france_DAQ"/>
   </firmware>
 
   <firmware name="test_chibios">
