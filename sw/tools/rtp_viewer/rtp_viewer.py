@@ -53,6 +53,9 @@ class RtpViewer:
         if event == cv2.EVENT_LBUTTONDOWN:
             self.mouse['start'] = (x, y)
 
+        if event == cv2.EVENT_RBUTTONDOWN:
+            self.mouse['start'] = None
+
         if event == cv2.EVENT_MOUSEMOVE:
             self.mouse['now'] = (x, y)
 
