@@ -193,10 +193,10 @@ static int b2_hff_rb_n; ///< ringbuffer fill count
 
 
 /** by how many steps the estimated GPS validity point in time differed from GPS_LAG_N */
-static int lag_counter_err;
+static int16_t lag_counter_err;
 
 /** counts down the propagation steps until the filter state is saved again */
-static int save_counter;
+static int16_t save_counter;
 static int past_save_counter;
 #define SAVE_NOW 0
 #define SAVING -1
