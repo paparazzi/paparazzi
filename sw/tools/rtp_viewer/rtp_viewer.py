@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 import cv2
 import sys
 
