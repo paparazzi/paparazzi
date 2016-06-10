@@ -2,68 +2,94 @@
 
 import cv2
 import sys
-
 from os import path, getenv
 
 PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../')))
-sys.path.append(PPRZ_SRC + "/sw/lib/python")
 sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
-mouse_begin = None
-mouse_current = None
 
-def on_mouse(event, x, y, flags, param):
-    global mouse_begin, mouse_current, frame
+class RtpViewer:
+    frame = None
+    mouse = dict()
 
-    if event == cv2.EVENT_LBUTTONDOWN:
-        mouse_begin = (x, y)
+    def __init__(self, src):
+        # Create the video capture device
+        self.cap = cv2.VideoCapture(src)
 
-    if event == cv2.EVENT_MOUSEMOVE:
-        mouse_current = (x, y)
+        # Start the ivy interface
+        self.ivy = IvyMessagesInterface("RTPviewer", start_ivy=False)
+        self.ivy.start()
 
-    if event == cv2.EVENT_LBUTTONUP:
-        if not mouse_begin:
-            return
+        # Create a named window and add a mouse callback
+        cv2.namedWindow('rtp')
+        cv2.setMouseCallback('rtp', self.on_mouse)
 
-        msg = PprzMessage("datalink", "VIDEO_ROI")
+    def run(self):
+        # Start an 'infinite' loop
+        while True:
+            # Read a frame from the video capture
+            ret, self.frame = self.cap.read()
 
-        msg['ac_id'] = None
-        msg['startx'] = mouse_begin[0]
-        msg['starty'] = mouse_begin[1]
-        msg['width'] = abs(x - mouse_begin[0])
-        msg['height'] = abs(y - mouse_begin[1])
-        msg['downsized_width'] = frame.shape[1]
+            # Quit if frame could not be retrieved or 'q' is pressed
+            if not ret or cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
-        ivy_interface.send_raw_datalink(msg)
+            # Run the computer vision function
+            self.cv()
 
-        mouse_begin = None
+    def cv(self):
+        # If a selection is happening
+        if self.mouse.get('start'):
+            # Draw a rectangle indicating the region of interest
+            cv2.rectangle(self.frame, self.mouse['start'], self.mouse['now'], (0, 255, 0), 2)
 
-cap = cv2.VideoCapture("rtp_viewer.sdp")
+        # Show the image in a window
+        cv2.imshow('rtp', self.frame)
 
-if not cap.isOpened():
-    sys.exit("Can't open video stream")
+    def on_mouse(self, event, x, y, flags, param):
+        if event == cv2.EVENT_LBUTTONDOWN:
+            self.mouse['start'] = (x, y)
 
-cv2.namedWindow('rtp')
-cv2.setMouseCallback('rtp', on_mouse)
+        if event == cv2.EVENT_MOUSEMOVE:
+            self.mouse['now'] = (x, y)
 
-ivy_interface = IvyMessagesInterface("RTPviewer", start_ivy=False)
-ivy_interface.start()
+        if event == cv2.EVENT_LBUTTONUP:
+            # If mouse start is defined, a region has been selected
+            if not self.mouse.get('start'):
+                return
 
-while True:
-    # Read a frame from the video capture
-    ret, frame = cap.read()
+            # Obtain mouse start coordinates
+            sx, sy = self.mouse['start']
 
-    # Quit if frame could not be retrieved or 'q' is pressed
-    if not ret or cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+            # Create a new message
+            msg = PprzMessage("datalink", "VIDEO_ROI")
+            msg['ac_id'] = None
+            msg['startx'] = sx
+            msg['starty'] = sy
+            msg['width'] = abs(x - sx)
+            msg['height'] = abs(y - sy)
+            msg['downsized_width'] = self.frame.shape[1]
 
-    if mouse_begin:
-        cv2.rectangle(frame, mouse_begin, mouse_current, (0, 255, 0))
+            # Send message via the ivy interface
+            self.ivy.send_raw_datalink(msg)
 
-    # Show the image in a window
-    cv2.imshow('rtp', frame)
+            # Reset mouse start
+            self.mouse['start'] = None
 
-ivy_interface.shutdown()
+    def cleanup(self):
+        # Shutdown ivy interface
+        self.ivy.shutdown()
+
+
+if __name__ == '__main__':
+    viewer = RtpViewer("rtp_viewer.sdp")
+
+    if not viewer.cap.isOpened():
+        sys.exit("Can't open video stream")
+
+    viewer.run()
+    viewer.cleanup()
+
