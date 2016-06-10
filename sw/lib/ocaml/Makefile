@@ -52,8 +52,15 @@ endif
 CAMLP4_DEFS ?=
 NETCLIENT_VER := $(shell ocamlfind query -format '%v' netclient)
 NETCLIENT_MAJOR := $(shell echo $(NETCLIENT_VER) | cut -f1 -d.)
+NETCLIENT_MINOR1 := $(shell echo $(NETCLIENT_VER) | cut -f2 -d.)
+NETCLIENT_MINOR2 := $(shell echo $(NETCLIENT_VER) | cut -f3 -d.)
 ifeq ($(shell test $(NETCLIENT_MAJOR) -ge 4; echo $$?),0)
 CAMLP4_DEFS += -DNETCLIENT_V_4
+ifeq ($(shell test $(NETCLIENT_MINOR2) -ge 4; echo $$?),0)
+CAMLP4_DEFS += -DNETCLIENT_V_404
+else ifeq ($(shell test $(NETCLIENT_MINOR1) -g 0; echo $$?),0)
+CAMLP4_DEFS += -DNETCLIENT_V_404
+endif
 endif
 OCAMLC_VER := $(shell ocamlc -version)
 OCAMLC_MAJOR := $(shell echo $(OCAMLC_VER) | cut -f1 -d.)
