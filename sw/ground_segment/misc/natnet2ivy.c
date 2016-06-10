@@ -56,7 +56,7 @@ char *natnet_multicast_addr     = "239.255.42.99";
 uint16_t natnet_cmd_port        = 1510;
 uint16_t natnet_data_port       = 1511;
 uint8_t natnet_major            = 2;
-uint8_t natnet_minor            = 7;
+uint8_t natnet_minor            = 9;
 
 /** Logging */
 FILE *fp;
@@ -338,7 +338,7 @@ void natnet_parse(unsigned char *in)
           printf_natnet("pos: [%3.2f,%3.2f,%3.2f]\n", x, y, z);
           printf_natnet("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
 
-          // Sssociated marker positions
+          // Associated marker positions
           int nRigidMarkers = 0;  memcpy(&nRigidMarkers, ptr, 4); ptr += 4;
           printf_natnet("Marker Count: %d\n", nRigidMarkers);
           int nBytes = nRigidMarkers * 3 * sizeof(float);
@@ -363,9 +363,18 @@ void natnet_parse(unsigned char *in)
                           markerData[k * 3], markerData[k * 3 + 1], markerData[k * 3 + 2]);
           }
 
-          // Mean marker error
-          float fError = 0.0f; memcpy(&fError, ptr, 4); ptr += 4;
-          printf_natnet("Mean marker error: %3.2f\n", fError);
+          // Mean marker error (2.0 and later)
+          if (natnet_major >= 2) {
+            float fError = 0.0f; memcpy(&fError, ptr, 4); ptr += 4;
+            printf_natnet("Mean marker error: %3.2f\n", fError);
+          }
+
+          // Tracking flags (2.6 and later)
+          if (((natnet_major == 2) && (natnet_minor >= 6)) || (natnet_major > 2) || (natnet_major == 0)) {
+            // params
+            short params = 0; memcpy(&params, ptr, 2); ptr += 2;
+            //bool bTrackingValid = params & 0x01; // 0x01 : rigid body was successfully tracked in this frame
+          }
 
           // Release resources
           if (markerIDs) {
@@ -394,9 +403,44 @@ void natnet_parse(unsigned char *in)
         float z = 0.0f; memcpy(&z, ptr, 4); ptr += 4;
         float size = 0.0f; memcpy(&size, ptr, 4); ptr += 4;
 
+        // 2.6 and later
+        if (((natnet_major == 2) && (natnet_minor >= 6)) || (natnet_major > 2) || (natnet_major == 0)) {
+          // marker params
+          short params = 0; memcpy(&params, ptr, 2); ptr += 2;
+          // bool bOccluded = params & 0x01;     // marker was not visible (occluded) in this frame
+          // bool bPCSolved = params & 0x02;     // position provided by point cloud solve
+          // bool bModelSolved = params & 0x04;  // position provided by model solve
+        }
+
         printf_natnet("ID  : %d\n", ID);
         printf_natnet("pos : [%3.2f,%3.2f,%3.2f]\n", x, y, z);
         printf_natnet("size: [%3.2f]\n", size);
+      }
+    }
+
+    // Force Plate data (version 2.9 and later)
+    if (((natnet_major == 2) && (natnet_minor >= 9)) || (natnet_major > 2)) {
+      int nForcePlates;
+      memcpy(&nForcePlates, ptr, 4); ptr += 4;
+      int iForcePlate;
+      for (iForcePlate = 0; iForcePlate < nForcePlates; iForcePlate++) {
+        // ID
+        int ID = 0; memcpy(&ID, ptr, 4); ptr += 4;
+        printf_natnet("Force Plate : %d\n", ID);
+
+        // Channel Count
+        int nChannels = 0; memcpy(&nChannels, ptr, 4); ptr += 4;
+
+        // Channel Data
+        for (i = 0; i < nChannels; i++) {
+          printf_natnet(" Channel %d : ", i);
+          int nFrames = 0; memcpy(&nFrames, ptr, 4); ptr += 4;
+          for (j = 0; j < nFrames; j++) {
+            float val = 0.0f;  memcpy(&val, ptr, 4); ptr += 4;
+            printf_natnet("%3.2f   ", val);
+          }
+          printf_natnet("\n");
+        }
       }
     }
 
@@ -407,13 +451,27 @@ void natnet_parse(unsigned char *in)
     // Timecode
     unsigned int timecode = 0;  memcpy(&timecode, ptr, 4);  ptr += 4;
     unsigned int timecodeSub = 0; memcpy(&timecodeSub, ptr, 4); ptr += 4;
-    printf_natnet("timecode : %d %d", timecode, timecodeSub);
+    printf_natnet("timecode : %d %d\n", timecode, timecodeSub);
+
+    // timestamp
+    double timestamp = 0.0f;
+    // 2.7 and later - increased from single to double precision
+    if (((natnet_major == 2) && (natnet_minor >= 7)) || (natnet_major > 2)) {
+      memcpy(&timestamp, ptr, 8); ptr += 8;
+    } else {
+      float fTemp = 0.0f;
+      memcpy(&fTemp, ptr, 4); ptr += 4;
+      timestamp = (double)fTemp;
+    }
+
+    // frame params
+    short params = 0;  memcpy(&params, ptr, 2); ptr += 2;
+    // bool bIsRecording = params & 0x01;                  // 0x01 Motive is recording
+    // bool bTrackedModelsChanged = params & 0x02;         // 0x02 Actively tracked model list has changed
 
     // End of data tag
     int eod = 0; memcpy(&eod, ptr, 4); ptr += 4;
     printf_natnet("End Packet\n-------------\n");
-  } else {
-    printf("Error: Unrecognized packet type from Optitrack NatNet.\n");
   }
 }
 
@@ -437,7 +495,7 @@ gboolean timeout_transmit_callback(gpointer data)
       continue;
     }
 
-    // When we don track anymore and timeout or start tracking
+    // When we don't track anymore and timeout or start tracking
     if (rigidBodies[i].nSamples < 1
         && aircrafts[rigidBodies[i].id].connected
         && (natnet_latency - aircrafts[rigidBodies[i].id].lastSample) > CONNECTION_TIMEOUT) {
@@ -517,8 +575,9 @@ gboolean timeout_transmit_callback(gpointer data)
     time_t now;
     time(&now);
     struct tm *ts = localtime(&now);
-    
-    uint32_t tow = (ts->tm_wday - 1)*(24*60*60*1000) + ts->tm_hour*(60*60*1000) + ts->tm_min*(60*1000) + ts->tm_sec*1000;
+
+    uint32_t tow = (ts->tm_wday - 1) * (24 * 60 * 60 * 1000) + ts->tm_hour * (60 * 60 * 1000) + ts->tm_min *
+                   (60 * 1000) + ts->tm_sec * 1000;
 
     // Transmit the REMOTE_GPS packet on the ivy bus (either small or big)
     if (small_packets) {
@@ -582,11 +641,11 @@ gboolean timeout_transmit_callback(gpointer data)
        * increases the probability that a complete message will be accepted
        */
       IvySendMsg("0 REMOTE_GPS_SMALL %d %d %d %d %d",
-                (int16_t)(heading * 10000),       // int16_t heading in rad*1e4 (2 bytes)
-                pos_xyz,                          // uint32 ENU X, Y and Z in CM (4 bytes)
-                speed_xyz,                        // uint32 ENU velocity X, Y, Z in cm/s (4 bytes)
-                tow,                              // uint32_t time of day
-                aircrafts[rigidBodies[i].id].ac_id); // uint8 rigid body ID (1 byte)
+                 (int16_t)(heading * 10000),       // int16_t heading in rad*1e4 (2 bytes)
+                 pos_xyz,                          // uint32 ENU X, Y and Z in CM (4 bytes)
+                 speed_xyz,                        // uint32 ENU velocity X, Y, Z in cm/s (4 bytes)
+                 tow,                              // uint32_t time of day
+                 aircrafts[rigidBodies[i].id].ac_id); // uint8 rigid body ID (1 byte)
 
     } else {
       IvySendMsg("0 REMOTE_GPS %d %d %d %d %d %d %d %d %d %d %d %d %d %d", aircrafts[rigidBodies[i].id].ac_id,
@@ -623,7 +682,7 @@ gboolean timeout_transmit_callback(gpointer data)
                 (int)(ecef_pos.z * 100.0),              //int32 ECEF Z in CM
                 (int)(DegOfRad(lla_pos.lat) * 1e7),     //int32 LLA latitude in deg*1e7
                 (int)(DegOfRad(lla_pos.lon) * 1e7),     //int32 LLA longitude in deg*1e7
-                (int)(lla_pos.alt*1000.0),              //int32 LLA altitude in mm above elipsoid
+                (int)(lla_pos.alt * 1000.0),            //int32 LLA altitude in mm above elipsoid
                 (int)(rigidBodies[i].z * 1000.0),       //int32 HMSL height above mean sea level in mm
                 (int)(rigidBodies[i].ecef_vel.x * 100.0), //int32 ECEF velocity X in cm/s
                 (int)(rigidBodies[i].ecef_vel.y * 100.0), //int32 ECEF velocity Y in cm/s

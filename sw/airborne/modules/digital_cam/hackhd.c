@@ -115,8 +115,7 @@ static inline void hackhd_send_shot_position(void)
 #endif
 
 #if HACKHD_LOG
-#include "sdLog.h"
-#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "modules/loggers/sdlog_chibios.h"
 #include "state.h"
 #include "subsystems/gps.h"
 

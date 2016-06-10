@@ -30,11 +30,13 @@
 #define CV_H_
 
 #include "std.h"
-#include "lib/vision/image.h"
+#include "peripherals/video_device.h"
 
-typedef struct image_t* (*cvFunction)(struct image_t *img);
+#include BOARD_CONFIG
 
-extern void cv_add(cvFunction func);
-extern void cv_run(struct image_t *img);
+extern bool add_video_device(struct video_config_t *device);
+
+extern void cv_add_to_device(struct video_config_t *device, cvFunction func);
+extern void cv_run_device(struct video_config_t *device, struct image_t *img);
 
 #endif /* CV_H_ */

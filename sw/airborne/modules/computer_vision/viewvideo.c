@@ -46,6 +46,9 @@
 #include "lib/encoding/rtp.h"
 #include "udp_socket.h"
 
+#include BOARD_CONFIG
+
+
 // Downsize factor for video stream
 #ifndef VIEWVIDEO_DOWNSIZE_FACTOR
 #define VIEWVIDEO_DOWNSIZE_FACTOR 4
@@ -110,8 +113,8 @@ struct viewvideo_t viewvideo = {
  * Handles all the video streaming and saving of the image shots
  * This is a sepereate thread, so it needs to be thread safe!
  */
-struct image_t* viewvideo_function(struct image_t *img);
-struct image_t* viewvideo_function(struct image_t *img)
+struct image_t *viewvideo_function(struct image_t *img);
+struct image_t *viewvideo_function(struct image_t *img)
 {
   // Resize image if needed
   struct image_t img_small;
@@ -199,7 +202,7 @@ void viewvideo_init(void)
 {
   char save_name[512];
 
-  cv_add(viewvideo_function);
+  cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function);
 
   viewvideo.is_streaming = true;
 

@@ -43,7 +43,7 @@ void digital_cam_video_periodic(void)
 }
 
 #ifndef SITL
-#include "viewvideo.h"
+#include "modules/computer_vision/video_capture.h"
 #endif
 
 /* Command The Camera */
@@ -52,7 +52,7 @@ void dc_send_command(uint8_t cmd)
   switch (cmd) {
     case DC_SHOOT:
 #ifndef SITL
-      video_thread_take_shot(TRUE);
+      video_capture_shoot();
 #endif
       dc_send_shot_position();
       break;

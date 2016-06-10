@@ -3,8 +3,6 @@
 
 #define BOARD_ARDRONE2
 
-#include "peripherals/video_device.h"
-
 #ifndef UART1_DEV
 #define UART1_DEV /dev/ttyUSB0
 #endif
@@ -13,6 +11,7 @@
 #define UARTSPLIT2_DEV /dev/ttyUSB1
 #endif
 
+#include "peripherals/video_device.h"
 
 /* Cameras */
 extern struct video_config_t bottom_camera;

@@ -25,6 +25,7 @@
 
 #define BOARD_BEBOP
 
+#include "std.h"
 #include "peripherals/video_device.h"
 
 /** uart connected to GPS internally */

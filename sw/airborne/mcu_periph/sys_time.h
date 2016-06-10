@@ -46,11 +46,15 @@
  * sys_time.resolution is set from this define.
  */
 #ifndef SYS_TIME_FREQUENCY
+#if USE_CHIBIOS_RTOS
+#define SYS_TIME_FREQUENCY CH_CFG_ST_FREQUENCY
+#else /* NO RTOS */
 #if defined PERIODIC_FREQUENCY
 #define SYS_TIME_FREQUENCY (2 * PERIODIC_FREQUENCY)
-#else
+#else /* !defined PERIODIC_FREQUENCY */
 #define SYS_TIME_FREQUENCY 1000
 #endif
+#endif /* USE_CHIBIOS_RTOS */
 #endif
 
 

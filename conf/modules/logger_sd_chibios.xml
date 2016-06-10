@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="logger_sd_chibios" dir="loggers">
+  <doc>
+    <description>
+      Log on a SD card, either text or binary data.
+      Based on ChibiOS HAL and Threads.
+      If board allows it (ex: Apogee), the log file is automatically closed on power down.
+      Files are written on a FAT file system using the FatFS library and can be accessed
+      by using the autopilot as a mass storage (plug USB while the board is running).
+    </description>
+  </doc>
+  <depends>tlsf</depends>
+  <header>
+    <file name="sdlog_chibios.h" />
+  </header>
+  <init fun="sdlog_chibios_init()"/>
+  <makefile target="ap">
+    <file name="sdlog_chibios.c"/>
+    <file name="sdlog_chibios/sdLog.c"/>
+    <file name="sdlog_chibios/msg_queue.c"/>
+    <file name="sdlog_chibios/sdLog.c"/>
+    <file name="sdlog_chibios/printf.c"/>
+    <file name="sdlog_chibios/usb_msd.c"/>
+    <file name="sdlog_chibios/usbStorage.c"/>
+    <file_arch name="sdio_arch.c" dir="mcu_periph"/>
+    <configure name="USE_FATFS" value="TRUE"/>
+    <define name="HAL_USE_RTC" value="TRUE"/>
+    <define name="HAL_USE_SDC" value="TRUE"/>
+    <define name="HAL_USE_USB" value="TRUE"/>
+  </makefile>
+</module>

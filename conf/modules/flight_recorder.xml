@@ -5,7 +5,7 @@
     <description>
       Record flight data according to your telemetry file.
       Data are stored on a SD card with the pprzlog format.
-      Currently only supported on Apogee/Fixedwing using chibios-libopencm3 implementation.
+      Currently only supported on Apogee/Fixedwing using chibios implementation.
       The selected telemetry file should include a FlightRecorder process.
     </description>
     <configure name="FLIGHTRECORDER_SDLOG" value="TRUE|FALSE" description="Enable/disable logging on internal SD card (default=TRUE)"/>

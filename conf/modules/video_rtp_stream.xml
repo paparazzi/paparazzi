@@ -14,6 +14,8 @@
     <configure name="VIEWVIDEO_HOST" value="192.168.1.255" description="GCS IP (default: MODEM_HOST)"/>
     <configure name="VIEWVIDEO_PORT_OUT" value="5000" description="Port (default: 5000)"/>
     <configure name="VIEWVIDEO_BROADCAST" value="FALSE|TRUE" description="Enable broadcast of image stream (default: TRUE)"/>
+
+    <define name="VIEWVIDEO_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
     <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4" description="Reduction factor of the video stream"/>
     <define name="VIEWVIDEO_QUALITY_FACTOR" value="50" description="JPEG encoding compression factor [0-99]"/>
     <define name="VIEWVIDEO_USE_RTP" value="TRUE|FALSE" description="Enable RTP at startup for transfering images (default: TRUE)"/>
@@ -32,7 +34,7 @@
   </header>
 
   <init fun="viewvideo_init()"/>
-  <makefile target="ap|nps">
+  <makefile target="ap">
 
     <file name="viewvideo.c"/>
     <!-- Include the needed Computer Vision files -->

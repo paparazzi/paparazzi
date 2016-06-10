@@ -28,11 +28,11 @@
 #include "modules/loggers/flight_recorder.h"
 
 #include "subsystems/datalink/telemetry.h"
+#include "subsystems/datalink/downlink.h"
 #include "pprzlink/pprzlog_transport.h"
 
 #if FLIGHTRECORDER_SDLOG
-#include "sdLog.h"
-#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#include "modules/loggers/sdlog_chibios.h"
 struct chibios_sdlog flightrecorder_sdlog;
 #ifndef FLIGHTRECORDER_DEVICE
 #define FLIGHTRECORDER_DEVICE flightrecorder_sdlog

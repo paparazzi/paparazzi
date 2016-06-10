@@ -34,7 +34,7 @@
     </dl_settings>
   </settings>
 
-  <depends>video_thread</depends>
+  <depends>video_capture</depends>
 
   <conflicts>digital_cam,digital_cam_servo,digital_cam_i2c,digital_cam_uart</conflicts>
 
@@ -47,7 +47,7 @@
 
   <periodic fun="digital_cam_video_periodic()" freq="10" autorun="TRUE"/>
 
-  <makefile target="ap|sim|nps">
+  <makefile target="ap">
     <define name="DIGITAL_CAM" />
     <file name="video_cam_ctrl.c"/>
     <file name="dc.c"/>
