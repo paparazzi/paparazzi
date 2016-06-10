@@ -229,11 +229,20 @@ void guidance_v_mode_changed(uint8_t new_mode)
   }
 
   switch (new_mode) {
-    case GUIDANCE_V_MODE_HOVER:
     case GUIDANCE_V_MODE_GUIDED:
-      guidance_v_z_sp = stateGetPositionNed_i()->z; // set current altitude as setpoint
+    case GUIDANCE_V_MODE_HOVER:
+       /* disable vertical velocity setpoints */
+      guidance_v_guided_vel_enabled = false;
+
+      /* set current altitude as setpoint */
+      guidance_v_z_sp = stateGetPositionNed_i()->z;
+
+      /* reset guidance reference */
       guidance_v_z_sum_err = 0;
       GuidanceVSetRef(stateGetPositionNed_i()->z, 0, 0);
+
+      /* reset speed setting */
+      guidance_v_zd_sp = 0;
       break;
 
     case GUIDANCE_V_MODE_RC_CLIMB:
