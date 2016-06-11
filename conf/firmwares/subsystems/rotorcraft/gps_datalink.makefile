@@ -25,9 +25,6 @@ ap.srcs += $(SRC_SUBSYSTEMS)/gps/gps_datalink.c
 
 ap.CFLAGS += -DUSE_GPS -DGPS_DATALINK
 
-# Always zero to get heading update
-ap.CFLAGS += -DAHRS_HEADING_UPDATE_GPS_MIN_SPEED=0
-
 nps.CFLAGS += -DUSE_GPS
 nps.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"
 nps.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_nps.c
