@@ -29,6 +29,11 @@
 #include "zbar.h"
 #include <stdio.h>
 
+#ifndef QRCODE_DRAW_RECTANGLE
+#define QRCODE_DRAW_RECTANGLE FALSE
+#endif
+bool drawRectangleAroundQRCode = QRCODE_DRAW_RECTANGLE;
+
 void qrcode_init(void)
 {
   // Add qrscan to the list of image processing tasks in video_thread
@@ -89,6 +94,25 @@ struct image_t *qrscan(struct image_t *img)
     printf("decoded %s symbol \"%s\" at %d %d\n",
            zbar_get_symbol_name(typ), data, zbar_symbol_get_loc_x(symbol, 0), zbar_symbol_get_loc_y(symbol, 0));
 
+    if (drawRectangleAroundQRCode) {
+      uint8_t cornerIndex;
+      struct point_t from;
+      struct point_t to;
+
+      for (cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+        // Determine where to draw from and to
+        uint8_t nextCorner = (cornerIndex + 1) % 4;
+        from.x = zbar_symbol_get_loc_x(symbol, cornerIndex);
+        from.y = zbar_symbol_get_loc_y(symbol, cornerIndex);
+
+        to.x = zbar_symbol_get_loc_x(symbol, nextCorner);
+        to.y = zbar_symbol_get_loc_y(symbol, nextCorner);
+
+        // Draw a line between these two corners
+        image_draw_line(img, &from, &to);
+      }
+
+    }
     // TODO: not allowed to access telemetry from vision thread
 #if DOWNLINK
     DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, strlen(data), data);
