@@ -29,10 +29,15 @@
 #include "zbar.h"
 #include <stdio.h>
 
+#ifndef QRCODE_DRAW_RECTANGLE
+#define QRCODE_DRAW_RECTANGLE FALSE
+#endif
+bool drawRectangleAroundQRCode = QRCODE_DRAW_RECTANGLE;
+
 void qrcode_init(void)
 {
-	// Add qrscan to the list of image processing tasks in video_thread
-  cv_add(qrscan);
+  // Add qrscan to the list of image processing tasks in video_thread
+  cv_add_to_device(&QRCODE_CAMERA, qrscan);
 }
 
 // Telemetry
@@ -41,7 +46,7 @@ void qrcode_init(void)
 
 zbar_image_scanner_t *scanner = 0;
 
-struct image_t* qrscan(struct image_t *img)
+struct image_t *qrscan(struct image_t *img)
 {
   int i, j;
 
@@ -86,9 +91,28 @@ struct image_t* qrscan(struct image_t *img)
     // do something useful with results
     zbar_symbol_type_t typ = zbar_symbol_get_type(symbol);
     char *data = (char *)zbar_symbol_get_data(symbol);
-    printf("decoded %s symbol \"%s\"\n",
-           zbar_get_symbol_name(typ), data);
+    printf("decoded %s symbol \"%s\" at %d %d\n",
+           zbar_get_symbol_name(typ), data, zbar_symbol_get_loc_x(symbol, 0), zbar_symbol_get_loc_y(symbol, 0));
 
+    if (drawRectangleAroundQRCode) {
+      uint8_t cornerIndex;
+      struct point_t from;
+      struct point_t to;
+
+      for (cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+        // Determine where to draw from and to
+        uint8_t nextCorner = (cornerIndex + 1) % 4;
+        from.x = zbar_symbol_get_loc_x(symbol, cornerIndex);
+        from.y = zbar_symbol_get_loc_y(symbol, cornerIndex);
+
+        to.x = zbar_symbol_get_loc_x(symbol, nextCorner);
+        to.y = zbar_symbol_get_loc_y(symbol, nextCorner);
+
+        // Draw a line between these two corners
+        image_draw_line(img, &from, &to);
+      }
+
+    }
     // TODO: not allowed to access telemetry from vision thread
 #if DOWNLINK
     DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, strlen(data), data);
@@ -99,5 +123,5 @@ struct image_t* qrscan(struct image_t *img)
   zbar_image_destroy(image);
   //zbar_image_scanner_destroy(scanner);
 
-  return NULL; // QRCode is not returning a new image.
+  return img;
 }
