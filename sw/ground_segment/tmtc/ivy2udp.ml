@@ -40,7 +40,7 @@ let () =
   let options = [
     "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
     "-h", Arg.Set_string host, (sprintf "<remote host> Default is %s" !host);
-    "-id", Arg.Set_string id , (sprintf "<id> Default is %s" !id);
+    "-id", Arg.Set_string id , (sprintf "<aircraft id> Default is %s" !id);
     "-p", Arg.Set_int port, (sprintf "<remote port> Default is %d" !port);
     "-dp", Arg.Set_int datalink_port, (sprintf "<listening port> Default is %d" !datalink_port)
   ] in
