@@ -69,10 +69,10 @@ let foi32value = fun x ->
     | _ -> failwith "Receive.log_and_parse: int32 expected"
 
 let format_string_field = fun s ->
-  let s = String.copy s in
-  for i = 0 to String.length s - 1 do
+  let s = Compat.bytes_copy s in
+  for i = 0 to Compat.bytes_length s - 1 do
     match s.[i] with
-        ' ' -> s.[i] <- '_'
+        ' ' -> Compat.bytes_set s i '_'
       | _ -> ()
   done;
   s

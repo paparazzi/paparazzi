@@ -23,6 +23,7 @@
  *)
 
 open Printf
+
 module PC = Papget_common
 module PR = Papget_renderer
 module E = Expr_syntax
@@ -367,7 +368,7 @@ object (self)
     let (x, y) = item#xy in
     let attrs =
       [ "type", msg_obj#type_;
-        "display", String.lowercase item#renderer#tag;
+        "display", Compat.bytes_lowercase item#renderer#tag;
         "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
     Xml.Element ("papget", attrs, scale_prop::val_props@renderer_props)
 end
@@ -386,7 +387,7 @@ object
     let (x, y) = item#xy in
     let attrs =
       [ "type", type_;
-        "display", String.lowercase item#renderer#tag;
+        "display", Compat.bytes_lowercase item#renderer#tag;
         "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
     Xml.Element ("papget", attrs, properties@props)
 end
@@ -415,9 +416,8 @@ object (self)
     let (x, y) = item#xy in
     let attrs =
       [ "type", "video_plugin";
-        "display", String.lowercase item#renderer#tag;
+        "display", Compat.bytes_lowercase item#renderer#tag;
         "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
     Xml.Element ("papget", attrs, properties@props)
   initializer ignore(adj#connect#value_changed (fun () -> self#update_zoom (string_of_float adj#value)))
 end
-

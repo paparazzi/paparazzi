@@ -1,3 +1,4 @@
+
 open Printf
 
 module Tm_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
@@ -28,12 +29,12 @@ let () =
   let (i, o) = Unix.open_connection sockaddr in
 
   let buffer_size = 256 in
-  let buffer = String.create buffer_size in
+  let buffer = Compat.bytes_create buffer_size in
   let get_message = fun _ ->
     begin
       try
         let n = input i buffer 0 buffer_size in
-        let b = String.sub buffer 0 n in
+        let b = Compat.bytes_sub buffer 0 n in
         Debug.trace 'x' (Debug.xprint b);
 
         let use_tele_message = fun payload ->

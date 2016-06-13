@@ -1,5 +1,6 @@
 exception Telemetry_error of string * string
 
+
 (* options for serving xml config files and kml via http *)
 let hostname = ref "localhost"
 let port = ref 8889
@@ -18,4 +19,4 @@ let horiz_modes = [|"WAYPOINT";"ROUTE";"CIRCLE";"ATTITUDE";"MANUAL"|]
 let if_modes = [|"OFF";"DOWN";"UP"|]
 
 let string_of_values = fun values ->
-  String.concat " " (List.map (fun (_, v) -> PprzLink.string_of_value v) values)
+  Compat.bytes_concat " " (List.map (fun (_, v) -> PprzLink.string_of_value v) values)

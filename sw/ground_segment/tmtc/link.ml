@@ -24,6 +24,7 @@
     the Ivy software bus.
 *)
 
+
 open Latlong
 open Printf
 
@@ -194,7 +195,7 @@ let update_ms_since_last_msg =
       statuss
 
 let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
-  let raw_data_size = match raw_data_size with None -> String.length (Protocol.string_of_payload payload) | Some d -> d in
+  let raw_data_size = match raw_data_size with None -> Compat.bytes_length (Protocol.string_of_payload payload) | Some d -> d in
   let buf = Protocol.string_of_payload payload in
   Debug.call 'l' (fun f ->  fprintf f "pprz receiving: %s\n" (Debug.xprint buf));
   try
@@ -272,13 +273,13 @@ module XB = struct (** XBee module *)
 
       | Xbee_transport.RX_Packet_64 (addr64, rssi, options, data) ->
         Debug.trace 'x' (sprintf "getting XBee RX64: %Lx %d %d %s" addr64 rssi options (Debug.xprint data));
-        use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Protocol.payload_of_string data)
+        use_tele_message ~raw_data_size:(Compat.bytes_length frame_data + oversize_packet) (Protocol.payload_of_string data)
       | Xbee_transport.RX868_Packet (addr64, options, data) ->
         Debug.trace 'x' (sprintf "getting XBee868 RX: %Lx %d %s" addr64 options (Debug.xprint data));
-        use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Protocol.payload_of_string data)
+        use_tele_message ~raw_data_size:(Compat.bytes_length frame_data + oversize_packet) (Protocol.payload_of_string data)
       | Xbee_transport.RX_Packet_16 (addr16, rssi, options, data) ->
         Debug.trace 'x' (sprintf "getting XBee RX16: from=%x %d %d %s" addr16 rssi options (Debug.xprint data));
-        use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Protocol.payload_of_string data)
+        use_tele_message ~raw_data_size:(Compat.bytes_length frame_data + oversize_packet) (Protocol.payload_of_string data)
 
 
   let send = fun ?ac_id device rf_data ->
@@ -309,7 +310,7 @@ let local_broadcast_address =
 
 let udp_send = fun fd payload peername ->
   let buf = Pprz_transport.Transport.packet payload in
-  let len = String.length buf in
+  let len = Compat.bytes_length buf in
   let addr = if !udp_broadcast then (Unix.inet_addr_of_string !udp_broadcast_addr) else peername in
   Debug.call 'u' (fun f -> fprintf f "udp_send to %s port %i\n" (Unix.string_of_inet_addr addr) !udp_uplink_port);
   let sockaddr = Unix.ADDR_INET (addr, !udp_uplink_port) in
@@ -364,7 +365,7 @@ let parser_of_device = fun device ->
   match device.transport with
     | Pprz ->
         let use = fun s ->
-          let raw_data_size = String.length (Protocol.string_of_payload s) + 4 (*stx,len,ck_a, ck_b*) in
+          let raw_data_size = Compat.bytes_length (Protocol.string_of_payload s) + 4 (*stx,len,ck_a, ck_b*) in
           let udp_peername =
             if !udp then
               Some !last_udp_peername
@@ -471,7 +472,7 @@ let () =
 
     (** Listen on a udp port or a serial device or on pipe *)
     let on_serial_device =
-      String.length !port >= 4 && String.sub !port 0 4 = "/dev" in (* FIXME *)
+      Compat.bytes_length !port >= 4 && Compat.bytes_sub !port 0 4 = "/dev" in (* FIXME *)
     let fd =
       if !udp then
         begin

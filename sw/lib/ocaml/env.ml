@@ -24,6 +24,7 @@
 
 open Printf
 
+
 let (//) = Filename.concat
 let space_regexp = Str.regexp "[ \t]+"
 let make_element = fun t a c -> Xml.Element (t,a,c)
@@ -80,8 +81,8 @@ let filter_absolute_path = fun path ->
 (* filter settings and keep the ones without brackets *)
 let filter_settings = fun settings ->
   let sl = Str.split (Str.regexp "[ ]+") settings in
-  let sl = List.filter (fun s -> not (s.[0] = '[' && s.[String.length s - 1] = ']')) sl in
-  String.concat " " sl
+  let sl = List.filter (fun s -> not (s.[0] = '[' && s.[Compat.bytes_length s - 1] = ']')) sl in
+  Compat.bytes_concat " " sl
 
 (* filter on modules based on target *)
 let filter_modules_target = fun module_file ->
@@ -170,7 +171,7 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
 let read_process command =
   let buffer_size = 2048 in
   let buffer = Buffer.create buffer_size in
-  let string = String.create buffer_size in
+  let string = Compat.bytes_create buffer_size in
   let in_channel = Unix.open_process_in command in
   let chars_read = ref 1 in
   while !chars_read <> 0 do
@@ -196,5 +197,4 @@ let key_modifiers_of_string = fun key ->
     | "Meta" -> "<Meta>"
     | x -> x
   ) key_split in
-  String.concat "" keys
-
+  Compat.bytes_concat "" keys
