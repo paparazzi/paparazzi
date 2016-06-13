@@ -1,0 +1,52 @@
+<!DOCTYPE layout SYSTEM "../layout.dtd">
+
+<layout width="1301" height="744">
+  <columns>
+    <rows SIZE="400">
+      <widget NAME="strips" size="236"/>
+      <widget NAME="alarms" size="500"/>
+    </rows>
+    <rows>
+      <widget NAME="aircraft" size="258"/>
+      <widget NAME="altgraph" size="100"/>
+      <widget NAME="map2d" size="372">
+        <papget type="message_field" display="text" x="717" y="45">
+          <property name="scale" value="0.0000019"/>
+          <property name="field" value="ROTORCRAFT_FP:vup"/>
+          <property name="format" value="Climb Rate %.2f m/s"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="756" y="315">
+          <property name="scale" value="0.01"/>
+          <property name="field" value="GPS_INT:pacc"/>
+          <property name="format" value="GPS Acc %.2f m"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="644" y="317">
+          <property name="scale" value="1."/>
+          <property name="field" value="GPS_INT:numsv"/>
+          <property name="format" value="GPS SV %.0f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="gauge" x="41" y="291">
+          <property name="scale" value="1."/>
+          <property name="field" value="ROTORCRAFT_FP:thrust"/>
+          <property name="min" value="0."/>
+          <property name="max" value="100."/>
+          <property name="size" value="50."/>
+          <property name="text" value="Thrust"/>
+        </papget>
+        <papget type="message_field" display="text" x="675" y="13">
+          <property name="scale" value="0.0139882"/>
+          <property name="field" value="ROTORCRAFT_FP:psi"/>
+          <property name="format" value="Body Heading %.2f deg"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+      </widget>
+    </rows>
+  </columns>
+</layout>

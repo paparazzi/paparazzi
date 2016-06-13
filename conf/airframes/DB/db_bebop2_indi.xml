@@ -4,6 +4,7 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop2">
+      <define name="USE_SONAR" value="TRUE"/>
       <define name="STABILIZATION_INDI_G2_R" value="0.20"/>
       <!--define name="FAILSAFE_GROUND_DETECT"/-->
     </target>
@@ -21,14 +22,21 @@
     <module name="motor_mixing"/>
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
-    <module name="gps" type="datalink"/>
+    <module name="gps" type="ublox"/>
     <module name="stabilization" type="indi"/>
-    <module name="ahrs" type="int_cmpl_quat">
-    <configure name="USE_MAGNETOMETER" value="FALSE"/>
-    <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
-    <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+    <module name="ahrs" type="float_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
+      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+      <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
     </module>
+    
+<!-- Enable the vertical estimator -->
     <module name="ins" type="extended"/>
+    
+<!-- Enable the horizontal estimator -->
+<!--     <module name="ins" type="hff"> -->
+<!--     	<define name="GPS_LAG" value="0.35"/> -->
+<!--     </module> -->
 
     <define name="KILL_ON_GROUND_DETECT" value="TRUE"/>
   </firmware>
@@ -80,26 +88,28 @@
 
   <section name="IMU" prefix="IMU_">
     <!-- Magneto calibration -->
-    <define name="MAG_X_NEUTRAL" value="18"/>
-    <define name="MAG_Y_NEUTRAL" value="46"/>
-    <define name="MAG_Z_NEUTRAL" value="202"/>
-    <define name="MAG_X_SENS" value="8.32441255621" integer="16"/>
-    <define name="MAG_Y_SENS" value="8.25720085664" integer="16"/>
-    <define name="MAG_Z_SENS" value="8.60009819293" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="-74"/>
+    <define name="MAG_Y_NEUTRAL" value="33"/>
+    <define name="MAG_Z_NEUTRAL" value="-189"/>
+    <define name="MAG_X_SENS" value="7.32880539549" integer="16"/>
+    <define name="MAG_Y_SENS" value="7.38826972194" integer="16"/>
+    <define name="MAG_Z_SENS" value="7.71693452252" integer="16"/>
+    <!-- Accelerometer Calibration -->
+<!--    <define name="ACCEL_X_NEUTRAL" value="72"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-20"/>
+    <define name="ACCEL_Z_NEUTRAL" value="42"/>
+    <define name="ACCEL_X_SENS" value="2.44509248843" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.44634245634" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.43962899631" integer="16"/>-->
   </section>
 
   <!-- local magnetic field -->
   <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
   <section name="AHRS" prefix="AHRS_">
-    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
-    <!-- Toulouse -->
-    <!--define name="H_X" value="0.513081"/>
-    <define name="H_Y" value="-0.00242783"/>
-    <define name="H_Z" value="0.858336"/-->
-    <!-- Delft -->
-    <define name="H_X" value="0.3892503"/>
-    <define name="H_Y" value="0.0017972"/>
-    <define name="H_Z" value="0.9211303"/>
+    <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
+    <define name="H_X" value="0.0"/>
+    <define name="H_Y" value="0.0"/>
+    <define name="H_Z" value="0.0"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -197,7 +207,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
-    <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
 
