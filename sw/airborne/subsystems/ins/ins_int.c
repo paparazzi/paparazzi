@@ -276,15 +276,13 @@ void ins_int_propagate(struct Int32Vect3 *accel, float dt)
   struct Int32Vect3 accel_meas_ltp;
   int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), &accel_meas_body);
 
-  float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
-
   /* Propagate only if we got any measurement during the last INS_MAX_PROPAGATION_STEPS.
    * Otherwise halt the propagation to not diverge and only set the acceleration.
    * This should only be relevant in the startup phase when the baro is not yet initialized
    * and there is no gps fix yet...
    */
   if (ins_int.propagation_cnt < INS_MAX_PROPAGATION_STEPS) {
-    vff_propagate(z_accel_meas_float, dt);
+    vff_propagate(ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z), dt);
     ins_update_from_vff();
   } else {
     // feed accel from the sensors
@@ -510,10 +508,8 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
                        float x, float y, float z,
                        float noise __attribute__((unused)))
 {
-
+#if USE_HFF
   struct FloatVect3 vel_body = {x, y, z};
-  static uint32_t last_stamp = 0;
-  float dt = 0;
 
   /* rotate velocity estimate to nav/ltp frame */
   struct FloatQuat q_b2n = *stateGetNedToBodyQuat_f();
@@ -521,26 +517,34 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
   struct FloatVect3 vel_ned;
   float_quat_vmult(&vel_ned, &q_b2n, &vel_body);
 
-  if (last_stamp > 0) {
-    dt = (float)(stamp - last_stamp) * 1e-6;
-  }
-
-  last_stamp = stamp;
-
-#if USE_HFF
-  (void)dt; //dt is unused variable in this define
-
   struct FloatVect2 vel = {vel_ned.x, vel_ned.y};
   struct FloatVect2 Rvel = {noise, noise};
 
   b2_hff_update_vel(vel,  Rvel);
   ins_update_from_hff();
 #else
-  ins_int.ltp_speed.x = SPEED_BFP_OF_REAL(vel_ned.x);
-  ins_int.ltp_speed.y = SPEED_BFP_OF_REAL(vel_ned.y);
+  /* timestamp in usec when last callback was received */
+  static uint32_t last_stamp = 0;
+  float dt = 0;
+
   if (last_stamp > 0) {
-    ins_int.ltp_pos.x = ins_int.ltp_pos.x + POS_BFP_OF_REAL(dt * vel_ned.x);
-    ins_int.ltp_pos.y = ins_int.ltp_pos.y + POS_BFP_OF_REAL(dt * vel_ned.y);
+    dt = (float)(stamp - last_stamp) * 1e-6;
+  }
+  last_stamp = stamp;
+
+  struct Int32Vect3 vel_body = {SPEED_BFP_OF_REAL(x), SPEED_BFP_OF_REAL(y), SPEED_BFP_OF_REAL(z)};
+
+  /* rotate velocity estimate to nav/ltp frame */
+  struct Int32Quat q_b2n = *stateGetNedToBodyQuat_i();
+  QUAT_INVERT(q_b2n, q_b2n);
+  struct Int32Vect3 vel_ned;
+  int32_quat_vmult(&vel_ned, &q_b2n, &vel_body);
+
+  ins_int.ltp_speed.x = vel_ned.x;
+  ins_int.ltp_speed.y = vel_ned.y;
+  if (last_stamp > 0) {
+    ins_int.ltp_pos.x += ((uint32_t)(dt * vel_ned.x) >> (INT32_SPEED_FRAC - INT32_POS_FRAC));
+    ins_int.ltp_pos.y += ((uint32_t)(dt * vel_ned.y) >> (INT32_SPEED_FRAC - INT32_POS_FRAC));
   }
 #endif
 
