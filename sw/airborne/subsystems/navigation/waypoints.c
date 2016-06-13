@@ -282,7 +282,7 @@ void waypoints_localize_all(void)
 struct LlaCoor_i *waypoint_get_lla(uint8_t wp_id)
 {
   if (wp_id < nb_waypoint) {
-    if (!bit_is_set(waypoints[wp_id].flags, WP_FLAG_LLA_I)) {
+    if (!waypoint_is_global(wp_id) && !bit_is_set(waypoints[wp_id].flags, WP_FLAG_LLA_I)) {
       waypoint_globalize(wp_id);
     }
     return &waypoints[wp_id].lla;

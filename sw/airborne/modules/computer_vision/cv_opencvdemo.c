@@ -29,8 +29,8 @@
 
 
 // Function
-int opencv_func(struct image_t* img);
-int opencv_func(struct image_t* img)
+struct image_t* opencv_func(struct image_t* img);
+struct image_t* opencv_func(struct image_t* img)
 {
 
   if (img->type == IMAGE_YUV422)
@@ -41,11 +41,11 @@ int opencv_func(struct image_t* img)
 
 // opencv_example(NULL, 10,10);
 
-  return FALSE;
+  return NULL;
 }
 
 void opencvdemo_init(void)
 {
-  cv_add(opencv_func);
+  cv_add_to_device(&OPENCVDEMO_CAMERA, opencv_func);
 }
 

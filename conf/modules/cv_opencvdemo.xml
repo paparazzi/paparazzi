@@ -7,6 +7,8 @@
     After this is done the folder sw/ext/opencv_bebop/install has a opencv.xml file.
     The LDFLAGS in this file should be the same as in this conf file.
     </description>
+
+    <define name="OPENCVDEMO_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
   </doc>
   <header>
     <file name="cv_opencvdemo.h"/>

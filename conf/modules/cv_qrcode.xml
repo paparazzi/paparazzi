@@ -7,7 +7,9 @@
 
       A telemetry message with the code content is sent when a QR code is detected when qrscan is called.
     </description>
-  </doc>
+    <define name="QRCODE_CAMERA" value="front_camera|bottom_camera" description="The V4L2 camera device that is used for searching a QR code"/>
+    <define name="QRCODE_DRAW_RECTANGLE" value="TRUE|FALSE" description="Whether or not to draw a rectangle around a found QR code"/>
+ </doc>
 
   <depends>video_thread</depends>
 

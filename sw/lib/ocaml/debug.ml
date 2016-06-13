@@ -22,11 +22,12 @@
  *
  *)
 
+
 let level = ref (try Sys.getenv "PPRZ_DEBUG" with Not_found -> "")
 let log = ref stderr
 let call lev f =
   assert( (* assert permet au compilo de tout virer avec l'option -noassert *)
-    if (String.contains !level '*' || String.contains !level lev)
+    if (Compat.bytes_contains !level '*' || Compat.bytes_contains !level lev)
     then begin
       f !log;
       flush !log
@@ -36,11 +37,11 @@ let call lev f =
 let trace lev s = call lev (fun f -> Printf.fprintf f "%s\n" s)
 
 let xprint = fun s ->
-  let n = String.length s in
-  let a = String.make (3*n) ' ' in
+  let n = Compat.bytes_length s in
+  let a = Compat.bytes_make (3*n) ' ' in
   for i = 0 to n - 1 do
     let x = Printf.sprintf "%02x" (Char.code s.[i]) in
-    a.[3*i] <- x.[0];
-    a.[3*i+1] <- x.[1]
+    Compat.bytes_set a (3*i) x.[0];
+    Compat.bytes_set a (3*i+1) x.[1]
   done;
   a

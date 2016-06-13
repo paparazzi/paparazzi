@@ -38,6 +38,7 @@ module Tm_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
 module Dl_Pprz = PprzLink.Messages(struct let name = "datalink" end)
 module PprzTransport = Protocol.Transport(Pprz_transport.Transport)
 
+
 open Printf
 
 let () =
@@ -80,12 +81,12 @@ let () =
 
   (* The function to be called when data is available *)
   let buffer_size = 256 in
-  let buffer = String.create buffer_size in
+  let buffer = Compat.bytes_create buffer_size in
   let get_datalink_message = fun _ ->
     begin
       try
         let n = input (Unix.in_channel_of_descr fd) buffer 0 buffer_size in
-        let b = String.sub buffer 0 n in
+        let b = Compat.bytes_sub buffer 0 n in
         Debug.trace 'x' (Debug.xprint b);
 
         let use_dl_message = fun payload ->

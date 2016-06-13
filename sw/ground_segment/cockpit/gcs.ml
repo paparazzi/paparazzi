@@ -26,6 +26,7 @@ module G = MapCanvas
 open Printf
 open Latlong
 
+
 let locale = GtkMain.Main.init ~setlocale:false ()
 
 let soi = string_of_int
@@ -377,7 +378,7 @@ let options =
     "-auto_hide_fp", Arg.Unit (fun () -> Live.auto_hide_fp true; hide_fp := true), "Automatically hide flight plans of unselected aircraft";
     "-timestamp", Arg.Set timestamp, "Bind on timestampped telemetry messages";
     "-ac_ids", Arg.String (fun s -> Live.filter_ac_ids s), "comma separated list of AC IDs to show in GCS";
-    "-no_confirm_kill", Arg.Unit (fun () -> confirm_kill := false), "Disable kill confirmation from strip button"; 
+    "-no_confirm_kill", Arg.Unit (fun () -> confirm_kill := false), "Disable kill confirmation from strip button";
   ]
 
 
@@ -498,7 +499,7 @@ let resize = fun (widget:GObj.widget) orientation size ->
 
 let rec pack_widgets = fun orientation xml widgets packing ->
   let size = try Some (ExtXml.int_attrib xml "size") with _ -> None in
-  match String.lowercase (Xml.tag xml) with
+  match Compat.bytes_lowercase (Xml.tag xml) with
       "widget" ->
         let name = ExtXml.attrib xml "name" in
         let widget =
@@ -525,7 +526,7 @@ and pack_list = fun resize orientation xmls widgets packing ->
 
 let rec find_widget_children = fun name xml ->
   let xmls = Xml.children xml in
-  match String.lowercase (Xml.tag xml) with
+  match Compat.bytes_lowercase (Xml.tag xml) with
       "widget" when ExtXml.attrib xml "name" = name -> xmls
     | "rows" | "columns" ->
       let rec loop = function
@@ -539,7 +540,7 @@ let rec find_widget_children = fun name xml ->
 
 let rec replace_widget_children = fun name children xml ->
   let xmls = Xml.children xml
-  and tag = String.lowercase (Xml.tag xml) in
+  and tag = Compat.bytes_lowercase (Xml.tag xml) in
   match tag with
       "widget" ->
         Xml.Element("widget",
@@ -561,7 +562,7 @@ let rec update_widget_size = fun orientation widgets xml ->
     if orientation = `HORIZONTAL then rect.Gtk.width else rect.Gtk.height
   in
   let xmls = Xml.children xml
-  and tag = String.lowercase (Xml.tag xml) in
+  and tag = Compat.bytes_lowercase (Xml.tag xml) in
   match tag with
       "widget" ->
         let name = ExtXml.attrib xml "name" in

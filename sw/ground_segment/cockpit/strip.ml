@@ -23,6 +23,7 @@
  *)
 
 open Printf
+
 module LL=Latlong
 
 let (//) = Filename.concat
@@ -327,7 +328,7 @@ object
 
     (* add a button widget in a vertical box if it belongs to a group (create new group if needed) *)
   method add_widget ?(group="") w =
-    let (vbox, pack) = match String.length group with
+    let (vbox, pack) = match Compat.bytes_length group with
         0 -> (GPack.vbox ~show:true (), true)
       | _ -> try (Hashtbl.find button_tbl group, false) with
           Not_found ->

@@ -22,6 +22,7 @@
  *
  *)
 
+
 open Printf
 open Stdlib
 open Latlong
@@ -239,9 +240,9 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       (*    and theta_ = s.Gps.course *)
           and (phi, theta, psi) = FlightModel.get_attitude !state in
           fg_msg buffer lat lon alt phi theta psi;
-      (**       for i = 0 to String.length buffer - 1 do fprintf stderr "%x " (Char.code buffer.[i]) done; fprintf stderr "\n"; **)
+      (**       for i = 0 to Compat.bytes_length buffer - 1 do fprintf stderr "%x " (Char.code buffer.[i]) done; fprintf stderr "\n"; **)
           try
-            ignore (Unix.sendto socket buffer 0 (String.length buffer) [] sockaddr)
+            ignore (Unix.sendto socket buffer 0 (Compat.bytes_length buffer) [] sockaddr)
           with
               Unix.Unix_error (e,f,a) -> Printf.fprintf stderr "Error sending to FlightGear: %s (%s(%s))\n" (Unix.error_message e) f a; flush stderr
     in
@@ -274,7 +275,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
           let inet_addr = Unix.inet_addr_of_string !fg_client in
           let socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
           (* Unix.connect socket (Unix.ADDR_INET (inet_addr, 5501)); *)
-          let buffer = String.create (fg_sizeof ()) in
+          let buffer = Compat.bytes_create (fg_sizeof ()) in
           let sockaddr = (Unix.ADDR_INET (inet_addr, 5501)) in
           Stdlib.timer ~scale:time_scale fg_period (fg_task socket buffer sockaddr);
           fprintf stdout "Sending to FlightGear at %s\n" !fg_client; flush stdout
