@@ -264,12 +264,12 @@ bool nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide)
    waypoints, using glide airspeed, glide vertical speed and wind */
 static inline bool compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float glide_airspeed, float glide_vspeed)
 {
-  struct FloatVect2 wind = stateGetHorizontalWindspeed_f();
+  struct FloatVect2 *wind = stateGetHorizontalWindspeed_f();
   float td_af_x = WaypointX(_af) - WaypointX(_td);
   float td_af_y = WaypointY(_af) - WaypointY(_td);
   float td_af = sqrtf(td_af_x * td_af_x + td_af_y * td_af_y);
   float td_tod = (WaypointAlt(_af) - WaypointAlt(_td)) / glide_vspeed * (glide_airspeed - sqrtf(
-                   wind.x * wind.x + wind.y * wind.y));
+                   wind->x * wind->x + wind->y * wind->y));
   WaypointX(_tod) = WaypointX(_td) + td_af_x / td_af * td_tod;
   WaypointY(_tod) = WaypointY(_td) + td_af_y / td_af * td_tod;
   WaypointAlt(_tod) = WaypointAlt(_af);

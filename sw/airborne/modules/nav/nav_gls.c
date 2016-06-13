@@ -97,10 +97,10 @@ static inline bool gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8
   WaypointAlt(_tod) = WaypointAlt(_af);
 
   // calculate ground speed on final (target_speed - head wind)
-  struct FloatVect2 wind = stateGetHorizontalWindspeed_f();
-  float wind_norm = sqrtf(wind.x * wind.x + wind.y * wind.y);
-  float wind_on_final = wind_norm * (((td_af_x * wind.y) / (td_af * wind_norm)) +
-                                     ((td_af_y * wind.x) / (td_af * wind_norm)));
+  struct FloatVect2 *wind = stateGetHorizontalWindspeed_f();
+  float wind_norm = sqrtf(wind->x * wind->x + wind->y * wind->y);
+  float wind_on_final = wind_norm * (((td_af_x * wind->y) / (td_af * wind_norm)) +
+                                     ((td_af_y * wind->x) / (td_af * wind_norm)));
   Bound(wind_on_final, -MAX_WIND_ON_FINAL, MAX_WIND_ON_FINAL);
   gs_on_final = target_speed - wind_on_final;
 
@@ -137,8 +137,8 @@ bool gls_start(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td)
 
   init = true;
 
-  //struct FloatVect2 wind = stateGetHorizontalWindspeed_f();
-  //float wind_additional = sqrtf(wind.x*wind.x + wind.y*wind.y); // should be gusts only!
+  //struct FloatVect2* wind = stateGetHorizontalWindspeed_f();
+  //float wind_additional = sqrtf(wind->x*wind->x + wind->y*wind->y); // should be gusts only!
   //Bound(wind_additional, 0, 0.5);
   //target_speed = STALL_AIRSPEED * 1.3 + wind_additional; FIXME
   target_speed =  APP_TARGET_SPEED; //  ok for now!

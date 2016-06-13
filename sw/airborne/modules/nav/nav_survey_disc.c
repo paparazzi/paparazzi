@@ -58,8 +58,8 @@ bool nav_survey_disc_setup(float grid)
 
 bool nav_survey_disc_run(uint8_t center_wp, float radius)
 {
-  struct FloatVect2 wind = stateGetHorizontalWindspeed_f();
-  float wind_dir = atan2(wind.x, wind.y) + M_PI;
+  struct FloatVect2 *wind = stateGetHorizontalWindspeed_f();
+  float wind_dir = atan2(wind->x, wind->y) + M_PI;
 
   /** Not null even if wind_east=wind_north=0 */
   struct FloatVect2 upwind;
