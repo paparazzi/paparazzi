@@ -23,7 +23,7 @@
 #ifndef CAN_H
 #define CAN_H
 
-typedef void(* can_rx_callback_t)(uint32_t id, uint8_t *buf, int len);
+typedef void(* can_rx_callback_t)(uint32_t id, uint8_t *buf, uint8_t len);
 
 void ppz_can_init(can_rx_callback_t callback);
 int ppz_can_transmit(uint32_t id, const uint8_t *buf, uint8_t len);
