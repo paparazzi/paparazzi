@@ -336,16 +336,16 @@ void int32_quat_integrate_fi(struct Int32Quat *q, struct Int64Quat *hr, struct I
 
 void int32_quat_vmult(struct Int32Vect3 *v_out, struct Int32Quat *q, struct Int32Vect3 *v_in)
 {
-  const int32_t _2qi2_m1 = ((q->qi * q->qi) >> (INT32_QUAT_FRAC - 1)) - QUAT1_BFP_OF_REAL(1);
-  const int32_t _2qx2    = (q->qx * q->qx) >> (INT32_QUAT_FRAC - 1);
-  const int32_t _2qy2    = (q->qy * q->qy) >> (INT32_QUAT_FRAC - 1);
-  const int32_t _2qz2    = (q->qz * q->qz) >> (INT32_QUAT_FRAC - 1);
-  const int32_t _2qiqx   = (q->qi * q->qx) >> (INT32_QUAT_FRAC - 1);
-  const int32_t _2qiqy   = (q->qi * q->qy) >> (INT32_QUAT_FRAC - 1);
-  const int32_t _2qiqz   = (q->qi * q->qz) >> (INT32_QUAT_FRAC - 1);
-  const int32_t m01 = ((q->qx * q->qy) >> (INT32_QUAT_FRAC - 1)) + _2qiqz;
-  const int32_t m02 = ((q->qx * q->qz) >> (INT32_QUAT_FRAC - 1)) - _2qiqy;
-  const int32_t m12 = ((q->qy * q->qz) >> (INT32_QUAT_FRAC - 1)) + _2qiqx;
+  const int64_t _2qi2_m1 = ((q->qi * q->qi) >> (INT32_QUAT_FRAC - 1)) - QUAT1_BFP_OF_REAL(1);
+  const int64_t _2qx2    = (q->qx * q->qx) >> (INT32_QUAT_FRAC - 1);
+  const int64_t _2qy2    = (q->qy * q->qy) >> (INT32_QUAT_FRAC - 1);
+  const int64_t _2qz2    = (q->qz * q->qz) >> (INT32_QUAT_FRAC - 1);
+  const int64_t _2qiqx   = (q->qi * q->qx) >> (INT32_QUAT_FRAC - 1);
+  const int64_t _2qiqy   = (q->qi * q->qy) >> (INT32_QUAT_FRAC - 1);
+  const int64_t _2qiqz   = (q->qi * q->qz) >> (INT32_QUAT_FRAC - 1);
+  const int64_t m01 = ((q->qx * q->qy) >> (INT32_QUAT_FRAC - 1)) + _2qiqz;
+  const int64_t m02 = ((q->qx * q->qz) >> (INT32_QUAT_FRAC - 1)) - _2qiqy;
+  const int64_t m12 = ((q->qy * q->qz) >> (INT32_QUAT_FRAC - 1)) + _2qiqx;
   v_out->x = (_2qi2_m1 * v_in->x + _2qx2 * v_in->x + m01 * v_in->y +  m02 * v_in->z) >> INT32_QUAT_FRAC;
   v_out->y = (_2qi2_m1 * v_in->y + m01 * v_in->x - 2 * _2qiqz * v_in->x + _2qy2 * v_in->y + m12 * v_in->z) >>
              INT32_QUAT_FRAC;
