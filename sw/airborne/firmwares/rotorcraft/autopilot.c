@@ -596,25 +596,27 @@ void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw
   }
 
   // handle x,y
+  struct FloatVect2 setpoint = {.x = x, .y = y};
   if (bit_is_set(flags, 5)) { // velocity setpoint
     if (bit_is_set(flags, 1)) { // set velocity in body frame
-      guidance_h_set_guided_body_vel(x, y);
+      guidance_h_set_guided_body_vel(setpoint.x, setpoint.y);
     }
-    guidance_h_set_guided_vel(x, y);
+    guidance_h_set_guided_vel(setpoint.x, setpoint.y);
   } else {  // position setpoint
     if (!bit_is_set(flags, 0) && !bit_is_set(flags, 1)) {   // set absolute position setpoint
-      guidance_h_set_guided_pos(x, y);
+      guidance_h_set_guided_pos(setpoint.x, setpoint.y);
     } else {
       if (stateIsLocalCoordinateValid()) {
         if (bit_is_set(flags, 1)) {  // set position as offset in body frame
           float psi = stateGetNedToBodyEulers_f()->psi;
-          x = stateGetPositionNed_f()->x + cosf(-psi) * x + sinf(-psi) * y;
-          y = stateGetPositionNed_f()->y - sinf(-psi) * x + cosf(-psi) * y;
+
+          setpoint.x = stateGetPositionNed_f()->x + cosf(-psi) * x + sinf(-psi) * y;
+          setpoint.y = stateGetPositionNed_f()->y - sinf(-psi) * x + cosf(-psi) * y;
         } else {                     // set position as offset in NED frame
-          x += stateGetPositionNed_f()->x;
-          y += stateGetPositionNed_f()->y;
+          setpoint.x += stateGetPositionNed_f()->x;
+          setpoint.x += stateGetPositionNed_f()->y;
         }
-        guidance_h_set_guided_pos(x, y);
+        guidance_h_set_guided_pos(setpoint.x, setpoint.y);
       }
     }
   }
