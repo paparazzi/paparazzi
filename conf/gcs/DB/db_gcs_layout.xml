@@ -7,42 +7,55 @@
       <widget NAME="alarms" size="500"/>
     </rows>
     <rows>
-      <widget NAME="aircraft" size="258"/>
-      <widget NAME="altgraph" size="100"/>
-      <widget NAME="map2d" size="372">
-        <papget type="message_field" display="text" x="717" y="45">
-          <property name="scale" value="0.0000019"/>
-          <property name="field" value="ROTORCRAFT_FP:vup"/>
-          <property name="format" value="Climb Rate %.2f m/s"/>
+      <widget NAME="aircraft" size="371"/>
+      <widget NAME="map2d" size="365">
+        <papget type="message_field" display="text" x="675" y="13">
+          <property name="scale" value="0.0139882"/>
+          <property name="field" value="ROTORCRAFT_FP:psi"/>
+          <property name="format" value="Body Heading %.2f deg"/>
           <property name="size" value="15."/>
           <property name="color" value="yellow"/>
         </papget>
-        <papget type="message_field" display="text" x="756" y="315">
-          <property name="scale" value="0.01"/>
-          <property name="field" value="GPS_INT:pacc"/>
-          <property name="format" value="GPS Acc %.2f m"/>
-          <property name="size" value="15."/>
-          <property name="color" value="yellow"/>
-        </papget>
-        <papget type="message_field" display="text" x="644" y="317">
-          <property name="scale" value="1."/>
-          <property name="field" value="GPS_INT:numsv"/>
-          <property name="format" value="GPS SV %.0f"/>
-          <property name="size" value="15."/>
-          <property name="color" value="yellow"/>
-        </papget>
-        <papget type="message_field" display="gauge" x="41" y="291">
-          <property name="scale" value="1."/>
+        <papget type="message_field" display="gauge" x="47" y="270">
+          <property name="scale" value="0.02"/>
           <property name="field" value="ROTORCRAFT_FP:thrust"/>
           <property name="min" value="0."/>
           <property name="max" value="100."/>
           <property name="size" value="50."/>
           <property name="text" value="Thrust"/>
         </papget>
-        <papget type="message_field" display="text" x="675" y="13">
-          <property name="scale" value="0.0139882"/>
-          <property name="field" value="ROTORCRAFT_FP:psi"/>
-          <property name="format" value="Body Heading %.2f deg"/>
+        <papget type="message_field" display="text" x="684" y="99">
+          <property name="scale" value="1."/>
+          <property name="field" value="ROTORCRAFT_NAV_STATUS:dist_wp"/>
+          <property name="format" value="Distance to WP %.2f m"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="674" y="299">
+          <property name="scale" value="1."/>
+          <property name="field" value="GPS_INT:numsv"/>
+          <property name="format" value="GPS SV %.0f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="768" y="298">
+          <property name="scale" value="0.01"/>
+          <property name="field" value="GPS_INT:pacc"/>
+          <property name="format" value="GPS Acc %.2f m"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="739" y="73">
+          <property name="scale" value="0.0039063"/>
+          <property name="field" value="ROTORCRAFT_FP:up"/>
+          <property name="format" value="Altitude %.2f m"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="717" y="45">
+          <property name="scale" value="0.0000019"/>
+          <property name="field" value="ROTORCRAFT_FP:vup"/>
+          <property name="format" value="Climb Rate %.2f m/s"/>
           <property name="size" value="15."/>
           <property name="color" value="yellow"/>
         </papget>
