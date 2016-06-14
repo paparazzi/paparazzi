@@ -118,11 +118,13 @@
  * @{
  */
 #define WINDSPEED_I 0
-#define AIRSPEED_I  1
-#define WINDSPEED_F 2
-#define AIRSPEED_F  3
-#define AOA_F       4
-#define SIDESLIP_F  5
+#define DOWNWIND_I  1
+#define AIRSPEED_I  2
+#define WINDSPEED_F 3
+#define DOWNWIND_F  4
+#define AIRSPEED_F  5
+#define AOA_F       6
+#define SIDESLIP_F  7
 /**@}*/
 
 
@@ -392,10 +394,13 @@ struct State {
   uint8_t wind_air_status;
 
   /**
-   * Horizontal windspeed in north/east.
+   * Horizontal windspeed in north/east/down.
    * Units: m/s in BFP with #INT32_SPEED_FRAC
    */
-  struct Int32Vect2 h_windspeed_i;
+  union {
+    struct Int32Vect3 vect3;
+    struct Int32Vect2 vect2;
+  } windspeed_i;
 
   /**
    * Norm of relative wind speed.
@@ -405,9 +410,12 @@ struct State {
 
   /**
    * Horizontal windspeed.
-   * Units: m/s with x=north, y=east
+   * Units: m/s with x=north, y=east, z=down
    */
-  struct FloatVect2 h_windspeed_f;
+  union {
+    struct FloatVect3 vect3;
+    struct FloatVect2 vect2;
+  } windspeed_f;
 
   /**
    * Norm of relative air speed.
@@ -1192,8 +1200,10 @@ static inline struct FloatRates *stateGetBodyRates_f(void)
 
 /************* declaration of transformation functions ************/
 extern void stateCalcHorizontalWindspeed_i(void);
+extern void stateCalcVerticalWindspeed_i(void);
 extern void stateCalcAirspeed_i(void);
 extern void stateCalcHorizontalWindspeed_f(void);
+extern void stateCalcVerticalWindspeed_f(void);
 extern void stateCalcAirspeed_f(void);
 
 
@@ -1203,6 +1213,12 @@ extern void stateCalcAirspeed_f(void);
 static inline bool stateIsWindspeedValid(void)
 {
   return (state.wind_air_status &= ~((1 << WINDSPEED_I) | (1 << WINDSPEED_F)));
+}
+
+/// test if vertical wind speed is available.
+static inline bool stateIsVerticalWindspeedValid(void)
+{
+  return (state.wind_air_status &= ~((1 << DOWNWIND_I) | (1 << DOWNWIND_F)));
 }
 
 /// test if air speed is available.
@@ -1228,10 +1244,19 @@ static inline bool stateIsSideslipValid(void)
 /// Set horizontal windspeed (int).
 static inline void stateSetHorizontalWindspeed_i(struct Int32Vect2 *h_windspeed)
 {
-  VECT2_COPY(state.h_windspeed_i, *h_windspeed);
-  /* clear bits for all windspeed representations and only set the new one */
+  VECT2_COPY(state.windspeed_i.vect2, *h_windspeed);
+  /* clear bits for all horizontal windspeed representations and only set the new one */
   ClearBit(state.wind_air_status, WINDSPEED_F);
   SetBit(state.wind_air_status, WINDSPEED_I);
+}
+
+/// Set vertical windspeed (int).
+static inline void stateSetVerticalWindspeed_i(int32_t v_windspeed)
+{
+  state.windspeed_i.vect3.z = v_windspeed;
+  /* clear bits for all vertical windspeed representations and only set the new one */
+  ClearBit(state.wind_air_status, DOWNWIND_F);
+  SetBit(state.wind_air_status, DOWNWIND_I);
 }
 
 /// Set airspeed (int).
@@ -1246,10 +1271,19 @@ static inline void stateSetAirspeed_i(int32_t airspeed)
 /// Set horizontal windspeed (float).
 static inline void stateSetHorizontalWindspeed_f(struct FloatVect2 *h_windspeed)
 {
-  VECT2_COPY(state.h_windspeed_f, *h_windspeed);
-  /* clear bits for all windspeed representations and only set the new one */
+  VECT2_COPY(state.windspeed_f.vect2, *h_windspeed);
+  /* clear bits for all horizontal windspeed representations and only set the new one */
   ClearBit(state.wind_air_status, WINDSPEED_I);
   SetBit(state.wind_air_status, WINDSPEED_F);
+}
+
+/// Set vertical windspeed (float).
+static inline void stateSetVerticalWindspeed_f(float v_windspeed)
+{
+  state.windspeed_f.vect3.z = v_windspeed;
+  /* clear bits for all vertical windspeed representations and only set the new one */
+  ClearBit(state.wind_air_status, DOWNWIND_I);
+  SetBit(state.wind_air_status, DOWNWIND_F);
 }
 
 /// Set airspeed (float).
@@ -1287,7 +1321,28 @@ static inline struct Int32Vect2 *stateGetHorizontalWindspeed_i(void)
   if (!bit_is_set(state.wind_air_status, WINDSPEED_I)) {
     stateCalcHorizontalWindspeed_i();
   }
-  return &state.h_windspeed_i;
+  return &state.windspeed_i.vect2;
+}
+
+/// Get vertical windspeed (int).
+static inline float stateGetVerticalWindspeed_i(void)
+{
+  if (!bit_is_set(state.wind_air_status, DOWNWIND_I)) {
+    stateCalcVerticalWindspeed_i();
+  }
+  return state.windspeed_i.vect3.z;
+}
+
+/// Get windspeed (int).
+static inline struct Int32Vect3 *stateGetWindspeed_i(void)
+{
+  if (!bit_is_set(state.wind_air_status, WINDSPEED_I)) {
+    stateCalcHorizontalWindspeed_i();
+  }
+  if (!bit_is_set(state.wind_air_status, DOWNWIND_I)) {
+    stateCalcVerticalWindspeed_i();
+  }
+  return &state.windspeed_i.vect3;
 }
 
 /// Get airspeed (int).
@@ -1305,7 +1360,28 @@ static inline struct FloatVect2 *stateGetHorizontalWindspeed_f(void)
   if (!bit_is_set(state.wind_air_status, WINDSPEED_F)) {
     stateCalcHorizontalWindspeed_f();
   }
-  return &state.h_windspeed_f;
+  return &state.windspeed_f.vect2;
+}
+
+/// Get vertical windspeed (float).
+static inline float stateGetVerticalWindspeed_f(void)
+{
+  if (!bit_is_set(state.wind_air_status, DOWNWIND_F)) {
+    stateCalcVerticalWindspeed_f();
+  }
+  return state.windspeed_f.vect3.z;
+}
+
+/// Get windspeed (float).
+static inline struct FloatVect3 *stateGetWindspeed_f(void)
+{
+  if (!bit_is_set(state.wind_air_status, WINDSPEED_F)) {
+    stateCalcHorizontalWindspeed_f();
+  }
+  if (!bit_is_set(state.wind_air_status, DOWNWIND_F)) {
+    stateCalcVerticalWindspeed_f();
+  }
+  return &state.windspeed_f.vect3;
 }
 
 /// Get airspeed (float).

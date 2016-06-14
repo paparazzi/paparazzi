@@ -731,7 +731,8 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
         and wind_north = sprintf "%.1f" (-. sin a *. w)
         and airspeed = sprintf "%.1f" ac.airspeed in
 
-        let msg_items = ["WIND_INFO"; ac_id; "42"; wind_east; wind_north;airspeed] in
+        (* only horizontal wind and airspeed are updated, so bitmask is 0b0000101 = 5 *)
+        let msg_items = ["WIND_INFO"; ac_id; "5"; wind_east; wind_north; "0.0"; airspeed] in
         let value = Compat.bytes_concat ";" msg_items in
         let vs = ["ac_id", PprzLink.String ac_id; "message", PprzLink.String value] in
         Ground_Pprz.message_send "dl" "RAW_DATALINK" vs;

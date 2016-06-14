@@ -1124,11 +1124,24 @@ void stateCalcHorizontalWindspeed_i(void)
   }
 
   if (bit_is_set(state.wind_air_status, WINDSPEED_F)) {
-    state.h_windspeed_i.x = SPEED_BFP_OF_REAL(state.h_windspeed_f.x);
-    state.h_windspeed_i.y = SPEED_BFP_OF_REAL(state.h_windspeed_f.y);
+    state.windspeed_i.vect2.x = SPEED_BFP_OF_REAL(state.windspeed_f.vect2.x);
+    state.windspeed_i.vect2.y = SPEED_BFP_OF_REAL(state.windspeed_f.vect2.y);
   }
   /* set bit to indicate this representation is computed */
-  SetBit(state.rate_status, WINDSPEED_I);
+  SetBit(state.wind_air_status , WINDSPEED_I);
+}
+
+void stateCalcVerticalWindspeed_i(void)
+{
+  if (bit_is_set(state.wind_air_status, DOWNWIND_I)) {
+    return;
+  }
+
+  if (bit_is_set(state.wind_air_status, DOWNWIND_F)) {
+    state.windspeed_i.vect3.z = SPEED_BFP_OF_REAL(state.windspeed_f.vect3.z);
+  }
+  /* set bit to indicate this representation is computed */
+  SetBit(state.wind_air_status, DOWNWIND_I);
 }
 
 void stateCalcAirspeed_i(void)
@@ -1151,11 +1164,24 @@ void stateCalcHorizontalWindspeed_f(void)
   }
 
   if (bit_is_set(state.wind_air_status, WINDSPEED_I)) {
-    state.h_windspeed_f.x = SPEED_FLOAT_OF_BFP(state.h_windspeed_i.x);
-    state.h_windspeed_f.x = SPEED_FLOAT_OF_BFP(state.h_windspeed_i.y);
+    state.windspeed_f.vect2.x = SPEED_FLOAT_OF_BFP(state.windspeed_i.vect2.x);
+    state.windspeed_f.vect2.x = SPEED_FLOAT_OF_BFP(state.windspeed_i.vect2.y);
   }
   /* set bit to indicate this representation is computed */
-  SetBit(state.rate_status, WINDSPEED_F);
+  SetBit(state.wind_air_status, WINDSPEED_F);
+}
+
+void stateCalcVerticalWindspeed_f(void)
+{
+  if (bit_is_set(state.wind_air_status, DOWNWIND_F)) {
+    return;
+  }
+
+  if (bit_is_set(state.wind_air_status, DOWNWIND_I)) {
+    state.windspeed_f.vect3.z = SPEED_FLOAT_OF_BFP(state.windspeed_i.vect3.z);
+  }
+  /* set bit to indicate this representation is computed */
+  SetBit(state.wind_air_status, DOWNWIND_F);
 }
 
 void stateCalcAirspeed_f(void)
