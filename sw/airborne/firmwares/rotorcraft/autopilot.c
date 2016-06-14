@@ -614,7 +614,7 @@ void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw
           setpoint.y = stateGetPositionNed_f()->y - sinf(-psi) * x + cosf(-psi) * y;
         } else {                     // set position as offset in NED frame
           setpoint.x += stateGetPositionNed_f()->x;
-          setpoint.x += stateGetPositionNed_f()->y;
+          setpoint.y += stateGetPositionNed_f()->y;
         }
         guidance_h_set_guided_pos(setpoint.x, setpoint.y);
       }
