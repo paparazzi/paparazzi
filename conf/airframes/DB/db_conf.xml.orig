@@ -5,10 +5,11 @@
    airframe="airframes/DB/db_bebop2_indi.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/DB/db_default_rotorcraft.xml"
-   flight_plan="flight_plans/DB/db_bebop2_outdoors.xml"
+   flight_plan="flight_plans/DB/db_outdoors.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/rotorcraft_speed.xml settings/control/stabilization_indi.xml [settings/control/stabilization_rate.xml] [settings/control/stabilization_att_int.xml] [settings/control/stabilization_att_int_quat.xml] [settings/control/stabilization_att_float_euler.xml]"
    settings_modules="modules/geo_mag.xml modules/air_data.xml"
    gui_color="#0d890debf1c6"
+<<<<<<< HEAD
   />
   <aircraft
    name="mavshot"
@@ -19,6 +20,19 @@
    flight_plan="flight_plans/DB/db_outdoors.xml"
    settings="settings/rotorcraft_basic.xml settings/modules/config_asctec_v2_new.xml"
    settings_modules="modules/geo_mag.xml [modules/gps_ubx_ucenter.xml]"
+   gui_color="#ee1bf3780c03"
+=======
+>>>>>>> 45beecf... Added GCS layout. Changed settings for flight testing
+  />
+  <aircraft
+   name="quadshot"
+   ac_id="52"
+   airframe="airframes/DB/db_quadshot.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/DB/db_default_rotorcraft.xml"
+   flight_plan="flight_plans/DB/db_cyberzoo.xml"
+   settings="settings/rotorcraft_basic.xml settings/modules/config_asctec_v2_new.xml"
+   settings_modules="[modules/gps_ubx_ucenter.xml]"
    gui_color="#ee1bf3780c03"
   />
 </conf>
