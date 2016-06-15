@@ -490,17 +490,21 @@ static void guidance_h_update_reference(void)
   }
 }
 
-// GUIDANCE_H_MAX_POS_ERR_METER sets how much distance the drone tries to overcome in the horizontal loop at the same time
-// Setting this value higher will result in more aggressive position holding
-// Setting this value lower will result in a slower moving drone
+/**
+ * GUIDANCE_H_MAX_POS_ERR_METER sets how much distance the drone tries to overcome in the horizontal loop at the same time
+ * Setting this value higher will result in more aggressive position holding
+ * Setting this value lower will result in a slower moving drone
+ */
 #ifndef GUIDANCE_H_MAX_POS_ERR_METER
 #define GUIDANCE_H_MAX_POS_ERR_METER 16.0
 #endif
 PRINT_CONFIG_VAR(GUIDANCE_H_MAX_POS_ERR_METER)
 
 
-// GUIDANCE_H_MAX_SPEED_ERR_METER sets how fast the drone can move at max when following a velocity setpoint
-// Set this value to the max speed your drone can/may handle
+/**
+ * GUIDANCE_H_MAX_SPEED_ERR_METER sets how fast the drone can move at max when following a velocity setpoint
+ * Set this value to the max speed your drone can/may handle
+ */
 #ifndef GUIDANCE_H_MAX_SPEED_ERR_METER
 #define GUIDANCE_H_MAX_SPEED_ERR_METER 16.0
 #endif
