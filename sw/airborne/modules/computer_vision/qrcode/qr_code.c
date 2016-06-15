@@ -99,9 +99,10 @@ struct image_t *qrscan(struct image_t *img)
       struct point_t from;
       struct point_t to;
 
-      for (cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+      for (cornerIndex = 0; cornerIndex < zbar_symbol_get_loc_size(symbol); cornerIndex++) {
         // Determine where to draw from and to
-        uint8_t nextCorner = (cornerIndex + 1) % 4;
+        uint8_t nextCorner = (cornerIndex + 1) % zbar_symbol_get_loc_size(symbol);
+
         from.x = zbar_symbol_get_loc_x(symbol, cornerIndex);
         from.y = zbar_symbol_get_loc_y(symbol, cornerIndex);
 
@@ -109,7 +110,7 @@ struct image_t *qrscan(struct image_t *img)
         to.y = zbar_symbol_get_loc_y(symbol, nextCorner);
 
         // Draw a line between these two corners
-        image_draw_line(img, &from, &to);
+        image_draw_line(img, &to, &from);
       }
 
     }
