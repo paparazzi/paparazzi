@@ -128,7 +128,7 @@ let module_name = fun xml ->
 exception Subsystem of string
 let get_module = fun m global_targets ->
   match Xml.tag m with
-  | "module" ->
+  | "module" | "autoload" ->
       let name = module_name m in
       let filename =
         let modtype = ExtXml.attrib_or_default m "type" "" in
@@ -158,7 +158,15 @@ let get_module = fun m global_targets ->
       let targets = Or (extra_targets, targets) in
       { name = name; xml = xml; file = file; filename = filename; vpath = vpath;
         param = Xml.children m; targets = targets }
-  | _ -> Xml2h.xml_error "module or load"
+  | _ -> Xml2h.xml_error "module, autoload or load"
+
+(** [get_autoloaded_modules module]
+ * Return a list of modules to be automaticaly added *)
+let get_autoloaded_modules = fun m ->
+  let m = get_module m (Var "") in
+  List.fold_left (fun l t ->
+    if ExtXml.tag_is t "autoload" then (get_module t (Var "") :: l) else l
+  ) [] (Xml.children m.xml)
 
 (** [test_targets target targets]
  * Test if [target] is allowed [targets]
@@ -195,9 +203,10 @@ let rec get_modules_of_airframe = fun ?target xml ->
     | Xml.Element (tag, _attrs, children) when is_module tag ->
         begin try
           let m = get_module xml targets in
+          let al = get_autoloaded_modules xml in
           List.fold_left
             (fun acc xml -> iter_modules targets acc xml)
-            (m :: modules) children
+            (m :: (al @ modules)) children
         with Subsystem file ->
           if subsystem_fallback then modules
           else failwith ("Unkown module " ^ file)
