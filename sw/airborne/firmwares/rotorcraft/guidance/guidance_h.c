@@ -250,6 +250,10 @@ void guidance_h_mode_changed(uint8_t new_mode)
       break;
 
     case GUIDANCE_H_MODE_GUIDED:
+#ifdef GUIDANCE_H_GUIDED_KEEP_POS_ON_SWITCH
+      guidance_h_set_guided_pos(stateGetPositionNed_f()->x, stateGetPositionNed_f()->y);
+#endif
+
     case GUIDANCE_H_MODE_HOVER:
 #if GUIDANCE_INDI
       guidance_indi_enter();
@@ -379,7 +383,7 @@ void guidance_h_run(bool  in_flight)
     case GUIDANCE_H_MODE_HOVER:
       /* set psi command from RC */
       guidance_h.sp.heading = guidance_h.rc_sp.psi;
-      /* fall trough to GUIDED to update ref, run traj and set final attitude setpoint */
+    /* fall trough to GUIDED to update ref, run traj and set final attitude setpoint */
 
     case GUIDANCE_H_MODE_GUIDED:
       /* guidance_h.sp.pos and guidance_h.sp.heading need to be set from external source */
@@ -488,9 +492,19 @@ static void guidance_h_update_reference(void)
     INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
   }
 }
+#ifndef GUIDANCE_H_MAX_POS_ERR_METER
+#define GUIDANCE_H_MAX_POS_ERR_METER 16.0
+#endif
+PRINT_CONFIG_VAR(GUIDANCE_H_MAX_POS_ERR_METER)
 
-#define MAX_POS_ERR   POS_BFP_OF_REAL(16.)
-#define MAX_SPEED_ERR SPEED_BFP_OF_REAL(16.)
+
+#ifndef GUIDANCE_H_MAX_SPEED_ERR_METER
+#define GUIDANCE_H_MAX_SPEED_ERR_METER 16.0
+#endif
+PRINT_CONFIG_VAR(GUIDANCE_H_MAX_SPEED_ERR_METER)
+
+#define MAX_POS_ERR   POS_BFP_OF_REAL(GUIDANCE_H_MAX_POS_ERR_METER)
+#define MAX_SPEED_ERR SPEED_BFP_OF_REAL(GUIDANCE_H_MAX_SPEED_ERR_METER)
 
 #ifndef GUIDANCE_H_THRUST_CMD_FILTER
 #define GUIDANCE_H_THRUST_CMD_FILTER 10
