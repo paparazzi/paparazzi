@@ -51,6 +51,7 @@
     </module>
     -->
     <module name="cv_colorfilter">
+        <define name="COLORFILTER_CAMERA" value="front_camera"/>
     </module>
     <module name="orange_avoider"/>
   </modules>
