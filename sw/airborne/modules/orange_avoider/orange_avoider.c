@@ -15,6 +15,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "state.h"
 #include <time.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 uint8_t safeToGoForwards = false;
@@ -39,7 +40,7 @@ void orange_avoider_periodic()
   // Check the amount of orange. If this is above a threshold
   // you want to turn a certain amount of degrees
   safeToGoForwards = color_count < tresholdColorCount;
-  printf("Checking if this funciton is called %d treshold: %d now: %d \n", color_count, tresholdColorCount,
+  printf("Checking if this function is called %d threshold: %d now: %d \n", color_count, tresholdColorCount,
          safeToGoForwards);
 }
 
