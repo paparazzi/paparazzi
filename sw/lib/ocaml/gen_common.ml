@@ -189,7 +189,7 @@ let rec get_modules_of_airframe = fun ?target xml ->
     end
   in
   (* extract modules from xml tree *)
-  let rec iter_modules = fun targets modules xml ->
+  let rec iter_modules = fun ?(subsystem_fallback=true) targets modules xml ->
     match xml with
     | Xml.PCData _ -> modules
     | Xml.Element (tag, _attrs, children) when is_module tag ->
@@ -198,7 +198,10 @@ let rec get_modules_of_airframe = fun ?target xml ->
           List.fold_left
             (fun acc xml -> iter_modules targets acc xml)
             (m :: modules) children
-        with Subsystem _file -> modules end
+        with Subsystem file ->
+          if subsystem_fallback then modules
+          else failwith ("Unkown module " ^ file)
+        end
     | Xml.Element (tag, _attrs, children) when tag = "firmware" ->
         let name = Xml.attrib xml "name" in
         begin match firmware with
@@ -220,10 +223,10 @@ let rec get_modules_of_airframe = fun ?target xml ->
               (fun acc xml -> iter_modules targets acc xml) modules children
         | _ -> modules end
     | Xml.Element (tag, _attrs, children) ->
-        let targets =
-          if tag = "modules" then targets_of_field xml "" else targets in
+        let (targets, use_fallback) =
+          if tag = "modules" then (targets_of_field xml "", false) else (targets, true) in
         List.fold_left
-          (fun acc xml -> iter_modules targets acc xml) modules children in
+          (fun acc xml -> iter_modules ~subsystem_fallback:use_fallback targets acc xml) modules children in
   let modules = iter_modules (Var "") [] xml in
   let ap_modules =
     try
