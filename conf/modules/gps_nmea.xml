@@ -10,6 +10,8 @@
     <configure name="NMEA_GPS_BAUD" value="B38400" description="UART baud rate"/>
     <configure name="GPS_LED" value="2" description="LED number to indicate fix or none"/>
   </doc>
+  <autoload name="gps_nps"/>
+  <autoload name="gps_sim"/>
   <header>
     <file name="gps.h" dir="subsystems"/>
   </header>
