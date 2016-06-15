@@ -250,10 +250,7 @@ void guidance_h_mode_changed(uint8_t new_mode)
       break;
 
     case GUIDANCE_H_MODE_GUIDED:
-#ifdef GUIDANCE_H_GUIDED_KEEP_POS_ON_SWITCH
-      guidance_h_set_guided_pos(stateGetPositionNed_f()->x, stateGetPositionNed_f()->y);
-#endif
-
+    // Falls through to GUIDANCE_H_MODE_HOVER
     case GUIDANCE_H_MODE_HOVER:
 #if GUIDANCE_INDI
       guidance_indi_enter();
@@ -492,12 +489,18 @@ static void guidance_h_update_reference(void)
     INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
   }
 }
+
+// GUIDANCE_H_MAX_POS_ERR_METER sets how much distance the drone tries to overcome in the horizontal loop at the same time
+// Setting this value higher will result in more aggressive position holding
+// Setting this value lower will result in a slower moving drone
 #ifndef GUIDANCE_H_MAX_POS_ERR_METER
 #define GUIDANCE_H_MAX_POS_ERR_METER 16.0
 #endif
 PRINT_CONFIG_VAR(GUIDANCE_H_MAX_POS_ERR_METER)
 
 
+// GUIDANCE_H_MAX_SPEED_ERR_METER sets how fast the drone can move at max when following a velocity setpoint
+// Set this value to the max speed your drone can/may handle
 #ifndef GUIDANCE_H_MAX_SPEED_ERR_METER
 #define GUIDANCE_H_MAX_SPEED_ERR_METER 16.0
 #endif
