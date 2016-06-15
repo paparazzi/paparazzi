@@ -71,6 +71,8 @@ extern struct GpsMtk gps_mtk;
 extern void gps_mtk_event(void);
 extern void gps_mtk_init(void);
 
+#define gps_mtk_periodic_check() gps_periodic_check(&gps_mtk.state)
+
 #ifdef GPS_CONFIGURE
 extern void gps_configure(void);
 extern void gps_configure_uart(void);

@@ -46,6 +46,8 @@
 extern void gps_ubx_init(void);
 extern void gps_ubx_event(void);
 
+#define gps_ubx_periodic_check() gps_periodic_check(&gps_ubx.state)
+
 #define GPS_UBX_NB_CHANNELS 16
 
 #define GPS_UBX_MAX_PAYLOAD 255

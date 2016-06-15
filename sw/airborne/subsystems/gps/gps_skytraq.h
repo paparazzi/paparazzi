@@ -63,4 +63,6 @@ extern struct GpsSkytraq gps_skytraq;
 extern void gps_skytraq_init(void);
 extern void gps_skytraq_event(void);
 
+#define gps_skytraq_periodic_check() gps_periodic_check(&gps_skytraq.state)
+
 #endif /* GPS_SKYTRAQ_H */

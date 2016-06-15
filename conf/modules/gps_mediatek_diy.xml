@@ -16,7 +16,7 @@
     <file name="gps.h" dir="subsystems"/>
   </header>
   <init fun="gps_mtk_init()"/>
-  <periodic fun="gps_periodic_check(&gps_mtk.state)" freq="1." autorun="TRUE"/>
+  <periodic fun="gps_mtk_periodic_check()" freq="1." autorun="TRUE"/>
   <event fun="gps_mtk_event()"/>
   <makefile target="ap">
     <configure name="MTK_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>

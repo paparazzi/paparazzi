@@ -9,7 +9,8 @@
 #endif
 
 extern void gps_sim_publish(void);
-
 extern void gps_sim_init(void);
+
+#define gps_sim_periodic_check() gps_periodic_check(&gps)
 
 #endif /* GPS_SIM_H */

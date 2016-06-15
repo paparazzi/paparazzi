@@ -19,9 +19,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file gps.c
- *  @brief Device independent GPS code
+/**
+ * @file gps.c
+ * @brief Device independent GPS code.
+ * This provides some general GPS functions and handles the selection of the
+ * currently active GPS (if multiple ones are used).
  *
+ * Each GPS implementation sends a GPS message via ABI for each new measurement,
+ * which can be received by any other part (either from all or only one specific GPS).
+ *
+ * To make it easy to switch to the currently best (or simply the preferred) GPS at runtime,
+ * the #multi_gps_mode can be set to #GPS_MODE_PRIMARY, #GPS_MODE_SECONDARY or #GPS_MODE_AUTO.
+ * This re-sends the GPS message of the "selected" GPS with #GPS_MULTI_ID as sender id.
+ * In the (default) GPS_MODE_AUTO mode, the GPS with the best fix is selected.
+ *
+ * The global #gps struct is also updated from the "selected" GPS
+ * and used to send the normal GPS telemetry messages.
  */
 
 #include "subsystems/abi.h"

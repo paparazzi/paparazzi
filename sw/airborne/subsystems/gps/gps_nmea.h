@@ -26,7 +26,6 @@
  *
 */
 
-
 #ifndef GPS_NMEA_H
 #define GPS_NMEA_H
 
@@ -41,10 +40,6 @@
 #define PRIMARY_GPS GPS_NMEA
 #endif
 
-extern void gps_nmea_init(void);
-extern void gps_nmea_event(void);
-
-
 struct GpsNmea {
   bool msg_available;       ///< flag set to TRUE if a new msg/sentence is available to be parsed
   bool is_configured;       ///< flag set to TRUE if configuration is finished
@@ -58,6 +53,11 @@ struct GpsNmea {
 };
 
 extern struct GpsNmea gps_nmea;
+
+extern void gps_nmea_init(void);
+extern void gps_nmea_event(void);
+
+#define gps_nmea_periodic_check() gps_periodic_check(&gps_nmea.state)
 
 
 /*

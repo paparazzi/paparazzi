@@ -16,7 +16,7 @@
     <file name="gps.h" dir="subsystems"/>
   </header>
   <init fun="gps_ubx_init()"/>
-  <periodic fun="gps_periodic_check(&gps_ubx.state)" freq="1." autorun="TRUE"/>
+  <periodic fun="gps_ubx_periodic_check()" freq="1." autorun="TRUE"/>
   <event fun="gps_ubx_event()"/>
   <makefile target="ap">
     <configure name="UBX_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>

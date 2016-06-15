@@ -41,6 +41,8 @@ extern struct GpsState gps_piksi;
 extern void gps_piksi_event(void);
 extern void gps_piksi_init(void);
 
+#define gps_piksi_periodic_check() gps_periodic_check(&gps_piksi)
+
 /*
  * Reset base station position
  */

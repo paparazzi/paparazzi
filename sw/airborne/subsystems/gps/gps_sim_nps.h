@@ -14,4 +14,6 @@ extern void gps_feed_value();
 
 extern void gps_nps_init();
 
+#define gps_nps_periodic_check() gps_periodic_check(&gps_nps)
+
 #endif /* GPS_SIM_NPS_H */

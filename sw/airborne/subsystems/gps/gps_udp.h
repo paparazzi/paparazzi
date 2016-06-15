@@ -13,4 +13,6 @@ extern struct GpsState gps_udp;
 extern void gps_udp_parse(void);
 extern void gps_udp_init(void);
 
+#define gps_udp_periodic_check() gps_periodic_check(&gps_udp)
+
 #endif /* GPS_UDP_H */

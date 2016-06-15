@@ -59,4 +59,6 @@ extern struct GpsSirf gps_sirf;
 extern void gps_sirf_init(void);
 extern void gps_sirf_event(void);
 
+#define gps_sirf_periodic_check() gps_periodic_check(&gps_sirf.state)
+
 #endif /* GPS_SIRF_H */
