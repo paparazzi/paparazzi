@@ -35,25 +35,16 @@
     <module name="video_thread">
     </module>
     
- <module name="sonar_bebop"/>
+    <module name="sonar_bebop"/>
 
- <module name="cv_opticflow">
-
- <define name="OPTICFLOW_METHOD" value="1"/>
-     <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
-    <define name="CAMERA_ROTATED_180" value="TRUE"/>
+    <module name="cv_opticflow">
+       <define name="OPTICFLOW_METHOD" value="1"/>
+       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
+       <define name="CAMERA_ROTATED_180" value="TRUE"/>
     </module>
-<!--
-<module name="cv_qrcode">
-     <define name="QRCODE_DRAW_RECTANGLE" value="TRUE"/>
-     <define name="QRCODE_CAMERA" value="bottom_camera"/>
-    
+    <module name="video_rtp_stream">
+       <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
     </module>
--->
-   <module name="video_rtp_stream">
-        <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
-    </module>
-
   </modules>
 
   <commands>
@@ -184,13 +175,7 @@
     <define name="PGAIN" value="350"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
-<define name="REF_MAX_SPEED" value="0.2"/>
-<!--
-    <define name="MAX_POS_ERR_METER" value="0.2"/>
-    <define name="MAX_SPEED_ERR_METER" value="0.2"/>
-    <define name="GUIDED_KEEP_POS_ON_SWITCH" value="TRUE"/>
--->
-
+    <define name="REF_MAX_SPEED" value="0.2"/>
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">
