@@ -21,7 +21,6 @@
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode" module="autopilot" values="MANUAL|AUTO1|AUTO2|HOME|NOGPS|FAILSAFE"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle"/>
-      <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps.reset" module="subsystems/gps" handler="Reset" shortname="GPS reset"/>
     </dl_settings>
 
   </dl_settings>

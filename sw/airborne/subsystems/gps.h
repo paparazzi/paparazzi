@@ -153,13 +153,6 @@ static inline bool gps_has_been_good(void)
  */
 extern void gps_periodic_check(struct GpsState *gps_s);
 
-/**
- * GPS Reset
- * @todo this still needs to call gps specific stuff
- */
-#define gps_Reset(_val) {                               \
-  }
-
 
 /*
  * For GPS time synchronizaiton...
