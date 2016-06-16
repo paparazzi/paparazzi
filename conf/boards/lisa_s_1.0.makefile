@@ -57,8 +57,10 @@ else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_01 PA01
   PPM_CONFIG=2
 else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_03 PA03 PA3))
   PPM_CONFIG=3
+else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN), PC_09 PC09 PC9 SUPERBIT_RST))
+  PPM_CONFIG=4
 else
-$(error Unknown RADIO_CONTROL_PPM_PIN, configure it to either PA01, PA03 or PA10)
+$(error Unknown RADIO_CONTROL_PPM_PIN, configure it to either PA01, PA03, PA10 or PC9)
 endif
 
 #

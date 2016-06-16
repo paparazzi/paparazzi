@@ -251,6 +251,19 @@
 #endif
 #define USE_AD_TIM1 1
 
+#elif PPM_CONFIG == 4
+/* Input on PC9 (SUPERBIT_RST) */
+#define USE_PPM_TIM3 1
+#define PPM_CHANNEL         TIM_IC4
+#define PPM_TIMER_INPUT     TIM_IC_IN_TI4
+#define PPM_IRQ             NVIC_TIM3_IRQ
+// Capture/Compare InteruptEnable and InterruptFlag
+#define PPM_CC_IE           TIM_DIER_CC4IE
+#define PPM_CC_IF           TIM_SR_CC4IF
+#define PPM_GPIO_PORT       GPIOC
+#define PPM_GPIO_PIN        GPIO9
+#define PPM_GPIO_AF         AFIO_MAPR_TIM3_REMAP_FULL_REMAP
+
 #else
 #error "Unknown PPM config"
 
