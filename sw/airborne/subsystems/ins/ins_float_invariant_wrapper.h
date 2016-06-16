@@ -29,8 +29,6 @@
 
 #include "subsystems/ins/ins_float_invariant.h"
 
-#define DefaultInsImpl ins_float_invariant
-
-extern void ins_float_invariant_register(void);
+extern void ins_float_invariant_wrapper_init(void);
 
 #endif /* INS_FLOAT_INVARIANT_WRAPPER_H */

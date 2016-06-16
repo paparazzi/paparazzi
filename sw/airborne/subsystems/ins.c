@@ -35,38 +35,6 @@
 
 #include "generated/flight_plan.h"
 
-#ifndef DefaultInsImpl
-#warning "DefaultInsImpl not set!"
-#else
-PRINT_CONFIG_VAR(DefaultInsImpl)
-#endif
-
-#define __DefaultInsRegister(_x) _x ## _register()
-#define _DefaultInsRegister(_x) __DefaultInsRegister(_x)
-#define DefaultInsRegister() _DefaultInsRegister(DefaultInsImpl)
-
-/** Inertial Navigation System state */
-struct Ins {
-  InsInit init;
-};
-
-struct Ins ins;
-
-void ins_register_impl(InsInit init)
-{
-  ins.init = init;
-
-  ins.init();
-}
-
-void ins_init(void)
-{
-  ins.init = NULL;
-
-#ifdef DefaultInsImpl
-  DefaultInsRegister();
-#endif
-}
 
 void ins_init_origin_i_from_flightplan(struct LtpDef_i *ltp_def)
 {
