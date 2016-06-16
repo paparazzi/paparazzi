@@ -39,6 +39,9 @@
 
 #include "v4l2.h"
 
+#include <sys/time.h>
+#include "mcu_periph/sys_time.h"
+
 #define CLEAR(x) memset(&(x), 0, sizeof (x))
 static void *v4l2_capture_thread(void *data);
 
@@ -67,6 +70,8 @@ static void *v4l2_capture_thread(void *data)
 
     // Wait until an image was taken, with a timeout of tv
     int sr = select(dev->fd + 1, &fds, NULL, NULL, &tv);
+    uint32_t now_ts = get_sys_time_usec();
+
     if (sr < 0) {
       // Was interrupted by a signal
       if (EINTR == errno) { continue; }
@@ -92,8 +97,8 @@ static void *v4l2_capture_thread(void *data)
     assert(buf.index < dev->buffers_cnt);
 
     // Copy the timestamp
-    memcpy(&dev->buffers[buf.index].timestamp, &buf.timestamp, sizeof(struct timeval));
-
+    dev->buffers[buf.index].timestamp = buf.timestamp;
+    dev->buffers[buf.index].pprz_timestamp = now_ts;
     // Update the dequeued id
     // We need lock because between setting prev_idx and updating the deq_idx the deq_idx could change
     pthread_mutex_lock(&dev->mutex);
@@ -318,7 +323,8 @@ void v4l2_image_get(struct v4l2_device *dev, struct image_t *img)
   img->buf_idx = img_idx;
   img->buf_size = dev->buffers[img_idx].length;
   img->buf = dev->buffers[img_idx].buf;
-  memcpy(&img->ts, &dev->buffers[img_idx].timestamp, sizeof(struct timeval));
+  img->ts = dev->buffers[img_idx].timestamp;
+  img->pprz_ts =  dev->buffers[img_idx].pprz_timestamp;
 }
 
 /**
@@ -352,7 +358,8 @@ bool v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img)
     img->buf_idx = img_idx;
     img->buf_size = dev->buffers[img_idx].length;
     img->buf = dev->buffers[img_idx].buf;
-    memcpy(&img->ts, &dev->buffers[img_idx].timestamp, sizeof(struct timeval));
+    img->ts = dev->buffers[img_idx].timestamp;
+    img->pprz_ts = dev->buffers[img_idx].pprz_timestamp;
     return true;
   }
 }
