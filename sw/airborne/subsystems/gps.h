@@ -189,7 +189,7 @@ extern uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks);
  * Beware that altitude is initialized to zero but not set to the correct value
  * @param[in] gps_s pointer to the gps structure
  * @param[in] zone set the utm zone in which the position should be computed, 0 to try to get it automatically from lla position
- * @return utm position in float
+ * @return utm position in float, altitude hmsl.
  */
 extern struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone);
 
@@ -198,7 +198,7 @@ extern struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
  * Beware that altitude is initialized to zero but not set to the correct value
  * @param[in] gps_s pointer to the gps structure
  * @param[in] zone set the utm zone in which the position should be computed, 0 to try to get it automatically from lla position
- * @return utm position in fixed point (cm)
+ * @return utm position in fixed point (cm), altitude hmsl (mm).
  */
 extern struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone);
 

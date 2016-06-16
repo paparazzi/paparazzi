@@ -132,9 +132,6 @@ void ins_reset_local_origin(void)
   // get utm pos
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
 
-  // ground_alt
-  utm.alt = gps.hmsl  / 1000.0f;
-
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
 
@@ -230,14 +227,13 @@ void ins_alt_float_update_gps(struct GpsState *gps_s)
   Bound(dt, 0.02, 2)
 #endif
 
-  float falt = gps_s->hmsl / 1000.0f;
   if (ins_altf.reset_alt_ref) {
     ins_altf.reset_alt_ref = false;
-    ins_altf.alt = falt;
+    ins_altf.alt = utm.alt;
     ins_altf.alt_dot = 0.0f;
     alt_kalman_reset();
   } else {
-    alt_kalman(falt, dt);
+    alt_kalman(utm.alt, dt);
     ins_altf.alt_dot = -gps_s->ned_vel.z / 100.0f;
   }
 #endif

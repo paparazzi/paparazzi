@@ -92,9 +92,6 @@ void WEAK ins_reset_local_origin(void)
 #if USE_GPS
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
 
-  // ground_alt
-  utm.alt = gps.hmsl  / 1000.0f;
-
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
 #endif
