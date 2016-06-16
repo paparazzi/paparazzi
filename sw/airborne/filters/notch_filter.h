@@ -54,7 +54,7 @@ static inline void notch_filter_set_sampling_frequency(struct SecondOrderNotchFi
  */
 static inline void notch_filter_set_bandwidth(struct SecondOrderNotchFilter *filter, float bandwidth)
 {
-  float d = exp(-M_PI*bandwidth*filter->Ts);
+  float d = expf(-M_PI*bandwidth*filter->Ts);
   filter->d2 = d*d;
 }
 
@@ -65,7 +65,7 @@ static inline void notch_filter_set_bandwidth(struct SecondOrderNotchFilter *fil
 static inline void notch_filter_set_filter_frequency(struct SecondOrderNotchFilter *filter, float frequency)
 {
   float theta = 2.0*M_PI*frequency*filter->Ts;
-  filter->costheta = cos(theta);
+  filter->costheta = cosf(theta);
 }
 
 /** Notch filter propagate
