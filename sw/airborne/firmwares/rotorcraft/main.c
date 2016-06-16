@@ -198,10 +198,6 @@ STATIC_INLINE void main_init(void)
 
   ins_init();
 
-#if USE_GPS
-  gps_init();
-#endif
-
   autopilot_init();
 
   modules_init();

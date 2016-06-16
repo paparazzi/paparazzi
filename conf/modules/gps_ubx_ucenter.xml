@@ -18,6 +18,7 @@ Warning: you still need to tell the driver, which paparazzi port you use.
             description="Dynamic model used by ublox GPS filter. Default:NAV5_DYN_AIRBORNE_2G"/>
     <define name="USE_GPS_UBX_RXM_RAW" description="Activate raw measurments (only available on U-Blox T versions)"/>
   </doc>
+
   <settings>
     <dl_settings NAME="ublox">
       <dl_settings name="ucenter">
@@ -30,6 +31,9 @@ Warning: you still need to tell the driver, which paparazzi port you use.
       </dl_settings>
     </dl_settings>
   </settings>
+
+  <depends>gps_ublox</depends>
+
   <header>
     <file name="gps_ubx_ucenter.h"/>
   </header>

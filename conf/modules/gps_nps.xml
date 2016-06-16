@@ -8,6 +8,7 @@
       The GPS sensor configuration is done in the header file referenced by NPS_SENSORS_PARAMS.
     </description>
   </doc>
+  <autoload name="gps"/>
   <header>
     <file name="gps.h" dir="subsystems"/>
   </header>

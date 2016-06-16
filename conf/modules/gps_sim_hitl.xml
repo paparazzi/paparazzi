@@ -8,6 +8,7 @@
     </description>
     <configure name="GPS_LED" value="2" description="LED number to indicate fix or none"/>
   </doc>
+  <autoload name="gps"/>
   <autoload name="gps_nps"/>
   <header>
     <file name="gps.h" dir="subsystems"/>

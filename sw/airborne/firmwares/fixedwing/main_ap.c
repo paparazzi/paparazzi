@@ -190,9 +190,6 @@ void init_ap(void)
   stateInit();
 
   /************* Sensors initialization ***************/
-#if USE_GPS
-  gps_init();
-#endif
 
 #if USE_IMU
   imu_init();

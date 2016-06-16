@@ -7,6 +7,7 @@
       For simple fixedwing OCaml simulator. Does not model any GPS inaccuracies/noise.
     </description>
   </doc>
+  <autoload name="gps"/>
   <header>
     <file name="gps.h" dir="subsystems"/>
   </header>
