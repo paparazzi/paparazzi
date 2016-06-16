@@ -246,7 +246,7 @@ void parse_xsens700_msg(void)
           xsens700.gps.lla_pos.alt = XSENS_DATA_Altitude_h(xsens_msg_buf, offset) * 1000.0f;
 
           // Compute geoid (MSL) height
-          float geoid_h = wgs84_ellipsoid_to_geoid(xsens700.lla_f.lat, xsens700.lla_f.lon);
+          float geoid_h = wgs84_ellipsoid_to_geoid_f(xsens700.lla_f.lat, xsens700.lla_f.lon);
           xsens700.gps.hmsl =  xsens700.gps.lla_pos.alt - (geoid_h * 1000.0f);
           SetBit(xsens700.gps.valid_fields, GPS_VALID_HMSL_BIT);
 
