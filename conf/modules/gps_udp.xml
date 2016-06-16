@@ -7,7 +7,6 @@
       Read GPS messages from UDP port 7000.
     </description>
     <define name="GPS_UDP_HOST" value="192.168.1.2" description="host sending GPS messages"/>
-    <configure name="GPS_LED" value="2" description="LED number to indicate fix or none"/>
   </doc>
   <autoload name="gps"/>
   <autoload name="gps_nps"/>
@@ -18,13 +17,9 @@
   <init fun="gps_udp_init()"/>
   <periodic fun="gps_udp_periodic_check()" freq="1." autorun="TRUE"/>
   <makefile target="ap">
-    <configure name="GPS_LED" default="none"/>
 
-    <file name="gps.c" dir="subsystems"/>
     <file name="gps_udp.c" dir="subsystems/gps"/>
 
-    <define name="USE_GPS"/>
-    <define name="GPS_LED" value="$(GPS_LED)" cond="ifneq ($(GPS_LED),none)"/>
     <raw>
       ifdef SECONDARY_GPS
       ifneq (,$(findstring $(SECONDARY_GPS), udp))

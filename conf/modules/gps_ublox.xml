@@ -8,7 +8,6 @@
     </description>
     <configure name="UBX_GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
     <configure name="UBX_GPS_BAUD" value="B38400" description="UART baud rate"/>
-    <configure name="GPS_LED" value="2" description="LED number to indicate fix or none"/>
   </doc>
   <autoload name="gps"/>
   <autoload name="gps_nps"/>
@@ -22,16 +21,12 @@
   <makefile target="ap">
     <configure name="UBX_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
     <configure name="UBX_GPS_BAUD" default="$(GPS_BAUD)"/>
-    <configure name="GPS_LED" default="none"/>
 
-    <file name="gps.c" dir="subsystems"/>
     <file name="gps_ubx.c" dir="subsystems/gps"/>
 
-    <define name="USE_GPS"/>
     <define name="USE_$(UBX_GPS_PORT_UPPER)"/>
     <define name="UBX_GPS_LINK" value="$(UBX_GPS_PORT_LOWER)"/>
     <define name="$(UBX_GPS_PORT_UPPER)_BAUD" value="$(UBX_GPS_BAUD)"/>
-    <define name="GPS_LED" value="$(GPS_LED)" cond="ifneq ($(GPS_LED),none)"/>
     <raw>
       ifdef SECONDARY_GPS
       ifneq (,$(findstring $(SECONDARY_GPS), ublox))

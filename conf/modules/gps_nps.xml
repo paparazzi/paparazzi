@@ -15,9 +15,7 @@
   <init fun="gps_nps_init()"/>
   <periodic fun="gps_nps_periodic_check()" freq="1." autorun="TRUE"/>
   <makefile target="nps">
-    <file name="gps.c" dir="subsystems"/>
     <file name="gps_sim_nps.c" dir="subsystems/gps"/>
-    <define name="USE_GPS"/>
     <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim_nps.h" type="string"/>
   </makefile>
 </module>
