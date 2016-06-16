@@ -29,6 +29,7 @@
 #include "led.h"
 #include "subsystems/settings.h"
 #include "generated/settings.h"
+#include "math/pprz_geodetic_wgs84.h"
 
 #ifndef PRIMARY_GPS
 #error "PRIMARY_GPS not set!"
@@ -348,7 +349,7 @@ void WEAK gps_inject_data(uint8_t packet_id __attribute__((unused)), uint8_t len
 #include "generated/flight_plan.h"
 struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
-  struct UtmCoor_f utm = {.east = 0., .north=0., .alt=0., .zone=zone};
+  struct UtmCoor_f utm = {.east = 0., .north=0., .alt=NAV_MSL0/1000., .zone=zone};
 
   if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
     // A real UTM position is available, use the correct zone
@@ -361,12 +362,15 @@ struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
     /* Recompute UTM coordinates in this zone */
     struct UtmCoor_i utm_i;
     utm_of_lla_i(&utm_i, &gps_s->lla_pos);
-    if (bit_is_set(gps_s->valid_fields, GPS_VALID_HMSL_BIT)) {
-      utm.alt = gps.hmsl/1000.;
-    } else {
-      utm.alt -= NAV_MSL0/1000.;
-    }
     UTM_FLOAT_OF_BFP(utm, utm_i);
+  }
+
+  if (bit_is_set(gps_s->valid_fields, GPS_VALID_HMSL_BIT)) {
+    utm.alt = gps_s->hmsl/1000.;
+  } else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT)) {
+    utm.alt = wgs84_ellipsoid_to_geoid_i(gps_s->lla_pos.lat, gps_s->lla_pos.lon)/1000.;
+  } else {
+    utm.alt -= NAV_MSL0/1000.;
   }
 
   return utm;
@@ -374,7 +378,7 @@ struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 
 struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
-  struct UtmCoor_i utm = {.east = 0, .north=0, .alt=0, .zone=zone};
+  struct UtmCoor_i utm = {.east = 0, .north=0, .alt=NAV_MSL0, .zone=zone};
 
   if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
     // A real UTM position is available, use the correct zone
@@ -386,11 +390,14 @@ struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone)
   else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT)){
     /* Recompute UTM coordinates in this zone */
     utm_of_lla_i(&utm, &gps_s->lla_pos);
-    if (bit_is_set(gps_s->valid_fields, GPS_VALID_HMSL_BIT)) {
-      utm.alt = gps.hmsl;
-    } else {
-      utm.alt -= NAV_MSL0;
-    }
+  }
+
+  if (bit_is_set(gps_s->valid_fields, GPS_VALID_HMSL_BIT)) {
+    utm.alt = gps_s->hmsl;
+  } else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT)) {
+    utm.alt = wgs84_ellipsoid_to_geoid_i(gps_s->lla_pos.lat, gps_s->lla_pos.lon);
+  } else {
+    utm.alt -= NAV_MSL0;
   }
 
   return utm;
