@@ -57,7 +57,7 @@ void cv_add_to_device(struct video_config_t *device, cvFunction func)
   }
 }
 
-void cv_run_device(struct video_config_t *device, struct image_t *img)
+void cv_run_device(struct video_config_t *device, struct image_t *img,FloatEulers imageStartEulers,FloatEulers imageEndEulers)
 {
   // For each function added to a device, run this function with the image that was taken
   struct video_listener *pointing_to = device->pointer_to_first_listener;
