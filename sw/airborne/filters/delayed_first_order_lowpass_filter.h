@@ -32,7 +32,8 @@
 #define DELAYED_FIRST_ORDER_LOWPASS_FILTER_BUFFER_SIZE 20
 #define DELAYED_FIRST_ORDER_LOWPASS_FILTER_FILTER_ALPHA_SHIFT 14
 
-struct delayed_first_order_lowpass_t {
+struct delayed_first_order_lowpass_filter_t {
+  uint16_t sample_frequency;
   uint32_t omega;
   uint8_t delay;
   int32_t alpha;
@@ -50,7 +51,7 @@ struct delayed_first_order_lowpass_t {
  * The actual low-pass filter with delay. Delay is accomplished by internal
  * buffer.
  */
-static inline int32_t delayed_first_order_lowpass_propagate(struct delayed_first_order_lowpass_t *f, int32_t input)
+static inline int32_t delayed_first_order_lowpass_propagate(struct delayed_first_order_lowpass_filter_t *f, int32_t input)
 {
   int32_t prev = f->buffer[f->idx];
   uint8_t next_idx = ++f->idx % DELAYED_FIRST_ORDER_LOWPASS_FILTER_BUFFER_SIZE;
@@ -77,11 +78,11 @@ static inline int32_t delayed_first_order_lowpass_propagate(struct delayed_first
  *
  * Function to change the bandwidth of the filter, can be done in run-time.
  */
-static inline void delayed_first_order_lowpass_set_omega(struct delayed_first_order_lowpass_t *f, uint32_t omega)
+static inline void delayed_first_order_lowpass_set_omega(struct delayed_first_order_lowpass_filter_t *f, uint32_t omega)
 {
   /* alpha = 1 / ( 1 + omega_c * Ts) */
   f->omega = omega;
-  f->alpha = (PERIODIC_FREQUENCY << DELAYED_FIRST_ORDER_LOWPASS_FILTER_FILTER_ALPHA_SHIFT)/(PERIODIC_FREQUENCY + f->omega);
+  f->alpha = (f->sample_frequency << DELAYED_FIRST_ORDER_LOWPASS_FILTER_FILTER_ALPHA_SHIFT)/(f->sample_frequency + f->omega);
 }
 
 /**
@@ -93,7 +94,7 @@ static inline void delayed_first_order_lowpass_set_omega(struct delayed_first_or
  * run-time. It basically changes the offset to the buffer value which is
  * returned on a propagation.
  */
-static inline void delayed_first_order_lowpass_set_delay(struct delayed_first_order_lowpass_t *f, uint8_t delay)
+static inline void delayed_first_order_lowpass_set_delay(struct delayed_first_order_lowpass_filter_t *f, uint8_t delay)
 {
   /* Delay cannot be more than buffer size minus one */
   if (delay >= DELAYED_FIRST_ORDER_LOWPASS_FILTER_BUFFER_SIZE) {
@@ -111,8 +112,10 @@ static inline void delayed_first_order_lowpass_set_delay(struct delayed_first_or
  *
  * Initializes the filter, should be done before using it.
  */
-static inline void delayed_first_order_lowpass_initialize(struct delayed_first_order_lowpass_t *f, uint32_t omega, uint8_t delay, uint16_t max_inc)
+static inline void delayed_first_order_lowpass_initialize(struct delayed_first_order_lowpass_filter_t *f, uint32_t omega, uint8_t delay, uint16_t max_inc, uint16_t sample_frequency)
 {
+  /* Set sample frequency */
+  f->sample_frequency = sample_frequency;
   /* Set delay */
   delayed_first_order_lowpass_set_delay(f, delay);
 
