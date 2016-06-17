@@ -23,9 +23,11 @@
  * @file firmwares/fixedwing/main_chibios.h
  */
 
-#pragma once
+#ifndef MAIN_CHIBIOS_H
+#define MAIN_CHIBIOS_H
 
 #include <ch.h>
 
 extern thread_t *pprzThdPtr;
 
+#endif /* MAIN_CHIBIOS_H */

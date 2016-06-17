@@ -113,12 +113,21 @@ else
 $(TARGET).CFLAGS += -DFBW=1
 endif
 
+#
+# Main
+#
+ifeq ($(RTOS), chibios)
+ ns_srcs += $(SRC_FIRMWARE)/main_chibios.c
+else
 ifneq ($(TARGET), fbw)
 $(TARGET).srcs += $(SRC_FIRMWARE)/main.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot.c
 else
 $(TARGET).srcs += $(SRC_FIRMWARE)/main_fbw.c
-endif
+endif # TARGET == fbw
+endif # RTOS == ChibiOS
+
+
 
 ######################################################################
 ##
@@ -163,6 +172,9 @@ ifeq ($(ARCH), stm32)
 ns_srcs += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif
 
+ifeq ($(ARCH), chibios)
+ns_srcs       += $(SRC_ARCH)/mcu_periph/gpio_arch.c
+endif
 
 #
 # LEDs
