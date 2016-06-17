@@ -31,6 +31,7 @@
 
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
+#include "subsystems/datalink/datalink.h"
 
 struct LtpDef_i ltp_def;
 
@@ -55,7 +56,7 @@ void gps_datalink_init(void)
 }
 
 // Parse the REMOTE_GPS_SMALL datalink packet
-void parse_gps_datalink_small(int16_t heading, uint32_t pos_xyz, uint32_t speed_xyz, uint32_t tow)
+static void parse_gps_datalink_small(int16_t heading, uint32_t pos_xyz, uint32_t speed_xyz, uint32_t tow)
 {
   struct EnuCoor_i enu_pos, enu_speed;
 
@@ -121,9 +122,10 @@ void parse_gps_datalink_small(int16_t heading, uint32_t pos_xyz, uint32_t speed_
 }
 
 /** Parse the REMOTE_GPS datalink packet */
-void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, int32_t ecef_z, int32_t lat, int32_t lon,
-                        int32_t alt,
-                        int32_t hmsl, int32_t ecef_xd, int32_t ecef_yd, int32_t ecef_zd, uint32_t tow, int32_t course)
+static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, int32_t ecef_z,
+                               int32_t lat, int32_t lon, int32_t alt, int32_t hmsl,
+                               int32_t ecef_xd, int32_t ecef_yd, int32_t ecef_zd,
+                               uint32_t tow, int32_t course)
 {
   gps_datalink.lla_pos.lat = lat;
   gps_datalink.lla_pos.lon = lon;
@@ -165,4 +167,34 @@ void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, int32_t e
   gps_datalink.last_3dfix_time = sys_time.nb_sec;
 
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
+}
+
+
+void gps_datalink_parse_REMOTE_GPS(void)
+{
+  if (DL_REMOTE_GPS_SMALL_ac_id(dl_buffer) != AC_ID) { return; } // not for this aircraft
+
+  parse_gps_datalink(DL_REMOTE_GPS_numsv(dl_buffer),
+                     DL_REMOTE_GPS_ecef_x(dl_buffer),
+                     DL_REMOTE_GPS_ecef_y(dl_buffer),
+                     DL_REMOTE_GPS_ecef_z(dl_buffer),
+                     DL_REMOTE_GPS_lat(dl_buffer),
+                     DL_REMOTE_GPS_lon(dl_buffer),
+                     DL_REMOTE_GPS_alt(dl_buffer),
+                     DL_REMOTE_GPS_hmsl(dl_buffer),
+                     DL_REMOTE_GPS_ecef_xd(dl_buffer),
+                     DL_REMOTE_GPS_ecef_yd(dl_buffer),
+                     DL_REMOTE_GPS_ecef_zd(dl_buffer),
+                     DL_REMOTE_GPS_tow(dl_buffer),
+                     DL_REMOTE_GPS_course(dl_buffer));
+}
+
+void gps_datalink_parse_REMOTE_GPS_SMALL(void)
+{
+  if (DL_REMOTE_GPS_SMALL_ac_id(dl_buffer) != AC_ID) { return; } // not for this aircraft
+
+  parse_gps_datalink_small(DL_REMOTE_GPS_SMALL_heading(dl_buffer),
+                           DL_REMOTE_GPS_SMALL_pos_xyz(dl_buffer),
+                           DL_REMOTE_GPS_SMALL_speed_xyz(dl_buffer),
+                           DL_REMOTE_GPS_SMALL_tow(dl_buffer));
 }

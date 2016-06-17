@@ -44,9 +44,6 @@
 #if USE_GPS
 #include "subsystems/gps.h"
 #endif
-#if defined GPS_DATALINK
-#include "subsystems/gps/gps_datalink.h"
-#endif
 
 #ifdef TRAFFIC_INFO
 #include "subsystems/navigation/traffic_info.h"
@@ -189,42 +186,6 @@ void dl_parse_msg(void)
 #endif // RADIO_CONTROL_TYPE_DATALINK
 
 #if USE_GPS
-#ifdef GPS_DATALINK
-    case DL_REMOTE_GPS_SMALL : {
-      // Check if the GPS is for this AC
-      if (DL_REMOTE_GPS_SMALL_ac_id(dl_buffer) != AC_ID) { break; }
-
-      parse_gps_datalink_small(
-        DL_REMOTE_GPS_SMALL_heading(dl_buffer),
-        DL_REMOTE_GPS_SMALL_pos_xyz(dl_buffer),
-        DL_REMOTE_GPS_SMALL_speed_xyz(dl_buffer),
-        DL_REMOTE_GPS_SMALL_tow(dl_buffer));
-    }
-    break;
-
-    case DL_REMOTE_GPS : {
-      // Check if the GPS is for this AC
-      if (DL_REMOTE_GPS_ac_id(dl_buffer) != AC_ID) { break; }
-
-      // Parse the GPS
-      parse_gps_datalink(
-        DL_REMOTE_GPS_numsv(dl_buffer),
-        DL_REMOTE_GPS_ecef_x(dl_buffer),
-        DL_REMOTE_GPS_ecef_y(dl_buffer),
-        DL_REMOTE_GPS_ecef_z(dl_buffer),
-        DL_REMOTE_GPS_lat(dl_buffer),
-        DL_REMOTE_GPS_lon(dl_buffer),
-        DL_REMOTE_GPS_alt(dl_buffer),
-        DL_REMOTE_GPS_hmsl(dl_buffer),
-        DL_REMOTE_GPS_ecef_xd(dl_buffer),
-        DL_REMOTE_GPS_ecef_yd(dl_buffer),
-        DL_REMOTE_GPS_ecef_zd(dl_buffer),
-        DL_REMOTE_GPS_tow(dl_buffer),
-        DL_REMOTE_GPS_course(dl_buffer));
-    }
-    break;
-#endif // GPS_DATALINK
-
     case DL_GPS_INJECT : {
       // Check if the GPS is for this AC
       if (DL_GPS_INJECT_ac_id(dl_buffer) != AC_ID) { break; }
