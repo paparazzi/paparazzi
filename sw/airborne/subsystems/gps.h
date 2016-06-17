@@ -57,9 +57,9 @@
 #define GPS_NB_CHANNELS 16
 #endif
 
-#define GPS_MODE_PRIMARY 0
-#define GPS_MODE_SECONDARY 1
-#define GPS_MODE_AUTO 2
+#define GPS_MODE_AUTO 0
+#define GPS_MODE_PRIMARY 1
+#define GPS_MODE_SECONDARY 2
 
 #ifndef MULTI_GPS_MODE
 #define MULTI_GPS_MODE GPS_MODE_AUTO
@@ -120,17 +120,6 @@ struct GpsTimeSync {
 /** global GPS state */
 extern struct GpsState gps;
 
-typedef void (*ImplGpsInit)(void);
-typedef void (*ImplGpsEvent)(void);
-
-
-extern void GpsEvent(void);
-
-/**
- * register callbacks and state pointers
- */
-extern void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id);
-
 #ifdef GPS_TYPE_H
 #include GPS_TYPE_H
 #endif
@@ -162,14 +151,7 @@ static inline bool gps_has_been_good(void)
 /** Periodic GPS check.
  * Marks GPS as lost when no GPS message was received for GPS_TIMEOUT seconds
  */
-extern void gps_periodic_check(void);
-
-/**
- * GPS Reset
- * @todo this still needs to call gps specific stuff
- */
-#define gps_Reset(_val) {                               \
-  }
+extern void gps_periodic_check(struct GpsState *gps_s);
 
 
 /*

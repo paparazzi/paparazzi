@@ -186,12 +186,3 @@ static void handle_ins_msg(void)
 #endif // USE_GPS_XSENS
 }
 
-#ifdef USE_GPS_XSENS
-/*
- * register callbacks & structs
- */
-void gps_xsens_register(void)
-{
-  gps_register_impl(gps_xsens_init, NULL, GPS_XSENS_ID);
-}
-#endif

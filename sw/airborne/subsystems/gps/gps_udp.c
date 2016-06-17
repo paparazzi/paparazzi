@@ -37,6 +37,8 @@
 unsigned char gps_udp_read_buffer[256];
 struct FmsNetwork *gps_network = NULL;
 
+struct GpsState gps_udp;
+
 void gps_udp_init(void)
 {
   gps_udp.fix = GPS_FIX_NONE;
@@ -92,12 +94,4 @@ void gps_udp_parse(void)
     }
     memset(&gps_udp_read_buffer[0], 0, sizeof(gps_udp_read_buffer));
   }
-}
-
-/*
- * register callbacks & structs
- */
-void gps_udp_register(void)
-{
-  gps_register_impl(gps_udp_init, gps_udp_parse, GPS_UDP_ID);
 }

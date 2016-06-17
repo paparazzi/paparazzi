@@ -40,9 +40,8 @@
 extern void ins_vectornav_register(void);
 
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS gps_vectornav
+#define PRIMARY_GPS GPS_VECTORNAV
 #endif
 extern void gps_vectornav_init(void);
-extern void gps_vectornav_register(void);
 
 #endif /* INS_VECTORNAV_WRAPPER_H */

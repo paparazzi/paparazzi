@@ -95,10 +95,3 @@ void gps_sim_hitl_event(void)
   }
 }
 
-/*
- * register callbacks & structs
- */
-void gps_sim_hitl_register(void)
-{
-  gps_register_impl(gps_sim_hitl_init, gps_sim_hitl_event, GPS_SIM_ID);
-}

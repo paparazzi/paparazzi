@@ -201,7 +201,7 @@ void ins_alt_float_update_baro(float pressure __attribute__((unused)))
 #endif
 
 
-void ins_alt_float_update_gps(struct GpsState *gps_s)
+void ins_alt_float_update_gps(struct GpsState *gps_s __attribute__((unused)))
 {
 #if USE_GPS
   if (gps_s->fix < GPS_FIX_3D) {

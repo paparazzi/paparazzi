@@ -561,11 +561,3 @@ static bool nmea_parse_GSV(void)
   /* indicate that msg was valid and gps_nmea.state updated */
   return true;
 }
-
-  /*
- * register callbacks & structs
- */
-void gps_nmea_register(void)
-{
-  gps_register_impl(gps_nmea_init, gps_nmea_event, GPS_NMEA_ID);
-}

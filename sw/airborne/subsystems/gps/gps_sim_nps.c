@@ -91,11 +91,3 @@ void gps_nps_init(void)
 {
   gps_has_fix = true;
 }
-
-/*
- * register callbacks & structs
- */
-void gps_nps_register(void)
-{
-  gps_register_impl(gps_nps_init, NULL, GPS_SIM_ID);
-}

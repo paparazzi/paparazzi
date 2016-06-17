@@ -33,7 +33,7 @@
 #include "subsystems/gps.h"
 
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS gps_sirf
+#define PRIMARY_GPS GPS_SIRF
 #endif
 
 #define SIRF_GPS_NB_CHANNELS 16
@@ -58,7 +58,7 @@ extern struct GpsSirf gps_sirf;
 
 extern void gps_sirf_init(void);
 extern void gps_sirf_event(void);
-extern void gps_sirf_register(void);
 
+#define gps_sirf_periodic_check() gps_periodic_check(&gps_sirf.state)
 
 #endif /* GPS_SIRF_H */

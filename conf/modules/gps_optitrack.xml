@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gps_optitrack">
+  <doc>
+    <description>
+      Optitrack used as indoor GPS.
+      Uses the gps_datalink implementation, but additionally sets some other defines.
+      Optitrack can determine the heading of a vehicle, but GPS doesn't contain heading.
+      So as a hack optitrack sends the heading in the GPS course field.
+    </description>
+  </doc>
+  <autoload name="gps"/>
+  <autoload name="gps_datalink"/>
+  <autoload name="gps_nps"/>
+  <autoload name="gps_sim"/>
+  <makefile target="ap">
+    <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+  </makefile>
+</module>
+

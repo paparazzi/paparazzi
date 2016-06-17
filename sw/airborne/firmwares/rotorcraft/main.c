@@ -198,10 +198,6 @@ STATIC_INLINE void main_init(void)
 
   ins_init();
 
-#if USE_GPS
-  gps_init();
-#endif
-
   autopilot_init();
 
   modules_init();
@@ -340,7 +336,6 @@ STATIC_INLINE void failsafe_check(void)
 #endif
 
 #if USE_GPS
-  gps_periodic_check();
   if (autopilot_mode == AP_MODE_NAV &&
       autopilot_motors_on &&
 #if NO_GPS_LOST_WITH_RC_VALID
@@ -381,10 +376,6 @@ STATIC_INLINE void main_event(void)
 
 #if USE_BARO_BOARD
   BaroEvent();
-#endif
-
-#if USE_GPS
-  GpsEvent();
 #endif
 
 #if FAILSAFE_GROUND_DETECT || KILL_ON_GROUND_DETECT

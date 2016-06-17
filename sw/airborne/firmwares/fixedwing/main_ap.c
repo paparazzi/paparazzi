@@ -190,9 +190,6 @@ void init_ap(void)
   stateInit();
 
   /************* Sensors initialization ***************/
-#if USE_GPS
-  gps_init();
-#endif
 
 #if USE_IMU
   imu_init();
@@ -638,10 +635,6 @@ void sensors_task(void)
   update_ahrs_from_sim();
 #endif
 
-#if USE_GPS
-  gps_periodic_check();
-#endif
-
   //FIXME: temporary hack, remove me
 #ifdef InsPeriodic
   InsPeriodic();
@@ -718,10 +711,6 @@ void event_task_ap(void)
   TODO("calling InsEvent, remove me..")
   InsEvent();
 #endif
-
-#if USE_GPS
-  GpsEvent();
-#endif /* USE_GPS */
 
 #if USE_BARO_BOARD
   BaroEvent();

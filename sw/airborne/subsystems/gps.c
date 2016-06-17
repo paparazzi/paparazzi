@@ -19,9 +19,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file gps.c
- *  @brief Device independent GPS code
+/**
+ * @file gps.c
+ * @brief Device independent GPS code.
+ * This provides some general GPS functions and handles the selection of the
+ * currently active GPS (if multiple ones are used).
  *
+ * Each GPS implementation sends a GPS message via ABI for each new measurement,
+ * which can be received by any other part (either from all or only one specific GPS).
+ *
+ * To make it easy to switch to the currently best (or simply the preferred) GPS at runtime,
+ * the #multi_gps_mode can be set to #GPS_MODE_PRIMARY, #GPS_MODE_SECONDARY or #GPS_MODE_AUTO.
+ * This re-sends the GPS message of the "selected" GPS with #GPS_MULTI_ID as sender id.
+ * In the (default) GPS_MODE_AUTO mode, the GPS with the best fix is selected.
+ *
+ * The global #gps struct is also updated from the "selected" GPS
+ * and used to send the normal GPS telemetry messages.
  */
 
 #include "subsystems/abi.h"
@@ -40,19 +53,11 @@ PRINT_CONFIG_VAR(PRIMARY_GPS)
 PRINT_CONFIG_VAR(SECONDARY_GPS)
 #endif
 
-#define __RegisterGps(_x) _x ## _register()
-#define _RegisterGps(_x) __RegisterGps(_x)
-#define RegisterGps(_x) _RegisterGps(_x)
+/* expand GpsId(PRIMARY_GPS) to e.g. GPS_UBX_ID */
+#define __GpsId(_x) _x ## _ID
+#define _GpsId(_x) __GpsId(_x)
+#define GpsId(_x) _GpsId(_x)
 
-/** maximum number of GPS implementations that can register */
-#ifdef SECONDARY_GPS
-#define GPS_NB_IMPL 2
-#else
-#define GPS_NB_IMPL 1
-#endif
-
-#define PRIMARY_GPS_INSTANCE 0
-#define SECONDARY_GPS_INSTANCE 1
 
 #ifdef GPS_POWER_GPIO
 #include "mcu_periph/gpio.h"
@@ -75,14 +80,6 @@ static uint8_t current_gps_id = 0;
 
 uint8_t multi_gps_mode;
 
-/* gps structs */
-struct GpsInstance {
-  ImplGpsInit init;
-  ImplGpsEvent event;
-  uint8_t id;
-};
-
-struct GpsInstance GpsInstances[GPS_NB_IMPL];
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -176,10 +173,10 @@ static void send_gps_sol(struct transport_tx *trans, struct link_device *dev)
 }
 #endif
 
-void gps_periodic_check(void)
+void gps_periodic_check(struct GpsState *gps_s)
 {
-  if (sys_time.nb_sec - gps.last_msg_time > GPS_TIMEOUT) {
-    gps.fix = GPS_FIX_NONE;
+  if (sys_time.nb_sec - gps_s->last_msg_time > GPS_TIMEOUT) {
+    gps_s->fix = GPS_FIX_NONE;
   }
 }
 
@@ -188,9 +185,9 @@ static uint8_t gps_multi_switch(struct GpsState *gps_s) {
   static uint32_t time_since_last_gps_switch = 0;
 
   if (multi_gps_mode == GPS_MODE_PRIMARY){
-    return GpsInstances[PRIMARY_GPS_INSTANCE].id;
+    return GpsId(PRIMARY_GPS);
   } else if (multi_gps_mode == GPS_MODE_SECONDARY){
-    return GpsInstances[SECONDARY_GPS_INSTANCE].id;
+    return GpsId(SECONDARY_GPS);
   } else{
     if (gps_s->fix > gps.fix){
       return gps_s->comp_id;
@@ -217,6 +214,7 @@ static void gps_cb(uint8_t sender_id,
                    uint32_t stamp __attribute__((unused)),
                    struct GpsState *gps_s)
 {
+  /* ignore callback from own AbiSendMsgGPS */
   if (sender_id == GPS_MULTI_ID) {
     return;
   }
@@ -238,34 +236,6 @@ static void gps_cb(uint8_t sender_id,
   }
 }
 
-/*
- * handle gps switching and updating gps instances
- */
-void GpsEvent(void) {
-  // run each gps event
-  for (int i = 0 ; i < GPS_NB_IMPL ; i++) {
-    if (GpsInstances[i].event != NULL) {
-      GpsInstances[i].event();
-    }
-  }
-}
-
-/*
- * register gps structs for callback
- */
-void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id)
-{
-  int i;
-  for (i=0; i < GPS_NB_IMPL; i++) {
-    if (GpsInstances[i].init == NULL) {
-      GpsInstances[i].init = init;
-      GpsInstances[i].event = event;
-      GpsInstances[i].id = id;
-      break;
-    }
-  }
-
-}
 
 void gps_init(void)
 {
@@ -289,17 +259,6 @@ void gps_init(void)
 #ifdef GPS_LED
   LED_OFF(GPS_LED);
 #endif
-
-  RegisterGps(PRIMARY_GPS);
-#ifdef SECONDARY_GPS
-  RegisterGps(SECONDARY_GPS);
-#endif
-
-  for (int i=0; i < GPS_NB_IMPL; i++) {
-    if (GpsInstances[i].init != NULL) {
-      GpsInstances[i].init();
-    }
-  }
 
   AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 
