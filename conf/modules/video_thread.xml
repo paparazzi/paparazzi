@@ -9,6 +9,8 @@
 
       - Possibility to save an image(shot) on the internal memory (JPEG, full size, best quality)
     </description>
+
+    <define name="VIDEO_THREAD_NICE_LEVEL" value="5" description="Nice level for each separate video thread"/>
   </doc>
 
   <header>

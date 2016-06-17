@@ -49,10 +49,10 @@
 #include "rt_priority.h"
 
 // Frames Per Seconds
-#ifndef VIDEO_THREAD_FPS
-#define VIDEO_THREAD_FPS 30
+#ifndef VIDEO_THREAD_NICE_LEVEL
+#define VIDEO_THREAD_NICE_LEVEL 5
 #endif
-PRINT_CONFIG_VAR(VIDEO_THREAD_FPS)
+PRINT_CONFIG_VAR(VIDEO_THREAD_NICE_LEVEL)
 
 // The amount of cameras we can have
 #ifndef VIDEO_THREAD_MAX_CAMERAS
@@ -96,7 +96,7 @@ static void *video_thread_function(void *data)
   }
 
   // be nice to the more important stuff
-  set_nice_level(10);
+  set_nice_level(VIDEO_THREAD_NICE_LEVEL);
 
   // Initialize timing
   struct timespec time_now;
