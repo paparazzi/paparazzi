@@ -41,7 +41,6 @@ struct heli_rate_filter_t {
   uint8_t idx;
 };
 
-
 /**
  * @brief heli_rate_filter_initialize
  * @param f Reference to the heli rate filter.
