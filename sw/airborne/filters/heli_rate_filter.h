@@ -42,32 +42,6 @@ struct heli_rate_filter_t {
 };
 
 /**
- * @brief heli_rate_filter_initialize
- * @param f Reference to the heli rate filter.
- * @param omega Filter bandwidth in [rad/s], only positive integer values.
- * @param delay Number of timesteps delay in the signal. Maximum defined by buffer size.
- *
- * Initializes the filter, should be done before using it.
- */
-static inline void heli_rate_filter_initialize(struct heli_rate_filter_t *f, uint32_t omega, uint8_t delay, uint16_t max_inc)
-{
-  /* Set delay */
-  heli_rate_filter_set_delay(f, delay);
-
-  /* Set omega and calculate alpha */
-  heli_rate_filter_set_omega(f, omega);
-
-  /* Set maximum increase per cycle */
-  f->max_inc = max_inc;
-
-  /* Clear the buffer */
-  f->idx = 0;
-  for (uint8_t i = 0; i < HELI_RATE_FILTER_BUFFER_SIZE; i++) {
-    f->buffer[i] = 0;
-  }
-}
-
-/**
  * @brief heli_rate_filter_propagate
  * @param f Reference to the heli rate filter.
  * @param input Value that needs to be filtered.
@@ -126,6 +100,32 @@ static inline void heli_rate_filter_set_delay(struct heli_rate_filter_t *f, uint
     f->delay = HELI_RATE_FILTER_BUFFER_SIZE - 1;
   } else {
     f->delay = delay;
+  }
+}
+
+/**
+ * @brief heli_rate_filter_initialize
+ * @param f Reference to the heli rate filter.
+ * @param omega Filter bandwidth in [rad/s], only positive integer values.
+ * @param delay Number of timesteps delay in the signal. Maximum defined by buffer size.
+ *
+ * Initializes the filter, should be done before using it.
+ */
+static inline void heli_rate_filter_initialize(struct heli_rate_filter_t *f, uint32_t omega, uint8_t delay, uint16_t max_inc)
+{
+  /* Set delay */
+  heli_rate_filter_set_delay(f, delay);
+
+  /* Set omega and calculate alpha */
+  heli_rate_filter_set_omega(f, omega);
+
+  /* Set maximum increase per cycle */
+  f->max_inc = max_inc;
+
+  /* Clear the buffer */
+  f->idx = 0;
+  for (uint8_t i = 0; i < HELI_RATE_FILTER_BUFFER_SIZE; i++) {
+    f->buffer[i] = 0;
   }
 }
 #endif
