@@ -50,8 +50,9 @@ uint16_t rpm_sensor_get_rpm(void)
 {
   uint16_t rpm = 0;
   uint32_t period_us = get_pwm_input_period_in_usec(RPM_PWM_CHANNEL) * RPM_PULSE_PER_RND;
-  if(period_us > 0)
+  if (period_us > 0) {
     rpm = ((uint32_t)1000000 * 60) / period_us;
+  }
 
   return rpm;
 }
