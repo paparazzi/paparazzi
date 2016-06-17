@@ -29,6 +29,6 @@
 #include "math/pprz_algebra_float.h"
 extern void pose_init(void);
 extern void pose_periodic(void);
-extern struct FloatEulers get_pose_at_timestamp(uint32_t timestamp);
+extern struct FloatEulers get_eulers_at_timestamp(uint32_t timestamp);
 #endif
 

@@ -46,7 +46,7 @@ rotationHistoryRingBuffer location_history;
 /**
  * Given a pprz timestamp in used (obtained with get_sys_time_usec) we return the pose in FloatEulers closest to that time.
  */
-struct FloatEulers get_pose_at_timestamp(uint32_t timestamp)
+struct FloatEulers get_eulers_at_timestamp(uint32_t timestamp)
 {
   uint32_t index_history = 0;
   uint32_t closestTimeDiff = abs(timestamp - location_history.ring_data[0].timestamp);
