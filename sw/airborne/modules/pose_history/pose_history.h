@@ -26,8 +26,7 @@
 #ifndef POSE_HISTORY_H
 #define POSE_HISTORY_H
 
-#include "state.h"
-
+#include "math/pprz_algebra_float.h"
 extern void pose_init(void);
 extern void pose_periodic(void);
 extern struct FloatEulers get_pose_at_timestamp(uint32_t timestamp);
