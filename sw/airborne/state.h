@@ -227,6 +227,7 @@ struct State {
    * Defines the origin of the local NorthEastDown coordinate system
    * in UTM coordinates, used as a reference when ned_origin is not
    * initialized.
+   * Altitude is height above MSL.
    * (float version)
    */
   struct UtmCoor_f utm_origin_f;

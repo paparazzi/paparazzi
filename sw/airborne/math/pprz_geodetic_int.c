@@ -393,8 +393,8 @@ void ecef_of_lla_i(struct EcefCoor_i *out, struct LlaCoor_i *in)
 #include "math/pprz_geodetic_utm.h"
 
 /** Convert a LLA to UTM.
- * @param[out] out  UTM in cm and mm hmsl alt
- * @param[in]  in   LLA in degrees*1e7 and mm above ellipsoid
+ * @param[out] utm in cm, alt is directly copied from lla
+ * @param[in]  lla in degrees*1e7, alt in mm
  */
 void utm_of_lla_i(struct UtmCoor_i *utm, struct LlaCoor_i *lla)
 {
@@ -421,10 +421,9 @@ void utm_of_lla_i(struct UtmCoor_i *utm, struct LlaCoor_i *lla)
 #endif
 }
 
-/** Convert a local NED position to ECEF.
- * @param[out] ecef ECEF position in cm
- * @param[in]  def  local coordinate system definition
- * @param[in]  ned  NED position in meter << #INT32_POS_FRAC
+/** Convert a UTM to LLA.
+ * @param[out] lla in degrees*1e7, alt is directly copied from utm
+ * @param[in]  utm in cm, alt in mm
  */
 void lla_of_utm_i(struct LlaCoor_i *lla, struct UtmCoor_i *utm)
 {
